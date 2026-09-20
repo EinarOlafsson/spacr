@@ -190,3 +190,58 @@ engine `announce_run_end` and `stop_sound_preview` both return at once --
 the engine is only ever built by `apply_sound_preferences`, which runs at
 launch and after every Save. `test_a_finishing_run_does_not_import_the_engine_to_stay_silent`
 ends two runs in a fresh interpreter and then reads `sys.modules`.
+
+--------------------------------------------------------------------------------
+
+## 2026-09-19 — part B: the bed tells the backdrop what is playing
+
+The Resonance backdrop (`spacr/qt/resonance.py`,
+`spacr.qt.widgets.ambient.ResonanceEngine`) is driven by the music bed's
+own precomputed envelope and spectrum, at the position the bed is at. This
+module is the only thing that knows when the bed started, so this is where
+the record is made.
+
+**No capture, and that is a design decision rather than an omission.**
+`QSoundEffect` has no playback position to ask for, and reading the
+machine's audio output is not something a scientific tool should be doing
+to somebody's computer. So the audio thread records `time.monotonic()` at
+the start and the loop's length, and the position is arithmetic.
+`test_no_audio_input_is_ever_opened` greps this module, `resonance` and
+`ambient` for `QAudioInput`, `QAudioSource`, `QMediaCaptureSession`,
+`sounddevice` and `pyaudio`.
+
+**The instant recorded is the instant the file is LOADED.**
+`QSoundEffect.play()` on a source that is still loading queues the play
+until it is ready, so `play()` returning is not the sound starting — and a
+twelve-megabyte WAV takes long enough to decode that starting the
+visualiser's clock there would put it visibly behind.
+`_announce_when_loaded` asks `isLoaded()` and connects `loadedChanged`
+when the answer is no. A stand-in effect that has neither is taken at its
+word and announced at once, which is what the tests use.
+
+**The analysis is computed here, before `play()`, not after.** It takes
+63 ms for the 63-second bed and about a third of a second for a
+five-minute file, all on the audio thread; doing it after the play would
+put that delay into the recorded start time.
+
+### A music file of the user's own
+
+`SoundSettings.music` carries a WAV the user chose, and it is BOTH what
+the bed plays and what the backdrop is driven by — there is only ever one
+thing playing, so there is only one path.
+
+Three rules, each with a test:
+
+* a chosen file that has gone missing falls through to the synthesized
+  bed. A bed that is silent because somebody moved a WAV is worse than
+  spaCR's own music playing instead.
+* changing the file builds a NEW effect. A `QSoundEffect` holds its source
+  for its whole life, so a new file cannot be a new URL on the old one.
+* the Preview button plays what the PAGE says, not what the store says.
+  A preview of the saved file when the field shows another one is a
+  preview of the wrong thing; `preview_sound` now takes the path.
+
+`get_sound_music_file` deliberately does NOT check that the file exists:
+it is read on the GUI thread on every settings read, and a `stat` on a
+network home directory is the stall `spacr/qt/path_probe.py` exists for.
+The worker looks for the file on the audio thread.

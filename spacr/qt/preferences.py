@@ -22,6 +22,7 @@ Public API::
         get_cell_variant, set_cell_variant,
         cell_background_path,
         theme_background_path,
+        get_sound_music_file, set_sound_music_file,
         get_ambient_enabled, set_ambient_enabled,
         get_ambient_animation, set_ambient_animation,
         get_ambient_theme, set_ambient_theme,
@@ -90,6 +91,9 @@ Values:
 * ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
+* ``sound/music_file``: str, default ``""``. A WAV of the user's own that
+  the music bed plays instead of the synthesized one, and that the
+  Resonance backdrop is driven by. See :func:`get_sound_music_file`.
 * ``ambient_enabled``: bool, default ``True``. Whether module screens
   paint the animated background at all. Turning it off is a first-class
   choice — see :func:`get_ambient_enabled`. The user-facing control is the
@@ -7233,6 +7237,7 @@ _KEY_SOUND_ENABLED = "sound/enabled"
 _KEY_SOUND_VOLUME = "sound/volume"
 _KEY_SOUND_THEME = "sound/theme"
 _KEY_SOUND_EVENT = "sound/event/{}"
+_KEY_SOUND_MUSIC = "sound/music_file"
 
 #: The master switch. Nothing is imported, constructed or played while off.
 DEFAULT_SOUND_ENABLED = False
@@ -7364,6 +7369,32 @@ def set_sound_event_enabled(event: str, on: bool) -> None:
     settings = _settings()
     settings.setValue(_KEY_SOUND_EVENT.format(event), bool(on))
     settings.sync()
+
+
+def get_sound_music_file() -> str:
+    """A WAV of the user's own to play as the music bed, or ``""``.
+
+    Empty -- the default -- means spaCR's own synthesized bed. The file is
+    NOT checked here: this is called on the GUI thread on every settings
+    read, and ``spacr.qt.sound`` looks for the file on its audio thread,
+    where a network home directory costs nobody a frame.
+
+    :returns: the stored path, or ``""``.
+    """
+    return str(_settings().value(_KEY_SOUND_MUSIC, "") or "").strip()
+
+
+def set_sound_music_file(path) -> str:
+    """Persist the music file the bed plays.
+
+    :param path: a path, or anything empty for spaCR's own music.
+    :returns: the value stored.
+    """
+    value = str(path or "").strip()
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_MUSIC, value)
+    settings.sync()
+    return value
 
 
 def sound_bed_rests() -> bool:

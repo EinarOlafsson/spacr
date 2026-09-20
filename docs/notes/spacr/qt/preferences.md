@@ -1716,3 +1716,16 @@ _KEY_ISSUE_PROMPT_CHOSEN = "ai/issue_prompt_chosen"
 So `set_issue_prompt_mode` now writes a marker beside the value, and a stored `'ask'` WITHOUT that marker reads as the current default. `'never'` and `'always'` are returned as they stand whether marked or not: the superseded default was `'ask'`, so neither of those was ever written on a user's behalf. Every writer -- the setup slides, the Preferences dialog, the AI Console and the installer's consent page -- goes through the setter, so from here on an 'ask' in the store is an answer somebody gave.
 
 Nothing is filed on the strength of this alone. The terms go from 4.1 to 4.2 in the same change, so the profile is asked again, `AppScreen._the_terms_allow_automatic_filing` files nothing until 4.2 is accepted, and the slide that carries the setting is on the page the user accepts them from -- showing 'always', with the switch to change it, before any run can fail.
+
+## 2026-09-19 — `sound/music_file` (item 427, part B)
+
+A WAV of the user's own for the music bed to play instead of the
+synthesized one, and, because there is only ever one thing playing, the
+thing the Resonance backdrop is driven by too. Empty by default.
+
+`get_sound_music_file` deliberately does NOT check that the file is there.
+It is read on the GUI thread on every settings read, and a `stat` on a
+network home directory is exactly the stall `spacr/qt/path_probe.py`
+exists for. `spacr.qt.sound` looks for the file on its audio thread, and a
+chosen file that has gone falls through to spaCR's own bed rather than to
+silence.

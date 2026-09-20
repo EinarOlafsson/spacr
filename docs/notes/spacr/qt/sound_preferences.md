@@ -63,3 +63,22 @@ name is spelled out here rather than imported, for the reason above, and
 `test_a_preview_press_is_not_also_a_click` is what stops the two spellings
 drifting apart: it drives the real dialog with sound on, presses Preview,
 and then presses the switch beside it to show the filter is still awake.
+
+## 2026-09-19 — the Music file row
+
+One row, added last on the page: an editable field and a Browse button.
+Empty — the default — means spaCR's own synthesized bed.
+
+It is a plain editable field rather than a read-only one with a Clear
+button beside it, because clearing is the way back to spaCR's own music
+and a field you can select and delete is one control instead of two.
+Cancelling the file dialog leaves the field alone, which is what somebody
+who opened it to look at a folder expects.
+
+The path is handed to `preview_sound` so the Preview button plays what the
+PAGE says rather than what the store says; previewing the saved file while
+the field shows another one would be a preview of the wrong thing.
+
+Nothing on this page touches the filesystem to validate the path. The
+worker does that on the audio thread, and a file that has gone falls back
+to spaCR's own bed rather than to silence.

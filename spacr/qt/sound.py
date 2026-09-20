@@ -38,6 +38,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
+import wave
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
@@ -81,6 +82,7 @@ __all__ = [
     "shutdown_sound",
     "sound_engine",
     "stop_sound_preview",
+    "wav_seconds",
 ]
 
 LOG = logging.getLogger(__name__)
@@ -145,6 +147,10 @@ class SoundSettings:
     :param run_failed: play a sound when a run stops with an error.
     :param bed: play the looping music bed. Already False here when the
         performance level rests it; see :func:`read_sound_settings`.
+    :param music: a WAV of the user's own to play as the bed instead of
+        the synthesized one. Empty means spaCR's own. It is also what the
+        Resonance backdrop is driven by, because the backdrop follows
+        WHATEVER IS PLAYING and there is only ever one thing.
     """
 
     enabled: bool = False
@@ -155,6 +161,7 @@ class SoundSettings:
     run_finished: bool = True
     run_failed: bool = True
     bed: bool = False
+    music: str = ""
 
     def wants(self, event: str) -> bool:
         """Whether ``event`` should make a sound now.
@@ -215,6 +222,7 @@ def read_sound_settings() -> SoundSettings:
         run_failed=prefs.get_sound_event_enabled("run_failed"),
         bed=(prefs.get_sound_event_enabled("bed")
              and not prefs.sound_bed_rests()),
+        music=prefs.get_sound_music_file(),
     )
 
 
@@ -249,6 +257,26 @@ def _theme(key: str) -> SoundTheme:
     return SOUND_THEMES.get(key) or SOUND_THEMES[DEFAULT_THEME]
 
 
+def wav_seconds(path) -> float:
+    """How long a WAV is, from its header alone.
+
+    The Resonance backdrop needs the loop's length to work out where in it
+    the playback is, and the header is the cheapest true answer -- no
+    samples are read. A file that cannot be opened is reported as zero
+    seconds, which reads downstream as "nothing is playing".
+
+    :param path: the file.
+    :returns: seconds, or 0.0.
+    """
+    try:
+        with wave.open(str(path), "rb") as handle:
+            rate = handle.getframerate()
+            return handle.getnframes() / float(rate or 1)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the length of %s", path, exc_info=True)
+        return 0.0
+
+
 class _AudioWorker(QObject):
     """Owns every sound effect, on the audio thread.
 
@@ -281,6 +309,9 @@ class _AudioWorker(QObject):
         self._factory = effect_factory
         self._root = cache_root
         self._theme_key = ""
+        self._music = ""
+        self._bed_seconds = 0.0
+        self._bed_analysis: Optional[Path] = None
         self._paths: Dict[str, Path] = {}
         self._effects: Dict[str, object] = {}
         self._available = True
@@ -302,8 +333,42 @@ class _AudioWorker(QObject):
             self._paths = {}
             self._theme_key = key
 
+    def _switch_music(self, music: str) -> None:
+        """Change which file the music bed plays, dropping the old effect.
+
+        The bed is the one sound that can come from outside spaCR, and an
+        effect holds its source for its whole life -- so a new file means a
+        new effect, not a new URL on the old one.
+        """
+        music = str(music or "")
+        if music == self._music:
+            return
+        effect = self._effects.pop(BED, None)
+        if effect is not None:
+            self._quietly(effect.stop)
+            self._dispose(effect)
+        self._paths.pop(BED, None)
+        self._music = music
+        self._bed_analysis = None
+        self._bed_seconds = 0.0
+        self._bed_playing = False
+
     def _path(self, name: str) -> Optional[Path]:
-        """The file for ``name``, rendering it first if it is missing."""
+        """The file for ``name``, rendering it first if it is missing.
+
+        A music file the user chose answers for the bed, and a chosen file
+        that has gone missing falls through to the synthesized one: a bed
+        that is silent because somebody moved a WAV is worse than spaCR's
+        own music playing instead.
+        """
+        if name == BED and self._music:
+            chosen = Path(self._music)
+            try:
+                if chosen.is_file():
+                    return chosen
+            except OSError:
+                LOG.debug("could not read the chosen music file",
+                          exc_info=True)
         if name not in self._paths:
             try:
                 ready = ensure_rendered(_theme(self._theme_key), [name],
@@ -390,13 +455,15 @@ class _AudioWorker(QObject):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not play the %s sound", name, exc_info=True)
 
-    @Slot(str, bool, float)
-    def bed(self, theme_key: str, on: bool, gain: float) -> None:
+    @Slot(str, bool, float, str)
+    def bed(self, theme_key: str, on: bool, gain: float,
+            music: str = "") -> None:
         """Start, re-level or stop the looping music bed.
 
         :param theme_key: the sound set.
         :param on: whether the bed should be playing.
         :param gain: its linear gain.
+        :param music: a WAV of the user's own, or empty for spaCR's.
         """
         self._stop_fade()
         if not on:
@@ -404,29 +471,36 @@ class _AudioWorker(QObject):
             if effect is not None:
                 self._quietly(effect.stop)
             self._bed_playing = False
+            self._forget_bed()
             return
         self._switch_theme(theme_key)
+        self._switch_music(music)
         effect = self._effect(BED)
         if effect is None:
             return
         try:
             effect.setVolume(float(gain))
             if not self._bed_playing:
+                self._measure_bed()
                 effect.setLoopCount(LOOP_FOREVER)
                 effect.play()
                 self._bed_playing = True
+                self._announce_when_loaded(effect)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not start the music bed", exc_info=True)
 
-    @Slot(str, float, int)
-    def preview_bed(self, theme_key: str, gain: float, milliseconds: int) -> None:
+    @Slot(str, float, int, str)
+    def preview_bed(self, theme_key: str, gain: float, milliseconds: int,
+                    music: str = "") -> None:
         """Play the music bed for a few seconds, then fade it out.
 
         :param theme_key: the sound set.
         :param gain: linear gain.
         :param milliseconds: how long it plays before the fade begins.
+        :param music: a WAV of the user's own, or empty for spaCR's.
         """
         self._switch_theme(theme_key)
+        self._switch_music(music)
         effect = self._effect(BED)
         if effect is None:
             return
@@ -435,7 +509,9 @@ class _AudioWorker(QObject):
             effect.setVolume(float(gain))
             effect.setLoopCount(LOOP_FOREVER)
             if not self._bed_playing:
+                self._measure_bed()
                 effect.play()
+                self._announce_when_loaded(effect)
             self._bed_playing = True
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not preview the music bed", exc_info=True)
@@ -463,6 +539,7 @@ class _AudioWorker(QObject):
         if self._fade_steps_left <= 0:
             self._quietly(effect.stop)
             self._bed_playing = False
+            self._forget_bed()
             self.bed_faded.emit()
             return
         self._quietly(effect.setVolume,
@@ -470,6 +547,89 @@ class _AudioWorker(QObject):
         if self._fade_timer is not None:
             self._fade_timer.setSingleShot(True)
             self._fade_timer.start(max(1, FADE_MS // FADE_STEPS))
+
+    def _measure_bed(self) -> None:
+        """Work out the loop's length and analyse it for the visualiser.
+
+        Before the bed is played rather than after, because the visualiser
+        is driven by the instant playback STARTS and analysing a
+        five-minute WAV takes a third of a second. Both are cached against
+        the file, so this costs nothing from the second start onward.
+        """
+        path = self._path(BED)
+        if path is None:
+            self._forget_bed()
+            return
+        if self._bed_analysis is not None and self._bed_seconds > 0.0:
+            return
+        from .resonance import ensure_analysis
+        from .sound_synth import sound_cache_root
+
+        outside = bool(self._music) and path == Path(self._music)
+        folder = (self._root or sound_cache_root()) if outside else None
+        self._bed_seconds = wav_seconds(path)
+        self._bed_analysis = ensure_analysis(path, loop=True, out_dir=folder)
+
+    def _announce_when_loaded(self, effect) -> None:
+        """Record that the bed is playing, now or the moment it really is.
+
+        ``QSoundEffect.play()`` on a source that is still loading QUEUES
+        the play until it is ready, so the instant the sound starts is the
+        instant the file becomes loaded and not the instant ``play()``
+        returned -- and a visualiser driven by the wrong instant is a
+        visualiser out of step with the music by however long a twelve
+        megabyte WAV takes to decode. An effect that cannot say whether it
+        is loaded (the stand-ins the tests pass) is taken at its word and
+        announced at once.
+        """
+        loaded = True
+        try:
+            loaded = bool(effect.isLoaded())
+        except Exception:                                    # noqa: BLE001
+            loaded = True
+        if loaded:
+            self._announce_bed()
+            return
+        try:
+            effect.loadedChanged.connect(
+                self._bed_loaded, Qt.ConnectionType.UniqueConnection)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("this effect cannot say when it has loaded",
+                      exc_info=True)
+            self._announce_bed()
+
+    @Slot()
+    def _bed_loaded(self) -> None:
+        """The bed's file finished loading, so this is when it starts."""
+        effect = self._effects.get(BED)
+        if effect is None or not self._bed_playing:
+            return
+        try:
+            if not effect.isLoaded():
+                return
+        except Exception:                                    # noqa: BLE001
+            return
+        self._announce_bed()
+
+    def _announce_bed(self) -> None:
+        """Tell the Resonance backdrop what is playing and when it began."""
+        from .resonance import NowPlaying, set_now_playing
+
+        if self._bed_analysis is None or self._bed_seconds <= 0.0:
+            set_now_playing(None)
+            return
+        set_now_playing(NowPlaying(str(self._bed_analysis),
+                                   time.monotonic(), self._bed_seconds,
+                                   True))
+
+    @staticmethod
+    def _forget_bed() -> None:
+        """Nothing is playing: the backdrop goes back to idling."""
+        import sys
+
+        module = sys.modules.get(f"{__package__}.resonance")
+        if module is not None:
+            module.set_now_playing(None)
 
     def _stop_fade(self) -> None:
         """Cancel a pending fade-out."""
@@ -500,14 +660,22 @@ class _AudioWorker(QObject):
         self._stop_fade()
         effects, self._effects = self._effects, {}
         self._bed_playing = False
+        self._bed_analysis = None
+        self._bed_seconds = 0.0
+        self._forget_bed()
         for effect in effects.values():
             self._quietly(effect.stop)
-            if isinstance(effect, QObject):
-                self._quietly(_delete_now, effect)
-            else:
-                dispose = getattr(effect, "deleteLater", None)
-                if callable(dispose):
-                    self._quietly(dispose)
+            self._dispose(effect)
+
+    def _dispose(self, effect) -> None:
+        """Delete one effect now, on this thread. See :meth:`_drop_effects`
+        for why nothing here is ever ``deleteLater``'d by spaCR itself."""
+        if isinstance(effect, QObject):
+            self._quietly(_delete_now, effect)
+        else:
+            dispose = getattr(effect, "deleteLater", None)
+            if callable(dispose):
+                self._quietly(dispose)
 
     @Slot()
     def release(self) -> None:
@@ -518,6 +686,7 @@ class _AudioWorker(QObject):
         self._drop_effects()
         self._paths = {}
         self._theme_key = ""
+        self._music = ""
 
     @Slot()
     def retire(self) -> None:
@@ -628,8 +797,8 @@ class SoundEngine(QObject):
 
     _ask_prepare = Signal(str, object)
     _ask_play = Signal(str, str, float)
-    _ask_bed = Signal(str, bool, float)
-    _ask_preview_bed = Signal(str, float, int)
+    _ask_bed = Signal(str, bool, float, str)
+    _ask_preview_bed = Signal(str, float, int, str)
     _ask_release = Signal()
 
     #: (theme key, whether Qt Multimedia could build an effect), from the
@@ -734,7 +903,7 @@ class SoundEngine(QObject):
                 names.extend(sound_names(event))
         self._ask_prepare.emit(settings.theme, names)
         self._ask_bed.emit(settings.theme, settings.wants(BED),
-                           settings.gain * BED_LEVEL)
+                           settings.gain * BED_LEVEL, settings.music)
 
     def _sync_filter(self) -> None:
         """Install the input filter exactly while it is needed."""
@@ -762,7 +931,8 @@ class SoundEngine(QObject):
         self._request(self._settings.theme, event, self._settings.gain)
         return True
 
-    def preview(self, event: str, theme_key: str, volume: float) -> bool:
+    def preview(self, event: str, theme_key: str, volume: float,
+                music: str = "") -> bool:
         """Play ``event`` once because the user pressed its Preview button.
 
         Plays whatever the stored switches say: the dialog enables Preview
@@ -771,6 +941,9 @@ class SoundEngine(QObject):
         :param event: any event, the music bed included.
         :param theme_key: the sound set chosen in the dialog.
         :param volume: the dialog's volume slider as a fraction.
+        :param music: the music file named on the page, unsaved. A Preview
+            has to play what the page says and not what the store says, or
+            it is a preview of something else.
         :returns: True when a sound was requested.
         """
         if self._closed:
@@ -778,7 +951,7 @@ class SoundEngine(QObject):
         gain = perceived_gain(volume)
         if event == BED:
             self._ask_preview_bed.emit(theme_key, gain * BED_LEVEL,
-                                       PREVIEW_BED_MS)
+                                       PREVIEW_BED_MS, str(music or ""))
             return True
         self._request(theme_key, event, gain)
         return True
@@ -788,7 +961,8 @@ class SoundEngine(QObject):
         if self._closed:
             return
         self._ask_bed.emit(self._settings.theme, self._settings.wants(BED),
-                           self._settings.gain * BED_LEVEL)
+                           self._settings.gain * BED_LEVEL,
+                           self._settings.music)
 
     def _request(self, theme_key: str, event: str, gain: float) -> None:
         """Ask the worker for the next variant of ``event``'s sound."""
@@ -927,13 +1101,14 @@ def apply_sound_preferences(app=None,
 
 
 def preview_sound(event: str, theme_key: str, volume: float,
-                  app=None) -> bool:
+                  app=None, music: str = "") -> bool:
     """Play one sound for a Preview button, starting the engine if needed.
 
     :param event: any event, the music bed included.
     :param theme_key: the sound set chosen in the dialog.
     :param volume: the dialog's volume slider as a fraction.
     :param app: the application; the running instance when omitted.
+    :param music: the music file named on the page, unsaved.
     :returns: True when a sound was requested.
     """
     engine = _ENGINE
@@ -942,7 +1117,7 @@ def preview_sound(event: str, theme_key: str, volume: float,
         if app is None:
             return False
         engine = _create_engine(app)
-    return engine.preview(event, theme_key, volume)
+    return engine.preview(event, theme_key, volume, music)
 
 
 def stop_sound_preview() -> None:

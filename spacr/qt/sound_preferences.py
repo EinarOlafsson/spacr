@@ -36,7 +36,9 @@ class SoundPage:
     def __init__(self, form, dialog) -> None:
         """Build every row, reading the stored values."""
         from PySide6.QtCore import Qt
-        from PySide6.QtWidgets import QComboBox, QHBoxLayout, QLabel, QSlider, QWidget
+        from PySide6.QtWidgets import (QComboBox, QHBoxLayout, QLabel,
+                                       QLineEdit, QPushButton, QSlider,
+                                       QWidget)
 
         from . import preferences as prefs
         from .i18n import tr
@@ -140,6 +142,26 @@ class SoundPage:
             "Play a few seconds of the music bed at the volume above."))
         form.addRow(tr("Music bed"), row)
 
+        self.music = QLineEdit()
+        self.music.setObjectName("SoundMusicFile")
+        self.music.setPlaceholderText(tr("spaCR's own music"))
+        self.music.setText(prefs.get_sound_music_file())
+        browse = QPushButton(tr("Browse"))
+        browse.setObjectName("SoundMusicFileBrowse")
+        browse.clicked.connect(self._choose_music)
+        self.browse = browse
+        music_row = QWidget()
+        music_layout = QHBoxLayout(music_row)
+        music_layout.setContentsMargins(0, 0, 0, 0)
+        music_layout.addWidget(self.music, 1)
+        music_layout.addWidget(browse)
+        music_row.setToolTip(
+            "A WAV file of your own for the music bed to play instead of "
+            "spaCR's. Leave it empty for spaCR's own music. Nothing is "
+            "uploaded or copied: the file is read from where it is, and it "
+            "is also what the Resonance background moves to.")
+        form.addRow(tr("Music file"), music_row)
+
         self.enabled.toggled.connect(self._follow_the_master)
         self._follow_the_master(self.enabled.isChecked())
         try:
@@ -197,7 +219,7 @@ class SoundPage:
         which is the one sound on this page long enough to outlive the
         switch that started it.
         """
-        for widget in ([self.volume, self.theme]
+        for widget in ([self.volume, self.theme, self.music, self.browse]
                        + list(self.events.values())
                        + list(self.previews.values())):
             widget.setEnabled(bool(on))
@@ -220,13 +242,34 @@ class SoundPage:
         from .sound import stop_sound_preview
         stop_sound_preview()
 
+    def _choose_music(self) -> str:
+        """Ask for a WAV for the music bed and put it in the field.
+
+        Cancelling leaves the field alone, which is what a user who opened
+        the dialog to look at a folder expects; clearing the field by hand
+        is how you go back to spaCR's own music.
+
+        :returns: the path chosen, or ``""``.
+        """
+        from PySide6.QtWidgets import QFileDialog
+
+        from .i18n import tr
+
+        chosen, _filter = QFileDialog.getOpenFileName(
+            self._dialog, tr("Choose music for the bed"),
+            self.music.text().strip(), tr("WAV audio (*.wav)"))
+        if chosen:
+            self.music.setText(str(chosen))
+        return str(chosen or "")
+
     def _preview(self, event: str) -> bool:
         """Play ``event`` with the page's own, unsaved, set and volume."""
         if not self.enabled.isChecked():
             return False
         from .sound import preview_sound
         return preview_sound(event, str(self.theme.currentData() or ""),
-                             self.volume.value() / 100.0)
+                             self.volume.value() / 100.0,
+                             music=self.music.text().strip())
 
     def _closed(self, *_result) -> None:
         """The dialog closed: no preview outlives it."""
@@ -241,6 +284,7 @@ class SoundPage:
         key = self.theme.currentData()
         if key:
             prefs.set_sound_theme(str(key))
+        prefs.set_sound_music_file(self.music.text())
         for event, toggle in self.events.items():
             prefs.set_sound_event_enabled(event, toggle.isChecked())
 
@@ -256,6 +300,7 @@ class SoundPage:
         self.volume.setValue(int(round(prefs.get_sound_volume() * 100)))
         self.theme.setCurrentIndex(
             max(0, self.theme.findData(prefs.get_sound_theme())))
+        self.music.setText(prefs.get_sound_music_file())
         for event, toggle in self.events.items():
             toggle.setChecked(prefs.get_sound_event_enabled(event))
         self._follow_the_master(self.enabled.isChecked())
