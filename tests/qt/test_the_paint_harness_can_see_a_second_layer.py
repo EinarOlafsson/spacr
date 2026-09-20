@@ -138,3 +138,60 @@ def test_the_record_says_what_else_the_machine_was_doing(harness):
 
     if hasattr(os, "getloadavg"):
         assert "load_1m" in environment
+
+
+# ---------------------------------------------------------------------------
+# The magnifier row, added for item 407
+# ---------------------------------------------------------------------------
+#
+# Item 407's WHAT IS LEFT said the harness "was not run with the toggle on",
+# and it could not be: there was no row for it. The magnifier is the one
+# control on Make Masks that puts a segmentation model behind a moving mouse,
+# which is the thing 380 measures. The same rule applies to this row as to
+# every other one here -- test the INSTRUMENT, not the application.
+
+
+def test_the_magnifier_row_measures_both_scopes(harness):
+    """A row per scope, on a real screen with a real field open.
+
+    Small on purpose: what is asserted is that the instrument reports, not
+    how fast this machine is. The numbers themselves belong in a run of the
+    tool, beside the load average that moves them.
+    """
+    rows = harness.measure_magnifier(field_px=192, moves=4)
+
+    assert [row.get("scope") for row in rows] == ["region", "image"], (
+        "the harness did not measure both scopes: " + repr(rows))
+    for row in rows:
+        assert row["measurement"] == "magnifier"
+        assert row["mode"], "the row does not say which model ran"
+        assert row["moves"] == 4
+        assert row["slowest_move_ms"] >= row["median_move_ms"] > 0
+        assert row["first_move_ms"] > 0
+        assert "model_still_running" in row
+
+
+def test_the_magnifier_row_says_what_else_the_machine_was_doing(harness):
+    """A latency is the measurement load moves most, so the load is on the
+    ROW and not only in the record's environment."""
+    import os
+
+    rows = harness.measure_magnifier(field_px=192, moves=2)
+    if hasattr(os, "getloadavg"):
+        assert all("load_1m" in row for row in rows)
+
+
+def test_a_slow_move_reads_as_dropped_frames_in_the_magnifier_row(
+        harness, monkeypatch):
+    """Calibration: the dropped-frame count follows the measurement.
+
+    A row that reported 0 whatever it measured would pass every reading of
+    this harness and mean nothing. Shrinking one frame to a tenth of a
+    millisecond must make every move above it read as dropped.
+    """
+    monkeypatch.setattr(harness, "FRAME_MS", 0.1)
+    rows = harness.measure_magnifier(field_px=192, moves=3)
+
+    assert all(row["frames_dropped_worst_move"] > 0 for row in rows), (
+        "no move read as a dropped frame at a tenth of a millisecond: "
+        + repr(rows))

@@ -371,6 +371,116 @@ def measure_interaction(app_key: str = "mask") -> List[dict]:
     return rows
 
 
+def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
+    """Input latency on Make Masks with the live magnifier on, per scope.
+
+    ITEM 407 ASKED FOR THIS ROW AND IT DID NOT EXIST. 407's own note says
+    the harness "was not run with the toggle on", and the toggle is the one
+    thing on that screen that puts a segmentation model behind a moving
+    mouse. Its tests already prove the model never runs on the GUI thread;
+    what they do not say is what a mouse MOVE costs while it is running,
+    which is the number 380 is about.
+
+    WHOLE IMAGE IS THE HARDER CASE AND IT IS THE POINT. The region mode
+    hands the worker a small crop; Whole image runs the model once over the
+    entire field and the box then draws a slice of those objects on every
+    move, with a busy bar ticking beside it. Both are measured, and the
+    slowest single move is what is reported -- an average hides exactly the
+    hitch a user feels.
+
+    The Otsu mode is used because it needs nothing installed, so this row
+    means the same thing on every machine. A model on a GPU is faster and a
+    Cellpose model on a CPU is far slower; neither changes what a MOVE
+    costs, because neither runs on this thread.
+
+    :param field_px: the side of the synthetic field, in pixels.
+    :param moves: how many mouse moves to time per scope.
+    :returns: one row per scope, plus one for switching the magnifier on.
+    """
+    import tempfile
+
+    import imageio.v2 as imageio
+    import numpy as np
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    app = QApplication.instance() or QApplication([])
+    rows: List[dict] = []
+    with tempfile.TemporaryDirectory(prefix="spacr-perf-magnifier-") as folder:
+        yy, xx = np.mgrid[0:field_px, 0:field_px]
+        field = np.full((field_px, field_px), 1000.0)
+        for cy in range(40, field_px, 80):
+            for cx in range(40, field_px, 80):
+                field[(yy - cy) ** 2 + (xx - cx) ** 2 <= 400] += 3000
+        imageio.imwrite(Path(folder) / "field.tif",
+                        np.clip(field, 0, 65535).astype(np.uint16))
+
+        screen = MakeMasksScreen()
+        screen.resize(1600, 1000)
+        screen.show()
+        if not screen._open_folder(folder):
+            _shut_down(screen, app)
+            return [{"measurement": "magnifier",
+                     "error": "the folder would not open"}]
+        screen._canvas.resize(1200, 900)
+        screen._canvas.refresh()
+        _drain_until_quiet(app)
+
+        for scope in ("region", "image"):
+            box = screen._mag_scope
+            box.setCurrentIndex(box.findData(scope))
+            started = time.perf_counter()
+            screen._btn_magnifier.setChecked(True)
+            app.processEvents()
+            switch_ms = (time.perf_counter() - started) * 1000
+
+            taken = []
+            for step in range(max(1, moves)):
+                where = QPointF(200.0 + step * 12.0, 200.0 + step * 9.0)
+                event = QMouseEvent(QEvent.Type.MouseMove, where, where,
+                                    Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+                at = time.perf_counter()
+                screen._canvas.mouseMoveEvent(event)
+                screen._canvas.repaint()
+                app.processEvents()
+                taken.append((time.perf_counter() - at) * 1000)
+            busy = bool(screen._magnifier._busy)
+            screen._btn_magnifier.setChecked(False)
+            app.processEvents()
+            # THE FIRST MOVE IS REPORTED APART FROM THE REST, for the reason
+            # `timed` gives above: the first thing timed after a widget is
+            # built pays for the build. Here it also pays for the first
+            # import of the segmentation stack on the worker.
+            rest = taken[1:] or taken
+            slowest = max(rest)
+            rows.append({
+                "measurement": "magnifier",
+                "scope": scope,
+                "field_px": field_px,
+                "mode": screen._magnifier.mode,
+                "moves": len(taken),
+                "switch_on_ms": round(switch_ms, 2),
+                "first_move_ms": round(taken[0], 2),
+                "slowest_move_ms": round(slowest, 2),
+                "median_move_ms": round(
+                    sorted(taken)[len(taken) // 2], 2),
+                "frames_dropped_worst_move": max(0, int(slowest // FRAME_MS)),
+                "model_still_running": busy,
+                # ON THE ROW AND NOT ONLY IN THE RECORD'S ENVIRONMENT. This
+                # is a LATENCY, and latency is the measurement on this
+                # machine that load moves most: the same branch measured
+                # 4.8 ms and 15.2 ms a median move at load 5 and load 25.
+                # A reader comparing two rows has to be able to see that
+                # without going back to the file they came from.
+                **_load(),
+            })
+        _shut_down(screen, app)
+    return rows
+
+
 def _shut_down(screen, app) -> None:
     """Close a measured screen without taking the process with it.
 
@@ -400,8 +510,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="how long each backdrop measurement runs")
     parser.add_argument("--screen", default="mask",
                         help="which module screen to measure on")
-    parser.add_argument("--only", choices=("backdrop", "theme", "interaction"),
-                        help="run one measurement instead of all three")
+    parser.add_argument("--only",
+                        choices=("backdrop", "theme", "interaction",
+                                 "magnifier"),
+                        help="run one measurement instead of all four")
+    parser.add_argument("--field-px", type=int, default=1024,
+                        help="the side of the field the magnifier is "
+                             "measured on")
     parser.add_argument("--animation",
                         help="which ambient animation the backdrop paints; "
                              "the shipped default when not given")
@@ -416,6 +531,8 @@ def main(argv: Optional[List[str]] = None) -> int:
         rows.extend(measure_theme_change(args.screen))
     if args.only in (None, "interaction"):
         rows.extend(measure_interaction(args.screen))
+    if args.only in (None, "magnifier"):
+        rows.extend(measure_magnifier(args.field_px))
 
     record = {
         "schema": SCHEMA,
