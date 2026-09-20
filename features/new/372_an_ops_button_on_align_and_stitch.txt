@@ -2,16 +2,19 @@
 AN OPS BUTTON -- NOW ON MASK GENERATION -- OVER CODE ALREADY IN THE REPO
 ================================================================================
 
-Status:    SHIPPED AND RUNNING; THE CODE HALF OF WHAT WAS LEFT IS DONE,
-           2026-09-19. The button, `spacr-run ops`, validate.APP_FUNCTIONS
-           and the OPS API link all reach `spacr.ops_engine.run_ops`, and
-           `spacrops.py` is gone. Tonight closed four of the six items PART
-           14-M's "WHAT IS LEFT" listed, in code and on synthetic fixtures:
-           A4 is a phase of the engine, `ops_reads` is written, the 54
-           strict refusals are explained as far as the data on disk allows
-           and instrumented for the rest, and the five module constants plus
-           the phenotype folder and the guide library are settings. See
-           PART 14-N.
+Status:    SHIPPED AND RUNNING; THE CODE HALF OF WHAT WAS LEFT IS DONE AND
+           REVIEWED, 2026-09-19. The button, `spacr-run ops`,
+           validate.APP_FUNCTIONS and the OPS API link all reach
+           `spacr.ops_engine.run_ops`, and `spacrops.py` is gone. Tonight
+           closed four of the six items PART 14-M's "WHAT IS LEFT" listed,
+           in code and on synthetic fixtures: A4 is a phase of the engine,
+           `ops_reads` is written, the 54 strict refusals are explained as
+           far as the data on disk allows and instrumented for the rest,
+           and the five module constants plus the phenotype folder and the
+           guide library are settings. See PART 14-N, and PART 14-O for the
+           five defects the review of it found -- three of them real bugs,
+           all three found by reading the plate rather than the branch, and
+           all five fixed.
 
            WHAT IS NOT DONE IS THE MEASURING. Wells B1-B3 and the rest of
            the plate are still unrun, and every number below for A4, the
@@ -5383,11 +5386,22 @@ PART 14-N -- THE CODE HALF OF "WHAT IS LEFT". 2026-09-19.
 The maintainer, through the question prompt this morning: "work every open
 item on features/new and features/future to completion"; and for this item,
 "Code now, GPU runs later". So everything below is code and synthetic
-fixtures. NO PLATE DATA WAS READ. /nas_mnt on this machine is a dead mount --
-`df` answers "No such device" and `ls` hangs -- so scratchpad/ops372m, the
-A1 and A2 databases and their ops_report.json files are not reachable from
-here. Where a number below is measured it is measured on a fixture, and the
-section says so.
+fixtures.
+
+NOTHING WAS SEGMENTED OR DECODED ON THE PLATE. Where a number below is
+measured it is measured on a fixture, and the section says so. TWO
+EXCEPTIONS, both read-only, no stitch and no GPU: /nas_mnt was a dead mount
+for most of this work -- `df` answered "No such device" and `ls` hung, and
+scratchpad/ops372m and the A1 and A2 databases are on the other machine and
+are still not reachable -- but it came back at 21:45, and section 1 below
+reads the file names, the tile shapes and the array axes off
+screenA/20200202_6W-LaC024A. That check found the defect this section leads
+with. PART 14-O reads three more files the same way.
+
+(This paragraph opened "NO PLATE DATA WAS READ" until PART 14-O: it was
+written before the mount came back and was never corrected, so the section
+contradicted itself ten lines later, at the one place a reader of a
+5,700-line file is most likely to stop.)
 
 Four of PART 14-M's six open items are now code. The two that are not are
 the two that need the plate.
@@ -5441,6 +5455,10 @@ CHECKED AGAINST THE PLATE ITSELF, read-only, no stitch and no GPU
     channels per site        DAPI-GFP (a two-plane stack), A594, AF750
     DAPI                     plane 0 of the DAPI-GFP stack, resolved by
                              `_plane_sources` with no special case
+                             -- HALF THE STORY, see PART 14-O section 3:
+                             the stack is ZCYX (4, 2, 2960, 2960), so
+                             plane 0 was right only because DAPI is also
+                             z 0, and plane 1 gave z 1's DAPI, not GFP
     phenotype tile           2960 x 2960        sequencing tile 1480 x 1480
     magnifications           20X and 10X
     SCALE                    (1480 x 10) / (2960 x 20) = 0.25 exactly
@@ -5729,3 +5747,201 @@ added to the end-to-end run (reads and refusals), 2 added to the settings
 ratchet. Four public-API pins and one packaging pin were red on
 origin/nightly before this branch and remain red; the diff adds two
 callables to two of them.
+
+
+================================================================================
+PART 14-O -- WHAT THE REVIEW OF 14-N FOUND. 2026-09-19.
+================================================================================
+
+Five defects against PART 14-N's code, three of them "should fix". All five
+are fixed below. Three were real bugs that a fixture built from the same
+assumption as the code could never have caught, and all three were found by
+reading the PLATE rather than the branch -- which is PART 14-N's own lesson
+about the scale, arriving twice in one day.
+
+--------------------------------------------------------------------------------
+1. THE UNCYCLED FALLBACK ATE THE OTHER HALF OF THE PLATE
+--------------------------------------------------------------------------------
+
+14-N added `_UNCYCLED_TILE_PATTERN` so the phenotype names would parse, and
+applied it in `_index_tiles` to BOTH acquisitions. `sequencing/` and
+`phenotype/` are siblings under the plate folder, both settings' tooltips
+say the subfolders are searched, and gpu_queue/372-code-half-1.md said in so
+many words that "a parent of the right one also works". So:
+
+    genotype_source = .../20200202_6W-LaC024A
+
+indexed every 20X phenotype tile as a sequencing tile of cycle 1. Site 0's
+channel map became {'A594': the 20X file, 'AF750': ..., 'DAPI-GFP': ...,
+'DAPI-CY3-A594-CY5-CY7': the 10X file} -- cycle 1's own A594 REPLACED by a
+2,960 px tile -- and B1's site count went from 333 to 1,281, which sets
+`round_well_layout` and the tile shape wrong at once. Before 14-N the
+phenotype names matched nothing, so this was a REGRESSION that 14-N
+introduced and then pointed the operator at.
+
+The mirror case was quieter and worse: `phenotype_source` at the plate root
+pulled the 1,480 px sequencing tiles into the phenotype index, and
+`_phenotype` computed scale = (1480 x 10) / (1480 x 20) = 0.5 -- the exact
+error 14-N spent an hour finding and wrote two pages about.
+
+THE FIX IS THAT A SCHEME IS ASKED FOR, NOT FALLEN BACK TO. `_match_tile` and
+`_index_tiles` take `scheme`; `run_ops` asks `genotype_source` for cycled
+names and `phenotype_source` for uncycled ones, falling back to cycled for a
+phenotype acquisition that carries them. Both settings may now name the
+plate folder and each reads its own half, which is what their tooltips have
+been promising.
+
+AND THE TWO SCHEMES ARE EXCLUSIVE, NOT ORDERED, which is where the first
+version of this fix was wrong and its own test caught it. "Uncycled" cannot
+mean "skip the first pattern": `10X_c1_A1_DAPI_Site-0.tif` satisfies the
+uncycled pattern too (reading `c1` as the channel set), so skipping the
+cycled pattern put every sequencing tile in the phenotype index -- the same
+collision, the other way round. It means "a name the cycled pattern does not
+claim". Their union is what `scheme=None` still returns and nothing is in
+both.
+
+WHAT THE SCHEME CANNOT SETTLE, and what now refuses instead: a phenotype
+acquisition that DOES carry cycles, sitting beside the sequencing one. Then
+both halves are the same scheme and no pattern separates them. What gives it
+away is the objective -- one acquisition has one -- so `_one_acquisition`
+refuses an index holding two, naming both: "genotype_source (...) holds tiles
+taken at 10X and 20X, which is more than one acquisition." One regular
+expression per indexed path.
+
+--------------------------------------------------------------------------------
+2. FOUR OF THE EIGHT NEW SETTINGS WERE INVISIBLE TO EVERY GENERATOR
+--------------------------------------------------------------------------------
+
+14-N's i18n_owed said the eight new keys would become visible to
+`tools/build_setting_consumer_map.py` once the catalogs were rebuilt. Four of
+them would not have. `ops_read_threshold`, `ops_raster_overlap`,
+`ops_window_overlap` and `ops_footprint` were read as
+
+    _setting_number(settings, "ops_raster_overlap", _RASTER_OVERLAP)
+
+-- a literal passed positionally to a helper. Every generator in this
+repository that answers "where does this setting go" reads the package with
+`ast` and recognises exactly `settings[...]` and `settings.get(...)` on a
+literal (`tools/settings_flow.py` `_keys_from`, and the consumer map the same
+way). A key spelled as an argument is invisible to all of them, so those four
+would have had a tooltip and a type and no flow section, no consumer row, and
+a tooltip link landing on a fragment the browser ignores in silence. The
+other four, read with a literal `settings.get`, were fine -- so the eight
+would have split into two classes for a reason no reader could see.
+
+`_setting_number` now takes the VALUE and the key's name, and the call sites
+read `settings.get("ops_raster_overlap")`. All eight are in one class.
+
+AND THE PAGE WAS REGENERATED, which took two red tests green.
+`tests/test_the_settings_flow_artefacts_are_current.py` was failing on
+origin/nightly before this branch -- 8 settings read and undrawn, 1 drawn and
+unread, 5 sections whose text had drifted -- and 14-N left it failing with 12.
+`python tools/settings_flow.py --rst` writes both artefacts: 16 sections
+added, 1 removed, of which 8 are this unit's and 8 belong to lanes 418 and
+364, which is not a hand-merge but the only way this file can be written.
+
+--------------------------------------------------------------------------------
+3. THE PHENOTYPE STACK IS ZCYX, AND THE CHANNEL IS NOT AXIS 0
+--------------------------------------------------------------------------------
+
+14-N recorded "DAPI as plane 0 of the DAPI-GFP stack, resolved by
+`_plane_sources` with no special case". That was half true, and the half that
+was false was invisible because A4 reads only DAPI. Read off the plate on
+2026-09-19, one `tifffile.TiffFile` open per file and no pixels:
+
+    10X_c1_B1_DAPI-CY3-A594-CY5-CY7_Site-0.tif   CYX    (5, 1480, 1480)
+    20X_DAPI-GFP-A594-AF750_B1_DAPI-GFP_Site-0   ZCYX   (4, 2, 2960, 2960)
+    20X_DAPI-GFP-A594-AF750_B1_A594_Site-0.tif   ZYX    (4, 2960, 2960)
+
+The phenotype stack is FOUR FOCAL PLANES OF TWO CHANNELS, not two channels.
+`_read_plane` indexed axis 0 by the plane number, so DAPI (plane 0) was right
+only because DAPI is also z 0, and GFP (plane 1) returned z 1's DAPI. The
+fixture that "pinned the phase's one hard input on files of the plate's
+names" wrote a 3-D (2, 8, 8) array and could not have seen it. A4 is
+unaffected today; Phase C4, which the item's own left-work says will measure
+the phenotype channels at the same object ids, reads through this same path.
+
+`_channel_axis` now reads the axis letters the file itself carries. WHERE THE
+FILE NAMES NOTHING, AXIS 0 IS KEPT AND NOTHING IS GUESSED: a 4-D file with no
+metadata is genuinely ambiguous, and both orderings are in this repository --
+`test_a_file_with_more_axes_than_a_plane_gives_its_first_plane` pins a
+(channel, z, y, x) fixture and the plate writes (z, channel, y, x). So the
+plate is read correctly because its files SAY ZCYX, not because a rule
+guessed it, and no existing behaviour moves.
+
+THE Z SLICE TAKEN IS 0 AND THAT IS A CHOICE NOBODY HAS MEASURED. The
+phenotype half has four focal planes and nothing here has compared them. It
+is written down in `_read_plane`'s docstring and added to job 1's success
+checks so the plate run answers it.
+
+--------------------------------------------------------------------------------
+4. A WELL WAS OPENED TO COMPOSE A WINDOW OF IT
+--------------------------------------------------------------------------------
+
+`_phenotype` built its `usable` set by calling `read_sbs(site)` on every
+placement, purely to test readability. On the reference well that reads all
+333 sequencing tiles -- `tifffile` pulls the whole five-plane 1,480 px uint16
+file for one plane of it, about 22 MB each, roughly 7 GB over NFS per well --
+before `compose_window` then re-read the nine tiles each anchor window
+actually needs. Six anchors need about fifty-four reads. The queued job's
+budget of "about 2.5 GB read over NFS per anchor" did not account for the
+one-off sweep. Readability is now tested per window, on the tiles that touch
+it, with the same rounding `compose_window` uses so a tile is offered exactly
+when it would have been used.
+
+(`_objects` does the same sweep and is left alone: its windows tile the whole
+canvas, so every tile is read anyway, and the canvas itself is defined from
+the readable ones.)
+
+--------------------------------------------------------------------------------
+5. PART 14-N CONTRADICTED ITSELF IN ITS FIRST TEN LINES
+--------------------------------------------------------------------------------
+
+It opened "NO PLATE DATA WAS READ. /nas_mnt on this machine is a dead mount"
+and said thirty lines later "CHECKED AGAINST THE PLATE ITSELF (/nas_mnt came
+back at 21:45)". The lead paragraph was written before the mount returned and
+never corrected. Corrected now, and it names what was and was not read.
+
+--------------------------------------------------------------------------------
+6. WHAT THE REVIEW CHECKED AND CLEARED
+--------------------------------------------------------------------------------
+
+Worth recording so nobody spends the time again: `_reads_frame`'s fixed-width
+reshape is safe because `_decode_field` pads `values` to `len(cycles)` with
+NaN first; `r["calls"]` is already sliced to the owned rows, so letters stay
+aligned with ids and peaks; `ops_reads` is not in `_ONE_ROW_PER_OBJECT`, so
+its many-rows-per-object shape does not trip the uniqueness gate; the
+bbox exclusive-to-inclusive docstring correction matches `_label_extents` and
+`_extent`'s existing `+ 1`; and module-level constants such as `OPS_TABLES`
+are not in the API surface at all, so that i18n_owed entry is over-inclusive
+rather than short.
+
+--------------------------------------------------------------------------------
+7. WHAT 14-O ADDS TO WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+  * The z slice. Four focal planes per phenotype field, plane 0 taken, none
+    compared. Job 1 now records the sharpness of all four on one field.
+  * The eight new keys still cannot reach the consumer map until the
+    catalogs are rebuilt (HANDOFF trap 3c) -- unchanged, but now it is only
+    the catalogs standing in the way and not the call shape as well.
+  * `docs/setting_consumers.json` is stale on nightly itself by about 2,800
+    lines, in `spacr.settings` (2,008 rows), `spacr.object` (560) and two
+    more. Regenerated here for the seven `spacr.ops_engine` line numbers this
+    branch moved and nothing else; the rest belongs to the lane that owns it.
+
+2026-09-19 -- PART 14-O: the review of 14-N found five defects and all five
+are fixed. Three were real bugs, and all three were found by reading the
+PLATE rather than the branch: the uncycled pattern 14-N added for the
+phenotype names swallowed the sequencing half of any folder holding both, so
+pointing either folder setting at the plate -- which both tooltips invite --
+mixed 1,281 fields with 333 and put the scale back at 0.5; four of the eight
+new settings were read through a helper and so were invisible to every
+generator that answers "where does this setting go"; and the phenotype stack
+is ZCYX, four focal planes of two channels, so the channel was being indexed
+on the z axis and only DAPI came out right. Also: one wasteful full-well read
+per phenotype phase, and 14-N's opening paragraph contradicted itself.
+Regenerating the settings-flow page took two tests green that were red on
+origin/nightly before this branch. STILL NOTHING SEGMENTED OR DECODED ON THE
+PLATE -- the two runs are queued, unchanged in scope, with a z-slice check
+added to job 1 -- and the nine-language catalogs are still owed.
