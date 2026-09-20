@@ -325,10 +325,17 @@ def test_negative_and_zero_steps_do_not_move_the_clock_backwards():
 #: discrete objects on a page look like as against a wash. The numbers below
 #: are half of what each theme measures, so they catch "it stopped painting"
 #: without pinning the artwork down.
+#:
+#: ``resonance`` measures 46 % painted and 6 % changed on the dark page
+#: (100 % and 6 % on the light one, where every pixel is multiplied by the
+#: floor) -- the lowest CHANGED of the buffered themes, and on purpose: the
+#: figure is a standing wave, and a standing wave that moved as much as a
+#: blob field would not be standing. What moves in seven seconds is the
+#: sand and the breath under it, not the lines.
 MIN_PAINTED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.003,
-               "bokeh": 0.28, "cells": 0.08}
+               "bokeh": 0.28, "cells": 0.08, "resonance": 0.22}
 MIN_CHANGED = {"blobs": 0.40, "aurora": 0.40, "ripple": 0.40, "drift": 0.006,
-               "bokeh": 0.30, "cells": 0.11}
+               "bokeh": 0.30, "cells": 0.11, "resonance": 0.03}
 
 
 def all_pixels(image: QImage):

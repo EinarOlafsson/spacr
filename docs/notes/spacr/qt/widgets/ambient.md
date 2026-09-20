@@ -950,3 +950,90 @@ replacement = _the_spaceout_fractal(host)
 ```
 
 SPACEOUT DRAWS THE OTHER FRACTAL (instruction 260). Hooked HERE rather than at the call sites because there are three of them -- the module screens, the Home screen and the setup slides -- and hooking one left Home showing the old Julia set, which is what the maintainer saw. `dressed()` below would otherwise swap the theme to SPACEOUT_THEME, which IS the old artwork.
+
+--------------------------------------------------------------------------------
+
+## 2026-09-19 — a seventh animation: Resonance (item 427, part B)
+
+`ResonanceEngine` draws Chladni figures: sand on a square plate, settling
+on the lines of a standing wave that do not move. The maths — the field,
+its gradient, the relaxation and the audio analysis that drives it — is in
+`spacr/qt/resonance.py` and its own note; what belongs here is why the
+engine fits this module's contracts at all.
+
+### It reads the drive in `advance`, and that is the whole architecture
+
+Every other engine is a pure function of `(seed, clock, size)`, and two
+tests hold it down: `test_the_clock_alone_decides_the_frame` and
+`test_the_backdrop_survives_a_run`'s byte-for-byte comparison of the same
+clock shaded on two threads. A visualiser reads a real-time signal, which
+breaks both — and breaks them ON THE SHADING THREAD, where the failure is
+a frame that differs from the one the GUI thread would have drawn,
+silently, only under load.
+
+So the drive is an INPUT, not a read. `advance()` calls
+`resonance.playing_moment()` on the GUI thread, between frames, under the
+same lock every other live setter takes; `shade()` never looks at the
+world. The promise becomes "a pure function of `(seed, clock, size,
+drive)`", which is the same promise while nothing is playing — and nothing
+is playing in the tests, because sound is off by default.
+`test_the_real_time_signal_enters_in_advance_and_nowhere_else` starts the
+music underneath a shaded engine and requires the same bytes until
+`advance` is called.
+
+The read costs 6.8 us with the bed playing, against 41 ms a frame at the
+24 fps cap.
+
+### It is a numpy frame handed to Qt once
+
+Nine hundred `drawPoint` calls is a Python call per grain and the whole
+frame budget. `_paint_field` accumulates every grain with one `np.add.at`
+into an `(h, w, 3)` float buffer, adds it to a precomputed floor, packs
+the result to `0xffRRGGBB` and draws it with one `drawImage` — the same
+shape `FractalEngine` uses, and for the same reason.
+
+Everything is accumulated as `colour - identity` and added to `identity`
+at the end, which is the one arithmetic that paints additively over a dark
+page and multiplicatively over a light one without a branch.
+
+### Measured
+
+Cost, and what it sits between:
+
+| | 1080p | 4K |
+|---|---|---|
+| `shade` | 1.59 ms | 1.72 ms |
+| paints per second, `tools/perf_paint.py --animation resonance` | 25.0 | 25.0 |
+
+The cap is 24 and every animation holds it, `resonance` included, at both
+sizes and on all four colour themes. The 4K row costs almost the same as
+the 1080p one because the buffer is capped, which is this module's whole
+design working.
+
+Brightness, against the six that were already here (mean frame lightness
+at 640x400 on the dark page, and the 99.5th percentile):
+
+| theme | mean | p99.5 |
+|---|---|---|
+| blobs | 0.165 | 0.486 |
+| bokeh | 0.160 | 0.604 |
+| cells | 0.098 | 0.424 |
+| **resonance, idle** | **0.092** | **0.373** |
+| **resonance, bed playing** | **0.099** | **0.637** |
+| drift | 0.079 | 0.094 |
+
+So it is among the quietest of the seven by area and among the brightest
+at its peaks, which is what a field of points looks like beside a wash.
+
+`MIN_CHANGED` for it is 0.03 where the soft fields are 0.40, and that is
+not a defect: a standing wave that moved as much as a blob field would not
+be standing. What changes in seven seconds is the sand and the breath
+under it, not the lines.
+
+### `--animation` on the harness
+
+`tools/perf_paint.py` measured whichever animation was the default,
+whatever colour theme the row was labelled with — the same mistake its own
+docstring records about palettes. `--animation` measures a named one and
+the row now carries it, so a baseline taken with one animation can never
+be read as a measurement of another.

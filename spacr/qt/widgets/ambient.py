@@ -228,7 +228,7 @@ __all__ = [
 #: lets ``make_engine``, ``_require_theme`` and every engine test go on
 #: meaning "a thing that can be drawn".
 AMBIENT_THEMES: Tuple[str, ...] = ("blobs", "aurora", "ripple", "drift",
-                                   "bokeh", "cells")
+                                   "bokeh", "cells", "resonance")
 
 #: The animation the ``spaceout`` entry point paints, and the palette it
 #: paints it in.
@@ -273,6 +273,7 @@ _THEME_LABELS = {
     "drift": "Starfield",
     "bokeh": "Bokeh",
     "cells": "Cells",
+    "resonance": "Resonance",
     SPACEOUT_THEME: "Fractals",
 }
 
@@ -287,6 +288,10 @@ _THEME_NOTES = {
               "looks off the focal plane: bright rims, flat centres."),
     "cells": ("Cells drifting through the field — soft bodies with a "
               "brighter nucleus, turning slowly as they go."),
+    "resonance": ("Sand on a vibrating plate, gathering along the lines "
+                  "that do not move — a Chladni figure that changes with "
+                  "the music bed when one is playing, and breathes on its "
+                  "own when nothing is."),
     SPACEOUT_THEME: ("A Julia set that morphs, turns and cycles colour — "
                      "the backdrop the spaceout launcher dresses the "
                      "application in."),
@@ -389,6 +394,8 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
               "fluor"),
     "bokeh": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
     "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
+    "resonance": ("spacr", "ember", "ocean", "mono", "okabe", "borealis",
+                  "fluor"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
 
@@ -4040,6 +4047,347 @@ class FractalEngine(_BufferedEngine):
             del self._spent[:-16]
 
 
+#: Longest buffer edge the Resonance plate is shaded at, at resolution 1.0.
+#: Higher than the diffuse fields because the picture is made of POINTS and
+#: a point in a 240 px buffer is an eighth of the screen's width across.
+#: At 1080p this gives a 320x180 buffer and a particle six screen pixels
+#: wide, which is what a grain of sand ought to look like.
+RESONANCE_EDGE = 360
+
+#: Particles on the plate at density 1.0. Enough that the nodal lines are
+#: continuous where they gather and the field still reads as individual
+#: grains where it does not; the cost is linear and small, so the ceiling
+#: here is legibility rather than time.
+RESONANCE_PARTICLES = 1300
+
+#: Edge of the lattice :func:`spacr.qt.resonance.lattice` is evaluated on.
+#: 128 puts a lattice point every 0.8 % of the plate, which is finer than
+#: one buffer pixel at every size measured.
+RESONANCE_GRID = 128
+
+#: Relaxation rounds per frame. Each is one Newton step onto the nodal
+#: line; eight takes ``|w|`` from 0.203 to 0.013 on the reference figure,
+#: and more only moves particles that have already arrived.
+RESONANCE_ROUNDS = 8
+
+#: What the plate is doing when nothing is playing, and how much it
+#: breathes, and over what period. THE SILENT CASE IS THE DEFAULT CASE:
+#: sound is off on a fresh install, so almost everybody who ever sees this
+#: backdrop sees this and nothing else. It has to be worth looking at on
+#: its own.
+RESONANCE_IDLE = 0.30
+RESONANCE_IDLE_SWELL = 0.12
+RESONANCE_IDLE_PERIOD = 23.0
+
+#: Seconds the idle plate spends on each entry of
+#: :data:`spacr.qt.resonance.MODES`. Long, for the reason every period in
+#: this module is long: a backdrop must never look like it is MOVING, only
+#: like it has moved when you look back at it.
+RESONANCE_MODE_PERIOD = 17.0
+
+#: How far up :data:`spacr.qt.resonance.MODES` a bright passage pushes the
+#: figure. The spectral centroid is the driver, so brighter music draws a
+#: busier figure -- which is the physical relation as well as the pretty
+#: one: a plate driven at a higher frequency resonates in a higher mode.
+RESONANCE_MODE_SPAN = 3.0
+
+#: How far a particle's starting point wanders, as a fraction of the
+#: plate, and over what range of periods. This is what keeps a figure alive
+#: while the mode is unchanged: the relaxation is deterministic, so without
+#: it a held figure would be a still photograph.
+RESONANCE_WANDER = 0.085
+RESONANCE_WANDER_PERIOD = (19.0, 53.0)
+
+#: How far an onset throws the sand off the lines, as a fraction of the
+#: plate. The bounce the request asks for, and the one thing in the picture
+#: that is not a smooth function of anything.
+RESONANCE_THROW = 0.06
+
+#: How much of the plate the figure occupies at size 1.0, as a fraction of
+#: the canvas's shorter edge. A SQUARE, because the field being solved is a
+#: square plate's: stretching it to 16:9 would draw the nodal set of a
+#: plate nobody has.
+RESONANCE_PLATE = 0.78
+
+#: Peak brightness of one particle. Light needs more than dark for the
+#: reason given at :data:`BLOB_ALPHA_DARK`, and needs proportionally more
+#: here because a point has no area over which to accumulate.
+RESONANCE_ALPHA_DARK = 1.55
+RESONANCE_ALPHA_LIGHT = 2.05
+
+#: Brightness of the floor the sand lies on -- a soft pool of light under
+#: the plate, and the only thing in this theme that is not a particle.
+RESONANCE_FLOOR_DARK = 0.17
+RESONANCE_FLOOR_LIGHT = 0.30
+
+#: How sharply the floor falls off from the middle of the plate.
+RESONANCE_FLOOR_FALLOFF = 2.4
+
+
+class ResonanceEngine(_BufferedEngine):
+    """Chladni figures: sand on a plate that is driven by what is playing.
+
+    A floor with particles on it, and the particles are sand on a vibrating
+    plate. The physics is in :mod:`spacr.qt.resonance` and is worth one
+    paragraph here because it is what makes this theme different from a
+    particle system with a music-shaped wobble: a plate driven at one of
+    its resonances has lines that do not move, sand is thrown off
+    everywhere else and comes to rest along them, and the figure IS the
+    nodal set. So there is a right answer for where a particle goes, and
+    the drive decides which figure it is and how hard the sand is being
+    shaken rather than deciding the motion directly.
+
+    WHAT DRIVES IT. :func:`spacr.qt.resonance.playing_moment` -- the music
+    bed's own precomputed envelope and spectrum, read at the position the
+    bed is at. Nothing captures the machine's audio; nothing here can hear
+    anything spaCR is not playing. With sound off it returns silence and
+    the plate idles on its own clock, which is the case almost everybody
+    sees because sound is off on a fresh install.
+
+    WHY THE DRIVE IS READ IN :meth:`advance` AND NOT WHERE IT IS USED.
+    Every other engine promises that a frame is a pure function of
+    ``(seed, clock, size)``, and two tests hold it down: one shades the same
+    clock on two threads and compares the bytes, another steps one engine
+    twelve times and jumps a second straight to the same clock. Reading a
+    real-time signal inside :meth:`shade` would break both, and it would
+    break them on the SHADING THREAD, where the failure is a picture that
+    differs from the one the GUI thread would have drawn. So the drive is
+    an INPUT, set on the GUI thread between frames under the engine lock
+    exactly as :meth:`set_palette` is, and the promise becomes "a pure
+    function of ``(seed, clock, size, drive)``" -- which is the same
+    promise while nothing is playing, and that is when the tests run.
+
+    :meth:`geometry` yields ``(x, y, brightness)`` per painted particle, in
+    pixels.
+    """
+
+    name = "resonance"
+    base_edge = RESONANCE_EDGE
+
+    def __init__(self, *args, **kwargs):
+        """Start with no floor and no canvas; the first shade builds both."""
+        self._floor = None
+        self._canvas = None
+        self._surface: Optional[Tuple[int, int]] = None
+        super().__init__(*args, **kwargs)
+
+    def _configure(self, rng: random.Random) -> None:
+        """Roll the sand: where each grain starts, how it wanders, which
+        band it answers to and which way a beat throws it.
+
+        ONCE, at construction, exactly as every other engine rolls its
+        elements -- and here it matters more than usual, because these are
+        the fixed starting points the relaxation runs from every frame.
+        Move them and the figure would be a different figure; keep them and
+        the same seed always draws the same sand.
+        """
+        np = _numpy()
+        from ..resonance import BANDS, silence
+
+        pool = _pool_size(RESONANCE_PARTICLES)
+        gen = np.random.default_rng(rng.getrandbits(63))
+        self.pool = pool
+        self.home_x = gen.random(pool).astype(np.float32)
+        self.home_y = gen.random(pool).astype(np.float32)
+        self.wander_phase = (gen.random(pool)
+                             * (2.0 * math.pi)).astype(np.float32)
+        low, high = RESONANCE_WANDER_PERIOD
+        self.wander_rate = (2.0 * math.pi
+                            / (low + (high - low)
+                               * gen.random(pool))).astype(np.float32)
+        angle = gen.random(pool) * (2.0 * math.pi)
+        self.throw_x = np.cos(angle).astype(np.float32)
+        self.throw_y = np.sin(angle).astype(np.float32)
+        self.spark = (0.55 + 0.45 * gen.random(pool)).astype(np.float32)
+        self.loose = (gen.random(pool) ** np.float32(1.7)).astype(np.float32)
+        self.band = (np.arange(pool) % len(BANDS)).astype(np.int32)
+        self.tone = np.arange(pool, dtype=np.int32)
+        self.drive = silence()
+
+    def _restyle(self) -> None:
+        """Re-derive the palette as numbers, and drop the floor it tinted."""
+        super()._restyle()
+        np = _numpy()
+        self._rgb = np.array([[c.red(), c.green(), c.blue()]
+                              for c in self.paint_colors], dtype=np.float32)
+        self._floor = None
+
+    def _reresolve(self) -> None:
+        """A new buffer size is a new floor and a new canvas."""
+        super()._reresolve()
+        self._floor = None
+        self._canvas = None
+        self._surface = None
+
+    def _resize(self) -> None:
+        """The size setting scales the plate, so the floor moves with it."""
+        self._floor = None
+
+    def advance(self, dt: float) -> None:
+        """Step the clock and read what is playing.
+
+        The one place a real-time signal enters this engine, and it is here
+        because this runs on the GUI thread between frames while the
+        shading thread is locked out -- see the class docstring. It costs a
+        lock, an index and two array reads; measured at 6.8 us with the
+        music bed playing, against the 41 ms a frame the cap allows.
+        """
+        super().advance(dt)
+        from ..resonance import playing_moment
+        self.drive = playing_moment()
+
+    def energy(self) -> float:
+        """How hard the plate is being driven, 0 to 1.
+
+        The louder of what is playing and the idle breath, so a quiet
+        passage never takes the picture below what silence would have
+        drawn. That is the rule that makes "it idles beautifully in
+        silence" and "it reacts to the music" the same code path.
+        """
+        idle = RESONANCE_IDLE + RESONANCE_IDLE_SWELL * math.sin(
+            2.0 * math.pi * self.time / RESONANCE_IDLE_PERIOD)
+        return float(max(idle, self.drive.level))
+
+    def mode_position(self) -> float:
+        """Where along :data:`spacr.qt.resonance.MODES` the figure sits."""
+        return (self.time / RESONANCE_MODE_PERIOD
+                + self.drive.centroid * RESONANCE_MODE_SPAN)
+
+    def plate(self, width: int, height: int) -> Tuple[float, float, float]:
+        """The square the figure is drawn in: ``(left, top, side)`` in px."""
+        span = _clamp(RESONANCE_PLATE * self.size, 0.25, 1.0)
+        side = min(max(1, int(width)), max(1, int(height))) * span
+        return ((width - side) / 2.0, (height - side) / 2.0, side)
+
+    def sand(self, count: Optional[int] = None):
+        """Where the sand is now, and how brightly each grain shows.
+
+        The whole simulation, and it is four numpy passes: wander the
+        seeded starting points, build the lattice for the mode the drive
+        asks for, relax onto its nodal lines, and throw the result off them
+        by whatever the last onset was worth.
+
+        :param count: how many grains; the density setting's own count by
+            default.
+        :returns: ``(x, y, brightness)`` in plate units, x and y in 0..1.
+        """
+        np = _numpy()
+        from .. import resonance as rs
+
+        n = int(self._count() if count is None else count)
+        moment = self.drive
+        energy = self.energy()
+        first, second, blend = rs.mode_blend(self.mode_position())
+        field, dx, dy = rs.lattice(first, second, blend, RESONANCE_GRID)
+        phase = self.wander_phase[:n] + self.wander_rate[:n] * self.time
+        start_x = np.clip(self.home_x[:n]
+                          + RESONANCE_WANDER * np.sin(phase), 0.0, 1.0)
+        start_y = np.clip(self.home_y[:n]
+                          + RESONANCE_WANDER * np.cos(phase), 0.0, 1.0)
+        tight = (0.24 + 0.68 * energy) * (0.12 + 0.88 * self.loose[:n])
+        x, y = rs.settle(start_x, start_y, field, dx, dy,
+                         RESONANCE_ROUNDS, tight)
+        throw = RESONANCE_THROW * moment.onset
+        if throw > 0.0:
+            x = np.clip(x + throw * self.throw_x[:n], 0.0, 1.0)
+            y = np.clip(y + throw * self.throw_y[:n], 0.0, 1.0)
+        rest = np.minimum(np.abs(rs.sample(field, x, y)) * 3.0, 1.0)
+        bands = np.asarray(moment.bands, dtype=np.float32)
+        gain = (0.78 + 0.58 * bands)[self.band[:n]]
+        bright = (self.spark[:n] * (0.30 + 0.70 * energy) * gain
+                  * (1.0 - 0.45 * rest) * self.alpha_scale())
+        return x, y, bright.astype(np.float32)
+
+    def _count(self) -> int:
+        """How many grains the density setting asks for."""
+        return self.element_count(RESONANCE_PARTICLES, self.pool)
+
+    def geometry(self, width: int, height: int) -> Tuple[tuple, ...]:
+        """Every grain as ``(x, y, brightness)`` in pixels.
+
+        :param width: canvas width in pixels.
+        :param height: canvas height.
+        :returns: one tuple per painted grain.
+        """
+        if width <= 0 or height <= 0:
+            return ()
+        left, top, side = self.plate(width, height)
+        x, y, bright = self.sand()
+        return tuple((float(left + px * side), float(top + py * side),
+                      float(b)) for px, py, b in zip(x, y, bright))
+
+    def _ensure_floor(self, width: int, height: int):
+        """The pool of light the sand lies on, as a contribution map.
+
+        Held between frames and rebuilt only when the buffer size, the
+        palette, the background or the plate's size changes -- never per
+        frame. It is stored as ``weight * (colour - identity)`` so the
+        frame is one multiply by the glow and then the grains added on top,
+        with no branch anywhere for dark against light.
+        """
+        np = _numpy()
+        if self._floor is not None and self._surface == (width, height):
+            return self._floor
+        left, top, side = self.plate(width, height)
+        ys = (np.arange(height, dtype=np.float32) - (top + side / 2.0)) \
+            / max(side, 1.0)
+        xs = (np.arange(width, dtype=np.float32) - (left + side / 2.0)) \
+            / max(side, 1.0)
+        radius = (xs[None, :] ** 2) * 0.82 + (ys[:, None] ** 2)
+        weight = np.exp(-RESONANCE_FLOOR_FALLOFF * 4.0 * radius)
+        peak = RESONANCE_FLOOR_DARK if self.dark else RESONANCE_FLOOR_LIGHT
+        identity = np.float32(0.0 if self.dark else 255.0)
+        tint = self._rgb.mean(axis=0) if self._rgb.size else \
+            np.zeros(3, dtype=np.float32)
+        self._floor = (weight[:, :, None] * np.float32(peak)
+                       * (tint - identity)).astype(np.float32)
+        self._canvas = np.empty((height, width, 3), dtype=np.float32)
+        self._surface = (width, height)
+        return self._floor
+
+    def _paint_field(self, painter: QPainter, width: int, height: int) -> None:
+        """Shade one frame: the floor, then every grain added onto it.
+
+        Built as numbers and handed to Qt once, for the same reason
+        :class:`FractalEngine` does it: a per-particle ``drawPoint`` is a
+        Python call per grain and nine hundred of them is the whole frame
+        budget, where ``np.add.at`` puts all nine hundred in one call.
+
+        Everything is accumulated as ``colour - identity`` and added to
+        ``identity`` at the end, which is the arithmetic that makes the same
+        code paint additively over a dark page and multiplicatively over a
+        light one -- see the module docstring.
+        """
+        np = _numpy()
+        if width <= 0 or height <= 0:
+            return
+        floor = self._ensure_floor(width, height)
+        canvas = self._canvas
+        glow = np.float32(0.55 + 0.45 * self.energy())
+        np.multiply(floor, glow, out=canvas)
+
+        left, top, side = self.plate(width, height)
+        x, y, bright = self.sand()
+        peak = RESONANCE_ALPHA_DARK if self.dark else RESONANCE_ALPHA_LIGHT
+        identity = np.float32(0.0 if self.dark else 255.0)
+        columns = np.clip((left + x * side).astype(np.int32), 0, width - 1)
+        rows = np.clip((top + y * side).astype(np.int32), 0, height - 1)
+        count = x.size
+        tint = self._rgb[self.tone[:count] % max(1, self._rgb.shape[0])]
+        weight = (bright * np.float32(peak))[:, None]
+        np.add.at(canvas.reshape(-1, 3), rows * width + columns,
+                  weight * (tint - identity))
+
+        frame = np.empty((height, width), dtype=np.uint32)
+        levels = np.clip(canvas + identity, 0.0, 255.0).astype(np.uint32)
+        np.bitwise_or(np.uint32(0xFF000000), levels[:, :, 0] << 16, out=frame)
+        np.bitwise_or(frame, levels[:, :, 1] << 8, out=frame)
+        np.bitwise_or(frame, levels[:, :, 2], out=frame)
+        painter.drawImage(0, 0, QImage(frame.data, width, height,
+                                       int(frame.strides[0]),
+                                       QImage.Format_RGB32))
+
+
 _ENGINES = {
     "blobs": BlobsEngine,
     "aurora": AuroraEngine,
@@ -4047,6 +4395,7 @@ _ENGINES = {
     "drift": DriftEngine,
     "bokeh": BokehEngine,
     "cells": CellsEngine,
+    "resonance": ResonanceEngine,
     SPACEOUT_THEME: FractalEngine,
 }
 

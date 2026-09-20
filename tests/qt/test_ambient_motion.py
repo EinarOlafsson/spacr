@@ -386,6 +386,16 @@ def test_the_default_multipliers_are_the_identity(theme):
         ceiling = max(amb.CELL_RADIUS) * min(W, H)
         assert max(a for _x, _y, a, _b, _t in engine.geometry(W, H)) \
             <= ceiling + 1
+    elif theme == "resonance":
+        # The plate, not an element: the sand has no size of its own, and
+        # what `size` scales is the square it settles on.
+        left, top, side = engine.plate(W, H)
+        assert side == pytest.approx(min(W, H) * amb.RESONANCE_PLATE)
+        grains = engine.geometry(W, H)
+        assert len(grains) == amb.RESONANCE_PARTICLES
+        assert all(left - 1 <= x <= left + side + 1
+                   and top - 1 <= y <= top + side + 1
+                   for x, y, _b in grains)
     else:
         assert max(h for _x, _y, h, _b in engine.geometry(W, H)) \
             <= max(amb.AURORA_THICKNESS) * H * 1.5
