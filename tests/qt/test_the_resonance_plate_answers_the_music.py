@@ -599,7 +599,7 @@ def test_a_music_file_of_the_users_own_is_what_plays_and_what_is_seen(
     record = rs.now_playing()
     assert record is not None
     assert record.duration == pytest.approx(1.5, abs=0.01)
-    assert engine._worker._effects[ss.BED].source == str(chosen)
+    assert engine.player()._effects[ss.BED].source == str(chosen)
     # The sidecar goes in spaCR's cache, NOT into the folder the user's
     # music is in: a tool asked to read a file must not leave litter
     # beside it, and that folder may not even be writable.
@@ -616,7 +616,7 @@ def test_a_chosen_file_that_has_gone_falls_back_to_spacrs_own(qapp, tmp_path,
     engine.apply(snd.SoundSettings(enabled=True, bed=True, click=False,
                                    run_finished=False, run_failed=False,
                                    music=str(tmp_path / "never.wav")))
-    played = engine._worker._effects[ss.BED].source
+    played = engine.player()._effects[ss.BED].source
     assert played.endswith("bed.wav")
     assert "sounds" in played
     assert rs.now_playing() is not None
@@ -630,9 +630,9 @@ def test_switching_music_file_builds_a_new_effect(qapp, tmp_path, quick_bed):
     base = dict(enabled=True, bed=True, click=False, run_finished=False,
                 run_failed=False)
     engine.apply(snd.SoundSettings(music=str(first), **base))
-    was = engine._worker._effects[ss.BED]
+    was = engine.player()._effects[ss.BED]
     engine.apply(snd.SoundSettings(music=str(second), **base))
-    now = engine._worker._effects[ss.BED]
+    now = engine.player()._effects[ss.BED]
     assert now is not was
     assert now.source == str(second)
     assert rs.now_playing().duration == pytest.approx(1.0, abs=0.01)

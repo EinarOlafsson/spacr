@@ -2,8 +2,14 @@
 WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
 ================================================================================
 
-Status:    OPEN, filed 2026-09-19. REGRESSION from the same day's item 427
-           (the sound engine). Reproduced here; cause identified; not fixed.
+Status:    FIXED 2026-09-19, in the same day it was filed and reported.
+           REGRESSION from the same day's item 427 (the sound engine).
+           Every Qt Multimedia object is on the GUI thread now and the
+           audio thread renders only; the connection is paid once, on an
+           idle timer, and logged. Five tests against the real audio stack
+           hold it, and all five fail against the module as it was. What
+           is NOT done is a check on the maintainer's own desktop -- see
+           WHAT IS LEFT at the end.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "for some reason if sound is on in spacr and i try to reopen
@@ -34,8 +40,17 @@ maintainer's workstation (PipeWire, real window) it presents as the GUI thread
 stopping with an empty Preferences frame and GNOME offering to force quit.
 
 --------------------------------------------------------------------------------
-THE CAUSE
+THE CAUSE -- confirmed, and it was worse here than filed
 --------------------------------------------------------------------------------
+
+Re-driven before anything was changed. With the sound cache ALREADY WARM,
+so that the effects are really built rather than still being synthesized,
+this is not five warnings and a dirty exit: it is
+`Fatal Python error: Segmentation fault`, three runs out of three, with the
+audio thread inside `_make_effect` and the GUI thread inside
+`PreferencesDialog._page` -- the dialog the maintainer watched fail to fill
+itself in. The filing's cold-cache run and its five QSocketNotifier lines
+reproduce as recorded.
 
 `_AudioWorker._make_effect` (sound.py:~320) calls
 
@@ -90,13 +105,180 @@ HOW TO KNOW IT WORKED
     today, and the cost is logged rather than felt at a dialog open.
 
 --------------------------------------------------------------------------------
-UNTIL IT IS FIXED
+THE WORKAROUND THIS ITEM NEEDED, KEPT FOR THE RECORD
 --------------------------------------------------------------------------------
 
-Sound is off by default, so only a user who switched it on is affected. Turning
-sound off ends it -- but Preferences is where that switch lives, so somebody
-already wedged has to stop spaCR, set
+Not needed any more; kept because anyone running a build from before
+2026-09-19 still meets it. Sound is off by default, so only a user who
+switched it on was affected. Turning sound off ended it -- but Preferences
+is where that switch lives, so somebody already wedged had to stop spaCR,
+set
 
     [ai]/sound_enabled=false        in ~/.config/spacr/qt.conf
 
-(or whatever `_KEY_SOUND_ENABLED` resolves to in that file) and start it again.
+(or whatever `_KEY_SOUND_ENABLED` resolves to in that file) and start it
+again.
+
+--------------------------------------------------------------------------------
+FIXED 2026-09-19. WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+`spacr/qt/sound.py` is two halves now, and which thread each is on IS the
+fix:
+
+  * `_SoundPlayer` owns `QMediaDevices` and every `QSoundEffect`. It is a
+    child of the engine, so it lives on the GUI thread -- the thread that
+    owns the application's event loop, which is the thread Qt Multimedia's
+    device handling attaches its socket notifiers to.
+  * `_SoundRenderer` lives on the `spacr-sound` `QThread` and does the one
+    slow thing: `ensure_rendered`, numpy and file writes. It imports
+    nothing from Qt Multimedia and never will.
+
+They talk in one direction each: the player asks for a file it has not got
+(`needs`), the engine forwards that to the renderer, the renderer answers
+with `rendered`, carrying BOTH the stems it tried and the ones it produced.
+Both lists are needed, and finding that out cost a bug: the feedback set
+and the music bed are two separate renders, and a delivery that closed out
+requests it never carried reported the bed unrenderable and left it silent.
+
+The device connection is paid ONCE, on the GUI thread, `DEVICE_WARM_DELAY_MS`
+(400 ms) after sound is switched on -- after Save has closed its dialog, or
+after launch has its window up. `_SoundPlayer.warm` logs the cost at INFO.
+
+`_stop_at_exit`, registered with `atexit` the first time an engine is built,
+ends the audio thread for a process that never reaches `aboutToQuit`.
+
+--------------------------------------------------------------------------------
+WHAT WAS MEASURED
+--------------------------------------------------------------------------------
+
+Offscreen, sandboxed `HOME`/`XDG_CONFIG_HOME`/`XDG_DATA_HOME`/
+`SPACR_SOUND_CACHE`, warm sound cache, real Qt Multimedia over FFmpeg
+7.1.5, volume 0.
+
+BEFORE -- the same probe, three runs each:
+
+    warm cache   Fatal Python error: Segmentation fault, exit 139, 3 of 3.
+                 Audio thread in `_make_effect`; GUI thread in
+                 `PreferencesDialog._page`. It did not survive the FIRST
+                 dialog, let alone a reopen.
+    cold cache   QThread: Destroyed while thread 'spacr-sound' is still
+                 running, then Fatal Python error: Aborted, exit 134.
+    through the new tests, which print what Qt says before it dies:
+                 QSocketNotifier: Socket notifiers cannot be enabled or
+                 disabled from another thread   (x5) -- the same five the
+                 filing recorded -- then the Destroyed line, then Aborted.
+
+AFTER -- 3 of 3 runs exit 0, no core dump, no QSocketNotifier line, no
+Destroyed line. On the GUI thread, four runs (the spread is this machine's
+load, not the code's):
+
+    apply_sound_preferences(), sound ON    2.6 - 15.7 ms  connects to nothing
+    the ONE sound-server connection        270 - 496 ms   idle timer, logged
+    QSoundEffect() + setSource(), each    0.030 - 0.052 ms  median
+                                  worst   0.110 - 0.440 ms
+    SoundEngine.play("click")             0.007 - 0.014 ms  median of 40
+                                  worst   0.057 - 0.126 ms
+    QSoundEffect.play() itself            0.004 - 0.006 ms  median of 40
+    Preferences exec(), ten times         no measurable addition
+
+That is the whole trade, and it is the answer to the 180-320 ms the
+regression was avoiding: the connection is still a third of a second and it
+is still on the GUI thread, but it is paid once, at a moment nobody is
+waiting on, and everything a user can trigger afterwards is under a seventh
+of a millisecond. There is nothing left worth moving off the GUI thread.
+
+--------------------------------------------------------------------------------
+HOW IT IS HELD DOWN
+--------------------------------------------------------------------------------
+
+`tests/qt/test_sound_on_does_not_wedge_the_preferences_dialog.py`, five
+tests, all against the REAL Qt Multimedia stack in child processes -- a
+stand-in cannot install a socket notifier and cannot crash, and a test that
+cannot survive its own subject says nothing about the run it killed. All
+five were run against the pre-fix module and all five fail there, with the
+five QSocketNotifier lines above:
+
+  * Preferences opened and closed TEN times with sound on;
+  * the dialog is asked what it CONTAINS on the second and third opening,
+    because "not populated with preferences" is the shape that was
+    reported;
+  * every `QSoundEffect.thread()` and `QMediaDevices().thread()` is the GUI
+    thread and none of them is the audio thread;
+  * quitting through `aboutToQuit` ends the audio thread;
+  * a process that never reaches `aboutToQuit` ends it too.
+
+In `tests/qt/test_sound_is_silent_until_asked.py`:
+`test_every_effect_is_made_and_played_on_the_gui_thread` is the old
+`..._off_the_gui_thread` with its assertion turned around;
+`test_no_qt_multimedia_symbol_is_reached_off_the_gui_thread` records the
+thread of every stand-in call; `test_the_device_is_connected_once_and_before_the_first_effect`
+and `test_switching_sound_on_warms_the_device_on_an_idle_timer` replace
+`test_the_devices_are_listed_before_the_first_effect_is_built`, which pinned
+the order the regression needed.
+
+103 tests pass across the four sound files; the three that existed before
+were 96 at `origin/nightly` and are 98 here, the two added being the split
+of the device test.
+
+--------------------------------------------------------------------------------
+WHAT IS LEFT
+--------------------------------------------------------------------------------
+
+  * NOT VERIFIED ON THE MAINTAINER'S DESKTOP. Everything above is offscreen
+    on this machine, against PipeWire through FFmpeg. The symptom he saw
+    was a hang where this reproduces a segfault, which is the same
+    undefined behaviour choosing a different face, so the hang should be
+    gone -- but somebody should switch sound on, press Save, and reopen
+    Preferences on a real desktop before this is called closed.
+  * The 270 ms connection is REAL and still lands on the GUI thread once
+    per process, 400 ms after sound is switched on. It is logged, not
+    hidden. If it is ever felt at launch, the lever is
+    `DEVICE_WARM_DELAY_MS`, not another thread.
+  * The music bed's own path is covered by stand-ins
+    (`TestTheMusicBed`, `test_the_resonance_plate_answers_the_music.py`,
+    and the bed effect is built in
+    `test_the_gui_thread_never_waits_for_a_render`) rather than by a real
+    device, because a test must not play audio to the speakers. The five
+    real-stack tests deliberately leave the bed switched off for the same
+    reason: what they exercise is the construction and loading that
+    crashed, not playback.
+
+--------------------------------------------------------------------------------
+ITEM 427 PART B LANDED WHILE THIS WAS BEING BUILT, AND IT IS FOLDED IN
+--------------------------------------------------------------------------------
+
+427 part B (music beds, a music file of the user's own, and the Resonance
+visualiser) touched the same class, from the other side: it added the
+analysis the backdrop is driven by, and it put that work on the audio
+thread. Rebased onto it and integrated by hand rather than textually --
+twelve conflicting hunks in one rewritten class is not a merge anybody
+should trust.
+
+THE SPLIT IS NOT "EVERYTHING MOVES TO THE GUI THREAD". It is "Qt
+Multimedia moves to the GUI thread and everything slow stays off it", and
+427's work is the proof that the distinction is the right one:
+`resonance.ensure_analysis` runs a few thousand FFTs and
+`resonance.set_now_playing` reads the analysis file, and BOTH say in their
+own docstrings never to call them from the GUI thread. So:
+
+  * `_SoundRenderer` (audio thread) resolves the bed's file -- the user's
+    own WAV when they named a readable one, spaCR's synthesized bed
+    otherwise -- then runs `wav_seconds` and `ensure_analysis` on it, and
+    owns `set_now_playing`. The analysis now happens as the file is
+    RESOLVED rather than just before `play()`, so it is off the path a
+    user waits on entirely.
+  * `_SoundPlayer` (GUI thread) owns the `QSoundEffect`, so it is what
+    asks `isLoaded()`, connects `loadedChanged`, and takes the
+    `time.monotonic()` stamp at the instant playback really starts. The
+    stamp travels on `bed_started`, so the queue hop cannot skew it --
+    which is what 427 part B took care over and this keeps.
+  * A stop is said twice on purpose: `_forget_bed()` directly, because a
+    stop the user can see must not wait behind a render, and `bed_stopped`
+    queued to the audio thread, because that is what makes a stop land
+    after the start it follows.
+
+Three tests in `test_the_resonance_plate_answers_the_music.py` reached
+into `engine._worker._effects`; they now read `engine.player()._effects`,
+which is where the effects are. Nothing else in 427's work changed.
+All 31 of its resonance tests and all 20 music-bed tests pass.

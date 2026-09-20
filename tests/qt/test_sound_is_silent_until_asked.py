@@ -612,8 +612,19 @@ class TestSilenceIsTheFallback:
 
 class TestTheAudioThread:
 
-    def test_every_effect_is_made_and_played_off_the_gui_thread(
+    def test_every_effect_is_made_and_played_on_the_gui_thread(
             self, make_engine, sink, qapp, qtbot):
+        """Item 444, and the reverse of what this test asserted before it.
+
+        Effects used to be built on the audio thread, to keep the sound
+        server connection off the GUI thread. Qt Multimedia's device
+        handling belongs to the thread that owns the event loop, so that
+        enabled socket notifiers from the wrong one: reopening Preferences
+        with sound on segfaulted three runs out of three, and wedged the
+        maintainer's workstation until he force quit it. The thread the
+        effects are made on is therefore pinned to the GUI thread, and the
+        audio thread keeps only the rendering.
+        """
         engine = make_engine(threaded=True)
         thread = engine.audio_thread()
         assert thread is not None and thread.objectName() == "spacr-sound"
@@ -621,12 +632,65 @@ class TestTheAudioThread:
         qtbot.waitUntil(lambda: engine.available is not None, timeout=20000)
         assert sink.effects, "nothing was prepared"
         gui = qapp.thread()
-        assert all(_same(e.made_on, thread) and not _same(e.made_on, gui)
+        assert all(_same(e.made_on, gui) and not _same(e.made_on, thread)
                    for e in sink.effects)
         engine.play("click")
         qtbot.waitUntil(lambda: bool(_plays(sink)), timeout=5000)
         played = [e for e in sink.effects if e.played_on is not None]
-        assert played and all(_same(e.played_on, thread) for e in played)
+        assert played and all(_same(e.played_on, gui) for e in played)
+
+    def test_no_qt_multimedia_symbol_is_reached_off_the_gui_thread(
+            self, qapp, tmp_path, monkeypatch, qtbot):
+        """The pin for item 444: the thread of every Qt Multimedia call.
+
+        Stand-ins for ``QMediaDevices`` and ``QSoundEffect`` record the
+        thread they are reached on, so this fails the moment the device
+        listing or an effect moves back to the audio thread -- which is
+        what wedged the application. Nothing here touches a real device.
+        """
+        import PySide6.QtMultimedia as mm
+
+        threads = []
+
+        class Devices:
+            @staticmethod
+            def defaultAudioOutput():          # noqa: N802 - Qt naming
+                threads.append(QThread.currentThread())
+
+        class Effect(FakeEffect):
+            def __init__(self, _parent=None):
+                threads.append(QThread.currentThread())
+                super().__init__([])
+
+            def setSource(self, url):          # noqa: N802 - Qt naming
+                threads.append(QThread.currentThread())
+                super().setSource(url)
+
+            def play(self):
+                threads.append(QThread.currentThread())
+                super().play()
+
+        monkeypatch.setattr(mm, "QMediaDevices", Devices)
+        monkeypatch.setattr(mm, "QSoundEffect", Effect)
+        engine = snd.SoundEngine(None, threaded=True,
+                                 cache_root=tmp_path / "sounds")
+        try:
+            engine.apply(snd.SoundSettings(enabled=True, bed=True))
+            qtbot.waitUntil(lambda: engine.available is not None,
+                            timeout=60000)
+            engine.play("click")
+            engine.play("run_finished")
+            qtbot.waitUntil(lambda: "bed" in engine.player()._effects,
+                            timeout=60000)
+        finally:
+            audio = engine.audio_thread()
+            assert engine.shutdown(20000) is True, (
+                "the audio thread had to be parked")
+        gui = qapp.thread()
+        assert threads, "nothing reached Qt Multimedia at all"
+        assert all(_same(t, gui) for t in threads), (
+            "Qt Multimedia was reached off the GUI thread")
+        assert not any(_same(t, audio) for t in threads)
 
     def test_quitting_ends_the_thread_and_lets_go_of_every_effect(
             self, make_engine, sink, qtbot):
@@ -641,15 +705,15 @@ class TestTheAudioThread:
         assert engine.shutdown() is True, "a second quit is harmless"
         assert not engine.filter_installed
 
-    def test_the_devices_are_listed_before_the_first_effect_is_built(
+    def test_the_device_is_connected_once_and_before_the_first_effect(
             self, qapp, tmp_path, monkeypatch):
-        """The order is the fix for a 180-320 ms GUI stall, so it is pinned.
+        """The sound server is connected to ONCE, and never by surprise.
 
-        Measured 2026-09-19: a ``QSoundEffect`` constructor as the first Qt
-        Multimedia call on the audio thread stopped the GUI thread while the
-        sound server was connected; ``QMediaDevices.defaultAudioOutput()``
-        first did the same connection without stopping it. Stand-ins record
-        the order; nothing here reaches a real device.
+        Connecting cost 354 ms on the maintainer's workstation, and it is
+        the GUI thread that has to pay it (item 444). So it is paid at one
+        named place -- ``_SoundPlayer.warm`` -- ahead of the first effect,
+        and not again. Stand-ins record the order; nothing here reaches a
+        real device.
         """
         import PySide6.QtMultimedia as mm
 
@@ -672,10 +736,47 @@ class TestTheAudioThread:
         try:
             engine.apply(snd.SoundSettings(enabled=True, run_failed=False,
                                            run_finished=False))
+            engine.play("click")
+            engine._warm()
         finally:
             engine.shutdown()
         assert calls[0] == "devices" and calls.count("devices") == 1
         assert calls.count("effect") == 4, calls
+
+    def test_switching_sound_on_warms_the_device_on_an_idle_timer(
+            self, qapp, tmp_path, monkeypatch, qtbot):
+        """Nobody waits for the sound server, because nobody is waiting.
+
+        The connection is scheduled rather than made: `apply` returns
+        without it, and it happens once the application has run out of
+        other work. That is the whole of the item's third point -- the
+        cost is real, so it is paid where it is not felt, and logged.
+        """
+        import PySide6.QtMultimedia as mm
+
+        calls = []
+
+        class Devices:
+            @staticmethod
+            def defaultAudioOutput():          # noqa: N802 - Qt naming
+                calls.append("devices")
+
+        monkeypatch.setattr(mm, "QMediaDevices", Devices)
+        monkeypatch.setattr(mm, "QSoundEffect", FakeEffect)
+        monkeypatch.setattr(snd, "DEVICE_WARM_DELAY_MS", 5)
+        engine = snd.SoundEngine(None, threaded=True,
+                                 cache_root=tmp_path / "sounds")
+        try:
+            engine.apply(snd.SoundSettings(enabled=True, click=False,
+                                           run_finished=False,
+                                           run_failed=False))
+            assert calls == [], "the device was connected inside apply()"
+            qtbot.waitUntil(lambda: calls == ["devices"], timeout=5000)
+            engine.apply(snd.SoundSettings(enabled=True))
+            qtbot.wait(60)
+            assert calls == ["devices"], "connected more than once"
+        finally:
+            engine.shutdown()
 
     def test_the_gui_thread_never_waits_for_a_render(self, make_engine,
                                                      sink, qtbot, qapp):
