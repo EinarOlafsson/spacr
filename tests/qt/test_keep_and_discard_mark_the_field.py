@@ -89,10 +89,8 @@ def test_the_count_is_read_at_the_press_not_at_the_load(screen, two_fields):
 
 
 def test_a_field_opened_again_shows_the_verdict_it_has(screen, qtbot):
+    """A press moves on, so this walks back to check the verdict stuck."""
     screen._btn_discard.click()
-    assert screen._btn_discard.isChecked()
-    assert not screen._btn_keep.isChecked()
-    screen._on_next()
     qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
     assert not screen._btn_keep.isChecked()
     assert not screen._btn_discard.isChecked(), (
@@ -102,10 +100,59 @@ def test_a_field_opened_again_shows_the_verdict_it_has(screen, qtbot):
     assert screen._btn_discard.isChecked()
 
 
-def test_changing_the_verdict_replaces_the_row(screen, two_fields):
+def test_a_verdict_moves_to_the_next_field(screen, qtbot, two_fields):
+    """The maintainer, 2026-09-20: pressing either should take the user to
+    the next image. Curation is a walk and a verdict is what ends a field."""
+    assert screen._current_index == 0
     screen._btn_keep.click()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
+    assert screen._current_index == 1
+    assert os.path.basename(
+        screen._image_files[screen._current_index]) == "b.tif"
+    assert _rows(two_fields)[0]["image path"] == os.path.join(
+        str(two_fields), "a.tif"), "the verdict was written for the field "\
+        "that was open, not the one it moved to"
+
+
+def test_the_last_field_is_marked_and_the_screen_stays_on_it(screen, qtbot,
+                                                             two_fields):
+    """There is nowhere to go from the last field, and it still gets marked."""
+    screen._on_next()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
+    assert screen._current_index == 1
     screen._btn_discard.click()
+    assert screen._current_index == 1
+    rows = {row["image path"]: row for row in _rows(two_fields)}
+    assert rows[os.path.join(str(two_fields), "b.tif")]["keep"] == "false"
+    assert "last field" in screen._status_label.text()
+
+
+def test_the_status_line_names_the_field_that_was_judged(screen, qtbot):
+    """Loading the next field rewrites the status line, so the verdict has
+    to name the field it was about or it reads as a verdict on the new one."""
+    screen._btn_keep.click()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
+    said = screen._status_label.text()
+    assert "a.tif" in said and "kept" in said
+    assert "b.tif" in said, "it should say which field is open now"
+
+
+def test_changing_the_verdict_replaces_the_row(screen, qtbot, two_fields):
+    """Changing your mind means going BACK to the field, since 2026-09-20.
+
+    A press now advances, so Keep-then-Discard marks two different fields
+    rather than correcting one. The row replacement is still what happens
+    when the same field is judged twice, which is what this holds.
+    """
+    screen._btn_keep.click()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
+    screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
+    screen._btn_discard.click()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
     rows = _rows(two_fields)
     assert len(rows) == 1 and rows[0]["keep"] == "false"
+    screen._on_prev()
+    qtbot.waitUntil(lambda: not screen._loading, timeout=5000)
     assert screen._btn_discard.isChecked()
     assert not screen._btn_keep.isChecked()

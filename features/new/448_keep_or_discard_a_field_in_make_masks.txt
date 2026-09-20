@@ -139,3 +139,62 @@ WHAT IS NOT DONE: the nine-language catalogs owe the two button captions,
 their tooltips and the status sentence. Translations are low priority by
 the maintainer's instruction of this date, so they go with the consolidated
 pass.
+
+--------------------------------------------------------------------------------
+2026-09-20 (later) -- A VERDICT NOW MOVES TO THE NEXT FIELD, AND THE BUTTONS MOVED
+--------------------------------------------------------------------------------
+
+Two follow-ups from the maintainer the same day:
+
+  "also for hte keep discard button, pressing either should take the user
+   to the next image"
+  "so the buttons should also be beside preveous, next , discard, keep"
+
+WHERE THEY ARE NOW. Out of the tools row beside Features, into the
+navigation row, in the order the request names: Prev image, Next image,
+Discard, Keep, then Save mask. They also joined `_sync_button_states`, so
+they are disabled until a folder is open like every other control that
+acts on a field -- they were the only two in that row that were not.
+
+PRESSING EITHER ADVANCES. `_on_curate` ends in `_advance_after_verdict`,
+which calls `_on_next` rather than moving the index itself, so there is one
+definition of what next means: it retires a recrop first, and it stops at
+the end of the folder instead of wrapping.
+
+THE STATUS LINE HAD TO BE REBUILT, not appended to. `_note_curation` used to
+read the status line, split it, and put "kept" after the field's name. That
+cannot survive the move: loading the next field rewrites the line, so a
+verdict appended before the move is gone a moment later, and one appended
+after the move reads as a verdict on the field that just OPENED -- the
+opposite of what happened. The name of the judged field is carried into
+`_advance_after_verdict` and the sentence is built there:
+"a.tif kept  —  now on b.tif", or "... that was the last field in this
+folder" when there is nowhere to go.
+
+WHAT THIS COSTS, and it is worth saying because it was free this morning:
+KEEP THEN DISCARD NO LONGER CORRECTS A VERDICT. The first press has already
+moved on, so the second marks the NEXT field. Changing your mind now means
+walking back to the field and pressing again -- the buttons still show the
+verdict a field already has, and the row is still replaced rather than
+duplicated. `test_changing_the_verdict_replaces_the_row` was rewritten to
+do exactly that, and it is the test that would have caught this being
+silently lost.
+
+FOUR TESTS ADDED, TWO REWRITTEN, in
+tests/qt/test_keep_and_discard_mark_the_field.py: that a verdict moves to
+the next field and is written for the field that WAS open rather than the
+one it moved to; that the last field is still marked and the screen stays on
+it; that the status line names the judged field and the new one; and the two
+above that assumed a press left you where you were. 772 pass across the 27
+Make Masks and magnifier files.
+
+MEASURED AGAINST REAL DATA, not only the fixture: the engine was driven
+against a staged folder of the live_cell project on /mnt/wd4tb (the sibling
+layout, images/ and masks/ in different folders, which is the case this
+item's open question was about). curation_folder resolves to
+<images>/csv, mask_save_path returns the sibling mask, and keep-then-discard
+on one field leaves one row reading false.
+
+STILL NOT DONE, and now slightly larger: the nine-language catalogs owe the
+two captions, their tooltips -- both reworded to say the press moves on --
+and the status sentence.

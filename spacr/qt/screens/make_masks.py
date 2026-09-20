@@ -4995,6 +4995,30 @@ class MakeMasksScreen(QWidget):
         self._btn_next.clicked.connect(self._on_next)
         nav_row.addWidget(self._btn_next)
 
+        self._btn_discard = QPushButton("Discard")
+        self._btn_discard.setIcon(iconset.icon("trash"))
+        self._btn_discard.setCheckable(True)
+        self._btn_discard.setCursor(Qt.PointingHandCursor)
+        self._btn_discard.setToolTip(
+            "Mark this field as one to discard and move to the next. "
+            "Nothing is deleted: the verdict goes to csv/keep_discard.csv "
+            "beside the images, and the field, its mask and its objects "
+            "stay as they are.")
+        self._btn_discard.clicked.connect(lambda: self._on_curate(False))
+        nav_row.addWidget(self._btn_discard)
+
+        self._btn_keep = QPushButton("Keep")
+        self._btn_keep.setIcon(iconset.icon("check"))
+        self._btn_keep.setCheckable(True)
+        self._btn_keep.setCursor(Qt.PointingHandCursor)
+        self._btn_keep.setToolTip(
+            "Mark this field as one to keep and move to the next. The "
+            "verdict is written to csv/keep_discard.csv beside the images, "
+            "with the image, its mask and the number of objects the mask "
+            "holds right now.")
+        self._btn_keep.clicked.connect(lambda: self._on_curate(True))
+        nav_row.addWidget(self._btn_keep)
+
         self._btn_save = QPushButton("Save mask")
         self._btn_save.setObjectName("PrimaryButton")
         self._btn_save.setIcon(iconset.contrast_icon("save"))
@@ -5418,30 +5442,6 @@ class MakeMasksScreen(QWidget):
         self._btn_features.clicked.connect(self._on_open_features)
         row.addWidget(self._btn_features)
 
-        self._btn_keep = QPushButton("Keep")
-        self._btn_keep.setIcon(iconset.icon("check"))
-        self._btn_keep.setMinimumHeight(32)
-        self._btn_keep.setCheckable(True)
-        self._btn_keep.setCursor(Qt.PointingHandCursor)
-        self._btn_keep.setToolTip(
-            "Mark this field as one to keep. The verdict is written to "
-            "csv/keep_discard.csv beside the images, with the image, its "
-            "mask and the number of objects the mask holds right now.")
-        self._btn_keep.clicked.connect(lambda: self._on_curate(True))
-        row.addWidget(self._btn_keep)
-
-        self._btn_discard = QPushButton("Discard")
-        self._btn_discard.setIcon(iconset.icon("trash"))
-        self._btn_discard.setMinimumHeight(32)
-        self._btn_discard.setCheckable(True)
-        self._btn_discard.setCursor(Qt.PointingHandCursor)
-        self._btn_discard.setToolTip(
-            "Mark this field as one to discard. Nothing is deleted: the "
-            "verdict goes to csv/keep_discard.csv beside the images, and "
-            "the field, its mask and its objects stay as they are.")
-        self._btn_discard.clicked.connect(lambda: self._on_curate(False))
-        row.addWidget(self._btn_discard)
-
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
         self._btn_settings.setCheckable(True)
@@ -5529,21 +5529,47 @@ class MakeMasksScreen(QWidget):
                 engine.curation_verdict(self._folder, image_path))
             return None
         self._show_curation_verdict(keep)
-        self._note_curation(keep)
+        self._advance_after_verdict(keep, os.path.basename(image_path))
         return written
 
-    def _note_curation(self, keep: bool) -> None:
-        """Put the verdict after the field's name on the status line.
+    def _advance_after_verdict(self, keep: bool, judged: str) -> bool:
+        """Move to the next field, and say what the verdict was on the way.
 
-        The same place :meth:`_show_session_notice` writes, so a verdict
-        reads as something that happened to the field on screen rather than
-        as a message about the folder.
+        The maintainer, 2026-09-20: "for the keep discard button, pressing
+        either should take the user to the next image." Curation is a walk,
+        and a verdict is the thing that ends a field -- a curator who has to
+        press Keep and then Next presses twice per field for a thousand
+        fields.
+
+        :meth:`_on_next` is called rather than the index being moved here,
+        so there is ONE definition of what next means -- it retires a recrop
+        first, and it stops at the end of the folder instead of wrapping.
+
+        THE MESSAGE IS BUILT HERE AND NOT IN A HELPER THAT APPENDS TO THE
+        STATUS LINE. Loading the next field rewrites that line, so a verdict
+        appended before the move is gone a moment later, and one appended
+        after the move reads as a verdict on the field that just opened --
+        which is the opposite of what happened. The name of the field that
+        was judged is therefore carried in and spelled out.
 
         :param keep: True for Keep, False for Discard.
+        :param judged: the basename of the field the verdict was about.
+        :returns: whether the screen moved to another field.
         """
         said = "kept" if keep else "discarded — nothing was deleted"
-        current = self._status_label.text().split("  —  ")[0]
-        self._status_label.setText(f"{current}  —  {said}")
+        was = self._current_index
+        self._on_next()
+        moved = self._current_index != was
+        if moved:
+            now = os.path.basename(self._image_files[self._current_index])
+            self._status_label.setText(f"{judged} {said}  —  now on {now}")
+        elif (self._image_files
+                and self._current_index >= len(self._image_files) - 1):
+            self._status_label.setText(
+                f"{judged} {said}  —  that was the last field in this folder")
+        else:
+            self._status_label.setText(f"{judged} {said}")
+        return moved
 
     def _show_curation_verdict(self, verdict):
         """Put the field's current verdict on the two buttons.
@@ -8727,6 +8753,7 @@ class MakeMasksScreen(QWidget):
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
+                   self._btn_discard, self._btn_keep,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
                    self._btn_dilate, self._btn_shrink, self._btn_clear,
                    *self._mode_buttons.values()):
