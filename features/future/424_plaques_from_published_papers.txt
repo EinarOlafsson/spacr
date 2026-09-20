@@ -4,8 +4,17 @@ PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
 
 Filed as 415 on 2026-09-18; renumbered 2026-09-19 because 415 also names features/new/415_the_startup_window_text_is_bright_in_dark_mode.txt.
 
-Status:    NOT STARTED. Filed 2026-09-18 with the instruction not to implement
-           it. Nothing below has been built or prototyped.
+Status:    NOT STARTED AS A MODULE; ITS FIRST OPEN QUESTION IS MEASURED.
+           2026-09-19: the transfer spike the maintainer asked for ran --
+           28 open-access CC-BY papers, 182 figures, 369 plaque-image regions
+           labelled by eye, both zoo detectors scored. VERDICT: PARTIAL. The
+           detector finds about half of the whole ROUND wells printed in
+           figures (125/259) and essentially none of the CROPPED rectangular
+           plaque panels (6/110) -- and crops are 61 of the 69 plaque regions
+           in the Toxoplasma arm, which is the form this pipeline would
+           actually meet. Harness: tools/measure_plaque_detector_transfer.py.
+           Evidence: features/data/424_detector_transfer_2026-09-19.json.
+           Nothing else below has been built. See the trailing note.
 
 Shape:     The plaque module takes a DOI, a PMID or a PDF. It finds the figures,
            finds the plaque images inside them with the trained YOLO detector,
@@ -103,3 +112,185 @@ WHY IT IS FILED RATHER THAN BUILT
 
 Requested 2026-09-18 with the instruction to add it to the list and not
 implement it.
+
+--------------------------------------------------------------------------------
+Decided: 2026-09-19, by the maintainer, through the question prompt
+--------------------------------------------------------------------------------
+
+  "Go as recommended"
+
+The recommendation accepted: FIRST measure whether the plate-photo YOLO
+detector transfers to figure crops at all, and build on it only if it does;
+scale reported as ratios within a figure unless a scale bar or a well is
+detected, saying which; derived measurements plus DOI and figure reference
+stored for every paper, image crops only for open-access CC-BY papers; when
+the two condition strategies disagree, record both with a conflict flag; PDF
+text layer only in v1, no OCR; deduplicate by DOI plus image hash.
+
+This note answers the first clause and nothing else. Scale, conditions, the
+database and the OCR question are untouched.
+
+--------------------------------------------------------------------------------
+2026-09-19 — DOES IT TRANSFER? PARTIAL: ROUND WELLS YES, CROPPED PANELS NO
+--------------------------------------------------------------------------------
+
+WHAT WAS MEASURED, AND WHAT A REGION MEANS
+
+  Two samples, drawn from Europe PMC's open-access subset, CC-BY only, with a
+  fixed seed, and with EVERY PMC ARTICLE IN THE v4 DETECTOR'S PUBLISHED SPLIT
+  (670 of them) refused at sampling time -- v4 trained on 939 reviewed PMC
+  figures, so a paper it trained on measures nothing.
+
+    arm A   20 papers, any organism, "plaque assay" and its variants.
+            129 figures. Mostly virology and phage; that is what the
+            open-access plaque literature is.
+    arm B    8 papers, Toxoplasma only, none of them in v4's split.
+            53 figures. The in-domain arm.
+
+  Every figure of every sampled paper was kept -- blots, graphs, schematics,
+  micrographs -- because precision measured only on plaque figures is not
+  precision. 158 of the 182 figures hold no plaque image at all.
+
+  A REGION is one plaque-assay image a measurement would have to separate from
+  its neighbours, counted from the figure by eye, in two kinds:
+
+    well    a whole round culture surface photographed whole: a well, a dish,
+            a plate. This is what the detector was trained to find.
+    crop    a plaque image that is not round: a stained monolayer field, a
+            lawn strip, a dilution row.
+
+  Whether plaques happen to be countable in a region does not change that it
+  is one; a graph OF plaque counts is not a region. Every box was judged from
+  a per-model overlay: tp = first box on a region, dup = a later box on a
+  region already claimed, fp = anything else. Duplicates count against
+  precision because a duplicate becomes a duplicated measurement row.
+
+THE TABLE
+
+  v1 = toxoplasma_well_detector_v1, yolo_welldetect_v3.pt, PLATE PHOTOGRAPHS
+       ONLY. This is the one 424's question is about.
+  v2 = toxoplasma_well_detector_v2, yolo_welldetect_v4.pt, the CURRENT zoo
+       detector, trained with 939 PMC figures in it.
+  Both at conf 0.25, imgsz 640, on the CPU with the GPU hidden; 182 figures
+  x 2 models in 31 s, which is why this measurement never queued for a GPU.
+
+  arm A -- 20 papers, any organism; 129 figures, 251 wells, 49 crops,
+           114 figures with no plaque image
+
+    model  boxes   TP  dup   FP  precision  wells found   crops found  macro
+    v1       168  127   21   20      0.756  121/251 .482    6/49 .122   .631
+    v2        36   15    9   12      0.417    9/251 .036    6/49 .122   .233
+
+  arm B -- 8 Toxoplasma papers, none in v4's split; 53 figures, 8 wells,
+           61 crops, 44 figures with no plaque image
+
+    model  boxes   TP  dup   FP  precision  wells found   crops found  macro
+    v1         8    4    0    4      0.500      4/8 .500    0/61 .000   .111
+    v2         5    4    0    1      0.800      4/8 .500    0/61 .000   .111
+
+  POOLED: wells 125/259 (48 %) for v1 and 13/259 (5 %) for v2; crops 6/110
+  (5 %) for both; false boxes on the 158 figures with no plaque image, 23 for
+  v1 and 13 for v2.
+
+  TWO RECALLS ARE PRINTED AND NEITHER IS "THE" ONE. Micro pools every region,
+  so ONE 96-well plate photograph (PMC13278376 Fig 8, 192 wells, of which v1
+  boxed 88 and v2 none) carries 64 % of arm A's regions. Macro averages the
+  per-figure recall, so every figure counts once. They disagree -- .423 and
+  .631 for v1 in arm A -- and printing one alone would be choosing.
+
+VERDICT: PARTIAL, AND THE PART THAT FAILS IS THE PART THIS PIPELINE NEEDS
+
+  * It TRANSFERS to round wells and dishes printed in figures. v1 finds about
+    half of them, across organisms it never trained on -- phage plates,
+    thogotovirus and adenovirus crystal-violet wells, Listeria plaque
+    monolayers. Cropped, rescaled and JPEG-compressed did not stop it.
+  * It DOES NOT transfer to cropped rectangular plaque panels: 6 of 110, and
+    all six of those are the round dilution spots of one phage strip figure.
+    In Toxoplasma papers the number is 0 of 61.
+  * That is the form Toxoplasma papers print. 61 of arm B's 69 regions were
+    crops: 38 in one mSphere figure (TgPDE1-18, vehicle and auxin), 14 in a
+    PLOS Pathogens glycolysis paper, 5 stained fields in a PLOS NTD paper,
+    4 in an mBio figure. All of them measurable; none of them found.
+  * PRECISION IS NOT FREE EITHER. v1's 23 false boxes landed on a pie chart,
+    a cartoon virion, two clusters of scatter dots, a brightfield organoid,
+    ten bacterial MOTILITY plates -- round dishes that are not plaque assays
+    at all -- and a domain diagram. A pipeline that measures those and writes
+    them to the database with a DOI attached is worse than one that finds
+    less.
+
+THE SURPRISE, AND IT MATTERS FOR THE ZOO
+
+  THE OLDER DETECTOR BEAT THE CURRENT ONE ON EVERY FIGURE THAT WAS NOT
+  TOXOPLASMA. v4 fired 36 times against v1's 168 in arm A and found 9 of 251
+  wells against 121. It is not broken: on the Toxoplasma arm the two are level
+  (4 of 8 wells each) and v4 is the cleaner of the two (1 false box against 4).
+  v4 was trained with 614 confirmed no-well figures to stop it boxing
+  everything, and what it appears to have learned with them is Toxoplasma
+  plaque wells specifically. 437 records that v4 beats v3 on the shared test
+  set; that test set is Toxoplasma. Both statements are true, and 424 needs
+  the second one: THE ZOO'S CURRENT DETECTOR IS THE WRONG FRONT HALF FOR A
+  CROSS-ORGANISM LITERATURE PIPELINE, and the deprecated-looking v3 row is
+  the better one for it. Neither row says this; 437's "deliberately not
+  removing the v3 row" turns out to have been righter than its reason.
+
+WHAT THIS SAYS ABOUT BUILDING 424
+
+  Building on the detector alone would fetch a paper, find half its wells,
+  miss every cropped panel, and add a handful of pie charts. The module needs
+  a detector that has seen a cropped plaque panel. A training round is written
+  up as a queued GPU job -- see below -- and its prerequisite is annotation,
+  not GPU time.
+
+A MEASUREMENT DEFECT FOUND AND FIXED MID-RUN, RECORDED BECAUSE IT WOULD HAVE
+GONE UNNOTICED
+
+  The figure fetcher kept one file per figure ranked BY FORMAT. PLOS ships
+  `g001.webp` at 1600 px beside `g001.gif` at 200 px, and webp was not in the
+  extension list at all, so six PLOS figures were handed to the detector as
+  200-pixel thumbnails. Nothing failed; the detector simply found nothing, and
+  "found nothing" is the result being measured. The rule is now SIZE FIRST
+  with format only breaking ties, the figures were refetched, and the six were
+  relabelled (they hold no plaque image either way; one extra false box
+  appeared at full size). Every figure's pixel dimensions are now recorded
+  beside its hash.
+
+HOW TO REPRODUCE IT
+
+    python tools/measure_plaque_detector_transfer.py --out <dir> \
+        --stages sample,figures,detect --papers 20 --seed 424 \
+        --main-figures-only --overlay-all \
+        --exclude-pmcids <v4 repo training/split.csv>
+    (look at overlays/<model>/*.png, write labels.json)
+    python tools/measure_plaque_detector_transfer.py --out <dir> --stages score
+
+  The labels, the boxes, the papers with their DOIs and licences, and both
+  summaries are committed at
+  features/data/424_detector_transfer_2026-09-19.json, so a new detector can
+  be scored against the SAME hand labels rather than a new opinion.
+
+WHAT IS LEFT, HONESTLY
+
+  * ONE READER LABELLED 182 FIGURES, from the overlays, in one pass. Nobody
+    has checked the labels against a second reader, and the boxes were visible
+    while the regions were being counted, so a missed region next to a drawn
+    box is the anchoring failure this design can have. The 96-well figure was
+    counted from a zoomed crop and its duplicate boxes were found by IoU
+    rather than by eye.
+  * n IS SMALL WHERE IT MATTERS MOST. Arm B holds 8 round wells. 4 of 8 is a
+    number with a confidence interval wider than the difference it is being
+    used to describe; it is the crops (0 of 61) that carry the verdict.
+  * ONLY THE FIRST OPEN QUESTION IS ANSWERED. Scale, the two condition
+    strategies and their conflict flag, deduplication by DOI plus image hash
+    (the harness hashes and flags duplicates but nothing consumes it), the
+    database, and the PDF text layer are all untouched.
+  * The harness calls spacr.plaque.detect_wells with min_axis_ratio=0, so
+    nothing is dropped before a person sees it; each box records whether the
+    shipped 0.7 filter would have kept it. It would have kept 173 of v1's 176
+    boxes and 40 of v2's 41, so the filter is not what is losing the crops.
+  * A GPU JOB IS QUEUED AND MUST NOT BE RUN YET:
+    scratchpad/gpu_queue/424a-detector-transfer-1.md. It trains a two-class
+    detector (well, plaque_panel) on v4's data plus 300-600 newly annotated
+    figures, 30-45 min, ~6 GB VRAM, and its success check is this same
+    182-figure set rescored against these same labels -- 6 of 110 crops today.
+    Its prerequisite is the annotation, which is human work, and a training
+    run needs the maintainer's go-ahead.
