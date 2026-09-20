@@ -10,12 +10,17 @@ Status:    BUILT, ~97%, corrected 2026-09-20. On nightly and inside v1.5.0.8:
            offers otsu, cellpose, four Cellpose 3 models, dinocell and
            samcell. The maintainer's second round is
            new/417_the_magnifier_round_two.txt, DONE. Six of the seven things
-           WHAT IS LEFT named are now done -- see the 2026-09-20 note at the
-           foot, which also reports a six-second GUI freeze it turned up and
-           fixed. STILL OPEN, and why this is not in features/new: a keyboard
-           shortcut for the toggle (blocked on nine hand-written compact
-           catalog rows, recipe in the note), the Overlap preview under Whole
-           image, and whole-image Cellpose measured on a CPU.
+           WHAT IS LEFT named are now done -- see the two 2026-09-20 notes at
+           the foot, the first for a six-second GUI freeze they turned up and
+           fixed, the second for the review of that pass: the box's promise
+           moved off the GUI thread, the harness stopped writing to the
+           user's own settings, and the box measured at the size item 417
+           lets a user set it to. STILL OPEN, and why this is not in
+           features/new: a keyboard shortcut for the toggle (blocked on nine
+           hand-written compact catalog rows, recipe in the note), the
+           Overlap preview under Whole image, whole-image Cellpose measured
+           on a CPU, and a move at the largest box, which is 53.4 ms and
+           should be one frame.
            (Was: BUILT, ~90%, corrected 2026-09-19; before that FUTURE, filed
            2026-09-15, "Not started".)
 Requested: 2026-09-15, by the maintainer, in these words: "if the user flips
@@ -431,10 +436,15 @@ WHAT WAS DONE
          region       median 4.8 ms      slowest 11.9 ms       0 frames dropped
          whole image  median 2.3 ms      slowest  3.9 ms       0 frames dropped
 
-     NO BUDGET BREACH ON A MOVE. One hitch remains and is reported on its
-     own: the first move after the magnifier is switched on costs 17-34 ms,
-     one or two frames, once -- the worker's first import of the
-     segmentation stack.
+     NO BUDGET BREACH ON A MOVE AT THE DEFAULT BOX. One hitch remains and is
+     reported on its own: the first move after the magnifier is switched on
+     costs 17-34 ms, one or two frames, once -- the worker's first import of
+     the segmentation stack.
+     THAT SENTENCE WAS TOO BROAD, and the second note of 2026-09-20 corrects
+     it: the row measured one box size on a field with no mask file, which is
+     the one case in which neither the Overlap rule nor most of the lens
+     costs anything. At the largest box item 417 allows the same move cost a
+     median 183.9 ms. See that note for what it is now and what is left.
 
      THE LOAD AVERAGE NEARLY TURNED THIS INTO A FALSE REGRESSION. The first
      reading had the region scope at a median 17.5 ms against the base's
@@ -472,6 +482,9 @@ WHAT WAS DONE
      adds, ghosted is what it does not. Nothing is computed under Replace,
      which takes nothing away, or over an empty mask. Changing the rule asks
      no model and does not discard the whole-image objects.
+     IT IS BUILT ON THE WORKER, beside the outlines, since 2026-09-20 -- the
+     first version ghosted inside paintEvent. See the second note of that
+     date.
 
   5. AN ETA ON THE BUSY BAR, from a measurement and only from one: the
      seconds per megapixel the last run under this mode and model took. The
@@ -532,12 +545,21 @@ EVIDENCE
   * The 32 files named for make_masks, magnifier, mask_engine or the paint
     harness: see the commit bodies for the count of the run each was taken
     from.
-  * RED, EXPECTED, AND MEASURED AGAINST THE BASE (5800dd4bf):
+  * RED, EXPECTED, AND MEASURED AGAINST THE MERGE BASE (82d9b5f6f):
     `test_every_help_string_on_the_panel_has_an_exact_catalog_row` goes from
-    80 missing rows to 88. The eight are ONE tooltip -- Overlap, which gained
-    a sentence about what the box now shows -- in eight locales; the ninth
-    locale was missing that row already. The other 80 are 419's and 423's
-    rename of Classical to Otsu, red on this branch's base.
+    90 missing rows to 99 -- eleven sources in nine locales, against ten.
+    The nine added are ONE tooltip -- Overlap, which gained a sentence about
+    what the box now shows -- in NINE locales: the old wording ("Replace lets
+    the new object take every pixel it covers.") is in all nine catalogs
+    under docs/i18n/reviewed/runtime/, so the rewording orphans nine rows and
+    not eight. The other 90 are 419's and 423's rename of Classical to Otsu,
+    red on this branch's base before this branch existed.
+    (CORRECTED 2026-09-20. This block first said 80 -> 88, "the ninth locale
+    was missing that row already", and named the wrong base. Every figure was
+    wrong and the debt was understated by one locale, which would have left
+    one language with the Overlap tooltip untranslated after the
+    consolidated pass. Counted again, per locale, from the test's own
+    output.)
   * i18n owed, listed exactly: five new UI sources --
       "Magnifier: segmenting this region — its objects are added as soon as
        the box is up to date."
@@ -547,3 +569,110 @@ EVIDENCE
       "Magnifier could not add objects: {error}"
       "about {seconds} s left"
     and one reworded source, the Overlap tooltip.
+
+--------------------------------------------------------------------------------
+2026-09-20 — THE REVIEW'S FIVE, AND THE BOX MEASURED AT THE SIZE THE USER
+              IS ALLOWED TO SET IT TO
+--------------------------------------------------------------------------------
+
+Decided: the maintainer asked on 2026-09-19 for both feature lists to be
+finished; this pass is the review of the note above, applied. Nothing here
+changes what was asked for -- it fixes what the last pass got wrong, and
+measures the one thing it had measured in the only case where the answer is
+free. Same branch, home/407-magnifier-polish, rebased onto origin/nightly.
+
+1. THE HARNESS WAS WRITING TO THE MAINTAINER'S OWN SETTINGS. `measure_
+   magnifier` drives a real Make Masks screen, and opening a folder is
+   remembered: `_open_folder` ends in `prefs.push_recent_source`, which
+   writes $HOME/.config/spacr/qt.conf. The row runs by default and the tool
+   documents itself as `python tools/perf_paint.py`, so a run by hand put the
+   harness's own TemporaryDirectory at the head of the recent-folder list and
+   left `last` pointing at a path that had already been deleted. Every
+   measurement now runs inside `_settings_elsewhere`, which points QSettings
+   at a throwaway folder and puts each format's location back afterwards --
+   reversible rather than an env var, so a harness called from a test session
+   leaves that session's sandbox where it found it.
+   `test_the_magnifier_row_leaves_the_users_own_settings_alone` pins it, and
+   was calibrated the way this harness's other tests are: with the isolation
+   neutered it fails.
+
+2. THE BOX'S PROMISE IS BUILT ON THE WORKER NOW. The ghost -- the rule's
+   answer, drawn as faded pixels -- was computed inside paintEvent, over the
+   box's pixels, per delivered result. The rule is the same one whose cost is
+   in the table above: 125.5 ms at 2,048 px under Clip, on the GUI thread,
+   while the mouse moves. It is `_ghosted_overlay` on the region worker now,
+   beside the outlines it fades; the mask crop it needs travels in the
+   request, as the image crop always has, and one QImage is still built per
+   result because the ghost IS the picture rather than a layer over it.
+   A rule change or an edit to the mask under the box makes that promise
+   stale: the request carries the rule and a mask generation number, the box
+   notices when it is drawn, the frame goes dashed -- the vocabulary it
+   already had for "not up to date" -- and the region is asked for again. The
+   model is not: the worker keeps its last raw answer for the same box and
+   settings. A drag's frames ask for no ghost at all, since nobody draws
+   them.
+
+3. THE HARNESS COULD NOT SEE ANY OF THAT, which is why the last note could
+   say "no budget breach" and be wrong. It wrote one field and no mask file,
+   so `load_image_and_mask` made a mask of zeros, so the rule had nothing to
+   take away and the preview never ran in any harness run; and it measured
+   one box size, 128 px, when item 417's whole point was that the Size box
+   goes as high as the field is wide. The field is opened with half of every
+   object already painted in now, and the largest box is a row of its own.
+   Measured, 2048 px field, 40 moves, load 11, Otsu, Clip, ghost built:
+
+     box      before this note              after
+     128 px   median  6.7 ms  worst  12.1   median  3.9 ms  worst   8.8
+     2048 px  median 183.9 ms  worst 391.2   median 53.4 ms  worst 110.9
+                          23 frames dropped               6 frames dropped
+
+4. WHAT THE 2,048 px ROW ACTUALLY WAS, and it was not the ghost. The box is
+   not bounded by the window: its side is the Size box's value in IMAGE
+   pixels and the lens draws it `zoom` times larger again, so on that field
+   most of the lens is off the widget -- and every pixel of the box was being
+   percentile-stretched, blended with the mask and handed to Qt on every
+   move. `_visible_part` cuts that to the part of the box that is on the
+   canvas, and `_stretch_for_box` splits "read the levels" from "rescale
+   these pixels": the levels still come from the WHOLE region the box
+   magnifies, from at most 262,144 of its pixels on a grid, so the box does
+   not change contrast as it slides off the canvas edge. At a box the window
+   holds, every pixel is sampled and every pixel is returned and the answer
+   is `normalize_uint16`'s to the byte --
+   `test_a_box_that_fits_is_stretched_exactly_as_it_always_was`.
+
+5. STILL OVER BUDGET AT THE LARGEST BOX, and this is the honest end of it.
+   53.4 ms is three frames, not one. Profiled at 2,048 px, per move, the
+   remainder is `mask_engine.overlay_mask` over the 1.4 Mpx of box that IS on
+   the canvas: 41.5 ms of float passes over 4.2 M elements, against 6.8 ms
+   for the stretch, 0.4 ms for the model's crop copy and 0.2 ms for the mask
+   crop. A magnifier set to the width of the field is the whole window, and
+   rendering a megapixel per mouse move is what that means. THE FIX IS NAMED
+   AND NOT DONE: at that size the box is CONSTANT -- `_magnifier_box` clips
+   to the field for every cursor -- so the picture could be built once per
+   (box, mask, levels) and every later move would be a clipped blit of a
+   sub-rectangle instead of a re-render. It is left out of this pass because
+   the miss that builds it is a 150 ms frame of its own and choosing when to
+   pay it is a design question, not a patch.
+
+6. THE ETA NO LONGER LEARNS ITS PACE FROM THE RUN THAT LOADED THE MODEL.
+   `_note_pace` kept whichever run finished first under a (mode, model), and
+   on a model that loads, that is the cold one: 10.3 s against 3.9 s for the
+   same field, this item's own measurement. The second run of a session --
+   the first one that shows a countdown -- therefore counted down from an
+   estimate about 2.6x too long and finished while the bar still promised
+   seconds. A mode that loads a model now spends its first measurement
+   learning that the model is in memory; the bar stays indeterminate through
+   the second run and counts down from the third. The Otsu mode loads
+   nothing, so its first run is still its pace.
+
+7. `_tick_magnifier_eta` reached into `_magnifier._image_estimate` for the
+   other half of an answer it had just been given publicly.
+   `estimated_seconds()` is beside `remaining_seconds()` now.
+
+The i18n debt in EVIDENCE was recounted and was wrong in every figure; the
+correction is in that block, with what it would have cost the consolidated
+pass. Tests: the four magnifier suites 131 passed, the paint harness 10
+passed (3 new), the comment guard 41 passed. STILL OPEN, unchanged: the
+toggle's keyboard shortcut, the Overlap preview under Whole image, and
+whole-image Cellpose on a CPU -- plus, new and measured, the box's picture at
+the largest sizes (5 above). ~97%, still features/future.
