@@ -1332,6 +1332,11 @@ def loudness_lufs(audio: np.ndarray, sr: int = SAMPLE_RATE) -> float:
     return -0.691 + 10.0 * math.log10(float(powers[keep].mean()))
 
 
+#: How many gain-then-knee rounds :func:`_to_loudness` takes. See its
+#: docstring for the measurement that chose it.
+LOUDNESS_ROUNDS = 6
+
+
 def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
                  sr: int = SAMPLE_RATE) -> np.ndarray:
     """Set a loop's programme loudness, then hold it under a peak ceiling.
@@ -1339,8 +1344,24 @@ def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
     Two memoryless operations and nothing else -- a gain and a ``tanh``
     knee -- because this runs AFTER the loop has been folded and anything
     with a memory would put a step back in at the seam. The knee costs
-    loudness, so the gain is re-derived after it; two rounds is enough to
-    land inside a tenth of a LU in every theme measured.
+    loudness, so the gain is re-derived after it.
+
+    HOW MANY ROUNDS, measured rather than assumed. This said "two rounds is
+    enough to land inside a tenth of a LU in every theme measured", and for
+    eight of the ten night themes it is. It is not for the two whose bed
+    still breaks the ceiling on the second round: the loop applies the knee
+    and then RETURNS, so the loudness the knee just cost is never taken back.
+    Measured 2026-09-20 on the ten themes' beds, declared -18.0 LUFS:
+
+        rounds   meridian   aphelion   peak after
+             2    -18.562    -18.579   -11.36 dB
+             4    -18.000    -18.000   -10.80 dB
+             6    -18.000    -18.000   -10.80 dB
+
+    Four is where both land exactly and the peak stops moving; six is what
+    runs, for the margin, and costs nothing when the loop returns early --
+    which it does on the first round for every theme that never reaches the
+    ceiling at all.
 
     :param audio: the folded loop, shape ``(2, n)``.
     :param target_lufs: programme loudness to aim for.
@@ -1350,7 +1371,7 @@ def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
     """
     ceiling = 10.0 ** (float(peak_db) / 20.0)
     out = np.asarray(audio, dtype=np.float64)
-    for _ in range(2):
+    for _ in range(LOUDNESS_ROUNDS):
         measured = loudness_lufs(out, sr)
         if not math.isfinite(measured):
             return out
