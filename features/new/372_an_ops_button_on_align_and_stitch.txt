@@ -5945,3 +5945,57 @@ Regenerating the settings-flow page took two tests green that were red on
 origin/nightly before this branch. STILL NOTHING SEGMENTED OR DECODED ON THE
 PLATE -- the two runs are queued, unchanged in scope, with a z-slice check
 added to job 1 -- and the nine-language catalogs are still owed.
+
+--------------------------------------------------------------------------------
+2026-09-20 — WELLS B1-B3 RAN ON THE PLATE, AND WHAT THEY SAY
+--------------------------------------------------------------------------------
+
+The first time the A4 phenotype phase, the refusal split and this engine's
+segmentation met real tiles. Run by the orchestrating session on the RTX 3090,
+`ops_gpu=True`, `n_workers=6`, library `pool10_prefixes.csv` rebuilt from
+`paper/primary_fixed_cell_screen/pool10_design.csv` -- 20,445 prefixes, which
+is the count PART 14-M recorded, so the design table's columns still hold.
+About 40 minutes for the three wells. Wells A1 and A2 were validated on
+2026-09-15; B1, B2 and B3 had never been run.
+
+                              B1          B2          B3
+  tiles placed            333/333     333/333     333/333
+  edges accepted          623/624     624/624     624/624
+  stitch residual median   0.20 px     0.16 px          --
+  stitch residual max      1.34 px     0.90 px          --
+  phenotype fields      1281/1281   1281/1281   1281/1281   (from 4 anchors)
+  objects                1,274,559   1,442,205   1,267,305
+  spots                  3,314,420   3,886,421   3,144,709
+  LIBRARY-EXACT RATE        0.7349      0.6658      0.7118
+  objects assigned         421,363     428,216     401,047
+  of those, exact           400,198     399,306     370,238
+  cycles refused              none        none        none
+  channels refused               0           0           0
+
+WHAT IS WORTH NOTING
+
+  * The A4 phase placed every phenotype field of every well, from four
+    anchors. That is the thing this run existed to test and it did not lose a
+    field.
+  * The solved canvas agrees with the layout to within 45 px on a 26,820 px
+    side in all three wells.
+  * B2 is the odd one: the most spots of the three and the LOWEST library-exact
+    rate, 0.666 against ~0.72 for its neighbours. Nobody has explained that
+    yet, and it is the first thing to look at before the rate is quoted
+    anywhere.
+  * The strict refusal reported per well -- 40, 57 and 52 groups of
+    observations that no window saw whole -- carries its own remedy: the
+    largest such group was 7x17, 8x20 and 27x11 px, and the window overlap has
+    to exceed the largest object. It is a setting, not a defect.
+  * `ops_reads` was NOT written, and that is correct: `ops_store_reads`
+    defaults to False because a full well is about thirty million rows. Its
+    own tooltip says to turn it on "for a well or two rather than for a
+    plate". The table exists; this run simply did not ask for it.
+  * 3,984,069 rows in ops_objects across the three wells; the database was
+    578 MB.
+
+THE FULL-PLATE RUN WAS STARTED AND DID NOT FINISH. It reached well A1's decode
+(A1 stitched 333/333 with all 624 edges, residual median 0.20 px, and placed
+1281/1281 phenotype fields) before the session that launched it ended and took
+the process with it. Nothing is wrong with the run; it needs restarting, and
+its results file was never written.
