@@ -3368,6 +3368,11 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
 _HELPER_CAPTION_RULES: dict[
     tuple[str, str], tuple[str, tuple[tuple[int, str], ...]]
 ] = {
+    # The same seam settings_search.py uses, in the Help search panel; its
+    # own parameter is `text` where the other names it `source`. Positions 1
+    # and 2 are a Qt setter name and an i18n property name.
+    ("help_search.py", "_localize"):
+        ("help_search.py", ((3, "text"),)),
     ("preferences.py", "_percent_row"):
         ("preferences.py", ((1, "label_text"), (5, "tip"))),
     ("prerun.py", "_label"): ("prerun.py", ((0, "text"),)),
@@ -3384,6 +3389,14 @@ _HELPER_CAPTION_RULES: dict[
         ("screens/data_manager.py", ((0, "text"),)),
     ("screens/distributed_jobs.py", "_add_profile_row"):
         ("screens/distributed_jobs.py", ((1, "source_label"),)),
+    # A refusal put in two places at once: the panel where the crops would
+    # have been, and the status line that survives a scroll.
+    ("screens/embeddings.py", "_refuse"):
+        ("screens/embeddings.py", ((0, "title"), (1, "detail"))),
+    # ``panel.say(...)``: the results panel's own method again, called from
+    # the embedding screen.
+    ("screens/embeddings.py", "say"):
+        ("widgets/regression_results.py", ((0, "text"), (1, "detail"))),
     ("screens/hit_list.py", "_set_summary"):
         ("screens/hit_list.py", ((0, "text"),)),
     # A settings category on the Make Masks panel: its heading and the
@@ -3412,6 +3425,10 @@ _HELPER_CAPTION_RULES: dict[
     # A QPlainTextEdit, whose contents the language pass does not translate.
     ("widgets/annotation_umap_tab.py", "say"):
         ("widgets/annotation_umap_tab.py", ((0, "text"),)),
+    # A module-level helper, not a method: it translates the caption it is
+    # given and fills its {label}, {minutes} and {error} fields.
+    ("widgets/cli_setup_panel.py", "_say"):
+        ("widgets/cli_setup_panel.py", ((0, "text"),)),
     ("widgets/fast_plots.py", "_gated"):
         ("widgets/fast_plots.py", ((1, "label"), (3, "reason"))),
     # The plot's style note, stored and shown later.
