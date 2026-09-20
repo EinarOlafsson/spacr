@@ -4,9 +4,23 @@ A DOCKER IMAGE FOR spaCR
 
 Filed as 416 on 2026-09-18; renumbered 2026-09-19 because 416 also names features/new/416_an_update_removes_every_older_spacr_first.txt.
 
-Status:    NOT STARTED. Filed 2026-09-18. The request was "add a docker for
-           spaCR if it makes sense to do so", so the first section is the
-           answer to that question rather than a plan.
+Status:    BUILT, AND PROVEN FOR THE CPU IMAGE. 2026-09-19. Every open
+           question below was answered by the maintainer on 2026-09-19 and
+           every answer is implemented: two Dockerfiles, an entrypoint, a
+           smoke script, one release workflow and an installer-guide section.
+           The CPU image was built on this box and its three checks pass
+           inside it.
+
+           NOT YET PROVEN, and named here so nobody assumes otherwise: the
+           CUDA image has never been built anywhere, and the workflow has
+           never run. Both are closed by the first release tag, which builds
+           and smoke-tests each image before it pushes and stops the release
+           if either fails. See the 2026-09-19 note at the foot for the
+           measurements and for what a reviewer should check.
+
+           The original filing is kept below unchanged; the OPEN QUESTIONS
+           section is now answered rather than open, and each answer is
+           recorded against it at the foot.
 
 --------------------------------------------------------------------------------
 DOES IT MAKE SENSE? YES FOR THE PIPELINE, PARTLY FOR THE GUI
@@ -75,3 +89,180 @@ WHY IT IS FILED RATHER THAN BUILT
 Requested 2026-09-18 as a list item. Building it means picking a CUDA floor
 and standing up a CI job that builds and tests a multi-gigabyte image, which
 is a decision about what spaCR supports rather than an afternoon's work.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- BUILT. TWO TAGS, MOUNTED MODELS, NON-ROOT, SMOKE-TESTED BEFORE PUSH
+--------------------------------------------------------------------------------
+
+Decided: Einar Olafsson, 2026-09-19, through the question prompt -- "Yes, as
+recommended": a CLI and pipeline image, GUI-in-a-container documented as a
+Linux-only extra, two tags (CPU and CUDA 12.4, host driver 550+), SAMCell and
+DINOCell NOT in the image, models and data mounted rather than baked, a
+non-root user with a matching UID, built and smoke-tested in CI on each
+release tag (`spacr --version` and one small pipeline run in the built image)
+and published to GHCR under the repository owner.
+
+EVERY OPEN QUESTION ABOVE IS NOW ANSWERED:
+
+  Which CUDA version is the floor?   12.4, host driver 550 or newer. The
+                                     driver is on the host and cannot be
+                                     containerised away, so the floor is the
+                                     promise and the Dockerfile says so.
+  SAMCell / DINOCell in the image?   No. They pin PyTorch versions that
+                                     conflict with spaCR's and with each
+                                     other. The Model Zoo's isolated-
+                                     environment install (423) is the answer
+                                     inside a running container.
+  Where does the database live?      Mounted. Nothing is baked in and no
+                                     volume is declared -- a VOLUME line
+                                     creates anonymous volumes nobody
+                                     collects.
+  Docker Hub, GHCR, or both?         GHCR, under the repository owner:
+                                     ghcr.io/einarolafsson/spacr.
+  Does conda-forge cover it?         No. conda-forge answers "install spaCR
+                                     into an environment I control"; the
+                                     image answers "run spaCR on a node I do
+                                     not control, identically, in five years".
+
+WHAT WAS BUILT
+
+  packaging/docker/Dockerfile.cpu    python:3.12-slim-bookworm, torch from
+                                     PyTorch's cpu index. Two stages: the
+                                     build stage carries build-essential, the
+                                     runtime stage carries none of it and
+                                     takes one self-contained virtualenv.
+  packaging/docker/Dockerfile.cuda   nvidia/cuda:12.4.1-cudnn-runtime-
+                                     ubuntu22.04 with Python 3.12 from
+                                     deadsnakes (22.04 is the newest LTS that
+                                     base publishes and it ships 3.10; two
+                                     interpreters across two tags of one
+                                     release is a support cost with no
+                                     benefit). torch from the cu124 index.
+  packaging/docker/entrypoint.sh     A writable HOME for any UID, every cache
+                                     under it, and a mounted /models wired to
+                                     BOTH readers.
+  packaging/docker/smoke_pipeline.py One real pipeline run: external_masks on
+                                     a 32x32 synthetic field with two label
+                                     masks. No model, no GPU, no network.
+  .github/workflows/docker-images.yml  Release tags plus workflow_dispatch,
+                                     never every push. Queues, never cancels.
+  .dockerignore                      NEW FILE AT THE ROOT. The checkout is
+                                     1.2 GB and the wheel needs about a tenth
+                                     of it.
+  docs/source/installer_guide.rst    A "Container images" section.
+  packaging/docker/README.md         Why each decision was made.
+  tests/test_the_container_images_are_what_the_release_publishes.py
+                                     19 assertions, none of which build an
+                                     image.
+
+MEASURED, on this box, 2026-09-19 (Docker 29.1.3, legacy builder, no buildx)
+
+  BUILD. `docker build -f packaging/docker/Dockerfile.cpu .` from the
+  checkout: 20 minutes, almost all of it downloading wheels. Final image
+  4.0 GB, of which the virtualenv is 3.6 GB.
+
+  THE THREE RELEASE CHECKS, run inside the built image:
+
+    docker run --rm IMG spacr --version            -> 1.5.0.8
+    docker run --rm IMG id                         -> uid=1000(spacr)
+    docker run --rm IMG python3 /opt/spacr/smoke_pipeline.py
+                                                   -> 7/7 checks passed
+
+  The pipeline check is a real run: external_masks on a 32x32 synthetic
+  field with a cell and a nucleus mask, writing merged/*.npy and a
+  measurements.db holding cell, cytoplasm, intensity_rescale, nucleus,
+  png_list, run_status, settings and settings_history, with one measured
+  object in `cell` and one in `nucleus`.
+
+  A FOREIGN UID WORKS. `--user 4242:4242` gets HOME=/ from Docker, which it
+  cannot write to; the entrypoint says so on stderr, relocates HOME to
+  /tmp/spacr-home-4242 and `spacr --version` answers normally.
+
+  /models IS WIRED TO BOTH READERS, and that is not a detail. Cellpose reads
+  CELLPOSE_LOCAL_MODELS_PATH. spacr/model_zoo.py resolves
+  Path.home()/".cellpose"/"models" and Path.home()/".spacr"/"models"
+  DIRECTLY (default_local_roots, and again in the stock-model listing), which
+  no environment variable reaches. Setting only the variable would have left
+  the zoo listing an empty folder and looked like it worked. With a folder
+  mounted on /models, inside the container:
+
+    zoo roots:          ['/home/spacr/.cellpose/models',
+                         '/home/spacr/.spacr/models']
+    cellpose MODEL_DIR: /models
+    and the file put on the host is visible through the zoo root.
+
+  THE BYTECODE HAD TO BE PUT BACK, and the first build is why this is
+  written down. It ended with `find $VENV -name '*.pyc' -delete`, which
+  looked like housekeeping and is not: /opt/spacr/venv is root-owned and the
+  process runs as `spacr`, so a container that starts without .pyc files
+  recompiles what it imports on EVERY run and can never keep the result.
+  A/B inside one container, compiling in place between the two halves:
+
+    import spacr.measure, torch, cellpose   no .pyc   6224 / 6030 / 6346 ms
+                                            .pyc      3084 / 3075 / 3110 ms
+    spacr-run --list                        no .pyc          510 ms
+                                            .pyc             278 ms
+
+  Confirmed on the rebuilt image: 18,068 .pyc, 3255-3455 ms, 278 ms. The
+  cost is 0.4 GB (3.61 GB -> 4.0 GB), which is 11% of the image for half the
+  start-up of every run. pip compiles on install whatever
+  PYTHONDONTWRITEBYTECODE says -- measured separately in a throwaway
+  container, 493 .pyc either way -- so the deletion, not the variable, was
+  the whole of the defect.
+
+  ONE NVIDIA WHEEL IS IN THE CPU IMAGE AND IT IS NOT A LEAK. `xgboost`
+  declares `nvidia-nccl-cu13` (252 MB) on Linux x86-64. torch is clean: the
+  build log records `torch 2.14.0+cpu` already satisfied when spaCR
+  installs, which is the CPU index doing its job. The separate `xgboost-cpu`
+  distribution would drop it and would also stop the image satisfying
+  `xgboost>=2.0.3,<4` as setup.py declares it; an image whose dependency set
+  quietly differs from the package is the worse problem.
+
+  THE CUDA IMAGE'S PACKAGE LISTS WERE CHECKED WITHOUT BUILDING IT. An
+  `apt-get install --dry-run` of every name in Dockerfile.cuda, run in a
+  plain ubuntu:22.04 container with the deadsnakes PPA added, resolves all
+  of them and offers python3.12 at 3.12.13-1+jammy1. That is not a build,
+  and it is not claimed as one.
+
+  THE PROVING BUILD was run from these files. The only edits after it are
+  prose in packaging/docker/README.md and in this file, neither of which is
+  copied into the image.
+
+  /models IS WIRED TO BOTH READERS, and that is not a detail. Cellpose reads
+  CELLPOSE_LOCAL_MODELS_PATH. spacr/model_zoo.py resolves
+  Path.home()/".cellpose"/"models" and Path.home()/".spacr"/"models"
+  DIRECTLY (default_local_roots, and again in the stock-model listing), which
+  no environment variable reaches. Setting only the variable would have left
+  the zoo listing an empty folder and looked like it worked.
+
+  NO BuildKit FEATURE IS USED. The first attempt used
+  `RUN --mount=type=cache` and `# syntax=docker/dockerfile:1`; the Docker on
+  this box has no buildx component, and the legacy builder FAILS on the
+  directive rather than ignoring it ("unknown flag: --progress" was the same
+  lesson arriving first). Two tags that only build on some installations of
+  Docker is not a Docker image, so both Dockerfiles are plain and pip runs
+  with --no-cache-dir.
+
+WHAT IS LEFT
+
+  1. The CUDA image has never been built. Its apt lists are dry-run clean on
+     jammy (above), but nothing has resolved its Python dependency set or run
+     a line of code in it. The first release tag builds it in CI, and
+     gpu_queue/425-docker-1.md is the job that would build it here and ask
+     the card the one question CI cannot.
+  2. The workflow has never run. Nothing was pushed to GHCR by this work and
+     nothing should be until a release tag reaches it.
+  3. GHCR CREATES A NEW PACKAGE PRIVATE. After the first successful release
+     the owner has to flip
+     https://github.com/users/EinarOlafsson/packages/container/spacr/settings
+     to public, once. No workflow permission does this.
+  4. A GPU run in the CUDA image is unproven by construction: a hosted runner
+     has no GPU, so CI proves the CUDA image is a working CPU install and
+     nothing more. `docker run --gpus all ... spacr-doctor` on a real card is
+     the check, and it needs a machine with one.
+
+WHY IT MOVES TO features/new ONLY AFTER A GREEN TAGGED BUILD. Points 1 and 2
+are not writing; they are one release away. Moving the file now would record a
+publishing pipeline as finished before it had ever published anything, which
+is exactly the shape HANDOFF section 0a is about.

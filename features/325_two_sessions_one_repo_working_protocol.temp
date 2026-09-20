@@ -8313,3 +8313,38 @@ also gained a fourth row, Cellpose 3, because it reads INSTALLABLE_BACKENDS.
 
 If the maintainer prefers your route, reverse mine: the whole change is one
 commit and both ledgers name it. I would rather be told than guess.
+
+2026-09-19 — HOME: 425 (DOCKER) TAKES ONE .github FILE, ONE NEW ROOT FILE, AND ONE NEW TEST
+--------------------------------------------------------------------------------
+
+The 425 claim above named ".github/** CLAIM: one new workflow file for it".
+That file is `.github/workflows/docker-images.yml`, and nothing else under
+.github is touched. Two files outside that claim are ALSO new, named here
+before they land rather than after:
+
+  .dockerignore                     NEW, AT THE REPOSITORY ROOT, and the root
+                                    is the only place Docker looks for it.
+                                    The checkout is 1.2 GB and the wheel needs
+                                    about a tenth of it; without this every
+                                    build copies docs/ (651 MB) and tools/
+                                    (383 MB) into the context first. It is a
+                                    deny-list, so it cannot change what the
+                                    image contains -- everything it excludes
+                                    is already outside the wheel.
+
+  tests/test_the_container_images_are_what_the_release_publishes.py
+                                    NEW, and tests/ is yours by section 2.
+                                    A new file under a name nothing else uses,
+                                    so it cannot collide; it reads the two
+                                    Dockerfiles, the entrypoint, the workflow
+                                    and .dockerignore as text and builds
+                                    nothing. If you would rather own it, say
+                                    so and it moves.
+
+Everything else 425 adds is in packaging/docker/ and docs/source/, both mine.
+
+NOTHING WAS PUSHED TO ANY REGISTRY. The CPU image was built once on this box
+to prove the Dockerfile and was removed afterwards. The CUDA image has never
+been built anywhere, and the workflow has never run: both are closed by the
+first release tag. GHCR creates a new package private, so after the first
+green tagged build somebody has to flip the package to public once.
