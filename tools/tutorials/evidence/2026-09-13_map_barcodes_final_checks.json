@@ -427,15 +427,15 @@
     "human_listening_review": false,
     "published": false
   },
-  "candidate_manifest_sha256": "c7675ed8aa30380bd83aae090f80f39e48b5c1fdf6e114a42fbdecd1d14fc9c8",
+  "candidate_manifest_sha256": "62aa93f4f9fd41d7eca86a8ef12cef10594f16da38c15b3b817915fcfbabab29",
   "heart_timing_sha256": "070131a98b6180fc8e77fe0c08cb65ed4629a7b91e0b566655290ba99b6c352a",
   "candidate_browser_case": {
     "lesson": "12_map_barcodes",
     "audio_sha256": "61d4b04497fbfa06b5afcdf53104fd69ac8a4f26527c49373a6afa704873517e",
     "clocks": {
-      "audio": 25.935249,
-      "video": 25.775325,
-      "expected": 25.935249,
+      "audio": 25.921972,
+      "video": 25.783441,
+      "expected": 25.921972,
       "width": 2560,
       "height": 1440,
       "error": null,
@@ -447,8 +447,8 @@
       {
         "requested_audio_time": 0.94,
         "text": "Open Map Barcodes from Home.",
-        "audio": 1.149842,
-        "video": 1.198048,
+        "audio": 1.16502,
+        "video": 1.199203,
         "cues": [
           "Open Map Barcodes from Home."
         ]
@@ -456,8 +456,8 @@
       {
         "requested_audio_time": 3.9525,
         "text": "This module turns sequencing reads into named barcode counts.",
-        "audio": 4.146344,
-        "video": 4.132127,
+        "audio": 4.160602,
+        "video": 4.136151,
         "cues": [
           "This module turns sequencing reads into named barcode counts."
         ]
@@ -465,8 +465,8 @@
       {
         "requested_audio_time": 9.14,
         "text": "Barcode QC is its nested quality-control workflow; its separate lesson remains available.",
-        "audio": 9.366903,
-        "video": 9.400307,
+        "audio": 9.357463,
+        "video": 9.400799,
         "cues": [
           "Barcode QC is its nested quality-control workflow; its separate lesson remains available."
         ]
@@ -474,8 +474,8 @@
       {
         "requested_audio_time": 14.91,
         "text": "Choose Load test data and select both mates of the first archive run.",
-        "audio": 15.120084,
-        "video": 15.019537,
+        "audio": 15.111608,
+        "video": 15.027437,
         "cues": [
           "Choose Load test data and select both mates of the first archive run."
         ]
@@ -483,8 +483,8 @@
       {
         "requested_audio_time": 18.3325,
         "text": "Limit each file to ten thousand reads.",
-        "audio": 18.527186,
-        "video": 18.569767,
+        "audio": 18.538918,
+        "video": 18.571457,
         "cues": [
           "Limit each file to ten thousand reads."
         ]
@@ -492,8 +492,8 @@
       {
         "requested_audio_time": 21.8125,
         "text": "This downloads a real paired sample, not the entire sequencing archive.",
-        "audio": 22.043499,
-        "video": 21.958502,
+        "audio": 22.013234,
+        "video": 21.961472,
         "cues": [
           "This downloads a real paired sample, not the entire sequencing archive."
         ]
@@ -501,8 +501,8 @@
       {
         "requested_audio_time": 26.090000000000003,
         "text": "Choose reference tables that belong to this library.",
-        "audio": 26.305295,
-        "video": 26.330187,
+        "audio": 26.297054,
+        "video": 26.333238,
         "cues": [
           "Choose reference tables that belong to this library."
         ]
@@ -510,8 +510,8 @@
       {
         "requested_audio_time": 31.17,
         "text": "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults.",
-        "audio": 31.391809,
-        "video": 31.282731,
+        "audio": 31.361347,
+        "video": 31.27784,
         "cues": [
           "Here we use the matching primers three column and row tables and the guide table, not the older bundled defaults."
         ]
@@ -519,8 +519,8 @@
       {
         "requested_audio_time": 37.31,
         "text": "We deliberately start with a window length of one hundred twenty to show the proposal changing it.",
-        "audio": 37.517205,
-        "video": 37.481126,
+        "audio": 37.506919,
+        "video": 37.47769,
         "cues": [
           "We deliberately start with a window length of one hundred twenty to show the proposal changing it."
         ]
@@ -528,8 +528,8 @@
       {
         "requested_audio_time": 41.657500000000006,
         "text": "Open Find barcodes and start the search.",
-        "audio": 41.883242,
-        "video": 41.907179,
+        "audio": 41.87601,
+        "video": 41.908078,
         "cues": [
           "Open Find barcodes and start the search."
         ]
@@ -537,8 +537,8 @@
       {
         "requested_audio_time": 45.517500000000005,
         "text": "Counts update while real reads are sampled in both mates and both orientations.",
-        "audio": 45.729817,
-        "video": 45.669725,
+        "audio": 45.743584,
+        "video": 45.674103,
         "cues": [
           "Counts update while real reads are sampled in both mates and both orientations."
         ]
@@ -546,8 +546,8 @@
       {
         "requested_audio_time": 49.845000000000006,
         "text": "The form remains unchanged during this live refinement.",
-        "audio": 50.065481,
-        "video": 50.099956,
+        "audio": 50.056807,
+        "video": 50.098952,
         "cues": [
           "The form remains unchanged during this live refinement."
         ]
@@ -555,8 +555,8 @@
       {
         "requested_audio_time": 54.66750000000001,
         "text": "Compare Observed with By chance, then inspect the orientation, offset and verdict.",
-        "audio": 54.879618,
-        "video": 54.794297,
+        "audio": 54.894221,
+        "video": 54.797433,
         "cues": [
           "Compare Observed with By chance, then inspect the orientation, offset and verdict."
         ]
@@ -564,8 +564,8 @@
       {
         "requested_audio_time": 58.96000000000001,
         "text": "A match rate alone does not establish a barcode.",
-        "audio": 59.178837,
-        "video": 59.188913,
+        "audio": 59.19332,
+        "video": 59.191394,
         "cues": [
           "A match rate alone does not establish a barcode."
         ]
@@ -573,8 +573,8 @@
       {
         "requested_audio_time": 65.1975,
         "text": "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything.",
-        "audio": 65.402472,
-        "video": 65.269732,
+        "audio": 65.416518,
+        "video": 65.271071,
         "cues": [
           "Positional concentration and the distinct references seen also inform the search; read the verdict explanations before applying anything."
         ]
@@ -582,8 +582,8 @@
       {
         "requested_audio_time": 71.64,
         "text": "The read viewer shows one actual read per row.",
-        "audio": 71.860875,
-        "video": 71.754515,
+        "audio": 71.871558,
+        "video": 71.765274,
         "cues": [
           "The read viewer shows one actual read per row."
         ]
@@ -591,8 +591,8 @@
       {
         "requested_audio_time": 75.1975,
         "text": "The legend identifies the column, guide, row and anchor colours.",
-        "audio": 75.426193,
-        "video": 75.440003,
+        "audio": 75.415237,
+        "video": 75.442255,
         "cues": [
           "The legend identifies the column, guide, row and anchor colours."
         ]
@@ -600,8 +600,8 @@
       {
         "requested_audio_time": 81.2975,
         "text": "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct.",
-        "audio": 81.534953,
-        "video": 81.387489,
+        "audio": 81.522326,
+        "video": 81.387676,
         "cues": [
           "Coloured matches help you inspect the evidence, but an isolated coloured match is not proof that a reference table is correct."
         ]
@@ -609,8 +609,8 @@
       {
         "requested_audio_time": 86.41749999999999,
         "text": "Review the proposal.",
-        "audio": 86.641911,
-        "video": 86.589809,
+        "audio": 86.627977,
+        "video": 86.587428,
         "cues": [
           "Review the proposal."
         ]
@@ -618,8 +618,8 @@
       {
         "requested_audio_time": 89.145,
         "text": "This sample places the extraction window at eighty-nine bases.",
-        "audio": 89.382663,
-        "video": 89.247497,
+        "audio": 89.372172,
+        "video": 89.251132,
         "cues": [
           "This sample places the extraction window at eighty-nine bases."
         ]
@@ -627,8 +627,8 @@
       {
         "requested_audio_time": 93.285,
         "text": "Only pressing Apply these settings writes the proposed change into the form.",
-        "audio": 93.510593,
-        "video": 93.491998,
+        "audio": 93.499317,
+        "video": 93.494488,
         "cues": [
           "Only pressing Apply these settings writes the proposed change into the form."
         ]
@@ -636,8 +636,8 @@
       {
         "requested_audio_time": 97.91749999999999,
         "text": "Automatic discovery is not automatic permission to replace your settings.",
-        "audio": 98.15182,
-        "video": 98.010398,
+        "audio": 98.139306,
+        "video": 98.011599,
         "cues": [
           "Automatic discovery is not automatic permission to replace your settings."
         ]
@@ -645,8 +645,8 @@
       {
         "requested_audio_time": 103.05749999999999,
         "text": "The notes also require reverse-complemented row and guide references.",
-        "audio": 103.281483,
-        "video": 103.230881,
+        "audio": 103.269735,
+        "video": 103.229651,
         "cues": [
           "The notes also require reverse-complemented row and guide references."
         ]
@@ -654,8 +654,8 @@
       {
         "requested_audio_time": 106.41999999999999,
         "text": "Apply does not create those files.",
-        "audio": 106.651779,
-        "video": 106.500416,
+        "audio": 106.662526,
+        "video": 106.498632,
         "cues": [
           "Apply does not create those files."
         ]
@@ -663,8 +663,8 @@
       {
         "requested_audio_time": 111.15499999999999,
         "text": "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored.",
-        "audio": 111.374195,
-        "video": 111.332528,
+        "audio": 111.384507,
+        "video": 111.335477,
         "cues": [
           "Select separately verified reversed copies, retaining every original barcode name; keep the column table as stored."
         ]
@@ -672,8 +672,8 @@
       {
         "requested_audio_time": 118.30499999999998,
         "text": "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled.",
-        "audio": 118.53168,
-        "video": 118.50599,
+        "audio": 118.543893,
+        "video": 118.502582,
         "cues": [
           "Run the downloaded pair with two workers, chunks of one thousand and annotated-read saving enabled."
         ]
@@ -681,8 +681,8 @@
       {
         "requested_audio_time": 122.33499999999998,
         "text": "Keep missing assignments missing.",
-        "audio": 122.549081,
-        "video": 122.441397,
+        "audio": 122.560521,
+        "video": 122.438806,
         "cues": [
           "Keep missing assignments missing."
         ]
@@ -690,8 +690,8 @@
       {
         "requested_audio_time": 125.58749999999998,
         "text": "This mapping workflow uses the CPU; a GPU is not required.",
-        "audio": 125.810831,
-        "video": 125.818587,
+        "audio": 125.820319,
+        "video": 125.816079,
         "cues": [
           "This mapping workflow uses the CPU; a GPU is not required."
         ]
@@ -699,8 +699,8 @@
       {
         "requested_audio_time": 133.565,
         "text": "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows.",
-        "audio": 133.801515,
-        "video": 133.801239,
+        "audio": 133.78464,
+        "video": 133.802861,
         "cues": [
           "The actual run extracted eight thousand six hundred eleven windows and mapped seven thousand six hundred fifty-seven reads into four thousand ninety-nine count rows."
         ]
@@ -708,8 +708,8 @@
       {
         "requested_audio_time": 140.6325,
         "text": "Unmatched and ambiguous references remain unassigned.",
-        "audio": 140.855622,
-        "video": 140.899235,
+        "audio": 140.861595,
+        "video": 140.900244,
         "cues": [
           "Unmatched and ambiguous references remain unassigned."
         ]
@@ -717,8 +717,8 @@
       {
         "requested_audio_time": 144.89499999999998,
         "text": "Completion is checked against saved files, not just the console's finished message.",
-        "audio": 145.126958,
-        "video": 145.05288,
+        "audio": 145.111364,
+        "video": 145.056511,
         "cues": [
           "Completion is checked against saved files, not just the console's finished message."
         ]
@@ -726,8 +726,8 @@
       {
         "requested_audio_time": 151.2425,
         "text": "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor.",
-        "audio": 151.461328,
-        "video": 151.430771,
+        "audio": 151.467308,
+        "video": 151.435602,
         "cues": [
           "The current Python API accepts a barcode set of any size, although this form has no barcode-set editor."
         ]
@@ -735,8 +735,8 @@
       {
         "requested_audio_time": 157.64,
         "text": "Here a real second calculation selects only column and guide on one thousand paired reads.",
-        "audio": 157.868647,
-        "video": 157.883114,
+        "audio": 157.877622,
+        "video": 157.88311,
         "cues": [
           "Here a real second calculation selects only column and guide on one thousand paired reads."
         ]
@@ -744,8 +744,8 @@
       {
         "requested_audio_time": 162.0675,
         "text": "Every entry needs a matching named pattern group.",
-        "audio": 162.304379,
-        "video": 162.193317,
+        "audio": 162.292631,
+        "video": 162.195434,
         "cues": [
           "Every entry needs a matching named pattern group."
         ]
@@ -753,8 +753,8 @@
       {
         "requested_audio_time": 165.8475,
         "text": "Omitting row identity produces counts by column and guide, not by well.",
-        "audio": 166.092251,
-        "video": 166.087197,
+        "audio": 166.080978,
+        "video": 166.095501,
         "cues": [
           "Omitting row identity produces counts by column and guide, not by well."
         ]
@@ -762,8 +762,8 @@
       {
         "requested_audio_time": 171.44750000000002,
         "text": "This Python verification figure displays read depth from the saved three-barcode GUI run.",
-        "audio": 171.679122,
-        "video": 171.654344,
+        "audio": 171.671108,
+        "video": 171.657807,
         "cues": [
           "This Python verification figure displays read depth from the saved three-barcode GUI run."
         ]
@@ -771,8 +771,8 @@
       {
         "requested_audio_time": 177.09000000000003,
         "text": "Every count was independently reconciled with the annotated reads and reference names.",
-        "audio": 177.309741,
-        "video": 177.367683,
+        "audio": 177.321464,
+        "video": 177.369151,
         "cues": [
           "Every count was independently reconciled with the annotated reads and reference names."
         ]
@@ -780,8 +780,8 @@
       {
         "requested_audio_time": 184.07000000000002,
         "text": "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression.",
-        "audio": 184.300233,
-        "video": 184.172721,
+        "audio": 184.287846,
+        "video": 184.174897,
         "cues": [
           "Uneven depth is a quality-control observation, not a biological effect; review Barcode QC before downstream Regression."
         ]
@@ -789,8 +789,8 @@
       {
         "requested_audio_time": 191.22250000000003,
         "text": "The spaCR AI controls can help explain a run when you configure a provider.",
-        "audio": 191.458696,
-        "video": 191.437593,
+        "audio": 191.469292,
+        "video": 191.44003,
         "cues": [
           "The spaCR AI controls can help explain a run when you configure a provider."
         ]
@@ -798,8 +798,8 @@
       {
         "requested_audio_time": 196.06000000000006,
         "text": "This recording shows an unsent question and contains no AI response.",
-        "audio": 196.285292,
-        "video": 196.152597,
+        "audio": 196.294526,
+        "video": 196.149679,
         "cues": [
           "This recording shows an unsent question and contains no AI response."
         ]
@@ -807,8 +807,8 @@
       {
         "requested_audio_time": 201.42750000000007,
         "text": "Check reference identity, orientation, warnings and saved counts yourself before scaling up.",
-        "audio": 201.659805,
-        "video": 201.587536,
+        "audio": 201.669911,
+        "video": 201.597193,
         "cues": [
           "Check reference identity, orientation, warnings and saved counts yourself before scaling up."
         ]
