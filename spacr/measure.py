@@ -57,9 +57,13 @@ are, so an ordinary run is byte-identical to one from before they existed.
 """
 
 import os, cv2, time, sqlite3, threading, traceback, shutil, inspect
+import json
+import re
 import numpy as np
 import pandas as pd
 from collections import defaultdict
+from dataclasses import dataclass, field as dataclasses_field
+from typing import Dict, List, Tuple
 from scipy.stats import pearsonr, skew, kurtosis, mode
 import multiprocessing as mp
 from scipy.ndimage import distance_transform_edt, generate_binary_structure, binary_dilation, binary_erosion, gaussian_filter, center_of_mass, convolve, find_objects
@@ -75,6 +79,7 @@ from math import ceil, sqrt
 
 from .crops import (
     DEFAULT_MASK_DIMS,
+    MASK_PLANE_ORDER,
     build_png_channels,
     narrow_to_uint8,
     reconcile_merged_mask_dims,
@@ -4223,3 +4228,609 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
         out.append({"label": lbl, "area": area,
                     "bbox": (int(y0), int(y1), int(x0), int(x1)), "crop": crop})
     return out
+
+
+#: Named groups the FEATURES regex may use to name the ROW a file belongs to.
+#: The first one the pattern defines wins, so a caller may spell it whichever
+#: way the filenames already do.
+FIELD_TABLE_FIELD_GROUPS: tuple = (
+    'field', 'fieldID', 'fov', 'stem', 'name')
+
+#: Named groups that put a file in one of the table's CHANNEL columns. The
+#: captured token is not read as a number -- see :func:`assign_paths_by_regex`
+#: for why the distinct tokens are ranked instead.
+FIELD_TABLE_CHANNEL_GROUPS: tuple = (
+    'channel', 'chanID', 'chan', 'c')
+
+#: Named groups that put a file in one of the table's MASK columns. The
+#: captured token is resolved to a role by :func:`mask_role_of`.
+FIELD_TABLE_MASK_GROUPS: tuple = (
+    'mask', 'object', 'objectID', 'role')
+
+#: Named groups that name the plate and the well a row belongs to, when the
+#: filenames carry them. Hand-drawn masks usually do not, which is what
+#: :attr:`FieldTable.plate` and :attr:`FieldRow.well` are for.
+FIELD_TABLE_PLATE_GROUPS: tuple = ('plateID', 'plate')
+FIELD_TABLE_WELL_GROUPS: tuple = ('wellID', 'well')
+
+#: What a user may type in a mask column and mean a spaCR role by. The values
+#: are roles from :data:`spacr.crops.MASK_PLANE_ORDER`; ``organelle`` slots
+#: are matched separately by :func:`mask_role_of` because there are 700 of
+#: them and they are spelled by number on screen.
+_MASK_ROLE_SYNONYMS = {
+    'cell': 'cell', 'cells': 'cell', 'cyto': 'cell', 'whole': 'cell',
+    'nucleus': 'nucleus', 'nuclei': 'nucleus', 'nuc': 'nucleus',
+    'nuclear': 'nucleus', 'dapi': 'nucleus',
+    'pathogen': 'pathogen', 'pathogens': 'pathogen', 'parasite': 'pathogen',
+    'parasites': 'pathogen', 'bacteria': 'pathogen',
+    'bacterium': 'pathogen', 'bacterial': 'pathogen', 'pv': 'pathogen',
+    'mito': 'organelle', 'mitochondria': 'organelle',
+    'mitochondrion': 'organelle', 'organelle': 'organelle',
+}
+
+_ORGANELLE_TOKEN = re.compile(
+    r'(?i)^organelle[_\-. ]?(?P<number>\d+)$')
+
+_TRAILING_DIGITS = re.compile(r'(\d+)\s*$')
+
+
+def mask_role_of(token):
+    """Resolve what a user typed in a mask column to a spaCR object role.
+
+    Accepts the role's own name, the plural and the common laboratory
+    synonyms (``nuclei``, ``parasite``, ``mito``), and the numbered organelle
+    spelling the settings forms use on screen -- ``Organelle 2`` is
+    ``organelleb``, because the slots are lettered internally and numbered
+    for the reader.
+
+    :param token: what the regex captured or the user chose, in any case.
+    :returns: a role from :data:`spacr.crops.MASK_PLANE_ORDER`, or ``None``
+        when the token names no object spaCR can measure.
+    """
+    if token is None:
+        return None
+    text = str(token).strip().lower()
+    if not text:
+        return None
+    if text in SEGMENTED_ROLES:
+        return text
+    numbered = _ORGANELLE_TOKEN.match(text)
+    if numbered is not None:
+        index = int(numbered.group('number'))
+        if 1 <= index <= len(ORGANELLE_ROLES):
+            return ORGANELLE_ROLES[index - 1]
+        return None
+    return _MASK_ROLE_SYNONYMS.get(text)
+
+
+def _channel_rank_key(token):
+    """Order channel tokens the way a microscope names them.
+
+    ``C10`` sorts after ``C9`` rather than after ``C1``, because the digits
+    at the end are compared as a number. Tokens with no trailing digits fall
+    back to their text, after every numbered one.
+    """
+    text = str(token)
+    match = _TRAILING_DIGITS.search(text)
+    if match is None:
+        return (1, text.lower(), 0)
+    return (0, text[:match.start()].lower(), int(match.group(1)))
+
+
+@dataclass
+class FieldRow:
+    """One row of the FEATURES table: one field, and the files that make it.
+
+    A row becomes exactly one ``merged/<stem>.npy``, so it is also one field
+    in the measurements database.
+
+    :ivar label: what the row is called in the table's first column, taken
+        from the filenames. It is not the database identity; :attr:`well` and
+        :attr:`field` are.
+    :ivar channels: ``channel index -> source path``. The indices are
+        positions on the merged array's channel axis, counted from zero.
+    :ivar masks: ``role -> source path``, for the roles this row supplies.
+        The same mask file may appear in several rows, which is how one
+        drawn mask is measured against several acquisitions.
+    :ivar well: the well id this field is filed under. Hand-drawn fields did
+        not come from a plate, so they share one well by default and the
+        table shows it rather than inventing a different one per row.
+    :ivar field: the field number within that well, unique per row.
+    """
+
+    label: str
+    channels: Dict[int, str] = dataclasses_field(default_factory=dict)
+    masks: Dict[str, str] = dataclasses_field(default_factory=dict)
+    well: str = 'A01'
+    field: int = 1
+
+    def stem(self, plate):
+        """The ``plate_well_field`` name this row is written and measured as.
+
+        :param plate: the plate name the whole table carries.
+        :returns: the stem, which :func:`spacr.schema.parse_field_stem` reads
+            back into the plate, row, column and field the database is keyed
+            by.
+        """
+        return f"{plate}_{self.well}_{int(self.field)}"
+
+
+@dataclass
+class FieldTable:
+    """Rows are fields, columns are channels and mask types.
+
+    This is the thing the FEATURES window edits and the only input
+    :func:`measure_from_field_table` needs. It is deliberately Qt-free: the
+    window drives it, and the tests drive it without a window.
+
+    :ivar rows: one :class:`FieldRow` per field, in table order.
+    :ivar n_channels: how many channel columns the table has.
+    :ivar roles: which mask columns it has, in
+        :data:`spacr.crops.MASK_PLANE_ORDER` order -- which is the order the
+        planes are stacked in, so the two cannot drift.
+    :ivar plate: the plate name every row's stem starts with. It names where
+        the files came from rather than claiming a plate that was never run.
+    """
+
+    rows: List[FieldRow] = dataclasses_field(default_factory=list)
+    n_channels: int = 1
+    roles: Tuple[str, ...] = ('cell',)
+    plate: str = 'drawn'
+
+    def ordered_roles(self):
+        """The mask columns in merged-plane order, duplicates removed."""
+        return tuple(role for role in MASK_PLANE_ORDER if role in self.roles)
+
+    def mask_dims(self):
+        """``role -> plane index`` on the merged array this table would write.
+
+        The masks follow the channels with no gap, which is the only layout
+        :func:`spacr.crops.read_merged_plane_layout` accepts -- it recomputes
+        the indices from the channel count and the order and refuses a
+        manifest that disagrees.
+        """
+        return {role: int(self.n_channels) + index
+                for index, role in enumerate(self.ordered_roles())}
+
+    def problems(self):
+        """Everything that would stop this table being measured, as sentences.
+
+        Empty means :func:`measure_from_field_table` will run. The window
+        shows these live, so a user never presses a Run button that is going
+        to refuse.
+        """
+        issues = []
+        if int(self.n_channels) < 1:
+            issues.append("The table needs at least one channel column.")
+        if not self.ordered_roles():
+            issues.append(
+                "The table needs at least one mask column -- there is "
+                "nothing to measure without an object.")
+        if not self.rows:
+            issues.append("The table has no fields in it.")
+        seen = {}
+        for row in self.rows:
+            key = (row.well, int(row.field))
+            if key in seen:
+                issues.append(
+                    f"{row.label} and {seen[key]} are both well "
+                    f"{row.well} field {row.field}; one would overwrite the "
+                    "other.")
+            seen[key] = row.label
+            for channel in range(int(self.n_channels)):
+                if not row.channels.get(channel):
+                    issues.append(
+                        f"{row.label} has no file for channel "
+                        f"{channel + 1}.")
+            for role in self.ordered_roles():
+                if not row.masks.get(role):
+                    issues.append(
+                        f"{row.label} has no {role} mask.")
+        return issues
+
+    def is_ready(self):
+        """Whether the table is complete enough to measure."""
+        return not self.problems()
+
+
+@dataclass
+class TableAssignment:
+    """What one regex did to one set of dropped files.
+
+    :ivar table: the table the files were assigned into.
+    :ivar assigned: ``(path, row label, column caption)`` for every file that
+        landed somewhere, in the order the paths were given.
+    :ivar unassigned: ``(path, reason)`` for every file that did not. The
+        window lists these, because a file that silently vanishes is the one
+        failure a drag-and-drop table cannot afford.
+    """
+
+    table: FieldTable
+    assigned: List[Tuple[str, str, str]] = dataclasses_field(
+        default_factory=list)
+    unassigned: List[Tuple[str, str]] = dataclasses_field(
+        default_factory=list)
+
+
+def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
+    """Sort dropped files into rows and channel/mask columns with one regex.
+
+    The regex is matched against each file's BASENAME. What it captures
+    decides where the file goes:
+
+    * one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a
+      field token share a row, which is what makes a four-channel field one
+      row rather than four.
+    * one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column,
+      through :func:`mask_role_of`.
+    * one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.
+
+    THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one
+    decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2``
+    and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is
+    no reading of ``C1`` that is right for all three -- a literal read makes
+    the first set start at channel 1 and leaves channel 0 empty for ever.
+    So the DISTINCT channel tokens across the whole drop are sorted
+    (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that
+    order. The mapping is therefore a property of the set of files, not of any
+    one of them, which is why the window shows the assignment rather than
+    describing the rule.
+
+    :param paths: file paths to assign.
+    :param pattern: a regex with at least a field group and one of a channel
+        or mask group.
+    :param table: an existing table to add to. A new one is built when this
+        is ``None``; its channel count and mask columns come from what the
+        files turn out to hold.
+    :param plate: the plate name for a new table.
+    :returns: a :class:`TableAssignment`. Nothing is read from disk and
+        nothing is written.
+    :raises re.error: if ``pattern`` does not compile. The window catches
+        this and shows it under the box rather than letting it reach a run.
+    """
+    compiled = re.compile(pattern)
+    groups = set(compiled.groupindex)
+
+    def first(names):
+        """The first of ``names`` the pattern actually defines."""
+        for name in names:
+            if name in groups:
+                return name
+        return None
+
+    field_group = first(FIELD_TABLE_FIELD_GROUPS)
+    channel_group = first(FIELD_TABLE_CHANNEL_GROUPS)
+    mask_group = first(FIELD_TABLE_MASK_GROUPS)
+    plate_group = first(FIELD_TABLE_PLATE_GROUPS)
+    well_group = first(FIELD_TABLE_WELL_GROUPS)
+
+    existing = table if table is not None else FieldTable(
+        rows=[], n_channels=0, roles=(), plate=plate or 'drawn')
+    if plate is not None:
+        existing.plate = plate
+    result = TableAssignment(table=existing)
+
+    if field_group is None:
+        for path in paths:
+            result.unassigned.append((str(path), (
+                "the regex names no field group, so there is no row to put "
+                "this in -- add (?P<field>...) to it")))
+        return result
+    if channel_group is None and mask_group is None:
+        for path in paths:
+            result.unassigned.append((str(path), (
+                "the regex names neither a channel nor a mask group, so "
+                "there is no column to put this in")))
+        return result
+
+    matched = []
+    for path in paths:
+        text = os.path.basename(str(path))
+        found = compiled.search(text)
+        if found is None:
+            result.unassigned.append(
+                (str(path), f"{text} does not match the regex"))
+            continue
+        captured = found.groupdict()
+        label = captured.get(field_group)
+        if not label:
+            result.unassigned.append(
+                (str(path), f"{text} matched but captured no field name"))
+            continue
+        mask_token = captured.get(mask_group) if mask_group else None
+        channel_token = captured.get(channel_group) if channel_group else None
+        if mask_token:
+            role = mask_role_of(mask_token)
+            if role is None:
+                result.unassigned.append((str(path), (
+                    f"{text} names the object {mask_token!r}, which is not "
+                    "a spaCR mask type")))
+                continue
+            matched.append((str(path), str(label), 'mask', role, captured))
+        elif channel_token is not None and str(channel_token) != '':
+            matched.append((str(path), str(label), 'channel',
+                            str(channel_token), captured))
+        else:
+            result.unassigned.append((str(path), (
+                f"{text} matched but captured neither a channel nor an "
+                "object")))
+
+    tokens = sorted({token for _p, _l, kind, token, _c in matched
+                     if kind == 'channel'}, key=_channel_rank_key)
+    channel_of = {token: index for index, token in enumerate(tokens)}
+
+    rows_by_label = {row.label: row for row in existing.rows}
+    for path, label, kind, token, captured in matched:
+        row = rows_by_label.get(label)
+        if row is None:
+            row = FieldRow(label=label, well='A01',
+                           field=len(existing.rows) + 1)
+            if well_group and captured.get(well_group):
+                row.well = str(captured[well_group])
+            existing.rows.append(row)
+            rows_by_label[label] = row
+        if plate_group and captured.get(plate_group) and plate is None:
+            existing.plate = str(captured[plate_group])
+        if kind == 'mask':
+            row.masks[token] = path
+            if token not in existing.roles:
+                existing.roles = tuple(existing.roles) + (token,)
+            result.assigned.append((path, label, f"{token} mask"))
+        else:
+            index = channel_of[token]
+            row.channels[index] = path
+            existing.n_channels = max(int(existing.n_channels), index + 1)
+            result.assigned.append((path, label, f"channel {index + 1}"))
+
+    existing.roles = existing.ordered_roles()
+    return result
+
+
+def field_table_settings(table, settings=None, dst=None):
+    """The measure_crop settings this table decides, over the ones it does not.
+
+    Everything the table can answer is answered from the table: the channel
+    list, the mask plane of every object it supplies, the crop modes that are
+    possible, the PNG channels, and ``src``. Every other key is the user's,
+    taken from ``settings`` and defaulted by
+    :func:`spacr.settings.get_measure_crop_settings` exactly as the Measure
+    module defaults them -- so the FEATURES window and the Measure module
+    disagree about nothing.
+
+    A role the table does NOT supply is set to ``None`` rather than left out,
+    which is how ``measure_crop`` is told not to measure it.
+
+    :param table: the :class:`FieldTable` the user filled in.
+    :param settings: the user's answers from the settings panel.
+    :param dst: the project root the run will write. ``src`` is its
+        ``merged`` folder, which is where ``measure_crop`` reads fields from.
+    :returns: a new settings dict. Nothing is read from disk.
+    """
+    from .settings import get_measure_crop_settings
+
+    resolved = get_measure_crop_settings(dict(settings or {}))
+    if dst is not None:
+        resolved['src'] = os.path.join(str(dst), 'merged')
+    resolved['channels'] = list(range(int(table.n_channels)))
+    dims = table.mask_dims()
+    for role in SEGMENTED_ROLES:
+        resolved[f'{role}_mask_dim'] = dims.get(role)
+    if not resolved.get('png_dims'):
+        resolved['png_dims'] = list(range(min(int(table.n_channels), 3)))
+    supplied = list(table.ordered_roles())
+    available = list(supplied)
+    if 'cell' in supplied and resolved.get('cytoplasm'):
+        available.append('cytoplasm')
+    requested = resolved.get('crop_mode') or []
+    if isinstance(requested, str):
+        requested = [requested]
+    kept = [name for name in requested if name in available]
+    resolved['crop_mode'] = kept or available[:1]
+    return resolved
+
+
+#: Settings the table decides, so the FEATURES window shows them filled in
+#: and not editable. Everything else on that panel is the user's to set.
+FIELD_TABLE_DECIDED_KEYS: tuple = (
+    'src', 'channels', 'png_dims',
+    *(f'{role}_mask_dim' for role in MASK_PLANE_ORDER),
+)
+
+
+def _readable_plane(path):
+    """Read one image or label file as a 2-D array, whatever format it is in.
+
+    Goes through :func:`spacr.foreign._read_mask`, so every format spaCR's
+    converter opens -- TIFF, PNG, ND2, CZI, LIF -- is readable here too,
+    and there is no second reader table to keep in step with that one.
+    """
+    from .foreign import _read_mask
+
+    return np.asarray(_read_mask(str(path)))
+
+
+def _checked_intensity(plane, stem, path):
+    """Return ``plane`` as uint16, or say why it cannot be measured.
+
+    The same four checks :mod:`spacr.external_masks` applies, for the same
+    reason: ``measure_crop`` reads a uint16 merged array, and a float image
+    silently truncated into one gives numbers that look like measurements.
+    """
+    if np.issubdtype(plane.dtype, np.floating):
+        if not np.all(np.isfinite(plane)):
+            raise ConfigurationError(
+                f"{path}: {stem} intensity data contain NaN or infinity.")
+        if not np.all(plane == np.floor(plane)):
+            raise ConfigurationError(
+                f"{path}: {stem} has floating-point intensities that would "
+                "lose precision in Measure's uint16 arrays. Rescale and "
+                "export them as 8- or 16-bit images first.")
+    if float(np.min(plane, initial=0)) < 0 or \
+            float(np.max(plane, initial=0)) > np.iinfo(np.uint16).max:
+        raise ConfigurationError(
+            f"{path}: {stem} intensity values must fit the Measure uint16 "
+            "contract (0-65535). Rescale the source images first.")
+    return plane.astype(np.uint16, copy=False)
+
+
+def _checked_label(plane, stem, path, shape):
+    """Return ``plane`` as a uint16 label image, or say why it cannot be one."""
+    if plane.shape != shape:
+        raise ConfigurationError(
+            f"{path}: mask shape {plane.shape} does not match the intensity "
+            f"shape {shape} for {stem}.")
+    if np.any(plane < 0):
+        raise ConfigurationError(
+            f"{path}: label masks cannot contain negative IDs.")
+    maximum = int(np.max(plane, initial=0))
+    if maximum > np.iinfo(np.uint16).max:
+        raise ConfigurationError(
+            f"{path}: label ID {maximum} exceeds the maximum 65535 supported "
+            "by the Measure array contract.")
+    return plane.astype(np.uint16, copy=False)
+
+
+def write_field_table_project(table, dst):
+    """Write the table out as the folders the Mask module leaves behind.
+
+    This is the whole of what the FEATURES button adds to Measure: it turns a
+    table of hand-picked files into ``stack/``, ``masks/`` and ``merged/``
+    exactly as :func:`spacr.core.preprocess_generate_masks` would have left
+    them, down to the plane-layout manifest, so the run that follows is an
+    ORDINARY measure run and not a second code path that has to be kept in
+    step with this one.
+
+    :param table: a :class:`FieldTable` whose :meth:`FieldTable.problems` is
+        empty.
+    :param dst: the project root to write. It is created if it does not
+        exist.
+    :returns: ``{'destination', 'merged', 'stack', 'masks', 'stems'}``.
+    :raises spacr.errors.ConfigurationError: if the table is incomplete, or
+        if any file breaks the uint16 array contract ``measure_crop`` reads.
+        Nothing is written past the field that failed.
+    """
+    problems = table.problems()
+    if problems:
+        raise ConfigurationError(
+            "The measurement table is not ready; nothing was written:\n  "
+            + "\n  ".join(problems))
+
+    dst = os.fspath(dst)
+    roles = table.ordered_roles()
+    merged_dir = os.path.join(dst, 'merged')
+    stack_dir = os.path.join(dst, 'stack')
+    os.makedirs(merged_dir, exist_ok=True)
+    os.makedirs(stack_dir, exist_ok=True)
+
+    merged_paths = []
+    stack_paths = []
+    mask_paths = {role: [] for role in roles}
+    stems = []
+    for row in table.rows:
+        stem = row.stem(table.plate)
+        stems.append(stem)
+        planes = []
+        for channel in range(int(table.n_channels)):
+            path = row.channels[channel]
+            planes.append(_checked_intensity(
+                _readable_plane(path), stem, path))
+        shape = planes[0].shape
+        for index, plane in enumerate(planes):
+            if plane.shape != shape:
+                raise ConfigurationError(
+                    f"{row.channels[index]}: channel {index + 1} of {stem} "
+                    f"has shape {plane.shape}, but channel 1 has {shape}.")
+
+        labels = []
+        for role in roles:
+            path = row.masks[role]
+            label = _checked_label(
+                _readable_plane(path), stem, path, shape)
+            labels.append(label)
+            role_dir = os.path.join(dst, 'masks', f'{role}_mask_stack')
+            os.makedirs(role_dir, exist_ok=True)
+            role_path = os.path.join(role_dir, f'{stem}.npy')
+            np.save(role_path, label)
+            mask_paths[role].append(role_path)
+
+        stack_path = os.path.join(stack_dir, f'{stem}.npy')
+        np.save(stack_path, np.stack(planes, axis=-1))
+        stack_paths.append(stack_path)
+        merged_path = os.path.join(merged_dir, f'{stem}.npy')
+        np.save(merged_path, np.stack([*planes, *labels], axis=-1))
+        merged_paths.append(merged_path)
+
+    layout = {
+        'version': 1,
+        'intensity_channels': list(range(int(table.n_channels))),
+        'mask_plane_order': list(roles),
+        'mask_dims': dict(table.mask_dims()),
+    }
+    from .crops import MERGED_LAYOUT_SIDECAR
+
+    with open(os.path.join(merged_dir, MERGED_LAYOUT_SIDECAR), 'w',
+              encoding='utf-8') as handle:
+        json.dump(layout, handle, indent=2, sort_keys=True)
+        handle.write('\n')
+
+    return {'destination': dst, 'merged': merged_paths,
+            'stack': stack_paths, 'masks': mask_paths, 'stems': stems}
+
+
+def measure_from_field_table(table, settings=None, dst=None):
+    """Measure a table of hand-picked images and masks. The FEATURES entry point.
+
+    The other way into this module. :func:`measure_crop` starts from a
+    ``merged/`` folder a pipeline already built; this starts from a table a
+    user filled in by dropping files onto it, writes that folder, and then
+    calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where
+    the fields came from. The database, the crops and the folder tree are
+    therefore the Measure module's, because they are made by it.
+
+    :param table: the :class:`FieldTable` the FEATURES window edited.
+    :param settings: the user's answers from the settings panel. The keys the
+        table decides are overwritten from it -- see
+        :func:`field_table_settings`.
+    :param dst: the project root to write. Defaults to a ``features``
+        folder beside the first channel file of the first row, which is where
+        a user who dropped a folder in expects to find the results.
+    :returns: ``{'destination', 'db_path', 'settings', 'stems', 'merged'}``.
+        ``db_path`` is the measurements database whether or not it exists, so
+        a caller can report the path it was asked for.
+    :raises spacr.errors.ConfigurationError: if the table is incomplete or a
+        file breaks the array contract. Nothing is measured in that case.
+
+    Example:
+        .. code-block:: python
+
+            from spacr.measure import (
+                assign_paths_by_regex, measure_from_field_table)
+
+            found = assign_paths_by_regex(
+                paths,
+                r'(?P<field>fov\\d+)_(?:C(?P<channel>\\d+)'
+                r'|(?P<mask>cell|nucleus))')
+            measure_from_field_table(found.table, {'save_png': True})
+
+    See Also:
+        :func:`measure_crop` -- the run this delegates to, unchanged.
+        :func:`write_field_table_project` -- the folders it writes first.
+    """
+    if dst is None:
+        first = table.rows[0].channels.get(0) if table.rows else None
+        if not first:
+            raise ConfigurationError(
+                "There is nowhere to write: the table's first field has no "
+                "channel file, and no destination was given.")
+        dst = os.path.join(os.path.dirname(os.path.abspath(str(first))),
+                           'features')
+    written = write_field_table_project(table, dst)
+    resolved = field_table_settings(table, settings, dst=dst)
+    measure_crop(resolved)
+    return {
+        'destination': written['destination'],
+        'db_path': os.path.join(str(dst), 'measurements', 'measurements.db'),
+        'settings': resolved,
+        'stems': written['stems'],
+        'merged': written['merged'],
+    }
