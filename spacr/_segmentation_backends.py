@@ -162,6 +162,20 @@ _STRIPPED_VARIABLES = (
     "PIP_REQUIRE_VIRTUALENV", "__PYVENV_LAUNCHER__",
 )
 
+#: Variables that win over ``HF_HOME``, so pointing ``HF_HOME`` inside a
+#: backend's environment is not enough on its own. ``huggingface_hub``
+#: derives its caches from ``HF_HOME`` only when none of these is set:
+#: ``HF_HUB_CACHE`` falls back to ``HUGGINGFACE_HUB_CACHE``, which falls back
+#: to ``$HF_HOME/hub``, and the assets and xet caches are the same shape.
+#: Anyone who has moved their Hugging Face cache off their home disk has one
+#: of these exported, and would get a backend's weights outside the
+#: environment that is supposed to own them.
+_HF_CACHE_VARIABLES = (
+    "HF_HUB_CACHE", "HUGGINGFACE_HUB_CACHE",
+    "HF_ASSETS_CACHE", "HUGGINGFACE_ASSETS_CACHE",
+    "HF_XET_CACHE",
+)
+
 #: What a candidate interpreter must be able to do to build an environment.
 _INTERPRETER_CHECK = (
     "import sys, venv, ensurepip; print('%d.%d' % sys.version_info[:2])")
@@ -872,12 +886,21 @@ def _worker_env(name, env):
     makes :func:`_uninstall_backend` give the disk back, and what makes the
     preflight's free-space check -- which measures the backends folder --
     the check that matters.
+
+    Setting ``HF_HOME`` is necessary and not sufficient. :func:`_clean_env`
+    forwards the rest of the inherited environment, and every variable in
+    :data:`_HF_CACHE_VARIABLES` overrides the path ``HF_HOME`` would give,
+    so they are dropped here as well. Without that, the one person the fix
+    is for -- someone whose Hugging Face cache is already too big for their
+    home disk, and who has moved it -- is the one person it would miss.
     """
     environ = _clean_env(env)
     if name == _CELLPOSE3:
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
     elif name == _DINOCELL:
         environ["HF_HOME"] = os.path.join(env, "huggingface")
+        for variable in _HF_CACHE_VARIABLES:
+            environ.pop(variable, None)
     return environ
 
 

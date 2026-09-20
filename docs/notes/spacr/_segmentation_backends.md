@@ -85,9 +85,46 @@ cache emptied first: a DINOCell run put 402,337,098 bytes under
 set it put the same 402,337,098 bytes inside the environment and left the
 user cache at 0 bytes, and Uninstall then took both away.
 
-SAMCell IS NOT DONE THIS WAY YET and its `torch.hub` cache still lands in the
-person's home. `TORCH_HOME` is the equivalent lever; it belongs to item 405
-and is left there deliberately rather than changed from 404's lane.
+### `HF_HOME` is necessary and not sufficient
+
+Setting `HF_HOME` was the first fix and it was half of one. `_clean_env`
+forwards the whole inherited environment minus `_STRIPPED_VARIABLES`, and
+`huggingface_hub` reads `HF_HUB_CACHE` from the environment BEFORE it derives
+anything from `HF_HOME`: `HF_HUB_CACHE` falls back to the legacy
+`HUGGINGFACE_HUB_CACHE`, which falls back to `$HF_HOME/hub`. Measured against
+huggingface_hub 0.36.2 on 2026-09-19, with `HF_HOME` inside the environment
+and `HF_HUB_CACHE=/mnt/elsewhere/hf`, `constants.HF_HUB_CACHE` is
+`/mnt/elsewhere/hf`; the legacy name alone does the same.
+
+Whoever exports those variables is exactly the person this redirect is for --
+someone whose Hugging Face cache outgrew their home disk and who moved it --
+so the fix would have missed its own case. `_worker_env` now drops
+`_HF_CACHE_VARIABLES` (both hub names, both assets names, and the xet cache)
+alongside setting `HF_HOME`, and
+`test_a_relocated_hugging_face_cache_does_not_win_over_the_environment`
+exports all five and fails if any survives.
+
+### SAMCell is not done this way yet, and it has TWO caches, not one
+
+It belongs to item 405, deliberately left there rather than changed untested
+from 404's lane. 405 should know that `TORCH_HOME` alone will not finish it:
+
+* `_samcell_weights_path` fetches `samcell-generalist.pt` through
+  `torch.hub.get_dir()`, which `TORCH_HOME` moves. 375,043,010 bytes on this
+  machine, in `~/.cache/torch/hub/checkpoints`.
+* `_SamCellBackend` then builds `FinetunedSAM(_SAMCELL_BASE_MODEL)`, and
+  samcell's `FinetunedSAM.__init__` is `SamModel.from_pretrained(sam_model)`
+  with `_SAMCELL_BASE_MODEL = "facebook/sam-vit-base"`. That is transformers
+  pulling a second model into the SAME Hugging Face cache DINOCell's
+  checkpoint was just moved out of. 374,986,732 bytes on this machine, in
+  `~/.cache/huggingface/hub/models--facebook--sam-vit-base`.
+
+So SAMCell leaves about 750 MB in the person's home across two caches, and
+needs `TORCH_HOME`, `HF_HOME` and the `_HF_CACHE_VARIABLES` drop together.
+Setting only `TORCH_HOME` would move half of it and read as finished. Both
+numbers above are `du -sb` on this machine's existing caches, not estimates,
+but neither has been measured through an isolated environment -- that is 405's
+to do, and its `size_gb` should be checked against the pair.
 
 ## Measured on 2026-09-19
 

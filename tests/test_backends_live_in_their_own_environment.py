@@ -408,6 +408,31 @@ def test_dinocells_checkpoint_is_downloaded_inside_its_own_environment():
     assert "CELLPOSE_LOCAL_MODELS_PATH" not in environ
 
 
+def test_a_relocated_hugging_face_cache_does_not_win_over_the_environment(
+        monkeypatch):
+    """``HF_HOME`` is not the last word, which is the half the first fix
+    missed.
+
+    ``huggingface_hub`` resolves ``HF_HUB_CACHE`` from the environment
+    first, then from ``HUGGINGFACE_HUB_CACHE``, and only then from
+    ``$HF_HOME/hub`` (measured against huggingface_hub 0.36.2 on
+    2026-09-19: with ``HF_HOME`` inside the environment and
+    ``HF_HUB_CACHE=/mnt/elsewhere/hf``, ``constants.HF_HUB_CACHE`` is
+    ``/mnt/elsewhere/hf``). :func:`_clean_env` forwards the whole inherited
+    environment, so the person who has moved their cache off a full home
+    disk -- the person the redirect is for -- would still get the 383 MB
+    checkpoint outside the environment, and Uninstall could not reach it.
+    """
+    for variable in SB._HF_CACHE_VARIABLES:
+        monkeypatch.setenv(variable, "/mnt/elsewhere/hf")
+    environ = SB._worker_env("dinocell", "/b/dinocell")
+    assert environ["HF_HOME"] == os.path.join("/b/dinocell", "huggingface")
+    left = sorted(v for v in SB._HF_CACHE_VARIABLES if v in environ)
+    assert not left, (
+        f"{left} survive into DINOCell's worker environment and override "
+        f"HF_HOME, so its checkpoint lands outside the environment again")
+
+
 def test_every_module_an_adapter_imports_is_in_its_self_test():
     """Item 423's lesson, held for every backend: the self-test imports what
     the adapter imports.
@@ -430,6 +455,9 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
         "samcell": (SB._import_samcell, SB._SamCellBackend,
                     SB._samcell_weights_path),
     }
+    assert set(sources) == set(SB._SPECS), (
+        "a backend was added or removed without its adapter being listed "
+        "here, so this ratchet would pass while covering nothing of it")
     for name, objects in sources.items():
         probe = set(SB._SPECS[name].probe)
         wanted = set()
