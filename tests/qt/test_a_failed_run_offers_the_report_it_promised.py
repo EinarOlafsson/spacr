@@ -24,6 +24,7 @@ provider child process that really exits 1.
 """
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -274,6 +275,13 @@ class TestTheWorkerReportsIt:
         return got
 
     def test_a_failed_provider_finishes_not_ok(self, qtbot):
+        """And the console gets the sentence, not the exception's class.
+
+        This text is written after "[AI error] ", and ProviderFailed's whole
+        message is composed to be read there, down to the command that signs
+        the CLI back in. "[AI error] ProviderFailed: claude stopped with exit
+        status 1: ..." put a Python class name in front of it.
+        """
         from spacr.qt.ai.worker import StreamWorker
 
         got = self._run(StreamWorker(self._Failing(), []))
@@ -281,9 +289,25 @@ class TestTheWorkerReportsIt:
         assert len(got) == 1
         ok, text = got[0]
         assert ok is False
-        assert text.startswith("ProviderFailed: claude stopped with exit "
-                               "status 1: " + AUTH_LINE)
+        assert text.startswith("claude stopped with exit status 1: "
+                               + AUTH_LINE)
+        assert "ProviderFailed" not in text
         assert "`claude auth login`" in text
+
+    def test_any_other_failure_keeps_the_class_that_names_it(self, qtbot):
+        """A bare "[Errno 2] No such file or directory" does not say what
+        it is; FileNotFoundError does, and is often the whole diagnosis."""
+        from spacr.qt.ai.worker import StreamWorker
+
+        class _Missing(self._Failing):
+            def stream_chat(self, messages, system="", model=None):
+                raise FileNotFoundError(2, "No such file or directory")
+                yield
+
+        got = self._run(StreamWorker(_Missing(), []))
+
+        assert got[0][0] is False
+        assert got[0][1].startswith("FileNotFoundError: ")
 
     def test_a_cancel_is_reported_as_a_cancel(self, qtbot):
         """Ending a child can make its reader raise before any chunk
@@ -373,6 +397,68 @@ class TestTheReplyKeepsItsHeading:
                     if kind == "heading"]
         assert headings.count("spaCR AI") == 1
         assert _heading_over(console, "two") == "spaCR AI"
+
+    def test_the_interrupted_reply_leaves_no_empty_heading_above(
+            self, console):
+        """The heading MOVES to where the reply starts; it is not repeated.
+
+        Giving the late reply a heading of its own left the first one, drawn
+        when the question was asked, empty above the run's closing lines --
+        #117's console, where the empty "spaCR AI" is what reads as "the AI
+        was never asked".
+        """
+        console.open_error_flow("Traceback\nValueError: x", active_app="mask",
+                                show_raw=False)
+        console.append_stdout("run closed [failed]\n")
+        console.append_notice("✗ Failed — see traceback above\n")
+
+        console._on_chunk("The file is a macOS sidecar.\n")
+
+        headings = [text for kind, text in _entries(console)
+                    if kind == "heading"]
+        assert headings.count("spaCR AI") == 1, (
+            f"one heading for one reply, not {headings}")
+        assert _heading_over(console, "macOS sidecar") == "spaCR AI"
+        assert headings.index("spaCR AI") > headings.index("spaCR user")
+
+    def test_the_working_indicator_moves_with_the_heading(self, console):
+        """Taking the empty heading down must not take the dots with it.
+
+        They say the provider is still thinking, and it is -- the reply is
+        arriving. Dropping them would trade an empty heading for a reply
+        that looks finished while it streams.
+        """
+        from spacr.qt.widgets.console_panel import _TopicBar
+
+        console.open_error_flow("Traceback\nValueError: x", active_app="mask",
+                                show_raw=False)
+        dots = console._working_dots
+        assert dots is not None
+        console.append_stdout("run closed [failed]\n")
+
+        console._on_chunk("Still going")
+
+        bars = [console._entries.itemAt(i).widget()
+                for i in range(console._entries.count())]
+        bars = [w for w in bars if isinstance(w, _TopicBar)]
+        surviving = [bar for bar in bars if bar.text() == "spaCR AI"]
+        assert len(surviving) == 1
+        assert dots.parentWidget() is surviving[0]
+        assert dots._timer.isActive()
+
+    def test_a_reply_that_never_comes_leaves_no_empty_heading(self, console):
+        """A provider that fails before printing anything wrote nothing under
+        the heading, and the heading stayed on the page saying nothing."""
+        console.open_error_flow("Traceback\nValueError: x", active_app="mask",
+                                show_raw=False)
+        console.append_stdout("run closed [failed]\n")
+
+        console._on_stream_finished(False, "claude stopped with exit status 1")
+
+        headings = [text for kind, text in _entries(console)
+                    if kind == "heading"]
+        assert "spaCR AI" not in headings
+        assert "[AI error] claude stopped" in console.as_text()
 
 
 # ---------------------------------------------------------------------------
@@ -466,10 +552,17 @@ class TestIssue117EndToEnd:
         text = _run_until_everything_has_answered(qtbot, mask_screen)
 
         assert "An error occurred — asking spaCR AI to explain it" in text
-        assert "[AI error] ProviderFailed:" in text
-        assert "exit status 1" in text
+        assert "[AI error] " in text
+        assert "ProviderFailed" not in text, (
+            "the class name is in front of a sentence written to be read")
+        assert re.match(r"\S+ stopped with exit status 1",
+                        text.split("[AI error] ", 1)[1])
         assert "`claude auth login`" in text
         assert _heading_over(mask_screen._console, AUTH_LINE) == "spaCR AI"
+        headings = [heading for kind, heading in _entries(mask_screen._console)
+                    if kind == "heading"]
+        assert headings.count("spaCR AI") == 1, (
+            f"one heading for one reply, not {headings}")
 
     def test_the_failure_is_not_kept_as_the_ai_s_analysis(
             self, qtbot, mask_screen):

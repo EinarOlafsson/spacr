@@ -12,8 +12,15 @@ Status:    done 2026-09-19, landed on nightly (4e533737f, efa9dabb6): an AI
            that 'always' files automatically and is the default (last two
            trailing notes). 'always' now files a redacted report with no
            preview, once per crash, only after terms 4.2 are accepted, and
-           the terms of use (Section 5.6) say so. Open: the translations the
-           last two notes list, and the items under LEFT there.
+           the terms of use (Section 5.6) say so. THE FOUR NITS THE FIRST
+           REVIEW NOTE LEFT ARE CLOSED (last trailing note): the heading no
+           longer sits empty and no longer repeats, "[AI error]" carries the
+           provider's sentence rather than "ProviderFailed:", and the two
+           stale browser-flow docstrings turned out to have been rewritten
+           by the autofile change already. Open: the translations the notes
+           list, and the two measured limits under LEFT there (the tail of
+           an unquoted spaced path, and filing not waiting for the AI's
+           answer).
 Requested: GitHub #117, second half, opened 2026-09-17 by jak18015 (Apple
            M4, macOS 26.7, spaCR 1.5.0.8): "when running test mode, the mask
            generation failed and did not automatically submit a github issue
@@ -624,3 +631,104 @@ tests, 678 passed; annotate, setup, terms and packaging, 259 passed with
 the two long-standing packaging reds (torchcam's python-3.13 limit and the
 CITATION DOI, in setup.py and CITATION.cff, which this branch never
 touched).
+
+--------------------------------------------------------------------------------
+2026-09-19 — the four nits the first review note left
+--------------------------------------------------------------------------------
+
+Taken on the maintainer's 2026-09-19 standing instruction to "work every
+open item on features/new and features/future to completion". Nothing here
+touches the automatic filing decision.
+
+1 AND 2 ARE ONE DEFECT, AND IT IS FIXED. The note left them as two: "the
+'spaCR AI' heading with the working dots, drawn by open_error_flow, still
+sits empty above the run's closing lines, and the reply gets a second
+heading below them. AI chunks interleaved with run output now alternate
+banners." Both are the same heading being DRAWN TWICE instead of moved.
+
+Reproduced offscreen on a bare ConsolePanel before fixing: open_error_flow,
+then "run closed [failed]" and "✗ Failed", then the first chunk. Headings
+top to bottom were
+
+    spaCR user, spaCR AI, spaCR output, spaCR AI
+
+with nothing under the first "spaCR AI". `_take_down_the_waiting_heading`
+now removes that heading and its empty block at the moment the reply opens
+its own, and hands the working dots over to the new heading, so the
+indicator runs unbroken from the question to the answer. The same run now
+gives
+
+    spaCR user, spaCR output, spaCR AI
+
+The note's own worry -- "drawing the heading only when the first chunk
+arrives would fix both, but it changes the error flow's working indicator"
+-- is why the heading is moved rather than deferred: the dots still appear
+the instant the question is asked, which is the whole point of them.
+
+TAKING THE DOTS ACROSS IS THE PART THAT NEEDED CARE. A child of a widget
+being deleted is deleted with it, so they are reparented to the panel
+first; `setParent` hides a widget rather than promoting it to a window, so
+nothing flashes between the two bars, and the new bar's layout shows it
+again. `test_the_working_indicator_moves_with_the_heading` asserts the dots
+are the surviving bar's child and that their timer is still running.
+
+A PROVIDER THAT PRINTS NOTHING AT ALL was the same defect from the other
+side and is covered too: there is no reply to move the heading to, so
+`_on_stream_finished` takes the empty one down and the "[AI error]" line
+stands on its own. The placement of that line, under "spaCR output"
+through `append_notice`, predates this item and is unchanged.
+
+3 WAS ALREADY DONE, and the note is what was stale. It says
+`ai.settings.get_auto_file_issues` and the module docstring of
+`ai/issue_report.py` "still describe the old browser flow". Read today,
+both describe the flow as it is: get_auto_file_issues names 'always',
+'ask' and 'never' and the 2026-09-19 default, and issue_report's module
+docstring opens "A failed run is reported in one of two ways" and says
+'always' "never opens a browser". `git show 495d02acc -- spacr/qt/ai/` has
+the rewrite, and `git log -p` on issue_report.py shows the old line
+("pre-filled GitHub form in the browser for the user to submit there")
+being replaced in the same commit. So the autofile-default change fixed
+this and the LEFT list was written against the branch it was fixed on.
+Nothing was changed here. Recorded rather than quietly dropped, because
+"the code beats both" is exactly the trap HANDOFF §0a is about.
+
+4 IS FIXED. `[AI error] ProviderFailed: claude stopped with exit status 1:
+...` now reads `[AI error] claude stopped with exit status 1: ...`.
+`StreamWorker.run` emitted `f"{type(e).__name__}: {e}"` for every
+exception; ProviderFailed's whole message is composed to be read after
+"[AI error]", down to the `claude auth login` to run, so the class name sat
+in front of the one sentence a user can act on. Every other exception keeps
+its class, deliberately: a bare `[Errno 2] No such file or directory` does
+not say it is a FileNotFoundError, and for most exceptions the type is the
+only part naming the fault. An empty message falls back to the prefixed
+form rather than printing "[AI error] " over nothing.
+
+MEASURED (worktree wt-small-finishes, QT_QPA_PLATFORM=offscreen, every run
+under tools/run_capped.sh 4G, one at a time, no xdist)
+
+  * tests/qt/test_a_failed_run_offers_the_report_it_promised.py: 29 passed
+    (24 before; four added and two rewritten). With the two modules stashed
+    and the tests kept, 5 fail and 24 pass -- the three new heading tests,
+    the worker's message, and the end-to-end #117 test, which now also
+    counts the headings in the whole console.
+  * The sixth new test, test_any_other_failure_keeps_the_class_that_names_
+    it, passes with and without the change: it pins behaviour the change
+    deliberately leaves alone, so that a later "drop the prefix" does not
+    drop it everywhere.
+  * Console and AI, 11 files (test_cov_w3_7_console_panel,
+    test_console_panel_uncovered_paths, test_console_ui, test_console_i18n,
+    test_cov_s1_console_panel_sections, test_cov_r8_console_panel_layout_
+    items, test_console_thread_safety, test_ai_console, test_ai_shutdown,
+    test_ai_stress, test_cov_r8_ai_provider_reaping): 177 passed.
+  * AI panels, providers, the report path and Annotate's console, 12 files:
+    312 passed.
+
+OWED to the consolidated i18n pass: the docstrings of two public methods,
+`ConsolePanel.begin_topic` (it now returns the bar it drew, and says why)
+and `StreamWorker.run`. No user-facing string, caption or tooltip changed
+-- "[AI error] {detail}" is the same catalog row; only what fills {detail}
+is different.
+
+LEFT, unchanged: everything under LEFT in the two notes above except the
+four nits, namely the translations, the tail of the last component of an
+unquoted spaced path, and filing not waiting for spaCR AI's answer.

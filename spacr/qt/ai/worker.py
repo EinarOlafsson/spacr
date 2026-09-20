@@ -15,7 +15,7 @@ from typing import Dict, List, Optional
 
 from PySide6.QtCore import QObject, QThread, Signal
 
-from .providers import ChatProvider
+from .providers import ChatProvider, ProviderFailed
 
 
 class StreamWorker(QObject):
@@ -70,13 +70,21 @@ class StreamWorker(QObject):
         """Consume the provider stream, emitting stage/chunk/finished signals.
 
         ``finished`` carries ``(True, the whole reply)`` only when the stream
-        ended on its own and the provider did not report a failure. A provider
-        that failed -- :class:`~spacr.qt.ai.providers.ProviderFailed` for a CLI
-        that exited non-zero, or any other exception -- gives
-        ``(False, "<type>: <message>")``, and whatever it printed before
-        failing is not an answer. A stream that was cancelled gives
-        ``(False, "Cancelled.")`` even when ending the child made the
-        provider raise, because the user asked for the stop.
+        ended on its own and the provider did not report a failure. Anything
+        else gives ``(False, <what to tell the user>)``, and whatever the
+        provider printed before failing is not an answer. A stream that was
+        cancelled gives ``(False, "Cancelled.")`` even when ending the child
+        made the provider raise, because the user asked for the stop.
+
+        THE EXCEPTION'S CLASS NAME IS PREFIXED ONLY WHEN IT SAYS SOMETHING.
+        The console writes this text after "[AI error] ", so for a
+        :class:`~spacr.qt.ai.providers.ProviderFailed` -- whose whole message
+        is written to be read there, down to the sign-in command to run --
+        the prefix turned a sentence the user could act on into
+        "[AI error] ProviderFailed: claude stopped with exit status 1: ...".
+        Every other exception keeps its class, which is often the only thing
+        naming what went wrong: a bare ``[Errno 2] No such file or
+        directory`` does not say it is a FileNotFoundError.
         """
         buf: List[str] = []
         try:
@@ -104,7 +112,10 @@ class StreamWorker(QObject):
                 print(f"[AI worker] error: {tb}", file=sys.__stderr__, flush=True)
             except Exception:
                 pass
-            self.finished.emit(False, f"{type(e).__name__}: {e}")
+            detail = str(e)
+            if not isinstance(e, ProviderFailed) or not detail:
+                detail = f"{type(e).__name__}: {e}"
+            self.finished.emit(False, detail)
 
 
 def make_stream_thread(
