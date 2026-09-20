@@ -3,9 +3,9 @@
 Installer guide
 ===============
 
-This page covers the current desktop installers, conda-forge and PyPI
-installation, updates, removal, offline preparation and the files to check
-when installation fails. For older downloadable versions, use the
+This page covers the current desktop installers, conda-forge, PyPI and
+container installation, updates, removal, offline preparation and the files
+to check when installation fails. For older downloadable versions, use the
 :doc:`installer archive <installers>`.
 
 Choose an installation
@@ -23,6 +23,12 @@ dependencies. Use ``pip`` for the PyPI release when spaCR must live in an
 existing Python environment, notebook, server or cluster, or when you need a
 PyPI extra that is not part of the conda package. Python 3.12 currently offers
 the widest selection of optional scientific packages.
+
+Use a :ref:`container image <container-images>` when the install itself is the
+problem: a cluster node, a cloud instance, a shared machine you cannot change,
+or an analysis that has to be re-runnable years from now. The images are for
+the CLI and the pipelines; the desktop interface in a container is a Linux-only
+extra and is documented as one.
 
 Desktop installers
 ------------------
@@ -235,6 +241,139 @@ Omit ``qt`` for a headless server. Extras can be combined, for example
      - RAPIDS acceleration where compatible CUDA wheels are available.
    * - ``tutorial``
      - Packages used by the interactive tutorial environment.
+
+.. _container-images:
+
+Container images
+----------------
+
+Two images are published to the GitHub Container Registry on every spaCR
+release. They exist for the headless half of spaCR: the CLI, the pipelines,
+a cluster job and a reviewer re-running an analysis a year later. They are
+not a way to install the desktop application, which the platform installers
+above do better.
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Image
+     - For
+   * - ``ghcr.io/einarolafsson/spacr:<version>``
+     - CPU only. Works on any x86-64 host with Docker or Podman, needs no
+       driver, and runs the measure and regression half of spaCR at full
+       speed.
+   * - ``ghcr.io/einarolafsson/spacr:<version>-cuda12.4``
+     - CUDA 12.4. Needs an NVIDIA driver of **550 or newer on the host** and
+       the NVIDIA Container Toolkit. Without ``--gpus`` it behaves as the CPU
+       image.
+
+``:latest`` and ``:cpu`` follow the newest CPU release; ``:cuda`` and
+``:cuda12.4`` follow the newest CUDA release. Name an exact version for
+anything you intend to reproduce.
+
+Models and data are mounted, never baked in. A cpsam checkpoint is about
+1.2 GB and goes stale between releases, so the image ships none: mount a
+folder on ``/models`` and it becomes both the folder the Model Zoo downloads
+into and the folder Cellpose loads from. SAMCell and DINOCell are not in the
+images either, because they pin PyTorch versions that conflict with spaCR's
+and with each other; install one inside a running container, or let the Model
+Zoo install it into an isolated environment of its own.
+
+Running a pipeline
+~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   docker pull ghcr.io/einarolafsson/spacr:1.5.0.8
+
+   docker run --rm \
+       --user "$(id -u):$(id -g)" \
+       -v "$PWD/screen:/data" \
+       -v "$HOME/.cellpose/models:/models" \
+       ghcr.io/einarolafsson/spacr:1.5.0.8 \
+       spacr-run measure --settings /data/settings/measure_settings.csv
+
+On a GPU host, add ``--gpus all`` and use the CUDA tag:
+
+.. code-block:: bash
+
+   docker run --rm --gpus all \
+       --user "$(id -u):$(id -g)" \
+       -v "$PWD/screen:/data" \
+       -v "$HOME/.cellpose/models:/models" \
+       ghcr.io/einarolafsson/spacr:1.5.0.8-cuda12.4 \
+       spacr-run mask --settings /data/settings/gen_mask_settings.csv
+
+Pass ``--user "$(id -u):$(id -g)"``. Every file a container writes to a
+mounted folder is owned by the user ID inside the container, so without it
+the results belong to a user that does not exist on the host and cannot be
+deleted without ``sudo``. The images already run as a non-root user, and the
+entrypoint moves the cache directories somewhere writable when the user ID
+you pass has no home inside the image.
+
+``spacr-run --list`` prints every module that runs headless, and
+``spacr-run --describe <module>`` prints what one needs and what it writes.
+``spacr-doctor`` reports what the container found, including whether the GPU
+is visible:
+
+.. code-block:: bash
+
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.0.8-cuda12.4 spacr-doctor
+
+The desktop interface in a container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Linux only, and unsupported elsewhere.** The images carry the Qt runtime
+libraries, so a Linux host running X11 can pass its display socket in:
+
+.. code-block:: bash
+
+   xhost +SI:localuser:"$(id -un)"
+   docker run --rm \
+       --user "$(id -u):$(id -g)" \
+       -e DISPLAY -e XDG_RUNTIME_DIR \
+       -v /tmp/.X11-unix:/tmp/.X11-unix \
+       -v "$PWD/screen:/data" \
+       ghcr.io/einarolafsson/spacr:1.5.0.8 \
+       spacr
+
+A container rarely has a usable OpenGL context, so the animated backdrop may
+not draw. ``safespacr`` starts the same application with the backdrop and GL
+switched off, and is the right command when the window is slow or blank:
+
+.. code-block:: bash
+
+   docker run --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
+       ghcr.io/einarolafsson/spacr:1.5.0.8 safespacr
+
+On macOS and Windows this needs a third-party X server and is not tested or
+supported. Use the desktop installer on those platforms.
+
+Building the images yourself
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Build from the repository root; the Dockerfiles expect the checkout as their
+build context:
+
+.. code-block:: bash
+
+   docker build -f packaging/docker/Dockerfile.cpu -t spacr:cpu .
+   docker build -f packaging/docker/Dockerfile.cuda -t spacr:cuda .
+
+``--build-arg SPACR_UID=$(id -u) --build-arg SPACR_GID=$(id -g)`` bakes your
+own user ID into the image, which is an alternative to passing ``--user`` on
+every run. ``--build-arg PYTHON_VERSION=3.11`` selects a different
+interpreter. Each image can be checked the way the release workflow checks
+it:
+
+.. code-block:: bash
+
+   docker run --rm spacr:cpu spacr --version
+   docker run --rm spacr:cpu python3 /opt/spacr/smoke_pipeline.py
+
+The second command runs a real pipeline on a synthetic field and reports one
+line per check; it needs no model, no GPU and no network.
 
 Troubleshooting
 ---------------

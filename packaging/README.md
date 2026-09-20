@@ -84,6 +84,24 @@ if one glyph drifts outside the shared weight band, so no platform can quietly
 become the loud one. Re-run it only when the artwork changes; `release.py
 collect` moves the links forward without touching the icons.
 
+## Container images
+
+`packaging/docker/` holds two Dockerfiles: a CPU image on `python:3.12-slim`
+and a CUDA 12.4 image on `nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04`. They
+are for the CLI and the pipelines — a cluster node, a cloud instance, or an
+analysis that has to be re-runnable in five years. Models and data are
+mounted, never baked in; both images run as a non-root user with a settable
+UID; the desktop interface in a container is a documented Linux-only extra.
+
+`.github/workflows/docker-images.yml` builds both on a release tag (and on a
+deliberate `workflow_dispatch`, never on every push), runs three checks
+against each built image before anything is pushed — it reports the version
+its tag claims, it does not run as root, and it completes one real pipeline —
+and publishes to `ghcr.io/einarolafsson/spacr`.
+
+`packaging/docker/README.md` records why each decision was made.
+`docs/source/installer_guide.rst` is what a user reads.
+
 ## One-click releases
 
 Run **Actions → release spaCR → Run workflow**, enter the new version, and
