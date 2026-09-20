@@ -88,9 +88,21 @@ def _files(folder):
     return [str(folder / name) for name in sorted(os.listdir(folder))]
 
 
+def _widget_text(widget):
+    """Whatever a settings control is showing, however it spells it."""
+    for name in ("text", "currentText", "value", "get_value"):
+        getter = getattr(widget, name, None)
+        if callable(getter):
+            try:
+                return str(getter())
+            except TypeError:
+                continue
+    return ""
+
+
 def test_dropping_the_folder_fills_the_table(qtbot, drawn):
     """A real drop event, not a helper call, and the table is populated."""
-    widget = MeasureInputTable()
+    widget = MeasureInputTable(threaded=False)
     qtbot.addWidget(widget)
 
     mime = QMimeData()
@@ -114,7 +126,7 @@ def test_dropping_the_folder_fills_the_table(qtbot, drawn):
 
 def test_the_grid_shows_which_file_landed_in_which_cell(qtbot, drawn):
     """What the user checks before pressing Measure has to be on screen."""
-    widget = MeasureInputTable()
+    widget = MeasureInputTable(threaded=False)
     qtbot.addWidget(widget)
     widget.dropEvent(_drop_event(_files(drawn)))
 
@@ -133,7 +145,7 @@ def test_the_grid_shows_which_file_landed_in_which_cell(qtbot, drawn):
 def test_a_regex_that_places_nothing_lists_every_file_it_could_not(qtbot,
                                                                    drawn):
     """A file that silently vanishes is the one failure this cannot afford."""
-    widget = MeasureInputTable()
+    widget = MeasureInputTable(threaded=False)
     qtbot.addWidget(widget)
     widget.dropEvent(_drop_event(_files(drawn)))
     assert widget.unassigned() == []
@@ -153,7 +165,7 @@ def test_a_regex_that_places_nothing_lists_every_file_it_could_not(qtbot,
 def test_a_regex_that_will_not_compile_says_so_and_changes_nothing(qtbot,
                                                                    drawn):
     """The box is a place to make mistakes in, not a way to break a run."""
-    widget = MeasureInputTable()
+    widget = MeasureInputTable(threaded=False)
     qtbot.addWidget(widget)
     widget.dropEvent(_drop_event(_files(drawn)))
 
@@ -170,7 +182,7 @@ def test_double_clicking_a_cell_browses_for_that_one_file(qtbot, drawn,
     Headless Qt refuses a static modal -- HANDOFF 3b -- so the chooser is
     replaced rather than patched onto QFileDialog.
     """
-    widget = MeasureInputTable()
+    widget = MeasureInputTable(threaded=False)
     qtbot.addWidget(widget)
     widget.dropEvent(_drop_event(_files(drawn)))
     replacement = _write(str(tmp_path / "redrawn_cell.tif"),
@@ -188,7 +200,7 @@ def test_double_clicking_a_cell_browses_for_that_one_file(qtbot, drawn,
 
 def test_the_channel_count_and_the_mask_boxes_reshape_the_table(qtbot, drawn):
     """The columns are controls, so changing one has to change the model."""
-    widget = MeasureInputTable()
+    widget = MeasureInputTable(threaded=False)
     qtbot.addWidget(widget)
     widget.dropEvent(_drop_event(_files(drawn)))
 
@@ -304,7 +316,208 @@ def test_make_masks_has_a_features_button_that_opens_the_table(qtbot,
     qtbot.addWidget(window)
 
     assert isinstance(window, MeasureInputsScreen)
+    assert window.destination() == os.path.join(str(drawn), "features")
+
+    assert window.inputs.table().rows == [], (
+        "the folder must not have been read on the GUI thread; pressing "
+        "FEATURES on a folder living on a sleeping automount is the freeze "
+        "this walk was moved to a worker to remove")
+    qtbot.waitUntil(lambda: not window.inputs.is_scanning(), timeout=5000)
     assert [row.label for row in window.inputs.table().rows] == [
         "fov001", "fov002"]
-    assert window.destination() == os.path.join(str(drawn), "features")
     window.close()
+
+
+@pytest.fixture
+def float_drawn(tmp_path):
+    """One field whose intensities are floats, which Measure refuses.
+
+    The refusal passes :meth:`FieldTable.problems` -- nothing about the
+    filenames is wrong -- and only fires once the run has started, which is
+    what makes it the right way to reach the failure path.
+    """
+    folder = tmp_path / "floaty"
+    yy, xx = np.indices((24, 24))
+    _write(str(folder / "fov001_C1.tif"),
+           ((yy + xx) / 7.0).astype(np.float32))
+    _write(str(folder / "fov001_C2.tif"),
+           ((yy - xx) / 7.0).astype(np.float32))
+    cell = np.zeros((24, 24), np.uint16)
+    cell[3:21, 3:21] = 1
+    _write(str(folder / "fov001_cell_mask.tif"), cell)
+    return folder
+
+
+def test_a_failed_run_says_why_and_gives_the_window_back(qtbot, float_drawn):
+    """Press Measure on files Measure refuses: the reason is shown, unthreaded.
+
+    THE WINDOW USED TO DIE SILENTLY HERE. ``run`` disabled the Measure
+    button and only ``_on_done`` re-enabled it, and ``JobRunner`` calls
+    ``on_done`` only for a job that succeeded -- so a refusal left the button
+    disabled for the rest of the session with nothing in the log but
+    "Writing...". The explanation went to ``job_failed``, which nothing was
+    listening to.
+    """
+    screen = MeasureInputsScreen(threaded=False)
+    qtbot.addWidget(screen)
+    screen.inputs.dropEvent(_drop_event(_files(float_drawn)))
+    screen.apply_settings_dict(dict(LEAN))
+
+    assert screen.inputs.problems() == []
+    assert screen.run_button.isEnabled()
+
+    with qtbot.waitSignal(screen.run_finished, timeout=5000) as caught:
+        screen.run_button.click()
+
+    assert caught.args == [None]
+    assert screen.run_button.isEnabled(), (
+        "a refusal must not leave the window dead for the rest of the session")
+    assert screen.inputs.isEnabled()
+    log = screen._log.toPlainText()
+    assert "The run stopped:" in log
+    assert "floating-point" in log or "8- or 16-bit" in log
+    assert screen.result() is None
+
+
+def test_a_failed_run_on_the_real_worker_thread_also_reports(qtbot,
+                                                             float_drawn):
+    """The same, through the threaded runner -- the path a user actually uses.
+
+    The unthreaded and threaded failure routes are different code in
+    ``JobRunner`` (``submit``'s own ``except`` against ``_on_settled``'s
+    ``if ok``), and only the threaded one runs in the application. Neither
+    was exercised before, which is why the dead button went unnoticed.
+    """
+    screen = MeasureInputsScreen(threaded=True)
+    qtbot.addWidget(screen)
+    screen.inputs.add_paths(_files(float_drawn))
+    screen.apply_settings_dict(dict(LEAN))
+
+    assert screen.run_button.isEnabled()
+    with qtbot.waitSignal(screen.run_finished, timeout=20000) as caught:
+        screen.run_button.click()
+
+    assert caught.args == [None]
+    assert screen.run_button.isEnabled()
+    assert "The run stopped:" in screen._log.toPlainText()
+    screen.close()
+
+
+def test_the_table_is_locked_while_a_run_reads_it(qtbot, drawn, tmp_path):
+    """The grid cannot be edited under the worker that is reading it.
+
+    ``run`` hands the measurement a SNAPSHOT, and the table is disabled for
+    the duration as well. Before both, the worker iterated the live model
+    while the user was free to drop the next batch on it -- a ``KeyError``
+    inside the write, or a field nobody asked for, on a run that takes
+    minutes and during which preparing the next batch is the natural thing
+    to do.
+    """
+    screen = MeasureInputsScreen(threaded=False)
+    qtbot.addWidget(screen)
+    screen.inputs.dropEvent(_drop_event(_files(drawn)))
+    screen.set_destination(str(tmp_path / "out"))
+    screen.apply_settings_dict(dict(LEAN))
+
+    seen = {}
+
+    def peek(_message):
+        """Look at the window while the worker is between its two stages."""
+        seen.setdefault('inputs_enabled', screen.inputs.isEnabled())
+        seen.setdefault('run_enabled', screen.run_button.isEnabled())
+        screen.inputs.add_field()
+
+    screen.progress.connect(peek)
+    with qtbot.waitSignal(screen.run_finished, timeout=60000):
+        screen.run_button.click()
+
+    assert seen['inputs_enabled'] is False, "the grid was editable mid-run"
+    assert seen['run_enabled'] is False
+    assert screen.inputs.isEnabled()
+    assert screen.result() is not None
+    assert len(screen.result()['stems']) == 2, (
+        "the row added mid-run must not have reached the snapshot")
+
+
+def test_dropping_a_folder_never_stats_it_on_the_gui_thread(qtbot, drawn,
+                                                            monkeypatch):
+    """The walk runs on a worker, which is the whole of the fix.
+
+    A drop is a path the user chose; on a microscope rig that is the share
+    the images live on, where one stat under a sleeping automount was
+    measured at over twenty seconds. Done inline it froze the application
+    with no traceback. Replacing the walk and recording the thread it ran on
+    is how ``import_workbench`` reproduces the same freeze.
+    """
+    import threading
+
+    from spacr.qt.widgets import measure_input_table as module
+
+    gui_thread = threading.current_thread()
+    ran_on = {}
+    real = module.files_under
+
+    def watched(paths):
+        ran_on['thread'] = threading.current_thread()
+        return real(paths)
+
+    monkeypatch.setattr(module, 'files_under', watched)
+
+    widget = MeasureInputTable(threaded=True)
+    qtbot.addWidget(widget)
+    widget.dropEvent(_drop_event([drawn]))
+
+    assert widget.table().rows == []
+    qtbot.waitUntil(lambda: not widget.is_scanning(), timeout=5000)
+
+    assert ran_on['thread'] is not gui_thread
+    assert [row.label for row in widget.table().rows] == ["fov001", "fov002"]
+
+
+def test_a_drag_over_the_table_asks_the_filesystem_nothing(qtbot, drawn,
+                                                           monkeypatch):
+    """Accepting a drag is decided from the mime data alone.
+
+    ``dragEnterEvent`` used to expand the folder to decide whether to accept,
+    and ``dragMoveEvent`` calls it -- so the stats ran again for every event
+    the pointer produced while merely hovering over the table.
+    """
+    from spacr.qt.widgets import measure_input_table as module
+
+    def forbidden(*_args, **_kwargs):
+        raise AssertionError("a drag-over expanded the dropped folder")
+
+    monkeypatch.setattr(module, 'files_under', forbidden)
+
+    widget = MeasureInputTable(threaded=True)
+    qtbot.addWidget(widget)
+
+    mime = QMimeData()
+    mime.setUrls([QUrl.fromLocalFile(str(drawn))])
+    _MIME_KEPT_ALIVE.append(mime)
+    enter = QDragEnterEvent(QPointF(4, 4).toPoint(), Qt.CopyAction, mime,
+                            Qt.LeftButton, Qt.NoModifier)
+    for _ in range(5):
+        widget.dragEnterEvent(enter)
+        assert enter.isAccepted()
+
+
+def test_src_shows_where_the_run_will_write_without_a_destination(qtbot,
+                                                                  drawn):
+    """The disabled ``src`` box names the folder the results land in.
+
+    It is captioned "the file table decides this", and it showed the settings
+    spec's ``path`` placeholder whenever the window was opened without a
+    folder -- while the run wrote to ``<the files>/features``.
+    """
+    screen = MeasureInputsScreen(threaded=False)
+    qtbot.addWidget(screen)
+    assert screen.destination() is None
+
+    screen.inputs.dropEvent(_drop_event(_files(drawn)))
+
+    expected = os.path.join(str(drawn), "features", "merged")
+    assert screen.derived_settings()['src'] == expected
+    widget = screen._decided_widgets['src']
+    assert not widget.isEnabled()
+    assert expected in _widget_text(widget)

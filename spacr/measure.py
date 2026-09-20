@@ -4370,12 +4370,22 @@ class FieldTable:
         planes are stacked in, so the two cannot drift.
     :ivar plate: the plate name every row's stem starts with. It names where
         the files came from rather than claiming a plate that was never run.
+    :ivar channel_tokens: which channel token owns which channel column, by
+        position: ``channel_tokens[i]`` is the token that column ``i`` means.
+        THE TABLE REMEMBERS THIS BECAUSE THE TABLE OUTLIVES THE DROP. The
+        ranking that turns ``C1``/``C2`` into columns 0 and 1 is a property
+        of a SET of tokens, and a user fills this table one field at a time,
+        so without a memory the second drop would rank its own files from
+        scratch and put ``C2`` in column 0 beside the first drop's ``C1``.
+        Empty means no column means any particular token yet -- every cell
+        was filled by browsing rather than by the regex.
     """
 
     rows: List[FieldRow] = dataclasses_field(default_factory=list)
     n_channels: int = 1
     roles: Tuple[str, ...] = ('cell',)
     plate: str = 'drawn'
+    channel_tokens: Tuple[str, ...] = ()
 
     def ordered_roles(self):
         """The mask columns in merged-plane order, duplicates removed."""
@@ -4433,6 +4443,48 @@ class FieldTable:
         return not self.problems()
 
 
+def _renumber_channels(table, known, ranked):
+    """Move every row's channel files to the columns ``ranked`` now gives them.
+
+    WHICH COLUMN A TOKEN MEANS IS A PROPERTY OF THE TABLE, NOT OF ONE DROP,
+    and this is what keeps it so. The documented way to use the FEATURES
+    window is one field at a time -- draw, press FEATURES, move to the next
+    image, draw again -- so a later drop can introduce a token that ranks
+    before one already placed. Re-ranking without moving the files already in
+    the table leaves ``C2`` in column 0 for the first field and column 1 for
+    the second, and NOTHING ON SCREEN SAYS SO: the table reads as complete,
+    the run succeeds, and ``cell_channel_0_mean_intensity`` in the database
+    is a different stain for different fields. Renumbering is how the
+    invariant survives the second drop.
+
+    Columns no token claims -- cells filled by browsing rather than by the
+    regex -- keep their files. They are given the columns after the tokened
+    ones, in their old order, so nothing a user put somewhere is dropped.
+
+    :param table: the :class:`FieldTable` to renumber, edited in place.
+    :param known: the token order the rows' current column numbers mean.
+    :param ranked: the token order they should mean.
+    :returns: ``None``.
+    """
+    moves = {index: ranked.index(token)
+             for index, token in enumerate(known) if token in ranked}
+    if not moves:
+        return
+    taken = set(moves.values())
+    occupied = {index for row in table.rows for index in row.channels}
+    spare = len(ranked)
+    for index in sorted(index for index in occupied if index not in moves):
+        while spare in taken:
+            spare += 1
+        moves[index] = spare
+        taken.add(spare)
+    if all(old == new for old, new in moves.items()):
+        return
+    for row in table.rows:
+        row.channels = {moves.get(index, index): path
+                        for index, path in row.channels.items()}
+
+
 @dataclass
 class TableAssignment:
     """What one regex did to one set of dropped files.
@@ -4470,11 +4522,19 @@ def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
     and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is
     no reading of ``C1`` that is right for all three -- a literal read makes
     the first set start at channel 1 and leaves channel 0 empty for ever.
-    So the DISTINCT channel tokens across the whole drop are sorted
-    (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that
-    order. The mapping is therefore a property of the set of files, not of any
-    one of them, which is why the window shows the assignment rather than
-    describing the rule.
+    So the DISTINCT channel tokens are sorted (numerically on their trailing
+    digits) and mapped onto 0, 1, 2 ... in that order. The mapping is
+    therefore a property of the set of files, not of any one of them, which
+    is why the window shows the assignment rather than describing the rule.
+
+    THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token
+    owns which column in :attr:`FieldTable.channel_tokens`, and a later drop
+    is ranked against the union of what it brings and what is already there.
+    A token that ranks before one already placed renumbers the columns and
+    MOVES the files already in them (:func:`_renumber_channels`), so every
+    row agrees about what channel 0 is. Ranking each drop on its own instead
+    would put a second field's ``C2`` in column 0 beside a first field's
+    ``C1``, and the only sign of it would be in the database.
 
     :param paths: file paths to assign.
     :param pattern: a regex with at least a field group and one of a channel
@@ -4555,9 +4615,13 @@ def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
                 f"{text} matched but captured neither a channel nor an "
                 "object")))
 
-    tokens = sorted({token for _p, _l, kind, token, _c in matched
-                     if kind == 'channel'}, key=_channel_rank_key)
+    known = [str(token) for token in getattr(existing, 'channel_tokens', ())]
+    tokens = sorted(set(known) | {token for _p, _l, kind, token, _c in matched
+                                  if kind == 'channel'},
+                    key=_channel_rank_key)
     channel_of = {token: index for index, token in enumerate(tokens)}
+    _renumber_channels(existing, known, tokens)
+    existing.channel_tokens = tuple(tokens)
 
     rows_by_label = {row.label: row for row in existing.rows}
     for path, label, kind, token, captured in matched:
@@ -4583,6 +4647,10 @@ def assign_paths_by_regex(paths, pattern, *, table=None, plate=None):
             result.assigned.append((path, label, f"channel {index + 1}"))
 
     existing.roles = existing.ordered_roles()
+    highest = max((max(row.channels) for row in existing.rows if row.channels),
+                  default=-1)
+    existing.n_channels = max(int(existing.n_channels), len(tokens),
+                              highest + 1)
     return result
 
 
@@ -4777,7 +4845,34 @@ def write_field_table_project(table, dst):
             'stack': stack_paths, 'masks': mask_paths, 'stems': stems}
 
 
-def measure_from_field_table(table, settings=None, dst=None):
+def field_table_destination(table, dst=None):
+    """Where a run of ``table`` would write, given the destination it was handed.
+
+    ONE ANSWER, so that the window and the run cannot disagree about it.
+    ``src`` is one of :data:`FIELD_TABLE_DECIDED_KEYS`, so the FEATURES
+    window shows it filled in and disabled; before this existed the window
+    derived it only when it had been given a destination, and a window
+    opened without one showed the settings spec's ``path`` placeholder while
+    the run wrote beside the first channel file. A disabled box captioned
+    "the table decides this" that names the wrong folder is worse than no box
+    at all -- it is the window telling the user where their results are not.
+
+    :param table: the :class:`FieldTable` the run would measure.
+    :param dst: the destination the caller was given, or ``None`` to derive
+        one from the table.
+    :returns: the project root, or ``None`` when the table is too empty to
+        derive one. Nothing is read from disk.
+    """
+    if dst is not None:
+        return os.fspath(dst)
+    first = table.rows[0].channels.get(0) if table.rows else None
+    if not first:
+        return None
+    return os.path.join(
+        os.path.dirname(os.path.abspath(str(first))), 'features')
+
+
+def measure_from_field_table(table, settings=None, dst=None, progress=None):
     """Measure a table of hand-picked images and masks. The FEATURES entry point.
 
     The other way into this module. :func:`measure_crop` starts from a
@@ -4793,7 +4888,14 @@ def measure_from_field_table(table, settings=None, dst=None):
         :func:`field_table_settings`.
     :param dst: the project root to write. Defaults to a ``features``
         folder beside the first channel file of the first row, which is where
-        a user who dropped a folder in expects to find the results.
+        a user who dropped a folder in expects to find the results. See
+        :func:`field_table_destination`, which is the one place that default
+        is worked out.
+    :param progress: called with a sentence as each stage starts, or
+        ``None``. It runs on whatever thread this does -- the FEATURES window
+        runs this on a worker and its callback only emits a signal. Writing
+        the arrays and measuring them are separate stages because on a large
+        table the second takes minutes and the first does not.
     :returns: ``{'destination', 'db_path', 'settings', 'stems', 'merged'}``.
         ``db_path`` is the measurements database whether or not it exists, so
         a caller can report the path it was asked for.
@@ -4816,16 +4918,32 @@ def measure_from_field_table(table, settings=None, dst=None):
         :func:`measure_crop` -- the run this delegates to, unchanged.
         :func:`write_field_table_project` -- the folders it writes first.
     """
+    def say(message):
+        """Report a stage, if anyone asked to hear about them.
+
+        Guarded because the caller is a window that may be closed while this
+        is still running: the FEATURES window's callback emits a Qt signal,
+        and a worker parked past its widget's destruction raises
+        ``RuntimeError`` from the emit. A run must not fail because nobody is
+        listening to it any more.
+        """
+        if progress is None:
+            return
+        try:
+            progress(str(message))
+        except Exception:                                        # noqa: BLE001
+            pass
+
+    dst = field_table_destination(table, dst)
     if dst is None:
-        first = table.rows[0].channels.get(0) if table.rows else None
-        if not first:
-            raise ConfigurationError(
-                "There is nowhere to write: the table's first field has no "
-                "channel file, and no destination was given.")
-        dst = os.path.join(os.path.dirname(os.path.abspath(str(first))),
-                           'features')
+        raise ConfigurationError(
+            "There is nowhere to write: the table's first field has no "
+            "channel file, and no destination was given.")
+    say(f"Writing the merged arrays for {len(table.rows)} field(s)...")
     written = write_field_table_project(table, dst)
     resolved = field_table_settings(table, settings, dst=dst)
+    say(f"Wrote {len(written['stems'])} field(s). Measuring them now; "
+        "this is the Measure module's own run.")
     measure_crop(resolved)
     return {
         'destination': written['destination'],

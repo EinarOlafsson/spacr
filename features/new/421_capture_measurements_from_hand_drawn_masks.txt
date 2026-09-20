@@ -221,10 +221,16 @@ TWO DECISIONS THAT WERE MINE AND WANT CONFIRMING
      `w1`/`w2` and `0`/`1`/`2` all have to become channels 0, 1, 2, and no
      literal reading of `C1` is right for all three -- a literal read leaves
      channel 0 permanently empty for the first set. So the distinct channel
-     tokens across the whole drop are sorted (numerically on their trailing
-     digits, so C10 follows C9) and mapped onto 0, 1, 2. The mapping is a
-     property of the SET of files, not of any one file, which is why the
-     window shows the assignment rather than explaining the rule.
+     tokens are sorted (numerically on their trailing digits, so C10 follows
+     C9) and mapped onto 0, 1, 2. The mapping is a property of the SET of
+     tokens, not of any one file, which is why the window shows the
+     assignment rather than explaining the rule.
+
+     THE SET IS THE TABLE'S, NOT THE DROP'S -- corrected after review, see
+     the 2026-09-19 note below. The table remembers which token owns which
+     column, and a later drop is ranked against the union of what it brings
+     and what is already there, moving the files already placed if a
+     late-arriving token ranks before them.
 
   2. THE PLATE/WELL ANSWER, which is the open question above that the new
      specification does not settle. Every row is written as
@@ -253,3 +259,124 @@ WHAT IS LEFT
     is reachable by putting both files in one row, and is NOT separately
     tested. The parent/child reconstruction is measure_crop's own and was not
     touched.
+
+2026-09-19 -- after review: two ways the button lied to the user, and every
+filesystem call taken off the GUI thread.
+
+Decided: "the features button should allow the user to basically do everything
+the measure modular can do, and the file and folder structure of the resulting
+output should be the same as the measure output ( the features button should
+basically give a new input to the measure function)" -- the maintainer,
+2026-09-19. The review did not touch that claim; the structural comparison
+still holds. What it found was two states a user could reach in which the
+window said something untrue.
+
+WHAT WAS WRONG, AND HOW IT WAS REACHED
+
+  1. A FAILED RUN LEFT THE WINDOW DEAD AND SILENT. `run` disabled the Measure
+     button and only `_on_done` re-enabled it -- but JobRunner calls `on_done`
+     only for a job that SUCCEEDED, in both its threaded and its unthreaded
+     path. Every refusal write_field_table_project raises (a float intensity
+     image, a mask whose shape does not match its channels, label ids past
+     65535) passes FieldTable.problems and only fires once the run is under
+     way, so this was reachable from the ordinary mistakes the code was
+     written to catch. The carefully worded ConfigurationError was emitted on
+     `job_failed`, which nothing was connected to: it went nowhere. The window
+     was then unusable until it was closed and reopened, with no reason given.
+     Fixed by connecting `job_failed`. Measured: driving a real window with a
+     float image, the run button was still disabled after the failure and the
+     log held only "Writing the merged arrays..."; it now says "The run
+     stopped: <the reason>" and the window comes back. Both the threaded and
+     the unthreaded route are now tested -- neither was before, which is why
+     this was not noticed.
+
+  2. THE CHANNEL RANKING WAS A PROPERTY OF THE DROP, NOT OF THE TABLE, and
+     the table outlives the drop. Dropping fov001_C1 + fov001_C2 (C1 to
+     column 0, C2 to column 1) and then fov002_C2 in a second drop put
+     fov002's C2 file in column 0 -- reported to the user as "channel 1" --
+     while the problem list asked for a file for the channel it had just left
+     empty. Filling that gap made the table read as complete and measure a
+     database in which cell_channel_0_mean_intensity is a different stain for
+     different fields, with nothing anywhere saying so. Dropping one field at
+     a time is the workflow this window is FOR, so this was the ordinary path
+     and not a corner. Fixed by giving FieldTable a `channel_tokens` memory:
+     a later drop is ranked against the union of its tokens and the table's,
+     and a token that ranks ahead of one already placed renumbers the columns
+     and moves the files already in them. Files put in a column by browsing
+     are not tokened, so they keep their contents and are given the columns
+     after the tokened ones rather than being dropped.
+
+  3. EVERY DIRECTORY WALK WAS ON THE GUI THREAD, against the rule
+     spacr/qt/path_probe.py exists to keep and the freeze
+     import_workbench.py documents having removed. `_dropped_paths` expanded
+     a dropped folder with isdir + listdir + a stat per entry inside
+     dropEvent -- and, because dragEnterEvent called it to decide whether to
+     accept, inside every dragMoveEvent as well, so the stats ran repeatedly
+     while the pointer merely hovered. open_measure_inputs did the same walk
+     synchronously in the Make Masks button handler before the window was
+     shown. On a share behind a sleeping automount one stat was measured at
+     over twenty seconds. Fixed: accepting a drag reads the mime data only,
+     and the walk is MeasureInputTable.add_dropped's, on the widget's own
+     JobRunner (user_visible=False -- dropping a folder is not starting a
+     run). add_paths stays synchronous and is still safe to be, because the
+     regex matches BASENAMES and touches no filesystem. The isfile on the
+     finished database moved into the worker too.
+
+  4. THE WORKER WAS HANDED THE LIVE TABLE while the grid stayed editable for
+     the whole run. A measure run takes minutes and preparing the next batch
+     during one is the natural thing to do; the worker iterating table.rows
+     while the GUI thread appended rows or deleted channel keys is a KeyError
+     mid-write, or a field nobody asked for. Fixed: the run measures a deep
+     copy, and the table is disabled for the duration. Tested by editing the
+     table from a progress callback and checking the run still wrote exactly
+     the two fields it started with.
+
+  5. The disabled `src` box named the wrong folder whenever the window was
+     opened without a Make Masks folder: it showed the settings spec's `path`
+     placeholder while the run wrote to <the files>/features. It is captioned
+     "the file table decides this", so that was the window telling the user
+     where their results are not. field_table_destination is now the single
+     answer both the box and the run use.
+
+  6. There was no progress between "Writing the merged arrays..." and the end
+     of a run that can take many minutes. measure_from_field_table now takes
+     an optional progress callback and reports its two stages separately;
+     the window emits them as a signal from the worker, which is the one
+     thing job_runner's rules allow a worker to do.
+
+MEASURED
+
+  * tests/test_features_button_measures_hand_drawn_masks.py -- 16 pass (6
+    new: the second-drop column memory, a late token renumbering the columns,
+    a browsed file surviving the renumber, the single destination answer, the
+    two progress stages, and a progress callback that raises not failing the
+    run).
+  * tests/qt/test_features_button_opens_the_measure_table.py -- 17 pass (6
+    new: the failure path unthreaded AND on the real worker thread, the table
+    locked while a run reads it, the folder walk proven to run off the GUI
+    thread, a drag-over proven to expand nothing, and src showing the derived
+    destination).
+  * Both blocking fixes were checked against the pre-fix source with the
+    work stashed: the two new tests fail there and pass here. A test that
+    passes either way would have proved nothing.
+  * Regressions green: test_a_comment_leaves_but_the_code_does_not,
+    test_measure_validation, test_measure_crop_core_synth, test_external_masks,
+    test_measure_n_jobs (89 passed); the make_masks and external-mask Qt
+    selections (25 passed).
+
+WHAT IS STILL LEFT, beyond the four items above
+
+  * The nine-language catalogs now also owe the strings this pass added --
+    "Looking at what was dropped...", "The run stopped: {message}", "Some of
+    what was dropped could not be read: {trouble}", "What was dropped could
+    not be read: {message}", and the two progress sentences in
+    spacr/measure.py. Still deliberately not regenerated: the consolidated
+    pass runs at the end of the round.
+  * New public API owing documentation entries: spacr.measure's
+    field_table_destination, FieldTable.channel_tokens and the progress
+    parameter of measure_from_field_table; MeasureInputTable.add_dropped,
+    is_scanning and the module-level files_under; MeasureInputsScreen's
+    progress signal.
+  * Closing the window mid-run now shuts its threads down rather than relying
+    on the application-quit drain, because Qt aborts the process if a running
+    QThread is destroyed and this window is closable while a run is in flight.

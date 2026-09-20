@@ -357,3 +357,170 @@ def test_one_drawn_mask_can_be_measured_against_several_acquisitions(tmp_path):
             'order by prcf').fetchall()
     assert len(rows) == 3
     assert len({round(value, 3) for _stem, value in rows}) == 3
+
+
+def test_a_second_drop_puts_the_same_channel_token_in_the_same_column():
+    """The table remembers what column a token means; the drop does not decide.
+
+    The FEATURES window's documented workflow is one field at a time -- draw,
+    press FEATURES, move to the next image, draw again. Ranking each drop's
+    tokens on their own made the ranking a property of the batch, so a second
+    drop that happened not to carry ``C1`` put its ``C2`` in column 0 beside
+    the first drop's ``C1``. Nothing on screen said so: the table read as
+    complete, the run succeeded, and ``cell_channel_0_mean_intensity`` in the
+    database was a different stain for different fields.
+    """
+    first = assign_paths_by_regex(
+        ['/d/fov001_C1.tif', '/d/fov001_C2.tif', '/d/fov001_cell_mask.tif'],
+        REGEX)
+    assert first.table.channel_tokens == ('1', '2')
+    assert first.table.rows[0].channels == {
+        0: '/d/fov001_C1.tif', 1: '/d/fov001_C2.tif'}
+
+    second = assign_paths_by_regex(
+        ['/d/fov002_C2.tif', '/d/fov002_cell_mask.tif'], REGEX,
+        table=first.table)
+
+    rows = {row.label: row for row in second.table.rows}
+    assert rows['fov002'].channels == {1: '/d/fov002_C2.tif'}, (
+        "C2 is column 1 for every field or the database is not comparable")
+    assert ('/d/fov002_C2.tif', 'fov002', 'channel 2') in second.assigned
+    assert "fov002 has no file for channel 1." in second.table.problems()
+
+
+def test_a_token_that_ranks_first_arriving_late_moves_the_columns_with_it():
+    """A late ``C1`` renumbers the columns AND the files already in them.
+
+    The alternative -- leaving the first drop's ``C2`` in column 0 and giving
+    ``C1`` column 1 -- keeps every row agreeing, but it makes channel 0 the
+    second stain for the whole table with nothing saying so. Re-ranking the
+    union and moving what is already placed is what keeps "channel 0 is the
+    lowest-ranked token present" true however the files arrived.
+    """
+    first = assign_paths_by_regex(
+        ['/d/fov001_C2.tif', '/d/fov001_cell_mask.tif'], REGEX)
+    assert first.table.rows[0].channels == {0: '/d/fov001_C2.tif'}
+
+    second = assign_paths_by_regex(
+        ['/d/fov001_C1.tif', '/d/fov002_C1.tif', '/d/fov002_C2.tif',
+         '/d/fov002_cell_mask.tif'], REGEX, table=first.table)
+
+    rows = {row.label: row for row in second.table.rows}
+    assert second.table.channel_tokens == ('1', '2')
+    assert rows['fov001'].channels == {
+        0: '/d/fov001_C1.tif', 1: '/d/fov001_C2.tif'}
+    assert rows['fov002'].channels == {
+        0: '/d/fov002_C1.tif', 1: '/d/fov002_C2.tif'}
+    assert second.table.n_channels == 2
+    assert second.table.problems() == []
+
+
+def test_renumbering_keeps_a_file_that_was_browsed_into_a_column():
+    """A cell filled by browsing is not thrown away when the columns move.
+
+    No token claims that column, so it cannot be ranked; it is given a column
+    after the tokened ones instead of being dropped, because a file the user
+    put somewhere by hand disappearing is the one failure this table cannot
+    afford.
+    """
+    first = assign_paths_by_regex(
+        ['/d/fov001_C2.tif', '/d/fov001_cell_mask.tif'], REGEX)
+    first.table.n_channels = 2
+    first.table.rows[0].channels[1] = '/d/hand_picked.tif'
+
+    second = assign_paths_by_regex(['/d/fov001_C1.tif'], REGEX,
+                                   table=first.table)
+
+    channels = second.table.rows[0].channels
+    assert channels[0] == '/d/fov001_C1.tif'
+    assert channels[1] == '/d/fov001_C2.tif'
+    assert '/d/hand_picked.tif' in channels.values()
+    assert sorted(channels) == [0, 1, 2]
+
+
+def test_the_destination_a_run_uses_is_the_one_the_window_can_show(tmp_path):
+    """``field_table_destination`` is the single answer, derived or given.
+
+    ``src`` is shown in the window as a disabled box captioned "the table
+    decides this", so the window and the run having separate opinions about
+    where the output goes means the window names a folder the results are not
+    in.
+    """
+    from spacr.measure import field_table_destination
+
+    folder = tmp_path / "drawn"
+    _write(str(folder / "fov001_C1.tif"), np.ones((8, 8), np.uint16))
+    table = FieldTable(
+        rows=[FieldRow(label='fov001',
+                       channels={0: str(folder / "fov001_C1.tif")},
+                       masks={'cell': 'x'}, well='A01', field=1)],
+        n_channels=1, roles=('cell',), plate='drawn')
+
+    assert field_table_destination(table, None) == str(folder / "features")
+    assert field_table_destination(table, tmp_path) == str(tmp_path)
+    assert field_table_destination(
+        FieldTable(rows=[], n_channels=1, roles=('cell',)), None) is None
+
+    settings = field_table_settings(
+        table, {}, dst=field_table_destination(table, None))
+    assert settings['src'] == os.path.join(
+        str(folder / "features"), 'merged')
+
+
+def test_progress_reports_both_stages_of_a_run(tmp_path):
+    """Writing the arrays and measuring them are announced separately.
+
+    On a table of many fields the measuring takes minutes and the writing
+    does not, so one "working" line covering both tells the user nothing
+    about which of them they are waiting for.
+    """
+    folder = tmp_path / "drawn"
+    yy, xx = np.indices((24, 24))
+    _write(str(folder / "fov001_C1.tif"), ((yy + xx) % 4096).astype(np.uint16))
+    cell = np.zeros((24, 24), np.uint16)
+    cell[3:21, 3:21] = 1
+    _write(str(folder / "fov001_cell_mask.tif"), cell)
+
+    table = FieldTable(
+        rows=[FieldRow(label='fov001',
+                       channels={0: str(folder / "fov001_C1.tif")},
+                       masks={'cell': str(folder / "fov001_cell_mask.tif")},
+                       well='A01', field=1)],
+        n_channels=1, roles=('cell',), plate='drawn')
+
+    said = []
+    measure_from_field_table(table, dict(LEAN), dst=str(tmp_path / "out"),
+                             progress=said.append)
+
+    assert len(said) == 2
+    assert "Writing" in said[0]
+    assert "Measuring" in said[1]
+
+
+def test_a_progress_callback_that_raises_does_not_fail_the_run(tmp_path):
+    """The window may be closed mid-run; the run is not its listener's problem.
+
+    The callback the FEATURES window passes emits a Qt signal, and a worker
+    parked past its widget's destruction raises ``RuntimeError`` from the
+    emit. A measurement that was going to succeed must not be lost because
+    nobody is watching it any more.
+    """
+    folder = tmp_path / "drawn"
+    _write(str(folder / "fov001_C1.tif"), np.ones((24, 24), np.uint16) * 7)
+    cell = np.zeros((24, 24), np.uint16)
+    cell[3:21, 3:21] = 1
+    _write(str(folder / "fov001_cell_mask.tif"), cell)
+
+    table = FieldTable(
+        rows=[FieldRow(label='fov001',
+                       channels={0: str(folder / "fov001_C1.tif")},
+                       masks={'cell': str(folder / "fov001_cell_mask.tif")},
+                       well='A01', field=1)],
+        n_channels=1, roles=('cell',), plate='drawn')
+
+    def angry(_message):
+        raise RuntimeError("Signal source has been deleted")
+
+    out = measure_from_field_table(table, dict(LEAN),
+                                   dst=str(tmp_path / "out"), progress=angry)
+    assert os.path.isfile(out['db_path'])

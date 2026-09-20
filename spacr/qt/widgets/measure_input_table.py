@@ -88,14 +88,27 @@ class MeasureInputTable(QWidget):
 
     table_changed = Signal()
 
-    def __init__(self, parent: Optional[QWidget] = None) -> None:
-        """Build the table, its column controls and its regex box."""
+    def __init__(self, parent: Optional[QWidget] = None, *,
+                 threaded: bool = True) -> None:
+        """Build the table, its column controls and its regex box.
+
+        :param parent: parent widget, or ``None``.
+        :param threaded: run the walk over dropped folders on a worker.
+            ``False`` runs it inline, so a test can drop a folder and read
+            the table on the next line.
+        """
         super().__init__(parent)
         self._table = FieldTable(rows=[], n_channels=2, roles=('cell',),
                                  plate='drawn')
         self._unassigned: List[Tuple[str, str]] = []
         self._picker = None
         self._known_paths: List[str] = []
+        from ..job_runner import JobRunner
+
+        self._scanner = JobRunner(self, threaded=bool(threaded),
+                                  app_key="features table scan",
+                                  user_visible=False)
+        self._scanner.job_failed.connect(self._scan_failed)
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -232,6 +245,11 @@ class MeasureInputTable(QWidget):
     def add_paths(self, paths: Sequence[Any]) -> int:
         """Sort ``paths`` into the table with the current regex.
 
+        Synchronous, and safe to be: the regex is matched against each path's
+        BASENAME, so sorting files into cells is string work that touches no
+        filesystem. Anything that might be a FOLDER must come through
+        :meth:`add_dropped` instead, which expands it on a worker first.
+
         :param paths: file paths, as strings or anything ``str`` accepts.
         :returns: how many of them landed in a cell.
         """
@@ -239,6 +257,61 @@ class MeasureInputTable(QWidget):
         self._known_paths.extend(
             path for path in texts if path not in self._known_paths)
         return self._apply(texts)
+
+    def add_dropped(self, paths: Sequence[Any]) -> None:
+        """Add every file under ``paths``, once a worker has expanded them.
+
+        SPLIT FROM :meth:`add_paths`, and the split is the fix for a frozen
+        application. Everything here is a list of strings; the ``isdir`` and
+        ``listdir`` that turn a dropped folder into files run on this
+        widget's own worker (:func:`files_under`), because a drop is a path
+        the user chose and on a microscope rig that is the share the images
+        live on -- one stat under a sleeping ``autofs`` mount was measured at
+        over twenty seconds, on the thread that paints.
+
+        NOTHING IS ADDED BY THE TIME THIS RETURNS, which is the point. Read
+        the table from :attr:`table_changed`, not from the line after this.
+
+        :param paths: files and folders from a drop or a file dialog.
+        :returns: ``None``. The count does not exist yet.
+        """
+        wanted = [str(path) for path in paths or ()]
+        if not wanted:
+            return
+        self._regex_status.setText("Looking at what was dropped...")
+        if not self._scanner.submit(lambda: _walk(wanted), self._files_found):
+            self.add_paths(wanted)
+
+    def _files_found(self, answer: Any) -> None:
+        """Sort what the walk found, on the GUI thread.
+
+        Generation-guarded by ``JobRunner``, so a walk the user abandoned by
+        pressing Clear cannot refill the table twenty seconds later.
+        """
+        found, trouble = answer if answer else ((), "")
+        if trouble:
+            self._regex_status.setText(
+                f"Some of what was dropped could not be read: {trouble}")
+        self.add_paths(list(found or ()))
+
+    def _scan_failed(self, message: str) -> None:
+        """Say so when the walk itself did not finish.
+
+        :func:`_walk` carries an ordinary failure back through
+        :meth:`_files_found`, so this is the case that cannot: the worker
+        did not return at all. Without it the "Looking..." caption would
+        stay on screen for the rest of the session. ``RuntimeError``: a
+        worker parked by shutdown outlives this widget's C++ half.
+        """
+        try:
+            self._regex_status.setText(
+                f"What was dropped could not be read: {message}")
+        except RuntimeError:
+            pass
+
+    def is_scanning(self) -> bool:
+        """True while a walk started by :meth:`add_dropped` is still running."""
+        return self._scanner.is_busy()
 
     def reapply_regex(self) -> int:
         """Sort every file this table has ever been given, again.
@@ -250,6 +323,7 @@ class MeasureInputTable(QWidget):
         """
         remembered = list(self._known_paths)
         self._table.rows = []
+        self._table.channel_tokens = ()
         self._unassigned = []
         return self._apply(remembered)
 
@@ -274,8 +348,15 @@ class MeasureInputTable(QWidget):
         return len(doomed)
 
     def clear(self) -> None:
-        """Forget every row and every file that was ever dropped."""
+        """Forget every row and every file that was ever dropped.
+
+        The channel-token memory goes with them: an empty table's columns
+        mean nothing yet, and keeping the old ranking would let a token the
+        user has cleared decide where the next drop's files land.
+        """
+        self._scanner.cancel()
         self._table.rows = []
+        self._table.channel_tokens = ()
         self._unassigned = []
         self._known_paths = []
         self._rebuild()
@@ -402,8 +483,15 @@ class MeasureInputTable(QWidget):
         self._rebuild()
 
     def _on_channels_changed(self, value: int) -> None:
-        """Add or drop channel columns, keeping the files that still fit."""
+        """Add or drop channel columns, keeping the files that still fit.
+
+        A column that goes takes its token with it, or the memory would
+        still claim a column the table no longer has and the next drop
+        would silently bring it back.
+        """
         self._table.n_channels = int(value)
+        self._table.channel_tokens = tuple(
+            self._table.channel_tokens[:int(value)])
         for row in self._table.rows:
             for index in list(row.channels):
                 if index >= int(value):
@@ -470,6 +558,10 @@ class MeasureInputTable(QWidget):
     def dragEnterEvent(self, event):  # noqa: N802 - Qt contract
         """Accept a drag that carries local files.
 
+        Decided from the mime data alone. Asking the filesystem whether the
+        drag is worth accepting would run a stat on the GUI thread for every
+        drag-move event the pointer produces.
+
         :param event: the Qt drag event.
         """
         if _dropped_paths(event):
@@ -487,13 +579,17 @@ class MeasureInputTable(QWidget):
     def dropEvent(self, event):  # noqa: N802 - Qt contract
         """Sort the dropped files into rows and columns.
 
+        Returns before anything is assigned when a folder was dropped: the
+        folder is expanded on a worker. Read the table from
+        :attr:`table_changed`, not from the line after this one.
+
         :param event: the Qt drop event.
         """
         paths = _dropped_paths(event)
         if not paths:
             event.ignore()
             return
-        self.add_paths(paths)
+        self.add_dropped(paths)
         event.acceptProposedAction()
 
 
@@ -505,26 +601,64 @@ def _basename(path: Optional[str]) -> str:
 
 
 def _dropped_paths(event) -> List[str]:
-    """Every local file a drag carries, folders expanded one level.
+    """Every local path a drag carries, as strings and nothing more.
 
-    A user who drew masks for six fields drops the folder, not the files, so
-    a drop that refused a directory would refuse the ordinary case.
+    TOUCHES NO FILESYSTEM, and that is the whole point of it. It used to
+    expand a dropped folder here, which meant an ``isdir`` and a ``listdir``
+    inside ``dropEvent`` -- and, because ``dragEnterEvent`` called this to
+    decide whether to accept, inside every ``dragMoveEvent`` as well, so the
+    stats ran repeatedly while the pointer simply moved over the table. On a
+    microscope rig the dropped folder is on the share the images live on:
+    measured on the maintainer's machine, ONE stat under a sleeping
+    ``autofs`` mount had not returned after twenty seconds. Expanding the
+    folder is :func:`files_under`'s job, on a worker.
     """
-    import os
-
     mime = event.mimeData() if hasattr(event, 'mimeData') else None
     if mime is None or not mime.hasUrls():
         return []
+    return [local for local in (url.toLocalFile() for url in mime.urls())
+            if local]
+
+
+def files_under(paths: Sequence[str]) -> List[str]:
+    """Every file among ``paths``, with any folder expanded one level.
+
+    A user who drew masks for six fields drops the folder, not the files, so
+    a drop that refused a directory would refuse the ordinary case.
+
+    NOT FOR THE GUI THREAD. Every path here is one the user chose, which on a
+    microscope rig means a network share, and the ``isdir`` is what wakes the
+    automount. :meth:`MeasureInputTable.add_dropped` is the only caller and
+    it runs this on a worker. Looked up through the module global so a test
+    can replace it and see which thread it ran on.
+
+    :param paths: what was dropped or chosen.
+    :returns: the files, folders expanded, in a stable order.
+    """
+    import os
+
     found: List[str] = []
-    for url in mime.urls():
-        local = url.toLocalFile()
-        if not local:
-            continue
-        if os.path.isdir(local):
+    for raw in paths or ():
+        path = str(raw)
+        if os.path.isdir(path):
             found.extend(
-                os.path.join(local, name)
-                for name in sorted(os.listdir(local))
-                if os.path.isfile(os.path.join(local, name)))
+                os.path.join(path, name)
+                for name in sorted(os.listdir(path))
+                if os.path.isfile(os.path.join(path, name)))
         else:
-            found.append(local)
+            found.append(path)
     return found
+
+
+def _walk(paths: Sequence[str]) -> Tuple[List[str], str]:
+    """Run :func:`files_under`, carrying any failure back as a string.
+
+    On the worker thread, and the failure is RETURNED rather than raised on
+    purpose: ``JobRunner`` hands a result to its ``on_done`` only for a job
+    that succeeded, so a walk that raised would leave the "Looking..."
+    caption on screen for the rest of the session.
+    """
+    try:
+        return files_under(paths), ""
+    except Exception as exc:                                     # noqa: BLE001
+        return [], str(exc) or exc.__class__.__name__

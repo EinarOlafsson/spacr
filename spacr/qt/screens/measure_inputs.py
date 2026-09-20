@@ -26,6 +26,7 @@ derived from the plane order rather than written out again here.
 """
 from __future__ import annotations
 
+import copy
 import logging
 import os
 from typing import Any, Dict, List, Optional
@@ -43,7 +44,11 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...measure import FIELD_TABLE_DECIDED_KEYS, field_table_settings
+from ...measure import (
+    FIELD_TABLE_DECIDED_KEYS,
+    field_table_destination,
+    field_table_settings,
+)
 from ..job_runner import JobRunner
 from ..widgets.card import Card
 from ..widgets.collapsible_section import CollapsibleSection
@@ -134,6 +139,11 @@ class MeasureInputsScreen(QWidget):
     """
 
     run_finished = Signal(object)
+    #: A stage of the run started. Emitted FROM THE WORKER THREAD, which is
+    #: safe because the receiver is a bound method of this GUI-thread object
+    #: and Qt therefore queues the call -- the rule
+    #: :mod:`spacr.qt.job_runner` sets out.
+    progress = Signal(str)
 
     def __init__(self, parent: Optional[QWidget] = None, *,
                  threaded: bool = True) -> None:
@@ -142,6 +152,9 @@ class MeasureInputsScreen(QWidget):
         self.setWindowTitle("Features -- measure hand-drawn masks")
         self._runner = JobRunner(self, threaded=threaded,
                                  app_key=SETTINGS_APP_KEY)
+        self._runner.job_failed.connect(self._on_failed)
+        self._threaded = bool(threaded)
+        self.progress.connect(self._on_progress)
         self._destination: Optional[str] = None
         self._result: Optional[Dict[str, Any]] = None
 
@@ -156,7 +169,7 @@ class MeasureInputsScreen(QWidget):
             "Drop images and masks here, or write one regex that sorts "
             "them. Rows are fields; columns are channels and mask types.",
             self)
-        self.inputs = MeasureInputTable(table_card)
+        self.inputs = MeasureInputTable(table_card, threaded=threaded)
         self.inputs.table_changed.connect(self._on_table_changed)
         table_card.body_layout.addWidget(self.inputs)
         splitter.addWidget(table_card)
@@ -265,13 +278,15 @@ class MeasureInputsScreen(QWidget):
             LOG.debug("Measure's settings form could not be read",
                       exc_info=True)
             answers = {}
+        table = self.inputs.table()
         return field_table_settings(
-            self.inputs.table(), answers, dst=self._destination)
+            table, answers,
+            dst=field_table_destination(table, self._destination))
 
     def _on_table_changed(self) -> None:
         """Refresh the decided controls, the status line and the Run button."""
         problems = self.inputs.problems()
-        self.run_button.setEnabled(not problems)
+        self.run_button.setEnabled(not problems and not self._runner.is_busy())
         if problems:
             self._status.setText(problems[0] if len(problems) == 1 else (
                 f"{problems[0]}  (+{len(problems) - 1} more)"))
@@ -285,11 +300,21 @@ class MeasureInputsScreen(QWidget):
         self._show_decided_values()
 
     def _show_decided_values(self) -> None:
-        """Write the table's answers into the controls it answers for."""
+        """Write the table's answers into the controls it answers for.
+
+        The destination goes through
+        :func:`spacr.measure.field_table_destination`, which is the same call
+        the run makes. Passing the window's own ``_destination`` straight
+        through showed ``src`` as the settings spec's ``path`` placeholder
+        whenever the window had been opened without a folder, while the run
+        wrote beside the first channel file -- a disabled box captioned "the
+        table decides this" naming a folder the results are not in.
+        """
         if not getattr(self, "_decided_widgets", None):
             return
+        table = self.inputs.table()
         values = field_table_settings(
-            self.inputs.table(), {}, dst=self._destination)
+            table, {}, dst=field_table_destination(table, self._destination))
         for key, widget in self._decided_widgets.items():
             try:
                 write_setting_value(widget, values.get(key))
@@ -330,24 +355,83 @@ class MeasureInputsScreen(QWidget):
             self._status.setText(
                 "Nothing was measured: " + " ".join(problems[:3]))
             return False
-        table = self.inputs.table()
+        table = copy.deepcopy(self.inputs.table())
         answers = self.settings.collect()
         destination = self._destination
-        self.run_button.setEnabled(False)
-        self._log.appendPlainText("Writing the merged arrays...")
+        self._set_running(True)
+        emit = self.progress.emit
 
         def work():
-            """Run the measurement. Worker thread; touches no widget."""
+            """Run the measurement. Worker thread; touches no widget.
+
+            The table it measures is a SNAPSHOT taken above, not the widget's
+            live model. A measure run takes minutes and preparing the next
+            batch while it runs is the natural thing to do, so the GUI thread
+            can append rows and delete channel and mask keys underneath this
+            -- which reaches the worker as a ``KeyError`` in the middle of
+            writing, or as half a field that nobody asked for. The snapshot
+            is plain data, so copying it is cheap and it cannot be edited
+            from anywhere.
+            """
             from ...measure import measure_from_field_table
 
-            return measure_from_field_table(table, answers, dst=destination)
+            result = measure_from_field_table(
+                table, answers, dst=destination, progress=emit)
+            if isinstance(result, dict):
+                result = dict(result)
+                result['db_exists'] = os.path.isfile(
+                    str(result.get('db_path', '')))
+            return result
 
         return self._runner.submit(work, self._on_done)
+
+    def _set_running(self, running: bool) -> None:
+        """Lock or release the controls a run must not have changed under it.
+
+        The table as well as the button: disabling only the button left the
+        grid editable for the whole run, and it is the grid the worker is
+        reading.
+
+        :param running: whether a run is in flight.
+        """
+        self.run_button.setEnabled(
+            not running and not self.inputs.problems())
+        self.inputs.setEnabled(not running)
+
+    def _on_progress(self, message: str) -> None:
+        """Put one stage of the run in the log. GUI thread."""
+        self._log.appendPlainText(str(message))
+
+    def _on_failed(self, message: str) -> None:
+        """Say why the run stopped, and give the window back. GUI thread.
+
+        WITHOUT THIS THE WINDOW IS DEAD AND SILENT AFTER A FAILURE.
+        ``JobRunner`` calls ``on_done`` only for a job that SUCCEEDED -- in
+        both the threaded and the unthreaded path -- so :meth:`_on_done` is
+        not the place the button comes back, and every refusal
+        :func:`spacr.measure.write_field_table_project` raises (a float
+        intensity image, a mask whose shape does not match its channels,
+        label ids past 65535) passes :meth:`FieldTable.problems` and only
+        fails once the run is under way. The carefully worded
+        ``ConfigurationError`` arrives here, on ``job_failed``, and nowhere
+        else: before this was connected it went nowhere at all and the user
+        was left with a Measure button that never came back and no reason
+        given.
+
+        :param message: the failure, one line, from the runner.
+        """
+        try:
+            self._result = None
+            self._set_running(False)
+            self._log.appendPlainText(f"The run stopped: {message}")
+            self.run_finished.emit(None)
+        except RuntimeError:
+            pass
 
     def _on_done(self, result: Any) -> None:
         """Report what the run wrote. GUI thread."""
         self._result = result if isinstance(result, dict) else None
-        self.run_button.setEnabled(not self.inputs.problems())
+        self._set_running(False)
         if self._result is None:
             self._log.appendPlainText("The run produced no result.")
             self.run_finished.emit(None)
@@ -356,10 +440,28 @@ class MeasureInputsScreen(QWidget):
         self._log.appendPlainText(
             f"Measured {len(self._result.get('stems', []))} field(s).")
         self._log.appendPlainText(f"Database: {db_path}")
-        if not os.path.isfile(str(db_path)):
+        if not self._result.get('db_exists'):
             self._log.appendPlainText(
                 "WARNING: the database is not where it was expected.")
         self.run_finished.emit(self._result)
+
+    def closeEvent(self, event):  # noqa: N802 - Qt contract
+        """Stop the run's threads before Qt destroys the widgets.
+
+        Qt ABORTS THE PROCESS if a running ``QThread`` is destroyed, and this
+        window is closable while a measure run -- minutes of work -- is in
+        flight. :func:`spacr.qt.job_runner.shutdown_all` covers the
+        application quitting; it does not cover one window being closed.
+
+        :param event: the Qt close event.
+        """
+        for runner in (self._runner, getattr(self.inputs, '_scanner', None)):
+            if runner is not None:
+                try:
+                    runner.shutdown()
+                except Exception:                                # noqa: BLE001
+                    LOG.debug("a runner would not shut down", exc_info=True)
+        super().closeEvent(event)
 
 
 def open_measure_inputs(owner: Optional[QWidget] = None, *,
@@ -372,17 +474,24 @@ def open_measure_inputs(owner: Optional[QWidget] = None, *,
     :param folder: the folder the user is drawing in. Its files are offered
         to the table straight away, because a user who pressed FEATURES from
         an open folder means that folder.
-    :param threaded: ``False`` runs the measurement inline; for tests.
+    :param threaded: ``False`` runs the measurement and the folder walk
+        inline; for tests.
     :returns: the window, already shown.
+
+    THE FOLDER IS NOT READ HERE. This runs in the Make Masks button handler,
+    on the GUI thread, and ``folder`` is a path the user chose -- on a
+    microscope rig, the share the images live on. It used to ``isdir`` and
+    ``listdir`` it and stat every entry before the window was even shown, so
+    pressing FEATURES on a folder living on a sleeping automount froze the
+    application with no traceback. The walk is
+    :meth:`MeasureInputTable.add_dropped`'s, on a worker, and the table
+    fills in a moment later.
     """
     screen = MeasureInputsScreen(threaded=threaded)
     if owner is not None:
         screen.setParent(owner.window(), Qt.Window)
-    if folder and os.path.isdir(str(folder)):
+    if folder:
         screen.set_destination(os.path.join(str(folder), 'features'))
-        screen.inputs.add_paths([
-            os.path.join(str(folder), name)
-            for name in sorted(os.listdir(str(folder)))
-            if os.path.isfile(os.path.join(str(folder), name))])
+        screen.inputs.add_dropped([str(folder)])
     screen.show()
     return screen
