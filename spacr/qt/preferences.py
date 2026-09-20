@@ -7107,9 +7107,16 @@ def set_rim_period(seconds) -> float:
 #: full screen of figures is not necessarily the one somebody wants behind a
 #: form they are reading; `off` keeps the card and the rim and drops only the
 #: movement.
+#:
+#: SEPARATE CHOICE, NOT A SHORTER LIST. What is curated here is which
+#: *setting* a popup follows, not which animations exist: every name in
+#: :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` is offered, alphabetically,
+#: behind `off`. An animation that appeared in one of the two menus and not
+#: the other would be a difference nobody decided on, so a new theme is added
+#: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off", "aurora", "blobs", "bokeh", "cells", "drift",
-                   "ripple")
+                   "resonance", "ripple")
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
 #: one. The card and the rim stay either way -- 'off' drops only the
 #: movement, which is what is distracting behind a form you are reading

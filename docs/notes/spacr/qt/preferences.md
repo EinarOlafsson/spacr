@@ -1729,3 +1729,21 @@ network home directory is exactly the stall `spacr/qt/path_probe.py`
 exists for. `spacr.qt.sound` looks for the file on its audio thread, and a
 chosen file that has gone falls through to spaCR's own bed rather than to
 silence.
+
+## 2026-09-19 — Resonance is in both animation menus (item 427, part B)
+
+`POPUP_BACKDROPS` is a second list of animations, for the backdrop behind
+a settings window, and part B extended `AMBIENT_THEMES` without it. Found
+on review before it landed; left that way, Resonance would have existed
+in one of the program's two animation menus and not the other for a
+reason nobody had chosen.
+
+The decision is that the curated thing about this setting is that it is
+its OWN setting — what belongs behind a form you are reading is not
+necessarily what belongs behind a screen of figures — and not that it
+offers fewer animations. So the list is `off` plus every name in
+`AMBIENT_THEMES`, alphabetically, and
+`test_every_animation_is_offered_here_too` asserts that equality so the
+next theme cannot be added to one menu alone. The combo builds its label
+with `tr(key.capitalize())`, so this adds no caption the Resonance theme
+did not already owe.

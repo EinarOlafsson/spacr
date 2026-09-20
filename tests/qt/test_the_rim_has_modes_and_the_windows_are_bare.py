@@ -352,6 +352,20 @@ class TestTheSettingsBackdrop:
         """A backdrop is a taste, and "none" has to be one of the tastes."""
         assert "off" in own_config.POPUP_BACKDROPS
 
+    def test_every_animation_is_offered_here_too(self, own_config):
+        """The two menus are one decision, not two.
+
+        What is curated about this setting is that it is its own setting,
+        not that it offers fewer animations. A theme added to the module
+        screens' menu and forgotten here would exist in one place and not
+        the other for no reason anybody chose -- which is exactly what
+        happened when Resonance arrived.
+        """
+        from spacr.qt.widgets.ambient import AMBIENT_THEMES
+
+        assert own_config.POPUP_BACKDROPS == ("off",) + tuple(
+            sorted(AMBIENT_THEMES))
+
     def test_every_offered_backdrop_survives_being_chosen(self, own_config,
                                                           glassed):
         """A name in the list that the installer cannot build is a setting
