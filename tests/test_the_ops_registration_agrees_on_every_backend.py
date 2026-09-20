@@ -449,3 +449,125 @@ def test_passing_the_pitch_silences_it(caplog):
     assert result.dy == other
     assert not [r for r in caplog.records if "expected=<pitch>" in r.getMessage()], \
         caplog.text
+
+
+# -- which backends this machine has, decided without one --------------------
+#
+# The probes above run on whatever card the test machine happens to carry, so
+# on CI they take one path and on a CUDA box the other -- and neither run
+# checks the half it did not take. These replace the probes instead, so both
+# answers are checked on every machine. The AGREEMENT tests above are the ones
+# that need real hardware and are skipped without it; deciding what to reach
+# for does not.
+
+
+def test_a_cupy_that_imports_without_a_device_is_not_a_usable_backend(
+    monkeypatch,
+):
+    """cupy installs happily on a host whose driver is missing or too old.
+
+    Importing it is therefore not the question; whether it can see a device
+    is, and `getDeviceCount` is what raises when it cannot. Treating the
+    import as the answer would send every pair to a backend that throws on
+    its first array.
+    """
+    import sys
+    import types
+
+    from spacr import ops_register as reg
+
+    def _cupy_module(device_count):
+        module = types.ModuleType("cupy")
+        module.cuda = types.SimpleNamespace(runtime=types.SimpleNamespace(
+            getDeviceCount=device_count))
+        return module
+
+    def _no_driver():
+        raise RuntimeError("CUDARuntimeError: cudaErrorInsufficientDriver")
+
+    monkeypatch.setitem(sys.modules, "cupy", _cupy_module(_no_driver))
+    assert reg._cupy() is None
+
+    working = _cupy_module(lambda: 1)
+    monkeypatch.setitem(sys.modules, "cupy", working)
+    assert reg._cupy() is working
+
+    monkeypatch.setitem(sys.modules, "cupy", None)
+    assert reg._cupy() is None
+
+
+def test_the_torch_probe_asks_spacr_about_the_machine_not_torch(monkeypatch):
+    """A card the user has switched off is not a card this run may take.
+
+    `spacr.accelerator.is_gpu` is the one place that knows that, so this
+    module has to agree with it -- and a False from it means no torch
+    backend, even though `torch.cuda.is_available()` would say yes.
+    """
+    from spacr import accelerator, ops_register as reg
+
+    monkeypatch.setattr(accelerator, "is_gpu", lambda *a, **k: False)
+    assert reg._torch_gpu() is None
+    assert "torch" not in reg.available_backends(gpu=True)
+
+    monkeypatch.setattr(accelerator, "is_gpu", lambda *a, **k: True)
+    monkeypatch.setattr(accelerator, "torch_device",
+                        lambda *a, **k: "the-device")
+    found = reg._torch_gpu()
+    assert found is not None and found[1] == "the-device"
+
+
+def test_a_probe_that_raises_is_read_as_no_backend(monkeypatch):
+    """A broken install must cost the backend, never the registration."""
+    from spacr import accelerator, ops_register as reg
+
+    def explode(*_args, **_kwargs):
+        raise RuntimeError("torch was built without CUDA support")
+
+    monkeypatch.setattr(accelerator, "is_gpu", explode)
+
+    assert reg._torch_gpu() is None
+    assert reg.available_backends(gpu=True) == ("numpy",)
+
+
+def test_the_accelerated_backends_are_offered_best_first(monkeypatch):
+    """CuPy before torch before numpy, and numpy is always last.
+
+    The order is the fallback chain `phase_correlate` walks, so it is the
+    order in which a pair is retried -- not a set.
+    """
+    from spacr import ops_register as reg
+
+    monkeypatch.setattr(reg, "_cupy", lambda: object())
+    monkeypatch.setattr(reg, "_torch_gpu", lambda: (object(), "cuda"))
+    assert reg.available_backends(gpu=True) == ("cupy", "torch", "numpy")
+
+    monkeypatch.setattr(reg, "_cupy", lambda: None)
+    assert reg.available_backends(gpu=True) == ("torch", "numpy")
+
+    assert reg.available_backends(gpu=False) == ("numpy",), (
+        "gpu=False refuses them outright, however many the machine has"
+    )
+
+
+def test_the_torch_surface_runs_on_the_cpu_when_there_is_no_device(
+    tiles, monkeypatch,
+):
+    """`backend="torch"` on a machine with no card is the CI case.
+
+    It is deliberately not refused -- refusing it would make the agreement
+    test above unrunnable exactly where the two paths would otherwise
+    silently diverge. So the CPU path is asserted to give the same shift as
+    numpy, whatever this machine has.
+    """
+    pytest.importorskip("torch")
+    from spacr import ops_register as reg
+
+    monkeypatch.setattr(reg, "_torch_gpu", lambda: None)
+
+    on_cpu = reg.phase_correlate(tiles["a"], tiles["right"], backend="torch")
+    on_numpy = reg.phase_correlate(tiles["a"], tiles["right"], backend="numpy")
+
+    assert on_cpu.backend == "torch"
+    assert abs(on_cpu.dy - on_numpy.dy) <= 1
+    assert abs(on_cpu.dx - on_numpy.dx) <= 1
+    assert on_cpu.accepted == on_numpy.accepted
