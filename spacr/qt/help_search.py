@@ -70,7 +70,13 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from .help_index import HelpEntry, build_index, search
+from .help_index import (
+    HelpEntry,
+    build_index,
+    rendered_description,
+    rendered_subtitle,
+    search,
+)
 from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.help_search")
@@ -82,10 +88,18 @@ LIST_NAME = "HelpSearchResultList"
 NOTE_NAME = "HelpSearchNote"
 DIALOG_NAME = "HelpSearchApiEntry"
 
-#: How long the field waits after a keystroke before searching. One search
-#: over eleven thousand entries measured 15 ms, which is a sixth of a frame
-#: on every letter of a word; a pause this short is invisible to a typist and
-#: turns eight searches into one.
+#: How long the field waits after a keystroke before searching, which is what
+#: turns eight searches into one while a word is typed.
+#:
+#: WHAT ONE SEARCH COSTS, measured over the 11,248-row index: 16-24 ms for a
+#: word or a phrase, and 34 ms for a single letter -- a one- or two-letter
+#: term is below the fuzzy band's floor and is matched by substring against
+#: every row, so the SHORTEST query is the dearest one. That is one to two
+#: frames on the GUI thread, not the sixth of a frame an earlier note here
+#: claimed by quoting the best case; and it is paid on the first letter of
+#: every query, which is the letter it is least affordable on. A pause of
+#: 140 ms is still invisible to a typist, and the debounce is what keeps the
+#: cost to one search per pause rather than one per letter.
 DEBOUNCE_MS = 140
 
 #: How many rows the popup shows.
@@ -99,25 +113,42 @@ def _localize(widget: QWidget, setter_name: str, property_name: str,
               text: str, **kwargs) -> None:
     """Set a caption now and leave behind what a language change re-reads.
 
-    The same seam :mod:`spacr.qt.settings_search` uses: the English source is
-    stored on the widget so ``retranslate_widget_tree`` can set it again in
-    whatever language is current, instead of a literal that freezes the
-    control in English the first time it is rebuilt.
+    The same seam :mod:`spacr.qt.settings_search` uses, and it has to be the
+    same in both halves. :func:`spacr.qt.i18n.retranslate_widget_tree` reads
+    a widget's English back out of two QT PROPERTIES -- the source it should
+    translate, and the rendering it last put on screen -- through
+    ``obj.property(...)``. A plain Python attribute is invisible to that
+    call: the next language pass would find no source, adopt whatever is on
+    screen as the canonical English, and translate a translation. This field
+    is built from ``stack.currentChanged``, after the window's one language
+    pass, so it is created already rendered in the user's language and the
+    mistake is not hypothetical -- it would freeze the placeholder, the
+    tooltip, the accessible name and the API dialog's note in whichever
+    language happened to be current when the strip was first built.
+
+    Writing the rendering as well is what tells the translator that the
+    caption is still static chrome rather than live data a handler wrote.
 
     :param widget: the widget to caption.
     :param setter_name: the setter to call, e.g. ``"setToolTip"``.
-    :param property_name: the attribute the English is remembered under.
+    :param property_name: the i18n source property the setter's translator
+        reads, e.g. ``"_spacr_i18n_tooltip"``.
     :param text: the English source string.
     :param kwargs: placeholders for :func:`spacr.qt.i18n.tr`.
     """
     setter = getattr(widget, setter_name, None)
     if setter is None:
         return
-    setattr(widget, property_name, text)
     try:
-        setter(tr(text, **kwargs) if kwargs else tr(text))
+        rendered = tr(text, **kwargs) if kwargs else tr(text)
     except Exception:
-        setter(text)
+        rendered = text
+    try:
+        widget.setProperty(property_name, text)
+        widget.setProperty(f"{property_name}_last_rendered", rendered)
+    except (AttributeError, RuntimeError, TypeError):
+        LOG.debug("could not remember the English behind %r", text)
+    setter(rendered)
 
 
 _OPENERS: Dict[str, Callable[[QMainWindow, HelpEntry], str]] = {}
@@ -203,18 +234,31 @@ def _open_setting(window: QMainWindow, entry: HelpEntry) -> str:
     app_key = entry.payload.get("app", "")
     key = entry.payload.get("key", "")
     if reveal_setting(window, app_key, key):
-        return tr("{key} in {where}", key=key, where=entry.subtitle)
+        return tr("{key} in {where}", key=key,
+                  where=rendered_subtitle(entry, tr))
     return tr("{key} is not on this module's form.", key=key)
 
 
 def _open_preference(window: QMainWindow, entry: HelpEntry) -> str:
-    """Opener for ``kind="preference"``."""
+    """Opener for ``kind="preference"``.
+
+    THE ANSWER IS WHAT HAPPENED, not what was attempted. A preference tab
+    can be gone by the time a row built at the start of the session is
+    chosen -- the Fractal page exists only while that backdrop is on -- and
+    ``show_preferences_on`` says so by returning False. Reporting "in
+    Preferences ▸ Fractal" over a dialog that opened on some other page is
+    the search telling the user something it did not do.
+    """
     tab = entry.payload.get("tab", "")
     label = entry.payload.get("label", entry.title)
     show = getattr(window, "show_preferences_on", None)
-    if callable(show):
-        show(tab, label)
-    return tr("{name} in {where}", name=label, where=entry.subtitle)
+    if not callable(show):
+        return tr("Could not open {name}.", name=label)
+    landed = show(tab, label)
+    if landed is False:
+        return tr("{name} is not in Preferences at the moment.", name=label)
+    return tr("{name} in {where}", name=label,
+              where=rendered_subtitle(entry, tr))
 
 
 def _open_api(window: QMainWindow, entry: HelpEntry) -> str:
@@ -715,8 +759,9 @@ class HelpSearchField(QLineEdit):
         for entry in self._results:
             item = QListWidgetItem(self._row_text(entry))
             item.setData(ENTRY_ROLE, entry)
-            if entry.description:
-                item.setToolTip(entry.description)
+            described = rendered_description(entry, tr)
+            if described:
+                item.setToolTip(described)
             self._list.addItem(item)
         if self._results:
             self._list.setCurrentRow(0)
@@ -729,10 +774,17 @@ class HelpSearchField(QLineEdit):
     def _row_text(self, entry: HelpEntry) -> str:
         """One line for the list.
 
+        The subtitle is rendered here rather than taken off the entry: the
+        index is English because the query is matched against it, and it is
+        built once a session while the language can change afterwards. Every
+        keystroke redraws these rows, so rendering at this point is what
+        makes the list follow a language change at all.
+
         :param entry: the result.
-        :returns: the title, then where it lives.
+        :returns: the title, then where it lives, in the current language.
         """
-        return f"{entry.title}    {entry.subtitle}".rstrip()
+        where = rendered_subtitle(entry, tr)
+        return f"{entry.title}    {where}".rstrip()
 
     def _place_popup(self) -> None:
         """Size the list to the results and put it under the field.

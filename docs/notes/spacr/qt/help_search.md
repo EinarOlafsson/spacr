@@ -103,3 +103,61 @@ is still half-filled when the user comes back. The only path that replaces a
 screen is `_rebuild_for_scale`, which fires when the interface font scale has
 changed since the screen was built — a different event from navigation. The
 test now pins it, so a future rebuild-on-navigate cannot take it away quietly.
+
+## The i18n seam is two Qt properties, not one Python attribute
+
+Review of 2026-09-19, and it was objectively wrong before it was fixed.
+`_localize` wrote the English source with `setattr(widget, property_name,
+text)` — a plain Python attribute — and never wrote the `<prop>_last_rendered`
+companion. `i18n._translate_qt_text` reads both back with
+`obj.property(...)`, which cannot see a Python attribute at all, so on a
+built field `field.property("_spacr_i18n_placeholder")` was `None` while
+`settings_search`'s equivalent — the seam this one's docstring says it
+reuses — answered `"Search settings…"`.
+
+What that costs is a language change away. The strip is built from
+`stack.currentChanged`, which fires after the window's one language pass, so
+the field captions itself and is born rendered in whatever language is
+current. The next pass would find no source, adopt the FRENCH string as the
+canonical English, and ask the catalog for a translation of a French key —
+leaving the placeholder, the tooltip, the accessible name and the API
+dialog's three notes stuck in the language the field was born in. It was
+masked only because the catalogs do not yet carry these rows, so `tr()` is
+currently the identity function; the consolidated nine-language pass would
+have unmasked it.
+
+`_localize` now writes both properties with `setProperty` and renders once,
+and two tests hold it: one reads the properties off the installed field, and
+one builds a field against a stub catalog that answers in another language
+and then translates it back to English through `retranslate_widget_tree`.
+
+## What a result row says, and in which language
+
+The index is English and stays English: it is the haystack the query is
+matched against, the query is typed in whatever the user types, and matching
+two languages against each other finds nothing. But `"API reference"` is the
+subtitle of 10,121 of the 11,248 rows and `"Module"` of 39, and those are
+words spaCR writes rather than names it copies out of a registry — so an
+English index meant an English result list inside a Korean window.
+
+Each entry now carries the English TEMPLATE its subtitle and description were
+built from, and `_row_text` renders it through `tr` when the row is drawn.
+Drawing happens on every keystroke, so a language changed mid-session is
+picked up by the next letter typed, which building the index once a session
+could never have done. `help_index` still imports no Qt and no catalog: the
+translator is passed in.
+
+The parts that stay as the registry spells them are the names — a setting
+key, a dotted symbol, and the `Mask ▸ Cell Segmentation` half of a setting's
+subtitle. Those are the module and category captions, which have their own
+catalog rows elsewhere and would need translating value by value; that is
+recorded as a known limit in the item file rather than done half-way.
+
+## What is said when the result cannot be honoured
+
+`_open_preference` used to report `"{name} in Preferences ▸ Fractal"`
+whatever happened, discarding `show_preferences_on`'s answer. A preference
+row built at start-up can name a page that is no longer built — the Fractal
+page exists only while that backdrop is on — and a dialog that opened on some
+other tab under a status line saying otherwise is the search field telling
+the user something it did not do. It now reports what happened.

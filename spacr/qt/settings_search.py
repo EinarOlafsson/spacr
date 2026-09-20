@@ -279,6 +279,34 @@ class SettingsSearchBar(QWidget):
         """Switch disclosure level and remember the choice."""
         self._disclosure.setChecked(level == ALL)
 
+    def _show_all_without_remembering(self) -> None:
+        """Put every setting on the form without writing that to the store.
+
+        The user's Essentials/All choice is a choice, and arriving from
+        somewhere else is not the user making it again. Showing a row that
+        Essentials hides needs the level raised on the form; it does not
+        need that raise written to ``QSettings``, and writing it means a
+        lookup permanently moves a module out of Essentials -- on Mask, 190
+        rendered rows against a handful of essentials, so the common case.
+
+        Blocking the toggle's own signal is what separates the two: the
+        button, the level and the caption all move, and
+        :meth:`_on_disclosure_toggled` -- which is the only caller of
+        :func:`remember_disclosure` -- does not run. Clicking the button
+        still remembers, because that is the user choosing.
+
+        One direction only, deliberately: showing a hidden row is the one
+        reason to move the level behind the user's back, and there is no
+        reason to lower it behind their back at all.
+        """
+        blocked = self._disclosure.blockSignals(True)
+        try:
+            self._disclosure.setChecked(True)
+        finally:
+            self._disclosure.blockSignals(blocked)
+        self._level = ALL
+        self._refresh_disclosure_text()
+
     def modified_only(self) -> bool:
         """True when the Modified filter is on."""
         return self._modified.isChecked()
@@ -326,13 +354,18 @@ class SettingsSearchBar(QWidget):
         That is what makes arriving here from a search safe for a half-typed
         value -- the same property the filter has, for the same reason.
 
-        THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE. Switching to
-        All settings unconditionally would work, and it would also rewrite
-        this module's remembered Essentials/All choice every time anybody
-        arrived here -- a setting the user chose, changed as a side effect of
-        looking something up. So the filter is cleared first and the level is
-        raised only when the row is still not on the form afterwards, which
-        is exactly the case where Essentials is what is hiding it.
+        THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE
+        IS NEVER REMEMBERED. Switching to All settings unconditionally would
+        work, and it would also rewrite this module's remembered
+        Essentials/All choice every time anybody arrived here -- a setting
+        the user chose, changed as a side effect of looking something up. So
+        the filter is cleared first and the level is raised only when the row
+        is still not on the form afterwards, which is exactly the case where
+        Essentials is what is hiding it; and the raise goes through
+        :meth:`_show_all_without_remembering`, so the form shows the row
+        while the store still holds the level the user picked. Most settings
+        are not essentials, so a lookup that persisted the raise would move
+        almost every module out of Essentials for good.
 
         :param key: the setting to reveal.
         :returns: True when the module renders ``key`` and it was revealed.
@@ -345,7 +378,7 @@ class SettingsSearchBar(QWidget):
         self._modified.setChecked(False)
         self.apply()
         if not _row_is_visible(section, field) and self._level != ALL:
-            self.set_level(ALL)
+            self._show_all_without_remembering()
             self.apply()
         for other in self._sections:
             if not hasattr(other, "set_expanded"):

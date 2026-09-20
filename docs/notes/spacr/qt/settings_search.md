@@ -224,3 +224,17 @@ if visible and (reopen or kept_before is None
 ```
 
 431 made the screen re-apply this filter after every pass of the object rule, and under Essentials every call counts as narrowing, which opens every kept section. Measured in review on a fresh Mask screen: shut every section, change `metadata_type` (a dependency source, so it runs the object rule), and all four sections opened again. On the branch base they stayed shut. The screen's two re-applications, after the object rule (`AppScreen._refilter_the_settings_search`) and after laying out rows that arrived late (`AppScreen._the_rows_moved`), now pass `reopen=False`. A section the user shut then stays shut, and a section that call brings back onto the form, such as Pathogen Segmentation after a pathogen channel is committed, is still opened, because it is not in the set the previous call kept. A change to the query, the Modified switch or the level still opens everything it keeps, as before. The previous call's kept sections are recorded instead of read from `isHidden()`, because the object rule shows and hides headings itself before this runs. Held by `test_a_section_the_user_shut_stays_shut`.
+
+## SettingsSearchBar._show_all_without_remembering
+
+### added 2026-09-19 (422, from review)
+
+```python
+blocked = self._disclosure.blockSignals(True)
+```
+
+`reveal` raises the disclosure level when the row it was asked for is one Essentials hides, and it used to do that with `set_level(ALL)`. That sets the toggle, which emits `toggled`, which runs `_on_disclosure_toggled`, which calls `remember_disclosure` -- a persistent `QSettings` write. So looking a setting up from the Help search moved the module out of Essentials permanently, and since most settings are not essentials (Mask renders 190 rows against a handful), that was the common path rather than the rare one. The commit that first narrowed this said it had fixed it; it had only made it conditional.
+
+Showing the row needs the level raised on the FORM. It does not need the raise written to the store, so the toggle's signal is blocked while the button, the level and the caption are moved, and the one caller of `remember_disclosure` never runs. Clicking the switch still remembers, because that is the user choosing. One direction only: there is no reason to lower the level behind the user's back at all, and a `level` parameter would have added a branch nothing takes -- which `spacr/qt/settings_search.py` cannot afford, since its coverage baseline records zero uncovered branches.
+
+Held by `test_arriving_here_does_not_rewrite_the_essentials_choice`, which now reads the store back with `disclosure_for` rather than only asking the strip what level it is on.
