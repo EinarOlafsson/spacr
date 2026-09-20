@@ -1115,6 +1115,15 @@ def split_wells(settings):
     gives one row per image; a plate gives one row per well, and the well has
     to be named or the conditions are pooled into a single meaningless count.
     Splitting first makes every downstream row a well, whichever shape arrived.
+
+    AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER
+    WHOLE, with no geometry, so it is still analysed and simply has no ruler.
+    Until instruction 445 the warning said it was "passed through whole" and
+    then hit ``continue``, which passed nothing through: when some images in a
+    folder split and others did not, the others contributed no crop and no
+    row and nothing said they had existed. Only the all-or-nothing case --
+    where the function falls back to ``src`` -- behaved as the message
+    promised.
     """
     from .plaque import crop_well, detect_wells
 
@@ -1127,6 +1136,7 @@ def split_wells(settings):
     os.makedirs(out_dir, exist_ok=True)
     geometry = {}
     n_images = 0
+    undetected = []
     for filename in sorted(os.listdir(src)):
         path = os.path.join(src, filename)
         if not (os.path.isfile(path) and filename.lower().endswith(
@@ -1138,7 +1148,10 @@ def split_wells(settings):
                                                            0.25)))
         if not wells:
             LOG_PLAQUE.warning(
-                "no wells detected in %s; it is passed through whole", filename)
+                "no wells detected in %s; it is passed through whole, and "
+                "its plaque areas stay in pixels because there is no well to "
+                "measure the plate by", filename)
+            undetected.append(filename)
             continue
         n_images += 1
         stem = os.path.splitext(filename)[0]
@@ -1149,8 +1162,14 @@ def split_wells(settings):
             geometry[name] = well.as_dict()
     if not geometry:
         return src
+    for filename in undetected:
+        stem = os.path.splitext(filename)[0]
+        cellpose.io.imsave(os.path.join(out_dir, f"{stem}.tif"),
+                           cellpose.io.imread(os.path.join(src, filename)))
     settings['_well_geometry'] = geometry
-    print(f"split {n_images} image(s) into {len(geometry)} well crop(s)")
+    print(f"split {n_images} image(s) into {len(geometry)} well crop(s)"
+          + (f"; {len(undetected)} image(s) held no detectable well and were "
+             "passed through whole" if undetected else ""))
     return out_dir
 
 

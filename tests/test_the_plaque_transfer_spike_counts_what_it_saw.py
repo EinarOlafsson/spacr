@@ -25,6 +25,7 @@ listed rather than counted.
 """
 from __future__ import annotations
 
+import inspect
 import io
 import json
 import sys
@@ -309,28 +310,31 @@ def test_each_model_is_tagged_by_its_version_not_its_prefix():
     assert spike._short_tag(V1) != spike._short_tag(V2)
 
 
-def test_the_detector_is_fed_bgr_not_the_overlay_rgb():
-    """The swap that voided the first run's numbers.
+def test_this_harness_does_not_swap_the_channels_a_second_time():
+    """The swap that voided the first run, and the double swap that would undo it.
 
     ``_load_image`` returns RGB because the overlays are drawn with Pillow,
     and the first run handed that same array straight to the detector.
     Ultralytics reads an array as BGR, so every figure was measured with red
     and blue exchanged; v4 found 15 boxes on the cropped-panel figures that
-    way and 72 the right way round, which is the difference between the
-    verdict this item published and no verdict at all.
+    way and 72 the right way round.
+
+    This harness used to correct that itself. Since instruction 445 the
+    correction is inside :func:`spacr.plaque.detect_wells`, so a correction
+    here as well would swap twice and put the RGB bug back -- with nothing
+    visible to say so, because the arrays are the right shape and dtype
+    either way. A conversion in this file is therefore the regression, and
+    this test is what catches it.
     """
-    numpy = pytest.importorskip("numpy")
-    rgb = numpy.zeros((2, 2, 3), dtype=numpy.uint8)
-    rgb[..., 0] = 10
-    rgb[..., 1] = 20
-    rgb[..., 2] = 30
+    pytest.importorskip("numpy")
+    source = inspect.getsource(spike)
 
-    out = spike._detector_input(rgb)
-
-    assert out[..., 0].tolist() == [[30, 30], [30, 30]]
-    assert out[..., 1].tolist() == [[20, 20], [20, 20]]
-    assert out[..., 2].tolist() == [[10, 10], [10, 10]]
-    assert rgb[0, 0, 0] == 10
+    assert not hasattr(spike, "_detector_input"), (
+        "the channel swap belongs to spacr.plaque.detect_wells now"
+    )
+    assert "[:, :, ::-1]" not in source, (
+        "this harness must hand detect_wells RGB and let it convert once"
+    )
 
 
 EVIDENCE = ROOT / "features" / "data" / "424_detector_transfer_2026-09-19.json"

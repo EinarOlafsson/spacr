@@ -72,9 +72,13 @@ CHANNEL ORDER IS PART OF THE MEASUREMENT, NOT A DETAIL. Ultralytics decodes a
 file path with OpenCV and therefore trains and infers in BGR; handed a numpy
 array it assumes the caller did the same. The first run of this harness passed
 the RGB array it had built for the overlays, so every figure was detected with
-red and blue swapped, and the result understated the detector badly -- see
-:func:`_detector_input`. ``detections.json`` now records ``channel_order`` so
-a result file says which question it answered.
+red and blue swapped, and the result understated the detector badly. This
+harness used to correct that itself, in a ``_detector_input`` of its own;
+since instruction 445 the correction lives in
+:func:`spacr.plaque.detect_wells`, which takes RGB and converts, so THIS FILE
+MUST HAND IT RGB AND NOT CONVERT -- two conversions are the original bug
+again. ``detections.json`` records ``channel_order`` as what the detector
+sees, so a result file says which question it answered.
 
 ``detect`` needs ``ultralytics``, which spaCR does not install by default:
 ``pip install "spacr[plaque]"``. It hides the GPU from itself unless ``--gpu``
@@ -509,29 +513,6 @@ def _load_image(path: Path) -> Any:
         return None
 
 
-def _detector_input(image: Any) -> Any:
-    """One figure in the channel order the detector was trained in.
-
-    ULTRALYTICS READS A NUMPY ARRAY AS BGR. Given a file path it decodes with
-    OpenCV, which is BGR, and that is how every training image reached the
-    model; given an ``H x W x 3`` array it assumes the caller already did the
-    same. Handing it an RGB array therefore swaps red and blue on every pixel
-    and asks the detector a question about an image nobody has: the first run
-    of this harness did exactly that, and the difference is not cosmetic --
-    v3 found 136 boxes on the well figures that way against 333 the right way
-    round, and v4 found 15 boxes on the cropped-panel figures against 72.
-
-    Verified rather than assumed: over all 182 figures of the first run,
-    passing the file path and passing a BGR array give identical box counts,
-    and RGB differs.
-
-    :param image: an ``H x W x 3`` RGB array, as :func:`_load_image` returns
-        for the overlays.
-    :returns: the same pixels in BGR order.
-    """
-    return image[:, :, ::-1].copy()
-
-
 def _short_tag(model: str) -> str:
     """A two-character label for a model key, for drawing on a box.
 
@@ -647,11 +628,10 @@ def stage_detect(args: argparse.Namespace) -> None:
             records.append({"key": figure["key"], "unreadable": True})
             continue
         height, width = image.shape[:2]
-        detector_input = _detector_input(image)
         boxes_by_model: Dict[str, List[Dict]] = {}
         for key, info in models.items():
             wells = plaque.detect_wells(
-                detector_input, info["path"], confidence=args.conf,
+                image, info["path"], confidence=args.conf,
                 imgsz=args.imgsz, min_axis_ratio=0.0)
             boxes = []
             for well in wells:

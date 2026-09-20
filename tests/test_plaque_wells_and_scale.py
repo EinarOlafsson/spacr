@@ -51,6 +51,96 @@ def test_an_installed_well_detector_receives_the_requested_weights(monkeypatch):
     assert calls == ["wells.pt"]
 
 
+def _capturing_detector(monkeypatch):
+    """A fake detector that records the ``source`` it was handed.
+
+    :param monkeypatch: the pytest fixture, used to replace the real loader.
+    :returns: the dict that ``predict`` fills with its keyword arguments.
+    """
+    captured = {}
+
+    class Detector:
+        def predict(self, **kwargs):
+            captured.update(kwargs)
+            return []
+
+    monkeypatch.setattr(plaque, "_load_detector", lambda _weights: Detector())
+    return captured
+
+
+def test_the_detector_is_handed_bgr_because_that_is_what_it_was_trained_on(
+    monkeypatch
+):
+    """The channel order the detector is fed, pinned so it cannot slip back.
+
+    Ultralytics decodes a FILE PATH with OpenCV, so these detectors trained
+    and infer in BGR; handed an ``H x W x 3`` array it converts nothing and
+    assumes the caller ordered the channels itself. spaCR's house reader,
+    ``cellpose.io.imread``, returns RGB, and for one release
+    :func:`spacr.plaque.detect_wells` passed that straight through -- so every
+    plate photograph spaCR split into wells was shown to the detector with
+    red and blue exchanged.
+
+    It is not cosmetic. Scored against the published 129-image, 297-box test
+    split on 2026-09-20, RGB cost v1 (the v3 weights) mAP50 0.8888 -> 0.5877
+    and recall 0.9024 -> 0.6128, and cost v2 (v4) mAP50 0.9480 -> 0.6972 and
+    recall 0.9663 -> 0.2963: two thirds of the wells on a plate, lost
+    silently, since a plate split into eight crops instead of twelve says
+    nothing about the four.
+
+    If this test fails, somebody is passing RGB to ultralytics again.
+    """
+    captured = _capturing_detector(monkeypatch)
+    rgb = np.zeros((2, 2, 3), dtype=np.uint8)
+    rgb[..., 0] = 10
+    rgb[..., 1] = 20
+    rgb[..., 2] = 30
+
+    plaque.detect_wells(rgb, "wells.pt")
+
+    source = captured["source"]
+    assert source[..., 0].tolist() == [[30, 30], [30, 30]], "blue leads"
+    assert source[..., 1].tolist() == [[20, 20], [20, 20]]
+    assert source[..., 2].tolist() == [[10, 10], [10, 10]], "red trails"
+    assert rgb[0, 0, 0] == 10, "the caller's own array is left alone"
+
+
+def test_an_image_with_no_channel_order_to_get_wrong_is_passed_through(
+    monkeypatch
+):
+    """Greyscale and four-channel arrays are handed over untouched.
+
+    A two-dimensional array has one channel and therefore no order to swap,
+    and reversing the last axis of an ``H x W x 4`` array would move the
+    alpha channel to the front rather than exchange red and blue. Only a
+    three-channel colour array is converted.
+    """
+    grey = np.arange(4, dtype=np.uint8).reshape(2, 2)
+    rgba = np.zeros((2, 2, 4), dtype=np.uint8)
+
+    captured = _capturing_detector(monkeypatch)
+    plaque.detect_wells(grey, "wells.pt")
+    assert captured["source"] is grey
+
+    captured = _capturing_detector(monkeypatch)
+    plaque.detect_wells(rgba, "wells.pt")
+    assert captured["source"] is rgba
+
+
+def test_a_file_path_reaches_ultralytics_unchanged(monkeypatch):
+    """The reference route: ultralytics decodes a path itself, in BGR.
+
+    It is also the route every training image took, which is why passing a
+    path and passing a BGR array score identically -- mAP50 0.9480 both ways
+    for v2 over the published test split -- while RGB does not.
+    """
+    captured = _capturing_detector(monkeypatch)
+
+    plaque.detect_wells("/plates/plate01.png", "wells.pt")
+
+    assert captured["source"] == "/plates/plate01.png"
+
+
 def test_a_square_box_gives_its_side_as_the_diameter():
     well = Well(x0=100, y0=200, x1=400, y1=500)
     assert well.width == 300 and well.height == 300

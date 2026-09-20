@@ -182,13 +182,43 @@ def _load_detector(weights: str):
     return YOLO(weights)
 
 
+def _to_detector_channel_order(image: np.ndarray) -> np.ndarray:
+    """One image in the channel order ultralytics reads an array in.
+
+    :param image: the caller's image. A three-channel array is taken to be
+        RGB, which is what :func:`cellpose.io.imread` -- spaCR's house reader
+        -- returns and what every other spaCR entry point passes around.
+    :returns: the same pixels with red and blue exchanged when the input is an
+        ``H x W x 3`` array; anything else unchanged, since only a
+        three-channel colour array has a channel order to get wrong.
+
+    ULTRALYTICS READS AN ARRAY AS BGR AND DOES NOT CONVERT. Given a file path
+    it decodes with OpenCV, which is BGR, and that is how every image these
+    detectors were trained on reached them; given an array it assumes the
+    caller already did the same. Handing it RGB therefore asks the detector a
+    question about an image nobody has. See
+    ``docs/notes/spacr/plaque.md`` for the measurement that settled this.
+    """
+    if not isinstance(image, np.ndarray):
+        return image
+    if image.ndim != 3 or image.shape[2] != 3:
+        return image
+    return np.ascontiguousarray(image[:, :, ::-1])
+
+
 def detect_wells(image: np.ndarray, weights: str, *,
                  confidence: float = DEFAULT_CONFIDENCE,
                  imgsz: int = 640,
                  min_axis_ratio: float = 0.7) -> List[Well]:
     """Find the wells in one image.
 
-    :param image: the field, as an array the detector can read.
+    :param image: the field, as an ``H x W x 3`` array in **RGB** channel
+        order -- what :func:`cellpose.io.imread` returns for a colour image.
+        It is converted to BGR here, because that is the order ultralytics
+        reads an array in and therefore the order these detectors were
+        trained in. A greyscale or otherwise non-three-channel array is
+        passed through untouched, and so is a file path, which ultralytics
+        decodes itself.
     :param weights: path to the YOLO checkpoint.
     :param confidence: drop detections scoring below this.
     :param imgsz: inference size; 640 is what the shipped detector trained at.
@@ -200,7 +230,8 @@ def detect_wells(image: np.ndarray, weights: str, *,
     :raises ImportError: when ``ultralytics`` is not installed.
     """
     model = _load_detector(weights)
-    results = model.predict(source=image, conf=float(confidence),
+    results = model.predict(source=_to_detector_channel_order(image),
+                            conf=float(confidence),
                             imgsz=int(imgsz), verbose=False)
     wells: List[Well] = []
     for result in results:

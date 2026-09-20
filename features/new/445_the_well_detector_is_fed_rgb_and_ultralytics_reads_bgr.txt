@@ -2,11 +2,14 @@
 THE WELL DETECTOR IS FED RGB AND ULTRALYTICS READS IT AS BGR
 ================================================================================
 
-Status:    not started. FOUND 2026-09-19 by unit 424a, which hit the same bug in
-           its own harness, fixed it there, and measured the size of it. The
-           shipped path in spacr/submodules.py is NOT fixed, because the
-           measurement below was taken on published figures and this path runs
-           on plate photographs.
+Status:    DONE 2026-09-20. Measured against published ground truth, fixed at
+           detect_wells' own door, pinned by a test, and the sibling caller
+           that was already converting was corrected in the same pass. FOUND
+           2026-09-19 by unit 424a, which hit the same bug in its own harness,
+           fixed it there, and measured the size of it.
+           READ THE TRAILING NOTE: the premise that the v4 test split is
+           plate photographs turned out to be false, and that changes what
+           the measurement below is worth, not the verdict.
 Found by:  424 (features/future/424_plaques_from_published_papers.txt), whose
            transfer measurement was voided by it.
 Owner:     unassigned
@@ -124,3 +127,156 @@ detect_wells (``_detector_input``), records ``channel_order`` in its
 detections file, and has a test pinning the conversion. Its own published
 measurement was withdrawn; see 424's trailing note. Nothing under spacr/ was
 changed.
+
+================================================================================
+2026-09-20 -- MEASURED AGAINST GROUND TRUTH, AND FIXED
+================================================================================
+
+THE PREMISE OF THIS FILE WAS WRONG, AND IT IS WORTH SAYING FIRST. The plan
+above was to close the distribution gap by scoring the v4 test split, "129
+images with 297 boxes", on the grounds that it is plate photographs and the
+182 published figures were not. It is not. `split.csv` in
+einarolafsson/toxoplasma-plaque-well-detector-dataset labels every test row
+`pmc_accept` (45 images, 297 boxes) or `pmc_negative` (84 images, no box):
+the test split is 129 PUBLISHED FIGURES.
+
+Nor is the rest of it plate photographs. All 1,453 rows -- train, val and
+test, including the 518 carried over from v3's own corpus under the source
+`detector_v3` -- carry published-figure filenames (`..._Fig4_HTML.png`,
+`ppat.1009.g003.png`, `neg__PMC7182120__f005-...jpg`); exactly two of the
+1,453 are not obviously figure-shaped, and both are journal artifacts as
+well. THERE IS NO LABELLED PLATE PHOTOGRAPH ANYWHERE IN THE PUBLISHED DATA,
+and none on this machine. The model zoo row for v1 describes its training set
+as "whole-plate and multi-well crystal violet images", which is what these
+figures DEPICT, and that wording is what made this file expect photographs.
+
+So the gap this file names cannot be closed by measuring; it is closed by
+noticing that it is not the gap it looked like. Published figures are not a
+second distribution the detector must transfer to -- THEY ARE THE
+DISTRIBUTION IT WAS TRAINED ON. The measurement below is therefore in-domain,
+which is the strongest place to establish which channel order a model learned,
+and the remaining question about real plate photographs is about the SIZE of
+the loss, not its direction. Its direction does not depend on the pixels at
+all: which order ultralytics reads an array in is a property of its loader.
+
+--------------------------------------------------------------------------------
+THE NUMBERS
+--------------------------------------------------------------------------------
+
+`spacr.plaque.detect_wells` scored over the published test split -- 129
+images, 297 ground-truth boxes -- three ways per model. CPU, conf floor
+0.001, imgsz 640, min_axis_ratio 0, matching at IoU 0.5, P/R quoted at the
+shipped confidence default of 0.25. Boxes are the detections surviving 0.25.
+
+                              mAP50   mAP50-95       P       R      F1  boxes
+  v1 (yolo_welldetect_v3)
+    FILE PATH (reference)    0.8888     0.7696  0.6366  0.9024  0.7465    421
+    BGR array                0.8888     0.7696  0.6366  0.9024  0.7465    421
+    RGB array (what shipped) 0.5877     0.5199  0.5815  0.6128  0.5967    313
+  v2 (yolo_welldetect_v4)
+    FILE PATH (reference)    0.9480     0.8443  0.8367  0.9663  0.8969    343
+    BGR array                0.9480     0.8443  0.8367  0.9663  0.8969    343
+    RGB array (what shipped) 0.6972     0.6260  0.6984  0.2963  0.4161    126
+
+BGR WINS, AND NOT NARROWLY. The file-path route and the BGR array agree to
+four decimal places on every measure for both models; RGB does not. v2 keeps
+29.6% of the wells in RGB against 96.6% -- it loses TWO THIRDS OF EVERY
+PLATE -- and v1 loses just under a third of its recall. 424a's figure-corpus
+finding that "this is recall being thrown away, not a threshold being
+loosened" holds against ground truth: precision barely moves for v1
+(0.6366 -> 0.5815) and IMPROVES for v2 while recall collapses, which is the
+signature of finding less, not of finding worse.
+
+THE REFERENCE ROUTE IS TIED TO THE TRAINING ROUTE RATHER THAN ASSUMED. The
+file-path numbers above reproduce the detector repository's own published
+qc/test_metrics.json -- v2 0.9457 / 0.8341 and v1 0.8838 / 0.7630 against
+0.9480 / 0.8443 and 0.8888 / 0.7696 here, the small differences being this
+harness's greedy matcher and its conf floor. Those published metrics were
+computed by ultralytics' own validator over file paths. So the route this
+file calls the reference IS the route the models were trained and scored in.
+
+AND THE FIX WAS CONFIRMED END TO END on the same 129 images: after the change
+below, handing detect_wells an RGB array -- which is exactly what split_wells
+does -- scores 0.9480 / 0.8443 for v2 and 0.8888 / 0.7696 for v1, identical
+to the file path, and handing it a pre-swapped BGR array is now the degraded
+one. The two rows changed places, which is the fix doing precisely one thing.
+
+--------------------------------------------------------------------------------
+WHAT CHANGED
+--------------------------------------------------------------------------------
+
+THE CONVERSION IS AT detect_wells' OWN DOOR, the second of the two options
+above. `spacr/plaque.py` gains `_to_detector_channel_order`, called on the
+way into `model.predict`, and `:param image:` now NAMES A CHANNEL ORDER --
+RGB, what cellpose.io.imread returns -- which the old wording, "an array the
+detector can read", did not. Only an H x W x 3 array is converted: a 2-D
+greyscale array has no order to get wrong, reversing the last axis of an
+H x W x 4 array would move alpha to the front, and a file path is
+ultralytics' own input. `spacr/submodules.py` needed no change, which was
+the point of putting it there.
+
+EVERY CALLER WAS CHECKED. `model.predict` in detect_wells is the ONLY call
+into ultralytics in the package -- every other `.predict` under spacr/ is
+scikit-learn -- so there is one door and it is now right. Two callers hand it
+an array: `spacr/submodules.py` (split_wells), which was the bug and is now
+correct unchanged; and `tools/measure_plaque_detector_transfer.py`, which
+was ALREADY converting in its own `_detector_input` and would have converted
+twice, putting 424a's original bug back with nothing visible to say so. Its
+conversion is removed, its module docstring says why it must not come back,
+and its test now FAILS if a swap reappears in that file.
+
+THE SIBLING BUG IN split_wells IS FIXED TOO. The "no wells detected" branch
+logged "it is passed through whole" and then `continue`d. Nothing was passed
+through: when some images in a folder split and others did not, the others
+produced no crop, no row and no further mention. They are now copied into the
+wells folder whole, with no geometry entry, so they are analysed and simply
+carry no physical scale -- which `_plaque_scale_for` already returns None for.
+The all-or-nothing case is unchanged: with no geometry at all the function
+still falls back to `src`.
+
+TESTS THAT PIN IT. `tests/test_plaque_wells_and_scale.py` gains three: the
+detector is handed BGR and the caller's array is not mutated; greyscale,
+four-channel and file-path inputs pass through untouched; and the file-path
+route reaches ultralytics unchanged. The first was checked to FAIL when the
+conversion is removed. `tests/test_submodules_plaque_well_integration.py`
+gains two: split_wells hands both detect_wells and crop_well the reader's RGB
+and converts nothing itself, and an image with no detected well still reaches
+the analysis.
+
+--------------------------------------------------------------------------------
+WHAT USERS OF EARLIER VERSIONS NEED TO BE TOLD -- RELEASE NOTE
+--------------------------------------------------------------------------------
+
+ANYONE WHO SPLIT PLATES WITH `well_detection` ENABLED BEFORE THIS FIX RAN THE
+DETECTOR WITH RED AND BLUE EXCHANGED, and their well crops are probably
+missing wells. THE DANGEROUS CASE IS PARTIAL DETECTION, not total failure. A
+plate where nothing was found was at least loud; a plate where four wells out
+of twelve were lost was silent -- eight crops, eight rows, and nothing saying
+the other four existed. On the ground-truth split above that is the normal
+case: v2 recovered 29.6% of boxes and v1 61.3%, so a run made with the
+default detector should be assumed to have lost most of its wells rather than
+a few.
+
+WHAT TO DO ABOUT IT: re-run the split. It is cheap -- the detector is a 5 MB
+yolo26n and 129 images take seconds on a CPU -- and nothing downstream needs
+redoing except what that run produced. A previous run cannot be repaired from
+its outputs, because a well that was never detected left no trace to repair.
+
+TWO OTHER THINGS CHANGED FOR USERS, both making a run report more rather than
+less: an image the detector finds nothing in now appears in the wells folder
+whole instead of vanishing, so a folder that used to yield eight rows may now
+yield nine; and the summary line names how many images were passed through
+that way.
+
+--------------------------------------------------------------------------------
+WHAT IS STILL NOT MEASURED
+--------------------------------------------------------------------------------
+
+REAL PLATE PHOTOGRAPHS, and they now look like the more interesting question
+rather than a loose end of this one. The detectors have apparently never been
+trained on or scored against a photograph of a plate taken by a user -- only
+on figures of such plates, which are cropped, rescaled and JPEG'd. That is a
+transfer question about the DETECTOR, not about this bug, and it is worth its
+own item: what these weights do on the images spaCR is actually pointed at is
+unknown, in either channel order. What is settled is that whatever they do,
+they now do it in the order they were trained in.
