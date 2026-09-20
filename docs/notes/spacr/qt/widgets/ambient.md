@@ -1037,3 +1037,53 @@ whatever colour theme the row was labelled with — the same mistake its own
 docstring records about palettes. `--animation` measures a named one and
 the row now carries it, so a baseline taken with one animation can never
 be read as a measurement of another.
+
+### The Speed preference had to reach the driven half
+
+Found on review of part B, before it landed. `advance()` multiplies `dt`
+by `speed`, and for every other theme that IS the Speed preference,
+because every other theme's motion is a function of the clock. Half of
+this one is a function of the music: the throw on an onset, the per-band
+brightness, and the figure the spectral centroid asks for. At `speed` 0.1
+the breath, the mode walk and the wander all crawled at a tenth while a
+122 BPM kick went on throwing the sand `RESONANCE_THROW` of the plate
+twice a second — the busiest movement in the theme, running at full rate,
+for somebody who moved the slider to its minimum to stop exactly that.
+
+`ResonanceEngine.answering()` scales the moment by `min(1, speed)` before
+it is stored, so the shipped setting and anything above it hear the music
+in full and turning the animation down turns the reaction down with it.
+It is not scaled UP above 1.0: every field of a `Moment` is already 0 to 1
+against the loop's own loudest, so there is nothing above full to give.
+`test_the_speed_setting_reaches_the_music_and_not_only_the_clock` holds
+it, and measures the throw at the minimum as well as asserting the
+arithmetic.
+
+### What the per-theme cost table could and could not be given
+
+The module docstring's table (shading moved to the producer, blit left on
+the GUI thread, idle against one pure-Python thread) had no `resonance`
+row. The idle column reproduces exactly — the same harness, min over nine
+interleaved rounds of the per-round median, gives `blobs` 0.246, `aurora`
+1.391, `ripple` 0.394, `bokeh` 0.605, `cells` 0.521 against the table's
+0.240 / 1.396 / 0.367 / 0.663 / 0.538 — and `resonance` measures 1.005 to
+1.072 ms across four repeats. That is the row.
+
+The contended column would not settle: four nine-round repeats gave
+medians of 10, 174, 286 and 407 ms, because `resonance` is the one theme
+whose shading is dozens of small NumPy calls rather than one long pass of
+`QPainter` calls, and each call gives the interpreter lock back and then
+queues for it again. What such a cell would report is how often the
+shading thread was descheduled, not what the theme costs, so it is a
+stated range in the prose under the table instead of a number in it. The
+neighbouring rows reproduce under the same protocol (`cells` 26.5 against
+the table's 26.179, `aurora` 12.2 against 7.176, `blobs` 0.42 against
+0.572), which is how the instability was told apart from a harness fault.
+
+Two things make it liveable, and both were already in the design: the
+cost is paid on the producer thread, so a late frame is a repeated frame
+(`AmbientWidget.repeated_frames`) rather than a slow interface; and a
+running module holds `gil_priority.BUSY_INTERVAL`, where the same
+measurement is 6 to 24 ms. Nobody has seen a pure-Python worker running
+with the Resonance backdrop on a real screen, and that is the honest
+state of it.

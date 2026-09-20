@@ -5,8 +5,8 @@ the ATGC cascade). This is the one for *everything else*: a slow, diffuse
 animation that sits behind the settings form and the console, takes no focus
 and no mouse events, and can be switched off entirely in Preferences.
 
-Six themes, chosen so each reads as a different kind of movement rather than
-as a re-skin of the same one:
+Seven themes, chosen so each reads as a different kind of movement rather
+than as a re-skin of the same one:
 
 ``blobs``   (default)
     Big and small colour blobs drifting over the page, each pulsing in size on
@@ -34,8 +34,16 @@ as a re-skin of the same one:
     Cells drifting through the field, turning as they go — a soft body, a
     slightly brighter membrane where the edge is seen nearly edge-on, and a
     distinctly brighter nucleus set off centre.
+``resonance``
+    Sand on a vibrating plate, gathering along the lines that do not move.
+    The only theme with an input other than the clock: while the music bed
+    is playing it is driven by the bed's own precomputed envelope and
+    spectrum (:mod:`spacr.qt.resonance`), and in silence — which is almost
+    everybody, because sound is off on a fresh install — it breathes on its
+    own. See :class:`ResonanceEngine` for why that input is read in
+    :meth:`ResonanceEngine.advance` and nowhere else.
 
-There is a seventh engine, ``fractal``, and it is not one of the six: it is
+There is an eighth engine, ``fractal``, and it is not one of the seven: it is
 not in :data:`AMBIENT_THEMES`, no menu lists it, no preference can hold it,
 and the only way to see it is to start the application with the ``spaceout``
 command instead of ``spacr``. See :data:`SPACEOUT_THEME` and
@@ -56,7 +64,7 @@ for red–green colour deficiency (see its note).
 
 Both dark and light
 -------------------
-spaCR ships six themes, and a blob set tuned only for a near-black page turns
+spaCR ships seven themes, and a blob set tuned only for a near-black page turns
 to mud on a white one. So the *composition mode follows the background*:
 
 * dark page  -> ``CompositionMode_Plus``. Overlapping blobs add up and glow,
@@ -137,7 +145,24 @@ rounds:
  bokeh      0.663 ->  3.533        0.679 -> 1.008
  cells      0.538 -> 26.179        0.663 -> 0.909
  drift      0.528 ->  1.084        (no buffer)
+ resonance  1.072 -> see below     0.842 -> 1.115
 =========  =====================  =====================
+
+``resonance`` is the one row whose contended figure is a range rather than a
+number, and the shape of its shading is the reason. The others are one long
+pass of ``QPainter`` calls; the plate is dozens of small NumPy calls, and
+each one gives the lock back and then queues for it again, so what the cell
+would measure is how often the shading thread was descheduled rather than
+how much work the theme does. Four nine-round repeats of the protocol above
+gave medians of 10, 174, 286 and 407 ms on the same machine. Two things make
+that liveable and both are already here: the cost is paid on the producer
+thread, so a late frame is a *repeated* frame
+(:attr:`AmbientWidget.repeated_frames`) and never a slow interface; and
+while a run is going the process holds
+:data:`spacr.qt.gil_priority.BUSY_INTERVAL`, where the same measurement is 6
+to 24 ms. Its row was taken later than the rest and on a busier machine —
+``blobs`` read 0.262 and 0.749 -> 1.002 in the same run — so read it against
+those rather than against the table.
 
 The shading pass is sensitive to interpreter-lock contention, whereas the Qt
 blit remains inexpensive. :meth:`_BufferedEngine.shade` therefore runs in
@@ -162,7 +187,7 @@ thread, and rendered frames remain deterministic functions of
 ``(seed, clock, size)``.
 
 ``drift`` keeps the synchronous path, and its row above is the reason: it is
-the one engine with no buffer, it degrades the least of the six (2.1x against
+the one engine with no buffer, it degrades the least of the seven (2.1x against
 48.7x for ``cells``), and threading it would mean publishing a full-resolution
 frame — 7.91 MiB a slot against 126.6 KiB for ``blobs`` — to buy the smallest
 improvement on the list.
@@ -170,7 +195,7 @@ improvement on the list.
 Performance depends on hardware, display size, theme, and concurrent work.
 The settings have predictable relative costs: detail is approximately
 quadratic, density is approximately linear, and blur is inexpensive for the
-five buffered themes. ``drift`` has no buffer, so its blur is a second wider
+six buffered themes. ``drift`` has no buffer, so its blur is a second wider
 pass per dot and is capped by :data:`DRIFT_HALO_MAX_PX`. The
 :data:`WORK_BUDGET` limits combinations of density and detail that would make
 the backdrop compete with analysis work. Hidden widgets stop rendering
@@ -246,7 +271,7 @@ SPACEOUT_PALETTE = "rainbow"
 
 #: The animation choice that draws nothing and runs no timer.
 #:
-#: Not a seventh engine that happens to paint an empty frame — that would
+#: Not one more engine that happens to paint an empty frame — that would
 #: still be a timer, a repaint and a composite sixty times a second for a
 #: picture that is identical every time. It is the absence of the widget:
 #: :func:`spacr.qt.preferences.get_ambient_enabled` reports ``False`` while
@@ -257,7 +282,7 @@ SPACEOUT_PALETTE = "rainbow"
 NO_ANIMATION = "none"
 
 #: What the Animation preference offers, in menu order: nothing, then the
-#: six animations.
+#: seven animations.
 ANIMATION_CHOICES: Tuple[str, ...] = (NO_ANIMATION,) + AMBIENT_THEMES
 
 #: Default ambient animation theme.
@@ -399,7 +424,7 @@ _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
 
-#: Every theme that has an engine behind it — the six a menu offers, plus
+#: Every theme that has an engine behind it — the seven a menu offers, plus
 #: the one the ``spaceout`` entry point dresses the application in.
 #:
 #: The split from :data:`AMBIENT_THEMES` is the point. This is what
@@ -1351,8 +1376,8 @@ class _BufferedEngine(AmbientEngine):
         A ``QImage`` and a ``QPainter`` over it are legal off the GUI thread
         (a ``QWidget`` is not, and nothing here touches one), and the result
         is byte-identical to the same clock shaded on the GUI thread — which
-        ``test_the_backdrop_survives_a_run.py`` asserts for all five buffered
-        themes rather than trusting this paragraph.
+        ``test_the_backdrop_survives_a_run.py`` asserts for every buffered
+        theme rather than trusting this paragraph.
 
         Returns ``None`` for an empty canvas. The copy is what makes the
         image the caller's: the producer publishes it and immediately starts
@@ -4231,10 +4256,52 @@ class ResonanceEngine(_BufferedEngine):
         shading thread is locked out -- see the class docstring. It costs a
         lock, an index and two array reads; measured at 6.8 us with the
         music bed playing, against the 41 ms a frame the cap allows.
+
+        What is read is damped by :meth:`answering` before it is stored, so
+        the Speed preference reaches the music-driven half of the theme as
+        well as the clock.
         """
         super().advance(dt)
         from ..resonance import playing_moment
-        self.drive = playing_moment()
+        self.drive = self.answering(playing_moment())
+
+    def answering(self, moment):
+        """``moment`` scaled by how much of it the Speed setting lets in.
+
+        THE CLOCK IS NOT THE WHOLE ANIMATION HERE, WHICH IS WHY THIS
+        EXISTS. :meth:`AmbientEngine.advance` multiplies ``dt`` by
+        :attr:`speed`, and that is the whole of the Speed preference for
+        every other theme, because every other theme's motion is a function
+        of the clock alone. Half of this one is a function of the music
+        instead: the throw on an onset, the per-band brightness and the
+        figure the spectrum's centre of mass asks for. At the bottom of
+        :data:`SPEED_RANGE` the breath, the mode walk and the wander all
+        crawl at a tenth, and a kick would still have thrown the sand
+        :data:`RESONANCE_THROW` of the plate twice a second -- leaving the
+        busiest movement in the theme running at full rate for somebody who
+        set the slider to its minimum precisely to stop that.
+
+        So the share let in is ``min(1, speed)``: the shipped setting and
+        anything above it hear the music in full, and turning the animation
+        down turns the reaction down with it, until at the minimum the
+        plate is the idle plate. Above 1.0 it is *not* scaled up, because
+        every field of a
+        :class:`~spacr.qt.resonance.Moment` is already 0 to 1 against the
+        loop's own loudest: there is nothing above full to give.
+
+        :param moment: what :func:`spacr.qt.resonance.playing_moment`
+            returned.
+        :returns: the same moment at speed 1.0 or above, a damped copy
+            below it.
+        """
+        share = min(1.0, float(self.speed))
+        if share >= 1.0:
+            return moment
+        return moment._replace(
+            level=moment.level * share,
+            bands=tuple(band * share for band in moment.bands),
+            centroid=moment.centroid * share,
+            onset=moment.onset * share)
 
     def energy(self) -> float:
         """How hard the plate is being driven, 0 to 1.
@@ -5137,7 +5204,7 @@ class AmbientWidget(QWidget):
         hand over.
 
         ``drift`` is deliberately left out, and the number is the reason: it
-        is the one engine with no buffer, it degrades the least of the six
+        is the one engine with no buffer, it degrades the least of the seven
         under a Python worker (0.528 -> 1.084 ms, 2.1x, against 48.7x for
         ``cells``), and threading it would mean publishing a full-resolution
         ARGB32 frame — 7.91 MiB a slot at 1080p against 126.6 KiB for

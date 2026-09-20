@@ -409,6 +409,56 @@ def test_the_beat_throws_the_sand_off_the_lines(qapp):
     assert float(moved.mean()) == pytest.approx(amb.RESONANCE_THROW, rel=0.35)
 
 
+def test_the_speed_setting_reaches_the_music_and_not_only_the_clock(qapp,
+                                                                    tmp_path):
+    """"respects the Animation preferences" has to cover the driven half.
+
+    Speed scales the clock, and for every other theme that is the whole of
+    the preference, because every other theme's motion is a function of the
+    clock. Half of this one is a function of the music instead: at the
+    bottom of the range the breath, the mode walk and the wander all crawl
+    at a tenth while a kick would still throw the sand across the plate
+    twice a second -- the busiest movement in the theme, at full rate, for
+    somebody who moved the slider to its minimum to stop exactly that.
+    """
+    source = _tone(tmp_path / "loud.wav", 1.5, [70.0, 700.0, 6000.0], 0.9)
+    analysis = rs.ensure_analysis(source)
+    rs.set_now_playing(rs.NowPlaying(str(analysis), 0.0, 1.5, True))
+
+    share = amb.SPEED_RANGE[0]
+    full = amb.make_engine("resonance", "spacr", DARK, seed=7, speed=1.0)
+    slow = amb.make_engine("resonance", "spacr", DARK, seed=7, speed=share)
+    for engine in (full, slow):
+        engine.set_time(5.0)
+        engine.advance(0.0)
+
+    assert full.drive.level > 0.5, "the test is not driving it"
+    assert slow.drive.level == pytest.approx(full.drive.level * share,
+                                             rel=0.2)
+    assert slow.energy() < full.energy(), "the loud passage still drove it"
+
+    beat = rs.Moment(0.9, (0.9, 0.9, 0.9, 0.9), 0.5, 1.0)
+    assert full.answering(beat) == beat, "the shipped setting is untouched"
+    damped = slow.answering(beat)
+    assert damped.level == pytest.approx(beat.level * share)
+    assert damped.onset == pytest.approx(beat.onset * share)
+    assert damped.centroid == pytest.approx(beat.centroid * share)
+    assert damped.bands == pytest.approx(
+        tuple(band * share for band in beat.bands))
+
+    quick = amb.make_engine("resonance", "spacr", DARK, seed=7,
+                            speed=amb.SPEED_RANGE[1])
+    assert quick.answering(beat) == beat, "nothing to give above full"
+
+    slow.drive = slow.answering(beat._replace(onset=0.0))
+    settled = slow.sand()
+    slow.drive = slow.answering(beat)
+    thrown = slow.sand()
+    moved = float(np.hypot(thrown[0] - settled[0],
+                           thrown[1] - settled[1]).mean())
+    assert moved == pytest.approx(amb.RESONANCE_THROW * share, rel=0.35)
+
+
 def test_the_real_time_signal_enters_in_advance_and_nowhere_else(qapp,
                                                                  tmp_path):
     """The architecture rule, asserted rather than trusted.
