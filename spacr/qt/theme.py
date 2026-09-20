@@ -2,10 +2,11 @@
 
 Use :func:`active_palette` for colors shown by a live widget and
 :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains
-the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, and ``"glass"``;
-the ``"system"`` preference resolves to dark or light before palette lookup.
-A legacy ``"space"`` palette can still be read from persisted settings but is
-not selectable.
+the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, ``"glass"`` and
+the ten night themes of :mod:`spacr.qt.night_themes`; the ``"system"``
+preference resolves to dark or light before palette lookup. A legacy
+``"space"`` palette can still be read from persisted settings but is not
+selectable.
 
 .. warning::
 
@@ -39,6 +40,9 @@ from typing import Dict, List, Optional, Tuple
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
+
+from .night_themes import NIGHT_THEME_KEYS
+from .night_themes import palettes as night_palettes
 
 LOG = logging.getLogger(__name__)
 
@@ -169,7 +173,14 @@ GLASS_PALETTE = {
 #: backdrop nobody chose, and the Cell wallpapers do the same job with the
 #: lab's own images. A persisted "space" falls back to dark — see
 #: `preferences.get_theme`.
-THEMES = ("dark", "light", "cell", "glass")
+#:
+#: The ten night themes of :mod:`spacr.qt.night_themes` are appended here,
+#: which is what makes them ordinary themes: the contrast sweep, the page
+#: separation sweep, the spaceout dressing and every widget that resolves a
+#: colour through :func:`palette_for` reach them without a branch. They are
+#: flat themes, not :data:`IMAGE_THEMES`, so no scrim is solved for them and
+#: nothing is composited over a wallpaper.
+THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
 
 _PALETTES = {
     "dark": DARK_PALETTE,
@@ -178,6 +189,7 @@ _PALETTES = {
     "cell": CELL_PALETTE,
     "glass": GLASS_PALETTE,
 }
+_PALETTES.update(night_palettes())
 
 #: Themes whose window background is an image or depth gradient rather than
 #: a flat colour. They share one treatment — a transparent ``QWidget``
@@ -1228,6 +1240,71 @@ _INK_BANDS: Dict[str, Dict[str, Tuple[float, float]]] = {}
 #: :data:`_SOLVED_SCRIMS`, and cached for the same reason.
 _SOLVED_INK: Dict[bool, Dict[str, Dict[str, Tuple[float, float]]]] = {}
 
+#: The themes whose dressing is solved the moment the dressing goes on,
+#: rather than the first time somebody asks for that theme's palette.
+#:
+#: THIS IS WHY THE TEN NIGHT THEMES DID NOT COST THE SPACEOUT LAUNCHER HALF
+#: A SECOND. The damping solve is 60 offsets per theme and the ink-band
+#: solve another 60, so both are linear in the number of themes, and both
+#: ran over all of them at the moment ``spaceout`` started: going from four
+#: themes to fourteen took :func:`enable_spaceout` from 417-438 ms to
+#: 864-876 ms, measured, before the window appears. Only the theme the user
+#: is actually in gets dressed, so thirteen of those solves were for a
+#: palette that run would never paint.
+#:
+#: The four here are solved eagerly because they are what the process can
+#: be in without anybody choosing: dark and light are what ``"system"``
+#: resolves to, and cell and glass are the two image themes, whose scrims
+#: are solved over the drift in the same pass anyway. Everything else is
+#: solved by :func:`_dress_theme` the first time its palette is asked for,
+#: which is once and then never again.
+DRESSED_EAGERLY: Tuple[str, ...] = ("dark", "light", "cell", "glass")
+
+#: Themes solved so far under the current dressing. Reset whenever the
+#: dressing changes, because the bands and the damping are both functions
+#: of it.
+_DRESSED: set = set()
+
+
+def _dress_theme(name: str) -> None:
+    """Solve one theme's ink bands and page damping, once.
+
+    WHAT STOPS THIS RECURSING is the ``_DRESSED`` entry, and it is added
+    BEFORE the two solves rather than after. Every solver resolves palettes
+    through :func:`palette_for`, so a solve for ``name`` re-enters here for
+    ``name``; finding itself already in the set, it returns at once. Moving
+    that line below the solves would spin.
+
+    :func:`palette_for` also calls this only when ``_SOLVE_DRIFT is None``,
+    which is "no solve is running". THAT CHECK IS A SECOND BELT AND IS
+    REDUNDANT, and is recorded as such rather than left to look
+    load-bearing: removing it turns no test red, because a solve only ever
+    asks for the palette of the theme it is solving, which the set already
+    covers. It is kept because it costs one comparison and it is what keeps
+    the property true if a future solver reaches for a second theme.
+
+    The result goes into the live tables AND into the
+    :data:`_SOLVED_INK` / :data:`_SOLVED_DAMPING` caches, so taking the
+    dressing off and putting it back stays the dict copy it was and does
+    not silently lose a theme that had been solved.
+
+    :param name: a key of :data:`_PALETTES`; anything else is ignored,
+        because :func:`palette_for` falls back to dark for those and dark
+        is solved already.
+    """
+    if not _SPACEOUT or name in _DRESSED or name not in _PALETTES:
+        return
+    _DRESSED.add(name)
+    damping = _solve_page_damping((name,))
+    bands = _solve_ink_bands((name,))
+    _INK_BANDS.update(bands)
+    cached_bands = _SOLVED_INK.get(True)
+    if cached_bands is not None:
+        cached_bands.update(bands)
+    cached_damping = _SOLVED_DAMPING.get(True)
+    if cached_damping is not None:
+        cached_damping.update(damping)
+
 #: While a solve is running: the hue offset to dress at, and whether the ink
 #: treatment is applied. `palette_for` consults both, which is what lets the
 #: solvers call the ordinary public helpers — `effective_surface`,
@@ -1404,7 +1481,8 @@ def _ink_band(theme: str, role: str) -> Optional[Tuple[float, float]]:
     return (low, high) if high - low > 1e-6 else None
 
 
-def _solve_page_damping() -> Dict[str, Dict[float, float]]:
+def _solve_page_damping(names: Optional[Tuple[str, ...]] = None
+                        ) -> Dict[str, Dict[float, float]]:
     """How much colour each theme has to give up, at each drift offset, for
     its panels to stay visible on its page.
 
@@ -1412,15 +1490,25 @@ def _solve_page_damping() -> Dict[str, Dict[float, float]]:
     solving against — :func:`page_separation_failures` — is two
     measurements, one of them in CIE L*, and reading them backwards to a
     saturation would be a second implementation of the thing it has to
-    agree with. Seven candidates over sixty offsets is 130 ms once.
+    agree with. Seven candidates over sixty offsets is about 28 ms per
+    theme.
 
     The candidate under test is written straight into :data:`_PAGE_DAMPING`
     so :func:`page_separation_failures` sees it through the palette, which
     is what makes this the published rule judging the published colours
     rather than a copy of either.
+
+    :param names: the themes to solve. ``None`` solves :data:`THEMES` and
+        clears anything already there, which is the whole-dressing case;
+        naming themes leaves the rest of the table alone, which is what
+        :func:`_dress_theme` needs.
+    :returns: the solved rows for the themes asked for.
     """
-    _PAGE_DAMPING.clear()
-    for name in THEMES:
+    if names is None:
+        names = THEMES
+        _PAGE_DAMPING.clear()
+    solved: Dict[str, Dict[float, float]] = {}
+    for name in names:
         rows: Dict[float, float] = {}
         _PAGE_DAMPING[name] = rows
         for drift in _drift_grid():
@@ -1431,13 +1519,19 @@ def _solve_page_damping() -> Dict[str, Dict[float, float]]:
                         break
             if rows[drift] >= 1.0:
                 del rows[drift]
-    return {name: dict(rows) for name, rows in _PAGE_DAMPING.items()}
+        solved[name] = dict(rows)
+    return solved
 
 
-def _solve_ink_bands() -> Dict[str, Dict[str, Tuple[float, float]]]:
-    """Every ink band of every theme. Solved once per dressing."""
+def _solve_ink_bands(names: Optional[Tuple[str, ...]] = None
+                     ) -> Dict[str, Dict[str, Tuple[float, float]]]:
+    """Every ink band of the themes asked for.
+
+    :param names: the themes to solve; ``None`` means :data:`THEMES`.
+    :returns: ``{theme: {role: (low, high)}}``.
+    """
     out: Dict[str, Dict[str, Tuple[float, float]]] = {}
-    for name in THEMES:
+    for name in (THEMES if names is None else names):
         rows = {}
         for role in SPACEOUT_INK_ROLES:
             band = _ink_band(name, role)
@@ -1585,10 +1679,12 @@ def _apply_dressing() -> None:
             solved, bands, damping = _solve_scrims(), {}, {}
         else:
             _INK_BANDS.clear()
-            damping = _solve_page_damping()
+            _DRESSED.clear()
+            _DRESSED.update(DRESSED_EAGERLY)
+            damping = _solve_page_damping(DRESSED_EAGERLY)
             SCRIM_ALPHA.clear()
             SCRIM_ALPHA.update(_solve_scrims_over_drift())
-            bands = _solve_ink_bands()
+            bands = _solve_ink_bands(DRESSED_EAGERLY)
             _INK_BANDS.update(bands)
             solved = _solve_scrims_over_drift()
         _SOLVED_SCRIMS[_SPACEOUT] = solved
@@ -1647,6 +1743,8 @@ def palette_for(theme: str = "dark") -> dict:
     out = dict(base)
     out.update(CONSTANT_ROLES)
     if _SPACEOUT:
+        if _SOLVE_DRIFT is None:
+            _dress_theme(theme)
         drift = (spaceout_drift_step() if _SOLVE_DRIFT is None
                  else _SOLVE_DRIFT)
         out = spaceout_palette(out, drift, theme if _SOLVE_INK else None)

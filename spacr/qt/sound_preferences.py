@@ -273,6 +273,25 @@ class SoundPage:
                              self.volume.value() / 100.0,
                              music=self.music.text().strip())
 
+    def select_theme(self, key: str) -> bool:
+        """Show ``key`` in the Sound set control, without saving anything.
+
+        The Appearance tab calls this when one of the ten night themes is
+        chosen, so the sound set that goes with the colours is visible on
+        the Sound tab before Save is pressed rather than appearing there
+        afterwards. It moves one combo box and nothing else: the master
+        switch, the volume and the per-event switches are the user's and
+        are not touched, so a theme can never turn sound on.
+
+        :param key: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.
+        :returns: whether a set of that name was found and selected.
+        """
+        index = self.theme.findData(str(key))
+        if index < 0:
+            return False
+        self.theme.setCurrentIndex(index)
+        return True
+
     def _closed(self, *_result) -> None:
         """The dialog closed: no preview outlives it."""
         self._end_any_preview()

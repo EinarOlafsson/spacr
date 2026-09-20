@@ -222,13 +222,29 @@ def _hue_of(red: int, green: int, blue: int) -> float:
 # The theme contract does not change
 # ---------------------------------------------------------------------------
 
-def test_the_four_themes_are_still_the_four_themes(dressed):
+def test_spaceout_is_still_not_a_theme(dressed):
     """spaceout re-hues whichever theme was resolved. It does not become a
-    fifth one, which is what would break every screen that reads the
-    resolver."""
-    assert theme.THEMES == ("dark", "light", "cell", "glass")
+    theme of its own, which is what would break every screen that reads
+    the resolver.
+
+    THIS TEST USED TO NAME THE FOUR THEMES, and the name was the bug: it
+    asserted ``THEMES == ("dark", "light", "cell", "glass")``, which reads
+    as "spaceout adds nothing" and MEANS "nobody may ever add a theme".
+    The ten night themes of item 427 part C added ten, legitimately, and
+    turned it red for a reason it was never about. What it is about is
+    below: the dressing is a re-hue of the themes that exist, so the list
+    the resolver answers from and the list the palettes live in are the
+    same list, and no spaceout name is in either.
+    """
     from spacr.qt.preferences import PALETTE_THEMES, resolve_effective_theme
+    from spacr.qt.widgets.ambient import SPACEOUT_PALETTE, SPACEOUT_THEME
+
+    assert tuple(theme.THEMES) == tuple(PALETTE_THEMES)
+    assert SPACEOUT_THEME not in theme.THEMES
+    assert SPACEOUT_PALETTE not in theme.THEMES
     assert resolve_effective_theme() in PALETTE_THEMES
+    for name in theme.THEMES:
+        assert name in theme._PALETTES, f"{name} has no palette"
 
 
 def test_light_is_still_light_and_dark_is_still_dark(dressed):

@@ -47,12 +47,16 @@ __all__ = [
     "CACHE_ENV",
     "CLICK_VARIANTS",
     "DEFAULT_THEME",
+    "DORIAN",
     "EVENTS",
     "FEEDBACK_EVENTS",
+    "HARMONIC_MINOR",
     "HOVER_VARIANTS",
     "LEAD_AIR_HZ",
     "LEAD_MOTIF",
+    "LYDIAN",
     "NATURAL_MINOR",
+    "NIGHT_SETS",
     "ORBIT",
     "REST",
     "Rendered",
@@ -99,6 +103,21 @@ CACHE_ENV = "SPACR_SOUND_CACHE"
 
 #: The natural minor (Aeolian) scale, in semitones above the tonic.
 NATURAL_MINOR: Tuple[int, ...] = (0, 2, 3, 5, 7, 8, 10)
+
+#: Minor with a raised sixth. Its fourth degree carries a MAJOR triad,
+#: which is the lift the whole genre leans on: the same minor room with
+#: one window open. :data:`HALCYON` and :data:`MERIDIAN` use it.
+DORIAN: Tuple[int, ...] = (0, 2, 3, 5, 7, 9, 10)
+
+#: Major with a raised fourth. Every seventh chord on it is major or
+#: dominant, so nothing in it settles; :data:`SOLSTICE` uses it for the
+#: one theme of the ten that never quite lands.
+LYDIAN: Tuple[int, ...] = (0, 2, 4, 6, 7, 9, 11)
+
+#: Minor with a raised seventh, so the fifth degree carries a DOMINANT
+#: seventh and the tonic a minor-major seventh. It is the tension in
+#: cinematic melodic techno, and :data:`APHELION` is built on it.
+HARMONIC_MINOR: Tuple[int, ...] = (0, 2, 3, 5, 7, 8, 11)
 
 #: Where the melody stops, in hertz. ABOVE THIS THE MIX BELONGS TO THE
 #: SHAKER, and the eighth-order wall is a guard on every theme rather than
@@ -310,8 +329,292 @@ BED_SECTIONS: Tuple[
     ("return", 8, 0.62, 0.15, 0.20, 0.90, 0.28),
 )
 
-#: Every sound set spaCR can play, by key.
+#: THE TEN NIGHT SOUND SETS, one per theme in
+#: :data:`spacr.qt.night_themes.NIGHT_THEMES` and keyed the same, so
+#: choosing a theme in Preferences moves the sound with the colours
+#: without a lookup table between them.
+#:
+#: They are all the same genre and none of them is the same piece. What
+#: separates them is what separates two records in it: the key and the
+#: mode (four modes across the ten), the tempo (108 to 128 BPM, the range
+#: the music actually occupies), how far open the pad's filter sits, how
+#: hard the pad is pumped on every beat, how bright and how long the
+#: plucks are, how fast the arpeggio runs and in what shape, and how much
+#: room is around all of it.
+#:
+#: THE TWO ENDS ARE THE ARGUMENT. :data:`NOCTURNE` is 108 BPM, quarter-note
+#: arpeggios, a pluck that decays for six tenths of a second like a
+#: damped piano string, a 4.8 s tail and almost no drum. :data:`PULSAR` is
+#: 128 BPM, sixteenth notes, a pluck a fifth as long, the deepest pump of
+#: the ten and the shortest reverb. Neither is a preset of the other.
+#:
+#: ONE SEED WAS CHOSEN BY MEASUREMENT RATHER THAN PICKED. Lantern's bed is
+#: the smoothest of the eleven -- a pad filtered to 900 Hz makes small
+#: sample-to-sample steps -- so the seam rule, which asks that the loop
+#: jump no further at the join than the music jumps anywhere else, is
+#: tightest here. At seed 4271 the right channel jumped 0.0388 against a
+#: 99.5th-percentile step of 0.0376 and failed it. 4291 renders the same
+#: theme with different noise in the shaker and the reverb tail and lands
+#: at 0.0112 against 0.0332. Nothing else about Lantern was changed, and
+#: the other ten seeds are consecutive because they never needed to be
+#: anything else.
+LANTERN = SoundTheme(
+    key="lantern",
+    label="Lantern",
+    description=("G minor at 118 BPM: a close, warm room — the pad's "
+                 "filter barely open, wide detuning, plucks that decay "
+                 "slowly, and a short tail."),
+    tonic=55,
+    tempo=118.0,
+    progression=(0, 5, 3, 4),
+    pad_detune_cents=20.0,
+    pad_cutoff_hz=900.0,
+    pluck_brightness=0.55,
+    pluck_decay=0.40,
+    arp_pattern=(0, 2, 1, 3, 1, 4, 2, 0),
+    space=0.28,
+    reverb_seconds=2.6,
+    width=0.65,
+    kick_level=0.50,
+    shaker_level=0.30,
+    seed=4291,
+)
+
+HALCYON = SoundTheme(
+    key="halcyon",
+    label="Halcyon",
+    description=("F Dorian at 120 BPM: minor with the sixth raised, so "
+                 "the fourth chord of the bed arrives major and the room "
+                 "opens for a bar."),
+    tonic=53,
+    scale=DORIAN,
+    tempo=120.0,
+    progression=(0, 3, 6, 4),
+    pad_cutoff_hz=1250.0,
+    pluck_brightness=0.68,
+    pluck_decay=0.30,
+    arp_pattern=(0, 2, 4, 2, 1, 3, 2, 0),
+    space=0.34,
+    reverb_seconds=3.0,
+    kick_level=0.46,
+    shaker_level=0.36,
+    seed=4272,
+)
+
+SOLSTICE = SoundTheme(
+    key="solstice",
+    label="Solstice",
+    description=("G Lydian at 112 BPM: the raised fourth leaves every "
+                 "chord major, so nothing in it settles — the slowest "
+                 "bright set of the ten, with the widest pad."),
+    tonic=55,
+    scale=LYDIAN,
+    tempo=112.0,
+    progression=(0, 4, 5, 1),
+    pad_voices=6,
+    pad_detune_cents=12.0,
+    pad_cutoff_hz=1500.0,
+    pluck_brightness=0.72,
+    pluck_decay=0.34,
+    arp_pattern=(0, 2, 4, 1, 3, 2, 4, 3),
+    delay_beats=0.5,
+    space=0.40,
+    reverb_seconds=3.6,
+    width=0.80,
+    kick_level=0.34,
+    shaker_level=0.40,
+    seed=4273,
+)
+
+UNDERTOW = SoundTheme(
+    key="undertow",
+    label="Undertow",
+    description=("E minor at 116 BPM: the heaviest sub and the deepest "
+                 "pump of the ten under a pad filtered almost shut — "
+                 "weight rather than brightness."),
+    tonic=52,
+    tempo=116.0,
+    progression=(0, 5, 3, 6),
+    pad_cutoff_hz=780.0,
+    pad_pump=0.42,
+    pluck_brightness=0.44,
+    pluck_decay=0.50,
+    arp_pattern=(0, 1, 2, 1, 3, 2, 4, 2),
+    delay_feedback=0.50,
+    sub_level=0.72,
+    space=0.30,
+    reverb_seconds=3.4,
+    kick_level=0.55,
+    shaker_level=0.22,
+    seed=4274,
+)
+
+MERIDIAN = SoundTheme(
+    key="meridian",
+    label="Meridian",
+    description=("A Dorian at 124 BPM: the widest stereo pad of the ten "
+                 "with a bright, short pluck running eighth notes across "
+                 "it."),
+    tonic=57,
+    scale=DORIAN,
+    tempo=124.0,
+    progression=(0, 6, 3, 4),
+    pad_cutoff_hz=1300.0,
+    pluck_brightness=0.70,
+    pluck_decay=0.28,
+    arp_pattern=(0, 2, 1, 4, 2, 3, 1, 2),
+    space=0.36,
+    reverb_seconds=3.0,
+    width=0.85,
+    kick_level=0.48,
+    shaker_level=0.38,
+    seed=4275,
+)
+
+CIRRUS = SoundTheme(
+    key="cirrus",
+    label="Cirrus",
+    description=("B minor at 126 BPM: the most open set of the ten — the "
+                 "pad's filter nearly wide, the longest reverb, the "
+                 "lightest sub and the quietest kick."),
+    tonic=59,
+    tempo=126.0,
+    progression=(0, 4, 5, 6),
+    pad_voices=6,
+    pad_detune_cents=10.0,
+    pad_cutoff_hz=1900.0,
+    pad_pump=0.22,
+    pluck_brightness=0.80,
+    pluck_decay=0.26,
+    arp_pattern=(0, 3, 2, 4, 1, 3, 2, 4),
+    delay_feedback=0.48,
+    delay_mix=0.46,
+    sub_level=0.28,
+    space=0.48,
+    reverb_seconds=4.2,
+    width=0.90,
+    kick_level=0.30,
+    shaker_level=0.42,
+    seed=4276,
+)
+
+NOCTURNE = SoundTheme(
+    key="nocturne",
+    label="Nocturne",
+    description=("C sharp minor at 108 BPM: the slowest of the ten, the "
+                 "arpeggio down to quarter notes, plucks that ring like a "
+                 "damped piano string, a long tail and barely a drum."),
+    tonic=49,
+    tempo=108.0,
+    progression=(0, 5, 2, 6),
+    pad_detune_cents=18.0,
+    pad_cutoff_hz=850.0,
+    pluck_brightness=0.38,
+    pluck_decay=0.62,
+    pluck_level=0.44,
+    arp_pattern=(0, 2, 4, 1),
+    arp_division=1,
+    delay_feedback=0.46,
+    delay_mix=0.34,
+    sub_level=0.50,
+    space=0.46,
+    reverb_seconds=4.8,
+    width=0.72,
+    kick_level=0.18,
+    shaker_level=0.12,
+    bed_lufs=-19.0,
+    seed=4277,
+)
+
+APHELION = SoundTheme(
+    key="aphelion",
+    label="Aphelion",
+    description=("D harmonic minor at 128 BPM: the raised seventh puts a "
+                 "dominant chord in the bed and a minor-major seventh on "
+                 "the tonic — the tense end of the family."),
+    tonic=50,
+    scale=HARMONIC_MINOR,
+    tempo=128.0,
+    progression=(0, 5, 3, 4),
+    pad_cutoff_hz=1050.0,
+    pad_pump=0.38,
+    pluck_brightness=0.66,
+    pluck_decay=0.28,
+    arp_pattern=(0, 3, 2, 4, 1, 3, 2, 4),
+    delay_beats=0.5,
+    delay_feedback=0.40,
+    space=0.30,
+    reverb_seconds=2.8,
+    kick_level=0.52,
+    shaker_level=0.36,
+    seed=4278,
+)
+
+PULSAR = SoundTheme(
+    key="pulsar",
+    label="Pulsar",
+    description=("F sharp minor at 128 BPM: sixteenth-note arpeggios, the "
+                 "brightest and shortest plucks of the ten, the hardest "
+                 "pump and the least room around any of it."),
+    tonic=54,
+    tempo=128.0,
+    progression=(0, 6, 5, 4),
+    pad_cutoff_hz=1150.0,
+    pad_pump=0.55,
+    pluck_brightness=0.86,
+    pluck_decay=0.22,
+    arp_pattern=(0, 2, 4, 2, 1, 3, 2, 4, 0, 3, 2, 4, 1, 2, 3, 4),
+    arp_division=4,
+    delay_beats=0.5,
+    delay_feedback=0.36,
+    delay_mix=0.32,
+    sub_level=0.55,
+    space=0.24,
+    reverb_seconds=2.4,
+    width=0.78,
+    kick_level=0.60,
+    shaker_level=0.45,
+    seed=4279,
+)
+
+VESPER = SoundTheme(
+    key="vesper",
+    label="Vesper",
+    description=("E flat minor at 114 BPM: the most detuned pad of the "
+                 "ten, a soft mid-length pluck, a forward shaker and a "
+                 "kick kept well back."),
+    tonic=51,
+    tempo=114.0,
+    progression=(0, 3, 5, 6),
+    pad_detune_cents=22.0,
+    pad_cutoff_hz=950.0,
+    pluck_brightness=0.50,
+    pluck_decay=0.44,
+    pluck_level=0.42,
+    arp_pattern=(0, 1, 2, 1, 3, 2, 4, 2),
+    delay_feedback=0.44,
+    delay_mix=0.42,
+    sub_level=0.42,
+    space=0.42,
+    reverb_seconds=3.8,
+    width=0.75,
+    kick_level=0.26,
+    shaker_level=0.48,
+    bed_lufs=-18.5,
+    seed=4280,
+)
+
+#: The ten, in the order :data:`spacr.qt.night_themes.NIGHT_THEMES` lists
+#: their themes, so the Sound set menu and the Theme menu read the same way
+#: down.
+NIGHT_SETS: Tuple[SoundTheme, ...] = (LANTERN, HALCYON, SOLSTICE, UNDERTOW,
+                                      MERIDIAN, CIRRUS, NOCTURNE, APHELION,
+                                      PULSAR, VESPER)
+
+#: Every sound set spaCR can play, by key. Orbit first because it is the
+#: default and the reference the other ten were measured against.
 SOUND_THEMES: Dict[str, SoundTheme] = {ORBIT.key: ORBIT}
+SOUND_THEMES.update({theme.key: theme for theme in NIGHT_SETS})
 
 #: The sound set a fresh install uses.
 DEFAULT_THEME = ORBIT.key

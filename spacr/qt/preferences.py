@@ -53,13 +53,16 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
+* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` | one of
+  the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
   ``"system"`` (default ``"system"``). ``"system"`` follows the operating
   system color scheme. ``"cell"`` uses fluorescence imagery and ``"glass"``
-  uses neutral layered materials over a built-in light field. Space is not
-  a selectable theme. The retired ``space_variant`` and ``space_seed``
-  values are removed from an older store the first time the theme is read;
-  see :func:`get_theme`.
+  uses neutral layered materials over a built-in light field. A night
+  theme also carries a backdrop and a sound set, written by
+  :func:`apply_night_theme` when it is chosen. Space is not a selectable
+  theme. The retired ``space_variant`` and ``space_seed`` values are
+  removed from an older store the first time the theme is read; see
+  :func:`get_theme`.
 * ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].
 * ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
   (default ``"print"``). Controls the page and figure-element colours used
@@ -148,6 +151,8 @@ from __future__ import annotations
 import logging
 
 from PySide6.QtCore import QSettings
+
+from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
 
 LOG = logging.getLogger(__name__)
 
@@ -500,7 +505,12 @@ _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
 #: does not pull in QtGui/QtWidgets.
-PALETTE_THEMES = ("dark", "light", "cell", "glass")
+#:
+#: The ten night themes are appended from :mod:`spacr.qt.night_themes`
+#: rather than written out again, because that module is Qt-free for
+#: exactly this reason: it can be imported here without QtGui, and it
+#: cannot then drift from what :data:`spacr.qt.theme.THEMES` holds.
+PALETTE_THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
 
 #: Persisted values. An existing install has ``prefs/theme`` set to one
 #: of dark/light/system/space; those keep resolving exactly as before,
@@ -1466,8 +1476,16 @@ def theme_choices() -> tuple:
 
     Image variants are represented as composite tokens in the UI while the
     persisted keys remain backward compatible.
+
+    The ten night themes come last, in
+    :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the
+    application has always had stay where a returning user looks for them
+    and the new family reads as one block down the bottom of the list.
+    Their tokens are their plain keys: a night theme has no variant, so
+    there is nothing to compose into the token the way Cell does.
     """
     from .imagery import CELL_VARIANTS, title_for
+    from .night_themes import NIGHT_THEMES
 
     choices = [
         ("Dark", "dark"),
@@ -1479,6 +1497,7 @@ def theme_choices() -> tuple:
         (title_for(key), f"cell:{key}")
         for key in CELL_VARIANTS
     )
+    choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
     return tuple(choices)
 
 
@@ -1491,7 +1510,12 @@ def get_theme_choice() -> str:
 
 
 def set_theme_choice(choice: str) -> None:
-    """Persist one token from :func:`theme_choices`."""
+    """Persist one token from :func:`theme_choices`.
+
+    Choosing one of the ten night themes also writes that theme's
+    backdrop and its sound set — see :func:`apply_night_theme`, which is
+    where the reasoning for doing so lives.
+    """
     valid = {token for _label, token in theme_choices()}
     if choice not in valid:
         raise ValueError(
@@ -1501,6 +1525,76 @@ def set_theme_choice(choice: str) -> None:
         set_theme("cell")
     else:
         set_theme(choice)
+        if is_night_theme(choice):
+            apply_night_theme(choice)
+
+
+def apply_night_theme(name: str) -> None:
+    """Write the backdrop and the sound set a night theme comes with.
+
+    A night theme is one choice that moves three things: the colours, the
+    animation behind them and the set of sounds spaCR would play. So this
+    writes the ambient animation, the ambient palette and the sound set
+    that go with the colours.
+
+    IT DOES NOT SWITCH ANYTHING ON. The sound master stays exactly where
+    the user left it, which on a fresh install and on every install that
+    has never opened the Sound tab is off; all this decides is *which*
+    set would play if it were ever switched on. It leaves the animation
+    master alone in the same way: if the backdrop is off, the stored
+    animation is what comes back when it is switched on again, and
+    :func:`set_ambient_animation` is not used here for exactly that
+    reason -- that setter also switches the backdrop on.
+
+    IT IS A PRESET, NOT AN OVERRIDE. The three values are written once,
+    at the moment the theme is chosen, into the same keys the Animation
+    and Sound controls read and write. Nothing re-imposes them, so a user
+    who picks Nocturne and then changes the animation to Bokeh keeps
+    Bokeh.
+
+    AND IT NEVER SWITCHES THE BACKDROP BACK ON. "No animation" is stored
+    as the animation NAME (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`),
+    which :func:`get_ambient_enabled` reads, so writing an animation over
+    it would hand a moving backdrop to a user who had turned motion off
+    -- through the Animation control, or through Extra Performance, which
+    turns it off the same way. :func:`backdrop_is_switched_off` is
+    therefore asked first, and when it says yes the two ambient keys are
+    left exactly as they are. The theme still changes the colours and the
+    sound set; it just does not start anything moving. What that costs is
+    small and worth saying: a user who later switches the backdrop on
+    gets the animation they had before, not the one this theme would have
+    brought, and they can pick it on the same control they just used.
+
+    :param name: one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.
+    :raises KeyError: if ``name`` is not one of the ten.
+    """
+    theme = theme_for(name)
+    settings = _settings()
+    if not backdrop_is_switched_off():
+        settings.setValue(_KEY_AMBIENT_THEME, theme.ambient)
+        settings.setValue(_KEY_AMBIENT_PALETTE, theme.ambient_palette)
+    settings.setValue(_KEY_SOUND_THEME, theme.sound)
+    settings.sync()
+
+
+def backdrop_is_switched_off() -> bool:
+    """Whether the user has turned the animated backdrop off and left it.
+
+    The STORED choice, not the live answer:
+    :func:`get_ambient_enabled` also reports ``False`` for
+    ``SPACR_NO_BACKDROP``, which :mod:`spacr.qt.crash_recovery` sets for
+    one process after two failed launches. That is a suppression and not
+    a preference, and treating it as one would silently strip the
+    backdrop out of a theme the user chose during that one run.
+
+    :returns: ``True`` when the Animation control reads "None", or when
+        the separate on/off key is off.
+    """
+    if _raw_ambient_animation() == _no_animation_key():
+        return True
+    return not _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
+                                          DEFAULT_AMBIENT_ENABLED),
+                        DEFAULT_AMBIENT_ENABLED)
 
 
 def get_cell_variant() -> str:
@@ -6353,6 +6447,47 @@ class PreferencesDialog:
 
         from .sound_preferences import SoundPage
         sound_page = SoundPage(_page("Sound", "PreferencesTabSound"), dlg)
+
+        def _the_theme_brings_its_backdrop_and_its_sound(_index=0) -> None:
+            """Move the other three controls when a night theme is picked.
+
+            THE BINDING HAS TO HAPPEN HERE AND NOT ONLY IN
+            `set_theme_choice`. Save writes the Theme control and then
+            writes the Animation, palette and Sound set controls straight
+            after it, so a preset applied inside `set_theme_choice` would
+            be overwritten three lines later by whatever the untouched
+            combos still held. Moving the controls instead means the two
+            paths agree and, more to the point, that the user SEES what
+            the theme brought with it and can put any of it back before
+            pressing Save.
+
+            The four themes that are not night themes change nothing else,
+            which is why this returns early rather than reaching for a
+            default: Dark has never carried an opinion about the backdrop
+            and is not being given one now.
+
+            AND IT LEAVES THE ANIMATION ALONE WHEN THE CONTROL SAYS NONE,
+            for the reason :func:`apply_night_theme` gives: a theme must
+            not start something moving for a user who has turned motion
+            off. The Sound set still moves, because that control decides
+            WHICH sounds would play and not WHETHER any do.
+            """
+            choice = theme_combo.currentData()
+            if not is_night_theme(choice):
+                return
+            night = theme_for(choice)
+            if ambient_theme_combo.currentData() == NO_ANIMATION:
+                sound_page.select_theme(night.sound)
+                return
+            for index in range(ambient_theme_combo.count()):
+                if ambient_theme_combo.itemData(index) == night.ambient:
+                    ambient_theme_combo.setCurrentIndex(index)
+                    break
+            _reload_ambient_palettes(night.ambient_palette)
+            sound_page.select_theme(night.sound)
+
+        theme_combo.currentIndexChanged.connect(
+            _the_theme_brings_its_backdrop_and_its_sound)
 
         outer.addWidget(tabs)
 

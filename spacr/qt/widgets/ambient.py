@@ -387,6 +387,26 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
         "The standard filter set as the eyepiece sees it: DAPI at 461 nm "
         "(blue), FITC at 519 nm (green), TRITC at 576 nm (orange-red), and "
         "the yellow where green and red overlap."),
+    "midnight": PaletteSpec(
+        "Midnight",
+        ("#7185F4", "#B775F0", "#5EC8F8", "#C9CFFF"),
+        "A clear night: indigo, violet, ice blue and the pale periwinkle "
+        "a sky keeps long after the sun has gone."),
+    "dusk": PaletteSpec(
+        "Dusk",
+        ("#EE779F", "#E87DDA", "#F6B98A", "#8C5BC7"),
+        "The last colour in the sky — rose and magenta over dusty gold, "
+        "with the plum the horizon goes just before dark."),
+    "lowsun": PaletteSpec(
+        "Low sun",
+        ("#F6D46F", "#F2A65A", "#E2D583", "#A8C46A"),
+        "A sun close to the horizon and the matter it shines through: "
+        "gold, amber, pale gold and moss."),
+    "deepwater": PaletteSpec(
+        "Deep water",
+        ("#3CD296", "#7EE7BD", "#2AA5C4", "#17A08A"),
+        "Under the surface: sea green, mint, and the teal that is the last "
+        "colour left when everything warm has been absorbed."),
 }
 
 #: Which palettes each theme offers, and why the excluded ones are excluded.
@@ -409,18 +429,40 @@ PALETTE_SETS: Dict[str, PaletteSpec] = {
 #: badly-focused multichannel overlay looks like. It is withheld from the
 #: aurora and the ripples for the same reason ``borealis`` is withheld from
 #: the ripples.
+#: The four night sets added for the ten night themes follow the same rule
+#: the two above do — a set is offered where the animation reads as the
+#: thing the set is named after, and withheld where it would be decoration:
+#:
+#: ``midnight`` is a night SKY, so it goes where ``borealis`` goes and for
+#: the same reason: the curtains, the nebula fields of ``blobs``, the
+#: ``drift`` starfield, and the ``resonance`` plate, which is lit from
+#: above by whatever sky is behind it.
+#:
+#: ``dusk`` is the sky an hour earlier. It is offered on the two sky
+#: animations and on ``bokeh``, because out-of-focus warm points of light
+#: are exactly what a dusk looks like through a lens.
+#:
+#: ``lowsun`` is a sun seen THROUGH something — haze, a cell, a lens — so
+#: it goes on ``blobs``, ``cells`` and ``bokeh`` and not on the two sky
+#: animations, where a low sun and a night sky are different pictures.
+#:
+#: ``deepwater`` is the mirror of ``lowsun``: it goes where the motion is
+#: water or a body suspended in it — ``ripple``, ``cells``, ``blobs``.
 _THEME_PALETTES: Dict[str, Tuple[str, ...]] = {
     "blobs": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
-              "borealis", "fluor"),
+              "borealis", "fluor", "midnight", "dusk", "lowsun",
+              "deepwater"),
     "aurora": ("spacr", "ember", "ocean", "pastel", "mono", "okabe",
-               "borealis"),
-    "ripple": ("spacr", "ember", "ocean", "mono", "okabe"),
+               "borealis", "midnight", "dusk"),
+    "ripple": ("spacr", "ember", "ocean", "mono", "okabe", "deepwater"),
     "drift": ("spacr", "ember", "ocean", "mono", "okabe", "borealis",
-              "fluor"),
-    "bokeh": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
-    "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor"),
+              "fluor", "midnight"),
+    "bokeh": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor",
+              "dusk", "lowsun"),
+    "cells": ("spacr", "ember", "ocean", "pastel", "mono", "okabe", "fluor",
+              "lowsun", "deepwater"),
     "resonance": ("spacr", "ember", "ocean", "mono", "okabe", "borealis",
-                  "fluor"),
+                  "fluor", "midnight"),
     SPACEOUT_THEME: (SPACEOUT_PALETTE,),
 }
 
