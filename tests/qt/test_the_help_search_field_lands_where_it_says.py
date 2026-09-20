@@ -76,25 +76,42 @@ def _the_documentation_probe_never_reaches_the_network(monkeypatch):
     yield real_start
 
 
-def test_the_field_sits_beside_the_help_menu(window):
-    """Beside, not inside: it is in the strip that follows the last menu.
+def test_the_field_sits_directly_right_of_the_help_menu(window):
+    """Directly right of Help, and NOT in the window-marks strip.
 
-    Help is the last menu, and the menu bar's top-right corner widget is
-    what comes after it -- the same strip the minimise and close marks are
-    in, with the field in front of them.
+    It was first installed in the menu bar's top-right corner widget, which
+    is right-aligned, so the field sat against the minimise, full screen and
+    close marks at the far edge of the window. The maintainer asked on
+    2026-09-19 for it "directly to the right of help, not on the side as the
+    minimize, expand, close", so it is a plain child of the bar, placed after
+    the last menu and re-placed whenever the bar changes shape or language.
     """
     from spacr.qt.help_search import FIELD_NAME, field_of
 
-    corner = window.menuBar().cornerWidget(Qt.Corner.TopRightCorner)
-    assert corner is not None
+    bar = window.menuBar()
     found = field_of(window)
     assert found is not None
-    assert found.parent() is corner
     assert found.objectName() == FIELD_NAME
-    row = corner.layout()
-    order = [row.itemAt(i).widget().objectName() for i in range(row.count())]
-    assert order[0] == FIELD_NAME, order
-    assert "CloseWindow" in order
+    assert found.parent() is bar
+
+    corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
+    if corner is not None:
+        row = corner.layout()
+        if row is not None:
+            marks = [row.itemAt(i).widget().objectName()
+                     for i in range(row.count())]
+            assert FIELD_NAME not in marks, marks
+            assert "CloseWindow" in marks
+
+    menus = [bar.actionGeometry(a) for a in bar.actions()
+             if not a.isSeparator() and a.isVisible()]
+    assert menus, "the bar has no menus to sit beside"
+    last_menu_right = max(rect.right() for rect in menus)
+    assert found.geometry().left() >= last_menu_right
+    assert found.geometry().left() - last_menu_right <= 24, (
+        found.geometry(), last_menu_right)
+    if corner is not None and corner.width():
+        assert found.geometry().right() < bar.width() - corner.width()
 
 
 def test_a_setting_returns_one_row_per_module_that_shows_it(field):
@@ -466,8 +483,11 @@ def test_the_field_leaves_its_english_where_a_language_change_reads_it(field):
     ):
         assert field.property(prop) == source, prop
         assert field.property(f"{prop}_last_rendered") is not None, prop
-    assert field.property("_spacr_i18n_tooltip").startswith(
-        "Find a module, a setting")
+    # The tooltip was removed on 2026-09-19 at the maintainer's request
+    # ("remove the tooltip for the search"), so there is no English left for
+    # a language pass to read -- and nothing on screen for it to adopt.
+    assert not field.toolTip()
+    assert field.property("_spacr_i18n_tooltip") is None
 
 
 def test_a_field_born_in_another_language_comes_back(qtbot, window,

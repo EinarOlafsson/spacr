@@ -52,7 +52,7 @@ import logging
 import threading
 from typing import Callable, Dict, List, Optional
 
-from PySide6.QtCore import QObject, Qt, QTimer, Signal
+from PySide6.QtCore import QEvent, QObject, Qt, QTimer, Signal
 from PySide6.QtGui import QKeyEvent
 from PySide6.QtWidgets import (
     QDialog,
@@ -630,10 +630,6 @@ class HelpSearchField(QLineEdit):
 
         _localize(self, "setPlaceholderText", "_spacr_i18n_placeholder",
                   "Search spaCR…")
-        _localize(self, "setToolTip", "_spacr_i18n_tooltip",
-                  "Find a module, a setting, a preference or an API entry by "
-                  "name or by what it does. Opening a result never discards "
-                  "the settings you have already typed.")
         _localize(self, "setAccessibleName", "_spacr_i18n_accessible_name",
                   "Search spaCR")
 
@@ -900,14 +896,90 @@ def focus_field(window: QMainWindow) -> bool:
     return True
 
 
-def install(window: QMainWindow) -> Optional[HelpSearchField]:
-    """Put the search field beside the Help menu.
 
-    BESIDE, not inside. The menu bar's top-right corner widget is the strip
-    that follows the last menu, and Help is the last menu, so the field goes
-    at the left end of that strip -- in front of the minimise, full screen
-    and close marks, which is where the eye already expects a search box on
-    a window with no title bar.
+class _FieldPlacer(QObject):
+    """Keep the search field immediately to the right of the last menu.
+
+    WHY NOT A ``QWidgetAction`` ON THE MENU BAR, which is the one-line way to
+    get a widget into the menu row: a widget inside a menu-bar action is
+    driven as a menu item. Measured 2026-09-19 on this window: the field
+    installed that way never took focus (``focus_field`` left
+    ``hasFocus()`` False) and the results popup never became visible, so
+    Ctrl+Shift+H and the whole result list stopped working.
+
+    WHY NOT THE CORNER WIDGET, which is where the field started: the corner
+    strip is right-aligned inside the bar, so the field sat against the
+    minimise, full screen and close marks at the far edge of the window --
+    "not on the side as the minimize, expand, close", as the maintainer put
+    it on 2026-09-19.
+
+    So the field is an ordinary child of the bar, moved to sit after the last
+    menu. It is re-placed whenever the bar is resized, shown, or re-laid out
+    after a language change, because the width of "Help" is not the same word
+    in every language.
+
+    :param bar: the menu bar the field belongs to.
+    :param field: the search field.
+    """
+
+    #: The gap between the last menu and the field, in device-independent px.
+    GAP = 8
+
+    def __init__(self, bar, field) -> None:
+        super().__init__(bar)
+        self._bar = bar
+        self._field = field
+
+    def place(self) -> None:
+        """Move the field to just after the last menu."""
+        bar, field = self._bar, self._field
+        try:
+            edges = [bar.actionGeometry(a).right() for a in bar.actions()
+                     if not a.isSeparator() and a.isVisible()]
+            left = (max(edges) if edges else 0) + self.GAP
+            height = min(field.sizeHint().height(), max(bar.height() - 6, 1))
+            top = max((bar.height() - height) // 2, 0)
+            room = bar.width() - left - self._corner_width() - self.GAP
+            width = max(min(field.maximumWidth(), room), 0)
+            field.setGeometry(left, top, width, height)
+            field.setVisible(width >= field.minimumWidth())
+            field.raise_()
+        except RuntimeError:
+            LOG.debug("the menu bar went away before the field was placed")
+
+    def _corner_width(self) -> int:
+        """How much of the bar the window marks already occupy."""
+        corner = self._bar.cornerWidget(Qt.Corner.TopRightCorner)
+        try:
+            return corner.width() if corner is not None else 0
+        except RuntimeError:
+            return 0
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        """Re-place the field when the bar changes shape or language.
+
+        :param watched: the menu bar.
+        :param event: the event.
+        :returns: False, always: this watches, it never consumes.
+        """
+        if watched is self._bar and event.type() in (
+                QEvent.Resize, QEvent.Show, QEvent.LayoutRequest,
+                QEvent.LanguageChange, QEvent.ActionChanged,
+                QEvent.ActionAdded, QEvent.ActionRemoved):
+            self.place()
+        return False
+
+def install(window: QMainWindow) -> Optional[HelpSearchField]:
+    """Put the search field directly to the right of the Help menu.
+
+    IN THE MENU ROW, NOT THE CORNER. The field was first installed in the
+    menu bar's top-right corner widget, which put it beside the minimise,
+    full screen and close marks at the far right of the window. The
+    maintainer asked for it "directly to the right of help, not on the side
+    as the minimize, expand, close" on 2026-09-19, so it is now a
+    `QWidgetAction` appended to the menu bar itself: the bar lays its actions
+    out left to right, and Help is the last menu, so the field follows Help
+    and moves with it when the menus are re-translated or re-ordered.
 
     Idempotent: a second call hands back the field the first one installed.
 
@@ -929,17 +1001,12 @@ def install(window: QMainWindow) -> Optional[HelpSearchField]:
     field.setMinimumWidth(160)
     field.setMaximumWidth(280)
 
-    corner = bar.cornerWidget(Qt.Corner.TopRightCorner)
-    layout = corner.layout() if corner is not None else None
-    if layout is not None:
-        layout.insertWidget(0, field)
-        field.setParent(corner)
-    else:
-        holder = QWidget(bar)
-        row = QHBoxLayout(holder)
-        row.setContentsMargins(0, 0, 6, 0)
-        row.addWidget(field)
-        bar.setCornerWidget(holder, Qt.Corner.TopRightCorner)
+    field.setParent(bar)
+    placer = _FieldPlacer(bar, field)
+    bar.installEventFilter(placer)
+    window._help_search_placer = placer
+    placer.place()
+    field.show()
     window._help_search = field
     return field
 
