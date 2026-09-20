@@ -55,10 +55,12 @@ while the test suite is running is a fact about that, not about spaCR.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import platform
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -87,6 +89,44 @@ def _load() -> Dict[str, float]:
     except (AttributeError, OSError):                        # pragma: no cover
         return {}
     return {"load_1m": one, "load_5m": five, "load_15m": fifteen}
+
+
+@contextlib.contextmanager
+def _settings_elsewhere():
+    """Point QSettings at a throwaway folder for the block, then back.
+
+    A MEASUREMENT MUST NOT EDIT THE MACHINE IT MEASURES. Driving a real
+    screen drives everything a real screen does, and Make Masks remembers
+    the folder it was opened on: `MakeMasksScreen._open_folder` ends in
+    `prefs.push_recent_source`, which writes `$HOME/.config/spacr/qt.conf`.
+    Run as the tool documents itself -- `python tools/perf_paint.py` --
+    that put the harness's own TemporaryDirectory at the head of the
+    maintainer's recent-folder list, and replaced his last source with a
+    path that had been deleted by the time he read it.
+
+    `QSettings.setPath` is used rather than HOME, because it works on a
+    process that has already built a QSettings and because it is
+    reversible: the location each format was on is probed first and put
+    back afterwards, so a harness called from a test session leaves that
+    session's own sandbox exactly where it found it. Nesting is safe for
+    the same reason.
+    """
+    from PySide6.QtCore import QSettings
+
+    formats = (QSettings.Format.NativeFormat, QSettings.Format.IniFormat)
+    scope = QSettings.Scope.UserScope
+    before = {}
+    for fmt in formats:
+        name = QSettings(fmt, scope, "spacr", "qt").fileName()
+        before[fmt] = str(Path(name).parent.parent)
+    with tempfile.TemporaryDirectory(prefix="spacr-perf-settings-") as folder:
+        for fmt in formats:
+            QSettings.setPath(fmt, scope, folder)
+        try:
+            yield Path(folder)
+        finally:
+            for fmt in formats:
+                QSettings.setPath(fmt, scope, before[fmt])
 
 
 def _environment() -> dict:
@@ -393,12 +433,23 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
     Cellpose model on a CPU is far slower; neither changes what a MOVE
     costs, because neither runs on this thread.
 
-    :param field_px: the side of the synthetic field, in pixels.
-    :param moves: how many mouse moves to time per scope.
-    :returns: one row per scope, plus one for switching the magnifier on.
-    """
-    import tempfile
+    THE FIELD IS OPENED WITH A MASK ALREADY PAINTED ON IT, and the largest
+    box item 417 allows is measured beside the default one. Both are here
+    because of what they hide when they are missing. The box draws what a
+    click would ADD, which means the Overlap rule against the mask that is
+    already there: over an empty mask that work does not exist, so a
+    harness whose field has no mask file cannot see it at all. And the
+    Size box's top is the field's own longer side, so "the box" is not one
+    size -- the cost of every per-move path in it is the box's area, and a
+    reading taken only at 128 px says nothing about the same control at
+    2,048. Half of each object is painted in already, so the rule keeps
+    some of what the model finds and drops the rest, which is the case
+    that costs.
 
+    :param field_px: the side of the synthetic field, in pixels.
+    :param moves: how many mouse moves to time per measurement.
+    :returns: one row per (scope, box size) measured.
+    """
     import imageio.v2 as imageio
     import numpy as np
     from PySide6.QtCore import QEvent, QPointF, Qt
@@ -409,14 +460,22 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
 
     app = QApplication.instance() or QApplication([])
     rows: List[dict] = []
-    with tempfile.TemporaryDirectory(prefix="spacr-perf-magnifier-") as folder:
+    with _settings_elsewhere(), \
+            tempfile.TemporaryDirectory(prefix="spacr-perf-magnifier-") as folder:
         yy, xx = np.mgrid[0:field_px, 0:field_px]
         field = np.full((field_px, field_px), 1000.0)
+        painted = np.zeros((field_px, field_px), np.uint16)
+        ident = 0
         for cy in range(40, field_px, 80):
             for cx in range(40, field_px, 80):
                 field[(yy - cy) ** 2 + (xx - cx) ** 2 <= 400] += 3000
+                ident += 1
+                painted[max(0, cy - 20):cy + 20, max(0, cx - 20):cx] = ident
         imageio.imwrite(Path(folder) / "field.tif",
                         np.clip(field, 0, 65535).astype(np.uint16))
+        masks = Path(folder) / "masks"
+        masks.mkdir()
+        imageio.imwrite(masks / "field.tif", painted)
 
         screen = MakeMasksScreen()
         screen.resize(1600, 1000)
@@ -429,9 +488,13 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
         screen._canvas.refresh()
         _drain_until_quiet(app)
 
-        for scope in ("region", "image"):
+        default_px = int(screen._magnifier.size)
+        largest_px = int(screen._magnifier.size_range()[1])
+        for scope, box_px in (("region", default_px), ("image", default_px),
+                              ("region", largest_px)):
             box = screen._mag_scope
             box.setCurrentIndex(box.findData(scope))
+            screen._mag_size.setValue(box_px)
             started = time.perf_counter()
             screen._btn_magnifier.setChecked(True)
             app.processEvents()
@@ -448,6 +511,14 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
                 app.processEvents()
                 taken.append((time.perf_counter() - at) * 1000)
             busy = bool(screen._magnifier._busy)
+            # AFTER THE TIMING AND BEFORE THE ROW IS WRITTEN. Whether the
+            # rule had anything to say is a fact about this field and this
+            # box, not about whether the last move's result happened to
+            # have landed by the time the loop ended; `busy` above is read
+            # first, because that one IS about the moves.
+            _drain_until_quiet(app, rounds=100)
+            shown = screen._magnifier._shown
+            ghosted = bool(shown is not None and shown.ghost is not None)
             screen._btn_magnifier.setChecked(False)
             app.processEvents()
             # THE FIRST MOVE IS REPORTED APART FROM THE REST, for the reason
@@ -460,6 +531,15 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
                 "measurement": "magnifier",
                 "scope": scope,
                 "field_px": field_px,
+                "box_px": box_px,
+                "overlap": screen._magnifier.overlap,
+                # WHETHER THE RULE HAD ANYTHING TO SAY. The box draws what a
+                # click would add, so over an empty mask there is no ghost
+                # and the per-move path measured here is not the one a
+                # curator over a half-painted field walks. A row reading
+                # False on a field that was opened with a mask means that
+                # path went unmeasured, not that it is free.
+                "ghosted": ghosted,
                 "mode": screen._magnifier.mode,
                 "moves": len(taken),
                 "switch_on_ms": round(switch_ms, 2),
@@ -525,14 +605,19 @@ def main(argv: Optional[List[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     rows: List[dict] = []
-    if args.only in (None, "backdrop"):
-        rows.extend(measure_backdrop(args.seconds, animation=args.animation))
-    if args.only in (None, "theme"):
-        rows.extend(measure_theme_change(args.screen))
-    if args.only in (None, "interaction"):
-        rows.extend(measure_interaction(args.screen))
-    if args.only in (None, "magnifier"):
-        rows.extend(measure_magnifier(args.field_px))
+    # EVERY MEASUREMENT, not only the one that was caught writing: each of
+    # these drives a real screen, and a real screen is allowed to remember
+    # things. See `_settings_elsewhere`.
+    with _settings_elsewhere():
+        if args.only in (None, "backdrop"):
+            rows.extend(measure_backdrop(args.seconds,
+                                         animation=args.animation))
+        if args.only in (None, "theme"):
+            rows.extend(measure_theme_change(args.screen))
+        if args.only in (None, "interaction"):
+            rows.extend(measure_interaction(args.screen))
+        if args.only in (None, "magnifier"):
+            rows.extend(measure_magnifier(args.field_px))
 
     record = {
         "schema": SCHEMA,
