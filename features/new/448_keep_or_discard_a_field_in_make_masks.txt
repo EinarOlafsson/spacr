@@ -1,0 +1,78 @@
+================================================================================
+KEEP OR DISCARD A FIELD IN MAKE MASKS, AND A CSV THAT RECORDS THE VERDICT
+================================================================================
+
+Status:    OPEN, filed 2026-09-20. Not started.
+
+Requested: 2026-09-20 -- "in make masks there should be the ability to flag
+           images as good or bad so a two new buttons keep and discard.
+           clicking these makes a csv in the image/mask folderand annotates
+           the image filename and masksfilename with a true or false in the
+           keep column (image path, mask path, object count, keep; these are
+           the columns in the csv.)"
+
+WHAT IT IS FOR. Curation. A user walking a folder of fields in Make Masks
+can already draw, split, merge and filter; what they cannot do is say "this
+field is no good" in a way anything downstream can read. The verdict has to
+leave the screen as data, not as a memory of which ones looked wrong.
+
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+TWO BUTTONS, Keep and Discard, beside the annotation tools in Make Masks --
+the same place the FEATURES button of item 421 went, which is where a user
+already goes to act on the field as a whole rather than on one object.
+
+ONE CSV, with exactly the four columns the request names and in its order:
+
+    image path, mask path, object count, keep
+
+  * `image path`  -- the field that is open.
+  * `mask path`   -- `mask_engine.mask_save_path(folder, filename, ...)`,
+                     not a path rebuilt at the call site. That function
+                     exists precisely so the ledger and the written file
+                     agree on one name, and this CSV is another ledger.
+  * `object count`-- `make_masks._object_count(labels)` over the mask as it
+                     stands when the button is pressed, so a field curated
+                     after hand editing records what the user saw.
+  * `keep`        -- true for Keep, false for Discard.
+
+WHERE IT GOES. The request says "in the image/mask folder". Make Masks knows
+`self._folder` (the images) and resolves the masks folder through
+`_layout_kwargs()`, and the two are not always the same place -- a run with
+`masks_dir` set puts them apart. This needs the maintainer's answer before
+it is built; see the open question below.
+
+WHAT A SECOND PRESS DOES. Pressing Keep and then Discard on the same field
+must leave ONE row for that field, with the later verdict, rather than two
+rows that disagree. The CSV is read, the row for that image path is
+replaced, and the file is rewritten -- and it is written the way spaCR
+writes files it must not corrupt: to a temporary name in the same folder,
+then renamed, so a reader never sees half of it.
+
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Keep then Discard on the same field leaves one row, keep false.
+  * The object count in the row equals what the module's own readout says
+    after an edit, not what the mask held when it was loaded.
+  * A folder whose masks live elsewhere writes the mask path that
+    `mask_save_path` returns, and the CSV lands where the answer below says.
+  * The file is never observed half-written, and a CSV a user has open in
+    another program does not cost them the verdict.
+  * The buttons say what they did -- a field already marked shows its
+    current verdict rather than looking unpressed.
+
+OPEN QUESTION FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+WHICH FOLDER, when the images and the masks are not in the same one? The
+choices are the image folder (where the user pointed the module), the masks
+folder (where its output goes), or both. Asked rather than guessed, because
+a curation file in the wrong place is one nobody finds again.
+
+RELATED. Item 421 put FEATURES in the same row of controls and writes its
+own table from the same fields; whoever builds this should read how 421
+resolves folder, filename and mask path rather than resolving them again.
+Item 396 curates a QUEUE of fields, which is the other half of this idea --
+a verdict per field is what a queue would consume.
