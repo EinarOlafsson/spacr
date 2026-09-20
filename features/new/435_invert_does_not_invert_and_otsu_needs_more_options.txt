@@ -1,0 +1,82 @@
+================================================================================
+INVERT DOES NOT INVERT, AND OTSU NEEDS MORE OPTIONS
+================================================================================
+
+Status:    OPEN, filed 2026-09-19. Not started. It belongs beside item 419,
+           whose points 5 (Otsu settings and renames) and 9 (Invert plus
+           Toggle sliders) are being built the same day; this file is the
+           maintainer's verdict on what shipped before that work, so it is
+           kept separate rather than folded into 419's list.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "add to new features, the invert in make masks doesnt actually
+              invert it looks like. and i need more options for otsu."
+
+Owner:     Claude (spacr/qt/screens/make_masks.py, spacr/qt/mask_engine.py).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS, READ ON NIGHTLY BEFORE ANY WORK
+--------------------------------------------------------------------------------
+
+INVERT. The Object operations menu offers "Invert mask" (make_masks.py:4605),
+which calls `_on_invert` (6540) and applies `mask_engine.invert_mask`:
+
+    out = np.where(mask > 0, 0, 1).astype(mask.dtype)
+    labeled, _ = _ndimage().label(out)
+    return labeled.astype(mask.dtype)
+
+So it is foreground/background flipped and relabelled. On an ordinary field
+the background is ONE connected region, so inverting turns the whole image
+into a single object with holes where the objects were. That is a defensible
+definition and it is almost certainly NOT what the maintainer means by
+invert, which is the first thing to settle. A single field-sized label can
+also look like nothing happened at all: it has no visible outline of its own
+at the edges, size filters may drop or keep it as one object, and the overlay
+draws it as one flat region.
+
+THE QUESTION TO SETTLE FIRST, because the fix depends on it: does "invert"
+mean (a) swap foreground and background as now, (b) invert the DISPLAYED
+image (a look-up table on the picture, leaving the mask alone), (c) invert
+the current selection within the objects that exist, or (d) invert inside the
+brush or the magnifier box only. Ask the maintainer with the question prompt,
+showing what each one does to the same field.
+
+OTSU. Everything Otsu has today is two controls under Cellpose-SAM:
+
+    otsu_correction : float = 1.0     multiplies Otsu's level (1695-1696)
+    otsu_bright     : bool            bright or dark objects (3743)
+
+They reach the classical detector through `correction=request.otsu_correction`
+(1737). There is no window, no multi-level split, no per-object-class
+threshold, no preview of the histogram, and no minimum size tied to the
+threshold.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Reproduce the invert complaint on a real field, with a screenshot of
+   before and after, and say in one sentence what a user sees.
+2. Settle the meaning of invert (above) with the maintainer, then implement
+   that, with a round trip: pressing invert twice returns the mask to exactly
+   what it was, proven by an array comparison in a test.
+3. Otsu options, as a category in the settings panel rather than two loose
+   controls. At least: bright/dark (existing), the correction multiplier
+   (existing, renamed to what it is), multi-level Otsu with the number of
+   classes and which class is foreground, a local/adaptive window with its
+   size, a minimum object area applied after the threshold, and a preview
+   showing the histogram with the chosen level on it.
+4. Every new caption goes to the nine-language catalogs through the
+   consolidated pass, and every new setting gets a tooltip that says what it
+   does to the picture.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The maintainer presses Invert on a field and sees what he expects, and
+    pressing it again gives back exactly the mask he started with.
+  * Otsu's category holds the options above, each changes the mask visibly,
+    and the preview's marked level matches the threshold actually used.
+  * Tests drive every control, and the round trip is checked by comparing
+    arrays, not by counting objects.
