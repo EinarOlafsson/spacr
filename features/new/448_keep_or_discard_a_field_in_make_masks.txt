@@ -2,7 +2,9 @@
 KEEP OR DISCARD A FIELD IN MAKE MASKS, AND A CSV THAT RECORDS THE VERDICT
 ================================================================================
 
-Status:    OPEN, filed 2026-09-20. Not started.
+Status:    BUILT 2026-09-20, the same day it was filed. Both buttons, the
+           CSV and the rewrite rule are in, with 15 tests. The one open
+           question was answered before the build: see the trailing note.
 
 Requested: 2026-09-20 -- "in make masks there should be the ability to flag
            images as good or bad so a two new buttons keep and discard.
@@ -76,3 +78,64 @@ own table from the same fields; whoever builds this should read how 421
 resolves folder, filename and mask path rather than resolving them again.
 Item 396 curates a QUEUE of fields, which is the other half of this idea --
 a verdict per field is what a queue would consume.
+
+
+--------------------------------------------------------------------------------
+2026-09-20 -- BUILT, AND THE LAYOUT QUESTION ANSWERED
+--------------------------------------------------------------------------------
+
+THE ANSWER, through the question prompt: "the masks should alwasy be kept
+with the images as /images/masks and the csv should live in images/csv a new
+folder." So there is no branch for a split layout at all -- the masks are
+where `masks_folder` already put them by default, and the CSV goes in a new
+`csv/` folder beside them.
+
+WHAT WAS BUILT
+
+  spacr/qt/mask_engine.py
+      CURATION_COLUMNS      the four the request names, in its order
+      CURATION_CSV_NAME     keep_discard.csv
+      curation_folder       <images>/csv
+      curation_csv_path     <images>/csv/keep_discard.csv
+      read_curation         every verdict, keyed by image path
+      curation_verdict      one field's verdict, or None
+      record_curation       writes one row, replacing the field's own
+
+  spacr/qt/screens/make_masks.py
+      Keep and Discard beside Features, both checkable so a field that is
+      already marked shows it; `_on_curate`, `_curation_paths`,
+      `_show_curation_verdict`, `_refresh_curation_buttons` and
+      `_note_curation`. `_apply_loaded_pair` refreshes the pair when a
+      field is opened, so walking back to a field shows the verdict it has.
+
+THREE THINGS DECIDED WHILE BUILDING, each with its reason:
+
+  * THE COUNT IS READ AT THE PRESS. `_objects_now()` counts the mask on the
+    canvas, so a field curated after hand editing records what the user was
+    looking at rather than what the file held when it was opened. A test
+    deletes an object and checks the recorded count follows.
+  * ONE ROW PER FIELD. Keep then Discard rewrites the field's row rather
+    than appending a second one that disagrees with the first. Whoever
+    reads this downstream cannot tell which press came last, and a CSV does
+    not say.
+  * A BROKEN CSV COSTS THE VERDICTS, NOT THE FOLDER. `read_curation`
+    answers a missing, empty or corrupt file with no verdicts rather than
+    raising. This is a curation aid; refusing to open a folder because
+    somebody edited its CSV in a spreadsheet would be the wrong trade.
+
+DISCARD DELETES NOTHING, and a test says so: the image, the mask and the
+objects are all still there afterwards. The status line says
+"discarded -- nothing was deleted" for the same reason.
+
+WRITTEN THE WAY THE BUNDLES ARE: to a dot-name in the same folder, then
+renamed over the target, so a reader never sees half a file. A test watches
+`os.replace` to hold that.
+
+MEASURED. 15 new tests (9 at the engine, 6 driving the screen) and 159
+passed over the Make Masks and mask_engine selections with the no-comments
+gate.
+
+WHAT IS NOT DONE: the nine-language catalogs owe the two button captions,
+their tooltips and the status sentence. Translations are low priority by
+the maintainer's instruction of this date, so they go with the consolidated
+pass.

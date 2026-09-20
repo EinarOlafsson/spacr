@@ -5410,6 +5410,30 @@ class MakeMasksScreen(QWidget):
         self._btn_features.clicked.connect(self._on_open_features)
         row.addWidget(self._btn_features)
 
+        self._btn_keep = QPushButton("Keep")
+        self._btn_keep.setIcon(iconset.icon("check"))
+        self._btn_keep.setMinimumHeight(32)
+        self._btn_keep.setCheckable(True)
+        self._btn_keep.setCursor(Qt.PointingHandCursor)
+        self._btn_keep.setToolTip(
+            "Mark this field as one to keep. The verdict is written to "
+            "csv/keep_discard.csv beside the images, with the image, its "
+            "mask and the number of objects the mask holds right now.")
+        self._btn_keep.clicked.connect(lambda: self._on_curate(True))
+        row.addWidget(self._btn_keep)
+
+        self._btn_discard = QPushButton("Discard")
+        self._btn_discard.setIcon(iconset.icon("trash"))
+        self._btn_discard.setMinimumHeight(32)
+        self._btn_discard.setCheckable(True)
+        self._btn_discard.setCursor(Qt.PointingHandCursor)
+        self._btn_discard.setToolTip(
+            "Mark this field as one to discard. Nothing is deleted: the "
+            "verdict goes to csv/keep_discard.csv beside the images, and "
+            "the field, its mask and its objects stay as they are.")
+        self._btn_discard.clicked.connect(lambda: self._on_curate(False))
+        row.addWidget(self._btn_discard)
+
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
         self._btn_settings.setCheckable(True)
@@ -5452,6 +5476,97 @@ class MakeMasksScreen(QWidget):
         from .measure_inputs import open_measure_inputs
 
         return open_measure_inputs(self, folder=self._folder or None)
+
+    def _curation_paths(self):
+        """The field being judged and the mask it is judged with.
+
+        :returns: ``(image path, mask path)``, or ``(None, None)`` when no
+            field is open.
+        """
+        if not self._folder or not self._image_files:
+            return None, None
+        try:
+            filename = self._image_files[self._current_index]
+        except (IndexError, TypeError):
+            return None, None
+        image_path = os.path.join(self._folder, filename)
+        mask_path = engine.mask_save_path(self._folder, filename,
+                                          **self._layout_kwargs())
+        return image_path, mask_path
+
+    def _on_curate(self, keep: bool):
+        """Record a keep or discard verdict for the field on screen.
+
+        THE COUNT IS READ NOW, not when the field was loaded, so a field
+        curated after hand editing records the objects the user was looking
+        at when they pressed the button.
+
+        :param keep: True for Keep, False for Discard.
+        :returns: the CSV's path, or None when there was nothing to record.
+        """
+        image_path, mask_path = self._curation_paths()
+        if image_path is None:
+            self._show_curation_verdict(None)
+            return None
+        try:
+            written = engine.record_curation(
+                self._folder, image_path, mask_path, self._objects_now(),
+                keep)
+        except OSError as exc:
+            LOG.warning("Could not record the curation verdict: %s", exc)
+            self._warn("Verdict not recorded",
+                       f"{os.path.basename(image_path)} could not be marked: "
+                       f"{exc}")
+            self._show_curation_verdict(
+                engine.curation_verdict(self._folder, image_path))
+            return None
+        self._show_curation_verdict(keep)
+        self._note_curation(keep)
+        return written
+
+    def _note_curation(self, keep: bool) -> None:
+        """Put the verdict after the field's name on the status line.
+
+        The same place :meth:`_show_session_notice` writes, so a verdict
+        reads as something that happened to the field on screen rather than
+        as a message about the folder.
+
+        :param keep: True for Keep, False for Discard.
+        """
+        said = "kept" if keep else "discarded — nothing was deleted"
+        current = self._status_label.text().split("  —  ")[0]
+        self._status_label.setText(f"{current}  —  {said}")
+
+    def _show_curation_verdict(self, verdict):
+        """Put the field's current verdict on the two buttons.
+
+        A field already marked shows it rather than looking unpressed,
+        which is the difference between a record and a button that does
+        something invisible.
+
+        :param verdict: True, False, or None for no verdict.
+        """
+        for button, state in ((getattr(self, "_btn_keep", None),
+                               verdict is True),
+                              (getattr(self, "_btn_discard", None),
+                               verdict is False)):
+            if button is None:
+                continue
+            blocked = button.blockSignals(True)
+            button.setChecked(bool(state))
+            button.blockSignals(blocked)
+
+    def _refresh_curation_buttons(self):
+        """Show the verdict of whichever field is open now."""
+        image_path, _mask_path = self._curation_paths()
+        if image_path is None:
+            self._show_curation_verdict(None)
+            return
+        try:
+            self._show_curation_verdict(
+                engine.curation_verdict(self._folder, image_path))
+        except OSError:
+            self._show_curation_verdict(None)
 
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
         """Insert a non-mode action into the editor toolbar.
@@ -8273,6 +8388,7 @@ class MakeMasksScreen(QWidget):
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
+        self._refresh_curation_buttons()
         self._show_session_notice()
         self._magnifier.refresh()
 

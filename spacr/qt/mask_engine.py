@@ -61,6 +61,7 @@ was the truth.
 """
 from __future__ import annotations
 
+import csv
 import json
 import os
 from collections import deque
@@ -482,6 +483,124 @@ def mask_save_path(folder: str, filename: str,
         return os.path.join(folder, os.path.basename(str(filename)))
     stem = os.path.splitext(filename)[0]
     return os.path.join(masks_folder(folder, masks_dir), stem + ".tif")
+
+
+#: The curation CSV's columns, in the order the maintainer asked for them
+#: on 2026-09-20. They are written on every rewrite, so a reader never has
+#: to guess which column is which.
+CURATION_COLUMNS: Tuple[str, ...] = (
+    "image path", "mask path", "object count", "keep",
+)
+
+#: The file itself. One per folder of images rather than one per field: a
+#: verdict is only useful beside the others taken in the same sitting.
+CURATION_CSV_NAME = "keep_discard.csv"
+
+
+def curation_folder(folder: str) -> str:
+    """Where a folder of images keeps its curation files.
+
+    The maintainer's layout, 2026-09-20: masks live at ``<images>/masks``
+    and the curation CSV at ``<images>/csv``. It is a folder rather than a
+    file beside the images so that a folder listing of the fields is still
+    a listing of the fields.
+
+    :param folder: the folder the editor opened.
+    :returns: ``<folder>/csv``.
+    """
+    return os.path.join(folder, "csv")
+
+
+def curation_csv_path(folder: str) -> str:
+    """The keep/discard CSV for the images in ``folder``.
+
+    :param folder: the folder the editor opened.
+    :returns: ``<folder>/csv/keep_discard.csv``.
+    """
+    return os.path.join(curation_folder(folder), CURATION_CSV_NAME)
+
+
+def read_curation(folder: str) -> Dict[str, Dict[str, str]]:
+    """Every verdict recorded for ``folder``, keyed by image path.
+
+    A file that is missing, empty or unreadable is NO VERDICTS rather than
+    an error: this is a curation aid, and refusing to open a folder because
+    its CSV was edited by hand would be the wrong trade.
+
+    :param folder: the folder the editor opened.
+    :returns: image path -> the row, as strings.
+    """
+    path = curation_csv_path(folder)
+    rows: Dict[str, Dict[str, str]] = {}
+    try:
+        with open(path, "r", encoding="utf-8", newline="") as handle:
+            for row in csv.DictReader(handle):
+                key = (row.get(CURATION_COLUMNS[0]) or "").strip()
+                if key:
+                    rows[key] = dict(row)
+    except (OSError, csv.Error, UnicodeDecodeError):
+        return {}
+    return rows
+
+
+def curation_verdict(folder: str, image_path: str) -> Optional[bool]:
+    """Whether this field is marked keep, discard, or not marked at all.
+
+    :param folder: the folder the editor opened.
+    :param image_path: the field.
+    :returns: True for keep, False for discard, None for no row.
+    """
+    row = read_curation(folder).get(os.fspath(image_path))
+    if row is None:
+        return None
+    value = str(row.get(CURATION_COLUMNS[3], "")).strip().lower()
+    if value in ("true", "1", "yes", "keep"):
+        return True
+    if value in ("false", "0", "no", "discard"):
+        return False
+    return None
+
+
+def record_curation(folder: str, image_path: str, mask_path: str,
+                    object_count: int, keep: bool) -> str:
+    """Record one verdict, replacing any the field already had.
+
+    ONE ROW PER FIELD. Keep and then Discard on the same image leaves the
+    later verdict and nothing else, because two rows that disagree are
+    worse than no file -- whoever reads it downstream would have to guess
+    which press came last, and a CSV does not say.
+
+    Written to a dot-name in the same folder and renamed over the target,
+    so a reader never sees half a file and a crash leaves the old one
+    whole. The same shape as :func:`_write_bundle` above.
+
+    :param folder: the folder the editor opened.
+    :param image_path: the field being judged.
+    :param mask_path: its mask, from :func:`mask_save_path`.
+    :param object_count: how many objects the mask holds right now.
+    :param keep: True for Keep, False for Discard.
+    :returns: the CSV's path.
+    """
+    rows = read_curation(folder)
+    rows[os.fspath(image_path)] = {
+        CURATION_COLUMNS[0]: os.fspath(image_path),
+        CURATION_COLUMNS[1]: os.fspath(mask_path),
+        CURATION_COLUMNS[2]: str(int(object_count)),
+        CURATION_COLUMNS[3]: "true" if keep else "false",
+    }
+    destination = curation_csv_path(folder)
+    os.makedirs(os.path.dirname(destination), exist_ok=True)
+    directory, name = os.path.split(destination)
+    temporary = os.path.join(directory, f".{name}.tmp")
+    with open(temporary, "w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=list(CURATION_COLUMNS),
+                                extrasaction="ignore")
+        writer.writeheader()
+        for key in sorted(rows):
+            writer.writerow({column: rows[key].get(column, "")
+                             for column in CURATION_COLUMNS})
+    os.replace(temporary, destination)
+    return destination
 
 
 def canonical_labels(mask: np.ndarray) -> np.ndarray:
