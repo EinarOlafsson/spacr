@@ -1540,8 +1540,12 @@ MAP'S PRESERVATION PROOF EXISTS AND test_map_candidate IS GREEN
 
 Branch home/358-non-gpu, worktree
 /tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/wt-358-non-gpu,
-from origin/nightly fa51b2e88 (1.5.0.8). Committed locally, NOT pushed. Nothing
-published, nothing uploaded, no GPU job run.
+from origin/nightly, 1.5.0.8. Nothing published, nothing uploaded, no GPU job
+run. THE BASE MOVED TWICE while this was being written and the first draft of
+this line named fa51b2e88, which was already wrong when it was committed: the
+branch was rebased onto 2c072509e, and then onto 5800dd4bf before it was
+pushed, which is where these commits sit. See the review note at the end of
+this section for what landed in between and why none of it moves the audit.
 
 Every screen fact below was read off a widget built from THIS worktree under an
 isolated HOME/XDG_*, not from the code. The first four probes of the session
@@ -1859,3 +1863,71 @@ ALSO STILL THE MAINTAINER'S, unchanged from 09-15: the native-speaker and
 listening review of the 07_mask translations (13 languages, 7 rows each;
 07_mask/en/bm_fable is about 0.9 LU softer), and whether Home should teach the
 Performance selector again.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- AFTER REVIEW, AND RE-CHECKED AGAINST THE SCREENS THAT CHANGED
+LATER THE SAME DAY. PUSHED TO nightly.
+--------------------------------------------------------------------------------
+
+Rebased onto origin/nightly 5800dd4bf and pushed. Between 2c072509e (the base
+the audit above was measured on) and 5800dd4bf, sixteen commits landed, and two
+of them touch screens this audit's lessons name: 419 points 4-6 rewrote
+spacr/qt/screens/make_masks.py and spacr/qt/mask_engine.py, and 427 part B
+rewrote spacr/qt/preferences.py, sound.py, sound_synth.py, sound_preferences.py
+and widgets/ambient.py and added resonance.py. Neither is left to trust:
+
+  * 05_home scene 4 -- "Tools contains Make Masks, Align and Stitch, Image
+    UMAP, Gate Editor, and Graph Builder ... Make Masks hosts model training
+    and comparison". `SECTION_TILE_ORDER[SECTION_TOOLS]` (spacr/qt/app.py) is
+    still exactly `("make_masks", "align", "umap", "gate_editor",
+    "graph_builder")`, in that order, and `git diff 2c072509e..HEAD --
+    spacr/qt/screens/make_masks.py` does not touch a line of `FOLD_ORDER`,
+    which still opens with `train_cellpose` and carries `model_compare`.
+    419 grew what Make Masks DOES; it did not add or remove a Tools tile or a
+    fold, so the scene's sentence is unchanged in truth as well as in words.
+  * 09_annotate scene 20 -- "the provider configured in Preferences". DRIVEN,
+    not read, on the rebased tree under an isolated HOME/XDG_* with
+    QT_QPA_PLATFORM=offscreen: PreferencesDialog's tab bar is now
+    `['General', 'Appearance', 'Theme', 'Animation', 'Performance', 'Modules',
+    'Figures', 'Logging', 'AI', 'Sound']` -- 427's Sound tab is last, as it
+    was asked to be, and the AI tab still carries the `Provider` row. The
+    scene's sentence survives the new tab. (The probe's own qt.conf landed in
+    the isolated home; the real ~/.config/spacr/qt.conf still has its 23:27:13
+    mtime, from another session.)
+  * The three Classify lessons name nothing in either commit's files: no
+    "Make Masks", "Otsu", "Object detection", "Sound", "Preferences",
+    "Resonance", "Music" or "theme" appears anywhere in their JSON.
+
+THREE REVIEW FINDINGS FIXED, all of them in the proof rather than in a lesson:
+
+  1. `check_refresh` excused any path under `web/catalog/` from the byte
+     comparison and then opened only the fourteen files `CATALOGS` names. The
+     manifest holds exactly those fourteen today, so nothing slipped through --
+     but a fifteenth locale added to the folder and not to `CATALOGS` would
+     have differed between two candidates and been excused unread. The excusal
+     is now membership in `COMPARED_CATALOG_PATHS`, built from `CATALOGS`, and
+     `test_a_catalog_locale_nobody_compares_is_not_excused` puts a
+     `lessons_xx.json` in both manifests with different digests and asserts the
+     refusal. `check()`, the Map-only promotion proof, is deliberately left
+     alone: it ignores non-media files entirely, which is the same gap, older
+     and wider, and it is not the proof this candidate runs. WORTH SOMEONE'S
+     TIME LATER, not fixed here.
+  2. `test_map_candidate`'s replacement for the removed `75 * 103` pin --
+     `retained_media_files + changed media == all media records` -- was a
+     tautology with respect to `check_refresh`, which partitions every path
+     into exactly those two buckets. Replaced with the measured arithmetic of
+     this pair: 7,828 media records, 7,723 retained, 105 changed, every changed
+     media path owned by 07_mask or 13_regression. A different proof, or the
+     same proof on a different pair, now fails it.
+  3. The Classify paragraph claimed all three prerequisites say "Recorded with
+     spaCR 1.5.0.6". Corrected in place above, along with the gap it hid:
+     11_classify_ml names no version at all.
+
+STILL OPEN, and nothing below changed today. GPU: the 07_mask scene 10 chain
+(gpu_queue/358-non-gpu-1.md) and 05_home's translation and voice render for the
+one scene whose words changed. NO GPU and NOT STARTED: re-composing 09_annotate
+(frames at 1.5.0.4) and 10_classify_cv / 11_classify_ml / 41_classify (frames at
+1.5.0.6) onto current frames -- narration correct as of today, so it is capture,
+compose and re-encode, and /mnt/firecuda2 is at 100% with 7.1 GB free, so space
+comes first. 11_classify_ml's missing version sentence goes into that same pass.
+Publishing remains the maintainer's, with its exact steps in the section above.
