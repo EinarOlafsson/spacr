@@ -1,0 +1,84 @@
+================================================================================
+THE MEASURE PREVIEW IGNORES THE CROP SIZE, AND ASKS FOR IT TWICE
+================================================================================
+
+Status:    OPEN, filed 2026-09-19. Not started.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "in measure modual in live preview, changing the crop width or
+              height dosnt seem to do anything to the live crops, i don know
+              about the actual cropps, please look into this. and also crop
+              height and width should be one setting as they are linked, so use
+              crop size here instead (crop size is used elswhere in spacr as the
+              exact same setting as here i think)"
+
+Owner:     Claude (spacr/qt/widgets/measure_preview.py, spacr/measure.py).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS — BOTH HALVES CHECKED AGAINST THE CODE
+--------------------------------------------------------------------------------
+
+1. THE LIVE CROPS CANNOT FOLLOW THE SETTING, because the function that makes
+   them takes no size at all:
+
+       measure.crop_objects_from_array(data, mask_dim, channels=(0,1,2),
+           min_area=0, max_area=0, mask_background=True, normalize=True,
+           percentiles=(1,99), buffer=10, to_rgb=True, limit=None)
+
+   There is no png_size, no crop size, no resize. The preview crops to each
+   object's bounding box plus `buffer` and draws that. `_refresh`'s
+   `crop_kwargs` (measure_preview.py:1547) passes none either, so no amount of
+   pressing Run will change a live crop by changing the size.
+
+   THE SPINNERS ARE NOT DEAD, WHICH IS WHAT MAKES THIS WORSE: `_crop_width`
+   and `_crop_height` are read at measure_preview.py:1261 into the settings
+   dict as `png_size`, and a real run DOES resize to it (crops.py:2612 reads
+   `settings.get("png_size", [224, 224])`). So the preview and the run disagree,
+   and the preview is the one that exists to show "what the crops will look
+   like before a run" -- its own docstring's words.
+
+2. THEY ARE ALREADY ONE SETTING EVERYWHERE ELSE, and the maintainer's guess is
+   right:
+
+       picture_settings.py:309   "crop_size": "png_size"
+       crops.py:2585             "A scalar png_size defines a square crop"
+       validate.py:1027          "img_size": "crop_size"   (the 2026-09-19 rename)
+
+   So `crop_size` IS `png_size`, the engine already accepts a single number for
+   a square crop, and only this panel asks for width and height separately --
+   with a "lock aspect" box (`_lock_aspect`) whose whole job is to keep the two
+   numbers equal, which is the tell.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MAKE THE PREVIEW SHOW THE SIZE THE RUN WILL PRODUCE. Give
+   `crop_objects_from_array` the same size handling the run uses -- reuse
+   crops.py's resize rather than writing a second one, so the preview cannot
+   drift from the pipeline again -- and pass the chosen size from
+   `crop_kwargs`. A preview that is honest about size is the point of the
+   panel.
+2. ONE CONTROL: replace "Crop width" + "Crop height" + "lock aspect" with a
+   single "Crop size" spinner writing a SCALAR `png_size`. Keep reading an old
+   `[w, h]` pair: take it when the two agree, and when they do not, keep the
+   pair, show the width in the box and say once in the status line that this
+   settings file carries a non-square crop.
+3. Name it as the rest of spaCR does. The label is "Crop size"; the settings
+   key stays `png_size` (that is what the pipeline reads), with `crop_size`
+   continuing to map onto it as picture_settings.py already does.
+4. Re-render on change: the spinner must trigger the same refresh the other
+   crop controls do, debounced, so typing a size does not recompute per digit.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Set Crop size to 64 and the live crops are 64 px; set 256 and they are
+    256 px -- asserted on the rendered crop arrays, not on the spinner.
+  * The size the preview draws equals the size a real `measure_crop` run
+    writes for the same object and settings -- one test that runs both and
+    compares shapes.
+  * An old settings file with png_size [224, 224] loads as 224; one with
+    [224, 160] keeps its pair and says so.
+  * Typing 1-2-8 recomputes once, not three times.
