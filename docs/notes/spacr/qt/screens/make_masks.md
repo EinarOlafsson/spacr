@@ -228,6 +228,32 @@
   plotted: a few hundred bars and two or three lines do not justify
   importing a chart library onto the path that opens Make Masks.
 
+## Item 407, a field is segmented whole once a session (2026-09-19)
+
+- `_LiveMagnifier._keep_image_result` / `_cached_image_result` /
+  `_trim_image_cache`: leaving a field and coming back re-ran the whole-image
+  model on it. Measured on the RTX 3090 for item 407 that is 3.7-10.3 s a
+  field; on a CPU it is minutes, and a curator walking a plate goes back and
+  forth constantly. What is kept is the label image, under a name made of
+  the FIELD and every setting a model reads, so a run under a new
+  Sensitivity neither matches the old one nor evicts it.
+- Why the name is not the run key: a run key opens with `_field`, which
+  counts LOADS rather than fields, so the same field opened twice carries two
+  different keys and could never match itself. `set_field` gives the
+  magnifier the image file's path, and `_cache_key` swaps it in for the
+  counter. A canvas handed an array with no file behind it has no name and is
+  never kept -- nothing could tell two such arrays apart.
+- Why `memory_budget.what_to_drop` and not a size of its own: it is what
+  every other cache in the application is trimmed by, so the user's idle
+  timeout and cache ceiling reach this one too. The ceiling applied is the
+  LOWER of that preference and `_MAGNIFIER_IMAGE_CACHE_MB`, because 2 GB of
+  label images is not what a user who raised the ceiling for image caches was
+  asking for. The field on screen is held by `_image_result` as well, so a
+  trim can never take the objects out from under the box.
+- A cache hit says exactly what a finished run says -- "{n} object(s) found
+  in the whole image" -- because it is true and because it owes no new
+  translation. What the user sees instead is the busy bar not appearing.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

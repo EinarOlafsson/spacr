@@ -1126,3 +1126,119 @@ def test_a_paste_that_the_engine_refuses_says_so_through_tr(screen, marked):
     shown = screen._status_label.text()
     assert shown.startswith("⟦Magnifier could not add objects: ")
     assert "nonsense" in shown
+
+
+# ---------------------------------------------------------------------------
+# The whole image is segmented once per field, not once per visit
+# ---------------------------------------------------------------------------
+#
+# Item 407's WHAT IS LEFT: "The whole-image objects are not cached per field,
+# so revisiting a field re-segments it." Measured on this repo's own GPU that
+# is 3.7-10.3 s a field; on a CPU the same run is minutes, and a curator
+# walking a plate goes back and forth constantly.
+
+
+def test_a_field_segmented_whole_is_offered_again_on_returning(
+        qtbot, screen, fields: Path):
+    stub = CodedStub({1: (20, 20, 26, 25), 2: (50, 50, 56, 56)})
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 1
+
+    screen._on_next()
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 2, "the next field is segmented of its own"
+
+    screen._on_prev()
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 2, "the first field was segmented a second time"
+    assert screen._magnifier._image_result.count == 2
+
+    hover(screen, 22, 22)
+    click(screen, 22, 22)
+    np.testing.assert_array_equal(
+        screen._canvas.mask, rect_mask((IMG_N, IMG_N), {1: (20, 20, 26, 25)}))
+
+
+def test_what_is_offered_again_is_what_was_found_under_those_settings(
+        qtbot, screen):
+    """A setting the model reads is part of the name, so it never matches."""
+    stub = CodedStub({1: (20, 20, 26, 25)})
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+
+    screen._on_next()
+    wait_for_whole_image(qtbot, screen)
+    screen._on_prev()
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 2
+
+    screen._mag_sensitivity.setValue(2.0)
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 3, "the kept objects were offered for new settings"
+
+    screen._mag_sensitivity.setValue(0.0)
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 3, "the first settings were segmented again"
+
+
+def test_the_memory_budget_takes_the_field_nobody_came_back_to(
+        qtbot, screen, monkeypatch):
+    """The ceiling is the lower of this cache's own and the user's."""
+    monkeypatch.setattr(mm, "_MAGNIFIER_IMAGE_CACHE_MB", 0.02)
+    stub = CodedStub({1: (20, 20, 26, 25)})
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+    assert len(screen._magnifier._image_cache) == 1
+
+    screen._on_next()
+    wait_for_whole_image(qtbot, screen)
+    assert len(screen._magnifier._image_cache) == 1, (
+        "two 64x64 int32 label images are over a 0.02 MB ceiling")
+
+    screen._on_prev()
+    wait_for_whole_image(qtbot, screen)
+    assert len(stub.calls) == 3, "the dropped field was not segmented again"
+
+
+def test_an_idle_field_is_released_by_the_users_own_timeout(qtbot, screen):
+    stub = CodedStub({1: (20, 20, 26, 25)})
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+    magnifier = screen._magnifier
+    assert len(magnifier._image_cache) == 1
+
+    stale = time.time() - 10 * 60 * 60
+    for name in magnifier._image_cache:
+        magnifier._image_cache_used[name] = stale
+    magnifier._trim_image_cache()
+    assert not magnifier._image_cache, (
+        "a field nobody has gone back to in ten hours is still held")
+    assert magnifier._image_result is not None, (
+        "a trim took the objects out from under the box")
+
+
+def test_a_canvas_with_no_field_behind_it_is_never_kept(qtbot, screen):
+    """Nothing names an array handed straight to the canvas, so nothing
+    could tell two of them apart."""
+    magnifier = screen._magnifier
+    magnifier.set_field("")
+    stub = CodedStub({1: (20, 20, 26, 25)})
+    magnifier.segment = stub
+    screen._mag_scope.setCurrentIndex(screen._mag_scope.findData("image"))
+    screen._btn_magnifier.setChecked(True)
+    wait_for_whole_image(qtbot, screen)
+
+    assert magnifier._image_result is not None
+    assert not magnifier._image_cache
+
+
+def test_closing_the_screen_gives_the_label_images_back(qtbot, screen):
+    stub = CodedStub({1: (20, 20, 26, 25)})
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+    assert screen._magnifier._image_cache
+
+    screen._magnifier.close()
+    assert not screen._magnifier._image_cache
+    assert not screen._magnifier._image_cache_used

@@ -82,6 +82,7 @@ from __future__ import annotations
 import logging
 import os
 import threading
+import time
 from collections import deque
 from functools import partial
 from importlib.util import find_spec
@@ -1755,6 +1756,14 @@ _MAGNIFIER_SENSITIVITY_RANGE = (-6.0, 6.0)
 #: objects instead of asking the model again.
 _MAGNIFIER_SCOPES = ("region", "image")
 
+#: Megabytes of whole-image objects the magnifier may keep for fields it has
+#: left, so coming back to one does not segment it again -- minutes, on a CPU.
+#: A label image is int32, so this is sixteen 2048 px fields or four 4096 px
+#: ones. It is a CEILING and not an allowance: the user's own cache ceiling
+#: (:func:`spacr.qt.preferences.get_cache_ceiling_mb`) wins when it is lower,
+#: and the idle timeout beside it releases what nobody has come back to.
+_MAGNIFIER_IMAGE_CACHE_MB = 256
+
 #: Serialises every use of a Cellpose model between the magnifier's worker
 #: thread and the screen's own detect button, which share the loaded models.
 #: Re-entrant, because the detect button loads a model inside the same hold.
@@ -2398,6 +2407,16 @@ class _LiveMagnifier(QObject):
         self._image_halted: Optional[tuple] = None
         #: ``(result, (box, object under the mouse), picture)`` last drawn.
         self._image_view: Optional[tuple] = None
+        #: Which field is on screen, as the screen names it -- the path of
+        #: the image file. It identifies a field across a trip to another
+        #: one and back, which the generation counter above cannot: that
+        #: counts loads, so the same field twice is two numbers.
+        self._field_name: str = ""
+        #: ``(field name, settings) -> result`` for fields segmented whole
+        #: already, and ``-> when it was last used`` beside it. See
+        #: :meth:`_keep_image_result`.
+        self._image_cache: dict = {}
+        self._image_cache_used: dict = {}
         self._busy = False
         self._worker = _NewestRequestWorker(self._run, self._hand_over)
         self._image_worker = _NewestRequestWorker(
@@ -2513,8 +2532,24 @@ class _LiveMagnifier(QObject):
         self.refresh()
         self.canvas.update()
 
+    def set_field(self, name: str) -> None:
+        """Name the field about to be loaded, so its objects can be found again.
+
+        Called by the screen BEFORE the pair reaches the canvas, because the
+        canvas calls :meth:`forget` on the way in and the new name is what
+        the next whole-image run is kept under.
+
+        :param name: the image file's path; "" for a canvas handed an array
+            with no file behind it, which is then never cached.
+        """
+        self._field_name = str(name or "")
+
     def forget(self) -> None:
         """Drop everything tied to the field on screen; another is loading.
+
+        The whole-image objects are KEPT, in the cache rather than on the
+        magnifier: coming back to this field offers them again instead of
+        segmenting it a second time. See :meth:`_keep_image_result`.
 
         The canvas calls this with the new field already in place, which is
         what lets the size's range follow the field that has just opened.
@@ -2531,9 +2566,15 @@ class _LiveMagnifier(QObject):
         self._sync_size_range()
 
     def close(self) -> bool:
-        """Stop both workers, waiting briefly for a model call in flight."""
+        """Stop both workers, waiting briefly for a model call in flight.
+
+        The kept whole-image objects go with them: the screen is closing,
+        and a label image per field is the largest thing this object holds.
+        """
         region = self._worker.close()
         image = self._image_worker.close()
+        self._image_cache.clear()
+        self._image_cache_used.clear()
         return region and image
 
 
@@ -2715,9 +2756,90 @@ class _LiveMagnifier(QObject):
             return None
         return (self._field, "image") + self._model_settings()
 
+    def _cache_key(self, key: Optional[tuple]) -> Optional[tuple]:
+        """The cache's name for a run key: the FIELD and what a model reads.
+
+        A run key opens with the generation counter, which counts loads
+        rather than fields, so the same field opened twice carries two
+        different keys and would never match itself.
+
+        :param key: a key from :meth:`_image_key_now`.
+        :returns: None when no field is named, so nothing is kept for a
+            canvas that was handed an array without one.
+        """
+        if key is None or not self._field_name:
+            return None
+        return (self._field_name,) + tuple(key[2:])
+
+    def _keep_image_result(self, result) -> None:
+        """Keep a finished whole-image answer for when the field comes back.
+
+        A field this session has already segmented whole is minutes of
+        Cellpose on a CPU; leaving it and coming back paid that again. What
+        is kept is the label image, which is what a click reads, and it is
+        valid for exactly the settings it was found under: the key carries
+        them, so a run under a new Sensitivity neither matches nor evicts
+        the old one.
+        """
+        key = self._cache_key(result.request.key)
+        if key is None:
+            return
+        self._image_cache[key] = result
+        self._image_cache_used[key] = time.time()
+        self._trim_image_cache()
+
+    def _cached_image_result(self, key: tuple):
+        """The kept answer for run ``key``, with its key moved to this load.
+
+        :returns: a result whose request carries ``key``, so everything that
+            compares the two goes on doing it, or None.
+        """
+        name = self._cache_key(key)
+        if name is None:
+            return None
+        result = self._image_cache.get(name)
+        if result is None:
+            return None
+        self._image_cache_used[name] = time.time()
+        return result._replace(request=result.request._replace(key=key))
+
+    def _trim_image_cache(self) -> None:
+        """Drop what the memory budget says must go, least recently used first.
+
+        The policy is :func:`spacr.qt.memory_budget.what_to_drop`, which is
+        what every other cache in the application is trimmed by: the user's
+        own idle timeout releases a field nobody has gone back to, and the
+        lower of the user's cache ceiling and
+        :data:`_MAGNIFIER_IMAGE_CACHE_MB` bounds the rest. The field on
+        screen is held by :attr:`_image_result` as well, so a trim can never
+        take the objects out from under the box.
+        """
+        from ..memory_budget import what_to_drop
+
+        ceiling = _MAGNIFIER_IMAGE_CACHE_MB
+        try:
+            from ..preferences import get_cache_ceiling_mb
+
+            ceiling = min(ceiling, int(get_cache_ceiling_mb()))
+        except Exception:                                    # noqa: BLE001
+            pass
+        names = list(self._image_cache)
+        entries = [(index,
+                    self._image_cache[name].labels.nbytes / 1e6,
+                    self._image_cache_used.get(name, 0.0))
+                   for index, name in enumerate(names)]
+        for dropped in what_to_drop(entries, time.time(), ceiling_mb=ceiling):
+            name = names[int(dropped)]
+            self._image_cache.pop(name, None)
+            self._image_cache_used.pop(name, None)
+
     def _refresh_image(self) -> None:
         """Start a whole-image run, unless one for the settings now is found,
-        on its way, or was cancelled."""
+        on its way, or was cancelled.
+
+        A field segmented whole earlier in the session, under the settings
+        now, is taken from the cache instead of being segmented again.
+        """
         from ..i18n import tr
 
         if not self.enabled:
@@ -2729,6 +2851,17 @@ class _LiveMagnifier(QObject):
         if result is not None and result.request.key == key:
             return
         if key in (self._image_key, self._image_halted):
+            return
+        kept = self._cached_image_result(key)
+        if kept is not None:
+            self._stop_image()
+            self._image_result = kept
+            self._image_view = None
+            self.status.emit(tr(
+                "Magnifier: {n} object(s) found in the whole image. Click one "
+                "to add it; right-click an object in the mask to remove it.",
+                n=kept.count))
+            self.canvas.update()
             return
         replaced = result is not None or self._image_key is not None
         self._image_result = None
@@ -3102,6 +3235,7 @@ class _LiveMagnifier(QObject):
             stored = stored._replace(key=key)
         self._image_result = result._replace(request=stored)
         self._image_view = None
+        self._keep_image_result(self._image_result)
         if not noted:
             self.status.emit(tr(
                 "Magnifier: {n} object(s) found in the whole image. Click one "
@@ -7146,9 +7280,16 @@ class MakeMasksScreen(QWidget):
         image: np.ndarray,
         mask: np.ndarray,
     ) -> None:
-        """Install a decoded pair if it still represents the selected field."""
+        """Install a decoded pair if it still represents the selected field.
+
+        The magnifier is told which field this is BEFORE the pair reaches the
+        canvas: the canvas makes it forget the last one on the way in, and
+        the name is what its whole-image objects are kept under, so coming
+        back to this field offers them rather than segmenting it again.
+        """
         if token != self._load_token:
             return
+        self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._canvas.set_image_and_mask(image, mask)
         self._recrop_children = []
         self._reset_flow_panes()
