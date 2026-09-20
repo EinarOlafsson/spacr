@@ -4,12 +4,17 @@ A SEARCH FIELD BESIDE THE HELP DROPDOWN
 
 Filed as 413 on 2026-09-18; renumbered 2026-09-19 because 413 also names features/new/413_the_font_zoom_floor_is_ten_percent.txt.
 
-Status:    BUILT 2026-09-19, after the maintainer answered every open question
-           below and asked for it. All five result behaviours work and are
-           driven by tests that type into the real field. NOT DONE: values are
-           not searched (v1, as decided), and the nine-language catalogs owe
-           rows for the field's new captions -- a consolidated pass runs at
-           the end of the day's work. See the 2026-09-19 note at the end.
+Status:    BUILT 2026-09-19, reviewed and corrected the same day. All five
+           result behaviours work and are driven by tests that type into the
+           real field; the three new modules are at 100% statement and branch
+           coverage. Four should-fix defects came out of review -- the i18n
+           seam, an English-only result list, a coverage claim that was not
+           true, and the Essentials choice still being rewritten by a lookup
+           -- and all four are fixed. NOT DONE: values are not searched (v1,
+           as decided), and the nine-language catalogs owe rows for the
+           field's captions and for the words a result row is built from -- a
+           consolidated pass runs at the end of the day's work. See both
+           2026-09-19 notes at the end.
 
 Shape:     A search box beside the Help dropdown. The user types the name of a
            module, a function, a setting or a preference and gets a list of
@@ -196,9 +201,12 @@ Nothing had to change; the behaviour is now pinned by a test that types 77
 into Mask's `cell_diameter`, opens Measure from the search field, comes back
 and reads 77.
 
-TESTS. 29, all passing, in two files:
-  tests/qt/test_the_help_search_field_lands_where_it_says.py   17
-  tests/test_the_help_index_is_generated_not_typed.py          12
+TESTS. 80, all passing, in three files (29 when this was first built; the
+review of 2026-09-19 added 51, and the three new modules are at 100% statement
+and branch coverage as a result — see the trailing note):
+  tests/qt/test_the_help_search_field_lands_where_it_says.py   47
+  tests/test_the_help_index_is_generated_not_typed.py          22
+  tests/qt/test_a_preferences_row_can_be_landed_on_by_name.py  11
 Every GUI test drives the real control — it types into the box and then asks
 the WINDOW what happened. Among them: the field is beside Help and in front of
 the window marks; `cell_min_size` returns one row per module that shows it;
@@ -280,3 +288,153 @@ when the row is STILL off the form, which is exactly the case where Essentials
 is what was hiding it. Pinned by
 test_arriving_here_does_not_rewrite_the_essentials_choice, which reveals an
 essential key and a non-essential one and reads the level after each.
+
+--------------------------------------------------------------------------------
+2026-09-19 — after review: four defects fixed, and what is still owed
+--------------------------------------------------------------------------------
+
+Decided: the maintainer, 2026-09-19, "Build as recommended" — fuzzy matching
+over names AND descriptions; one result row per module where a setting
+appears; offline, show the local docstring and say the web page isn't
+reachable; opening a result never discards the current module's settings;
+values are not searched in v1.
+
+Reviewed on the branch and four should-fix defects came back. All four are
+fixed here; three of them were things the first pass had claimed were right.
+
+1. THE I18N SEAM WAS WRONG, AND ITS OWN DOCSTRING SAID SO. `_localize` in
+   help_search.py stored the English source with `setattr(widget, prop, text)`
+   — a plain Python attribute — and never wrote the `<prop>_last_rendered`
+   companion, while the `settings_search` seam it says it reuses writes both
+   with `setProperty`. `i18n._translate_qt_text` reads them back with
+   `obj.property(...)`, which cannot see a Python attribute: on a built field
+   `field.property("_spacr_i18n_placeholder")` was None. The field is created
+   from `stack.currentChanged`, after the window's language pass, so it is
+   born rendered in the current language; the next pass would have adopted
+   that rendering as the canonical English and translated a translation,
+   freezing the placeholder, the tooltip, the accessible name and the API
+   dialog's three notes. Masked only because the catalogs do not yet carry
+   these rows and `tr()` is currently the identity. Fixed, and held by two
+   tests: one reads the properties off the installed field, one builds a
+   field against a stub catalog answering in another language and brings it
+   back to English through `retranslate_widget_tree`.
+
+2. THE RESULT LIST WAS ENGLISH-ONLY, and the words in it were in no list that
+   the consolidated pass reads. "API reference" is the subtitle of 10,121 of
+   the 11,248 rows and "Module" of 39, and those strings were built as data
+   in help_index.py — no `tr()` call for the caption ratchet's extractor to
+   find, and absent from i18n_owed. A Korean user got an English list.
+   Each entry now carries the English TEMPLATE its subtitle and description
+   were built from, and the row renders it through `tr` when it is drawn —
+   which is every keystroke, so a language change mid-session is picked up by
+   the next letter. The index itself stays English because it is the haystack
+   the query is matched against, and help_index still imports no Qt and no
+   catalog: the translator is passed in. The five new sources are in the
+   catalog list below.
+
+   Still English, deliberately: the `Mask ▸ Cell Segmentation` half of a
+   setting's subtitle. Those are the module caption and the category heading
+   as the registry spells them; they have catalog rows of their own elsewhere,
+   and translating them here means translating a value rather than a template,
+   which the conservative term-matcher can mangle. Written down rather than
+   half-done.
+
+3. "REGRESSIONS: NONE" DID NOT ACCOUNT FOR THE PER-MODULE COVERAGE GATE.
+   `tools/verify_module_coverage.py` rule (c) fails a shipped module that is
+   not in the baseline and is not at 100%, and the three new modules were at
+   help_search.py 74.18%, help_index.py 88.54% and preferences_navigation.py
+   79.63% — with nothing anywhere exercising `_IndexLoader._work` or
+   `_DocsReach._probe`, the worker thread and the network probe, because the
+   only file that touches them stubs `start` out. 51 tests were added and all
+   three modules are now at 100% statement AND branch coverage, measured with
+   `--cov-branch` over the three files:
+
+       spacr/qt/help_search.py             464 stmts  98 branches  100.00%
+       spacr/qt/help_index.py              256 stmts  74 branches  100.00%
+       spacr/qt/preferences_navigation.py   80 stmts  28 branches  100.00%
+
+   They are tests, not coverage filler: the worker really builds off the GUI
+   thread and hands the list back over a signal; the probe really asks the
+   docs root on a thread of its own with the socket stubbed, and answers
+   "unreachable" for a 502 as well as for a refused connection; a preference
+   result really drives `show_preferences_on`; and each of the four ways
+   `reveal_setting` can be refused is one a user could hit.
+   `spacr/qt/settings_search.py` is in the baseline at 0 uncovered branches,
+   so the change to it (below) was deliberately written without a conditional
+   — a `level` parameter would have added a branch nothing takes and failed
+   rule (a). NOT FIXED and not this item's to fix: the gate cannot currently
+   run at all — `--expected-file-count 572` against 584 shipped files is rule
+   (e) — and 15 other modules in flight today are also absent from the
+   baseline. Item 288 owns that.
+
+4. THE ESSENTIALS CHOICE WAS STILL BEING REWRITTEN. The paragraph above
+   headed ONE LATE NARROWING says this was fixed; it was only narrowed.
+   `reveal` still called `set_level(ALL)`, which sets the toggle, which fires
+   `_on_disclosure_toggled`, which calls `remember_disclosure` — a persistent
+   QSettings write. Most settings are not essentials (Mask renders 190 rows
+   against a handful), so looking one up still moved the module out of
+   Essentials for good on the common path. `reveal` now goes through
+   `_show_all_without_remembering`, which blocks the toggle's signal while the
+   button, the level and the caption move, so the form shows the row and the
+   store keeps the level the user chose. Clicking the switch still remembers.
+   The test now reads the store back with `disclosure_for` instead of only
+   asking the strip what level it is on.
+
+THREE NITS, two fixed and one written down:
+
+  - The `DEBOUNCE_MS` note quoted 15 ms — "a sixth of a frame" — as the cost
+    of a search. That is the best case. Measured here over the real 11,248-row
+    index: 16-24 ms for a word or a phrase, but 34 ms for a single letter and
+    41 ms for two, because a term below the fuzzy band's three-character floor
+    is matched by substring against every row. The shortest query is the
+    dearest one and it is the first thing typed. The note now says so.
+  - `_open_preference` discarded `show_preferences_on`'s answer and reported
+    "{name} in Preferences ▸ Fractal" even when the tab was gone — a row built
+    at start-up can name a page that is no longer built, since the Fractal tab
+    exists only while that backdrop is on. It now reports what happened; the
+    new string is in the catalog list below.
+  - THE PER-KIND CAP CLIPS "ONE ROW PER MODULE" AND THE LIST DOES NOT SAY SO.
+    Measured over the 767 (module, setting) pairs: exactly two settings have
+    more module rows than the cap of 8 — `src`, in 36 modules and offered for
+    8, and `verbose`, 8 of 10. Every other setting is in six modules or fewer
+    and is answered in full. The honest fix is a row reading "and 28 more",
+    which is a tenth user-visible string for nine catalogs, so it is recorded
+    in `PER_KIND_LIMIT` and here rather than half-built.
+
+ALSO WRITTEN DOWN, not fixed: the index is built once a session, so
+`_tab_exists` and `app_is_visible` are snapshots. Turning the fractal backdrop
+on mid-session does not make its 13 rows findable until the next launch, and
+turning it off leaves 13 rows whose page has gone — which is why the opener
+now reports what it did rather than what it was asked to do.
+
+WHAT THE CATALOGS OWE ON TOP OF THE LIST ABOVE (still nothing regenerated;
+the consolidated nine-language pass runs at the end):
+
+  spacr/qt/help_search.py:
+    "{name} is not in Preferences at the moment."
+  spacr/qt/help_index.py — the words a result ROW is built from, five
+  sources that no `tr()` call in the tree names, so the extractor will not
+  find them and this list is the only record:
+    "Module"
+    "API reference"
+    "API reference — reads {settings}"
+    "Preferences ▸ {tab}"
+    "Reads {settings}."
+    "{summary} Reads {settings}."
+  API docstrings: 2 more public symbols — help_index.rendered_subtitle and
+  help_index.rendered_description. SettingsSearchBar._show_all_without_
+  remembering is private and owes none.
+
+REGRESSIONS, measured after the fixes: the twelve-file sibling selection runs
+299 passed / 26 skipped with no failures, and the caption-ratchet pair is
+23 failed / 55 passed — the same 23 the branch had before this pass and that
+HEAD had before the branch. `tools/build_help_search_index.py --check` and
+`tools/build_instruction_index.py --check` are both clean.
+
+NOT MINE, ROUTED ON: the relayed user request of 2026-09-19, "The theme should
+sound like melodic space house", belongs to item 427 (sound effects and the
+resonance theme). Nothing here touches the sound engine. The only contact is
+that 427's Preferences ▸ Sound page is in the generated index, so its 8 rows
+are searchable — its Music bed description currently reads "pads, a plucked
+arpeggio with a dotted-eighth echo and a soft sub", which is adjacent to but
+not the same thing.
