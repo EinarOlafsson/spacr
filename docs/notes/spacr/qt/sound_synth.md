@@ -135,7 +135,7 @@ low frequencies through a three-second tail are what turn a quiet bed into
 a rumble.
 
 The shaker's offbeat is the loud one, because that is where the shaker of
-house music lives and a flat sixteenth pattern reads as a hiss.
+house music lives and a pattern with every hit at the same weight reads as a hiss.
 
 **THE SHAKER WAS INAUDIBLE ON THE FIRST PASS AND THE TEST THAT CAUGHT IT
 IS THE ONE WORTH KEEPING.** Mixed at 0.22 and high-passed at 5.2 kHz it
@@ -179,3 +179,28 @@ and `low/mid` 0.44.
 
 **Nobody has listened to it.** The numbers say what was asked for; whether
 it sounds like Worakls or like a test tone is still the maintainer's ear.
+
+**The copy did not say there were drums, and now it does.** Found on
+review before part B landed. `ORBIT.description` — the Sound-set combo's
+tooltip — and the Music bed row's own tooltip both still described the
+version-1 bed: pads, a plucked arpeggio with a dotted-eighth echo and a
+soft sub. Version 2 has `kick_level` 0.5 and `shaker_level` 0.34 under
+that, and the `_bed` docstring it replaced said outright "No drums: this
+plays under somebody's work, not over it". A user who switched the bed on
+under the old sentence would have got a kick under their work with no
+notice, so both strings now name the kick and the shaker and say that they
+come and go with the arrangement.
+
+What they still cannot do is turn them down on their own: `kick_level` and
+`shaker_level` are theme fields, which is what lets part C's ten sound sets
+be a table of numbers, and the only control a user has is the bed's own
+volume and the bed's own switch. If a per-user drum level is wanted it is
+part C's to add, and it is written down here rather than left to be
+discovered.
+
+**The shaker plays eighths, and three docstrings said sixteenths.** `_bed`
+emits `for hit in range(8)` over a four-beat bar — 208 hits over 26 sounding
+bars, 8 a bar — and the part-B test is named
+`test_the_shaker_is_on_the_eighths_and_the_offbeat_is_the_loud_one`. Part C
+is meant to be written from the `:param:` docs of `SoundTheme`, so a wrong
+note value there is a wrong note value in ten sound sets.

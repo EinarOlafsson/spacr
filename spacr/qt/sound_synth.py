@@ -9,7 +9,9 @@ generator seeded by the theme itself.
 
 The reference theme, :data:`ORBIT`, is melodic space house in A minor:
 warm detuned-saw pads, plucked arpeggio notes with a dotted-eighth
-ping-pong delay, a soft sub, and a long dark reverb. Clicks and hovers
+ping-pong delay, a soft sub, a long dark reverb, and — in the music bed
+alone, never in an interface sound — a quiet four-on-the-floor kick and
+an eighth-note shaker that come and go with the arrangement. Clicks and hovers
 are short plucks on notes of the scale, a finished run is an arpeggio
 rising through the seventh chord into the tonic under a pad swell, and a
 failed run is a slower falling figure over the minor fourth.
@@ -143,7 +145,7 @@ class SoundTheme:
         so the arrangement always closes where it opened.
     :param kick_level: level of the four-on-the-floor kick in the bed, 0 to
         1. ``0.0`` leaves the kick out of the render entirely.
-    :param shaker_level: level of the sixteenth-note shaker, 0 to 1.
+    :param shaker_level: level of the eighth-note shaker, 0 to 1.
         ``0.0`` leaves it out entirely.
     :param bed_lufs: programme loudness the finished bed is normalised to,
         in LUFS (:func:`loudness_lufs`). Quieter than anything mastered for
@@ -199,7 +201,9 @@ ORBIT = SoundTheme(
     key="orbit",
     label="Orbit",
     description=("Melodic space house in A minor: warm detuned pads, "
-                 "plucked arpeggios with a dotted-eighth echo, a soft sub."),
+                 "plucked arpeggios with a dotted-eighth echo, a soft sub, "
+                 "and a quiet four-on-the-floor kick and shaker that come "
+                 "and go with the arrangement."),
 )
 
 
@@ -976,7 +980,7 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
     loop; ``theme.arp_pattern`` an octave above them through a dotted-eighth
     ping-pong delay, lifted an octave in the second half of every fourth
     bar; a sine sub on each chord's root two octaves down; and, from
-    :func:`bed_plan`, a soft four-on-the-floor kick and a sixteenth-note
+    :func:`bed_plan`, a soft four-on-the-floor kick and an eighth-note
     shaker that come in and go out with the sections.
 
     WHAT MAKES IT A LOOP AND NOT A PHRASE. :data:`BED_SECTIONS` gives the
@@ -997,7 +1001,7 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
 
     THREE MORE THINGS THE CODE CANNOT SAY. The shaker's OFFBEAT is the
     loud one, because that is where the shaker of house music lives and a
-    flat sixteenth pattern reads as a hiss. Both filter breaths are
+    pattern with every hit at the same weight reads as a hiss. Both filter breaths are
     PERIODIC OVER THE LOOP -- one opening across the whole thirty-two bars
     and one four times, each a raised cosine that is 0 at both ends -- so a
     filter can move for a minute and still arrive back where it started.

@@ -135,9 +135,11 @@ class SoundPage:
         row = self._event_row("bed", "SoundMusicBed")
         row.setToolTip(
             "A quiet looping piece in the sound set's key: pads, a plucked "
-            "arpeggio with a dotted-eighth echo and a soft sub. Separate "
-            "from the other sounds, so you can have feedback without music. "
-            "It rests at the Laptop and Extra Performance levels.")
+            "arpeggio with a dotted-eighth echo, a soft sub, and a quiet "
+            "four-on-the-floor kick and shaker that come and go with the "
+            "arrangement. Separate from the other sounds, so you can have "
+            "feedback without music. It rests at the Laptop and Extra "
+            "Performance levels.")
         self.previews["bed"].setToolTip(tr(
             "Play a few seconds of the music bed at the volume above."))
         form.addRow(tr("Music bed"), row)
