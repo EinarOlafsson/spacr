@@ -2,7 +2,7 @@
 
 Two separate things, and the second one matters more than the first.
 
-## 1. The watchdog (item 450)
+## 1. The watchdog (item 453)
 
 It only guards while something is running it. As a user unit it guards
 every session on the machine, including ones that forgot to start it --

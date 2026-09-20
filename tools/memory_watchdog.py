@@ -4,7 +4,8 @@
 WHY THIS EXISTS AND WHY IT IS NOT THE MAIN GUARD. On 2026-09-20 at
 15:46:13 the kernel killed a python holding 113 GiB on this 125 GB machine
 and VS Code went down with it. It was the third time. The maintainer asked
-for a watchdog that acts when RAM passes 100 GB.
+for a watchdog that acts when RAM passes 100 GB. Filed as 450 and
+renumbered 453 the same day, because the work session filed its own 450.
 
 READ THIS BEFORE TRUSTING IT. `tools/run_capped.sh` already records that a
 POLLER WAS TRIED AND LOST: a daemon reading /proc/meminfo every three

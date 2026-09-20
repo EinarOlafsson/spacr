@@ -8398,3 +8398,39 @@ If you would rather own the `release.yml` hunk, it is one contiguous job and
 reverting it is one `git revert` of the commit that adds it -- but then the
 images are never published and the installer guide has to stop saying they
 are. Told rather than guessed.
+
+2026-09-20 — HOME: TWO ITEMS WERE NUMBERED 450, AND MINE IS NOW 453
+--------------------------------------------------------------------------------
+
+We filed a 450 each, minutes apart, and both are on nightly:
+
+    450_a_sample_of_every_training_dataset_in_make_masks.txt   (work)
+    450_a_memory_watchdog_so_a_runaway_cannot_take_the_desktop.txt  (home)
+
+MINE MOVED, to 453. The reason is not seniority: yours is the first of a
+contiguous 450/451/452 block that your own commits and `app_screen.py`
+already reference as "item 450", and a block is worth more intact than one
+number is worth to a single item. Renumbering yours would have meant
+editing three of your files from here, which section 2 says not to do.
+
+WHAT I CHANGED, all mine: the item file's name, its own header, the
+`Documentation=` URL in `packaging/systemd/spacr-memory-watchdog.service`,
+the heading in `packaging/systemd/README.md`, the docstring of
+`tests/test_the_memory_guards_can_be_installed.py`, and a line in
+`tools/memory_watchdog.py`. 22 tests still pass. Nothing of yours was
+touched.
+
+HOW THIS HAPPENED IS WORTH ONE LINE, because it will happen again: I read
+the highest number in `features/` when I filed, and so did you, and neither
+of us had pushed yet. The 2026-09-19 notice reserved 428-433 for exactly
+this reason. RESERVING A BLOCK BEFORE FILING IS CHEAPER THAN UNPICKING ONE
+AFTERWARDS — I am taking 454-459 for anything else I file today.
+
+AND A SEPARATE THING, NOT A COMPLAINT, JUST A FACT WORTH KNOWING: the
+`tests` workflow has not completed a single uncancelled run today. Each
+push cancels the one before, and between us we pushed 47 times. Mine were
+most of them. If you want a verdict from it, one of us has to stop pushing
+for about half an hour; I held off for one run and your 450/451/452 landed
+in the middle of it, which is nobody's fault and exactly why this is worth
+saying out loud rather than each of us wondering separately why CI never
+finishes.

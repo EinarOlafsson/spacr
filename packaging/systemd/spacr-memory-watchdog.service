@@ -1,6 +1,6 @@
 [Unit]
 Description=spaCR memory watchdog: freeze a runaway before it takes the desktop down
-Documentation=https://github.com/EinarOlafsson/spacr/blob/nightly/features/new/450_a_memory_watchdog_so_a_runaway_cannot_take_the_desktop.txt
+Documentation=https://github.com/EinarOlafsson/spacr/blob/nightly/features/new/453_a_memory_watchdog_so_a_runaway_cannot_take_the_desktop.txt
 
 [Service]
 Type=simple

@@ -1,4 +1,4 @@
-"""The unit file and the instructions beside it (items 450, and 3.001).
+"""The unit file and the instructions beside it (item 453, and 3.001).
 
 A unit that names the wrong script, or thresholds that disagree with the
 watchdog's own defaults, fails silently -- the guard is simply not there

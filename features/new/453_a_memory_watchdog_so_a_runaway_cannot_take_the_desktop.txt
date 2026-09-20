@@ -2,6 +2,11 @@
 A MEMORY WATCHDOG, SO ONE RUNAWAY PROCESS CANNOT TAKE THE DESKTOP DOWN
 ================================================================================
 
+Renumbered: filed as 450 and renumbered 453 on 2026-09-20. The work session
+           filed its own 450 (a sample of every training dataset) minutes
+           apart, and a contiguous 450/451/452 block is worth more intact
+           than one number is worth to this item. Announced in 325.
+
 Status:    BUILT 2026-09-20, the day it was asked for, and its unit file
            with it. The watchdog, its selection rules and 22 tests are on
            nightly. TWO COMMANDS ON THE MAINTAINER'S MACHINE ARE LEFT and
