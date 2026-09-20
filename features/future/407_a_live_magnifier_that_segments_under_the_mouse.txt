@@ -560,6 +560,12 @@ EVIDENCE
     one language with the Overlap tooltip untranslated after the
     consolidated pass. Counted again, per locale, from the test's own
     output.)
+    AND AFTER THE REBASE ONTO origin/nightly 5c8369fed, which is the number
+    anyone running this test on nightly will see: 144, sixteen sources in
+    nine locales. Item 435 landed five more captions of its own on 2026-09-20
+    and its note records the list going from ten to fifteen; this branch adds
+    exactly one source to it, the reworded Overlap tooltip, which is the same
+    nine rows. Measured on the rebased branch, per locale, not assumed.
   * i18n owed, listed exactly: five new UI sources --
       "Magnifier: segmenting this region — its objects are added as soon as
        the box is up to date."
