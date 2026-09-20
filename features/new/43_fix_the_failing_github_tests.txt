@@ -1636,3 +1636,48 @@ Branch wip/288-ci-crash-tolerant: 55b97f378, cf6acebc3 (claim 3ddd933d1).
   after a torch op, in a subprocess): before the fix -6/SIGABRT on 2.1.0 and a
   second call counted on 2.13; after it, green on both. This was the only
   set_num_interop_threads call in spacr/ and tools/.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- COMPAT-MATRIX WENT RED AFTER ITEM 400, AND THE CITATION HAD THE
+              WRONG RELEASE'S DOI
+--------------------------------------------------------------------------------
+
+The status at the top of this file records compat-matrix as GREEN. It has
+been failing since item 400's commit b043fcbc7, and the reason is worth
+writing down because nothing was actually broken.
+
+(1) `test_the_torchcam_python_313_limit_is_written_down` read `setup.py`
+looking for the string `numpy<2.0.0`, because that is where the reason was
+written -- in a COMMENT. Item 400 moved setup.py's 1,156 comments to
+`docs/notes/setup.md`, and the string went with them. The test's own message
+says "do not silently delete the reason it remains outside `all`", and
+nobody had: `docs/notes/setup.md` explains it at length in three places.
+The test now reads the notes, and checks that the file names both the pin
+and torchcam, so a reader who greps for either finds the reason. The
+BEHAVIOURAL half is untouched and was always green --
+`test_attribution_extra_is_not_in_all` holds that torchcam is in the
+`attribution` extra and out of `all`.
+
+(2) `test_the_citation_version_doi_is_the_one_for_the_version_it_claims`
+found exactly what it was written to find. CITATION.cff said
+`version: "1.5.0.8"` while its version DOI, `10.5281/zenodo.22726094`, is
+described as "spaCR 1.5.0.7" -- `packaging/release.py` rewrites `version`
+and `date-released` and leaves `doi` behind, which is the failure
+`packaging/README.md` names. This test is SKIPPED on compat-matrix (that
+job installs build tooling only and has no PyYAML), so CI could not have
+caught it; it failed here.
+
+THE OUTSIDE WORLD WAS ASKED RATHER THAN GUESSED, which is section 1's rule.
+Zenodo's API, queried on the concept DOI `10.5281/zenodo.21343316`, lists
+ten versions and gives v1.5.0.8 as `10.5281/zenodo.22797833`, published
+2026-09-16 -- the same date CITATION.cff already carried. Both the
+top-level `doi:` and the version identifier now name it.
+
+THE 3.15 CELL IS NOT A FAILURE OF THIS ITEM. "3.15 installs, from wheels
+only" is red because scikit-image publishes no cp315 wheels yet, and the
+job already carries `continue-on-error: ${{ matrix.python-version ==
+'3.15' }}` with the reason beside it: the cell is informational until the
+ecosystem admits that interpreter. Nothing in .github was touched.
+
+MEASURED: tests/test_packaging_metadata.py, 52 passed, run the way the job
+runs it (`--noconftest`).

@@ -734,12 +734,37 @@ def test_attribution_extra_is_not_in_all():
 
 
 def test_the_torchcam_python_313_limit_is_written_down():
-    """The attribution extra's upstream NumPy ceiling remains documented."""
-    src = SETUP_PY.read_text(encoding="utf-8")
-    assert "numpy<2.0.0" in src, (
-        "setup.py no longer documents torchcam's spurious NumPy pin. If the "
-        "upstream limitation is gone, widen the extra with resolver evidence; "
-        "do not silently delete the reason it remains outside `all`."
+    """The attribution extra's upstream NumPy ceiling remains documented.
+
+    IT MOVED, AND THE TEST MOVED WITH IT. This read `setup.py` until
+    2026-09-20, because that is where the reason was written -- in a
+    comment. Item 400 took every comment out of `setup.py` and put the
+    reasons in `docs/notes/setup.md`, so the string this looked for left
+    with them and compat-matrix went red on a reason that had not been
+    deleted at all.
+
+    What this test is FOR is unchanged: the reason torchcam sits outside
+    the core list and outside `all` must be findable by whoever next
+    wonders why. `test_attribution_extra_is_not_in_all` above holds the
+    behaviour; this holds the explanation. Where the explanation lives is
+    item 400's business, not this test's.
+    """
+    notes = REPO_ROOT / "docs" / "notes" / "setup.md"
+    assert notes.is_file(), (
+        f"{notes} is gone. Item 400 moved setup.py's reasons there; if they "
+        "have moved again, point this test at wherever they went rather "
+        "than dropping the check."
+    )
+    written = notes.read_text(encoding="utf-8")
+    assert "numpy<2.0.0" in written, (
+        "nothing documents torchcam's spurious NumPy pin any more. If the "
+        "upstream limitation is gone, widen the extra with resolver "
+        "evidence; do not silently delete the reason it remains outside "
+        "`all`."
+    )
+    assert "torchcam" in written, (
+        "docs/notes/setup.md names the pin but not what it is about, so a "
+        "reader who greps for torchcam will not find the reason."
     )
 
 
