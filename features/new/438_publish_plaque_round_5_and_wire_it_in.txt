@@ -3,7 +3,7 @@ PLAQUE ROUND 5 COVERS FOUR DOMAINS; NOTHING IN spaCR OR ON HUGGINGFACE KNOWS IT
 YET
 ================================================================================
 
-Status:    in progress — training started 2026-09-19 ~21:20, ~2 h
+Status:    DONE 2026-09-20 — published and listed; NOT promoted
 Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
            to uploade everything to hugging face in the format i discribed with
            the training data also uploaded than add a new features items to wire
@@ -165,3 +165,43 @@ WHAT TO DO, ADDED TO THIS ITEM
      models do, so it ships with what a good result looks like: the expected
      well count and plaque count for the example images, so a user can tell a
      working install from a broken one.
+
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED (2026-09-20)
+--------------------------------------------------------------------------------
+
+Round 5 trained 21:39-23:25 (101 min, 100 epochs) on cpsam_v2 -- not cpsam v1,
+per the user's instruction that day -- with per-epoch loss, pixel accuracy,
+precision, recall, Dice, IoU and MCC recorded, the same instrumentation the PV
+models publish. Published automatically on R5_OK:
+
+  model    einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5   14 files, 1.22 GB
+  dataset  einarolafsson/toxoplasma-plaque-dataset                981 files, 1.28 GB
+
+F1 at IoU 0.5 on the 81 held-out fields, all three models scored in one process:
+
+  domain       fields   r3      r4      r5
+  literature     39     0.820   0.819   0.819
+  bigbean         6     0.872   0.881   0.876
+  patrick        10     0.836   0.822   0.808
+  malnio         20     0.249   0.217   0.415
+
+NOT PROMOTED: -0.001 literature F1 against round 3, where the bar fixed before
+the run was 0.02. Round 3 remains production.
+
+**The flat literature score is not saturation, and an earlier reading of it as
+saturation was wrong.** Round 5's literature TRAINING set is 208 fields against
+round 4's 211 -- it shrank, because round 5 holds out 45 for validation and 45
+for test where round 4 held out 52 and had no validation set. The extra images
+are malnio (62) and that is exactly where it improved, by 91%. Performance
+tracks per-domain data; literature will only move when literature wells are
+added, and 513 remain unreviewed in curation/pmc_staged.
+
+Zoo rows added in spacr/model_zoo.py (user: "Promote r5 as a second zoo row"):
+toxoplasma_plaque_v2 alongside toxoplasma_plaque_v1, each pointing at the other
+with the trade-off stated -- v1 for microscope-only work (0.836 vs 0.808 on PFA
+wells, precision 0.93 vs 0.81), v2 for mixed or phone-camera sources. v2 needs
+an explicit "uri": its weight sits under weights/ while the older repos keep
+theirs at the repo root, so the URL hf_uri() would build 404s. Verified: HEAD
+200, 1.22 GB, and the published sha256 matches the local file byte for byte.

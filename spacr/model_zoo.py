@@ -387,6 +387,64 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "round 3 trades precision (0.939 down to 0.858) for recall "
             "(0.631 up to 0.811) on the literature set, which is the right "
             "direction for a counting assay",
+            "PREFER THIS ONE FOR MICROSCOPE-ONLY WORK. On the round-5 test "
+            "split it scores 0.836 on PFA-fixed wells against round 5's 0.808, "
+            "at precision 0.93 against 0.81. For mixed sources, or any phone-"
+            "camera image, use toxoplasma_plaque_v2, which round 3 cannot "
+            "handle at all (0.249 there)",
+        ),
+    },
+    {
+        "key": "toxoplasma_plaque_v2",
+        "name": "cpsam_plaque_r5",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
+        "repo_type": "model",
+        # THE WEIGHT IS UNDER weights/ IN THIS REPO, unlike the older plaque and PV
+        # repos which put it at the root, so the URL is given rather than built from
+        # `name`: hf_uri(repo_id, "cpsam_plaque_r5") would 404 on a repo that has it
+        # one directory down, and a 404 here reads as "the model is gone".
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/"
+               "weights/cpsam_plaque_r5?download=true",
+        "sha256":
+            "0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600",
+        "metrics": {'n_train': '332 fields, 4 domains', 'train_objects': '18532', 'n_test': '81 fields', 'test_objects': '4294', 'cv': 'no (grouped train/valid/test)', 'f1': '0.819 literature / 0.876 bigbean / 0.808 patrick / 0.415 malnio', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': 'not measured; scored against round 3 (0.820 literature) and round 4 (0.819)', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': '0.1822', 'val_loss': '0.2069', 'best_epoch': '100 / 100'},
+        "display_name": "Toxoplasma Plaque v2 (round 5)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "488 curated fields across four domains -- 298 wells cropped "
+                   "from published figures, 96 phone-camera wells, 67 PFA and 27 "
+                   "methanol-fixed whole-well microscope scans; 27,582 plaques",
+        "versus_stock": "not scored against stock; on 81 held-out fields it ties "
+                        "round 3 on literature (0.819 vs 0.820) and beats it by "
+                        "0.166 on phone-camera wells (0.415 vs 0.249)",
+        "trained_on": (
+            "Toxoplasma plaque assays stained with crystal violet, from three "
+            "microscopes and from published figures. Round 5: 332 training fields "
+            "grouped by figure and by plate so none straddles the split, 100 "
+            "epochs, base cpsam_v2, empty wells kept as negatives"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 "
+            "(round 3) for microscope-only work, where it scores 0.836 against "
+            "this model's 0.808 on PFA-fixed wells and is far more precise; "
+            "prefer this one for mixed or unknown sources",
+            "the only plaque model trained on phone-camera wells -- F1 0.415 "
+            "against round 3's 0.249, though recall there is 0.296, so it still "
+            "misses most plaques on phone images and is not yet a counting tool",
+            "it did NOT clear the promotion bar of 0.02 literature F1 fixed before "
+            "the run (it came in at -0.001), so round 3 remains production",
+            "balanced precision/recall (0.81/0.83) where round 3 is lopsided "
+            "(0.93/0.73): round 3's low recall systematically UNDERCOUNTS, which "
+            "matters more than F1 for a counting assay",
+            "hallucinates 2 objects across 6 blank-lawn wells where round 3 "
+            "hallucinates 19",
+            "first plaque model on cpsam_v2; rounds 1-4 used cpsam v1, so base and "
+            "data changed together and the gap to round 3 is not attributable to "
+            "the extra curation alone",
+            "training data: https://huggingface.co/datasets/einarolafsson/"
+            "toxoplasma-plaque-dataset",
         ),
     },
     {

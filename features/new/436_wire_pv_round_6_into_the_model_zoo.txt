@@ -2,7 +2,7 @@
 THE MODEL ZOO STOPS AT PV ROUND 5; ROUND 6 IS PUBLISHED AND UNLISTED
 ================================================================================
 
-Status:    not started
+Status:    DONE 2026-09-20 — verified in BUNDLED_REMOTE_MODELS
 Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
            to uploade everything to hugging face in the format i discribed with
            the training data also uploaded than add a new features items to wire
@@ -90,3 +90,15 @@ DELIBERATELY NOT DONE
 
 Not retiring toxoplasma_pv_v1 or v2. Round 2 still holds the best anchor score,
 and users with a pipeline calibrated on it should not have it vanish.
+
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED (2026-09-20)
+--------------------------------------------------------------------------------
+
+Done in commit 32d7b5250 by another session, verified here: toxoplasma_pv_v3 is
+in BUNDLED_REMOTE_MODELS with sha256 146ef269..., the anchor scores as published,
+and the row leads with "NEWEST IS NOT BEST HERE" -- round 6 does not beat round 2
+on the anchor (0.8602 vs 0.8648) and the PV project still promotes round 5. The
+nested weights/ path this item warned about was handled. Status line was still
+"not started" until now; the code was already correct.

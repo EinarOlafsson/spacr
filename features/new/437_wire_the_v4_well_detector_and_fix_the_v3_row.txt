@@ -3,7 +3,7 @@ THE WELL DETECTOR v4 IS UNLISTED, AND THE v3 ROW QUOTES A SCORE FROM AN EASIER
 SPLIT
 ================================================================================
 
-Status:    not started
+Status:    DONE 2026-09-20 — verified in BUNDLED_REMOTE_MODELS
 Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
            to uploade everything to hugging face in the format i discribed with
            the training data also uploaded than add a new features items to wire
@@ -90,3 +90,15 @@ DELIBERATELY NOT DONE
 
 Not removing the v3 row: it is the model the published plaque corpus was
 measured with, so results in the paper trace back to it.
+
+
+--------------------------------------------------------------------------------
+WHAT HAPPENED (2026-09-20)
+--------------------------------------------------------------------------------
+
+Done in commit 32d7b5250 by another session, verified here. toxoplasma_well_
+detector_v2 carries sha256 f2a1e111... and mAP50 0.9457 labelled "(shared test
+set)". The v1 row was corrected rather than left misleading: its f1 field now
+reads "mAP50 0.9930 on v3's own split; 0.8838 on the shared test set", so the
+two rows can be compared. It also records that v4 cuts false boxes on no-well
+figures from 152 to 49, which this item did not know.
