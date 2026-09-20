@@ -1,0 +1,138 @@
+================================================================================
+A CLASSIFICATION WRAPPER AROUND ANY CELLPOSE-SAM MODEL: PARASITES PER VACUOLE,
+AND WHAT EACH OBJECT ACTUALLY IS
+================================================================================
+
+Status:    OPEN, filed 2026-09-20. Not started. Four questions below need the
+           maintainer before the classifier can be trained; the wrapper
+           itself does not wait on them.
+
+Requested: 2026-09-20 -- "it would be cool to have a cellpose model that
+           detects toxo then detects how many nuclei are in each PV. so this
+           would be 2 models (i already have the toxo pv detection model and
+           the toxo from cellmask and hoechst), now i need to make a model
+           that detects how many nuclei are in each pv. this should be a
+           classefication modual that can take wrap arround any cellpose sam
+           model and then cut out each pv and classify it as a 1,2,4,8,16,
+           >16 PV. so for this we will need training data to train the
+           classefication model. i also want a simmilar classification model
+           wrapper that wrapps arround any cellpose sam model and classifies
+           every object as a cell, nucleus, cut cell, cut nucleus, artifact.
+           if the object is cut in half there should be an option to try to
+           merge the two halfs. the code for this should be able to wrap
+           cellpose so it takes a model and cellpose options, makes the mask
+           then classifies the mask (should also be an option to remove
+           artifacts from the mask) the code should alos be able to just take
+           the output of cellpose and do the classefication."
+
+WHAT THIS IS
+--------------------------------------------------------------------------------
+
+ONE SEAM, TWO HEADS. The seam is a wrapper that turns "segment" into
+"segment, then say what each object is". It has two ways in, and the request
+names both:
+
+  1. MODEL IN: a Cellpose-SAM model and its options go in, the wrapper
+     segments, then classifies every object of the mask it just made.
+  2. MASK IN: a mask Cellpose already produced goes in and is classified as
+     it stands. Nothing is re-segmented.
+
+The heads are the classifiers that sit on that seam. Two are asked for:
+
+  A. PARASITES PER VACUOLE. Each PV is cut out and put in one of
+     1, 2, 4, 8, 16, >16. This is the replication read-out -- Toxoplasma
+     divides by binary fission inside the vacuole, so those classes are the
+     series that division produces rather than an arbitrary binning.
+  B. WHAT THE OBJECT IS: cell, nucleus, cut cell, cut nucleus, artifact.
+     With two options on top: try to merge the two halves of something cut
+     in half, and remove what the head calls an artifact from the mask.
+
+THE TWO MODELS THE FIRST HEAD SITS BEHIND ALREADY EXIST and are in the Model
+Zoo: `cpsam_v2_toxo_r6` (PV segmentation) and the two cross-channel models,
+`toxoplasma_from_cellmask_pv` and `toxoplasma_from_hoechst_pv`. This item
+adds the SECOND model -- the classifier -- and the wrapper that runs the
+pair as one operation.
+
+WHAT ALREADY EXISTS AND SHOULD BE USED RATHER THAN REBUILT
+--------------------------------------------------------------------------------
+
+  * `spacr/crop_source.py::crop_object(array, mask, label, ...)` cuts one
+    object out of a merged stack, either as its bounding box or with
+    everything outside the object zeroed, and resizes to a fixed size. That
+    IS "cut out each PV"; the classifier's input tensor is a batch of these.
+  * `spacr/deep_spacr.py::train_model` trains a torch classifier on crops,
+    and `spacr/classify.py`, `classifier_quality.py` and
+    `classifier_evaluation.py` already score one. A new architecture is not
+    needed for six classes of small crops.
+  * `spacr/_segmentation_backends.py` is where a model becomes something
+    with an `eval`. The wrapper should take THAT object rather than a
+    Cellpose class, so it wraps Cellpose-SAM, Cellpose 3, DINOCell and
+    SAMCell without knowing which it has -- items 404, 405, 423 and 446 made
+    them all answer the same call.
+  * `skimage.segmentation.clear_border` is already used in `utils.py` to
+    drop objects touching the edge, and `measure.py`'s
+    `merge_edge_pathogen_cells` already resolves a parasite straddling two
+    cells. Both are prior art for the "cut" and "merge the halves" questions
+    below, and whoever builds this should read them before inventing a third
+    rule.
+
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+  1. THE WRAPPER. One module. Given (a) a segmentation backend and its
+     options plus an image, or (b) an image and a mask, it produces the
+     mask, the per-object crops, a class and a probability for every label,
+     and a table keyed on label id. It must not change the mask unless
+     asked: removing artifacts is an option, not the default, and the
+     original labels are kept so nothing downstream loses object identity
+     (`canonical_labels` in `mask_engine.py` says why that matters).
+  2. THE TWO HEADS, as separate trained models behind one interface, so a
+     third head can be added without touching the seam.
+  3. ARTIFACT REMOVAL, as an option that returns a NEW mask and says how
+     many objects it dropped, rather than editing in place silently.
+  4. MERGING TWO HALVES, as an option, with the rule written down and a
+     measurement of how often it is right. See the open question.
+  5. TRAINING DATA. Neither head can be trained without labelled crops.
+     What produces them, and who labels them, is the fourth question below.
+
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The same image, segmented then classified, and the resulting mask
+    classified on its own, give identical per-object classes.
+  * A run with artifact removal off leaves the mask byte-identical to the
+    one the backend produced.
+  * Object ids survive: a mask that went in with ids 1, 5, 9 comes out with
+    1, 5, 9 and a class for each, not renumbered.
+  * The PV head is scored against a held-out set of vacuoles that were
+    counted by hand, reported per class -- a classifier that is right about
+    1s and wrong about 16s is not "accurate", and the class sizes are
+    wildly uneven in any real field.
+  * The object head is scored the same way, with the artifact class
+    reported separately: a false artifact is a deleted object.
+
+OPEN QUESTIONS FOR THE MAINTAINER
+--------------------------------------------------------------------------------
+
+  1. WHAT DOES A VACUOLE OF THREE DO? The classes are the binary-fission
+     series, but real fields hold vacuoles of 3, 5, 6 and 7 -- parasites
+     divide asynchronously and some die. Nearest class, an "other" class,
+     or a count regression rounded into these bins?
+  2. WHAT DOES THE PV HEAD LOOK AT? The vacuole crop in one channel, or
+     several? The nuclei it is counting are Hoechst; the vacuole boundary
+     is not. If it needs both, the wrapper has to carry the channel map
+     through, which is a different signature.
+  3. WHAT IS A "CUT" OBJECT? Touching the image border, or split into two
+     labels by the segmenter? And if halves are to be merged, are they two
+     halves in the SAME field, or the same object across two fields --
+     which needs the stitcher, not this.
+  4. WHERE DOES THE TRAINING DATA COME FROM? Hand-annotated crops through
+     the Annotate module, the curation queue, or a set you label outside
+     spaCR? And how many per class -- the >16 class is rare, and a model
+     trained on what a normal plate contains will hardly ever see one.
+
+RELATED. Item 421 already cuts objects and measures them from Make Masks;
+item 386 wants a label-free embedding for every object, which is the
+unsupervised cousin of this; item 99 explains CV models and resolves hits
+back to cells. The replication assay this head serves is the module that
+would consume it.
