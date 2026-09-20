@@ -2,9 +2,10 @@
 A MEMORY WATCHDOG, SO ONE RUNAWAY PROCESS CANNOT TAKE THE DESKTOP DOWN
 ================================================================================
 
-Status:    BUILT 2026-09-20, the day it was asked for. The watchdog, its
-           selection rules and 15 tests are on nightly. What is NOT done is
-           making it run by itself -- see WHAT IS LEFT.
+Status:    BUILT 2026-09-20, the day it was asked for, and its unit file
+           with it. The watchdog, its selection rules and 22 tests are on
+           nightly. TWO COMMANDS ON THE MAINTAINER'S MACHINE ARE LEFT and
+           they are his by choice, not by accident -- see the last section.
 
 Requested: 2026-09-20 -- "there needs to be a memory watchdog that checks if
            ram is getting filled . if more than 100 GB or ram are being used,
@@ -94,12 +95,25 @@ HOW TO KNOW IT WORKED
 WHAT IS LEFT
 --------------------------------------------------------------------------------
 
-  * IT DOES NOT RUN BY ITSELF YET. A systemd --user unit would start it with
-    the session, which is the obvious next step and is a decision about the
-    maintainer's machine rather than about this repository.
-  * `MemoryHigh` on `user@1000.service` would give the kernel back-pressure
-    above every scope, which is a better answer than any poller and needs
-    the maintainer to choose a number.
+  * TWO COMMANDS ON HIS MACHINE, both written out in
+    `packaging/systemd/README.md` and neither run from here. The maintainer
+    chose on 2026-09-20 to have the unit written and to enable it himself.
+
+      1. The user unit, `packaging/systemd/spacr-memory-watchdog.service`.
+         The script is COPIED to ~/.local/bin rather than run from the
+         checkout, because a unit pointing into a git worktree stops working
+         the moment somebody moves or rebases it -- and the guard is then
+         missing with nobody noticing. The unit caps the watchdog itself at
+         256M: a watchdog chosen by the OOM killer was not there when it
+         mattered.
+      2. `MemoryHigh=100G` on `user@.service`, which needs root because that
+         is a system unit. HIS NUMBER, and deliberately the same as the
+         watchdog's: at 100 GB the kernel starts throttling AND the watchdog
+         starts looking, so the slow path and the decisive one begin
+         together. MemoryHigh does not kill -- above it the kernel reclaims
+         hard and the offender is throttled, which is the "reduce" the
+         request asked for and the one thing a poller cannot do from
+         outside.
   * It has never fired in anger. Everything above is tested on made-up
     process lists, which is the right way to test the selection rules and
     proves nothing about the day it matters.
