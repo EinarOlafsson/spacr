@@ -1,6 +1,8 @@
 ================================================================================
 THE MODEL ZOO PICKER IS ONE LONG LIST WITH A BOOLEAN; IT SHOULD BE FIVE FOLDABLE
 SOURCES
+Filed as 439 on 2026-09-19 and renumbered 440 the same evening, because the
+work session had already filed 439 (the two hoechst models).
 ================================================================================
 
 Status:    OPEN, filed 2026-09-19. Not started.
