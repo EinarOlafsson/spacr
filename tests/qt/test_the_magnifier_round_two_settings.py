@@ -6,7 +6,7 @@ maximum of 512 "should be able to be as high as the image is high/wide";
 the settings categories fold "like in the core applications"; with Cellpose
 on, "all the cellpose models in the model zoo" and "the model zoo button";
 the flow and cell-probability thresholds, and Otsu's threshold correction,
-set in the EXISTING Cellpose-SAM category, are what the magnifier's detection
+set in the Object detection category, are what the magnifier's detection
 uses; and "other computer vision models like a live YOLO or DINOCell".
 
 The canvas geometry and the coded-field stub are item 407's, imported from
@@ -175,7 +175,8 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
 # ---------------------------------------------------------------------------
 
 CATEGORIES = ("Brush", "Magic wand", "Display", "Auto-filter objects",
-              "Object operations", "Cellpose-SAM", "Live magnifier")
+              "Object operations", "Otsu", "Object detection",
+              "Live magnifier")
 
 
 def _categories(made):
@@ -206,7 +207,9 @@ def test_every_category_is_the_core_applications_folding_section(
             "Display": made._norm_hi, "Auto-filter objects":
                 made._filter_min_area,
             "Object operations": made._btn_otsu,
-            "Cellpose-SAM": made._cp_flow, "Live magnifier": made._mag_size,
+            "Otsu": made._otsu_correction,
+            "Object detection": made._cp_flow,
+            "Live magnifier": made._mag_size,
         }
         for title, section in categories.items():
             assert type(section) is Section
@@ -412,7 +415,7 @@ def test_a_zoo_that_cannot_be_read_leaves_the_installed_cellpose(
 
 
 # ---------------------------------------------------------------------------
-# 4 and 9. The Cellpose-SAM category is what the magnifier's detection uses
+# 4 and 9. The Object detection category is what the magnifier's detection uses
 # ---------------------------------------------------------------------------
 
 class _Spy:
@@ -455,7 +458,7 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
         qtbot, screen, monkeypatch, tmp_path):
     """One source of truth: the category's boxes reach the model call as set.
 
-    The box, the whole-image run and Cellpose-SAM detect are spied on in
+    The box, the whole-image run and Object detection are spied on in
     turn, and all three are handed the same numbers.
     """
     from spacr.qt.widgets import model_zoo_picker
@@ -483,7 +486,7 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
 
     _cellpose_on(screen)
     assert not screen._mag_sensitivity.isEnabled(), (
-        "Sensitivity is the classical mode's, so it is greyed out")
+        "Sensitivity is the Otsu mode's, so it is greyed out")
     screen._btn_magnifier.setChecked(True)
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
@@ -513,18 +516,29 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
     image, used, kwargs = spy.calls[-1]
     assert used is model
     assert kwargs == dict(wanted, flow_threshold=1.2), (
-        "Cellpose-SAM detect is handed the very same values")
+        "Object detection is handed the very same values")
     np.testing.assert_array_equal(image, screen._canvas.image)
 
 
-def test_the_thresholds_live_in_the_cellpose_sam_category(screen):
+def test_the_thresholds_live_in_the_object_detection_category(screen):
+    """Item 419 point 5 renamed this category and moved Otsu's settings out.
+
+    The Cellpose controls stay where 417 put them; the threshold correction
+    went to the Otsu category of its own, with the five settings item 419
+    added, because it is not a Cellpose setting and never was.
+    """
     categories = dict(screen._settings_categories)
-    cellpose = categories["Cellpose-SAM"]
+    cellpose = categories["Object detection"]
     for control in (screen._cp_model, screen._cp_model_zoo_btn,
                     screen._cp_flow, screen._cp_cellprob,
-                    screen._cp_diameter, screen._cp_normalize,
-                    screen._otsu_correction):
+                    screen._cp_diameter, screen._cp_normalize):
         assert cellpose.isAncestorOf(control)
+    otsu = categories["Otsu"]
+    for control in (screen._otsu_correction, screen._otsu_smoothing,
+                    screen._otsu_bright, screen._otsu_fill_holes,
+                    screen._otsu_split, screen._otsu_exclude_border):
+        assert otsu.isAncestorOf(control)
+    assert not cellpose.isAncestorOf(screen._otsu_correction)
     assert screen._cp_flow.value() == pytest.approx(mm.FLOW_THRESHOLD)
     assert screen._cp_cellprob.value() == pytest.approx(mm.CELLPROB_THRESHOLD)
     # Cellpose's own GUI offers -6..6 and 0..3; both fit inside these.
@@ -559,7 +573,7 @@ def test_a_ledger_entry_names_the_settings_the_objects_were_found_with(
 def soft_blobs(n: int = IMG_N) -> np.ndarray:
     """Three disks with a 5 px ramp at the rim, so the cut sets their size.
 
-    Plateau disks, not Gaussian blobs, because the classical mode only cuts
+    Plateau disks, not Gaussian blobs, because the Otsu mode only cuts
     at Otsu's level where a region is two clear populations. Measured before
     this was written: Gaussian blobs (sigma 5) fall short of that, are cut at
     the noise floor, and no correction moves them; these disks score 0.868
@@ -576,7 +590,7 @@ def soft_blobs(n: int = IMG_N) -> np.ndarray:
     return np.clip(img, 0, 65535).astype(np.uint16)
 
 
-def test_the_correction_moves_the_classical_cut_and_1_is_otsu_itself():
+def test_the_correction_moves_the_otsu_cut_and_1_is_otsu_itself():
     from spacr.qt import mask_engine as engine
 
     field = soft_blobs()
@@ -654,11 +668,11 @@ def test_the_correction_set_in_the_category_changes_the_otsu_detect_mask(
 
 def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
         qtbot, blob_screen):
-    """The real classical mode, no stub: the box's objects shrink."""
+    """The real Otsu mode, no stub: the box's objects shrink."""
     made = blob_screen
     magnifier = made._magnifier
     made._btn_magnifier.setChecked(True)
-    assert magnifier.mode == "classical"
+    assert magnifier.mode == "otsu"
     hover(made, 16, 16)
     wait_for_result(qtbot, made)
     at_one = int((magnifier._shown.labels > 0).sum())
@@ -695,7 +709,7 @@ def test_dinocell_and_samcell_are_offered_where_installed(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose", *_BACKEND_MODES]
+        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
         assert [made._mag_mode.itemText(i) for i in range(8)][2:] == [
             "Cellpose 3 · cyto3", "Cellpose 3 · cyto2", "Cellpose 3 · cyto",
             "Cellpose 3 · nuclei", "DINOCell", "SAMCell"]
@@ -726,7 +740,7 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose", *_BACKEND_MODES]
+        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
         assert made._mag_uninstalled == set(_BACKEND_MODES)
         for mode in _BACKEND_MODES:
             index = made._mag_mode.findData(mode)
@@ -737,10 +751,10 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
         offered = []
         monkeypatch.setattr(type(made), "_offer_backend_install",
                             lambda self, mode: offered.append(mode) or False)
-        made._mag_mode.setCurrentIndex(made._mag_mode.findData("classical"))
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("otsu"))
         made._on_magnifier_mode_activated(made._mag_mode.findData("samcell"))
         assert offered == ["samcell"], "choosing a missing model did not offer it"
-        assert made._mag_mode.currentData() == "classical", (
+        assert made._mag_mode.currentData() == "otsu", (
             "cancelling the install left the box on a model that cannot load")
     finally:
         made._magnifier.close()
@@ -864,7 +878,7 @@ def test_the_mode_box_re_reads_the_backends_when_a_mode_is_chosen(
         offered = []
         monkeypatch.setattr(type(made), "_offer_backend_install",
                             lambda self, mode: offered.append(mode) or False)
-        made._mag_mode.setCurrentIndex(made._mag_mode.findData("classical"))
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("otsu"))
         made._on_magnifier_mode_activated(
             made._mag_mode.findData("cellpose3:cyto3"))
 
@@ -873,7 +887,7 @@ def test_the_mode_box_re_reads_the_backends_when_a_mode_is_chosen(
         assert made._mag_uninstalled == set(_BACKEND_MODES)
         index = made._mag_mode.findData("cellpose3:cyto3")
         assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
-        assert made._mag_mode.currentData() == "classical"
+        assert made._mag_mode.currentData() == "otsu"
 
         from spacr.qt.widgets import model_zoo_picker
 
@@ -978,7 +992,7 @@ def test_a_backend_segments_the_box_through_the_real_backend_seam(
     model = mm._BACKEND_MODELS[mode]
     dtype, shape, cellprob = model.seen[0]
     assert dtype == np.uint8 and shape == (32, 32)
-    assert cellprob == -1.5, "the Cellpose-SAM cell probability reaches it"
+    assert cellprob == -1.5, "the Object detection cell probability reaches it"
 
     click(screen, 31, 30)
     expected = np.zeros((IMG_N, IMG_N), bool)
@@ -999,9 +1013,9 @@ def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
     screen._btn_magnifier.setChecked(True)
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
-    assert screen._magnifier._shown.mode == "classical"
+    assert screen._magnifier._shown.mode == "otsu"
     status = screen._status_label.text()
     assert f"{mode} could not run" in status
     assert "Install it from the Model Zoo" in status
     assert mode not in mm._BACKEND_MODELS, "a failed build is not kept"
-    assert screen._magnifier.build_request().mode == "classical"
+    assert screen._magnifier.build_request().mode == "otsu"

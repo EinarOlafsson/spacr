@@ -269,8 +269,10 @@ def test_the_two_intermediates_are_tabs_beside_the_mask(screen):
     from PySide6.QtWidgets import QTabWidget
 
     tabs = screen._view_tabs
-    assert screen._body_splitter.indexOf(tabs) == 1, (
+    assert screen._body_splitter.indexOf(screen._view_pane) == 1, (
         "the views are right of the settings (item 419)")
+    assert screen._view_pane.isAncestorOf(tabs), (
+        "the tabs share that pane with the shortcut list (item 419 point 4)")
 
     assert isinstance(tabs, QTabWidget)
     assert [tabs.tabText(i) for i in range(tabs.count())] == [
@@ -280,8 +282,8 @@ def test_the_two_intermediates_are_tabs_beside_the_mask(screen):
     # the sentence that says why it is empty.
     assert tabs.isTabEnabled(1) and tabs.isTabEnabled(2)
     assert not screen._prob_pane.has_image()
-    assert "Cellpose" in screen._prob_pane.text()
-    assert "Cellpose" in screen._flow_pane.text()
+    assert "Object detection" in screen._prob_pane.text()
+    assert "Object detection" in screen._flow_pane.text()
 
 
 def test_the_settings_are_cellposes_own_defaults(screen):
@@ -428,7 +430,7 @@ def test_moving_to_another_field_empties_the_panes(screen):
     assert not screen._prob_pane.has_image()
     assert not screen._flow_pane.has_image()
     assert screen._view_tabs.currentIndex() == 0
-    assert "Cellpose" in screen._prob_pane.text()
+    assert "Object detection" in screen._prob_pane.text()
 
 
 def test_the_model_is_loaded_once_per_session(screen):

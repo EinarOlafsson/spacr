@@ -135,7 +135,7 @@ from .. import prefs
 from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
 from ..theme import SPACING, active_palette, mark_surface
-from ..widgets import Divider, EmptyState
+from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
 from .app_screen import ModuleHeader
@@ -351,10 +351,57 @@ SETTINGS_WIDTH = 380
 #: handle, so the gap is also where the settings are dragged wider.
 SETTINGS_GAP = 12
 
+#: Width of the shortcut list beside the views, in pixels. FIXED, so every
+#: pixel a wider window gives the right-hand pane goes to the image; the list
+#: is a dozen short lines and does not want the room. Wide enough that the
+#: longest keys -- ``Magnifier, whole image: right`` -- wrap onto two lines
+#: and no line of prose breaks after one word, which is what a narrower
+#: column was doing when this was measured on a rendered screen.
+SHORTCUTS_WIDTH = 230
+
 #: Where the settings panel's folded categories are remembered, as the titles
 #: folded away -- :func:`spacr.qt.preferences.get_section_layout` keyed by
 #: this name.
 _SETTINGS_LAYOUT_KEY = "make_masks/settings"
+
+#: Settings categories this panel has renamed, old title to new. The stored
+#: layout is a list of TITLES, so a user who folded the old one away would
+#: find it open again after a rename and would have to fold it a second time;
+#: reading the stored list through this keeps their arrangement. Item 419
+#: renamed Cellpose-SAM at the maintainer's request.
+_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection"}
+
+#: Gaussian sigma the Otsu mode smooths with before it cuts, and what the
+#: Otsu category's Smoothing box starts at. It is
+#: :data:`spacr.qt.mask_engine._CLASSICAL_SMOOTHING` -- the value the
+#: magnifier's threshold mode has always used -- written here so the panel
+#: can start on it without importing a private name.
+OTSU_SMOOTHING = 1.0
+
+#: The shortcut list item 419 puts beside the Mask / Cell probability / Flows
+#: views, as ``(keys, what it does)``. ONE TERSE LINE EACH, as the request
+#: asked: the panel is read at a glance between strokes, and a paragraph
+#: there would be read once and then never again. Every line is a gesture
+#: this module actually implements -- :data:`PAN_MODIFIERS`,
+#: :meth:`_MaskCanvas.wheelEvent`, :meth:`_MaskCanvas.mousePressEvent` and
+#: :meth:`MakeMasksScreen._install_shortcuts` are where they live -- so the
+#: panel is checked against the code by
+#: ``tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py`` rather
+#: than believed.
+SHORTCUT_HINTS = (
+    ("Shift or Alt + drag", "Pan, from any tool"),
+    ("Wheel", "Zoom about the cursor"),
+    ("Right button", "Sweep away the objects it passes"),
+    ("Left / Right arrows", "Previous / next field"),
+    ("Ctrl+Z / Ctrl+Y", "Undo / redo"),
+    ("Ctrl+S", "Save the mask"),
+    ("Esc", "Reset the zoom"),
+    ("B E W D V Z R", "Brush, erase, wand, draw, divide, zoom, recrop"),
+    ("Magnifier: wheel", "Box zoom"),
+    ("Magnifier: Shift + wheel", "Box size"),
+    ("Magnifier: drag", "Add the objects it passes over"),
+    ("Magnifier, whole image: right", "Remove the object under it"),
+)
 
 
 class _MaskLoadWorker(QThread):
@@ -1377,7 +1424,7 @@ RECROP_TOOLTIP = (
 #: are empty for a reason and the reason is worth a sentence: a blank
 #: black pane reads as a broken view.
 FLOW_RESTING_TEXT = (
-    "Run Cellpose-SAM to see the cell-probability map\n"
+    "Run Object detection to see the cell-probability map\n"
     "and the flow field for this field."
 )
 
@@ -1698,21 +1745,31 @@ class _MagnifierRequest(NamedTuple):
     exclude_border: bool = True
     #: ``region`` for the box under the mouse, ``image`` for the whole field.
     scope: str = "region"
-    #: The Cellpose-SAM settings' flow threshold, cell-probability threshold
-    #: and normalization, which the models read (item 417).
+    #: The Object detection settings' flow threshold, cell-probability
+    #: threshold and normalization, which the models read (item 417).
     flow_threshold: float = FLOW_THRESHOLD
     cellprob_threshold: float = CELLPROB_THRESHOLD
     normalize: bool = True
-    #: What Otsu's level is multiplied by in the classical mode.
+    #: What Otsu's level is multiplied by in the Otsu mode.
     otsu_correction: float = 1.0
+    #: Gaussian sigma the Otsu mode smooths the region with before it cuts.
+    otsu_smoothing: float = OTSU_SMOOTHING
+    #: Whether the Otsu mode closes the holes inside what it thresholded.
+    otsu_fill_holes: bool = True
+    #: Whether the Otsu mode cuts a blob with two centres into two objects.
+    otsu_split: bool = True
 
 
 #: Everything a model reads, in the order :meth:`_LiveMagnifier._model_settings`
 #: gives it and a request key carries it after ``(field, box)``. The mode is
-#: first, which is what a key's ``[2]`` is read as.
+#: first, which is what a key's ``[2]`` is read as. ADDING ONE GOES AT THE
+#: END, beside the same name in :meth:`_LiveMagnifier._model_settings`: a
+#: request key is this tuple positionally, and an insertion in the middle
+#: would make every key already cached mean something else.
 _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
-                         "cellprob_threshold", "normalize", "otsu_correction")
+                         "cellprob_threshold", "normalize", "otsu_correction",
+                         "otsu_smoothing", "otsu_fill_holes", "otsu_split")
 
 
 class _MagnifierResult(NamedTuple):
@@ -1736,26 +1793,32 @@ class _MagnifierResult(NamedTuple):
     count: int = 0
 
 
-def _classical_segmenter(request: _MagnifierRequest, load_model=None):
+def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
     """Threshold and watershed the region; needs nothing installed.
 
-    Reads the Otsu threshold correction set under Cellpose-SAM, and the
-    magnifier's own sensitivity.
+    Reads the Otsu category's settings -- the threshold correction, the
+    smoothing, whether holes are filled and whether a blob with two centres
+    is cut in two -- and the magnifier's own sensitivity. Item 419 renamed
+    this mode from ``classical``; the old name still reaches it, through
+    :func:`canonical_magnifier_mode`.
     """
     return engine._classical_region_labels(
         request.crop, sensitivity=request.sensitivity,
         bright=request.bright, min_area=request.min_area,
-        correction=request.otsu_correction)
+        correction=request.otsu_correction,
+        smoothing=request.otsu_smoothing,
+        fill_holes=request.otsu_fill_holes,
+        split_touching=request.otsu_split)
 
 
 def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
-    """Segment the region with the Cellpose-SAM settings the screen has.
+    """Segment the region with the Object detection settings the screen has.
 
     ONE SOURCE OF TRUTH (item 417): the model, the flow threshold, the
     cell-probability threshold, the diameter and the normalization are the
-    Cellpose-SAM category's, exactly as Cellpose-SAM detect passes them, so
+    Object detection category's, exactly as the detect button passes them, so
     the box and the button cannot disagree about what Cellpose was asked. The
-    magnifier's own sensitivity is the classical mode's and is not read here.
+    magnifier's own sensitivity is the Otsu mode's and is not read here.
     """
     loader = load_model or load_cellpose_model
     with _CELLPOSE_LOCK:
@@ -1874,7 +1937,7 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
     and 423).
 
     A backend answers ``CellposeModel.eval``'s own call, so the region goes
-    through :func:`cellpose_detect` with the Cellpose-SAM settings exactly as
+    through :func:`cellpose_detect` with the Object detection settings as
     Cellpose's does: Cellpose 3 reads both thresholds and the diameter (0
     lets its size model estimate it), DINOCell reads the cell-probability
     threshold (through the logistic function, so 0 is its own 0.5) and
@@ -1898,19 +1961,37 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
 #: ``mode -> segmenter``, in the order the Mode box offers them. A segmenter
 #: takes ``(request, load_model)`` and returns labels shaped like
 #: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
-#: :func:`_segment_region` gives it the classical fallback for nothing.
+#: :func:`_segment_region` gives it the Otsu fallback for nothing.
 _MAGNIFIER_SEGMENTERS = {
-    "classical": _classical_segmenter,
+    "otsu": _otsu_segmenter,
     "cellpose": _cellpose_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
 }
 
+#: Mode names this screen used to carry, and what they are called now. The
+#: magnifier's threshold mode was ``classical`` until item 419 renamed it to
+#: ``otsu`` at the maintainer's request; a mode name reaches this module from
+#: a saved session, a script or a test, so the old one still arrives and is
+#: translated rather than refused.
+_MAGNIFIER_MODE_ALIASES = {"classical": "otsu"}
+
+
+def canonical_magnifier_mode(mode) -> str:
+    """The name a magnifier mode goes under today.
+
+    :param mode: a mode name, possibly one this screen has renamed.
+    :returns: the current name; an unknown mode is handed back unchanged, so
+        :func:`_segment_region` can still say it does not know it.
+    """
+    name = str(mode or "otsu")
+    return _MAGNIFIER_MODE_ALIASES.get(name, name)
+
 
 def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
-    """Run the request's mode, falling back to classical when it cannot run.
+    """Run the request's mode, falling back to Otsu when it cannot run.
 
     The fallback is why the magnifier never simply does nothing: a model
-    whose import or weights fail answers with the classical mode's objects
+    whose import or weights fail answers with the Otsu mode's objects
     and a note saying why, rather than with an empty box.
 
     :param request: the region and its settings.
@@ -1919,18 +2000,19 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
     """
-    segmenter = _MAGNIFIER_SEGMENTERS.get(request.mode)
+    mode = canonical_magnifier_mode(request.mode)
+    segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
-    elif segmenter is not _classical_segmenter:
+    elif segmenter is not _otsu_segmenter:
         try:
-            return segmenter(request, load_model), request.mode, ""
+            return segmenter(request, load_model), mode, ""
         except Exception as exc:                            # noqa: BLE001
-            LOG.warning("magnifier mode %s could not run; using classical",
+            LOG.warning("magnifier mode %s could not run; using Otsu",
                         request.mode, exc_info=True)
             note = f"{type(exc).__name__}: {exc}"
-    return _classical_segmenter(request, load_model), "classical", note
+    return _otsu_segmenter(request, load_model), "otsu", note
 
 
 def _candidate_overlay(labels: np.ndarray, colour) -> np.ndarray:
@@ -2199,7 +2281,7 @@ class _LiveMagnifier(QObject):
         self._emit_safely = emit_safely
         self.canvas = canvas
         self.enabled = False
-        self.mode = "classical"
+        self.mode = "otsu"
         self.size = _MAGNIFIER_SIZE
         self.zoom = _MAGNIFIER_ZOOM
         self.sensitivity = _MAGNIFIER_SENSITIVITY
@@ -2254,8 +2336,14 @@ class _LiveMagnifier(QObject):
         self.canvas.update()
 
     def set_mode(self, mode: str) -> None:
-        """Choose the model, and forget which models failed to run."""
-        self.mode = str(mode or "classical")
+        """Choose the model, and forget which models failed to run.
+
+        A mode this screen has renamed arrives under either name and is
+        stored under the current one (:func:`canonical_magnifier_mode`), so
+        a session or a script written before item 419 still selects a mode
+        that exists.
+        """
+        self.mode = canonical_magnifier_mode(mode)
         self._unavailable.clear()
         self.refresh()
         self.canvas.update()
@@ -2410,28 +2498,33 @@ class _LiveMagnifier(QObject):
         """Everything a model reads, in :data:`_MODEL_SETTING_FIELDS` order.
 
         As it would read it now: the screen's own settings through
-        ``context``, and classical in place of a mode that has already failed
+        ``context``, and Otsu in place of a mode that has already failed
         to load. Every setting is here whichever mode is chosen, because a
-        model that cannot run hands the request to the classical mode, which
+        model that cannot run hands the request to the Otsu mode, which
         must then find its own settings in it.
         """
         context = {"model_name": "cpsam", "diameter": 0, "bright": True,
                    "min_area": 0, "flow_threshold": FLOW_THRESHOLD,
                    "cellprob_threshold": CELLPROB_THRESHOLD,
-                   "normalize": True, "otsu_correction": 1.0}
+                   "normalize": True, "otsu_correction": 1.0,
+                   "otsu_smoothing": OTSU_SMOOTHING,
+                   "otsu_fill_holes": True, "otsu_split": True}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
-        mode = self.mode
+        mode = canonical_magnifier_mode(self.mode)
         if (mode, model_name) in self._unavailable:
-            mode = "classical"
+            mode = "otsu"
         return (mode, round(float(self.sensitivity), 4),
                 bool(context["bright"]), int(context["min_area"]),
                 model_name, int(context["diameter"]),
                 round(float(context["flow_threshold"]), 4),
                 round(float(context["cellprob_threshold"]), 4),
                 bool(context["normalize"]),
-                round(float(context["otsu_correction"]), 4))
+                round(float(context["otsu_correction"]), 4),
+                round(float(context["otsu_smoothing"]), 4),
+                bool(context["otsu_fill_holes"]),
+                bool(context["otsu_split"]))
 
     @staticmethod
     def _accent() -> tuple:
@@ -2871,7 +2964,7 @@ class _LiveMagnifier(QObject):
         self.canvas.update()
 
     def _note_fallback(self, request, result) -> bool:
-        """Say, once per model, that it could not run and classical stood in.
+        """Say, once per model, that it could not run and Otsu stood in.
 
         :returns: True when this call said it.
         """
@@ -2883,7 +2976,7 @@ class _LiveMagnifier(QObject):
         self._unavailable[marker] = result.note
         self.status.emit(
             f"Magnifier: {request.mode} could not run "
-            f"({result.note}); the classical mode is segmenting "
+            f"({result.note}); the Otsu mode is segmenting "
             f"instead.")
         return True
 
@@ -3751,11 +3844,14 @@ class MakeMasksScreen(QWidget):
                         self._cp_cellprob.valueChanged,
                         self._cp_normalize.toggled,
                         self._otsu_correction.valueChanged,
+                        self._otsu_smoothing.valueChanged,
+                        self._otsu_fill_holes.toggled,
+                        self._otsu_split.toggled,
                         self._otsu_bright.toggled,
                         self._min_area.valueChanged):
             changed.connect(self._on_magnifier_context_changed)
         self._body_splitter.addWidget(self._settings_scroll)
-        self._body_splitter.addWidget(self._view_tabs)
+        self._body_splitter.addWidget(self._build_view_pane())
         self._body_splitter.setStretchFactor(0, 1)
         self._body_splitter.setStretchFactor(1, 3)
         self._body_splitter.setSizes([SETTINGS_WIDTH, 900])
@@ -4218,9 +4314,10 @@ class MakeMasksScreen(QWidget):
         self._btn_settings.setMinimumHeight(32)
         self._btn_settings.setCursor(Qt.PointingHandCursor)
         self._btn_settings.setToolTip(
-            "Show or hide the settings — brush, wand, display, auto-filter "
-            "and object operations, as one group. The canvas takes the "
-            "width they give up.")
+            "Show or hide the settings — brush, wand, display, auto-filter, "
+            "object operations, Otsu, object detection and the live "
+            "magnifier, as one group. The canvas takes the width they give "
+            "up.")
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
         row.addWidget(self._btn_settings)
@@ -4324,7 +4421,8 @@ class MakeMasksScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not read the folded categories", exc_info=True)
             folded = None
-        self._folded_categories = {str(t) for t in (folded or ())}
+        self._folded_categories = {
+            _RENAMED_CATEGORIES.get(str(t), str(t)) for t in (folded or ())}
 
         brush_card = self._settings_category("Brush")
         brush_form = QFormLayout()
@@ -4652,9 +4750,9 @@ class MakeMasksScreen(QWidget):
         self._min_area.setValue(100)
         self._min_area.setToolTip(
             "Smallest object worth keeping, in pixels. Removing small "
-            "objects drops everything under it, and neither Otsu nor "
-            "Cellpose-SAM will produce an object below it, so one judgement "
-            "about debris is made in one box."
+            "objects drops everything under it, and neither Otsu detect nor "
+            "Object detection will produce an object below it, so one "
+            "judgement about debris is made in one box."
         )
         remove_row.addWidget(QLabel("Min area:"))
         remove_row.addWidget(self._min_area, 1)
@@ -4663,22 +4761,53 @@ class MakeMasksScreen(QWidget):
         remove_row.addWidget(remove_btn)
         remove_wrap = QWidget(); remove_wrap.setLayout(remove_row)
         ops_col.addWidget(remove_wrap)
+        size_row = QHBoxLayout()
+        size_row.setSpacing(SPACING["sm"])
+        self._grow_step = QSpinBox()
+        self._grow_step.setRange(1, 50)
+        self._grow_step.setValue(1)
+        self._grow_step.setSuffix(" px")
+        self._grow_step.setToolTip(
+            "How many pixels one press of Dilate or Shrink moves every "
+            "object's boundary. The distance is the straight-line one, so 1 "
+            "moves the edge onto its four neighbours and not its corners, "
+            "and a Shrink undoes a Dilate of the same size on an object that "
+            "had room to grow.")
+        size_row.addWidget(QLabel("Grow / shrink:"))
+        size_row.addWidget(self._grow_step, 1)
+        self._btn_dilate = QPushButton("Dilate")
+        self._btn_dilate.setCursor(Qt.PointingHandCursor)
+        self._btn_dilate.setToolTip(
+            "Grow every object by that many pixels, into background only: an "
+            "object never takes a pixel from its neighbour and two objects "
+            "never become one, so the ids and the object count are the ones "
+            "you had. One undo step.")
+        self._btn_dilate.clicked.connect(self._on_dilate)
+        size_row.addWidget(self._btn_dilate)
+        self._btn_shrink = QPushButton("Shrink")
+        self._btn_shrink.setCursor(Qt.PointingHandCursor)
+        self._btn_shrink.setToolTip(
+            "Pull every object's boundary in by that many pixels. Each "
+            "object is pulled back from its neighbours as well as from the "
+            "background, so a pair that was touching comes apart. AN OBJECT "
+            "THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line "
+            "says how many did. One undo step.")
+        self._btn_shrink.clicked.connect(self._on_shrink)
+        size_row.addWidget(self._btn_shrink)
+        size_wrap = QWidget(); size_wrap.setLayout(size_row)
+        ops_col.addWidget(size_wrap)
         detect_row = QHBoxLayout()
         detect_row.setSpacing(SPACING["sm"])
         self._btn_otsu = QPushButton("Otsu detect")
         self._btn_otsu.setCursor(Qt.PointingHandCursor)
         self._btn_otsu.setToolTip(
-            "Threshold the image at Otsu's level, multiplied by the Otsu "
-            "threshold correction under Cellpose-SAM, and label what is left, "
-            "honouring the minimum area above.")
+            "Threshold the image at Otsu's level and label what is left, "
+            "honouring the minimum area above. Everything about the "
+            "threshold — the correction, the smoothing, which side is the "
+            "object, filling holes, splitting a pair that touches and "
+            "dropping what the frame cut — is the Otsu category.")
         self._btn_otsu.clicked.connect(self._on_detect_otsu)
         detect_row.addWidget(self._btn_otsu)
-        self._otsu_bright = QCheckBox("Bright")
-        self._otsu_bright.setChecked(True)
-        self._otsu_bright.setToolTip(
-            "On: objects are brighter than background, as in fluorescence. "
-            "Off: take the dark side instead, for brightfield or stain.")
-        detect_row.addWidget(self._otsu_bright)
         self._combine_mode = QComboBox()
         for _mode in ("replace", "merge"):
             self._combine_mode.addItem(_mode, _mode)
@@ -4690,14 +4819,19 @@ class MakeMasksScreen(QWidget):
         detect_row.addWidget(self._combine_mode, 1)
         detect_wrap = QWidget(); detect_wrap.setLayout(detect_row)
         ops_col.addWidget(detect_wrap)
-        clear_btn = QPushButton("Clear mask")
-        clear_btn.setObjectName("DangerButton")
-        clear_btn.clicked.connect(self._on_clear_mask)
-        ops_col.addWidget(clear_btn)
+        self._btn_clear = QPushButton("Clear")
+        self._btn_clear.setObjectName("DangerButton")
+        self._btn_clear.setCursor(Qt.PointingHandCursor)
+        self._btn_clear.setToolTip(
+            "Remove every object from this field. It asks first, and it is "
+            "one undo step, so a press by accident costs one Ctrl+Z.")
+        self._btn_clear.clicked.connect(self._on_clear_mask)
+        ops_col.addWidget(self._btn_clear)
         obj_ops_wrap = QWidget(); obj_ops_wrap.setLayout(ops_col)
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
+        col.addWidget(self._build_otsu_card())
         col.addWidget(self._build_cellpose_card())
         col.addWidget(self._build_magnifier_card())
 
@@ -5079,13 +5213,14 @@ class MakeMasksScreen(QWidget):
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
-        correction = float(self._otsu_correction.value())
+        otsu = self._otsu_settings()
+        correction = otsu["correction"]
         try:
             detected = engine._otsu_instances(
                 self._canvas.image,
                 bright=self._otsu_bright.isChecked(),
                 min_area=int(self._min_area.value()),
-                correction=correction,
+                **otsu,
             )
         except Exception as exc:
             self._warn("Otsu detect failed", str(exc))
@@ -5108,7 +5243,11 @@ class MakeMasksScreen(QWidget):
         self._record("detect", mode, changed, method="otsu", n_objects=found,
                       bright=bool(self._otsu_bright.isChecked()),
                       min_area=int(self._min_area.value()),
-                      otsu_correction=correction)
+                      otsu_correction=correction,
+                      otsu_smoothing=otsu["smoothing"],
+                      otsu_fill_holes=otsu["fill_holes"],
+                      otsu_split=otsu["split_touching"],
+                      otsu_exclude_border=otsu["exclude_border"])
         self._history.push(out)
         self._refresh_history_buttons()
         side = "bright" if self._otsu_bright.isChecked() else "dark"
@@ -5142,6 +5281,79 @@ class MakeMasksScreen(QWidget):
         self._view_tabs = tabs
         return tabs
 
+    def _build_view_pane(self) -> QWidget:
+        """The views, with item 419's shortcut list down their right side.
+
+        The request was for the shortcuts to be "to the right of the mak,
+        cell probability, Flows" -- the three view tabs -- so the pane the
+        splitter holds is the tabs and the list side by side, and the list
+        travels with the views when the settings are hidden and the image
+        takes their width.
+
+        THE LIST IS NOT SETTINGS, so the Settings toggle does not take it
+        away: a shortcut list that disappears the moment the screen is
+        cleared for work is a list you can only read when you do not need
+        it. It is given a fixed width instead, so the image keeps every
+        pixel the window grows by.
+        """
+        pane = QWidget()
+        pane.setObjectName("MakeMasksViewPane")
+        row = QHBoxLayout(pane)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["md"])
+        row.addWidget(self._view_tabs, 1)
+        self._shortcut_panel = self._build_shortcut_panel()
+        row.addWidget(self._shortcut_panel)
+        #: The splitter's right-hand child: the views and the shortcut list.
+        self._view_pane = pane
+        return pane
+
+    def _build_shortcut_panel(self) -> QWidget:
+        """Item 419 point 4: the gestures, one terse line each.
+
+        Every row comes from :data:`SHORTCUT_HINTS`, so the list and the
+        gestures cannot drift apart without the table being edited, and a
+        test reads the same table off the built widget.
+
+        Read between strokes rather than studied, which is why nothing here
+        is a sentence. The keys sit on their own line ABOVE what they do,
+        rather than in a column beside it: measured on a rendered screen, a
+        two-column list 230 px wide broke every line of prose after one word.
+
+        IT IS A CARD, with the card's own title and subtitle labels. A bare
+        QLabel with an object name the theme does not style takes its colour
+        from the palette instead of the stylesheet, and this panel was
+        drawing its keys in near-black on the dark canvas -- invisible, and
+        visible as such only in a rendered grab.
+        """
+        panel = Card("Shortcuts")
+        panel.setObjectName("Card")
+        panel.setFixedWidth(SHORTCUTS_WIDTH)
+        panel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        body = panel.body_layout
+        body.setSpacing(SPACING["xs"])
+        #: ``keys -> (key label, what it does label)``, so a test can ask the
+        #: built panel what it is telling the user rather than re-reading the
+        #: table it was built from.
+        self._shortcut_rows = {}
+        for index, (keys, does) in enumerate(SHORTCUT_HINTS):
+            if index:
+                body.addSpacing(SPACING["xs"])
+            key_label = QLabel(keys, panel)
+            key_label.setObjectName("CardSubtitle")
+            key_label.setWordWrap(True)
+            font = key_label.font()
+            font.setBold(True)
+            key_label.setFont(font)
+            does_label = QLabel(does, panel)
+            does_label.setObjectName("Muted")
+            does_label.setWordWrap(True)
+            body.addWidget(key_label)
+            body.addWidget(does_label)
+            self._shortcut_rows[keys] = (key_label, does_label)
+        body.addStretch(1)
+        return panel
+
     def _reset_flow_panes(self) -> None:
         """Empty both intermediates and put the view back on the mask.
 
@@ -5155,7 +5367,13 @@ class MakeMasksScreen(QWidget):
         self._view_tabs.setCurrentIndex(0)
 
     def _build_cellpose_card(self) -> Section:
-        """The Cellpose-SAM settings, and the detect button they drive.
+        """The Object detection settings, and the detect button they drive.
+
+        "Cellpose-SAM" until item 419: the maintainer asked on 2026-09-16
+        for the category to be called Object detection, because what belongs
+        in it is every model that finds objects and not one of them. The
+        Otsu settings that used to sit at the bottom of it moved out to
+        their own category in the same change.
 
         The settings are ON THE PANEL rather than assumed. Both
         thresholds start at Cellpose's own defaults —
@@ -5175,9 +5393,9 @@ class MakeMasksScreen(QWidget):
         self._cp_loaded: dict = {}
 
         card = self._settings_category(
-            "Cellpose-SAM",
-            "Segments the open field. Both thresholds start at "
-            "Cellpose's own defaults.",
+            "Object detection",
+            "Segments the open field with a model. Both thresholds start "
+            "at Cellpose's own defaults.",
         )
         form = QFormLayout()
 
@@ -5267,7 +5485,64 @@ class MakeMasksScreen(QWidget):
             "normalized upstream, where doing it twice changes the result.")
         card.body_layout.addWidget(self._cp_normalize)
 
-        otsu_form = QFormLayout()
+        drives = QLabel(
+            "The Live magnifier reads these settings too: Cellpose mode uses "
+            "the model, both thresholds, the diameter and the normalization, "
+            "and DINOCell the cell probability. The Otsu mode reads the Otsu "
+            "category instead.")
+        drives.setObjectName("CardSubtitle")
+        drives.setWordWrap(True)
+        card.body_layout.addWidget(drives)
+
+        self._btn_cellpose = QPushButton("Object detection")
+        self._btn_cellpose.setIcon(iconset.icon("run"))
+        self._btn_cellpose.setCursor(Qt.PointingHandCursor)
+        self._btn_cellpose.setToolTip(
+            "Segment the open field with the Object detection model and "
+            "fold the result "
+            "in as the replace/merge setting says. Fills the Cell "
+            "probability and Flows tabs with what the run was thinking.")
+        self._btn_cellpose.clicked.connect(self._on_detect_cellpose)
+        self.add_toolbar_action(self._btn_cellpose)
+        return card
+
+    def _build_otsu_card(self) -> Section:
+        """The Otsu settings, driving both the button and the magnifier.
+
+        ITEM 419, POINT 5: "please add some more settings for the Otsu mode,
+        change the name of classical to Otsu" (the maintainer, 2026-09-16).
+        The threshold correction was the only one there was, and it sat at
+        the bottom of the Cellpose-SAM category, where a user looking for
+        the Otsu settings had no reason to open it. It moves here with the
+        Bright switch, which was a bare tick-box beside the detect button,
+        and four new ones.
+
+        ALL SIX DRIVE BOTH PLACES OTSU RUNS -- the Otsu detect button on the
+        whole field, and the Live magnifier's Otsu mode on the box under the
+        mouse -- so the box under the mouse is a preview of what the button
+        will do rather than a second opinion. The one exception is Exclude
+        at the image border, which the magnifier answers with its own
+        "Exclude objects touching the box border"; applying both to a box
+        would drop everything the box cut twice over.
+
+        THE DEFAULTS ARE THE MAGNIFIER'S, AND THAT MOVES THE BUTTON. Before
+        this category the two disagreed in three ways and nothing on the
+        screen said so: the magnifier smoothed the region, filled the holes
+        and cut a blob with two centres in two, and Otsu detect thresholded
+        and labelled and did none of it. A user who set the correction by
+        watching the box and then pressed the button got a different mask.
+        The three boxes start where the preview has always been, so the
+        button now agrees with it; three clicks put the plain threshold
+        back, which is what :func:`spacr.qt.mask_engine._otsu_instances`
+        still does when it is asked for nothing.
+        """
+        card = self._settings_category(
+            "Otsu",
+            "Thresholds at Otsu's level. Drives Otsu detect and the Live "
+            "magnifier's Otsu mode.",
+        )
+        form = QFormLayout()
+
         self._otsu_correction = QDoubleSpinBox()
         self._otsu_correction.setDecimals(2)
         self._otsu_correction.setRange(0.1, 5.0)
@@ -5278,30 +5553,75 @@ class MakeMasksScreen(QWidget):
             "before it is used. Above 1 is stricter, so objects shrink and "
             "faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's "
             "own level. Otsu detect uses it, and so does the Live magnifier's "
-            "Classical mode wherever a region holds two clear populations.")
-        otsu_form.addRow(QLabel("Otsu threshold correction"),
-                         self._otsu_correction)
-        card.body_layout.addLayout(otsu_form)
+            "Otsu mode wherever a region holds two clear populations.")
+        form.addRow("Threshold correction", self._otsu_correction)
 
-        drives = QLabel(
-            "The Live magnifier reads these settings too: Cellpose mode uses "
-            "the model, both thresholds, the diameter and the normalization, "
-            "DINOCell the cell probability, and Classical mode the Otsu "
-            "threshold correction.")
-        drives.setObjectName("CardSubtitle")
-        drives.setWordWrap(True)
-        card.body_layout.addWidget(drives)
+        self._otsu_smoothing = QDoubleSpinBox()
+        self._otsu_smoothing.setDecimals(1)
+        self._otsu_smoothing.setRange(0.0, 10.0)
+        self._otsu_smoothing.setSingleStep(0.5)
+        self._otsu_smoothing.setValue(OTSU_SMOOTHING)
+        self._otsu_smoothing.setToolTip(
+            "Gaussian blur, in pixels, before the level is found and before "
+            "the image is cut at it. It is what stops a noisy field coming "
+            "back as a thousand single-pixel objects. 0 thresholds the raw "
+            "data.")
+        form.addRow("Smoothing (sigma)", self._otsu_smoothing)
+        card.body_layout.addLayout(form)
 
-        self._btn_cellpose = QPushButton("Cellpose-SAM detect")
-        self._btn_cellpose.setIcon(iconset.icon("run"))
-        self._btn_cellpose.setCursor(Qt.PointingHandCursor)
-        self._btn_cellpose.setToolTip(
-            "Segment the open field with Cellpose-SAM and fold the result "
-            "in as the replace/merge setting says. Fills the Cell "
-            "probability and Flows tabs with what the run was thinking.")
-        self._btn_cellpose.clicked.connect(self._on_detect_cellpose)
-        self.add_toolbar_action(self._btn_cellpose)
+        self._otsu_bright = QCheckBox("Objects are brighter than background")
+        self._otsu_bright.setChecked(True)
+        self._otsu_bright.setToolTip(
+            "On: objects are brighter than background, as in fluorescence. "
+            "Off: take the dark side instead, for brightfield or stain.")
+        card.body_layout.addWidget(self._otsu_bright)
+
+        self._otsu_fill_holes = QCheckBox("Fill holes inside an object")
+        self._otsu_fill_holes.setChecked(True)
+        self._otsu_fill_holes.setToolTip(
+            "Close the holes inside what was thresholded, before it is "
+            "labelled. A nucleus dimmer in the middle than at its rim comes "
+            "back as a ring without this. The magnifier's Otsu mode has "
+            "always done it and Otsu detect did not, which is why the two "
+            "could disagree about the same field; now they both read this "
+            "box.")
+        card.body_layout.addWidget(self._otsu_fill_holes)
+
+        self._otsu_split = QCheckBox("Split objects that touch")
+        self._otsu_split.setChecked(True)
+        self._otsu_split.setToolTip(
+            "Cut a blob with two centres in two, at the ridge between them "
+            "(a watershed on the distance to the background). A blob with "
+            "one centre is left whole, so this is not a splitter that cuts "
+            "everything. Off, a pair of touching cells arrives as one "
+            "object.")
+        card.body_layout.addWidget(self._otsu_split)
+
+        self._otsu_exclude_border = QCheckBox(
+            "Drop objects the image border cuts")
+        self._otsu_exclude_border.setChecked(False)
+        self._otsu_exclude_border.setToolTip(
+            "Leave out the objects the edge of the field runs through. Their "
+            "area and their mean intensity are properties of where the frame "
+            "fell rather than of the object, so a detection meant to be "
+            "measured is better without them. Otsu detect only: the Live "
+            "magnifier has its own box-border switch.")
+        card.body_layout.addWidget(self._otsu_exclude_border)
         return card
+
+    def _otsu_settings(self) -> dict:
+        """What the Otsu category says, as :func:`_otsu_instances` keywords.
+
+        One reader for the button and the magnifier, so a setting added to
+        the category reaches both by being read here once.
+        """
+        return {
+            "correction": float(self._otsu_correction.value()),
+            "smoothing": float(self._otsu_smoothing.value()),
+            "fill_holes": bool(self._otsu_fill_holes.isChecked()),
+            "split_touching": bool(self._otsu_split.isChecked()),
+            "exclude_border": bool(self._otsu_exclude_border.isChecked()),
+        }
 
     def _detect_min_area(self) -> int:
         """Smallest object a detection may keep, in pixels.
@@ -5534,7 +5854,7 @@ class MakeMasksScreen(QWidget):
             self._flow_pane.show_rgb(flow)
 
     def run_cellpose(self) -> int:
-        """Segment the open field with Cellpose-SAM; return objects found.
+        """Segment the open field with the chosen model; objects found.
 
         The two panes are filled BEFORE the mask is touched, and they are
         filled even when the run found nothing at all. A run that returns
@@ -5549,13 +5869,14 @@ class MakeMasksScreen(QWidget):
         """
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(
-                "Open a folder before running Cellpose-SAM.")
+                "Open a folder before running Object detection.")
             return 0
 
         model_name = self._cp_model.currentData() or "cpsam"
         app = QApplication.instance()
         self._btn_cellpose.setEnabled(False)
-        self._status_label.setText(f"Cellpose-SAM ({model_name}) running…")
+        self._status_label.setText(
+            f"Object detection ({model_name}) running…")
         if app is not None:
             app.setOverrideCursor(Qt.WaitCursor)
             app.processEvents()
@@ -5571,8 +5892,8 @@ class MakeMasksScreen(QWidget):
                     min_size=self._detect_min_area(),
                 )
         except Exception as exc:
-            LOG.exception("Cellpose-SAM detect failed")
-            self._warn("Cellpose-SAM detect failed", str(exc))
+            LOG.exception("Object detection failed")
+            self._warn("Object detection failed", str(exc))
             return 0
         finally:
             if app is not None:
@@ -5585,7 +5906,8 @@ class MakeMasksScreen(QWidget):
         found = int(labels.max()) if labels.size else 0
         if not found:
             self._status_label.setText(
-                "Cellpose-SAM found no objects — the mask is unchanged. The "
+                "Object detection found no objects — the mask is "
+                "unchanged. The "
                 "Cell probability tab shows what it had to work with.")
             return 0
 
@@ -5593,7 +5915,7 @@ class MakeMasksScreen(QWidget):
         try:
             out = engine.combine_masks(self._canvas.mask, labels, mode)
         except Exception as exc:
-            self._warn("Cellpose-SAM detect failed", str(exc))
+            self._warn("Object detection failed", str(exc))
             return 0
         changed = self._pixels_changed(out)
         self._canvas.mask = out
@@ -5607,27 +5929,27 @@ class MakeMasksScreen(QWidget):
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(
-            f"Cellpose-SAM ({model_name}) found {found} object(s) — "
+            f"Object detection ({model_name}) found {found} object(s) — "
             f"{mode}d into the mask. See the Cell probability and Flows tabs."
         )
         return found
 
     def _on_detect_cellpose(self):
-        """Toolbar handler for the Cellpose-SAM detect button."""
+        """Toolbar handler for the Object detection button."""
         self.run_cellpose()
 
     def _build_magnifier_card(self) -> Section:
         """The live magnifier's settings, and the toggle that turns it on.
 
-        The toggle goes in the tool row beside Cellpose-SAM detect, because it
+        The toggle goes in the tool row beside Object detection, because it
         has to stay reachable with the settings hidden; the four settings the
         request named -- mode, size, zoom, sensitivity -- and the overlap rule
         go here, with what is segmented (the region under the mouse or the
         whole image once), whether objects cut by the box are offered, and
         the progress and Cancel of a whole-image run. Cellpose mode reads its
-        model, thresholds, diameter and normalization from the Cellpose-SAM
-        category, and classical mode reads Bright and Min area from Object
-        operations and the Otsu threshold correction from Cellpose-SAM, so
+        model, thresholds, diameter and normalization from the Object
+        detection category, and Otsu mode reads Min area from Object
+        operations and everything else from the Otsu category, so
         each of those judgements is still made in one box (item 417). No
         value here persists between sessions, like every other setting on this
         panel; only which categories are folded does.
@@ -5648,7 +5970,7 @@ class MakeMasksScreen(QWidget):
                 return False
 
         self._mag_mode = QComboBox()
-        self._mag_mode.addItem("Classical", "classical")
+        self._mag_mode.addItem("Otsu", "otsu")
         if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
@@ -5656,19 +5978,20 @@ class MakeMasksScreen(QWidget):
             self._mag_mode.addItem(label, mode)
         self._resync_magnifier_modes()
         self._mag_mode.setToolTip(
-            "Which model segments the region in the box. Classical thresholds "
+            "Which model segments the region in the box. Otsu thresholds "
             "the region at Otsu's level and splits touching objects with a "
-            "watershed; it needs nothing installed, follows the Bright switch "
-            "and the Min area box under Object operations and the Otsu "
-            "threshold correction under Cellpose-SAM, and runs whenever a "
+            "watershed; it needs nothing installed, follows the Min area box "
+            "under Object operations and the "
+            "threshold correction and the rest of the Otsu category, and "
+            "runs whenever a "
             "model cannot be loaded. Cellpose uses the model, both thresholds, "
-            "the diameter and the normalization set under Cellpose-SAM, and "
-            "is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), "
-            "DINOCell and SAMCell are always listed and greyed until "
-            "installed, and choosing one offers to install it into an "
+            "the diameter and the normalization set under Object detection, "
+            "and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, "
+            "nuclei), DINOCell and SAMCell are always listed and greyed "
+            "until installed, and choosing one offers to install it into an "
             "environment of its own; Cellpose 3 reads both thresholds and "
-            "the diameter set under Cellpose-SAM, DINOCell reads the cell "
-            "probability, and SAMCell uses its own thresholds.")
+            "the diameter set under Object detection, DINOCell reads the "
+            "cell probability, and SAMCell uses its own thresholds.")
         self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
         self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
         form.addRow("Mode", self._mag_mode)
@@ -5742,15 +6065,16 @@ class MakeMasksScreen(QWidget):
         self._mag_sensitivity.setSingleStep(0.25)
         self._mag_sensitivity.setValue(_MAGNIFIER_SENSITIVITY)
         self._mag_sensitivity.setToolTip(
-            "How readily the Classical mode accepts an object. Raise it to "
+            "How readily the Otsu mode accepts an object. Raise it to "
             "take in dimmer or less certain objects, lower it to keep only "
             "clear ones; 0 is the default cut. The models read their "
-            "thresholds from the Cellpose-SAM settings instead, so this is "
+            "thresholds from the Object detection settings instead, so this "
+            "is "
             "greyed out while another mode is chosen.")
         self._mag_sensitivity.valueChanged.connect(magnifier.set_sensitivity)
         form.addRow("Sensitivity", self._mag_sensitivity)
         self._mag_sensitivity.setEnabled(
-            self._mag_mode.currentData() == "classical")
+            self._mag_mode.currentData() == "otsu")
 
         self._mag_overlap = QComboBox()
         self._mag_overlap.addItem("Clip", "clip")
@@ -5822,9 +6146,9 @@ class MakeMasksScreen(QWidget):
     def _magnifier_context(self) -> dict:
         """The settings the magnifier's models read from elsewhere on the panel.
 
-        The Cellpose-SAM category's own controls, read the moment a request
-        is built: the detect button reads the same boxes, so there is one set
-        of Cellpose settings on the panel and not one per tool.
+        The Object detection and Otsu categories' own controls, read the
+        moment a request is built: the detect buttons read the same boxes, so
+        there is one set of settings on the panel and not one per tool.
         """
         return {
             "model_name": self._cp_model.currentData() or "cpsam",
@@ -5833,14 +6157,18 @@ class MakeMasksScreen(QWidget):
             "cellprob_threshold": float(self._cp_cellprob.value()),
             "normalize": bool(self._cp_normalize.isChecked()),
             "otsu_correction": float(self._otsu_correction.value()),
+            "otsu_smoothing": float(self._otsu_smoothing.value()),
+            "otsu_fill_holes": bool(self._otsu_fill_holes.isChecked()),
+            "otsu_split": bool(self._otsu_split.isChecked()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
         }
 
     def _on_magnifier_mode(self, mode) -> None:
-        """Choose the magnifier's model; Sensitivity is the classical mode's."""
-        self._mag_sensitivity.setEnabled(mode == "classical")
-        self._magnifier.set_mode(mode)
+        """Choose the magnifier's model; Sensitivity is the Otsu mode's."""
+        name = canonical_magnifier_mode(mode)
+        self._mag_sensitivity.setEnabled(name == "otsu")
+        self._magnifier.set_mode(name)
 
     def _on_mode_row_changed(self, _index: int) -> None:
         """The Mode box's row changed: hand the mode on, if it can run.
@@ -5854,10 +6182,11 @@ class MakeMasksScreen(QWidget):
         mode = self._mag_mode.currentData()
         if mode in getattr(self, "_mag_uninstalled", ()):
             running = self._mag_mode.findData(
-                getattr(self._magnifier, "mode", None) or "classical")
+                canonical_magnifier_mode(
+                    getattr(self._magnifier, "mode", None)))
             self._mag_mode.setCurrentIndex(
                 running if running >= 0
-                else self._mag_mode.findData("classical"))
+                else self._mag_mode.findData("otsu"))
             return
         self._on_magnifier_mode(mode)
 
@@ -5899,9 +6228,9 @@ class MakeMasksScreen(QWidget):
         if mode not in getattr(self, "_mag_uninstalled", ()):
             return
         previous = self._mag_mode.findData(
-            getattr(self._magnifier, "mode", None) or "classical")
+            canonical_magnifier_mode(getattr(self._magnifier, "mode", None)))
         if previous < 0 or previous == index:
-            previous = self._mag_mode.findData("classical")
+            previous = self._mag_mode.findData("otsu")
         self._mag_mode.setCurrentIndex(max(previous, 0))
         self._offer_backend_install(mode)
 
@@ -6585,11 +6914,68 @@ class MakeMasksScreen(QWidget):
         self._apply_op(lambda m: engine.remove_small_objects(m, area),
                         "remove_small", min_area=area)
 
-    def _on_clear_mask(self):
-        """Throw the whole mask away, after confirming."""
+    def _objects_now(self) -> int:
+        """How many objects the open mask holds, by distinct id.
+
+        Not ``mask.max()``: a mask that has had objects deleted out of the
+        middle of it has ids with gaps, and the largest id is then a count
+        of what has ever been there rather than of what is there.
+        :func:`_object_count` is the same count, and is what the magnifier
+        reports its own results with.
+        """
+        field = self._canvas.mask
+        if field is None or not np.asarray(field).size:
+            return 0
+        return _object_count(field)
+
+    def _on_dilate(self):
+        """Grow every object by the step, into background only."""
         if self._canvas.mask is None:
             return
-        if not self._confirm("Clear mask", "Zero out the current mask?"):
+        step = int(self._grow_step.value())
+        before = self._objects_now()
+        self._apply_op(lambda m: engine.dilate_objects(m, step),
+                       "dilate", step=step)
+        self._status_label.setText(
+            f"Dilated {before} object(s) by {step} px — no object took a "
+            f"pixel from another.")
+
+    def _on_shrink(self):
+        """Pull every object in by the step, and say what that cost.
+
+        THE COUNT IS THE POINT OF THE MESSAGE. Erosion deletes anything
+        thinner than twice the step, and a curator who has just lost eleven
+        objects to a step of 3 needs to be told so while the undo is still
+        the obvious thing to do.
+        """
+        if self._canvas.mask is None:
+            return
+        step = int(self._grow_step.value())
+        before = self._objects_now()
+        self._apply_op(lambda m: engine.shrink_objects(m, step),
+                       "shrink", step=step)
+        after = self._objects_now()
+        gone = max(0, before - after)
+        lost = (f" — {gone} object(s) were thinner than {2 * step} px and "
+                f"are gone; Undo brings them back" if gone else "")
+        self._status_label.setText(
+            f"Shrank {after} object(s) by {step} px{lost}.")
+
+    def _on_clear_mask(self):
+        """Throw the whole mask away, after confirming.
+
+        Item 419 point 6 asks for Clear to confirm, which it already did;
+        what it says is new. "Zero out the current mask?" did not say how
+        much was about to go, and the answer is the one fact that decides
+        the question.
+        """
+        if self._canvas.mask is None:
+            return
+        count = self._objects_now()
+        if not self._confirm(
+                "Clear mask",
+                f"Remove all {count} object(s) from this field? The field "
+                f"itself is untouched, and Undo brings the objects back."):
             return
         self.clear_mask()
 
@@ -6632,5 +7018,6 @@ class MakeMasksScreen(QWidget):
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
+                   self._btn_dilate, self._btn_shrink, self._btn_clear,
                    *self._mode_buttons.values()):
             b.setEnabled(editable)

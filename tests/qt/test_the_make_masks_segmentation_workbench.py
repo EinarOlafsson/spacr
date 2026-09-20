@@ -21,6 +21,8 @@ from pathlib import Path
 import imageio.v2 as imageio
 import numpy as np
 import pytest
+from PySide6.QtCore import QEvent
+from PySide6.QtWidgets import QApplication
 
 from spacr.curation import is_curated
 from spacr.mask_io import load_mask
@@ -52,11 +54,41 @@ def field_folder(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def screen(qtbot, qt_theme_applied):
-    """A Make Masks screen whose folded windows are closed afterwards."""
+    """A Make Masks screen that is taken apart, not merely left behind.
+
+    THIS FIXTURE USED TO END AT ``close_folded()``, and the file died with
+    SIGSEGV about half the time it was run. The crash is in
+    ``QTimerInfoList::activateTimers`` -> ``QCoreApplication::notifyInternal2``
+    (gdb backtrace, 2026-09-19): a Qt timer delivering an event to a C++
+    object Python has already collected. No assertion fails; the process
+    simply dies partway through, inside ``pytest-qt``'s ``_process_events``.
+
+    Three things were missing, and all three are needed:
+
+    * ``_magnifier.close()`` -- it owns a worker thread and timers, and this
+      was the ONLY Make Masks fixture in the suite that did not close it;
+    * ``close()`` and ``deleteLater()`` on the screen itself;
+    * a drained ``DeferredDelete`` queue, so the screen is actually gone
+      before the next test builds another.
+
+    MEASURED, because the failure is probabilistic and a fix that is not
+    measured is a coincidence. On 2026-09-19, building item 419 part B:
+    nightly as it stood, 0 crashes in 16 runs; nightly plus ONE spin box on
+    the settings panel, 1 in 5; plus the three controls point 6 asks for,
+    5 in 6; with this teardown and those controls, 0 in 16. The screen was
+    never the problem. The fixture was, and any change that put one more
+    timer-owning widget on that panel was going to collect the debt.
+    """
     made = MakeMasksScreen()
     qtbot.addWidget(made)
     yield made
+    made._magnifier.close()
     made.close_folded()
+    made.close()
+    made.deleteLater()
+    QApplication.processEvents()
+    QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    QApplication.processEvents()
 
 
 # ---------------------------------------------------------------------------

@@ -14,7 +14,7 @@ tool rather than a demo:
   going off, a save, and a trip to the next field and back;
 * the model NEVER runs on the GUI thread, and the worker keeps only the
   newest request, so a moving mouse cannot queue up stale regions;
-* with no model installed, the classical mode still finds objects.
+* with no model installed, the Otsu mode still finds objects.
 
 Most tests use a STUB model that reads where it is from the pixels it is
 given: the field is coded so a pixel's value is ``y * 64 + x``, and the stub
@@ -506,8 +506,13 @@ def blob_field(n=IMG_N) -> np.ndarray:
     return np.clip(img, 0, 65535).astype(np.uint16)
 
 
-def test_the_classical_mode_works_with_no_model_installed(monkeypatch):
-    """Asked for Cellpose with no Cellpose, the answer is classical objects."""
+def test_the_otsu_mode_works_with_no_model_installed(monkeypatch):
+    """Asked for Cellpose with no Cellpose, the answer is Otsu objects.
+
+    ``classical`` until item 419 point 5 renamed the mode to ``otsu``; the
+    old name still reaches :func:`mm._segment_region`, which is the next
+    assertion.
+    """
     monkeypatch.setitem(sys.modules, "cellpose", None)
     monkeypatch.setitem(sys.modules, "cellpose.models", None)
     field = blob_field()
@@ -518,7 +523,7 @@ def test_the_classical_mode_works_with_no_model_installed(monkeypatch):
 
     labels, used, note = mm._segment_region(
         request, load_model=mm.load_cellpose_model)
-    assert used == "classical"
+    assert used == "otsu"
     assert "ImportError" in note or "ModuleNotFoundError" in note
     assert labels.max() == 3
     assert len({int(labels[16, 16]), int(labels[16, 44]),
@@ -529,11 +534,14 @@ def test_the_classical_mode_works_with_no_model_installed(monkeypatch):
         0, 200, (IMG_N, IMG_N)).astype(np.uint16), box=request.box,
         shape=request.shape, mode="classical", sensitivity=0.0, bright=True,
         min_area=20, model_name="cpsam", diameter=0, colour=(255, 0, 0))
-    assert mm._segment_region(empty)[0].max() == 0, (
+    labels, used, _note = mm._segment_region(empty)
+    assert labels.max() == 0, (
         "background noise has an Otsu level too; it must not become objects")
+    assert used == "otsu", (
+        "the old mode name still runs, under the name it has now")
 
 
-def test_sensitivity_moves_the_classical_cut_the_way_its_name_says():
+def test_sensitivity_moves_the_otsu_cut_the_way_its_name_says():
     """Raised, it finds dim objects the default misses; noise stays empty.
 
     Three disks one noise deviation above the background: below what the
@@ -557,16 +565,16 @@ def test_sensitivity_moves_the_classical_cut_the_way_its_name_says():
         noise, sensitivity=2, min_area=20).max() == 0
 
 
-def test_the_screen_offers_and_runs_classical_with_no_model(
+def test_the_screen_offers_and_runs_otsu_with_no_model(
         qtbot, qt_theme_applied, tmp_path, monkeypatch):
-    """No Cellpose: Classical is the only mode that runs, and a click adds.
+    """No Cellpose: Otsu is the only mode that runs, and a click adds.
 
     Every optional backend stays listed, greyed, since c60d48e35 (item 419
     point 3): a model absent from the box teaches nobody it exists. This
     test still said Mode offers "only Classical" and had been red on nightly
     since that commit. Item 423 added the four Cellpose 3 models to that
     list, so the list is read from _MAGNIFIER_BACKENDS rather than typed
-    out again.
+    out again, and item 419 point 5 renamed Classical to Otsu.
     """
     from spacr import _segmentation_backends as backends
 
@@ -585,9 +593,9 @@ def test_the_screen_offers_and_runs_classical_with_no_model(
         made._mag_size.setValue(SIZE)
         assert [made._mag_mode.itemData(i)
                 for i in range(made._mag_mode.count())] == [
-            "classical", *mm._MAGNIFIER_BACKENDS]
+            "otsu", *mm._MAGNIFIER_BACKENDS]
         assert made._mag_uninstalled == set(mm._MAGNIFIER_BACKENDS)
-        assert made._mag_mode.currentData() == "classical"
+        assert made._mag_mode.currentData() == "otsu"
         made._btn_magnifier.setChecked(True)
         hover(made, 30, 44)
         wait_for_result(qtbot, made)
@@ -609,9 +617,9 @@ def test_a_mode_that_cannot_load_falls_back_and_says_so(qtbot, screen):
     screen._btn_magnifier.setChecked(True)
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
-    assert screen._magnifier._shown.mode == "classical"
+    assert screen._magnifier._shown.mode == "otsu"
     assert "cellpose could not run" in screen._status_label.text()
-    assert screen._magnifier.build_request().mode == "classical", (
+    assert screen._magnifier.build_request().mode == "otsu", (
         "a model that failed is not retried on every mouse move")
 
 

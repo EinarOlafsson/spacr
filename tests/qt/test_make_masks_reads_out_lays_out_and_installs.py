@@ -256,7 +256,8 @@ def test_the_settings_are_left_of_the_image_with_a_gap(screen, qtbot):
     settings = screen._settings_scroll
     image = screen._view_tabs
     assert screen._body_splitter.indexOf(settings) == 0
-    assert screen._body_splitter.indexOf(image) == 1
+    assert screen._body_splitter.indexOf(screen._view_pane) == 1
+    assert screen._view_pane.isAncestorOf(image)
     right_of_settings = settings.mapTo(screen, settings.rect().topRight()).x()
     left_of_image = image.mapTo(screen, image.rect().topLeft()).x()
     gap = left_of_image - right_of_settings - 1
@@ -394,11 +395,11 @@ def test_an_install_that_did_not_happen_leaves_the_box_working(
         _choose(made._mag_mode, "dinocell")
         assert asked == ["dinocell"]
         assert "dinocell" in made._mag_uninstalled
-        assert made._mag_mode.currentData() == "classical"
+        assert made._mag_mode.currentData() == "otsu"
         assert made._mag_mode.itemData(made._mag_mode.findData("dinocell"),
                                        Qt.ForegroundRole) is not None
-        _choose(made._mag_mode, "classical")
-        assert made._magnifier.mode == "classical"
+        _choose(made._mag_mode, "otsu")
+        assert made._magnifier.mode == "otsu"
     finally:
         made._magnifier.close()
         made.close_folded()

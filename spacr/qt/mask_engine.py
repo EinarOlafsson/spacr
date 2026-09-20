@@ -870,6 +870,81 @@ def remove_small_objects(mask: np.ndarray, min_area: int) -> np.ndarray:
     return labeled.astype(mask.dtype)
 
 
+def dilate_objects(mask: np.ndarray, distance: int = 1) -> np.ndarray:
+    """Grow every object by ``distance`` pixels, without merging any two.
+
+    A label takes the background pixels within ``distance`` of it; a pixel
+    contested by two labels goes to the nearer one, and a pixel that already
+    carries a label is never taken. SO THE OBJECT COUNT CANNOT CHANGE, which
+    is what makes this safe on a mask that has been curated: ids survive, and
+    an object that has been given the right id keeps it, along with every
+    measurement, track and crop keyed by it.
+
+    The distance is Euclidean (:func:`skimage.segmentation.expand_labels`),
+    so ``1`` adds the four edge neighbours and not the corners -- the same
+    metric :func:`shrink_objects` takes away by, which is what makes a shrink
+    after a dilate land back where it started on an object with no neighbour
+    close enough to have blocked the growth.
+
+    :param mask: label image; 0 is background.
+    :param distance: pixels to grow by. 0 or less returns a copy.
+    :returns: a mask of the same dtype with the same label values.
+    """
+    from skimage.segmentation import expand_labels
+
+    out = np.asarray(mask)
+    if int(distance) <= 0 or not out.size:
+        return out.copy()
+    grown = expand_labels(out, distance=float(int(distance)))
+    return np.asarray(grown).astype(mask.dtype, copy=False)
+
+
+def shrink_objects(mask: np.ndarray, distance: int = 1) -> np.ndarray:
+    """Erode every object by ``distance`` pixels, each one on its own.
+
+    Each object is eroded against everything that is not itself -- background
+    AND the objects touching it -- so two objects sharing a border both pull
+    back from it and the seam between them widens. Eroding the foreground as
+    one binary would instead leave that seam untouched, which is the opposite
+    of what a curator reaching for Shrink wants.
+
+    AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS. That is what
+    erosion means, and the screen says how many went rather than letting them
+    go quietly; the edit is one undo step, so the way back is one press.
+
+    The image border counts as background, matching
+    :func:`scipy.ndimage.binary_erosion`'s own default, so an object the
+    field cut off pulls back from the cut too.
+
+    Each object is eroded inside its own bounding box, so the cost follows
+    the area of the objects rather than the area of the field -- the same
+    reason :func:`canonical_labels` works in boxes.
+
+    :param mask: label image; 0 is background.
+    :param distance: pixels to erode by. 0 or less returns a copy.
+    :returns: a mask of the same dtype, holding the ids that survived.
+    """
+    out = np.array(mask, copy=True)
+    steps = int(distance)
+    if steps <= 0 or not out.size:
+        return out
+    ndimage = _ndimage()
+    boxes = ndimage.find_objects(out.astype(np.int64, copy=False))
+    for value, box in enumerate(boxes, start=1):
+        if box is None:
+            continue
+        window = out[box]
+        inside = window == value
+        core = tuple(slice(steps, steps + n) for n in inside.shape)
+        padded = np.zeros(tuple(n + 2 * steps for n in inside.shape),
+                          dtype=bool)
+        padded[core] = inside
+        distances = ndimage.distance_transform_edt(padded)
+        kept = distances[core] > float(steps)
+        window[inside & ~kept] = 0
+    return out
+
+
 def erase_object_at(mask: np.ndarray, x: int, y: int) -> np.ndarray:
     """Zero out the object under (x, y). No-op if no object there."""
     if not (0 <= y < mask.shape[0] and 0 <= x < mask.shape[1]):
@@ -1109,7 +1184,11 @@ def otsu_instances(image: np.ndarray, *, bright: bool = True,
 
 def _otsu_instances(image: np.ndarray, *, bright: bool = True,
                     min_area: int = 0,
-                    correction: float = 1.0) -> np.ndarray:
+                    correction: float = 1.0,
+                    smoothing: float = 0.0,
+                    fill_holes: bool = False,
+                    split_touching: bool = False,
+                    exclude_border: bool = False) -> np.ndarray:
     """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
 
     Item 417's "threshold correction", which is CellProfiler's threshold
@@ -1118,10 +1197,29 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
     for dark objects the level is measured on the inverted image, the way a
     dark-object threshold is, so a correction reads the same way for both.
 
-    A correction of exactly 1 IS :func:`otsu_instances`, looked up by name at
-    call time, so the uncorrected path does not move at all.
+    A correction of exactly 1 with every switch below off IS
+    :func:`otsu_instances`, looked up by name at call time, so the
+    uncorrected path does not move at all.
+
+    THE FOUR SWITCHES ARE ITEM 419'S "more settings for the Otsu mode", and
+    they all default OFF -- a plain threshold and a connected-components
+    labelling, which is what this did before they existed. Three of them are
+    the steps the magnifier's Otsu mode has always taken and the detect
+    button never did (:func:`_classical_region_labels`), which is why the
+    two could disagree about the same field; turning them on is how a user
+    makes the button do what the box under the mouse showed.
 
     :param correction: the factor, greater than 0.
+    :param smoothing: Gaussian sigma applied before the level is estimated
+        AND before the image is cut at it, so a noisy field is thresholded
+        on what a reader sees rather than on its speckle.
+    :param fill_holes: close the holes inside the thresholded foreground.
+        A nucleus dimmer in the middle than at its rim arrives as a ring
+        without this.
+    :param split_touching: cut each blob where two objects meet
+        (:func:`_split_touching_objects`) instead of labelling it whole.
+    :param exclude_border: drop the objects the field's own edge cuts
+        through (:func:`_drop_border_objects`).
     :raises ValueError: on an empty image, or a correction that is not
         greater than 0.
     """
@@ -1130,20 +1228,33 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
         raise ValueError(
             f"The Otsu threshold correction must be greater than 0; got "
             f"{correction!r}.")
-    if factor == 1.0:
+    sigma = max(0.0, float(smoothing))
+    plain = (factor == 1.0 and sigma == 0.0 and not fill_holes
+             and not split_touching and not exclude_border)
+    if plain:
         return otsu_instances(image, bright=bright, min_area=min_area)
     from skimage.filters import threshold_otsu
 
     values = np.asarray(image, dtype=np.float32)
     if not values.size:
         raise ValueError("Otsu needs an image; this one is empty.")
+    if sigma > 0.0:
+        values = _ndimage().gaussian_filter(values, sigma)
     level = float(threshold_otsu(values))
     if bright:
         binary = values > level * factor
     else:
         top = float(values.max())
         binary = (top - values) > (top - level) * factor
-    return connected_instances(binary, min_area=min_area)
+    if fill_holes:
+        binary = _ndimage().binary_fill_holes(binary)
+    if split_touching:
+        labels = _split_touching_objects(binary, min_area=min_area)
+    else:
+        labels = connected_instances(binary, min_area=min_area)
+    if exclude_border:
+        labels = _drop_border_objects(labels)
+    return labels
 
 
 def combine_masks(old: np.ndarray, new: np.ndarray,
@@ -1277,15 +1388,104 @@ def _drop_cut_objects(labels: np.ndarray, box, shape) -> np.ndarray:
     return out
 
 
+def _split_touching_objects(binary: np.ndarray, min_area: int = 0) -> np.ndarray:
+    """Label ``binary``, cutting each blob where two objects meet.
+
+    A watershed on the blob's own distance transform: every local maximum of
+    the distance to background is one object's middle, and the ridge between
+    two of them is the line where they touch. A blob with a single maximum
+    comes back whole, so this is not a splitter that cuts everything -- it
+    cuts what has two centres.
+
+    Seeds no nearer than the radius of an object of ``min_area``
+    (:math:`\\sqrt{A/\\pi}`), so the smallest object the caller is willing to
+    keep cannot itself be split in two; a blob the peak finder gave no seed
+    at all gets one at its own deepest pixel, or it would be dropped.
+
+    This is the tail :func:`_classical_region_labels` has always ended with,
+    which :func:`_otsu_instances` now reaches too -- one recipe, so the Otsu
+    mode in the magnifier and the Otsu detect button cut a pair of touching
+    cells the same way.
+
+    :param binary: truthy where there is foreground.
+    :param min_area: objects smaller than this are dropped, and the seed
+        spacing is taken from it.
+    :returns: int32 labels 1..N, all zero for an empty ``binary``.
+    """
+    from skimage.feature import peak_local_max
+    from skimage.segmentation import watershed
+
+    ndimage = _ndimage()
+    mask = np.asarray(binary, dtype=bool)
+    empty = np.zeros(mask.shape, dtype=np.int32)
+    if not mask.any():
+        return empty
+    distance = ndimage.gaussian_filter(
+        ndimage.distance_transform_edt(mask), 1.0)
+    components, count = ndimage.label(mask, structure=_EIGHT)
+    spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
+    peaks = peak_local_max(distance, min_distance=spacing, labels=components,
+                           exclude_border=False)
+    markers = np.zeros(mask.shape, dtype=np.int32)
+    for index, point in enumerate(peaks, start=1):
+        markers[tuple(point)] = index
+    seeded = {int(v) for v in np.unique(components[markers > 0])}
+    next_marker = len(peaks) + 1
+    for component in range(1, count + 1):
+        if component in seeded:
+            continue
+        where = int(np.argmax(np.where(components == component, distance, -1.0)))
+        markers.flat[where] = next_marker
+        next_marker += 1
+    labels = watershed(-distance, markers, mask=mask)
+    areas = np.bincount(labels.ravel())
+    keep = areas >= max(1, int(min_area))
+    keep[0] = False
+    lookup = np.zeros(areas.size, dtype=np.int32)
+    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    return lookup[labels]
+
+
+def _drop_border_objects(labels: np.ndarray) -> np.ndarray:
+    """Drop every object touching the edge of the field, and renumber.
+
+    An object the frame cut through has an area and a mean intensity that
+    are properties of where the frame fell, not of the object, so a
+    detection meant to be measured is better off without it.
+
+    :param labels: int label image.
+    :returns: int32 labels 1..N holding only the objects clear of the edge.
+    """
+    lab = np.asarray(labels)
+    if not lab.size:
+        return np.zeros(lab.shape, dtype=np.int32)
+    edge = set()
+    for axis in range(lab.ndim):
+        for index in (0, -1):
+            edge.update(int(v) for v in np.unique(np.take(lab, index, axis)))
+    edge.discard(0)
+    keep = np.ones(int(lab.max()) + 1, dtype=bool)
+    keep[0] = False
+    for value in edge:
+        keep[value] = False
+    lookup = np.zeros(keep.size, dtype=np.int32)
+    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
+    return lookup[lab]
+
+
 def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
                              bright: bool = True,
                              min_area: int = 0,
-                             correction: float = 1.0) -> np.ndarray:
+                             correction: float = 1.0,
+                             smoothing: float = _CLASSICAL_SMOOTHING,
+                             fill_holes: bool = True,
+                             split_touching: bool = True) -> np.ndarray:
     """Threshold one magnifier region and split the objects that touch.
 
-    The classical magnifier mode, and the fallback whenever a model cannot
-    run: it needs nothing beyond scikit-image. The region is smoothed
-    (:data:`_CLASSICAL_SMOOTHING`) and then cut one of two ways. A region
+    The Otsu magnifier mode -- ``classical`` until item 419 renamed it --
+    and the fallback whenever a model cannot run: it needs nothing beyond
+    scikit-image. The region is smoothed (``smoothing``, by default
+    :data:`_CLASSICAL_SMOOTHING`) and then cut one of two ways. A region
     that holds two clear populations
     (:data:`_CLASSICAL_MIN_SEPARATION`) is cut at Otsu's level, moved by
     ``sensitivity`` steps of :data:`_CLASSICAL_SENSITIVITY_STEP` of its
@@ -1293,6 +1493,11 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
     objects, and is cut :data:`_CLASSICAL_NOISE_SIGMAS` robust deviations
     above its median. The foreground is opened, hole-filled and split with a
     watershed on its distance transform.
+
+    THE THREE SWITCHES DEFAULT TO WHAT THIS DID BEFORE THEY EXISTED, so the
+    call the magnifier has always made comes back the mask it has always
+    come back. They are here because item 419 puts them on the panel, and
+    the panel drives both this and :func:`_otsu_instances`.
 
     :param region: 2-D intensity crop.
     :param sensitivity: 0 is the default cut; positive takes in dimmer
@@ -1307,19 +1512,26 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
         :func:`_otsu_instances`). Above 1 is stricter. A region with no two
         clear populations is cut at its noise floor, which is not Otsu's
         level, and this does not apply to it.
+    :param smoothing: Gaussian sigma applied before either cut. 0 cuts the
+        raw region, which finds every speckle a noisy field has.
+    :param fill_holes: close the holes inside the thresholded foreground
+        before it is labelled. Off leaves a dim nucleus as a ring.
+    :param split_touching: cut each blob at the ridge between two centres
+        (:func:`_split_touching_objects`). Off labels each blob whole, so a
+        pair of touching cells arrives as one object.
     :returns: int32 labels 1..N shaped like ``region``; all zero for a
         region with nothing above its noise.
     """
-    from skimage.feature import peak_local_max
     from skimage.filters import threshold_otsu
-    from skimage.segmentation import watershed
 
     ndimage = _ndimage()
     values = np.asarray(region, dtype=np.float32)
     empty = np.zeros(values.shape, dtype=np.int32)
     if values.ndim != 2 or values.size < 4:
         return empty
-    smooth = ndimage.gaussian_filter(values, _CLASSICAL_SMOOTHING)
+    sigma = max(0.0, float(smoothing))
+    smooth = (ndimage.gaussian_filter(values, sigma) if sigma > 0.0
+              else values)
     if not bright:
         smooth = -smooth
     lo, hi = (float(v) for v in np.percentile(smooth, (1.0, 99.8)))
@@ -1347,33 +1559,13 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
         foreground = smooth > centre + sigmas * spread
 
     binary = ndimage.binary_opening(foreground, structure=_EIGHT)
-    binary = ndimage.binary_fill_holes(binary)
+    if fill_holes:
+        binary = ndimage.binary_fill_holes(binary)
     if not binary.any():
         return empty
-    distance = ndimage.gaussian_filter(
-        ndimage.distance_transform_edt(binary), 1.0)
-    components, count = ndimage.label(binary, structure=_EIGHT)
-    spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
-    peaks = peak_local_max(distance, min_distance=spacing, labels=components,
-                           exclude_border=False)
-    markers = np.zeros(values.shape, dtype=np.int32)
-    for index, (row, col) in enumerate(peaks, start=1):
-        markers[row, col] = index
-    seeded = {int(v) for v in np.unique(components[markers > 0])}
-    next_marker = len(peaks) + 1
-    for component in range(1, count + 1):
-        if component in seeded:
-            continue
-        where = int(np.argmax(np.where(components == component, distance, -1.0)))
-        markers.flat[where] = next_marker
-        next_marker += 1
-    labels = watershed(-distance, markers, mask=binary)
-    areas = np.bincount(labels.ravel())
-    keep = areas >= max(1, int(min_area))
-    keep[0] = False
-    lookup = np.zeros(areas.size, dtype=np.int32)
-    lookup[keep] = np.arange(1, int(keep.sum()) + 1, dtype=np.int32)
-    return lookup[labels]
+    if not split_touching:
+        return connected_instances(binary, min_area=min_area)
+    return _split_touching_objects(binary, min_area=min_area)
 
 
 def _paste_region_objects(mask: np.ndarray, labels: np.ndarray, origin, *,

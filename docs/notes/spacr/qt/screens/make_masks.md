@@ -75,6 +75,68 @@
   session, and the lasting fix belongs in `model_zoo` (a lookup of where an
   entry was installed), which this item does not own.
 
+## Item 419, points 4-6 (2026-09-19)
+
+- `SHORTCUT_HINTS` / `_build_shortcut_panel` / `_build_view_pane`: the
+  shortcut list the maintainer asked for "to the right of the mak, cell
+  probability, Flows". Those three are the view TABS, so the splitter's
+  right-hand pane became the tabs and the list side by side rather than the
+  tabs alone; `_view_pane` is that pane, and the two layout tests that read
+  `indexOf(self._view_tabs) == 1` now read the pane and assert the tabs are
+  inside it. The width is fixed (`SHORTCUTS_WIDTH`) so a wider window gives
+  its pixels to the image, and the Settings toggle does NOT hide the list:
+  it is not settings, and a shortcut list that disappears exactly when the
+  screen is cleared for work is one you can only read when you do not need
+  it.
+- Every line of `SHORTCUT_HINTS` is a gesture this module implements, and
+  `tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py` drives each
+  one on the canvas rather than reading the table back. A panel of plausible
+  sentences is the failure mode here: the keys change, the panel does not,
+  and nothing is red. Writing the tests moved one line --
+  "Choose every object the drag passes" became "Add the objects it passes
+  over", because a drag across two objects with background between them
+  added only the first, and the panel must not claim more than the gesture
+  does. What a drag adds in each save mode is item 417's file to state.
+- `canonical_magnifier_mode` / `_MAGNIFIER_MODE_ALIASES`: point 5 renamed the
+  magnifier's `classical` mode to `otsu`. A mode name reaches this module
+  from a script, a test and (through `set_mode`) anything that remembered
+  one, so the old key still runs and is translated to the new one at the
+  door: `_MAGNIFIER_SEGMENTERS` is keyed on the new name only, and
+  `_segment_region`, `set_mode` and `_model_settings` all canonicalise first.
+  `mask_engine._classical_region_labels` keeps its name -- it is another
+  module's private function, with its own tests, and renaming it would have
+  been a second change dressed as this one.
+- `_RENAMED_CATEGORIES`: the folded-categories preference is a list of
+  TITLES, so renaming "Cellpose-SAM" to "Object detection" would have quietly
+  un-folded it for every user who had folded it. The stored list is read
+  through the map; what is written back is the new title, so the migration
+  happens once.
+- `_build_otsu_card` / `_otsu_settings`: the threshold correction was the
+  only Otsu setting there was and it sat at the bottom of the Cellpose-SAM
+  category, where nobody looking for Otsu would open it. It moves to a
+  category of its own with the Bright switch and four new settings, and ONE
+  reader (`_otsu_settings`) feeds both the button and, through
+  `_magnifier_context`, the magnifier.
+- THE OTSU DEFAULTS MOVE THE BUTTON, on purpose. Before this the magnifier's
+  Otsu mode smoothed by 1 px, filled holes and split a blob with two centres,
+  and Otsu detect did none of the three: the box under the mouse and the
+  button disagreed about the same field and nothing said so. The boxes start
+  where the preview has always been, so pressing the button now gives what
+  the box showed; three clicks put the plain threshold back.
+  `mask_engine._otsu_instances`'s own defaults are unchanged, so nothing that
+  calls it directly moved.
+- `_MODEL_SETTING_FIELDS`: the three new Otsu settings are APPENDED. A
+  magnifier request key is this tuple positionally after `(field, box)`, and
+  an insertion in the middle would make every cached key mean something else.
+- `_on_dilate` / `_on_shrink` / `_on_clear_mask`: point 6's three buttons.
+  Clear already existed and already confirmed; what changed is that it says
+  how many objects are about to go, which is the one fact that decides the
+  question. Shrink reports how many objects it erased, because erosion
+  deletes anything thinner than twice the step and a curator who has just
+  lost eleven objects needs to be told while Undo is still the obvious thing
+  to do. Both go through `_apply_op`, so each is one undo step and one
+  ledger entry carrying its step.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

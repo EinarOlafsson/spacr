@@ -21,6 +21,38 @@
   (`image_intensity[image]`, float32, raster order), so the two are equal to
   the last bit rather than approximately.
 
+## Item 419 points 5 and 6 (2026-09-19)
+
+- `dilate_objects`: `skimage.segmentation.expand_labels`, which grows each
+  label into background only and gives a contested pixel to the nearer
+  label. So no two objects can fuse and the object count cannot change,
+  which is what makes it safe on a curated mask: an id that has been got
+  right keeps every measurement, track and crop keyed to it.
+- `shrink_objects`: each object is eroded against everything that is not
+  itself -- background AND its neighbours -- so a pair that was touching
+  comes apart. Eroding `mask > 0` as one binary would leave that seam
+  untouched, which is the opposite of what Shrink is reached for. It works
+  inside each object's own bounding box (`find_objects`), for the same
+  reason `canonical_labels` does: cost follows the area of the objects, not
+  the area of the field. The distance is Euclidean, matching
+  `expand_labels`, so a Shrink undoes a Dilate of the same size on an object
+  that had room to grow -- asserted in
+  `tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py`. An object
+  thinner than twice the step disappears, which is what erosion means; the
+  screen counts what went and says so.
+- `_split_touching_objects`: the watershed tail `_classical_region_labels`
+  has always ended with, lifted out whole so `_otsu_instances` can reach the
+  same recipe. Before this the magnifier's threshold mode split touching
+  objects and the Otsu detect button did not, on the same field, and nothing
+  said so. `_drop_border_objects` is the new "exclude border" step beside it.
+- `_otsu_instances` and `_classical_region_labels` grew keyword-only
+  settings (`smoothing`, `fill_holes`, `split_touching`, `exclude_border`)
+  and EVERY default reproduces what each did before, so the two functions
+  return the same arrays for the calls that already existed: 40 random
+  fields x 6 sensitivities x 2 corrections x both sides hash identically
+  against `origin/nightly` (`b56c77d46`). The panel, not the engine, is
+  where the defaults moved.
+
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 
