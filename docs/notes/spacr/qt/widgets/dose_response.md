@@ -186,3 +186,50 @@ hump worth a fifth of the span sails through it, gets fitted, and yields an
 EC50 displaced by the hump with nothing said. On the calibration series in
 `tests/qt/test_dose_response_names_hormesis.py` that displacement is 1.0 to
 2.1. Those fits now carry `DoseResponseResult.hormesis` and a caveat.
+
+**The 5PL profile is minimised in two dimensions, not swept once.** With the
+midpoint fixed the 5PL still has four free parameters: both plateaus, which
+stay closed-form, and then slope and asymmetry, which do not. Those two are
+strongly correlated — a flatter curve with a more extreme exponent describes
+nearly the same data — and one sweep of coordinate descent zig-zags across
+that valley rather than reaching its floor. The first version of
+`_profile_sse`'s 5PL branch did exactly one sweep, and measured at the
+fitted midpoint, where the conditional minimum is by definition the
+unconditional one, it returned up to 3.06 times the fit's own SSE.
+
+A conditional SSE that is too high makes the interval too *narrow*, which is
+the dangerous direction. The walk may spend `sse · (1 + q²/dof)`, about
+1.20·sse at 22 df; an overshoot at the centre is subtracted from that
+allowance before the walk has moved at all. On the calibration series of
+`tests/qt/test_dose_response_fits_an_asymmetric_curve.py` the 95% profile
+interval — the default interval, on the model the new Curve picker offers —
+covered the true EC50 in 5 draws of 12, and one draw collapsed to a width of
+0.0009 in log10 because the profile was already above the threshold at the
+centre.
+
+`_profile_five_sse` evaluates the whole asymmetry-by-slope surface for
+basins and then polishes the best three separated cells with Nelder–Mead in
+log co-ordinates, which follows the valley instead of crossing it. Three
+starts because over 48 fitted series a single descent from the best grid
+cell missed the minimum by 26% on one of them; two attained it everywhere
+measured. It costs about 18 ms per evaluation, so a 5PL profile fit runs
+410–790 ms against 10 ms for the 4PL — off the GUI thread through
+`JobRunner`, and the 4PL default is untouched.
+
+The invariant is asserted directly on fitted data rather than inferred from
+the intervals, because an interval at 45% of its honest width still looks
+like an interval.
+
+**A 5PL that falls back to the 4PL keeps the four covariances it has.** When
+the five-parameter search finds nothing better, the curve reported *is* the
+4PL with the exponent pinned at 1, and its four parameters were estimated
+perfectly well. Setting `pcov = None` because the vector grew a fifth entry
+told the reader the covariance was not estimable — it was estimated and then
+discarded — and under `CI_WALD` it stripped the midpoint's interval too, so
+a cleanly bounded fit came back as `STATUS_UNBOUNDED` with no EC50.
+`_pad_symmetric_covariance` widens the block to 5×5 with a zero row and
+column for the pinned exponent, rescaled by `(n-4)/(n-5)` because
+`curve_fit` scaled it on four parameters and the rest of the fit reads it on
+five. The asymmetry alone reports `(None, None)`, because a zero variance
+would otherwise be published as a zero-width interval on a parameter that
+was never fitted.

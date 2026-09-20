@@ -226,7 +226,7 @@ from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 from scipy import stats
-from scipy.optimize import curve_fit, minimize_scalar
+from scipy.optimize import curve_fit, minimize, minimize_scalar
 
 __all__ = [
     "DoseResponseError",
@@ -437,10 +437,21 @@ _EXPONENT_LIMIT = 250.0
 _HILL_GRID = np.logspace(np.log10(0.02), np.log10(40.0), 40)
 
 #: Asymmetry exponents the 5PL profile scans before it refines. Eleven
-#: points rather than forty: the exponent is the parameter the interval is
-#: least sensitive to, and the grid is walked once per bisection step.
+#: points rather than forty: the grid only has to find the basin, since a
+#: local minimisation is run from it.
 _ASYMMETRY_GRID = np.logspace(np.log10(ASYMMETRY_LOW),
                               np.log10(ASYMMETRY_HIGH), 11)
+
+#: Separated grid cells the 5PL profile polishes from. One is not enough:
+#: measured over 48 fitted series, a single descent from the best cell
+#: missed the conditional minimum by 26% on one of them, because the coarse
+#: grid's best cell sat in a neighbouring basin. Two attained it on every
+#: case measured; three is the margin, and costs ~18 ms per evaluation.
+_PROFILE_RESTARTS = 3
+
+#: How far apart, in natural-log units of slope or asymmetry, two grid cells
+#: must be to count as different starting points rather than the same basin.
+_PROFILE_BASIN = 0.5
 
 #: A first fit leaving less than this share of the total sum of squares is
 #: accepted without trying the restart ladder (R² >= 0.9).
@@ -479,7 +490,7 @@ def five_parameter_logistic(x, bottom, top, log10_ec50, hill, asymmetry):
     ``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) *
     hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.
 
-    **That constant ``a`` is the whole point of this function.** Written the
+    **That scale factor is the whole point of this function.** Written the
     way the 5PL usually is —
 
     .. math::
@@ -2112,6 +2123,49 @@ def _fit_five(dose: np.ndarray, response: np.ndarray,
     return best
 
 
+def _pad_symmetric_covariance(pcov: Optional[np.ndarray],
+                              n_obs: int) -> Optional[np.ndarray]:
+    """Widen a 4PL covariance to 5x5 when the 5PL fell back to the 4PL.
+
+    When the five-parameter search finds nothing better than the symmetric
+    fit, the curve that is reported *is* the 4PL with the exponent pinned at
+    1, and the four parameters the symmetric fit estimated were estimated
+    perfectly well. Discarding their covariance because the vector grew a
+    fifth entry would strip every Wald interval and tell the reader the
+    covariance was not estimable, which is not what happened; under
+    :data:`CI_WALD` it would also leave the midpoint with no interval at all
+    and turn a cleanly bounded fit into :data:`STATUS_UNBOUNDED`.
+
+    The exponent's row and column are zero, which is the truth about a
+    parameter that was held fixed rather than fitted — and the caller
+    reports its interval as ``(None, None)`` rather than the zero-width one
+    those zeros would otherwise produce.
+
+    ``curve_fit`` scales a covariance by ``sse / (n - 4)``; this result is
+    read against a ``t`` quantile on ``n - 5`` df, so the block is rescaled
+    by ``(n - 4) / (n - 5)`` to be the same estimate of residual variance
+    the rest of the fit uses. On 27 observations that is 1.05% on a variance
+    and 0.5% on an interval half-width: small, and wrong in the direction of
+    claiming more than was measured if left out.
+
+    :param pcov: the 4x4 covariance, or ``None`` when the symmetric fit had
+        none either.
+    :param n_obs: observations in the fitted series, for the rescale.
+    :returns: the 5x5 covariance, or ``None`` if there was nothing to pad.
+    """
+    if pcov is None:
+        return None
+    matrix = np.asarray(pcov, dtype=float)
+    if matrix.shape != (4, 4):
+        return None
+    scale = 1.0
+    if n_obs > 5:
+        scale = float(n_obs - 4) / float(n_obs - 5)
+    padded = np.zeros((5, 5), dtype=float)
+    padded[:4, :4] = matrix * scale
+    return padded
+
+
 def _canonicalise(popt: np.ndarray, pcov: Optional[np.ndarray]):
     """Force ``top >= bottom`` so the Hill slope carries the direction.
 
@@ -2188,6 +2242,86 @@ def _plateau_sse(log_dose: np.ndarray, response: np.ndarray,
     return (residual ** 2).sum(axis=0)
 
 
+def _profile_five_sse(log_dose: np.ndarray, response: np.ndarray,
+                      log10_ec50: float, sign: float) -> float:
+    """``min SSE`` over slope, asymmetry and both plateaus, midpoint fixed.
+
+    The 5PL's conditional minimum is two-dimensional — the plateaus are
+    still closed-form, but slope and asymmetry both remain — and those two
+    are strongly correlated: a flatter curve with a more extreme exponent
+    describes nearly the same data. One sweep of coordinate descent
+    therefore stops short of the minimum, and a conditional SSE that is too
+    *high* makes the interval too *narrow*, because the allowance
+    ``q² / dof`` buys is spent before the walk leaves the centre. Measured
+    on the calibration series of
+    ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py``, one sweep
+    overshot by up to a factor of three and the resulting 95% intervals
+    covered the true EC50 in 5 draws of 12.
+
+    So the whole :data:`_ASYMMETRY_GRID` by :data:`_HILL_GRID` surface is
+    evaluated to find basins, and the best :data:`_PROFILE_RESTARTS`
+    separated cells are polished by Nelder-Mead in log co-ordinates, which
+    walks the correlated valley instead of zig-zagging across it.
+
+    The invariant is that at the fitted midpoint this must return the fit's
+    own residual sum of squares, since there the conditional minimum is the
+    unconditional one. That is asserted directly, on fitted data, rather
+    than left to the intervals to reveal.
+
+    :param log_dose: ``log10`` of the concentrations.
+    :param response: the matching responses.
+    :param log10_ec50: the midpoint held fixed.
+    :param sign: ``-1`` for inhibition, ``+1`` for activation. The slope is
+        searched on that side only, because a slope of the opposite sign
+        would be a different experiment rather than a wider interval.
+    :returns: the conditional minimum residual sum of squares, or ``inf``
+        when no point on the surface is finite.
+    """
+    surface = np.empty((_ASYMMETRY_GRID.size, _HILL_GRID.size))
+    for row, shape in enumerate(_ASYMMETRY_GRID):
+        surface[row] = _plateau_sse(log_dose, response, log10_ec50,
+                                    sign * _HILL_GRID, float(shape))
+    surface = np.where(np.isfinite(surface), surface, np.inf)
+    order = np.argsort(surface, axis=None)
+    best = float(surface.flat[order[0]])
+    if not np.isfinite(best):
+        return float("inf")
+
+    slope_bounds = (float(np.log(_HILL_GRID[0])),
+                    float(np.log(_HILL_GRID[-1])))
+    shape_bounds = (float(np.log(ASYMMETRY_LOW)),
+                    float(np.log(ASYMMETRY_HIGH)))
+
+    def objective(point) -> float:
+        """SSE at one ``(log slope magnitude, log asymmetry)`` point."""
+        magnitude = float(np.exp(np.clip(point[0], *slope_bounds)))
+        shape = float(np.exp(np.clip(point[1], *shape_bounds)))
+        value = float(_plateau_sse(log_dose, response, log10_ec50,
+                                   sign * magnitude, shape)[0])
+        return value if np.isfinite(value) else float("inf")
+
+    starts: List[Tuple[float, float]] = []
+    for flat in order:
+        row, column = divmod(int(flat), _HILL_GRID.size)
+        point = (float(np.log(_HILL_GRID[column])),
+                 float(np.log(_ASYMMETRY_GRID[row])))
+        if all(abs(point[0] - taken[0]) > _PROFILE_BASIN
+               or abs(point[1] - taken[1]) > _PROFILE_BASIN
+               for taken in starts):
+            starts.append(point)
+        if len(starts) == _PROFILE_RESTARTS:
+            break
+
+    for start in starts:
+        outcome = minimize(objective, np.asarray(start, dtype=float),
+                           method="Nelder-Mead",
+                           options={"xatol": 1e-4, "fatol": 1e-10,
+                                    "maxiter": 400})
+        if np.isfinite(outcome.fun) and float(outcome.fun) < best:
+            best = float(outcome.fun)
+    return best
+
+
 def _profile_sse(log_dose: np.ndarray, response: np.ndarray,
                  log10_ec50: float, sign: float,
                  model: str = MODEL_4PL) -> float:
@@ -2196,49 +2330,17 @@ def _profile_sse(log_dose: np.ndarray, response: np.ndarray,
     The slope is searched on :data:`_HILL_GRID` — restricted to the direction
     the data already showed, because a slope of the opposite sign would be a
     different experiment, not a wider interval — and then refined by bounded
-    Brent between the grid's neighbours.
+    Brent between the grid's neighbours. One dimension, so a grid plus Brent
+    attains the minimum.
 
     Under :data:`MODEL_5PL` the asymmetry has to be profiled out as well, or
     the interval would be the interval of a 5PL whose fifth parameter was
     pinned at its point estimate — narrower than the data supports, and
-    narrower for a reason the reader cannot see. It is walked as a coarse
-    log-spaced grid with the slope refined at its best point; the grid is
-    coarse on purpose, since this runs once per bisection step and the
-    profile bound it feeds is already reported to three decimal places of
-    log10 concentration.
+    narrower for a reason the reader cannot see. That search is
+    two-dimensional and is handed to :func:`_profile_five_sse`.
     """
     if model == MODEL_5PL:
-        best = np.inf
-        at_shape, at_slope, at_index = 1.0, float(_HILL_GRID[0]), 0
-        for shape in _ASYMMETRY_GRID:
-            values = _plateau_sse(log_dose, response, log10_ec50,
-                                  sign * _HILL_GRID, float(shape))
-            j = int(np.nanargmin(values)) if np.any(np.isfinite(values)) else 0
-            if float(values[j]) < best:
-                best = float(values[j])
-                at_shape = float(shape)
-                at_slope = float(_HILL_GRID[j])
-                at_index = j
-        lo = float(_HILL_GRID[max(0, at_index - 1)])
-        hi = float(_HILL_GRID[min(_HILL_GRID.size - 1, at_index + 1)])
-        if hi > lo:
-            outcome = minimize_scalar(
-                lambda magnitude: float(_plateau_sse(
-                    log_dose, response, log10_ec50, sign * magnitude,
-                    at_shape)[0]),
-                bounds=(lo, hi), method="bounded", options={"xatol": 1e-4})
-            if outcome.success and float(outcome.fun) < best:
-                best = float(outcome.fun)
-                at_slope = float(outcome.x)
-        outcome = minimize_scalar(
-            lambda shape: float(_plateau_sse(
-                log_dose, response, log10_ec50, sign * at_slope,
-                float(shape))[0]),
-            bounds=(ASYMMETRY_LOW, ASYMMETRY_HIGH), method="bounded",
-            options={"xatol": 1e-3})
-        if outcome.success and float(outcome.fun) < best:
-            best = float(outcome.fun)
-        return best
+        return _profile_five_sse(log_dose, response, log10_ec50, sign)
     grid = sign * _HILL_GRID
     values = _plateau_sse(log_dose, response, log10_ec50, grid)
     j = int(np.argmin(values))
@@ -2461,6 +2563,7 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
 
     notes: List[str] = []
     asymmetry = 1.0
+    asymmetry_estimated = True
     asymmetry_f: Optional[float] = None
     asymmetry_p: Optional[float] = None
     if spec.model == MODEL_5PL:
@@ -2477,12 +2580,17 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
                                                dose.size - 5))
         else:
             popt = np.append(np.asarray(popt, dtype=float), 1.0)
-            pcov = None
+            pcov = _pad_symmetric_covariance(pcov, dose.size)
+            asymmetry_estimated = False
             notes.append(
                 "the five-parameter fit did not improve on the symmetric "
                 "one, so the asymmetry is reported as 1 and the curve is the "
                 "4PL. That is a statement about this series, not a failure: "
-                "the fifth parameter had nothing to do")
+                "the fifth parameter had nothing to do. The other four "
+                "parameters keep the intervals the symmetric fit estimated "
+                "for them, rescaled to this fit's residual degrees of "
+                "freedom; the asymmetry has no interval, because it was not "
+                "estimated")
 
     bottom, top, log10_ec50, hill = (float(v) for v in popt[:4])
 
@@ -2594,7 +2702,8 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
         vehicle_response=vehicle, n_vehicle=n_vehicle, n_excluded=n_excluded,
         optimizer_notes=tuple(dict.fromkeys(optimizer_notes)),
         notes=tuple(notes), model=spec.model, asymmetry=asymmetry,
-        asymmetry_ci=(wald(4) if spec.model == MODEL_5PL else (None, None)),
+        asymmetry_ci=(wald(4) if spec.model == MODEL_5PL
+                      and asymmetry_estimated else (None, None)),
         asymmetry_f=asymmetry_f, asymmetry_p=asymmetry_p,
         hormesis=hormetic)
 

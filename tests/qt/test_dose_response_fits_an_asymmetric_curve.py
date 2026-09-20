@@ -24,10 +24,12 @@ import pytest
 pytest.importorskip("PySide6")
 pytest.importorskip("matplotlib")
 
+import spacr.qt.widgets.dose_response as engine
 from spacr.qt.screens.dose_response import DoseResponseScreen
 from spacr.qt.widgets.dose_response import (
-    MODEL_4PL, MODEL_5PL, DoseResponseError, DoseResponseSpec,
-    fit_dose_response, five_parameter_logistic, four_parameter_logistic,
+    CI_PROFILE, CI_WALD, MODEL_4PL, MODEL_5PL, STATUS_FITTED,
+    DoseResponseError, DoseResponseSpec, fit_dose_response,
+    five_parameter_logistic, four_parameter_logistic,
 )
 
 pytestmark = pytest.mark.qt
@@ -160,6 +162,115 @@ def test_the_four_parameter_model_is_what_a_spec_is_unless_asked():
     assert restored.model == MODEL_5PL
     with pytest.raises(DoseResponseError):
         DoseResponseSpec(model="6pl")
+
+
+def test_the_asymmetric_profile_attains_its_own_minimum():
+    """The invariant every profile interval rests on.
+
+    ``_profile_sse`` is ``min SSE`` over every parameter but the midpoint.
+    Evaluated AT the fitted midpoint it must return the fit's own residual
+    sum of squares, because there the conditional minimum is the
+    unconditional one. A profiler that stops short returns something larger,
+    and since the threshold the walk is allowed to spend is only
+    ``sse * (1 + q**2/dof)`` -- about 1.2 * sse here -- overshooting by a few
+    percent at the centre eats the allowance before the walk has moved, and
+    the interval comes back far too narrow. This is asserted directly rather
+    than inferred from the intervals, because an interval that is 45% of its
+    honest width still looks like an interval.
+    """
+    for asymmetry in (0.1, 0.2, 0.25, 0.5, 1.0, 3.0, 8.0):
+        dose = _dose()
+        clean = five_parameter_logistic(dose, 0.0, 100.0, np.log10(TRUE_EC50),
+                                        -1.3, asymmetry)
+        response = clean + np.random.default_rng(4242).normal(0.0, 0.5,
+                                                              dose.size)
+        result = fit_dose_response(dose, response,
+                                   DoseResponseSpec(model=MODEL_5PL))
+        conditional = engine._profile_sse(
+            np.log10(dose), response, result.log10_ec50,
+            -1.0 if result.hill < 0 else 1.0, MODEL_5PL)
+
+        assert conditional <= result.sse * (1.0 + 1e-6), (
+            f"at asymmetry {asymmetry} the profile's conditional minimum "
+            f"{conditional} exceeds the fit's own sse {result.sse} by "
+            f"{conditional / result.sse:.4f}x; every 5PL profile interval "
+            f"built on it is too narrow")
+
+
+def test_the_asymmetric_profile_interval_covers_the_ec50_it_is_built_for():
+    """What the interval is for, counted.
+
+    Ten draws from the same asymmetric truth, through the default interval
+    method, asking how often the 95% interval contains the EC50 that
+    generated the data. Ten is far too few to estimate coverage, and that is
+    not what this counts: it is a floor that a badly under-covering interval
+    cannot clear. The single sweep of coordinate descent this replaced
+    covered 5 of 12.
+    """
+    seeds = (20260919, 20260930, 7, 11, 3, 5, 101, 202, 303, 404)
+    covered = 0
+    widths = []
+    for seed in seeds:
+        dose, response = _asymmetric(seed=seed)
+        result = fit_dose_response(
+            dose, response,
+            DoseResponseSpec(model=MODEL_5PL, ci_method=CI_PROFILE))
+        low, high = result.log10_ec50_ci
+        assert low is not None and high is not None, (seed, result.status)
+        assert low < result.log10_ec50 < high, (seed, low, high)
+        widths.append(high - low)
+        covered += bool(low <= np.log10(TRUE_EC50) <= high)
+
+    assert covered >= 9, (
+        f"the 95% profile interval covered the true EC50 in {covered} of "
+        f"{len(seeds)} draws; widths (log10) {widths}")
+    assert min(widths) > 0.02, (
+        f"an interval this narrow is a collapsed one, not a measurement: "
+        f"{widths}")
+
+
+def test_an_asymmetry_that_finds_nothing_keeps_the_four_estimated_intervals(
+        monkeypatch):
+    """The fallback reports what was measured, not less.
+
+    When the five-parameter search finds nothing better than the symmetric
+    fit, the curve reported IS the 4PL with the exponent pinned at 1 -- and
+    the four parameters the symmetric fit estimated were estimated. Throwing
+    their covariance away because the vector grew a fifth entry told the
+    reader the covariance was not estimable, which is false, and under a
+    Wald interval it left the midpoint with no interval at all and reported
+    a cleanly bounded fit as unbounded. The branch is reached here by making
+    the five-parameter search return nothing, because no natural series was
+    found that reaches it.
+    """
+    dose, response = _symmetric()
+    honest = fit_dose_response(dose, response,
+                               DoseResponseSpec(ci_method=CI_WALD))
+
+    monkeypatch.setattr(engine, "_fit_five", lambda *a, **k: None)
+    fallen = fit_dose_response(
+        dose, response,
+        DoseResponseSpec(model=MODEL_5PL, ci_method=CI_WALD))
+
+    assert fallen.asymmetry == 1.0
+    assert fallen.status == STATUS_FITTED, fallen.status
+    assert fallen.ec50 is not None and fallen.ec50_low is not None \
+        and fallen.ec50_high is not None
+    assert fallen.ec50 == pytest.approx(honest.ec50, rel=1e-9)
+    assert fallen.hill_ci[0] is not None and fallen.hill_ci[1] is not None
+    assert fallen.top_ci[0] is not None and fallen.bottom_ci[0] is not None
+    assert fallen.asymmetry_ci == (None, None), fallen.asymmetry_ci
+    assert not any("not estimable" in caveat for caveat in fallen.caveats()), \
+        fallen.caveats()
+    assert any("had nothing to do" in note for note in fallen.notes), \
+        fallen.notes
+
+    honest_half = honest.hill_ci[1] - honest.hill_ci[0]
+    fallen_half = fallen.hill_ci[1] - fallen.hill_ci[0]
+    assert fallen_half >= honest_half, (
+        f"pinning a parameter and spending a degree of freedom on it cannot "
+        f"narrow the others: {fallen_half} vs {honest_half}")
+    assert fallen_half == pytest.approx(honest_half, rel=0.05)
 
 
 @pytest.fixture()

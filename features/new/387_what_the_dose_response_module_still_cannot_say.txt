@@ -6,7 +6,9 @@ Status:    DONE 2026-09-19. The five numbered tasks were built by
            2026-09-13, reachable from the screen by 2026-09-15, and the two
            EXTRAS this file records outside the numbered list -- the
            five-parameter logistic and hormesis detection -- landed on
-           2026-09-19 with 19 tests. See the 09-19 note for what each one
+           2026-09-19 with 22 tests, the last three added by the review that
+           found the 5PL profile interval under-covering. See the 09-19
+           notes, both of them, for what each one
            measures and for the one gap it closed that nobody had named: a
            hormetic hump can be worth a fifth of the response span, pass the
            monotonicity check, and displace the EC50 it is fitted into
@@ -508,9 +510,9 @@ the report pane exactly where a refusal already does, and survives the
 "Fit non-monotone data" override as a caveat on the forced curve.
 
 HOW IT WAS CHECKED. `tests/qt/test_dose_response_fits_an_asymmetric_curve.py`
-(8 tests) and `tests/qt/test_dose_response_names_hormesis.py` (11 tests). All
-145 dose-response tests in tests/qt pass, 19 of them new, and all 404 non-Qt
-ones. The 4PL path
+(8 tests, later 11) and `tests/qt/test_dose_response_names_hormesis.py` (11
+tests). All 148 dose-response tests in tests/qt pass, 22 of them new, and all
+445 non-Qt ones. The 4PL path
 was diffed against this branch's base commit on ten fitted cases -- five
 shapes by two interval methods, comparing every parameter, both interval
 ends, the SSE, the R2, the bound direction and the FULL REPORT TEXT -- and is
@@ -535,3 +537,114 @@ docstrings, `DoseResponseResult`, `.parameters`, `DoseResponseSpec`,
 `.__post_init__`, `fit_dose_response`). The caption ratchet and the
 documentation-symbol ratchet were ALREADY RED on nightly before this work --
 120 captions and 217 symbols owed -- and are red by four and seven more now.
+
+--------------------------------------------------------------------------------
+2026-09-19 (later the same day) -- THE INTERVAL THE 5PL WAS OFFERED FOR
+--------------------------------------------------------------------------------
+
+Decided: the same 2026-09-19 relay, "a five-parameter logistic as an OPTION
+(not the default) ... each with tests". Review of the landing above returned
+FLAWED on one blocking ground, and it was the right call: this module's
+identity is its intervals, and a model had been added without a single test
+of the interval it produces.
+
+WHAT WAS WRONG. `_profile_sse`'s 5PL branch did not attain the conditional
+minimum it is defined to be. The 5PL profiles out FOUR parameters at a fixed
+midpoint -- both plateaus in closed form, then slope and asymmetry -- and
+those last two are strongly correlated: a flatter curve with a more extreme
+exponent describes nearly the same data. The code did ONE sweep of
+coordinate descent (grid, refine the slope at the best shape, refine the
+shape at that slope) and stopped. Coordinate descent zig-zags across a
+correlated valley; one sweep does not reach the floor.
+
+WHY THAT MAKES AN INTERVAL TOO NARROW, WHICH IS THE WRONG DIRECTION. The
+walk is allowed to spend `sse * (1 + q**2/dof)`, about 1.20 * sse at 22 df.
+If the profile already reports MORE than `sse` at the point estimate, that
+overshoot is subtracted from the allowance before the walk has moved.
+Measured at the fitted midpoint, where the conditional minimum is by
+definition the unconditional one:
+
+      asymmetry 0.20    1.36 x sse        asymmetry 0.25    1.02 x sse
+      asymmetry 0.50    1.06 x sse        worst seen        3.06 x sse
+
+On this file's own calibration series -- the 9-point 3-fold triplicate with
+asymmetry 0.20 and true EC50 1.0 -- through CI_PROFILE, which is the
+default, the 95% interval covered the true EC50 in 5 of 12 draws. One draw
+collapsed to a width of 0.0009 in log10, an "interval" of 0.891 to 0.892,
+because the profile already sat above the threshold at the centre and the
+bisection walked straight back in. An interval that excludes the truth more
+often than it includes it is worse than no interval, and this one was
+reached by picking the new Curve picker and pressing Fit.
+
+THE FIX. `_profile_five_sse`: evaluate the whole 11 x 40 asymmetry-by-slope
+surface for basins, then polish the best three separated cells with
+Nelder-Mead in log co-ordinates, which follows the valley instead of
+crossing it. Three starts rather than one because over 48 fitted series a
+single descent from the best cell missed the minimum by 26% on one of them,
+the grid's best cell having sat in a neighbouring basin; two attained it
+everywhere measured, three is the margin. AFTER: the profile equals the
+fit's own SSE to 1.00000 on all 21 series checked against an independent
+reference (`curve_fit` with the midpoint fixed, multistart over slope and
+asymmetry), and coverage on the calibration series is 12 of 12.
+
+WHAT IT COSTS. About 18 ms per profile evaluation, so a 5PL fit with a
+profile interval runs 410-790 ms against 10 ms for a 4PL. It is off the GUI
+thread through the existing JobRunner, the 4PL default is untouched at 10
+ms, and a correct interval is the reason the option exists.
+
+THE 4PL PATH STILL DOES NOT MOVE. Re-diffed after the fix against the
+pre-fix commit over twenty cases -- two models by two interval methods by
+five shapes -- comparing every parameter, both ends of every interval, SSE,
+R2, dof, status, lack-of-fit p and a hash of the full report text. All ten
+4PL cases and all five 5PL Wald cases are byte-identical; exactly two cases
+differ, both 5PL PROFILE, and both widened. On the asymmetric series the
+reported EC50 interval went from 0.746-0.876, which excludes the true 1.0,
+to 0.721-1.093, which contains it.
+
+THE SECOND DEFECT: A COVARIANCE THROWN AWAY. When the five-parameter search
+finds nothing better than the symmetric fit, the reported curve IS the 4PL
+with the exponent pinned at 1 -- and the four parameters the symmetric fit
+estimated were estimated. The code set `pcov = None`, which made
+`covariance_ok` false and told the reader "the covariance matrix was not
+estimable". It was estimated and then discarded. Under CI_WALD the midpoint
+lost its interval too, so `bounded` went false and a cleanly bounded fit was
+reported as STATUS_UNBOUNDED with `ec50=None`. `_pad_symmetric_covariance`
+now widens the 4x4 block to 5x5 with a zero row and column for the pinned
+exponent, rescaled by (n-4)/(n-5) because `curve_fit` scaled it on four
+parameters and this fit is read on five, and the asymmetry alone reports
+`(None, None)` rather than the zero-width interval those zeros would
+otherwise produce. The branch is reached in the test by making the
+five-parameter search return nothing; no natural series was found that
+reaches it, so its reachability is still unconfirmed and its consequence is
+now harmless either way.
+
+THE THREE TESTS THAT SHOULD HAVE BEEN THERE, in
+`tests/qt/test_dose_response_fits_an_asymmetric_curve.py`:
+
+      the profile attains its own minimum at the fitted midpoint, over
+      seven asymmetries -- the sharp invariant, asserted directly rather
+      than inferred from an interval, because an interval at 45% of its
+      honest width still looks like an interval
+
+      the 95% profile interval covers the true EC50 in at least 9 of 10
+      draws, and no interval collapses below 0.02 in log10
+
+      the fallback keeps the four estimated intervals, stays
+      STATUS_FITTED under CI_WALD, and reports no asymmetry interval
+
+Each mutation reddens only tests that can fail for that reason:
+
+      the old one-sweep coordinate descent restored   2 red (3 of 10 covered)
+      the 4PL covariance discarded again              1 red (unbounded)
+      the asymmetry interval not gated                1 red ((1.0, 1.0))
+
+A CORRECTION TO THE NOTE ABOVE. That note's handoff said the documentation
+pins were red with an "identical failure set and counts" at the rebase base.
+The failure set is identical; one count is not.
+`test_public_callable_inventory_is_source_derived_not_docstring_derived`
+pins 8939 at base fa51b2e88 and 8944 here, the five public callables that
+work added. The other three pins (10822/10539, 52/44, 2292/2279) do not
+move, and today's fix adds nothing further -- both new functions are
+private, and the one user-facing string it changes is a fit note, which is
+not in the caption layer. The four owed captions and fourteen owed API
+docstrings are unchanged.
