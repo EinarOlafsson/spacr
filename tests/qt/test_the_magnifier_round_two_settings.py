@@ -1015,7 +1015,8 @@ def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
     wait_for_result(qtbot, screen)
     assert screen._magnifier._shown.mode == "otsu"
     status = screen._status_label.text()
-    assert f"{mode} could not run" in status
+    assert f"{mm._magnifier_mode_label(mode)} could not run" in status, (
+        "item 407: the note names the mode the way the Mode box does")
     assert "Install it from the Model Zoo" in status
     assert mode not in mm._BACKEND_MODELS, "a failed build is not kept"
     assert screen._magnifier.build_request().mode == "otsu"

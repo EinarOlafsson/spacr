@@ -159,6 +159,28 @@
   ten objects with seven erased read "Shrank 3 object(s) ... 7 object(s) are
   gone" -- an arithmetic puzzle over a field where all ten were eroded --
   and made emptying the field read "Shrank 0 object(s)".
+## Item 407, the magnifier's last status lines (2026-09-19)
+
+- `_LiveMagnifier.click`, `_on_delivered` and `_note_fallback`: the three
+  sentences item 407 left behind now go through `tr` with NAMED values
+  rather than being built as f-strings. An f-string is assembled before
+  anything can translate it, so the region mode's two failures -- the model
+  that could not segment the region, and the model that could not load at
+  all -- reached a reader in Japanese in English. The error and the mode are
+  values in the template (`{error}`, `{mode}`, `{reason}`), which is what
+  lets a catalog reorder them: a locale that puts the reason first can, and
+  one that drops the brackets can.
+- `_magnifier_mode_label`: the fallback note names the mode the way the Mode
+  box names it. It used to print the internal key, so a user who had chosen
+  "Cellpose 3 · cyto3" was told `cellpose3:cyto3` could not run and had no
+  row to look for. The caption itself is translated, so the sentence and the
+  box agree in every language. An unknown key is handed back unchanged: a
+  mode that has lost its caption still reads as itself rather than vanishing.
+- `MakeMasksScreen._on_toggle_magnifier` and `_commit_magnifier_result`: the
+  toggle's two sentences and the "nothing to add" refusal were already
+  collected as catalog sources -- the generator reads a `setText` literal --
+  and were shown without `tr`, so the rows existed and nothing used them.
+  Wrapping them changes no source and owes no translation.
 
 ## Item 435 (2026-09-20)
 

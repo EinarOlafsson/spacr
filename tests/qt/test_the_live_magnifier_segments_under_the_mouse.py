@@ -618,7 +618,7 @@ def test_a_mode_that_cannot_load_falls_back_and_says_so(qtbot, screen):
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
     assert screen._magnifier._shown.mode == "otsu"
-    assert "cellpose could not run" in screen._status_label.text()
+    assert "Cellpose could not run" in screen._status_label.text()
     assert screen._magnifier.build_request().mode == "otsu", (
         "a model that failed is not retried on every mouse move")
 
@@ -991,3 +991,138 @@ def test_the_worker_can_drop_what_is_waiting():
     finally:
         gate.set()
         worker.close()
+
+
+# ---------------------------------------------------------------------------
+# Every sentence the magnifier writes reaches a translator
+# ---------------------------------------------------------------------------
+#
+# Item 407's WHAT IS LEFT: "the region mode's other f-string status lines
+# (could not segment this region, the classical fallback note) are still not
+# catalogued". An f-string is built before anything can translate it, so a
+# reader in one of the other eight languages met the magnifier's failures in
+# English. These pin both halves: the sentence goes through `tr` at the point
+# it is shown, and what it says about a mode is what the Mode box calls it.
+#
+# Translations themselves belong to the catalog pass; nothing here needs one.
+# A stand-in `tr` that marks its input proves the call is made.
+
+
+def _marked(text, *args, **values):
+    """A stand-in translation that cannot be mistaken for the English."""
+    rendered = str(text).format(**values) if values else str(text)
+    return f"⟦{rendered}⟧"
+
+
+@pytest.fixture
+def marked(monkeypatch):
+    """Make every translated string visibly translated."""
+    monkeypatch.setattr("spacr.qt.i18n.tr", _marked)
+    monkeypatch.setattr(mm, "tr", _marked, raising=False)
+
+
+def test_a_click_that_waits_for_the_region_says_so_through_tr(
+        qtbot, screen, marked):
+    """The pinned-click notice was a bare literal until item 407's polish."""
+    stub = CodedStub({1: (20, 20, 26, 25)})
+    stub.gate = threading.Event()
+    switch_on(screen, stub)
+    try:
+        hover(screen, 30, 30)
+        qtbot.waitUntil(lambda: len(stub.calls) == 1, timeout=10_000)
+        click(screen, 30, 30)
+        assert screen._status_label.text() == _marked(
+            "Magnifier: segmenting this region — its objects are added as "
+            "soon as the box is up to date.")
+    finally:
+        stub.gate.set()
+    qtbot.waitUntil(screen._magnifier._worker.idle, timeout=10_000)
+
+
+def test_a_region_the_model_could_not_segment_says_so_through_tr(
+        qtbot, screen, marked):
+    """The error is a value in the template, not a piece of the sentence."""
+
+    def explode(request):
+        raise ValueError("the model fell over")
+
+    switch_on(screen, explode)
+    hover(screen, 30, 30)
+    qtbot.waitUntil(
+        lambda: "fell over" in screen._status_label.text(), timeout=10_000)
+    assert screen._status_label.text() == _marked(
+        "Magnifier could not segment this region: {error}",
+        error="the model fell over")
+
+
+def test_the_classical_fallback_note_goes_through_tr_and_names_the_caption(
+        qtbot, screen, marked):
+    """"cellpose3:cyto3 could not run" sends a reader looking for a row that
+    does not exist; the Mode box calls it "Cellpose 3 · cyto3"."""
+    def broken(name):
+        raise ImportError("no cellpose here")
+
+    screen._magnifier.segment = mm.partial(mm._segment_region,
+                                           load_model=broken)
+    screen._magnifier.set_mode("cellpose")
+    screen._btn_magnifier.setChecked(True)
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+
+    shown = screen._status_label.text()
+    assert shown == _marked(
+        "Magnifier: {mode} could not run ({reason}); the classical mode "
+        "is segmenting instead.",
+        mode=_marked("Cellpose"), reason="ImportError: no cellpose here")
+    assert "cellpose could not run" not in shown, (
+        "the mode was named by its key rather than by its caption")
+
+
+def test_the_mode_caption_is_the_one_the_mode_box_shows(screen):
+    """Every mode the box offers, named the way the box names it."""
+    box = screen._mag_mode
+    for index in range(box.count()):
+        mode = box.itemData(index)
+        assert mm._magnifier_mode_label(mode) == box.itemText(index), mode
+    assert mm._magnifier_mode_label("classical") == "Classical"
+    assert mm._magnifier_mode_label("cellpose3:cyto3") == "Cellpose 3 · cyto3"
+    assert mm._magnifier_mode_label("no such mode") == "no such mode", (
+        "a mode with no caption is hidden rather than shown as itself")
+
+
+def test_the_toggle_says_what_it_did_through_tr(qtbot, screen, marked):
+    switch_on(screen, CodedStub({}))
+    assert screen._status_label.text() == _marked(
+        "Magnifier on: a click adds the objects outlined in the box; "
+        "the mouse wheel changes its zoom.")
+    screen._btn_magnifier.setChecked(False)
+    assert screen._status_label.text() == _marked(
+        "Magnifier off. The objects it added stay in the mask.")
+
+
+def test_a_click_that_adds_nothing_says_so_through_tr(qtbot, screen, marked):
+    switch_on(screen, CodedStub({}))
+    hover(screen, 30, 30)
+    wait_for_result(qtbot, screen)
+    click(screen, 30, 30)
+    assert screen._status_label.text() == _marked(
+        "Magnifier: nothing to add — the box outlines no object, or "
+        "every object it outlines overlaps one already in the mask.")
+
+
+def test_a_paste_that_the_engine_refuses_says_so_through_tr(screen, marked):
+    """The refusal carries the engine's reason as a value, not as prose."""
+    stub_request = mm._MagnifierRequest(
+        key=(0, (0, 0, 4, 4)), crop=np.zeros((4, 4), np.uint16),
+        box=(0, 0, 4, 4), shape=(IMG_N, IMG_N), mode="classical",
+        sensitivity=0.0, bright=True, min_area=0, model_name="cpsam",
+        diameter=0, colour=(1, 2, 3))
+    result = mm._MagnifierResult(
+        stub_request, np.zeros((4, 4), np.int32), "classical", "", None, 0)
+    screen._mag_overlap.addItem("Nonsense", "nonsense")
+    screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("nonsense"))
+
+    assert screen._commit_magnifier_result(result) == []
+    shown = screen._status_label.text()
+    assert shown.startswith("⟦Magnifier could not add objects: ")
+    assert "nonsense" in shown

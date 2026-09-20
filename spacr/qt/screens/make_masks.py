@@ -2046,6 +2046,34 @@ def canonical_magnifier_mode(mode) -> str:
     return _MAGNIFIER_MODE_ALIASES.get(name, name)
 
 
+#: The two modes the Mode box builds itself, as ``mode -> its caption``.
+#: The rest are named by :data:`_MAGNIFIER_BACKENDS`.
+_MAGNIFIER_MODE_LABELS = {"otsu": "Otsu", "cellpose": "Cellpose"}
+
+
+def _magnifier_mode_label(mode: str) -> str:
+    """The caption the Mode box shows for ``mode``, translated.
+
+    A status line that names a mode has to name it the way the box the user
+    picked it from does. A mode under its old name is named under the new
+    one, through :func:`canonical_magnifier_mode`; an unknown mode is handed
+    back unchanged rather than hidden, so a key that has lost its caption
+    still reads as itself.
+
+    :param mode: a key of :data:`_MAGNIFIER_SEGMENTERS`, or one this screen
+        has renamed.
+    :returns: the caption, in the current language.
+    """
+    from ..i18n import tr
+
+    key = canonical_magnifier_mode(mode)
+    name = _MAGNIFIER_MODE_LABELS.get(key)
+    if name is None:
+        backend = _MAGNIFIER_BACKENDS.get(key)
+        name = backend[1] if backend is not None else str(mode)
+    return tr(name)
+
+
 def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     """Run the request's mode, falling back to Otsu when it cannot run.
 
@@ -2622,6 +2650,8 @@ class _LiveMagnifier(QObject):
         :returns: False when there is no region to commit -- the magnifier is
             off, the mouse is off the image, or no field is open.
         """
+        from ..i18n import tr
+
         if self.scope == "image":
             return self._pick()
         request = self.build_request()
@@ -2633,9 +2663,9 @@ class _LiveMagnifier(QObject):
             return True
         self._waiting.add(request.key)
         self._worker.submit(request, pin=True)
-        self.status.emit(
+        self.status.emit(tr(
             "Magnifier: segmenting this region — its objects are added as "
-            "soon as the box is up to date.")
+            "soon as the box is up to date."))
         return True
 
     def remove(self) -> bool:
@@ -3001,6 +3031,8 @@ class _LiveMagnifier(QObject):
 
     def _on_delivered(self, payload) -> None:
         """Show a finished result, and commit it if a click was waiting."""
+        from ..i18n import tr
+
         request, result, error = payload
         if request.key[0] != self._field:
             return
@@ -3011,8 +3043,9 @@ class _LiveMagnifier(QObject):
             self._waiting.discard(request.key)
             LOG.warning("magnifier could not segment %s: %s",
                         request.box, error)
-            self.status.emit(
-                f"Magnifier could not segment this region: {error}")
+            self.status.emit(tr(
+                "Magnifier could not segment this region: {error}",
+                error=error))
             return
         self._note_fallback(request, result)
         self._shown = result
@@ -3025,18 +3058,24 @@ class _LiveMagnifier(QObject):
     def _note_fallback(self, request, result) -> bool:
         """Say, once per model, that it could not run and Otsu stood in.
 
+        The mode is named the way the Mode box names it, not by its internal
+        key: a sentence about ``cellpose3:cyto3`` sends the reader looking for
+        a row that says "Cellpose 3 · cyto3".
+
         :returns: True when this call said it.
         """
+        from ..i18n import tr
+
         if result.mode == request.mode:
             return False
         marker = (request.mode, request.model_name)
         if marker in self._unavailable:
             return False
         self._unavailable[marker] = result.note
-        self.status.emit(
-            f"Magnifier: {request.mode} could not run "
-            f"({result.note}); the Otsu mode is segmenting "
-            f"instead.")
+        self.status.emit(tr(
+            "Magnifier: {mode} could not run ({reason}); the Otsu mode is "
+            "segmenting instead.",
+            mode=_magnifier_mode_label(request.mode), reason=result.note))
         return True
 
     def _on_image_delivered(self, request, result, error) -> None:
@@ -6742,12 +6781,12 @@ class MakeMasksScreen(QWidget):
                 "right-click removes the mask object under it; the mouse "
                 "wheel changes its zoom."))
         elif on:
-            self._status_label.setText(
+            self._status_label.setText(tr(
                 "Magnifier on: a click adds the objects outlined in the box; "
-                "the mouse wheel changes its zoom.")
+                "the mouse wheel changes its zoom."))
         else:
-            self._status_label.setText(
-                "Magnifier off. The objects it added stay in the mask.")
+            self._status_label.setText(tr(
+                "Magnifier off. The objects it added stay in the mask."))
         self._magnifier.set_enabled(on)
         if on and self._canvas.underMouse():
             where = self._canvas.mapFromGlobal(QCursor.pos())
@@ -6780,8 +6819,8 @@ class MakeMasksScreen(QWidget):
                 mask, result.labels, request.box[:2], overlap=overlap,
                 min_area=self._detect_min_area())
         except ValueError as exc:
-            self._status_label.setText(
-                f"Magnifier could not add objects: {exc}")
+            self._status_label.setText(tr(
+                "Magnifier could not add objects: {error}", error=exc))
             return []
         if not added and request.scope == "image":
             self._status_label.setText(tr(
@@ -6789,9 +6828,9 @@ class MakeMasksScreen(QWidget):
                 "leaves nothing of the object under the click."))
             return []
         if not added:
-            self._status_label.setText(
+            self._status_label.setText(tr(
                 "Magnifier: nothing to add — the box outlines no object, or "
-                "every object it outlines overlaps one already in the mask.")
+                "every object it outlines overlaps one already in the mask."))
             return []
         changed = self._pixels_changed(out)
         self._canvas.mask = out
