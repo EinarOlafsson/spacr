@@ -9,20 +9,6 @@
       "translation": "Wie viel des Rechners der Lauf nutzen darf: ob die Grafikkarte verwendet wird und wie viele Sichtfelder gleichzeitig dekodiert werden. Nichts hier ändert das Ergebnis, nur was es kostet."
     },
     {
-      "key": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source_sha256": "638b26601f8977415641e7170e201bb234862ac20f9623c508361f2a539f8a66",
-      "table": "categories",
-      "translation": "Wie die Zellkerne jedes zusammengesetzten Wells segmentiert werden. Jeder Read wird dem Zellkern zugeordnet, auf dem oder direkt neben dem er liegt, daher entscheiden das Cellpose-Modell und der Durchmesser hier, welche Objekte einen Barcode erhalten können."
-    },
-    {
-      "key": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source_sha256": "2d632298c8e3c97043fb1f161a194b3c5e6fa6dc68fd7f90f91fb1ef7499749a",
-      "table": "categories",
-      "translation": "Woher die Sequenzierungskacheln gelesen und wohin die Ergebnisse geschrieben werden: der Ordner, der einschließlich Unterordnern nach Kacheln durchsucht wird, die nach Vergrößerung, Zyklus, Well, Kanälen und Position benannt sind, und der Ordner, der measurements.db und einen Bericht für jedes Well erhält. Legen Sie diese zuerst fest; jede andere OPS-Gruppe setzt voraus, dass sie stimmen."
-    },
-    {
       "key": "ops",
       "source": "For optical pooled screening: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes.",
       "source_sha256": "539fa683cc14ffa515e0cdf74cc668b627e3ded690ce1e7c93e8d005ee2c757e",
@@ -56,13 +42,6 @@
       "source_sha256": "9b15079d7bd2a45b52a9cba5a0f258c49bdf3493038594d07548e32807514af7",
       "table": "setting_tooltips",
       "translation": "Der Ordner mit der Sequenzierungsaufnahme bei geringer Vergrößerung, die die Barcodes trägt. Auch seine Unterordner werden durchsucht, nach Kacheln mit Namen wie 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif: Vergrößerung, Zyklus, Well, Kanäle und Position. Jedes gefundene Well wird zusammengesetzt, segmentiert und dekodiert. Default None."
-    },
-    {
-      "key": "ops",
-      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ, and the phenotype images are not placed by this step.",
-      "source_sha256": "1f8582207006c8dbfbf832cdefe10bba563a95fe573a99274da4657f763dc9f6",
-      "table": "setting_tooltips",
-      "translation": "Führt jedes Well der Sequenzierungsaufnahme eines optischen gepoolten Screenings von den Bildkacheln bis zu den Tabellen: setzt die Kernkacheln zusammen, segmentiert und nummeriert die Zellkerne über das ganze Well, dekodiert dann die Reads jedes Sichtfelds und weist jedem Zellkern, dessen Reads übereinstimmen, einen Barcode zu. Die Tabellen werden in measurements.db geschrieben. Die Reads werden aus den Bildern dekodiert, nicht aus FASTQ, und die Phänotypbilder werden in diesem Schritt nicht platziert."
     },
     {
       "key": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",

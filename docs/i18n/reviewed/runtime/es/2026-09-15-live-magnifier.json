@@ -2,13 +2,6 @@
   "language": "es",
   "records": [
     {
-      "key": "Classical",
-      "source": "Classical",
-      "source_sha256": "5550f80de667506a37a21ab31f601c8cf1d259c2759ff40d63ca92e7a3d446df",
-      "table": "ui",
-      "translation": "Clásico"
-    },
-    {
       "key": "Clip",
       "source": "Clip",
       "source_sha256": "82337888d76466b26eeef984735aa945a1ab2ac99c46c87e994189c940c0b95e",
@@ -70,13 +63,6 @@
       "source_sha256": "dfe40efe921fe88e332575a3516f4e8cd6bbb71437cf260b2bb9b947c65d1484",
       "table": "ui",
       "translation": "Actualizando…"
-    },
-    {
-      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
-      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers.",
-      "source_sha256": "0217cb326bbd11f699df8e270e0b72e5618e0dd2050c9b54debfc96412fd88f3",
-      "table": "ui",
-      "translation": "Qué hace un objeto nuevo donde la máscara ya tiene un objeto. Recortar conserva solo sus píxeles sin etiquetar, así que ningún objeto existente pierde un píxel. Omitir deja fuera cualquier objeto que toque uno existente. Reemplazar deja que el objeto nuevo tome todos los píxeles que cubre."
     }
   ],
   "schema": 1

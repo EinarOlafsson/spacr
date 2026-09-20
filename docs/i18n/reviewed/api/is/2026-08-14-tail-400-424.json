@@ -42,7 +42,9 @@
       "source_sha256": "dffa982cdbe8e318eb3f679f338af4dad8c8af1985a132daccabf5a3a3aba535",
       "source": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
       "context": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
-      "translation": "Hvert útkoma ber með sér eftirleitni staðalvilluna, R², og — þegar útlitið hefur endurtekningar — **fit-F próf á móti hreinni villu**. Sá síðasti er tölfræðin sem svarar spurningunni sem fólk heldur að R² svari."
+      "translation": "Hvert útkoma ber með sér eftirleitni staðalvilluna, R², og — þegar útlitið hefur endurtekningar — **fit-F próf á móti hreinni villu**. Sá síðasti er tölfræðin sem svarar spurningunni sem fólk heldur að R² svari.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.widgets.dose_response's documentation, which was rewritten by \"387: the 5PL's profile interval was too narrow because its inner minimisation stopped one sweep short\" (82d9b5f6f, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.active_learning.predict_probabilities#1",

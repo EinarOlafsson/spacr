@@ -997,3 +997,50 @@ new and changed string across all three parts -- now including the renamed
 "Invert for detection" caption, its rewritten tooltip, the rewritten warning
 banner and the sentence added to 435's "Invert image" tooltip -- and a look
 at any of it in the real app on a real display.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE REVIEWED RECORDS THIS ITEM'S RENAMES LEFT BEHIND, RECONCILED
+--------------------------------------------------------------------------------
+
+NOT the nine-language catalog rows this item still owes. What is closed here
+is the wreckage the renames caused in the REVIEWED evidence, which had taken
+the whole i18n audit down with it.
+
+WHAT WAS BROKEN. `reviewed_runtime_translations` raises on any record whose
+pinned English is no longer the current English, and since 2026-09-15 it had
+been raising for every locale. That made `tools/build_i18n_catalogs.py
+--audit` unrunnable, so nobody could see what the catalogs owed -- including
+this item. 144 records over nine locales were stale: 15 sources renamed or
+rewritten out of spaCR by items 417, 419, 423 and 435 (Classical, Otsu
+threshold correction, the two `pip install "spacr[...]"` lines item 423
+replaced with the Model Zoo, the magnifier's Mode and Model tooltips, two OPS
+category captions) and 5 whose English was edited under an unchanged key.
+
+WHAT WAS DONE. The runtime records were REMOVED, which is what items 417
+(f6c511cc3) and 418 (c0b2c5227) did in the same situation; the runtime loader
+accepts exactly five fields, so it has no retirement flag to set. The 165
+stale API records over 13 rewritten docstrings were instead marked
+`retired` with a reason each, because that side HAS the flag and its own code
+says in as many words that deleting an API record is "the obvious fix and the
+wrong one" -- a review somebody gave is not ours to discard.
+
+The two hand-pinned counts in tests/test_runtime_i18n_syntax.py had been
+unverifiable the whole time the loader was raising, and were wrong by more
+than this pass removed: Swedish 302 -> 319 and French 277 -> 310, with the
+arithmetic written out beside each. docs/i18n/COVERAGE.md and
+docs/i18n/REVIEW_SCOPE_2026-09-04.md were regenerated against the live
+denominators, which have themselves moved (runtime 5,773 -> 5,993, API
+10,539 -> 10,931).
+
+MEASURED. tests/test_i18n_coverage_audit.py 4 passed (2 were failing),
+tests/test_runtime_i18n_syntax.py and tests/test_i18n_reviewed_ui.py 6 passed
+(2 were failing), 34 passed over the API frontend, literal boundaries,
+reference sources and plain history. Two failures in
+tests/test_api_i18n_extractor.py and one in
+tests/test_a_helper_does_not_hide_a_caption_from_the_catalog.py FAIL
+IDENTICALLY on a clean origin/nightly worktree and are not this pass's.
+
+STILL OPEN FOR THIS ITEM, unchanged: the nine-language catalog rows. The
+audit now runs and says what they are, and the answer is large -- Portuguese
+alone reports 243 missing UI rows -- so it is a translation-model pass, and
+the model needs the GPU, which was busy all afternoon.

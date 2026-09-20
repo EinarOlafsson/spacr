@@ -86,7 +86,9 @@
       "source_sha256": "dffa982cdbe8e318eb3f679f338af4dad8c8af1985a132daccabf5a3a3aba535",
       "source": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
       "context": "Every result carries the residual standard error, R², and — when the design has replicates — a **lack-of-fit F test against pure error**. That last one is the statistic that answers the question people think R² answers.",
-      "translation": "모든 결과에는 잔차 표준 오차와 R²가 포함되며, 설계에 반복 실험이 있으면 **순수 오차에 대한 적합성 결여 F 검정**도 포함됩니다. 마지막 통계량이 사람들이 R²가 답한다고 생각하는 질문에 실제로 답합니다."
+      "translation": "모든 결과에는 잔차 표준 오차와 R²가 포함되며, 설계에 반복 실험이 있으면 **순수 오차에 대한 적합성 결여 F 검정**도 포함됩니다. 마지막 통계량이 사람들이 R²가 답한다고 생각하는 질문에 실제로 답합니다.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.widgets.dose_response's documentation, which was rewritten by \"387: the 5PL's profile interval was too narrow because its inner minimisation stopped one sweep short\" (82d9b5f6f, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.measure.generate_object_dataset#5",

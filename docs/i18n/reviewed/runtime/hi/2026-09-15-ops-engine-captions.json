@@ -9,20 +9,6 @@
       "translation": "यह रन मशीन का कितना हिस्सा इस्तेमाल कर सकता है: ग्राफ़िक्स कार्ड का उपयोग होता है या नहीं, और एक साथ कितने फ़ील्ड डिकोड किए जाते हैं। यहाँ कुछ भी परिणाम नहीं बदलता, केवल उसकी लागत बदलती है।"
     },
     {
-      "key": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source_sha256": "638b26601f8977415641e7170e201bb234862ac20f9623c508361f2a539f8a66",
-      "table": "categories",
-      "translation": "हर जोड़े गए वेल के नाभिक कैसे सेगमेंट किए जाते हैं। हर रीड उस नाभिक को सौंपा जाता है जिस पर या जिसके ठीक पास वह पड़ता है, इसलिए यहाँ का Cellpose मॉडल और व्यास तय करते हैं कि किन ऑब्जेक्ट को बारकोड मिल सकता है।"
-    },
-    {
-      "key": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source_sha256": "2d632298c8e3c97043fb1f161a194b3c5e6fa6dc68fd7f90f91fb1ef7499749a",
-      "table": "categories",
-      "translation": "सीक्वेंसिंग टाइलें कहाँ से पढ़ी जाती हैं और परिणाम कहाँ लिखे जाते हैं: वह फ़ोल्डर जिसमें, सबफ़ोल्डरों सहित, आवर्धन, चक्र, वेल, चैनल और साइट के अनुसार नामित टाइलें खोजी जाती हैं, और वह फ़ोल्डर जिसमें measurements.db और हर वेल की एक रिपोर्ट लिखी जाती है। इन्हें पहले सेट करें; बाकी हर OPS समूह मानता है कि ये सही हैं।"
-    },
-    {
       "key": "ops",
       "source": "For optical pooled screening: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes.",
       "source_sha256": "539fa683cc14ffa515e0cdf74cc668b627e3ded690ce1e7c93e8d005ee2c757e",
@@ -56,13 +42,6 @@
       "source_sha256": "9b15079d7bd2a45b52a9cba5a0f258c49bdf3493038594d07548e32807514af7",
       "table": "setting_tooltips",
       "translation": "वह फ़ोल्डर जिसमें बारकोड वाला कम आवर्धन का सीक्वेंसिंग अधिग्रहण रखा है। उसके सबफ़ोल्डर भी खोजे जाते हैं, 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif जैसे नाम वाली टाइलों के लिए: आवर्धन, चक्र, वेल, चैनल और साइट। मिलने वाला हर वेल जोड़ा, सेगमेंट और डिकोड किया जाता है। डिफ़ॉल्ट None।"
-    },
-    {
-      "key": "ops",
-      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ, and the phenotype images are not placed by this step.",
-      "source_sha256": "1f8582207006c8dbfbf832cdefe10bba563a95fe573a99274da4657f763dc9f6",
-      "table": "setting_tooltips",
-      "translation": "ऑप्टिकल पूल्ड स्क्रीनिंग के सीक्वेंसिंग अधिग्रहण के हर वेल को टाइलों से तालिकाओं तक ले जाता है: उसकी नाभिक टाइलों को जोड़ता है, पूरे वेल में उसके नाभिकों को सेगमेंट करके क्रमांकित करता है, फिर हर फ़ील्ड के रीड डिकोड करता है और हर उस नाभिक को बारकोड देता है जिसके रीड आपस में मेल खाते हैं। तालिकाएँ measurements.db में लिखी जाती हैं। रीड छवियों से डिकोड किए जाते हैं, FASTQ से नहीं, और इस चरण में फ़ेनोटाइप छवियाँ नहीं रखी जातीं।"
     },
     {
       "key": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",

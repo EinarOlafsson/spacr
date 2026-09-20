@@ -84,7 +84,9 @@
       "source_sha256": "193b55d7bc30a06f531b75b7c0709dfc2559a48f1c7199aa0863925ae8261b69",
       "source": "The ordinary sanitizer abbreviates the home directory so a traceback is still useful. Public reports default to the stricter form: traceback file fields and remaining absolute path-like tokens become ``<PATH>``. The preview lets the user restore the useful names before sending.",
       "context": "The ordinary sanitizer abbreviates the home directory so a traceback is still useful. Public reports default to the stricter form: traceback file fields and remaining absolute path-like tokens become ``<PATH>``. The preview lets the user restore the useful names before sending.",
-      "translation": "Venjulega hreinsunin styttir heimamöppuna svo staflarakningin haldist gagnleg. Opinberar skýrslur nota sjálfgefið strangari gerð: skráarreitir staflarakningar og önnur algild slóðarlík tákn verða ``<PATH>``. Forskoðunin gerir notandanum kleift að endurheimta gagnleg heiti áður en sent er."
+      "translation": "Venjulega hreinsunin styttir heimamöppuna svo staflarakningin haldist gagnleg. Opinberar skýrslur nota sjálfgefið strangari gerð: skráarreitir staflarakningar og önnur algild slóðarlík tákn verða ``<PATH>``. Forskoðunin gerir notandanum kleift að endurheimta gagnleg heiti áður en sent er.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.ai.issue_report.strip_report_paths's documentation, which was rewritten by \"432 after review: a path with a space was published whole, the new default reached almost nobody, and Annotate's File as issue had never filed anything\" (e173b9624, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.plate_qc.detect_edge_effect#2",
@@ -98,7 +100,9 @@
       "source_sha256": "7911d8b785aefe2636d6f70e4ad0e1d85e1184ee64780aff9404cc5cc62ac597",
       "source": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline dict), then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader and coercion so a value the CLI accepts is a value the queue accepts.",
       "context": "Layered exactly as ``spacr-run`` layers them — module defaults, then the settings file (or the inline key-value mapping), then the ``--set`` overrides — using :mod:`spacr.cli`'s own loader and coercion so a value the CLI accepts is a value the work list accepts.",
-      "translation": "Lögin eru nákvæmlega eins og hjá ``spacr-run``: fyrst sjálfgefnar einingarstillingar, síðan stillingaskráin eða innbyggða lyklagildavörpunin og loks ``--set`` yfirskriftirnar. Eiginn hleðslukóði og gerðarþvingun :mod:`spacr.cli` eru notuð, svo gildi sem CLI samþykkir samþykkir verkefnalistinn líka."
+      "translation": "Lögin eru nákvæmlega eins og hjá ``spacr-run``: fyrst sjálfgefnar einingarstillingar, síðan stillingaskráin eða innbyggða lyklagildavörpunin og loks ``--set`` yfirskriftirnar. Eiginn hleðslukóði og gerðarþvingun :mod:`spacr.cli` eru notuð, svo gildi sem CLI samþykkir samþykkir verkefnalistinn líka.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.batch.resolve_job_settings's documentation, which was rewritten by 'An old settings file lost every renamed value to the defaults on spacr-run' (9a1b5550c, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.deep_spacr.summarize_cv_metrics#1",

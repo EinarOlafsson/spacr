@@ -9,20 +9,6 @@
       "translation": "이 실행이 사용할 수 있는 머신 자원의 양입니다: 그래픽 카드를 사용할지 여부와 한 번에 디코딩할 시야의 수입니다. 여기의 어떤 설정도 결과를 바꾸지 않으며, 드는 비용만 바꿉니다."
     },
     {
-      "key": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source_sha256": "638b26601f8977415641e7170e201bb234862ac20f9623c508361f2a539f8a66",
-      "table": "categories",
-      "translation": "스티칭된 각 웰의 핵을 어떻게 분할할지 정합니다. 각 리드는 그것이 놓인 핵이나 바로 옆의 핵에 귀속되므로, 여기의 Cellpose 모델과 지름이 어떤 객체가 바코드를 받을 수 있는지 결정합니다."
-    },
-    {
-      "key": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source_sha256": "2d632298c8e3c97043fb1f161a194b3c5e6fa6dc68fd7f90f91fb1ef7499749a",
-      "table": "categories",
-      "translation": "시퀀싱 타일을 어디에서 읽고 결과를 어디에 쓰는지 정합니다: 하위 폴더를 포함해 배율, 사이클, 웰, 채널, 사이트로 이름이 붙은 타일을 찾는 폴더와, measurements.db 및 웰마다 하나의 보고서를 받는 폴더입니다. 이 설정을 먼저 지정하십시오. 다른 모든 OPS 그룹은 이 값이 맞다고 가정합니다."
-    },
-    {
       "key": "ops",
       "source": "For optical pooled screening: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes.",
       "source_sha256": "539fa683cc14ffa515e0cdf74cc668b627e3ded690ce1e7c93e8d005ee2c757e",
@@ -56,13 +42,6 @@
       "source_sha256": "9b15079d7bd2a45b52a9cba5a0f258c49bdf3493038594d07548e32807514af7",
       "table": "setting_tooltips",
       "translation": "바코드를 담고 있는 저배율 시퀀싱 획득 영상이 들어 있는 폴더입니다. 하위 폴더도 검색하여 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif 처럼 배율, 사이클, 웰, 채널, 사이트로 이름이 붙은 타일을 찾습니다. 찾은 모든 웰을 스티칭하고, 분할하고, 디코딩합니다. 기본값 None."
-    },
-    {
-      "key": "ops",
-      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ, and the phenotype images are not placed by this step.",
-      "source_sha256": "1f8582207006c8dbfbf832cdefe10bba563a95fe573a99274da4657f763dc9f6",
-      "table": "setting_tooltips",
-      "translation": "광학 풀링 스크린의 시퀀싱 획득 영상에서 각 웰을 타일부터 테이블까지 처리합니다: 핵 타일을 스티칭하고, 웰 전체에서 핵을 분할하고 번호를 매긴 다음, 각 시야의 리드를 디코딩하여 리드가 일치하는 모든 핵에 바코드를 할당합니다. 테이블은 measurements.db 에 기록됩니다. 리드는 FASTQ 가 아니라 이미지에서 디코딩되며, 표현형 이미지는 이 단계에서 배치되지 않습니다."
     },
     {
       "key": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",

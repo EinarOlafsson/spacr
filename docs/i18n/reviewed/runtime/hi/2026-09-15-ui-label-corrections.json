@@ -2,13 +2,6 @@
   "language": "hi",
   "records": [
     {
-      "key": "Bright",
-      "source": "Bright",
-      "source_sha256": "e4378e9c551f7f9cc15393265d53a4bc5d7a08d8605d115c60b6e4cf0bafb8b5",
-      "table": "ui",
-      "translation": "चमकीला"
-    },
-    {
       "key": "Object operations",
       "source": "Object operations",
       "source_sha256": "f35db0a3faf5bf6bfe20d3acfd8671647fa087543c2dae033eb0eb976c1495d5",

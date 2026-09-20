@@ -35,13 +35,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_model_name",
-      "source_sha256": "4b7548b8506d697953ed4aabf9c66aa6133887703ca6b49bd9e592bb66639fa6",
-      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
-      "translation": "细胞分割权重。Cellpose 4 提供标准 'cpsam' 模型；也可以提供由 Train Cellpose 创建并作为 pretrained_model 加载的 CPSAM 检查点。仍接受旧名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但这些名称会解析为 cpsam，因为 Cellpose 4 不再随附这些模型。只有 diameter 会改变推理（按 30/diameter 缩放）；model_type 和 diam_mean 在 v4.0.1+ 中不使用。默认值为 'cpsam'。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_types",
       "source_sha256": "0e492a9791016485f993f749dd1833acb2942798fa299b6d9606b11ebd302aaa",
       "source": "Names of the host cell lines in the experiment, e.g. ['HeLa']. Each name is written into the host_cells column and folded into the combined condition label used for grouping and plotting; the list is positionally paired with cell_plate_metadata, which says which wells hold each one. Default ['HeLa'].",

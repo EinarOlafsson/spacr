@@ -203,13 +203,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "metadata_type",
-      "source_sha256": "2a899e331af995e1a79eaed7cf624ae8934cb36d6422e5634769a93dd6bb7e3d",
-      "source": "Filename convention used to parse raw images. 'cellvoyager' (default) and 'cq1' use built-in regular expressions, 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders.",
-      "translation": "用于解析原始图像的文件名约定。'cellvoyager'（默认）和 'cq1' 使用内置正则表达式，'custom' 使用 custom_regex，'auto' 则在解析前先将文件夹重命名为 Yokogawa 命名格式（若提供 custom_regex 则使用它，否则自动检测）。错误的约定可能误分配微孔板、孔、视野或通道标识符，并将图像放入错误的通道文件夹。"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "normalize",
       "source_sha256": "9bf5d68d106f829d89da717be486c850c3254a6d49102ef64feefa4d819de086",
       "source": "Control percentile normalization before display, model input, or crop export. Display and activation-map tools use True for a 2nd-to-98th-percentile stretch. Measure and External Masks start at False; Measure accepts False or a two-number [low, high] percentile pair and refuses bare True because it supplies no bounds. It affects display and exported-crop scaling, not measured source intensities. Default True in the display-oriented tools.",

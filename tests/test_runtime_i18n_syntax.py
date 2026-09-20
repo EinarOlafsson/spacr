@@ -135,7 +135,26 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 299 -> 302: three distinct Dose-Response report sources gain reviewed
     # wording (pooled EC50, selectivity index, combination-model excess).
     # None had a reviewed record before; removing these three returns 299.
-    assert len(reviewed) == 302
+    #
+    # 302 -> 319 on 2026-09-20, and the number had not been checkable since
+    # 2026-09-15. From that date the loader raised on the first stale record
+    # it met, so every count below was pinned against a tree whose records
+    # could not be loaded at all, and three commits then added records nobody
+    # could count. Item 446's pass fixed the loader's input rather than the
+    # loader: 144 records over nine languages pinned an English string that
+    # no longer exists -- 15 sources renamed or rewritten out of spaCR by
+    # 417, 419, 423 and 435 (Classical, Otsu threshold correction, the two
+    # pip-install lines 423 replaced with the Model Zoo, the magnifier's Mode
+    # and Model tooltips, two OPS category captions) and 5 whose English was
+    # edited under an unchanged key. Retiring a record whose source is gone
+    # is what 417 (f6c511cc3) and 418 (c0b2c5227) already did.
+    #
+    # THE SWEDISH ARITHMETIC, in raw records: 303 at the pin, +27 for 418
+    # (c0b2c5227), +7 for the settings packs (a64a93e47), 364 (8619dcb9c)
+    # edited without adding, = 337; this pass removes 16, leaving 321.
+    # The assertion counts DISTINCT sources, and 2 of those raw records
+    # repeat a source another record already carries, so 319.
+    assert len(reviewed) == 319
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -264,7 +283,17 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 256 = 259 - 3, and 256 + 18 = 274. No unrelated pin was moved.
     # 274 -> 277: the same three report sources gain reviewed French wording;
     # no source/key changes or retired records. Subtracting them returns 274.
-    assert len(reviewed) == 277
+    #
+    # 277 -> 310 on 2026-09-20, for the reason written at length in the
+    # Swedish note above: the loader had been raising since 2026-09-15, so
+    # neither count could be checked while three commits added records.
+    #
+    # THE FRENCH ARITHMETIC, in raw records: 280 at the pin, +42 for 418
+    # (c0b2c5227), +7 for the settings packs (a64a93e47), = 329; this pass
+    # removes 15 whose pinned English no longer exists, leaving 314. The
+    # assertion counts DISTINCT sources, and 4 of those raw records repeat a
+    # source another record already carries, so 310.
+    assert len(reviewed) == 310
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

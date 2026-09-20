@@ -678,7 +678,9 @@
       "label": "spacr.qt.preferences#9",
       "source": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
       "source_sha256": "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
-      "translation": "``font_scale``: float, 1.0 = 100 % (standard). Begränsas till [0.10, 2.0]."
+      "translation": "``font_scale``: float, 1.0 = 100 % (standard). Begränsas till [0.10, 2.0].",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.preferences's documentation, which was rewritten by \"427 part C after review: five sound sets claimed a superlative the numbers deny, and no widget ever showed a theme's description\" (bbd05e2f3, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",

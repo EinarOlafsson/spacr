@@ -7,13 +7,6 @@
       "source_sha256": "55d5430ab2ef3b4362493fe29d111b90f9aeea3e3161c05910d77a00677b752f",
       "table": "setting_labels",
       "translation": "Segmentierungs-Backend"
-    },
-    {
-      "key": "segmentation_backend",
-      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs the model each object's model name selects. 'samcell' (trained partly on LIVECell) and 'dinocell' are optional 2-D models for live-cell and label-free images: they read only the object's own channel, ignore diameter and flow_threshold, and refuse z_stack and t_stack runs. 'samcell' needs pip install \"spacr[samcell]\"; 'dinocell' needs an environment of its own, because its release pins versions that conflict with spaCR's. Default 'cellpose'.",
-      "source_sha256": "bdfd3dc24bf67f0cdd940c47c6125fd418ff01c4f52e6eba56f92cd16f24b8bd",
-      "table": "setting_tooltips",
-      "translation": "Welches Modell Zellen, Zellkerne und Pathogene segmentiert; Masken verschiedener Modelle sind nicht vergleichbar. 'cellpose' (Standard) führt das Modell aus, das der Modellname jedes Objekts auswählt. 'samcell' (teilweise auf LIVECell trainiert) und 'dinocell' sind optionale 2-D-Modelle für Lebendzell- und markierungsfreie Bilder: Sie lesen nur den eigenen Kanal des Objekts, ignorieren diameter und flow_threshold und verweigern Läufe mit z_stack und t_stack. 'samcell' benötigt pip install \"spacr[samcell]\"; 'dinocell' benötigt eine eigene Umgebung, weil seine Veröffentlichung Versionen festschreibt, die mit denen von spaCR kollidieren. Standard 'cellpose'."
     }
   ],
   "schema": 1

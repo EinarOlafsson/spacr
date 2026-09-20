@@ -340,3 +340,14 @@ WHAT IS LEFT
     is measured; that one is in Object detection and changes everything
     that is.
   * A reciprocal mode, if he wants one, as a choice beside the switch.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE "OTSU THRESHOLD CORRECTION" RECORDS WENT WITH THE RENAME
+--------------------------------------------------------------------------------
+
+This item's renames left reviewed translations pinned to English that no
+longer exists -- "Otsu threshold correction" among them, in all nine locales.
+Those records were retired in the same pass that reconciled 417's, 419's and
+423's; the account is in item 419's note of this date. The i18n audit runs
+again as a result, which is what makes the catalog and manifest pass this
+item still owes measurable at all.

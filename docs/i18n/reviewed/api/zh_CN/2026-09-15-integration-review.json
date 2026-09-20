@@ -314,7 +314,9 @@
       "label": "spacr.qt.preferences#16",
       "source": "``field_fade``: bool, default ``True``. Whether an input field's container and outline ramp from solid on the left to fully transparent on the right. Fields are **exempt from** ``pane_opacity`` while this is on — see :func:`get_field_fade_enabled` and :mod:`spacr.qt.widgets.field_fade`.",
       "source_sha256": "e12abd34c6121b75dbf0008353b366a8e648ed9122e4e449d57a3e9986f63a48",
-      "translation": "``field_fade`` :bool,默认 ``True`` 。输入字段的容器和轮廓是否从左侧的实色渐变到右侧的完全透明。启用时,字段 **不受** ``pane_opacity`` 影响——参见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade` 。"
+      "translation": "``field_fade`` :bool,默认 ``True`` 。输入字段的容器和轮廓是否从左侧的实色渐变到右侧的完全透明。启用时,字段 **不受** ``pane_opacity`` 影响——参见 :func:`get_field_fade_enabled` 和 :mod:`spacr.qt.widgets.field_fade` 。",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.preferences's documentation, which was rewritten by \"427 part C after review: five sound sets claimed a superlative the numbers deny, and no widget ever showed a theme's description\" (bbd05e2f3, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "Four buttons in Preferences — **clear RAM**, **clear VRAM**, **clear CPU**, **check disk space** — and the two performance modes that press them for you. This module is what they call.",

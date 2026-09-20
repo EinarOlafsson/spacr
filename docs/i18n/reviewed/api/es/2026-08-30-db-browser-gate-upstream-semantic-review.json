@@ -756,35 +756,45 @@
       "source": "Show the shortcuts cheat sheet",
       "context": "Show the shortcuts cheat sheet",
       "source_sha256": "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
-      "translation": "Mostrar la guía rápida de atajos"
+      "translation": "Mostrar la guía rápida de atajos",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#6",
       "source": "Open Preferences",
       "context": "Open Preferences",
       "source_sha256": "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
-      "translation": "Abrir Preferencias"
+      "translation": "Abrir Preferencias",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#7",
       "source": "Open the AI Console",
       "context": "Open the AI Console",
       "source_sha256": "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
-      "translation": "Abrir la consola de IA"
+      "translation": "Abrir la consola de IA",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#8",
       "source": "Ctrl+End      Jump to the newest console line F11           Toggle full screen Esc           Close any open dialog / popup",
       "context": "Ctrl+End      Jump to the newest console line F11           Toggle full application view Esc           Close any open dialog / popup",
       "source_sha256": "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
-      "translation": "Ctrl+End      Ir a la línea más reciente de la consola F11           Alternar pantalla completa Esc           Cerrar cualquier diálogo o ventana emergente abierta"
+      "translation": "Ctrl+End      Ir a la línea más reciente de la consola F11           Alternar pantalla completa Esc           Cerrar cualquier diálogo o ventana emergente abierta",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#9",
       "source": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
       "context": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
       "source_sha256": "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
-      "translation": ":func:`install` se llama una vez desde ``MainWindow.__init__``. Cada enlace está documentado en :data:`SHORTCUTS` para que el diálogo de guía rápida permanezca sincronizado con lo que está realmente configurado."
+      "translation": ":func:`install` se llama una vez desde ``MainWindow.__init__``. Cada enlace está documentado en :data:`SHORTCUTS` para que el diálogo de guía rápida permanezca sincronizado con lo que está realmente configurado.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#0",

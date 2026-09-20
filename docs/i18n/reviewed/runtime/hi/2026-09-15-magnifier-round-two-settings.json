@@ -2,13 +2,6 @@
   "language": "hi",
   "records": [
     {
-      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
-      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Classical mode wherever a region holds two clear populations.",
-      "source_sha256": "0df64be98ac90ecee9625cefec6ba2a8bf4b9cfaafcf05719b9f286568c44f32",
-      "table": "ui",
-      "translation": "थ्रेशोल्ड सुधार गुणक: उपयोग से पहले Otsu स्तर को इससे गुणा किया जाता है। 1 से ऊपर अधिक सख्त है, इसलिए ऑब्जेक्ट सिकुड़ते हैं और धुंधले ऑब्जेक्ट छूट जाते हैं; 1 से नीचे अधिक धुंधले पिक्सेल शामिल होते हैं; 1 Otsu का अपना स्तर है। Otsu detect इसका उपयोग करता है, और लाइव आवर्धक का पारंपरिक मोड भी, जहाँ भी किसी क्षेत्र में दो स्पष्ट समूह हों।"
-    },
-    {
       "key": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
       "source": "Browse the model zoo, download a Cellpose model and segment with it. The model chosen there is selected in the list beside this button.",
       "source_sha256": "5953c8c31498297d04d4e07ec15f0d3b18adb968bec94f4e86cccb76d4d31893",
@@ -16,67 +9,11 @@
       "translation": "मॉडल ज़ू ब्राउज़ करें, एक Cellpose मॉडल डाउनलोड करें और उससे सेगमेंट करें। वहाँ चुना गया मॉडल इस बटन के पास वाली सूची में चुन लिया जाता है।"
     },
     {
-      "key": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
-      "source": "DINOCell appears in Mode once installed: pip install \"spacr[dinocell]\"",
-      "source_sha256": "9512f92d6c53f6749dc48612c724c4744ad5d757945867d1651457099ac17a3e",
-      "table": "ui",
-      "translation": "इंस्टॉल होने पर DINOCell, Mode में दिखाई देता है: pip install \"spacr[dinocell]\""
-    },
-    {
-      "key": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
-      "source": "How readily the Classical mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Cellpose-SAM settings instead, so this is greyed out while another mode is chosen.",
-      "source_sha256": "703abbde8d818b23f68c86ddbc4ffd5a8f06f843841bfa8a1e6ff6b36e173352",
-      "table": "ui",
-      "translation": "पारंपरिक मोड किसी ऑब्जेक्ट को कितनी आसानी से स्वीकार करता है। धुंधले या कम निश्चित ऑब्जेक्ट शामिल करने के लिए इसे बढ़ाएँ, केवल स्पष्ट ऑब्जेक्ट रखने के लिए घटाएँ; 0 डिफ़ॉल्ट कट है। मॉडल अपने थ्रेशोल्ड इसके बजाय Cellpose-SAM सेटिंग्स से पढ़ते हैं, इसलिए कोई दूसरा मोड चुने रहने पर यह धूसर रहता है।"
-    },
-    {
-      "key": "Otsu threshold correction",
-      "source": "Otsu threshold correction",
-      "source_sha256": "57a71cdfcaf0a9c75df58b95b112f4610d1c128d5e9926e75b4069e14d29f18d",
-      "table": "ui",
-      "translation": "Otsu थ्रेशोल्ड सुधार"
-    },
-    {
-      "key": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
-      "source": "SAMCell appears in Mode once installed: pip install \"spacr[samcell]\"",
-      "source_sha256": "20fadbd4c12b87070a0abc04f9e4744b83886433dec54b05b642b2f330e1ebe9",
-      "table": "ui",
-      "translation": "इंस्टॉल होने पर SAMCell, Mode में दिखाई देता है: pip install \"spacr[samcell]\""
-    },
-    {
       "key": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
       "source": "Side of the square box, in image pixels, up to the open image's own height or width. Under Region under the mouse it is also the region the model segments, so make it wider than the largest object you want to add. Shift + mouse wheel changes it while the magnifier is on.",
       "source_sha256": "7e3849bd96a50a540c32fa32ac80f26b8b5b12f80e564e92b057bc9af6947717",
       "table": "ui",
       "translation": "वर्गाकार बॉक्स की भुजा, छवि पिक्सेल में, खुली छवि की अपनी ऊँचाई या चौड़ाई तक। माउस के नीचे का क्षेत्र में यही वह क्षेत्र भी है जिसे मॉडल सेगमेंट करता है, इसलिए इसे जोड़े जाने वाले सबसे बड़े ऑब्जेक्ट से चौड़ा रखें। आवर्धक चालू रहते हुए Shift + माउस व्हील इसे बदलता है।"
-    },
-    {
-      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
-      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, DINOCell the cell probability, and Classical mode the Otsu threshold correction.",
-      "source_sha256": "5dc630e32acbc9d0f852ae9646eab4c0f4e48f682ee172bdfc0189ba510394af",
-      "table": "ui",
-      "translation": "लाइव आवर्धक भी ये सेटिंग्स पढ़ता है: Cellpose मोड मॉडल, दोनों थ्रेशोल्ड, व्यास और सामान्यीकरण का उपयोग करता है, DINOCell सेल प्रायिकता का, और पारंपरिक मोड Otsu थ्रेशोल्ड सुधार का।"
-    },
-    {
-      "key": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
-      "source": "Threshold the image at Otsu's level, multiplied by the Otsu threshold correction under Cellpose-SAM, and label what is left, honouring the minimum area above.",
-      "source_sha256": "ec800dcb1c6d85e2fe62c9400aea428b72acdd51e1bb6c4e87b40fb76e79ae84",
-      "table": "ui",
-      "translation": "छवि पर Otsu स्तर पर थ्रेशोल्ड लगाता है, जिसे Cellpose-SAM के अंतर्गत Otsu थ्रेशोल्ड सुधार से गुणा किया जाता है, और जो बचता है उसे लेबल करता है, ऊपर दिए न्यूनतम क्षेत्रफल का पालन करते हुए।"
-    },
-    {
-      "key": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
-      "source": "Which model segments the region in the box. Classical thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Bright switch and the Min area box under Object operations and the Otsu threshold correction under Cellpose-SAM, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Cellpose-SAM, and is slow without a GPU. DINOCell and SAMCell are offered once installed; DINOCell reads the cell probability set under Cellpose-SAM, and SAMCell uses its own thresholds.",
-      "source_sha256": "5432f89a6fec5fa7b67b89d19c117c352bffdc397b99dd9f1f1e8a4931175e55",
-      "table": "ui",
-      "translation": "बॉक्स के क्षेत्र को कौन-सा मॉडल सेगमेंट करता है। पारंपरिक विधि क्षेत्र पर Otsu स्तर पर थ्रेशोल्ड लगाती है और छूते ऑब्जेक्ट को वॉटरशेड से अलग करती है; इसे कुछ भी इंस्टॉल करने की ज़रूरत नहीं, यह ऑब्जेक्ट संचालन के अंतर्गत चमकीला स्विच और Min area बॉक्स तथा Cellpose-SAM के अंतर्गत Otsu थ्रेशोल्ड सुधार का पालन करती है, और जब भी कोई मॉडल लोड न हो सके तब चलती है। Cellpose, Cellpose-SAM के अंतर्गत तय मॉडल, दोनों थ्रेशोल्ड, व्यास और सामान्यीकरण का उपयोग करता है, और GPU के बिना धीमा है। DINOCell और SAMCell इंस्टॉल होने पर उपलब्ध होते हैं; DINOCell, Cellpose-SAM के अंतर्गत तय सेल प्रायिकता पढ़ता है, और SAMCell अपने थ्रेशोल्ड का उपयोग करता है।"
-    },
-    {
-      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
-      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out until Model zoo… fetches it.",
-      "source_sha256": "4ce53388d126793bbf23be6d318e93d4bd4bb3b5d5bcf8e95436db32f10646b2",
-      "table": "ui",
-      "translation": "कौन-से वेट इस फ़ील्ड को सेगमेंट करते हैं, और Cellpose मोड में लाइव आवर्धक के बॉक्स को भी। सूची में इस मशीन पर इंस्टॉल Cellpose और मॉडल ज़ू का हर Cellpose मॉडल है; जो ज़ू मॉडल अभी डाउनलोड नहीं हुआ है वह तब तक धूसर रहता है जब तक Model zoo… उसे नहीं लाता।"
     },
     {
       "key": "{name} (not downloaded)",

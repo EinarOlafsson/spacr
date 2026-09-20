@@ -13,7 +13,9 @@
       "label": "spacr.qt.mask_engine.mask_save_path#1",
       "source": ":func:`load_image_and_mask` will accept a mask under the image's own extension, but everything :func:`save_mask` writes lands on ``<folder>/masks/<stem>.tif``. The ledger is keyed on the file that was actually written, so both have to agree on one name; ask here rather than rebuilding it at each call site.",
       "source_sha256": "1e9547f82f80f18f4cd5d7057de0ef60546c63611478382c72aad891f0cf90b1",
-      "translation": ":func:`load_image_and_mask` accepterar en mask med bildens eget filnamnstillägg, men allt som :func:`save_mask` skriver hamnar i ``<folder>/masks/<stem>.tif``. Körjournalen nycklas med filen som faktiskt skrevs, så båda måste använda samma namn; fråga här i stället för att bygga om sökvägen vid varje anropsställe."
+      "translation": ":func:`load_image_and_mask` accepterar en mask med bildens eget filnamnstillägg, men allt som :func:`save_mask` skriver hamnar i ``<folder>/masks/<stem>.tif``. Körjournalen nycklas med filen som faktiskt skrevs, så båda måste använda samma namn; fråga här i stället för att bygga om sökvägen vid varje anropsställe.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.mask_engine.mask_save_path's documentation, which was rewritten by \"419 part C after review: the third Invert gets its own name and its own arithmetic, and a Ctrl+click stops ending somebody else's stroke\" (7c2094e37, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "``\"4D Settings (Beta)\"`` is the time half of the same split, and the source says so where the split is written: ``z_axis`` is filed under 3D \"because 4D builds on the same z plan\", which leaves the 4D list holding \"only time-axis and inter-frame tracking controls\".",
