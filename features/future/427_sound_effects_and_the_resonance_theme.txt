@@ -17,8 +17,9 @@ Status:    IN PROGRESS -- PARTS A AND B OF THREE BUILT 2026-09-19, part C
            found are fixed. THE BED GAINED A MELODY AND A SIDE-CHAIN THAT
            CAN BE HEARD on 2026-09-19 -- the sentence this item exists to
            answer is "melodic space house", and until then the bed had the
-           space house and not the melodic. See the four 2026-09-19 notes
-           at the end; the last two list what is still open, including
+           space house and not the melodic; it was reviewed before landing
+           and five findings were fixed. See the six 2026-09-19 notes at
+           the end; the last three list what is still open, including
            whether section 2's sound for a run STARTING is wanted at all.
            Renders for the maintainer's ear have now been sent; until he
            says, NOBODY HAS STILL REALLY HEARD WHETHER IT IS ANY GOOD.
@@ -331,7 +332,7 @@ local WAV the user picks, with no system-audio capture.
 
 WHAT EXISTS NOW
 
-  spacr/qt/sound_synth.py       SYNTH_VERSION 2. The bed is a 32-bar
+  spacr/qt/sound_synth.py       SYNTH_VERSION 3. The bed is a 32-bar
                                 arrangement: BED_SECTIONS gives it four
                                 eight-bar sections (drift, pulse, lift,
                                 return) and bed_plan ramps every part to
@@ -565,6 +566,12 @@ MEASURED, with the theme key held fixed and one field changed at a time
     that 1.7 is the arpeggio's own accent on the downbeat, which is music
     and not side-chain. Anything that measures the pump through the kick
     is measuring the kick.
+    TWO FIELDS CHANGED, NOT ONE, and this line first named only the
+    routing. ORBIT's pad_pump went from 0.3 to 0.6 in the same commit.
+    Measured on the full reference bed with only that field moved:
+    1.81 dB at 0, 2.46 dB at 0.3, 4.59 dB at 0.6 -- the routing buys
+    about 0.65 dB over the floor and the depth about 2.13 dB. See the
+    review note at the end.
   * Loudness, peak and the seam all still land: -18.6 LUFS, -11.2 dBFS,
     a join of 0.0032 against a p99.5 step of 0.027.
   * The lead is +0.2 dB from its first quarter-second to its third; the
@@ -593,7 +600,8 @@ warmed to lead_brightness 0.18 (5.44 dB back) and LEAD_AIR_HZ added so no
 theme can ask for the brightness that takes it again. Part B's test is
 unchanged and passes.
 
-TESTS  tests/qt/test_the_bed_has_a_melody.py (12). Every one was
+TESTS  tests/qt/test_the_bed_has_a_melody.py (14, two of them added on
+review). Every one was
 mutation-checked: the melody off, the bus undicked, the scheduler back on
 seconds, the rest played as a note, the lead voice made a pluck, the
 melody left on through every section, and the air wall removed -- each on
@@ -633,3 +641,72 @@ WHAT IS LEFT
     33 Hz and the sub sits at 44-65 Hz on top of it. Part B's drum tests
     measure the kick in isolation and pass; this is about the mix, and it
     is the next thing worth listening for.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE MELODY AND THE PUMP REVIEWED BEFORE LANDING; THREE
+              SHOULD-FIX FINDINGS AND TWO NITS, ALL FIVE FIXED
+--------------------------------------------------------------------------------
+
+Decided: "The theme should sound like melodic space house" -- the maintainer,
+2026-09-19, through the question prompt. Unchanged; this is the same work,
+corrected.
+
+No defect in what the bed sounds like. The melody is real, the pump is
+audible and the tests are genuine; the review reproduced the shaker and
+loudness figures independently. What it found was a written record that
+credited the wrong variable, two things the code did not guard, and two
+public tuples.
+
+  * THE HEADLINE NUMBER WAS ATTRIBUTED TO THE WRONG CHANGE. ORBIT's
+    pad_pump default went from 0.3 to 0.6 in the same commit that moved
+    the side-chain to the music bus, and the default change appeared in no
+    commit message, no docs note and no line of this file, while three
+    places said the routing took the dip from 1.2 dB to 4.1 dB. Re-measured
+    on the full 32-bar bed with the key held fixed and only pad_pump moved:
+    1.81 dB at 0, 2.46 dB at 0.3, 4.59 dB at 0.6. The depth is the larger
+    half. It matters because pad_pump is a public default that part C's ten
+    themes inherit, and a theme that trims it back toward 0.3 to taste
+    lands under the 3.5 dB test_the_music_bus_ducks_on_the_beat demands.
+    The ladder is now in the :param pad_pump: docs, in the docs note, and
+    pinned by a new test so the record cannot drift from the code again.
+  * SYNTH_VERSION HELD 3 AND DESCRIBED 2. The constant whose whole purpose
+    is to record what retired the caches listed changes stopping at version
+    2. Its docstring now names version 3's four: the melody, the bus
+    routing, PUMP_ATTACK and the depth.
+  * A THEME COULD HANG THE AUDIO THREAD. The lead scheduler walked forward
+    by the note length it read out of theme.lead_pattern, unvalidated, so a
+    length of 0 or a negative one never reaches the end of the loop and
+    grows the note list until the process is killed -- silently, on the
+    render thread. Part C's ten themes each hand in their own pattern, so a
+    zero from a typo or from integer division is where this arrives.
+    LEAD_MIN_BEATS is a thirty-second-note floor on the step and on the
+    note's length, in the module's existing style. A pattern holding a 0
+    and a -1 now renders a finite bed.
+  * BedBar PUT ITS NEW FIELD IN THE MIDDLE (nit). It is in __all__ and it
+    is a tuple; lead is now appended after lift. Nothing in the repository
+    built one positionally, so nothing was red.
+  * A TEST COMPARED TWO THEME KEYS (nit). test_the_duck_is_the_theme_s_own
+    _number_and_can_be_switched_off rendered its two variants under keys
+    "dry" and "flat" -- the exact trap this item's own notes record in
+    capitals, since the key seeds the shaker, the pad phases and the
+    reverb. Both renders now keep ORBIT's key and differ only in pad_pump.
+
+TESTS ADDED: test_the_pump_s_depth_is_mostly_the_theme_s_number_and_not_the
+_routing and test_a_note_of_no_length_cannot_run_the_renderer_forever
+(tests/qt/test_the_bed_has_a_melody.py, 14 now).
+
+RUN GREEN AFTER THE FIXES, on this branch rebased onto nightly: the melody
+suite (14), test_the_music_bed_is_a_piece.py (20), and the four sound,
+Preferences and resonance suites (131). tests/test_a_comment_leaves_but_the
+_code_does_not.py (41). test_documentation_i18n.py is 32 failed / 116
+passed on the branch and identically at the merge base, by name.
+
+A NUMBER IN THE PREVIOUS CLAIM WAS WRONG (nit): it reported 32 tests in
+test_the_music_bed_is_a_piece.py and 90 across four sound suites. The real
+counts are 20 and 131 -- 128 when the claim was written, before three tests
+landed with part B's own review. 32 was that file plus the new one.
+Everything passed either way.
+
+STILL OPEN: everything under WHAT IS LEFT above, unchanged -- part C, that
+nobody has listened to any of it, the bed sitting 0.56 LU under target, and
+the kick not separating from the sub in 40-110 Hz.
