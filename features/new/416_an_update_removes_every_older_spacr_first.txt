@@ -373,3 +373,46 @@ docs/source/installer_guide.rst's "Updating" section (lines 72-79) still says
 "a failed update leaves the previous working environment in place" and does
 not mention that older copies are found and removed first.
 The WHAT REMAINS list above is otherwise unchanged.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE DOWNLOADED INSTALLER IS CHECKED BEFORE IT IS RUN
+--------------------------------------------------------------------------------
+
+One of the remaining items on the Status line, and the only one that needed
+no other machine. The helper downloaded a release asset, made it executable
+and ran it; the only checks were that the URL began with the release
+download prefix and that the file was not empty.
+
+IT NEEDED NO CHANGE TO THE RELEASE PIPELINE, which was the pleasant
+surprise. Every release already publishes `SHA256SUMS.txt` beside its
+assets, and the GitHub API additionally carries a `digest` for each one --
+verified against v1.5.0.8, whose Linux installer is
+sha256:3a2f0ed488115d0a3eb0de17540cbfdf7304d53f75d8a033f26cad8b13b0ec92.
+So `_download` fetches the sums file beside the asset and compares.
+
+WHAT THIS IS AND IS NOT, said plainly rather than sold: the sums file comes
+from the same server as the installer, so it is NOT a defence against a
+compromised release -- whoever can replace one can replace the other. It
+catches a truncated or corrupted download, a proxy serving something stale,
+and an asset that is not the one the plan named. That is worth having
+before a file is made executable and run.
+
+THE ORDER IS WHAT MAKES IT SAFE. `_run_plan` fetches before it removes
+anything, so a mismatch aborts with nothing deleted and no installer run --
+the machine is left exactly as it was. A test asserts that ordering in the
+source rather than trusting it to stay.
+
+A RELEASE WITH NO SUMS FILE STILL INSTALLS. Older releases published none,
+and refusing them would strand exactly the machines this item exists for.
+The same goes for a sums file that names no line for this asset.
+
+MEASURED: 9 new tests in
+tests/test_the_downloaded_installer_is_checked_before_it_is_run.py, and 170
+passed with the existing installer suites. One existing test pinned the
+exact list of URLs `_download` requests and now expects the second one, with
+the reason written beside it.
+
+STILL BLOCKED ON OTHER MACHINES, unchanged: real runs on Windows and macOS,
+the 1.5.0.1 machine, tick boxes inside the installers, a live end-to-end run
+of the post-exit helper, macOS removals needing admin rights and pkgutil
+receipts, and docs/source/installer_guide.rst.

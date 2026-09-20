@@ -2048,7 +2048,24 @@ def test_a_downloaded_installer_is_executable_and_an_empty_one_is_refused(
     else:
         with pytest.raises(OSError, match="was empty"):
             ic._download(url, str(target))
-    assert requests == [(url, "spacr-updater", 120)]
+
+    # A SECOND REQUEST SINCE 2026-09-20, and it is item 416's checksum.
+    # `_download` now asks the release for the SHA256SUMS.txt beside the
+    # asset and refuses a file that does not match, because the next thing
+    # that happens to this file is chmod 755 and being run. This stand-in
+    # answers every URL with the same body, so the sums file it sees names
+    # no asset and no digest is enforced here -- which is the case
+    # `test_a_sums_file_that_does_not_name_this_asset_is_not_a_failure`
+    # covers on purpose in
+    # tests/test_the_downloaded_installer_is_checked_before_it_is_run.py.
+    # An empty download is refused before the sums are fetched at all, so
+    # that arm still makes exactly one request.
+    sums = f"{ic._RELEASE_DOWNLOAD}/v9.9.9/{ic._SUMS_NAME}"
+    if body:
+        assert requests == [(url, "spacr-updater", 120),
+                            (sums, "spacr-updater", 60)]
+    else:
+        assert requests == [(url, "spacr-updater", 120)]
 
 
 # ---------------------------------------------------------------------------

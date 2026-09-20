@@ -269,6 +269,11 @@ def classify_objects(image: np.ndarray, mask: np.ndarray, *,
     :param merge_split: merge pairs :func:`split_candidates` finds. Acts on
         segmenter-split objects only -- an object cut by the field's edge
         has its other half in the next field and is left alone.
+    :param artifact_class: which class name means "not a real object", for
+        ``remove_artifacts``. A parameter rather than a constant because a
+        head trained on somebody else's labels may spell it differently,
+        and a removal that silently matches nothing is worse than one that
+        cannot be configured.
     :returns: ``{"objects": rows, "mask": mask, "merged": pairs,
         "removed": ids}``. ``mask`` is the mask as it stands after the
         options asked for; with none of them it is the mask passed in.
