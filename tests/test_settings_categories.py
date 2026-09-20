@@ -69,7 +69,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "infection_intensity_qc_panel_path", "infection_intensity_qc_scope",
     "infection_intensity_strategy", "infection_pca_log_intensity", "infection_pca_max_cells",
     "infection_pca_method", "infection_pca_min_gt_separation", "infection_pca_min_silhouette",
-    "infection_pca_n_clusters", "infection_pca_pathogen_weight", "infection_pca_random_state",
+    "infection_pca_pathogen_weight", "infection_pca_random_state",
     "infection_pca_tsne_learning_rate_grid", "infection_pca_tsne_perplexity",
     "infection_pca_tsne_perplexity_grid", "infection_pca_tsne_search",
     "infection_pca_umap_min_dist", "infection_pca_umap_min_dist_grid",

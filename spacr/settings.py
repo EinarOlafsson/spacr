@@ -3521,7 +3521,6 @@ expected_types = {
     "infection_xgb_ambiguous_high": float,
     "infection_xgb_min_cells_per_class": int,
     "infection_pca_method": str,
-    "infection_pca_n_clusters": int,
     "infection_pca_random_state": int,
     "motility_ylim": tuple,
     "motility_xlim": tuple,
@@ -4444,7 +4443,6 @@ tooltips = {
     "infection_xgb_ambiguous_high": "(float) - Upper edge of the discarded probability band, between 0 and 1. Together with infection_xgb_ambiguous_low it defines the interval whose cells are dropped when infection_xgb_drop_ambiguous is True. Lower it toward the threshold to keep more cells, raise it to discard more. Swapped automatically if it falls below the low bound. Default 0.75.",
     "infection_xgb_min_cells_per_class": "(int) - Per well, how many intensity-extreme examples each class must reach before that well's training data are balanced by subsampling to the smaller class; wells that have both classes but fewer examples contribute all of theirs, unbalanced. Wells with only one class are skipped entirely. No well is ever excluded for being small, so raising it leaves more wells unbalanced and the training set more skewed - lower it towards 1 to force balancing in every usable well. Default 10.",
     "infection_pca_method": "(str) - Records the embedding used ('pca', 'umap' or 't-sne'). The pipeline derives and overwrites this value from infection_intensity_strategy during QC; change infection_intensity_strategy to select the embedding. This output remains empty until QC has run. No default.",
-    "infection_pca_n_clusters": "(int) - Intended cluster count for the embedding-based infection call. Not currently honoured: the pca/umap/tsne QC always runs KMeans with exactly two clusters, one mapped to infected and one to uninfected, so changing this has no effect on results. Default 2.",
     "infection_pca_random_state": "(int) - Seed for KMeans and for the UMAP/t-SNE embeddings in the pca/umap/tsne strategies. Fixing it makes the embedding and the resulting infected/uninfected cluster assignment reproducible; change it to check that the split is not an artifact of one initialisation. Note the max-cells subsample uses its own fixed seed. Default 42.",
     "motility_ylim": "(tuple) - Spatial y-axis limits for the origin-centred track panels (infected and uninfected) of the motility figure, in plotted coordinate units - um when pixels_per_um is set, otherwise pixels - not velocity. The whole-field all-tracks axis next to them always autoscales from the data and ignores this setting. Set to None for autoscaling. Default (100, -100), a 200-unit window written high-to-low so the axis draws reversed.",
     "motility_xlim": "(tuple) - Spatial x-axis limits for the origin-centred track panels (infected and uninfected) of the motility figure, in plotted coordinate units - um when pixels_per_um is set, otherwise pixels - not time. The whole-field all-tracks axis next to them always autoscales from the data and ignores this setting. Set to None for autoscaling. Default (100, -100), a 200-unit window written high-to-low so the axis draws reversed.",
@@ -4740,7 +4738,7 @@ motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_
 
 motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_cells_per_class', 'infection_xgb_n_estimators', 'infection_xgb_max_depth', 'infection_xgb_learning_rate', 'infection_xgb_subsample', 'infection_xgb_colsample_bytree', 
                      'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 'infection_xgb_top_features', 'infection_xgb_proba_column', 
-                     'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low','infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_n_clusters', 'infection_pca_random_state', 'infection_intensity_n_bins', 'db_table_name', 
+                     'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low','infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_random_state', 'infection_intensity_n_bins', 'db_table_name', 
                      'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'straightness_filter', 'zscore_thresh', 'max_displacement',
                      'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search','infection_pca_tsne_perplexity_grid',
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
@@ -6132,7 +6130,6 @@ def get_automated_motility_assay_default_settings(settings):
     settings.setdefault('infection_xgb_ambiguous_high', 0.75)
     settings.setdefault('infection_xgb_min_cells_per_class', 10)
 
-    settings.setdefault('infection_pca_n_clusters', 2)
     settings.setdefault('infection_pca_random_state', 42)
     settings.setdefault('infection_pca_pathogen_weight', 2.0)
     settings.setdefault('infection_pca_log_intensity', False)

@@ -2939,3 +2939,45 @@ switch. What is left on this item is the motility proposal
 `infection_pca_n_clusters` (2026-09-04, never in an approved group -- it is a
 live setting whose own tooltip says it does nothing), the two parked motility
 renames, and the translations above.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- infection_pca_n_clusters IS RETIRED, BY THE MAINTAINER'S DECISION
+--------------------------------------------------------------------------------
+
+Asked through the question prompt and answered "Retire it". The setting was
+offered on the motility panel, took an int, and its own tooltip said it did
+nothing: "Not currently honoured: the pca/umap/tsne QC always runs KMeans
+with exactly two clusters". Confirmed by reading rather than by the tooltip
+-- NOTHING IN spaCR EVER READ IT. It was declared in `expected_types`,
+described in `descriptions`, listed in `motility_advanced_settings`, given a
+default of 2 by `setdefault`, shown in the panel's "Infection Clustering"
+group and carried in all ten catalogs, and not one line consumed the value.
+
+WHAT CHANGED
+  spacr/settings.py            the type, the description, the group entry and
+                               the setdefault, all four gone
+  spacr/validate.py            RETIRED_SETTINGS gains it with NO replacement:
+                               nothing else does what it claimed to do
+  spacr/qt/screens/settings_model.py   out of the Infection Clustering group
+  spacr/qt/i18n_catalogs/*.py  4 rows each in all ten (label, tooltip and the
+                               two source hashes)
+  spacr/qt/help_api_index.py   regenerated, tools/build_help_search_index.py
+  docs/setting_consumers.json  regenerated, tools/build_setting_consumer_map.py
+  spacr/qt/screens/setting_api_targets.py  regenerated with it
+
+AN OLD SETTINGS FILE STILL LOADS. That is what `RETIRED_SETTINGS` is for:
+`_check_retired_keys` reports the key and says it is withdrawn, rather than
+the file failing or the key being dropped in silence.
+
+TESTS: tests/test_a_setting_that_did_nothing_is_retired.py, 5 new, including
+that its four neighbours in the same panel group are untouched.
+
+MEASURED: 173 passed, 2 skipped over the settings categories, settings and
+validate coverage suites, the settings model, the old-settings-file run and
+the API-link tests. Against the two settings tables and the external runtime
+catalogs, 8 failures -- IDENTICAL IDS to a clean origin/nightly worktree at
+4c504c1ce, compared with `comm` on the sorted lists, neither set having one
+the other lacks. They are the catalog debt, not this.
+
+LEFT ON 364 AFTER THIS: the two parked motility renames, a name for the
+per-slot `remove_background_<slot>` switch, and the translations.

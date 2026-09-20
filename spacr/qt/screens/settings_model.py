@@ -1226,7 +1226,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "infection_xgb_top_features",
         )),
         ("Infection Clustering", (
-            "infection_pca_n_clusters", "infection_pca_random_state",
+            "infection_pca_random_state",
             "infection_pca_pathogen_weight", "infection_pca_log_intensity",
             "infection_pca_min_silhouette",
             "infection_pca_min_gt_separation", "infection_pca_max_cells",

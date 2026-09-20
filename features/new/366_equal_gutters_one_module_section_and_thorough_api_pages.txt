@@ -13,9 +13,9 @@ Status:    ~95%, 2026-09-20. Every part of the REQUEST is built and
            five defects in it were fixed; see the last dated section. The
            percentage does not move, because none of the five was part of
            the REQUEST and neither leftover below changed.
-           LEFT, and neither is prose: the maintainer's confirmation that
-           the 2026-09-16 removal of the Make Masks section was meant,
-           since it reverses his 2026-09-15 "Keep it"; and the i18n pass
+           LEFT: the i18n pass. The confirmation this line used to wait
+           for was given on 2026-09-20 -- the removal was meant, see the
+           last dated section; and the i18n pass
            for today's page and the 22 new UI captions, which belongs to
            the consolidated rebuild and not here. See the last two dated
            sections. Originally filed 2026-09-02. Follows 362, which made
@@ -832,3 +832,22 @@ catalogs.
 STILL OPEN UNDER 366: unchanged, and still the same two -- the maintainer's
 confirmation of the 2026-09-16 removal of the Make Masks section, and the
 consolidated i18n pass.
+
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE MAKE MASKS SECTION: THE REMOVAL WAS MEANT
+--------------------------------------------------------------------------------
+
+Asked through the question prompt, both readings put to the maintainer with
+what each costs, and answered: "Removal was meant -- keep it gone."
+
+So the 2026-09-16 removal stands and the 2026-09-15 "Keep it" is superseded.
+Nothing to build: the section is already out, and the second clause of the
+original request is already satisfied -- the information reached the API
+page when `spacr/qt/screens/make_masks.py` went from 281 words to 577, which
+is what a reader gets by clicking the tile.
+
+That was the last thing on this item that was not a translation. 366 is code
+complete; what remains is the consolidated i18n pass for this page, the 22
+new UI captions, the "Loading stopped" heading and the one new public
+docstring `spacr.crops.quiet_crop_paths`.

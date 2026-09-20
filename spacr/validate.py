@@ -1060,6 +1060,7 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "Toxoplasma": "annotation_source",
     "toxo": "annotation_source",
     "img_size": "crop_size",
+    "infection_pca_n_clusters": "",
 }
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
 #: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
