@@ -1068,6 +1068,91 @@ def erase_object_in_place(mask: np.ndarray, x: int, y: int) -> int:
     return label_to_remove
 
 
+def split_object_at(mask: np.ndarray, x: int, y: int, *,
+                    min_area: int = 0) -> Tuple[np.ndarray, List[int]]:
+    """Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.
+
+    Item 419 point 8's Ctrl + left click. The cut is a watershed on the
+    object's own distance to background, the same recipe
+    :func:`_split_touching_objects` runs on a whole field: every local
+    maximum of that distance is one half's middle and the ridge between two
+    of them is the waist where they meet.
+
+    Three decisions, and the first is the one to read:
+
+    * **AN OBJECT WITH ONE CENTRE IS LEFT ALONE** and reported as such,
+      rather than being halved through the click. A single click carries no
+      direction, so a forced cut would have to invent one, and the object
+      that needs cutting is almost always a pair that merged -- which has
+      two centres. The gesture for a cut the user aims themselves already
+      exists and is the Divide tool (:func:`divide_object`).
+    * **The largest piece keeps the id** and the others are given ids above
+      the mask's top label, which is :func:`canonical_labels`' own rule, so
+      splitting and then saving renumbers nothing.
+    * **NO PIXEL IS LOST.** Every pixel of the object ends up under one of
+      the new ids. ``min_area`` sets how far apart two centres must be to
+      count as two (:func:`_split_touching_objects`' seed spacing) and is
+      NOT applied as a drop here: a hand edit moves pixels between ids, and
+      a gesture that quietly erased the smaller half would be a delete
+      wearing a split's name.
+
+    :param mask: the label image.
+    :param x: column clicked, in image pixels.
+    :param y: row clicked, in image pixels.
+    :param min_area: the smallest object the screen is willing to keep, in
+        pixels; it sets the seed spacing, so an object this size is not
+        itself cut in two.
+    :returns: ``(mask, new_ids)`` -- a new mask and the ids the split
+        created, or a copy and an empty list when the click was on
+        background, outside the field, or on an object with one centre.
+    """
+    from skimage.feature import peak_local_max
+    from skimage.segmentation import watershed
+
+    ndimage = _ndimage()
+    height, width = mask.shape[:2]
+    if not (0 <= int(y) < height and 0 <= int(x) < width):
+        return mask.copy(), []
+    target = int(mask[int(y), int(x)])
+    if target <= 0:
+        return mask.copy(), []
+
+    where = np.argwhere(mask == target)
+    y0, x0 = (int(v) for v in where.min(axis=0))
+    y1, x1 = (int(v) + 1 for v in where.max(axis=0))
+    window = mask[y0:y1, x0:x1]
+    body = window == target
+
+    distance = ndimage.gaussian_filter(
+        ndimage.distance_transform_edt(body), 1.0)
+    spacing = max(2, int(np.sqrt(max(int(min_area), 12) / np.pi)))
+    peaks = peak_local_max(distance, min_distance=spacing,
+                           labels=body.astype(np.int32),
+                           exclude_border=False)
+    if len(peaks) < 2:
+        return mask.copy(), []
+    markers = np.zeros(body.shape, dtype=np.int32)
+    for index, point in enumerate(peaks, start=1):
+        markers[tuple(point)] = index
+    pieces = watershed(-distance, markers, mask=body)
+    found = [int(v) for v in np.unique(pieces) if int(v) > 0]
+    if len(found) < 2:
+        return mask.copy(), []
+
+    areas = {piece: int(np.count_nonzero(pieces == piece)) for piece in found}
+    keeps = max(found, key=lambda piece: (areas[piece], -piece))
+    out = mask.astype(np.int64, copy=True)
+    free_id = next_label(mask)
+    new_ids: List[int] = []
+    for piece in found:
+        if piece == keeps:
+            continue
+        out[y0:y1, x0:x1][pieces == piece] = free_id
+        new_ids.append(free_id)
+        free_id += 1
+    return _fit_label_width(out, mask), new_ids
+
+
 def relative_tolerance(image: np.ndarray, percent: float) -> float:
     """Magic-wand tolerance as ``percent`` of ``image``'s intensity range.
 
@@ -1086,6 +1171,86 @@ def relative_tolerance(image: np.ndarray, percent: float) -> float:
         return 1.0
     span = float(values.max() - values.min())
     return max(1.0, (float(percent) / 100.0) * span)
+
+
+#: The four bounds :func:`filter_report` judges by, named as its keywords
+#: are, in the order it applies them. A :class:`FilterRemoval` names the ones
+#: an object failed with these strings, so the screen can put the number the
+#: user typed beside the reason without a second vocabulary.
+FILTER_BOUNDS = ("min_area", "max_area", "min_intensity", "max_intensity")
+
+
+class FilterRemoval(NamedTuple):
+    """One object the filter dropped, and which bound dropped it.
+
+    Item 419 point 7 asks the screen for "object 22 with area x and
+    intensity y was removed by minimum intensity", one row per object, so
+    the filter has to say more than which ids went.
+
+    :ivar label: the id :func:`canonical_labels` gave the object -- the same
+        id the hover readout showed for it.
+    :ivar area: its pixel count.
+    :ivar mean_intensity: its mean value on the raw image.
+    :ivar bounds: the names of every bound it failed, a subset of
+        :data:`FILTER_BOUNDS` in that order. USUALLY ONE, and more when an
+        object misses on two sides at once -- which is worth saying, because
+        an object outside two bounds does not come back by moving one.
+    """
+
+    label: int
+    area: int
+    mean_intensity: float
+    bounds: Tuple[str, ...]
+
+
+def filter_report(mask: np.ndarray, image: np.ndarray, *,
+                  min_area: int = 0, max_area: int = 0,
+                  min_intensity: float = 0.0, max_intensity: float = 0.0
+                  ) -> Tuple[np.ndarray, List[FilterRemoval]]:
+    """Filter as :func:`filter_objects` does, measuring what it removed.
+
+    The same pass and the same arithmetic -- this is what
+    :func:`filter_objects` now runs -- with each dropped object's area, mean
+    and failed bounds kept instead of thrown away. Nothing else measures
+    them a second time, so the ledger the screen prints cannot disagree with
+    the mask it printed it about.
+
+    :returns: ``(mask, removals)``, the removals sorted by id. Nothing to do
+        returns the original array untouched and an empty list.
+    """
+    bounds = (int(min_area or 0), int(max_area or 0),
+              float(min_intensity or 0.0), float(max_intensity or 0.0))
+    lo_area, hi_area, lo_int, hi_int = bounds
+    if not any(bounds) or mask is None or not mask.size or not mask.max():
+        return mask, []
+
+    from skimage.measure import regionprops
+
+    grey = np.asarray(image, dtype=np.float32)
+    if grey.ndim == 3:
+        grey = grey.mean(axis=2)
+    labels = canonical_labels(mask)
+    removals: List[FilterRemoval] = []
+    for region in regionprops(labels.astype(np.int32), intensity_image=grey):
+        area = int(region.area)
+        mean = float(region.intensity_mean
+                     if hasattr(region, "intensity_mean")
+                     else region.mean_intensity)
+        failed = tuple(name for name, failure in (
+            ("min_area", bool(lo_area and area < lo_area)),
+            ("max_area", bool(hi_area and area > hi_area)),
+            ("min_intensity", bool(lo_int and mean < lo_int)),
+            ("max_intensity", bool(hi_int and mean > hi_int)),
+        ) if failure)
+        if failed:
+            removals.append(
+                FilterRemoval(int(region.label), area, mean, failed))
+    if not removals:
+        return mask, []
+    removals.sort(key=lambda removal: removal.label)
+    out = mask.copy()
+    out[np.isin(labels, [removal.label for removal in removals])] = 0
+    return out, removals
 
 
 def filter_objects(mask: np.ndarray, image: np.ndarray, *,
@@ -1109,33 +1274,14 @@ def filter_objects(mask: np.ndarray, image: np.ndarray, *,
         curation ledger records, so an automatic filter is as traceable as a
         click. Nothing to do returns the original array untouched and an
         empty list.
+
+    :func:`filter_report` is this function keeping what it measured; a
+    caller that has to tell the user WHY an object went wants that one.
     """
-    bounds = (int(min_area or 0), int(max_area or 0),
-              float(min_intensity or 0.0), float(max_intensity or 0.0))
-    lo_area, hi_area, lo_int, hi_int = bounds
-    if not any(bounds) or mask is None or not mask.size or not mask.max():
-        return mask, []
-
-    from skimage.measure import regionprops
-
-    grey = np.asarray(image, dtype=np.float32)
-    if grey.ndim == 3:
-        grey = grey.mean(axis=2)
-    labels = canonical_labels(mask)
-    dropped: List[int] = []
-    for region in regionprops(labels.astype(np.int32), intensity_image=grey):
-        area = int(region.area)
-        mean = float(region.intensity_mean
-                     if hasattr(region, "intensity_mean")
-                     else region.mean_intensity)
-        if ((lo_area and area < lo_area) or (hi_area and area > hi_area)
-                or (lo_int and mean < lo_int) or (hi_int and mean > hi_int)):
-            dropped.append(int(region.label))
-    if not dropped:
-        return mask, []
-    out = mask.copy()
-    out[np.isin(labels, dropped)] = 0
-    return out, sorted(dropped)
+    out, removals = filter_report(
+        mask, image, min_area=min_area, max_area=max_area,
+        min_intensity=min_intensity, max_intensity=max_intensity)
+    return out, [removal.label for removal in removals]
 
 
 class PixelReadout(NamedTuple):

@@ -56,14 +56,31 @@ object and background, size filtering and Otsu detection, with undo and redo
 over all of them -- alongside the brush, wand and display controls, and can
 be hidden to return its width to the canvas.
 
-TWO THINGS ARE CALLED INVERT AND THEY ARE NOT THE SAME (item 435). **Invert
-image**, in the Display category, draws the field as its own negative and
-changes nothing underneath: the corner readout, the object filter, both
-detect buttons, the live magnifier and the saved mask all go on reading the
-pixels that were loaded. **Swap object and background**, in Object
-operations, is the old "Invert mask" under the name that describes it -- it
-flips the LABEL image, which on an ordinary field leaves one object covering
-the frame.
+THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME (items 435
+and 419 point 9). Only the second changes what a detector reads, and the
+captions are what tell them apart on the panel.
+
+**Invert image**, in the Display category, draws the field as its own
+negative and changes nothing underneath: the corner readout, the object
+filter, both detect buttons, the live magnifier and the saved mask all go on
+reading the pixels that were loaded (item 435).
+
+**Invert for detection**, in the Object detection category, is the opposite
+bargain -- it changes the pixels the detectors are GIVEN and nothing about
+what is drawn. Both detect buttons and the live magnifier segment
+:meth:`MakeMasksScreen._detector_image`, the complement of the field, so a
+threshold written for bright objects takes dark ones; a banner above the
+image says so for as long as it is on, and the readout and the filter still
+report the field's real values (item 419 point 9).
+
+**Swap object and background**, in Object operations, is the old "Invert
+mask" under the name that describes it -- it flips the LABEL image, which on
+an ordinary field leaves one object covering the frame (item 435).
+
+All three read the same arithmetic where they need any:
+:func:`~spacr.qt.mask_engine.invert_intensity` for the two that act on the
+picture, :func:`~spacr.qt.mask_engine.invert_mask` for the one that acts on
+the labels.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
@@ -114,7 +131,6 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QApplication,
-    QCheckBox,
     QComboBox,
     QDialog,
     QDialogButtonBox,
@@ -146,7 +162,9 @@ from .. import mask_engine as engine
 from .. import prefs
 from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
-from ..theme import SPACING, active_palette, mark_surface
+from ..theme import (SPACING, active_palette, block_surface,
+                     ensure_widget_qss_applied, mark_surface,
+                     register_widget_qss)
 from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
@@ -381,8 +399,45 @@ _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 #: layout is a list of TITLES, so a user who folded the old one away would
 #: find it open again after a rename and would have to fold it a second time;
 #: reading the stored list through this keeps their arrangement. Item 419
-#: renamed Cellpose-SAM at the maintainer's request.
-_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection"}
+#: renamed Cellpose-SAM (point 5) and Auto-filter objects (point 7, "add a
+#: filter button and add this as a settings category") at the maintainer's
+#: request.
+_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection",
+                       "Auto-filter objects": "Filter"}
+
+#: The two inks this screen cannot take from the shipped stylesheet: the
+#: Filter category's removal ledger, which item 419 point 7 asks to be RED,
+#: and the Invert warning of point 9e, which is a warning and not prose.
+#: Registered rather than written inline, so both follow the user's theme --
+#: a colour set on the widget at build time is the colour it keeps when the
+#: theme changes under it.
+MAKE_MASKS_QSS_NAME = "MakeMasksInk"
+
+#: The Filter category's removal ledger, by object name.
+FILTER_LOG_NAME = "MakeMasksFilterLog"
+
+#: The banner that says the detectors are reading an inverted image.
+INVERT_WARNING_NAME = "MakeMasksInvertWarning"
+
+#: What that banner says. Item 419 point 9e asks for "a warning somewhere
+#: reminding the user that masks are generated from the inverted image", and
+#: SOMEWHERE IS NOT INSIDE THE SETTINGS PANEL: the Settings toggle hides that
+#: panel to give the image the width, and the magnifier goes on inverting
+#: while it is hidden. It sits between the tool row and the image, where
+#: nothing can fold it away.
+INVERT_WARNING_TEXT = (
+    "Invert for detection is on: every mask — Object detection, Otsu detect "
+    "and the Live magnifier — is being generated from the INVERTED image. "
+    "The readout and the Filter category still report the image's real "
+    "values, and 'Invert image' in Display is a separate switch that "
+    "changes only the picture.")
+
+#: How many removal rows the Filter category's ledger shows before it
+#: scrolls. Item 419 point 7 asks for one row per removed object, and a
+#: filter tightened too far removes hundreds; a box that grew with them
+#: would push every other category off the panel, so it is a fixed six rows
+#: with the rest a scroll away.
+FILTER_LOG_ROWS = 6
 
 #: Gaussian sigma the Otsu mode smooths with before it cuts, and what the
 #: Otsu category's Smoothing box starts at. It is
@@ -417,6 +472,8 @@ SHORTCUT_HINTS = (
     ("Shift or Alt + drag", "Pan, from any tool"),
     ("Wheel", "Zoom about the cursor"),
     ("Right button", "Sweep away the objects it passes"),
+    ("Ctrl + left click", "Split the object at its waist"),
+    ("Ctrl + right click", "Remove the object under the cursor"),
     ("Left / Right arrows", "Previous / next field"),
     ("Ctrl+Z / Ctrl+Y", "Undo / redo"),
     ("Ctrl+S", "Save the mask"),
@@ -427,6 +484,39 @@ SHORTCUT_HINTS = (
     ("Magnifier: drag", "Add the objects it passes over"),
     ("Magnifier, whole image: right", "Remove the object under it"),
 )
+
+
+def _make_masks_qss(palette, opacity) -> str:
+    """This screen's two coloured inks, for one palette.
+
+    Registered through :func:`spacr.qt.theme.register_widget_qss`, so the
+    colours follow the user's theme without a line in ``theme.py`` and
+    without either widget holding a colour of its own.
+
+    The removal ledger is a text box and takes ``surface_alt`` under its red
+    rows, the fill every other boxed control on this panel stands on, put
+    through the page opacity the same way. The warning is a label over the
+    page and stays transparent: a filled strip across the top of the image
+    would be a second surface stacked on the one behind it.
+
+    :param palette: the theme palette, surfaces already rendered through the
+        page opacity.
+    :param opacity: the user's page-opacity preference, passed through.
+    """
+    return f"""
+QPlainTextEdit#{FILTER_LOG_NAME} {{
+    color: {palette['error']};
+    background: {block_surface('surface_alt', palette.get('theme'), opacity)};
+    border: 1px solid {palette['border_soft']};
+}}
+QLabel#{INVERT_WARNING_NAME} {{
+    color: {palette['warning']};
+    background: transparent;
+}}
+"""
+
+
+register_widget_qss(MAKE_MASKS_QSS_NAME, _make_masks_qss, replace=True)
 
 
 class _MaskLoadWorker(QThread):
@@ -497,6 +587,13 @@ class _MaskCanvas(QLabel):
     stroke_started = Signal()
     stroke_finished = Signal()
     zoom_changed = Signal(bool)
+    #: Something the user did needs a sentence on the status line. Emitted
+    #: by the Ctrl+click edits of item 419 point 8, which are the canvas's
+    #: only gestures that can decline to do anything for a reason worth
+    #: telling: a click on background, and an object with no waist to cut.
+    #: A gesture that did nothing and said nothing reads as a broken
+    #: shortcut.
+    status = Signal(str)
     #: A recrop box was dragged, in FULL-image pixels: (x0, y0, x1, y1).
     #: The canvas neither writes it nor judges it — the box may be too
     #: small, or a re-draw of one already cut — because what it becomes is
@@ -548,6 +645,21 @@ class _MaskCanvas(QLabel):
         self.wand_gradient_margin: int = 8
         self.wand_gradient_erode: int = 3
         self.wand_salvage_over_cap: bool = True
+        #: The smallest object the screen is willing to keep, in pixels, as
+        #: the Min area box holds it. Ctrl + left click reads it for its
+        #: seed spacing (:func:`mask_engine.split_object_at`), so the size
+        #: that decides what is debris also decides what is too small to be
+        #: two things. Set by the screen; 0 leaves the engine's own floor.
+        self.split_min_area: int = 0
+        #: The BUTTON now down that was pressed with Ctrl, or None. It makes
+        #: that press one of point 8's edits and NOT the start of a drag:
+        #: without it the release reaches the magnifier, whose own release
+        #: with no stroke open IS a click -- so a Ctrl+click that split one
+        #: object would commit every object in the box on the way back up.
+        #: It is the button and not a flag so that a SECOND button pressed
+        #: while the edit is open can have its own release consumed without
+        #: ending the edit early.
+        self._ctrl_click = None
         self.zoom_speed: float = 1.15
         follow_device_ratio(self, self.refresh)
 
@@ -1190,18 +1302,112 @@ class _MaskCanvas(QLabel):
         self.refresh()
         return True
 
+    def _ctrl_edit_at(self, pt, *, split: bool) -> bool:
+        """Split or remove the object under ``pt`` -- item 419 point 8.
+
+        "if the user holds down ctrl and left clicks then the object should
+        be split, if the user holds ctrl and right clicks the object that is
+        hovered should be removed", the maintainer, 2026-09-16.
+
+        BOTH ARE ONE STROKE, so each is one undo step and one ledger entry,
+        like every other edit on this canvas. The stroke is opened only once
+        something is actually going to change: a Ctrl+click on background,
+        or on an object with no waist to cut, leaves no empty undo step to
+        step back through and says why on the status line instead.
+
+        :param pt: the image pixel clicked, or None when the click was off
+            the image.
+        :param split: True for the left button's split, False for the right
+            button's removal.
+        :returns: whether the mask changed.
+        """
+        if pt is None or self.mask is None:
+            return False
+        x, y = pt
+        height, width = self.mask.shape[:2]
+        if not (0 <= y < height and 0 <= x < width):
+            return False
+        target = int(self.mask[y, x])
+        if target <= 0:
+            self.status.emit(
+                "Ctrl+click acts on an object — there is none under the "
+                "cursor.")
+            return False
+        if not split:
+            self._emit_stroke_start()
+            self.mask = engine.erase_object_at(self.mask, x, y)
+            self.refresh()
+            self._emit_stroke_end(kind="delete", target=target,
+                                   gesture="ctrl_click")
+            self.status.emit(
+                f"Removed object {target} — Ctrl+Z to undo")
+            return True
+        out, new_ids = engine.split_object_at(
+            self.mask, x, y, min_area=int(self.split_min_area))
+        if not new_ids:
+            self.status.emit(
+                f"Object {target} has one centre, so there is no waist to "
+                "split it at. The Divide tool cuts along a line you draw.")
+            return False
+        self._emit_stroke_start()
+        self.mask = out
+        self.refresh()
+        self._emit_stroke_end(kind="split", target=target,
+                               gesture="ctrl_click", into=list(new_ids),
+                               n_objects=len(new_ids) + 1)
+        made = ", ".join(str(new) for new in new_ids)
+        self.status.emit(
+            f"Split object {target} into {len(new_ids) + 1} — new id(s) "
+            f"{made}. Ctrl+Z to undo")
+        return True
+
     def mousePressEvent(self, event):
         """Dispatch a click to the current tool (brush/erase/wand/zoom/…).
 
-        Two gestures are checked before the tool, because they work from
-        *any* tool: the right button sweep-deletes, and Shift/Alt + left
-        pans. Both are things you want mid-edit without putting the brush
-        down and picking it up again. With the magnifier on in whole-image
-        scope the right button removes the one object under it instead of
-        sweeping.
+        Three gestures are checked before the tool, because they work from
+        *any* tool: Ctrl + left splits and Ctrl + right removes the object
+        under the cursor (item 419 point 8), the right button sweep-deletes,
+        and Shift/Alt + left pans. All of them are things you want mid-edit
+        without putting the brush down and picking it up again. With the
+        magnifier on in whole-image scope the right button removes the one
+        object under it instead of sweeping.
+
+        CTRL IS TESTED FIRST, before the magnifier and before the pan, or
+        the two edits would exist only while the magnifier was off: its own
+        press handler takes every left click, and its whole-image mode takes
+        every right one.
+
+        A CTRL EDIT OWNS THE MOUSE, and only starts when it can: the whole
+        branch is behind ``event.buttons() == event.button()``, so it runs
+        only when nothing else is already down. Pressing Ctrl+left in the
+        middle of a right-button sweep would otherwise end the SWEEP's
+        stroke and label it a split, and the sweep's own release would then
+        be swallowed as this gesture's -- leaving the sweep open with no
+        ledger entry. While the edit is open a second button is ignored
+        here, and its release is consumed without ending the edit.
+
+        :attr:`_ctrl_click` is still rewritten by every press that arrives
+        alone, so a release that never came -- a grab lost to a dialog --
+        cannot leave it standing and swallow the next drag.
         """
         if self.mask is None:
             return super().mousePressEvent(event)
+
+        if event.buttons() == event.button():
+            self._ctrl_click = (
+                event.button()
+                if (event.modifiers() & Qt.ControlModifier
+                    and event.button() in (Qt.LeftButton, Qt.RightButton))
+                else None)
+            if self._ctrl_click is not None:
+                self._ctrl_edit_at(
+                    self._canvas_to_image(event.position().x(),
+                                           event.position().y()),
+                    split=event.button() == Qt.LeftButton)
+                self.update()
+                return
+        elif self._ctrl_click is not None:
+            return
 
         if (event.button() == Qt.RightButton and self.magnifier is not None
                 and self.magnifier.enabled
@@ -1282,11 +1488,18 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def mouseMoveEvent(self, event):
-        """Move the readout; extend a sweep, a pan, a stroke or a zoom drag."""
+        """Move the readout; extend a sweep, a pan, a stroke or a zoom drag.
+
+        A move while a Ctrl+click is still down moves the readout and
+        nothing else: that click was one edit and is finished, so dragging
+        away from it must not turn into a magnifier stroke or a sweep.
+        """
         if self.mask is None:
             return
         self.update_readout(event.position(),
                             measure=event.buttons() == Qt.NoButton)
+        if self._ctrl_click is not None:
+            return
         if self._sweeping and event.buttons() & Qt.RightButton:
             self._sweep_delete_at(
                 self._canvas_to_image(event.position().x(),
@@ -1341,8 +1554,18 @@ class _MaskCanvas(QLabel):
 
         The readout is re-measured once the release has been handled, since a
         held button kept it to the pixel while the mask was changing.
+
+        A Ctrl+click is over the moment it was pressed, so its release is
+        consumed here rather than handed on — see :attr:`_ctrl_click`. Any
+        release arriving while one is open is consumed, but only the button
+        that OPENED it closes it: a second button pressed meanwhile started
+        nothing, so its release must end nothing.
         """
         self._schedule_readout()
+        if self._ctrl_click is not None:
+            if event.button() == self._ctrl_click:
+                self._ctrl_click = None
+            return
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
             labels, self._sweep_labels = self._sweep_labels, []
@@ -1831,6 +2054,12 @@ class _MagnifierRequest(NamedTuple):
     otsu_fill_holes: bool = True
     #: Whether the Otsu mode cuts a blob with two centres into two objects.
     otsu_split: bool = True
+    #: Whether :attr:`crop` was inverted before it was copied in (item 419
+    #: point 9). It is carried on the request, though nothing downstream
+    #: reads it, because it is part of what makes two requests the same
+    #: request: the same box under the same settings with Invert on and off
+    #: are two different questions with two different answers.
+    invert: bool = False
     #: The Overlap rule the box is to draw its promise in, and the mask it
     #: is to be read against: the pixels the mask already owns inside
     #: ``box``, and a number that changes whenever the canvas is handed a
@@ -1852,7 +2081,8 @@ class _MagnifierRequest(NamedTuple):
 _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
-                         "otsu_smoothing", "otsu_fill_holes", "otsu_split")
+                         "otsu_smoothing", "otsu_fill_holes", "otsu_split",
+                         "invert")
 
 
 class _MagnifierResult(NamedTuple):
@@ -2813,7 +3043,8 @@ class _LiveMagnifier(QObject):
                    "cellprob_threshold": CELLPROB_THRESHOLD,
                    "normalize": True, "otsu_correction": 1.0,
                    "otsu_smoothing": OTSU_SMOOTHING,
-                   "otsu_fill_holes": True, "otsu_split": True}
+                   "otsu_fill_holes": True, "otsu_split": True,
+                   "invert": False}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
@@ -2829,7 +3060,8 @@ class _LiveMagnifier(QObject):
                 round(float(context["otsu_correction"]), 4),
                 round(float(context["otsu_smoothing"]), 4),
                 bool(context["otsu_fill_holes"]),
-                bool(context["otsu_split"]))
+                bool(context["otsu_split"]),
+                bool(context["invert"]))
 
     @staticmethod
     def _accent() -> tuple:
@@ -2853,6 +3085,44 @@ class _LiveMagnifier(QObject):
             self._mask_token += 1
         return self._mask_token
 
+    def inverting(self) -> bool:
+        """Whether Invert is on, as the screen's panel holds it now.
+
+        Asked by :meth:`paint`, which runs outside the request path and so
+        cannot read the answer off a request: item 419 point 9c wants the
+        box showing the inverted image, and the box repaints on moves that
+        never build a request at all.
+        """
+        if self._context is None:
+            return False
+        return bool(self._context().get("invert", False))
+
+    def region_for(self, box, *, invert: bool) -> np.ndarray:
+        """A copy of ``box`` of the open field, inverted if Invert is on.
+
+        The one place the box's pixels are taken, so what the model is given
+        and what the box paints cannot disagree about whether they were
+        inverted.
+
+        WHY A CROP MAY BE INVERTED ON ITS OWN: item 419 point 9d makes the
+        inversion what the DETECTOR sees, so the box and the detect button
+        have to invert the same way, and a box that inverted differently
+        wherever it was put would stop being a preview of the button.
+        :func:`mask_engine.invert_intensity` complements the DTYPE's range,
+        which is a per-pixel function of the value alone, so a crop comes
+        back identical whether it is inverted by itself or cut out of an
+        inverted field. Nothing about the surrounding field is needed and
+        no extremes have to be found or cached.
+
+        :param box: ``(x0, y0, x1, y1)`` in image pixels.
+        :param invert: whether Invert for detection is on.
+        """
+        x0, y0, x1, y1 = box
+        crop = np.array(self.canvas.image[y0:y1, x0:x1], copy=True)
+        if not invert:
+            return crop
+        return engine.invert_intensity(crop)
+
     def build_request(self, *, ghost: bool = True
                       ) -> Optional[_MagnifierRequest]:
         """The request for the region under the mouse now, or None.
@@ -2868,6 +3138,7 @@ class _LiveMagnifier(QObject):
                 or canvas.mask is None):
             return None
         settings = self._model_settings()
+        values = dict(zip(_MODEL_SETTING_FIELDS, settings))
         box = engine._magnifier_box(image.shape, self._cursor[0],
                                     self._cursor[1], self.size)
         x0, y0, x1, y1 = box
@@ -2880,7 +3151,7 @@ class _LiveMagnifier(QObject):
             occupied = np.asarray(canvas.mask)[y0:y1, x0:x1] > 0
         return _MagnifierRequest(
             key=(self._field, box) + settings + (exclude,),
-            crop=np.array(image[y0:y1, x0:x1], copy=True),
+            crop=self.region_for(box, invert=values["invert"]),
             box=box,
             shape=tuple(int(v) for v in image.shape[:2]),
             colour=self._accent(),
@@ -2888,7 +3159,7 @@ class _LiveMagnifier(QObject):
             overlap=rule if ghost else "replace",
             occupied=occupied,
             mask_token=token,
-            **dict(zip(_MODEL_SETTING_FIELDS, settings)),
+            **values,
         )
 
     @staticmethod
@@ -3105,9 +3376,14 @@ class _LiveMagnifier(QObject):
         self.canvas.update()
 
     def _start_image(self, key: tuple) -> None:
-        """Hand a copy of the whole field to the image worker under ``key``."""
+        """Hand a copy of the whole field to the image worker under ``key``.
+
+        Inverted first when Invert is on, like every other request: the
+        whole field IS the region here, so it is the same call.
+        """
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
+        values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
         self._image_key = key
         self._image_halted = None
         self._image_started = time.monotonic()
@@ -3115,10 +3391,12 @@ class _LiveMagnifier(QObject):
         self._image_estimate = (None if pace is None
                                 else pace * height * width / 1e6)
         self._image_worker.submit(_MagnifierRequest(
-            key=key, crop=np.array(image, copy=True),
+            key=key,
+            crop=self.region_for((0, 0, width, height),
+                                  invert=values["invert"]),
             box=(0, 0, width, height), shape=(height, width),
             colour=self._accent(), exclude_border=False, scope="image",
-            **dict(zip(_MODEL_SETTING_FIELDS, key[2:]))))
+            **values))
         self._set_busy(True)
 
     @staticmethod
@@ -3611,6 +3889,11 @@ class _LiveMagnifier(QObject):
         is a mask it has not been drawn against -- the canvas rebinds its
         mask for every edit -- and it asks for the region again rather than
         redrawing a promise made about a mask that is gone.
+
+        WITH INVERT FOR DETECTION ON THE BOX SHOWS THE INVERTED REGION
+        (item 419 point 9c), through the same inversion the request's crop
+        is built with, so what the user is looking at inside the box is
+        what the model was given. The canvas under it is untouched.
         """
         geometry = self.lens_geometry()
         if geometry is None:
@@ -3622,7 +3905,10 @@ class _LiveMagnifier(QObject):
         if part is None:
             return
         vx0, vy0, vx1, vy1 = part
-        stretched = _stretch_for_box(canvas.image, box, part,
+        source = canvas.image
+        if self.inverting():
+            source = engine.invert_intensity(source)
+        stretched = _stretch_for_box(source, box, part,
                                      canvas.norm_lo, canvas.norm_hi)
         rgb = np.ascontiguousarray(engine.overlay_mask(
             stretched, canvas.mask[vy0:vy1, vx0:vx1], alpha=0.5))
@@ -4366,6 +4652,7 @@ class MakeMasksScreen(QWidget):
         #: the generic settings form and carries no registry key to be
         #: looked up by.
         self._fold_page_title = HEADER_TITLE
+        ensure_widget_qss_applied(MAKE_MASKS_QSS_NAME, root=self)
         self._build_ui()
         self._install_shortcuts()
         self._sync_button_states()
@@ -4536,6 +4823,12 @@ class MakeMasksScreen(QWidget):
         self._tool_row = self._build_tool_row()
         outer.addWidget(self._tool_row)
 
+        self._invert_warning = QLabel(INVERT_WARNING_TEXT)
+        self._invert_warning.setObjectName(INVERT_WARNING_NAME)
+        self._invert_warning.setWordWrap(True)
+        self._invert_warning.hide()
+        outer.addWidget(self._invert_warning)
+
         self._body_stack = QStackedWidget()
 
         self._empty_state = EmptyState(
@@ -4575,6 +4868,8 @@ class MakeMasksScreen(QWidget):
         self._otsu_histogram_dialog: Optional[QDialog] = None
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
+        self._canvas.status.connect(
+            lambda text: self._status_label.setText(text))
         self._view_tabs = self._build_view_tabs()
 
         self._settings_scroll = QScrollArea()
@@ -4591,8 +4886,11 @@ class MakeMasksScreen(QWidget):
                         self._otsu_fill_holes.toggled,
                         self._otsu_split.toggled,
                         self._otsu_bright.toggled,
+                        self._cp_invert.toggled,
                         self._min_area.valueChanged):
             changed.connect(self._on_magnifier_context_changed)
+        self._min_area.valueChanged.connect(self._on_min_area_changed)
+        self._on_min_area_changed(self._min_area.value())
         self._body_splitter.addWidget(self._settings_scroll)
         self._body_splitter.addWidget(self._build_view_pane())
         self._body_splitter.setStretchFactor(0, 1)
@@ -5194,7 +5492,7 @@ class MakeMasksScreen(QWidget):
 
         wand_card = self._settings_category("Magic wand")
         wand_form = QFormLayout()
-        self._wand_relative = QCheckBox("Tolerance is % of image range")
+        self._wand_relative = Toggle("Tolerance is % of image range")
         self._wand_relative.setChecked(True)
         self._wand_relative.setToolTip(
             "On: the tolerance below is a percentage of THIS image's own "
@@ -5242,7 +5540,7 @@ class MakeMasksScreen(QWidget):
         )
         self._wand_max.valueChanged.connect(self._on_wand_max_changed)
         wand_form.addRow("Max pixels", self._wand_max)
-        self._wand_salvage = QCheckBox("Keep the nearest pixels at the cap")
+        self._wand_salvage = Toggle("Keep the nearest pixels at the cap")
         self._wand_salvage.setChecked(True)
         self._wand_salvage.setToolTip(
             "On: a flood over the budget is trimmed back to the pixels "
@@ -5323,7 +5621,7 @@ class MakeMasksScreen(QWidget):
             "onto the nearest intensity gradient."
         )
         edge_form = QFormLayout(edge)
-        self._wand_intensity_border = QCheckBox("Re-flood below the escape")
+        self._wand_intensity_border = Toggle("Re-flood below the escape")
         self._wand_intensity_border.setChecked(True)
         self._wand_intensity_border.setToolTip(
             "When a leak is found, search for the highest tolerance whose "
@@ -5347,7 +5645,7 @@ class MakeMasksScreen(QWidget):
         self._wand_intensity_steps.valueChanged.connect(
             self._on_wand_intensity_steps_changed)
         edge_form.addRow("Search steps", self._wand_intensity_steps)
-        self._wand_gradient_taper = QCheckBox("Taper onto the gradient")
+        self._wand_gradient_taper = Toggle("Taper onto the gradient")
         self._wand_gradient_taper.setChecked(True)
         self._wand_gradient_taper.setToolTip(
             "Let the provisional edge move onto the nearest real intensity "
@@ -5447,15 +5745,19 @@ class MakeMasksScreen(QWidget):
             "mouse, the object filter, both detect buttons and the mask you "
             "save all keep reading the original pixels, so nothing you "
             "measure changes because of this switch. Press it twice and the "
-            "picture is exactly what it was."
+            "picture is exactly what it was. If you want the DETECTORS to "
+            "read the image upside down, that is 'Invert for detection' in "
+            "the Object detection category, and it warns you while it is on."
         )
         self._invert_display.toggled.connect(self._on_invert_display)
         norm_card.body_layout.addWidget(self._invert_display)
         col.addWidget(norm_card)
 
         filter_card = self._settings_category(
-            "Auto-filter objects",
-            "Applied when a field loads. 0 switches a bound off.",
+            "Filter",
+            "Every bound is off at 0. Filter applies the ones that are on, "
+            "and so does opening a field; each object removed is listed "
+            "below.",
         )
         filter_form = QFormLayout()
         self._filter_min_area = QSpinBox()
@@ -5486,10 +5788,26 @@ class MakeMasksScreen(QWidget):
         filter_form.addRow("Min mean intensity", self._filter_min_int)
         filter_form.addRow("Max mean intensity", self._filter_max_int)
         filter_card.body_layout.addLayout(filter_form)
-        self._btn_filter = QPushButton("Apply filter now")
+        self._btn_filter = QPushButton("Filter")
         self._btn_filter.setCursor(Qt.PointingHandCursor)
+        self._btn_filter.setToolTip(
+            "Apply the bounds that are on to the mask on screen. Every "
+            "object it removes is listed below it, with the area and the "
+            "mean intensity it was judged on. One undo step.")
         self._btn_filter.clicked.connect(self._on_apply_filter)
         filter_card.body_layout.addWidget(self._btn_filter)
+        self._filter_log = QPlainTextEdit()
+        self._filter_log.setObjectName(FILTER_LOG_NAME)
+        self._filter_log.setReadOnly(True)
+        self._filter_log.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self._filter_log.setFixedHeight(
+            self._filter_log.fontMetrics().lineSpacing() * FILTER_LOG_ROWS + 12)
+        self._filter_log.setToolTip(
+            "What the last filter removed, one row per object: its id, the "
+            "area and mean intensity it was judged on, and the bound that "
+            "removed it. The ids are the ones the hover readout shows.")
+        self._set_filter_log([])
+        filter_card.body_layout.addWidget(self._filter_log)
         col.addWidget(filter_card)
 
         obj_card = self._settings_category("Object operations")
@@ -5728,18 +6046,32 @@ class MakeMasksScreen(QWidget):
         The status line says so on the way in, because a negative field is
         exactly the thing a user might later mistake for the data.
 
+        WHAT IT SAYS DEPENDS ON THE OTHER SWITCH. "Detection still uses the
+        original pixels" is this switch's own promise, and it is true of
+        this switch -- but it is a sentence about the whole screen, and item
+        419 point 9's "Invert for detection" makes it false while that one
+        is on. A line that went on promising it would be telling a user the
+        opposite of what the warning banner two inches above it says.
+
         :param on: the switch's new state.
         """
         self._canvas.invert_display = bool(on)
         self._canvas.refresh()
         if self._canvas.image is None:
             return
-        self._status_label.setText(
-            "Showing the image inverted — dark is bright. Detection, "
-            "filtering and saving still use the original pixels."
-            if on else
-            "Showing the image as it was loaded."
-        )
+        if not on:
+            self._status_label.setText("Showing the image as it was loaded.")
+        elif self._cp_invert.isChecked():
+            self._status_label.setText(
+                "Showing the image inverted — dark is bright. Filtering and "
+                "saving still use the original pixels; detection does NOT, "
+                "because Invert for detection is also on."
+            )
+        else:
+            self._status_label.setText(
+                "Showing the image inverted — dark is bright. Detection, "
+                "filtering and saving still use the original pixels."
+            )
 
     def _on_wand_tolerance_changed(self, v: float):
         """Set how far the wand will grow in intensity.
@@ -5925,8 +6257,23 @@ class MakeMasksScreen(QWidget):
         entries for clicks that landed on background is a ledger nobody
         reads, and ``is_curated`` would then answer True for every mask
         anyone ever opened the editor on.
+
+        IT IS ALSO WHERE THE FILTER'S REMOVAL ROWS ARE DROPPED, because it
+        is the one place every edit passes through. Those rows promise to
+        name objects in the mask ON SCREEN (:meth:`_set_filter_log`), and
+        the promise is broken by the next edit whatever it was: Ctrl+Z puts
+        a removed object back under the id the row still lists, and a detect
+        in replace mode rebuilds the mask around it. Any recorded edit that
+        is not the filter's own therefore empties the box, and the user
+        presses Filter again to ask the question again.
+
+        :param kind: what happened, as the curation ledger names it.
         """
-        if self._log is None or int(n_changed) <= 0:
+        if int(n_changed) <= 0:
+            return None
+        if kind != "filter":
+            self._set_filter_log([])
+        if self._log is None:
             return None
         return self._log.append(kind, target, n_changed=int(n_changed),
                                  **detail)
@@ -5963,6 +6310,48 @@ class MakeMasksScreen(QWidget):
             "max_intensity": float(self._filter_max_int.value()),
         }
 
+    def _filter_removal_line(self, removal, bounds: dict) -> str:
+        """One removed object as the Filter category's ledger prints it.
+
+        Item 419 point 7 asked for "object 22 with area x and intensity y
+        was removed by minimum intensity", and this is that sentence with
+        the bound's own number in it: a row saying only which bound removed
+        an object leaves the reader looking for the box it came from.
+
+        The id is :func:`mask_engine.canonical_labels`' id, which is the id
+        the hover readout showed for the same object, so a user who read an
+        object's numbers off the corner of the image can find it here.
+
+        :param removal: a :class:`mask_engine.FilterRemoval`.
+        :param bounds: the bounds the run used, as :meth:`_filter_bounds`
+            gives them.
+        """
+        names = {"min_area": "minimum area",
+                  "max_area": "maximum area",
+                  "min_intensity": "minimum intensity",
+                  "max_intensity": "maximum intensity"}
+        reasons = []
+        for bound in removal.bounds:
+            value = bounds.get(bound, 0)
+            shown = (f"{int(value)}" if bound.endswith("area")
+                     else f"{float(value):.2f}")
+            reasons.append(f"{names[bound]} {shown}")
+        return (f"Object {removal.label} with area {removal.area} px and "
+                f"intensity {removal.mean_intensity:.2f} was removed by "
+                + " and ".join(reasons))
+
+    def _set_filter_log(self, lines) -> None:
+        """Show ``lines`` in the Filter category's removal ledger.
+
+        Empty puts the box back to its placeholder rather than to a blank
+        red field: the rows name objects in the mask ON SCREEN, so carrying
+        the last field's rows into the next field would name objects that
+        are not there.
+        """
+        self._filter_log.setPlainText("\n".join(str(line) for line in lines))
+        self._filter_log.setPlaceholderText(
+            "Nothing has been removed. Set a bound above and press Filter.")
+
     def apply_object_filter(self, *, on_load: bool = False) -> int:
         """Drop objects outside the size/intensity bounds; return how many.
 
@@ -5976,25 +6365,36 @@ class MakeMasksScreen(QWidget):
         it removed, so an automatic edit is as traceable and as reversible
         as a click.
 
+        Every removal is also written into the Filter category's ledger, one
+        red row each (item 419 point 7). The rows are cleared at the START of
+        every run, including the run that found nothing and the one that had
+        no field: they describe the mask on screen, and a row left over from
+        the last field names an object that is not there.
+
         :param on_load: True when this is the automatic run. It only changes
             what the status line says and what the ledger entry records; a
             filter that removed nothing stays quiet on load rather than
             reporting a non-event over the name of the field just opened.
         """
+        self._set_filter_log([])
         if self._canvas.mask is None or self._canvas.image is None:
             return 0
-        out, dropped = engine.filter_objects(
-            self._canvas.mask, self._canvas.image, **self._filter_bounds())
-        if not dropped:
+        bounds = self._filter_bounds()
+        out, removals = engine.filter_report(
+            self._canvas.mask, self._canvas.image, **bounds)
+        if not removals:
             if not on_load:
                 self._status_label.setText(
                     "Size/intensity filter: nothing outside the bounds.")
             return 0
+        dropped = [removal.label for removal in removals]
         changed = int(np.count_nonzero(self._canvas.mask != out))
         self._canvas.mask = out
         self._canvas.refresh()
+        self._set_filter_log(
+            self._filter_removal_line(removal, bounds) for removal in removals)
         self._record("filter", dropped, changed, n_objects=len(dropped),
-                      automatic=bool(on_load), **self._filter_bounds())
+                      automatic=bool(on_load), **bounds)
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(
@@ -6008,7 +6408,13 @@ class MakeMasksScreen(QWidget):
         self.apply_object_filter(on_load=False)
 
     def _on_detect_otsu(self):
-        """Threshold the image and fold the result in per replace/merge."""
+        """Threshold the image and fold the result in per replace/merge.
+
+        With Invert on it thresholds the INVERTED field
+        (:meth:`_detector_image`), which is what lets it take dark objects:
+        Bright and Invert together are the dark side of the dark side, and
+        the ledger records which way up the image was.
+        """
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
@@ -6016,7 +6422,7 @@ class MakeMasksScreen(QWidget):
         correction = otsu["correction"]
         try:
             detected = engine._otsu_instances(
-                self._canvas.image,
+                self._detector_image(),
                 bright=self._otsu_bright.isChecked(),
                 min_area=int(self._min_area.value()),
                 **otsu,
@@ -6040,6 +6446,7 @@ class MakeMasksScreen(QWidget):
         self._canvas.mask = out
         self._canvas.refresh()
         self._record("detect", mode, changed, method="otsu", n_objects=found,
+                      invert=bool(self._cp_invert.isChecked()),
                       bright=bool(self._otsu_bright.isChecked()),
                       min_area=int(self._min_area.value()),
                       otsu_correction=correction,
@@ -6053,9 +6460,11 @@ class MakeMasksScreen(QWidget):
                       otsu_window=otsu["window"])
         self._history.push(out)
         self._refresh_history_buttons()
+        inverted = (" of the INVERTED image"
+                    if self._cp_invert.isChecked() else "")
         self._status_label.setText(
-            f"Otsu ({self._otsu_description()}) found {found} object(s) — "
-            f"{mode}d into the mask"
+            f"Otsu ({self._otsu_description()}){inverted} found {found} "
+            f"object(s) — {mode}d into the mask"
         )
 
     def _otsu_description(self) -> str:
@@ -6332,13 +6741,28 @@ class MakeMasksScreen(QWidget):
 
         card.body_layout.addLayout(form)
 
-        self._cp_normalize = QCheckBox("Normalize each field")
+        self._cp_normalize = Toggle("Normalize each field")
         self._cp_normalize.setChecked(True)
         self._cp_normalize.setToolTip(
             "Percentile-normalize the field before segmenting it, which is "
             "what Cellpose expects. Turn it off only for data already "
             "normalized upstream, where doing it twice changes the result.")
         card.body_layout.addWidget(self._cp_normalize)
+
+        self._cp_invert = Toggle("Invert for detection")
+        self._cp_invert.setToolTip(
+            "Segment the image upside down in intensity: its darkest pixel "
+            "becomes its brightest. It is what lets Otsu, which looks for "
+            "bright objects, take dark ones — in brightfield or a stain. "
+            "THE MASKS ARE MADE FROM THE INVERTED IMAGE, by this button, by "
+            "Otsu detect and by the Live magnifier alike, and a warning "
+            "stays on screen above the image while it is on. The hover "
+            "readout and the Filter category go on reporting the image's "
+            "real values. This is NOT 'Invert image' in the Display "
+            "category, which only changes the picture you are looking at "
+            "and leaves every measurement alone.")
+        self._cp_invert.toggled.connect(self._on_invert_toggled)
+        card.body_layout.addWidget(self._cp_invert)
 
         drives = QLabel(
             "The Live magnifier reads these settings too: Cellpose mode uses "
@@ -6438,14 +6862,14 @@ class MakeMasksScreen(QWidget):
         form.addRow("Smoothing (sigma)", self._otsu_smoothing)
         card.body_layout.addLayout(form)
 
-        self._otsu_bright = QCheckBox("Objects are brighter than background")
+        self._otsu_bright = Toggle("Objects are brighter than background")
         self._otsu_bright.setChecked(True)
         self._otsu_bright.setToolTip(
             "On: objects are brighter than background, as in fluorescence. "
             "Off: take the dark side instead, for brightfield or stain.")
         card.body_layout.addWidget(self._otsu_bright)
 
-        self._otsu_fill_holes = QCheckBox("Fill holes inside an object")
+        self._otsu_fill_holes = Toggle("Fill holes inside an object")
         self._otsu_fill_holes.setChecked(True)
         self._otsu_fill_holes.setToolTip(
             "Close the holes inside what was thresholded, before it is "
@@ -6456,7 +6880,7 @@ class MakeMasksScreen(QWidget):
             "box.")
         card.body_layout.addWidget(self._otsu_fill_holes)
 
-        self._otsu_split = QCheckBox("Split objects that touch")
+        self._otsu_split = Toggle("Split objects that touch")
         self._otsu_split.setChecked(True)
         self._otsu_split.setToolTip(
             "Cut a blob with two centres in two, at the ridge between them "
@@ -6466,7 +6890,7 @@ class MakeMasksScreen(QWidget):
             "object.")
         card.body_layout.addWidget(self._otsu_split)
 
-        self._otsu_exclude_border = QCheckBox(
+        self._otsu_exclude_border = Toggle(
             "Drop objects the image border cuts")
         self._otsu_exclude_border.setChecked(False)
         self._otsu_exclude_border.setToolTip(
@@ -6843,6 +7267,10 @@ class MakeMasksScreen(QWidget):
         answers in about a second on one field, and moving it to a thread
         would mean a second worker on a screen that already drains one on
         close; the button is disabled and the cursor says wait instead.
+
+        With Invert on the model is given the INVERTED field
+        (:meth:`_detector_image`) -- item 419 point 9d -- and the status
+        line and the ledger entry both say so.
         """
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(
@@ -6860,7 +7288,7 @@ class MakeMasksScreen(QWidget):
         try:
             with _CELLPOSE_LOCK:
                 labels, cellprob, flow = cellpose_detect(
-                    self._canvas.image,
+                    self._detector_image(),
                     self._cellpose_model(model_name),
                     diameter=int(self._cp_diameter.value()),
                     normalize=bool(self._cp_normalize.isChecked()),
@@ -6899,15 +7327,19 @@ class MakeMasksScreen(QWidget):
         self._canvas.refresh()
         self._record("detect", mode, changed, method="cellpose",
                       model=model_name, n_objects=found,
+                      invert=bool(self._cp_invert.isChecked()),
                       cellprob_threshold=float(self._cp_cellprob.value()),
                       flow_threshold=float(self._cp_flow.value()),
                       diameter=int(self._cp_diameter.value()),
                       min_size=self._detect_min_area())
         self._history.push(out)
         self._refresh_history_buttons()
+        inverted = (" from the INVERTED image"
+                    if self._cp_invert.isChecked() else "")
         self._status_label.setText(
-            f"Object detection ({model_name}) found {found} object(s) — "
-            f"{mode}d into the mask. See the Cell probability and Flows tabs."
+            f"Object detection ({model_name}){inverted} found {found} "
+            f"object(s) — {mode}d into the mask. See the Cell probability "
+            "and Flows tabs."
         )
         return found
 
@@ -7008,7 +7440,7 @@ class MakeMasksScreen(QWidget):
         magnifier.size_range_changed.connect(self._mag_size.setRange)
         form.addRow("Size (px)", self._mag_size)
 
-        self._mag_exclude_border = QCheckBox(
+        self._mag_exclude_border = Toggle(
             "Exclude objects touching the box border")
         self._mag_exclude_border.setChecked(True)
         self._mag_exclude_border.setToolTip(
@@ -7149,6 +7581,7 @@ class MakeMasksScreen(QWidget):
             "otsu_split": bool(self._otsu_split.isChecked()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
+            "invert": bool(self._cp_invert.isChecked()),
         }
 
     def _on_magnifier_mode(self, mode) -> None:
@@ -7329,6 +7762,42 @@ class MakeMasksScreen(QWidget):
         self._mag_progress.setFormat(
             tr("about {seconds} s left", seconds=int(left) + 1))
         self._mag_progress.setTextVisible(True)
+
+    def _on_invert_toggled(self, on: bool) -> None:
+        """Show or hide the Invert warning -- item 419 point 9e.
+
+        The magnifier is told separately, by the same signal reaching
+        :meth:`_on_magnifier_context_changed`, which throws away objects
+        found from the image the other way up.
+        """
+        self._invert_warning.setVisible(bool(on))
+
+    def _detector_image(self) -> Optional[np.ndarray]:
+        """The field as the detectors must read it: inverted when Invert is on.
+
+        ITEM 419 POINT 9d. The inversion is not a display trick, so the one
+        thing the detect buttons segment comes from here rather than from
+        the canvas directly, and Otsu detect and Object detection cannot end
+        up disagreeing about which way up the image was.
+
+        The canvas's own array is never changed: the hover readout and the
+        Filter category read that one and go on reporting the field's real
+        values, which point 9's own note asks for -- a user filtering by
+        intensity would otherwise be judging inverted numbers.
+        """
+        image = self._canvas.image
+        if image is None or not self._cp_invert.isChecked():
+            return image
+        return engine.invert_intensity(image)
+
+    def _on_min_area_changed(self, value) -> None:
+        """Hand Min area to the canvas, for Ctrl + left click's seed spacing.
+
+        The same judgement about debris as the detectors read
+        (:meth:`_detect_min_area`), so an object the screen would not keep
+        is not one the split gesture cuts in two either.
+        """
+        self._canvas.split_min_area = int(value)
 
     def _on_magnifier_context_changed(self, *_args) -> None:
         """A setting a magnifier model reads changed elsewhere on the panel.

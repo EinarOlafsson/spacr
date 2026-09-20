@@ -300,6 +300,104 @@
   counting past zero or sitting at 99%. A bar that has stopped being able to
   say how long should stop saying it.
 
+## Item 419, points 7-9 (2026-09-19)
+
+- `_build_tools_panel`'s filter category is called "Filter", as the
+  maintainer named it, and is in `_RENAMED_CATEGORIES` beside Cellpose-SAM
+  for the same reason: the folded-categories preference stores TITLES, so a
+  user who had folded "Auto-filter objects" away would find it open again
+  and have to fold it a second time.
+- `_filter_log` / `_set_filter_log` / `_filter_removal_line`: the removal
+  ledger point 7 asks for, one row per object. The row carries the bound's
+  own NUMBER as well as its name -- "removed by minimum area 20" -- because
+  a row naming only the bound leaves the reader hunting for the box it came
+  from. It is cleared at the START of every run, including the run that
+  found nothing and the automatic run a field load makes: the rows name
+  objects in the mask ON SCREEN, and a row left over from the last field
+  names an object that is not there. Empty shows a placeholder rather than a
+  blank red box.
+- The log is fixed at `FILTER_LOG_ROWS` rows with the rest a scroll away. A
+  box that grew with its contents would push every other category off the
+  panel the first time a bound was set too tight.
+- THE ROWS ARE DROPPED BY THE NEXT EDIT, in `_record`, which is the one
+  place every edit passes through. They promise to name objects in the mask
+  on screen and the next edit breaks that promise whatever it was: Ctrl+Z
+  puts a removed object back under the id a row still lists, and a detect in
+  replace mode rebuilds the mask around it. Undo was the cheap one to reach
+  -- one keystroke after a filter left a red row naming an object that was
+  visibly back on the canvas.
+- `_make_masks_qss` / `MAKE_MASKS_QSS_NAME`: the log's red and the Invert
+  warning's amber are REGISTERED QSS, not colours set on the widgets. A
+  colour written onto a widget at build time is the colour it keeps when the
+  theme changes under it; registered, both follow the user's theme, and the
+  test reads the resolved palette rather than the string that was asked for.
+- `_MaskCanvas._ctrl_edit_at` and the Ctrl branch of `mousePressEvent`:
+  point 8. CTRL IS TESTED FIRST, before the magnifier and before the pan, or
+  the two edits would exist only while the magnifier was off -- its press
+  handler takes every left click and its whole-image mode takes every right
+  one.
+- `_MaskCanvas._ctrl_click` exists because of what the RELEASE does. The
+  magnifier's `release()` with no stroke open IS a click, so without it a
+  Ctrl+click that split one object would commit every object in the box on
+  the way back up. It also stops a move with the button still down turning
+  the finished edit into a drag.
+- It holds the BUTTON rather than a yes/no, and the edit only starts when
+  nothing else is down (`event.buttons() == event.button()`). Two buttons
+  at once is where a click-shaped gesture goes wrong: Ctrl+left pressed
+  during a right-button sweep used to close the SWEEP's stroke and label it
+  a split, and then the sweep's own release was swallowed as the Ctrl
+  click's, leaving `_sweeping` set with no ledger entry for what had already
+  been erased. Now the second button starts nothing and ends nothing, and
+  only the button that opened the edit closes it.
+- `_MaskCanvas.status`: the canvas had no way to say anything. These two
+  gestures are the first that can decline to act for a reason worth telling
+  -- a click on background, and an object with no waist -- and a shortcut
+  that does nothing and says nothing reads as a broken shortcut.
+- `split_min_area` / `_on_min_area_changed`: the split reads the Min area
+  box, which is the same judgement about debris the detectors read. An
+  object the screen would not keep is not one the gesture cuts in two.
+- Every `QCheckBox` on this screen is the package's `Toggle` (point 9a). It
+  is a `QCheckBox` subclass, so `setChecked`/`isChecked` and every existing
+  connection are unchanged and nothing that found these controls by type
+  moved.
+- `_cp_invert` / `_detector_image` / `_LiveMagnifier.region_for`: point 9's
+  inversion is what the DETECTOR sees, not a display trick, so one function
+  on each side produces the array that is segmented. The canvas's own array
+  is never inverted in place, which is what keeps the hover readout and the
+  Filter category reporting the field's real values -- point 9's own note
+  asks for that, since a user filtering by intensity would otherwise be
+  judging inverted numbers.
+- THREE THINGS ON THIS SCREEN ARE CALLED INVERT AND THE CAPTION IS WHERE
+  THEY ARE TOLD APART. Item 435 landed two of them and the module docstring
+  named two; this is the third, and it is the only one that changes what a
+  detector reads, so it is the one that had to say so in its own name. It is
+  "Invert for detection", which is the maintainer's own phrase for it ("a
+  new boolean slider ... invert for object detection"), and it carries the
+  warning banner. "Invert image" in Display is a view and promises in its
+  tooltip that nothing measured moves; "Swap object and background" in
+  Object operations flips the LABELS. A panel with two switches both reading
+  "Invert", one of which silently redirected both detect buttons, is the
+  defect item 435 was filed about wearing different clothes.
+- The arithmetic is 435's `mask_engine.invert_intensity` and NOT a second
+  one. Item 419 left the meaning of "inverted" open for the builder; the
+  maintainer answered it in 435 on the same day, and both detectors
+  percentile-normalise before they threshold, so the dtype complement and
+  the image-range reflection the first draft carried give identical labels.
+  There was nothing to buy by differing and a collision to pay for.
+- `region_for` therefore passes the crop alone. The complement is a function
+  of the pixel value, so a box inverts the same wherever it is put and stays
+  a preview of the button; the draft's whole-field extremes cache existed
+  only to make a self-relative reflection behave that way and went with it.
+- `invert` is APPENDED to `_MODEL_SETTING_FIELDS`, like the three settings
+  point 5 added, because a request key is that tuple positionally and an
+  insertion in the middle would make every cached key mean something else.
+  It is on the request although no segmenter reads it: the same box under
+  the same settings with Invert on and off are two different questions.
+- `_invert_warning` sits between the tool row and the image and NOT in the
+  settings panel (point 9e). The Settings toggle hides that panel to give
+  the image the width, and the magnifier goes on inverting while it is
+  hidden; a warning you can only see when you are not working is not one.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

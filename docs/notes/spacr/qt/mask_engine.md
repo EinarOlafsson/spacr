@@ -133,6 +133,65 @@
   a click would add and the click has to add exactly that. Two
   implementations of one rule is a promise the box cannot keep.
 
+## Item 419 points 7, 8 and 9 (2026-09-19)
+
+- `filter_report` / `FilterRemoval` / `filter_objects`: point 7 asks the
+  screen to say WHY each object went ("object 22 with area x and intensity y
+  was removed by minimum intensity"), and `filter_objects` measured all
+  three of those and threw two away. It is now `filter_report` with the
+  reasons dropped, so the ids in the mask and the rows the user reads come
+  from ONE pass over ONE set of measurements and cannot disagree. Its
+  arithmetic is unchanged: the same `regionprops` call, the same bounds, the
+  same "0 is off", and `ObjectLookup` still equals it to the last bit, which
+  is what makes a row name the numbers the hover readout showed.
+- `FilterRemoval.bounds` is a TUPLE and not one name. An object can miss on
+  two sides at once -- too small AND too dim -- and saying so is worth a
+  word, because an object outside two bounds does not come back by moving
+  one of them.
+- `split_object_at`: point 8's Ctrl + left click. A watershed on the
+  object's own distance to background, inside its bounding box: the recipe
+  `_split_touching_objects` already runs on a whole field, on one object.
+  THREE DECISIONS, and the first is the one a reader will want:
+  - An object with ONE centre is left alone and the screen says so, rather
+    than being halved through the click. A single click carries no
+    direction; a forced cut would have to invent one. The gesture for a cut
+    the user aims is the Divide tool, which already exists.
+  - The largest piece keeps the id and the rest are minted above the mask's
+    top label. That is `canonical_labels`' own rule and `divide_object`'s,
+    so splitting and then saving renumbers nothing.
+  - NO PIXEL IS LOST. `_split_touching_objects` drops pieces under
+    `min_area`; this does not, and passes `min_area` only as the seed
+    spacing. A hand edit moves pixels between ids, and a gesture that
+    quietly erased the smaller half would be a delete wearing a split's
+    name -- on a field of four hundred objects nobody would notice which.
+- `invert_intensity`: point 9 needs an inversion and item 419 left the
+  arithmetic "open for the builder to settle". IT IS NOT SETTLED HERE. Item
+  435 asked the maintainer the same question on the same day and got an
+  answer -- "1/intensity i think and then fitted to dtype i guess" -- and
+  landed `invert_intensity` as the dtype complement. Point 9 therefore USES
+  THAT FUNCTION AND DEFINES NOTHING. Its first draft reflected about the
+  image's own range instead and the two would have collided in this module
+  under one name; the branch was rebased onto 435 and its version deleted.
+- WHY THE DTYPE COMPLEMENT COSTS POINT 9 NOTHING, since the draft's
+  objection -- that a 12-bit field stored in uint16 lands in the top six per
+  cent of the range -- is true and sounds like it should matter. It does not
+  reach a detector. Both inversions are `a - value` for a constant `a`, and
+  BOTH DETECTORS PERCENTILE-NORMALISE before they threshold:
+  `_otsu_instances` stretches between its own 1st and 99.8th percentiles
+  (and the threshold correction multiplies AFTER that stretch), and Cellpose
+  is called with `normalize=True`. A percentile stretch of `a - value` is
+  `(p99 - value) / (p99 - p1)`, in which `a` has cancelled. Measured: the
+  labels `_otsu_instances` returns are identical arrays under the two
+  inversions over 40 random fields x both sides x three corrections. The
+  choice is invisible below the display, so the shared name is worth more
+  than the wider span.
+- The `bounds=` parameter the draft added is gone with it, and so is the
+  magnifier's whole-field extremes cache. It existed because a region
+  reflected about its OWN extremes is reflected differently wherever the box
+  is put, so a crop had to borrow the field's pair to stay a preview of the
+  button. The dtype complement is a function of the pixel value alone, so a
+  crop inverts identically wherever it is cut and there is nothing to pass.
+
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

@@ -365,9 +365,15 @@ def test_the_otsu_category_holds_six_settings_and_drives_the_magnifier(screen):
 
 
 def test_the_request_key_carries_every_otsu_setting(screen):
-    """A setting the key does not carry is a setting a cached answer ignores."""
-    assert mm._MODEL_SETTING_FIELDS[-3:] == (
-        "otsu_smoothing", "otsu_fill_holes", "otsu_split")
+    """A setting the key does not carry is a setting a cached answer ignores.
+
+    The three are pinned in ORDER and at the end of the tuple, since a key
+    is that tuple positionally: an insertion in the middle would make every
+    cached key mean something else. Item 419 point 9 appended ``invert``
+    after them, which is what appending is supposed to look like.
+    """
+    assert mm._MODEL_SETTING_FIELDS[-4:] == (
+        "otsu_smoothing", "otsu_fill_holes", "otsu_split", "invert")
     screen._btn_magnifier.setChecked(True)
     screen._magnifier.hover(QPointF(*canvas_xy(32, 32)))
     before = screen._magnifier.build_request().key
