@@ -1543,8 +1543,8 @@ Branch home/358-non-gpu, worktree
 from origin/nightly, 1.5.0.8. Nothing published, nothing uploaded, no GPU job
 run. THE BASE MOVED TWICE while this was being written and the first draft of
 this line named fa51b2e88, which was already wrong when it was committed: the
-branch was rebased onto 2c072509e, and then onto 5800dd4bf before it was
-pushed, which is where these commits sit. See the review note at the end of
+branch was rebased onto 2c072509e, then onto 5800dd4bf, and finally onto
+e642b7d8b before it was pushed, which is where these commits sit. See the review note at the end of
 this section for what landed in between and why none of it moves the audit.
 
 Every screen fact below was read off a widget built from THIS worktree under an
@@ -1869,9 +1869,11 @@ Performance selector again.
 LATER THE SAME DAY. PUSHED TO nightly.
 --------------------------------------------------------------------------------
 
-Rebased onto origin/nightly 5800dd4bf and pushed. Between 2c072509e (the base
-the audit above was measured on) and 5800dd4bf, sixteen commits landed, and two
-of them touch screens this audit's lessons name: 419 points 4-6 rewrote
+Rebased onto origin/nightly e642b7d8b and pushed. Everything in this section
+was measured on 2026-09-19; the last rebase and the push fell just after
+midnight, so git will date these commits 2026-09-20. Between 2c072509e (the base
+the audit above was measured on) and e642b7d8b, seventeen commits landed, and
+three of them touch screens this audit's lessons name: 419 points 4-6 rewrote
 spacr/qt/screens/make_masks.py and spacr/qt/mask_engine.py, and 427 part B
 rewrote spacr/qt/preferences.py, sound.py, sound_synth.py, sound_preferences.py
 and widgets/ambient.py and added resonance.py. Neither is left to trust:
@@ -1891,9 +1893,12 @@ and widgets/ambient.py and added resonance.py. Neither is left to trust:
     `['General', 'Appearance', 'Theme', 'Animation', 'Performance', 'Modules',
     'Figures', 'Logging', 'AI', 'Sound']` -- 427's Sound tab is last, as it
     was asked to be, and the AI tab still carries the `Provider` row. The
-    scene's sentence survives the new tab. (The probe's own qt.conf landed in
-    the isolated home; the real ~/.config/spacr/qt.conf still has its 23:27:13
-    mtime, from another session.)
+    scene's sentence survives the new tab. Re-driven after the last rebase, on
+    e642b7d8b, because 444 landed while this was being pushed: 444 rewrote
+    spacr/qt/sound.py alone and the tab bar and the Provider row are the same
+    on both sides of it. (The probe's own qt.conf landed in the isolated home;
+    the real ~/.config/spacr/qt.conf still has its 23:27:13 mtime, from another
+    session.)
   * The three Classify lessons name nothing in either commit's files: no
     "Make Masks", "Otsu", "Object detection", "Sound", "Preferences",
     "Resonance", "Music" or "theme" appears anywhere in their JSON.
