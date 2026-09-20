@@ -13,10 +13,15 @@ Status:    BUILT, AND PROVEN FOR THE CPU IMAGE. 2026-09-19. Every open
 
            NOT YET PROVEN, and named here so nobody assumes otherwise: the
            CUDA image has never been built anywhere, and the workflow has
-           never run. Both are closed by the first release tag, which builds
-           and smoke-tests each image before it pushes and stops the release
-           if either fails. See the 2026-09-19 note at the foot for the
-           measurements and for what a reviewer should check.
+           never run. Both are closed by the next release, which calls the
+           workflow as a job and builds and smoke-tests each image before it
+           pushes it. That gate withholds an image; it cannot stop a release,
+           because the images are built from the commit the release is about
+           to tag and PyPI is immutable by then. A failed check therefore
+           publishes nothing and turns the release run red, while the GitHub
+           release still carries the installers that did build. See the
+           2026-09-19 notes at the foot for the measurements and for what a
+           reviewer should check.
 
            The original filing is kept below unchanged; the OPEN QUESTIONS
            section is now answered rather than open, and each answer is
@@ -145,7 +150,8 @@ WHAT WAS BUILT
   packaging/docker/smoke_pipeline.py One real pipeline run: external_masks on
                                      a 32x32 synthetic field with two label
                                      masks. No model, no GPU, no network.
-  .github/workflows/docker-images.yml  Release tags plus workflow_dispatch,
+  .github/workflows/docker-images.yml  Called by release.yml, plus a tag
+                                     pushed by hand and workflow_dispatch;
                                      never every push. Queues, never cancels.
   .dockerignore                      NEW FILE AT THE ROOT. The checkout is
                                      1.2 GB and the wheel needs about a tenth
@@ -153,8 +159,9 @@ WHAT WAS BUILT
   docs/source/installer_guide.rst    A "Container images" section.
   packaging/docker/README.md         Why each decision was made.
   tests/test_the_container_images_are_what_the_release_publishes.py
-                                     19 assertions, none of which build an
-                                     image.
+                                     25 tests, none of which build an image.
+  .github/workflows/release.yml      One job, `container-images`, which calls
+                                     the workflow above.
 
 MEASURED, on this box, 2026-09-19 (Docker 29.1.3, legacy builder, no buildx)
 
@@ -229,13 +236,6 @@ MEASURED, on this box, 2026-09-19 (Docker 29.1.3, legacy builder, no buildx)
   prose in packaging/docker/README.md and in this file, neither of which is
   copied into the image.
 
-  /models IS WIRED TO BOTH READERS, and that is not a detail. Cellpose reads
-  CELLPOSE_LOCAL_MODELS_PATH. spacr/model_zoo.py resolves
-  Path.home()/".cellpose"/"models" and Path.home()/".spacr"/"models"
-  DIRECTLY (default_local_roots, and again in the stock-model listing), which
-  no environment variable reaches. Setting only the variable would have left
-  the zoo listing an empty folder and looked like it worked.
-
   NO BuildKit FEATURE IS USED. The first attempt used
   `RUN --mount=type=cache` and `# syntax=docker/dockerfile:1`; the Docker on
   this box has no buildx component, and the legacy builder FAILS on the
@@ -248,11 +248,11 @@ WHAT IS LEFT
 
   1. The CUDA image has never been built. Its apt lists are dry-run clean on
      jammy (above), but nothing has resolved its Python dependency set or run
-     a line of code in it. The first release tag builds it in CI, and
+     a line of code in it. The next release builds it in CI, and
      gpu_queue/425-docker-1.md is the job that would build it here and ask
      the card the one question CI cannot.
   2. The workflow has never run. Nothing was pushed to GHCR by this work and
-     nothing should be until a release tag reaches it.
+     nothing should be until a release calls it.
   3. GHCR CREATES A NEW PACKAGE PRIVATE. After the first successful release
      the owner has to flip
      https://github.com/users/EinarOlafsson/packages/container/spacr/settings
@@ -266,3 +266,141 @@ WHY IT MOVES TO features/new ONLY AFTER A GREEN TAGGED BUILD. Points 1 and 2
 are not writing; they are one release away. Moving the file now would record a
 publishing pipeline as finished before it had ever published anything, which
 is exactly the shape HANDOFF section 0a is about.
+
+--------------------------------------------------------------------------------
+2026-09-19 (later, after review) — THE WORKFLOW COULD NEVER HAVE FIRED
+--------------------------------------------------------------------------------
+
+Decided: "Yes, as recommended" -- Einar Olafsson, 2026-09-19, answering this
+item's open questions: CLI and pipeline image; GUI-in-container documented as
+a Linux-only extra; two tags, CPU and CUDA 12.4 (host driver 550+); SAMCell
+and DINOCell NOT in the image; models and data mounted, not baked; non-root
+user with a matching UID; "built and smoke-tested in CI on each release tag
+(spacr --version and one small pipeline run in the built image) and published
+to GHCR under the repository owner".
+
+THE DEFECT. The workflow's only automatic trigger was `push: tags: v*`, and a
+release tag in this repository can never start it. `release.yml` creates the
+tag in its last job with `git push origin "$RELEASE_TAG"`, using the
+credentials `actions/checkout` persists -- the default GITHUB_TOKEN -- and
+GitHub starts no workflow run from an event pushed with that token. So the
+half of the maintainer's answer that says "built and smoke-tested in CI on
+each release tag ... and published to GHCR" was not implemented: images could
+only ever have appeared from a tag pushed by hand or a manual dispatch, while
+the installer guide told users they were published on every release. Found by
+review, reading `release.yml` rather than the new file.
+
+THE FIX IS THE REPOSITORY'S OWN PATTERN. `online-installers.yml` is
+`on: workflow_call` and runs as a job of `release.yml`. `docker-images.yml`
+now offers `workflow_call` too, and `release.yml` gained one job:
+
+  container-images:
+    needs: [bump, verify-pypi, installers]
+    permissions: {contents: read, packages: write}
+    uses: ./.github/workflows/docker-images.yml
+    with:
+      source_ref:      <the commit installers committed, which is the one
+                       github-release tags>
+      release_version: <the version bump resolved>
+      publish:         true
+
+`permissions` on the calling job is not decoration: a called workflow cannot
+hold more than its caller, `release.yml`'s own permissions are
+`contents: write` and `id-token: write`, and without `packages: write` there
+every `docker push` would have been denied after a 40-minute build. The
+`push: tags` trigger is kept for a tag pushed by a person with their own
+credentials, which does start a run. A release never fires both, because the
+release's own tag push starts nothing.
+
+TWO TRAPS THAT COME WITH workflow_call, both already paid for in this repo.
+
+  github.event_name IS THE CALLER'S EVENT. Inside a called workflow it reports
+  the caller's trigger -- `push`, of a commit to main -- not `workflow_call`.
+  The plan step used to read it to decide whether to compare the tag name
+  against setup.py's VERSION; left alone it would have compared "main" against
+  "1.5.0.8" and failed every release before building anything. The mode is now
+  decided by `inputs.release_version` being set, and the event name is only
+  consulted after that. This is the same context that cost 1.5.0.5 its
+  installers: `online-installers`' collect job was gated on
+  `github.event_name == 'workflow_call'`, was skipped on every release, and
+  the release was tagged with an empty SHA (tests/test_online_installers.py
+  carries that story).
+
+  github.sha IS THE CALLER'S COMMIT. For a release that is the push to main
+  that started it: one commit before the version bump, several before the
+  installers. Both jobs now check out `inputs.source_ref || github.sha`, so a
+  called run builds the commit the release is about to tag. Without it the
+  image would have contained the previous version's source and been tagged
+  with the new version -- the exact failure the tag/VERSION check exists to
+  prevent, arriving through the other door.
+
+MEASURED, by extracting the rewritten plan step from the YAML and running it
+against six fake events:
+
+  release (EVENT_NAME=push, REF_NAME=main, release_version=1.5.0.8)
+                            -> mode release, push true, moving tags true,
+                               variants ["cpu","cuda"], exit 0
+  release, version 9.9.9.9  -> exit 1, "the release publishes 9.9.9.9 but
+                               setup.py at the commit it named says 1.5.0.8"
+  tag v1.5.0.8              -> mode tag, push true, moving true, exit 0
+  tag v9.9.9.9              -> exit 1, names both versions
+  dispatch cpu, push=false  -> variants ["cpu"], push false, moving false
+  dispatch both, push=true  -> push true, moving STILL false
+
+The first line is the whole fix: an event that says `push` of `main`, which
+the old code would have rejected, is now correctly recognised as a release.
+
+THE GATE CANNOT STOP A RELEASE, AND NO LONGER CLAIMS TO. The Status line said
+the first release tag "stops the release if either fails". It could not, in
+any wiring: `publish-pypi` runs before `installers`, so PyPI is immutable
+before an image can be built from the commit that gets tagged, and
+`github-release` runs `gh release create --verify-tag` in the same step block
+as the tag push. What the gate really does is withhold the image and turn the
+release run red. Gating the release notes on a container build would withhold
+installers that nothing was wrong with, so it is deliberately not wired that
+way. Status, `packaging/README.md` and the installer guide now all say this.
+
+THE DOCS SAID SOMETHING THAT WAS NOT TRUE YET, TWICE OVER. The guide stated
+as fact that two images are published on every release, and told the reader to
+`docker pull ghcr.io/einarolafsson/spacr:1.5.0.8` -- a version that is already
+released and will therefore never have an image. Both are corrected: the
+publication sentence is true as wired, a sentence says images begin with the
+first release made after the page described them, and every example now names
+`<version>` with a pointer to the GHCR package page rather than a specific tag
+that does not exist. A test asserts the claim and the wiring together, so the
+sentence cannot outlive the job that makes it true.
+
+XDG_RUNTIME_DIR. The documented Linux GUI invocation passed `-e
+XDG_RUNTIME_DIR` without mounting it, so Qt printed "XDG_RUNTIME_DIR points to
+non-existing path" on every start of a command this repository told people to
+run. Cosmetic, and the first thing a user would have seen. The entrypoint now
+replaces a value that does not resolve to a writable directory with one under
+the container's own cache folder, chmod 700 because Qt checks the mode, and
+the guide drops the `-e` and says why. Defaulting an unset variable would not
+have helped: the broken case is a variable that is set.
+
+TWO NITS FROM THE SAME REVIEW. The file recorded the new test file as "19
+assertions" where pytest collects 25 (20 before this pass); it now says 25.
+The paragraph beginning "/models IS WIRED TO BOTH READERS" appeared twice in
+the note above, the second copy without its measured output; the duplicate is
+gone.
+
+TESTS. tests/test_the_container_images_are_what_the_release_publishes.py is
+25 passed, five of them new and each one guarding a defect this review found:
+the release must call the workflow and must grant it `packages: write`; both
+jobs must check out `inputs.source_ref`; the mode must not come from
+`github.event_name`; the guide may promise a published image only while a
+release job builds one; the entrypoint must replace an unusable
+XDG_RUNTIME_DIR. Alongside them, 623 passed across test_ci_concurrency,
+test_ci_suite_classification, test_online_installers, test_conda_publication_docs,
+test_packaging_metadata, test_a_hung_ci_suite_says_where,
+test_a_ledger_file_does_not_contradict_itself and test_quality_gate, with the
+two known pre-existing reds (the torchcam 3.13 limit and the CITATION version
+DOI) unchanged and untouched by this work.
+
+STILL NOT BUILT, STILL NOT PUBLISHED. Nothing in this pass built an image or
+contacted a registry; the CUDA image has still never been built anywhere and
+the workflow has still never run. "WHAT IS LEFT" above is unchanged except
+that its first two points are now reachable: they close on the next release
+rather than on a tag event that could not have arrived. The file stays in
+features/future/ for exactly that reason.

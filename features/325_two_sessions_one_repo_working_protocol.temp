@@ -8348,3 +8348,53 @@ to prove the Dockerfile and was removed afterwards. The CUDA image has never
 been built anywhere, and the workflow has never run: both are closed by the
 first release tag. GHCR creates a new package private, so after the first
 green tagged build somebody has to flip the package to public once.
+
+2026-09-19 — HOME: 425 NEEDS ONE MORE .github FILE THAN IT CLAIMED: release.yml
+--------------------------------------------------------------------------------
+
+The notice above said "one new workflow file for it ... and nothing else under
+.github is touched". That is no longer true, and here is exactly what changed
+and why, before it lands.
+
+WHY. `docker-images.yml` was triggered by `push: tags: v*` and nothing else.
+A release tag in this repository cannot start it: `release.yml` pushes the tag
+in its last job with the credentials `actions/checkout` persists -- the default
+GITHUB_TOKEN -- and GitHub starts no workflow run from an event pushed with
+that token. The new workflow would have sat idle through every release while
+`docs/source/installer_guide.rst` told users the images were published on each
+one. A publishing pipeline that cannot be reached is not a publishing pipeline,
+so this was fixed rather than documented.
+
+WHAT I CHANGED IN release.yml. One added job, `container-images`, between
+`installers` and `github-release`. Nothing existing was edited: no step, no
+`needs:`, no `if:`, no permission of any other job. The job is
+
+  needs: [bump, verify-pypi, installers]
+  permissions: {contents: read, packages: write}
+  uses: ./.github/workflows/docker-images.yml
+
+which is the same shape `installers` already uses for
+`online-installers.yml`. The job-level `permissions` block is required, not
+cosmetic: a called workflow cannot hold more than its caller, and
+`release.yml`'s workflow-level permissions are `contents: write` and
+`id-token: write`, so without it every `docker push` would be denied after a
+40-minute build.
+
+WHAT IT CANNOT DO. It cannot delay, block or fail a release. It runs beside
+`github-release`, which does not list it in `needs:`, so a container failure
+fails the release RUN (visibly) and publishes no image, while the release
+notes and installers still go out. PyPI is immutable long before this job
+starts, so there was never a real "stop the release" to implement.
+
+ALSO CHANGED, all inside 425's own files: `docker-images.yml` gained a
+`workflow_call` trigger and now decides what kind of run it is from
+`inputs.release_version` rather than `github.event_name` (inside a called
+workflow that context is the CALLER's event -- the trap that cost 1.5.0.5 its
+installers and is written down in tests/test_online_installers.py), and both
+its jobs check out `inputs.source_ref || github.sha` so a called run builds
+the commit the release is about to tag rather than the caller's commit.
+
+If you would rather own the `release.yml` hunk, it is one contiguous job and
+reverting it is one `git revert` of the commit that adds it -- but then the
+images are never published and the installer guide has to stop saying they
+are. Told rather than guessed.
