@@ -33,12 +33,15 @@ import shutil
 import wave
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import (Callable, Dict, Iterable, List, NamedTuple, Optional,
+                    Sequence, Tuple)
 
 import numpy as np
 
 __all__ = [
     "BED",
+    "BED_SECTIONS",
+    "BedBar",
     "CACHE_ENV",
     "CLICK_VARIANTS",
     "DEFAULT_THEME",
@@ -52,8 +55,10 @@ __all__ = [
     "SOUND_THEMES",
     "SYNTH_VERSION",
     "SoundTheme",
+    "bed_plan",
     "chord_tones",
     "ensure_rendered",
+    "loudness_lufs",
     "midi_to_hz",
     "read_wav",
     "render",
@@ -72,7 +77,11 @@ SAMPLE_RATE = 48000
 
 #: Raised whenever a change here alters what a theme sounds like. It is part
 #: of every cache fingerprint, so raising it retires every cached file.
-SYNTH_VERSION = 1
+#:
+#: Version 2 is the 32-bar arrangement with sections, a soft
+#: four-on-the-floor kick, a shaker and a loudness-normalised master;
+#: version 1 was an eight-bar phrase with no drums.
+SYNTH_VERSION = 2
 
 #: Environment variable that moves the cache. Tests and probes point it at
 #: a scratch folder so they never write into a real ``~/.spacr``.
@@ -129,7 +138,19 @@ class SoundTheme:
     :param space: reverb send (0 to 1).
     :param reverb_seconds: time for the reverb tail to fall 60 dB.
     :param width: stereo spread of the pad voices (0 is mono).
-    :param bed_bars: bars in one loop of the music bed.
+    :param bed_bars: bars in one loop of the music bed. Rounded up to a
+        whole number of :data:`BED_SECTIONS` sections by :func:`bed_plan`,
+        so the arrangement always closes where it opened.
+    :param kick_level: level of the four-on-the-floor kick in the bed, 0 to
+        1. ``0.0`` leaves the kick out of the render entirely.
+    :param shaker_level: level of the sixteenth-note shaker, 0 to 1.
+        ``0.0`` leaves it out entirely.
+    :param bed_lufs: programme loudness the finished bed is normalised to,
+        in LUFS (:func:`loudness_lufs`). Quieter than anything mastered for
+        release, because this plays under somebody's work.
+    :param bed_peak_db: the bed's peak ceiling in dBFS. Reached with a
+        memoryless soft knee, which is what lets the ceiling be applied
+        after the loop is folded without putting a seam back in.
     :param seed: seeds every random choice, so a theme always renders the
         same samples.
     """
@@ -158,7 +179,11 @@ class SoundTheme:
     space: float = 0.32
     reverb_seconds: float = 3.2
     width: float = 0.7
-    bed_bars: int = 8
+    bed_bars: int = 32
+    kick_level: float = 0.5
+    shaker_level: float = 0.34
+    bed_lufs: float = -18.0
+    bed_peak_db: float = -9.0
     seed: int = 427
 
     @property
@@ -175,6 +200,28 @@ ORBIT = SoundTheme(
     label="Orbit",
     description=("Melodic space house in A minor: warm detuned pads, "
                  "plucked arpeggios with a dotted-eighth echo, a soft sub."),
+)
+
+
+#: One section of the music bed's arrangement, as fractions of the parts
+#: available: ``(name, bars, arp, kick, shaker, sub)``.
+#:
+#: THE ARRANGEMENT IS WHAT MAKES A LOOP BEARABLE. Eight bars of the same
+#: four chords with everything playing is a phrase; thirty-two bars with a
+#: shape is a piece, and a piece can run for an hour behind somebody's work
+#: without being noticed, which is the whole requirement.
+#:
+#: AND THE SEAM IS PLACED, NOT PATCHED. The loop opens and closes on the
+#: quietest section -- pads and sub, no drums, the arpeggio barely in -- so
+#: the join lands where the music has least to give away. The tails are
+#: carried over it by :func:`_fold` and the level is set by a memoryless
+#: curve, so nothing puts a step back in. See
+#: ``test_the_bed_is_exactly_its_bars_long_and_loops_without_a_seam``.
+BED_SECTIONS: Tuple[Tuple[str, int, float, float, float, float], ...] = (
+    ("drift", 8, 0.45, 0.0, 0.0, 0.85),
+    ("pulse", 8, 0.85, 0.85, 0.80, 1.00),
+    ("lift", 8, 1.00, 1.00, 1.00, 1.00),
+    ("return", 8, 0.62, 0.15, 0.20, 0.90),
 )
 
 #: Every sound set spaCR can play, by key.
@@ -701,6 +748,197 @@ def _run_failed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
     return Rendered("run_failed", audio, notes)
 
 
+#: Below this a part is left out of the render rather than played quietly.
+#: A kick at two per cent is a sample nobody can hear and a transient the
+#: loudness normaliser still has to make room for.
+PART_FLOOR = 0.05
+
+
+class BedBar(NamedTuple):
+    """How loudly each part plays in one bar of the music bed.
+
+    :param section: which entry of :data:`BED_SECTIONS` this bar is in.
+    :param arp: arpeggio level, 0 to 1.
+    :param kick: kick level, 0 to 1, before the theme's ``kick_level``.
+    :param shaker: shaker level, 0 to 1, before ``shaker_level``.
+    :param sub: sub level, 0 to 1.
+    :param lift: semitones the arpeggio rises by in this bar's second half.
+    """
+
+    section: str
+    arp: float
+    kick: float
+    shaker: float
+    sub: float
+    lift: int
+
+
+def bed_plan(bars: int) -> List[BedBar]:
+    """The arrangement, bar by bar, for a loop of ``bars`` bars.
+
+    Every part reaches its section's level over the section's first half
+    and holds it, so nothing arrives as a step; the ramp for the FIRST
+    section starts from the LAST one's levels, which is what makes the
+    arrangement circular rather than merely long. ``bars`` is stretched
+    proportionally across :data:`BED_SECTIONS`, so a theme can ask for a
+    shorter or longer loop and still get the same shape.
+
+    :param bars: bars in the loop; at least one per section.
+    :returns: one :class:`BedBar` per bar.
+    """
+    count = len(BED_SECTIONS)
+    bars = max(count, int(bars))
+    lengths = [max(1, int(round(bars * spec[1]
+                                / sum(s[1] for s in BED_SECTIONS))))
+               for spec in BED_SECTIONS]
+    while sum(lengths) > bars:
+        lengths[lengths.index(max(lengths))] -= 1
+    while sum(lengths) < bars:
+        lengths[lengths.index(min(lengths))] += 1
+
+    plan: List[BedBar] = []
+    for index, (name, _weight, arp, kick, shaker, sub) in enumerate(BED_SECTIONS):
+        before = BED_SECTIONS[index - 1]
+        span = lengths[index]
+        for b in range(span):
+            amount = min(1.0, 2.0 * b / span)
+            ease = 0.5 - 0.5 * math.cos(math.pi * amount)
+            bar = len(plan)
+            plan.append(BedBar(
+                section=name,
+                arp=before[2] + (arp - before[2]) * ease,
+                kick=before[3] + (kick - before[3]) * ease,
+                shaker=before[4] + (shaker - before[4]) * ease,
+                sub=before[5] + (sub - before[5]) * ease,
+                lift=12 if bar % 4 == 3 else 0,
+            ))
+    return plan
+
+
+def _kick(seconds: float, sr: int = SAMPLE_RATE) -> np.ndarray:
+    """One soft four-on-the-floor kick: a dropping sine with a short knock.
+
+    The pitch falls from about 150 Hz to the fundamental in thirty
+    milliseconds, which is what a kick drum is; the knock is a very short
+    burst an octave and a half above it rather than a click of noise, so
+    the drum stays round enough to sit under a settings form. It is
+    low-passed at 1.2 kHz: this has to be FELT and never TICK.
+    """
+    n = max(1, int(seconds * sr))
+    t = np.arange(n, dtype=np.float64) / sr
+    sweep = 48.0 + 106.0 * np.exp(-t / 0.028)
+    body = np.sin(2.0 * math.pi * np.cumsum(sweep) / sr) * np.exp(-t / 0.17)
+    knock = 0.16 * np.sin(2.0 * math.pi * 128.0 * t) * np.exp(-t / 0.006)
+    mono = _lowpass(body + knock, 1200.0, order=2, sr=sr)
+    attack = max(1, int(0.0012 * sr))
+    mono[:attack] *= np.linspace(0.0, 1.0, attack)
+    tail = max(1, int(0.008 * sr))
+    mono[-tail:] *= np.linspace(1.0, 0.0, tail)
+    return np.vstack([mono, mono]) / (float(np.max(np.abs(mono))) or 1.0)
+
+
+def _shaker(seconds: float, rng: np.random.Generator,
+            sr: int = SAMPLE_RATE) -> np.ndarray:
+    """One shaker hit: a very short burst of high-passed noise.
+
+    Two channels of independent noise, so the shaker is wide where the kick
+    is dead centre and the two never mask each other.
+    """
+    n = max(1, int(seconds * sr))
+    t = np.arange(n, dtype=np.float64) / sr
+    burst = rng.standard_normal((2, n)) * np.exp(-t / 0.021)
+    out = _highpass(burst, 3800.0, order=2, sr=sr)
+    attack = max(1, int(0.0008 * sr))
+    out[:, :attack] *= np.linspace(0.0, 1.0, attack)
+    tail = max(1, int(0.004 * sr))
+    out[:, -tail:] *= np.linspace(1.0, 0.0, tail)
+    return out / (float(np.max(np.abs(out))) or 1.0)
+
+
+#: The two K-weighting stages of ITU-R BS.1770, as direct-form coefficients
+#: at 48 kHz: a high shelf that stands for the head's own response, then a
+#: high-pass that discards what is felt rather than heard.
+_K_SHELF = ((1.53512485958697, -2.69169618940638, 1.19839281085285),
+            (1.0, -1.69065929318241, 0.73248077421585))
+_K_HIGHPASS = ((1.0, -2.0, 1.0),
+               (1.0, -1.99004745483398, 0.99007225036621))
+
+
+def loudness_lufs(audio: np.ndarray, sr: int = SAMPLE_RATE) -> float:
+    """Programme loudness in LUFS, by ITU-R BS.1770-4.
+
+    The gated integrated measurement: K-weight both channels, take the
+    mean square over 400 ms blocks overlapping by three quarters, drop
+    every block below -70 LUFS, then drop every block more than 10 LU under
+    the mean of what is left and take the mean of the rest.
+
+    A PEAK IS NOT A LOUDNESS, which is the reason this exists. The music
+    bed and the run sounds have similar peaks and are nothing like as loud
+    as each other, and "quiet enough to work under" is a statement about
+    loudness. The coefficients are the standard's own and are written for
+    48 kHz; another rate is measured with them anyway and the answer drifts
+    by a fraction of a LU, which is inside what anybody can hear.
+
+    :param audio: shape ``(channels, n)``.
+    :param sr: sample rate.
+    :returns: LUFS, or ``-inf`` for silence.
+    """
+    from scipy.signal import lfilter
+
+    data = np.atleast_2d(np.asarray(audio, dtype=np.float64))
+    weighted = lfilter(*_K_SHELF, data, axis=-1)
+    weighted = lfilter(*_K_HIGHPASS, weighted, axis=-1)
+    block = int(0.4 * sr)
+    hop = max(1, block // 4)
+    if weighted.shape[1] < block:
+        power = float((weighted ** 2).mean(axis=-1).sum())
+        return -0.691 + 10.0 * math.log10(power) if power > 0 else -math.inf
+    starts = range(0, weighted.shape[1] - block + 1, hop)
+    powers = np.array([float((weighted[:, s:s + block] ** 2)
+                             .mean(axis=-1).sum()) for s in starts])
+    loud = np.where(powers > 0.0,
+                    -0.691 + 10.0 * np.log10(np.maximum(powers, 1e-30)),
+                    -np.inf)
+    keep = loud > -70.0
+    if not keep.any():
+        return -math.inf
+    absolute = -0.691 + 10.0 * math.log10(float(powers[keep].mean()))
+    keep = keep & (loud > absolute - 10.0)
+    if not keep.any():
+        return absolute
+    return -0.691 + 10.0 * math.log10(float(powers[keep].mean()))
+
+
+def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
+                 sr: int = SAMPLE_RATE) -> np.ndarray:
+    """Set a loop's programme loudness, then hold it under a peak ceiling.
+
+    Two memoryless operations and nothing else -- a gain and a ``tanh``
+    knee -- because this runs AFTER the loop has been folded and anything
+    with a memory would put a step back in at the seam. The knee costs
+    loudness, so the gain is re-derived after it; two rounds is enough to
+    land inside a tenth of a LU in every theme measured.
+
+    :param audio: the folded loop, shape ``(2, n)``.
+    :param target_lufs: programme loudness to aim for.
+    :param peak_db: the ceiling no sample may pass, in dBFS.
+    :param sr: sample rate.
+    :returns: the levelled loop.
+    """
+    ceiling = 10.0 ** (float(peak_db) / 20.0)
+    out = np.asarray(audio, dtype=np.float64)
+    for _ in range(2):
+        measured = loudness_lufs(out, sr)
+        if not math.isfinite(measured):
+            return out
+        out = out * 10.0 ** ((float(target_lufs) - measured) / 20.0)
+        peak = float(np.max(np.abs(out)))
+        if peak <= ceiling:
+            return out
+        out = np.tanh(out / ceiling) * ceiling
+    return out
+
+
 def _pump(n: int, beat: float, depth: float, sr: int = SAMPLE_RATE) -> np.ndarray:
     """The side-chain dip: down on every beat, back up over half a beat."""
     t = np.arange(n, dtype=np.float64) / sr
@@ -727,30 +965,72 @@ def _fold(audio: np.ndarray, length: int) -> np.ndarray:
 
 
 def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
-    """The looping music bed: pads, an arpeggio with delay, and a sub.
+    """The looping music bed: a composed arrangement, not a repeated phrase.
 
-    One chord per bar from ``theme.progression``. The pad pumps on every
-    beat and its filter breathes over four bars; the arpeggio plays
-    ``theme.arp_pattern`` over the chord an octave above the pads, lifted a
-    further octave on its last notes of each half so the loop has a shape;
-    the sub holds each chord's root two octaves down. No drums: this plays
-    under somebody's work, not over it.
+    The one sound long enough to be listened to rather than noticed, so it
+    is the one that has to carry the sound set's genre on its own.
+
+    WHAT IS PLAYED. One diatonic seventh chord per bar from
+    ``theme.progression`` (i - VI - III - VII in the reference set), the
+    pads pumping on every beat and breathing open and shut over the whole
+    loop; ``theme.arp_pattern`` an octave above them through a dotted-eighth
+    ping-pong delay, lifted an octave in the second half of every fourth
+    bar; a sine sub on each chord's root two octaves down; and, from
+    :func:`bed_plan`, a soft four-on-the-floor kick and a sixteenth-note
+    shaker that come in and go out with the sections.
+
+    WHAT MAKES IT A LOOP AND NOT A PHRASE. :data:`BED_SECTIONS` gives the
+    thirty-two bars a shape that closes where it opened: the quiet section
+    is at both ends, so the seam falls where the music has least to give
+    away, and every part ramps to its section's level over four bars rather
+    than arriving as a step. The reverb and the echoes still ringing at the
+    end are folded onto the start by :func:`_fold`, and the level is set by
+    :func:`_to_loudness`, which is two memoryless operations and therefore
+    cannot put a step back in.
+
+    THE DRUMS CAN BE TURNED OFF AND THAT IS NOT A SETTING WITH NOTHING
+    BEHIND IT. ``theme.kick_level`` and ``theme.shaker_level`` at 0 leave
+    the kick and the shaker out of the render altogether
+    (:data:`PART_FLOOR`), so the bed is the pad-and-arpeggio piece it was
+    before they existed, and a theme that wants to sit under a talk can ask
+    for exactly that.
+
+    THREE MORE THINGS THE CODE CANNOT SAY. The shaker's OFFBEAT is the
+    loud one, because that is where the shaker of house music lives and a
+    flat sixteenth pattern reads as a hiss. Both filter breaths are
+    PERIODIC OVER THE LOOP -- one opening across the whole thirty-two bars
+    and one four times, each a raised cosine that is 0 at both ends -- so a
+    filter can move for a minute and still arrive back where it started.
+    And the kick and the sub STAY DRY: low frequencies through a
+    three-second tail are what turn a quiet bed into a rumble, and the
+    kick's job is to be felt on the beat rather than to fill the room.
+
+    :param theme: the sound set.
+    :param sr: sample rate.
+    :returns: the loop and every note in it.
     """
     rng = _rng(theme, "bed")
     beat = theme.beat
     bar = 4.0 * beat
-    bars = max(1, int(theme.bed_bars))
+    plan = bed_plan(theme.bed_bars)
+    bars = len(plan)
     length = int(round(bars * bar * sr))
     tail = int((theme.reverb_seconds + 2.0) * sr)
     pads = _pad(length, tail)
     plucks = _pad(length, tail)
     subs = _pad(length, tail)
+    drums = _pad(length, tail)
+    shakers = _pad(length, tail)
     notes: List[Tuple[float, int, str]] = []
     pluck_cache: Dict[int, np.ndarray] = {}
     step = beat / max(1, int(theme.arp_division))
     steps_per_bar = int(round(bar / step))
     pattern = theme.arp_pattern or (0,)
-    for b in range(bars):
+    kick = (_kick(0.62, sr) if theme.kick_level > PART_FLOOR else None)
+    shaker = (_shaker(0.14, _rng(theme, "shaker"), sr)
+              if theme.shaker_level > PART_FLOOR else None)
+
+    for b, row in enumerate(plan):
         degree = theme.progression[b % len(theme.progression)]
         start = b * bar
         chord = _rooted(theme, degree, 4, theme.tonic + 2)
@@ -763,35 +1043,51 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
 
         tones = [note + 12 for note in chord]
         tones = tones + [tones[0] + 12]
-        lift = 12 if b % 4 == 3 else 0
-        for s in range(steps_per_bar):
-            at = start + s * step
-            index = pattern[(b * steps_per_bar + s) % len(pattern)]
-            note = tones[int(index) % len(tones)]
-            if lift and s >= steps_per_bar // 2:
-                note += lift
-            accent = 1.0 if s % max(1, int(theme.arp_division)) == 0 else 0.72
-            accent *= 1.0 + 0.08 * (float(rng.random()) - 0.5)
-            if note not in pluck_cache:
-                pluck_cache[note] = _pluck(
-                    midi_to_hz(note), theme.pluck_decay * 6.0,
-                    theme.pluck_brightness, theme.pluck_decay, sr)
-            _add(plucks, pluck_cache[note] * accent, int(at * sr))
-            notes.append((at, note, "pluck"))
+        if row.arp > PART_FLOOR:
+            for s in range(steps_per_bar):
+                at = start + s * step
+                index = pattern[(b * steps_per_bar + s) % len(pattern)]
+                note = tones[int(index) % len(tones)]
+                if row.lift and s >= steps_per_bar // 2:
+                    note += row.lift
+                accent = 1.0 if s % max(1, int(theme.arp_division)) == 0 else 0.72
+                accent *= 1.0 + 0.08 * (float(rng.random()) - 0.5)
+                if note not in pluck_cache:
+                    pluck_cache[note] = _pluck(
+                        midi_to_hz(note), theme.pluck_decay * 6.0,
+                        theme.pluck_brightness, theme.pluck_decay, sr)
+                _add(plucks, pluck_cache[note] * accent * row.arp,
+                     int(at * sr))
+                notes.append((at, note, "pluck"))
 
         root = scale_note(theme, degree, octave=-2)
         while root > theme.tonic - 17:
             root -= 12
         sub_span = int((bar + 0.1) * sr)
         sub_audio = _sub(midi_to_hz(root), sub_span, sr)
-        sub_audio *= _envelope(sub_span, 0.06, 0.12, sr=sr)
+        sub_audio *= _envelope(sub_span, 0.06, 0.12, sr=sr) * row.sub
         _add(subs, sub_audio, int(start * sr))
         notes.append((start, root, "sub"))
 
+        if kick is not None and row.kick > PART_FLOOR:
+            for hit in range(4):
+                at = start + hit * beat
+                _add(drums, kick * row.kick, int(at * sr))
+                notes.append((at, 24, "kick"))
+        if shaker is not None and row.shaker > PART_FLOOR:
+            for hit in range(8):
+                at = start + hit * beat / 2.0
+                accent = 1.0 if hit % 2 else 0.42
+                _add(shakers, shaker * row.shaker * accent, int(at * sr))
+                notes.append((at, 42, "shaker"))
+
     total = pads.shape[1]
     t = np.arange(total, dtype=np.float64) / sr
-    breathing = 0.5 - 0.5 * np.cos(2.0 * math.pi * t / (4.0 * bar))
-    pads = _swelling_filter(pads, theme.pad_cutoff_hz, breathing * 0.8, sr)
+    loop_seconds = bars * bar
+    slow = 0.5 - 0.5 * np.cos(2.0 * math.pi * t / loop_seconds)
+    quick = 0.5 - 0.5 * np.cos(8.0 * math.pi * t / loop_seconds)
+    pads = _swelling_filter(pads, theme.pad_cutoff_hz,
+                            0.62 * slow + 0.22 * quick, sr)
     pump = _pump(total, beat, theme.pad_pump, sr)
     pads *= pump
     subs *= 0.5 + 0.5 * pump
@@ -800,12 +1096,14 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
     bus = _pad(echoes.shape[1])
     _add(bus, pads * theme.pad_level, 0)
     _add(bus, plucks * theme.pluck_level * 0.55, 0)
+    _add(bus, shakers * theme.shaker_level * 0.75, 0)
     bus += echoes * theme.pluck_level * 0.55 * theme.delay_mix * 1.6
     wet = _with_space(bus, theme, theme.space, theme.reverb_seconds, "bed-space",
                       sr)
-    _add(wet, subs * theme.sub_level * 0.6, 0)
-    looped = _fold(_highpass(wet, 28.0, sr=sr), length)
-    audio = _level(looped, -13.0, fade_in=False, sr=sr)
+    _add(wet, subs * theme.sub_level * 0.5, 0)
+    _add(wet, drums * theme.kick_level * 0.62, 0)
+    looped = _fold(_highpass(wet, 40.0, sr=sr), length)
+    audio = _to_loudness(looped, theme.bed_lufs, theme.bed_peak_db, sr)
     notes.sort(key=lambda row: (row[0], row[2], row[1]))
     return Rendered(BED, audio, notes, loop=True)
 

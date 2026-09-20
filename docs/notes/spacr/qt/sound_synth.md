@@ -79,3 +79,103 @@ and every field of the theme, so a changed theme or synthesiser can never be
 answered from an old file. Older folders of the same theme are removed once
 a new one is written; only folders named `<key>-<12 hex digits>` are ever
 touched. Files are written under a temporary name and renamed into place.
+
+--------------------------------------------------------------------------------
+
+## 2026-09-19 — part B: the bed became a composed piece
+
+Part A's bed was eight bars of the same four chords with everything
+playing: a phrase, and a phrase heard for the eleventh time is a phrase
+somebody turns off. Part B's brief was specific — "a seamless loop (e.g.
+32 bars at 120-124 BPM) ... key/mode, chord progression (minor-key, e.g.
+i-VI-III-VII), arpeggio pattern, pad timbre, sub, a soft four-on-the-floor
+kick and shaker that can be turned down to near-silent, filter movement,
+delay/reverb ... It must sound musical: check your render by analysing it
+(spectral balance, no clipping, loudness around -18 LUFS-ish, loop seam
+click-free)."
+
+`SYNTH_VERSION` went to 2, so every cached version-1 folder retires itself
+the first time the new bed is asked for.
+
+### The arrangement, and where the seam is put
+
+`BED_SECTIONS` gives the thirty-two bars four eight-bar sections — drift,
+pulse, lift, return — and `bed_plan` ramps every part to its section's
+level over the section's FIRST HALF. The first section ramps from the
+LAST one's levels, which is what makes the plan a circle rather than a
+long line: bar one continues bar thirty-two.
+
+**The seam is placed, not patched.** The loop opens and closes on the
+quietest section, so the join falls where the music has least to give
+away; `_fold` carries the reverb and delay tails over it; and
+`_to_loudness` is two memoryless operations, so the level can be set after
+the fold without putting a step back in. Measured on the reference bed:
+the join steps by 0.0024 and 0.0034 (left, right) against a 99.5th
+percentile sample-to-sample step of 0.0397 — the loudest transient in the
+loop moves eleven times further than the join does.
+
+Both filter breaths are periodic over the whole loop (one opening across
+the thirty-two bars, one four times), so a filter can move for a minute
+and still arrive back where it started. The spectral centroid measured in
+two-second blocks moves by a factor of more than 1.25 and returns.
+
+### The drums, and "turned down to near-silent"
+
+`kick_level` and `shaker_level` are theme fields. Below `PART_FLOOR`
+(0.05) the part is not synthesized at all rather than mixed quietly: a
+kick at two per cent is a sample nobody can hear and a transient the
+loudness normaliser still has to make room for. At 0 the bed is exactly
+the pad-and-arpeggio piece part A shipped, which is what a theme that has
+to sit under a talk should ask for.
+
+The kick is a sine falling from about 150 Hz to 48 Hz in thirty
+milliseconds with a very short knock an octave and a half above it, then
+low-passed at 1.2 kHz: 98.4 % of its energy is below 160 Hz. It stays DRY —
+low frequencies through a three-second tail are what turn a quiet bed into
+a rumble.
+
+The shaker's offbeat is the loud one, because that is where the shaker of
+house music lives and a flat sixteenth pattern reads as a hiss.
+
+**THE SHAKER WAS INAUDIBLE ON THE FIRST PASS AND THE TEST THAT CAUGHT IT
+IS THE ONE WORTH KEEPING.** Mixed at 0.22 and high-passed at 5.2 kHz it
+added 0.8 dB to the 4-12 kHz band over a drumless render — a setting that
+does nothing, which is worse than no shaker. At 0.75 and 3.8 kHz it adds
+6.2 dB. `test_the_drums_are_audible_when_they_are_asked_for` renders both
+ways and requires a factor of four.
+
+### Loudness, because a peak is not a loudness
+
+`loudness_lufs` is the gated integrated measurement of ITU-R BS.1770-4:
+K-weighting, 400 ms blocks overlapping by three quarters, an absolute gate
+at -70 LUFS and a relative gate 10 LU under the mean of what survives.
+
+Checked against the standard's own calibration tone before anything was
+measured with it: 1 kHz at full scale in one channel is -3.01 LKFS.
+**The test for that was written wrong first**, from "K-weighting is flat
+at 1 kHz", which gives an expected value 0.7 dB out — the filter has
++0.691 dB of gain at 1 kHz by construction and it cancels the -0.691
+offset exactly. The code was right and the arithmetic in the test was
+wrong.
+
+Measured on the reference bed, 32 bars at 122 BPM:
+
+| | |
+|---|---|
+| length | 62.95 s, 12.1 MB as 48 kHz 16-bit stereo |
+| render time | 3.3 s (once, cached) |
+| programme loudness | -18.00 LUFS |
+| peak | -9.13 dBFS, no sample at or past full scale |
+| low (35-90 Hz) against mid (150-1500 Hz) | 0.44 |
+| loop seam | 0.0024 / 0.0034 against a p99.5 step of 0.0397 |
+| by section (LUFS) | drift -18.8, pulse -18.0, lift -17.3, return -18.0 |
+
+**The spectrum is deliberately bottom-heavy and was nearly too much so.**
+The first render put 30 % of the power below 60 Hz and 0.01 % above 4 kHz,
+with `low/mid` at 0.82 — outside what part A's own `test_the_sub_is_soft`
+allows. Raising the final high-pass from 28 Hz to 40 Hz, trimming the sub
+mix from 0.6 to 0.5 and lifting the shaker brought it to 20 % below 60 Hz
+and `low/mid` 0.44.
+
+**Nobody has listened to it.** The numbers say what was asked for; whether
+it sounds like Worakls or like a test tone is still the maintainer's ear.
