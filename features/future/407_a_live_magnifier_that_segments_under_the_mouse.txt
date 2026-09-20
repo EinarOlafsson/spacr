@@ -2,19 +2,22 @@
 A LIVE MAGNIFIER IN MAKE MASKS THAT SEGMENTS WHAT IS UNDER THE MOUSE
 ================================================================================
 
-Status:    BUILT, ~90%, corrected 2026-09-19. On nightly and inside v1.5.0.8:
+Status:    BUILT, ~97%, corrected 2026-09-20. On nightly and inside v1.5.0.8:
            4811b649b (the magnifier, 2026-09-14) and 1078ca51f (the border
            option and the whole-image mode, 2026-09-15). The two notes below
            that say "not pushed, not merged" describe the branches before they
-           landed. `_MAGNIFIER_SEGMENTERS` (spacr/qt/screens/make_masks.py:1605)
-           offers classical, cellpose, dinocell and samcell. The maintainer's
-           second round is new/417_the_magnifier_round_two.txt, DONE. Left
-           here, per WHAT IS LEFT at the foot: catalogue the region mode's
-           remaining f-string status lines, run the 380 responsiveness
-           harness with Whole image on, and polish (an Overlap preview in the
-           box, a toggle shortcut, an ETA on the busy bar, a per-field cache of
-           the whole-image objects).
-           (Was: FUTURE, filed 2026-09-15. Not started. Not blocking.)
+           landed. `_MAGNIFIER_SEGMENTERS` (spacr/qt/screens/make_masks.py)
+           offers otsu, cellpose, four Cellpose 3 models, dinocell and
+           samcell. The maintainer's second round is
+           new/417_the_magnifier_round_two.txt, DONE. Six of the seven things
+           WHAT IS LEFT named are now done -- see the 2026-09-20 note at the
+           foot, which also reports a six-second GUI freeze it turned up and
+           fixed. STILL OPEN, and why this is not in features/new: a keyboard
+           shortcut for the toggle (blocked on nine hand-written compact
+           catalog rows, recipe in the note), the Overlap preview under Whole
+           image, and whole-image Cellpose measured on a CPU.
+           (Was: BUILT, ~90%, corrected 2026-09-19; before that FUTURE, filed
+           2026-09-15, "Not started".)
 Requested: 2026-09-15, by the maintainer, in these words: "if the user flips
            this on, then a box appears with the region around the mouse
            slightly magnified, and in this region the square enhanced region
@@ -383,3 +386,164 @@ WHAT IS LEFT list above, none of which new/417 (round two) claims to have
 done -- 417 itself records "Not measured ... under the 380 responsiveness
 harness". This item stays in features/future/ until that list is either done
 or declined. No test was run for this note.
+
+--------------------------------------------------------------------------------
+2026-09-20 — SIX OF THE SEVEN THINGS LEFT, AND A SIX-SECOND FREEZE NOBODY
+              HAD MEASURED
+--------------------------------------------------------------------------------
+
+Decided: the maintainer asked on 2026-09-19 for both feature lists to be
+finished, which for this item means the WHAT IS LEFT list above. Branch
+home/407-magnifier-polish, cut from nightly 5800dd4bf and rebased once, mid-
+run, onto 419 points 4-6, which renamed the magnifier's threshold mode from
+Classical to Otsu. Not pushed.
+
+WHAT WAS DONE
+
+  1. THE REMAINING f-STRING STATUS LINES ARE CATALOGUED. Three sentences were
+     built with f-strings and one was a bare literal, so nothing could
+     translate them: the pinned-click notice, "could not segment this
+     region: {error}", the fallback note, and "could not add objects:
+     {error}" on the screen. Each is a tr() template with named values now.
+     Three more -- the toggle's two sentences and the "nothing to add"
+     refusal -- were already collected as sources, because the generator
+     reads a setText literal, and were shown without tr(): the rows existed
+     and nothing used them.
+     The fallback note also named the mode by its internal key, so a user who
+     had chosen "Cellpose 3 · cyto3" was told cellpose3:cyto3 could not run
+     and had no row to look for. `_magnifier_mode_label` names it the way the
+     Mode box does, translated, through `canonical_magnifier_mode` so a saved
+     session saying `classical` is still named.
+
+  2. THE 380 HARNESS HAS A MAGNIFIER ROW AND IT HAS BEEN RUN WITH WHOLE IMAGE
+     ON. It could not be run before: the harness measured the backdrop, a
+     theme change and three settings-panel interactions, none of which is the
+     magnifier. `tools/perf_paint.py --only magnifier` opens a synthetic
+     field on a real Make Masks screen, turns the magnifier on in each scope
+     and times forty mouse moves, each one event delivery plus a repaint, in
+     the Otsu mode because it needs nothing installed.
+
+       2048 px field, three runs, load average 18-21, Whole image still
+       segmenting throughout:
+         region       median 5.1-6.2 ms  slowest 10.2-13.1 ms  0 frames dropped
+         whole image  median 2.1-2.8 ms  slowest  4.1-6.9 ms   0 frames dropped
+       1024 px field, quietest run (load 5):
+         region       median 4.8 ms      slowest 11.9 ms       0 frames dropped
+         whole image  median 2.3 ms      slowest  3.9 ms       0 frames dropped
+
+     NO BUDGET BREACH ON A MOVE. One hitch remains and is reported on its
+     own: the first move after the magnifier is switched on costs 17-34 ms,
+     one or two frames, once -- the worker's first import of the
+     segmentation stack.
+
+     THE LOAD AVERAGE NEARLY TURNED THIS INTO A FALSE REGRESSION. The first
+     reading had the region scope at a median 17.5 ms against the base's
+     13.0. Three alternating runs of base and branch said 12.6/16.5,
+     15.2/10.5 and 4.8/5.4: the machine's load, which ran between 5 and 25
+     while other sessions built, and not the branch. The load is now written
+     onto the row and not only into the record's environment.
+
+  3. A SIX-SECOND FREEZE ON A CLICK, FOUND BY TRYING TO DRAW THE OVERLAP
+     RULE. The rule ran a whole-region comparison per object and, under Clip,
+     a whole connected-component pass per object as well. Item 417 let the
+     Size box go as high as the image is wide, so the cost is the region's
+     pixels times its objects, on the GUI thread, with the click waiting:
+
+       region  objects  clip                skip               replace
+       128 px       10    0.4 ms (was 0.3)    0.3 (0.3)          0.3
+       256 px       30    1.3 ms (was 7.2)    1.1 (1.2)          0.9
+       512 px       60    5.2 ms (was 44.8)   4.4 (6.1)          3.6
+      1024 px      200   29.3 ms (was 595)   22.2 (60.5)        17.4
+      2048 px      500  117.9 ms (was 6085)  87.4 (821)         72.1
+
+     It is counted once over the pixels now, in
+     `mask_engine._surviving_region_objects`, which the paste calls and the
+     box draws. The ids added are identical at every size above, and
+     `test_the_overlap_rule_agrees_with_the_rule_it_replaced` runs the old
+     rule written out object by object beside the new one over random
+     regions, for all three rules and three Min areas. That guard earned its
+     keep at once: the first version used `scipy.ndimage.label`, which labels
+     connected runs of TRUE, so two touching objects became one piece; it
+     failed on two pixels of one seed. `skimage.measure.label` labels
+     connected runs of one VALUE, which is what a piece of an object is.
+
+  4. THE OVERLAP PREVIEW, under Region under the mouse. The pixels the rule
+     would take away keep a quarter of their alpha: solid is what a click
+     adds, ghosted is what it does not. Nothing is computed under Replace,
+     which takes nothing away, or over an empty mask. Changing the rule asks
+     no model and does not discard the whole-image objects.
+
+  5. AN ETA ON THE BUSY BAR, from a measurement and only from one: the
+     seconds per megapixel the last run under this mode and model took. The
+     FIRST run of a session promises nothing and the bar stays indeterminate,
+     which is honest and also right -- on a cold model most of a first run is
+     the load, measured here on 2026-09-15 at 10.3 s against 3.9 s for the
+     same field with the model cached. An estimate that runs out goes back to
+     indeterminate rather than counting past zero.
+
+  6. A PER-FIELD CACHE OF THE WHOLE-IMAGE OBJECTS. Leaving a field and coming
+     back re-ran the model: 3.7-10.3 s on the RTX 3090 by this item's own
+     measurement, minutes on a CPU, and a curator walking a plate goes back
+     and forth. A finished answer is kept under the FIELD and every setting a
+     model reads, so a settings change still discards it. The field could not
+     be named before -- a run key opens with a generation counter that counts
+     LOADS -- so `set_field` names it by the image file's path. What is kept
+     is bounded by `memory_budget.what_to_drop`, the policy every other cache
+     in the application is trimmed by: the user's idle timeout releases a
+     field nobody went back to, and the ceiling is the lower of the user's
+     cache ceiling and 256 MB.
+
+WHAT IS STILL LEFT, AND WHY THIS IS NOT IN features/new
+
+  * A KEYBOARD SHORTCUT FOR THE TOGGLE. Not done, and the reason is worth
+     recording because it is a two-minute change behind a gate. Binding any
+     key obliges a `ShortcutSpec` in `spacr/qt/shortcuts.py`
+     (`test_every_bound_key_is_on_the_map`), and a spec's label enters the
+     COMPACT caption layer, which is hand-written: it needs a nine-language
+     `_row` in `spacr/qt/i18n.py` and a move of `COMPACT_CAPTION_COUNT` and
+     `COMPACT_CAPTION_SHA256` in tests/qt/test_i18n_caption_ratchet.py. The
+     label cannot be "Magnifier" or "Live magnifier": both are external
+     sources already, and `test_compact_and_generated_caption_owners_are_
+     disjoint` refuses a caption owned by both layers. This run was told not
+     to write catalog rows and that a consolidated pass runs at the end, and
+     a ratchet is to be subtracted from rather than bumped, so it is left
+     whole for that pass. The recipe: one ShortcutSpec ("M", a new label,
+     "Make Masks", "the Make Masks screen"), one QShortcut beside the others
+     in `_install_shortcuts`, one row in `SHORTCUT_HINTS`, nine `_row`
+     values, and the two pins.
+  * THE OVERLAP PREVIEW UNDER WHOLE IMAGE. A click there adds one whole
+     object, most of which can lie outside the box, and the rule's answer for
+     it cannot be read off the box's slice: Skip asks whether the object
+     touches the mask anywhere, and Clip keeps its largest surviving piece,
+     which may be outside. It needs the object's whole extent --
+     `scipy.ndimage.find_objects` once per run would give every bounding box
+     for the cost of one pass -- and was left undone rather than approximated
+     into a box that would sometimes lie.
+  * WHOLE-IMAGE CELLPOSE ON A CPU, still not measured. No GPU job was needed
+     or queued for this unit; everything above is CPU and offscreen.
+
+EVIDENCE
+
+  * tests/qt/test_the_live_magnifier_segments_under_the_mouse.py: 30 new
+    tests. The four magnifier suites together, 128 passed.
+  * tests/qt/test_the_paint_harness_can_see_a_second_layer.py: 3 new tests
+    for the new row, including the calibration that a frame shrunk to a
+    tenth of a millisecond makes every move read as dropped. 8 passed.
+  * The 32 files named for make_masks, magnifier, mask_engine or the paint
+    harness: see the commit bodies for the count of the run each was taken
+    from.
+  * RED, EXPECTED, AND MEASURED AGAINST THE BASE (5800dd4bf):
+    `test_every_help_string_on_the_panel_has_an_exact_catalog_row` goes from
+    80 missing rows to 88. The eight are ONE tooltip -- Overlap, which gained
+    a sentence about what the box now shows -- in eight locales; the ninth
+    locale was missing that row already. The other 80 are 419's and 423's
+    rename of Classical to Otsu, red on this branch's base.
+  * i18n owed, listed exactly: five new UI sources --
+      "Magnifier: segmenting this region — its objects are added as soon as
+       the box is up to date."
+      "Magnifier could not segment this region: {error}"
+      "Magnifier: {mode} could not run ({reason}); the Otsu mode is
+       segmenting instead."
+      "Magnifier could not add objects: {error}"
+      "about {seconds} s left"
+    and one reworded source, the Overlap tooltip.
