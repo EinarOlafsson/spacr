@@ -128,3 +128,21 @@ _ROW = declared_app(APP_KEY)
 The row this screen puts in the registry is declared in
 
 `spacr.qt.app_catalog`, which is what lets the app be registered without importing this module -- the launch reads the table, not the screen. These read the same row back rather than restating it, so the name, the blurb and the nine translations have one spelling and no second copy to drift from.
+
+## 2026-09-19 — the Curve picker
+
+Hand-written, like the engine's note of the same date. The screen offers
+four-parameter and five-parameter and chooses neither on the user's behalf,
+which is the decision item 387 recorded under DELIBERATELY NOT DONE
+("Offer it, do not default to it").
+
+Picking the better-fitting model per group would have been easy and wrong:
+the table would then hold EC50s from two different models in one column,
+sorted against each other as though they were comparable. So the picker is
+one choice for the whole fit, and the five-parameter report says in its own
+caveats whether the fifth parameter earned itself on that series.
+
+Hormesis has no control at all. It is not a mode a user selects — it is a
+diagnosis the engine reaches when the low-dose end of a series departs from
+control against the trend, and the screen shows it exactly where a refusal
+already appears: in the Note cell, its tooltip, and the report pane.

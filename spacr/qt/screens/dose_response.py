@@ -27,6 +27,13 @@ plotted line is
 recomputed here, so the figure, the exported CSV and the sentence a user
 pastes into a methods section cannot drift apart.
 
+**The Curve picker offers the asymmetric model and does not choose it.**
+Four-parameter is what Fit uses until someone says otherwise, and a
+five-parameter fit says in its own report whether the fifth parameter earned
+itself. A screen that picked the better-fitting model per group would hand
+back a plate whose EC50s came from two different models, compared as though
+they had not.
+
 **The fit runs off the GUI thread** through
 :class:`spacr.qt.job_runner.JobRunner`, like every other read and compute in
 the Qt layer. A profile-likelihood interval on a 96-compound plate is
@@ -55,7 +62,7 @@ from PySide6.QtWidgets import (
 from ..job_runner import JobRunner
 from ..theme import SPACING, active_palette, mark_surface
 from ..widgets.dose_response import (
-    CI_PROFILE, CI_WALD, STATUS_FITTED, STATUS_REFUSED,
+    CI_PROFILE, CI_WALD, MODEL_4PL, MODEL_5PL, STATUS_FITTED, STATUS_REFUSED,
     STATUS_UNBOUNDED, DoseResponseError, DoseResponseResult, DoseResponseSet,
     DoseResponseSpec, candidate_concentration_columns,
     candidate_response_columns, fit_frame,
@@ -459,6 +466,20 @@ class DoseResponseScreen(QWidget):
             "determine the EC50. The profile interval can report an open "
             "side, which is why it is the default.")
         controls.addWidget(self.ci_picker)
+
+        controls.addWidget(QLabel("Curve", self))
+        self.model_picker = QComboBox(self)
+        self.model_picker.setObjectName("DoseResponseModel")
+        self.model_picker.addItem("Four-parameter logistic (symmetric)",
+                                  MODEL_4PL)
+        self.model_picker.addItem("Five-parameter logistic (asymmetric)",
+                                  MODEL_5PL)
+        self.model_picker.setToolTip(
+            "A 4PL is symmetric about its midpoint. Real asymmetry exists, "
+            "and a 4PL absorbs it into a displaced EC50; the 5PL fits it with "
+            "one more parameter, needs one more concentration, and says "
+            "whether that parameter earned itself.")
+        controls.addWidget(self.model_picker)
 
         self.force_check = Toggle("Fit non-monotone data", self)
         self.force_check.setObjectName("DoseResponseForce")
@@ -890,7 +911,8 @@ class DoseResponseScreen(QWidget):
             group=None if group in ("", NO_GROUP) else group,
             ci_method=self.ci_picker.currentData() or CI_PROFILE,
             unit=self.unit_edit.text().strip(),
-            allow_non_monotone=self.force_check.isChecked())
+            allow_non_monotone=self.force_check.isChecked(),
+            model=self.model_picker.currentData() or MODEL_4PL)
 
     def fit(self) -> None:
         """Fit every group, off the GUI thread."""

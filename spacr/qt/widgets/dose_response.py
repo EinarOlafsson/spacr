@@ -124,6 +124,60 @@ The three things that actually go wrong
    response, never fed to ``log10``. A *negative* concentration has no such
    reading and is refused.
 
+Two models, and why the second one is offered rather than chosen
+----------------------------------------------------------------
+:data:`MODEL_5PL` fits :func:`five_parameter_logistic`, a 4PL with one more
+parameter that lets the curve approach its two plateaus at different rates.
+Real dose–responses are asymmetric — receptor occupancy with cooperativity,
+anything read through a saturating stain — and **a 4PL fitted to an
+asymmetric curve does not fail, it moves the EC50**: on the calibration
+series in ``tests/qt/test_dose_response_fits_an_asymmetric_curve.py`` a
+symmetric fit to a curve whose true EC50 is 1.0 reports 0.67, with a tight
+interval and an R² of 0.997.
+
+It is nonetheless **not the default**, and that is a decision rather than an
+oversight. The fifth parameter trades off against the Hill slope — many
+(slope, asymmetry) pairs draw nearly the same curve — so on the eight or ten
+concentrations a plate actually carries it is weakly identified, and the
+profile interval it produces is correspondingly wider. The module therefore
+offers it, fits it **from the 4PL solution** so the asymmetric search starts
+at the symmetric answer, and reports an extra-sum-of-squares F test of the
+one added parameter in :attr:`DoseResponseResult.asymmetry_p` so a reader
+can see whether the asymmetry was worth what it cost.
+
+The parameterisation is the EC50-preserving one: ``log10_ec50`` means the
+same thing under both models, so every rule in this file — boundedness,
+profiling, the back-transformed reporting — reads one number and not two.
+:func:`five_parameter_logistic` explains why that needs a constant in the
+denominator and what goes wrong without it.
+
+Hormesis, which is the other reason a curve turns around
+--------------------------------------------------------
+:func:`monotonicity` can see that a series reverses. It cannot say which
+reversal it is, and the two mean opposite things:
+
+* the response **collapses at the top dose** — usually the compound killing
+  whatever was being counted. The advice is to drop that dose;
+* the response **rises at the bottom dose** before falling — hormesis. The
+  advice is emphatically not to drop those doses, because the rise is the
+  finding.
+
+:func:`hormesis` tells them apart by fitting :func:`brain_cousens` — the 4PL
+with a low-dose stimulation term, which is the 4PL exactly when that term is
+zero — and comparing the two nested fits by an extra-sum-of-squares F test
+(the likelihood-ratio test, under this module's Gaussian errors), a
+small-sample-corrected AIC, and a **minimum-effect threshold**. All three,
+plus a positive coefficient, or the answer is no. The threshold is there
+because a tight assay will reach p < 0.001 on a hump worth 2% of the
+response span, and 2% is not a biological claim.
+
+The test runs on any series whose low-dose end departs from control against
+the trend, not only on the ones :func:`monotonicity` refuses — **a hump can
+carry a fifth of the response span and still sit inside**
+:data:`MAX_REVERSAL`, in which case today's fit succeeds, quotes an EC50
+displaced by the hump, and says nothing. Those fits now carry the finding in
+:attr:`DoseResponseResult.hormesis` and in their caveats.
+
 Fit quality, and the reason R² is printed with a warning attached
 -----------------------------------------------------------------
 Every result carries the residual standard error, R², and — when the design
@@ -179,13 +233,17 @@ __all__ = [
     "CI_PROFILE", "CI_WALD", "CI_METHODS",
     "DIRECTION_AUTO", "DIRECTION_INHIBITION", "DIRECTION_ACTIVATION",
     "DIRECTIONS",
+    "MODEL_4PL", "MODEL_5PL", "MODELS",
+    "ASYMMETRY_LOW", "ASYMMETRY_HIGH",
     "BOUND_OK", "BOUND_ABOVE", "BOUND_BELOW", "BOUND_OPEN",
     "STATUS_FITTED", "STATUS_UNBOUNDED", "STATUS_REFUSED",
     "MIN_DOSES", "MIN_OBSERVATIONS", "DEFAULT_CONFIDENCE",
     "MAX_REVERSAL", "FLAT_FRACTION", "PLATEAU_SLACK",
     "STEEP_HILL", "SHALLOW_HILL", "PROFILE_REACH", "PROFILE_TOLERANCE",
-    "four_parameter_logistic",
+    "four_parameter_logistic", "five_parameter_logistic", "brain_cousens",
     "MonotonicityCheck", "monotonicity",
+    "HORMESIS_MIN_EFFECT", "HORMESIS_ALPHA", "HORMESIS_MIN_AIC",
+    "HormesisCheck", "hormesis",
     "DoseResponseSpec", "DoseResponseResult",
     "GroupFit", "DoseResponseSet",
     "fit_dose_response", "fit_frame",
@@ -236,6 +294,31 @@ DIRECTION_ACTIVATION = "activation"
 DIRECTIONS: Tuple[str, ...] = (DIRECTION_AUTO, DIRECTION_INHIBITION,
                                DIRECTION_ACTIVATION)
 
+#: The symmetric four-parameter logistic. The default everywhere, and the
+#: only model this module will choose on its own.
+MODEL_4PL = "4pl"
+#: The asymmetric five-parameter logistic — :func:`five_parameter_logistic`.
+#: Offered, never defaulted to: the fifth parameter buys asymmetry at the
+#: cost of stability on the short dilution series most plates run.
+MODEL_5PL = "5pl"
+MODELS: Tuple[str, ...] = (MODEL_4PL, MODEL_5PL)
+
+#: Parameters each model carries. Every degrees-of-freedom count in this
+#: module reads this rather than a literal 4.
+_MODEL_PARAMETERS: Dict[str, int] = {MODEL_4PL: 4, MODEL_5PL: 5}
+
+#: How the two models are named in a report line.
+_MODEL_LABELS: Dict[str, str] = {MODEL_4PL: "4PL", MODEL_5PL: "5PL"}
+
+#: Smallest asymmetry exponent the 5PL fit may reach. The exponent is
+#: bounded on both sides because the 5PL's slope and asymmetry trade off
+#: against each other — the pair is weakly identified on a short series, and
+#: an unbounded search answers that by walking to an absurd exponent with a
+#: compensating slope rather than by failing.
+ASYMMETRY_LOW = 0.05
+#: Largest asymmetry exponent the 5PL fit may reach. See :data:`ASYMMETRY_LOW`.
+ASYMMETRY_HIGH = 20.0
+
 #: The EC50 is determined by the experiment: quote it.
 BOUND_OK = "bounded"
 #: The EC50 is above every concentration tested. One-sided statement only.
@@ -278,6 +361,43 @@ MAX_REVERSAL = 0.30
 #: measurement error on a plateau counts as a turn.
 FLAT_FRACTION = 0.05
 
+#: The minimum-effect threshold for :func:`hormesis`: the low-dose
+#: stimulation the fitted Brain–Cousens curve reaches, as a fraction of the
+#: curve's own response span, below which the hump is not called hormesis
+#: whatever its p value. A statistically detectable 2% bump on a plate with
+#: 5% well-to-well scatter is a statement about the model, not about the
+#: compound, and published hormetic stimulations are tens of percent.
+HORMESIS_MIN_EFFECT = 0.10
+
+#: Significance the extra-sum-of-squares F test for the Brain–Cousens
+#: stimulation term has to reach before the hump is called hormesis.
+HORMESIS_ALPHA = 0.05
+
+#: How much better the corrected AIC has to be before the hump is called
+#: hormesis. 2.0 is the conventional "worth a parameter" gap, and it is
+#: required *as well as* the p value rather than instead of it: on twenty
+#: points the two criteria disagree often enough to matter, and a hormesis
+#: call that only one of them supports is not one this module will make.
+HORMESIS_MIN_AIC = 2.0
+
+#: Low-dose excursion, as a fraction of the response span, below which
+#: :func:`fit_dose_response` does not spend a Brain–Cousens fit looking for
+#: hormesis. Purely a cost gate: every series that reaches it is tested
+#: properly, and the threshold is an order of magnitude below the
+#: minimum effect any verdict needs.
+_HORMESIS_SCREEN = 0.02
+
+#: Points on the geometric grid the hormetic curve's maximum stimulation is
+#: read off. The grid spans the tested range only — a hump the experiment
+#: did not reach is not a measurement.
+_HORMESIS_GRID = 257
+
+#: Observations a hormesis verdict needs. Brain–Cousens has five parameters
+#: and the corrected AIC divides by ``n - k - 1`` with ``k = 6``, so seven
+#: points give it no denominator and eight give it one observation of slack.
+#: Under this the answer is "not tested", which is not "no hormesis".
+_HORMESIS_MIN_OBSERVATIONS = 8
+
 #: How far outside the observed response range a fitted plateau may sit, as a
 #: fraction of the observed span, before the plateau counts as never reached
 #: and the EC50 as an extrapolation.
@@ -316,6 +436,12 @@ _EXPONENT_LIMIT = 250.0
 #: refines. Log-spaced across every slope anyone has ever published.
 _HILL_GRID = np.logspace(np.log10(0.02), np.log10(40.0), 40)
 
+#: Asymmetry exponents the 5PL profile scans before it refines. Eleven
+#: points rather than forty: the exponent is the parameter the interval is
+#: least sensitive to, and the grid is walked once per bisection step.
+_ASYMMETRY_GRID = np.logspace(np.log10(ASYMMETRY_LOW),
+                              np.log10(ASYMMETRY_HIGH), 11)
+
 #: A first fit leaving less than this share of the total sum of squares is
 #: accepted without trying the restart ladder (R² >= 0.9).
 _GOOD_FIT_FRACTION = 0.10
@@ -345,6 +471,111 @@ def four_parameter_logistic(x, bottom, top, log10_ec50, hill):
         exponent = (log10_ec50 - np.log10(values)) * hill
     exponent = np.clip(exponent, -_EXPONENT_LIMIT, _EXPONENT_LIMIT)
     return bottom + (top - bottom) / (1.0 + 10.0 ** exponent)
+
+
+def five_parameter_logistic(x, bottom, top, log10_ec50, hill, asymmetry):
+    """The 5PL curve, parameterised so ``log10_ec50`` is still the EC50.
+
+    ``y = bottom + (top - bottom) / (1 + a·10 ** ((log10_ec50 - log10 x) *
+    hill)) ** asymmetry``, with ``a = 2 ** (1 / asymmetry) - 1``.
+
+    **That constant ``a`` is the whole point of this function.** Written the
+    way the 5PL usually is —
+
+    .. math::
+
+        y = \\mathrm{bottom} + \\frac{\\mathrm{top} - \\mathrm{bottom}}
+            {\\left(1 + 10^{(c - \\log_{10}x)h}\\right)^{s}}
+
+    — the parameter ``c`` is *not* the half-maximal concentration once
+    ``s != 1``: at ``x = 10**c`` the response is ``bottom + (top - bottom) /
+    2**s``, which for ``s = 3`` is an eighth of the way up rather than half.
+    A 5PL reported as if ``c`` were the EC50 is wrong by a factor that grows
+    with the asymmetry, and it is a published mistake often enough to have
+    its own literature (Gottschalk & Dunn, *Anal. Biochem.* 343, 2005).
+    Scaling the exponential by ``2 ** (1 / s) - 1`` moves the half-maximal
+    point back to ``x = EC50`` exactly, so:
+
+    * ``asymmetry == 1`` reproduces :func:`four_parameter_logistic` term for
+      term, which is what makes the two models nested and the F test in
+      :func:`fit_dose_response` legitimate;
+    * every downstream rule in this module — the boundedness tests, the
+      profile interval, the back-transformed reporting — keeps reading
+      ``log10_ec50`` as the same quantity under both models, and none of them
+      had to learn a second meaning.
+
+    :param x: concentration(s). ``0`` evaluates to the low-dose plateau, as
+        in :func:`four_parameter_logistic`.
+    :param bottom: the smaller plateau.
+    :param top: the larger plateau.
+    :param log10_ec50: base-10 log of the half-maximal concentration. It is
+        the EC50 here, not the inflection parameter.
+    :param hill: slope. Negative is inhibition, positive is activation.
+    :param asymmetry: the exponent. ``1`` is the symmetric 4PL; below 1 the
+        curve leaves the low-dose plateau slowly and reaches the high-dose
+        one abruptly, above 1 the reverse.
+    :returns: the modelled response, same shape as ``x``.
+    :raises DoseResponseError: if ``asymmetry`` is not strictly positive —
+        the exponent of a nonneg quantity cannot be zero or negative here,
+        and returning ``nan`` would let the optimiser wander into it.
+    """
+    shape = float(asymmetry)
+    if not shape > 0.0:
+        raise DoseResponseError(
+            f"the 5PL asymmetry is an exponent on a positive quantity and "
+            f"must be strictly positive, not {asymmetry}. 1 is the symmetric "
+            f"4PL; {ASYMMETRY_LOW} to {ASYMMETRY_HIGH} is what the fit "
+            f"searches.")
+    values = np.asarray(x, dtype=float)
+    scale = 2.0 ** (1.0 / shape) - 1.0
+    with np.errstate(divide="ignore", invalid="ignore"):
+        exponent = (log10_ec50 - np.log10(values)) * hill
+    exponent = np.clip(exponent, -_EXPONENT_LIMIT, _EXPONENT_LIMIT)
+    inner = 1.0 + scale * 10.0 ** exponent
+    power = np.clip(shape * np.log10(inner), -_EXPONENT_LIMIT, _EXPONENT_LIMIT)
+    return bottom + (top - bottom) * 10.0 ** (-power)
+
+
+def brain_cousens(x, bottom, top, log10_ec50, hill, stimulation):
+    """The Brain–Cousens hormesis model: a 4PL with a low-dose hump on it.
+
+    ``y = four_parameter_logistic(x, ...) - sign(hill)·stimulation·x·w(x)``
+    with ``w(x) = 1 / (1 + (x / EC50) ** |hill|)``, the weight that is 1 at
+    zero dose, ½ at the EC50 and 0 above it.
+
+    For an inhibition curve (``hill < 0``) that is the published model
+    (Brain & Cousens, *Weed Research* 29, 1989) written in this module's
+    parameterisation: ``w`` is then exactly the 4PL's own sigmoid factor, and
+    the expression collapses to ``bottom + (top - bottom + f·x)·w``, which is
+    Brain–Cousens term for term. For an activation curve it is that model
+    reflected, because hormesis is a departure from the control *against* the
+    direction the compound eventually pushes the readout, and on an
+    activation series that is a low-dose dip rather than a low-dose rise.
+    Writing it as one function with the sign taken from the Hill slope means
+    the same hypothesis test covers both, instead of a second model nobody
+    would remember to run.
+
+    ``stimulation == 0`` is the 4PL exactly, which is what makes the pair
+    nested and :func:`hormesis`' F test a one-parameter test.
+
+    :param x: concentration(s).
+    :param bottom: the smaller plateau of the underlying 4PL.
+    :param top: the larger plateau of the underlying 4PL.
+    :param log10_ec50: base-10 log of the underlying 4PL's EC50.
+    :param hill: slope; its sign carries the direction, as everywhere here.
+    :param stimulation: the hormesis term's coefficient, in response units
+        per concentration unit. Positive is hormesis; zero is no hormesis;
+        negative is a curve that leaves the control plateau *faster* than a
+        4PL, which is a shape correction and is never called hormesis.
+    :returns: the modelled response, same shape as ``x``.
+    """
+    values = np.asarray(x, dtype=float)
+    base = four_parameter_logistic(values, bottom, top, log10_ec50, hill)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        exponent = (np.log10(values) - log10_ec50) * abs(hill)
+    exponent = np.clip(exponent, -_EXPONENT_LIMIT, _EXPONENT_LIMIT)
+    weight = 1.0 / (1.0 + 10.0 ** exponent)
+    return base - np.sign(hill) * float(stimulation) * values * weight
 
 
 
@@ -461,6 +692,354 @@ def monotonicity(doses: Sequence[float], responses: Sequence[float], *,
         is_monotone=bool(reversal < threshold))
 
 
+@dataclass(frozen=True)
+class HormesisCheck:
+    """Whether the low-dose end of the series is stimulated, and by how much.
+
+    :func:`monotonicity` can see that a series turns around. It cannot say
+    *which* turn it is, and the two turns a concentration series produces
+    mean opposite things: a collapse at the top dose is usually the compound
+    killing whatever was being counted, and the fix is to drop that dose,
+    while a hump at the bottom is hormesis, and dropping doses there throws
+    the finding away. This check names which one it is by fitting the model
+    that has a hump in it and asking whether the hump paid for itself.
+
+    :param is_hormetic: the verdict, and it needs all four criteria below.
+    :param stimulation: the fitted Brain–Cousens coefficient, in response
+        units per concentration unit. Positive is a hump.
+    :param max_stimulation: the largest departure from the control plateau
+        the fitted hormetic curve reaches inside the tested range, in
+        response units.
+    :param max_stimulation_fraction: that departure over the fitted curve's
+        response span — the number the minimum-effect threshold is applied
+        to.
+    :param peak_dose: where that maximum sits, or ``None`` when there is no
+        fitted curve to read it off.
+    :param f_statistic: extra-sum-of-squares F for the one added parameter.
+    :param p_value: its p value, on 1 and ``dof`` degrees of freedom.
+    :param delta_aic: corrected AIC of the monotone fit minus that of the
+        hormetic fit. Positive favours hormesis.
+    :param sse_monotone: residual sum of squares of the 4PL.
+    :param sse_hormetic: residual sum of squares of the Brain–Cousens fit.
+    :param n_obs: observations both models were fitted on.
+    :param dof: residual degrees of freedom of the hormetic fit, ``n - 5``.
+    :param ec50_monotone: the EC50 the monotone fit reports, so the cost of
+        ignoring the hump is visible as a number rather than an argument.
+    :param ec50_hormetic: the EC50 the hormetic fit reports.
+    :param min_effect: the :data:`HORMESIS_MIN_EFFECT` this used.
+    :param alpha: the :data:`HORMESIS_ALPHA` this used.
+    :param min_delta_aic: the :data:`HORMESIS_MIN_AIC` this used.
+    :param note: why the verdict is what it is — the first criterion that
+        failed, or the caveat that survives a positive verdict.
+    """
+
+    is_hormetic: bool
+    stimulation: float = 0.0
+    max_stimulation: float = 0.0
+    max_stimulation_fraction: float = 0.0
+    peak_dose: Optional[float] = None
+    f_statistic: Optional[float] = None
+    p_value: Optional[float] = None
+    delta_aic: float = float("nan")
+    sse_monotone: float = float("nan")
+    sse_hormetic: float = float("nan")
+    n_obs: int = 0
+    dof: int = 0
+    ec50_monotone: Optional[float] = None
+    ec50_hormetic: Optional[float] = None
+    min_effect: float = HORMESIS_MIN_EFFECT
+    alpha: float = HORMESIS_ALPHA
+    min_delta_aic: float = HORMESIS_MIN_AIC
+    note: str = ""
+
+    def describe(self) -> str:
+        """One line, for a caption, a caveat or a refusal message."""
+        if not self.is_hormetic:
+            return f"no hormesis: {self.note}" if self.note else "no hormesis"
+        where = ("n/a" if self.peak_dose is None else f"{self.peak_dose:.3g}")
+        p_value = ("n/a" if self.p_value is None else f"{self.p_value:.3g}")
+        moved = ""
+        if self.ec50_monotone and self.ec50_hormetic:
+            moved = (f"; the monotone fit puts the EC50 at "
+                     f"{self.ec50_monotone:.3g} and the hormetic fit at "
+                     f"{self.ec50_hormetic:.3g}")
+        return (f"hormesis: the response is stimulated by "
+                f"{self.max_stimulation_fraction:.0%} of the response span "
+                f"at {where}, against the direction of the main effect "
+                f"(Brain–Cousens stimulation {self.stimulation:.4g}, F = "
+                f"{self.f_statistic:.3g} on 1 and {self.dof} df, p = "
+                f"{p_value}, ΔAICc {self.delta_aic:+.1f}){moved}")
+
+
+def _low_dose_excursion(dose: np.ndarray, response: np.ndarray, sign: float
+                        ) -> Tuple[float, float, Optional[float]]:
+    """``(departure, departure / span, where)`` against the trend, from the
+    per-dose medians.
+
+    The cheap screen :func:`fit_dose_response` runs before it spends a
+    five-parameter fit: the departure is measured from the *lowest* dose's
+    median, in the direction opposite to the one the compound eventually
+    pushes the readout, so a monotone series scores exactly zero and a
+    top-dose collapse scores zero as well — only a hump below the midpoint
+    moves it.
+    """
+    distinct, medians, _counts = _per_dose(dose, response)
+    if distinct.size < 2:
+        return (0.0, 0.0, None)
+    span = float(medians.max() - medians.min())
+    if span <= 0:
+        return (0.0, 0.0, None)
+    away = -float(sign) * (medians - float(medians[0]))
+    peak = int(np.argmax(away))
+    if away[peak] <= 0:
+        return (0.0, 0.0, None)
+    return (float(away[peak]), float(away[peak] / span),
+            float(distinct[peak]))
+
+
+def _aicc(sse: float, n: int, parameters: int) -> float:
+    """Corrected AIC of a least-squares fit, ``nan`` when it has no meaning.
+
+    ``n·ln(SSE/n) + 2k + 2k(k+1)/(n - k - 1)`` with ``k`` the parameter count
+    **plus one** for the estimated variance. The small-sample correction is
+    not optional here: a dose–response is twenty to thirty wells and the
+    models being compared carry five and six parameters, which is exactly the
+    regime where plain AIC over-rewards the larger model.
+    """
+    k = int(parameters) + 1
+    if n - k - 1 <= 0 or sse <= 0:
+        return float("nan")
+    return float(n * np.log(sse / n) + 2 * k + 2 * k * (k + 1) / (n - k - 1))
+
+
+def _brain_cousens_span(x, bottom, span, log10_ec50, hill, stimulation):
+    """:func:`brain_cousens` with the upper plateau written as an offset.
+
+    Fitting ``span`` under a lower bound of zero is what keeps ``top >=
+    bottom`` on a model that has no symmetry to canonicalise afterwards: the
+    4PL's ``(bottom, top, L, h) == (top, bottom, L, -h)`` identity does not
+    hold once a hormesis term is attached, so the ordering has to be imposed
+    during the fit rather than repaired after it.
+    """
+    return brain_cousens(x, bottom, bottom + span, log10_ec50, hill,
+                         stimulation)
+
+
+def _fit_brain_cousens(dose: np.ndarray, response: np.ndarray,
+                       popt: Sequence[float], start: float):
+    """Fit the hormesis model from the monotone solution. ``(sse, popt)``.
+
+    Started at the 4PL's own parameters, which is both the cheapest start
+    available and the one that makes the comparison honest: the hormetic fit
+    begins from the null model and has to improve on it.
+    """
+    bottom, top, log10_ec50, hill = (float(v) for v in popt)
+    span = max(float(top - bottom), 0.0)
+    lower = [-np.inf, 0.0, -np.inf, -np.inf, -np.inf]
+    upper = [np.inf, np.inf, np.inf, np.inf, np.inf]
+    best = None
+    for stimulation in dict.fromkeys((start, 0.0, 2.0 * start)):
+        p0 = [bottom, span, log10_ec50, hill, float(stimulation)]
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            try:
+                found, _pcov = curve_fit(
+                    _brain_cousens_span, dose, response, p0=p0,
+                    bounds=(lower, upper), max_nfev=_MAX_FUNCTION_EVALUATIONS)
+            except (RuntimeError, ValueError, TypeError):
+                continue
+        if not np.all(np.isfinite(found)):
+            continue
+        fitted = _brain_cousens_span(dose, *found)
+        sse = float(np.sum((response - fitted) ** 2))
+        if not np.isfinite(sse):
+            continue
+        if best is None or sse < best[0]:
+            best = (sse, np.array([float(found[0]),
+                                   float(found[0]) + float(found[1]),
+                                   float(found[2]), float(found[3]),
+                                   float(found[4])]))
+    return best
+
+
+def _hormesis_verdict(dose: np.ndarray, response: np.ndarray, sign: float,
+                      sse_monotone: float, popt: Sequence[float],
+                      min_effect: float, alpha: float,
+                      min_delta_aic: float) -> HormesisCheck:
+    """Compare the hormetic fit with the monotone one and rule on it."""
+    n_obs = int(dose.size)
+    dof = n_obs - 5
+    blank = dict(sse_monotone=float(sse_monotone), n_obs=n_obs, dof=max(dof, 0),
+                 min_effect=float(min_effect), alpha=float(alpha),
+                 min_delta_aic=float(min_delta_aic),
+                 ec50_monotone=_back_transform(float(popt[2])))
+    if n_obs < _HORMESIS_MIN_OBSERVATIONS:
+        return HormesisCheck(
+            False, note=(f"{n_obs} observations against the five parameters "
+                         f"of a Brain–Cousens model; at least "
+                         f"{_HORMESIS_MIN_OBSERVATIONS} are needed before the "
+                         f"comparison means anything"), **blank)
+    if sse_monotone <= 0:
+        return HormesisCheck(
+            False, note="the monotone fit is exact, so there is no residual "
+                        "for a hormesis term to explain", **blank)
+
+    departure, _fraction, peak = _low_dose_excursion(dose, response, sign)
+    guess = departure / peak if peak else 0.0
+    found = _fit_brain_cousens(dose, response, popt, guess)
+    if found is None:
+        return HormesisCheck(
+            False, note="the Brain–Cousens model did not converge on this "
+                        "series from the monotone fit", **blank)
+    sse_hormetic, hormetic = found
+    blank["sse_hormetic"] = sse_hormetic
+    blank["ec50_hormetic"] = _back_transform(float(hormetic[2]))
+    stimulation = float(hormetic[4])
+    if sse_hormetic >= sse_monotone or sse_hormetic <= 0:
+        return HormesisCheck(
+            False, stimulation=stimulation,
+            note="the hormesis term did not improve the fit at all, so there "
+                 "is nothing to test", **blank)
+
+    f_statistic = float((sse_monotone - sse_hormetic) /
+                        (sse_hormetic / dof))
+    p_value = float(stats.f.sf(f_statistic, 1, dof))
+    delta_aic = float(_aicc(sse_monotone, n_obs, 4)
+                      - _aicc(sse_hormetic, n_obs, 5))
+
+    bottom, top = float(hormetic[0]), float(hormetic[1])
+    control = top if sign < 0 else bottom
+    grid = np.logspace(np.log10(float(dose.min())),
+                       np.log10(float(dose.max())), _HORMESIS_GRID)
+    away = -sign * (brain_cousens(grid, *hormetic) - control)
+    peak_index = int(np.argmax(away))
+    max_stimulation = float(away[peak_index])
+    window = top - bottom
+    if not window > 0:
+        window = float(response.max() - response.min())
+    fraction = float(max_stimulation / window) if window > 0 else 0.0
+    measured = dict(stimulation=stimulation, max_stimulation=max_stimulation,
+                    max_stimulation_fraction=fraction,
+                    peak_dose=float(grid[peak_index]),
+                    f_statistic=f_statistic, p_value=p_value,
+                    delta_aic=delta_aic, **blank)
+
+    if stimulation <= 0:
+        return HormesisCheck(
+            False, note=(f"the fitted stimulation is {stimulation:.4g}, which "
+                         f"is not positive: the series leaves the control "
+                         f"plateau faster than a 4PL rather than rising above "
+                         f"it, and that is a shape, not hormesis"),
+            **measured)
+    if not p_value < alpha:
+        return HormesisCheck(
+            False, note=(f"the hump is not significant — F = "
+                         f"{f_statistic:.3g} on 1 and {dof} df, p = "
+                         f"{p_value:.3g}, against {alpha:g}"), **measured)
+    if not delta_aic >= min_delta_aic:
+        return HormesisCheck(
+            False, note=(f"the hump is significant (p = {p_value:.3g}) but "
+                         f"does not pay for its parameter: ΔAICc is "
+                         f"{delta_aic:+.2f}, against {min_delta_aic:g}"),
+            **measured)
+    if not fraction >= min_effect:
+        return HormesisCheck(
+            False, note=(f"the hump is real (p = {p_value:.3g}, ΔAICc "
+                         f"{delta_aic:+.2f}) and too small to matter: it "
+                         f"reaches {fraction:.1%} of the response span, "
+                         f"against a minimum effect of {min_effect:.0%}"),
+            **measured)
+
+    note = ""
+    if peak_index == 0:
+        note = ("the stimulation is largest at the lowest concentration "
+                "tested, so this experiment does not locate its peak — the "
+                "hump may continue below the series")
+    return HormesisCheck(True, note=note, **measured)
+
+
+def hormesis(doses: Sequence[float], responses: Sequence[float], *,
+             direction: str = DIRECTION_AUTO,
+             min_effect: float = HORMESIS_MIN_EFFECT,
+             alpha: float = HORMESIS_ALPHA,
+             min_delta_aic: float = HORMESIS_MIN_AIC) -> HormesisCheck:
+    """Is the low-dose end of this series stimulated, or is it noise?
+
+    Fits a 4PL and a Brain–Cousens curve (:func:`brain_cousens`) to the same
+    points and compares them. The two models are nested — Brain–Cousens *is*
+    the 4PL at ``stimulation = 0`` — so the comparison is the classical
+    extra-sum-of-squares F test on one degree of freedom, which under
+    Gaussian errors is the likelihood-ratio test written in the units this
+    module already reports. It is required to agree with a corrected AIC,
+    and both are required to agree with a minimum effect size.
+
+    **Four criteria, and all four have to hold.** Any one of them alone is a
+    way to be wrong:
+
+    1. the fitted ``stimulation`` is positive — a negative coefficient makes
+       the curve leave the control plateau faster, which is a 4PL that does
+       not quite fit rather than a compound that stimulates;
+    2. ``p < alpha`` on the F test;
+    3. ``ΔAICc >= min_delta_aic``, computed with the small-sample correction
+       because these are five- and six-parameter models on twenty-odd wells;
+    4. the hump reaches ``min_effect`` of the fitted response span — the
+       minimum-effect threshold, without which a very tight assay reports
+       hormesis at 2% and a reader acts on it.
+
+    **Why the effect is measured against the response span** and not as a
+    percentage of the control, which is the convention in the hormesis
+    literature: this module normalises plates to percent inhibition, where
+    the control is 0 by construction and a percentage of it is either
+    infinite or meaningless. The span is the window the curve moves through
+    under either scaling.
+
+    **The F test is two-sided and the hypothesis is one-sided**, since only a
+    positive stimulation is hormesis. Criterion 1 does the one-sided part by
+    inspection rather than by halving the p value, so the reported p is
+    conservative by about a factor of two. Stated rather than corrected: a
+    conservative p on a screen that already refuses this data is the right
+    direction to be wrong in.
+
+    :param doses: concentrations, one per observation. Zeros are vehicle
+        controls and are dropped, as everywhere in this module.
+    :param responses: the matching responses.
+    :param direction: :data:`DIRECTION_AUTO` or a pinned direction. It sets
+        which way "stimulated" points — for an inhibition series hormesis is
+        a rise above control, for an activation series a dip below it.
+    :param min_effect: the minimum-effect threshold, as a fraction of the
+        fitted response span. See :data:`HORMESIS_MIN_EFFECT`.
+    :param alpha: significance the F test has to reach.
+    :param min_delta_aic: corrected-AIC gap the hormetic fit has to win by.
+    :returns: a :class:`HormesisCheck`. Read
+        :attr:`~HormesisCheck.is_hormetic`; when it is ``False`` the
+        :attr:`~HormesisCheck.note` says which criterion failed.
+    :raises DoseResponseError: only for data that cannot be read at all — a
+        negative concentration, or a concentration and response column of
+        different lengths. Too few points to test is a ``False`` verdict with
+        a note, not an exception: "we could not test this" is an answer.
+    """
+    dose, response, _vehicle, _n_vehicle, _dropped = _clean(doses, responses)
+    if dose.size < _HORMESIS_MIN_OBSERVATIONS or np.unique(dose).size < 4:
+        return HormesisCheck(
+            False, n_obs=int(dose.size), min_effect=float(min_effect),
+            alpha=float(alpha), min_delta_aic=float(min_delta_aic),
+            note=(f"{int(dose.size)} observation(s) at "
+                  f"{int(np.unique(dose).size)} concentration(s) cannot carry "
+                  f"a five-parameter hormesis model against a four-parameter "
+                  f"one"))
+    if float(np.max(response) - np.min(response)) <= 0:
+        return HormesisCheck(
+            False, n_obs=int(dose.size), min_effect=float(min_effect),
+            alpha=float(alpha), min_delta_aic=float(min_delta_aic),
+            note="every response is the same, so there is no hump and no "
+                 "curve")
+    sign = _direction_sign(dose, response, direction)
+    sse, popt, pcov, _notes = _best_fit(
+        dose, response, _initial_guesses(dose, response, sign))
+    popt, _pcov = _canonicalise(popt, pcov)
+    return _hormesis_verdict(dose, response, sign, sse, popt,
+                             min_effect, alpha, min_delta_aic)
+
 
 @dataclass(frozen=True)
 class DoseResponseSpec:
@@ -485,8 +1064,16 @@ class DoseResponseSpec:
         because a user may know that the reversal is one bad well; never the
         default, and the result keeps the check so the caveat survives.
     :param max_reversal: the :func:`monotonicity` threshold.
-    :raises DoseResponseError: on an unknown method or direction, or a
-        confidence outside (0, 1) — at the point the spec is built, not
+    :param model: :data:`MODEL_4PL` (default) or :data:`MODEL_5PL`. The
+        asymmetric model is a choice the user makes and never one the data
+        makes for them: it is offered because real asymmetry exists and a
+        4PL absorbs it into a displaced EC50, and it is not the default
+        because the fifth parameter is weakly identified on the eight or ten
+        concentrations a plate actually carries. A fit that chose 5PL
+        reports whether the extra parameter earned itself — see
+        :attr:`DoseResponseResult.asymmetry_p`.
+    :raises DoseResponseError: on an unknown method, direction or model, or
+        a confidence outside (0, 1) — at the point the spec is built, not
         halfway through a plate.
     """
 
@@ -499,11 +1086,13 @@ class DoseResponseSpec:
     direction: str = DIRECTION_AUTO
     allow_non_monotone: bool = False
     max_reversal: float = MAX_REVERSAL
+    model: str = MODEL_4PL
 
     def __post_init__(self) -> None:
         """Normalise the column names and validate the fit settings.
 
-        :raises DoseResponseError: if ``ci_method`` or ``direction`` is not one
+        :raises DoseResponseError: if ``ci_method``, ``direction`` or
+            ``model`` is not one
             this module offers; if ``confidence`` is not strictly between 0 and
             1 -- it is a coverage probability, so a 95% interval is 0.95 and not
             95; or if ``max_reversal`` is not a fraction of the response span in
@@ -525,6 +1114,13 @@ class DoseResponseSpec:
             raise DoseResponseError(
                 f"unknown direction {self.direction!r}; choose one of "
                 f"{', '.join(DIRECTIONS)}")
+        if self.model not in MODELS:
+            raise DoseResponseError(
+                f"unknown model {self.model!r}; it is {MODEL_4PL!r} (the "
+                f"symmetric four-parameter logistic, the default) or "
+                f"{MODEL_5PL!r} (the asymmetric five-parameter one, which "
+                f"needs a concentration and an observation more and reports "
+                f"whether its fifth parameter was worth spending)")
         level = float(self.confidence)
         if not 0.0 < level < 1.0:
             raise DoseResponseError(
@@ -565,6 +1161,7 @@ class DoseResponseSpec:
             "direction": self.direction,
             "allow_non_monotone": self.allow_non_monotone,
             "max_reversal": self.max_reversal,
+            "model": self.model,
         }
 
     @classmethod
@@ -576,7 +1173,7 @@ class DoseResponseSpec:
         """
         fields = {"concentration", "response", "group", "ci_method",
                   "confidence", "unit", "direction", "allow_non_monotone",
-                  "max_reversal"}
+                  "max_reversal", "model"}
         known = {k: v for k, v in dict(payload).items() if k in fields}
         return cls(**known)
 
@@ -596,7 +1193,8 @@ class DoseResponseSpec:
         method = ("profile-likelihood" if self.ci_method == CI_PROFILE
                   else "Wald")
         unit = f" ({self.unit})" if self.unit else ""
-        return (f"4PL · {columns}{unit} · {self.confidence:.0%} {method} CI "
+        return (f"{_MODEL_LABELS[self.model]} · {columns}{unit} · "
+                f"{self.confidence:.0%} {method} CI "
                 f"on log10(EC50) · direction {self.direction}")
 
 
@@ -638,7 +1236,9 @@ class DoseResponseResult:
     :param n_obs: observations fitted.
     :param n_doses: distinct
         concentrations.
-    :param dof: residual degrees of freedom, ``n_obs - 4``.
+    :param dof: residual degrees of freedom — ``n_obs`` less the model's
+        parameter count, so ``n_obs - 4`` for a 4PL and ``n_obs - 5`` for a
+        5PL.
     :param rse: residual standard error, in response units.
     :param r_squared: with the health warning in :meth:`caveats` attached.
     :param lack_of_fit_f: F statistic of the test against pure error.
@@ -657,6 +1257,21 @@ class DoseResponseResult:
     :param n_excluded: rows dropped for a missing or non-finite value.
     :param check: the :class:`MonotonicityCheck` this fit passed (or was
         forced past).
+    :param model: :data:`MODEL_4PL` or :data:`MODEL_5PL` — which curve these
+        parameters belong to.
+    :param asymmetry: the 5PL exponent. Exactly ``1.0`` under
+        :data:`MODEL_4PL`, where it is not a parameter at all.
+    :param asymmetry_ci: its Wald interval, or ``(None, None)``.
+    :param asymmetry_f: extra-sum-of-squares F of the 5PL against the 4PL on
+        the same points, or ``None`` under :data:`MODEL_4PL`.
+    :param asymmetry_p: its p value. **A large p is the interesting case**:
+        it says the asymmetry the 5PL fitted is inside what the noise would
+        produce, and the symmetric fit is the one to quote.
+    :param hormesis: the :class:`HormesisCheck` when the low-dose end of the
+        series was worth testing, else ``None``. A fit can be perfectly
+        monotone by :func:`monotonicity` and still carry a hormetic hump
+        that displaces its EC50, so this is reported beside a successful fit
+        and not only inside a refusal.
     """
 
     group: str
@@ -699,11 +1314,37 @@ class DoseResponseResult:
     n_excluded: int = 0
     optimizer_notes: Tuple[str, ...] = ()
     notes: Tuple[str, ...] = ()
+    model: str = MODEL_4PL
+    asymmetry: float = 1.0
+    asymmetry_ci: Tuple[Optional[float], Optional[float]] = (None, None)
+    asymmetry_f: Optional[float] = None
+    asymmetry_p: Optional[float] = None
+    hormesis: Optional[HormesisCheck] = None
 
     @property
-    def parameters(self) -> Tuple[float, float, float, float]:
-        """``(bottom, top, log10_ec50, hill)`` — the vector the model takes."""
+    def parameters(self) -> Tuple[float, ...]:
+        """The vector this result's model takes.
+
+        ``(bottom, top, log10_ec50, hill)`` under :data:`MODEL_4PL` and that
+        with ``asymmetry`` appended under :data:`MODEL_5PL` — in both cases
+        exactly what :attr:`model_function` expects, so ``predict`` is one
+        line and no caller has to know which model it is holding.
+        """
+        if self.model == MODEL_5PL:
+            return (self.bottom, self.top, self.log10_ec50, self.hill,
+                    self.asymmetry)
         return (self.bottom, self.top, self.log10_ec50, self.hill)
+
+    @property
+    def model_function(self) -> Callable[..., np.ndarray]:
+        """:func:`four_parameter_logistic` or :func:`five_parameter_logistic`."""
+        return (five_parameter_logistic if self.model == MODEL_5PL
+                else four_parameter_logistic)
+
+    @property
+    def n_parameters(self) -> int:
+        """4 or 5 — what every degrees-of-freedom count here is against."""
+        return _MODEL_PARAMETERS.get(self.model, 4)
 
     @property
     def status(self) -> str:
@@ -743,7 +1384,7 @@ class DoseResponseResult:
 
     def predict(self, x) -> np.ndarray:
         """The fitted response at ``x``."""
-        return four_parameter_logistic(x, *self.parameters)
+        return self.model_function(x, *self.parameters)
 
     def curve(self, points: int = 200) -> Tuple[np.ndarray, np.ndarray]:
         """``(x, y)`` for drawing, geometrically spaced across the tested
@@ -788,9 +1429,12 @@ class DoseResponseResult:
             ("top", self.top, self.top_ci),
             ("log10_ec50", self.log10_ec50, self.log10_ec50_ci),
             ("hill", self.hill, self.hill_ci),
-            ("ec50", self.ec50 if self.ec50_bounded else float("nan"),
-             (self.ec50_low, self.ec50_high)),
         ]
+        if self.model == MODEL_5PL:
+            rows.append(("asymmetry", self.asymmetry, self.asymmetry_ci))
+        rows.append(
+            ("ec50", self.ec50 if self.ec50_bounded else float("nan"),
+             (self.ec50_low, self.ec50_high)))
         return pd.DataFrame({
             "group": [self.group] * len(rows),
             "parameter": [name for name, _v, _ci in rows],
@@ -861,6 +1505,8 @@ class DoseResponseResult:
         shape = ("inhibition" if self.hill < 0 else "activation")
         where = (f"{self.n_obs} observations at {self.n_doses} "
                  f"concentrations")
+        if self.model == MODEL_5PL:
+            where = f"asymmetry {self.asymmetry:.3g}; {where}"
         if not self.ec50_bounded:
             return (
                 f"This experiment does not bound the EC50: "
@@ -883,6 +1529,7 @@ class DoseResponseResult:
     def caveats(self) -> Tuple[str, ...]:
         """Everything a reader needs before believing the number."""
         out: List[str] = []
+        model = _MODEL_LABELS.get(self.model, "4PL")
         if not self.ec50_bounded:
             out.append(
                 "The point estimate is deliberately withheld (`ec50` is "
@@ -907,22 +1554,23 @@ class DoseResponseResult:
             if not self.has_replicates:
                 out.append(
                     "No concentration was measured twice, so there is no "
-                    "pure-error estimate and no lack-of-fit test. Whether a "
-                    "4PL is the right shape for this data is untested, not "
-                    "confirmed.")
+                    f"pure-error estimate and no lack-of-fit test. Whether "
+                    f"a {model} is the right shape for this data is "
+                    f"untested, not confirmed.")
             else:
                 out.append(
                     f"The lack-of-fit test needs more distinct "
                     f"concentrations than parameters; {self.n_doses} "
-                    f"concentrations against 4 parameters leaves it no "
-                    f"degrees of freedom.")
+                    f"concentrations against {self.n_parameters} "
+                    f"parameters leaves it no degrees of freedom.")
         elif self.lack_of_fit_p < 0.05:
             out.append(
                 f"Lack-of-fit F = {self.lack_of_fit_f:.3g} on "
                 f"{self.lack_of_fit_df[0]} and {self.lack_of_fit_df[1]} df, "
                 f"p = {self.lack_of_fit_p:.3g}: the scatter around the curve "
-                f"is bigger than the scatter between replicates, so a 4PL is "
-                f"the wrong shape for this data. Anything below is the EC50 "
+                f"is bigger than the scatter between replicates, so a "
+                f"{model} is the wrong shape for this data. Anything below "
+                f"is the EC50 "
                 f"of a curve that does not describe the experiment. (The "
                 f"test is approximate for a nonlinear model and rejects a "
                 f"little above nominal, so read a p just under 0.05 as a "
@@ -944,6 +1592,31 @@ class DoseResponseResult:
                 f"{self.dof} residual degree(s) of freedom. Every interval "
                 f"here uses a t quantile on that df, which is why they are "
                 f"wide; they are not wide by mistake.")
+        if self.model == MODEL_5PL and self.asymmetry_p is not None:
+            if self.asymmetry_p >= 0.05:
+                out.append(
+                    f"The fifth parameter did not earn itself: the 5PL "
+                    f"improves on the 4PL by F = {self.asymmetry_f:.3g} on 1 "
+                    f"and {self.dof} df, p = {self.asymmetry_p:.3g}. The "
+                    f"asymmetry this fit reports ({self.asymmetry:.3g}) is "
+                    f"inside what noise produces, and the symmetric fit is "
+                    f"the one to quote. The 5PL was asked for, so it is what "
+                    f"is reported.")
+            else:
+                out.append(
+                    f"The asymmetry is supported: the 5PL improves on the "
+                    f"4PL by F = {self.asymmetry_f:.3g} on 1 and {self.dof} "
+                    f"df, p = {self.asymmetry_p:.3g}. A 4PL on this data "
+                    f"would have absorbed the asymmetry into a displaced "
+                    f"EC50.")
+        if self.hormesis is not None and self.hormesis.is_hormetic:
+            out.append(
+                f"This series is hormetic and the curve above is not: "
+                f"{self.hormesis.describe()}. The EC50 above comes from a "
+                f"monotone fit that treats the low-dose stimulation as "
+                f"noise, so it is displaced by however much that hump "
+                f"carries. Fit the series above the hump, or report the "
+                f"hormetic model.")
         if not self.check.is_monotone:
             out.append(
                 f"Fitted against the monotonicity check, which failed: "
@@ -966,7 +1639,8 @@ class DoseResponseResult:
     def report(self) -> str:
         """The whole story, as the panel prints it and a report file writes it."""
         lines = [
-            f"4PL dose–response{f' · {self.group}' if self.group else ''} "
+            f"{_MODEL_LABELS.get(self.model, '4PL')} dose–response"
+            f"{f' · {self.group}' if self.group else ''} "
             f"({self.n_obs} observations, {self.n_doses} concentrations from "
             f"{self._dose(self.dose_min)} to {self._dose(self.dose_max)}).",
             "",
@@ -979,8 +1653,9 @@ class DoseResponseResult:
             f"  residual SE {self.rse:.4g} on {self.dof} df; R² "
             f"{self.r_squared:.4f}")
         if self.lack_of_fit_p is not None:
-            verdict = ("a 4PL does not fit" if self.lack_of_fit_p < 0.05
-                       else "consistent with a 4PL")
+            label = _MODEL_LABELS.get(self.model, "4PL")
+            verdict = (f"a {label} does not fit" if self.lack_of_fit_p < 0.05
+                       else f"consistent with a {label}")
             lines.append(
                 f"  lack of fit vs pure error: F = {self.lack_of_fit_f:.4g} "
                 f"on {self.lack_of_fit_df[0]}, {self.lack_of_fit_df[1]} df, "
@@ -1117,7 +1792,8 @@ class DoseResponseSet:
             if fit.result is not None:
                 lines.append(fit.result.report())
             else:
-                lines.append(f"4PL dose–response · {fit.group}: REFUSED — "
+                lines.append(f"{_MODEL_LABELS.get(self.spec.model, '4PL')} "
+                             f"dose–response · {fit.group}: REFUSED — "
                              f"{fit.error}")
             lines.append("")
         return "\n".join(lines).rstrip() + "\n"
@@ -1189,24 +1865,42 @@ def _clean(doses: Sequence[float], responses: Sequence[float]
     return dose[~zero], response[~zero], vehicle, n_vehicle, n_excluded
 
 
-def _guard(dose: np.ndarray, response: np.ndarray, n_vehicle: int) -> None:
-    """Refuse everything that cannot carry a 4PL, with the count in the text."""
+def _guard(dose: np.ndarray, response: np.ndarray, n_vehicle: int,
+           n_parameters: int = 4) -> None:
+    """Refuse everything that cannot carry the model, with the count in the
+    text.
+
+    :param dose: the positive concentrations that survived :func:`_clean`.
+    :param response: the matching responses.
+    :param n_vehicle: vehicle observations already set aside, named in the
+        message because "four concentrations" reads as wrong to someone
+        looking at five rows.
+    :param n_parameters: 4 for the 4PL, 5 for the 5PL. Both thresholds move
+        with it: the fifth parameter needs a fifth concentration to sit on
+        and a sixth observation before anything is left over.
+    """
     distinct = np.unique(dose)
-    if distinct.size < MIN_DOSES:
+    words = "five" if n_parameters == 5 else "four"
+    least = max(MIN_DOSES, n_parameters)
+    fewest = max(MIN_OBSERVATIONS, n_parameters + 1)
+    if distinct.size < least:
         vehicle = (f" (the {n_vehicle} vehicle observation(s) at "
-                   f"concentration 0 cannot count towards this — a 4PL is "
+                   f"concentration 0 cannot count towards this — a "
+                   f"{'5PL' if n_parameters == 5 else '4PL'} is "
                    f"fitted in log concentration)" if n_vehicle else "")
         raise DoseResponseError(
-            f"a four-parameter logistic has four parameters and this series "
-            f"has {distinct.size} distinct positive concentration(s){vehicle}. "
-            f"At least {MIN_DOSES} are needed to fit one at all, and it takes "
+            f"a {words}-parameter logistic has {words} parameters and "
+            f"this series has {distinct.size} distinct positive "
+            f"concentration(s){vehicle}. "
+            f"At least {least} are needed to fit one at all, and it takes "
             f"6–10 spanning the midpoint to fit one worth quoting.")
-    if dose.size < MIN_OBSERVATIONS:
+    if dose.size < fewest:
         raise DoseResponseError(
-            f"{dose.size} observations against 4 parameters leaves "
-            f"{dose.size - 4} residual degrees of freedom, so the curve "
-            f"passes through the points and there is nothing left to estimate "
-            f"the uncertainty from. At least {MIN_OBSERVATIONS} are needed.")
+            f"{dose.size} observations against {n_parameters} parameters "
+            f"leaves {dose.size - n_parameters} residual degrees of freedom, "
+            f"so the curve passes through the points and there is nothing "
+            f"left to estimate the uncertainty from. At least {fewest} are "
+            f"needed.")
     spread = float(np.max(response) - np.min(response))
     scale = max(abs(float(np.mean(response))), 1.0)
     if spread <= scale * CONSTANT_TOLERANCE:
@@ -1349,6 +2043,75 @@ def _best_fit(dose: np.ndarray, response: np.ndarray,
     return best
 
 
+def _five_from_span(x, bottom, span, log10_ec50, hill, asymmetry):
+    """:func:`five_parameter_logistic` with the upper plateau as an offset.
+
+    The same device :func:`_brain_cousens_span` uses and for the same reason:
+    ``(bottom, top, L, h)`` and ``(top, bottom, L, -h)`` are the same 4PL but
+    NOT the same 5PL — reflecting an asymmetric curve does not leave it
+    where it was — so ``top >= bottom`` cannot be repaired after the fit and
+    has to be a bound during it.
+    """
+    return five_parameter_logistic(x, bottom, bottom + span, log10_ec50,
+                                   hill, asymmetry)
+
+
+def _fit_five(dose: np.ndarray, response: np.ndarray,
+              popt: Sequence[float]):
+    """Fit the 5PL from the 4PL solution. ``(sse, popt, pcov, notes)``.
+
+    Started at the symmetric fit with ``asymmetry = 1``, which is that
+    solution exactly, so the five-parameter search begins from the
+    four-parameter answer and can only leave it for something that fits
+    better. Returns ``None`` when nothing converged; the caller then keeps
+    the 4PL solution and says so, rather than reporting a failed search as
+    an asymmetry of 1.
+
+    The covariance comes back in ``(bottom, top, log10_ec50, hill,
+    asymmetry)`` co-ordinates: the fitted vector uses ``span = top - bottom``
+    and that substitution is linear, so the transform is exact.
+    """
+    bottom, top, log10_ec50, hill = (float(v) for v in popt)
+    span = max(float(top - bottom), 0.0)
+    lower = [-np.inf, 0.0, -np.inf, -np.inf, ASYMMETRY_LOW]
+    upper = [np.inf, np.inf, np.inf, np.inf, ASYMMETRY_HIGH]
+    jacobian = np.array([[1.0, 0.0, 0.0, 0.0, 0.0],
+                         [1.0, 1.0, 0.0, 0.0, 0.0],
+                         [0.0, 0.0, 1.0, 0.0, 0.0],
+                         [0.0, 0.0, 0.0, 1.0, 0.0],
+                         [0.0, 0.0, 0.0, 0.0, 1.0]])
+    best = None
+    notes: List[str] = []
+    for shape in (1.0, 0.5, 2.0):
+        p0 = [bottom, span, log10_ec50, hill, shape]
+        found = covariance = None
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            try:
+                found, covariance = curve_fit(
+                    _five_from_span, dose, response, p0=p0,
+                    bounds=(lower, upper),
+                    max_nfev=_MAX_FUNCTION_EVALUATIONS)
+            except (RuntimeError, ValueError, TypeError) as exc:
+                notes.append(f"{type(exc).__name__}: {exc}")
+            for entry in caught:
+                notes.append(f"{entry.category.__name__}: {entry.message}")
+        if found is None or not np.all(np.isfinite(found)):
+            continue
+        fitted = _five_from_span(dose, *found)
+        sse = float(np.sum((response - fitted) ** 2))
+        if not np.isfinite(sse):
+            continue
+        vector = np.array([float(found[0]), float(found[0]) + float(found[1]),
+                           float(found[2]), float(found[3]), float(found[4])])
+        matrix = None
+        if covariance is not None:
+            matrix = jacobian @ np.asarray(covariance, dtype=float) @ jacobian.T
+        if best is None or sse < best[0]:
+            best = (sse, vector, matrix, tuple(notes))
+    return best
+
+
 def _canonicalise(popt: np.ndarray, pcov: Optional[np.ndarray]):
     """Force ``top >= bottom`` so the Hill slope carries the direction.
 
@@ -1372,7 +2135,8 @@ def _canonicalise(popt: np.ndarray, pcov: Optional[np.ndarray]):
 
 
 def _plateau_sse(log_dose: np.ndarray, response: np.ndarray,
-                 log10_ec50: float, hill) -> np.ndarray:
+                 log10_ec50: float, hill,
+                 asymmetry: Optional[float] = None) -> np.ndarray:
     """Residual sum of squares with ``(bottom, top)`` profiled out exactly.
 
     For a fixed midpoint and slope the model is **linear** in the two
@@ -1384,11 +2148,27 @@ def _plateau_sse(log_dose: np.ndarray, response: np.ndarray,
 
     ``hill`` may be an array, in which case one SSE per element comes back and
     the whole slope grid is evaluated in a handful of numpy operations.
+
+    The 5PL is linear in its plateaus too — the asymmetry exponent sits
+    inside the weight, not outside it — so passing ``asymmetry`` profiles the
+    same two parameters out of the same closed form. ``None`` keeps the 4PL
+    arithmetic exactly as it was rather than routing it through the more
+    general expression, because ``10 ** -log10(u)`` and ``1 / u`` are the
+    same number only up to rounding, and the 4PL's published intervals
+    should not move by a last bit because a second model was added.
     """
     slopes = np.atleast_1d(np.asarray(hill, dtype=float))
     exponent = np.clip((log10_ec50 - log_dose)[:, None] * slopes[None, :],
                        -_EXPONENT_LIMIT, _EXPONENT_LIMIT)
-    high = 1.0 / (1.0 + 10.0 ** exponent)
+    if asymmetry is None or float(asymmetry) == 1.0:
+        high = 1.0 / (1.0 + 10.0 ** exponent)
+    else:
+        shape = float(asymmetry)
+        scale = 2.0 ** (1.0 / shape) - 1.0
+        inner = 1.0 + scale * 10.0 ** exponent
+        power = np.clip(shape * np.log10(inner),
+                        -_EXPONENT_LIMIT, _EXPONENT_LIMIT)
+        high = 10.0 ** (-power)
     low = 1.0 - high
     y = response[:, None]
     s_ll = (low * low).sum(axis=0)
@@ -1409,14 +2189,56 @@ def _plateau_sse(log_dose: np.ndarray, response: np.ndarray,
 
 
 def _profile_sse(log_dose: np.ndarray, response: np.ndarray,
-                 log10_ec50: float, sign: float) -> float:
-    """``min SSE`` over ``(bottom, top, hill)`` with the midpoint held fixed.
+                 log10_ec50: float, sign: float,
+                 model: str = MODEL_4PL) -> float:
+    """``min SSE`` over every parameter but the midpoint, held fixed.
 
     The slope is searched on :data:`_HILL_GRID` — restricted to the direction
     the data already showed, because a slope of the opposite sign would be a
     different experiment, not a wider interval — and then refined by bounded
     Brent between the grid's neighbours.
+
+    Under :data:`MODEL_5PL` the asymmetry has to be profiled out as well, or
+    the interval would be the interval of a 5PL whose fifth parameter was
+    pinned at its point estimate — narrower than the data supports, and
+    narrower for a reason the reader cannot see. It is walked as a coarse
+    log-spaced grid with the slope refined at its best point; the grid is
+    coarse on purpose, since this runs once per bisection step and the
+    profile bound it feeds is already reported to three decimal places of
+    log10 concentration.
     """
+    if model == MODEL_5PL:
+        best = np.inf
+        at_shape, at_slope, at_index = 1.0, float(_HILL_GRID[0]), 0
+        for shape in _ASYMMETRY_GRID:
+            values = _plateau_sse(log_dose, response, log10_ec50,
+                                  sign * _HILL_GRID, float(shape))
+            j = int(np.nanargmin(values)) if np.any(np.isfinite(values)) else 0
+            if float(values[j]) < best:
+                best = float(values[j])
+                at_shape = float(shape)
+                at_slope = float(_HILL_GRID[j])
+                at_index = j
+        lo = float(_HILL_GRID[max(0, at_index - 1)])
+        hi = float(_HILL_GRID[min(_HILL_GRID.size - 1, at_index + 1)])
+        if hi > lo:
+            outcome = minimize_scalar(
+                lambda magnitude: float(_plateau_sse(
+                    log_dose, response, log10_ec50, sign * magnitude,
+                    at_shape)[0]),
+                bounds=(lo, hi), method="bounded", options={"xatol": 1e-4})
+            if outcome.success and float(outcome.fun) < best:
+                best = float(outcome.fun)
+                at_slope = float(outcome.x)
+        outcome = minimize_scalar(
+            lambda shape: float(_plateau_sse(
+                log_dose, response, log10_ec50, sign * at_slope,
+                float(shape))[0]),
+            bounds=(ASYMMETRY_LOW, ASYMMETRY_HIGH), method="bounded",
+            options={"xatol": 1e-3})
+        if outcome.success and float(outcome.fun) < best:
+            best = float(outcome.fun)
+        return best
     grid = sign * _HILL_GRID
     values = _plateau_sse(log_dose, response, log10_ec50, grid)
     j = int(np.argmin(values))
@@ -1437,7 +2259,7 @@ def _profile_sse(log_dose: np.ndarray, response: np.ndarray,
 def _profile_bound(log_dose: np.ndarray, response: np.ndarray,
                    centre: float, sign: float, target: float,
                    step: float, limit: float,
-                   upward: bool) -> Optional[float]:
+                   upward: bool, model: str = MODEL_4PL) -> Optional[float]:
     """Walk one side of the profile until it crosses ``target``.
 
     Steps outward from the estimate, doubling the step each time the residual
@@ -1455,7 +2277,7 @@ def _profile_bound(log_dose: np.ndarray, response: np.ndarray,
         candidate = centre + direction * reach
         if (upward and candidate > limit) or (not upward and candidate < limit):
             candidate = limit
-        if _profile_sse(log_dose, response, candidate, sign) > target:
+        if _profile_sse(log_dose, response, candidate, sign, model) > target:
             outside = candidate
             break
         inside = candidate
@@ -1466,14 +2288,15 @@ def _profile_bound(log_dose: np.ndarray, response: np.ndarray,
         return None
     while abs(outside - inside) > PROFILE_TOLERANCE:
         middle = 0.5 * (inside + outside)
-        if _profile_sse(log_dose, response, middle, sign) > target:
+        if _profile_sse(log_dose, response, middle, sign, model) > target:
             outside = middle
         else:
             inside = middle
     return float(0.5 * (inside + outside))
 
 
-def _lack_of_fit(dose: np.ndarray, response: np.ndarray, sse: float
+def _lack_of_fit(dose: np.ndarray, response: np.ndarray, sse: float,
+                 n_parameters: int = 4
                  ) -> Tuple[Optional[float], Optional[float],
                             Optional[Tuple[int, int]]]:
     """The F test of model misspecification against pure error.
@@ -1497,14 +2320,14 @@ def _lack_of_fit(dose: np.ndarray, response: np.ndarray, sse: float
     calibrated 5% test.
 
     Second, it needs both replicates (``n > m``) and more concentrations than
-    parameters (``m > 4``). When either is missing it returns ``None`` —
-    "cannot be tested", which is not "passed".
+    parameters (``m > 4``, or ``m > 5`` for the 5PL). When either is missing
+    it returns ``None`` — "cannot be tested", which is not "passed".
     """
     distinct, _medians, counts = _per_dose(dose, response)
     m = int(distinct.size)
     n = int(dose.size)
     df_pure = n - m
-    df_lof = m - 4
+    df_lof = m - int(n_parameters)
     if df_pure < 1 or df_lof < 1:
         return None, None, None
     _values, inverse = np.unique(dose, return_inverse=True)
@@ -1564,25 +2387,58 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
     experiment actually locates it, and otherwise as a one-sided bound with
     :attr:`DoseResponseResult.ec50` set to ``None``.
 
+    Two things happen here that the model choice does not change. **A series
+    whose low-dose end rises against the trend is tested for hormesis**
+    (:func:`hormesis`) whether or not it also fails the monotonicity check,
+    because a hump can be worth a fifth of the response span and still be
+    inside :data:`MAX_REVERSAL`. A hormetic series that fails the
+    monotonicity check is refused *as hormesis* rather than as the
+    cytotoxicity a bell shape usually is — a different sentence, a different
+    thing to do next. A hormetic series that passes it is fitted, and carries
+    the finding as a caveat and as :attr:`DoseResponseResult.hormesis`.
+
+    **The 5PL is fitted from the 4PL solution**, so the asymmetric fit starts
+    at the symmetric answer and can only leave it for something better; the
+    improvement is then reported as an F test on the one extra parameter.
+
     :param doses: concentrations, one per observation, replicates included.
     :param responses: the matching responses.
     :param spec: a :class:`DoseResponseSpec`. Only its policy fields matter
-        here; the column names are for :func:`fit_frame`.
+        here — including ``model``; the column names are for
+        :func:`fit_frame`.
     :param group: a label carried through onto the result.
-    :raises DoseResponseError: for every series that cannot carry a 4PL —
-        too few concentrations, a flat response, a negative concentration, a
-        bell shape, or an optimiser that never converged. The message says
-        which and what to do about it.
+    :raises DoseResponseError: for every series that cannot carry the chosen
+        model — too few concentrations, a flat response, a negative
+        concentration, a bell shape, a hormetic curve, or an optimiser that
+        never converged. The message says which and what to do about it.
     """
     spec = spec or DoseResponseSpec()
+    n_parameters = _MODEL_PARAMETERS[spec.model]
     dose, response, vehicle, n_vehicle, n_excluded = _clean(doses, responses)
-    _guard(dose, response, n_vehicle)
+    _guard(dose, response, n_vehicle, n_parameters)
 
+    sign = _direction_sign(dose, response, spec.direction)
     check = monotonicity(dose, response, max_reversal=spec.max_reversal)
+    _departure, excursion, _peak = _low_dose_excursion(dose, response, sign)
+    hormetic: Optional[HormesisCheck] = None
+    if not check.is_monotone or excursion >= _HORMESIS_SCREEN:
+        hormetic = hormesis(dose, response, direction=spec.direction)
+
     if not check.is_monotone and not spec.allow_non_monotone:
         turns = ", ".join(f"{d:.3g}" for d in check.turning_points) or \
             "inside the tested range"
         unit = f" {spec.unit}" if spec.unit else ""
+        if hormetic is not None and hormetic.is_hormetic:
+            raise DoseResponseError(
+                f"this series is hormetic, not sigmoid: {hormetic.describe()}. "
+                f"A low-dose stimulation is a finding rather than a fault — "
+                f"it is not the cytotoxicity a bell shape usually means, and "
+                f"dropping the doses it sits on would throw it away. No "
+                f"four-parameter logistic describes it, so none is reported: "
+                f"fit the concentrations above the hump for a potency, and "
+                f"quote the stimulation separately. Set "
+                f"allow_non_monotone=True to fit the monotone curve anyway "
+                f"and keep this finding as a caveat on it.")
         raise DoseResponseError(
             f"this series is not monotone, so a four-parameter logistic is "
             f"the wrong model for it and no EC50 fitted to it would mean "
@@ -1594,19 +2450,49 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
             f"dose killing the signal that was being measured. Re-fit without "
             f"the top dose, or use a biphasic model — spaCR does not have "
             f"one. Set allow_non_monotone=True to force a fit, and expect the "
-            f"EC50 to be an artefact of where the curve turns.")
+            f"EC50 to be an artefact of where the curve turns."
+            + (f" The low-dose end was tested for hormesis and it is not "
+               f"that: {hormetic.note}."
+               if hormetic is not None and hormetic.note else ""))
 
-    sign = _direction_sign(dose, response, spec.direction)
     sse, popt, pcov, optimizer_notes = _best_fit(
         dose, response, _initial_guesses(dose, response, sign))
     popt, pcov = _canonicalise(popt, pcov)
-    bottom, top, log10_ec50, hill = (float(v) for v in popt)
+
+    notes: List[str] = []
+    asymmetry = 1.0
+    asymmetry_f: Optional[float] = None
+    asymmetry_p: Optional[float] = None
+    if spec.model == MODEL_5PL:
+        symmetric_sse = sse
+        found = _fit_five(dose, response, popt)
+        if found is not None and found[0] < symmetric_sse:
+            sse, popt, pcov, five_notes = found
+            optimizer_notes = tuple(optimizer_notes) + tuple(five_notes)
+            asymmetry = float(popt[4])
+            if sse > 0 and dose.size > 5:
+                asymmetry_f = float((symmetric_sse - sse) /
+                                    (sse / (dose.size - 5)))
+                asymmetry_p = float(stats.f.sf(asymmetry_f, 1,
+                                               dose.size - 5))
+        else:
+            popt = np.append(np.asarray(popt, dtype=float), 1.0)
+            pcov = None
+            notes.append(
+                "the five-parameter fit did not improve on the symmetric "
+                "one, so the asymmetry is reported as 1 and the curve is the "
+                "4PL. That is a statement about this series, not a failure: "
+                "the fifth parameter had nothing to do")
+
+    bottom, top, log10_ec50, hill = (float(v) for v in popt[:4])
 
     n_obs = int(dose.size)
     distinct = np.unique(dose)
     n_doses = int(distinct.size)
-    dof = n_obs - 4
-    fitted = four_parameter_logistic(dose, bottom, top, log10_ec50, hill)
+    dof = n_obs - n_parameters
+    model_function = (five_parameter_logistic if spec.model == MODEL_5PL
+                      else four_parameter_logistic)
+    fitted = model_function(dose, *popt[:n_parameters])
     total = float(np.sum((response - response.mean()) ** 2))
     r_squared = float(1.0 - sse / total) if total > 0 else float("nan")
     rse = float(np.sqrt(sse / dof)) if dof > 0 else float("nan")
@@ -1635,14 +2521,15 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
     log_min, log_max = float(log_dose.min()), float(log_dose.max())
     wald_log_ci = wald(2)
 
-    notes: List[str] = []
     if spec.ci_method == CI_PROFILE and dof > 0 and sse > 0:
         target = sse * (1.0 + quantile ** 2 / dof)
         step = max(0.05, (log_max - log_min) / 8.0)
         lower = _profile_bound(log_dose, response, log10_ec50, sign, target,
-                               step, log_min - PROFILE_REACH, upward=False)
+                               step, log_min - PROFILE_REACH, upward=False,
+                               model=spec.model)
         upper = _profile_bound(log_dose, response, log10_ec50, sign, target,
-                               step, log_max + PROFILE_REACH, upward=True)
+                               step, log_max + PROFILE_REACH, upward=True,
+                               model=spec.model)
         log_ci: Tuple[Optional[float], Optional[float]] = (lower, upper)
     elif spec.ci_method == CI_PROFILE:
         log_ci = (None, None)
@@ -1683,7 +2570,8 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
         ec50_low = ec50_high = None
         log_ci = (None, None)
 
-    f_statistic, p_value, lof_df = _lack_of_fit(dose, response, sse)
+    f_statistic, p_value, lof_df = _lack_of_fit(dose, response, sse,
+                                                n_parameters)
     if spec.ci_method == CI_PROFILE and not covariance_ok:
         notes.append(
             "the covariance matrix was not estimable, so the Hill slope and "
@@ -1705,7 +2593,10 @@ def fit_dose_response(doses: Sequence[float], responses: Sequence[float],
         direction=(DIRECTION_INHIBITION if hill < 0 else DIRECTION_ACTIVATION),
         vehicle_response=vehicle, n_vehicle=n_vehicle, n_excluded=n_excluded,
         optimizer_notes=tuple(dict.fromkeys(optimizer_notes)),
-        notes=tuple(notes))
+        notes=tuple(notes), model=spec.model, asymmetry=asymmetry,
+        asymmetry_ci=(wald(4) if spec.model == MODEL_5PL else (None, None)),
+        asymmetry_f=asymmetry_f, asymmetry_p=asymmetry_p,
+        hormesis=hormetic)
 
 
 def fit_frame(frame: pd.DataFrame,

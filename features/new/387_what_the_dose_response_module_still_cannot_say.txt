@@ -2,12 +2,15 @@
 WHAT DOSE-RESPONSE STILL CANNOT SAY: SELECTIVITY, SYNERGY, AND THE PLATE
 ================================================================================
 
-Status:    ALL FIVE NUMBERED TASKS ARE BUILT, verified 2026-09-13 against
-           `dose_response.__all__` rather than against this file's prose.
-           What remains is the two EXTRAS this file records outside the
-           numbered list -- the five-parameter logistic and hormesis
-           detection -- plus whatever the screen does not yet surface.
-           See the 09-13 note. Was OPEN AND ACTIONABLE from 2026-09-10,
+Status:    DONE 2026-09-19. The five numbered tasks were built by
+           2026-09-13, reachable from the screen by 2026-09-15, and the two
+           EXTRAS this file records outside the numbered list -- the
+           five-parameter logistic and hormesis detection -- landed on
+           2026-09-19 with 19 tests. See the 09-19 note for what each one
+           measures and for the one gap it closed that nobody had named: a
+           hormetic hump can be worth a fifth of the response span, pass the
+           monotonicity check, and displace the EC50 it is fitted into
+           without a word being said. Was OPEN AND ACTIONABLE from 2026-09-10,
            when THE HOLD WAS LIFTED: the
            condition was the version bump, and `spacr/_version.py` reached
            1.5.0.5 on 2026-09-10 (merge 82918f29d, "Merge main into nightly:
@@ -402,3 +405,133 @@ the boost belongs in combination wells only.
 STATUS: ALL FIVE ENGINE FEATURES ARE NOW REACHABLE FROM THE SCREEN. What is
 left on this item is outside the numbered list and was always recorded as such:
 the five-parameter logistic and hormesis detection, both engine work.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE TWO EXTRAS: AN ASYMMETRIC CURVE ON REQUEST, AND A HUMP WITH A NAME
+--------------------------------------------------------------------------------
+
+Decided: relayed to this session with the item on 2026-09-19 -- "a
+five-parameter logistic as an OPTION (not the default) and hormesis
+(non-monotonic) detection, each with tests; the screen shows both", with the
+method left open and the bar set: "use a principled hormesis test (e.g. a
+Brain-Cousens or Cedergreen-Ritz-Streibig model compared with the monotone
+fit by a likelihood-ratio or AIC criterion, and a minimum-effect threshold)
+-- justify it in the file." Quoted from the instruction this session was
+given rather than from the maintainer directly; the maintainer's own wording
+on this item is the 2026-09-09 request at the top of the file.
+
+THE 5PL, AND WHY log10_ec50 STILL MEANS THE EC50. `five_parameter_logistic`
+is fitted in the EC50-preserving parameterisation:
+
+    y = bottom + (top - bottom) / (1 + a*10**((L - log10 x)*h)) ** s,
+    a = 2**(1/s) - 1
+
+Written the way the 5PL usually is, the third parameter is the inflection
+point and NOT the half-maximal concentration: at x = 10**c an asymmetric
+curve sits 1/2**s of the way up, so a 5PL whose c is quoted as an EC50 is
+wrong by a factor that grows with the asymmetry. That constant a moves the
+half-maximal point back onto x = EC50 exactly. The payoff is bigger than
+correctness -- every rule already in the module reads `log10_ec50` and none
+of them had to learn a second meaning -- and at s = 1 the expression is the
+4PL term for term, which is what makes the F test below a legitimate nested
+comparison.
+
+IT IS OFFERED AND NOT DEFAULTED TO, which is this file's own decision under
+DELIBERATELY NOT DONE. `DoseResponseSpec.model` is `MODEL_4PL` unless
+somebody says otherwise, the screen's new Curve picker starts there, and a
+5PL fit reports an extra-sum-of-squares F test of its fifth parameter in
+`asymmetry_p`. The interesting case is a LARGE p: it says the asymmetry is
+inside what noise produces and the symmetric fit is the one to quote, and
+the fit says so in its own caveats.
+
+MEASURED, on a nine-point 3-fold series in triplicate built from a 5PL with
+asymmetry 0.2 and a true EC50 of exactly 1.0:
+
+    4PL  EC50 0.504, R2 0.9989, CI 0.443-0.567, nothing amiss
+    5PL  EC50 0.916, asymmetry 0.250, F = 56.9 on 1 and 22 df, p = 1.6e-07
+
+The symmetric fit does not fail on asymmetric data. It halves the answer,
+confidently. That is the whole argument for having the option.
+
+HORMESIS: BRAIN-COUSENS, AND FOUR CRITERIA RATHER THAN ONE. `hormesis`
+fits `brain_cousens` -- the 4PL with a low-dose stimulation term, which IS
+the 4PL when that term is zero -- and compares the two nested fits. Under
+this module's Gaussian errors the extra-sum-of-squares F test on one degree
+of freedom is the likelihood-ratio test written in the units already being
+reported, so it is the one used; Cedergreen-Ritz-Streibig was the other
+candidate and was not taken, because its extra exponent is a second weakly
+identified parameter on a series that already struggles to identify one, and
+Brain-Cousens nests the null exactly.
+
+A verdict needs ALL FOUR of:
+
+  1. a POSITIVE stimulation coefficient. A negative one makes the curve
+     leave the control plateau faster than a 4PL: a shape correction, not
+     stimulation. Doing the one-sided part by inspection rather than by
+     halving the p value leaves the reported p conservative by about a
+     factor of two, which is stated and not corrected.
+  2. p < 0.05 on that F test;
+  3. delta AICc >= 2, with the small-sample correction, because these are
+     five- and six-parameter models on twenty-seven wells;
+  4. the hump reaching 10% of the fitted response span -- THE
+     MINIMUM-EFFECT THRESHOLD, and the criterion that does the most work. A
+     tight assay reaches p < 0.001 on a hump worth 2% of the span, and 2% is
+     a statement about the model rather than about the compound. It is
+     measured against the span and not against the control, which is the
+     convention in the literature, because this module normalises plates to
+     percent inhibition -- where the control is 0 by construction and a
+     percentage of it is meaningless.
+
+MEASURED, on series built from `brain_cousens` with a known coefficient
+(nine doses, triplicate, noise 2 on a span of 100):
+
+    f =  40   6% of the span   p = 2e-05, dAICc +20 -> NOT hormesis: too small
+    f =  80  17% of the span   hormesis, AND THE MONOTONICITY CHECK PASSES IT
+    f = 200  66% of the span   hormesis, and the monotonicity check refuses it
+
+THE MIDDLE ROW IS THE GAP NOBODY HAD NAMED. `MAX_REVERSAL` is 0.30, so a
+hump worth a fifth of the response span sails through `monotonicity`, gets
+fitted, and reports an EC50 of 2.1 where the underlying curve's is 1.0 --
+with no warning of any kind, before today. Those fits now carry
+`DoseResponseResult.hormesis` and a caveat that says the number above it is
+displaced. The refusal path gained the other half: a hormetic series is now
+refused AS HORMESIS ("dropping the doses it sits on would throw it away")
+rather than as the cytotoxicity a bell shape usually is, and a genuine
+top-dose collapse still gets the old message plus the sentence that it was
+tested for hormesis and is not that.
+
+THE SCREEN SHOWS BOTH. A Curve picker on the controls row chooses the model
+and starts at four-parameter; the report pane leads with "5PL dose-response"
+and carries the asymmetry and its F test. Hormesis has no control, because
+it is a diagnosis and not a mode: it reaches the Note cell, its tooltip and
+the report pane exactly where a refusal already does, and survives the
+"Fit non-monotone data" override as a caveat on the forced curve.
+
+HOW IT WAS CHECKED. `tests/qt/test_dose_response_fits_an_asymmetric_curve.py`
+(8 tests) and `tests/qt/test_dose_response_names_hormesis.py` (11 tests). All
+145 dose-response tests in tests/qt pass, 19 of them new, and all 404 non-Qt
+ones. The 4PL path
+was diffed against this branch's base commit on ten fitted cases -- five
+shapes by two interval methods, comparing every parameter, both interval
+ends, the SSE, the R2, the bound direction and the FULL REPORT TEXT -- and is
+identical on all ten. Each mutation reddens only tests that can fail for that
+reason:
+
+      the 5PL EC50 constant `a` dropped        2 red
+      the minimum-effect threshold ignored     2 red
+      the hormesis test only run on refusals   2 red
+      the screen never passes the model        1 red
+
+NEW STRINGS, OWED TO THE CATALOG LANE AND NOT REGENERATED HERE (the
+consolidated pass runs at the end of this run): four runtime captions --
+"Curve", "Four-parameter logistic (symmetric)", "Five-parameter logistic
+(asymmetric)" and the Curve picker's tooltip -- measured against
+`en.UI_SOURCES` as exactly four new sources on top of the 120 the tree
+already owed. Seven new public API docstrings
+(`five_parameter_logistic`, `brain_cousens`, `hormesis`, `HormesisCheck`,
+`HormesisCheck.describe`, `DoseResponseResult.model_function`,
+`DoseResponseResult.n_parameters`) and seven changed ones (both module
+docstrings, `DoseResponseResult`, `.parameters`, `DoseResponseSpec`,
+`.__post_init__`, `fit_dose_response`). The caption ratchet and the
+documentation-symbol ratchet were ALREADY RED on nightly before this work --
+120 captions and 217 symbols owed -- and are red by four and seven more now.

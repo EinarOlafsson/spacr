@@ -138,3 +138,51 @@ c = float(np.sum(fixed_w) - np.sum(fixed_w ** 2) / np.sum(fixed_w))
 ```
 
 DerSimonian--Laird: the spread the plates' own uncertainty cannot explain.
+
+## 2026-09-19 — the five-parameter logistic and the hormesis test
+
+Written by hand rather than lifted by `tools/extract_source_notes.py`: item
+387's two remaining pieces carry their reasons in docstrings, and these are
+the three decisions a reader is most likely to want to argue with.
+
+**The 5PL is parameterised so that `log10_ec50` is the EC50.** The usual
+form puts the inflection parameter `c` in that slot, and at `x = 10**c` an
+asymmetric curve sits `1 / 2**s` of the way up rather than half — so a 5PL
+whose `c` is quoted as an EC50 is wrong by a factor that grows with the
+asymmetry. Scaling the exponential by `2**(1/s) - 1` moves the half-maximal
+point back onto `x = EC50` exactly. The gain is not only correctness: every
+rule already in the module — the three boundedness detectors, the profile
+walk, the back-transformed interval — reads `log10_ec50` and none of them
+had to learn a second meaning. At `s = 1` the expression is the 4PL term for
+term, which is what makes the F test on the fifth parameter a legitimate
+nested comparison.
+
+**`_plateau_sse` keeps a separate 4PL branch on purpose.** The general
+expression computes the sigmoid weight as `10 ** -(s·log10(u))`, which at
+`s = 1` is `1/u` only up to rounding. Routing the 4PL through it would have
+moved published intervals in the last bits for no reason anybody could point
+at. The branch costs one comparison per call.
+
+**Hormesis is tested against four criteria and not one.** Brain–Cousens
+nests the 4PL, so the extra-sum-of-squares F test is the likelihood-ratio
+test in the units this module already reports — but on a tight assay it
+reaches p < 0.001 for a hump worth 2% of the response span, which is a
+statement about the model rather than about the compound. So the verdict
+also needs a positive coefficient (a negative one is a shape correction, not
+stimulation), a corrected-AIC gap of 2, and a minimum effect of 10% of the
+fitted span. The threshold is measured against the span and not against the
+control, which is the convention in the hormesis literature, because this
+module normalises plates to percent inhibition — where the control is zero
+by construction and a percentage of it means nothing.
+
+The F test is two-sided and the hypothesis is one-sided. That is left
+uncorrected and stated: the reported p is conservative by about a factor of
+two, and on a screen whose whole habit is refusing, being conservative about
+a refusal-overriding finding is the right direction to be wrong in.
+
+**The test runs on series the monotonicity check passes.** That is the part
+that closes a gap rather than adding a feature: `MAX_REVERSAL` is 0.30, so a
+hump worth a fifth of the span sails through it, gets fitted, and yields an
+EC50 displaced by the hump with nothing said. On the calibration series in
+`tests/qt/test_dose_response_names_hormesis.py` that displacement is 1.0 to
+2.1. Those fits now carry `DoseResponseResult.hormesis` and a caveat.
