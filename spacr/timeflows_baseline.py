@@ -365,14 +365,16 @@ def aogm_costs(gt_masks, pred_masks, gt_lineage=None, pred_lineage=None,
     :param pred_masks: computed label stack, label = track id.
     :param gt_lineage: mapping of ground-truth label to parent label.
     :param pred_lineage: mapping of computed label to parent label.
-    :param weights: AOGM weights; :data:`AOGM_WEIGHTS` when ``None``.
+    :param weights: AOGM weights. Anything left out keeps its
+        :data:`AOGM_WEIGHTS` value, so ``{'fp': 10.0}`` changes the price of a
+        false positive and nothing else.
     :returns: dict of the six operation counts (``fn``, ``fp``, ``ns``,
         ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``,
         ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four
         costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and
         ``aogm_0`` for tracking.
     """
-    weights = dict(weights or AOGM_WEIGHTS)
+    weights = dict(AOGM_WEIGHTS, **dict(weights or {}))
     gt_graph = tracking_graph(gt_masks, gt_lineage)
     pred_graph = tracking_graph(pred_masks, pred_lineage)
     matched, shared = match_vertices(gt_masks, pred_masks)

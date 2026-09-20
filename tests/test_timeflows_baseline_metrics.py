@@ -537,3 +537,18 @@ def test_a_tracker_that_swaps_two_cells_pays_for_both_links():
     assert tb.tra_score(truth, prediction) == pytest.approx(
         1 - (W['ed'] * 2 + W['ea'] * 2) / (W['fn'] * 4 + W['ea'] * 2))
     assert tb.identity_switches(truth, prediction)['switches'] == 2
+
+
+def test_partial_weights_keep_the_published_value_for_everything_else():
+    """`{'fp': 10.0}` is a price change, not a half-filled weight table.
+
+    A caller that names one weight and gets a KeyError for the other five has
+    to restate the published numbers to change one of them, which is how a
+    typo in a restated number becomes a score nobody can compare.
+    """
+    truth = moving_stack(3)
+    prediction = truth.copy()
+    prediction[1][prediction[1] == 2] = 0
+    costs = tb.aogm_costs(truth, prediction, weights={'fp': 10.0})
+    assert costs['aogm_d'] == pytest.approx(W['fn'] * 1)
+    assert costs['aogm'] == pytest.approx(W['fn'] * 1 + W['ea'] * 2)
