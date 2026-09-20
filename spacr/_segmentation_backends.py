@@ -261,7 +261,7 @@ _SPECS = {
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
-               "cellpose.dynamics", "cv2"),
+               "cellpose.dynamics", "cellpose.plot", "cv2"),
         distribution="dinocell", requirements=("dinocell==0.74",),
         torch=("torch==2.10.0", "torchvision==0.25.0"),
         python=((3, 11), (3, 14)), licence="MIT",
@@ -862,11 +862,22 @@ def _clean_env(env):
 
 
 def _worker_env(name, env):
-    """:func:`_clean_env`, and Cellpose 3's weights kept inside its own
-    environment, so uninstalling removes them too."""
+    """:func:`_clean_env`, and each backend's weights kept inside its own
+    environment, so uninstalling removes them too.
+
+    Cellpose 3 downloads its models where ``CELLPOSE_LOCAL_MODELS_PATH``
+    says; DINOCell fetches its 383 MB checkpoint with ``hf_hub_download``,
+    which reads ``HF_HOME`` and otherwise writes to the person's own
+    ``~/.cache/huggingface``. Pointing it inside the environment is what
+    makes :func:`_uninstall_backend` give the disk back, and what makes the
+    preflight's free-space check -- which measures the backends folder --
+    the check that matters.
+    """
     environ = _clean_env(env)
     if name == _CELLPOSE3:
         environ["CELLPOSE_LOCAL_MODELS_PATH"] = os.path.join(env, "models")
+    elif name == _DINOCELL:
+        environ["HF_HOME"] = os.path.join(env, "huggingface")
     return environ
 
 

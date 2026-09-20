@@ -59,6 +59,36 @@ verbatim and keeps the rest on the exception.
 folder were first on `sys.path`. Isolated mode leaves it off, and ignores
 `PYTHONPATH` and the user's site-packages too.
 
+## Where a backend's weights go, and why it is not the person's cache
+
+Every backend here downloads weights the first time it segments, and each
+package has its own idea of where. Left alone, Cellpose 3 writes to
+`~/.cellpose`, DINOCell's `hf_hub_download` writes to `~/.cache/huggingface`
+and SAMCell's `torch.hub` writes to `~/.cache/torch`. All three are OUTSIDE
+the folder Uninstall removes, and outside the folder the preflight measures
+free space in.
+
+So `_worker_env` points each one inside the environment:
+`CELLPOSE_LOCAL_MODELS_PATH` for Cellpose 3 and `HF_HOME` for DINOCell. Two
+things follow, and both are the reason:
+
+* Uninstall gives the disk back. 423's promise is "Uninstall deletes the
+  environment and everything downloaded into it", and DINOCell's checkpoint
+  is 383 MB of that.
+* `_preflight` refuses an install when `shutil.disk_usage(root).free` is
+  below `spec.size_gb`. If the weights land on another filesystem, that check
+  is about the wrong disk.
+
+Measured on 2026-09-19, before and after, in a sandboxed HOME with the user
+cache emptied first: a DINOCell run put 402,337,098 bytes under
+`$XDG_CACHE_HOME/huggingface` and none inside the environment; with `HF_HOME`
+set it put the same 402,337,098 bytes inside the environment and left the
+user cache at 0 bytes, and Uninstall then took both away.
+
+SAMCell IS NOT DONE THIS WAY YET and its `torch.hub` cache still lands in the
+person's home. `TORCH_HOME` is the equivalent lever; it belongs to item 405
+and is left there deliberately rather than changed from 404's lane.
+
 ## Measured on 2026-09-19
 
 In a sandboxed HOME, on the CPU, with the real packages from PyPI:
@@ -86,6 +116,45 @@ Two things the real run found that no stand-in would have:
   default model" and loads cyto3. A typo in a model path would have
   segmented with cyto3 without a word, so both the client and the worker
   refuse it.
+
+### DINOCell, the same day, the same way
+
+Item 404's half of the seam, run for real for the first time. Same sandboxed
+HOME, same CPU wheel index:
+
+| what | result |
+|---|---|
+| cold install of DINOCell | 541.2 s, 1,797,510,073 bytes: dinocell 0.74, torch 2.10.0+cpu, torchvision 0.25.0, numpy 2.4.3, cellpose 4.0.9, on spaCR's own Python 3.12.13 |
+| its checkpoint | `KadenStillwagon/DINOCell`, `DINOCell_demo_model.pt`, 401,672,491 bytes, MIT on the model card |
+| `generate_cellpose_masks_sam`, dinocell, 256 x 256, nine discs | 9 of 9 objects, 180.7 s with the checkpoint download, the worker start and the model load |
+| the same field again, same worker | 9 of 9 objects, 15.7 s |
+| the environment afterwards | 2,199,847,171 bytes, the extra 402,337,098 being the checkpoint inside it |
+| uninstall | environment gone, checkpoint gone, row back to installable, user cache untouched |
+
+The mask came back `uint16` at the field's own 256 x 256 — DINOCell's flows
+are predicted at its 512 crop, so a field narrower than one tile is upscaled
+(aspect ratio kept, where DINOCell's own `_resize` would square it) and the
+labels are resampled back. `generate_cellpose_masks_sam` wrote
+`cell_mask_stack/plate1_A01_1.npy` and the `object_counts` row
+`("plate1_A01_1.npy", "cell_before_filtration", 9)`, and spaCR's Cellpose 4
+was never constructed: the run held a `CellposeModel` that raises if anything
+builds it.
+
+**15.7 s of that 180.7 s is the segmentation.** The rest is the 383 MB
+download, the interpreter start and the ViT load, all of which happen once per
+worker. That is the number to carry into any estimate, and it is why the
+worker is kept alive between fields.
+
+### The self-test now imports what the adapter imports, for every backend
+
+Cellpose 3's `packaging` (below) was the first instance. DINOCell had a second
+one waiting: its adapter calls `cellpose.plot.dx_to_circ` to build the flow
+image `parse_cellpose4_output` hands on, and `cellpose.plot` was not in its
+probe. `tests/test_backends_live_in_their_own_environment.py` now parses each
+adapter's own source and fails when a module it imports is missing from its
+spec's `probe` — `torch` and `numpy` excepted, since every backend environment
+installs both and `_worker_device` imports torch before any probe runs. Run
+against the probe as it was, that test names `cellpose.plot` exactly.
 
 bioimage.io's "CellPose(cyto3)" upload (famous-fish) is byte-identical to
 Cellpose's own cyto3 (SHA-256 `2dc3087a...`). It found 7 of the nine discs

@@ -394,6 +394,64 @@ def test_the_environment_variables_cannot_point_pip_elsewhere(monkeypatch):
     assert "CELLPOSE_LOCAL_MODELS_PATH" not in SB._worker_env("samcell", "/b")
 
 
+def test_dinocells_checkpoint_is_downloaded_inside_its_own_environment():
+    """Item 404. ``hf_hub_download`` writes to ``~/.cache/huggingface``
+    unless ``HF_HOME`` says otherwise, and DINOCell's checkpoint is 383 MB.
+    Measured 2026-09-19, before this: a real run put it under the person's
+    own cache, where Uninstall could not reach it and where the preflight's
+    free-space check -- which measures the backends folder -- was not
+    looking."""
+    environ = SB._worker_env("dinocell", "/b/dinocell")
+    assert environ["HF_HOME"] == os.path.join("/b/dinocell", "huggingface")
+    assert "HF_HOME" not in SB._worker_env("cellpose3", "/b/cellpose3")
+    assert "HF_HOME" not in SB._worker_env("samcell", "/b/samcell")
+    assert "CELLPOSE_LOCAL_MODELS_PATH" not in environ
+
+
+def test_every_module_an_adapter_imports_is_in_its_self_test():
+    """Item 423's lesson, held for every backend: the self-test imports what
+    the adapter imports.
+
+    A self-test that loads less than the adapter passes on an environment
+    the first field then fails in -- which is exactly what happened with
+    Cellpose 3 and ``packaging`` on 2026-09-19, minutes after an install
+    reported success. ``torch`` and ``numpy`` are exempt: every backend
+    environment installs both, and ``_worker_device`` imports torch before
+    any probe runs.
+    """
+    import ast
+    import inspect
+    import textwrap
+
+    exempt = {"torch", "numpy"}
+    sources = {
+        "cellpose3": (SB._Cellpose3Adapter,),
+        "dinocell": (SB._import_dinocell, SB._DinoCellBackend),
+        "samcell": (SB._import_samcell, SB._SamCellBackend,
+                    SB._samcell_weights_path),
+    }
+    for name, objects in sources.items():
+        probe = set(SB._SPECS[name].probe)
+        wanted = set()
+        for obj in objects:
+            tree = ast.parse(textwrap.dedent(inspect.getsource(obj)))
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    wanted.update(alias.name for alias in node.names)
+                elif isinstance(node, ast.ImportFrom) and not node.level:
+                    module = node.module or ""
+                    if module in probe or any(
+                            f"{module}.{alias.name}" in probe
+                            for alias in node.names):
+                        continue
+                    wanted.add(module)
+        missing = sorted((wanted - exempt) - probe)
+        assert not missing, (
+            f"{name}'s adapter imports {missing}, which its self-test does "
+            f"not; an environment missing one would pass the install and "
+            f"fail on the first field")
+
+
 def test_children_get_their_own_process_group_on_every_system(monkeypatch):
     assert SB._detached(windows=False) == {"start_new_session": True}
     monkeypatch.setattr(SB.subprocess, "CREATE_NEW_PROCESS_GROUP", 0x200,
