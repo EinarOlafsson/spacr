@@ -40,7 +40,7 @@
     },
     {
       "visual": "05_loaded_crops",
-      "narration": "Confirm that the real crops appear and that the page counter matches the expected dataset. The number of images on a page depends on the window and image size. A successfully opened folder is not enough: inspect the images before making annotation decisions.",
+      "narration": "Confirm that the real crops appear and that the page counter matches the expected dataset. The number of images on a page depends on the window and the crop size. A successfully opened folder is not enough: inspect the images before making annotation decisions.",
       "hold_after": 0.7
     },
     {

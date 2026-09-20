@@ -2,8 +2,19 @@
 REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 ================================================================================
 
-Status:    OPEN, filed 2026-09-02. AFTER the version update, following the
-           tooltip/API/translation sweep and README review already ordered.
+Status:    OPEN, filed 2026-09-02. The version-update hold it was filed behind
+           was lifted on 2026-09-15 and the candidate's media is uploaded, so
+           what is left is work rather than a wait. As of 2026-09-19: every
+           Core lesson exists and routes; 09_annotate and the three Classify
+           lessons were re-audited today and their NARRATION is correct, their
+           frames are two to four releases behind; 05_home is re-captured at
+           1.5.0.8 and scene 3 now names Embeddings; Map's evidence is re-bound
+           to the approved candidate and its acceptance test is green. OPEN ON:
+           the 07_mask scene 10 re-capture (GPU; queued with its commands, and
+           larger than it looks -- see the 2026-09-19 note), re-composing
+           09_annotate and Classify onto current frames (no GPU, not started),
+           05_home's narration render for the one changed scene (GPU), and the
+           merge to main that deploys Pages, which is the maintainer's.
 Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
            redone. there is now live data for all core moduals that should be
            used in the tutorials, there are also several buttons that have been
@@ -1521,3 +1532,317 @@ STILL OWED
     question are unchanged from the notes above.
   * Rollback: resolve/main (003f4c8e88) and the pre-merge docs tree remain
     intact; reverting the Pages-tree commit restores the old site.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- 09_ANNOTATE AND CLASSIFY RE-AUDITED; 05_HOME SCENE 3 DONE ON CPU;
+MAP'S PRESERVATION PROOF EXISTS AND test_map_candidate IS GREEN
+--------------------------------------------------------------------------------
+
+Branch home/358-non-gpu, worktree
+/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/wt-358-non-gpu,
+from origin/nightly fa51b2e88 (1.5.0.8). Committed locally, NOT pushed. Nothing
+published, nothing uploaded, no GPU job run.
+
+Every screen fact below was read off a widget built from THIS worktree under an
+isolated HOME/XDG_*, not from the code. The first four probes of the session
+imported `spacr` from /mnt/firecuda2/Claude/repo/spacr instead -- `sys.path[0]`
+is the SCRIPT's directory, not the working directory -- and were re-run with
+PYTHONPATH pinned. Section 3f of the handoff is about exactly this and it still
+caught me; the give-away was `spacr.qt.screens.annotate.__file__` in the probe's
+own output, which is why it is printed there now.
+
+WHAT 364 DID TO ANNOTATE TODAY, MEASURED ON BOTH SIDES
+------------------------------------------------------
+
+`8619dcb9c` (today, 17:04) renamed the factory's `img_size` to `crop_size`. The
+same Annotate settings dialog, handed the shipped example
+`annotate_settings.csv` (which carries BOTH `image_size,224` and `img_size,200`):
+
+    at 8619dcb9c^   row label "Image size (px)"   value after Load test data: 224
+    at fa51b2e88    row label "Crop size (px)"    value after Load test data: 200
+
+`_ALSO_SPELT` accepts `img_size` and deliberately refuses `image_size`, because
+`image_size` is the MODEL's input crop and is still live. So the example used to
+draw its cells at the model's resolution and now draws them at 200.
+
+  * 09_ANNOTATE SCENE 5 WAS WRONG AS OF TODAY and is FIXED in the source:
+    "depends on the window and image size" -> "the window and the crop size".
+    One sentence; it is the only narration change 09_annotate needs.
+  * 09_ANNOTATE'S SETTINGS FRAMES ARE STALE: scene 6 (06_annotation_settings)
+    and scene 13 (11_display_colour_settings) show "Image size (px)".
+  * 09_ANNOTATE'S GRID FRAMES ARE STALE FOR A SECOND REASON: they were recorded
+    with cells drawn at 224 px and the same route now draws them at 200, so the
+    page fill differs. No NARRATED number is falsified -- scene 2's 2,341 crops
+    is a dataset count and scene 5 quotes no per-page figure -- so this costs
+    frames, not arithmetic.
+  * 10_CLASSIFY_CV SCENE 7 IS NOT AFFECTED, and this is the one that looks like
+    a hit and is not. "image size one hundred twenty-eight" is `image_size`,
+    which survives the rename with its label "Image size" unchanged and sits in
+    the "Computer Vision Data Source" category. `crop_size`/`img_size` is in NO
+    settings category at all -- it exists only on Annotate's own dialog -- so it
+    cannot appear on a Classify form. Two measurements disagreed and the lesson
+    won.
+
+09_ANNOTATE, EVERYTHING ELSE: NARRATION CURRENT, FRAMES FOUR VERSIONS BEHIND
+----------------------------------------------------------------------------
+
+Its capture is `captures/annotate_readable`, provenance version 1.5.0.4, commit
+ed93b0e2a. The app is 1.5.0.8. Every frame carries a 1.5.0.4 footer.
+
+Driving `AnnotateScreen()` at HEAD, every control the lesson names is present
+and unrenamed: Open source..., Settings, Back, Next, Class counts, Coverage,
+Retrain, Suggest..., Rounds, Train..., Generate annotation database...,
+Console + AI, and the Annotator Agreement FoldButton on the masthead
+(`FOLDED_APPS = ("agreement",)`, so scene 15 is complete). Train...'s menu is
+still the two routes scene 16 narrates -- "On the images (CNN / Transformer)..."
+and "On the measured features (XGBoost)...". The Load/Stream chooser scenes 2-3
+describe is still there. `generate_annotation_dataset` still lives in
+`spacr/annotation_dataset.py`, and AI still points at Preferences
+("Preferences -> AI -> Providers..."). The keyboard legend has grown two entries
+the narration does not enumerate (Space skip, Backspace back) and scene 9 says
+"navigation", which covers them.
+
+Diffing every user-visible string in `annotate.py` from the recording commit to
+HEAD leaves exactly one label change, the `Crop size (px)` above.
+
+  * NOT NAMED ANYWHERE IN THE LESSON, and this is a gap in the lesson rather
+    than a staleness: Auto-annotate..., View in database, Annotate page,
+    Clear page, Clear column, Skip to last annotated. Auto-annotate, View in
+    database, Annotate page and Clear page all landed on 2026-08-06, a month
+    BEFORE the recording, so nobody broke this -- it was authored short.
+    FOR THE MAINTAINER: naming them costs new scenes, and a new scene changes
+    the scene count, which `test_every_translated_tutorial_catalog_has_the_
+    english_structure` pins across all fourteen catalogs. That is the same
+    forty-translated-scene-sets bill the 2026-09-08 note prices out, for
+    controls that mostly have their own lessons already (34_database for View
+    in database). NOT DONE HERE, deliberately, and it is a decision rather than
+    an oversight.
+
+THE CLASSIFY LESSONS: NOTHING STALE IN THE NARRATION, FRAMES TWO VERSIONS BEHIND
+--------------------------------------------------------------------------------
+
+10_classify_cv (captures/classify_canonical_*, 1.5.0.6, 9ed867087),
+11_classify_ml (captures/classify_ml_ten_percent_native, 1.5.0.6, 4351af7b9)
+and 41_classify (captures/classify_main_*, 1.5.0.6, 9a676d2de). Their
+prerequisites all say "Recorded with spaCR 1.5.0.6" and the app is 1.5.0.8, so
+the version footers are stale and the prose about the version is honest.
+
+Checked against the live tables rather than the code:
+
+  * Every SETTING_LABELS entry the three lessons narrate is unchanged from each
+    lesson's own recording commit to HEAD: Classifier family, Generate training
+    dataset, Image size, Channel of interest, Classes, Test size, N estimators,
+    N jobs, Plot, Model type, Cv group by, Epochs, Batch size, Train channels,
+    Init weights, Augment, Random seed, Prune features, Cross validation,
+    Batch correction, Top features, N repeats. Across the whole table, from
+    those commits to HEAD, NO surviving key's label text moved at all -- the
+    only movements are key additions and removals, `img_size` -> `crop_size`
+    among them.
+  * `classifier_family` still offers exactly "Computer Vision (Torch)" and
+    "Tabular Machine Learning" (`_APP_COMBO_OPTIONS["classify_merged"]`).
+  * `barcodes` and `Toxoplasma` were retired by the same commit today. Neither
+    is named by any Classify or Annotate lesson, and neither is on the Map form
+    -- so the recheck the 09-15 note queued for gui_04, gui_11 and gui_20 "if
+    the held `barcodes` retirement lands" comes back clean.
+  * Classify's fold strip is the five the lessons name, in the order they name
+    them: Classifier Evaluation, Explain CV Model, Activation, Training Runs,
+    Feature Explorer. 41_classify scene 10 says Feature Explorer opens "from the
+    final icon" and it is last in `FOLDED_APPS`. Scene 7 calls it "Explain CV"
+    where the button says "Explain CV Model"; that is a spoken short form, not a
+    rename, and 05_home scene 7 gives the full name.
+  * Classify's own Load test data chooser still offers Load and Stream, filed
+    under "Plate Sources & Workflow" (EXAMPLE_DATA_SECTIONS["classify"]).
+  * `app_screen.py` changed heavily since the recordings and renamed no chrome:
+    no Run, Figures, Console, Essentials or search label moved.
+
+NOTHING IN THE THREE CLASSIFY LESSONS NEEDS RE-NARRATION. They need frames.
+
+05_HOME SCENE 3: DONE, INCLUDING THE CAPTURE, WHICH NEEDED NO GPU
+------------------------------------------------------------------
+
+The live Data band, read off the real MainWindow: Import, Embeddings, Run
+Compare, Experiment Design, Power / Design, Dose-Response, QC. Seven tiles; the
+tab itself now reads "Data  (7)". 45 registered modules, the same number the
+09-15 note recorded.
+
+The tab TEXT is the frame key -- `capture_refresh.py` names home frames
+`f'{index:02d}_{tabs.tabText(index).lower()}'` -- so the count is not decoration
+and "02_data  (6)" could not be edited on its own without breaking staging.
+
+So the capture was re-run. It is pure GUI, no download, no model:
+
+    capture_refresh.py --module home --stage $ST \
+      --capture-name home_2026-09-19_bands --platform offscreen --timeout 600
+
+21 seconds, 3.2 MB, eight frames at 3840x2160, provenance version 1.5.0.8
+commit fa51b2e88. `02_data  (7).png` shows the seven tiles with Embeddings
+second and an `embeddings` tile rect in frames.json.
+
+05_home.json scene 3 is EDITED to match: visual "02_data  (7)", "Embeddings"
+added to the narration after "Import", `embeddings` added to focus_modules in
+band order, `77_embeddings` added to related_lessons. Proved rather than
+asserted:
+
+    stage_lesson.py lessons/05_home.json --capture-module home_2026-09-19_bands \
+      --stage $ST --check-only    ->  Validated 05_home: 9 real capture scenes
+    the same, against the OLD `home` capture  ->  KeyError: '02_data  (7)'
+
+The second line is the control: the edit is genuinely bound to the new frames.
+
+Because the new capture covers all nine scenes, staging 05_home against it makes
+the WHOLE lesson current at 1.5.0.8 (its frames were 1.5.0.4, commit 04b23431f),
+not just scene 3.
+
+STILL OWED ON 05_HOME, AND IT IS GPU: scene 3's words changed, so that scene
+needs translation -> 50 voices -> master -> rendition. Scenes 1, 2 and 4-9 keep
+their narration and need re-composition only. Commands: as 07_mask, with
+`--lessons 05_home` for translation and `--lessons 5` for voices.
+
+  * 05_home scene 4 and scene 7 were re-checked against the new frames and are
+    accurate: Make Masks does host model training and comparison
+    (cellpose_all, curate, model_compare, model_zoo, napari_bridge,
+    train_cellpose) and Graph Builder does host Plate Viewer and Small
+    Multiples (plate_view, trellis).
+  * Scene 8 says "In Mask, the Time and three-D switches ... Live opens the
+    preview" and does not mention OPS. It is not wrong -- it never claims the
+    row is complete -- and changing it would cost another narration render.
+    Left alone, on purpose.
+
+A TRAP THE NEXT READER WILL HIT: OPS IS NOT ON MASK'S FOLD STRIP
+-----------------------------------------------------------------
+
+The new `06_mask_host` frame lists exactly ONE fold button on the Mask masthead:
+Timelapse. That looks like it contradicts the 09-15 note's "3D, Time, Live, OPS,
+AI; confirmed on 1.5.0.7" and the 07_mask scene 1 edit made on its strength.
+
+IT DOES NOT. `mask.PAGE_FOLDS = ("ops",)` and its docstring say so directly: a
+page fold "is not on the strip: it is a switch in the actions row, beside Live"
+(`b061fef43`, 2026-09-09). The action-row switches are not QAbstractButtons, so
+they are absent from a frame's button list by construction. Both statements are
+true and the 07_mask edit stands. Recorded because the evidence looks like a
+contradiction and is not.
+
+MAP'S PRESERVATION PROOF, AND test_map_candidate IS GREEN
+----------------------------------------------------------
+
+The 09-15 note left this: "Map evidence re-binding needs a preservation proof
+that allows other lessons' reviewed refreshes", with
+tools/tutorials/tests/test_map_candidate.py red because its evidence still named
+zveusu2j.
+
+`check_map_preservation.check` could not serve, and refused the pair three times
+over -- on the 75->76 promotion counts, on 07_mask's changed media, and on
+07_mask's changed catalog record. `check_refresh` is the second proof, beside it
+rather than replacing it, and it makes the statement that is actually true of
+this pair: MAP is untouched everywhere, and every remaining difference is
+attributable to a NAMED lesson or to a shared index file whose own contents are
+then compared entry by entry.
+
+What it found on zveusu2j -> 8738b_pd, all measured:
+
+    manifest paths                     identical sets, 7,875 each
+    file records that differ           121
+    Map's records                      103, of which 0 differ
+    catalogs (14)                      only 07_mask's lesson record moved
+    web/lesson_catalog.js              parsed; only 07_mask's entry moved
+    web/module_navigation.js           parsed; only `source_commit` moved
+    media retained byte-identical      7,723
+
+    -> checks/map-preservation-checks.json, passed: true
+
+13_REGRESSION IS WHY THE FIRST DESIGN WAS WRONG. An equality between "lessons
+declared refreshed" and "lessons whose catalog record changed" refused the real
+pair, because 13_regression was re-captured on 1.5.0.7 with its NARRATION
+untouched: its media moved and its prose did not. The check now separates the
+two and reports both (`refreshed_in_prose: [07_mask]`,
+`refreshed_in_media_only: [13_regression]`). The honest declaration for this
+pair is `--refreshed 07_mask 13_regression`, and the first run, with 07_mask
+alone, is what caught it:
+
+    ValueError: An unexplained file changed:
+        media_host/13_regression/video/13_regression_silent.mp4
+
+The stale-allow-list guard survives in the form that still means something: a
+named lesson that moved NOWHERE is refused.
+
+VERIFIED RATHER THAN ASSUMED, because an exit code is a claim about the checks:
+
+  * `validate(include_hosted_media=True, require_browser=True)` really reads the
+    bytes: instrumented, 7,878 digest calls, 7.67 GB hashed per candidate.
+  * Three negative controls against the REAL pair, each patched in memory so
+    nothing on disk moved: a changed Map media record -> "A Map media file
+    changed: media_host/12_map_barcodes/audio/en/af_aoede.json"; a changed Map
+    lesson record -> "Map itself changed; this is not a preservation proof"; an
+    undeclared 08_measure change -> "Lessons changed that the refresh did not
+    name: 08_measure". All three fired.
+  * 13 unit tests on synthetic candidate trees:
+    tools/tutorials/tests/test_map_preservation_across_a_refresh.py.
+
+`checkpoint_map.py` then re-bound Map's evidence to 8738b_pd unchanged -- it
+only ever asked for `passed is True` -- and rewrote
+evidence/2026-09-13_map_barcodes_{final_checks,preservation}.json.
+test_map_candidate.py's second test pinned `retained_media_files == 75 * 103`,
+which was the OLD promotion's arithmetic and cannot survive a different proof;
+it now pins the relationship instead (retained + changed == all media records,
+`map_media_files == 103`, no changed path under 12_map_barcodes) plus the
+declared refresh. BOTH ITS TESTS PASS.
+
+ONE FILE WAS WRITTEN OUTSIDE THE REPOSITORY, and it is additive and reversible:
+refresh_2026-09-09/release-candidate-8738b_pd/checks/map-preservation-checks.json,
+which did not exist before. Delete it to undo. The Home capture added
+refresh_2026-09-09/captures/home_2026-09-19_bands/ (3.2 MB, a new directory).
+Nothing under release_candidate/ in the repository was regenerated; the manifest
+digest still matches 8738b_pd exactly.
+
+TESTS
+  tools/tutorials/tests/test_map_candidate.py + the new preservation file +
+  test_barcode_promotion.py + test_catalog_preservation.py: 35 passed.
+  tests/test_tutorial_release_audit.py + test_tutorial_catalog_i18n.py +
+  test_docs_media_budget.py: 40 passed, the same 40 the 09-15 note recorded.
+
+WHAT THIS UNIT DID NOT DO
+  * The 07_mask scene 10 re-capture. It is GPU and it is queued, with its exact
+    commands and two things the item file did not know, at
+    scratchpad/gpu_queue/358-non-gpu-1.md. Read that before starting it:
+    `compose_mask_capture.py` currently REFUSES a successful overlay run
+    (it asserts `accepted is not False`), and `live_preview.py` has changed in
+    seven commits since the 09-15 preview, so the reuse rule is broken again and
+    the Live preview must be re-recorded with it. The item file's instruction to
+    run captures under `run_capture_guarded.sh` cannot be followed: NO FILE OF
+    THAT NAME EXISTS anywhere in the repository or the workspace.
+  * Re-composing 09_annotate and the three Classify lessons onto current frames.
+    Their narration is correct as of today, so this is capture + compose +
+    re-encode with NO translation and NO voice render. Not started.
+  * Publishing, in any form.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- PUBLISHING, WHICH IS THE MAINTAINER'S. THE EXACT STEPS.
+--------------------------------------------------------------------------------
+
+Nothing here was done. It is written out so that it is a sequence to follow
+rather than a thing to work out again. It applies to the NEXT candidate, the one
+that carries the refreshed 07_mask; candidate-8738b_pd is already uploaded and
+its tag must not be reused.
+
+  1. MERGE TO MAIN, which is what deploys Pages. `docs.yml` runs
+     configure-pages and deploy-pages on a push to MAIN; a push to nightly
+     builds and stops. This is the 1.5.0.8 merge and it is gated on CI.
+  2. AFTER it deploys:
+         python tools/verify_tutorial_live.py --browser
+     against the live site, and ONLY THEN set `published: true` in
+     release_candidate/checkpoint.json.
+  3. FOR THE NEXT CANDIDATE, a NEW media revision. Never reuse the branch
+     `candidate-8738b_pd` or the tag `tutorials-2026-09-15-8738b_pd`:
+         hf upload einarolafsson/spacr-tutorials <candidate>/media_host \
+            --repo-type dataset --revision candidate-<new id>
+     then the read-back, then the tag. `list_repo_refs` reports an annotated
+     tag's OBJECT id, not the commit; compare `dataset_info(revision=tag).sha`.
+     That bug is already fixed in publish_release_candidate.py.
+  4. ROLLBACK, unchanged: `resolve/main` is still 003f4c8e88 and the pre-merge
+     docs tree is intact, so reverting the Pages-tree commit restores the old
+     site.
+
+ALSO STILL THE MAINTAINER'S, unchanged from 09-15: the native-speaker and
+listening review of the 07_mask translations (13 languages, 7 rows each;
+07_mask/en/bm_fable is about 0.9 LU softer), and whether Home should teach the
+Performance selector again.

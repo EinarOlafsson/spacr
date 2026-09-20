@@ -27,11 +27,11 @@
       "related_lessons": ["07_mask", "08_measure", "09_annotate", "41_classify", "12_map_barcodes", "13_regression"]
     },
     {
-      "visual": "02_data  (6)",
-      "narration": "Data brings together Import, Run Compare, Experiment Design, Power and Design, Dose Response, and quality control. Import is also the entry point for Import Images, Format Converter, and External Masks. Open the parent first to find those workflows.",
+      "visual": "02_data  (7)",
+      "narration": "Data brings together Import, Embeddings, Run Compare, Experiment Design, Power and Design, Dose Response, and quality control. Import is also the entry point for Import Images, Format Converter, and External Masks. Open the parent first to find those workflows.",
       "hold_after": 0.7,
-      "focus_modules": ["foreign", "run_compare", "experiment_design", "power", "dose_response", "qc_dashboard"],
-      "related_lessons": ["36_import", "35_converter", "31_external_masks"]
+      "focus_modules": ["foreign", "embeddings", "run_compare", "experiment_design", "power", "dose_response", "qc_dashboard"],
+      "related_lessons": ["36_import", "35_converter", "31_external_masks", "77_embeddings"]
     },
     {
       "visual": "03_tools  (5)",
