@@ -329,3 +329,59 @@ def test_switching_sound_off_again_silences_and_unhooks(dialog, heard, qtbot):
     dlg.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
     assert not engine.filter_installed
     assert engine.play("click") is False
+
+
+def test_the_music_file_row_is_empty_and_greyed_until_sound_is_on(dialog):
+    """Part B's one new row, and it follows the master like the rest."""
+    from PySide6.QtWidgets import QLineEdit
+
+    _show_sound_tab(dialog)
+    field = dialog.findChild(QLineEdit, "SoundMusicFile")
+    browse = dialog.findChild(QPushButton, "SoundMusicFileBrowse")
+    assert field is not None and browse is not None
+    assert field.text() == "", "a fresh install plays spaCR's own music"
+    assert field.placeholderText()
+    assert not field.isEnabled() and not browse.isEnabled()
+
+
+def test_a_music_file_typed_into_the_row_is_what_the_bed_plays(dialog, heard,
+                                                               qtbot,
+                                                               tmp_path):
+    """HANDOFF 0b: driven through the dialog, not through the setter.
+
+    A path typed in, Save pressed with the mouse, and then the question
+    that matters -- is that file what the effect was pointed at, and is it
+    what the Resonance backdrop is being driven by.
+    """
+    import math
+    from pathlib import Path
+
+    import numpy as np
+    from PySide6.QtWidgets import QLineEdit
+
+    from spacr.qt import resonance as rs
+    from spacr.qt import sound_synth as ss
+
+    chosen = tmp_path / "mine.wav"
+    samples = np.sin(2.0 * math.pi * 330.0
+                     * np.arange(int(1.2 * ss.SAMPLE_RATE)) / ss.SAMPLE_RATE)
+    ss.write_wav(chosen, np.vstack([samples, samples]) * 0.5)
+
+    _show_sound_tab(dialog)
+    _press(qtbot, dialog.findChild(QWidget, "SoundEnabled"))
+    _press(qtbot, dialog.findChild(QWidget, "SoundMusicBed"))
+    field = dialog.findChild(QLineEdit, "SoundMusicFile")
+    field.setFocus()
+    qtbot.keyClicks(field, str(chosen))
+    dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Save).click()
+
+    from spacr.qt import preferences as prefs
+    assert prefs.get_sound_music_file() == str(chosen)
+    bed = [e for e in heard.effects if e.name == "mine"]
+    assert bed and bed[-1].playing, "the chosen file is not what plays"
+
+    record = rs.now_playing()
+    assert record is not None
+    assert record.duration == pytest.approx(1.2, abs=0.01)
+    assert Path(record.analysis).exists()
+    rs.clear_now_playing()
