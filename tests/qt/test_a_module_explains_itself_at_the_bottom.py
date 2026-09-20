@@ -269,3 +269,119 @@ def test_a_dock_hover_reaches_a_module_screen_s_own_strip(window, qapp):
     assert timer.interval() == 30_000, (
         f"the strip is holding for {timer.interval()} ms, not the module's "
         "thirty seconds")
+
+
+# ---------------------------------------------------------------------------
+# The strip itself: what it does NOT do, and the signal it exists to emit
+# ---------------------------------------------------------------------------
+
+def test_the_strip_does_not_pop_a_tooltip_over_itself(qtbot, monkeypatch):
+    """The one widget in the window that may never show a popup.
+
+    Its whole reason for existing is to replace popups; a QLabel whose text
+    is elided shows the full text in a tooltip by default, so hovering the
+    strip would pop up the very box it was built to prevent -- over the
+    links the reader is crossing the window to click.
+    """
+    from PySide6.QtWidgets import QLabel
+
+    bar = ModuleHintBar()
+    qtbot.addWidget(bar)
+    bar.show_module("mask", "Segment cells and nuclei.")
+
+    reached_qlabel = []
+    real_event = QLabel.event
+
+    def record(self, event):
+        reached_qlabel.append(event.type())
+        return real_event(self, event)
+
+    monkeypatch.setattr(QLabel, "event", record)
+
+    tooltip = QEvent(QEvent.Type.ToolTip)
+    assert bar.event(tooltip) is True
+    assert tooltip.isAccepted()
+    assert QEvent.Type.ToolTip not in reached_qlabel, (
+        "the tooltip request must stop at the strip"
+    )
+
+    bar.event(QEvent(QEvent.Type.User))
+    assert QEvent.Type.User in reached_qlabel, (
+        "only the tooltip is swallowed; everything else goes to QLabel"
+    )
+
+
+def test_following_a_link_says_which_module_it_belonged_to(qtbot):
+    """`link_followed` carries the KEY, not just the href.
+
+    The window opens API pages in one place and lessons in another, and the
+    strip is the only thing that still knows which module the reader was
+    pointing at when they pressed the word.
+    """
+    bar = ModuleHintBar()
+    qtbot.addWidget(bar)
+    bar.show_module("mask", "Segment cells and nuclei.")
+    seen = []
+    bar.link_followed.connect(lambda key, href: seen.append((key, href)))
+
+    bar._on_link("https://example.invalid/api/mask")
+
+    assert seen == [("mask", "https://example.invalid/api/mask")]
+
+
+def test_a_strip_with_no_room_left_shows_the_whole_sentence_rather_than_none(
+    qtbot,
+):
+    """Elision needs a positive width; a bar not yet laid out has none.
+
+    Handing `elidedText` a negative width returns an empty string, so the
+    strip would come up blank on the first paint of a window that has not
+    been shown yet. The sentence unelided is the safe answer: the label
+    clips it, and nothing is lost that was not going to be clipped anyway.
+    """
+    bar = ModuleHintBar()
+    qtbot.addWidget(bar)
+    bar.setFixedWidth(1)
+
+    assert bar._fit("Segment cells and nuclei.") == "Segment cells and nuclei."
+
+
+def test_a_strip_with_no_module_key_offers_no_api_link(qtbot):
+    """The links belong to a module; with no module there is no link.
+
+    A strip showing a sentence and an "API" word that goes to the index of
+    every module would be a link that looks like an answer and is not one --
+    the rule `tutorial_url` already follows for a module with no lesson.
+    """
+    bar = ModuleHintBar()
+    qtbot.addWidget(bar)
+
+    assert bar._api_url("") == ""
+
+    bar.show_module("", "Some summary.")
+    assert "API" not in bar.text()
+    assert "Some summary." in bar.text()
+
+
+def test_an_api_lookup_that_raises_costs_the_link_and_nothing_else(
+    qtbot, monkeypatch,
+):
+    """The lookup imports a large module from a hover handler.
+
+    An ImportError or a registry half-built during startup must cost the
+    word "API" and leave the description on screen, not raise out of a
+    paint.
+    """
+    import spacr.qt.screens.settings_model as settings_model
+
+    def explode(_key):
+        raise RuntimeError("the settings registry is not built yet")
+
+    monkeypatch.setattr(settings_model, "api_docs_url", explode)
+
+    bar = ModuleHintBar()
+    qtbot.addWidget(bar)
+
+    assert bar._api_url("mask") == ""
+    bar.show_module("mask", "Segment cells and nuclei.")
+    assert "Segment cells and nuclei." in bar.text()

@@ -1112,6 +1112,11 @@ def load_draft_counts(folder: PathLike, items: Sequence[QueueItem],
     cached by stem and only stems missing from the cache are read. Counts
     drive ORDERING only: a stale one mis-sorts a field, it never loses work.
 
+    SO AN UNREADABLE CACHE IS RECOUNTED, NEVER RAISED. A file truncated by a
+    crash mid-write is not valid UTF-8, and letting that out would take the
+    whole session down over an optimisation -- the drafts are on disk and are
+    the truth.
+
     :param folder: the queue folder.
     :param items: the fields to count.
     :param write_cache: whether to write the cache back. A failure to write
@@ -1130,7 +1135,7 @@ def load_draft_counts(folder: PathLike, items: Sequence[QueueItem],
                     count = _as_int(raw.get("n_objects"))
                     if stem and count is not None:
                         cache[stem] = count
-        except (OSError, csv.Error):
+        except (OSError, csv.Error, UnicodeDecodeError):
             cache = {}
 
     missing = [item for item in items if item.stem not in cache]

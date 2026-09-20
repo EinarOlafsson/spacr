@@ -272,3 +272,152 @@ def test_a_labelled_button_still_gives_its_popup_up(window):
 
     assert hints.eventFilter(button, _tooltip_event(button)) is True
     assert window.hinted == ["mask"]
+
+
+# ---------------------------------------------------------------------------
+# The ways the hint does not land
+#
+# Every one of these runs INSIDE an application-wide event filter, on the
+# hover path, during teardown as often as not. A hint that cannot be shown
+# costs a line at the bottom of the window; an exception raised here reaches
+# Qt's event loop from a mouse move.
+# ---------------------------------------------------------------------------
+
+def test_nothing_at_all_contributes_nothing(window):
+    """The filter is installed on the APPLICATION, so it sees every event."""
+    assert M.module_hint_text(None) == ""
+
+
+def test_a_description_longer_than_the_strip_is_cut_at_a_word(window):
+    """Module descriptions run to 154 characters and the cap is 96.
+
+    Cut mid-word it reads as a typo; cut at a space with an ellipsis it
+    reads as a description that continues. The trailing punctuation goes
+    too, so the line never ends in " ,…".
+    """
+    summary = ("Segment cells and nuclei with Cellpose, then measure every "
+               "object in every channel, and write one row per object, "
+               "per field, per well")
+    button = _module_button(window, name="Mask", summary=summary)
+
+    line = M.module_hint_text(button)
+
+    assert len(line) <= M.MAX_HINT_CHARS + 1, line
+    assert line.endswith("…")
+    assert not line[:-1].rstrip().endswith((",", ";", ":", "-", "—"))
+    assert line[:-1].rstrip() in f"Mask — {summary}", (
+        "the cut has to be a prefix of the real sentence")
+
+
+def test_a_summary_with_no_name_is_still_the_line(window):
+    """A widget can carry a summary and no name; the line is the summary."""
+    button = _module_button(window, name="", summary="Segment cells.")
+    button.setProperty(M.NAME_PROPERTY, "")
+
+    assert M.module_hint_text(button) == "Segment cells."
+
+
+def test_a_widget_deleted_between_the_text_and_the_route_keeps_its_popup(
+    window,
+):
+    """`module_hint_text` succeeded; the C++ object went away before `_show`.
+
+    Teardown order makes this ordinary, and the filter has to answer False
+    -- which leaves Qt to draw its own tooltip for a widget that is going
+    away, and costs nothing.
+    """
+    hints = M._ModuleHints(window)
+
+    class _GoneSinceTheText:
+        def property(self, _name):
+            raise RuntimeError("Internal C++ object already deleted")
+
+    assert hints._show(_GoneSinceTheText()) is False
+    assert window.hinted == []
+
+
+def test_the_home_tile_does_not_describe_itself_in_its_own_strip(window):
+    """Home IS the grid of modules; a hint naming Home says nothing."""
+    hints = M._ModuleHints(window)
+    button = _module_button(window, name="Home")
+    button.setProperty(M.KEY_PROPERTY, "__home__")
+
+    assert hints._show(button) is False
+
+    button.setProperty(M.KEY_PROPERTY, "")
+    assert hints._show(button) is False
+    assert window.hinted == []
+
+
+def test_a_router_that_raises_is_read_as_not_landed(window, monkeypatch):
+    """The page can be torn down while its tooltip is still in flight."""
+    hints = M._ModuleHints(window)
+    button = _module_button(window, name="Mask")
+
+    def gone(_key):
+        raise RuntimeError("Internal C++ object already deleted")
+
+    monkeypatch.setattr(window, "_show_module_hint", gone)
+
+    assert hints._show(button) is False
+
+
+def test_a_widget_whose_label_cannot_be_read_keeps_its_popup(window):
+    """`_shows_its_own_name` decides whether the popup is suppressed.
+
+    A widget with no `text()` at all, or one already deleted, is treated as
+    icon-only -- so the popup stays, which is the only thing identifying it.
+    """
+    hints = M._ModuleHints(window)
+
+    class _NoText:
+        pass
+
+    class _Gone:
+        def text(self):
+            raise RuntimeError("Internal C++ object already deleted")
+
+    assert hints._shows_its_own_name(_NoText()) is False
+    assert hints._shows_its_own_name(_Gone()) is False
+
+
+def test_the_filter_ignores_events_for_things_that_are_not_widgets(window):
+    """The filter is on the QApplication, so it sees QObjects too."""
+    from PySide6.QtCore import QObject
+
+    hints = M._ModuleHints(window)
+    plain = QObject()
+
+    assert hints.eventFilter(plain, _tooltip_event(window)) is False
+
+
+def test_installing_without_an_application_returns_none(monkeypatch):
+    """The headless CLI imports the Qt package without ever making an app."""
+    from PySide6.QtWidgets import QApplication
+
+    monkeypatch.setattr(QApplication, "instance", staticmethod(lambda: None))
+
+    assert M.install_module_hints(object()) is None
+
+
+def test_installing_puts_the_filter_on_the_application_not_the_widgets(
+    window, qtbot,
+):
+    """The fold strip builds its buttons lazily, per host masthead.
+
+    A filter installed per widget would miss every button made after it ran,
+    which is most of them -- so it goes on the application, and a button
+    created AFTERWARDS is still diverted.
+    """
+    from PySide6.QtWidgets import QApplication
+
+    hints = M.install_module_hints(window)
+    assert isinstance(hints, M._ModuleHints)
+    try:
+        later = _module_button(window, name="Measure")
+        qtbot.addWidget(later)
+
+        assert hints.eventFilter(later, _tooltip_event(later)) is True
+        assert window.hinted == ["measure"]
+    finally:
+        QApplication.instance().removeEventFilter(hints)
