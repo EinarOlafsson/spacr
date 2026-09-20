@@ -1,0 +1,255 @@
+================================================================================
+CAPTURE MEASUREMENTS FROM HAND-DRAWN MASKS IN MAKE MASKS
+================================================================================
+
+Filed as 412 on 2026-09-18; renumbered 2026-09-19 because 412 also names features/new/412_a_ten_image_toxo_pv_test_dataset_that_opens_in_make_masks.txt.
+
+Status:    DONE 2026-09-19. The FEATURES button is in Make Masks, the
+           measurement-input table is built, and a table run and a Measure
+           run on the same pixels produce the same database. The maintainer's
+           2026-09-19 specification REPLACES the design sketch below; the
+           sketch is kept only because its three scenarios are still the
+           right description of what the table has to cover. See the trailing
+           note for what was built, what was measured and what was left.
+
+Shape:     A new button in the Make Masks module, beside the annotation tools.
+           The user draws objects, presses FEATURES, moves to the next image,
+           draws again, presses FEATURES again. Measurements accumulate into a
+           database. A low-throughput version of the measure module, for users
+           with very few images or who want to hand-draw the masks.
+
+--------------------------------------------------------------------------------
+WHAT IT IS FOR
+--------------------------------------------------------------------------------
+
+The measure module is built for a screen: a plate, a naming convention, a
+pipeline that has already produced masks for everything. A user with six images
+and a mouse has no route to the same numbers. This gives them one, and it reuses
+measure_crop rather than reimplementing morphology and intensity, so the numbers
+a hand-drawn object produces are the same numbers the pipeline would produce.
+
+--------------------------------------------------------------------------------
+OUTPUT
+--------------------------------------------------------------------------------
+
+  measurements/measurements.db     created next to the source images
+
+The schema is the measure module's schema. Not a new one, not a subset -- the
+same tables, so anything downstream that reads a spaCR measurements database
+(the annotate app, classify, the regression stack) reads this one without being
+taught a second format. Every measurement measure_crop captures is captured
+here. Objects are cropped and saved exactly as the measure module saves them.
+
+--------------------------------------------------------------------------------
+THE THREE SCENARIOS
+--------------------------------------------------------------------------------
+
+1. ONE IMAGE, ONE OBJECT CLASS.
+   The user draws masks on one image, presses FEATURES, and gets morphology and
+   intensity for those objects. The easy case, and the one to build first.
+
+2. ONE OBJECT CLASS PER IMAGE, MEASURED TOGETHER.
+   The user draws cells on image A and nuclei on image B, then captures
+   measurements for both object classes across both images. Harder: the objects
+   are related (nucleus inside cell) but were drawn in separate passes, so the
+   parent/child relationship measure_crop expects has to be reconstructed rather
+   than assumed from a shared pipeline run.
+
+3. ONE SET OF OBJECTS, MANY IMAGES.
+   The user draws objects once and captures intensity measurements for those
+   objects across several images -- the same mask applied to several channels or
+   several acquisitions.
+
+--------------------------------------------------------------------------------
+THE HARD PART: WHICH FILE IS WHICH CHANNEL, AND WHICH IS WHICH OBJECT
+--------------------------------------------------------------------------------
+
+measure_crop wants a concatenated npy: channels stacked in a known order, mask
+dimensions annotated by object class. The pipeline produces that as a side
+effect of having run. Here there is no pipeline, so the popup has to ask.
+
+For each CHANNEL (1, 2, 3, 4, ...): a path to the image supplying it.
+For each OBJECT CLASS (cell, nucleus, pathogen, ...): a path to its mask, and
+the mask dimension it occupies.
+
+Sources are not only tif and npy. czi, lif, nd2 and the other formats spaCR
+already imports must work here too -- the import path exists, it just has to be
+reachable from this popup.
+
+Once the channels and mask dims are resolved and concatenated into an npy in the
+layout measure_crop expects, the rest is a straight call into measure_crop and
+the existing crop-saving code. Getting to that npy is the whole problem.
+
+--------------------------------------------------------------------------------
+THE POPUP
+--------------------------------------------------------------------------------
+
+Shows every setting relevant to a measurement capture. Channel settings are
+handled DIFFERENTLY from the measure module: there, channels come from the
+plate's naming convention; here the user names a file per channel. The popup
+must let the user
+
+  - add further images to measure from (scenario 3),
+  - add further object classes (scenario 2),
+  - set a path per channel and a path plus mask dim per object class,
+  - see what will be written before it is written.
+
+--------------------------------------------------------------------------------
+OPEN QUESTIONS -- ANSWER BEFORE BUILDING
+--------------------------------------------------------------------------------
+
+  - What identifies an object across presses of the button? Scenario 2 needs
+    nuclei drawn on image B to join cells drawn on image A. Is the join by
+    position, by draw order, by an explicit user action, or is it refused?
+  - Does a second press on the same image replace its rows or add to them? A
+    user who redraws one object and presses again must not silently get two
+    copies, and must not silently lose the other objects.
+  - What are the plate/well/field values in a database whose images came from a
+    file picker rather than a plate? A schema built around a plate needs an
+    answer that is honest rather than a fabricated well id.
+  - Does measure_crop need every channel, or can it run on a subset when the
+    user supplies two channels and the settings mention four?
+  - Where do crops go, and what happens when the same folder is captured into
+    twice?
+
+--------------------------------------------------------------------------------
+WHY IT IS FILED RATHER THAN BUILT
+--------------------------------------------------------------------------------
+
+Requested 2026-09-18 with the explicit instruction not to execute. The session
+that took the specification was near the end of its budget, and a half-built
+version of this -- one that writes a database the measure module cannot read --
+would be worse than nothing, because a measurements database is believed.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- BUILT. THE BACKEND FOR HALF OF THIS ALREADY EXISTED.
+--------------------------------------------------------------------------------
+
+Decided: "Not quite, the features button should allow the user to basically do
+everything the measure modular can do, and the file and folder structure of the
+resulting output should be the same as the measure output ( the features button
+should basically give a new input to the measure function). So the main thing
+irk that needs to be done is make a table the user can drag and drop files or
+click rows and brows files or drag and drop files then regex files into their
+proper channel and mask columns and rows. This table should organize the user
+annotated files so that the button can populate the measure crop metadata
+setting (like channel dims and mask dims) so that the files can be made
+compatible with the measure crop function and put through it as if after the
+mask generation modular. There will have to be a panel of other setting outside
+of this file organization table like a Boolean to generate pngs or not, to use
+bounding box or not, any thresholds, etc. all the user facing measure crop
+settings should either be automatically filled bast on the table or filled in by
+the user" -- the maintainer, 2026-09-19.
+
+THE FIRST THING MEASURED WAS THAT THE HARD PART WAS ALREADY SOLVED, and the
+file above did not know it. `spacr/external_masks.py` -- 979 lines, shipped,
+with a Qt screen, a drop handler and a settings category -- already takes
+user-supplied images and label masks, writes `images/`, `stack/`,
+`masks/<role>_mask_stack/` and `merged/` with the plane-layout manifest, and
+delegates to `measure_crop` unchanged. The section above headed "THE HARD PART"
+describes building that from nothing. It is HANDOFF 0a again: the thing existed
+under a name nobody grepped for, and the file was confidently wrong about
+itself. Nothing in external_masks was changed; what it knows was re-used.
+
+What external_masks does NOT have is the maintainer's table. It pairs files by
+STEM: a mask is matched to the image whose name it resembles. That cannot
+express scenario 3 -- one drawn mask measured against several acquisitions,
+whose stems differ on purpose -- and it gives the user no place to see or
+correct the pairing before a database is written. The table is the new thing.
+
+WHAT WAS BUILT
+
+  spacr/measure.py  (+~470 lines, all new, nothing existing changed)
+    FieldRow / FieldTable   rows are fields, columns are channels and masks.
+                            Qt-free, so the window and the tests drive the
+                            same object.
+    assign_paths_by_regex   one regex fills the whole table; returns what it
+                            assigned AND what it could not, with a reason per
+                            file.
+    field_table_settings    the measure_crop settings the table decides
+                            (channels, every *_mask_dim, png_dims, crop_mode,
+                            src) over the ones it does not, which come from
+                            get_measure_crop_settings exactly as the Measure
+                            module gets them.
+    write_field_table_project   writes stack/, masks/ and merged/ + the
+                            .spacr_plane_layout.json manifest, in the layout
+                            read_merged_plane_layout recomputes and verifies.
+    measure_from_field_table    the entry point. Writes the folders, then
+                            calls measure_crop ITSELF -- no flag, no second
+                            code path, no way for the two to drift.
+
+  spacr/qt/widgets/measure_input_table.py   the table. Drop files or a folder
+                            on it, double-click a cell to browse for that one
+                            file, or write a regex. Channel count and mask
+                            types are controls; the assignment is shown live
+                            and the left-over files are listed under it.
+
+  spacr/qt/screens/measure_inputs.py        the window. The table, then the
+                            MEASURE MODULE'S OWN settings form -- built from
+                            SettingsWidgets("measure"), not copied and not a
+                            chosen subset -- then Measure, off the GUI thread
+                            through JobRunner.
+
+  spacr/qt/screens/make_masks.py            the button and nothing else: one
+                            QPushButton and one four-line handler that calls
+                            open_measure_inputs. 419 was editing this file in
+                            parallel, so the hunk is deliberately tiny.
+
+WHAT WAS MEASURED
+
+  * A table run and a Measure run on the same two synthetic fields were
+    compared: same set of database tables, same columns in every one of them,
+    same row counts in cell/nucleus/cytoplasm, and `select prcf, object_label,
+    cell_area, cell_channel_0_mean_intensity from cell` returns identical rows
+    from both databases. The data/ subtree is identical; merged/ is a superset
+    on the table side only because the table run also keeps stack/ and masks/.
+    tests/test_features_button_measures_hand_drawn_masks.py, 10 tests.
+  * The widgets were driven the way a user hits them, per HANDOFF 0b: a real
+    QDropEvent carrying file URLs, the cellDoubleClicked signal, the mask
+    checkboxes, and run_button.click() to a database on disk.
+    tests/qt/test_features_button_opens_the_measure_table.py, 11 tests.
+  * HEAD baseline taken twice with the work stashed. test_test_suite_hygiene
+    fails 4 tests and test_a_helper_does_not_hide_a_caption_from_the_catalog /
+    test_i18n_coverage_audit fail 3 more -- the SAME seven, with the same
+    offenders, with and without this work. None of them names a file this
+    branch touches. No regression.
+  * make_masks' own toolbar tests: 45 pass with the new button in the row.
+
+TWO DECISIONS THAT WERE MINE AND WANT CONFIRMING
+
+  1. THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER. `C1`/`C2`/`C3`,
+     `w1`/`w2` and `0`/`1`/`2` all have to become channels 0, 1, 2, and no
+     literal reading of `C1` is right for all three -- a literal read leaves
+     channel 0 permanently empty for the first set. So the distinct channel
+     tokens across the whole drop are sorted (numerically on their trailing
+     digits, so C10 follows C9) and mapped onto 0, 1, 2. The mapping is a
+     property of the SET of files, not of any one file, which is why the
+     window shows the assignment rather than explaining the rule.
+
+  2. THE PLATE/WELL ANSWER, which is the open question above that the new
+     specification does not settle. Every row is written as
+     `<plate>_<well>_<field>`, with the plate name a box the user can edit
+     (default `drawn`), one shared well (default A01) and one field number
+     per row. Hand-drawn fields are FIELDS, not wells; giving each its own
+     invented well id would be the fabrication the question warns about,
+     while one shared well says plainly that these did not come from a plate.
+     Both are visible and editable columns in the table, so nothing about the
+     identity is hidden. If the maintainer wants a different answer it is one
+     function -- FieldRow.stem.
+
+WHAT IS LEFT
+
+  * The nine-language catalogs owe the new captions and tooltips. Not
+    regenerated here on purpose: a consolidated pass runs at the end of this
+    round. The strings are listed in the handoff.
+  * The settings panel renders Measure's sections as flat collapsible groups
+    rather than reproducing AppScreen's three-level nesting. Every control is
+    present and is the same widget object; only the grouping is simpler.
+  * write_setting_value in measure_inputs.py duplicates the coercions of
+    AppScreen._apply_value, which is bound to a screen this window is not one
+    of. Two callers is tolerable; a third should move it rather than copy it.
+    It is called out in that function's docstring.
+  * Scenario 2 -- cells drawn on image A joined to nuclei drawn on image B --
+    is reachable by putting both files in one row, and is NOT separately
+    tested. The parent/child reconstruction is measure_crop's own and was not
+    touched.
