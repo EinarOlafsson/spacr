@@ -4,25 +4,31 @@ SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
 
 Filed as 418 on 2026-09-18; renumbered 2026-09-19 because 418 also names features/new/418_mask_filters_objects_by_min_and_max_intensity.txt.
 
-Status:    IN PROGRESS -- PARTS A AND B OF THREE BUILT 2026-09-19, part C
-           not started. Built: the sound engine (spacr/qt/sound.py), the
-           synthesiser and its cache (spacr/qt/sound_synth.py), the Sound tab
-           in Preferences (spacr/qt/sound_preferences.py), ONE reference
-           sound set "Orbit", the 32-bar composed music bed with its kick and
-           shaker, a music file of the user's own, and the Resonance
-           backdrop (spacr/qt/resonance.py, ResonanceEngine in
-           spacr/qt/widgets/ambient.py). Not built: the ten themes (part C).
-           Everything is off by default and the backdrop is one animation
-           among seven. Part A was reviewed the same day and the five nits it
-           found are fixed. THE BED GAINED A MELODY AND A SIDE-CHAIN THAT
-           CAN BE HEARD on 2026-09-19 -- the sentence this item exists to
-           answer is "melodic space house", and until then the bed had the
-           space house and not the melodic; it was reviewed before landing
-           and five findings were fixed. See the six 2026-09-19 notes at
-           the end; the last three list what is still open, including
-           whether section 2's sound for a run STARTING is wanted at all.
-           Renders for the maintainer's ear have now been sent; until he
-           says, NOBODY HAS STILL REALLY HEARD WHETHER IT IS ANY GOOD.
+Status:    DONE 2026-09-19 -- ALL THREE PARTS BUILT. Built: the sound
+           engine (spacr/qt/sound.py), the synthesiser and its cache
+           (spacr/qt/sound_synth.py), the Sound tab in Preferences
+           (spacr/qt/sound_preferences.py), the reference sound set
+           "Orbit", the 32-bar composed music bed with its kick, shaker,
+           MELODY and audible side-chain, a music file of the user's own,
+           the Resonance backdrop (spacr/qt/resonance.py, ResonanceEngine
+           in spacr/qt/widgets/ambient.py), and the ten night themes
+           (spacr/qt/night_themes.py) -- each a palette, an ambient
+           backdrop and a sound set, moved together by one choice.
+           Everything is off by default and the Resonance backdrop is one
+           animation among seven. Parts A and B were each reviewed the
+           same day and their nits are fixed; the bed gained its melody
+           and a side-chain that can be heard on 2026-09-19, because the
+           sentence this item exists to answer is "melodic space house"
+           and until then the bed had the space house and not the
+           melodic, and that work was reviewed before landing too. Part C
+           was reviewed before landing on 2026-09-20 and its nine
+           findings are fixed. See the dated notes at the end; the last
+           ones list what is still open. THE LARGEST OPEN THING BY FAR IS
+           THAT NOBODY HAS LISTENED TO ANY OF IT. Renders for the
+           maintainer's ear have been sent and he has not yet said. The
+           numbers say what was asked for; whether it sounds right is his
+           ear, and that is not a thing a test can close. Nobody has
+           looked at the ten palettes on a real screen either.
 
 Shape:     A Sound tab in Preferences, LAST tab, everything OFF BY DEFAULT.
            Interface feedback sounds, start/stop sounds for a run, optional
@@ -710,3 +716,169 @@ Everything passed either way.
 STILL OPEN: everything under WHAT IS LEFT above, unchanged -- part C, that
 nobody has listened to any of it, the bed sitting 0.56 LU under target, and
 the kick not separating from the sub in 40-110 Hz.
+--------------------------------------------------------------------------------
+2026-09-19 — PART C BUILT: TEN NIGHT THEMES, LOOK AND SOUND TOGETHER
+--------------------------------------------------------------------------------
+
+Decided: 2026-09-19, by the maintainer, through the question prompt —
+"make 10 themes for spacr that should all try and capture a space house
+theme vibe. Artists I like include worakls, NTO, riviere monk, BIRRD",
+and, separately, "The theme should sound like melodic space house".
+
+THE TEN, in menu order, which is the hue wheel warm through cool and back
+round to rose:
+
+  Lantern   orange    bokeh + Ember       G minor, 118 BPM
+  Halcyon   gold      blobs + Low sun     F Dorian, 120
+  Solstice  olive     cells + Low sun     G Lydian, 112
+  Undertow  sea green ripple + Deep water E minor, 116
+  Meridian  teal      aurora + Ocean      A Dorian, 124
+  Cirrus    ice blue  drift + Ocean       B minor, 126
+  Nocturne  indigo    drift + Midnight    C sharp minor, 108
+  Aphelion  violet    resonance+Midnight  D harmonic minor, 128
+  Pulsar    magenta   blobs + Dusk        F sharp minor, 128
+  Vesper    rose      aurora + Dusk       E flat minor, 114
+
+NO ARTIST NAME OR TRADEMARK reaches a theme name, a description, a sound
+set label or any other string a user can read. A ratchet test sweeps every
+one of those strings for the four artists the request names and for the
+labels most plausibly borrowed from them.
+
+WHAT EXISTS NOW
+
+  spacr/qt/night_themes.py   Qt-free, imports nothing from spaCR. Ten
+                             NightThemes: key, label, description, the
+                             full palette, the ambient animation and its
+                             colour set. The sound set is the key, so the
+                             three cannot drift. theme.THEMES and
+                             preferences.PALETTE_THEMES are now the same
+                             tuple plus these ten keys rather than two
+                             hand-written lists that happened to match.
+  spacr/qt/theme.py          The ten palettes join _PALETTES and THEMES,
+                             as flat themes and not IMAGE_THEMES, so no
+                             scrim is solved for them. Plus the lazy
+                             dressing solve, below.
+  spacr/qt/widgets/ambient.py  Four colour sets added -- Midnight, Dusk,
+                             Low sun, Deep water -- and offered per
+                             animation by the rule already applied to
+                             borealis and fluor. NO EIGHTH ENGINE: the
+                             seven producers are untouched, which is what
+                             "reuse and parameterise the existing
+                             producers" asked for.
+  spacr/qt/sound_synth.py    Three scales added (Dorian, Lydian, harmonic
+                             minor) and ten SoundThemes keyed to the ten
+                             themes. SYNTH_VERSION is NOT bumped: the ten
+                             are new keys with new fingerprints, so no
+                             cached Orbit file is retired.
+  spacr/qt/preferences.py    theme_choices() offers the ten last;
+                             apply_night_theme writes the backdrop and the
+                             sound set; backdrop_is_switched_off is what
+                             stops it restarting motion somebody turned
+                             off. The Theme control in the dialog moves
+                             the Animation, Animation palette and Sound
+                             set controls live.
+  spacr/qt/sound_preferences.py  SoundPage.select_theme, one combo box and
+                             nothing else, so a theme can never turn sound
+                             on.
+
+MEASURED
+
+  * LEGIBILITY, by the published rules rather than by eye:
+    contrast_failures and page_separation_failures over all ten, zero
+    failures each, and zero at all sixty hue offsets the spaceout dressing
+    can reach. Three colours were moved off the generating recipe to get
+    there and only three -- Nocturne's and Aphelion's accent_lo, too dark
+    at the recipe's lightness to clear 4.5:1 against a near-black window,
+    and Vesper's, which passed undressed and failed DRESSED at 4.49:1 at
+    one offset out of sixty.
+  * THE BACKDROPS, through 380's tools/perf_paint.py, offscreen, each
+    theme with its own animation, 3 s per combination: 24.7-25.1 fps at
+    1080p and 24.8-25.1 at 4K, against 380's 2026-09-09 baseline of
+    "24.7 fps at 1080p and 24.7 at 4K, every theme". Dark on blobs
+    measured alongside as a control read 24.7/24.9. None of the ten is
+    cheaper or dearer than the theme that shipped.
+  * ONE ROW WAS WRONG BEFORE IT WAS RIGHT. The first sweep put meridian
+    on aurora at 4K at 17.8 fps while vesper on the same animation at the
+    same size read 24.9 -- the same producer twice, one number six frames
+    short. Two other pytest processes were running. Three clean re-runs
+    of meridian, vesper and dark gave 24.8-25.1 across the board. A single
+    low row in a sweep taken under load is load until it repeats.
+  * THE SOUNDS, on the samples: every set renders click, hover, run
+    finished and run failed; every click peaks at -12 dBFS and every
+    hover below it; every failure sound has a lower spectral centroid
+    than its success sound; every bed loops with no seam by the same rule
+    the reference set is judged by, and normalises to its own programme
+    loudness. No two of the ten share key, mode and tempo.
+  * IMPORTING spacr.qt.theme is unchanged: 137-152 ms with the ten, 141-152
+    without. The palettes are literals, so no solver runs at import.
+
+A REGRESSION THIS WORK CAUSED AND FIXED, and it is the part worth reading.
+theme._apply_dressing solved the page damping and the ink bands for EVERY
+theme the moment spaceout started. Both walk sixty hue offsets per theme,
+so both are linear in the theme count, and ten more themes took
+enable_spaceout() from 417-438 ms to 864-876 ms -- paid by
+spacr/qt/spaceout.py before the window appears, and thirteen of the
+fourteen solves were for a palette that run would never paint, because the
+process is in ONE theme. theme.DRESSED_EAGERLY now names the four a
+process can be in without anybody choosing and theme._dress_theme solves
+any other the first time palette_for is asked for it, about 42 ms, once.
+Back to 433 ms. CHECKED BY EQUALITY RATHER THAN BY INSPECTION: dress
+lazily, read all fourteen palettes, then run the eager solve and compare --
+the damping tables, the ink bands and all fourteen dressed palettes are
+identical.
+
+A TEST WAS WRONG ABOUT WHAT IT WAS FOR.
+test_spaceout_palette_stays_readable's "the four themes are still the four
+themes" asserted THEMES == ("dark", "light", "cell", "glass"). It reads as
+"spaceout does not add a theme" and it MEANT "nobody may ever add a theme",
+and ten legitimate ones turned it red for a reason it was never about. It
+now asserts what it was for: THEMES and PALETTE_THEMES are the same list,
+no spaceout name is in either, and every theme has a palette.
+
+TESTS: tests/qt/test_ten_night_themes.py, 207 (187 plus 20 marked heavy,
+which render eleven minutes of audio). The dialog tests drive the Theme
+control and then read the Animation, Animation palette and Sound set
+controls, which is HANDOFF 0b. Five new guards were mutation-checked: four
+turn their own test red when removed, and the fifth -- the _SOLVE_DRIFT
+check in palette_for -- does not, and is recorded in its own docstring as
+the redundant belt it is rather than left looking load-bearing.
+
+GREEN ON THE BRANCH: the seven ambient suites (464), the six theme suites
+(76), the four sound and Preferences suites (157), the night theme suite
+(207), and the spaceout, scrim and theme suites (371). The twenty-eight
+suites that sweep every theme run 1443 passed with three failures, all
+three accounted for: one was this file's own stale guard, above; one was
+vesper's 4.49:1, fixed; and test_home_variants'
+test_no_variant_clips_elides_or_overflows fails identically at the merge
+base, on a layout this work never touched.
+
+STILL OPEN AFTER PART C
+
+  * NOBODY HAS LISTENED TO ANY OF IT, and that is now eleven sound sets
+    rather than one. Every claim in this file about how they sound is a
+    measurement on the samples. Whether Nocturne sounds like a night and
+    Pulsar like a floor is the maintainer's ear.
+  * NOBODY HAS LOOKED AT THE TEN EITHER, on a real screen. They pass the
+    contrast rules; that is not the same as looking good, and two of them
+    (Solstice's olive, Pulsar's magenta) are the ones to look at first.
+  * The run-START sound of section 2 is still an open question for the
+    maintainer, unchanged.
+  * A night theme does not make its backdrop follow the music's tempo.
+    The request mentions "rings pulsing near 122 BPM"; the ripple producer
+    has no tempo input and the Speed slider is the user's. The one
+    backdrop that does answer the music is Resonance, which part B built,
+    and Aphelion uses it. The other nine run at the user's speed.
+  * screens/train_compare.py draws its compare plot in the DARK palette
+    under any non-light theme, so a night theme's colours do not reach it.
+    Pre-existing for cell and glass too; not a regression and not fixed
+    here.
+  * TRANSLATIONS ARE OWED and the consolidated pass will carry them: ten
+    theme labels and ten descriptions, ten sound-set labels and ten
+    descriptions, four ambient palette labels and four notes, and the new
+    public docstrings. The API-count ratchets in
+    tests/test_docstring_correctness.py and tests/test_api_i18n_extractor.py
+    are red on origin/nightly already, by roughly 300; this work moves
+    three of those counts by +9, +11 and +11, measured against a paired run
+    at the merge base.
+  * The frozen bundle, Windows and macOS audio, and the 12 MB WAV load
+    latency are unchanged from parts A and B.
