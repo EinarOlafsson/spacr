@@ -1,0 +1,111 @@
+================================================================================
+THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA
+================================================================================
+
+Status:    OPEN, filed 2026-09-19. Not started.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "add to new features list. in the mask modual,please add new
+              metadata type for other microscope systems. currently i have only
+              2 yokagawa systems. it would be awesome if this list could be
+              comprehensive and cover most or all commonly used default metadata
+              schemes for microscopes form zeis, nikon, leika, thermo fisher,
+              yokagawa, etc. so canvas the internet and see what  define as many
+              regex you can for as many microscopes as you can."
+
+Owner:     Claude (spacr/utils.py `_get_regex`, spacr/settings.py, and the
+           Mask module's metadata_type row).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+`spacr.utils._get_regex` (utils.py:6131) is an if/elif chain with four arms:
+
+    cellvoyager  (?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)
+                 L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*)
+    cq1          W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)
+                 Z(?P<sliceID>.*)C(?P<chanID>.*)
+    auto         renames to Yokogawa naming first, then parses
+    custom       whatever the user types into custom_regex
+
+So the two built-in conventions are the Yokogawa CV7000/CV8000 and the
+Yokogawa CQ1. Everyone else is expected to write a regex by hand, in a setting
+whose own tooltip warns that a filename which does not match is SKIPPED WITH A
+WARNING -- a quiet way to lose half a plate.
+
+Two properties of the current arms are worth keeping in mind while adding
+more: every group is `.*`, which is greedy and will happily match the wrong
+half of a name that has more underscores than the author expected; and the
+pattern is built with the image extension interpolated at the end.
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+A user with a Zeiss, a Nikon, a Leica or a Thermo Fisher instrument meets
+spaCR's front door with a dropdown that does not name their microscope. The
+failure is not loud: a mismatched regex skips files, and a partially matching
+one assigns the wrong well, field or channel -- which produces a measurements
+database that is wrong rather than empty.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. RESEARCH FIRST, and record the source for every convention. For each
+   vendor and instrument family, find the DEFAULT export naming, with real
+   example filenames, and cite where each came from (vendor documentation,
+   Bio-Formats' format pages, OME's metadata notes, open datasets on IDR or
+   BioImage Archive, forum posts by users of that instrument). A regex nobody
+   can trace to a real file is a guess.
+   At least: Zeiss (ZEN/Axio, CZI exports and their tiled TIFF naming),
+   Nikon (NIS-Elements, ND2 exports), Leica (LAS X, and the "Image_..." TIFF
+   series), Thermo Fisher (CellInsight / ArrayScan, and EVOS), Yokogawa
+   (CV7000/8000 and CQ1, already here), Molecular Devices (ImageXpress
+   MetaXpress), PerkinElmer/Revvity (Opera Phenix, Operetta -- the r##c##f##p##
+   -ch##sk##fk##fl## form), Olympus/Evident (ScanR, cellSens), GE/Cytiva
+   (IN Cell Analyzer), Agilent/BioTek (Cytation, Gen5), Sartorius (Incucyte),
+   Nanolive, Etaluma, and any open-source acquisition naming worth covering
+   (Micro-Manager's MDA, OME-TIFF companion naming, ImageJ/Fiji defaults).
+
+2. TURN THE if/elif CHAIN INTO A TABLE. One record per convention: key,
+   display name, vendor, instrument family, the regex, at least two real
+   example filenames it must parse, what each named group means, the source it
+   was taken from, and whether it is CONFIRMED (matched against real files or
+   vendor documentation) or PROVISIONAL (inferred from examples found online).
+   The dropdown shows confirmed and provisional differently -- a user should
+   know when spaCR is guessing about their instrument.
+
+3. KEEP THE EXISTING FOUR WORKING, byte for byte. cellvoyager, cq1, auto and
+   custom keep their current patterns and their current keys; old settings
+   files must load unchanged.
+
+4. GREEDINESS: prefer specific character classes over `.*` in new patterns
+   (`(?P<wellID>[A-Z]\d{2})`, `(?P<fieldID>\d+)`), and add a test for each
+   convention that feeds it a filename from a DIFFERENT convention and asserts
+   it does not match. Two patterns that both match the same name is the defect
+   that silently mislabels a plate.
+
+5. THE UI: metadata_type becomes a grouped dropdown (by vendor), with the
+   example filename shown under the choice, and a "test it on my folder"
+   action that reports how many files in the chosen source parse and shows the
+   first that does not. That readout is what turns a wrong guess into a
+   question the user can answer before a run starts, rather than a warning
+   they find afterwards.
+
+6. AUTODETECT, if the table makes it cheap: given a folder, try every
+   convention and report which one parses the most files, and how many. Offer
+   it rather than apply it.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * A test walks the table: every convention parses its own examples, and no
+    convention parses another's.
+  * The four existing keys behave exactly as before, pinned by a test that
+    compares the produced pattern against the current one for each.
+  * Choosing a convention in Mask shows an example filename, and the "test it
+    on my folder" action reports a count and the first unparsed name.
+  * Every row carries its source, and provisional rows say so on screen.
