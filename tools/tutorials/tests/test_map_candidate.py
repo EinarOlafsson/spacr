@@ -60,5 +60,10 @@ def test_map_is_available_in_every_catalog_and_other_media_was_preserved():
                       if record['path'].startswith(('media_host/', 'web/production/'))]
     changed_media = [path for path in preservation['changed_files']
                      if path.startswith(('media_host/', 'web/production/'))]
+    assert len(manifest_media) == 7828 and len(changed_media) == 105
+    assert preservation['retained_media_files'] == 7723
     assert preservation['retained_media_files'] + len(changed_media) == len(manifest_media)
+    owners = {path.split('/')[1] if path.startswith('media_host/') else path.split('/')[2]
+              for path in changed_media}
+    assert owners == {'07_mask', '13_regression'}
     assert not [path for path in changed_media if '12_map_barcodes' in path]

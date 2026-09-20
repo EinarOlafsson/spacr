@@ -1624,8 +1624,21 @@ THE CLASSIFY LESSONS: NOTHING STALE IN THE NARRATION, FRAMES TWO VERSIONS BEHIND
 10_classify_cv (captures/classify_canonical_*, 1.5.0.6, 9ed867087),
 11_classify_ml (captures/classify_ml_ten_percent_native, 1.5.0.6, 4351af7b9)
 and 41_classify (captures/classify_main_*, 1.5.0.6, 9a676d2de). Their
-prerequisites all say "Recorded with spaCR 1.5.0.6" and the app is 1.5.0.8, so
-the version footers are stale and the prose about the version is honest.
+frames are all 1.5.0.6 and the app is 1.5.0.8, so the version footers are stale.
+
+CORRECTED AFTER REVIEW, and the correction is a small finding rather than a
+wording fix. This note first said their prerequisites "all say Recorded with
+spaCR 1.5.0.6". Two of the three do, in different words: 41_classify says
+"Recorded with spaCR 1.5.0.6." and 10_classify_cv says "This recording uses
+spaCR 1.5.0.6". 11_CLASSIFY_ML NAMES NO VERSION AT ALL -- grepping its whole
+JSON for /1\.5\.[0-9.]+/ returns nothing -- so a reader of the ML lesson is
+never told which release its frames are from, while a reader of the other two
+is. That is a real gap the audit should have caught and did not. It is NOT
+fixed here: adding the sentence changes a prerequisite string, which is a
+narration-catalog change in thirteen languages, and it belongs in the same
+re-composition pass as the stale frames rather than on its own. Whoever
+re-composes 11_classify_ml adds the version sentence to its prerequisite in
+the same edit, and lists it in the i18n owed.
 
 Checked against the live tables rather than the code:
 

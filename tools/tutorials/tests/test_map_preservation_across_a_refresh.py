@@ -172,6 +172,26 @@ def test_media_that_belongs_to_no_named_lesson_is_refused(pair, tmp_path):
         preservation.check_refresh(prior, candidate, [OTHER])
 
 
+def test_a_catalog_locale_nobody_compares_is_not_excused(pair):
+    """A locale under ``web/catalog/`` that ``CATALOGS`` does not name.
+
+    ``check_refresh`` excuses the fourteen catalogs from the byte comparison
+    because it opens and compares each of them. A fifteenth file in that
+    folder is compared by nobody, so it must raise rather than pass on the
+    strength of its folder.
+    """
+    prior, candidate = pair
+    stranger = 'web/catalog/lessons_xx.json'
+    assert stranger not in preservation.COMPARED_CATALOG_PATHS
+    for root, digest in ((prior, 'stranger-before'), (candidate, 'stranger-after')):
+        manifest_path = root / 'release-manifest.json'
+        manifest = json.loads(manifest_path.read_text())
+        manifest['files'].append({'path': stranger, 'sha256': digest})
+        manifest_path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match='An unexplained file changed'):
+        preservation.check_refresh(prior, candidate, [OTHER])
+
+
 def test_map_cannot_be_declared_refreshed(pair):
     prior, candidate = pair
     with pytest.raises(ValueError, match='both preserved and refreshed'):

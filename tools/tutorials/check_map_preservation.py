@@ -43,6 +43,15 @@ from validate_candidate import validate
 #: ``module_navigation.js`` key by key.
 SHARED_INDEX_FILES = ('web/lesson_catalog.js', 'web/module_navigation.js')
 
+#: The catalog paths :func:`check_refresh` excuses from the byte comparison,
+#: because it opens each of them and compares it lesson by lesson instead.
+#:
+#: It is exactly the set :mod:`audit_staged_catalogs` names and nothing
+#: wider. A locale added under ``web/catalog/`` and not added there is
+#: therefore NOT excused: it raises as an unexplained change rather than
+#: differing between two candidates without its contents ever being read.
+COMPARED_CATALOG_PATHS = frozenset('web/catalog/' + name for name in CATALOGS)
+
 #: Keys of ``module_navigation.js`` that may differ between two candidates
 #: built from different repository commits.
 #:
@@ -189,7 +198,7 @@ def check_refresh(prior, candidate, refreshed):
         if owner in refreshed:
             media_moved.add(owner)
             continue
-        if path.startswith('web/catalog/') or path in SHARED_INDEX_FILES:
+        if path in COMPARED_CATALOG_PATHS or path in SHARED_INDEX_FILES:
             continue
         raise ValueError('An unexplained file changed: ' + path)
     unchanged_per_catalog, prose_moved = set(), set()
