@@ -89,3 +89,79 @@ DELIBERATELY NOT DONE
 No row is added before the weight is published and hashed: an entry whose
 sha256 is a placeholder cannot be installed, which is how the retired
 toxo_plaque_cyto row became a dead Download button.
+
+--------------------------------------------------------------------------------
+2026-09-19 (evening) — ADDED BY THE MAINTAINER: TEST DATA FOR THE PLAQUE MODULE,
+AND TWO MODELS THAT WENT UP TODAY
+--------------------------------------------------------------------------------
+
+Requested, in his words:
+
+  "today a new yolo and toxo pv model were uploaded to my hugging face from the
+   work computer, make sure these are wired in to spacr. also make sure that the
+   plaque modual have test data the user can loade to see what the yolo and
+   plaque models can do. i am now training a plaque model which will be uploaded
+   toworrow."
+
+  "i think there is a new features itm for the plaque modual. please add to that
+   item to add test data (like all the core moduals have) for the plaque modual
+   models (yolo and the new cpsam_v2 finetuned on plaques)"
+
+TWO MODELS ARE ON HUGGING FACE AND NOT IN THE ZOO. Read from the Hub on
+2026-09-19 (times are the Hub's lastModified, local time):
+
+  17:09  einarolafsson/toxoplasma-pv-segmentation-cpsam-r6
+         weights/cpsam_v2_toxo_r6, 1,218,643,463 bytes
+         Round 6 retrains r5 on the same 556 curated fields with cellpose
+         4.2.1.1, and adds a held-out VALIDATION set, which r5 did not have.
+         train 437 fields / 15,550 objects; validation 108 / 8,959;
+         test 11 / 683 -- the fixed NAS anchor wells used since round 1.
+         Test set: F1 0.8602, precision 0.8468, recall 0.8741, mAP 0.5061,
+         AJI 0.8026, Dice 0.9059, against stock cpsam_v2's 0.7648 / 0.7539 /
+         0.7760 / 0.362 / 0.505 / 0.6431 on the same wells.
+         5-fold CV, grouped by source: F1 0.8168 +/- 0.028, AJI 0.7516,
+         Dice 0.8424. 100 epochs; best validation loss 0.0864 at epoch 20.
+         So it is a straight improvement on the zoo's toxoplasma_pv_v2 (r5,
+         F1 0.817 +/- 0.036 by CV, ~0.86 on the anchor wells) AND it is the
+         first PV round whose checkpoint was chosen on validation data.
+
+  17:20  einarolafsson/toxoplasma-plaque-well-detector-yolo26
+         weights/best.pt, 5,382,085 bytes
+         v4 on YOLO26n (ultralytics 8.4.155), retraining v3 with 939 newly
+         reviewed PMC figures. train 1,070 images / 2,455 boxes; val 254 / 673;
+         test 129 / 297, split BY PMC ARTICLE so no paper is in two sets.
+         Test: mAP50 0.9457, mAP50-95 0.8341, P 0.8912, R 0.944, and 49 false
+         boxes on the 84 no-well images, against v3's 0.8838 / 0.763 / 0.8613 /
+         0.9085 and 152 false boxes. Stock YOLO has no plaque-well class, so
+         the baseline is v3 rather than untrained weights.
+         The zoo's toxoplasma_well_detector_v1 is v3 (yolo_welldetect_v3.pt).
+
+  Their datasets went up beside them: einarolafsson/toxoplasma-pv-segmentation-
+  dataset and einarolafsson/toxoplasma-plaque-well-detector-dataset.
+
+  NEITHER sha256 is published in the repo listing and the Hub does not return
+  x-linked-etag for them, so whoever wires these in downloads each file once and
+  computes the digest rather than copying a number from anywhere.
+
+WHAT TO DO, ADDED TO THIS ITEM
+
+  1. Wire both models into the zoo with their real numbers above: a new row for
+     the PV r6 model, and a new row for the YOLO v4 detector. Do not overwrite
+     the r5 and v3 rows -- a user mid-analysis keeps the model they started
+     with; supersede them the way toxoplasma_pv_v2 supersedes v1, and say in
+     each new row what it replaces.
+  2. Round 5 of the PLAQUE model (this item's own subject, training started
+     ~21:20 today, uploading tomorrow) gets the same treatment when it lands.
+  3. TEST DATA FOR THE PLAQUE MODULE, which is the new half of this item. Every
+     Core module offers test data a user can load from the interface; the plaque
+     module does not. It needs a small, downloadable set that shows what BOTH
+     plaque models do: whole-plate or multi-well crystal-violet images for the
+     well detector, and the plaque segmentation on the wells it finds. Follow
+     whatever the Core modules use (spacr/example_data.py,
+     spacr/example_data_manifest.py, spacr/qt/widgets/test_data_chooser.py --
+     read these first), with every file's byte size and sha256 in the manifest
+     so a truncated download is caught before it is opened.
+  4. The point of the data is that a user can press one button and SEE what the
+     models do, so it ships with what a good result looks like: the expected
+     well count and plaque count for the example images, so a user can tell a
+     working install from a broken one.
