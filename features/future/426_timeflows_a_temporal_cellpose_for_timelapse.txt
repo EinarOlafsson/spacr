@@ -267,5 +267,8 @@ catalogs were deliberately not regenerated here, for the consolidated pass.
 The API symbol inventory moves by 24 public callables and 2 modules:
 tests/test_docstring_correctness.py's two count assertions were ALREADY red at
 the base this branched from (8994 and 10889 against baselines of 8698 and
-10539) and are red after it at 9018 and 10915. No test went from green to red
-in this unit.
+10539) and are red after it at 9018 and 10915. The i18n suite was measured on
+both sides for the same reason -- tests/test_api_i18n_extractor.py and
+tests/test_documentation_i18n.py are 33 failed / 123 passed at the base AND 33
+failed / 123 passed on this branch, the same tests by name. No test went from
+green to red in this unit.
