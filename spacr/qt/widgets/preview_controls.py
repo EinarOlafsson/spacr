@@ -509,10 +509,21 @@ def _get_regex_callable():
     exists to remove.
 
     So: use the real function when the module happens to be loaded already,
-    and otherwise compile *that one function* out of the source file. It has no
-    module-level dependencies — only f-strings and ``print`` — so it executes
-    standalone, and it is still the same single definition: edit ``_get_regex``
-    and the previews follow it.
+    and otherwise compile *that one function* out of the source file. It
+    reaches nothing in ``spacr.utils`` — the convention table it reads lives
+    in :mod:`spacr.regex_infer`, which imports nothing outside the standard
+    library and which ``_get_regex`` imports **absolutely**, inside its own
+    body, precisely so that it still resolves here. Measured on this tree:
+    the lifted function answers in 9 ms at 47 MB of RSS and
+    ``spacr.utils`` stays out of ``sys.modules``.
+
+    WHAT WOULD BREAK THIS, so that the next person editing ``_get_regex``
+    knows: a module-level name (a constant, a compiled pattern, a dataclass)
+    or a RELATIVE import. Neither exists in the namespace this ``exec``
+    builds; both raise, both are swallowed by :func:`_acquisition_regex`'s
+    ``except Exception``, and the preview then silently stops grouping a
+    folder it used to group. It is still the same single definition: edit
+    ``_get_regex`` and the previews follow it.
 
     :returns: the callable, or ``None`` if it could not be obtained.
     """

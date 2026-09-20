@@ -19,10 +19,11 @@ import os
 import sys
 import textwrap
 import weakref
-from typing import Any, Callable, Dict, List, NamedTuple, Optional, Tuple
+from typing import (Any, Callable, Dict, List, NamedTuple, Optional, Sequence,
+                    Tuple)
 
 from PySide6.QtCore import (QEvent, QObject, QPoint, QRect, QSize, Qt,
-                            QTimer, Signal)
+                            QThread, QTimer, Signal)
 from PySide6.QtWidgets import (
     QBoxLayout,
     QCheckBox,
@@ -6552,6 +6553,450 @@ class _RegressionBackendField(QWidget):
             self.refresh()
 
 
+#: Every caption the microscope-convention row shows. Declared here rather
+#: than quoted at each call site because most of them are format templates
+#: filled at runtime, which the literal-string extractor in
+#: ``tools/build_i18n_catalogs.py`` cannot see from a ``setText`` call --
+#: the same reason ``_REGRESSION_MENU_UI_SOURCES`` exists above.
+#:
+#: NOT FOLDED INTO ``_SETTINGS_MODEL_UI_SOURCES``: that set is pinned to the
+#: model explainers' templates and nothing else.
+TEST_ON_MY_FOLDER = "Test on my folder"
+TEST_ON_MY_FOLDER_HELP = (
+    "Count how many image names in the source folder this convention can "
+    "read, and show the first one it cannot. Nothing is changed and nothing "
+    "is written.")
+WHICH_CONVENTION_FITS = "Which convention fits?"
+WHICH_CONVENTION_FITS_HELP = (
+    "Try every convention over the source folder and rank them by how many "
+    "names each one reads. This only reports — the setting is not changed "
+    "for you.")
+PROVISIONAL_SUFFIX = "   [provisional]"
+LOOKS_LIKE = "Looks like:  {example}"
+RECONSTRUCTED_NOT_DOCUMENTED = (
+    "— reconstructed from real files found in public datasets, not from "
+    "vendor documentation. Test it before you run.")
+CUSTOM_HAS_NO_EXAMPLE = (
+    "Your own expression. It must capture wellID, fieldID and chanID; "
+    "plateID is optional and falls back to the folder name.")
+NO_FOLDER_TO_TEST = "Choose a source folder first."
+READING_THE_FOLDER = "Reading the folder…"
+NO_IMAGES_IN_THE_FOLDER = "No image files in that folder."
+ALL_FILES_PARSE = "All {total} .{extension} files parse."
+SOME_FILES_PARSE = (
+    "{matched} of {total} files parse. The first that does not: {first}")
+NOTHING_FITS = (
+    "None of the built-in conventions reads any of these {total} names. "
+    "Write a custom_regex, or run Import, which reads the folder names too.")
+RANKING_HEADING = "Of {total} files:"
+ONE_RANKING_ROW = "    {matched} of {total} — {label}  ({key})"
+
+
+#: Every folder scan still running, as ``(thread, worker)``.
+#:
+#: A QTHREAD GARBAGE-COLLECTED WHILE IT RUNS TAKES THE PROCESS DOWN, and the
+#: widget that started this one can be destroyed under it -- switching away
+#: from Mask while a 70,000-file plate on a network share is being listed is
+#: an ordinary thing to do. Parenting the thread to the widget only moves the
+#: crash: Qt would then delete a RUNNING QThread. So the pair is held here,
+#: outside any widget's lifetime, and let go on ``finished``. The readout
+#: slot is connected to the widget as usual and Qt disconnects it silently
+#: if the widget has gone, which is the right outcome -- there is nothing
+#: left to draw on.
+_LIVE_FOLDER_SCANS: set = set()
+
+
+def _forget_folder_scan(thread, worker) -> None:
+    """Release one finished folder scan.
+
+    :param thread: the QThread that has just emitted ``finished``.
+    :param worker: the worker that ran on it.
+    """
+    _LIVE_FOLDER_SCANS.discard((thread, worker))
+
+
+class _FolderScanWorker(QObject):
+    """List a folder's image names off the GUI thread, and parse them.
+
+    WHY A THREAD FOR A DIRECTORY LISTING. The folder this points at is a raw
+    acquisition plate: a 384-well Opera Phenix run with 9 fields, 5 planes
+    and 4 channels is 69,120 files, and on a network share ``os.scandir``
+    over that takes seconds. Called from the button handler it freezes the
+    settings panel, the compositor offers to force-quit spaCR, and the user
+    learns nothing about their filenames.
+
+    The worker touches nothing Qt-visual. It emits numbers and two strings;
+    the field draws.
+
+    :param folder: the directory to read. Not opened, only listed.
+    :param key: the ``metadata_type`` to test, or ``''`` to rank every
+        convention instead.
+    :param custom_regex: the user's own pattern, for ``'custom'``.
+    """
+
+    #: ``(matched, total, first_unparsed, extension)`` for one convention.
+    tested = Signal(int, int, str, str)
+
+    #: ``[(key, matched, total)]`` best first, for the autodetect offer.
+    ranked = Signal(list, int)
+
+    failed = Signal(str)
+
+    def __init__(self, folder: str, key: str,
+                 custom_regex: Optional[str] = None) -> None:
+        """Hold what to read and what to test; read nothing yet."""
+        super().__init__()
+        self._folder = str(folder or "")
+        self._key = str(key or "")
+        self._custom_regex = custom_regex
+
+    def run(self) -> None:
+        """List the folder, then either test one convention or rank them all."""
+        from spacr.regex_infer import (_metadata_autodetect,
+                                       _metadata_parse_report)
+
+        try:
+            names = self._image_names()
+        except OSError as exc:
+            self.failed.emit(str(exc))
+            return
+        if not names:
+            self.failed.emit("")
+            return
+        extension = self._commonest_extension(names)
+        if self._key:
+            matched, total, first = _metadata_parse_report(
+                names, self._key, extension, self._custom_regex)
+            self.tested.emit(int(matched), int(total), str(first),
+                             str(extension))
+        else:
+            self.ranked.emit(_metadata_autodetect(names, extension),
+                             len(names))
+
+    def _image_names(self) -> List[str]:
+        """Every image file name in the folder, without its path.
+
+        Reads ``orig/`` when spaCR has already set the originals aside, so
+        that testing a convention on a plate that has been run once still
+        tests the names the microscope wrote rather than the names spaCR
+        wrote over them. Dotted names are skipped for the reason a run skips
+        them: the ``._<name>`` sidecars macOS leaves on exFAT and network
+        volumes end in ``.tif`` and hold no image.
+
+        SORTED, because the readout names the FIRST name that did not parse
+        and ``os.scandir`` returns directory order. An unsorted answer names
+        a different file on the same folder on two different machines, which
+        makes it useless as something to paste into a bug report.
+        """
+        from spacr.validate import IMAGE_EXTENSIONS
+
+        folder = self._folder
+        originals = os.path.join(folder, "orig")
+        if os.path.isdir(originals):
+            folder = originals
+        names = []
+        with os.scandir(folder) as entries:
+            for entry in entries:
+                name = entry.name
+                if name.startswith("."):
+                    continue
+                if not name.lower().endswith(IMAGE_EXTENSIONS):
+                    continue
+                if entry.is_file():
+                    names.append(name)
+        return sorted(names)
+
+    @staticmethod
+    def _commonest_extension(names: Sequence[str]) -> str:
+        """The extension most of these names carry, without its dot.
+
+        THE COMMONEST RATHER THAN THE FIRST, because one stray ``.png``
+        thumbnail in a ``.tif`` plate would otherwise decide the pattern for
+        the whole folder and report 0 of 69,120 parsed.
+        """
+        counts: Dict[str, int] = {}
+        for name in names:
+            suffix = name.rsplit(".", 1)[-1].lower()
+            counts[suffix] = counts.get(suffix, 0) + 1
+        if not counts:
+            return "tif"
+        return max(counts.items(), key=lambda pair: (pair[1], pair[0]))[0]
+
+
+class _MetadataTypeField(QWidget):
+    """The microscope-convention row: a grouped menu that shows its evidence.
+
+    THREE THINGS ON ONE ROW, and each of them is a failure this is built not
+    to repeat.
+
+    * THE MENU IS GROUPED BY VENDOR. It used to hold four entries, two of
+      which were Yokogawas, so a user with a Zeiss or a Leica met a list
+      that did not name their instrument and a note telling them to write a
+      regular expression. Vendor headings are in the list and are not
+      selectable, so scanning it for 'Leica' finds the Leica rows without
+      having to already know they are called ``leica_matrix_screener``.
+
+    * THE EXAMPLE FILENAME IS UNDER THE MENU. It is the one thing a user can
+      check in a second: their folder either looks like that or it does not.
+      A convention spaCR is guessing about says so on the same line, because
+      a provisional pattern that parses 100% of a folder can still be
+      reading the field as the channel.
+
+    * "TEST ON MY FOLDER" ANSWERS THE QUESTION BEFORE THE RUN. A wrong
+      convention is not loud: :func:`spacr.utils._extract_filename_metadata`
+      prints one line per unreadable name and carries on, so half a plate
+      goes missing into a scrollback nobody reads. This reports the count
+      and the FIRST name that did not parse, which together say whether the
+      choice is wrong or the folder is untidy. It also offers a ranking of
+      every convention over the same folder -- OFFERED, never applied: the
+      setting is the user's, and a value changed without being asked for is
+      the same class of defect from the other direction.
+
+    :param default: the stored ``metadata_type``.
+    :param source_folder: called with no arguments for the folder to test;
+        ``None`` disables the button.
+    :param custom_regex: called with no arguments for the user's own
+        pattern, used when the convention is ``'custom'``.
+    :param parent: parent widget; ownership only.
+    """
+
+    #: Emitted when the chosen convention changes. Named `value_changed`
+    #: because that is the first signal `_connect_setting_dependency_signals`
+    #: looks for, so `custom_regex` greys itself the moment this moves.
+    value_changed = Signal()
+
+    def __init__(self, default: Any = None,
+                 source_folder: Optional[Callable[[], Any]] = None,
+                 custom_regex: Optional[Callable[[], Any]] = None,
+                 parent: Optional[QWidget] = None) -> None:
+        """Build the menu from the convention table and wire the button."""
+        super().__init__(parent)
+        self._source_folder = source_folder
+        self._custom_regex = custom_regex
+        self._thread: Optional[QThread] = None
+        self._worker: Optional[_FolderScanWorker] = None
+        self._threaded = True
+
+        self.combo = _ValueCombo(self)
+        self.combo.setObjectName("MetadataTypeCombo")
+        self.combo.setSizeAdjustPolicy(
+            QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self.combo.setMinimumContentsLength(12)
+        self._fill_the_menu()
+
+        self.example = QLabel(self)
+        self.example.setObjectName("MetadataTypeExample")
+        self.example.setWordWrap(True)
+        self.example.setTextInteractionFlags(Qt.TextSelectableByMouse)
+
+        self.report = QLabel(self)
+        self.report.setObjectName("MetadataTypeReport")
+        self.report.setWordWrap(True)
+        self.report.setVisible(False)
+
+        self.test_button = QPushButton(TEST_ON_MY_FOLDER, self)
+        self.test_button.setObjectName("MetadataTypeTestButton")
+        self.test_button.setToolTip(TEST_ON_MY_FOLDER_HELP)
+        self.detect_button = QPushButton(WHICH_CONVENTION_FITS, self)
+        self.detect_button.setObjectName("MetadataTypeDetectButton")
+        self.detect_button.setToolTip(WHICH_CONVENTION_FITS_HELP)
+
+        buttons = QHBoxLayout()
+        buttons.setContentsMargins(0, 0, 0, 0)
+        buttons.setSpacing(6)
+        buttons.addWidget(self.test_button, 0)
+        buttons.addWidget(self.detect_button, 0)
+        buttons.addStretch(1)
+
+        column = QVBoxLayout(self)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(4)
+        column.addWidget(self.combo, 0)
+        column.addWidget(self.example, 0)
+        column.addLayout(buttons)
+        column.addWidget(self.report, 0)
+        self.setFocusProxy(self.combo)
+
+        self.set_value(default)
+        self.combo.currentIndexChanged.connect(self._on_choice_changed)
+        self.test_button.clicked.connect(self.test_on_the_folder)
+        self.detect_button.clicked.connect(self.rank_the_conventions)
+        self._refresh_example()
+
+    def _fill_the_menu(self) -> None:
+        """One disabled heading per vendor, then that vendor's conventions."""
+        from spacr.regex_infer import _metadata_convention_menu
+
+        for vendor, rows in _metadata_convention_menu():
+            self.combo.addItem(vendor, userData=None)
+            heading = self.combo.model().item(self.combo.count() - 1)
+            if heading is not None:
+                heading.setFlags(heading.flags() & ~Qt.ItemIsEnabled)
+                heading.setFlags(heading.flags() & ~Qt.ItemIsSelectable)
+            for key, label, status in rows:
+                suffix = "" if status == "confirmed" else PROVISIONAL_SUFFIX
+                self.combo.addItem(f"    {label}{suffix}", userData=key)
+
+    def get_value(self) -> Optional[str]:
+        """The chosen convention, as the settings CSV stores it."""
+        index = self.combo.currentIndex()
+        if index < 0:
+            return None
+        return self.combo.itemData(index)
+
+    def set_value(self, value: Any) -> None:
+        """Select whatever ``value`` names.
+
+        An unknown name is LEFT ALONE rather than raising or quietly falling
+        back to the default: this runs while a settings CSV is being loaded,
+        and :func:`spacr.utils._get_regex` answers a typo at run time with a
+        message naming every valid convention. Silently selecting
+        'cellvoyager' instead would run the wrong parser under a name the
+        user never chose.
+        """
+        wanted = "" if value is None else str(value)
+        index = self.combo.findData(wanted)
+        if index >= 0:
+            self.combo.setCurrentIndex(index)
+        self._refresh_example()
+
+    def text(self) -> str:
+        """The chosen key -- the QComboBox contract callers may still use."""
+        return str(self.get_value() or "")
+
+    def setText(self, value: str) -> None:  # noqa: N802 - Qt contract
+        """Select by key -- the QComboBox contract callers may still use."""
+        self.set_value(value)
+
+    def set_threaded(self, threaded: bool) -> None:
+        """Run the folder scan inline instead of on a thread.
+
+        For tests. A QThread in a headless test is a second event loop to
+        wait on and a crash when it outlives the fixture; the scan itself is
+        the same code either way.
+        """
+        self._threaded = bool(threaded)
+
+    def _on_choice_changed(self, *_args) -> None:
+        """A new convention: show its example, drop the stale readout."""
+        self._refresh_example()
+        self.report.setVisible(False)
+        self.report.setText("")
+        self.value_changed.emit()
+
+    def _refresh_example(self) -> None:
+        """Put the chosen convention's own example filename under the menu."""
+        from spacr.regex_infer import (_metadata_convention,
+                                       _metadata_convention_example)
+
+        key = self.get_value()
+        record = _metadata_convention(key) if key else None
+        if record is None:
+            self.example.setText("")
+            return
+        example = _metadata_convention_example(key)
+        if not example:
+            self.example.setText(CUSTOM_HAS_NO_EXAMPLE)
+            return
+        line = LOOKS_LIKE.format(example=example)
+        if record["status"] != "confirmed":
+            line = f"{line}  {RECONSTRUCTED_NOT_DOCUMENTED}"
+        self.example.setText(line)
+
+    def test_on_the_folder(self) -> None:
+        """Count how many names in the source folder the choice parses."""
+        self._start(str(self.get_value() or ""))
+
+    def rank_the_conventions(self) -> None:
+        """Rank every convention over the source folder. Applies nothing."""
+        self._start("")
+
+    def _start(self, key: str) -> None:
+        """Read the folder off the GUI thread and report when it answers."""
+        if self._thread is not None:
+            return
+        folder = ""
+        if self._source_folder is not None:
+            try:
+                folder = str(self._source_folder() or "")
+            except Exception:                                 # noqa: BLE001
+                folder = ""
+        if not folder or not os.path.isdir(folder):
+            self._say(NO_FOLDER_TO_TEST)
+            return
+        custom = None
+        if self._custom_regex is not None:
+            try:
+                custom = self._custom_regex()
+            except Exception:                                 # noqa: BLE001
+                custom = None
+        worker = _FolderScanWorker(folder, key, custom)
+        worker.tested.connect(self._on_tested)
+        worker.ranked.connect(self._on_ranked)
+        worker.failed.connect(self._on_failed)
+        self._say(READING_THE_FOLDER)
+        if not self._threaded:
+            worker.run()
+            return
+        thread = QThread()
+        worker.moveToThread(thread)
+        thread.started.connect(worker.run)
+        worker.tested.connect(thread.quit)
+        worker.ranked.connect(thread.quit)
+        worker.failed.connect(thread.quit)
+        _LIVE_FOLDER_SCANS.add((thread, worker))
+        thread.finished.connect(partial(_forget_folder_scan, thread, worker))
+        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(self._on_scan_finished)
+        self._thread = thread
+        self._worker = worker
+        self.test_button.setEnabled(False)
+        self.detect_button.setEnabled(False)
+        thread.start()
+
+    def _on_scan_finished(self) -> None:
+        """Let go of the thread and the worker, and re-enable the buttons."""
+        self._thread = None
+        self._worker = None
+        self.test_button.setEnabled(True)
+        self.detect_button.setEnabled(True)
+
+    def _on_tested(self, matched: int, total: int, first: str,
+                   extension: str) -> None:
+        """Report the count, and the first name that did not parse."""
+        if matched == total:
+            self._say(ALL_FILES_PARSE.format(total=total,
+                                             extension=extension))
+            return
+        self._say(SOME_FILES_PARSE.format(matched=matched, total=total,
+                                          first=first))
+
+    def _on_ranked(self, ranked: list, total: int) -> None:
+        """Show which conventions fit, best first. Changes nothing."""
+        from spacr.regex_infer import _metadata_convention
+
+        if not ranked:
+            self._say(NOTHING_FITS.format(total=total))
+            return
+        lines = []
+        for key, matched, _total in ranked[:5]:
+            record = _metadata_convention(key)
+            label = record["label"] if record else key
+            lines.append(ONE_RANKING_ROW.format(
+                matched=matched, total=total, label=label, key=key))
+        self._say(RANKING_HEADING.format(total=total) + "\n" +
+                  "\n".join(lines))
+
+    def _on_failed(self, message: str) -> None:
+        """No files, or the folder could not be read."""
+        self._say(message or NO_IMAGES_IN_THE_FOLDER)
+
+    def _say(self, text: str) -> None:
+        """Put one readout under the row."""
+        self.report.setText(text)
+        self.report.setVisible(bool(text))
+
+
 from ..widgets.flow import FlowHost as _FlowHost, FlowLayout as _FlowLayout
 
 
@@ -7896,6 +8341,13 @@ class SettingsWidgets:
             from ..model_install import SegmentationBackendCombo
             return SegmentationBackendCombo(
                 default=self._defaults.get(key, default), parent=parent)
+        if key == "metadata_type":
+            return _MetadataTypeField(
+                default=self._defaults.get(key, default),
+                source_folder=self._current_source_folder,
+                custom_regex=partial(self._current_setting, "custom_regex"),
+                parent=parent,
+            )
         app_options = _APP_COMBO_OPTIONS.get(self.app_key, {})
         if key in app_options:
             kind = "combo"
@@ -8186,7 +8638,7 @@ class SettingsWidgets:
                     ClassEditorWidget, DatabaseSetWidget,
                     FilePathListWidget,
                     PairedFileTableWidget, _CsvColumnField,
-                    _RegressionBackendField,
+                    _RegressionBackendField, _MetadataTypeField,
                 ),
             ):
                 w.set_value(value)
@@ -8415,6 +8867,33 @@ class SettingsWidgets:
             elif key in _ALL_BASIS_SETTINGS:
                 control.setEnabled(True)
                 _clear_greyed_note(control)
+
+    def _current_setting(self, key: str) -> Any:
+        """Whatever the panel currently holds for ``key``, or its default.
+
+        Reads the WIDGET when there is one, so a convention tested against a
+        folder is tested against the path on screen rather than the one the
+        settings file was loaded with.
+        """
+        widget = self._widgets.get(key)
+        if widget is None:
+            return self._defaults.get(key)
+        try:
+            return self._read_widget(widget)
+        except Exception:                                      # noqa: BLE001
+            return self._defaults.get(key)
+
+    def _current_source_folder(self) -> str:
+        """The folder ``src`` names right now, as a string.
+
+        ``src`` is a LIST on the screens that take several inputs, so the
+        first entry is taken there: testing a filename convention needs one
+        folder of raw images and any of them will answer the question.
+        """
+        value = self._current_setting("src")
+        if isinstance(value, (list, tuple)):
+            value = value[0] if value else ""
+        return "" if value is None else str(value)
 
     def _refresh_contextual_widgets(self) -> None:
         """Refresh widgets whose choices come from the selected data source."""
@@ -9266,7 +9745,7 @@ class SettingsWidgets:
                 ChannelMappingWidget, ClassEditorWidget, DatabaseSetWidget,
                 FilePathListWidget,
                 PairedFileTableWidget, _CsvColumnField,
-                _RegressionBackendField,
+                _RegressionBackendField, _MetadataTypeField,
             ),
         ):
             return w.get_value()

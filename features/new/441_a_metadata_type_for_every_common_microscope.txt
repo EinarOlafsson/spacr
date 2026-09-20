@@ -2,7 +2,10 @@
 THE MASK MODULE KNOWS TWO MICROSCOPES, AND BOTH OF THEM ARE YOKOGAWA
 ================================================================================
 
-Status:    OPEN, filed 2026-09-19. Not started.
+Status:    DONE 2026-09-19. Built, tested and pushed to nightly.
+           The trailing notes at the end of this file are the current
+           state; they list what was confirmed, what is provisional,
+           and what is left.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "add to new features list. in the mask modual,please add new
@@ -109,3 +112,265 @@ HOW TO KNOW IT WORKED
   * Choosing a convention in Mask shows an example filename, and the "test it
     on my folder" action reports a count and the first unparsed name.
   * Every row carries its source, and provisional rows say so on screen.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- DONE. FOUR CONVENTIONS BECAME NINETEEN, AND ELEVEN OF THEM ARE
+CONFIRMED AGAINST A VENDOR MANUAL, BIO-FORMATS' OWN READER, OR A LIVE DATASET
+--------------------------------------------------------------------------------
+
+WHAT SHIPPED
+------------
+
+`spacr.regex_infer._METADATA_CONVENTIONS` is the table. NINETEEN records, one
+per convention, each carrying key, display label, vendor, instrument family,
+regex, real example filenames, what every named group means, the source, and
+CONFIRMED or PROVISIONAL. `spacr.utils._get_regex` keeps its signature and its
+two print lines and now reads the table; the four original keys produce their
+patterns CHARACTER FOR CHARACTER, `(None).tif` for a `custom` with no regex
+included.
+
+  Yokogawa              cellvoyager  cq1                        confirmed
+  PerkinElmer/Revvity   opera_phenix                            confirmed
+  Molecular Devices     imagexpress                             confirmed
+  Thermo Fisher         arrayscan  arrayscan_kinetic            confirmed
+                        evos                                    provisional
+  GE / Cytiva           incell                                  confirmed
+  Olympus / Evident     scanr                                   provisional
+  Zeiss                 zeiss_zen_split_tiles                   provisional
+  Nikon                 nikon_nis_xy  nikon_jobs                confirmed
+  Leica                 leica_matrix_screener                   confirmed
+                        leica_lasx_series  leica_lasx_series_time
+                                                                provisional
+  Agilent / BioTek      cytation                                provisional
+  Open source           micromanager_mda                        confirmed
+  spaCR                 auto  custom                            confirmed
+
+Eleven confirmed, six provisional, plus `auto` and `custom` which are spaCR's
+own. CONFIRMED means at least two real filenames AND a source that is a vendor
+manual, Bio-Formats' own reader code, or a public dataset listing.
+PROVISIONAL means exactly what the dropdown says it means, and it appears on
+screen beside the choice.
+
+WHERE EACH ONE CAME FROM
+------------------------
+
+  cq1              Bio-Formats CellVoyagerReader.java:112 hard-codes
+                   SINGLE_TIFF_PATH_BUILDER = "W%dF%03dT%04dZ%02dC%d.tif";
+                   plus a real CQ1 file, W0262F0001T0001Z000C2.tif, from
+                   forum.image.sc/t/.../52615. THE TWO DISAGREE ABOUT
+                   PADDING -- F0001 against F001, Z000 against Z01 -- which
+                   is a reason to leave the pinned `.*` alone rather than
+                   "improve" it into a digit count that drops one of them.
+  cellvoyager      fractal-tasks-core 1.6.0's own regression fixtures, from
+                   real CV7000/CV8000 acquisitions, plus Novartis's
+                   Jenkins-LSCI readme. One of the four real names is a
+                   .png: the convention is the NAME, not the container.
+  opera_phenix     LIVE dataset listing -- cellpainting-gallery on AWS Open
+                   Data, cpg0000-jump-pilot .../BR00116991__...-Measurement1
+                   /Images/ -- plus an Operetta CLS user's six attached
+                   files on forum.image.sc 41647 and PerkinElmer's own
+                   wording quoted on the OME forum (p=3246).
+  imagexpress      pharmbio/omero PR 2 (an OMERO pattern file written
+                   against a real plate), a user's Cell Painting export on
+                   forum.image.sc 63315, CellProfiler's own Metadata manual,
+                   and Bio-Formats MetaxpressTiffReader.java:168-190.
+  incell           Bio-Formats InCellReader.java:436-438 BUILDS the string;
+                   two real names in CellProfiler issue 3725 and one from a
+                   2 TB dataset on forum.image.sc 16010.
+  arrayscan        Cellomics' own "ArrayScan VTI HCS Reader User's Guide
+                   Addendum", chapter 5, which gives both the template and
+                   the examples; corroborated by CellomicsReader.java:86.
+  nikon_nis_xy     NIS-Elements Viewer User's Guide v5.21.00 4.1.3-4.1.4 for
+                   the rule; an OME test fixture and DeepBioVision/DeepBIT
+                   for the names.
+  nikon_jobs       Three unrelated published datasets, years apart, with
+                   identical shape: ZMB-UZH, arjunrajlaboratory, cheeseman-lab.
+  leica_matrix_screener
+                   arve0/leicaexperiment's test fixture tree, the reference
+                   parser; U/V and X/Y named in its README and in
+                   VolkerH/LeicaMatrixScreener2BigStitcher.
+  micromanager_mda Micro-Manager's own StorageSinglePlaneTiffSeries.java
+                   ::createFileName. The task brief said six digits after
+                   "time"; the shipping code writes NINE.
+  evos             Two Thermo Fisher manuals (MAN0014072 p.148, MAN0018326
+                   p.198) with the same labelled example. Provisional
+                   because exactly ONE literal filename exists anywhere.
+  scanr            One user's real names on forum.image.sc 14872 plus
+                   ScanrReader.java's getBlock() five-digit blocks.
+                   Provisional: one literal name, and Bio-Formats matches
+                   by substring so it does not vouch for the `--`.
+  cytation         One real C10 .tif attached to forum.image.sc 69372 by
+                   EMBL; field names from a CellProfiler pipeline run
+                   against real Cytation 5 files, Zenodo 5933221.
+                   Agilent's Gen5 docs are behind a WAF that refused every
+                   fetch.
+  zeiss_zen_split_tiles
+                   Zeiss's OWN published OAD script,
+                   zeiss-microscopy/OAD Scripts/Data_Tools/
+                   SaveSingeTiles_to_Folder.py line 143, with addzeros()
+                   padding to five. Provisional AND the examples are
+                   CONSTRUCTED from that code rather than observed.
+  leica_lasx_series / _time
+                   Real filenames in standardgalactic/wingj, rgerum/saenopy's
+                   example dataset and Alexander-Zangl/retina-track.
+                   Provisional for the ATTRIBUTION, not the filenames: no
+                   source found says "Leica" in the same breath as one of
+                   these names.
+
+TWO CORRECTIONS TO THIS FILE'S OWN BRIEF
+----------------------------------------
+
+  * The Operetta form this file imagined as
+    `...-<n>_<Well>_T####F###L##A##Z##C##.tif` DOES NOT EXIST. Every primary
+    source -- PerkinElmer's own 2011 statement, a 2021 Operetta CLS upload,
+    and both Bio-Formats readers -- has Operetta and Operetta CLS writing the
+    same r/c/f/p-ch/sk/fk/fl form as the Phenix. That T/F/L/A/Z/C shape is
+    Yokogawa's, and the two were conflated.
+  * There is NO sourceable Zeiss well-plate filename. The `_A01_T0001F001L01
+    A01Z01C01` names that circulate online under "well-plate naming" are
+    Yokogawa's -- Novartis's readme says so outright -- and searching for a
+    Zeiss one returns them.
+
+THE DEFECT THE ITEM PREDICTED, FOUND AND FIXED WHILE WRITING THE TABLE
+----------------------------------------------------------------------
+
+EVOS reuses Cellomics' ENTIRE `<well>f<field>d<dye>` tail. So
+`scan_R_p2_z1_0_B03f01d0.tif` matched BOTH `arrayscan` and `evos` -- an EVOS
+plate scan silently readable as an ArrayScan plate, with the grid index eaten
+as part of the plate name. `arrayscan` now opens with a negative lookahead
+for the EVOS `_[RDM]_p\d+_z\d+_\d+_` tail. This is exactly the failure the
+item's point 4 names, it was real, and the cross-match test is what found it.
+
+ONE OVERLAP REMAINS AND IS ALLOWED, in the test, by name: every
+`cellvoyager` name also satisfies `auto`. Both are the Yokogawa grammar
+written entirely in `.*`, and neither may be tightened, because both are
+pinned. Recorded rather than hidden, so that a NEW overlap fails.
+
+THE RULE THAT IS NOT A STYLE RULE: NO OPTIONAL CAPTURING GROUPS
+--------------------------------------------------------------
+
+`_extract_filename_metadata` reads `match.group('fieldID')[0]` to decide
+whether to strip zero padding. A group that did not participate returns None
+and that subscript raises TypeError, which nothing up the stack catches -- it
+would kill the run. A group that matched the empty string raises IndexError,
+which IS caught, and silently skips the file. So every optional token in a
+real convention (InCell's ` z 3 time 2 - 2636ms`, Harmony's `rc1`,
+MetaXpress's GUID) is either matched-and-discarded or captured into a group
+nothing reads. Tested per example, per record.
+
+THE TRAP THE NEXT PERSON WILL WALK INTO
+---------------------------------------
+
+`spacr.qt.widgets.preview_controls._get_regex_callable` LIFTS `_get_regex`
+ALONE out of utils.py with `ast` and execs it in an EMPTY NAMESPACE, so that
+a dropdown does not pay the 3.2 s and 900 MB of `import spacr.utils`. That is
+why the table lives in `spacr.regex_infer` (stdlib only) and why `_get_regex`
+imports it ABSOLUTELY, inside its own body. A module-level constant or a
+relative import would raise in that namespace, be swallowed by the caller's
+`except Exception`, and the previews would quietly stop grouping files.
+Measured after the change: 9 ms, 47 MB, and `spacr.utils` stays out of
+sys.modules.
+
+THE UI
+------
+
+`spacr.qt.screens.settings_model._MetadataTypeField` replaces the plain combo
+on the metadata_type row:
+
+  * vendor headings in the menu, disabled and unselectable, so it can be
+    scanned by the name on the microscope; the stored value is still the key;
+  * the chosen convention's own example filename under the menu, with
+    "reconstructed from real files ... not from vendor documentation" beside
+    a provisional one;
+  * "Test on my folder" -- counts how many image names in `src` parse and
+    names the FIRST that does not, sorted so two machines give the same
+    answer. Reads `orig/` when spaCR has already set the originals aside;
+  * "Which convention fits?" -- ranks every convention over the same folder,
+    best first, and CHANGES NOTHING. `auto` and `custom` are excluded: one
+    renames before it parses and the other parses whatever was last typed.
+
+Both run on a QThread. The thread is held in a module-level set rather than
+parented to the widget, because switching away from Mask mid-scan would
+otherwise have Qt delete a RUNNING QThread; the readout slot is connected to
+the widget as usual and Qt drops it silently if the widget has gone.
+
+WHAT ELSE MOVED
+---------------
+
+  * `spacr.validate.METADATA_REGEXES` now grows from the table, so the run
+    advice cannot tell a user whose Opera Phenix plate parses perfectly that
+    none of their files match and that they should pick one of three names.
+  * `spacr.settings_spec._metadata_type_choices` builds the combo from the
+    table, so the panel and the table are one list.
+  * tests/import_corpus.py: the `harmony` and `imagexpress` trees now carry a
+    metadata_type, and CURRENTLY_PARSED in
+    tests/test_the_import_corpus_is_the_specification.py GREW FROM TWO TO
+    FOUR. That ratchet is the measurement: of ten real layouts, spaCR parsed
+    two before and parses four now.
+  * `_parse` in that test read the extension off the tree instead of assuming
+    "tif" -- the harmony tree writes .tiff, and hard-coding "tif" reported
+    that a convention parsing everything parsed nothing.
+
+TESTS
+-----
+
+  tests/test_a_metadata_type_for_every_common_microscope.py   86 tests
+      the byte-for-byte pin on all four original arms including `(None).tif`
+      and the `.tif`-with-a-leading-dot case; every convention parses every
+      one of its own examples; every example fills every group with a
+      non-None, non-empty value; no convention claims another's filename
+      except the one allowed pair; every record carries vendor, instrument,
+      source, status and enough examples for the status it claims; every
+      captured group is explained; no new pattern captures a bare `.*`;
+      the menu is grouped and stores keys; the parse report; a regex that
+      does not compile reports zero rather than raising; autodetect ranks
+      and excludes auto/custom; validate sees every key; settings_spec and
+      the table agree.
+  tests/qt/test_the_metadata_type_row_shows_its_evidence.py   12 tests
+      headings are disabled and carry no value; the caption is dressed and
+      the value is not; an unknown stored value is left alone; the example
+      and the provisional note; the count and the first failure; the first
+      failure is the same on every machine; the ranking changes nothing; an
+      empty folder says so; `orig/` is preferred; the scan is threaded,
+      releases its thread, and survives the widget that started it;
+      value_changed fires so custom_regex can grey itself.
+
+WHAT IS LEFT
+------------
+
+  * INCUCYTE IS SOURCED AND CANNOT BE SHIPPED AS A metadata_type. Sartorius's
+    own manual (L-8000-04, pp. 105 and 110) gives the template and an
+    example, and arjunrajlaboratory/process_incucyte_tiff_data shows real
+    files: VID2197_D7_1_2016y05m11d_21h36m.tif,
+    VID1630_C4_1_01d23h34m.tif. There is NO CHANNEL IN THE NAME -- Incucyte
+    puts phase/red/gfp in SUBFOLDERS -- and chanID is mandatory. Covering it
+    needs the Import module, which reads folder names; this mechanism cannot.
+    The same is true of the corpus's per_channel_folder and per_well_folder
+    trees. That is the next item, and it is a bigger one than this was.
+  * IN CELL 7.2+ writes a much cleaner name, A_01_f2_c1_xUV_mDAPI_z3_t2.tif
+    (CellProfiler issue 3725). One literal example only; not shipped.
+  * LAS X NAVIGATOR AUTO-SAVE, `Position 1--t00--Z00--C00.tif` (ZMB UZH
+    guide, forum.image.sc 97695). One literal example; also has no well.
+  * ETALUMA LUMASCOPE: LumaViewPro is open source and
+    modules/common_utils.py::generate_default_step_name builds the name, but
+    its optional parts mean the two derivable examples have different shapes.
+    Not shipped rather than invent a second of the same shape.
+  * NANOLIVE: NOT FOUND. Closed-source STEVE/EVE, no manual, no dataset with
+    a visible listing, no forum post with a real name in it.
+  * EVOS M5000 is untested -- only FL Auto 2 and M7000 manuals were readable.
+  * `nikon_nis_xy` reads a leading timestamp as the file prefix, because
+    NIS-Elements writes the dimensions the user ticked, in the order they
+    chose, with NO SEPARATOR to tell a prefix from an index. Recorded in the
+    record's own source note.
+  * `imagexpress` takes ONE digit for the wavelength, because MetaXpress
+    appends a GUID with no separator and `\d+` reads `w1836B56...` as
+    wavelength 1836. A plate with ten or more wavelengths would not parse.
+  * The `.*` in the four pinned arms is still greedy and still wrong for a
+    plate name with more underscores than expected. Changing it is a separate
+    decision from adding microscopes and was not taken here.
+  * Nine-language catalogs NOT regenerated. New user-facing strings are
+    listed in the landing report for the consolidated pass; the caption
+    ratchet in tests/qt/test_i18n_caption_ratchet.py was ALREADY RED on
+    origin/nightly before this work (3,659 UI candidates against 3,547 in the
+    catalog), so this adds to a known backlog rather than breaking a green.

@@ -24,9 +24,10 @@ WHAT EACH TREE VARIES, and none of them is exotic:
   cq1              the same information, a different grammar, no plate.
   harmony          Opera Phenix: r01c01f01p01-ch1sk1fk1fl1. Row and column are
                    SEPARATE, so 'A01' never appears -- a parser expecting a
-                   well name finds none.
+                   well name finds none. PARSED SINCE 441 as `opera_phenix`.
   imagexpress      Plate_A01_s1_w1: site rather than field, wavelength rather
-                   than channel, and the extension is upper case.
+                   than channel, and the extension is upper case. PARSED
+                   SINCE 441 as `imagexpress`.
   flat_ome         one OME-TIFF per field, dimensions INSIDE the file. Nothing
                    in the name says how many channels there are.
   per_well_folder  the well is the FOLDER, the field and channel the file.
@@ -165,9 +166,12 @@ def build_harmony(root: Path) -> CorpusTree:
                 _write(root / rel)
                 truth[rel] = {"well": well, "row": row, "column": col,
                               "field": f, "channel": c, "z": 1}
-    return _tree("harmony", root, truth, "",
+    return _tree("harmony", root, truth, "opera_phenix",
                  "Row and column are separate, so the string 'A01' never "
-                 "appears; a parser expecting a well name finds none.")
+                 "appears; a parser expecting a well name finds none. The "
+                 "`opera_phenix` convention added for instruction 441 reads "
+                 "'r01c01' AS the well, which is the only honest answer: "
+                 "there is no well name in the filename to recover.")
 
 
 def build_imagexpress(root: Path) -> CorpusTree:
@@ -179,9 +183,11 @@ def build_imagexpress(root: Path) -> CorpusTree:
                 _write(root / rel)
                 truth[rel] = {"plate": "Plate1", "well": well, "field": f,
                               "channel": c}
-    return _tree("imagexpress", root, truth, "",
+    return _tree("imagexpress", root, truth, "imagexpress",
                  "Site not field, wavelength not channel, upper-case "
-                 "extension.")
+                 "extension. Covered since instruction 441; the upper-case "
+                 "extension is why every pattern added there matches the "
+                 "extension case-insensitively.")
 
 
 def build_flat_ome(root: Path) -> CorpusTree:

@@ -189,6 +189,41 @@ METADATA_REGEXES: Dict[str, str] = {
 }
 
 
+def _add_the_rest_of_the_convention_table() -> None:
+    """Put every other microscope convention into :data:`METADATA_REGEXES`.
+
+    The three above are spelled out because they are PINNED -- they mirror
+    ``spacr.utils._get_regex``'s original arms character for character and
+    are not allowed to drift. Everything else lives in
+    ``spacr.regex_infer._METADATA_CONVENTIONS`` and is copied here so that
+    this module does not become a second, staler list of what spaCR can
+    parse.
+
+    WITHOUT THIS THE WARNING LIES. ``_candidate_patterns`` tries the chosen
+    ``metadata_type`` first and then sweeps the rest; a key it has never
+    heard of makes ``raw_channels`` None, and the run advice then tells a
+    user whose Opera Phenix plate parses perfectly that none of their files
+    match and that they should pick 'cellvoyager', 'cq1' or 'auto'.
+
+    ``spacr.regex_infer`` imports nothing outside the standard library, so
+    this keeps the promise in this module's own header that it stays
+    dependency-light.
+    """
+    from .regex_infer import (_METADATA_CONVENTIONS,
+                              _metadata_pattern_any_extension)
+
+    extensions = tuple(suffix.lstrip(".") for suffix in IMAGE_EXTENSIONS)
+    for record in _METADATA_CONVENTIONS:
+        key = record["key"]
+        if key in METADATA_REGEXES or key == "custom":
+            continue
+        METADATA_REGEXES[key] = _metadata_pattern_any_extension(
+            key, extensions)
+
+
+_add_the_rest_of_the_convention_table()
+
+
 def _normalize_app(app_key: Any) -> str:
     """Canonicalize a caller-supplied app key; unknown keys pass through.
 
@@ -686,7 +721,7 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                     WARNING, "metadata_type",
                     f"{inv.raw_files} image files found in {inv.src}, but none match the "
                     f"'{settings.get('metadata_type', 'cellvoyager')}' filename pattern.",
-                    "Set metadata_type to match your microscope ('cellvoyager', 'cq1', 'auto'), or supply custom_regex with wellID/fieldID/chanID groups."))
+                    "Set metadata_type to match your microscope — the dropdown now groups the built-in conventions by vendor, and 'Test on my folder' beside it reports how many of these files each one parses. Failing that, supply custom_regex with wellID/fieldID/chanID groups."))
 
         if app in DB_APPS and not inv.db_exists:
             problems.append(Problem(

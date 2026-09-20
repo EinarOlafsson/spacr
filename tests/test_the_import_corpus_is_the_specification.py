@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import re
 import sys
+from collections import Counter
 from pathlib import Path
 
 import pytest
@@ -23,13 +24,23 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from import_corpus import BUILDERS, build_all  # noqa: E402
 
 
-#: The layouts the CURRENT parser recovers well/field/channel from, measured
-#: 2026-09-02. Ten trees, two supported.
+#: The layouts the CURRENT parser recovers well/field/channel from. Ten
+#: trees, two supported when this was measured on 2026-09-02; FOUR since
+#: instruction 441 gave `metadata_type` a record per vendor convention
+#: instead of an if/elif chain with two Yokogawas in it.
 #:
 #: THIS TUPLE IS THE RATCHET. Adding a layout to the importer adds a name
 #: here; a name disappearing means an import that used to work stopped, which
 #: is the only thing in this file that should ever fail a build.
-CURRENTLY_PARSED = ("cellvoyager", "cq1")
+#:
+#: `harmony` and `imagexpress` joined on 2026-09-19 because their trees now
+#: carry a `metadata_type` -- `opera_phenix` and `imagexpress` -- and
+#: `_parse` below uses it. The remaining six are not regex problems at all:
+#: flat_ome, z_stack_in_file and time_in_file hide their axes INSIDE the
+#: file, per_well_folder and per_channel_folder hide them in the FOLDER
+#: NAME, and tiled needs stitching. None of those can be read by a filename
+#: pattern, which is what `metadata_type` is; they are the Import module's.
+CURRENTLY_PARSED = ("cellvoyager", "cq1", "harmony", "imagexpress")
 
 
 @pytest.fixture(scope="module")
@@ -46,14 +57,22 @@ def _parse(tree):
     """
     from spacr.utils import _extract_filename_metadata, _get_regex
 
+    names = [p.name for p in sorted(tree.root.rglob("*")) if p.is_file()]
     if not tree.metadata_type:
         # No built-in convention claims this tree. Try spaCR's default, which
         # is what a user who does not change the setting actually gets.
-        metadata_type, img_format = "cellvoyager", "tif"
+        metadata_type = "cellvoyager"
     else:
-        metadata_type, img_format = tree.metadata_type, "tif"
+        metadata_type = tree.metadata_type
+    # THE EXTENSION IS READ OFF THE TREE, not assumed to be "tif". The
+    # harmony tree writes .tiff and `preprocess_img_data` derives the format
+    # from the folder the same way (io.py's `regex_format`), so hard-coding
+    # "tif" here measured something no run does: it reported that the Opera
+    # Phenix convention parsed nothing when it parses everything.
+    img_format = Counter(
+        name.rsplit(".", 1)[-1].lower() for name in names
+    ).most_common(1)[0][0]
     regex = re.compile(_get_regex(metadata_type, img_format))
-    names = [p.name for p in sorted(tree.root.rglob("*")) if p.is_file()]
     grouped = _extract_filename_metadata(names, str(tree.root), regex,
                                          metadata_type=metadata_type)
     return grouped

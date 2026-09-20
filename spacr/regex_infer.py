@@ -597,3 +597,920 @@ def structure(preview: Sequence[dict]) -> Dict[str, int]:
         if row.get("matched") and row.get("folder"):
             counts[row["folder"]] += 1
     return dict(sorted(counts.items()))
+
+
+#: The convention table. One record per naming scheme spaCR can parse without
+#: the user writing a regular expression, keyed by the value stored in the
+#: ``metadata_type`` setting.
+#:
+#: Every record carries:
+#:
+#: ``key``
+#:     the stored ``metadata_type`` value. NEVER changed once shipped: it is
+#:     written into settings CSVs and read back by name.
+#: ``label``
+#:     the line the dropdown shows.
+#: ``vendor`` / ``instrument``
+#:     what the dropdown groups by, and what a user recognises.
+#: ``pattern``
+#:     the regular expression, with ``{ext}`` standing in for the image
+#:     extension :func:`spacr.utils._get_regex` interpolates.
+#: ``ext``
+#:     ``'verbatim'`` substitutes ``img_format`` exactly as given and is what
+#:     the four original arms did -- including the bare ``.`` before the
+#:     extension, which matches ANY character and is kept because those four
+#:     patterns are pinned byte for byte. ``'suffix'`` is for everything added
+#:     since: the leading dot is stripped from ``img_format``, the dot is
+#:     escaped, the extension is matched case-insensitively (a plate from an
+#:     ImageXpress arrives as ``.TIF``) and the pattern is anchored.
+#: ``examples``
+#:     REAL filenames, at least two, taken from the source named below. A
+#:     pattern whose examples were invented is a guess, and
+#:     ``tests/test_a_metadata_type_for_every_common_microscope.py`` feeds
+#:     every one of these through its own pattern and through every other.
+#: ``groups``
+#:     what each named group means, in this convention's own vocabulary --
+#:     'site' and 'field' are the same axis under two vendors' names, and a
+#:     user reading the row should see the word their software uses.
+#: ``source``
+#:     where the convention and the examples came from.
+#: ``status``
+#:     ``'confirmed'`` when the pattern was read off vendor documentation,
+#:     Bio-Formats' own reader source, or a published dataset's file listing;
+#:     ``'provisional'`` when it was inferred from prose or from a single
+#:     report. The dropdown SAYS WHICH, because a user whose instrument is
+#:     guessed at should know before a run rather than after.
+#:
+#: NO OPTIONAL CAPTURING GROUPS, and this is a correctness rule rather than a
+#: style one. :func:`spacr.utils._extract_filename_metadata` reads
+#: ``match.group('fieldID')[0]`` to decide whether to unpad it; a group that
+#: did not participate returns ``None`` and that subscript raises TypeError,
+#: which the caller does not catch. A group that cannot always match belongs
+#: in a second convention, not behind a ``?``.
+_METADATA_CONVENTIONS = (
+    {
+        "key": "cellvoyager",
+        "label": "Yokogawa CV7000 / CV8000 (CellVoyager)",
+        "vendor": "Yokogawa",
+        "instrument": "CV7000 / CV8000 (CellVoyager)",
+        "pattern": (
+            "(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
+            "L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*)"
+            ".{ext}"),
+        "ext": "verbatim",
+        "examples": (
+            "AssayPlate_Greiner_#655090_B02_T0001F004L01A01Z01C01.tif",
+            "20200812-CardiomyocyteDifferentiation14-Cycle1_B03_"
+            "T0001F036L01A01Z18C01.png",
+            "210305NAR005AAN_210416_164828_B11_T0001F006L01A04Z14C01.tif",
+            "CM00619158_A01_T0001F001L01A01Z01C01.tif",
+        ),
+        "groups": {
+            "plateID": "plate / measurement name",
+            "wellID": "well, as A01 .. P24",
+            "timeID": "time point",
+            "fieldID": "field within the well",
+            "laserID": "laser / light source index",
+            "AID": "action index within the timeline",
+            "sliceID": "Z plane",
+            "chanID": "channel",
+        },
+        "source": (
+            "spaCR's original built-in. The first three examples are "
+            "regression fixtures in fractal-analytics-platform/"
+            "fractal-tasks-core 1.6.0, tests/"
+            "test_unit_parse_metadata_from_filename.py, taken from real "
+            "CV7000/CV8000 acquisitions; the fourth is quoted as a typical "
+            "Yokogawa filename in Novartis/Jenkins-LSCI "
+            "userContent/Yokogawa/readme.txt. Note the second is a .png -- "
+            "the convention is the NAME, not the container."),
+        "status": "confirmed",
+    },
+    {
+        "key": "cq1",
+        "label": "Yokogawa CQ1 (benchtop confocal)",
+        "vendor": "Yokogawa",
+        "instrument": "CQ1",
+        "pattern": (
+            "W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)"
+            "Z(?P<sliceID>.*)C(?P<chanID>.*).{ext}"),
+        "ext": "verbatim",
+        "examples": (
+            "W0262F0001T0001Z000C2.tif",
+            "W1F001T0001Z01C1.tif",
+        ),
+        "groups": {
+            "wellID": "well INDEX, not name -- 1 is A01; "
+                      "spacr.utils._convert_cq1_well_id turns it into one",
+            "fieldID": "field within the well",
+            "timeID": "time point",
+            "sliceID": "Z plane",
+            "chanID": "channel",
+        },
+        "source": (
+            "First example is a real CQ1 file, Projection/"
+            "W0262F0001T0001Z000C2.tif, quoted from the dataset a user "
+            "uploaded for forum.image.sc thread 52615 (\"Opening images "
+            "from a Yokogawa CQ1 with Bio-Formats\", CQ1 Software 1.05). "
+            "Second is what Bio-Formats itself builds: "
+            "SINGLE_TIFF_PATH_BUILDER = \"W%dF%03dT%04dZ%02dC%d.tif\" in "
+            "components/formats-gpl/src/loci/formats/in/"
+            "CellVoyagerReader.java:112. THE TWO DISAGREE ABOUT PADDING -- "
+            "F0001 against F001, Z000 against Z01 -- which is why this "
+            "pattern is left as the loose `.*` it has always been rather "
+            "than tightened to a digit count that would drop one of them."),
+        "status": "confirmed",
+    },
+    {
+        "key": "auto",
+        "label": "Auto -- rename to Yokogawa naming first, then parse",
+        "vendor": "spaCR",
+        "instrument": "any -- detected from the folder",
+        "pattern": (
+            "(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)"
+            "L(?P<laserID>.*)C(?P<chanID>.*).tif"),
+        "ext": "verbatim",
+        "examples": (
+            "plate1_A01_T0001F001L01C01.tif",
+            "plate1_D05_T0001F001L01C01.tif",
+        ),
+        "groups": {
+            "plateID": "plate name",
+            "wellID": "well",
+            "timeID": "time point",
+            "fieldID": "field",
+            "laserID": "laser / light source index",
+            "chanID": "channel",
+        },
+        "source": (
+            "Both examples are names spaCR itself writes and reads: "
+            "spacr/io.py:8176 builds "
+            "f\"{well}_T{t:04d}F{field:03d}L01C{chan:02d}.tif\" and the "
+            "plate-prefixed forms are pinned in "
+            "tests/test_a_failed_regex_conversion_never_renumbers_wells.py"
+            " and tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py."
+            " spaCR's own intermediate naming. The extension is LITERAL "
+            "'.tif' here and not the requested img_format, which is how this "
+            "arm has always behaved: the rename writes .tif whatever came "
+            "in."),
+        "status": "confirmed",
+    },
+    {
+        "key": "custom",
+        "label": "Custom -- my own regular expression",
+        "vendor": "spaCR",
+        "instrument": "whatever custom_regex describes",
+        "pattern": "({custom_regex}).{ext}",
+        "ext": "verbatim",
+        "examples": (),
+        "groups": {
+            "wellID": "required",
+            "fieldID": "required",
+            "chanID": "required",
+            "plateID": "optional -- the source folder name is used instead",
+        },
+        "source": "The user's own pattern, from the custom_regex setting.",
+        "status": "confirmed",
+    },
+    {
+        "key": "opera_phenix",
+        "label": "Opera Phenix / Operetta CLS (Harmony export)",
+        "vendor": "PerkinElmer / Revvity",
+        "instrument": "Opera Phenix, Operetta, Operetta CLS (Harmony)",
+        "pattern": (
+            r"(?P<wellID>r\d{2}c\d{2})f(?P<fieldID>\d{2})p(?P<sliceID>\d{2})"
+            r"(?P<AID>(?:rc\d+)?)-ch(?P<chanID>\d+)sk(?P<timeID>\d+)"
+            r"fk\d+fl\d+\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "r01c01f01p01-ch1sk1fk1fl1.tiff",
+            "r01c01f01p01-ch2sk1fk1fl1.tiff",
+            "r04c17f01p07-ch1sk1fk1fl1.tiff",
+            "r03c03f01p01-ch1sk1fk1fl1.tiff",
+        ),
+        "groups": {
+            "wellID": "row AND column together, as the literal 'r01c01'. "
+                      "Harmony never writes 'A01', so there is no well NAME "
+                      "in the filename to recover -- spacr.regex_infer's "
+                      "WELL_PATTERNS already treats r##c## as a well",
+            "fieldID": "field / site within the well",
+            "sliceID": "focal plane",
+            "AID": "the 'rc' record token, present in some Harmony versions "
+                   "and empty in most",
+            "chanID": "channel",
+            "timeID": "the sk time-sequence index",
+        },
+        "source": (
+            "The first two are real files listed live in the public AWS "
+            "Open Data bucket cellpainting-gallery, "
+            "cpg0000-jump-pilot/source_4/images/2020_11_04_CPJUMP1/images/"
+            "BR00116991__2020-11-05T19_51_35-Measurement1/Images/. The "
+            "third is one of six files an Operetta CLS user attached to "
+            "forum.image.sc thread 41647; the fourth is from an Opera "
+            "Phenix user on forum.image.sc thread 16389. PerkinElmer's own "
+            "wording, quoted on the OME forum (viewtopic.php?p=3246), gives "
+            "r=row, c=column, f=field, p=plane, ch=channel and warns that "
+            "'the remaining parts of the file name are currently not in "
+            "use' -- which is why fk and fl are matched and discarded."),
+        "status": "confirmed",
+    },
+    {
+        "key": "imagexpress",
+        "label": "ImageXpress / MetaXpress (Plate_A01_s1_w1)",
+        "vendor": "Molecular Devices",
+        "instrument": "ImageXpress Micro / Confocal, MetaXpress export",
+        "pattern": (
+            r"(?P<plateID>.+)_(?P<wellID>[A-Z]\d{2})_s(?P<fieldID>\d+)"
+            r"_w(?P<chanID>\d)(?P<AID>[^._]*)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "ACHN-20X-P009041_B02_s1_w1836B5662-3526-47FE-A453-"
+            "0D1775E08D17.tif",
+            "20220209-exp50-test2_B01_s1_w16DE341F2-7E20-4CE1-859F-"
+            "E368584F24DB.tif",
+            "Plate1_A01_s1_w1.TIF",
+            "TE12345_A05_s1_w1.tif",
+        ),
+        "groups": {
+            "plateID": "plate / experiment name",
+            "wellID": "well, A01 .. P24",
+            "fieldID": "SITE in MetaXpress's own vocabulary -- the field "
+                       "within the well",
+            "chanID": "WAVELENGTH in MetaXpress's vocabulary -- the channel. "
+                      "ONE DIGIT, deliberately: MetaXpress appends a GUID "
+                      "straight after it with no separator, and a greedy "
+                      "\\d+ reads w1836B56.. as wavelength 1836",
+            "AID": "the per-acquisition GUID MetaXpress stamps on, or empty",
+        },
+        "source": (
+            "First example from pharmbio/omero pull request 2, an OMERO "
+            "import pattern file written against a real ImageXpress plate; "
+            "second from a user's own Cell Painting export on "
+            "forum.image.sc thread 63315; third is the tree "
+            "tests/import_corpus.py::build_imagexpress writes; fourth is "
+            "the literal example in CellProfiler's own Metadata module "
+            "manual. Bio-Formats builds the same grammar in "
+            "components/formats-gpl/src/loci/formats/in/"
+            "MetaxpressTiffReader.java:168-190 -- plateName + well, then "
+            "'_s'+site, '_w'+channel, and .tif or .TIF. THE _thumb SIDECAR "
+            "IS DELIBERATELY NOT MATCHED: MetaXpress writes "
+            "..._w1_thumb_<GUID>.tif beside every full-resolution file, and "
+            "matching it would double every field."),
+        "status": "confirmed",
+    },
+    {
+        "key": "incell",
+        "label": "IN Cell Analyzer (A - 01(fld 1 wv ...))",
+        "vendor": "GE / Cytiva",
+        "instrument": "IN Cell Analyzer 1000 / 2000 / 2200 / 6000",
+        "pattern": (
+            r"(?P<wellID>[A-Z] - \d{1,2})\(fld (?P<fieldID>\d+) "
+            r"wv (?P<chanID>[^)]+?)(?: z \d+)?(?: time \d+ - \d+ms)?\)"
+            r"\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "A - 01(fld 2 wv Blue - FITC).tif",
+            "A - 01(fld 1 wv UV - DAPI z 3 time 2 - 2636ms).tif",
+            "C - 6(fld 1 wv TL - Bright field - open z 01).tif",
+        ),
+        "groups": {
+            "wellID": "row letter, ' - ', column -- kept whole, because "
+                      "the row and the column are separated by a SPACE "
+                      "HYPHEN SPACE and there is no 'A01' anywhere in the "
+                      "name to recover",
+            "fieldID": "field",
+            "chanID": "the excitation and emission filter names, e.g. "
+                      "'UV - DAPI'. The z and exposure suffixes are matched "
+                      "and discarded rather than captured: they are absent "
+                      "from most of these names, and a group that does not "
+                      "always participate crashes the importer",
+        },
+        "source": (
+            "Bio-Formats constructs exactly this string in "
+            "components/formats-gpl/src/loci/formats/in/InCellReader.java"
+            ":436-438 -- getWellRowName(row) + \" - \" + (col+1) + \"(fld \" "
+            "+ (field+1) + \" wv \" + exFilter + \" - \" + emFilter + "
+            "\").tif\". The first two examples are real IN Cell filenames "
+            "quoted in CellProfiler issue 3725; the third is a user's own "
+            "2 TB IN Cell dataset on forum.image.sc thread 16010. "
+            "SINGLE-CHANNEL IN CELL NAMES ARE NOT COVERED: 'A - 13(fld 2)"
+            ".tif' carries no channel at all, so there is nothing for "
+            "chanID to read."),
+        "status": "confirmed",
+    },
+    {
+        "key": "arrayscan",
+        "label": "ArrayScan / CellInsight, fixed endpoint (A01f01d2)",
+        "vendor": "Thermo Fisher",
+        "instrument": "Cellomics ArrayScan VTI / XTI, CellInsight CX5 / CX7",
+        "pattern": (
+            r"(?!.*_[RDM]_p\d+_z\d+_\d+_)(?:.*_)?"
+            r"(?P<wellID>[A-Z]\d{2})f(?P<fieldID>\d{2,3})"
+            r"d(?P<chanID>\d)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "A01f01d2.TIF",
+            "020506platerun_A01f01d2.TIF",
+        ),
+        "groups": {
+            "wellID": "well, A01 .. Z99",
+            "fieldID": "field, TWO DIGITS AND ZERO-BASED -- f00 is field 1",
+            "chanID": "the DYE index, one digit and zero-based -- d0 is "
+                      "channel 1, six channels maximum",
+        },
+        "source": (
+            "Cellomics, Inc., 'ArrayScan VTI HCS Reader: User's Guide "
+            "Addendum', chapter 5, 'Image File Naming Convention for Fixed "
+            "Endpoint Plates': <UniquePlateID>_<WellName>f<iField>d<iDye>."
+            "<extension>, with both examples above given verbatim and the "
+            "plate id documented as OPTIONAL -- which is why the prefix "
+            "here is matched and discarded rather than captured, and the "
+            "plate name comes from the folder. Bio-Formats agrees: "
+            "CellomicsReader.java:86 compiles "
+            "\"(.*)_(\\p{Alpha}\\d{2})(f\\d{2,3})?(d\\d+)?[^_]+$\". "
+            "THE LEADING NEGATIVE LOOKAHEAD IS NOT DECORATION. EVOS reuses "
+            "this exact <well>f<field>d<dye> tail, so "
+            "scan_R_p2_z1_0_B03f01d0.tif matched BOTH conventions until it "
+            "was added -- an ArrayScan plate and an EVOS plate scan silently "
+            "reading as each other is precisely the defect this table exists "
+            "to close."),
+        "status": "confirmed",
+    },
+    {
+        "key": "arrayscan_kinetic",
+        "label": "ArrayScan / CellInsight, kinetic (i3t001A01f01d2)",
+        "vendor": "Thermo Fisher",
+        "instrument": "Cellomics ArrayScan VTI / XTI, CellInsight CX5 / CX7",
+        "pattern": (
+            r".*i3t(?P<timeID>\d{3})(?P<wellID>[A-Z]\d{2})"
+            r"f(?P<fieldID>\d{2,3})d(?P<chanID>\d)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "i3t001A01f01d2.TIF",
+            "020506plateruni3t001A01f01d2.TIF",
+        ),
+        "groups": {
+            "timeID": "time point, THREE DIGITS AND ONE-BASED -- i3t001 is "
+                      "the first, unlike the field and dye indices beside "
+                      "it, which are zero-based",
+            "wellID": "well",
+            "fieldID": "field, zero-based",
+            "chanID": "dye index, zero-based",
+        },
+        "source": (
+            "The same Cellomics addendum, 'Image File Naming Convention for "
+            "Kinetic Plates': <UniquePlateID>i3t<iTimePoint><WellName>"
+            "f<iField>d<iDye>. Both examples are the manual's own. NOTE "
+            "THERE IS NO SEPARATOR before i3t, which is why the fixed-"
+            "endpoint pattern above requires an underscore before the well "
+            "-- without that requirement it would also match these names "
+            "and read the time point as part of the plate id."),
+        "status": "confirmed",
+    },
+    {
+        "key": "evos",
+        "label": "EVOS plate scan (scan_R_p2_z1_0_B03f01d0)",
+        "vendor": "Thermo Fisher",
+        "instrument": "EVOS FL Auto 2 / M7000 (and, untested, M5000)",
+        "pattern": (
+            r"(?P<plateID>.+)_(?P<AID>[RDM])_p(?P<timeID>\d+)"
+            r"_z(?P<sliceID>\d+)_(?P<laserID>\d+)_(?P<wellID>[A-Z]\d{2})"
+            r"f(?P<fieldID>\d{2})d(?P<chanID>\d)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "scan_R_p2_z1_0_B03f01d0.tif",
+        ),
+        "groups": {
+            "plateID": "the capture prefix -- 'scan' for an Automate-tab "
+                       "plate scan, 'image' for a manual Capture-tab shot",
+            "AID": "image format: R raw, D displayed, M merged",
+            "timeID": "time point",
+            "sliceID": "Z plane",
+            "laserID": "the GRID index, for multi-grid vessels. Named "
+                       "laserID only because that is the group spaCR's "
+                       "importer already carries for an axis it does not "
+                       "read",
+            "wellID": "row letter and column, run together as B03",
+            "fieldID": "field, in capture order",
+            "chanID": "channel -- d0 for a single-channel assay",
+        },
+        "source": (
+            "Thermo Fisher, 'EVOS FL Auto 2 Imaging System User Guide' "
+            "(MAN0014072) p.148 and 'EVOS M7000 Imaging System User Guide' "
+            "(MAN0018326) p.198, both carrying the same 'File naming "
+            "convention' section and the same labelled example. PROVISIONAL "
+            "FOR ONE REASON ONLY: the vendor documents the template in full "
+            "but publishes exactly ONE literal filename, and no second "
+            "EVOS name could be sourced anywhere. The grammar is not in "
+            "doubt; the breadth of it is."),
+        "status": "provisional",
+    },
+    {
+        "key": "scanr",
+        "label": "ScanR (A1--W00001--P00001--Z00000--T00000--Channel)",
+        "vendor": "Olympus / Evident",
+        "instrument": "ScanR high-content screening station",
+        "pattern": (
+            r"(?P<wellID>[A-Z]\d{1,2})--W\d{5}--P(?P<fieldID>\d{5})"
+            r"--Z(?P<sliceID>\d{5})--T(?P<timeID>\d{5})"
+            r"--(?P<chanID>[^.]+)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "A1--W00001--P00001--Z00000--T00000--Alexa 488.tif",
+        ),
+        "groups": {
+            "wellID": "the well NAME, which ScanR writes before the "
+                      "well INDEX -- the W block is the index and is "
+                      "matched and discarded",
+            "fieldID": "the P block: the position within the well",
+            "sliceID": "Z plane",
+            "timeID": "time point",
+            "chanID": "the channel NAME, free text -- 'Alexa 488', 'GFP'",
+        },
+        "source": (
+            "forum.image.sc thread 14872, 'Olympus Scan^R metadata', where "
+            "a ScanR user gives 'A1--W00001--P00001--Z00000--T00000--Alexa "
+            "488' as an example of their own 96/384-well filenames and a "
+            "CellProfiler developer answers with a regex naming the first "
+            "block Well and the rest W/Position/Z/T/Channel. Bio-Formats "
+            "confirms the block grammar independently: ScanrReader.java's "
+            "getBlock() zero-pads to five digits and prepends the axis "
+            "letter, so getBlock(1, \"W\") is 'W00001'. PROVISIONAL "
+            "because ONE literal filename could be sourced, and because "
+            "Bio-Formats matches these blocks by substring search rather "
+            "than by a pattern, so it does not vouch for the '--' "
+            "separators or for the leading well name."),
+        "status": "provisional",
+    },
+    {
+        "key": "cytation",
+        "label": "Cytation / Gen5 (A1ROI1_02_1_1_Bright Field_..._003)",
+        "vendor": "Agilent / BioTek",
+        "instrument": "Cytation 1 / 5 / C10, Gen5 export",
+        "pattern": (
+            r"(?P<wellID>[A-H]\d{1,2})(?P<AID>(?:ROI\d+)?)_\d{1,2}"
+            r"_(?P<laserID>\d)_(?P<fieldID>\d{1,2})_(?P<chanID>.+)"
+            r"_(?P<timeID>\d{3})\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "A1ROI1_02_1_1_Bright Field_High Contrast_003.tif",
+        ),
+        "groups": {
+            "wellID": "well",
+            "AID": "the region of interest, on a Cytation C10; empty on the "
+                   "widefield Cytations",
+            "laserID": "the WAVELENGTH index, named as such by the "
+                       "CellProfiler pipeline below",
+            "fieldID": "the SITE within the well",
+            "chanID": "the channel name, and on a C10 the capture mode "
+                      "after it -- 'Bright Field_High Contrast'",
+            "timeID": "the trailing sequence number",
+        },
+        "source": (
+            "The example is a real Cytation C10 .tif attached to "
+            "forum.image.sc thread 69372 by Christian Tischer (EMBL) while "
+            "reporting a Bio-Formats metadata bug. The field names come "
+            "from a CellProfiler pipeline built and run against real "
+            "Cytation 5 files -- Zenodo record 5933221, "
+            "TricornutumSegmentation.cppipe, whose regex reads "
+            "^(?P<Well>[A-H][0-9]{1,2})_(?P<Plate>[0-9]{1,2})_"
+            "(?P<Wavelength>[0-9]{1})_(?P<site>[0-9]{1,2})_"
+            "(?P<channel>.*)_001. PROVISIONAL: Agilent's own Gen5 export "
+            "documentation is behind a WAF that refused every fetch, so "
+            "the vendor's wording is unverified, and only one literal "
+            "filename could be sourced."),
+        "status": "provisional",
+    },
+    {
+        "key": "leica_matrix_screener",
+        "label": "LAS AF / LAS X Matrix Screener (image--L..--S..--U..)",
+        "vendor": "Leica",
+        "instrument": "Matrix Screener on SP5 / SP8",
+        "pattern": (
+            r"image--L\d{2,4}--S\d{2,4}--(?P<wellID>U\d{2,4}--V\d{2,4})"
+            r"--J\d{2,4}--E\d{2,4}--O\d{2,4}"
+            r"--(?P<fieldID>X\d{2,4}--Y\d{2,4})--T(?P<timeID>\d{2,4})"
+            r"--Z(?P<sliceID>\d{2,4})--C(?P<chanID>\d{2,4})"
+            r"(?:\.ome)?\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "image--L00--S00--U00--V00--J20--E00--O00--X00--Y00--T00--Z00--"
+            "C00.ome.tif",
+            "image--L00--S00--U00--V00--J20--E00--O00--X00--Y00--T00--Z00--"
+            "C01.ome.tif",
+            "image--L00--S00--U00--V00--J20--E00--O00--X00--Y01--T00--Z00--"
+            "C00.ome.tif",
+        ),
+        "groups": {
+            "wellID": "the chamber, as 'U00--V00' -- U is the well row and "
+                      "V the well column, kept together because neither "
+                      "alone identifies a well",
+            "fieldID": "the field, as 'X00--Y00' -- field column and row",
+            "timeID": "time point",
+            "sliceID": "Z plane",
+            "chanID": "channel",
+        },
+        "source": (
+            "All three are literal filenames in the test fixture tree of "
+            "arve0/leicaexperiment, the reference parser for this format "
+            "(test/experiment--test/slide--S00/chamber--U00--V00/"
+            "field--X00--Y00/). U and V are named as the well coordinates "
+            "and X and Y as the field position in the READMEs of "
+            "arve0/leicaexperiment and VolkerH/"
+            "LeicaMatrixScreener2BigStitcher, which also identifies J as "
+            "the scan JOB number. L, E and O ARE NOT DOCUMENTED ANYWHERE "
+            "THAT COULD BE FOUND -- they are matched and discarded rather "
+            "than guessed at."),
+        "status": "confirmed",
+    },
+    {
+        "key": "leica_lasx_series",
+        "label": "LAS X series export (Series002_z00_ch00)",
+        "vendor": "Leica",
+        "instrument": "LAS AF / LAS X, TIFF series export from a .lif",
+        "pattern": (
+            r"(?P<wellID>[A-Za-z]+)(?P<fieldID>\d+)_z(?P<sliceID>\d+)"
+            r"_ch(?P<chanID>\d+)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "Series002_z00_ch00.tif",
+            "Series002_z01_ch00.tif",
+            "Series002_z00_ch01.tif",
+        ),
+        "groups": {
+            "wellID": "the WORD of the series label -- 'Series', 'Pos'. A "
+                      "series export has no plate, so every series lands in "
+                      "one well and the series NUMBER becomes the field",
+            "fieldID": "the series / position number",
+            "sliceID": "Z plane",
+            "chanID": "channel",
+        },
+        "source": (
+            "The three examples are the literal 'Example of image "
+            "filenames' in the doc comment of "
+            "standardgalactic/wingj matlab-toolbox/lib/"
+            "open_image_sequence.m. PROVISIONAL BECAUSE OF THE "
+            "ATTRIBUTION, NOT THE FILENAMES: this is the long-recognised "
+            "LAS AF/LAS X series-export shape and several independent "
+            "repositories parse exactly it, but no source found says "
+            "'Leica' in the same breath as one of these names, and LAS X "
+            "lets the user change the template."),
+        "status": "provisional",
+    },
+    {
+        "key": "leica_lasx_series_time",
+        "label": "LAS X series export, timelapse (Pos0_t000_z00_ch00)",
+        "vendor": "Leica",
+        "instrument": "LAS AF / LAS X, TIFF series export from a .lif",
+        "pattern": (
+            r"(?P<wellID>[A-Za-z]+)(?P<fieldID>\d+)(?P<AID>(?:_S\d+)?)"
+            r"_t(?P<timeID>\d+)_z(?P<sliceID>\d+)_ch(?P<chanID>\d+)"
+            r"\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "Pos007_S001_t50_z00_ch00.tif",
+            "Pos007_S001_t6_z00_ch00.tif",
+            "Pos0_t000_z00_ch00.tif",
+        ),
+        "groups": {
+            "wellID": "the WORD of the position label -- see leica_lasx_"
+                      "series",
+            "fieldID": "the position number",
+            "AID": "the sub-series '_S001', when the export wrote one",
+            "timeID": "time point",
+            "sliceID": "Z plane",
+            "chanID": "channel",
+        },
+        "source": (
+            "First two from the example dataset shipped with saenopy "
+            "(rgerum/saenopy docs/source/3d_tfm/examples/4_OrganoidTFM.py, "
+            "a confocal reflection acquisition of 52 z slices and 2 time "
+            "points); third is the shape "
+            "Alexander-Zangl/retina-track parses in "
+            "src/retina_track/pipeline/io/_metadata_utils.py. PROVISIONAL "
+            "for the same reason as leica_lasx_series: the filenames are "
+            "real and the vendor attribution is not textually proven."),
+        "status": "provisional",
+    },
+    {
+        "key": "nikon_nis_xy",
+        "label": "NIS-Elements TIFF sequence (seq0000xy01c1)",
+        "vendor": "Nikon",
+        "instrument": "NIS-Elements, Save/Export to TIFF Files",
+        "pattern": (
+            r"(?P<wellID>[A-Za-z][A-Za-z0-9_]*)xy(?P<fieldID>\d+)"
+            r"c(?P<chanID>\d+)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "seq0000xy01c1.tif",
+            "ldim_xy01c1.tif",
+        ),
+        "groups": {
+            "wellID": "the FILE PREFIX the export dialog was given. There "
+                      "is no well in this convention; the prefix names the "
+                      "acquisition and the xy index is the position",
+            "fieldID": "the xy stage position",
+            "chanID": "channel",
+        },
+        "source": (
+            "NIS-Elements Viewer User's Guide v5.21.00, sections 4.1.3-"
+            "4.1.4: 'specify the prefix which will be used to name all "
+            "files of the sequence. Dimension names and numbers will be "
+            "appended to this prefix', with channels indexed c1, c2. First "
+            "example is an OME test fixture, "
+            "imaging-formats/ome-types tests/data/seq0000xy01c1.ome.xml, "
+            "whose own comment names NIS-Elements 4.30; second is from "
+            "DeepBioVision/DeepBIT. A NAME THAT ALSO CARRIES A TIME INDEX "
+            "-- t000001xy01c1.tif -- MATCHES THIS PATTERN WITH THE "
+            "TIMESTAMP READ AS THE PREFIX, which is a property of the "
+            "convention rather than of the regex: NIS-Elements writes the "
+            "dimensions the user ticked, in the order they chose, with no "
+            "separator to tell a prefix from an index."),
+        "status": "confirmed",
+    },
+    {
+        "key": "nikon_jobs",
+        "label": "NIS-Elements JOBS / HCA (WellA01_ChannelDAPI_Seq0001)",
+        "vendor": "Nikon",
+        "instrument": "NIS-Elements JOBS / HCA well-plate acquisition",
+        "pattern": (
+            r".*Well(?P<wellID>[A-Z]\d{1,2})_Channel(?P<chanID>[^.]+?)"
+            r"_Seq(?P<fieldID>\d+)\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "WellA01_ChannelDAPI_Seq0001.nd2",
+            "20201115_184113_906__WellA2_ChannelDAPI_Seq0003.nd2",
+            "WellA1_ChannelDAPI_1x1-GFP_1x1_Seq0012.nd2",
+        ),
+        "groups": {
+            "wellID": "well -- JOBS writes A1 as often as A01, so the "
+                      "column is 1 or 2 digits",
+            "chanID": "the channel NAME as configured, hyphen-joined when "
+                      "several were acquired at once",
+            "fieldID": "the Seq acquisition index within the well",
+        },
+        "source": (
+            "Three independent published datasets: "
+            "ZMB-UZH/omero-docker-extended's own filename-parsing "
+            "reference table, arjunrajlaboratory/FateMap_Goyal2023, and "
+            "cheeseman-lab/aconcagua-analysis. No official Nikon manual "
+            "page states this form, but it recurs identically across "
+            "unrelated labs and years. The leading timestamp is matched "
+            "and discarded rather than read as a plate, so the plate name "
+            "comes from the folder."),
+        "status": "confirmed",
+    },
+    {
+        "key": "micromanager_mda",
+        "label": "Micro-Manager 2.0 MDA, separate image files",
+        "vendor": "Open source",
+        "instrument": "Micro-Manager 2.0 multi-dimensional acquisition",
+        "pattern": (
+            r"(?P<wellID>img)_channel(?P<chanID>\d{3})"
+            r"_position(?P<fieldID>\d{3})_time(?P<timeID>\d{9})"
+            r"_z(?P<sliceID>\d{3})\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "img_channel000_position000_time000000000_z000.tif",
+            "img_channel001_position002_time000000005_z003.tif",
+        ),
+        "groups": {
+            "wellID": "the literal 'img'. Micro-Manager has no plate and no "
+                      "well; every image lands in one well and the STAGE "
+                      "POSITION becomes the field",
+            "chanID": "channel index",
+            "fieldID": "stage position index",
+            "timeID": "time point -- NINE digits, not six",
+            "sliceID": "Z slice index",
+        },
+        "source": (
+            "Micro-Manager's own writer, "
+            "mmstudio/src/main/java/org/micromanager/data/internal/"
+            "StorageSinglePlaneTiffSeries.java::createFileName, which "
+            "appends '_<axis><index>' for each axis in ALPHABETICAL order "
+            "-- channel, position, time, z -- with %03d for every axis "
+            "except time, which gets %09d. The axis names come from "
+            "Coords.java. The examples are what that code writes; they "
+            "were not copied from a dataset listing."),
+        "status": "confirmed",
+    },
+    {
+        "key": "zeiss_zen_split_tiles",
+        "label": "ZEN split tiles / scenes (name_S00001_T00001_C00001)",
+        "vendor": "Zeiss",
+        "instrument": "ZEN blue, 'Save Tiles as Single Images' OAD script",
+        "pattern": (
+            r"(?P<plateID>.+)_S(?P<wellID>\d{5})_T(?P<fieldID>\d{5})"
+            r"_C(?P<chanID>\d{5})\.(?i:{ext})$"),
+        "ext": "suffix",
+        "examples": (
+            "mydata_S00001_T00001_C00001.tiff",
+            "mydata_S00001_T00002_C00001.tiff",
+        ),
+        "groups": {
+            "plateID": "the CZI's own file name, without its extension",
+            "wellID": "SCENE index. A scene is a position on the slide or "
+                      "plate, which is the closest thing ZEN writes to a "
+                      "well",
+            "fieldID": "TILE index within the scene",
+            "chanID": "channel",
+        },
+        "source": (
+            "Carl Zeiss Microscopy's own published OAD script, "
+            "zeiss-microscopy/OAD Scripts/Data_Tools/"
+            "SaveSingeTiles_to_Folder.py, line 143: imgTile.Name = "
+            "nameParent[:-4] + '_S' + s_str + '_T' + m_str + '_C' + c_str + "
+            "ft[1:], where addzeros() pads to five characters. PROVISIONAL, "
+            "AND THE REASON MATTERS: the examples are CONSTRUCTED from that "
+            "code rather than observed in a dataset, and this is a macro a "
+            "user has to run -- ZEN's built-in Image Export dialog takes a "
+            "user-typed prefix and appends dimension letters, so there is "
+            "no single Zeiss default to confirm. No Zeiss well-plate "
+            "filename could be sourced at all; the '_A01_T0001F001L01A01"
+            "Z01C01' names that circulate online as 'well-plate naming' "
+            "are Yokogawa's, not Zeiss's."),
+        "status": "provisional",
+    },
+)
+
+
+#: Vendors in dropdown order. Yokogawa leads because `cellvoyager` is the
+#: default and a user who does not change the setting should find it at the
+#: top; then the rest, roughly by how often a high-content plate arrives
+#: from one; then spaCR's own `auto` and `custom`, which are not microscopes
+#: and are the last thing to reach for rather than the first.
+_METADATA_VENDOR_ORDER = (
+    "Yokogawa", "PerkinElmer / Revvity", "Molecular Devices",
+    "Thermo Fisher", "GE / Cytiva", "Olympus / Evident", "Zeiss", "Nikon",
+    "Leica", "Agilent / BioTek", "Sartorius", "Open source", "spaCR",
+)
+
+
+def _metadata_convention(key):
+    """One record from the convention table, or ``None``.
+
+    :param key: the stored ``metadata_type`` value. Matched EXACTLY -- a
+        settings file saying ``'CellVoyager'`` is a typo the caller should
+        hear about, not a spelling to normalise silently.
+    :returns: the record dict, or ``None`` when nothing has that key.
+    """
+    for record in _METADATA_CONVENTIONS:
+        if record["key"] == key:
+            return record
+    return None
+
+
+def _metadata_convention_keys():
+    """Every key in the table, in dropdown order.
+
+    :returns: a tuple of the stored ``metadata_type`` values.
+    """
+    return tuple(record["key"] for record in _METADATA_CONVENTIONS)
+
+
+def _metadata_pattern(key, img_format="tif", custom_regex=None):
+    """The regular expression one convention parses filenames with.
+
+    :param key: the stored ``metadata_type`` value.
+    :param img_format: the image extension, with or without its dot. ``None``
+        means ``'tif'``.
+    :param custom_regex: the user's own pattern, for ``'custom'``.
+    :returns: the pattern string.
+    :raises KeyError: when ``key`` names no convention. The caller decides
+        what to say about it; :func:`spacr.utils._get_regex` turns this into
+        a ValueError naming the whole vocabulary.
+    """
+    record = _metadata_convention(key)
+    if record is None:
+        raise KeyError(key)
+    if img_format is None:
+        img_format = "tif"
+    pattern = record["pattern"]
+    if "{custom_regex}" in pattern:
+        pattern = pattern.replace("{custom_regex}", str(custom_regex))
+    if record.get("ext") == "verbatim":
+        return pattern.replace("{ext}", str(img_format))
+    return pattern.replace("{ext}",
+                           re.escape(str(img_format).lstrip(".")))
+
+
+def _metadata_pattern_any_extension(key, extensions):
+    """The pattern for ``key`` with a whole alternation where the extension goes.
+
+    For a caller that is testing names it has not chosen an extension for --
+    :func:`spacr.validate._candidate_patterns` sweeps a raw folder that may
+    hold ``.tif`` beside ``.png``.
+
+    :param key: the stored ``metadata_type`` value.
+    :param extensions: extensions WITHOUT their dots, e.g. ``('tif', 'png')``.
+    :returns: the pattern.
+    :raises KeyError: when ``key`` names no convention.
+    """
+    record = _metadata_convention(key)
+    if record is None:
+        raise KeyError(key)
+    alternation = "(?:" + "|".join(str(e).lstrip(".")
+                                   for e in extensions) + ")"
+    return record["pattern"].replace("{ext}", alternation)
+
+
+def _metadata_convention_menu():
+    """The table as a grouped menu: ``[(vendor, [(key, label, status)])]``.
+
+    Grouped because an unlabelled alphabetical list of twenty conventions is
+    a menu that hides its own contents -- a Leica user scanning it for
+    'Leica' finds `las_x_tiff_series` only if they already knew the name.
+    Vendors appear in :data:`_METADATA_VENDOR_ORDER`; anything whose vendor
+    is not listed there follows, in table order, so a convention added
+    without touching the order list still appears.
+
+    :returns: a list of ``(vendor, rows)`` pairs; each row is
+        ``(key, label, status)``.
+    """
+    groups = {}
+    for record in _METADATA_CONVENTIONS:
+        groups.setdefault(record["vendor"], []).append(
+            (record["key"], record["label"], record["status"]))
+    ordered = [(vendor, groups.pop(vendor))
+               for vendor in _METADATA_VENDOR_ORDER if vendor in groups]
+    ordered.extend(sorted(groups.items()))
+    return ordered
+
+
+def _metadata_convention_example(key):
+    """The first real example filename for ``key``, or ``''``.
+
+    :param key: the stored ``metadata_type`` value.
+    :returns: one filename, shown under the dropdown so the user can compare
+        it against what is actually in their folder.
+    """
+    record = _metadata_convention(key)
+    if record is None:
+        return ""
+    examples = record.get("examples") or ()
+    return examples[0] if examples else ""
+
+
+def _metadata_parse_report(names, key, img_format="tif", custom_regex=None):
+    """How many of ``names`` one convention parses, and the first that fails.
+
+    Opens nothing and touches no disk: it is handed the names. The caller
+    reads the directory, which is the part that must not run on the GUI
+    thread.
+
+    :param names: bare filenames.
+    :param key: the stored ``metadata_type`` value.
+    :param img_format: the extension to build the pattern for.
+    :param custom_regex: the user's own pattern, for ``'custom'``.
+    :returns: ``(matched, total, first_unparsed)``. ``first_unparsed`` is
+        ``''`` when everything matched. A pattern that does not compile
+        reports zero matches rather than raising -- a user's own regex is a
+        thing they are still typing.
+    """
+    names = list(names)
+    try:
+        compiled = re.compile(_metadata_pattern(key, img_format,
+                                                custom_regex))
+    except (KeyError, re.error):
+        return 0, len(names), names[0] if names else ""
+    matched = 0
+    first_unparsed = ""
+    for name in names:
+        if compiled.match(name):
+            matched += 1
+        elif not first_unparsed:
+            first_unparsed = name
+    return matched, len(names), first_unparsed
+
+
+def _metadata_autodetect(names, img_format="tif"):
+    """Rank every convention by how many of ``names`` it parses.
+
+    OFFERED, NEVER APPLIED. The caller shows the ranking and lets the user
+    choose: a convention that parses 100% of a folder can still be the wrong
+    one -- two of the patterns here are deliberately loose because they are
+    pinned byte for byte -- and a setting changed without being asked for is
+    the failure this whole item is about.
+
+    ``custom`` is excluded: it parses whatever the user last typed, which is
+    not evidence about the folder. So is ``auto``, whose whole behaviour is
+    to rename first and which therefore cannot be judged by matching alone.
+
+    :param names: bare filenames.
+    :param img_format: the extension to build the patterns for.
+    :returns: ``[(key, matched, total)]``, best first, then by table order.
+        Conventions that matched nothing are omitted -- a list of twenty
+        zeroes is not a report.
+    """
+    names = list(names)
+    ranked = []
+    for index, record in enumerate(_METADATA_CONVENTIONS):
+        key = record["key"]
+        if key in ("custom", "auto"):
+            continue
+        matched, total, _first = _metadata_parse_report(names, key,
+                                                        img_format)
+        if matched:
+            ranked.append((-matched, index, key, matched, total))
+    ranked.sort()
+    return [(key, matched, total) for _n, _i, key, matched, total in ranked]

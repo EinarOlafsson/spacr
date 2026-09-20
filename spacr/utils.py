@@ -6132,8 +6132,29 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
     
     """Return the filename pattern for a microscope convention.
 
-    :param metadata_type: the convention -- ``'cellvoyager'``, ``'cq1'``,
-        ``'auto'``, or ``'custom'`` with a pattern of your own.
+    THE VOCABULARY IS A TABLE, not an if/elif chain: every convention is one
+    record in ``spacr.regex_infer._METADATA_CONVENTIONS``, carrying its
+    vendor, its instrument family, real example filenames, what each named
+    group means, where it was sourced, and whether it is confirmed or
+    provisional. Adding a microscope is adding a record; nothing here
+    changes.
+
+    THE IMPORT IS ABSOLUTE ON PURPOSE AND MUST STAY THAT WAY.
+    :func:`spacr.qt.widgets.preview_controls._get_regex_callable` lifts THIS
+    FUNCTION ALONE out of the source file with ``ast`` and executes it in an
+    empty namespace, so that a dropdown can learn a filename pattern without
+    paying the 3.2 s and ~900 MB that importing ``spacr.utils`` costs. A
+    relative ``from .regex_infer import ...`` has no package to resolve
+    against there, raises ImportError, and is swallowed by that caller's
+    ``except Exception`` -- so the previews would quietly stop grouping
+    files and nothing would say so. ``spacr.regex_infer`` imports nothing
+    outside the standard library, which is what makes this affordable.
+
+    :param metadata_type: the convention. The four spaCR has always had are
+        ``'cellvoyager'``, ``'cq1'``, ``'auto'`` and ``'custom'``; the rest
+        are in the table. Matched EXACTLY -- ``'CellVoyager'`` is a typo and
+        is refused, because silently correcting it would also silently
+        correct a name that meant something else.
     :param img_format: the file extension the pattern should end on;
         ``None`` means ``tif``.
     :param custom_regex: the pattern, for ``'custom'``.
@@ -6143,23 +6164,21 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
         local variable 'regex'" -- an error about an implementation detail
         rather than about the setting that was wrong.
     """
+    from spacr.regex_infer import _METADATA_CONVENTIONS, _metadata_pattern
+
     print(f"Image_format: {img_format}")
 
     if img_format == None:
         img_format = 'tif'
-    if metadata_type == 'cellvoyager':
-        regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
-    elif metadata_type == 'cq1':
-        regex = f"W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
-    elif metadata_type == 'auto':
-        regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif"     
-    elif metadata_type == 'custom':
-        regex = f"({custom_regex}).{img_format}"
-    else:
+    try:
+        regex = _metadata_pattern(metadata_type, img_format, custom_regex)
+    except KeyError:
+        known = ", ".join(repr(record["key"])
+                          for record in _METADATA_CONVENTIONS)
         raise ValueError(
-            f"metadata_type={metadata_type!r} is not one of 'cellvoyager', "
-            f"'cq1', 'auto' or 'custom'. Choose one of those, or use "
-            f"'custom' with a regular expression of your own.")
+            f"metadata_type={metadata_type!r} is not one of {known}. "
+            f"Choose one of those, or use 'custom' with a regular "
+            f"expression of your own.")
 
     print(f'regex mode:{metadata_type} regex:{regex}')
     return regex
