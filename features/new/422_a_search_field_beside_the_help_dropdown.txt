@@ -438,3 +438,47 @@ that 427's Preferences ▸ Sound page is in the generated index, so its 8 rows
 are searchable — its Music bed description currently reads "pads, a plucked
 arpeggio with a dotted-eighth echo and a soft sub", which is adjacent to but
 not the same thing.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE RESULTS HAD NO BACKGROUND, AND THE CAUSE WAS NO RULE AT ALL
+--------------------------------------------------------------------------------
+
+Reported by the maintainer: "the dropdowns from the search need to have a
+background, now they overlap with the log and its text and the entries are
+difficult to read."
+
+WHAT IT WAS. Not a wrong colour and not an opacity setting. `_build` gives the
+results frame `setAutoFillBackground(True)` and `WA_StyledBackground`, and both
+of those paint NOTHING unless a stylesheet selector matches the widget. No
+selector in `theme.stylesheet` named `HelpSearchResults`,
+`HelpSearchResultList` or `HelpSearchNote` -- grepping the whole tree for those
+three object names returned only the lines in `help_search.py` that set them.
+So the frame drew nothing, the console drew through it, and the result rows
+read as words mixed into the log.
+
+That is the trap in those two calls: they look like "fill your background" and
+they mean "let the stylesheet fill it". A widget that sets both and is never
+named in a sheet is transparent, and nothing warns.
+
+WHAT IT IS NOW. Four rules in `theme.stylesheet`, in the section above the
+Merged Console block. The frame carries an OPAQUE `surface_hi` with the
+theme's border and `md` radius; the note and the list inside it are
+transparent, so there is one box and not three; the rows keep the app's
+existing hover and selection colours from the view rules rather than inventing
+a second set. Both themes were read back from the built sheet: dark #1f2124,
+light #e6e9ee, each with its own border.
+
+OPAQUE IS THE POINT AND IS DELIBERATE. Every other surface in the app honours
+the page-opacity preference. This one must not: it is a transient overlay that
+lands on top of the console, and at any alpha below 1 the log's text shows
+through the rows, which is the report.
+
+THE TESTS READ PIXELS, NOT THE STYLESHEET.
+`tests/qt/test_the_search_results_have_a_background_of_their_own.py` renders
+the real window with the popup up and samples the colour at the popup's
+centre. A selector that is present and does not match is precisely the failure
+being fixed, so asserting that a string appears in the sheet would have passed
+against the broken build. Checked both ways: with the fix reverted, the second
+test fails with `assert '#1d2229' != '#1d2229'` -- the pixel with the popup up
+is the same pixel as with it down, which is what "you can read the log through
+the results" looks like when it is measured.
