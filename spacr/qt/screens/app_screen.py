@@ -122,6 +122,13 @@ _REPORTS_BEING_FILED: dict = {}
 #: so a report that has not come back inside two minutes is not coming back.
 REPORT_IN_FLIGHT_SECONDS = 120.0
 
+#: Edge of the gear beside "Copy console", in logical pixels before the
+#: interface scale. Named rather than written twice, because the size is
+#: now set once at construction and re-derived from this number whenever
+#: the scale moves -- the two have to be the same number or the gear does
+#: not come back to where it started.
+GEAR_ICON_PX = 18
+
 
 def _a_report_is_in_flight(fingerprint: str) -> bool:
     """Whether this fingerprint is being filed right now, dropping stale ones.
@@ -5482,9 +5489,8 @@ class AppScreen(QWidget):
         self._btn_preferences = QPushButton()
         self._btn_preferences.setObjectName("GhostButton")
         self._btn_preferences.setIcon(_iconset_prefs.icon("settings"))
-        from ..preferences import scaled_px
-        self._btn_preferences.setIconSize(
-            QSize(scaled_px(18), scaled_px(18)))
+        from ..preferences import _set_scaled_icon_size
+        _set_scaled_icon_size(self._btn_preferences, GEAR_ICON_PX)
         self._btn_preferences.setCursor(Qt.PointingHandCursor)
         self._btn_preferences.setToolTip("Open Preferences (Ctrl+P).")
         self._btn_preferences.setAccessibleName("Preferences")
@@ -5503,6 +5509,8 @@ class AppScreen(QWidget):
         self._btn_file_issue = QPushButton("File as issue")
         self._btn_file_issue.setObjectName("GhostButton")
         self._btn_file_issue.setIcon(_iconset.icon("info"))
+        from ..preferences import _SMALL_ICON_PX, _set_scaled_icon_size
+        _set_scaled_icon_size(self._btn_file_issue, _SMALL_ICON_PX)
         self._btn_file_issue.setCursor(Qt.PointingHandCursor)
         self._btn_file_issue.setToolTip(
             "Open a pre-filled GitHub issue with the last traceback + "

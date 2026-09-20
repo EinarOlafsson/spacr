@@ -236,3 +236,15 @@ REJECTED, WITH THE REASON:
     the label, category and scope of every spec are part of the compact
     caption ratchet. A gesture nobody can guess belongs on that map, so this
     is the second half of the same follow-up.
+
+2026-09-19 -- THE ICONS ARE ITEM 433, AND THEY WERE NEVER PART OF THIS
+COMPROMISE. "Text live, spacing on release" was answered on 2026-09-05 with
+"is better i think but the icons seem like they dont track perfectly", and
+the reason is not the compromise above: the spacing DID catch up at the
+settle and the icons never caught up at all, because an icon size is not a
+stylesheet value and not a `scaled_px` call that anything re-ran. It is a
+widget property written once at construction, so nothing here reached it.
+Fixed in `features/new/433_icons_follow_the_zoom.txt`, in the settle half,
+at 5.5 ms against that step's ~400 ms. NOTHING was added to the per-notch
+live half this file's condition is about: `spacr/qt/live_zoom.py`'s
+executable code is AST-identical before and after -- only its prose changed.

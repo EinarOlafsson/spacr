@@ -524,6 +524,8 @@ class AIChatPanel(QWidget):
         self._btn_clear = QPushButton("Clear")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setIcon(iconset.icon("clear"))
+        from ..preferences import _SMALL_ICON_PX, _set_scaled_icon_size
+        _set_scaled_icon_size(self._btn_clear, _SMALL_ICON_PX)
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.clicked.connect(self.clear_chat)
         toolbar.addWidget(self._btn_clear)

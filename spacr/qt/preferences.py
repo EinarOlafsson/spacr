@@ -3629,6 +3629,140 @@ def scaled_px(base_px: int) -> int:
     return max(1, int(round(base_px * get_font_scale())))
 
 
+#: Dynamic property carrying an icon's width at 100 %, in logical pixels.
+#:
+#: A Qt property rather than a Python attribute for two reasons: it lives on
+#: the C++ side, so it survives the wrapper being collected and rebuilt, and
+#: a plain ``QPushButton`` can carry it without anyone subclassing Qt to
+#: give it somewhere to put the number.
+_KEY_ICON_BASE_W = "spacrIconBaseWidth"
+
+#: The same for the icon's height. Two integer properties rather than one
+#: pair, because Qt stores an int natively while a tuple crosses the
+#: boundary as an opaque Python object that only PySide can read back.
+_KEY_ICON_BASE_H = "spacrIconBaseHeight"
+
+#: The method a widget may implement to re-derive its own icon geometry.
+#:
+#: Found by duck-typing, the way ``refresh_theme`` is. It exists for the
+#: widgets whose icon size is not the only thing that has to move with it --
+#: a tile whose hover animation has a resting size to return to, a square
+#: button whose frame is drawn around the mark -- and it is handed the scale
+#: so it never has to ask twice and get a different answer.
+_ICON_SCALE_HOOK = "_apply_icon_scale"
+
+#: Qt's own small-icon default, in logical pixels before the scale.
+#:
+#: A button that is given an icon and no size gets this from the style, and
+#: the style's copy of it does NOT follow the font scale -- which is how a
+#: handful of ghost buttons stayed 16 px wide while the interface around
+#: them doubled. Naming it lets those buttons be registered at the size
+#: they already draw at, so they start tracking the scale without changing
+#: what they look like at 100 %.
+_SMALL_ICON_PX = 16
+
+
+def _scaled_side(base_px: int, scale: float) -> int:
+    """Return ``base_px`` at ``scale``, by the rule :func:`scaled_px` uses.
+
+    Split out so a caller that already knows the scale -- the sweep below
+    resizes hundreds of widgets from one reading -- does not re-read the
+    setting once per widget, and so the two can never round differently.
+
+    :param base_px: the size at 100 %.
+    :param scale: the multiplier to apply.
+    :returns: the scaled size, never below 1 px.
+    """
+    return max(1, int(round(base_px * scale)))
+
+
+def _set_scaled_icon_size(widget, base_w: int, base_h=None, scale=None):
+    """Size a widget's icon from a base, and remember that base.
+
+    THE BASE IS WHAT MAKES THE GESTURE REVERSIBLE. An icon resized from
+    the size it is already wearing compounds its rounding: twenty notches
+    of ``round(px * 1.05)`` and twenty back do not return a 20 px icon to
+    20 px. Every size this sets is computed from the number stored here,
+    which is the size at 100 % and never changes, so the scale alone
+    decides the answer and the round trip is exact by construction.
+
+    Idempotent, and cheap to call again: assigning an icon size a widget
+    already has still invalidates its layout, so the assignment is skipped
+    when nothing would move.
+
+    :param widget: anything with ``setIconSize`` -- a button, a list view.
+    :param base_w: the icon's width at 100 %, in logical pixels.
+    :param base_h: its height at 100 %; square when omitted.
+    :param scale: the scale to apply; the stored preference when omitted.
+    :returns: the :class:`~PySide6.QtCore.QSize` now on the widget.
+    """
+    from PySide6.QtCore import QSize
+
+    base_w = max(1, int(base_w))
+    base_h = base_w if base_h is None else max(1, int(base_h))
+    if scale is None:
+        scale = get_font_scale()
+    widget.setProperty(_KEY_ICON_BASE_W, base_w)
+    widget.setProperty(_KEY_ICON_BASE_H, base_h)
+    size = QSize(_scaled_side(base_w, scale), _scaled_side(base_h, scale))
+    if widget.iconSize() != size:
+        widget.setIconSize(size)
+    return size
+
+
+def _rescale_icon_sizes(app=None) -> int:
+    """Re-derive every remembered icon size at the scale now in force.
+
+    WHY THIS EXISTS. An icon size is a widget PROPERTY, set once when the
+    widget is built. Nothing in a stylesheet reaches it, so a font scale
+    that grew every caption left every glyph beside those captions exactly
+    where it was: the text followed the wheel of the hold-Z zoom and the
+    marks beside it did not.
+
+    WHERE IT RUNS, AND WHY THERE. In
+    :func:`apply_preferences_to_app`, which is the one step both routes to
+    a new scale already take: the Preferences slider on its way out of the
+    dialog, and :meth:`spacr.qt.live_zoom.LiveZoomFilter.settle` when the
+    wheel goes quiet. That is the deliberate half of the gesture -- the
+    one that rebuilds the stylesheet -- so the icons catch up with the
+    spacing, in the same step, rather than stuttering alongside the text.
+
+    Widgets built AFTER a scale change need none of this: they size
+    themselves through :func:`scaled_px` and :func:`_set_scaled_icon_size`,
+    both of which read the scale at construction.
+
+    :param app: optional QApplication; falls back to the running instance.
+    :returns: how many widgets had their icon geometry re-derived.
+    """
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QApplication
+
+    app = app or QApplication.instance()
+    if app is None:
+        return 0
+    scale = get_font_scale()
+    moved = 0
+    for widget in app.allWidgets():
+        try:
+            hook = getattr(widget, _ICON_SCALE_HOOK, None)
+            if callable(hook):
+                hook(scale)
+                moved += 1
+                continue
+            base_w = widget.property(_KEY_ICON_BASE_W)
+            if base_w is None:
+                continue
+            base_h = widget.property(_KEY_ICON_BASE_H) or base_w
+            size = QSize(_scaled_side(int(base_w), scale),
+                         _scaled_side(int(base_h), scale))
+            if widget.iconSize() != size:
+                widget.setIconSize(size)
+                moved += 1
+        except (RuntimeError, AttributeError, TypeError, ValueError):
+            continue
+    return moved
+
+
 
 #: ``"auto"``    the 6 px hot strip on the left edge reveals the app list
 #:               on dwell and hides it again.
@@ -4285,6 +4419,11 @@ def apply_preferences_to_app(app=None) -> None:
             apply_sound_preferences(app)
     except Exception:                                        # noqa: BLE001
         LOG.debug("could not apply the sound preferences", exc_info=True)
+
+    try:
+        _rescale_icon_sizes(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not re-derive the icon sizes", exc_info=True)
 
     try:
         from .widgets.console_panel import ConsolePanel

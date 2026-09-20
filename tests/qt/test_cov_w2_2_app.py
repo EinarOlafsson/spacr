@@ -521,12 +521,18 @@ def test_a_chrome_button_lights_its_mark_on_hover_and_on_press(qapp):
 
     So the hover state is a second painting of the same glyph, and what the
     test can see is which painting was asked for.
+
+    THE PAINTER TAKES A SIZE AS WELL AS A COLOUR, since 433 made the marks
+    follow the interface scale: the glyph is baked into a pixmap, so it has
+    to be painted at the size it will be drawn at rather than painted small
+    and stretched. The double accepts both because the three real painters
+    do; a double that accepted less would be testing a contract nothing has.
     """
     asked = []
 
-    def painter(colour=None):
+    def painter(size=18, colour=None):
         asked.append(colour)
-        return MainWindow._close_icon(colour=colour)
+        return MainWindow._close_icon(size=size, colour=colour)
 
     parent = QWidget()
     button = _ChromeButton(parent, painter, "#DC3C3C")

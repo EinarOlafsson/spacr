@@ -1779,6 +1779,22 @@ CHROME_HOVER = {
     "MinimiseWindow": "#3C82DC",
 }
 
+#: Edge of a window-chrome mark, in logical pixels before the interface
+#: scale. It is the default the three painters below already carried; it is
+#: named here because the icon SIZE has to be set from the same number, and
+#: it was not -- the marks were painted into an 18 px box and drawn into
+#: Qt's default 16 px one, then stayed 16 px while the whole interface
+#: around them zoomed.
+CHROME_ICON_PX = 18
+
+#: Thickness of a chrome mark's stroke, as a fraction of its box.
+#:
+#: A FRACTION, BECAUSE THE BOX MOVES NOW. The three painters carried a
+#: fixed 1.6 px pen, which is right at 18 px and reads as a hairline once
+#: the same glyph is drawn at 36. This is that 1.6 expressed as the share
+#: of the box it was, so the mark keeps its weight at every scale.
+CHROME_PEN = 1.6 / 18.0
+
 
 class _ChromeButton(QToolButton):
     """A frameless-window button whose MARK changes colour, not its plate.
@@ -1793,28 +1809,64 @@ class _ChromeButton(QToolButton):
         """Build one window-chrome button around a painted mark.
 
         :param parent: parent widget; ownership only.
-        :param painter: called with a colour and returning the icon for it.
-            A CALLABLE, not an icon, because the hover state is a second
-            painting of the same glyph -- QSS can colour a background but
-            not the contents of a QIcon.
+        :param painter: called with a size and a colour, returning the icon
+            for them. A CALLABLE, not an icon, for two reasons: the hover
+            state is a second painting of the same glyph -- QSS can colour
+            a background but not the contents of a QIcon -- and the
+            interface scale is a third, since a QIcon bakes its pixmap and
+            a mark painted small and stretched is a blur.
         :param colour: what the mark turns on hover and on press.
         """
         super().__init__(parent)
         self._paint_icon = painter
         self._hover_colour = colour
+        self._lit = False
         self.setAutoRaise(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._show(False)
 
-    def _show(self, lit: bool) -> None:
-        """Repaint the mark, lit or resting.
+    def _show(self, lit: bool, scale=None) -> None:
+        """Repaint the mark, lit or resting, at the interface scale.
 
         The icon is REPAINTED rather than recoloured: QSS can colour a background
         on hover but not the contents of a QIcon, which is why this button paints
         its glyph instead of shipping one.
+
+        PAINTED AT THE SIZE IT WILL BE DRAWN AT, which is the other half of
+        the same argument. A QIcon bakes its pixmap, so a mark painted into
+        an 18 px box and then drawn into a 36 px one is a blur; the size
+        goes to the painter and to ``setIconSize`` from the one number.
+
+        :param lit: whether the pointer is on the button or it is held down.
+        :param scale: the interface scale; the stored preference when None.
         """
-        self.setIcon(self._paint_icon(colour=self._hover_colour)
-                     if lit else self._paint_icon())
+        from .preferences import (_scaled_side, _set_scaled_icon_size,
+                                  get_font_scale)
+
+        self._lit = bool(lit)
+        if scale is None:
+            scale = get_font_scale()
+        side = _scaled_side(CHROME_ICON_PX, scale)
+        self.setIcon(self._paint_icon(size=side, colour=self._hover_colour)
+                     if lit else self._paint_icon(size=side))
+        _set_scaled_icon_size(self, CHROME_ICON_PX, scale=scale)
+
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Repaint the mark for a new interface scale, keeping its state.
+
+        Found by name from
+        :func:`spacr.qt.preferences._rescale_icon_sizes`. It has to repaint
+        rather than only re-size, because the glyph is a pixmap this button
+        drew itself and Qt would otherwise stretch the old one.
+
+        ``self._lit`` is passed back in rather than assumed False: the
+        pointer can be resting on the close button while the wheel turns,
+        and a repaint that forgot would drop the hover colour until the
+        pointer moved.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        self._show(self._lit, scale=scale)
 
     def enterEvent(self, event):        # noqa: N802 - Qt naming
         """Show the mark when the pointer arrives.
@@ -2764,7 +2816,7 @@ class MainWindow(QMainWindow):
         self.addAction(action)
 
     @staticmethod
-    def _close_icon(size: int = 18, colour=None):
+    def _close_icon(size: int = CHROME_ICON_PX, colour=None):
         """An x, drawn rather than shipped, and the SIZE OF THE SQUARE.
 
         It sits beside the full-screen mark, so the two are read as a
@@ -2778,7 +2830,7 @@ class MainWindow(QMainWindow):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
-        pen.setWidthF(1.6)
+        pen.setWidthF(size * CHROME_PEN)
         painter.setPen(pen)
         pad = size * CHROME_PAD
         painter.drawLine(pad, pad, size - pad, size - pad)
@@ -2787,7 +2839,7 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     @staticmethod
-    def _minimise_icon(size: int = 18, colour=None):
+    def _minimise_icon(size: int = CHROME_ICON_PX, colour=None):
         """A single rule, drawn low, the way a minimise mark is."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -2796,7 +2848,7 @@ class MainWindow(QMainWindow):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
-        pen.setWidthF(1.6)
+        pen.setWidthF(size * CHROME_PEN)
         painter.setPen(pen)
         pad = size * 0.22
         painter.drawLine(pad, size * 0.66, size - pad, size * 0.66)
@@ -2804,7 +2856,7 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     @staticmethod
-    def _fullscreen_icon(size: int = 18, colour=None):
+    def _fullscreen_icon(size: int = CHROME_ICON_PX, colour=None):
         """The four-corner expand mark, drawn rather than shipped."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -2813,7 +2865,7 @@ class MainWindow(QMainWindow):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
-        pen.setWidthF(1.6)
+        pen.setWidthF(size * CHROME_PEN)
         painter.setPen(pen)
         arm, pad = size * 0.30, size * CHROME_PAD
         far = size - pad

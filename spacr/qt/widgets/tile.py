@@ -38,6 +38,24 @@ from PySide6.QtWidgets import (
 
 from .eliding import ElidingLabel
 
+#: How much wider than its tile a :class:`Tile` caption may run, in logical
+#: pixels before the interface scale. Named because it is scaled now: the
+#: cap and the tile edge it is derived from have to move together, and a
+#: literal added to an already-scaled edge would shrink as a share of it.
+CAPTION_SLACK_PX = 40
+
+#: Shortest an :class:`HTile` may be, in logical pixels before scaling.
+HTILE_MIN_HEIGHT_PX = 72
+
+#: Gap between an :class:`HTile`'s icon and its text, before scaling. The
+#: left margin is this plus the icon's own width, which is how the icon is
+#: given its column without being in the layout.
+HTILE_ICON_GAP_PX = 24
+
+#: The :class:`HTile` margins that are not the icon's column: right, and
+#: top and bottom, in logical pixels before scaling.
+HTILE_MARGIN_PX = 16
+HTILE_MARGIN_Y_PX = 8
 
 
 class _TileButton(QPushButton):
@@ -51,13 +69,22 @@ class _TileButton(QPushButton):
     """
 
     def __init__(self, base_size: int, parent=None):
-        """Build the button with its icon at the resting size."""
+        """Build the button with its icon at the resting size.
+
+        ``base_size`` is the size at 100 %: the interface scale is applied
+        here rather than by the caller, so a tile built after a zoom comes
+        up at the same size as the tiles already on screen, and so
+        :meth:`_apply_icon_scale` has an unscaled number to work from.
+        """
         super().__init__(parent)
-        self._base_size = int(base_size)
-        self._icon_pixels = int(base_size)
+        from ..preferences import scaled_px
+        self._icon_base_px = int(base_size)
+        self._base_size = scaled_px(self._icon_base_px)
+        self._icon_pixels = self._base_size
         self._anim = QPropertyAnimation(self, b"iconPixels", self)
         self._anim.setDuration(140)
         self._anim.setEasingCurve(QEasingCurve.OutCubic)
+        self.setIconSize(QSize(self._icon_pixels, self._icon_pixels))
 
     def _get_icon_pixels(self) -> int:
         """The animated icon size, in px. Read by the property."""
@@ -69,6 +96,30 @@ class _TileButton(QPushButton):
         self.setIconSize(QSize(self._icon_pixels, self._icon_pixels))
 
     iconPixels = Property(int, _get_icon_pixels, _set_icon_pixels)
+
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Move the resting size, and the icon with it, to a new scale.
+
+        THE RESTING SIZE IS THE ONE THAT MATTERS. Setting the icon size
+        alone would look right until the pointer next crossed the tile:
+        the leave animation returns the icon to ``_base_size``, so a stale
+        resting size undoes the zoom on the first hover. The animation is
+        stopped for the same reason -- a running tween would land on the
+        size it was aimed at before the scale moved.
+
+        Both numbers come from ``_icon_base_px``, the size at 100 %, so
+        zooming out returns the tile to the pixel it started at rather
+        than to whatever twenty roundings left behind.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        from ..preferences import _scaled_side, get_font_scale
+
+        if scale is None:
+            scale = get_font_scale()
+        self._anim.stop()
+        self._base_size = _scaled_side(self._icon_base_px, scale)
+        self._set_icon_pixels(self._base_size)
 
     def enterEvent(self, event: QEvent) -> None:
         """Animate the icon toward its hover-zoomed size on cursor enter."""
@@ -122,7 +173,9 @@ class Tile(QWidget):
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)
+        from ..preferences import scaled_px
         self._text = text
+        self._tile_base_px = int(tile_size)
 
         layout = QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -131,11 +184,11 @@ class Tile(QWidget):
 
         self._button = _TileButton(icon_size)
         self._button.setObjectName("Tile")
-        self._button.setFixedSize(tile_size, tile_size)
+        side = scaled_px(self._tile_base_px)
+        self._button.setFixedSize(side, side)
         self._button.setCursor(Qt.PointingHandCursor)
         if icon is not None:
             self._button.setIcon(icon)
-            self._button.setIconSize(QSize(icon_size, icon_size))
         else:
             initials = "".join(w[0].upper() for w in text.split()[:2])[:2]
             self._button.setText(initials or text[:2].upper())
@@ -147,8 +200,34 @@ class Tile(QWidget):
         self._caption.setObjectName("TileCaption")
         self._caption.setAlignment(Qt.AlignHCenter)
         self._caption.setWordWrap(True)
-        self._caption.setMaximumWidth(tile_size + 40)
+        self._caption.setMaximumWidth(scaled_px(self._tile_base_px
+                                                + CAPTION_SLACK_PX))
         layout.addWidget(self._caption)
+
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Re-square the tile and re-cap its caption at a new scale.
+
+        THE FRAME HAS TO MOVE WITH THE MARK. The button's edge is fixed,
+        so an icon that grew inside it would be cropped by its own tile
+        long before it reached the size the wheel asked for. The caption's
+        width cap is derived from the same edge and moves with it, or a
+        caption that fitted on one line at 100 % wraps to three at 200 %.
+
+        The button re-sizes its own icon: it carries its own copy of this
+        method, and :func:`spacr.qt.preferences._rescale_icon_sizes` visits
+        every widget, so both are reached without either calling the
+        other.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        from ..preferences import _scaled_side, get_font_scale
+
+        if scale is None:
+            scale = get_font_scale()
+        side = _scaled_side(self._tile_base_px, scale)
+        self._button.setFixedSize(side, side)
+        self._caption.setMaximumWidth(
+            _scaled_side(self._tile_base_px + CAPTION_SLACK_PX, scale))
 
     @property
     def text(self) -> str:
@@ -194,7 +273,8 @@ class HTile(QPushButton):
         self._name_lbl = None
 
         from ..preferences import scaled_px
-        self._base_icon = scaled_px(int(icon_size))
+        self._icon_base_px = int(icon_size)
+        self._base_icon = scaled_px(self._icon_base_px)
 
         self.setObjectName("HTile")
         self.setCursor(Qt.PointingHandCursor)
@@ -203,15 +283,12 @@ class HTile(QPushButton):
             self.setAccessibleDescription(description)
         if icon is not None:
             self.setIcon(icon)
-            self.setIconSize(QSize(self._base_icon, self._base_icon))
 
-        self.setMinimumHeight(scaled_px(72))
         self.setToolTip(f"{text} — {description}" if description else text)
 
         layout = QHBoxLayout(self)
-        layout.setContentsMargins(self._base_icon + scaled_px(24),
-                                  scaled_px(8), scaled_px(16), scaled_px(8))
         layout.setSpacing(0)
+        self._apply_icon_scale(None)
 
         text_col = QVBoxLayout()
         text_col.setContentsMargins(0, 0, 0, 0)
@@ -239,6 +316,42 @@ class HTile(QPushButton):
 
         layout.addLayout(text_col, 1)
 
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Re-size the icon, and the column the layout keeps clear for it.
+
+        THE ICON IS NOT IN THE LAYOUT. It is painted by the button, and
+        the text is kept out of its way by a left margin wide enough to
+        hold it -- so an icon that grew on its own would grow straight
+        under the name. Every one of these numbers moves together or the
+        card comes apart: at 200 % a card sized for a 52 px mark has a
+        104 px mark drawn across its first word.
+
+        Called at construction, so a tile built after a zoom comes up at
+        the scale already on screen, and again from
+        :func:`spacr.qt.preferences._rescale_icon_sizes` when the scale
+        moves. Every size is derived from ``_icon_base_px`` and the module
+        constants -- the sizes at 100 % -- so the same scale always gives
+        the same pixel, whichever direction the wheel reached it from.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        from ..preferences import (_scaled_side, _set_scaled_icon_size,
+                                   get_font_scale)
+
+        if scale is None:
+            scale = get_font_scale()
+        self._base_icon = _scaled_side(self._icon_base_px, scale)
+        if not self.icon().isNull():
+            _set_scaled_icon_size(self, self._icon_base_px, scale=scale)
+        self.setMinimumHeight(_scaled_side(HTILE_MIN_HEIGHT_PX, scale))
+        layout = self.layout()
+        if layout is not None:
+            layout.setContentsMargins(
+                self._base_icon + _scaled_side(HTILE_ICON_GAP_PX, scale),
+                _scaled_side(HTILE_MARGIN_Y_PX, scale),
+                _scaled_side(HTILE_MARGIN_PX, scale),
+                _scaled_side(HTILE_MARGIN_Y_PX, scale))
+        self.updateGeometry()
 
     def required_width(self) -> int:
         """Width in px at which this tile shows its whole name.

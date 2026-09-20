@@ -489,8 +489,7 @@ class FoldButton(QPushButton):
             self.setCheckable(True)
             self._install_checked_fill(stage)
         self.setCursor(Qt.PointingHandCursor)
-        self.setFixedSize(QSize(BUTTON_PX, BUTTON_PX))
-        self.setIconSize(QSize(ICON_PX, ICON_PX))
+        self._apply_icon_scale(None)
         icon = None
         try:
             from ..app import _icon_for_app
@@ -506,6 +505,35 @@ class FoldButton(QPushButton):
         self.setProperty("moduleSummarySource", description)
         self.setProperty("moduleTooltipStyle", "fold")
         self.setAccessibleName(name)
+
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Re-square the button and its mark at the interface scale.
+
+        BOTH SIZES, OR NEITHER. :data:`BUTTON_PX` and :data:`ICON_PX` are
+        documented as logical pixels "before font scaling" and neither was
+        ever scaled, so the strip stayed put while every caption around it
+        grew. Growing the mark alone would be worse than leaving both:
+        :data:`ICON_PX` is smaller than :data:`BUTTON_PX` so the hover fill
+        reads as a plate behind the mark, and a mark that outgrows its
+        plate reads as a border touching it.
+
+        Called at construction and again from
+        :func:`spacr.qt.preferences._rescale_icon_sizes`, which finds it by
+        name; both derive every size from the two module constants rather
+        than from what the button is currently wearing, so the scale alone
+        decides the answer.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        from ..preferences import _scaled_side, _set_scaled_icon_size
+        from ..preferences import get_font_scale
+
+        if scale is None:
+            scale = get_font_scale()
+        side = _scaled_side(BUTTON_PX, scale)
+        if self.size() != QSize(side, side):
+            self.setFixedSize(QSize(side, side))
+        _set_scaled_icon_size(self, ICON_PX, scale=scale)
 
     #: Verdict colours for :meth:`set_verdict`, keyed by level. Read from
     #: the regression QC palette so the dot on a button and the stamp on
@@ -654,7 +682,7 @@ class FoldStrip(QWidget):
         self.buttons: list[FoldButton] = []
         row = QHBoxLayout(self)
         row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(GAP_PX)
+        self._apply_icon_scale(None)
         for entry in folds:
             key, callback = entry[0], entry[1]
             checkable = bool(entry[2]) if len(entry) > 2 else False
@@ -669,6 +697,32 @@ class FoldStrip(QWidget):
             row.addWidget(button)
             self.buttons.append(button)
         row.addStretch(1)
+
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Re-space the strip at the interface scale.
+
+        THE GAP IS PART OF THE ICON GEOMETRY. :data:`GAP_PX` records why:
+        the buttons were sent up by half because the strip read as
+        crowded, and a gap that stays put while the marks grow is a
+        smaller share of the strip than it was -- more crowded, not less.
+        The same argument applies to the scale, so the gap follows it for
+        the same reason it followed the button.
+
+        Called at construction and again from
+        :func:`spacr.qt.preferences._rescale_icon_sizes`, which finds it by
+        name; the buttons re-square themselves through their own copy of
+        this method, so this one only has the spacing to do.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        from ..preferences import _scaled_side, get_font_scale
+
+        row = self.layout()
+        if row is None:
+            return
+        if scale is None:
+            scale = get_font_scale()
+        row.setSpacing(_scaled_side(GAP_PX, scale))
 
     def keys(self) -> Sequence[str]:
         """The registry keys this strip carries, in the order shown."""

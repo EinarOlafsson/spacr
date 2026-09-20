@@ -1,0 +1,238 @@
+================================================================================
+THE ICONS FOLLOW THE ZOOM
+================================================================================
+
+Status:    done 2026-09-19, on nightly. Every icon spaCR draws is now sized
+           from a BASE recorded on the widget and re-derived whenever the
+           interface scale moves, so the marks go where the text goes. The
+           work rides in the SETTLE half of the gesture (inside
+           `apply_preferences_to_app`), measured at 5.5 ms against that
+           step's 395-877 ms; NOTHING was added to the per-notch live half,
+           whose module's executable code is AST-identical to what it was.
+           Round trip proved exact: ten
+           notches up and ten back returns every icon to the pixel it
+           started on. LEFT UNDONE, with reasons, at the bottom.
+Requested: 2026-09-05, against item 378's gesture -- "is better i think but
+           the icons seem like they dont track perfectly". Taken on by the
+           2026-09-19 run.
+Owner:     Home. Files: spacr/qt/preferences.py (the mechanism),
+           spacr/qt/live_zoom.py (docstrings only -- no code change),
+           spacr/qt/app.py (the three window-chrome marks),
+           spacr/qt/widgets/dock.py, widgets/tile.py, widgets/fold_strip.py,
+           widgets/ai_chat_panel.py, screens/app_screen.py,
+           tests/qt/test_the_icons_follow_the_zoom.py (11 tests).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+`live_zoom.py` never touched an icon size, and its own module docstring
+listed icon sizes among the things "pinned from Python" that only move when
+the stylesheet is rebuilt. That was half right and the half that was wrong
+is the whole defect:
+
+AN ICON SIZE IS NOT A STYLESHEET VALUE AND NOT A `scaled_px` CALL. It is a
+widget PROPERTY, written once at construction. Rebuilding the stylesheet
+does not reach it, and neither did anything else -- so the spacing DID catch
+up at the settle, as 378 documents, and the icons never caught up at all.
+The text grew, the marks stayed put, and that mismatch is what the report
+was describing.
+
+MEASURED BEFORE THE FIX, offscreen, with a scale change from 100 % to 150 %
+and `apply_preferences_to_app` run to completion:
+
+    DockRow      20 px -> 20 px   stale
+    FoldButton   30 px -> 30 px   stale
+    HTile        52 px -> 52 px   stale
+    _TileButton  64 px -> 64 px   stale
+
+and a widget built AFTER the zoom was no better: HTile came up at the right
+78 px (it already read the scale through `scaled_px`), while FoldButton came
+up at 30 and the Tile's button at 64, both a third too small for the screen
+they were joining.
+
+`Dock.refresh_icons` was the one place that did the right thing, through
+`scaled_px(ICON_PX)` -- but only `MainWindow.refresh_theme` calls it, so a
+dock in any other host was stale too.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+THREE PIECES, ALL IN `spacr/qt/preferences.py` BESIDE `scaled_px`:
+
+  `_scaled_side(base_px, scale)`   `scaled_px`'s arithmetic with the scale
+                                   passed in, so a sweep that resizes
+                                   hundreds of widgets reads the setting
+                                   once and the two can never round apart.
+
+  `_set_scaled_icon_size(widget,   Sets the icon size AND records the base
+      base_w, base_h, scale)       as two int Qt properties on the widget.
+                                   Skips the assignment when nothing would
+                                   move, because assigning the size a widget
+                                   already has still invalidates its layout.
+
+  `_rescale_icon_sizes(app)`       Walks `app.allWidgets()`, re-derives every
+                                   recorded base at the current scale, and
+                                   calls `_apply_icon_scale(scale)` on any
+                                   widget that has one.
+
+THE BASE IS THE WHOLE POINT. Nothing is ever recomputed from the size a
+widget is currently wearing; every size comes from the number the widget was
+built with. That is what makes the round trip exact -- twenty applications
+of `round(px * 1.05)` and its inverse do not cancel, and a value derived
+that way remembers how the scale was reached.
+
+IT RUNS INSIDE `apply_preferences_to_app`, NOT IN `settle()` DIRECTLY, and
+that is deliberate: that function is the one step BOTH routes to a new scale
+already take -- the wheel's settle, and the Preferences slider on its way
+out of the dialog. One place, so the control and the gesture cannot disagree
+and there is no second site to forget. The same change therefore fixes the
+slider, which had the identical defect and was never reported.
+
+WIDGETS WITH GEOMETRY HANGING OFF THE ICON get a `_apply_icon_scale(scale)`
+method, found by duck-typing the way `refresh_theme` is:
+
+  `_TileButton`  the hover animation has a RESTING size to return to. Moving
+                 the icon without moving `_base_size` looks right until the
+                 pointer next crosses the tile, and then the leave animation
+                 undoes the zoom.
+  `HTile`        the icon is not in the layout -- it is painted by the button
+                 and the text is kept clear of it by a left margin wide
+                 enough to hold it. Grow the mark alone and at 200 % a
+                 104 px icon is drawn across the card's first word.
+  `Tile`         the button's edge is fixed, so an icon growing inside it is
+                 cropped by its own tile; the caption's width cap comes off
+                 the same edge.
+  `FoldButton`   `ICON_PX` is smaller than `BUTTON_PX` so the hover fill
+                 reads as a plate behind the mark. Both, or neither.
+  `FoldStrip`    `GAP_PX`'s own note says the gap grew when the buttons did,
+                 because the same gap between larger marks is MORE crowded.
+                 The same argument applies to the scale.
+  `_ChromeButton` the mark is a pixmap the button paints itself, so it is
+                 REPAINTED at the new size rather than stretched, and it is
+                 told whether it is lit -- the pointer is over something
+                 during a wheel gesture by definition.
+
+--------------------------------------------------------------------------------
+WHAT WAS MEASURED
+--------------------------------------------------------------------------------
+
+Offscreen, on a 1440x900 MainWindow, python 3.x / PySide6, best of 7:
+
+  THE LIVE HALF (per notch, `LiveZoomFilter._apply`, 187 visible widgets,
+  20 notches up and back, sorted)
+
+      with this change   1.74 best / 13.98 median / 18.25 worst ms
+      origin/nightly     0.44 best / 13.51 median / 16.76 worst ms
+
+    The half-millisecond between the medians is noise -- the number of font
+    assignments a notch actually makes depends on which sizes round to a new
+    pixel -- and the reason it can only be noise is stronger than the
+    timing: `spacr/qt/live_zoom.py`'s EXECUTABLE CODE IS IDENTICAL TO HEAD.
+    Compared by parsing both files, stripping every docstring and comparing
+    the ASTs; only prose changed in that module. Nothing was added to the
+    live half because nothing in the live half was touched.
+
+    `test_a_notch_leaves_every_icon_alone` keeps it that way: it asserts the
+    icons do not move during the live half at all, and fails the day
+    somebody moves the sweep into it.
+
+  THE SETTLE HALF
+
+      _rescale_icon_sizes,   419 widgets (window only)        1.09 ms
+      _rescale_icon_sizes, 2,122 widgets (two modules open)   5.5-7.0 ms
+      apply_preferences_to_app, scale ACTUALLY changing   395-877 ms
+        (first call after a cold start is the 877; it settles at ~400)
+
+    So the icons cost about 1.5 % of the step they ride in. The sweep is
+    cheap enough that it COULD have gone in the live half; it is in the
+    settle because icons growing inside spacing that had not yet grown is
+    the same mismatch this item exists to remove.
+
+  THE ROUND TRIP
+
+    Ten notches up (5 % each, to 150 %) and ten back down, one wheel event
+    at a time, driven through the real event filter:
+
+        DockRow      20 -> 30 -> 20     exact
+        FoldButton   30 -> 45 -> 30     exact
+        HTile        52 -> 78 -> 52     exact
+        _TileButton  64 -> 96 -> 64     exact
+
+    And from the other side: one jump to 150 % and ten notches to 150 %
+    agree to the pixel, which is the same property asked as a question a
+    history-dependent value cannot pass.
+
+    DRIVEN END TO END AS WELL, on a real MainWindow with Make Masks open
+    and the filter installed by `install_live_zoom(app)`: a real Z press,
+    ten real wheel events, a real Z release, then the same in reverse.
+    37 of the window's 39 icon-bearing widgets moved (the two that did not
+    are Qt's own, below) and every one came back to its starting pixel.
+    The settle measured 2,139 ms up and 1,496 ms down THERE -- that is the
+    offscreen platform rebuilding a two-module window, not the 587 ms the
+    gesture costs on real hardware, and the icon sweep is the 5.5 ms of it.
+
+  COVERAGE, by census rather than by grep
+
+    A built MainWindow with two modules open draws an icon on 90 widgets.
+    Before: 31 followed the scale. After: every one of them except four
+    Qt-internal buttons (below). THE CENSUS FOUND WHAT THE GREP MISSED --
+    three `_ChromeButton`s (minimise, full screen, close) and two ghost
+    buttons never called `setIconSize` at all; they took Qt's 16 px
+    small-icon default, which does not move with the font scale. The chrome
+    marks were additionally being PAINTED into an 18 px box and drawn into a
+    16 px one, a pre-existing blur this corrects on the way past.
+    `test_nothing_spacr_draws_an_icon_on_is_left_behind` keeps the census.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    QT_QPA_PLATFORM=offscreen pytest -q -p no:randomly \
+        tests/qt/test_the_icons_follow_the_zoom.py
+
+Eleven tests, all driving real widgets: 6 of them fail on the unfixed tree
+and the other 5 are the sanity checks that should pass either way. Nothing
+in the file asserts on a helper's return value -- every assertion is a
+`QSize` read back off a widget the gesture has been through.
+
+In the app: open spaCR, hold Z, scroll. The dock icons, the fold strip, the
+home tiles and the three window buttons all step up with the text when the
+wheel goes quiet. Scroll back the same number of notches and everything is
+where it started.
+
+--------------------------------------------------------------------------------
+LEFT UNDONE, WITH THE REASON
+--------------------------------------------------------------------------------
+
+FOUR QT-INTERNAL BUTTONS STILL TAKE THE STYLE'S 16 px. The menu bar's
+overflow button (`qt_menubar_ext_button`) and the clear marks Qt puts inside
+a `QLineEdit` are created by Qt inside its own classes and size themselves
+from the style. They are not ours to register, and reaching into a private
+`QLineEditIconButton` to set a size it repositions itself against is a hack
+with a worse failure mode than a small ✕. Named in the census test's
+exemption list so a NEW one arriving is a decision rather than a discovery.
+
+TWO LISTS OF IMAGE THUMBNAILS ARE NOT ICONS AND WERE LEFT ALONE.
+`figure_queue.py` (`THUMB_SIZE`, 140x90, in a list pinned to 160 px wide)
+and `umap_search_viewer.py` (170x170 cell crops) both call `setIconSize`,
+which is why they turn up in a grep, but what they hold is IMAGE CONTENT at
+a chosen preview size rather than interface chrome. Scaling them means
+scaling the list that holds them and regenerating every pixmap at the new
+size, or they clip and blur. That is a separate piece of work about preview
+sizing, not about icons tracking a font scale.
+
+`QPushButton#Tile`'s QSS CARRIES A LITERAL `min-width: 96px`, which wins
+over the `setFixedSize` this item now scales, so the legacy square `Tile`
+is pinned by the stylesheet rather than by Python at large scales. `Tile` is
+used by no Qt screen (`HTile` replaced it; the `Tile` in `spacr/align.py` is
+an unrelated class of the same name), so it is recorded here rather than
+fixed: the sheet is generated with the scale available to it and that literal
+could go through the same treatment whenever the tile is next used.
+
+THE NINE-LANGUAGE CATALOGS WERE NOT REGENERATED, per the standing rule that
+they are rebuilt once before a version is cut. Nothing here adds a
+user-facing string; the public API symbol inventory was set-differenced
+before and after and is UNCHANGED (10,707 both ways), because every new name
+is private.
