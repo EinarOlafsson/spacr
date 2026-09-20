@@ -75,6 +75,26 @@ class HelpEntry:
         ``merge_edge_pathogen_cells``.
     :ivar payload: what the opener needs and nothing more -- an app key, a
         setting key, a dotted symbol, a tab object name.
+    :ivar subtitle_source: the English TEMPLATE ``subtitle`` was rendered
+        from, when the words in it are this module's own rather than a name
+        taken from a registry. ``""`` when there is nothing to translate.
+    :ivar subtitle_values: what to substitute into that template, as
+        ``(name, value)`` pairs -- a tuple, because the entry is frozen and
+        hashable and a dict would be neither.
+    :ivar description_source: the same for :attr:`description`.
+    :ivar description_values: the same for :attr:`description`.
+
+    WHY A TEMPLATE AND NOT THE FINISHED STRING. ``subtitle`` and
+    ``description`` are what the search MATCHES on, so they stay English:
+    the query and the haystack have to be in one language, and the index is
+    built once per session while the interface language can change after it.
+    What the user READS is rendered from the template at the moment a row is
+    drawn, by :func:`rendered_subtitle` and :func:`rendered_description` with
+    :func:`spacr.qt.i18n.tr` passed in -- so a language change is picked up
+    by the next keystroke and this module still imports no Qt and no
+    catalog. "API reference" is the subtitle of ten thousand of the rows; a
+    finished English string here is a wholly English result list for every
+    reader who does not work in English.
     """
 
     kind: str
@@ -82,11 +102,89 @@ class HelpEntry:
     subtitle: str = ""
     description: str = ""
     payload: Dict[str, str] = field(default_factory=dict)
+    subtitle_source: str = ""
+    subtitle_values: Tuple[Tuple[str, str], ...] = ()
+    description_source: str = ""
+    description_values: Tuple[Tuple[str, str], ...] = ()
 
     @property
     def haystack(self) -> str:
         """Title, subtitle and description, lowercased, for matching."""
         return f"{self.title}\n{self.subtitle}\n{self.description}".lower()
+
+
+#: The words this module writes on a result row ITSELF, as opposed to the
+#: names it copies out of a registry. These are the catalog sources for the
+#: result list: every row the search offers carries one of them, and until
+#: they have rows a reader who does not work in English gets an English list
+#: whatever language the rest of the window is in.
+SUBTITLE_MODULE = "Module"
+SUBTITLE_API = "API reference"
+SUBTITLE_API_READS = "API reference — reads {settings}"
+SUBTITLE_PREFERENCE = "Preferences ▸ {tab}"
+DESCRIPTION_READS = "Reads {settings}."
+DESCRIPTION_SUMMARY_READS = "{summary} Reads {settings}."
+
+#: The subtitle of a setting row. Both halves are names a registry chose --
+#: the module's caption and the category heading -- so there is nothing here
+#: for a catalog to translate, and the row shows them exactly as the registry
+#: spells them.
+SUBTITLE_SETTING = "{module} ▸ {category}"
+
+
+def _rendered(source: str, values: Tuple[Tuple[str, str], ...],
+              fallback: str, translate: Optional[Callable[..., str]]) -> str:
+    """Put ``values`` into ``source``, translated when a translator is given.
+
+    :param source: the English template, or ``""`` when there is none.
+    :param values: ``(name, value)`` pairs to substitute.
+    :param fallback: what to return when there is no template -- the English
+        string built at index time.
+    :param translate: ``tr``-shaped ``(source, **values) -> str``; ``None``
+        renders the English.
+    :returns: the line to show.
+    """
+    if not source:
+        return fallback
+    filling = {name: value for name, value in values}
+    if translate is None:
+        try:
+            return source.format(**filling) if filling else source
+        except (KeyError, IndexError, ValueError):
+            return fallback
+    try:
+        return translate(source, **filling)
+    except Exception:
+        LOG.debug("could not translate %r", source, exc_info=True)
+        return fallback
+
+
+def rendered_subtitle(entry: HelpEntry,
+                      translate: Optional[Callable[..., str]] = None) -> str:
+    """An entry's subtitle in the reader's language.
+
+    :param entry: the result.
+    :param translate: :func:`spacr.qt.i18n.tr`, or ``None`` for English.
+    :returns: what the row should show under or beside the title.
+    """
+    return _rendered(entry.subtitle_source, entry.subtitle_values,
+                     entry.subtitle, translate)
+
+
+def rendered_description(entry: HelpEntry,
+                         translate: Optional[Callable[..., str]] = None
+                         ) -> str:
+    """An entry's description in the reader's language.
+
+    An API summary inside it is a docstring and stays as it was written;
+    what this translates is the sentence spaCR wraps around it.
+
+    :param entry: the result.
+    :param translate: :func:`spacr.qt.i18n.tr`, or ``None`` for English.
+    :returns: the line for the row's tooltip.
+    """
+    return _rendered(entry.description_source, entry.description_values,
+                     entry.description, translate)
 
 
 Provider = Callable[[], Iterable[HelpEntry]]
@@ -255,6 +353,14 @@ def score(entry: HelpEntry, terms: Sequence[str]) -> Optional[float]:
 #: a plain top-40 by score is an API list with the occasional module in it,
 #: and the instruction's whole point is that one query returns several kinds
 #: at once. A cap per kind is how the small kinds keep their seat.
+#:
+#: IT ALSO CLIPS "ONE ROW PER MODULE", and the list does not say so. Measured
+#: over the 767 (module, setting) pairs in this tree, exactly two settings
+#: have more module rows than this: ``src``, which 36 modules take and which
+#: is offered for 8 of them, and ``verbose``, 8 of 10. Every other setting
+#: appears in six modules or fewer and is answered in full. A row saying "and
+#: 28 more" is the fix, and it is a new user-visible string in nine catalogs,
+#: so it is written down here and in the item file rather than half-done.
 PER_KIND_LIMIT = 8
 
 
@@ -326,9 +432,10 @@ def module_entries() -> List[HelpEntry]:
         out.append(HelpEntry(
             kind="module",
             title=name,
-            subtitle="Module",
+            subtitle=SUBTITLE_MODULE,
             description=f"{desc} {key}".strip(),
             payload={"app": key},
+            subtitle_source=SUBTITLE_MODULE,
         ))
     return out
 
@@ -389,7 +496,8 @@ def setting_entries() -> List[HelpEntry]:
                     placed.setdefault(setting, str(title))
         for setting in defaults:
             category = placed.get(setting, "")
-            where = f"{name} ▸ {category}" if category else name
+            where = (SUBTITLE_SETTING.format(module=name, category=category)
+                     if category else name)
             out.append(HelpEntry(
                 kind="setting",
                 title=str(setting),
@@ -440,22 +548,42 @@ def api_entries() -> List[HelpEntry]:
     for symbol, summary in API_ENTRIES:
         known.add(symbol)
         settings = reads.get(symbol, ())
-        subtitle = "API reference"
+        subtitle = SUBTITLE_API
+        subtitle_source = SUBTITLE_API
+        subtitle_values: Tuple[Tuple[str, str], ...] = ()
         description = summary
-        if settings:
-            subtitle = "API reference — reads " + ", ".join(settings[:4])
-            description = f"{summary} Reads {', '.join(settings)}."
+        description_source = ""
+        description_values: Tuple[Tuple[str, str], ...] = ()
         payload = {"symbol": symbol}
         if settings:
+            shown = ", ".join(settings[:4])
+            named = ", ".join(settings)
+            subtitle_values = (("settings", shown),)
+            subtitle_source = SUBTITLE_API_READS
+            subtitle = SUBTITLE_API_READS.format(settings=shown)
+            description_source = DESCRIPTION_SUMMARY_READS
+            description_values = (("summary", summary), ("settings", named))
+            description = DESCRIPTION_SUMMARY_READS.format(
+                summary=summary, settings=named)
             payload["reads"] = " ".join(settings)
         out.append(HelpEntry(kind="api", title=symbol, subtitle=subtitle,
-                             description=description, payload=payload))
+                             description=description, payload=payload,
+                             subtitle_source=subtitle_source,
+                             subtitle_values=subtitle_values,
+                             description_source=description_source,
+                             description_values=description_values))
     for symbol in sorted(set(reads) - known):
+        shown = ", ".join(reads[symbol][:4])
+        named = ", ".join(reads[symbol])
         out.append(HelpEntry(
             kind="api", title=symbol,
-            subtitle="API reference — reads " + ", ".join(reads[symbol][:4]),
-            description=f"Reads {', '.join(reads[symbol])}.",
+            subtitle=SUBTITLE_API_READS.format(settings=shown),
+            description=DESCRIPTION_READS.format(settings=named),
             payload={"symbol": symbol, "reads": " ".join(reads[symbol])},
+            subtitle_source=SUBTITLE_API_READS,
+            subtitle_values=(("settings", shown),),
+            description_source=DESCRIPTION_READS,
+            description_values=(("settings", named),),
         ))
     return out
 
@@ -466,6 +594,17 @@ def api_entries() -> List[HelpEntry]:
 #: preference kind's version of a dead link. The generator turns the backdrop
 #: on so that these 13 rows are IN the generated table; this is what decides
 #: whether they are in the INDEX on a given machine.
+#:
+#: IT IS ASKED ONCE, WHEN THE INDEX IS BUILT, and the index is built once a
+#: session. So the answer can go stale in both directions within a session:
+#: turning the backdrop on does not make its 13 rows findable until the next
+#: launch, and turning it off leaves 13 rows whose page has gone. The second
+#: of those is why ``_open_preference`` reports what
+#: ``show_preferences_on`` actually did instead of what it was asked to do --
+#: a stale row that says nothing is a gap, and a stale row that claims to
+#: have landed is a lie. The same staleness applies to the module rows, which
+#: are filtered through ``app_is_visible`` at build time and so do not follow
+#: a change to the maturity preference until the next launch.
 _CONDITIONAL_TABS = {"PreferencesTabFractal": "spaceout_enabled"}
 
 
@@ -501,9 +640,11 @@ def preference_entries() -> List[HelpEntry]:
         return []
     return [
         HelpEntry(kind="preference", title=label,
-                  subtitle=f"Preferences ▸ {tab_title}",
+                  subtitle=SUBTITLE_PREFERENCE.format(tab=tab_title),
                   description=tip,
-                  payload={"tab": object_name, "label": label})
+                  payload={"tab": object_name, "label": label},
+                  subtitle_source=SUBTITLE_PREFERENCE,
+                  subtitle_values=(("tab", tab_title),))
         for label, tab_title, object_name, tip in PREFERENCE_ENTRIES
         if _tab_exists(object_name)
     ]

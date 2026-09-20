@@ -69,3 +69,29 @@ times in one result list, once per setting it reads. Folding the consumer
 information INTO the API row — one row per symbol, its subtitle saying which
 settings it reads — is both shorter and the thing the instruction asked for,
 since the row is still findable by the name of any setting it consumes.
+
+## The per-kind cap clips "one row per module", for two settings
+
+Review of 2026-09-19. `PER_KIND_LIMIT = 8` keeps 10,326 API symbols from
+crowding out 39 modules, and it also silently clips the maintainer's answer
+to the instruction's open question — one result row per module where a
+setting appears. Measured over the 767 (module, setting) pairs in this tree,
+exactly two settings have more module rows than the cap: `src`, which 36
+modules take and which is offered for 8 of them, and `verbose`, 8 of 10.
+Every other setting appears in six modules or fewer and is answered in full.
+
+The list does not say it is clipped, which is the part worth fixing: a search
+result is believed, and an absent module row is believed too. The fix is a
+row reading "and 28 more", which is a new user-visible string in nine
+catalogs, so it is written down rather than half-built.
+
+## The index is a snapshot, in both directions
+
+`_tab_exists` asks `theme.spaceout_enabled()` and `_visible_apps` asks
+`app_is_visible`, both once, while the index is built — and the index is
+built once a session. Turning the fractal backdrop on mid-session therefore
+does not make its 13 preference rows findable until the next launch, and
+turning it off leaves 13 rows whose page has gone. The second is why
+`help_search._open_preference` reports what `show_preferences_on` actually
+did: a stale row that finds nothing is a gap, and a stale row that claims to
+have landed is a lie.

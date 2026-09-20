@@ -192,3 +192,238 @@ def test_every_preference_row_says_what_it_does():
     assert missing == []
     for _label, _title, object_name, _tip in PREFERENCE_ENTRIES:
         assert object_name.startswith("PreferencesTab"), object_name
+
+
+def test_every_word_the_index_writes_itself_can_be_translated():
+    """A result list in English inside a Korean window is a half-built feature.
+
+    Most of what a row shows is a NAME -- a setting key, a dotted symbol, a
+    module caption -- and names are not translated. The rest is chrome this
+    module writes: "Module" on 39 rows, "API reference" on more than ten
+    thousand. Chrome has to carry the English template it was built from, so
+    the row can be rendered in the reader's language when it is drawn.
+    """
+    from spacr.qt.help_index import (
+        DESCRIPTION_READS, SUBTITLE_API, SUBTITLE_MODULE, SUBTITLE_PREFERENCE,
+        rendered_description, rendered_subtitle,
+    )
+
+    own = (SUBTITLE_MODULE, SUBTITLE_API, SUBTITLE_PREFERENCE.split("{")[0],
+           DESCRIPTION_READS.split("{")[0])
+    entries = build_index()
+    assert len(entries) > 1000
+    untranslatable = [
+        e for e in entries
+        if any(word in e.subtitle for word in own) and not e.subtitle_source
+    ]
+    assert untranslatable == [], [e.subtitle for e in untranslatable[:5]]
+
+    def stub(text, **values):
+        rendered = f"<{text}>"
+        return rendered.format(**values) if values else rendered
+
+    for kind in ("module", "preference", "api"):
+        one = next(e for e in entries if e.kind == kind)
+        assert rendered_subtitle(one, stub).startswith("<"), kind
+        assert rendered_subtitle(one, None) == one.subtitle, kind
+        assert rendered_description(one, None) == one.description, kind
+
+
+def test_a_row_whose_translation_fails_is_still_a_row():
+    """The catalog is not allowed to take the result list down with it."""
+    from spacr.qt.help_index import (
+        SUBTITLE_PREFERENCE, rendered_description, rendered_subtitle,
+    )
+
+    row = HelpEntry(kind="preference", title="PNG resolution",
+                    subtitle="Preferences ▸ Figures",
+                    description="How large a saved figure is.",
+                    subtitle_source=SUBTITLE_PREFERENCE,
+                    subtitle_values=(("tab", "Figures"),))
+
+    def explode(_text, **_values):
+        raise RuntimeError("no catalog")
+
+    assert rendered_subtitle(row, explode) == "Preferences ▸ Figures"
+    assert rendered_description(row, explode) == "How large a saved figure is."
+
+    wrong = HelpEntry(kind="module", title="Mask", subtitle="Module",
+                      subtitle_source="{nobody} put this here")
+    assert rendered_subtitle(wrong, None) == "{nobody} put this here"
+    assert rendered_subtitle(
+        HelpEntry(kind="module", title="Mask", subtitle="Module",
+                  subtitle_source="{a} and {b}",
+                  subtitle_values=(("a", "one"),)), None) == "Module"
+
+
+def test_a_registry_that_will_not_answer_costs_only_the_rows_it_owns():
+    """The shipped providers' own guards, not a stand-in for them.
+
+    The guarantee the module claims is that a registry going wrong loses its
+    own rows and nothing else. The test above proves it for a provider
+    somebody registered; these are the four registries the shipped providers
+    read, each refused in turn.
+    """
+    from spacr.qt import help_index
+    from spacr.qt.screens import settings_model
+
+    def boom(*_a, **_k):
+        raise RuntimeError("the registry is not answering")
+
+    saved = {name: getattr(settings_model, name)
+             for name in ("get_tooltips", "get_categories",
+                          "resolve_default_settings", "categories_for_app")}
+    try:
+        for name in saved:
+            setattr(settings_model, name, boom)
+        assert help_index.setting_entries() == []
+        setattr(settings_model, "resolve_default_settings",
+                saved["resolve_default_settings"])
+        rows = help_index.setting_entries()
+        assert rows, "the defaults answered, so there should be rows"
+        assert all(e.subtitle and "▸" not in e.subtitle for e in rows[:20])
+    finally:
+        for name, value in saved.items():
+            setattr(settings_model, name, value)
+
+
+def test_a_module_that_cannot_say_whether_it_is_visible_is_still_offered():
+    """Silence from the maturity filter is not a reason to hide a module."""
+    from spacr.qt import app as qt_app
+    from spacr.qt.help_index import module_entries
+
+    def boom(_key):
+        raise RuntimeError("no preference store here")
+
+    saved = qt_app.app_is_visible
+    try:
+        qt_app.app_is_visible = boom
+        rows = module_entries()
+    finally:
+        qt_app.app_is_visible = saved
+    assert len(rows) == len(qt_app.APPS)
+
+
+def test_the_generated_tables_being_absent_is_survivable(monkeypatch):
+    """A tree where the generator has not run yet still opens.
+
+    ``help_api_index`` is generated, so it can be missing in a checkout that
+    has not built it. The three providers that read it answer with no rows
+    instead of stopping the window.
+    """
+    import sys
+
+    from spacr.qt import help_index
+
+    monkeypatch.setitem(sys.modules, "spacr.qt.help_api_index", None)
+    assert help_index.api_entries() == []
+    assert help_index.preference_entries() == []
+    assert help_index._settings_each_symbol_reads() == {}
+
+
+def test_a_symbol_only_the_consumer_table_knows_is_offered_anyway():
+    """A function that reads a setting but is not in the published manifest.
+
+    It is still the answer to "what reads this setting", so it gets a row of
+    its own, built from the consumer table alone.
+    """
+    from spacr.qt import help_index
+
+    saved = help_index._settings_each_symbol_reads
+    try:
+        help_index._settings_each_symbol_reads = lambda: {
+            "spacr.nowhere.invented": ["cell_diameter", "cell_min_size"],
+        }
+        rows = help_index.api_entries()
+    finally:
+        help_index._settings_each_symbol_reads = saved
+    invented = [e for e in rows if e.title == "spacr.nowhere.invented"]
+    assert len(invented) == 1
+    row = invented[0]
+    assert row.subtitle.endswith("cell_diameter, cell_min_size")
+    assert row.description == "Reads cell_diameter, cell_min_size."
+    assert row.payload["reads"] == "cell_diameter cell_min_size"
+
+
+def test_a_tab_that_cannot_be_asked_about_is_not_offered():
+    """A preference row whose page might not exist is the kind's dead link.
+
+    The Fractal page is built only while that backdrop is on. If the answer
+    cannot be got at all, the rows stay out: offering a row that opens
+    Preferences and then cannot find its own tab is worse than not offering
+    it.
+    """
+    from spacr.qt import help_index, theme
+
+    assert help_index._tab_exists("PreferencesTabGeneral") is True
+    saved = theme.spaceout_enabled
+    try:
+        theme.spaceout_enabled = lambda: True
+        assert help_index._tab_exists("PreferencesTabFractal") is True
+        theme.spaceout_enabled = lambda: False
+        assert help_index._tab_exists("PreferencesTabFractal") is False
+
+        def boom():
+            raise RuntimeError("no theme store")
+
+        theme.spaceout_enabled = boom
+        assert help_index._tab_exists("PreferencesTabFractal") is False
+    finally:
+        theme.spaceout_enabled = saved
+
+
+def test_an_empty_query_matches_nothing_and_an_entry_knows_its_own_haystack():
+    """The two edges of the matcher, which every other test types past."""
+    from spacr.qt.help_index import _subsequence_span
+
+    one = entry(kind="setting", title="cell_diameter", subtitle="Mask ▸ Cells",
+                description="How wide a cell is.")
+    assert one.haystack == (
+        "cell_diameter\nmask ▸ cells\nhow wide a cell is.")
+    assert search([one], "   ") == []
+    assert _subsequence_span("", "cell_diameter") == 0
+
+
+def test_every_band_of_the_ranking_is_a_band():
+    """The five bands, each shown by a query that lands in it and no other.
+
+    The ordering between them is the difference between a search box and a
+    lottery, and a band nothing exercises is a band nobody would notice
+    breaking.
+    """
+    from spacr.qt.help_index import _term_score
+
+    key = entry(kind="setting", title="cell_diameter",
+                subtitle="Mask ▸ Cells", description="How wide a cell is.")
+    dotted = entry(kind="api", title="spacr.core.preprocess_generate_masks")
+    assert _term_score("cell_diameter", key) == 100.0
+    assert _term_score("diameter", key) == 80.0
+    assert _term_score("masks", dotted) == 80.0
+    assert 60.0 < _term_score("cell_d", key) < 70.0
+    assert 50.0 < _term_score("preproc", dotted) < 60.0
+    assert _term_score("iamet", key) == 40.0
+    assert _term_score("cldmt", key) is not None
+    assert _term_score("wide", key) == 10.0
+    assert _term_score("umap", key) is None
+
+    far = entry(kind="api", title="a" + "x" * 30 + "bc")
+    assert _term_score("abc", far) is None, "the fuzzy band has no ceiling"
+
+
+def test_the_list_stops_at_the_limit_and_skips_a_hidden_module():
+    """Two ends of what the user is handed: how many rows, and whose."""
+    from spacr.qt import app as qt_app
+    from spacr.qt.help_index import module_entries
+
+    rows = [entry(kind="api", title=f"spacr.core.thing_{n}") for n in range(9)]
+    assert len(search(rows, "thing", limit=3, per_kind=None)) == 3
+
+    hidden = qt_app.APPS[0][0]
+    saved = qt_app.app_is_visible
+    try:
+        qt_app.app_is_visible = lambda key: key != hidden
+        offered = module_entries()
+    finally:
+        qt_app.app_is_visible = saved
+    assert len(offered) == len(qt_app.APPS) - 1
+    assert hidden not in [e.payload["app"] for e in offered]
