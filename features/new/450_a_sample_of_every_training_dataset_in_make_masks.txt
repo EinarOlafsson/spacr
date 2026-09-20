@@ -1,0 +1,86 @@
+================================================================================
+A SAMPLE OF EVERY TRAINING DATASET, PICKABLE IN MAKE MASKS
+================================================================================
+
+Status:    BUILT 2026-09-20, the day it was asked for. Five datasets wired, all
+           five verified against the live Hugging Face repositories. NOT DONE:
+           the nine-language catalogs owe the button caption, its tooltip, the
+           dialog's title and blurb, and four status sentences.
+
+Requested: 2026-09-20 -- "for the generate masks modular, there should be
+           multiple datasets for the user to choose from, a small sample of
+           each dataset a model is trained on where I have the data on my
+           huggingface. Please wire those in"
+
+Owner:     Claude (spacr/qt/make_masks_datasets.py, one hook in
+           spacr/qt/screens/make_masks.py).
+
+--------------------------------------------------------------------------------
+WHAT IT IS FOR
+--------------------------------------------------------------------------------
+
+Item 412 gave Make Masks one button and one dataset: ten Toxoplasma vacuole
+fields. Every other published model was ALSO trained on a dataset that is
+already on Hugging Face, and there was no way to look at any of them without
+knowing a repository name and writing a download by hand. A user who wants to
+know what a model was taught should be able to open ten of its fields.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+  spacr/qt/make_masks_datasets.py   new module
+      MASK_DATASETS       five entries: the PV set, the plaque set and the
+                          three cross-channel sets, each with its repo, its
+                          TWO folder names, the model it trained and a note
+      choose_sample       pairs images to masks BY STEM and takes the first
+                          ten sorted
+      _SampleWorker       fetches a sample file by file, off the GUI thread,
+                          with the same signal shape as the archive worker so
+                          the existing progress dialog drives it unchanged
+      DatasetPicker       the list, two lines per row
+      open_a_training_dataset   cached sample opens at once; otherwise fetch
+                          then open, with both steps injectable for tests
+      install_dataset_button    "Training datasets…", beside item 412's button
+
+  spacr/qt/screens/make_masks.py    two lines in the navigation row
+
+--------------------------------------------------------------------------------
+FOUR DECISIONS, EACH WITH ITS REASON
+--------------------------------------------------------------------------------
+
+NO NEW REPOSITORIES AND NO ARCHIVES. 412's set is purpose-built with a single
+tar. These are not: 556 to 6,062 files of images/ and masks/, and nobody
+downloads 3,029 fields to look at ten. Each sample is fetched file by file.
+
+THE MASKS FOLDER IS NAMED PER DATASET, NOT ASSUMED.
+`cross-channel-toxoplasma-from-cellmask` calls its masks `masks_pv`. Assuming
+`masks` would have produced ten images, no labels, and NO ERROR to explain it
+-- a curator would have opened ten blank fields and concluded the model had
+learnt nothing. A test holds that one folder name on its own.
+
+THE FIRST TEN BY SORTED NAME, NOT A RANDOM DRAW. A sample that differs between
+two machines is a sample nobody can discuss: "the third field looks wrong" has
+to mean the same field for both people. A test reverses the repository listing
+and requires the same ten.
+
+IT OPENS FOR EDITING, WITH THE PUBLISHED MASKS AS DRAFTS -- images at the top
+of the folder, masks in `masks/` beneath, the nested layout Make Masks reads
+and the maintainer's rule of 2026-09-20. This is deliberately unlike 412's
+set, which hides its truth in `ground_truth_masks/` so fields open raw. The
+two answer different questions: 412 is "try segmenting this", and this is
+"look at what the model was taught". Both buttons stay, and a test says so.
+
+WHAT IS DELIBERATELY ABSENT: `toxoplasma-plaque-well-detector-dataset`. Its
+`labels/` are YOLO bounding boxes. A box is not a mask and Make Masks would
+open every field blank.
+
+--------------------------------------------------------------------------------
+MEASURED
+--------------------------------------------------------------------------------
+
+Eleven tests, none of which touch the network -- the picker and the fetch are
+both injectable, because a test that needs Hugging Face is a test that fails on
+a train. Separately, and because a selector that is right in a fixture can
+still be wrong against the real thing, `choose_sample` was run against the LIVE
+repository listings for all five: ten pairs each, `masks_pv` included.

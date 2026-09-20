@@ -5018,6 +5018,8 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._btn_open)
         from ..make_masks_demo import install_test_data_button
         nav_row.addWidget(install_test_data_button(self))
+        from ..make_masks_datasets import install_dataset_button
+        nav_row.addWidget(install_dataset_button(self))
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
