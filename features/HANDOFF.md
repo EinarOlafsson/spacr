@@ -578,6 +578,34 @@ None is blocking anything else.
 
 ## 3. Traps
 
+### 3.001. THE CAP IS FOR EVERY PYTHON YOU START, NOT ONLY FOR TESTS
+
+**2026-09-20, 15:46:13.** The kernel killed a python at **118,664,308 kB of
+anonymous RSS -- 113 GiB** on a 125 GB machine, and VS Code went with it.
+This is the third time this failure has cost this project a session; the
+`run_capped.sh` header records the first two.
+
+READ THE `task_memcg` FIELD WHEN IT HAPPENS AGAIN. The kill line names it:
+
+    task_memcg=/user.slice/.../app.slice/app-code-3704.scope, task=python
+
+`app-code-<pid>.scope` is VS Code's own scope -- which means the process was
+**outside every memory cgroup**, so it was NOT started through
+`tools/run_capped.sh`. A process started through it dies inside its own
+scope at its own limit and nothing else on the machine notices. That one
+field tells you, in one line, whether the guard was used.
+
+THE RULE AS WRITTEN WAS TOO NARROW. Section 6 and the protocol both say
+every TEST goes through the cap. A dataset builder, a benchmark, a probe, a
+one-off script that loads arrays -- none of those is a test, and all of them
+can do this. **Everything you start that is python goes through
+`tools/run_capped.sh`, whatever it is for**, including anything you put in
+the background and stop watching.
+
+AND SIZE THE CAP TO THE JOB. `4G` for a script that handles one field at a
+time is not a guess, it is a statement about what the job needs; a cap of
+`12G` on something that should use 200 MB is a cap that will never fire.
+
 ### 3.00. THE NAS CAN HANG A WHOLE SESSION, AND `timeout` DOES NOT SAVE YOU
 
 **Set 2026-09-20, after a session stopped responding and the maintainer had

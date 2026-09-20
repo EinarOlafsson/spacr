@@ -1,5 +1,14 @@
 289 — The setting NAME is the hover target, throughout
 
+Status:    DONE. The file's own last line has said "289 IS DONE" since the
+           re-measurement below, but the file carried no Status line at all,
+           so every reader and every survey counted it open. Re-measured
+           across the whole registry: 45 screens, and ZERO screens with a
+           labelled row whose help is on the field. The field help that
+           remains is on widgets with no separate name to hover -- buttons
+           and self-captioned toggles -- where hovering the widget IS
+           hovering its name, which is what was asked for.
+
 Asked repeatedly, most recently 2026-08-28: "in all settings i dont know how
 many times i have said this, when the mouse hovers over the settings name the
 tooltip should appear not when the tooltip is hovered above the field the
