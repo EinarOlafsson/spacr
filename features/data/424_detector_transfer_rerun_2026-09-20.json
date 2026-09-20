@@ -8,7 +8,7 @@
   "sha256_identical": 182
  },
  "harness": "tools/measure_plaque_detector_transfer.py",
- "labelled_by": "One reader, from the per-model overlays, 2026-09-20. EVERY figure on which v2 drew a box was looked at; v1's boxes were NOT judged box by box and only its counts are reported here. The region counts are the 2026-09-19 reader's and are reused unchanged, which is what makes this a rerun of the boxes rather than a fresh measurement.",
+ "labelled_by": "One reader, from the per-model overlays, 2026-09-20. Every figure on which v2 drew a box was looked at: the 17 region-bearing ones, the 7 region-bearing ones it did not box, and -- added 2026-09-20 after review pointed out that the first version of this record had only COUNTED them -- the 4 figures with no region that it boxed anyway, listed under v2_false_box_figures_inspected. v1's boxes were NOT judged box by box and only its counts are reported here, so any v1 recall quoted from this file is an upper bound. The region counts are the 2026-09-19 reader's and are reused unchanged, which is what makes this a rerun of the boxes rather than a fresh measurement.",
  "excluded": {
   "reason": "every PMC article in the v4 detector's published split may not be sampled",
   "source": "einarolafsson/toxoplasma-plaque-well-detector-yolo26 training/split.csv",
@@ -9480,5 +9480,40 @@
     }
    }
   }
+ },
+ "v2_false_box_figures_inspected": {
+  "why": "The 15 v2 boxes on figures with no labelled region. They were already counted as false and the precision of 0.838 does not change; what changes is what may be said about WHICH objects a literature pipeline has to reject.",
+  "inspected": "2026-09-20",
+  "figures": [
+   {
+    "key": "PMC13028617__microorganisms-14-00645-g004.jpg",
+    "arm": "A_open_access_plaque_assays",
+    "v2_boxes": 10,
+    "what_the_boxes_are_on": "All 10 boxes on Listeria motility agar plates in panel A; nothing on the bar chart in panel B. Round dish with a diffuse central zone -- the object the withdrawn run faulted v1 for."
+   },
+   {
+    "key": "PMC13309054__pntd.0014454.g002.jpg",
+    "arm": "B_toxoplasma_only",
+    "v2_boxes": 2,
+    "what_the_boxes_are_on": "Two boxes, each framing a whole electron micrograph of a single bacterium."
+   },
+   {
+    "key": "PMC13464350__mbio.01284-26.f005.jpg",
+    "arm": "A_open_access_plaque_assays",
+    "v2_boxes": 2,
+    "what_the_boxes_are_on": "Two boxes on brightfield monolayer panels in panel D; nothing on the gels in panel E or the five bar charts."
+   },
+   {
+    "key": "PMC13294430__40635_2026_935_Fig3_HTML.webp",
+    "arm": "B_toxoplasma_only",
+    "v2_boxes": 1,
+    "what_the_boxes_are_on": "One box inside a schematic flowchart, around one of its rounded boxes. The only one of the 15 with no image in it."
+   }
+  ],
+  "total_boxes": 15
+ },
+ "imgsz": {
+  "this_file": 640,
+  "compared_with": "features/data/424_imgsz_sweep_2026-09-20.json"
  }
 }

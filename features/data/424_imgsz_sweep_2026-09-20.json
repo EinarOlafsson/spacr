@@ -1,0 +1,348 @@
+{
+ "measured": "2026-09-20",
+ "what_this_is": "Step 2 of the plan in 424's resolution section: try a larger inference size while relabelling. Same corpus, same two checkpoints, same confidence, same BGR conversion as features/data/424_detector_transfer_rerun_2026-09-20.json; the only change is imgsz 640 -> 1280. Detect was rerun twice at 1280 and gave identical counts, and rerunning the 640 arm B through the changed harness reproduced 9 and 68 exactly.",
+ "companion": "features/data/424_detector_transfer_rerun_2026-09-20.json",
+ "harness": "tools/measure_plaque_detector_transfer.py",
+ "what_was_judged_by_eye": "Every figure whose v2 box count changed was opened at 1280 and is described below. A per-region recall at 1280 was NOT recomputed: the 2026-09-19 reader recorded region counts and not geometry, and at 1280 v2 boxes individual dilution spots where the reader counted a strip of them as one region, so the two cannot be divided against each other honestly.",
+ "totals": {
+  "figures": 182,
+  "v2_boxes": {
+   "640": 148,
+   "1280": 194
+  },
+  "v1_boxes": {
+   "640": 371,
+   "1280": 383
+  },
+  "v2_false_boxes_on_the_158_figures_with_no_region": {
+   "640": 15,
+   "1280": 12
+  }
+ },
+ "runs": {
+  "A_open_access_plaque_assays": {
+   "conf": 0.25,
+   "imgsz": 1280,
+   "channel_order": "bgr",
+   "device": "cpu",
+   "shipped_min_axis_ratio": 0.7,
+   "spacr_from": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/wt-424b-plaques-from-papers/spacr/__init__.py",
+   "yolo_config_dir": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/424imgsz/A_open_access_plaque_assays/yolo-config",
+   "seconds": 23.1,
+   "models": {
+    "toxoplasma_well_detector_v1": {
+     "name": "yolo_welldetect_v3.pt",
+     "sha256": "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c"
+    },
+    "toxoplasma_well_detector_v2": {
+     "name": "yolo_welldetect_v4.pt",
+     "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7"
+    }
+   }
+  },
+  "B_toxoplasma_only": {
+   "conf": 0.25,
+   "imgsz": 1280,
+   "channel_order": "bgr",
+   "device": "cpu",
+   "shipped_min_axis_ratio": 0.7,
+   "spacr_from": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/wt-424b-plaques-from-papers/spacr/__init__.py",
+   "yolo_config_dir": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/424imgsz/B_toxoplasma_only/yolo-config",
+   "seconds": 10.6,
+   "models": {
+    "toxoplasma_well_detector_v1": {
+     "name": "yolo_welldetect_v3.pt",
+     "sha256": "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c"
+    },
+    "toxoplasma_well_detector_v2": {
+     "name": "yolo_welldetect_v4.pt",
+     "sha256": "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7"
+    }
+   }
+  }
+ },
+ "figures_whose_v2_count_changed": [
+  {
+   "key": "PMC12930041__fx1.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": false,
+   "wells": 0,
+   "crops": 0,
+   "v2_boxes_640": 0,
+   "v2_boxes_1280": 1,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 1,
+   "looked_at_1280": "0 -> 1, FALSE. A cartoon virion in a graphical abstract. This is the withdrawn run's cartoon-virion worry, alive for v2 at 1280."
+  },
+  {
+   "key": "PMC13279940__41467_2026_72155_Fig1_HTML.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 30,
+   "v2_boxes_640": 0,
+   "v2_boxes_1280": 29,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 1,
+   "looked_at_1280": "0 -> 29. Every box is on a dilution spot inside a phage lawn strip; about nine of the strips in panels b and c carry at least one box, counted by clustering the box centres into bands and checking that against the overlay. Nothing on the gene-map cartoon in panel a or the protein gel in panel d."
+  },
+  {
+   "key": "PMC13279940__41467_2026_72155_Fig2_HTML.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 8,
+   "v2_boxes_640": 0,
+   "v2_boxes_1280": 14,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 1,
+   "looked_at_1280": "0 -> 14. Boxes on the dilution spots of about four of the eight lawn strips, in panels c and e. Nothing on the ribbon structures in a, b and d."
+  },
+  {
+   "key": "PMC13279940__41467_2026_72155_Fig3_HTML.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 5,
+   "v2_boxes_640": 0,
+   "v2_boxes_1280": 11,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 8,
+   "looked_at_1280": "0 -> 11. Boxes on four of the five lawn strips in panel c. Nothing on the structures in a or b."
+  },
+  {
+   "key": "PMC13279940__41467_2026_72155_Fig4_HTML.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 6,
+   "v2_boxes_640": 15,
+   "v2_boxes_1280": 16,
+   "v1_boxes_640": 16,
+   "v1_boxes_1280": 16,
+   "looked_at_1280": "15 -> 16. Same six large-round-spot rows found, more duplicates: v2 boxes individual spots and the reader counted the row. Nothing on the structures in a and c or the sequence logos in b."
+  },
+  {
+   "key": "PMC13294430__40635_2026_935_Fig3_HTML.webp",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": false,
+   "wells": 0,
+   "crops": 0,
+   "v2_boxes_640": 1,
+   "v2_boxes_1280": 0,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0,
+   "looked_at_1280": "1 -> 0. The false box inside a schematic flowchart is gone."
+  },
+  {
+   "key": "PMC13309054__pntd.0014454.g002.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": false,
+   "wells": 0,
+   "crops": 0,
+   "v2_boxes_640": 2,
+   "v2_boxes_1280": 1,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 2,
+   "looked_at_1280": "2 -> 1, still FALSE. One whole-electron-micrograph box remains."
+  },
+  {
+   "key": "PMC13309054__pntd.0014454.g003.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 5,
+   "v2_boxes_640": 1,
+   "v2_boxes_1280": 0,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0,
+   "looked_at_1280": "1 -> 0. The one correct box on the dense stained monolayer fields is lost."
+  },
+  {
+   "key": "PMC13464350__mbio.01284-26.f005.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": false,
+   "wells": 0,
+   "crops": 0,
+   "v2_boxes_640": 2,
+   "v2_boxes_1280": 0,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0,
+   "looked_at_1280": "2 -> 0. Both false boxes on the brightfield monolayer panels of panel D are gone."
+  },
+  {
+   "key": "PMC9744290__ppat.1011009.g004.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 6,
+   "v2_boxes_640": 6,
+   "v2_boxes_1280": 5,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0,
+   "looked_at_1280": "6 -> 5. Five of panel G's six crops; the DiCre -Rapamycin panel is lost. Nothing on the gels in B and D, the blots in C and E, the bar chart in F, the scatter in H or the line plot in I."
+  },
+  {
+   "key": "PMC9744290__ppat.1011009.g006.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 4,
+   "v2_boxes_640": 4,
+   "v2_boxes_1280": 2,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0,
+   "looked_at_1280": "4 -> 2. Only panel D's -Rapamycin row; both +Rapamycin crops, which are sparse and low contrast, are lost."
+  },
+  {
+   "key": "PMC9744290__ppat.1011009.g007.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "wells": 0,
+   "crops": 4,
+   "v2_boxes_640": 4,
+   "v2_boxes_1280": 2,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0,
+   "looked_at_1280": "4 -> 2. Only panel F's -ATc row; both +ATc crops are lost."
+  }
+ ],
+ "figures_whose_v2_count_did_not_change": [
+  {
+   "key": "PMC11414933__pbio.3002791.g001.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "v2_boxes": 4,
+   "v1_boxes_640": 4,
+   "v1_boxes_1280": 4
+  },
+  {
+   "key": "PMC12153296__mbio.00719-25.f001.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 2,
+   "v1_boxes_640": 2,
+   "v1_boxes_1280": 2
+  },
+  {
+   "key": "PMC13028617__microorganisms-14-00645-g004.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": false,
+   "v2_boxes": 10,
+   "v1_boxes_640": 10,
+   "v1_boxes_1280": 10
+  },
+  {
+   "key": "PMC13028617__microorganisms-14-00645-g005.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 6,
+   "v1_boxes_640": 6,
+   "v1_boxes_1280": 6
+  },
+  {
+   "key": "PMC13072701__TEMI_A_2657186_F0001_OC.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 4,
+   "v1_boxes_640": 4,
+   "v1_boxes_1280": 4
+  },
+  {
+   "key": "PMC13170237__mbio.03124-25.f001.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "v2_boxes": 4,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0
+  },
+  {
+   "key": "PMC13216507__fmicb-17-1828982-g001.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 0,
+   "v1_boxes_640": 1,
+   "v1_boxes_1280": 1
+  },
+  {
+   "key": "PMC13218526__pone.0348054.g001.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 0,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0
+  },
+  {
+   "key": "PMC13218526__pone.0348054.g004.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 0,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0
+  },
+  {
+   "key": "PMC13278376__jgv-107-02283-g002.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 3,
+   "v1_boxes_640": 3,
+   "v1_boxes_1280": 3
+  },
+  {
+   "key": "PMC13278376__jgv-107-02283-g008.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 0,
+   "v1_boxes_640": 271,
+   "v1_boxes_1280": 192
+  },
+  {
+   "key": "PMC13321789__aac.01960-25.f002.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 18,
+   "v1_boxes_640": 18,
+   "v1_boxes_1280": 18
+  },
+  {
+   "key": "PMC13403727__ADVS-9999-e76822-g007.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 4,
+   "v1_boxes_640": 4,
+   "v1_boxes_1280": 4
+  },
+  {
+   "key": "PMC13472536__jgv-107-02315-g003.jpg",
+   "arm": "A_open_access_plaque_assays",
+   "region_bearing": true,
+   "v2_boxes": 16,
+   "v1_boxes_640": 16,
+   "v1_boxes_1280": 16
+  },
+  {
+   "key": "PMC8809380__msphere.00793-21-f004.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "v2_boxes": 38,
+   "v1_boxes_640": 0,
+   "v1_boxes_1280": 0
+  },
+  {
+   "key": "PMC9744290__ppat.1011009.g002.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "v2_boxes": 2,
+   "v1_boxes_640": 2,
+   "v1_boxes_1280": 2
+  },
+  {
+   "key": "PMC9744290__ppat.1011009.g003.jpg",
+   "arm": "B_toxoplasma_only",
+   "region_bearing": true,
+   "v2_boxes": 2,
+   "v1_boxes_640": 2,
+   "v1_boxes_1280": 2
+  }
+ ]
+}
