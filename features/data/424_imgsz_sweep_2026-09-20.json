@@ -1,6 +1,6 @@
 {
  "measured": "2026-09-20",
- "what_this_is": "Step 2 of the plan in 424's resolution section: try a larger inference size while relabelling. Same corpus, same two checkpoints, same confidence, same BGR conversion as features/data/424_detector_transfer_rerun_2026-09-20.json; the only change is imgsz 640 -> 1280. Detect was rerun twice at 1280 and gave identical counts, and rerunning the 640 arm B through the changed harness reproduced 9 and 68 exactly.",
+ "what_this_is": "Step 2 of the plan in 424's resolution section: try a larger inference size while relabelling. Same corpus, same two checkpoints, same confidence, same BGR conversion as features/data/424_detector_transfer_rerun_2026-09-20.json; the only change is imgsz 640 -> 1280. Detect was rerun twice at 1280 and gave identical counts, and rerunning the 640 arm B through the changed harness reproduced 9 and 68 exactly. Rerun again after rebasing onto origin/nightly, where item 445 moved the BGR conversion into spacr.plaque.detect_wells: identical counts on that code too, which makes this a check on 445's refactor as well.",
  "companion": "features/data/424_detector_transfer_rerun_2026-09-20.json",
  "harness": "tools/measure_plaque_detector_transfer.py",
  "what_was_judged_by_eye": "Every figure whose v2 box count changed was opened at 1280 and is described below. A per-region recall at 1280 was NOT recomputed: the 2026-09-19 reader recorded region counts and not geometry, and at 1280 v2 boxes individual dilution spots where the reader counted a strip of them as one region, so the two cannot be divided against each other honestly.",
@@ -28,7 +28,7 @@
    "shipped_min_axis_ratio": 0.7,
    "spacr_from": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/wt-424b-plaques-from-papers/spacr/__init__.py",
    "yolo_config_dir": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/424imgsz/A_open_access_plaque_assays/yolo-config",
-   "seconds": 23.1,
+   "seconds": 22.5,
    "models": {
     "toxoplasma_well_detector_v1": {
      "name": "yolo_welldetect_v3.pt",
@@ -48,7 +48,7 @@
    "shipped_min_axis_ratio": 0.7,
    "spacr_from": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/wt-424b-plaques-from-papers/spacr/__init__.py",
    "yolo_config_dir": "/tmp/claude-1000/-mnt-firecuda2-Claude-repo/ca197812-8400-4175-ac04-477538c4a051/scratchpad/424imgsz/B_toxoplasma_only/yolo-config",
-   "seconds": 10.6,
+   "seconds": 11.2,
    "models": {
     "toxoplasma_well_detector_v1": {
      "name": "yolo_welldetect_v3.pt",

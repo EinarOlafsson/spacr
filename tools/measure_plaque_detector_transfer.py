@@ -659,7 +659,6 @@ def stage_detect(args: argparse.Namespace) -> None:
     import spacr
     import spacr.plaque as plaque
 
-
     figures = json.loads((root / "figures.json").read_text())["figures"]
     models = _detector_paths([m.strip() for m in args.models.split(",") if
                               m.strip()], root / "models")

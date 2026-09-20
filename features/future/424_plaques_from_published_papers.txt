@@ -50,8 +50,11 @@ Status:    NOT STARTED AS A MODULE, BUT ITS FIRST OPEN QUESTION IS NOW
            NEXT: the module itself; nothing below it has been built. The
            queued training round is STILL NOT JUSTIFIED -- it was written to
            cure a blindness that turns out not to exist, and imgsz reaches
-           much of it for free. See 445 for the same swap in the shipped
-           plate-splitting path, which is NOT fixed.
+           much of it for free. 445, which was the same swap in the shipped
+           plate-splitting path, LANDED on 2026-09-20 -- the conversion now
+           lives inside spacr.plaque.detect_wells, which takes RGB -- so the
+           sections below saying it is unfixed are history. This note's
+           numbers were reproduced on that code, unchanged, after rebasing.
 
 Shape:     The plaque module takes a DOI, a PMID or a PDF. It finds the figures,
            finds the plaque images inside them with the trained YOLO detector,
@@ -700,9 +703,13 @@ WHAT IS STILL OPEN
     purpose is still the right next measurement.
   * Scale, the two condition strategies and their conflict flag, dedup by DOI
     plus image hash, the database and the PDF text layer are all untouched.
-  * 445 IS UNTOUCHED: the shipped plate-splitting path still hands an RGB
-    array to the same detector. These numbers are the argument that it costs
-    real recall, but they were taken on figures and not on plate photographs.
+  * 445 WAS UNTOUCHED BY THIS UNIT AND HAS SINCE LANDED (d60894e1a, the same
+    day). The conversion moved INTO `spacr.plaque.detect_wells`, which now
+    takes RGB and converts, so the harness must hand it RGB and not convert.
+    That is a different code path from the one these numbers were taken on,
+    so they were taken again on it after the rebase: arm B at 640 gives 9 and
+    68 and both arms at 1280 give 372/134 and 11/60, identical box for box.
+    The measurement is therefore a check on 445's refactor as well.
 
 TWO THINGS THIS RUN GOT WRONG ABOUT ITS OWN TOOLING, RECORDED SO THEY COST
 NOBODY ELSE ANYTHING
