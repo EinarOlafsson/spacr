@@ -474,18 +474,26 @@ class EmbeddingsScreen(QWidget):
         self._on_path_changed()
 
     def _on_path_changed(self, *_args) -> None:
-        """Enable Load once a path exists, and read what the database offers.
+        """Enable Load once there is a path, and read what the database offers.
 
-        The read is a job like any other: a database on a slow mount takes
-        long enough to be felt, and this runs on every edit of the path box.
+        NOTHING HERE TOUCHES THE FILESYSTEM. Whether the path is there is a
+        stat, and a stat against a hung or unmounting network share blocks
+        for as long as the mount takes to give up -- on this thread, which
+        is the GUI one. This method runs on every edit of the path box and
+        again at the end of every load, when the user did nothing at all, so
+        the freeze would arrive unprompted.
+
+        So Load is offered for any non-empty path and the answer comes from
+        pressing it: :func:`spacr.crop_loader.plan_crops` names the path it
+        could not find, which is a better sentence than a greyed button, and
+        it says it from a worker thread.
         """
         path = str(self._path.text()).strip()
-        ready = bool(path) and os.path.exists(os.path.expanduser(path))
-        self._load.setEnabled(ready and not self._loading)
+        self._load.setEnabled(bool(path) and not self._loading)
         self._load.setToolTip(
-            "Read these crops" if ready
+            "Read these crops" if path
             else "Choose a database or a folder first")
-        if not ready or self.crop_source() != CROP_SOURCE_DATABASE:
+        if not path or self.crop_source() != CROP_SOURCE_DATABASE:
             return
         full = os.path.expanduser(path)
         if full == self._read_path:
@@ -502,9 +510,18 @@ class EmbeddingsScreen(QWidget):
         each time a load finishes is a pause nobody asked for.
         """
         def work():
-            """Ask the database what it holds. Two cheap indexed reads."""
+            """Ask the database what it holds. Two cheap indexed reads.
+
+            THE STAT IS HERE, on the worker, because it is the part that
+            blocks on a slow mount. A path that is not a file yet is not an
+            error -- it is one somebody is halfway through typing -- so it
+            answers with nothing to offer rather than raising, which would
+            put a refusal in the status line for every keystroke.
+            """
             from ...crop_loader import object_classes, plates
 
+            if not os.path.isfile(path):
+                return (), ()
             return object_classes(path), plates(path)
 
         def done(answer) -> None:
@@ -617,11 +634,22 @@ class EmbeddingsScreen(QWidget):
             self._on_source_changed()
 
     def _on_planned(self, plan) -> None:
-        """Say what matched, and start reading it -- or say why nothing did."""
+        """Say what matched, and start reading it -- or say why nothing did.
+
+        A STOP PRESSED DURING PLANNING IS HONOURED HERE. The plan job cannot
+        be interrupted -- it is one count and one select -- so a user who
+        presses Stop while it is in flight is answered when it returns, by
+        not starting the read at all. Submitting it anyway would read a page
+        and then refuse, which is slower and says the wrong thing.
+        """
         self._plan = plan
         if plan.is_empty:
             self._set_loading(False)
             self._refuse("No crops", plan.empty_reason)
+            return
+        if self._stop.is_set():
+            self._stopped(f"Loading {plan.describe()} was stopped before any "
+                          f"crop was read.")
             return
         self._status.setText(f"Loading {plan.describe()}…")
         self._state.say(f"Loading {plan.count:,} crops",
@@ -670,18 +698,28 @@ class EmbeddingsScreen(QWidget):
         """The long form: what was taken, out of what, and what was changed.
 
         Every clause here is a thing a reader would otherwise have to guess
-        at, and two of them change what the numbers mean: a capped load is a
-        subset of the plate, and a conformed crop has been padded or
-        trimmed.
+        at, and three of them change what the numbers mean: a capped load is
+        a subset of the plate, a dropped row is a crop that does not exist to
+        be loaded, and a conformed crop has been padded or trimmed.
+
+        THE CAP CLAUSE IS DRIVEN BY ``capped``, NOT BY ``loaded < matched``.
+        The two are not the same on the merged route, where rows that cannot
+        be cut leave ``loaded`` below ``matched`` with no limit involved, and
+        "raise 'At most' to take more" is then an instruction that returns
+        the same crops and prints the same sentence again.
         """
         loaded = int(record.get("loaded", 0))
         matched = int(record.get("matched", loaded))
+        dropped = int(record.get("dropped", 0))
         parts = [f"{loaded:,} crops loaded"]
         if record.get("stopped"):
             parts.append(f"stopped early; {matched:,} matched")
-        elif loaded < matched:
+        elif record.get("capped"):
             parts.append(f"the first of {matched:,} that matched — raise "
                          f"'At most' to take more")
+        if dropped:
+            parts.append(f"{dropped:,} more matched but could not be cut "
+                         f"from merged/*.npy")
         conformed = int(record.get("conformed", 0))
         if conformed:
             shape = record.get("crop_shape") or []
@@ -831,14 +869,33 @@ class EmbeddingsScreen(QWidget):
         the reader is concerned. A load that failed also has to put the
         controls back: leaving Load reading "Stop" after the job it would
         have stopped has already died is a button that does nothing.
+
+        A STOP IS NOT A FAILURE, and the one case that arrives here is a
+        stop taken before the first page finished -- the loader has no
+        crops to return and says so by raising. Heading that "Crops could
+        not be loaded" tells a user their machine refused the thing they
+        themselves just cancelled, so the stop is headed as a stop. It is
+        told apart by the flag the user set, not by the message.
         """
         text = str(message)
-        if self._loading:
+        if self._loading and self._stop.is_set():
+            self._stopped(text)
+        elif self._loading:
             self._set_loading(False)
             self._refuse("Crops could not be loaded", text)
         else:
             self._status.setText(text)
-        LOG.warning("embeddings job failed: %s", text)
+        LOG.warning("embeddings job ended: %s", text)
+
+    def _stopped(self, detail: str) -> None:
+        """Put the controls back after a stop, and head it as one.
+
+        Through :meth:`_refuse` for the body, because a stop unloads nothing
+        either: whatever was on the screen before is still there, still
+        encodable, and the panel has to say so.
+        """
+        self._set_loading(False)
+        self._refuse("Loading stopped", detail)
 
 
     def is_busy(self) -> bool:

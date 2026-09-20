@@ -280,6 +280,113 @@ def test_a_load_that_refused_puts_the_button_back(qtbot, tmp_path):
     assert screen._state.title() == "Crops could not be loaded"
 
 
+def test_a_stop_during_planning_is_headed_as_a_stop(qtbot, tmp_path):
+    """The user's own Stop must not come back as "could not be loaded".
+
+    Planning is one count and one select; it cannot be interrupted, so a
+    Stop pressed while it is in flight is answered when it returns. Before,
+    the load started anyway and then refused on the first page, and the
+    panel headed the user's own deliberate action as a failure of the
+    machine -- which sends somebody looking for a broken database.
+    """
+    db = _plate(tmp_path)
+    screen = _pointed_at(qtbot, db)
+    from spacr.crop_loader import plan_crops
+
+    screen._stop.clear()
+    screen._set_loading(True)
+    plan = plan_crops(screen.crop_query())
+    screen.stop_loading()
+    screen._on_planned(plan)
+
+    assert screen._state.title() == "Loading stopped"
+    assert "stopped" in screen._state.detail()
+    assert not screen.is_loading()
+    assert screen._load.text() == "Load crops"
+
+
+def test_a_stop_before_the_first_page_is_headed_as_a_stop(qtbot, tmp_path):
+    """The same, one step later: the loader raises when it read nothing.
+
+    A stop taken before the first page finishes leaves no crops to return,
+    so `load_crops` says so by raising, and that arrives on the failure
+    handler. It is told apart from a real refusal by the flag the USER set,
+    not by reading the message.
+    """
+    db = _plate(tmp_path)
+    screen = _pointed_at(qtbot, db)
+
+    screen._stop.clear()
+    screen._set_loading(True)
+    screen._stop.set()
+    screen._on_job_failed("loading cell crops was stopped before the first "
+                          "page finished, so there are no crops to show")
+
+    assert screen._state.title() == "Loading stopped"
+    assert not screen.is_loading()
+    assert screen._where.isEnabled()
+
+
+def test_a_dropped_row_does_not_tell_the_user_to_raise_the_limit(qtbot):
+    """"Raise 'At most'" is an instruction, and it has to work.
+
+    Rows the merged route cannot cut leave `loaded` below `matched` with no
+    limit anywhere near it. Printing the cap sentence there hands the reader
+    an action that returns the same crops and reprints the same sentence.
+    """
+    screen = _screen(qtbot)
+
+    capped = screen._loaded_sentence(
+        {"loaded": 4, "matched": 10, "selected": 4, "dropped": 0,
+         "capped": True, "source": "png crop source"})
+    complete = screen._loaded_sentence(
+        {"loaded": 7, "matched": 10, "selected": 10, "dropped": 3,
+         "capped": False, "source": "merged crop source"})
+
+    assert "raise" in capped
+    assert "raise" not in complete
+    assert "3 more matched but could not be cut" in complete
+
+
+def test_the_path_box_does_not_stat_on_the_gui_thread(qtbot, tmp_path,
+                                                      monkeypatch):
+    """A stat is a blocking call, and this one ran on the GUI thread.
+
+    It ran on every edit of the path box AND at the end of every load, when
+    the user had done nothing -- so a path pointing at a hung network mount
+    froze the window for as long as the mount took to time out, unprompted.
+    The check belongs on the worker that was already reading the database.
+
+    The job is caught rather than run, because unthreaded both halves are
+    one thread and the test could not otherwise tell them apart. What is
+    asserted is the split itself: nothing before the submit touches the
+    filesystem, and the caught job is what does.
+    """
+    import os.path as ospath
+
+    screen = _screen(qtbot)
+    submitted = []
+    monkeypatch.setattr(screen._jobs, "submit",
+                        lambda fn, on_done=None: submitted.append(fn) or True)
+
+    def explode(*_args, **_kwargs):
+        raise AssertionError("the GUI thread stat'ed the path")
+
+    missing = str(tmp_path / "on-a-hung-mount" / "measurements.db")
+    screen._path.setText(missing)
+    monkeypatch.setattr(ospath, "exists", explode)
+    monkeypatch.setattr(ospath, "isfile", explode)
+    try:
+        screen._on_path_changed()
+    finally:
+        monkeypatch.undo()
+
+    assert screen._load.isEnabled()
+    assert "Read these crops" in screen._load.toolTip()
+    assert submitted, "the database read was never handed to a worker"
+    assert submitted[0]() == ((), ())
+
+
 def test_the_query_the_controls_describe_is_the_one_that_runs(qtbot,
                                                               tmp_path):
     """The panel is testable without pressing anything, and the two agree."""

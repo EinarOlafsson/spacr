@@ -82,6 +82,63 @@ def _plate(tmp_path, plate_names=("plate1", "plate2"), per_plate=3,
     return str(db)
 
 
+def _merged_field(labels, height=96, width=112, channels=4, seed=0):
+    """A merged array: four intensity planes, then cell / nucleus / pathogen."""
+    rng = np.random.default_rng(seed)
+    data = rng.integers(1, 4000,
+                        size=(height, width, channels + 3)).astype(np.uint16)
+    for dim in (4, 5, 6):
+        data[:, :, dim] = 0
+    for index, label in enumerate(labels):
+        top = 4 + (index // 4) * 22
+        left = 4 + (index % 4) * 26
+        data[top:top + 18, left:left + 20, 4] = label
+        data[top + 3:top + 15, left + 3:left + 17, 5] = label
+        data[top + 5:top + 8, left + 5:left + 8, 6] = label
+    return data
+
+
+def _streaming_plate(tmp_path, per_field=5, unusable=2):
+    """A plate with NO pre-generated crops: merged/*.npy and a png_list.
+
+    ``unusable`` of the rows carry ``'omulti'`` -- a crop overlapping several
+    objects, which cannot be cut from one label, and which
+    :func:`spacr.png_list.crop_rows_from_png_list` therefore drops. That drop
+    is what a cap has to be told apart from, so it is produced here rather
+    than monkeypatched: a fake join proves the arithmetic and not the case.
+    """
+    root = tmp_path / "streamed"
+    (root / "merged").mkdir(parents=True, exist_ok=True)
+    (root / "measurements").mkdir(parents=True, exist_ok=True)
+    db = str(root / "measurements" / "measurements.db")
+    labels = list(range(1, per_field + 1))
+    name = "plate1_A01_1"
+    npy = str(root / "merged" / f"{name}.npy")
+    np.save(npy, _merged_field(labels))
+
+    cell_rows, png_rows = [], []
+    for index, label in enumerate(labels):
+        cell_rows.append((label, "plate1", "A", "01", "1", npy,
+                          f"{name}.npy"))
+        object_id = "omulti" if index < unusable else f"o{label}"
+        png_rows.append((str(root / "data" / f"{name}_{label}.png"),
+                         f"{name}_{label}.png", "plate1", "A", "01", "1",
+                         object_id, float(100 * label)))
+    conn = sqlite3.connect(db)
+    conn.execute(
+        "CREATE TABLE cell (object_label INTEGER, plateID TEXT, rowID TEXT,"
+        " columnID TEXT, fieldID TEXT, path_name TEXT, file_name TEXT)")
+    conn.executemany("INSERT INTO cell VALUES (?,?,?,?,?,?,?)", cell_rows)
+    conn.execute(
+        "CREATE TABLE png_list (png_path TEXT, file_name TEXT, plateID TEXT,"
+        " rowID TEXT, columnID TEXT, fieldID TEXT, cell_id TEXT,"
+        " cell_area REAL)")
+    conn.executemany("INSERT INTO png_list VALUES (?,?,?,?,?,?,?,?)", png_rows)
+    conn.commit()
+    conn.close()
+    return db
+
+
 def test_planning_reads_no_pixels(tmp_path, monkeypatch):
     """The claim the whole design rests on, asserted rather than assumed.
 
@@ -172,6 +229,84 @@ def test_a_cap_is_reported_rather_than_applied_silently(tmp_path):
     assert record["capped"] is True
     assert record["matched"] == 10
     assert record["loaded"] == 4
+
+
+def test_a_row_that_cannot_be_cut_is_not_reported_as_a_cap(tmp_path):
+    """A COMPLETE ANSWER MUST NOT READ AS A SUBSET.
+
+    Two different things remove rows. The limit holds crops back, and
+    raising it returns them. The merged route's join drops rows that cannot
+    be cut at all -- 'omulti', 'onone', no merged array recorded -- and no
+    limit will ever bring those back.
+
+    Reporting the second as the first is the inverse of the failure the cap
+    exists to prevent: instead of a subset that looks like the whole plate,
+    the whole plate looks like a subset, and the screen tells the user to
+    raise 'At most', which returns the same crops and prints the same
+    sentence again.
+    """
+    db = _streaming_plate(tmp_path, per_field=5, unusable=2)
+
+    plan = plan_crops(CropQuery(path=db, limit=2000, prefer="merged"))
+
+    assert plan.matched == 5
+    assert plan.selected == 5
+    assert plan.count == 3
+    assert plan.dropped == 2
+    assert not plan.capped
+    assert "first" not in plan.describe()
+    assert "2 cannot be cut" in plan.describe()
+
+    record = {}
+    load_crops(plan, record=record)
+    assert record["capped"] is False
+    assert record["dropped"] == 2
+    assert record["matched"] == 5
+    assert record["selected"] == 5
+    assert record["loaded"] == 3
+
+
+def test_one_unusable_row_does_not_take_down_the_whole_merged_load(tmp_path):
+    """The rows that CAN be cut are cut, even when a sibling could not be.
+
+    The join writes `None` for every row it is about to drop, which makes
+    the whole `object_label` column float64. The survivors then carry `3.0`
+    where they carried `3`, and `spacr.crops.object_label` refuses a float
+    -- `int('3.0')` raises -- so a single 'omulti' anywhere in the selection
+    failed the entire load with a message about a label that was fine.
+
+    A plate with no overlapping crops at all is the one case that never sees
+    this, which is why it took a fixture with an 'omulti' in it to find.
+    """
+    db = _streaming_plate(tmp_path, per_field=5, unusable=2)
+    plan = plan_crops(CropQuery(path=db, prefer="merged"))
+
+    assert all(isinstance(row["object_label"], int) for row in plan.rows)
+
+    crops = load_crops(plan)
+
+    assert crops.shape[0] == 3
+
+
+def test_a_cap_and_a_dropped_row_are_counted_separately(tmp_path):
+    """Both at once, and each still says what it is.
+
+    The limit takes four of five; the join then drops the two of those four
+    that cannot be cut. The load is capped -- raising 'At most' really does
+    return more -- AND it lost rows, and merging the two into one number
+    hides whichever the reader needed.
+    """
+    db = _streaming_plate(tmp_path, per_field=5, unusable=2)
+
+    plan = plan_crops(CropQuery(path=db, limit=4, prefer="merged"))
+
+    assert plan.matched == 5
+    assert plan.selected == 4
+    assert plan.count == 2
+    assert plan.capped
+    assert plan.dropped == 2
+    assert "the first 2 of 5" in plan.describe()
+    assert "2 cannot be cut" in plan.describe()
 
 
 def test_a_load_stops_between_pages_and_keeps_what_it_read(tmp_path):
@@ -458,31 +593,68 @@ def test_loading_an_empty_plan_raises_with_the_reason_it_carries(tmp_path):
         load_crops(plan)
 
 
-def test_the_console_is_not_flooded_by_a_bulk_load(tmp_path):
+def test_the_console_is_not_flooded_by_a_bulk_load(tmp_path, capsys):
     """`spacr.crops` announces every crop path, once per path, by default.
 
     Right for one crop that failed to open; wrong for sixty thousand, which
     in the app are sixty thousand appends to a console widget on the GUI
-    thread. It is turned off for the duration of a load and put back
-    exactly as it was.
+    thread. So a load prints none of them -- measured on what actually
+    reached stdout, not on the state of the flag that suppresses it.
     """
     import spacr.crops as crops
 
     db = _plate(tmp_path)
     was = crops.PRINT_CROP_PATHS
-    seen = []
+    crops.forget_announced_crops()
     plan = plan_crops(CropQuery(path=db, page_size=2))
 
-    def watch(done, total):
-        seen.append(crops.PRINT_CROP_PATHS)
+    capsys.readouterr()
+    load_crops(plan)
+    printed = capsys.readouterr().out
 
+    assert "crop: " not in printed
+    assert crops.PRINT_CROP_PATHS is was
+
+
+def test_a_bulk_load_does_not_silence_another_thread(tmp_path):
+    """The quiet belongs to the load, not to the process.
+
+    `PRINT_CROP_PATHS` is one switch for the whole process, and a load that
+    cleared it silenced whatever else was reading crops beside it -- another
+    screen in the app, for the minutes a plate on a network mount takes.
+    That screen then loses its "<- NOT ON DISK" line, which is the only
+    reason the flag defaults to on, and a missing crop there reads as a
+    silent success.
+    """
+    import threading
+
+    import spacr.crops as crops
+
+    db = _plate(tmp_path)
+    plan = plan_crops(CropQuery(path=db, page_size=2))
+    seen = []
+    inside = threading.Event()
+    checked = threading.Event()
+
+    def other_thread():
+        """What a second reader sees while the load holds the quiet."""
+        inside.wait(5)
+        seen.append(crops.PRINT_CROP_PATHS)
+        seen.append(getattr(crops._QUIET_CROP_PATHS, "on", False))
+        checked.set()
+
+    def watch(done, total):
+        inside.set()
+        checked.wait(5)
+
+    watcher = threading.Thread(target=other_thread)
+    watcher.start()
     try:
         load_crops(plan, progress=watch)
     finally:
-        crops.say_crop_paths(was)
+        watcher.join(5)
 
-    assert seen and not any(seen)
-    assert crops.PRINT_CROP_PATHS is was
+    assert seen == [True, False]
 
 
 def test_a_record_is_json_serialisable(tmp_path):

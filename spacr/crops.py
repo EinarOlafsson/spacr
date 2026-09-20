@@ -76,8 +76,10 @@ import re
 import sqlite3
 import sys
 import tempfile
+import threading
 import time
 from collections import OrderedDict
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from dataclasses import field as _dc_field
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union, cast
@@ -3026,10 +3028,42 @@ PRINT_CROP_PATHS = True
 _ANNOUNCED_CROPS: set = set()
 
 
+#: Per-thread suppression of the announcements, set by
+#: :func:`quiet_crop_paths` and read by :func:`_say_which_crop`.
+_QUIET_CROP_PATHS = threading.local()
+
+
 def say_crop_paths(on: bool = True) -> None:
-    """Turn the per-crop path printing on or off."""
+    """Turn the per-crop path printing on or off, for the whole process."""
     global PRINT_CROP_PATHS
     PRINT_CROP_PATHS = bool(on)
+
+
+@contextmanager
+def quiet_crop_paths():
+    """Silence the per-crop announcements on the CALLING THREAD only.
+
+    :data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk
+    reader that turns it off around its own work turns it off for every
+    other reader running at the same time -- in the app, for whichever
+    screen is reading crops in another thread, which then loses the
+    ``<- NOT ON DISK`` line that is the only reason the flag defaults to on.
+    A missing crop there reads as a silent success until the bulk read
+    finishes and puts the flag back.
+
+    So a reader that wants quiet asks for quiet here instead: the
+    suppression is thread-local, the global flag is left exactly as it was,
+    and a concurrent reader on another thread keeps its diagnostics.
+
+    :returns: a context manager. Restores the previous state on the way out,
+        including when the body raises, and nests.
+    """
+    was = getattr(_QUIET_CROP_PATHS, "on", False)
+    _QUIET_CROP_PATHS.on = True
+    try:
+        yield
+    finally:
+        _QUIET_CROP_PATHS.on = was
 
 
 def forget_announced_crops() -> None:
@@ -3039,6 +3073,8 @@ def forget_announced_crops() -> None:
 
 def _say_which_crop(path: str) -> None:
     """Print the crop being opened, once per path."""
+    if getattr(_QUIET_CROP_PATHS, "on", False):
+        return
     if not PRINT_CROP_PATHS or not path:
         return
     text = str(path)

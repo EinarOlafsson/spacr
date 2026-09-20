@@ -43,6 +43,15 @@ first two thousand happily. So :attr:`CropQuery.limit` is a real default and
 the plan says what it left behind -- "the first 2,000 of 61,433" -- rather
 than quietly returning a subset that looks like the whole plate.
 
+**AND A CAP IS NOT THE ONLY THING THAT REMOVES A ROW, SO IT IS COUNTED ON ITS
+OWN.** The merged route drops every row it cannot cut, and reporting that as
+a cap is the same sentence read backwards: a complete answer dressed as a
+subset, telling the user to raise a limit that never bit. So
+:attr:`CropPlan.matched`, :attr:`CropPlan.selected` and
+:attr:`CropPlan.count` are three numbers, :attr:`CropPlan.capped` is the gap
+between the first two and :attr:`CropPlan.dropped` the gap between the last
+two, and they reach the panel as separate clauses.
+
 **AN EMPTY RESULT IS A SENTENCE, NEVER AN EMPTY ARRAY.** A plan that matched
 nothing carries :attr:`CropPlan.empty_reason`, which names the table, the
 class, the plate and the predicate that were asked for AND what the database
@@ -185,12 +194,25 @@ class CropPlan:
     :param rows: one opaque handle per crop, in the order they load -- a row
         mapping for the database source, a path string for the folder one.
         Never longer than ``query.limit``.
-    :param matched: how many crops the query matched in total, which is more
-        than ``len(rows)`` when the cap bit.
+    :param matched: how many crops the query matched in total, before the
+        limit and before the merged route's join. More than ``selected``
+        exactly when the cap bit.
+    :param selected: how many rows the selection actually took, which is
+        ``min(matched, limit)``. Left at ``0`` it defaults to ``len(rows)``,
+        which is right for every plan that has no join to lose rows to.
     :param source_label: which pixel route was chosen and why, from
         :meth:`spacr.crops.CropSource.describe`.
     :param empty_reason: the sentence to show when nothing matched, naming
         both what was asked and what is there. Empty when something did.
+
+    **THREE NUMBERS, NOT TWO, BECAUSE TWO THINGS REMOVE ROWS AND THEY ASK
+    THE READER FOR DIFFERENT THINGS.** ``matched`` is what the query found,
+    ``selected`` is what the limit left of it, and ``count`` is what
+    survived the merged route's join -- which drops every row with no single
+    object label (``'omulti'`` / ``'onone'``) or no merged array recorded.
+    Only the first gap is a cap, and only a cap is repaired by raising 'At
+    most'; telling a user to raise a limit that never bit hands them an
+    action that returns the same rows and reprints the same sentence.
     """
 
     query: CropQuery
@@ -198,7 +220,18 @@ class CropPlan:
     matched: int = 0
     source_label: str = ""
     empty_reason: str = ""
+    selected: int = 0
     _source: Any = field(default=None, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        """Default ``selected`` to the rows, for a plan built without a join.
+
+        A plan whose rows came straight out of the selection -- the folder
+        route, and anything a test or a script builds by hand -- selected
+        exactly what it carries, and should not have to say so.
+        """
+        if self.selected <= 0 and self.rows:
+            object.__setattr__(self, "selected", len(self.rows))
 
     @property
     def count(self) -> int:
@@ -212,8 +245,24 @@ class CropPlan:
 
     @property
     def capped(self) -> bool:
-        """Whether the limit kept crops out of this plan."""
-        return self.matched > self.count
+        """Whether the limit kept crops out of this plan.
+
+        Against :attr:`selected`, never against :attr:`count`: a merged-route
+        load that lost rows to the join has ``matched > count`` with no limit
+        anywhere near it, and reporting that as a cap is this module's own
+        promise -- that a cap is part of the answer -- running backwards.
+        """
+        return self.matched > self.selected
+
+    @property
+    def dropped(self) -> int:
+        """How many selected rows could not be turned into a crop at all.
+
+        Nonzero only on the merged route, and a complete answer rather than
+        a capped one: the rows are gone because they cannot be cut, so there
+        is nothing a larger limit would add.
+        """
+        return max(0, self.selected - self.count)
 
     def pages(self, page_size: int = 0) -> Tuple[Tuple[int, int], ...]:
         """``(start, stop)`` for each page, covering every row exactly once.
@@ -230,16 +279,26 @@ class CropPlan:
         """One line a status bar can show the moment planning returns.
 
         Says what was taken out of what, so a capped load reads as a
-        deliberate subset rather than as the whole plate.
+        deliberate subset rather than as the whole plate -- and names a
+        dropped row as a dropped row, in its own clause, so the two never
+        arrive as one number.
         """
         if self.is_empty:
             return self.empty_reason or f"no crops for {self.query.describe()}"
+        asked = self.query.describe()
         if self.capped:
             head = (f"the first {self.count:,} of {self.matched:,} crops "
-                    f"matching {self.query.describe()}")
+                    f"matching {asked}")
+        elif self.dropped:
+            head = f"{self.count:,} of the {self.matched:,} crops matching {asked}"
         else:
-            head = f"{self.count:,} crops matching {self.query.describe()}"
-        return f"{head} -- {self.source_label}" if self.source_label else head
+            head = f"{self.count:,} crops matching {asked}"
+        parts = [head]
+        if self.dropped:
+            parts.append(f"{self.dropped:,} cannot be cut and are left out")
+        if self.source_label:
+            parts.append(self.source_label)
+        return " -- ".join(parts)
 
 
 def _require_file(path: str, what: str) -> str:
@@ -482,15 +541,18 @@ def plan_from_database(query: CropQuery) -> CropPlan:
         conn.close()
 
     frame = _normalised(frame)
+    selected = int(len(frame))
     source = _pixel_source(query, db_path)
     rows = _crop_rows(db_path, frame, query.object_type,
                       streaming=source.kind != "png")
     if not rows:
         return CropPlan(
-            query=query, matched=matched, source_label=source.describe(),
+            query=query, matched=matched, selected=selected,
+            source_label=source.describe(),
             empty_reason=_unusable_rows_reason(query, matched, source))
     return CropPlan(query=query, rows=tuple(rows), matched=matched,
-                    source_label=source.describe(), _source=source)
+                    selected=selected, source_label=source.describe(),
+                    _source=source)
 
 
 def _unusable_rows_reason(query: CropQuery, matched: int, source) -> str:
@@ -575,6 +637,11 @@ def _crop_rows(db_path: str, frame, object_type: str,
     return [_plain_row(row) for row in frame.to_dict("records")]
 
 
+#: Row keys that :mod:`spacr.crops` reads as integers, and that a pandas
+#: column carrying one missing value turns into floats.
+_INTEGER_ROW_KEYS = ("object_label",)
+
+
 def _plain_row(row: Mapping[str, Any]) -> Dict[str, Any]:
     """One row with its missing values dropped rather than left as ``NaN``.
 
@@ -583,6 +650,17 @@ def _plain_row(row: Mapping[str, Any]) -> Dict[str, Any]:
     ``None``. Left in, a missing ``bbox-0`` reads as a bounding box and a
     missing ``path_name`` reads as a path, and both fail much later with a
     message about something else.
+
+    **AND THE LABEL IS PUT BACK TO AN INTEGER.**
+    :func:`spacr.png_list.crop_rows_from_png_list` writes ``None`` for every
+    row it is about to drop, which makes the whole ``object_label`` column
+    float64; the rows that survive then carry ``3.0`` where they carried
+    ``3``, and :func:`spacr.crops.object_label` refuses a float outright --
+    ``int('3.0')`` raises. So one ``'omulti'`` anywhere in the selection took
+    down the entire merged load, with a message about a label that is
+    perfectly good. The dtype is pandas bookkeeping and it is undone here,
+    where the row is made ready for :mod:`spacr.crops`, rather than by
+    loosening what counts as a label everywhere else.
     """
     out: Dict[str, Any] = {}
     for key, value in row.items():
@@ -590,7 +668,11 @@ def _plain_row(row: Mapping[str, Any]) -> Dict[str, Any]:
             continue
         if isinstance(value, float) and not np.isfinite(value):
             continue
-        out[str(key)] = value
+        name = str(key)
+        if (name in _INTEGER_ROW_KEYS and isinstance(value, (float, np.floating))
+                and float(value).is_integer()):
+            value = int(value)
+        out[name] = value
     return out
 
 
@@ -810,18 +892,18 @@ def _quiet_crop_paths():
     one crop that failed to open is invisible otherwise. A bulk load is the
     case it was not written for -- sixty thousand paths is sixty thousand
     lines, and in the app they are sixty thousand appends to a console widget
-    on the GUI thread, which is the freeze this module exists to avoid. So it
-    is turned off for the duration of a load and put back exactly as it was,
-    including when a page raises.
+    on the GUI thread, which is the freeze this module exists to avoid.
+
+    ON THIS THREAD ONLY, through :func:`spacr.crops.quiet_crop_paths`. The
+    global flag is left alone because a load here runs on a worker for
+    minutes on a network mount, and clearing a process-wide switch for that
+    long silences whatever other screen is reading crops beside it -- which
+    is somebody else's diagnostic, turned off by a load they did not start.
     """
     from . import crops
 
-    was = crops.PRINT_CROP_PATHS
-    crops.say_crop_paths(False)
-    try:
+    with crops.quiet_crop_paths():
         yield
-    finally:
-        crops.say_crop_paths(was)
 
 
 def load_crops(plan: CropPlan, *,
@@ -843,9 +925,12 @@ def load_crops(plan: CropPlan, *,
         and returns the pages already read, which is why the result can be
         shorter than ``plan.count``. Checked between pages, so a stop takes
         at most one page to take effect.
-    :param record: filled in with what was read -- ``matched``, ``loaded``,
-        ``crop_shape``, ``conformed``, ``capped``, ``source``, ``stopped``.
-        JSON-serialisable, so a caller can keep it beside the matrix.
+    :param record: filled in with what was read -- ``matched``, ``selected``,
+        ``dropped``, ``loaded``, ``crop_shape``, ``conformed``, ``capped``,
+        ``source``, ``stopped``. ``matched`` minus ``selected`` is the cap;
+        ``selected`` minus ``loaded`` is rows that could not be cut, plus
+        whatever a stop left unread. JSON-serialisable, so a caller can keep
+        it beside the matrix.
     :returns: ``(objects, height, width, channels)``, the layout
         :func:`spacr.embeddings.embed_array` documents. Every crop is padded
         or trimmed to the first one's frame; see :func:`conform_crop`.
@@ -882,6 +967,8 @@ def load_crops(plan: CropPlan, *,
     result = out if done == total else out[:done]
     if record is not None:
         record["matched"] = int(plan.matched)
+        record["selected"] = int(plan.selected)
+        record["dropped"] = int(plan.dropped)
         record["loaded"] = int(done)
         record["crop_shape"] = [int(v) for v in result.shape[1:]]
         record["conformed"] = int(conformed)
