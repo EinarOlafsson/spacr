@@ -34,6 +34,8 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DOCKER_DIR = REPO_ROOT / "packaging" / "docker"
 WORKFLOW = REPO_ROOT / ".github" / "workflows" / "docker-images.yml"
+RELEASE_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "release.yml"
+GUIDE = REPO_ROOT / "docs" / "source" / "installer_guide.rst"
 DOCKERIGNORE = REPO_ROOT / ".dockerignore"
 
 VARIANTS = ("cpu", "cuda")
@@ -192,15 +194,45 @@ def test_the_entrypoint_gives_a_foreign_uid_a_writable_home():
     )
 
 
+def test_the_entrypoint_replaces_a_runtime_dir_that_is_not_there():
+    """A host ``XDG_RUNTIME_DIR`` does not exist inside the container.
+
+    Every X11-in-Docker recipe tells a user to pass it in, and Qt then says
+    "XDG_RUNTIME_DIR points to non-existing path" on every start. Defaulting
+    an unset variable is not enough: the broken case is a variable that is
+    *set* to a path the container does not have.
+    """
+    entrypoint = (DOCKER_DIR / "entrypoint.sh").read_text(encoding="utf-8")
+
+    assert "XDG_RUNTIME_DIR" in entrypoint, (
+        "nothing normalises XDG_RUNTIME_DIR, so a documented `docker run` "
+        "prints a Qt warning before the window appears."
+    )
+    assert '-d "${XDG_RUNTIME_DIR:-}"' in entrypoint, (
+        "the entrypoint accepts whatever XDG_RUNTIME_DIR names without "
+        "checking that it is a directory in this container."
+    )
+    assert "export XDG_RUNTIME_DIR" in entrypoint
+    assert 'chmod 700 "$XDG_RUNTIME_DIR"' in entrypoint, (
+        "Qt checks the mode as well as the path."
+    )
+
+    guide = GUIDE.read_text(encoding="utf-8")
+    assert "-e XDG_RUNTIME_DIR " not in guide, (
+        "the guide still tells the user to pass the host's runtime directory "
+        "in, which is the thing that produces the warning."
+    )
+
+
 def test_the_workflow_does_not_fire_on_every_push(workflow):
-    """Release tags and a deliberate dispatch, and nothing else.
+    """A release, a hand-pushed tag, a deliberate dispatch. Nothing else.
 
     Each image is multi-gigabyte. Building both on every commit spends an hour
     of runner time to learn what `tests` already guards.
     """
     triggers = workflow["_triggers"]
 
-    assert set(triggers) == {"push", "workflow_dispatch"}, (
+    assert set(triggers) == {"push", "workflow_call", "workflow_dispatch"}, (
         f"the docker workflow is triggered by {sorted(triggers)}"
     )
     assert "branches" not in triggers["push"], (
@@ -208,6 +240,115 @@ def test_the_workflow_does_not_fire_on_every_push(workflow):
         "branch."
     )
     assert triggers["push"]["tags"] == ["v*"]
+
+
+def test_a_release_publishes_an_image_without_relying_on_the_tag_push():
+    """The release CALLS this workflow. A release tag cannot start it.
+
+    `release.yml` creates the tag in its last job with `git push origin
+    "$RELEASE_TAG"`, using the credentials `actions/checkout` persists -- the
+    default GITHUB_TOKEN. GitHub starts no workflow run from an event pushed
+    with that token, so a `push: tags` trigger on its own would sit idle
+    through every release while the installer guide told users an image had
+    been published. The repository's own answer to this is `workflow_call`
+    (`online-installers.yml`), and that is what this asserts.
+    """
+    release = yaml.safe_load(RELEASE_WORKFLOW.read_text(encoding="utf-8"))
+
+    callers = {
+        name: job
+        for name, job in release["jobs"].items()
+        if str(job.get("uses", "")).endswith("docker-images.yml")
+    }
+    assert list(callers) == ["container-images"], (
+        "release.yml does not call docker-images.yml, so the only way an "
+        f"image reaches GHCR is by hand; its jobs are {list(release['jobs'])}."
+    )
+
+    job = callers["container-images"]
+    assert job["with"]["publish"] is True
+    assert job["permissions"]["packages"] == "write", (
+        "a called workflow cannot be granted more than the calling job holds, "
+        "and release.yml's own permissions do not include packages: write, so "
+        "every `docker push` would be denied."
+    )
+    assert "installers" in job["needs"], (
+        "the images must be built from the commit the release tags, which is "
+        "the one the installers job commits."
+    )
+    assert "needs.installers.outputs.release_commit" in job["with"]["source_ref"]
+    assert "needs.bump.outputs.version" in job["with"]["release_version"]
+
+
+def test_the_called_run_builds_the_commit_it_was_given():
+    """Both jobs check out `inputs.source_ref`, never a bare `github.sha`.
+
+    Inside a called workflow `github.sha` is the CALLER's commit: for a
+    release, the push to main that started it -- one commit before the version
+    bump and several before the installers. A checkout without the input would
+    build the previous version and tag it as the new one.
+    """
+    workflow = yaml.safe_load(WORKFLOW.read_text(encoding="utf-8"))
+
+    for name, job in workflow["jobs"].items():
+        checkouts = [
+            step for step in job["steps"]
+            if str(step.get("uses", "")).startswith("actions/checkout")
+        ]
+        assert checkouts, f"job {name} checks nothing out"
+        for step in checkouts:
+            ref = str(step.get("with", {}).get("ref", ""))
+            assert "inputs.source_ref" in ref, (
+                f"{name} checks out {ref or 'the default ref'}, which for a "
+                f"called run is the caller's commit."
+            )
+
+
+def test_which_run_this_is_never_comes_from_the_event_name(workflow):
+    """The mode is an input. `github.event_name` is the caller's event.
+
+    1.5.0.5 shipped with `online-installers`' collect job gated on
+    `github.event_name == 'workflow_call'`, a condition that is never true
+    inside a called workflow. It was skipped on every release, and the release
+    was tagged with an empty SHA. The same context here would compare `main`
+    against setup.py's VERSION and fail every release.
+    """
+    plan = [
+        step for step in workflow["jobs"]["plan"]["steps"]
+        if step.get("id") == "plan"
+    ][0]["run"]
+
+    assert 'if [ -n "${RELEASE_VERSION:-}" ]; then' in plan, (
+        "nothing distinguishes a called run from a tag push by its inputs."
+    )
+    assert plan.index("mode=release") < plan.index('EVENT_NAME" = "push"'), (
+        "the event name is read before the release input, so a release -- "
+        "which reports the caller's `push` -- takes the tag branch."
+    )
+    assert "RELEASE_VERSION: ${{ inputs.release_version }}" in WORKFLOW.read_text(
+        encoding="utf-8")
+
+
+def test_the_guide_only_promises_an_image_while_the_release_builds_one():
+    """The user-facing claim and the wiring are one assertion, not two.
+
+    The installer guide tells a reader to `docker pull` a tag by version. That
+    sentence is true exactly as long as a release still builds and pushes the
+    image, so it is asserted here rather than left to be discovered by a user
+    whose pull returns "manifest unknown".
+    """
+    guide = GUIDE.read_text(encoding="utf-8")
+    if "published to the GitHub Container Registry" not in guide:
+        pytest.skip("the guide no longer promises published images")
+
+    release = yaml.safe_load(RELEASE_WORKFLOW.read_text(encoding="utf-8"))
+    assert any(
+        str(job.get("uses", "")).endswith("docker-images.yml")
+        for job in release["jobs"].values()
+    ), (
+        "the installer guide says images are published as part of every "
+        "release, but no release job builds one."
+    )
 
 
 def test_the_workflow_queues_rather_than_cancelling(workflow):

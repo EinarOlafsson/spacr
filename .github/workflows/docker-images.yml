@@ -7,8 +7,35 @@ name: docker images
 # downloads a CUDA runtime base plus torch's cu124 wheels. Building that on
 # every commit would spend an hour of runner time to learn nothing: the
 # Dockerfiles change a few times a year and the thing they install is pinned by
-# setup.py, which `tests` already guards. So: release tags, and a deliberate
-# dispatch when someone is working on the Dockerfiles.
+# setup.py, which `tests` already guards. So: a release, a tag pushed by hand,
+# and a deliberate dispatch when someone is working on the Dockerfiles.
+#
+# THE RELEASE CALLS THIS FILE. A RELEASE TAG DOES NOT START IT. `release.yml`
+# creates the tag in its last job with `git push origin "$RELEASE_TAG"`, using
+# the credentials `actions/checkout` persists -- the default GITHUB_TOKEN --
+# and GitHub starts no workflow run from an event pushed with that token. A
+# `push: tags` trigger on its own would therefore sit idle through every
+# release while the installer guide told users an image had been published.
+# So the release invokes this workflow as a job, the way it already invokes
+# `online-installers.yml`, and passes the commit and the version it is
+# releasing. The tag trigger below is kept for a tag pushed by a person with
+# their own credentials, which does start a run; a release never fires both,
+# because the release's own tag push starts nothing.
+#
+# THE MODE IS AN INPUT, NEVER `github.event_name`. Inside a called workflow
+# that context holds the CALLER's event, so a release arrives here reporting
+# `push` (of a commit to main) or `workflow_dispatch`. Reading it to decide
+# what to do is the defect that shipped in 1.5.0.5, where `online-installers`
+# gated its collect job on `github.event_name == 'workflow_call'`, skipped it
+# on every release, and tagged the release with an empty SHA.
+#
+# THE SMOKE GATE WITHHOLDS AN IMAGE; IT CANNOT STOP A RELEASE. A called run
+# builds the commit the release is about to tag, which exists only after the
+# installers job has committed -- and by then the version is immutable on
+# PyPI. A failed check therefore fails this run, loudly and on the release run
+# itself since the release calls it, and publishes nothing; the GitHub release
+# still carries the installers that did build. Gating the release notes on a
+# container build would withhold installers that nothing was wrong with.
 #
 # SMOKE TEST BEFORE PUSH, NEVER AFTER. Every image is run before it is pushed:
 # it must print the version the tag claims, it must not be running as root, and
@@ -26,6 +53,21 @@ on:
   push:
     tags:
       - "v*"
+  workflow_call:
+    inputs:
+      source_ref:
+        description: Commit to build the images from
+        required: true
+        type: string
+      release_version:
+        description: Version the release publishes; the image must contain it
+        required: true
+        type: string
+      publish:
+        description: Push the built images to GHCR
+        required: false
+        type: boolean
+        default: true
   workflow_dispatch:
     inputs:
       variant:
@@ -66,7 +108,13 @@ jobs:
       push: ${{ steps.plan.outputs.push }}
       moving_tags: ${{ steps.plan.outputs.moving_tags }}
     steps:
+      # A called run must check out the commit the caller is releasing, not
+      # `github.sha`: inside a called workflow that is the CALLER's commit,
+      # which for a release is the push to main that started it -- one commit
+      # before the version bump and several before the installers.
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
 
       # The matrix is computed here rather than filtered with a job-level
       # `if:`, because the `matrix` context is not available to one -- a job
@@ -75,6 +123,8 @@ jobs:
         id: plan
         env:
           EVENT_NAME: ${{ github.event_name }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          RELEASE_PUBLISH: ${{ inputs.publish }}
           INPUT_VARIANT: ${{ inputs.variant }}
           INPUT_PUSH: ${{ inputs.push }}
           OWNER: ${{ github.repository_owner }}
@@ -94,16 +144,40 @@ jobs:
           PY
           )
 
-          # A tag build must be the version it claims to be. This catches a
-          # tag pushed at the wrong commit, which otherwise publishes an
-          # image labelled with a version it does not contain.
-          if [ "$EVENT_NAME" = "push" ]; then
-            tagged="${REF_NAME#v}"
-            if [ "$tagged" != "$version" ]; then
-              echo "::error::tag $REF_NAME names version $tagged but setup.py says $version"
-              exit 1
-            fi
+          # WHICH RUN THIS IS, decided by the input and never by
+          # $EVENT_NAME: inside a called workflow that variable holds the
+          # caller's event, so a release reports `push` -- of a commit to
+          # main, whose ref name is `main` and would fail the version check
+          # below on every single release.
+          if [ -n "${RELEASE_VERSION:-}" ]; then
+            mode=release
+          elif [ "$EVENT_NAME" = "push" ]; then
+            mode=tag
+          else
+            mode=dispatch
           fi
+
+          # A published image must be the version it claims to be. For a
+          # release that means the commit the release asked for really
+          # carries the version being released; for a hand-pushed tag it
+          # catches a tag pushed at the wrong commit. Either way the build
+          # stops rather than publishing an image labelled with a version it
+          # does not contain.
+          case "$mode" in
+            release)
+              if [ "$RELEASE_VERSION" != "$version" ]; then
+                echo "::error::the release publishes $RELEASE_VERSION but setup.py at the commit it named says $version"
+                exit 1
+              fi
+              ;;
+            tag)
+              tagged="${REF_NAME#v}"
+              if [ "$tagged" != "$version" ]; then
+                echo "::error::tag $REF_NAME names version $tagged but setup.py says $version"
+                exit 1
+              fi
+              ;;
+          esac
 
           # GHCR rejects an upper-case repository path; the owner has one.
           image="ghcr.io/$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')/spacr"
@@ -114,16 +188,23 @@ jobs:
             *)    variants='["cpu","cuda"]' ;;
           esac
 
-          if [ "$EVENT_NAME" = "push" ]; then
-            push=true
-            moving=true
-          else
-            push="${INPUT_PUSH:-false}"
-            # A dispatched build publishes its exact version tags if asked to,
-            # and never moves `latest` / `cpu` / `cuda`. Those belong to a
-            # release.
-            moving=false
-          fi
+          case "$mode" in
+            release)
+              push="${RELEASE_PUBLISH:-true}"
+              moving=true
+              ;;
+            tag)
+              push=true
+              moving=true
+              ;;
+            *)
+              push="${INPUT_PUSH:-false}"
+              # A dispatched build publishes its exact version tags if asked
+              # to, and never moves `latest` / `cpu` / `cuda`. Those belong
+              # to a release.
+              moving=false
+              ;;
+          esac
 
           {
             echo "version=$version"
@@ -133,7 +214,7 @@ jobs:
             echo "moving_tags=$moving"
           } >> "$GITHUB_OUTPUT"
 
-          echo "spaCR $version -> $image (variants $variants, push $push)"
+          echo "$mode: spaCR $version -> $image (variants $variants, push $push)"
 
   image:
     name: ${{ matrix.variant }} image
@@ -150,7 +231,10 @@ jobs:
       VARIANT: ${{ matrix.variant }}
       MOVING_TAGS: ${{ needs.plan.outputs.moving_tags }}
     steps:
+      # The same commit the plan job read the version out of.
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
 
       # A hosted runner has ~21 GB free and the CUDA image needs more than
       # that between the base, the build stage and the finished image. These

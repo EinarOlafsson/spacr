@@ -60,6 +60,20 @@ export XDG_CONFIG_HOME XDG_DATA_HOME XDG_CACHE_HOME MPLCONFIGDIR HF_HOME
 mkdir -p "$XDG_CONFIG_HOME" "$XDG_DATA_HOME" "$XDG_CACHE_HOME" \
          "$MPLCONFIGDIR" "$HF_HOME" 2>/dev/null || true
 
+# XDG_RUNTIME_DIR is the one that is worth normalising rather than defaulting.
+# The host's runtime directory is not in the container, and a user who passes
+# it in -- which is what every X11 Docker recipe on the internet tells them to
+# do -- gets "XDG_RUNTIME_DIR points to non-existing path" from Qt on every
+# start. Anything that does not resolve to a writable directory is replaced by
+# one that does, mode 0700 because Qt checks the mode as well as the path.
+if ! { [ -n "${XDG_RUNTIME_DIR:-}" ] && [ -d "${XDG_RUNTIME_DIR:-}" ] \
+       && [ -w "${XDG_RUNTIME_DIR:-}" ]; }; then
+    XDG_RUNTIME_DIR="$XDG_CACHE_HOME/runtime"
+    mkdir -p "$XDG_RUNTIME_DIR" 2>/dev/null || true
+fi
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+export XDG_RUNTIME_DIR
+
 # ---------------------------------------------------------------------------
 # 3. A mounted /models becomes the model folder.
 #

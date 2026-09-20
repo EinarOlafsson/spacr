@@ -1,7 +1,10 @@
 # spaCR container images
 
-Two images, built from this checkout, published to GHCR on each release tag
-by `.github/workflows/docker-images.yml`.
+Two images, built from this checkout, published to GHCR as part of each
+release by `.github/workflows/docker-images.yml`, which `release.yml` calls
+as its `container-images` job. It is called rather than triggered by the
+release tag because that tag is pushed with the default `GITHUB_TOKEN`, and
+GitHub starts no workflow run from a `GITHUB_TOKEN` push.
 
 | File | Tag | Base |
 |---|---|---|
@@ -118,10 +121,14 @@ image whose dependency set quietly differs from the package is a worse problem
 than 5% of its size. Measured, left alone, written down.
 
 **The image is built from the checkout, not from PyPI.** An image tagged with
-a spaCR version should contain that source, and a release-tag build that
-installed from PyPI would race the PyPI upload and could publish the previous
-release under the new tag. The workflow additionally refuses to build when the
-tag name and `setup.py`'s `VERSION` disagree.
+a spaCR version should contain that source, and a release build that installed
+from PyPI would race the PyPI upload and could publish the previous release
+under the new tag. Which checkout is not left to chance either: the release
+passes the exact commit it is about to tag, because inside a called workflow
+`github.sha` is the *caller's* commit — for a release, the push to `main` that
+started it, one commit before the version bump. The workflow then refuses to
+build when the version it was told to publish, or the tag name it was pushed
+under, disagrees with that commit's `setup.py`.
 
 ## Files
 

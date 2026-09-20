@@ -247,11 +247,21 @@ Omit ``qt`` for a headless server. Extras can be combined, for example
 Container images
 ----------------
 
-Two images are published to the GitHub Container Registry on every spaCR
-release. They exist for the headless half of spaCR: the CLI, the pipelines,
-a cluster job and a reviewer re-running an analysis a year later. They are
-not a way to install the desktop application, which the platform installers
-above do better.
+Two images are published to the GitHub Container Registry as part of every
+spaCR release, after that version reaches PyPI. Each one is built and then
+checked before it is pushed — it must report the version its tag claims, it
+must not be running as root, and it must complete one real pipeline — so an
+image that exists is an image that ran. An image that fails a check is not
+published, and the release run that built it is red.
+
+Images begin with the first release made after this page described them.
+Older versions have no image, and ``docker pull`` will say so rather than
+give you something unrelated.
+
+They exist for the headless half of spaCR: the CLI, the pipelines, a cluster
+job and a reviewer re-running an analysis a year later. They are not a way to
+install the desktop application, which the platform installers above do
+better.
 
 .. list-table::
    :header-rows: 1
@@ -283,15 +293,20 @@ Zoo install it into an isolated environment of its own.
 Running a pipeline
 ~~~~~~~~~~~~~~~~~~
 
+``<version>`` below is a spaCR version that has a published image — the
+`GHCR package page <https://github.com/EinarOlafsson/spacr/pkgs/container/spacr>`_
+lists them. ``:latest`` takes the newest CPU image if you do not need a
+particular one.
+
 .. code-block:: bash
 
-   docker pull ghcr.io/einarolafsson/spacr:1.5.0.8
+   docker pull ghcr.io/einarolafsson/spacr:<version>
 
    docker run --rm \
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:1.5.0.8 \
+       ghcr.io/einarolafsson/spacr:<version> \
        spacr-run measure --settings /data/settings/measure_settings.csv
 
 On a GPU host, add ``--gpus all`` and use the CUDA tag:
@@ -302,7 +317,7 @@ On a GPU host, add ``--gpus all`` and use the CUDA tag:
        --user "$(id -u):$(id -g)" \
        -v "$PWD/screen:/data" \
        -v "$HOME/.cellpose/models:/models" \
-       ghcr.io/einarolafsson/spacr:1.5.0.8-cuda12.4 \
+       ghcr.io/einarolafsson/spacr:<version>-cuda12.4 \
        spacr-run mask --settings /data/settings/gen_mask_settings.csv
 
 Pass ``--user "$(id -u):$(id -g)"``. Every file a container writes to a
@@ -319,7 +334,7 @@ is visible:
 
 .. code-block:: bash
 
-   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:1.5.0.8-cuda12.4 spacr-doctor
+   docker run --rm --gpus all ghcr.io/einarolafsson/spacr:<version>-cuda12.4 spacr-doctor
 
 The desktop interface in a container
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -332,11 +347,15 @@ libraries, so a Linux host running X11 can pass its display socket in:
    xhost +SI:localuser:"$(id -un)"
    docker run --rm \
        --user "$(id -u):$(id -g)" \
-       -e DISPLAY -e XDG_RUNTIME_DIR \
+       -e DISPLAY \
        -v /tmp/.X11-unix:/tmp/.X11-unix \
        -v "$PWD/screen:/data" \
-       ghcr.io/einarolafsson/spacr:1.5.0.8 \
+       ghcr.io/einarolafsson/spacr:<version> \
        spacr
+
+Do not pass the host's ``XDG_RUNTIME_DIR`` in. That path does not exist
+inside the container, and Qt complains about it on every start; the image
+makes its own runtime directory under the container's cache folder instead.
 
 A container rarely has a usable OpenGL context, so the animated backdrop may
 not draw. ``safespacr`` starts the same application with the backdrop and GL
@@ -345,7 +364,7 @@ switched off, and is the right command when the window is slow or blank:
 .. code-block:: bash
 
    docker run --rm -e DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix \
-       ghcr.io/einarolafsson/spacr:1.5.0.8 safespacr
+       ghcr.io/einarolafsson/spacr:<version> safespacr
 
 On macOS and Windows this needs a third-party X server and is not tested or
 supported. Use the desktop installer on those platforms.

@@ -266,6 +266,39 @@ jobs:
       publish_to_repository: true
     secrets: inherit
 
+  container-images:
+    name: Build and publish container images
+    # THIS CALL IS THE ONLY THING THAT PUBLISHES AN IMAGE ON A RELEASE.
+    # `Tag exact release commit` below pushes the tag with the credentials
+    # actions/checkout persists, which are the default GITHUB_TOKEN, and
+    # GitHub starts no workflow run from an event pushed with that token. So
+    # docker-images.yml's own `push: tags` trigger never sees a release tag,
+    # and the release has to call it -- the way it calls online-installers.
+    #
+    # IT CANNOT GATE THE RELEASE, AND IS NOT WIRED AS THOUGH IT COULD. The
+    # images are built from the commit the release tags, which is the one
+    # `installers` produces -- and by then publish-pypi has already made the
+    # version immutable on PyPI. A failed build or a failed smoke check
+    # therefore fails this run and publishes no image, while github-release
+    # still ships the installers that did build. Withholding the release
+    # notes for a container failure would cost the installers nothing was
+    # wrong with.
+    if: >-
+      always() &&
+      needs.bump.result == 'success' &&
+      needs.verify-pypi.result == 'success' &&
+      needs.installers.result == 'success' &&
+      needs.bump.outputs.release_required == 'true'
+    needs: [bump, verify-pypi, installers]
+    permissions:
+      contents: read
+      packages: write
+    uses: ./.github/workflows/docker-images.yml
+    with:
+      source_ref: ${{ needs.installers.outputs.release_commit }}
+      release_version: ${{ needs.bump.outputs.version }}
+      publish: true
+
   github-release:
     name: Publish GitHub release
     if: >-

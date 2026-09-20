@@ -93,11 +93,25 @@ analysis that has to be re-runnable in five years. Models and data are
 mounted, never baked in; both images run as a non-root user with a settable
 UID; the desktop interface in a container is a documented Linux-only extra.
 
-`.github/workflows/docker-images.yml` builds both on a release tag (and on a
-deliberate `workflow_dispatch`, never on every push), runs three checks
-against each built image before anything is pushed — it reports the version
-its tag claims, it does not run as root, and it completes one real pipeline —
-and publishes to `ghcr.io/einarolafsson/spacr`.
+`.github/workflows/docker-images.yml` builds both, runs three checks against
+each built image before anything is pushed — it reports the version its tag
+claims, it does not run as root, and it completes one real pipeline — and
+publishes to `ghcr.io/einarolafsson/spacr`.
+
+`release.yml` **calls** it as a job (`container-images`), after PyPI has
+served the release and from the exact commit the release tags. That is not a
+style choice: the release tag is pushed with the default `GITHUB_TOKEN`, and
+GitHub starts no workflow run from a `GITHUB_TOKEN` push, so the file's own
+`push: tags` trigger — kept for a tag pushed by hand — would never see a
+release. Because the images can only be built after an immutable PyPI
+publish, a failed check withholds the image and fails the release run; it
+cannot withhold the release itself. A `workflow_dispatch` builds without
+publishing unless asked, and never moves `latest`. Nothing builds on an
+ordinary push.
+
+The first successful publish creates the GHCR package **private**, and no
+workflow permission changes that. The owner flips it to public once, at
+`https://github.com/users/<owner>/packages/container/spacr/settings`.
 
 `packaging/docker/README.md` records why each decision was made.
 `docs/source/installer_guide.rst` is what a user reads.
