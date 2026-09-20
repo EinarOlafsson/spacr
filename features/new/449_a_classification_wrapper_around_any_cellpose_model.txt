@@ -445,3 +445,44 @@ otherwise inherit the defaults and the 91%:
     png_size           [224, 224]
     pathogen_min_size  0      cell_min_size    0
     nucleus_min_size   0      cytoplasm_min_size 0
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE ANNOTATION SET EXISTS: 8,882 VACUOLES
+--------------------------------------------------------------------------------
+
+    /mnt/wd4tb/spacr_pv_crops/MTOCScreen/          189 MB
+        measurements/measurements.db               png_list 8,882 rows
+        data/.../pathogen_png/                     8,882 PNGs
+
+Cut from the 485 fields of MTOCScreen-plate1 and plate2 with the size
+floors at zero. 87% of the 10,174 the index counts, which is the expected
+yield once edge and parentless objects are gone -- the trial fields gave
+94% and these two plates are denser.
+
+WHY THE MTOC PLATES AND NOT THE ONES CUT FIRST. Sixty CSAscreen-plate1
+fields were cut first, for no better reason than alphabetical order, and
+gave 380 crops. The per-plate distributions say why that was the worst
+choice available:
+
+    MTOCScreen-plate2   242 fields   5,451 vacuoles   median 18 per field
+    MTOCScreen-plate1   243 fields   4,723 vacuoles   median 15
+    CSAscreen-plate1    152 fields     993 vacuoles   median  2
+
+The CSA screen has a median of TWO vacuoles per field and 35 of its 152
+fields have none at all. The MTOC screen is where the parasites are. The
+380 CSA crops are kept -- they are valid and they are a different screen,
+which is worth something to a classifier -- but they are not the set.
+
+AND A NUMBER IN THE NOTE ABOVE WAS WRONG. It said ~153 vacuoles per field
+and planned from it. That came from three trial fields that happened to be
+rich; the real mean for that plate is 6.5 and the median 2. The same note's
+"plate1: 395 fields, 5,716 vacuoles" was also pre-split -- that folder was
+CSA, MTOC and THP1 mixed under one plate name, which is exactly what the
+renaming pass separated. Both numbers are corrected here rather than left
+for somebody to plan against.
+
+WHAT IS LEFT ON THIS ITEM is the maintainer's: annotate those 8,882 crops
+into the classes. Then the Hoechst head and the CellMask head can be
+trained from the same annotated set, each on its own channel of the same
+crops, which is the design he asked for. The parasite-stain head still has
+no data anywhere reachable.
