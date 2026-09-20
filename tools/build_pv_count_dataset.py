@@ -66,17 +66,67 @@ INDEX_REPO = "einarolafsson/cross-channel-toxoplasma-from-cellmask"
 #: Plate names are inside the stem, between the acquisition and the well.
 _PLATE = re.compile(r"__([A-Za-z0-9]*plate[0-9]+)_")
 
+#: Anything that is not a letter or a digit, for making an experiment name
+#: safe to put in a field stem. Underscores especially: spaCR's own field
+#: parser splits on them.
+_UNSAFE = re.compile(r"[^A-Za-z0-9]")
+
+
+def field_name(stem: str) -> str:
+    """The name spaCR's Measure module can read this field by.
+
+    MEASURED 2026-09-20 RATHER THAN ASSUMED, and it is why this function
+    exists. A trial Measure run over the first stacks failed every field
+    with `cell.prcf disagrees with its component identity columns` and
+    identity columns reading `error`: `schema.parse_field_stem` could make
+    nothing of a name like
+
+        CSA_screen__screen_20250124_133156__plate1_A02_1_1
+
+    It wants ``<plate>_<well>_<field>``, and it splits on underscores, so
+    the experiment and acquisition in front of the plate are not extra
+    context -- they are extra fields, and the parse fails.
+
+    THE EXPERIMENT CANNOT SIMPLY BE DROPPED. Two different experiments in
+    this dataset both have a `plate1` -- `CSA_screen` and `MTOC_Screen` --
+    so `plate1_A02_1` would put two different fields under one identity.
+    It is folded into the plate id with a hyphen instead, which the parser
+    keeps whole:
+
+        CSAscreen-plate1_A02_1   ->  plate=CSAscreen-plate1 r1 c2 f1
+        MTOCScreen-plate1_G13_9  ->  plate=MTOCScreen-plate1 r7 c13 f9
+
+    :param stem: the dataset's own stem, without the extension.
+    :returns: ``<experiment>-<plate>_<well>_<field>``, or the stem
+        unchanged when it does not have that shape.
+    """
+    head, separator, tail = stem.rpartition("__")
+    parts = tail.split("_")
+    if not separator or len(parts) < 3:
+        return stem
+    plate, well, field = parts[0], parts[1], parts[2]
+    experiment = _UNSAFE.sub("", head.split("__")[0])
+    plate_id = f"{experiment}-{plate}" if experiment else plate
+    return f"{plate_id}_{well}_{field}"
+
 
 def plate_of(stem: str) -> str:
-    """Which plate a field belongs to, from its stem.
+    """Which folder a field belongs in: its experiment AND its plate.
+
+    Not the plate alone. `CSA_screen` and `MTOC_Screen` both have a
+    `plate1`, and one folder holding both would hand Measure two fields
+    with the same identity.
 
     :param stem: a field stem, without the extension.
-    :returns: the plate name, or ``"unplated"`` when the stem does not
-        carry one -- 765 of the 3,030 do not, and they are kept together
+    :returns: the folder name, or ``"unplated"`` when the stem carries no
+        plate -- 765 of the 3,030 do not, and they are kept together
         rather than dropped.
     """
     found = _PLATE.search(stem)
-    return found.group(1) if found else "unplated"
+    if not found:
+        return "unplated"
+    named = field_name(stem)
+    return named.rpartition("_")[0].rpartition("_")[0] or found.group(1)
 
 
 def fields_in_every_dataset() -> set:
@@ -219,13 +269,13 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         manifest = os.path.join(args.out, plate, "fields.csv")
         with open(manifest, "w", encoding="utf-8", newline="") as handle:
             writer = csv.writer(handle)
-            writer.writerow(["stem", "split", "n_objects", "stack"])
+            writer.writerow(["field", "split", "n_objects", "stack"])
             for index, row in enumerate(fields, 1):
                 stem = row["name"].strip()
-                target = os.path.join(folder, f"{stem}.npy")
+                target = os.path.join(folder, f"{field_name(stem)}.npy")
                 if os.path.exists(target):
                     existing += 1
-                    writer.writerow([stem, row.get("split", ""),
+                    writer.writerow([field_name(stem), row.get("split", ""),
                                      row.get("n_objects", ""), target])
                     continue
                 stack = build_stack(stem)
@@ -236,7 +286,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 np.save(temporary, stack)
                 os.replace(temporary, target)
                 written += 1
-                writer.writerow([stem, row.get("split", ""),
+                writer.writerow([field_name(stem), row.get("split", ""),
                                  row.get("n_objects", ""), target])
                 if index % 25 == 0 or index == len(fields):
                     print(f"    {index}/{len(fields)} fields")

@@ -330,3 +330,58 @@ The refusal that found this is the one written in the note above: a field
 missing any plane is refused rather than written with a zeroed one. It was
 put there to stop a silently empty PV mask being measured as a field with no
 vacuoles, and it caught a dataset-coverage gap instead.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE STACKS HAD NAMES MEASURE COULD NOT READ, AND TWO PLATE1s
+--------------------------------------------------------------------------------
+
+The plan was "pass it the images through the measure modual". A trial run
+over the first three stacks failed all three:
+
+    spacr.schema.ObjectTableSchemaError: cell.prcf disagrees with its
+    component identity columns; examples: [{'stored': 'error',
+    'expected': 'error_error_error_error'}]
+
+Every identity column read `error`, because `schema.parse_field_stem` could
+make nothing of the dataset's own stem:
+
+    CSA_screen__screen_20250124_133156__plate1_A02_1_1
+
+It wants `<plate>_<well>_<field>` and it splits on underscores, so the
+experiment and the acquisition in front of the plate are not extra context
+-- they are extra fields, and the parse fails.
+
+AND THE EXPERIMENT COULD NOT SIMPLY BE DROPPED, which is the part worth
+recording. TWO DIFFERENT EXPERIMENTS IN THIS DATASET BOTH HAVE A `plate1`:
+`CSA_screen` and `MTOC_Screen`. `plate1_A02_1` would have handed Measure
+two different fields under one identity. The experiment is folded into the
+plate id with a HYPHEN, which the parser keeps whole:
+
+    CSAscreen-plate1_A02_1    -> plate=CSAscreen-plate1  r1  c2  f1
+    MTOCScreen-plate1_G13_9   -> plate=MTOCScreen-plate1 r7 c13 f9
+
+The folders follow the same rule, so a folder is one experiment's one
+plate. THE 614 STACKS ALREADY BUILT WERE MIGRATED RATHER THAN REFETCHED,
+and the migration is the evidence for the collision: what had been one
+`plate1` folder came apart into 152 CSA fields and 243 MTOC ones.
+
+PROVED END TO END on three renamed stacks, which is what the first trial
+could not do:
+
+    Progress: 3/3, operation_type: Measure and Crop
+    Successfully completed run
+    measurements.db: cell 200, nucleus 207, cytoplasm 200, pathogen 15,
+                     png_list 15
+    15 vacuole PNGs under data/.../pathogen_png/
+
+`png_list` is the table Annotate reads, so that is the annotation set
+arriving. Item 377's report fired in the same run without being asked for
+-- `Infection report: .../measurements/infection_report.csv`, infection
+rate 0.099 over 81 segmented host cells -- which is the first time that
+code has run outside its own tests.
+
+ONE THING SEEN AND NOT YET EXPLAINED: three fields yielded 15 vacuoles,
+about 5 per field, where the index's own counts average 14.5 per field for
+this plate. It may be these three fields, or it may be a filter in the
+measure settings. Worth a look before the whole plate is cut, and recorded
+here rather than discovered later.
