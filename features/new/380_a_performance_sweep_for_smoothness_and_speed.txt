@@ -1589,3 +1589,60 @@ already on an ancestor, so each widget is polished once as it is created
 instead of all 1,500 being repolished afterwards. That is a change to all
 forty-five screen constructors -- none of them takes a parent today -- and
 it is a day's careful work, not an afternoon's.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE THIRD COST: THE SECOND MECHANISM ALSO FAILS, AND WHY BOTH DO
+--------------------------------------------------------------------------------
+
+The note above recorded the CHEAP version of "build screens already
+parented" as measured and worthless. This is the REAL version, and it is
+worse than worthless -- it is a large regression. Both results are here so
+nobody spends a day rediscovering either.
+
+WHAT WAS TRIED, and it is a better idea than the first one. `AppScreen.
+__init__` calls `super().__init__(parent)` before it builds anything, so
+the sheet can go on the page while the page is still an empty shell. There
+is then nothing under it to repolish, and the settings column, the console
+and the figures card inherit it as Qt creates them. One place, not the
+forty-five constructors the earlier note feared.
+
+MEASURED, paired arms on one machine:
+
+    module            base   shell-sheeted
+    regression        3526            7756
+    mask              2037            3272
+    classify_merged   2914            2630
+    umap              1974            2854
+    measure           1274            2713
+    external_masks     780            3292
+    __preferences__   1647            2013
+    __home__          1088             748
+
+REGRESSION IS 2.2x WORSE AND MASK 1.6x. Read as a rejection and not as a
+measurement: these runs were taken while a 485-field crop job held eight
+cores, which is why the BASELINE is also higher than the 2,398 the same
+harness gave for Regression earlier in the day. An effect that size is far
+outside the 50-120 ms spread that load produces, so it decides the
+question; the individual numbers do not mean much.
+
+WHY BOTH MECHANISMS FAIL, WHICH IS THE PART WORTH KEEPING. The assumption
+under both is that the ~640 ms is one big repolish that could be avoided by
+arranging for it to happen at a better moment. IT IS NOT ONE BIG REPOLISH.
+Qt polishes PER WIDGET, so a stylesheet present on an ancestor during
+construction is paid on every child as it is created -- about 1,500 times,
+each one resolving against the sheet. Applying it once at the end is the
+CHEAP arrangement, not the expensive one. Moving it earlier (the first
+attempt) buys nothing because the work is inside the same window; putting
+it there before the children exist (this one) multiplies the work by the
+number of children.
+
+SO THE THIRD COST IS NOT REMOVABLE BY EITHER ROUTE THE ITEM PROPOSED, and
+the remaining honest options are smaller ones: cut what the per-screen
+sheet covers so each application is cheaper, or build fewer widgets per
+page. Both are real work on the pages themselves rather than on when the
+sheet lands.
+
+WHAT 380 HAS ACTUALLY GAINED TODAY, unchanged by this: the ~500 sheeted
+popups (284) and the ~250 ms settings-form reparent are both gone, and
+every module with a settings form opens 120-167 ms faster read at its most
+conservative.
