@@ -22,6 +22,8 @@ The bed-seam sweep is marked ``heavy``: it renders eleven minutes of audio.
 from __future__ import annotations
 
 import numpy as np
+import re
+
 import pytest
 
 pytest.importorskip("PySide6")
@@ -39,6 +41,19 @@ from spacr.qt.widgets import ambient
 #: anywhere a user can read.
 FORBIDDEN = ("worakls", "nto", "riviere", "rivière", "monk", "birrd",
              "hungry music", "afterlife", "anjunadeep")
+
+#: Each forbidden word as a WHOLE-WORD pattern rather than a substring.
+#: "nto" as a substring makes "into", "onto" and "contour" fail the guard
+#: with "an artist reached the interface", which is a trap for whoever
+#: writes the eleventh description and not a real hit. Whole words keep
+#: the guard and lose the trap.
+_FORBIDDEN_RE = tuple(
+    (word, re.compile(rf"\b{re.escape(word)}\b")) for word in FORBIDDEN)
+
+
+def _artists_in(text: str):
+    """Forbidden names appearing as whole words in `text` (already lower)."""
+    return [word for word, pattern in _FORBIDDEN_RE if pattern.search(text)]
 
 
 @pytest.fixture
@@ -93,17 +108,32 @@ class TestThereAreTenOfThem:
         offenders = []
         for key, theme in night.NIGHT_THEMES.items():
             text = f"{key} {theme.label} {theme.description}".lower()
-            offenders += [(key, word) for word in FORBIDDEN if word in text]
+            offenders += [(key, word) for word in _artists_in(text)]
         for key in night.NIGHT_THEME_KEYS:
             sound = ss.SOUND_THEMES[key]
             text = f"{sound.label} {sound.description}".lower()
-            offenders += [(key, word) for word in FORBIDDEN if word in text]
+            offenders += [(key, word) for word in _artists_in(text)]
         assert not offenders, f"an artist reached the interface: {offenders}"
 
     def test_the_ratchet_would_notice(self):
         """The sweep above passes trivially if it reads nothing."""
         seen = " ".join(t.description for t in night.NIGHT_THEMES.values())
         assert len(seen) > 400, "the descriptions were not read"
+
+    def test_the_ratchet_still_catches_a_real_borrowing(self):
+        """Whole-word matching must not have turned the guard off."""
+        assert _artists_in("a pad in the style of nto at 120 bpm") == ["nto"]
+        assert _artists_in("worakls-like strings") == ["worakls"]
+        assert _artists_in("rivière monk would recognise it") == [
+            "rivière", "monk"]
+
+    def test_ordinary_english_is_not_an_artist(self):
+        """"nto" as a substring failed "into", "onto" and "contour"."""
+        for innocent in ("the pad opens into the room",
+                         "a pluck laid onto the bed",
+                         "the contour of the filter",
+                         "a monkey wrench", "monkfish"):
+            assert _artists_in(innocent) == [], innocent
 
 
 class TestEveryPaletteStaysLegible:
@@ -353,6 +383,32 @@ class TestTheDialogMovesTheOtherThreeControls:
         assert animation.currentData() == "resonance"
         assert palette.currentData() == "midnight"
         assert sound.currentData() == "aphelion"
+
+    def test_every_night_theme_shows_its_sentence_in_the_theme_control(
+            self, dialog):
+        """The written half of a theme has to be readable somewhere.
+
+        Each theme carries a sentence saying what colours, backdrop and
+        sound set come with it; until this guard existed the sentence was
+        a string in a dataclass that no widget ever asked for.
+        """
+        from PySide6.QtCore import Qt
+
+        theme = _theme_combo(dialog)
+        for key in night.NIGHT_THEME_KEYS:
+            index = theme.findData(key)
+            assert index >= 0, key
+            shown = theme.itemData(index, Qt.ItemDataRole.ToolTipRole)
+            assert shown == night.NIGHT_THEMES[key].description, key
+
+    def test_the_four_older_themes_get_no_invented_sentence(self, dialog):
+        """Dark, Light, Glass and Follow system never had one."""
+        from PySide6.QtCore import Qt
+
+        theme = _theme_combo(dialog)
+        for key in ("dark", "light", "glass", "system"):
+            index = theme.findData(key)
+            assert not theme.itemData(index, Qt.ItemDataRole.ToolTipRole)
 
     def test_picking_dark_moves_nothing(self, dialog):
         theme = _theme_combo(dialog)

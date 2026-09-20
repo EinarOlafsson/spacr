@@ -345,7 +345,7 @@ BED_SECTIONS: Tuple[
 #: THE TWO ENDS ARE THE ARGUMENT. :data:`NOCTURNE` is 108 BPM, quarter-note
 #: arpeggios, a pluck that decays for six tenths of a second like a
 #: damped piano string, a 4.8 s tail and almost no drum. :data:`PULSAR` is
-#: 128 BPM, sixteenth notes, a pluck a fifth as long, the deepest pump of
+#: 128 BPM, sixteenth notes, a pluck a third as long, the deepest pump of
 #: the ten and the shortest reverb. Neither is a preset of the other.
 #:
 #: ONE SEED WAS CHOSEN BY MEASUREMENT RATHER THAN PICKED. Lantern's bed is
@@ -356,8 +356,9 @@ BED_SECTIONS: Tuple[
 #: 99.5th-percentile step of 0.0376 and failed it. 4291 renders the same
 #: theme with different noise in the shaker and the reverb tail and lands
 #: at 0.0112 against 0.0332. Nothing else about Lantern was changed, and
-#: the other ten seeds are consecutive because they never needed to be
-#: anything else.
+#: the other nine night seeds run 4272 to 4280 in menu order because they
+#: never needed to be anything else. :data:`ORBIT`, which predates the
+#: ten, keeps its own seed of 427.
 LANTERN = SoundTheme(
     key="lantern",
     label="Lantern",
@@ -406,7 +407,7 @@ SOLSTICE = SoundTheme(
     label="Solstice",
     description=("G Lydian at 112 BPM: the raised fourth leaves every "
                  "chord major, so nothing in it settles — the slowest "
-                 "bright set of the ten, with the widest pad."),
+                 "bright set of the ten, with six voices in the pad."),
     tonic=55,
     scale=LYDIAN,
     tempo=112.0,
@@ -429,9 +430,9 @@ SOLSTICE = SoundTheme(
 UNDERTOW = SoundTheme(
     key="undertow",
     label="Undertow",
-    description=("E minor at 116 BPM: the heaviest sub and the deepest "
-                 "pump of the ten under a pad filtered almost shut — "
-                 "weight rather than brightness."),
+    description=("E minor at 116 BPM: the heaviest sub of the ten under "
+                 "the most closed pad filter — weight rather than "
+                 "brightness."),
     tonic=52,
     tempo=116.0,
     progression=(0, 5, 3, 6),
@@ -452,9 +453,8 @@ UNDERTOW = SoundTheme(
 MERIDIAN = SoundTheme(
     key="meridian",
     label="Meridian",
-    description=("A Dorian at 124 BPM: the widest stereo pad of the ten "
-                 "with a bright, short pluck running eighth notes across "
-                 "it."),
+    description=("A Dorian at 124 BPM: a wide stereo pad with a bright, "
+                 "short pluck running eighth notes across it."),
     tonic=57,
     scale=DORIAN,
     tempo=124.0,
@@ -475,8 +475,8 @@ CIRRUS = SoundTheme(
     key="cirrus",
     label="Cirrus",
     description=("B minor at 126 BPM: the most open set of the ten — the "
-                 "pad's filter nearly wide, the longest reverb, the "
-                 "lightest sub and the quietest kick."),
+                 "widest pad filter, the widest stereo image, the "
+                 "lightest sub and the softest pump."),
     tonic=59,
     tempo=126.0,
     progression=(0, 4, 5, 6),

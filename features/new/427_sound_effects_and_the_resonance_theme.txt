@@ -882,3 +882,98 @@ STILL OPEN AFTER PART C
     at the merge base.
   * The frozen bundle, Windows and macOS audio, and the 12 MB WAV load
     latency are unchanged from parts A and B.
+
+2026-09-20 — PART C REVIEWED BEFORE LANDING: NINE FINDINGS, NINE FIXED
+
+Review of the part C branch before it was pushed. Nothing it found was a
+crash or a wrong colour; five of the nine were the interface telling the
+user something that was not true, which is worse in a file that is about
+to be translated into nine languages.
+
+FIVE FALSE SUPERLATIVES IN STRINGS THE SOUND SET COMBO SHOWS AS TOOLTIPS.
+Every "the -est of the ten" in the ten descriptions was recomputed from
+the shipped dataclasses with the defaults resolved, rather than read.
+Five were wrong, and three of those contradicted another shipped string
+in the same combo:
+
+  * Undertow said "the deepest pump of the ten". pad_pump 0.42; Pulsar is
+    0.55 and says so itself. Undertow now claims the most closed pad
+    filter, which it has (780 Hz, the lowest of the ten), alongside the
+    heaviest sub, which was already true (0.72).
+  * Cirrus said "the longest reverb" and "the quietest kick". Nocturne
+    holds both (4.8 s against 4.2; 0.18 against 0.30) and says so in its
+    own sentence. Cirrus now claims the widest pad filter (1900 Hz), the
+    widest stereo image (0.90) and the softest pump (0.22) -- three it
+    does hold -- next to the lightest sub, which was already true.
+  * Meridian said "the widest stereo pad of the ten" at 0.85 and Solstice
+    said "the widest pad" at 0.80, while Cirrus sits at 0.90. Meridian
+    now says "a wide stereo pad" and Solstice says "six voices in the
+    pad", which is a count rather than a claim.
+
+  The eleven that were true were left alone: Undertow's heaviest sub,
+  Cirrus's lightest sub, Vesper's most detuned pad, Pulsar's hardest pump
+  and brightest and shortest pluck and least room and shortest reverb,
+  and Nocturne's slowest tempo.
+
+TWO SLIPS IN THE PUBLISHED ATTRIBUTE DOCS, same cause.
+  * NIGHT_SETS said Pulsar's pluck is "a fifth as long" as Nocturne's.
+    0.22 against 0.62 is about a third. And "the other ten seeds are
+    consecutive" -- nine are (4272 to 4280); Orbit predates the ten and
+    keeps 427. Both corrected.
+  * NIGHT_THEMES said blobs "carries three of them". It carries two.
+    Three producers carry two themes each (blobs, aurora, drift) and four
+    carry one. The doc now names the three pairs and their colour sets
+    instead of counting wrong.
+
+THE WRITTEN HALF OF EACH THEME WAS NOT REACHING THE SCREEN. NightTheme
+carried a description, its docstring said it was "shown as the choice's
+explanation", and the ten were queued for translation into nine
+languages -- but preferences.theme_choices() returns (label, key) and the
+Theme combo added the label alone. No widget anywhere asked for
+.description. Ten sentences would have been translated ninety times for
+text nobody could read. preferences.theme_description() now returns a
+token's sentence (empty for the four older themes) and the Theme combo
+sets it as the entry's ToolTipRole, which is exactly what the Sound set
+combo already did with SoundTheme.description. Two tests guard it: every
+one of the ten shows its own sentence, and Dark, Light, Glass and Follow
+system get no invented one.
+
+THE ARTIST RATCHET HAD A TRAP IN IT. FORBIDDEN held the bare substring
+"nto" and was matched with `in`, so the next description containing
+"into", "onto" or "contour" would have failed with "an artist reached the
+interface: nto". It passed today only because no current string happens
+to contain those letters. The sweep now matches whole words. Two tests
+were added so the change is not a quiet loosening: one proves the guard
+still catches "in the style of nto", "worakls-like" and "rivière monk",
+the other proves "into", "onto", "contour", "monkey" and "monkfish" are
+not artists.
+
+A SECOND ENTRY POINT THIS FILE HAD NOT RECORDED. spacr/qt/setup_screen.py
+builds its Theme question from prefs.theme_choices() and writes it with
+prefs.set_theme_choice(), so the ten appear in FIRST-RUN SETUP as well as
+in Preferences, and choosing one there calls apply_night_theme and moves
+prefs/ambient_theme, prefs/ambient_palette and sound/theme with it. That
+is the behaviour the request asks for -- a theme is look and sound
+together -- and it is still off-sound, since apply_night_theme never
+switches sound on. What is different from the dialog is that the setup
+screen has no Animation or Sound set control, so the user does not SEE
+what moved; they see it in Preferences afterwards. Recorded rather than
+changed: the screen's question contract is (key, label, getter, setter,
+choices) with choices as (value, label) pairs, and widening it to carry a
+sentence is a change to that screen and its slides, not to this item.
+
+MEASURED AGAIN AFTER THE FIXES, not assumed: the five reworded
+descriptions were checked against the dataclasses a second time, and
+tests/qt/test_ten_night_themes.py runs 211 (was 207; four new guards).
+
+WHAT THE REVIEW DID NOT CHANGE. The palettes, the backdrops, every sound
+parameter, the lazy-dressing fix and the frame-budget numbers are
+untouched -- the nine findings were all about what is written, not what
+is rendered or heard. So the two things still open at the top of this
+note are open in exactly the same way: nobody has listened to the eleven
+sound sets and nobody has looked at the ten palettes on a real screen.
+
+TRANSLATIONS: the five reworded sound descriptions replace five strings
+that were already owed and not yet in any catalog, so nothing new is
+owed for them. preferences.theme_description is a new public docstring
+and is added to what the consolidated pass carries.

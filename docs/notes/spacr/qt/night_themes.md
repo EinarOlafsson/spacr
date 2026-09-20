@@ -220,3 +220,35 @@ the same producer twice, one number six frames short. It was the machine:
 two other pytest processes were running. Three clean re-runs of meridian,
 vesper and dark gave 24.8-25.1 across the board. A single low row in a
 sweep taken under load is load until it repeats.
+
+## Where the description is actually shown
+
+`NightTheme.description` was a field nothing read. The dataclass docstring
+said it was "shown as the choice's explanation" and the ten sentences were
+queued for translation into nine languages, but `preferences.theme_choices()`
+returns `(label, key)` and the Theme combo added the label alone — so ten
+sentences would have been translated ninety times for text no widget ever
+asked for.
+
+`preferences.theme_description(token)` now returns a token's sentence, empty
+for Dark, Light, Glass and Follow system, and the Theme combo sets it as that
+entry's `ToolTipRole`. That is the same route the Sound set combo already used
+for `SoundTheme.description` (`sound_preferences.py`), so the two halves of a
+theme are explained the same way rather than two different ways.
+
+The first-run setup screen (`setup_screen.py`) offers the same ten through the
+same `theme_choices()` / `set_theme_choice()` pair, so choosing one there also
+applies its backdrop and sound set. It does not show the sentence: its question
+contract is `(key, label, getter, setter, choices)` with choices as
+`(value, label)` pairs, and widening it to carry a third element is a change to
+that screen and its slides.
+
+## The superlatives in the sound descriptions are checked, not written
+
+Five of the ten sound-set descriptions claimed a "-est of the ten" that the
+shipped dataclasses did not support — Undertow's pump, Cirrus's reverb and
+kick, Meridian's and Solstice's pad width — and three of the five contradicted
+another string shown in the same combo. They were recomputed from the
+dataclasses with defaults resolved and reworded to claims that hold. Anything
+of that shape added later should be recomputed the same way: the defaults mean
+a superlative cannot be verified by reading the literal it is written next to.

@@ -327,10 +327,11 @@ VESPER_PALETTE = {
 #:
 #: NO PAIR REPEATS A BACKDROP. Ten themes over seven animations means an
 #: animation is reused; what is not reused is the pair, so no two themes
-#: put the same picture on the screen. ``blobs`` carries three of them
-#: because it is the one producer that reads as *nebula* at every
-#: saturation, and the three colour sets it carries are as far apart as
-#: the family goes.
+#: put the same picture on the screen. Three producers carry two themes
+#: each and four carry one, and where a producer is reused its two
+#: themes are painted in different colour sets: ``blobs`` in low sun and
+#: dusk, ``aurora`` in ocean and dusk, ``drift`` in ocean and midnight.
+#: What stays unique is the pair, not the producer.
 NIGHT_THEMES: Dict[str, NightTheme] = {
     theme.key: theme for theme in (
         NightTheme(

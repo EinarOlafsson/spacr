@@ -1501,6 +1501,26 @@ def theme_choices() -> tuple:
     return tuple(choices)
 
 
+def theme_description(token: str) -> str:
+    """Return the one-sentence explanation of a :func:`theme_choices` token.
+
+    The ten night themes each carry a sentence saying what colours,
+    backdrop and sound set come with them; that sentence is what the
+    Theme control shows as the entry's tooltip, the way the Sound set
+    control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.
+
+    :param token: a token from :func:`theme_choices`.
+    :returns: the theme's sentence, or ``""`` for the four themes that
+        predate the family and for any token without one. The caller
+        passes the result through :func:`tr` and sets no tooltip when it
+        is empty.
+    """
+    from .night_themes import NIGHT_THEMES
+
+    theme = NIGHT_THEMES.get(token)
+    return theme.description if theme is not None else ""
+
+
 def get_theme_choice() -> str:
     """Return the composite token representing the current visual theme."""
     theme = get_theme()
@@ -5135,6 +5155,10 @@ class PreferencesDialog:
         theme_combo = QComboBox()
         for label, key in theme_choices():
             theme_combo.addItem(tr(label), key)
+            blurb = theme_description(key)
+            if blurb:
+                theme_combo.setItemData(theme_combo.count() - 1, tr(blurb),
+                                        Qt.ItemDataRole.ToolTipRole)
         current = get_theme_choice()
         for i in range(theme_combo.count()):
             if theme_combo.itemData(i) == current:
