@@ -228,9 +228,24 @@ def test_otsu_detect_is_handed_the_inverted_pixels_while_invert_is_on(screen):
     assert not np.array_equal(seen[-1], screen._canvas.image)
 
 
-def test_the_readout_reports_the_intensity_on_disk_while_invert_is_on(screen):
-    """A number read off the picture is typed into the filter boxes, so it
-    has to be the raw one whichever way the picture is drawn."""
+def test_the_readout_splits_the_pixel_from_the_object_mean_while_inverted(
+        screen):
+    """THIS TEST ASSERTED THE OPPOSITE UNTIL 2026-09-20, and the reason it
+    changed is worth keeping.
+
+    It held that the readout reports the on-disk intensity whichever way
+    the picture is drawn, because "a number read off the picture is typed
+    into the filter boxes". That is true of the OBJECT MEAN, which the
+    Filter's own boxes are compared against, and it was wrong about the
+    PIXEL: the readout is the instrument a curator checks an inversion
+    with, and reporting the loaded value under an inverted picture read as
+    the switch doing nothing. The maintainer reported exactly that.
+
+    So the two are now split, and each says which it is:
+
+        the pixel intensity follows the picture      "(inverted)"
+        the object mean follows the Filter           "(as loaded)"
+    """
     canvas = screen._canvas
     spot = QPointF(CANVAS_W / 2.0, CANVAS_H / 2.0)
     upright = canvas.update_readout(spot)
@@ -238,9 +253,12 @@ def test_the_readout_reports_the_intensity_on_disk_while_invert_is_on(screen):
     screen._invert_display.setChecked(True)
     inverted = canvas.update_readout(spot)
     assert inverted is not None
-    assert inverted.intensity == pytest.approx(upright.intensity)
-    assert inverted.mean_intensity == upright.mean_intensity
-    assert canvas._lookup_image is canvas.image
+    assert inverted.intensity != pytest.approx(upright.intensity), (
+        "the pixel must follow the picture; that is the defect this fixed")
+    assert inverted.mean_intensity == upright.mean_intensity, (
+        "the object mean must stay the number a Filter bound is typed from")
+    assert canvas._lookup_image is canvas.image, (
+        "the lookup is still built on the loaded pixels")
 
 
 def test_the_object_filter_measures_the_original_pixels(screen):
@@ -617,3 +635,72 @@ def test_two_classes_and_no_window_is_the_threshold_that_was_there():
                                fill_holes=True, split_touching=True,
                                classes=2, local=False,
                                window=mm.OTSU_LOCAL_WINDOW))
+
+
+# ---------------------------------------------------------------------------
+# The readout, reopened 2026-09-20
+# ---------------------------------------------------------------------------
+
+def test_the_hover_intensity_follows_the_inversion(screen):
+    """THE DEFECT THE MAINTAINER REPORTED, in his own terms: "the hover
+    allows me to see the intensities and they dont seem to change at all
+    when i press invert, so it is not done".
+
+    He was right, and the reason it read as "not done" is that the readout
+    is the instrument an inversion is checked WITH: it reported the loaded
+    pixel while the picture showed the negative.
+    """
+    canvas = screen._canvas
+    spot = (40, 40)
+    plain = canvas._value_at(canvas.displayed_source(), spot)
+    screen._invert_display.setChecked(True)
+    inverted = canvas._value_at(canvas.displayed_source(), spot)
+    assert inverted != plain, (
+        "the number under the mouse did not move when the picture did")
+    screen._invert_display.setChecked(False)
+    assert canvas._value_at(canvas.displayed_source(), spot) == plain
+
+
+def test_a_bright_pixel_reads_low_once_inverted(screen):
+    """High becomes low, which is what was asked for."""
+    canvas = screen._canvas
+    field = np.asarray(canvas.image)
+    flat = int(np.argmax(field))
+    spot = (flat % field.shape[1], flat // field.shape[1])
+    brightest = canvas._value_at(canvas.displayed_source(), spot)
+    screen._invert_display.setChecked(True)
+    assert canvas._value_at(canvas.displayed_source(), spot) < brightest
+
+
+def test_the_caption_says_which_number_it_is_showing(screen):
+    """A number that has been transformed has to say so, or it is a
+    different wrong answer from the one this fixed."""
+    canvas = screen._canvas
+    canvas.readout = engine.PixelReadout(10, 10, 123.0)
+    canvas.invert_display = False
+    assert "(inverted)" not in canvas.readout_text()
+    canvas.invert_display = True
+    assert "(inverted)" in canvas.readout_text()
+
+
+def test_the_object_mean_still_belongs_to_the_filter(screen):
+    """It is documented as the number a Filter bound can be typed from, and
+    the Filter reads the loaded pixels -- so it stays as it is and says so,
+    rather than being quietly inverted with the pixel beside it."""
+    canvas = screen._canvas
+    canvas.readout = engine.PixelReadout(10, 10, 123.0, label=1, area=64,
+                                         mean_intensity=60000.0)
+    canvas.invert_display = True
+    text = canvas.readout_text()
+    assert "(as loaded)" in text
+    assert "60000" in text.replace(",", "").replace(" ", "")
+
+
+def test_the_loaded_pixels_are_still_never_touched(screen):
+    """The property the whole design protects, re-asserted beside the
+    change that made the readout follow the picture."""
+    canvas = screen._canvas
+    before = np.array(canvas.image, copy=True)
+    screen._invert_display.setChecked(True)
+    canvas._value_at(canvas.displayed_source(), (40, 40))
+    assert np.array_equal(canvas.image, before)

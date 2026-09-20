@@ -440,3 +440,64 @@ test_every_help_string_on_the_panel_has_an_exact_catalog_row FAILS, and it
 FAILED ON NIGHTLY BEFORE THIS CHANGE -- checked in a clean worktree at
 origin/nightly, same assertion, same list of Otsu strings. This adds one row
 to that list rather than causing it.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- REOPENED BY THE MAINTAINER: THE READOUT DID NOT FOLLOW THE PICTURE
+--------------------------------------------------------------------------------
+
+Reported in his own words, against a file that said DONE:
+
+    "i told you how i wanted the invert button to be called invert and for
+    the inversion to actually invert the image so black objects become
+    white and withe become black. i.e. high intensity becomes low and low
+    becomes high. i can see that this is not the case because the hover
+    allows me th see the intensities and they dont seem to change at all
+    when i press invert, so it is not done"
+
+HE WAS RIGHT, AND THE FILE SAID SO ON PURPOSE. `_on_invert_display`'s own
+docstring listed "the hover readout" among the things that still read the
+loaded pixels. That was a deliberate decision, and it was the wrong one --
+not because the reasoning was bad but because of what the readout IS. It is
+the only instrument on the screen that reports a number per pixel, so it is
+what a curator checks an inversion WITH. A readout that does not move under
+an inverted picture does not read as "the raw value, helpfully preserved";
+it reads as a switch that did nothing.
+
+WHAT THE PICTURE WAS ALREADY DOING, checked before changing anything: the
+canvas drew `invert_normalized(image)` and did invert. The defect was
+entirely in what the readout reported.
+
+THE FIX, AND WHY IT IS A SPLIT RATHER THAN A SWITCH. Two numbers are shown
+and they serve different masters:
+
+    the pixel intensity    follows the PICTURE      says "(inverted)"
+    the object mean        follows the FILTER       says "(as loaded)"
+
+The mean is documented as the number a Filter bound is typed from, and the
+Filter reads the loaded pixels; inverting it as well would have broken that
+silently, which is a second wrong answer rather than a fix. Each now says
+which it is, so the two cannot be mistaken for each other.
+
+UNCHANGED, and re-asserted by a test beside the change: `canvas.image` is
+never touched, so what is measured and what is saved are still the numbers
+the microscope wrote.
+
+TWO TESTS THAT ASSERTED THE OLD DECISION WERE REWRITTEN RATHER THAN DELETED,
+each carrying why:
+
+  * `test_the_readout_reports_the_intensity_on_disk_while_invert_is_on` is
+    now `test_the_readout_splits_the_pixel_from_the_object_mean_while_
+    inverted`. Its old reason -- "a number read off the picture is typed
+    into the filter boxes" -- is true of the mean and was wrong about the
+    pixel.
+  * Item 419 point 9's `test_the_readout_and_the_filter_keep_the_fields_
+    real_values` froze the WHOLE readout; it is narrowed to the filter,
+    which is what point 9 actually needs.
+
+MEASURED: 185 passed over the Make Masks filter/split/invert, invert/Otsu,
+readout/layout/install and mask_engine suites with the no-comments gate. 5
+new tests, 2 rewritten.
+
+STILL TRUE FROM THE NOTE ABOVE: the nine-language catalogs owe the two new
+caption forms, "(inverted)" and "(as loaded)". Translations are low priority
+by the maintainer's instruction of this date.

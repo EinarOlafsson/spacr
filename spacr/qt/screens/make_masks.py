@@ -1095,14 +1095,16 @@ class _MaskCanvas(QLabel):
         spot = (None if pos is None or self.image is None
                 else self._canvas_to_image(pos.x(), pos.y()))
         if spot is not None:
+            source = self.displayed_source()
             lookup = self._object_lookup() if measure else None
             if lookup is not None:
                 readout = lookup.at(*spot)
+                if readout is not None and self.invert_display:
+                    readout = readout._replace(
+                        intensity=self._value_at(source, spot))
             else:
-                value = np.asarray(self.image[spot[1], spot[0]],
-                                   dtype=np.float32)
-                readout = engine.PixelReadout(spot[0], spot[1],
-                                              float(value.mean()))
+                readout = engine.PixelReadout(
+                    spot[0], spot[1], self._value_at(source, spot))
         if readout != self.readout:
             before = self.readout_rect()
             self.readout = readout
@@ -1110,6 +1112,28 @@ class _MaskCanvas(QLabel):
                 if rect is not None:
                     self.update(rect.adjusted(-2, -2, 2, 2))
         return readout
+
+    @staticmethod
+    def _value_at(source, spot) -> float:
+        """The intensity at ``spot`` of whichever array is handed in.
+
+        ITEM 435, corrected 2026-09-20. This used to read :attr:`image`
+        always, so with Invert on the picture was the negative and the
+        number under the mouse was not -- and the readout is the instrument
+        a curator checks the inversion WITH. The maintainer reported it as
+        "the hover allows me to see the intensities and they dont seem to
+        change at all when i press invert, so it is not done".
+
+        It now reads what is DRAWN, so the number agrees with the picture.
+        What is saved and what the Filter measures still read the loaded
+        pixels, which is why the caption says which of the two a number is.
+
+        :param source: the array actually on screen.
+        :param spot: ``(x, y)`` in image pixels.
+        :returns: the value, averaged over channels for a colour field.
+        """
+        value = np.asarray(source[spot[1], spot[0]], dtype=np.float32)
+        return float(value.mean())
 
     def _schedule_readout(self) -> None:
         """Re-read the readout once the current event has been handled.
@@ -1143,13 +1167,26 @@ class _MaskCanvas(QLabel):
         readout = self.readout
         if readout is None:
             return ""
-        lines = [tr("x {x}, y {y}   intensity {value}", x=readout.x,
-                    y=readout.y, value=_readout_number(readout.intensity))]
+        if self.invert_display:
+            lines = [tr("x {x}, y {y}   intensity {value} (inverted)",
+                        x=readout.x, y=readout.y,
+                        value=_readout_number(readout.intensity))]
+        else:
+            lines = [tr("x {x}, y {y}   intensity {value}", x=readout.x,
+                        y=readout.y,
+                        value=_readout_number(readout.intensity))]
         if readout.label:
-            lines.append(tr(
-                "Object {label}   area {area} px   mean intensity {mean}",
-                label=readout.label, area=readout.area,
-                mean=_readout_number(readout.mean_intensity, decimals=2)))
+            if self.invert_display:
+                lines.append(tr(
+                    "Object {label}   area {area} px   mean intensity "
+                    "{mean} (as loaded)",
+                    label=readout.label, area=readout.area,
+                    mean=_readout_number(readout.mean_intensity, decimals=2)))
+            else:
+                lines.append(tr(
+                    "Object {label}   area {area} px   mean intensity {mean}",
+                    label=readout.label, area=readout.area,
+                    mean=_readout_number(readout.mean_intensity, decimals=2)))
         return "\n".join(lines)
 
     def readout_rect(self) -> Optional[QRect]:
@@ -6263,7 +6300,13 @@ class MakeMasksScreen(QWidget):
         second one that can disagree with it.
 
         WHAT STILL READS THE LOADED PIXELS, and the status line says it:
-        the hover readout, the Filter category and the mask that is saved.
+        the Filter category and the mask that is saved. THE HOVER READOUT
+        NO LONGER DOES, corrected 2026-09-20: it reported the loaded value
+        while the picture showed the negative, and since the readout is the
+        instrument a curator checks an inversion WITH, that read as the
+        switch doing nothing. The pixel intensity now follows the picture
+        and says "(inverted)"; the object mean still follows the Filter,
+        and says "(as loaded)" so the two cannot be confused.
         Detection no longer does, which is the point of the switch, and the
         warning banner above the image says that for as long as it is on.
 
@@ -6278,8 +6321,9 @@ class MakeMasksScreen(QWidget):
         else:
             self._status_label.setText(
                 "Showing the image inverted — dark is bright — and "
-                "detecting on it. The hover readout, filtering and saving "
-                "still use the original pixels."
+                "detecting on it. The hover intensity follows the picture "
+                "and says so; filtering, the object mean and saving still "
+                "use the original pixels."
             )
 
     def _on_wand_tolerance_changed(self, v: float):

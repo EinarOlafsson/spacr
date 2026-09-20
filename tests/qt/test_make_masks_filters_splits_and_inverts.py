@@ -713,14 +713,29 @@ def test_object_detection_is_handed_the_inverted_image(screen, monkeypatch):
         seen[-1], engine.invert_normalized(screen._canvas.image))
 
 
-def test_the_readout_and_the_filter_keep_the_fields_real_values(screen):
-    """Point 9's own note: a user filtering by intensity judges real numbers."""
+def test_the_filter_keeps_the_fields_real_values_while_inverted(screen):
+    """Point 9's own note: a user filtering by intensity judges real numbers.
+
+    NARROWED 2026-09-20 FROM "the readout" TO "the filter", at the
+    maintainer's word. This asserted that the WHOLE readout was unchanged
+    by inverting, which also froze the pixel intensity -- and the readout
+    is the instrument an inversion is checked with, so a pixel that did not
+    move read as the switch doing nothing. He reported exactly that.
+
+    What point 9 actually needs is untouched and is what this now says: the
+    object mean, which the filter's boxes are compared against, is the real
+    number, and the row the filter logs quotes it.
+    """
     screen._canvas.update_readout(QPointF(*canvas_xy(3, 3)), measure=True)
     plain = screen._canvas.readout
 
     screen._cp_invert.setChecked(True)
     screen._canvas.update_readout(QPointF(*canvas_xy(3, 3)), measure=True)
-    assert screen._canvas.readout == plain
+    inverted = screen._canvas.readout
+    assert inverted.mean_intensity == plain.mean_intensity
+    assert (inverted.label, inverted.area) == (plain.label, plain.area)
+    assert inverted.intensity != plain.intensity, (
+        "the pixel under the mouse must follow the picture")
 
     screen._filter_min_area.setValue(20)
     screen._btn_filter.click()
