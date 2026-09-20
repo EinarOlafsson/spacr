@@ -5565,7 +5565,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 434,
+    "line": 905,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_objects"
@@ -5574,7 +5574,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
@@ -5740,7 +5740,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 396,
+    "line": 867,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cellpose_model"
@@ -5749,7 +5749,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
@@ -8272,7 +8272,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "count_data",
-    "line": 4502,
+    "line": 4513,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -11003,7 +11003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 821,
+    "line": 1509,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -11012,7 +11012,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
@@ -13251,7 +13251,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 813,
+    "line": 1501,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -13260,7 +13260,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
@@ -22064,7 +22064,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 704,
+    "line": 1375,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -22073,7 +22073,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
@@ -25276,7 +25276,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 825,
+    "line": 1513,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -25285,7 +25285,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"
@@ -30156,7 +30156,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "paired_data",
-    "line": 4495,
+    "line": 4506,
     "module": "spacr.qt.screens.settings_model",
     "nested": false,
     "qualname": "_count_files_of"
@@ -32905,7 +32905,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 824,
+    "line": 1512,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -32914,7 +32914,7 @@
     "form": "get-dynamic",
     "function_depth": 1,
     "key": "plate",
-    "line": 127,
+    "line": 213,
     "module": "spacr.ops_settings",
     "nested": false,
     "qualname": "ops_defaults"

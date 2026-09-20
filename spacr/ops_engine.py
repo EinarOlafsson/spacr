@@ -1,14 +1,16 @@
 """Run an optical pooled screen's sequencing acquisition from tiles to tables.
 
-One call takes each well from its tile files to three tables in
+One call takes each well from its tile files to the tables of
 ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the
-well frame; ``ops_objects``, one row per nucleus, segmented on the composed
-nuclear map and numbered once for the well; and ``ops_barcodes``, one row per
-nucleus whose attributed reads agree.
+well frame; ``ops_phenotype``, where each field of the high-magnification
+phenotype acquisition lands on that frame and which tile covers it;
+``ops_objects``, one row per nucleus, segmented on the composed nuclear map
+and numbered once for the well; ``ops_barcodes``, one row per nucleus whose
+attributed reads agree; and, when asked for, ``ops_reads``, one row per read
+per cycle behind those barcodes.
 
 A file that cannot be read costs one cycle of the field it belongs to and is
-listed in the report; it does not cost the well. The phenotype acquisition
-is not placed by this step.
+listed in the report; it does not cost the well.
 """
 from __future__ import annotations
 
@@ -59,6 +61,54 @@ _TILE_PATTERN = re.compile(
     r"(?P<channel>[A-Za-z0-9-]+?)_Site[-_](?P<site>\d+)\.tiff?$",
     re.IGNORECASE)
 
+#: A tile of an acquisition with NO CYCLE, which is what the phenotype half
+#: of the reference plate is: ``20X_DAPI-GFP-A594-AF750_B1_DAPI-GFP_Site-0
+#: .tif`` -- magnification, the acquisition's whole channel set, the well
+#: AFTER that set, then the channel or channels THIS file holds, then the
+#: site.
+#:
+#: THIS FILE PREDICTED ``20X_c1_B1_DAPI-GFP-A594-AF750_Site-0.tif`` AND WAS
+#: WRONG, checked against
+#: ``screenA/20200202_6W-LaC024A/phenotype/images/input/`` on 2026-09-19.
+#: There is no cycle field, the well and the channel set are the other way
+#: round, and the file's own channel is a fifth field. A phenotype
+#: acquisition read with :data:`_TILE_PATTERN` alone therefore indexes ZERO
+#: tiles and A4 refuses a well whose images are all present. Three channel
+#: tokens per site -- ``DAPI-GFP`` as one two-plane stack, ``A594`` and
+#: ``AF750`` -- for 1,281 sites in each of the six wells.
+_UNCYCLED_TILE_PATTERN = re.compile(
+    r"(?P<mag>\d+X)_(?P<acquisition>[A-Za-z0-9-]+)_(?P<well>[A-Z]\d{1,2})_"
+    r"(?P<channel>[A-Za-z0-9-]+)_Site[-_](?P<site>\d+)\.tiff?$",
+    re.IGNORECASE)
+
+#: The cycle an uncycled acquisition is filed under. It has exactly one, and
+#: the rest of the engine addresses a well as ``cycle -> site -> channel``.
+_UNCYCLED_CYCLE = 1
+
+
+def _match_tile(name: str):
+    """A tile name parsed, by either naming scheme.
+
+    :param name: the file's base name.
+    :returns: ``(well, cycle, site, channel, magnification)``, or None.
+
+    THE CYCLED PATTERN IS TRIED FIRST AND THE ORDER MATTERS. A sequencing
+    name of one channel -- ``10X_c2_A1_A594_Site-0.tif`` -- also satisfies
+    the uncycled pattern, which would read its cycle token ``c2`` as the
+    acquisition's channel set and file all eleven cycles as one. Tried in
+    this order, a name that carries a cycle is never read as one that does
+    not.
+    """
+    found = _TILE_PATTERN.search(name)
+    if found:
+        return (found["well"].upper(), int(found["cycle"]), int(found["site"]),
+                found["channel"].upper(), found["mag"])
+    found = _UNCYCLED_TILE_PATTERN.search(name)
+    if not found:
+        return None
+    return (found["well"].upper(), _UNCYCLED_CYCLE, int(found["site"]),
+            found["channel"].upper(), found["mag"])
+
 #: The nuclear stain's channel name, and the base channels in the order the
 #: bases are read (372 PART 14-L, from the reference run's
 #: ``20200202_6W-LaC024A_0_sbs.smk``: channels CY3, A594, CY5, CY7 and
@@ -94,13 +144,38 @@ _MIN_CONTAINMENT = 0.8
 #: PART 9 hole 1: a field with fewer usable cycles than this is not decoded.
 _MIN_CYCLES = 3
 
+#: How many phenotype fields A4 tries to align before it fits the raster.
+#: Six is what PART 14-M measured: six alignments predicted well A1's other
+#: 472 field centres to a median 1.2 px and a worst 4.0 px, and A2's 451 to a
+#: worst 4.4 px. Three is the arithmetic floor and leaves no residual to read,
+#: so a bad anchor cannot be seen; six leaves three degrees of freedom.
+_PHENOTYPE_ANCHORS = 6
+
+#: How many candidates A4 may try to reach :data:`_PHENOTYPE_ANCHORS`. An
+#: alignment that refuses costs one field's points and nothing else, and a
+#: well where more than this many refuse is not a well the raster should be
+#: fitted on at all.
+_PHENOTYPE_CANDIDATES = 18
+
+#: How far either side of a seeded centre the sequencing window reaches, in
+#: well-frame pixels. PART 14-B/C's window: the seed is a grid prediction and
+#: lands within about a tile, so the window has to hold a tile's error.
+_ANCHOR_SEARCH_PX = 1600
+
+#: The most sequencing nuclei an anchor alignment is offered. The seed search
+#: is a KD-tree query per trial and the trial count is proportional to the
+#: target, so an unbounded window would make the cost quadratic in the pad.
+_ANCHOR_TARGET_POINTS = 3000
+
 #: How many fields decode at once, whatever ``n_workers`` asks for. One field
 #: holds eleven cycles of four 1,480 px channels twice over (the aligned
 #: stack and its filtered copy), about 1.5 GB at its peak.
 _DECODE_WORKERS_CAP = 8
 
-#: The three steps, in the order they run.
-_PHASES = ("stitch", "objects", "decode")
+#: The four steps, in the order they run. ``phenotype`` sits between the
+#: stitch and the segmentation because it needs the well frame and nothing
+#: else, so a run that only wants the placement stops after two phases.
+_PHASES = ("stitch", "phenotype", "objects", "decode")
 
 #: The guide library a decode worker compares calls against, set once per
 #: process by :func:`_init_decode_worker` rather than shipped with every
@@ -121,21 +196,27 @@ def _index_tiles(root: str) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
     """Every tile under ``root``, as ``well -> cycle -> site -> channel -> path``.
 
     :param root: the acquisition folder, searched recursively.
-    :returns: the index; empty when nothing matched.
+    :returns: the index; empty when nothing matched. An acquisition whose
+        names carry no cycle -- the phenotype half -- is filed under cycle
+        :data:`_UNCYCLED_CYCLE`.
 
     Names that are directories are skipped by the walk itself, which matters
     here: PART 14-D found ``*.tif`` names on this plate that are folders.
+    Names that are not a readable tile are skipped by the pattern, which
+    matters too: the phenotype folder holds thirteen
+    ``*.tif.lftp-pget-status`` files, the remains of interrupted downloads,
+    and an index that took those for tiles would hand tifffile a status
+    file.
     """
     found: Dict[str, Dict[int, Dict[int, Dict[str, str]]]] = {}
     for folder, _folders, files in os.walk(root, followlinks=True):
         for name in files:
-            match = _TILE_PATTERN.search(name)
-            if not match:
+            parsed = _match_tile(name)
+            if parsed is None:
                 continue
-            well = match["well"].upper()
-            cycle, site = int(match["cycle"]), int(match["site"])
+            well, cycle, site, channel, _magnification = parsed
             found.setdefault(well, {}).setdefault(cycle, {}).setdefault(
-                site, {})[match["channel"].upper()] = os.path.join(folder, name)
+                site, {})[channel] = os.path.join(folder, name)
     return found
 
 
@@ -289,7 +370,7 @@ def _well_rows(db: str, table: str, plate: str, well: str):
 
 
 def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
-            gpu: bool) -> Dict[str, Any]:
+            settings: Mapping[str, Any], gpu: bool) -> Dict[str, Any]:
     """Solve the reference cycle's nuclear tiles and store ``ops_geometry``.
 
     :param db: the measurements database.
@@ -297,6 +378,7 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
     :param well: the well name.
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle carrying the nuclear stain.
+    :param settings: read for ``ops_raster_overlap``.
     :param gpu: let the registration use the card.
     :returns: the stitch report.
     """
@@ -319,7 +401,8 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
         raise ValueError(f"no nuclear tile of well {well} could be read")
     ordered = [first] + [site for site in sites if site != first]
     layout = round_well_layout(max(cycle_files[reference]) + 1)
-    result = stitch_well(read, layout, overlap=_RASTER_OVERLAP,
+    overlap = _setting_number(settings, "ops_raster_overlap", _RASTER_OVERLAP)
+    result = stitch_well(read, layout, overlap=overlap,
                          tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=ordered)
     placed = _largest_component(result.edges, sites)
     origin_y = min(result.placements[site][0] for site in placed)
@@ -340,7 +423,7 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
         "residual_median_px": float(np.median(residuals)) if residuals.size else None,
         "residual_max_px": float(residuals.max()) if residuals.size else None,
         "canvas": list(result.canvas), "expected_canvas": list(result.expected_canvas),
-        "canvas_agrees": bool(result.canvas_agrees()),
+        "canvas_agrees": bool(result.canvas_agrees()), "raster_overlap": overlap,
         "unreadable": unreadable, "seconds": round(time.perf_counter() - started, 1),
     }
     _say(f"{well} stitch: {result.summary()}; {len(placed)} of {len(sites)} "
@@ -366,6 +449,394 @@ def _placements(db: str, plate: str, well: str):
                   for row in frame.itertuples()}
     shape = (int(frame["tile_height"].iloc[0]), int(frame["tile_width"].iloc[0]))
     return placements, shape
+
+
+def _setting_number(settings: Mapping[str, Any], key: str, fallback):
+    """One numeric setting, or the measured constant when it is not set.
+
+    THE CONSTANT REMAINS THE DEFAULT. Each of these numbers was measured on
+    the reference plate and is recorded with its measurement at the top of
+    this module; the setting exists so a different acquisition can be run
+    without editing the package, not so the measured value moves. An empty
+    box therefore means "the measured one", which is also what keeps a
+    settings dict that predates the key working.
+
+    :param settings: the caller's settings.
+    :param key: the setting to read.
+    :param fallback: the module constant, whose type the value is coerced to.
+    :returns: the number to use.
+    :raises ValueError: when the setting holds something that is not a number.
+    """
+    value = settings.get(key)
+    if value is None or value == "":
+        return fallback
+    try:
+        return type(fallback)(value)
+    except (TypeError, ValueError) as failure:
+        raise ValueError(
+            f"{key} must be a number; got {value!r}") from failure
+
+
+def _base_channels(settings: Mapping[str, Any]) -> Tuple[str, ...]:
+    """The channels carrying the bases, in the order the bases are read.
+
+    :param settings: read for ``ops_base_channels``, a comma-separated list.
+    :returns: the channel tokens, upper-cased as :func:`_index_tiles` stores
+        them.
+    :raises ValueError: when the list does not name exactly one channel per
+        base. A short list would decode a shorter barcode than the library
+        holds and a long one would read a base that has no letter, and both
+        are quieter as a refusal here than as a low library match later.
+    """
+    raw = settings.get("ops_base_channels")
+    if not raw:
+        return _BASE_CHANNELS
+    if isinstance(raw, str):
+        parts = [piece.strip() for piece in raw.replace(";", ",").split(",")]
+    else:
+        parts = [str(piece).strip() for piece in raw]
+    names = tuple(piece.upper() for piece in parts if piece)
+    if len(names) != len(_BASES):
+        raise ValueError(
+            f"ops_base_channels must name one channel per base "
+            f"({', '.join(_BASES)}); got {list(names)}")
+    return names
+
+
+def _tile_magnification(path: str) -> Optional[float]:
+    """The objective a tile was taken with, from its name.
+
+    :param path: any tile path :func:`_index_tiles` indexed.
+    :returns: the number before the ``X``, or None when the name does not
+        carry one.
+    """
+    parsed = _match_tile(os.path.basename(str(path)))
+    if parsed is None:
+        return None
+    try:
+        return float(parsed[4][:-1])
+    except ValueError:
+        return None
+
+
+def _any_tile(files) -> Optional[str]:
+    """One tile path out of a ``cycle -> site -> channel -> path`` index.
+
+    :param files: the index of one well.
+    :returns: a path, or None when the index is empty.
+    """
+    for _cycle, sites in sorted(files.items()):
+        for _site, channels in sorted(sites.items()):
+            for _channel, path in sorted(channels.items()):
+                return path
+    return None
+
+
+def _fitted_raster(layout, centres: Mapping[int, Tuple[float, float]]):
+    """Origin, column step and row step of a measured acquisition raster.
+
+    :param layout: the acquisition's :class:`spacr.ops_layout.WellLayout`.
+    :param centres: ``{site: (y, x)}``, measured well-frame centres.
+    :returns: a ``(3, 2)`` array -- the grid origin and the two steps -- or
+        None when the layout does not hold every site, or the sites lie on
+        one grid line.
+
+    This is the sequencing side of what
+    :func:`spacr.ops_phenotype.phenotype_centres` does for the phenotype
+    acquisition, and it is only ever used to SEED the anchor search: a seed
+    that is wrong by a tile still puts the right pixels inside the window,
+    and the window is a tile wide on each side.
+    """
+    sites = sorted(centres)
+    try:
+        grid = np.array([layout.position(site) for site in sites], float)
+    except IndexError:
+        return None
+    design = np.column_stack([np.ones(len(sites)), grid])
+    if len(sites) < 3 or np.linalg.matrix_rank(design) < 3:
+        return None
+    measured = np.array([centres[site] for site in sites], float)
+    solution, *_ = np.linalg.lstsq(design, measured, rcond=None)
+    return solution
+
+
+def _anchor_candidates(layout, wanted: int, limit: int) -> List[int]:
+    """Sites to try as anchors, spread over the well, best first.
+
+    :param layout: the phenotype acquisition's layout.
+    :param wanted: how many anchors the raster fit wants.
+    :param limit: the most candidates to return.
+    :returns: site numbers.
+
+    SPREAD, NOT THE FIRST N. The fit is an origin and two steps, so anchors
+    from one corner fix the origin well and the steps badly, and anchors
+    from one grid line fix nothing across it -- which
+    :func:`spacr.ops_phenotype.phenotype_centres` refuses outright. One
+    field at the centre and the rest around a circle inside the well give a
+    conditioned design whichever ones then fail to align.
+    """
+    points = np.array(layout.positions(), float)
+    centre = np.array(layout.centre, float)
+    spokes = max(1, int(wanted) - 1)
+    targets = [centre]
+    for step in range(spokes):
+        angle = 2.0 * np.pi * step / spokes
+        targets.append(centre + 0.65 * float(layout.radius)
+                       * np.array([np.cos(angle), np.sin(angle)]))
+    chosen: List[int] = []
+    for target in targets:
+        order = np.argsort(np.hypot(*(points - target).T))
+        for site in order:
+            if int(site) not in chosen:
+                chosen.append(int(site))
+                break
+    rest = [site for site in range(len(points)) if site not in chosen]
+    while rest and len(chosen) < limit:
+        taken = points[chosen]
+        away = [min(np.hypot(*(taken - points[site]).T)) for site in rest]
+        pick = rest.pop(int(np.argmax(away)))
+        chosen.append(pick)
+    return chosen[:limit]
+
+
+def _anchor_window(seed: Tuple[float, float], extent: Tuple[float, float],
+                   canvas: Tuple[int, int]):
+    """The sequencing window one phenotype field is searched for in.
+
+    :param seed: the predicted ``(y, x)`` centre in the well frame.
+    :param extent: the field's ``(height, width)`` in well-frame pixels.
+    :param canvas: the stitched well's ``(height, width)``.
+    :returns: the :class:`spacr.ops_compose.Window`, clamped to the canvas,
+        or None when it does not meet the canvas at all.
+    """
+    from .ops_compose import Window
+
+    top = int(np.floor(seed[0] - extent[0] / 2.0 - _ANCHOR_SEARCH_PX))
+    left = int(np.floor(seed[1] - extent[1] / 2.0 - _ANCHOR_SEARCH_PX))
+    bottom = int(np.ceil(seed[0] + extent[0] / 2.0 + _ANCHOR_SEARCH_PX))
+    right = int(np.ceil(seed[1] + extent[1] / 2.0 + _ANCHOR_SEARCH_PX))
+    top, left = max(0, top), max(0, left)
+    bottom, right = min(int(canvas[0]), bottom), min(int(canvas[1]), right)
+    if bottom - top <= 0 or right - left <= 0:
+        return None
+    return Window(top=top, left=left, height=bottom - top, width=right - left)
+
+
+def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
+               phenotype_files, magnifications: Tuple[Optional[float],
+                                                      Optional[float]],
+               settings: Mapping[str, Any]) -> Dict[str, Any]:
+    """Place every phenotype field on the stitched well; store ``ops_phenotype``.
+
+    :param db: the measurements database.
+    :param plate: the plate name.
+    :param well: the well name.
+    :param cycle_files: the SEQUENCING index for this well.
+    :param reference: the sequencing cycle carrying the nuclear stain.
+    :param phenotype_files: the PHENOTYPE index for this well, same shape.
+    :param magnifications: the two acquisitions' objectives, sequencing
+        first, from the tile names; either may be None, which only costs the
+        alignment its second seed.
+    :param settings: unused today; taken so the phase signature matches the
+        others and a future knob does not change every call site.
+    :returns: the phenotype report.
+    :raises ValueError: when the well has no phenotype tile with a nuclear
+        plane, when its field count is not a round well's, or when fewer
+        than three fields aligned -- a raster cannot be fitted on two.
+
+    THE STEP IN ONE SENTENCE: align a handful of phenotype fields to the
+    stitched sequencing map, fit the acquisition raster to those few, and
+    predict where every other field's centre lands. PART 14-M measured the
+    alternative -- halving a phenotype grid index about the well centre --
+    at 0.45 to 0.61 of fields on the right tile, because at twice the tile
+    density half the fields sit on or near a sequencing tile boundary and a
+    grid index cannot see where the boundary fell.
+
+    THE SCALE IS NOT THE MAGNIFICATION RATIO, and taking it for one is an
+    error a fixture will not catch if the fixture was built from the same
+    mistake. The objectives give the field of view, the tile gives the
+    pixels across it, and the scale is the ratio of the two densities:
+    ``(sbs width x sbs magnification) / (phenotype width x phenotype
+    magnification)``. On the reference plate that is
+    ``1480 x 10 / (2960 x 20) = 0.25`` -- a quarter, not a half, because the
+    phenotype tile spends twice as many pixels on half the field. 0.25 is
+    the number :mod:`spacr.ops_phenotype` records every one of its
+    constants against.
+    """
+    import functools
+
+    import pandas as pd
+
+    from .ops_compose import compose_window
+    from .ops_layout import round_well_layout
+    from .ops_phenotype import (align_phenotype_to_sbs, nuclear_points,
+                                phenotype_centres, phenotype_site_map)
+
+    started = time.perf_counter()
+    placements, shape = _placements(db, plate, well)
+    sbs_centres = {site: (top + shape[0] / 2.0, left + shape[1] / 2.0)
+                   for site, (top, left) in placements.items()}
+    canvas = (int(np.ceil(max(y for y, _ in placements.values()))) + shape[0],
+              int(np.ceil(max(x for _, x in placements.values()))) + shape[1])
+
+    cycle = min(phenotype_files)
+    sources = {site: _plane_sources(files).get(_NUCLEAR)
+               for site, files in phenotype_files[cycle].items()}
+    sites = sorted(site for site, source in sources.items() if source)
+    if not sites:
+        raise ValueError(
+            f"no phenotype tile of well {well} carries a {_NUCLEAR} plane; "
+            f"A4 aligns on the nuclear stain and has nothing to align")
+    offered = max(phenotype_files[cycle]) + 1
+    try:
+        layout = round_well_layout(offered)
+    except ValueError as failure:
+        raise ValueError(
+            f"well {well}'s phenotype acquisition has {offered} fields, "
+            f"which no round well holds: {failure}") from failure
+
+    sbs_magnification, phenotype_magnification = magnifications
+    scale: Optional[float] = None
+    sbs_layout = None
+    try:
+        sbs_layout = round_well_layout(max(placements) + 1)
+    except ValueError:
+        sbs_layout = None
+    raster = (_fitted_raster(sbs_layout, sbs_centres)
+              if sbs_layout is not None else None)
+    middle = (float(np.mean([y for y, _ in sbs_centres.values()])),
+              float(np.mean([x for _, x in sbs_centres.values()])))
+    ratio = (float(sbs_layout.radius) / float(layout.radius)
+             if sbs_layout is not None and layout.radius else 1.0)
+
+    def seed_of(site: int) -> Tuple[float, float]:
+        """Where a phenotype field's centre is expected, before aligning it.
+
+        :param site: the phenotype site.
+        :returns: the ``(y, x)`` seed in the well frame.
+        """
+        if raster is None or sbs_layout is None:
+            return middle
+        column, row = layout.position(site)
+        position = (np.array(sbs_layout.centre, float)
+                    + (np.array([column, row], float)
+                       - np.array(layout.centre, float)) * ratio)
+        return tuple(raster[0] + position[0] * raster[1]
+                     + position[1] * raster[2])
+
+    unreadable: list = []
+    sbs_sources = {site: _plane_sources(cycle_files[reference].get(site, {})
+                                        ).get(_NUCLEAR) for site in placements}
+    read_sbs = functools.lru_cache(maxsize=48)(
+        lambda site: _read_plane(sbs_sources[site], unreadable))
+    usable = {site: place for site, place in placements.items()
+              if sbs_sources[site] is not None and read_sbs(site) is not None}
+
+    anchors: Dict[int, Tuple[float, float]] = {}
+    records: List[Dict[str, Any]] = []
+    tried = 0
+    for site in _anchor_candidates(layout, _PHENOTYPE_ANCHORS,
+                                   _PHENOTYPE_CANDIDATES):
+        if len(anchors) >= _PHENOTYPE_ANCHORS:
+            break
+        plane = _read_plane(sources.get(site), unreadable)
+        if plane is None:
+            continue
+        tried += 1
+        if scale is None and sbs_magnification and phenotype_magnification:
+            scale = float(shape[1] * sbs_magnification) / float(
+                plane.shape[1] * phenotype_magnification)
+        extent = (plane.shape[0] * (scale or 1.0),
+                  plane.shape[1] * (scale or 1.0))
+        window = _anchor_window(seed_of(site), extent, canvas)
+        if window is None:
+            continue
+        image, coverage = compose_window(window, usable, read_sbs,
+                                         tile_shape=shape)
+        covered = coverage > 0
+        if not covered.any():
+            continue
+        image[~covered] = float(np.median(image[covered]))
+        found = align_phenotype_to_sbs(
+            nuclear_points(plane), nuclear_points(
+                image, top=_ANCHOR_TARGET_POINTS),
+            expected_scale=scale)
+        if found is None:
+            continue
+        centre = found.apply(np.array([[plane.shape[0] / 2.0,
+                                        plane.shape[1] / 2.0]]))[0]
+        anchors[site] = (float(centre[0]) + window.top,
+                         float(centre[1]) + window.left)
+        records.append({
+            "site": site, "inliers": found.inliers,
+            "residual_px": round(found.residual_px, 3),
+            "scale": round(found.scale, 5),
+            "degrees": round(found.degrees, 3),
+            "points": found.points,
+            "centre_y": round(anchors[site][0], 2),
+            "centre_x": round(anchors[site][1], 2),
+        })
+
+    if len(anchors) < 3:
+        raise ValueError(
+            f"well {well}: {len(anchors)} of {tried} phenotype fields "
+            f"aligned to the sequencing frame, and an acquisition raster "
+            f"takes at least three that are not on one grid line. Check "
+            f"that the phenotype folder is the same well and that its "
+            f"nuclear channel is named {_NUCLEAR}.")
+
+    predicted = phenotype_centres(layout, anchors)
+    mapping = phenotype_site_map(layout, sbs_centres, anchors,
+                                 tile_shape=shape)
+    by_site = {record["site"]: record for record in records}
+    for record in records:
+        fitted = predicted[record["site"]]
+        record["raster_residual_px"] = round(float(np.hypot(
+            fitted[0] - anchors[record["site"]][0],
+            fitted[1] - anchors[record["site"]][1])), 3)
+
+    frame = pd.DataFrame([{
+        "plate": plate, "well": well, "site": site,
+        "centre_y": centre[0], "centre_x": centre[1],
+        "sbs_site": int(mapping.get(site, -1)),
+        "is_anchor": int(site in anchors),
+        "inliers": int(by_site[site]["inliers"]) if site in by_site else 0,
+        "alignment_residual_px": (float(by_site[site]["residual_px"])
+                                  if site in by_site else float("nan")),
+        "raster_residual_px": (float(by_site[site]["raster_residual_px"])
+                               if site in by_site else float("nan")),
+    } for site, centre in sorted(predicted.items())],
+        columns=["plate", "well", "site", "centre_y", "centre_x", "sbs_site",
+                 "is_anchor", "inliers", "alignment_residual_px",
+                 "raster_residual_px"])
+    stored = _replace_well_rows(db, "ops_phenotype", frame, plate, well)
+
+    residuals = [record["raster_residual_px"] for record in records]
+    report = {
+        "fields": len(predicted), "tiles_found": len(sites),
+        "anchors_tried": tried, "anchors_used": len(anchors),
+        "anchors": records,
+        "anchor_residual_px": {
+            "median": round(float(np.median(residuals)), 3),
+            "max": round(float(np.max(residuals)), 3),
+        },
+        "expected_scale": scale,
+        "raster": None if raster is None else {
+            "origin": [round(float(v), 2) for v in raster[0]],
+            "column_step": [round(float(v), 2) for v in raster[1]],
+            "row_step": [round(float(v), 2) for v in raster[2]],
+        },
+        "fields_mapped": len(mapping),
+        "fields_off_the_stitch": len(predicted) - len(mapping),
+        "sbs_tiles_used": len(set(mapping.values())),
+        "ops_phenotype_rows": stored,
+        "unreadable": unreadable,
+        "seconds": round(time.perf_counter() - started, 1),
+    }
+    _say(f"{well} phenotype: {len(mapping)} of {len(predicted)} fields placed "
+         f"on {report['sbs_tiles_used']} tiles from {len(anchors)} anchors, "
+         f"{report['seconds']} s")
+    return report
 
 
 def _cellpose_model(settings: Mapping[str, Any], gpu: bool):
@@ -416,7 +887,7 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
 
     from .ops_compose import compose_window, overlap_gain, windows_over
     from .ops_objects import (ObjectsError, number, objects_frame,
-                              objects_in_window, sew)
+                              objects_in_window, sew, unseen_records)
     from .ops_store import objects_ready
 
     started = time.perf_counter()
@@ -434,7 +905,10 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     diameter = settings.get("cellpose_diameter")
     extra = {"diameter": float(diameter)} if diameter else {}
 
-    windows = list(windows_over(canvas, size=_WINDOW, overlap=_WINDOW_OVERLAP))
+    window_overlap = int(_setting_number(settings, "ops_window_overlap",
+                                         _WINDOW_OVERLAP))
+    windows = list(windows_over(canvas, size=_WINDOW,
+                                overlap=window_overlap))
     seconds = Counter()
     observations: list = []
     gains = []
@@ -466,10 +940,12 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     seconds["sew"] = time.perf_counter() - tick
     tick = time.perf_counter()
     refusal = ""
+    refused: Tuple[Dict[str, Any], ...] = ()
     try:
         objects = number(groups, strict=True)
     except ObjectsError as failure:
         refusal = str(failure)
+        refused = unseen_records(groups)
         objects = number(groups, strict=False)
     seconds["number"] = time.perf_counter() - tick
     if not objects:
@@ -487,6 +963,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
         "objects": len(objects),
         "all_clipped_groups": sum(1 for g in groups if all(o.clipped for o in g)),
         "strict_refusal": refusal[:500],
+        "refusals": (_explain_refusals(refused, frame, window_overlap)
+                     if refused else None),
         "n_observations": dict(Counter(int(o.n_observations) for o in objects)),
         "area_median_px": float(np.median(frame["area"])),
         "overlap_gain": round(sum(g * a for g, a in gains) / max(1, sum(a for _, a in gains)), 3),
@@ -498,6 +976,89 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     _say(f"{well} objects: {len(objects)} from {len(observations)} observations "
          f"in {report['total_seconds']} s")
     return report
+
+
+#: How many refused groups the report describes one by one. Well A1 refused
+#: 54 and A2 62; a well that refuses thousands has a different problem and
+#: the counts above the list say so without a megabyte of JSON.
+_REFUSALS_LISTED = 500
+
+
+def _explain_refusals(refused: Sequence[Mapping[str, Any]], frame,
+                      overlap: int) -> Dict[str, Any]:
+    """Say of each refused group whether a numbered object covers it.
+
+    THE QUESTION THIS ANSWERS was left open by well A1's run: 54 groups had
+    no complete observation, ``number(strict=True)`` refused the well, and
+    the engine numbered it without them. Whether that lost 54 nuclei or
+    dropped 54 leftovers of nuclei already counted could not be told
+    afterwards, because the observations are not stored and the report kept
+    one box and a count. It can be told HERE, while both are in memory, and
+    it costs one KD-tree query per refusal.
+
+    A refusal whose box a numbered object overlaps is a sliver of a nucleus
+    that another window saw whole: dropping it cost nothing, and the join
+    that left it unattached is the thing to look at. A refusal with no
+    numbered object over it is the only evidence of something at that spot,
+    so dropping it dropped that something -- a Cellpose fragment of debris,
+    or a nucleus no window saw whole.
+
+    :param refused: :func:`spacr.ops_objects.unseen_records` output.
+    :param frame: the ``ops_objects`` rows that WERE numbered.
+    :param overlap: the window overlap the run used, in pixels.
+    :returns: the counts, and one record per refusal up to
+        :data:`_REFUSALS_LISTED`. A refusal with no numbered object within
+        reach carries ``nearest_object_px`` of None rather than infinity,
+        because the report is written with :func:`json.dump` and
+        ``Infinity`` is Python's spelling of it rather than JSON's.
+    """
+    from scipy.spatial import cKDTree
+
+    records = [dict(one) for one in refused]
+    centroids = np.column_stack([frame["centroid_y"].to_numpy(float),
+                                 frame["centroid_x"].to_numpy(float)])
+    boxes = np.column_stack([frame[name].to_numpy(float) for name in
+                             ("bbox_top", "bbox_left", "bbox_bottom",
+                              "bbox_right")])
+    ids = frame["object_id"].to_numpy(np.int64)
+    tree = cKDTree(centroids) if len(centroids) else None
+    for record in records:
+        centre = np.array([record["centre_y"], record["centre_x"]], float)
+        reach = float(np.hypot(record["height"], record["width"])) / 2.0 + 64.0
+        record["covered"] = False
+        record["nearest_object_id"] = -1
+        record["nearest_object_px"] = None
+        if tree is None:
+            continue
+        near = np.asarray(tree.query_ball_point(centre, r=reach), np.int64)
+        if near.size:
+            away = np.hypot(*(centroids[near] - centre).T)
+            closest = int(near[int(np.argmin(away))])
+            record["nearest_object_id"] = int(ids[closest])
+            record["nearest_object_px"] = round(float(away.min()), 2)
+            over = ((boxes[near, 0] <= record["bottom"])
+                    & (boxes[near, 2] >= record["top"])
+                    & (boxes[near, 1] <= record["right"])
+                    & (boxes[near, 3] >= record["left"]))
+            record["covered"] = bool(over.any())
+    largest = max(records, key=lambda one: max(one["height"], one["width"]))
+    return {
+        "groups": len(records),
+        "largest_px": [largest["height"], largest["width"]],
+        "largest_centre": [round(largest["centre_y"], 1),
+                           round(largest["centre_x"], 1)],
+        "window_overlap_px": int(overlap),
+        "wider_than_the_overlap": sum(
+            1 for one in records
+            if max(one["height"], one["width"]) > overlap),
+        "spanning_a_window_side": sum(1 for one in records
+                                      if one["spanned_side"]),
+        "covered_by_a_numbered_object": sum(1 for one in records
+                                            if one["covered"]),
+        "orphaned": sum(1 for one in records if not one["covered"]),
+        "area_total_px": sum(int(one["area_total"]) for one in records),
+        "records": records[:_REFUSALS_LISTED],
+    }
 
 
 def _init_decode_worker(library: frozenset) -> None:
@@ -515,20 +1076,28 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     :param task: ``site``, ``planes`` (``cycle -> [source per base
         channel]``), ``cycles``, ``reference``, and the nearby objects in
         this tile's frame -- ``centroids``, ``areas``, ``ids`` and ``owned``,
-        whether each object's nearest tile is this one -- plus ``gpu``.
+        whether each object's nearest tile is this one -- plus ``gpu``,
+        ``threshold``, ``footprint`` and ``store_reads``.
     :returns: the field's reads attributed to the objects it owns, and its
-        counts.
+        counts. With ``store_reads`` it also returns each owned read's
+        position in this tile's frame, its per-cycle margin and the
+        intensities the call was made on, which is what ``ops_reads`` holds.
 
     Reads are attributed to every nearby object, so a read in the overlap
     with the neighbouring tile is not given to the wrong nucleus merely
     because the right one belongs to the neighbour; only the reads whose
     owner this tile owns are returned, so no read is counted twice.
+
+    THE NUMBERS COME IN THROUGH THE TASK, not off the module. Fields decode
+    in SPAWNED processes, which re-import this module and get the shipped
+    constants back however the parent was configured; a threshold set in the
+    parent and read here would apply on one worker and not on eight.
     """
     from scipy import ndimage
 
     from .ops_cycles import align_field
-    from .ops_sbs import (attribute_reads, call_reads, estimate_read_locations,
-                          extract_bases, find_peaks)
+    from .ops_sbs import (attribute_reads, call_reads, called_bases,
+                          estimate_read_locations, extract_bases, find_peaks)
 
     ticks = Counter()
     tick = time.perf_counter()
@@ -575,7 +1144,8 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     margin = 5 + max(shifts + [0])
     height, width = score.shape
     if peaks.size:
-        keep = strength[peaks[:, 0], peaks[:, 1]] > _THRESHOLD_READS
+        keep = strength[peaks[:, 0], peaks[:, 1]] > float(
+            task.get("threshold", _THRESHOLD_READS))
         keep &= (peaks[:, 0] >= margin) & (peaks[:, 0] < height - margin)
         keep &= (peaks[:, 1] >= margin) & (peaks[:, 1] < width - margin)
         peaks = peaks[keep]
@@ -588,17 +1158,26 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
     ticks["spots"] = time.perf_counter() - tick
 
     tick = time.perf_counter()
-    calls, quality = call_reads(values, bases=_BASES, gpu=gpu)
-    owner, ambiguous = attribute_reads(peaks.astype(float), task["centroids"],
-                                       task["areas"], footprint=_FOOTPRINT,
-                                       tie=_TIE)
+    store_reads = bool(task.get("store_reads", False))
+    if store_reads:
+        intensities, calls, margins = called_bases(values, bases=_BASES,
+                                                   gpu=gpu)
+        worst = np.where(np.isnan(margins), np.inf, margins).min(axis=1) \
+            if len(calls) else np.zeros(0, np.float32)
+        quality = np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
+    else:
+        intensities = margins = None
+        calls, quality = call_reads(values, bases=_BASES, gpu=gpu)
+    owner, ambiguous = attribute_reads(
+        peaks.astype(float), task["centroids"], task["areas"],
+        footprint=float(task.get("footprint", _FOOTPRINT)), tie=_TIE)
     has_owner = owner >= 0
     owned = np.zeros(len(peaks), dtype=bool)
     owned[has_owner] = np.asarray(task["owned"], dtype=bool)[owner[has_owner]]
     rows = np.flatnonzero(owned)
     ids = np.asarray(task["ids"], dtype=np.int64)[owner[rows]]
     ticks["call_attribute"] = time.perf_counter() - tick
-    return {
+    result = {
         **base, "n_cycles": len(field.kept), "spots": int(len(peaks)),
         "attributed": int(has_owner.sum()), "ambiguous": int(ambiguous.sum()),
         "exact": int(sum(code in _LIBRARY for code in calls)) if _LIBRARY else None,
@@ -608,6 +1187,16 @@ def _decode_field(task: Mapping[str, Any]) -> Dict[str, Any]:
                                       for pair in per for v in pair] + [0])),
         "seconds": {k: round(v, 2) for k, v in ticks.items()},
     }
+    if store_reads:
+        result["peaks"] = peaks[rows].astype(np.float32)
+        result["margins"] = (margins[rows].astype(np.float32)
+                             if margins is not None and len(margins)
+                             else np.zeros((len(rows), len(cycles)), np.float32))
+        result["intensities"] = (
+            intensities[rows].astype(np.float32)
+            if intensities is not None and len(intensities)
+            else np.zeros((len(rows), len(cycles), len(_BASES)), np.float32))
+    return result
 
 
 def _load_library(library) -> List[str]:
@@ -638,6 +1227,80 @@ def _load_library(library) -> List[str]:
     return [str(v) for v in library]
 
 
+#: The ``ops_reads`` columns, in order. Four intensities follow, one per base
+#: -- named by BASE and not by channel, because the channel that carries a
+#: base is an acquisition's choice (``ops_base_channels``) and the letter is
+#: not, so a table written on two plates stays one table.
+_READS_COLUMNS = ("plate", "well", "read_id", "object_id", "site", "y", "x",
+                  "cycle", "base", "quality")
+
+
+def _reads_frame(plate: str, well: str, placements, decoded, cycles, bases):
+    """The ``ops_reads`` rows of one well: one per read PER CYCLE.
+
+    THE CONTRACT HAD NO READ ID, which is why this table went unwritten
+    (372 PART 14-L, V15): ``object_id, cycle, intensity, base, quality``
+    repeats for every read of a nucleus, and a nucleus has several -- the
+    validated well averaged about six -- so those columns name no row.
+    The id added here is the well's reads in raster order on their
+    WELL-FRAME position, which is how :func:`spacr.ops_objects.number`
+    numbers objects and for the same reason: the id is a join key, so two
+    runs over the same pixels have to produce the same numbers whatever
+    order the fields came back in.
+
+    :param plate: the plate name.
+    :param well: the well name.
+    :param placements: ``{site: (y, x)}``, to lift a read out of its tile's
+        frame into the well's.
+    :param decoded: the fields that decoded, carrying ``peaks``, ``margins``
+        and ``intensities`` from :func:`_decode_field`.
+    :param cycles: the cycle numbers, in the order the barcode spells them.
+    :param bases: the letter each channel carries.
+    :returns: the DataFrame, empty of rows when nothing was stored.
+    """
+    import pandas as pd
+
+    columns = list(_READS_COLUMNS) + [f"intensity_{base}" for base in bases]
+    parts = [r for r in decoded
+             if r.get("peaks") is not None and len(r["peaks"])]
+    if not parts:
+        return pd.DataFrame({name: [] for name in columns})
+
+    count = len(cycles)
+    y = np.concatenate([r["peaks"][:, 0] + placements[r["site"]][0]
+                        for r in parts])
+    x = np.concatenate([r["peaks"][:, 1] + placements[r["site"]][1]
+                        for r in parts])
+    owner = np.concatenate([np.asarray(r["ids"], np.int64) for r in parts])
+    site = np.concatenate([np.full(len(r["peaks"]), r["site"], np.int32)
+                           for r in parts])
+    margins = np.concatenate([r["margins"] for r in parts])
+    values = np.concatenate([r["intensities"] for r in parts])
+    letters = np.frombuffer(
+        "".join(code for r in parts for code in r["calls"]).encode("ascii"),
+        dtype=np.uint8).reshape(-1, count)
+
+    order = np.lexsort((site, x, y))
+    rows = len(order)
+    data = {
+        "plate": np.full(rows * count, plate, dtype=object),
+        "well": np.full(rows * count, well, dtype=object),
+        "read_id": np.repeat(np.arange(1, rows + 1, dtype=np.int64), count),
+        "object_id": np.repeat(owner[order], count),
+        "site": np.repeat(site[order], count),
+        "y": np.repeat(y[order].astype(np.float32), count),
+        "x": np.repeat(x[order].astype(np.float32), count),
+        "cycle": np.tile(np.asarray(cycles, np.int32), rows),
+        "base": np.frombuffer(np.ascontiguousarray(letters[order]).tobytes(),
+                              dtype="S1").astype("U1"),
+        "quality": margins[order].reshape(-1).astype(np.float32),
+    }
+    flat = values[order].reshape(-1, values.shape[-1])
+    for index, base in enumerate(bases):
+        data[f"intensity_{base}"] = flat[:, index].astype(np.float32)
+    return pd.DataFrame(data, columns=columns)
+
+
 def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
             settings: Mapping[str, Any], gpu: bool,
             library: Sequence[str]) -> Dict[str, Any]:
@@ -648,7 +1311,8 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     :param well: the well name.
     :param cycle_files: ``cycle -> site -> channel -> path`` for this well.
     :param reference: the cycle the objects' frame was stitched on.
-    :param settings: read for ``n_workers``.
+    :param settings: read for ``n_workers``, ``ops_base_channels``,
+        ``ops_read_threshold``, ``ops_footprint`` and ``ops_store_reads``.
     :param gpu: let the decode use the card when it runs in this process.
     :param library: the guide barcodes, possibly empty.
     :returns: the decode report.
@@ -683,6 +1347,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     _, nearest = cKDTree(centres).query(np.column_stack([oy, ox]))
     owner_site = np.asarray(order)[nearest]
 
+    channels = _base_channels(settings)
+    threshold = float(_setting_number(settings, "ops_read_threshold",
+                                      _THRESHOLD_READS))
+    footprint = float(_setting_number(settings, "ops_footprint", _FOOTPRINT))
+    store_reads = bool(settings.get("ops_store_reads", False))
     tasks = []
     for site in order:
         top, left = placements[site]
@@ -691,13 +1360,15 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         planes = {}
         for cycle in cycles:
             sources = _plane_sources(cycle_files[cycle].get(site, {}))
-            planes[cycle] = [sources.get(name) for name in _BASE_CHANNELS]
+            planes[cycle] = [sources.get(name) for name in channels]
         tasks.append({
             "site": site, "planes": planes, "cycles": cycles,
             "reference": reference,
             "centroids": np.column_stack([oy[near] - top, ox[near] - left]),
             "areas": areas[near], "ids": ids[near],
             "owned": owner_site[near] == site,
+            "threshold": threshold, "footprint": footprint,
+            "store_reads": store_reads,
         })
 
     library_set = frozenset(library)
@@ -743,6 +1414,13 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
         columns=["plate", "well", "object_id", "barcode", "quality", "n_reads",
                  "n_agreeing", "fraction", "n_cycles", "mapped_guide"])
     stored = _replace_well_rows(db, "ops_barcodes", frame, plate, well)
+    reads_rows = None
+    if store_reads:
+        tick = time.perf_counter()
+        reads = _reads_frame(plate, well, placements, decoded, cycles, _BASES)
+        reads_rows = _replace_well_rows(db, "ops_reads", reads, plate, well)
+        _say(f"{well} decode: ops_reads holds {reads_rows} rows "
+             f"({round(time.perf_counter() - tick, 1)} s)")
 
     spots = sum(r["spots"] for r in decoded)
     inside = sum(r["attributed"] + r["ambiguous"] for r in decoded)
@@ -771,14 +1449,16 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
                                                for row in assigned.values())
                                            if library else None),
         "objects_mapped": int((frame["mapped_guide"] != "").sum()) if library else None,
-        "ops_barcodes_rows": stored, "workers": workers,
+        "ops_barcodes_rows": stored, "ops_reads_rows": reads_rows,
+        "read_threshold": threshold, "footprint": footprint,
+        "base_channels": list(channels), "workers": workers,
         "field_seconds": dict(sum((Counter(r["seconds"]) for r in results
                                    if "seconds" in r), Counter())),
         "total_seconds": round(time.perf_counter() - started, 1),
     }
     if report["containment_below_gate"]:
         _say(f"{well} decode: ONLY {containment:.1%} OF SPOTS LIE WITHIN "
-             f"{_FOOTPRINT:g} PX OF A NUCLEUS, below the {_MIN_CONTAINMENT:.0%} "
+             f"{footprint:g} PX OF A NUCLEUS, below the {_MIN_CONTAINMENT:.0%} "
              "gate. The reads are not where the objects are; check the "
              "segmentation and the footprint before trusting these barcodes.")
     _say(f"{well} decode: {len(assigned)} objects assigned from {spots} spots "
@@ -790,21 +1470,29 @@ def run_ops(settings: Mapping[str, Any], *,
             wells: Optional[Sequence[str]] = None,
             phases: Sequence[str] = _PHASES,
             library=None) -> Dict[str, Any]:
-    """Stitch, segment and decode the wells of one sequencing acquisition.
+    """Stitch, place, segment and decode the wells of one sequencing acquisition.
 
     :param settings: the OPS settings. Read here: ``genotype_source``, the
-        folder of sequencing tiles, searched recursively; ``dst_root``, where
-        ``measurements.db`` and the per-well reports go, the source folder
-        when empty; ``plate``, the source folder's name when empty;
-        ``ops_gpu``; ``n_workers``, how many fields decode at once;
-        ``cellpose_model`` and ``cellpose_diameter``.
+        folder of sequencing tiles, searched recursively; ``phenotype_source``,
+        the folder of the high-magnification phenotype acquisition, which the
+        ``phenotype`` phase places on the stitched well and which an empty
+        value skips; ``dst_root``, where ``measurements.db`` and the per-well
+        reports go, the source folder when empty; ``plate``, the source
+        folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields
+        decode at once; ``cellpose_model`` and ``cellpose_diameter``;
+        ``ops_library``, a guide library CSV the ``library`` keyword
+        overrides; and the four measured numbers ``ops_base_channels``,
+        ``ops_read_threshold``, ``ops_raster_overlap`` and ``ops_footprint``,
+        each of which falls back to the value this plate was validated at.
+        ``ops_store_reads`` writes ``ops_reads``.
     :param wells: which wells to run; every well found when None.
-    :param phases: any of ``"stitch"``, ``"objects"`` and ``"decode"``, run
-        in that order. A phase left out reads what it needs from the
-        database, so a well can be stitched once and decoded again.
+    :param phases: any of ``"stitch"``, ``"phenotype"``, ``"objects"`` and
+        ``"decode"``, run in that order. A phase left out reads what it needs
+        from the database, so a well can be stitched once and decoded again.
     :param library: the guide barcodes, as a sequence or the path of a CSV
         with a ``prefix``, ``barcode`` or ``sequence`` column. When given,
-        each barcode is also mapped to its closest guide.
+        each barcode is also mapped to its closest guide. Overrides the
+        ``ops_library`` setting.
     :returns: ``{"db": path, "wells": {well: {phase: report}}}``.
     :raises ValueError: when the source holds no tiles this can name, an
         unknown phase or well is asked for, or a phase's input is missing.
@@ -823,7 +1511,8 @@ def run_ops(settings: Mapping[str, Any], *,
     db = os.path.join(destination, "measurements.db")
     plate = str(settings.get("plate") or os.path.basename(os.path.normpath(root)))
     gpu = bool(settings.get("ops_gpu", True))
-    barcodes = _load_library(library)
+    barcodes = _load_library(library if library is not None
+                             else settings.get("ops_library") or None)
 
     index = _index_tiles(root)
     if not index:
@@ -834,6 +1523,21 @@ def run_ops(settings: Mapping[str, Any], *,
     missing = [well for well in chosen if well not in index]
     if missing:
         raise ValueError(f"no tiles for wells {missing}; found {sorted(index)}")
+
+    phenotype_root = settings.get("phenotype_source")
+    phenotype_index: Dict[str, Any] = {}
+    if "phenotype" in phases and phenotype_root:
+        if not os.path.isdir(str(phenotype_root)):
+            raise ValueError(
+                f"phenotype_source must be the folder of phenotype tiles; "
+                f"got {phenotype_root!r}")
+        phenotype_index = _index_tiles(str(phenotype_root))
+        if not phenotype_index:
+            raise ValueError(
+                f"no tile under {phenotype_root} is named like "
+                "20X_DAPI-GFP-A594-AF750_A1_DAPI-GFP_Site-0.tif "
+                "(magnification, channel set, well, this file's channels, "
+                "site) or like 20X_c1_A1_DAPI-GFP_Site-0.tif")
 
     out: Dict[str, Any] = {"db": db, "plate": plate, "wells": {}}
     for well in chosen:
@@ -848,7 +1552,23 @@ def run_ops(settings: Mapping[str, Any], *,
                                   "cycles": sorted(cycle_files)}
         started = time.perf_counter()
         if "stitch" in phases:
-            report["stitch"] = _stitch(db, plate, well, cycle_files, reference, gpu)
+            report["stitch"] = _stitch(db, plate, well, cycle_files,
+                                       reference, settings, gpu)
+        if "phenotype" in phases:
+            if not phenotype_root:
+                report["phenotype"] = {
+                    "skipped": "no phenotype_source, so nothing to place"}
+            elif well not in phenotype_index:
+                report["phenotype"] = {
+                    "skipped": f"the phenotype acquisition has no well {well}; "
+                               f"it holds {sorted(phenotype_index)}"}
+            else:
+                report["phenotype"] = _phenotype(
+                    db, plate, well, cycle_files, reference,
+                    phenotype_index[well],
+                    (_tile_magnification(_any_tile(cycle_files)),
+                     _tile_magnification(_any_tile(phenotype_index[well]))),
+                    settings)
         if "objects" in phases:
             report["objects"] = _objects(db, plate, well, cycle_files, reference,
                                          settings, gpu)

@@ -387,6 +387,18 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # themselves. It is `ops_gpu` and not `gpu` because Image UMAP already
     # owns `gpu` with a different meaning.
     "ops_gpu",
+    # Eight more on 2026-09-19, and they are the module constants 372 said
+    # were "measured on this plate" being made settable. `run_ops` reads
+    # each of them and falls back to the measured value when the box is
+    # empty, so the shipped behaviour is unchanged and another acquisition
+    # no longer needs the package edited: `phenotype_source` is A4's input,
+    # `ops_library` the guide CSV that was a keyword of `run_ops` only,
+    # `ops_base_channels`, `ops_read_threshold`, `ops_raster_overlap`,
+    # `ops_window_overlap` and `ops_footprint` the five numbers, and
+    # `ops_store_reads` whether the ops_reads table is written.
+    "phenotype_source", "ops_library", "ops_base_channels",
+    "ops_read_threshold", "ops_raster_overlap", "ops_window_overlap",
+    "ops_footprint", "ops_store_reads",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.

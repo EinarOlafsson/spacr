@@ -125,3 +125,47 @@ def test_the_registration_reaches_the_shared_tables(declared):
     for key in sorted(keys):
         assert key in shared.expected_types, f"{key} never reached expected_types"
     assert shared.descriptions.get("ops"), "the module blurb did not register"
+
+
+def test_a_measured_default_says_the_same_thing_in_both_places(declared):
+    """The settings that expose a measured constant must agree with it.
+
+    Each of these numbers was measured on the reference plate and is
+    recorded with its measurement in `spacr.ops_engine`; the setting exists
+    so another acquisition can be run without editing the package. The two
+    copies are written out separately -- importing the engine into the
+    settings module would pull numpy, scipy and the whole OPS stack into
+    every registration, including the GUI's -- so nothing but this stops
+    them drifting, and a drift would move the shipped default silently.
+    """
+    _keys, ops_settings, _cat = declared
+    from spacr import ops_engine
+
+    pairs = {
+        "ops_raster_overlap": ops_engine._RASTER_OVERLAP,
+        "ops_window_overlap": ops_engine._WINDOW_OVERLAP,
+        "ops_read_threshold": ops_engine._THRESHOLD_READS,
+        "ops_footprint": ops_engine._FOOTPRINT,
+    }
+    for key, constant in pairs.items():
+        assert ops_settings.OPS_DEFAULTS[key] == constant, key
+    assert ops_settings.OPS_DEFAULTS["ops_base_channels"] == \
+        ",".join(ops_engine._BASE_CHANNELS)
+
+
+def test_the_engine_reads_every_setting_the_panel_offers(declared):
+    """A setting the engine never reads is a control that changes nothing.
+
+    The module docstring of `spacr.ops_settings` makes that promise; this
+    holds it to the source rather than to the promise. `plate` and
+    `dst_root` are read through `settings.get` like the rest, so a plain
+    text search over the engine finds all of them.
+    """
+    import inspect
+
+    keys, _ops, _cat = declared
+    from spacr import ops_engine
+
+    source = inspect.getsource(ops_engine)
+    unread = sorted(key for key in keys if f'"{key}"' not in source)
+    assert not unread, f"in the OPS panel and never read by the engine: {unread}"

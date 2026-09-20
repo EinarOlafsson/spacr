@@ -1,10 +1,11 @@
 """Where an OPS run's tables live, and the gate that says the objects exist.
 
 The storage contract has two halves. In ``measurements.db``, which is
-authoritative: ``ops_geometry``, ``ops_objects``, ``ops_reads`` and
-``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads``
-and ``ops_barcodes``, written in the same step with their row counts
-asserted equal, so the sidecar cannot drift from the authority unnoticed.
+authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``,
+``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of
+``ops_reads`` and ``ops_barcodes``, written in the same step with their row
+counts asserted equal, so the sidecar cannot drift from the authority
+unnoticed.
 
 SQLITE IS THE AUTHORITY AND PARQUET IS A CACHE, which is a decision and not a
 detail. The two can disagree, so one of them has to be right by definition --
@@ -47,7 +48,17 @@ class StoreError(ValueError):
 
 
 #: The authoritative tables, in the order the phases write them.
-OPS_TABLES = ("ops_geometry", "ops_objects", "ops_reads", "ops_barcodes")
+#:
+#: FIVE, AND 372's PHASE D NAMED FOUR. ``ops_phenotype`` is A4's output --
+#: where each phenotype field's centre lies in the sequencing well frame and
+#: which stitched tile covers it. Phase D was written before A4 was built and
+#: assumed the placement would live in the phenotype run's own measurement
+#: tables; it cannot, because the placement is what those tables are keyed
+#: BY. Keeping it out of the contract would have left the one table a
+#: phenotype measurement pass has to read as an undeclared file beside the
+#: database.
+OPS_TABLES = ("ops_geometry", "ops_phenotype", "ops_objects", "ops_reads",
+              "ops_barcodes")
 
 #: The two that also get a parquet sidecar. 372 names these specifically --
 #: they are "the wide numeric tables where a columnar scan is worth an order

@@ -281,9 +281,47 @@ def call_reads(values: np.ndarray, *, bases: Sequence[str] = BASES,
         the whole call on the CPU.
     :returns: ``(barcodes, quality)`` -- one string and one float per read.
     """
+    _data, barcodes, margin = called_bases(
+        values, bases=bases, compensate=compensate, method=method,
+        normalise=normalise, gpu=gpu)
+    if not barcodes:
+        return [], np.zeros((0,), np.float32)
+    worst = np.where(np.isnan(margin), np.inf, margin).min(axis=1)
+    return barcodes, np.where(np.isfinite(worst), worst, 0.0).astype(np.float32)
+
+
+def called_bases(values: np.ndarray, *, bases: Sequence[str] = BASES,
+                 compensate: bool = False,
+                 method: str = "percentile",
+                 normalise: bool = True,
+                 gpu: bool = True) -> Tuple[np.ndarray, List[str], np.ndarray]:
+    """The intensities a call was made on, the barcode, and the margin per cycle.
+
+    :func:`call_reads` is this, with the per-cycle margins reduced to their
+    minimum. The three pieces are separated because the ``ops_reads`` table of
+    372's storage contract is one row per read PER CYCLE -- base, quality and
+    the per-channel intensity -- and a caller that only gets the barcode and
+    one number per read has to redo the normalisation to write it. Redoing it
+    is what makes a stored intensity disagree with the call beside it.
+
+    :param values: ``(N, cycles, channels)`` from :func:`extract_bases`.
+    :param bases: the letter for each channel, in channel order.
+    :param compensate: undo cross-talk after normalising.
+    :param method: passed to :func:`compensate_crosstalk`.
+    :param normalise: divide each cycle's channels by their median over the
+        reads first.
+    :param gpu: let the compensation's multiply run on the card.
+    :returns: ``(data, barcodes, margin)`` -- ``(N, cycles, channels)``
+        float32 intensities AFTER normalisation and any compensation, so
+        they are the numbers the winner was picked from rather than the raw
+        ones; one barcode string per read; and ``(N, cycles)`` float32
+        margins, NaN for a cycle that was not measured and whose letter is
+        therefore ``N``.
+    """
     data = np.asarray(values, dtype=np.float32)
     if data.size == 0:
-        return [], np.zeros((0,), np.float32)
+        return (np.zeros((0, 0, 0), np.float32), [],
+                np.zeros((0, 0), np.float32))
     if normalise:
         data = _median_normalised(data)
     measured = np.isfinite(data).all(axis=-1)
@@ -304,9 +342,7 @@ def call_reads(values: np.ndarray, *, bases: Sequence[str] = BASES,
     total = best + second
     with np.errstate(divide="ignore", invalid="ignore"):
         per_cycle = np.where(total > 0, (best - second) / total, 0.0)
-    per_cycle = np.where(measured, per_cycle, np.inf)
-    quality = per_cycle.min(axis=1)
-    quality = np.where(np.isfinite(quality), quality, 0.0).astype(np.float32)
+    margin = np.where(measured, per_cycle, np.nan).astype(np.float32)
 
     winners = np.where(measured, filled.argmax(axis=-1), n_channels)
     letters = np.asarray([ord(str(letter)) for letter in bases] + [ord("N")],
@@ -314,7 +350,7 @@ def call_reads(values: np.ndarray, *, bases: Sequence[str] = BASES,
     codes = np.ascontiguousarray(letters[winners])
     barcodes = [code.decode("ascii")
                 for code in codes.view(f"S{n_cycles}").reshape(n_reads)]
-    return barcodes, quality
+    return data, barcodes, margin
 
 
 def _library_index(library: Sequence[str]):

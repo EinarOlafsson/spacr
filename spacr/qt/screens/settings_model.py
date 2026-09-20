@@ -2143,16 +2143,27 @@ def categories_for_app(
 
 CATEGORY_TOOLTIPS: Dict[str, str] = {
     "OPS INPUT":
-        "Where the sequencing tiles are read from and where the results are "
-        "written: the folder searched, subfolders included, for tiles named "
-        "by magnification, cycle, well, channels and site, and the folder "
-        "that receives measurements.db and a report for each well. Set "
-        "these first; every other OPS group assumes they are right.",
+        "Where the tiles are read from and where the results are written: "
+        "the sequencing folder searched, subfolders included, for tiles "
+        "named by magnification, cycle, well, channels and site, the "
+        "phenotype folder placed on top of it, the guide library the calls "
+        "are matched against, and the folder that receives measurements.db "
+        "and a report for each well. Set these first; every other OPS group "
+        "assumes they are right.",
     "OPS ALIGNMENT":
-        "How the nuclei of each stitched well are segmented. Each read is "
-        "attributed to the nucleus it falls on or just beside, so the "
-        "Cellpose model and the diameter here decide which objects can "
-        "receive a barcode.",
+        "How the tiles are put together and how the nuclei of each stitched "
+        "well are segmented: the overlap the microscope left between "
+        "neighbouring tiles, the overlap the segmentation windows share, "
+        "and the model. Each read is attributed to the nucleus it falls on "
+        "or just beside, so the model and the diameter here decide which "
+        "objects can receive a barcode.",
+    "OPS DECODING":
+        "How a spot becomes a base: which channel carries which letter, how "
+        "much brighter than its surroundings a spot must be to count as a "
+        "read at all, and how far from a nucleus a read may lie and still "
+        "be that nucleus's. These are measured properties of the "
+        "acquisition rather than preferences, and the run reports the "
+        "library match rate that says whether they are right.",
     "OPS PERFORMANCE":
         "How much of the machine the run may use: whether the graphics card "
         "is used, and how many fields are decoded at once. Nothing here "

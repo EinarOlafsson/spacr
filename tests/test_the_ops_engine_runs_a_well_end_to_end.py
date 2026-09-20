@@ -281,3 +281,87 @@ def test_what_cannot_run_says_why(tmp_path, engine_run):
     fresh = {**settings, "dst_root": str(tmp_path / "fresh")}
     with pytest.raises(ValueError, match="stitch phase first"):
         ops_engine.run_ops(fresh, phases=("objects",))
+
+
+def test_every_read_behind_the_barcodes_is_stored_when_asked(engine_run,
+                                                             tmp_path):
+    """`ops_reads` is one row per owned read PER CYCLE, with a read id.
+
+    The table went unwritten because 372's storage contract named
+    `object_id, cycle, intensity, base, quality` and a nucleus has several
+    reads, so those columns name no row (PART 14-L, V15). The id added here
+    is the well's reads in raster order, for the same reason object ids are:
+    it is a join key and two runs must agree on it.
+    """
+    import pandas as pd
+
+    settings, library = engine_run[5], engine_run[6]
+    out = tmp_path / "reads"
+    result = ops_engine.run_ops({**settings, "dst_root": str(out),
+                                 "ops_store_reads": True}, library=library)
+    decode = result["wells"]["A1"]["decode"]
+
+    assert decode["ops_reads_rows"] == decode["reads_owned"] * CYCLES
+    with sqlite3.connect(result["db"]) as conn:
+        reads = pd.read_sql_query("SELECT * FROM ops_reads", conn)
+        barcodes = dict(conn.execute(
+            "SELECT object_id, barcode FROM ops_barcodes").fetchall())
+
+    per_read = reads.groupby("read_id")
+    assert sorted(per_read.groups) == list(range(1, len(per_read) + 1))
+    assert (per_read.size() == CYCLES).all()
+
+    # The id is raster order on the WELL-frame position, so the first read
+    # is the topmost one and a read never moves between runs.
+    first = reads[reads["read_id"] == 1].iloc[0]
+    assert first["y"] == reads["y"].min()
+
+    # The stored intensity has to be the one the base was called from, or the
+    # table says something the barcode does not.
+    called = reads[reads["base"] != "N"]
+    columns = [f"intensity_{base}" for base in BASES]
+    chosen = called.to_numpy()[
+        np.arange(len(called)),
+        [called.columns.get_loc(f"intensity_{base}") for base in called["base"]]]
+    assert np.allclose(chosen.astype(float),
+                       called[columns].to_numpy(float).max(axis=1))
+
+    spelled = per_read.apply(
+        lambda rows: "".join(rows.sort_values("cycle")["base"]),
+        include_groups=False)
+    owner = per_read["object_id"].first()
+    agree = sum(1 for read_id, code in spelled.items()
+                if code == barcodes.get(int(owner[read_id])))
+    assert agree > 0.9 * len(spelled), f"{agree} of {len(spelled)} reads agree"
+
+
+def test_a_refusal_is_explained_against_the_objects_that_were_numbered(
+        engine_run, tmp_path, monkeypatch):
+    """Windows too small to see a nucleus whole: the report says which kind.
+
+    The validated well left 54 groups no window saw whole and the report
+    kept one box, so the question they raised -- nuclei lost, or slivers of
+    nuclei already counted? -- could not be answered without segmenting the
+    well again. Here the windows are shrunk until that happens on purpose.
+    """
+    settings = engine_run[5]
+    assert engine_run[0]["wells"]["A1"]["objects"]["refusals"] is None, \
+        "the run at the fixture's overlap refused nothing, which is the point"
+
+    monkeypatch.setattr(ops_engine, "_WINDOW", 64)
+    result = ops_engine.run_ops(
+        {**settings, "dst_root": str(tmp_path / "clipped"),
+         "ops_window_overlap": 2}, phases=("stitch", "objects"))
+    objects = result["wells"]["A1"]["objects"]
+    found = objects["refusals"]
+
+    assert found is not None and found["groups"] > 0
+    assert found["groups"] == len(found["records"])
+    assert found["window_overlap_px"] == 2
+    assert found["covered_by_a_numbered_object"] + found["orphaned"] == \
+        found["groups"]
+    # A nucleus here is about thirteen pixels across and the overlap is two,
+    # so every refusal is wider than the overlap -- which is the case the
+    # message's "raise the overlap" remedy is actually for.
+    assert found["wider_than_the_overlap"] == found["groups"]
+    assert objects["strict_refusal"].startswith(f"{found['groups']} group(s)")
