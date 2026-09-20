@@ -208,3 +208,80 @@ them needs the original acquisitions of those 556 fields -- or a fresh set
 of fields acquired with all three stains. Everything else about the PV head
 -- the count-not-class decision, the three modes, the per-channel training
 -- is settled and written above.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE TRAINING SET: WHERE THE CHANNELS ARE, AND WHERE THE STACKS GO
+--------------------------------------------------------------------------------
+
+THE MAINTAINER'S PLAN, given after the note above: "the toxoplasma cross
+channel models datasets have all the info we need so just generate the crops
+from those datasets. all we need is to merge the datasets again with toxo pv
+mask, toxo channel, hoechst and cellmask togetwer in numpy stacks in a merged
+folder then we can just pass it the images through the measure modual to
+generate the data then i will annotate ... we will need to do one folder per
+plate."
+
+That is right about three of the four planes and `tools/build_pv_count_
+dataset.py` now builds them. THE PARASITE STAIN IS NOT IN THOSE DATASETS,
+and this was measured rather than assumed:
+`cross-channel-toxoplasma-from-cellmask/images` is BYTE-IDENTICAL to
+`cross-channel-nuclei-from-cellmask/images` -- same sha256 for the same stem
+-- so both are the CellMask input. A cross-channel dataset exists precisely
+to predict toxoplasma WITHOUT its own stain, so the stain was never in it.
+
+WHAT THAT COSTS: two of the three counting heads can be trained from this
+data -- count from Hoechst and count from CellMask. The parasite-stain head
+needs the original acquisitions, which are not on any local mount and could
+not be looked for on the NAS (see the note above).
+
+WHAT THE STACK IS. Five planes, and the order is the contract because
+Measure is told which plane is which by index:
+
+    0  hoechst        cross-channel-cell-from-hoechst/images
+    1  cellmask       cross-channel-nuclei-from-cellmask/images
+    2  cell_mask      cross-channel-cell-from-hoechst/masks
+    3  nucleus_mask   cross-channel-nuclei-from-cellmask/masks
+    4  pv_mask        cross-channel-toxoplasma-from-cellmask/masks_pv
+
+The cell and nucleus masks are in it because the SECOND head -- cell,
+nucleus, cut cell, cut nucleus, artifact -- needs exactly those, and cutting
+the same fields twice would be the only alternative.
+
+WHERE IT LANDS: `<out>/<plate>/merged/<stem>.npy`, with `<out>` given on the
+command line and a `fields.csv` beside each plate's folder. The first build
+is under `/mnt/wd4tb/spacr_pv_counts/`. NOT on /mnt/firecuda2, which is at
+100% with 7 GB free -- the repository itself lives there.
+
+WHAT IS THERE, measured from the index:
+
+    plate1      515 fields    6,642 vacuoles   20.6 GB
+    plate2      750 fields   11,158 vacuoles   30.0 GB
+    plate3      500 fields    5,073 vacuoles   20.0 GB
+    plate4      500 fields    6,126 vacuoles   20.0 GB
+    unplated    765 fields    8,754 vacuoles   30.6 GB
+
+3,030 fields and 37,753 vacuoles in all, 121 GB as stacks and about as much
+again downloaded. ONE PLATE IS ENOUGH TO START: plate1's 6,642 vacuoles are
+already far more than anyone annotates by hand.
+
+A FIELD MISSING ANY PLANE IS REFUSED rather than written with a zeroed one,
+and the smoke run proved the guard: the toxo dataset has 3,030 fields and
+the other two have 3,029, so `plate1_A01_13_1` has no Hoechst and was
+skipped. A stack whose PV mask was silently empty would be measured as a
+field with no vacuoles, which is a wrong number rather than a missing one.
+
+VERIFIED on the first stack written: (1998, 1998, 5) uint16, 40 MB, with 292
+cells, 306 nuclei and 62 vacuoles in that field.
+
+THE MEASURE SETTINGS the tool prints at the end of a run:
+
+    src                = '<out>/<plate>/merged'
+    channels           = [0, 1]
+    cell_mask_dim      = 2
+    nucleus_mask_dim   = 3
+    pathogen_mask_dim  = 4
+    save_png           = True
+
+Resumable: a stack already written is skipped and the downloads go through
+the Hugging Face cache, which the first build put on
+`/mnt/wd4tb/hf_cache` rather than in the maintainer's home.
