@@ -545,9 +545,19 @@ def test_the_sliders_still_read_and_write_as_checkboxes(screen):
 # 9b, 9e. Invert, and the warning it puts on the screen
 # ---------------------------------------------------------------------------
 
-def test_invert_is_in_the_object_detection_category(screen):
-    assert screen._cp_invert.text() == "Invert for detection"
-    assert category(screen, "Object detection").isAncestorOf(screen._cp_invert)
+def test_there_is_one_invert_and_it_is_the_display_one(screen):
+    """419 point 9's switch and 435's switch became one on 2026-09-20.
+
+    ``_cp_invert`` is kept as a NAME so the rest of this file and the screen
+    go on reading it, but it is the same widget object as the Display
+    category's "Invert image" -- which is the property that matters, because
+    two Toggles could be left in disagreeing states and one cannot.
+    """
+    assert screen._cp_invert is screen._invert_display
+    assert screen._cp_invert.text() == "Invert image"
+    assert category(screen, "Display").isAncestorOf(screen._cp_invert)
+    assert not category(screen, "Object detection").isAncestorOf(
+        screen._cp_invert)
 
 
 def test_invert_starts_off_and_the_warning_with_it(screen):
@@ -603,7 +613,7 @@ def test_the_magnifier_is_handed_the_inverted_region(qtbot, screen):
     assert inverted.box == plain.box
     field = screen._canvas.image
     np.testing.assert_array_equal(
-        inverted.crop, engine.invert_for_detection(field)[y0:y1, x0:x1])
+        inverted.crop, engine.invert_normalized(field)[y0:y1, x0:x1])
 
 
 def test_the_region_is_inverted_about_the_whole_fields_range(screen):
@@ -617,8 +627,8 @@ def test_the_region_is_inverted_about_the_whole_fields_range(screen):
         "rules would agree by accident"
     region = screen._magnifier.region_for((x0, y0, x1, y1), invert=True)
     np.testing.assert_array_equal(
-        region, engine.invert_for_detection(field)[y0:y1, x0:x1])
-    assert not np.array_equal(region, engine.invert_for_detection(crop)), \
+        region, engine.invert_normalized(field)[y0:y1, x0:x1])
+    assert not np.array_equal(region, engine.invert_normalized(crop)), \
         "the region was inverted about its own extremes, not the field's"
 
 
@@ -700,7 +710,7 @@ def test_object_detection_is_handed_the_inverted_image(screen, monkeypatch):
     screen._cp_invert.setChecked(True)
     screen.run_cellpose()
     np.testing.assert_array_equal(
-        seen[-1], engine.invert_for_detection(screen._canvas.image))
+        seen[-1], engine.invert_normalized(screen._canvas.image))
 
 
 def test_the_readout_and_the_filter_keep_the_fields_real_values(screen):

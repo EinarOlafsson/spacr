@@ -174,23 +174,39 @@ def test_invert_image_changes_the_picture_and_puts_it_back(screen):
     assert pixmap_bytes(screen._canvas) == before
 
 
-def test_the_canvas_draws_the_complement_and_keeps_the_original(screen):
+def test_the_canvas_draws_the_normalised_inverse_and_keeps_the_original(screen):
+    """What is drawn is 1 - v on the field's own range, and image is untouched.
+
+    The arithmetic changed on 2026-09-20 from the dtype complement to
+    normalise-then-complement, at the maintainer's word, because item 417's
+    Otsu correction is a multiplier and only a normalised field makes one
+    correction value mean the same thing twice.
+    """
     canvas = screen._canvas
     original = np.array(canvas.image, copy=True)
     canvas.invert_display = True
     assert np.array_equal(canvas.displayed_source(),
-                          65535 - original.astype(np.int64))
+                          engine.invert_normalized(original))
+    assert canvas.displayed_source().min() == 0
+    assert canvas.displayed_source().max() == 65535, (
+        "an inverted field is rescaled onto the whole dtype range")
     assert np.array_equal(canvas.image, original), "the data was edited"
     canvas.invert_display = False
     assert np.array_equal(canvas.displayed_source(), original)
 
 
-def test_otsu_detect_sees_the_original_pixels_while_invert_is_on(screen):
-    """The mask a detect makes must not depend on a display switch."""
+def test_otsu_detect_is_handed_the_inverted_pixels_while_invert_is_on(screen):
+    """Detect reads what the screen is showing, which is the whole point.
+
+    This test asserted the opposite until 2026-09-20 -- that a detect run
+    with Invert on still saw the loaded pixels -- and that was the contract
+    the maintainer asked to be rid of: "if there are black objects on an
+    image then inverting allows the user to use otsu and magnifier. that is
+    the reason for this buton." A switch that inverts the picture and leaves
+    Otsu looking at the original cannot do that.
+    """
     screen._min_area.setValue(4)
     screen._combine_mode.setCurrentText("replace")
-    screen._btn_otsu.click()
-    upright = np.array(screen._canvas.mask, copy=True)
 
     seen = []
     original = engine._otsu_instances
@@ -206,9 +222,10 @@ def test_otsu_detect_sees_the_original_pixels_while_invert_is_on(screen):
     finally:
         engine._otsu_instances = original
     assert seen, "the detect button did not reach the engine"
-    assert np.array_equal(seen[-1], screen._canvas.image), (
-        "the detector was handed inverted pixels")
-    assert np.array_equal(screen._canvas.mask, upright)
+    assert np.array_equal(seen[-1],
+                          engine.invert_normalized(screen._canvas.image)), (
+        "the detector was handed the loaded pixels, not the inverted ones")
+    assert not np.array_equal(seen[-1], screen._canvas.image)
 
 
 def test_the_readout_reports_the_intensity_on_disk_while_invert_is_on(screen):
@@ -238,15 +255,17 @@ def test_the_object_filter_measures_the_original_pixels(screen):
     assert screen.apply_object_filter() == upright
 
 
-def test_the_magnifier_is_handed_the_original_crop_while_invert_is_on(screen):
-    """The box under the mouse segments the data, not the view.
+def test_the_magnifier_is_handed_the_inverted_crop_while_invert_is_on(screen):
+    """The box under the mouse segments the view, which is now the point.
 
-    ITEM 419's point 9 is a SECOND, separate invert -- one in the Object
-    detection category that makes the magnifier and the detectors work on
-    inverted pixels on purpose, with a warning to say so. This one is not
-    that one, and the two must not be confused: a display switch that
-    quietly changed what the magnifier commits would put objects into the
-    mask that were found in a picture nobody measured.
+    Item 419 point 9's "Invert for detection" used to be a SECOND switch
+    that did this, and this test held that the display switch did not. The
+    maintainer merged the two on 2026-09-20, so the magnifier now reads the
+    same negative the curator is looking at -- which is what makes it usable
+    on dark objects, and is the stated reason the button exists.
+
+    The warning banner above the image is what keeps this honest: the masks
+    ARE made from the inverted field while it is on, and the screen says so.
     """
     screen._invert_display.setChecked(True)
     screen._btn_magnifier.setChecked(True)
@@ -254,7 +273,10 @@ def test_the_magnifier_is_handed_the_original_crop_while_invert_is_on(screen):
     request = screen._magnifier.build_request()
     assert request is not None
     x0, y0, x1, y1 = request.box
-    assert np.array_equal(request.crop, screen._canvas.image[y0:y1, x0:x1])
+    inverted = engine.invert_normalized(screen._canvas.image)
+    assert np.array_equal(request.crop, inverted[y0:y1, x0:x1])
+    assert not np.array_equal(request.crop,
+                              screen._canvas.image[y0:y1, x0:x1])
 
 
 def test_the_status_line_says_the_inversion_is_only_the_picture(screen):

@@ -60,30 +60,38 @@ THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME (items 435
 and 419 point 9). Only the second changes what a detector reads, and the
 captions are what tell them apart on the panel.
 
-**Invert image**, in the Display category, draws the field as its own
-negative and changes nothing underneath: the corner readout, the object
-filter, both detect buttons, the live magnifier and the saved mask all go on
-reading the pixels that were loaded (item 435).
+**Invert image**, in the Display category, is THE inversion. It draws the
+field as its own negative and hands the detectors that same negative: both
+detect buttons and the live magnifier segment
+:meth:`MakeMasksScreen._detector_image`, so a threshold written for bright
+objects takes dark ones, and a banner above the image says so for as long as
+it is on. The corner readout, the object filter and the saved mask go on
+reading the pixels that were loaded, so nothing measured moves.
 
-**Invert for detection**, in the Object detection category, is the opposite
-bargain -- it changes the pixels the detectors are GIVEN and nothing about
-what is drawn. Both detect buttons and the live magnifier segment
-:meth:`MakeMasksScreen._detector_image`, the complement of the field, so a
-threshold written for bright objects takes dark ones; a banner above the
-image says so for as long as it is on, and the readout and the filter still
-report the field's real values (item 419 point 9).
+IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. Item 435's "Invert
+image" drew a negative and swore detection was untouched; item 419 point 9's
+"Invert for detection" inverted what the detectors read and drew nothing. A
+curator could hold either without the other, and the first one's status line
+had to contradict the second one's banner. The maintainer collapsed them on
+2026-09-20, for the reason the switch exists at all: "if there are black
+objects on an image then inverting allows the user to use otsu and
+magnifier" is ONE intention. ``_cp_invert`` is now the same widget object as
+``_invert_display`` under its old name, so the two cannot come apart.
 
 **Swap object and background**, in Object operations, is the old "Invert
 mask" under the name that describes it -- it flips the LABEL image, which on
-an ordinary field leaves one object covering the frame (item 435).
+an ordinary field leaves one object covering the frame (item 435). It is not
+a picture invert and is deliberately not called one.
 
-EACH HAS ITS OWN ARITHMETIC AND THEY ARE NOT INTERCHANGEABLE.
-:func:`~spacr.qt.mask_engine.invert_intensity` complements the dtype, for
-the view; :func:`~spacr.qt.mask_engine.invert_for_detection` reflects the
-field about its own range, because the Otsu threshold correction is a
-multiplier that an offset destroys; and
-:func:`~spacr.qt.mask_engine.invert_mask` flips labels. The first two look
-like duplicates and are not, which the second one's docstring measures.
+THE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises
+the field to 0..1 on its own range and takes ``1 - v``, which is what the
+maintainer asked for and is not incidental: item 417's Otsu correction is a
+MULTIPLIER on an absolute level, so normalising first is what makes one
+correction value mean the same thing on the next image.
+:func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and
+:func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the
+field's range) are what this screen used before and are kept for other
+callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
@@ -779,7 +787,7 @@ class _MaskCanvas(QLabel):
         if not self.invert_display:
             return self.image
         if self._inverted is None or self._inverted_of is not self.image:
-            self._inverted = engine.invert_intensity(self.image)
+            self._inverted = engine.invert_normalized(self.image)
             self._inverted_of = self.image
         return self._inverted
 
@@ -3152,7 +3160,7 @@ class _LiveMagnifier(QObject):
         cached = self._inverted_field
         if cached is not None and cached[0] is image:
             return cached[1]
-        out = engine.invert_for_detection(image)
+        out = engine.invert_normalized(image)
         self._inverted_field = (image, out)
         return out
 
@@ -5911,18 +5919,22 @@ class MakeMasksScreen(QWidget):
 
         self._invert_display = Toggle("Invert image")
         self._invert_display.setToolTip(
-            "Show the picture as a negative: what was dark is bright and "
-            "what was bright is dark, so a dark object on a pale "
-            "brightfield reads the way a fluorescent one does and is far "
-            "easier to trace by hand. DISPLAY ONLY — the readout under the "
-            "mouse, the object filter, both detect buttons and the mask you "
-            "save all keep reading the original pixels, so nothing you "
-            "measure changes because of this switch. Press it twice and the "
-            "picture is exactly what it was. If you want the DETECTORS to "
-            "read the image upside down, that is 'Invert for detection' in "
-            "the Object detection category, and it warns you while it is on."
+            "Show the picture as a negative and detect on that same "
+            "negative: the field is normalized to 0..1 and each pixel "
+            "becomes 1 minus itself, so its darkest pixel is its brightest. "
+            "That is what lets Otsu and the Live magnifier, which look for "
+            "bright objects, take DARK ones — a dark object on a pale "
+            "brightfield reads the way a fluorescent one does, to the eye "
+            "and to the detector alike. THE MASKS ARE MADE FROM THE "
+            "INVERTED IMAGE while this is on, and a warning stays above the "
+            "image saying so. The hover readout, the Filter category and "
+            "the mask you save go on reading the image's real values, so "
+            "nothing you measure changes. This is not 'Swap object and "
+            "background' in Object operations, which flips a finished MASK "
+            "and does nothing to the picture."
         )
         self._invert_display.toggled.connect(self._on_invert_display)
+        self._invert_display.toggled.connect(self._on_invert_toggled)
         norm_card.body_layout.addWidget(self._invert_display)
         col.addWidget(norm_card)
 
@@ -6208,23 +6220,26 @@ class MakeMasksScreen(QWidget):
     def _on_invert_display(self, on: bool) -> None:
         """Draw the image as its own negative, or stop.
 
-        ITEM 435. The maintainer pressed "Invert mask" and saw nothing
-        happen, because that button flips the MASK and a flipped mask on an
-        ordinary field is one object covering the frame. This is the invert
-        an image viewer means, and it is a VIEW: the complement is computed
-        where the canvas paints (:meth:`_MaskCanvas.displayed_source`) and
-        nowhere else, so a detect, a filter, a measure or a save that runs
-        while it is on reads the pixels that were loaded.
+        ITEM 435, then the maintainer's decision of 2026-09-20 that there
+        should be ONE of these. The screen used to carry two inversions that
+        a user could hold in disagreeing states: this one, which drew a
+        negative and swore detection was unaffected, and item 419 point 9's
+        "Invert for detection", which inverted what the detectors read and
+        drew nothing. The reason given for wanting it was the reason to
+        merge them -- "if there are black objects on an image then inverting
+        allows the user to use otsu and magnifier" is one intention, and a
+        curator who inverts the picture to see dark objects means the
+        detector to see them too.
 
-        The status line says so on the way in, because a negative field is
-        exactly the thing a user might later mistake for the data.
+        So this switch now drives both, through
+        :func:`spacr.qt.mask_engine.invert_normalized`, and
+        ``_cp_invert`` is this same widget under its old name rather than a
+        second one that can disagree with it.
 
-        WHAT IT SAYS DEPENDS ON THE OTHER SWITCH. "Detection still uses the
-        original pixels" is this switch's own promise, and it is true of
-        this switch -- but it is a sentence about the whole screen, and item
-        419 point 9's "Invert for detection" makes it false while that one
-        is on. A line that went on promising it would be telling a user the
-        opposite of what the warning banner two inches above it says.
+        WHAT STILL READS THE LOADED PIXELS, and the status line says it:
+        the hover readout, the Filter category and the mask that is saved.
+        Detection no longer does, which is the point of the switch, and the
+        warning banner above the image says that for as long as it is on.
 
         :param on: the switch's new state.
         """
@@ -6234,16 +6249,11 @@ class MakeMasksScreen(QWidget):
             return
         if not on:
             self._status_label.setText("Showing the image as it was loaded.")
-        elif self._cp_invert.isChecked():
-            self._status_label.setText(
-                "Showing the image inverted — dark is bright. Filtering and "
-                "saving still use the original pixels; detection does NOT, "
-                "because Invert for detection is also on."
-            )
         else:
             self._status_label.setText(
-                "Showing the image inverted — dark is bright. Detection, "
-                "filtering and saving still use the original pixels."
+                "Showing the image inverted — dark is bright — and "
+                "detecting on it. The hover readout, filtering and saving "
+                "still use the original pixels."
             )
 
     def _on_wand_tolerance_changed(self, v: float):
@@ -6922,20 +6932,17 @@ class MakeMasksScreen(QWidget):
             "normalized upstream, where doing it twice changes the result.")
         card.body_layout.addWidget(self._cp_normalize)
 
-        self._cp_invert = Toggle("Invert for detection")
-        self._cp_invert.setToolTip(
-            "Segment the image upside down in intensity: its darkest pixel "
-            "becomes its brightest. It is what lets Otsu, which looks for "
-            "bright objects, take dark ones — in brightfield or a stain. "
-            "THE MASKS ARE MADE FROM THE INVERTED IMAGE, by this button, by "
-            "Otsu detect and by the Live magnifier alike, and a warning "
-            "stays on screen above the image while it is on. The hover "
-            "readout and the Filter category go on reporting the image's "
-            "real values. This is NOT 'Invert image' in the Display "
-            "category, which only changes the picture you are looking at "
-            "and leaves every measurement alone.")
-        self._cp_invert.toggled.connect(self._on_invert_toggled)
-        card.body_layout.addWidget(self._cp_invert)
+        self._cp_invert = self._invert_display
+
+        inverts = QLabel(
+            "Detecting dark objects? Turn on Invert image, in the Display "
+            "category. It inverts the picture you see AND the pixels these "
+            "buttons and the Live magnifier read, because those were two "
+            "switches until 2026-09-20 and a curator could have either one "
+            "without the other.")
+        inverts.setObjectName("CardSubtitle")
+        inverts.setWordWrap(True)
+        card.body_layout.addWidget(inverts)
 
         drives = QLabel(
             "The Live magnifier reads these settings too: Cellpose mode uses "
@@ -7967,7 +7974,7 @@ class MakeMasksScreen(QWidget):
         image = self._canvas.image
         if image is None or not self._cp_invert.isChecked():
             return image
-        return engine.invert_for_detection(image)
+        return engine.invert_normalized(image)
 
     def _on_min_area_changed(self, value) -> None:
         """Hand Min area to the canvas, for Ctrl + left click's seed spacing.

@@ -737,6 +737,72 @@ def normalize_uint16(image: np.ndarray,
     return (out * max_val).astype(image.dtype)
 
 
+def invert_normalized(image: np.ndarray) -> np.ndarray:
+    """Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.
+
+    THE ONE INVERSION. The maintainer's words, 2026-09-20: "invert should
+    normalize between 0 and 1 then take 1- pixel value for all pixels. this
+    will generate an inverted image that otsu can work on if there are black
+    objects on an image then inverting allows the user to use otsu and
+    magnifier. that is the reason for this button."
+
+    So the purpose is a DETECTOR reading dark objects, and the picture the
+    curator sees has to be the picture the detector reads -- one switch, one
+    meaning. That decision replaced the two inversions this module used to
+    carry for Make Masks, :func:`invert_intensity` (the dtype complement,
+    item 435, drawn but never detected on) and :func:`invert_for_detection`
+    (item 419 point 9, detected on but never drawn). Both are kept for
+    callers outside Make Masks and neither is what the screen uses now.
+
+    WHY NORMALISING FIRST IS THE POINT AND NOT A DETAIL. Item 417's Otsu
+    correction is a MULTIPLIER on an absolute level, so what it means depends
+    on where the field's intensities sit. A dtype complement moves a 12-bit
+    field (216..4095) up into 61440..65535, and a correction of 0.8 then asks
+    for a cut below every pixel present while 1.3 asks for one above them all
+    -- the dial becomes an on/off switch, which is the measurement recorded in
+    :func:`invert_for_detection`. Normalising to the field's own range first
+    puts EVERY field on the same 0..1 span before the multiplier is applied,
+    so one correction value means the same thing on the next image.
+
+    WHAT IS GIVEN UP, said plainly: this is not exactly reversible on the
+    original numbers the way the dtype complement was. Inverting a field
+    rescales it to the full range, and the original span cannot be recovered
+    from the result. It does not need to be -- the screen keeps the untouched
+    array and re-derives this one, so nothing measured, filtered or saved ever
+    sees it -- but a caller that inverts an array and keeps only the result
+    has lost where it sat.
+
+    THE RETURN DTYPE IS THE INPUT'S, because the display path hands the result
+    to :func:`normalize_uint16`, which reads ``np.iinfo`` and raises on a
+    float. An integer field comes back spanning that dtype's full range; a
+    float field comes back in 0..1, where a float already belongs.
+
+    A FLAT FIELD has no range to normalise onto. ``v - min`` is 0 everywhere,
+    so the normalised value is taken as 0 and the inverse as 1: a flat field
+    inverts to a flat bright one, which is the literal reading of the formula
+    and is what an inversion of "no contrast" should look like.
+
+    :param image: the field, of any shape and any real dtype.
+    :returns: a new array, same shape, same dtype, inverted.
+    """
+    array = np.asarray(image)
+    if not array.size:
+        return array.copy()
+    if array.dtype == np.bool_:
+        return ~array
+    low = float(array.min())
+    high = float(array.max())
+    span = high - low
+    unit = (np.zeros(array.shape, np.float64) if span <= 0
+            else (array.astype(np.float64) - low) / span)
+    flipped = 1.0 - unit
+    if np.issubdtype(array.dtype, np.floating):
+        return flipped.astype(array.dtype)
+    info = np.iinfo(array.dtype)
+    return (info.min + flipped * (float(info.max) - float(info.min))
+            ).astype(array.dtype)
+
+
 def invert_intensity(image: np.ndarray) -> np.ndarray:
     """Return the photographic complement of ``image``: dark becomes bright.
 

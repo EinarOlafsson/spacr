@@ -351,3 +351,92 @@ Those records were retired in the same pass that reconciled 417's, 419's and
 423's; the account is in item 419's note of this date. The i18n audit runs
 again as a result, which is what makes the catalog and manifest pass this
 item still owes measurable at all.
+
+--------------------------------------------------------------------------------
+2026-09-20 (later) -- THE TWO INVERTS BECAME ONE, AND THE ARITHMETIC CHANGED
+--------------------------------------------------------------------------------
+
+Requested by the maintainer, in these words:
+
+  "in make masks the swap objects and background button should be called
+   invert image and the image show should be inverted. invert should
+   normalize between 0 and 1 then take 1- pixel value for all pixels. this
+   will generate an inverted image hat otsu can work on if there are black
+   objects on an image then inverting allows the user to use otsu and
+   magnigier. that is tre reason for this buton."
+
+ASKED BEFORE BUILDING, because the screen already had THREE things with
+"invert" in them and the request named the wrong one of them. "Swap object
+and background" flips a LABEL image; renaming it "Invert image" would have
+left two controls with that name and removed the only way to flip a mask.
+The maintainer was shown the three and chose: ONE control named "Invert
+image" that normalises 0..1, takes 1-v, and drives the display AND the
+detectors; "Invert for detection" retired into it; "Swap object and
+background" left alone under its own name.
+
+WHY THERE WERE TWO, AND WHY THEY HAD TO STOP BEING TWO. This item's Invert
+drew a negative and promised detection was untouched. 419 point 9's "Invert
+for detection" inverted what the detectors read and drew nothing. A curator
+could hold either one without the other, and this item's own status line had
+to carry a branch that contradicted the other one's banner when both were on
+-- that branch is gone. The reason given for the button IS the argument for
+merging them: a curator who inverts the picture to see dark objects means
+Otsu and the magnifier to see them too.
+
+WHAT IS BUILT.
+
+  mask_engine.invert_normalized    new. 1 - (v - min) / (max - min), refitted
+                                   to the input dtype's full range (0..1 for
+                                   a float input, because the display hands
+                                   the result to normalize_uint16, which
+                                   reads np.iinfo and raises on a float).
+                                   A flat field inverts to a flat bright one.
+  make_masks._MaskCanvas.displayed_source   now calls it, not invert_intensity.
+  make_masks._detector_image and the magnifier's region_for
+                                   now call it, not invert_for_detection.
+  make_masks._cp_invert            IS self._invert_display -- the same widget
+                                   object under its old name, so the eleven
+                                   places that read _cp_invert keep working
+                                   and no second Toggle can disagree with it.
+                                   The Object detection card now carries a
+                                   line saying where the switch went.
+  invert_intensity, invert_for_detection
+                                   kept, unused by this screen, for callers
+                                   outside it.
+
+WHY NORMALISING FIRST IS THE POINT. Item 417's Otsu correction is a
+MULTIPLIER on an absolute level. The dtype complement moved a 12-bit field
+into the top sixteenth of uint16, where a correction of 0.8 asks for a cut
+below every pixel present and 1.3 for one above them all -- the measurement
+is in invert_for_detection's docstring. Normalising to the field's own range
+first puts every field on the same span before the multiplier lands, so one
+correction value means the same thing on the next image.
+
+WHAT IS GIVEN UP, said rather than discovered later: this is no longer
+exactly reversible on the original numbers. The dtype complement was, and
+that was one of the three reasons this item chose it. It does not matter
+here because the canvas keeps the untouched array and re-derives the negative
+-- nothing measured, filtered or saved ever sees it -- but a caller that
+inverts and keeps only the result has lost where the field sat.
+
+SEVEN TESTS CHANGED, and every one of them was asserting the contract the
+maintainer asked to be rid of:
+
+  test_make_masks_inverts_the_picture_and_otsu_grew_options.py
+      the canvas test now expects the normalised inverse, not 65535 - v;
+      the Otsu test and the magnifier test now assert the detector IS handed
+      the inverted pixels, where they asserted the opposite this morning.
+  test_make_masks_filters_splits_and_inverts.py
+      the four 419-point-9 tests: the arithmetic in three of them, and the
+      category test, which now holds that _cp_invert IS _invert_display and
+      lives in Display rather than Object detection.
+
+763 tests pass across the 27 make_masks and magnifier files.
+
+NOT DONE, and it is the same backlog 435 and 422 already owe: the merged
+tooltip is one more English string without its nine catalog rows.
+test_make_masks_settings_explain_themselves.py::
+test_every_help_string_on_the_panel_has_an_exact_catalog_row FAILS, and it
+FAILED ON NIGHTLY BEFORE THIS CHANGE -- checked in a clean worktree at
+origin/nightly, same assertion, same list of Otsu strings. This adds one row
+to that list rather than causing it.
