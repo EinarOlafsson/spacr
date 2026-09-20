@@ -1,0 +1,85 @@
+================================================================================
+BOTH HOECHST CROSS-CHANNEL MODELS ARE PUBLISHED AND MISSING FROM THE MODEL ZOO
+================================================================================
+
+Status:    not started
+Requested: 2026-09-19 — "add a new features items to wire those new models into
+           spacr", and then "did you train cell for hoechst?" -- the model
+           existed, published, and nothing in spaCR pointed at it.
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+The cross-channel project trained four models, all fine-tuned from cpsam_v2 and
+all published. spacr/model_zoo.py lists TWO of them:
+
+  listed    cross-channel-nuclei-from-cellmask-cpsam      F1 0.8881
+  listed    toxoplasma-from-cellmask-cpsam                F1 0.6058
+  MISSING   cross-channel-cell-from-hoechst-cpsam         F1 0.8697
+  MISSING   toxoplasma-from-hoechst-cpsam                 F1 0.5689
+
+CELL FROM HOECHST (published 2026-09-18, 50 files, dataset repo
+einarolafsson/cross-channel-cell-from-hoechst):
+
+    best epoch 70   F1 0.8697  P 0.9437  R 0.8064  AJI 0.7991  Dice 0.8948
+    stock cpsam_v2  F1 0.3012  P 0.3086  R 0.2942  AJI 0.3506  Dice 0.5235
+    2,578 train fields / 237,957 objects; 451 held-out fields / 45,098 objects,
+    split BY WELL
+
+    sha256 weights/cell_from_hoechst
+      98daa9f81771809d0db7d3ccdf3171f17f4c57b0d8075f25e8c180635f5afcce
+    sha256 weights/cell_from_hoechst_best
+      d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb
+
+TOXOPLASMA FROM HOECHST (published 2026-09-19): F1 0.5689, 2,567 train / 463
+test fields, 6,116 objects, single well-grouped split.
+
+    sha256 toxoplasma_from_hoechst_pv   (repo ROOT, not weights/)
+      8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96
+
+--------------------------------------------------------------------------------
+WHY IT MATTERS
+--------------------------------------------------------------------------------
+
+Cell from hoechst is the strongest cross-channel result there is -- it nearly
+triples stock cpsam_v2 (0.3012 -> 0.8697) -- and it answers a question users hit
+constantly: a screen imaged only with a nuclear stain and no cell mask. It is
+reachable today only by someone who already knows the repo name.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Add both rows to BUNDLED_REMOTE_MODELS with the sha256 values above, kind
+   "cellpose", repo_type "model".
+2. Mind the two layouts: cell-from-hoechst puts its weights under weights/ and
+   ships a `_best` checkpoint as well as the final one -- point the row at
+   `weights/cell_from_hoechst_best`, since the published table scores the BEST
+   epoch. toxoplasma-from-hoechst has its weight at the REPO ROOT, named
+   `toxoplasma_from_hoechst_pv`. If fetch() assumes one layout, it will fail on
+   the other; check before writing the rows.
+3. Quote both stock baselines. A cross-channel model's number means nothing
+   without what stock scores on the same fields -- 0.8697 is impressive against
+   0.3012, and 0.5689 is an honest result on a much harder task, not a failure.
+4. Say in the toxoplasma-from-hoechst row that it predicts a PARASITE mask from
+   a HOST-nucleus stain, which is why it sits far below the cell model.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+    python -c "from spacr.model_zoo import BUNDLED_REMOTE_MODELS as M; \
+      print(sorted(e['repo_id'].split('/')[-1] for e in M))"
+
+lists both hoechst repos, tests/test_model_zoo.py stays green, and the Download
+button fetches a checkpoint whose sha256 matches the value in the row.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+Not publishing a dataset repo for toxoplasma-from-hoechst. The other three
+cross-channel models each have one; this one does not, and creating it is the
+cross-channel project's call, not spaCR's. Worth raising there.
