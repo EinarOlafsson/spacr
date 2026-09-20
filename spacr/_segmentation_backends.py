@@ -89,6 +89,7 @@ from __future__ import annotations
 
 import atexit
 import collections
+import inspect
 import json
 import logging
 import math
@@ -1507,6 +1508,7 @@ class _RemoteBackend:
         self._worker_for = worker_for or _worker_for
         self.note = (f"in its own environment, {self.env}"
                      + (f"; model {self.model}" if self.model else ""))
+        self._said = set()
 
     def eval(self, x, batch_size=None, channel_axis=-1, normalize=True,
              diameter=None, flow_threshold=None, cellprob_threshold=0.0,
@@ -1527,7 +1529,8 @@ class _RemoteBackend:
         params = {"channel_axis": channel_axis, "normalize": normalize,
                   "diameter": diameter, "flow_threshold": flow_threshold,
                   "cellprob_threshold": cellprob_threshold,
-                  "min_size": min_size, "resample": resample}
+                  "min_size": min_size, "resample": resample,
+                  "batch_size": batch_size}
         params = {k: _plain(v) for k, v in params.items() if v is not None}
         worker = self._worker_for(self.name, self.env)
         scratch = tempfile.mkdtemp(prefix="spacr-backend-")
@@ -1541,6 +1544,7 @@ class _RemoteBackend:
                 "segment", should_cancel=should_cancel, model=self.model,
                 device=self.device, inputs=inputs, outputs=scratch,
                 params=params, options=self.options)
+            self._report(reply)
             masks, flows = [], []
             for item in reply.get("outputs") or ():
                 masks.append(np.load(item["mask"], allow_pickle=False))
@@ -1554,6 +1558,31 @@ class _RemoteBackend:
                 f"The {self.label} backend returned {len(masks)} masks for "
                 f"{len(images)} images.")
         return masks, flows, None
+
+    def _report(self, reply):
+        """Say once, by name, what the backend could not honour.
+
+        A setting the user set and the run ignored is a result nobody can
+        account for afterwards, which is why this is printed rather than
+        dropped. Once per backend instance: a run is thousands of batches
+        and the same line thousands of times is the same as no line.
+        """
+        for key, lead in (("translated", "translated"),
+                          ("ignored", "cannot honour")):
+            values = list(reply.get(key) or ())
+            if not values:
+                continue
+            fresh = [v for v in values if (key, v) not in self._said]
+            if not fresh:
+                continue
+            self._said.update((key, v) for v in fresh)
+            if key == "ignored":
+                print(f"{self.label} {lead}: {', '.join(fresh)} -- "
+                      f"these settings did not reach the model",
+                      file=sys.stderr)
+            else:
+                for value in fresh:
+                    print(f"{self.label} {lead} {value}", file=sys.stderr)
 
 
 def _import_dinocell():
@@ -1919,6 +1948,8 @@ class _Cellpose3Adapter:
         from cellpose import models
 
         self.model = model
+        self.ignored = set()
+        self.translated = set()
         where = torch.device(device)
         gpu = where.type != "cpu"
         if model in _CELLPOSE3_MODELS:
@@ -1938,15 +1969,47 @@ class _Cellpose3Adapter:
 
     def eval(self, x, channel_axis=-1, diameter=None, normalize=True,
              flow_threshold=0.4, cellprob_threshold=0.0, min_size=15,
-             resample=True, **unused):
+             resample=True, batch_size=None, **other):
         """Segment each image; a second channel is the nucleus channel.
 
         A diameter of 0 or None lets a named model's size model estimate it,
         and leaves a checkpoint at the diameter it was trained at.
 
+        THE NORMALIZATION IS TRANSLATED, and this is the one place where
+        Cellpose 3 and Cellpose-SAM genuinely disagree about a setting.
+        Mask generation scales every image by its own maximum
+        (``prepare_batch_for_segmentation``) and then calls ``eval`` with
+        ``normalize=False``. That pair is spaCR's settled behaviour for
+        Cellpose-SAM. Cellpose 3's cyto, cyto2, cyto3 and nuclei weights
+        were fitted on Cellpose's own per-channel 1st-to-99th-percentile
+        normalization, so handing them a max-scaled image with
+        normalization off is a different input distribution from the one
+        they were trained on: one bright speck crushes the rest of the
+        field toward zero and the masks quietly get worse.
+
+        Turning it back on costs nothing, because dividing by the maximum
+        is a pure linear scale with no offset and percentiles scale with
+        it -- Cellpose's normalization of ``x / max(x)`` is its
+        normalization of ``x``. So spaCR's preparation is left alone and
+        Cellpose 3 normalizes as it was trained to.
+
+        :param batch_size: forwarded to Cellpose 3, which has its own
+            default of 8; before item 446 the user's value never arrived.
+        :param other: anything else the call site passes. What this
+            Cellpose cannot take is recorded in :attr:`ignored` and
+            reported by name, rather than disappearing.
         :returns: ``(masks, flows, None)``; each flows entry is Cellpose's
             ``[RGB flow, dP, cell probability, None]``.
         """
+        if normalize is False:
+            normalize = True
+            self.translated.add(
+                "normalize=False became normalize=True: spaCR's scaling is "
+                "linear, and these weights were trained on Cellpose's "
+                "percentile normalization")
+        extra = {"batch_size": batch_size} if batch_size else {}
+        extra.update({k: v for k, v in other.items() if v is not None})
+        extra = self._accepted(extra)
         masks, flows = [], []
         for image in x:
             image = np.asarray(image)
@@ -1967,11 +2030,32 @@ class _Cellpose3Adapter:
                 image, channels=channels, channel_axis=axis, diameter=size,
                 normalize=normalize, flow_threshold=flow_threshold,
                 cellprob_threshold=cellprob_threshold, min_size=min_size,
-                resample=resample)
+                resample=resample, **extra)
             parts = list(output[1])[:3]
             masks.append(_as_label_image(output[0]))
             flows.append(parts + [None] * (4 - len(parts)))
         return masks, flows, None
+
+    def _accepted(self, extra):
+        """The keywords this Cellpose's ``eval`` will take, of those asked
+        for; the rest are remembered by name in :attr:`ignored`.
+
+        The signature is read rather than listed, because the answer
+        differs between ``Cellpose`` and ``CellposeModel`` and between
+        Cellpose 3 releases, and a list written here would go stale
+        silently -- which is the failure this method exists to stop.
+        """
+        try:
+            signature = inspect.signature(self._model.eval)
+        except (TypeError, ValueError):
+            return dict(extra)
+        parameters = signature.parameters
+        if any(p.kind is inspect.Parameter.VAR_KEYWORD
+               for p in parameters.values()):
+            return dict(extra)
+        taken = {k: v for k, v in extra.items() if k in parameters}
+        self.ignored.update(set(extra) - set(taken))
+        return taken
 
 
 #: Backend name -> in-process class. Tests replace entries with stubs.
@@ -2061,8 +2145,15 @@ def _worker_segment(name, request, adapters):
             else:
                 saved.append(None)
         outputs.append({"mask": mask_path, "flows": saved})
-    return {"outputs": outputs, "device": device,
-            "seconds": round(time.monotonic() - started, 3)}
+    reply = {"outputs": outputs, "device": device,
+             "seconds": round(time.monotonic() - started, 3)}
+    ignored = sorted(getattr(adapter, "ignored", ()) or ())
+    translated = sorted(getattr(adapter, "translated", ()) or ())
+    if ignored:
+        reply["ignored"] = ignored
+    if translated:
+        reply["translated"] = translated
+    return reply
 
 
 def _handle(name, request, adapters):

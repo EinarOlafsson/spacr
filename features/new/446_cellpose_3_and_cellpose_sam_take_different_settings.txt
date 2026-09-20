@@ -1,0 +1,145 @@
+================================================================================
+CELLPOSE 3 AND CELLPOSE-SAM TAKE DIFFERENT SETTINGS, AND MASK GENERATION HANDS
+THEM THE SAME ONES
+================================================================================
+
+Status:    BUILT 2026-09-20, ~85%. Both defects below are fixed, tested and
+           on nightly. What is left is a real Cellpose 3 run over the ten-image
+           set of item 412, which needs the backend installed and the GPU idle;
+           see the trailing note.
+
+Requested: 2026-09-20 -- "now that we are also supporting cellpose 3 type
+           models make sure that there is logic for these in mask generation
+           in spacr as cellpose 3 and cellpose sam take differnt settings and
+           work differently. make sure the use of these models dosnt break the
+           current setup that uses SAM."
+
+WHAT IS ALREADY TRUE
+--------------------------------------------------------------------------------
+
+Item 423 built the seam and it is on nightly. `segmentation_backend='cellpose3'`
+loads `_Cellpose3Adapter` out of process, in an environment of its own, and the
+adapter answers the same `eval(x, ...)` call with the `(masks, flows, styles)`
+triple Cellpose 4 returns, so everything after `parse_cellpose4_output` runs
+unchanged. The adapter already translates the two most obvious differences:
+
+  * CHANNELS. Cellpose 3 takes `channels=[cyto, nucleus]`; Cellpose-SAM takes
+    none. The adapter reads the batch's channel axis and passes [1, 2] for a
+    two-channel image, [0, 0] for one.
+  * DIAMETER. A named Cellpose 3 model carries a size model, so `diameter=0`
+    means "estimate it"; for Cellpose-SAM `diameter=None` means native scale.
+    The adapter maps one onto the other, and refuses a checkpoint path that is
+    not there rather than letting Cellpose 3 silently run cyto3 instead.
+
+`segmentation_backend='cellpose'` -- the default, and every existing settings
+file -- does not reach that module at all, so the SAM path is untouched by
+construction. That property is worth a test rather than an argument.
+
+WHAT IS NOT TRUE YET, AND IT CHANGES THE MASKS
+--------------------------------------------------------------------------------
+
+THE NORMALIZATION IS WRONG FOR CELLPOSE 3, and nothing says so. Mask
+generation calls `prepare_batch_for_segmentation` (spacr/utils.py), which
+casts to float32 and divides each image by its own maximum, and then calls
+
+    model.eval(..., normalize=False, ...)              spacr/object.py
+
+Passing `normalize=False` to Cellpose-SAM after spaCR has scaled the image is
+spaCR's established behaviour and is not in question here. Handing the same
+pair to Cellpose 3 is: its cyto, cyto2, cyto3 and nuclei models were trained
+on Cellpose's own per-channel 1st-to-99th-percentile normalization, which is
+what `normalize=True` does. A max-scaled image with normalization switched off
+is a different input distribution from the one those weights were fitted on --
+one bright speck in an otherwise dim field crushes everything else toward zero
+-- and the masks get worse without a word anywhere.
+
+THE FIX IS SAFE AND THE REASON IS ARITHMETIC. Dividing by the image maximum is
+a pure linear scale with no offset, and percentiles scale with it, so
+Cellpose's percentile normalization of `x / max(x)` is identical to its
+normalization of `x`. Cellpose 3 can therefore be given `normalize=True` on the
+batch spaCR already prepared, with no change to what spaCR does before the
+call and no change for any other backend.
+
+SETTINGS ARE SWALLOWED RATHER THAN REFUSED. `_Cellpose3Adapter.eval` ends its
+signature with `**unused`, so everything mask generation passes that Cellpose 3
+does not name -- today `batch_size` and `rescale` -- disappears without a
+sound. `batch_size` is a real Cellpose 3 argument and dropping it silently
+reverts the user's batch to Cellpose's default; anything else that arrives
+later will vanish the same way. A setting that is ignored must be named.
+
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+  1. Translate rather than swallow. One place that turns mask generation's
+     eval keywords into the keywords a given backend actually takes:
+       - Cellpose 3 gets `normalize=True` for the reason above, and
+         `batch_size` forwarded.
+       - Every keyword a backend cannot honour is collected and reported
+         once per run, by name, instead of being dropped.
+  2. Pin the SAM path. A test that the keywords reaching a Cellpose-SAM
+     `eval` are exactly what they are today, so this item cannot move them.
+  3. Pin the translation. A test that a Cellpose 3 run is asked for with
+     `normalize=True` and the user's `batch_size`, and that the commuting
+     argument above holds numerically.
+
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The Cellpose-SAM eval keyword test passes unchanged against nightly.
+  * A Cellpose 3 run over the ten-image Toxo PV set (item 412) produces
+    masks rather than near-empty ones, and the run names any setting it
+    could not honour.
+  * `tests/test_segmentation_backends*.py` stays green.
+
+
+--------------------------------------------------------------------------------
+2026-09-20 -- BUILT: WHAT CHANGED, AND WHAT IS STILL OWED
+--------------------------------------------------------------------------------
+
+Three edits, all inside `spacr/_segmentation_backends.py`, and nothing in the
+Cellpose-SAM path.
+
+  * `_Cellpose3Adapter.eval` translates `normalize=False` to `normalize=True`
+    and records the translation. The arithmetic that makes this free is in
+    the docstring and in a test: dividing by the image maximum is a linear
+    scale with no offset, so Cellpose's percentile normalization of
+    `x / max(x)` is its normalization of `x`. spaCR's `prepare_batch_for_
+    segmentation` is not touched.
+  * `_Cellpose3Adapter._accepted` reads the installed Cellpose's own `eval`
+    signature and forwards what it takes, collecting the rest in `.ignored`
+    by name. The signature is READ, not listed: `Cellpose` and
+    `CellposeModel` differ, releases differ, and a list here would go stale
+    silently -- which is the failure being fixed. A Cellpose whose `eval`
+    takes `**kwargs` is given everything.
+  * `_RemoteBackend.eval` sends `batch_size` to the worker. It had been
+    accepted in the signature and dropped before the request since the
+    backend was built, so every Cellpose 3 run used Cellpose's default of 8
+    whatever the user set. What a backend could not honour is now printed
+    once per backend instance, by name, instead of vanishing.
+
+`import inspect` moved to module scope. It has to be there rather than
+inside the method: `test_every_module_an_adapter_imports_is_in_its_self_test`
+holds that every module an adapter imports is in that backend's self-test,
+and stdlib at module scope is what the worker environments already carry.
+
+MEASURED. `tests/test_cellpose_3_and_sam_take_different_settings.py`, 12 new
+tests, all passing. Beside them, 229 passed and 2 skipped over
+test_segmentation_backends, test_each_segmentation_backend_drives_its_own_
+package, test_backends_live_in_their_own_environment and the no-comments
+gate; 131 passed over the Cellpose API, channel-axis and rescale contracts
+and core mask orchestration. ONE FAILURE, `test_every_converted_double_
+declares_the_installed_signature` in tests/test_cellpose_api_contract.py,
+FAILS IDENTICALLY ON A CLEAN origin/nightly WORKTREE at 7ed8843c5 and is
+therefore not this item's.
+
+WHAT IS STILL OWED, and it is the only thing:
+
+  * A REAL RUN. Every test here drives a fake Cellpose, so what is proven is
+    that the right arguments are sent, not that the masks improve. The
+    ten-image Toxo PV set of item 412 with `segmentation_backend='cellpose3'`
+    would settle it, and it needs the Cellpose 3 environment installed and
+    the GPU idle twenty minutes first.
+  * The settings surface is NOT part of this: the Mask panel still offers
+    the same settings whatever the backend, and a Cellpose 3 user sees
+    Cellpose-SAM's wording. That is worth its own item if the maintainer
+    wants it.
