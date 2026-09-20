@@ -182,13 +182,13 @@ WHAT WAS BUILT
                                DET/TRA on the Cell Tracking Challenge's AOGM
                                with its published weights, plus a separate
                                count of identity switches.
-  tests/test_timeflows_label_qc.py           40 tests
+  tests/test_timeflows_label_qc.py           42 tests
   tests/test_timeflows_baseline_metrics.py   43 tests
   docs/notes/spacr/timeflows_qc.md, docs/notes/spacr/timeflows_baseline.md
 
 WHAT WAS MEASURED
 
-  83 tests pass; the two modules are at 97.6% and 98.8% statement coverage,
+  85 tests pass; the two modules are at 97.63% and 98.77% statement coverage,
   both above the 90% floor item 288 set. Every score in the metric tests is
   computed twice -- once by the module and once in the test from the AOGM
   definition with the weights written out -- because a metric the fork will be
@@ -253,5 +253,19 @@ instrument and not yet a baseline, and "the plain stitcher is already good
 enough" -- which this file names as a real possible outcome -- remains
 untested either way.
 
+ONE DEFECT FOUND IN MY OWN CODE BEFORE HANDING IT OVER, and recorded because
+the shape of it recurs: label_frames cached its y/x coordinate grid by the
+PIXEL COUNT of the frame, so a 48x24 frame followed by a 24x48 one measured
+the second frame's centroids on the first frame's grid. Centroids are what
+every displacement row and the gap-versus-reuse verdict rest on, so the
+answers would have been wrong with nothing looking wrong. It survived 83 tests
+because every one of them used a stack of a single shape. Fixed, with the
+two-aspect frame as its test.
+
 TRANSLATIONS OWED. Two new public modules and their docstrings; the nine
 catalogs were deliberately not regenerated here, for the consolidated pass.
+The API symbol inventory moves by 24 public callables and 2 modules:
+tests/test_docstring_correctness.py's two count assertions were ALREADY red at
+the base this branched from (8994 and 10889 against baselines of 8698 and
+10539) and are red after it at 9018 and 10915. No test went from green to red
+in this unit.
