@@ -2,13 +2,17 @@
 EQUAL GUTTERS, NO PER-MODULE PROSE IN THE README, AND REAL API PAGES
 ================================================================================
 
-Status:    ~95%, 2026-09-19. Every part of the REQUEST is now built and
+Status:    ~95%, 2026-09-20. Every part of the REQUEST is built and
            measured: equal gutters, Make Masks the only module section the
            README ever had, and all 22 tiles landing on prose that answers
            what the module is for, needs, produces and what to do next.
-           The last one -- Embeddings -- was unblocked today by building
-           the crop loader it was waiting on (spacr/crop_loader.py), so
-           its "what it needs" paragraph describes a path that exists.
+           The last one -- Embeddings -- was unblocked on 2026-09-19 by
+           building the crop loader it was waiting on
+           (spacr/crop_loader.py), so its "what it needs" paragraph
+           describes a path that exists. That loader was then reviewed and
+           five defects in it were fixed; see the last dated section. The
+           percentage does not move, because none of the five was part of
+           the REQUEST and neither leftover below changed.
            LEFT, and neither is prose: the maintainer's confirmation that
            the 2026-09-16 removal of the Make Masks section was meant,
            since it reverses his 2026-09-15 "Keep it"; and the i18n pass
@@ -719,3 +723,112 @@ STILL OPEN UNDER 366, and both are short:
     it" and only he can settle which he meant.
   * The consolidated i18n pass, above. Nothing in this branch touched
     docs/i18n/** or the nine catalogs.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- REVIEW OF THE CROP LOADER: FOUR DEFECTS FIXED, AND A FIFTH THE
+FIX'S OWN TEST TURNED UP
+
+The 2026-09-19 unit above was reviewed before landing and came back FLAWED.
+Nothing in the REQUEST changed and nothing was rebuilt; what follows is what
+the review found and what was done about it. 366's two leftovers are
+untouched and are still the only things open under it.
+
+1. A COMPLETE ANSWER READ AS A CAPPED ONE, which is the promise of "A CAP IS
+PART OF THE ANSWER" running backwards. CropPlan.matched was the pre-join SQL
+COUNT and CropPlan.rows was what survived crop_rows_from_png_list, which on
+the merged route drops every row it cannot cut ('omulti' / 'onone', or no
+merged array recorded). So `capped` -- matched > count -- was true whenever
+the join dropped anything, with no limit anywhere near it, and the panel
+printed "the first of 10 that matched -- raise 'At most' to take more" for a
+load that had taken everything there was. Raising 'At most' returns the same
+rows and reprints the same sentence, so the instruction was one the user
+could not act on.
+
+MEASURED: a png_list of 10 rows, 3 of them 'omulti', merged route, limit
+2,000. Before: matched 10, count 7, capped True, "the first 7 of 10". After:
+capped False, dropped 3, "7 of the 10 crops matching ... -- 3 cannot be cut
+and are left out".
+
+THE FIX IS A THIRD NUMBER, because two different things remove rows and they
+ask the reader for different things. CropPlan now carries `selected` -- what
+the LIMIT left of `matched` -- so `capped` is matched > selected and the new
+`dropped` is selected - count. They reach the panel as separate clauses and
+only the cap one says "raise 'At most'". The record gains `selected` and
+`dropped`. _loaded_sentence is driven by record['capped'] rather than by
+loaded < matched, which were never the same thing.
+
+2. A STOP THE USER PRESSED CAME BACK AS A FAILURE. Pressing Stop while the
+plan job was in flight, or during the first page, put "Crops could not be
+loaded" over the panel: the screen telling somebody their machine refused the
+thing they had just cancelled, which sends them looking for a broken
+database. _on_planned now checks the flag before submitting the load at all
+(planning is one count and one select and cannot be interrupted, so it is
+answered when it returns), and _on_job_failed tells a stop apart from a
+refusal by the flag the USER set rather than by reading the message. Both
+head it "Loading stopped". A stop still unloads nothing and the panel still
+says so.
+
+3. A GLOBAL FLAG WAS BEING CLEARED FOR EVERY OTHER READER IN THE PROCESS.
+The loader turned spacr.crops.PRINT_CROP_PATHS off for the duration of a
+load, correctly saving and restoring it -- but it is one switch for the whole
+process, and a load of a plate on a network mount holds it for minutes. Any
+other screen reading crops in that window silently lost its "<- NOT ON DISK"
+line, which is the only reason the flag defaults to on, so a missing crop
+there read as a success. spacr.crops gains quiet_crop_paths(), a thread-local
+context manager; the global flag is left alone. Tested with a second thread
+that checks what it can see while the load holds the quiet.
+
+4. A STAT ON THE GUI THREAD, on every edit of the path box AND at the end of
+every load -- when the user had done nothing at all. os.path.exists against a
+hung or unmounting NFS share blocks until the mount gives up, and the next
+method along already moved its two cheap indexed reads to a worker for
+exactly this reason. The stat moved to the same worker. Load is now offered
+for any non-empty path and the answer comes from pressing it: plan_crops
+names the path it could not find, which is a better sentence than a greyed
+button and is said from a worker thread. A half-typed path answers with
+nothing to offer rather than raising, so the status line is not written on
+every keystroke.
+
+5. FOUND BY THE FIX'S OWN TEST, NOT BY THE REVIEW, and worse than any of the
+four: ONE 'omulti' ANYWHERE IN A SELECTION FAILED THE ENTIRE MERGED LOAD.
+crop_rows_from_png_list writes None for each row it is about to drop, which
+makes the whole object_label column float64; the rows that survive then carry
+3.0 where they carried 3, and spacr.crops.object_label refuses a float
+outright -- int('3.0') raises. So a plate with any overlapping crop in it
+loaded nothing, with a message about a label that was perfectly good. The
+dtype is pandas bookkeeping and _plain_row now undoes it where the row is
+made ready for spacr.crops, rather than by loosening what counts as a label
+everywhere else. THE REASON THIS SURVIVED THE FIRST ROUND: every fixture in
+the original tests was a clean plate, and a clean plate is the one case that
+never sees it. The new fixture has 'omulti' rows in it on purpose.
+
+TESTS: +4 in tests/test_choosing_crops_is_not_reading_them.py (29 -> 33) and
++4 in tests/qt/test_the_embedding_screen_loads_its_own_crops.py (17 -> 21),
+including a real streaming fixture -- merged/*.npy, an object table and a
+png_list with 'omulti' rows -- so the drop is produced rather than
+monkeypatched. The console-flood test was rewritten: it asserted the state of
+the flag, which is the mechanism that just changed, and now asserts what
+actually reached stdout.
+
+REGRESSIONS: measured, not asserted. tests/test_crops.py,
+test_crop_source.py, test_cov_5_png_list.py, test_cell_montage.py,
+test_one_crop_however_it_was_cut.py and the comment ban: 297 passed, 2
+skipped (both want SPACR_STREAM_ROOT). The package and doc ratchets: 3
+failed, 406 passed, and a grep of the failure output for crop_loader,
+screens/embeddings or crops.py returns 0 hits -- they are the nested-helper
+docs lane. The caption ratchets: the same 5 failures as at the branch point.
+
+CORRECTION TO THE NOTE ABOVE: it says twenty-eight modules under spacr/ have
+no docs/notes file. The count is 33 of 243, 32 before crop_loader. The
+reasoning is unaffected -- those files are generated out of stripped comments
+and these modules have none -- but the number was wrong and is corrected here
+rather than edited away.
+
+I18N: this pass adds one panel heading, "Loading stopped", and one new public
+docstring, spacr.crops.quiet_crop_paths. Both go on the consolidated pass
+with the 22 captions above. Nothing here touched docs/i18n/** or the nine
+catalogs.
+
+STILL OPEN UNDER 366: unchanged, and still the same two -- the maintainer's
+confirmation of the 2026-09-16 removal of the Make Masks section, and the
+consolidated i18n pass.
