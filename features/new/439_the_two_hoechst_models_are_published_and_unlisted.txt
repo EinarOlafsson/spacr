@@ -2,7 +2,9 @@
 BOTH HOECHST CROSS-CHANNEL MODELS ARE PUBLISHED AND MISSING FROM THE MODEL ZOO
 ================================================================================
 
-Status:    not started
+Status:    DONE 2026-09-19. Both rows are in BUNDLED_REMOTE_MODELS and both
+           checksums match the ones this file recorded independently on the
+           work machine. See the note at the foot.
 Requested: 2026-09-19 — "add a new features items to wire those new models into
            spacr", and then "did you train cell for hoechst?" -- the model
            existed, published, and nothing in spaCR pointed at it.
@@ -83,3 +85,27 @@ DELIBERATELY NOT DONE
 Not publishing a dataset repo for toxoplasma-from-hoechst. The other three
 cross-channel models each have one; this one does not, and creating it is the
 cross-channel project's call, not spaCR's. Worth raising there.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 (evening) — BOTH ROWS ARE IN, AND THE TWO LAYOUTS WERE THE TRAP
+--------------------------------------------------------------------------------
+
+toxoplasma_from_hoechst_v1 was already listed (260aa4259): weight at the repo
+ROOT as `toxoplasma_from_hoechst_pv`, uri built from repo_id + name, sha256
+8dc05ebc... -- which is exactly what this file recorded.
+
+cell_from_hoechst_v1 was added in 32d7b5250, pointing at
+`weights/cell_from_hoechst_best` as this file asked, since the published table
+scores the BEST epoch. Its sha256 d1992433... was computed here by downloading
+the file and agrees with the value recorded on the work machine. F1 0.8697
+against stock cpsam_v2's 0.3012 on 451 held-out fields, split by well; the row
+quotes the DELTA rather than the ratio, because stock's near-zero mAP makes any
+ratio look enormous.
+
+WHAT THE SECOND LAYOUT COST, since this file warned about it: fetch() builds a
+row's URL from repo_id + name when "uri" is empty, so a nested weight needs an
+explicit uri. The catalogue's own invariant test then rejected a row whose local
+name was not the URL's last segment -- which is right, and is now an EXACT
+match rather than the substring test it was, with "remote_name" for the one
+repository (the YOLO26 detector) that publishes its weight as weights/best.pt.
