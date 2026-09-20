@@ -212,12 +212,16 @@ def crop_settings(qtbot, crop_panel):
     return dialog
 
 
-def test_the_crop_toggle_is_named_for_the_crop(crop_settings, crop_panel):
-    """It sits between "Crop width" and "Crop height" and it holds the
-    second at the first. Neither graph word describes it, and either one
-    would tell a reader it changes a plot."""
-    assert (_row_label(crop_settings, crop_panel._lock_aspect)
-            == "Match crop height to width")
+def test_the_crop_size_is_one_row_named_for_the_crop(crop_settings, crop_panel):
+    """One row, "Crop size".
+
+    There were three rows here -- "Crop width", "Crop height" and "Match crop
+    height to width" -- and the third existed to keep the first two equal.
+    They were never two settings: crop_size maps onto png_size in
+    picture_settings, and a scalar png_size already means a square crop in
+    crops. The maintainer asked for one control on 2026-09-19 (item 443).
+    """
+    assert _row_label(crop_settings, crop_panel._crop_size) == "Crop size"
 
 
 def test_the_crop_panel_says_nothing_about_aspect_ratios(crop_settings):
@@ -227,20 +231,38 @@ def test_the_crop_panel_says_nothing_about_aspect_ratios(crop_settings):
     assert not said, said
 
 
-def test_the_crop_toggle_carries_the_width_over_to_the_height(crop_panel):
-    """The label is only true if this is what the toggle does."""
-    crop_panel._lock_aspect.setChecked(True)
+def test_one_number_sets_both_sides(crop_panel):
+    """The size the cropper is given is square, from the one box."""
+    crop_panel._crop_size.setValue(128)
 
-    crop_panel._crop_width.setValue(128)
-
-    assert crop_panel._crop_height.value() == 128
+    assert crop_panel._png_size_pair() == (128, 128)
 
 
-def test_an_unlocked_crop_keeps_the_height_it_was_given(crop_panel):
-    crop_panel._lock_aspect.setChecked(True)
-    crop_panel._crop_width.setValue(128)
-    crop_panel._lock_aspect.setChecked(False)
+def test_a_saved_square_size_loads_as_one_number(crop_panel):
+    crop_panel._apply_png_size([224, 224])
 
-    crop_panel._crop_width.setValue(96)
+    assert crop_panel._crop_size.value() == 224
+    assert crop_panel._png_size_pair() == (224, 224)
 
-    assert crop_panel._crop_height.value() == 128
+
+def test_a_saved_non_square_size_is_kept_rather_than_squared(crop_panel):
+    """Somebody's saved crops do not change shape because the panel did.
+
+    The width is shown, the pair is what the cropper is given, and the status
+    line says so -- squaring it silently would change every crop a stored
+    settings file produces.
+    """
+    crop_panel._apply_png_size([224, 160])
+
+    assert crop_panel._crop_size.value() == 224
+    assert crop_panel._png_size_pair() == (224, 160)
+    assert "224x160" in crop_panel._status.text()
+
+
+def test_typing_a_new_size_goes_back_to_square(crop_panel):
+    """Once the user sets a size themselves, the odd pair is theirs no longer."""
+    crop_panel._apply_png_size([224, 160])
+
+    crop_panel._crop_size.setValue(96)
+
+    assert crop_panel._png_size_pair() == (96, 96)

@@ -2,7 +2,8 @@
 THE MEASURE PREVIEW IGNORES THE CROP SIZE, AND ASKS FOR IT TWICE
 ================================================================================
 
-Status:    OPEN, filed 2026-09-19. Not started.
+Status:    DONE 2026-09-19, the same evening. Both halves: the preview cuts
+           at the crop size now, and there is one control instead of three.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "in measure modual in live preview, changing the crop width or
@@ -82,3 +83,47 @@ HOW TO KNOW IT WORKED
   * An old settings file with png_size [224, 224] loads as 224; one with
     [224, 160] keeps its pair and says so.
   * Typing 1-2-8 recomputes once, not three times.
+
+--------------------------------------------------------------------------------
+2026-09-19 — BUILT
+--------------------------------------------------------------------------------
+
+THE PREVIEW CUTS AT THE SIZE THE RUN WILL WRITE. `crop_objects_from_array`
+takes `size` and resizes each crop with the SAME call a run makes at save time
+-- `Image.fromarray(...).resize((w, h))` at PIL's default resampling
+(measure.py:4141) -- rather than a second implementation that could drift from
+it. `size=None` still returns the bounding box, which is what every existing
+caller gets. A test compares the preview's crop against that exact PIL call,
+so a change of resampler on either side fails.
+
+Two cases the helper has to survive, because a preview that raises shows
+nothing at all: `to_rgb=False` keeps the working dtype, and PIL refuses most
+multi-channel non-8-bit arrays, so those go plane by plane through PIL's 32-bit
+float mode and are cast back (16-bit stays 16-bit, tested); and a size of zero,
+which a spinner passes through on its way to a real number, is ignored rather
+than raising.
+
+ONE CONTROL. "Crop width", "Crop height" and "Match crop height to width" are
+one "Crop size" spinner. `_crop_width` and `_crop_height` remain as aliases of
+it, so every existing reader keeps working and they agree by construction.
+`png_size` is written as a single number, which crops.py already reads as a
+square crop.
+
+A SAVED NON-SQUARE PAIR IS NOT SQUARED BEHIND THE USER'S BACK: `[224, 160]`
+loads with 224 in the box, the pair is what the cropper is given, and the
+status line says "This settings file crops 224x160." Typing a new size makes
+it square again, which is the user choosing.
+
+The spinner is debounced by 250 ms before re-cutting: it passes through 1, 12
+and 128 on the way to 1280, and each would otherwise re-cut every object.
+
+TESTS. tests/test_the_measure_preview_cuts_at_the_crop_size.py (5: the size
+reaches the crops; None is still the bounding box; the resize equals the run's
+own PIL call; a 16-bit non-RGB crop survives; a zero size is ignored) and five
+re-pinned in tests/qt/test_two_shapes_and_a_crop_are_named_apart.py, which used
+to pin the three-row layout and now pins the one row and the non-square case.
+113 tests in the two existing measure suites stay green.
+
+STILL OPEN: whether the ACTUAL run's crops were ever wrong. They were not --
+crops.py:2612 reads png_size and measure.py resizes to it -- so this was a
+preview that disagreed with its pipeline, not a pipeline defect.

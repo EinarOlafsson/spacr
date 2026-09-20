@@ -4150,7 +4150,7 @@ def _save_object_crop(crop, channels, png_path, png_size):
 def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
                             min_area=0, max_area=0, mask_background=True,
                             normalize=True, percentiles=(1, 99), buffer=10,
-                            to_rgb=True, limit=None):
+                            to_rgb=True, limit=None, size=None):
     """Crop every object out of an in-memory merged image+mask array.
 
     This is the no-database counterpart of :func:`generate_object_dataset`,
@@ -4171,6 +4171,14 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
         (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels
         **in the merged array's own dtype**.
     :param limit: cap the number of objects returned.
+    :param size: ``(width, height)`` to resize every crop to, or ``None`` to
+        return each object's own bounding box. This is ``measure_crop``'s
+        ``png_size``, resized THE WAY THE RUN RESIZES -- the same
+        ``PIL.Image.resize`` call at its default resampling -- because this
+        feeds the Measure preview, whose purpose is to show what a run will
+        write. Without it the preview showed bounding boxes while the run
+        wrote squares, and the crop-size setting looked like it did nothing
+        (item 443).
     :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
         objects first.
 
@@ -4225,9 +4233,48 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
             elif n > 3:
                 crop = np.ascontiguousarray(crop[:, :, :3])
 
+        if size is not None:
+            crop = _resize_crop_like_the_run(crop, size)
+
         out.append({"label": lbl, "area": area,
                     "bbox": (int(y0), int(y1), int(x0), int(x1)), "crop": crop})
     return out
+
+
+def _resize_crop_like_the_run(crop, size):
+    """Resize one crop to ``size`` the way a real run does.
+
+    :param crop: the crop, ``HxWxC`` (or ``HxW``) in any dtype.
+    :param size: ``(width, height)``.
+    :returns: the resized crop, in the dtype it arrived in.
+
+    A run resizes at save time with ``Image.fromarray(...).resize(png_size)``
+    and nothing else, so the preview makes the same call with the same default
+    resampling. An 8-bit RGB crop goes through PIL whole; anything else goes
+    plane by plane through PIL's 32-bit float mode and is cast back, because
+    ``Image.fromarray`` refuses most multi-channel non-8-bit arrays and a
+    preview that raised here would show nothing at all.
+    """
+    import numpy as np
+    from PIL import Image
+
+    width, height = int(size[0]), int(size[1])
+    if width <= 0 or height <= 0:
+        return crop
+    if crop.ndim == 3 and crop.shape[2] == 3 and crop.dtype == np.uint8:
+        return np.asarray(Image.fromarray(crop).resize((width, height)))
+    planes = ([crop] if crop.ndim == 2
+              else [crop[:, :, i] for i in range(crop.shape[2])])
+    resized = [
+        np.asarray(Image.fromarray(plane.astype(np.float32),
+                                   mode="F").resize((width, height)))
+        for plane in planes
+    ]
+    stacked = resized[0] if crop.ndim == 2 else np.stack(resized, axis=2)
+    if np.issubdtype(crop.dtype, np.integer):
+        info = np.iinfo(crop.dtype)
+        stacked = np.clip(np.rint(stacked), info.min, info.max)
+    return stacked.astype(crop.dtype)
 
 
 #: Named groups the FEATURES regex may use to name the ROW a file belongs to.
