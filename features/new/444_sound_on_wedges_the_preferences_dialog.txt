@@ -1,0 +1,102 @@
+================================================================================
+WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
+================================================================================
+
+Status:    OPEN, filed 2026-09-19. REGRESSION from the same day's item 427
+           (the sound engine). Reproduced here; cause identified; not fixed.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "for some reason if sound is on in spacr and i try to reopen
+              preferences, the application hangs and needs to be force quit. i
+              see the of the preferences window but it is not populated with
+              preferences then i get the wait force quit option and i have to
+              force quit"
+
+Owner:     Claude (spacr/qt/sound.py).
+
+--------------------------------------------------------------------------------
+WHAT WAS MEASURED HERE
+--------------------------------------------------------------------------------
+
+Driving it offscreen with sound switched on, the engine started through
+`apply_preferences_to_app` (what Save does), and the Preferences dialog built
+and `exec()`d three times, the run prints:
+
+    QSocketNotifier: Socket notifiers cannot be enabled or disabled
+                     from another thread            (x5)
+    QThread: Destroyed while thread 'spacr-sound' is still running
+    ... the process then dumped core at exit
+
+The dialog itself did not hang offscreen -- there is no sound server to
+connect to in that environment, and the GUI is not a real window -- but the
+threading violation is the same one, and it is undefined behaviour: on the
+maintainer's workstation (PipeWire, real window) it presents as the GUI thread
+stopping with an empty Preferences frame and GNOME offering to force quit.
+
+--------------------------------------------------------------------------------
+THE CAUSE
+--------------------------------------------------------------------------------
+
+`_AudioWorker._make_effect` (sound.py:~320) calls
+
+    QMediaDevices.defaultAudioOutput()
+
+ON THE AUDIO THREAD, and the module's own docstring explains why: measured on
+2026-09-19, doing it on the GUI thread stopped the interface for 180-320 ms
+while the sound server was connected, and this moved that cost onto the audio
+thread.
+
+It is the right instinct and the wrong mechanism. Qt Multimedia's device
+handling belongs to the thread that owns the application's event loop: with
+the FFmpeg backend it installs socket notifiers, and a notifier enabled from
+another thread is exactly what Qt warns about above. So a 300 ms hitch was
+traded for undefined behaviour that can wedge the whole application -- and
+does, on the machine it was measured on.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+Keep the synthesis off the GUI thread and bring the DEVICE work back onto it.
+Rendering a sound set is numpy and takes as long as it takes; playing one is
+`play()`, which returns immediately. Concretely:
+
+  1. `QMediaDevices` and every `QSoundEffect` are created and used on the GUI
+     thread. Nothing in Qt Multimedia is touched from the audio thread.
+  2. The audio thread keeps doing what it is good for: synthesizing WAVs into
+     the cache (`ensure_rendered`), which is the only part that is slow.
+  3. Pay the first connection ONCE, and not while a user is waiting for a
+     dialog: when sound is switched on, warm the device on the GUI thread at
+     a moment of the application's choosing (after the window is up, or on an
+     idle timer), and say in the log what it cost.
+  4. The thread must end cleanly: "QThread: Destroyed while thread
+     'spacr-sound' is still running" is a second defect visible in the same
+     run, and a process that dumps core at exit loses whatever the run
+     journal had not flushed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * With sound on, opening and closing Preferences ten times in a row prints
+    no QSocketNotifier warning and does not wedge -- asserted by a test that
+    drives the dialog, not by opening it once by hand.
+  * No Qt Multimedia symbol is constructed or called from any thread but the
+    GUI thread -- pinned by a test that fails if `_make_effect` or the device
+    listing moves back.
+  * Quitting with sound on ends the audio thread before the process exits: no
+    "Destroyed while thread is still running", no core dump.
+  * The first sound after switching sound on still costs about what it costs
+    today, and the cost is logged rather than felt at a dialog open.
+
+--------------------------------------------------------------------------------
+UNTIL IT IS FIXED
+--------------------------------------------------------------------------------
+
+Sound is off by default, so only a user who switched it on is affected. Turning
+sound off ends it -- but Preferences is where that switch lives, so somebody
+already wedged has to stop spaCR, set
+
+    [ai]/sound_enabled=false        in ~/.config/spacr/qt.conf
+
+(or whatever `_KEY_SOUND_ENABLED` resolves to in that file) and start it again.
