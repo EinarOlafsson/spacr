@@ -136,3 +136,75 @@ item 386 wants a label-free embedding for every object, which is the
 unsupervised cousin of this; item 99 explains CV models and resolves hits
 back to cells. The replication assay this head serves is the module that
 would consume it.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE FOUR QUESTIONS ANSWERED, AND WHAT THE DATA ACTUALLY IS
+--------------------------------------------------------------------------------
+
+THE ANSWERS, through the question prompt.
+
+1. A VACUOLE OF THREE: "Predict the count, bin for display." The head
+   predicts how many parasites it sees and 1/2/4/8/16/>16 is how the answer
+   is REPORTED, not how it is trained. A 3 stays a 3 in the model and is
+   shown in whichever bin the report asks for. Nothing is taught that a
+   wrong answer is right, and the binning can change later without
+   retraining.
+
+2. WHAT IT LOOKS AT -- and the maintainer replaced the question with a
+   design: "there should be different modes, count from hoechst, cell mask,
+   or toxo staining (ds red or antibody). so we need to generate a dataset
+   where we generate pngs with hoechst, parasite stainin, cell mask as the
+   channels. annotate the pngs as the classes, then train the classifier on
+   each channel individually so it can count based on any of the 3
+   channels."
+
+   So it is THREE HEADS, not one with three inputs: one trained on Hoechst,
+   one on the parasite stain, one on CellMask, and the caller picks the mode
+   its plate can serve. A plate with no CellMask still counts from Hoechst.
+   The crops are generated once, as PNGs carrying all three channels, and
+   annotated once; each head then trains on its own channel of the same
+   annotated set, so the three heads share their labels and differ only in
+   what they are shown.
+
+3. WHAT "CUT" MEANS: both, told apart. An object touching the image border
+   and an object the segmenter split into two labels are different classes,
+   because only the second can be merged where it stands -- the first needs
+   the neighbouring field. The merge option acts only on the second.
+
+4. TRAINING DATA: the Annotate module on crops.
+
+WHAT THE PV DATA IS, MEASURED 2026-09-20 RATHER THAN ASSUMED. The
+maintainer asked whether the Toxo PV dataset carries those channels. It
+does not.
+
+  * `einarolafsson/toxoplasma-pv-segmentation-dataset` holds 556 image/mask
+    pairs -- the set PV rounds 5 and 6 were trained on. One image was
+    downloaded and read: shape (1998, 1998), uint16. ONE CHANNEL. The repo
+    is 556 images, 556 masks, and three CSVs (`fields.csv`, `folds.csv`,
+    `split.csv`); there is no second or third channel anywhere in it.
+  * `fields.csv` keys every field by a stem of the form
+    `4hMEFRNF213_20250117_122515__plate1_A03_6_1` -- experiment, plate,
+    well, field and a trailing channel index. THE STEMS ARE THE WAY BACK:
+    the other channels of the same fields exist in the original
+    acquisitions, if those are still somewhere.
+  * THEY ARE NOT ON THIS MACHINE. Every local mount (/mnt/firecuda2,
+    /mnt/einar_12TB, /mnt/wd12tb, /mnt/wd4tb, /mnt/samsung) was searched
+    five levels deep for `*4hMEFRNF*` and `*20250117*`: no acquisition
+    folder.
+  * WHAT IS LOCAL is `/mnt/wd4tb/toxo_channel_check/`, twelve PNGs from
+    2026-09-02 -- four fields, each as Hoechst, PV and CellMask. That is a
+    channel check, not a training set, but it is proof the three channels
+    were acquired for this experiment.
+  * THE NAS COULD NOT BE CHECKED. `/nas_mnt` answers a `stat` on its mount
+    point and then `ls` returns "No such device": a stale NFS mount. This
+    is exactly what hung a session earlier today; `tools/nas_guard.sh`
+    returned instead of hanging, which is what it was written for. Whether
+    the source plates are on the NAS is unknown until it is remounted.
+
+WHAT THAT MEANS FOR THIS ITEM. The wrapper, the object head and the merge
+and artifact options need none of this and can be built now. THE PV COUNT
+HEADS CANNOT BE TRAINED until the three-channel crops exist, and producing
+them needs the original acquisitions of those 556 fields -- or a fresh set
+of fields acquired with all three stains. Everything else about the PV head
+-- the count-not-class decision, the three modes, the per-channel training
+-- is settled and written above.
