@@ -1,0 +1,83 @@
+================================================================================
+THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
+OF THE MAINTAINER'S
+================================================================================
+
+Status:    OPEN, filed 2026-09-20. Not started.
+
+Requested: 2026-09-20 -- "some tutorial videos need to be redone. all tutorial
+           videos should be in dark mode with blobs theme. pype is now
+           sometimes pronounced incorrectly . make sure no paths from my
+           computer appera in the videos. make. in the install with conda
+           tutorial the narrator talks about the old setup and talk about the
+           new nested setup. please do not refer to old versions at all. the
+           tutorials should only explain what current spacr is, not relate
+           spacr to older versions of spacr. there are some new features (e.g.
+           the search and make masks magnifier and features functions that
+           need to be included in their respective tutorials.)"
+
+RELATED, AND NOT A DUPLICATE OF EITHER. Item 358 redoes every core-module
+lesson against LIVE DATA and folds the actions in; item 286 owes a re-record
+of lessons 04 and 05 for the performance selector. This item is about what
+the videos SHOW AND SAY: the theme they are captured in, the words the
+narrator uses, what is visible in the frames, and which features are covered
+at all. Where a lesson has to be re-captured for 358 anyway, the two should
+be done in one pass rather than capturing it twice.
+
+THE FIVE THINGS ASKED FOR
+--------------------------------------------------------------------------------
+
+1. DARK MODE, BLOBS THEME, EVERYWHERE. Every tutorial video is captured with
+   spaCR in dark mode and the Blobs backdrop. Today's lessons are not
+   consistent, and a lesson captured in another theme has to be re-captured,
+   not recoloured. The capture harness should take the theme as a named
+   input and refuse to record in anything else, so this cannot drift again.
+
+2. "pype" IS MISPRONOUNCED IN PLACES. The narration pipeline already has
+   scoped pronunciation corrections -- `tools/tutorials/README.md` describes
+   the phoneme matrix and gives the `depth` long-e correction as the worked
+   example. `pype` needs its own rule, applied to every lesson that says it,
+   and the affected audio re-rendered. WHICH lessons say it wrongly has to be
+   measured rather than guessed: the same word is correct in some.
+
+3. NO PATH FROM THE MAINTAINER'S COMPUTER IN ANY FRAME. Folder pickers,
+   title bars, console lines and file tables all show real paths during a
+   capture. Every lesson needs sweeping for them, and the capture should run
+   from a prepared directory whose name is neutral so the problem does not
+   recur. A check over the sampled frames belongs in the acceptance test --
+   `tools/sample_tutorial_frames.py` already samples them for other reasons.
+
+4. NOTHING REFERS TO AN OLDER spaCR. The conda install lesson describes the
+   OLD setup where the current one is nested, which is the concrete case, but
+   the rule is general and stated as such: a tutorial explains what spaCR IS,
+   never what it used to be, and never "this replaces" or "in earlier
+   versions". Every script needs reading for that shape, not only the install
+   one.
+
+5. THE NEW FEATURES ARE IN NO LESSON. Named in the request, "e.g.", so the
+   sweep is for all of them and these are the three known today:
+     * the search field beside Help (item 422),
+     * the Make Masks live magnifier (items 407, 417, 419),
+     * FEATURES, the measurement table in Make Masks (item 421).
+   Each belongs in the lesson for the module it is part of, not a lesson of
+   its own.
+
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Every published lesson's frames are dark-mode Blobs, checked from the
+    sampled frames rather than from the capture command.
+  * A grep of every narration script for "pype" is covered by the
+    pronunciation rule, and the rendered audio is re-checked.
+  * No sampled frame contains a path outside the prepared capture directory.
+  * No narration script contains a comparison to an older spaCR; the conda
+    lesson describes the nested setup.
+  * The Help search, the magnifier and FEATURES each appear in their module's
+    lesson, with narration and captions.
+
+WHAT IS NOT DECIDED
+--------------------------------------------------------------------------------
+
+Whether the lessons that need re-capturing only for the theme should wait for
+358's live-data pass, which will re-capture them anyway. Doing both at once
+is cheaper; doing the theme now means the videos look right sooner.
