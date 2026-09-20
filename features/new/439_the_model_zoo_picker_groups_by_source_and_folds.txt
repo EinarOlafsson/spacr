@@ -1,0 +1,90 @@
+================================================================================
+THE MODEL ZOO PICKER IS ONE LONG LIST WITH A BOOLEAN; IT SHOULD BE FIVE FOLDABLE
+SOURCES
+================================================================================
+
+Status:    OPEN, filed 2026-09-19. Not started.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "ok and i dont see cell_form_hoechst in th model zoo button
+              options. also the model zoo options should now include the
+              bioimage.io cellpose 3 options. also there are to many options so
+              it should be possible to collapse each kind. and the models
+              trained by me (and spacr users ) should be under the kind spaCR.
+              so remove the boolean forshow community uploads, and exchange it
+              for:
+              cellposeSAM, spaCR , spaCR community, bioimage.io, cellpose3,
+              each should be clickable, if clicked the text turns blue and the
+              amodels in that category are visable. retain the warning for
+              community. by default only cellposeSAM, spaCR should be on."
+
+Owner:     Claude (spacr/qt/widgets/model_zoo_picker.py, and wherever the Mask
+           and Make Masks model boxes read the same catalogue).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE IS
+--------------------------------------------------------------------------------
+
+ONE OF THE FOUR COMPLAINTS IS ALREADY FIXED. cell_from_hoechst was missing
+because it was never in the catalogue: `cross-channel-cell-from-hoechst-cpsam`
+has been published on Hugging Face with full QC (F1 0.8697 against stock
+cpsam_v2's 0.3012 on 451 held-out fields) while its twin,
+`cross-channel-nuclei-from-cellmask-cpsam`, was listed. It was added in
+32d7b5250 along with PV round 6 and well detector v4, so the picker has ten
+rows now rather than seven -- which makes the rest of this item sharper, not
+softer.
+
+THE PICKER TODAY shows every catalogue row in one list, with a single boolean,
+"show unvetted community uploads", deciding whether the shared catalogue's rows
+appear beside the bundled ones. Ten bundled rows plus a community catalogue
+plus, since 423, the Cellpose 3 backend's own models is more than a list can
+carry without grouping.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. FIVE SOURCE HEADINGS, each clickable, each folding its rows away:
+
+       cellposeSAM      the stock Cellpose-SAM weights
+       spaCR            models trained by the maintainer, and by spaCR users
+       spaCR community  the shared catalogue's unvetted uploads
+       bioimage.io      models read through bioimage.io's artifact API
+       cellpose3        the Cellpose 3 backend's own models (cyto, nuclei,
+                        cyto2, cyto3), which 423 made installable
+
+   A heading that is ON is blue and its models are visible; a heading that is
+   OFF is muted and its models are not. ON by default: cellposeSAM and spaCR,
+   and nothing else. The state persists per user, like the other picker
+   preferences.
+
+2. REMOVE the "show unvetted community uploads" boolean. "spaCR community"
+   replaces it, and turning that heading on is what now asks the shared
+   catalogue. KEEP THE WARNING: the first time it is turned on, say what an
+   unvetted upload is, exactly as the boolean did.
+
+3. EVERY ROW MUST LAND IN EXACTLY ONE SOURCE, decided from the row itself
+   rather than from a hand-written list: source="shared" is community; a
+   bioimage.io URI is bioimage.io; the Cellpose 3 backend's rows are
+   cellpose3; stock Cellpose-SAM is cellposeSAM; everything else the
+   catalogue bundles is spaCR. A row that matches nothing goes under spaCR and
+   says so in the log, rather than vanishing from the picker -- a model a user
+   cannot see is worse than one under the wrong heading.
+
+4. The same grouping wherever the catalogue is offered: the Model Zoo tab, the
+   Mask module's model box, and Make Masks' Mode box.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * Opening the picker shows two blue headings, cellposeSAM and spaCR, and the
+    rows under them; the other three are muted and their rows are not on
+    screen.
+  * Clicking "spaCR community" turns it blue, warns once, and the shared rows
+    appear; clicking it again folds them away.
+  * cell_from_hoechst is visible under spaCR without turning anything on.
+  * Every catalogue row appears under exactly one heading -- a test walks the
+    catalogue and asserts the partition is total and disjoint.
+  * A test drives the headings: default state, toggle, persistence across a
+    reopen, and the warning appearing once.
