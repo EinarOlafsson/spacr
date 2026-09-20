@@ -162,6 +162,12 @@ def test_a_module_that_climbed_past_the_bar_leaves_the_table(tiles):
         "spacr.qt.screens.gate_editor",
         "spacr.qt.screens.graph_builder",
         "spacr.qt.screens.experiment_design",
+        # 2026-09-19: the last tile 366 was still owed, and the one that
+        # could not be written before today. Its "what it needs" paragraph
+        # had no crop loader to describe -- nothing in spacr/ called
+        # EmbeddingsScreen.set_crops -- so the page was left at 307 words
+        # rather than written about a path that did not exist.
+        "spacr.qt.screens.embeddings",
     ],
 )
 def test_each_repaired_module_answers_the_four_questions(tiles, module):
