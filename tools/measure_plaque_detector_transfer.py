@@ -68,6 +68,14 @@ Usage::
     python tools/measure_plaque_detector_transfer.py --out /tmp/spike \\
         --stages score --labels /tmp/spike/labels.json
 
+CHANNEL ORDER IS PART OF THE MEASUREMENT, NOT A DETAIL. Ultralytics decodes a
+file path with OpenCV and therefore trains and infers in BGR; handed a numpy
+array it assumes the caller did the same. The first run of this harness passed
+the RGB array it had built for the overlays, so every figure was detected with
+red and blue swapped, and the result understated the detector badly -- see
+:func:`_detector_input`. ``detections.json`` now records ``channel_order`` so
+a result file says which question it answered.
+
 ``detect`` needs ``ultralytics``, which spaCR does not install by default:
 ``pip install "spacr[plaque]"``. It hides the GPU from itself unless ``--gpu``
 is passed -- yolo11n and yolo26n over a few hundred figures is about a minute
@@ -115,6 +123,13 @@ FMT_RANK = {".tiff": 0, ".tif": 0, ".png": 1, ".webp": 2, ".jpg": 2,
 BOX_COLOURS = ((255, 40, 40), (0, 160, 255), (40, 220, 40), (255, 170, 0))
 
 PMCID_RE = re.compile(r"PMC\d+")
+
+#: Which rule picked the files already sitting in a figure directory.
+#: Written into ``.selection`` beside them and checked before they are reused,
+#: because the format-first rule this harness started with produced 200 px
+#: thumbnails and a plain "there are files here already" cache would have
+#: served those thumbnails to every later run.
+SELECTION_RULE = "size-first-then-format-rank/1"
 
 #: What a person is being asked when they fill in a label file.
 PROTOCOL = (
@@ -253,6 +268,13 @@ def fetch_figure_images(pmcid: str, dest: Path,
     also what the measurement needs: the question is whether the detector
     works on a published figure, not on a preview of one.
 
+    Files already in ``dest`` are reused only when ``.selection`` beside them
+    names the rule above. Anything else is refetched and the old files are
+    deleted once the new bundle has parsed, because a cache keyed on "there
+    are images here" is how the format-first thumbnails survived their own fix
+    -- and rerunning the ``figures`` stage into a populated directory is
+    exactly what the queued retraining job asks the next person to do.
+
     :param pmcid: the article, ``PMC`` included.
     :param dest: directory for this article's images; created if missing.
     :param sleep: seconds to wait after a download.
@@ -260,9 +282,14 @@ def fetch_figure_images(pmcid: str, dest: Path,
         bundle, which happens and is recorded rather than retried.
     """
     dest.mkdir(parents=True, exist_ok=True)
+    marker = dest / ".selection"
     have = sorted(p for p in dest.glob("*") if p.suffix.lower() in IMG_EXT)
-    if have:
-        return have
+    if have and marker.is_file():
+        try:
+            if marker.read_text().strip() == SELECTION_RULE:
+                return have
+        except OSError:
+            pass
     try:
         response = _get(f"{EPMC}/{pmcid}/supplementaryFiles", timeout=300)
     except requests.RequestException:
@@ -283,6 +310,8 @@ def fetch_figure_images(pmcid: str, dest: Path,
                 current = best.get(stem)
                 if current is None or score < current[:2]:
                     best[stem] = (score[0], score[1], name)
+            for stale in have:
+                stale.unlink()
             for name in sorted(entry[2] for entry in best.values()):
                 target = dest / Path(name).name
                 with bundle.open(name) as src, open(target, "wb") as dst:
@@ -290,6 +319,7 @@ def fetch_figure_images(pmcid: str, dest: Path,
                 out.append(target)
     except zipfile.BadZipFile:
         return []
+    marker.write_text(f"{SELECTION_RULE}\n")
     time.sleep(sleep)
     return sorted(out)
 
@@ -329,12 +359,24 @@ def sha256_file(path: Path) -> str:
 def stage_sample(args: argparse.Namespace) -> None:
     """Choose the papers and write ``papers.json``.
 
+    THE EXCLUSION IS RECORDED IN FULL, not as a count. Refusing the training
+    articles is what makes a number measured on the current detector mean
+    anything, so it is the one input a reader most needs to reproduce; a count
+    beside a path to a file that can be rewritten upstream is not a record of
+    it. Every excluded id is written out, with the sha256 of each file they
+    were read from.
+
     :param args: parsed command line.
     """
     exclude = set()
+    sources = []
     for path in args.exclude_pmcids or []:
         text = Path(path).read_text(errors="ignore")
-        exclude.update(PMCID_RE.findall(text))
+        found = PMCID_RE.findall(text)
+        exclude.update(found)
+        sources.append({"path": str(path),
+                        "sha256": sha256_file(Path(path)),
+                        "pmcids_found": len(set(found))})
     licences = tuple(x.strip().lower() for x in args.licences.split(","))
     papers = search_papers(args.query, args.papers, licences, exclude,
                            args.seed, args.pool)
@@ -344,6 +386,8 @@ def stage_sample(args: argparse.Namespace) -> None:
         "seed": args.seed,
         "pool": args.pool,
         "excluded_pmcids": len(exclude),
+        "excluded_pmcid_sources": sources,
+        "excluded_pmcid_list": sorted(exclude),
         "papers": papers,
     }
     target = Path(args.out) / "papers.json"
@@ -408,9 +452,20 @@ def _detector_paths(keys: Sequence[str], dest: Path) -> Dict[str, Dict[str, str]
     of the module itself: a retrain lands here without a code change, and the
     entry that comes back records which weights produced a result.
 
+    TWO NAMES ARE RECORDED AND THEY DIFFER. ``name`` is the zoo's registered
+    filename -- ``yolo_welldetect_v3.pt`` -- which is how the zoo row, the
+    ledger and every other record of these weights refer to them.
+    ``installed_as`` is the local filename, which ``install`` versions to avoid
+    clobbering an existing download, so the same checkpoint lands as
+    ``yolo_welldetect_v9.pt`` in one run and ``v11`` in the next. Writing only
+    the installed name left a result file whose model names contradicted the
+    ledger and each other, checkable only by a reader who knew to ignore them;
+    the sha256 is the identity that ties either name back to the zoo row.
+
     :param keys: model zoo keys, or paths to checkpoints.
     :param dest: directory to install into.
-    :returns: ``{key: {"path": ..., "name": ..., "sha256": ..., "kind": ...}}``.
+    :returns: ``{key: {"path": ..., "name": ..., "installed_as": ...,
+        "sha256": ..., "kind": ...}}``.
     :raises SystemExit: when a key is not in the zoo, listing what is.
     """
     from spacr import model_zoo
@@ -425,13 +480,15 @@ def _detector_paths(keys: Sequence[str], dest: Path) -> Dict[str, Dict[str, str]
                          if e.kind == "detector"]
             raise SystemExit(f"{key}: {exc}\ndetectors in the zoo: "
                              f"{', '.join(detectors)}")
+        registered = entry.name
         if entry.source != "local":
             entry = model_zoo.install(entry, dest)
-        out[key] = {"path": entry.path, "name": entry.name,
+        out[key] = {"path": entry.path, "name": registered,
+                    "installed_as": entry.name,
                     "sha256": entry.sha256, "kind": entry.kind,
                     "verified": bool(entry.verified)}
-        print(f"{key}: {entry.name} {entry.sha256[:12]}… "
-              f"verified={bool(entry.verified)}")
+        print(f"{key}: {registered} (installed as {entry.name}) "
+              f"{entry.sha256[:12]}… verified={bool(entry.verified)}")
     return out
 
 
@@ -450,6 +507,29 @@ def _load_image(path: Path) -> Any:
             return np.asarray(handle.convert("RGB"))
     except Exception:
         return None
+
+
+def _detector_input(image: Any) -> Any:
+    """One figure in the channel order the detector was trained in.
+
+    ULTRALYTICS READS A NUMPY ARRAY AS BGR. Given a file path it decodes with
+    OpenCV, which is BGR, and that is how every training image reached the
+    model; given an ``H x W x 3`` array it assumes the caller already did the
+    same. Handing it an RGB array therefore swaps red and blue on every pixel
+    and asks the detector a question about an image nobody has: the first run
+    of this harness did exactly that, and the difference is not cosmetic --
+    v3 found 136 boxes on the well figures that way against 333 the right way
+    round, and v4 found 15 boxes on the cropped-panel figures against 72.
+
+    Verified rather than assumed: over all 182 figures of the first run,
+    passing the file path and passing a BGR array give identical box counts,
+    and RGB differs.
+
+    :param image: an ``H x W x 3`` RGB array, as :func:`_load_image` returns
+        for the overlays.
+    :returns: the same pixels in BGR order.
+    """
+    return image[:, :, ::-1].copy()
 
 
 def _short_tag(model: str) -> str:
@@ -567,10 +647,11 @@ def stage_detect(args: argparse.Namespace) -> None:
             records.append({"key": figure["key"], "unreadable": True})
             continue
         height, width = image.shape[:2]
+        detector_input = _detector_input(image)
         boxes_by_model: Dict[str, List[Dict]] = {}
         for key, info in models.items():
             wells = plaque.detect_wells(
-                image, info["path"], confidence=args.conf,
+                detector_input, info["path"], confidence=args.conf,
                 imgsz=args.imgsz, min_axis_ratio=0.0)
             boxes = []
             for well in wells:
@@ -601,6 +682,7 @@ def stage_detect(args: argparse.Namespace) -> None:
     target.write_text(json.dumps({
         "models": models, "conf": args.conf, "imgsz": args.imgsz,
         "shipped_min_axis_ratio": shipped_ratio,
+        "channel_order": "bgr",
         "device": "cuda" if args.gpu else "cpu",
         "seconds": round(time.time() - started, 1),
         "figures": records}, indent=2))
@@ -705,13 +787,20 @@ def stage_score(args: argparse.Namespace) -> None:
                     f"{key}: {model} found more regions than the figure has "
                     f"({found_well}/{truth_well} well, "
                     f"{found_other}/{truth_other} other)")
+            tp_boxes = sum(1 for v in verdicts if v == "tp")
+            if found_well + found_other != tp_boxes:
+                raise SystemExit(
+                    f"{key}: {model} counts {found_well + found_other} regions "
+                    f"found but marks {tp_boxes} boxes tp; the protocol makes "
+                    f"those the same quantity -- a region is found exactly "
+                    f"when a first box lands on it, and every later box is dup")
             bucket = totals.setdefault(model, {
                 "tp": 0, "fp": 0, "dup": 0,
                 "truth_well": 0, "truth_other": 0,
                 "found_well": 0, "found_other": 0,
                 "figures": 0, "region_figures": 0, "empty_figures": 0,
                 "boxes_on_empty": 0, "per_figure_recall": []})
-            bucket["tp"] += sum(1 for v in verdicts if v == "tp")
+            bucket["tp"] += tp_boxes
             bucket["dup"] += sum(1 for v in verdicts if v == "dup")
             bucket["fp"] += sum(1 for v in verdicts if v == "fp")
             bucket["truth_well"] += truth_well

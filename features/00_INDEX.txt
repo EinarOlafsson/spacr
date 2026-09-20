@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-428 in features/new, 13 in features/future. NEITHER LIST BLOCKS A RELEASE.
+429 in features/new, 13 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -513,3 +513,4 @@ NEW FEATURES
   442  THE PREVIEW ALREADY FOLLOWS THE CHANNEL YOU SET; IT REPAINTED TWICE DOING IT
   443  THE MEASURE PREVIEW IGNORES THE CROP SIZE, AND ASKS FOR IT TWICE
   444  WITH SOUND ON, REOPENING PREFERENCES HANGS spaCR UNTIL IT IS FORCE QUIT
+  445  THE WELL DETECTOR IS FED RGB AND ULTRALYTICS READS IT AS BGR

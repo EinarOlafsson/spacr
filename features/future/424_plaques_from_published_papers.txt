@@ -4,17 +4,26 @@ PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
 
 Filed as 415 on 2026-09-18; renumbered 2026-09-19 because 415 also names features/new/415_the_startup_window_text_is_bright_in_dark_mode.txt.
 
-Status:    NOT STARTED AS A MODULE; ITS FIRST OPEN QUESTION IS MEASURED.
-           2026-09-19: the transfer spike the maintainer asked for ran --
-           28 open-access CC-BY papers, 182 figures, 369 plaque-image regions
-           labelled by eye, both zoo detectors scored. VERDICT: PARTIAL. The
-           detector finds about half of the whole ROUND wells printed in
-           figures (125/259) and essentially none of the CROPPED rectangular
-           plaque panels (6/110) -- and crops are 61 of the 69 plaque regions
-           in the Toxoplasma arm, which is the form this pipeline would
-           actually meet. Harness: tools/measure_plaque_detector_transfer.py.
-           Evidence: features/data/424_detector_transfer_2026-09-19.json.
-           Nothing else below has been built. See the trailing note.
+Status:    NOT STARTED AS A MODULE; ITS FIRST OPEN QUESTION IS STILL OPEN.
+           2026-09-19: the transfer spike the maintainer asked for was built
+           and run -- 28 open-access CC-BY papers, 182 figures, 369
+           plaque-image regions labelled by eye, both zoo detectors scored --
+           and then, in review, THE RUN WAS FOUND TO HAVE MEASURED THE
+           DETECTOR WITH RED AND BLUE SWAPPED. Ultralytics reads a numpy
+           array as BGR; the harness handed it the RGB array it had built for
+           the overlays. Every box in that run is a box the detector would not
+           have drawn. Its verdict of PARTIAL IS WITHDRAWN, not reversed: with
+           the channels the right way round the same detectors fire two to
+           five times as often, including on the cropped panels the verdict
+           said they could not see, and nobody has yet looked at where those
+           boxes land. The corpus, the 369 hand-counted regions, the harness
+           and the exclusion list all survive; the box verdicts do not.
+           Harness: tools/measure_plaque_detector_transfer.py (fixed).
+           Evidence: features/data/424_detector_transfer_2026-09-19.json,
+           which now declares the channel order it was taken with.
+           NEXT: rerun detect and relabel; nothing else below has been built.
+           The queued training round is NOT justified until then -- see 445
+           for the same swap in the shipped plate-splitting path.
 
 Shape:     The plaque module takes a DOI, a PMID or a PDF. It finds the figures,
            finds the plaque images inside them with the trained YOLO detector,
@@ -131,8 +140,74 @@ This note answers the first clause and nothing else. Scale, conditions, the
 database and the OCR question are untouched.
 
 --------------------------------------------------------------------------------
-2026-09-19 — DOES IT TRANSFER? PARTIAL: ROUND WELLS YES, CROPPED PANELS NO
+2026-09-19 — DOES IT TRANSFER? THE ANSWER IS WITHDRAWN: THE INSTRUMENT WAS WRONG
 --------------------------------------------------------------------------------
+
+READ THIS BEFORE THE TABLE
+
+  This note was written to report PARTIAL -- round wells transfer, cropped
+  panels do not. Review found the measurement itself broken, and the verdict
+  is withdrawn. What follows is kept, with the numbers exactly as they were
+  taken, because it is the record of a run that happened and because the
+  corpus and the region counts in it are still good. It is not an answer to
+  424's first question.
+
+  WHAT WAS WRONG. Ultralytics decodes a file path with OpenCV, so it trains
+  and infers in BGR; handed a numpy array it assumes the caller has already
+  done the same. `_load_image` builds an RGB array because the overlays are
+  drawn with Pillow, and that array went straight to
+  `spacr.plaque.detect_wells`. Every one of the 182 figures was therefore
+  shown to the detector with red and blue exchanged.
+
+  HOW IT WAS ESTABLISHED, not inferred: over all 182 figures, passing the
+  FILE PATH (ultralytics' own canonical input, and how every training image
+  reached these models) and passing a BGR array give identical box counts --
+  182 of 182 agree -- while RGB differs. Re-running the same
+  `detect_wells` call over the same 182 files both ways reproduces the
+  committed record exactly on the RGB side, which is what identifies the
+  committed record as the RGB one:
+
+    model, 640 px, conf 0.25     boxes on        boxes on       boxes on the
+                                 the 14 figures  the 10 figures 158 figures
+                                 holding wells   holding crops  holding neither
+
+    v1  RGB  (what was measured)      136              17              23
+    v1  BGR  (what it should be)      333              16              22
+    v2  RGB  (what was measured)       13              15              13
+    v2  BGR  (what it should be)       61              72              15
+
+  v1's RGB row sums to 176 boxes and v2's to 41, which are exactly the box
+  totals in the table below; that is the check that ties this to the record.
+
+  WHY THIS VOIDS THE VERDICT AND NOT JUST THE PRECISION. The verdict rests on
+  one claim -- that the detectors cannot see a cropped rectangular plaque
+  panel (6 of 110, and 0 of 61 in Toxoplasma). With the channels the right way
+  round the CURRENT zoo detector puts 72 boxes on the cropped-panel figures
+  instead of 15, and puts at least one box on 7 of the 10 such figures instead
+  of 1. Nobody has looked at whether those boxes land ON the panels, so this
+  is not evidence that it does transfer either. It is evidence that the
+  question was never asked. The false-box count barely moves (23 -> 22 and
+  13 -> 15), so this is not the detector simply firing everywhere.
+
+  WHAT SURVIVES: the 28 papers with their DOIs and licences, the 182 figures
+  with their hashes and pixel sizes, the 369 REGION counts (those were counted
+  from the figures, not from the boxes), the 670-article exclusion, the
+  harness, and the scoring arithmetic with its guards. WHAT DOES NOT: every
+  box, every box verdict, every `found` count, and therefore every precision,
+  recall and verdict below.
+
+  WHAT IT COSTS TO FIX: one `detect` stage rerun (about 30 s of CPU) and a
+  fresh eye pass over the overlays. The region counts do not need redoing.
+  The harness now converts to BGR and records `channel_order` in
+  `detections.json`, so a result file says which question it answered.
+
+  THE SAME SWAP IS IN THE SHIPPED PRODUCT, not only in this harness.
+  `spacr/submodules.py` reads plate photographs with `cellpose.io.imread`,
+  which returns RGB, and passes them to the same `detect_wells`, whose
+  signature documents no channel order at all. That is a user-facing
+  under-detection on the plate-splitting path and it is NOT fixed here,
+  because it needs measuring on real plate photographs rather than on
+  figures. It is written up as item 445.
 
 WHAT WAS MEASURED, AND WHAT A REGION MEANS
 
@@ -144,8 +219,17 @@ WHAT WAS MEASURED, AND WHAT A REGION MEANS
     arm A   20 papers, any organism, "plaque assay" and its variants.
             129 figures. Mostly virology and phage; that is what the
             open-access plaque literature is.
-    arm B    8 papers, Toxoplasma only, none of them in v4's split.
-            53 figures. The in-domain arm.
+    arm B    8 papers matched by a Toxoplasma query, none of them in v4's
+            split. 53 figures. The in-domain arm -- but only 6 of the 8 are
+            actually Toxoplasma papers. The query ORs "plaque size"/"plaque
+            number" against FULL TEXT and only needs Toxoplasma to appear
+            somewhere in the article, so it also pulled in a von Willebrand
+            factor scoping review (PMC13294430) and an ocular-microbiome /
+            Alzheimer's review (PMC13564517). Those two contribute 5 of the
+            53 figures and 0 of the 69 regions, so every rate below stands
+            exactly as printed; what was wrong was the description of the
+            arm, in the arm the verdict leans on. Read it as 6 Toxoplasma
+            papers, 48 figures, 69 regions, plus 5 figures of ballast.
 
   Every figure of every sampled paper was kept -- blots, graphs, schematics,
   micrographs -- because precision measured only on plaque figures is not
@@ -181,8 +265,9 @@ THE TABLE
     v1       168  127   21   20      0.756  121/251 .482    6/49 .122   .631
     v2        36   15    9   12      0.417    9/251 .036    6/49 .122   .233
 
-  arm B -- 8 Toxoplasma papers, none in v4's split; 53 figures, 8 wells,
-           61 crops, 44 figures with no plaque image
+  arm B -- 8 papers matched by the Toxoplasma query, 6 of them Toxoplasma
+           papers; none in v4's split; 53 figures, 8 wells, 61 crops,
+           44 figures with no plaque image. All 69 regions are in the 6.
 
     model  boxes   TP  dup   FP  precision  wells found   crops found  macro
     v1         8    4    0    4      0.500      4/8 .500    0/61 .000   .111
@@ -198,7 +283,12 @@ THE TABLE
   per-figure recall, so every figure counts once. They disagree -- .423 and
   .631 for v1 in arm A -- and printing one alone would be choosing.
 
-VERDICT: PARTIAL, AND THE PART THAT FAILS IS THE PART THIS PIPELINE NEEDS
+THE VERDICT AS IT WAS WRITTEN — WITHDRAWN, KEPT FOR THE RECORD
+
+  Everything in this section was measured through the channel swap. The
+  second bullet is the one the swap most likely destroys: it is the claim
+  that the detectors cannot see a cropped panel, and it is the claim the
+  corrected box counts contradict. Do not cite any of it.
 
   * It TRANSFERS to round wells and dishes printed in figures. v1 finds about
     half of them, across organisms it never trained on -- phage plates,
@@ -218,7 +308,16 @@ VERDICT: PARTIAL, AND THE PART THAT FAILS IS THE PART THIS PIPELINE NEEDS
     them to the database with a DOI attached is worse than one that finds
     less.
 
-THE SURPRISE, AND IT MATTERS FOR THE ZOO
+THE SURPRISE, AND IT MATTERS FOR THE ZOO — ALSO WITHDRAWN
+
+  This was the finding this note was proudest of, and it is the one the swap
+  hits hardest. Read the corrected box counts above: RGB makes v4 look inert
+  (13 boxes on the well figures, 15 on the crop figures) and v3 look dominant
+  (136 and 17). BGR closes most of that gap on wells (61 against 333) and
+  REVERSES it on crops (72 against 16). A recommendation to prefer the
+  superseded v3 row for a cross-organism pipeline cannot be made on the RGB
+  numbers, and it is not being made. 437 has not been changed on the strength
+  of this and must not be.
 
   THE OLDER DETECTOR BEAT THE CURRENT ONE ON EVERY FIGURE THAT WAS NOT
   TOXOPLASMA. v4 fired 36 times against v1's 168 in arm A and found 9 of 251
@@ -235,50 +334,170 @@ THE SURPRISE, AND IT MATTERS FOR THE ZOO
 
 WHAT THIS SAYS ABOUT BUILDING 424
 
-  Building on the detector alone would fetch a paper, find half its wells,
-  miss every cropped panel, and add a handful of pie charts. The module needs
-  a detector that has seen a cropped plaque panel. A training round is written
-  up as a queued GPU job -- see below -- and its prerequisite is annotation,
-  not GPU time.
+  Nothing yet. That is the honest position after the swap: 424's first open
+  question is unanswered, and the maintainer's "build on it only if it does"
+  has no measurement under it. Do not start the module.
+
+  IT DOES NOT SAY THE TRAINING ROUND IS NEEDED. The queued GPU job
+  (scratchpad/gpu_queue/424a-detector-transfer-1.md) exists to teach the
+  detector a class it was said to be blind to, and the evidence for that
+  blindness is the part of this run the swap destroys. It is marked NOT
+  JUSTIFIED and must not be run. Three things come first, cheapest last:
+
+    1. RERUN `detect` WITH THE FIXED HARNESS and relabel the overlays. About
+       30 s of CPU plus an eye pass. This alone may answer 424's question.
+    2. TRY A LARGER INFERENCE SIZE while relabelling -- see the resolution
+       section below. Free, and it is confounded with everything else here.
+    3. ONLY THEN decide whether 300-600 figures need annotating and a GPU
+       round needs running.
+
+  A round trained to fix a blindness the detector may not have would be paid
+  for in human annotation hours before it was paid for in GPU minutes.
 
 A MEASUREMENT DEFECT FOUND AND FIXED MID-RUN, RECORDED BECAUSE IT WOULD HAVE
 GONE UNNOTICED
 
-  The figure fetcher kept one file per figure ranked BY FORMAT. PLOS ships
+  The figure fetcher kept one file per figure ranked BY FORMAT. Journals ship
   `g001.webp` at 1600 px beside `g001.gif` at 200 px, and webp was not in the
-  extension list at all, so six PLOS figures were handed to the detector as
-  200-pixel thumbnails. Nothing failed; the detector simply found nothing, and
-  "found nothing" is the result being measured. The rule is now SIZE FIRST
-  with format only breaking ties, the figures were refetched, and the six were
-  relabelled (they hold no plaque image either way; one extra false box
-  appeared at full size). Every figure's pixel dimensions are now recorded
-  beside its hash.
+  extension list at all, so the gif won every time both existed and those
+  figures were handed to the detector as 200-pixel thumbnails. Nothing failed;
+  the detector simply found nothing, and "found nothing" is the result being
+  measured. The rule is now SIZE FIRST with format only breaking ties, the
+  figures were refetched and relabelled, and every figure's pixel dimensions
+  are now recorded beside its hash.
+
+  THE SCOPE, COUNTED RATHER THAN REMEMBERED. This note first said "six PLOS
+  figures" and "one extra false box". Both were written from arm A alone and
+  both are wrong: arm B was fetched with the same broken rule twenty-five
+  minutes before the fix. Comparing each run's pre-fix manifest against its
+  post-fix one, the rule thumbnailed 17 FIGURES IN 4 PAPERS ACROSS 3
+  PUBLISHERS --
+
+    PMC13524343  PLOS Pathogens            6 figures   (arm A)
+    PMC13515172  MDPI Microorganisms       6 figures   (arm B, and one of the
+                                                        6 genuine Toxoplasma
+                                                        papers in it)
+    PMC13294430  Springer, ICM Experimental 3 figures  (arm B)
+    PMC13564517  MDPI Cells                2 figures   (arm B)
+
+  -- and at full size THREE false boxes now sit on those figures, all of them
+  v1's: PMC13524343 g004, PMC13564517 g001, PMC13564517 g002. The 17 refetched
+  .webp files are in the committed evidence and EVERY ONE OF THEM HOLDS ZERO
+  plaque regions, so no recall, no rate and no verdict in this note moves; the
+  only numbers the fix touched are false boxes, and the corrected ones are the
+  ones printed above.
+
+  A section whose stated purpose is recording a defect that would otherwise
+  have gone unnoticed has no business being approximate about it. It was, and
+  this is the correction.
+
+  THE SAME DEFECT HAD A SECOND WAY TO SURVIVE, now closed. The fetcher
+  returned any images already sitting in the destination without re-applying
+  the rule, so rerunning the `figures` stage into a populated directory --
+  which is exactly what the queued training job asks the next person to do --
+  would have served the thumbnails straight back and looked like a fresh run.
+  The cache is now keyed on the RULE: a `.selection` marker records which rule
+  filled the directory, and anything else is refetched.
+
+RESOLUTION: THE CONFOUND THIS RUN ARGUED ABOUT AND THEN DID NOT CONTROL
+
+  The harness records every figure's pixel size, and its own docstring says a
+  detector that finds nothing in a 200 px preview has not been asked the
+  question this harness is asking. That principle was applied to thumbnails
+  and not one level up, where it also applies.
+
+  EVERY FIGURE IN THIS CORPUS THAT HOLDS A PLAQUE REGION IS SMALL. All 24 of
+  them are at most 984 px on the long side; the median over all 182 is
+  767 px. Of the 37 figures at 1000 px or more, and the 22 at 1200 px or
+  more, NOT ONE holds a plaque region. So the entire measurement of recall
+  was taken on the small end of the corpus.
+
+  IT IS WORSE THAN THAT FOR THE HEADLINE NUMBER. 192 of arm A's 251 wells are
+  in a single figure, PMC13278376 g008, which is 735 x 278 px -- about 30 px
+  per well before the detector letterboxes it to 640. The 38-crop mSphere
+  figure that carries most of arm B's crops is 753 x 984 px. "Finds half the
+  wells" and "finds no crops" are both statements about ~30-90 px objects.
+
+  THIS IS THE ROUTE'S CEILING, NOT A SELECTION BUG. The chooser now takes the
+  biggest file in the bundle, and for the two figures that carry most of the
+  regions the Europe PMC supplementaryFiles bundle holds nothing bigger --
+  checked by listing them: PMC13278376 has g008.jpg at 130 KB and g008.gif at
+  21 KB and no other copy; PMC8809380 has f004.jpg at 369 KB, f004.gif, and a
+  .tif that belongs to a different figure (sf004, a supplement). Whether the
+  publisher's own original is larger, through the NCBI OA package or the
+  article page, is UNTESTED and worth ten minutes before anyone spends 35 GPU
+  minutes.
+
+  AND INFERENCE SIZE IS FREE TO VARY. A quick unjudged probe -- box counts
+  only, nobody looked at where they landed -- over the same 182 files at
+  640, 1280 and 1600 px showed it is not a neutral knob:
+
+    v3: 13 of the 24 region-bearing figures get a box at 640, 16 at 1280 --
+        but false boxes on the other 158 go 22 -> 103.
+    v4: 17 at 640, 19 at 1280, and false boxes stay flat, 15 -> 12.
+
+  Those are box counts, not recall, and they were taken with the corrected
+  channels; they settle nothing. What they show is that imgsz, resolution and
+  the channel swap are all tangled together in the one number this item was
+  about to spend a training round on. Vary them before annotating anything.
 
 HOW TO REPRODUCE IT
 
+  arm A -- 20 papers, any organism:
+
     python tools/measure_plaque_detector_transfer.py --out <dir> \
-        --stages sample,figures,detect --papers 20 --seed 424 \
+        --stages sample,figures,detect --papers 20 --seed 424 --pool 400 \
         --main-figures-only --overlay-all \
         --exclude-pmcids <v4 repo training/split.csv>
+
+  arm B -- the Toxoplasma query, which is where the other 8 papers came from
+  and which was missing from this block:
+
+    python tools/measure_plaque_detector_transfer.py --out <dir2> \
+        --stages sample,figures,detect --papers 8 --seed 424 --pool 300 \
+        --main-figures-only --overlay-all \
+        --exclude-pmcids <v4 repo training/split.csv> \
+        --query '(("plaque assay" OR "plaque formation" OR "plaquing" OR
+                   "plaque size" OR "plaque number") AND (Toxoplasma OR
+                   "T. gondii")) AND (HAS_FT:Y AND OPEN_ACCESS:Y AND
+                   IN_EPMC:Y)'
+
+  then, for either:
+
     (look at overlays/<model>/*.png, write labels.json)
     python tools/measure_plaque_detector_transfer.py --out <dir> --stages score
 
+  Both queries are also recorded verbatim in the evidence file, along with
+  the seed, the pool, the licence filter and now the full list of the 670
+  excluded PMC ids and the revision of the split file they came from.
+
   The labels, the boxes, the papers with their DOIs and licences, and both
   summaries are committed at
-  features/data/424_detector_transfer_2026-09-19.json, so a new detector can
-  be scored against the SAME hand labels rather than a new opinion.
+  features/data/424_detector_transfer_2026-09-19.json. THE REGION COUNTS in
+  it are reusable; the BOX VERDICTS are the RGB run's and are not.
 
 WHAT IS LEFT, HONESTLY
 
+  * THE MEASUREMENT ITSELF, AGAIN. The detect stage must be rerun with the
+    fixed harness and the overlays relabelled. Until then 424's first open
+    question has no answer and this item has produced a corpus, a harness and
+    a bug report, which is less than it looked like this morning.
+  * RESOLUTION AND INFERENCE SIZE ARE UNCONTROLLED, and they are confounded
+    with the thing being measured. See the section above. Every region-bearing
+    figure is <= 984 px; 192 of 251 arm A wells are ~30 px objects in one
+    735 x 278 figure.
   * ONE READER LABELLED 182 FIGURES, from the overlays, in one pass. Nobody
     has checked the labels against a second reader, and the boxes were visible
     while the regions were being counted, so a missed region next to a drawn
     box is the anchoring failure this design can have. The 96-well figure was
     counted from a zoomed crop and its duplicate boxes were found by IoU
     rather than by eye.
-  * n IS SMALL WHERE IT MATTERS MOST. Arm B holds 8 round wells. 4 of 8 is a
-    number with a confidence interval wider than the difference it is being
-    used to describe; it is the crops (0 of 61) that carry the verdict.
+  * n IS SMALL WHERE IT MATTERS MOST. Arm B holds 8 round wells across 6
+    genuine Toxoplasma papers, and the crops that carried the withdrawn
+    verdict sit in only 10 figures in the whole corpus. Even once the rerun is
+    done, 10 figures is a thin base for a claim about what Toxoplasma papers
+    print; the next sample should be drawn for crop-bearing figures on
+    purpose.
   * ONLY THE FIRST OPEN QUESTION IS ANSWERED. Scale, the two condition
     strategies and their conflict flag, deduplication by DOI plus image hash
     (the harness hashes and flags duplicates but nothing consumes it), the
@@ -287,10 +506,15 @@ WHAT IS LEFT, HONESTLY
     nothing is dropped before a person sees it; each box records whether the
     shipped 0.7 filter would have kept it. It would have kept 173 of v1's 176
     boxes and 40 of v2's 41, so the filter is not what is losing the crops.
-  * A GPU JOB IS QUEUED AND MUST NOT BE RUN YET:
+  * A GPU JOB IS QUEUED AND IS NOT JUSTIFIED:
     scratchpad/gpu_queue/424a-detector-transfer-1.md. It trains a two-class
     detector (well, plaque_panel) on v4's data plus 300-600 newly annotated
-    figures, 30-45 min, ~6 GB VRAM, and its success check is this same
-    182-figure set rescored against these same labels -- 6 of 110 crops today.
-    Its prerequisite is the annotation, which is human work, and a training
-    run needs the maintainer's go-ahead.
+    figures, 30-45 min, ~6 GB VRAM. It was written to cure a blindness the
+    RGB run reported and the corrected box counts put in doubt, and its
+    success check ("6 of 110 crops today") is an RGB number. It is marked NOT
+    JUSTIFIED at the top of the file. Rerun the measurement first.
+  * THE SHIPPED PLATE-SPLITTING PATH HAS THE SAME SWAP and is NOT fixed here:
+    `spacr/submodules.py` hands `cellpose.io.imread`'s RGB array to
+    `detect_wells`, and `detect_wells` documents no channel order. Item 445.
+    It needs measuring on real plate photographs, which this unit does not
+    have, before anyone changes the behaviour users already have results from.

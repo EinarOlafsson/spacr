@@ -1,0 +1,126 @@
+================================================================================
+THE WELL DETECTOR IS FED RGB AND ULTRALYTICS READS IT AS BGR
+================================================================================
+
+Status:    not started. FOUND 2026-09-19 by unit 424a, which hit the same bug in
+           its own harness, fixed it there, and measured the size of it. The
+           shipped path in spacr/submodules.py is NOT fixed, because the
+           measurement below was taken on published figures and this path runs
+           on plate photographs.
+Found by:  424 (features/future/424_plaques_from_published_papers.txt), whose
+           transfer measurement was voided by it.
+Owner:     unassigned
+
+--------------------------------------------------------------------------------
+WHAT IS WRONG
+--------------------------------------------------------------------------------
+
+Ultralytics decodes a file path with OpenCV, so it trains and infers in BGR.
+Handed an ``H x W x 3`` numpy array instead, it does NOT convert: it assumes
+the caller has already put the channels in BGR order. Every image these
+detectors were trained on reached them through the file-path route, so BGR is
+the order they learned.
+
+spacr feeds them RGB.
+
+  spacr/submodules.py, the plate-splitting pass:
+
+      image = cellpose.io.imread(path)          # RGB for a colour image
+      wells = detect_wells(image, weights, ...)
+
+  spacr/plaque.py, detect_wells:
+
+      :param image: the field, as an array the detector can read.
+
+  -- which is the whole of what the signature says about channel order.
+
+So every plate photograph spaCR splits into wells is shown to the detector
+with red and blue exchanged. Crystal violet is violet; the swap is not
+harmless.
+
+--------------------------------------------------------------------------------
+HOW BIG IT IS
+--------------------------------------------------------------------------------
+
+Measured 2026-09-19 on 424a's corpus of 182 published figures, calling the
+real ``spacr.plaque.detect_wells`` both ways over the same files, CPU, conf
+0.25, imgsz 640, min_axis_ratio 0:
+
+                                boxes on the    boxes on the    boxes on the
+                                14 figures      10 figures      158 figures
+                                holding wells   holding crops   holding neither
+
+  v1 (yolo_welldetect_v3) RGB        136              17              23
+  v1                      BGR        333              16              22
+  v2 (yolo_welldetect_v4) RGB         13              15              13
+  v2                      BGR         61              72              15
+
+The detector finds two to five times as much with the channels the right way
+round, and the false-box count barely moves -- so this is recall being thrown
+away, not a threshold being loosened.
+
+THAT BGR IS THE RIGHT ORDER WAS CHECKED, NOT ASSUMED. Over all 182 figures,
+passing the FILE PATH to ultralytics and passing a BGR array give identical
+box counts -- 182 of 182 agree -- and RGB differs. The file path is how every
+training image reached these models.
+
+--------------------------------------------------------------------------------
+WHAT THIS DOES NOT ESTABLISH
+--------------------------------------------------------------------------------
+
+The measurement above is on PUBLISHED FIGURES: cropped, rescaled, JPEG'd, and
+often not even photographs. The shipped path runs on plate photographs taken
+by the user, which is the distribution the detector was trained on and where
+a channel swap may matter more or less. NOBODY HAS MEASURED THIS BUG ON A
+REAL PLATE PHOTOGRAPH. That is the first thing to do, and it is why 424a did
+not simply change the line.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. MEASURE IT ON PLATE PHOTOGRAPHS. The v4 test split is 129 images with 297
+   boxes and is published
+   (einarolafsson/toxoplasma-plaque-well-detector-yolo26, training/split.csv).
+   Score detect_wells over it both ways. If BGR wins there too, the fix is
+   worth making; the size of the win is what the release note has to say.
+
+2. DECIDE WHERE THE CONVERSION LIVES. Two defensible answers:
+   * detect_wells takes the array in BGR and SAYS SO in its signature, and
+     every caller converts. Honest, and it pushes the problem onto callers.
+   * detect_wells takes RGB, says so, and converts internally. Fewer places to
+     get it wrong, and it matches what every other spaCR entry point expects,
+     since cellpose.io.imread is the house reader.
+   The second is probably right for this codebase, but it is a public
+   signature change either way and needs the docstring to state the order.
+   Whichever is chosen, ``:param image:`` must name a channel order: the
+   current wording is what let this sit unnoticed.
+
+3. WARN ABOUT EXISTING RESULTS. Anyone who has split plates with spaCR has
+   done it through the swap, and THE DANGEROUS CASE IS PARTIAL DETECTION, not
+   total failure. An image where nothing is found is at least loud: it logs
+   "no wells detected in %s" and is skipped. An image where the swap costs
+   four wells out of twelve is silent -- the plate is split into eight crops,
+   eight rows are written, and nothing says the other four existed. On the
+   figure corpus the swap cost v1 roughly 60 % of its boxes, so partial is the
+   normal case, not the edge one. This needs a release note, not a silent fix.
+
+   (While in there: the "no wells detected" branch logs "it is passed through
+   whole" and then ``continue``s, so the image is NOT passed through -- it
+   contributes no crop at all unless every image fails and the function falls
+   back to ``src``. Separate bug, same function, worth fixing in the same
+   pass.)
+
+4. CHECK THE OTHER DETECTORS. Anything else in spaCR that hands ultralytics a
+   numpy array has the same bug. detect_wells is the only caller found on
+   2026-09-19, but the question is about the pattern, not the function.
+
+--------------------------------------------------------------------------------
+WHAT 424a ALREADY DID
+--------------------------------------------------------------------------------
+
+tools/measure_plaque_detector_transfer.py converts to BGR before calling
+detect_wells (``_detector_input``), records ``channel_order`` in its
+detections file, and has a test pinning the conversion. Its own published
+measurement was withdrawn; see 424's trailing note. Nothing under spacr/ was
+changed.

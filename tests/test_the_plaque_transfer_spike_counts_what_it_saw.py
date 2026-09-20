@@ -7,11 +7,21 @@ refusals that stop a hand-labelled measurement from quietly lying: a label
 file that is not finished is not scored, and a figure that claims more found
 regions than it holds is an error rather than a recall above 1.
 
-The zip test is here because of a defect this harness shipped with for one
-afternoon: PLOS bundles ``g001.webp`` at 1600 px beside ``g001.gif`` at
-200 px, the chooser ranked by FORMAT, and every PLOS figure reached the
-detector as a thumbnail. Nothing failed -- the detector simply found nothing
-in them, which is the result being measured. The rule is now size first.
+The zip tests are here because of a defect this harness shipped with for one
+afternoon: journals bundle ``g001.webp`` at 1600 px beside ``g001.gif`` at
+200 px, the chooser ranked by FORMAT, and seventeen figures across four
+papers and three publishers reached the detector as thumbnails. Nothing
+failed -- the detector simply found nothing in them, which is the result being
+measured. The rule is now size first, and the cache is keyed on the rule, so
+a rerun into a populated directory cannot serve the old choice back.
+
+The last four tests read the committed evidence file rather than a fixture.
+That file IS the deliverable of item 424's first question, so the properties
+the scorer refuses to score without -- every box judged, no recall above one,
+regions found equal to boxes marked tp -- are asserted of the shipped record
+too, along with the two things that make it checkable by someone who was not
+here: the weights named as the zoo names them, and every excluded article
+listed rather than counted.
 """
 from __future__ import annotations
 
@@ -233,8 +243,168 @@ def test_the_biggest_copy_of_a_figure_wins_not_the_best_extension(
     assert kept[0].read_bytes() == big_jpeg
 
 
+def test_figures_fetched_under_the_old_rule_are_not_reused(
+        tmp_path, monkeypatch):
+    """The cache is keyed on the RULE, not on "there are files here".
+
+    This is how the thumbnail defect would have outlived its own fix. The
+    fetcher used to return whatever images were already in the directory, so
+    rerunning the ``figures`` stage into a populated output -- which is what
+    the queued retraining job asks the next person to do -- would have
+    measured the thumbnails again and reported it as a fresh run.
+    """
+    dest = tmp_path / "PMC1"
+    dest.mkdir()
+    (dest / "g001.gif").write_bytes(b"GIF89a" + b"y" * 200)
+    big = b"RIFFwebp" + b"x" * 40000
+    _bundle(monkeypatch, {"g001.webp": big, "g001.gif": b"GIF89a" + b"y" * 200})
+
+    kept = spike.fetch_figure_images("PMC1", dest)
+
+    assert [p.name for p in kept] == ["g001.webp"]
+    assert kept[0].read_bytes() == big
+    assert not (dest / "g001.gif").exists()
+
+
+def test_a_directory_this_rule_filled_is_reused_without_refetching(
+        tmp_path, monkeypatch):
+    """The marker is what makes the cache safe, so it has to actually cache."""
+    dest = tmp_path / "PMC1"
+    dest.mkdir()
+    (dest / "g001.webp").write_bytes(b"RIFFwebp" + b"x" * 40000)
+    (dest / ".selection").write_text(f"{spike.SELECTION_RULE}\n")
+
+    def _refuse(*args, **kwargs):
+        raise AssertionError("refetched a directory this rule already filled")
+
+    monkeypatch.setattr(spike, "_get", _refuse)
+    kept = spike.fetch_figure_images("PMC1", dest)
+
+    assert [p.name for p in kept] == ["g001.webp"]
+
+
+def test_regions_found_must_equal_the_boxes_marked_tp(tmp_path):
+    """The protocol defines them as one quantity, so they cannot disagree.
+
+    ``found`` feeds recall and ``tp`` feeds precision, and a label file that
+    says three regions were found while marking two boxes tp has a hand-typed
+    error in one of them. Without this the two numbers drift apart silently
+    and each looks defensible on its own.
+    """
+    root = _write(
+        tmp_path,
+        [("PMC1__f1.jpg", {V1: 3})],
+        [{"key": "PMC1__f1.jpg", "regions": {"well": 4, "other": 0},
+          "models": {V1: {"box_verdicts": ["tp", "tp", "fp"],
+                          "found": {"well": 3, "other": 0}}}}])
+    with pytest.raises(SystemExit) as caught:
+        spike.stage_score(_args(root))
+    assert "marks 2 boxes tp" in str(caught.value)
+
+
 def test_each_model_is_tagged_by_its_version_not_its_prefix():
     """Two zoo keys share eleven characters; the tag comes off the end."""
     assert spike._short_tag(V1) == "V1"
     assert spike._short_tag(V2) == "V2"
     assert spike._short_tag(V1) != spike._short_tag(V2)
+
+
+def test_the_detector_is_fed_bgr_not_the_overlay_rgb():
+    """The swap that voided the first run's numbers.
+
+    ``_load_image`` returns RGB because the overlays are drawn with Pillow,
+    and the first run handed that same array straight to the detector.
+    Ultralytics reads an array as BGR, so every figure was measured with red
+    and blue exchanged; v4 found 15 boxes on the cropped-panel figures that
+    way and 72 the right way round, which is the difference between the
+    verdict this item published and no verdict at all.
+    """
+    numpy = pytest.importorskip("numpy")
+    rgb = numpy.zeros((2, 2, 3), dtype=numpy.uint8)
+    rgb[..., 0] = 10
+    rgb[..., 1] = 20
+    rgb[..., 2] = 30
+
+    out = spike._detector_input(rgb)
+
+    assert out[..., 0].tolist() == [[30, 30], [30, 30]]
+    assert out[..., 1].tolist() == [[20, 20], [20, 20]]
+    assert out[..., 2].tolist() == [[10, 10], [10, 10]]
+    assert rgb[0, 0, 0] == 10
+
+
+EVIDENCE = ROOT / "features" / "data" / "424_detector_transfer_2026-09-19.json"
+
+
+def _evidence():
+    """The committed measurement, or a skip when it is not here.
+
+    :returns: the parsed evidence file.
+    """
+    if not EVIDENCE.is_file():
+        pytest.skip(f"{EVIDENCE} is not present")
+    return json.loads(EVIDENCE.read_text())
+
+
+def test_the_committed_evidence_names_the_weights_the_zoo_names():
+    """The record has to be readable without knowing which field to ignore.
+
+    The install step versions the local filename to avoid clobbering a
+    download, so the two arms first recorded the same checkpoint under four
+    different names, none of them the one the zoo row and the ledger use. The
+    sha256 is the identity; the name beside it must agree with it.
+    """
+    from spacr import model_zoo
+
+    by_sha = {row["sha256"]: row["name"]
+              for row in model_zoo.BUNDLED_REMOTE_MODELS
+              if row.get("sha256")}
+    seen = set()
+    for arm in _evidence()["arms"].values():
+        for key, model in arm["models"].items():
+            assert model["sha256"] in by_sha, key
+            assert model["name"] == by_sha[model["sha256"]], key
+            assert model["zoo_key"] == key
+            seen.add((key, model["name"]))
+    assert seen == {(V1, "yolo_welldetect_v3.pt"),
+                    (V2, "yolo_welldetect_v4.pt")}
+
+
+def test_the_committed_evidence_lists_every_excluded_article():
+    """Refusing the training articles is the control; a count is not a record.
+
+    Whether the current detector's score means anything rests entirely on it
+    never having seen the paper, and the file first recorded that as a number
+    beside a mutable upstream path. The ids themselves are what a rescoring
+    run needs.
+    """
+    excluded = _evidence()["excluded"]
+    ids = excluded["pmcid_list"]
+    assert len(ids) == excluded["pmcids"]
+    assert len(set(ids)) == len(ids)
+    assert all(i.startswith("PMC") and i[3:].isdigit() for i in ids)
+    assert excluded["revision"] and excluded["source_sha256"]
+
+
+def test_no_sampled_paper_is_one_the_detector_trained_on():
+    """The exclusion is checkable now, so check it rather than trust it."""
+    evidence = _evidence()
+    excluded = set(evidence["excluded"]["pmcid_list"])
+    for arm in evidence["arms"].values():
+        for paper in arm["papers"]:
+            assert paper["pmcid"] not in excluded, paper["pmcid"]
+
+
+def test_the_committed_labels_obey_the_rule_the_scorer_enforces():
+    """The guards are worth nothing if the shipped record predates them."""
+    for arm in _evidence()["arms"].values():
+        for figure in arm["labels"]:
+            regions = figure["regions"]
+            for model, judged in figure["models"].items():
+                verdicts = judged["box_verdicts"]
+                found = judged["found"]
+                assert found["well"] <= regions["well"], figure["key"]
+                assert found["other"] <= regions["other"], figure["key"]
+                assert (found["well"] + found["other"]
+                        == verdicts.count("tp")), figure["key"]
+                assert "?" not in verdicts, figure["key"]
