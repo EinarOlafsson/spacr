@@ -77,10 +77,13 @@ report the field's real values (item 419 point 9).
 mask" under the name that describes it -- it flips the LABEL image, which on
 an ordinary field leaves one object covering the frame (item 435).
 
-All three read the same arithmetic where they need any:
-:func:`~spacr.qt.mask_engine.invert_intensity` for the two that act on the
-picture, :func:`~spacr.qt.mask_engine.invert_mask` for the one that acts on
-the labels.
+EACH HAS ITS OWN ARITHMETIC AND THEY ARE NOT INTERCHANGEABLE.
+:func:`~spacr.qt.mask_engine.invert_intensity` complements the dtype, for
+the view; :func:`~spacr.qt.mask_engine.invert_for_detection` reflects the
+field about its own range, because the Otsu threshold correction is a
+multiplier that an offset destroys; and
+:func:`~spacr.qt.mask_engine.invert_mask` flips labels. The first two look
+like duplicates and are not, which the second one's docstring measures.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
@@ -660,6 +663,12 @@ class _MaskCanvas(QLabel):
         #: while the edit is open can have its own release consumed without
         #: ending the edit early.
         self._ctrl_click = None
+        #: Buttons whose PRESS this canvas declined to act on, and whose
+        #: release must therefore be declined too. A release that falls
+        #: through reaches the generic stroke end at the foot of
+        #: :meth:`_MaskCanvas.mouseReleaseEvent`, which would close whatever
+        #: OTHER gesture is open and label it a paint.
+        self._swallowed: set = set()
         self.zoom_speed: float = 1.15
         follow_device_ratio(self, self.refresh)
 
@@ -1383,8 +1392,21 @@ class _MaskCanvas(QLabel):
         middle of a right-button sweep would otherwise end the SWEEP's
         stroke and label it a split, and the sweep's own release would then
         be swallowed as this gesture's -- leaving the sweep open with no
-        ledger entry. While the edit is open a second button is ignored
-        here, and its release is consumed without ending the edit.
+        ledger entry.
+
+        SUCH A PRESS IS SWALLOWED RATHER THAN HANDED ON. Falling through is
+        not the safe default it looks like: the rest of this handler would
+        read a Ctrl+left as an ordinary left press and open a PAINT stroke,
+        so a chord meant to split an object would paint over one instead.
+        Ctrl with another button already down does nothing at all, and so
+        does a second button pressed while a Ctrl edit is open -- whose
+        release is then consumed without ending that edit.
+
+        ITS RELEASE IS SWALLOWED WITH IT, through :attr:`_swallowed`. A
+        release that falls through reaches the generic stroke end at the
+        foot of :meth:`mouseReleaseEvent`, which closes whatever stroke is
+        open -- the SWEEP's -- and labels it a paint, which is the whole
+        damage this guard exists to stop.
 
         :attr:`_ctrl_click` is still rewritten by every press that arrives
         alone, so a release that never came -- a grab lost to a dialog --
@@ -1394,6 +1416,7 @@ class _MaskCanvas(QLabel):
             return super().mousePressEvent(event)
 
         if event.buttons() == event.button():
+            self._swallowed.clear()
             self._ctrl_click = (
                 event.button()
                 if (event.modifiers() & Qt.ControlModifier
@@ -1406,7 +1429,9 @@ class _MaskCanvas(QLabel):
                     split=event.button() == Qt.LeftButton)
                 self.update()
                 return
-        elif self._ctrl_click is not None:
+        elif (self._ctrl_click is not None
+              or event.modifiers() & Qt.ControlModifier):
+            self._swallowed.add(event.button())
             return
 
         if (event.button() == Qt.RightButton and self.magnifier is not None
@@ -1559,12 +1584,18 @@ class _MaskCanvas(QLabel):
         consumed here rather than handed on — see :attr:`_ctrl_click`. Any
         release arriving while one is open is consumed, but only the button
         that OPENED it closes it: a second button pressed meanwhile started
-        nothing, so its release must end nothing.
+        nothing, so its release must end nothing. A button whose press was
+        declined outright (:attr:`_swallowed`) is dropped for the same
+        reason, before the generic stroke end below can close somebody
+        else's stroke with it.
         """
         self._schedule_readout()
         if self._ctrl_click is not None:
             if event.button() == self._ctrl_click:
                 self._ctrl_click = None
+            return
+        if event.button() in self._swallowed:
+            self._swallowed.discard(event.button())
             return
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
@@ -2791,6 +2822,9 @@ class _LiveMagnifier(QObject):
         #: :meth:`_keep_image_result`.
         self._image_cache: dict = {}
         self._image_cache_used: dict = {}
+        #: ``(the field's array, that field inverted)`` -- see
+        #: :meth:`inverted_field`.
+        self._inverted_field: Optional[tuple] = None
         self._busy = False
         self._worker = _NewestRequestWorker(self._run, self._hand_over)
         self._image_worker = _NewestRequestWorker(
@@ -3097,6 +3131,37 @@ class _LiveMagnifier(QObject):
             return False
         return bool(self._context().get("invert", False))
 
+    def inverted_field(self) -> np.ndarray:
+        """The WHOLE open field reflected about its own range, cached.
+
+        Item 419 point 9d makes the inversion what the DETECTOR sees, so the
+        box and the detect button have to invert the same way -- and a
+        region reflected about ITS OWN extremes is reflected differently
+        wherever the box is put. Inverting the whole field once and cutting
+        from that is what keeps the box a preview of the button, and it is
+        ONE array that both the painted picture and the request's crop come
+        off, so the two cannot disagree about which way up the field was.
+
+        Computed once per field and not once per mouse move, keyed on the
+        array's identity: a full-field pass on every hover is work on the
+        GUI thread for an answer that cannot have changed, and another field
+        is another array and asks again. The canvas caches item 435's
+        display complement against its own image the same way.
+        """
+        image = self.canvas.image
+        cached = self._inverted_field
+        if cached is not None and cached[0] is image:
+            return cached[1]
+        out = engine.invert_for_detection(image)
+        self._inverted_field = (image, out)
+        return out
+
+    def detector_field(self) -> np.ndarray:
+        """The field the box magnifies: inverted, or the canvas's own."""
+        if not self.inverting():
+            return self.canvas.image
+        return self.inverted_field()
+
     def region_for(self, box, *, invert: bool) -> np.ndarray:
         """A copy of ``box`` of the open field, inverted if Invert is on.
 
@@ -3104,24 +3169,19 @@ class _LiveMagnifier(QObject):
         and what the box paints cannot disagree about whether they were
         inverted.
 
-        WHY A CROP MAY BE INVERTED ON ITS OWN: item 419 point 9d makes the
-        inversion what the DETECTOR sees, so the box and the detect button
-        have to invert the same way, and a box that inverted differently
-        wherever it was put would stop being a preview of the button.
-        :func:`mask_engine.invert_intensity` complements the DTYPE's range,
-        which is a per-pixel function of the value alone, so a crop comes
-        back identical whether it is inverted by itself or cut out of an
-        inverted field. Nothing about the surrounding field is needed and
-        no extremes have to be found or cached.
+        The inverted case is a slice of :meth:`inverted_field`, which uses
+        :func:`mask_engine.invert_for_detection` and NOT
+        :func:`mask_engine.invert_intensity`: the crop is about to be
+        thresholded, and the second moves the field's span in a way the
+        Otsu threshold correction cannot survive. The first function's
+        docstring carries the measurement.
 
         :param box: ``(x0, y0, x1, y1)`` in image pixels.
         :param invert: whether Invert for detection is on.
         """
         x0, y0, x1, y1 = box
-        crop = np.array(self.canvas.image[y0:y1, x0:x1], copy=True)
-        if not invert:
-            return crop
-        return engine.invert_intensity(crop)
+        source = self.inverted_field() if invert else self.canvas.image
+        return np.array(source[y0:y1, x0:x1], copy=True)
 
     def build_request(self, *, ghost: bool = True
                       ) -> Optional[_MagnifierRequest]:
@@ -3891,9 +3951,10 @@ class _LiveMagnifier(QObject):
         redrawing a promise made about a mask that is gone.
 
         WITH INVERT FOR DETECTION ON THE BOX SHOWS THE INVERTED REGION
-        (item 419 point 9c), through the same inversion the request's crop
-        is built with, so what the user is looking at inside the box is
-        what the model was given. The canvas under it is untouched.
+        (item 419 point 9c), off the same :meth:`inverted_field` the
+        request's crop is cut from, so what the user is looking at inside
+        the box is what the model was given. The canvas under it is
+        untouched.
         """
         geometry = self.lens_geometry()
         if geometry is None:
@@ -3905,10 +3966,7 @@ class _LiveMagnifier(QObject):
         if part is None:
             return
         vx0, vy0, vx1, vy1 = part
-        source = canvas.image
-        if self.inverting():
-            source = engine.invert_intensity(source)
-        stretched = _stretch_for_box(source, box, part,
+        stretched = _stretch_for_box(self.detector_field(), box, part,
                                      canvas.norm_lo, canvas.norm_hi)
         rgb = np.ascontiguousarray(engine.overlay_mask(
             stretched, canvas.mask[vy0:vy1, vx0:vx1], alpha=0.5))
@@ -7784,11 +7842,17 @@ class MakeMasksScreen(QWidget):
         Filter category read that one and go on reporting the field's real
         values, which point 9's own note asks for -- a user filtering by
         intensity would otherwise be judging inverted numbers.
+
+        :func:`mask_engine.invert_for_detection`, NOT
+        :func:`mask_engine.invert_intensity` -- which is item 435's, belongs
+        to "Invert image", and would leave the Otsu threshold correction
+        pointing at intensities the field does not contain. The measurement
+        is in the first function's docstring.
         """
         image = self._canvas.image
         if image is None or not self._cp_invert.isChecked():
             return image
-        return engine.invert_intensity(image)
+        return engine.invert_for_detection(image)
 
     def _on_min_area_changed(self, value) -> None:
         """Hand Min area to the canvas, for Ctrl + left click's seed spacing.

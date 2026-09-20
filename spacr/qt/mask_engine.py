@@ -5,13 +5,17 @@ including fill, relabel, size and intensity filtering, Otsu detection, and
 magic-wand selection. It has no Qt dependency, so the editing operations can
 be tested without a display.
 
-TWO INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS (item 435).
-:func:`invert_intensity` is the photographic complement of an IMAGE --
-``dtype_max - value``, what a viewer's Invert does, exactly reversible on
-every integer dtype -- and it is what the Make Masks screen's "Invert image"
-draws with. :func:`invert_mask` flips a LABEL image's foreground and
-background; on an ordinary field that gives one object covering the frame,
-which is why it was reported as doing nothing.
+THREE INVERSIONS LIVE HERE AND THEY DO DIFFERENT THINGS (items 435 and 419
+point 9). :func:`invert_intensity` is the photographic complement of an
+IMAGE -- ``dtype_max - value``, what a viewer's Invert does, exactly
+reversible on every integer dtype -- and it is what the Make Masks screen's
+"Invert image" draws with. :func:`invert_for_detection` reflects an image
+about its OWN range instead, and is what the screen's "Invert for detection"
+hands the detectors; its docstring has the measurement that says why a
+detector cannot use the complement, and it is NOT a duplicate to be merged
+away. :func:`invert_mask` flips a LABEL image's foreground and background;
+on an ordinary field that gives one object covering the frame, which is why
+it was reported as doing nothing.
 
 :func:`save_mask` passes labels through :func:`canonical_labels`, which
 preserves existing nonzero object identifiers rather than renumbering
@@ -680,6 +684,92 @@ def invert_intensity(image: np.ndarray) -> np.ndarray:
     raise TypeError(
         f"invert_intensity needs a numeric or boolean image; got dtype "
         f"{values.dtype!r}.")
+
+
+def invert_for_detection(image: np.ndarray, *, bounds=None) -> np.ndarray:
+    """Reflect an image about its OWN range, for a DETECTOR to read.
+
+    ITEM 419 POINT 9, which asks that the masks be generated from the
+    inverted image so a threshold written for bright objects can take dark
+    ones. It is ``max + min - value`` on the field's own extremes.
+
+    WHY THIS IS NOT :func:`invert_intensity`, which is the other inversion
+    in this module and is one line away. The difference is not taste and it
+    is not a duplicate that wants merging -- the two are read by different
+    things and only one of them can afford to move the numbers:
+
+    * :func:`invert_intensity` complements the DTYPE and is what "Invert
+      image" draws with. It has to be exactly reversible, because a curator
+      leaves it on all day, and nothing downstream reads its result.
+    * this one is read by a THRESHOLD, and item 417's threshold correction
+      is a MULTIPLIER on the level Otsu finds, applied to absolute intensity
+      in :func:`_otsu_levels`. Multiplying is not invariant to an offset, so
+      an inversion that moves the field's span moves what the correction
+      means. Measured on a 12-bit field (216..4095) with dark objects,
+      inverted and put through :func:`_otsu_instances` on the bright side:
+
+      =============  ==========================  =======================
+      correction     dtype complement            reflection about range
+      =============  ==========================  =======================
+      0.8            1 object, 100% of the       47 objects, 20%
+                     field -- everything
+      1.0            3 objects, 8%               3 objects, 8%
+      1.3            0 objects, 0% -- nothing    3 objects, 8%
+      =============  ==========================  =======================
+
+      The complement puts that field into 61440..65535, so a correction of
+      0.8 asks for a cut at about 49000, below every pixel there is, and 1.3
+      asks for one above all of them. The correction stops being a dial and
+      becomes an on/off switch. At exactly 1.0 the two agree, which is why
+      this is easy to miss.
+
+    The other two candidates were considered and are worse. The DTYPE's
+    maximum is the case above. The CONTRAST-STRETCHED view is a viewing
+    choice, and a detector reading it would move when the percentiles moved,
+    which is the argument :func:`filter_objects` already makes about
+    intensity bounds.
+
+    Reflecting about the image's own extremes keeps the span exactly, maps
+    the darkest pixel onto the brightest and back, and is its own inverse on
+    an image whose extremes it has not changed.
+
+    Nonfinite pixels take no part in finding the extremes and are returned
+    unchanged, since a NaN is not dark and is not bright.
+
+    :param image: any 2-D field, as the canvas holds it.
+    :param bounds: ``(lo, hi)`` to reflect about, instead of ``image``'s own
+        extremes. WHAT A CROP IS GIVEN: a region inverted about its own
+        extremes is inverted differently wherever the box is put, so the
+        magnifier hands it the whole field's pair and the box stays a
+        preview of what the detect button will do with the same setting.
+        (:func:`invert_intensity` needs no such thing, being a function of
+        the pixel value alone -- another way the two differ.)
+    :returns: a NEW array of the input's dtype. The original is never
+        touched: the readout and the filter must keep reporting the raw
+        values whatever the detector was shown.
+    """
+    arr = np.asarray(image)
+    if not arr.size:
+        return arr.copy()
+    if np.issubdtype(arr.dtype, np.integer):
+        work = arr.astype(np.int64)
+        if bounds is None:
+            lo, hi = int(work.min()), int(work.max())
+        else:
+            lo, hi = int(bounds[0]), int(bounds[1])
+        return np.clip(hi + lo - work, lo, hi).astype(arr.dtype)
+    work = arr.astype(np.float64)
+    finite = np.isfinite(work)
+    if not finite.any():
+        return arr.copy()
+    if bounds is None:
+        lo = float(work[finite].min())
+        hi = float(work[finite].max())
+    else:
+        lo, hi = float(bounds[0]), float(bounds[1])
+    out = work.copy()
+    out[finite] = np.clip(hi + lo - work[finite], lo, hi)
+    return out.astype(arr.dtype)
 
 
 def overlay_mask(image: np.ndarray, mask: np.ndarray, alpha: float = 0.5) -> np.ndarray:

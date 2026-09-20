@@ -2,21 +2,26 @@
 MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
-Status:    OPEN, ~95%, filed 2026-09-16. ALL NINE POINTS ARE BUILT; what is
-           open is a translation pass and a look in the real app, neither of
-           which is code. Points 1-3 BUILT AND ON NIGHTLY 2026-09-19,
-           reviewed, with 208 tests green; point 3 installs into an
-           environment of its own since item 423 (note below). Points 4-6
-           (part B) BUILT, REVIEWED AND ON NIGHTLY 2026-09-19, 39 new tests
-           green. Points 7-9 (part C) BUILT 2026-09-19 on branch
-           home/419-part-c, 65 new tests green, NOT PUSHED AND NOT REVIEWED.
-           Every new and changed user-facing string in all three parts is
-           English only and its nine-language rows are owed to the
-           consolidated translation pass, along with one stale Help-search
-           summary (notes below); no part of this item has been looked at in
-           the real app on a real display. Item 435 was filed against point
-           9's Invert and asks for more Otsu options again: it is NOT closed
-           by this. See the five 2026-09-19 notes at the end.
+Status:    OPEN, ~97%, filed 2026-09-16. ALL NINE POINTS ARE BUILT, REVIEWED
+           AND ON NIGHTLY; what is open is a translation pass and a look in
+           the real app, neither of which is code. Points 1-3 BUILT AND ON
+           NIGHTLY 2026-09-19, reviewed, with 208 tests green; point 3
+           installs into an environment of its own since item 423 (note
+           below). Points 4-6 (part B) BUILT, REVIEWED AND ON NIGHTLY
+           2026-09-19, 39 new tests green. Points 7-9 (part C) BUILT
+           2026-09-19, REVIEWED AND ON NIGHTLY 2026-09-20, 72 new tests
+           green; the review found point 9's Invert colliding with item
+           435, which landed meanwhile, and that is settled in the
+           2026-09-20 note at the end -- the switch is now "Invert for
+           detection" and has its own arithmetic, for a reason that is
+           measured there. Every new and changed user-facing string in all
+           three parts is English only and its nine-language rows are owed
+           to the consolidated translation pass, along with one stale
+           Help-search summary (notes below); no part of this item has been
+           looked at in the real app on a real display. Item 435's invert
+           half is DONE and on nightly; its ask for more Otsu options is
+           not this item's. See the five 2026-09-19 notes and the
+           2026-09-20 note at the end.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 
@@ -829,7 +834,11 @@ EVIDENCE
     which is red on clean nightly too.
   * That catalog test's list of captions with no exact row was diffed
     line by line between the trees rather than counted: this branch adds
-    EXACTLY ONE source string to it, the Invert tooltip, in eight languages.
+    EXACTLY ONE source string to it, the Invert tooltip, in NINE languages
+    -- de es fr hi is ko pt sv AND zh_CN, 15 missing rows per language on
+    clean nightly and 16 here, counted on both trees. An earlier draft of
+    this note said eight and left zh_CN out; a catalog lane working from
+    that list literally would have left Chinese behind.
     Nothing else on the panel changed its list.
   * 14 convention, i18n, docstring and theme gate files were run on BOTH
     trees the same way. The two results are identical, file by file and
@@ -863,18 +872,128 @@ WHAT IS LEFT
     sentences, the Invert caption and tooltip, the Invert warning, and the
     two detect status lines that now say INVERTED.
   * New public API for the same pass: mask_engine.filter_report,
-    FilterRemoval, FILTER_BOUNDS, split_object_at and invert_intensity;
+    FilterRemoval, FILTER_BOUNDS, split_object_at and invert_for_detection;
     make_masks.FILTER_LOG_ROWS, FILTER_LOG_NAME, INVERT_WARNING_NAME,
     INVERT_WARNING_TEXT and MAKE_MASKS_QSS_NAME.
-  * A NAME COLLISION WORTH KNOWING ABOUT, and it is not closed by this.
-    Object operations already has a BUTTON called "Invert mask", which
-    swaps foreground and background, and item 435 is open precisely because
-    the maintainer found that one confusing. Object detection now has a
-    SWITCH called "Invert", which is the maintainer's own word for the
-    intensity inversion of point 9 and a different thing. The tooltip and
-    the warning banner both say which is which, and 435's invert half --
-    about the mask operation -- is untouched, as is its ask for more Otsu
-    options.
+  * THE NAME COLLISION IS SETTLED, and the 2026-09-20 note at the foot of
+    this file has the whole of it. The draft's account of it here was
+    WRONG and is corrected there: it said 435's invert half was "about the
+    mask operation" and untouched, when 435 is about the PICTURE and had
+    already landed both a public invert_intensity and an "Invert image"
+    switch. There were three controls called Invert on one panel, not two.
+    Point 9's switch is now "Invert for detection", it uses its own
+    mask_engine.invert_for_detection, and 435's ask for more Otsu options
+    is what remains of that item and is not this one's.
   * Not done: a look at any of this in the real app on a real display. The
     filter log's height was chosen for six rows and has only been measured
     offscreen.
+
+--------------------------------------------------------------------------------
+2026-09-20 — PART C REVIEWED, THE THIRD INVERT SETTLED, AND ON NIGHTLY
+--------------------------------------------------------------------------------
+
+Part C was reviewed and came back FLAWED on two blocking points, both about
+item 435, which landed on nightly while part C was being built. Both are
+fixed here and the branch is rebased and pushed. What follows is what was
+wrong, because the reasoning that produced it is easy to repeat.
+
+THERE WERE THREE CONTROLS CALLED INVERT, AND PART C'S NOTE SAID TWO.
+
+  * "Invert image", Display category, item 435: a VIEW. Its shipped tooltip
+    promises that "the readout under the mouse, the object filter, both
+    detect buttons and the mask you save all keep reading the original
+    pixels".
+  * "Swap object and background", Object operations, item 435: the old
+    "Invert mask", which flips LABELS.
+  * point 9's new switch, Object detection, which DOES change what both
+    detect buttons and the live magnifier read.
+
+Part C's own note described 435's half as "about the mask operation" and
+therefore untouched. That was wrong -- 435 was filed as "the invert in make
+masks doesnt actually invert", about the PICTURE -- and being wrong is why
+the collision went undeclared. Shipped side by side, a user would have seen
+two switches reading "Invert" on one panel with opposite contracts, and
+435's own tooltip and module docstring would have been false.
+
+WHAT WAS DONE: point 9's switch is "Invert for detection", which is the
+maintainer's own phrase for it ("a new boolean slider ... invert for object
+detection"). The module docstring now names three inversions and says which
+one moves what; 435's "Invert image" tooltip gained a sentence pointing at
+the other switch; and the status line 435 writes when Invert image goes on
+no longer promises that detection reads the original pixels when the other
+switch is on -- it said the opposite of the warning banner two inches above
+it.
+
+THE TWO INVERSIONS ARE ARITHMETICALLY DIFFERENT AND BOTH ARE KEPT.
+
+Item 419 left the meaning of "inverted" open for the builder. 435 asked the
+maintainer and got "1/intensity i think and then fitted to dtype i guess",
+and landed `mask_engine.invert_intensity` as the dtype complement. The
+obvious resolution -- delete point 9's function and use 435's -- was tried
+first in this rebase AND IT IS WRONG. The measurement that reversed it:
+
+  * 435 also rewrote the detect button's two-class path to take its level
+    from `_otsu_levels`, which works on ABSOLUTE smoothed intensity and
+    applies item 417's threshold correction there as a MULTIPLIER.
+    Multiplying is not invariant to an offset.
+  * The complement puts a 12-bit field (0..4095 in uint16) into
+    61440..65535. Measured on such a field with dark objects, inverted, Otsu
+    on the bright side: correction 0.8 gives ONE object over 100% of the
+    frame, 1.0 gives 3 objects over 8%, 1.3 gives NOTHING. Reflecting about
+    the field's own range gives 47 objects over 20%, the same 3 objects over
+    8%, and 3 objects over 8%.
+  * So the complement turns the threshold correction from a dial into an
+    on/off switch. AT EXACTLY 1.0 THE TWO AGREE, which is why the merge
+    passed every test that pinned the default and had to be caught by
+    measuring rather than by running the suite.
+
+The display inversion must be exactly reversible and nothing reads it; the
+detector's must keep the field's span so a number dialled against the
+picture still means what it meant. One function cannot be both.
+`mask_engine.invert_for_detection` is point 9's, beside 435's
+`invert_intensity`, and a new test --
+test_the_two_inversions_are_not_interchangeable_under_a_correction -- pins
+the difference so they are not merged again from the same reasoning.
+
+TWO SMALLER THINGS THE REVIEW FOUND, both fixed and both driven in tests.
+
+  * The removal log did not survive its own promise. Its rows "name objects
+    in the mask ON SCREEN", but only `apply_object_filter` ever set them:
+    Filter removed object 2, the row said so, Ctrl+Z put object 2 back and
+    the red row still named it. The rows are now dropped in `_record`, the
+    one place every edit passes through, for any recorded edit that is not
+    the filter's own. An edit that moved no pixels leaves them alone.
+  * Ctrl+click did not own the mouse. With the right button already sweeping,
+    a Ctrl+left click closed the SWEEP's stroke and labelled it a split; the
+    first fix -- letting the press fall through -- was worse, because the
+    rest of the handler read it as an ordinary left press and opened a PAINT
+    stroke over the object. The press is now declined outright when another
+    button is down, AND its release is declined with it: a release that falls
+    through reaches the generic stroke end, which closes whatever stroke is
+    open and calls it a paint. That is what was actually damaging the sweep.
+
+MEASURED, this tree against a clean origin/nightly worktree at the same
+commit, one capped offscreen process at a time.
+
+  * tests/test_mask_engine_splits_filters_and_inverts.py: 26 passed (25 plus
+    the new guard). tests/qt/test_make_masks_filters_splits_and_inverts.py:
+    46 passed (40 plus 3 for the log invariant and 3 for the chord).
+  * 435's own tests/qt/test_make_masks_inverts_the_picture_and_otsu_grew_options.py
+    passes beside this branch's, in the same process: 82 together.
+  * 22 Make Masks / magnifier / mask_engine files: 601 passed, zero failures.
+  * Gates: the no-comments rule and the API i18n frontend are green. Four
+    ratchet files (docstring correctness, caption-hidden, API extractor,
+    exact-catalog-row) fail with the IDENTICAL eight test ids on the clean
+    baseline tree, so all eight are pre-existing.
+  * The caption-hidden ratchet's output is byte-identical on both trees:
+    this branch adds nothing to it. The earlier claim that it "grows by
+    exactly five" was not reproduced and is withdrawn; what does grow is the
+    exact-catalog-row gate, by one source string in nine languages.
+  * NOT measured, as before: tests/test_documentation_i18n.py, which runs
+    past this session's per-run cap. Nothing here is under docs/source.
+
+WHAT IS STILL OPEN ON THIS ITEM: the nine-language catalog rows for every
+new and changed string across all three parts -- now including the renamed
+"Invert for detection" caption, its rewritten tooltip, the rewritten warning
+banner and the sentence added to 435's "Invert image" tooltip -- and a look
+at any of it in the real app on a real display.

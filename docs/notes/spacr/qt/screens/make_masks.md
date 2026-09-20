@@ -378,16 +378,24 @@
   Object operations flips the LABELS. A panel with two switches both reading
   "Invert", one of which silently redirected both detect buttons, is the
   defect item 435 was filed about wearing different clothes.
-- The arithmetic is 435's `mask_engine.invert_intensity` and NOT a second
-  one. Item 419 left the meaning of "inverted" open for the builder; the
-  maintainer answered it in 435 on the same day, and both detectors
-  percentile-normalise before they threshold, so the dtype complement and
-  the image-range reflection the first draft carried give identical labels.
-  There was nothing to buy by differing and a collision to pay for.
-- `region_for` therefore passes the crop alone. The complement is a function
-  of the pixel value, so a box inverts the same wherever it is put and stays
-  a preview of the button; the draft's whole-field extremes cache existed
-  only to make a self-relative reflection behave that way and went with it.
+- The arithmetic is `mask_engine.invert_for_detection` and NOT 435's
+  `invert_intensity`, although the two differ only by which ends they
+  reflect about. The detect button thresholds ABSOLUTE intensity and
+  multiplies the level by item 417's threshold correction, so an inversion
+  that moves the field's span moves what that dial means: on a 12-bit field
+  the dtype complement makes a correction of 0.8 label the whole frame and
+  1.3 label nothing. The measurement is in `invert_for_detection`'s
+  docstring and in the note for `mask_engine`.
+- `_LiveMagnifier.inverted_field` caches the WHOLE field inverted, on the
+  array's identity, and `region_for` and `paint` both cut from that one
+  array. A region reflected about its OWN extremes is reflected differently
+  wherever the box is put, so the box would stop being a preview of the
+  button; and item 407 moved the box's paint onto `_stretch_for_box`, which
+  indexes the field by absolute coordinates and so needs a field rather than
+  a crop. One cached array answers both. A full-field pass on every hover
+  would be work on the GUI thread for an answer that cannot have changed; a
+  new field is a new array and asks again, which is how the canvas already
+  caches item 435's display complement.
 - `invert` is APPENDED to `_MODEL_SETTING_FIELDS`, like the three settings
   point 5 added, because a request key is that tuple positionally and an
   insertion in the middle would make every cached key mean something else.

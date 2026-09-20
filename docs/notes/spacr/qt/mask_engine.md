@@ -164,33 +164,41 @@
     spacing. A hand edit moves pixels between ids, and a gesture that
     quietly erased the smaller half would be a delete wearing a split's
     name -- on a field of four hundred objects nobody would notice which.
-- `invert_intensity`: point 9 needs an inversion and item 419 left the
-  arithmetic "open for the builder to settle". IT IS NOT SETTLED HERE. Item
-  435 asked the maintainer the same question on the same day and got an
-  answer -- "1/intensity i think and then fitted to dtype i guess" -- and
-  landed `invert_intensity` as the dtype complement. Point 9 therefore USES
-  THAT FUNCTION AND DEFINES NOTHING. Its first draft reflected about the
-  image's own range instead and the two would have collided in this module
-  under one name; the branch was rebased onto 435 and its version deleted.
-- WHY THE DTYPE COMPLEMENT COSTS POINT 9 NOTHING, since the draft's
-  objection -- that a 12-bit field stored in uint16 lands in the top six per
-  cent of the range -- is true and sounds like it should matter. It does not
-  reach a detector. Both inversions are `a - value` for a constant `a`, and
-  BOTH DETECTORS PERCENTILE-NORMALISE before they threshold:
-  `_otsu_instances` stretches between its own 1st and 99.8th percentiles
-  (and the threshold correction multiplies AFTER that stretch), and Cellpose
-  is called with `normalize=True`. A percentile stretch of `a - value` is
-  `(p99 - value) / (p99 - p1)`, in which `a` has cancelled. Measured: the
-  labels `_otsu_instances` returns are identical arrays under the two
-  inversions over 40 random fields x both sides x three corrections. The
-  choice is invisible below the display, so the shared name is worth more
-  than the wider span.
-- The `bounds=` parameter the draft added is gone with it, and so is the
-  magnifier's whole-field extremes cache. It existed because a region
-  reflected about its OWN extremes is reflected differently wherever the box
-  is put, so a crop had to borrow the field's pair to stay a preview of the
-  button. The dtype complement is a function of the pixel value alone, so a
-  crop inverts identically wherever it is cut and there is nothing to pass.
+- `invert_for_detection`: point 9's inversion, `max + min - value` on the
+  image's OWN range. It is a SECOND function beside item 435's
+  `invert_intensity` and the name is the whole point, because the two look
+  like duplicates. THEY WERE BRIEFLY MERGED DURING THIS REBASE AND THE MERGE
+  WAS WRONG; what follows is the measurement that reversed it, so nobody
+  merges them again from the same reasoning.
+- The argument for merging was that both are `a - value` for a constant `a`,
+  so an offset should wash out of any detector that normalises. It does wash
+  out of the magnifier's own `_classical_region_labels`, which percentile-
+  stretches, and out of Cellpose, called with `normalize=True`. IT DOES NOT
+  WASH OUT OF THE DETECT BUTTON. Item 435 rewrote the two-class path of
+  `_otsu_instances` to take its level from `_otsu_levels`, which works on
+  ABSOLUTE smoothed intensity and applies item 417's threshold correction as
+  a MULTIPLIER there. Multiplying is not offset-invariant.
+- Measured on a 12-bit field (216..4095, dark objects on a pale background),
+  inverted and put through `_otsu_instances` on the bright side. Dtype
+  complement, which puts the field into 61440..65535: correction 0.8 gives
+  ONE object covering 100% of the field, 1.0 gives 3 objects over 8%, 1.3
+  gives NOTHING. Range reflection: 47 objects over 20%, the same 3 objects
+  over 8%, and 3 objects over 8%. The complement turns the correction dial
+  into an on/off switch, because 0.8 of 61440 is below every pixel in the
+  field and 1.3 of it is above all of them. At exactly 1.0 the two agree,
+  which is why the merge passed every test that pinned the default.
+- So the display inversion wants the dtype's ends -- it must be exactly
+  reversible and nothing reads it -- and the detector's wants the field's
+  own span, so that a number the user dials against the picture still means
+  what it meant. One function cannot be both, and the module docstring now
+  names three inversions rather than two.
+- `invert_for_detection(bounds=...)` is what a CROP is handed. A region
+  reflected about its own extremes is reflected differently wherever the box
+  is put, so the magnifier passes the whole field's pair and the box stays a
+  preview of what the detect button does with the same switch. Nonfinite
+  pixels take no part in finding the extremes and come back untouched: a NaN
+  is neither dark nor bright. `invert_intensity` needs no such parameter,
+  being a function of the pixel value alone -- another way the two differ.
 
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.

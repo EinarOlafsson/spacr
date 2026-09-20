@@ -14,7 +14,13 @@ Status:    done 2026-09-20, on nightly, branch home/435-invert-otsu-build
            below. It was filed beside item 419, whose points 5 (Otsu
            settings and renames) and 9 (Invert for object detection, plus
            the Toggle sliders) overlap it; 419 point 9 is a SECOND, separate
-           invert and is still open on part C.
+           invert and LANDED 2026-09-20 as "Invert for detection", with its
+           own mask_engine.invert_for_detection -- the dtype complement
+           this item built cannot be reused there, because it moves the
+           field's span and the Otsu threshold correction multiplies an
+           absolute level. The measurement is in 419's 2026-09-20 note. This
+           item's "Invert image" tooltip gained a sentence in that pass,
+           pointing at the other switch.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "add to new features, the invert in make masks doesnt actually

@@ -321,6 +321,42 @@ def test_the_filter_is_one_undo_step_and_one_ledger_entry(screen):
     assert ids_of(screen._canvas.mask) == before
 
 
+def test_undo_clears_the_rows_because_the_object_is_back(screen):
+    """The rows promise to name objects in the mask ON SCREEN.
+
+    One keystroke reached that promise: Filter removed an object, the row
+    named it, Ctrl+Z put it back and the red row went on saying it was
+    gone.
+    """
+    screen._filter_min_area.setValue(20)
+    screen._btn_filter.click()
+    removed = [int(v) for v in ids_of(screen._canvas.mask)]
+    assert log_rows(screen)
+
+    screen._on_undo()
+    assert ids_of(screen._canvas.mask) != removed, "the object should be back"
+    assert log_rows(screen) == []
+
+
+def test_any_other_edit_clears_the_rows_too(screen):
+    """Not only undo: a detect in replace mode rebuilds the mask as well."""
+    screen._filter_min_area.setValue(20)
+    screen._btn_filter.click()
+    assert log_rows(screen)
+    ctrl_click(screen, 45, 45, button=Qt.RightButton)
+    assert log_rows(screen) == []
+
+
+def test_an_edit_that_moves_nothing_leaves_the_rows_alone(screen):
+    """A Ctrl+click on background changed no pixels, so nothing went stale."""
+    screen._filter_min_area.setValue(20)
+    screen._btn_filter.click()
+    rows = log_rows(screen)
+    assert rows
+    ctrl_click(screen, 1, 1)
+    assert log_rows(screen) == rows
+
+
 # ---------------------------------------------------------------------------
 # 8. Ctrl + left click splits, Ctrl + right click removes
 # ---------------------------------------------------------------------------
@@ -409,6 +445,72 @@ def test_both_gestures_work_with_the_magnifier_on(qtbot, screen):
     assert ROUND not in ids_of(screen._canvas.mask)
 
 
+def test_ctrl_left_during_a_right_button_sweep_is_ignored(screen):
+    """A click-shaped gesture must not cut in on a drag that is open.
+
+    The sweep opens a stroke on its own press. A Ctrl+left click arriving
+    mid-sweep used to close THAT stroke and label it a split, and the
+    sweep's own release was then swallowed as the Ctrl click's -- so the
+    sweep never committed its entry and the canvas stayed in sweeping
+    state. Both buttons are driven here in the order a hand makes them.
+    """
+    canvas = screen._canvas
+    written = len(screen._log.edits)
+    x, y = canvas_xy(45, 45)
+    canvas.mousePressEvent(_mouse(
+        QEvent.Type.MouseButtonPress, x, y, Qt.RightButton, Qt.RightButton))
+    assert canvas._sweeping
+
+    sx, sy = canvas_xy(16, 20)
+    canvas.mousePressEvent(_mouse(
+        QEvent.Type.MouseButtonPress, sx, sy, Qt.LeftButton,
+        Qt.RightButton | Qt.LeftButton, Qt.ControlModifier))
+    assert canvas._ctrl_click is None, "the Ctrl edit must not have started"
+
+    canvas.mouseReleaseEvent(_mouse(
+        QEvent.Type.MouseButtonRelease, sx, sy, Qt.LeftButton,
+        Qt.RightButton, Qt.ControlModifier))
+    canvas.mouseReleaseEvent(_mouse(
+        QEvent.Type.MouseButtonRelease, x, y, Qt.RightButton, Qt.NoButton))
+
+    assert not canvas._sweeping, "the sweep must have closed"
+    assert len(screen._log.edits) == written + 1
+    assert screen._log.edits[-1].kind == "sweep_delete"
+
+
+def test_a_second_button_does_not_end_the_ctrl_edit(screen):
+    """Only the button that opened the edit closes it."""
+    canvas = screen._canvas
+    x, y = canvas_xy(16, 20)
+    canvas.mousePressEvent(_mouse(
+        QEvent.Type.MouseButtonPress, x, y, Qt.LeftButton, Qt.LeftButton,
+        Qt.ControlModifier))
+    assert canvas._ctrl_click == Qt.LeftButton
+
+    canvas.mousePressEvent(_mouse(
+        QEvent.Type.MouseButtonPress, x, y, Qt.RightButton,
+        Qt.LeftButton | Qt.RightButton, Qt.ControlModifier))
+    canvas.mouseReleaseEvent(_mouse(
+        QEvent.Type.MouseButtonRelease, x, y, Qt.RightButton, Qt.LeftButton,
+        Qt.ControlModifier))
+    assert canvas._ctrl_click == Qt.LeftButton, "still the left button's"
+
+    canvas.mouseReleaseEvent(_mouse(
+        QEvent.Type.MouseButtonRelease, x, y, Qt.LeftButton, Qt.NoButton,
+        Qt.ControlModifier))
+    assert canvas._ctrl_click is None
+
+
+def test_a_release_that_never_came_cannot_swallow_the_next_press(screen):
+    """The flag is still rewritten by any press that arrives alone."""
+    canvas = screen._canvas
+    canvas._ctrl_click = Qt.LeftButton
+    x, y = canvas_xy(16, 20)
+    canvas.mousePressEvent(_mouse(
+        QEvent.Type.MouseButtonPress, x, y, Qt.LeftButton, Qt.LeftButton))
+    assert canvas._ctrl_click is None
+
+
 def test_the_two_gestures_are_on_the_shortcut_panel(screen):
     keys = dict(mm.SHORTCUT_HINTS)
     assert "Split" in keys["Ctrl + left click"]
@@ -444,7 +546,7 @@ def test_the_sliders_still_read_and_write_as_checkboxes(screen):
 # ---------------------------------------------------------------------------
 
 def test_invert_is_in_the_object_detection_category(screen):
-    assert screen._cp_invert.text() == "Invert"
+    assert screen._cp_invert.text() == "Invert for detection"
     assert category(screen, "Object detection").isAncestorOf(screen._cp_invert)
 
 
@@ -501,7 +603,7 @@ def test_the_magnifier_is_handed_the_inverted_region(qtbot, screen):
     assert inverted.box == plain.box
     field = screen._canvas.image
     np.testing.assert_array_equal(
-        inverted.crop, engine.invert_intensity(field)[y0:y1, x0:x1])
+        inverted.crop, engine.invert_for_detection(field)[y0:y1, x0:x1])
 
 
 def test_the_region_is_inverted_about_the_whole_fields_range(screen):
@@ -515,8 +617,8 @@ def test_the_region_is_inverted_about_the_whole_fields_range(screen):
         "rules would agree by accident"
     region = screen._magnifier.region_for((x0, y0, x1, y1), invert=True)
     np.testing.assert_array_equal(
-        region, engine.invert_intensity(field)[y0:y1, x0:x1])
-    assert not np.array_equal(region, engine.invert_intensity(crop)), \
+        region, engine.invert_for_detection(field)[y0:y1, x0:x1])
+    assert not np.array_equal(region, engine.invert_for_detection(crop)), \
         "the region was inverted about its own extremes, not the field's"
 
 
@@ -598,7 +700,7 @@ def test_object_detection_is_handed_the_inverted_image(screen, monkeypatch):
     screen._cp_invert.setChecked(True)
     screen.run_cellpose()
     np.testing.assert_array_equal(
-        seen[-1], engine.invert_intensity(screen._canvas.image))
+        seen[-1], engine.invert_for_detection(screen._canvas.image))
 
 
 def test_the_readout_and_the_filter_keep_the_fields_real_values(screen):

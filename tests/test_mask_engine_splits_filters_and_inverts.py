@@ -199,14 +199,14 @@ def test_the_dtype_widens_only_when_the_new_id_needs_it():
 
 def test_the_darkest_pixel_becomes_the_brightest_and_back():
     values = np.array([[10, 40, 90]], dtype=np.uint16)
-    inverted = engine.invert_intensity(values)
+    inverted = engine.invert_for_detection(values)
     np.testing.assert_array_equal(inverted, [[90, 60, 10]])
-    np.testing.assert_array_equal(engine.invert_intensity(inverted), values)
+    np.testing.assert_array_equal(engine.invert_for_detection(inverted), values)
 
 
 def test_the_span_is_the_one_it_started_with():
     values = (np.arange(64, dtype=np.uint16) * 37).reshape(8, 8)
-    inverted = engine.invert_intensity(values)
+    inverted = engine.invert_for_detection(values)
     assert (int(inverted.min()), int(inverted.max())) == (
         int(values.min()), int(values.max()))
 
@@ -214,7 +214,7 @@ def test_the_span_is_the_one_it_started_with():
 def test_it_is_not_the_dtypes_maximum():
     """A 12-bit field in a uint16 array stays where the user could see it."""
     values = np.array([[0, 2048, 4095]], dtype=np.uint16)
-    assert int(engine.invert_intensity(values).max()) == 4095
+    assert int(engine.invert_for_detection(values).max()) == 4095
 
 
 def test_given_bounds_it_reflects_about_those_instead():
@@ -223,42 +223,42 @@ def test_given_bounds_it_reflects_about_those_instead():
     crop = whole[:, 1:3]
     bounds = (float(whole.min()), float(whole.max()))
     np.testing.assert_array_equal(
-        engine.invert_intensity(crop, bounds=bounds), [[200, 100]])
+        engine.invert_for_detection(crop, bounds=bounds), [[200, 100]])
     np.testing.assert_array_equal(
-        engine.invert_intensity(crop), [[200, 100]])
+        engine.invert_for_detection(crop), [[200, 100]])
     other = np.array([[0, 50]], dtype=np.uint16)
     np.testing.assert_array_equal(
-        engine.invert_intensity(other, bounds=bounds), [[300, 250]])
+        engine.invert_for_detection(other, bounds=bounds), [[300, 250]])
 
 
 def test_the_original_is_never_touched():
     values = np.array([[10, 40, 90]], dtype=np.uint16)
     before = values.copy()
-    engine.invert_intensity(values)
+    engine.invert_for_detection(values)
     np.testing.assert_array_equal(values, before)
 
 
 def test_the_dtype_survives():
     for dtype in (np.uint8, np.uint16, np.int32, np.float32):
         values = np.array([[1, 5, 9]], dtype=dtype)
-        assert engine.invert_intensity(values).dtype == dtype
+        assert engine.invert_for_detection(values).dtype == dtype
 
 
 def test_a_nonfinite_pixel_is_neither_dark_nor_bright():
     values = np.array([[0.0, np.nan, 4.0]], dtype=np.float32)
-    inverted = engine.invert_intensity(values)
+    inverted = engine.invert_for_detection(values)
     assert np.isnan(inverted[0, 1])
     np.testing.assert_array_equal(inverted[0, [0, 2]], [4.0, 0.0])
 
 
 def test_an_empty_field_comes_back_empty():
     values = np.zeros((0, 0), dtype=np.uint16)
-    assert engine.invert_intensity(values).shape == (0, 0)
+    assert engine.invert_for_detection(values).shape == (0, 0)
 
 
 def test_a_flat_field_is_unchanged_rather_than_undefined():
     values = np.full((4, 4), 7, dtype=np.uint16)
-    np.testing.assert_array_equal(engine.invert_intensity(values), values)
+    np.testing.assert_array_equal(engine.invert_for_detection(values), values)
 
 
 def test_otsu_finds_a_dark_object_once_the_field_is_inverted():
@@ -270,7 +270,49 @@ def test_otsu_finds_a_dark_object_once_the_field_is_inverted():
 
     plain = engine._otsu_instances(field, bright=True, min_area=20)
     inverted = engine._otsu_instances(
-        engine.invert_intensity(field), bright=True, min_area=20)
+        engine.invert_for_detection(field), bright=True, min_area=20)
     assert int(inverted[20, 20]) and int(inverted[44, 44])
     assert int(inverted[20, 20]) != int(inverted[44, 44])
     assert int(plain.max()) < int(inverted.max())
+
+
+def test_the_two_inversions_are_not_interchangeable_under_a_correction():
+    """Why point 9 does not reuse item 435's ``invert_intensity``.
+
+    The two differ only by which ends they reflect about, and at a
+    correction of exactly 1.0 they agree, so merging them passes every
+    test that pins the default. The detect button thresholds ABSOLUTE
+    intensity and multiplies Otsu's level by item 417's threshold
+    correction, so the dtype complement -- which puts a 12-bit field into
+    the top sixteenth of the uint16 range -- turns that dial into an
+    on/off switch. This is the guard against merging them again.
+
+    The background is NOISY on purpose. On a field of two exact values
+    Otsu's level sits just above the lower peak, both inversions collapse
+    at a correction below 1, and the difference this pins disappears.
+    """
+    rng = np.random.default_rng(7)
+    field = rng.integers(3_600, 4_096, size=(128, 128)).astype(np.uint16)
+    yy, xx = np.mgrid[0:128, 0:128]
+    for cy, cx in ((32, 32), (90, 40), (60, 95)):
+        field[((xx - cx) ** 2 + (yy - cy) ** 2) < 144] = rng.integers(200, 600)
+
+    for_detection = engine.invert_for_detection(field)
+    complement = engine.invert_intensity(field)
+
+    assert (int(for_detection.min()), int(for_detection.max())) == (
+        int(field.min()), int(field.max()))
+    assert int(complement.min()) > int(field.max())
+
+    def share(image, correction):
+        labels = engine._otsu_instances(
+            image, bright=True, min_area=20, correction=correction)
+        return float((labels > 0).mean())
+
+    assert share(for_detection, 1.0) == share(complement, 1.0)
+
+    assert share(complement, 0.8) == 1.0
+    assert share(complement, 1.3) == 0.0
+    for correction in (0.8, 1.0, 1.3):
+        assert 0.0 < share(for_detection, correction) < 0.5, (
+            "the detection inversion must keep the correction a dial")
