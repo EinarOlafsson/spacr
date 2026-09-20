@@ -190,9 +190,35 @@ TWO THINGS THE REAL RUN FOUND THAT THE STAND-INS COULD NOT
     Uninstall took both. The environment with its checkpoint is
     2,199,847,171 bytes, under the 3 GB the row claims.
 
-    SAMCell's torch.hub cache has the same shape and TORCH_HOME is the same
-    lever. NOT CHANGED HERE: it is item 405's, and 405 should measure it
-    rather than inherit an untested line.
+    AND HF_HOME ALONE WAS NOT ENOUGH -- caught in review, fixed the same
+    day. `_clean_env` forwards the whole inherited environment, and
+    huggingface_hub reads HF_HUB_CACHE from it BEFORE deriving anything
+    from HF_HOME: HF_HUB_CACHE falls back to the legacy
+    HUGGINGFACE_HUB_CACHE, which falls back to $HF_HOME/hub. Measured
+    against huggingface_hub 0.36.2 on 2026-09-19: with HF_HOME inside the
+    environment and HF_HUB_CACHE=/mnt/elsewhere/hf, constants.HF_HUB_CACHE
+    is /mnt/elsewhere/hf; the legacy name alone does the same. So the one
+    person the redirect is FOR -- whoever moved their Hugging Face cache
+    off a full home disk -- was the one person it missed. `_worker_env`
+    now drops `_HF_CACHE_VARIABLES` (both hub names, both assets names,
+    the xet cache) beside setting HF_HOME, and
+    `test_a_relocated_hugging_face_cache_does_not_win_over_the_environment`
+    exports all five and fails if any survives. Proved by reverting the
+    drop: the test then names all five.
+
+    SAMCell IS NOT CHANGED HERE -- it is item 405's, and 405 should measure
+    it rather than inherit an untested line -- but 405 should know that
+    TORCH_HOME alone will not finish it. SAMCell downloads TWO models, not
+    one: `samcell-generalist.pt` through torch.hub (TORCH_HOME moves it;
+    375,043,010 bytes in ~/.cache/torch on this machine), and, because
+    `_SamCellBackend` builds `FinetunedSAM(_SAMCELL_BASE_MODEL)` and
+    samcell's FinetunedSAM is `SamModel.from_pretrained(...)`,
+    facebook/sam-vit-base through transformers into the SAME Hugging Face
+    cache DINOCell's checkpoint was just moved out of (374,986,732 bytes in
+    ~/.cache/huggingface on this machine). About 750 MB across two caches;
+    setting only TORCH_HOME would move half of it and read as finished.
+    Both numbers are `du -sb` on existing caches, not estimates, and
+    neither has been measured through an isolated environment.
 
   * THE SELF-TEST DID NOT IMPORT WHAT THE ADAPTER IMPORTS. 423 learned this
     with Cellpose 3 and `packaging` and fixed that one instance; DINOCell
