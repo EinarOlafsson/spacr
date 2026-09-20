@@ -1,9 +1,10 @@
 """The coverage gate follows the package and cannot be weakened by omission.
 
-Since 2026-09-15 (item 288) CI gates on a per-module ratchet baseline rather
-than 100% per module; the ratchet's rules are tested in
-``tests/test_coverage_ratchet_rules.py``.  Without ``--baseline`` the tool
-still demands 100% of every module, which is what the CLI tests here use.
+Since 2026-09-19 (item 288) CI gates on a 90% FLOOR plus a per-module ratchet
+baseline, so a module's bar is ``max(90%, what it already has)``; the
+ratchet's rules are tested in ``tests/test_coverage_ratchet_rules.py``.
+Without ``--baseline`` no module has a recorded allowance and the floor is
+the whole gate, which is what the CLI tests here use.
 """
 
 from __future__ import annotations
@@ -378,7 +379,7 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     assert not RESOURCE_GENERATORS & shipped
 
 
-def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
+def test_cli_passes_at_full_statement_and_branch_coverage(tmp_path):
     project = _project(tmp_path / "project")
     result, report, text = _run_cli(
         project,
@@ -391,8 +392,9 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert report["schema"] == "spacr.module-coverage-ratchet/v3"
+    assert report["schema"] == "spacr.module-coverage-ratchet/v4"
     assert report["status"] == "pass"
+    assert report["floor_percent"] == 90
     assert report["summary"] == {
         "failed_modules": 0,
         "global_issue_count": 0,
@@ -400,9 +402,12 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
         "integrity_issue_count": 0,
         "modules_at_100_percent": 2,
         "modules_below_100_percent": 0,
+        "modules_below_floor": 0,
+        "modules_exempt_from_floor": 0,
         "modules_checked": 2,
         "shipped_modules": 2,
         "stale_baseline_entries": 0,
+        "stale_exemptions": 0,
         "unconfirmed_modules": 0,
     }
     assert report["measurement_integrity"] == {"checked": False}
@@ -462,8 +467,13 @@ def test_uncovered_line_and_branch_have_actionable_diagnostics(tmp_path):
         "uncovered statements: 4",
         "uncovered branches: 2->4",
     ]
-    assert logic["failures"][0].startswith("new module is not at 100%")
-    assert "GAP: demo/logic.py: 1 uncovered statements, 1 uncovered branches" in text
+    assert logic["failures"][0].startswith(
+        "is below the 90% floor at 66.67%"
+    )
+    assert (
+        "BELOW FLOOR: demo/logic.py: 66.67%, 1 uncovered statements, "
+        "1 uncovered branches"
+    ) in text
     assert "    uncovered statements: 4\n" in text
     assert "    uncovered branches: 2->4\n" in text
 

@@ -1,0 +1,20 @@
+# Modules the 90% coverage floor cannot apply to, and why.
+#
+# Item 288, maintainer decision 2026-09-19: "the goal is 90% for all modules,
+# and if the module would benefit from more than 90% coverage, implement that,
+# but only in cases where coverage is useful."  A module whose remaining
+# uncovered code cannot run on CI at all -- a GPU-only kernel, a branch only
+# Windows or macOS takes -- can never reach the floor by writing tests, so it
+# says so here instead of pretending.
+#
+# One module per line, as "<repository-relative path>: <why>".  The reason is
+# required; tools/verify_module_coverage.py refuses a line without one.
+#
+# AN EXEMPTION LIFTS THE FLOOR AND NOTHING ELSE.  The ratchet still fails if an
+# exempted module loses a single covered statement or branch, and the gate
+# prints EXEMPTION SPENT when a module here has come to clear the floor on its
+# own.  Do NOT reach for `# pragma: no cover` instead: this repository spent an
+# item removing those, and the ratchet counts every one that comes back.
+#
+# Empty on purpose.  Nothing has been found that cannot be covered; add a line
+# only after trying.

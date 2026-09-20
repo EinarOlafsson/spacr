@@ -373,12 +373,15 @@ jobs:
           retention-days: 3
 
   coverage-combine:
-    # Item 288, maintainer decision 2026-09-15: the release gate is a
-    # per-module coverage RATCHET against tools/coverage_baseline.json -- no
-    # shipped module loses coverage and no new module arrives below 100%.
-    # 100% per module remains the goal, and the report lists every module
-    # that is not there yet. CI never rewrites the baseline.
-    name: Coverage / no module loses coverage
+    # Item 288, maintainer decision 2026-09-19: the goal is 90% per module,
+    # not 100% -- "if the module would benefit from more than 90% coverage,
+    # implement that, but only in cases where coverage is useful". The gate is
+    # a 90% FLOOR plus the per-module RATCHET against
+    # tools/coverage_baseline.json, so a module's bar is max(90%, what it
+    # already has). A module that genuinely cannot reach the floor names
+    # itself and its reason in tools/coverage_floor_exemptions.txt rather than
+    # hiding behind a pragma. CI never rewrites the baseline.
+    name: Coverage / every module at 90% and none loses coverage
     if: always()
     needs: coverage-shards
     runs-on: ubuntu-24.04
@@ -451,6 +454,7 @@ jobs:
             --root . \
             --expected-file-count 572 \
             --baseline tools/coverage_baseline.json \
+            --floor-exemptions tools/coverage_floor_exemptions.txt \
             --shard-integrity "$SPACR_COVERAGE_INPUT" \
             --shard-count 12 \
             --json-out "$SPACR_COVERAGE_REPORT/module-coverage-ratchet.json" \

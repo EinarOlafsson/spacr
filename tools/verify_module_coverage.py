@@ -7,23 +7,32 @@ THE DENOMINATOR is packaging, not an editable manifest.  This tool reads the
 arguments, and includes every direct ``*.py`` child of every discovered
 package.  A new package module therefore enters the gate automatically.
 
-THE GATE (maintainer decision, 2026-09-15, item 288): no shipped module may
-lose coverage, and no new module may arrive below 100%.  100% statement and
-branch coverage per module stays the goal; the ratchet is what CI enforces.
-For every shipped module four ABSOLUTE counts are measured -- uncovered
-statements, uncovered branches, ``pragma: no cover`` comments and
-coverage-excluded lines -- and compared with the same four counts recorded
-for that module in the baseline (``tools/coverage_baseline.json``).
-The run FAILS when:
+THE GATE (maintainer decision, 2026-09-19, item 288): the goal is 90%
+statement-and-branch coverage per module, not 100% -- "if the module would
+benefit from more than 90% coverage, implement that, but only in cases where
+coverage is useful".  So a module's bar is ``max(90%, what that module
+already has recorded)``: a 90% FLOOR plus no-regression.  For every shipped
+module four ABSOLUTE counts are measured -- uncovered statements, uncovered
+branches, ``pragma: no cover`` comments and coverage-excluded lines -- and
+compared with the same four counts recorded for that module in the baseline
+(``tools/coverage_baseline.json``).  The run FAILS when:
 
   (a) any count of a module rises above its baseline count;
   (b) a module recorded at 100% in the baseline is no longer at 100%;
-  (c) a shipped module that is not in the baseline is not at 100%;
+  (c) a shipped module is below the 90% FLOOR and carries no exemption.
+      The floor counts statements and branches together:
+      ``(covered_lines + covered_branches) / (statements + branches)``.
+      A module already in the baseline must clear the floor AND rule (a).
+      A module NOT in the baseline must clear the floor and additionally
+      carry no ``pragma: no cover`` and no coverage-excluded line: the
+      floor forgives code a test has not reached yet, never code hidden
+      from the measurement, and zero is the only baseline a new module
+      gets for those two counts;
   (d) a module is in the baseline but is no longer shipped.  A deleted or
       renamed file must not carry its allowance away silently, so the
       baseline has to be tightened deliberately (``--update-baseline``
       trims the entry; a module that returns under any name is new and must
-      arrive at 100%);
+      arrive at or above the floor);
   (e) anything cannot be measured: an unreadable coverage file, coverage
       without branch data, a shipped module with no valid coverage row, or
       a baseline this tool did not write.  "Checked N of M" must be M of M.
@@ -42,9 +51,19 @@ The run FAILS when:
 Exit status: 0 pass, 1 a confirmed failure, 2 the gate could not run, 3 an
 incomplete measurement with nothing confirmed.  3 is never a pass.
 
+THE EXEMPTIONS (``--floor-exemptions``) are for a module that genuinely
+cannot reach the floor -- a GPU-only path, a branch only one platform takes.
+Each line of the file names one module and says WHY, and an exemption lifts
+only the floor: rule (a) still forbids that module losing anything it has.
+An exemption for a module that no longer ships fails, exactly as a stale
+baseline entry does, and one whose module now clears the floor is printed so
+it can be removed.  A ``# pragma: no cover`` is NOT the way to do this: the
+repository spent an item removing them and rule (a) counts every one.
+
 It PASSES, and prints an improvement notice, when a module's counts fall.
 Every module not yet at 100% is listed on every run, with its baseline
-allowance and the date that allowance was written.
+allowance and the date that allowance was written; the ones below the floor
+are named first, because those are the work.
 
 COUNTS, NOT LINE NUMBERS.  The baseline stores how many statements and
 branches are uncovered, not which ones.  An unrelated edit that moves code
@@ -62,13 +81,13 @@ reason).  CI runs neither; a green run never changes the baseline, because
 a baseline that follows the measurement cannot see a slow slide.
 
   --update-baseline   tighten only: lowers counts that fell, adds new
-                      modules that are at 100%, trims modules no longer
-                      shipped.  It never raises a count and never admits a
-                      module below 100%.
+                      modules that are at or above the floor, trims modules
+                      no longer shipped.  It never raises a count and never
+                      admits a module below the floor.
   --reset-baseline    deliberate regeneration from the measurement, which
                       CAN loosen; every loosened module is printed.  Use it
-                      to seed the file or to admit a new module below 100%
-                      after review.
+                      to seed the file or to admit a new module below the
+                      floor after review.
   --retire-module P   remove exactly one entry, for a module deleted on
                       purpose.  A deleted file has no coverage to measure,
                       so this reads no coverage data; it refuses a module
@@ -104,9 +123,15 @@ from typing import Any, Mapping, Sequence
 
 from setuptools import find_packages
 
-REPORT_SCHEMA = "spacr.module-coverage-ratchet/v3"
+REPORT_SCHEMA = "spacr.module-coverage-ratchet/v4"
 BASELINE_SCHEMA = "spacr.module-coverage-baseline/v1"
 PRAGMA_NO_COVER = re.compile(r"#\s*pragma\s*:\s*no\s*cover\b", re.IGNORECASE)
+
+#: The maintainer's floor, item 288, 2026-09-19: every shipped module is at
+#: this percentage of statements-and-branches or better.  It is an integer so
+#: the comparison can be done in exact integer arithmetic; no module is ever
+#: failed or passed by a floating-point rounding error.
+COVERAGE_FLOOR_PERCENT = 90
 
 COUNT_FIELDS = (
     "uncovered_statements",
@@ -136,6 +161,10 @@ BASELINE_ABOUT = (
 
 class InventoryError(ValueError):
     """The packaging declaration cannot be interpreted safely."""
+
+
+class ExemptionError(ValueError):
+    """The floor-exemption file cannot be read as named, reasoned entries."""
 
 
 class BaselineError(ValueError):
@@ -335,6 +364,86 @@ def _describe_counts(counts: Mapping[str, int]) -> str:
 
 def _slash(counts: Mapping[str, int]) -> str:
     return "/".join(str(counts[field]) for field in COUNT_FIELDS)
+
+
+def coverage_fraction(entry: Mapping[str, Any]) -> tuple[int, int] | None:
+    """``(covered, total)`` over statements AND branches, or None.
+
+    The uncovered halves are the ratchet's own counts rather than coverage's
+    ``covered_lines``, so the percentage on the report and the number the
+    gate ratchets can never disagree about the same module.
+    """
+    counts = entry.get("counts")
+    statements = entry.get("num_statements")
+    branches = entry.get("num_branches")
+    if counts is None or not _is_count(statements) or not _is_count(branches):
+        return None
+    total = statements + branches
+    uncovered = counts["uncovered_statements"] + counts["uncovered_branches"]
+    return max(total - uncovered, 0), total
+
+
+def coverage_percent(entry: Mapping[str, Any]) -> float | None:
+    """The module's statement-and-branch percentage, or None.
+
+    A module with nothing to measure -- an empty ``__init__.py`` -- is 100%;
+    there is no gap in it to find.
+    """
+    fraction = coverage_fraction(entry)
+    if fraction is None:
+        return None
+    covered, total = fraction
+    return 100.0 if total == 0 else 100.0 * covered / total
+
+
+def is_below_floor(entry: Mapping[str, Any], floor: int) -> bool:
+    """Whether the module is under ``floor`` percent, in integer arithmetic."""
+    fraction = coverage_fraction(entry)
+    if fraction is None:
+        return False
+    covered, total = fraction
+    return covered * 100 < floor * total
+
+
+def parse_floor_exemptions(text: str, *, source: str) -> dict[str, str]:
+    """Read ``path: reason`` lines; every exemption must say why.
+
+    Blank lines and ``#`` comments are ignored.  A line without a reason, a
+    duplicate path or an absolute path raises, because an exemption nobody
+    can read is the thing this file exists to prevent.
+    """
+    exemptions: dict[str, str] = {}
+    for number, raw in enumerate(text.splitlines(), start=1):
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        path, separator, reason = line.partition(":")
+        path = path.strip()
+        reason = reason.strip()
+        where = f"{source} line {number}"
+        if not separator or not reason:
+            raise ExemptionError(
+                f"{where}: an exemption is '<module path>: <why it cannot "
+                f"reach the floor>', and this one gives no reason: {line!r}"
+            )
+        if not path or Path(path).is_absolute():
+            raise ExemptionError(
+                f"{where}: {path!r} is not a repository-relative module path"
+            )
+        path = Path(path).as_posix()
+        if path in exemptions:
+            raise ExemptionError(f"{where}: {path} is exempted twice")
+        exemptions[path] = reason
+    return exemptions
+
+
+def load_floor_exemptions(path: Path) -> dict[str, str]:
+    """Read the committed exemption file; a missing file is not an empty one."""
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ExemptionError(f"cannot read floor exemptions {path}: {exc}") from exc
+    return parse_floor_exemptions(text, source=str(path))
 
 
 def _measure_module(
@@ -785,12 +894,18 @@ def write_baseline(path: Path, document: Mapping[str, Any]) -> None:
 
 def _judge_module(
     module: Mapping[str, Any], base: Mapping[str, Any] | None,
+    *, floor: int = COVERAGE_FLOOR_PERCENT, exemption: str | None = None,
 ) -> tuple[list[tuple[str, bool]], list[str]]:
     """Return (failures, improvements) for one measured module.
 
+    Two things are judged: the FLOOR, which every shipped module clears
+    unless ``exemption`` says why it cannot, and NO-REGRESSION against
+    ``base``.  The module's bar is whichever of the two is higher.
+
     Every failure carries whether coverage data lost with a crashed worker
     could have produced it.  Only uncovered statements and branches can
-    rise that way; a measurement error is never explained away.
+    rise that way -- and the floor is measured from exactly those -- while a
+    measurement error, a pragma or an excluded line is never explained away.
     """
     failures = [(error, False) for error in module["measurement_errors"]]
     improvements: list[str] = []
@@ -801,13 +916,26 @@ def _judge_module(
     execution_only = not any(
         counts[field] for field in COUNT_FIELDS if field not in EXECUTION_FIELDS
     )
+    if exemption is None and is_below_floor(module, floor):
+        percent = coverage_percent(module)
+        where = (
+            "and is not in the baseline" if base is None
+            else "and its baseline does not lift the floor"
+        )
+        failures.append((
+            f"is below the {floor}% floor at {percent:.2f}% {where}: "
+            + _describe_counts(counts),
+            True,
+        ))
     if base is None:
-        if not measured_full:
-            failures.append((
-                "new module is not at 100% and is not in the baseline: "
-                + _describe_counts(counts),
-                execution_only,
-            ))
+        for field in COUNT_FIELDS:
+            if field not in EXECUTION_FIELDS and counts[field]:
+                failures.append((
+                    f"is not in the baseline and has {counts[field]} "
+                    f"{COUNT_LABELS[field]}; the floor never excuses hiding "
+                    "code from coverage, only failing to reach it",
+                    False,
+                ))
         return failures, improvements
     if not any(base[field] for field in COUNT_FIELDS) and not measured_full:
         failures.append((
@@ -835,8 +963,16 @@ def evaluate(
     baseline: Mapping[str, Any] | None,
     *,
     baseline_path: str | None = None,
+    exemptions: Mapping[str, str] | None = None,
+    exemptions_path: str | None = None,
+    floor: int = COVERAGE_FLOOR_PERCENT,
 ) -> dict[str, Any]:
-    """Judge a measurement against a baseline (None: every module is new).
+    """Judge a measurement against the floor and a baseline.
+
+    ``baseline`` None means no module has a recorded allowance, so the floor
+    is the whole gate.  ``exemptions`` maps a module path to the reason it
+    cannot reach the floor; it lifts the floor for that module and nothing
+    else.
 
     When the measurement's shard integrity check is INCOMPLETE, a failure
     that lost coverage data could explain is reported as ``unconfirmed``
@@ -846,6 +982,7 @@ def evaluate(
     base_modules: Mapping[str, Mapping[str, Any]] = (
         baseline["modules"] if baseline is not None else {}
     )
+    exempt: Mapping[str, str] = dict(exemptions or {})
     integrity = dict(measurement.get("integrity") or {"checked": False})
     incomplete = integrity.get("status") == "incomplete"
     shipped = set(measurement["inventory"]["files"])
@@ -853,7 +990,9 @@ def evaluate(
     for measured in measurement["modules"]:
         entry = dict(measured)
         base = base_modules.get(entry["path"])
-        judged, improvements = _judge_module(entry, base)
+        judged, improvements = _judge_module(
+            entry, base, floor=floor, exemption=exempt.get(entry["path"]),
+        )
         failures = [
             message for message, explainable in judged
             if not (incomplete and explainable)
@@ -869,6 +1008,13 @@ def evaluate(
             and not entry["measurement_errors"]
             and not any(counts[field] for field in COUNT_FIELDS)
         )
+        entry["percent"] = coverage_percent(entry)
+        entry["floor_exemption"] = exempt.get(entry["path"])
+        entry["below_floor"] = (
+            counts is not None
+            and not entry["measurement_errors"]
+            and is_below_floor(entry, floor)
+        )
         entry["failures"] = failures
         entry["unconfirmed"] = unconfirmed
         entry["improvements"] = improvements
@@ -877,6 +1023,14 @@ def evaluate(
         )
         modules.append(entry)
     stale = sorted(path for path in base_modules if path not in shipped)
+    stale_exemptions = sorted(path for path in exempt if path not in shipped)
+    spent_exemptions = sorted(
+        module["path"] for module in modules
+        if module["floor_exemption"] is not None
+        and module["counts"] is not None
+        and not module["measurement_errors"]
+        and not module["below_floor"]
+    )
     failed = sum(module["status"] == "fail" for module in modules)
     measured_below = sum(
         module["counts"] is not None
@@ -884,15 +1038,27 @@ def evaluate(
         and not module["at_100_percent"]
         for module in modules
     )
-    passed = not measurement["global_issues"] and failed == 0 and not stale
+    passed = (
+        not measurement["global_issues"]
+        and failed == 0
+        and not stale
+        and not stale_exemptions
+    )
     status = "fail" if not passed else "incomplete" if incomplete else "pass"
     return {
         "schema": REPORT_SCHEMA,
         "status": status,
+        "floor_percent": floor,
         "measurement_integrity": integrity,
         "root": measurement["root"],
         "coverage": dict(measurement["coverage"]),
         "inventory": dict(measurement["inventory"]),
+        "exemptions": {
+            "path": exemptions_path,
+            "modules": dict(sorted(exempt.items())),
+            "stale": stale_exemptions,
+            "no_longer_needed": spent_exemptions,
+        },
         "baseline": {
             "path": baseline_path,
             "modules": len(base_modules),
@@ -905,6 +1071,11 @@ def evaluate(
             "modules_checked": measurement["modules_checked"],
             "modules_at_100_percent": sum(m["at_100_percent"] for m in modules),
             "modules_below_100_percent": measured_below,
+            "modules_below_floor": sum(m["below_floor"] for m in modules),
+            "modules_exempt_from_floor": sum(
+                m["floor_exemption"] is not None for m in modules
+            ),
+            "stale_exemptions": len(stale_exemptions),
             "failed_modules": failed,
             "unconfirmed_modules": sum(
                 m["status"] == "unconfirmed" for m in modules
@@ -927,6 +1098,8 @@ def build_report(
     expected_file_count: int | None = None,
     baseline: Mapping[str, Any] | None = None,
     integrity: Mapping[str, Any] | None = None,
+    exemptions: Mapping[str, str] | None = None,
+    floor: int = COVERAGE_FLOOR_PERCENT,
 ) -> dict[str, Any]:
     """Measure and judge in one call, without writing or exiting."""
     measurement = measure(
@@ -936,7 +1109,7 @@ def build_report(
     )
     if integrity is not None:
         measurement["integrity"] = dict(integrity)
-    return evaluate(measurement, baseline)
+    return evaluate(measurement, baseline, exemptions=exemptions, floor=floor)
 
 
 def history_entry(
@@ -977,6 +1150,8 @@ def tighten_baseline(
     measurement: Mapping[str, Any],
     baseline: Mapping[str, Any],
     entry: Mapping[str, str],
+    *,
+    floor: int = COVERAGE_FLOOR_PERCENT,
 ) -> tuple[dict[str, Any] | None, list[str]]:
     """Lower counts that fell; never raise one.  None when nothing changed."""
     _require_complete(measurement, "--update-baseline")
@@ -991,23 +1166,27 @@ def tighten_baseline(
             changed = True
             notes.append(
                 f"TRIMMED: {path}: no longer shipped; its allowance is gone, "
-                "and a module that returns under any name must arrive at 100%"
+                "and a module that returns under any name must arrive at or "
+                "above the floor"
             )
     for path in sorted(shipped):
         counts = shipped[path]["counts"]
         base = modules.get(path)
         if base is None:
-            if any(counts[field] for field in COUNT_FIELDS):
+            if is_below_floor(shipped[path], floor):
                 notes.append(
-                    f"NOT ADMITTED: {path}: a new module below 100% "
-                    f"({_describe_counts(counts)}) is never added by "
+                    f"NOT ADMITTED: {path}: a new module below the {floor}% "
+                    f"floor ({_describe_counts(counts)}) is never added by "
                     "--update-baseline; cover it, or admit it after review "
                     "with --reset-baseline"
                 )
             else:
                 modules[path] = {**counts, "since": stamp}
                 changed = True
-                notes.append(f"ADDED: {path}: new module at 100%")
+                notes.append(
+                    f"ADDED: {path}: new module at "
+                    f"{coverage_percent(shipped[path]):.2f}%"
+                )
             continue
         lowered = {
             field: counts[field] for field in COUNT_FIELDS
@@ -1041,6 +1220,8 @@ def reset_baseline(
     measurement: Mapping[str, Any],
     previous: Mapping[str, Any] | None,
     entry: Mapping[str, str],
+    *,
+    floor: int = COVERAGE_FLOOR_PERCENT,
 ) -> tuple[dict[str, Any], list[str]]:
     """Record the measurement as the baseline, naming every loosening."""
     _require_complete(measurement, "--reset-baseline")
@@ -1050,15 +1231,24 @@ def reset_baseline(
         module["path"]: {**module["counts"], "since": stamp}
         for module in measurement["modules"]
     }
+    measured = {module["path"]: module for module in measurement["modules"]}
     notes: list[str] = []
     for path in sorted(set(old) - set(modules)):
         notes.append(f"DROPPED: {path}: no longer shipped")
     for path in sorted(modules):
         counts = modules[path]
         if path not in old:
-            if previous is not None and any(counts[field] for field in COUNT_FIELDS):
+            if previous is not None and is_below_floor(measured[path], floor):
                 notes.append(
-                    f"LOOSENED: {path}: admitted below 100% with "
+                    f"LOOSENED: {path}: admitted below the {floor}% floor at "
+                    f"{coverage_percent(measured[path]):.2f}% with "
+                    + _describe_counts(counts)
+                )
+            elif previous is not None and any(
+                    counts[field] for field in COUNT_FIELDS):
+                notes.append(
+                    f"ADMITTED: {path}: at "
+                    f"{coverage_percent(measured[path]):.2f}% with "
                     + _describe_counts(counts)
                 )
             continue
@@ -1137,7 +1327,8 @@ def retire_module(
     ) or "none"
     notes = [
         f"RETIRED: {path}: deleted on purpose; its allowance ({gaps}) is "
-        "gone, and a module that returns under any name must arrive at 100%"
+        "gone, and a module that returns under any name must arrive at or "
+        "above the floor"
     ]
     history = [*baseline["history"], entry]
     return build_baseline_document(modules, history), notes
@@ -1178,10 +1369,15 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         "INCOMPLETE MEASUREMENT" if report["status"] == "incomplete"
         else str(report["status"]).upper()
     )
+    floor = report.get("floor_percent", COVERAGE_FLOOR_PERCENT)
+    exemptions = report.get("exemptions") or {
+        "path": None, "modules": {}, "stale": [], "no_longer_needed": [],
+    }
     lines = [
         f"spaCR shipped-module coverage ratchet: {headline}",
-        "Rule: no shipped module loses coverage, and no new module arrives "
-        "below 100%.",
+        f"Rule: every shipped module is at {floor}% or better and none of "
+        f"them loses coverage; a module's bar is max({floor}%, what it "
+        "already has).",
         f"Shipped modules: {summary['shipped_modules']}",
         f"Modules checked: {summary['modules_checked']} of "
         f"{summary['shipped_modules']}",
@@ -1190,7 +1386,10 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         _integrity_line(integrity),
     ]
     if baseline["totals"] is None:
-        lines.append("Baseline: none (every module must be at 100%)")
+        lines.append(
+            "Baseline: none (no module has a recorded allowance, so the "
+            f"{floor}% floor is the whole gate)"
+        )
     else:
         totals = baseline["totals"]
         last = baseline["history"][-1]
@@ -1202,8 +1401,13 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         )
     lines += [
         f"Modules at 100%: {summary['modules_at_100_percent']}",
-        "Modules not yet at 100% (100% per module is still the goal): "
-        f"{summary['modules_below_100_percent']}",
+        f"Modules below the {floor}% floor: "
+        f"{summary.get('modules_below_floor', 0)}",
+        f"Modules exempt from the floor, with a stated reason: "
+        f"{summary.get('modules_exempt_from_floor', 0)}"
+        + (f" ({exemptions['path']})" if exemptions.get("path") else ""),
+        f"Modules between the floor and 100% (more where coverage is "
+        f"useful): {summary['modules_below_100_percent'] - summary.get('modules_below_floor', 0)}",
         f"Modules failing the ratchet: {summary['failed_modules']}",
         "Modules with unconfirmed rises (measurement incomplete): "
         f"{summary['unconfirmed_modules']}",
@@ -1216,6 +1420,18 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         lines.append(f"RECOVERED: {note}")
     for issue in report["global_issues"]:
         lines.append(f"ERROR: {issue}")
+    exemption_file = exemptions.get("path") or "the exemption file"
+    for path in exemptions.get("stale", []):
+        lines.append(
+            f"ERROR: {path}: exempted from the floor but no longer shipped; "
+            f"an exemption cannot outlive its module. Remove the line from "
+            f"{exemption_file}"
+        )
+    for path in exemptions.get("no_longer_needed", []):
+        lines.append(
+            f"EXEMPTION SPENT: {path}: it now clears the floor on its own, "
+            f"so its line in {exemption_file} has nothing left to excuse"
+        )
     for path in report["stale_baseline_entries"]:
         lines.append(
             f"ERROR: {path}: in the baseline but no longer shipped; a deleted "
@@ -1245,10 +1461,14 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         module for module in report["modules"]
         if module["counts"] is not None and not module["at_100_percent"]
     ]
+    below.sort(key=lambda module: (
+        module["percent"] if module["percent"] is not None else 0.0,
+        module["path"],
+    ))
     if below:
         lines.append(
-            "Not yet at 100%, every module and its allowance "
-            "(information; the goal is 100%):"
+            f"Every module not at 100%, lowest first; the ones under {floor}% "
+            "are the work, the rest get more coverage only where it is useful:"
         )
     for module in below:
         base = module["baseline"]
@@ -1256,9 +1476,18 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
             f"baseline {_slash(base)} since {base['since']}"
             if base is not None else "no baseline entry"
         )
+        percent = (
+            f"{module['percent']:.2f}%" if module["percent"] is not None
+            else "unmeasured"
+        )
+        label = "BELOW FLOOR" if module.get("below_floor") else "GAP"
+        excused = (
+            f" [EXEMPT: {module['floor_exemption']}]"
+            if module.get("floor_exemption") else ""
+        )
         lines.append(
-            f"GAP: {module['path']}: {_describe_counts(module['counts'])} "
-            f"({allowance})"
+            f"{label}: {module['path']}: {percent}, "
+            f"{_describe_counts(module['counts'])} ({allowance}){excused}"
         )
         lines.extend(f"    {gap}" for gap in module["gaps"])
     for entry in baseline["history"]:
@@ -1268,8 +1497,8 @@ def render_text(report: Mapping[str, Any], notes: Sequence[str] = ()) -> str:
         )
     if report["status"] == "pass":
         lines.append(
-            "No shipped module lost coverage and no new module arrived "
-            "below 100%."
+            f"Every shipped module is at {floor}% or better, or says why it "
+            "cannot be, and none of them lost coverage."
         )
     elif report["status"] == "incomplete":
         lines.append(
@@ -1317,7 +1546,15 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--baseline", type=Path,
         help="per-module ratchet baseline written by this tool; without it "
-        "every module must be at 100%%",
+        "no module has a recorded allowance and the floor is the whole gate",
+    )
+    parser.add_argument(
+        "--floor-exemptions", type=Path,
+        help="file of '<module path>: <why it cannot reach the floor>' lines "
+        "for modules the floor cannot apply to (GPU-only, platform-only). It "
+        "lifts the floor and nothing else: such a module still may not lose "
+        "coverage. A missing file, a line with no reason, or an exemption for "
+        "a module that no longer ships is an error",
     )
     writes = parser.add_mutually_exclusive_group()
     writes.add_argument(
@@ -1382,9 +1619,13 @@ def _apply_write(
     if args.update_baseline:
         if baseline is None:
             raise BaselineError("--update-baseline needs an existing baseline")
-        document, notes = tighten_baseline(measurement, baseline, entry)
+        document, notes = tighten_baseline(
+            measurement, baseline, entry, floor=COVERAGE_FLOOR_PERCENT,
+        )
     else:
-        document, notes = reset_baseline(measurement, baseline, entry)
+        document, notes = reset_baseline(
+            measurement, baseline, entry, floor=COVERAGE_FLOOR_PERCENT,
+        )
     if document is None:
         return baseline, notes
     write_baseline(args.baseline, document)
@@ -1433,6 +1674,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         coverage_data = json.loads(args.coverage_json.read_text(encoding="utf-8"))
         if not isinstance(coverage_data, Mapping):
             raise ValueError("coverage JSON root must be an object")
+        exemptions: Mapping[str, str] = {}
+        if args.floor_exemptions is not None:
+            exemptions = load_floor_exemptions(args.floor_exemptions)
         baseline: Mapping[str, Any] | None = None
         if args.baseline is not None:
             try:
@@ -1459,6 +1703,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         report = evaluate(
             measurement, baseline,
             baseline_path=str(args.baseline) if args.baseline else None,
+            exemptions=exemptions,
+            exemptions_path=(
+                str(args.floor_exemptions) if args.floor_exemptions else None
+            ),
         )
     except (OSError, ValueError, SyntaxError, tokenize.TokenError) as exc:
         for note in notes:

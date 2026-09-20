@@ -1,16 +1,21 @@
-"""No shipped module loses coverage; no new module arrives below 100%.
+"""Every shipped module is at 90%, and none of them loses coverage.
 
-Item 288, maintainer decision 2026-09-15: the release gate is a per-module
-coverage ratchet against ``tools/coverage_baseline.json``, and 100% per
-module stays the goal.  Every rule of ``tools/verify_module_coverage.py`` is
-exercised here on SYNTHETIC coverage data -- a two-module fake package and
-hand-built coverage.py rows -- so none of these tests depends on how well the
-real suite covers spaCR.
+Item 288, maintainer decision 2026-09-19: "the goal is 90% for all modules,
+and if the module would benefit from more than 90% coverage, implement that,
+but only in cases where coverage is useful."  So the gate is a 90% FLOOR plus
+the per-module ratchet against ``tools/coverage_baseline.json``, and a
+module's bar is ``max(90%, what it already has)``.  Every rule of
+``tools/verify_module_coverage.py`` is exercised here on SYNTHETIC coverage
+data -- a two-module fake package and hand-built coverage.py rows -- so none
+of these tests depends on how well the real suite covers spaCR.
 
-The negative cases are the point: a module losing one statement fails, a new
-module with one uncovered line fails, a module that vanishes fails, a
-missing data file fails, a hand-edited baseline is refused, and a green run
-never rewrites the baseline.
+The negative cases are the point: a module losing one statement fails, a
+module below the floor fails whether or not the baseline knows it, a module
+that vanishes fails, a missing data file fails, a hand-edited baseline is
+refused, and a green run never rewrites the baseline.  So are the two halves
+of the floor that are easy to get wrong: 90.00% exactly PASSES, and an
+exemption lifts the floor for one named module without excusing it from
+anything else.
 """
 
 from __future__ import annotations
@@ -37,6 +42,7 @@ from tests.test_module_coverage_ratchet import (
 )
 
 BASELINE = ROOT / "tools" / "coverage_baseline.json"
+EXEMPTIONS = ROOT / "tools" / "coverage_floor_exemptions.txt"
 WORKFLOWS = ROOT / ".github" / "workflows"
 STAMP = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\dZ$")
 
@@ -71,14 +77,20 @@ def _gate(project, tmp_path, coverage_data, *extra, baseline=None):
     return result, report, text
 
 
-def _seed(project, tmp_path, coverage_data):
+def _seed(project, tmp_path, coverage_data, *, expect=0):
+    """Write a baseline from ``coverage_data`` and return its path.
+
+    ``expect`` is the seeding run's exit status.  Seeding data that is below
+    the floor writes the baseline and then fails on the floor, which is the
+    gate working: a recorded allowance never lifts the floor.
+    """
     baseline = tmp_path / "baseline.json"
     result, _report, _text = _gate(
         project, tmp_path, coverage_data,
         "--reset-baseline", "--reason", "seed for the test", "--commit", "c0ffee",
         baseline=baseline,
     )
-    assert result.returncode == 0, result.stdout + result.stderr
+    assert result.returncode == expect, result.stdout + result.stderr
     return baseline
 
 
@@ -86,18 +98,26 @@ def _module(report, path):
     return next(module for module in report["modules"] if module["path"] == path)
 
 
+#: ``demo/logic.py`` is measured as this many statements and branches so that
+#: the ratchet cases below -- which move counts by one or two -- stay well
+#: clear of the 90% FLOOR and go on testing the rule they were written for.
+#: 14 of these 140 may be uncovered before the floor has anything to say.
+LOGIC_STATEMENTS = 100
+LOGIC_BRANCHES = 40
+
+
 def _logic(uncovered_statements=0, uncovered_branches=0, excluded=0):
     """Coverage data for the fake package with ``demo/logic.py`` gaps."""
     return _coverage({
         "demo/__init__.py": _row(),
         "demo/logic.py": _row(
-            statements=4,
-            covered=4 - uncovered_statements,
+            statements=LOGIC_STATEMENTS,
+            covered=LOGIC_STATEMENTS - uncovered_statements,
             missing_lines=list(range(1, uncovered_statements + 1)),
-            branches=2,
-            covered_branches=2 - uncovered_branches,
+            branches=LOGIC_BRANCHES,
+            covered_branches=LOGIC_BRANCHES - uncovered_branches,
             missing_branches=[[2, 3 + i] for i in range(uncovered_branches)],
-            excluded_lines=list(range(10, 10 + excluded)),
+            excluded_lines=list(range(200, 200 + excluded)),
         ),
     })
 
@@ -220,30 +240,75 @@ def test_a_module_at_100_percent_that_drops_below_fails(tmp_path):
     assert f"ERROR: demo/logic.py: {message}" in text
 
 
-# -- (c) no new uncovered module --------------------------------------------
+# -- (c) the 90% floor -------------------------------------------------------
 
 
-def test_a_new_module_with_one_uncovered_line_fails(tmp_path):
+def _new_module(project, data, *, statements, covered, name="new_feature.py"):
+    """Add a module with no baseline entry at a chosen coverage."""
+    (project / "demo" / name).write_text(
+        "".join(f"VALUE_{line} = {line}\n" for line in range(statements)),
+        encoding="utf-8",
+    )
+    data["files"][f"demo/{name}"] = _row(
+        statements=statements,
+        covered=covered,
+        missing_lines=list(range(1, statements - covered + 1)),
+    )
+    return data
+
+
+def test_a_new_module_below_the_floor_fails(tmp_path):
     project = _project(tmp_path / "project")
     baseline = _seed(project, tmp_path, _logic())
-    (project / "demo" / "new_feature.py").write_text(
-        "ENABLED = True\nDISABLED = False\n", encoding="utf-8",
-    )
-    data = _logic()
-    data["files"]["demo/new_feature.py"] = _row(
-        statements=2, covered=1, missing_lines=[2],
-    )
+    data = _new_module(project, _logic(), statements=100, covered=89)
 
     result, report, text = _gate(project, tmp_path, data, baseline=baseline)
 
     assert result.returncode == 1
     assert _module(report, "demo/new_feature.py")["failures"] == [
-        "new module is not at 100% and is not in the baseline: "
-        "1 uncovered statements, 0 uncovered branches, "
+        "is below the 90% floor at 89.00% and is not in the baseline: "
+        "11 uncovered statements, 0 uncovered branches, "
         "0 pragma: no cover comments, 0 coverage-excluded lines"
     ]
-    assert "GAP: demo/new_feature.py:" in text
+    assert "BELOW FLOOR: demo/new_feature.py: 89.00%" in text
     assert "(no baseline entry)" in text
+
+
+def test_a_new_module_exactly_at_the_floor_passes(tmp_path):
+    """Ninety is the bar, not the thing just above it.
+
+    The comparison is integer arithmetic for this line: 90.0% computed in
+    floating point is not reliably ``>= 90.0``.
+    """
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic())
+    data = _new_module(project, _logic(), statements=100, covered=90)
+
+    result, report, text = _gate(project, tmp_path, data, baseline=baseline)
+
+    assert result.returncode == 0, result.stdout
+    new_module = _module(report, "demo/new_feature.py")
+    assert new_module["percent"] == 90.0
+    assert new_module["below_floor"] is False
+    assert new_module["failures"] == []
+    assert "GAP: demo/new_feature.py: 90.00%" in text
+
+
+def test_a_new_module_between_the_floor_and_100_percent_passes(tmp_path):
+    """The maintainer's answer, 2026-09-19: 90% is the goal, not 100%."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=1))
+    data = _new_module(
+        project, _logic(uncovered_statements=1), statements=40, covered=38,
+    )
+
+    result, report, _text = _gate(project, tmp_path, data, baseline=baseline)
+
+    assert result.returncode == 0, result.stdout
+    new_module = _module(report, "demo/new_feature.py")
+    assert new_module["at_100_percent"] is False
+    assert new_module["percent"] == 95.0
+    assert new_module["failures"] == []
 
 
 def test_a_new_module_at_100_percent_passes(tmp_path):
@@ -259,6 +324,202 @@ def test_a_new_module_at_100_percent_passes(tmp_path):
 
     assert result.returncode == 0, result.stdout
     assert _module(report, "demo/new_feature.py")["at_100_percent"] is True
+
+
+def test_a_module_in_the_baseline_below_the_floor_still_fails(tmp_path):
+    """The bar is max(90%, what the module already has) -- 90% is a FLOOR.
+
+    An allowance in the baseline holds the module where it is; it does not
+    excuse it from the floor, or a module could sit at 56% for ever as long
+    as it never slipped.
+    """
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=20), expect=1)
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=20), baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    logic = _module(report, "demo/logic.py")
+    assert logic["percent"] == pytest.approx(85.71, abs=0.01)
+    assert logic["failures"] == [
+        "is below the 90% floor at 85.71% and its baseline does not lift "
+        "the floor: 20 uncovered statements, 0 uncovered branches, "
+        "0 pragma: no cover comments, 0 coverage-excluded lines"
+    ]
+    assert "BELOW FLOOR: demo/logic.py: 85.71%" in text
+
+
+def test_a_module_that_reaches_the_floor_stops_failing(tmp_path):
+    """The negative control for the case above: cover it and the gate passes."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=20), expect=1)
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=14), baseline=baseline,
+    )
+
+    assert result.returncode == 0, result.stdout
+    logic = _module(report, "demo/logic.py")
+    assert logic["percent"] == pytest.approx(90.0)
+    assert logic["failures"] == []
+    assert logic["improvements"] == [
+        "uncovered statements fell from 20 to 14"
+    ]
+
+
+def test_a_new_module_at_the_floor_may_still_not_hide_code(tmp_path):
+    """The floor forgives code a test has not reached, never code hidden.
+
+    A module with no baseline entry gets zero as its allowance for pragmas
+    and coverage-excluded lines however well covered the rest of it is;
+    otherwise 90% plus a pragma over the other 10% would pass.
+    """
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic())
+    logic = project / "demo" / "new_feature.py"
+    data = _new_module(project, _logic(), statements=100, covered=100)
+    logic.write_text(
+        logic.read_text(encoding="utf-8") + "NEVER = 0  # pragma: no cover\n",
+        encoding="utf-8",
+    )
+    data["files"]["demo/new_feature.py"]["excluded_lines"] = [101]
+    data["files"]["demo/new_feature.py"]["summary"]["excluded_lines"] = 1
+
+    result, report, text = _gate(project, tmp_path, data, baseline=baseline)
+
+    assert result.returncode == 1
+    assert _module(report, "demo/new_feature.py")["failures"] == [
+        "is not in the baseline and has 1 pragma: no cover comments; the "
+        "floor never excuses hiding code from coverage, only failing to "
+        "reach it",
+        "is not in the baseline and has 1 coverage-excluded lines; the "
+        "floor never excuses hiding code from coverage, only failing to "
+        "reach it",
+    ]
+    assert "pragma: no cover comments" in text
+
+
+# -- (c) exemptions: a module that cannot reach the floor says why -----------
+
+
+def _exemptions(tmp_path, text):
+    path = tmp_path / "floor-exemptions.txt"
+    path.write_text(text, encoding="utf-8")
+    return ["--floor-exemptions", str(path)]
+
+
+def test_an_exemption_lifts_the_floor_for_the_module_it_names(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=20), expect=1)
+    excuse = _exemptions(
+        tmp_path,
+        "# why this file exists\n"
+        "\n"
+        "demo/logic.py: the remaining branches need a CUDA device\n",
+    )
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=20), *excuse,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 0, result.stdout
+    logic = _module(report, "demo/logic.py")
+    assert logic["failures"] == []
+    assert logic["below_floor"] is True
+    assert logic["floor_exemption"] == "the remaining branches need a CUDA device"
+    assert report["summary"]["modules_exempt_from_floor"] == 1
+    assert "[EXEMPT: the remaining branches need a CUDA device]" in text
+
+
+def test_an_exemption_does_not_excuse_losing_coverage(tmp_path):
+    """It lifts the floor and nothing else; rule (a) still holds."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=20), expect=1)
+    excuse = _exemptions(
+        tmp_path, "demo/logic.py: the remaining branches need a CUDA device\n",
+    )
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=21), *excuse,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert _module(report, "demo/logic.py")["failures"] == [
+        "uncovered statements rose from 20 to 21"
+    ]
+    assert "ERROR: demo/logic.py: uncovered statements rose from 20 to 21" in text
+
+
+def test_an_exemption_without_a_reason_is_refused(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=20), expect=1)
+    excuse = _exemptions(tmp_path, "demo/logic.py\n")
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=20), *excuse,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 2
+    assert report is None
+    assert "gives no reason" in result.stderr
+
+
+def test_a_missing_exemption_file_is_not_an_empty_one(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic())
+
+    result, _report, _text = _gate(
+        project, tmp_path, _logic(),
+        "--floor-exemptions", str(tmp_path / "absent.txt"),
+        baseline=baseline,
+    )
+
+    assert result.returncode == 2
+    assert "cannot read floor exemptions" in result.stderr
+
+
+def test_an_exemption_for_a_module_that_no_longer_ships_fails(tmp_path):
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic())
+    excuse = _exemptions(tmp_path, "demo/deleted.py: it needed a GPU\n")
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(), *excuse, baseline=baseline,
+    )
+
+    assert result.returncode == 1
+    assert report["exemptions"]["stale"] == ["demo/deleted.py"]
+    assert "ERROR: demo/deleted.py: exempted from the floor but no longer " in text
+
+
+def test_an_exemption_whose_module_now_clears_the_floor_is_named(tmp_path):
+    """A spent exemption is reported so it can be removed, not left to rot."""
+    project = _project(tmp_path / "project")
+    baseline = _seed(project, tmp_path, _logic(uncovered_statements=20), expect=1)
+    excuse = _exemptions(
+        tmp_path, "demo/logic.py: the remaining branches need a CUDA device\n",
+    )
+
+    result, report, text = _gate(
+        project, tmp_path, _logic(uncovered_statements=5), *excuse,
+        baseline=baseline,
+    )
+
+    assert result.returncode == 0, result.stdout
+    assert report["exemptions"]["no_longer_needed"] == ["demo/logic.py"]
+    assert "EXEMPTION SPENT: demo/logic.py:" in text
+
+
+def test_the_committed_exemption_file_is_readable_and_names_only_shipped_modules():
+    exemptions = ratchet.load_floor_exemptions(EXEMPTIONS)
+    shipped = set(ratchet.discover_shipped_python_files(ROOT))
+    assert set(exemptions) <= shipped
+    assert all(reason.strip() for reason in exemptions.values())
 
 
 # -- improvement passes, and nothing is written ------------------------------
@@ -282,7 +543,9 @@ def test_a_module_improving_passes_with_a_notice_and_changes_nothing(tmp_path):
     assert report["summary"]["improved_modules"] == 1
     # The goal stays visible: the module is still not at 100%.
     assert report["summary"]["modules_below_100_percent"] == 1
-    assert "Modules not yet at 100% (100% per module is still the goal): 1" in text
+    assert report["summary"]["modules_below_floor"] == 0
+    assert "Modules below the 90% floor: 0" in text
+    assert "Modules between the floor and 100% (more where coverage is " in text
     # A green run NEVER tightens by itself; that would hide a slow slide.
     assert baseline.read_bytes() == before
 
@@ -291,8 +554,16 @@ def test_a_module_improving_passes_with_a_notice_and_changes_nothing(tmp_path):
 
 
 def _with_old_module(project, data, *, name="old.py"):
+    """A module with an allowance that still clears the floor.
+
+    These cases are about the module SET, not the floor, so the gap is one
+    statement in twenty (95%): what fails below must be the vanishing, never
+    the coverage.
+    """
     (project / "demo" / name).write_text("X = 1\n", encoding="utf-8")
-    data["files"][f"demo/{name}"] = _row(statements=1, covered=0, missing_lines=[1])
+    data["files"][f"demo/{name}"] = _row(
+        statements=20, covered=19, missing_lines=[1],
+    )
     return data
 
 
@@ -326,17 +597,27 @@ def test_a_vanished_module_fails_until_the_baseline_is_trimmed_deliberately(
 
 
 def test_renaming_a_module_does_not_launder_its_gaps(tmp_path):
+    """A renamed module arrives as a new one and must earn its own entry.
+
+    The old path's allowance is trimmed, never carried across, and the
+    rename cannot be admitted below the floor -- which is what a rename
+    used to be able to hide.
+    """
     project = _project(tmp_path / "project")
     baseline = _seed(project, tmp_path, _with_old_module(project, _logic()))
     (project / "demo" / "old.py").unlink()
-    renamed = _with_old_module(project, _logic(), name="renamed.py")
+    renamed = _logic()
+    (project / "demo" / "renamed.py").write_text("X = 1\n", encoding="utf-8")
+    renamed["files"]["demo/renamed.py"] = _row(
+        statements=20, covered=17, missing_lines=[1, 2, 3],
+    )
 
-    result, report, _text = _gate(project, tmp_path, renamed, baseline=baseline)
+    result, report, text = _gate(project, tmp_path, renamed, baseline=baseline)
 
     assert result.returncode == 1
     assert report["stale_baseline_entries"] == ["demo/old.py"]
     assert _module(report, "demo/renamed.py")["failures"][0].startswith(
-        "new module is not at 100%"
+        "is below the 90% floor at 85.00%"
     )
 
     result, _report, text = _gate(
@@ -725,9 +1006,13 @@ def test_the_coverage_job_gates_on_the_committed_baseline_and_says_so():
     combine = jobs["coverage-combine"]
     script = "\n".join(step.get("run", "") for step in combine["steps"])
 
-    assert combine["name"] == "Coverage / no module loses coverage"
+    assert combine["name"] == (
+        "Coverage / every module at 90% and none loses coverage"
+    )
     relative = BASELINE.relative_to(ROOT).as_posix()
     assert f"--baseline {relative}" in script
+    exemptions = EXEMPTIONS.relative_to(ROOT).as_posix()
+    assert f"--floor-exemptions {exemptions}" in script
     assert "coverage-combine" in jobs["release-gate"]["needs"]
 
 
@@ -758,17 +1043,24 @@ def test_the_shard_count_has_one_value_in_four_places():
     )
 
 
-def test_without_a_baseline_every_module_must_be_at_100_percent(tmp_path):
+def test_without_a_baseline_the_floor_is_the_whole_gate(tmp_path):
     project = _project(tmp_path / "project")
 
     result, report, text = _gate(
         project, tmp_path, _logic(uncovered_statements=1),
     )
 
+    assert result.returncode == 0, result.stdout
+    assert "Baseline: none (no module has a recorded allowance, so the " in text
+    assert _module(report, "demo/logic.py")["failures"] == []
+
+    result, report, _text = _gate(
+        project, tmp_path, _logic(uncovered_statements=20),
+    )
+
     assert result.returncode == 1
-    assert "Baseline: none (every module must be at 100%)" in text
     assert _module(report, "demo/logic.py")["failures"][0].startswith(
-        "new module is not at 100%"
+        "is below the 90% floor"
     )
 
 

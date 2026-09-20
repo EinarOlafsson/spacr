@@ -1,5 +1,5 @@
 ================================================================================
-ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
+ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 90% PER-MODULE COVERAGE
 ================================================================================
 
 NOT BLOCKING. Since 2026-09-12 spaCR keeps two lists -- what it has
@@ -7,11 +7,20 @@ gained and what it might gain next -- and neither gates a release.
 The words below were written when a single instructions list did.
 
 Status:    OPEN, filed 2026-08-27. not blocking, see the note below.
+           2026-09-19: THE GOAL IS 90% PER MODULE, NOT 100% -- the
+           maintainer answered the standing question and the gate was
+           rewritten to a 90% FLOOR plus no-regression. 29 of 566 modules
+           were below it when the answer landed; raising them is the rest
+           of this item. See the last section.
 Owner:     the complete spaCR source tree, tests and GitHub workflows.
 Precedes:  the version, main-branch and history publication actions.
            (These were item 253's, deleted 2026-09-02 at the
            maintainer's instruction.)
 Requested: 2026-08-28 — "get the library to 100% test coverage"
+           AMENDED 2026-09-19 — "Change the 100% goal to 90%. So the goal
+           is 90% for all modules, and if the module would benefit from
+           more than 90% coverage, implement that, but only in cases where
+           coverage is useful."
 
 --------------------------------------------------------------------------------
 WHAT WAS ASKED
@@ -3861,3 +3870,145 @@ two-file toy, with and without the ledger plugin; CI's crashes today all had
 work left and finished). A coverage batch hung that way burns the job budget;
 its record then says "finished k of N" and the gate says INCOMPLETE, not
 regression. The toy tests pass --max-worker-restart=0 to stay deterministic.
+
+
+--------------------------------------------------------------------------------
+2026-09-19 -- THE MAINTAINER ANSWERED: THE GOAL IS 90%, NOT 100%. THE GATE IS
+              NOW A FLOOR PLUS THE RATCHET
+--------------------------------------------------------------------------------
+
+THE ANSWER, verbatim, through the question prompt:
+
+  "Change the 100% goal to 90%. So the goal is 90% for all modules, and if the
+   module would benefit from more than 90% coverage, implement that, but only
+   in cases where coverage is useful."
+
+That settles the standing question at the top of HANDOFF section 1, which
+asked whether 100% per module was still the goal while 175 of 567 shipped
+modules failed a 100% ratchet and made the `tests` workflow red by SCOPE
+rather than by regression.
+
+THE NEW RULE, in one line: a module fails when it is below
+max(90%, its own recorded coverage). A 90% FLOOR, plus the no-regression
+ratchet that was already there.
+
+WHERE IT LIVES.
+
+  tools/verify_module_coverage.py   COVERAGE_FLOOR_PERCENT = 90, and rule (c)
+                                    rewritten. Report schema v3 -> v4: every
+                                    module now carries `percent`,
+                                    `below_floor` and `floor_exemption`, and
+                                    the summary carries `modules_below_floor`,
+                                    `modules_exempt_from_floor` and
+                                    `stale_exemptions`.
+  tools/coverage_floor_exemptions.txt   new, and EMPTY. A module that
+                                    genuinely cannot reach the floor names
+                                    itself and says why, one
+                                    "<path>: <reason>" per line.
+  .github/workflows/tests.yml       the gate step passes
+                                    --floor-exemptions; the job is renamed
+                                    "Coverage / every module at 90% and none
+                                    loses coverage".
+
+THE FOUR DECISIONS INSIDE THAT LINE, because each could have gone the other
+way and the gate reads differently for each:
+
+  1. THE FLOOR IS A FLOOR, NOT A REPLACEMENT. A baseline entry holds a module
+     where it is; it never lifts the floor. Without this, hf_download.py could
+     sit at 56% for ever provided it never slipped a line, which is exactly
+     the state the maintainer was asked about.
+
+  2. PERCENT COUNTS STATEMENTS AND BRANCHES TOGETHER,
+     (covered_lines + covered_branches) / (statements + branches), with the
+     uncovered halves taken from the ratchet's own counts rather than from
+     coverage's `covered_*` fields -- so the percentage printed and the number
+     ratcheted can never disagree about the same module. The comparison is
+     integer arithmetic, `covered * 100 < 90 * total`: 90.00% computed in
+     floating point is not reliably `>= 90.0`, and there is a test for the
+     module that lands exactly on the bar.
+
+  3. THE FLOOR FORGIVES CODE A TEST HAS NOT REACHED, NEVER CODE HIDDEN FROM
+     THE MEASUREMENT. A module with no baseline entry still gets ZERO as its
+     allowance for `pragma: no cover` and coverage-excluded lines, however
+     well covered the rest of it is. Otherwise 90% plus a pragma over the
+     other 10% would be a green run, and this repository spent an item
+     removing 304 of those pragmas.
+
+  4. AN EXEMPTION LIFTS THE FLOOR AND NOTHING ELSE. An exempted module still
+     fails rule (a) if it loses a single covered statement or branch; an
+     exemption for a module that no longer ships FAILS, exactly as a stale
+     baseline entry does; and one whose module has come to clear the floor on
+     its own is printed as EXEMPTION SPENT so it can be removed rather than
+     rot. The file ships empty: nothing has yet been found that cannot be
+     covered.
+
+THE BASELINE WAS NOT TOUCHED. Ratchets here subtract and never bump
+(HANDOFF, 2026-09-13), and tightening it requires a complete measurement of
+every shipped module, which only a full CI run produces. The recorded counts
+are upper bounds; raising a module's coverage lowers what the next CI run
+measures and the floor is judged from that measurement, so the gate reads the
+improvement without the baseline moving at all.
+
+MEASURED, WITHOUT A FULL COVERAGE RUN. The baseline records absolute
+uncovered counts but no denominators, so the percentages were recovered by
+parsing each module with coverage.py's own `PythonParser` --
+`len(statements)` and `sum(exit_counts > 1)`, the same two numbers coverage's
+Analysis uses -- and dividing the baseline's uncovered counts by them. That
+reads the ratchet's own recorded data rather than starting a full-suite run,
+which the working protocol requires announcing and which starved this machine
+at twelve minutes a batch the last time one was started.
+
+THE RESULT, against the 2026-09-15 baseline: 29 of 566 modules are below 90%,
+not 175. The 175 was the count below ONE HUNDRED percent. 402 modules are
+already at 100% and 135 sit between the floor and 100%, where the
+maintainer's answer says to add coverage only where it is useful. The 29, worst
+first:
+
+   56.29%  spacr/qt/hf_download.py               149 st / 35 br uncovered
+   72.73%  spacr/qt/ai/issue_preview.py           31 / 11
+   73.63%  spacr/qt/widgets/sra_picker.py         38 / 10
+   73.68%  spacr/qt/widgets/height_grip.py        34 / 11
+   76.85%  spacr/ops_accel.py                     30 / 17
+   78.68%  spacr/embeddings.py                    48 / 23
+   79.45%  spacr/qt/gc_policy.py                  12 / 3
+   81.40%  spacr/accelerator.py                   51 / 18
+   81.52%  spacr/qt/module_hints.py               12 / 5
+   81.82%  spacr/suggest.py                       16 / 10
+   83.19%  spacr/infection.py                     24 / 14
+   83.97%  spacr/qt/stall_watch.py                15 / 6
+   83.99%  spacr/qt/widgets/object_settings_grid.py  64 / 33
+   84.55%  spacr/qt/live_zoom.py                  25 / 11
+   85.00%  spacr/qt/widgets/column_aligned_row.py 16 / 11
+   85.45%  spacr/qt/widgets/object_grid_binding.py 15 / 9
+   86.21%  spacr/qt/tutorials.py                   4 / 0
+   86.57%  spacr/ops_register.py                  19 / 8
+   86.57%  spacr/qt/screens/image_import.py       64 / 28
+   86.89%  spacr/screen_data.py                    7 / 1
+   87.26%  spacr/qt/screens/run_history.py        42 / 18
+   87.41%  spacr/regression_panels.py             47 / 42
+   87.77%  spacr/qt/dnd.py                        56 / 19
+   88.66%  spacr/ops_compose.py                    5 / 6
+   88.79%  spacr/qt/widgets/module_hint_bar.py     7 / 5
+   89.18%  spacr/ops_phenotype.py                 18 / 15
+   89.25%  spacr/cli_make_masks.py                 7 / 3
+   89.30%  spacr/qt/screens/map_barcodes.py       99 / 59
+   89.80%  spacr/curation_queue.py                37 / 25
+
+THE LIST IS A LOWER BOUND ON EACH MODULE AND AN UPPER BOUND ON THE SET: the
+baseline is a full-suite measurement from 2026-09-15, so five days of other
+sessions' tests may already have lifted some of these, and nothing that
+landed since could have lowered one without failing rule (a) first.
+
+TESTS. tests/test_coverage_ratchet_rules.py, 63 cases. New for the floor: a
+new module below it fails and is named at its percentage; a module at exactly
+90.00% PASSES; a module between the floor and 100% passes; a module IN the
+baseline and below the floor still fails, with covering it as the negative
+control; a new module at the floor still may not carry a pragma or an
+excluded line. New for exemptions: one lifts the floor for the module it
+names; it does not excuse losing coverage; a line with no reason is refused;
+a missing exemption file is an error and not an empty one; an exemption for a
+module that no longer ships fails; a spent one is named; and the committed
+file parses and names only shipped modules. The synthetic `demo/logic.py` is
+now measured as 100 statements and 40 branches so the ratchet cases, which
+move counts by one or two, go on testing the rule they were written for
+instead of tripping the floor.

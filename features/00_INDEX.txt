@@ -44,7 +44,7 @@ FUTURE FEATURES
        [DONE -- published on conda-forge since 2026-08-27, and its autotick bot keeps it current]
        59_publish_spacr_on_conda_forge.txt
 
-  288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 100% PER-MODULE COVERAGE
+  288  ZERO ACTIONABLE ISSUES, GREEN GITHUB CI, AND 90% PER-MODULE COVERAGE
        [coverage 99.87%, 355 items in 108 modules (measured 2026-08-31, now stale); CI red; zero open issues]
        288_zero_issues_green_ci_and_per_module_coverage.txt
 
