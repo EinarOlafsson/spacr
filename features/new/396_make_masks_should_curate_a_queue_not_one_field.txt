@@ -17,6 +17,24 @@ Status:    BUILT, 100%, 2026-09-19, on nightly (the second and third notes
            real set: the proof is widget-driving tests and read-only probes of
            real queues (below).
 
+           NOT 100% OF THE BRIEF, AND DELIBERATELY NOT REOPENED FOR IT --
+           read the FOURTH note of 2026-09-19, at the foot of this file,
+           before reading this 100%. Two things this item's own brief asked
+           for are not built. (1) SKIP CANNOT BE WRITTEN FROM THE EDITOR:
+           `curate_status.csv` has three reviewed states and Make Masks
+           writes one. `_note_curated` marks `done` on every save and no
+           control anywhere records `skip`, so "done and skip as distinct
+           states" is half built -- the reader has three, the writer has one.
+           (2) A NO-EDIT SAVE IS NOT ALWAYS A NO-OP: `save_mask` puts every
+           mask through `canonical_labels`, which relabels connected
+           components, so a seed carrying one label in two disconnected
+           pieces comes back with an extra object even though the curator
+           drew nothing. Both were found from item 370 against the first real
+           curation queues, both are measured in that fourth note, and both
+           are the editor's, not the queues'. 100% is left standing because
+           what this item SHIPPED works; the gaps are recorded rather than
+           papered over, and either one is a fresh item when it is picked up.
+
            WAS, from 2026-09-19 until the note at the foot: PARTLY BUILT,
            ~85%. The queue, the status file, the orderings, the limit and
            `spacr-make-masks` existed and were tested; for sibling and
@@ -434,3 +452,59 @@ line. Two things to be careful of, both already visible here: it is a new
 user-facing string, so the nine catalogs owe it; and the read-modify-write in
 `mark_state` is the only writer today, so a control added in the editor and a
 script run beside it can still lose each other's row.
+
+AND A SECOND GAP IN THE SAME NOTE, FOUND THE SAME WAY: A NO-EDIT SAVE IS NOT
+ALWAYS A NO-OP.
+
+The claim this queue prep shipped on 2026-09-19 -- "opening a field and saving
+it unchanged round-trips the seed EXACTLY" -- was checked on four fields and
+is false on twelve of the 148 fields in the two hold-out queues. It is written
+down here because a curator is being told that "open it, look, save" means "I
+looked and the seed was right", and for those twelve it also silently adds an
+object.
+
+WHY. `spacr/qt/mask_engine.py::save_mask` puts every mask through
+`canonical_labels` before `write_tiff`. `canonical_labels` relabels connected
+components, so a seed label that lies in two disconnected pieces -- one blob
+plus a stray pixel or two, which is what cellpose leaves now and then -- comes
+back as two objects with two ids. Nothing the curator did.
+
+MEASURED, by driving the real editor (`MakeMasksScreen` over copies of the
+real queues through `build_queue` -> `hand_over`, pressing the real Save mask
+button and drawing nothing) and, for the full sweep, by putting every seed
+through `canonical_labels`:
+
+    PV       1 of 43 seeds changes; 1,212 objects become 1,213.
+    PLAQUE  11 of 105 seeds change; 4,792 objects become 4,810.
+
+    Driven end to end, no edit, six plaque fields: 44 -> 46, 34 -> 36,
+    26 -> 27, 293 -> 295 objects, 1 to 5 pixels differing each; the other two
+    were array-identical. The affected seeds are uint16 already, so this is
+    relabelling, not a dtype conversion.
+
+A SECOND, SMALLER THING FALLS OUT OF IT. `_on_save` counts objects from
+`self._canvas.mask`, which is the mask BEFORE `save_mask` canonicalises it, so
+for those twelve fields `curate_status.csv` records a count the file on disk
+does not have: the driven run wrote rows of 44, 34, 26 and 293 beside masks
+holding 46, 36, 27 and 295. The count is a record of the session, not a
+checksum of the mask, and nothing reads it as one today -- the freeze counts
+the mask itself -- but it is not the same number and should not be compared to
+one.
+
+WHAT IT WOULD TAKE. Either save the mask the editor is showing (canonicalise
+on load, so what is on the canvas is what gets written, and the count matches),
+or leave the labels alone on save unless the curator asked for Relabel, which
+already exists as its own button. The first is the smaller change and makes
+the displayed mask and the saved mask the same object. Whichever is chosen,
+`save_mask` is called from two places in this screen and from
+`spacr.curation.MaskCuration.save_mask`, so the choice has to be made once,
+not per call site.
+
+NOT A BLOCKER FOR THE HOLD-OUT SETS, and item 370 records it under its own
+"READY FOR CURATION" heading: 18 objects in 4,810 is 0.4%, it lands on the
+truth and on the seed-lean baseline alike, and the seeds it happens to are
+kept untouched in each queue's `provenance/` so the size of it stays
+measurable after curation. It is recorded rather than fixed because fixing it
+is an edit to the editor, which is this item's, and because a fix that lands
+between two curation sessions would change the meaning of the rows already
+written.
