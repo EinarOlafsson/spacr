@@ -86,11 +86,14 @@ _UNCYCLED_TILE_PATTERN = re.compile(
 _UNCYCLED_CYCLE = 1
 
 
-def _match_tile(name: str):
-    """A tile name parsed, by either naming scheme.
+def _match_tile(name: str, scheme: Optional[str] = None):
+    """A tile name parsed, by one naming scheme or by either.
 
     :param name: the file's base name.
+    :param scheme: ``"cycled"`` or ``"uncycled"`` to accept only that one;
+        None to try the cycled pattern and then the uncycled one.
     :returns: ``(well, cycle, site, channel, magnification)``, or None.
+    :raises ValueError: when ``scheme`` is neither name.
 
     THE CYCLED PATTERN IS TRIED FIRST AND THE ORDER MATTERS. A sequencing
     name of one channel -- ``10X_c2_A1_A594_Site-0.tif`` -- also satisfies
@@ -98,11 +101,30 @@ def _match_tile(name: str):
     acquisition's channel set and file all eleven cycles as one. Tried in
     this order, a name that carries a cycle is never read as one that does
     not.
+
+    SO THE TWO SCHEMES ARE EXCLUSIVE, NOT ORDERED, and asking for
+    ``"uncycled"`` is not "skip the first pattern": it is "a name the first
+    pattern does NOT claim". Reading it as the former puts every sequencing
+    tile in the phenotype index of a root that holds both, which is the
+    same collision the other way round. Their union is what ``None``
+    returns, and nothing is in both.
+
+    AND ONE SCHEME AT A TIME IS WHY THIS TAKES A PARAMETER. The two halves
+    of this plate sit side by side under one folder, so "either scheme"
+    over a root that holds both is not a generous reading -- it is two
+    acquisitions in one index. See :func:`_index_tiles`.
     """
+    if scheme not in (None, "cycled", "uncycled"):
+        raise ValueError(
+            f"scheme must be 'cycled', 'uncycled' or None; got {scheme!r}")
     found = _TILE_PATTERN.search(name)
     if found:
-        return (found["well"].upper(), int(found["cycle"]), int(found["site"]),
-                found["channel"].upper(), found["mag"])
+        if scheme == "uncycled":
+            return None
+        return (found["well"].upper(), int(found["cycle"]),
+                int(found["site"]), found["channel"].upper(), found["mag"])
+    if scheme == "cycled":
+        return None
     found = _UNCYCLED_TILE_PATTERN.search(name)
     if not found:
         return None
@@ -192,13 +214,30 @@ def _say(message: str) -> None:
     LOG.info(message)
 
 
-def _index_tiles(root: str) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
+def _index_tiles(root: str, scheme: Optional[str] = None
+                 ) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
     """Every tile under ``root``, as ``well -> cycle -> site -> channel -> path``.
 
     :param root: the acquisition folder, searched recursively.
+    :param scheme: which naming scheme counts -- ``"cycled"`` for a
+        sequencing acquisition, ``"uncycled"`` for a phenotype one, None to
+        take whichever the folder turns out to use.
     :returns: the index; empty when nothing matched. An acquisition whose
         names carry no cycle -- the phenotype half -- is filed under cycle
         :data:`_UNCYCLED_CYCLE`.
+
+    ONE INDEX IS ONE ACQUISITION, WHICH IS WHY ``scheme`` EXISTS AND WHY
+    None DOES NOT MEAN "BOTH". The two halves of the reference plate are
+    siblings -- ``20200202_6W-LaC024A/sequencing`` and
+    ``.../phenotype`` -- and both settings that name a folder say the
+    subfolders are searched too, so a root holding both is what an operator
+    who points either setting at the plate reaches. Filing both under one
+    well would put 1,281 phenotype fields and 333 sequencing ones in one
+    site range, replace cycle 1's ``A594`` tile with the 20X file of the
+    same channel, and hand the scale a 1,480 px tile where a 2,960 px one
+    belongs. So a mixed root resolves to ONE half: the scheme asked for, or
+    -- when nothing is asked for -- the cycled half if there is one, since
+    a cycled name is the more specific of the two.
 
     Names that are directories are skipped by the walk itself, which matters
     here: PART 14-D found ``*.tif`` names on this plate that are folders.
@@ -208,16 +247,24 @@ def _index_tiles(root: str) -> Dict[str, Dict[int, Dict[int, Dict[str, str]]]]:
     and an index that took those for tiles would hand tifffile a status
     file.
     """
-    found: Dict[str, Dict[int, Dict[int, Dict[str, str]]]] = {}
+    wanted = ("cycled", "uncycled") if scheme is None else (scheme,)
+    found: Dict[str, Dict[str, Dict[int, Dict[int, Dict[str, str]]]]] = {
+        name: {} for name in wanted}
     for folder, _folders, files in os.walk(root, followlinks=True):
         for name in files:
-            parsed = _match_tile(name)
-            if parsed is None:
-                continue
-            well, cycle, site, channel, _magnification = parsed
-            found.setdefault(well, {}).setdefault(cycle, {}).setdefault(
-                site, {})[channel] = os.path.join(folder, name)
-    return found
+            for which in wanted:
+                parsed = _match_tile(name, which)
+                if parsed is None:
+                    continue
+                well, cycle, site, channel, _magnification = parsed
+                found[which].setdefault(well, {}).setdefault(
+                    cycle, {}).setdefault(
+                        site, {})[channel] = os.path.join(folder, name)
+                break
+    for which in wanted:
+        if found[which]:
+            return found[which]
+    return {}
 
 
 def _plane_sources(files: Mapping[str, str]) -> Dict[str, Tuple[str, Optional[int]]]:
@@ -239,6 +286,53 @@ def _plane_sources(files: Mapping[str, str]) -> Dict[str, Tuple[str, Optional[in
     return out
 
 
+def _channel_axis(array: np.ndarray, axes: str) -> int:
+    """Which axis of a stack the channels lie along.
+
+    :param array: the series as read.
+    :param axes: the axis letters tifffile reports for that series, or an
+        empty string when it reports none.
+    :returns: the axis index. Never one of the last two, which are the
+        image.
+
+    THE CHANNEL AXIS IS NOT ALWAYS THE FIRST ONE, and taking it for the
+    first is right on one half of this plate and wrong on the other. Read
+    off ``screenA/20200202_6W-LaC024A`` on 2026-09-19, one
+    ``tifffile.TiffFile`` open per file and no pixels:
+
+    ===================================== ========== ======================
+    file                                  axes       shape
+    ===================================== ========== ======================
+    ``10X_c1_B1_DAPI-CY3-A594-CY5-CY7_..`` ``CYX``   ``(5, 1480, 1480)``
+    ``20X_..._B1_DAPI-GFP_Site-0.tif``     ``ZCYX``  ``(4, 2, 2960, 2960)``
+    ``20X_..._B1_A594_Site-0.tif``         ``ZYX``   ``(4, 2960, 2960)``
+    ===================================== ========== ======================
+
+    So the sequencing stack's plane 1 IS axis 0's element 1, and the
+    phenotype stack's plane 1 is not: axis 0 there is four focal planes.
+    ``DAPI-GFP`` indexed on axis 0 gives DAPI for plane 0 -- by luck, since
+    DAPI is also z 0 -- and for plane 1 gives z 1's DAPI rather than GFP.
+    A4 reads only DAPI, so nothing it measured moves; Phase C4 measures the
+    phenotype channels at the same object ids and would have read the wrong
+    one.
+
+    WHEN THE FILE NAMES NO AXES, AXIS 0 IS TAKEN AND NOTHING IS GUESSED.
+    A 4-D file that names nothing is genuinely ambiguous, and the two
+    orderings are both in this repository:
+    ``tests/test_the_ops_engine_says_why_a_well_cannot_run.py`` pins a
+    ``(channel, z, y, x)`` fixture and the plate writes ``(z, channel, y,
+    x)``. Nothing in the bytes tells them apart, so the unnamed case keeps
+    the reading this engine has always had -- which is also right for every
+    3-D stack, the sequencing half included -- and the plate is read
+    correctly because its files say ``ZCYX`` rather than because a rule
+    guessed it.
+    """
+    letters = list(axes) if len(axes) == array.ndim else []
+    if "C" in letters[:-2]:
+        return letters.index("C")
+    return 0
+
+
 def _read_plane(source: Optional[Tuple[str, Optional[int]]],
                 unreadable: Optional[list] = None) -> Optional[np.ndarray]:
     """One 2-D plane, or None when the file cannot give it.
@@ -253,7 +347,15 @@ def _read_plane(source: Optional[Tuple[str, Optional[int]]],
     ``OSError`` alone: 372 PART 14-L found sixteen truncated sequencing files
     on this plate, and tifffile raises ValueError on a short read -- "failed
     to read 4380800 bytes, got 2578" -- which a handler for OSError lets
-    through to end the run.
+    through to end the run. ``IndexError`` joins them because a file with no
+    series at all answers the same question.
+
+    THE CHANNEL IS TAKEN ON THE AXIS THE FILE SAYS IT IS ON -- see
+    :func:`_channel_axis` -- AND EVERY OTHER NON-IMAGE AXIS AT 0. On this
+    plate that last part is the focal plane: the phenotype half has four,
+    and the first is taken because nothing here has compared them. The
+    queued plate runs record the other three's sharpness so that stays a
+    choice somebody made rather than one nobody noticed.
     """
     if source is None:
         return None
@@ -265,17 +367,21 @@ def _read_plane(source: Optional[Tuple[str, Optional[int]]],
     try:
         import tifffile
 
-        array = np.asarray(tifffile.imread(path))
-    except (OSError, ValueError) as failure:
+        with tifffile.TiffFile(path) as handle:
+            series = handle.series[0]
+            axes = str(getattr(series, "axes", "") or "")
+            array = np.asarray(series.asarray())
+    except (OSError, ValueError, IndexError) as failure:
         if unreadable is not None:
             unreadable.append((path, f"{type(failure).__name__}: {failure}"[:200]))
         return None
     if plane is not None:
-        if array.ndim < 3 or array.shape[0] <= plane:
+        axis = _channel_axis(array, axes) if array.ndim >= 3 else -1
+        if axis < 0 or array.shape[axis] <= plane:
             if unreadable is not None:
                 unreadable.append((path, f"has no plane {plane}"))
             return None
-        array = array[plane]
+        array = np.take(array, plane, axis=axis)
     while array.ndim > 2:
         array = array[0]
     return array.astype(np.float32)
@@ -401,7 +507,8 @@ def _stitch(db: str, plate: str, well: str, cycle_files, reference: int,
         raise ValueError(f"no nuclear tile of well {well} could be read")
     ordered = [first] + [site for site in sites if site != first]
     layout = round_well_layout(max(cycle_files[reference]) + 1)
-    overlap = _setting_number(settings, "ops_raster_overlap", _RASTER_OVERLAP)
+    overlap = _setting_number(settings.get("ops_raster_overlap"),
+                              "ops_raster_overlap", _RASTER_OVERLAP)
     result = stitch_well(read, layout, overlap=overlap,
                          tolerance=_STITCH_TOLERANCE, gpu=gpu, sites=ordered)
     placed = _largest_component(result.edges, sites)
@@ -451,7 +558,7 @@ def _placements(db: str, plate: str, well: str):
     return placements, shape
 
 
-def _setting_number(settings: Mapping[str, Any], key: str, fallback):
+def _setting_number(value: Any, key: str, fallback):
     """One numeric setting, or the measured constant when it is not set.
 
     THE CONSTANT REMAINS THE DEFAULT. Each of these numbers was measured on
@@ -461,13 +568,26 @@ def _setting_number(settings: Mapping[str, Any], key: str, fallback):
     box therefore means "the measured one", which is also what keeps a
     settings dict that predates the key working.
 
-    :param settings: the caller's settings.
-    :param key: the setting to read.
+    THE VALUE IS PASSED IN RATHER THAN THE MAPPING, which is not a style
+    choice. Every generator in this repository that answers "where does
+    this setting go" -- ``tools/settings_flow.py``,
+    ``tools/build_setting_consumer_map.py`` -- reads the package with
+    ``ast`` and recognises exactly ``settings[...]`` and
+    ``settings.get(...)`` on a literal. A key spelled as an argument to a
+    helper is invisible to all of them, so ``ops_raster_overlap``,
+    ``ops_window_overlap``, ``ops_read_threshold`` and ``ops_footprint``
+    had a tooltip and a type and no flow section, no consumer row, and a
+    tooltip link that landed nowhere -- while the four read with a literal
+    ``settings.get`` did not. Reading the value at the call site puts all
+    eight in one class.
+
+    :param value: what the settings hold for ``key``: pass
+        ``settings.get("<key>")`` with the key written out.
+    :param key: the setting's name, for the message.
     :param fallback: the module constant, whose type the value is coerced to.
     :returns: the number to use.
     :raises ValueError: when the setting holds something that is not a number.
     """
-    value = settings.get(key)
     if value is None or value == "":
         return fallback
     try:
@@ -517,6 +637,36 @@ def _tile_magnification(path: str) -> Optional[float]:
         return float(parsed[4][:-1])
     except ValueError:
         return None
+
+
+def _one_acquisition(index: Mapping[str, Any], setting: str, root: str) -> None:
+    """Refuse an index that holds tiles of more than one objective.
+
+    :param index: a ``well -> cycle -> site -> channel -> path`` index.
+    :param setting: the setting that named ``root``, for the message.
+    :param root: the folder, for the message.
+    :raises ValueError: when two magnifications are indexed together.
+
+    ONE ACQUISITION HAS ONE OBJECTIVE, so two in one index is two
+    acquisitions, and everything downstream is keyed on there being one: the
+    tile shape the stitch solves at, and the scale A4 divides by. Naming the
+    scheme (:func:`_index_tiles`) separates the two halves of THIS plate,
+    where the phenotype names carry no cycle. It cannot separate a phenotype
+    acquisition that does carry one from the sequencing acquisition beside
+    it, because then both are the same scheme -- and that is the case this
+    catches, at the cost of one regular expression per indexed path.
+    """
+    seen = sorted({found for cycles in index.values()
+                   for sites in cycles.values()
+                   for files in sites.values()
+                   for found in [_tile_magnification(path)
+                                 for path in files.values()]
+                   if found is not None})
+    if len(seen) > 1:
+        raise ValueError(
+            f"{setting} ({root}) holds tiles taken at "
+            f"{' and '.join(f'{value:g}X' for value in seen)}, which is more "
+            "than one acquisition. Point it at the one acquisition's folder.")
 
 
 def _any_tile(files) -> Optional[str]:
@@ -729,8 +879,36 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
                                         ).get(_NUCLEAR) for site in placements}
     read_sbs = functools.lru_cache(maxsize=48)(
         lambda site: _read_plane(sbs_sources[site], unreadable))
-    usable = {site: place for site, place in placements.items()
-              if sbs_sources[site] is not None and read_sbs(site) is not None}
+
+    def usable_under(window) -> Dict[int, Tuple[float, float]]:
+        """The placed tiles that touch ``window`` and read.
+
+        :param window: the rectangle about to be composed.
+        :returns: ``site -> (y, x)`` for :func:`~spacr.ops_compose.compose_window`.
+
+        A WELL IS NOT OPENED TO COMPOSE A WINDOW OF IT. Six anchors need
+        about nine tiles each; testing readability over every placement
+        instead pulled all 333 of the reference well's sequencing tiles,
+        and ``tifffile`` reads the whole five-plane 1,480 px file for one
+        plane of it -- 22 MB each, about 7 GB over NFS per well, before
+        ``compose_window`` then re-read the nine it wanted. The overlap
+        test is the same rounding ``compose_window`` uses, so a tile is
+        offered here exactly when it would have been used there; a tile
+        that will not read is dropped so the composer never sees a None.
+        """
+        near: Dict[int, Tuple[float, float]] = {}
+        for site, (top, left) in placements.items():
+            if sbs_sources.get(site) is None:
+                continue
+            t_top, t_left = int(round(float(top))), int(round(float(left)))
+            if t_top + shape[0] <= window.top or t_top >= window.bottom:
+                continue
+            if t_left + shape[1] <= window.left or t_left >= window.right:
+                continue
+            if read_sbs(site) is None:
+                continue
+            near[site] = (top, left)
+        return near
 
     anchors: Dict[int, Tuple[float, float]] = {}
     records: List[Dict[str, Any]] = []
@@ -751,7 +929,7 @@ def _phenotype(db: str, plate: str, well: str, cycle_files, reference: int,
         window = _anchor_window(seed_of(site), extent, canvas)
         if window is None:
             continue
-        image, coverage = compose_window(window, usable, read_sbs,
+        image, coverage = compose_window(window, usable_under(window), read_sbs,
                                          tile_shape=shape)
         covered = coverage > 0
         if not covered.any():
@@ -905,7 +1083,8 @@ def _objects(db: str, plate: str, well: str, cycle_files, reference: int,
     diameter = settings.get("cellpose_diameter")
     extra = {"diameter": float(diameter)} if diameter else {}
 
-    window_overlap = int(_setting_number(settings, "ops_window_overlap",
+    window_overlap = int(_setting_number(settings.get("ops_window_overlap"),
+                                         "ops_window_overlap",
                                          _WINDOW_OVERLAP))
     windows = list(windows_over(canvas, size=_WINDOW,
                                 overlap=window_overlap))
@@ -1348,9 +1527,11 @@ def _decode(db: str, plate: str, well: str, cycle_files, reference: int,
     owner_site = np.asarray(order)[nearest]
 
     channels = _base_channels(settings)
-    threshold = float(_setting_number(settings, "ops_read_threshold",
+    threshold = float(_setting_number(settings.get("ops_read_threshold"),
+                                      "ops_read_threshold",
                                       _THRESHOLD_READS))
-    footprint = float(_setting_number(settings, "ops_footprint", _FOOTPRINT))
+    footprint = float(_setting_number(settings.get("ops_footprint"),
+                                      "ops_footprint", _FOOTPRINT))
     store_reads = bool(settings.get("ops_store_reads", False))
     tasks = []
     for site in order:
@@ -1481,10 +1662,19 @@ def run_ops(settings: Mapping[str, Any], *,
         folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields
         decode at once; ``cellpose_model`` and ``cellpose_diameter``;
         ``ops_library``, a guide library CSV the ``library`` keyword
-        overrides; and the four measured numbers ``ops_base_channels``,
-        ``ops_read_threshold``, ``ops_raster_overlap`` and ``ops_footprint``,
-        each of which falls back to the value this plate was validated at.
-        ``ops_store_reads`` writes ``ops_reads``.
+        overrides; and the five measured numbers ``ops_base_channels``,
+        ``ops_read_threshold``, ``ops_raster_overlap``,
+        ``ops_window_overlap`` and ``ops_footprint``, each of which falls
+        back to the value this plate was validated at. ``ops_store_reads``
+        writes ``ops_reads``.
+
+        EITHER FOLDER MAY BE A PARENT OF BOTH HALVES, and each setting
+        still reads its own: ``genotype_source`` indexes only names that
+        carry a cycle and ``phenotype_source`` only names that do not,
+        falling back to cycled names for a phenotype acquisition that
+        carries them. Pointing both at ``20200202_6W-LaC024A`` therefore
+        runs the plate, rather than filing 1,281 phenotype fields and 333
+        sequencing ones as one acquisition -- see :func:`_index_tiles`.
     :param wells: which wells to run; every well found when None.
     :param phases: any of ``"stitch"``, ``"phenotype"``, ``"objects"`` and
         ``"decode"``, run in that order. A phase left out reads what it needs
@@ -1514,11 +1704,12 @@ def run_ops(settings: Mapping[str, Any], *,
     barcodes = _load_library(library if library is not None
                              else settings.get("ops_library") or None)
 
-    index = _index_tiles(root)
+    index = _index_tiles(root, "cycled")
     if not index:
         raise ValueError(
             f"no tile under {root} is named like 10X_c1_A1_DAPI-CY3-A594-CY5-"
             "CY7_Site-0.tif: magnification, cycle, well, channels, site")
+    _one_acquisition(index, "genotype_source", root)
     chosen = [str(w).upper() for w in wells] if wells else sorted(index)
     missing = [well for well in chosen if well not in index]
     if missing:
@@ -1531,13 +1722,16 @@ def run_ops(settings: Mapping[str, Any], *,
             raise ValueError(
                 f"phenotype_source must be the folder of phenotype tiles; "
                 f"got {phenotype_root!r}")
-        phenotype_index = _index_tiles(str(phenotype_root))
+        phenotype_index = (_index_tiles(str(phenotype_root), "uncycled")
+                           or _index_tiles(str(phenotype_root), "cycled"))
         if not phenotype_index:
             raise ValueError(
                 f"no tile under {phenotype_root} is named like "
                 "20X_DAPI-GFP-A594-AF750_A1_DAPI-GFP_Site-0.tif "
                 "(magnification, channel set, well, this file's channels, "
                 "site) or like 20X_c1_A1_DAPI-GFP_Site-0.tif")
+        _one_acquisition(phenotype_index, "phenotype_source",
+                         str(phenotype_root))
 
     out: Dict[str, Any] = {"db": db, "plate": plate, "wells": {}}
     for well in chosen:

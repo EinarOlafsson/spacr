@@ -5565,7 +5565,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_diameter",
-    "line": 905,
+    "line": 1083,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_objects"
@@ -5740,7 +5740,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "cellpose_model",
-    "line": 867,
+    "line": 1045,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_cellpose_model"
@@ -11003,7 +11003,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "dst_root",
-    "line": 1509,
+    "line": 1699,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -13251,7 +13251,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "genotype_source",
-    "line": 1501,
+    "line": 1691,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -22064,7 +22064,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "n_workers",
-    "line": 1375,
+    "line": 1556,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "_decode"
@@ -25276,7 +25276,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "ops_gpu",
-    "line": 1513,
+    "line": 1703,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"
@@ -32905,7 +32905,7 @@
     "form": "get",
     "function_depth": 1,
     "key": "plate",
-    "line": 1512,
+    "line": 1702,
     "module": "spacr.ops_engine",
     "nested": false,
     "qualname": "run_ops"

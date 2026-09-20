@@ -311,6 +311,15 @@ def test_a_cycled_name_is_never_read_as_an_uncycled_one():
     name = "10X_c2_B1_A594_Site-0.tif"
     assert _UNCYCLED_TILE_PATTERN.search(name), "the trap this guards"
     assert _match_tile(name)[1] == 2
+    assert _match_tile(name, "cycled")[1] == 2
+    assert _match_tile(name, "uncycled") is None, (
+        "asking for the uncycled scheme is asking for the names the cycled "
+        "pattern does not claim, not for the second pattern's opinion of "
+        "this one")
+
+    phenotype = "20X_DAPI-GFP-A594-AF750_B1_DAPI-GFP_Site-0.tif"
+    assert _match_tile(phenotype, "cycled") is None
+    assert _match_tile(phenotype, "uncycled") == _match_tile(phenotype)
 
 
 def test_a_half_downloaded_file_is_not_a_tile():
@@ -321,26 +330,61 @@ def test_a_half_downloaded_file_is_not_a_tile():
         "20X_DAPI-GFP-A594-AF750_B1_A594_Site-99.tif.lftp-pget-status") is None
 
 
+#: The plate's own array shapes, read off the same two files on 2026-09-19
+#: with one `tifffile.TiffFile` open each and no pixels:
+#:
+#:     20X_..._B1_DAPI-GFP_Site-0.tif   ZCYX  (4, 2, 2960, 2960)
+#:     20X_..._B1_A594_Site-0.tif       ZYX   (4, 2960, 2960)
+#:     10X_c1_B1_DAPI-CY3-..._Site-0.tif CYX  (5, 1480, 1480)
+#:
+#: THE PHENOTYPE STACK IS FOUR FOCAL PLANES OF TWO CHANNELS, not two
+#: channels, so the channel is axis 1 and the first version of this fixture
+#: -- a plain `(2, 8, 8)` write -- tested a file the plate does not have.
+#: It passed on DAPI by luck, DAPI being channel 0 of z 0 either way, and
+#: would have read z 1's DAPI as GFP.
+PLATE_Z = 4
+PLATE_CHANNELS = 2
+
+
+def _phenotype_stack(height: int = 8, width: int = 8) -> np.ndarray:
+    """A `ZCYX` stack whose every plane says which z and which channel it is.
+
+    :param height: rows.
+    :param width: columns.
+    :returns: `(PLATE_Z, PLATE_CHANNELS, height, width)`, plane `(z, c)`
+        filled with `100 * z + c + 1` -- so a reader that takes z for the
+        channel returns 101 where 2 belongs and cannot pass by accident.
+    """
+    stack = np.zeros((PLATE_Z, PLATE_CHANNELS, height, width), np.uint16)
+    for z in range(PLATE_Z):
+        for channel in range(PLATE_CHANNELS):
+            stack[z, channel] = 100 * z + channel + 1
+    return stack
+
+
 def test_an_uncycled_acquisition_indexes_and_stacks_its_nuclear_plane(tmp_path):
     """The index files it under one cycle, and DAPI is plane 0 of DAPI-GFP.
 
     The plate's nuclear channel is not a file of its own: it is the first
-    plane of a two-plane `DAPI-GFP` stack, which is the case
-    `_plane_sources` exists for. Checked here on files of the plate's names
-    so that the phase's one hard input is tested without the NAS.
+    CHANNEL of a `DAPI-GFP` stack that also has four focal planes, which is
+    the case `_plane_sources` and `_channel_axis` exist for. Written here at
+    the plate's own shapes and axes so the phase's one hard input is tested
+    without the NAS.
     """
-    from spacr.ops_engine import (_NUCLEAR, _index_tiles, _plane_sources)
+    from spacr.ops_engine import (_NUCLEAR, _index_tiles, _plane_sources,
+                                  _read_plane)
 
     folder = tmp_path / "phenotype" / "images" / "input" / "DAPI-GFP-A594-AF750"
     folder.mkdir(parents=True)
     for site in range(2):
         tifffile.imwrite(
             folder / f"20X_DAPI-GFP-A594-AF750_B1_DAPI-GFP_Site-{site}.tif",
-            np.stack([np.full((8, 8), 7, np.uint16),
-                      np.full((8, 8), 9, np.uint16)]))
+            _phenotype_stack(), imagej=True, metadata={"axes": "ZCYX"})
         tifffile.imwrite(
             folder / f"20X_DAPI-GFP-A594-AF750_B1_A594_Site-{site}.tif",
-            np.full((8, 8), 3, np.uint16))
+            np.stack([np.full((8, 8), 3 + z, np.uint16)
+                      for z in range(PLATE_Z)]),
+            imagej=True, metadata={"axes": "ZYX"})
 
     index = _index_tiles(str(tmp_path))
     assert sorted(index) == ["B1"]
@@ -352,3 +396,184 @@ def test_an_uncycled_acquisition_indexes_and_stacks_its_nuclear_plane(tmp_path):
     assert sources[_NUCLEAR][1] == 0, "DAPI is the first plane of DAPI-GFP"
     assert sources["GFP"][1] == 1
     assert sources["A594"][1] is None
+
+    dapi = _read_plane(sources[_NUCLEAR])
+    gfp = _read_plane(sources["GFP"])
+    a594 = _read_plane(sources["A594"])
+    assert dapi.shape == (8, 8) and gfp.shape == (8, 8)
+    assert float(dapi[0, 0]) == 1.0, "z 0, channel 0"
+    assert float(gfp[0, 0]) == 2.0, (
+        "z 0, channel 1 -- 101 here is z 1's DAPI, read as if the channel "
+        "were axis 0")
+    assert float(a594[0, 0]) == 3.0, "the single-channel file's first z"
+
+
+def test_the_channel_axis_is_the_one_the_file_names(tmp_path):
+    """`ZCYX`, `CYX`, and axis 0 when the file names nothing.
+
+    The two halves of the plate disagree about where the channel is -- the
+    sequencing stack is `CYX` and the phenotype one `ZCYX` -- so this is not
+    a property either can be assumed from. Both of them say so in their own
+    metadata, which is what is read. A file that says nothing is not
+    guessed at: it keeps axis 0, the reading this engine has always had and
+    the one `test_a_file_with_more_axes_than_a_plane_gives_its_first_plane`
+    pins on a `(channel, z, y, x)` fixture -- the plate's ordering the other
+    way round, and nothing in the bytes to tell them apart.
+    """
+    from spacr.ops_engine import _channel_axis, _read_plane
+
+    assert _channel_axis(np.zeros((5, 4, 4)), "CYX") == 0
+    assert _channel_axis(np.zeros((4, 2, 4, 4)), "ZCYX") == 1
+    assert _channel_axis(np.zeros((4, 2, 4, 4)), "") == 0
+    assert _channel_axis(np.zeros((2, 4, 4)), "QYX") == 0
+
+    named = tmp_path / "20X_SET_B1_DAPI-GFP_Site-0.tif"
+    tifffile.imwrite(named, _phenotype_stack(), imagej=True,
+                     metadata={"axes": "ZCYX"})
+    assert float(_read_plane((str(named), 1))[0, 0]) == 2.0
+
+    unnamed = tmp_path / "20X_SET_B2_DAPI-GFP_Site-0.tif"
+    tifffile.imwrite(unnamed, _phenotype_stack(), photometric="minisblack")
+    with tifffile.TiffFile(unnamed) as handle:
+        assert "C" not in handle.series[0].axes, "the fixture names nothing"
+    assert float(_read_plane((str(unnamed), 1))[0, 0]) == 101.0, (
+        "axis 0, which here is z -- ambiguous, unguessed, and unchanged")
+
+    sequencing = tmp_path / "10X_c1_B1_DAPI-CY3_Site-0.tif"
+    tifffile.imwrite(sequencing, np.stack([np.full((8, 8), 11, np.uint16),
+                                           np.full((8, 8), 13, np.uint16)]),
+                     imagej=True, metadata={"axes": "CYX"})
+    assert float(_read_plane((str(sequencing), 1))[0, 0]) == 13.0
+
+    missing: list = []
+    assert _read_plane((str(sequencing), 5), missing) is None
+    assert missing and "has no plane 5" in missing[0][1]
+
+
+def test_a_root_holding_both_halves_gives_each_setting_its_own(tmp_path):
+    """`sequencing/` and `phenotype/` are siblings, and both settings say
+    the subfolders are searched.
+
+    So an operator who points either at the plate reaches both halves, and
+    before the scheme was pinned the uncycled pattern swallowed the
+    phenotype half into the sequencing index: cycle 1's `A594` became the
+    20X file of the same channel, and the site range became 0..1280 instead
+    of 0..332, which sets the layout and the tile shape wrong at once.
+    """
+    from spacr.ops_engine import _index_tiles
+
+    sbs = tmp_path / "sequencing" / "images" / "input" / "c1"
+    sbs.mkdir(parents=True)
+    for site in range(3):
+        tifffile.imwrite(sbs / f"10X_c1_B1_A594_Site-{site}.tif",
+                         np.full((4, 4), 5, np.uint16))
+    (tmp_path / "sequencing" / "images" / "input" / "c2").mkdir()
+    tifffile.imwrite(
+        tmp_path / "sequencing" / "images" / "input" / "c2"
+        / "10X_c2_B1_A594_Site-0.tif", np.full((4, 4), 5, np.uint16))
+
+    pheno = tmp_path / "phenotype" / "images" / "input" / "DAPI-GFP-A594-AF750"
+    pheno.mkdir(parents=True)
+    for site in range(9):
+        tifffile.imwrite(
+            pheno / f"20X_DAPI-GFP-A594-AF750_B1_A594_Site-{site}.tif",
+            np.full((8, 8), 7, np.uint16))
+
+    cycled = _index_tiles(str(tmp_path), "cycled")
+    assert sorted(cycled["B1"]) == [1, 2], "eleven cycles do not become one"
+    assert sorted(cycled["B1"][1]) == [0, 1, 2], "no 20X site joins the raster"
+    assert all("10X" in path for cycles in cycled["B1"].values()
+               for site in cycles.values() for path in site.values())
+
+    uncycled = _index_tiles(str(tmp_path), "uncycled")
+    assert sorted(uncycled["B1"][1]) == list(range(9))
+    assert all("20X" in path
+               for site in uncycled["B1"][1].values()
+               for path in site.values())
+
+    assert _index_tiles(str(tmp_path)) == cycled, (
+        "asked for neither, the cycled half wins -- the more specific name")
+
+
+def _write_as_the_plate_is(root, dapi, tops, centres):
+    """Both acquisitions under ONE root, laid out and named as the plate is.
+
+    :param root: the plate folder; `sequencing/` and `phenotype/` are made
+        under it, as they are under `20200202_6W-LaC024A`.
+    :param dapi: the planted canvas.
+    :param tops: the sequencing tiles' top-left corners.
+    :param centres: the phenotype fields' centres.
+
+    The names are the plate's two schemes: a cycle for the sequencing half,
+    and for the phenotype half the acquisition's channel set before the well
+    and this file's channel after it.
+    """
+    sbs = root / "sequencing" / "images" / "input" / "c1"
+    sbs.mkdir(parents=True)
+    for site, (top, left) in tops.items():
+        tifffile.imwrite(sbs / f"10X_c1_A1_DAPI_Site-{site}.tif",
+                         dapi[top:top + TILE, left:left + TILE]
+                         .astype(np.uint16))
+
+    zoomed = ndimage.zoom(dapi, DENSITY, order=1)
+    folder = root / "phenotype" / "images" / "input" / "DAPI"
+    folder.mkdir(parents=True)
+    half = PHENOTYPE_TILE // 2
+    for site, (y, x) in centres.items():
+        top = int(round(y * DENSITY)) - half
+        left = int(round(x * DENSITY)) - half
+        tile = zoomed[top:top + PHENOTYPE_TILE, left:left + PHENOTYPE_TILE]
+        tifffile.imwrite(folder / f"20X_DAPI_A1_DAPI_Site-{site}.tif",
+                         tile.astype(np.uint16))
+
+
+def test_the_engine_runs_a_plate_root_pointed_at_by_both_settings(tmp_path):
+    """`genotype_source` and `phenotype_source` may be the same folder.
+
+    The end of the same defect, through `run_ops` rather than the index. The
+    GUI tooltip for both settings says the subfolders are searched, so the
+    plate folder is what an operator reaches for; the stitch must still see
+    only the five 10X tiles and A4 only the twenty-one 20X fields, from one
+    path typed twice. Merged, the stitch would have been handed 26 sites of
+    two different tile shapes.
+    """
+    monkeypatch = pytest.MonkeyPatch()
+    monkeypatch.setattr(ops_engine, "_RASTER_OVERLAP", OVERLAP)
+    try:
+        plate = tmp_path / "20200202_6W-LaC024A"
+        _write_as_the_plate_is(plate, *_canvas())
+        out = ops_engine.run_ops(
+            {"genotype_source": str(plate), "phenotype_source": str(plate),
+             "dst_root": str(tmp_path / "out"), "ops_gpu": False},
+            wells=["A1"], phases=("stitch", "phenotype"))
+    finally:
+        monkeypatch.undo()
+
+    report = out["wells"]["A1"]
+    assert report["stitch"]["sites"] == 5, "the five 10X tiles, and no 20X one"
+    assert report["phenotype"]["fields"] == PHENOTYPE_FIELDS
+    assert report["phenotype"]["expected_scale"] == pytest.approx(SCALE)
+
+
+def test_one_index_is_one_acquisition(tmp_path):
+    """Two magnifications under one root is two acquisitions, and it says so.
+
+    The scheme split settles the plate's own layout, where the phenotype
+    half carries no cycle. It cannot settle a phenotype acquisition that
+    DOES carry one sitting beside a sequencing acquisition, because then
+    both halves are the same scheme. What gives that away is the objective:
+    one acquisition has one, and a scale computed across two is the 0.5-for-
+    0.25 error this phase was rebuilt to avoid.
+    """
+    root = tmp_path / "mixed"
+    root.mkdir()
+    for site in range(2):
+        tifffile.imwrite(root / f"10X_c1_A1_DAPI_Site-{site}.tif",
+                         np.full((4, 4), 5, np.uint16))
+        tifffile.imwrite(root / f"20X_c1_A1_DAPI_Site-{site + 2}.tif",
+                         np.full((8, 8), 7, np.uint16))
+
+    with pytest.raises(ValueError, match="10X and 20X"):
+        ops_engine.run_ops(
+            {"genotype_source": str(root), "dst_root": str(tmp_path / "out"),
+             "ops_gpu": False}, wells=["A1"], phases=("stitch",))
