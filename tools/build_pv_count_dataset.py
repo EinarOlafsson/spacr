@@ -79,6 +79,33 @@ def plate_of(stem: str) -> str:
     return found.group(1) if found else "unplated"
 
 
+def fields_in_every_dataset() -> set:
+    """The stems that exist in all three datasets.
+
+    MEASURED 2026-09-20 AND NOT WHAT THE COUNTS SUGGEST. The PV dataset has
+    3,030 fields and the other two have 3,029 each, which looks like one
+    field's difference. It is not: the three cover DIFFERENT selections and
+    only 2,329 stems are in all of them. 701 fields are missing from at
+    least one, so a quarter of the PV set cannot be made into a five-plane
+    stack at all.
+
+    Asked once, up front, so a run does not spend a lookup per missing
+    field discovering it.
+
+    :returns: the stems every dataset has.
+    """
+    from huggingface_hub import HfApi
+
+    api = HfApi()
+    have = []
+    for _name, repo, folder in PLANES:
+        files = api.list_repo_files(repo, repo_type="dataset")
+        prefix = folder + "/"
+        have.append({name[len(prefix):-4] for name in files
+                     if name.startswith(prefix) and name.endswith(".tif")})
+    return set.intersection(*have)
+
+
 def read_index() -> List[Dict[str, str]]:
     """Every field, with its split and its vacuole count."""
     from huggingface_hub import hf_hub_download
@@ -151,22 +178,30 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     args = parser.parse_args(argv)
 
     rows = read_index()
+    usable = fields_in_every_dataset()
     by_plate: Dict[str, List[Dict[str, str]]] = {}
+    unusable = 0
     for row in rows:
         stem = (row.get("name") or "").strip()
         if not stem:
             continue
         if args.split != "all" and (row.get("split") or "") != args.split:
             continue
+        if stem not in usable:
+            unusable += 1
+            continue
         by_plate.setdefault(plate_of(stem), []).append(row)
 
     if args.list_plates:
-        print(f"{len(rows)} fields, split={args.split}")
+        print(f"{len(rows)} fields in the index, split={args.split}; "
+              f"{unusable} of them are missing a plane in one of the three "
+              f"datasets and cannot be stacked")
         for plate in sorted(by_plate):
             fields = by_plate[plate]
             objects = sum(int(row.get("n_objects") or 0) for row in fields)
-            print(f"  {plate:12s} {len(fields):5d} fields  {objects:7d} "
-                  f"vacuoles  {len(fields) * 40 / 1000:.1f} GB as stacks")
+            print(f"  {plate:12s} {len(fields):5d} usable fields  "
+                  f"{objects:7d} vacuoles  "
+                  f"{len(fields) * 40 / 1000:.1f} GB as stacks")
         return 0
 
     wanted = args.plate or sorted(by_plate)

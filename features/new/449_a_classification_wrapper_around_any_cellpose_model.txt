@@ -285,3 +285,48 @@ THE MEASURE SETTINGS the tool prints at the end of a run:
 Resumable: a stack already written is skipped and the downloads go through
 the Hugging Face cache, which the first build put on
 `/mnt/wd4tb/hf_cache` rather than in the maintainer's home.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- A QUARTER OF THE FIELDS CANNOT BE STACKED, AND THE COUNTS ABOVE
+              WERE WRONG
+--------------------------------------------------------------------------------
+
+The note above quotes 3,030 fields and 37,753 vacuoles from the PV dataset's
+own index. THOSE ARE NOT THE NUMBERS THIS CAN PRODUCE, and the build found
+it out rather than the plan: plate1 started skipping fields for "no hoechst"
+far more often than the one-field difference between 3,030 and 3,029 could
+explain.
+
+MEASURED, by intersecting the three datasets' file listings:
+
+    hoechst      3,029 fields
+    cellmask     3,029 fields
+    pv           3,030 fields
+    IN ALL THREE 2,329 fields
+
+So the two 3,029s are not the SAME 3,029. 701 fields -- 23% of the PV set --
+are missing a plane somewhere, and cannot become a five-plane stack at all.
+
+WHAT IS ACTUALLY THERE:
+
+    plate1      395 usable fields   5,716 vacuoles   15.8 GB
+    plate2      548 usable fields   8,767 vacuoles   21.9 GB
+    plate3      417 usable fields   4,669 vacuoles   16.7 GB
+    plate4      405 usable fields   5,476 vacuoles   16.2 GB
+    unplated    564 usable fields   6,480 vacuoles   22.6 GB
+
+2,329 fields and 31,108 vacuoles, 93 GB rather than 121 GB. Still far more
+vacuoles than anyone annotates by hand, so nothing about the plan changes --
+but a number that is wrong by 6,645 vacuoles is worth correcting rather than
+leaving in a file somebody plans against later.
+
+THE TOOL NOW ASKS FIRST. `fields_in_every_dataset()` intersects the three
+listings once, up front, and the run works from that -- so a build neither
+spends a lookup per missing field nor reports a plate's size as if every
+field in the index could be built. `--list-plates` prints usable fields, not
+indexed ones.
+
+The refusal that found this is the one written in the note above: a field
+missing any plane is refused rather than written with a zeroed one. It was
+put there to stop a silently empty PV mask being measured as a field with no
+vacuoles, and it caught a dataset-coverage gap instead.
