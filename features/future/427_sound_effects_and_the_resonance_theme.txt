@@ -4,17 +4,20 @@ SOUND EFFECTS, BACKGROUND MUSIC, AND THE RESONANCE THEME
 
 Filed as 418 on 2026-09-18; renumbered 2026-09-19 because 418 also names features/new/418_mask_filters_objects_by_min_and_max_intensity.txt.
 
-Status:    IN PROGRESS -- PART A OF THREE BUILT 2026-09-19, parts B and C
+Status:    IN PROGRESS -- PARTS A AND B OF THREE BUILT 2026-09-19, part C
            not started. Built: the sound engine (spacr/qt/sound.py), the
            synthesiser and its cache (spacr/qt/sound_synth.py), the Sound tab
-           in Preferences (spacr/qt/sound_preferences.py) and ONE reference
-           sound set, "Orbit", melodic space house in A minor. Not built: the
-           music beds from a local audio file and the Resonance visualiser
-           (part B), and the ten themes (part C). Everything is off by
-           default. Part A was reviewed the same day and the five nits it
-           found are fixed. See the two 2026-09-19 notes at the end; the
-           second lists what is still open, including whether section 2's
-           sound for a run STARTING is wanted at all.
+           in Preferences (spacr/qt/sound_preferences.py), ONE reference
+           sound set "Orbit", the 32-bar composed music bed with its kick and
+           shaker, a music file of the user's own, and the Resonance
+           backdrop (spacr/qt/resonance.py, ResonanceEngine in
+           spacr/qt/widgets/ambient.py). Not built: the ten themes (part C).
+           Everything is off by default and the backdrop is one animation
+           among seven. Part A was reviewed the same day and the five nits it
+           found are fixed. See the three 2026-09-19 notes at the end; the
+           last lists what is still open, including whether section 2's
+           sound for a run STARTING is wanted at all, and that nobody has
+           listened to any of it.
 
 Shape:     A Sound tab in Preferences, LAST tab, everything OFF BY DEFAULT.
            Interface feedback sounds, start/stop sounds for a run, optional
@@ -307,3 +310,131 @@ tests/qt/test_the_sounds_are_melodic_space_house.py 38.
 Still open, and recorded above rather than decided here: nobody has
 listened to "Orbit"; the run-START sound of section 2; the frozen bundle's
 size with Qt Multimedia in it; Windows and macOS.
+
+--------------------------------------------------------------------------------
+2026-09-19 — PART B BUILT: THE COMPOSED BED, AND THE RESONANCE BACKDROP
+--------------------------------------------------------------------------------
+
+Decided: 2026-09-19, by the maintainer, through the question prompt —
+"The theme should sound like melodic space house" — with the artists named
+as the reference (Worakls, N'to, Rivière Monk, BIRRD), and part B's own
+brief: a procedural composer rendering a seamless 32-bar loop at 120-124
+BPM from parameters, with a soft four-on-the-floor kick and shaker that can
+be turned down to near-silent, checked by ANALYSING the render rather than
+by listening to it; and a Chladni-figure visualiser driven by the bed's
+precomputed envelope and spectrum in sync with playback position, or a
+local WAV the user picks, with no system-audio capture.
+
+WHAT EXISTS NOW
+
+  spacr/qt/sound_synth.py       SYNTH_VERSION 2. The bed is a 32-bar
+                                arrangement: BED_SECTIONS gives it four
+                                eight-bar sections (drift, pulse, lift,
+                                return) and bed_plan ramps every part to
+                                its section's level over the section's
+                                first half, the FIRST section ramping from
+                                the LAST one -- so the plan is a circle and
+                                bar one continues bar thirty-two. A soft
+                                kick (_kick) and a sixteenth shaker
+                                (_shaker) come and go with the sections and
+                                leave the render entirely below PART_FLOOR.
+                                loudness_lufs is the gated integrated
+                                measurement of ITU-R BS.1770-4 and
+                                _to_loudness sets the bed's level with it.
+  spacr/qt/resonance.py         NEW, Qt-free, numpy-only, no scipy. The
+                                audio analysis (envelope, four band
+                                energies, spectral centroid, onset with a
+                                release) written beside the WAV as a
+                                ~90 kB .npz; the Chladni plate (lattice,
+                                settle, MODES); and the NowPlaying record
+                                the audio thread writes and the backdrop
+                                reads.
+  spacr/qt/widgets/ambient.py   ResonanceEngine, a seventh animation. It is
+                                in AMBIENT_THEMES, so the Animation
+                                preference offers it, None still means no
+                                widget at all, and every existing ambient
+                                test sweeps it.
+  spacr/qt/sound.py             The worker measures and analyses the bed
+                                BEFORE it plays it, and records the instant
+                                the file is LOADED rather than the instant
+                                play() returned. A music file of the user's
+                                own is what the bed plays and what the
+                                backdrop follows; a chosen file that has
+                                gone falls back to spaCR's own.
+  spacr/qt/preferences.py       sound/music_file, empty by default.
+  spacr/qt/sound_preferences.py A Music file row: an editable field and a
+                                Browse button.
+  tools/perf_paint.py           --animation, so 380's harness can measure a
+                                named ambient animation instead of whatever
+                                the default is.
+
+MEASURED (offscreen, private HOME, sandboxed cache)
+
+  THE BED, 32 bars at 122 BPM, A minor, i-VI-III-VII:
+    62.95 s, 12.09 MB as 48 kHz 16-bit stereo, 3.3 s to render once
+    -18.00 LUFS against the -18 asked for; peak -9.13 dBFS; no sample at
+      or past full scale
+    loop seam 0.0024 / 0.0034 against a p99.5 sample step of 0.0397
+    low (35-90 Hz) / mid (150-1500 Hz) = 0.44
+    by section: drift -18.8, pulse -18.0, lift -17.3, return -18.0 LUFS
+    kick 98.4 % below 160 Hz; the shaker adds 6.2 dB to the 4-12 kHz band
+    with kick_level and shaker_level at 0: the same piece without drums,
+      no kick or shaker notes in the schedule at all
+
+  THE BACKDROP:
+    shade 1.59 ms at 1080p, 1.72 ms at 4K (buffer 320x180)
+    tools/perf_paint.py --only backdrop --animation resonance: 25.0 fps at
+      1080p AND at 4K, on all four colour themes -- the 24 fps cap held,
+      the same as blobs and cells measured the same way in the same run
+    reading the drive on the GUI thread: 6.8 us, against 41 ms a frame
+    analysis of the 63 s bed: 63 ms, 89.7 kB, 3 777 frames
+    mean frame lightness 0.092 idle and 0.099 with the bed playing,
+      against blobs 0.165, bokeh 0.160, cells 0.098, drift 0.079
+
+  THREE THINGS THAT WERE WRONG FIRST AND ARE NOW TESTED AGAINST:
+    * every figure carried the same diagonal, because the minus sign makes
+      w(x, x) vanish identically. MODES now alternates the two signs.
+    * particles piled on the plate's rim and in its corners: a Newton step
+      is unbounded where the gradient vanishes and clipping the overshoot
+      parks them there for good. Swept over every mode pair, 16 800
+      grains: shipped 3 corners and 0.85 % on the rim; without the step
+      clamp 17 and 1.05 %; clipping instead of reflecting 7 and 1.97 %;
+      neither 162 and 4.15 %.
+    * the shaker was inaudible -- 0.8 dB over a drumless render, a setting
+      that does nothing.
+
+TESTS: tests/qt/test_the_music_bed_is_a_piece.py (20),
+tests/qt/test_the_resonance_plate_answers_the_music.py (30), plus
+"resonance" entries in tests/qt/test_ambient.py's MIN_PAINTED / MIN_CHANGED,
+the pinned tuple in tests/qt/test_ambient_none.py and a plate branch in
+tests/qt/test_ambient_motion.py. The existing ambient suites sweep the new
+animation unchanged: test_ambient.py, test_ambient_motion.py,
+test_ambient_none.py and test_the_backdrop_survives_a_run.py are green,
+324 tests between them.
+
+WHAT IS LEFT
+
+  * Part C: the ten melodic-space-house sound sets, which slot into
+    sound_synth.SOUND_THEMES. Every parameter part B needed is a theme
+    field already, drums included, so part C is a table of numbers and ten
+    descriptions rather than more code.
+  * NOBODY HAS LISTENED TO ANY OF IT. Part A said so and it is still true:
+    the numbers say what was asked for, and whether it sounds like Worakls
+    or like a test tone is the maintainer's ear. The one thing that can be
+    said is that the render is now checkable by analysis in the way the
+    request asked for.
+  * Translations are owed for the new captions -- the Music file row and
+    its Browse button, placeholder and tooltip, the file dialog's title and
+    filter, and the Resonance animation's label and note -- and for every
+    new public docstring, spacr/qt/resonance.py being a whole new public
+    module. The consolidated pass carries them; the caption ratchet is red
+    for exactly those sources and for nothing else.
+  * The frozen bundle was not measured, on top of part A's Qt Multimedia
+    question: resonance.py adds no dependency (numpy only, no scipy) but
+    the 12 MB bed WAV is now the largest thing the cache holds.
+  * Windows and macOS are still untested, and the load latency of a 12 MB
+    WAV on a real sound server is unmeasured -- the code records the
+    loaded instant rather than depending on it, which is the part that can
+    be checked without one.
+  * No reaper for the analysis of a music file the user has stopped using;
+    they are ~90 kB each and stay in the cache.
