@@ -1231,6 +1231,7 @@ EXAMPLE_DATA_SECTIONS = {
     "classify": "Plate Sources & Workflow",
     "classify_merged": "Plate Sources & Workflow",
     "map_barcodes": "Sequencing Input",
+    "analyze_plaques": "Input & Channels",
 }
 
 
@@ -2783,6 +2784,8 @@ class AppScreen(QWidget):
                 self._install_annotate_example_button(section)
             elif self.app_key == "map_barcodes":
                 self._install_sequencing_example_button(section)
+            elif self.app_key == "analyze_plaques":
+                self._install_plaque_example_button(section)
             else:
                 self._install_example_images_button(section)
         self._settings_sections.append(section)
@@ -3934,6 +3937,57 @@ class AppScreen(QWidget):
         button.clicked.connect(lambda: self.load_the_example_images())
         self._example_images_button = button
         section.add_prose(button, at_top=True)
+
+    def _install_plaque_example_button(self, section) -> None:
+        """Add Plaque Analysis's test-data control.
+
+        Asked for 2026-09-20. The module had no example data at all -- it was not in
+        EXAMPLE_DATA_SECTIONS, so the dispatch above never reached it and no button was
+        built. It offers TWO sets, because the module has two halves and they take
+        different input: ten segmented plaque FIELDS, which is what the cpsam_plaque
+        model was trained on, and ten whole plate FIGURES, which is what the pipeline
+        actually consumes before it has found a well.
+
+        The sample machinery is item 450's, unchanged. What differs is what happens
+        afterwards: Make Masks opens the folder in the editor, and this points ``src``
+        at it.
+        """
+        from PySide6.QtWidgets import QPushButton
+
+        from ..make_masks_datasets import install_dataset_button
+
+        button = install_dataset_button(self, app_key="analyze_plaques",
+                                        use=self.point_src_at)
+        button.setText(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download ten example fields for Plaque Analysis and point src at them. "
+            "Two sets to choose from: segmented plaque fields, which is what the "
+            "plaque model was trained on, or whole plate figures, which is what the "
+            "pipeline takes. Cached after the first download."))
+        self._plaque_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def point_src_at(self, folder) -> bool:
+        """Put ``folder`` in this module's ``src`` field. Returns whether it took.
+
+        The counterpart of Make Masks' ``_open_folder`` for a module screen: a module
+        does not open a folder, it runs on one. Reaches the widget the same way
+        :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift
+        on where ``src`` lives.
+        """
+        source = str(folder)
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is None or not hasattr(control, "setText"):
+            return False
+        control.setText(source)
+        console = getattr(self, "_console", None)
+        if console is not None:
+            console.append_stdout(
+                tr("Source directory (src): {path}", path=source) + "\n")
+        return True
 
     def _install_measure_example_button(self, section) -> None:
         """Add the example-data control that populates Measure's ``src``."""

@@ -19,12 +19,16 @@ pytest.importorskip("PySide6")
 from spacr.qt import make_masks_datasets as md
 
 
-def test_every_dataset_names_both_of_its_folders():
+def test_every_dataset_names_its_folders_and_its_model():
     assert md.MASK_DATASETS
     for dataset in md.MASK_DATASETS:
-        assert dataset.images and dataset.masks
+        assert dataset.images
         assert dataset.repo.startswith("einarolafsson/")
         assert dataset.model
+        assert dataset.apps
+    with_masks = [d for d in md.MASK_DATASETS if d.masks]
+    assert len(with_masks) == len(md.MASK_DATASETS) - 1, (
+        "exactly one set is images-only: the plaque figures the pipeline takes")
 
 
 def test_the_cellmask_set_keeps_its_masks_under_masks_pv():
@@ -36,7 +40,7 @@ def test_the_cellmask_set_keeps_its_masks_under_masks_pv():
     dataset = md.DATASETS_BY_KEY["toxoplasma_from_cellmask"]
     assert dataset.masks == "masks_pv"
     assert all(d.masks == "masks" for d in md.MASK_DATASETS
-               if d.key != "toxoplasma_from_cellmask")
+               if d.key not in ("toxoplasma_from_cellmask", "plaque_figures"))
 
 
 def test_the_sample_pairs_on_the_stem_and_is_the_same_ten_everywhere():
@@ -168,3 +172,67 @@ def test_the_button_is_on_the_make_masks_screen(qtbot, qt_theme_applied):
         "item 412's button must survive; the two answer different questions")
     screen._magnifier.close()
     screen.close_folded()
+
+
+def test_each_module_is_offered_only_its_own_sets():
+    """Item 451: the plaque module gained its own two, and Make Masks kept its five."""
+    mask = md.datasets_for("mask")
+    plaque = md.datasets_for("analyze_plaques")
+    assert len(mask) == 5 and len(plaque) == 2
+    assert {d.key for d in plaque} == {"toxoplasma_plaque", "plaque_figures"}
+    assert "plaque_figures" not in {d.key for d in mask}, (
+        "the figures have no masks; Make Masks would open ten blank fields")
+    assert "toxoplasma_plaque" in {d.key for d in mask}, (
+        "the segmented plaque fields belong to both: curated in one, run in the other")
+
+
+def test_a_dataset_with_no_masks_folder_samples_images_alone():
+    dataset = md.DATASETS_BY_KEY["plaque_figures"]
+    assert dataset.masks == ""
+    listing = [f"images/p{i:02d}.jpg" for i in range(20)] + \
+              [f"labels/p{i:02d}.txt" for i in range(20)]
+    picked = md.choose_sample(dataset, listing)
+    assert len(picked) == md.SAMPLE_SIZE
+    assert all(mask == "" for _image, mask in picked), (
+        "labels/ holds YOLO boxes, and a box must never be handed over as a mask")
+
+
+def test_an_images_only_sample_counts_as_present_without_a_masks_folder(tmp_path):
+    for i in range(md.SAMPLE_SIZE):
+        (tmp_path / f"p{i}.jpg").write_bytes(b"x")
+    assert md.is_present(tmp_path)
+
+
+def test_the_module_screen_points_src_at_the_sample_instead_of_opening_it(tmp_path):
+    """A module does not open a folder, it runs on one."""
+    dataset = md.DATASETS_BY_KEY["plaque_figures"]
+    folder = md.sample_folder(tmp_path, dataset)
+    folder.mkdir(parents=True)
+    for i in range(md.SAMPLE_SIZE):
+        (folder / f"p{i}.jpg").write_bytes(b"x")
+    used = []
+
+    class Screen:
+        _status_label = None
+
+        def _open_folder(self, path):
+            raise AssertionError("a module screen has no _open_folder")
+
+    ok = md.open_a_training_dataset(
+        Screen(), pick=lambda _s: dataset, root=tmp_path,
+        app_key="analyze_plaques", use=lambda p: (used.append(p), True)[1])
+    assert ok is True and used == [folder]
+
+
+def test_the_plaque_module_has_a_test_data_button_at_all(qtbot, qt_theme_applied):
+    """It had none: analyze_plaques was missing from EXAMPLE_DATA_SECTIONS, so the
+    dispatch that installs these buttons never reached it and nothing was built."""
+    from spacr.qt.screens.app_screen import AppScreen, EXAMPLE_DATA_SECTIONS
+
+    assert EXAMPLE_DATA_SECTIONS.get("analyze_plaques") == "Input & Channels"
+    screen = AppScreen("analyze_plaques")
+    qtbot.addWidget(screen)
+    button = getattr(screen, "_plaque_example_button", None)
+    assert button is not None
+    assert button.text() == "Load test data…"
+    assert hasattr(screen, "point_src_at")

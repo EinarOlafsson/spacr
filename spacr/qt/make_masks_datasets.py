@@ -63,6 +63,9 @@ class MaskDataset:
     :ivar masks: the folder holding their labels. NOT assumed to be "masks".
     :ivar model: the model this dataset trained, for the line under the title.
     :ivar note: what a reader should know before opening it.
+    :ivar apps: which modules offer this set. A dataset belongs to the module whose
+        job it illustrates, and the plaque sets belong to two -- Make Masks, where a
+        curator edits the masks, and Plaque Analysis, where the pipeline runs on them.
     """
 
     key: str
@@ -72,6 +75,7 @@ class MaskDataset:
     masks: str
     model: str
     note: str = ""
+    apps: Tuple[str, ...] = ("mask",)
 
 
 MASK_DATASETS: Tuple[MaskDataset, ...] = (
@@ -88,7 +92,17 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         repo="einarolafsson/toxoplasma-plaque-dataset",
         images="images", masks="masks",
         model="cpsam_plaque (plaque segmentation)",
-        note="488 fields of stained monolayers; the objects are plaques, not cells."),
+        note="488 fields of stained monolayers; the objects are plaques, not cells.",
+        apps=("mask", "analyze_plaques")),
+    MaskDataset(
+        key="plaque_figures",
+        title="Plaque assay figures, whole plates",
+        repo="einarolafsson/toxoplasma-plaque-well-detector-dataset",
+        images="images", masks="",
+        model="yolo well detector, then cpsam_plaque",
+        note="Whole figures, no masks: this is what the Plaque Analysis pipeline "
+             "takes as input -- find the wells, read the text, then segment.",
+        apps=("analyze_plaques",)),
     MaskDataset(
         key="cell_from_hoechst",
         title="Cross-channel: cell from Hoechst",
@@ -113,6 +127,15 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
 )
 
 DATASETS_BY_KEY: Dict[str, MaskDataset] = {d.key: d for d in MASK_DATASETS}
+
+
+def datasets_for(app_key: str) -> Tuple[MaskDataset, ...]:
+    """The sets a given module offers.
+
+    :param app_key: the module, e.g. ``mask`` or ``analyze_plaques``.
+    :returns: its datasets, in registry order.
+    """
+    return tuple(d for d in MASK_DATASETS if app_key in d.apps)
 
 
 def examples_root() -> Path:
@@ -147,11 +170,13 @@ def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
     :returns: whether that many image/mask pairs are there.
     """
     folder = Path(folder)
-    masks = folder / "masks"
-    if not masks.is_dir():
+    if not folder.is_dir():
         return False
     images = [p for p in sorted(folder.iterdir())
-              if p.is_file() and p.suffix.lower() in (".tif", ".tiff", ".png")]
+              if p.is_file() and p.suffix.lower() in (".tif", ".tiff", ".png", ".jpg")]
+    masks = folder / "masks"
+    if not masks.is_dir():
+        return len(images) >= expected
     paired = [p for p in images if (masks / f"{p.stem}.tif").is_file()
               or (masks / p.name).is_file()]
     return len(paired) >= expected
@@ -165,13 +190,21 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
     Pairing on the stem rather than the full name is what lets a repo store
     ``images/x.tif`` beside ``masks/x.tif`` or ``masks_pv/x.tif`` and still pair.
 
+    A DATASET WITH NO MASKS FOLDER -- ``masks=""`` -- yields images alone, with an empty
+    mask path. That is the plaque FIGURES set: the Plaque Analysis pipeline takes a
+    figure and finds the wells itself, so there is nothing to pair and demanding a pair
+    would return an empty sample and no reason why.
+
     :param dataset: which dataset, for its two folder names.
     :param listing: every path in the repository.
     :param size: how many pairs to take.
     :returns: up to ``size`` pairs, in sorted order so two machines agree.
     """
-    prefix_i, prefix_m = f"{dataset.images}/", f"{dataset.masks}/"
+    prefix_i = f"{dataset.images}/"
     images = {Path(p).stem: p for p in listing if p.startswith(prefix_i)}
+    if not dataset.masks:
+        return [(images[stem], "") for stem in sorted(images)[:size]]
+    prefix_m = f"{dataset.masks}/"
     masks = {Path(p).stem: p for p in listing if p.startswith(prefix_m)}
     both = sorted(set(images) & set(masks))
     return [(images[stem], masks[stem]) for stem in both[:size]]
@@ -218,15 +251,18 @@ class _SampleWorker(QObject):
                 f"{self.dataset.images}/ and {self.dataset.masks}/")
             return
         masks_dir = self.dest / "masks"
-        masks_dir.mkdir(parents=True, exist_ok=True)
+        (masks_dir if self.dataset.masks else self.dest).mkdir(
+            parents=True, exist_ok=True)
         for i, (image, mask) in enumerate(pairs, 1):
             if self._cancelled:
                 self.finished.emit(False, "", "", "cancelled")
                 return
             self.progress.emit(Path(image).name, i, len(pairs))
             try:
-                for remote, local in ((image, self.dest / Path(image).name),
-                                      (mask, masks_dir / Path(mask).name)):
+                wanted = [(image, self.dest / Path(image).name)]
+                if mask:
+                    wanted.append((mask, masks_dir / Path(mask).name))
+                for remote, local in wanted:
                     if local.is_file():
                         continue
                     got = hf_hub_download(self.dataset.repo, remote,
@@ -280,7 +316,7 @@ class DatasetPicker(QDialog):
         return DATASETS_BY_KEY.get(item.data(Qt.UserRole))
 
 
-def install_dataset_button(screen):
+def install_dataset_button(screen, app_key: str = "mask", use=None):
     """Build Make Masks' "Training datasets…" button, wired to ``screen``.
 
     It sits beside item 412's "Load test data…" rather than replacing it. The two
@@ -298,7 +334,9 @@ def install_dataset_button(screen):
         "Open ten fields of the dataset a published model was trained on, with its "
         "masks, and edit them here. One entry per model in the zoo. Cached after the "
         "first download."))
-    button.clicked.connect(lambda _checked=False: open_a_training_dataset(screen))
+    button.clicked.connect(
+        lambda _checked=False: open_a_training_dataset(screen, app_key=app_key,
+                                                       use=use))
     screen._btn_training_datasets = button
     return button
 
@@ -310,7 +348,8 @@ def _say(screen, text: str) -> None:
         label.setText(text)
 
 
-def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None) -> bool:
+def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None,
+                            app_key: str = "mask", use=None) -> bool:
     """Ask which dataset, fetch a sample if it is not cached, and open it.
 
     A cached sample opens at once with no request. Otherwise the fetch runs on a worker
@@ -322,18 +361,23 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None) -> bool
     :param fetch: replaces the download, for tests. Called as
         ``fetch(screen, dataset, folder, on_done)``.
     :param root: where samples are cached; defaults to the example-data folder.
+    :param app_key: which module is asking, so the picker offers its sets.
+    :param use: what to DO with the folder, as ``use(folder) -> bool``. Make Masks
+        opens it in the editor; Plaque Analysis points its ``src`` at it instead. The
+        default calls ``screen._open_folder``, which is Make Masks' own.
     :returns: whether a folder was opened synchronously. A download that has to run
         returns False and opens later, which is what a caller can check.
     """
-    dataset = (pick or _ask_which)(screen)
+    dataset = (pick or (lambda s: _ask_which(s, app_key)))(screen)
     if dataset is None:
         return False
     if root is None:
         root = examples_root()
     folder = sample_folder(root, dataset)
+    take = use or (lambda path: screen._open_folder(str(path)))
     if is_present(folder):
         _say(screen, tr("Opening {name}").format(name=dataset.title))
-        return bool(screen._open_folder(str(folder)))
+        return bool(take(folder))
 
     _say(screen, tr("Downloading ten fields of {name}…").format(name=dataset.title))
     button = getattr(screen, "_btn_training_datasets", None)
@@ -348,7 +392,7 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None) -> bool
                 name=dataset.title, why=error or tr("unknown error")))
             LOG.warning("training dataset %s failed: %s", dataset.key, error)
             return
-        if not screen._open_folder(str(folder)):
+        if not take(folder):
             _say(screen, tr("Downloaded {name}, but the folder would not open")
                  .format(name=dataset.title))
             return
@@ -359,9 +403,9 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None) -> bool
     return False
 
 
-def _ask_which(screen) -> Optional[MaskDataset]:
+def _ask_which(screen, app_key: str = "mask") -> Optional[MaskDataset]:
     """Show the picker and return what was chosen, or None."""
-    dialog = DatasetPicker(screen)
+    dialog = DatasetPicker(screen, datasets_for(app_key))
     if dialog.exec() != QDialog.Accepted:
         return None
     return dialog.chosen()

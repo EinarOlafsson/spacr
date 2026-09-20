@@ -1,0 +1,74 @@
+================================================================================
+TEST DATA FOR THE PLAQUE MODULE, AND IT HAD NONE
+================================================================================
+
+Status:    BUILT 2026-09-20. Two sets wired, both verified against the live
+           Hugging Face repositories. NOT DONE: the nine-language catalogs owe
+           the button caption and its tooltip.
+
+Requested: 2026-09-20 -- "Don't forget to wire in test data for the plaque
+           module".
+
+Owner:     Claude (spacr/qt/screens/app_screen.py, spacr/qt/make_masks_datasets.py).
+
+--------------------------------------------------------------------------------
+WHY THERE WAS NOTHING TO FIX, ONLY SOMETHING TO ADD
+--------------------------------------------------------------------------------
+
+Plaque Analysis was not in `EXAMPLE_DATA_SECTIONS`. That table is what the
+settings builder consults to decide which section gets a test-data control, so
+the dispatch beneath it never reached `analyze_plaques` and NO BUTTON WAS EVER
+BUILT. Not a broken button, not a failing download -- the module simply had no
+example data, and nothing said so.
+
+--------------------------------------------------------------------------------
+TWO SETS, BECAUSE THE MODULE HAS TWO HALVES
+--------------------------------------------------------------------------------
+
+The maintainer asked for both. They are not alternatives; they are the two
+different things this module consumes:
+
+  Plaque assay fields        einarolafsson/toxoplasma-plaque-dataset
+                             images/ + masks/. Ten segmented fields -- what
+                             cpsam_plaque was TRAINED on.
+  Plaque assay figures       einarolafsson/toxoplasma-plaque-well-detector-dataset
+                             images/ only. Ten whole published figures -- what
+                             the PIPELINE takes, before it has found a well.
+
+THE FIGURES SET HAS NO MASKS AND MUST NOT PRETEND TO. Its `labels/` folder
+holds YOLO bounding boxes. A box is not a mask, so `choose_sample` now accepts
+`masks=""` and yields images alone rather than pairing against `labels/` and
+handing a box to something that will draw it as an outline. A test holds that.
+
+It is also why the figures set is offered by Plaque Analysis ONLY. Make Masks
+would open ten blank fields. The segmented fields ARE offered by both: curated
+in one, run in the other.
+
+--------------------------------------------------------------------------------
+WHAT WAS ADDED
+--------------------------------------------------------------------------------
+
+  make_masks_datasets.py   MaskDataset.apps says which modules offer a set;
+                           datasets_for(app_key) filters; choose_sample takes
+                           an images-only dataset; is_present stops demanding
+                           a masks/ folder that was never meant to exist;
+                           open_a_training_dataset takes use= for what to DO
+                           with the folder.
+  app_screen.py            EXAMPLE_DATA_SECTIONS gains analyze_plaques;
+                           _install_plaque_example_button; point_src_at.
+
+MAKE MASKS OPENS A FOLDER, A MODULE RUNS ON ONE. That is the whole of `use=`.
+`point_src_at` reaches the src widget exactly the way
+`_put_the_measure_example_in_place` does, so the two routes cannot drift on
+where src lives.
+
+--------------------------------------------------------------------------------
+MEASURED
+--------------------------------------------------------------------------------
+
+Five new tests on top of item 450's, 15 in the file, 56 across the Make Masks
+selection. None touches the network. Separately, both plaque sets were resolved
+against the LIVE repositories: ten pairs from the fields set, ten images from
+the figures set (`12860_2020_249_Fig6_HTML.png` and friends), and the plaque
+screen was built headless to confirm the button exists and says "Load test
+data…", which is the part a registry table cannot prove.
