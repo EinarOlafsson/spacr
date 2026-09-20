@@ -578,6 +578,40 @@ None is blocking anything else.
 
 ## 3. Traps
 
+### 3.00. THE NAS CAN HANG A WHOLE SESSION, AND `timeout` DOES NOT SAVE YOU
+
+**Set 2026-09-20, after a session stopped responding and the maintainer had
+to restart it by hand.** It was waiting on the NAS. Nothing it had built was
+lost -- every branch it owned was already pushed -- but the session was gone.
+
+`/nas_mnt` is NFSv3 mounted `hard` (`timeo=600,retrans=2`, automounted with
+`x-systemd.idle-timeout=600`). A hard mount does not fail when the server
+stops answering. It blocks, with no deadline of its own, in uninterruptible
+sleep, and **SIGKILL does not reach a process in that state**.
+
+THE PART THAT SURPRISES PEOPLE: `timeout 30 ls /nas_mnt` hangs just as
+badly. After its deadline `timeout` signals the child and then WAITS for it
+to die, and the child is never going to die. `timeout -k` is the same story
+with an extra signal nobody receives. Every guard that ends in "and then we
+wait for it" is no guard at all.
+
+WHAT TO USE INSTEAD. `tools/nas_guard.sh`, which never waits on the process
+that touches the mount -- it runs the probe detached, in its own session,
+and reads the answer from a file against a deadline:
+
+    tools/nas_guard.sh check /nas_mnt 5     # 0 answers, 2 did not, 3 not there
+    tools/nas_guard.sh run 60 ls /nas_mnt/some/plate
+    tools/nas_guard.sh paths                # the mounts to treat this way
+
+Giving up abandons one sleeping process. The kernel reaps it if the server
+comes back; it does not cost the session. `tests/test_a_stalled_mount_cannot
+_hang_a_session.py` holds all of this, including the rule that the script may
+not be "simplified" into a `timeout` call.
+
+AND DO NOT SWEEP THE MOUNT. `find`, `grep -r`, `du` and `ls -R` over a path
+that includes `/nas_mnt` are the usual way in. Exclude it, or run the sweep
+through the guard.
+
 ### 3.0. AN EXIT CODE IS A CLAIM ABOUT THE CHECKS, NEVER ABOUT THE CONTENT
 
 **Read this before you run any repair pass, 2026-09-14.** Between them the two
