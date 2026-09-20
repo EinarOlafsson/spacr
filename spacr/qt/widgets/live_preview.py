@@ -3185,10 +3185,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._refresh_canvases)
         self._common_widgets["background"].valueChanged.connect(
             self._refresh_canvases)
-        self._cell_channel.valueChanged.connect(self._refresh_canvases)
-        self._nucleus_channel.valueChanged.connect(self._refresh_canvases)
-        self._pathogen_channel.valueChanged.connect(self._refresh_canvases)
-        self._organelle_channel.valueChanged.connect(self._refresh_canvases)
+        self._cell_channel.valueChanged.connect(self._on_object_channel_changed)
+        self._nucleus_channel.valueChanged.connect(
+            self._on_object_channel_changed)
+        self._pathogen_channel.valueChanged.connect(
+            self._on_object_channel_changed)
+        self._organelle_channel.valueChanged.connect(
+            self._on_object_channel_changed)
         self._object_box.currentIndexChanged.connect(self._refresh_canvases)
         self._object_box.currentIndexChanged.connect(
             self._on_primary_object_changed)
@@ -3196,7 +3199,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for _channel_spinner in (self._cell_channel, self._nucleus_channel,
                                  self._pathogen_channel,
                                  self._organelle_channel):
-            _channel_spinner.valueChanged.connect(self._follow_object_channel)
             _channel_spinner.valueChanged.connect(
                 lambda *_: self._recompute_masks())
         self._common_widgets["signal_to_noise"].setToolTip(
@@ -3683,8 +3685,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         }.get(obj)
         return None if spinner is None else int(spinner.value())
 
-    def _follow_object_channel(self) -> None:
+    def _follow_object_channel(self) -> bool:
         """Show the primary object's own channel.
+
+        :returns: True when the displayed plane was moved (and repainted),
+            False when it was already right or there is no one answer.
 
         Switching the primary object used to leave the displayed plane where
         it was, so picking "cell" while a nucleus plane was up meant tuning
@@ -3702,10 +3707,10 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         ordered = self._selected_object_types()
         if len(ordered) != 1:
-            return
+            return False
         wanted = self._channel_for_object(ordered[0])
         if wanted is None:
-            return
+            return False
         box = self._channel_box
         target = f"Ch {wanted}"
         for index in range(box.count()):
@@ -3715,14 +3720,32 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             if written != target:
                 continue
             if box.currentIndex() == index:
-                return
+                return False
             blocked = box.blockSignals(True)
             try:
                 box.setCurrentIndex(index)
             finally:
                 box.blockSignals(blocked)
             self._refresh_canvases()
-            return
+            return True
+        return False
+
+    def _on_object_channel_changed(self, *_args) -> None:
+        """Move the view onto the channel the user just typed, then repaint.
+
+        The follow was wired only to a change of WHICH object is primary, so
+        setting cell channel to 2 with cell already primary repainted the
+        plane that was already on screen: the settings said channel 2 and the
+        picture stayed channel 1, and every diameter, flow and background
+        judgement from then on was made against the wrong pixels. Asked for by
+        the maintainer on 2026-09-19 (item 442).
+
+        The follow repaints when it moves, so this repaints only when it did
+        not -- otherwise the full-size image is redrawn twice for every
+        keystroke while a number is being typed into a spinner.
+        """
+        if not self._follow_object_channel():
+            self._refresh_canvases()
 
     def _selected_object_types(self) -> Tuple[str, ...]:
         """The compartment ROLES selected, not the captions.

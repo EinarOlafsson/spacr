@@ -1,0 +1,70 @@
+================================================================================
+THE PREVIEW ALREADY FOLLOWS THE CHANNEL YOU SET; IT REPAINTED TWICE DOING IT
+================================================================================
+
+Status:    DONE 2026-09-19. The behaviour asked for was already on nightly by
+           the time it was asked for; what this item fixed is the redundant
+           repaint behind it, and it pins the behaviour with tests so it
+           cannot quietly go away.
+Requested: 2026-09-19, by the maintainer, in these words:
+
+             "add to new features. in mask live settings, if a user has a
+              particular channel chosen then picks e.g. cell and cell channel=2
+              if the chosen channel is not channel 2 then the chosen image in
+              the cosen set should shif to channel 2."
+
+Owner:     Claude (spacr/qt/widgets/live_preview.py).
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS, CHECKED RATHER THAN ASSUMED
+--------------------------------------------------------------------------------
+
+The first reading of the code said this was missing: `_follow_object_channel`
+moves the displayed plane onto the primary object's channel, and the only
+call to it was `_on_primary_object_changed` -- a change of WHICH object is
+primary, not of the channel given to it.
+
+THAT READING WAS WRONG, and a test written before the change is what caught
+it. Four of the five new tests PASS on unmodified nightly: the day's mask
+settings work had already added, in the wiring loop beside the object box,
+
+    _channel_spinner.valueChanged.connect(self._follow_object_channel)
+
+for all four channel spinners. So typing 2 into cell channel with cell primary
+already moved the view to Ch 2.
+
+WHAT WAS ACTUALLY WRONG is what the fifth test caught: one keystroke ran three
+handlers. The spinner was connected to `_refresh_canvases` (3188-3191), to
+`_follow_object_channel` (3199) -- which repaints again whenever it moves the
+box -- and to `_recompute_masks` (3200). So changing a channel redrew the
+full-size image twice, every keystroke, while a number is being typed.
+
+--------------------------------------------------------------------------------
+WHAT WAS DONE
+--------------------------------------------------------------------------------
+
+The four spinners now go through `_on_object_channel_changed`, which asks the
+follow to move and repaints ONLY if it did not; `_follow_object_channel`
+returns whether it moved. The duplicate `valueChanged -> _follow_object_channel`
+connection in the loop is removed, and the `_recompute_masks` connection is
+untouched.
+
+The follow's existing rule is kept: it moves only when EXACTLY ONE object is
+selected. With "cell + nucleus" both are being segmented, neither channel is
+the answer, and a view flickering between them is worse than one that stays.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/qt/test_the_preview_follows_the_channel_you_set.py, five tests on a
+three-channel plate written to disk:
+
+  * cell primary, Ch 1 up, cell channel set to 2 -> the display moves to Ch 2.
+  * the same for nucleus and pathogen.
+  * cell + nucleus selected -> the display does not move.
+  * a channel the set does not have (7 of 3) -> the display stays put rather
+    than blanking; a spinner passes through numbers on its way to the one the
+    user means.
+  * ONE repaint per keystroke, not two. This is the test that fails on
+    unmodified nightly.
