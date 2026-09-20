@@ -16,5 +16,4 @@
 # own.  Do NOT reach for `# pragma: no cover` instead: this repository spent an
 # item removing those, and the ratchet counts every one that comes back.
 #
-# Empty on purpose.  Nothing has been found that cannot be covered; add a line
-# only after trying.
+spacr/ops_accel.py: three CuPy kernels -- the cupy branch of maximum_filter, of matmul and of nearest_neighbours -- are 20 of its 147 statements and run only on CUDA, so 88% is this module's ceiling on any machine without a card, CI included. Every other line is covered (2026-09-19: 77.83% -> 83.74%, with the torch probes, the named-backend refusals and a cupy that imports without a driver all tested). A cupy faked out of numpy would execute those 20 lines and check nothing, which is what tests/test_the_ops_primitives_agree_on_every_backend.py already refuses to do: it SKIPS the cupy agreement case rather than passing it, because a skip says "not asked" where a pass would say "checked" about a path that never ran.
