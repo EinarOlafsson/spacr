@@ -1541,3 +1541,51 @@ WHAT IS LEFT OF THE THREE: (3) the ~640 ms legitimate sheeting of the page
 itself, which needs a design decision -- a smaller per-screen sheet, or
 building screens already parented. Plus the macOS and Windows numbers,
 which need those machines.
+
+--------------------------------------------------------------------------------
+2026-09-20 -- THE THIRD COST: THE CHEAP VERSION WAS TRIED AND DOES NOT PAY
+--------------------------------------------------------------------------------
+
+The maintainer chose "build screens already parented" over making the
+per-screen sheet smaller. Written down before anyone spends a day on it:
+THE CHEAP VERSION OF THAT IDEA WAS BUILT AND MEASURED TODAY, AND IT DOES
+NOT WORK.
+
+WHAT WAS TRIED. The ~640 ms is the page's own stylesheet being applied over
+its ~1,500 widgets, and the event filter does it at the page's `Show` --
+inside the module open the user is waiting through. The cheap variant
+applies it right after the page joins the stack, while it is still hidden,
+so the repolish happens before the open rather than during it.
+
+MEASURED, paired arms on one machine against nightly 652417220, worst
+event-loop stall per module in ms:
+
+    module            base   pre-sheet   delta
+    regression        2398        2352     -46
+    mask              1464        1376     -88
+    classify_merged   1344        1253     -91
+    umap               914        1005     +91
+    measure            747         705     -42
+    external_masks     497         465     -32
+    __preferences__    927         913     -14
+    __home__           227         204     -23
+
+MIXED SIGNS AND ALL OF IT INSIDE THE NOISE. Earlier today the same harness
+gave a run-to-run spread of 50 to 120 ms on these modules with no change at
+all, and umap moved the wrong way by 91. Nothing here is a result.
+
+WHY IT CANNOT WORK, which the numbers only confirm: the benchmark measures
+the whole module open, and the build is inside it. Moving the sheet from
+the page's Show to a moment two lines earlier moves the work within the
+window being measured. It was worth one experiment because a stall the user
+watches during an explicit "Preparing" card is not the same as one they
+watch while a module appears -- but it is not a saving, and shipping a
+change that adds a call and a method for no measured gain would be worse
+than not having tried.
+
+THE CHANGE WAS REVERTED. What the maintainer chose still stands and still
+needs the real version: the screens have to be built with their sheet
+already on an ancestor, so each widget is polished once as it is created
+instead of all 1,500 being repolished afterwards. That is a change to all
+forty-five screen constructors -- none of them takes a parent today -- and
+it is a day's careful work, not an afternoon's.
