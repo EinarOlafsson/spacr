@@ -83,9 +83,14 @@ SAMPLE_RATE = 48000
 #: Raised whenever a change here alters what a theme sounds like. It is part
 #: of every cache fingerprint, so raising it retires every cached file.
 #:
-#: Version 2 is the 32-bar arrangement with sections, a soft
-#: four-on-the-floor kick, a shaker and a loudness-normalised master;
-#: version 1 was an eight-bar phrase with no drums.
+#: Version 3 adds the melody -- :data:`LEAD_MOTIF` on its own sustaining
+#: voice, in and out with the arrangement -- moves the side-chain from the
+#: pads alone to the whole music bus ahead of the reverb, gives that
+#: side-chain a finite fall (:data:`PUMP_ATTACK`) and takes the reference
+#: theme's ``pad_pump`` from 0.3 to 0.6. Version 2 was the 32-bar
+#: arrangement with sections, a soft four-on-the-floor kick, a shaker and
+#: a loudness-normalised master; version 1 was an eight-bar phrase with no
+#: drums.
 SYNTH_VERSION = 3
 
 #: Environment variable that moves the cache. Tests and probes point it at
@@ -169,7 +174,13 @@ class SoundTheme:
     :param pad_pump: depth of the dip on every beat of the music bus --
         pads, arpeggio, lead and their reverb, everything but the kick and
         half of the sub. The side-chain of house music, with or without a
-        kick drum to cause it (0 to 1).
+        kick drum to cause it (0 to 1). THIS NUMBER, NOT THE ROUTING, IS
+        MOST OF HOW DEEP THE PUMP SOUNDS: measured on the reference bed,
+        300-3000 Hz, the mix dips 1.81 dB with this at 0, 2.46 dB at the
+        0.3 the pads alone used, and 4.59 dB at the 0.6 the reference now
+        asks for. A theme that sets it back toward 0.3 is asking for a
+        pump shallower than
+        ``test_the_music_bus_ducks_on_the_beat`` accepts.
     :param pluck_brightness: how slowly the pluck's harmonics fall away
         (0 to 1); higher is brighter.
     :param pluck_decay: time constant of the pluck's fundamental, seconds.
@@ -865,8 +876,10 @@ class BedBar(NamedTuple):
     :param kick: kick level, 0 to 1, before the theme's ``kick_level``.
     :param shaker: shaker level, 0 to 1, before ``shaker_level``.
     :param sub: sub level, 0 to 1.
-    :param lead: melody level, 0 to 1, before the theme's ``lead_level``.
     :param lift: semitones the arpeggio rises by in this bar's second half.
+    :param lead: melody level, 0 to 1, before the theme's ``lead_level``.
+        Last, because this is a public tuple and a field added anywhere but
+        the end changes what every position after it means.
     """
 
     section: str
@@ -874,8 +887,8 @@ class BedBar(NamedTuple):
     kick: float
     shaker: float
     sub: float
-    lead: float
     lift: int
+    lead: float
 
 
 def bed_plan(bars: int) -> List[BedBar]:
@@ -1049,6 +1062,20 @@ def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
 #: How long the side-chain takes to duck, as a fraction of the beat. About
 #: forty milliseconds at 122 BPM, which is a compressor's attack.
 PUMP_ATTACK = 0.08
+
+#: The shortest step a lead pattern can advance by, in beats -- a
+#: thirty-second note. A pattern is data a theme hands in, and part C's ten
+#: themes each hand in their own, so a length of zero arrives sooner or
+#: later from a typo or from a rhythm computed with integer division. The
+#: scheduler walks forward by the length it is given, so zero or a negative
+#: length would never reach the end of the loop and would grow the note
+#: list until the process was killed. Clamping here keeps the walk finite
+#: for any pattern at all; the same clamped value is the note's length, so
+#: a zero-length note sounds as the shortest note rather than as nothing.
+#: The step is capped at the length of the loop at the other end, so a note
+#: asked for in millions of beats renders one loop's worth of samples
+#: instead of asking for an array nothing can hold.
+LEAD_MIN_BEATS = 0.125
 
 
 def _pump(n: int, beat: float, depth: float, sr: int = SAMPLE_RATE) -> np.ndarray:
@@ -1230,14 +1257,15 @@ def _bed(theme: SoundTheme, sr: int = SAMPLE_RATE) -> Rendered:
         while position < 4.0 * bars:
             degree, beats = theme.lead_pattern[index % len(theme.lead_pattern)]
             index += 1
+            step = min(max(LEAD_MIN_BEATS, float(beats)), 4.0 * bars)
             row = plan[min(bars - 1, int(position // 4.0))]
             if int(degree) != REST and row.lead > PART_FLOOR:
                 note = scale_note(theme, int(degree), octave=theme.lead_octave)
                 voice = _lead_voice(theme, midi_to_hz(note),
-                                    float(beats) * beat + 0.3, lead_rng, sr)
+                                    step * beat + 0.3, lead_rng, sr)
                 _add(leads, voice * row.lead, int(position * beat * sr))
                 notes.append((position * beat, note, "lead"))
-            position += float(beats)
+            position += step
 
     total = pads.shape[1]
     t = np.arange(total, dtype=np.float64) / sr

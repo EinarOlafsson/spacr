@@ -268,11 +268,16 @@ def test_the_duck_is_the_theme_s_own_number_and_can_be_switched_off():
     the arpeggio's own accent on the downbeat, which is music rather than
     side-chain. Anything that measures the pump through the drums is
     measuring the drums.
+
+    BOTH RENDERS KEEP ``ORBIT``'s KEY, because the key is what seeds the
+    theme's generator: the shaker's noise, the pads' saw phases and the
+    reverb's impulse are all drawn from it, so two variants under two keys
+    are two different pieces of music and the difference between them is
+    not the field that was changed. Only ``pad_pump`` differs here.
     """
-    dry = dataclasses.replace(ss.ORBIT, key="dry", bed_bars=8,
-                              reverb_seconds=0.8, kick_level=0.0,
-                              shaker_level=0.0)
-    flat = dataclasses.replace(dry, key="flat", pad_pump=0.0)
+    dry = dataclasses.replace(ss.ORBIT, bed_bars=8, reverb_seconds=0.8,
+                              kick_level=0.0, shaker_level=0.0)
+    flat = dataclasses.replace(dry, pad_pump=0.0)
     deep_depth, _ = _pump_db(ss.render(dry, ss.BED).audio, BEAT)
     flat_depth, _ = _pump_db(ss.render(flat, ss.BED).audio, BEAT)
     assert flat_depth < 2.5, \
@@ -299,3 +304,60 @@ def test_no_theme_can_take_the_shaker_s_air():
                             4000.0, 12000.0))
     assert with_shaker - without > 4.0, \
         f"the shaker only adds {with_shaker - without:.2f} dB over the melody"
+
+
+def test_the_pump_s_depth_is_mostly_the_theme_s_number_and_not_the_routing():
+    """Which of the two changes made the beat audible, measured apart.
+
+    THE ROUTING WAS NOT THE WHOLE OF IT, and the note that said so was
+    written before this was measured. Moving the side-chain from the pads
+    to the whole music bus is one change; taking ``pad_pump`` from the 0.3
+    the pads used to 0.6 is another, and it is the larger of the two. The
+    ladder below is the reference bed with nothing altered but that one
+    field, so a theme in part C that copies ``Orbit`` and then trims the
+    depth back toward 0.3 can see here what it is giving up.
+
+    The three renders share ``ORBIT``'s key, so the shaker, the pad phases
+    and the reverb are identical in all three and the only difference is
+    the depth.
+    """
+    base = dataclasses.replace(ss.ORBIT, bed_bars=8, reverb_seconds=0.8)
+    depths = {}
+    for pump in (0.0, 0.3, 0.6):
+        theme = dataclasses.replace(base, pad_pump=pump)
+        depths[pump], _ = _pump_db(ss.render(theme, ss.BED).audio, BEAT)
+    assert depths[0.0] < depths[0.3] < depths[0.6], depths
+    assert depths[0.6] - depths[0.3] > depths[0.3] - depths[0.0], (
+        f"the depth doubling buys {depths[0.6] - depths[0.3]:.2f} dB and "
+        f"part B's own depth buys {depths[0.3] - depths[0.0]:.2f} dB; the "
+        "note claiming the routing did the work would then be right")
+    assert depths[0.3] < 3.5 < depths[0.6], (
+        f"at part B's depth the bus dips {depths[0.3]:.2f} dB, which "
+        "test_the_music_bus_ducks_on_the_beat would have to be re-read")
+
+
+def test_a_note_of_no_length_cannot_run_the_renderer_forever():
+    """A pattern a theme hands in is walked forward by a bounded step.
+
+    The scheduler advances by the length of the note it has just read, so
+    a length of zero -- a typo, or a rhythm computed with integer division
+    -- would never reach the end of the loop and would grow the note list
+    until the process was killed, on the audio thread, with no error. Part
+    C's ten themes each hand in their own pattern, which is exactly where
+    such a length arrives. :data:`ss.LEAD_MIN_BEATS` is the floor, and it
+    is the note's length as well as the step, so the note sounds as the
+    shortest note rather than as nothing.
+    """
+    broken = dataclasses.replace(
+        ss.ORBIT, bed_bars=4, reverb_seconds=0.8,
+        lead_pattern=((0, 1.0), (2, 0.0), (4, -1.0), (ss.REST, 0.5),
+                      (1, 4.0e9)))
+    bed = ss.render(broken, ss.BED)
+    lead = _lead_notes(bed)
+    assert lead, "the melody went missing rather than being made finite"
+    onsets = [onset for onset, _note in lead]
+    assert onsets == sorted(onsets)
+    assert len(lead) < 4.0 * 4 / ss.LEAD_MIN_BEATS
+    assert 0.0 < ss.LEAD_MIN_BEATS <= 0.25
+    assert bed.audio.shape[1] < 3 * int(4.0 * 4 * ss.ORBIT.beat * ss.SAMPLE_RATE), \
+        "a note asked for in billions of beats was rendered at its own length"

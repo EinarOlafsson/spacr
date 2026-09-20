@@ -95,7 +95,8 @@ delay/reverb ... It must sound musical: check your render by analysing it
 click-free)."
 
 `SYNTH_VERSION` went to 2, so every cached version-1 folder retires itself
-the first time the new bed is asked for.
+the first time the new bed is asked for. It went to 3 with the melody and
+the bus pump below.
 
 ### The arrangement, and where the seam is put
 
@@ -204,6 +205,7 @@ bars, 8 a bar — and the part-B test is named
 `test_the_shaker_is_on_the_eighths_and_the_offbeat_is_the_loud_one`. Part C
 is meant to be written from the `:param:` docs of `SoundTheme`, so a wrong
 note value there is a wrong note value in ten sound sets.
+
 ## The melody and the pump, 2026-09-19
 
 The sentence the whole item answers is "The theme should sound like
@@ -247,6 +249,28 @@ stay out of it, because they are what the rest is ducking for.
 | dip with the drums taken out | — | 3.8 dB |
 | the same, with `pad_pump` at 0 | — | 1.7 dB |
 
+**TWO THINGS CHANGED AND ONLY ONE OF THEM WAS WRITTEN DOWN.** The table
+above was first published as though the routing were the whole story. It
+was not: `ORBIT`'s `pad_pump` went from 0.3 to 0.6 in the same change, and
+that is the larger half. Found on review, measured on the full 32-bar
+reference bed with nothing altered but that one field and the key held
+fixed, through the same `_pump_db` the tests use:
+
+| `pad_pump` | dip on the beat, bus ducked |
+|---|---|
+| 0.0 | 1.81 dB |
+| 0.3 — what the pads alone asked for | 2.46 dB |
+| 0.6 — what the reference asks for now | 4.59 dB |
+
+Against the 1.81 dB floor the routing buys about 0.65 dB and the depth
+about 2.13 dB. This matters beyond the record: `pad_pump` is a public
+default that part C's ten themes inherit, and a theme that trims it back
+toward part B's 0.3 to taste lands under the 3.5 dB that
+`test_the_music_bus_ducks_on_the_beat` demands, with nothing to say why.
+The `:param pad_pump:` docs now carry the ladder, and
+`test_the_pump_s_depth_is_mostly_the_theme_s_number_and_not_the_routing`
+pins it so the note cannot drift away from the code again.
+
 **The first measurement of the pump was wrong and looked like a finding.**
 The beat is 0.4918 s and a 10 ms hop is 49.18 hops, so folding the
 envelope on 49 hops drifts half a beat across thirty-two bars and smears
@@ -274,6 +298,32 @@ mutually contradictory attributions before it was noticed. Every number
 above holds the key fixed and changes one field. The check that the rest
 of the change is inert: with the melody off and `pad_pump` at 0, this
 module renders the shaker figure at 5.37 dB against part B's 5.36.
+
+**`SYNTH_VERSION` went to 3 and its own docstring had not noticed.** The
+constant exists to record what retired the caches, and it listed changes
+up to version 2 while holding the value 3. Found on review; the docstring
+now names version 3's four changes — the melody, the bus routing, the
+pump's finite fall and the depth — which is also where the depth change
+should have been recorded in the first place.
+
+**A pattern is data, and the scheduler walked forward by it.** The lead
+runs `while position < 4.0 * bars` and advanced by the length of the note
+it had just read, straight from `theme.lead_pattern` with nothing checking
+it. A length of zero — a typo, or a rhythm computed with integer division
+— never reaches the end of the loop and grows the note list until the
+process is killed, on the audio thread, silently. Part C's ten themes each
+hand in their own pattern, so that is not a hypothetical. `LEAD_MIN_BEATS`
+is a floor of a thirty-second note on both the step and the note's length,
+in the module's existing style (`max(1, int(theme.arp_division))`), and
+`test_a_note_of_no_length_cannot_run_the_renderer_forever` renders a
+pattern holding a 0 and a -1 and gets a finite bed out.
+
+**`BedBar` gained its field at the end.** It is in `__all__` and it is a
+tuple, so `lead` sitting before `lift` would silently change what every
+position after it meant for anything constructing or indexing one
+positionally. Nothing in the repository does — `bed_plan` builds it by
+keyword — but appending cost nothing. `BED_SECTIONS` is a seventh column
+appended likewise.
 
 **Still nobody has listened to it.** The numbers say what was asked for.
 Renders for the maintainer's ear are `orbit_bed_two_loops`,
