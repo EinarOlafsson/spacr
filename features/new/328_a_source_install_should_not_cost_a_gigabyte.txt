@@ -1,11 +1,24 @@
 328 — A SOURCE INSTALL SHOULD NOT COST A GIGABYTE
 ==================================================
 
-Status:    DONE, 2026-09-19. README.rst has both light forms, measured,
-           with their limits, and the launch test passes (2026-09-15); the
-           nine translated READMEs now carry both source-install sections as
-           reviewed prose, and the README names the real default branch,
-           ``main``. See the dated sections below; the last says what the
+Status:    DONE, 2026-09-19, AND WHAT IT ASKED FOR IS ALL BUILT; what is
+           left is translation quality that was never this item's, and it
+           is listed rather than implied. README.rst has both light forms,
+           measured, with their limits, and the launch test passes
+           (2026-09-15); the nine translated READMEs now carry both
+           source-install sections as reviewed prose, and the README names
+           the real default branch, ``main``.
+           TWO OF THE THREE ENTRIES UNDER "LEFT, NOT THIS ITEM'S" ARE NOW
+           CLOSED (last trailing note): the maintainer's 2026-09-16 badge
+           edits are carried into all nine with reviewed alt text, and
+           docs/i18n/COVERAGE.md is regenerated -- a snapshot of the tree it
+           was generated from, so it is re-run rather than hand-merged
+           whenever this file is rebased. The third stands -- 45
+           README blocks are still the translation model's draft in all
+           nine languages, which is the consolidated translation pass, not
+           this item. So: 100% of what was asked, and the file says plainly
+           where the nine READMEs are still only machine-quality.
+           See the dated sections below; the last two say what the
            translations are and are not.
 
 ASKED FOR (2026-08-31)
@@ -346,3 +359,163 @@ LEFT, NOT THIS ITEM'S:
     another lane.
   * 45 other README blocks are still the model's draft in all nine
     languages, e.g. "Model zoo" as 动物园模型 ("zoo-animal model").
+
+--------------------------------------------------------------------------------
+2026-09-19 — the badge row carried into the nine, and a link that had been
+             dead in all nine since it was written
+--------------------------------------------------------------------------------
+
+Taken on the maintainer's 2026-09-19 standing instruction to work every
+open item to completion. Two of the three entries under "LEFT, NOT THIS
+ITEM'S" above are closed here; the third is not, and is restated at the end.
+
+A DEAD LINK IN ALL NINE, AND THE REASON IT SURVIVED EVERY GATE. Each
+translated README carried
+
+    `<review scope in this language> <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_
+
+which is right from the repository root, where README.rst lives, and wrong
+from docs/i18n/readme/, where these nine live. The file exists; the link
+does not reach it. Now `<../REVIEW_SCOPE_2026-09-04.md>`.
+
+The mechanism is worth more than the fix. `build_documentation_i18n.py`
+re-aims every root-relative path when it writes a localized README --
+README.rst, the logo, docs/source/, TRANSLATION_MODELS.md, the language
+index -- and re-aims it BACK before the syntax contract compares the
+localized file with the English one. REVIEW_SCOPE was never added to either
+table, so the path went through verbatim and the contract saw the same
+string on both sides and passed. A relative link that is never rewritten is
+invisible to a gate built out of rewrites. Both directions now carry
+`<docs/i18n/REVIEW_SCOPE_` <-> `<../REVIEW_SCOPE_`, matched on the prefix so
+the next dated report is covered without another edit.
+
+`test_localized_readmes_preserve_urls_code_and_table_shape` does check that
+every relative target exists -- but only for targets matching `(?:\.\.?/)`,
+which a root-relative path does not. It catches this one now that the path
+is relative. Measured over all nine by resolving every `<...>`_ target,
+every `image::` and every `:target:` against each file's own directory: one
+distinct dead target before, none after.
+
+THE MAINTAINER'S 2026-09-16 BADGE ROW IS IN ALL NINE. Six badges (conda-forge
+downloads and latest release date, PyPI downloads and 30-day rank, Platforms,
+Cite), |Tests| off the visible row, |Qt| retargeted from the docs root to
+the Qt module's API page, and the row itself reordered. The nine had been
+left on the old row for three days.
+
+Done the way the tool does it, not by hand: `README_BADGE_SUBSTITUTIONS`
+grew from 13 names to 19, `REVIEWED_README_BADGE_ALT_TEXT` from 14 entries
+per language to 20 (19 badges plus the logo, which stays last because the
+generator zips the two lists), and the block itself was replaced with the
+English markup and then run through the generator's own alt-text
+substitution in that same order. The result is what `--rebuild-readme`
+would write, so the next rebuild is a no-op rather than a reversion. The
+nine diffs are the badge block and the one link and nothing else: the
+translated prose is byte-identical.
+
+TWO TESTS MOVED, AND BOTH NOW READ THE ENGLISH README INSTEAD OF RESTATING
+IT. `test_localized_readmes_keep_the_badge_row_structurally_intact` had the
+old row written out, so it compared the nine with each other and stayed
+green for three days while all nine disagreed with the README a reader
+sees; it now takes the row from README.rst.
+`test_localized_readme_images_have_reviewed_accessible_text` asserted 14
+badge alts and 45 alt texts per file; it now asserts 20 and takes the 51
+from README.rst as well. Both go red against the state before this change.
+That is the same shape as the index and `_SUBMODULES`: the list that cannot
+go stale is the one nobody maintains.
+
+THE ALT TEXT IS MINE, NOT A NATIVE REVIEWER'S, and the table it sits in is
+called REVIEWED. Fifty-four strings, nine languages by six badges. Protected
+literals are kept verbatim in all nine (Linux, macOS, Windows, PyPI,
+conda-forge, spaCR), and the one English alt that is a raw key rather than a
+phrase, "conda-forge latest_release_date", is rendered as the phrase it
+means in each language. They are owed a reading, and they are listed in this
+unit's i18n_owed for it.
+
+docs/i18n/COVERAGE.md IS REGENERATED, which the note above records as
+blocked: `build_report()` no longer raises on the stale runtime records it
+named. Only the "README bytes" column belongs to this change -- every
+locale grows by the badge block, e.g. Swedish 30,977 -> 33,504. THE OTHER
+SIX COLUMNS ARE NIGHTLY'S STATE AT THE COMMIT THIS LANDS ON AND NOT THIS
+CHANGE'S: the runtime and API columns leave the 5773/5773 and 10539/10539
+of the 2026-09-04 file for whatever build_report() measures at that commit,
+which is a smaller numerator over a larger denominator in both, and a
+nonzero orphan count in each where the old file had none. THE TABLE IS THE
+FIGURES; this note deliberately does not restate them, because the table is
+regenerated as the last step before the push and a restatement here would be
+one commit out of date the first time nightly moved. This is the first
+regeneration since 2026-09-04, so the file had been reporting a tree two
+weeks old; the new numbers are what other lanes are mid-way through, not a
+regression introduced here.
+
+AND IT IS A SNAPSHOT OF A MOVING TREE, WHICH IS WHY IT HAD TO BE WRITTEN
+LAST. `test_checked_in_coverage_report_is_the_live_source_report` compares
+the checked-in file with what `build_report()` produces from the tree it is
+run against, so every runtime string and every public docstring any other
+lane lands puts the committed file one commit out of date -- it goes red
+without anything here changing. Measured today rather than reasoned: the
+first regeneration was taken at 845c97cd7, and by the time the branch had
+been rebased it read 5740/5864 and 10469/10707 against a live 5740/5875 and
+10465/10756, twenty-six rows wrong in four columns and the test still red on
+this branch. Regenerated a third time on the commit this finally landed
+on, and green there; the numbers in the paragraph above are that run's. So the honest claim is not "regenerating it fixes that test" but
+"regenerating it at the commit this lands on fixes that test, until the next
+runtime or docstring change lands", and whoever rebases this file again
+re-runs `python tools/audit_i18n_coverage.py --write` as part of the rebase.
+
+MEASURED, against a detached origin/nightly worktree at 845c97cd7 run the
+same way, because a count without a base means nothing here
+
+  * tests/test_documentation_i18n.py, whole file: base 31 failed / 117
+    passed, this branch 30 failed / 118 passed. `comm` over the two failure
+    lists: NOTHING fails here that does not fail on the base, and the one
+    cleared is test_localized_readmes_preserve_urls_code_and_table_shape,
+    which this file named as red on nightly for exactly this reason.
+  * -k readme: 14 passed. Both moved tests fail against the pre-change
+    READMEs.
+  * The five README-adjacent files (light install numbers, the language
+    picker, the coverage audit, README presentation, online installers):
+    base 3 failed / 126 passed, this branch 2 failed / 129 passed. The
+    cleared one is test_checked_in_coverage_report_is_the_live_source_
+    report -- COVERAGE.md had drifted from what build_report() produces,
+    and regenerating it AT THE COMMIT THIS LANDS ON is what fixes that; the
+    first regeneration was taken at a base two rebases old and left the test
+    red here, which is the paragraph above. Still red on both, and neither
+    is this change's: test_written_review_scope_matches_current_source_
+    bound_evidence, and test_the_readme_lists_every_published_model_with_
+    its_limits, which 63 records as the model zoo table lagging
+    `toxoplasma_from_hoechst_v1`. The base's 2 extra skips are its detached
+    HEAD, not a difference in behaviour.
+  * tests/test_i18n_coverage_audit.py re-run at the landing base, both
+    trees the same way: origin/nightly 26bc3a951 2 failed / 2 passed, this
+    branch 1 failed / 3 passed. The one still red is test_written_review_
+    scope_matches_current_source_bound_evidence, which raises on six stale
+    reviewed runtime records under docs/i18n/reviewed/runtime/sv/ that this
+    branch does not touch.
+  * Dead-target sweep over the nine: 1 before, 0 after.
+  * The nine diffs: badge block plus one link, prose untouched. The badge
+    row is byte-identical to README.rst's in all nine (one md5 across the
+    ten files).
+
+THE DOCUMENTATION AUDIT COULD NOT BE REACHED, and that is not this change's
+either. `python tools/build_documentation_i18n.py --audit` raises before it
+gets to the README contract:
+
+    ValueError: stale reviewed API source
+    'spacr.qt.mask_engine.mask_save_path#1':
+    docs/i18n/reviewed/api/sv/2026-08-25-module-consolidation-fallbacks.json
+
+Identical on the base worktree, so the reviewed record is stale on nightly
+and belongs to whoever moved that docstring. HANDOFF §3a-bis says a change
+to what a checker sees must be verified with both audits, and the README
+contract here IS such a change (two new path rewrites). It is verified by
+`-k readme` instead, and this is the reason why -- recorded rather than
+quietly skipped, so that whoever clears the reviewed record re-runs the
+audit over these nine.
+
+LEFT, STILL NOT THIS ITEM'S: 45 README blocks are the translation model's
+draft in all nine languages, e.g. "Model zoo" as 动物园模型 ("zoo-animal
+model"). That is the consolidated translation pass. Also unchanged from the
+note above: the light-install limits live in `#` comments inside a literal
+block, so a reader of the German README sees those four sentences in
+English; closing that means moving them into prose in README.rst, not
+translating shell comments.

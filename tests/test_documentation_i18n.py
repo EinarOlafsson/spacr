@@ -3854,12 +3854,21 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
     # `|Preprint|` joined the row on 2026-09-02, next to the Zenodo DOI: one
     # is the paper, the other the software archive. The preprint had been
     # reachable only as a databank button further down the page.
-    expected = (
-        "|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| "
-        "|Source| |Issues| |License| |Preprint| |DOI|"
-    )
+    #
+    # READ FROM README.rst, NOT RESTATED, since 2026-09-19. The row was
+    # written out here, so the maintainer's 2026-09-16 badge edits -- six
+    # new badges, |Tests| off the row, |Qt| retargeted -- could go into the
+    # English README and leave all nine translations behind them without
+    # this test noticing: it was still comparing the nine against each
+    # other. The row a reader sees is the English one, so that is what the
+    # nine are held to.
+    expected = (ROOT / "README.rst").read_text(
+        encoding="utf-8").splitlines()[0]
+    assert expected.startswith("|Platforms|") and expected.endswith(
+        "|PyPI rank|"), expected
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
-        assert path.read_text(encoding="utf-8").splitlines()[0] == expected
+        assert path.read_text(encoding="utf-8").splitlines()[0] == expected, (
+            path.name)
 
 
 def test_localized_readme_images_have_reviewed_accessible_text():
@@ -3873,11 +3882,13 @@ def test_localized_readme_images_have_reviewed_accessible_text():
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
-    # 14 since the bioRxiv preprint badge joined the row: 13 badge alts plus
-    # the logo's.
+    # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
+    # the logo's. It was 14 -- 13 plus the logo -- from the bioRxiv preprint
+    # badge until conda-forge downloads and release date, PyPI downloads and
+    # rank, Platforms and Cite arrived together.
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
-    )) + int(bool(_readme_logo_alt_text(canonical))) == 14
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 20
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 4
@@ -3913,14 +3924,20 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
         assert len(workflow_alt) == 22
-        # Fourteen badges, 22 linked Home applications, four installer/archive
-        # icons and five resource icons. The badge count rose by one on
-        # 2026-09-02 when the bioRxiv preprint joined the row; the
-        # application count fell from 44 to 21 with instruction 318 and was
-        # never brought down here. 21 -> 22 on 2026-09-11 with `embeddings`,
-        # which takes the total from 44 to 45 -- the two 44s are unrelated
-        # and meeting at the same number was a coincidence.
-        assert len(alt_text) == 45
+        # Twenty badges (19 plus the logo), 22 linked Home applications,
+        # four installer/archive icons and five resource icons. The badge
+        # count rose by one on 2026-09-02 when the bioRxiv preprint joined
+        # the row and by six on 2026-09-16; the application count fell from
+        # 44 to 21 with instruction 318 and was never brought down here.
+        # 21 -> 22 on 2026-09-11 with `embeddings`.
+        #
+        # COUNTED FROM README.rst SINCE 2026-09-19, not written out: 45 was
+        # correct for three days after the maintainer added six badges to
+        # the English README, because it described the nine and the nine
+        # had been left behind. Every image in the English README owes the
+        # nine an alt text, so the English README is the count.
+        assert len(alt_text) == len(
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == 51
         assert all(
             module in alt
             for module, alt in zip(
