@@ -5,9 +5,12 @@ MASK SETTINGS FOLLOW THE CHANNELS THE USER SETS -- FORM, LIVE SETTINGS, TABLE
 Status:    DONE 2026-09-19, on nightly. All three reports were reproduced
            headless by driving the widgets and fixed. Review found the same
            #120 defect in Timelapse, fixed the same way, plus three smaller
-           things (see the second trailing note). 24 tests press the controls.
+           things (see the second trailing note). 27 tests press the controls.
            Each was run against the code without its fix and failed there,
-           except one Timelapse case, noted below.
+           except one Timelapse case, noted below. The search defect the
+           first trailing note found and left -- a heading with only
+           sub-headings hiding its own matches -- is fixed too, in the third
+           trailing note, so nothing this item measured is still open.
            OWED: the consolidated i18n pass for the docstrings listed in the
            unit's result, one look on a real macOS machine, and the reporter's
            confirmation on #119 and #120.
@@ -278,3 +281,91 @@ applies to the run. Two tests, both failing on the unfixed modules.
 Left, unchanged from the first note: a look on a real Mac, the reporter's
 confirmation, and the narrowing search that hides a heading with only
 sub-headings (needs its own number).
+
+--------------------------------------------------------------------------------
+2026-09-19 -- third trailing note: the search defect the first note left
+--------------------------------------------------------------------------------
+
+SUPERSEDES the last sentence of the second note. It said the narrowing
+search that hides a heading with only sub-headings was left and needed its
+own number. It did not get one; it is fixed here, because it is two lines
+of accounting in the same strip and nobody is served by a second file.
+
+Reproduced first, on a built Mask screen under All settings, exactly as the
+first note describes. Searching "remove border objects" reports "Showing 1
+of 119 settings." and leaves cell_remove_border_objects visible on the Cell
+form -- with "Object Filtration (all objects)" and "Advanced settings"
+above it both hidden. Nothing is on screen and the count line says one
+match.
+
+TWO CAUSES, not one, and only the first was in the note.
+
+  * A HEADING WITH NO ROWS OF ITS OWN COUNTS ZERO. `_apply_section_state`
+    hides whatever counts zero while the view narrows, and "Advanced
+    settings" owns no form row at all -- it holds sub-headings.
+    `_counting_the_sub_headings` now rolls each heading's matches up into
+    the headings above it, off the widget tree, before anything is hidden.
+    The count LINE is composed from the matching keys and does not change:
+    it still reads "Showing 1 of 119 settings."
+
+  * AND SIX KEYS WERE RECORDED AGAINST THE WRONG HEADING. A nested Section
+    is added with `add_prose`, which spans the parent's form, and PySide
+    hands a spanning widget back for `itemAt(i, FieldRole)`. `_build_index`
+    then walked into the sub-heading and claimed the first setting it found
+    there for the parent; sections are indexed deepest first, so the
+    parent's pass overwrote the right answer. Measured on the two modules
+    that nest per-object families, Mask and Timelapse, six keys each and
+    the same six: cell_background and cell_min_area under "Advanced
+    settings", nucleus_background and pathogen_background under "Image
+    Preprocessing (per object)", nucleus_min_area and pathogen_min_area
+    under "Object Filtration (all objects)". Measure, Classify and
+    Regression nest no families and had none wrong.
+
+    The row recorded for those keys WAS the sub-heading widget, which is
+    what made it more than bookkeeping: `_set_row_visible` on such a "row"
+    hides a whole heading and everything under it, so any narrowing that
+    excluded cell_min_area took "Object Filtration (all objects)" off the
+    form as a side effect -- and left the form layout and the widget
+    disagreeing about whether the row was there. Both are now consistent:
+    after the search, the umbrella's surviving row reports isRowVisible
+    True and the emptied one False.
+
+Three tests, in tests/qt/test_settings_search.py. All three fail on the
+module without the fix and pass with it, checked by stashing the module
+alone:
+
+    test_a_match_under_a_heading_of_only_sub_headings_is_on_screen
+        types the search that matched only under such a heading and walks
+        the chain of headings above the match, asserting each is neither
+        hidden nor collapsed -- and that a heading holding no match is
+        still hidden, so the roll-up did not simply stop hiding things.
+    test_a_setting_is_recorded_against_the_heading_that_draws_it[mask]
+    test_a_setting_is_recorded_against_the_heading_that_draws_it[timelapse]
+        no indexed row is really a heading, and every indexed key is
+        recorded against the DEEPEST heading containing its widget. That
+        holds for all 465 indexed keys across Mask, Timelapse, Measure,
+        Classify and Regression.
+
+Run green beside it, on this branch: tests/qt/test_settings_search.py,
+test_settings_search_uncovered_paths, test_cov_w2_2_settings_search,
+test_a_channel_brings_its_segmentation_settings, test_a_hidden_row_costs_
+no_caption, test_a_mask_dim_can_be_emptied, test_command_palette_actions,
+test_the_object_rows_stay_off_the_form, test_the_organelle_count_builds_
+the_panel, test_the_organelle_count_is_where_a_user_will_look, test_the_
+search_strip_does_not_kill_the_process, test_settings_column_panel,
+test_cov_r4_app_screen, test_cov_s2_app_screen_form_gates, test_preview_
+registry, test_cov_w2_2_preview_registry, test_cov_w2_6_shortcuts,
+test_shortcut_overlay -- 431 passed, 26 skipped.
+
+Pre-existing red, identical with the change stashed and without it:
+tests/test_the_settings_panel_nests.py::test_the_advanced_families_nest_
+under_one_umbrella, which still expects the "Intensity Handling (all
+objects)" family that 418 removed. Unchanged by this work and not fixed
+here.
+
+OWED to the consolidated i18n pass: the docstring of the public method
+SettingsSearchBar.apply gained a paragraph. No user-facing string, tooltip
+or caption changed.
+
+LEFT, and unchanged: a look on a real macOS machine, and the reporter's
+confirmation on #119 and #120.

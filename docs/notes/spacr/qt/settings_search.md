@@ -9,7 +9,9 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 - [SettingsSearchBar.__init__](#settingssearchbar__init__) (6 entries)
 - [SettingsSearchBar.apply](#settingssearchbarapply) (1 entry)
-- [SettingsSearchBar._build_index](#settingssearchbar_build_index) (1 entry)
+- [SettingsSearchBar._grid_section](#settingssearchbar_grid_section) (3 entries, added by hand)
+- [SettingsSearchBar._counting_the_sub_headings](#settingssearchbar_counting_the_sub_headings) (1 entry, added by hand)
+- [SettingsSearchBar._build_index](#settingssearchbar_build_index) (2 entries)
 - [SettingsSearchBar._apply_section_state](#settingssearchbar_apply_section_state) (2 entries)
 - [SettingsSearchBar._compose_count](#settingssearchbar_compose_count) (1 entry)
 - [_form_of](#_form_of) (1 entry)
@@ -93,6 +95,18 @@ for child in field.findChildren(QWidget):
 ```
 
 THE FIELD IN THE ROW IS NOT ALWAYS THE FIELD. A setting that takes a Cellpose checkpoint sits in a little holder beside its "Model zoo…" button, so the form's row is the HOLDER and matching on it alone left `cell_model_name` out of the index entirely -- typing "model" on Mask found nothing and the row could not be reached from the search at all.
+
+### added 2026-09-19 (431)
+
+```python
+if field is None or id(field) in headings:
+```
+
+AND A SUB-HEADING IS A ROW OF ITS PARENT'S FORM, which is what the walk above had been descending into. A nested `Section` is added with `add_prose`, which spans the form, and PySide hands a spanning widget back for `itemAt(i, FieldRole)` -- so the search for a key inside the "field" walked into the sub-heading and claimed the first setting it found there for the parent. Sections are indexed DEEPEST FIRST, so the parent's pass then overwrote the right answer.
+
+Measured on the two modules that nest per-object families, Mask and Timelapse: six keys each, the same six. `cell_background` and `cell_min_area` were recorded under "Advanced settings", `nucleus_background` and `pathogen_background` under "Image Preprocessing (per object)", `nucleus_min_area` and `pathogen_min_area` under "Object Filtration (all objects)" -- each one a heading one or two levels above the form that draws it. Measure, Classify and Regression have no nested families and had none wrong.
+
+The row recorded against those keys was the sub-heading widget itself, and that is what made it more than bookkeeping: `_set_row_visible` on such a "row" hides a whole heading and everything under it, so any narrowing that excluded `cell_min_area` took "Object Filtration (all objects)" off the form as a side effect. Held by `test_a_setting_is_recorded_against_the_heading_that_draws_it`, which also asserts the general form: every indexed key is recorded against the DEEPEST heading that contains its widget. That holds for all 465 indexed keys across the five modules once the sub-headings are skipped.
 
 ## SettingsSearchBar._apply_section_state
 
@@ -212,7 +226,7 @@ With the per-object table on, the flat rows it answers for -- every object's cha
 
 The table can be mounted or taken down by Preferences after this strip was built, so the section is looked up on every `apply()` and the strip's list of sections is kept in step: a section taken down is dropped before it can be touched, which matters because it is deleted with `deleteLater()` and would raise on the next `setVisible`.
 
-Seen and not changed, measured 2026-09-19 on a built Mask screen under All settings: a section with no rows of its own and only sub-headings counts zero, so any narrowing hides it with everything under it. Searching "remove border objects" reports one match, `cell_remove_border_objects`, whose row is visible on its form -- while "Object Filtration (all objects)" and the "Advanced settings" umbrella above it are both hidden, so nothing is on screen. A count rolled up from each sub-heading to the headings above it would fix it; it is recorded in 431 rather than fixed there, because it is the search's own defect and not the channels'.
+FIXED 2026-09-19, and the paragraph that stood here recorded it as seen and not changed. What was measured on a built Mask screen under All settings: a section with no rows of its own and only sub-headings counts zero, so any narrowing hid it with everything under it. Searching "remove border objects" reported one match, `cell_remove_border_objects`, whose row was visible on its form -- while "Object Filtration (all objects)" and the "Advanced settings" umbrella above it were both hidden, so nothing was on screen. `_counting_the_sub_headings` now rolls each heading's matches up into the headings above it before anything is hidden; the same measurement leaves all three showing and expanded.
 
 ## SettingsSearchBar.apply
 
@@ -238,3 +252,17 @@ blocked = self._disclosure.blockSignals(True)
 Showing the row needs the level raised on the FORM. It does not need the raise written to the store, so the toggle's signal is blocked while the button, the level and the caption are moved, and the one caller of `remember_disclosure` never runs. Clicking the switch still remembers, because that is the user choosing. One direction only: there is no reason to lower the level behind the user's back at all, and a `level` parameter would have added a branch nothing takes -- which `spacr/qt/settings_search.py` cannot afford, since its coverage baseline records zero uncovered branches.
 
 Held by `test_arriving_here_does_not_rewrite_the_essentials_choice`, which now reads the store back with `disclosure_for` rather than only asking the strip what level it is on.
+
+## SettingsSearchBar._counting_the_sub_headings
+
+### added 2026-09-19 (431)
+
+```python
+rolled[marker] = rolled.get(marker, 0) + count
+```
+
+Counted UPWARDS, off the widget tree, rather than by asking the screen for its heading structure a second time. Every heading this strip decides is already in `_sections`; its ancestors are whatever `parentWidget()` walks through that is also in that list, so a heading nested at any depth reaches each umbrella above it and there is no second description of the layout to keep in step with the screen's.
+
+The count LINE is composed from the matching keys, not from these numbers, so a heading kept by a roll-up adds nothing to "Showing 1 of 119 settings." -- which is the part a reader checks, and the part that was true all along while the form showed nothing.
+
+`_apply_section_state` is the only caller, and it is given the rolled-up mapping rather than the raw one, so `_sections_kept` -- what the next `apply(reopen=False)` compares against -- is also in terms of headings that are really on the form.

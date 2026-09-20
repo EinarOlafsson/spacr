@@ -142,6 +142,110 @@ def test_a_narrowing_search_opens_the_sections_it_kept(mask_screen):
             "restoring what was showing before the search")
 
 
+@pytest.mark.parametrize("app_key", ["mask", "timelapse"])
+def test_a_setting_is_recorded_against_the_heading_that_draws_it(
+        app_key, qtbot):
+    """The two modules that nest families used to file six keys too high.
+
+    A sub-heading is added to its parent with ``add_prose``, which spans the
+    parent's form -- and PySide hands a spanning widget back for the field
+    role, so the index walked into the sub-heading and claimed the first
+    setting it found there for the parent. Sections are indexed deepest
+    first, so the parent's pass overwrote the right answer.
+
+    The row it recorded was the sub-heading itself, which is what made this
+    more than bookkeeping: hiding that "row" hid the sub-heading and
+    everything under it.
+    """
+    from spacr.qt.screens.app_screen import AppScreen
+
+    screen = AppScreen(app_key)
+    qtbot.addWidget(screen)
+    bar = install(screen)
+    assert bar is not None
+
+    sections = {id(s): s for s in screen._settings_sections}
+    stolen = {key: str(field.property("settingsCategorySource"))
+              for key, (_section, field) in bar._index.items()
+              if id(field) in sections}
+    assert stolen == {}, (
+        "these keys are recorded as a row that is really a whole heading")
+
+    widgets = screen._settings_model._widgets
+    for key, (section, _field) in bar._index.items():
+        widget = widgets.get(key)
+        if widget is None:
+            continue
+        node, deepest = widget, None
+        while node is not None:
+            if id(node) in sections:
+                deepest = node
+                break
+            node = node.parentWidget()
+        assert deepest is section, (
+            f"{key} is drawn under "
+            f"{str(deepest.property('settingsCategorySource'))!r} and "
+            f"recorded under "
+            f"{str(section.property('settingsCategorySource'))!r}")
+
+
+def test_a_match_under_a_heading_of_only_sub_headings_is_on_screen(
+        mask_screen):
+    """A heading that owns no rows must not take its matches down with it.
+
+    ``Advanced settings`` holds only sub-headings, and the object family
+    under it holds only one heading per object, so neither owns a form row
+    for the strip to count. Counting rows alone put both at zero, and a
+    narrowing view hides whatever counts zero -- while the one matching row
+    stayed marked visible on the innermost form, inside two hidden
+    headings. The count line promised a match that was nowhere on screen.
+
+    Asserted up the whole chain rather than on the umbrella alone: the
+    defect is that an ancestor is hidden, and which ancestor depends on how
+    deep the module nests its families.
+    """
+    bar = install(mask_screen)
+    assert bar is not None
+    bar.set_level(ALL)
+    bar.set_query("remove border objects")
+
+    key = "cell_remove_border_objects"
+    assert bar.visible_keys() == [key]
+
+    sections = {id(s) for s in mask_screen._settings_sections}
+    holding, field = bar._index[key]
+    form = holding.findChild(QFormLayout)
+    assert form.isRowVisible(field)
+
+    chain = []
+    node = holding
+    while node is not None:
+        if id(node) in sections:
+            chain.append(node)
+        node = node.parentWidget()
+    assert len(chain) > 1, (
+        "this module no longer nests that setting under a heading, so the "
+        "test is no longer about the defect it was written for")
+
+    for section in chain:
+        title = str(section.property("settingsCategorySource"))
+        # `isHidden`, not `isVisible`: an offscreen screen is never shown,
+        # which makes every descendant invisible for an unrelated reason.
+        assert not section.isHidden(), (
+            f"the only match is inside {title!r}, and the search hid it")
+        assert section.is_expanded(), (
+            f"the only match is inside {title!r}, and it stayed collapsed")
+
+    umbrella = chain[-1]
+    assert [k for k, (sec, _f) in bar._index.items() if sec is umbrella] == [], (
+        "the outermost heading owns form rows, so it would have been "
+        "counted anyway and this test proves nothing")
+
+    emptied = bar._index["n_jobs"][0]
+    assert emptied.isHidden(), (
+        "rolling counts up must not keep a section that holds no match")
+
+
 def test_a_search_that_matches_nothing_says_what_to_do(mask_screen):
     bar = install(mask_screen)
     bar.set_level(ALL)

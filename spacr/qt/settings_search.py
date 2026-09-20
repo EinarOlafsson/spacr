@@ -478,6 +478,11 @@ class SettingsSearchBar(QWidget):
         Essentials the table stays on screen while it holds the channels,
         which the flat form no longer shows while the table is on.
 
+        A heading that holds only sub-headings has no rows of its own
+        either, so its matches are rolled up out of the headings below it
+        before any section is hidden — see
+        :meth:`_counting_the_sub_headings`.
+
         :param reopen: while the filter narrows, open every section it
             keeps. The screen passes ``False`` when it re-applies the filter
             after the object rule or after laying out rows: a section the
@@ -554,9 +559,58 @@ class SettingsSearchBar(QWidget):
 
         narrowing = bool(query) or self._modified.isChecked() \
             or (self._level == ESSENTIALS and bool(essentials))
-        self._apply_section_state(shown_per_section, narrowing, reopen)
+        self._apply_section_state(
+            self._counting_the_sub_headings(shown_per_section),
+            narrowing, reopen)
         self._count.setText(
             self._compose_count(len(wanted), total, len(essentials)))
+
+    def _counting_the_sub_headings(
+            self, shown: Dict[int, int]) -> Dict[int, int]:
+        """Add what each heading's sub-headings keep to the heading's count.
+
+        A heading that owns no form rows -- ``Advanced settings``, and the
+        object families nested under it -- counts zero however many rows
+        match below it, and :meth:`_apply_section_state` hides whatever
+        counts zero while the view narrows. That took the matches off screen
+        with the umbrella: on a built Mask screen under All settings,
+        searching ``remove border objects`` reported one match and left
+        ``cell_remove_border_objects`` visible on the ``Cell`` form, while
+        ``Object Filtration (all objects)`` and ``Advanced settings`` above
+        it were both hidden, so the match the count line promised was
+        nowhere.
+
+        Counted upwards rather than down: every heading this strip decides is
+        already in ``_sections``, and its ancestors are read off the widget
+        tree, so a heading nested at any depth reaches each umbrella above it
+        without a second description of the layout to keep in step.
+
+        :param shown: how many rows each section keeps, by ``id()``.
+        :returns: a new mapping — each heading's own count plus every count
+            below it. The count line is composed from the matching keys and
+            is not affected, so a rolled-up heading adds nothing to it.
+        """
+        known = {id(section): section for section in self._sections}
+        rolled = dict(shown)
+        for section in self._sections:
+            count = shown.get(id(section), 0)
+            if not count:
+                continue
+            reached = {id(section)}
+            try:
+                node = section.parentWidget()
+            except RuntimeError:
+                continue
+            while node is not None:
+                marker = id(node)
+                if marker in known and marker not in reached:
+                    rolled[marker] = rolled.get(marker, 0) + count
+                    reached.add(marker)
+                try:
+                    node = node.parentWidget()
+                except RuntimeError:
+                    break
+        return rolled
 
     def _grid_section(self) -> Tuple[Optional[QWidget], frozenset]:
         """The per-object table's section and the settings it answers for.
@@ -644,9 +698,22 @@ class SettingsSearchBar(QWidget):
         screen kept, rather than by re-deriving the layout: the screen has
         already decided which key went where, and a second opinion here would
         be a second thing to keep in sync.
+
+        A SUB-HEADING IS A ROW OF ITS PARENT'S FORM and is skipped here. A
+        nested :class:`~spacr.qt.widgets.section.Section` is added with
+        ``add_prose``, which spans the form, and PySide hands a spanning
+        widget back for the field role — so the search below it walked into
+        the sub-heading and claimed the first setting it found there for the
+        parent. Measured on Mask and on Timelapse: six keys each,
+        ``cell_min_area`` among them, recorded against a heading two levels
+        above the form that draws them, because the sections are indexed
+        deepest first and the parent's pass overwrote the right answer. The
+        row it recorded was the sub-heading itself, so hiding that "row"
+        hid the whole sub-heading and everything under it.
         """
         widgets = getattr(self._model, "_widgets", {}) or {}
         by_widget = {id(w): key for key, w in widgets.items()}
+        headings = {id(section) for section in self._sections}
         for section in self._sections:
             form = _form_of(section)
             if form is None:
@@ -654,7 +721,7 @@ class SettingsSearchBar(QWidget):
             for i in range(form.rowCount()):
                 item = form.itemAt(i, QFormLayout.FieldRole)
                 field = item.widget() if item is not None else None
-                if field is None:
+                if field is None or id(field) in headings:
                     continue
                 key = by_widget.get(id(field))
                 if key is None:
