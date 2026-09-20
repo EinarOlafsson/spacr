@@ -3,8 +3,13 @@ MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
 Status:    OPEN, filed 2026-09-16. Points 1-3 BUILT AND ON NIGHTLY
-           2026-09-19, reviewed, with 208 tests green; points 4-9 (parts B
-           and C) not started. See the 2026-09-19 note at the end.
+           2026-09-19, reviewed, with 208 tests green; point 3 installs into
+           an environment of its own since item 423 (note below). Points 4-6
+           (part B) BUILT 2026-09-19 on branch home/419-part-b, 37 new tests
+           green, not pushed -- a reviewer reads the commits and a lander
+           pushes. Points 7-9 (part C) not started, and item 435 has since
+           been filed against point 9's Invert and asks for more Otsu
+           options again. See the three 2026-09-19 notes at the end.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 
@@ -430,3 +435,170 @@ reads INSTALLABLE_BACKENDS and item 423 added that backend. Point 3's own
 list of backends is not otherwise changed.
 
 Noted in features/325_two_sessions_one_repo_working_protocol.temp §5.
+--------------------------------------------------------------------------------
+2026-09-19 — POINTS 4-6 BUILT (PART B OF THREE), BRANCH home/419-part-b
+--------------------------------------------------------------------------------
+
+Cut from nightly b56c77d46, on top of part A (83953a598, da41bfeca), and
+rebased onto b0c1095e8 -- which brought item 423's isolated backend
+environments through the same rows, and four Cellpose 3 modes into the Mode
+box the rename touches -- and then onto 58bcc5c61, which needed no hand
+resolution. Points 7-9 are part C and are untouched. NOT PUSHED.
+
+POINT 4 -- THE SHORTCUT LIST
+
+  * A twelve-line list down the right-hand side of the Mask / Cell
+    probability / Flows views: keys in one column, one terse line each in the
+    other. "To the right of the mak, cell probability, Flows" is the TAB
+    STRIP, so the splitter's right-hand pane is now the tabs and the list
+    side by side (`_view_pane`); the two layout tests that read
+    `indexOf(self._view_tabs) == 1` now read that pane and assert the tabs
+    are in it.
+  * Fixed width (SHORTCUTS_WIDTH = 230), so a wider window gives its pixels
+    to the image, and the Settings toggle does NOT hide it: it is not
+    settings, and a list that vanishes when the screen is cleared for work is
+    one you can only read when you do not need it.
+  * EVERY LINE IS DRIVEN, not read back off the table it was built from:
+    Shift and Alt drag the view, the wheel zooms about the cursor, the right
+    button sweeps, the arrows change field, undo/redo/Escape/Ctrl+S, the
+    magnifier's wheel and Shift+wheel, its drag, and its right button under
+    Whole image. Writing those tests moved one line: "Choose every object the
+    drag passes" became "Add the objects it passes over", because a drag
+    across two objects with background between them added only the first.
+    The panel must not claim more than the gesture does; what a drag adds in
+    each save mode is 417's file to state.
+
+POINT 5 -- THE OTSU SETTINGS AND THE TWO RENAMES
+
+  * "Classical" is "Otsu" and the mode key `classical` is `otsu`. The old key
+    still arrives -- from a script, a test, anything that remembered a mode --
+    and `canonical_magnifier_mode` translates it at the door;
+    `_MAGNIFIER_SEGMENTERS` is keyed on the new name only.
+    `mask_engine._classical_region_labels` keeps its name: another module's
+    private function with its own tests, and renaming it would have been a
+    second change dressed as this one.
+  * "Cellpose-SAM" is "Object detection" -- the category, the detect button,
+    its two failure titles, the status lines and the resting text on the two
+    intermediate panes. The model is still called Cellpose-SAM where the
+    sentence is about the model. The folded-categories preference stores
+    TITLES, so `_RENAMED_CATEGORIES` reads an old stored title as the new
+    one; a user who had folded Cellpose-SAM away finds Object detection
+    folded, not open.
+  * A new Otsu category holds six settings: the threshold correction (moved
+    out of the Cellpose-SAM category, where nobody looking for Otsu would
+    open it), Bright (moved off the detect row), and four new ones --
+    Smoothing (sigma), Fill holes, Split objects that touch, and Drop objects
+    the image border cuts. One reader, `_otsu_settings`, feeds the button and,
+    through `_magnifier_context`, the magnifier.
+  * THE DEFAULTS MOVE OTSU DETECT, on purpose and this is the part to read.
+    The magnifier's Otsu mode has always smoothed by 1 px, filled holes and
+    split a blob with two centres; Otsu detect did none of the three. The two
+    disagreed about the same field and nothing said so. The boxes start where
+    the preview has always been, so the button now gives what the box showed;
+    three clicks put the plain threshold back. `_otsu_instances`'s own
+    defaults are unchanged, so nothing calling the engine directly moved --
+    40 random fields x 6 sensitivities x 2 corrections x both sides hash
+    identically against clean origin/nightly.
+  * ITEM 435 IS NOT CLOSED BY THIS. Filed the same day -- "i need more
+    options for otsu" -- it lists a window, a multi-level split, a
+    per-object-class threshold, a histogram preview and a minimum size tied
+    to the threshold. None of those is here; what is here is the four
+    settings that make the button and the magnifier agree, and a category to
+    put the rest in. 435's invert half is untouched.
+  * The three new settings the magnifier reads are APPENDED to
+    `_MODEL_SETTING_FIELDS`. A request key is that tuple positionally after
+    (field, box); an insertion in the middle would make every cached key mean
+    something else. Exclude-at-the-border is the button's only, because the
+    magnifier answers the border with its own box-border switch.
+
+POINT 6 -- CLEAR, DILATE, SHRINK
+
+  * `mask_engine.dilate_objects` grows every label into background only
+    (`expand_labels`), so no two objects fuse and the object count cannot
+    change -- an id that has been got right keeps every measurement, track
+    and crop keyed to it. `shrink_objects` erodes each object against
+    everything that is not itself, background AND its neighbours, so a
+    touching pair comes apart; eroding `mask > 0` as one binary would leave
+    that seam alone, which is the opposite of what Shrink is for. Each object
+    is eroded in its own bounding box, the way part A's `canonical_labels`
+    works. Both use the Euclidean distance, so a Shrink undoes a Dilate of
+    the same size on an object that had room to grow -- asserted.
+  * Both are one undo step and one ledger entry carrying the step. Shrink
+    says how many objects it erased, because an object thinner than twice the
+    step disappears and a curator who has just lost eleven of them needs to
+    be told while Undo is still the obvious thing to do.
+  * Clear already existed and already confirmed; it is now captioned "Clear"
+    and its question names the count about to go. The dialog is still titled
+    "Clear mask".
+
+EVIDENCE
+
+  * 37 new tests in tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py,
+    all passing: the panel measured in pixels on a shown screen, every
+    shortcut driven on the canvas, the rename in both directions (new name
+    shown, old name still selects), a stored layout naming the old category,
+    each Otsu setting shown to change what the button produces, and the three
+    buttons driven with their undo steps and ledger entries.
+  * The 36 Make Masks / magnifier / mask_engine test files, one process each,
+    offscreen, compared file by file against a clean origin/nightly worktree
+    at the same commit, 58bcc5c61: 789 passing here against 752 there, and
+    the two failure lists identical. Every one green on both trees except
+    tests/qt/test_make_masks_settings_explain_themselves.py's exact-catalog-row
+    test, which is red on clean nightly too (the catalog lane, below) -- and
+    the segfault immediately below, which this branch had to find the cause
+    of before it could claim anything.
+  * Ten more files run as guards on this branch, all green: the theme-blind
+    and every-widget-wears-the-theme sweeps, polish, the scrim solver,
+    ambient wiring, the built-once check, the mask filter translation, the
+    no-comments rule and the ledger self-consistency check (431 files).
+
+A SEGFAULT THIS BRANCH CAUSED, AND WHAT IT ACTUALLY WAS
+
+  * tests/qt/test_the_make_masks_segmentation_workbench.py died with SIGSEGV
+    about half the time on this branch and never once on clean nightly (0 in
+    16). It dies partway through, after a dozen tests, with no failing
+    assertion -- inside pytest-qt's _process_events.
+  * A gdb backtrace named it: QTimerInfoList::activateTimers ->
+    QCoreApplication::notifyInternal2, a Qt timer delivering an event to a
+    C++ object Python had already collected. Bisecting the change by feature
+    found the trigger: ONE MORE SPIN BOX on the settings panel. Nightly plus
+    a single bare QSpinBox crashes 1 run in 5; plus the three controls point
+    6 asks for, 5 in 6.
+  * So the screen was never the defect. The fixture was: it ended at
+    close_folded() and left the magnifier's worker thread, its timers and the
+    screen itself alive, and it was the only Make Masks fixture in the suite
+    that did not close the magnifier. Closing the magnifier, closing and
+    deleting the screen and draining the DeferredDelete queue is 0 crashes in
+    16 runs WITH the new controls in place. The measurement is in the
+    fixture's docstring, because the next person to add a timer-owning widget
+    to that panel needs it.
+  * Not chased further: why the panel's existing spin boxes were not already
+    enough. The debt was there to be collected and any new control would have
+    collected it.
+
+  * Seven existing test files were updated -- six for the renames and the
+    layout, and the workbench fixture above. One test changed for a reason
+    worth recording:
+    test_a_failed_detection_is_reported_not_raised stubbed
+    `engine.otsu_instances`, which the button reached only through
+    `_otsu_instances`'s shortcut for a plain threshold. Two of the new
+    settings start on, so that shortcut is no longer taken and the stub was
+    never reached. The stub is now on `_otsu_instances`, which is what the
+    button calls.
+
+WHAT IS LEFT
+
+  * Catalogs: every new and changed user-facing string waits for the
+    consolidated translation pass, and the exact-row test in
+    tests/qt/test_make_masks_settings_explain_themselves.py is red on them --
+    as it already is on nightly, from part A. New public API:
+    `mask_engine.dilate_objects`, `mask_engine.shrink_objects`, and in
+    make_masks `SHORTCUT_HINTS`, `SHORTCUTS_WIDTH`, `OTSU_SMOOTHING` and
+    `canonical_magnifier_mode`.
+  * Not done: a look at the real app on a real display. The shortcut panel's
+    width was chosen for twelve short lines and has only been measured
+    offscreen at 1500 px.
+  * Points 7-9 are part C: the Filter category with its removal ledger,
+    Ctrl+click split and remove, and the Invert work, including 9a's swap of
+    every QCheckBox in this module for the package's Toggle slider -- which
+    will reach the four new Otsu tick-boxes and the two new buttons' row.
