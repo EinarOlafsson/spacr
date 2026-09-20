@@ -2,16 +2,21 @@
 MAKE MASKS: A HOVER READOUT, THE LAYOUT, INSTALLABLE MODELS, AND HAND EDITING
 ================================================================================
 
-Status:    OPEN, filed 2026-09-16. Points 1-3 BUILT AND ON NIGHTLY
-           2026-09-19, reviewed, with 208 tests green; point 3 installs into
-           an environment of its own since item 423 (note below). Points 4-6
+Status:    OPEN, ~95%, filed 2026-09-16. ALL NINE POINTS ARE BUILT; what is
+           open is a translation pass and a look in the real app, neither of
+           which is code. Points 1-3 BUILT AND ON NIGHTLY 2026-09-19,
+           reviewed, with 208 tests green; point 3 installs into an
+           environment of its own since item 423 (note below). Points 4-6
            (part B) BUILT, REVIEWED AND ON NIGHTLY 2026-09-19, 39 new tests
-           green; its new and changed user-facing strings are English only
-           and the nine-language rows for them are owed to the consolidated
-           translation pass, along with one stale Help-search summary (notes
-           below). Points 7-9 (part C) not started, and item 435 has since
-           been filed against point 9's Invert and asks for more Otsu
-           options again. See the four 2026-09-19 notes at the end.
+           green. Points 7-9 (part C) BUILT 2026-09-19 on branch
+           home/419-part-c, 65 new tests green, NOT PUSHED AND NOT REVIEWED.
+           Every new and changed user-facing string in all three parts is
+           English only and its nine-language rows are owed to the
+           consolidated translation pass, along with one stale Help-search
+           summary (notes below); no part of this item has been looked at in
+           the real app on a real display. Item 435 was filed against point
+           9's Invert and asks for more Otsu options again: it is NOT closed
+           by this. See the five 2026-09-19 notes at the end.
 Requested: 2026-09-16, by the maintainer, in these words, numbered as he wrote
            them:
 
@@ -690,3 +695,186 @@ is the fifth: what was said, and what is true.
 
 Tests after the fixes: the new file is 39 tests, all green, and the six other
 touched Make Masks files were re-run on the rebased branch.
+--------------------------------------------------------------------------------
+2026-09-19 — POINTS 7-9 BUILT (PART C OF THREE), BRANCH home/419-part-c
+--------------------------------------------------------------------------------
+
+Cut from nightly 69c7602f0, on top of parts A and B. NOT PUSHED, NOT
+REVIEWED. This finishes the item's code: all nine points the maintainer
+wrote are now built.
+
+POINT 7 -- THE FILTER CATEGORY AND ITS REMOVAL LEDGER
+
+  * The category is called Filter and so is the button. The four bounds were
+    already there and already default to 0, which is off, and a test now
+    says so and presses Filter with all four off to prove nothing moves. The
+    rename goes through `_RENAMED_CATEGORIES`, so a user who had folded
+    "Auto-filter objects" away finds Filter folded rather than open.
+  * Under the button a read-only box lists ONE ROW PER REMOVED OBJECT:
+    "Object 3 with area 9 px and intensity 200.00 was removed by minimum
+    area 20". The bound's own NUMBER is in the row and not only its name,
+    because a row naming only the bound leaves the reader hunting for the
+    box it came from; an object outside two bounds names both, since it does
+    not come back by moving one of them.
+  * The ids and the numbers are the hover readout's own, and a test asserts
+    exactly that against the same object. `mask_engine.filter_objects`
+    measured the area, the mean and the failing bound and threw two of the
+    three away; it is now `filter_report` with the reasons KEPT, and
+    `filter_objects` is that function with them dropped. One pass over one
+    set of measurements, so the mask and the rows the user reads cannot
+    disagree about which objects went.
+  * The rows are cleared at the START of every run -- including the
+    automatic run a field load makes, and the run that removes nothing.
+    They name objects in the mask ON SCREEN, and a row carried over from the
+    last field names an object that is not there.
+  * The red is the theme's `error`, through a QSS block registered with
+    `register_widget_qss` rather than a colour set on the widget: a colour
+    written at build time is the colour it keeps when the theme changes
+    under it. The test reads the resolved palette off a shown screen, not
+    the string that was asked for.
+  * THE AUTOMATIC FILTER A FIELD LOAD RUNS IS UNCHANGED AND STILL THERE.
+    Point 7 describes the button; nothing asked for the automatic run to go,
+    and with every bound at 0 it does nothing. The category's subtitle now
+    says both, where the old one said only "Applied when a field loads".
+
+POINT 8 -- CTRL + CLICK
+
+  * Ctrl + left click splits the object under the cursor; Ctrl + right click
+    removes it. Each is one stroke, so each is one undo step and one ledger
+    entry, like every other edit on this canvas. Two lines joined the
+    shortcut panel and are driven by tests like the other twelve.
+  * THE SPLIT IS A WATERSHED AT THE OBJECT'S WAIST, and an object with ONE
+    CENTRE IS LEFT ALONE and told so rather than halved through the click. A
+    single click carries no direction and a forced cut would have to invent
+    one; the object that needs cutting is nearly always a pair that merged,
+    which has two centres. The gesture for a cut the user aims is the Divide
+    tool, and the status line says so by name.
+  * No pixel is lost: the larger piece keeps the id, the others are minted
+    above the mask's top label (`canonical_labels`' own rule, and
+    `divide_object`'s), and every pixel of the object ends up under one of
+    them. Min area sets the seed spacing -- the same box that says what
+    debris is -- and is deliberately NOT applied as a drop, or the gesture
+    would be a delete wearing a split's name.
+  * CTRL IS TESTED BEFORE THE MAGNIFIER AND BEFORE THE PAN in
+    `mousePressEvent`, or the two edits would exist only while the magnifier
+    was off: its press handler takes every left click and its whole-image
+    mode takes every right one. AND THE RELEASE HAD TO BE CONSUMED TOO. The
+    magnifier's `release()` with no stroke open IS a click, so the first
+    draft split one object on the way down and committed every object in the
+    box on the way back up. A test drives both gestures with the magnifier
+    on and asserts the box's own objects did not arrive.
+  * The canvas had no way to say anything; it has a `status` signal now.
+    These are its first gestures that can decline to act for a reason worth
+    telling -- a click on background, an object with no waist -- and a
+    shortcut that does nothing and says nothing reads as a broken shortcut.
+
+POINT 9 -- INVERT
+
+  * All ten `QCheckBox`es in the module are the package's `Toggle` slider
+    (9a). It is a `QCheckBox` subclass, so every existing connection and
+    every test that finds these controls by type is unchanged; a test now
+    fails on any plain checkbox appearing on this screen again.
+  * "Invert" is a `Toggle` in the Object detection category (9b).
+  * WHAT "INVERTED" MEANS, which the item left open for the builder:
+    `max + min - value` ON THE IMAGE'S OWN RANGE. Not the dtype's maximum,
+    which puts a 12-bit field stored in uint16 into the top six per cent of
+    the range, where every display stretch and every printed number has to
+    be undone by hand. Not the contrast-stretched view, which is a viewing
+    choice -- a detector reading it would move when the percentiles moved,
+    which is the argument `filter_objects`' own docstring already makes
+    about intensity bounds. Reflecting about the image's own extremes keeps
+    the span exactly and is its own inverse.
+  * A CROP IS REFLECTED ABOUT THE WHOLE FIELD'S EXTREMES, not its own, or
+    the box would invert differently wherever it was put and would stop
+    being a preview of the button -- the disagreement part B's point 5 spent
+    its evidence closing. The pair is found once per field and cached on the
+    array, not on every mouse move.
+  * The magnifier SHOWS the inverted region (9c) and hands the SAME array to
+    the model (9d): one function, `region_for`, produces both, so what is
+    inside the box is what the model was given. Otsu detect and Object
+    detection both read `_detector_image`, so the two buttons cannot
+    disagree about which way up the image was; both record `invert` in the
+    ledger entry and say so on the status line.
+  * The canvas's own array is never inverted in place, which is what keeps
+    the point 1 readout and the point 7 filter reporting the field's REAL
+    values -- this item's own note asks for that, since a user filtering by
+    intensity would otherwise be judging inverted numbers. Tested from the
+    screen: the readout is identical with Invert on and off, and the removal
+    rows carry the real mean.
+  * The warning (9e) sits between the tool row and the image and NOT in the
+    settings panel, because the Settings toggle hides that panel to give the
+    image the width and the magnifier goes on inverting while it is hidden.
+    A test hides the panel and asserts the warning is still up.
+  * `invert` is APPENDED to `_MODEL_SETTING_FIELDS`, like part B's three,
+    because a request key is that tuple positionally; part B's pin on the
+    last three settings is now a pin on the last four, which is what
+    appending is supposed to look like.
+
+EVIDENCE
+
+  * 65 new tests, all passing, in two files:
+    tests/qt/test_make_masks_filters_splits_and_inverts.py (40: every
+    gesture driven on the canvas, the log read off the built widget, the
+    two inks measured as resolved palette colours on a shown screen, the
+    box's painted pixels compared with Invert on and off, and the array each
+    detector is handed compared against the field) and
+    tests/test_mask_engine_splits_filters_and_inverts.py (25, no display:
+    the four bounds, the report against the plain filter, the split's three
+    rules, and the inversion's dtype, span, bounds and nonfinite handling).
+  * The 36 Make Masks / magnifier / mask_engine test files, one process
+    each, offscreen, against a clean origin/nightly worktree at the same
+    commit (69c7602f0): 1,082 passing here against 1,018 there, and the two
+    failure lists identical -- one file, one test:
+    test_make_masks_settings_explain_themselves.py's exact-catalog-row test,
+    which is red on clean nightly too.
+  * That catalog test's list of captions with no exact row was diffed
+    line by line between the trees rather than counted: this branch adds
+    EXACTLY ONE source string to it, the Invert tooltip, in eight languages.
+    Nothing else on the panel changed its list.
+  * 14 convention, i18n, docstring and theme gate files were run on BOTH
+    trees the same way. The two results are identical, file by file and
+    failing-test-id by failing-test-id: 11 failures on each, being the
+    module-coverage ratchet, four docstring-correctness tests, the four
+    caption-ratchet tests and two API-extractor tests -- every one of them
+    red on clean nightly. Green on both: the no-comments rule, the ledger
+    self-consistency check, the completed-modules docstring gate, the API
+    i18n frontend, the theme-blind sweep, every-widget-wears-the-theme,
+    polish, module tooltips, app-registry parity and the folded rows.
+  * The caption ratchet's own list of captions needing reviewed rows grows
+    by EXACTLY FIVE here and loses none: the Filter category's subtitle,
+    the Filter button's tooltip, the removal log's tooltip, its placeholder,
+    and "Invert".
+  * tests/test_documentation_i18n.py was NOT measured on either tree. It ran
+    past the ten-minute cap this session works under, with two other
+    sessions running the same file at the same time; nothing this branch
+    touches is under docs/source.
+  * Two existing tests were edited, both because this change moved what they
+    pin and not because they broke: the request-key pin above, and
+    test_the_magnifier_round_two_settings.py's category list, which names
+    every settings category in order and had "Auto-filter objects" in it.
+
+WHAT IS LEFT
+
+  * Catalogs, as for parts A and B: every new and changed string here is
+    English only. Owed to the consolidated pass -- the Filter category title
+    and subtitle, the Filter button and its tooltip, the removal-row
+    sentence with its four bound names and its "and" joiner, the log's
+    tooltip and placeholder, the two shortcut lines, the four canvas status
+    sentences, the Invert caption and tooltip, the Invert warning, and the
+    two detect status lines that now say INVERTED.
+  * New public API for the same pass: mask_engine.filter_report,
+    FilterRemoval, FILTER_BOUNDS, split_object_at and invert_intensity;
+    make_masks.FILTER_LOG_ROWS, FILTER_LOG_NAME, INVERT_WARNING_NAME,
+    INVERT_WARNING_TEXT and MAKE_MASKS_QSS_NAME.
+  * A NAME COLLISION WORTH KNOWING ABOUT, and it is not closed by this.
+    Object operations already has a BUTTON called "Invert mask", which
+    swaps foreground and background, and item 435 is open precisely because
+    the maintainer found that one confusing. Object detection now has a
+    SWITCH called "Invert", which is the maintainer's own word for the
+    intensity inversion of point 9 and a different thing. The tooltip and
+    the warning banner both say which is which, and 435's invert half --
+    about the mask operation -- is untouched, as is its ask for more Otsu
+    options.
+  * Not done: a look at any of this in the real app on a real display. The
+    filter log's height was chosen for six rows and has only been measured
+    offscreen.
