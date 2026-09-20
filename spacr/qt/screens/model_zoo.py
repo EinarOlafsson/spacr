@@ -468,6 +468,12 @@ class ModelZooScreen(QWidget):
         scan_row.addWidget(self._btn_scan)
         outer.addLayout(scan_row)
 
+        from ..widgets.model_zoo_picker import SourceStrip, community_guard
+
+        self.sources = SourceStrip(self, guard=community_guard(self))
+        self.sources.changed.connect(self._sources_changed)
+        outer.addWidget(self.sources)
+
         self._table = QTableWidget(0, len(_ZOO_HEADERS), self)
         install_sorting(self._table)
         self._table.setObjectName(TABLE_NAME)
@@ -654,8 +660,42 @@ class ModelZooScreen(QWidget):
             table.setCellWidget(r, 4, combo)
             self._fill_row(r)
         table.blockSignals(False)
+        self._apply_source_filter()
         table.resizeColumnsToContents()
         self.models_listed.emit(len(self._entries))
+        self._update_controls()
+
+    def _apply_source_filter(self) -> None:
+        """Hide the rows whose source heading is folded away.
+
+        Hidden rather than dropped from :attr:`_entries`: the row identity
+        stamped in :meth:`_fill_row` indexes :attr:`_groups`, and
+        :meth:`selected_entries` reads it, so folding a heading must not
+        renumber anything. ``models_listed`` still counts everything listed
+        -- it answers "what does this machine know about", which folding a
+        heading does not change.
+        """
+        strip = getattr(self, "sources", None)
+        if strip is None:
+            return
+        enabled = set(strip.enabled())
+        for row, (stem, pairs) in enumerate(self._groups):
+            entry = pairs[self._chosen[stem]][1]
+            self._table.setRowHidden(row, zoo.source_of(entry) not in enabled)
+
+    def _sources_changed(self) -> None:
+        """A heading was clicked: re-fold the table, and re-list if the
+        shared catalogue was just asked for.
+
+        Only "spaCR community" needs a re-list: the other four headings'
+        rows are already in the listing, folded away. The community rows are
+        fetched exactly when somebody asks for them, so a user who never
+        turns that heading on never makes that request.
+        """
+        if self.sources.is_on("spaCR community"):
+            self.scan(include_catalogue=True)
+            return
+        self._apply_source_filter()
         self._update_controls()
 
     def _fill_row(self, row: int) -> None:
@@ -759,9 +799,15 @@ class ModelZooScreen(QWidget):
             self._update_controls()
             return False
 
+        strip = getattr(self, "sources", None)
+        community = bool(strip is not None
+                         and strip.is_on("spaCR community"))
+
         def _job() -> List[zoo.ModelEntry]:
             """Find every model, catalogue plus local. Off the GUI thread."""
             found = list(zoo.catalogue()) if include_catalogue else []
+            if community:
+                found += list(zoo.community_entries(allow_network=True))
             have = {e.path for e in found if e.path}
             if target:
                 for entry in zoo.discover_local(target):

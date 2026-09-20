@@ -34,9 +34,17 @@ def _row_needing_download(picker):
     index as a row number, which named the right row only while no family
     had two versions -- the day the Cellpose 3 backend row arrived, it named
     a backend, whose Download installs rather than downloads.
+
+    AND NEVER A HIDDEN ROW (item 440). The source headings fold four of the
+    five origins away, and ``selectRow`` on a folded row selects nothing --
+    which read as "the picker lost its selection" in six tests at once. The
+    first downloadable row is now the first one a user could actually click,
+    which is what these tests were always asking for.
     """
     for row, (stem, pairs) in enumerate(picker._groups):
         entry = pairs[picker._chosen[stem]][1]
+        if picker.table.isRowHidden(row):
+            continue
         if entry.kind != "backend" and picker._local_path(entry) is None:
             return row
     pytest.skip("every offered model is already present")
@@ -213,8 +221,13 @@ def _unverified_row(picker):
     it. And if the catalogue publishes a checksum for everything -- which is
     the goal, and is true today -- list one that does not, rather than letting
     this test pass or fail on what the catalogue happens to hold.
+
+    A folded-away row is skipped, for the reason given in
+    :func:`_row_needing_download`.
     """
     for row, (_stem, pairs) in enumerate(picker._groups):
+        if picker.table.isRowHidden(row):
+            continue
         for index, (_label, entry) in enumerate(pairs):
             # Backends publish no checksum either, but they are packages
             # installed with pip, not downloads -- a different button and a

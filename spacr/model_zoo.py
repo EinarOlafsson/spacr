@@ -170,6 +170,11 @@ __all__ = [
     "CLASSIFIER_SUFFIXES",
     "CELLPOSE_SUFFIXES",
     "ChecksumMismatch",
+    "ZOO_SOURCES",
+    "DEFAULT_ZOO_SOURCES",
+    "source_of",
+    "group_by_source",
+    "entries_from_sources",
     "DEFAULT_N_FIELDS",
     "DEFAULT_SCAN_DEPTH",
     "DownloadCancelled",
@@ -2289,6 +2294,114 @@ def community_entries(allow_network: bool = False,
                        + COMMUNITY_WARNING,
             trained_by=str(meta.get("contact") or "a spaCR user")))
     return out
+
+
+#: The five places a zoo row can come from, in the order they are offered.
+#:
+#: WHY FIVE HEADINGS RATHER THAN ONE LIST AND A BOOLEAN. The zoo used to be a
+#: single list with "show unvetted community uploads" beside it. Ten models
+#: trained here, four stock Cellpose-SAM backbones, bioimage.io's collection,
+#: the Cellpose 3 backend's own four and a shared catalogue is more than a
+#: list can carry, and a boolean that means "also show these" cannot fold away
+#: the four groups a reader is not looking at.
+#:
+#: These are the names the maintainer chose, and they are IDENTIFIERS as well
+#: as captions: :func:`source_of` returns one of them, and the picker
+#: remembers which are on by this spelling. Renaming one is a migration.
+ZOO_SOURCES: Tuple[str, ...] = (
+    "cellposeSAM", "spaCR", "spaCR community", "bioimage.io", "cellpose3")
+
+#: The headings a user who has never touched them sees turned on.
+#:
+#: The stock weights and the models trained here: the two a new user can act
+#: on immediately. The other three are opt-in -- community uploads because
+#: nobody has vetted them, bioimage.io and cellpose3 because they are long
+#: lists of other people's models that would bury the ten this project ships.
+DEFAULT_ZOO_SOURCES: Tuple[str, ...] = ("cellposeSAM", "spaCR")
+
+#: ``ModelEntry.source`` values that mean "spaCR's own catalogue".
+#:
+#: ``remote`` is :data:`BUNDLED_REMOTE_MODELS` and any JSON catalogue named by
+#: :data:`CATALOGUE_ENV_VAR`; ``bundled`` is what shipped in the package;
+#: ``local`` is a checkpoint found on this machine or listed through the Add
+#: button. All three are models this project offers, so all three are spaCR.
+_SPACR_OWN_SOURCES = ("remote", "bundled", "local")
+
+#: ``ModelEntry.source`` values that mean an unvetted upload.
+#:
+#: ``shared`` comes from :func:`shared_catalogue`, ``community`` from
+#: :func:`community_entries`; the two are different transports for the same
+#: thing, which is a file somebody uploaded that nobody has checked.
+_COMMUNITY_SOURCES = ("shared", "community")
+
+
+def source_of(entry: Any) -> str:
+    """Which of :data:`ZOO_SOURCES` this row belongs under.
+
+    Decided FROM THE ROW, never from a list of names kept somewhere else: a
+    hand-written list goes stale the first time a model is added, and the
+    failure it produces is a model that is in the catalogue and under no
+    heading, which is a model nobody can see.
+
+    The order of the tests is the rule, and it matters in one place: a
+    Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not
+    a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,
+    cyto2, cyto3, nuclei -- and the backend package that runs them.
+
+    A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It
+    is the fallback rather than a sixth heading because a model under the
+    wrong heading is a nuisance and a model under no heading is a bug the
+    user experiences as a missing model.
+
+    :param entry: any zoo row -- a :class:`ModelEntry`, or anything with
+        ``kind``, ``source`` and ``uri``.
+    :returns: one of :data:`ZOO_SOURCES`.
+    """
+    source = str(getattr(entry, "source", "") or "")
+    kind = str(getattr(entry, "kind", "") or "")
+    uri = str(getattr(entry, "uri", "") or "")
+    if source in _COMMUNITY_SOURCES:
+        return "spaCR community"
+    if source == "bioimage.io" or "bioimage" in uri.lower():
+        return "bioimage.io"
+    if kind == "cellpose3" or _backend_for(entry) == "cellpose3":
+        return "cellpose3"
+    if kind == "cellpose" and source == "stock":
+        return "cellposeSAM"
+    if kind == "backend" or source in _SPACR_OWN_SOURCES:
+        return "spaCR"
+    LOG.warning(
+        "model zoo: %r (kind=%r, source=%r) matches no source heading; "
+        "listing it under spaCR so it stays visible",
+        getattr(entry, "name", "") or getattr(entry, "key", ""), kind, source)
+    return "spaCR"
+
+
+def group_by_source(entries: Iterable[Any]) -> Dict[str, List[Any]]:
+    """Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.
+
+    Every heading is present even when it has no rows, so a caller drawing
+    the strip does not have to know which of the five happened to be empty
+    this time.
+
+    :param entries: the rows to split.
+    :returns: heading -> rows, in :data:`ZOO_SOURCES` order.
+    """
+    out: Dict[str, List[Any]] = {name: [] for name in ZOO_SOURCES}
+    for entry in entries:
+        out[source_of(entry)].append(entry)
+    return out
+
+
+def entries_from_sources(entries: Iterable[Any],
+                         sources: Iterable[str]) -> List[Any]:
+    """The rows belonging to the headings that are on, in the given order.
+
+    :param entries: the rows to filter.
+    :param sources: the headings currently on.
+    """
+    wanted = set(sources)
+    return [entry for entry in entries if source_of(entry) in wanted]
 
 
 def catalogue(include_bundled: bool = True, remote: bool = True,

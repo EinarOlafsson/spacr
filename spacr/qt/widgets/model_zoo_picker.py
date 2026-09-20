@@ -19,6 +19,17 @@ download happens on the button. That matters because the list is useful on its
 own -- seeing that a model exists and what it was trained on is often the whole
 question -- and because a dialog that starts a gigabyte transfer on open is one
 users learn not to open.
+
+WHY THE LIST HAS FIVE HEADINGS RATHER THAN A BOOLEAN. It used to be one list
+with "show unvetted community uploads" beside it -- a control that could fold
+away exactly one of the catalogue's five origins. With ten models trained
+here, four stock Cellpose-SAM backbones, bioimage.io's collection, the
+Cellpose 3 backend's own four and a shared catalogue, a user who wanted the
+ten and not the rest had no way to say so. :class:`SourceStrip` is the five
+origins as five clickable names, each one blue when its rows are on screen and
+muted when they are folded away, remembered between openings. The warning the
+boolean carried is unchanged and still arrives before the first unvetted row
+does -- see :meth:`ModelZooPicker._may_show_source`.
 """
 from __future__ import annotations
 
@@ -28,7 +39,7 @@ from types import SimpleNamespace
 from typing import List, Optional
 
 from PySide6.QtCore import QObject, Qt, QThread, QTimer, Signal
-from PySide6.QtWidgets import (QAbstractItemView, QCheckBox, QDialog,
+from PySide6.QtWidgets import (QAbstractItemView, QDialog,
                                QDialogButtonBox,
                                QFileDialog, QHBoxLayout, QHeaderView, QLabel,
                                QLineEdit, QMessageBox, QProgressBar,
@@ -43,6 +54,15 @@ DEFAULT_MODEL_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
 
 #: QSettings key remembering the chosen folder.
 _DIR_SETTING = "model_zoo/download_dir"
+
+#: QSettings key remembering which source headings are on.
+#:
+#: Stored as a comma-joined list rather than a QStringList because an empty
+#: QStringList comes back from the INI backend as ``None``, which is
+#: indistinguishable from "never set" -- and those two have to differ here:
+#: never set means :data:`spacr.model_zoo.DEFAULT_ZOO_SOURCES`, while every
+#: heading turned off means exactly that.
+_SOURCES_SETTING = "model_zoo/sources"
 
 _COLUMNS = ("Model", "Kind", "Trained on", "Status", "Version")
 
@@ -73,6 +93,269 @@ def _remember_model_dir(folder: str) -> None:
         QSettings().setValue(_DIR_SETTING, str(folder))
     except Exception:                                       # noqa: BLE001
         pass
+
+
+def remembered_sources() -> tuple:
+    """Which source headings this user last left on.
+
+    Through QSettings for the same reason the download folder is -- the
+    headings a user folds away stay folded away tomorrow, not only for the
+    rest of this dialog. Read here rather than held on the dialog so the
+    Make Masks Mode box and the Model Zoo page answer from the same
+    preference without owning a copy of it.
+
+    :returns: names from :data:`spacr.model_zoo.ZOO_SOURCES`, in that order.
+    """
+    from ... import model_zoo
+
+    stored = None
+    try:
+        from PySide6.QtCore import QSettings
+
+        settings = QSettings()
+        if settings.contains(_SOURCES_SETTING):
+            stored = str(settings.value(_SOURCES_SETTING, "") or "")
+    except Exception:                                       # noqa: BLE001
+        stored = None
+    if stored is None:
+        return tuple(model_zoo.DEFAULT_ZOO_SOURCES)
+    chosen = {name.strip() for name in stored.split(",") if name.strip()}
+    return tuple(name for name in model_zoo.ZOO_SOURCES if name in chosen)
+
+
+def _remember_sources(names) -> None:
+    """Persist the headings that are on, quietly."""
+    try:
+        from PySide6.QtCore import QSettings
+
+        QSettings().setValue(_SOURCES_SETTING, ",".join(str(n) for n in names))
+    except Exception:                                       # noqa: BLE001
+        pass
+
+
+class _SourceHeading(QLabel):
+    """One clickable source heading: blue when on, muted when off.
+
+    The colour IS the state. There is no box and no tick, because the
+    maintainer asked for a row of names that read as a row of names -- "if
+    clicked the text turns blue and the models in that category are
+    visible" -- and a checkbox beside each would put five boxes above a
+    table that already has a column of them.
+
+    Styled per widget rather than through the application sheet, exactly as
+    :class:`spacr.qt.widgets.ai_toggle_label.AiToggleLabel` is, and for the
+    same reason: the off colour has to be resolved from the palette IN FORCE
+    NOW. The frozen module-level palette is the dark one, and importing it
+    painted white text onto the light theme's near-white page.
+
+    :param name: the heading, one of :data:`spacr.model_zoo.ZOO_SOURCES`.
+    :param parent: the strip that owns it.
+    """
+
+    clicked = Signal()
+
+    def __init__(self, name: str, parent: Optional[QWidget] = None):
+        """Build one heading, off."""
+        super().__init__(str(name), parent)
+        self._name = str(name)
+        self._on = False
+        self.setObjectName("ModelZooSource")
+        self.setCursor(Qt.PointingHandCursor)
+        self._restyle()
+
+    @property
+    def source_name(self) -> str:
+        """The heading this label stands for."""
+        return self._name
+
+    def is_on(self) -> bool:
+        """Whether this heading's rows are on screen."""
+        return self._on
+
+    def set_on(self, on: bool) -> None:
+        """Set the state and re-ink; emits nothing."""
+        self._on = bool(on)
+        self._restyle()
+
+    def mousePressEvent(self, event):                       # noqa: N802
+        """A left click asks the strip to flip this heading."""
+        if event.button() == Qt.LeftButton:
+            self.clicked.emit()
+            return
+        super().mousePressEvent(event)
+
+    def changeEvent(self, event):                           # noqa: N802
+        """Follow a theme or zoom change, which replaces the app sheet."""
+        from PySide6.QtCore import QEvent
+
+        try:
+            kind = event.type()
+        except Exception:                                   # noqa: BLE001
+            kind = None
+        super().changeEvent(event)
+        if kind in (QEvent.StyleChange, QEvent.PaletteChange,
+                    QEvent.ApplicationPaletteChange,
+                    QEvent.ApplicationFontChange):
+            self._restyle()
+
+    def _restyle(self) -> None:
+        """Blue when on, muted when off, at the current zoom."""
+        from ..theme import active_palette, font_px
+
+        palette = active_palette()
+        colour = palette["accent"] if self._on else palette["fg_muted"]
+        size = font_px("body")
+        sheet = (f"QLabel#ModelZooSource {{"
+                 f"  color: {colour};"
+                 f"  font-size: {size}px;"
+                 f"  font-weight: 600;"
+                 f"  padding: {max(2, round(size * 4 / 13))}px"
+                 f" {max(4, round(size * 8 / 13))}px;"
+                 f"  background: transparent;"
+                 f"}}")
+        if sheet == self.styleSheet():
+            return
+        self.setStyleSheet(sheet)
+        self.updateGeometry()
+
+
+class SourceStrip(QWidget):
+    """The five source headings, their state, and where that state is kept.
+
+    Replaces the single "show unvetted community uploads" checkbox. The
+    catalogue has five origins and the checkbox could fold away exactly one
+    of them; a user who wants the ten models trained here, and not
+    bioimage.io's collection, had no way to say so.
+
+    The strip owns the preference and nothing else: which rows a table then
+    shows is the table's business, reached through :attr:`changed`. That is
+    what lets the picker, the Model Zoo page and Make Masks agree about
+    what is on without sharing a widget.
+
+    :param parent: the widget that owns it.
+    :param guard: ``guard(name) -> bool``, consulted before a heading is
+        turned ON. Returning False leaves it off -- it is how the community
+        warning refuses. ``None`` allows everything.
+    """
+
+    changed = Signal()
+
+    def __init__(self, parent: Optional[QWidget] = None, guard=None):
+        """Build the five headings in the state this user left them."""
+        from ... import model_zoo
+
+        super().__init__(parent)
+        self._guard = guard
+        self._headings: dict = {}
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        on_now = set(remembered_sources())
+        for name in model_zoo.ZOO_SOURCES:
+            heading = _SourceHeading(name, self)
+            heading.setToolTip(_SOURCE_TOOLTIPS.get(name, ""))
+            heading.set_on(name in on_now)
+            heading.clicked.connect(
+                lambda n=name: self.set_on(n, not self.is_on(n)))
+            row.addWidget(heading)
+            self._headings[name] = heading
+        row.addStretch(1)
+
+    def heading(self, name: str) -> _SourceHeading:
+        """The label for one source, for a test or a tooltip retarget."""
+        return self._headings[str(name)]
+
+    def is_on(self, name: str) -> bool:
+        """Whether one heading is on."""
+        heading = self._headings.get(str(name))
+        return bool(heading is not None and heading.is_on())
+
+    def enabled(self) -> tuple:
+        """The headings that are on, in :data:`ZOO_SOURCES` order."""
+        return tuple(name for name, heading in self._headings.items()
+                     if heading.is_on())
+
+    def set_on(self, name: str, on: bool) -> bool:
+        """Turn one heading on or off, asking :attr:`_guard` first.
+
+        :param name: the heading.
+        :param on: the state wanted.
+        :returns: the state it actually ended in.
+        """
+        heading = self._headings.get(str(name))
+        if heading is None:
+            return False
+        on = bool(on)
+        if on == heading.is_on():
+            return on
+        if on and self._guard is not None and not self._guard(str(name)):
+            return False
+        heading.set_on(on)
+        _remember_sources(self.enabled())
+        self.changed.emit()
+        return on
+
+
+def confirm_community_uploads(parent) -> bool:
+    """Say what an unvetted upload is, and ask whether to show them anyway.
+
+    The words are the retired checkbox's own, unchanged. The control that
+    carried them was what was wrong; the sentence was not. It is said rather
+    than merely labelled because the difference between a reviewed model and
+    an unreviewed one is not visible in a table.
+
+    :param parent: the widget the dialog belongs to.
+    :returns: True when the user said to show them.
+    """
+    return QMessageBox.warning(
+        parent, "Community uploads are not vetted",
+        "These models are uploaded by other spaCR users through the Add "
+        "button.\n\nNobody has checked what they are, what they were "
+        "trained on, or whether the numbers they report are real. Their "
+        "checksums prove only that a file has not changed since it was "
+        "uploaded -- not that it is any good, and not that it is safe to "
+        "trust with your data.\n\nShow them anyway?",
+        QMessageBox.Yes | QMessageBox.Cancel,
+        QMessageBox.Cancel) == QMessageBox.Yes
+
+
+def community_guard(owner):
+    """A :class:`SourceStrip` guard that warns once about community uploads.
+
+    Shared by the picker and the Model Zoo page so the two say the same
+    thing, once each, rather than one of them quietly listing unvetted rows.
+    The "once" is per window, which is what the checkbox did.
+
+    :param owner: the widget the warning belongs to; it carries the flag.
+    """
+    def guard(name: str) -> bool:
+        """Allow every heading but community, which asks first."""
+        if name != "spaCR community":
+            return True
+        if getattr(owner, "_community_warned", False):
+            return True
+        if not confirm_community_uploads(owner):
+            return False
+        owner._community_warned = True
+        return True
+
+    return guard
+
+
+#: What each heading says when the pointer rests on it.
+_SOURCE_TOOLTIPS = {
+    "cellposeSAM": "The stock Cellpose-SAM weights, which Cellpose "
+                   "downloads and verifies for itself.",
+    "spaCR": "Models trained by the spaCR maintainer and by spaCR users, "
+             "each with the scorecard it was measured against.",
+    "spaCR community": "Models uploaded by other spaCR users through the Add "
+                       "button. Nobody has checked what they are, what they "
+                       "were trained on, or whether their reported scores "
+                       "are real.",
+    "bioimage.io": "Cellpose models published on bioimage.io, read through "
+                   "its artifact API.",
+    "cellpose3": "The Cellpose 3 backend's own models — cyto, cyto2, cyto3 "
+                 "and nuclei — and the backend that runs them.",
+}
 
 
 class _DownloadWorker(QObject):
@@ -506,6 +789,7 @@ class ModelZooPicker(QDialog):
         self.table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.table.setSelectionMode(QAbstractItemView.SingleSelection)
         self.table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table.verticalHeader().setVisible(False)
         self.table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self.table.itemSelectionChanged.connect(self._selection_changed)
@@ -515,18 +799,9 @@ class ModelZooPicker(QDialog):
         self.table.itemClicked.connect(self._row_clicked)
         layout.addWidget(self.table, 1)
 
-        # Off by default, and it stays off until the user reads what it
-        # means: an unvetted checkpoint sitting beside a measured one invites
-        # the reader to treat them alike.
-        self.community_toggle = QCheckBox(
-            "Show community uploads (not vetted)", self)
-        self.community_toggle.setChecked(False)
-        self.community_toggle.setToolTip(
-            "Models uploaded by other spaCR users through the Add button. "
-            "Nobody has checked what they are, what they were trained on, or "
-            "whether their reported scores are real.")
-        self.community_toggle.toggled.connect(self._community_toggled)
-        layout.addWidget(self.community_toggle)
+        self.sources = SourceStrip(self, guard=community_guard(self))
+        self.sources.changed.connect(self._sources_changed)
+        layout.insertWidget(layout.indexOf(self.table), self.sources)
 
         # The scorecard sits between the list and the controls, at a fixed
         # height: a box that grew and shrank with the selected model would
@@ -694,7 +969,7 @@ class ModelZooPicker(QDialog):
             # the stock row whose key and name disagree -- name "cpsam", key
             # "cpsam_v2" -- where a name comparison here did not.
             entries += list(model_zoo.catalogue(remote=True, block=False))
-            if self.community_toggle.isChecked():
+            if self.sources.is_on("spaCR community"):
                 entries += list(model_zoo.community_entries())
         except Exception as exc:                            # noqa: BLE001
             self.status.setText(f"Could not read the model list: {exc}")
@@ -738,10 +1013,33 @@ class ModelZooPicker(QDialog):
             self.table.setCellWidget(row, 4, combo)
             self._fill_row(row)
         self._rebuilding = False
+        self._apply_source_filter()
         self.table.resizeColumnsToContents()
         self.table.horizontalHeader().setSectionResizeMode(
             2, QHeaderView.Stretch)
         self._selection_changed()
+
+    def _apply_source_filter(self) -> None:
+        """Hide the rows whose source heading is off.
+
+        Hidden rather than dropped from :attr:`_groups`, so a row index still
+        means what it meant -- the version combo boxes, the selection restore
+        after an install and every test that walks the table all index rows
+        against that list. Folding a heading must not renumber the table.
+
+        WHICH IS WHY THE ROW NUMBERS ARE GONE. Qt numbers the vertical header
+        by model row, so a folded table counted "1 2 3 5 6 11" down its left
+        edge -- the gaps are the hidden rows, and they read as a table that
+        has lost some of itself. The numbers were never the identity here;
+        the model name is.
+        """
+        from ... import model_zoo
+
+        enabled = set(self.sources.enabled())
+        for row, (stem, pairs) in enumerate(self._groups):
+            entry = pairs[self._chosen[stem]][1]
+            self.table.setRowHidden(
+                row, model_zoo.source_of(entry) not in enabled)
 
     def _fill_row(self, row: int) -> None:
         """Write a row's cells for the version it currently shows."""
@@ -780,6 +1078,7 @@ class ModelZooPicker(QDialog):
         stem, pairs = self._groups[row]
         self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
         self._fill_row(row)
+        self._apply_source_filter()
         self._selection_changed()
 
     def _add_model(self) -> None:
@@ -870,48 +1169,31 @@ class ModelZooPicker(QDialog):
         self.status.setText(f"Shared: {url}")
         QMessageBox.information(self, "Shared", f"Uploaded to\n{url}")
 
-    def _community_toggled(self, checked: bool) -> None:
-        """Turning this on says plainly what these models are not.
+    def _sources_changed(self) -> None:
+        """A heading was clicked: re-list, and fetch what only it needs.
 
-        Confirmed rather than merely labelled, and only the first time: the
-        difference between a reviewed model and an unreviewed one is not
-        visible in a table, so it has to be said in words once.
+        The shared catalogue is asked for exactly when "spaCR community" is
+        on, so a user who never turns it on never makes that request. The
+        other four headings cost nothing to turn on -- their rows are already
+        in the listing, hidden.
         """
-        if not checked:
+        if self.sources.is_on("spaCR community"):
+            self.status.setText("Fetching community uploads…")
+
+            def _warm():
+                try:
+                    from ... import model_zoo
+                    model_zoo.community_entries(allow_network=True)
+                except Exception:                            # noqa: BLE001
+                    pass
+
+            thread = threading.Thread(target=_warm, daemon=True)
+            thread.start()
+            thread.join(timeout=20)
             self.refresh()
+            self.status.setText("")
             return
-        if not getattr(self, "_community_warned", False):
-            if QMessageBox.warning(
-                    self, "Community uploads are not vetted",
-                    "These models are uploaded by other spaCR users through "
-                    "the Add button.\n\nNobody has checked what they are, "
-                    "what they were trained on, or whether the numbers they "
-                    "report are real. Their checksums prove only that a file "
-                    "has not changed since it was uploaded -- not that it is "
-                    "any good, and not that it is safe to trust with your "
-                    "data.\n\nShow them anyway?",
-                    QMessageBox.Yes | QMessageBox.Cancel,
-                    QMessageBox.Cancel) != QMessageBox.Yes:
-                self.community_toggle.blockSignals(True)
-                self.community_toggle.setChecked(False)
-                self.community_toggle.blockSignals(False)
-                return
-            self._community_warned = True
-
-        self.status.setText("Fetching community uploads…")
-
-        def _warm():
-            try:
-                from ... import model_zoo
-                model_zoo.community_entries(allow_network=True)
-            except Exception:                                # noqa: BLE001
-                pass
-
-        thread = threading.Thread(target=_warm, daemon=True)
-        thread.start()
-        thread.join(timeout=20)
         self.refresh()
-        self.status.setText("")
 
     def _row_clicked(self, item) -> None:
         """Clicking an uninstalled backend, or a Cellpose 3 model whose

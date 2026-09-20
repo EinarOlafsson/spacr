@@ -5,7 +5,11 @@ Filed as 439 on 2026-09-19 and renumbered 440 the same evening, because the
 work session had already filed 439 (the two hoechst models).
 ================================================================================
 
-Status:    OPEN, filed 2026-09-19. Not started.
+Status:    DONE 2026-09-19. The five headings are built, the boolean is gone,
+           the partition is enforced by a test, and the same headings fold the
+           Model Zoo page's table and filter Make Masks' Model box. What is
+           left is listed under WHAT IS STILL OPEN at the bottom -- one item,
+           and it is the nine-language translation pass, which is 316's.
 Requested: 2026-09-19, by the maintainer, in these words:
 
              "ok and i dont see cell_form_hoechst in th model zoo button
@@ -90,3 +94,108 @@ HOW TO KNOW IT WORKED
     catalogue and asserts the partition is total and disjoint.
   * A test drives the headings: default state, toggle, persistence across a
     reopen, and the warning appearing once.
+
+--------------------------------------------------------------------------------
+2026-09-19 -- BUILT. WHAT WAS THERE, WHAT WAS NOT, AND WHAT IT MEASURES
+--------------------------------------------------------------------------------
+
+WRITTEN AS A TEST FIRST, AND IT FAILED, which is why the rest of this section
+describes building rather than finding. `tests/qt/test_the_model_zoo_picker_-
+groups_by_source.py` was written against the behaviour this file asks for and
+run on unmodified nightly: 13 of 13 red, every one of them an AttributeError
+for something that did not exist. Three sessions this week built something
+that already worked; this was not one of them.
+
+WHAT WAS ALREADY THERE, and was reworked rather than replaced:
+
+  * `ModelZooPicker._groups`, the per-model-family grouping with a version
+    combo box in column 5. Untouched. The source headings FOLD rows, they do
+    not regroup them -- the row a user clicks still means a model family.
+  * The Cellpose 3 rows, from item 423: the four backend models and the
+    backend package row itself. They were already listed; what was missing
+    was a heading to fold them away.
+  * `cell_from_hoechst_v1`, added in 32d7b5250. It was in the catalogue and
+    is now visibly under spaCR with nothing turned on, which is the
+    acceptance this file asked for.
+  * The community warning's words. They are unchanged, moved from
+    `_community_toggled` to `confirm_community_uploads`.
+
+WHAT WAS BUILT:
+
+  * `spacr/model_zoo.py`: `ZOO_SOURCES`, `DEFAULT_ZOO_SOURCES`, `source_of`,
+    `group_by_source`, `entries_from_sources`. Qt-free on purpose -- the
+    partition is a property of the catalogue, not of a dialog, and all three
+    consumers ask the same function.
+  * `spacr/qt/widgets/model_zoo_picker.py`: `_SourceHeading` (one clickable
+    label, accent when on and fg_muted when off, both resolved from the
+    palette in force rather than the frozen module-level one), `SourceStrip`
+    (the five of them, the QSettings key, the guard seam),
+    `confirm_community_uploads` and `community_guard`. `community_toggle` and
+    its QCheckBox import are gone.
+  * `spacr/qt/screens/model_zoo.py`: the same strip above the page's table,
+    `_apply_source_filter`, and the scan asking for community rows exactly
+    when that heading is on.
+  * `spacr/qt/screens/make_masks.py`: `_zoo_cellpose_models` filters by the
+    persisted headings, so the Mode box is not the one place that ignores a
+    user who folded bioimage.io away.
+
+THE MASK MODULE'S MODEL BOX NEEDED NOTHING. Its zoo button is
+`ObjectSettingsGrid.choose_model_for`, which opens this very picker
+(`choose_model`), so it inherited the headings the moment the picker had
+them. Checked rather than assumed -- `tests/qt/test_a_model_row_has_a_zoo_-
+button.py` passes unchanged.
+
+THE PARTITION, MEASURED on this machine against the live catalogue (21 rows,
+no shared catalogue cached, bioimage.io cache cold):
+
+    cellposeSAM       4   cpsam, cpsam_v2, cpdino, cpdino-vitb
+    spaCR            12   the ten bundled rows, plus the DINOCell and SAMCell
+                          backend packages
+    spaCR community   0   nothing cached
+    bioimage.io       0   cache cold; with it warm, 4 more
+    cellpose3         5   cyto, cyto2, cyto3, nuclei, and the backend package
+
+    total 21 of 21, and no row under two headings.
+
+TWO DECISIONS THIS FILE DID NOT MAKE, made here:
+
+  * A BACKEND PACKAGE ROW GOES WHERE ITS BACKEND GOES. The Cellpose 3 backend
+    is under cellpose3, beside the four models it runs; DINOCell and SAMCell
+    are under spaCR, because they are packages this project offers and there
+    is no heading of their own. They are not logged as unmatched -- the log
+    line is for a row nobody meant, and these are meant.
+  * A BIOIMAGE.IO CELLPOSE 3 CHECKPOINT IS A BIOIMAGE.IO ROW. The order of
+    the tests decides it, and this file's own ordering -- community, then
+    bioimage.io, then cellpose3 -- is what was followed. "cellpose3" means
+    the backend's own models.
+
+ONE THING THE FOLDING BROKE, AND IT IS FIXED. Qt numbers a table's vertical
+header by model row, so a folded picker counted "1 2 3 5 6 11" down its left
+edge; the gaps ARE the hidden rows and they read as a table that has lost
+some of itself. The row numbers are off now, as they already were on the
+Model Zoo page. The name was always the identity here.
+
+AND ONE THAT BROKE SIX TESTS. `tests/qt/test_model_zoo_picker.py` picked "the
+first row needing a download" without asking whether it was on screen, and
+the first such row is now a folded-away bioimage.io one. `selectRow` on a
+hidden row selects nothing, so six tests failed reading "the picker lost its
+selection". Both helpers there now skip hidden rows, which is what they were
+always asking for.
+
+--------------------------------------------------------------------------------
+WHAT IS STILL OPEN
+--------------------------------------------------------------------------------
+
+THE NINE LANGUAGES. Eleven new user-facing strings were added and the
+catalogs were deliberately NOT regenerated, for the consolidated pass that
+item 316 owns: the five headings (`cellposeSAM`, `spaCR`, `spaCR community`,
+`bioimage.io`, `cellpose3` -- four of the five are proper names and may well
+stay as they are), their five tooltips, and the community warning's title and
+body, which are the retired checkbox's own text and so are already in
+whatever state that string was in.
+
+NOT DONE ON PURPOSE: the picker's own strings do not go through `tr()` today
+-- none of them, not before this change either -- so the headings do not
+either. Wrapping this file's strings alone would leave a dialog half
+translated and half not, which is worse than a dialog that is consistently
+English until 316 reaches it.

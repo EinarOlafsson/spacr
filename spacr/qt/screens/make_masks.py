@@ -1515,19 +1515,30 @@ def _zoo_cellpose_models() -> List[tuple]:
     a download starts from. Read without waiting on the network (the
     community rows come from the zoo's cache), and never raises: a zoo that
     cannot be read leaves the Model box with the Cellpose installed here.
+
+    OFFERS WHAT THE ZOO OFFERS, AND NOTHING ELSE. The source headings the
+    Model zoo picker carries (item 440) are a preference, not a property of
+    one dialog: a user who folded bioimage.io away in the picker has said
+    they do not want those models, and a Mode box that listed them anyway
+    would be the one place that ignored them. So the same persisted headings
+    filter this list.
     """
     try:
         from ... import model_zoo
-        from ..widgets.model_zoo_picker import remembered_model_dir
+        from ..widgets.model_zoo_picker import (remembered_model_dir,
+                                                remembered_sources)
 
         entries = model_zoo.catalogue(remote=True, block=False)
         folder = remembered_model_dir()
+        sources = set(remembered_sources())
     except Exception:                                        # noqa: BLE001
         LOG.debug("the model zoo could not be read", exc_info=True)
         return []
     found = []
     for entry in entries:
         if getattr(entry, "kind", "") != "cellpose":
+            continue
+        if model_zoo.source_of(entry) not in sources:
             continue
         path = str(getattr(entry, "path", "") or "")
         if not (path and os.path.isfile(path)):
