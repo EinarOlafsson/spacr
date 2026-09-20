@@ -1336,3 +1336,221 @@ def test_the_rule_refuses_a_name_it_does_not_know():
         engine._surviving_region_objects(
             np.zeros((3, 3), np.int32), np.zeros((3, 3), bool),
             overlap="whatever")
+
+
+# ---------------------------------------------------------------------------
+# The box shows what a click would add, not what the model found
+# ---------------------------------------------------------------------------
+#
+# Item 407's second pass, still open at the end: "Preview the overlap rule
+# inside the box (outline what a click would actually add, not what the model
+# found)." A click that added half an object, or nothing at all, said so only
+# afterwards, in the status line.
+
+
+def _alpha(picture: QImage, img_x: int, img_y: int, box) -> int:
+    """The preview's alpha at image pixel (img_x, img_y)."""
+    x0, y0 = int(box[0]), int(box[1])
+    return QColor(picture.pixelColor(img_x - x0, img_y - y0)).alpha()
+
+
+def preview_of(screen):
+    magnifier = screen._magnifier
+    return magnifier._overlap_preview(magnifier._shown)
+
+
+def test_what_the_overlap_rule_takes_away_is_ghosted_in_the_box(
+        qtbot, screen):
+    """Clip: the half of the object the mask already owns is not added."""
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+
+    picture = preview_of(screen)
+    assert picture is not None, "the rule takes half the object and said nothing"
+    box = screen._magnifier._shown.request.box
+    kept = _alpha(picture, 26, 22, box)
+    lost = _alpha(picture, 22, 22, box)
+    assert kept > 0 and lost > 0, "both halves are drawn"
+    assert lost * 4 == kept, (
+        f"the pixels a click would not add are not ghosted: {lost} vs {kept}")
+
+    click(screen, 24, 22)
+    added = screen._canvas.mask == 2
+    assert added[22, 26] and not added[22, 22], (
+        "the box promised exactly what the click did")
+
+
+def test_replace_ghosts_nothing_because_it_takes_nothing_away(qtbot, screen):
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("replace"))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+
+    assert screen._magnifier.overlap == "replace"
+    assert preview_of(screen) is None, (
+        "Replace adds every pixel, so nothing is ghosted")
+
+
+def test_skip_ghosts_the_whole_object_it_would_leave_out(qtbot, screen):
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 22, 22)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26), 5: (30, 30, 36, 36)}))
+    screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("skip"))
+    hover(screen, 28, 28)
+    wait_for_result(qtbot, screen)
+
+    picture = preview_of(screen)
+    assert picture is not None
+    box = screen._magnifier._shown.request.box
+    assert _alpha(picture, 32, 32, box) > _alpha(picture, 26, 24, box), (
+        "the object Skip leaves out is drawn as solidly as the one it adds")
+
+
+def test_an_empty_mask_draws_the_models_own_outlines(qtbot, screen):
+    """Nothing to clip against, so nothing is recomputed or copied."""
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+    assert preview_of(screen) is None
+
+
+def test_changing_the_rule_redraws_the_box_and_asks_no_model(qtbot, screen):
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    stub = CodedStub({4: (20, 20, 28, 26)})
+    switch_on(screen, stub)
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+    calls = len(stub.calls)
+    assert preview_of(screen) is not None
+
+    screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("replace"))
+    qtbot.wait(50)
+    assert preview_of(screen) is None
+    assert len(stub.calls) == calls, "the rule asked the model again"
+
+
+def test_the_preview_is_built_once_until_something_moves(qtbot, screen):
+    existing = rect_mask((IMG_N, IMG_N), {1: (20, 20, 24, 26)})
+    screen._canvas.mask = existing
+    screen._history.push(existing)
+    switch_on(screen, CodedStub({4: (20, 20, 28, 26)}))
+    hover(screen, 24, 22)
+    wait_for_result(qtbot, screen)
+
+    first = preview_of(screen)
+    assert first is preview_of(screen), "a repaint that moves nothing rebuilt it"
+    screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData("skip"))
+    assert preview_of(screen) is not first
+
+
+def test_the_rule_the_box_draws_is_the_rule_the_click_applies(screen):
+    for index in range(screen._mag_overlap.count()):
+        screen._mag_overlap.setCurrentIndex(index)
+        assert screen._magnifier.overlap == screen._mag_overlap.currentData()
+    screen._magnifier.set_overlap("not a rule")
+    assert screen._magnifier.overlap == screen._mag_overlap.currentData()
+
+
+# ---------------------------------------------------------------------------
+# The busy bar says how long, once something has been measured
+# ---------------------------------------------------------------------------
+#
+# Item 407's WHAT IS LEFT: "The busy bar has no ETA." Neither Otsu nor
+# Cellpose reports steps, so the bar was indeterminate and a run that takes
+# minutes on a CPU looked exactly like one that takes three seconds. What CAN
+# be known is what the last run under this mode and model cost per megapixel.
+
+
+def test_the_first_run_of_a_session_promises_nothing(qtbot, screen):
+    """Nothing has been measured, so the bar says only that it is working."""
+    stub = CodedStub({1: (20, 20, 26, 25)}, delay=0.4)
+    whole_image_on(screen, stub)
+    qtbot.waitUntil(lambda: not screen._mag_progress.isHidden(), timeout=5_000)
+
+    assert screen._magnifier.remaining_seconds() is None
+    assert (screen._mag_progress.minimum(),
+            screen._mag_progress.maximum()) == (0, 0), "an indeterminate bar"
+    assert not screen._mag_progress.isTextVisible()
+    wait_for_whole_image(qtbot, screen)
+    assert screen._mag_progress.isHidden()
+    assert not screen._mag_eta_timer.isActive()
+
+
+def test_the_second_run_counts_down_from_what_the_first_one_cost(
+        qtbot, screen):
+    stub = CodedStub({1: (20, 20, 26, 25)}, delay=0.5)
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+    magnifier = screen._magnifier
+    assert magnifier._image_pace, "the first run was not measured"
+
+    screen._mag_sensitivity.setValue(2.0)
+    qtbot.waitUntil(lambda: magnifier._image_estimate is not None,
+                    timeout=5_000)
+    left = magnifier.remaining_seconds()
+    assert left is not None and 0 < left <= magnifier._image_estimate
+    screen._tick_magnifier_eta()
+    assert screen._mag_progress.isTextVisible()
+    assert "s left" in screen._mag_progress.format()
+    assert screen._mag_progress.maximum() == 1000
+    assert 0 <= screen._mag_progress.value() < 1000
+
+    wait_for_whole_image(qtbot, screen)
+    assert magnifier.remaining_seconds() is None, "the run is over"
+
+
+def test_an_estimate_that_runs_out_goes_back_to_saying_nothing(
+        qtbot, screen, monkeypatch):
+    stub = CodedStub({1: (20, 20, 26, 25)}, delay=0.3)
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+
+    magnifier = screen._magnifier
+    magnifier._busy = True
+    magnifier._image_started = time.monotonic() - 30.0
+    magnifier._image_estimate = 2.0
+    assert magnifier.remaining_seconds() is None
+    screen._tick_magnifier_eta()
+    assert (screen._mag_progress.minimum(),
+            screen._mag_progress.maximum()) == (0, 0)
+    assert not screen._mag_progress.isTextVisible()
+    magnifier._busy = False
+
+
+def test_the_estimate_is_per_megapixel_and_not_per_field(qtbot, screen):
+    """A field nothing has been measured on is still answered for."""
+    magnifier = screen._magnifier
+    key = magnifier._image_key_now()
+    magnifier._note_pace(key, 1_000_000, 4.0)
+    assert magnifier._image_pace[magnifier._pace_key(key)] == pytest.approx(4.0)
+
+    magnifier._note_pace(key, 0, 4.0)
+    magnifier._note_pace(key, 1_000_000, 0.0)
+    assert magnifier._image_pace[magnifier._pace_key(key)] == pytest.approx(4.0), (
+        "a run with no pixels or no time was allowed to set the pace")
+
+
+def test_a_cancelled_run_leaves_no_estimate_behind(qtbot, screen):
+    stub = CodedStub({1: (20, 20, 26, 25)}, delay=0.4)
+    whole_image_on(screen, stub)
+    wait_for_whole_image(qtbot, screen)
+    screen._mag_sensitivity.setValue(2.0)
+    magnifier = screen._magnifier
+    qtbot.waitUntil(lambda: magnifier._image_estimate is not None,
+                    timeout=5_000)
+
+    magnifier.cancel_image()
+    assert magnifier._image_started is None
+    assert magnifier._image_estimate is None
+    assert magnifier.remaining_seconds() is None
+    assert not screen._mag_eta_timer.isActive()

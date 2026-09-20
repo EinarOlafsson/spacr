@@ -1756,6 +1756,10 @@ _MAGNIFIER_SENSITIVITY_RANGE = (-6.0, 6.0)
 #: objects instead of asking the model again.
 _MAGNIFIER_SCOPES = ("region", "image")
 
+#: The Overlap rule a fresh panel is on, and what the magnifier assumes
+#: until the screen's Overlap box says otherwise.
+_MAGNIFIER_OVERLAP_DEFAULT = "clip"
+
 #: Megabytes of whole-image objects the magnifier may keep for fields it has
 #: left, so coming back to one does not segment it again -- minutes, on a CPU.
 #: A label image is int32, so this is sixteen 2048 px fields or four 4096 px
@@ -2407,6 +2411,18 @@ class _LiveMagnifier(QObject):
         self._image_halted: Optional[tuple] = None
         #: ``(result, (box, object under the mouse), picture)`` last drawn.
         self._image_view: Optional[tuple] = None
+        #: What a click would add where the mask already has objects; the
+        #: Overlap rule the screen's box is on. See :meth:`_overlap_preview`.
+        self.overlap = _MAGNIFIER_OVERLAP_DEFAULT
+        #: ``(result, mask, rule, picture)`` for the preview last built.
+        self._preview_view: Optional[tuple] = None
+        #: When the whole-image run on its way was handed to its worker, and
+        #: how long it is expected to take -- None when nothing says.
+        self._image_started: Optional[float] = None
+        self._image_estimate: Optional[float] = None
+        #: ``(mode, model) -> seconds per megapixel`` from the LAST run that
+        #: finished under it. See :meth:`remaining_seconds`.
+        self._image_pace: dict = {}
         #: Which field is on screen, as the screen names it -- the path of
         #: the image file. It identifies a field across a trip to another
         #: one and back, which the generation counter above cannot: that
@@ -2472,6 +2488,26 @@ class _LiveMagnifier(QObject):
         if scope == "region":
             self._stop_image()
         self.refresh()
+        self.canvas.update()
+
+    def set_overlap(self, rule: str) -> None:
+        """Choose what a new object does where the mask already has one.
+
+        The MODEL IS NOT ASKED AGAIN, and the whole-image objects are not
+        discarded: the rule is applied to what was found, not by the thing
+        that finds it. Only the box's preview of what a click would add is
+        built afresh.
+
+        :param rule: one of
+            :data:`spacr.qt.mask_engine._MAGNIFIER_OVERLAP_RULES`; anything
+            else leaves the rule where it is, because the box is about to
+            draw a promise in its name.
+        """
+        name = str(rule or "")
+        if name not in engine._MAGNIFIER_OVERLAP_RULES:
+            return
+        self.overlap = name
+        self._preview_view = None
         self.canvas.update()
 
     def set_exclude_border(self, on: bool) -> None:
@@ -2557,6 +2593,7 @@ class _LiveMagnifier(QObject):
         self._field += 1
         self._shown = None
         self._shown_image = None
+        self._preview_view = None
         self._waiting.clear()
         self._requested_key = None
         self._stop_image()
@@ -2881,6 +2918,10 @@ class _LiveMagnifier(QObject):
         height, width = (int(v) for v in image.shape[:2])
         self._image_key = key
         self._image_halted = None
+        self._image_started = time.monotonic()
+        pace = self._image_pace.get(self._pace_key(key))
+        self._image_estimate = (None if pace is None
+                                else pace * height * width / 1e6)
         self._image_worker.submit(_MagnifierRequest(
             key=key, crop=np.array(image, copy=True),
             box=(0, 0, width, height), shape=(height, width),
@@ -2888,9 +2929,48 @@ class _LiveMagnifier(QObject):
             **dict(zip(_MODEL_SETTING_FIELDS, key[2:]))))
         self._set_busy(True)
 
+    @staticmethod
+    def _pace_key(key: tuple) -> tuple:
+        """What a run's duration is worth remembering against: mode and model.
+
+        Not the field and not its size: the whole point is to answer for a
+        field nothing has been measured on, and seconds per megapixel is what
+        carries across. Sensitivity and Min area are left out because they
+        move the objects found rather than the work done.
+        """
+        return (key[2], key[6])
+
+    def remaining_seconds(self) -> Optional[float]:
+        """How long the whole-image run on its way still has, or None.
+
+        A GUESS FROM A MEASUREMENT, and only ever from one: the seconds per
+        megapixel the LAST run under this mode and model took, times this
+        field's megapixels. The first run of a session says None and the bar
+        stays indeterminate, which is the honest answer -- nothing has been
+        measured yet, and on a cold model most of the first run is the load.
+
+        None once the estimate is spent, too, so a bar that has run out goes
+        back to saying only that something is happening.
+
+        :returns: seconds, never below zero, or None.
+        """
+        if (not self._busy or self._image_started is None
+                or self._image_estimate is None):
+            return None
+        left = self._image_estimate - (time.monotonic() - self._image_started)
+        return left if left > 0 else None
+
+    def _note_pace(self, key: tuple, pixels: int, seconds: float) -> None:
+        """Remember what this mode and model cost per megapixel, last time."""
+        if pixels <= 0 or seconds <= 0:
+            return
+        self._image_pace[self._pace_key(key)] = seconds / (pixels / 1e6)
+
     def _stop_image(self) -> None:
         """Forget the whole-image run on its way, dropping it if not started."""
         self._image_key = None
+        self._image_started = None
+        self._image_estimate = None
         self._image_worker.drop_waiting()
         self._set_busy(False)
 
@@ -3217,8 +3297,14 @@ class _LiveMagnifier(QObject):
 
         if request.key != self._image_key:
             return
+        started, self._image_started = self._image_started, None
         self._image_key = None
+        self._image_estimate = None
         self._set_busy(False)
+        if error is None and started is not None:
+            height, width = (int(v) for v in request.shape[:2])
+            self._note_pace(request.key, height * width,
+                            time.monotonic() - started)
         if error is not None:
             self._image_halted = request.key
             LOG.warning("magnifier could not segment the whole image: %s",
@@ -3314,11 +3400,12 @@ class _LiveMagnifier(QObject):
             shown = self._shown
             if shown is not None and self._shown_image is not None:
                 sx0, sy0, sx1, sy1 = shown.request.box
+                preview = self._overlap_preview(shown)
                 painter.drawImage(
                     QRectF(lens.left() + (sx0 - x0) * scale,
                            lens.top() + (sy0 - y0) * scale,
                            (sx1 - sx0) * scale, (sy1 - sy0) * scale),
-                    self._shown_image)
+                    self._shown_image if preview is None else preview)
             updating = self.updating()
         painter.setClipping(False)
         pen = QPen(QColor(palette["accent"]))
@@ -3342,6 +3429,52 @@ class _LiveMagnifier(QObject):
             painter.setPen(QPen(QColor(palette["fg"])))
             painter.drawText(badge, Qt.AlignCenter, caption)
         painter.restore()
+
+    def _overlap_preview(self, result) -> Optional[QImage]:
+        """The box's objects with what a click would NOT add ghosted.
+
+        The box used to outline what the MODEL found, which is not what a
+        click adds: the Overlap rule and Min area stand between the two, and
+        a click that added half an object, or nothing, had said nothing
+        first. The pixels the rule takes away keep a quarter of their alpha,
+        so they read as "found, not yours" beside the solid objects a click
+        would commit.
+
+        Nothing is ghosted under Replace, and nothing is ghosted where the
+        mask is empty; both answer None and the box draws the model's own
+        outlines, which the worker already built.
+
+        The answer is kept until the result, the mask or the rule changes,
+        so a repaint that moves nothing recomputes nothing. It is computed
+        here and not on the worker because the MASK is what it depends on,
+        and the mask is the GUI thread's.
+
+        :param result: the region result the box is drawing.
+        :returns: the picture, or None when the rule takes nothing away.
+        """
+        mask = self.canvas.mask
+        if mask is None or result.overlay is None:
+            return None
+        rule = str(self.overlap)
+        cached = self._preview_view
+        if (cached is not None and cached[0] is result
+                and cached[1] is mask and cached[2] == rule):
+            return cached[3]
+        picture = None
+        if rule != "replace":
+            x0, y0, x1, y1 = (int(v) for v in result.request.box)
+            occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
+            if occupied.any():
+                kept = engine._surviving_region_objects(
+                    result.labels, occupied, overlap=rule,
+                    min_area=int(result.request.min_area))
+                lost = (np.asarray(result.labels) > 0) & (kept == 0)
+                if lost.any():
+                    rgba = np.array(result.overlay, copy=True)
+                    rgba[lost, 3] = rgba[lost, 3] // 4
+                    picture = _rgba_qimage(rgba)
+        self._preview_view = (result, mask, rule, picture)
+        return picture
 
     def _image_slice(self, box) -> Optional[QImage]:
         """The whole-image objects inside ``box``, outlined, as a picture.
@@ -6671,7 +6804,12 @@ class MakeMasksScreen(QWidget):
             "Clip keeps only its unlabelled pixels, so no existing object "
             "loses a pixel. Skip leaves out any object that touches an "
             "existing one. Replace lets the new object take every pixel it "
-            "covers.")
+            "covers. Under Region under the mouse the box shows what the "
+            "rule leaves: what a click would add is drawn solid, and what it "
+            "would take away is ghosted.")
+        self._mag_overlap.currentIndexChanged.connect(
+            lambda _index: magnifier.set_overlap(
+                self._mag_overlap.currentData()))
         form.addRow("Overlap", self._mag_overlap)
         card.body_layout.addLayout(form)
 
@@ -6680,6 +6818,11 @@ class MakeMasksScreen(QWidget):
         self._mag_progress.setRange(0, 0)
         self._mag_progress.setTextVisible(False)
         self._mag_progress.hide()
+        #: Moves the bar's estimate while a whole-image run is on its way.
+        #: Half a second, because the number it writes is whole seconds.
+        self._mag_eta_timer = QTimer(self)
+        self._mag_eta_timer.setInterval(500)
+        self._mag_eta_timer.timeout.connect(self._tick_magnifier_eta)
         self._mag_cancel = QPushButton("Cancel")
         self._mag_cancel.hide()
         self._mag_cancel.clicked.connect(
@@ -6890,8 +7033,44 @@ class MakeMasksScreen(QWidget):
 
     def _on_magnifier_busy(self, busy: bool) -> None:
         """Show the whole-image run's progress and Cancel while it runs."""
-        self._mag_progress.setVisible(bool(busy))
-        self._mag_cancel.setVisible(bool(busy))
+        busy = bool(busy)
+        self._mag_progress.setVisible(busy)
+        self._mag_cancel.setVisible(busy)
+        if busy:
+            self._mag_eta_timer.start()
+            self._tick_magnifier_eta()
+        else:
+            self._mag_eta_timer.stop()
+            self._show_indeterminate_magnifier_bar()
+
+    def _show_indeterminate_magnifier_bar(self) -> None:
+        """Say only that something is happening, which is what a bar with no
+        measurement behind it can honestly say."""
+        self._mag_progress.setTextVisible(False)
+        self._mag_progress.setFormat("")
+        self._mag_progress.setRange(0, 0)
+
+    def _tick_magnifier_eta(self) -> None:
+        """Put the time the whole-image run still has on the busy bar.
+
+        Only when there is a MEASUREMENT behind it -- the last run under this
+        mode and model, per megapixel. Before there is one, and once an
+        estimate has run out, the bar goes back to indeterminate rather than
+        counting down past zero or sitting at 99%.
+        """
+        from ..i18n import tr
+
+        left = self._magnifier.remaining_seconds()
+        estimate = self._magnifier._image_estimate
+        if left is None or not estimate:
+            self._show_indeterminate_magnifier_bar()
+            return
+        done = max(0.0, min(0.99, 1.0 - left / float(estimate)))
+        self._mag_progress.setRange(0, 1000)
+        self._mag_progress.setValue(int(done * 1000))
+        self._mag_progress.setFormat(
+            tr("about {seconds} s left", seconds=int(left) + 1))
+        self._mag_progress.setTextVisible(True)
 
     def _on_magnifier_context_changed(self, *_args) -> None:
         """A setting a magnifier model reads changed elsewhere on the panel.

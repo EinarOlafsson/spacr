@@ -254,6 +254,52 @@
   in the whole image" -- because it is true and because it owes no new
   translation. What the user sees instead is the busy bar not appearing.
 
+## Item 407, the box shows what a click would add (2026-09-20)
+
+- `_LiveMagnifier._overlap_preview`: the box outlined what the MODEL found,
+  and a click adds what the Overlap rule and Min area leave of it. A click
+  that added half an object, or nothing at all, said so only afterwards in
+  the status line. The pixels the rule takes away now keep a quarter of
+  their alpha, so they read as "found, not yours" beside the solid objects a
+  click commits, and the promise the box makes is the one the click keeps.
+- It is computed on the GUI thread and not on the worker because what it
+  depends on is the MASK, and the mask is the GUI thread's. The answer is
+  kept until the result, the mask or the rule changes -- identity, not a
+  hash: a mask edit replaces the array, and the magnifier owns the left
+  button while it is on, so nothing mutates the mask under the cache.
+  Nothing is computed at all under Replace, which takes nothing away, or
+  over an empty mask, which has nothing to take.
+- Only under "Region under the mouse". Under Whole image a click adds one
+  whole object, most of which can lie outside the box, and the rule's answer
+  for it cannot be read off the box's slice: Skip asks whether the object
+  touches the mask ANYWHERE, and Clip keeps the object's largest surviving
+  piece, which may be outside. A preview there needs the object's whole
+  extent, and that is left undone rather than approximated.
+- `set_overlap` does NOT refresh: the rule is applied to what was found, not
+  by the thing that finds it, so changing it asks no model and does not
+  discard the whole-image objects. It matches the Size and Zoom rows in that
+  and is why it is a setter of its own rather than part of the request key.
+
+## Item 407, the busy bar says how long (2026-09-20)
+
+- `remaining_seconds` / `_note_pace` / `MakeMasksScreen._tick_magnifier_eta`:
+  neither Otsu nor Cellpose reports steps, and tiling the field to get real
+  progress would cut objects at the seams (that decision is item 407's, from
+  2026-09-15, and stands). What CAN be known without either is what the LAST
+  run under this mode and model cost per megapixel.
+- So the first run of a session promises nothing and the bar stays
+  indeterminate. That is the honest answer, and it is also the right one: on
+  a cold model most of a first run is the load -- item 407 measured 10.3 s
+  against 3.9 s for the same field with the model cached -- so a first run
+  would over-promise by a factor of three.
+- The pace is kept against the mode and the model and NOT against the field,
+  because the whole point is to answer for a field nothing has been measured
+  on. Sensitivity and Min area are left out: they move the objects found
+  rather than the work done.
+- An estimate that runs out goes back to the indeterminate bar rather than
+  counting past zero or sitting at 99%. A bar that has stopped being able to
+  say how long should stop saying it.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 
