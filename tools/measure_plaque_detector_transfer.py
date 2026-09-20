@@ -85,6 +85,25 @@ sees, so a result file says which question it answered.
 is passed -- yolo11n and yolo26n over a few hundred figures is about a minute
 of CPU, and a measurement that small has no business queueing behind whatever
 is training.
+
+TWO THINGS THIS HARNESS NOW DOES TO ITSELF, BOTH BECAUSE IT DID NOT AND THAT
+COST SOMEBODY SOMETHING:
+
+* IT KEEPS ULTRALYTICS OUT OF THE USER'S CONFIGURATION. Importing
+  ``ultralytics`` writes ``~/.config/Ultralytics/settings.json``, and on
+  2026-09-20 that import announced "Ultralytics settings reset to default
+  values" over a file dating from July, with no backup. A measurement has no
+  business editing the configuration of the machine it runs on, so ``detect``
+  points ``YOLO_CONFIG_DIR`` at its own output directory before the detector
+  is loaded. ``--yolo-config-dir`` overrides it; pointing it at the real one
+  is possible and has to be typed.
+* IT RECORDS WHICH COPY OF SPACR IT MEASURED. Run as
+  ``python tools/measure_plaque_detector_transfer.py``, ``sys.path[0]`` is
+  ``tools/`` and not the working directory, so ``import spacr`` resolves
+  through whatever the editable install points at -- which, from a worktree,
+  is the other tree. The first attempt at the 2026-09-20 rerun scored the
+  shared checkout while sitting in a worktree. ``detections.json`` now carries
+  ``spacr_from``, so a result file says which code produced it.
 """
 from __future__ import annotations
 
@@ -586,6 +605,34 @@ def _draw_overlay(image_path: Path, boxes_by_model: Dict[str, List[Dict]],
     image.save(target)
 
 
+def _keep_ultralytics_out_of_the_user_config(args: argparse.Namespace,
+                                             root: Path) -> Path:
+    """Point ``YOLO_CONFIG_DIR`` somewhere this run owns.
+
+    Ultralytics writes ``settings.json`` on import, under ``YOLO_CONFIG_DIR``
+    when that is set and under the user's own ``~/.config/Ultralytics``
+    otherwise. On 2026-09-20 the plain import printed "Ultralytics settings
+    reset to default values" over a file that had been there since July, and
+    there was no backup. The loss is small and completely avoidable, and the
+    only moment at which it is avoidable is before the first import.
+
+    This must therefore run before anything pulls ``ultralytics`` in, which
+    means before ``spacr.plaque`` loads a detector.
+
+    :param args: parsed command line; ``--yolo-config-dir`` overrides the
+        default and is the way to ask for the real one back.
+    :param root: the run's output directory, whose ``yolo-config`` is the
+        default.
+    :returns: the directory ultralytics was pointed at.
+    """
+    chosen = Path(args.yolo_config_dir) if args.yolo_config_dir else (
+        root / "yolo-config")
+    chosen.mkdir(parents=True, exist_ok=True)
+    os.environ["YOLO_CONFIG_DIR"] = str(chosen)
+    print(f"ultralytics settings -> {chosen}")
+    return chosen
+
+
 def stage_detect(args: argparse.Namespace) -> None:
     """Run every detector over every figure and write the overlays.
 
@@ -606,9 +653,13 @@ def stage_detect(args: argparse.Namespace) -> None:
     """
     import inspect
 
+    root = Path(args.out)
+    _keep_ultralytics_out_of_the_user_config(args, root)
+
+    import spacr
     import spacr.plaque as plaque
 
-    root = Path(args.out)
+
     figures = json.loads((root / "figures.json").read_text())["figures"]
     models = _detector_paths([m.strip() for m in args.models.split(",") if
                               m.strip()], root / "models")
@@ -663,6 +714,8 @@ def stage_detect(args: argparse.Namespace) -> None:
         "models": models, "conf": args.conf, "imgsz": args.imgsz,
         "shipped_min_axis_ratio": shipped_ratio,
         "channel_order": "bgr",
+        "spacr_from": getattr(spacr, "__file__", None),
+        "yolo_config_dir": os.environ.get("YOLO_CONFIG_DIR"),
         "device": "cuda" if args.gpu else "cpu",
         "seconds": round(time.time() - started, 1),
         "figures": records}, indent=2))
@@ -891,6 +944,10 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
                              "figures is about a minute of CPU, and a "
                              "measurement that small has no business "
                              "queueing behind a training run")
+    parser.add_argument("--yolo-config-dir", default=None,
+                        help="where ultralytics may write its settings.json. "
+                             "Default <out>/yolo-config, so that importing it "
+                             "cannot reset the user's own")
     parser.add_argument("--overlay-max-side", type=int, default=1400)
     parser.add_argument("--overlay-all", action="store_true",
                         help="also write overlays for figures with no box")

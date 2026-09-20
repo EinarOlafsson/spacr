@@ -925,6 +925,45 @@ THE RULE THAT SURVIVES BOTH: ASSERT THE RESOLVED PATH INSIDE THE CHECK.
 A check that prints its own `__file__` cannot lie about which tree it read.
 One that trusts its invocation can, and did.
 
+### 3g. `import ultralytics` REWRITES THE USER'S CONFIG, ON THE FIRST IMPORT
+
+**TWICE ON 2026-09-20, BY TWO RUNS THAT BOTH KNEW THE RULE.** Importing
+`ultralytics` writes `~/.config/Ultralytics/settings.json` before any model is
+loaded, and when the version it finds is older it prints
+
+    Ultralytics settings reset to default values
+
+and does exactly that. The first import of item 424's rerun hit a file dating
+from 2026-07-21; there was no backup and whatever non-default entries it held
+are gone. Hours later, correcting that very note, a one-line
+`python -c "import ultralytics; print(ultralytics.__version__)"` typed to check
+a venv rewrote it again.
+
+THE SHAPE, WHICH IS NOT SPECIFIC TO ULTRALYTICS: a scientific package treats
+`$HOME` as ITS state directory and writes there at import, not at first use.
+So sandboxing after the import, or around "the real run" only, is too late --
+the loss happens in the probe you did not think of as a run.
+
+WHAT ACTUALLY WORKS, in this order:
+
+  1. Put it in the tool, not in the habit. `tools/measure_plaque_detector_
+     transfer.py` now sets `YOLO_CONFIG_DIR` to `<out>/yolo-config` before
+     anything imports ultralytics, prints where it pointed, and records it in
+     `detections.json`; `--yolo-config-dir` is how you ask for the real one.
+  2. For anything typed at a shell, put the environment in front of the
+     command and not in a file you might forget to source:
+
+         env HOME=$SBX XDG_CONFIG_HOME=$SBX/.config \
+             XDG_DATA_HOME=$SBX/.local/share YOLO_CONFIG_DIR=$SBX/ultra \
+             python -c "..."
+
+  3. Verify by where the file landed, not by intent: after the run,
+     `find $OUT -name settings.json` should find it, and
+     `stat -c %y ~/.config/Ultralytics/settings.json` should be unchanged.
+
+This is the second config-wipe incident on this machine in two days. The other
+one took six entries out of the maintainer's `~/.config/spacr/qt.conf`.
+
 ## 4. Findings filed but not fixed
 
 **93 — RESOLVED, corrected 2026-09-13.** This entry described the intensity
