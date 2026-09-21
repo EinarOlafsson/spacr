@@ -4,6 +4,7 @@ This demonstrates an explicit canonical-name preparation workaround, not a
 repair to the application's legacy filename parser or a useful trained model.
 """
 from copy import deepcopy
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -13,18 +14,18 @@ from compose_report_capture import _frame, _read, _same_hash
 from stage_lesson import DEFAULT_STAGE, write
 
 
-def compose(stage=DEFAULT_STAGE):
+def compose(stage=DEFAULT_STAGE, *, terminal=None, gui=None, dataset=None, destination=None):
     stage = Path(stage).resolve()
-    terminal = stage / 'captures/classify_canonical_preparation'
-    gui = stage / 'classify_canonical_capture_v2/captures/classify_canonical_existing_v2'
-    destination = stage / 'captures/classify_canonical_verified'
+    terminal = Path(terminal or stage / 'captures/classify_canonical_preparation').resolve()
+    gui = Path(gui or stage / 'classify_canonical_capture_v2/captures/classify_canonical_existing_v2').resolve()
+    destination = Path(destination or stage / 'captures/classify_canonical_verified').resolve()
     if destination.exists():
         raise FileExistsError('Preserve the existing accepted composition')
     hashes = {}
     preparation = _read(terminal / 'scientific_acceptance.json', hashes)
     recorded = _read(gui / 'scientific_acceptance.json', hashes)
     batch = _read(gui / 'batch_acceptance.json', hashes)
-    dataset = stage / 'classify_canonical_split_v2'
+    dataset = Path(dataset or stage / 'classify_canonical_split_v2').resolve()
     proof = inspect_finished(dataset)
     metrics = inspect_metrics(dataset)
     if (not batch.get('accepted') or preparation.get('accepted') is not True
@@ -67,4 +68,10 @@ def compose(stage=DEFAULT_STAGE):
 
 
 if __name__ == '__main__':
-    compose()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    for name in ('terminal', 'gui', 'dataset', 'destination'):
+        parser.add_argument('--' + name, type=Path)
+    args = parser.parse_args()
+    compose(args.stage, terminal=args.terminal, gui=args.gui,
+            dataset=args.dataset, destination=args.destination)

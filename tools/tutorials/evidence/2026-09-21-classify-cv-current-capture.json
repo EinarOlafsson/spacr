@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "date": "2026-09-21",
-  "status": "native_cv_workflow_verified_not_composed_or_published",
+  "status": "native_capture_and_english_review_master_verified_not_published",
   "artifact_root": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-cv-current-v4",
   "capture": "classify_cv_current_20260921_v4",
   "provenance": {
@@ -413,10 +413,88 @@
     "tools/tutorials/classify_split_evidence.py": "90d39ed6b1e4e26f2ea4e38625da87c5bef67f76dc48afd7d9b23a555808ba4f"
   },
   "remaining": [
-    "Current terminal preparation frames",
-    "Compose and stage the complete lesson with current focus rectangles",
-    "Fresh narration and full language/voice/caption acceptance",
-    "Video decode/browser/mobile/audible acceptance",
-    "Publish only with the complete accepted refreshed set"
+    "Audible narration acceptance",
+    "Full language/voice and caption acceptance",
+    "Publish only with the complete accepted refreshed tutorial set"
+  ],
+  "composition": {
+    "directory": "classify_canonical_verified_current",
+    "scene_count": 12,
+    "terminal_frame_count": 3,
+    "terminal_source": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-preparation-current/captures/classify_canonical_preparation",
+    "preparation_repeated_after_training_capture": true,
+    "prepared_input_proofs_equal": true,
+    "model_rerun_for_composition": false,
+    "pixels_rewritten": false,
+    "preparation_and_cv_dataset_are_separate_identical_exports": true,
+    "scientific_acceptance_sha256": "8f99683f8af2c3b23f75d92ea4140012d2e0a3efddbf1615db4eb08dedb530f1",
+    "lesson_sha256": "61280ad53af9c4fac4fc4c3d91e1aee30988d61ba87f981e9a7866dc61412fc6"
+  },
+  "videos": [
+    {
+      "file": "10_classify_cv_silent.mp4",
+      "sha256": "0b94a05b34deb2b8dfc598a52f0fbd7b1e57191b529fb8a7f52665a0b25313e2",
+      "duration": 254.666667,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "b23c83034da3ced51b6378e7c746124f17e7b79a7f609ada933a6348aae619ed",
+      "duration": 254.7,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "cb267b86e4e84ea8225ba3e4df97fd4cfa050c9eae6905c6223308f96575d464",
+    "freshness_timing_activity": "passed"
+  },
+  "browser": {
+    "lesson": "10_classify_cv",
+    "scope": "en/af_heart playback and scene links only",
+    "uploaded": false,
+    "translation_or_listening_review": false,
+    "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+    "navigation_contains_staged_lesson": true,
+    "host_app_key": "classify_merged",
+    "example_files": [
+      {
+        "name": "Classify_existing_split_example.zip",
+        "sha256": "13c3214485da16403a4539d9cb32beea12980cb12bb89a2166efe56ee6b41fb7"
+      }
+    ],
+    "loaded_audio_sha256": "cb267b86e4e84ea8225ba3e4df97fd4cfa050c9eae6905c6223308f96575d464",
+    "scene_count": 12,
+    "seek_playback_clocks": {
+      "audio": 107.357994,
+      "video": 107.397411,
+      "expectedVideo": 107.3608046327888,
+      "audioDuration": 254.7,
+      "videoDuration": 254.666667,
+      "mediaError": null
+    },
+    "chapter_and_transcript_links": [
+      "06_api",
+      "08_measure",
+      "09_annotate",
+      "11_classify_ml",
+      "16_activation",
+      "28_training_runs",
+      "39_classifier_evaluation",
+      "41_classify",
+      "65_feature_explorer"
+    ],
+    "passed": true,
+    "evidence_sha256": "ad4c5726ef6965d9008b9ec62984365e76f6a3b48b7a6d45c4f91233f02451cb"
+  },
+  "encoded_visual_review": [
+    "first-scene poster: classifier family focus, dark theme and Blobs"
   ]
 }

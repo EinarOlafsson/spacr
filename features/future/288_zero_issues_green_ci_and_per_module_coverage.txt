@@ -4186,3 +4186,8 @@ The fixed snapshot run has finished 42 of 95 batches; its original source and
 coverage data remain unchanged. No full verdict or baseline tightening is
 claimed. The latest tutorial/report/translation checkpoint passes 44 focused
 checks in 126.10 s, separately from that full module-coverage measurement.
+
+2026-09-21 — CODEX: full coverage worker revalidated live at 53/95 finished
+batches. It retains the fixed 3d9eb57c5 snapshot; no full verdict or baseline
+update is claimed. Tutorial capture/split changes separately pass 23 checks.
+Current nightly source additions still require reconciliation after measurement.

@@ -2106,3 +2106,17 @@ Lesson 10 now states current spaCR 1.5.0.8, the real two-worker setting and
 preserved metadata. Fresh terminal preparation frames, full composition,
 narration/captions/browser/mobile/listening and publication remain open.
 The remaining ML recapture is still needed for the main Classify overview.
+
+2026-09-21 — CODEX: CURRENT CV COMPOSITION AND ENGLISH MEDIA VERIFIED
+Three real terminal preparation frames now accompany the accepted CV run in
+12 staged scenes. The preparation was repeated after training into a separate
+export; independent input proofs match the trained dataset. No model rerun or
+pixel replacement is represented. The 254.7-second English af_heart review
+and native 4K/30 silent master fully decode; narration freshness/timing checks
+pass. Chromium desktop/mobile playback, chapter seek, synchronization, related
+links and the downloadable helper pass. Capture/split checks: 23 passed.
+Receipt: tools/tutorials/evidence/2026-09-21-classify-cv-current-capture.json.
+Remaining: ML recapture, full language/voice/caption and listening acceptance,
+then publication with the complete refreshed set. No live media was uploaded.
+The linked preparation ZIP was also rebuilt from the exact recorded helper;
+its README now matches the current two-worker run and preserved database.

@@ -534,3 +534,13 @@ flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
 remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
 future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
+
+2026-09-21 — CODEX TRANSLATION REVIEW: ENGLISH WARNING STILL CONTRADICTS 435
+The live INVERT_WARNING_TEXT in spacr/qt/screens/make_masks.py still says
+'Invert image' is a separate display-only switch, whereas this item's newer
+help says inversion is unified for display and detection. The warning is
+still attached to the live QLabel. Portuguese draft row 137 is deferred in
+this review slice rather than approving that scientific contradiction.
+Please reconcile the English source in the non-translation lane; Codex will
+rebind the existing de/es/sv/fr reviewed warning records and translate the
+corrected source across all nine locales. No application source was edited.

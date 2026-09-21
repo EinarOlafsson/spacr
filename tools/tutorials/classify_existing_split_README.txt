@@ -2,7 +2,7 @@ Classify: explicit existing-split tutorial example
 ================================================
 
 This is a bounded teaching example, NOT a general-purpose dataset splitter.
-It was recorded with spaCR 1.5.0.6. Follow the Annotate tutorial and choose
+It was recorded with spaCR 1.5.0.8. Follow the Annotate tutorial and choose
 Load test data, then Load (not Stream). Retain the downloaded plate1 project,
 including measurements/measurements.db, its image crops and format markers.
 Do not replace the source annotations or edit the original database.
@@ -23,7 +23,9 @@ and eight existing label-2 crops per well, ranked by a fixed SHA-256 rule
 before fitting. It copies 64 original RGB224x224 PNGs unchanged, but names
 the COPIES using their database prcfo identities. The application's legacy
 filename parser is not repaired by this workaround. Format markers and an
-input manifest accompany the copied files. No model is started by the helper.
+input manifest accompany the copied files. The original measurements database
+is also copied byte for byte, so the GUI can validate the source metadata.
+No model is started by the helper.
 
 Actual training-folder wells: plate1/r12/c1 and plate1/r5/c2.
 Actual test-folder wells:     plate1/r12/c2 and plate1/r5/c1.
@@ -42,7 +44,7 @@ Use these explicit settings for the recorded bounded run:
   epochs: 1
   batch_size: 8
   image_size: 128
-  n_jobs: 0
+  n_jobs: 2
   init_weights: False
   augment: False
   tensorboard: False

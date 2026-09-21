@@ -372,3 +372,10 @@ tree and did not change the matrix's frozen inputs.
 lessons 01/04/05 and its original worker handle is still live. The retained
 04/05 recaptures and English review masters are not final full-matrix/listening
 acceptance; re-recording closure remains open.
+
+2026-09-21 — CODEX TUTORIAL LANE: 150/150 narration tracks for 01/04/05
+finished on CPU and passed full technical verification, including AAC decode,
+exact synthesis freshness, timing and activity. Each lesson has 50 checked
+voices/language combinations; receipt is tools/tutorials/evidence/
+2026-09-21-recovered-narration-matrix.json. Lessons 04/05 remain open for
+listening, captions/player acceptance and publication with the refreshed set.

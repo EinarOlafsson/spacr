@@ -227,3 +227,15 @@ with accuracy 0.5 explicitly equal to baseline. Lesson 10 removes its old
 release reference and now matches two loader workers. The capture receipt
 2026-09-21-classify-cv-current-capture.json names remaining preparation frames,
 full media composition and acceptance. No live media was published.
+
+2026-09-21 — CODEX: CV REVIEW MASTER / 150 NARRATION TRACKS VERIFIED
+The current dark/Blobs CV capture is composed with three real preparation
+scenes into a native 4K/30 master. Full video decoding and actual desktop/mobile
+player checks pass for English af_heart. Separately, all 150 freshly rendered
+tracks for 01/04/05 pass full AAC decode, source/model/voice/runtime freshness,
+timing and audio-activity checks. Hashes are retained in the recovered narration
+matrix receipt. These are technical checks; audible pronunciation, full final
+media/captions acceptance and joint publication remain open.
+The CV download README's older release reference and zero-worker setting
+were replaced with the current recorded release/settings; its helper matches
+the capture hash, including the byte-identical metadata copy.

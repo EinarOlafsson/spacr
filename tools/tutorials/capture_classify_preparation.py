@@ -21,8 +21,15 @@ def terminal_driver(stage):
     work.mkdir(exist_ok=False)
     helper = Path(__file__).with_name('prepare_classify_split.py')
     shutil.copy2(helper, work / helper.name)
-    destination = stage / 'classify_canonical_split_v2'
-    source = stage / 'annotate_fresh/example_data/plate1'
+    destination = Path(os.environ.get('SPACR_TUTORIAL_CV_DESTINATION',
+                       str(stage / 'classify_canonical_split_v2'))).resolve()
+    source = Path(os.environ.get('SPACR_TUTORIAL_CV_SOURCE',
+                  str(stage / 'annotate_fresh/example_data/plate1'))).resolve()
+    if not destination.is_relative_to(stage):
+        raise ValueError('Prepare the recorded split inside its private stage')
+    from capture_policy import _PRIVATE_PATH
+    if any(_PRIVATE_PATH.search(str(path)) for path in (stage, source, destination)):
+        raise ValueError('Recorded commands require neutral stage, source and destination paths')
     commands = [
         ('01_source_example', ['python', '-c',
           'import sqlite3; from pathlib import Path; p=Path(' + repr(str(source / 'measurements/measurements.db')) + '); '
@@ -68,9 +75,17 @@ def terminal_driver(stage):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--source', type=Path)
+    parser.add_argument('--destination', type=Path)
     parser.add_argument('--inside', action='store_true')
     parser.add_argument('--terminal-driver', action='store_true')
     args = parser.parse_args(); stage = args.stage.resolve()
+    # The terminal driver is a descendant process launched by capture_terminal;
+    # retain these explicit paths throughout that private process tree.
+    if args.source is not None:
+        os.environ['SPACR_TUTORIAL_CV_SOURCE'] = str(args.source.resolve())
+    if args.destination is not None:
+        os.environ['SPACR_TUTORIAL_CV_DESTINATION'] = str(args.destination.resolve())
     if args.terminal_driver:
         return terminal_driver(stage)
     if args.inside:

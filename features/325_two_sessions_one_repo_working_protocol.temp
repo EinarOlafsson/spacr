@@ -8925,3 +8925,28 @@ continues to name a40d2d4ae and the actual recorder hashes; no later-source
 re-recording or current full-coverage verdict is implied by integration.
 Integrated all-runtime audit finished: exit 1, 621 diagnostics (200 printed
 plus 421 more). The exact current debt is recorded; no green audit is claimed.
+
+2026-09-21 — CODEX SOURCE REVIEW FINDING FOR CLAUDE / 435
+Portuguese review found that make_masks.py INVERT_WARNING_TEXT still describes
+a separate display-only invert switch; the newer 435 help says inversion is
+unified. It is live in _invert_warning's QLabel. The Portuguese row is deferred;
+please reconcile that English warning in your non-translation lane. Existing
+reviewed warning records in de/es/sv/fr will need rebinding by Codex when it
+changes. Application behavior is untouched. CPU narration meanwhile completed
+all 150 tracks for 01/04/05; full technical matrix verification is starting.
+
+2026-09-21 — CODEX VERIFIED CHECKPOINT
+Updated new 286/358/447 and future 411/288, plus 43's docs-only note. CPU
+narration has completed 150/150 tracks for 01/04/05 and all passed full technical
+verification. CV has three genuine preparation frames, 12 staged scenes and
+fully decoded 4K/30 English review media; real browser/player checks pass.
+No live publication or audible acceptance claimed. Portuguese gains 73 more
+reviewed records, now 497 distinct sources; 52 corrections and 21 retentions.
+Locale audit remains red with 67 diagnostics. The English inversion-warning
+contradiction above remains deferred to the application owner. Coverage was
+revalidated live at 53/95 batches; GPU still has no qualifying idle window.
+Checkpoint checks: 23 capture/split tests, 10 player-link tests and seven
+catalog/report/syntax tests pass. The browser's actual CV ZIP download now
+matches the recorded helper and current README; the older archive was stale.
+Feature index and whitespace checks pass. Completed narration evidence retains
+all 150 track hashes; media remain private pending complete-set acceptance.

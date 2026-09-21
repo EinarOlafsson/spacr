@@ -1768,3 +1768,9 @@ Integration through 64b86cb3a adds Figure-mode sources: 6165 runtime entries,
 11123 API symbols, 586 added/two removed/115 changed API sources. Both reports
 are regenerated; the 44-check pass and Portuguese-only audit above keep their
 earlier a40d2d4ae application-source boundary. The docs lane is still open.
+
+2026-09-21 — CODEX DOCS LANE ONLY: Portuguese gains 73 reviewed runtime
+records (497 distinct sources now). Runtime source coverage is 5905/6165 at
+this checkpoint, with no orphan keys; 67 locale audit diagnostics remain.
+Current review/coverage reports were regenerated. The full nine-language/API
+catalog gate is still red, so the docs lane is not closed.
