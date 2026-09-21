@@ -69,7 +69,7 @@ import pandas as pd
 import numpy as np
 import torch
 
-from .tabular import read_table
+from .tabular import read_table, write_database
 
 from skimage.measure import regionprops, label
 from skimage.transform import resize as sk_resize, rotate
@@ -1483,12 +1483,11 @@ def analyze_plaques(settings):
     summary_df.to_sql('summary', conn, if_exists='replace', index=False)
     details_df.to_sql('details', conn, if_exists='replace', index=False)
     stats_df.to_sql('stats', conn, if_exists='replace', index=False)
-    pd.DataFrame(per_image).to_sql('per_image', conn, if_exists='replace',
-                                   index=False)
-    pd.DataFrame(per_plaque).to_sql('per_plaque', conn, if_exists='replace',
-                                    index=False)
-
     conn.close()
+    write_database(pd.DataFrame(per_image), db_name, 'per_image',
+                   if_exists='replace')
+    write_database(pd.DataFrame(per_plaque), db_name, 'per_plaque',
+                   if_exists='replace')
     
     print(f"Analysis completed and saved to database '{db_name}'.")
 
