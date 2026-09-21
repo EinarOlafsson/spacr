@@ -699,7 +699,9 @@ def test_the_function_trace_never_fires_on_qt_event_delivery():
     trace.setLevel(_logging.DEBUG)
     logging_util.enable_function_trace()
     try:
-        filt.eventFilter(QObject(), None)
+        from PySide6.QtCore import QEvent
+
+        assert filt.eventFilter(QObject(), QEvent(QEvent.Type.User)) is False
         assert button_roles.action_role("Run") is not None
     finally:
         logging_util.disable_function_trace()

@@ -217,9 +217,21 @@ class TestMeasurePreviewSeeding:
 
         out = p.settings_for_propagation()
         assert out["png_size"] == [96, 72]
+        assert p._png_size_pair() == (96, 72)
         assert out["dialate_pngs"] is True
         assert out["dialate_png_ratios"] == [pytest.approx(1.75)]
         assert out["use_bounding_box"] is True
+
+    def test_editing_the_loaded_rectangle_width_requests_a_square(self, qtbot):
+        from PySide6.QtCore import Qt
+
+        p = self._panel(qtbot)
+        p.apply_settings({"png_size": [96, 72]})
+        assert p.settings_for_propagation()["png_size"] == [96, 72]
+        qtbot.keyClick(p._crop_size, Qt.Key_Up)
+        assert p.settings_for_propagation()["png_size"] == 97
+        assert p._png_size_pair() == (97, 97)
+        assert p._crop_size_timer.isActive()
 
     def test_the_mask_dims_and_min_sizes_are_seeded(self, qtbot):
         p = self._panel(qtbot)

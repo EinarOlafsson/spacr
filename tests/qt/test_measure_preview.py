@@ -74,7 +74,7 @@ def test_propagation_maps_measure_keys(qtbot, tmp_path):
     # in the RGB order its label promises.
     assert s["png_channel_mapping"] == {"r": 0, "g": 2, "b": 4}
     assert "png_dims" not in s
-    assert s["png_size"] == [200, 200]
+    assert s["png_size"] == 200
     assert s["crop_mode"] == ["cell"]
     captured = {}
     p.set_propagate_callback(lambda d: captured.update(d))

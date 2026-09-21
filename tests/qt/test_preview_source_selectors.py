@@ -404,6 +404,9 @@ def test_measure_channel_dropdown_changes_the_rendered_crops(qtbot, tmp_path):
     panel = _measure(qtbot)
     panel._mask_dim.setValue(4)
     panel._normalise.setChecked(False)
+    # Choose a crop size explicitly: the current default is 224, with the
+    # small fixture object centred in padding rather than at these pixels.
+    panel._crop_size.setValue(32)
     assert panel.load_array(path) is True
     assert [panel._channel_box.itemText(i)
             for i in range(panel._channel_box.count())] == [
@@ -414,12 +417,13 @@ def test_measure_channel_dropdown_changes_the_rendered_crops(qtbot, tmp_path):
     panel._channel_box.setCurrentText("Ch 2")
     vertical = panel._crops[0]["crop"].copy()
 
+    assert horizontal.shape == vertical.shape == (32, 32, 3)
     assert panel.display_channel() == 2
     assert not np.array_equal(horizontal, vertical)
     # A single channel is written to all three crop planes, so the crop is
     # grey — and each one carries its own channel's gradient direction.
     assert (vertical[..., 0] == vertical[..., 2]).all()
-    # Sampled inside the object (rows/cols 4..23 of the 34px crop), so the
+    # Sampled inside the object in the explicitly requested 32px crop, so the
     # masked-out background cannot answer for the gradient.
     plane = horizontal[..., 0].astype(int)
     assert plane[10, 20] > plane[10, 6]          # ch 0 ramps left → right

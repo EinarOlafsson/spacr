@@ -1017,7 +1017,13 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
                 width = int(value)
         except (TypeError, ValueError, IndexError):
             return
-        self._crop_size.setValue(width)
+        # Loading a saved rectangle is not a user edit that requests a
+        # square. Keep its geometry while setting the displayed width.
+        from PySide6.QtCore import QSignalBlocker
+
+        with QSignalBlocker(self._crop_size):
+            self._crop_size.setValue(width)
+        self._crop_size_timer.start()
 
     def _on_crop_size_changed(self, _value: int) -> None:
         """Re-crop at the new size, once the typing has stopped.
