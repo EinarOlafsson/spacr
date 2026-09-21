@@ -1228,6 +1228,8 @@ def _resolve_training_base(requested):
     local = str(getattr(entry, 'path', '') or '')
     if local and os.path.isfile(local):
         return local
+    if not getattr(entry, 'uri', None):
+        return name
     dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
     os.makedirs(dest, exist_ok=True)
     return str(model_zoo.fetch(entry, dest))

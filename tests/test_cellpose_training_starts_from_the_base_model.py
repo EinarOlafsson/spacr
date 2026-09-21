@@ -58,3 +58,15 @@ def test_training_hands_the_base_to_cellpose(tmp_path, monkeypatch):
     with pytest.raises(Stop):
         sm.train_cellpose({"src": str(tmp_path), "base_model": str(checkpoint)})
     assert seen["pretrained_model"] == str(checkpoint)
+
+
+def test_a_stock_zoo_entry_with_nothing_to_download_is_passed_through(monkeypatch):
+    """The zoo lists stock cpsam too, with no uri; that is Cellpose's own name,
+    not something to fetch (21 training tests failed on the first cut)."""
+    from spacr import model_zoo
+
+    entry = types.SimpleNamespace(key="cpsam", path="", uri="")
+    monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    monkeypatch.setattr(model_zoo, "fetch",
+                        lambda *a, **k: pytest.fail("must not download"))
+    assert sm._resolve_training_base("cpsam") == "cpsam"
