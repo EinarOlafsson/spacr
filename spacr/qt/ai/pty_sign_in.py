@@ -247,7 +247,10 @@ class SignInDialog(QDialog):
         self.answer.clear()
 
     def done(self, result: int) -> None:
-        """Stop the sign-in when the window closes."""
+        """Stop the sign-in when the window closes.
+
+        :param result: the dialog's result code, passed on to Qt unchanged.
+        """
         self._timer.stop()
         try:
             self.session.stop()

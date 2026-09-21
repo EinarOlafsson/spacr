@@ -32,7 +32,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "e331992ac20a5a225cd7ea0eca04b3650b1a6d84cd89d2e1f781d9ef0fae0223"
+    "bde8181cba26219a512a2f351d64c67fd0aa28d4e1651e45ecd5003df311387e"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -213,7 +213,13 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # origin/nightly df1216b3f, the baseline the 211 line above used: +2 / -0,
     # and the other of the two is `SearchThresholds.__post_init__`, already
     # named above.
-    assert len(dunders) == 212
+    # 2026-09-21: 212 -> 213, ONE entry,
+    # `spacr.timeflows_model.CellposeSamFeatures.__call__` -- the feature
+    # extractor's forward pass, which casts the batch to the encoder's own
+    # dtype and hands back float32 neck features. A callable object's
+    # __call__ IS its interface, so it belongs on the page. Set-differenced
+    # against 6ae5e1b36: +1 / -0.
+    assert len(dunders) == 213
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1153,7 +1159,23 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # priority on 2026-09-20 and the rebuild needs the GPU, which was busy.
     # Until it runs the localized API pages omit these blocks, which is what
     # this comment exists to say out loud.
-    expected = 10_931
+    # 10,931 -> 11,150 on 2026-09-21, +219 / -0, set-differenced and
+    # bucketed by module the same way. Sixteen of them (spacr.object_
+    # classifier and the infection report writer) landed on 2026-09-20
+    # between this pin and the docstring-correctness one, which is why
+    # that file moved from 10,947. The other 203 arrived after 6ae5e1b36:
+    #
+    #     57  spacr.qt.widgets.plaque_preview   16  spacr.timeflows_model
+    #     44  spacr.plaque_papers               12  qt.make_masks_datasets
+    #     10  spacr.qt.ai.pty_sign_in            8  qt.ops_stitch_demo
+    #      7  spacr.import_examples              6  qt.screens.foreign
+    #      5  spacr.qt.import_demo               4  qt.assay_examples
+    #      4  qt.widgets.measurements_example    and 30 across sixteen others
+    #
+    # THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE EITHER; the
+    # debt recorded for the 392 above now covers 611 symbols, and
+    # test_documentation_i18n names them until the rebuild runs.
+    expected = 11_150
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1194,7 +1216,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,523 -> 10,539 with `expected` above, for 412's and 416's sixteen.
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 10_931
+    # 10,931 -> 11,150 with `expected` above, for the same 219.
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_150
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1532,7 +1555,10 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # measure (421), timeflows_baseline (426), help_index and preferences.
     # The two that left are one entry each in spacr.cli_make_masks and
     # spacr.qt.ai.
-    assert 11_155 - len(docs) == 224
+    # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,374,
+    # post-filter 10,931 -> 11,150, boundary 224 -> 224. Both halves moved
+    # by exactly 219, so every arrival is rendered.
+    assert 11_374 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

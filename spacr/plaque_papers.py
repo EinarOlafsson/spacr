@@ -151,7 +151,15 @@ class Figure:
 
 @dataclass(frozen=True)
 class Word:
-    """One piece of text in a figure, in image pixels."""
+    """One piece of text in a figure, in image pixels.
+
+    :param text: the text as read.
+    :param x0: left edge of its box.
+    :param y0: top edge of its box.
+    :param x1: right edge of its box.
+    :param y1: bottom edge of its box.
+    :param confidence: the reader's confidence in the text, 0 to 1.
+    """
 
     text: str
     x0: float
@@ -181,6 +189,11 @@ class Word:
 class Region:
     """One plaque image the detector found inside a figure.
 
+    :param x0: left edge of the box, in figure pixels.
+    :param y0: top edge of the box.
+    :param x1: right edge of the box.
+    :param y1: bottom edge of the box.
+    :param confidence: the detector's confidence, 0 to 1.
     :param sizes: every inference size that found it, so a run records which
         size a region depended on.
     """
@@ -209,7 +222,11 @@ class Region:
         return min(self.width, self.height) / long_side if long_side else 0.0
 
     def contains(self, word: Word) -> bool:
-        """Whether a word's centre lies inside this box."""
+        """Whether a word's centre lies inside this box.
+
+        :param word: a word read from the same figure.
+        :returns: True when the word's centre is on or inside the box.
+        """
         return self.x0 <= word.cx <= self.x1 and self.y0 <= word.cy <= self.y1
 
 
@@ -217,6 +234,7 @@ class Region:
 class Annotation:
     """What one plaque image shows, and how that was decided.
 
+    :param region: the plaque image's box in the figure.
     :param panel: the panel letter read nearest the image, or ``None``.
     :param label_text: strategy 1 -- the text around the image.
     :param legend_text: strategy 2 -- the legend's sentence for the panel.

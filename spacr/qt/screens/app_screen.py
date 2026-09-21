@@ -4038,6 +4038,9 @@ class AppScreen(QWidget):
         does not open a folder, it runs on one. Reaches the widget the same way
         :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift
         on where ``src`` lives.
+
+        :param folder: the folder to run on, as a path or a string.
+        :returns: True when the screen has a ``src`` field and it took the value.
         """
         source = str(folder)
         model = getattr(self, "_settings_model", None)
