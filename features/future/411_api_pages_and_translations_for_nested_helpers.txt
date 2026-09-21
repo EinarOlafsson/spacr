@@ -829,3 +829,10 @@ OPS category descriptions, initial Model Zoo/embeddings controls, filtering
 instructions and sound descriptions. All pass the existing gates. The file
 is es/2026-09-21-runtime-ui-first-slice.json under docs/i18n/reviewed/runtime.
 The earlier 428-diagnostic runtime audit precedes this 42-row addition.
+
+Integration of e4fd5f31e adds nine Import captions (3822 UI sources total).
+All 4467 reviewed runtime records still bind to their exact English sources
+and hashes after integration. The English manifest is refreshed. Those nine
+new captions remain explicit nine-language debt; the earlier de/sv green
+audit applies to 3813 sources, not to this later integration. The API audit
+continues on its original snapshot in a separate worktree.

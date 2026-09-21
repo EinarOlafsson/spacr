@@ -56,3 +56,8 @@ The five normalization sources now have 45 reviewed translations across all
 nine languages. The full German/Swedish runtime audits pass at 3813 UI
 sources, and all ten selected source/syntax/reporter tests pass (204.52 s).
 This verification precedes the Import sources in `e4fd5f31e`.
+
+After integration of `e4fd5f31e`, all 4467 reviewed runtime records retain
+their exact current source and hash bindings. English now has 3822 UI sources;
+nine new Import captions still need translations. The preceding full de/sv
+audit remains evidence for the earlier 3813-source snapshot.

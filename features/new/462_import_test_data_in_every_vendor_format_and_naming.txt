@@ -136,3 +136,11 @@ DELIBERATELY NOT DONE
     naming_choices) are not in the nine locale catalogs; they fall back to
     English. Needs a catalog pass (tools/build_i18n_catalogs.py,
     tools/build_documentation_i18n.py).
+
+2026-09-21 — CODEX TRANSLATION INTEGRATION
+--------------------------------------------------------------------------------
+The runtime extractor finds nine new Import captions from e4fd5f31e. English
+is refreshed to 3822 UI sources; all 4467 existing reviewed runtime records
+still bind to their current sources and hashes. The nine-language rows for
+these nine captions remain open in Codex's translation lane (future/411).
+No Import behavior or data was changed by this integration checkpoint.

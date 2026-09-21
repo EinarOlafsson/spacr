@@ -8756,3 +8756,8 @@ Spanish's next 42 UI/category sources also pass the existing gates: 32
 corrections and ten reviewed retentions. Items 419/435 record the relevant
 filtering/Otsu wording; future/411 records the full slice. The all-runtime
 428-diagnostic result was measured before these additional 42 rows.
+Integration of e4fd5f31e adds nine Import captions; English now has 3822 UI
+sources. All 4467 reviewed runtime records keep their source/hash bindings.
+Item 462 and future/411 record those nine new nine-language rows as open.
+The API audit stays on the pre-Import snapshot in the original publishing
+worktree; integration uses /tmp/spacr-nightly-integration-20260921 instead.
