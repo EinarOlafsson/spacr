@@ -1312,10 +1312,18 @@ CREATE TABLE IF NOT EXISTS plaques (
 def open_database(path: Any) -> sqlite3.Connection:
     """Open (and create) the results database.
 
+    Waits up to 30 seconds for a lock another process holds, as
+    :func:`spacr.database_concurrency.connect` does, rather than failing
+    at SQLite's five-second default. Opened with ``sqlite3.connect`` and
+    not with that helper because the callers commit once per figure: the
+    helper's autocommit mode would make a figure's deletes and inserts
+    separate transactions, and a crash between them would leave half a
+    figure in the table.
+
     :param path: the ``.db`` file.
     :returns: an open connection.
     """
-    connection = sqlite3.connect(str(path))
+    connection = sqlite3.connect(str(path), timeout=30.0)
     connection.executescript(_SCHEMA)
     return connection
 
