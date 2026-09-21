@@ -111,11 +111,15 @@ jobs:
             -Version "${{ inputs.old_version || '1.5.0.7' }}" -TorchBackend cpu
           if ($LASTEXITCODE -ne 0) { throw "older install failed" }
       - name: The finder sees exactly that install
-        shell: powershell
+        shell: python
         run: |
-          python spacr\install_cleanup.py find --json | Out-File -Encoding utf8 before.json
-          python -c "import json; r=[x for x in json.load(open('before.json', encoding='utf-8-sig')) if x['kind']=='installer']; print(r); assert len(r)==1 and r[0]['version']=='${{ inputs.old_version || '1.5.0.7' }}', r"
-          if ($LASTEXITCODE -ne 0) { throw "the finder did not see the older install" }
+          import json, subprocess, sys
+          out = subprocess.run([sys.executable, "spacr/install_cleanup.py", "find", "--json"],
+                               capture_output=True, text=True, check=True).stdout
+          installers = [r for r in json.loads(out) if r["kind"] == "installer"]
+          print(json.dumps(installers, indent=2))
+          assert len(installers) == 1, installers
+          assert installers[0]["version"] == "${{ inputs.old_version || '1.5.0.7' }}", installers
       - name: Update with the checked-out installer
         shell: powershell
         run: |
@@ -124,8 +128,13 @@ jobs:
             -PackageSpec "$env:GITHUB_WORKSPACE" -TorchBackend cpu
           if ($LASTEXITCODE -ne 0) { throw "update failed" }
       - name: Only the new spaCR is left
-        shell: powershell
+        shell: python
         run: |
-          python spacr\install_cleanup.py find --json | Out-File -Encoding utf8 after.json
-          python -c "import json,re; v=re.search(r'^VERSION\s*=\s*[\"\']([^\"\']+)', open('setup.py').read(), re.M).group(1); r=[x for x in json.load(open('after.json', encoding='utf-8-sig')) if x['kind']=='installer']; print(r); assert len(r)==1 and r[0]['version']==v, (r, v)"
-          if ($LASTEXITCODE -ne 0) { throw "an older install was left behind" }
+          import json, re, subprocess, sys
+          version = re.search(r"^VERSION\s*=\s*[\"']([^\"']+)", open("setup.py").read(), re.M).group(1)
+          out = subprocess.run([sys.executable, "spacr/install_cleanup.py", "find", "--json"],
+                               capture_output=True, text=True, check=True).stdout
+          installers = [r for r in json.loads(out) if r["kind"] == "installer"]
+          print(json.dumps(installers, indent=2))
+          assert len(installers) == 1, installers
+          assert installers[0]["version"] == version, (installers, version)
