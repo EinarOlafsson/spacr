@@ -5744,7 +5744,6 @@ UI = {
     'Refresh: reloading the preview from {path}': '刷新：正在从 {path} 重新加载预览',
     'Refresh: the source setting is empty.': '刷新：源设置为空。',
     'Refresh: {path} does not exist.': '刷新：{path} 不存在。',
-    'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.': '显示或隐藏控制台上方的噬斑分割预览。运行实验分析前，先在一个视野中检查噬斑直径和阈值。',
     'Detect on the normalized image': '在归一化图像上检测',
     'Detection reads the image as drawn (normalized).': '检测使用显示的图像（已归一化）。',
     'Detection reads the image as loaded.': '检测使用加载时的图像。',
@@ -5761,6 +5760,7 @@ UI = {
     '{key} is not a filename convention Import knows.': '{key} 不是 Import 支持的文件命名规则。',
     'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.': '下载约 {size} MB 的合成测试数据：双色视野和对象掩膜由 spaCR 绘制，并非通过成像或分割获得，随后由 Measure 测量。数据包含一列染色对照，以及两种已知细胞内侵入寄生虫比例的条件，并附有真值供比较。设置会自动填充，下一步即可运行。首次下载后会缓存数据。',
     'Downloading the synthetic Invasion Assay test data': '正在下载 Invasion Assay 合成测试数据',
+    'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': '显示或隐藏控制台上方的空斑预览。在 Plaque 模式下分割一张图像；在 Figure 模式下查找一幅组图中的空斑图像，读取其标签并进行分割。',
 }
 
 MODULE_SUMMARIES = {
@@ -11628,7 +11628,6 @@ SOURCE_HASHES = {
     ('UI', 'Refresh: reloading the preview from {path}'): 'bb42cad24533e58a96e881a3e41f7baadeeef8328136b0df9661eebf21a17f1d',
     ('UI', 'Refresh: the source setting is empty.'): 'b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b',
     ('UI', 'Refresh: {path} does not exist.'): 'b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc',
-    ('UI', 'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.'): '3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da',
     ('UI', 'Detect on the normalized image'): 'b9419fd5aa6d352e2f2695d338337d3e7d3ba2acd0f3523f2b87281b361efab4',
     ('UI', 'Detection reads the image as drawn (normalized).'): '3014b9208f241d848ac044fa6cfdeb6033b41cef39841149c861444b79af880b',
     ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
@@ -11645,4 +11644,5 @@ SOURCE_HASHES = {
     ('UI', '{key} is not a filename convention Import knows.'): 'eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1',
     ('UI', 'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.'): '507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e',
     ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
+    ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
 }

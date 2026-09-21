@@ -5725,7 +5725,6 @@ UI = {
     'Refresh: reloading the preview from {path}': "Actualiser : rechargement de l'aperçu depuis {path}",
     'Refresh: the source setting is empty.': 'Actualiser : le paramètre de source est vide.',
     'Refresh: {path} does not exist.': "Actualiser : {path} n'existe pas.",
-    'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.': "Afficher ou masquer l'aperçu de segmentation des plaques au-dessus de la console. Vérifiez le diamètre des plaques et les seuils sur un champ avant de lancer l'analyse.",
     'Detect on the normalized image': 'Détecter sur l’image normalisée',
     'Detection reads the image as drawn (normalized).': 'La détection utilise l’image telle qu’elle est affichée (normalisée).',
     'Detection reads the image as loaded.': 'La détection utilise l’image telle qu’elle a été chargée.',
@@ -6011,6 +6010,7 @@ UI = {
     '{name} is not in Preferences at the moment.': "{name} n'est pas dans Préférences pour le moment.",
     '{name} is not installed.\n\nInstalling it runs:\n    pip install "{requirement}"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?': '{name} n\'est pas installé.\n\nL\'installation exécute :\n    pip install "{requirement}"\n\ndans l\'environnement où spaCR s\'exécute. Elle télécharge un paquet volumineux et peut modifier la version installée de torch, ce qui peut affecter Cellpose et, dans le pire des cas, empêcher spaCR de démarrer. Cela peut prendre plusieurs minutes ; spaCR reste utilisable pendant l\'installation.\n\nL\'installer maintenant ?',
     '{name} is not installed. Choosing it offers to install it.': "{name} n'est pas installé. Le choisir propose de l'installer.",
+    'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': "Afficher ou masquer l'aperçu des plages de lyse au-dessus de la console. En mode Plaque, il segmente une image ; en mode Figure, il repère les images de plages de lyse dans une figure, lit leurs étiquettes et les segmente.",
 }
 
 MODULE_SUMMARIES = {
@@ -11836,7 +11836,6 @@ SOURCE_HASHES = {
     ('UI', 'Refresh: reloading the preview from {path}'): 'bb42cad24533e58a96e881a3e41f7baadeeef8328136b0df9661eebf21a17f1d',
     ('UI', 'Refresh: the source setting is empty.'): 'b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b',
     ('UI', 'Refresh: {path} does not exist.'): 'b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc',
-    ('UI', 'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.'): '3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da',
     ('UI', 'Detect on the normalized image'): 'b9419fd5aa6d352e2f2695d338337d3e7d3ba2acd0f3523f2b87281b361efab4',
     ('UI', 'Detection reads the image as drawn (normalized).'): '3014b9208f241d848ac044fa6cfdeb6033b41cef39841149c861444b79af880b',
     ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
@@ -12146,4 +12145,5 @@ SOURCE_HASHES = {
     ('UI', '{name} is not in Preferences at the moment.'): '2c8e70ee0d319354080834a828c0274746b8da6a5d1de385eac7f3138684d641',
     ('UI', '{name} is not installed.\n\nInstalling it runs:\n    pip install "{requirement}"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?'): '7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157',
     ('UI', '{name} is not installed. Choosing it offers to install it.'): '1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff',
+    ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
 }

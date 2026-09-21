@@ -1738,3 +1738,8 @@ full locale audit passes there. This is the fourth locale to pass that audit.
 The newer Plaque Assay changes on nightly need a fresh audit; neither that
 source growth nor the API backlog is hidden by this result. Other CI ownership
 stays with Claude. Details: docs/i18n/2026-09-21-runtime-french-recovery.md.
+Integrated f6c31e2c8: re-reviewed the replaced Plaque/Figure preview tooltip
+in all nine locales, restoring a runnable audit. New source debt is explicit:
+58 new runtime sources plus changed plaque_model, 508 full-audit diagnostics,
+and API inventory 548 added/two removed/115 changed. Both reports are current;
+ten source/preservation and four reporter checks pass. Docs remains open.

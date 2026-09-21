@@ -5743,7 +5743,6 @@ UI = {
     'Refresh: reloading the preview from {path}': '새로고침: {path}에서 미리보기를 다시 불러오는 중',
     'Refresh: the source setting is empty.': '새로고침: 소스 설정이 비어 있습니다.',
     'Refresh: {path} does not exist.': '새로고침: {path}이(가) 존재하지 않습니다.',
-    'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.': '콘솔 위의 플라크 분할 미리보기를 표시하거나 숨깁니다. 분석을 실행하기 전에 한 시야에서 플라크 직경과 임곗값을 확인하세요.',
     'Detect on the normalized image': '정규화된 이미지에서 검출',
     'Detection reads the image as drawn (normalized).': '검출에 화면에 표시된 이미지(정규화됨)를 사용합니다.',
     'Detection reads the image as loaded.': '검출에 불러온 상태의 이미지를 사용합니다.',
@@ -5760,6 +5759,7 @@ UI = {
     '{key} is not a filename convention Import knows.': '{key}은(는) Import가 인식하는 파일명 규칙이 아닙니다.',
     'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.': '약 {size} MB의 합성 테스트 데이터를 다운로드합니다. 두 색상의 시야와 객체 마스크는 촬영하거나 분할한 것이 아니라 spaCR가 그린 뒤 Measure로 측정한 것입니다. 염색 대조군 열 하나와 세포에 침입한 기생충의 비율이 알려진 두 조건이 있으며, 실제 정답 값도 함께 제공됩니다. 설정이 자동으로 채워지므로 다음 단계는 실행입니다. 첫 다운로드 후 캐시에 저장됩니다.',
     'Downloading the synthetic Invasion Assay test data': 'Invasion Assay의 합성 테스트 데이터를 다운로드하는 중',
+    'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': '콘솔 위의 플라크 미리보기를 표시하거나 숨깁니다. Plaque 모드에서는 이미지 한 장을 분할합니다. Figure 모드에서는 도판 안의 플라크 이미지를 찾고, 해당 레이블을 읽은 다음 이미지를 분할합니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -11627,7 +11627,6 @@ SOURCE_HASHES = {
     ('UI', 'Refresh: reloading the preview from {path}'): 'bb42cad24533e58a96e881a3e41f7baadeeef8328136b0df9661eebf21a17f1d',
     ('UI', 'Refresh: the source setting is empty.'): 'b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b',
     ('UI', 'Refresh: {path} does not exist.'): 'b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc',
-    ('UI', 'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.'): '3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da',
     ('UI', 'Detect on the normalized image'): 'b9419fd5aa6d352e2f2695d338337d3e7d3ba2acd0f3523f2b87281b361efab4',
     ('UI', 'Detection reads the image as drawn (normalized).'): '3014b9208f241d848ac044fa6cfdeb6033b41cef39841149c861444b79af880b',
     ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
@@ -11644,4 +11643,5 @@ SOURCE_HASHES = {
     ('UI', '{key} is not a filename convention Import knows.'): 'eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1',
     ('UI', 'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.'): '507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e',
     ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
+    ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
 }

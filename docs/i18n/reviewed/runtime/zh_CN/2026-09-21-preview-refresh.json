@@ -32,10 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source_sha256": "3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da",
-      "translation": "显示或隐藏控制台上方的噬斑分割预览。运行实验分析前，先在一个视野中检查噬斑直径和阈值。"
+      "key": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source_sha256": "d5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5",
+      "translation": "显示或隐藏控制台上方的空斑预览。在 Plaque 模式下分割一张图像；在 Figure 模式下查找一幅组图中的空斑图像，读取其标签并进行分割。"
     }
   ]
 }

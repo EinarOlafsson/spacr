@@ -32,10 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source_sha256": "3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da",
-      "translation": "Die Vorschau der Plaquesegmentierung über der Konsole ein- oder ausblenden. Vor dem Assay den Plaquedurchmesser und die Schwellenwerte an einem Bildfeld prüfen."
+      "key": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source_sha256": "d5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5",
+      "translation": "Die Plaque-Vorschau über der Konsole ein- oder ausblenden. Im Modus Plaque wird ein Bild segmentiert; im Modus Figure werden die Plaque-Bilder in einer Abbildung gefunden, ihre Beschriftungen gelesen und die Bilder segmentiert."
     }
   ]
 }

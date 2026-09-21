@@ -123,3 +123,13 @@ TESTS
 
 tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 20 tests, the
 detector, text reader and Cellpose faked.
+
+2026-09-21 — CODEX TRANSLATION LANE: PREVIEW EVIDENCE REBOUND
+--------------------------------------------------------------------------------
+The new preview description replaced a source bound in all nine reviewed
+runtime stores, making the entire translation audit raise. Re-reviewed its
+Plaque/Figure meaning in all nine languages and updated both evidence and
+catalogs. The broader translation pass remains open: this integration adds
+six labels, six setting-help texts, 46 UI sources and a changed plaque_model
+help text. These 59 new/changed entries per locale are recorded under 411;
+no runtime/API audit is declared green. Production behavior remains Claude's.

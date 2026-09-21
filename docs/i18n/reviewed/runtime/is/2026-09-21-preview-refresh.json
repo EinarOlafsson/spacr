@@ -32,10 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source_sha256": "3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da",
-      "translation": "Sýna eða fela forskoðun skelluskiptingar fyrir ofan stjórnborðið. Athugið þvermál skella og þröskulda á einu myndsviði áður en prófunin er keyrð."
+      "key": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source_sha256": "d5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5",
+      "translation": "Sýna eða fela forskoðun á sýkingarskellum fyrir ofan stjórnborðið. Í hamnum Plaque er ein mynd skipt upp; í hamnum Figure eru myndir af sýkingarskellum fundnar í einni samsettri mynd, merkingar þeirra lesnar og þær skiptar upp."
     }
   ]
 }

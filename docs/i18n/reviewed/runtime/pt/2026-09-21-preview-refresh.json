@@ -32,10 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source_sha256": "3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da",
-      "translation": "Mostrar ou ocultar a prévia da segmentação de placas acima do console. Confira o diâmetro das placas e os limiares em um campo antes de executar o ensaio."
+      "key": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source_sha256": "d5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5",
+      "translation": "Mostrar ou ocultar a prévia de placas de lise acima do console. No modo Plaque, segmenta uma imagem; no modo Figure, encontra as imagens de placas de lise em uma figura, lê seus rótulos e as segmenta."
     }
   ]
 }

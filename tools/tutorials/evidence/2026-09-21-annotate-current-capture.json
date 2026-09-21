@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "date": "2026-09-21",
-  "status": "native_capture_and_english_visuals_staged_not_published",
+  "status": "native_capture_and_english_review_master_verified_not_published",
   "source_commit": "46d11afaf0b9c00c23bd58aad19705b6cc352da0",
   "version": "1.5.0.8",
   "artifact_root": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/annotate-verified",
@@ -261,9 +261,77 @@
   },
   "scene_count": 20,
   "remaining": [
-    "Render and review the narrated master",
-    "Language/voice and captions acceptance",
-    "Browser/mobile acceptance",
+    "Audible narration acceptance",
+    "Full language/voice and captions acceptance",
     "Publish only with the completed refreshed tutorial set"
-  ]
+  ],
+  "videos": [
+    {
+      "file": "09_annotate_silent.mp4",
+      "sha256": "09a4f690371e630004df6255ff9f6ffb6af3e558fe4baad45c552b6a41aa51be",
+      "duration": 353.0,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "44fe0a872f42e383116aae64de2ac70a2835293644b726bbd1fe6abcdcf35164",
+      "duration": 353.1,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "272f5a7a84606ac9c0176d0758da9a4a0058c4ab690c6c6a80ff8fd263f77be2",
+    "freshness_timing_activity": "passed"
+  },
+  "browser": {
+    "lesson": "09_annotate",
+    "scope": "en/af_heart playback and scene links only",
+    "uploaded": false,
+    "translation_or_listening_review": false,
+    "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+    "navigation_contains_staged_lesson": true,
+    "example_files": [],
+    "loaded_audio_sha256": "272f5a7a84606ac9c0176d0758da9a4a0058c4ab690c6c6a80ff8fd263f77be2",
+    "scene_count": 20,
+    "seek_playback_clocks": {
+      "audio": 82.275818,
+      "video": 82.281583,
+      "expectedVideo": 82.27465263664821,
+      "audioDuration": 353.1,
+      "videoDuration": 353,
+      "mediaError": null
+    },
+    "chapter_and_transcript_links": [
+      "06_api",
+      "08_measure",
+      "10_classify_cv",
+      "11_classify_ml",
+      "23_agreement",
+      "41_classify"
+    ],
+    "passed": true
+  },
+  "browser_receipt_sha256": "7aa0676a91ea09378a00286ed75bc0169bf43bf6115bb4268e4b01032f05cb1f",
+  "encoded_frame_review": {
+    "timestamps_seconds": [
+      60,
+      310,
+      320
+    ],
+    "result": "inspected neutral picker focus, crop grid and actual label-save console; dark mode and Blobs"
+  },
+  "capture_tool_sha256": {
+    "capture_refresh.py": "500a3175e06813d637d333e098103368e05d402bc30a0ce1fe7c2a43feeaf9da",
+    "capture_annotate.py": "7aed219259234a620d3b1c1277b66f7b6ec7f24a605c3086aaa32291844c7a71",
+    "capture_policy.py": "a529949bca12de57e3247dcaa09a42c96e8e38b64e63a69dc8e4743bc1e141b5",
+    "prepare_annotation_capture.py": "11e225b7f2f12c7d4b9356d4aa8a239515f57e22cfd7b07b382f9e8a2ae16e5b"
+  }
 }

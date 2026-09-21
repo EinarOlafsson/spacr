@@ -8847,3 +8847,15 @@ Coverage remains on fixed 3d9eb57c5, batch 26/95; 01/04/05 CPU narration reached
 79/150. The GPU monitor still sees another session's compute job; no GPU work
 was launched. All artifacts remain on the durable filesystem. No new item
 numbers or production behavior outside the assigned lanes were changed.
+Integration verification: f6c31e2c8's preview tooltip invalidated all nine
+review stores; its new Plaque/Figure wording is now re-reviewed in every
+locale. The remaining 59 new/changed runtime entries per language and API
+548/2/115 inventory are explicitly recorded in 411/43 docs/468 and reports.
+Full runtime audit runs (508 diagnostics); 10 review/preservation tests, 30
+AppScreen coverage tests and four reporter tests pass. The feature index is
+regenerated for already-filed 468. Annotate now also has a decoded 353-second
+4K/30 master, fresh English audio and passing real Chromium/mobile playback;
+receipt updated. Full locale/voice/audible/publication work remains.
+Coverage batch 26's real animation sweep finished exit 0 with no lost data;
+batch 28 runs. CPU narration reached 95/150; GPU remains occupied. No restart,
+coverage baseline update, claim of full CI success or live media publication.

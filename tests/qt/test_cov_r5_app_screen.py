@@ -726,7 +726,7 @@ class TestTheGuardsNothingCanTrip:
 
         The five keys the toggle is offered for are exactly the five the
         runtime panel builds a preview card for. Mask and Plaque Assay share
-        one builder; none of the four builders can return without a card.
+        a layout branch but have distinct builders; all five return a card.
         """
         import inspect
         import re
@@ -751,11 +751,13 @@ class TestTheGuardsNothingCanTrip:
             build_motility_preview_card)
         from spacr.qt.widgets.timelapse_preview import (
             build_timelapse_preview_card)
+        from spacr.qt.widgets.plaque_preview import build_plaque_preview_card
 
         for builder in (aps._build_live_preview_card,
                         aps._build_measure_preview_card,
                         build_timelapse_preview_card,
-                        build_motility_preview_card):
+                        build_motility_preview_card,
+                        build_plaque_preview_card):
             _panel, card = builder(screen)
             assert card is not None
 

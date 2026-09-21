@@ -2068,3 +2068,13 @@ folder dialog, crop grid and console were visually inspected. Receipt:
 Narrated master rendering and language/voice/browser acceptance remain; no
 live media was published. Annotate's English af_heart narration is rendering
 on CPU in the durable annotate-verified staging tree.
+Annotate's fresh af_heart narration and 353-second native 4K/30 master are now
+rendered. Both silent and narrated videos fully decode. Audio source identity,
+model/voice identity, timing and speech activity pass in the exact synthesis
+environment (checking with the application environment correctly rejected its
+different runtime fingerprint; no evidence was rewritten to bypass this).
+Chromium passes actual player playback, chapter seeking/synchronization,
+related links and 390-pixel mobile layout. Encoded frames at 60/310/320 seconds
+were inspected, including the real neutral-path label-save console. The receipt
+includes media hashes and browser evidence. Audible/full-language acceptance
+and publication with the complete refreshed set still remain.

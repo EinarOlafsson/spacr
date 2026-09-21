@@ -364,3 +364,6 @@ The durable 01/04/05 language/voice render reached 79/150 new tracks. Current
 04/05 video candidates remain private and verified as recorded in the previous
 receipt. Full matrix verification, audible pronunciation and player acceptance
 remain; this item is not closed. No GPU job was started.
+Later checkpoint: the same live CPU matrix reached 95/150 tracks without a
+restart. The completed Annotate English render used a separate private output
+tree and did not change the matrix's frozen inputs.

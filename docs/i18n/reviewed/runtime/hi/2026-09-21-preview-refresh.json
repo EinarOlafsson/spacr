@@ -32,10 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
-      "source_sha256": "3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da",
-      "translation": "कंसोल के ऊपर प्लाक विभाजन का पूर्वावलोकन दिखाएँ या छिपाएँ। परीक्षण चलाने से पहले एक दृश्य-क्षेत्र में प्लाक का व्यास और सीमा-मान जाँचें।"
+      "key": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source": "Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.",
+      "source_sha256": "d5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5",
+      "translation": "कंसोल के ऊपर प्लाक का पूर्वावलोकन दिखाएँ या छिपाएँ। Plaque मोड में एक छवि का विभाजन होता है; Figure मोड में एक चित्र के भीतर प्लाक की छवियाँ खोजी जाती हैं, उनके लेबल पढ़े जाते हैं और उनका विभाजन किया जाता है।"
     }
   ]
 }

@@ -4174,3 +4174,9 @@ translation and CPU Annotate recording progressed. Data remain durable under
 codex-artifacts-20260921/coverage. No baseline update or full-run pass is claimed.
 Nightly has since gained Plaque Assay code, so final integration must account
 for that source growth rather than treating this older snapshot as current.
+The integrated AppScreen contract now constructs the new dedicated Plaque
+preview builder as well as the other four: all 30 tests pass (20.98 s). The
+full run's long batch 26 was inspected with py-spy: its active worker was
+processing the real packaged-animation layout audit, not deadlocked. It later
+completed with exit 0 and no lost coverage files; batch 28 is running. The
+snapshot and coverage data were not restarted or altered.
