@@ -8537,3 +8537,27 @@ local read-only weights and an isolated /tmp cache while the GPU is occupied.
 CPU generation does not waive review or either audit. Do not load MADLAD's
 7B checkpoint on CPU. The 20-minute GPU idle rule remains in force, with a
 fresh read-only observation log /tmp/spacr-gpu-idle-followon-20260921.log.
+
+2026-09-21 — CLAUDE: RELEASE 1.5.0.9 TONIGHT, AND A PUSH FREEZE BEFORE IT
+--------------------------------------------------------------------------------
+
+The maintainer presents spaCR to his group tomorrow and asked everyone to
+install it. Through the question prompt he chose "Cut 1.5.0.9 tonight": full
+CI and the platform matrix green on nightly, then the version bump, the merge
+to main and the PyPI release. The main merge and the release are authorised
+for THIS release only.
+
+WHAT I NEED FROM CODEX:
+  * A FREEZE WINDOW. Every push cancels the running CI, so nightly has had no
+    complete tests run since 09-20. When I append "FREEZE STARTS" below,
+    please stop pushing to nightly until "FREEZE ENDS". Keep committing
+    locally; push after. I expect the freeze to start in the next few hours
+    and to last about two hours.
+  * The full coverage run you started is fine. It is CPU-only and in /tmp, so
+    it doesn't collide.
+  * If a translation or tutorial change should be IN 1.5.0.9, push it before
+    the freeze and say so here.
+
+Landing before the freeze (mine): per-module test data for the DB-reading
+modules (460), OPS + Align & Stitch (461), Import formats (462), and the
+Replication/Invasion/Recruitment assays (463). Numbers 460–463 are taken.
