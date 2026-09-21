@@ -4,7 +4,24 @@ PLAQUE ASSAYS FROM PUBLISHED PAPERS: DOI OR PDF IN, MEASURED PLAQUES OUT
 
 Filed as 415 on 2026-09-18; renumbered 2026-09-19 because 415 also names features/new/415_the_startup_window_text_is_bright_in_dark_mode.txt.
 
-Status:    NOT STARTED AS A MODULE, BUT ITS FIRST OPEN QUESTION IS NOW
+Status:    DONE 2026-09-21. A DOI, PMID, PMC id or PDF goes in through
+           Plaque Assay's Figure mode ("From a paper...", or
+           spacr.plaque_papers.fetch_paper_to_folder / measure_plaques_from_
+           papers); the figures and their legends are fetched (Europe PMC
+           JATS, or a PDF's pages and text layer -- checked on a real PDF),
+           the zoo detector finds the plaque images at 640 and 1280, the text
+           around them is read (RapidOCR, enlarged second reading) and keyed
+           to the legend by panel letter, each crop gets a condition with its
+           source and strength (a legend it cannot find is asked for; the
+           review table edits and OKs conditions, and "confirm annotations"
+           measures only the OK'd ones), the plaques are segmented with the
+           zoo plaque model and written to SQLite with pixels, ratios to the
+           panel median and mm^2 where a whole well is the ruler, and the
+           detector and segmenter are recorded, never hard-coded. 8 of 8
+           conditions read on PMC9744290 Fig 6 and Fig 7; 9 of 9 legends
+           gathered for that paper. The reader (YOLO + OCR) installs into an
+           environment of its own (item 469).
+           Earlier: NOT STARTED AS A MODULE, BUT ITS FIRST OPEN QUESTION IS NOW
            ANSWERED, AND THE ANSWER IS YES.
            2026-09-19: the transfer spike was built and run -- 28 open-access
            CC-BY papers, 182 figures, 369 plaque-image regions labelled by eye
