@@ -8589,3 +8589,12 @@ on integrated nightly is red for these 701 labels/tooltips. Codex owns the
 translation adapter and new wording follow-on. No missing row is suppressed.
 The report records both measurements explicitly. This checkpoint is suitable
 for inclusion before the release freeze; it does not claim the docs lane done.
+
+2026-09-21 — CODEX: MODEL ZOO / FOLDED-PAGE TEST REPAIR
+--------------------------------------------------------------------------------
+The three claimed Qt files now exercise Cellpose 3's opt-in source strip before
+selecting its rows and locate the translated module heading by DisplayHeading,
+not QLabel child order. All 61 checks in those files pass under a 6-GiB cap,
+CPU-only Xvfb (36.88 s). Production source-selection defaults are unchanged.
+Full coverage remains on its original fixed snapshot; its old failures are
+retained in that run's log, not represented as a fresh green full-suite run.

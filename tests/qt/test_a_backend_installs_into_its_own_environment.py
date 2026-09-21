@@ -313,6 +313,9 @@ def picker(qapp, qtbot, tmp_path, monkeypatch):
     monkeypatch.setattr(mzp, "DEFAULT_MODEL_DIR", str(tmp_path))
     monkeypatch.setattr(mzp, "remembered_model_dir", lambda: str(tmp_path))
     dialog = mzp.ModelZooPicker()
+    # Cellpose 3 is opt-in in the current source strip. Exercise that control
+    # before selecting its backend/model rows; hidden rows cannot be selected.
+    assert dialog.sources.set_on("cellpose3", True)
     qtbot.addWidget(dialog)
     yield dialog
     dialog._stop_any_download()
@@ -477,6 +480,7 @@ def screen(qapp, qtbot):
     from spacr.qt.screens.model_zoo import ModelZooScreen
 
     made = ModelZooScreen(threaded=False)
+    assert made.sources.set_on("cellpose3", True)
     qtbot.addWidget(made)
     return made
 

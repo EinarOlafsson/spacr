@@ -470,9 +470,10 @@ def _swedish_host(qtbot, monkeypatch):
 
 def _title_of(screen) -> str:
     """The masthead heading a module screen is showing."""
-    labels = [label.text() for label in screen._header.findChildren(QLabel)]
-    assert labels, "the masthead rendered no text at all"
-    return str(labels[0])
+    heading = screen._header.findChild(QLabel, "DisplayHeading")
+    assert heading is not None, "the masthead rendered no module heading"
+    assert not heading.isHidden(), "the module heading is hidden"
+    return heading.text()
 
 
 def test_the_page_arrives_in_the_language_the_window_is_in(

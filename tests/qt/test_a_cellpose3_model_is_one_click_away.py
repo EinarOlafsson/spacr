@@ -89,6 +89,10 @@ def _row_of(picker, name):
     """The table row showing ``name``, or fail saying what was there."""
     for row, (model, _kind) in enumerate(_rows(picker)):
         if model == name:
+            # The current UI folds Cellpose 3 until its source is enabled.
+            # Open the source as a user does before selecting a model row.
+            assert picker.sources.set_on("cellpose3", True)
+            assert not picker.table.isRowHidden(row)
             return row
     pytest.fail(f"{name} is not listed: {_rows(picker)}")
 
