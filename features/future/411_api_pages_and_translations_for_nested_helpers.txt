@@ -931,3 +931,20 @@ counts retain their named source boundary; the wider translation pass is open.
 Integration of 0df354d3c adds four paper-import API symbols. Current API debt
 is 573 added, two removed, 115 changed across 11110 symbols. Runtime inventory
 remains 6135. Source extraction/reporting is refreshed; no model was run.
+
+2026-09-21 — CODEX: PORTUGUESE SCIENTIFIC/SETTINGS RECOVERY
+--------------------------------------------------------------------------------
+Reviewed the first 80 preserved draft records against their complete English
+sources: 71 corrections, nine retentions. Three embedding action labels now
+match the corrected help. The loader accepts 424 distinct Portuguese reviewed
+sources and the catalog contains the new records with their actual source
+hashes. Removed 42 obsolete runtime keys (2 labels, 2 tooltips, 2 categories,
+36 UI); API retirement policy is unchanged. No gate was weakened. Details:
+ docs/i18n/2026-09-21-runtime-portuguese-recovery.md.
+The remaining draft and current Plaque/Figure/OPS/sign-in sources still need
+review; the whole Portuguese audit is not green. This is AI-assisted technical
+review, not native-speaker approval. No GPU model has been started.
+Portuguese now has 5832/6135 current runtime entries and no orphaned runtime
+keys. Its full audit still reports 74 diagnostics: remaining source/hash and
+format-field debt, with no review-store load failure. Forty-four report/capture/
+split checks pass (126.10 s). No complete-locale or API acceptance is claimed.

@@ -1755,3 +1755,12 @@ two removed and 115 changed API sources. Generated reports track this source
 growth; the earlier 535-diagnostic audit belongs to the previous snapshot.
 The paper-import follow-on 0df354d3c adds four more API symbols: 11110 live,
 573 added/two removed/115 changed. Runtime remains 6135; reports are refreshed.
+
+2026-09-21 — CODEX DOCS: Portuguese gains 80 reviewed draft records plus three
+consistent embedding actions (424 distinct reviewed sources). Its 42 obsolete
+runtime keys are removed. The remaining locale/API debt is still explicit;
+26 focused translation/classifier checks pass (33.75 s), and current report
+and tutorial-guard verification is running. The docs lane remains open.
+The refreshed report and tutorial checks pass 44/44 (126.10 s). Portuguese's
+whole audit remains red with 74 diagnostics; current entries are 5832/6135,
+with zero runtime orphans. These are explicit remaining docs debt.

@@ -163,3 +163,10 @@ format fields. The wider nine-language/API pass remains under future/411;
 newer nightly source additions require their own audit. No non-translation
 implementation or decision in this item was changed. Review details are in
 docs/i18n/2026-09-21-runtime-french-recovery.md.
+
+2026-09-21 — CODEX TRANSLATION LANE: Portuguese's first reviewed recovery
+slice covers scientific settings/help, including tracking, Cellpose model and
+flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
+remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
+future/411. This is partial nine-language progress; no non-translation
+implementation or acceptance decision in this item was changed.

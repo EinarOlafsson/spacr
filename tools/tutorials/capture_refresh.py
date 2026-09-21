@@ -257,6 +257,11 @@ def main() -> int:
     # A private Xvfb recording cannot capture a portal/GTK dialog in another
     # desktop process. Use Qt's genuine file dialog, with identical operations.
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeDialogs)
+    if args.classifier_existing_split:
+        # This records a training workflow, not cold startup. Finish Torch's
+        # CPU import before the live resource monitor can inspect a partially
+        # imported module and emit a traceback with local installation paths.
+        import torch  # noqa: F401
     app = QApplication.instance() or QApplication([])
     mark_tour_seen()
     for key, *_ in gui.APPS:
@@ -293,7 +298,26 @@ def main() -> int:
 
     def capture(name, *, desktop=False):
         appearance = verify_appearance(window)
-        verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
+        try:
+            verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
+        except RuntimeError:
+            # Private diagnostics only: never save a rejected frame. A guard
+            # can fire during a real run, so drain that run before unwinding
+            # the owning Qt objects (otherwise Qt aborts the whole process).
+            current_screen = window._screens.get(args.module)
+            console = getattr(current_screen, '_console', None)
+            if console is not None:
+                write_json(captures / (name + '_rejected_console.json'),
+                           [text for _, _, text in console._pipeline_console_blocks()])
+            running = getattr(current_screen, '_worker_thread_is_running', lambda: False)
+            if running():
+                # Cleanup is not a recorded interaction. Ask the production
+                # cooperative cancellation path directly: the visible Stop
+                # button opens a modal choice, which has no operator here.
+                current_screen._request_cooperative_stop()
+                while running():
+                    settle(.1)
+            raise
         pixmap = app.primaryScreen().grabWindow(0) if desktop else window.grab()
         if (pixmap.width(), pixmap.height()) != (3840, 2160):
             raise RuntimeError(f'Unexpected capture size {pixmap.size()}')
@@ -1146,7 +1170,7 @@ def main() -> int:
                 presets['classify_merged'].pop('gradient_accumulation', None)
                 presets['classify_merged'].update(
                     src=[str(args.classifier_existing_split.resolve())],
-                    generate_training_dataset=False, n_jobs=0, val_split=0.5,
+                    generate_training_dataset=False, n_jobs=2, val_split=0.5,
                     test_split=0.5, train_channels=['r', 'g', 'b'])
             if args.module == 'recruitment':
                 from recruitment_data import prepare_subset

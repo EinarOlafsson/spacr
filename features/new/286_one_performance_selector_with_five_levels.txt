@@ -367,3 +367,8 @@ remain; this item is not closed. No GPU job was started.
 Later checkpoint: the same live CPU matrix reached 95/150 tracks without a
 restart. The completed Annotate English render used a separate private output
 tree and did not change the matrix's frozen inputs.
+
+2026-09-21 — CODEX TUTORIAL LANE: CPU narration reached 132/150 tracks for
+lessons 01/04/05 and its original worker handle is still live. The retained
+04/05 recaptures and English review masters are not final full-matrix/listening
+acceptance; re-recording closure remains open.

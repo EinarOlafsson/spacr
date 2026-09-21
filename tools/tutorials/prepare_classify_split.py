@@ -104,6 +104,14 @@ def prepare(source, destination):
         if parsed['well'] != '_'.join(row['well']) or parsed['object'] != row['prcfo']:
             raise ValueError('Current application cannot parse the exported canonical identity')
     destination.mkdir(parents=True)
+    # The current GUI validates a measurements database even when training
+    # consumes an existing train/test split. Preserve the actual source
+    # metadata beside those crops; never invent a placeholder database.
+    metadata = destination / 'measurements' / 'measurements.db'
+    metadata.parent.mkdir()
+    shutil.copy2(database, metadata)
+    if hashlib.sha256(metadata.read_bytes()).hexdigest() != db_hash:
+        raise ValueError('The copied measurements database differs from its source')
     for row in records:
         target = destination / row['split'] / row['class_name'] / row['filename']
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -116,6 +124,7 @@ def prepare(source, destination):
             raise ValueError('The exported image differs from its original')
     manifest = {'accepted': True, 'source_project': str(source), 'source_database': str(database),
                 'source_database_sha256': db_hash, 'destination': str(destination),
+                'copied_database': str(metadata), 'copied_database_sha256': db_hash,
                 'selection': 'SHA256 of 42:PRCFO; eight per existing label per actual well',
                 'class_values': {'infected_1': 1, 'infected_2': 2}, 'records': records,
                 'train_wells': sorted(map(list, TRAIN_WELLS)), 'test_wells': sorted(map(list, TEST_WELLS)),

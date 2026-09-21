@@ -8884,3 +8884,36 @@ pending real CV/ML recaptures and full media acceptance.
 The second push race integrated 0df354d3c, whose only source change is paper
 import. Its four added API symbols bring the live count to 11110 and added
 debt to 573; runtime stays 6135. Reports are regenerated for this boundary.
+
+2026-09-21 — CODEX: PORTUGUESE SLICE AND CURRENT CV RECORDING
+--------------------------------------------------------------------------------
+Checkpoint a40d2d4ae was pushed to nightly, including recovered French,
+Annotate's verified master/browser receipt, Classify overview and current
+API/runtime debt. Portuguese now gains 80 reviewed draft records (71 corrected,
+nine retained), three embedding actions and removal of 42 obsolete runtime
+keys; 424 distinct reviewed sources. New/future feature notes record the slice.
+Current CV recording uses 64 unchanged downloaded crops split by actual wells.
+Two rejected captures remain private: one showed a personal run-journal path;
+the next exposed a resource-monitor traceback during Torch's partial import.
+The recorder now uses a private neutral home for this run, two workers, a
+byte-identical copy of original measurements metadata, and CPU Torch import
+before opening the training recording. It never saves a rejected frame and
+now saves private diagnostics/drains an active run if a path guard rejects.
+The next real GUI capture is running; no acceptance is claimed until its
+saved predictions, leakage reports and frames are independently checked.
+Follow-up diagnosis: the neutral directory itself was named home, causing the
+unchanged conservative guard to match the internal /home/ segment. It is now
+user_state. The second attempt also logged a partial-Torch-import traceback;
+preloading CPU Torch removes that incidental race without changing app code.
+The third rejected run finished its real work while its Stop confirmation was
+open; Escape on its private Xvfb display allowed a normal exit. Recorder cleanup
+now uses the real cooperative stop path directly, not that modal UI action.
+
+The fourth CV capture completed and passed independent acceptance: 27 native
+4K frames; 64 unchanged input crops; both disjoint-well audits; all 32 test
+predictions checked; accuracy 0.5 and macro F1 1/3, explicitly baseline-level.
+Updated 358/447 and lesson 10; no final media or biological claim. Current
+reports and capture/split guards pass 44 checks (126.10 s). Portuguese has
+5832/6135 current entries, zero orphans and 74 remaining audit diagnostics.
+Live handles revalidated: coverage 42/95 batches, narration 132/150 tracks.
+GPU monitor still sees PID 448841 and no qualifying idle window.

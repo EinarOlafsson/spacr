@@ -2089,3 +2089,20 @@ isolated state and no model/provider call. Receipt:
  tools/tutorials/evidence/2026-09-21-classify-overview-current-capture.json.
 This completes only the overview's navigation capture. The actual CV/ML runs,
 lesson composition, narration/captions/browser and audible acceptance remain.
+
+2026-09-21 — CODEX: CURRENT CV RUN ACCEPTED AS A WORKFLOW EXAMPLE
+--------------------------------------------------------------------------------
+A fresh CPU run on the 64 unchanged example crops produced 27 native 4K dark/
+Blobs frames. Both native train/test and train/validation audits pass with no
+well/object/field/content overlap (one shared plate is explicit). Independent
+checks verify all 32 test identities, labels/probability sums, accuracy 0.5 and
+macro F1 1/3; accuracy equals the majority baseline, not useful-model evidence.
+The original metadata database is copied byte for byte and rechecked. Two
+loader workers are confirmed in the actual console. A private neutral HOME
+keeps genuine journal paths safe to show; no console transcript was rewritten.
+Picker/result/unsent-AI frames were visually checked. Receipt:
+ tools/tutorials/evidence/2026-09-21-classify-cv-current-capture.json.
+Lesson 10 now states current spaCR 1.5.0.8, the real two-worker setting and
+preserved metadata. Fresh terminal preparation frames, full composition,
+narration/captions/browser/mobile/listening and publication remain open.
+The remaining ML recapture is still needed for the main Classify overview.

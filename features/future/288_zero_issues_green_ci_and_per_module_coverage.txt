@@ -4180,3 +4180,9 @@ full run's long batch 26 was inspected with py-spy: its active worker was
 processing the real packaged-animation layout audit, not deadlocked. It later
 completed with exit 0 and no lost coverage files; batch 28 is running. The
 snapshot and coverage data were not restarted or altered.
+
+2026-09-21 — CODEX: DURABLE FULL RUN REVALIDATED LIVE
+The fixed snapshot run has finished 42 of 95 batches; its original source and
+coverage data remain unchanged. No full verdict or baseline tightening is
+claimed. The latest tutorial/report/translation checkpoint passes 44 focused
+checks in 126.10 s, separately from that full module-coverage measurement.

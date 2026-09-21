@@ -383,3 +383,25 @@ now rejects that late worker error even after a main-pipeline success signal;
 the new test was observed red before implementing the guard. The both-level
 repeat completed without that error (434 guide and 325 gene results). This is
 a tutorial configuration change, not an application fix for guide-only runs.
+
+### Current CV capture isolation
+
+The existing-split recorder uses two loader workers. The split exporter also
+preserves the original measurements database byte for byte beside the crops,
+so the current GUI's source validation can read real metadata. The independent
+input checker verifies that copy against the unchanged original.
+
+For a private recording, bind its durable stage to a neutral path and set HOME
+only for that recorder process to `<neutral-stage>/user_state`. Create its
+`.cache/spacr/example_data` and `.spacr/runs` directories first. This keeps the
+real reproducibility journal's printed paths neutral without changing the
+user's home or editing the console transcript. Avoid a directory named `home`
+inside that visible path: the conservative path guard also matches `/home/`
+inside a longer path. All Python remains inside `tools/run_capped.sh` and the
+recording namespace must shadow the stale NAS mount.
+
+This training recording imports CPU Torch before opening the GUI, so the live
+resource monitor does not inspect a partially imported module. It makes no cold
+startup timing claim. A rejected capture saves no frame, archives its console
+privately for diagnosis and asks the real cooperative stop path to finish any
+active run before its Qt owners unwind.

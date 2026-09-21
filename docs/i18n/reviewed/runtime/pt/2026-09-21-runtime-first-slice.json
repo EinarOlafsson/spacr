@@ -1,0 +1,566 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "control_sgrnas",
+      "source": "Control sgRNAs",
+      "translation": "sgRNAs de controle",
+      "source_sha256": "901ad5d14d7f886866d801222012e3d537aaca54cf2fceea496618e06e5e534c"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_size",
+      "source": "Crop size",
+      "translation": "Tamanho do recorte",
+      "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "drop_straight_tracks",
+      "source": "Drop straight tracks",
+      "translation": "Descartar trajetórias retilíneas",
+      "source_sha256": "76cda4b81b43d75683b5c0daae676cac553599c3f5f4e512828999cf05f9afbb"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_base_channels",
+      "source": "Ops base channels",
+      "translation": "Canais das bases Ops",
+      "source_sha256": "67acb65a94a536a66dac6894883c1295ef48e6e9c1d45b37f6fadcb2c58da3c8"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_footprint",
+      "source": "Ops footprint",
+      "translation": "Margem de atribuição Ops",
+      "source_sha256": "c986798989127fe6c441a7b6711bbaad60a846cca0a4c0cc10590e612084e64e"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_library",
+      "source": "Ops library",
+      "translation": "Biblioteca Ops",
+      "source_sha256": "6d6c47df2af4e9af42cd87cb562da3094bace42b9006fcdec56cec412f7530f8"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_raster_overlap",
+      "source": "Ops raster overlap",
+      "translation": "Sobreposição da grade de aquisição Ops",
+      "source_sha256": "075e123047f407d4215396c2af89415d19c96fcb512e40b0e4c4279b7826d95f"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_read_threshold",
+      "source": "Ops read threshold",
+      "translation": "Limiar de leitura Ops",
+      "source_sha256": "08161b4f63ba9ba0047379e46294e94a1f703f7653309b7adb8837f70fe539e3"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_store_reads",
+      "source": "Ops store reads",
+      "translation": "Armazenar leituras Ops",
+      "source_sha256": "2407539c761d452635379f42c0e1bad4ce52a79819ca4fd613fc65c37b19565f"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_window_overlap",
+      "source": "Ops window overlap",
+      "translation": "Sobreposição das janelas Ops",
+      "source_sha256": "9cdde10632ff2d79a2c9a96404deeae3de1f2431c577520aa75a49f471063104"
+    },
+    {
+      "table": "setting_labels",
+      "key": "phenotype_source",
+      "source": "Phenotype source",
+      "translation": "Fonte do fenótipo",
+      "source_sha256": "4264d9c208a00855238fd5af02240140945329261083ed8037baeb468ce265f1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "track_outlier_zscore",
+      "source": "Track outlier zscore",
+      "translation": "Limiar de escore z para valores atípicos nas trajetórias",
+      "source_sha256": "bcafca9222a7830b82c4fead97743f85b9971477f20a69e0b5bb0acf6b508001"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "FT",
+      "source": "Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "flow_threshold do Cellpose nos submódulos independentes de aplicação e teste de modelos, equivalente ao <object>_flow_threshold por objeto do módulo Mask. São descartadas as máscaras cujos fluxos recalculados diferem da previsão da rede por mais que esse limite. Um valor baixo elimina objetos irregulares ou implausíveis, mas também pode eliminar objetos reais. Faixa típica de 0 a 3; acima de 3, praticamente todos os candidatos são mantidos. Padrão: 0.4, o padrão do próprio Cellpose.",
+      "source_sha256": "7090700222ddcbc4b3821636ae3f290efdd28d22bfda92e3cb69a06002f3da90"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
+      "translation": "De qual organismo obter as anotações a serem associadas aos resultados da regressão. 'toxoplasma' usa as tabelas de Toxoplasma gondii incluídas no programa, que não precisam de rede e são a opção padrão. Qualquer outro nome de organismo ou identificador de táxon NCBI — 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' — obtém as entradas desse organismo no UniProt; um identificador de acesso individual, como P04637, recupera apenas essa entrada. O resultado fica em cache junto aos arquivos de saída, dispensando a rede em uma nova execução. Se spaCR não reconhecer o nome, os resultados ficam sem anotações e o programa informa quais nomes são semelhantes. Deixe vazio para não adicionar anotações. Padrão: 'toxoplasma'.",
+      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "auto_file_issues",
+      "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
+      "translation": "Relatar uma execução que falhou como um problema no repositório público de spaCR no GitHub. O relatório inclui o traceback, as configurações da execução e as versões do software, com caminhos, nomes de usuário e de máquina e credenciais ocultados. Quando o envio de problemas está definido como 'always' (o padrão), o relatório é enviado automaticamente, uma vez por erro, se houver uma sessão iniciada no GitHub. Com 'ask', ele é aberto em uma prévia e só é enviado quando você pressiona Enviar relatório. Padrão: True.",
+      "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_flow_threshold",
+      "source": "Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "flow_threshold do Cellpose: erro máximo permitido entre os fluxos recalculados de uma máscara candidata e os fluxos previstos pela rede. As máscaras acima desse limite são descartadas. Reduzi-lo elimina células irregulares ou implausíveis, mas também pode eliminar células reais; aumentá-lo mantém mais células. Faixa útil de aproximadamente 0-3; acima de 3, praticamente todos os candidatos são mantidos. Padrão: 0.4, o padrão do próprio Cellpose.",
+      "source_sha256": "1f20d8a299a118ec408e518911237c7bdc1ff3fda5f1739c413ec1ca763b9ebe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "translation": "Pesos para segmentação de células. Cellpose 4 fornece o modelo padrão 'cpsam'; como alternativa, use um checkpoint CPSAM criado com Train Cellpose, carregado como pretrained_model. Os nomes antigos ('cyto', 'cyto2', 'cyto3', 'nuclei') são convertidos em cpsam, pois Cellpose 4 não inclui mais esses modelos — exceto quando segmentation_backend é 'cellpose3', que executa o modelo correspondente ao nome. Apenas diameter altera a inferência (com reescala por 30/diameter); model_type e diam_mean não são usados em v4.0.1+. Padrão: 'cpsam'.",
+      "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "drop_straight_tracks",
+      "source": "Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.",
+      "translation": "Aplicar o limiar de retilinearidade. False informa quantas trajetórias excedem straightness_threshold sem alterar os dados; True remove essas trajetórias da tabela de velocidades, do resumo por poço e dos gráficos. Ative quando a deriva da platina ou trocas de identidade produzirem trajetórias implausivelmente retilíneas. Padrão: False.",
+      "source_sha256": "340f2cc9181003122524eb1e7699f19fbdb078789ff8a08805e9b516ef88ea2e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "edge_thickness",
+      "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
+      "translation": "Largura do contorno como fração do tamanho do objeto, em vez de um número fixo de pixels, preservando a largura relativa entre diferentes valores de crop_size. Valores maiores tornam os limites mais visíveis em miniaturas pequenas, mas cobrem mais pixels do interior. Padrão: 0.1.",
+      "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
+      "translation": "Convenção de nomes de arquivos usada para interpretar imagens brutas, escolhida em uma lista agrupada por fabricante: Yokogawa CV7000/CV8000 ('cellvoyager', o padrão) e CQ1, PerkinElmer/Revvity Opera Phenix e Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan e EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X e Matrix Screener, e Micro-Manager. 'custom' usa custom_regex, e 'auto' primeiro renomeia os arquivos da pasta conforme a convenção Yokogawa (usando custom_regex quando fornecida; caso contrário, detecção automática) antes da interpretação. As convenções marcadas como provisórias foram reconstruídas a partir de nomes de arquivos reais encontrados em conjuntos de dados públicos, em vez de obtidas na documentação dos fabricantes. Uma convenção incorreta pode atribuir identificadores errados de placa, poço, campo ou canal e colocar imagens em pastas de canais incorretas. Use 'Test on my folder' (Testar na minha pasta) para conferir antes de executar.",
+      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_flow_threshold",
+      "source": "Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "flow_threshold do Cellpose para máscaras de núcleos: erro máximo permitido entre os fluxos recalculados de uma máscara e os fluxos previstos pela rede. Reduzi-lo descarta mais núcleos com formato irregular, resultando em menos objetos, mas com contornos mais regulares; aumentá-lo mantém quase tudo o que Cellpose propõe. Faixa típica de 0 a 3; acima de 3, praticamente todos os candidatos são mantidos. Padrão: 0.4, o padrão do próprio Cellpose.",
+      "source_sha256": "c21542dce208ebb2b4c0511d434405fc96c9cfc6a1c835810b8e851735f16e07"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
+      "translation": "Pesos usados para segmentar núcleos. Os valores válidos são 'cpsam' ou o caminho de um checkpoint CPSAM personalizado produzido com Train Cellpose. 'nuclei' e 'nucleus' são convertidos em 'cpsam', pois Cellpose 4 removeu os modelos anteriores ao SAM — exceto quando segmentation_backend é 'cellpose3', que executa o modelo 'nuclei' do próprio Cellpose 3. Configure nucleus_diameter para controlar a escala. Dos três parâmetros que antes distinguiam os modelos, apenas diameter ainda tem efeito (eval reescala por 30/diameter); model_type e diam_mean são ignorados. Padrão: 'cpsam'.",
+      "source_sha256": "288cd1bce7442ea139575cf1cfa904c0245ad41a4289d7c61081f012535b1224"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. Given a phenotype folder it also records where each phenotype field lands on the stitched well. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ.",
+      "translation": "Transformar as imagens em mosaico de cada poço de uma aquisição de sequenciamento para triagem óptica agrupada em tabelas: montar o mosaico nuclear, segmentar e numerar os núcleos em todo o poço, depois decodificar as leituras de cada campo e atribuir um código de barras a cada núcleo cujas leituras concordam. Se uma pasta de fenótipo for fornecida, também registra onde cada campo fenotípico se localiza no mosaico do poço. As tabelas são gravadas em measurements.db. As leituras são decodificadas a partir das imagens, não de FASTQ.",
+      "source_sha256": "0088ccbc77f2ea1c7f609918336830ef4a067258728251546a50a4f8d0daca9c"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_base_channels",
+      "source": "Which channels carry the four bases, in the order G, T, A, C, separated by commas. These names are matched against the channel token in each tile's file name, so a run whose base channels are named differently is read by changing this rather than by renaming files. Exactly four are required: a shorter list decodes a shorter barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+      "translation": "Quais canais contêm as quatro bases, na ordem G, T, A, C, separados por vírgulas. Esses nomes são comparados com o identificador de canal no nome de arquivo de cada imagem do mosaico. Assim, uma aquisição com nomes de canais diferentes pode ser lida alterando esta configuração, sem renomear arquivos. São necessários exatamente quatro canais: uma lista menor decodifica um código de barras mais curto que os da biblioteca. Padrão: 'CY3,A594,CY5,CY7'.",
+      "source_sha256": "e642706d65b469a850f000aed84c98dc5b7e7e4578c7e0e7b7780f14f0f28bf5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_footprint",
+      "source": "How far beyond a nucleus's boundary a read may lie and still be counted as that nucleus's read, in pixels. On the reference plate 10 pixels held 98 % of the detected spots and 3 held 67 %, and the wider setting assigned 28 % more objects a barcode at slightly higher purity, because the reads sit around the rim rather than inside. Too wide starts giving a read to a neighbour. Default 10.",
+      "translation": "Distância máxima, em pixels, além do limite de um núcleo em que uma leitura ainda pode ser atribuída a ele. Na placa de referência, 10 pixels incluíram 98 % dos pontos detectados e 3 pixels incluíram 67 %. O limite mais amplo atribuiu códigos de barras a 28 % mais objetos, com pureza ligeiramente maior, pois as leituras ficam próximas da borda, em vez de no interior. Um limite amplo demais começa a atribuir leituras ao núcleo vizinho. Padrão: 10.",
+      "source_sha256": "5a22332a20cb91e21c7cca30d20a5afb12b426838315e5601491dfca7643cc53"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "translation": "Um CSV de códigos de barras de guias, com os códigos em uma coluna chamada prefix, barcode ou sequence. Quando fornecido, o código de barras identificado para cada núcleo também é comparado com o guia mais próximo, e a execução informa quantos pontos correspondem exatamente à biblioteca — a medida que indica se a decodificação funcionou. Deixar vazio ainda permite identificar códigos de barras, mas impede avaliar sua correspondência à biblioteca. Padrão: None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_raster_overlap",
+      "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
+      "translation": "Sobreposição entre imagens vizinhas de sequenciamento na grade de aquisição do microscópio, em pixels. Esta é uma configuração da própria aquisição, não um parâmetro para otimizar: ela informa à montagem do mosaico onde procurar uma imagem vizinha. Um valor distante do real impede encontrar conexões e deixa campos sem posição definida. Padrão: 213, medido nas imagens de 1.480 pixels da placa de referência.",
+      "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_read_threshold",
+      "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
+      "translation": "Quanto um ponto deve ser mais brilhante que seu entorno para ser contado como uma leitura. Valores menores detectam mais leituras e mais detritos, o que aparece como uma queda na taxa de correspondência à biblioteca, em vez de um erro. Valores maiores perdem leituras reais e deixam os núcleos com poucas leituras para chegar a um consenso. Padrão: 315, o valor usado na execução de referência desta placa.",
+      "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "translation": "Gravar todas as leituras que originaram os códigos de barras na tabela ops_reads: uma linha por leitura por ciclo, com a base identificada, sua margem e as quatro intensidades usadas para identificá-la. Isso permite rastrear um código de barras suspeito até seus pixels. A opção fica desativada por padrão porque gera muitos dados — um poço completo da placa de referência tem cerca de trinta milhões de linhas. Ative para um ou dois poços, em vez da placa inteira. Padrão: False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_window_overlap",
+      "source": "How far the segmentation windows overlap each other, in pixels. A nucleus is only numbered once if at least one window saw all of it, so this has to exceed the largest nucleus; when it does not, the run reports the objects no window saw whole and says by how much. Raising it costs time, because more of the well is segmented twice. Default 96.",
+      "translation": "Sobreposição entre janelas de segmentação, em pixels. Um núcleo só recebe um único número se ao menos uma janela o contiver inteiro; por isso, a sobreposição deve exceder o tamanho do maior núcleo. Caso contrário, a execução informa quais objetos não foram vistos por inteiro em nenhuma janela e quanto faltou. Aumentar o valor exige mais tempo, pois uma parte maior do poço é segmentada duas vezes. Padrão: 96.",
+      "source_sha256": "1e1581eba24e7267258152e0476fc54bb84ab9ead261eebb0dada01a4bceb64e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_flow_threshold",
+      "source": "Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "flow_threshold do Cellpose para máscaras de patógenos: uma máscara candidata é descartada quando seus fluxos recalculados diferem da previsão da rede por mais que esse limite. Aumente-o para manter mais parasitas, incluindo alguns com formato irregular; reduza-o para manter apenas objetos bem delimitados e regulares. Faixa típica de 0.0-3.0; acima de 3, praticamente todos os candidatos são mantidos. Padrão: 0.4, o padrão do próprio Cellpose.",
+      "source_sha256": "0a3f78719e3890bbd4dec0e03a665a47c180d20c6278b1c8a57c4fc193d31ff6"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_model_name",
+      "source": "Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "Quais pesos segmentam os patógenos: 'cpsam' ou o caminho de um checkpoint criado com Train Cellpose. Os checkpoints incluídos toxo_pv_lumen / toxo_cyto são CPnet de Cellpose-3, que CPSAM não consegue carregar; por isso, são convertidos em 'cpsam', com aviso. Com segmentation_backend 'cellpose3', um nome de modelo Cellpose 3 ou caminho de checkpoint é executado conforme especificado. A chave antiga 'pathogen_model' ainda prevalece sobre esta quando definida. Dos três parâmetros que antes distinguiam os modelos, apenas diameter ainda tem efeito (eval reescala por 30/diameter); model_type e diam_mean são registrados como 'não usados em v4.0.1+' e ignorados. Padrão: 'cpsam'.",
+      "source_sha256": "edd77ffdd67ac22d1f2475ccff81df4243b85c717c39f4265bccef8968fe45f5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source": "The folder holding the high-magnification phenotype acquisition of the same wells. Given one, the run aligns a few of its fields to the stitched sequencing well, fits the acquisition raster to those, and records where every phenotype field lands and which sequencing tile covers it. Empty skips that step and decodes the sequencing acquisition alone. Default None.",
+      "translation": "Pasta com a aquisição de fenótipo em alta ampliação dos mesmos poços. Quando fornecida, a execução alinha alguns de seus campos ao mosaico do poço de sequenciamento, ajusta a grade de aquisição a esses campos e registra a posição de cada campo fenotípico e qual imagem de sequenciamento o cobre. Deixar vazio pula essa etapa e decodifica apenas a aquisição de sequenciamento. Padrão: None.",
+      "source_sha256": "b192dcf04f65557cdc8eac339b97f06fed7b0fc80bc962f04f13cee6a03244e4"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "reuse_existing_measurements",
+      "source": "If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
+      "translation": "Se measurements.db já contiver a tabela indicada por db_table_name, carregá-la em vez de extrair novamente regionprops de merged/*.npy. Economiza a maior parte do tempo ao executar novamente apenas o QC da infecção ou os gráficos, mas também pula a suavização das trajetórias. Por isso, alterações em max_displacement ou track_outlier_zscore só têm efeito quando esta opção é False. Padrão: True.",
+      "source_sha256": "fbbf8825498bec4058509211f8e38cdc27b25ae3f2d4d2eb133f885fc70df9a0"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "route_errors_through_ai",
+      "source": "Send a failing run's traceback to the AI Console automatically and request an explanation. The traceback and the settings leave your machine when this is on; leave it off if your paths or filenames are themselves sensitive. Default True.",
+      "translation": "Enviar automaticamente o traceback de uma execução que falhou ao Console de IA e solicitar uma explicação. Quando ativado, o traceback e as configurações saem da sua máquina; mantenha desativado se os próprios caminhos ou nomes de arquivos forem sensíveis. Padrão: True.",
+      "source_sha256": "08c2d5211c74b3254e6d9a57f666baeb2c701fca240723e1b87724cc61e7d6a3"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+      "translation": "Qual modelo segmenta células, núcleos e patógenos; máscaras de modelos diferentes não são comparáveis. 'cellpose' (padrão) executa o modelo indicado para cada objeto. 'cellpose3' executa Cellpose 3 com o nome de modelo cyto3, cyto2, cyto ou nuclei do objeto, ou com o caminho de um checkpoint Cellpose 3; outros nomes resultam em nuclei para núcleos e cyto3 para os demais objetos. 'samcell' e 'dinocell' são modelos 2-D para imagens de células vivas e sem marcação que leem apenas o canal do objeto. Todos os mecanismos, exceto 'cellpose', são instalados pelo Model Zoo em ambientes próprios e recusam execuções com z_stack e t_stack. Padrão: 'cellpose'.",
+      "source_sha256": "bf311c83ef2ff4f8a92accb1b6d01d1b7cc6dea6c3f9def8597317afab04ab3e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "straightness_threshold",
+      "source": "Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
+      "translation": "Limiar de retilinearidade, em que retilinearidade = deslocamento líquido / comprimento total da trajetória (0 = retorno ao ponto inicial, 1 = perfeitamente retilínea). Quando drop_straight_tracks é True, trajetórias iguais ou superiores a esse valor são descartadas como deriva ou artefatos de rastreamento. Assim, reduzir o limite descarta mais trajetórias. A contagem é sempre registrada. Padrão: 0.95.",
+      "source_sha256": "efc1651d6361235dc8ca9d2c4ca0644038287e1e488172f06cae576bae7b125c"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "track_outlier_zscore",
+      "source": "Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+      "translation": "Sensibilidade a valores atípicos na suavização de medidas escalares de uma trajetória (área, área de bbox, diâmetro equivalente, perímetro, solidez e intensidade média/máxima/mínima). O valor de uma medida em um quadro que se afasta da média da própria trajetória por mais que este número de desvios padrão é substituído pela média dos dois quadros vizinhos, se ambos estiverem dentro da metade desse limite. Valores menores suavizam mais; nada é excluído. Padrão: 3.0.",
+      "source_sha256": "3d7840b2fb1de858799460a454d088e85f6a98d04d77b01aac262bdadac5c775"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "x_lim",
+      "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
+      "translation": "Limites de dois elementos [min, max] no eixo dos coeficientes (x) do gráfico vulcão de Toxoplasma produzido pelo fluxo de regressão quando annotation_source é a anotação de Toxoplasma incluída no programa. Estreite o intervalo para ampliar os resultados próximos de zero; amplie-o para manter no gráfico os genes com efeitos maiores. None usa [-0.5, 0.5], sem ajuste automático da escala. Padrão: None.",
+      "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7"
+    },
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "translation": "Como um ponto se torna uma base: qual canal corresponde a cada letra, quanto um ponto deve ser mais brilhante que seu entorno para contar como leitura e a que distância de um núcleo uma leitura ainda pode ser atribuída a ele. Estas são propriedades medidas da aquisição, não preferências. A execução informa a taxa de correspondência à biblioteca, que indica se os valores estão corretos.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca"
+    },
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "translation": "Como as imagens são montadas em mosaico e como os núcleos de cada poço são segmentados: a sobreposição deixada pelo microscópio entre imagens vizinhas, a sobreposição entre janelas de segmentação e o modelo. Cada leitura é atribuída ao núcleo sobre o qual se encontra ou ao núcleo imediatamente ao lado. Por isso, o modelo e o diâmetro definidos aqui determinam quais objetos podem receber um código de barras.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5"
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "translation": "De onde as imagens são lidas e onde os resultados são gravados: a pasta de sequenciamento, incluindo subpastas, pesquisada em busca de imagens com nomes que indicam ampliação, ciclo, poço, canais e campo; a pasta de fenótipo alinhada sobre esse mosaico; a biblioteca de guias com a qual as bases identificadas são comparadas; e a pasta que recebe measurements.db e um relatório por poço. Configure estes valores primeiro; todos os outros grupos OPS dependem deles.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2"
+    },
+    {
+      "table": "ui",
+      "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "translation": "(bool) drop_straight_tracks — remover por completo as trajetórias sinalizadas.",
+      "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849"
+    },
+    {
+      "table": "ui",
+      "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "translation": "<b>Relatar erros como problemas no GitHub</b><br><span style='color:gray;'>Os relatórios são enviados ao repositório público de spaCR no GitHub, com caminhos, nomes e credenciais ocultados. Quando o envio está definido como always, a opção padrão, uma execução que falha envia seu relatório automaticamente, uma vez por erro, se houver uma sessão iniciada no GitHub abaixo. Com ask, o botão \"File as issue\" (Registrar como problema) aparece sob o console, e o relatório só é enviado quando você pressiona Enviar relatório na prévia. Altere a opção em Ajuda → Configurar spaCR novamente….</span>",
+      "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "Um modelo 4PL é simétrico em torno de seu ponto médio. A assimetria real pode existir, e um 4PL a absorve deslocando o EC50. O 5PL a ajusta com um parâmetro a mais, exige mais uma concentração e informa se esse parâmetro adicional se justifica.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
+    },
+    {
+      "table": "ui",
+      "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "translation": "Um arquivo WAV seu para tocar como música de fundo no lugar da música de spaCR. Deixe vazio para usar a música do próprio spaCR. Nada é enviado nem copiado: o arquivo é lido em seu local original, e o fundo Ressonância também se move ao som dele.",
+      "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "translation": "Uma noite de céu limpo: índigo, violeta, azul-gelo e o azul-lilás pálido que permanece no céu muito depois do pôr do sol.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1"
+    },
+    {
+      "table": "ui",
+      "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "translation": "Uma condição em SQL sobre as próprias colunas da tabela de recortes. O banco de dados é aberto somente para leitura; nada que você digitar aqui pode alterá-lo.",
+      "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395"
+    },
+    {
+      "table": "ui",
+      "key": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "translation": "Um banco de dados de medidas permite escolher quais objetos serão convertidos em representações vetoriais. Uma pasta de recortes usa todos os PNG que contém.",
+      "source_sha256": "98e856ee8d435fefddd711ab86c86d23e2ade0c2fcd5a3eb4de9080bfdbe8302"
+    },
+    {
+      "table": "ui",
+      "key": "A model is already downloading; wait for it to finish.",
+      "source": "A model is already downloading; wait for it to finish.",
+      "translation": "Um modelo já está sendo baixado; aguarde a conclusão.",
+      "source_sha256": "465c707e736689c9df5a895cc2bea1d076cd7a2a119796a325e19a0d3efb55b0"
+    },
+    {
+      "table": "ui",
+      "key": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "translation": "Uma música suave em repetição na tonalidade do conjunto de sons: camadas sustentadas, um arpejo dedilhado com eco de colcheia pontuada, um subgrave suave e batidas discretas de bumbo em todos os tempos com chocalho, que entram e saem conforme o arranjo. É independente dos outros sons, permitindo receber sinais sonoros sem música. Fica pausada nos níveis Notebook e Desempenho extra.",
+      "source_sha256": "29b1b3c06239497242ecde6662ce724cd88573be8a2d193c54f8eaf1ba9e3b1e"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "translation": "Um arpejo ascendente que resolve na tônica quando a execução de um módulo termina com sucesso, para avisar quando spaCR estiver em outra janela.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "translation": "Um som curto e suave de corda dedilhada, na tonalidade do conjunto de sons, ao pressionar um botão, interruptor, aba, lista ou controle deslizante: confirmação discreta de que a ação foi registrada.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da"
+    },
+    {
+      "table": "ui",
+      "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "translation": "Uma sequência descendente mais lenta quando uma execução termina com erro, para distinguir pelo som o sucesso da falha. Uma execução interrompida por você não emite som.",
+      "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "translation": "O sol perto do horizonte e a matéria que sua luz atravessa: dourado, âmbar, dourado pálido e verde-musgo.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851"
+    },
+    {
+      "table": "ui",
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "translation": "Fator de correção do limiar: o nível calculado por Otsu é multiplicado por ele antes do uso. Acima de 1, o critério é mais rigoroso: os objetos diminuem e os de sinal fraco são excluídos. Abaixo de 1, inclui pixels menos intensos; 1 usa o nível calculado por Otsu. A detecção por Otsu usa esse fator, assim como o modo Otsu da lupa ao vivo quando uma região contém duas populações bem distintas.",
+      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
+    },
+    {
+      "table": "ui",
+      "key": "Add a model",
+      "source": "Add a model",
+      "translation": "Adicionar um modelo",
+      "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "translation": "Adicionar campo",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "translation": "Adiciona as mensagens DEBUG de spaCR aos arquivos de log em ~/.spacr/logs. Também permite que cellpose informe qual modelo carregou e registra quais botões você pressionou. Esse histórico torna um relatório de erro útil para a investigação.\n\nAtivar esta opção não aumentou o tempo de inicialização de spaCR nem de abertura das telas. A medição foi feita em uma estação de trabalho, abrindo cada módulo uma vez com a opção ativada e outra com ela desativada. Em ambos os casos, a tela inicial ficou pronta em cerca de 4 segundos após uma inicialização a frio. O módulo mais lento abriu em cerca de 7 segundos nas duas condições. O tempo de execução dos fluxos de processamento não foi medido.\n\nO Console continua mostrando apenas os níveis que você ativa na aba Registro. Esta opção não rastreia todas as chamadas de funções. Esse rastreador é uma ferramenta separada para desenvolvedores, e nada aqui o ativa.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978"
+    },
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "translation": "Adicionar…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf"
+    },
+    {
+      "table": "ui",
+      "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "translation": "Um som de corda dedilhada ainda mais suave quando o ponteiro repousa sobre um controle habilitado. Aguarda o ponteiro parar e depois permanece em silêncio por um momento, para que passar por um painel não gere uma sequência contínua de sons. Fica desativado até você ativá-lo aqui.",
+      "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca"
+    },
+    {
+      "table": "ui",
+      "key": "An install is still running",
+      "source": "An install is still running",
+      "translation": "Uma instalação ainda está em execução",
+      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
+    },
+    {
+      "table": "ui",
+      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "translation": "Outra instalação ainda está em execução. Aguarde a conclusão ou pressione Cancelar abaixo dos indicadores.",
+      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "translation": "Aplicar os limites ativados à máscara exibida. Cada objeto removido é listado abaixo, com a área e a intensidade média usadas na decisão. Toda a operação pode ser desfeita em uma única etapa.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284"
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "translation": "No máximo:",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf"
+    },
+    {
+      "table": "ui",
+      "key": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "translation": "Anexe a pasta usada para treinar este modelo. Ela é compactada em um único tar e enviada junto ao checkpoint. Pastas grandes demoram para compactar e enviar; o limite é de aproximadamente 25 GB.",
+      "source_sha256": "e809ad3fd8d8a417b00c30eae3e1cd7e3e030ae15d01341249b7621269ef6103"
+    },
+    {
+      "table": "ui",
+      "key": "Building the index…",
+      "source": "Building the index…",
+      "translation": "Criando o índice…",
+      "source_sha256": "c2b8a7dd762f096d53c65a9ed94c5c96869156ecddd8c9f2f3318c4e42739572"
+    },
+    {
+      "table": "ui",
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "translation": "Cancelado, nada foi deixado para trás.",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d"
+    },
+    {
+      "table": "ui",
+      "key": "Channels",
+      "source": "Channels",
+      "translation": "Canais",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a database or a folder first",
+      "source": "Choose a database or a folder first",
+      "translation": "Escolha um banco de dados ou uma pasta primeiro",
+      "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of crop PNGs",
+      "source": "Choose a folder of crop PNGs",
+      "translation": "Escolha uma pasta de recortes PNG",
+      "source_sha256": "f1ae9bf598a7536fe83f1edbee984350599a29decf82c1224e3b4097c381eb82"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "translation": "Escolha acima um banco de dados de medidas ou uma pasta de recortes PNG e pressione Carregar recortes. Um banco de dados pode ser filtrado por classe de objeto, placa ou qualquer condição compatível com suas colunas.",
+      "source_sha256": "3bbbcf831239864e884a879bd8b086625e2b508286de9e30c68241a71c50c492"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs first.",
+      "source": "Choose a measurements database or a folder of crop PNGs first.",
+      "translation": "Escolha primeiro um banco de dados de medidas ou uma pasta de recortes PNG.",
+      "source_sha256": "f02e2721214ef384ce35edfb28538a2ec4eb29a6254a9f8323cf54e88c61f50c"
+    },
+    {
+      "table": "ui",
+      "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "translation": "Escolha como os canais serão codificados e pressione Vetorizar. A tabela será preenchida com as primeiras dimensões da representação de cada objeto.",
+      "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b"
+    },
+    {
+      "table": "ui",
+      "key": "Choose music for the bed",
+      "source": "Choose music for the bed",
+      "translation": "Escolher música de fundo",
+      "source_sha256": "45eec11b1ba9a74ff88550860b2cb2a814386796d36eed9bc6ab1225ad5ded09"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "translation": "Clique",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "translation": "Preencher os buracos no interior dos objetos detectados por limiar antes de numerá-los. Sem isso, um núcleo com centro menos intenso que a borda aparece como um anel. O modo Otsu da lupa sempre fazia esse preenchimento, mas a detecção por Otsu não; por isso, os dois podiam produzir resultados diferentes para o mesmo campo. Agora ambos usam esta opção.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8"
+    },
+    {
+      "table": "ui",
+      "key": "Community uploads are not vetted",
+      "source": "Community uploads are not vetted",
+      "translation": "Uploads da comunidade não são verificados",
+      "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f"
+    },
+    {
+      "table": "ui",
+      "key": "Could not fetch {name}: {why}",
+      "source": "Could not fetch {name}: {why}",
+      "translation": "Não foi possível obter {name}: {why}",
+      "source_sha256": "7623198840ea85fb5df52e279d21b6a54f8d2b451d069bef60d6fec827ea9afa"
+    },
+    {
+      "table": "ui",
+      "key": "Could not file the issue: the reporter would not start.",
+      "source": "Could not file the issue: the reporter would not start.",
+      "translation": "Não foi possível registrar o problema: a ferramenta de envio não iniciou.",
+      "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8"
+    }
+  ]
+}
