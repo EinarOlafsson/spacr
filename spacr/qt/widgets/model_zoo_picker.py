@@ -1003,15 +1003,18 @@ class ModelZooPicker(QDialog):
         self._groups = group_entries(entries)
         self._chosen = {stem: 0 for stem, _ in self._groups}
 
+        sorting = self.table.isSortingEnabled()
+        self.table.setSortingEnabled(False)
         self.table.setRowCount(len(self._groups))
         for row, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(self.table)
             combo.addItems([label for label, _ in pairs])
             combo.setCurrentIndex(0)
             combo.currentIndexChanged.connect(
-                lambda index, r=row: self._version_picked(r, index))
+                lambda index, g=row: self._version_picked(g, index))
             self.table.setCellWidget(row, 4, combo)
-            self._fill_row(row)
+            self._fill_row(row, at=row)
+        self.table.setSortingEnabled(sorting)
         self._rebuilding = False
         self._apply_source_filter()
         self.table.resizeColumnsToContents()
@@ -1036,14 +1039,50 @@ class ModelZooPicker(QDialog):
         from ... import model_zoo
 
         enabled = set(self.sources.enabled())
-        for row, (stem, pairs) in enumerate(self._groups):
+        for group, (stem, pairs) in enumerate(self._groups):
             entry = pairs[self._chosen[stem]][1]
-            self.table.setRowHidden(
-                row, model_zoo.source_of(entry) not in enabled)
+            row = self._row_of_group(group)
+            if row is not None:
+                self.table.setRowHidden(
+                    row, model_zoo.source_of(entry) not in enabled)
 
-    def _fill_row(self, row: int) -> None:
-        """Write a row's cells for the version it currently shows."""
-        stem, pairs = self._groups[row]
+    def _group_of_row(self, row: int) -> Optional[int]:
+        """Which model group the table row ``row`` shows NOW.
+
+        THE TABLE SORTS (a header click), and a sort moves rows but not
+        :attr:`_groups`. Reported 2026-09-21: "if i download the live_cell
+        model, it says downloaded v4 and has only v1 as the option" -- the
+        row picked was looked up by its position in the unsorted list, so a
+        sorted table downloaded another model (the well detector's v4) and
+        the version box answered for another row. Each row's first cell
+        carries its group instead, and every lookup goes through it.
+
+        :param row: a table row.
+        :returns: an index into :attr:`_groups`, or None.
+        """
+        item = self.table.item(row, 0)
+        group = item.data(Qt.UserRole) if item is not None else None
+        if group is None or not (0 <= int(group) < len(self._groups)):
+            return None
+        return int(group)
+
+    def _row_of_group(self, group: int) -> Optional[int]:
+        """The table row that shows model group ``group`` now, or None."""
+        for row in range(self.table.rowCount()):
+            if self._group_of_row(row) == group:
+                return row
+        return None
+
+    def _fill_row(self, group: int, at: Optional[int] = None) -> None:
+        """Write a group's cells for the version it currently shows.
+
+        :param group: an index into :attr:`_groups`.
+        :param at: the table row, when known (the first fill, unsorted).
+        """
+        row = self._row_of_group(group) if at is None else at
+        if row is None:
+            return
+        stem, pairs = self._groups[group]
         entry = pairs[self._chosen[stem]][1]
         local = self._local_path(entry)
         cells = (
@@ -1056,8 +1095,12 @@ class ModelZooPicker(QDialog):
 
         tip = model_zoo.scorecard_html(entry)
         notes = tuple(getattr(entry, "notes", ()) or ())
+        sorting = self.table.isSortingEnabled()
+        self.table.setSortingEnabled(False)
         for column, text in enumerate(cells):
             item = table_item(str(text))
+            if column == 0:
+                item.setData(Qt.UserRole, group)
             if tip:
                 item.setToolTip(tip)
             elif column == 3 and local:
@@ -1065,19 +1108,20 @@ class ModelZooPicker(QDialog):
             elif column == 3 and notes:
                 item.setToolTip(notes[0])
             self.table.setItem(row, column, item)
+        self.table.setSortingEnabled(sorting)
 
-    def _version_picked(self, row: int, index: int) -> None:
+    def _version_picked(self, group: int, index: int) -> None:
         """A different version was chosen: this row now means another model.
 
         The status cell has to be rewritten too -- v1 may be on this machine
         while v2 is not, and a stale "on this machine" would send the user to
         a file that is not there.
         """
-        if self._rebuilding or not (0 <= row < len(self._groups)):
+        if self._rebuilding or not (0 <= group < len(self._groups)):
             return
-        stem, pairs = self._groups[row]
+        stem, pairs = self._groups[group]
         self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
-        self._fill_row(row)
+        self._fill_row(group)
         self._apply_source_filter()
         self._selection_changed()
 
@@ -1213,9 +1257,11 @@ class ModelZooPicker(QDialog):
             return
         # Leave the row the user just installed selected, so "install it and
         # use it" is one action rather than install-then-hunt-for-the-row.
-        for row, (stem, pairs) in enumerate(self._groups):
+        for group, (stem, pairs) in enumerate(self._groups):
             if any(getattr(e, "name", "") == label for _l, e in pairs):
-                self.table.selectRow(row)
+                row = self._row_of_group(group)
+                if row is not None:
+                    self.table.selectRow(row)
                 break
 
     def _local_path(self, entry) -> Optional[str]:
@@ -1242,10 +1288,10 @@ class ModelZooPicker(QDialog):
         rows = {i.row() for i in self.table.selectedIndexes()}
         if len(rows) != 1:
             return None
-        row = rows.pop()
-        if not (0 <= row < len(self._groups)):
+        group = self._group_of_row(rows.pop())
+        if group is None:
             return None
-        stem, pairs = self._groups[row]
+        stem, pairs = self._groups[group]
         return pairs[self._chosen[stem]][1]
 
 

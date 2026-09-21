@@ -356,3 +356,38 @@ def test_the_stock_row_survives_an_unreachable_catalogue(picker, monkeypatch):
     picker.refresh()
 
     assert any(getattr(e, "source", "") == "stock" for e in picker._entries)
+
+
+def test_a_sorted_table_hands_back_the_model_on_the_row_picked(picker):
+    """Reported 2026-09-21: after a sort, picking live_cell downloaded v4.
+
+    The row was looked up by its place in the unsorted list, so a header
+    click made every pick (and every version box) answer for another model.
+    """
+    from PySide6.QtCore import Qt
+
+    picker.table.sortItems(0, Qt.DescendingOrder)
+    for row in range(picker.table.rowCount()):
+        if picker.table.isRowHidden(row):
+            continue
+        shown = picker.table.item(row, 0).text()
+        picker.table.selectRow(row)
+        entry = picker.selected_entry()
+        group = picker._group_of_row(row)
+        assert picker._groups[group][0] == shown
+        assert entry is picker._groups[group][1][picker._chosen[shown]][1]
+
+
+def test_a_version_box_changes_its_own_row_after_a_sort(picker):
+    from PySide6.QtCore import Qt
+
+    picker.table.sortItems(0, Qt.DescendingOrder)
+    for group, (stem, pairs) in enumerate(picker._groups):
+        if len(pairs) > 1:
+            break
+    else:
+        pytest.skip("no model family with two versions in this catalogue")
+    picker._version_picked(group, len(pairs) - 1)
+    row = picker._row_of_group(group)
+    assert picker.table.item(row, 0).text() == stem
+    assert picker._chosen[stem] == len(pairs) - 1
