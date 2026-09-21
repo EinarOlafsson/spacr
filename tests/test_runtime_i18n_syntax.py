@@ -1,6 +1,7 @@
 """Focused syntax contracts for generated runtime localization catalogs."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -154,7 +155,15 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # edited without adding, = 337; this pass removes 16, leaving 321.
     # The assertion counts DISTINCT sources, and 2 of those raw records
     # repeat a source another record already carries, so 319.
-    assert len(reviewed) == 319
+    # +8/-0 on 2026-09-21: current Make Masks readouts. Subtracting
+    # this file's distinct sources restores the previously verified count.
+    readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                           "2026-09-21-make-masks-readouts.json").read_text())
+    added_sources = {record["source"] for record in readouts["records"]}
+    assert len(added_sources) == 8
+    assert added_sources <= reviewed.keys()
+    assert len(reviewed.keys() - added_sources) == 319
+    assert len(reviewed) == 327
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -293,7 +302,15 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # removes 15 whose pinned English no longer exists, leaving 314. The
     # assertion counts DISTINCT sources, and 4 of those raw records repeat a
     # source another record already carries, so 310.
-    assert len(reviewed) == 310
+    # +8/-0 on 2026-09-21: current Make Masks readouts. Subtracting
+    # this file's distinct sources restores the previously verified count.
+    readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                           "2026-09-21-make-masks-readouts.json").read_text())
+    added_sources = {record["source"] for record in readouts["records"]}
+    assert len(added_sources) == 8
+    assert added_sources <= reviewed.keys()
+    assert len(reviewed.keys() - added_sources) == 310
+    assert len(reviewed) == 318
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

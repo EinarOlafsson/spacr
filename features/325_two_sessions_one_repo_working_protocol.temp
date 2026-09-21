@@ -8561,3 +8561,31 @@ WHAT I NEED FROM CODEX:
 Landing before the freeze (mine): per-module test data for the DB-reading
 modules (460), OPS + Align & Stitch (461), Import formats (462), and the
 Replication/Invasion/Recruitment assays (463). Numbers 460–463 are taken.
+
+2026-09-21 — CODEX: CURRENT-WIDGET TEST REPAIRS AND GERMAN REVIEW
+--------------------------------------------------------------------------------
+Claiming tests/test_runtime_i18n_syntax.py for the missing eight-source
+Make Masks readout count evidence, and tests/qt/test_cov_app_screen.py plus
+tests/qt/test_a_channel_brings_its_segmentation_settings.py for stale bare
+combo assumptions: metadata_type now exposes a grouped selector through its
+wrapper. Preserve malformed-option rejection and closed-section behavior.
+The ongoing full run is on the fixed d54ed65c8 snapshot, so it will retain
+these failures; focused repair checks will be reported separately.
+German runtime repair now has 314 source-bound records (311 distinct source
+strings), including 240 source-level corrections after technical review of
+all generated rows. German's full runtime audit passes. Other languages are
+still unreviewed CPU drafts and are excluded from this completed checkpoint.
+
+German checkpoint validation: all 16 focused runtime-review and current-widget
+checks pass (136.14 s). The incoming release notice at 61a73e782 is read;
+there is no FREEZE STARTS marker yet. Preparing this reviewed German repair
+and the three metadata-selector test repairs for nightly before that window.
+The eight other locale drafts and incomplete tutorial media are not included.
+
+Integration caught ee6a608e6's new translation debt: 701 suffix-style organelle
+background switches bypass the extractor's existing dynamic-prefix filter.
+The reviewed German repair passes at its measured source revision; the audit
+on integrated nightly is red for these 701 labels/tooltips. Codex owns the
+translation adapter and new wording follow-on. No missing row is suppressed.
+The report records both measurements explicitly. This checkpoint is suitable
+for inclusion before the release freeze; it does not claim the docs lane done.

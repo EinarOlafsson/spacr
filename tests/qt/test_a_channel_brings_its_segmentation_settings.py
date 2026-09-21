@@ -268,9 +268,15 @@ def test_a_section_the_user_shut_stays_shut(qtbot):
         section.set_expanded(False)
 
     naming = screen._settings_model._widgets["metadata_type"]
-    other = next(index for index in range(naming.count())
-                 if index != naming.currentIndex())
-    naming.setCurrentIndex(other)
+    combo = naming.combo
+    previous = naming.get_value()
+    other = next(index for index in range(combo.count())
+                 if combo.itemData(index) is not None
+                 and combo.itemData(index) != previous
+                 and combo.model().item(index).isEnabled())
+    combo.setCurrentIndex(other)
+    assert naming.get_value() == combo.itemData(other)
+    assert naming.get_value() != previous
     for _ in range(5):
         QApplication.processEvents()
     assert [s.property("settingsCategorySource") for s in shut
