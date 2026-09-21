@@ -831,3 +831,79 @@ WHAT THIS DOES AND DOES NOT CHANGE
 STILL NOT MEASURED HERE: any size other than 640 and 1280; merging the two;
 tiling a figure instead of scaling it; v1's boxes one by one; and a corpus
 sampled for crop-bearing figures on purpose.
+
+--------------------------------------------------------------------------------
+2026-09-21 — BUILD IT NOW, AND LAYER A TEXT READER ON TOP
+--------------------------------------------------------------------------------
+
+Decided: "Build it now" -- the maintainer, 2026-09-21, through the question
+prompt.
+
+Requested: 2026-09-21, verbatim -- "for 424, after building that, we need to
+layer on one other model that is able to detect the text closest to each
+plaque well image (tile figure apnnel, and any potential conditions written in
+the actual figure) this is so we can annotate the plaques propperly. if the
+figure pannel letter is detected, there should be a mechanism to auto gather
+the figure ledgend and get the information from their, if it cant be
+gathered, then the user should be prompted to past the figure ledgend or
+manually annotate the plaque wells. there should be an option if set to tru
+the user has to manually OK each annotation."
+
+This is STRATEGY 1 and STRATEGY 2 above made concrete: the text nearest each
+detected plaque image is read (the panel letter and any condition printed in
+the figure), the panel letter keys into the figure legend, the legend is
+fetched automatically where it can be, and the user is asked for it -- or to
+annotate by hand -- where it cannot.
+
+THE OPEN QUESTIONS, ANSWERED 2026-09-21 through the question prompt:
+
+  OCR ENGINE      "RapidOCR (Recommended)" -- ONNX on the CPU, no system
+                  binary, plus PyMuPDF for the text layer of a PDF the user
+                  supplies. Both are an optional extra, spacr[papers], not
+                  core dependencies.
+  SCALE           "Pixels + within-figure ratios (Recommended)" -- raw pixel
+                  areas, each plaque's area relative to the median in the
+                  same panel, the well diameter as a ruler when a whole well
+                  is visible, and a flag on every row with no ruler.
+  LICENSING       "Store everything locally" -- crops are kept on the user's
+                  disk for every paper, with the licence recorded per row.
+  MANUAL OK       "A review dialog in the GUI (Recommended)" -- one card per
+                  plaque image: the crop, the text found near it, the legend
+                  sentence used and the proposed condition; OK / Edit / Skip.
+                  The CLI asks the same thing at a prompt.
+
+Still decided by the note above and not reopened: disagreements between the
+two strategies are recorded with a conflict flag rather than resolved;
+duplicates are found by DOI plus image hash; imgsz is a recorded per-run
+parameter and a figure is asked at more than one size before it is called
+empty.
+
+--------------------------------------------------------------------------------
+2026-09-21 — THE ENGINE LANDS: 8 OF 8 CONDITIONS READ ON TWO REAL FIGURES
+--------------------------------------------------------------------------------
+
+spacr/plaque_papers.py: DOI/PMID/PMC/PDF in (Europe PMC figures and JATS
+legends, or a PDF's pages with their text layer through pdfplumber), the
+detector asked at 640 and 1280 and merged, RapidOCR over the figure plus an
+enlarged second reading around every grid of crops, legend split by panel
+letter (a letter counts only in sequence, so "(B, D)" and "P. falciparum" are
+not markers), per-crop conditions from the column header above and the row
+label left of the GRID, segmentation and a SQLite database with plaques in
+pixels, their ratio to the panel median, and mm^2 when a whole well of a
+stated plate format is the ruler.
+
+Measured on PMC9744290 Fig 6 and Fig 7 with the v2 detector: 4/4 crops found
+in each, panel letters D and F found (F only on the enlarged reading), and all
+eight conditions read exactly ("TATi / -ATc" ... "+MEV / +Rapamycin"), each
+keyed to its legend passage.
+
+Conflict is no longer set automatically: a legend that says "under indicated
+conditions" shares no word with "-MEV / -Rapamycin" and does not disagree
+with it. Agreement makes a row strong; the flag is left for a reviewer.
+
+measure_figure_folder() is the same machinery over a folder of figures, for
+Plaque Assay's Figure mode (item 468): legends from <src>/legends.csv, a
+person's edits and approvals from <src>/figure_annotations.csv, and with
+confirm_each on only approved crops are measured. The optional pieces are the
+spacr[papers] extra (ultralytics, rapidocr-onnxruntime, pdfplumber; pdfplumber
+rather than PyMuPDF because spaCR is BSD-3 and PyMuPDF is AGPL).

@@ -153,6 +153,8 @@ setup(
         ],
         'boosting': ['catboost>=1.2,<2.0', 'lightgbm>=4.0,<5.0'],
         'plaque': ['ultralytics>=8.0,<9'],
+        'papers': ['ultralytics>=8.4,<9', 'rapidocr-onnxruntime>=1.3,<2',
+                   'pdfplumber>=0.11,<1'],
         'umap': ['umap-learn>=0.5.11,<1.0'],
         'anndata': ['anndata>=0.10,<0.13'],
         'dinocell': ['dinocell>=0.74,<1.0'],
