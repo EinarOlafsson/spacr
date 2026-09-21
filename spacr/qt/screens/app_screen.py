@@ -1234,6 +1234,7 @@ EXAMPLE_DATA_SECTIONS = {
     "analyze_plaques": "Input & Channels",
     "replication": "Assay Inputs",
     "recruitment": "Data source",
+    "umap": "Input Data",
 }
 
 
@@ -2792,6 +2793,8 @@ class AppScreen(QWidget):
                 from ..assay_examples import install_assay_example_button
 
                 install_assay_example_button(self, section)
+            elif self.app_key == "umap":
+                self._install_measurements_example_button(section)
             else:
                 self._install_example_images_button(section)
         self._settings_sections.append(section)
@@ -4185,6 +4188,35 @@ class AppScreen(QWidget):
         button.clicked.connect(lambda: self.choose_the_test_data())
         self._annotate_example_button = button
         section.add_prose(button, at_top=True)
+
+    def _install_measurements_example_button(self, section) -> None:
+        """Add the shared measurements-database example control.
+
+        For a module that reads a finished plate -- its measurements database
+        and the crops it indexes -- rather than one that makes either. The
+        Annotate example is such a plate, so this reuses its download through
+        :mod:`spacr.qt.widgets.measurements_example` and points ``src`` at
+        the plate folder, without the crops-or-arrays chooser Classify asks
+        through: a finished plate is the only half this module can read.
+        """
+        from ..widgets.measurements_example import install_test_data_button
+
+        button = install_test_data_button(
+            self, None, self._point_src_at_the_example,
+            say=lambda message: self._console.append_stdout(message + "\n"))
+        section.add_prose(button, at_top=True)
+
+    def _point_src_at_the_example(self, folder, _database) -> dict:
+        """Set ``src`` to the example plate folder and say so.
+
+        :param folder: the example plate folder.
+        :param _database: its measurements database, found from ``src``.
+        :returns: ``{"src": folder}``.
+        """
+        self.apply_settings_dict({"src": str(folder)})
+        self._console.append_stdout(
+            tr("Example data ready: {path}", path=str(folder)) + "\n")
+        return {"src": str(folder)}
 
     def choose_the_test_data(self, *, chooser=None, ask=None) -> dict:
         """Ask which half of the example plate to fetch, then fetch it.

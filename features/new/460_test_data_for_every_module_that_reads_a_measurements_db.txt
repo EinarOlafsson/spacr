@@ -1,0 +1,125 @@
+================================================================================
+TEST DATA FOR EVERY MODULE THAT READS A MEASUREMENTS DB, AND PLATE TEMPLATES
+================================================================================
+
+Status:    BUILT 2026-09-21, not yet on nightly. Nine screens have the
+           button, eight were considered and left without it (below), and
+           Experiment Design has four templates. Verified against the real
+           download, not only the mocked one.
+
+Requested: 2026-09-21, relayed by the orchestrating session for the group
+           presentation the next day -- "Modules that read a measurements DB"
+           should get a "Load test data" button. The same request asks that
+           Experiment Design get ready-made plate-layout templates (96-well
+           and 384-well: controls on the outer columns, a dose series, a
+           CRISPR screen layout) loadable with one click and shipped as
+           package data. No new uploads: the button reuses the Annotate
+           example dataset (einarolafsson/spacr-example-annotate,
+           spacr-example-annotate.tar), unpacked into the shared example
+           plate folder.
+
+WHAT IS BUILT
+--------------------------------------------------------------------------------
+
+One shared helper, spacr/qt/widgets/measurements_example.py:
+install_test_data_button() puts a "Load test data..." button on a screen,
+and load_test_data() reuses a cached copy of the Annotate example or
+downloads it through spacr.qt.hf_download.download_annotate_example, then
+hands the plate folder and its measurements/measurements.db to a per-screen
+callback that fills the source field and loads it.
+
+Experiment Design reads its templates from spacr/resources/plate_templates/
+through spacr.qt.widgets.plate_layout.plate_templates() and loads the chosen
+one with a single menu pick.
+
+WHAT THE EXAMPLE IS, MEASURED
+--------------------------------------------------------------------------------
+
+Downloaded 2026-09-21 into a scratch HOME (198 s). measurements.db, 31 MB:
+cell 2,341 rows x 276 columns, cytoplasm 2,341, nucleus 2,682 and pathogen
+2,178 (every one with a cell_id), png_list 2,341, plus run_status, settings
+and settings_history. FOUR WELLS ONLY -- r5 and r12 by c1 and c2 of plate1.
+No dose, treatment, gene or guide column, and no artifact registry.
+
+WHICH MODULES GOT THE BUTTON -- each clicked headless on the real download
+--------------------------------------------------------------------------------
+
+| module        | what one click does                    | what it showed    |
+|---------------|----------------------------------------|-------------------|
+| tabulate      | load_path(db, table="cell")            | 2,341 x 276       |
+| graph_builder | load_path(db, table="cell")            | 2,341 x 276       |
+| gate_editor   | load_path(db, table="cell")            | 2,341 x 276       |
+| plate_view    | open db, draw cell_area                | 4 wells drawn,    |
+|               |                                        | edge test run     |
+| db_browser    | open db browse-only, select cell       | 13 tables, first  |
+|               |                                        | 100 rows of cell  |
+| lineage       | fill db box, build tree                | 2,341 cells, 2,682|
+|               |                                        | nuclei, 2,178     |
+|               |                                        | pathogens, 1      |
+|               |                                        | orphan            |
+| qc_dashboard  | set_source(plate folder)               | units card ok; the|
+|               |                                        | other four say    |
+|               |                                        | missing, with the |
+|               |                                        | step that fills   |
+|               |                                        | each              |
+| report        | set_source(plate folder), scan         | 4 sections found, |
+|               |                                        | 4 not available   |
+| umap          | src = plate folder (settings screen)   | Run then finished |
+|               |                                        | in 30 s, 1,000    |
+|               |                                        | points, crops     |
+|               |                                        | drawn             |
+
+Plate Viewer draws cell_area straight away, because the measurement box
+otherwise defaults to object_label. Database Browser selects the cell table,
+because the first table alphabetically is an empty annotation log, and
+opens the database as not-explicitly-chosen so edit mode stays locked on
+the shared cached copy.
+
+WHICH DID NOT, AND WHY
+--------------------------------------------------------------------------------
+
+| module          | why the example does not fit                        |
+|-----------------|-----------------------------------------------------|
+| dose_response   | no concentration column in any table                |
+| profiler        | reads a regression coefficient table                |
+| investigate_hit | starts from a regression hit (gene, guides)         |
+| run_compare     | compares registered runs; the example has no        |
+|                 | artifact registry                                   |
+| pipeline_graph  | draws provenance from the registry; none present    |
+| project_browser | lists project folders; reads no database            |
+| layer_viewer    | opens image and mask files, not a database          |
+| power           | a design calculator that reads no data              |
+
+The same list is NOT_WIRED in
+tests/qt/test_modules_that_read_a_measurements_db_offer_test_data.py, which
+asserts none of them grew a button.
+
+TEMPLATES
+--------------------------------------------------------------------------------
+
+spacr/resources/plate_templates/, one JSON file each in the plate_map.json
+design shape, so design_from_record() reads a template and an exported
+design alike:
+
+  01  96-well, controls in the outer columns   (column layout; 3 warnings
+      about edge-only controls, which the description explains)
+  02  96-well, 8-point dose series x 2 compounds, edge left empty, random
+  03  384-well, controls in the outer column pairs (1 warning, 56% on edge)
+  04  384-well, arrayed CRISPR screen: 84 genes x 4, 24 non-targeting,
+      24 positive knockout, random -- no findings
+
+"Load template…" in the form row opens a menu; one pick replaces format,
+layout, edge, seed and conditions and keeps the plate name.
+
+LEFT FOR THE MAINTAINER OR A LATER PASS
+--------------------------------------------------------------------------------
+
+* Two new runtime strings ("Load template…" and its tooltip) have no
+  translation in the nine locales yet; the audit counts 274 missing UI rows
+  per locale against 272 before. Template titles and descriptions are data
+  and are shown in English.
+* Ten new public docstrings (measurements_example and its four functions,
+  PlateTemplate, design_from_record, plate_templates, and
+  ExperimentDesignScreen.load_template / template_keys) are not yet in the
+  documentation catalogs, and the surface pins do not include them. Those
+  pins were already red on 608e5e6bf before this item.

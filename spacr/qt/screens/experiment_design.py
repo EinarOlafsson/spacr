@@ -49,15 +49,17 @@ that says what each well holds rather than only whether it is chosen.
 
 from __future__ import annotations
 
+from functools import partial
 from typing import List, Optional, Tuple
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import (
     QComboBox, QFileDialog, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
-    QLineEdit, QPushButton, QScrollArea, QSizePolicy, QSpinBox, QTableWidget,
-    QTableWidgetItem, QVBoxLayout, QWidget,
+    QLineEdit, QMenu, QPushButton, QScrollArea, QSizePolicy, QSpinBox,
+    QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 
+from ..i18n import tr
 from ..job_runner import JobRunner
 from ..theme import SPACING, register_widget_qss
 from .app_screen import ModuleHeader
@@ -65,8 +67,8 @@ from ...schema import letters_from_row_index
 from ..widgets.plate_layout import (
     EDGE_LEAVE_EMPTY, EDGE_USE, LAYOUTS, PLATE_FORMATS, ROLES,
     ROLE_NEGATIVE, ROLE_POSITIVE, ROLE_TREATMENT, Condition, PlateDesign,
-    assign_wells, check_design, plate_shape, to_settings_fragment,
-    write_design,
+    assign_wells, check_design, plate_shape, plate_templates,
+    to_settings_fragment, write_design,
 )
 from ..widgets.plate_map_picker import _Header, _locked_square, well_side
 from ..widgets.sortable_table import install_sorting, table_item
@@ -452,6 +454,7 @@ class ExperimentDesignScreen(QWidget):
         self._seed.valueChanged.connect(self._on_changed)
         form.addWidget(QLabel("Seed:"))
         form.addWidget(self._seed)
+        form.addWidget(self._build_template_button())
         form.addStretch(1)
         outer.addLayout(form)
 
@@ -513,6 +516,67 @@ class ExperimentDesignScreen(QWidget):
             Condition("treatment_a", 12, ROLE_TREATMENT),
         ])
 
+
+    def _build_template_button(self) -> QPushButton:
+        """The "Load template…" button, with one menu entry per template.
+
+        The templates are package data read by
+        :func:`spacr.qt.widgets.plate_layout.plate_templates`; each entry's
+        tooltip is the template's own description, so what a layout is for
+        is readable before it replaces the form.
+        """
+        self._templates = plate_templates()
+        button = QPushButton(tr("Load template…"))
+        button.setObjectName("PlateTemplateButton")
+        button.setToolTip(tr(
+            "Start from a ready-made plate layout: controls in the outer "
+            "columns, a dose series or an arrayed CRISPR screen, on 96 or "
+            "384 wells. Replaces the format, layout, edge, seed and "
+            "conditions; the plate name is kept."))
+        menu = QMenu(button)
+        menu.setToolTipsVisible(True)
+        for template in self._templates:
+            action = menu.addAction(template.title)
+            action.setToolTip(template.description)
+            action.triggered.connect(partial(self.load_template, template.key))
+        button.setMenu(menu)
+        button.setEnabled(bool(self._templates))
+        self._template_button = button
+        return button
+
+    def template_keys(self) -> List[str]:
+        """The keys of the templates on the menu, in menu order."""
+        return [template.key for template in self._templates]
+
+    def load_template(self, key: str, *_args) -> bool:
+        """Replace the design with the shipped template called ``key``.
+
+        Everything but the plate name is replaced: the name has to match the
+        image files the user will acquire, which no template can know.
+
+        :param key: a template key, see :meth:`template_keys`.
+        :param _args: whatever the menu action passes; ignored.
+        :returns: True when the template was found and loaded.
+        """
+        template = next((t for t in self._templates if t.key == key), None)
+        if template is None:
+            return False
+        design = template.design
+        controls = (self._format, self._layout_box, self._edge, self._seed)
+        for control in controls:
+            control.blockSignals(True)
+        try:
+            self._format.setCurrentIndex(
+                self._format.findData(int(design.plate_format)))
+            self._layout_box.setCurrentText(design.layout)
+            self._edge.setCurrentIndex(self._edge.findData(design.edge_policy))
+            self._seed.setValue(int(design.seed))
+        finally:
+            for control in controls:
+                control.blockSignals(False)
+        self._set_conditions(design.conditions)
+        self.refresh()
+        return True
 
     def _set_conditions(self, conditions) -> None:
         """Replace every row of the condition table.

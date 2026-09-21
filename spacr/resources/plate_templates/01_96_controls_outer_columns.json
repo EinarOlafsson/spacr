@@ -1,0 +1,70 @@
+{
+  "title": "96-well: controls in the outer columns",
+  "description": "Negative controls fill column 1, positive controls column 12, and ten treatments take one column each in between, eight wells apiece. The classic screening layout: easy to pipette and easy to read. The edge warning it raises is real -- controls confined to the edge share an evaporation the interior does not -- and is why the randomised templates exist.",
+  "plate_format": 96,
+  "layout": "column",
+  "edge_policy": "use",
+  "seed": 0,
+  "conditions": [
+    {
+      "name": "negative",
+      "replicates": 8,
+      "role": "negative_control"
+    },
+    {
+      "name": "treatment_01",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_02",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_03",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_04",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_05",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_06",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_07",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_08",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_09",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_10",
+      "replicates": 8,
+      "role": "treatment"
+    },
+    {
+      "name": "positive",
+      "replicates": 8,
+      "role": "positive_control"
+    }
+  ]
+}

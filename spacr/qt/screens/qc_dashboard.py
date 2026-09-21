@@ -59,6 +59,7 @@ from PySide6.QtWidgets import (
 from ..job_runner import JobRunner
 from ..theme import SPACING, register_widget_qss
 from .app_screen import ModuleHeader
+from ..widgets.measurements_example import install_test_data_button
 from ..widgets.qc_summary import (
     Dashboard, format_dashboard, read_dashboard,
 )
@@ -256,6 +257,9 @@ class QCDashboardScreen(QWidget):
         refresh = QPushButton("Refresh")
         refresh.clicked.connect(self.refresh)
         row.addWidget(refresh)
+        install_test_data_button(
+            self, row, lambda folder, _db: self.set_source(folder),
+            say=lambda message: self._status.setText(message))
         outer.addLayout(row)
 
         self._verdict = QLabel("No folder set.")

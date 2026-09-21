@@ -146,6 +146,9 @@ from ..linked_selection import LinkedView
 from ..preferences import get_db_browser_editable
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.measurements_example import (
+    EXAMPLE_TABLE, install_test_data_button,
+)
 from ..widgets.toggle import Toggle
 from .app_screen import ModuleHeader
 
@@ -1505,6 +1508,9 @@ class DbBrowserScreen(LinkedView, QWidget):
         src_row.addWidget(self._btn_pick_db)
         src_row.addWidget(self._btn_pick_src)
         src_row.addWidget(self._btn_open)
+        install_test_data_button(
+            self, src_row, self._open_the_example,
+            say=lambda message: self._set_status(message, error=True))
         outer.addLayout(src_row)
 
         edit_row = QHBoxLayout()
@@ -1696,6 +1702,26 @@ class DbBrowserScreen(LinkedView, QWidget):
     def _on_open_typed_path(self) -> None:
         """Open whatever path the user typed."""
         self.set_database(self._path_edit.text())
+
+    def _open_the_example(self, _folder, database) -> None:
+        """Open the example plate's database, browse-only.
+
+        Opened with ``explicit=False``: the example is spaCR's choice rather
+        than the user's, and :meth:`set_database` keeps such a database out
+        of edit mode, so a demonstration cannot write into the cached copy
+        every other screen's example reads.
+
+        The per-cell table is selected rather than the first one listed,
+        which alphabetically is an empty annotation log.
+
+        :param _folder: the example plate folder.
+        :param database: its ``measurements/measurements.db``.
+        """
+        if not self.set_database(str(database), explicit=False):
+            return
+        names = self.tables()
+        if EXAMPLE_TABLE in names:
+            self._table_list.setCurrentRow(names.index(EXAMPLE_TABLE))
 
     def set_database(self, path: str, explicit: bool = True) -> bool:
         """Open ``path`` read-only and list its tables.
