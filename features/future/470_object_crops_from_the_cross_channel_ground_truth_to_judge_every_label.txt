@@ -1,0 +1,152 @@
+================================================================================
+OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL
+================================================================================
+
+Status:    FILED 2026-09-21. Not started.
+
+Requested: 2026-09-21, verbatim -- "ok i need you to take the ground truth
+           cell hoechst and toxoplasma masks and cut out for each objec:
+
+           for toxoplasma from hoechst and cell mask
+           make Toxoplasma PV object crops with the channels hoechst,
+           toxoplasma channel, cellmaks
+
+           for cells from hoechst
+           make cell object crops with the channels hoechst, toxoplasma
+           channel, cellmaks
+
+           for nuclei from cell masks
+           make nuclei object crops with the channels hoechst, toxoplasma
+           channel, cellmaks
+
+           do this for all fields in each dataset, then i will annotate real vs
+           not real and we will train classifiers that users can optionally use
+           after object detection for these models. we can also used this
+           mechanism to remove masks that are incorrect from the training data
+           by annotating each label as correct or not.
+
+           this is a large task, se file it as a future feature. include all
+           the information i have given and anything else you can thing of."
+
+Owner:     Claude (not started).
+
+--------------------------------------------------------------------------------
+WHAT IT IS FOR, TWO USES OF ONE ANNOTATION
+--------------------------------------------------------------------------------
+
+1. AN OPTIONAL "IS THIS OBJECT REAL" CLASSIFIER AFTER DETECTION. For each of the
+   cross-channel models (toxoplasma_from_hoechst, toxoplasma_from_cellmask,
+   cell_from_hoechst, nuclei_from_cellmask) a small classifier, trained on the
+   maintainer's real / not-real calls, that a user can switch on after object
+   detection to drop false objects. It fits spaCR's existing post-detection
+   step (spacr.object_classifier, item 449: classify_objects / remove_labels)
+   and should ship in the Model Zoo beside the model it cleans up after, with a
+   scorecard like every other model (item 370).
+
+2. CLEANING THE TRAINING DATA. The same calls, per label, say which masks in
+   the training sets are wrong. Labels judged "not real" are removed from the
+   ground truth (the field keeps its other labels; a field left with nothing is
+   dropped or kept as an honest negative), the datasets are republished as a
+   new version, and the models are retrained on the cleaned sets.
+
+--------------------------------------------------------------------------------
+THE CROPS
+--------------------------------------------------------------------------------
+
+One crop per ground-truth OBJECT, for EVERY field of each dataset, each crop
+with the SAME THREE CHANNELS whatever the model's input was:
+
+    Hoechst (nucleus stain), Toxoplasma (parasite stain), CellMask (cell stain)
+
+    object set             masks it is cut from                  datasets
+    Toxoplasma PV objects  the parasite/PV target masks          toxoplasma_from_hoechst,
+                                                                 toxoplasma_from_cellmask
+    cell objects           the cell target masks                 cell_from_hoechst
+    nucleus objects        the nucleus target masks              nuclei_from_cellmask
+
+The two Toxoplasma sets share their fields and targets (both learn the same
+parasite masks from different inputs), so their PV crops should be cut ONCE
+and shared, with each crop recording which datasets it belongs to -- otherwise
+the same parasite is annotated twice.
+
+SIZES, from the datasets' own counts: 3,030 fields in each Toxoplasma set and
+3,029 each in the cell and nucleus sets, host cells balanced over HFF (~4,000),
+HeLa (~4,060) and THP-1 (~4,058) per the project's START_HERE; tens of objects
+per field for PV and nuclei and hundreds for cells (fields.csv n_objects, e.g.
+292 cells in one CSA field). Expect several hundred thousand crops: this needs
+a batching, resumable job, and annotation needs to be efficient (below).
+
+--------------------------------------------------------------------------------
+WHERE THE DATA IS
+--------------------------------------------------------------------------------
+
+  project   /mnt/wd4tb/af3/projects/cross_channel_models (START_HERE.md)
+  datasets  data/{toxoplasma_from_hoechst, toxoplasma_from_cellmask,
+            cell_from_hoechst, nuclei_from_cellmask}/  images, masks
+            (toxoplasma_from_cellmask also masks_pv), manifest.csv,
+            curated_status.csv; data/split_by_well.csv (the shared split)
+  published einarolafsson/cross-channel-{cell-from-hoechst,
+            nuclei-from-cellmask, toxoplasma-from-cellmask} on Hugging Face
+            (fields.csv with n_objects), and the toxoplasma_from_hoechst set
+  sources   the spaCR `merged` arrays of the CSA, MTOC and THP-1 screens on the
+            NAS; data/_merged_index.<host>.json maps each screen to its merged
+            folders. The screens' merged arrays are four channels: nucleus
+            (Hoechst) 0, target 1, parasite (Toxoplasma) 2, cell (CellMask) 3.
+            The THREE CHANNELS COME FROM THESE, not from the datasets' images,
+            which carry only each model's single input channel. Some screens'
+            parasite channel is DsRed, staged separately in
+            data/_dsred_source/ (docs/PARASITE_MASK_REGEN.md) -- check which
+            screens need it before cutting.
+  related   /mnt/wd4tb/spacr_pv_counts (item 449): 2,329 five-plane stacks
+            (Hoechst, CellMask, cell, nucleus and PV masks) per plate, WITHOUT
+            the Toxoplasma channel, so they are not enough on their own; and
+            /mnt/wd4tb/spacr_pv_crops, 8,882 + 380 PV crops already cut from
+            MTOC and CSA plate 1 for item 449's parasite count.
+
+THE NAS CAN HANG. Every read of /nas_mnt goes through tools/nas_guard.sh, and
+the job copies what it needs locally once (item 3.00 of HANDOFF).
+
+--------------------------------------------------------------------------------
+HOW IT SHOULD BE BUILT
+--------------------------------------------------------------------------------
+
+  * spaCR's own Measure crops, not a new cutter: rebuild each field as a merged
+    array with the three channels plus the one mask, name it the way Measure
+    reads (<experiment>-<plate>_<well>_<field>, as build_pv_count_dataset does,
+    item 449), and let Measure write one PNG per object with measurements.db
+    indexing them -- then Annotate opens the set directly (png_list), and the
+    annotations land in the database the classifier trains from.
+  * Keep each crop traceable to (dataset, field stem, label id), so a "not real"
+    call can be turned back into "remove label N from mask M" in step 2.
+  * Crop size and padding per object type (a cell needs more context than a
+    nucleus); record the choice.
+  * One folder per dataset and plate, as for item 449, so annotation can be
+    split and resumed.
+  * Resumable and memory-capped (tools/run_capped.sh); CPU is enough -- no GPU.
+
+ANNOTATION AT THIS SCALE. Several hundred thousand crops cannot all be judged
+by eye. Worth deciding before cutting: annotate a stratified sample (by screen,
+host cell, plate, object size, the model's own confidence) and let the first
+classifier propose calls for the rest, reviewing the doubtful ones (active
+learning); or annotate everything in Annotate's fast multi-select mode. The
+maintainer's call.
+
+THE CLASSIFIER. One per object type (PV, cell, nucleus), trained on the
+real/not-real annotations with spaCR's Classify (image crops, three channels),
+a split grouped by WELL as every spaCR split is (item 94), a held-out score
+recorded as the model's scorecard, and an option in Mask generation / the
+cross-channel models' use to drop objects the classifier calls not real, with
+its threshold.
+
+--------------------------------------------------------------------------------
+DONE WHEN
+--------------------------------------------------------------------------------
+
+  * Crops exist for every object of every field of the four datasets, three
+    channels each, indexed in a measurements.db per plate, opening in Annotate.
+  * The maintainer has annotated them (or the chosen sample).
+  * A real/not-real classifier per object type is trained, scored on held-out
+    wells, published to the Model Zoo, and selectable after detection.
+  * The labels called not real are removed from the datasets, the cleaned
+    datasets are republished as a new version, and the cross-channel models are
+    retrained on them and scored against the old ones.
