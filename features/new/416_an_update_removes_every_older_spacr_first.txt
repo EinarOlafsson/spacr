@@ -416,3 +416,13 @@ STILL BLOCKED ON OTHER MACHINES, unchanged: real runs on Windows and macOS,
 the 1.5.0.1 machine, tick boxes inside the installers, a live end-to-end run
 of the post-exit helper, macOS removals needing admin rights and pkgutil
 receipts, and docs/source/installer_guide.rst.
+
+2026-09-21 -- REAL WINDOWS, macOS AND LINUX RUNS, WITHOUT THE MAINTAINER'S
+MACHINES. .github/workflows/update-removes-older-installs.yml (manual trigger)
+installs a released spaCR (default 1.5.0.7) with the installer at its default
+location on windows-2022, macos-14 and ubuntu-24.04, asserts the finder sees
+exactly that install, runs the checked-out installer, and asserts the only
+spaCR left is the new version. docs/source/installer_guide.rst now describes
+the step ("Older installations are removed first"). The downloaded-installer
+checksum landed earlier today. Still needing the maintainer: his own 1.5.0.1
+machine.

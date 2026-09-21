@@ -84,6 +84,24 @@ update leaves the previous working environment in place. Project folders and
 results are not stored in the installation directory and are not removed by
 an update.
 
+Older installations are removed first
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Before it installs, every installer -- and **Help → Check for updates** --
+looks for spaCR installations an earlier installer made and removes them, so
+two versions never sit side by side with one of them on the path. It finds
+the Windows online and offline installs, the macOS application and its
+per-user environment, the Linux online install and the Debian package,
+together with their launchers, shortcuts, menu entries and uninstall
+registrations. Environments you created yourself and source checkouts are
+listed but never removed, and your project folders and results are never
+touched. If a copy cannot be removed -- for example a macOS application in
+``/Applications`` that needs an administrator -- the installer says which,
+and installs nothing, so you are never left with half an update.
+
+To see what it would find without changing anything, run the finder from a
+spaCR checkout: ``python spacr/install_cleanup.py find``.
+
 Recovering an older desktop installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

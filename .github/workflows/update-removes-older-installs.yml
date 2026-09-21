@@ -1,0 +1,115 @@
+name: update removes older installs
+
+# Item 416: "when updating spacr, the updater must first remove the older
+# version". The unit tests cover every layout on a sandboxed file system; this
+# is the same sequence on real Windows, macOS and Linux hosts. An older
+# release is installed with the installer at its default location, the finder
+# must see it, the checked-out installer must remove it before installing, and
+# afterwards the only spaCR left is the new one.
+
+on:
+  workflow_dispatch:
+    inputs:
+      old_version:
+        description: Released version to install first
+        required: true
+        default: "1.5.0.7"
+
+permissions:
+  contents: read
+
+jobs:
+  unix:
+    name: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux
+          - os: macos-14
+            platform: macos
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install the older release
+        run: |
+          packaging/online/install_spacr_unix.sh \
+            --platform ${{ matrix.platform }} \
+            --package-spec "spacr==${{ inputs.old_version }}" \
+            --torch-backend cpu \
+            --skip-system-deps \
+            --launcher-dir "$HOME/.local/bin" \
+            --no-launch
+      - name: The finder sees exactly that install
+        run: |
+          python spacr/install_cleanup.py find --json > before.json
+          python - <<'EOF'
+          import json
+          records = json.load(open("before.json"))
+          installers = [r for r in records if r["kind"] == "installer"]
+          print(json.dumps(installers, indent=2))
+          assert len(installers) == 1, installers
+          assert installers[0]["version"] == "${{ inputs.old_version }}", installers
+          EOF
+      - name: Update with the checked-out installer
+        run: |
+          packaging/online/install_spacr_unix.sh \
+            --platform ${{ matrix.platform }} \
+            --package-spec "$GITHUB_WORKSPACE" \
+            --torch-backend cpu \
+            --skip-system-deps \
+            --launcher-dir "$HOME/.local/bin" \
+            --no-launch
+      - name: Only the new spaCR is left
+        run: |
+          python spacr/install_cleanup.py find --json > after.json
+          python - <<'EOF'
+          import json, re
+          version = re.search(r'^VERSION\s*=\s*["\']([^"\']+)', open("setup.py").read(), re.M).group(1)
+          records = json.load(open("after.json"))
+          installers = [r for r in records if r["kind"] == "installer"]
+          print(json.dumps(installers, indent=2))
+          assert len(installers) == 1, installers
+          assert installers[0]["version"] == version, (installers, version)
+          EOF
+
+  windows:
+    name: windows-2022
+    runs-on: windows-2022
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+      - name: Install the older release
+        shell: powershell
+        run: |
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\packaging\online\install_spacr_windows.ps1 `
+            -Version "${{ inputs.old_version }}" -TorchBackend cpu
+          if ($LASTEXITCODE -ne 0) { throw "older install failed" }
+      - name: The finder sees exactly that install
+        shell: powershell
+        run: |
+          python spacr\install_cleanup.py find --json | Out-File -Encoding utf8 before.json
+          python -c "import json; r=[x for x in json.load(open('before.json', encoding='utf-8-sig')) if x['kind']=='installer']; print(r); assert len(r)==1 and r[0]['version']=='${{ inputs.old_version }}', r"
+          if ($LASTEXITCODE -ne 0) { throw "the finder did not see the older install" }
+      - name: Update with the checked-out installer
+        shell: powershell
+        run: |
+          & powershell.exe -NoProfile -ExecutionPolicy Bypass `
+            -File .\packaging\online\install_spacr_windows.ps1 `
+            -PackageSpec "$env:GITHUB_WORKSPACE" -TorchBackend cpu
+          if ($LASTEXITCODE -ne 0) { throw "update failed" }
+      - name: Only the new spaCR is left
+        shell: powershell
+        run: |
+          python spacr\install_cleanup.py find --json | Out-File -Encoding utf8 after.json
+          python -c "import json,re; v=re.search(r'^VERSION\s*=\s*[\"\']([^\"\']+)', open('setup.py').read(), re.M).group(1); r=[x for x in json.load(open('after.json', encoding='utf-8-sig')) if x['kind']=='installer']; print(r); assert len(r)==1 and r[0]['version']==v, (r, v)"
+          if ($LASTEXITCODE -ne 0) { throw "an older install was left behind" }
