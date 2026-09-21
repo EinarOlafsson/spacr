@@ -2,7 +2,10 @@
 AN UPDATE REMOVES EVERY OLDER spaCR FIRST, ON EVERY SYSTEM
 ================================================================================
 
-Status:    PARTLY DONE, corrected 2026-09-19. SLICE 1 IS RELEASED: its three
+Status:    DONE ON REAL WINDOWS, macOS AND LINUX RUNNERS 2026-09-21 (a CI run
+           installs 1.5.0.7 and updates it; only the new version is left).
+           Left: the maintainer's own 1.5.0.1 machine.
+           Earlier: PARTLY DONE, corrected 2026-09-19. SLICE 1 IS RELEASED: its three
            commits (c043bde6f, 324630f19, 56cdbc51d -- spacr/install_cleanup.py,
            both installers, and the in-app update in spacr/qt/app.py) are
            inside v1.5.0.8, published 2026-09-16 with Windows, macOS and Linux
@@ -426,3 +429,16 @@ spaCR left is the new version. docs/source/installer_guide.rst now describes
 the step ("Older installations are removed first"). The downloaded-installer
 checksum landed earlier today. Still needing the maintainer: his own 1.5.0.1
 machine.
+
+2026-09-21 -- PASSED ON REAL WINDOWS, macOS AND LINUX. The update check
+(.github/workflows/update-removes-older-installs.yml, run on 6e9265f67) passed
+on windows-2022, macos-14 and ubuntu-24.04: each installed spaCR 1.5.0.7 with
+the installer at its default place, the finder reported exactly that one
+installer-made copy at 1.5.0.7, the checked-out installer then ran, and
+afterwards exactly one installer-made copy was left, at the new version. Three
+workflow fixes got it there, none in spaCR itself: generate the installers'
+messages first, save the Windows messages with a UTF-8 mark (Windows
+PowerShell reads them as ANSI otherwise, as online-installers.yml already
+knows), and check the result in Python rather than a PowerShell one-liner.
+The only thing this item still asks for is a run on the maintainer's own
+1.5.0.1 machine.
