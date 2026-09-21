@@ -8469,3 +8469,36 @@ No production application UI changes, full coverage run, main merge or live
 media publication is included. GPU was busy on inspection; a read-only
 30-second monitor is measuring the required 20-minute idle interval. New
 capture outputs will use /tmp because firecuda2 has only 7 GiB free.
+
+Coverage follow-on claim: tests/qt/test_height_grip_pointer_and_keyboard.py,
+covering real input events and reset behavior for the shared resize handle.
+Tutorial capture inputs also include tools/tutorials/capture_refresh.py,
+capture_home.py, capture_policy.py, authoring/tools/build_visual_specs.py,
+authoring/tools/build_full_catalog.py, authoring/catalog/lessons_en.json,
+lessons/05_home.json and their focused tests. The readout translation slice
+adds eight current Make Masks strings and their hashes to each of the nine
+runtime catalogs, with source-bound records dated 2026-09-21. It does not
+regenerate or overwrite existing translated rows.
+
+Tutorial follow-on claim: capture_make_masks.py and a bounded readouts helper,
+plus capture_refresh.py's explicit CPU-only route. This pass uses private
+copies of two local, genuine measurement example fields to show the current
+Otsu magnifier and FEATURES handoff. No GPU model, source data mutation or
+publication is included; 358's progress note will record the actual outcome.
+
+Checkpoint findings: issue_preview now measures 99.35% in its focused run,
+height_grip 93.57%; no coverage baseline was tightened. The runtime audit's
+format-field errors largely accompany absent translations: an independent
+check found zero corrupt format fields among existing UI translations and
+280 missing UI rows per locale before this slice (272 after its eight rows).
+Both complete catalog audits remain red; no audit debt was suppressed.
+
+The previously approved two-commit checkpoint was rebased and pushed. An
+attempt to publish the subsequent checkpoint was rejected by automatic
+approval review, which interpreted that authorization as limited to the
+previous payload. New commits are being kept local for explicit approval of
+the concrete tested set. No main merge or live-media publication was tried.
+
+Tutorial README also updated for the current shared capture routes and the
+superseding all-Python hard memory-cap rule; its old 100-GiB polling advice
+was inconsistent with the maintainer's latest HANDOFF.

@@ -13,7 +13,6 @@ REPO = Path(os.environ.get(
     "SPACR_REPO", "/mnt/firecuda2/codex/repo/spacr"))
 CATALOG = ROOT / "catalog" / "lessons_en.json"
 PRODUCTION = ROOT / "production"
-CAPTURE_RELEASE_VERSION = "1.5.0.4"
 
 
 # Custom workbenches do not use AppScreen's settings scroll/console layout.
@@ -333,6 +332,9 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--only", nargs="*")
+    parser.add_argument("--output-root", type=Path, default=PRODUCTION)
+    parser.add_argument("--theme", choices=("dark",), default="dark")
+    parser.add_argument("--backdrop", choices=("blobs",), default="blobs")
     args = parser.parse_args()
 
     os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
@@ -348,9 +350,11 @@ def main() -> int:
     from PySide6.QtWidgets import QApplication
 
     import spacr
-    # Tutorial captures describe the published release even when the editable
-    # nightly checkout is ahead of it. The package itself is not modified.
-    spacr.__version__ = CAPTURE_RELEASE_VERSION
+    if Path(spacr.__file__).resolve().parents[1] != REPO.resolve():
+        raise RuntimeError("Capture imported spaCR from a different checkout")
+    sys.path.insert(0, str(REPO / "tools" / "tutorials"))
+    from capture_policy import configure_appearance, verify_appearance, verify_visible_paths
+    configure_appearance(args.theme, args.backdrop)
     import spacr.qt
     spacr.qt.register_self_registering_modules()
     from spacr.qt import first_run
@@ -405,7 +409,7 @@ def main() -> int:
     for index, item in enumerate(targets, start=1):
         key = item["app_key"]
         host_key = item.get("host_app_key") or key
-        output_dir = PRODUCTION / item["id"] / "keyframes"
+        output_dir = args.output_root / item["id"] / "keyframes"
         image_path = output_dir / "01_module.png"
         geometry_path = output_dir / "geometry.json"
         if image_path.exists() and geometry_path.exists() and not args.force:
@@ -437,6 +441,8 @@ def main() -> int:
                 configure_gate_editor(screen)
                 settle(app, 70)
 
+            appearance = verify_appearance(window)
+            verify_visible_paths([window], args.output_root)
             pixmap = window.grab()
             scale = float(pixmap.devicePixelRatio())
             frame_size = (pixmap.width(), pixmap.height())
@@ -454,6 +460,8 @@ def main() -> int:
             output_widget = getattr(screen, "_console", None) or screen
             run_widget = getattr(screen, "_btn_run", None) or first_primary_button(screen)
             geometry = {
+                "appearance": appearance,
+                "version": spacr.__version__,
                 "app_key": key,
                 "host_app_key": item.get("host_app_key"),
                 "frame_size": list(frame_size),
@@ -549,12 +557,25 @@ def main() -> int:
                 geometry["status"] = rect_for(
                     screen._system.parentWidget(), window, scale, frame_size)
 
+                from capture_home import record_help_search
+
+                def save_search_frame(name, output_dir=output_dir):
+                    verify_appearance(window)
+                    verify_visible_paths([window], args.output_root)
+                    if not window.grab().save(str(output_dir / f"{name}.png"), "PNG"):
+                        raise RuntimeError("could not save Help search capture")
+
+                geometry["search"] = record_help_search(
+                    app, window, save_search_frame, lambda: settle(app, 3),
+                    name="04_help_search")
+
                 # Show the one canonical performance selector in the real
                 # Preferences dialog.  The former Home lesson taught system
                 # telemetry but never showed the five-level choice that now
                 # governs caching, workers, cleanup, and animation cost.
                 from PySide6.QtGui import QColor, QPainter, QPixmap
-                from PySide6.QtWidgets import QLabel, QComboBox, QTabWidget
+                from PySide6.QtWidgets import QComboBox, QLabel, QTabWidget
+
                 from spacr.qt.preferences import PreferencesDialog
 
                 preferences = PreferencesDialog(window)
@@ -580,6 +601,8 @@ def main() -> int:
                 preferences.resize(1200, 1200)
                 preferences.show()
                 settle(app, 30)
+                verify_appearance(window)
+                verify_visible_paths([preferences], args.output_root)
                 dialog_capture = preferences.grab()
                 performance = QPixmap(pixmap)
                 painter = QPainter(performance)
@@ -635,6 +658,8 @@ def main() -> int:
                     )
                 geometry["open_module"] = rect_for(
                     opened_header, window, scale, frame_size)
+                verify_appearance(window)
+                verify_visible_paths([window], args.output_root)
                 opened = window.grab()
                 if (opened.width(), opened.height()) != (3840, 2160):
                     raise RuntimeError(

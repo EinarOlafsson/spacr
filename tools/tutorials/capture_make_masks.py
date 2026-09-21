@@ -6,6 +6,7 @@ visible gestures and buttons edit masks, save them or recrop them.
 from __future__ import annotations
 
 import hashlib
+import os
 import tempfile
 import time
 from pathlib import Path
@@ -51,13 +52,14 @@ def prepare_fields(stage):
 
 
 def record_editor(app, window, screen, stage, captures, capture, settle, write_json, timeout,
-                  *, detect=False):
+                  *, detect=False, readouts_only=False):
     import numpy as np
     import tifffile
-    from scipy.ndimage import distance_transform_edt
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox, QScrollArea
+    from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QScrollArea
+    from scipy.ndimage import distance_transform_edt
+
     from spacr.qt.screens.make_masks import FOLD_ORDER
 
     folder, evidence = prepare_fields(stage)
@@ -71,6 +73,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
                 raise RuntimeError('Open folder did not open the actual directory picker')
             dialog.accepted.connect(lambda: accepted.append(True))
             dialog.resize(1300, 950)
+            dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
             edit.setFocus()
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
@@ -90,7 +93,14 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
 
     QTimer.singleShot(500, choose)
     QTimer.singleShot(12000, reject_stalled)
-    QTest.mouseClick(screen._btn_open, Qt.LeftButton)
+    previous_directory = Path.cwd()
+    try:
+        # The genuine picker starts at cwd when no folder is open. Give it
+        # the neutral prepared workspace before showing its first frame.
+        os.chdir(stage)
+        QTest.mouseClick(screen._btn_open, Qt.LeftButton)
+    finally:
+        os.chdir(previous_directory)
     if errors or not accepted:
         raise RuntimeError('; '.join(errors) or 'Folder selection was cancelled')
 
@@ -109,6 +119,11 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     if not np.array_equal(original, tifffile.imread(evidence[0]['mask'])):
         raise RuntimeError('The editor did not load the actual companion labels')
     capture('03_real_labels')
+    if readouts_only:
+        from capture_mask_readouts import record_readouts
+
+        record_readouts(app, window, screen, captures, capture, settle, write_json, timeout)
+        return
     original_count = int(np.count_nonzero(np.unique(original)))
     steps = []
 

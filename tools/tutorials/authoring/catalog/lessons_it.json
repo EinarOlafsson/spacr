@@ -263,10 +263,10 @@
           "speech_text": "Ogni programma di installazione convalida l’ambiente sostitutivo prima di cambiare versione. Un aggiornamento interrotto lascia intatto l’ambiente precedente e conserva install.log nella directory privata di installazione di spàker."
         },
         {
-          "narration": "In Preferences è disponibile un solo selettore Performance level con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di risorse. Scegli il profilo adatto a questo computer; modifica cache, limiti dei processi, pulizia e dettaglio delle animazioni, ma non le impostazioni o i risultati scientifici.",
+          "narration": "Preferences offre un selettore Performance con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di consumo delle risorse. Scegli il profilo per questo computer: modifica la quantità di dati che spaCR mantiene nella cache e per quanto tempo, quando libera memoria e thread inattivi e se esegue lo sfondo animato, ma non le impostazioni o i risultati scientifici.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "In Preferences è disponibile un solo selettore Performance level con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di risorse. Scegli il profilo adatto a questo computer; modifica cache, limiti dei processi, pulizia e dettaglio delle animazioni, ma non le impostazioni o i risultati scientifici."
+          "speech_text": "Preferences offre un selettore Performance con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di consumo delle risorse. Scegli il profilo per questo computer: modifica la quantità di dati che spàker mantiene nella cache e per quanto tempo, quando libera memoria e thread inattivi e se esegue lo sfondo animato, ma non le impostazioni o i risultati scientifici."
         },
         {
           "narration": "Dopo l’installazione, utilizza il launcher del sistema operativo. Non è necessario configurare separatamente Python o Conda.",
@@ -293,10 +293,10 @@
       "prerequisite": "Installa e avvia l'applicazione desktop spaCR.",
       "scenes": [
         {
-          "narration": "Quando sono visibili tutti i livelli di maturità, Home mostra tutti i quarantaquattro moduli registrati di spaCR. La scheda Home li raggruppa in Core, Data, Results & QC, Explore, Assays e Design; ogni scheda di categoria filtra lo stesso registro.",
+          "narration": "Home raggruppa i flussi di lavoro di spaCR in Core, Data, Tools e Assays. Ogni scheda di categoria filtra i riquadri dei moduli; gli strumenti correlati sono disponibili nei rispettivi moduli principali.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Quando sono visibili tutti i livelli di maturità, Home mostra tutti i quarantaquattro moduli registrati di spàker. La scheda Home li raggruppa in Core, Data, Results & QC, Explore, Assays e Design; ogni scheda di categoria filtra lo stesso registro."
+          "speech_text": "Home raggruppa i flussi di lavoro di spàker in Core, Data, Tools e Assays. Ogni scheda di categoria filtra i riquadri dei moduli; gli strumenti correlati sono disponibili nei rispettivi moduli principali."
         },
         {
           "narration": "La barra laterale sinistra mantiene Home e i moduli visibili di Core direttamente accessibili. Con tutti i livelli di maturità abilitati, questa è la sequenza Core in sei passaggi. Seleziona l'intestazione di una categoria per espandere i moduli visibili rimanenti.",
@@ -311,10 +311,16 @@
           "speech_text": "La fascia Core segue l'ordine del flusso di lavoro: Mask, Measure, Annotate, Classify, Map Barcodes e Regression. Passa il puntatore su un riquadro per mostrare la descrizione del modulo e il relativo colore di maturità Alpha, Beta o Stable. In Preferences puoi nascondere i moduli Alpha o Beta da Home e dalla navigazione; i moduli Stable restano visibili."
         },
         {
-          "narration": "Il pannello destro riporta l'utilizzo di GPU, memoria video e disco, seguito dalle novità della versione e dalla legenda degli stati dei moduli. Controlla questi valori prima di avviare un flusso di lavoro che richiede molte risorse.",
+          "narration": "Preferences offre un selettore Performance con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di consumo delle risorse. Scegli il profilo per questo computer: modifica la quantità di dati che spaCR mantiene nella cache e per quanto tempo, quando libera memoria e thread inattivi e se esegue lo sfondo animato, ma non le impostazioni o i risultati scientifici.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Il pannello destro riporta l'utilizzo di GPU, memoria video e disco, seguito dalle novità della versione e dalla legenda degli stati dei moduli. Controlla questi valori prima di avviare un flusso di lavoro che richiede molte risorse."
+          "speech_text": "Preferences offre un selettore Performance con Laptop, Extra Performance, Performance, Balanced e Workstation, in ordine crescente di consumo delle risorse. Scegli il profilo per questo computer: modifica la quantità di dati che spàker mantiene nella cache e per quanto tempo, quando libera memoria e thread inattivi e se esegue lo sfondo animato, ma non le impostazioni o i risultati scientifici."
+        },
+        {
+          "narration": "Usa il campo di ricerca accanto a Help per trovare un modulo, un’impostazione, una preferenza o una voce API. Qui la ricerca di Performance elenca le destinazioni corrispondenti. Seleziona un risultato per aprire il modulo o la scheda di Preferences, oppure per consultare la documentazione API.",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "Usa il campo di ricerca accanto a Help per trovare un modulo, un’impostazione, una preferenza o una voce API. Qui la ricerca di Performance elenca le destinazioni corrispondenti. Seleziona un risultato per aprire il modulo o la scheda di Preferences, oppure per consultare la documentazione API."
         },
         {
           "narration": "Seleziona il riquadro di un modulo per aprirne la schermata delle impostazioni. Il nome e la descrizione visualizzati in alto confermano quale flusso di lavoro è attivo.",

@@ -21,13 +21,34 @@ The user confirmed these requirements on 9 September:
   from their current hosts.
 - Commit and push coherent checkpoints regularly. Do not publish to `main` or
   replace live remote media while the refreshed set is incomplete.
-- Run substantial commands through `tools/run_memory_guarded.py --limit-gib 100`
-  and limit thread counts. Do not overlap another session's full coverage run.
-  The 100-GiB threshold is approximately 107 GB, below the maintainer's latest
-  110-GB ceiling. It watches total system usage and stops only the guarded job.
+- Current memory rule (21 September, HANDOFF §3.001): run **every Python
+  invocation** through `tools/run_capped.sh <cap>`, including small scripts.
+  A polling memory guard does not replace that hard cgroup limit. Limit
+  thread counts and do not overlap another session's full coverage run.
 - No further questions while the user is away; proceed with these choices.
 
 ## Checkpoints
+
+### Current capture pass — 21 September
+
+Items 358 and 447 share one capture pass. Both capture entry points require
+dark mode and a painted Blobs backdrop. `capture_policy.py` checks the actual
+palette, backdrop and visible Qt text before saving; review captured images
+as well. Use a neutral prepared directory, such as `/tmp/spacr-tutorials-current`.
+`capture_all_modules.py --output-root` selects an isolated output tree;
+`capture_refresh.py --stage` selects the prepared data/capture tree.
+
+Home now has real Help-search and Performance frames. The bounded
+`capture_refresh.py --module make_masks --mask-readouts-tour` route records
+the real CPU Otsu magnifier and FEATURES folder handoff from two genuine
+Measure example arrays under `example_data/plate1/merged`. It does not run
+a measurement or a GPU model. FEATURES still requires assigning channel and
+mask columns before running when the example filenames do not match its
+visible regex. `--mask-editor-tour` remains the separate full editing route.
+
+The new frames and catalog wording are work in progress, not published
+videos. GPU rendering/translation must wait for 20 consecutive observed idle
+minutes. Source-bound receipts in `evidence/` identify completed captures.
 
 ### Map Barcodes — 13 September
 

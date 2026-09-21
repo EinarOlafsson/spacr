@@ -266,10 +266,11 @@ LESSONS = [
         5, "home", "Home screen and navigation",
         "Find modules, inspect application status, and move into a workflow from the spaCR Home screen.",
         [
-            ("overview", "When all maturity levels are visible, Home displays all forty four registered spaCR modules. The Home tab groups them under Core, Data, Results & QC, Explore, Assays, and Design; each category tab filters the same registry."),
+            ("overview", "Home groups spaCR workflows under Core, Data, Tools, and Assays. Each category tab filters the module tiles, and related tools are available inside their parent modules."),
             ("navigation", "The left sidebar keeps Home and the visible Core modules directly accessible. With all maturity levels enabled, this is the six-step Core sequence. Select a category heading to expand its remaining visible modules."),
             ("modules", "The Core band follows the workflow order: Mask, Measure, Annotate, Classify, Map Barcodes, and Regression. Hover over a tile to display its module description and its Alpha, Beta, or Stable maturity color. Preferences can hide Alpha or Beta modules from Home and navigation; Stable modules remain visible."),
             ("performance", "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spaCR keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results."),
+            ("search", "Use the search field beside Help to find a module, a setting, a preference, or an API entry. Here, searching for Performance lists matching destinations. Choose a result to open its module or Preferences tab, or to view the API documentation."),
             ("open_module", "Select a module tile to open its settings screen. The module name and description at the top confirm which workflow is active."),
         ],
         prerequisite="Install and launch the spaCR desktop application.",

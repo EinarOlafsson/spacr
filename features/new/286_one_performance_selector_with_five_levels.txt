@@ -312,3 +312,17 @@ extracted for translation.
 LEFT: re-record lessons 04 and 05 from the corrected lessons_en.json,
 translate the two narration lines, then republish the web catalog. That is
 tutorial-lane media work and is the whole of what keeps bullet 7 open.
+
+2026-09-21 — CODEX TUTORIAL CHECKPOINT
+
+The corrected Performance narration for lessons 04 and 05 is now translated
+in all thirteen non-English authoring locales through maintained reviewed
+records. The no-generation rebuild changed only these two lessons; the
+published catalogs and audio remain paired and unchanged. A current dark/Blobs
+Home Performance keyframe was captured at native 4K, with its selector and
+explanation visible (447's dated note and evidence receipt).
+
+38 script/catalog/pronunciation tests pass. Re-recorded audio, final lesson
+04/05 video assembly and publication are still outstanding. No GPU job was
+started: the observed GPU has stayed busy, so its 20-minute idle gate was not
+satisfied. Bullet 7 remains open.

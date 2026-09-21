@@ -293,10 +293,10 @@
       "prerequisite": "Install and launch the spaCR desktop application.",
       "scenes": [
         {
-          "narration": "When all maturity levels are visible, Home displays all forty four registered spaCR modules. The Home tab groups them under Core, Data, Results & QC, Explore, Assays, and Design; each category tab filters the same registry.",
+          "narration": "Home groups spaCR workflows under Core, Data, Tools, and Assays. Each category tab filters the module tiles, and related tools are available inside their parent modules.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "When all maturity levels are visible, Home displays all forty four registered spacer modules. The Home tab groups them under Core, Data, Results & QC, Explore, [Assays](/ˈæsAz/), and Design; each category tab filters the same registry."
+          "speech_text": "Home groups spacer workflows under Core, Data, Tools, and [Assays](/ˈæsAz/). Each category tab filters the module tiles, and related tools are available inside their parent modules."
         },
         {
           "narration": "The left sidebar keeps Home and the visible Core modules directly accessible. With all maturity levels enabled, this is the six-step Core sequence. Select a category heading to expand its remaining visible modules.",
@@ -315,6 +315,12 @@
           "visual": "performance",
           "hold_after": 0.7,
           "speech_text": "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spacer keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results."
+        },
+        {
+          "narration": "Use the search field beside Help to find a module, a setting, a preference, or an API entry. Here, searching for Performance lists matching destinations. Choose a result to open its module or Preferences tab, or to view the API documentation.",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "Use the search field beside Help to find a module, a setting, a preference, or an API entry. Here, searching for Performance lists matching destinations. Choose a result to open its module or Preferences tab, or to view the API documentation."
         },
         {
           "narration": "Select a module tile to open its settings screen. The module name and description at the top confirm which workflow is active.",

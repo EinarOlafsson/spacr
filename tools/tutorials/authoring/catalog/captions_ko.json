@@ -106,7 +106,7 @@
           "narration": "각 설치 프로그램은 새 버전으로 전환하기 전에 새 설치를 검증합니다. 업데이트가 중단되어도 이전 환경은 그대로 유지되며 install.log는 전용 spaCR 설치 디렉터리에 남습니다."
         },
         {
-          "narration": "Preferences에는 리소스 사용량이 낮은 순서대로 Laptop, Extra Performance, Performance, Balanced, Workstation을 제공하는 하나의 Performance level 선택기가 있습니다. 이 컴퓨터에 맞는 프로필을 선택하십시오. 캐시, 작업자 수 제한, 정리 방식, 애니메이션 세부 수준은 바뀌지만 과학 설정이나 결과는 바뀌지 않습니다."
+          "narration": "Preferences에는 리소스 사용량이 적은 순서로 Laptop, Extra Performance, Performance, Balanced, Workstation을 제공하는 Performance 선택기가 있습니다. 이 컴퓨터에 맞는 프로필을 선택하세요. spaCR이 캐시에 보관하는 양과 기간, 메모리와 유휴 스레드를 해제하는 시점, 배경 애니메이션 실행 여부가 달라지지만 과학적 분석 설정이나 결과는 바뀌지 않습니다."
         },
         {
           "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
@@ -117,7 +117,7 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "모든 성숙도 수준을 표시하면 Home에는 등록된 spaCR 모듈 마흔네 개가 모두 표시됩니다. Home 탭은 이를 Core, Data, Results & QC, Explore, Assays, Design으로 그룹화하며 각 범주 탭은 같은 모듈 목록을 필터링합니다."
+          "narration": "Home은 spaCR의 작업 흐름을 Core, Data, Tools, Assays로 분류합니다. 각 범주 탭은 모듈 타일을 필터링하며 관련 도구는 해당 상위 모듈 안에서 사용할 수 있습니다."
         },
         {
           "narration": "왼쪽 사이드바에서는 Home과 현재 표시되는 Core 모듈에 바로 접근할 수 있습니다. 모든 성숙도 수준을 활성화하면 여섯 단계의 Core 순서가 모두 표시됩니다. 범주 제목을 선택하면 나머지 표시 대상 모듈이 펼쳐집니다."
@@ -126,7 +126,10 @@
           "narration": "Core 영역은 Mask, Measure, Annotate, Classify, Map Barcodes, Regression의 워크플로 순서를 따릅니다. 타일 위에 포인터를 놓으면 모듈 설명과 Alpha, Beta 또는 Stable 성숙도 색상이 표시됩니다. Preferences에서 Alpha 또는 Beta 모듈을 Home과 탐색 메뉴에서 숨길 수 있으며 Stable 모듈은 계속 표시됩니다."
         },
         {
-          "narration": "Preferences에는 리소스 사용량이 낮은 순서대로 Laptop, Extra Performance, Performance, Balanced, Workstation을 제공하는 하나의 Performance level 선택기가 있습니다. 이 컴퓨터에 맞는 프로필을 선택하십시오. 캐시, 작업자 수 제한, 정리 방식, 애니메이션 세부 수준은 바뀌지만 과학 설정이나 결과는 바뀌지 않습니다."
+          "narration": "Preferences에는 리소스 사용량이 적은 순서로 Laptop, Extra Performance, Performance, Balanced, Workstation을 제공하는 Performance 선택기가 있습니다. 이 컴퓨터에 맞는 프로필을 선택하세요. spaCR이 캐시에 보관하는 양과 기간, 메모리와 유휴 스레드를 해제하는 시점, 배경 애니메이션 실행 여부가 달라지지만 과학적 분석 설정이나 결과는 바뀌지 않습니다."
+        },
+        {
+          "narration": "Help 옆의 검색창에서 모듈, 설정, 환경설정 또는 API 항목을 찾을 수 있습니다. 여기서는 Performance를 검색하여 일치하는 이동 대상을 표시합니다. 결과를 선택하면 해당 모듈이나 Preferences 탭을 열거나 API 문서를 볼 수 있습니다."
         },
         {
           "narration": "모듈 타일을 선택하여 설정 화면을 여십시오. 상단의 모듈 이름과 설명으로 현재 활성화된 워크플로를 확인할 수 있습니다."

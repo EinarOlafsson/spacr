@@ -3,7 +3,9 @@ THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
 OF THE MAINTAINER'S
 ================================================================================
 
-Status:    OPEN, filed 2026-09-20. Not started.
+Status:    IN PROGRESS, Codex, 2026-09-21. Capture guards and current Home
+           keyframes built; narration/locale sources updated for 04/05.
+           Rendered audio, remaining captures and final videos still open.
 
 Requested: 2026-09-20 -- "some tutorial videos need to be redone. all tutorial
            videos should be in dark mode with blobs theme. pype is now
@@ -81,3 +83,53 @@ WHAT IS NOT DECIDED
 Whether the lessons that need re-capturing only for the theme should wait for
 358's live-data pass, which will re-capture them anyway. Doing both at once
 is cheaper; doing the theme now means the videos look right sooner.
+
+--------------------------------------------------------------------------------
+2026-09-21 — CODEX: THEME CAPTURE FOLDS INTO 358; FIRST CURRENT HOME FRAMES
+--------------------------------------------------------------------------------
+
+The maintainer resolved the question above in the handover: theme-only
+recaptures belong to 358's live-data pass, so capture each lesson once.
+
+Both capture_all_modules.py and capture_refresh.py now take named dark/Blobs
+inputs, configure them in isolated preferences, and refuse a different
+effective palette, disabled backdrop, wrong visible ambient engine, or a
+backdrop that has not painted. Visible Qt text and table/list cells are checked
+for personal/mounted paths before saving. The prepared root must itself have
+a neutral name; capture_refresh defaults to /tmp/spacr-tutorials-current.
+This text check does not replace visual review of images or external windows.
+The hardcoded 1.5.0.4 display override is removed. Captures report the actual
+imported version and reject an import from another checkout.
+
+Recorded native 3840x2160 Home, Performance, opened Mask and real Help-search
+results on spaCR 1.5.0.8, with the new appearance/path guards passing. The
+overview, Performance and Help-search images were visually inspected. Files
+are in /tmp/spacr-tutorial-capture/production/05_home; the committed evidence
+receipt has dimensions and hashes. A six-scene Home visual specification was
+built from those actual frames. This is NOT a completed narrated video.
+
+The English Home script now describes the actual four categories and includes
+Help search. Removed its "older tutorials" comparison. Thirteen non-English
+authoring locales now have checked current categories, Help-search and
+Performance wording; the same Performance translation updates lesson 04.
+The reviewed-only builder loaded no model. Other lessons and published web
+catalogs/media are unchanged. These are editorial/structural checks, not
+native-speaker or listening approval.
+
+Script/catalog/pronunciation checks: 38 passed. Capture policy, routing,
+visual-spec and Performance-widget checks: 29 passed, including the neutral-root
+guard. The existing exact pype token rule
+passes; this DOES NOT resolve the reported mispronunciation in rendered audio.
+Audio listening, affected voice rerenders, Make Masks magnifier/FEATURES
+recordings, the remaining library sweep, and final encoded videos remain open.
+
+Later on 21 September: the current Make Masks Otsu magnifier and FEATURES
+handoff now have seven actual dark/Blobs 4K frames, with a source/hash receipt
+at tools/tutorials/evidence/2026-09-21_make_masks_dark_blobs_capture.json.
+FEATURES truthfully shows two unassigned ER images; no measurement is claimed.
+The new bounded CPU route preserves original pixels and labels. The folder
+picker starts in a neutral directory with only that directory bookmarked.
+These frames still need narration/captions and integration into lesson 14;
+they do not close the complete FEATURES workflow or the video's acceptance.
+Including the instruction-index checks, the focused capture suite is now
+41 passing tests. Home's fourth frame (opened Mask) was also visually checked.

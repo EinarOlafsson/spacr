@@ -106,7 +106,7 @@
           "narration": "Jedes Installationsprogramm prüft die neue Version, bevor es auf sie umschaltet. Bei einer unterbrochenen Aktualisierung bleibt die vorherige Umgebung intakt; install.log verbleibt im privaten spaCR-Installationsverzeichnis."
         },
         {
-          "narration": "Unter Preferences gibt es genau einen Selektor Performance level mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Ressourcenreihenfolge. Wählen Sie das Profil für diesen Computer; es ändert Cache, Worker-Grenzen, Bereinigung und Animationsdetails, aber nicht wissenschaftliche Einstellungen oder Ergebnisse."
+          "narration": "Preferences enthält einen Performance-Selektor mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Reihenfolge des Ressourcenverbrauchs. Wählen Sie das Profil für diesen Computer. Es bestimmt, wie viel spaCR wie lange zwischenspeichert, wann Speicher und inaktive Threads freigegeben werden und ob der animierte Hintergrund läuft, aber nicht die wissenschaftlichen Einstellungen oder Ergebnisse."
         },
         {
           "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
@@ -117,7 +117,7 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Wenn alle Reifestufen sichtbar sind, zeigt Home alle vierundvierzig registrierten spaCR-Module. Die Registerkarte Home gruppiert sie unter Core, Data, Results & QC, Explore, Assays und Design; jede Kategorie-Registerkarte filtert dasselbe Register."
+          "narration": "Home gruppiert die Arbeitsabläufe von spaCR unter Core, Data, Tools und Assays. Jede Kategorieregisterkarte filtert die Modulkacheln; zugehörige Werkzeuge sind innerhalb ihrer übergeordneten Module verfügbar."
         },
         {
           "narration": "Über die linke Seitenleiste sind Home und die sichtbaren Core-Module direkt erreichbar. Wenn alle Reifestufen aktiviert sind, ist dies die sechsstufige Core-Abfolge. Wählen Sie eine Kategorieüberschrift aus, um die übrigen sichtbaren Module einzublenden."
@@ -126,7 +126,10 @@
           "narration": "Das Core-Band folgt der Arbeitsablaufreihenfolge: Mask, Measure, Annotate, Classify, Map Barcodes und Regression. Bewegen Sie den Mauszeiger über eine Kachel, um die Modulbeschreibung und die Reifestufenfarbe Alpha, Beta oder Stable anzuzeigen. Unter Preferences können Sie Alpha- oder Beta-Module in Home und der Navigation ausblenden; Stable-Module bleiben sichtbar."
         },
         {
-          "narration": "Unter Preferences gibt es genau einen Selektor Performance level mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Ressourcenreihenfolge. Wählen Sie das Profil für diesen Computer; es ändert Cache, Worker-Grenzen, Bereinigung und Animationsdetails, aber nicht wissenschaftliche Einstellungen oder Ergebnisse."
+          "narration": "Preferences enthält einen Performance-Selektor mit Laptop, Extra Performance, Performance, Balanced und Workstation in aufsteigender Reihenfolge des Ressourcenverbrauchs. Wählen Sie das Profil für diesen Computer. Es bestimmt, wie viel spaCR wie lange zwischenspeichert, wann Speicher und inaktive Threads freigegeben werden und ob der animierte Hintergrund läuft, aber nicht die wissenschaftlichen Einstellungen oder Ergebnisse."
+        },
+        {
+          "narration": "Mit dem Suchfeld neben Help finden Sie Module, Einstellungen, Voreinstellungen oder API-Einträge. Hier listet die Suche nach Performance passende Ziele auf. Wählen Sie ein Ergebnis, um das zugehörige Modul oder die Registerkarte in Preferences zu öffnen oder die API-Dokumentation anzusehen."
         },
         {
           "narration": "Wählen Sie eine Modulkachel aus, um den Einstellungsbildschirm zu öffnen. Modulname und Beschreibung am oberen Rand bestätigen, welcher Arbeitsablauf aktiv ist."

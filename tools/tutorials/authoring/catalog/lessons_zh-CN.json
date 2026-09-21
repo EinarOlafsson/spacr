@@ -263,10 +263,10 @@
           "speech_text": "每个安装程序都会在切换版本之前验证替代环境。更新中断时，先前环境会保持完整；install.log 会保留在私有 斯佩克尔 安装目录中。"
         },
         {
-          "narration": "Preferences 中只有一个 Performance level 选择器，按资源用量从低到高依次为 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合此计算机的配置；它会调整缓存、工作进程上限、清理方式和动画细节，但不会改变科学设置或结果。",
+          "narration": "Preferences 中有一个 Performance 选择器，按资源用量从低到高依次提供 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合这台计算机的配置；它决定 spaCR 缓存多少数据及保留多久、何时释放内存和空闲线程，以及是否运行动画背景，但不会改变科学分析设置或结果。",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Preferences 中只有一个 Performance level 选择器，按资源用量从低到高依次为 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合此计算机的配置；它会调整缓存、工作进程上限、清理方式和动画细节，但不会改变科学设置或结果。"
+          "speech_text": "Preferences 中有一个 Performance 选择器，按资源用量从低到高依次提供 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合这台计算机的配置；它决定 斯佩克尔 缓存多少数据及保留多久、何时释放内存和空闲线程，以及是否运行动画背景，但不会改变科学分析设置或结果。"
         },
         {
           "narration": "安装后，使用操作系统启动器。无需另行配置 Python 或 Conda。",
@@ -293,10 +293,10 @@
       "prerequisite": "安装和启动 spaCR 桌面应用程序.",
       "scenes": [
         {
-          "narration": "显示所有成熟度级别时，Home 会显示 spaCR 全部四十四个已注册模块。Home 选项卡将它们分为 Core、Data、Results & QC、Explore、Assays 和 Design；每个类别选项卡都筛选同一模块注册表。",
+          "narration": "Home 将 spaCR 的工作流程分为 Core、Data、Tools 和 Assays。各类别选项卡会筛选模块磁贴，相关工具可在其所属的主模块中找到。",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "显示所有成熟度级别时，主页 会显示 斯佩克尔 全部四十四个已注册模块。主页 选项卡将它们分为 Core、Data、Results & QC、Explore、Assays 和 Design；每个类别选项卡都筛选同一模块注册表。"
+          "speech_text": "主页 将 斯佩克尔 的工作流程分为 Core、Data、Tools 和 Assays。各类别选项卡会筛选模块磁贴，相关工具可在其所属的主模块中找到。"
         },
         {
           "narration": "左侧边栏可直接访问 Home 和当前可见的 Core 模块。启用所有成熟度级别时，这里显示完整的六步 Core 流程。选择类别标题即可展开其中其余可见模块。",
@@ -311,10 +311,16 @@
           "speech_text": "Core 区域按工作流程顺序排列：Mask、Measure、Annotate、Classify、Map Barcodes 和 Regression。将指针悬停在卡片上，即可显示模块说明及其 阿尔法、贝塔 或 稳定 成熟度颜色。Preferences 可以在 主页 和导航中隐藏 阿尔法 或 贝塔 模块；稳定 模块始终可见。"
         },
         {
-          "narration": "Preferences 中只有一个 Performance level 选择器，按资源用量从低到高依次为 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合此计算机的配置；它会调整缓存、工作进程上限、清理方式和动画细节，但不会改变科学设置或结果。",
+          "narration": "Preferences 中有一个 Performance 选择器，按资源用量从低到高依次提供 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合这台计算机的配置；它决定 spaCR 缓存多少数据及保留多久、何时释放内存和空闲线程，以及是否运行动画背景，但不会改变科学分析设置或结果。",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Preferences 中只有一个 Performance level 选择器，按资源用量从低到高依次为 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合此计算机的配置；它会调整缓存、工作进程上限、清理方式和动画细节，但不会改变科学设置或结果。"
+          "speech_text": "Preferences 中有一个 Performance 选择器，按资源用量从低到高依次提供 Laptop、Extra Performance、Performance、Balanced 和 Workstation。请选择适合这台计算机的配置；它决定 斯佩克尔 缓存多少数据及保留多久、何时释放内存和空闲线程，以及是否运行动画背景，但不会改变科学分析设置或结果。"
+        },
+        {
+          "narration": "使用 Help 旁的搜索框查找模块、设置、偏好设置或 API 条目。这里搜索 Performance 会列出匹配的目标。选择一项结果即可打开对应模块或 Preferences 选项卡，或查看 API 文档。",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "使用 Help 旁的搜索框查找模块、设置、偏好设置或 API 条目。这里搜索 Performance 会列出匹配的目标。选择一项结果即可打开对应模块或 Preferences 选项卡，或查看 API 文档。"
         },
         {
           "narration": "选择模块卡片以打开其设置屏幕。屏幕顶部的模块名称和说明可确认当前处于哪个工作流程。",

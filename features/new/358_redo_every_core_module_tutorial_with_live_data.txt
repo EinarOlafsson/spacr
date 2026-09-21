@@ -1936,3 +1936,47 @@ one scene whose words changed. NO GPU and NOT STARTED: re-composing 09_annotate
 compose and re-encode, and /mnt/firecuda2 is at 100% with 7.1 GB free, so space
 comes first. 11_classify_ml's missing version sentence goes into that same pass.
 Publishing remains the maintainer's, with its exact steps in the section above.
+
+2026-09-21 — CURRENT HOME CAPTURE, SHARED WITH 447 (CODEX)
+--------------------------------------------------------
+
+The combined dark/Blobs capture pass has begun. Four actual 3840x2160 Home
+frames from spaCR 1.5.0.8 are under /tmp/spacr-tutorial-capture/production/
+05_home/keyframes: overview, Performance, the opened Mask screen and real
+Help-search results. The six-scene visual specification uses the captured
+search result rectangle. Source/version, dimensions, hashes and appearance
+receipts are retained in tools/tutorials/evidence/
+2026-09-21_home_dark_blobs_capture.json. Home, Performance and search frames
+were visually inspected. This is capture evidence, not a finished video.
+
+The shared capture policy now requires an actually painted dark palette and
+Blobs backdrop and refuses visible Qt text with personal/mounted paths.
+Image pixels and external windows still need visual review. The authoring
+capture no longer overwrites spacr.__version__ with a historical release.
+Capture work uses /tmp because firecuda2 has only about 7 GiB free.
+
+Home's four current categories, Performance explanation and Help search now
+have source-bound tutorial wording in all thirteen non-English languages.
+Only lessons 04/05 changed; the other 71 lessons are unchanged. The wording
+was directly authored and checked, without claiming native-speaker or audio
+review. The script/pronunciation suite passes 38 tests; the capture policy,
+routes, visual selection and Performance selector pass 29 tests. The exact
+"pype" pronunciation rule is tested, but the required new audio render and
+listening review have not happened. No GPU job has started: the GPU remained
+busy during continuous observation and never reached 20 idle minutes.
+
+Core lesson re-captures, new narration/video assembly and publication remain
+open. Existing acceptance manifests and live media were not promoted.
+
+Same-day Make Masks follow-on: seven native 4K frames completed in
+/tmp/spacr-masks-current/captures/readouts-05, on genuine copies of the first
+two local Measure example arrays. The real Otsu magnifier returned one object
+in the shown region, without changing image or label pixels. FEATURES opened
+through its actual button and scanned the two ER images. They remain visibly
+unassigned because their basenames do not match the default regex; this is
+folder handoff evidence, not a measurement run or a finished FEATURES lesson.
+The folder picker now starts in the neutral prepared root and has only that
+root bookmarked. No home shortcut or repository path is used in that frame.
+Receipt: tools/tutorials/evidence/2026-09-21_make_masks_dark_blobs_capture.json.
+All source/copy array hashes match. Final narration, column-assignment/run
+coverage and integration into the Make Masks lesson remain open.

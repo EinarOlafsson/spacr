@@ -263,10 +263,10 @@
           "speech_text": "Cada instalador valida el entorno de sustitución antes de cambiar de versión. Si se interrumpe una actualización, el entorno anterior permanece intacto y install.log se conserva en el directorio privado de instalación de espáquer."
         },
         {
-          "narration": "En Preferences hay un único selector Performance level con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil adecuado para este equipo; modifica la caché, los límites de procesos, la limpieza y el detalle de las animaciones, pero no los ajustes ni los resultados científicos.",
+          "narration": "Preferences tiene un selector Performance con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil para este equipo; cambia cuánto conserva spaCR en caché y durante cuánto tiempo, cuándo libera memoria y subprocesos inactivos y si se ejecuta el fondo animado, pero no los ajustes ni los resultados científicos.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "En Preferences hay un único selector Performance level con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil adecuado para este equipo; modifica la caché, los límites de procesos, la limpieza y el detalle de las animaciones, pero no los ajustes ni los resultados científicos."
+          "speech_text": "Preferences tiene un selector Performance con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil para este equipo; cambia cuánto conserva espáquer en caché y durante cuánto tiempo, cuándo libera memoria y subprocesos inactivos y si se ejecuta el fondo animado, pero no los ajustes ni los resultados científicos."
         },
         {
           "narration": "Después de la instalación, utilice el iniciador del sistema operativo. No es necesario configurar Python ni Conda por separado.",
@@ -293,10 +293,10 @@
       "prerequisite": "Instale e inicie la aplicación de escritorio spaCR.",
       "scenes": [
         {
-          "narration": "Cuando todos los niveles de madurez están visibles, Home muestra los cuarenta y cuatro módulos registrados de spaCR. La pestaña Home los agrupa en Core, Data, Results & QC, Explore, Assays y Design; cada pestaña de categoría filtra el mismo registro.",
+          "narration": "Home agrupa los flujos de trabajo de spaCR en Core, Data, Tools y Assays. Cada pestaña de categoría filtra los mosaicos de módulos, y las herramientas relacionadas están disponibles dentro de sus módulos principales.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Cuando todos los niveles de madurez están visibles, Home muestra los cuarenta y cuatro módulos registrados de espáquer. La pestaña Home los agrupa en Core, Data, Results & QC, Explore, Assays y Design; cada pestaña de categoría filtra el mismo registro."
+          "speech_text": "Home agrupa los flujos de trabajo de espáquer en Core, Data, Tools y Assays. Cada pestaña de categoría filtra los mosaicos de módulos, y las herramientas relacionadas están disponibles dentro de sus módulos principales."
         },
         {
           "narration": "La barra lateral izquierda mantiene Home y los módulos visibles de Core directamente accesibles. Con todos los niveles de madurez habilitados, esta es la secuencia de seis pasos de Core. Seleccione el encabezado de una categoría para desplegar sus demás módulos visibles.",
@@ -311,10 +311,16 @@
           "speech_text": "La franja Core sigue el orden del flujo de trabajo: Mask, Measure, Annotate, Classify, Map Barcodes y Regression. Pase el puntero sobre un mosaico para mostrar la descripción del módulo y su color de madurez Alpha, Beta o Stable. En Preferences puede ocultar los módulos Alpha o Beta de Home y de la navegación; los módulos Stable permanecen visibles."
         },
         {
-          "narration": "El panel derecho informa del uso de la GPU, la memoria de vídeo y el disco, seguido de las novedades de la versión y la leyenda de estados de los módulos. Revise estos valores antes de iniciar un flujo que requiera muchos recursos.",
+          "narration": "Preferences tiene un selector Performance con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil para este equipo; cambia cuánto conserva spaCR en caché y durante cuánto tiempo, cuándo libera memoria y subprocesos inactivos y si se ejecuta el fondo animado, pero no los ajustes ni los resultados científicos.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "El panel derecho informa del uso de la GPU, la memoria de vídeo y el disco, seguido de las novedades de la versión y la leyenda de estados de los módulos. Revise estos valores antes de iniciar un flujo que requiera muchos recursos."
+          "speech_text": "Preferences tiene un selector Performance con Laptop, Extra Performance, Performance, Balanced y Workstation, ordenados de menor a mayor uso de recursos. Elija el perfil para este equipo; cambia cuánto conserva espáquer en caché y durante cuánto tiempo, cuándo libera memoria y subprocesos inactivos y si se ejecuta el fondo animado, pero no los ajustes ni los resultados científicos."
+        },
+        {
+          "narration": "Use el campo de búsqueda junto a Help para encontrar un módulo, un ajuste, una preferencia o una entrada de API. Aquí, la búsqueda de Performance muestra los destinos coincidentes. Seleccione un resultado para abrir su módulo o su pestaña de Preferences, o para consultar la documentación de la API.",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "Use el campo de búsqueda junto a Help para encontrar un módulo, un ajuste, una preferencia o una entrada de API. Aquí, la búsqueda de Performance muestra los destinos coincidentes. Seleccione un resultado para abrir su módulo o su pestaña de Preferences, o para consultar la documentación de la API."
         },
         {
           "narration": "Seleccione el mosaico de un módulo para abrir su pantalla de configuración. El nombre y la descripción de la parte superior confirman qué flujo de trabajo está activo.",

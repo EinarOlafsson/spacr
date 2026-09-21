@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 from capture_acceptance import assess_pipeline
+from capture_policy import configure_appearance, verify_appearance, verify_visible_paths
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
@@ -33,7 +34,10 @@ def write_json(path: Path, value) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--module', default='home')
-    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--stage', type=Path,
+                        default=Path(tempfile.gettempdir()) / 'spacr-tutorials-current')
+    parser.add_argument('--theme', choices=('dark',), default='dark')
+    parser.add_argument('--backdrop', choices=('blobs',), default='blobs')
     parser.add_argument('--download', action='store_true')
     parser.add_argument('--preview', action='store_true')
     parser.add_argument('--preview-variants', action='store_true')
@@ -43,6 +47,7 @@ def main() -> int:
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded analysis choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--mask-editor-tour', action='store_true', help='Record actual reversible mask-editing gestures on private real-data copies')
+    parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu magnifier and FEATURES window on real data')
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
@@ -115,6 +120,8 @@ def main() -> int:
         parser.error('--annotation-tour requires --module annotate')
     if args.mask_editor_tour and args.module != 'make_masks':
         parser.error('--mask-editor-tour requires --module make_masks')
+    if args.mask_readouts_tour and (args.module != 'make_masks' or args.mask_editor_tour or args.editor_detect):
+        parser.error('--mask-readouts-tour requires --module make_masks and excludes the editor/detection tour')
     if args.editor_detect and not args.mask_editor_tour:
         parser.error('--editor-detect requires --mask-editor-tour')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
@@ -227,16 +234,24 @@ def main() -> int:
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtGui import QPainter
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QLabel, QMenu, QMessageBox, QTabWidget
+    from PySide6.QtWidgets import (
+        QAbstractButton,
+        QApplication,
+        QDialog,
+        QLabel,
+        QMenu,
+        QMessageBox,
+        QTabWidget,
+    )
     from shiboken6 import isValid
+
     import spacr
     import spacr.qt
     spacr.qt.register_self_registering_modules()
     from spacr.qt import app as gui
     from spacr.qt.first_run import mark_tour_seen
+    from spacr.qt.preferences import apply_preferences_to_app, set_font_scale, set_preload_policy
     from spacr.qt.walkthrough import mark_seen
-    from spacr.qt.preferences import (apply_preferences_to_app, set_preload_policy,
-                                      set_theme, set_font_scale)
     from spacr.qt.widgets.fold_strip import folded_modules
 
     # A private Xvfb recording cannot capture a portal/GTK dialog in another
@@ -249,7 +264,7 @@ def main() -> int:
     for key in folded_modules():
         mark_seen(key)
     set_preload_policy('on_demand')
-    set_theme('dark')
+    configure_appearance(args.theme, args.backdrop)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
@@ -276,6 +291,8 @@ def main() -> int:
         return capture_rect(widget, window)
 
     def capture(name, *, desktop=False):
+        appearance = verify_appearance(window)
+        verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
         pixmap = app.primaryScreen().grabWindow(0) if desktop else window.grab()
         if (pixmap.width(), pixmap.height()) != (3840, 2160):
             raise RuntimeError(f'Unexpected capture size {pixmap.size()}')
@@ -301,11 +318,12 @@ def main() -> int:
                                 'nav_key': widget.property('navKey'),
                                 'module_key': widget.property('moduleAppKey')})
         frames[name] = {'image': path.name,
+                        'appearance': appearance,
                         'capture_surface': 'private_desktop' if desktop else 'application_window',
                         'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                         'buttons': buttons,
                         'dialogs': [{'title': d.windowTitle(), 'rect': rect(d),
-                                     'labels': [l.text() for l in d.findChildren(QLabel)]}
+                                     'labels': [label.text() for label in d.findChildren(QLabel)]}
                                     for d in dialogs]}
         write_json(captures / 'frames.json', frames)
         print(f'captured {args.module}/{name}', flush=True)
@@ -348,6 +366,9 @@ def main() -> int:
         settle()
         capture('07_help')
         help_menu.hide()
+        from capture_home import record_help_search, record_performance
+        record_help_search(app, window, capture, settle)
+        record_performance(window, capture, settle)
     if args.module == 'db_browser':
         # The retained Database narration is still accurate. Capture its
         # current Help route and real controls without pre-opening it through
@@ -564,10 +585,11 @@ def main() -> int:
             from capture_plaque import record_plaque
             record_plaque(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout, use_zoo_model=args.plaque_zoo_model)
-        if args.mask_editor_tour:
+        if args.mask_editor_tour or args.mask_readouts_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
-                          settle, write_json, args.timeout, detect=args.editor_detect)
+                          settle, write_json, args.timeout, detect=args.editor_detect,
+                          readouts_only=args.mask_readouts_tour)
         if args.module == 'import_images':
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
@@ -654,6 +676,7 @@ def main() -> int:
             buttons = visible_test_data_buttons()
             if not buttons and args.module == 'classify_merged':
                 from copy import deepcopy
+
                 from capture_settings import require_unchanged_settings
                 before_disclosure = deepcopy(screen._settings_model.collect())
                 bar = screen._settings_search
@@ -1361,8 +1384,8 @@ def main() -> int:
                 if not proof['accepted']:
                     raise RuntimeError('; '.join(proof['reasons']))
             if args.module == 'recruitment':
-                from recruitment_evidence import inspect_results
                 from recruitment_data import _sha256
+                from recruitment_evidence import inspect_results
                 originals = [(Path(manifest['source_database']), manifest['source_database_sha256'])]
                 originals += [(Path(row['source']), row['sha256']) for row in manifest['arrays']]
                 unchanged = {str(path): _sha256(path) == digest for path, digest in originals}
