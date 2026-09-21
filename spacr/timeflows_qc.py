@@ -663,6 +663,38 @@ def load_label_stack(path):
         f'or a folder of them')
 
 
+def dataset_names(paths):
+    """A distinct name for each stack path, as short as it can be.
+
+    Named after the last path component, the fourteen Cell Tracking Challenge
+    movies are all ``TRA`` -- they live at ``<movie>/01_GT/TRA`` -- and keyed
+    on that, each overwrote the one before, so only the last was audited
+    (found 2026-09-21, the first run on real movies). A name that repeats
+    takes in parent folders until every name is unique.
+
+    :param paths: the stack paths, in order.
+    :returns: one name per path, in the same order.
+    """
+    parts = [[p for p in str(path).rstrip(os.sep).split(os.sep) if p]
+             for path in paths]
+    for index, pieces in enumerate(parts):
+        if pieces:
+            pieces[-1] = os.path.splitext(pieces[-1])[0] or pieces[-1]
+        parts[index] = pieces or [str(paths[index])]
+    depth = [1] * len(parts)
+    while True:
+        names = ["/".join(pieces[-d:]) for pieces, d in zip(parts, depth)]
+        seen = {}
+        for index, name in enumerate(names):
+            seen.setdefault(name, []).append(index)
+        clashes = [i for group in seen.values() if len(group) > 1 for i in group
+                   if depth[i] < len(parts[i])]
+        if not clashes:
+            return names
+        for index in clashes:
+            depth[index] += 1
+
+
 def main(argv=None):
     """Run the QC over one or more label stacks and print the table.
 
@@ -692,9 +724,8 @@ def main(argv=None):
     arguments = parser.parse_args(argv)
 
     stacks = {}
-    for path in arguments.paths:
-        base = os.path.basename(str(path).rstrip(os.sep)) or str(path)
-        stacks[os.path.splitext(base)[0] or base] = load_label_stack(path)
+    for path, name in zip(arguments.paths, dataset_names(arguments.paths)):
+        stacks[name] = load_label_stack(path)
     intervals = ({name: arguments.frame_interval for name in stacks}
                  if arguments.frame_interval is not None else None)
     table = audit_datasets(stacks, frame_intervals=intervals,

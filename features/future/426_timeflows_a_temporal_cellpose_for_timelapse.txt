@@ -272,3 +272,55 @@ both sides for the same reason -- tests/test_api_i18n_extractor.py and
 tests/test_documentation_i18n.py are 33 failed / 123 passed at the base AND 33
 failed / 123 passed on this branch, the same tests by name. No test went from
 green to red in this unit.
+
+--------------------------------------------------------------------------------
+2026-09-21 -- STEP 1 RAN ON REAL MOVIES: FOURTEEN, AND THE LINK HOLDS
+--------------------------------------------------------------------------------
+
+THE DATA. The maintainer named it this morning: "the deapsea dataset, and
+potentially other datasets that are timelapse but dont have masks yet. here:
+/mnt/wd4tb/af3/projects/live_cell/". Two findings about what is there:
+
+  * DEEPSEA CANNOT CARRY THE LINK. It publishes one binary foreground map per
+    frame, not per-cell labels (live_cell/code/deepsea_to_instances.py turns
+    each frame into connected components), so a cell's label in frame t says
+    nothing about frame t+1. It is segmentation data for step 0, not tracking
+    data for the time head.
+  * THE CELL TRACKING CHALLENGE MOVIES CAN. live_cell/datasets holds seven CTC
+    sets with their tracking ground truth (NN_GT/TRA, man_track*.tif), two
+    movies each: DIC-C2DH-HeLa, PhC-C2DH-U373, PhC-C2DL-PSC, BF-C2DL-HSC,
+    BF-C2DL-MuSC, Fluo-N2DH-GOWT1 and Fluo-C2DL-Huh7 -- 14 movies, 5,648
+    frames. Frame intervals from the project's catalog.csv: HeLa and PSC
+    10 min, U373 15 min, HSC and MuSC 5 min.
+
+THE RESULT (spacr/timeflows_qc.py; the table is
+features/data/426_label_qc_cell_tracking_challenge_2026-09-21.csv):
+
+    movie                 frames  labels  reuse   divisions          displacement p95
+    HeLa 01 / 02              84   38/32  0 gaps  none found          22 / 19 px
+    Huh7 01 / 02              30   34/69  0 gaps  none found          10 / 9 px
+    U373 01 / 02             115    8/12  0 gaps  none found          15 / 12 px
+    GOWT1 01 / 02             92   28/58  0 gaps  none found           8 / 9 px
+    HSC 01 / 02             1764  23/317  0 gaps  children new (x7)   13 / 9 px
+    MuSC 01 / 02            1376   71/48  0 gaps  none found          35 / 37 px
+    PSC 01 / 02              300 1370/1025 0 gaps none found           3 / 3 px
+
+  * NO LABEL IS EVER REUSED -- the defect step 1 was written to catch first --
+    in any of the fourteen.
+  * DIVISIONS, where seen (HSC 02, seven), give the children NEW labels. That
+    fixes the convention the loss must assume. "None found" elsewhere means
+    the check saw no split with both children overlapping the parent, not
+    that no cell divided: CTC TRA masks are markers, often smaller than the
+    cell, which can hide a division from an overlap test.
+  * DISPLACEMENT RANGES FROM EASY TO HARD. PSC moves ~3 px per frame at p95,
+    MuSC ~36 px and 3.5-4 object diameters -- the head needs a receptive field
+    that covers the MuSC case, or those movies are excluded or subsampled.
+    This is the displacement distribution step 5 samples pairs across.
+
+A DEFECT FOUND BY RUNNING IT FOR REAL: the QC named each stack after its last
+path component, and every CTC movie's labels live in a folder called TRA, so
+they overwrote one another and only the last movie was audited. dataset_names
+now takes in parent folders until the names are distinct (tested).
+
+STILL OPEN: steps 0 and 3-7. Step 0 and the training need the GPU (only after
+it has been idle 20 minutes); the fork (step 3) can be written on the CPU.
