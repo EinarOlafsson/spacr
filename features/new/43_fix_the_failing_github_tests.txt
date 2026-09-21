@@ -1776,3 +1776,12 @@ Current review/coverage reports were regenerated. The full nine-language/API
 catalog gate is still red, so the docs lane is not closed.
 After integrating 6e9265f67, reports reflect 6194 runtime entries and 11131
 API symbols. Additional upstream Figure settings remain explicit catalog debt.
+
+2026-09-21 — CODEX CONCURRENT NIGHTLY INTEGRATION
+A normal push race integrated 41ac2a422, preserving the other session's
+Timeflows and Figure changes. Live inventories and both reports now reflect
+6209 runtime entries and 11150 API symbols (613 added, 2 removed, 115 changed
+API sources). Source-bound runtime/API review stores load. The earlier 610-
+diagnostic audit names the 6e9265f67 boundary; no full audit of this later
+source or completed translation gate is claimed. Accepted capture receipts
+retain their actual source revisions. Coverage and CPU narration continue.
