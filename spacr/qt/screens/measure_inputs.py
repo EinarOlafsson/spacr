@@ -212,6 +212,9 @@ class MeasureInputsScreen(QWidget):
         outer.addLayout(actions)
 
         self._on_table_changed()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+        self._explain_the_decided_fields()
 
     def _build_settings_form(self):
         """Build Measure's own settings form and disable what the table decides.
@@ -241,10 +244,24 @@ class MeasureInputsScreen(QWidget):
             if key in getattr(model, "_widgets", {})}
         for widget in self._decided_widgets.values():
             widget.setEnabled(False)
+        return model
+
+    def _explain_the_decided_fields(self) -> None:
+        """Say on each table-decided field why it cannot be edited.
+
+        Run after :func:`~.settings_model.retarget_field_tooltips` has moved
+        each setting's help onto its name, so the name keeps the help and the
+        disabled field carries the reason. The reason is marked with
+        :data:`~.settings_model.DISABLED_REASON_TOOLTIP`, which is the
+        convention for a note that explains the control itself.
+        """
+        from .settings_model import DISABLED_REASON_TOOLTIP
+
+        for widget in self._decided_widgets.values():
+            widget.setProperty(DISABLED_REASON_TOOLTIP, True)
             widget.setToolTip(
                 "The file table decides this. Change the table's channels "
                 "or mask columns and this follows.")
-        return model
 
     def _nested_section(self, section, parent: QWidget) -> QWidget:
         """One heading of Measure's settings tree, with its sub-headings.

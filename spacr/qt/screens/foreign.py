@@ -398,6 +398,8 @@ class ForeignScreen(QWidget):
             "Choose their images, their mask folder(s) and their measurement "
             "table, then Preview. Nothing is written until you press Import.")
         self._update_controls()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
 
     def _build_ui(self) -> None:
