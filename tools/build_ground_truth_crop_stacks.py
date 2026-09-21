@@ -16,10 +16,13 @@ folder per experiment-and-plate, named the way Measure reads a field
 WHERE EACH PLANE COMES FROM, local first (the project tree on this disk):
 
     hoechst      toxoplasma_from_hoechst/images, else cell_from_hoechst/images
-    toxoplasma   data/_dsred_source (the parasite channel the project staged),
-                 else the field's own merged array on the NAS, at the plate's
-                 pathogen channel (default 2), copied through nas_guard.sh
+    toxoplasma   data/_dsred_source (the parasite channel the project staged)
     cellmask     toxoplasma_from_cellmask/images, else nuclei_from_cellmask/images
+
+and a channel none of those has comes from the field's own merged array on
+the NAS, at the plate's channel for it (nucleus 0, pathogen 2, cell 3 unless
+the plate's gen_mask_settings.csv says otherwise), copied through
+nas_guard.sh.
     cell mask    cell_from_hoechst/masks
     nucleus mask nuclei_from_cellmask/masks
     PV mask      toxoplasma_from_cellmask/masks_pv, else toxoplasma_from_hoechst/masks_pv
@@ -160,28 +163,37 @@ def _merged_folders() -> Dict[str, List[str]]:
     return out
 
 
-def _pathogen_channel(plate_dir: str) -> int:
-    """The plate's parasite channel, from its own mask settings (default 2).
+#: ``plane -> (the mask settings' key for its channel, default channel)``.
+NAS_ROLES = {"hoechst": ("nucleus_channel", 0), "toxoplasma": ("pathogen_channel", 2),
+             "cellmask": ("cell_channel", 3)}
+
+
+def _channel(plate_dir: str, plane: str) -> int:
+    """The plate's channel for ``plane``, from its own mask settings.
 
     :param plate_dir: the plate folder on the NAS.
-    :returns: the channel index.
+    :param plane: a :data:`NAS_ROLES` name.
+    :returns: the channel index; the default when the settings do not say.
     """
+    key, default = NAS_ROLES[plane]
     settings = os.path.join(plate_dir, "settings", "gen_mask_settings.csv")
     try:
         text = Path(settings).read_text()
     except OSError:
-        return 2
-    found = re.search(r'pathogen_channel,"?([0-9]+)', text)
-    return int(found.group(1)) if found else 2
+        return default
+    found = re.search(key + r',"?([0-9]+)', text)
+    return int(found.group(1)) if found else default
 
 
-def nas_toxoplasma(stem: str, index: Dict[str, List[str]]) -> Optional[np.ndarray]:
-    """The parasite channel of one field, read from its merged array.
+def nas_plane(stem: str, plane: str,
+              index: Dict[str, List[str]]) -> Optional[np.ndarray]:
+    """One channel of one field, read from its merged array.
 
     The NAS can hang a process for good, so the array is copied to local disk
     by ``tools/nas_guard.sh run`` with a time limit and read from there.
 
     :param stem: ``<screen>__<experiment>__<plate>_<well>_<field>_<n>``.
+    :param plane: a :data:`NAS_ROLES` name.
     :param index: from :func:`_merged_folders`.
     :returns: the plane, or None.
     """
@@ -199,7 +211,7 @@ def nas_toxoplasma(stem: str, index: Dict[str, List[str]]) -> Optional[np.ndarra
             if done.returncode != 0 or not os.path.isfile(target):
                 continue
             array = np.load(target, mmap_mode="r")
-            channel = _pathogen_channel(os.path.dirname(folder.rstrip("/")))
+            channel = _channel(os.path.dirname(folder.rstrip("/")), plane)
             if array.ndim == 3 and channel < array.shape[2]:
                 return np.array(array[:, :, channel])
     return None
@@ -209,13 +221,13 @@ def build_stack(stem: str, index: Dict[str, List[str]]) -> Optional[np.ndarray]:
     """Every plane of one field, in :data:`PLANES` order.
 
     :param stem: the field.
-    :param index: NAS merged folders, for a parasite plane not staged locally.
+    :param index: NAS merged folders, for a channel not on this disk.
     :returns: ``(H, W, 6)`` uint16, or None when a channel is missing.
     """
     planes: Dict[str, Optional[np.ndarray]] = {p: local_plane(p, stem) for p in PLANES}
-    if planes["toxoplasma"] is None:
-        planes["toxoplasma"] = nas_toxoplasma(stem, index)
-    for channel in ("hoechst", "toxoplasma", "cellmask"):
+    for channel in NAS_ROLES:
+        if planes[channel] is None:
+            planes[channel] = nas_plane(stem, channel, index)
         if planes[channel] is None:
             print(f"    {stem}: no {channel}; skipped")
             return None

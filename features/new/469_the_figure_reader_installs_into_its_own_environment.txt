@@ -22,3 +22,27 @@ segmentation backend. Its worker answers two requests besides hello: detect
 (plaque images in a figure, at the chosen sizes) and read_text (the words and
 their boxes). Figure mode -- preview and run -- uses it whenever ultralytics
 is not importable in spaCR itself.
+
+--------------------------------------------------------------------------------
+VERIFIED 2026-09-21 -- A REAL INSTALL, A REAL FIGURE
+--------------------------------------------------------------------------------
+
+Installed for real with spaCR's own installer (_install_backend('papers'))
+into a sandbox root, SPACR_BACKENDS_DIR=/mnt/wd4tb/spacr_testdata/
+backends_sandbox: state `installed`, the load self-test passed, 77 s with a
+warm pip cache (the first, cold run spent most of its time downloading the
+torch/CUDA wheels ultralytics pulls). spaCR's own environment has NEITHER
+ultralytics NOR rapidocr_onnxruntime, so default_detect() and the OCR engine
+both chose the reader's worker, and on the plaque_figures example set:
+
+    figure                            size         plaque regions   words
+    12860_2020_249_Fig6_HTML.png      1016 x 780         4            47
+    12864_2013_6044_Fig7_HTML.png     1539 x 600        12            38
+
+(first figure 12.5 s including the worker's start, the second 2.7 s), words
+such as 'EGFP-tubulin', 'TgDCX148-243', 'DHFR-Ty', panel letters 'A', 'B'.
+An earlier attempt failed with a bus error (-7) in the self-test; that was two
+installs run at once into the same folder, one deleting the environment the
+other was testing -- not a defect of the install, and not reproduced alone.
+
+STATUS: DONE.
