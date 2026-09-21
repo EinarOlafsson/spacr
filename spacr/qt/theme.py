@@ -2885,6 +2885,7 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.hit_list",
     "spacr.qt.screens.image_scatter",
+    "spacr.qt.screens.make_masks",
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.methods_export",
     "spacr.qt.screens.model_compare",
