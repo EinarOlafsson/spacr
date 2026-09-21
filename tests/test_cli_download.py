@@ -35,6 +35,10 @@ import pytest
 
 from spacr import cli_download
 from spacr.example_archives import EXAMPLE_SETS
+
+#: What ``spacr-download`` with no arguments fetches: every set but the OPS and
+#: Align & Stitch samples (item 461), which are fetched when named.
+DEFAULT_SETS = tuple(s for s in EXAMPLE_SETS if s.in_default)
 from spacr.screen_data import SCREEN_ASSETS
 from tests.child_env import child_env
 
@@ -265,7 +269,7 @@ def test_the_qt_downloader_still_re_exports_what_moved_out_of_it():
 def test_no_arguments_selects_every_example_set_and_no_screen_piece():
     """33 GB must never be what happens when you type the command's name."""
     examples, screen = cli_download.resolve_selection([])
-    assert [s.key for s in examples] == [s.key for s in EXAMPLE_SETS]
+    assert [s.key for s in examples] == [s.key for s in DEFAULT_SETS]
     assert screen == []
 
 
@@ -380,7 +384,7 @@ def test_the_listing_says_which_pieces_are_already_on_disk(capsys, dest, hub):
 def test_the_listing_totals_only_what_was_selected(capsys, dest, hub):
     run(["--list", "--screen", "measurements", "--plate", "1"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 1 of 15 pieces" in out
+    assert "Selected: 1 of 17 pieces" in out
     assert "555.7 MB to download" in out
 
 
@@ -389,7 +393,7 @@ def test_the_total_leaves_out_what_is_already_on_disk(capsys, dest, hub):
     _make_present(dest, keys=["mask", "measure"])
     run(["--list"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 7 of 15 pieces, about 986.0 MB to download." in out
+    assert "Selected: 7 of 17 pieces, about 986.0 MB to download." in out
     assert "2 already on disk and skipped" in out
 
 
@@ -428,14 +432,14 @@ def test_force_downloads_a_piece_that_is_already_on_disk(dest, hub):
     a row that could not be re-fetched would leave no way to do that."""
     _make_present(dest, keys=["mask", "measure", "annotate"])
     assert run(["--force"], dest) == cli_download.EXIT_OK
-    assert len(hub.calls) == len(EXAMPLE_SETS)
+    assert len(hub.calls) == len(DEFAULT_SETS)
 
 
 def test_only_the_missing_pieces_are_fetched(dest, hub):
     _make_present(dest, keys=["mask"])
     assert run([], dest) == cli_download.EXIT_OK
     assert [call[1] for call in hub.calls] == [
-        s.archive for s in EXAMPLE_SETS if s.key != "mask"]
+        s.archive for s in DEFAULT_SETS if s.key != "mask"]
 
 
 def test_every_plate_example_set_unpacks_into_the_one_shared_plate_folder(
@@ -445,6 +449,16 @@ def test_every_plate_example_set_unpacks_into_the_one_shared_plate_folder(
     run(["mask", "measure", "annotate"], dest)
     assert {call[2] for call in hub.calls} == {
         cli_download.example_folder(dest)}
+def test_every_example_set_unpacks_into_the_folder_it_names(dest, hub):
+    """Each set lands in its own ``folder``: the plate sets share the plate,
+    and the OPS and Align & Stitch samples (item 461), tiles of a different
+    screen, each get a folder beside it."""
+    run([s.key for s in EXAMPLE_SETS] + ["--yes"], dest)
+    where = {call[1]: call[2] for call in hub.calls}
+    for example in EXAMPLE_SETS:
+        assert where[example.archive] == dest / example.folder
+    assert where["spacr-example-ops.tar"] == dest / "ops_screen"
+    assert where["spacr-example-stitch.tar"] == dest / "align_stitch"
 
 
 def test_each_assay_example_set_unpacks_into_a_folder_of_its_own(dest, hub):
@@ -601,7 +615,7 @@ def test_the_three_example_sets_stay_under_the_threshold(dest, hub,
         cli_download, "_yes_at_the_prompt",
         lambda question: pytest.fail(f"the default run asked: {question}"))
     assert run([], dest) == cli_download.EXIT_OK
-    assert len(hub.calls) == len(EXAMPLE_SETS)
+    assert len(hub.calls) == len(DEFAULT_SETS)
 
 
 def test_a_large_download_is_refused_when_there_is_nobody_to_confirm_it(
@@ -695,7 +709,7 @@ def test_a_filesystem_that_will_not_answer_is_not_treated_as_a_full_one(
 
     monkeypatch.setattr("shutil.disk_usage", _boom)
     assert run([], dest) == cli_download.EXIT_OK
-    assert len(hub.calls) == len(EXAMPLE_SETS)
+    assert len(hub.calls) == len(DEFAULT_SETS)
 
 
 def test_the_room_needed_counts_the_archive_beside_its_unpacked_copy(

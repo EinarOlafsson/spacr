@@ -52,7 +52,9 @@ __all__ = [
     "MEASURE_EXAMPLE_REPO",
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
+    "OPS_EXAMPLE_REPO",
     "SETTINGS_REPO",
+    "STITCH_EXAMPLE_REPO",
     "download_archive",
     "example_plate_folder",
     "example_set",
@@ -111,6 +113,18 @@ IMPORT_EXAMPLE_REPO = _IMPORT_EXAMPLE_REPO
 #: not a Cellpose segmentation; spaCR's own Measure makes the database. See
 #: ``tools/build_invasion_example_dataset.py``.
 INVASION_EXAMPLE_REPO = "einarolafsson/spacr-example-invasion"
+#: The optical pooled screen's example: two sequencing fields of one well of a
+#: published screen, every cycle, and the guide library to decode them against.
+#:
+#: A SAMPLE OF SOMEONE ELSE'S SCREEN, NOT THE LAB'S OWN. The fields are from
+#: Funk et al. 2022 (BioImage Archive S-BIAD394), byte for byte. The dataset
+#: card carries the citation and the licence; the repository exists only once
+#: the maintainer has approved rehosting it. Item 461.
+OPS_EXAMPLE_REPO = "einarolafsson/spacr-example-ops"
+
+#: Align & Stitch's example: a 3 x 3 block of overlapping tiles from the same
+#: well, cut from the same published screen as :data:`OPS_EXAMPLE_REPO`.
+STITCH_EXAMPLE_REPO = "einarolafsson/spacr-example-stitch"
 
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
@@ -157,6 +171,8 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     RECRUITMENT_EXAMPLE_REPO: "spacr-example-recruitment.tar",
     IMPORT_EXAMPLE_REPO: _IMPORT_EXAMPLE_ARCHIVE,
     INVASION_EXAMPLE_REPO: "spacr-example-invasion.tar",
+    OPS_EXAMPLE_REPO: "spacr-example-ops.tar",
+    STITCH_EXAMPLE_REPO: "spacr-example-stitch.tar",
 }
 
 
@@ -179,6 +195,12 @@ class ExampleSet:
         directory existing says nothing about which of them is in it.
     :param expands_npz: whether ``.npz`` arrays have to be written back out as
         the ``.npy`` Measure reads. See :func:`expand_measure_arrays`.
+    :param in_default: whether ``spacr-download`` with no arguments fetches
+        it. False for the OPS and Align & Stitch samples (item 461): together
+        they are 0.6 GB of one screen's tiles, and adding them would push the
+        default run past ``CONFIRM_ABOVE_BYTES``, so the command would start
+        asking to confirm the thing it does with no arguments. They are
+        fetched when named, and by ``all``.
     :param folder: the folder under the example-data root the set unpacks
         into. ``plate1`` -- the shared plate -- for the three sets that are
         stages of one plate; a folder of its own for a set that would collide
@@ -192,6 +214,7 @@ class ExampleSet:
     markers: Tuple[str, ...]
     expands_npz: bool = False
     folder: str = "plate1"
+    in_default: bool = True
 
     @property
     def archive(self) -> str:
@@ -283,6 +306,26 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         markers=("measurements/measurements.db",
                  "settings/invasion_settings.csv"),
         folder="invasion",
+    ),
+    ExampleSet(
+        key="stitch",
+        repo=STITCH_EXAMPLE_REPO,
+        summary="Align & Stitch example: a 3 x 3 block of overlapping 10X "
+                "tiles from a published optical pooled screen.",
+        bytes=197_000_000,
+        markers=("manifest.csv", "tiles/*.tif"),
+        folder="align_stitch",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="ops",
+        repo=OPS_EXAMPLE_REPO,
+        summary="OPS example: two fields of a published optical pooled "
+                "screen, all eleven sequencing cycles, and its guide library.",
+        bytes=394_000_000,
+        markers=("manifest.csv", "sequencing/c11/*.tif"),
+        folder="ops_screen",
+        in_default=False,
     ),
 )
 

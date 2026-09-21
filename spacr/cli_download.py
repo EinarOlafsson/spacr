@@ -8,8 +8,10 @@ is no display to press a button on. This is that download as a command.
 
 WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches
 the example sets -- Import, Mask, Measure, Annotate/Classify, Replication,
-Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. It
-does NOT fetch the published TSG101 screen, which is 33 GB.
+Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. The
+OPS and Align & Stitch samples are fetched only when named (``spacr-download
+ops stitch``) or with ``all``. It does NOT fetch the published TSG101 screen,
+which is 33 GB.
 A command that spent 33 GB of somebody's quota because they typed its name
 with no arguments would be a bug however well documented, so the screen is
 opt-in, is asked for in pieces, and is confirmed before it starts. The pieces
@@ -251,7 +253,9 @@ def resolve_selection(what: Sequence[str] = (), *,
     for name in asked:
         if name not in known:
             raise SelectionError(_unknown_name_message(name))
-        if name in ("examples", "all"):
+        if name == "examples":
+            wanted_examples = [s for s in EXAMPLE_SETS if s.in_default]
+        if name == "all":
             wanted_examples = list(EXAMPLE_SETS)
         if name in ("screen", "all"):
             take_screen = True

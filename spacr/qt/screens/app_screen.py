@@ -1236,6 +1236,7 @@ EXAMPLE_DATA_SECTIONS = {
     "recruitment": "Data source",
     "umap": "Input Data",
     "invasion": "Assay Inputs",
+    "ops": "OPS input",
 }
 
 
@@ -2798,6 +2799,8 @@ class AppScreen(QWidget):
                 install_assay_example_button(self, section)
             elif self.app_key == "umap":
                 self._install_measurements_example_button(section)
+            elif self.app_key == "ops":
+                self._install_ops_example_button(section)
             else:
                 self._install_example_images_button(section)
         self._settings_sections.append(section)
@@ -3978,6 +3981,56 @@ class AppScreen(QWidget):
             "pipeline takes. Cached after the first download."))
         self._plaque_example_button = button
         section.add_prose(button, at_top=True)
+
+    def _install_ops_example_button(self, section) -> None:
+        """Add OPS's test-data control: two fields of a published screen.
+
+        Item 461. The sample is a well's last two sequencing fields with all
+        eleven cycles and the guide library, so stitch, objects and decode all
+        have something real to do. See :mod:`spacr.qt.ops_stitch_demo`.
+        """
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download about 390 MB from a published optical pooled screen: "
+            "two sequencing fields of one well, all eleven cycles, and the "
+            "guide library. The source, output folder, library and plate are "
+            "filled in, so Run is the next action. There are no phenotype "
+            "images, so the phenotype step is skipped. Cached afterwards."))
+        button.clicked.connect(lambda: self.load_the_ops_example())
+        self._ops_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def load_the_ops_example(self, *, ask=None, folder=None) -> dict:
+        """Fill the OPS settings with the test data, fetching it when needed.
+
+        :param ask: replaces the downloader, for tests.
+        :param folder: replaces the cache folder, for tests.
+        :returns: the settings that were applied; empty while a download is
+            still running or after a failure.
+        """
+        from ..ops_stitch_demo import load_the_test_data, ops_settings_for
+
+        applied: dict = {}
+
+        def use(where) -> None:
+            """Apply the sample's settings and say so in the console."""
+            values = ops_settings_for(where)
+            self.apply_settings_dict(values)
+            applied.update(values)
+            self._console.append_stdout(
+                tr("OPS test data ready: {path}", path=str(where)) + "\n")
+
+        def report(text: str, _error: bool) -> None:
+            """Put progress and failures in the console."""
+            self._console.append_stdout(text + "\n")
+
+        load_the_test_data(
+            "ops", use=use, report=report,
+            button=getattr(self, "_ops_example_button", None), parent=self,
+            ask=ask, folder=folder)
+        return applied
 
     def point_src_at(self, folder) -> bool:
         """Put ``folder`` in this module's ``src`` field. Returns whether it took.

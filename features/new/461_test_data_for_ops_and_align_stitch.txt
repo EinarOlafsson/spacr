@@ -1,0 +1,97 @@
+================================================================================
+TEST DATA FOR OPS AND FOR ALIGN & STITCH, FROM THE PUBLISHED OPS SCREEN
+================================================================================
+
+Status:    BUILT AND PUBLISHED 2026-09-21. The maintainer approved rehosting
+           and the coordinator published both repos
+           (huggingface.co/datasets/einarolafsson/spacr-example-stitch and
+           .../spacr-example-ops; SHA256SUMS verified). spacr-download
+           fetches them only when named, or with `all`: added to the default
+           run they would have pushed it past CONFIRM_ABOVE_BYTES.
+
+Requested: 2026-09-21 -- "For OPS use a small sample of the ops screen i have
+           on disk (on the NAS)" and "allign and stitch can also use a small
+           segment of the OPS data".
+
+Owner:     Claude (spacr/example_archives.py, spacr/qt/ops_stitch_demo.py,
+           spacr/qt/screens/align.py, spacr/qt/screens/app_screen.py).
+
+--------------------------------------------------------------------------------
+WHERE THE DATA COMES FROM
+--------------------------------------------------------------------------------
+
+The NAS copy under /nas_mnt/data/ops/OpticalPooledScreens_data/screenA/ is the
+primary fixed-cell screen of Funk et al., "The phenotypic landscape of
+essential human genes", Cell 185(24), 2022 (PMID 36347254), deposited in the
+BioImage Archive as S-BIAD394 (released 2022-03-31). The NAS files are
+byte-identical to the archive's: SHA-256 of
+10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-165.tif is the same from both.
+
+Licence: S-BIAD394 carries no licence attribute. The BioImage Archive's policy
+page says directly submitted data are released under CC0 or CC-BY-4.0, and
+that an accession under any other licence carries it as an attribute. Both
+permit redistribution; CC-BY-4.0 requires attribution, so the dataset cards
+attribute as if it were CC-BY-4.0. The guide library (pool10_design.csv) comes
+from the authors' code repository, which is MIT-licensed.
+
+DOWNLOADING FROM THE ORIGINAL HOST INSTEAD WAS MEASURED AND REJECTED. The
+archive serves every file over HTTPS at
+https://ftp.ebi.ac.uk/biostudies/fire/S-BIAD/394/S-BIAD394/Files/<path>, but
+on 2026-09-21 it delivered 94 KB/s for one file and 5.7 KB/s for another,
+which is over an hour for the OPS sample. A button that slow is not usable in
+a demo.
+
+--------------------------------------------------------------------------------
+THE TWO SAMPLES
+--------------------------------------------------------------------------------
+
+  Align & Stitch  einarolafsson/spacr-example-stitch   spacr-example-stitch.tar
+                  Nine cycle-1 10X tiles of plate 20200202_6W-LaC024A, well
+                  A1, sites 165-167, 186-188 and 207-209: a 3 x 3 block from
+                  the middle of the well, acquired in snake-column order,
+                  213 px (14.4 %) overlap. Unmodified, about 197 MB.
+
+  OPS             einarolafsson/spacr-example-ops      spacr-example-ops.tar
+                  Sites 331 and 332 of the same well, all eleven sequencing
+                  cycles (c1 five-plane stack, c2-c11 four single-channel
+                  files each), plus the pool10 11-base prefix library derived
+                  as the reference Snakefile derives it. Unmodified, about
+                  394 MB.
+
+WHY SITES 331-332 AND NOT THE MIDDLE OF THE WELL. The engine takes the well's
+field count as the highest site number plus one and fits a round well to it
+(ops_engine._stitch). A sample of sites 0-8 would fit a 9-field well that
+does not exist; a sample that includes the well's last site, 332, keeps the
+measured 333-field layout, and the engine places only the sites present.
+
+WHY NO PHENOTYPE IMAGES. A 20X phenotype field is 280 MB on its own, and the
+phenotype phase aligns anchors spread over the WHOLE well (at least three of
+eighteen candidates), which no partial-well sample can supply. The OPS sample
+runs the stitch, objects and decode phases; phenotype placement is skipped
+and says so.
+
+--------------------------------------------------------------------------------
+PUBLISHING
+--------------------------------------------------------------------------------
+
+Built in /mnt/wd4tb/spacr_testdata/ops/upload/<repo>/ (tar, dataset card,
+SHA256SUMS) by build_archives.py there; published from that folder. The card
+generator now quotes pretty_name, whose colon made the YAML invalid.
+
+--------------------------------------------------------------------------------
+VERIFIED, HEADLESS, CPU ONLY
+--------------------------------------------------------------------------------
+
+Align & Stitch, the nine tiles, grid 3 x 3, snake-column, overlap 0.144:
+    9 of 9 registered, 0 nominal, 14 of 20 scored pairs accepted, worst
+    residual 4.04 px, confidence 0.86-0.90; canvas 4,034 x 4,036 x 5 uint16
+    written in 3.7 s. The same through the screen's Plan in
+    tests/qt/test_ops_and_stitch_test_data.py, on the staged archive's bytes.
+
+OPS, run_ops on the two fields, ops_gpu off:
+    stitch   2 of 2 placed, 1 edge accepted, canvas 2,747 x 1,489
+    objects  10,675 nuclei (cpsam on CPU: about 55 minutes)
+    decode   22,733 spots, library-exact rate 0.80, 8,540 nuclei with a
+             read, 3,729 assigned a barcode, 3,549 of them library-exact
+             (95 %), 3,600 mapped to a guide; 20.7 s
+    phenotype skipped: no phenotype_source.
