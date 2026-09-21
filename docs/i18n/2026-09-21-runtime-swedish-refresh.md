@@ -45,3 +45,9 @@ The full German and Swedish runtime audits pass with 3808 UI strings each.
 All ten selected syntax/review-reporter checks pass (257.45 seconds). The
 single warning records another process changing real QSettings while the
 test process itself remained correctly isolated.
+
+Integration of `85a3ae1cc` adds five Make Masks normalization captions. The
+English manifest is refreshed to 3813 UI sources; translations for these five
+remain open. The full German/Swedish green result above applies to the prior
+3808-source manifest. No earlier reviewed runtime source was renamed in this
+incoming change.

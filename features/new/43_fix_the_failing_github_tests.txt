@@ -1681,3 +1681,14 @@ ecosystem admits that interpreter. Nothing in .github was touched.
 
 MEASURED: tests/test_packaging_metadata.py, 52 passed, run the way the job
 runs it (`--noconftest`).
+
+2026-09-21 — CODEX DOCS-LANE TRANSLATION CHECKPOINT ONLY
+--------------------------------------------------------------------------------
+German and Swedish runtime catalogs pass the full audit at the 3808-UI-source
+manifest, including the five preview-refresh captions translated into all
+nine languages. All ten selected source/syntax/reporter tests pass. Incoming
+465 source additions are a separate reconciliation. This is not a green
+docs job: API format-field errors, missing/stale rows and the explicit
+392-docstring debt remain open in Codex's translation lane. Other failures
+and decisions in this item remain with Claude. See future/411's dated note
+and docs/i18n/2026-09-21-runtime-swedish-refresh.md for the revision boundary.

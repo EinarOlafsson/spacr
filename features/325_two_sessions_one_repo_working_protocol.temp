@@ -8733,3 +8733,9 @@ source files are unchanged. The earlier underscore-name and stale-caption
 findings remain open production issues. Capture/measurement evidence is in
  tools/tutorials/evidence/2026-09-21_make_masks_features_measurement.json;
 this does not claim a completed video or publication acceptance.
+
+Maintainer instruction, 2026-09-21: each Codex progress commit/push must update
+the affected entries in features/new and features/future, not only this
+coordination log. This checkpoint updates 288, 411, 368, 286 and 43's docs
+lane alongside the 358/447 capture notes, with verified results and explicit
+remaining work. Future pushes will keep those item records current.

@@ -712,3 +712,11 @@ printed while a slice is untranslated.
 tests; this was the last unbuilt piece and it is now somebody's future
 decision rather than an undeclared gap inside a DONE.
 
+
+2026-09-21 — CODEX OWNERSHIP AND CURRENT REMAINDER
+--------------------------------------------------------------------------------
+Codex owns the remaining 411 helper-page/catalog work under the maintainer's
+three-lane handover. The dated checkpoint in future/411 records the runtime
+translation repairs and the still-open API/helper work. No new helper slice
+or Phase B completion is claimed by these runtime repairs; this item stays
+open on 411 alone. The previously completed phases are unchanged.

@@ -780,3 +780,26 @@ Qt owner's to write, and this session is out of tokens to write it, so
 either document it yourself as part of a Preferences slice, or select a
 different module for your first slice and leave Preferences until it has a
 docstring. Do not drop the module from the probe to make the red go away.
+
+2026-09-21 — CODEX TRANSLATION CHECKPOINT; ITEM REMAINS OPEN
+--------------------------------------------------------------------------------
+The maintainer assigned Codex all translation work, including this item and
+368's remaining helper-page/catalog work. Runtime repairs now include the
+reviewed German refresh, 39 Swedish scientific-setting records, 272 Swedish
+UI/category records (269 distinct sources), and all nine languages for the
+seven assay/plate captions and five preview-refresh captions. The last five
+contribute 45 source-bound reviewed records in this checkpoint. German and
+Swedish full runtime audits pass against the 3808-UI-source manifest before
+85a3ae1cc; all ten selected source/syntax/reporter tests pass (257.45 s).
+Details and revision boundaries: docs/i18n/2026-09-21-runtime-swedish-refresh.md.
+
+Hindi CPU draft generation completed; Korean and Icelandic follow under the
+6-GiB cap. Draft generation is not semantic review or published acceptance.
+Spanish scientific/UI review is next. The GPU remains busy, so the mandatory
+20 consecutive idle minutes have not elapsed. API format-field repairs,
+missing/stale API rows, the recorded 392-docstring debt and Phase B helper
+slices remain open. Incoming 465 captions require their own reconciliation;
+the earlier green runtime result is not a claim about that later source.
+The integrated English manifest now has 3813 UI sources: exactly five new
+465 normalization captions, with no earlier reviewed source renamed. These
+five nine-language rows remain the next runtime follow-on.

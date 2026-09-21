@@ -4121,3 +4121,19 @@ timer. The first class-method stub did not intercept this Qt menu and was
 stopped; the final combined run used a thread-based 45-second per-test timeout
 and completed in 4.44 seconds. Signal-based pytest timeouts did not interrupt
 the earlier C++ modal loop. All runs used a 6 GiB cap and disabled CUDA.
+
+2026-09-21 — CODEX: FULL COVERAGE RECOVERY CHECKPOINT
+--------------------------------------------------------------------------------
+The full measurement uses the fixed d54ed65c8 checkout under a 12-GiB cap.
+Twenty-five completed batches remain intact. Batch 26 lost a worker in a
+packaged-tooltip animation test, then its controller stalled; the controller
+was interrupted to trigger recovery. A later SIGTERM interrupted that
+recovery and the runner (cause unestablished). Partial batch-26 data and its
+ledger were archived outside the combine directory, and all 32 files in
+that batch are being remeasured before batches 27–94 resume. Earlier failures
+remain in the record. Logs: /tmp/spacr-coverage-20260921/resume.log; archived
+partial evidence: /tmp/spacr-coverage-interrupted-batch26-20260921/.
+
+No baseline was tightened, and this is not a full-suite pass or a claim that
+all modules reach 90%. Once the complete measurement is available, remaining
+per-module gaps and recorded failures still need fixing and verification.

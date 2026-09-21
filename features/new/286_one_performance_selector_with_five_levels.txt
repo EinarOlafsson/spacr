@@ -326,3 +326,15 @@ explanation visible (447's dated note and evidence receipt).
 04/05 video assembly and publication are still outstanding. No GPU job was
 started: the observed GPU has stayed busy, so its 20-minute idle gate was not
 satisfied. Bullet 7 remains open.
+
+2026-09-21 — CODEX: 04/05 NARRATION AND HOME VIDEO PROGRESS
+--------------------------------------------------------------------------------
+Fresh English af_heart narration for 04 and 05 passed exact source freshness,
+full decoding, sentence timing and speech-activity checks. Home has a matching
+native 4K dark/Blobs six-scene master (30 fps, 92.833333 seconds) and a local
+narrated preview. The supported voice/language matrix is rendering on CPU
+with verified-track reuse after an interrupted run; the GPU idle gate has
+not opened. Evidence: tools/tutorials/evidence/
+2026-09-21-cpu-narration-home-master.json. This does not close bullet 7:
+lesson 04's remaining capture/assembly, audible pronunciation review,
+caption/browser acceptance and publishing the paired catalogs/media remain.
