@@ -649,17 +649,21 @@ class ModelZooScreen(QWidget):
         self._groups = group_entries(self._entries)
         self._chosen = {stem: 0 for stem, _ in self._groups}
         table = self._table
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
         table.blockSignals(True)
+        table.setRowCount(0)
         table.setRowCount(len(self._groups))
         for r, (stem, pairs) in enumerate(self._groups):
             combo = QComboBox(table)
             combo.addItems([label for label, _ in pairs])
             combo.setCurrentIndex(0)
             combo.currentIndexChanged.connect(
-                lambda idx, row=r: self._version_picked(row, idx))
+                lambda idx, group=r: self._version_picked(group, idx))
             table.setCellWidget(r, 4, combo)
-            self._fill_row(r)
+            self._fill_row(r, at=r)
         table.blockSignals(False)
+        table.setSortingEnabled(sorting)
         self._apply_source_filter()
         table.resizeColumnsToContents()
         self.models_listed.emit(len(self._entries))
@@ -679,9 +683,12 @@ class ModelZooScreen(QWidget):
         if strip is None:
             return
         enabled = set(strip.enabled())
-        for row, (stem, pairs) in enumerate(self._groups):
+        for group, (stem, pairs) in enumerate(self._groups):
             entry = pairs[self._chosen[stem]][1]
-            self._table.setRowHidden(row, zoo.source_of(entry) not in enabled)
+            row = self._row_of_group(group)
+            if row is not None:
+                self._table.setRowHidden(
+                    row, zoo.source_of(entry) not in enabled)
 
     def _sources_changed(self) -> None:
         """A heading was clicked: re-fold the table, and re-list if the
@@ -698,30 +705,64 @@ class ModelZooScreen(QWidget):
         self._apply_source_filter()
         self._update_controls()
 
-    def _fill_row(self, row: int) -> None:
-        """Write the non-version cells for the version currently chosen."""
-        stem, pairs = self._groups[row]
+    def _row_of_group(self, group: int) -> Optional[int]:
+        """The table row showing model family ``group`` now, or None.
+
+        THE TABLE SORTS, and a sort moves rows but not :attr:`_groups`.
+        Reported 2026-09-21: the well detector's v2 was "not an option" and
+        live_cell offered another model's versions. The table was filled with
+        sorting on, so each cell written could re-sort it and the next cell
+        landed on another family's row; and a version pick rewrote the row at
+        the family's UNSORTED position. Every write now finds its row through
+        the identity stamped on the first cell.
+
+        :param group: an index into :attr:`_groups`.
+        :returns: the row.
+        """
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            if item is not None and item.data(Qt.UserRole) == group:
+                return row
+        return None
+
+    def _fill_row(self, group: int, at: Optional[int] = None) -> None:
+        """Write the non-version cells for the version currently chosen.
+
+        :param group: an index into :attr:`_groups`.
+        :param at: the table row, when known (the first fill, unsorted).
+        """
+        row = self._row_of_group(group) if at is None else at
+        if row is None:
+            return
+        stem, pairs = self._groups[group]
         entry = pairs[self._chosen[stem]][1]
         table = self._table
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
         cells = (stem, entry.kind, entry.trained_on, _status_of(entry))
         for c, text in enumerate(cells):
             item = _cell(str(text))
             if c == 0:
-                item.setData(Qt.UserRole, row)
+                item.setData(Qt.UserRole, group)
             if c == 2 and not entry.provenance_known:
                 item.setForeground(_brush(active_palette()["warning"]))
             if c == 3 and "unverified" in str(text):
                 item.setForeground(_brush(active_palette()["warning"]))
             item.setToolTip(_tooltip_for(entry))
             table.setItem(row, c, item)
+        table.setSortingEnabled(sorting)
 
-    def _version_picked(self, row: int, index: int) -> None:
-        """The user chose a version: that row now means a different model."""
-        if not (0 <= row < len(self._groups)):
+    def _version_picked(self, group: int, index: int) -> None:
+        """The user chose a version: that family now means a different model.
+
+        :param group: the family, an index into :attr:`_groups`.
+        :param index: the version's place in its box.
+        """
+        if not (0 <= group < len(self._groups)):
             return
-        stem, pairs = self._groups[row]
+        stem, pairs = self._groups[group]
         self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
-        self._fill_row(row)
+        self._fill_row(group)
         self._update_controls()
 
     def chosen_entry(self, row: int):

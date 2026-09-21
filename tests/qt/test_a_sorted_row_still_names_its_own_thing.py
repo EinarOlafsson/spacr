@@ -293,3 +293,67 @@ def test_an_empty_traceback_still_says_something(qtbot):
     screen._on_worker_error_text("")
 
     assert screen._status.text().strip() != ""
+
+
+def _families(zoo):
+    """Two families with different kinds and version counts."""
+    return [
+        zoo.ModelEntry(key="well_detector_v1", name="yolo_v3.pt", path="",
+                       kind="detector", source="local", size_bytes=1),
+        zoo.ModelEntry(key="well_detector_v2", name="yolo_v4.pt", path="",
+                       kind="detector", source="local", size_bytes=1),
+        zoo.ModelEntry(key="live_cell_v1", name="live_cell_v1", path="",
+                       kind="cellpose", source="local", size_bytes=1),
+        zoo.ModelEntry(key="alpha_v1", name="alpha", path="",
+                       kind="cellpose", source="local", size_bytes=1),
+    ]
+
+
+def _row_is_whole(table, row):
+    """The name, kind and version box on ``row`` all describe one family."""
+    name = table.item(row, 0).text()
+    kind = table.item(row, 1).text()
+    versions = [table.cellWidget(row, 4).itemText(i)
+                for i in range(table.cellWidget(row, 4).count())]
+    expected = {"well_detector": ("detector", ["v2", "v1"]),
+                "live_cell": ("cellpose", ["v1"]),
+                "alpha": ("cellpose", ["v1"])}[name]
+    return (kind, versions) == expected
+
+
+def test_a_listing_filled_while_sorted_keeps_each_family_on_one_row(
+        qtbot, qapp):
+    """Reported 2026-09-21: well detector v2 missing, live_cell showing
+    another model's versions -- the table was filled with sorting on."""
+    from spacr.qt.screens import model_zoo as zoo_screen
+    from spacr import model_zoo as zoo
+
+    screen = zoo_screen.ModelZooScreen()
+    qtbot.addWidget(screen)
+    screen._table.sortItems(0, Qt.DescendingOrder)
+    screen.set_entries(_families(zoo))
+    screen.set_entries(_families(zoo))
+    qapp.processEvents()
+    table = screen._table
+    assert sorted(table.item(r, 0).text() for r in range(table.rowCount())) \
+        == ["alpha", "live_cell", "well_detector"]
+    assert all(_row_is_whole(table, r) for r in range(table.rowCount()))
+
+
+def test_a_version_pick_after_a_sort_changes_its_own_row(qtbot, qapp):
+    from spacr.qt.screens import model_zoo as zoo_screen
+    from spacr import model_zoo as zoo
+
+    screen = zoo_screen.ModelZooScreen()
+    qtbot.addWidget(screen)
+    screen.set_entries(_families(zoo))
+    table = screen._table
+    table.sortItems(0, Qt.AscendingOrder)
+    qapp.processEvents()
+    row = next(r for r in range(table.rowCount())
+               if table.item(r, 0).text() == "well_detector")
+    table.cellWidget(row, 4).setCurrentIndex(1)
+    qapp.processEvents()
+    assert all(_row_is_whole(table, r) for r in range(table.rowCount()))
+    screen.select(row)
+    assert screen.selected_entries()[0].key == "well_detector_v1"
