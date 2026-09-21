@@ -524,3 +524,43 @@ def test_a_progress_callback_that_raises_does_not_fail_the_run(tmp_path):
     out = measure_from_field_table(table, dict(LEAN),
                                    dst=str(tmp_path / "out"), progress=angry)
     assert os.path.isfile(out['db_path'])
+
+
+def test_cells_drawn_on_one_image_join_nuclei_drawn_on_another(tmp_path):
+    """Scenario 2, which item 421 recorded as reachable but untested: the cell
+    outlines were drawn on a membrane image and the nuclei on a DNA image,
+    and one row carries both. The nucleus must come out parented to the cell
+    it lies inside, exactly as when both masks came from one image."""
+    folder = tmp_path / "two_images"
+    yy, xx = np.indices((40, 40))
+    _write(str(folder / "membrane_C1.tif"), ((yy + xx) % 400).astype(np.uint16))
+    _write(str(folder / "dna_C2.tif"), ((yy * 3) % 400).astype(np.uint16))
+    cell = np.zeros((40, 40), np.uint16)
+    cell[2:18, 2:18] = 1
+    cell[22:38, 22:38] = 2
+    nucleus = np.zeros((40, 40), np.uint16)
+    nucleus[27:33, 27:33] = 1
+    _write(str(folder / "membrane_cell_mask.tif"), cell)
+    _write(str(folder / "dna_nucleus_mask.tif"), nucleus)
+
+    table = FieldTable(rows=[FieldRow(
+        label="membrane+dna",
+        channels={0: str(folder / "membrane_C1.tif"),
+                  1: str(folder / "dna_C2.tif")},
+        masks={"cell": str(folder / "membrane_cell_mask.tif"),
+               "nucleus": str(folder / "dna_nucleus_mask.tif")},
+        well="A01", field=1)], n_channels=2, roles=("cell", "nucleus"),
+        plate="drawn")
+    assert table.problems() == []
+
+    out = measure_from_field_table(table, dict(LEAN),
+                                   dst=str(tmp_path / "project"))
+    with sqlite3.connect(out["db_path"]) as connection:
+        columns = [row[1] for row in connection.execute(
+            'pragma table_info("nucleus")')]
+        parent = next(c for c in ("cell_id", "parent_cell_id") if c in columns)
+        linked = connection.execute(
+            f'select {parent} from nucleus').fetchall()
+        cells = connection.execute('select count(*) from cell').fetchone()[0]
+    assert cells == 2
+    assert [int(v) for (v,) in linked] == [2]

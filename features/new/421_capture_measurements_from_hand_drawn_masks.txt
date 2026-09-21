@@ -380,3 +380,10 @@ WHAT IS STILL LEFT, beyond the four items above
   * Closing the window mid-run now shuts its threads down rather than relying
     on the application-quit drain, because Qt aborts the process if a running
     QThread is destroyed and this window is closable while a run is in flight.
+
+2026-09-21 -- SCENARIO 2 IS TESTED. Cells drawn on a membrane image and nuclei
+drawn on a DNA image, in one row: tests/test_features_button_measures_hand_drawn
+_masks.py::test_cells_drawn_on_one_image_join_nuclei_drawn_on_another measures
+two cells and one nucleus and finds the nucleus parented to the cell it lies
+in (cell 2), as when both masks come from one image. The flat grouping of the
+settings panel is still open.
