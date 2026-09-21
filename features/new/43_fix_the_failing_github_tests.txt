@@ -1774,3 +1774,5 @@ records (497 distinct sources now). Runtime source coverage is 5905/6165 at
 this checkpoint, with no orphan keys; 67 locale audit diagnostics remain.
 Current review/coverage reports were regenerated. The full nine-language/API
 catalog gate is still red, so the docs lane is not closed.
+After integrating 6e9265f67, reports reflect 6194 runtime entries and 11131
+API symbols. Additional upstream Figure settings remain explicit catalog debt.

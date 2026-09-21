@@ -3,9 +3,10 @@ ONE PERFORMANCE SELECTOR WITH FIVE LEVELS
 ================================================================================
 
 Status:    CODE DONE 2026-09-19; ONE PIECE LEFT, AND IT IS MEDIA: lessons
-           04 (installers) and 05 (Home) are to be RE-RECORDED from the
-           corrected narration, and those two narration lines translated
-           for the tutorial locales -- the tutorial lane (48, 83, 358).
+           04 (installers) and 05 (Home) have current private recaptures and
+           English review masters as of 2026-09-21. Their full narration
+           matrix passes technical verification; listening, captions/player
+           acceptance and publication remain in the tutorial lane (48, 83, 358).
            Bullets 1-6 MET (6 closed by the maintainer's "No notice"
            decision, 2026-09-15). Bullet 7's code half is fixed: the Home
            capture could not run (it looked up a note the dialog named after

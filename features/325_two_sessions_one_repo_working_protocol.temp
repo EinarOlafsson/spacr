@@ -8950,3 +8950,12 @@ catalog/report/syntax tests pass. The browser's actual CV ZIP download now
 matches the recorded helper and current README; the older archive was stale.
 Feature index and whitespace checks pass. Completed narration evidence retains
 all 150 track hashes; media remain private pending complete-set acceptance.
+Integrated 6e9265f67 without modifying the other session's application changes.
+English runtime sources and reports now reflect 6194 runtime entries and
+11131 API symbols (594 added/two removed/115 changed API sources). Updated
+286/358/447 status headers to remove superseded capture/render statements.
+Integrated all-runtime audit completes with 610 diagnostics (200 printed plus
+410 more); both review stores load. Four live-report/syntax checks pass after
+integration. Coverage has 54/95 batches finished. Remaining English voices for
+current Annotate and CV are now rendering sequentially on CPU under 6 GiB,
+two-thread caps in private stages; existing af_heart tracks are retained.

@@ -3,9 +3,11 @@ THE TUTORIAL VIDEOS: DARK MODE AND BLOBS, THE CURRENT spaCR ONLY, AND NO PATHS
 OF THE MAINTAINER'S
 ================================================================================
 
-Status:    IN PROGRESS, Codex, 2026-09-21. Capture guards and current Home
-           keyframes built; narration/locale sources updated for 04/05.
-           Rendered audio, remaining captures and final videos still open.
+Status:    IN PROGRESS, Codex, 2026-09-21. Current Home/installers, Annotate
+           and Classify CV captures have private English review masters.
+           All 150 narration tracks for 01/04/05 pass technical verification.
+           Remaining captures, full media/caption and audible acceptance,
+           and complete-set publication remain open; see dated receipts below.
 
 Requested: 2026-09-20 -- "some tutorial videos need to be redone. all tutorial
            videos should be in dark mode with blobs theme. pype is now
@@ -239,3 +241,5 @@ media/captions acceptance and joint publication remain open.
 The CV download README's older release reference and zero-worker setting
 were replaced with the current recorded release/settings; its helper matches
 the capture hash, including the byte-identical metadata copy.
+Current Annotate and CV's remaining English voice variants are rendering on
+CPU; this starts their matrix expansion without waiting for GPU availability.

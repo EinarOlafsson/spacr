@@ -970,3 +970,11 @@ Two OPS duplicates were already covered. The inversion warning is deferred
 because its English source contradicts unified inversion (435 owner notified
 in 325). The remaining draft, newer runtime strings and API debt stay open.
 No GPU job or baseline relaxation. Both coverage/review reports regenerated.
+Integration through 6e9265f67 adds new Figure settings and API helpers: current
+inventory is 6194 runtime entries and 11131 API symbols (594 added, two removed,
+115 changed versus the English API manifest). English runtime sources and both
+reports are regenerated. Earlier counts above name their source boundary;
+no stale green audit or API-baseline update is implied.
+The integrated all-runtime audit completes with 610 diagnostics; both source-
+bound review stores load. Four report/syntax checks pass on this integrated
+source. The full catalog gate remains red on its explicit outstanding debt.

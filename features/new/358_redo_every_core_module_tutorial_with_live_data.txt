@@ -4,17 +4,15 @@ REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 
 Status:    OPEN, filed 2026-09-02. The version-update hold it was filed behind
            was lifted on 2026-09-15 and the candidate's media is uploaded, so
-           what is left is work rather than a wait. As of 2026-09-19: every
-           Core lesson exists and routes; 09_annotate and the three Classify
-           lessons were re-audited today and their NARRATION is correct, their
-           frames are two to four releases behind; 05_home is re-captured at
-           1.5.0.8 and scene 3 now names Embeddings; Map's evidence is re-bound
-           to the approved candidate and its acceptance test is green. OPEN ON:
-           the 07_mask scene 10 re-capture (GPU; queued with its commands, and
-           larger than it looks -- see the 2026-09-19 note), re-composing
-           09_annotate and Classify onto current frames (no GPU, not started),
-           05_home's narration render for the one changed scene (GPU), and the
-           merge to main that deploys Pages, which is the maintainer's.
+           what is left is work rather than a wait. As of 2026-09-21: current
+           Home/installers, Annotate and Classify CV captures have private
+           English review masters. Annotate and CV pass full decode and
+           browser checks; all 150 narration tracks for 01/04/05 pass technical
+           verification after CPU rendering. Classify overview is captured;
+           its ML workflow and Mask's GPU recapture remain. OPEN ON: remaining
+           captures, full language/voice/caption and audible acceptance,
+           complete-set publication, and the maintainer's Pages deployment.
+           Detailed dated receipts below preserve each acceptance boundary.
 Requested: 2026-09-02 — "the tutorials for all of the core moduals need to be
            redone. there is now live data for all core moduals that should be
            used in the tutorials, there are also several buttons that have been
@@ -2120,3 +2118,5 @@ Remaining: ML recapture, full language/voice/caption and listening acceptance,
 then publication with the complete refreshed set. No live media was uploaded.
 The linked preparation ZIP was also rebuilt from the exact recorded helper;
 its README now matches the current two-worker run and preserved database.
+The remaining English voices for current Annotate and CV are now rendering
+sequentially on CPU, with private outputs and unchanged frozen narration.
