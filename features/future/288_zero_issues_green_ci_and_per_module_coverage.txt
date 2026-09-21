@@ -4012,3 +4012,56 @@ file parses and names only shipped modules. The synthetic `demo/logic.py` is
 now measured as 100 statements and 40 branches so the ratchet cases, which
 move counts by one or two, go on testing the rule they were written for
 instead of tripping the floor.
+
+--------------------------------------------------------------------------------
+2026-09-21 -- THE LARGEST UNCOVERED MODULE IN THE PACKAGE: 19% -> 82%
+--------------------------------------------------------------------------------
+
+The baseline's own totals name the work left on this item: 566 modules, 392
+at 100%, 174 with gaps, 2,621 uncovered statements. `spacr/qt/hf_download.py`
+was the second largest of those gaps and the largest that is not a painted
+screen -- 149 uncovered statements with only 35 uncovered branches, which is
+a lot of straight-line code nobody was running.
+
+    before   19.00%   289 statements uncovered
+    after    81.71%    67 statements uncovered
+
+222 statements, 32 tests, no production code changed.
+
+WHY THESE ARE WORTH HAVING AND NOT JUST COUNTING. Every one of the four
+workers' `run()` methods ends in a signal a user's screen believes. A worker
+that raises where nobody catches it, or reports success after writing half a
+file, is a wrong answer somebody acts on. The tests drive `run()` DIRECTLY
+rather than through a QThread -- the threading is Qt's and is not what they
+are about -- which makes every ending reachable and deterministic:
+
+  * a finished download reports both roots and they exist;
+  * an empty repository is a FAILURE rather than an empty success, because
+    a success would leave the user looking for files that were never there;
+  * a cancel stops at a file boundary and downloads nothing after it;
+  * a stream that stops early is refused, the `.part` file is removed and
+    nothing is unpacked -- the integrity check, stated as a test;
+  * a cancelled stream removes its `.part`;
+  * the archive is deleted once unpacked, because it is hundreds of
+    megabytes and nothing reads it again;
+  * the Measure set expands its arrays afterwards and the Mask demo names
+    the plate folder itself, which are the two subclasses' only differences.
+
+AND THE DIALOG AND THE UI ADAPTER, which is where the user-facing promises
+are: a maximum of zero is floored at 1 (a bar that cannot show a
+proportion), progress past the total is clamped rather than shown as 140%,
+a label widget is read and not adopted, and finishing closes the dialog
+BEFORE the callback runs -- stacking one modal on another is what put Qt
+into "application not responding" on Linux.
+
+WHAT IS DELIBERATELY LEFT, and it is written into the test file rather than
+left to be rediscovered: the two public entry points start a real QThread.
+Tests for them were written and DUMPED CORE in this environment, taking the
+pytest process with them. A suite that crashes tells you nothing about
+anything, so they were removed. The four lines that hand the objects to a
+thread are what remains uncovered; everything those functions do beyond the
+wiring is covered above.
+
+THE BASELINE IS NOT UPDATED BY THIS NOTE. `tools/verify_module_coverage.py
+--update-baseline --reason` is how the ratchet tightens, and it wants a full
+coverage run rather than the three files this was measured with.
