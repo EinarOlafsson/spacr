@@ -31,9 +31,9 @@ def _positions(screen, card):
 def test_the_plaque_preview_is_above_the_console(qtbot, qt_theme_applied):
     screen = AppScreen("analyze_plaques")
     qtbot.addWidget(screen)
-    host = pr.install(screen)
-    assert host is not None, "the plaque module should mount a live preview"
-    card, console = _positions(screen, host.card)
+    assert pr.install(screen) is None, "AppScreen builds it; no second card"
+    assert screen._live_preview_card is not None
+    card, console = _positions(screen, screen._live_preview_card)
     assert card >= 0, "the preview must be IN the splitter, not beneath it"
     assert card < console, (
         f"the preview is at {card} and the console at {console}; that is the report")

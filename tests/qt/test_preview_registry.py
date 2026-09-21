@@ -67,9 +67,12 @@ def test_the_four_shipped_previews_are_declared():
 
 
 def test_the_two_new_ones_are_attached_through_the_seam():
-    for key in ("cellpose_masks", "analyze_plaques"):
-        assert key in PREVIEWS
-        assert not PREVIEWS[key].owned_by_screen
+    """Cellpose Masks still is. Plaque Assay moved onto Mask's path on
+    2026-09-21 (item 452 reopened): the registry put its switch in the
+    search bar and never fed it src, so AppScreen builds it now."""
+    assert "cellpose_masks" in PREVIEWS
+    assert not PREVIEWS["cellpose_masks"].owned_by_screen
+    assert PREVIEWS["analyze_plaques"].owned_by_screen
 
 
 def test_declaring_the_same_module_twice_is_refused():
@@ -195,7 +198,7 @@ def test_a_module_with_no_declaration_is_left_alone(window, qtbot):
 
 
 def test_installing_twice_attaches_one_card(window, qtbot):
-    screen = _screen(window, qtbot, "analyze_plaques")
+    screen = _screen(window, qtbot, "cellpose_masks")
     host = screen._registry_preview
     assert install(screen) is host
     from spacr.qt.widgets.card import Card
@@ -287,7 +290,7 @@ def test_the_reused_panel_still_owns_a_bounded_sampler(window, qtbot):
         DEFAULT_MAX_SETS, ImageSetSampler,
     )
     screen = _screen(window, qtbot, "analyze_plaques")
-    sampler = screen._registry_preview.panel._sampler
+    sampler = screen._live_preview._sampler
     assert isinstance(sampler, ImageSetSampler)
     assert sampler.sample() == []
     sampler.set_max(DEFAULT_MAX_SETS)

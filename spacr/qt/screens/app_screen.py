@@ -5369,7 +5369,7 @@ class AppScreen(QWidget):
         self._motility_preview = self._motility_preview_card = None
         self._runtime_splitter = None
 
-        if self.app_key == "mask":
+        if self.app_key in ("mask", "analyze_plaques"):
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
             self._live_preview, self._live_preview_card = (
@@ -5643,7 +5643,21 @@ class AppScreen(QWidget):
                 "_measure_preview_card",
                 "Show or hide a preview of selected measurement overlays "
                 "before processing the full dataset."),
+            "analyze_plaques": (
+                "_live_preview_card",
+                "Show or hide the plaque segmentation preview above the "
+                "console. Check the plaque diameter and thresholds on one "
+                "field before running the assay."),
         }
+        from ..widgets.preview_refresh import install_refresh_button
+
+        for panel_attr in ("_live_preview", "_measure_preview",
+                           "_timelapse_preview", "_motility_preview"):
+            panel = getattr(self, panel_attr, None)
+            card = getattr(self, f"{panel_attr}_card", None)
+            if panel is not None and card is not None:
+                install_refresh_button(self, card, panel)
+
         preview_control = preview_controls.get(self.app_key)
         if preview_control is not None:
             card_attr, tooltip = preview_control
@@ -6794,6 +6808,8 @@ class AppScreen(QWidget):
         if on and not getattr(self, "_preview_primed", False):
             self._preview_primed = True
             self._prime_preview()
+            if attr == "_live_preview_card":
+                self._autoload_live_preview(self._settings_src_path() or "")
         card.setVisible(on)
 
     def _prime_preview(self) -> None:
@@ -7134,12 +7150,26 @@ class AppScreen(QWidget):
                 if key in current and current[key] is not None}
 
     def _propagate_live_settings(self, settings: dict) -> None:
-        """Write live-preview-tuned values into the main settings panel."""
+        """Write live-preview-tuned values into the main settings panel.
+
+        The panel speaks Mask's setting names. A module that declares a
+        translation in :data:`spacr.qt.preview_registry.PREVIEWS` -- Plaque
+        Assay segments with ``diameter`` and ``plaque_model``, not
+        ``cell_diameter`` and ``model_name`` -- gets its own names, and a
+        name it has no use for is dropped rather than written to nothing.
+        """
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
+        from ..preview_registry import PREVIEWS
+
+        spec = PREVIEWS.get(str(getattr(self, "app_key", "")))
+        rename = spec.propagation if spec is not None and self.app_key != "mask" else None
         for key, value in settings.items():
-            model.set_value_for_key(key, value)
+            target = rename.get(key) if rename else key
+            if target is None:
+                continue
+            model.set_value_for_key(target, value)
 
     def _on_figure_ready(self, fig, png_path: str = "") -> None:
         """Hand a matplotlib figure to the FigureQueue. ``png_path`` is a PNG

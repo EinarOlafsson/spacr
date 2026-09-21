@@ -81,3 +81,28 @@ the identical five (`_MetadataTypeField` has no `setCurrentIndex`, and the
 Measure crop-geometry seeding). With the fix reverted the plaque test fails and
 the Mask test passes either way, which is the pair that says the fix is aimed
 at the right screen.
+
+--------------------------------------------------------------------------------
+2026-09-21 — REOPENED: THE BUTTON WAS IN THE WRONG ROW AND NO IMAGE EVER LOADED
+--------------------------------------------------------------------------------
+
+Requested: 2026-09-21, verbatim -- "in plaque ass ay the live preview is now in
+the correct place! but the button should be to the left of the AI button and
+work like the other live previews. when the test images are loaded or a path
+that has images in it is in the sourse setting i should see images in the live
+preview. now live preview is there but the button is in the wrong place and
+the images (im using the test ) arent visable."
+
+Both faults had one cause: Plaque Assay's preview was mounted by the registry,
+not built by the screen. The registry puts its toggle in the settings search
+bar, not in the Run row beside the AI switch; and the src autoload that feeds a
+preview its first field reads only the screen's own `_live_preview`, which a
+registry-mounted preview never sets -- so no path ever reached the panel.
+
+Plaque Assay now takes Mask's path: AppScreen builds the card into the same
+figures / preview / console splitter, the "Live" switch sits in the Run row
+before AI, typing or loading a src feeds the panel, and the first time the
+preview opens it also loads whatever src already holds. The registry entry is
+marked owned_by_screen so it is not mounted twice, and its setting-name
+translation (cell_diameter -> diameter, model -> plaque_model, ...) is still
+the one applied when the panel pushes values back.

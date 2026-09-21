@@ -74,3 +74,31 @@ class Card(QFrame):
 
             self.folder = make_foldable(title_label, self.body, name=title,
                                         persist_key=fold_key)
+        self._outer = outer
+        self._title_row = None
+
+    def add_title_action(self, widget: QWidget) -> None:
+        """Put ``widget`` at the right-hand end of the title row.
+
+        The title row is built on first use, so a card nobody adds an action
+        to keeps its original layout exactly.
+
+        :param widget: the control to add, e.g. a Refresh button.
+        """
+        if self._title_row is None:
+            from PySide6.QtWidgets import QHBoxLayout
+
+            row = QHBoxLayout()
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(SPACING["sm"])
+            if self.title_label is not None:
+                index = self._outer.indexOf(self.title_label)
+                self._outer.removeWidget(self.title_label)
+                row.addWidget(self.title_label)
+                row.addStretch(1)
+                self._outer.insertLayout(max(index, 0), row)
+            else:
+                row.addStretch(1)
+                self._outer.insertLayout(0, row)
+            self._title_row = row
+        self._title_row.addWidget(widget)

@@ -1,0 +1,21 @@
+================================================================================
+EVERY LIVE PREVIEW HAS A REFRESH BUTTON
+================================================================================
+
+Status:    BUILT 2026-09-21.
+
+Requested: 2026-09-21, verbatim -- "there should also be a refresh button in
+           every live preview that the user can pres and if pressed it checks
+           the path and reloads."
+
+Owner:     Claude (spacr/qt/widgets/preview_refresh.py, spacr/qt/widgets/card.py,
+           spacr/qt/screens/app_screen.py, spacr/qt/preview_registry.py).
+
+WHAT IT DOES. A "Refresh" button in the title row of every preview card --
+Mask and Plaque Assay (the Cellpose live preview), Measure (crop preview),
+Timelapse and Motility (track previews), and the previews the registry mounts
+(Cellpose Masks). Pressing it reads the screen's CURRENT src, says so in the
+console when the path is empty or does not exist, and otherwise reloads the
+preview from it through that preview's own loader. It deliberately bypasses
+the "load each src once" guard the automatic load keeps, because a folder
+whose contents changed under the same path is exactly what a refresh is for.

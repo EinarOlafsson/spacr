@@ -57,7 +57,7 @@ class PreviewSpec:
     :ivar propagation: rename map applied to whatever the panel hands back
         through ``set_propagate_callback``, so a panel written for one
         module's setting names can serve another's.
-    :ivar owned_by_screen: True for the four ``AppScreen`` already builds.
+    :ivar owned_by_screen: True for the ones ``AppScreen`` already builds.
         They are declared here so this registry is the single answer to
         "which modules have a preview", and skipped at install time so they
         do not get a second card.
@@ -69,7 +69,7 @@ class PreviewSpec:
     owned_by_screen: bool = False
 
 
-#: app key -> its preview. The four marked ``owned_by_screen`` are built by
+#: app key -> its preview. The ones marked ``owned_by_screen`` are built by
 #: ``AppScreen`` itself; the rest are attached by :func:`install`.
 PREVIEWS: Dict[str, PreviewSpec] = {
     "mask": PreviewSpec(
@@ -102,6 +102,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
         }),
     "analyze_plaques": PreviewSpec(
         builder="spacr.qt.screens.app_screen:_build_live_preview_card",
+        owned_by_screen=True,
         tooltip="Check the plaque diameter and thresholds on one sampled "
                 "field before running the assay.",
         propagation={
@@ -314,6 +315,9 @@ def _attach(screen: QWidget, app_key: str,
         return None
     card.setVisible(False)
 
+    from .widgets.preview_refresh import install_refresh_button
+
+    install_refresh_button(screen, card, panel)
     host = _PreviewHost(screen, spec, panel, card)
     register_cb = getattr(panel, "set_propagate_callback", None)
     if callable(register_cb):
