@@ -2078,3 +2078,14 @@ related links and 390-pixel mobile layout. Encoded frames at 60/310/320 seconds
 were inspected, including the real neutral-path label-save console. The receipt
 includes media hashes and browser evidence. Audible/full-language acceptance
 and publication with the complete refreshed set still remain.
+
+2026-09-21 — CODEX: CURRENT CLASSIFY OVERVIEW RECAPTURED
+--------------------------------------------------------------------------------
+Eleven native 3840x2160 frames show the current Classify CV/ML selector, five
+nested tools and real Feature Explorer navigation in dark mode with Blobs.
+Frame hashes, size, painted appearance and genuine GUI acceptance are checked;
+selector/tooltip/nested-screen frames were visually inspected. Capture used
+isolated state and no model/provider call. Receipt:
+ tools/tutorials/evidence/2026-09-21-classify-overview-current-capture.json.
+This completes only the overview's navigation capture. The actual CV/ML runs,
+lesson composition, narration/captions/browser and audible acceptance remain.

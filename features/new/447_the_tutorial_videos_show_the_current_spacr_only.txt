@@ -211,3 +211,10 @@ related links and 390-pixel mobile layout. Encoded frames at 60/310/320 seconds
 were inspected, including the real neutral-path label-save console. The receipt
 includes media hashes and browser evidence. Audible/full-language acceptance
 and publication with the complete refreshed set still remain.
+
+2026-09-21 — CODEX: CLASSIFY OVERVIEW THEME PASS
+Eleven current-release Classify overview frames are recorded at native 4K in
+dark mode with painted Blobs and guarded visible paths. The selector, nested
+tooltip and Feature Explorer screen were visually checked. The receipt in
+2026-09-21-classify-overview-current-capture.json records overview-only scope;
+CV/ML live-data scenes and full media acceptance remain before publication.

@@ -922,3 +922,9 @@ no API baseline is loosened. The all-runtime audit runs and exits 1 with 535
 diagnostics. Six source-bound translation/data-copy checks pass in 34.98 s.
 French and Annotate checkpoint work is retained; the remaining catalogs and
 final tutorial acceptance remain open. No GPU translation has started.
+
+Integration through 2268b1803 adds seven AI sign-in captions and eleven API
+symbols. Live inventory is now 6135 runtime entries and 11106 API symbols,
+with 569 added, two removed and 115 changed API sources. Both generated reports
+and the exact debt inventory are refreshed after integration. Earlier audit
+counts retain their named source boundary; the wider translation pass is open.

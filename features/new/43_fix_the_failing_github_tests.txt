@@ -1749,3 +1749,7 @@ inventory is 6128 and the runnable runtime audit reports 535 diagnostics.
 API inventory is 11095 live symbols, with 558 added, two removed and 115
 changed versus the English catalog. Reports and future/411 carry these current
 counts; the docs lane remains open and no coverage gate was weakened.
+The subsequent integration through 2268b1803 adds seven AI sign-in captions
+and eleven API symbols: 6135 runtime entries, 11106 API symbols, 569 added,
+two removed and 115 changed API sources. Generated reports track this source
+growth; the earlier 535-diagnostic audit belongs to the previous snapshot.
