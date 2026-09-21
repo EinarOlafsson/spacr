@@ -2000,3 +2000,22 @@ a 6-GiB cap, CPU only. No GPU idle window has occurred. Listening/pronunciation,
 browser/mobile checks, captions/matrix reconciliation and remaining captures
 stay open; the rendered phoneme pˈIp is recorded for all three af_heart PyPI
 sentences, which does not replace listening to their audio.
+
+2026-09-21 — FEATURES ASSIGNMENT AND REAL MEASUREMENT CAPTURE (CODEX)
+--------------------------------------------------------------------------------
+The Make Masks follow-on now includes actual image/mask file pickers, both
+assigned rows, visible one-worker/minimum-area/PNG-output choices, and a
+completed Measure run. Fifteen native 4K frames are retained under
+/tmp/spacr-masks-current/captures/readouts-features-08. The run measured all
+114 labels in the two genuine ER fields; every saved cell's field identity,
+area and mean raw intensity match the original masks and pixels. Source
+images and labels are unchanged. The real Otsu magnifier also returned one
+object. No GPU was used. Receipt and frame/source hashes:
+tools/tutorials/evidence/2026-09-21_make_masks_features_measurement.json.
+
+This is verified capture evidence, not a finished or published lesson. The
+UI's stale regex-status caption after manual assignment remains visible and
+is reported to its owner in 325. An underscore-containing plate name also
+collapsed field keys; the accepted measurement uses the valid name maskdemo.
+Narration/scene integration and reconciliation with incoming Make Masks UI
+changes remain open, alongside the existing publication acceptance work.

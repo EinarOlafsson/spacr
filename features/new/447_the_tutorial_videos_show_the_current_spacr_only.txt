@@ -143,3 +143,13 @@ unfinished acceptance work are recorded in 2026-09-21-cpu-narration-home-master.
 under tools/tutorials/evidence. The pype rule reached the generated phonemes
 in all three PyPI sentences, but audible pronunciation review is still open.
 No live media was published. See 358's dated note for measured results.
+
+2026-09-21 — shared Make Masks capture now reaches the FEATURES result.
+The native dark/Blobs capture drives actual file pickers and Measure and
+verifies all 114 cells against the two original image/mask pairs. Fifteen 4K
+frames and the measurement proof are recorded in
+ tools/tutorials/evidence/2026-09-21_make_masks_features_measurement.json.
+The assigned-table and saved-result frames were inspected. The stale status
+caption and underscore plate-name defect are documented in 325; the lesson
+is not publication-ready. Narration, final scenes and the incoming UI changes
+still need integration. No GPU job was started.

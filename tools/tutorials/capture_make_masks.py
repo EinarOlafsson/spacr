@@ -57,7 +57,7 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
     import tifffile
     from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QScrollArea
+    from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox, QScrollArea
     from scipy.ndimage import distance_transform_edt
 
     from spacr.qt.screens.make_masks import FOLD_ORDER
@@ -75,9 +75,14 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
             dialog.resize(1300, 950)
             dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
             edit = dialog.findChild(QLineEdit, 'fileNameEdit')
-            edit.setFocus()
+            settle(0.2)
+            QTest.mouseClick(edit, Qt.LeftButton)
             QTest.keyClick(edit, Qt.Key_A, Qt.ControlModifier)
+            if edit.selectedText() != edit.text():
+                raise RuntimeError('The folder picker did not select its previous entry')
             QTest.keyClicks(edit, str(folder))
+            if edit.text() != str(folder):
+                raise RuntimeError('The folder picker did not take the exact prepared path')
             capture('02_folder_picker')
             QTest.mouseClick(dialog.findChild(QDialogButtonBox).button(QDialogButtonBox.Open), Qt.LeftButton)
         except Exception as exc:
@@ -87,7 +92,11 @@ def record_editor(app, window, screen, stage, captures, capture, settle, write_j
 
     def reject_stalled():
         dialog = app.activeModalWidget()
-        if dialog is not None and not accepted:
+        if isinstance(dialog, QMessageBox):
+            errors.append(dialog.text())
+            capture('02_folder_warning')
+            dialog.reject()
+        elif dialog is not None and not accepted:
             errors.append('Folder picker did not accept the real path')
             dialog.reject()
 

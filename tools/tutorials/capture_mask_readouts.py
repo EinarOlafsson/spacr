@@ -62,6 +62,10 @@ def record_readouts(app, window, screen, captures, capture, settle, write_json, 
               'FEATURES did not load the real example folder')
         settle()
         capture('06_features_real_files', desktop=True)
+        from capture_features_run import record_features_run
+
+        measurement = record_features_run(
+            app, features, captures, capture, settle, write_json, timeout)
         rows = len(features.inputs.table().rows)
         files = len(features.inputs._known_paths)
         unassigned = len(features.inputs._unassigned)
@@ -72,8 +76,9 @@ def record_readouts(app, window, screen, captures, capture, settle, write_json, 
         'accepted': True, 'mode': 'otsu', 'scope': 'region',
         'model_inference_on_gpu': False, 'features_rows': rows,
         'features_files': files, 'features_unassigned_files': unassigned,
-        'features_scope': 'Folder handoff; assign these ER images and browse for companion masks before running',
-        'features_measurement_run': False,
+        'features_scope': 'Visible assignment of ER images and companion cell masks, followed by the real Measure run',
+        'features_measurement_run': True,
+        'features_measured_cell_rows': measurement['measured_cell_rows'],
         'image_and_labels_unchanged': True,
         'magnifier_result_type': type(shown).__name__,
         'magnifier_objects': int(shown.count),

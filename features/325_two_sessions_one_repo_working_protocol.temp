@@ -8724,3 +8724,12 @@ and the remaining batches will follow. Original partial batch-26 data and its
 ledger are archived outside the combine directory. Narration resumed using
 its verified-track reuse checks. GPU monitoring was also found terminated;
 it restarted with a fresh idle timer. PID 1665533 still occupies the GPU.
+
+The corrected FEATURES capture completed: readouts-features-08 has fifteen
+native 4K frames, the real Otsu magnifier, and the completed real Measure run.
+All 114 saved cells retain distinct field identities and exactly match source
+mask areas and raw mean intensities. Actual measurement took 50.4 seconds;
+source files are unchanged. The earlier underscore-name and stale-caption
+findings remain open production issues. Capture/measurement evidence is in
+ tools/tutorials/evidence/2026-09-21_make_masks_features_measurement.json;
+this does not claim a completed video or publication acceptance.
