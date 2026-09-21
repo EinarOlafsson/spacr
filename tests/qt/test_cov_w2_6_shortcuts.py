@@ -128,9 +128,9 @@ def test_a_menu_action_contributes_its_own_text_as_the_description(window):
 def test_a_declared_key_is_left_to_its_declaration(window):
     """That is where the label and the scope live; discovering it again
     would list it twice with "(not described)" beside it."""
-    QShortcut(QKeySequence("Ctrl+H"), window)
+    QShortcut(QKeySequence("Ctrl+0"), window)
     assert not [spec for spec in sc.discover(window)
-                if spec.keys == sc.native("Ctrl+H")]
+                if spec.keys == sc.native("Ctrl+0")]
 
 
 def test_a_window_that_cannot_be_searched_discovers_nothing():

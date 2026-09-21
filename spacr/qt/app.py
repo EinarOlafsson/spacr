@@ -3002,7 +3002,7 @@ class MainWindow(QMainWindow):
         app_menu = mb.addMenu("&spaCR")
 
         act_home = QAction("Home", self)
-        act_home.setShortcut(QKeySequence("Ctrl+H"))
+        act_home.setShortcut(QKeySequence("Ctrl+0"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
         act_prefs = QAction("Preferences…", self)

@@ -4,7 +4,7 @@ Keyboard-first shortcuts for the spaCR Qt GUI.
 Registers global :class:`QShortcut` bindings on the main window so
 the whole app is usable without a mouse:
 
-    Ctrl+H        Go home
+    Ctrl+0        Go home (Cmd+H is Hide on macOS)
     Ctrl+1..9     Switch to the Nth app in the sidebar
     Ctrl+K        Open the command palette
     Ctrl+Shift+H  Search spaCR from the field beside the Help menu
@@ -65,7 +65,7 @@ class ShortcutSpec:
 
 
 SHORTCUTS: List[ShortcutSpec] = [
-    ShortcutSpec("Ctrl+H",       "Go to home",            "Navigation"),
+    ShortcutSpec("Ctrl+0",       "Go to home",            "Navigation"),
     ShortcutSpec("Ctrl+1",       "Switch to 1st app",      "Navigation"),
     ShortcutSpec("Ctrl+2",       "Switch to 2nd app",      "Navigation"),
     ShortcutSpec("Ctrl+3",       "Switch to 3rd app",      "Navigation"),
@@ -162,7 +162,7 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
 #: ``install()``'s count.
 BOUND_ELSEWHERE = frozenset({
     "Ctrl+Shift+A", "Ctrl+B", "Ctrl+T", "Ctrl+R", "Ctrl+Shift+F", "F11",
-    "Ctrl+H", "Ctrl+P",
+    "Ctrl+0", "Ctrl+P",
 })
 
 
