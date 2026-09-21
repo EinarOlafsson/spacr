@@ -928,3 +928,6 @@ symbols. Live inventory is now 6135 runtime entries and 11106 API symbols,
 with 569 added, two removed and 115 changed API sources. Both generated reports
 and the exact debt inventory are refreshed after integration. Earlier audit
 counts retain their named source boundary; the wider translation pass is open.
+Integration of 0df354d3c adds four paper-import API symbols. Current API debt
+is 573 added, two removed, 115 changed across 11110 symbols. Runtime inventory
+remains 6135. Source extraction/reporting is refreshed; no model was run.

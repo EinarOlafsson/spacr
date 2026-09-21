@@ -8881,3 +8881,6 @@ API symbols, 569 added/two removed/115 changed. No gate or baseline is relaxed.
 Current Classify overview also has eleven native 4K dark/Blobs captures and a
 hash-checked receipt; the 358/447 notes distinguish navigation from the still
 pending real CV/ML recaptures and full media acceptance.
+The second push race integrated 0df354d3c, whose only source change is paper
+import. Its four added API symbols bring the live count to 11110 and added
+debt to 573; runtime stays 6135. Reports are regenerated for this boundary.

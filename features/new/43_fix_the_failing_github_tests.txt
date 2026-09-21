@@ -1753,3 +1753,5 @@ The subsequent integration through 2268b1803 adds seven AI sign-in captions
 and eleven API symbols: 6135 runtime entries, 11106 API symbols, 569 added,
 two removed and 115 changed API sources. Generated reports track this source
 growth; the earlier 535-diagnostic audit belongs to the previous snapshot.
+The paper-import follow-on 0df354d3c adds four more API symbols: 11110 live,
+573 added/two removed/115 changed. Runtime remains 6135; reports are refreshed.
