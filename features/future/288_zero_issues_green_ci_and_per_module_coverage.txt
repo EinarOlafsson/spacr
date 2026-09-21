@@ -4221,3 +4221,9 @@ The resumed run reached 70/95 completed batches. Refreshed the partial failure
 inventory: 24 non-passing batches, 83 distinct failed test nodes, no recorded
 lost or unrecovered files. New findings include documentation/inventory debt;
 these remain results from 3d9eb57c5, not a verdict on integrated nightly.
+
+2026-09-21 — CODEX: PARTIAL MEASUREMENT AT 77/95
+Refreshed the fixed-3d9eb57c5 failure inventory at 77 completed batches:
+29 non-passing batches, 97 distinct failing nodes, no lost or unrecovered
+coverage files. The original source and baseline remain unchanged. Current
+nightly reconciliation is still required before treating these as regressions.

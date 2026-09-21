@@ -234,6 +234,18 @@ def track_speech_text(lesson_id, language, voice, display_text, speech_text):
         if speech_text.count("read depth") != 1:
             raise ValueError("The Map read-depth pronunciation premise changed")
         return speech_text.replace("read depth", "[read](/ɹˈid/) depth")
+    map_read_phrases = {
+        "Here the guide is strongly supported as reverse complemented in read one and as stored in read two.": ("read one", "read two"),
+        "Read one supports the reversed reference, while read two supports the stored orientation.": ("Read one", "read two"),
+        "Check your own library and read layout in the same way.": ("read layout",),
+    }
+    if lesson_id == "12_map_barcodes" and language == "en" and display_text in map_read_phrases:
+        for phrase in map_read_phrases[display_text]:
+            if speech_text.count(phrase) != 1:
+                raise ValueError("The Map read-orientation pronunciation premise changed")
+            word, rest = phrase.split(" ", 1)
+            speech_text = speech_text.replace(phrase, f"[{word}](/ɹˈid/) {rest}")
+        return speech_text
     if (lesson_id, language, voice, display_text) == (
         "04_platform_installers", "en", "af_heart",
         "Here the request was auto and the selected backend is CUDA on NVIDIA hardware.",

@@ -3,7 +3,7 @@
   "date": "2026-09-21",
   "source_commit": "3d9eb57c5",
   "status": "partial_fixed_snapshot_not_current_nightly_verdict",
-  "batches_finished": 70,
+  "batches_finished": 77,
   "batches_total": 95,
   "failed_batches": [
     10,
@@ -29,7 +29,12 @@
     66,
     67,
     69,
-    70
+    70,
+    71,
+    72,
+    74,
+    76,
+    77
   ],
   "failed_test_nodes": [
     "tests/qt/test_cov_r5_app_screen.py::TestTheGuardsNothingCanTrip::test_every_module_with_a_preview_toggle_has_a_card_to_toggle",
@@ -114,10 +119,24 @@
     "tests/test_filing_a_setting_family_does_not_scale_quadratically.py::test_quadrupling_the_objects_does_not_multiply_the_work_by_sixteen",
     "tests/test_gui_utils_and_core.py::test_convert_settings_dict_special_case_metadata_type_is_combo",
     "tests/test_i18n_coverage_audit.py::test_checked_in_coverage_report_is_the_live_source_report",
-    "tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence"
+    "tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence",
+    "tests/test_instruction_index.py::test_every_open_instruction_appears",
+    "tests/test_instruction_index.py::test_the_committed_index_matches_the_instruction_files",
+    "tests/test_instruction_index.py::test_the_counts_are_the_real_counts",
+    "tests/test_intel_mac_gets_wheels_not_a_source_build.py::TestTheInstallerAndThePackageAgree::test_the_reason_is_written_down_where_it_is_declared",
+    "tests/test_loading_test_data_fills_the_barcode_references.py::test_a_fetched_table_that_is_not_the_right_one_is_not_written",
+    "tests/test_loading_test_data_fills_the_barcode_references.py::test_a_missing_table_is_fetched_and_written",
+    "tests/test_loading_test_data_fills_the_barcode_references.py::test_a_reference_that_cannot_be_produced_leaves_the_others_filled",
+    "tests/test_macro.py::TestContracts::test_the_journal_hook_is_the_only_wiring",
+    "tests/test_module_coverage_ratchet.py::test_current_packaging_denominator_is_532_not_asset_generators",
+    "tests/test_nested_functions_are_documented.py::test_a_finished_module_stays_finished[spacr/model_zoo.py]",
+    "tests/test_nested_functions_are_documented.py::test_no_module_exceeds_its_budget",
+    "tests/test_optimal_dependency_versions.py::test_the_decision_is_written_down_where_the_bounds_are",
+    "tests/test_plugins.py::test_model_provider_extends_catalogue_without_network",
+    "tests/test_prose_that_reaches_a_catalog_can_be_translated.py::test_no_catalog_bound_block_puts_a_bare_project_label_in_subject_position"
   ],
   "unrecovered_files": [],
   "lost_files": [],
-  "integrity_sha256": "c9035412e0c6febf85baa60566b726121f99c95919a8fa04b75a7cfd1dc4ceb5",
+  "integrity_sha256": "aaa9a52c183f4e501fc5b71b74cfe8c7ed877a70a5bd7b6dd183a34b65f0a847",
   "baseline_updated": false
 }

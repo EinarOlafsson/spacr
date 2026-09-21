@@ -1,17 +1,19 @@
 """Drive the genuine live barcode search, then explicitly apply its proposal."""
 from dataclasses import asdict
+from pathlib import Path
 import time
 
 from map_barcodes_data import prepare_references, digest
 
 
-def record_search(app, screen, stage, captures, capture, settle, write_json, timeout):
+def record_search(app, screen, stage, captures, capture, settle, write_json, timeout,
+                  *, reference_source=None):
     from PySide6.QtCore import Qt
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QSplitter
+    from PySide6.QtWidgets import QAbstractItemView, QSplitter
     from spacr.qt.widgets.card import Card
 
-    references = prepare_references('/home/olafsson/Documents/barcodes',
+    references = prepare_references(reference_source or Path.home() / 'Documents/barcodes',
                                     stage / 'map_references' / captures.name)
     write_json(captures / 'references.json', references)
     screen._dna_rain.settings_bar.set_opacity(.05)
@@ -85,6 +87,23 @@ def record_search(app, screen, stage, captures, capture, settle, write_json, tim
     if model.collect() != before:
         raise RuntimeError('The search silently rewrote settings before Apply')
     capture('07_search_verdicts')
+    visible_roles = {}
+    for role, name in [('grna', '07b_guide_verdicts'), ('row', '07c_row_verdicts')]:
+        rows = [row for row in range(panel.findings.rowCount())
+                if panel.findings.item(row, 0).text() == role]
+        if len(rows) != 4:
+            raise RuntimeError('Expected both mates and orientations for ' + role)
+        panel.findings.scrollToItem(panel.findings.item(rows[0], 0),
+                                    QAbstractItemView.PositionAtTop)
+        settle(.4)
+        viewport = panel.findings.viewport().rect()
+        if not all(viewport.contains(panel.findings.visualItemRect(
+                panel.findings.item(row, 0))) for row in rows):
+            raise RuntimeError('The recorded findings still clip ' + role)
+        visible_roles[role] = [[panel.findings.item(row, column).text()
+                                for column in range(panel.findings.columnCount())]
+                               for row in rows]
+        capture(name)
     splits = panel.findChildren(QSplitter)
     for split in splits:
         split.setSizes([300, 900, 200])
@@ -111,6 +130,7 @@ def record_search(app, screen, stage, captures, capture, settle, write_json, tim
         'no_automatic_settings_change': True,
         'demonstration_initial_window_length': 120,
         'applied_through_visible_button': True,
+        'visible_role_rows': visible_roles,
         'application_functions_replaced': False})
     # The proposal explicitly requires reversed reference copies; Apply does
     # not create those files. Show this separate step without claiming it does.

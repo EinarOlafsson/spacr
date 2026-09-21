@@ -9055,3 +9055,26 @@ Final integrated report checks: four tests pass in 232.09 s. The coverage and
 review-scope tables match live source; historical reports remain unchanged.
 The feature index and whitespace checks pass. No live tutorial publication,
 full translation gate pass or tightened coverage baseline is claimed.
+
+2026-09-21 — CODEX: MAP CAPTURE / CHINESE DRAFT / COVERAGE CHECKPOINT
+Map has 20 actual GUI frames plus two real terminal/figure frames at eed895c2f,
+15 staged scenes and independently reconciled three-barcode GUI / two-barcode
+API counts. Original inputs and reference copies are unchanged. Dark/Blobs,
+neutral mounted paths, native verdict scrolling and current-version wording
+are recorded. The first English render revealed three sequencing read nouns
+pronounced red; correcting those exact sentences before media acceptance.
+Chinese preserved-draft review covers 306 distinct sources (272 corrected,
+34 retained), now 949 reviewed source-bound strings. Three duplicate rows
+reuse review; the two already-reported contradictory inversion descriptions
+remain deferred. Full runtime/API gates still have explicit debt.
+At 77/95, the fixed coverage measurement has 29 failed batches / 97 distinct
+failed nodes, zero lost/unrecovered files. No baseline changed. Remaining
+English voice jobs continue on CPU; GPU has not met the idle-window rule.
+Feature items 288/358/411/447 and the Chinese report carry the same checkpoint.
+The completed Chinese draft audit now reports 40 diagnostics (previously 83)
+at eed895c2f; 150 runtime entries remain missing. Twenty-eight focused checks
+pass, including current catalog syntax, genuine table-cell wording and the
+newly observed Map read-pronunciation cases. Initial Map media passed full
+4K decode/player checks but is preserved as superseded because the phoneme
+review found red for three read nouns. Corrected narration is rendering;
+the receipt explicitly withholds current media acceptance until reverified.

@@ -1,10 +1,12 @@
 # Simplified Chinese runtime recovery, 2026-09-21
 
 The preserved draft contains 311 records covering 308 distinct English
-sources. The first 80 records are now reviewed and applied against their
-current source hashes: 76 required correction and four were retained.
-Simplified Chinese now has 723 distinct source-bound reviewed strings.
-The remaining draft is open.
+sources. Review now covers 306 distinct sources: 272 required correction
+and 34 were retained. Three duplicate records reuse those reviews. Two
+contradictory English inversion descriptions remain deferred to the
+application owner, as recorded in items 435 and 325. Simplified Chinese now
+has 949 distinct source-bound reviewed strings. This completes review of
+the usable preserved draft, not the full runtime or API catalogs.
 
 This slice corrects scientific setting labels and help for Cellpose models
 and flow thresholds, OPS image-based sequencing, regression annotations,
@@ -25,12 +27,22 @@ adding an image field, not a database column. Music terminology is separated
 from image-analysis terminology, and the DEBUG description retains the actual
 timing measurements and the distinction from function-call tracing.
 
-Evidence: the first and second slice JSON files under
+Evidence: the eight slice JSON files under
 `reviewed/runtime/zh_CN/2026-09-21-runtime-*-slice.json`.
-All 80 rows pass the existing source, placeholder, protected-token, language
+All 306 rows pass the existing source, placeholder, protected-token, language
 and terminology validation before application. No gate is relaxed. This is
 AI-assisted technical review, not native-speaker approval or full catalog
 completion. The remaining catalog audit debt is reported separately.
+
+The later slices restore omitted segmentation controls and consequences:
+Gaussian smoothing, Otsu and watershed behavior, minimum area, shrinking
+objects, normalization, the live magnifier and model-specific thresholds.
+They also distinguish uploads from downloads, training from railway travel,
+and image fields from database fields. Model-sharing and installation help
+retains consent, credential handling, checksum limitations, and the risk of
+changing the installed torch version. File-grid cells remain table cells:
+an exact-source normalization correction preserves that meaning while a
+regression test retains biological-cell correction in scientific contexts.
 
 Forty-two obsolete catalog keys were removed: two setting labels, two
 setting tooltips, two category entries and 36 UI strings. This pruning uses
@@ -38,9 +50,18 @@ the current English source inventory and does not remove source-bound review
 history. The earlier 96-diagnostic audit predates the second slice and this
 pruning; the full catalog remains open.
 
-The post-pruning full Chinese runtime audit exits 1 with 83 diagnostics at
-application source 9e2f5335a plus these review changes. Missing entries,
+The post-pruning full Chinese runtime audit exited 1 with 83 diagnostics at
+application source 9e2f5335a after the first two slices. Missing entries,
 remaining unreviewed drafts and format-field errors are still explicit debt.
 Seven focused source-review, scientific-token, Chinese-normalization and
 catalog-syntax checks passed before the second slice; all second-slice rows
 also passed the same pre-application source and content gates.
+
+After all eight slices, the full Chinese audit exits 1 with 40 diagnostics
+at application source eed895c2f plus these reviewed translations. The missing
+runtime inventory is now 20 setting labels, 20 tooltips and 110 UI entries;
+one protected-literal/hash mismatch, a changed reviewed PDF label and
+remaining format-field errors are still explicit. No audit gate was relaxed.
+Twenty-eight focused catalog-syntax, terminology and narration checks pass;
+the separate data/capture/catalog-preservation checks had 39 passes and one
+stale mastering expectation, subsequently corrected and verified.

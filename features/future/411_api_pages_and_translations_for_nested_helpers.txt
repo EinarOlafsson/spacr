@@ -1035,3 +1035,22 @@ previous 96-diagnostic checkpoint remains tied to its earlier slice.
 Regenerated reports now show Chinese runtime coverage 5832/6209 with zero
 orphans; all nine API catalogs have 10419/11151 fresh documents. Review counts
 remain distinct from mechanical coverage and full-document acceptance.
+
+2026-09-21 — CODEX: CHINESE PRESERVED DRAFT REVIEW COMPLETE
+Eight reviewed slices now cover 306 distinct draft sources: 272 corrections
+and 34 retentions, bringing Chinese to 949 source-bound reviewed strings.
+Three duplicate draft rows reuse existing reviews; two contradictory English
+inversion descriptions remain deferred to the application owner (435/325).
+Later slices restore Otsu/watershed and live-magnifier semantics, model
+thresholds, shrinking-object warnings, upload direction, file-table controls,
+report consent and installer warnings. The table-cell normalizer correction
+is restricted to the exact Measure input-grid source; biological cell
+normalization remains tested. Every new row passes the existing source,
+protected-syntax, language and terminology gates before application.
+This is AI-assisted technical review of the available draft, not a full
+catalog gate pass, native-speaker signoff or API completion. Evidence:
+docs/i18n/2026-09-21-runtime-chinese-recovery.md and its eight review JSONs.
+At the eed895c2f application-source boundary, the final Chinese audit falls
+from 83 to 40 diagnostics. It still reports 20 missing setting labels,
+20 missing tooltips, 110 missing UI entries and remaining literal/format-field
+debt. The complete reviewed draft is applied; the audit gate remains red.

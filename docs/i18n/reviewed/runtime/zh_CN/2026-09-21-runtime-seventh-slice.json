@@ -1,0 +1,244 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "source": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "translation": "此模型未提供校验和，因此 spaCR 无法区分完整的真实文件与被截断或替换的文件。",
+      "source_sha256": "7ba7fb2343daf2f4a73ceebe583fbcb1dc8c8c29e631dd2893ebbd34ae5011d3"
+    },
+    {
+      "table": "ui",
+      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "translation": "按 Otsu 阈值对图像进行阈值处理，并为保留下来的对象标记标签，同时遵守上方的最小面积设置。阈值相关设置都在 Otsu 类别中，包括阈值修正、平滑、对象所在的一侧、填孔、分开接触对象，以及移除被图像边缘截断的对象。",
+      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8"
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "translation": "按 Otsu 阈值进行处理，用于 Otsu 检测和实时放大镜的 Otsu 模式。",
+      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be"
+    },
+    {
+      "table": "ui",
+      "key": "Train data",
+      "source": "Train data",
+      "translation": "训练数据",
+      "source_sha256": "819aca1401b6fdd1995337f09735f6ceec767a167f8dab4a8e30794d06787d3e"
+    },
+    {
+      "table": "ui",
+      "key": "Training datasets…",
+      "source": "Training datasets…",
+      "translation": "训练数据集…",
+      "source_sha256": "f181135dd60e4f79636e8092ac7b869d41d0645e3435ab328e50c986a4767ecd"
+    },
+    {
+      "table": "ui",
+      "key": "Try again",
+      "source": "Try again",
+      "translation": "再次尝试",
+      "source_sha256": "d8b8392e2c542950ca64867168e4ef87d4ad606882d5898f826b51c6d553988f"
+    },
+    {
+      "table": "ui",
+      "key": "Try anyway",
+      "source": "Try anyway",
+      "translation": "仍要尝试",
+      "source_sha256": "c73761e35faddb8c473fef67ed5c0d9281586cf7a390c2f58dbf162798c4181c"
+    },
+    {
+      "table": "ui",
+      "key": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "source": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "translation": "在源文件夹中尝试每一种命名约定，并按各自能解析的名称数量排序。此操作仅提供报告，不会替您更改设置。",
+      "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777"
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "translation": "水面之下：海绿色、薄荷绿，以及暖色光全被吸收后最后留下的蓝绿色。",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9"
+    },
+    {
+      "table": "ui",
+      "key": "Uninstall",
+      "source": "Uninstall",
+      "translation": "卸载",
+      "source_sha256": "fe199528850a4e24c14d9ece87a07b40bdcfa5fe504c175c117b997c29259ca6"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed",
+      "source": "Upload failed",
+      "translation": "上传失败",
+      "source_sha256": "6efc5d27f30b20c103ca1a855bfc65cdbdf9de98c3f8ac93a3df3f319c3388bd"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed.",
+      "source": "Upload failed.",
+      "translation": "上传失败。",
+      "source_sha256": "3d209f4648d487b456bcd3690b347fdbab9818502d677d52ff6fa2af90d4267f"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to Hugging Face…",
+      "source": "Uploading to Hugging Face…",
+      "translation": "正在上传到 Hugging Face…",
+      "source_sha256": "da3a6c5625d44c4a509c2cfd07e65a295414a60eeec3844df84f04220f380755"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to the shared collection…",
+      "source": "Uploading to the shared collection…",
+      "translation": "正在上传到共享集合…",
+      "source_sha256": "7f68a11457385bd32a50c81f55a3d1c859011816d8e179b622894492ace9f0c1"
+    },
+    {
+      "table": "ui",
+      "key": "Version",
+      "source": "Version",
+      "translation": "版本",
+      "source_sha256": "dd167905de0defcaf72de673ee44c07431770d129ccffab286bd2edfdaf62396"
+    },
+    {
+      "table": "ui",
+      "key": "Volume",
+      "source": "Volume",
+      "translation": "音量",
+      "source_sha256": "b10fb966d72063f534774c7c6b404f4decca76ac283093ae65fef78d07c1b75e"
+    },
+    {
+      "table": "ui",
+      "key": "WAV audio (*.wav)",
+      "source": "WAV audio (*.wav)",
+      "translation": "WAV 音频 (*.wav)",
+      "source_sha256": "88f088754737aa543793aa81c4fd9595e221413cff7e71c653115acb267364ad"
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "translation": "新对象与掩膜中已有对象重叠时的处理方式。“裁剪”仅保留尚未标记的像素，因此已有对象不会失去任何像素。“跳过”会舍弃任何与已有对象接触的新对象。“替换”允许新对象占据它覆盖的全部像素。在“鼠标下的区域”模式中，框内会显示应用规则后的结果：单击将添加的部分以实心显示，将移除的部分以虚影显示。",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
+    },
+    {
+      "table": "ui",
+      "key": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "source": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "translation": "这些视野在测量数据库中的归属名称。这些图像并非来自培养板，因此此名称应说明实际来源，而不是声称来自未做过实验的培养板。除非在下方更改孔位，否则每行会成为 A01 孔的一个视野。",
+      "source_sha256": "019f7eb09dec26f772999346db34ca3bac3a0535e60e4f98459a9521c2876134"
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "translation": "上次筛选移除的对象，每个对象占一行：包括对象 ID、判定时使用的面积和平均强度，以及导致移除的界限。这里的 ID 与悬停读数中显示的 ID 相同。",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2"
+    },
+    {
+      "table": "ui",
+      "key": "What the run writes appears here.",
+      "source": "What the run writes appears here.",
+      "translation": "运行输出会显示在这里。",
+      "source_sha256": "57d1a41411fd14075f9cee6de966df4d4ec327f0703009fd16b25a3008aaaf41"
+    },
+    {
+      "table": "ui",
+      "key": "Where:",
+      "source": "Where:",
+      "translation": "筛选条件：",
+      "source_sha256": "02cc020f791cdbd49b1e6761ee41577461874e05441615f9c872ccbb119d2d87"
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "translation": "选择哪个强度区间作为对象，最暗区间编号为 0。分成 3 类时，2 选择明亮的细胞核，1 选择细胞核周围较暗的光晕而不包含内部的细胞核；选择确切的区间正是使用两类以上分类的目的。类别数大于 2 时，此设置取代“对象比背景更亮”，由编号指定对象所在的区间。",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173"
+    },
+    {
+      "table": "ui",
+      "key": "Which convention fits?",
+      "source": "Which convention fits?",
+      "translation": "哪种命名约定适用？",
+      "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802"
+    },
+    {
+      "table": "ui",
+      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "translation": "选择用于分割框内区域的模型。Otsu 按 Otsu 阈值处理该区域，并用分水岭分开相互接触的对象；它无需额外安装，使用“对象操作”中的“最小面积”、阈值修正及 Otsu 类别中的其他设置，无法加载模型时也会运行。Cellpose 使用“对象检测”中设置的模型、两个阈值、直径和归一化参数，没有 GPU 时速度较慢。Cellpose 3（cyto3、cyto2、cyto、nuclei）、DINOCell 和 SAMCell 始终列出，安装前呈灰色；选择后会提示将其安装到独立环境。Cellpose 3 使用“对象检测”中设置的两个阈值和直径，DINOCell 使用细胞概率，SAMCell 使用自身的阈值。",
+      "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26"
+    },
+    {
+      "table": "ui",
+      "key": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "source": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "translation": "选择要进行嵌入的对象类别。此设置选择 png_list 中的标签列，以及流式读取裁剪图像时使用的掩膜平面。因此，从细胞裁剪图像表中请求细胞核时会返回空结果，而不会返回细胞。",
+      "source_sha256": "02a9d9a492e547fb229ec0108acf478b90968e389b6ecf3802d131d5fbaa9cae"
+    },
+    {
+      "table": "ui",
+      "key": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "source": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "translation": "选择播放哪套音效。首次需要时会在本机合成该音效集，并保存在 ~/.spacr/sounds 下；未使用前不会产生这项开销。",
+      "source_sha256": "9e19140221cacc1aad9e1c263c25a7ebd850dcfaa7d8465b0c50372d739f3fe7"
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "translation": "选择用于分割此视野的权重，以及实时放大镜在 Cellpose 模式下框内区域所用的权重。列表包含本机安装的 Cellpose 和模型库中的每个 Cellpose 模型。尚未下载的模型呈灰色，选择后会下载并选中该模型。",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "translation": "启用详细日志时（“模块”选项卡），DEBUG 始终写入日志文件，因此此开关保持开启。关闭详细日志后即可自行选择；您原先的选择会保留，届时恢复。",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2"
+    },
+    {
+      "table": "ui",
+      "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "translation": "写出此表描述的合并数组，再使用 Measure 模块本身进行测量。生成的输出文件夹和测量数据库与一次 Measure 运行的输出相同。",
+      "source_sha256": "147130125966f3373bbf16413f3447b8e93d5e59819f787418670ec517373fe9"
+    },
+    {
+      "table": "ui",
+      "key": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "source": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "translation": "自定义表达式。必须捕获 wellID、fieldID 和 chanID；plateID 可选，缺省时使用文件夹名称。",
+      "source_sha256": "9c750e692d93b8ba467d5254fbcd956155b88e4e42b9f4148a1df1694343c43b"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filed on GitHub: {url}",
+      "source": "[issue] Filed on GitHub: {url}",
+      "translation": "[issue] 已在 GitHub 提交：{url}",
+      "source_sha256": "eaea483cca34761844d68fa512ab373aeba627605a16589e5c5c9b533551ecdd"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "source": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "translation": "[issue] 问题报告设置为 'always'，正在向公开的 spaCR GitHub 仓库提交此错误的报告，其中敏感信息已隐去…",
+      "source_sha256": "622cb693e15da21f5e23036870b1489957355512969a551538f08e9c8ad960ad"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "source": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "translation": "[issue] 未提交：spaCR 尚未登录 GitHub。在终端中运行一次 `gh auth login`，之后的错误将自动提交。若要提交本次错误，请按“提交为问题”。",
+      "source_sha256": "5e7ce2b69473fb0c5ace2fc4459d0aaf3bc833d0813863f74a8792bdb076ea53"
+    }
+  ]
+}

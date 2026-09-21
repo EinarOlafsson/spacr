@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "translation": "将每个对象向背景扩张指定的像素数：对象不会占用邻近对象的像素，两个对象也不会合并，因此对象 ID 和数量保持不变。整个操作可一步撤销。",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972"
+    },
+    {
+      "table": "ui",
+      "key": "Hover",
+      "source": "Hover",
+      "translation": "悬停",
+      "source_sha256": "c76ae86ad3014c852af277f5be355d149bf02287b4a04a7911bbc1614ffec4db"
+    },
+    {
+      "table": "ui",
+      "key": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "source": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "translation": "设置 spaCR 所有声音的音量，范围从静音到最大。背景音乐始终比其他音效更轻。",
+      "source_sha256": "2ff97b2808fb54bb59b72f02ad6d40fb5abac516936062d679c9383636f67cff"
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "translation": "将视野划分为多少个亮度区间。2 表示 Otsu 原本的划分方式，用一个阈值区分背景与对象。当视野中存在两类以上的像素群体，例如背景、暗晕和明亮的细胞核时，可增大此值。此时不再用一个折中阈值区分全部三类，而是采用您在下方选择的目标边界。仅用于 Otsu detect。",
+      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
+    },
+    {
+      "table": "ui",
+      "key": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "source": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "translation": "每个视野包含的强度通道数。每个通道对应表格中的一列，合并数组的通道编号遵循列的顺序。",
+      "source_sha256": "b61cea307d14ff759a572ea63d34af6b297031973807bdcdd9cd2e516d1b3a26"
+    },
+    {
+      "table": "ui",
+      "key": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "source": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "translation": "加载多少张符合条件的裁剪图像。其余图像仍会计数并列出名称，不会被悄然忽略。",
+      "source_sha256": "06a81e9b743c53acb3c923748e2696911350c711e84d1c1a482cb044b6ef9e72"
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "translation": "每按一次 Dilate（膨胀）或 Shrink（收缩），各对象边界移动的像素数。距离按直线距离计算，因此 1 会将边界移到四邻域像素，而不包含对角像素。若对象有足够的生长空间，执行相同尺寸的 Shrink 可撤销先前的 Dilate。",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5"
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "translation": "Otsu 模式接受对象的宽松程度。增大此值会纳入更暗或较不确定的对象，减小则只保留清晰对象；0 表示默认阈值。模型从 Object detection 设置中读取各自的阈值，因此选择其他模式时，此控件会变灰。",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1"
+    },
+    {
+      "table": "ui",
+      "key": "Hugging Face login needed",
+      "source": "Hugging Face login needed",
+      "translation": "Hugging Face 需要登录",
+      "source_sha256": "e793beaf0a9d9ac901eaa3c4e42300b6fcae760f1ad45d3d03f389d1c76b426c"
+    },
+    {
+      "table": "ui",
+      "key": "Install",
+      "source": "Install",
+      "translation": "安装",
+      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}",
+      "source": "Install runs:\n    {command}",
+      "translation": "安装将运行：\n    {command}",
+      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "translation": "安装将运行：\n    {command}\n\n随后启动 GitHub 自身的登录流程。",
+      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e"
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}",
+      "source": "Install {name}",
+      "translation": "安装 {name}",
+      "source_sha256": "15d27e180bc64b4b3219b11337fa5e748c69724a16fc7b9918b5994ddaad2e9f"
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}?",
+      "source": "Install {name}?",
+      "translation": "安装 {name}？",
+      "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e"
+    },
+    {
+      "table": "ui",
+      "key": "Installing {label}…",
+      "source": "Installing {label}…",
+      "translation": "正在安装 {label}…",
+      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4"
+    },
+    {
+      "table": "ui",
+      "key": "Invert image",
+      "source": "Invert image",
+      "translation": "反相图像",
+      "source_sha256": "4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613"
+    },
+    {
+      "table": "ui",
+      "key": "Keep",
+      "source": "Keep",
+      "translation": "保留",
+      "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585"
+    },
+    {
+      "table": "ui",
+      "key": "Keep installing",
+      "source": "Keep installing",
+      "translation": "继续安装",
+      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d"
+    },
+    {
+      "table": "ui",
+      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "translation": "请保持界面打开，直到安装完成；也可停止安装，稍后通过 Help > Set spaCR up again… 安装。",
+      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "translation": "排除被视野边缘截断的对象。这些对象的面积和平均强度取决于取景边界落在哪里，而非对象本身，因此用于测量的检测结果最好将其排除。仅用于 Otsu detect；Live magnifier 有独立的选框边界开关。",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602"
+    },
+    {
+      "table": "ui",
+      "key": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "source": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "translation": "登记您已有的模型文件，也可选择将其分享到 Hugging Face，供其他人使用。",
+      "source_sha256": "08f075cd8d7c276a8437c84e93bc6e01d37ba0290019d2fe32545f515141a80a"
+    },
+    {
+      "table": "ui",
+      "key": "Load crops",
+      "source": "Load crops",
+      "translation": "加载裁剪图像",
+      "source_sha256": "961195a44adea5d5ea9dcbf96604cdc656ba21f22b85e6f2a890151166ebe5c6"
+    },
+    {
+      "table": "ui",
+      "key": "Loading stopped",
+      "source": "Loading stopped",
+      "translation": "加载已停止",
+      "source_sha256": "1eea9acc4dc3681339c6553679ff9be9c15e56f587e82ec78e99e5526de799cf"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold (uneven illumination)",
+      "source": "Local threshold (uneven illumination)",
+      "translation": "局部阈值（照明不均）",
+      "source_sha256": "96ed765787b60b41e78cc401115d499d7fe9c4ac591ce1644c57046880986ede"
+    },
+    {
+      "table": "ui",
+      "key": "Looking at what was dropped...",
+      "source": "Looking at what was dropped...",
+      "translation": "正在检查拖入的内容…",
+      "source_sha256": "1b1608ebc6fa39b28be25ef5a56145ec7eb21f1f9ddb32de862991e25f601316"
+    },
+    {
+      "table": "ui",
+      "key": "Low sun",
+      "source": "Low sun",
+      "translation": "斜阳",
+      "source_sha256": "d4db8b6e7c0a115bf73963503aedbc431cfb19511f69b817062d191690fccf58"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "source": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "translation": "放大镜：正在分割此区域 — 选框更新完成后，区域中的对象会立即加入。",
+      "source_sha256": "77f7b81640137d3d4f9288f9d8a3649452c81f476e61b898c3e5a461aa6fb646"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "source": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "translation": "放大镜：{mode} 无法运行（{reason}）；改用 Otsu 模式进行分割。",
+      "source_sha256": "1a2a4e5767b267247bbf197d654889cb02e0e8981c1e515574284dcef7eed774"
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "translation": "将当前视野标记为放弃，并移到下一个视野。不会删除任何内容：判定写入图像旁的 csv/keep_discard.csv，视野、掩膜和对象均保持原样。",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b"
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "translation": "将当前视野标记为保留，并移到下一个视野。判定写入图像旁的 csv/keep_discard.csv，其中记录图像、掩膜及掩膜当前包含的对象数量。",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9"
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "translation": "测量您绘制的掩膜。打开一个表格，其中每行对应一个视野，每列对应一个通道或掩膜类型；运行由 Measure 模块本身执行，因此输出文件夹和测量数据库与正常 Measure 运行生成的一致。",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986"
+    },
+    {
+      "table": "ui",
+      "key": "Midnight",
+      "source": "Midnight",
+      "translation": "午夜",
+      "source_sha256": "aa996cf21f0dbc617e27fac13ab13916a07944c2de10c2dbcd60b95a6023f80b"
+    },
+    {
+      "table": "ui",
+      "key": "Music bed",
+      "source": "Music bed",
+      "translation": "背景音乐",
+      "source_sha256": "a3b649dac67ac6d7354ee7ae235ba3b4c86dc950876b264506e55dade0e51a27"
+    }
+  ]
+}

@@ -1,0 +1,216 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "source": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "translation": "[issue] 未提交：{detail}。请按“提交为问题”重试。",
+      "source_sha256": "5af6114e6d7eec9d7d38b0257fb80c716133ee16e8f6cd9e79641fb66175d4fe"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "source": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "translation": "[issue] 未向 GitHub 发送任何内容。接受使用条款后将开始自动提交（帮助 → 重新设置 spaCR…）。若要立即发送此报告，请按“提交为问题”。",
+      "source_sha256": "4a90b0bd752e2dace6815ddf2f3bef5530dc4b1eb31f53209057a7fbcdbc19e7"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "source": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "translation": "[issue] 未向 GitHub 发送任何内容。报告会公开，因此只有先按“提交为问题”，再按“发送报告”，spaCR 才会提交。",
+      "source_sha256": "e46762e8dce3893d85fca8c1feb91aa2b0adf4f9a394dbd20b1b3303f5a54fe8"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "source": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "translation": "[issue] GitHub 上已有此错误的未关闭问题。本次发生情况已添加到该问题：{url}",
+      "source_sha256": "c0a3b0dc3a22355ad999380079f4ff248070991ac532acf47f928b7de4808375"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error is being reported already.",
+      "source": "[issue] This error is being reported already.",
+      "translation": "[issue] 正在报告此错误。",
+      "source_sha256": "98eacfbd1ef751932ad138775f1813a8260e120cec8469650346bf6f850559f7"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "source": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "translation": "[issue] 此计算机之前已报告过该错误，因此未重复提交：{url}",
+      "source_sha256": "425bf7825eca02541b5497dcd8c2d87ec8ad78d79a4f49f98450f6e72e1a425b"
+    },
+    {
+      "table": "ui",
+      "key": "about {seconds} s left",
+      "source": "about {seconds} s left",
+      "translation": "约剩 {seconds} s",
+      "source_sha256": "63d5f63ca560382ccaa157f6e5973c9c2dc5fd358ced0f5a52ba350d6e1fb2c7"
+    },
+    {
+      "table": "ui",
+      "key": "any condition, e.g. cell_area > 500",
+      "source": "any condition, e.g. cell_area > 500",
+      "translation": "任何条件,例如 cell_area > 500",
+      "source_sha256": "df8e48a50f45ae73df8a5a0d72cc4b4555303be6a30e29487c767fdb71bf1b26"
+    },
+    {
+      "table": "ui",
+      "key": "every plate",
+      "source": "every plate",
+      "translation": "所有培养板",
+      "source_sha256": "28fa0d807b39e588c00fb47a579f124697c925c0e234b894b5beb27c1210b87b"
+    },
+    {
+      "table": "ui",
+      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "translation": "npm 无权写入其全局文件夹。请在终端中运行一次 `npm config set prefix ~/.local`，使 npm 安装到您拥有的文件夹，然后按“再次尝试”。",
+      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
+    },
+    {
+      "table": "ui",
+      "key": "path to a folder of crop PNGs",
+      "source": "path to a folder of crop PNGs",
+      "translation": "裁剪 PNG 图像文件夹的路径",
+      "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db",
+      "source": "path to measurements.db",
+      "translation": "measurements.db 的路径",
+      "source_sha256": "fdcd8c657e3f0866f87b73ff68a03d672540fd5fe8226ceb8477417c47be6573"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db, or to a *_png crop folder",
+      "source": "path to measurements.db, or to a *_png crop folder",
+      "translation": "measurements.db 或 *_png 裁剪图像文件夹的路径",
+      "source_sha256": "94b30260bb4812f5e3b2008e375948b67235e35bfe419a8065dc740fd41f7502"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "translation": "spaCR 无法在此自行安装：需要 {needs}，但未找到。请使用以下命令安装：\n    {command}",
+      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "translation": "spaCR 无法在此自行运行：需要 {needs}，但未找到。",
+      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's own music",
+      "source": "spaCR's own music",
+      "translation": "spaCR 自带音乐",
+      "source_sha256": "d6e65a15352eb413607f3d21e251559a385cc13859305c576c60880320fa784c"
+    },
+    {
+      "table": "ui",
+      "key": "status",
+      "source": "status",
+      "translation": "状态",
+      "source_sha256": "073c1634c496cdb649d1afe0a312bbb4b7e1741b271542e4a436c3b8824b1761"
+    },
+    {
+      "table": "ui",
+      "key": "version",
+      "source": "version",
+      "translation": "版本",
+      "source_sha256": "5ca4f3850ccc331aaf8a257d6086e526a3b42a63e18cb11d020847985b31d188"
+    },
+    {
+      "table": "ui",
+      "key": "{key} in {where}",
+      "source": "{key} in {where}",
+      "translation": "{key} 在 {where} 中",
+      "source_sha256": "19183b73f5e72273422f93a260407c7b8cea4ab7edc9563e66637681487e675d"
+    },
+    {
+      "table": "ui",
+      "key": "{key} is not on this module's form.",
+      "source": "{key} is not on this module's form.",
+      "translation": "{key} 不在此模块的设置表单中。",
+      "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e"
+    },
+    {
+      "table": "ui",
+      "key": "{label} is installed.",
+      "source": "{label} is installed.",
+      "translation": "{label} 已安装。",
+      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
+    },
+    {
+      "table": "ui",
+      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "translation": "{label} 尚未安装。\n\n“安装”会在本机运行下方命令：下载并运行供应商自己的安装程序，然后启动登录。spaCR 绝不会看到您的凭据。",
+      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
+    },
+    {
+      "table": "ui",
+      "key": "{label} is signed in and ready.",
+      "source": "{label} is signed in and ready.",
+      "translation": "{label} 已登录并就绪。",
+      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
+    },
+    {
+      "table": "ui",
+      "key": "{name} in {where}",
+      "source": "{name} in {where}",
+      "translation": "{name} 在 {where} 中",
+      "source_sha256": "b4ea8e92fe102b9a400ec486442cd1b091457fc7df15b36745fdbe5eaab9c699"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is downloaded and selected.",
+      "source": "{name} is downloaded and selected.",
+      "translation": "{name} 已下载并选中。",
+      "source_sha256": "1430476f1e53629eafa87f20ef888591eb7ec95e193927ac0344beb18b0c71c1"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is installed and selected.",
+      "source": "{name} is installed and selected.",
+      "translation": "{name} 已安装并选中。",
+      "source_sha256": "cd7d7ac6f935f90eeb80f1d9bc24f2200b6647b9608002b1394086278afabe8d"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "source": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "translation": "{name} 尚未下载。选择后会从模型库下载并选中它。",
+      "source_sha256": "128c8d38816cee6f1c8f5d6f5b3dbf727fa067613e984d02edd4fb5c92aa9257"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not in Preferences at the moment.",
+      "source": "{name} is not in Preferences at the moment.",
+      "translation": "{name} 目前不在偏好设置中。",
+      "source_sha256": "2c8e70ee0d319354080834a828c0274746b8da6a5d1de385eac7f3138684d641"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "source": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "translation": "{name} 尚未安装。\n\n安装时会在 spaCR 当前运行的环境中执行：\n    pip install \"{requirement}\"\n\n这会下载一个大型软件包，并可能更改已安装的 torch 版本，从而影响 Cellpose，最严重时会导致 spaCR 无法启动。安装可能需要几分钟，期间 spaCR 仍可使用。\n\n现在安装吗？",
+      "source_sha256": "7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed. Choosing it offers to install it.",
+      "source": "{name} is not installed. Choosing it offers to install it.",
+      "translation": "{name} 尚未安装。选择后会提示安装。",
+      "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff"
+    }
+  ]
+}

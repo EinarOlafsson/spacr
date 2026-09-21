@@ -38,9 +38,9 @@ def prepare(stage):
           'version': sources['gui']['version'], 'commit': sources['gui']['commit'],
           'sources': sources, 'app_source_modified': False})
     # Keep existing identities/media outside this isolated stage untouched.
-    shutil.copytree(DEFAULT_STAGE / 'catalog', stage / 'catalog')
+    shutil.copytree(REPO / 'docs/source/_extra/tutorials/catalog', stage / 'catalog')
     lesson = read(source)
-    sys.path.insert(0, str(DEFAULT_STAGE.parent / 'tools'))
+    sys.path.insert(0, str(Path(__file__).parent / 'authoring/tools'))
     from pronunciation import spoken_form
     for scene in lesson['scenes']:
         scene['speech_text'] = spoken_form(scene['narration'], 'en')

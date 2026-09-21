@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Could not open {name}.",
+      "source": "Could not open {name}.",
+      "translation": "无法打开 {name}。",
+      "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0"
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {url}",
+      "source": "Could not open {url}",
+      "translation": "无法打开 {url}",
+      "source_sha256": "52923734f046f5f34c83f745983c0da3536ed231cb951c80ab89aa0564500f17"
+    },
+    {
+      "table": "ui",
+      "key": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "translation": "统计源文件夹中有多少图像文件名可按此规则解析，并显示第一个无法解析的文件名。不会更改或写入任何内容。",
+      "source_sha256": "8b9b5e482a8ef174411e0cedabdedbb082b748f9be3fdf40ae8841a9addc3b83"
+    },
+    {
+      "table": "ui",
+      "key": "Create a GitHub account",
+      "source": "Create a GitHub account",
+      "translation": "创建一个 GitHub 帐户",
+      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
+    },
+    {
+      "table": "ui",
+      "key": "Crops could not be loaded",
+      "source": "Crops could not be loaded",
+      "translation": "无法加载裁剪图像",
+      "source_sha256": "43507e598078de1d2e4bb832761c216589c912922af7e77927bab4a79d48c518"
+    },
+    {
+      "table": "ui",
+      "key": "Crops from:",
+      "source": "Crops from:",
+      "translation": "裁剪图像来源：",
+      "source_sha256": "934c8569d887385d17ba8bf7a6ef90581317964142f35763b779de07ef08396a"
+    },
+    {
+      "table": "ui",
+      "key": "Curve",
+      "source": "Curve",
+      "translation": "曲线",
+      "source_sha256": "2a45c07314b2cd56907c7df9dfabdadd2ed17521161b53292cf146ea6c45dc85"
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "translation": "将有两个中心的连通区域沿中心之间的分界线分成两个对象（对到背景的距离进行分水岭分割）。只有一个中心的区域会保持完整，因此不会将所有对象都切开。关闭时，两个相接的细胞会作为一个对象。",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751"
+    },
+    {
+      "table": "ui",
+      "key": "Deep water",
+      "source": "Deep water",
+      "translation": "深水",
+      "source_sha256": "97c373b8cd487210fc0e6cf4636ded5e7cf7bc1648c96953b431e7176542e7de"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "translation": "删除所选后端的环境及下载到其中的所有内容。spaCR 自身的环境不受影响。",
+      "source_sha256": "bd59941dd8e4a85e42ffd4fb8c08afdeba2e024163d49831539a95fadfbdd623"
+    },
+    {
+      "table": "ui",
+      "key": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "source": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "translation": "需要检测暗色对象？请在 Display（显示）类别中启用 Invert image（反相图像）。它既反转您看到的图像，也反转这些按钮和 Live magnifier 读取的像素；在 2026-09-20 之前，这原本是两个开关，标注人员可能只启用了其中一个。",
+      "source_sha256": "c59da152ebd7649f753caec09e43acea9340b6c6c9b0113120ca067a3ad62e2f"
+    },
+    {
+      "table": "ui",
+      "key": "Dilate",
+      "source": "Dilate",
+      "translation": "膨胀",
+      "source_sha256": "2e3e332f6015c3f2a2fa376605346790d166fa3f452d817da819a1882d4ab136"
+    },
+    {
+      "table": "ui",
+      "key": "Discard",
+      "source": "Discard",
+      "translation": "放弃",
+      "source_sha256": "eb1a70e39274bb762b5d7c1adb5debeea2b05e12af28207f21a375b596853273"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed",
+      "source": "Download failed",
+      "translation": "下载失败",
+      "source_sha256": "eae34ccbc4432c1358da668b091e7c952fe8be24b02dd4f8ec5ea2edef5ca1a4"
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "translation": "下载十个用于 Plaque Analysis 的示例视野，并将 src 指向它们。可选择两组数据：带有分割标注的噬斑视野，即噬斑模型的训练数据；或整个板的图像，即流程接受的输入。首次下载后会缓存。",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}?",
+      "source": "Download {name}?",
+      "translation": "下载 {name}？",
+      "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}{size} into {folder}?",
+      "source": "Download {name}{size} into {folder}?",
+      "translation": "将 {name}{size} 下载到 {folder}？",
+      "source_sha256": "e8f0bb5d5edb9bfc4290a5d57ead97f3b746f4768e306d90f9efb4b6dbe140f0"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded {name}, but the folder would not open",
+      "source": "Downloaded {name}, but the folder would not open",
+      "translation": "已下载 {name}，但无法打开文件夹",
+      "source_sha256": "598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}",
+      "source": "Downloading {name}",
+      "translation": "正在下载 {name}",
+      "source_sha256": "61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name} in the background.",
+      "source": "Downloading {name} in the background.",
+      "translation": "正在后台下载 {name}。",
+      "source_sha256": "f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}…",
+      "source": "Downloading {name}…",
+      "translation": "正在下载 {name}…",
+      "source_sha256": "6b324c87e43336f8cb3f4cc1589d188e76d98e442b768406b3fa6135a13a764c"
+    },
+    {
+      "table": "ui",
+      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "translation": "绘制当前视野的强度直方图，并标出上方设置所采用的阈值。此阈值与按钮使用的阈值相同，来自同一个函数；如果标记偏离直方图的谷底，应调整阈值校正系数。",
+      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
+    },
+    {
+      "table": "ui",
+      "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "translation": "将图像和掩膜拖到此处，或编写一个正则表达式来分类。每行是一个视野，每列是一个通道或掩膜类型。",
+      "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d"
+    },
+    {
+      "table": "ui",
+      "key": "Drop objects the image border cuts",
+      "source": "Drop objects the image border cuts",
+      "translation": "剔除被图像边界截断的对象",
+      "source_sha256": "61c81158a6c877c40aec7f3fc2549aaff4455e5fc2a0f58f3d9b862af536fd48"
+    },
+    {
+      "table": "ui",
+      "key": "Dusk",
+      "source": "Dusk",
+      "translation": "暮色",
+      "source_sha256": "abd7160c1f46a06471bb88bd281a04bf2f32d195b618ae0fc9e095e19eb5ea6a"
+    },
+    {
+      "table": "ui",
+      "key": "Enable — report a failed run as a GitHub issue",
+      "source": "Enable — report a failed run as a GitHub issue",
+      "translation": "启用 — 将失败的运行报告为 GitHub issue",
+      "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f"
+    },
+    {
+      "table": "ui",
+      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "translation": "每个上下限设为 0 时均表示关闭。Filter 会应用已启用的限制，打开视野时也会应用；每个被移除的对象都会列在下方。",
+      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc"
+    },
+    {
+      "table": "ui",
+      "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "translation": "在您启用声音之前，此处所有音效均关闭。声音由 spaCR 在本机生成，不录音，也不下载，并在独立线程中播放，因此音频设备缺失或忙碌时只会没有声音。",
+      "source_sha256": "8507419bf9faf24a18cf419021b9ea7e2ef42249bbb745cffb3366e6ebb40eed"
+    },
+    {
+      "table": "ui",
+      "key": "Fetching community uploads…",
+      "source": "Fetching community uploads…",
+      "translation": "正在获取社区上传内容…",
+      "source_sha256": "2d24a0d4aa0d2b3289ff05ba3bb1ab18dc0303619352a74d1a4681c4e00b0617"
+    },
+    {
+      "table": "ui",
+      "key": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "source": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "translation": "已拖入但未能匹配任何行列位置的文件。这些文件不会参与测量。",
+      "source_sha256": "620209c5018abf6f1b76bbce6122700442e7200e454f94e0f979b90bb875dfa3"
+    },
+    {
+      "table": "ui",
+      "key": "Fill holes inside an object",
+      "source": "Fill holes inside an object",
+      "translation": "填充对象内部的孔洞",
+      "source_sha256": "435801ce592611dccfeaa141d681ac4d0813ba9242460018f0de502a6eabb95c"
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "translation": "在每个像素周围的窗口中分别计算 Otsu 阈值，而非对整个视野只计算一次。这样，照明较弱的角落会按局部强度判断，其中的对象不会再被漏掉，而明亮的中央区域仍保持清晰。噪声背景中可能会检出更多对象，可用最小面积限制将其去掉。仅支持两类，且仅用于 Otsu detect。",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c"
+    },
+    {
+      "table": "ui",
+      "key": "Find the database or the crop folder",
+      "source": "Find the database or the crop folder",
+      "translation": "查找数据库或图像裁剪文件夹",
+      "source_sha256": "c50fe52a1984e63864c301091e6beb6b1759fa1ccc706e1cfa1616b0fc2af02e"
+    },
+    {
+      "table": "ui",
+      "key": "Finish signing in to {label} in the window that opened, then press Done.",
+      "source": "Finish signing in to {label} in the window that opened, then press Done.",
+      "translation": "请在打开的窗口中完成 {label} 的登录，然后按下 Done（完成）。",
+      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe"
+    },
+    {
+      "table": "ui",
+      "key": "Five-parameter logistic (asymmetric)",
+      "source": "Five-parameter logistic (asymmetric)",
+      "translation": "五参数逻辑斯蒂曲线（非对称）",
+      "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736"
+    },
+    {
+      "table": "ui",
+      "key": "Folder this model was trained on",
+      "source": "Folder this model was trained on",
+      "translation": "训练此模型所用的文件夹",
+      "source_sha256": "bfdffd274fbd3b8d7c7f482ef830d4ae1b2b162e854ed86764e2ee751cf883d8"
+    },
+    {
+      "table": "ui",
+      "key": "Four-parameter logistic (symmetric)",
+      "source": "Four-parameter logistic (symmetric)",
+      "translation": "四参数逻辑斯蒂曲线（对称）",
+      "source_sha256": "b4158837e924edf5b918bf36797c7a7dcd820194e2f64c97cc4a8e9a75a7b4e5"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "translation": "在计算阈值及按该阈值分割图像之前，先进行高斯模糊，单位为像素。这样可避免噪声视野产生大量单像素对象。设为 0 时直接对原始数据进行阈值分割。",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146"
+    },
+    {
+      "table": "ui",
+      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "translation": "GitHub 登录尚未完成就已结束。请按下 Sign in（登录）重试。",
+      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
+    },
+    {
+      "table": "ui",
+      "key": "Grow / shrink:",
+      "source": "Grow / shrink:",
+      "translation": "扩大 / 缩小：",
+      "source_sha256": "6c6fc0076d7288997b218fa43d08c6fd2d8e5f77ad223c95292e901c6e54aff6"
+    }
+  ]
+}

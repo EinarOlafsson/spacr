@@ -3799,6 +3799,24 @@ def test_portuguese_installer_screen_is_a_window_not_a_scientific_screen(monkeyp
     assert builder._contextualize(scientific, "pt", "A CRISPR screen reports hits.") == scientific
 
 
+def test_chinese_file_table_cell_keeps_its_gui_sense(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = (
+        "Rows are fields, columns are channels and mask types. Drop files anywhere "
+        "on this table, or double-click a cell to browse for the one file it wants."
+    )
+    target = "每行代表一个视野，每列代表一个通道或掩膜类型。双击单元格以选择文件。"
+    assert builder._contextualize(target, "zh_CN", source) == target
+    assert builder._contextualize(
+        "选择要显示的单元格。", "zh_CN", "Select which cells to show.",
+    ) == "选择要显示的细胞。"
+    assert builder._contextualize(
+        "检测电池。", "zh_CN", "Detect cells.",
+    ) == "检测细胞。"
+
+
 def test_reviewed_readmes_do_not_reintroduce_known_context_errors():
     readme_root = ROOT / "docs" / "i18n" / "readme"
     french = (readme_root / "README.fr.rst").read_text(encoding="utf-8")

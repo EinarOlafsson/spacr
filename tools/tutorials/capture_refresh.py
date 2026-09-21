@@ -66,6 +66,7 @@ def main() -> int:
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
+    parser.add_argument('--barcode-reference-source', type=Path, help='Existing validated plain/reverse-complement reference pairs to copy into the private barcode recording')
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
@@ -793,7 +794,8 @@ def main() -> int:
                     'bytes': sum(p.stat().st_size for p in images)})
         if args.barcode_search_tour:
             from capture_barcode_search import record_search
-            record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout)
+            record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout,
+                          reference_source=args.barcode_reference_source)
         if args.measure_preview_controls:
             from capture_measure_controls import record_controls
             record_controls(app, window, screen, captures, capture, settle,

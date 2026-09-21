@@ -2165,3 +2165,19 @@ Full voice/language, listening and complete-set publication remain open.
 The overview's remaining 23 English voices are now rendering on CPU against
 its frozen verified stage, retaining the accepted af_heart track. Annotate,
 CV and ML voice work continues separately; no full-matrix completion claimed.
+
+2026-09-21 — CODEX: CURRENT MAP BARCODES CAPTURE AND INDEPENDENT COUNTS
+Captured current 1.5.0.8 at eed895c2f with 20 native GUI frames plus two actual
+terminal/figure frames. Fifteen staged scenes use real paired SRR33531217
+reads and matching reference copies. Saved GUI output independently reconciles
+10,000 pairs / 8,611 extracted / 7,657 mapped / 4,099 count rows; the separate
+two-barcode API run reconciles 1,000 / 869 / 793 / 535. Original reference
+copies and recorded API inputs retain their hashes. Three ambiguous guide
+sequences remain unassigned, and the genuine warning is retained.
+Actual scrolling makes all four guide and row orientation verdicts visible.
+No app logic or warning text was replaced. The initial 233.2-second English
+track exposed three noun-read pronunciations as red in the phoneme evidence;
+exact sentence overrides repair these and preserve other lessons/languages.
+Evidence: tools/tutorials/evidence/2026-09-21-map-barcodes-current-capture.json.
+Final corrected media/player checks, the full language/voice/caption matrix,
+listening acceptance and complete-set publication remain open.

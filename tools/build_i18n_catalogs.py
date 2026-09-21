@@ -1392,6 +1392,12 @@ _SCIENTIFIC_SCREEN_SOURCE = (
     r"settings)\b)"
 )
 
+_TABLE_CELL_UI_SOURCES = frozenset({
+    # Measure's file-input grid: the cell receives a file, not an organism.
+    "Rows are fields, columns are channels and mask types. Drop files anywhere "
+    "on this table, or double-click a cell to browse for the one file it wants.",
+})
+
 # Plain ``screen`` is intrinsically ambiguous. These reviewed sources are
 # GUI surfaces that lack enough surrounding vocabulary for the general sense
 # detector above; the five scientific-screen blocks are deliberately absent.
@@ -4808,6 +4814,9 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     for source_pattern, wrong, right in SOURCE_CONTEXT_REPLACEMENTS.get(
         language, ()
     ):
+        if (language == "zh_CN" and wrong == "单元格"
+                and str(source) in _TABLE_CELL_UI_SOURCES):
+            continue
         if re.search(source_pattern, str(source), flags=re.IGNORECASE):
             if right.startswith(wrong) and len(right) > len(wrong):
                 corrected = re.sub(
