@@ -64,7 +64,17 @@ def _survey(screen):
 
 @pytest.mark.parametrize("key", ["mask", "measure", "regression"])
 def test_the_help_is_on_the_name_not_the_field(window, qapp, key):
-    """Asked for repeatedly, and measured through the path a user takes."""
+    """Asked for repeatedly, and measured through the path a user takes.
+
+    At "All settings", so the survey covers every row a user can reach. At
+    Essentials, the level a module opens at, Measure shows eleven settings;
+    before 8d7426b59 (GitHub #120) the object rule ran after the settings
+    search and put the rows Essentials excludes back on the form, which is
+    how Essentials used to clear the "> 20" bar here.
+    """
+    from spacr.qt.settings_search import remember_disclosure
+
+    remember_disclosure(key, "all")
     window._on_nav_selected(key)
     qapp.processEvents()
     screen = window._screens[key]
