@@ -36,6 +36,7 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
+from .sortable_table import install_sorting, table_item
 from ...measure import (
     FieldRow,
     FieldTable,
@@ -185,6 +186,7 @@ class MeasureInputTable(QWidget):
             "Rows are fields, columns are channels and mask types. Drop "
             "files anywhere on this table, or double-click a cell to browse "
             "for the one file it wants.")
+        install_sorting(self._grid)
         outer.addWidget(self._grid, 1)
 
         buttons = QHBoxLayout()
@@ -337,7 +339,7 @@ class MeasureInputTable(QWidget):
 
     def remove_selected(self) -> int:
         """Remove every selected row. Returns how many went."""
-        doomed = sorted({index.row()
+        doomed = sorted({self._model_row(index.row())
                          for index in self._grid.selectedIndexes()},
                         reverse=True)
         for index in doomed:
@@ -435,6 +437,7 @@ class MeasureInputTable(QWidget):
         headings.extend(role_caption(role) for role in roles)
 
         self._grid.blockSignals(True)
+        self._grid.setSortingEnabled(False)
         self._grid.clear()
         self._grid.setColumnCount(len(headings))
         self._grid.setHorizontalHeaderLabels(headings)
@@ -442,7 +445,8 @@ class MeasureInputTable(QWidget):
         for index, row in enumerate(self._table.rows):
             for column, text in enumerate(
                     (row.label, row.well, str(row.field))):
-                item = QTableWidgetItem(str(text))
+                item = table_item(str(text))
+                item.setData(Qt.UserRole, index)
                 if column == 0:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                     item.setToolTip(
@@ -454,8 +458,9 @@ class MeasureInputTable(QWidget):
                     path = row.channels.get(int(key.split(':', 1)[1]))
                 else:
                     path = row.masks.get(key)
-                item = QTableWidgetItem(
+                item = table_item(
                     _basename(path) if path else "double-click to browse")
+                item.setData(Qt.UserRole, index)
                 item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 item.setToolTip(path or "No file yet")
                 if not path:
@@ -467,6 +472,7 @@ class MeasureInputTable(QWidget):
             for column in range(1, len(headings)):
                 header.setSectionResizeMode(
                     column, QHeaderView.ResizeToContents)
+        self._grid.setSortingEnabled(True)
         self._grid.blockSignals(False)
 
         self._left_over.clear()
@@ -476,6 +482,21 @@ class MeasureInputTable(QWidget):
             "Nothing was left over." if not self._unassigned
             else f"{len(self._unassigned)} file(s) went nowhere:")
         self.table_changed.emit()
+
+    def _model_row(self, view_row: int) -> int:
+        """The field a grid row shows, however the grid is sorted.
+
+        Every cell carries its field's index under ``Qt.UserRole`` so an
+        edit, a double-click or a removal reaches the field the user sees
+        on that row rather than the one that used to be there.
+
+        :param view_row: a row as the grid currently displays it.
+        :returns: the index into the model's rows; ``view_row`` when the row
+            carries no index.
+        """
+        item = self._grid.item(view_row, 0)
+        index = None if item is None else item.data(Qt.UserRole)
+        return view_row if index is None else int(index)
 
     def _on_plate_changed(self, text: str) -> None:
         """Rename the plate every row's stem starts with."""
@@ -525,7 +546,7 @@ class MeasureInputTable(QWidget):
 
     def _on_item_edited(self, item: QTableWidgetItem) -> None:
         """Take an edited well or field number back into the model."""
-        row = item.row()
+        row = self._model_row(item.row())
         if not 0 <= row < len(self._table.rows):
             return
         if item.column() == 1:
@@ -541,6 +562,7 @@ class MeasureInputTable(QWidget):
 
     def _on_cell_activated(self, row: int, column: int) -> None:
         """Browse for the one file the double-clicked cell wants."""
+        row = self._model_row(row)
         keys = self._column_keys()
         offset = column - _IDENTITY_COLUMNS
         if not 0 <= offset < len(keys):

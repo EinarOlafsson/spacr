@@ -52,6 +52,8 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..job_runner import JobRunner
+from ..hidpi import scaled_for
+from .sortable_table import install_sorting, table_item
 from .preview_contract import (
     PREVIEW_CANCEL_TEXT, PREVIEW_RUN_TEXT, PREVIEW_RUNNING_MESSAGE,
     LivePreviewContract, preview_failure_message,
@@ -1209,7 +1211,8 @@ class _ImageView(QLabel):
         shown = self.pixmap()
         if self._pixmap is None or shown is None or shown.isNull():
             return None
-        width, height = shown.width(), shown.height()
+        ratio = shown.devicePixelRatio() or 1.0
+        width, height = shown.width() / ratio, shown.height() / ratio
         if not width or not height:
             return None
         left = (self.width() - width) / 2.0
@@ -1234,9 +1237,8 @@ class _ImageView(QLabel):
         """Fit the pixmap to the label, keeping its shape."""
         if self._pixmap is None:
             return
-        self.setPixmap(self._pixmap.scaled(
-            max(1, self.width()), max(1, self.height()),
-            Qt.KeepAspectRatio, Qt.SmoothTransformation))
+        self.setPixmap(scaled_for(self._pixmap, self, max(1, self.width()),
+                                  max(1, self.height())))
 
     def resizeEvent(self, event):                            # noqa: N802
         """Refit on resize."""
@@ -1522,6 +1524,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._table.itemChanged.connect(self._on_table_edit)
         self._table.itemSelectionChanged.connect(self._on_table_selection)
         self._table.setMinimumHeight(180)
+        install_sorting(self._table)
         self._plaque_table = QTableWidget(0, len(PLAQUE_COLUMNS), self)
         self._plaque_table.setObjectName("PlaquePerPlaqueTable")
         self._plaque_table.setHorizontalHeaderLabels(
@@ -1533,6 +1536,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             QHeaderView.ResizeToContents)
         self._plaque_table.itemSelectionChanged.connect(
             self._on_plaque_selection)
+        install_sorting(self._plaque_table)
         self._tabs = QTabWidget(self)
         self._tabs.setObjectName("PlaqueFigureTabs")
         self._tabs.addTab(self._table, tr("Wells"))
@@ -2232,9 +2236,17 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                              selected=self._selected)
 
     def _fill_table(self) -> None:
-        """One row per plaque image."""
+        """One row per plaque image.
+
+        Every cell carries its annotation's index under ``Qt.UserRole``, so a
+        row still finds its annotation after the user sorts the table. Sorting
+        is off while the rows are written: a sorted table moves a row the
+        moment a cell in the sorted column is set, and the rest of that row
+        would land in whichever row took its place.
+        """
         self._filling_table = True
         self._table.blockSignals(True)
+        self._table.setSortingEnabled(False)
         self._table.setRowCount(len(self._annotations))
         for row, a in enumerate(self._annotations):
             well = self._wells.get(row)
@@ -2244,20 +2256,46 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                      str(well["count"]) if well else "",
                      f"{well['mean_area']:.0f}" if well else "")
             for column, text in enumerate(cells):
-                item = QTableWidgetItem(text)
+                item = table_item(text)
+                item.setData(Qt.UserRole, row)
                 item.setToolTip(text)
                 if column != CONDITION_COLUMN:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
                 self._table.setItem(row, column, item)
-            ok = QTableWidgetItem("")
+            ok = table_item("")
+            ok.setData(Qt.UserRole, row)
             ok.setFlags((ok.flags() | Qt.ItemIsUserCheckable)
                         & ~Qt.ItemIsEditable)
             ok.setCheckState(Qt.Checked if a.approved else Qt.Unchecked)
             self._table.setItem(row, OK_COLUMN, ok)
+        self._table.setSortingEnabled(True)
         if self._selected is not None:
-            self._table.selectRow(self._selected)
+            self._table.selectRow(self._view_row(self._selected))
         self._table.blockSignals(False)
         self._filling_table = False
+
+    def _annotation_index(self, view_row: int) -> int:
+        """The annotation a row of the Wells table shows, however it is sorted.
+
+        :param view_row: a row as the table currently displays it.
+        :returns: the 0-based annotation index; the row itself when the row
+            carries no index.
+        """
+        item = self._table.item(view_row, 0)
+        index = None if item is None else item.data(Qt.UserRole)
+        return view_row if index is None else int(index)
+
+    def _view_row(self, index: int) -> int:
+        """The row of the Wells table showing annotation ``index`` now.
+
+        :param index: 0-based annotation index.
+        :returns: the displayed row; ``index`` itself when no row claims it.
+        """
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            if item is not None and item.data(Qt.UserRole) == index:
+                return row
+        return index
 
     def _clear_figure(self) -> None:
         """Forget the figure, its wells and both tables."""
@@ -2286,7 +2324,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """Select the well of the row picked in the Wells table."""
         rows = {i.row() for i in self._table.selectedItems()}
         if len(rows) == 1:
-            self.select_well(rows.pop(), from_table=True)
+            self.select_well(self._annotation_index(rows.pop()),
+                             from_table=True)
 
     def _on_plaque_selection(self) -> None:
         """Select the well a plaque row belongs to."""
@@ -2316,7 +2355,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._selected = index
         if not from_table:
             self._table.blockSignals(True)
-            self._table.selectRow(index)
+            self._table.selectRow(self._view_row(index))
             self._table.blockSignals(False)
         self._redraw_boxes()
         self._show_well(index)
@@ -2485,6 +2524,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """Rewrite the Plaques tab from the wells segmented so far."""
         rows = self.plaque_table_rows()
         self._plaque_table.blockSignals(True)
+        self._plaque_table.setSortingEnabled(False)
         self._plaque_table.setRowCount(len(rows))
         for r, row in enumerate(rows):
             for c, key in enumerate(PLAQUE_KEYS):
@@ -2495,20 +2535,21 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                     text = f"{value:.2f}" if abs(value) < 100 else f"{value:.0f}"
                 else:
                     text = str(value)
-                self._plaque_table.setItem(r, c, QTableWidgetItem(text))
+                self._plaque_table.setItem(r, c, table_item(text))
+        self._plaque_table.setSortingEnabled(True)
         self._plaque_table.blockSignals(False)
         self._tabs.setTabText(1, tr("Plaques ({n})", n=len(rows)))
 
-    def _row_ok(self, row: int) -> bool:
-        """Whether a row is ticked OK."""
-        item = self._table.item(row, OK_COLUMN)
+    def _row_ok(self, index: int) -> bool:
+        """Whether annotation ``index`` is ticked OK, wherever its row sits."""
+        item = self._table.item(self._view_row(index), OK_COLUMN)
         return item is not None and item.checkState() == Qt.Checked
 
     def _on_table_edit(self, item: QTableWidgetItem) -> None:
         """Keep the annotation and the boxes in step with an edit."""
         if self._filling_table:
             return
-        row = item.row()
+        row = self._annotation_index(item.row())
         if row >= len(self._annotations):
             return
         a = self._annotations[row]
@@ -2530,7 +2571,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         name = Path(result["path"]).name
         rows = []
         for row in range(self._table.rowCount()):
-            condition = self._table.item(row, CONDITION_COLUMN)
+            condition = self._table.item(self._view_row(row), CONDITION_COLUMN)
             rows.append({"file": name, "region": row + 1,
                          "condition": condition.text().strip()
                          if condition is not None else "",
