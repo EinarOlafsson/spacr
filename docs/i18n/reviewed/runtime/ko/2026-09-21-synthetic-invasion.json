@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source_sha256": "507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e",
+      "translation": "약 {size} MB의 합성 테스트 데이터를 다운로드합니다. 두 색상의 시야와 객체 마스크는 촬영하거나 분할한 것이 아니라 spaCR가 그린 뒤 Measure로 측정한 것입니다. 염색 대조군 열 하나와 세포에 침입한 기생충의 비율이 알려진 두 조건이 있으며, 실제 정답 값도 함께 제공됩니다. 설정이 자동으로 채워지므로 다음 단계는 실행입니다. 첫 다운로드 후 캐시에 저장됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the synthetic Invasion Assay test data",
+      "source": "Downloading the synthetic Invasion Assay test data",
+      "source_sha256": "f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e",
+      "translation": "Invasion Assay의 합성 테스트 데이터를 다운로드하는 중"
+    }
+  ]
+}

@@ -152,3 +152,11 @@ named-group identifiers and the protected Format Converter name. The full
 Spanish runtime audit passes at the current 3824-source English manifest.
 The other eight languages and the API docstrings remain translation debt.
 No Import behavior or example data was changed.
+
+2026-09-21 — CODEX: NINE-LANGUAGE RUNTIME CAPTIONS COMPLETE
+--------------------------------------------------------------------------------
+All nine Import captions now have reviewed translations in all nine runtime
+locales: 81 records, each bound to its current source and hash and checked by
+the ordinary gates. Full de/sv/es runtime audits pass at 3824 UI sources.
+The API docstring translation work remains with 411; no Import behavior or
+test data changed. Evidence: docs/i18n/2026-09-21-download-caption-review.md.

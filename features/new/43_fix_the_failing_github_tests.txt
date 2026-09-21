@@ -1711,3 +1711,21 @@ sources. This does not close docs: other runtime languages owe the eleven
 new Import/Invasion captions and their remaining repairs; API debt remains.
 See docs/i18n/2026-09-21-runtime-spanish-recovery.md. All non-docs work remains
 with Claude.
+
+2026-09-21 — CODEX DOCS LANE: DOWNLOAD CAPTIONS AND CURRENT API INVENTORY
+--------------------------------------------------------------------------------
+All eleven new Import/synthetic-Invasion captions are reviewed in all nine
+runtime locales. Full German/Swedish audits are green again at 3824 UI sources,
+as is Spanish; broader repairs remain in the other six locales. Three existing
+source/syntax checks pass with historical review counts preserved.
+API debt is now measured explicitly: 11041 current symbols versus 10539 in the
+English catalog, with 504 added, two removed and 114 changed sources. Exact
+lists are in features/data/411_api_debt_2026-09-21.json. No API baseline was
+changed, and the docs lane remains open. Other CI work remains with Claude.
+The full nine-language runtime audit now exits 1 with 369 diagnostics (200
+printed plus 169 more); these are not counts of distinct translation rows.
+The reporter tests also caught stale COVERAGE and REVIEW_SCOPE tables, which
+are regenerated from the actual sources and evidence in this checkpoint.
+The exact reporter rerun passes all four tests (127.44 s); the three existing
+source/syntax tests also pass. The generated feature index is current. The
+remaining full-runtime/API failures are still recorded, so docs stays open.

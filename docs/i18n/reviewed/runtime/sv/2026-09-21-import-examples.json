@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Custom only: a pattern with named groups wellID, fieldID and chanID",
+      "source": "Custom only: a pattern with named groups wellID, fieldID and chanID",
+      "source_sha256": "be58ceda2d19b35b78d5d432878c920345948c09a7bf3b87f68052a8825b8290",
+      "translation": "Endast anpassat: ett mönster med de namngivna grupperna wellID, fieldID och chanID"
+    },
+    {
+      "table": "ui",
+      "key": "Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.",
+      "source": "Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.",
+      "source_sha256": "c0fb09831ae60641e74f2dcfd3af9b4864f28582f348bc6ecfaddfc57979db4a",
+      "translation": "Hämta samma bildfält sparade i alla mikroskopformat och filnamnskonventioner som Import läser — Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 och de övriga. Den valda varianten fyller i denna vy så att Förhandsgranska visar hur den läses in. En hämtning på cirka 285 MB innehåller alla varianter."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the Import test data",
+      "source": "Downloading the Import test data",
+      "source_sha256": "b4da3ac6e0efb77b66a04c88050257e9a3f20e4f11a3f0b50082b374ff0d3882",
+      "translation": "Hämtar testdata för Import"
+    },
+    {
+      "table": "ui",
+      "key": "How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.",
+      "source": "How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.",
+      "source_sha256": "e84edeabe123015401cafe40db9d8976136f3e06b156028b176cfc646a633e9d",
+      "translation": "Hur bilders och maskers FILNAMN anger platta, brunn, bildfält och kanal för varje fil — samma konventioner som Mask erbjuder som metadatatyp. Mappar och filnamnsdelar läser i stället brunnen från mappen."
+    },
+    {
+      "table": "ui",
+      "key": "Load Import test data",
+      "source": "Load Import test data",
+      "source_sha256": "942169ecc1791806733b6c439d71c14fd700bdccd2c15a3b77c6f59d4377876a",
+      "translation": "Läs in testdata för Import"
+    },
+    {
+      "table": "ui",
+      "key": "Naming",
+      "source": "Naming",
+      "source_sha256": "a64cb3fcdcf665a2b8d0b69efb112112ca59b2ab29d43e408b382892912efe4a",
+      "translation": "Namngivning"
+    },
+    {
+      "table": "ui",
+      "key": "Opened the Format Converter on {path}",
+      "source": "Opened the Format Converter on {path}",
+      "source_sha256": "1ba6bdb5c9e32e21927be2d9c88cdcf157ad661d5cb6493d2a43328a79444ca7",
+      "translation": "Öppnade Format Converter för {path}"
+    },
+    {
+      "table": "ui",
+      "key": "The Format Converter could not be opened.",
+      "source": "The Format Converter could not be opened.",
+      "source_sha256": "19cf1ad6db47ffe954813ae87bbc79a01988ec6600bef0b439548210f670e81b",
+      "translation": "Format Converter kunde inte öppnas."
+    },
+    {
+      "table": "ui",
+      "key": "{key} is not a filename convention Import knows.",
+      "source": "{key} is not a filename convention Import knows.",
+      "source_sha256": "eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1",
+      "translation": "{key} är inte en filnamnskonvention som Import känner igen."
+    }
+  ]
+}

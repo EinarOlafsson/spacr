@@ -4147,3 +4147,22 @@ baseline. Published focused tests survive in Git; a new full measurement must
 use a fixed snapshot and persistent output storage. No new coverage percentage
 or completed full-suite verdict is claimed. The 90% per-module target remains
 open. Every restarted Python process must retain the hard memory cap.
+
+2026-09-21 — CODEX: PERSISTENT FULL MEASUREMENT RESTARTED
+--------------------------------------------------------------------------------
+Fixed snapshot 3d9eb57c5 is running in codex-coverage-20260921 under the Claude
+repo parent; no source is edited in that snapshot. The suite uses the same
+five tracing exclusions and not-gui marker as CI, 95 batches of 32 files,
+two workers and a 12-GiB hard cgroup cap. A private namespace shadows the NAS.
+Process data, worker-integrity ledgers and the log are on persistent storage:
+/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/coverage and logs/.
+At this checkpoint the first eight batches have passed. The run is incomplete;
+no coverage percentage or baseline tightening is claimed. Later nightly
+changes must be reconciled separately against this fixed source boundary.
+
+Batch 10's one failure was a stale test inventory: Plaque Assay now shares
+Mask's live-preview builder. tests/qt/test_cov_r5_app_screen.py now checks all
+five offered modules and their shared construction branch, while retaining
+all four actual builder checks. The whole file passes: 30 tests in 25.59 s.
+The fixed-snapshot full run retains its original failure status and continues;
+this focused repair is separate evidence, not a retroactively green full run.

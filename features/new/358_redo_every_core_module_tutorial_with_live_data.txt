@@ -2031,3 +2031,22 @@ reject other spaCR versions in visible Qt text, and retain image review.
 19 capture-policy checks and the lesson 04 installer-route check pass anew.
 The README now describes the actual verified FEATURES assignment/Measure
 route. Final live-data recaptures, narration and publication remain open.
+
+2026-09-21 — CODEX: HOME AND INSTALLER MEDIA REBUILT ON DURABLE STORAGE
+--------------------------------------------------------------------------------
+The new shared capture pass recorded Home, Help search, Preferences/Performance
+and opened Mask at native 4K with dark/Blobs and no historical News panel.
+Home and lesson 04 now have freshly composed 3840x2160, 30-fps silent masters
+and narrated English af_heart review previews. Full decoding passes for both
+masters and previews: Home 92.833333 s, installers 122.666667 s. Fresh 01/04/05
+af_heart audio passes source freshness, media identity, timing and activity
+checks. Home overview, Performance, Help search and lesson 04's Linux and
+Performance keyframes were visually inspected.
+
+Receipt: tools/tutorials/evidence/2026-09-21-post-reboot-home-installers.json.
+Media persist under /mnt/firecuda2/Claude/repo/codex-artifacts-20260921;
+the neutral capture path is only a symlink into that durable directory.
+The full narration matrix continues on CPU. These are local review candidates:
+audible pronunciation, captions/browser/mobile checks, remaining live-data
+core lessons and final Make Masks FEATURES integration remain open. Nothing
+was published to the live tutorial site.

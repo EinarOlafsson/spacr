@@ -11,6 +11,21 @@ if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
 
+def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
+    """Account for the Import and synthetic Invasion review records separately."""
+    sources: set[str] = set()
+    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 2)):
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                               f"2026-09-21-{filename}.json").read_text())
+        added = {record["source"] for record in document["records"]}
+        assert len(document["records"]) == len(added) == expected
+        assert added <= reviewed.keys()
+        assert not added & sources
+        sources.update(added)
+    assert len(sources) == 11
+    return sources
+
+
 def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
     from build_i18n_catalogs import _syntax_preserved
 
@@ -60,8 +75,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(normalized_sources) == 5
     assert normalized_sources <= all_reviewed.keys()
     assert not normalized_sources & (example_sources | preview_sources)
+    download_sources = _new_download_sources("sv", all_reviewed)
+    older_all_sources = all_reviewed.keys() - download_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in ui_sources | example_sources | preview_sources | normalized_sources}
+                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -217,10 +234,11 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_sources) == 335
     assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
     assert len(reviewed) == 377  # +3 variable-count dataset captions.
-    assert len(all_reviewed.keys() - example_sources - preview_sources - normalized_sources) == 646
-    assert len(all_reviewed.keys() - preview_sources - normalized_sources) == 653
-    assert len(all_reviewed.keys() - normalized_sources) == 658
-    assert len(all_reviewed) == 663
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 646
+    assert len(older_all_sources - preview_sources - normalized_sources) == 653
+    assert len(older_all_sources - normalized_sources) == 658
+    assert len(older_all_sources) == 663
+    assert len(all_reviewed) == 674  # +9 Import and +2 synthetic Invasion.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -257,8 +275,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(normalized_sources) == 5
     assert normalized_sources <= all_reviewed.keys()
     assert not normalized_sources & (example_sources | preview_sources)
+    download_sources = _new_download_sources("fr", all_reviewed)
+    older_all_sources = all_reviewed.keys() - download_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources | preview_sources | normalized_sources}
+                if source not in example_sources | preview_sources | normalized_sources | download_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -402,9 +422,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(reviewed.keys() - background_sources - sample_sources) == 318
     assert len(reviewed.keys() - sample_sources) == 326
     assert len(reviewed) == 329  # +3 variable-count dataset captions.
-    assert len(all_reviewed.keys() - preview_sources - normalized_sources) == 336
-    assert len(all_reviewed.keys() - normalized_sources) == 341
-    assert len(all_reviewed) == 346
+    assert len(older_all_sources - preview_sources - normalized_sources) == 336
+    assert len(older_all_sources - normalized_sources) == 341
+    assert len(older_all_sources) == 346
+    assert len(all_reviewed) == 357  # +9 Import and +2 synthetic Invasion.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

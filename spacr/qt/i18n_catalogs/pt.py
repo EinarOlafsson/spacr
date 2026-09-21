@@ -5749,6 +5749,17 @@ UI = {
     'Detection reads the image as loaded.': 'A detecção usa a imagem como foi carregada.',
     'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.': 'Desativado: Otsu, Cellpose e a lupa usam a imagem como foi carregada (invertida se Inverter estiver ativado), e % inferior / % superior alteram apenas a exibição. Ativado: usam a imagem com as intensidades expandidas entre % inferior e % superior, exatamente como é exibida, e a intensidade no canto superior esquerdo mostra esse valor expandido. Os dados salvos nunca são alterados.',
     'x {x}, y {y}   intensity {value} (normalized, as detected)': 'x {x}, y {y}   intensidade {value} (normalizada, conforme detectada)',
+    'Custom only: a pattern with named groups wellID, fieldID and chanID': 'Somente personalizado: um padrão com os grupos nomeados wellID, fieldID e chanID',
+    'Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.': 'Baixa os mesmos campos salvos em todos os formatos de microscópio e convenções de nomes de arquivo que Import lê — Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 e os demais — e preenche esta tela com a variante escolhida para conferir a leitura na prévia. Um download de cerca de 285 MB inclui todas as variantes.',
+    'Downloading the Import test data': 'Baixando os dados de teste de Import',
+    'How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.': 'Como os NOMES DOS ARQUIVOS de imagens e máscaras indicam a placa, o poço, o campo e o canal de cada arquivo — as mesmas convenções que Mask oferece como tipo de metadados. Pastas e componentes do nome de arquivo lê o poço a partir da pasta.',
+    'Load Import test data': 'Carregar dados de teste de Import',
+    'Naming': 'Convenção de nomes',
+    'Opened the Format Converter on {path}': 'Format Converter aberto em {path}',
+    'The Format Converter could not be opened.': 'Não foi possível abrir Format Converter.',
+    '{key} is not a filename convention Import knows.': '{key} não é uma convenção de nomes de arquivo reconhecida por Import.',
+    'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.': 'Baixa cerca de {size} MB de dados de teste SINTÉTICOS: campos de duas cores e máscaras de objetos desenhados pelo spaCR, não obtidos por imagem nem segmentados, e depois medidos por Measure. Uma coluna de controle de coloração e duas condições com proporções conhecidas de parasitas que invadiram as células, acompanhadas dos valores verdadeiros. Os ajustes são preenchidos; o próximo passo é Executar. Os dados ficam em cache após o primeiro download.',
+    'Downloading the synthetic Invasion Assay test data': 'Baixando os dados de teste sintéticos de Invasion Assay',
 }
 
 MODULE_SUMMARIES = {
@@ -11622,4 +11633,15 @@ SOURCE_HASHES = {
     ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
     ('UI', 'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.'): '9eed53b13f2726d64d04bafd35c4d0b31b3f2b05650e87e6edaba101c10c9d9e',
     ('UI', 'x {x}, y {y}   intensity {value} (normalized, as detected)'): 'a4e14490fc49f565f00140220ee671d5445fbc7f2140a574527151bb958ae9f6',
+    ('UI', 'Custom only: a pattern with named groups wellID, fieldID and chanID'): 'be58ceda2d19b35b78d5d432878c920345948c09a7bf3b87f68052a8825b8290',
+    ('UI', 'Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.'): 'c0fb09831ae60641e74f2dcfd3af9b4864f28582f348bc6ecfaddfc57979db4a',
+    ('UI', 'Downloading the Import test data'): 'b4da3ac6e0efb77b66a04c88050257e9a3f20e4f11a3f0b50082b374ff0d3882',
+    ('UI', 'How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.'): 'e84edeabe123015401cafe40db9d8976136f3e06b156028b176cfc646a633e9d',
+    ('UI', 'Load Import test data'): '942169ecc1791806733b6c439d71c14fd700bdccd2c15a3b77c6f59d4377876a',
+    ('UI', 'Naming'): 'a64cb3fcdcf665a2b8d0b69efb112112ca59b2ab29d43e408b382892912efe4a',
+    ('UI', 'Opened the Format Converter on {path}'): '1ba6bdb5c9e32e21927be2d9c88cdcf157ad661d5cb6493d2a43328a79444ca7',
+    ('UI', 'The Format Converter could not be opened.'): '19cf1ad6db47ffe954813ae87bbc79a01988ec6600bef0b439548210f670e81b',
+    ('UI', '{key} is not a filename convention Import knows.'): 'eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1',
+    ('UI', 'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.'): '507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e',
+    ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
 }

@@ -720,3 +720,13 @@ three-lane handover. The dated checkpoint in future/411 records the runtime
 translation repairs and the still-open API/helper work. No new helper slice
 or Phase B completion is claimed by these runtime repairs; this item stays
 open on 411 alone. The previously completed phases are unchanged.
+
+2026-09-21 — CODEX TRANSLATION DEPENDENCY CHECKPOINT
+--------------------------------------------------------------------------------
+The remaining dependency on 411 is still open. A current source inventory at
+52d0c03f9 finds 11041 public docstrings against 10539 English catalog symbols:
+504 additions, two removals and 114 changed existing sources. The exact lists
+are saved in features/data/411_api_debt_2026-09-21.json; API catalogs and the
+extractor debt baseline are unchanged. Runtime progress is separate: de/sv/es
+pass their full audits and all eleven new download captions are reviewed in
+all nine locales. This does not claim translated API completion.

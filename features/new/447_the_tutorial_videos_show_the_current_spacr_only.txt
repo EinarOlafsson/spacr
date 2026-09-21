@@ -170,3 +170,16 @@ commands now use the actual spaCR- prefix (case-sensitive); the existing
 installer-route contract passes. Fresh captures, narration, audible pype
 review and final video/publication acceptance remain open. Recovery work and
 future durable artifacts use persistent storage rather than /tmp alone.
+
+2026-09-21 — CODEX: FRESH CURRENT-VERSION 04/05 REVIEW VIDEOS
+--------------------------------------------------------------------------------
+Recaptured Home's dark/Blobs overview, real Help search, Performance and opened
+Mask after the release-history guard. Rebuilt Home and installer lesson 04 at
+native 4K/30 fps; both silent masters and af_heart previews fully decode. The
+Linux installer frame now visibly uses the correct spaCR- filename prefix.
+The overview, Help search and Performance frames contain no older release
+history. Receipt: 2026-09-21-post-reboot-home-installers.json in tutorial evidence.
+Three matching English narration tracks pass the full technical audio checks.
+The files live on durable storage. These checks do not replace listening to
+pype, final encoded-frame/browser review, the complete voice matrix, or the
+remaining Make Masks/FEATURES and core-module lesson captures.

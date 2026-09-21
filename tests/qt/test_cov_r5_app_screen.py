@@ -724,9 +724,9 @@ class TestTheGuardsNothingCanTrip:
                                                                      screen):
         """Why the ``card_attr is not None`` guard in the actions row is dead.
 
-        The four keys the toggle is offered for are exactly the four the
-        runtime panel builds a preview card for, and none of the four builders
-        can return without one.
+        The five keys the toggle is offered for are exactly the five the
+        runtime panel builds a preview card for. Mask and Plaque Assay share
+        one builder; none of the four builders can return without a card.
         """
         import inspect
         import re
@@ -734,13 +734,17 @@ class TestTheGuardsNothingCanTrip:
         source = inspect.getsource(AppScreen._build_runtime_panel)
         offered = set(re.findall(r'"(\w+)": \(\n\s+"(_\w+_card)"', source))
         assert offered == {("mask", "_live_preview_card"),
+                           ("analyze_plaques", "_live_preview_card"),
                            ("timelapse", "_timelapse_preview_card"),
                            ("motility", "_motility_preview_card"),
                            ("measure", "_measure_preview_card")}
         for key, attr in offered:
-            # ...and each of those four keys is a branch that fills the very
-            # attribute the toggle then reads.
-            branch = source.split(f'self.app_key == "{key}":')[1]
+            # Every offered key reaches a branch that fills the attribute
+            # its toggle reads, including the shared Mask/Plaque branch.
+            condition = ('self.app_key in ("mask", "analyze_plaques"):'
+                         if key in {"mask", "analyze_plaques"}
+                         else f'self.app_key == "{key}":')
+            branch = source.split(condition)[1]
             assert f"self.{attr} = (" in branch.split("elif self.app_key")[0]
 
         from spacr.qt.widgets.motility_preview import (

@@ -863,3 +863,29 @@ Fresh full Spanish audit passes: 985 settings, 194 categories, 3824 UI sources,
 Evidence and scope: docs/i18n/2026-09-21-runtime-spanish-recovery.md. The other
 eight languages still owe these eleven new captions. API debt and the full
 docs lane remain open; no old lost audit artifact was reused as evidence.
+
+2026-09-21 — CODEX: ALL NINE LANGUAGES HAVE THE NEW DOWNLOAD CAPTIONS
+--------------------------------------------------------------------------------
+The nine Import and two synthetic Invasion captions now have 99 source-bound
+reviewed records across all nine runtime locales. Added the remaining 88 to
+the earlier Spanish eleven, without other generated-row churn. Full German
+and Swedish audits pass at 3824 UI sources, matching Spanish. Three existing
+source/syntax tests pass; historical count arithmetic is preserved. Swedish
+has 674 distinct reviewed sources; French has 357.
+
+The API inventory now measures 11041 current public docstrings against 10539
+catalog symbols: 504 added, two removed, 114 changed existing sources. Exact
+lists and source boundary are in features/data/411_api_debt_2026-09-21.json.
+The old 392 figure is historical. No API manifest or debt baseline was quietly
+updated. Six runtime languages still need their broader repairs/review; API
+generation and docs acceptance remain open. Evidence:
+docs/i18n/2026-09-21-download-caption-review.md.
+The complete all-language runtime audit exits 1 with 369 diagnostics after
+this checkpoint (not 369 distinct rows). Remaining locale repair debt is
+explicit in the regenerated live COVERAGE and REVIEW_SCOPE tables. The
+initial reporter failures were stale evidence tables, not ignored failures;
+the exact failed checks are being rerun after regeneration.
+After regeneration, all four existing reporter tests pass (127.44 s), alongside
+the three source/syntax tests. The generated feature index also passes its
+consistency check. These results cover the checkpoint reports, not the still
+red complete runtime/API translation work.

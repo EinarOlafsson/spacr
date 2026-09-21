@@ -348,3 +348,12 @@ the Home capture guard excluding older release-history text. The installer
 route check and 19 capture-policy checks pass. Both lessons still require
 fresh media, audible review and paired catalog/media publication. Bullet 7
 remains open.
+
+2026-09-21 — CODEX: LESSONS 04 AND 05 REBUILT FOR REVIEW
+--------------------------------------------------------------------------------
+Both 04 and 05 now have fresh English af_heart narration and 4K/30-fps videos
+using the newly captured actual Performance selector. Silent masters and
+narrated previews fully decode; the exact-source audio/timing checks pass.
+Durable artifact hashes are in tutorial evidence/
+2026-09-21-post-reboot-home-installers.json. Bullet 7 remains open for the full
+voice matrix, audible and browser/caption acceptance, and paired publication.

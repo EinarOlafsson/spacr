@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source": "Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.",
+      "source_sha256": "507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e",
+      "translation": "下载约 {size} MB 的合成测试数据：双色视野和对象掩膜由 spaCR 绘制，并非通过成像或分割获得，随后由 Measure 测量。数据包含一列染色对照，以及两种已知细胞内侵入寄生虫比例的条件，并附有真值供比较。设置会自动填充，下一步即可运行。首次下载后会缓存数据。"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the synthetic Invasion Assay test data",
+      "source": "Downloading the synthetic Invasion Assay test data",
+      "source_sha256": "f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e",
+      "translation": "正在下载 Invasion Assay 合成测试数据"
+    }
+  ]
+}

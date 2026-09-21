@@ -188,3 +188,11 @@ the data synthetic and says the fields/masks are drawn, not acquired or
 segmented. Full Spanish runtime audit passes at 3824 UI sources. These two
 captions remain owed in the other eight languages; API translations remain
 open. No assay behavior, measurements or data changed in this checkpoint.
+
+2026-09-21 — CODEX: SYNTHETIC INVASION CAPTIONS IN ALL NINE LOCALES
+--------------------------------------------------------------------------------
+Both synthetic Invasion download captions now have reviewed translations in
+all nine runtime locales: 18 source-bound records preserving placeholders
+and the distinction between synthetic drawing and real imaging/segmentation.
+Full de/sv/es runtime audits pass at 3824 UI sources. API translation debt
+remains with 411. No assay behavior or example data changed.

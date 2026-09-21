@@ -1,0 +1,121 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "local_review_candidates_not_published",
+  "source_commit": "3d9eb57c5",
+  "artifact_root": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921",
+  "gpu_used": false,
+  "appearance": {
+    "theme": "dark",
+    "backdrop": "blobs",
+    "historical_news_panel": "omitted in capture only"
+  },
+  "tracks": [
+    {
+      "lesson": "01_pypi_github",
+      "language": "en",
+      "voice": "af_heart",
+      "sha256": "c1791264b23d8cc6cc5eff8d8980b489fe0ad1b43becaf0b39de75361af8e5a4",
+      "verification_errors": []
+    },
+    {
+      "lesson": "04_platform_installers",
+      "language": "en",
+      "voice": "af_heart",
+      "sha256": "ed7d1a01a302889ec7c1f7d9f3a51785454079072c78c1a2222e8910c13940af",
+      "verification_errors": []
+    },
+    {
+      "lesson": "05_home",
+      "language": "en",
+      "voice": "af_heart",
+      "sha256": "d9e9804557ff6f28ce1a619c8fdff1b68eb3af3238bcde188333066fa8e3260e",
+      "verification_errors": []
+    }
+  ],
+  "lessons": [
+    {
+      "lesson": "04_platform_installers",
+      "duration": 122.666667,
+      "video_sha256": "52ed9ca9e1bbe8846f75d8f8d383c4f6e317888cc5feedc8abe64d65ee43453a",
+      "preview_sha256": "9ec75ce78e648d242ee6c9fa89ac39d7fec84e37fe8ab468a2cbb1defbf351a3",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "full_decode": "passed",
+      "frames": [
+        {
+          "file": "01.png",
+          "sha256": "f14bb4733c19e637a6b80dab31af9828db188f2e7aeb92ff607298c5b42e7a1a"
+        },
+        {
+          "file": "02.png",
+          "sha256": "07ab2c3f22931748f422b2b54a25dc406e60de3d23caa8206d0e5a2588317aaa"
+        },
+        {
+          "file": "03.png",
+          "sha256": "06ee5eeb4626305e97c78bc42d9848982a79f93a80e02539711431aa436993f9"
+        },
+        {
+          "file": "04.png",
+          "sha256": "1e9b69056b8095e4289b27b802f3c60a6977411671428a86543fd787c1ef8077"
+        },
+        {
+          "file": "05.png",
+          "sha256": "5b5d288e120a9e3661fd1fa528ce280c1ac182c7e37096c6a16b86636e2e8f98"
+        },
+        {
+          "file": "06.png",
+          "sha256": "fccae8479d1754e3d3e3e7815c21b65abd0043d53fa09b3daf74be902518d21e"
+        },
+        {
+          "file": "07.png",
+          "sha256": "39074426acc08384b6278e38fdbfbe09db696bd84ad420856d636be46bee25ed"
+        },
+        {
+          "file": "08.png",
+          "sha256": "7329fadd3480c6e505bf82c6b02e4a383fc1dd3df509a7319e052c10a5e49800"
+        },
+        {
+          "file": "09.png",
+          "sha256": "6b1c56ccc78e75ca6540f51b2f75bbb19bed5678105f0127de594b819145ac73"
+        }
+      ]
+    },
+    {
+      "lesson": "05_home",
+      "duration": 92.833333,
+      "video_sha256": "337f9a19651840766115c040aef8a725ee6a2c9f8d73e933b22af38a56c78e5c",
+      "preview_sha256": "274b3b368e327239d2113423a3ac5eeeaebb6bfa355cd6aa437245a542c3d6b1",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30,
+      "full_decode": "passed",
+      "frames": [
+        {
+          "file": "01_module.png",
+          "sha256": "9cd9be912be920258c39c7ab192a20297cfe9797770db2682d64ae545b27b498"
+        },
+        {
+          "file": "02_performance_4k.png",
+          "sha256": "7329fadd3480c6e505bf82c6b02e4a383fc1dd3df509a7319e052c10a5e49800"
+        },
+        {
+          "file": "03_mask_open_4k.png",
+          "sha256": "cb0888ea81fdb2d689f0e75c62fd3e908e1b162ade08503532b0171d188136d1"
+        },
+        {
+          "file": "04_help_search.png",
+          "sha256": "a4bc77f4898fbd5540609a9e313dc0988aa77f87b2d2fb6a836bad82d83b15ff"
+        }
+      ]
+    }
+  ],
+  "outstanding": [
+    "Audible pronunciation review, including pype",
+    "Full voice/language matrix verification",
+    "Browser/mobile and caption acceptance",
+    "Remaining live-data core lessons and Make Masks FEATURES final integration",
+    "Publish paired catalogs and media only when the refreshed set is complete"
+  ]
+}

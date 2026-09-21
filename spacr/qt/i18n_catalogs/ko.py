@@ -5749,6 +5749,17 @@ UI = {
     'Detection reads the image as loaded.': '검출에 불러온 상태의 이미지를 사용합니다.',
     'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.': '끄기: Otsu, Cellpose 및 돋보기는 불러온 상태의 이미지(반전이 켜져 있으면 반전된 이미지)를 사용하며, 하한 % / 상한 %는 화면 표시만 변경합니다. 켜기: 하한 %와 상한 % 사이에서 강도 범위를 확장한 이미지를 화면에 표시된 그대로 사용하며, 왼쪽 위의 강도는 이 확장된 값을 표시합니다. 저장되는 데이터는 변경되지 않습니다.',
     'x {x}, y {y}   intensity {value} (normalized, as detected)': 'x {x}, y {y}   강도 {value} (정규화된 검출 값)',
+    'Custom only: a pattern with named groups wellID, fieldID and chanID': '사용자 지정에만 적용: wellID, fieldID, chanID라는 이름의 그룹을 포함한 패턴',
+    'Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.': 'Import가 읽을 수 있는 모든 현미경 형식과 파일명 규칙으로 저장한 동일한 시야를 다운로드합니다. Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 등이 포함됩니다. 선택한 형식으로 이 화면을 채워 미리보기에서 읽기 결과를 확인할 수 있습니다. 약 285 MB를 한 번 다운로드하면 모든 변형이 포함됩니다.',
+    'Downloading the Import test data': 'Import 테스트 데이터를 다운로드하는 중',
+    'How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.': '이미지와 마스크의 파일명이 각 파일의 플레이트, 웰, 시야, 채널을 나타내는 방식입니다. Mask의 메타데이터 유형과 동일한 규칙을 사용합니다. 폴더 및 파일명 구성 요소 옵션은 웰 정보를 폴더에서 읽습니다.',
+    'Load Import test data': 'Import 테스트 데이터 불러오기',
+    'Naming': '파일명 규칙',
+    'Opened the Format Converter on {path}': '{path}에서 Format Converter를 열었습니다',
+    'The Format Converter could not be opened.': 'Format Converter를 열 수 없습니다.',
+    '{key} is not a filename convention Import knows.': '{key}은(는) Import가 인식하는 파일명 규칙이 아닙니다.',
+    'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.': '약 {size} MB의 합성 테스트 데이터를 다운로드합니다. 두 색상의 시야와 객체 마스크는 촬영하거나 분할한 것이 아니라 spaCR가 그린 뒤 Measure로 측정한 것입니다. 염색 대조군 열 하나와 세포에 침입한 기생충의 비율이 알려진 두 조건이 있으며, 실제 정답 값도 함께 제공됩니다. 설정이 자동으로 채워지므로 다음 단계는 실행입니다. 첫 다운로드 후 캐시에 저장됩니다.',
+    'Downloading the synthetic Invasion Assay test data': 'Invasion Assay의 합성 테스트 데이터를 다운로드하는 중',
 }
 
 MODULE_SUMMARIES = {
@@ -11622,4 +11633,15 @@ SOURCE_HASHES = {
     ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
     ('UI', 'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.'): '9eed53b13f2726d64d04bafd35c4d0b31b3f2b05650e87e6edaba101c10c9d9e',
     ('UI', 'x {x}, y {y}   intensity {value} (normalized, as detected)'): 'a4e14490fc49f565f00140220ee671d5445fbc7f2140a574527151bb958ae9f6',
+    ('UI', 'Custom only: a pattern with named groups wellID, fieldID and chanID'): 'be58ceda2d19b35b78d5d432878c920345948c09a7bf3b87f68052a8825b8290',
+    ('UI', 'Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.'): 'c0fb09831ae60641e74f2dcfd3af9b4864f28582f348bc6ecfaddfc57979db4a',
+    ('UI', 'Downloading the Import test data'): 'b4da3ac6e0efb77b66a04c88050257e9a3f20e4f11a3f0b50082b374ff0d3882',
+    ('UI', 'How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.'): 'e84edeabe123015401cafe40db9d8976136f3e06b156028b176cfc646a633e9d',
+    ('UI', 'Load Import test data'): '942169ecc1791806733b6c439d71c14fd700bdccd2c15a3b77c6f59d4377876a',
+    ('UI', 'Naming'): 'a64cb3fcdcf665a2b8d0b69efb112112ca59b2ab29d43e408b382892912efe4a',
+    ('UI', 'Opened the Format Converter on {path}'): '1ba6bdb5c9e32e21927be2d9c88cdcf157ad661d5cb6493d2a43328a79444ca7',
+    ('UI', 'The Format Converter could not be opened.'): '19cf1ad6db47ffe954813ae87bbc79a01988ec6600bef0b439548210f670e81b',
+    ('UI', '{key} is not a filename convention Import knows.'): 'eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1',
+    ('UI', 'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.'): '507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e',
+    ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
 }
