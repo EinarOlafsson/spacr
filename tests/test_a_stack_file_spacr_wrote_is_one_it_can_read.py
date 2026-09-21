@@ -33,6 +33,7 @@ import inspect
 import io
 import os
 import pickle
+import re
 import struct
 import textwrap
 import types
@@ -63,7 +64,11 @@ def _appledouble_bytes() -> bytes:
 
 
 APPLEDOUBLE = _appledouble_bytes()
-PICKLE_MESSAGE = "This file contains pickled (object) data"
+#: numpy's refusal of a pickled payload, in both of its wordings: numpy 2.5
+#: says "This file contains pickled (object) data", and numpy 1.26, which the
+#: CI runners install, says "Cannot load file containing pickled data when
+#: allow_pickle=False".
+PICKLE_MESSAGE = re.compile(r"pickled (?:\(object\) )?data")
 
 
 def _sidecar(path) -> str:
@@ -253,7 +258,7 @@ class TestTheArchiveHoldsNoObjectArray:
         """The exact message of #121, from an AppleDouble file."""
         side = tmp_path / "._stack_0_norm.npz"
         side.write_bytes(APPLEDOUBLE)
-        with pytest.raises(ValueError, match=r"pickled \(object\) data"):
+        with pytest.raises(ValueError, match=PICKLE_MESSAGE):
             np.load(side)
 
     def test_allowing_pickle_would_not_have_fixed_it(self, tmp_path):
@@ -384,7 +389,7 @@ def test_the_normaliser_does_not_count_a_sidecar_as_a_field(tmp_path, capsys):
                               settings=_normalize_settings())
 
     out = capsys.readouterr().out
-    assert PICKLE_MESSAGE not in out
+    assert not PICKLE_MESSAGE.search(out)
     assert "RUN INCOMPLETE" not in out
     with np.load(tmp_path / "masks" / "stack_0_norm.npz") as data:
         assert sorted(data["filenames"].tolist()) == [
@@ -474,7 +479,7 @@ def test_a_test_mode_mask_run_on_a_macos_volume_completes(
     preprocess_generate_masks(settings)
 
     out = capsys.readouterr().out
-    assert PICKLE_MESSAGE not in out
+    assert not PICKLE_MESSAGE.search(out)
     assert "RUN INCOMPLETE" not in out
     qc_lines = [line for line in out.splitlines()
                 if line.startswith("Segmentation QC (")]
@@ -601,7 +606,7 @@ def test_an_auto_metadata_mask_run_on_a_macos_volume_keeps_its_wells(
     out = capsys.readouterr().out
     assert "not a TIFF file" not in out
     assert "RUN INCOMPLETE" not in out
-    assert PICKLE_MESSAGE not in out
+    assert not PICKLE_MESSAGE.search(out)
     merged = sorted(p.name for p in (plate / "merged").iterdir()
                     if p.suffix == ".npy" and not p.name.startswith("."))
     assert [name.split("_")[1] for name in merged] == ["B03", "C07"], merged
