@@ -1646,3 +1646,29 @@ WHAT 380 HAS ACTUALLY GAINED TODAY, unchanged by this: the ~500 sheeted
 popups (284) and the ~250 ms settings-form reparent are both gone, and
 every module with a settings form opens 120-167 ms faster read at its most
 conservative.
+
+--------------------------------------------------------------------------------
+2026-09-21 -- A SMALLER SHEET PER SCREEN WAS MEASURED: NO SAFE VERSION PAYS
+--------------------------------------------------------------------------------
+
+The last design option the 2026-09-20 note left -- "cut what the per-screen
+sheet covers so each application is cheaper" -- measured directly, offscreen,
+median of three per arm, the dark sheet (402 rules, 74,815 characters):
+
+    screen            widgets   full sheet   window rules dropped
+    regression          1,376       351 ms          322 ms
+    mask                  887       177 ms          178 ms
+    classify_merged       830       190 ms          194 ms
+
+Only 7 of the 402 rules name nothing but top-level window types (menus,
+tooltips, dialogs, which carry their own sheet), so dropping them from a
+screen's sheet saves nothing measurable. Dropping every rule that names no
+widget type or object name present on the screen does pay (Regression 403 ->
+288 ms, Mask 183 -> 139 ms) but is NOT SAFE: settings rows are built when a
+category is first opened, so a type absent at the first sheet can appear
+later and would be drawn unstyled. That variant is rejected, not shipped.
+
+So the ~640 ms (measured under a different harness) is the per-widget polish
+of ~900-1,400 widgets against the full sheet, and the lever that remains is
+the one the previous note named second: build fewer widgets when a module
+opens. Recorded here as the next piece of work on 284/380.
