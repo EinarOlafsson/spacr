@@ -380,7 +380,7 @@ def test_the_listing_says_which_pieces_are_already_on_disk(capsys, dest, hub):
 def test_the_listing_totals_only_what_was_selected(capsys, dest, hub):
     run(["--list", "--screen", "measurements", "--plate", "1"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 1 of 14 pieces" in out
+    assert "Selected: 1 of 15 pieces" in out
     assert "555.7 MB to download" in out
 
 
@@ -389,7 +389,7 @@ def test_the_total_leaves_out_what_is_already_on_disk(capsys, dest, hub):
     _make_present(dest, keys=["mask", "measure"])
     run(["--list"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 6 of 14 pieces, about 879.0 MB to download." in out
+    assert "Selected: 7 of 15 pieces, about 986.0 MB to download." in out
     assert "2 already on disk and skipped" in out
 
 

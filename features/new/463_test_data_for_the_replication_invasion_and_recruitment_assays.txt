@@ -2,9 +2,10 @@
 TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
 ================================================================================
 
-Status:    in progress. Replication and Recruitment built, published and run
-           on their samples. Invasion BLOCKED: no two-colour
-           differential-staining data was found (see below).
+Status:    in progress. All three built, published and run on their
+           samples. Invasion's set is SYNTHETIC by the maintainer's decision
+           (see the last section); its masks are drawn, not segmented. Owed:
+           the nine-language catalogs, and a --segment rebuild on a free GPU.
 
 Requested: 2026-09-21 -- the maintainer's decision, as the orchestrating
            session holds it: "Replication / Invasion / Recruitment" should get
@@ -115,3 +116,66 @@ ALREADY RED at the base (608e5e6bf) and at 715687246 -- callables 9,058 vs a
 pin of 9,047, surface 10,959/10,960 vs 10,947 and a reviewed 10,931. This
 change adds 5 callables and 6 documented entries on top (9,063 / 10,966). The
 pins were left alone rather than bumped over drift this item did not make.
+
+================================================================================
+INVASION: SYNTHETIC, CLEARLY LABELLED -- BUILT 2026-09-21
+================================================================================
+
+DECIDED. Asked through the question prompt, answered verbatim: "Synthetic,
+clearly labelled (Recommended)". The option read: ship the same kind of
+synthetic two-colour images the module was developed on, run through
+Mask/Measure so it has a real measurements.db, with the dataset card and the
+button tooltip saying 'synthetic'.
+
+WHAT THE MODULE WAS DEVELOPED ON. Not images: `tools/tutorials/authoring/
+tools/prepare_invasion_tutorial_data.py` writes the tutorial's pathogen rows
+straight into a database (c1 a no-primary staining control, two conditions
+with a known invaded fraction). No image generator existed to reuse. So
+`tools/build_invasion_example_dataset.py` renders that design as pixels with
+`spacr.qt.synthetic`'s lattice, object shapes, noise and naming:
+
+    c1 staining control (no outside stain)  c2 vehicle 70% invaded
+    c3 inhibitor 35% invaded                rows A-D, 2 fields/well, 512 px
+    channels: 0 nucleus, 1 cell, 2 total parasite stain, 3 outside stain
+    one attached parasite in ten drawn at a quarter brightness
+
+The tutorial's fractions (vehicle 0.40, inhibitor 0.70) had the inhibitor
+RAISING invasion; these are turned the biological way round.
+
+WHERE THIS DEPARTS FROM THE DECISION, AND WHY. The masks are the objects the
+generator drew, written in the planes Mask would write; Measure is spaCR's
+own and made the database. Mask with Cellpose-SAM on CPU did not finish one
+plate row (6 fields) in 40 minutes: the 10-px parasites make Cellpose upscale
+the pathogen channel threefold, and the machine was at load 36 on 32 cores.
+A single-field probe was still running after 20 minutes. The GPU was not to
+be used. `--segment` on the builder runs Mask instead; rebuild with it on a
+free GPU to make the set match the decision exactly. The card, the tooltip,
+the set summary and the builder all say the masks are drawn.
+
+PUBLISHED. einarolafsson/spacr-example-invasion, spacr-example-invasion.tar,
+106,915,840 bytes: 24 merged stacks, measurements.db (1,713 pathogen, 1,536
+cell rows; build paths stripped), ground_truth.csv (every drawn parasite and
+its state) and settings/invasion_settings.csv (outside_channel 3,
+total_channel 2, stain_baseline_wells ['c1'], vehicle c2, inhibitor c3).
+
+RUN, on the unpacked archive and again through the button against the live
+repository (same numbers both ways), CPU, 21 s:
+
+  threshold from the c1 baseline, quantile 0.99: 612.2 on
+  pathogen_channel_3_periphery_percentile_95 (chosen by 'auto')
+
+  well           called   truth        well           called   truth
+  r1_c2 vehicle  0.762    0.788        r1_c3 inhib.   0.319    0.326
+  r2_c2          0.719    0.719        r2_c3          0.331    0.331
+  r3_c2          0.700    0.707        r3_c3          0.358    0.358
+  r4_c2          0.727    0.734        r4_c3          0.384    0.397
+
+  vehicle 0.727 +/- 0.026 (565 parasites), inhibitor 0.348 +/- 0.029 (566);
+  Mann-Whitney on per-well efficiency p = 0.029 (n = 4 wells each), no well
+  QC-flagged. Every miss is in the same direction -- an invaded parasite
+  called attached -- in five of the eight wells, at most 2.7 points.
+  Likely a neighbouring attached parasite's stain reaching the periphery
+  statistic; not investigated.
+
+`validate_settings` finds nothing. The ratchet counts did not move with this
+part (callables 9,063, surface 10,966, as after the first part).

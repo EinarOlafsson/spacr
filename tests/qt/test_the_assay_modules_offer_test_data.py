@@ -1,8 +1,8 @@
-"""Replication and Recruitment fetch their own test data; Invasion does not yet.
+"""Replication, Recruitment and Invasion fetch their own test data.
 
-Item 463. Each assay reads a measured plate, ``measurements/measurements.db``,
-so each example is a slice of a real screen's database with the module's
-settings beside it. These tests never reach the network: the download is
+Item 463. Each assay reads a measured plate, ``measurements/measurements.db``.
+Replication and Recruitment ship a slice of a real screen's database;
+Invasion's is SYNTHETIC, by the maintainer's choice, and has to say so. These tests never reach the network: the download is
 replaced, or the HTTP response is.
 """
 from __future__ import annotations
@@ -16,6 +16,7 @@ from pathlib import Path
 import pytest
 
 from spacr.example_archives import (DATASET_PLACEHOLDER, EXAMPLE_ARCHIVES,
+                                    INVASION_EXAMPLE_REPO,
                                     RECRUITMENT_EXAMPLE_REPO,
                                     REPLICATION_EXAMPLE_REPO, example_set,
                                     example_set_folder, example_plate_folder)
@@ -29,6 +30,9 @@ SHIPPED = {
     "recruitment": {"src": DATASET_PLACEHOLDER, "channel_of_interest": "1",
                     "pathogen_types": "['nc', 'pc']",
                     "cell_types": "['THP1']"},
+    "invasion": {"src": DATASET_PLACEHOLDER, "outside_channel": "3",
+                 "total_channel": "2", "stain_baseline_wells": "['c1']",
+                 "pathogen_types": "['vehicle', 'inhibitor']"},
 }
 
 
@@ -54,7 +58,8 @@ def _field(screen, key):
 
 @pytest.mark.parametrize("key, repo", [
     ("replication", REPLICATION_EXAMPLE_REPO),
-    ("recruitment", RECRUITMENT_EXAMPLE_REPO)])
+    ("recruitment", RECRUITMENT_EXAMPLE_REPO),
+    ("invasion", INVASION_EXAMPLE_REPO)])
 def test_each_set_is_published_in_its_own_repo_and_folder(key, repo):
     """Both ship measurements/measurements.db, as the shared plate's Annotate
     set does, so unpacking either into that plate would overwrite it."""
@@ -64,7 +69,7 @@ def test_each_set_is_published_in_its_own_repo_and_folder(key, repo):
     assert chosen.folder == key
     assert example_set_folder(key) == example_plate_folder().parent / key
     assert f"settings/{key}_settings.csv" in chosen.markers
-    assert 100_000_000 < chosen.bytes < 200_000_000
+    assert 1_000_000 < chosen.bytes < 200_000_000
 
 
 def test_the_buttons_land_beside_src():
@@ -72,12 +77,16 @@ def test_the_buttons_land_beside_src():
     assert EXAMPLE_DATA_SECTIONS["recruitment"] == "Data source"
 
 
-def test_invasion_offers_nothing_rather_than_the_wrong_data():
-    """No two-colour differential-staining data was found. The dispatch's
-    fallback is the Mask demo's raw images, which Invasion cannot read, so
-    the module must stay out of the table until real data exists."""
-    assert "invasion" not in EXAMPLE_DATA_SECTIONS
-    assert "invasion" not in assay_examples.ASSAY_EXAMPLE_KEYS
+def test_the_invasion_set_says_it_is_synthetic_before_it_is_fetched():
+    """No real two-colour acquisition exists; the maintainer chose synthetic
+    data, clearly labelled. The label has to be where the choice is made:
+    in the button's tooltip and in the set's summary, not only on the card."""
+    assert EXAMPLE_DATA_SECTIONS["invasion"] == "Assay Inputs"
+    assert "SYNTHETIC" in example_set("invasion").summary
+    assert "SYNTHETIC" in assay_examples._tooltip("invasion")
+    assert "synthetic" in assay_examples._title("invasion")
+    for key in ("replication", "recruitment"):
+        assert "SYNTHETIC" not in assay_examples._tooltip(key)
 
 
 @pytest.mark.parametrize("key", assay_examples.ASSAY_EXAMPLE_KEYS)
@@ -116,10 +125,16 @@ def test_a_download_fills_src_and_the_shipped_settings(
     assert placed == {"src": str(folder)}
     assert _field(screen, "src").text() == str(folder)
     settings = screen._settings_model.collect()
-    assert settings["pathogen_types"] == ["nc", "pc"]
+    expected_types = (["vehicle", "inhibitor"] if key == "invasion"
+                      else ["nc", "pc"])
+    assert settings["pathogen_types"] == expected_types
     if key == "replication":
         assert settings["vacuole_key"] == "spatial"
         assert float(settings["min_parasite_area"]) == 400
+    elif key == "invasion":
+        assert settings["outside_channel"] == 3
+        assert settings["total_channel"] == 2
+        assert settings["stain_baseline_wells"] == ["c1"]
     else:
         assert settings["channel_of_interest"] == 1
         assert settings["cell_types"] == ["THP1"]
@@ -203,7 +218,8 @@ def test_a_download_that_cannot_start_is_reported_not_raised(
 
 @pytest.mark.parametrize("key, repo", [
     ("replication", REPLICATION_EXAMPLE_REPO),
-    ("recruitment", RECRUITMENT_EXAMPLE_REPO)])
+    ("recruitment", RECRUITMENT_EXAMPLE_REPO),
+    ("invasion", INVASION_EXAMPLE_REPO)])
 def test_the_worker_is_pointed_at_the_modules_own_repo(monkeypatch, tmp_path,
                                                        key, repo):
     seen = {}

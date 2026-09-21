@@ -2,9 +2,11 @@
 
 Item 463. The maintainer's decision was that Replication, Invasion and
 Recruitment get test data: small datasets on Hugging Face and a "Load test
-data…" button in each module. Two are published; Invasion has none yet,
-because no two-colour differential-staining acquisition was found, and it is
-not offered rather than offered with data that cannot answer its question.
+data…" button in each module. Replication and Recruitment are slices of real
+screens. Invasion's is SYNTHETIC, by the maintainer's choice: no two-colour
+differential-staining acquisition exists, so its fields and their object
+masks are drawn by spaCR and then measured by the Measure module. Its tooltip
+says so.
 
 WHAT THE MODULES TAKE. All three read ``<src>/measurements/measurements.db``,
 the output of Mask then Measure, so each example is a slice of a real screen's
@@ -46,7 +48,7 @@ __all__ = [
 ]
 
 #: The assay modules that have published test data.
-ASSAY_EXAMPLE_KEYS = ("replication", "recruitment")
+ASSAY_EXAMPLE_KEYS = ("replication", "recruitment", "invasion")
 
 
 class _AssayTarWorker(_TarExampleWorker):
@@ -66,6 +68,8 @@ def _title(app_key: str) -> str:
     """The progress dialog's title for ``app_key``."""
     if app_key == "replication":
         return tr("Downloading the Replication Assay test data")
+    if app_key == "invasion":
+        return tr("Downloading the synthetic Invasion Assay test data")
     return tr("Downloading the Recruitment test data")
 
 
@@ -77,6 +81,16 @@ def _tooltip(app_key: str) -> str:
             "control wells of the Toxoplasma MTOC screen, measured, with two "
             "fields to look at. Settings are filled in, so Run is the next "
             "step. Cached after the first download.")
+    if app_key == "invasion":
+        return tr(
+            "Download about {size} MB of SYNTHETIC test data: two-colour "
+            "fields and object masks drawn by spaCR, not imaged or "
+            "segmented, then measured by Measure. A staining-control column "
+            "and two conditions with a known share of invaded parasites, "
+            "with the "
+            "truth beside them. Settings are filled in, so Run is the next "
+            "step. Cached after the first download.",
+            size=round(example_set("invasion").bytes / 1e6))
     return tr(
         "Download about 150 MB of test data: twelve control wells of the "
         "THP-1 RNF213 screen, measured, with two fields to look at and the "
@@ -89,7 +103,7 @@ def download_assay_example(parent, app_key: str, dest, on_done: Callable[
     """Fetch ``app_key``'s test data behind the shared progress dialog.
 
     :param parent: the widget the progress dialog belongs to.
-    :param app_key: ``replication`` or ``recruitment``.
+    :param app_key: ``replication``, ``recruitment`` or ``invasion``.
     :param dest: the folder the archive unpacks into.
     :param on_done: called on the GUI thread as ``on_done(result, error)``;
         ``result`` is ``None`` on failure or cancellation.

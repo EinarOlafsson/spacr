@@ -48,6 +48,7 @@ __all__ = [
     "EXAMPLE_SETS",
     "ExampleSet",
     "IMPORT_EXAMPLE_REPO",
+    "INVASION_EXAMPLE_REPO",
     "MEASURE_EXAMPLE_REPO",
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
@@ -104,6 +105,13 @@ RECRUITMENT_EXAMPLE_REPO = "einarolafsson/spacr-example-recruitment"
 #: plate without touching the other sets' files.
 IMPORT_EXAMPLE_REPO = _IMPORT_EXAMPLE_REPO
 
+#: The Invasion Assay's example, and it is SYNTHETIC. No real two-colour
+#: differential-staining acquisition exists to publish; the maintainer chose
+#: synthetic fields, clearly labelled. The object masks are the drawn objects,
+#: not a Cellpose segmentation; spaCR's own Measure makes the database. See
+#: ``tools/build_invasion_example_dataset.py``.
+INVASION_EXAMPLE_REPO = "einarolafsson/spacr-example-invasion"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -148,6 +156,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     REPLICATION_EXAMPLE_REPO: "spacr-example-replication.tar",
     RECRUITMENT_EXAMPLE_REPO: "spacr-example-recruitment.tar",
     IMPORT_EXAMPLE_REPO: _IMPORT_EXAMPLE_ARCHIVE,
+    INVASION_EXAMPLE_REPO: "spacr-example-invasion.tar",
 }
 
 
@@ -265,6 +274,16 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
                  "settings/recruitment_settings.csv"),
         folder="recruitment",
     ),
+    ExampleSet(
+        key="invasion",
+        repo=INVASION_EXAMPLE_REPO,
+        summary="Invasion Assay example, SYNTHETIC: two-colour fields and "
+                "masks drawn by spaCR, then measured by Measure.",
+        bytes=107_000_000,
+        markers=("measurements/measurements.db",
+                 "settings/invasion_settings.csv"),
+        folder="invasion",
+    ),
 )
 
 
@@ -272,7 +291,7 @@ def example_set(key: str) -> ExampleSet:
     """The set called ``key``.
 
     :param key: ``import``, ``mask``, ``measure``, ``annotate``,
-        ``replication`` or ``recruitment``.
+        ``replication``, ``recruitment`` or ``invasion``.
     :raises KeyError: naming the keys that do exist. A typo that returned
         ``None`` would download nothing and report success, which is the one
         outcome a download command must never produce.

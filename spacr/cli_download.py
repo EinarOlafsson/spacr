@@ -7,8 +7,9 @@ cluster, where the data has to be on disk BEFORE a batch job starts and there
 is no display to press a button on. This is that download as a command.
 
 WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches
-the example sets -- Mask, Measure, Annotate/Classify, Replication and
-Recruitment -- which come to about 1.4 GB. It does NOT fetch the published TSG101 screen, which is 33 GB.
+the example sets -- Import, Mask, Measure, Annotate/Classify, Replication,
+Recruitment and the synthetic Invasion set -- which come to about 1.8 GB. It
+does NOT fetch the published TSG101 screen, which is 33 GB.
 A command that spent 33 GB of somebody's quota because they typed its name
 with no arguments would be a bug however well documented, so the screen is
 opt-in, is asked for in pieces, and is confirmed before it starts. The pieces
@@ -29,9 +30,9 @@ imports PySide6 at module scope. ``tests/test_cli_download.py`` pins it.
 
 Usage::
 
-    spacr-download                            # every example set (~1.4 GB)
+    spacr-download                            # every example set (~1.8 GB)
     spacr-download --list                     # what exists, what is here
-    spacr-download measure annotate           # two of the five
+    spacr-download measure annotate           # two of the seven
     spacr-download --screen measurements      # the four databases (~2.1 GB)
     spacr-download --screen crops --plate 1   # one plate of crops (~8.9 GB)
     spacr-download all --yes                  # everything, screen included
@@ -86,7 +87,7 @@ EXIT_USAGE = 2
 
 #: Above this, the download is confirmed before a byte moves.
 #:
-#: TWO GIGABYTES, which is a little more than all five example sets together
+#: TWO GIGABYTES, which is a little more than all seven example sets together
 #: and a little less than the four measurement databases. So the default run
 #: never asks -- being asked to confirm the thing the command does when you
 #: give it no arguments teaches people to type ``--yes`` reflexively, and a
@@ -708,14 +709,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser = _Parser(
         prog="spacr-download",
         description="Download spaCR's published example data. With no "
-                    "arguments: every example set, about 1.4 GB. The 33 GB "
+                    "arguments: every example set, about 1.8 GB. The 33 GB "
                     "TSG101 screen is never downloaded unless it is asked "
                     "for by name.",
         epilog=textwrap.dedent("""\
             examples:
               spacr-download                            every example set
               spacr-download --list                     what exists, and what is already here
-              spacr-download measure annotate           two of the five
+              spacr-download measure annotate           two of the seven
               spacr-download --screen measurements      the four screen databases
               spacr-download --screen crops --plate 1   one plate of object crops
               spacr-download all --yes                  everything, screen included
@@ -728,7 +729,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "what", nargs="*", metavar="WHAT",
         help=f"What to download: {keys}, classify (an alias for annotate), "
-             f"examples (all five), screen, or all. Default: examples.")
+             f"examples (all seven), screen, or all. Default: examples.")
     parser.add_argument(
         "--dest", "-d", metavar="DIR",
         help="Where to unpack it. Default: ~/.cache/spacr/example_data, "
