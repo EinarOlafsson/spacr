@@ -890,7 +890,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         banner.addWidget(self._install_btn)
         outer.addWidget(self._deps_banner)
 
-        grid = QGridLayout()
+        self._controls = QWidget(self)
+        self._controls.setObjectName("PlaquePreviewControls")
+        grid = QGridLayout(self._controls)
+        grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(8)
         grid.setVerticalSpacing(4)
         grid.addWidget(QLabel(tr("Plaque model")), 0, 0)
@@ -944,7 +947,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._confirm.toggled.connect(self._on_confirm_toggled)
         frow.addWidget(self._confirm)
         grid.addWidget(self._figure_row, 2, 0, 1, 5)
-        outer.addLayout(grid)
+        outer.addWidget(self._controls)
+        self._controls_index = outer.indexOf(self._controls)
+        self._outer = outer
+        self._settings_popup = QFrame(self, Qt.Popup)
+        self._settings_popup.setObjectName("PlaquePreviewSettingsPopup")
+        self._settings_popup.setFrameShape(QFrame.StyledPanel)
+        QVBoxLayout(self._settings_popup)
 
         note_row = QHBoxLayout()
         self._model_note = QLabel("")
@@ -968,7 +977,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._use_btn.setToolTip(tr("Write the values tuned here into the "
                                     "settings the run reads."))
         self._use_btn.clicked.connect(self.propagate)
-        for widget in (self._run_btn, self._cancel_btn, self._use_btn):
+        self._settings_btn = QPushButton(tr("Settings…"))
+        self._settings_btn.setObjectName("PlaquePreviewSettings")
+        self._settings_btn.setToolTip(tr(
+            "The detector, its sizes and confidence, text reading, review, "
+            "and the plaque model and thresholds, in one place."))
+        self._settings_btn.clicked.connect(self._open_settings)
+        self._settings_btn.hide()
+        for widget in (self._settings_btn, self._run_btn, self._cancel_btn,
+                       self._use_btn):
             buttons.addWidget(widget)
         buttons.addStretch(1)
         outer.addLayout(buttons)
@@ -1064,6 +1081,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._mode_switch.set_mode(mode)
         figure = mode == FIGURE_MODE
         self._figure_row.setVisible(figure)
+        self._place_controls(figure)
         self._table.setVisible(figure)
         self._save_row.setVisible(figure)
         self._confirm_note.setVisible(figure and self._confirm.isChecked())
@@ -1084,6 +1102,38 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._table.setRowCount(0)
         self._view.set_image(None)
         self._show_selected_image()
+
+    def _place_controls(self, behind_a_button: bool) -> None:
+        """Put the controls inline, or behind the Settings button.
+
+        The maintainer, 2026-09-21: "in figure mode instead of having all the
+        settings all there make one settings button for the settings."
+        Figure mode carries two rows of controls on top of the image and the
+        review table; Plaque mode has four and keeps them inline.
+
+        :param behind_a_button: True for Figure mode.
+        """
+        popup_layout = self._settings_popup.layout()
+        if behind_a_button:
+            if self._controls.parent() is not self._settings_popup:
+                self._outer.removeWidget(self._controls)
+                self._controls.setParent(self._settings_popup)
+                popup_layout.addWidget(self._controls)
+                self._controls.show()
+        elif self._controls.parent() is not self:
+            self._settings_popup.hide()
+            popup_layout.removeWidget(self._controls)
+            self._controls.setParent(self)
+            self._outer.insertWidget(self._controls_index, self._controls)
+            self._controls.show()
+        self._settings_btn.setVisible(behind_a_button)
+
+    def _open_settings(self) -> None:
+        """Drop the settings down under the Settings button."""
+        self._settings_popup.adjustSize()
+        self._settings_popup.move(
+            self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft()))
+        self._settings_popup.show()
 
     def _on_switch(self, mode: str) -> None:
         """The panel's own switch was clicked."""

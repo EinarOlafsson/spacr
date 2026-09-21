@@ -295,3 +295,23 @@ def test_sizes_and_modes_parse():
     assert ppv.parse_sizes("junk") == ppv.DEFAULT_SIZES
     assert ppv.normalise_mode("FIGURE") == "figure"
     assert ppv.normalise_mode(None) == "plaque"
+
+
+def test_figure_mode_puts_its_settings_behind_one_button(qtbot):
+    """2026-09-21, the maintainer: "in figure mode instead of having all the
+    settings all there make one settings button for the settings"."""
+    from spacr.qt.widgets.plaque_preview import PlaquePreviewPanel
+
+    panel = PlaquePreviewPanel()
+    qtbot.addWidget(panel)
+    panel.show()
+    panel.set_mode("figure")
+    assert panel._settings_btn.isVisibleTo(panel)
+    assert panel._controls.parent() is panel._settings_popup
+    panel._open_settings()
+    assert panel._settings_popup.isVisible()
+    assert panel._detector_box.isVisibleTo(panel._settings_popup)
+    panel.set_mode("plaque")
+    assert not panel._settings_btn.isVisibleTo(panel)
+    assert panel._controls.parent() is panel
+    assert panel._controls.isVisibleTo(panel)
