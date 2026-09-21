@@ -48,8 +48,14 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(example_sources) == 7
     assert example_sources <= all_reviewed.keys()
     assert not example_sources & ui_sources
+    previews = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                            "2026-09-21-preview-refresh.json").read_text())
+    preview_sources = {record["source"] for record in previews["records"]}
+    assert len(preview_sources) == 5
+    assert preview_sources <= all_reviewed.keys()
+    assert not preview_sources & example_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in ui_sources | example_sources}
+                if source not in ui_sources | example_sources | preview_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -205,8 +211,9 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_sources) == 335
     assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
     assert len(reviewed) == 377  # +3 variable-count dataset captions.
-    assert len(all_reviewed.keys() - example_sources) == 646
-    assert len(all_reviewed) == 653
+    assert len(all_reviewed.keys() - example_sources - preview_sources) == 646
+    assert len(all_reviewed.keys() - preview_sources) == 653
+    assert len(all_reviewed) == 658
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -231,8 +238,14 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     example_sources = {record["source"] for record in examples["records"]}
     assert len(example_sources) == 7
     assert example_sources <= all_reviewed.keys()
+    previews = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                            "2026-09-21-preview-refresh.json").read_text())
+    preview_sources = {record["source"] for record in previews["records"]}
+    assert len(preview_sources) == 5
+    assert preview_sources <= all_reviewed.keys()
+    assert not preview_sources & example_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources}
+                if source not in example_sources | preview_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -376,7 +389,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(reviewed.keys() - background_sources - sample_sources) == 318
     assert len(reviewed.keys() - sample_sources) == 326
     assert len(reviewed) == 329  # +3 variable-count dataset captions.
-    assert len(all_reviewed) == 336
+    assert len(all_reviewed.keys() - preview_sources) == 336
+    assert len(all_reviewed) == 341
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

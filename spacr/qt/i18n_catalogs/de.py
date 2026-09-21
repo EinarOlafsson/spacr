@@ -5990,6 +5990,11 @@ UI = {
     'Load template…': 'Vorlage laden…',
     'Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.': 'Mit einer fertigen Plattenbelegung beginnen: Kontrollen in den äußeren Spalten, eine Konzentrationsreihe oder ein arraybasierter CRISPR-Screen auf 96 oder 384 Wells. Ersetzt Format, Belegung, Rand, Zufallsstartwert und Bedingungen; der Plattenname bleibt erhalten.',
     '[example] the test data was not downloaded: {detail}': '[example] Die Testdaten wurden nicht heruntergeladen: {detail}',
+    "Read the source setting again and reload this preview from it. Use it after changing the folder's contents or fixing the path.": 'Die Quelleinstellung erneut lesen und diese Vorschau daraus neu laden. Nach Änderungen am Ordnerinhalt oder einer Korrektur des Pfads verwenden.',
+    'Refresh: reloading the preview from {path}': 'Aktualisieren: Vorschau wird aus {path} neu geladen',
+    'Refresh: the source setting is empty.': 'Aktualisieren: Die Quelleinstellung ist leer.',
+    'Refresh: {path} does not exist.': 'Aktualisieren: {path} existiert nicht.',
+    'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.': 'Die Vorschau der Plaquesegmentierung über der Konsole ein- oder ausblenden. Vor dem Assay den Plaquedurchmesser und die Schwellenwerte an einem Bildfeld prüfen.',
 }
 
 MODULE_SUMMARIES = {
@@ -12104,4 +12109,9 @@ SOURCE_HASHES = {
     ('UI', 'Load template…'): '708c06d466d3c28629d600685c8d64d44d56ab1c69ad40313a3ffda57a03e6c0',
     ('UI', 'Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.'): 'e9b43591c54516c1be29298f3ec736e47b508e5f12e7eb25fa47c32cd95494a0',
     ('UI', '[example] the test data was not downloaded: {detail}'): 'c3fa924eb731f65b7754e5878fdae5f466b4ef2a818dc350c01a21440db2887b',
+    ('UI', "Read the source setting again and reload this preview from it. Use it after changing the folder's contents or fixing the path."): 'a0bb95c1f76ff9dc13fba3cff355aa37df16014952550f875d285322253ec2d9',
+    ('UI', 'Refresh: reloading the preview from {path}'): 'bb42cad24533e58a96e881a3e41f7baadeeef8328136b0df9661eebf21a17f1d',
+    ('UI', 'Refresh: the source setting is empty.'): 'b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b',
+    ('UI', 'Refresh: {path} does not exist.'): 'b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc',
+    ('UI', 'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.'): '3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da',
 }

@@ -38,3 +38,10 @@ Integration note: `1eadae49e` subsequently adds five preview-refresh/plaque
 captions. The English manifest includes them; their nine-language translations
 remain follow-on debt. The complete green audits above were measured before
 that source addition. No existing reviewed source was renamed by this update.
+
+Preview follow-on: the five captions from `1eadae49e` now have 45 reviewed
+records across all nine runtime languages in `2026-09-21-preview-refresh.json`.
+The full German and Swedish runtime audits pass with 3808 UI strings each.
+All ten selected syntax/review-reporter checks pass (257.45 seconds). The
+single warning records another process changing real QSettings while the
+test process itself remained correctly isolated.

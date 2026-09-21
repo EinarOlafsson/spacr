@@ -8693,3 +8693,34 @@ existing evidence and never claim an interrupted measurement was complete.
 Integration of 1eadae49e adds five preview-refresh/plaque captions. English is
 refreshed; Codex owns these five new nine-language rows as a follow-on. The
 German/Swedish full green audits above apply to e29ac7783, before this addition.
+
+Further FEATURES capture finding for its UI/measurement owner: a visible
+plate name containing '_' is accepted, but FieldRow.stem writes it literally.
+The real measurement of mask_demo_A01_1 and mask_demo_A01_2 saved both as
+plateID=mask, rowID=demo, columnID=demo, fieldID=f1,
+prcf=mask_demo_demo_f1. Both field identities collapse although all 114 cell
+rows are present. parse_field_stem interprets the fourth token as a timepoint.
+The tutorial now uses the valid delimiter-free name maskdemo and refuses
+acceptance unless each cell's field identity, area and mean raw intensity
+agree with the assigned source files. No production schema code was changed.
+
+The first retry also exposed a capture-gesture problem: the directory edit
+retained its earlier quoted entry, so the application correctly warned that
+the chosen root had no images. The recording helper now waits for the dialog,
+clicks the actual edit, verifies Select All and the exact typed path, and
+records/refuses modal folder warnings instead of hanging behind one.
+
+2026-09-21 — CODEX: PREVIEW REFRESH TRANSLATIONS COMPLETE
+--------------------------------------------------------------------------------
+The five new 452/464 captions have 45 reviewed records across all nine runtime
+languages. Full German and Swedish audits are green again, now with 3808 UI
+strings. All ten selected source/syntax/reporter checks pass (257.45 s); the
+one warning identifies another process changing real QSettings, while these
+tests stayed correctly isolated. No gate or prior review count was weakened.
+
+Coverage resumed from the fixed d54ed65c8 snapshot: the first 25 completed
+batches remain intact, interrupted batch 26 is being remeasured file by file,
+and the remaining batches will follow. Original partial batch-26 data and its
+ledger are archived outside the combine directory. Narration resumed using
+its verified-track reuse checks. GPU monitoring was also found terminated;
+it restarted with a fresh idle timer. PID 1665533 still occupies the GPU.

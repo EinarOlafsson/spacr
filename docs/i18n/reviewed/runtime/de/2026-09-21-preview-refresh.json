@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Read the source setting again and reload this preview from it. Use it after changing the folder's contents or fixing the path.",
+      "source": "Read the source setting again and reload this preview from it. Use it after changing the folder's contents or fixing the path.",
+      "source_sha256": "a0bb95c1f76ff9dc13fba3cff355aa37df16014952550f875d285322253ec2d9",
+      "translation": "Die Quelleinstellung erneut lesen und diese Vorschau daraus neu laden. Nach Änderungen am Ordnerinhalt oder einer Korrektur des Pfads verwenden."
+    },
+    {
+      "table": "ui",
+      "key": "Refresh: reloading the preview from {path}",
+      "source": "Refresh: reloading the preview from {path}",
+      "source_sha256": "bb42cad24533e58a96e881a3e41f7baadeeef8328136b0df9661eebf21a17f1d",
+      "translation": "Aktualisieren: Vorschau wird aus {path} neu geladen"
+    },
+    {
+      "table": "ui",
+      "key": "Refresh: the source setting is empty.",
+      "source": "Refresh: the source setting is empty.",
+      "source_sha256": "b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b",
+      "translation": "Aktualisieren: Die Quelleinstellung ist leer."
+    },
+    {
+      "table": "ui",
+      "key": "Refresh: {path} does not exist.",
+      "source": "Refresh: {path} does not exist.",
+      "source_sha256": "b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc",
+      "translation": "Aktualisieren: {path} existiert nicht."
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
+      "source": "Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.",
+      "source_sha256": "3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da",
+      "translation": "Die Vorschau der Plaquesegmentierung über der Konsole ein- oder ausblenden. Vor dem Assay den Plaquedurchmesser und die Schwellenwerte an einem Bildfeld prüfen."
+    }
+  ]
+}
