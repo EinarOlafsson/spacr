@@ -2471,7 +2471,7 @@ def _updating_caption(name: str) -> str:
     from ..i18n import current_language, tr
 
     template = "Updating {name}…"
-    translated = tr(template, name=name)
+    translated = tr("Updating {name}…", name=name)
     if (current_language() or "en").startswith("en") or \
             translated != template.format(name=name):
         return translated
