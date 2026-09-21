@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDoubleSpinBox,
     QFileDialog, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy, QTableWidget,
-    QTableWidgetItem, QToolButton, QVBoxLayout, QWidget,
+    QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
@@ -88,6 +88,10 @@ __all__ = [
     "write_legend",
     "plaque_pass",
     "figure_pass",
+    "detect_figure",
+    "region_at",
+    "plaque_rows",
+    "segment_well",
     "annotate_figure",
 ]
 
@@ -112,13 +116,28 @@ DEFAULT_DETECTOR = "toxoplasma_well_detector_v2"
 DEFAULT_SIZES = (640, 1280)
 
 OUTLINE_COLOUR = (255, 214, 0)
+
+PICK_A_WELL = "Click a well on the figure or a row in the table."
 BOX_OK = QColor(64, 200, 120)
 BOX_WAITING = QColor(255, 150, 40)
+BOX_SELECTED = QColor(0, 200, 255)
 
 TABLE_COLUMNS = ("#", "Panel", "Label text", "Legend passage", "Condition",
-                 "Source", "Plaques", "OK")
+                 "Source", "Plaques", "Mean area", "OK")
 CONDITION_COLUMN = 4
-OK_COLUMN = 7
+PLAQUES_COLUMN = 6
+MEAN_AREA_COLUMN = 7
+OK_COLUMN = 8
+
+PLAQUE_COLUMNS = ("Well", "Panel", "Condition", "Plaque", "Area (px)",
+                  "Vs panel median", "Vs well median", "Perimeter (px)",
+                  "Equivalent diameter (px)", "Eccentricity", "Solidity",
+                  "Centroid y", "Centroid x")
+
+PLAQUE_KEYS = ("well", "panel", "condition", "plaque_id", "area_px",
+               "area_vs_panel_median", "area_vs_well_median",
+               "perimeter_px", "equivalent_diameter_px", "eccentricity",
+               "solidity", "centroid_y", "centroid_x")
 
 
 def normalise_mode(value: Any) -> str:
@@ -628,6 +647,144 @@ def annotate_figure(result: Dict[str, Any], caption: str, src: Any, *,
     return found
 
 
+def detect_figure(path: Any, settings: Dict[str, Any], *,
+                  detect: Optional[Callable] = None,
+                  read_text: Optional[Callable] = None) -> Dict[str, Any]:
+    """Figure mode's Run preview: find the plaque wells and read the text.
+
+    Nothing is segmented here. The maintainer, 2026-09-21: "run preview
+    should detect the plaque wells, and add another button called Plaque
+    preview that generates plaques from the hichlighted rw and plaque well
+    box" -- plaques are found per well, on request (:func:`segment_well`).
+
+    :param path: the figure.
+    :param settings: the module's settings.
+    :param detect: passed to :func:`spacr.plaque_papers.find_plaque_regions`;
+        the zoo detector when None.
+    :param read_text: ``fn(path) -> [Word]``; RapidOCR, followed by the
+        enlarged second reading, when None.
+    :returns: ``{'path', 'image', 'regions', 'words'}``, or
+        ``{'error', 'entry'}``.
+    """
+    from ...plaque_papers import (_load_image, find_plaque_regions,
+                                  read_words, reread_around)
+
+    path = Path(path)
+    weights = "fake"
+    if detect is None:
+        weights, why, entry = resolve_detector(
+            settings.get("figure_detector"), settings.get("src"))
+        if not weights:
+            return {"error": why, "entry": entry}
+    image = _load_image(path)
+    regions = find_plaque_regions(
+        image, weights, imgsz=parse_sizes(settings.get("figure_imgsz")),
+        confidence=float(settings.get("figure_confidence") or 0.25),
+        detect=detect)
+    words: List[Any] = []
+    if regions and settings.get("figure_read_text", True) not in (False, "False"):
+        words = list((read_text or read_words)(path))
+        if read_text is None:
+            words = reread_around(image, regions, words)
+    return {"path": str(path), "image": image, "regions": list(regions),
+            "words": words}
+
+
+def region_at(regions: Sequence[Any], x: float, y: float) -> Optional[int]:
+    """Which box a point on the figure falls in.
+
+    :param regions: the detected wells.
+    :param x: figure column.
+    :param y: figure row.
+    :returns: the index of the smallest box holding the point, or None.
+    """
+    best: Optional[int] = None
+    best_area = None
+    for index, r in enumerate(regions):
+        if r.x0 <= x <= r.x1 and r.y0 <= y <= r.y1:
+            area = r.width * r.height
+            if best_area is None or area < best_area:
+                best, best_area = index, area
+    return best
+
+
+def plaque_rows(labels: np.ndarray) -> List[Dict[str, Any]]:
+    """One row per plaque, with the per-plaque values the run writes.
+
+    The columns of the run's ``per_plaque`` table
+    (:func:`spacr.submodules.analyze_plaques`), with the ratio taken to the
+    median plaque in this well. The ratio to the panel median needs every
+    well of the panel and is added by the caller.
+
+    :param labels: a label image, 0 = background.
+    :returns: dicts with ``plaque_id``, ``area_px``, ``area_vs_well_median``,
+        ``perimeter_px``, ``equivalent_diameter_px``, ``eccentricity``,
+        ``solidity``, ``centroid_y`` and ``centroid_x``.
+    """
+    from skimage.measure import regionprops
+
+    labels = np.asarray(labels)
+    if labels.ndim != 2 or not labels.any():
+        return []
+    props = regionprops(labels.astype(np.int32))
+    areas = [float(p.area) for p in props]
+    median = float(np.median(areas)) if areas else 0.0
+    rows = []
+    for p in props:
+        diameter = getattr(p, "equivalent_diameter_area", None)
+        if diameter is None:
+            diameter = p.equivalent_diameter
+        rows.append({
+            "plaque_id": int(p.label), "area_px": int(p.area),
+            "area_vs_well_median": float(p.area) / median if median else None,
+            "perimeter_px": float(p.perimeter),
+            "equivalent_diameter_px": float(diameter),
+            "eccentricity": float(p.eccentricity),
+            "solidity": float(p.solidity),
+            "centroid_y": float(p.centroid[0]),
+            "centroid_x": float(p.centroid[1])})
+    return rows
+
+
+def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
+                 segment: Optional[Callable[[np.ndarray], np.ndarray]] = None
+                 ) -> Dict[str, Any]:
+    """Find the plaques in one detected well of a figure.
+
+    Runs on a worker thread; touches no widget. The model and its thresholds
+    are the Plaque settings, through the same
+    :func:`spacr.plaque.segment_plaque_image` Plaque mode uses.
+
+    :param image: the figure, ``H x W x 3``.
+    :param region: the well's box.
+    :param settings: the module's settings.
+    :param segment: ``fn(crop) -> labels``; the plaque model when None.
+    :returns: ``{'labels', 'rows', 'count', 'mean_area', 'note'}``, or
+        ``{'error', 'entry'}``.
+    """
+    crop = np.ascontiguousarray(image[region.y0:region.y1,
+                                      region.x0:region.x1])
+    note = ""
+    if segment is None:
+        model_path, note, entry = resolve_plaque_model(settings)
+        if not model_path:
+            return {"error": note, "entry": entry}
+        try:
+            model = _cellpose_model(model_path)
+        except Exception as exc:
+            return {"error": _explain_model_failure(model_path, exc)}
+
+        def segment(c: np.ndarray) -> np.ndarray:
+            return segment_plaque_image(model, c, settings)
+
+    labels = _match_shape(segment(crop), crop.shape[:2])
+    rows = plaque_rows(labels)
+    areas = [row["area_px"] for row in rows]
+    return {"labels": labels, "rows": rows, "count": len(rows),
+            "mean_area": float(np.mean(areas)) if areas else 0.0,
+            "note": note}
+
+
 class PlaqueModeSwitch(QWidget):
     """A two-button Plaque | Figure switch.
 
@@ -732,7 +889,12 @@ class PlaqueModeSwitch(QWidget):
 
 
 class _ImageView(QLabel):
-    """An image scaled to the width it is given, boxes painted on top."""
+    """An image scaled to the width it is given, boxes painted on top.
+
+    A click is reported in IMAGE pixels, through :attr:`clicked`.
+    """
+
+    clicked = Signal(float, float)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Start empty.
@@ -747,11 +909,13 @@ class _ImageView(QLabel):
         self._pixmap: Optional[QPixmap] = None
 
     def set_image(self, rgb: Optional[np.ndarray],
-                  boxes: Sequence[Tuple[Any, bool]] = ()) -> None:
+                  boxes: Sequence[Tuple[Any, bool]] = (),
+                  selected: Optional[int] = None) -> None:
         """Show ``rgb`` with numbered boxes.
 
         :param rgb: ``H x W x 3`` ``uint8``, or None to clear.
         :param boxes: ``(region, approved)`` pairs, numbered from 1.
+        :param selected: the index of the box to highlight.
         """
         if rgb is None:
             self._pixmap = None
@@ -770,10 +934,15 @@ class _ImageView(QLabel):
             font.setPixelSize(max(12, int(max(width, height) / 45)))
             painter.setFont(font)
             for number, (region, approved) in enumerate(boxes, start=1):
-                colour = BOX_OK if approved else BOX_WAITING
-                painter.setPen(QPen(colour, thickness))
-                painter.drawRect(QRectF(region.x0, region.y0,
-                                        region.width, region.height))
+                chosen = selected == number - 1
+                colour = BOX_SELECTED if chosen else (
+                    BOX_OK if approved else BOX_WAITING)
+                rect = QRectF(region.x0, region.y0, region.width,
+                              region.height)
+                if chosen:
+                    painter.fillRect(rect, QColor(0, 200, 255, 50))
+                painter.setPen(QPen(colour, thickness * (2 if chosen else 1)))
+                painter.drawRect(rect)
                 painter.drawText(region.x0 + thickness + 2,
                                  region.y0 + font.pixelSize() + thickness,
                                  str(number))
@@ -784,6 +953,37 @@ class _ImageView(QLabel):
     def has_image(self) -> bool:
         """Whether an image is shown."""
         return self._pixmap is not None
+
+    def image_point(self, x: float, y: float) -> Optional[Tuple[float, float]]:
+        """Where a point on the label falls in the image.
+
+        :param x: label column.
+        :param y: label row.
+        :returns: ``(x, y)`` in image pixels, or None off the image.
+        """
+        shown = self.pixmap()
+        if self._pixmap is None or shown is None or shown.isNull():
+            return None
+        width, height = shown.width(), shown.height()
+        if not width or not height:
+            return None
+        left = (self.width() - width) / 2.0
+        top = (self.height() - height) / 2.0
+        if not (left <= x <= left + width and top <= y <= top + height):
+            return None
+        return ((x - left) * self._pixmap.width() / width,
+                (y - top) * self._pixmap.height() / height)
+
+    def mousePressEvent(self, event):                        # noqa: N802
+        """Report a click in image pixels.
+
+        :param event: the mouse event.
+        """
+        position = event.position()
+        point = self.image_point(position.x(), position.y())
+        if point is not None:
+            self.clicked.emit(point[0], point[1])
+        super().mousePressEvent(event)
 
     def _rescale(self) -> None:
         """Fit the pixmap to the label, keeping its shape."""
@@ -841,6 +1041,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._download = None
         self._install = None
         self._filling_table = False
+        self._wells: Dict[int, Dict[str, Any]] = {}
+        self._selected: Optional[int] = None
+        self._batch: List[int] = []
+        self._batch_total = 0
+        self._batch_segment: Optional[Callable] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key="plaque preview")
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="plaque preview image",
@@ -899,7 +1104,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         self._controls = QWidget(self)
         self._controls.setObjectName("PlaquePreviewControls")
-        grid = QGridLayout(self._controls)
+        self._controls_layout = QVBoxLayout(self._controls)
+        self._controls_layout.setContentsMargins(0, 0, 0, 0)
+        self._plaque_controls = QWidget(self._controls)
+        self._plaque_controls.setObjectName("PlaquePreviewPlaqueControls")
+        grid = QGridLayout(self._plaque_controls)
         grid.setContentsMargins(0, 0, 0, 0)
         grid.setHorizontalSpacing(8)
         grid.setVerticalSpacing(4)
@@ -953,14 +1162,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                     "images ticked OK and saved here."))
         self._confirm.toggled.connect(self._on_confirm_toggled)
         frow.addWidget(self._confirm)
-        grid.addWidget(self._figure_row, 2, 0, 1, 5)
+        self._controls_layout.addWidget(self._plaque_controls)
+        self._controls_layout.addWidget(self._figure_row)
         outer.addWidget(self._controls)
-        self._controls_index = outer.indexOf(self._controls)
         self._outer = outer
-        self._settings_popup = QFrame(self, Qt.Popup)
-        self._settings_popup.setObjectName("PlaquePreviewSettingsPopup")
-        self._settings_popup.setFrameShape(QFrame.StyledPanel)
-        QVBoxLayout(self._settings_popup)
+        self._figure_popup = self._popup("PlaqueFigureSettingsPopup")
+        self._plaque_popup = self._popup("PlaquePlaqueSettingsPopup")
 
         note_row = QHBoxLayout()
         self._model_note = QLabel("")
@@ -984,15 +1191,37 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._use_btn.setToolTip(tr("Write the values tuned here into the "
                                     "settings the run reads."))
         self._use_btn.clicked.connect(self.propagate)
-        self._settings_btn = QPushButton(tr("Settings…"))
-        self._settings_btn.setObjectName("PlaquePreviewSettings")
-        self._settings_btn.setToolTip(tr(
-            "The detector, its sizes and confidence, text reading, review, "
-            "and the plaque model and thresholds, in one place."))
-        self._settings_btn.clicked.connect(self._open_settings)
-        self._settings_btn.hide()
-        for widget in (self._settings_btn, self._run_btn, self._cancel_btn,
-                       self._use_btn):
+        self._figure_settings_btn = QPushButton(tr("Figure settings…"))
+        self._figure_settings_btn.setObjectName("PlaqueFigureSettings")
+        self._figure_settings_btn.setToolTip(tr(
+            "Finding the plaque wells and reading the figure: the detector, "
+            "its sizes and confidence, text reading and review."))
+        self._figure_settings_btn.clicked.connect(
+            lambda: self._open_popup(self._figure_popup,
+                                     self._figure_settings_btn))
+        self._plaque_settings_btn = QPushButton(tr("Plaque settings…"))
+        self._plaque_settings_btn.setObjectName("PlaquePlaqueSettings")
+        self._plaque_settings_btn.setToolTip(tr(
+            "Finding the plaques inside a well: the plaque model, diameter, "
+            "flow threshold and cell probability."))
+        self._plaque_settings_btn.clicked.connect(
+            lambda: self._open_popup(self._plaque_popup,
+                                     self._plaque_settings_btn))
+        self._well_btn = QPushButton(tr("Plaque preview"))
+        self._well_btn.setObjectName("PlaqueWellPreview")
+        self._well_btn.setToolTip(tr(
+            "Find the plaques in the highlighted well with the plaque "
+            "settings."))
+        self._well_btn.clicked.connect(lambda: self.preview_selected_well())
+        self._all_btn = QPushButton(tr("Find plaques in all wells"))
+        self._all_btn.setObjectName("PlaqueAllWells")
+        self._all_btn.setToolTip(tr(
+            "Find the plaques in every well found on this figure, one after "
+            "another. Cancel stops after the well in progress."))
+        self._all_btn.clicked.connect(lambda: self.find_plaques_in_all_wells())
+        for widget in (self._figure_settings_btn, self._plaque_settings_btn,
+                       self._run_btn, self._well_btn, self._all_btn,
+                       self._cancel_btn, self._use_btn):
             buttons.addWidget(widget)
         buttons.addStretch(1)
         outer.addLayout(buttons)
@@ -1002,8 +1231,23 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
+        pictures = QHBoxLayout()
         self._view = _ImageView(self)
-        outer.addWidget(self._view, 3)
+        self._view.setCursor(Qt.PointingHandCursor)
+        self._view.clicked.connect(self._on_figure_clicked)
+        pictures.addWidget(self._view, 3)
+        self._well_side = QWidget(self)
+        side = QVBoxLayout(self._well_side)
+        side.setContentsMargins(0, 0, 0, 0)
+        self._well_title = QLabel(tr(PICK_A_WELL))
+        self._well_title.setObjectName("PlaqueWellTitle")
+        self._well_title.setWordWrap(True)
+        side.addWidget(self._well_title)
+        self._well_view = _ImageView(self._well_side)
+        self._well_view.setObjectName("PlaqueWellImage")
+        side.addWidget(self._well_view, 1)
+        pictures.addWidget(self._well_side, 2)
+        outer.addLayout(pictures, 3)
 
         self._legend_box = QFrame(self)
         self._legend_box.setObjectName("PlaqueLegendPrompt")
@@ -1046,8 +1290,25 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setSectionResizeMode(CONDITION_COLUMN, QHeaderView.Stretch)
         self._table.itemChanged.connect(self._on_table_edit)
+        self._table.itemSelectionChanged.connect(self._on_table_selection)
         self._table.setMinimumHeight(180)
-        outer.addWidget(self._table, 2)
+        self._plaque_table = QTableWidget(0, len(PLAQUE_COLUMNS), self)
+        self._plaque_table.setObjectName("PlaquePerPlaqueTable")
+        self._plaque_table.setHorizontalHeaderLabels(
+            [tr(c) for c in PLAQUE_COLUMNS])
+        self._plaque_table.verticalHeader().setVisible(False)
+        self._plaque_table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self._plaque_table.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self._plaque_table.horizontalHeader().setSectionResizeMode(
+            QHeaderView.ResizeToContents)
+        self._plaque_table.itemSelectionChanged.connect(
+            self._on_plaque_selection)
+        self._tabs = QTabWidget(self)
+        self._tabs.setObjectName("PlaqueFigureTabs")
+        self._tabs.addTab(self._table, tr("Wells"))
+        self._tabs.addTab(self._plaque_table, tr("Plaques"))
+        self._tabs.setMinimumHeight(200)
+        outer.addWidget(self._tabs, 2)
 
         save_row = QHBoxLayout()
         self._save_btn = QPushButton(tr("Save annotations"))
@@ -1061,6 +1322,18 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._save_row = QWidget(self)
         self._save_row.setLayout(save_row)
         outer.addWidget(self._save_row)
+
+    def _popup(self, name: str) -> QFrame:
+        """An empty drop-down frame for one group of settings.
+
+        :param name: its object name.
+        :returns: the frame.
+        """
+        popup = QFrame(self, Qt.Popup)
+        popup.setObjectName(name)
+        popup.setFrameShape(QFrame.StyledPanel)
+        QVBoxLayout(popup)
+        return popup
 
     def _spin(self, low: float, high: float, decimals: int, value: float,
               step: float) -> QDoubleSpinBox:
@@ -1089,7 +1362,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         figure = mode == FIGURE_MODE
         self._figure_row.setVisible(figure)
         self._place_controls(figure)
-        self._table.setVisible(figure)
+        self._tabs.setVisible(figure)
+        self._well_side.setVisible(figure)
+        self._well_btn.setVisible(figure)
+        self._all_btn.setVisible(figure)
         self._save_row.setVisible(figure)
         self._confirm_note.setVisible(figure and self._confirm.isChecked())
         if not figure:
@@ -1100,42 +1376,53 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._deps_text.setText(papers_install_message(missing))
             self._install_btn.setVisible(True)
         if self._figure is not None and not figure:
-            self._figure = None
-            self._table.setRowCount(0)
+            self._clear_figure()
         self._view.set_image(None)
         self._show_selected_image()
 
-    def _place_controls(self, behind_a_button: bool) -> None:
-        """Put the controls inline, or behind the Settings button.
+    def _place_controls(self, behind_buttons: bool) -> None:
+        """Put the controls inline, or behind the two settings buttons.
 
-        The maintainer, 2026-09-21: "in figure mode instead of having all the
-        settings all there make one settings button for the settings."
-        Figure mode carries two rows of controls on top of the image and the
-        review table; Plaque mode has four and keeps them inline.
+        The maintainer, 2026-09-21: "the settings for the figure should be
+        in figure settings, the settings for the plaque detections in plaque
+        settings". Figure mode puts the detector and reading controls under
+        Figure settings and the plaque model and thresholds under Plaque
+        settings; Plaque mode has four controls and keeps them inline.
 
-        :param behind_a_button: True for Figure mode.
+        :param behind_buttons: True for Figure mode.
         """
-        popup_layout = self._settings_popup.layout()
-        if behind_a_button:
-            if self._controls.parent() is not self._settings_popup:
-                self._outer.removeWidget(self._controls)
-                self._controls.setParent(self._settings_popup)
-                popup_layout.addWidget(self._controls)
-                self._controls.show()
-        elif self._controls.parent() is not self:
-            self._settings_popup.hide()
-            popup_layout.removeWidget(self._controls)
-            self._controls.setParent(self)
-            self._outer.insertWidget(self._controls_index, self._controls)
-            self._controls.show()
-        self._settings_btn.setVisible(behind_a_button)
+        pairs = ((self._figure_row, self._figure_popup),
+                 (self._plaque_controls, self._plaque_popup))
+        if behind_buttons:
+            for widget, popup in pairs:
+                if widget.parent() is not popup:
+                    self._controls_layout.removeWidget(widget)
+                    widget.setParent(popup)
+                    popup.layout().addWidget(widget)
+                widget.show()
+        else:
+            for widget, popup in pairs:
+                popup.hide()
+                if widget.parent() is not self._controls:
+                    popup.layout().removeWidget(widget)
+                    widget.setParent(self._controls)
+            self._controls_layout.insertWidget(0, self._plaque_controls)
+            self._controls_layout.insertWidget(1, self._figure_row)
+            self._plaque_controls.show()
+            self._figure_row.hide()
+        self._controls.setVisible(not behind_buttons)
+        self._figure_settings_btn.setVisible(behind_buttons)
+        self._plaque_settings_btn.setVisible(behind_buttons)
 
-    def _open_settings(self) -> None:
-        """Drop the settings down under the Settings button."""
-        self._settings_popup.adjustSize()
-        self._settings_popup.move(
-            self._settings_btn.mapToGlobal(self._settings_btn.rect().bottomLeft()))
-        self._settings_popup.show()
+    def _open_popup(self, popup: QFrame, anchor: QWidget) -> None:
+        """Drop one group of settings down under its button.
+
+        :param popup: the frame to show.
+        :param anchor: the button it hangs from.
+        """
+        popup.adjustSize()
+        popup.move(anchor.mapToGlobal(anchor.rect().bottomLeft()))
+        popup.show()
 
     def _on_switch(self, mode: str) -> None:
         """The panel's own switch was clicked."""
@@ -1200,9 +1487,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         count = self._picker.count()
         self._position.setText(tr("{n} of {total}", n=index + 1, total=count)
                                if count else "")
-        self._figure = None
-        self._annotations = []
-        self._table.setRowCount(0)
+        self._clear_figure()
         self._legend_box.hide()
         self._show_selected_image()
 
@@ -1373,7 +1658,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         return self._jobs.is_busy()
 
     def _cancel_extra_work(self) -> None:
-        """Drop the pass in flight."""
+        """Drop the pass in flight, and any wells still queued."""
+        self._batch = []
         self._jobs.cancel()
 
     def run_preview(self, *_args: Any, detect: Optional[Callable] = None,
@@ -1383,7 +1669,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         :param detect: replaces the detector (tests).
         :param read_text: replaces the text reader (tests).
-        :param segment: replaces the plaque model (tests).
+        :param segment: replaces the plaque model (tests); Plaque mode only,
+            Figure mode segments per well.
         :returns: True when a pass was started.
         """
         if not self.begin_preview():
@@ -1394,8 +1681,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         settings = self.current_settings()
         self.set_preview_status(tr(PREVIEW_RUNNING_MESSAGE))
         if self.mode() == FIGURE_MODE:
-            work = (lambda: figure_pass(path, settings, detect=detect,
-                                        read_text=read_text, segment=segment))
+            work = (lambda: detect_figure(path, settings, detect=detect,
+                                          read_text=read_text))
         else:
             work = lambda: plaque_pass(path, settings, segment=segment)
         self._jobs.submit(work, lambda result, t=token: self._on_result(t, result))
@@ -1510,6 +1797,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _show_figure(self, result: Dict[str, Any]) -> None:
         """Annotate a finished figure pass and fill the table."""
+        self._clear_figure()
+        result.setdefault("overlay", np.array(result["image"], copy=True))
         self._figure = result
         stem = Path(result["path"]).stem
         self._caption = self._legend_for(stem)
@@ -1525,12 +1814,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._legend_box.show()
         else:
             self._legend_box.hide()
-        total = sum(result["counts"])
         self.set_preview_status(tr(
-            "{name}: {regions} plaque images found, {words} words read, "
-            "{plaques} plaques segmented.", name=Path(result["path"]).name,
-            regions=len(result["regions"]), words=len(result["words"]),
-            plaques=total))
+            "{name}: {regions} plaque wells found, {words} words read. Click "
+            "a well, then Plaque preview, or Find plaques in all wells.",
+            name=Path(result["path"]).name,
+            regions=len(result["regions"]), words=len(result["words"])))
+        if result["regions"]:
+            self.select_well(0)
 
     def _reannotate(self) -> None:
         """Propose conditions again, with the legend known now."""
@@ -1550,18 +1840,21 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return
         ticks = [self._row_ok(i) for i in range(len(self._annotations))]
         self._view.set_image(result["overlay"],
-                             list(zip(result["regions"], ticks)))
+                             list(zip(result["regions"], ticks)),
+                             selected=self._selected)
 
     def _fill_table(self) -> None:
         """One row per plaque image."""
-        counts = (self._figure or {}).get("counts", [])
         self._filling_table = True
+        self._table.blockSignals(True)
         self._table.setRowCount(len(self._annotations))
         for row, a in enumerate(self._annotations):
+            well = self._wells.get(row)
             cells = (str(row + 1), a.panel or "", a.label_text,
                      a.legend_text, a.condition,
                      f"{a.source} / {a.strength}",
-                     str(counts[row]) if row < len(counts) else "")
+                     str(well["count"]) if well else "",
+                     f"{well['mean_area']:.0f}" if well else "")
             for column, text in enumerate(cells):
                 item = QTableWidgetItem(text)
                 item.setToolTip(text)
@@ -1573,7 +1866,250 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                         & ~Qt.ItemIsEditable)
             ok.setCheckState(Qt.Checked if a.approved else Qt.Unchecked)
             self._table.setItem(row, OK_COLUMN, ok)
+        if self._selected is not None:
+            self._table.selectRow(self._selected)
+        self._table.blockSignals(False)
         self._filling_table = False
+
+    def _clear_figure(self) -> None:
+        """Forget the figure, its wells and both tables."""
+        self._figure = None
+        self._annotations = []
+        self._wells = {}
+        self._selected = None
+        self._batch = []
+        self._filling_table = True
+        self._table.setRowCount(0)
+        self._filling_table = False
+        self._plaque_table.setRowCount(0)
+        self._tabs.setTabText(1, tr("Plaques"))
+        self._well_view.set_image(None)
+        self._well_title.setText(tr(PICK_A_WELL))
+
+    def _on_figure_clicked(self, x: float, y: float) -> None:
+        """Select the well under a click on the figure."""
+        if self._figure is None:
+            return
+        index = region_at(self._figure["regions"], x, y)
+        if index is not None:
+            self.select_well(index)
+
+    def _on_table_selection(self) -> None:
+        """Select the well of the row picked in the Wells table."""
+        rows = {i.row() for i in self._table.selectedItems()}
+        if len(rows) == 1:
+            self.select_well(rows.pop(), from_table=True)
+
+    def _on_plaque_selection(self) -> None:
+        """Select the well a plaque row belongs to."""
+        rows = {i.row() for i in self._plaque_table.selectedItems()}
+        if len(rows) != 1:
+            return
+        item = self._plaque_table.item(rows.pop(), 0)
+        try:
+            self.select_well(int(item.text()) - 1)
+        except (AttributeError, ValueError):
+            return
+
+    def selected_well(self) -> Optional[int]:
+        """The index of the highlighted well, or None."""
+        return self._selected
+
+    def select_well(self, index: int, *, from_table: bool = False) -> None:
+        """Highlight one well: its box, its row, and its crop on the right.
+
+        :param index: the well, 0-based in reading order.
+        :param from_table: True when the Wells table asked, so its selection
+            is left as the user made it.
+        """
+        result = self._figure
+        if result is None or not 0 <= index < len(result["regions"]):
+            return
+        self._selected = index
+        if not from_table:
+            self._table.blockSignals(True)
+            self._table.selectRow(index)
+            self._table.blockSignals(False)
+        self._redraw_boxes()
+        self._show_well(index)
+
+    def _show_well(self, index: int) -> None:
+        """Draw the well's crop, with its plaques once they are found."""
+        result = self._figure
+        region = result["regions"][index]
+        crop = np.array(result["image"][region.y0:region.y1,
+                                        region.x0:region.x1], copy=True)
+        well = self._wells.get(index)
+        if well is not None:
+            outline_labels(crop, well["labels"])
+        self._well_view.set_image(crop)
+        a = self._annotations[index] if index < len(self._annotations) else None
+        parts = [tr("Well {n}", n=index + 1)]
+        if a is not None and a.panel:
+            parts.append(tr("panel {p}", p=a.panel))
+        if a is not None and a.condition:
+            parts.append(a.condition)
+        if well is not None:
+            parts.append(tr("{count} plaques, mean area {area:.0f} px",
+                            count=well["count"], area=well["mean_area"]))
+        else:
+            parts.append(tr("press Plaque preview to find its plaques"))
+        self._well_title.setText(" · ".join(parts))
+
+    def preview_selected_well(self, *, segment: Optional[Callable] = None
+                              ) -> bool:
+        """Find the plaques in the highlighted well, off the GUI thread.
+
+        :param segment: replaces the plaque model (tests).
+        :returns: True when a pass was started.
+        """
+        if self._figure is None:
+            self.set_preview_status(tr("Run preview on a figure first."))
+            return False
+        if self._selected is None:
+            self.set_preview_status(tr(PICK_A_WELL))
+            return False
+        return self._start_wells([self._selected], segment)
+
+    def find_plaques_in_all_wells(self, *, segment: Optional[Callable] = None
+                                  ) -> bool:
+        """Find the plaques in every detected well, one after another.
+
+        :param segment: replaces the plaque model (tests).
+        :returns: True when a pass was started.
+        """
+        if self._figure is None or not self._figure["regions"]:
+            self.set_preview_status(tr("Run preview on a figure first."))
+            return False
+        return self._start_wells(list(range(len(self._figure["regions"]))),
+                                 segment)
+
+    def _start_wells(self, indices: List[int],
+                     segment: Optional[Callable]) -> bool:
+        """Queue wells for segmentation and start the first.
+
+        :param indices: the wells, in the order to do them.
+        :param segment: replaces the plaque model (tests).
+        :returns: True when the first was started.
+        """
+        if self._jobs.is_busy():
+            self.set_preview_status(tr("Preview already running."))
+            return False
+        self._run_token += 1
+        self._batch = list(indices)
+        self._batch_total = len(indices)
+        self._batch_segment = segment
+        self.set_preview_busy(True)
+        self._next_well(self._run_token)
+        return True
+
+    def _next_well(self, token: int) -> None:
+        """Segment the next queued well, or say the queue is done."""
+        if self.preview_stale(token) or self._figure is None:
+            return
+        if not self._batch:
+            self.set_preview_busy(False)
+            total = sum(w["count"] for w in self._wells.values())
+            self.set_preview_status(tr(
+                "Done: {total} plaques in the {n} well(s) segmented so far.",
+                total=total, n=len(self._wells)))
+            return
+        index = self._batch.pop(0)
+        position = self._batch_total - len(self._batch)
+        self.set_preview_status(tr(
+            "Finding plaques in well {n} ({k} of {total})…", n=index + 1,
+            k=position, total=self._batch_total))
+        image = self._figure["image"]
+        region = self._figure["regions"][index]
+        settings = self.current_settings()
+        segment = self._batch_segment
+        self._jobs.submit(
+            lambda: segment_well(image, region, settings, segment=segment),
+            lambda result, t=token, i=index: self._on_well(t, i, result))
+
+    def _on_well(self, token: int, index: int, result: Dict[str, Any]) -> None:
+        """Adopt one segmented well and move on to the next."""
+        if self.preview_stale(token) or self._figure is None:
+            return
+        if not isinstance(result, dict) or result.get("error"):
+            self._batch = []
+            self.set_preview_busy(False)
+            if isinstance(result, dict):
+                self.set_preview_status(result["error"])
+                self._offer_download(result.get("entry"))
+            return
+        if result.get("note"):
+            self._model_note.setText(result["note"])
+        self._wells[index] = result
+        self._repaint_overlay()
+        self._fill_table()
+        self._fill_plaque_table()
+        if self._selected is None or self._selected == index:
+            self.select_well(index)
+        else:
+            self._redraw_boxes()
+        self.preview_ready.emit({"well": index, **result})
+        self._next_well(token)
+
+    def _repaint_overlay(self) -> None:
+        """The figure with the outlines of every segmented well."""
+        result = self._figure
+        overlay = np.array(result["image"], copy=True)
+        for index, well in self._wells.items():
+            region = result["regions"][index]
+            outline_labels(overlay, well["labels"],
+                           offset=(region.y0, region.x0))
+        result["overlay"] = overlay
+
+    def plaque_table_rows(self) -> List[Dict[str, Any]]:
+        """Every plaque found so far, with the well it is in.
+
+        The ratio to the panel median is taken over every segmented well of
+        the same panel, as the run's ``area_vs_panel_median`` is.
+
+        :returns: dicts, one per plaque, well by well.
+        """
+        def annotation(index: int) -> Any:
+            return self._annotations[index] \
+                if index < len(self._annotations) else None
+
+        by_panel: Dict[Optional[str], List[float]] = {}
+        for index, well in self._wells.items():
+            a = annotation(index)
+            by_panel.setdefault(a.panel if a is not None else None, []).extend(
+                r["area_px"] for r in well["rows"])
+        medians = {k: float(np.median(v)) if v else 0.0
+                   for k, v in by_panel.items()}
+        out = []
+        for index in sorted(self._wells):
+            a = annotation(index)
+            panel = a.panel if a is not None else None
+            median = medians.get(panel) or 0.0
+            for row in self._wells[index]["rows"]:
+                out.append({"well": index + 1, "panel": panel or "",
+                            "condition": a.condition if a is not None else "",
+                            "area_vs_panel_median":
+                            row["area_px"] / median if median else None,
+                            **row})
+        return out
+
+    def _fill_plaque_table(self) -> None:
+        """Rewrite the Plaques tab from the wells segmented so far."""
+        rows = self.plaque_table_rows()
+        self._plaque_table.blockSignals(True)
+        self._plaque_table.setRowCount(len(rows))
+        for r, row in enumerate(rows):
+            for c, key in enumerate(PLAQUE_KEYS):
+                value = row.get(key)
+                if value is None:
+                    text = ""
+                elif isinstance(value, float):
+                    text = f"{value:.2f}" if abs(value) < 100 else f"{value:.0f}"
+                else:
+                    text = str(value)
+                self._plaque_table.setItem(r, c, QTableWidgetItem(text))
+        self._plaque_table.blockSignals(False)
+        self._tabs.setTabText(1, tr("Plaques ({n})", n=len(rows)))
 
     def _row_ok(self, row: int) -> bool:
         """Whether a row is ticked OK."""
@@ -1592,6 +2128,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             text = item.text().strip()
             if text and text != a.condition:
                 a.condition, a.source, a.strength = text, "manual", "manual"
+            self._fill_plaque_table()
         elif item.column() == OK_COLUMN:
             a.approved = self._row_ok(row)
             self._redraw_boxes()

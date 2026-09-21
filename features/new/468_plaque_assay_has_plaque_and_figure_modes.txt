@@ -2,7 +2,8 @@
 PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
 ================================================================================
 
-Status:    DONE 2026-09-21. Run side f7803de0b, preview and switch 42e03b752;
+Status:    DONE 2026-09-21; per-well Figure preview added the same day.
+           Run side f7803de0b, preview and switch 42e03b752;
            240 tests passed on the merged tree. Plaque mode and the preview
            segment through one function, spacr.plaque.segment_plaque_image.
            Owed to Codex: the nine-language captions.
@@ -23,6 +24,20 @@ Requested: 2026-09-21 -- "you seem to have copied all the settings from the
            gathered automatically; when it cannot be, the user is prompted to
            paste the legend or annotate by hand; and an option, when on,
            makes the user OK each annotation -- "a review dialog in the GUI".
+Requested: 2026-09-21, after testing Figure mode on his GPU -- "now after
+           having done this, i should be able to click on any of the plaque
+           wells, or on any of the annotated columns in the table that is
+           generated this should loade that well to the right of the figure,
+           and i should be able to apply the plaque model to that image and
+           find all the plaques, which should bthen populate the table row
+           for that plaque well. another table tab should appear so i can
+           see the values for each plaque. there should also be a button to
+           find plaques in all the plaque wells found. so the settings for
+           the figure should be in figure settings, the settings for the
+           plaque detections in plaque settings, run preview should detect
+           the plaque wells, and add another button called Plaque preview
+           that generates plaques from the hichlighted rw and plaque well box
+           on the figure."
 
 --------------------------------------------------------------------------------
 WHAT WAS BUILT
@@ -118,10 +133,50 @@ Figure mode segments each crop as plaque_papers._cellpose_segmenter does
 tuned diameter/flow/cellprob, switch figure_pass to segment_plaque_image.
 
 --------------------------------------------------------------------------------
+FIGURE MODE, PER WELL (the second request above)
+--------------------------------------------------------------------------------
+
+* Run preview in Figure mode detects the wells and reads the text only
+  (detect_figure); nothing is segmented.
+* A well is selected by clicking its box on the figure (the click is mapped
+  through the scaled picture, _ImageView.image_point; the smallest box under
+  the point wins, region_at), by selecting its row in the Wells table, or by
+  selecting one of its plaques in the Plaques table. The selected box is
+  drawn in cyan, its row is selected, and its crop is shown to the RIGHT of
+  the figure with "Well n · panel · condition".
+* Plaque preview segments the selected well with the Plaque settings
+  (segment_well -> spacr.plaque.segment_plaque_image, off the GUI thread),
+  draws the outlines on the crop and on the figure, and fills that row's
+  Plaques and Mean area columns.
+* Find plaques in all wells does every well, one job after another, with
+  "Finding plaques in well n (k of N)…" and Cancel (which drops the queue
+  and the answer in flight).
+* The table area is two tabs: Wells, and Plaques (n) -- one row per plaque:
+  well, panel, condition, plaque id, area px, ratio to the panel median
+  (over every segmented well of that panel, as the run's
+  area_vs_panel_median), ratio to the well median, perimeter, equivalent
+  diameter, eccentricity, solidity, centroid y/x -- the run's per_plaque
+  columns (plaque_rows).
+* Figure settings… (detector, sizes, confidence, read text, confirm
+  annotations) and Plaque settings… (plaque model, diameter, flow, cell
+  probability) are two pop-ups. Plaque mode keeps its four controls inline.
+
+MEASURED, headless on CPU, the real screen with worker threads,
+12860_2020_249_Fig6_HTML.png, detector v2, cpsam_plaque_r5:
+    Run preview                 9.0 s   4 wells, 50 words, Plaques column empty
+    click on box 3 (QTest)      -> well 3 selected, crop on the right,
+                                   "Well 3 · △TgDCX/TgDCX / △TgDCX/TgDCX"
+    Plaque preview on well 3   57.9 s   row 3: 30 plaques, mean area 33 px;
+                                        tab "Plaques (30)"
+    Find plaques in all wells 252.2 s   19 / 0 / 30 / 5 plaques, mean
+                                        26 / 0 / 33 / 22 px; "Plaques (54)"
+The 54 plaques are the same total the one-shot pass found on this figure.
+
+--------------------------------------------------------------------------------
 TESTS
 --------------------------------------------------------------------------------
 
-tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 20 tests, the
+tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 29 tests, the
 detector, text reader and Cellpose faked.
 
 2026-09-21 — CODEX TRANSLATION LANE: PREVIEW EVIDENCE REBOUND

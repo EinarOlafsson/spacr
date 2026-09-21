@@ -165,14 +165,17 @@ def _figure_panel(panel, tmp_path, confirm=False):
     return panel
 
 
-def test_figure_mode_finds_reads_annotates_and_segments(panel, tmp_path):
+def test_run_preview_finds_and_reads_but_segments_nothing(panel, tmp_path):
+    """2026-09-21: "run preview should detect the plaque wells"."""
     _figure_panel(panel, tmp_path)
     assert panel._table.rowCount() == 2
-    first = [panel._table.item(0, c).text() for c in range(7)]
+    first = [panel._table.item(0, c).text() for c in range(8)]
     assert first[1] == "A"
     assert "WT" in first[2]
-    assert first[6] == "2"
+    assert first[ppv.PLAQUES_COLUMN] == "", "nothing is segmented yet"
     assert panel._row_ok(0), "without confirm_annotations the run measures it"
+    assert panel.selected_well() == 0, "the first well is shown on the right"
+    assert panel._well_view.has_image()
 
 
 def test_a_panel_letter_with_no_legend_asks_for_one(panel, tmp_path):
@@ -322,21 +325,132 @@ def test_sizes_and_modes_parse():
     assert ppv.normalise_mode(None) == "plaque"
 
 
-def test_figure_mode_puts_its_settings_behind_one_button(qtbot):
-    """2026-09-21, the maintainer: "in figure mode instead of having all the
-    settings all there make one settings button for the settings"."""
-    from spacr.qt.widgets.plaque_preview import PlaquePreviewPanel
-
-    panel = PlaquePreviewPanel()
+def test_figure_and_plaque_settings_have_a_button_each(qtbot):
+    """2026-09-21, the maintainer: "the settings for the figure should be in
+    figure settings, the settings for the plaque detections in plaque
+    settings"."""
+    panel = ppv.PlaquePreviewPanel()
     qtbot.addWidget(panel)
     panel.show()
     panel.set_mode("figure")
-    assert panel._settings_btn.isVisibleTo(panel)
-    assert panel._controls.parent() is panel._settings_popup
-    panel._open_settings()
-    assert panel._settings_popup.isVisible()
-    assert panel._detector_box.isVisibleTo(panel._settings_popup)
+    assert panel._figure_settings_btn.isVisibleTo(panel)
+    assert panel._plaque_settings_btn.isVisibleTo(panel)
+    assert panel._figure_row.parent() is panel._figure_popup
+    assert panel._plaque_controls.parent() is panel._plaque_popup
+    panel._figure_settings_btn.click()
+    assert panel._figure_popup.isVisible()
+    assert panel._detector_box.isVisibleTo(panel._figure_popup)
+    panel._figure_popup.hide()
+    panel._plaque_settings_btn.click()
+    assert panel._plaque_popup.isVisible()
+    assert panel._model_box.isVisibleTo(panel._plaque_popup)
+    assert not panel._detector_box.isVisibleTo(panel._plaque_popup)
+    panel._plaque_popup.hide()
     panel.set_mode("plaque")
-    assert not panel._settings_btn.isVisibleTo(panel)
-    assert panel._controls.parent() is panel
-    assert panel._controls.isVisibleTo(panel)
+    assert not panel._figure_settings_btn.isVisibleTo(panel)
+    assert panel._plaque_controls.parent() is panel._controls
+    assert panel._plaque_controls.isVisibleTo(panel)
+    assert not panel._figure_row.isVisibleTo(panel)
+    panel.set_mode("figure")
+    assert panel._plaque_controls.parent() is panel._plaque_popup
+
+
+def test_clicking_a_box_selects_its_well_and_row(panel, tmp_path):
+    """"i should be able to click on any of the plaque wells, or on any of the
+    annotated columns in the table ... this should loade that well to the
+    right of the figure"."""
+    _figure_panel(panel, tmp_path)
+    panel._on_figure_clicked(260.0, 140.0)
+    assert panel.selected_well() == 1
+    assert panel._table.currentRow() == 1 or 1 in {
+        i.row() for i in panel._table.selectedItems()}
+    assert panel._well_title.text().startswith("Well 2")
+    panel._on_figure_clicked(5.0, 5.0)
+    assert panel.selected_well() == 1, "a click off every box changes nothing"
+    panel._table.selectRow(0)
+    assert panel.selected_well() == 0
+
+
+def test_a_click_is_mapped_through_the_scaled_picture(qtbot):
+    view = ppv._ImageView()
+    qtbot.addWidget(view)
+    view.resize(200, 200)
+    view.show()
+    view.set_image(np.zeros((400, 800, 3), dtype=np.uint8))
+    middle = view.height() / 2.0
+    x, y = view.image_point(view.width() / 2.0, middle)
+    assert abs(x - 400) < 6 and abs(y - 200) < 6
+    assert view.image_point(view.width() / 2.0, 2.0) is None, (
+        "above the letterboxed image")
+
+
+def test_plaque_preview_fills_the_selected_row_and_the_plaques_tab(
+        panel, tmp_path):
+    """"i should be able to apply the plaque model to that image and find
+    all the plaques, which should bthen populate the table row ... another
+    table tab should appear so i can see the values for each plaque"."""
+    _figure_panel(panel, tmp_path)
+    panel.select_well(1)
+    assert panel.preview_selected_well(segment=_segment_crop)
+    assert panel._table.item(1, ppv.PLAQUES_COLUMN).text() == "2"
+    assert panel._table.item(1, ppv.MEAN_AREA_COLUMN).text() == "162"
+    assert panel._table.item(0, ppv.PLAQUES_COLUMN).text() == ""
+    assert panel._plaque_table.rowCount() == 2
+    assert panel._tabs.tabText(1) == "Plaques (2)"
+    rows = panel.plaque_table_rows()
+    assert {r["well"] for r in rows} == {2}
+    assert {r["area_px"] for r in rows} == {100, 225}
+    assert all(r["condition"] for r in rows)
+    assert rows[0]["solidity"] == pytest.approx(1.0)
+    assert "2 plaques" in panel._well_title.text()
+
+
+def test_find_plaques_in_all_wells_does_every_well(panel, tmp_path):
+    _figure_panel(panel, tmp_path)
+    assert panel.find_plaques_in_all_wells(segment=_segment_crop)
+    assert [panel._table.item(r, ppv.PLAQUES_COLUMN).text()
+            for r in range(2)] == ["2", "2"]
+    rows = panel.plaque_table_rows()
+    assert len(rows) == 4
+    assert all(r["area_vs_panel_median"] is not None for r in rows)
+    assert "Done: 4 plaques" in panel.preview_status()
+    assert not panel._cancel_btn.isEnabled()
+
+
+def test_cancel_stops_the_queue(panel, tmp_path):
+    _figure_panel(panel, tmp_path)
+    seen = []
+
+    def segment(crop):
+        seen.append(1)
+        panel.cancel_preview()
+        return _two_blobs(crop.shape)
+
+    panel.find_plaques_in_all_wells(segment=segment)
+    assert len(seen) == 1, "the second well was never started"
+    assert panel._plaque_table.rowCount() == 0, "a cancelled answer is dropped"
+
+
+def test_selecting_a_plaque_row_selects_its_well(panel, tmp_path):
+    _figure_panel(panel, tmp_path)
+    panel.find_plaques_in_all_wells(segment=_segment_crop)
+    panel.select_well(0)
+    panel._plaque_table.selectRow(3)
+    assert panel.selected_well() == 1
+
+
+def test_plaque_rows_carry_the_runs_per_plaque_values():
+    rows = ppv.plaque_rows(_two_blobs((60, 60)))
+    assert [r["plaque_id"] for r in rows] == [1, 2]
+    assert set(rows[0]) >= {"area_px", "area_vs_well_median", "perimeter_px",
+                            "equivalent_diameter_px", "eccentricity",
+                            "solidity", "centroid_y", "centroid_x"}
+    assert ppv.plaque_rows(np.zeros((5, 5), dtype=int)) == []
+
+
+def test_region_at_prefers_the_smallest_box():
+    big = pp.Region(0, 0, 100, 100)
+    small = pp.Region(10, 10, 30, 30)
+    assert ppv.region_at([big, small], 20, 20) == 1
+    assert ppv.region_at([big, small], 80, 80) == 0
+    assert ppv.region_at([big, small], 200, 200) is None
