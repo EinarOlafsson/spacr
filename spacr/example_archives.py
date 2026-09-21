@@ -34,6 +34,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
+from .import_examples import IMPORT_EXAMPLE_ARCHIVE as _IMPORT_EXAMPLE_ARCHIVE
+from .import_examples import IMPORT_EXAMPLE_REPO as _IMPORT_EXAMPLE_REPO
+
 LOG = logging.getLogger("spacr.example_archives")
 
 __all__ = [
@@ -44,6 +47,7 @@ __all__ = [
     "EXAMPLE_ARCHIVES",
     "EXAMPLE_SETS",
     "ExampleSet",
+    "IMPORT_EXAMPLE_REPO",
     "MEASURE_EXAMPLE_REPO",
     "RECRUITMENT_EXAMPLE_REPO",
     "REPLICATION_EXAMPLE_REPO",
@@ -93,6 +97,13 @@ REPLICATION_EXAMPLE_REPO = "einarolafsson/spacr-example-replication"
 #: screen, plate 1, whose own recruitment settings ship with it.
 RECRUITMENT_EXAMPLE_REPO = "einarolafsson/spacr-example-recruitment"
 
+#: Import's test data: the same twelve planes written in every vendor format
+#: and filename convention Import reads, with their masks and measurements.
+#: Described in :mod:`spacr.import_examples`, which owns the variant list.
+#: Every member sits under ``import_example/``, so it unpacks into the shared
+#: plate without touching the other sets' files.
+IMPORT_EXAMPLE_REPO = _IMPORT_EXAMPLE_REPO
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -136,6 +147,7 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
     REPLICATION_EXAMPLE_REPO: "spacr-example-replication.tar",
     RECRUITMENT_EXAMPLE_REPO: "spacr-example-recruitment.tar",
+    IMPORT_EXAMPLE_REPO: _IMPORT_EXAMPLE_ARCHIVE,
 }
 
 
@@ -200,6 +212,15 @@ class ExampleSet:
 #: assay module reads, which is where they sit in the pipeline too.
 EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
     ExampleSet(
+        key="import",
+        repo=IMPORT_EXAMPLE_REPO,
+        summary="Import test data: two wells, two fields and three channels "
+                "written in 22 formats and filename conventions, with masks "
+                "and measurements, plus public ND2 and LIF samples.",
+        bytes=284_000_000,
+        markers=("import_example/manifest.csv",),
+    ),
+    ExampleSet(
         key="mask",
         repo=DATASET_REPO,
         summary="Mask demo: one raw toxo_mito plate, plus the settings to "
@@ -250,8 +271,8 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
 def example_set(key: str) -> ExampleSet:
     """The set called ``key``.
 
-    :param key: ``mask``, ``measure``, ``annotate``, ``replication`` or
-        ``recruitment``.
+    :param key: ``import``, ``mask``, ``measure``, ``annotate``,
+        ``replication`` or ``recruitment``.
     :raises KeyError: naming the keys that do exist. A typo that returned
         ``None`` would download nothing and report success, which is the one
         outcome a download command must never produce.

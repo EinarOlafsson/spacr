@@ -14,6 +14,7 @@ from PySide6.QtCore import QEvent, QRect, Qt
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QDialog,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -74,6 +75,11 @@ class TestDataChooser(QDialog):
     #: fitting the text".
     DIALOG_WIDTH = 460
 
+    #: Buttons per row, or 0 for one row. A chooser with two routes wants
+    #: them side by side; Import's has two dozen, and a single row of those
+    #: is wider than the screen.
+    COLUMNS = 0
+
     def __init__(self, parent=None):
         """Build the test-data chooser.
 
@@ -95,9 +101,9 @@ class TestDataChooser(QDialog):
 
         layout = QVBoxLayout(self)
 
-        buttons = QHBoxLayout()
+        buttons = QGridLayout() if self.COLUMNS > 0 else QHBoxLayout()
         self._buttons = {}
-        for key, label, description in self.ROUTES:
+        for position, (key, label, description) in enumerate(self.ROUTES):
             button = QPushButton(tr(label), self)
             button.setCursor(Qt.PointingHandCursor)
             button.setProperty("routeKey", key)
@@ -105,7 +111,11 @@ class TestDataChooser(QDialog):
             button.installEventFilter(self)
             button.clicked.connect(
                 lambda checked=False, k=key: self._choose(k))
-            buttons.addWidget(button)
+            if self.COLUMNS > 0:
+                buttons.addWidget(button, position // self.COLUMNS,
+                                  position % self.COLUMNS)
+            else:
+                buttons.addWidget(button)
             self._buttons[key] = button
         layout.addLayout(buttons)
 

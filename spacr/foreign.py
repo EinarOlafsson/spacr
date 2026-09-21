@@ -1706,7 +1706,9 @@ def plan_import(images: str,
                 on_conflict: str = 'refuse',
                 allow_spacr_targets: bool = False,
                 prefix: str = FOREIGN_PREFIX,
-                verify_labels: bool = True) -> ImportPlan:
+                verify_labels: bool = True,
+                metadata_type: Optional[str] = None,
+                custom_regex: Optional[str] = None) -> ImportPlan:
     """Work out the whole import and write nothing.
 
     Five things happen here, in order, and every one of them can only
@@ -1749,6 +1751,11 @@ def plan_import(images: str,
     :param allow_spacr_targets: opt in to writing foreign values into
         spaCR's own column names.
     :param verify_labels: read the masks to check the join. On by default.
+    :param metadata_type: the filename convention their images AND masks are
+        named by -- any of Mask's ``metadata_type`` values. ``None`` or
+        ``'auto'`` reads plate / well / field from the folders, as before.
+        See :func:`spacr.convert.scan`.
+    :param custom_regex: the pattern for ``metadata_type='custom'``.
     :returns: an :class:`ImportPlan`.
     :raises ConfigurationError: for an unreadable input or an unknown
         option — a setup mistake, not a per-item failure.
@@ -1758,7 +1765,9 @@ def plan_import(images: str,
             f'Unknown on_conflict {on_conflict!r}; expected one of '
             f'{", ".join(ON_CONFLICT)}')
 
-    image_sources = cv.scan(images, layout=layout)
+    image_sources = cv.scan(images, layout=layout,
+                            metadata_type=metadata_type,
+                            custom_regex=custom_regex)
     image_plan = cv.plan(image_sources, z_handling=z_handling,
                          plate_naming=plate_naming)
 
@@ -1814,7 +1823,9 @@ def plan_import(images: str,
     per_type: Dict[str, Dict[str, MaskMapping]] = {}
 
     for object_type, folder in folders.items():
-        mask_sources = cv.scan(folder, layout=mask_layout or layout)
+        mask_sources = cv.scan(folder, layout=mask_layout or layout,
+                               metadata_type=metadata_type,
+                               custom_regex=custom_regex)
         matched: Dict[str, MaskMapping] = {}
         for source in mask_sources:
             if not source.readable:
@@ -1829,6 +1840,11 @@ def plan_import(images: str,
                 candidate = (plate_key, well_key, field_key)
                 if candidate in stem_of_mapping:
                     hit = (candidate, how)
+                    break
+                same_well = [k for k in stem_of_mapping
+                             if k[1] == well_key and k[2] == field_key]
+                if len(same_well) == 1:
+                    hit = (same_well[0], how)
                     break
                 loose = [k for k in stem_of_mapping if k[2] == field_key]
                 if len(loose) == 1:

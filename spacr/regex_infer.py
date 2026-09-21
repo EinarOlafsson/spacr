@@ -1102,9 +1102,11 @@ _METADATA_CONVENTIONS = (
             "C00.ome.tif",
         ),
         "groups": {
-            "wellID": "the chamber, as 'U00--V00' -- U is the well row and "
-                      "V the well column, kept together because neither "
-                      "alone identifies a well",
+            "wellID": "the chamber, as 'U00--V00' -- U is the well COLUMN "
+                      "and V the well ROW, both zero-based, kept together "
+                      "because neither alone identifies a well. "
+                      "leicaexperiment's Experiment.well_images compares "
+                      "attribute 'u' with well_column and 'v' with well_row",
             "fieldID": "the field, as 'X00--Y00' -- field column and row",
             "timeID": "time point",
             "sliceID": "Z plane",
@@ -1332,6 +1334,65 @@ _METADATA_CONVENTIONS = (
         "status": "provisional",
     },
 )
+
+
+#: Which groups each convention counts from ZERO, keyed like the table.
+#:
+#: The table's patterns say where a number is; they do not say what it
+#: counts from, and an importer that reads ``f00d0`` as field 0 channel 0
+#: puts every ArrayScan plate one field and one channel off. The documented
+#: basis for each entry is in that convention's ``groups`` text above --
+#: the Cellomics addendum for ArrayScan, Micro-Manager's writer, the Leica
+#: series exports whose first plane is ``z00`` / ``ch00``. A group not listed
+#: counts from one. A zero read under a one-based group is left as it is and
+#: the importer clamps it to one, which is what spaCR's converter has always
+#: done with a ``Z0`` token.
+_METADATA_ZERO_BASED = {
+    "arrayscan": ("fieldID", "chanID"),
+    "arrayscan_kinetic": ("fieldID", "chanID"),
+    "evos": ("chanID",),
+    "scanr": ("sliceID", "timeID"),
+    "leica_matrix_screener": ("timeID", "sliceID", "chanID"),
+    "leica_lasx_series": ("sliceID", "chanID"),
+    "leica_lasx_series_time": ("fieldID", "timeID", "sliceID", "chanID"),
+    "micromanager_mda": ("chanID", "fieldID", "timeID", "sliceID"),
+}
+
+
+def _metadata_zero_based(key):
+    """The groups ``key`` counts from zero.
+
+    :param key: the stored ``metadata_type`` value.
+    :returns: a tuple of group names, empty for a one-based convention and
+        for a key that names no convention.
+    """
+    return tuple(_METADATA_ZERO_BASED.get(key, ()))
+
+
+def _metadata_match(name, key, custom_regex=None):
+    """Match one bare filename against one convention.
+
+    The extension handed to the pattern is the file's own last one, in its
+    own case: the four original patterns substitute it verbatim, so asking
+    for ``tif`` would miss a ``.TIF`` plate, and the newer ones match it
+    case-insensitively anyway.
+
+    :param name: the filename, without its folder.
+    :param key: the stored ``metadata_type`` value.
+    :param custom_regex: the user's own pattern, for ``'custom'``.
+    :returns: ``{group: text}`` for every named group that took part, or
+        ``None`` when the name does not match or the pattern does not compile.
+    """
+    extension = os.path.splitext(str(name))[1].lstrip(".") or "tif"
+    try:
+        compiled = re.compile(_metadata_pattern(key, extension, custom_regex))
+    except (KeyError, re.error):
+        return None
+    found = compiled.match(str(name))
+    if found is None:
+        return None
+    return {group: value for group, value in found.groupdict().items()
+            if value is not None}
 
 
 #: Vendors in dropdown order. Yokogawa leads because `cellvoyager` is the

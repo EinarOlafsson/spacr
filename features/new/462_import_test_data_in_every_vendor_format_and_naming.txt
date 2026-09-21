@@ -1,0 +1,138 @@
+================================================================================
+IMPORT TEST DATA IN EVERY VENDOR FORMAT AND NAMING, READ BACK BY IMPORT
+================================================================================
+
+Status:    BUILT 2026-09-21. Published as einarolafsson/spacr-example-import
+           (one 283,852,800-byte archive, 24 variants), Import reads every
+           one back, and the button is on the Import screen. The i18n
+           catalogs for the new strings and docstrings are NOT regenerated --
+           see the last section.
+
+Requested: 2026-09-21 -- "for the import modual, you should take a small set of
+           images and convert them into czi, nd2, lif, TIFF stack, etc. and
+           convert their filename metadata into the metadata from all the
+           different types of metadata you know of (look at the metadata type
+           setting oprions in mask generation and represent each of those). so
+           for the image section of the import function i want you to take a
+           set of images form a dataset i already have, then change their
+           format and metadata regex, save these new formats to haggingface
+           together. then allow the import modual to reverce engeneer your
+           changes. this should woek like, this: the used presses test zeis
+           import, which downloads the zeis formated images (czi with metadata
+           that fitts zeis regex) populates the src with those image paths on
+           disk and allows the user to import them and see that they are
+           propperly imported. now the dataset should alos have masks and a
+           measurements database"
+
+           Publishing to Hugging Face under einarolafsson was approved with the
+           request.
+
+--------------------------------------------------------------------------------
+WHAT THE STATE WAS
+--------------------------------------------------------------------------------
+
+The Import module (app key 'foreign', spacr/qt/screens/foreign.py over
+spacr/foreign.py) found plate, well and field from FOLDERS only
+(spacr.convert.scan's layouts) and channel/z/t from a handful of filename
+tokens. The nineteen filename conventions Mask offers as `metadata_type`
+(spacr.regex_infer._METADATA_CONVENTIONS) were not reachable from Import at
+all, so an Opera Phenix or ArrayScan export imported as one well of unrelated
+fields. There was no test data for Import.
+
+--------------------------------------------------------------------------------
+WHAT TO DO
+--------------------------------------------------------------------------------
+
+1. Backend: a `metadata_type` (+ `custom_regex`) on spacr.convert.scan and
+   spacr.foreign.plan_import that parses each filename with the same pattern
+   Mask uses, normalises each vendor's well spelling (r05c01, 'E - 01', CQ1
+   well index, Leica U/V) and undoes zero-based numbering, and keeps the
+   parsed field numbers instead of renumbering 1..N.
+2. A dataset: 2 wells x 2 fields x 3 channels of the toxo_mito plate (raw
+   TIFFs), with the cell/nucleus/pathogen masks and the measurements of
+   exactly those objects, written once per convention and per container
+   format (CZI, OME-TIFF, multi-page TIFF), plus public CC-BY ND2 and LIF
+   samples where no writer exists. A manifest.csv states the true identity
+   of every file. Published as einarolafsson/spacr-example-import.
+3. Import screen: a "Load test data..." chooser listing every variant, which
+   downloads (or reuses) the set and fills the images, masks, measurements
+   and naming convention, so Preview and Import show the round trip.
+4. Tests: a headless round trip per variant against the manifest, and
+   mocked-download tests for the GUI wiring.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+tests/test_import_example_round_trip.py builds every variant from synthetic
+pixels with the same builder the published set came from, imports each one,
+and compares plate/well/field/channel (and z/t where the convention has them)
+with the manifest. tests/qt/test_import_test_data_chooser.py drives the
+chooser with the download mocked.
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT (2026-09-21)
+--------------------------------------------------------------------------------
+
+THE IMPORTER (spacr/convert.py, spacr/foreign.py, spacr/regex_infer.py).
+convert.scan and foreign.plan_import take metadata_type / custom_regex. Each
+name is matched with the SAME pattern Mask uses (regex_infer._metadata_match),
+and three things Mask leaves to the user are done here:
+  - vendor well spellings: CQ1 index over 24 columns (W0097 = E01), Harmony
+    r05c01, Leica U00--V04 (U = column, V = row, zero-based), IN Cell 'E - 01';
+  - zero-based axes, from regex_infer._METADATA_ZERO_BASED (ArrayScan f/d,
+    EVOS d, Micro-Manager, the Leica exports, ScanR Z/T);
+  - the field numbers a name states are KEPT (F009 stays field 9) when every
+    field of a well has one and none repeats; otherwise 1..N as before.
+A name that breaks the chosen convention is reported unreadable, not guessed.
+A container that holds the channel / z / t axis itself wins over the name.
+Masks pair on (well, field) when the plate key differs between the image and
+mask folders (a convention with no plate group).
+
+THE DATA: tools/build_import_example.py (build / verify / pack). Wells E01,
+E02 x fields 9, 10 x channels 1-3 of toxo_mito plate1, raw TIFFs cut to 896 px
+(the window keeping most whole cells; cut objects removed), masks from the
+Mask run's merged arrays, cell measurements of exactly the remaining cells.
+22 generated variants (17 vendor conventions + custom + folders + CZI +
+OME-TIFF + ImageJ stack) and 2 CC BY 4.0 samples (ND2 by Maxime Woringer;
+LIF by Sean Warren and Michael Goelzer, downloads.openmicroscopy.org).
+
+VERIFIED on the published archive (downloaded back, byte-identical, 24/24
+pass tools/build_import_example.py verify); every import-route variant also
+run through foreign.run_import, and the 22 merged arrays are pixel-identical
+to each other (rank-numbered variants mapped back). ND2 converts 1 plane,
+the LIF samples 88.
+
+THE BUTTON: "Load test data..." on the Import screen, spacr/qt/import_demo.py.
+Driven for real headless: fetched the published archive through the Qt
+worker, filled the screen for zeiss_czi and previewed 4 fields, 36/36 rows;
+a second press opened from the cache in about a second.
+
+FOUND AND FIXED ON THE WAY
+  - spacr.convert read LIF through readlif.Reader / getIterImage, names no
+    readlif release has: every LIF scanned as unreadable. Now LifFile /
+    get_iter_image / get_frame(m=), every series described by its own
+    dimensions. tests/test_convert.py's double carried the fake API and is
+    now strict.
+  - regex_infer's Leica Matrix Screener text said U is the well row; the
+    reference parser it cites (leicaexperiment) compares u with well_column.
+
+FOUND AND NOT FIXED
+  - nd2reader reads the RGB brightfield ND2 samples on the OME server
+    (zenodo-10277961, zenodo-12734440) as a (2048, 4319) plane and fails on
+    zenodo-17186598 with division by zero; spaCR's ND2 path inherits both.
+  - The Import screen merges one plane per channel, so a time series (all the
+    small CC BY LIF samples are) cannot go through it; those go through the
+    Format Converter instead.
+
+--------------------------------------------------------------------------------
+DELIBERATELY NOT DONE
+--------------------------------------------------------------------------------
+
+  - No LIF or ND2 was forged by hand: no open library writes either, and a
+    file only readlif opens is not a Leica file.
+  - i18n: the new tr() strings and the new public docstrings
+    (spacr.import_examples, spacr.qt.import_demo, five ForeignScreen methods,
+    naming_choices) are not in the nine locale catalogs; they fall back to
+    English. Needs a catalog pass (tools/build_i18n_catalogs.py,
+    tools/build_documentation_i18n.py).
