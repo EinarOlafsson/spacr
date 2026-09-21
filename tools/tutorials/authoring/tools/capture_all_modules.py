@@ -353,7 +353,7 @@ def main() -> int:
     if Path(spacr.__file__).resolve().parents[1] != REPO.resolve():
         raise RuntimeError("Capture imported spaCR from a different checkout")
     sys.path.insert(0, str(REPO / "tools" / "tutorials"))
-    from capture_policy import configure_appearance, verify_appearance, verify_visible_paths
+    from capture_policy import configure_appearance, exclude_release_history, verify_appearance, verify_visible_paths
     configure_appearance(args.theme, args.backdrop)
     import spacr.qt
     spacr.qt.register_self_registering_modules()
@@ -398,6 +398,7 @@ def main() -> int:
     window.apply_dock_mode("locked")
     window.resize(3840, 2160)
     window.show()
+    exclude_release_history(window)
     settle(app)
     if abs(float(window.devicePixelRatioF()) - 1.0) > 0.01:
         raise RuntimeError(
@@ -425,7 +426,7 @@ def main() -> int:
                 # The shared development run journal can change while the
                 # capture is being made and may contain unrelated failures.
                 # Hide those two history-derived panels; the deterministic
-                # System, News, and Module State panels still demonstrate the
+                # System and Module State panels still demonstrate the
                 # status aside without presenting stale red badges as product
                 # state.
                 screen._recent.hide()

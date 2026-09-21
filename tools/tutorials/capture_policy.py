@@ -41,6 +41,20 @@ def verify_appearance(window):
             "painted_frames": sum(widget.frames_painted for widget in visible)}
 
 
+def exclude_release_history(window):
+    """Omit the historical News aside from current-version recordings.
+
+    This is a capture presentation choice, like omitting recent-run history.
+    Application sources, release notes and workflow results are unchanged.
+    """
+    from spacr.qt.widgets.home import NewsPanel
+
+    panels = window.findChildren(NewsPanel)
+    for panel in panels:
+        panel.hide()
+    return len(panels)
+
+
 def verify_visible_paths(windows, prepared_root):
     """Refuse visible personal/mounted paths before saving a tutorial frame.
 
@@ -48,6 +62,7 @@ def verify_visible_paths(windows, prepared_root):
     external desktop windows still require the sampled-frame visual review.
     """
     from PySide6.QtCore import Qt
+    from spacr import __version__
     from PySide6.QtWidgets import (
         QAbstractItemView,
         QComboBox,
@@ -90,6 +105,12 @@ def verify_visible_paths(windows, prepared_root):
                     if not row_visible and row > first_row:
                         break
             for text in texts:
+                plain_text = re.sub(r"<[^>]+>", "", text)
+                releases = re.findall(
+                    r"\bspaCR[\s-]+(\d+\.\d+\.\d+(?:\.\d+)?)", plain_text, re.I)
+                if any(version != __version__ for version in releases):
+                    raise RuntimeError(
+                        "Capture refused: visible text references another spaCR release")
                 for match in _PRIVATE_PATH.finditer(text):
                     path = match.group(0)
                     if path != allowed and not path.startswith(allowed + "/"):

@@ -37,14 +37,18 @@ palette, backdrop and visible Qt text before saving; review captured images
 as well. Use a neutral prepared directory, such as `/tmp/spacr-tutorials-current`.
 `capture_all_modules.py --output-root` selects an isolated output tree;
 `capture_refresh.py --stage` selects the prepared data/capture tree.
+The capture omits Home's historical News aside so earlier release numbers do
+not appear in current-version lessons. It also rejects visible Qt text naming
+another spaCR version; sampled image review is still required. Release notes
+and the normal application remain unchanged.
 
 Home now has real Help-search and Performance frames. The bounded
 `capture_refresh.py --module make_masks --mask-readouts-tour` route records
-the real CPU Otsu magnifier and FEATURES folder handoff from two genuine
-Measure example arrays under `example_data/plate1/merged`. It does not run
-a measurement or a GPU model. FEATURES still requires assigning channel and
-mask columns before running when the example filenames do not match its
-visible regex. `--mask-editor-tour` remains the separate full editing route.
+the real CPU Otsu magnifier and FEATURES assignment and measurement from two
+genuine Measure example arrays under `example_data/plate1/merged`. It assigns
+image and mask columns through real file pickers and verifies saved cell
+identities, areas and raw intensities against the source arrays. No GPU model
+is used. `--mask-editor-tour` remains the separate full editing route.
 
 The new frames and catalog wording are work in progress, not published
 videos. GPU rendering/translation must wait for 20 consecutive observed idle

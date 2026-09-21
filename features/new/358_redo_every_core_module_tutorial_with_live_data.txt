@@ -2019,3 +2019,15 @@ is reported to its owner in 325. An underscore-containing plate name also
 collapsed field keys; the accepted measurement uses the valid name maskdemo.
 Narration/scene integration and reconciliation with incoming Make Masks UI
 changes remain open, alongside the existing publication acceptance work.
+
+2026-09-21 — CODEX: RECOVERY AFTER THE MACHINE RESTART
+--------------------------------------------------------------------------------
+The reboot removed /tmp's capture, measurement and narration artifacts and
+ended their processes. The committed receipts above preserve past results,
+but those temporary media are no longer available for assembly or delivery.
+The capture implementation survives in Git. A persistent recovery checkout
+now restores the current-release guard shared with 447: omit historical News,
+reject other spaCR versions in visible Qt text, and retain image review.
+19 capture-policy checks and the lesson 04 installer-route check pass anew.
+The README now describes the actual verified FEATURES assignment/Measure
+route. Final live-data recaptures, narration and publication remain open.

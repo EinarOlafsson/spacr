@@ -4137,3 +4137,13 @@ partial evidence: /tmp/spacr-coverage-interrupted-batch26-20260921/.
 No baseline was tightened, and this is not a full-suite pass or a claim that
 all modules reach 90%. Once the complete measurement is available, remaining
 per-module gaps and recorded failures still need fixing and verification.
+
+2026-09-21 — CODEX: FULL MEASUREMENT LOST TO REBOOT, BASELINE UNCHANGED
+--------------------------------------------------------------------------------
+The machine restart ended the full coverage run and cleared its /tmp snapshot,
+process data and integrity ledgers. The old runner handle no longer exists.
+The earlier partial-batch progress cannot be combined or used to tighten the
+baseline. Published focused tests survive in Git; a new full measurement must
+use a fixed snapshot and persistent output storage. No new coverage percentage
+or completed full-suite verdict is claimed. The 90% per-module target remains
+open. Every restarted Python process must retain the hard memory cap.

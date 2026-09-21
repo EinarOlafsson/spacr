@@ -442,8 +442,8 @@ def build_installers(production: Path) -> None:
         focus = platform_frame(out / f"{index:02d}.png", active, "", detail)
         scenes.append({"image": f"keyframes/{index:02d}.png", "focus": focus})
     linux_lines = [
-        ('command', 'chmod +x SpaCR-*-Linux-x86_64-Online.run'),
-        ('command', './SpaCR-*-Linux-x86_64-Online.run'),
+        ('command', 'chmod +x spaCR-*-Linux-x86_64-Online.run'),
+        ('command', './spaCR-*-Linux-x86_64-Online.run'),
     ]
     focus = terminal_frame(out / "05.png", "Install spaCR on Linux",
                            "64-bit x86-64 online installer", linux_lines, 1,
@@ -452,7 +452,7 @@ def build_installers(production: Path) -> None:
     focus = terminal_frame(
         out / "06.png", "CPU-only installation on Linux",
         "Override the accelerated default only when required",
-        [('command', './SpaCR-*-Linux-x86_64-Online.run --torch-backend cpu')],
+        [('command', './spaCR-*-Linux-x86_64-Online.run --torch-backend cpu')],
         0, "The default uses CUDA automatically on compatible NVIDIA hardware.")
     scenes.append({"image": "keyframes/06.png", "focus": focus})
     route_frame(out / "07.png", "Safe installer updates",

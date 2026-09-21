@@ -153,3 +153,20 @@ The assigned-table and saved-result frames were inspected. The stale status
 caption and underscore plate-name defect are documented in 325; the lesson
 is not publication-ready. Narration, final scenes and the incoming UI changes
 still need integration. No GPU job was started.
+
+2026-09-21 — CODEX: POST-RESTART RECOVERY AND RELEASE-HISTORY GUARD
+--------------------------------------------------------------------------------
+The machine reboot cleared /tmp, including the previously recorded candidate
+frames, renders and active narration job. Published receipts remain historical
+evidence; their temporary media paths no longer identify available artifacts.
+The candidate frames had also exposed older release numbers in Home's News
+aside. Both capture entry points now omit that historical panel explicitly,
+and refuse visible Qt text naming another spaCR release, including rich text
+and installer filenames. The current version and Python/Qt versions pass.
+Application release notes and normal GUI behavior are unchanged.
+
+Restored and reran the capture-policy checks: 19 passed. Lesson 04's Linux
+commands now use the actual spaCR- prefix (case-sensitive); the existing
+installer-route contract passes. Fresh captures, narration, audible pype
+review and final video/publication acceptance remain open. Recovery work and
+future durable artifacts use persistent storage rather than /tmp alone.

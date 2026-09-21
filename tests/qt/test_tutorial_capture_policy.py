@@ -103,3 +103,28 @@ def test_search_results_use_the_real_list_model_without_private_virtual_calls(qt
     results.item(0).setText("/home/alice/private/result")
     with pytest.raises(RuntimeError, match="visible text"):
         verify_visible_paths([results], "/tmp/tutorial")
+
+
+@pytest.mark.parametrize("text", [
+    "spaCR 0.0.0.1 release notes",
+    "<b>spaCR</b> <span>0.0.0.1</span> release notes",
+    "spaCR-0.0.0.1-Linux-x86_64-Online.run",
+])
+def test_visible_other_releases_are_refused_but_hidden_history_is_not(qtbot, text):
+    window = QWidget()
+    qtbot.addWidget(window)
+    label = QLabel(text, window)
+    window.show()
+    with pytest.raises(RuntimeError, match="another spaCR release"):
+        verify_visible_paths([window], "/tmp/tutorial")
+    label.hide()
+    verify_visible_paths([window], "/tmp/tutorial")
+
+
+def test_current_release_and_other_software_versions_are_accepted(qtbot):
+    from spacr import __version__
+
+    label = QLabel(f"spaCR {__version__}; Python 3.12; Qt 6.11.2")
+    qtbot.addWidget(label)
+    label.show()
+    verify_visible_paths([label], "/tmp/tutorial")

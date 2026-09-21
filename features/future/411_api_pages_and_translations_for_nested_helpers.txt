@@ -836,3 +836,16 @@ and hashes after integration. The English manifest is refreshed. Those nine
 new captions remain explicit nine-language debt; the earlier de/sv green
 audit applies to 3813 sources, not to this later integration. The API audit
 continues on its original snapshot in a separate worktree.
+
+2026-09-21 — CODEX: TRANSLATION RECOVERY AFTER REBOOT
+--------------------------------------------------------------------------------
+Published work through f28f572d6 survives, including Spanish's first 81
+reviewed settings/UI records. Eight machine-draft runtime catalogs survive
+in the main checkout and remain unreviewed. The later Spanish review and
+81 Import translations were uncommitted in a /tmp worktree when the machine
+restarted; those files and their audit logs are gone. Their earlier reported
+passes cannot be claimed for the current published tree. Reconstruct and
+revalidate those records before recording them as delivered. API regeneration
+and the all-language runtime repair remain open. The maintainer clarified
+that the GPU is still occupied; no GPU job will start until the established
+20 consecutive observed idle minutes have elapsed.

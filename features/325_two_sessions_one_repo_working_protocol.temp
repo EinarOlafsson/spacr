@@ -8761,3 +8761,19 @@ sources. All 4467 reviewed runtime records keep their source/hash bindings.
 Item 462 and future/411 record those nine new nine-language rows as open.
 The API audit stays on the pre-Import snapshot in the original publishing
 worktree; integration uses /tmp/spacr-nightly-integration-20260921 instead.
+
+2026-09-21 — CODEX: POST-REBOOT RECOVERY, SAME THREE LANES
+--------------------------------------------------------------------------------
+The host restarted at approximately 12:58 EDT and /tmp was cleared. The old
+coverage/narration worker handles no longer exist; their partial outputs and
+uncommitted worktrees were lost. Published commits and the eight persistent
+runtime machine-draft catalogs are intact. New isolated recovery checkout:
+/mnt/firecuda2/Claude/repo/codex-recovery-20260921. Do not treat old /tmp paths
+in receipts as currently available media or coverage data.
+
+Restored current-release tutorial capture safeguards and the Linux installer
+filename correction. Fresh checks: 19 capture-policy tests plus one installer
+route test passed. Updated 358/447/286 and future/288/411 with exact recovery
+state. No baseline was tightened and no final tutorial acceptance is claimed.
+The maintainer clarified the GPU is not yet free. GPU jobs remain paused;
+the 20-minute observed-idle rule still applies. All Python remains capped.

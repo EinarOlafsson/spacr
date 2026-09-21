@@ -338,3 +338,13 @@ not opened. Evidence: tools/tutorials/evidence/
 2026-09-21-cpu-narration-home-master.json. This does not close bullet 7:
 lesson 04's remaining capture/assembly, audible pronunciation review,
 caption/browser acceptance and publishing the paired catalogs/media remain.
+
+2026-09-21 — CODEX: LESSON 04/05 RECOVERY
+--------------------------------------------------------------------------------
+The reboot cleared the temporary 04/05 narration and Home candidate media;
+the historical receipt does not make those files available for publication.
+Restored lesson 04's Linux filename correction (spaCR-, case-sensitive) and
+the Home capture guard excluding older release-history text. The installer
+route check and 19 capture-policy checks pass. Both lessons still require
+fresh media, audible review and paired catalog/media publication. Bullet 7
+remains open.
