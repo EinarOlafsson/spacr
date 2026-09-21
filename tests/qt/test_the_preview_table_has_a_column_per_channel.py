@@ -182,7 +182,7 @@ def test_choosing_the_naming_after_loading_regroups_the_table(
     screen._on_preview_switch(True)
     model = screen._settings_model
     naming = model._widgets["metadata_type"]
-    naming.setCurrentIndex(naming.findText("cq1"))
+    naming.set_value("cq1")
     model._widgets["src"].setText(str(folder))
     panel = screen._live_preview
     qtbot.waitUntil(lambda: panel._image is not None
@@ -190,7 +190,7 @@ def test_choosing_the_naming_after_loading_regroups_the_table(
     qtbot.waitUntil(lambda: not panel._image_loaders, timeout=10000)
     assert _headers(panel) == ["image"]
 
-    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    naming.set_value("cellvoyager")
     qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 01"], timeout=10000)
     QApplication.processEvents()
 
@@ -220,7 +220,7 @@ def test_a_regrouping_read_under_a_naming_since_changed_is_dropped(
     screen._on_preview_switch(True)
     model = screen._settings_model
     naming = model._widgets["metadata_type"]
-    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    naming.set_value("cellvoyager")
     model._widgets["src"].setText(str(folder))
     panel = screen._live_preview
     qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 01"], timeout=10000)
@@ -230,13 +230,13 @@ def test_a_regrouping_read_under_a_naming_since_changed_is_dropped(
     jobs = []
     monkeypatch.setattr(panel._load_jobs, "submit",
                         lambda work, done=None: jobs.append((work, done)))
-    naming.setCurrentIndex(naming.findText("cq1"))
+    naming.set_value("cq1")
     screen._live_naming_timer.stop()
     assert panel.regroup_the_folder()
     work, done = jobs[-1]
     found = work()
 
-    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    naming.set_value("cellvoyager")
     screen._live_naming_timer.stop()
     scans = []
     real = preview_controls.enumerate_image_sets
@@ -300,7 +300,7 @@ def test_a_folder_on_an_exfat_drive_previews_its_images(qtbot, tmp_path):
     screen._on_preview_switch(True)
     model = screen._settings_model
     naming = model._widgets["metadata_type"]
-    naming.setCurrentIndex(naming.findText("cellvoyager"))
+    naming.set_value("cellvoyager")
     model._widgets["src"].setText(str(folder))
     panel = screen._live_preview
     qtbot.waitUntil(lambda: panel._set_table.columnCount() > 0,

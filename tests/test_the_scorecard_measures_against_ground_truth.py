@@ -574,17 +574,26 @@ def test_a_metric_that_is_not_a_number_is_skipped_not_crashed():
 
 
 def test_the_zoo_tooltip_leads_with_the_headline_and_keeps_the_card():
+    """A scored model's tooltip is the scorecard table, provenance kept.
+
+    The tooltip became the model card's own table (hovering used to give a
+    paragraph): the headline number is in it, and what the model was trained
+    on still follows it.
+    """
     pytest.importorskip("PySide6")
     from spacr.qt.screens.model_zoo import _tooltip_for
 
     class Entry:
+        name = "cpsam_v2"
         metrics = {"f1": 0.867, "n_truth": 115}
+        trained_on = "trained on Toxoplasma PVs"
 
         def describe(self):
             return "cpsam_v2  [cellpose]\n  trained on Toxoplasma PVs"
 
     text = _tooltip_for(Entry())
-    assert text.startswith("F1 0.867")
+    assert text.startswith("<p><b>cpsam_v2</b></p><table")
+    assert "<b>0.867</b>" in text
     assert "trained on Toxoplasma PVs" in text, (
         "the full provenance card must survive; the headline is added, not "
         "substituted")

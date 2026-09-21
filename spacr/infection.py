@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import os
 import sqlite3
+from contextlib import closing
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -50,6 +51,12 @@ def _connect_read_only(db_path):
     of racing it.
 
     Pinned by `test_no_connection_relies_on_sqlites_five_second_default`.
+
+    THE CALLER CLOSES IT. A ``sqlite3.Connection`` used as a context manager
+    only commits; it stays open, and an open reader keeps a WAL database's
+    ``-wal`` file alive, so a copy of the ``.db`` alone taken afterwards
+    misses every change still in the log. Wrap it in
+    :func:`contextlib.closing` or close it in a ``finally``.
     """
     from .database_concurrency import connect
 
@@ -276,7 +283,7 @@ def parasites_per_cell(db_path: str) -> pd.DataFrame:
     """
     from .filters import OBJECT_COLUMN
 
-    with _connect_read_only(db_path) as db:
+    with closing(_connect_read_only(db_path)) as db:
         cells = _load(db, CELL_TABLE)
         pathogens = _load(db, PATHOGEN_TABLE)
 
@@ -482,7 +489,7 @@ def host_contrast(db_path: str, columns: Sequence[str], *,
     if per_cell.empty:
         return pd.DataFrame()
 
-    with _connect_read_only(db_path) as db:
+    with closing(_connect_read_only(db_path)) as db:
         cells = _load(db, CELL_TABLE)
     if cells.empty:
         return pd.DataFrame()

@@ -151,9 +151,15 @@ def test_model_provider_extends_catalogue_without_network(example_plugin):
     entries = catalogue(
         include_bundled=False, remote=False, include_plugins=True
     )
-    assert [(entry.key, entry.name) for entry in entries] == [
-        ("contact_model", "contact_model.CP_model")
-    ]
+    built_in = catalogue(
+        include_bundled=False, remote=False, include_plugins=False
+    )
+    added = [(entry.key, entry.name) for entry in entries
+             if (entry.key, entry.name)
+             not in {(e.key, e.name) for e in built_in}]
+    assert added == [("contact_model", "contact_model.CP_model")]
+    assert [(e.key, e.name) for e in entries[:len(built_in)]] == [
+        (e.key, e.name) for e in built_in]
 
 
 def test_report_builder_inserts_after_requested_core_section(

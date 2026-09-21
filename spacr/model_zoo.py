@@ -3486,11 +3486,20 @@ def scorecard_html(entry) -> str:
     The same table the model card prints answers that at a glance. Falls back
     to the prose when an entry publishes no metrics, because an empty table is
     worse than a sentence.
+
+    Metrics that hold none of the scorecard's keys -- a free-form note, a
+    training loss under a name of its own -- are not a scorecard either, and
+    return nothing too: a table of eleven "not recorded" rows would replace a
+    two-line note that said something.
+
+    :param entry: a catalogue entry, or anything with ``metrics`` and a name.
+    :returns: the HTML table, or ``""`` when there is no scorecard to show.
     """
     metrics = dict(getattr(entry, "metrics", None) or {})
-    name = getattr(entry, "display_name", "") or entry.name
-    if not metrics:
+    if not any(key in metrics for _label, key in SCORECARD_ROWS):
         return ""
+    name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")
+            or getattr(entry, "key", ""))
     def cell(value):
         return value if str(value).strip() else "not recorded"
     rows = []

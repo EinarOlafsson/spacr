@@ -66,8 +66,10 @@ def test_convert_settings_dict_special_case_metadata_type_is_combo():
     out = GU.convert_settings_dict_for_gui({"metadata_type": "cellvoyager"})
     kind, options, default = out["metadata_type"]
     assert kind == "combo"
-    assert "cellvoyager" in options
-    assert "cq1" in options
+    stored = [value for value, _label in options]
+    assert "cellvoyager" in stored
+    assert "cq1" in stored
+    assert default == "cellvoyager"
 
 
 def test_convert_settings_dict_special_case_organelle_method_no_stardist():

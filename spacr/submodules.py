@@ -1530,9 +1530,8 @@ def _segment_plaque_folder(settings, model_path):
     :param model_path: the plaque checkpoint.
     :returns: how many images were segmented.
     """
-    import tifffile
-
     from .plaque import segment_plaque_image
+    from .tiff_io import write_tiff
 
     src, dst = settings['src'], settings['dst']
     os.makedirs(dst, exist_ok=True)
@@ -1546,8 +1545,8 @@ def _segment_plaque_folder(settings, model_path):
         image = cellpose.io.imread(os.path.join(src, name))
         labels = segment_plaque_image(model, image, settings)
         stem = os.path.splitext(name)[0]
-        tifffile.imwrite(os.path.join(dst, f"{stem}.tif"),
-                         np.asarray(labels).astype(np.uint16))
+        write_tiff(os.path.join(dst, f"{stem}.tif"),
+                   np.asarray(labels).astype(np.uint16))
         print(f"segmented {index}/{len(names)}: {name}, "
               f"{int(np.asarray(labels).max())} plaque(s)")
     return len(names)
