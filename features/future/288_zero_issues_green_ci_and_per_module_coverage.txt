@@ -4091,3 +4091,17 @@ The MODULE IS STILL BELOW 90%; this is a bounded improvement, not closure of
 required by the handover's core-dump warning. No production source, coverage
 exemption or baseline was changed. Both runs used run_capped.sh with a 6 GiB
 cap, CUDA disabled, and the Python import resolved to the Codex checkout.
+
+2026-09-21 — CODEX: ISSUE PREVIEW CLEARS THE FLOOR
+
+spacr/qt/ai/issue_preview.py: 72.73% -> 99.35% in matched branch-coverage
+runs of test_issue_preview.py and test_the_issue_preview_can_diagnose.py
+(17 -> 25 passed). All 26 branches are covered; the only uncovered statement
+opens QMessageBox.information, replaced by the existing message spy.
+
+The eight added cases exercise missing traceback text, provider startup failure,
+failed cached-answer lookup, delayed success, the two-poll grace period for an
+empty finished stream, the exact timeout boundary, truncation, and an empty
+analysis. They verify the approved payload, timer state and restored button,
+without requesting an AI provider or sending a report. No production or
+baseline change. Full-suite ratchet tightening remains outstanding.
