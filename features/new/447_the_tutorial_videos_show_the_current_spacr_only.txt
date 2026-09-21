@@ -278,3 +278,11 @@ Three newly recorded sequencing read nouns were pronounced red; the renderer
 now pins reed only in those exact English sentences. The existing Fable test
 also now recognizes the already-measured Mask attenuation repair, retaining
 negative checks for other tracks and languages. No live media were published.
+Current Annotate's entire 24-voice English matrix now passes technical audio
+acceptance, with hashes in the dedicated 2026-09-21 receipt. Full language,
+caption/listening and joint-publication requirements remain open.
+Map's corrected read-noun audio and native 4K review video now pass full
+technical and browser/mobile checks; the actual new phoneme sequences and
+media hashes are retained. Classify ML's 24 English voices also pass full
+technical acceptance. Remaining language/caption/listening/publication work
+is still open; none of these receipts claims native-speaker signoff.

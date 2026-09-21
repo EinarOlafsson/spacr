@@ -3,7 +3,7 @@
   "date": "2026-09-21",
   "source_commit": "3d9eb57c5",
   "status": "partial_fixed_snapshot_not_current_nightly_verdict",
-  "batches_finished": 77,
+  "batches_finished": 80,
   "batches_total": 95,
   "failed_batches": [
     10,
@@ -34,7 +34,9 @@
     72,
     74,
     76,
-    77
+    77,
+    78,
+    80
   ],
   "failed_test_nodes": [
     "tests/qt/test_cov_r5_app_screen.py::TestTheGuardsNothingCanTrip::test_every_module_with_a_preview_toggle_has_a_card_to_toggle",
@@ -133,10 +135,12 @@
     "tests/test_nested_functions_are_documented.py::test_no_module_exceeds_its_budget",
     "tests/test_optimal_dependency_versions.py::test_the_decision_is_written_down_where_the_bounds_are",
     "tests/test_plugins.py::test_model_provider_extends_catalogue_without_network",
-    "tests/test_prose_that_reaches_a_catalog_can_be_translated.py::test_no_catalog_bound_block_puts_a_bare_project_label_in_subject_position"
+    "tests/test_prose_that_reaches_a_catalog_can_be_translated.py::test_no_catalog_bound_block_puts_a_bare_project_label_in_subject_position",
+    "tests/test_readme_presentation.py::test_the_readme_lists_every_published_model_with_its_limits",
+    "tests/test_settings_tooltip_quality.py::test_real_default_claims_have_no_unrecorded_drift"
   ],
   "unrecovered_files": [],
   "lost_files": [],
-  "integrity_sha256": "aaa9a52c183f4e501fc5b71b74cfe8c7ed877a70a5bd7b6dd183a34b65f0a847",
+  "integrity_sha256": "cd1067733a5a97450c4af5feabe1a8b11dd9bcdffe5233c15f96a03be7fe0ece",
   "baseline_updated": false
 }

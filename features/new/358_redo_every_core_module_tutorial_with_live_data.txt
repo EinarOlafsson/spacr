@@ -2185,3 +2185,22 @@ The corrected English audio is complete at 233.2 seconds with a new media
 hash; all three formerly wrong read-noun phoneme sequences now use reed.
 Its video/player verification is rerunning. The remaining English voices
 have started on CPU, retaining the corrected af_heart track. No publication.
+
+2026-09-21 — CODEX: ANNOTATE ENGLISH MATRIX VERIFIED
+All 24 English voice tracks for the current Annotate recording now pass
+full AAC decode, exact synthesis freshness, sentence timing/activity and
+peak checks. Receipt: tools/tutorials/evidence/2026-09-21-annotate-english-voices.json.
+This is English technical acceptance; other spoken languages, captions,
+audible acceptance and complete-set publication remain. The same capped
+CPU queue has moved on to current Classify CV's remaining English voices.
+Current Classify ML also has all 24 English voices verified, including
+independent decoded true-peak measurements against the unchanged -1 dBFS
+gate. The Annotate receipt now carries those numeric measurements as well.
+Corrected Map silent/review masters pass full native 4K/30 decode and actual
+Chromium desktop/mobile playback, seeking, synchronization and related links.
+The corrected encoded row-verdict spotlight was visually inspected. Receipt
+retains superseded first-render evidence and binds the new audio hash,
+pronunciation phonemes, decoded peak and browser proof. No live publication.
+Next capture: a fresh private Measure stage is prepared for the real example
+download and native preview controls, using CPU/software graphics. No arrays
+are preseeded and the recording has not yet been accepted.

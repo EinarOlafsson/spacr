@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "date": "2026-09-21",
-  "status": "native_capture_verified_corrected_narration_rendering_not_published",
+  "status": "native_capture_and_corrected_english_review_master_verified_not_published",
   "artifact_directory": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/map-current-v2",
   "recorded_source": {
     "gui": {
@@ -1209,17 +1209,16 @@
   "visual_review": [
     "GUI guide and row verdicts: all four orientation/mate rows visible",
     "Actual system terminal: neutral paths, genuine ambiguous-sequence warning, saved counts",
-    "Dark verification figure: mapped read depth, explicitly not a biological effect"
+    "Dark verification figure: mapped read depth, explicitly not a biological effect",
+    "Encoded row-verdict spotlight preserves all four actual row orientation verdicts"
   ],
   "appearance_note": "Native app dark theme and Blobs backdrop; Map module retains its genuine DNA overlay at supported minimum opacity. API uses a real dark system terminal and image viewer.",
   "biological_validation_claimed": false,
   "published": false,
   "remaining": [
-    "Render and verify corrected English narration/video",
-    "Repeat browser/mobile acceptance with corrected timing",
-    "Full language/voice/caption matrix",
     "Audible narration acceptance",
-    "Publish only with the complete accepted refresh"
+    "Language/voice and captions acceptance",
+    "Publish only with the completed refreshed tutorial set"
   ],
   "superseded_media": {
     "reason": "Three sequencing read nouns were rendered with the red vowel; current speech overrides correct them.",
@@ -1249,6 +1248,79 @@
       "voice": "af_heart",
       "sha256": "a5dac7b86d8646da261a11469a676cfa78fceca4843c9968bce6e70b5ff194a7",
       "freshness_timing_activity": "passed"
+    }
+  },
+  "videos": [
+    {
+      "file": "12_map_barcodes_silent.mp4",
+      "sha256": "d82d0d33aa367fb50379c4f82c8d0815d63338099798c3edd64be949db24ba59",
+      "duration": 233.2,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "22901eff7ad95933cda02c45fa65cb973ed2f82f1ccfc2d5f85a10fdbfa9a59d",
+      "duration": 233.2,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "0bb05169d6359ca5eb37e5b74acdba272f8f657a6ae44cbe9690c2962454566a",
+    "freshness_timing_activity": "passed",
+    "decoded_true_peak_dbfs": -2.1
+  },
+  "pronunciation_corrections": [
+    {
+      "text": "Here the guide is strongly supported as reverse complemented in read one and as stored in read two.",
+      "speech_text": "Here the guide is strongly supported as reverse complemented in [read](/\u0279\u02c8id/) one and as stored in [read](/\u0279\u02c8id/) two.",
+      "phonemes": "h\u02c8\u026a\u0279 \u00f0\u0259 \u0261\u02c8Id \u026az st\u0279\u02c8\u0254\u014bli s\u0259p\u02c8\u0254\u0279T\u1d7bd \u00e6z \u0279\u0259v\u02c8\u025c\u0279s k\u02c8\u0251mpl\u0259m\u02cc\u025bnt\u1d7bd \u026an \u0279\u02c8id w\u02c8\u028cn \u00e6nd \u00e6z st\u02c8\u0254\u0279d \u026an \u0279\u02c8id t\u02c8u."
+    },
+    {
+      "text": "Read one supports the reversed reference, while read two supports the stored orientation.",
+      "speech_text": "[Read](/\u0279\u02c8id/) one supports the reversed reference, while [read](/\u0279\u02c8id/) two supports the stored orientation.",
+      "phonemes": "\u0279\u02c8id w\u02c8\u028cn s\u0259p\u02c8\u0254\u0279ts \u00f0\u0259 \u0279\u0259v\u02c8\u025c\u0279st \u0279\u02c8\u025bf\u0259\u0279\u0259ns, w\u02ccIl \u0279\u02c8id t\u02c8u s\u0259p\u02c8\u0254\u0279ts \u00f0\u0259 st\u02c8\u0254\u0279d \u02cc\u0254\u0279i\u0259nt\u02c8A\u0283\u0259n."
+    },
+    {
+      "text": "Check your own library and read layout in the same way.",
+      "speech_text": "Check your own library and [read](/\u0279\u02c8id/) layout in the same way.",
+      "phonemes": "\u02a7\u02c8\u025bk j\u028a\u0279 \u02c8On l\u02c8Ib\u0279\u02cc\u025b\u0279i \u00e6nd \u0279\u02c8id l\u02c8A\u02ccWt \u026an \u00f0\u0259 s\u02c8Am w\u02c8A."
+    }
+  ],
+  "browser": {
+    "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/map-current-v2/browser/12_map_barcodes/en-af_heart/playback-checks.json",
+    "sha256": "db8dd4f97b13c4c2270f2bd49ef8347f9682f2ef871261234056866d6a3a303e",
+    "result": {
+      "lesson": "12_map_barcodes",
+      "scope": "en/af_heart playback and scene links only",
+      "uploaded": false,
+      "translation_or_listening_review": false,
+      "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "navigation_contains_staged_lesson": true,
+      "example_files": [],
+      "loaded_audio_sha256": "0bb05169d6359ca5eb37e5b74acdba272f8f657a6ae44cbe9690c2962454566a",
+      "scene_count": 15,
+      "seek_playback_clocks": {
+        "audio": 69.122051,
+        "video": 69.155221,
+        "expectedVideo": 69.12649738705319,
+        "audioDuration": 233.2,
+        "videoDuration": 233.2,
+        "mediaError": null
+      },
+      "chapter_and_transcript_links": [
+        "06_api",
+        "13_regression",
+        "47_barcode_qc"
+      ],
+      "passed": true
     }
   }
 }

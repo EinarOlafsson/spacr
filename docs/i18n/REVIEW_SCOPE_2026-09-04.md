@@ -8,7 +8,7 @@ defect-driven and much smaller than the shipped corpus.
 **Current checkpoint — 2026-09-21:** mechanical coverage is incomplete.
 German, Spanish, French and Swedish passed their full runtime audits at the
 46d11afaf application-source boundary. Integrating the newer Plaque/Figure
-work increased the live inventory to 6,231 runtime entries; all nine current
+work increased the live inventory to 6,232 runtime entries; all nine current
 catalogs now have explicit debt. The API inventory has 629 added, two removed
 and 118 changed sources relative to its English manifest, across 11,166 live
 symbols. The current table below is regenerated from source-bound
@@ -55,7 +55,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 6,231 runtime entries and 11,166 public API docstrings. As before,
+remembered one: 6,232 runtime entries and 11,166 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -68,7 +68,7 @@ table derives them from the same source the builders read.
 | Swedish | 674 | 10.82% | 5,558 | 710 | 6.36% | 10,456 |
 | German | 637 | 10.22% | 5,595 | 691 | 6.19% | 10,475 |
 | Spanish | 642 | 10.30% | 5,590 | 570 | 5.10% | 10,596 |
-| Simplified Chinese | 949 | 15.23% | 5,283 | 853 | 7.64% | 10,313 |
+| Simplified Chinese | 984 | 15.79% | 5,248 | 853 | 7.64% | 10,313 |
 | Portuguese | 650 | 10.43% | 5,582 | 798 | 7.15% | 10,368 |
 | Hindi | 430 | 6.90% | 5,802 | 747 | 6.69% | 10,419 |
 | Korean | 549 | 8.81% | 5,683 | 820 | 7.34% | 10,346 |

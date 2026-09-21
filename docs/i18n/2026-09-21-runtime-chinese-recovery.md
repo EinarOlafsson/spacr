@@ -65,3 +65,26 @@ remaining format-field errors are still explicit. No audit gate was relaxed.
 Twenty-eight focused catalog-syntax, terminology and narration checks pass;
 the separate data/capture/catalog-preservation checks had 39 passes and one
 stale mastering expectation, subsequently corrected and verified.
+
+After that draft checkpoint, 33 additional source-bound UI repairs restore
+format fields in download, plaque, annotation and sign-in messages. These
+include numeric format specifiers such as `{area:.0f}`. All candidates pass
+the existing syntax/content gates with their original placeholder order.
+The reviewed Chinese total is now 982; the 949 count above describes only
+the completed preserved-draft checkpoint. Evidence:
+`reviewed/runtime/zh_CN/2026-09-21-format-repairs.json`.
+
+Two further current-source reviews cover “Updating {name}…” and the
+plaque_model tooltip, restoring the actual toxoplasma_plaque_v2 default,
+cpsam_plaque_r5/v5 provenance, and Cellpose 3 requirement for the historical
+bundled model. The reviewed total is 984. The PDF label uses the builder's
+existing approved identity directly; no identical-English review exception
+was added. All review-loader gates remain unchanged.
+
+The final Chinese runtime audit at application source 73063d7b3 plus these
+reviews has five diagnostics: 20 missing labels, 20 missing tooltips, 98
+missing UI entries, their 138 missing source hashes, and 20 fallback tooltips
+without Chinese text. No format-field, wrong-hash, protected-literal or
+reviewed-target mismatch remains in this audit. Current runtime coverage is
+6094/6232 with zero orphan keys. The remaining missing rows and API catalogs
+keep the full translation gate open.

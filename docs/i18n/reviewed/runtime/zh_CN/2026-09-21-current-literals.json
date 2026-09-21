@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
+      "translation": "用于分割空斑的 Cellpose 检查点：模型库键会在首次使用时下载经校验和验证的检查点（'toxoplasma_plaque_v2' 即 cpsam_plaque_r5，使用经整理的 v5 数据集训练）；文件系统路径用于选择自定义检查点；'bundled' 是随包提供的历史模型，它是 Cellpose 3 检查点，需要 Cellpose 3。更改此项可能改变每一个空斑计数，因此已记录的运行应保留所选值。默认值为 'toxoplasma_plaque_v2'。",
+      "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16"
+    },
+    {
+      "table": "ui",
+      "key": "Updating {name}…",
+      "source": "Updating {name}…",
+      "translation": "正在更新 {name}…",
+      "source_sha256": "c97a0a747f2376346f83d80de43010763636f73ae886f39826feceed5d03e908"
+    }
+  ]
+}

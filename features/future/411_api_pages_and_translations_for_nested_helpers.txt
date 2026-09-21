@@ -1064,3 +1064,25 @@ The push then raced with integration through f87f915bb. Both progress commits
 rebase cleanly. The four report checks passed before that second integration;
 the 6231/11166 inventories above describe the 536de9a61 boundary, and the
 newly integrated source must be remeasured. No full catalog closure claimed.
+
+2026-09-21 — CODEX: CHINESE FORMAT-FIELD REPAIRS
+Added 33 reviewed source-bound UI corrections after the preserved-draft
+review, bringing Chinese to 982 reviewed sources. All repair candidates
+pass the existing protected-syntax and terminology checks, with exact
+placeholder names/order and numeric format specifiers retained. These repair
+literal field displays in download, plaque, annotation and sign-in messages.
+Evidence: reviewed/runtime/zh_CN/2026-09-21-format-repairs.json. The full
+integrated audit is rerunning; missing source rows and API debt remain open.
+The subsequently integrated Updating message and stale plaque_model tooltip
+are now corrected against their current source. The latter restores the
+actual toxoplasma_plaque_v2 default, cpsam_plaque_r5/v5 provenance and the
+Cellpose 3 requirement for bundled. Chinese now has 984 reviewed sources;
+PDF uses the builder's approved literal identity. No loader gate changed.
+Final audit at 73063d7b3 plus these reviewed rows reports five diagnostics:
+20 missing labels, 20 missing tooltips, 98 missing UI entries, their 138
+missing source hashes, and the 20 untranslated fallback tooltips. There are
+no remaining format-field, wrong-hash, protected-literal or reviewed-target
+errors in this Chinese audit. Current coverage is 6094/6232, zero orphans.
+API remains 10419/11166 per locale; no full translation closure is claimed.
+All four integrated coverage/review-report tests pass in 219.15 s after the
+final literal repairs. The five focused catalog/context checks also pass.

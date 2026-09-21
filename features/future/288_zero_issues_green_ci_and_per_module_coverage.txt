@@ -4227,3 +4227,7 @@ Refreshed the fixed-3d9eb57c5 failure inventory at 77 completed batches:
 29 non-passing batches, 97 distinct failing nodes, no lost or unrecovered
 coverage files. The original source and baseline remain unchanged. Current
 nightly reconciliation is still required before treating these as regressions.
+At 80/95 completed batches the fixed-source inventory records 31 failing
+batches and 99 distinct failed nodes, still zero lost/unrecovered files.
+Nightly now contains many of the other session's reconciliations; these
+numbers continue to describe the original 3d9eb57c5 measurement only.

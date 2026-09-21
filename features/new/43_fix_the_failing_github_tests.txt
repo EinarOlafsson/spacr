@@ -1812,3 +1812,9 @@ Integrated 536de9a61: live inventory is now 6231 runtime / 11166 API sources.
 Current Chinese catalog coverage is 6058/6231 with zero orphan keys; all nine
 API catalogs remain 10419/11166 fresh. Reports and future/411 record the new
 source boundary without changing the extractor debt baseline.
+The subsequent Chinese repair removes all format-field and literal/review
+mismatches at the 73063d7b3 source boundary. Its final audit has five remaining
+diagnostics covering 138 missing runtime entries and their hashes/fallbacks;
+current coverage is 6094/6232, zero orphans. API freshness remains 10419/11166
+per locale. Five focused current-catalog/context checks pass. The docs lane
+remains open for missing rows and API translation debt.

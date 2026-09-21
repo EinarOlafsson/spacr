@@ -9091,3 +9091,31 @@ The four report tests passed at the preceding 536de9a61 source boundary;
 those report counts are not a verdict on the just-integrated additions.
 A fresh integrated report measurement follows. Captured tutorial provenance
 remains eed895c2f, and corrected Map media verification is still running.
+After pushing 73063d7b3: all 24 English Annotate tracks pass full decode,
+freshness, sentence timing/activity and decoded peaks. The queue now renders
+current CV. Chinese adds 33 source-bound format repairs, restoring the
+actual named fields in plaque, download, annotation and sign-in messages;
+reviewed sources now total 982. Integrated reports/audit are rerunning.
+The corrected Map 4K/30 masters and actual desktop/mobile player checks now
+pass; receipt includes exact new phonemes, audio hash, decoded peak and
+browser proof. Both Annotate and Classify ML have all 24 English tracks
+verified, with independent numeric peak measurements. Full voice/language,
+caption/listening and complete-set publication remain open.
+Coverage inventory refreshed at 80/95: 31 failing batches / 99 distinct
+failed nodes, no lost/unrecovered files. Still the fixed 3d9eb57c5 source;
+nightly's newly integrated fixes must be reconciled against these failures.
+Chinese's current plaque_model tooltip now states the actual toxoplasma_plaque_v2
+default and Cellpose 3 requirement for the historical bundled model. Added
+that source-bound review and the new Updating message (984 reviewed sources).
+PDF uses the builder's existing approved identity, not a fake translated
+review record. Final integrated audit is running; gates remain unchanged.
+Final Chinese runtime audit at 73063d7b3 plus the new reviews is down to five
+diagnostics, all missing-entry/hash/fallback debt (138 runtime entries).
+No format-field, wrong-hash, protected-literal or reviewed-target error
+remains. Coverage is 6094/6232 with zero orphans; API 10419/11166 per locale.
+Five focused catalog/context checks pass. Fresh report checks are running.
+Prepared a private empty Measure stage for a fresh real download and CPU
+preview recapture after this checkpoint; no preseeded arrays or app edits.
+Final report verification passes: four tests in 219.15 s. The feature index
+and whitespace checks pass. Coverage is now live at 82/95; its committed
+partial-failure inventory remains explicitly the 80-batch checkpoint.
