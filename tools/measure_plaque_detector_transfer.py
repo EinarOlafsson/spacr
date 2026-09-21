@@ -97,7 +97,7 @@ COST SOMEBODY SOMETHING:
   points ``YOLO_CONFIG_DIR`` at its own output directory before the detector
   is loaded. ``--yolo-config-dir`` overrides it; pointing it at the real one
   is possible and has to be typed.
-* IT RECORDS WHICH COPY OF SPACR IT MEASURED. Run as
+* IT RECORDS WHICH COPY OF spaCR IT MEASURED. Run as
   ``python tools/measure_plaque_detector_transfer.py``, ``sys.path[0]`` is
   ``tools/`` and not the working directory, so ``import spacr`` resolves
   through whatever the editable install points at -- which, from a worktree,
