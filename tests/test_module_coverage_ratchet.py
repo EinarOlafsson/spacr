@@ -370,7 +370,23 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # Measured by diffing the shipped set against origin/nightly dca970671:
     # now - base is exactly those two files and base - now is empty. The
     # workflow's --expected-file-count and its pin below move with it.
-    assert len(shipped) == 572
+    # 572 -> 604 on 2026-09-21, +32/-0, measured by diffing the shipped set
+    # against 8088c1907, the commit that set 572: now - base is exactly these
+    # files, base - now is empty, and every one is installed Python --
+    #   spacr/: crop_loader, import_examples, object_classifier,
+    #     plaque_papers, timeflows_baseline, timeflows_model, timeflows_qc;
+    #   spacr/qt/: _magnifier_drag, assay_examples, help_api_index,
+    #     help_index, help_search, import_demo, make_masks_datasets,
+    #     model_install, night_themes, ops_stitch_demo,
+    #     preferences_navigation, resonance, sound, sound_preferences,
+    #     sound_synth, ai/cli_install, ai/pty_sign_in,
+    #     screens/measure_inputs;
+    #   spacr/qt/widgets/: cli_setup_panel, measure_input_table,
+    #     measurements_example, model_share, model_share_dialog,
+    #     plaque_preview, preview_refresh.
+    # The pin went stale across a week of product work rather than through
+    # anything leaving the package.
+    assert len(shipped) == 604
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -682,8 +698,8 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 570 -> 572 on 2026-09-15 with spacr/qt/make_masks_demo.py (412) and
     # spacr/install_cleanup.py (416), the same +2 as `shipped`; the gate's own
     # inventory, verify_module_coverage.discover_shipped_python_files, returns
-    # 572.
-    assert "--expected-file-count 572" in combine_script
+    # 572. 572 -> 604 on 2026-09-21, the same +32 as `shipped`.
+    assert "--expected-file-count 604" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
