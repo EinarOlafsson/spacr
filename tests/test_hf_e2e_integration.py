@@ -79,16 +79,40 @@ def _require_gpu_cellpose():
 # Stub dataset — a handful of Yokogawa-named TIFFs + minimal CSVs
 # ---------------------------------------------------------------------------
 
+#: Where the stub's four cells sit in each 64x64 field, before a jitter.
+_STUB_CELL_CENTRES = ((16, 16), (16, 48), (48, 16), (48, 48))
+
+
 def _make_stub_dataset(dst: Path) -> Path:
-    """Emit a tiny cellvoyager-format plate at ``dst/plate1``."""
+    """Emit a tiny cellvoyager-format plate at ``dst/plate1``.
+
+    Each field holds four round cells: a disc of radius 11 on channel 0 (the
+    cell channel) around a disc of radius 5 on channel 1 (the nucleus
+    channel), over uniform noise; channel 2 is noise only. The stub used to
+    be noise alone, which Cellpose segmented into 34 objects only while
+    spaCR shipped flow_threshold=100, which turns Cellpose's flow-error
+    filter off. With Cellpose's own 0.4 (4271d56c4, GitHub #123) noise
+    rightly yields nothing, so the fixture now contains cells to find.
+    """
     import tifffile
     plate = dst / "plate1"; plate.mkdir(parents=True, exist_ok=True)
     rng = np.random.default_rng(0)
+    yy, xx = np.mgrid[:64, :64]
     for well in ("A01", "A02"):
         for field in (1, 2):
+            cell = np.zeros((64, 64), dtype=bool)
+            nucleus = np.zeros((64, 64), dtype=bool)
+            for cy, cx in _STUB_CELL_CENTRES:
+                cy += int(rng.integers(-2, 3))
+                cx += int(rng.integers(-2, 3))
+                r2 = (yy - cy) ** 2 + (xx - cx) ** 2
+                cell |= r2 <= 11 ** 2
+                nucleus |= r2 <= 5 ** 2
+            signal = (cell * 1500, nucleus * 1800, np.zeros((64, 64)))
             for ch in range(3):
-                arr = (rng.integers(0, 2000, size=(64, 64))
-                       + (300 if ch == 0 else 100)).astype(np.uint16)
+                arr = (rng.integers(0, 200, size=(64, 64))
+                       + (300 if ch == 0 else 100)
+                       + signal[ch]).astype(np.uint16)
                 p = (plate / f"plate1_{well}_"
                         f"T01F0{field}L01A01Z01C0{ch}.tif")
                 tifffile.imwrite(str(p), arr)
@@ -288,15 +312,13 @@ def test_hf_e2e_mask_stage(_prepared_workspace):
         f"these fields produced a mask with no cells in it: {empty}. "
         f"Per-field counts: {counts}")
     if _stubbed_mode():
-        # The stub is four 64x64 fields and its segmentation is deterministic
-        # here: 14 / 6 / 11 / 3 objects, measured over 24 consecutive runs
-        # under load. The floor is well under that rather than equal to it,
-        # because the number is a property of the model version as much as of
-        # the fixture — but an order of magnitude below it is a regression,
-        # not a new cellpose release.
+        # The stub is four 64x64 fields of four drawn cells each. Stock cpsam
+        # at flow_threshold 0.4 finds all four in each field on CPU. The floor
+        # allows a model release to miss one here and there, but a plate that
+        # loses a quarter of its cells is a regression.
         assert sum(counts.values()) >= 12, (
             f"the stub plate segmented {sum(counts.values())} cells in total; "
-            f"it has produced 34 on every run measured. Per field: {counts}")
+            f"it holds 16. Per field: {counts}")
 
 
 @pytest.mark.slow
