@@ -38,6 +38,11 @@ Requested: 2026-09-21, after testing Figure mode on his GPU -- "now after
            the plaque wells, and add another button called Plaque preview
            that generates plaques from the hichlighted rw and plaque well box
            on the figure."
+Requested: 2026-09-21, after trying the two pop-ups -- "make sure the
+           settings windows follow the same format as other settinggggggs
+           windown with rounded edges transparent black background, and have
+           one settings button for plaque assay live and add several tabs one
+           for figure and one for plaque detection."
 
 --------------------------------------------------------------------------------
 WHAT WAS BUILT
@@ -192,10 +197,36 @@ MEASURED, headless, the real screen, DOI 10.1371/journal.ppat.1011009:
 (ppat.1011009.g001.jpg ... g009.jpg), plus legends.csv and paper.json.
 
 --------------------------------------------------------------------------------
+ONE SETTINGS WINDOW (the third request above)
+--------------------------------------------------------------------------------
+
+The preview has ONE "Settings…" button, in both modes, and no inline row of
+controls any more. It opens PlaqueSettingsDialog, a QDialog with two tabs:
+"Figure" (detector, inference sizes, confidence, read the text, confirm
+annotations) and "Plaque detection" (plaque model with Browse, diameter,
+flow threshold, cell probability). In Plaque mode the Figure tab is hidden
+and the window opens on Plaque detection; flipping the switch while it is
+open shows or hides the tab. The controls are the panel's own, lent to the
+window while it is open and handed back hidden when it closes, so values
+survive and the next pass reads them.
+
+WHERE THE LOOK COMES FROM: nothing is styled here. Being a QDialog is what
+gets it spacr.qt.widgets.glass -- the application-wide filter
+(install_glass_everywhere, installed at startup in spacr/qt/app.py) that
+gives every QDialog the SetupCard behind it: frameless, rounded corners
+(CARD_RADIUS), the translucent body and the travelling rim. The two QFrame
+pop-ups it replaces were not QDialogs, which is why they looked different.
+The same treatment is on Measure's CropSettingsDialog and Mask's
+LiveSettingsDialog.
+
+Checked offscreen in dark and light, composited over the screen, beside
+Measure's crop settings as the reference: frameless, glassed, 496 x 298.
+
+--------------------------------------------------------------------------------
 TESTS
 --------------------------------------------------------------------------------
 
-tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 34 tests, the
+tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 37 tests, the
 detector, text reader and Cellpose faked.
 
 2026-09-21 — CODEX TRANSLATION LANE: PREVIEW EVIDENCE REBOUND

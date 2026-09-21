@@ -142,7 +142,7 @@ def test_plaque_mode_segments_one_image_and_counts(panel, tmp_path):
     assert got and got[0]["count"] == 2
     assert "2 plaques" in panel.preview_status()
     assert not panel._table.isVisible()
-    assert panel._figure_row.isHidden()
+    assert panel._controls.isHidden(), "no inline settings row"
 
 
 def test_the_picker_steps_and_wraps(panel, tmp_path):
@@ -325,34 +325,59 @@ def test_sizes_and_modes_parse():
     assert ppv.normalise_mode(None) == "plaque"
 
 
-def test_figure_and_plaque_settings_have_a_button_each(qtbot):
-    """2026-09-21, the maintainer: "the settings for the figure should be in
-    figure settings, the settings for the plaque detections in plaque
-    settings"."""
+def test_one_settings_button_opens_one_window_with_two_tabs(qtbot):
+    """2026-09-21, the maintainer: "make sure the settings windows follow the
+    same format as other settinggggggs windown with rounded edges transparent
+    black background, and have one settings button for plaque assay live and
+    add several tabs one for figure and one for plaque detection"."""
+    from PySide6.QtWidgets import QDialog, QPushButton
+
     panel = ppv.PlaquePreviewPanel()
     qtbot.addWidget(panel)
     panel.show()
+    texts = [b.text() for b in panel.findChildren(QPushButton)
+             if b.isVisibleTo(panel)]
+    assert texts.count("Settings…") == 1
+    assert not any("Figure settings" in t or "Plaque settings" in t
+                   for t in texts)
+    assert panel._controls.isHidden(), "Plaque mode has no inline row either"
+
     panel.set_mode("figure")
-    assert panel._figure_settings_btn.isVisibleTo(panel)
-    assert panel._plaque_settings_btn.isVisibleTo(panel)
-    assert panel._figure_row.parent() is panel._figure_popup
-    assert panel._plaque_controls.parent() is panel._plaque_popup
-    panel._figure_settings_btn.click()
-    assert panel._figure_popup.isVisible()
-    assert panel._detector_box.isVisibleTo(panel._figure_popup)
-    panel._figure_popup.hide()
-    panel._plaque_settings_btn.click()
-    assert panel._plaque_popup.isVisible()
-    assert panel._model_box.isVisibleTo(panel._plaque_popup)
-    assert not panel._detector_box.isVisibleTo(panel._plaque_popup)
-    panel._plaque_popup.hide()
+    panel._settings_btn.click()
+    dialog = panel._settings_dialog
+    assert isinstance(dialog, QDialog), (
+        "a QDialog, so spacr.qt.widgets.glass gives it the rounded "
+        "translucent card every settings window has")
+    assert [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())] == [
+        "Figure", "Plaque detection"]
+    assert dialog.tabs.isTabVisible(0)
+    assert dialog.tabs.currentIndex() == 0
+    assert panel._detector_box.isVisibleTo(dialog.figure_tab)
+    assert panel._model_box.isVisibleTo(dialog.plaque_tab)
+    panel._confidence.setValue(0.4)
+    dialog.reject()
+    assert panel._settings_dialog is None
+    assert panel._detector_box.parent() is panel._controls
+    assert panel._confidence.value() == pytest.approx(0.4), "values survive"
+
     panel.set_mode("plaque")
-    assert not panel._figure_settings_btn.isVisibleTo(panel)
-    assert panel._plaque_controls.parent() is panel._controls
-    assert panel._plaque_controls.isVisibleTo(panel)
-    assert not panel._figure_row.isVisibleTo(panel)
+    dialog = panel.open_settings()
+    assert not dialog.tabs.isTabVisible(0), "no Figure tab in Plaque mode"
+    assert dialog.tabs.currentIndex() == 1
     panel.set_mode("figure")
-    assert panel._plaque_controls.parent() is panel._plaque_popup
+    assert dialog.tabs.isTabVisible(0), "the window follows the switch"
+    dialog.reject()
+
+
+def test_the_settings_window_gets_the_glass_card(qtbot):
+    from spacr.qt.widgets import glass
+
+    panel = ppv.PlaquePreviewPanel()
+    qtbot.addWidget(panel)
+    dialog = ppv.PlaqueSettingsDialog(panel)
+    assert glass.wants_glass(dialog)
+    assert glass.glass(dialog)
+    dialog.give_back()
 
 
 def test_clicking_a_box_selects_its_well_and_row(panel, tmp_path):

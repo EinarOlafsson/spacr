@@ -94,6 +94,7 @@ __all__ = [
     "segment_well",
     "paper_folder_name",
     "PaperDialog",
+    "PlaqueSettingsDialog",
     "annotate_figure",
 ]
 
@@ -877,6 +878,87 @@ class PaperDialog(QDialog):
         return self.reference.text().strip(), self.folder.text().strip()
 
 
+class PlaqueSettingsDialog(QDialog):
+    """The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.
+
+    The controls belong to the panel and are lent to this window while it is
+    open, so a value set here is the value the next pass uses, and it
+    survives the window being closed -- :meth:`give_back` returns them.
+
+    In Plaque mode the Figure tab is hidden: nothing there applies to a
+    folder of cropped plaque images.
+
+    :param panel: the :class:`PlaquePreviewPanel` whose controls it shows.
+    """
+
+    def __init__(self, panel: "PlaquePreviewPanel"):
+        """Lay the panel's controls out in two tabs.
+
+        :param panel: the preview panel; also the window's parent.
+        """
+        from PySide6.QtWidgets import QFormLayout
+
+        super().__init__(panel)
+        self._panel = panel
+        self.setObjectName("PlaqueSettingsDialog")
+        self.setWindowTitle(tr("Plaque Assay preview settings"))
+        outer = QVBoxLayout(self)
+        self.tabs = QTabWidget(self)
+        self.tabs.setObjectName("PlaqueSettingsTabs")
+
+        figure = QWidget()
+        form = QFormLayout(figure)
+        form.addRow(tr("Detector"), panel._detector_box)
+        form.addRow(tr("Inference sizes"), panel._sizes)
+        form.addRow(tr("Confidence"), panel._confidence)
+        form.addRow("", panel._read_text)
+        form.addRow("", panel._confirm)
+        self.figure_tab = figure
+
+        plaque = QWidget()
+        form = QFormLayout(plaque)
+        form.addRow(tr("Plaque model"), panel._model_row)
+        form.addRow(tr("Diameter"), panel._diameter)
+        form.addRow(tr("Flow threshold"), panel._flow)
+        form.addRow(tr("Cell probability"), panel._cellprob)
+        self.plaque_tab = plaque
+
+        self.tabs.addTab(figure, tr("Figure"))
+        self.tabs.addTab(plaque, tr("Plaque detection"))
+        outer.addWidget(self.tabs)
+        for widget in self._lent():
+            widget.show()
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        buttons.rejected.connect(self.reject)
+        buttons.accepted.connect(self.accept)
+        outer.addWidget(buttons)
+        self.setMinimumWidth(460)
+
+    def _lent(self) -> Tuple[QWidget, ...]:
+        """The panel controls this window holds while it is open."""
+        p = self._panel
+        return (p._detector_box, p._sizes, p._confidence, p._read_text,
+                p._confirm, p._model_row, p._diameter, p._flow, p._cellprob)
+
+    def show_mode(self, mode: Any, tab: Optional[str] = None) -> None:
+        """Show the tabs ``mode`` uses and open the right one.
+
+        :param mode: ``'plaque'`` or ``'figure'``.
+        :param tab: ``'figure'`` or ``'plaque'`` to open on.
+        """
+        figure = normalise_mode(mode) == FIGURE_MODE
+        self.tabs.setTabVisible(0, figure)
+        wanted = tab or ("figure" if figure else "plaque")
+        self.tabs.setCurrentIndex(0 if wanted == "figure" and figure else 1)
+
+    def give_back(self) -> None:
+        """Return every lent control to the panel, hidden, values intact."""
+        holder = self._panel._controls
+        for widget in self._lent():
+            widget.setParent(holder)
+            widget.hide()
+
+
 class PlaqueModeSwitch(QWidget):
     """A two-button Plaque | Figure switch.
 
@@ -1199,70 +1281,47 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         self._controls = QWidget(self)
         self._controls.setObjectName("PlaquePreviewControls")
-        self._controls_layout = QVBoxLayout(self._controls)
-        self._controls_layout.setContentsMargins(0, 0, 0, 0)
-        self._plaque_controls = QWidget(self._controls)
-        self._plaque_controls.setObjectName("PlaquePreviewPlaqueControls")
-        grid = QGridLayout(self._plaque_controls)
-        grid.setContentsMargins(0, 0, 0, 0)
-        grid.setHorizontalSpacing(8)
-        grid.setVerticalSpacing(4)
-        grid.addWidget(QLabel(tr("Plaque model")), 0, 0)
-        self._model_box = QComboBox(self)
+        self._controls.hide()
+        self._model_row = QWidget(self._controls)
+        model_row = QHBoxLayout(self._model_row)
+        model_row.setContentsMargins(0, 0, 0, 0)
+        model_row.setSpacing(4)
+        self._model_box = QComboBox(self._model_row)
         self._model_box.setObjectName("PlaquePreviewModel")
         self._model_box.setEditable(True)
+        self._model_box.setMinimumWidth(260)
         self._model_box.setToolTip(tr(
             "The Cellpose checkpoint that segments the plaques: a model zoo "
             "key, 'bundled' (the historical packaged model), or a path."))
         self._model_box.currentTextChanged.connect(self._on_model_changed)
-        grid.addWidget(self._model_box, 0, 1, 1, 3)
-        browse = QToolButton(self)
+        model_row.addWidget(self._model_box, 1)
+        browse = QToolButton(self._model_row)
         browse.setText(tr("Browse…"))
         browse.clicked.connect(self._browse_model)
-        grid.addWidget(browse, 0, 4)
+        model_row.addWidget(browse)
         self._diameter = self._spin(0, 2000, 1, 30, 1)
         self._flow = self._spin(0, 3, 2, 0.4, 0.05)
         self._cellprob = self._spin(-8, 8, 2, 0, 0.25)
-        for column, (label, spin) in enumerate(
-                ((tr("Diameter"), self._diameter),
-                 (tr("Flow threshold"), self._flow),
-                 (tr("Cell probability"), self._cellprob))):
-            holder = QHBoxLayout()
-            holder.addWidget(QLabel(label))
-            holder.addWidget(spin)
-            grid.addLayout(holder, 1, column * 2 if column else 0, 1, 2)
-        self._figure_row = QWidget(self)
-        frow = QHBoxLayout(self._figure_row)
-        frow.setContentsMargins(0, 0, 0, 0)
-        frow.addWidget(QLabel(tr("Detector")))
-        self._detector_box = QComboBox(self)
+        self._detector_box = QComboBox(self._controls)
         self._detector_box.setObjectName("PlaquePreviewDetector")
         self._detector_box.setEditable(True)
-        frow.addWidget(self._detector_box, 2)
-        frow.addWidget(QLabel(tr("Sizes")))
-        self._sizes = QLineEdit(",".join(str(s) for s in DEFAULT_SIZES))
+        self._detector_box.setMinimumWidth(260)
+        self._sizes = QLineEdit(",".join(str(s) for s in DEFAULT_SIZES),
+                                self._controls)
         self._sizes.setToolTip(tr("Detector inference sizes, comma "
                                   "separated. Each size is asked and the "
                                   "boxes are merged."))
-        self._sizes.setMaximumWidth(110)
-        frow.addWidget(self._sizes)
-        frow.addWidget(QLabel(tr("Confidence")))
         self._confidence = self._spin(0, 1, 2, 0.25, 0.05)
-        frow.addWidget(self._confidence)
-        self._read_text = QCheckBox(tr("Read text"))
+        self._read_text = QCheckBox(tr("Read the text around each well"),
+                                    self._controls)
         self._read_text.setChecked(True)
-        frow.addWidget(self._read_text)
-        self._confirm = QCheckBox(tr("Confirm annotations"))
+        self._confirm = QCheckBox(tr("Confirm annotations"), self._controls)
         self._confirm.setToolTip(tr("When on, the run measures only the "
                                     "images ticked OK and saved here."))
         self._confirm.toggled.connect(self._on_confirm_toggled)
-        frow.addWidget(self._confirm)
-        self._controls_layout.addWidget(self._plaque_controls)
-        self._controls_layout.addWidget(self._figure_row)
+        self._settings_dialog: Optional[PlaqueSettingsDialog] = None
         outer.addWidget(self._controls)
         self._outer = outer
-        self._figure_popup = self._popup("PlaqueFigureSettingsPopup")
-        self._plaque_popup = self._popup("PlaquePlaqueSettingsPopup")
 
         note_row = QHBoxLayout()
         self._model_note = QLabel("")
@@ -1286,22 +1345,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._use_btn.setToolTip(tr("Write the values tuned here into the "
                                     "settings the run reads."))
         self._use_btn.clicked.connect(self.propagate)
-        self._figure_settings_btn = QPushButton(tr("Figure settings…"))
-        self._figure_settings_btn.setObjectName("PlaqueFigureSettings")
-        self._figure_settings_btn.setToolTip(tr(
-            "Finding the plaque wells and reading the figure: the detector, "
-            "its sizes and confidence, text reading and review."))
-        self._figure_settings_btn.clicked.connect(
-            lambda: self._open_popup(self._figure_popup,
-                                     self._figure_settings_btn))
-        self._plaque_settings_btn = QPushButton(tr("Plaque settings…"))
-        self._plaque_settings_btn.setObjectName("PlaquePlaqueSettings")
-        self._plaque_settings_btn.setToolTip(tr(
-            "Finding the plaques inside a well: the plaque model, diameter, "
-            "flow threshold and cell probability."))
-        self._plaque_settings_btn.clicked.connect(
-            lambda: self._open_popup(self._plaque_popup,
-                                     self._plaque_settings_btn))
+        self._settings_btn = QPushButton(tr("Settings…"))
+        self._settings_btn.setObjectName("PlaquePreviewSettings")
+        self._settings_btn.setToolTip(tr(
+            "The preview's settings, in two tabs: Figure (finding the plaque "
+            "wells and reading the figure) and Plaque detection (the plaque "
+            "model and its thresholds)."))
+        self._settings_btn.clicked.connect(lambda: self.open_settings())
         self._well_btn = QPushButton(tr("Plaque preview"))
         self._well_btn.setObjectName("PlaqueWellPreview")
         self._well_btn.setToolTip(tr(
@@ -1320,8 +1370,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "Fetch a paper's figures and legends by DOI, PMID, PMC id or PDF "
             "into a new folder, and preview them."))
         self._paper_btn.clicked.connect(self._ask_for_paper)
-        for widget in (self._paper_btn, self._figure_settings_btn,
-                       self._plaque_settings_btn,
+        for widget in (self._paper_btn, self._settings_btn,
                        self._run_btn, self._well_btn, self._all_btn,
                        self._cancel_btn, self._use_btn):
             buttons.addWidget(widget)
@@ -1431,18 +1480,6 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._save_row.setLayout(save_row)
         outer.addWidget(self._save_row)
 
-    def _popup(self, name: str) -> QFrame:
-        """An empty drop-down frame for one group of settings.
-
-        :param name: its object name.
-        :returns: the frame.
-        """
-        popup = QFrame(self, Qt.Popup)
-        popup.setObjectName(name)
-        popup.setFrameShape(QFrame.StyledPanel)
-        QVBoxLayout(popup)
-        return popup
-
     def _spin(self, low: float, high: float, decimals: int, value: float,
               step: float) -> QDoubleSpinBox:
         """A number box.
@@ -1468,8 +1505,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         mode = normalise_mode(mode)
         self._mode_switch.set_mode(mode)
         figure = mode == FIGURE_MODE
-        self._figure_row.setVisible(figure)
-        self._place_controls(figure)
+        dialog = self._settings_dialog
+        if dialog is not None:
+            dialog.show_mode(mode)
         self._tabs.setVisible(figure)
         self._well_side.setVisible(figure)
         self._well_btn.setVisible(figure)
@@ -1490,49 +1528,34 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._view.set_image(None)
         self._show_selected_image()
 
-    def _place_controls(self, behind_buttons: bool) -> None:
-        """Put the controls inline, or behind the two settings buttons.
+    def open_settings(self, tab: Optional[str] = None) -> "PlaqueSettingsDialog":
+        """Open (or raise) the one settings window, in the tab for this mode.
 
-        The maintainer, 2026-09-21: "the settings for the figure should be
-        in figure settings, the settings for the plaque detections in plaque
-        settings". Figure mode puts the detector and reading controls under
-        Figure settings and the plaque model and thresholds under Plaque
-        settings; Plaque mode has four controls and keeps them inline.
+        The maintainer, 2026-09-21: "have one settings button for plaque
+        assay live and add several tabs one for figure and one for plaque
+        detection". A ``QDialog``, so :mod:`spacr.qt.widgets.glass` gives it
+        the same rounded, translucent card every other settings window has.
 
-        :param behind_buttons: True for Figure mode.
+        :param tab: ``'figure'`` or ``'plaque'`` to open on; the mode's own
+            first tab when None.
+        :returns: the dialog.
         """
-        pairs = ((self._figure_row, self._figure_popup),
-                 (self._plaque_controls, self._plaque_popup))
-        if behind_buttons:
-            for widget, popup in pairs:
-                if widget.parent() is not popup:
-                    self._controls_layout.removeWidget(widget)
-                    widget.setParent(popup)
-                    popup.layout().addWidget(widget)
-                widget.show()
-        else:
-            for widget, popup in pairs:
-                popup.hide()
-                if widget.parent() is not self._controls:
-                    popup.layout().removeWidget(widget)
-                    widget.setParent(self._controls)
-            self._controls_layout.insertWidget(0, self._plaque_controls)
-            self._controls_layout.insertWidget(1, self._figure_row)
-            self._plaque_controls.show()
-            self._figure_row.hide()
-        self._controls.setVisible(not behind_buttons)
-        self._figure_settings_btn.setVisible(behind_buttons)
-        self._plaque_settings_btn.setVisible(behind_buttons)
+        dialog = self._settings_dialog
+        if dialog is None or not dialog.isVisible():
+            dialog = PlaqueSettingsDialog(self)
+            self._settings_dialog = dialog
+            dialog.finished.connect(self._settings_closed)
+        dialog.show_mode(self.mode(), tab)
+        dialog.show()
+        dialog.raise_()
+        return dialog
 
-    def _open_popup(self, popup: QFrame, anchor: QWidget) -> None:
-        """Drop one group of settings down under its button.
-
-        :param popup: the frame to show.
-        :param anchor: the button it hangs from.
-        """
-        popup.adjustSize()
-        popup.move(anchor.mapToGlobal(anchor.rect().bottomLeft()))
-        popup.show()
+    def _settings_closed(self, *_args: Any) -> None:
+        """Take the controls back when the settings window closes."""
+        dialog = self._settings_dialog
+        self._settings_dialog = None
+        if dialog is not None:
+            dialog.give_back()
 
     def _on_switch(self, mode: str) -> None:
         """The panel's own switch was clicked."""
