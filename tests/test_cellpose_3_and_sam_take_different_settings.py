@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 
 import spacr._segmentation_backends as SB
+from tests.conftest import MISSING_CHANNEL_AXIS
 
 
 class _FakeCellposeModel:
@@ -41,10 +42,15 @@ class _FakeCellposeModel:
 
 
 class _AnythingGoesModel(_FakeCellposeModel):
-    """A Cellpose whose ``eval`` takes keywords it was not told about."""
+    """A Cellpose whose ``eval`` takes keywords it was not told about.
 
-    def eval(self, image, **kwargs):
-        self.calls.append(dict(kwargs))
+    ``channel_axis`` is still named, defaulted to the sentinel and recorded:
+    the variadic tail is the shape under test, not a licence to swallow the
+    axis the adapter chose.
+    """
+
+    def eval(self, image, channel_axis=MISSING_CHANNEL_AXIS, **kwargs):
+        self.calls.append(dict(kwargs, channel_axis=channel_axis))
         labels = np.zeros(np.asarray(image).shape[:2], dtype=np.int32)
         return labels, [np.zeros(labels.shape)], None
 
@@ -127,6 +133,7 @@ def test_a_cellpose_that_takes_anything_is_given_everything(cellpose3):
     adapter.eval([_image()], rescale=2.0)
     assert adapter.ignored == set()
     assert made["model"].calls[0]["rescale"] == 2.0
+    assert made["model"].calls[0]["channel_axis"] is None
 
 
 def test_a_setting_left_at_none_is_not_reported_as_ignored(cellpose3):

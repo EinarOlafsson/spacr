@@ -24,6 +24,8 @@ import pytest
 
 import spacr._segmentation_backends as SB
 from spacr import model_zoo as zoo
+from tests.cellpose_api_contract import configured_eval_arguments
+from tests.conftest import MISSING_CHANNEL_AXIS
 
 
 @pytest.fixture(autouse=True)
@@ -233,8 +235,23 @@ class _StubCellpose3:
         self.calls = []
         type(self).built.append(self)
 
-    def eval(self, images, **kwargs):
-        self.calls.append((len(images), kwargs))
+    def eval(self, images, batch_size=8, resample=True, channels=None,
+             channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+             normalize=True, invert=False, rescale=None, diameter=None,
+             flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+             anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+             min_size=15, max_size_fraction=0.4, niter=None,
+             augment=False, tile_overlap=0.1, bsize=256,
+             compute_masks=True, progress=None):
+        """The Cellpose 4.0 parameter list, which still carries ``invert``.
+
+        The comparison hands the Cellpose 3 backend the same keywords it
+        hands Cellpose-SAM, ``invert`` among them; Cellpose 3 takes it and
+        4.2 dropped it, so the 4.2 list would reject a call the real
+        backend accepts.
+        """
+        self.calls.append(
+            (len(images), configured_eval_arguments(locals(), "images")))
         return [np.ones(np.shape(i)[:2], np.int32) for i in images], [], None
 
 
