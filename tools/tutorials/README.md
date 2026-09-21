@@ -69,6 +69,18 @@ source-opening and label-save messages in that segment are unmodified.
 The 21 September Annotate receipt records 25 native frames and 20 staged
 scenes, including a real persisted null → class 1 → null label transition.
 
+For the Classify overview, `compose_classify_overview.py` can take `--stage`,
+`--main`, `--ml`, `--cv` and `--destination` to reuse accepted recordings from
+separate private stages. `--ml-figure` selects the recorded ML result frame;
+the current recording uses `25_ml_figure_02`, after the native figure pane
+has been expanded. The composer still requires each workflow's scientific
+acceptance, completed native CV/ML batches, matching frame hashes, and the
+five genuine nested routes in the navigation recording. It preserves the
+original images and refuses to overwrite an earlier composition. Stage
+lesson 41 against the new composition before rendering its narration and
+shared visual master. The CV and ML examples use different labels and
+subsets, so their metrics are not a family comparison.
+
 ### Map Barcodes — 13 September
 
 Lesson 12 now records the current Home module using the real downloadable

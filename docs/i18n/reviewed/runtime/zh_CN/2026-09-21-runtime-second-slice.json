@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "translation": "图块的拼接方式，以及如何分割每个拼接孔图中的细胞核：包括显微镜采集时相邻图块的重叠、分割窗口的重叠和所用模型。每个读段归属于其所在或紧邻的细胞核，因此这里的模型和直径决定哪些对象能够获得条形码。",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5"
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "translation": "图块的读取位置和结果的写入位置：在测序文件夹及其子文件夹中，查找按放大倍数、循环、孔、通道和视野位置命名的图块；指定要叠加的表型图像文件夹、用于匹配判定结果的引导 RNA 库，以及接收 measurements.db 和逐孔报告的输出文件夹。请先设置这些项；其他 OPS 设置组都以这些设置正确为前提。",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2"
+    },
+    {
+      "table": "ui",
+      "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "translation": "(bool) drop_straight_tracks — 完全移除已标记的轨迹。",
+      "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849"
+    },
+    {
+      "table": "ui",
+      "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "translation": "<b>将错误报告为 GitHub issues</b><br><span style='color:gray;'>报告会发送到 GitHub 上公开的 spaCR 仓库，并隐去路径、名称和凭据。问题报告设为 always（默认值）时，只要已在下方登录 GitHub，失败的运行就会自动提交报告，每个错误一次。设为 ask 时，控制台下方会出现 \"File as issue\" 按钮，只有在报告预览中按下 Send report 才会发送。可在 Help → Set spaCR up again… 中更改设置。</span>",
+      "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "4PL 曲线关于中点对称。真实数据可能存在不对称性，4PL 会通过偏移 EC50 来吸收这种差异；5PL 则增加一个参数来拟合不对称性，需要多一个浓度点，并评估增加该参数是否有必要。",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
+    },
+    {
+      "table": "ui",
+      "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "translation": "选择您自己的 WAV 文件作为背景音乐，替代 spaCR 的音乐。留空则使用 spaCR 自带音乐。文件不会被上传或复制，而是从原位置读取；Resonance 背景也会随该音乐变化。",
+      "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "translation": "晴朗的夜晚：靛蓝、紫罗兰、冰蓝，以及日落许久后天空仍保留的淡蓝紫色。",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1"
+    },
+    {
+      "table": "ui",
+      "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "translation": "使用 SQL，针对裁剪图像表自身的列设置筛选条件。数据库以只读方式打开，因此这里输入的内容不会修改数据库。",
+      "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395"
+    },
+    {
+      "table": "ui",
+      "key": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "translation": "使用测量数据库时，可以选择要生成嵌入向量的对象；使用裁剪图像文件夹时，则处理其中的所有 PNG。",
+      "source_sha256": "98e856ee8d435fefddd711ab86c86d23e2ade0c2fcd5a3eb4de9080bfdbe8302"
+    },
+    {
+      "table": "ui",
+      "key": "A model is already downloading; wait for it to finish.",
+      "source": "A model is already downloading; wait for it to finish.",
+      "translation": "已有模型正在下载，请等待其完成。",
+      "source_sha256": "465c707e736689c9df5a895cc2bea1d076cd7a2a119796a325e19a0d3efb55b0"
+    },
+    {
+      "table": "ui",
+      "key": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "translation": "与所选音效采用相同调性的轻柔循环音乐：铺底音色、带附点八分音符回声的拨弦琶音、柔和的超低音，以及随编曲进出的轻柔四拍底鼓和沙锤。背景音乐与其他音效独立控制，因此可以只保留操作反馈而不播放音乐。在 Laptop 和 Extra Performance 性能级别下，背景音乐会暂停。",
+      "source_sha256": "29b1b3c06239497242ecde6662ce724cd88573be8a2d193c54f8eaf1ba9e3b1e"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "translation": "模块运行成功结束时，播放一个上行琶音，最后落在该调的主音上，即使 spaCR 不在当前窗口也能收到提示。",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "translation": "按下按钮、开关、选项卡、列表或滑块时，播放与所选音效同调的短促、轻柔拨弦声，确认操作已被接收；声音很轻，以不打扰为宜。",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da"
+    },
+    {
+      "table": "ui",
+      "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "translation": "运行因错误停止时，播放一段较慢的下行音型，使成功完成与失败的提示音明显不同。手动停止运行时不播放声音。",
+      "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "translation": "接近地平线的太阳及其照亮的景物：金色、琥珀色、淡金色和苔藓绿。",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851"
+    },
+    {
+      "table": "ui",
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "translation": "阈值校正系数：使用前将 Otsu 阈值乘以此系数。大于 1 时更严格，对象会缩小，较暗的对象会被排除；小于 1 时会纳入更暗的像素；1 表示使用 Otsu 原始阈值。Otsu detect 使用此设置；Live magnifier 的 Otsu 模式在区域内存在两个清晰像素群体时也使用它。",
+      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
+    },
+    {
+      "table": "ui",
+      "key": "Add a model",
+      "source": "Add a model",
+      "translation": "添加模型",
+      "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "translation": "添加视野",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "translation": "将 spaCR 的 DEBUG 消息写入 ~/.spacr/logs 中的日志文件。此选项还允许 cellpose 报告加载的模型，并记录您按过的按钮。这些记录有助于分析错误报告。\n\n测试中，启用此选项并未延长 spaCR 的启动或界面打开时间。测试在一台工作站上进行，分别在启用和关闭时打开了每个模块。两种情况下，冷启动后 Home 都约在 4 秒内就绪，最慢的模块都约在 7 秒内打开。未测量流程运行时间。\n\nConsole 仍只显示您在 Logging 选项卡中启用的日志级别。此开关不会跟踪每次函数调用；函数调用跟踪器是单独的开发者工具，不会被此设置启用。",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978"
+    },
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "translation": "添加…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf"
+    },
+    {
+      "table": "ui",
+      "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "translation": "指针停留在已启用的控件上时，播放更轻柔的拨弦声。系统会等待指针停稳，随后短暂保持安静，因此划过面板时不会连续发出一串声音。默认关闭，需在此处手动启用。",
+      "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca"
+    },
+    {
+      "table": "ui",
+      "key": "An install is still running",
+      "source": "An install is still running",
+      "translation": "安装仍在运行",
+      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
+    },
+    {
+      "table": "ui",
+      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "translation": "另一个安装仍在进行中。请等待其完成，或按下状态标记下方的 Cancel（取消）。",
+      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "translation": "将已启用的上下限应用到界面中的掩膜。每个被移除的对象都会列在掩膜下方，并显示判定所依据的面积和平均强度。整个操作可一步撤销。",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284"
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "translation": "最多：",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf"
+    },
+    {
+      "table": "ui",
+      "key": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "translation": "附上训练此模型所用的文件夹。它会打包为单个 tar 文件，并与检查点一同上传。大型文件夹的打包和上传可能耗时较长；大小上限约为 25 GB。",
+      "source_sha256": "e809ad3fd8d8a417b00c30eae3e1cd7e3e030ae15d01341249b7621269ef6103"
+    },
+    {
+      "table": "ui",
+      "key": "Building the index…",
+      "source": "Building the index…",
+      "translation": "正在构建索引…",
+      "source_sha256": "c2b8a7dd762f096d53c65a9ed94c5c96869156ecddd8c9f2f3318c4e42739572"
+    },
+    {
+      "table": "ui",
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "translation": "已取消，未留下任何内容。",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d"
+    },
+    {
+      "table": "ui",
+      "key": "Channels",
+      "source": "Channels",
+      "translation": "通道",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a database or a folder first",
+      "source": "Choose a database or a folder first",
+      "translation": "首先选择数据库或文件夹",
+      "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of crop PNGs",
+      "source": "Choose a folder of crop PNGs",
+      "translation": "选择包含裁剪图像 PNG 文件的文件夹",
+      "source_sha256": "f1ae9bf598a7536fe83f1edbee984350599a29decf82c1224e3b4097c381eb82"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "translation": "在上方选择测量数据库或包含裁剪图像 PNG 文件的文件夹，然后按下 Load crops（加载裁剪图像）。使用数据库时，可限定为一个对象类别、一个板，或该表的列所支持的任意条件。",
+      "source_sha256": "3bbbcf831239864e884a879bd8b086625e2b508286de9e30c68241a71c50c492"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs first.",
+      "source": "Choose a measurements database or a folder of crop PNGs first.",
+      "translation": "请先选择测量数据库或包含裁剪图像 PNG 文件的文件夹。",
+      "source_sha256": "f02e2721214ef384ce35edfb28538a2ec4eb29a6254a9f8323cf54e88c61f50c"
+    },
+    {
+      "table": "ui",
+      "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "translation": "选择通道的编码方式，然后按下 Embed（生成嵌入向量）。表格会显示每个对象的前几个维度。",
+      "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b"
+    },
+    {
+      "table": "ui",
+      "key": "Choose music for the bed",
+      "source": "Choose music for the bed",
+      "translation": "选择背景音乐",
+      "source_sha256": "45eec11b1ba9a74ff88550860b2cb2a814386796d36eed9bc6ab1225ad5ded09"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "translation": "点击",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "translation": "在对阈值分割结果编号之前，填充其中的内部孔洞。若细胞核中心比边缘暗，不填充时就会得到环状结果。放大镜的 Otsu 模式此前一直执行此步骤，而 Otsu detect 未执行，因此二者可能对同一视野给出不同结果；现在二者都遵循此复选框的设置。",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8"
+    },
+    {
+      "table": "ui",
+      "key": "Community uploads are not vetted",
+      "source": "Community uploads are not vetted",
+      "translation": "社区上传内容未经审核",
+      "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f"
+    },
+    {
+      "table": "ui",
+      "key": "Could not fetch {name}: {why}",
+      "source": "Could not fetch {name}: {why}",
+      "translation": "无法获取 {name}：{why}",
+      "source_sha256": "7623198840ea85fb5df52e279d21b6a54f8d2b451d069bef60d6fec827ea9afa"
+    },
+    {
+      "table": "ui",
+      "key": "Could not file the issue: the reporter would not start.",
+      "source": "Could not file the issue: the reporter would not start.",
+      "translation": "无法提交 issue：报告程序无法启动。",
+      "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8"
+    }
+  ]
+}

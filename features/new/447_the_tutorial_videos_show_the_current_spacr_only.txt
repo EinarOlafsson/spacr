@@ -4,7 +4,7 @@ OF THE MAINTAINER'S
 ================================================================================
 
 Status:    IN PROGRESS, Codex, 2026-09-21. Current Home/installers, Annotate
-           and Classify CV captures have private English review masters.
+           and Classify CV/ML captures have private English review masters.
            All 150 narration tracks for 01/04/05 pass technical verification.
            Remaining captures, full media/caption and audible acceptance,
            and complete-set publication remain open; see dated receipts below.
@@ -256,3 +256,14 @@ ML English review media now pass full decode, exact narration freshness,
 timing and real desktop/mobile browser checks. Its encoded first scene was
 visually checked. These technical results do not claim audible acceptance or
 permission to publish an incomplete refreshed set.
+
+2026-09-21 — CODEX: CLASSIFY OVERVIEW CURRENT CAPTURE COMPOSITION
+The current dark/Blobs overview uses the actual top-right nested-tool routes
+and the independently verified current CV/ML recordings. Its captions and
+focus now show the expanded full ML heatmap. Historical comparison wording
+is removed from this lesson. English narration has rendered; final encoded
+media/player acceptance remains in progress. No live media were published.
+The overview's silent and English review videos now fully decode and pass
+actual desktop/mobile player checks. The shared first scene visibly highlights
+the current Classify Home tile with the dark Blobs backdrop. Full matrix,
+listening and publication remain open.

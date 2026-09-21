@@ -5,12 +5,13 @@ REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 Status:    OPEN, filed 2026-09-02. The version-update hold it was filed behind
            was lifted on 2026-09-15 and the candidate's media is uploaded, so
            what is left is work rather than a wait. As of 2026-09-21: current
-           Home/installers, Annotate and Classify CV captures have private
+           Home/installers, Annotate and Classify CV/ML captures have private
            English review masters. Annotate and CV pass full decode and
            browser checks; all 150 narration tracks for 01/04/05 pass technical
-           verification after CPU rendering. Classify overview is captured;
-           the current ML run is verified and its 11 scenes staged. OPEN ON:
-           Mask's GPU recapture, overview composition, remaining
+           verification after CPU rendering. Classify overview has 11 scenes
+           composed from verified current navigation and CV/ML recordings;
+           its English review media pass decode/audio/player checks. OPEN ON:
+           Mask's GPU recapture, remaining
            captures, full language/voice/caption and audible acceptance,
            complete-set publication, and the maintainer's Pages deployment.
            Detailed dated receipts below preserve each acceptance boundary.
@@ -2145,3 +2146,19 @@ Chromium desktop/mobile playback, chapter seek, synchronization and related
 links pass. The encoded opening frame was visually checked; hashes and player
 proof are in the current ML receipt. Full locale/caption/listening and final
 publication acceptance still remain.
+
+2026-09-21 — CODEX: CURRENT CLASSIFY OVERVIEW ASSEMBLY
+The overview now composes its genuine current main-module navigation with
+independently accepted current CV and ML footage. The composer accepts
+explicit source directories and the actual expanded ML heatmap frame while
+retaining acceptance, original-image hashes and navigation-only checks. No
+model is rerun or screenshot rewritten. Eleven staged scenes use current
+1.5.0.8 wording; five strict navigation tests pass. English af_heart narration
+is complete at 235.9 seconds; video and player verification are in progress.
+The remaining English voices for current Annotate, CV and ML are rendering
+on CPU in private stages. Full languages, listening and publication remain.
+Overview media acceptance now passes: both 235.9-second native 4K/30 videos
+fully decode; source/model/voice freshness and audio timing/activity pass.
+Actual Chromium desktop/mobile playback, seeking, synchronization and chapter
+links pass. The receipt retains the original navigation and CV/ML provenance.
+Full voice/language, listening and complete-set publication remain open.

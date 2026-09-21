@@ -1,5 +1,6 @@
 """Reuse verified CV/ML footage around the current genuine main-module route."""
 from copy import deepcopy
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -18,17 +19,18 @@ def check_navigation(proof):
         raise ValueError('The exact five visible routes and navigation-only boundary must hold')
 
 
-def compose(stage=DEFAULT_STAGE):
+def compose(stage=DEFAULT_STAGE, *, main=None, ml=None, cv=None, destination=None,
+            ml_figure='24_batch_figure'):
     stage = Path(stage).resolve()
     root = stage / 'captures'
-    destination = root / 'classify_main_verified_overview_v2'
+    destination = Path(destination or root / 'classify_main_verified_overview_v2').resolve()
     if destination.exists():
         raise FileExistsError('Preserve the earlier composed overview')
     locations = [
-        ('main', root / 'classify_main_family_and_folds_v4', None),
-        ('ml', root / 'classify_ml_ten_percent_native',
-         ['02_data_choice_load', '19_setting_classes', '23_batch_finished', '24_batch_figure']),
-        ('cv', stage / 'classify_canonical_capture_v2/captures/classify_canonical_existing_v2',
+        ('main', Path(main or root / 'classify_main_family_and_folds_v4').resolve(), None),
+        ('ml', Path(ml or root / 'classify_ml_ten_percent_native').resolve(),
+         ['02_data_choice_load', '19_setting_classes', '23_batch_finished', ml_figure]),
+        ('cv', Path(cv or stage / 'classify_canonical_capture_v2/captures/classify_canonical_existing_v2').resolve(),
          ['19_setting_generate_training_dataset', '24_batch_figure', '30_ai_unsent_question']),
     ]
     hashes, frames, sources, proofs = {}, {}, [], {}
@@ -69,4 +71,11 @@ def compose(stage=DEFAULT_STAGE):
 
 
 if __name__ == '__main__':
-    compose()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    for name in ('main', 'ml', 'cv', 'destination'):
+        parser.add_argument('--' + name, type=Path)
+    parser.add_argument('--ml-figure', default='24_batch_figure')
+    args = parser.parse_args()
+    compose(args.stage, main=args.main, ml=args.ml, cv=args.cv,
+            destination=args.destination, ml_figure=args.ml_figure)

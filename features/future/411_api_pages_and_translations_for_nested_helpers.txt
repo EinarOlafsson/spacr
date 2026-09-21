@@ -1002,3 +1002,23 @@ No checker or baseline was relaxed. API/newer-runtime work remains open.
 Integration through d9cea312b retains 6209 runtime entries and 11150 API
 symbols; both review stores and regenerated reports remain current. The
 Portuguese audit count above belongs to the reviewed 78a8c4a36 source boundary.
+
+2026-09-21 — CODEX: FIRST CHINESE DRAFT RECOVERY SLICE
+Reviewed and corrected 40 current-source records from the preserved 311-row /
+308-distinct-source Chinese draft. Chinese now has 683 distinct source-bound
+reviewed strings. Corrections restore OPS sequencing/library meaning, model
+and tracking behavior, report sharing, omitted defaults and scientific limits;
+two exact-English setting descriptions are now translated. Existing protected
+syntax and terminology gates pass for all 40 before application. Evidence:
+docs/i18n/2026-09-21-runtime-chinese-recovery.md and reviewed/runtime/zh_CN/
+2026-09-21-runtime-first-slice.json. Remaining draft and catalog debt stay open;
+this is technical review, not native-speaker approval. No GPU job was started.
+The second Chinese slice adds 40 more reviewed sources (36 corrections, four
+retentions), reaching 723 distinct reviewed strings. It restores sound/music
+terminology, OPS setup, embedding inputs and mask controls, and the complete
+DEBUG help. The first slice's focused seven syntax/context/review tests pass.
+The 96-diagnostic Chinese audit was taken after the first slice and before
+obsolete-key pruning; it is not a full-catalog pass or the final slice audit.
+Removed 42 obsolete Chinese catalog keys against current English inventory,
+retaining review history. The final post-pruning audit will remain an explicit
+checkpoint rather than replacing the earlier audit's source boundary.

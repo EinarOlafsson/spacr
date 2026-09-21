@@ -4206,3 +4206,14 @@ It includes known translation debt and tests that newer nightly changes
 already address; do not file these as new current regressions without a
 current-tree reproduction. Preserve the running measurement and reconcile
 its snapshot at the final gate. No baseline is updated.
+
+2026-09-21 — CODEX: FIXED MEASUREMENT RESUMED AFTER TERMINATION
+The original capped measurement returned status 143 after 66/95 completed
+batches, during batch 67. The host had no surviving runner. Preserved the
+completed integrity record and all data, quarantined the interrupted batch's
+partial files, and resumed at batch 67 using the exact unchanged 3d9eb57c5
+runner, file selection, exclusions and two-worker configuration. The resume
+helper verifies that source revision and a clean tracked tree before running.
+Receipt: features/data/288_coverage_resume_2026-09-21.json. This is still an
+incomplete fixed-snapshot measurement; no current-nightly verdict or baseline
+update is claimed. The cause of SIGTERM is unknown.

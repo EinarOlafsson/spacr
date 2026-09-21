@@ -9005,3 +9005,29 @@ ML review media completed: 216.1-second English af_heart, native 4K/30 silent
 and review masters, full decode and exact audio freshness/timing checks pass.
 Real Chromium desktop/mobile playback, seek, synchronization and links pass;
 encoded first frame visually checked. Receipt updated, no live publication.
+
+2026-09-21 — CODEX: COVERAGE RESUME / OVERVIEW / CHINESE SLICE
+The coverage handle returned SIGTERM/status 143 after 66/95 completed batches.
+Confirmed no host runner survived; retained the completed data and integrity
+record, quarantined partial batch 67, and resumed it on the same clean fixed
+3d9eb57c5 source with identical selection/exclusions/two-worker settings.
+Receipt: features/data/288_coverage_resume_2026-09-21.json. Cause unknown;
+no baseline update or complete/current-nightly verdict claimed.
+Classify overview composition now uses verified current navigation and CV/ML
+sources, with actual expanded ML heatmap and current captions. Its 235.9-s
+English narration is complete; video/player checks are in progress. Five
+strict navigation checks pass. All tutorial media remain private.
+Chinese recovery adds 40 corrected source-bound records, now 683 reviewed
+sources. Scientific defaults, OPS meanings and report-sharing details are
+restored; protected-syntax and terminology gates remain strict. Remaining
+Chinese draft/API/catalog work is open. GPU remains busy; CPU jobs continue.
+Chinese review now covers the first 80 preserved records: 76 corrected and
+four retained, 723 distinct reviewed sources in total. The first slice's
+seven focused checks pass; the initial Chinese audit remains red. Remaining
+English voices continue on CPU. Overview audio and silent-video verification
+pass; narrated-video decoding and browser acceptance are still in progress.
+Overview acceptance completed: both native 4K/30 masters fully decode, audio
+freshness/timing/activity pass, and the actual Chromium desktop/mobile player
+passes seeking/synchronization/links. Chinese obsolete-key pruning removed 42
+keys against the current English inventory. Complete-set publication remains
+closed; remaining languages/voices and audible acceptance are still owed.

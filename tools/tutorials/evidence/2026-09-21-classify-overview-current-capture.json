@@ -1,8 +1,8 @@
 {
   "schema": 1,
   "date": "2026-09-21",
-  "status": "native_overview_frames_verified_not_published",
-  "scope": "Current Classify family selection and nested navigation. No model or data run.",
+  "status": "current_composition_and_english_review_master_verified_not_published",
+  "scope": "Current Classify navigation plus the independently verified current CV and ML result recordings.",
   "artifact_directory": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/captures/classify_overview_current_20260921",
   "provenance": {
     "commit": "1715a4a6b4bfa39e0a54314c103efe388afe05e9",
@@ -206,10 +206,83 @@
     "06_feature_explorer_nested"
   ],
   "remaining": [
-    "Refresh the real CV and ML runs used by lesson 41",
-    "Stage all lesson scenes from current captures",
-    "Render and verify narration, captions, video, browser and mobile",
-    "Audible pronunciation acceptance",
-    "Publish only with the complete accepted refresh"
+    "Audible narration acceptance",
+    "Full language/voice and caption acceptance",
+    "Publish only with the completed refreshed tutorial set"
+  ],
+  "composition": {
+    "directory": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-current/captures/classify_current_verified_overview",
+    "scene_count": 11,
+    "source_acceptance_sha256": "06e293a98b4fc50b1a29e0bef2ff453919e7fe0ee74cffeca7761cf3d832906a",
+    "lesson_sha256": "01c17e446900373ddea37d5201fe75d053fc88aa1d252f749d88315110542445",
+    "models_rerun": false,
+    "different_labels_and_subsets_not_a_family_benchmark": true,
+    "pixels_rewritten": false
+  },
+  "videos": [
+    {
+      "file": "41_classify_silent.mp4",
+      "sha256": "155c3bdff7123cb58677ce15fab114ae9ec533eee5de46e93a78ace665ffe760",
+      "duration": 235.9,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "8b5af0486a4494043af3df92b62c58696ae72e1a126441dc9573fe93bcd81b98",
+      "duration": 236.0,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "8a163e247385b16c620d4bd5a2e76ed3cc06fa59bbc6e6cbf67194eb1632ab49",
+    "freshness_timing_activity": "passed"
+  },
+  "browser": {
+    "lesson": "41_classify",
+    "scope": "en/af_heart playback and scene links only",
+    "uploaded": false,
+    "translation_or_listening_review": false,
+    "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+    "navigation_contains_staged_lesson": true,
+    "example_files": [],
+    "loaded_audio_sha256": "8a163e247385b16c620d4bd5a2e76ed3cc06fa59bbc6e6cbf67194eb1632ab49",
+    "scene_count": 11,
+    "seek_playback_clocks": {
+      "audio": 107.316966,
+      "video": 106.991911,
+      "expectedVideo": 107.31014254879936,
+      "audioDuration": 236,
+      "videoDuration": 235.9,
+      "mediaError": null
+    },
+    "chapter_and_transcript_links": [
+      "05_home",
+      "06_api",
+      "07_mask",
+      "08_measure",
+      "09_annotate",
+      "10_classify_cv",
+      "11_classify_ml",
+      "16_activation",
+      "28_training_runs",
+      "39_classifier_evaluation",
+      "65_feature_explorer",
+      "70_explain_cv"
+    ],
+    "passed": true,
+    "evidence_sha256": "1b1b5518ee0ea17a05e4398bf0ebc389c65e47fa9eb4a407b4c5415cc326d35c"
+  },
+  "encoded_visual_review": [
+    "First scene: current Classify Home tile, dark mode and Blobs",
+    "Expanded ML heatmap: complete axes and color scale inside the highlight",
+    "Explain CV tooltip: actual route and complete tooltip inside the highlight"
   ]
 }
