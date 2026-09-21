@@ -20,13 +20,19 @@ def require_preserved(before, after):
 
 def record_annotation(app, window, screen, stage, captures, capture, settle,
                       write_json, timeout):
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox
     from spacr.qt.screens.annotate import _SettingsDialog
     from spacr.qt.widgets.fold_strip import FoldButton
 
-    source = Path.home() / '.cache/spacr/example_data/plate1'
+    # capture_refresh binds this private dataset onto the downloader's cache.
+    # Open its neutral recording path in the real picker so no account name
+    # appears in the footage; the files and application loader are identical.
+    source = Path(stage) / 'example_data/plate1'
+    cache = Path.home() / '.cache/spacr/example_data/plate1'
+    if not source.is_dir() or not cache.is_dir() or not source.samefile(cache):
+        raise RuntimeError('Annotate requires the isolated recording cache')
     database = source / 'measurements/measurements.db'
     if not database.is_file():
         raise RuntimeError('Download the real Annotate example first')
@@ -56,6 +62,15 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
 
     before = snapshot()
     write_json(captures / 'annotation_originals.json', before)
+    # The genuine downloader reports its account-specific cache location.
+    # Preserve that transcript privately, then start this annotation segment
+    # with a fresh console. The subsequent Open source action and all label
+    # operations emit their own unmodified messages at the neutral path.
+    write_json(captures / 'console_before_annotation.json', {
+        'text': screen._console.as_text(),
+        'reason': 'New annotation segment after the cached-data chooser',
+    })
+    screen._console.clear()
 
     def wait_for(predicate, label):
         deadline = time.monotonic() + timeout
@@ -112,6 +127,11 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     def choose_source(dialog):
         if not isinstance(dialog, QFileDialog):
             raise RuntimeError('Open source did not open the folder picker')
+        # Navigate the actual picker before recording it. Merely typing the
+        # path leaves its location bar displaying the launch directory.
+        dialog.setDirectory(str(source))
+        dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
+        settle()
         dialog.resize(1300, 950)
         edit = dialog.findChild(QLineEdit, 'fileNameEdit')
         if edit is None:
@@ -264,12 +284,14 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     settle()
     if not screen._console.isVisible():
         raise RuntimeError('The Console switch did not reveal the actual console')
+    write_json(captures / 'annotation_console.json', {'text': screen._console.as_text()})
     capture('18_annotation_console')
     require_preserved(before, snapshot())
     if query(f'SELECT count(*) FROM png_list WHERE "{annotation}" IS NOT NULL')[0][0] != 0:
         raise RuntimeError('The demonstration left a label in the new column')
     write_json(captures / 'annotation_tour.json', {
         'accepted': True, 'source': str(source), 'database': str(database),
+        'console_reset_before_annotation': True,
         'source_png_count': len(source_images), 'rows': before['row_count'],
         'visible_crops': len(screen._page_paths), 'annotation_column': annotation,
         'demonstration_label': {'png_path': first_path, 'persisted_transitions': [None, 1, None]},

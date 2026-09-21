@@ -4166,3 +4166,11 @@ five offered modules and their shared construction branch, while retaining
 all four actual builder checks. The whole file passes: 30 tests in 25.59 s.
 The fixed-snapshot full run retains its original failure status and continues;
 this focused repair is separate evidence, not a retroactively green full run.
+
+2026-09-21 — CODEX: FIXED COVERAGE MEASUREMENT CONTINUES
+--------------------------------------------------------------------------------
+The unchanged 3d9eb57c5 full-run snapshot reached batch 26/95 while French
+translation and CPU Annotate recording progressed. Data remain durable under
+codex-artifacts-20260921/coverage. No baseline update or full-run pass is claimed.
+Nightly has since gained Plaque Assay code, so final integration must account
+for that source growth rather than treating this older snapshot as current.

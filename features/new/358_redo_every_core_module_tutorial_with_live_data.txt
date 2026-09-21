@@ -2050,3 +2050,21 @@ The full narration matrix continues on CPU. These are local review candidates:
 audible pronunciation, captions/browser/mobile checks, remaining live-data
 core lessons and final Make Masks FEATURES integration remain open. Nothing
 was published to the live tutorial site.
+
+2026-09-21 — CODEX: CURRENT ANNOTATE CAPTURE AND STAGING
+--------------------------------------------------------------------------------
+Captured 25 native 3840x2160 frames of real Annotate on 2341 exported example
+crops, in dark mode with Blobs. Twenty lesson scenes are staged, with focus
+rectangles taken from the actual dialogs. The real label save path proves
+null -> class 1 -> null across Next/Back; all prior columns and pixels remain
+unchanged. No training, generated biological label or AI response is claimed.
+The private preparation helper relocates only image-path references, validates
+every image and preserves every other value. Its tests cover the biological
+rowID/SQLite row-identity distinction, external-image refusal and private-path
+refusal. The picker and console now use neutral paths; the downloader's earlier
+transcript is archived privately before the new annotation segment. The actual
+folder dialog, crop grid and console were visually inspected. Receipt:
+ tools/tutorials/evidence/2026-09-21-annotate-current-capture.json.
+Narrated master rendering and language/voice/browser acceptance remain; no
+live media was published. Annotate's English af_heart narration is rendering
+on CPU in the durable annotate-verified staging tree.

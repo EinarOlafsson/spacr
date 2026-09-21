@@ -1,0 +1,269 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "native_capture_and_english_visuals_staged_not_published",
+  "source_commit": "46d11afaf0b9c00c23bd58aad19705b6cc352da0",
+  "version": "1.5.0.8",
+  "artifact_root": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/annotate-verified",
+  "capture": "annotate_current_20260921_v7",
+  "appearance": {
+    "theme": "dark",
+    "backdrop": "blobs"
+  },
+  "gpu_used": false,
+  "rows": 2341,
+  "source_png_count": 2341,
+  "original_columns_and_pixels_preserved": true,
+  "persisted_label_transitions": [
+    null,
+    1,
+    null
+  ],
+  "data_preparation": {
+    "changed_columns": [
+      "png_path"
+    ],
+    "source_written": false,
+    "existing_values_sha256": "8ee2a4a96ecef7d59bd6407fadf80eb46b5f9776519cfa69c8d45146344051a5",
+    "image_manifest_sha256": "67f81640db9d39e33d7fe26a2a87d5835e3ed799103f44adfc2e7d673ab21b7c"
+  },
+  "console_reset_before_annotation": true,
+  "private_preceding_transcript_archived": true,
+  "training_started": false,
+  "synthetic_images": false,
+  "ai_prompt_submitted": false,
+  "frames": {
+    "00_home": {
+      "sha256": "6c82ef99844d2fe05b487480377444fdfcceb63d63ebdc1d11fa9a1c742a4a7c",
+      "image": "00_home.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 25
+      }
+    },
+    "01_module": {
+      "sha256": "5dc71e219e3b457ef9cf23e48a8eb67e861c1c440d31fd10a8e88fe8ad9ea27e",
+      "image": "01_module.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 92
+      }
+    },
+    "02_cached_load": {
+      "sha256": "5820da4919fc0b68e11b2e12526488a66424775adb4da6eeb4dbe3e85d9dfc6f",
+      "image": "02_cached_load.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 120
+      }
+    },
+    "02_data_choice_load": {
+      "sha256": "b8593f1fa015ca0d0845a063e88807d721c54d6fb314a8040274be1467116d83",
+      "image": "02_data_choice_load.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 140
+      }
+    },
+    "02_data_choice_stream": {
+      "sha256": "37820541741b9abdab73e9336b5f020716dd3a5401f781e40512fbec49e7f33a",
+      "image": "02_data_choice_stream.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 158
+      }
+    },
+    "03_data_ready": {
+      "sha256": "1f7552a5eaf806171d38c48854a3a240cb853f8a87c953868700745c246948a6",
+      "image": "03_data_ready.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 212
+      }
+    },
+    "04_open_source_dialog": {
+      "sha256": "d07a7f4e2494090cbad169821e80d42eb8c2107c317bb793604d7a7e76436ef4",
+      "image": "04_open_source_dialog.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 244
+      }
+    },
+    "05_loaded_crops": {
+      "sha256": "b045e4e7eef8633a8f0389f64233b974ba2df54d6ef0e48079486f4a6b2db81b",
+      "image": "05_loaded_crops.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 280
+      }
+    },
+    "06_annotation_settings": {
+      "sha256": "41a376c250e86c003b36a2e12fbff7a9b60e3ec0cc8ff646383ecc08111fd674",
+      "image": "06_annotation_settings.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 304
+      }
+    },
+    "07_new_annotation_column": {
+      "sha256": "65fe0b6d6b6e88ee527776313e15d9551a47d0e384557fcb69f271ec556f5548",
+      "image": "07_new_annotation_column.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 340
+      }
+    },
+    "08_class_one_pending": {
+      "sha256": "b9b174c35c5135bd3e0e007216fcffdaaf277e8fb92c87feb1bcdb5c42bfe676",
+      "image": "08_class_one_pending.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 358
+      }
+    },
+    "08_next_page_saved": {
+      "sha256": "7344da79bb24b7b5c3346927425b02f0062209bbc017cecf798f02915c00096c",
+      "image": "08_next_page_saved.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 410
+      }
+    },
+    "08_class_one_saved": {
+      "sha256": "059123882d5d1ededdb08a20e0106530b59a768ccf49c3c3acd1274237efbad7",
+      "image": "08_class_one_saved.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 446
+      }
+    },
+    "09_class_counts": {
+      "sha256": "5d19a745779938015374da6932f64ff54cca5523f4026f1d67420c381b2f6ff9",
+      "image": "09_class_counts.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 464
+      }
+    },
+    "09_annotation_coverage": {
+      "sha256": "c27b8a499d713f7343089a696d5c603a02ba24e243c08bffabbc993635067516",
+      "image": "09_annotation_coverage.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 498
+      }
+    },
+    "10_class_cleared": {
+      "sha256": "eb235659b7e9c5572a85f4617bfbaa67f03ff3699a026a7bdf8cc419300deb8c",
+      "image": "10_class_cleared.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 592
+      }
+    },
+    "11_display_colour_settings": {
+      "sha256": "8269d479d9a419ca942ed24b067cc35da6c45e4b6bd1656072b71e1006c9f95c",
+      "image": "11_display_colour_settings.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 620
+      }
+    },
+    "12_cmy_view": {
+      "sha256": "fb08b4a627a75cec453f7d493878fb9f5040277771779afa6b7d4c51ea0420e0",
+      "image": "12_cmy_view.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 660
+      }
+    },
+    "13_restore_rgb_settings": {
+      "sha256": "fa3ccdc89f2ab8438b82f926115adf60794b5a7a53bc0493477dfb79125c2904",
+      "image": "13_restore_rgb_settings.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 688
+      }
+    },
+    "14_restored_rgb": {
+      "sha256": "828abb254f8d82306fe62cd3013f838b9aeb24eec4325c8190678849d92db2d1",
+      "image": "14_restored_rgb.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 728
+      }
+    },
+    "15_agreement_fold": {
+      "sha256": "7d9c9052377c123f284564d87297457e3599d338259ca35e5670fa4c0cf84eb5",
+      "image": "15_agreement_fold.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 756
+      }
+    },
+    "16_training_routes": {
+      "sha256": "55bb8c880e5aece0638139e033cafe695cbaf3ef5849ccedff3e5258aae0f38e",
+      "image": "16_training_routes.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 774
+      }
+    },
+    "17_generate_database_entry": {
+      "sha256": "9687ef38835e408867efa504ace9469347af7b192b247b1f998558a7cf2511f8",
+      "image": "17_generate_database_entry.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 806
+      }
+    },
+    "18_annotation_console": {
+      "sha256": "e4cfeee29e76003b598f445b57251f3e1cc6cac384503f80287504e99bbf85a7",
+      "image": "18_annotation_console.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 828
+      }
+    },
+    "30_ai_unsent_question": {
+      "sha256": "12be53fc81b151905a10c0460074dda8d018423bdd9962d05382422fc3c39202",
+      "image": "30_ai_unsent_question.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 846
+      }
+    }
+  },
+  "scene_count": 20,
+  "remaining": [
+    "Render and review the narrated master",
+    "Language/voice and captions acceptance",
+    "Browser/mobile acceptance",
+    "Publish only with the completed refreshed tutorial set"
+  ]
+}

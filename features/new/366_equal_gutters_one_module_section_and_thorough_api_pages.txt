@@ -851,3 +851,13 @@ That was the last thing on this item that was not a translation. 366 is code
 complete; what remains is the consolidated i18n pass for this page, the 22
 new UI captions, the "Loading stopped" heading and the one new public
 docstring `spacr.crops.quiet_crop_paths`.
+
+2026-09-21 — CODEX TRANSLATION LANE: FRENCH RUNTIME ROWS REVIEWED
+--------------------------------------------------------------------------------
+French joins German, Spanish and Swedish as passing the full runtime audit at
+the 46d11afaf source boundary. Its scientific controls and help now have
+source-bound reviewed wording, including preserved model/parameter names and
+format fields. The wider nine-language/API pass remains under future/411;
+newer nightly source additions require their own audit. No non-translation
+implementation or decision in this item was changed. Review details are in
+docs/i18n/2026-09-21-runtime-french-recovery.md.

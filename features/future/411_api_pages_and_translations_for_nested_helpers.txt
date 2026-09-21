@@ -889,3 +889,16 @@ After regeneration, all four existing reporter tests pass (127.44 s), alongside
 the three source/syntax tests. The generated feature index also passes its
 consistency check. These results cover the checkpoint reports, not the still
 red complete runtime/API translation work.
+
+2026-09-21 — CODEX: FRENCH RUNTIME RECOVERY
+--------------------------------------------------------------------------------
+French now has 313 additional source-bound reviewed sources: 308 scientific/UI
+entries (244 draft corrections, 64 retentions) and five action labels. All 670
+reviewed French sources retain the earlier 357 by explicit subtraction in the
+regression test. Removed 42 catalog keys whose English no longer exists. The
+full locale audit passes against the 46d11afaf source boundary at 985 settings,
+194 categories, 3824 UI sources and 68 summaries. See
+ docs/i18n/2026-09-21-runtime-french-recovery.md.
+This checkpoint must incorporate the newer nightly Plaque Assay sources before
+claiming a current-tree audit result; those additions are not covered by the
+older green result. Five other locales and API translation debt remain open.

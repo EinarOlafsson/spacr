@@ -71,7 +71,7 @@ table derives them from the same source the builders read.
 | Hindi | 430 | 7.09% | 5,631 | 747 | 6.77% | 10,294 |
 | Korean | 549 | 9.06% | 5,512 | 820 | 7.43% | 10,221 |
 | Icelandic | 498 | 8.22% | 5,563 | 1,316 | 11.92% | 9,725 |
-| French | 357 | 5.89% | 5,704 | 734 | 6.65% | 10,307 |
+| French | 670 | 11.05% | 5,391 | 734 | 6.65% | 10,307 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven

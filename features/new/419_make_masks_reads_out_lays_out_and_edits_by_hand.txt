@@ -1062,3 +1062,13 @@ table cells, fields from runs, and shrinking from removing labels. The
 complete Spanish runtime audit passes with 642 source-bound reviewed texts.
 This changes translations only; the application's outstanding UI issues and
 final tutorial recording remain separate work.
+
+2026-09-21 — CODEX TRANSLATION LANE: FRENCH RUNTIME ROWS REVIEWED
+--------------------------------------------------------------------------------
+French joins German, Spanish and Swedish as passing the full runtime audit at
+the 46d11afaf source boundary. Its scientific controls and help now have
+source-bound reviewed wording, including preserved model/parameter names and
+format fields. The wider nine-language/API pass remains under future/411;
+newer nightly source additions require their own audit. No non-translation
+implementation or decision in this item was changed. Review details are in
+docs/i18n/2026-09-21-runtime-french-recovery.md.

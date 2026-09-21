@@ -54,6 +54,21 @@ The new frames and catalog wording are work in progress, not published
 videos. GPU rendering/translation must wait for 20 consecutive observed idle
 minutes. Source-bound receipts in `evidence/` identify completed captures.
 
+Annotate's recorder opens `stage/example_data/plate1`, which must be the same
+private dataset bound onto the downloader cache. For existing exported crops,
+`prepare_annotation_capture.py --source <real-project> --destination
+<private-stage>/example_data/plate1 --visible-source
+/tmp/spacr-tutorials-current/example_data/plate1` makes a verified copy and
+relocates only `png_list.png_path`. It preserves labels, row identities and
+image bytes; SQLite's biological `rowID` column must not be mistaken for its
+internal row identifier. Bind the durable stage at the neutral visible path
+inside the recording namespace. Launch all Python through the memory guard.
+The picker uses that directory and a neutral sidebar shortcut. The preceding
+download transcript is archived privately before a fresh annotation segment;
+source-opening and label-save messages in that segment are unmodified.
+The 21 September Annotate receipt records 25 native frames and 20 staged
+scenes, including a real persisted null → class 1 → null label transition.
+
 ### Map Barcodes — 13 September
 
 Lesson 12 now records the current Home module using the real downloadable

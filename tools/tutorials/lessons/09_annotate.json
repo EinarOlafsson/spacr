@@ -22,19 +22,34 @@
     },
     {
       "visual": "02_data_choice_load",
-      "focus": [1680, 914, 460, 393],
+      "focus": [
+        1680,
+        914,
+        460,
+        393
+      ],
       "narration": "Choose Load test data, then inspect the two routes. Load supplies exported image crops and a database. The example contains two thousand three hundred and forty-one PNG crops. This recording reuses the complete downloaded cache; it does not invent images or labels.",
       "hold_after": 0.7
     },
     {
       "visual": "02_data_choice_stream",
-      "focus": [1680, 914, 460, 393],
+      "focus": [
+        1680,
+        914,
+        460,
+        393
+      ],
       "narration": "Stream supplies merged image arrays and the database for obtaining crops on demand. Choose the route that matches how you want to read images; downloading one is not evidence that you have the other. We use Load throughout this demonstration.",
       "hold_after": 0.7
     },
     {
       "visual": "04_open_source_dialog",
-      "focus": [1577, 810, 1300, 950],
+      "focus": [
+        1439,
+        810,
+        1300,
+        950
+      ],
       "narration": "If the grid still says no source selected after the download, choose Open source. Select the plate folder containing the measurements subfolder and its database, not the database file itself. This is the real extra step needed by the application build shown here.",
       "hold_after": 0.7
     },
@@ -45,7 +60,12 @@
     },
     {
       "visual": "06_annotation_settings",
-      "focus": [1536, 309, 748, 1462],
+      "focus": [
+        1536,
+        309,
+        748,
+        1462
+      ],
       "narration": "Open Settings and create a separate annotation column for this demonstration. Keep the original labels intact. Before real work, document what each class means and agree on a consistent view; the example label we will assign is only a test of the save path.",
       "hold_after": 0.7
     },
@@ -66,13 +86,23 @@
     },
     {
       "visual": "09_class_counts",
-      "focus": [1768, 972, 285, 136],
+      "focus": [
+        1768,
+        972,
+        285,
+        136
+      ],
       "narration": "Class counts now reports one saved example in class one. Counts help reveal imbalance, but a single demonstration label is not a training set and says nothing about biological accuracy. Keep machine suggestions separate from reviewed answers.",
       "hold_after": 0.7
     },
     {
       "visual": "09_annotation_coverage",
-      "focus": [1450, 730, 920, 620],
+      "focus": [
+        1450,
+        730,
+        920,
+        620
+      ],
       "narration": "Coverage asks where the annotations came from, not just how many exist. Review representation across the groups shown in the report before training. One labelled crop cannot establish representative coverage, even when the software correctly records it.",
       "hold_after": 0.7
     },
@@ -83,7 +113,12 @@
     },
     {
       "visual": "11_display_colour_settings",
-      "focus": [1536, 309, 748, 1462],
+      "focus": [
+        1536,
+        309,
+        748,
+        1462
+      ],
       "narration": "Settings also controls the view. Channel colours changes the display palette; Display order changes which source channel occupies each colour slot. These are not instructions to rewrite a file's channel order. Here we select CMY, then return to RGB.",
       "hold_after": 0.7
     },
@@ -95,15 +130,27 @@
     {
       "visual": "15_agreement_fold",
       "narration": "Annotator Agreement now lives at the right of Annotate's header. Hover over the icon to identify it. Keep the existing specialist tutorial for comparing annotation columns and investigating disagreements; it is linked here rather than repeated as another Home-module lesson.",
-      "focus_buttons": "FoldButton", "hold_after": 0.7,
-      "related_lessons": ["23_agreement"]
+      "focus_buttons": "FoldButton",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "23_agreement"
+      ]
     },
     {
       "visual": "16_training_routes",
-      "focus": [1836, 204, 416, 80],
+      "focus": [
+        1836,
+        204,
+        416,
+        80
+      ],
       "narration": "Train now opens a menu with two routes: the images, using a neural image classifier, or the measured features, using boosted trees. Follow the linked computer-vision and machine-learning lessons inside Classify. We are showing the routes only; no training was started with this empty demonstration column.",
       "hold_after": 0.7,
-      "related_lessons": ["41_classify", "10_classify_cv", "11_classify_ml"]
+      "related_lessons": [
+        "41_classify",
+        "10_classify_cv",
+        "11_classify_ml"
+      ]
     },
     {
       "visual": "14_restored_rgb",
@@ -114,7 +161,10 @@
       "visual": "17_generate_database_entry",
       "narration": "Generate annotation database is now available here for creating an annotation crop set from suitable source data. The downloaded Load example already has its database and crops, so we do not generate another set. Scripted generation uses generate_annotation_dataset in the annotation-dataset module; consult the current API for its required inputs.",
       "hold_after": 0.7,
-      "related_lessons": ["06_api", "08_measure"]
+      "related_lessons": [
+        "06_api",
+        "08_measure"
+      ]
     },
     {
       "visual": "18_annotation_console",

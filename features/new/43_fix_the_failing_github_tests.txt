@@ -1729,3 +1729,12 @@ are regenerated from the actual sources and evidence in this checkpoint.
 The exact reporter rerun passes all four tests (127.44 s); the three existing
 source/syntax tests also pass. The generated feature index is current. The
 remaining full-runtime/API failures are still recorded, so docs stays open.
+
+2026-09-21 — CODEX DOCS LANE: FRENCH REVIEW RECOVERED
+--------------------------------------------------------------------------------
+313 new French reviewed sources and 42 obsolete-key removals complete the
+French runtime repair at the pre-integration 46d11afaf source boundary; the
+full locale audit passes there. This is the fourth locale to pass that audit.
+The newer Plaque Assay changes on nightly need a fresh audit; neither that
+source growth nor the API backlog is hidden by this result. Other CI ownership
+stays with Claude. Details: docs/i18n/2026-09-21-runtime-french-recovery.md.

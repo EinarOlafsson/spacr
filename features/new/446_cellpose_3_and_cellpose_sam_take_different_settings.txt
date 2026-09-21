@@ -153,3 +153,13 @@ and the distinction between CPSAM and Cellpose 3 checkpoints. The reviewed
 source-bound rows are in es/2026-09-21-scientific-settings.json under
  docs/i18n/reviewed/runtime. This does not claim the real GPU run owed above
 or completion of every locale; no scientific code or model was changed.
+
+2026-09-21 — CODEX TRANSLATION LANE: FRENCH RUNTIME ROWS REVIEWED
+--------------------------------------------------------------------------------
+French joins German, Spanish and Swedish as passing the full runtime audit at
+the 46d11afaf source boundary. Its scientific controls and help now have
+source-bound reviewed wording, including preserved model/parameter names and
+format fields. The wider nine-language/API pass remains under future/411;
+newer nightly source additions require their own audit. No non-translation
+implementation or decision in this item was changed. Review details are in
+docs/i18n/2026-09-21-runtime-french-recovery.md.

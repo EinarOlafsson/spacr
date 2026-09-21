@@ -8831,3 +8831,19 @@ decode and the three 01/04/05 audio tracks pass exact-source freshness/timing/
 activity checks. Durable receipt and 358/447/286 notes name remaining audible,
 full-matrix, browser/caption and live-data acceptance work. No live tutorial
 media was published. GPU remains occupied by other jobs.
+
+2026-09-21 — CODEX: FRENCH RECOVERY AND ANNOTATE CAPTURE CHECKPOINT
+--------------------------------------------------------------------------------
+French has 313 newly reviewed sources, 670 total, and 42 obsolete catalog keys
+removed. Its full runtime audit passes against application boundary 46d11afaf;
+newer Plaque Assay source growth on nightly is being integrated and re-audited.
+Updated 411/43 docs and the owed translation notes in 364/366/419/421/435/446/448.
+Captured and staged 20 Annotate scenes from 25 real native-4K frames on 2341
+crops, with an actual saved null/1/null annotation and original-data proof.
+Updated 358/447 and added the capture receipt; audio/master acceptance remains.
+New helper prepares a private path-relocated copy and explicitly uses SQLite
+_rowid_: the biological rowID shadows rowid and must never key path updates.
+Coverage remains on fixed 3d9eb57c5, batch 26/95; 01/04/05 CPU narration reached
+79/150. The GPU monitor still sees another session's compute job; no GPU work
+was launched. All artifacts remain on the durable filesystem. No new item
+numbers or production behavior outside the assigned lanes were changed.

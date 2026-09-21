@@ -357,3 +357,10 @@ narrated previews fully decode; the exact-source audio/timing checks pass.
 Durable artifact hashes are in tutorial evidence/
 2026-09-21-post-reboot-home-installers.json. Bullet 7 remains open for the full
 voice matrix, audible and browser/caption acceptance, and paired publication.
+
+2026-09-21 — CODEX: CPU NARRATION MATRIX CONTINUES
+--------------------------------------------------------------------------------
+The durable 01/04/05 language/voice render reached 79/150 new tracks. Current
+04/05 video candidates remain private and verified as recorded in the previous
+receipt. Full matrix verification, audible pronunciation and player acceptance
+remain; this item is not closed. No GPU job was started.

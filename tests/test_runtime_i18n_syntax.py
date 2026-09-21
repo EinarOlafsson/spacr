@@ -258,6 +258,34 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     )
 
     all_reviewed = reviewed_runtime_translations("fr")
+    refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                          "2026-09-21-runtime-first-slice.json").read_text())
+    refresh_sources = {record["source"] for record in refresh["records"]}
+    assert len(refresh["records"]) == len(refresh_sources) == 80
+    assert refresh_sources <= all_reviewed.keys()
+    second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                         "2026-09-21-runtime-second-slice.json").read_text())
+    second_sources = {record["source"] for record in second["records"]}
+    assert len(second["records"]) == len(second_sources) == 74
+    assert second_sources <= all_reviewed.keys()
+    assert not refresh_sources & second_sources
+    refresh_sources |= second_sources
+    for filename, expected in (("third", 75), ("fourth", 79)):
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                               f"2026-09-21-runtime-{filename}-slice.json").read_text())
+        added = {record["source"] for record in document["records"]}
+        assert len(document["records"]) == len(added) == expected
+        assert added <= all_reviewed.keys()
+        assert not added & refresh_sources
+        refresh_sources |= added
+    assert len(refresh_sources) == 308
+    actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                          "2026-09-21-action-labels.json").read_text())
+    action_sources = {record["source"] for record in actions["records"]}
+    assert len(actions["records"]) == len(action_sources) == 5
+    assert action_sources <= all_reviewed.keys()
+    assert not action_sources & refresh_sources
+    refresh_sources |= action_sources
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                             "2026-09-21-assay-and-plate-examples.json").read_text())
     example_sources = {record["source"] for record in examples["records"]}
@@ -276,9 +304,11 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert normalized_sources <= all_reviewed.keys()
     assert not normalized_sources & (example_sources | preview_sources)
     download_sources = _new_download_sources("fr", all_reviewed)
-    older_all_sources = all_reviewed.keys() - download_sources
+    assert not refresh_sources & (download_sources | example_sources |
+                                  preview_sources | normalized_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources | preview_sources | normalized_sources | download_sources}
+                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -425,7 +455,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 336
     assert len(older_all_sources - normalized_sources) == 341
     assert len(older_all_sources) == 346
-    assert len(all_reviewed) == 357  # +9 Import and +2 synthetic Invasion.
+    assert len(all_reviewed.keys() - refresh_sources) == 357
+    assert len(all_reviewed) == 670  # +308 reviewed sources and five action labels.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

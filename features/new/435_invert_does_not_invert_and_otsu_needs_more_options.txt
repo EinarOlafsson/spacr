@@ -517,3 +517,13 @@ object-boundary and magnifier wording. Protected quoted controls and model
 identifiers survive, and dimmer objects are described by intensity rather
 than size. The full Spanish runtime audit passes at 3824 UI sources. No
 segmentation behavior changed; other-language and API debt stays with 411.
+
+2026-09-21 — CODEX TRANSLATION LANE: FRENCH RUNTIME ROWS REVIEWED
+--------------------------------------------------------------------------------
+French joins German, Spanish and Swedish as passing the full runtime audit at
+the 46d11afaf source boundary. Its scientific controls and help now have
+source-bound reviewed wording, including preserved model/parameter names and
+format fields. The wider nine-language/API pass remains under future/411;
+newer nightly source additions require their own audit. No non-translation
+implementation or decision in this item was changed. Review details are in
+docs/i18n/2026-09-21-runtime-french-recovery.md.

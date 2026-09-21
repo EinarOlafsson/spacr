@@ -2995,3 +2995,13 @@ column names, defaults and scientific meaning. All 39 pass the current gates.
 Record: docs/i18n/reviewed/runtime/es/2026-09-21-scientific-settings.json.
 This is a bounded Spanish slice; the complete nine-language debt remains open.
 The non-translation decisions in this item remain with Claude.
+
+2026-09-21 — CODEX TRANSLATION LANE: FRENCH RUNTIME ROWS REVIEWED
+--------------------------------------------------------------------------------
+French joins German, Spanish and Swedish as passing the full runtime audit at
+the 46d11afaf source boundary. Its scientific controls and help now have
+source-bound reviewed wording, including preserved model/parameter names and
+format fields. The wider nine-language/API pass remains under future/411;
+newer nightly source additions require their own audit. No non-translation
+implementation or decision in this item was changed. Review details are in
+docs/i18n/2026-09-21-runtime-french-recovery.md.
