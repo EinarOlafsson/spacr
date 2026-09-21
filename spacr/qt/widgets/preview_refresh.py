@@ -85,7 +85,7 @@ def install_refresh_button(screen: Any, card: Any, panel: Any,
     :param panel: the preview panel it reloads.
     :param panel_getter: asked for the panel at the click instead of
         ``panel``, for a card whose panel is built the first time the card
-        is shown (items 284/380) and so does not exist when the button does.
+        is shown and so does not exist when the button does.
     :returns: the button, or ``None`` when the card has no title row to take it.
     """
     add = getattr(card, "add_title_action", None)

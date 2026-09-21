@@ -66,7 +66,7 @@ class PreviewSpec:
         through this registry builds only its card at install --
         ``builder`` is called with ``panel_later=True`` -- and the panel the
         first time the card is shown or the panel is asked for, so a hidden
-        preview costs a module's open nothing (items 284/380).
+        preview costs a module's open nothing.
     """
     builder: str
     title: str = "Live preview"
@@ -89,7 +89,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
         builder="spacr.qt.widgets.timelapse_preview:"
                 "build_timelapse_preview_card",
         fill="spacr.qt.widgets.timelapse_preview:"
-             "fill_timelapse_preview_card",
+             "_fill_timelapse_preview_card",
         title="Track preview", owned_by_screen=True),
     "motility": PreviewSpec(
         builder="spacr.qt.widgets.motility_preview:"

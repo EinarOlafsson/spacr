@@ -2735,20 +2735,21 @@ def build_hyperparam_card(host, *, panel_later: bool = False):
     :param host: the :class:`AppScreen` asking for the card; its ``app_key``
         selects the parameter set.
     :param panel_later: return ``None`` for the panel and leave the card's
-        body empty. The screen fills it with :func:`fill_hyperparam_card`
+        body empty. The screen fills it with :func:`_fill_hyperparam_card`
         when the card is first shown, so a module whose search nobody opens
-        does not build and polish its ~130 widgets at open (items 284/380).
+        does not build and polish its ~130 widgets at open.
     :returns: ``(panel, card)``.
     """
-    from ..widgets.card import Card
-    card = Card(title="Hyperparameter search")
+    from ..widgets.card import Card, _CardBuiltWhenShown
+    card = (_CardBuiltWhenShown if panel_later else Card)(
+        title="Hyperparameter search")
     card.setMinimumHeight(320)
     if panel_later:
         return None, card
-    return fill_hyperparam_card(host, card), card
+    return _fill_hyperparam_card(host, card), card
 
 
-def fill_hyperparam_card(host, card):
+def _fill_hyperparam_card(host, card):
     """Build the search panel into a card from :func:`build_hyperparam_card`.
 
     :param host: the screen the card belongs to; its ``app_key`` selects the

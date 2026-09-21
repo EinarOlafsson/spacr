@@ -420,11 +420,11 @@ def results_panel(screen):
 def _results_panel_if_built(screen):
     """``screen``'s results panel if it exists yet; never builds one.
 
-    A Regression screen builds its results panel on first use (items
-    284/380). A panel that is not built has no run loaded, so a question
-    about the loaded run gets the same answer from its absence.
+    A Regression screen builds its results panel on first use. A panel
+    that is not built has no run loaded, so a question about the loaded
+    run gets the same answer from its absence.
     """
-    probe = getattr(screen, "results_panel_if_built", None)
+    probe = getattr(screen, "_results_panel_if_built", None)
     if callable(probe):
         return probe()
     return results_panel(screen)
@@ -649,7 +649,7 @@ def install_extras(screen: QWidget) -> bool:
     tab, the publication-figure entry and the one-family cut are on the
     panel whether or not a masthead could be found to hang buttons on.
 
-    A screen that builds its results panel on first use (items 284/380)
+    A screen that builds its results panel on first use
     runs this when the panel is built rather than building it here, so
     the extras arrive with the panel and a screen nobody has run yet does
     not pay for either. The Hit List module is still imported here, at
@@ -662,7 +662,7 @@ def install_extras(screen: QWidget) -> bool:
         return False
     from .hit_list import connect_investigation
 
-    later = getattr(screen, "when_results_are_built", None)
+    later = getattr(screen, "_when_results_are_built", None)
     if callable(later) and later(partial(install_extras, screen)):
         return True
     panel = results_panel(screen)

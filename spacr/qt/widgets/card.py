@@ -76,17 +76,52 @@ class Card(QFrame):
                                         persist_key=fold_key)
         self._outer = outer
         self._title_row = None
+    def add_title_action(self, widget: QWidget) -> None:
+        """Put ``widget`` at the right-hand end of the title row.
+
+        The title row is built on first use, so a card nobody adds an action
+        to keeps its original layout exactly.
+
+        :param widget: the control to add, e.g. a Refresh button.
+        """
+        if self._title_row is None:
+            from PySide6.QtWidgets import QHBoxLayout
+
+            row = QHBoxLayout()
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(SPACING["sm"])
+            if self.title_label is not None:
+                index = self._outer.indexOf(self.title_label)
+                self._outer.removeWidget(self.title_label)
+                row.addWidget(self.title_label)
+                row.addStretch(1)
+                self._outer.insertLayout(max(index, 0), row)
+            else:
+                row.addStretch(1)
+                self._outer.insertLayout(0, row)
+            self._title_row = row
+        self._title_row.addWidget(widget)
+
+
+class _CardBuiltWhenShown(Card):
+    """A :class:`Card` whose body can wait until the card is first shown.
+
+    A module screen is polished widget by widget against the whole
+    stylesheet when it opens, so every widget on it costs time whether or
+    not anybody can see it. A card that starts hidden -- a results panel
+    before there are results, a search panel behind its switch -- is the
+    largest share of that on the heavy screens, and nobody sees its body
+    until the card is shown. A plain ``Card`` in every respect otherwise,
+    ``Card`` rules in the stylesheet included.
+    """
+
+    def __init__(self, *args, **kwargs):
+        """Build the card with nothing waiting to fill it."""
+        super().__init__(*args, **kwargs)
         self._build_body = None
 
     def build_body_when_first_shown(self, build) -> None:
         """Defer filling this card's body until the card is first shown.
-
-        ITEMS 284 AND 380. A module screen is polished widget by widget
-        against the whole stylesheet when it opens, so every widget on it
-        costs time whether or not anybody can see it. A card that starts
-        hidden -- a results panel before there are results, a search panel
-        behind its switch -- is the largest share of that on the heavy
-        screens, and nobody sees its body until the card is shown.
 
         ``build`` runs ONCE, before the card becomes visible, from
         :meth:`setVisible`; :meth:`showEvent` is the belt to that brace for
@@ -130,29 +165,3 @@ class Card(QFrame):
         if self._build_body is not None:
             self.ensure_body_built()
         super().showEvent(event)
-
-    def add_title_action(self, widget: QWidget) -> None:
-        """Put ``widget`` at the right-hand end of the title row.
-
-        The title row is built on first use, so a card nobody adds an action
-        to keeps its original layout exactly.
-
-        :param widget: the control to add, e.g. a Refresh button.
-        """
-        if self._title_row is None:
-            from PySide6.QtWidgets import QHBoxLayout
-
-            row = QHBoxLayout()
-            row.setContentsMargins(0, 0, 0, 0)
-            row.setSpacing(SPACING["sm"])
-            if self.title_label is not None:
-                index = self._outer.indexOf(self.title_label)
-                self._outer.removeWidget(self.title_label)
-                row.addWidget(self.title_label)
-                row.addStretch(1)
-                self._outer.insertLayout(max(index, 0), row)
-            else:
-                row.addStretch(1)
-                self._outer.insertLayout(0, row)
-            self._title_row = row
-        self._title_row.addWidget(widget)

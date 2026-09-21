@@ -2599,25 +2599,26 @@ def build_timelapse_preview_card(host, *, panel_later: bool = False):
 
     :param host: the :class:`AppScreen` asking for the card.
     :param panel_later: return ``None`` for the panel and leave the card
-        empty, for :func:`fill_timelapse_preview_card` to fill the first
+        empty, for :func:`_fill_timelapse_preview_card` to fill the first
         time it is shown -- how Mask carries this preview for its folded
         Timelapse switch without building ~130 widgets nobody has asked to
-        see (items 284/380).
+        see.
     :returns: ``(panel, card)``.
     """
-    from .card import Card
+    from .card import Card, _CardBuiltWhenShown
     from .timelapse_movie import TimelapseMoviePanel  # noqa: F401
 
-    card = Card(title="Track preview")
+    card = (_CardBuiltWhenShown if panel_later else Card)(
+        title="Track preview")
     if panel_later:
         card.setMinimumHeight(320)
         return None, card
-    panel = fill_timelapse_preview_card(host, card)
+    panel = _fill_timelapse_preview_card(host, card)
     card.setMinimumHeight(320)
     return panel, card
 
 
-def fill_timelapse_preview_card(host, card):
+def _fill_timelapse_preview_card(host, card):
     """Build the track preview and its movie panel into ``card``.
 
     :param host: the screen the card belongs to; unused, and taken so every

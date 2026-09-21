@@ -33,7 +33,7 @@ from PySide6.QtWidgets import QLabel, QVBoxLayout, QWidget     # noqa: E402
 
 from spacr.qt.screens import app_screen                         # noqa: E402
 from spacr.qt.screens.app_screen import AppScreen               # noqa: E402
-from spacr.qt.widgets.card import Card                          # noqa: E402
+from spacr.qt.widgets.card import _CardBuiltWhenShown as Card    # noqa: E402
 
 
 @contextmanager
@@ -113,7 +113,7 @@ def test_regression_opens_without_its_results_panel(qtbot):
     assert screen._part_is_owed(app_screen._REGRESSION_RESULTS)
     assert not _has(screen, "RegressionResultsPanel")
     assert not _has(screen, "MeasurementScanPanel")
-    assert screen.results_panel_if_built() is None
+    assert screen._results_panel_if_built() is None
 
 
 def test_asking_for_the_results_panel_builds_all_of_it_once(qtbot):

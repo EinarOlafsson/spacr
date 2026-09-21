@@ -1427,7 +1427,7 @@ _MEASURE_PREVIEW = "measure preview"
 class _BuiltOnFirstUse:
     """A screen attribute whose widgets are built the first time it is used.
 
-    ITEMS 284 AND 380. Opening a module polishes every widget on its screen
+    Opening a module polishes every widget on its screen
     against the whole stylesheet, so a panel nobody can see yet still costs
     its share of the stall. The largest such panels -- Regression's results
     tabs, the hyperparameter search -- sit in a card that starts hidden,
@@ -5376,7 +5376,7 @@ class AppScreen(QWidget):
         waiting.setdefault(part, []).append(callback)
         return True
 
-    def results_panel_if_built(self):
+    def _results_panel_if_built(self):
         """Regression's results panel if it exists yet, WITHOUT building it.
 
         For a question an unbuilt panel answers the same way a fresh one
@@ -5385,7 +5385,7 @@ class AppScreen(QWidget):
         """
         return self._if_built("_results_panel")
 
-    def when_results_are_built(self, callback) -> bool:
+    def _when_results_are_built(self, callback) -> bool:
         """Run ``callback`` once Regression's results panel exists.
 
         :returns: ``True`` when it was queued behind the deferred build;
@@ -5693,9 +5693,9 @@ class AppScreen(QWidget):
         Deferred from the screen's open to the first time the card is
         shown or ``_hyperparam`` is used; see :class:`_BuiltOnFirstUse`.
         """
-        from .hyperparam import fill_hyperparam_card
+        from .hyperparam import _fill_hyperparam_card
 
-        panel = fill_hyperparam_card(self, self._hyperparam_card)
+        panel = _fill_hyperparam_card(self, self._hyperparam_card)
         self._hyperparam = panel
         panel.set_apply_callback(self._propagate_live_settings)
         panel.set_settings_provider(
@@ -5741,7 +5741,10 @@ class AppScreen(QWidget):
         layout.setSpacing(SPACING["md"])
 
         from ..widgets.figure_queue import FigureQueue
-        self._figures_card = Card(title="Figures")
+        from ..widgets.card import _CardBuiltWhenShown
+        self._figures_card = (
+            _CardBuiltWhenShown if self.app_key == "regression" else Card)(
+                title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
         #: The queue the regression results page holds, kept apart from
         #: ``_figure_queue`` because that name can be rebound before the
@@ -9998,10 +10001,13 @@ def _build_live_preview_card(host, *, panel_later: bool = False):
     ``model_name`` while the plaque run segments with ``plaque_model``.
     """
     from ..widgets.live_preview import LivePreviewPanel
+    if panel_later:
+        from ..widgets.card import _CardBuiltWhenShown
+        card = _CardBuiltWhenShown(title="Live preview")
+        card.setMinimumHeight(300)
+        return None, card
     card = Card(title="Live preview")
     card.setMinimumHeight(300)
-    if panel_later:
-        return None, card
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
     card.body_layout.addWidget(panel)
@@ -10013,7 +10019,7 @@ def _fill_live_preview_card(host, card):
     :func:`_build_live_preview_card`, and return the panel.
 
     Separate so a screen can build the card at open and the panel -- about
-    280 widgets -- the first time the card is shown (items 284/380). The
+    280 widgets -- the first time the card is shown. The
     card builder still imports the panel's module, so the widget blocks it
     registers reach the page's sheet at open as they always did.
     """
@@ -10029,10 +10035,13 @@ def _build_measure_preview_card(host, *, panel_later: bool = False):
     layout). Mirrors the Mask live preview but shows object crops from a merged
     array, tuned with the crop settings the Measure run will use."""
     from ..widgets.measure_preview import MeasurePreviewPanel
+    if panel_later:
+        from ..widgets.card import _CardBuiltWhenShown
+        card = _CardBuiltWhenShown(title="Crop preview")
+        card.setMinimumHeight(300)
+        return None, card
     card = Card(title="Crop preview")
     card.setMinimumHeight(300)
-    if panel_later:
-        return None, card
     panel = MeasurePreviewPanel(card)
     card.body_layout.addWidget(panel)
     return panel, card

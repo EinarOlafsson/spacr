@@ -2424,7 +2424,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # Restoring its complete baseline row also restores the 17,228 total.
     # 17,225 -> 17,883 on 2026-09-20, the parameters of the 349 new
     # callables; see the note at the inventory total.
-    assert sum(len(item.parameters) for item in callables) == 18_311
+    # 18,311 -> 18,315 on 2026-09-21, +4, all optional keywords on existing
+    # callables, none a new callable: build_hyperparam_card and
+    # build_timelapse_preview_card gain panel_later=False,
+    # install_refresh_button gains panel_getter=None, and PreviewSpec gains
+    # the field fill="" -- the hidden panels a module now builds when their
+    # card is first shown. The required sum below does not move.
+    assert sum(len(item.parameters) for item in callables) == 18_315
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2525,7 +2531,15 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # REGENERATED 2026-09-20 with the counts above, all of which rose
     # and none of which fell. What this digest is for is unchanged: a
     # row that changes without any count changing still moves it.
-) == "8215ebecd8f9418b265b291d7f9e33c4543f2a34ec0bdea4854bda85ff036d46"
+    #
+    # Moved 2026-09-21 for the hidden panels built on first show, PROVED by
+    # subtraction on the full inventory against origin/nightly f76e0ecd2:
+    # no symbol arrived or left, exactly four rows changed -- PreviewSpec,
+    # build_hyperparam_card, install_refresh_button and
+    # build_timelapse_preview_card, each gaining one optional keyword --
+    # and restoring those four baseline rows returns 8215ebec..., the
+    # previous pin, byte for byte.
+) == "3b46c411453095932962eae0497b58d4dba439f6de3b164eb0cf3ed95fe7331e"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
