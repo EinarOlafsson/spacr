@@ -5715,6 +5715,14 @@ UI = {
     '＋ Mask': '+ Maska',
     '＋ Points': '+ Nokkrar',
     '＋ Shapes': '+ Hönnun',
+    'Features': 'Eiginleikar',
+    'Magnifier could not add objects: {error}': 'Stækkunarglerið gat ekki bætt við hlutum: {error}',
+    'Magnifier could not segment this region: {error}': 'Stækkunarglerið gat ekki skipt þessu svæði í hluti: {error}',
+    'Object {label}   area {area} px   mean intensity {mean}': 'Hlutur {label}   flatarmál {area} px   meðalstyrkur {mean}',
+    'Object {label}   area {area} px   mean intensity {mean} (as loaded)': 'Hlutur {label}   flatarmál {area} px   meðalstyrkur {mean} (eins og lesið inn)',
+    'x {x}, y {y}   intensity {value}': 'x {x}, y {y}   styrkur {value}',
+    'x {x}, y {y}   intensity {value} (inverted)': 'x {x}, y {y}   styrkur {value} (viðsnúinn)',
+    'Show histogram and level': 'Sýna tíðnirit og þröskuld',
 }
 
 MODULE_SUMMARIES = {
@@ -11554,4 +11562,12 @@ SOURCE_HASHES = {
     ('UI', '＋ Mask'): 'b7bcbd86ec6b83ef092134bdd14d4104f3635400caabbd9a75dbeaa9c711645f',
     ('UI', '＋ Points'): '0cd28eb4566ac1058c9c53c3254791eb225508be2428ea8b15968236447883e6',
     ('UI', '＋ Shapes'): '8244bd98b026a9d290537d1ab97e3a1af053bcb2c2365f4c3e40bc1938eb0e95',
+    ('UI', 'Features'): '5697d03daef4de9cf8db7cb11755f71358a32b4acca94909a9d449f71040d2dd',
+    ('UI', 'Magnifier could not add objects: {error}'): '06647e0526246c0361bce7b86f30a3c1ab39a964777baa977a2797b2434dd92d',
+    ('UI', 'Magnifier could not segment this region: {error}'): 'f1e1f4c923e05cadb1cb2f1603fd0c6ddcb316b547c77fe39faad7b75211c89b',
+    ('UI', 'Object {label}   area {area} px   mean intensity {mean}'): '57e193ef5fe32bfc6222e8d743e424455c095b69e0e7713d0263a7efdf2b5eaf',
+    ('UI', 'Object {label}   area {area} px   mean intensity {mean} (as loaded)'): '3559e8facdd60bfb408857431e43652e12a71eaf34421132b64e64c98000ff0d',
+    ('UI', 'x {x}, y {y}   intensity {value}'): '4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db',
+    ('UI', 'x {x}, y {y}   intensity {value} (inverted)'): '85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b',
+    ('UI', 'Show histogram and level'): '8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee',
 }
