@@ -81,6 +81,16 @@ Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes u
 
 Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
 
+spaCR in Folien
+~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: spaCR in Folien: alle Module und die trainierten Modelle auf 51 Folien
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+Ein Überblick über alle Module und die trainierten Modelle auf 51 Folien. Blättern Sie im `Folienbetrachter <https://einarolafsson.github.io/spacr/_static/deck/>`_ mit den Pfeiltasten oder durch Wischen, oder lesen Sie das `PDF auf GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
+
 Hardware-Unterstützung
 ~~~~~~~~~~~~~~~~~~~~~~
 

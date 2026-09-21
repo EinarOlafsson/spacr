@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "translation": "타일을 이어 붙이는 방법과 이어 붙인 각 웰의 핵을 분할하는 방법을 정합니다. 현미경에서 이웃 타일 사이에 남긴 중첩 영역, 분할 윈도우 사이의 중첩 영역, 사용할 모델을 설정합니다. 각 리드는 그 위치가 핵 내부이거나 핵 바로 옆이면 해당 핵에 배정되므로, 여기서 정한 모델과 직경에 따라 어떤 객체에 바코드를 배정할 수 있는지가 달라집니다.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5"
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "translation": "타일을 읽을 위치와 결과를 저장할 위치를 정합니다. 배율, 사이클, 웰, 채널, 시야 이름이 포함된 타일을 하위 폴더까지 검색할 시퀀싱 폴더, 그 위에 정합할 표현형 폴더, 판독 결과를 대조할 가이드 라이브러리, measurements.db 파일과 웰별 보고서를 저장할 폴더를 지정합니다. 다른 모든 OPS 설정 그룹은 이 설정이 올바르다고 가정하므로 먼저 설정하세요.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2"
+    },
+    {
+      "table": "ui",
+      "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "translation": "(bool) drop_straight_tracks — 표시된 궤적을 완전히 제거합니다.",
+      "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849"
+    },
+    {
+      "table": "ui",
+      "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "translation": "<b>오류를 GitHub 이슈로 보고</b><br><span style='color:gray;'>보고서는 경로, 이름, 인증 정보를 가린 뒤 GitHub의 공개 spaCR 저장소로 전송됩니다. 이슈 보고가 기본값인 always로 설정되어 있고 아래에서 GitHub에 로그인한 경우, 실행이 실패하면 오류마다 한 번씩 보고서를 자동으로 등록합니다. ask로 설정하면 콘솔 아래에 \"File as issue\" 버튼이 나타나며, 미리보기에서 Send report를 눌러야 보고서가 전송됩니다. Help → Set spaCR up again…에서 변경할 수 있습니다.</span>",
+      "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "translation": "4PL은 중점을 기준으로 대칭입니다. 실제로 비대칭이 있으면 4PL은 EC50을 이동시켜 이를 반영합니다. 5PL은 매개변수 하나를 추가하여 비대칭을 적합하고, 농도 조건도 하나 더 필요하며, 추가한 매개변수가 그만큼의 가치가 있었는지 보여 줍니다.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5"
+    },
+    {
+      "table": "ui",
+      "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "translation": "spaCR의 배경 음악 대신 재생할 사용자 WAV 파일입니다. 비워 두면 spaCR의 자체 음악을 사용합니다. 업로드하거나 복사하지 않고 원래 위치에서 파일을 읽으며, Resonance 배경도 이 음악에 맞춰 움직입니다.",
+      "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e"
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "translation": "맑은 밤: 남색, 보라색, 얼음빛 파란색, 해가 진 뒤에도 오랫동안 하늘에 남아 있는 옅은 청보라색입니다.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1"
+    },
+    {
+      "table": "ui",
+      "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "translation": "크롭 테이블 자체의 열에 적용할 SQL 조건입니다. 데이터베이스를 읽기 전용으로 열기 때문에 여기에 입력한 내용으로는 데이터베이스를 변경할 수 없습니다.",
+      "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395"
+    },
+    {
+      "table": "ui",
+      "key": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "translation": "측정 데이터베이스에서는 임베딩할 객체를 선택할 수 있습니다. 크롭 폴더를 지정하면 그 안의 모든 PNG를 사용합니다.",
+      "source_sha256": "98e856ee8d435fefddd711ab86c86d23e2ade0c2fcd5a3eb4de9080bfdbe8302"
+    },
+    {
+      "table": "ui",
+      "key": "A model is already downloading; wait for it to finish.",
+      "source": "A model is already downloading; wait for it to finish.",
+      "translation": "이미 모델을 다운로드하고 있습니다. 완료될 때까지 기다리세요.",
+      "source_sha256": "465c707e736689c9df5a895cc2bea1d076cd7a2a119796a325e19a0d3efb55b0"
+    },
+    {
+      "table": "ui",
+      "key": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "translation": "사운드 세트와 같은 조성의 잔잔한 반복 음악입니다. 패드, 점8분음표 딜레이가 더해진 뜯는 소리의 아르페지오, 부드러운 서브 베이스, 편곡에 따라 나타났다 사라지는 조용한 4박 킥과 셰이커로 구성됩니다. 다른 소리와 분리되어 있어 음악 없이 피드백 소리만 사용할 수 있습니다. Laptop 및 Extra Performance 수준에서는 재생하지 않습니다.",
+      "source_sha256": "29b1b3c06239497242ecde6662ce724cd88573be8a2d193c54f8eaf1ba9e3b1e"
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "translation": "모듈 실행이 성공적으로 끝나면 위로 올라가는 아르페지오가 조성의 으뜸음으로 해결됩니다. spaCR가 다른 창에 있을 때 완료를 알 수 있습니다.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e"
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "translation": "버튼, 스위치, 탭, 목록 또는 슬라이더를 누를 때 사운드 세트와 같은 조성의 짧고 조용한 뜯는 소리가 납니다. 뚜렷하게 들리기보다는 은은하게 느껴지는 소리로 입력이 등록되었음을 알려 줍니다.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da"
+    },
+    {
+      "table": "ui",
+      "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "translation": "오류로 실행이 중단되면 더 느리게 내려가는 선율이 울려 성공과 실패를 소리로 구분할 수 있습니다. 사용자가 직접 중단한 실행에서는 소리가 나지 않습니다.",
+      "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972"
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "translation": "지평선 가까이 있는 태양과 그 빛이 통과하는 물질: 금색, 호박색, 옅은 금색, 이끼색입니다.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851"
+    },
+    {
+      "table": "ui",
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "translation": "임계값 보정 계수입니다. Otsu 임계값에 이 값을 곱한 뒤 사용합니다. 1보다 크면 기준이 엄격해져 객체가 줄어들고 희미한 객체는 제외됩니다. 1보다 작으면 더 어두운 픽셀까지 포함하며, 1이면 Otsu 자체 임계값을 사용합니다. Otsu detect에서 사용하며, Live 돋보기의 Otsu 모드에서도 영역 안에 뚜렷한 두 픽셀 집단이 있을 때 사용합니다.",
+      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e"
+    },
+    {
+      "table": "ui",
+      "key": "Add a model",
+      "source": "Add a model",
+      "translation": "모델 추가",
+      "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "translation": "필드 추가",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "translation": "~/.spacr/logs 경로의 로그 파일에 spaCR의 DEBUG 메시지를 추가합니다. 또한 cellpose가 어떤 모델을 불러왔는지 보고하도록 하고, 누른 버튼도 기록합니다. 이러한 기록이 있어야 버그 보고서를 유용하게 분석할 수 있습니다.\n\n이 설정을 켜도 spaCR 시작과 화면 열기에 더 오래 걸리지 않았습니다. 한 워크스테이션에서 모든 모듈을 이 설정을 켠 상태와 끈 상태로 각각 열어 측정했습니다. 콜드 스타트 후 Home이 준비되기까지 두 경우 모두 약 4초가 걸렸고, 가장 느린 모듈도 두 경우 모두 약 7초에 열렸습니다. 파이프라인 실행 시간은 측정하지 않았습니다.\n\nConsole에는 여전히 Logging 탭에서 켠 수준의 메시지만 표시됩니다. 이 스위치는 모든 함수 호출을 추적하지 않습니다. 해당 추적기는 별도의 개발자 도구이며, 여기서 켜지는 설정이 아닙니다.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978"
+    },
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "translation": "추가…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf"
+    }
+  ]
+}

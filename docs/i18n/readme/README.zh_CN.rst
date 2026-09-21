@@ -81,6 +81,16 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 
 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。
 
+通过幻灯片了解 spaCR
+~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: 通过幻灯片了解 spaCR：51 张幻灯片介绍所有模块和训练好的模型
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+通过 51 张幻灯片浏览所有模块和训练好的模型。可在 `幻灯片查看器 <https://einarolafsson.github.io/spacr/_static/deck/>`_ 中使用方向键或滑动翻页，也可阅读 `GitHub 上的 PDF <../../source/_static/deck/spacr_deck.pdf>`_。
+
 硬件支持
 ~~~~~~~~~~~~~~~~
 

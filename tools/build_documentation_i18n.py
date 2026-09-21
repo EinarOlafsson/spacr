@@ -6890,6 +6890,8 @@ def main() -> int:
                 " image:: spacr/resources/",
                 " image:: ../../../spacr/resources/",
             ).replace(
+                " image:: docs/source/", " image:: ../../source/",
+            ).replace(
                 "<docs/source/", "<../../source/",
             ).replace(
                 ":target: docs/source/", ":target: ../../source/",
@@ -6899,6 +6901,14 @@ def main() -> int:
             localized_readme = _localize_workflow_alt_text(
                 localized_readme, language,
             )
+            # Image directives retain their raw options during translation.
+            # Apply source-bound alt text as well as the reviewed prose.
+            for source_alt, targets in REVIEWED_README_EVIDENCE_BLOCKS.items():
+                if language in targets:
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}\n",
+                        f"   :alt: {targets[language]}\n",
+                    )
             # AFTER the band headings are localized, not before: the
             # workflow pass renames four of them, and a reference has to
             # be aimed at the heading as it finally reads.

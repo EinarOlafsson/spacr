@@ -81,6 +81,16 @@ segmentation, measurement, annotation और classification modules भी ए�
 
 यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।
 
+स्लाइडों में spaCR
+~~~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: स्लाइडों में spaCR: 51 स्लाइडों में सभी मॉड्यूल और प्रशिक्षित मॉडल
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+51 स्लाइडों में सभी मॉड्यूल और प्रशिक्षित मॉडलों का परिचय। `स्लाइड व्यूअर <https://einarolafsson.github.io/spacr/_static/deck/>`_ में तीर कुंजियों से या स्वाइप करके स्लाइडें देखें, या `GitHub पर PDF <../../source/_static/deck/spacr_deck.pdf>`_ के पन्ने पलटें।
+
 हार्डवेयर समर्थन
 ~~~~~~~~~~~~~~~~
 

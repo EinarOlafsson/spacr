@@ -81,6 +81,16 @@ spaCR는 고함량 현미경 영상에서 단일 세포를 분할하고 측정�
 
 데스크톱 애플리케이션으로 실행되거나 워크스테이션, 서버 또는 클러스터에서 헤드리스로 실행됩니다.
 
+슬라이드로 보는 spaCR
+~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: 슬라이드로 보는 spaCR: 51장으로 소개하는 모든 모듈과 학습된 모델
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+51장의 슬라이드로 모든 모듈과 학습된 모델을 소개합니다. `슬라이드 뷰어 <https://einarolafsson.github.io/spacr/_static/deck/>`_ 에서 화살표 키나 스와이프로 넘겨 보거나, `GitHub의 PDF <../../source/_static/deck/spacr_deck.pdf>`_ 를 읽어 보세요.
+
 하드웨어 지원
 ~~~~~~~~~~~~~~~~
 

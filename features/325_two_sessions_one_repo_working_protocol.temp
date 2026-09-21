@@ -9222,3 +9222,18 @@ Rebase onto c3ee0ed98 met an append-only conflict in this log: preserved both
 Claude's translation handoff and Codex's coverage entry verbatim. No owned
 implementation conflict. The new README deck section joins the translation
 lane; existing review records and published API debt remain explicit.
+
+2026-09-21 — CODEX: 411/43 DOCS CHECKPOINT AFTER c3ee0ed98
+Coverage checkpoint f5d086f9a is pushed. The deck-section handoff is now
+implemented in nine localized READMEs plus 45 source-bound review records;
+all eleven README checks pass. Its cover raises the canonical image count
+from 51 to 52, now explicitly verified including translated alt text.
+The generator handles the new relative image path and reviewed raw alt.
+Korean adds twenty distinct reviewed sources (19 corrected/one retained),
+609 total and 5812/6232 current catalog entries; five focused gates pass.
+Regenerated coverage/review/API reports; their final consistency checks are
+running. The remaining 42 Korean orphans, format/missing-row errors and API
+regeneration debt are not hidden. No GPU-idle window has qualified.
+Final consistency checks pass: four report tests in 234.16 s; all nine deck
+sections reconstruct exactly from review records without a model. Feature
+index and whitespace checks pass. GPU monitoring still reports activity.

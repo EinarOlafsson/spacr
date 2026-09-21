@@ -1827,3 +1827,13 @@ The subsequent nightly Home-shortcut edit invalidated nine reviewed API
 source bindings. Those historical records are now retired with reasons and
 nine current-source replacements added; the loader is being revalidated.
 Published API regeneration remains separate debt.
+
+2026-09-21 — CODEX DOCS LANE: the new README slide-deck section is now in
+all nine localized READMEs, with exact-source review records, localized alt
+text and working relative asset/PDF links. All eleven README-focused checks
+pass; the image-count test explicitly includes the new 52nd image and checks
+its reviewed description. The generator preserves those details on rebuild.
+Korean's next twenty-source review batch passes five focused gates; current
+coverage is 5812/6232 with 42 orphans. Full catalog/docs debt remains open.
+All four regenerated-report consistency tests pass (234.16 s); independent
+review-only reconstruction reproduces each of the nine deck sections.

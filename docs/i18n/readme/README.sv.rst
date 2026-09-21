@@ -81,6 +81,16 @@ Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckko
 
 Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
 
+spaCR i bilder
+~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: spaCR i bilder: alla moduler och tränade modeller i 51 presentationsbilder
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+En genomgång av alla moduler och tränade modeller i 51 presentationsbilder. Bläddra i `bildvisaren <https://einarolafsson.github.io/spacr/_static/deck/>`_ med piltangenterna eller genom att svepa, eller läs `PDF-filen på GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
+
 Hårdvarustöd
 ~~~~~~~~~~~~~~~~
 

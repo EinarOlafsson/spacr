@@ -81,6 +81,16 @@ Imagens, máscaras, recortes, medições, anotações, previsões, códigos de b
 
 É executado como um aplicativo de desktop ou sem interface gráfica em uma estação de trabalho, servidor ou cluster.
 
+spaCR em slides
+~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: spaCR em slides: todos os módulos e os modelos treinados em 51 slides
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+Uma apresentação de todos os módulos e dos modelos treinados em 51 slides. Percorra-os no `visualizador de slides <https://einarolafsson.github.io/spacr/_static/deck/>`_ com as teclas de seta ou deslizando o dedo, ou consulte o `PDF no GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
+
 Suporte de hardware
 ~~~~~~~~~~~~~~~~~~~
 

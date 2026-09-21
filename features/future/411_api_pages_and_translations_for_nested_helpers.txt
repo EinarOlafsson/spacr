@@ -1117,3 +1117,25 @@ report checks pass alongside eight tutorial review-promotion checks (12 total,
 246.90 s). Source inventory remains 6232 runtime / 11166 API; API debt remains
 629 added, two removed and 118 changed sources. Catalog generation and
 remaining review debt are still open.
+
+2026-09-21 — CODEX: KOREAN THIRD REVIEW BATCH AND NINE-LANGUAGE README DECK
+Twenty more distinct Korean sources are reviewed (19 corrected, one retained),
+bringing the source-bound runtime review inventory to 609. Corrections cover
+OPS tile/segmentation settings, SQL crop selection, 4PL/5PL asymmetry, Otsu
+threshold direction, error reporting and sound descriptions. The current
+catalog now has 5812/6232 entries; 42 orphan keys and other missing/format
+errors remain. Five focused source/syntax/context/semantic checks pass.
+Integrated c3ee0ed98's newly assigned README slide-deck section in all nine
+localized READMEs, with 45 exact-source records for heading, introduction,
+cover accessibility text and both link labels. Local image/PDF paths resolve.
+The generator now rewrites docs/source image paths relative to the localized
+README and applies reviewed alt text retained inside raw image directives.
+Eleven README checks pass. Their old 51-image assertion now explicitly
+accounts for the new deck cover as image 52 and verifies its reviewed text.
+Current coverage/review reports and API inventory are regenerated; API debt
+remains 629 added, two removed, 118 changed, with 10419/11166 fresh per locale.
+No native-speaker signoff or complete catalog audit is claimed. Final report
+consistency checks are running before this checkpoint is pushed.
+Final report consistency: four tests pass in 234.16 s. Independent regeneration
+checks reproduce all nine deck sections from the reviewed blocks without a
+translation model. The feature index and whitespace checks also pass.

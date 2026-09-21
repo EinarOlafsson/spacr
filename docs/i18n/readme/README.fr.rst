@@ -81,6 +81,16 @@ Les images, masques, vignettes, mesures, annotations, prédictions, codes-barres
 
 Fonctionne comme une application de bureau ou sans interface graphique sur un poste de travail, un serveur ou un cluster.
 
+spaCR en diapositives
+~~~~~~~~~~~~~~~~~~~~~
+
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
+   :alt: spaCR en diapositives : tous les modules et les modèles entraînés en 51 diapositives
+   :width: 720
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+Un aperçu de tous les modules et des modèles entraînés en 51 diapositives. Parcourez-les dans la `visionneuse de diapositives <https://einarolafsson.github.io/spacr/_static/deck/>`_ avec les touches fléchées ou par balayage, ou consultez le `PDF sur GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
+
 Support matériel
 ~~~~~~~~~~~~~~~~
 
