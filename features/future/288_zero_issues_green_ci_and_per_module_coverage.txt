@@ -4256,3 +4256,17 @@ features/data/288_per_module_fixed_2026-09-21.{json,txt} and
 features/data/288_measurement_provenance_2026-09-21.json. This older tree
 ships 600 modules; current nightly has a different inventory and subsequent
 fixes. Reconcile unchanged versus changed source before using these gaps.
+
+2026-09-21 — CODEX: MODEL-SHARING FLOOR GAPS CLOSED IN TARGETED MEASUREMENT
+The fixed snapshot's model_share (11.18%) and model_share_dialog (18.37%)
+were reconciled against cb2c0743d: their intervening edits add docstrings,
+not behavior. Two new test files exercise real tar contents and size refusal,
+central upload payloads with/without training data, pending/error responses,
+login/repository routing, checkpoint/card integrity and real dialog controls.
+All 26 tests pass under a 6-GiB cap with NAS hidden and network boundaries
+replaced. Current statement-and-branch coverage: model_share 98.68%, dialog
+100%; all 30 branches covered. The only two unexecuted helper lines catch
+an OSError during temporary archive cleanup. Evidence is recorded in
+features/data/288_model_sharing_2026-09-21.json with source hashes.
+This is a targeted gain, not a new whole-library verdict; the full fixed
+report is retained unchanged and the baseline has not been tightened.

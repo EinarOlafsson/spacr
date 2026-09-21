@@ -9205,3 +9205,20 @@ and newer fixes are not certified by this older 600-module measurement.
   compact caption _ROWS, external catalog rows for base_model / figure_* /
   plaque_mode / confirm_annotations, classical-threshold help rows, and the
   API catalog rebuild for the new symbols.
+
+2026-09-21 — CODEX: 288 MODEL-SHARING COVERAGE CLAIM
+Taking new tests/qt/test_model_sharing_contract.py and
+ tests/qt/test_model_sharing_dialog.py within the assigned coverage lane.
+The fixed report measures model_share.py at 11.18% and its dialog at 18.37%;
+changes since that snapshot only add docstrings. Testing archive contents,
+size refusal, HTTP request/response handling, authentication routing, model
+cards and real dialog controls. HTTP/HF boundaries are replaced in tests;
+no live publication, credentials or production Qt changes are involved.
+Existing Measure and narration host processes have been confirmed live.
+Model-sharing checkpoint complete: 26 tests pass, helper 98.68%, dialog
+100% including all 30 branches. Receipt is 288_model_sharing_2026-09-21.json;
+future/288 updated. No application source or coverage baseline changes.
+Rebase onto c3ee0ed98 met an append-only conflict in this log: preserved both
+Claude's translation handoff and Codex's coverage entry verbatim. No owned
+implementation conflict. The new README deck section joins the translation
+lane; existing review records and published API debt remain explicit.
