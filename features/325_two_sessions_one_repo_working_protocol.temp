@@ -8502,3 +8502,18 @@ the concrete tested set. No main merge or live-media publication was tried.
 Tutorial README also updated for the current shared capture routes and the
 superseding all-Python hard memory-cap rule; its old 100-GiB polling advice
 was inconsistent with the maintainer's latest HANDOFF.
+
+2026-09-21 — CODEX: STANDING NIGHTLY PUSH AUTHORIZATION
+--------------------------------------------------------------------------------
+
+The maintainer explicitly instructed: "whenever you finish a task push it to
+nightly so the other session have the same information as you". This grants
+ongoing authorization to sync and push completed, tested checkpoints to
+nightly; the earlier payload-specific approval hold is resolved. It does not
+change lane ownership or authorize a main merge or live-media publication.
+
+The five coverage/translation/tutorial commits were rebased cleanly over
+Claude's a15c6684c settings-flow refresh and pushed through 7b22e34a6. That
+upstream change touched only settings-flow generated documentation/index;
+there were no conflicts with this checkpoint. All three lanes remain in
+progress, with their evidence and outstanding work recorded in 288/358/447.
