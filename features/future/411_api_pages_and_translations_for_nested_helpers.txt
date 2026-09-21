@@ -948,3 +948,15 @@ Portuguese now has 5832/6135 current runtime entries and no orphaned runtime
 keys. Its full audit still reports 74 diagnostics: remaining source/hash and
 format-field debt, with no review-store load failure. Forty-four report/capture/
 split checks pass (126.10 s). No complete-locale or API acceptance is claimed.
+
+2026-09-21 — CODEX: FIGURE-MODE INTEGRATION THROUGH 64b86cb3a
+--------------------------------------------------------------------------------
+Current source inventory grows to 6165 runtime entries and 11123 API symbols:
+586 added, two removed and 115 changed API sources versus the English catalog.
+The reviewed runtime/API stores still load and both generated reports are
+refreshed. Portuguese remains 5832 current entries, now out of 6165; its 74-
+diagnostic audit above belongs to a40d2d4ae. New Figure/paper/isolated-backend
+strings remain in the nine-language backlog. No source or review gate changed.
+The integrated all-runtime audit completes with exit 1 and 621 diagnostics
+(200 printed plus 421 more). This includes the newer Figure-mode debt; it is
+not a distinct-string count and does not invalidate the accepted review slice.

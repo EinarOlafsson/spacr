@@ -1764,3 +1764,7 @@ and tutorial-guard verification is running. The docs lane remains open.
 The refreshed report and tutorial checks pass 44/44 (126.10 s). Portuguese's
 whole audit remains red with 74 diagnostics; current entries are 5832/6135,
 with zero runtime orphans. These are explicit remaining docs debt.
+Integration through 64b86cb3a adds Figure-mode sources: 6165 runtime entries,
+11123 API symbols, 586 added/two removed/115 changed API sources. Both reports
+are regenerated; the 44-check pass and Portuguese-only audit above keep their
+earlier a40d2d4ae application-source boundary. The docs lane is still open.

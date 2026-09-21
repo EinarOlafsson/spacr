@@ -8917,3 +8917,11 @@ reports and capture/split guards pass 44 checks (126.10 s). Portuguese has
 5832/6135 current entries, zero orphans and 74 remaining audit diagnostics.
 Live handles revalidated: coverage 42/95 batches, narration 132/150 tracks.
 GPU monitor still sees PID 448841 and no qualifying idle window.
+Integration through 64b86cb3a preserves the other session's resource-cleanup
+fix and expanded Figure workflow. Current source/report counts: 6165 runtime
+entries, 11123 API symbols, 586 added/two removed/115 changed API sources.
+Both review stores load; both reports are refreshed. The accepted CV receipt
+continues to name a40d2d4ae and the actual recorder hashes; no later-source
+re-recording or current full-coverage verdict is implied by integration.
+Integrated all-runtime audit finished: exit 1, 621 diagnostics (200 printed
+plus 421 more). The exact current debt is recorded; no green audit is claimed.

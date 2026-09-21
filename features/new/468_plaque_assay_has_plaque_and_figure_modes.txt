@@ -207,3 +207,10 @@ catalogs. The broader translation pass remains open: this integration adds
 six labels, six setting-help texts, 46 UI sources and a changed plaque_model
 help text. These 59 new/changed entries per locale are recorded under 411;
 no runtime/API audit is declared green. Production behavior remains Claude's.
+
+2026-09-21 — CODEX TRANSLATIONS ONLY: integrated the expanded per-well Figure
+preview, paper import and isolated reader environment through 64b86cb3a.
+English inventory and both localization reports are refreshed; runtime now
+has 6165 entries and API has 11123 symbols. New captions/tooltips remain in
+the nine-language backlog under future/411; the existing source-bound review
+stores still load. No Figure-mode implementation or acceptance was changed.

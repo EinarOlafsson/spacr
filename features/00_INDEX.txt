@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-447 in features/new, 13 in features/future. NEITHER LIST BLOCKS A RELEASE.
+449 in features/new, 12 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -74,9 +74,6 @@ FUTURE FEATURES
 
   426  TIMEFLOWS: A TEMPORAL CELLPOSE FOR THE TIMELAPSE SUBMODULE
        426_timeflows_a_temporal_cellpose_for_timelapse.txt
-
-  467  THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
-       467_the_live_cell_model_in_the_zoo_and_its_dataset_in_make_masks.txt
 
   470  OBJECT CROPS FROM THE CROSS-CHANNEL GROUND TRUTH, TO JUDGE EVERY LABEL
        470_object_crops_from_the_cross_channel_ground_truth_to_judge_every_label.txt
@@ -531,4 +528,6 @@ NEW FEATURES
   464  EVERY LIVE PREVIEW HAS A REFRESH BUTTON
   465  MAKE MASKS CAN DETECT ON THE NORMALIZED IMAGE
   466  THE MAKE MASKS DIVIDER HOVERS AS A THIN LINE, NOT A BLUE BAR
+  467  THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
   468  PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
+  469  THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
