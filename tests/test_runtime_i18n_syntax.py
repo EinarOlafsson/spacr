@@ -33,6 +33,23 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     )
 
     reviewed = reviewed_runtime_translations("sv")
+    # +269 distinct UI/category sources, with three OPS descriptions shared
+    # between both tables (272 records). Preserve every earlier count below.
+    ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-runtime-ui-refresh.json").read_text())
+    ui_sources = {record["source"] for record in ui_refresh["records"]}
+    assert len(ui_refresh["records"]) == 272
+    assert len(ui_sources) == 269
+    assert ui_sources <= reviewed.keys()
+    all_reviewed = reviewed
+    examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                            "2026-09-21-assay-and-plate-examples.json").read_text())
+    example_sources = {record["source"] for record in examples["records"]}
+    assert len(example_sources) == 7
+    assert example_sources <= all_reviewed.keys()
+    assert not example_sources & ui_sources
+    reviewed = {source: value for source, value in all_reviewed.items()
+                if source not in ui_sources | example_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -188,7 +205,9 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_sources) == 335
     assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
     assert len(reviewed) == 377  # +3 variable-count dataset captions.
-    for source, translated in reviewed.items():
+    assert len(all_reviewed.keys() - example_sources) == 646
+    assert len(all_reviewed) == 653
+    for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
             source,
@@ -206,7 +225,14 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         reviewed_runtime_translations,
     )
 
-    reviewed = reviewed_runtime_translations("fr")
+    all_reviewed = reviewed_runtime_translations("fr")
+    examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                            "2026-09-21-assay-and-plate-examples.json").read_text())
+    example_sources = {record["source"] for record in examples["records"]}
+    assert len(example_sources) == 7
+    assert example_sources <= all_reviewed.keys()
+    reviewed = {source: value for source, value in all_reviewed.items()
+                if source not in example_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -350,7 +376,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(reviewed.keys() - background_sources - sample_sources) == 318
     assert len(reviewed.keys() - sample_sources) == 326
     assert len(reviewed) == 329  # +3 variable-count dataset captions.
-    for source, translated in reviewed.items():
+    assert len(all_reviewed) == 336
+    for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
             source,

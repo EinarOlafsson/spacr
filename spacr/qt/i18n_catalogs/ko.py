@@ -5732,6 +5732,13 @@ UI = {
     'Downloading {count} fields of {name}…': '{count}개의 시야를 {name}에서 다운로드하는 중…',
     '{name}: {count} fields and the masks the model was trained on': '{name}: 시야 {count}개와 모델 학습에 사용한 마스크',
     'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.': '게시된 모델의 학습에 사용된 데이터셋에서 표본과 해당 마스크를 열어 여기에서 편집합니다. Model Zoo의 모델마다 항목이 하나씩 있습니다. 처음 다운로드한 뒤 캐시에 저장됩니다.',
+    'Download about 150 MB of test data: twelve control wells of the THP-1 RNF213 screen, measured, with two fields to look at and the settings the screen was analysed with. Run is the next step. Cached after the first download.': '약 150 MB의 테스트 데이터를 다운로드합니다. THP-1 RNF213 스크리닝의 대조군 웰 열두 개에 대한 측정값, 살펴볼 시야 두 개, 스크리닝 분석에 사용한 설정이 포함됩니다. 다음 단계는 Run입니다. 첫 다운로드 후 데이터가 캐시됩니다.',
+    'Download about 170 MB of test data: every parasite of twelve control wells of the Toxoplasma MTOC screen, measured, with two fields to look at. Settings are filled in, so Run is the next step. Cached after the first download.': '약 170 MB의 테스트 데이터를 다운로드합니다. Toxoplasma MTOC 스크리닝의 대조군 웰 열두 개에 있는 모든 기생충의 측정값과 살펴볼 시야 두 개가 포함됩니다. 설정이 채워져 있으므로 다음 단계는 Run입니다. 첫 다운로드 후 데이터가 캐시됩니다.',
+    'Downloading the Recruitment test data': 'Recruitment 테스트 데이터를 다운로드하는 중',
+    'Downloading the Replication Assay test data': 'Replication Assay 테스트 데이터를 다운로드하는 중',
+    'Load template…': '템플릿 불러오기…',
+    'Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.': '미리 준비된 플레이트 배치로 시작합니다. 96개 또는 384개 웰에서 바깥쪽 열의 대조군, 용량 계열 또는 웰별로 배열된 CRISPR 스크리닝을 사용할 수 있습니다. 규격, 배치, 가장자리, 난수 시드와 조건을 바꾸며 플레이트 이름은 유지합니다.',
+    '[example] the test data was not downloaded: {detail}': '[example] 테스트 데이터를 다운로드하지 못했습니다: {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -11588,4 +11595,11 @@ SOURCE_HASHES = {
     ('UI', 'Downloading {count} fields of {name}…'): 'f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c',
     ('UI', '{name}: {count} fields and the masks the model was trained on'): '5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595',
     ('UI', 'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.'): 'd6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586',
+    ('UI', 'Download about 150 MB of test data: twelve control wells of the THP-1 RNF213 screen, measured, with two fields to look at and the settings the screen was analysed with. Run is the next step. Cached after the first download.'): 'cabba12abac571cd9b3dafc5496ee1a02fefdf6f690061142b01951e94c25c1c',
+    ('UI', 'Download about 170 MB of test data: every parasite of twelve control wells of the Toxoplasma MTOC screen, measured, with two fields to look at. Settings are filled in, so Run is the next step. Cached after the first download.'): 'f081d3f8a5b1ad15af768699e8ae44b8c11e223c0e802846064b13a27d538db3',
+    ('UI', 'Downloading the Recruitment test data'): '170d548b84106c14281c39d173fa888104dc63ec977cc59d03d78d96a8ebaa01',
+    ('UI', 'Downloading the Replication Assay test data'): '5ebda4d8e0af08e18a18939e7abbbcf3b4896c6249453b2e48d0851e3d5fff30',
+    ('UI', 'Load template…'): '708c06d466d3c28629d600685c8d64d44d56ab1c69ad40313a3ffda57a03e6c0',
+    ('UI', 'Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.'): 'e9b43591c54516c1be29298f3ec736e47b508e5f12e7eb25fa47c32cd95494a0',
+    ('UI', '[example] the test data was not downloaded: {detail}'): 'c3fa924eb731f65b7754e5878fdae5f466b4ef2a818dc350c01a21440db2887b',
 }

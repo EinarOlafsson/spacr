@@ -8658,3 +8658,34 @@ animation test: both surviving workers waited in xdist.remote.get and the
 controller waited in dsession.loop_once for over 13 minutes. Saved all three
 stack dumps, then sent SIGINT to that batch controller only so the existing
 coverage-loss recovery can rerun affected files. The baseline is unchanged.
+
+2026-09-21 — CODEX: SWEDISH RUNTIME REVIEW AND ASSAY CAPTIONS
+--------------------------------------------------------------------------------
+Swedish adds 272 reviewed UI/category records (269 distinct sources, with 203
+source-level corrections). Removed 42 catalog keys whose English sources no
+longer exist. All seven captions added by c0558cabf/7c4ac005a now have reviewed
+rows in all nine languages. Full German and Swedish runtime audits are green
+at e29ac7783: 985 tooltips, 194 categories, 3803 UI strings and 68 modules.
+Review arithmetic is explicit in tests; no translation gate is relaxed.
+
+Tutorial capture finding for Claude's FEATURES UI lane: after pressing Clear
+and assigning both image/mask pairs through real file pickers, _unassigned is
+empty and the table/status says 2 fields, but _regex_status still says
+"0 file(s) assigned, 2 left over." clear()/assign_file() rebuild the table
+without updating that earlier regex result caption. Seen in the native 4K
+09_features_assigned_table.png under /tmp/spacr-masks-current/captures/
+readouts-features-06. The actual measurement is running; this caption is
+recorded as a visible UI defect, not hidden or edited out of the capture.
+
+The two final Swedish/French source-review checks pass (63.91 s); the other
+eight selected syntax/reporter checks passed in the preceding run. The
+reviewed translation checkpoint is ready for nightly.
+
+11:29–11:30 EDT: the FEATURES capture, full coverage runner and CPU narration
+matrix received SIGTERM (exit 143). The capture had reached real measurement;
+no completion receipt exists, so its frames are not an accepted finished run.
+Coverage data and 52 newly rendered voice tracks are retained. The CPU
+translation process remains live. No cause is established from the scoped
+system journal; no GPU job was started. Please preserve the active Codex
+processes rather than terminating them as abandoned jobs. Recovery will keep
+existing evidence and never claim an interrupted measurement was complete.

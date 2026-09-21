@@ -5732,6 +5732,13 @@ UI = {
     'Downloading {count} fields of {name}…': 'Baixando {count} campos de {name}…',
     '{name}: {count} fields and the masks the model was trained on': '{name}: {count} campos e as máscaras usadas para treinar o modelo',
     'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.': 'Abra uma amostra do conjunto de dados usado para treinar um modelo publicado, com suas máscaras, e edite-os aqui. Uma entrada por modelo no Model Zoo. Armazenado em cache após o primeiro download.',
+    'Download about 150 MB of test data: twelve control wells of the THP-1 RNF213 screen, measured, with two fields to look at and the settings the screen was analysed with. Run is the next step. Cached after the first download.': 'Baixar cerca de 150 MB de dados de teste: doze poços de controle da triagem THP-1 RNF213, com medições, dois campos para inspecionar e as configurações usadas na análise. O próximo passo é Run. Os dados ficam em cache após o primeiro download.',
+    'Download about 170 MB of test data: every parasite of twelve control wells of the Toxoplasma MTOC screen, measured, with two fields to look at. Settings are filled in, so Run is the next step. Cached after the first download.': 'Baixar cerca de 170 MB de dados de teste: medições de todos os parasitas de doze poços de controle da triagem Toxoplasma MTOC, com dois campos para inspecionar. As configurações já estão preenchidas; o próximo passo é Run. Os dados ficam em cache após o primeiro download.',
+    'Downloading the Recruitment test data': 'Baixando os dados de teste de Recruitment',
+    'Downloading the Replication Assay test data': 'Baixando os dados de teste de Replication Assay',
+    'Load template…': 'Carregar modelo…',
+    'Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.': 'Começar com um layout de placa pronto: controles nas colunas externas, uma série de doses ou uma triagem CRISPR organizada por poços, em 96 ou 384 poços. Substitui o formato, a disposição, a borda, a semente aleatória e as condições; o nome da placa é mantido.',
+    '[example] the test data was not downloaded: {detail}': '[example] Os dados de teste não foram baixados: {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -11588,4 +11595,11 @@ SOURCE_HASHES = {
     ('UI', 'Downloading {count} fields of {name}…'): 'f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c',
     ('UI', '{name}: {count} fields and the masks the model was trained on'): '5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595',
     ('UI', 'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.'): 'd6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586',
+    ('UI', 'Download about 150 MB of test data: twelve control wells of the THP-1 RNF213 screen, measured, with two fields to look at and the settings the screen was analysed with. Run is the next step. Cached after the first download.'): 'cabba12abac571cd9b3dafc5496ee1a02fefdf6f690061142b01951e94c25c1c',
+    ('UI', 'Download about 170 MB of test data: every parasite of twelve control wells of the Toxoplasma MTOC screen, measured, with two fields to look at. Settings are filled in, so Run is the next step. Cached after the first download.'): 'f081d3f8a5b1ad15af768699e8ae44b8c11e223c0e802846064b13a27d538db3',
+    ('UI', 'Downloading the Recruitment test data'): '170d548b84106c14281c39d173fa888104dc63ec977cc59d03d78d96a8ebaa01',
+    ('UI', 'Downloading the Replication Assay test data'): '5ebda4d8e0af08e18a18939e7abbbcf3b4896c6249453b2e48d0851e3d5fff30',
+    ('UI', 'Load template…'): '708c06d466d3c28629d600685c8d64d44d56ab1c69ad40313a3ffda57a03e6c0',
+    ('UI', 'Start from a ready-made plate layout: controls in the outer columns, a dose series or an arrayed CRISPR screen, on 96 or 384 wells. Replaces the format, layout, edge, seed and conditions; the plate name is kept.'): 'e9b43591c54516c1be29298f3ec736e47b508e5f12e7eb25fa47c32cd95494a0',
+    ('UI', '[example] the test data was not downloaded: {detail}'): 'c3fa924eb731f65b7754e5878fdae5f466b4ef2a818dc350c01a21440db2887b',
 }
