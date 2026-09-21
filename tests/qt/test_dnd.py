@@ -220,7 +220,8 @@ def test_set_screen_setting_sets_metadata_type(qtbot):
     qtbot.addWidget(scr)
     assert _set_screen_setting(scr, "metadata_type", "auto") is True
     w = scr._settings_model._widgets.get("metadata_type")
-    assert w.currentText() == "auto"
+    assert w.get_value() == "auto"
+    assert scr._settings_model.collect()["metadata_type"] == "auto"
 
 
 def test_report_folder_structure_logs_detected_labels(qtbot, tmp_path):

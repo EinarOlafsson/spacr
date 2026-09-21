@@ -794,7 +794,7 @@ SETTING_LABELS = {
     'remove_background': 'Eliminar el fondo',
     'remove_background_cell': 'Eliminar celda de fondo',
     'remove_background_nucleus': 'Eliminar el núcleo de fondo',
-    'remove_background_organelle': 'Eliminar orgánulo de fondo',
+    'remove_background_organelle': 'Eliminar el fondo del orgánulo 1',
     'remove_background_pathogen': 'Eliminar el patógeno de fondo',
     'remove_cluster_noise': 'Eliminar el ruido de racimo',
     'remove_highly_correlated': 'Eliminar altamente correlacionado',
@@ -987,6 +987,9 @@ SETTING_LABELS = {
     'z_segmentation_mode': 'Modo de segmentación Z',
     'z_stack': 'Pila Z',
     'zscore_thresh': 'Trilla Zscore',
+    'remove_background_organelleb': 'Eliminar el fondo del orgánulo 2',
+    'remove_background_organellec': 'Eliminar el fondo del orgánulo 3',
+    'remove_background_organelled': 'Eliminar el fondo del orgánulo 4',
 }
 
 SETTING_TOOLTIPS = {
@@ -1770,7 +1773,7 @@ SETTING_TOOLTIPS = {
     'remove_background': "Deslice cada píxel por debajo del valor 'background' a cero antes de la normalización y segmentación. Utilícelo cuando un canal lleva una neblina brillante, incluso que infla el piso de normalización; déjelo apagado para datos débiles o ya planos, ya que el clip elimina silenciosamente la señal real débil. Predeterminado False.",
     'remove_background_cell': 'Antes de la normalización, cero cada píxel en el canal celular inferior cell_background. Este aplana la bruma para que el tramo percentil sea impulsado por una señal real, pero también borra los bordes de las células realmente tenues y puede reducir las máscaras. Habilitar sólo una vez cell_background se establece desde una región vacía real. Por defecto False.',
     'remove_background_nucleus': 'Antes de normalizar el canal del núcleo, cero cada píxel por debajo de nucleus_background y excluir esos píxeles del cálculo del percentil. Habilitarlo eleva el contraste en los núcleos reales y suprime la neblina, pero clips genuinamente tenue núcleos a cero para que puedan volverse insegmentables. Predeterminado False; comprobar nucleus_background contra imágenes crudas primero.',
-    'remove_background_organelle': 'Antes de normalizar el canal orgánulo, cada píxel cuya intensidad bruta sea inferior a organelle_background es difícil-cero. Habilitarlo cuando la autofluorescencia difusa infla el percentil bajo y el puncta débil se pierden en la bruma; déjelo fuera para los orgánelos dim, ya que el recorte borra la señal real y sesga las mediciones de intensidad aguas abajo. Por defecto False.',
+    'remove_background_organelle': 'Antes de normalizar el canal del orgánulo 1, poner a cero todos los píxeles cuya intensidad bruta sea inferior a organelle_background. Activar esta opción cuando la autofluorescencia difusa eleve el percentil inferior y las señales puntuales débiles queden ocultas en el fondo. Dejarla desactivada para orgánulos con señal tenue, ya que el recorte elimina señal real y sesga las mediciones de intensidad posteriores. Valor predeterminado False.',
     'remove_background_pathogen': 'Antes de normalizar el canal patógeno, hard-cero cada píxel cuya intensidad bruta está por debajo de pathogen_background. Habilitarlo cuando la autofluorescencia difusa infla el percentil bajo y Cellpose comienza a segmentar la neblina; déjelo fuera para parásitos dim, ya que el recorte borra la señal real y sesga las mediciones de intensidad aguas abajo. Predeterminado True.',
     'remove_cluster_noise': 'Eliminar los puntos que DBSCAN etiqueta como ruido (-1) antes de trazar la incrustación, por lo que la figura contiene sólo puntos agrupados. Deshabilitar para retener todos los puntos empotrados, incluido el fondo difuso. No tiene ningún efecto con kmeans, que nunca emite -1, y se desactiva automáticamente cuando se establece color_by. Predeterminado True.',
     'remove_highly_correlated': 'Antes de la reducción de la dimensión, deje caer características numéricas cuya correlación absoluta de Pearson con una característica ya conservada supera un corte. Pase un flotador para configurar el corte usted mismo, True para utilizar 0.95 o False para mantener todo. Habilite para que las familias de mediciones casi duplicadas (área, perímetro, =convex_area) no dominen la incrustación. Predeterminado True.',
@@ -1964,6 +1967,9 @@ SETTING_TOOLTIPS = {
     'z_segmentation_mode': "Cómo se maneja la dimensión z. Los tres modos responden a diferentes preguntas y sus máscaras no son comparables, por lo que la elección se registra junto a ellos. 'project' colapsa la pila con z_projection y segmentos de un plano; es el único modo que el módulo de medición puede consumir. 'stitch' segmenta cada plano en 2-D y enlaza etiquetas a través de la pila. 'volumetric' segmenta el volumen 3-D directamente y requiere tamaños de anisotropía o voxel. Por defecto 'project'.",
     'z_stack': 'Cuando True, spaCR requiere que el array contenga una dimensión z explícita y plantea un error en lugar de inferir el eje; esto permite z_segmentation_mode, anisotropía y stitch_threshold. La ingestión estándar colapsa z por proyección de máxima intensidad mientras organiza archivos en bruto, por lo que su salida no tiene eje z a segmento; suministra matrices volumétricas directamente a spacr.zstack en su lugar. Cuando False, ningún código z-stack se ejecuta y máscaras coinciden con una ejecución bidimensional. Por defecto False.',
     'zscore_thresh': 'Sensibilidad atípica al suavizar características escalares dentro de una pista (área, área bbox, diámetro equivalente, perímetro, solidez, intensidad media/máxima/min). Un marco más de estas muchas desviaciones estándar de su propia media de pista, cuyos dos vecinos están a la mitad de la misma, se sustituye por su media. La menor suaviza más; nada se elimina. Por defecto 3.0.',
+    'remove_background_organelleb': 'Antes de normalizar el canal del orgánulo 2, poner a cero todos los píxeles cuya intensidad bruta sea inferior a organelleb_background. Activar esta opción cuando la autofluorescencia difusa eleve el percentil inferior y las señales puntuales débiles queden ocultas en el fondo. Dejarla desactivada para orgánulos con señal tenue, ya que el recorte elimina señal real y sesga las mediciones de intensidad posteriores. Valor predeterminado False.',
+    'remove_background_organellec': 'Antes de normalizar el canal del orgánulo 3, poner a cero todos los píxeles cuya intensidad bruta sea inferior a organellec_background. Activar esta opción cuando la autofluorescencia difusa eleve el percentil inferior y las señales puntuales débiles queden ocultas en el fondo. Dejarla desactivada para orgánulos con señal tenue, ya que el recorte elimina señal real y sesga las mediciones de intensidad posteriores. Valor predeterminado False.',
+    'remove_background_organelled': 'Antes de normalizar el canal del orgánulo 4, poner a cero todos los píxeles cuya intensidad bruta sea inferior a organelled_background. Activar esta opción cuando la autofluorescencia difusa eleve el percentil inferior y las señales puntuales débiles queden ocultas en el fondo. Dejarla desactivada para orgánulos con señal tenue, ya que el recorte elimina señal real y sesga las mediciones de intensidad posteriores. Valor predeterminado False.',
 }
 
 CATEGORY_HELP = {
@@ -11570,4 +11576,10 @@ SOURCE_HASHES = {
     ('UI', 'x {x}, y {y}   intensity {value}'): '4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db',
     ('UI', 'x {x}, y {y}   intensity {value} (inverted)'): '85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b',
     ('UI', 'Show histogram and level'): '8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee',
+    ('SETTING_LABELS', 'remove_background_organelleb'): 'cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc',
+    ('SETTING_TOOLTIPS', 'remove_background_organelleb'): '9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116',
+    ('SETTING_LABELS', 'remove_background_organellec'): 'df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa',
+    ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
+    ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
+    ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
 }

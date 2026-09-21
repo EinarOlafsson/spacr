@@ -794,7 +794,7 @@ SETTING_LABELS = {
     'remove_background': '배경 삭제',
     'remove_background_cell': '배경 세포 제거',
     'remove_background_nucleus': '배경 핵을 제거합니다.',
-    'remove_background_organelle': '배경 organelle 제거',
+    'remove_background_organelle': '소기관 1의 배경 제거',
     'remove_background_pathogen': '배경 병원제 제거',
     'remove_cluster_noise': '클러스터 소음 제거',
     'remove_highly_correlated': '고도로 관련된 것을 제거합니다.',
@@ -987,6 +987,9 @@ SETTING_LABELS = {
     'z_segmentation_mode': 'Z 분할 모드',
     'z_stack': '스테이크 Z',
     'zscore_thresh': 'Zscore 신선한',
+    'remove_background_organelleb': '소기관 2의 배경 제거',
+    'remove_background_organellec': '소기관 3의 배경 제거',
+    'remove_background_organelled': '소기관 4의 배경 제거',
 }
 
 SETTING_TOOLTIPS = {
@@ -1770,7 +1773,7 @@ SETTING_TOOLTIPS = {
     'remove_background': "정상화 및 분열 전에 'background' 값 아래의 각 픽셀을 하드 클립하십시오. 채널이 정상화 바닥을 팽창시키는 밝은, 심지어 가벼운 채널을 운반 할 때 그것을 사용하십시오; 클립이 조용히 실제 신호를 제거하기 때문에 더러운 또는 이미 평평한 데이터를 위해 그것을 떠나십시오. 기본 False.",
     'remove_background_cell': '정상화되기 전에 아래의 셀 채널의 각 픽셀을 제로하십시오. cell_background 이 플레이트는 매끄럽기 때문에 퍼센티일 스트레치가 실제 신호에 의해 움직이지만, 또한 진정으로 더러운 세포 경계를 제거하고 마스크를 줄일 수 있습니다. cell_background 실제 빈 지역에서 설정됩니다. False.',
     'remove_background_nucleus': '핵 채널을 정상화하기 전에 nucleus_background 아래의 각 픽셀을 0로 제거하고 그 픽젤을 센티일 계산에서 제거하십시오., 그러나 클립은 진정으로 다이미 코어를 제로로, 그래서 그들은 분할 할 수 없습니다. 기본 False; 원료 이미지에 대 한 nucleus_background 먼저 확인.',
-    'remove_background_organelle': 'organelle 채널을 정상화하기 전에, 하드-제로 각 픽셀의 원료 강도가 organelle_background 아래에있다.그것을 허용 할 때 분산 자기 염증은 낮은 센티일과 약한 포인트가 흐름에서 잃어 버렸다; 그것을 버리기 위해 더러운 organelles, 클립은 진정한 신호를 제거하고 비아스 아래 스트림 강도 측정.기본 False.',
+    'remove_background_organelle': '소기관 1 채널을 정규화하기 전에 원시 강도가 organelle_background보다 낮은 모든 픽셀을 0으로 설정합니다. 확산된 자가형광이 하위 백분위 값을 높여 약한 점상 신호가 배경에 묻힐 때 활성화합니다. 신호가 약한 소기관에서는 끈 상태로 두십시오. 이 절단은 실제 신호를 제거하고 후속 강도 측정에 편향을 유발하기 때문입니다. 기본값 False.',
     'remove_background_pathogen': '병리학 채널을 정상화하기 전에, 하드 제로 각 픽셀의 원료 강도가 아래에 있습니다. pathogen_background 그것을 가능하게 할 때 분산 된 자기 염증은 낮은 퍼센티일과 Cellpose 그것은 분류 잔디를 시작합니다; 그것은 진짜 신호를 파괴하고 낮은 흐름의 강도 측정을 비아지기 때문에 더러운 기생충을 위해 그것을 떠나십시오. True.',
     'remove_cluster_noise': 'DBSCAN 라벨이 소음으로 표시되는 포인트를 제거하십시오 (-1) 삽입 전에, 그래서 숫자는 단지 분류 된 포인트만 포함되어 있습니다. 그것은 분산 배경을 포함하여 모든 분류된 포인트의 보존을 방해합니다. -1을 결코 발행하지 않는 kmeans와 함께 효과가 없습니다. color_by 설정할 때 자동으로 방해됩니다. 기본 True.',
     'remove_highly_correlated': '차원성 감소 전에, 이미 붙어있는 기능과 Pearson의 절대적인 상관 관계가 절단을 초과하는 숫자 특성을 떨어 뜨리십시오. True 0.95을 사용 하 여, 또는 False 그것은 모든 것을 유지할 수 있습니다.그것은 가까운 두 배의 측정의 가족을 가능하게합니다 (지역, 범위, convex_area 2) 삽입을 지배하지 마십시오. True.',
@@ -1964,6 +1967,9 @@ SETTING_TOOLTIPS = {
     'z_segmentation_mode': "z 차원을 처리하는 방법입니다. 세 모드는 서로 다른 분석을 수행하고 생성된 마스크는 직접 비교할 수 없으므로 선택한 모드가 함께 기록됩니다. 'project' 는 z_projection 으로 스택을 축소해 한 평면을 분할하며, Measure 모듈이 사용할 수 있는 유일한 모드입니다. 'stitch' 는 각 평면을 2-D로 분할하고 스택을 따라 레이블을 연결합니다. 'volumetric' 은 3-D 부피를 직접 분할하며 anisotropy 또는 voxel 크기가 필요합니다. 기본값 'project'.",
     'z_stack': '언제 True, spaCR 궤도에 명시적인 z 차원을 포함하고 오류를 제기하는 대신에 궤도를 제거해야합니다.이것은 z_segmentation_mode 아니소트로피와 stitch_threshold 표준 섭취는 원료 파일을 조직하는 동안 최대 강도 프로젝션에 의해 z 붕괴, 그래서 그것의 출력은 분류에 Z 좌석이 없습니다; 공급 볼륨은 직접 spacr.zstack 대신, 언제 False, z-stack 코드는 실행되지 않으며 마스크는 2 차원 실행과 일치합니다. False.',
     'zscore_thresh': '외부 민감성 융합 스케일러는 트랙 내에서 (지역, bbox 영역, 동등한 직경, 범위, 단단함, 중간/max/min 강도) 특징입니다.이 프레임은 자신의 트랙 중간에서 많은 표준 변동, 두 이웃이 반 내에 두, 그들의 평균에 의해 대체됩니다.',
+    'remove_background_organelleb': '소기관 2 채널을 정규화하기 전에 원시 강도가 organelleb_background보다 낮은 모든 픽셀을 0으로 설정합니다. 확산된 자가형광이 하위 백분위 값을 높여 약한 점상 신호가 배경에 묻힐 때 활성화합니다. 신호가 약한 소기관에서는 끈 상태로 두십시오. 이 절단은 실제 신호를 제거하고 후속 강도 측정에 편향을 유발하기 때문입니다. 기본값 False.',
+    'remove_background_organellec': '소기관 3 채널을 정규화하기 전에 원시 강도가 organellec_background보다 낮은 모든 픽셀을 0으로 설정합니다. 확산된 자가형광이 하위 백분위 값을 높여 약한 점상 신호가 배경에 묻힐 때 활성화합니다. 신호가 약한 소기관에서는 끈 상태로 두십시오. 이 절단은 실제 신호를 제거하고 후속 강도 측정에 편향을 유발하기 때문입니다. 기본값 False.',
+    'remove_background_organelled': '소기관 4 채널을 정규화하기 전에 원시 강도가 organelled_background보다 낮은 모든 픽셀을 0으로 설정합니다. 확산된 자가형광이 하위 백분위 값을 높여 약한 점상 신호가 배경에 묻힐 때 활성화합니다. 신호가 약한 소기관에서는 끈 상태로 두십시오. 이 절단은 실제 신호를 제거하고 후속 강도 측정에 편향을 유발하기 때문입니다. 기본값 False.',
 }
 
 CATEGORY_HELP = {
@@ -11570,4 +11576,10 @@ SOURCE_HASHES = {
     ('UI', 'x {x}, y {y}   intensity {value}'): '4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db',
     ('UI', 'x {x}, y {y}   intensity {value} (inverted)'): '85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b',
     ('UI', 'Show histogram and level'): '8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee',
+    ('SETTING_LABELS', 'remove_background_organelleb'): 'cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc',
+    ('SETTING_TOOLTIPS', 'remove_background_organelleb'): '9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116',
+    ('SETTING_LABELS', 'remove_background_organellec'): 'df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa',
+    ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
+    ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
+    ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
 }

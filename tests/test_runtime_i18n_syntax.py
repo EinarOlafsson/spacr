@@ -162,8 +162,16 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     added_sources = {record["source"] for record in readouts["records"]}
     assert len(added_sources) == 8
     assert added_sources <= reviewed.keys()
-    assert len(reviewed.keys() - added_sources) == 319
-    assert len(reviewed) == 327
+    background = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-organelle-background.json").read_text())
+    background_sources = {record["source"] for record in background["records"]}
+    assert len(background_sources) == 8
+    assert not added_sources & background_sources
+    assert background_sources <= reviewed.keys()
+    assert len(reviewed.keys() - added_sources - background_sources) == 319
+    # +8/-0: four source-bound background labels and four scientific tooltips.
+    assert len(reviewed.keys() - background_sources) == 327
+    assert len(reviewed) == 335
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -309,8 +317,16 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     added_sources = {record["source"] for record in readouts["records"]}
     assert len(added_sources) == 8
     assert added_sources <= reviewed.keys()
-    assert len(reviewed.keys() - added_sources) == 310
-    assert len(reviewed) == 318
+    background = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                              "2026-09-21-organelle-background.json").read_text())
+    background_sources = {record["source"] for record in background["records"]}
+    assert len(background_sources) == 8
+    assert not added_sources & background_sources
+    assert background_sources <= reviewed.keys()
+    assert len(reviewed.keys() - added_sources - background_sources) == 310
+    # +8/-0: four source-bound background labels and four scientific tooltips.
+    assert len(reviewed.keys() - background_sources) == 318
+    assert len(reviewed) == 326
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

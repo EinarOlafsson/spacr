@@ -794,7 +794,7 @@ SETTING_LABELS = {
     'remove_background': 'Ta bort bakgrund',
     'remove_background_cell': 'Ta bort bakgrundscell',
     'remove_background_nucleus': 'Ta bort bakgrundskärna',
-    'remove_background_organelle': 'Ta bort bakgrund organelle',
+    'remove_background_organelle': 'Ta bort bakgrund för organell 1',
     'remove_background_pathogen': 'Ta bort bakgrundspatogen',
     'remove_cluster_noise': 'Ta bort klusterbuller',
     'remove_highly_correlated': 'Ta bort högt korrelerad',
@@ -987,6 +987,9 @@ SETTING_LABELS = {
     'z_segmentation_mode': 'Z segmenteringsläge',
     'z_stack': 'Z- stapeln',
     'zscore_thresh': 'Tröskelns skåra',
+    'remove_background_organelleb': 'Ta bort bakgrund för organell 2',
+    'remove_background_organellec': 'Ta bort bakgrund för organell 3',
+    'remove_background_organelled': 'Ta bort bakgrund för organell 4',
 }
 
 SETTING_TOOLTIPS = {
@@ -1770,7 +1773,7 @@ SETTING_TOOLTIPS = {
     'remove_background': "Hard-clip varje pixel under 'background' värdet till noll före normalisering och segmentering. Använd den när en kanal bär en ljus, även dis som blåser upp normaliseringsgolvet; lämna den utanför för dim eller redan platt-fältade data, eftersom klippet tyst tar bort svag verklig signal. Standard False.",
     'remove_background_cell': 'Före normalisering nollställs varje pixel i cellkanalen under cell_background. Den här tillplattar dis så att percentilsträckan drivs av verklig signal, men den raderar också genuint dimcelliga kanter och kan krympa masker. Aktivera endast en gång cell_background ställs in från en faktisk tom region. Standard False.',
     'remove_background_nucleus': 'Innan kärnans kanal normaliseras, nolla varje pixel under nucleus_background och exkludera dessa pixlar från percentilberäkningen. Att aktivera den höjer kontrasten på verkliga kärnor och dämpar dis, men klipper genuint dim nuclei till noll så att de kan bli osegmentabla. Standard False; kontrollera nucleus_background mot råa bilder först.',
-    'remove_background_organelle': 'Före normalisering av organellkanalen, hard-noll varje pixel vars råa intensitet är under organelle_background. Aktivera den när diffus autofluorescens uppblåser den låga percentilen och svaga puncta förloras i dis; lämna den av för dim organeller, eftersom klippningen raderar verklig signal och fördomar nedströms intensitetsmätningar. Standard False.',
+    'remove_background_organelle': 'Före normalisering av kanalen för organell 1 sätts varje pixel vars råintensitet ligger under organelle_background till noll. Aktivera detta när diffus autofluorescens höjer den nedre percentilen och svaga punktformiga signaler försvinner i bakgrunden. Låt det vara avstängt för svagt lysande organeller, eftersom klippningen tar bort verklig signal och snedvrider efterföljande intensitetsmätningar. Standard False.',
     'remove_background_pathogen': 'Före normalisering av patogenkanalen, hård-noll varje pixel vars rå intensitet är under pathogen_background. Aktivera den när diffus autofluorescens blåser upp låg percentilen och Cellpose börjar segmentera dis; lämna den av för dim parasiter, eftersom klippningen raderar verklig signal och fördomar nedströms intensitetsmätningar. Standard True.',
     'remove_cluster_noise': 'Ta bort punkter som DBSCAN etiketterar som buller (- 1) innan inbäddningen ritas, så figuren innehåller endast klustrade punkter. Inaktivera den för att behålla alla inbäddade punkter, inklusive diffus bakgrund. Den har ingen effekt med kmeans, som aldrig avger - 1, och inaktiveras automatiskt när color_by är inställd. Standard True.',
     'remove_highly_correlated': 'Före dimensionsreduktion, släpp numeriska funktioner vars absoluta Pearson korrelation med en redan hållen funktion överstiger en cut-off. Skicka en flottör för att ställa in cut off själv, True att använda 0,95 eller False för att behålla allt. Aktivera det så att familjer av nära-duplicerade mätningar (area, omkrets, convex_area) inte dominerar inbäddningen. Standard True.',
@@ -1964,6 +1967,9 @@ SETTING_TOOLTIPS = {
     'z_segmentation_mode': "Hur z-dimensionen hanteras. De tre lägena svarar på olika frågor och deras masker är inte jämförbara, så valet registreras bredvid dem. 'project' kollapsar stacken med z_projection och segmenten ett plan; det är det enda läge som Mätmodulen kan förbruka. 'stitch' segment varje plan i 2-D och länkar etiketter genom stacken. 'volumetric' segmenterar 3D-volymen direkt och kräver anisotropi- eller voxelstorlekar. Standard 'project'.",
     'z_stack': 'När True, spaCR kräver att matrisen innehåller en explicit z- dimension och höjer ett fel i stället för att härleda axeln; detta möjliggör z_segmentation_mode, anisotropi och stitch_threshold. Standardintag kollapsar z genom maximal intensitet projektion medan man organiserar råa filer, så dess utdata har ingen z- axel till segment; leverera volymetriska matriser direkt till spacr.zstack istället. När False, inga z- pack- kod körs och masker matchar en tvådimensionell körning. Standard False.',
     'zscore_thresh': 'Utgående känslighet vid utjämning av skalrande egenskaper inom ett spår (område, bboxområde, motsvarande diameter, omkrets, soliditet, medel/max/min intensitet). En ram mer än så många standardavvikelser från sitt eget spår medelvärde, vars två grannar är båda inom hälften av det, ersätts av deras genomsnitt. Lägre jämnar ut mer; ingenting tas bort. Standard 3.0.',
+    'remove_background_organelleb': 'Före normalisering av kanalen för organell 2 sätts varje pixel vars råintensitet ligger under organelleb_background till noll. Aktivera detta när diffus autofluorescens höjer den nedre percentilen och svaga punktformiga signaler försvinner i bakgrunden. Låt det vara avstängt för svagt lysande organeller, eftersom klippningen tar bort verklig signal och snedvrider efterföljande intensitetsmätningar. Standard False.',
+    'remove_background_organellec': 'Före normalisering av kanalen för organell 3 sätts varje pixel vars råintensitet ligger under organellec_background till noll. Aktivera detta när diffus autofluorescens höjer den nedre percentilen och svaga punktformiga signaler försvinner i bakgrunden. Låt det vara avstängt för svagt lysande organeller, eftersom klippningen tar bort verklig signal och snedvrider efterföljande intensitetsmätningar. Standard False.',
+    'remove_background_organelled': 'Före normalisering av kanalen för organell 4 sätts varje pixel vars råintensitet ligger under organelled_background till noll. Aktivera detta när diffus autofluorescens höjer den nedre percentilen och svaga punktformiga signaler försvinner i bakgrunden. Låt det vara avstängt för svagt lysande organeller, eftersom klippningen tar bort verklig signal och snedvrider efterföljande intensitetsmätningar. Standard False.',
 }
 
 CATEGORY_HELP = {
@@ -11570,4 +11576,10 @@ SOURCE_HASHES = {
     ('UI', 'x {x}, y {y}   intensity {value}'): '4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db',
     ('UI', 'x {x}, y {y}   intensity {value} (inverted)'): '85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b',
     ('UI', 'Show histogram and level'): '8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee',
+    ('SETTING_LABELS', 'remove_background_organelleb'): 'cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc',
+    ('SETTING_TOOLTIPS', 'remove_background_organelleb'): '9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116',
+    ('SETTING_LABELS', 'remove_background_organellec'): 'df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa',
+    ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
+    ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
+    ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
 }

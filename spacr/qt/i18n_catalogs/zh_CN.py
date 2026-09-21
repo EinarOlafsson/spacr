@@ -795,7 +795,7 @@ SETTING_LABELS = {
     'remove_background': '删除背景',
     'remove_background_cell': '移除背景细胞',
     'remove_background_nucleus': '移除背景核',
-    'remove_background_organelle': '移除背景有机',
+    'remove_background_organelle': '去除细胞器 1 的背景',
     'remove_background_pathogen': '移除背景病原体',
     'remove_cluster_noise': '消除集群噪音',
     'remove_highly_correlated': '清除密切相关的',
@@ -988,6 +988,9 @@ SETTING_LABELS = {
     'z_segmentation_mode': 'Z 分区模式',
     'z_stack': 'Z 斯塔克',
     'zscore_thresh': 'Zscore 新鲜',
+    'remove_background_organelleb': '去除细胞器 2 的背景',
+    'remove_background_organellec': '去除细胞器 3 的背景',
+    'remove_background_organelled': '去除细胞器 4 的背景',
 }
 
 SETTING_TOOLTIPS = {
@@ -1771,7 +1774,7 @@ SETTING_TOOLTIPS = {
     'remove_background': "硬点击每个像素低于 'background' 值到零,在正常化和分区之前. 使用它,当一个频道携带一个明亮的,即使是泡沫,通入正常化表面; 放弃它为模糊或已经平板的数据,因为点击静静地删除虚弱的真实信号 默认 False。",
     'remove_background_cell': '归一化前，把细胞图像数据通道中低于 cell_background 的所有像素设为零。这样会压平雾状背景，使分位数拉伸由真实信号驱动，但也会擦除确实较暗的细胞边缘并可能缩小掩模。只有根据真实空白区域设定 cell_background 后才应启用。默认值为 False。',
     'remove_background_nucleus': '归一化细胞核图像数据通道前，把低于 nucleus_background 的所有像素设为零，并从分位数计算中排除这些像素。启用后可提高真实细胞核的对比度并抑制雾状背景，但会把确实较暗的细胞核截断为零，使其可能无法分割。默认值为 False；请先用原始图像核验 nucleus_background。',
-    'remove_background_organelle': '细胞器通道正常化之前,将原始强度低于 organelle_background 的每个像素硬零化。 自动荧光膨胀低百分位数和微弱的点在雾中丢失时启用它; ,因为剪切消除了真正的信号,并使下游强度测量产生偏差。  默认值为 False。',
+    'remove_background_organelle': '在对细胞器 1 通道进行归一化之前，将原始强度低于 organelle_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。',
     'remove_background_pathogen': '归一化病原体图像数据通道前，把原始强度低于 pathogen_background 的每个像素强制设为零。当弥散自体荧光抬高低分位数并使 Cellpose 开始分割雾状背景时可启用；对于较暗的寄生虫应关闭，因为截断会擦除真实信号并使下游强度测量产生偏差。默认值为 True。',
     'remove_cluster_noise': '删除 DBSCAN 标记为噪音(-1) 在插入之前,以便图表仅包含集成点. 禁用它保留所有集成的点,包括分散背景. 它没有效应与 kmeans,从未发出 -1, 并在 color_by 设置时自动禁用. 默认 True。',
     'remove_highly_correlated': '在尺寸性减少之前,下降的数字特征,其绝对的皮尔森与已关闭的特征的相互关系超过一个切割。 通过一个浮动设置切割自己, True 使用 0.95, 或 False 保持一切。 允许它,所以近倍的测量(区域,周边, convex_area)的家庭不会占主导地位。 默认 True。',
@@ -1965,6 +1968,9 @@ SETTING_TOOLTIPS = {
     'z_segmentation_mode': "如何处理 z 尺寸. 三个模式回答不同的问题,他们的掩膜是不相似的,所以选择被记录在他们旁边. 'project' 崩溃的架子与 z_projection 和分区一个平板; 它是唯一的模式, 测量模块可以消耗. 'stitch' 分区每个平板在 2-D 和链接标签通过平板. 'volumetric' 分区域的 3D 容量直接, 需要 anisotropy 或 voxel 大小. 默认情况下 'project'。",
     'z_stack': '当 True, spaCR 要求序列包含一个明确的 z 尺寸,并引发错误而不是输入轴; 它可以使用 z_segmentation_mode, anisotropy 和 stitch_threshold。 标准输入在组织原始文件时通过最大强度投影 z 崩溃,因此其输出没有 z 轴到分区; 供电量直向 spacr.zstack 相反。 当 False 时,没有 z-stack 代码运行和掩膜匹配两维运行。 默认 False。',
     'zscore_thresh': '外部敏感性,当滑滑滑板在一个轨道内(区域,bbox区域,相当直径,周边,坚固度,中/max/min强度)。一个框架超过这个许多标准偏离从其自己的轨道中,其两个邻居是两半内,被其平均所取代。',
+    'remove_background_organelleb': '在对细胞器 2 通道进行归一化之前，将原始强度低于 organelleb_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。',
+    'remove_background_organellec': '在对细胞器 3 通道进行归一化之前，将原始强度低于 organellec_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。',
+    'remove_background_organelled': '在对细胞器 4 通道进行归一化之前，将原始强度低于 organelled_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。',
 }
 
 CATEGORY_HELP = {
@@ -11571,4 +11577,10 @@ SOURCE_HASHES = {
     ('UI', 'x {x}, y {y}   intensity {value}'): '4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db',
     ('UI', 'x {x}, y {y}   intensity {value} (inverted)'): '85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b',
     ('UI', 'Show histogram and level'): '8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee',
+    ('SETTING_LABELS', 'remove_background_organelleb'): 'cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc',
+    ('SETTING_TOOLTIPS', 'remove_background_organelleb'): '9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116',
+    ('SETTING_LABELS', 'remove_background_organellec'): 'df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa',
+    ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
+    ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
+    ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
 }

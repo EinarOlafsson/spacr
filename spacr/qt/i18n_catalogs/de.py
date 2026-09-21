@@ -804,7 +804,7 @@ SETTING_LABELS = {
     'remove_background': 'Hintergrund entfernen',
     'remove_background_cell': 'Hintergrundzelle entfernen',
     'remove_background_nucleus': 'Hintergrundkern entfernen',
-    'remove_background_organelle': 'Hintergrund Organelle entfernen',
+    'remove_background_organelle': 'Hintergrund für Organelle 1 entfernen',
     'remove_background_pathogen': 'Hintergrund-Erreger entfernen',
     'remove_cluster_noise': 'Clusterrauschen entfernen',
     'remove_highly_correlated': 'Stark korreliert entfernen',
@@ -996,6 +996,9 @@ SETTING_LABELS = {
     'z_projection': 'Z-Projektion',
     'z_segmentation_mode': 'Z-Segmentierungsmodus',
     'z_stack': 'Z-Stack',
+    'remove_background_organelleb': 'Hintergrund für Organelle 2 entfernen',
+    'remove_background_organellec': 'Hintergrund für Organelle 3 entfernen',
+    'remove_background_organelled': 'Hintergrund für Organelle 4 entfernen',
 }
 
 SETTING_TOOLTIPS = {
@@ -1788,7 +1791,7 @@ SETTING_TOOLTIPS = {
     'remove_background': "Hard-Clip jedes Pixel unter dem 'background'-Wert vor Normalisierung und Segmentierung auf Null. Verwenden Sie es, wenn ein Kanal einen hellen, sogar Dunst trägt, der den Normalisierungsboden aufbläht; lassen Sie ihn für dim oder bereits flache Daten aus, da der Clip leise schwaches reales Signal löscht. Default False.",
     'remove_background_cell': 'Vor der Normalisierung Null jedes Pixel im Zellkanal unter cell_background. Diese flacht Dunst, so dass die Perzentil-Stretch wird durch reales Signal angetrieben, aber es löscht auch wirklich dim Zellkanten und kann Masken schrumpfen. Aktivieren Sie nur einmal cell_background ist aus einer tatsächlichen leeren Region gesetzt. Standard False.',
     'remove_background_nucleus': 'Vor der Normalisierung des Kernkanals Null jedes Pixel unter nucleus_background und schließen diese Pixel von der Perzentilberechnung aus. Erhöht den Kontrast auf echte Kerne und unterdrückt Dunst, aber Clips wirklich dim Kerne auf Null, so dass sie unsegmentierbar werden können. Standard False; überprüfen Sie nucleus_background zuerst gegen Rohbilder.',
-    'remove_background_organelle': 'Vor der Normalisierung des Organellkanals, hart-Null jedes Pixel, dessen rohe Intensität unter organelle_background liegt. Aktivieren Sie es, wenn diffuse Autofluoreszenz die niedrige Perzentil- und schwache Puncta aufbläht, gehen in Dunst verloren; lassen Sie es für dim Organellen aus, da das Clipping reales Signal löscht und nachgeschaltete Intensitätsmessungen verzerrt. Standard False.',
+    'remove_background_organelle': 'Vor der Normalisierung des Kanals für Organelle 1 jeden Pixel mit einer Rohintensität unter organelle_background auf null setzen. Aktivieren Sie dies, wenn diffuse Autofluoreszenz das untere Perzentil anhebt und schwache punktförmige Signale im Hintergrund verschwinden. Lassen Sie es bei schwach leuchtenden Organellen deaktiviert, da das Abschneiden echte Signale entfernt und nachfolgende Intensitätsmessungen verzerrt. Standard False.',
     'remove_background_pathogen': 'Vor der Normalisierung des Erregerkanals, hart-Null jedes Pixel, dessen Rohintensität unter pathogen_background liegt. Aktivieren Sie es, wenn diffuse Autofluoreszenz das niedrige Perzentil auflädt und Cellpose beginnt, Dunst zu segmentieren; lassen Sie es für Dim-Parasiten aus, da das Clipping reales Signal löscht und nachgeschaltete Intensitätsmessungen verzerrt. Standard True.',
     'remove_cluster_noise': 'Entfernen Sie Punkte, die DBSCAN als Rauschen (-1) markiert, bevor Sie die Einbettung aufzeichnen, so dass die Abbildung nur geclusterte Punkte enthält. Deaktivieren Sie es, um alle eingebetteten Punkte, einschließlich diffusen Hintergrund zu behalten. Es hat keine Wirkung bei kmeanen, die nie -1 aussendet, und wird automatisch deaktiviert, wenn color_by gesetzt ist. Standard True.',
     'remove_highly_correlated': 'Vor der Dimensionalitätsreduktion fallen numerische Merkmale, deren absolute Pearson Korrelation mit einer bereits erhaltenen Funktion einen Cut-off übersteigt. Übergeben Sie einen Float, um die Cut-off selbst einzustellen, True zu verwenden 0.95, oder False, um alles zu behalten. Aktivieren Sie es, damit Familien von nahezu duplizierenden Messungen (Bereich, Umfang, convex_area) nicht die Einbettung beherrschen. Standard True.',
@@ -1981,6 +1984,9 @@ SETTING_TOOLTIPS = {
     'z_projection': "Methode, die verwendet wird, um z zu kollabieren, wenn z_segmentation_mode 'project' ist. 'max' behält den hellsten Wert entlang des Stacks und ist geeignet für spärlich fluoreszierende Objekte; 'mean' unterdrückt Rauschen, aber verdünnt das Signal, das in wenigen Ebenen vorhanden ist; 'sum' bewahrt das Gesamtsignal; und 'best_focus' behält nur die schärfste Ebene, die vorzuziehen ist, wenn eine Ebene im Fokus ist und eine maximale Intensitätsprojektion erhebliches Nicht-Fokus-Signal einschließt. Von den anderen Modi ignoriert. Default 'max'.",
     'z_segmentation_mode': "Die drei Modi beantworten unterschiedliche Fragen und ihre Masken sind nicht vergleichbar, so dass die Auswahl neben ihnen aufgezeichnet wird. 'project' kollabiert den Stapel mit z_projection und segmentiert eine Ebene; es ist der einzige Modus, den das Messmodul verbrauchen kann. 'stitch' segmentt jede Ebene in 2-D und verknüpft Etiketten durch den Stapel. 'volumetric' schneidet das 3-D-Volume direkt und erfordert Anisotropie oder Voxel-Größen. Standard 'project'.",
     'z_stack': 'Wenn True, spaCR erfordert, dass das Array eine explizite z-Dimension enthält und einen Fehler anhebt, anstatt die Achse zu referenzieren; dies ermöglicht z_segmentation_mode, Anisotropie und stitch_threshold. Standardingestion kollabiert z durch maximale Intensitätsprojektion während der Organisation von Rohdateien, so dass seine Ausgabe keine z-Achse zu Segment hat; liefert volumetrische Arrays direkt zu spacr.zstack. Wenn False, wird kein z-Stack-Code ausgeführt und Masken entsprechen einem zweidimensionalen Lauf. Default False.',
+    'remove_background_organelleb': 'Vor der Normalisierung des Kanals für Organelle 2 jeden Pixel mit einer Rohintensität unter organelleb_background auf null setzen. Aktivieren Sie dies, wenn diffuse Autofluoreszenz das untere Perzentil anhebt und schwache punktförmige Signale im Hintergrund verschwinden. Lassen Sie es bei schwach leuchtenden Organellen deaktiviert, da das Abschneiden echte Signale entfernt und nachfolgende Intensitätsmessungen verzerrt. Standard False.',
+    'remove_background_organellec': 'Vor der Normalisierung des Kanals für Organelle 3 jeden Pixel mit einer Rohintensität unter organellec_background auf null setzen. Aktivieren Sie dies, wenn diffuse Autofluoreszenz das untere Perzentil anhebt und schwache punktförmige Signale im Hintergrund verschwinden. Lassen Sie es bei schwach leuchtenden Organellen deaktiviert, da das Abschneiden echte Signale entfernt und nachfolgende Intensitätsmessungen verzerrt. Standard False.',
+    'remove_background_organelled': 'Vor der Normalisierung des Kanals für Organelle 4 jeden Pixel mit einer Rohintensität unter organelled_background auf null setzen. Aktivieren Sie dies, wenn diffuse Autofluoreszenz das untere Perzentil anhebt und schwache punktförmige Signale im Hintergrund verschwinden. Lassen Sie es bei schwach leuchtenden Organellen deaktiviert, da das Abschneiden echte Signale entfernt und nachfolgende Intensitätsmessungen verzerrt. Standard False.',
 }
 
 CATEGORY_HELP = {
@@ -12078,4 +12084,10 @@ SOURCE_HASHES = {
     ('UI', '＋ Mask'): 'b7bcbd86ec6b83ef092134bdd14d4104f3635400caabbd9a75dbeaa9c711645f',
     ('UI', '＋ Points'): '0cd28eb4566ac1058c9c53c3254791eb225508be2428ea8b15968236447883e6',
     ('UI', '＋ Shapes'): '8244bd98b026a9d290537d1ab97e3a1af053bcb2c2365f4c3e40bc1938eb0e95',
+    ('SETTING_LABELS', 'remove_background_organelleb'): 'cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc',
+    ('SETTING_TOOLTIPS', 'remove_background_organelleb'): '9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116',
+    ('SETTING_LABELS', 'remove_background_organellec'): 'df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa',
+    ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
+    ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
+    ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
 }

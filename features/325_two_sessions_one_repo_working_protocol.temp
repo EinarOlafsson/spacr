@@ -8598,3 +8598,20 @@ not QLabel child order. All 61 checks in those files pass under a 6-GiB cap,
 CPU-only Xvfb (36.88 s). Production source-selection defaults are unchanged.
 Full coverage remains on its original fixed snapshot; its old failures are
 retained in that run's log, not represented as a fresh green full-suite run.
+
+Translation adapter slice: source-bound numbered background labels/tooltips
+reuse slot two above the four catalogued slots. The generator recognizes this
+suffix-style family, retaining the same bounded inventory policy as prefix
+settings. Seventy-two technically reviewed records cover slots 1–4 in all nine
+locales, correcting the primary switch's poor prose as well. Dedicated tests
+exercise current wording, slot numbers, exact floor identifiers, source/hash
+drift refusal, and the first/last dynamic slots. No analytical setting logic
+is changed.
+
+Numbered background verification: German's integrated full runtime audit is
+green again (985 settings / 194 categories / 3796 UI strings / 68 modules).
+All 22 new and existing dynamic-slot checks pass; the other 21 selected
+catalog/review checks passed. The new identifier test uses ASCII identifier
+boundaries so a Korean grammatical particle does not make an intact token
+look absent. Runtime translation gates were not loosened.
+The two DnD/square-size test corrections also pass all 38 affected checks.

@@ -794,7 +794,7 @@ SETTING_LABELS = {
     'remove_background': 'Að fjarlægja bakgrunn',
     'remove_background_cell': 'Að fjarlægja bakgrunnscella',
     'remove_background_nucleus': 'Að fjarlægja bakgrunnsnúmer',
-    'remove_background_organelle': 'Að fjarlægja bakgrunn organelle',
+    'remove_background_organelle': 'Fjarlægja bakgrunn frumulíffæris 1',
     'remove_background_pathogen': 'Að fjarlægja bakgrunn patogene',
     'remove_cluster_noise': 'Að fjarlægja cluster rök',
     'remove_highly_correlated': 'Að fjarlægja mjög tengd',
@@ -987,6 +987,9 @@ SETTING_LABELS = {
     'z_segmentation_mode': 'Z Segmentarhættu',
     'z_stack': 'Sæli stack',
     'zscore_thresh': 'Sjálfsögn fræga',
+    'remove_background_organelleb': 'Fjarlægja bakgrunn frumulíffæris 2',
+    'remove_background_organellec': 'Fjarlægja bakgrunn frumulíffæris 3',
+    'remove_background_organelled': 'Fjarlægja bakgrunn frumulíffæris 4',
 }
 
 SETTING_TOOLTIPS = {
@@ -1770,7 +1773,7 @@ SETTING_TOOLTIPS = {
     'remove_background': "Hard-clip hvert pixel undir 'background' gildi til null áður en venda og segmenta. Notaðu það þegar kanna bori ljósa, jafnvel hvíla sem upplifa normalization jörðina; hættu það út fyrir dæmur eða þegar fljóta gögnum, þar sem myndin hljóðlega fjarlægir fátækt raunverulegt merki. Skammsögn False.",
     'remove_background_cell': 'Áður en að standa, null hvert pixel í köllunni undir cell_background. Þetta flattens hág þannig að sentil þurrkur er dreifinn af raunverulegu merki, en það er einnig að fjarlægja alvöru dæm celi og getur snerið maskar. Tilmögulegt aðeins einu sinni cell_background er sett frá raunverulegum vaxandi svæðið. Þýskalandi False.',
     'remove_background_nucleus': 'Áður en þú normalisir kjarnkanalinn, nullar hvert piksel undir nucleus_background og hættu þessar pikselir úr sentilum reikningunni. Að leyfa það hækkar kontrast á raunverulegum kjarna og takmarka hág, en klippa raunverulega dæm kjarn til null þannig að þeir geta orðið ósegmentable. Þýskalandi False Skoðaðu nucleus_background gegn rauðmyndum fyrst.',
-    'remove_background_organelle': 'Áður en að normalizing organelle kanna, hard-zero hvert piksel sem raust hærð er undir organelle_background. Það er hægt að gera það þegar difús autofluorescence inflates lítil sentil og fátækt punkta eru missaðir í hág; hættu það fyrir dæmur organelles, þar sem klippurinn eyða raunverulegt merki og bias niðurstrímur hærra. Skammsögn False.',
+    'remove_background_organelle': 'Áður en styrkur í rás frumulíffæris 1 er staðlaður eru allir myndpunktar með hráan styrk undir organelle_background settir á núll. Virkjaðu þetta þegar dreifð sjálfflúrljómun hækkar neðra hundraðshlutamarkið og dauf punktmerki hverfa í bakgrunninum. Hafðu þetta óvirkt fyrir dauf frumulíffæri, því afskurðurinn fjarlægir raunverulegt merki og skekkir síðari styrkmælingar. Sjálfgefið False.',
     'remove_background_pathogen': 'Áður en að normalizing sjúkdómanna, hard-zero hvert piksel sem raust hærð er undir pathogen_background. Það er hægt að gera það þegar dýrð autofluorescence inflatir lágt sentil og Cellpose byrjar að segmenta hág; hættu það fyrir dæmum parásíum, þar sem klippurinn eyða raunverulegt merki og bias niðurstreymandi hærra. Skammsögn True.',
     'remove_cluster_noise': 'Að fjarlægja punktur sem DBSCAN merkir eins og hljóð (-1) áður en þú plottar inn, þannig að tákninn inniheldur aðeins töflun punktur. Það er ekki hægt að halda öllum innbyggðum stöðum, þar á meðal diffuse bakgrunni. Það hefur engin áhrif með kmeans, sem aldrei útgáfa -1, og er sjálfkrafa skammt þegar color_by er sett. Skammsögn True.',
     'remove_highly_correlated': 'Áður en fjölbreytni minningar, drop fjölbreyttur eiginleikar sem alger Pearson samskipti með nú þegar hættu eiginleika yfirheyrir skreytingu. Pass a float to set the cut-off yourself, True to use 0.95, or False to keep everything. Leyfir það svo fjölskyldur nær-duplicate mælinga (area, perimeter, convex_area) ekki domine the embedding. Default True.',
@@ -1964,6 +1967,9 @@ SETTING_TOOLTIPS = {
     'z_segmentation_mode': "Hvernig z-víddin er meðhöndluð. Aðferðirnar þrjár svara ólíkum spurningum og grímur þeirra eru ekki samanburðarhæfar, svo valið er skráð. 'project' fellir staflann saman með z_projection og hlutar eitt myndlag; það er eina aðferðin sem Measure getur notað. 'stitch' hlutar hvert myndlag í 2-D og tengir merki í gegnum staflann. 'volumetric' hlutar 3-D rúmmálið beint og krefst anisotropy eða voxel-stærða. Sjálfgefið 'project'.",
     'z_stack': 'Þegar True, spaCR krefjast árekinn að innihalda útskýrt z stærð og upplifa mistök í stað þess að fylgjast með axi; Þetta gerir z_segmentation_mode, anisotrópi og stitch_threshold. Standard inntali kollapsar z með maximum-intensity sýningu meðan við að skipuleggja rauðfilur, þannig að útgáfu hennar hefur engin z axis til segment; Aðstoð volumetric rays beint til spacr.zstack í staðinn. Þegar False, engin z-stack kóða runnur og maskar tengjast tvöfaldandi runn. Skammsögn False.',
     'zscore_thresh': 'Aðalri tilfinning þegar slitning skalar eru í gegnum leið (svæðið, bbox svæðið, jafnvægi miðjandi, kring, stöðvun, mið / max / mínútum hærra). A ramma meira en þetta mörg standardeikningar frá eigin leið miðju, sem tveir nágrannar eru bæði í miðju sem, er skipt í stað með miðju þeirra.',
+    'remove_background_organelleb': 'Áður en styrkur í rás frumulíffæris 2 er staðlaður eru allir myndpunktar með hráan styrk undir organelleb_background settir á núll. Virkjaðu þetta þegar dreifð sjálfflúrljómun hækkar neðra hundraðshlutamarkið og dauf punktmerki hverfa í bakgrunninum. Hafðu þetta óvirkt fyrir dauf frumulíffæri, því afskurðurinn fjarlægir raunverulegt merki og skekkir síðari styrkmælingar. Sjálfgefið False.',
+    'remove_background_organellec': 'Áður en styrkur í rás frumulíffæris 3 er staðlaður eru allir myndpunktar með hráan styrk undir organellec_background settir á núll. Virkjaðu þetta þegar dreifð sjálfflúrljómun hækkar neðra hundraðshlutamarkið og dauf punktmerki hverfa í bakgrunninum. Hafðu þetta óvirkt fyrir dauf frumulíffæri, því afskurðurinn fjarlægir raunverulegt merki og skekkir síðari styrkmælingar. Sjálfgefið False.',
+    'remove_background_organelled': 'Áður en styrkur í rás frumulíffæris 4 er staðlaður eru allir myndpunktar með hráan styrk undir organelled_background settir á núll. Virkjaðu þetta þegar dreifð sjálfflúrljómun hækkar neðra hundraðshlutamarkið og dauf punktmerki hverfa í bakgrunninum. Hafðu þetta óvirkt fyrir dauf frumulíffæri, því afskurðurinn fjarlægir raunverulegt merki og skekkir síðari styrkmælingar. Sjálfgefið False.',
 }
 
 CATEGORY_HELP = {
@@ -11570,4 +11576,10 @@ SOURCE_HASHES = {
     ('UI', 'x {x}, y {y}   intensity {value}'): '4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db',
     ('UI', 'x {x}, y {y}   intensity {value} (inverted)'): '85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b',
     ('UI', 'Show histogram and level'): '8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee',
+    ('SETTING_LABELS', 'remove_background_organelleb'): 'cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc',
+    ('SETTING_TOOLTIPS', 'remove_background_organelleb'): '9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116',
+    ('SETTING_LABELS', 'remove_background_organellec'): 'df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa',
+    ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
+    ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
+    ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
 }

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "remove_background_organelle",
+      "source": "Remove background organelle",
+      "source_sha256": "e21685469ee628df7243f99e32856cb52ae0a91ac5a9590d96d6b338fd33732b",
+      "translation": "去除细胞器 1 的背景"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_organelle",
+      "source": "Before normalising the organelle channel, hard-zero every pixel whose raw intensity is below organelle_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False.",
+      "source_sha256": "ad799d088acfd37b80212368ba323eab164c463048a9897c2612b941c92dc219",
+      "translation": "在对细胞器 1 通道进行归一化之前，将原始强度低于 organelle_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_background_organelleb",
+      "source": "Remove background organelleb",
+      "source_sha256": "cdc88a2fdf8d04da0fde80cf8769614eeaf610eb8f397545b7e5e119686552cc",
+      "translation": "去除细胞器 2 的背景"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_organelleb",
+      "source": "Before normalising the organelle 2 channel, hard-zero every pixel whose raw intensity is below organelleb_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False.",
+      "source_sha256": "9e3ef0eda92cc603de13e0f4b9eb4a7ab2005c757078d6fbe0f987bd08425116",
+      "translation": "在对细胞器 2 通道进行归一化之前，将原始强度低于 organelleb_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_background_organellec",
+      "source": "Remove background organellec",
+      "source_sha256": "df66f89db6681e35a393b4593429961fdaf735e5ec07cfab0e942fa5e74cccfa",
+      "translation": "去除细胞器 3 的背景"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_organellec",
+      "source": "Before normalising the organelle 3 channel, hard-zero every pixel whose raw intensity is below organellec_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False.",
+      "source_sha256": "1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e",
+      "translation": "在对细胞器 3 通道进行归一化之前，将原始强度低于 organellec_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。"
+    },
+    {
+      "table": "setting_labels",
+      "key": "remove_background_organelled",
+      "source": "Remove background organelled",
+      "source_sha256": "075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88",
+      "translation": "去除细胞器 4 的背景"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "remove_background_organelled",
+      "source": "Before normalising the organelle 4 channel, hard-zero every pixel whose raw intensity is below organelled_background. Enable it when diffuse autofluorescence inflates the low percentile and faint puncta are lost in haze; leave it off for dim organelles, since the clipping erases real signal and biases downstream intensity measurements. Default False.",
+      "source_sha256": "b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3",
+      "translation": "在对细胞器 4 通道进行归一化之前，将原始强度低于 organelled_background 的每个像素直接置零。当弥散的自发荧光抬高低百分位值、使微弱的点状信号淹没在背景中时，可启用此选项。对于信号较弱的细胞器，应保持关闭，因为这种截断会消除真实信号，并使后续强度测量产生偏差。默认值为 False。"
+    }
+  ]
+}

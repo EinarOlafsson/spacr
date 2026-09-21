@@ -3961,7 +3961,10 @@ def canonical_sources() -> dict[str, object]:
     )
 
     def catalogued_setting(key: object) -> bool:
-        role = organelle_role_of(str(key))
+        text = str(key)
+        role = organelle_role_of(text)
+        if text.startswith("remove_background_"):
+            role = organelle_role_of(text.removeprefix("remove_background_"))
         return role is None or organelle_number(role) <= (
             CATALOGUED_ORGANELLE_SLOTS
         )
