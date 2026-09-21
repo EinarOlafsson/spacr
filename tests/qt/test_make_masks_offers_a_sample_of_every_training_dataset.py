@@ -236,3 +236,45 @@ def test_the_plaque_module_has_a_test_data_button_at_all(qtbot, qt_theme_applied
     assert button is not None
     assert button.text() == "Load test data…"
     assert hasattr(screen, "point_src_at")
+
+
+def _plaque_listing():
+    """A listing shaped like toxoplasma-plaque-dataset v5, domain by domain."""
+    counts = {"literature": 298, "malnio": 96, "patrick": 67, "bigbean": 27}
+    listing = []
+    for domain, n in counts.items():
+        for i in range(n):
+            stem = f"{domain}__field{i:03d}"
+            listing += [f"images/{stem}.tif", f"masks/{stem}.tif"]
+    return listing
+
+
+def test_the_plaque_sample_is_twenty_fields_split_by_domain():
+    """2026-09-21, the maintainer: "20 images total ... 40% patrick, 20% bigbean,
+    20 % malnio, 20% literature". The first ten by name were all bigbean."""
+    dataset = md.DATASETS_BY_KEY["toxoplasma_plaque"]
+    picked = md.choose_sample(dataset, _plaque_listing())
+    domains = [md.Path(image).name.split("__")[0] for image, _mask in picked]
+    assert dataset.size == len(picked) == 20
+    assert {d: domains.count(d) for d in set(domains)} == {
+        "patrick": 8, "bigbean": 4, "malnio": 4, "literature": 4}
+    assert all(mask for _image, mask in picked)
+
+
+def test_a_domain_is_sampled_across_it_and_not_from_its_start():
+    dataset = md.DATASETS_BY_KEY["toxoplasma_plaque"]
+    picked = md.choose_sample(dataset, _plaque_listing())
+    patrick = sorted(image for image, _m in picked if "patrick__" in image)
+    assert patrick[0] != "images/patrick__field000.tif"
+    assert patrick[-1] >= "images/patrick__field050.tif"
+
+
+def test_the_old_ten_field_plaque_cache_is_not_reopened(tmp_path):
+    dataset = md.DATASETS_BY_KEY["toxoplasma_plaque"]
+    old = tmp_path / "mask_datasets" / "toxoplasma_plaque"
+    assert md.sample_folder(tmp_path, dataset) != old
+    for i in range(10):
+        (old / "masks").mkdir(parents=True, exist_ok=True)
+        (old / f"bigbean__{i}.tif").write_bytes(b"x")
+        (old / "masks" / f"bigbean__{i}.tif").write_bytes(b"x")
+    assert not md.is_present(md.sample_folder(tmp_path, dataset), dataset.size)

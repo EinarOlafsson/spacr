@@ -66,6 +66,11 @@ class MaskDataset:
     :ivar apps: which modules offer this set. A dataset belongs to the module whose
         job it illustrates, and the plaque sets belong to two -- Make Masks, where a
         curator edits the masks, and Plaque Analysis, where the pipeline runs on them.
+    :ivar quota: how many fields to take from each domain, as ``(domain, count)``,
+        a domain being the ``<domain>__`` prefix of a file name. Empty means
+        :data:`SAMPLE_SIZE` fields from the whole set.
+    :ivar revision: bumped whenever the sample a dataset gives changes, so a copy
+        cached under an older rule is not opened as if it were the new one.
     """
 
     key: str
@@ -76,6 +81,13 @@ class MaskDataset:
     model: str
     note: str = ""
     apps: Tuple[str, ...] = ("mask",)
+    quota: Tuple[Tuple[str, int], ...] = ()
+    revision: int = 1
+
+    @property
+    def size(self) -> int:
+        """How many fields a complete sample of this dataset holds."""
+        return sum(n for _d, n in self.quota) if self.quota else SAMPLE_SIZE
 
 
 MASK_DATASETS: Tuple[MaskDataset, ...] = (
@@ -91,9 +103,12 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         title="Toxoplasma plaque assays",
         repo="einarolafsson/toxoplasma-plaque-dataset",
         images="images", masks="masks",
-        model="cpsam_plaque (plaque segmentation)",
-        note="488 fields of stained monolayers; the objects are plaques, not cells.",
-        apps=("mask", "analyze_plaques")),
+        model="cpsam_plaque_r5 (plaque segmentation)",
+        note="20 of the 488 curated v5 fields that trained cpsam_plaque_r5: 8 patrick, "
+             "4 bigbean, 4 malnio, 4 literature. The objects are plaques, not cells.",
+        apps=("mask", "analyze_plaques"),
+        quota=(("patrick", 8), ("bigbean", 4), ("malnio", 4), ("literature", 4)),
+        revision=2),
     MaskDataset(
         key="plaque_figures",
         title="Plaque assay figures, whole plates",
@@ -154,9 +169,11 @@ def sample_folder(root, dataset: MaskDataset) -> Path:
 
     :param root: the folder example data is kept in.
     :param dataset: the dataset.
-    :returns: ``<root>/mask_datasets/<key>``.
+    :returns: ``<root>/mask_datasets/<key>``, with ``_r<revision>`` after the key
+        from the second revision on.
     """
-    return Path(root) / "mask_datasets" / dataset.key
+    name = dataset.key if dataset.revision <= 1 else f"{dataset.key}_r{dataset.revision}"
+    return Path(root) / "mask_datasets" / name
 
 
 def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
@@ -182,6 +199,21 @@ def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
     return len(paired) >= expected
 
 
+def _spread(stems: List[str], count: int) -> List[str]:
+    """``count`` stems spread evenly through a sorted list, not its first ``count``.
+
+    The first N in name order are the first N wells of the first plate, which is
+    one plate standing for a whole domain.
+
+    :param stems: sorted stems.
+    :param count: how many to take.
+    :returns: the picked stems, in order.
+    """
+    if count >= len(stems):
+        return list(stems)
+    return [stems[int((i + 0.5) * len(stems) / count)] for i in range(count)]
+
+
 def choose_sample(dataset: MaskDataset, listing: List[str],
                   size: int = SAMPLE_SIZE) -> List[Tuple[str, str]]:
     """Pick which files a sample holds, as ``(image path, mask path)`` in the repo.
@@ -197,7 +229,8 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
 
     :param dataset: which dataset, for its two folder names.
     :param listing: every path in the repository.
-    :param size: how many pairs to take.
+    :param size: how many pairs to take. Ignored when the dataset has a
+        :attr:`MaskDataset.quota`, which says how many per domain instead.
     :returns: up to ``size`` pairs, in sorted order so two machines agree.
     """
     prefix_i = f"{dataset.images}/"
@@ -207,6 +240,11 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
     prefix_m = f"{dataset.masks}/"
     masks = {Path(p).stem: p for p in listing if p.startswith(prefix_m)}
     both = sorted(set(images) & set(masks))
+    if dataset.quota:
+        picked: List[str] = []
+        for domain, count in dataset.quota:
+            picked += _spread([s for s in both if s.startswith(f"{domain}__")], count)
+        return [(images[stem], masks[stem]) for stem in sorted(picked)]
     return [(images[stem], masks[stem]) for stem in both[:size]]
 
 
@@ -331,7 +369,7 @@ def install_dataset_button(screen, app_key: str = "mask", use=None):
     button = QPushButton(tr("Training datasets…"), screen)
     button.setCursor(Qt.PointingHandCursor)
     button.setToolTip(tr(
-        "Open ten fields of the dataset a published model was trained on, with its "
+        "Open a sample of the dataset a published model was trained on, with its "
         "masks, and edit them here. One entry per model in the zoo. Cached after the "
         "first download."))
     button.clicked.connect(
@@ -375,11 +413,12 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None,
         root = examples_root()
     folder = sample_folder(root, dataset)
     take = use or (lambda path: screen._open_folder(str(path)))
-    if is_present(folder):
+    if is_present(folder, dataset.size):
         _say(screen, tr("Opening {name}").format(name=dataset.title))
         return bool(take(folder))
 
-    _say(screen, tr("Downloading ten fields of {name}…").format(name=dataset.title))
+    _say(screen, tr("Downloading {count} fields of {name}…").format(
+        count=dataset.size, name=dataset.title))
     button = getattr(screen, "_btn_training_datasets", None)
     if button is not None:
         button.setEnabled(False)
@@ -396,8 +435,8 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None,
             _say(screen, tr("Downloaded {name}, but the folder would not open")
                  .format(name=dataset.title))
             return
-        _say(screen, tr("{name}: ten fields and the masks the model was trained on")
-             .format(name=dataset.title))
+        _say(screen, tr("{name}: {count} fields and the masks the model was trained on")
+             .format(name=dataset.title, count=dataset.size))
 
     (fetch or _fetch_sample)(screen, dataset, folder, done)
     return False

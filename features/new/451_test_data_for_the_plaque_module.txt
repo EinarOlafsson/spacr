@@ -72,3 +72,26 @@ against the LIVE repositories: ten pairs from the fields set, ten images from
 the figures set (`12860_2020_249_Fig6_HTML.png` and friends), and the plaque
 screen was built headless to confirm the button exists and says "Load test
 data…", which is the part a registry table cannot prove.
+
+--------------------------------------------------------------------------------
+2026-09-21 — THE PLAQUE SAMPLE WAS TEN BIGBEAN WELLS; IT IS NOW TWENTY, BY DOMAIN
+--------------------------------------------------------------------------------
+
+Requested: 2026-09-21, verbatim -- "please update the make masks test set to
+a small extract of einarolafsson/toxoplasma-plaque-dataset (40% patrick, 20%
+bigbean, 20 % malnio, 20% literature) 20 images total. this can be the same
+test set for the plaque modual plaque image test set (there should be several
+for the plaque modual, this one can be the already seperated plaques, another
+will be figures where the YOLO nees to be applied.)"
+
+The repository was already the right one -- v5, the 488 curated fields that
+trained cpsam_plaque_r5 -- but choose_sample took the first ten stems by name,
+and the first 27 stems are bigbean. So the sample showed one plate set of one
+domain and none of the curation the maintainer had just been looking at.
+
+MaskDataset now takes a per-domain quota; toxoplasma_plaque asks for 8
+patrick, 4 bigbean, 4 malnio and 4 literature, each spread evenly through the
+domain rather than its first N. The dataset's revision is 2, so the sample
+caches under toxoplasma_plaque_r2 and a machine holding the old ten opens the
+new twenty instead. Plaque Analysis offers the same set (separated plaques)
+beside the plaque_figures set (whole figures for the YOLO detector).
