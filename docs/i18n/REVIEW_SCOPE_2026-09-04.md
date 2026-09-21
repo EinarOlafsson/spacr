@@ -63,17 +63,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 6,231 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
+| Language | Reviewed runtime records | Of 6,232 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 674 | 10.82% | 5,557 | 710 | 6.36% | 10,456 |
-| German | 637 | 10.22% | 5,594 | 691 | 6.19% | 10,475 |
-| Spanish | 642 | 10.30% | 5,589 | 570 | 5.10% | 10,596 |
-| Simplified Chinese | 949 | 15.23% | 5,282 | 853 | 7.64% | 10,313 |
-| Portuguese | 650 | 10.43% | 5,581 | 798 | 7.15% | 10,368 |
-| Hindi | 430 | 6.90% | 5,801 | 747 | 6.69% | 10,419 |
-| Korean | 549 | 8.81% | 5,682 | 820 | 7.34% | 10,346 |
-| Icelandic | 498 | 7.99% | 5,733 | 1,316 | 11.79% | 9,850 |
-| French | 670 | 10.75% | 5,561 | 734 | 6.57% | 10,432 |
+| Swedish | 674 | 10.82% | 5,558 | 710 | 6.36% | 10,456 |
+| German | 637 | 10.22% | 5,595 | 691 | 6.19% | 10,475 |
+| Spanish | 642 | 10.30% | 5,590 | 570 | 5.10% | 10,596 |
+| Simplified Chinese | 949 | 15.23% | 5,283 | 853 | 7.64% | 10,313 |
+| Portuguese | 650 | 10.43% | 5,582 | 798 | 7.15% | 10,368 |
+| Hindi | 430 | 6.90% | 5,802 | 747 | 6.69% | 10,419 |
+| Korean | 549 | 8.81% | 5,683 | 820 | 7.34% | 10,346 |
+| Icelandic | 498 | 7.99% | 5,734 | 1,316 | 11.79% | 9,850 |
+| French | 670 | 10.75% | 5,562 | 734 | 6.57% | 10,432 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven
