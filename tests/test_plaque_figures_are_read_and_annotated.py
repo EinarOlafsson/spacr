@@ -113,3 +113,65 @@ def test_a_folder_of_figures_is_measured_into_one_database(tmp_path):
             "SELECT area_vs_panel_median FROM plaques"))
     assert conditions[0] == "+MEV / +Rapamycin"
     assert ratios[0] == pytest.approx(100 / 250) and ratios[-1] == pytest.approx(400 / 250)
+
+
+def test_without_ultralytics_the_reader_environment_detects(monkeypatch):
+    """Item 469: with ultralytics absent from spaCR and the reader installed,
+    detection goes to the reader's worker, never to an import here."""
+    seen = {}
+
+    class Worker:
+        def request(self, op, **payload):
+            seen[op] = payload
+            return {"boxes": [[1, 2, 21, 22, 0.7, 640]]}
+
+    monkeypatch.setattr(pp, "_importable", lambda module: False)
+    monkeypatch.setattr(pp, "reader_environment", lambda: "/env/papers")
+    monkeypatch.setattr("spacr._segmentation_backends._worker_for",
+                        lambda name, env: Worker())
+    assert pp.default_detect() is pp.reader_detect
+    regions = pp.find_plaque_regions(np.zeros((40, 40, 3), np.uint8), "w.pt",
+                                     imgsz=(640,))
+    assert [(r.x0, r.y0, r.x1, r.y1) for r in regions] == [(1, 2, 21, 22)]
+    assert seen["detect"]["imgsz"] == [640] and seen["detect"]["weights"] == "w.pt"
+
+
+def test_a_paper_becomes_a_folder_of_figures_with_its_legends(tmp_path):
+    """Item 424: a DOI in, a folder Figure mode reads out, legends gathered."""
+    import io
+    import json
+    import zipfile
+
+    from PIL import Image
+
+    png = io.BytesIO()
+    Image.fromarray(np.zeros((8, 8, 3), np.uint8)).save(png, format="PNG")
+    bundle = io.BytesIO()
+    with zipfile.ZipFile(bundle, "w") as z:
+        z.writestr("ppat.g006.png", png.getvalue())
+        z.writestr("ppat.g007.png", png.getvalue())
+    xml = (b'<article><fig><label>Fig 6</label><caption><p>Title.A, one. '
+           b'D, plaque assays.</p></caption><graphic xlink:href="ppat.g006" '
+           b'xmlns:xlink="http://www.w3.org/1999/xlink"/></fig></article>')
+
+    class Response:
+        def __init__(self, content=b"", payload=None):
+            self.status_code, self.content, self._payload = 200, content, payload
+
+        def json(self):
+            return self._payload
+
+    def get(url, **kw):
+        if url.endswith("/search"):
+            return Response(payload={"resultList": {"result": [{
+                "pmcid": "PMC1", "doi": "10.1371/x.1", "license": "cc by"}]}})
+        if url.endswith("fullTextXML"):
+            return Response(xml)
+        return Response(bundle.getvalue())
+
+    out = pp.fetch_paper_to_folder("10.1371/x.1", tmp_path / "paper", get=get)
+    assert out["figures"] == 2 and out["with_legend"] == 1
+    assert out["licence"] == "cc by"
+    legends = pp.read_legends(tmp_path / "paper" / pp.LEGENDS_FILE)
+    assert legends == {"ppat.g006": "Title.A, one. D, plaque assays."}
+    assert json.loads((tmp_path / "paper" / "paper.json").read_text())["doi"] == "10.1371/x.1"

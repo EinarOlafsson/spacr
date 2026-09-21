@@ -72,6 +72,7 @@ __all__ = [
     "measure_region",
     "measure_plaques_from_papers",
     "measure_figure_folder",
+    "fetch_paper_to_folder",
     "figures_in_folder",
     "read_legends",
     "read_annotation_overrides",
@@ -317,6 +318,21 @@ def resolve_paper(ref: Any, *, get: Optional[Callable] = None) -> Paper:
                  licence=(hit.get("license") or "").strip().lower() or None)
 
 
+def _graphic_stem(name: str) -> str:
+    """A figure file's name without an IMAGE extension, and nothing more.
+
+    ``Path.stem`` drops whatever follows the last dot, so a JATS graphic named
+    without an extension -- ``ppat.1011009.g006`` -- lost its ``.g006`` and
+    matched no image: every legend of such a paper went unfound.
+
+    :param name: a file name or a graphic reference.
+    :returns: the name, minus a trailing image extension if it has one.
+    """
+    base = Path(str(name)).name
+    suffix = Path(base).suffix.lower()
+    return base[:-len(suffix)] if suffix in IMAGE_SUFFIXES else base
+
+
 def _captions_from_jats(xml: bytes) -> Dict[str, Dict[str, str]]:
     """Figure label and legend for each graphic named in a JATS article.
 
@@ -340,7 +356,7 @@ def _captions_from_jats(xml: bytes) -> Dict[str, Dict[str, str]]:
             href = (graphic.get("{http://www.w3.org/1999/xlink}href")
                     or graphic.get("href") or "")
             if href:
-                out[Path(href).stem] = {"label": label, "caption": caption}
+                out[_graphic_stem(href)] = {"label": label, "caption": caption}
     return out
 
 
@@ -380,7 +396,7 @@ def fetch_figures(paper: Paper, dest: Any, *,
                 suffix = Path(info.filename).suffix.lower()
                 if suffix not in IMAGE_SUFFIXES:
                     continue
-                stem = Path(info.filename).stem
+                stem = _graphic_stem(info.filename)
                 score = (-int(info.file_size), FORMAT_RANK[suffix])
                 if stem not in best or score < best[stem][:2]:
                     best[stem] = (score[0], score[1], info.filename)
@@ -563,21 +579,126 @@ def read_words(image: Any, *, engine: Optional[Callable] = None) -> List[Word]:
 
 _ENGINE: Dict[str, Any] = {}
 
+#: The figure reader's own environment (item 469): ultralytics and RapidOCR
+#: installed apart from spaCR, so their torch and opencv cannot change it.
+READER_BACKEND = "papers"
+
+
+def _importable(module: str) -> bool:
+    """Whether ``module`` can be imported here, without importing it.
+
+    :param module: a top-level module name.
+    :returns: True when it is on this interpreter's path.
+    """
+    from importlib.util import find_spec
+
+    try:
+        return find_spec(module) is not None
+    except (ImportError, ValueError):
+        return False
+
+
+def reader_environment() -> Optional[str]:
+    """The figure reader's own environment when it is installed, else None.
+
+    :returns: the environment folder.
+    """
+    try:
+        from ._segmentation_backends import _backend_state
+
+        state = _backend_state(READER_BACKEND)
+    except Exception:
+        return None
+    return state.env if state.ready and not state.in_process else None
+
+
+def _reader_request(op: str, image: Any, **payload: Any) -> Dict[str, Any]:
+    """Send one image to the figure reader's worker and return its reply.
+
+    :param op: ``detect`` or ``read_text``.
+    :param image: an ``H x W x 3`` array or an image path.
+    :param payload: the request's other fields.
+    :returns: the reply.
+    :raises ImportError: when the reader is not installed anywhere.
+    """
+    import tempfile
+
+    from ._segmentation_backends import _worker_for
+
+    env = reader_environment()
+    if env is None:
+        raise ImportError(
+            "Figure mode needs the plaque figure reader (YOLO and RapidOCR). "
+            "Install it from Plaque Assay's Figure mode or the Model Zoo; it "
+            "goes into an environment of its own.")
+    array = image if isinstance(image, np.ndarray) else _load_image(Path(image))
+    with tempfile.TemporaryDirectory(prefix="spacr_reader_") as folder:
+        path = str(Path(folder) / "image.npy")
+        np.save(path, np.ascontiguousarray(array), allow_pickle=False)
+        return _worker_for(READER_BACKEND, env).request(op, image=path, **payload)
+
+
+def reader_detect(image: np.ndarray, weights: str, *, confidence: float = 0.25,
+                  imgsz: int = 640, min_axis_ratio: float = 0.0) -> List[Any]:
+    """:func:`spacr.plaque.detect_wells`, answered by the reader's environment.
+
+    :param image: the figure, RGB.
+    :param weights: the detector checkpoint.
+    :param confidence: minimum score.
+    :param imgsz: the inference size.
+    :param min_axis_ratio: accepted for the same signature; nothing is
+        dropped for its shape here, as in Figure mode's in-process call.
+    :returns: boxes with ``x0, y0, x1, y1, confidence``.
+    """
+    from types import SimpleNamespace
+
+    reply = _reader_request("detect", image, weights=str(weights),
+                            imgsz=[int(imgsz)], confidence=float(confidence))
+    return [SimpleNamespace(x0=b[0], y0=b[1], x1=b[2], y1=b[3], confidence=b[4])
+            for b in reply.get("boxes", [])]
+
+
+def _reader_ocr(image: Any):
+    """RapidOCR's call shape, answered by the reader's environment.
+
+    :param image: an array or a path.
+    :returns: ``(results, None)`` as RapidOCR returns them.
+    """
+    reply = _reader_request("read_text", image)
+    return [tuple(word) for word in reply.get("words", [])], None
+
+
+def default_detect() -> Callable:
+    """The detector call Figure mode uses: in process, or in the reader.
+
+    :returns: :func:`spacr.plaque.detect_wells` when ultralytics imports in
+        spaCR itself, else :func:`reader_detect`.
+    """
+    if _importable("ultralytics") or reader_environment() is None:
+        from .plaque import detect_wells
+
+        return detect_wells
+    return reader_detect
+
 
 def _rapidocr() -> Callable:
-    """The RapidOCR engine, built once per process.
+    """The RapidOCR engine: in process when installed, else the reader's.
 
     :returns: the engine.
-    :raises ImportError: when rapidocr is not installed.
+    :raises ImportError: when RapidOCR is available neither way.
     """
     if "rapidocr" not in _ENGINE:
-        try:
+        if _importable("rapidocr_onnxruntime"):
             from rapidocr_onnxruntime import RapidOCR
-        except ImportError as exc:
+
+            _ENGINE["rapidocr"] = RapidOCR()
+        elif reader_environment() is not None:
+            return _reader_ocr
+        else:
             raise ImportError(
-                "Reading the text in figure images needs RapidOCR. Install it "
-                "with:\n  " + INSTALL_HINT) from exc
-        _ENGINE["rapidocr"] = RapidOCR()
+                "Reading the text in figure images needs RapidOCR. Install "
+                "the plaque figure reader from Plaque Assay's Figure mode or "
+                "the Model Zoo; it goes into an environment of its own.")
     return _ENGINE["rapidocr"]
 
 
@@ -619,7 +740,7 @@ def find_plaque_regions(image: np.ndarray, weights: Any, *,
     :returns: the regions, top-to-bottom then left-to-right.
     """
     if detect is None:
-        from .plaque import detect_wells as detect
+        detect = default_detect()
     merged: List[Region] = []
     for size in imgsz:
         for box in detect(image, weights, confidence=confidence,
@@ -1478,6 +1599,51 @@ def measure_figure_folder(
     connection.close()
     summary["awaiting_approval"] = waiting["n"]
     return summary
+
+
+def fetch_paper_to_folder(reference: Any, dest: Any, *,
+                          get: Optional[Callable] = None,
+                          pdf_opener: Optional[Callable] = None) -> Dict[str, Any]:
+    """Put a paper's figures in a folder Plaque Assay's Figure mode can read.
+
+    The maintainer's 424 request: "if the figure pannel letter is detected,
+    there should be a mechanism to auto gather the figure ledgend". A DOI,
+    PMID or PMC id is fetched from Europe PMC with its JATS legends; a PDF is
+    rendered page by page with the legends found in its text. Either way the
+    images land in ``dest`` and each figure's legend in ``dest/legends.csv``,
+    which Figure mode and :func:`measure_figure_folder` read -- so a paper
+    becomes an ordinary folder of figures, annotated with its own legends.
+
+    :param reference: a DOI, PMID, PMC id or PDF path.
+    :param dest: the folder to fill; created if missing.
+    :param get: HTTP getter for Europe PMC.
+    :param pdf_opener: passed to :func:`figures_from_pdf`.
+    :returns: ``{'folder', 'paper', 'figures', 'with_legend', 'licence'}``.
+    """
+    import csv
+
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    paper = resolve_paper(reference, get=get)
+    if paper.source == "pdf":
+        figures = figures_from_pdf(paper.pdf, dest, opener=pdf_opener)
+    else:
+        figures = fetch_figures(paper, dest, get=get)
+    rows = [{"file": figure.path.name, "legend": figure.caption}
+            for figure in figures if figure.caption]
+    existing = read_legends(dest / LEGENDS_FILE)
+    for row in rows:
+        existing[Path(row["file"]).stem] = row["legend"]
+    with open(dest / LEGENDS_FILE, "w", newline="", encoding="utf-8") as handle:
+        writer = csv.writer(handle)
+        writer.writerow(["file", "legend"])
+        names = {Path(f.path.name).stem: f.path.name for f in figures}
+        for stem, legend in sorted(existing.items()):
+            writer.writerow([names.get(stem, stem), legend])
+    (dest / "paper.json").write_text(json.dumps(asdict(paper), indent=2),
+                                     encoding="utf-8")
+    return {"folder": str(dest), "paper": paper.key, "figures": len(figures),
+            "with_legend": len(rows), "licence": paper.licence}
 
 
 def annotation_as_dict(annotation: Annotation) -> Dict[str, Any]:
