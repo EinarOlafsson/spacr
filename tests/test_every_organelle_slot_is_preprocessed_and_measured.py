@@ -105,6 +105,70 @@ class TestASecondSlotIsNormalisedWithItsOwnValues:
         np.testing.assert_array_equal(as_twentieth[..., 4], as_first[..., 4])
 
 
+class TestEverySlotHasItsOwnBackgroundSwitch:
+    """``remove_background_<slot>`` is a real setting for slots two onward.
+
+    Item 364, 2026-09-21. Slots past the first had a background floor and a
+    signal-to-noise anchor and no switch to apply the floor with, so a noisy
+    second organelle stain could not be clipped without clipping the first.
+    The maintainer chose to extend the existing ``remove_background_<object>``
+    pattern.
+    """
+
+    def test_it_is_declared_typed_and_explained_for_every_slot(self):
+        from spacr.organelle_types import ALL_ORGANELLE_ROLES
+        from spacr.settings import expected_types, tooltips
+
+        for role in ALL_ORGANELLE_ROLES:
+            key = f"remove_background_{role}"
+            assert expected_types[key] is bool, key
+            assert f"{role}_background" in tooltips[key], key
+
+    def test_the_factory_gives_each_enabled_slot_its_own_switch_off(self):
+        from spacr.settings import (
+            set_default_settings_preprocess_generate_masks as factory)
+
+        settings = factory({"organelle_channel": 3, "organelleb_channel": 4,
+                            "number_of_organelles": 2})
+        assert settings["remove_background_organelle"] is False
+        assert settings["remove_background_organelleb"] is False
+        assert "remove_background_organellec" not in settings
+
+    def test_a_value_the_user_set_survives_the_factory(self):
+        from spacr.settings import (
+            set_default_settings_preprocess_generate_masks as factory)
+
+        settings = factory({"organelle_channel": 3, "organelleb_channel": 4,
+                            "number_of_organelles": 2,
+                            "remove_background_organelleb": True})
+        assert settings["remove_background_organelleb"] is True
+
+    def test_turning_on_slot_two_clips_slot_two_and_not_slot_one(self):
+        stack = _ramp_stack()
+        both = {"organelle_channel": 3, "organelleb_channel": 4,
+                "organelle_background": 300, "organelleb_background": 300}
+        off = _normalise(both, stack)
+        on = _normalise({**both, "remove_background_organelleb": True}, stack)
+        below = stack[0, :, :, 4] < 300
+        assert np.all(on[0][below, 4] == 0)
+        assert np.any(off[0][below, 4] > 0)
+        np.testing.assert_array_equal(on[..., 3], off[..., 3])
+
+    def test_the_switch_does_not_make_a_file_look_like_it_uses_a_slot(self):
+        """A switch alone is not a slot in use, as its name does not start
+        with the slot's prefix; counting it would conjure an organelle."""
+        from spacr.organelle_types import organelle_count
+
+        assert organelle_count({"remove_background_organellec": True}) == 0
+
+    def test_the_panel_hides_it_with_its_slot(self):
+        from spacr.qt.screens.settings_model import object_of_setting
+
+        assert object_of_setting("remove_background_organelleb") == (
+            "organelleb")
+        assert object_of_setting("remove_background") is None
+
+
 class TestWhatASlotTakesWhenItsOwnValueIsMissingOrShared:
     """Which of the three values a slot's channel ends up with.
 
@@ -117,9 +181,11 @@ class TestWhatASlotTakesWhenItsOwnValueIsMissingOrShared:
     def test_a_slot_sharing_the_pathogens_channel_wins_what_it_carries(self):
         """Read last, a slot wins each value it carries, as the first did.
 
-        The floor and the anchor become the slot's. The switch does not: no
-        slot past the first declares ``remove_background_<slot>``, so the one
-        the pathogen turned on stays on for that channel.
+        The floor and the anchor become the slot's. The switch only when the
+        slot carries one: this dict names no ``remove_background_organelleb``,
+        so the one the pathogen turned on stays on for that channel. Every
+        slot has declared its own switch since 2026-09-21, so a settings dict
+        that went through the factory carries it and the slot's wins.
 
         Measured on the worktree: pathogen channel 2 at 200/20 sharing a
         channel with ``organelleb`` at the factory's 100/10 normalises at

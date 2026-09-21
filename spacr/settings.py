@@ -3718,6 +3718,10 @@ expected_types = {
 }
 
 _clone_organelle_registry(expected_types)
+SLOT_BACKGROUND_SWITCHES = tuple(
+    f'remove_background_{role}' for role in ORGANELLE_SLOT_ROLES[1:])
+for _key in SLOT_BACKGROUND_SWITCHES:
+    expected_types.setdefault(_key, bool)
 #: The slot prefixes, built ONCE. `str.startswith` takes a tuple and does the
 #: whole comparison in C, which is the entire point of hoisting this: the
 #: comprehension below used to build `f'{role}_'` inside an `any()` over every
@@ -4706,6 +4710,13 @@ tooltips = {
 }
 
 _clone_organelle_registry(tooltips, tooltip=True)
+for _role in ORGANELLE_SLOT_ROLES[1:]:
+    tooltips.setdefault(
+        f'remove_background_{_role}',
+        tooltips['remove_background_organelle']
+        .replace('organelle_', f'{_role}_')
+        .replace('the organelle channel',
+                 f'the organelle {organelle_number(_role)} channel'))
 
 
 def _name_the_family_in_every_estimator_tooltip():
@@ -5103,6 +5114,7 @@ for _role in ORGANELLE_SLOT_ROLES[1:]:
         _organelle_slot_key(key, _role) for key in _organelle_basic_slots)
     categories['Organelle advanced'].extend(
         _organelle_slot_key(key, _role) for key in _organelle_advanced_slots)
+    categories['Organelle advanced'].append(f'remove_background_{_role}')
     for _suffix in ('channel', 'mask_dim', 'chann_dim'):
         _key = f'{_role}_{_suffix}'
         categories['General'].append(_key)
@@ -6362,6 +6374,7 @@ def _set_organelle_defaults(settings):
             slot_key = _organelle_slot_key(key, role)
             base_value = view.get(key, value)
             settings.setdefault(slot_key, deepcopy(base_value))
+        settings.setdefault(f'remove_background_{role}', False)
     return settings
 
 

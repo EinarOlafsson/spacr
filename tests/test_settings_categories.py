@@ -858,7 +858,8 @@ def test_every_added_key_is_declared():
     """
     added = set(_all_categorised_keys()) - KEYS_BEFORE_REGROUP
     undeclared = sorted(
-        added - set(KEYS_ADDED_BY_REGROUP) - set(S.DYNAMIC_ORGANELLE_SETTINGS))
+        added - set(KEYS_ADDED_BY_REGROUP) - set(S.DYNAMIC_ORGANELLE_SETTINGS)
+        - set(S.SLOT_BACKGROUND_SWITCHES))
     assert not undeclared, (
         "categories gained keys that KEYS_ADDED_BY_REGROUP does not list: "
         f"{undeclared}"

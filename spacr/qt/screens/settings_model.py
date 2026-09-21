@@ -479,6 +479,9 @@ def object_of_setting(key: str) -> Optional[str]:
     role = organelle_role_of(text)
     if role is not None:
         return role
+    tail = organelle_role_of(text.rpartition("_")[2])
+    if tail is not None and text.startswith("remove_background_"):
+        return tail
     for obj in CHANNELLED_OBJECTS:
         if text.startswith(f"{obj}_") or text.endswith(f"_{obj}"):
             return obj
