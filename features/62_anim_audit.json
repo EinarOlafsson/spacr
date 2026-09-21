@@ -712,10 +712,11 @@
       "note": "Concentric shells expand from the pathogen inside the cell -- the binned distance measurement."
     },
     {
-      "slug": "straightness_filter",
+      "slug": "drop_straight_tracks",
+      "renamed_from": "straightness_filter",
       "scene": "tracking",
       "settings": [
-        "straightness_filter",
+        "drop_straight_tracks",
         "straightness_threshold"
       ],
       "verdict": "GOOD",
@@ -797,10 +798,11 @@
       "note": "Plane outlines collapse into a single projected object."
     },
     {
-      "slug": "zscore_thresh",
+      "slug": "track_outlier_zscore",
+      "renamed_from": "zscore_thresh",
       "scene": "tracking",
       "settings": [
-        "zscore_thresh"
+        "track_outlier_zscore"
       ],
       "verdict": "GOOD",
       "visible_change": 0.0105,
