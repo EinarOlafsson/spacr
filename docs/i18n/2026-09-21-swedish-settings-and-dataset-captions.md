@@ -16,3 +16,10 @@ The source-bound runtime syntax and review-reporter checks pass: 10 tests in
 985 setting tooltips, 194 categories, 3796 UI strings and 68 modules at the
 measured source revision. Broader API and remaining runtime translation debt
 is still open. No audit gate or coverage baseline was relaxed.
+
+Integration note: rebasing onto `7c4ac005a` added seven UI sources for assay
+test-data downloads and plate templates. The English manifest is refreshed;
+German now reports seven missing rows (including the new `{detail}` failure
+caption). This is additional translation debt, not a regression in the 66
+reviewed records above. The earlier green full audit applies before those
+incoming source changes. Source-binding checks are rerun on the integrated tree.

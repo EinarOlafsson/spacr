@@ -8649,3 +8649,12 @@ failures: _grid lacks install_sorting(), and lines 445/457 construct bare
 QTableWidgetItems. Make Masks' readout-after-edit test times out waiting for
 label 0. These production UI findings remain with Claude's corresponding
 lanes; Codex has not changed their behavior. The full run is still running.
+
+Integration of c0558cabf/7c4ac005a adds seven UI sources for assay example
+downloads and plate templates. English is refreshed; those new translations
+remain explicit debt in the checkpoint report. No prior record became stale.
+The coverage run's batch 26 stalled after gw0 crashed in the packaged tooltip
+animation test: both surviving workers waited in xdist.remote.get and the
+controller waited in dsession.loop_once for over 13 minutes. Saved all three
+stack dumps, then sent SIGINT to that batch controller only so the existing
+coverage-loss recovery can rerun affected files. The baseline is unchanged.
