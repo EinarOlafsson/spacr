@@ -387,7 +387,7 @@ def _cuda_cached() -> Optional[int]:
     not initialise a CUDA context.
     """
     torch = _torch_if_loaded()
-    if torch is None:
+    if torch is None or getattr(torch, "cuda", None) is None:
         return None
     try:
         if not torch.cuda.is_available() or not torch.cuda.is_initialized():
