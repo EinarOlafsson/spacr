@@ -1,0 +1,24 @@
+================================================================================
+THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
+================================================================================
+
+Status:    BUILDING 2026-09-21.
+
+Requested: 2026-09-21, verbatim -- "if the downlode changes the dependencies
+           and so on it would be great if we could contain it in a different
+           environment"
+
+Owner:     Claude (spacr/_segmentation_backends.py, spacr/plaque_papers.py,
+           spacr/qt/widgets/plaque_preview.py, spacr/model_zoo.py).
+
+Plaque Assay's Figure mode needs ultralytics (the YOLO detector) and
+RapidOCR -- the spacr[papers] extra. Installing that extra into spaCR's own
+environment lets ultralytics pull its own torch, opencv and friends and move
+what spaCR runs on. Cellpose 3, DINOCell and SAMCell already install into
+environments of their own under ~/.spacr/backends/<name> and are called out of
+process (item 423); the figure reader becomes one more such backend, named
+'papers', which the Model Zoo lists and installs but which is not offered as a
+segmentation backend. Its worker answers two requests besides hello: detect
+(plaque images in a figure, at the chosen sizes) and read_text (the words and
+their boxes). Figure mode -- preview and run -- uses it whenever ultralytics
+is not importable in spaCR itself.

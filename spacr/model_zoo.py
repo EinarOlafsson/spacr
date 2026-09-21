@@ -2231,7 +2231,7 @@ def _backend_for(entry: Any) -> str:
 #: environment of its own, never into spaCR's.
 INSTALLABLE_BACKENDS = {
     _name: (_spec.label, f"backend:{_name}", _spec.module, _spec.blurb)
-    for _name, _spec in _BACKEND_SPECS.items()
+    for _name, _spec in _BACKEND_SPECS.items() if _spec.segments
 }
 
 

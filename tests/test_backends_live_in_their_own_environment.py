@@ -454,6 +454,7 @@ def test_every_module_an_adapter_imports_is_in_its_self_test():
         "dinocell": (SB._import_dinocell, SB._DinoCellBackend),
         "samcell": (SB._import_samcell, SB._SamCellBackend,
                     SB._samcell_weights_path),
+        "papers": (SB._worker_detect, SB._worker_read_text),
     }
     assert set(sources) == set(SB._SPECS), (
         "a backend was added or removed without its adapter being listed "
@@ -1684,8 +1685,62 @@ def test_every_backend_row_quotes_its_published_results_with_a_source():
     source, and a plain statement that spaCR has not measured them."""
     from spacr import model_zoo
 
+    segmenting = {spec.label for spec in SB._SPECS.values() if spec.segments}
     for entry in model_zoo.installable_backend_entries():
+        if entry.name not in segmenting:
+            continue
         published = [n for n in entry.notes if n.startswith("Published results")]
         assert len(published) == 1, entry.name
         assert "spaCR has not scored" in published[0]
         assert "doi:" in published[0] or "arXiv:" in published[0]
+
+
+def test_the_figure_reader_is_installable_but_never_a_segmentation_backend():
+    """Item 469: YOLO + RapidOCR get an environment of their own, listed in
+    the Model Zoo, and are not offered where a segmenter is chosen."""
+    from spacr import model_zoo
+
+    assert "papers" in SB._SPECS and not SB._SPECS["papers"].segments
+    assert "papers" not in model_zoo.INSTALLABLE_BACKENDS
+    assert "Plaque figure reader" in {
+        e.name for e in model_zoo.installable_backend_entries()}
+    with pytest.raises(ValueError):
+        SB._backend_name("papers")
+
+
+def test_the_worker_answers_detect_and_read_text(tmp_path, monkeypatch):
+    import sys
+    import types
+
+    import numpy as np
+
+    image = tmp_path / "figure.npy"
+    np.save(image, np.zeros((20, 30, 3), np.uint8))
+
+    class Box:
+        xyxy = np.array([[1.0, 2.0, 11.0, 12.0]])
+        conf = np.array([0.8])
+
+    class YOLO:
+        def __init__(self, weights):
+            self.weights = weights
+
+        def predict(self, source, conf, imgsz, verbose):
+            assert source.shape == (20, 30, 3)
+            return [types.SimpleNamespace(boxes=[Box()])]
+
+    class RapidOCR:
+        def __call__(self, image):
+            return [[[[0, 0], [5, 0], [5, 4], [0, 4]], "WT", 0.9]], 0.1
+
+    monkeypatch.setitem(sys.modules, "ultralytics", types.SimpleNamespace(YOLO=YOLO))
+    monkeypatch.setitem(sys.modules, "rapidocr_onnxruntime",
+                        types.SimpleNamespace(RapidOCR=RapidOCR))
+    reply = SB._handle("papers", {"protocol": SB._PROTOCOL, "id": 1, "op": "detect",
+                                  "image": str(image), "weights": "w.pt",
+                                  "imgsz": [640, 1280], "confidence": 0.25}, {})
+    assert reply["ok"] and reply["boxes"] == [[1.0, 2.0, 11.0, 12.0, 0.8, 640],
+                                              [1.0, 2.0, 11.0, 12.0, 0.8, 1280]]
+    reply = SB._handle("papers", {"protocol": SB._PROTOCOL, "id": 2,
+                                  "op": "read_text", "image": str(image)}, {})
+    assert reply["ok"] and reply["words"][0][1] == "WT"

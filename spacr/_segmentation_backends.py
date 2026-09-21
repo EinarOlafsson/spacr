@@ -113,6 +113,7 @@ _CELLPOSE = "cellpose"
 _CELLPOSE3 = "cellpose3"
 _DINOCELL = "dinocell"
 _SAMCELL = "samcell"
+_PAPERS = "papers"
 
 #: Every value ``segmentation_backend`` accepts, the default first.
 _BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
@@ -229,6 +230,9 @@ class _BackendSpec:
         own environment is still used.
     :param models: the named models the backend offers.
     :param blurb: one sentence for the zoo row.
+    :param segments: whether this is a segmentation backend. The figure
+        reader (``papers``) is installed and run the same way but is never
+        offered as one.
     :param published: the project's own reported results, quoted with their
         source, for the zoo row's scorecard note. spaCR has not measured
         these backends on its own data, and the note says so.
@@ -251,6 +255,7 @@ class _BackendSpec:
     models: tuple = ()
     blurb: str = ""
     published: str = ""
+    segments: bool = True
 
 
 #: Every optional backend. The versions are the ones each adapter was
@@ -326,6 +331,29 @@ _SPECS = {
             "0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, "
             "against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored "
             "this backend on its own data.")),
+    _PAPERS: _BackendSpec(
+        name=_PAPERS, label="Plaque figure reader", module="ultralytics",
+        probe=("ultralytics", "rapidocr_onnxruntime"),
+        distribution="ultralytics",
+        requirements=("ultralytics==8.4.157", "rapidocr-onnxruntime==1.4.4"),
+        torch=("torch", "torchvision"), python=((3, 9), (3, 12)),
+        licence="AGPL-3.0 (ultralytics) / Apache-2.0 (RapidOCR)",
+        licence_note=(
+            "ultralytics is AGPL-3.0 and RapidOCR Apache-2.0. They are "
+            "installed into this environment of their own and run in a "
+            "separate process, so spaCR's own environment and licence are "
+            "untouched."),
+        homepage="https://github.com/ultralytics/ultralytics", size_gb=3.0,
+        segments=False,
+        blurb=(
+            "What Plaque Assay's Figure mode needs: the YOLO detector that "
+            "finds plaque images in a figure, and RapidOCR, which reads the "
+            "panel letters and labels around them. Installed apart from "
+            "spaCR so its torch and opencv cannot change spaCR's."),
+        published=(
+            "Published results: none for this use. The detector's own "
+            "measurements on published figures are in item 424 "
+            "(toxoplasma_well_detector_v2)."))
 }
 
 
@@ -392,6 +420,8 @@ def _spec(name):
 
     :raises ValueError: for Cellpose 4 or a name spaCR has no backend for.
     """
+    if str(name).strip().lower() == _PAPERS:
+        return _SPECS[_PAPERS]
     backend = _backend_name(name)
     if backend not in _SPECS:
         raise ValueError(
@@ -2177,6 +2207,73 @@ def _worker_segment(name, request, adapters):
     return reply
 
 
+def _worker_detect(request, adapters):
+    """Find plaque images in one figure with the YOLO detector, per size.
+
+    The figure arrives as an ``H x W x 3`` RGB ``.npy`` and is handed to
+    ultralytics as BGR, the order it reads an array in (see
+    ``spacr.plaque._to_detector_channel_order``; this file cannot import
+    spaCR, so the one line is repeated).
+
+    :param request: ``image`` (a .npy path), ``weights``, ``imgsz`` (a list
+        of sizes) and ``confidence``.
+    :param adapters: the worker's cache; the detector is loaded once per
+        checkpoint.
+    :returns: ``{"boxes": [[x0, y0, x1, y1, confidence, size], ...]}``.
+    """
+    import numpy as np
+
+    key = ("yolo", str(request["weights"]))
+    if key not in adapters:
+        from ultralytics import YOLO
+
+        adapters[key] = YOLO(str(request["weights"]))
+    model = adapters[key]
+    image = np.load(request["image"], allow_pickle=False)
+    if image.ndim == 3 and image.shape[2] == 3:
+        image = np.ascontiguousarray(image[:, :, ::-1])
+    boxes = []
+    for size in request.get("imgsz") or [640]:
+        for result in model.predict(source=image,
+                                    conf=float(request.get("confidence", 0.25)),
+                                    imgsz=int(size), verbose=False):
+            found = getattr(result, "boxes", None)
+            if found is None:
+                continue
+            for box in found:
+                xyxy, conf = box.xyxy, box.conf
+                if hasattr(xyxy, "cpu"):
+                    xyxy = xyxy.cpu().numpy()
+                if conf is not None and hasattr(conf, "cpu"):
+                    conf = conf.cpu().numpy()
+                x0, y0, x1, y1 = (float(v) for v in
+                                  np.asarray(xyxy).ravel()[:4])
+                score = (float(np.asarray(conf).ravel()[0])
+                         if conf is not None else 1.0)
+                boxes.append([x0, y0, x1, y1, score, int(size)])
+    return {"boxes": boxes}
+
+
+def _worker_read_text(request, adapters):
+    """Read the words in one image with RapidOCR.
+
+    :param request: ``image``, a .npy path.
+    :param adapters: the worker's cache; the reader is built once.
+    :returns: ``{"words": [[[[x, y], ...4], text, confidence], ...]}``.
+    """
+    import numpy as np
+
+    if "rapidocr" not in adapters:
+        from rapidocr_onnxruntime import RapidOCR
+
+        adapters["rapidocr"] = RapidOCR()
+    image = np.load(request["image"], allow_pickle=False)
+    results, _elapsed = adapters["rapidocr"](image)
+    words = [[[[float(x), float(y)] for x, y in box], str(text), float(conf)]
+             for box, text, conf in (results or [])]
+    return {"words": words}
+
+
 def _handle(name, request, adapters):
     """Answer one request; every failure becomes an error reply, never a
     dead worker."""
@@ -2194,6 +2291,10 @@ def _handle(name, request, adapters):
             body = _worker_hello(name)
         elif op == "segment":
             body = _worker_segment(name, request, adapters)
+        elif op == "detect":
+            body = _worker_detect(request, adapters)
+        elif op == "read_text":
+            body = _worker_read_text(request, adapters)
         elif op == "shutdown":
             body = {}
         else:

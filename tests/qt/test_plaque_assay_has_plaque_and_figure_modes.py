@@ -236,9 +236,34 @@ def test_missing_papers_extra_is_said_with_the_command(qtbot, tmp_path,
     widget.load_source_async(str(tmp_path))
     widget.set_mode("figure")
     assert not widget._deps_banner.isHidden()
-    assert 'pip install "spacr[papers]"' in widget._deps_text.text()
+    assert "environment of their own" in widget._deps_text.text()
     assert widget.run_preview() is False
-    assert "spacr[papers]" in widget.preview_status()
+    assert "ultralytics" in widget.preview_status()
+
+
+def test_install_uses_an_environment_of_its_own(qtbot):
+    """Item 469: the figure reader is installed like Cellpose 3, DINOCell and
+    SAMCell, into ~/.spacr/backends/papers, never with pip into spaCR."""
+    widget = ppv.PlaquePreviewPanel(threaded=False)
+    qtbot.addWidget(widget)
+
+    class Dialog:
+        installed = True
+        ran = False
+
+        def exec(self):
+            Dialog.ran = True
+
+    widget._offer_install(dialog=Dialog())
+    assert Dialog.ran
+
+
+def test_an_installed_reader_counts_as_present(monkeypatch):
+    import spacr.plaque_papers as pp
+
+    monkeypatch.setattr(pp, "reader_environment", lambda: "/env/papers")
+    monkeypatch.setattr("importlib.util.find_spec", lambda name: None)
+    assert ppv.missing_papers_packages() == []
 
 
 def test_missing_packages_are_found_without_importing_them():

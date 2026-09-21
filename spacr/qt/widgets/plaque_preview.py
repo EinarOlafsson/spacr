@@ -159,7 +159,13 @@ def missing_papers_packages(importable: Optional[Callable[[str], bool]] = None
             return False
 
     check = importable or found
-    return [label for module, label in PAPERS_PACKAGES if not check(module)]
+    missing = [label for module, label in PAPERS_PACKAGES if not check(module)]
+    if missing and importable is None:
+        from ...plaque_papers import reader_environment
+
+        if reader_environment() is not None:
+            return []
+    return missing
 
 
 def papers_install_message(missing: Sequence[str]) -> str:
@@ -168,10 +174,10 @@ def papers_install_message(missing: Sequence[str]) -> str:
     :param missing: names from :func:`missing_papers_packages`.
     :returns: one paragraph with the install command.
     """
-    return tr("Figure mode needs {names}, which are not installed in this "
-              "environment. Install them with:\n    pip install \"{req}\"\n"
-              "then reopen this module. Plaque mode works without them.",
-              names=" and ".join(missing), req=PAPERS_REQUIREMENT)
+    return tr("Figure mode needs {names}. Press Install to put them in an "
+              "environment of their own, so spaCR's own packages are not "
+              "changed. Plaque mode works without them.",
+              names=" and ".join(missing))
 
 
 def parse_sizes(value: Any) -> Tuple[int, ...]:
@@ -883,10 +889,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._deps_text.setTextInteractionFlags(Qt.TextSelectableByMouse)
         banner.addWidget(self._deps_text, 1)
         self._install_btn = QPushButton(tr("Install"))
-        self._install_btn.setToolTip(tr("Run pip install \"{req}\" in the "
-                                        "environment spaCR is running in.",
-                                        req=PAPERS_REQUIREMENT))
-        self._install_btn.clicked.connect(self._offer_install)
+        self._install_btn.setToolTip(tr(
+            "Install the plaque figure reader (YOLO and RapidOCR) into an "
+            "environment of its own under ~/.spacr/backends; spaCR's own "
+            "packages are not changed."))
+        self._install_btn.clicked.connect(lambda _checked=False: self._offer_install())
         banner.addWidget(self._install_btn)
         outer.addWidget(self._deps_banner)
 
@@ -1091,12 +1098,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._deps_banner.setVisible(bool(missing))
         if missing:
             self._deps_text.setText(papers_install_message(missing))
-            try:
-                from ..model_install import can_install_packages
-
-                self._install_btn.setVisible(can_install_packages())
-            except Exception:
-                self._install_btn.hide()
+            self._install_btn.setVisible(True)
         if self._figure is not None and not figure:
             self._figure = None
             self._table.setRowCount(0)
@@ -1468,27 +1470,26 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         else:
             self.set_preview_status(tr("Download failed: {why}", why=message))
 
-    def _offer_install(self) -> None:
-        """Install the ``spacr[papers]`` extra, after asking."""
-        from ..model_install import PackageInstall, confirm_backend_install
+    def _offer_install(self, *, dialog: Any = None) -> None:
+        """Install the figure reader into an environment of its own.
 
-        if not confirm_backend_install(self, tr("the papers extra"),
-                                       PAPERS_REQUIREMENT):
-            return
-        self._install = PackageInstall(PAPERS_REQUIREMENT)
-        self._install.progressed.connect(self._deps_text.setText)
-        self._install.finished.connect(self._on_installed)
-        self._install_btn.setEnabled(False)
-        self._install.start()
+        The maintainer, 2026-09-21: "if the downlode changes the dependencies
+        and so on it would be great if we could contain it in a different
+        environment" (item 469). The same dialog the Model Zoo uses for
+        Cellpose 3, DINOCell and SAMCell: it says where it installs and what
+        it downloads, shows progress, and Cancel removes what it built.
 
-    def _on_installed(self, worked: bool, message: str) -> None:
-        """Re-check the packages once the install has ended."""
-        self._install_btn.setEnabled(True)
-        if not worked:
-            self._deps_text.setText(tr("The install failed:\n{why}",
-                                       why=message))
-            return
-        self.set_mode(self.mode())
+        :param dialog: replaces the install dialog, for tests.
+        """
+        from ...plaque_papers import READER_BACKEND
+
+        if dialog is None:
+            from .model_zoo_picker import BackendInstallDialog
+
+            dialog = BackendInstallDialog(READER_BACKEND, self)
+        dialog.exec()
+        if getattr(dialog, "installed", False):
+            self.set_mode(self.mode())
 
     def _legend_for(self, stem: str) -> str:
         """The legend ``legends.csv`` holds for a figure, or ``''``."""
