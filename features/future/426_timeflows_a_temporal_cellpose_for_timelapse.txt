@@ -324,3 +324,43 @@ now takes in parent folders until the names are distinct (tested).
 
 STILL OPEN: steps 0 and 3-7. Step 0 and the training need the GPU (only after
 it has been idle 20 minutes); the fork (step 3) can be written on the CPU.
+
+--------------------------------------------------------------------------------
+2026-09-21 -- STEPS 3 TO 6 ARE CODE: spacr/timeflows_model.py
+--------------------------------------------------------------------------------
+
+Built on the CPU, with a stand-in backbone in the tests and the real
+Cellpose-SAM backbone in a smoke run:
+
+  * STEP 3, THE FORK, without forking. Cellpose-SAM's encoder is replayed up to
+    its neck (CellposeSamFeatures: 256 channels at 1/8), shared by both frames,
+    and a new head reads the two frames' features together. The installed
+    Cellpose is not edited and its segmentation head is untouched. The
+    encoder runs in its own bfloat16; features reach the head as float32.
+    Checked on the real network: 305 M parameters, 0.45 M of them the head,
+    a 256 x 256 pair in and a (2, 256, 256) field plus a successor map out.
+  * STEP 4, THE TARGET. Per pixel of frame t, (dy, dx) to the successor's
+    centre in t+1, in the object's own diameters, and a successor flag; the
+    vector is supervised only where a successor exists, background never.
+    Children of a division take new labels (step 1's finding), so a dividing
+    parent has no successor, which is what the flag encodes.
+  * STEP 5, TRAINING. Pairs augmented identically (one flip/quarter-turn for
+    both frames), targets computed AFTER from the augmented labels so vectors
+    cannot disagree with the pixels; pairs drawn across the displacement range
+    (equal-width bins -- quantile bins collapse when most pairs move alike);
+    the curriculum head-only on a frozen backbone, then everything at a low
+    learning rate. On a CPU stand-in the loss falls.
+  * STEP 6, THE SCRAMBLE TEST. Frame t+1's labels are shuffled and the links
+    scored against the truth, beside the IoU stitcher on the same pair; with a
+    perfect prediction the model recovers every identity where IoU cannot.
+  * DATA. ctc_pairs() builds pairs from a CTC movie: frames, the silver
+    segmentation relabelled by the tracking markers (the TRA ground truth is
+    markers only) -- full masks carrying track ids.
+  * THE GPU JOB IS ONE COMMAND:
+        python -m spacr.timeflows_model --movies <ctc movie dirs> \
+            --base cpsam --out timeflows_v1.pt
+    It waits for the GPU to be idle 20 minutes (the maintainer's rule); then
+    step 6 is scored on held-out movies against step 2's stitcher.
+  * spaCR's own Cellpose training takes a base_model now (a checkpoint, a zoo
+    key or cpsam), so step 0's second stage can continue from the first
+    instead of silently restarting from stock weights.
