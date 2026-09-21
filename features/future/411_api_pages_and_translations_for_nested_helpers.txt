@@ -1022,3 +1022,16 @@ obsolete-key pruning; it is not a full-catalog pass or the final slice audit.
 Removed 42 obsolete Chinese catalog keys against current English inventory,
 retaining review history. The final post-pruning audit will remain an explicit
 checkpoint rather than replacing the earlier audit's source boundary.
+
+2026-09-21 — CODEX: INTEGRATED NIGHTLY API REVIEW REBINDING
+Integrated 9e2f5335a. Runtime inventory stays 6209 entries; API is now 11151
+live symbols, with 614 added, two removed and 118 changed against the English
+manifest. The rewritten make_masks_demo module paragraph invalidated nine
+reviewed API records and stopped the reporter. Preserve those old reviews as
+retired history, with reasons, and add nine validated translations of the
+current paragraph. This restores the source-bound loader, not the full API
+catalog gate. Post-pruning Chinese runtime audit reports 83 diagnostics; the
+previous 96-diagnostic checkpoint remains tied to its earlier slice.
+Regenerated reports now show Chinese runtime coverage 5832/6209 with zero
+orphans; all nine API catalogs have 10419/11151 fresh documents. Review counts
+remain distinct from mechanical coverage and full-document acceptance.

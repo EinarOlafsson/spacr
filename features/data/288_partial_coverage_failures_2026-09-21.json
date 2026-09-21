@@ -3,7 +3,7 @@
   "date": "2026-09-21",
   "source_commit": "3d9eb57c5",
   "status": "partial_fixed_snapshot_not_current_nightly_verdict",
-  "batches_finished": 65,
+  "batches_finished": 70,
   "batches_total": 95,
   "failed_batches": [
     10,
@@ -25,7 +25,11 @@
     53,
     56,
     58,
-    62
+    62,
+    66,
+    67,
+    69,
+    70
   ],
   "failed_test_nodes": [
     "tests/qt/test_cov_r5_app_screen.py::TestTheGuardsNothingCanTrip::test_every_module_with_a_preview_toggle_has_a_card_to_toggle",
@@ -96,10 +100,24 @@
     "tests/test_cov_r8_utils_loop_edges.py::TestScanningAFolderInTestMode::test_a_file_the_regex_does_not_match_never_enters_the_loop",
     "tests/test_cov_r9_type_checking_guards.py::test_the_enumeration_is_the_whole_set",
     "tests/test_cov_w2_5_database_concurrency.py::test_a_clean_probe_writes_every_row_and_removes_its_scratch_database",
-    "tests/test_cov_w3_7_cli_remote.py::test_watch_polls_until_the_job_is_terminal"
+    "tests/test_cov_w3_7_cli_remote.py::test_watch_polls_until_the_job_is_terminal",
+    "tests/test_database_connections_have_a_busy_timeout.py::test_no_connection_relies_on_sqlites_five_second_default",
+    "tests/test_docstring_correctness.py::test_callable_boundary_is_cross_checked_with_i18n_extractor",
+    "tests/test_docstring_correctness.py::test_generated_constructor_ivar_reduction_is_exact_and_rendered",
+    "tests/test_docstring_correctness.py::test_no_new_undocumented_required_public_parameters",
+    "tests/test_docstring_correctness.py::test_public_callable_inventory_is_source_derived_not_docstring_derived",
+    "tests/test_documentation_i18n.py::test_documentation_api_catalog_inventory_and_hashes_are_current",
+    "tests/test_documentation_i18n.py::test_indented_query_and_shortcut_keys_stay_literal_while_help_translates",
+    "tests/test_documented_assignment_prose.py::test_documented_assignments_do_not_expose_internal_provenance",
+    "tests/test_documented_assignment_prose.py::test_published_docstrings_do_not_expose_internal_provenance",
+    "tests/test_every_callable_in_the_package_is_documented.py::test_no_callable_in_the_package_is_undocumented",
+    "tests/test_filing_a_setting_family_does_not_scale_quadratically.py::test_quadrupling_the_objects_does_not_multiply_the_work_by_sixteen",
+    "tests/test_gui_utils_and_core.py::test_convert_settings_dict_special_case_metadata_type_is_combo",
+    "tests/test_i18n_coverage_audit.py::test_checked_in_coverage_report_is_the_live_source_report",
+    "tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence"
   ],
   "unrecovered_files": [],
   "lost_files": [],
-  "integrity_sha256": "a7962f42c62684439081e703edceba96b90058db061d99d24fd734d5f6fa7a38",
+  "integrity_sha256": "c9035412e0c6febf85baa60566b726121f99c95919a8fa04b75a7cfd1dc4ceb5",
   "baseline_updated": false
 }

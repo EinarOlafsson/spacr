@@ -1794,3 +1794,12 @@ The new exact installer-screen sense correction preserves scientific-screen
 terminology and passes nine relevant checks. Full docs/catalog gate stays open.
 Integration through d9cea312b leaves the live inventory counts unchanged;
 both review stores load and both localization reports regenerate successfully.
+
+2026-09-21 — CODEX DOCS LANE ONLY: integrated nightly's rewritten Make Masks
+demo introduction made nine API review records stale and stopped the reporter.
+All nine old records are preserved as retired history with reasons; current
+replacement translations pass source/content checks and every review store
+loads again. This restores report generation, not the docs/catalog gate.
+Chinese recovery now has 80 reviewed draft records (76 corrections), 42
+obsolete keys removed, and 83 remaining full-runtime audit diagnostics.
+Future/411 carries current source counts and the remaining API/runtime debt.

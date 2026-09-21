@@ -2162,3 +2162,6 @@ fully decode; source/model/voice freshness and audio timing/activity pass.
 Actual Chromium desktop/mobile playback, seeking, synchronization and chapter
 links pass. The receipt retains the original navigation and CV/ML provenance.
 Full voice/language, listening and complete-set publication remain open.
+The overview's remaining 23 English voices are now rendering on CPU against
+its frozen verified stage, retaining the accepted af_heart track. Annotate,
+CV and ML voice work continues separately; no full-matrix completion claimed.

@@ -9031,3 +9031,27 @@ freshness/timing/activity pass, and the actual Chromium desktop/mobile player
 passes seeking/synchronization/links. Chinese obsolete-key pruning removed 42
 keys against the current English inventory. Complete-set publication remains
 closed; remaining languages/voices and audible acceptance are still owed.
+Integrated 9e2f5335a; current inventory is 6209 runtime entries / 11151 API
+symbols (614 added, two removed, 118 changed against the English manifest).
+The changed make_masks_demo introduction made nine API reviews stale. Keeping
+those historical records retired with reasons and adding source-bound reviews
+of the current paragraph in all nine languages restores report generation.
+The post-pruning Chinese runtime audit still has 83 diagnostics. Coverage has
+68/95 batches completed after its verified resume; baseline remains untouched.
+All nine current API review stores load with the replacement paragraph; their
+original historical records remain retired, not deleted. The overview's other
+23 English voices are now rendering under a 6 GiB/two-thread CPU cap in its
+frozen private stage, alongside the existing Annotate/CV and ML voice jobs.
+Current reports regenerate successfully: Chinese runtime 5832/6209, zero
+orphans; all API locales 10419/11151 fresh documents. Coverage reached 69/95
+finished batches. Five overview navigation and seven focused translation
+checks pass; full catalog gates, remaining tutorial matrix and coverage
+closure remain open.
+Partial coverage inventory refreshed at 70/95 completed batches: 24 failing
+batches / 83 distinct failed nodes, no lost/unrecovered files. These remain
+fixed-3d9eb57c5 results; newer documentation and UI fixes must be reconciled
+before treating them as current-nightly defects.
+Final integrated report checks: four tests pass in 232.09 s. The coverage and
+review-scope tables match live source; historical reports remain unchanged.
+The feature index and whitespace checks pass. No live tutorial publication,
+full translation gate pass or tightened coverage baseline is claimed.

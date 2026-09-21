@@ -461,7 +461,9 @@
       "label": "spacr.qt.make_masks_demo#1",
       "source": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
       "source_sha256": "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
-      "translation": "작업 목록 412번 항목. 메인테이너는 Hugging Face에 있는 Toxoplasma PV 학습 세트의 이미지 열 장을 “make masks용 작은 테스트 데이터셋”으로 요청했고, “이 데이터셋을 불러오면 make masks로 첫 번째 이미지가 자동으로 열리는 버튼”도 요청했습니다."
+      "translation": "작업 목록 412번 항목. 메인테이너는 Hugging Face에 있는 Toxoplasma PV 학습 세트의 이미지 열 장을 “make masks용 작은 테스트 데이터셋”으로 요청했고, “이 데이터셋을 불러오면 make masks로 첫 번째 이미지가 자동으로 열리는 버튼”도 요청했습니다.",
+      "retired": true,
+      "retired_reason": "The 2026-09-21 nightly documentation rewrite replaced the historical item-412 request with the current dataset behavior. Original review retained; current replacement reviewed in 2026-09-21-make-masks-demo.json."
     },
     {
       "context": "What is published. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out microscope field of view -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw microscope fields of view and the truth sits beside them.",

@@ -4217,3 +4217,7 @@ helper verifies that source revision and a clean tracked tree before running.
 Receipt: features/data/288_coverage_resume_2026-09-21.json. This is still an
 incomplete fixed-snapshot measurement; no current-nightly verdict or baseline
 update is claimed. The cause of SIGTERM is unknown.
+The resumed run reached 70/95 completed batches. Refreshed the partial failure
+inventory: 24 non-passing batches, 83 distinct failed test nodes, no recorded
+lost or unrecovered files. New findings include documentation/inventory debt;
+these remain results from 3d9eb57c5, not a verdict on integrated nightly.

@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "label": "spacr.qt.make_masks_demo#1",
+      "source": "Ten images of the Toxoplasma PV training set are published on Hugging Face as a small test dataset for Make Masks, with a button that loads the dataset and opens its first image in Make Masks.",
+      "context": "Ten images of the Toxoplasma PV training set are published on Hugging Face as a small test dataset for Make Masks, with a button that loads the dataset and opens its first image in Make Masks.",
+      "source_sha256": "987f3229fef952082d72f23a1ba1b469a4100cd5e654367527612bd28466d516",
+      "translation": "Diez imágenes del conjunto de entrenamiento de Toxoplasma PV están publicadas en Hugging Face como un pequeño conjunto de datos de prueba para Make Masks. Un botón carga el conjunto y abre su primera imagen en Make Masks."
+    }
+  ]
+}

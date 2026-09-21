@@ -37,3 +37,10 @@ setting tooltips, two category entries and 36 UI strings. This pruning uses
 the current English source inventory and does not remove source-bound review
 history. The earlier 96-diagnostic audit predates the second slice and this
 pruning; the full catalog remains open.
+
+The post-pruning full Chinese runtime audit exits 1 with 83 diagnostics at
+application source 9e2f5335a plus these review changes. Missing entries,
+remaining unreviewed drafts and format-field errors are still explicit debt.
+Seven focused source-review, scientific-token, Chinese-normalization and
+catalog-syntax checks passed before the second slice; all second-slice rows
+also passed the same pre-application source and content gates.
