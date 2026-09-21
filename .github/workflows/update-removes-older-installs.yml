@@ -8,6 +8,12 @@ name: update removes older installs
 # afterwards the only spaCR left is the new one.
 
 on:
+  push:
+    branches: [nightly]
+    paths:
+      - ".github/workflows/update-removes-older-installs.yml"
+      - "spacr/install_cleanup.py"
+      - "packaging/online/**"
   workflow_dispatch:
     inputs:
       old_version:
@@ -40,7 +46,7 @@ jobs:
         run: |
           packaging/online/install_spacr_unix.sh \
             --platform ${{ matrix.platform }} \
-            --package-spec "spacr==${{ inputs.old_version }}" \
+            --package-spec "spacr==${{ inputs.old_version || '1.5.0.7' }}" \
             --torch-backend cpu \
             --skip-system-deps \
             --launcher-dir "$HOME/.local/bin" \
@@ -54,7 +60,7 @@ jobs:
           installers = [r for r in records if r["kind"] == "installer"]
           print(json.dumps(installers, indent=2))
           assert len(installers) == 1, installers
-          assert installers[0]["version"] == "${{ inputs.old_version }}", installers
+          assert installers[0]["version"] == "${{ inputs.old_version || '1.5.0.7' }}", installers
           EOF
       - name: Update with the checked-out installer
         run: |
@@ -92,13 +98,13 @@ jobs:
         run: |
           & powershell.exe -NoProfile -ExecutionPolicy Bypass `
             -File .\packaging\online\install_spacr_windows.ps1 `
-            -Version "${{ inputs.old_version }}" -TorchBackend cpu
+            -Version "${{ inputs.old_version || '1.5.0.7' }}" -TorchBackend cpu
           if ($LASTEXITCODE -ne 0) { throw "older install failed" }
       - name: The finder sees exactly that install
         shell: powershell
         run: |
           python spacr\install_cleanup.py find --json | Out-File -Encoding utf8 before.json
-          python -c "import json; r=[x for x in json.load(open('before.json', encoding='utf-8-sig')) if x['kind']=='installer']; print(r); assert len(r)==1 and r[0]['version']=='${{ inputs.old_version }}', r"
+          python -c "import json; r=[x for x in json.load(open('before.json', encoding='utf-8-sig')) if x['kind']=='installer']; print(r); assert len(r)==1 and r[0]['version']=='${{ inputs.old_version || '1.5.0.7' }}', r"
           if ($LASTEXITCODE -ne 0) { throw "the finder did not see the older install" }
       - name: Update with the checked-out installer
         shell: powershell
