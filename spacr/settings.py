@@ -1790,6 +1790,7 @@ RENAMED_SETTINGS = {
     "redunction_method": "reduction_method",
     "img_size": "crop_size",
     "straightness_filter": "drop_straight_tracks",
+    "zscore_thresh": "track_outlier_zscore",
 }
 
 #: What each SEMANTIC fold does with an old value, in the words the doctor
@@ -3536,7 +3537,7 @@ expected_types = {
     "infection_intensity_qc": bool,
     "straightness_threshold": float,
     "drop_straight_tracks": bool,
-    "zscore_thresh": float,
+    "track_outlier_zscore": float,
     "max_displacement": float,
     "tracked_object": str,
     "motility_analysis": bool,
@@ -4458,11 +4459,11 @@ tooltips = {
     "infection_intensity_qc": "(bool) - Master switch for infection re-calling. While False the mask-based label (cell contains at least one pathogen) is used unchanged and every other infection_* setting is inert; True runs the method chosen by infection_intensity_strategy. A pathogen_channel must also be set. No default is applied anywhere, so it behaves as False until you set it.",
     "straightness_threshold": "(float) - Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
     "drop_straight_tracks": "(bool) - Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.",
-    "zscore_thresh": "(float) - Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+    "track_outlier_zscore": "(float) - Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
     "max_displacement": "(float) - Largest plausible centroid movement between consecutive frames, in pixels. A single-frame excursion followed by an immediate return is interpolated from neighbouring positions; other displacements above this value cause the complete track to be excluded. Increase the value for rapidly moving objects or sparsely sampled timelapses and decrease it to remove identity-switch artifacts. Default 50.0.",
     "tracked_object": "(str) - Which object's feature block ({object}_* columns) the XGBoost infection classifier trains on: 'cell', 'nucleus' or 'pathogen'; anything else falls back to 'cell'. It does not change what is tracked - track geometry and velocity always come from the cell centroids. Default 'cell'.",
     "motility_analysis": "(bool) - Run the automated motility assay after segmentation: it rebuilds per-object measurements from merged/*.npy, cleans tracks, computes per-track velocity and straightness, applies the infection QC, and writes motility_plots plus a well-level summary table. It only fires when timelapse is also True, and it is what reveals the Motility setting categories. Default False.",
-    "reuse_existing_measurements": "(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or zscore_thresh only take effect with this set to False. Default True.",
+    "reuse_existing_measurements": "(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
     "infection_pca_umap_search": "(bool) - Fit UMAP once per combination of infection_pca_umap_n_neighbors_grid and infection_pca_umap_min_dist_grid, keeping the run with the highest cluster-centroid distance times ground-truth separation. True costs one UMAP fit per grid point; False does a single fit using infection_pca_umap_n_neighbors and infection_pca_umap_min_dist. Default True.",
     "infection_pca_umap_n_neighbors_grid": "(list[int]) - Candidate UMAP n_neighbors values tried when infection_pca_umap_search is True. Small values (around 5) preserve local structure and split fine subpopulations; large values (30 and up) emphasise global structure. Every entry is paired with every value in infection_pca_umap_min_dist_grid, so keep the list short. Default [5, 10, 15, 30].",
     "infection_pca_umap_min_dist_grid": "(list[float]) - Candidate UMAP min_dist values tried when infection_pca_umap_search is True, each between 0 and 1. Near 0 packs points tightly and gives crisper clusters for KMeans to split; larger values spread points out and blur the boundary. Paired with every n_neighbors candidate. Default [0.0, 0.05, 0.1, 0.3].",
@@ -4740,7 +4741,7 @@ motility_settings = ['motility_analysis','tracked_object', 'infection_intensity_
 motility_advanced_settings = ['reuse_existing_measurements', 'infection_xgb_min_cells_per_class', 'infection_xgb_n_estimators', 'infection_xgb_max_depth', 'infection_xgb_learning_rate', 'infection_xgb_subsample', 'infection_xgb_colsample_bytree', 
                      'infection_xgb_reg_lambda', 'infection_xgb_random_state', 'infection_xgb_n_jobs', 'infection_xgb_proba_threshold', 'infection_xgb_margin', 'infection_xgb_top_features', 'infection_xgb_proba_column', 
                      'infection_xgb_drop_ambiguous', 'infection_xgb_ambiguous_low','infection_xgb_ambiguous_high','infection_pca_method', 'infection_pca_random_state', 'infection_intensity_n_bins', 'db_table_name', 
-                     'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'drop_straight_tracks', 'zscore_thresh', 'max_displacement',
+                     'infection_intensity_qc_graphs', 'infection_intensity_qc_panel_path', 'infection_intensity_mode', 'infection_intensity_qc', 'straightness_threshold', 'drop_straight_tracks', 'track_outlier_zscore', 'max_displacement',
                      'infection_pca_umap_search','infection_pca_umap_n_neighbors_grid','infection_pca_umap_min_dist_grid','infection_pca_pathogen_weight', 'infection_pca_log_intensity','infection_pca_tsne_search','infection_pca_tsne_perplexity_grid',
                      'infection_pca_tsne_learning_rate_grid', 'infection_pca_umap_n_neighbors','infection_pca_umap_min_dist','infection_pca_tsne_perplexity', 'infection_pca_min_silhouette','infection_pca_min_gt_separation','infection_pca_max_cells']
 
@@ -6087,6 +6088,7 @@ def get_automated_motility_assay_default_settings(settings):
     """
     if settings is None:
         settings = {}
+    _fold_renamed_settings(settings)
 
     settings.setdefault('src', 'path')
     settings.setdefault('channels', [0, 1, 2, 3])
@@ -6100,7 +6102,7 @@ def get_automated_motility_assay_default_settings(settings):
 
     settings.setdefault('n_jobs', 8)
     settings.setdefault('max_displacement', 50.0)
-    settings.setdefault('zscore_thresh', 3.0)
+    settings.setdefault('track_outlier_zscore', 3.0)
     settings.setdefault('drop_straight_tracks', False)
     settings.setdefault('straightness_threshold', 0.95)
     settings.setdefault('infection_intensity_strategy', 'xgboost')

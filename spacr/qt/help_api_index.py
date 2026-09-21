@@ -11139,7 +11139,7 @@ SETTING_CONSUMERS = {
     'z_projection': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
     'z_segmentation_mode': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
     'z_stack': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_from_settings'),),
-    'zscore_thresh': (('spacr.settings', 'get_automated_motility_assay_default_settings'), ('spacr.timelapse', 'automated_motility_assay'),),
+    'track_outlier_zscore': (('spacr.settings', 'get_automated_motility_assay_default_settings'), ('spacr.timelapse', 'automated_motility_assay'),),
 }
 
 PREFERENCE_ENTRIES = (

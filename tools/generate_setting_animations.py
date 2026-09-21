@@ -2046,7 +2046,7 @@ def _specs() -> List[Spec]:
          ("t_project_for_tracking",)),
         ("drop_straight_tracks", "Remove overly straight tracks", "straightness",
          ("drop_straight_tracks", "straightness_threshold")),
-        ("zscore_thresh", "Smooth per-track outliers", "zscore", ("zscore_thresh",)),
+        ("track_outlier_zscore", "Smooth per-track outliers", "zscore", ("track_outlier_zscore",)),
         ("ultrack_division_weight", "Cell-division linking", "division",
          ("ultrack_division_weight",)),
         ("ultrack_contour_sigma", "Contour smoothing", "contour_sigma",

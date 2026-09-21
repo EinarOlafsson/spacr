@@ -590,7 +590,7 @@ def test_an_outlier_beside_a_second_outlier_is_not_interpolated_away():
         ],
         ignore_index=True,
     )
-    out = tl._smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=1.0)
+    out = tl._smooth_tracks_and_features(df, max_displacement=50.0, track_outlier_zscore=1.0)
 
     pair = out[out["cellID"] == 1]["cell_area"].tolist()
     lone = out[out["cellID"] == 2]["cell_area"].tolist()

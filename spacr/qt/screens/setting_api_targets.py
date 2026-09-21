@@ -782,7 +782,7 @@ SETTING_API_TARGETS = {
     'z_projection': ('spacr.zstack', 'plan_from_settings', True),
     'z_segmentation_mode': ('spacr.zstack', 'plan_from_settings', True),
     'z_stack': ('spacr.zstack', 'plan_from_settings', True),
-    'zscore_thresh': ('spacr.timelapse', 'automated_motility_assay', True),
+    'track_outlier_zscore': ('spacr.timelapse', 'automated_motility_assay', True),
 }
 
 #: ``key -> {module: (symbol, exact)}``, for the modules an app's
@@ -1355,5 +1355,5 @@ SETTING_API_TARGETS_BY_MODULE = {
     'x_lim': {'spacr.ml': ('', False)},
     'y_lims': {'spacr.ml': ('', False)},
     'z_handling': {'spacr.convert': ('convert_folder', True), 'spacr.external_masks': ('plan_external_masks', True), 'spacr.foreign': ('import_project', True)},
-    'zscore_thresh': {'spacr.timelapse': ('automated_motility_assay', True)},
+    'track_outlier_zscore': {'spacr.timelapse': ('automated_motility_assay', True)},
 }

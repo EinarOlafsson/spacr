@@ -1063,5 +1063,5 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'z_projection',
     'z_segmentation_mode',
     'z_stack',
-    'zscore_thresh',
+    'track_outlier_zscore',
 })

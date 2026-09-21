@@ -14199,7 +14199,7 @@ Read by ``_cross_validate_model``, :py:func:`~spacr.deep_spacr.train_test_model`
 reuse_existing_measurements
 ---------------------------
 
-(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/\*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or zscore_thresh only take effect with this set to False. Default True.
+(bool) - If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/\*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`
@@ -17873,9 +17873,9 @@ z_stack
 
 Read by :py:func:`~spacr.zstack.plan_from_settings`.
 
-.. _setting-flow-zscore_thresh:
+.. _setting-flow-track_outlier_zscore:
 
-zscore_thresh
+track_outlier_zscore
 -------------
 
 (float) - Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.

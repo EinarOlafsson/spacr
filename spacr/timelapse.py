@@ -3594,7 +3594,7 @@ def _process_merged_group(args):
     return enriched_df
 
 
-def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
+def _smooth_tracks_and_features(df, max_displacement=50.0, track_outlier_zscore=3.0):
     """
     Smooth cell tracks and a small set of scalar features.
 
@@ -3724,11 +3724,11 @@ def _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0):
 
             z = (s - mean) / std
             for i_local in range(1, n - 1):
-                if not np.isfinite(z[i_local]) or abs(z[i_local]) <= zscore_thresh:
+                if not np.isfinite(z[i_local]) or abs(z[i_local]) <= track_outlier_zscore:
                     continue
                 if (
-                    abs(z[i_local - 1]) <= zscore_thresh / 2
-                    and abs(z[i_local + 1]) <= zscore_thresh / 2
+                    abs(z[i_local - 1]) <= track_outlier_zscore / 2
+                    and abs(z[i_local + 1]) <= track_outlier_zscore / 2
                 ):
                     new_val = 0.5 * (s[i_local - 1] + s[i_local + 1])
                     updates.setdefault(col, {})[idx[i_local]] = new_val
@@ -7036,7 +7036,7 @@ def automated_motility_assay(settings):
     :param settings: dict of assay settings; see
         ``get_automated_motility_assay_default_settings`` for keys
         including ``src``, ``db_table_name``, ``n_jobs``,
-        ``max_displacement``, ``zscore_thresh``, ``infection_intensity_qc``,
+        ``max_displacement``, ``track_outlier_zscore``, ``infection_intensity_qc``,
         ``infection_intensity_strategy``, ``infection_intensity_mode``,
         ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``,
         ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``,
@@ -7065,7 +7065,7 @@ def automated_motility_assay(settings):
     db_table_name = _validate_db_table_name(settings["db_table_name"])
     n_jobs = settings["n_jobs"]
     max_displacement = settings["max_displacement"]
-    zscore_thresh = settings["zscore_thresh"]
+    track_outlier_zscore = settings["track_outlier_zscore"]
 
     reuse_existing = settings.get("reuse_existing_measurements", True)
     measurements_dir = os.path.join(src, "measurements")
@@ -7222,7 +7222,7 @@ def automated_motility_assay(settings):
         all_df = _smooth_tracks_and_features(
             all_df,
             max_displacement=max_displacement,
-            zscore_thresh=zscore_thresh,
+            track_outlier_zscore=track_outlier_zscore,
         )
 
         n_tracks_smoothed = (

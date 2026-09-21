@@ -1207,7 +1207,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
         )),
         ("Motion Filtering", (
             "max_displacement", "straightness_threshold",
-            "drop_straight_tracks", "zscore_thresh",
+            "drop_straight_tracks", "track_outlier_zscore",
         )),
         ("Infection Classification", (
             "infection_intensity_strategy", "infection_intensity_qc_scope",

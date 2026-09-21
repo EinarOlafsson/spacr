@@ -49046,11 +49046,11 @@
     "qualname": "plan_from_settings"
    }
   ],
-  "zscore_thresh": [
+  "track_outlier_zscore": [
    {
     "form": "get",
     "function_depth": 1,
-    "key": "zscore_thresh",
+    "key": "track_outlier_zscore",
     "line": 6102,
     "module": "spacr.settings",
     "nested": false,
@@ -49059,7 +49059,7 @@
    {
     "form": "subscript",
     "function_depth": 1,
-    "key": "zscore_thresh",
+    "key": "track_outlier_zscore",
     "line": 7068,
     "module": "spacr.timelapse",
     "nested": false,
@@ -52923,7 +52923,7 @@
    "module": "spacr.zstack",
    "symbol": "plan_from_settings"
   },
-  "zscore_thresh": {
+  "track_outlier_zscore": {
    "exact": true,
    "module": "spacr.timelapse",
    "symbol": "automated_motility_assay"

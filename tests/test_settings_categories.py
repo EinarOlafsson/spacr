@@ -156,7 +156,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "ultrack_n_workers", "um_per_pixel", "uninfected", "upscale", "upscale_factor",
     "use_bounding_box", "use_checkpoint", "use_sam_cell", "use_sam_nucleus",
     "use_sam_pathogen", "val_split", "verbose", "visualize", "volcano", "weight_decay",
-    "width_height", "x_lim", "zscore_thresh",
+    "width_height", "x_lim", "track_outlier_zscore",
 })
 
 #: Keys added to the map by the regroup. They were previously offered by a

@@ -1393,15 +1393,15 @@
     },
     {
       "category": "Tracking & volumetric",
-      "file": "gifs/zscore_thresh.gif",
+      "file": "gifs/track_outlier_zscore.gif",
       "params": {
         "mode": "zscore"
       },
       "scene": "tracking",
       "settings": [
-        "zscore_thresh"
+        "track_outlier_zscore"
       ],
-      "slug": "zscore_thresh",
+      "slug": "track_outlier_zscore",
       "title": "Smooth per-track outliers",
       "validation": {
         "bytes": 38209,

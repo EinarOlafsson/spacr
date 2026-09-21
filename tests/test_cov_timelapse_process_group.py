@@ -515,7 +515,7 @@ def test_smooth_tracks_zscore_smoothing_of_scalar_features():
         cell_perimeter=[np.nan] * 5,                    # all non-finite -> skipped
         cell_max_intensity=[1.0, 2.0, np.nan, 8.0, 9.0],  # z is NaN at the spike
     )
-    out = _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=1.5)
+    out = _smooth_tracks_and_features(df, max_displacement=50.0, track_outlier_zscore=1.5)
 
     assert len(out) == 5
     # the |z| > 1.5 outlier is replaced by the mean of its neighbours
@@ -533,7 +533,7 @@ def test_smooth_tracks_zscore_leaves_mild_outliers_alone():
 
     df = _track_frame(1, xs=[20.0] * 5,
                       cell_area=[100.0, 100.0, 130.0, 100.0, 100.0])
-    out = _smooth_tracks_and_features(df, max_displacement=50.0, zscore_thresh=3.0)
+    out = _smooth_tracks_and_features(df, max_displacement=50.0, track_outlier_zscore=3.0)
 
     assert out["cell_area"].tolist() == [100.0, 100.0, 130.0, 100.0, 100.0]
 
