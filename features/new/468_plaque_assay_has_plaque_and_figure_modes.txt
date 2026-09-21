@@ -1,0 +1,125 @@
+================================================================================
+PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
+================================================================================
+
+Status:    GUI side built 2026-09-21 (preview panel, switch, review, legend
+           prompt). The run side -- the plaque_mode / figure_* settings in
+           spacr/settings.py and the Figure branch of analyze_plaques -- is
+           being built in parallel and lands beside it.
+Requested: 2026-09-21 -- "you seem to have copied all the settings from the
+           mask generation live preview and i cannot cheoose the yolo module
+           ... what i need to happen for this particular live preview is :
+           two modes, one (plaque mode) for the cropped images of plaques
+           that just detects plaques and generated a database with a table
+           with per image values, and a table with per plaque values. in
+           this mode we only need to preview mask generation for the
+           plaques. the other (figure mode) mode should allow the user to
+           preview the finding of plaques (the yolo model), the detection of
+           text on the pannel and plaque annotation with that text, and the
+           mask generation for the plaques. the user should easily be able to
+           switch with a switcher between Plaque and Figure mode. please
+           build all of this an wire it in."
+           Earlier (item 424): when a panel letter is found the legend is
+           gathered automatically; when it cannot be, the user is prompted to
+           paste the legend or annotate by hand; and an option, when on,
+           makes the user OK each annotation -- "a review dialog in the GUI".
+
+--------------------------------------------------------------------------------
+WHAT WAS BUILT
+--------------------------------------------------------------------------------
+
+spacr/qt/widgets/plaque_preview.py -- PlaquePreviewPanel replaces the Mask
+LivePreviewPanel on the Plaque Assay screen. It answers load_source_async,
+apply_settings, set_propagate_callback and settings_for_propagation, so the
+Live switch, the src autoload, the first-show prime and item 464's Refresh
+button drive it unchanged.
+
+THE SWITCH. A two-button Plaque | Figure control is the first widget on the
+settings column and a second one sits at the top of the preview. The form's
+plaque_mode control is the one source of truth: both switches write it and
+both follow it (a loaded settings file moves them). The plaque_mode row is
+hidden because the switch speaks for it. Plaque mode hides figure_detector,
+figure_imgsz, figure_confidence, figure_read_text and confirm_annotations;
+Figure mode hides well_detection, well_confidence and well_pad. Rows are
+hidden, not dropped (SettingsWidgets.hide_the_rows_the_mode_leaves_out, the
+same mechanism the object grid uses), so collect() still carries the values.
+
+PLAQUE MODE. Image picker over src (prev/next, wrapping), plaque model box
+(zoo plaque models, 'bundled' with a sentence saying what it is, a path via
+Browse), diameter / flow threshold / cell probability. Run preview segments
+one image off the GUI thread and draws the outlines, with count and mean
+area. A zoo model that is not on this machine is stated, never fetched, and
+a Download button offers it (CheckpointDownload). "Use these settings"
+writes diameter, flow_threshold, CP_prob, plaque_mode and -- only if the
+user changed it -- plaque_model back into the form.
+
+FIGURE MODE. Same picker over the figures. Run preview runs the detector at
+every size in figure_imgsz (spacr.plaque_papers.find_plaque_regions), reads
+the text (read_words + reread_around), segments each crop, draws numbered
+boxes (green OK, orange not) with outlines inside, and fills the review
+table: #, panel, label text, legend passage, condition (editable), source /
+strength, plaque count, OK. Saved reviews in figure_annotations.csv are
+applied when a figure is previewed again. Save annotations merges this
+figure's rows into figure_annotations.csv (write_annotation_overrides), which
+the run reads.
+
+LEGEND. legends.csv is used when it has the figure. When a panel letter was
+read and no legend is known, a box says so, with "Paste the figure legend, or
+annotate by hand": a pasted legend re-annotates at once and is saved into
+legends.csv; Annotate by hand puts the cursor in the first condition cell.
+
+CONFIRM. With confirm_annotations on, unreviewed rows start unticked and a
+bold notice says the run measures ONLY rows ticked OK and saved. With it
+off, rows start ticked, because the run measures them; unticking one and
+saving leaves it out of the run either way (apply_overrides skips
+approved=False).
+
+OPTIONAL PACKAGES. Without ultralytics / RapidOCR Figure mode shows
+    Figure mode needs ultralytics and RapidOCR ... pip install "spacr[papers]"
+with an Install button (PackageInstall after confirm_backend_install), and
+Run preview refuses with the same sentence. Detected with find_spec, so the
+check never imports ultralytics (trap 3g).
+
+--------------------------------------------------------------------------------
+MEASURED, HEADLESS, 2026-09-21 (CPU, scratch HOME, papers venv)
+--------------------------------------------------------------------------------
+
+Plaque mode, toxoplasma_plaque_r2/malnio__2.tif (333 x 327 RGB), model
+cpsam_plaque_r5: 67 plaques, mean area 58 px, 107 s on CPU.
+
+Figure mode, plaque_figures/12860_2020_249_Fig6_HTML.png, detector v2
+(sha f2a1e1110f09...), sizes 640,1280: 4 plaque images found (the four wells
+of panel I), 50 words read, 54 plaques segmented (19 / 0 / 30 / 5). Proposed
+conditions, all source 'label', strength 'medium':
+    1  WT 200nm / WT
+    2  △TgDCx / △TgDCX
+    3  △TgDCX/TgDCX / △TgDCX/TgDCX
+    4  TgDCX71-243 / △TgDCX/TgDCX71-243
+No panel letter was assigned to that grid (the "I" was not read), so no
+legend was asked for. 270 s on CPU. figure_annotations.csv written with the
+four rows.
+
+--------------------------------------------------------------------------------
+A FINDING FOR THE RUN SIDE
+--------------------------------------------------------------------------------
+
+THE PLAQUE RUN'S LOADER ERASES AN 8-BIT CROP. identify_masks_finetune with
+normalize=True calls _load_normalized_images_and_labels with the plaque
+defaults (background=200, Signal_to_noise=10). On malnio__2.tif every pixel
+comes back 1.0 -- min = max = 1.0, std 0, for channels [0,0], None and
+[0,1,2] alike -- and the first preview built to mirror that loader found 0
+plaques in 858 s. The preview therefore segments the image as it is, with
+the tuned diameter and thresholds (plaque_preview.segment_plaque_image), and
+found 67. The Plaque-mode run should segment the same way, or the preview
+and the run disagree.
+
+Figure mode segments each crop as plaque_papers._cellpose_segmenter does
+(model.eval(crop), model defaults). If the Figure run starts passing the
+tuned diameter/flow/cellprob, switch figure_pass to segment_plaque_image.
+
+--------------------------------------------------------------------------------
+TESTS
+--------------------------------------------------------------------------------
+
+tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 20 tests, the
+detector, text reader and Cellpose faked.

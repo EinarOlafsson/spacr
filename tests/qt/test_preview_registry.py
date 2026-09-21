@@ -289,8 +289,8 @@ def test_the_reused_panel_still_owns_a_bounded_sampler(window, qtbot):
     from spacr.qt.widgets.preview_controls import (
         DEFAULT_MAX_SETS, ImageSetSampler,
     )
-    screen = _screen(window, qtbot, "analyze_plaques")
-    sampler = screen._live_preview._sampler
+    screen = _screen(window, qtbot, "cellpose_masks")
+    sampler = screen._registry_preview.panel._sampler
     assert isinstance(sampler, ImageSetSampler)
     assert sampler.sample() == []
     sampler.set_max(DEFAULT_MAX_SETS)

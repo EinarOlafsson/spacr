@@ -101,7 +101,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "normalize": "normalize",
         }),
     "analyze_plaques": PreviewSpec(
-        builder="spacr.qt.screens.app_screen:_build_live_preview_card",
+        builder="spacr.qt.widgets.plaque_preview:build_plaque_preview_card",
         owned_by_screen=True,
         tooltip="Check the plaque diameter and thresholds on one sampled "
                 "field before running the assay.",
@@ -113,6 +113,15 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             # `model_name`; the panel writes it only for a checkpoint the
             # user picked (333).
             "plaque_model": "plaque_model",
+            "diameter": "diameter",
+            "flow_threshold": "flow_threshold",
+            "CP_prob": "CP_prob",
+            "plaque_mode": "plaque_mode",
+            "figure_detector": "figure_detector",
+            "figure_imgsz": "figure_imgsz",
+            "figure_confidence": "figure_confidence",
+            "figure_read_text": "figure_read_text",
+            "confirm_annotations": "confirm_annotations",
         }),
 }
 

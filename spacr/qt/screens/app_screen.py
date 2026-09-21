@@ -1516,6 +1516,8 @@ class AppScreen(QWidget):
         outer.addWidget(body, 1)
 
         self._wire_live_preview_autoload()
+        if self.app_key == "analyze_plaques":
+            self._install_plaque_mode()
 
         self._wire_category_hints()
 
@@ -4867,6 +4869,20 @@ class AppScreen(QWidget):
         src_widget.textChanged.connect(lambda _t: self._live_src_timer.start())
         self._wire_live_preview_naming()
 
+    def _install_plaque_mode(self) -> None:
+        """Put Plaque Assay's Plaque | Figure switch on the settings column.
+
+        Never raises: a screen without its switch still runs in the mode its
+        form says.
+        """
+        try:
+            from ..widgets.plaque_preview import install_plaque_mode
+
+            install_plaque_mode(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not install the plaque mode switch",
+                      exc_info=True)
+
     def _wire_live_preview_naming(self) -> None:
         """Regroup the preview's table when the file naming changes.
 
@@ -5373,8 +5389,14 @@ class AppScreen(QWidget):
         if self.app_key in ("mask", "analyze_plaques"):
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
-            self._live_preview, self._live_preview_card = (
-                _build_live_preview_card(self))
+            if self.app_key == "analyze_plaques":
+                from ..widgets.plaque_preview import build_plaque_preview_card
+
+                self._live_preview, self._live_preview_card = (
+                    build_plaque_preview_card(self))
+            else:
+                self._live_preview, self._live_preview_card = (
+                    _build_live_preview_card(self))
             self._live_preview.set_propagate_callback(
                 self._propagate_live_settings)
             splitter.addWidget(self._live_preview_card)
@@ -5646,9 +5668,10 @@ class AppScreen(QWidget):
                 "before processing the full dataset."),
             "analyze_plaques": (
                 "_live_preview_card",
-                "Show or hide the plaque segmentation preview above the "
-                "console. Check the plaque diameter and thresholds on one "
-                "field before running the assay."),
+                "Show or hide the plaque preview above the console. In "
+                "Plaque mode it segments one image; in Figure mode it finds "
+                "the plaque images in one figure, reads their labels and "
+                "segments them."),
         }
         from ..widgets.preview_refresh import install_refresh_button
 

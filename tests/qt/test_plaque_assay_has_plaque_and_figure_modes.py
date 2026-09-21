@@ -1,0 +1,297 @@
+"""Item 468: Plaque Assay has a Plaque mode and a Figure mode, and a switch.
+
+2026-09-21, the maintainer: "you seem to have copied all the settings from
+the mask generation live preview and i cannot cheoose the yolo module ...
+two modes, one (plaque mode) for the cropped images of plaques ... the other
+(figure mode) mode should allow the user to preview the finding of plaques
+(the yolo model), the detection of text on the pannel and plaque annotation
+with that text, and the mask generation for the plaques. the user should
+easily be able to switch with a switcher between Plaque and Figure mode."
+
+Every heavy piece -- the detector, the text reader, Cellpose -- is faked
+here; the real run is recorded in the item file.
+"""
+from __future__ import annotations
+
+import csv
+import sys
+from pathlib import Path
+
+import numpy as np
+import pytest
+
+pytest.importorskip("PySide6")
+
+from PySide6.QtCore import Qt  # noqa: E402
+
+from spacr import plaque_papers as pp  # noqa: E402
+from spacr.qt.widgets import plaque_preview as ppv  # noqa: E402
+
+sys.path.insert(0, str(Path(__file__).parent))
+
+import test_all_module_smoke as smoke  # noqa: E402
+
+
+def _png(path: Path, size=(400, 400)) -> Path:
+    from PIL import Image
+
+    rng = np.random.default_rng(0)
+    Image.fromarray(rng.integers(0, 255, size + (3,), dtype=np.uint8)).save(path)
+    return path
+
+
+class _Box:
+    def __init__(self, x0, y0, x1, y1, confidence=0.9):
+        self.x0, self.y0, self.x1, self.y1 = x0, y0, x1, y1
+        self.confidence = confidence
+
+
+def _detect(image, weights, confidence=0.25, imgsz=640, min_axis_ratio=0.0):
+    return [_Box(100, 100, 180, 180), _Box(220, 100, 300, 180)]
+
+
+def _read_text(path):
+    return [pp.Word("A", 60, 60, 75, 75), pp.Word("WT", 120, 80, 160, 95),
+            pp.Word("KO", 240, 80, 280, 95)]
+
+
+def _two_blobs(shape):
+    labels = np.zeros(shape[:2], dtype=np.int32)
+    labels[10:20, 10:20] = 1
+    labels[30:45, 30:45] = 2
+    return labels
+
+
+def _segment_path(path):
+    return _two_blobs((400, 400))
+
+
+def _segment_crop(crop):
+    return _two_blobs(crop.shape)
+
+
+@pytest.fixture
+def no_papers_check(monkeypatch):
+    monkeypatch.setattr(ppv, "missing_papers_packages", lambda *a, **k: [])
+
+
+@pytest.fixture
+def panel(qtbot, no_papers_check):
+    widget = ppv.PlaquePreviewPanel(threaded=False)
+    qtbot.addWidget(widget)
+    return widget
+
+
+@pytest.fixture
+def screen(qtbot):
+    from spacr.qt.app import MainWindow
+
+    built = MainWindow._build_screen(smoke._FactoryHost(), "analyze_plaques")
+    qtbot.addWidget(built)
+    return built
+
+
+def test_the_screen_carries_the_plaque_panel_not_the_mask_one(screen):
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    assert isinstance(screen._live_preview, ppv.PlaquePreviewPanel)
+    assert not screen._live_preview.findChildren(LivePreviewPanel)
+
+
+def test_the_switch_is_the_first_thing_on_the_settings_column(screen):
+    switch = screen._plaque_mode_switch
+    assert screen._settings_layout.itemAt(0).widget() is switch
+    assert switch.button("plaque").text() == "Plaque"
+    assert switch.button("figure").text() == "Figure"
+
+
+def test_both_switches_follow_each_other(screen):
+    panel = screen._live_preview
+    screen._plaque_mode_switch.button("figure").click()
+    assert panel.mode() == "figure"
+    panel._mode_switch.button("plaque").click()
+    assert screen._plaque_mode_switch.mode() == "plaque"
+
+
+def test_the_other_modes_settings_leave_the_form(screen):
+    hidden = set(screen._settings_model.keys_hidden_by_the_run())
+    assert set(ppv.FIGURE_ONLY_KEYS) <= hidden
+    screen._plaque_mode_switch.button("figure").click()
+    hidden = set(screen._settings_model.keys_hidden_by_the_run())
+    assert not set(ppv.FIGURE_ONLY_KEYS) & hidden
+    assert set(ppv.PLAQUE_ONLY_KEYS) <= hidden
+
+
+def test_a_mode_written_into_the_form_moves_both_switches(screen):
+    field = screen._settings_model._widgets.get(ppv.MODE_KEY)
+    if field is None:
+        pytest.skip("plaque_mode is not a setting on this tree yet")
+    screen._settings_model.set_value_for_key(ppv.MODE_KEY, "figure")
+    assert screen._plaque_mode_switch.mode() == "figure"
+    assert screen._live_preview.mode() == "figure"
+
+
+def test_plaque_mode_segments_one_image_and_counts(panel, tmp_path):
+    _png(tmp_path / "a.png")
+    _png(tmp_path / "b.png")
+    panel.load_source_async(str(tmp_path))
+    assert panel._picker.count() == 2
+    got = []
+    panel.preview_ready.connect(got.append)
+    assert panel.run_preview(segment=_segment_path)
+    assert got and got[0]["count"] == 2
+    assert "2 plaques" in panel.preview_status()
+    assert not panel._table.isVisible()
+    assert panel._figure_row.isHidden()
+
+
+def test_the_picker_steps_and_wraps(panel, tmp_path):
+    for name in ("a.png", "b.png", "c.png"):
+        _png(tmp_path / name)
+    panel.load_source_async(str(tmp_path))
+    panel._step(-1)
+    assert panel.current_path().name == "c.png"
+    panel._step(1)
+    assert panel.current_path().name == "a.png"
+
+
+def _figure_panel(panel, tmp_path, confirm=False):
+    _png(tmp_path / "fig1.png")
+    panel.apply_settings({"plaque_mode": "figure",
+                          "confirm_annotations": confirm})
+    panel.load_source_async(str(tmp_path))
+    assert panel.run_preview(detect=_detect, read_text=_read_text,
+                             segment=_segment_crop)
+    return panel
+
+
+def test_figure_mode_finds_reads_annotates_and_segments(panel, tmp_path):
+    _figure_panel(panel, tmp_path)
+    assert panel._table.rowCount() == 2
+    first = [panel._table.item(0, c).text() for c in range(7)]
+    assert first[1] == "A"
+    assert "WT" in first[2]
+    assert first[6] == "2"
+    assert panel._row_ok(0), "without confirm_annotations the run measures it"
+
+
+def test_a_panel_letter_with_no_legend_asks_for_one(panel, tmp_path):
+    _figure_panel(panel, tmp_path)
+    assert not panel._legend_box.isHidden()
+    assert "annotate by hand" in panel._legend_text.text()
+    panel._legend_edit.setPlainText(
+        "Figure 1. Plaques. (A) WT and KO plaques after 7 days. (B) Areas.")
+    panel._use_pasted_legend()
+    assert panel._legend_box.isHidden()
+    assert pp.read_legends(tmp_path / pp.LEGENDS_FILE)["fig1"].startswith(
+        "Figure 1.")
+    assert "WT and KO" in panel._table.item(0, 3).text()
+    assert "strong" in panel._table.item(0, 5).text()
+
+
+def test_a_known_legend_is_used_and_nothing_is_asked(panel, tmp_path):
+    ppv.write_legend(tmp_path / pp.LEGENDS_FILE, "fig1",
+                     "Figure 1. (A) WT and KO plaques.")
+    _figure_panel(panel, tmp_path)
+    assert panel._legend_box.isHidden()
+    assert "WT and KO" in panel._table.item(0, 3).text()
+
+
+def test_save_writes_what_the_run_reads(panel, tmp_path):
+    _figure_panel(panel, tmp_path)
+    panel._table.item(1, ppv.CONDITION_COLUMN).setText("knockout")
+    panel._table.item(1, ppv.OK_COLUMN).setCheckState(Qt.Unchecked)
+    path = panel.save_annotations()
+    assert path == tmp_path / pp.ANNOTATIONS_FILE
+    saved = pp.read_annotation_overrides(path)
+    assert saved[("fig1", 2)] == {"condition": "knockout", "approved": False}
+    assert saved[("fig1", 1)]["approved"] is True
+
+
+def test_a_saved_review_comes_back_on_the_next_preview(panel, tmp_path):
+    pp.write_annotation_overrides(tmp_path / pp.ANNOTATIONS_FILE, [
+        {"file": "fig1.png", "region": 1, "condition": "parental",
+         "approved": True}])
+    _figure_panel(panel, tmp_path, confirm=True)
+    assert panel._table.item(0, ppv.CONDITION_COLUMN).text() == "parental"
+    assert panel._row_ok(0)
+    assert not panel._row_ok(1), "confirm on: nobody approved image 2"
+
+
+def test_confirm_says_only_ok_rows_are_measured(panel, tmp_path):
+    _figure_panel(panel, tmp_path, confirm=True)
+    assert not panel._confirm_note.isHidden()
+    assert "ONLY" in panel._confirm_note.text()
+    panel._confirm.setChecked(False)
+    assert panel._confirm_note.isHidden()
+
+
+def test_missing_papers_extra_is_said_with_the_command(qtbot, tmp_path,
+                                                       monkeypatch):
+    monkeypatch.setattr(ppv, "missing_papers_packages",
+                        lambda *a, **k: ["ultralytics", "RapidOCR"])
+    widget = ppv.PlaquePreviewPanel(threaded=False)
+    qtbot.addWidget(widget)
+    _png(tmp_path / "fig1.png")
+    widget.load_source_async(str(tmp_path))
+    widget.set_mode("figure")
+    assert not widget._deps_banner.isHidden()
+    assert 'pip install "spacr[papers]"' in widget._deps_text.text()
+    assert widget.run_preview() is False
+    assert "spacr[papers]" in widget.preview_status()
+
+
+def test_missing_packages_are_found_without_importing_them():
+    assert ppv.missing_papers_packages(lambda m: m != "ultralytics") == [
+        "ultralytics"]
+    assert ppv.missing_papers_packages(lambda m: True) == []
+
+
+def test_a_seeded_model_is_not_written_back_but_tuned_values_are(panel):
+    panel.apply_settings({"plaque_model": "toxoplasma_plaque_v2",
+                          "diameter": 30})
+    panel._diameter.setValue(55)
+    out = panel.settings_for_propagation()
+    assert out["diameter"] == 55
+    assert "plaque_model" not in out
+    panel._model_box.setCurrentText("bundled")
+    assert panel.settings_for_propagation()["plaque_model"] == "bundled"
+
+
+def test_use_these_settings_reaches_the_form(screen):
+    written = {}
+    screen._settings_model.set_value_for_key = (
+        lambda k, v: written.__setitem__(k, v))
+    screen._live_preview._diameter.setValue(77)
+    screen._live_preview.propagate()
+    assert written["diameter"] == 77
+    assert written["plaque_mode"] == "plaque"
+
+
+def test_bundled_is_explained(panel):
+    panel.apply_settings({"plaque_model": "bundled"})
+    assert "historical" in panel._model_note.text()
+
+
+def test_a_model_that_is_not_here_is_stated_not_fetched(panel, tmp_path,
+                                                        monkeypatch):
+    from spacr import submodules as sm
+
+    def missing(settings, fetch=True):
+        assert fetch is False, "the preview must never download"
+        raise sm.ModelZooMissing("not here")
+
+    monkeypatch.setattr(sm, "_resolve_plaque_model", missing)
+    _png(tmp_path / "a.png")
+    panel.apply_settings({"plaque_model": "toxoplasma_plaque_v2"})
+    panel.load_source_async(str(tmp_path))
+    panel.run_preview()
+    assert "not on this machine" in panel.preview_status()
+
+
+def test_sizes_and_modes_parse():
+    assert ppv.parse_sizes("640,1280") == (640, 1280)
+    assert ppv.parse_sizes([960]) == (960,)
+    assert ppv.parse_sizes("junk") == ppv.DEFAULT_SIZES
+    assert ppv.normalise_mode("FIGURE") == "figure"
+    assert ppv.normalise_mode(None) == "plaque"

@@ -9267,6 +9267,18 @@ class SettingsWidgets:
         self._hidden_by_the_grid = set(keys or ())
         self.refresh_object_visibility()
 
+    def hide_the_rows_the_mode_leaves_out(self, keys) -> None:
+        """Take ``keys`` off the form because the module's mode does not read them.
+
+        Plaque Assay's Plaque and Figure modes read different settings. The
+        widgets stay, holding their values, exactly as for
+        :meth:`hide_the_rows_the_grid_speaks_for`; only the rows go.
+
+        :param keys: the setting keys the current mode does not read.
+        """
+        self._hidden_by_the_mode = set(keys or ())
+        self.refresh_object_visibility()
+
     def refresh_object_visibility(self) -> None:
         """Show only the rows whose object this run actually has.
 
@@ -9293,7 +9305,8 @@ class SettingsWidgets:
             lacking = set(keys_hidden_by_their_object(self._widgets, current))
             self._hidden_by_their_object = set(lacking)
             hidden = lacking | set(
-                getattr(self, "_hidden_by_the_grid", ()) or ())
+                getattr(self, "_hidden_by_the_grid", ()) or ()) | set(
+                getattr(self, "_hidden_by_the_mode", ()) or ())
             self._hidden_by_the_run = set(hidden)
             lay_out = getattr(self, "rows_are_laid_out_by", None)
             if lay_out is not None:

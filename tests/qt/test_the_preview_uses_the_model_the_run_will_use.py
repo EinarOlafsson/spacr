@@ -436,33 +436,33 @@ def test_the_plaque_preview_follows_the_real_screens_default(
     Resolved WITHOUT fetching, as the preview does: the default is a 1.2 GB
     zoo checkpoint since 2026-09-21, and a test must not download it.
 
-    Before this the preview seeded ``model_name`` ('cpsam') from the same
-    form, so the two most visible values on the screen disagreed.
+    Since item 468 the screen's own Plaque preview (not the Mask panel)
+    holds the form's ``plaque_model`` and resolves it with the run's
+    resolver when a pass starts, so what it shows is the setting itself.
+    Before item 333 the preview seeded ``model_name`` ('cpsam') from the
+    same form, so the two most visible values on the screen disagreed.
     """
     from spacr.qt.app import MainWindow
-    from spacr.qt.preview_registry import install
-    from spacr.qt.settings_search import install as install_search
-    from spacr.submodules import ModelZooMissing, _resolve_plaque_model
+    from spacr.qt.widgets.plaque_preview import PlaquePreviewPanel
 
     window = MainWindow()
     qtbot.addWidget(window)
     window._on_nav_selected("analyze_plaques")
     qtbot.wait(50)
     screen = window._screens["analyze_plaques"]
-    install_search(screen)
-    assert install(screen) is None, "since item 452 AppScreen builds it"
     collected = screen._settings_model.collect()
     from spacr.submodules import DEFAULT_PLAQUE_MODEL
 
     assert collected["plaque_model"] == DEFAULT_PLAQUE_MODEL
-    try:
-        expected = _resolve_plaque_model(dict(collected), fetch=False)
-    except ModelZooMissing:
-        expected = DEFAULT_PLAQUE_MODEL
+    panel = screen._live_preview
+    assert isinstance(panel, PlaquePreviewPanel)
 
-    screen._preview_switch.setChecked(True)
+    screen._on_preview_switch(True)
 
-    _wait_for_model(qtbot, screen._live_preview, expected)
+    assert panel._model_box.currentText() == str(
+        collected.get("plaque_model") or DEFAULT_PLAQUE_MODEL)
+    assert panel.current_settings()["plaque_model"] == \
+        panel._model_box.currentText()
 
 
 def test_an_unset_plaque_model_means_what_the_run_takes_it_to_mean(
