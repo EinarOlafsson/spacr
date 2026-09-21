@@ -9,7 +9,8 @@ Status:    OPEN, filed 2026-09-02. The version-update hold it was filed behind
            English review masters. Annotate and CV pass full decode and
            browser checks; all 150 narration tracks for 01/04/05 pass technical
            verification after CPU rendering. Classify overview is captured;
-           its ML workflow and Mask's GPU recapture remain. OPEN ON: remaining
+           the current ML run is verified and its 11 scenes staged. OPEN ON:
+           Mask's GPU recapture, overview composition, remaining
            captures, full language/voice/caption and audible acceptance,
            complete-set publication, and the maintainer's Pages deployment.
            Detailed dated receipts below preserve each acceptance boundary.
@@ -2120,3 +2121,21 @@ The linked preparation ZIP was also rebuilt from the exact recorded helper;
 its README now matches the current two-worker run and preserved database.
 The remaining English voices for current Annotate and CV are now rendering
 sequentially on CPU, with private outputs and unchanged frozen narration.
+
+2026-09-21 — CODEX: CURRENT TABULAR CLASSIFY CAPTURE VERIFIED
+Thirty native 4K dark/Blobs frames now record the real ML workflow on a private
+copy of the downloaded four-well dataset. All 2153 saved predictions and nine
+holdout metrics are independently checked; 1035 held-out objects, no actual
+well overlap, 188 unscored objects, accuracy 0.6202898551 versus majority
+baseline 0.5632850242. The original database is unchanged. The labels remain
+plate columns, not validated phenotypes. Source-picker confirmation clears
+the genuine stale empty-source banner; an expanded native figure pane shows
+all three charts without cropping. No pixels or warnings were rewritten.
+The first attempt was rejected for code paths in warnings; current code is
+mounted read-only at /tmp/spacr-code. The final recording is v4; earlier
+attempts remain private. Lesson 11 now has 11 staged scenes and removes a
+stale claim that test_split overrides test_size (the dispatcher uses setdefault).
+English narration is rendering on CPU. Receipt:
+ tools/tutorials/evidence/2026-09-21-classify-ml-current-capture.json.
+Remaining: full media/locale/caption/listening acceptance, overview composition,
+Mask recapture and complete-set publication. No media has been uploaded.

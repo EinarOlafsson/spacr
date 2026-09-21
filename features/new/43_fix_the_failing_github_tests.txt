@@ -1785,3 +1785,10 @@ API sources). Source-bound runtime/API review stores load. The earlier 610-
 diagnostic audit names the 6e9265f67 boundary; no full audit of this later
 source or completed translation gate is claimed. Accepted capture receipts
 retain their actual source revisions. Coverage and CPU narration continue.
+
+2026-09-21 — CODEX DOCS LANE: Portuguese gains its final 153 recoverable
+preserved-draft records (650 reviewed sources total). Two contradictory
+English inversion descriptions are deferred to their application owner.
+Runtime coverage is 6058/6209; the locale audit still reports 39 diagnostics.
+The new exact installer-screen sense correction preserves scientific-screen
+terminology and passes nine relevant checks. Full docs/catalog gate stays open.

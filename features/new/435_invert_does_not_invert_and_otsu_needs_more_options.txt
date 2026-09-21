@@ -544,3 +544,10 @@ this review slice rather than approving that scientific contradiction.
 Please reconcile the English source in the non-translation lane; Codex will
 rebind the existing de/es/sv/fr reviewed warning records and translate the
 corrected source across all nine locales. No application source was edited.
+
+2026-09-21 — CODEX SECOND ENGLISH-SOURCE FINDING (translation lane)
+The Invert image tooltip still says the hover readout uses original values,
+while _on_invert_display's status explicitly says hover intensity follows the
+inverted picture. Portuguese review defers this source too; please reconcile
+the live English tooltip in the application lane. Reviewed translations will
+need rebinding when either source changes. No detection behavior was edited.

@@ -775,6 +775,15 @@ def main() -> int:
             if hasattr(screen, '_settings_model'):
                 settings = screen._settings_model.collect()
                 write_json(captures / 'settings.json', settings)
+            if args.module == 'classify_merged' and args.classifier_family == 'ml' and args.run:
+                # Confirm the downloaded project through the real source
+                # picker. Loading example settings currently leaves the
+                # empty-source card visible; this records the user action
+                # that updates it, without changing application behavior.
+                from capture_classify_existing import choose_existing_folder
+                source = settings['src']
+                source = Path(source[0] if isinstance(source, list) else source)
+                choose_existing_folder(app, screen, source, capture, settle)
             if args.module == 'mask':
                 images = list((stage / 'example_data/plate1').glob('*.tif'))
                 if not images:
@@ -1283,6 +1292,15 @@ def main() -> int:
                 queue.show_index(queue.count() - 1)
                 settle()
                 capture('24_batch_figure')
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                # Make room for the complete native charts through the same
+                # splitter a user can drag. Let each live canvas settle after
+                # navigation; never crop or rebuild a chart for the video.
+                screen._runtime_splitter.setSizes([1200, 450])
+                for index in range(queue.count()):
+                    queue.show_index(index)
+                    settle(2)
+                    capture(f'25_ml_figure_{index:02d}')
             if args.module == 'measure':
                 from capture_settings import require_unchanged_settings
                 before_tour = screen._settings_model.collect()

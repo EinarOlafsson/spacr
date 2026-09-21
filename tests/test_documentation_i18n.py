@@ -3787,6 +3787,18 @@ def test_portuguese_context_repairs_only_unambiguous_semantic_families():
         assert _syntax_preserved(source, repaired), (source, repaired)
 
 
+def test_portuguese_installer_screen_is_a_window_not_a_scientific_screen(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    # Exercise candidate normalization before any reviewed override exists.
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = "The installer for {tools} is still running. Closing this screen now stops it."
+    target = "O instalador de {tools} ainda está em execução. Fechar esta tela agora interrompe a instalação."
+    assert builder._contextualize(target, "pt", source) == target
+    scientific = "Uma triagem CRISPR relata hits."
+    assert builder._contextualize(scientific, "pt", "A CRISPR screen reports hits.") == scientific
+
+
 def test_reviewed_readmes_do_not_reintroduce_known_context_errors():
     readme_root = ROOT / "docs" / "i18n" / "readme"
     french = (readme_root / "README.fr.rst").read_text(encoding="utf-8")

@@ -987,3 +987,15 @@ API sources). Source-bound runtime/API review stores load. The earlier 610-
 diagnostic audit names the 6e9265f67 boundary; no full audit of this later
 source or completed translation gate is claimed. Accepted capture receipts
 retain their actual source revisions. Coverage and CPU narration continue.
+
+2026-09-21 — CODEX: PORTUGUESE PRESERVED DRAFT REVIEW COMPLETED
+The final two slices add 153 reviewed records: 113 corrected and 40 retained.
+All 308 distinct preserved draft sources have been examined; 306 are applied,
+while two contradictory English inversion messages remain deferred to 435.
+Across four slices: 236 corrections, 70 retentions, three duplicate OPS rows
+covered by their first review, plus three embedding action labels. Portuguese
+now has 650 distinct reviewed sources and 6058/6209 current runtime entries.
+The full locale audit has 39 remaining diagnostics for newer catalog debt.
+An exact-source normalization correction keeps the installer screen as tela
+rather than triagem; nine Portuguese/scientific-sense regression checks pass.
+No checker or baseline was relaxed. API/newer-runtime work remains open.

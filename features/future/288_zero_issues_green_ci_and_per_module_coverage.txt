@@ -4191,3 +4191,8 @@ checks in 126.10 s, separately from that full module-coverage measurement.
 batches. It retains the fixed 3d9eb57c5 snapshot; no full verdict or baseline
 update is claimed. Tutorial capture/split changes separately pass 23 checks.
 Current nightly source additions still require reconciliation after measurement.
+
+2026-09-21 — CODEX: the original capped full run has completed 63/95 batches
+without restarting its fixed source snapshot. No final coverage verdict or
+baseline update yet. Portuguese terminology and current ML capture work are
+verified separately; these checks do not stand in for full coverage.

@@ -1392,10 +1392,14 @@ _SCIENTIFIC_SCREEN_SOURCE = (
     r"settings)\b)"
 )
 
-# Plain ``screen`` is intrinsically ambiguous. These reviewed API blocks are
+# Plain ``screen`` is intrinsically ambiguous. These reviewed sources are
 # GUI surfaces that lack enough surrounding vocabulary for the general sense
 # detector above; the five scientific-screen blocks are deliberately absent.
 _GUI_SCREEN_SOURCE_SHA256 = frozenset({
+    # Closing the installer's screen stops installation, not a biological
+    # screen: "The installer for {tools} is still running. Closing this
+    # screen now stops it."
+    "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8",
     # ``Regression`` names the application surface here, but the scientific
     # word is otherwise strong enough to make this short block ambiguous.
     "60d228a54051bc0e5b2bf24e3af04eebbc74b268efb3aea0db01f1e7e18e9b52",

@@ -1,34 +1,38 @@
 # Portuguese runtime recovery, 2026-09-21
 
-The first 80 records from the preserved draft were compared with their full
-English sources: 71 were corrected and nine retained. Three related action
-labels were also reviewed so the embedding help and its buttons consistently
-say “Vetorizar”. Portuguese now has 424 distinct source-bound reviewed strings.
+All 308 distinct English sources in the preserved 311-record draft have been
+reviewed. Of these, 306 are applied: 236 corrected translations and 70 retained
+translations. Three duplicate OPS records reuse their first review. Two
+inversion messages remain deferred because the live English descriptions
+contradict one another. Three embedding action labels were also reviewed.
+Portuguese now has 650 distinct source-bound reviewed strings.
 
-The corrections preserve the scientific meaning of Cellpose flow thresholds,
-model/backend selection, track filtering and smoothing, OPS sequencing reads,
-guide-library column names, raster overlap, Otsu thresholds and hole filling.
-They also restore omitted logging instructions and accurately describe what
-error reports send outside the machine. Paths, parameters, format fields,
-markup and protected names remain checked by the existing gates.
+Corrections preserve Cellpose flow thresholds, model selection, OPS sequencing
+reads and guide-library columns, Otsu thresholds and local windows, watershed,
+object morphology, measurement arrays and filenames. The erosion warning now
+retains “twice the distance”; the local-window help correctly identifies even
+numbers; “Train data” describes training data, not railway trains. Installer
+commands, credentials, report-sharing behavior and download placeholders retain
+their original meanings and protected syntax.
 
-Evidence is in `reviewed/runtime/pt/2026-09-21-runtime-first-slice.json` and
-`reviewed/runtime/pt/2026-09-21-action-labels.json`. The review loader and the
-catalog audit were run after applying the records. This is AI-assisted
-technical review, not native-speaker approval.
+A narrow normalization correction recognizes the exact installer-closing
+message as a GUI screen. Before this change it rewrote the correct Portuguese
+“tela” to “triagem” (screening). A regression check exercises normalization
+without reviewed overrides and preserves the distinct CRISPR-screening sense.
+The existing syntax, placeholders, protected-token and semantic gates remain.
 
-This is a partial recovery. The rest of the 311-record draft, newer live
-application captions and API translations remain open under item 411. The
-full Portuguese runtime audit still fails on the remaining catalog debt.
-No audit rule or baseline was relaxed, and no GPU translation job was started.
+Evidence is in the four `reviewed/runtime/pt/2026-09-21-runtime-*-slice.json`
+files and `2026-09-21-action-labels.json`. The review loader, contextualization
+checks and complete Portuguese runtime audit were run. This is AI-assisted
+technical review, not native-speaker approval. Forty-two obsolete catalog keys
+were removed during the first slice.
 
-A second source-bound review adds 73 records: 52 corrected and 21 retained,
-bringing the reviewed total to 497 distinct sources. It covers Otsu thresholds,
-watershed and object morphology, image downloads, model setup and interface
-messages. The existing format/protected-token gates and contextualization
-checks pass for every new record. Two duplicate OPS records were already
-covered by the first slice. The inversion warning is explicitly deferred:
-its English source still describes separate display/detection switches while
-item 435 documents unified inversion. No translation can resolve that source
-contradiction; the application owner is notified in the shared coordination
-file. Evidence: `reviewed/runtime/pt/2026-09-21-runtime-second-slice.json`.
+The deferred messages are the separate display/detection inversion warning
+and the inversion tooltip's claim that hover values remain original, which
+contradicts the current status message. Item 435 and the shared coordination
+file notify the application owner. These sources require reconciliation and
+then translation rebinding; the translation pass does not alter detection.
+
+Newer runtime text and API translations remain open under item 411. The full
+locale audit still reports that debt. No baseline or audit rule was relaxed,
+and no GPU translation job was started.

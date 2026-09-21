@@ -243,3 +243,12 @@ were replaced with the current recorded release/settings; its helper matches
 the capture hash, including the byte-identical metadata copy.
 Current Annotate and CV's remaining English voice variants are rendering on
 CPU; this starts their matrix expansion without waiting for GPU availability.
+
+2026-09-21 — CODEX: CURRENT ML THEME / REAL-DATA CAPTURE
+The tabular Classify lesson now stages 11 scenes from 30 checked native 4K
+frames in dark mode with Blobs. Genuine source-picker confirmation and an
+expanded figure pane keep the loaded source and complete charts visible.
+Neutral HOME and a read-only neutral code mount prevent personal paths in
+file dialogs and real warning filenames. No warning transcript is rewritten.
+Current narration drops the separate-ML-app comparison; English audio is
+rendering. Full voice/caption/browser/audible acceptance remains open.

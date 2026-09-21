@@ -1,0 +1,114 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "native_capture_independent_metrics_and_english_lesson_staged_not_published",
+  "provenance": {
+    "commit": "78a8c4a3669e7820ca7abc34ebcf2b11c7409801",
+    "version": "1.5.0.8",
+    "module": "classify_merged",
+    "download_requested": true,
+    "dataset_cache": "/tmp/spacr-classify-ml/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frame_count": 30,
+  "native_acceptance": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 3,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "lineage": {
+    "accepted": true,
+    "reasons": [],
+    "rows": 2153,
+    "sample_counts": {
+      "train": 1118,
+      "test": 1035,
+      "not_used": 0
+    },
+    "actual_wells": {
+      "train": [
+        [
+          "plate1",
+          "r12",
+          "c1"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2"
+        ]
+      ],
+      "test": [
+        [
+          "plate1",
+          "r12",
+          "c2"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1"
+        ]
+      ]
+    },
+    "overlapping_actual_wells": [],
+    "labels_are_plate_columns_not_validated_phenotypes": true,
+    "all_saved_probabilities_checked": true,
+    "output": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-ml-current-v4/example_data/plate1/results/random_forest/channel_1/results.csv"
+  },
+  "independent_metrics": {
+    "confusion_matrix_true_rows_predicted_columns": [
+      [
+        467,
+        116
+      ],
+      [
+        277,
+        175
+      ]
+    ],
+    "class_zero": "columnID=c1",
+    "class_one": "columnID=c2",
+    "test_objects": 1035,
+    "accuracy": 0.6202898550724638,
+    "majority_class_accuracy_on_test": 0.5632850241545894,
+    "metrics_compared": 9,
+    "maximum_metric_error": 1.1102230246251565e-16,
+    "database_predictions_checked": 2153
+  },
+  "database_rows": 2341,
+  "unscored_objects": 188,
+  "original_database_unchanged": true,
+  "original_database_sha256": "d6a83da4672dab3653bebc4c12af6ba6937dce39d15649c049fcde3df56b6bb3",
+  "private_code_alias": "/tmp/spacr-code",
+  "private_home": "/tmp/spacr-classify-ml/user_state",
+  "warning_text_rewritten": false,
+  "ai_prompt_submitted": false,
+  "tools": {
+    "tools/tutorials/capture_refresh.py": "4931387d06e787b3ef9e07498b2a27f1cdc749b8cafc10d790b7df7c088869f7",
+    "tools/tutorials/capture_classify_ml.py": "d1b9750b330d60804427db315e02c8f82c97bf3f72abacf356ee6b520ba5708e"
+  },
+  "artifacts": {
+    "captures/classify_ml_current_20260921_v4/frames.json": "d6839290bb899c3ed094e1fef2f53f676c41a63cb13053b7f7418d1b1e12a6e0",
+    "captures/classify_ml_current_20260921_v4/scientific_acceptance.json": "0da1c8e24ad08c2b221fe1b6704681f112bbfb0b116457b59a84cba0544a79e2",
+    "example_data/plate1/results/random_forest/channel_1/results.csv": "066597100b496711f2eac551e29cb77f656dc547aa986285c03645e152bace7c",
+    "example_data/plate1/results/random_forest/channel_1/random_forest_model.csv": "47cd137d12c15325a4c8e68755d9c2fbe5ca75c69053fc04410488615b325995"
+  },
+  "remaining": [
+    "Fresh narration/video and full language/voice/caption acceptance",
+    "Browser/mobile and audible acceptance",
+    "Publish with the completed refreshed set"
+  ],
+  "visual_review": [
+    "18_source_folder_choice",
+    "25_ml_figure_02"
+  ],
+  "source_picker_confirmation": true,
+  "expanded_native_figure_pane": true,
+  "scene_count": 11,
+  "lesson_sha256": "a1a15e7dc3ddaa5d3c0f8bba33b9f22871706a191d119eed901bedc1c7231248"
+}
