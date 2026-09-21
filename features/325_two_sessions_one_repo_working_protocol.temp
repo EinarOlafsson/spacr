@@ -8454,3 +8454,18 @@ nas_guard.sh. No new item numbers are being allocated.
 This checkout is clean nightly at 293ff78b7 at intake. The named branches
 home/447-decode-main-guard and home/448-backends-proven are absent from this
 clone's local branch list; no recovery, deletion or publication was attempted.
+
+2026-09-21 — CODEX: NEXT THREE-LANE CHECKPOINT
+--------------------------------------------------------------------------------
+
+Continuing at the maintainer's explicit request, with push approval renewed.
+Claims before edits: tests/qt/test_the_issue_preview_can_diagnose.py for 288;
+tools/build_i18n_catalogs.py, its focused tests and reviewed runtime records
+for the current format-field audit failures; tools/tutorials/authoring/tools/
+capture_all_modules.py, tutorial capture policy helpers/tests and English
+authoring inputs for 358/447/286. The latter capture pass will combine 447's
+dark/Blobs requirement with 358, as the maintainer decided in the handover.
+No production application UI changes, full coverage run, main merge or live
+media publication is included. GPU was busy on inspection; a read-only
+30-second monitor is measuring the required 20-minute idle interval. New
+capture outputs will use /tmp because firecuda2 has only 7 GiB free.
