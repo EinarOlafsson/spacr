@@ -818,7 +818,7 @@ class SetupSlides(QDialog):
         the install panel asks. Whether a token is reachable is
         :func:`spacr.qt.ai.github_auth.auth_source`, which also knows
         ``GITHUB_TOKEN`` and a stored token; it runs `gh auth token` here,
-        on the GUI thread, as the row did before item 420, and is asked
+        on the GUI thread, and is asked
         once each time the row's state may have changed.
         """
         if not self._still_on_screen():
@@ -1532,9 +1532,8 @@ class SetupSlides(QDialog):
         this is a dialog with the command in it and buttons that act.
 
         INSTALL RUNS THE COMMAND IN THE PROMPT, and nothing runs until it is
-        pressed. "instead of giving the user a curl link it uses the curl
-        link to downloade e.g. claude and then installs it" (item 420): the
-        command shown is the provider's own install row for this operating
+        pressed. Instead of handing the user a curl link, spaCR runs the
+        download and the install itself: the command shown is the provider's own install row for this operating
         system (:data:`spacr.qt.ai.providers.INSTALL_METHODS`), the install
         runs off the GUI thread in the panel under the marks, and the
         sign-in follows it. When no row can run here -- no npm and no
@@ -1687,7 +1686,7 @@ class SetupSlides(QDialog):
     def _sign_in_here_or_in_a_terminal(self, provider, login: str) -> bool:
         """Hold the sign-in inside spaCR, or hand it to a terminal.
 
-        Item 420 asked for "no terminal used". On Linux and macOS the sign-in
+        The goal is that no terminal is used. On Linux and macOS the sign-in
         runs on a pseudo-terminal in a small spaCR window
         (:class:`spacr.qt.ai.pty_sign_in.SignInDialog`), which opens the
         sign-in page and passes any code back; the panel's status polling

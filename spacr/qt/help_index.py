@@ -1,6 +1,6 @@
 """Everything in spaCR that is addressable by name, and how to rank it.
 
-Instruction 422. The search field beside the Help menu is only as good as
+The search field beside the Help menu is only as good as
 this: a user who knows what a thing is CALLED should reach it without knowing
 which module owns it or which collapsed heading it was filed under.
 
@@ -298,9 +298,9 @@ def _term_score(term: str, entry: HelpEntry) -> Optional[float]:
 
     Five bands, and the ordering between them is the whole ranking: the name
     a user typed beats a word of it, which beats the name they half-typed,
-    which beats a word from a description. Matching the description at all is
-    what the instruction asks for -- a user who does not know the exact name
-    is the user who needs this most -- but a description hit must never
+    which beats a word from a description. The description is matched at all
+    because a user who does not know the exact name is the user who needs
+    this most -- but a description hit must never
     outrank a name hit, or typing a setting's own key buries it under the
     twenty settings whose help text mentions it.
 
@@ -443,8 +443,7 @@ def module_entries() -> List[HelpEntry]:
 def setting_entries() -> List[HelpEntry]:
     """One entry per module a setting appears in, plus its API consumers.
 
-    ONE ROW PER MODULE, which is the maintainer's answer to the open
-    question the instruction left: a setting in four modules is four rows,
+    ONE ROW PER MODULE: a setting in four modules is four rows,
     each naming its module and the category it sits under, rather than one
     row that then asks which. The user already knows which module they meant;
     a row that asks is a second click for information the list could have
@@ -532,7 +531,7 @@ def api_entries() -> List[HelpEntry]:
     The settings half is what makes an API row findable by the name of a
     setting: searching ``cell_diameter`` offers the setting's own row in each
     module that exposes it AND the entry of each function that takes it,
-    which is what the instruction asks a setting query to return.
+    which is what a setting query returns.
 
     :returns: ``kind="api"`` entries carrying ``{"symbol": dotted name}``,
         and ``"reads"`` when the symbol consumes settings.

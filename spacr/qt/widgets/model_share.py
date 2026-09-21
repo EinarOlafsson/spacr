@@ -191,6 +191,7 @@ def find_token() -> Optional[str]:
 
 
 def _num(value: Any) -> str:
+    """A card value as text, or "not recorded" when blank."""
     text = str(value or "").strip()
     return text if text else "not recorded"
 

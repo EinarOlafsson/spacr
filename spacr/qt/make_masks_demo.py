@@ -1,9 +1,8 @@
 """Make Masks' test data: ten Toxoplasma vacuole fields, one button away.
 
-Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV
-training set on Hugging Face as "a small test dataset for make masks", and "a
-button for loading this dataset which automatically triggers opening the first
-image with make masks".
+Ten images of the Toxoplasma PV training set are published on Hugging Face as
+a small test dataset for Make Masks, with a button that loads the dataset and
+opens its first image in Make Masks.
 
 WHAT IS PUBLISHED. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own
 acquisitions -- no figure harvested from a paper, no held-out field -- at the

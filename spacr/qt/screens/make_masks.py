@@ -56,8 +56,8 @@ object and background, size filtering and Otsu detection, with undo and redo
 over all of them -- alongside the brush, wand and display controls, and can
 be hidden to return its width to the canvas.
 
-THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME (items 435
-and 419 point 9). Only the second changes what a detector reads, and the
+THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME. Only the
+second changes what a detector reads, and the
 captions are what tell them apart on the panel.
 
 **Invert image**, in the Display category, is THE inversion. It draws the
@@ -68,24 +68,23 @@ objects takes dark ones, and a banner above the image says so for as long as
 it is on. The corner readout, the object filter and the saved mask go on
 reading the pixels that were loaded, so nothing measured moves.
 
-IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. Item 435's "Invert
-image" drew a negative and swore detection was untouched; item 419 point 9's
-"Invert for detection" inverted what the detectors read and drew nothing. A
-curator could hold either without the other, and the first one's status line
-had to contradict the second one's banner. The maintainer collapsed them on
-2026-09-20, for the reason the switch exists at all: "if there are black
-objects on an image then inverting allows the user to use otsu and
-magnifier" is ONE intention. ``_cp_invert`` is now the same widget object as
+IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only "Invert
+image" drew a negative and left detection untouched; "Invert for detection"
+inverted what the detectors read and drew nothing. A curator could hold
+either without the other, and the first one's status line had to contradict
+the second one's banner. They are one switch because the reason for the
+switch is one intention: inverting a field of dark objects so that Otsu and
+the magnifier can detect them. ``_cp_invert`` is now the same widget object as
 ``_invert_display`` under its old name, so the two cannot come apart.
 
 **Swap object and background**, in Object operations, is the old "Invert
 mask" under the name that describes it -- it flips the LABEL image, which on
-an ordinary field leaves one object covering the frame (item 435). It is not
+an ordinary field leaves one object covering the frame. It is not
 a picture invert and is deliberately not called one.
 
 THE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises
-the field to 0..1 on its own range and takes ``1 - v``, which is what the
-maintainer asked for and is not incidental: item 417's Otsu correction is a
+the field to 0..1 on its own range and takes ``1 - v``, and the
+normalisation is not incidental: the Otsu correction is a
 MULTIPLIER on an absolute level, so normalising first is what makes one
 correction value mean the same thing on the next image.
 :func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and
@@ -189,9 +188,8 @@ APP_KEY = "make_masks"
 
 #: The masthead's name, matching the registry row so the page and the tile
 #: that opens it say the same thing. The masthead carries no one-line
-#: description beside it: the maintainer asked for that sentence to go
-#: (item 419), so the name, the instruction under it and the fold strip are
-#: the whole row.
+#: description beside it, so the name, the instruction under it and the
+#: fold strip are the whole row.
 HEADER_TITLE = "Make Masks"
 HEADER_INSTRUCTION = (
     "Open a folder of images, correct each mask, and save it back.")
@@ -429,16 +427,15 @@ _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 #: Settings categories this panel has renamed, old title to new. The stored
 #: layout is a list of TITLES, so a user who folded the old one away would
 #: find it open again after a rename and would have to fold it a second time;
-#: reading the stored list through this keeps their arrangement. Item 419
-#: renamed Cellpose-SAM (point 5) and Auto-filter objects (point 7, "add a
-#: filter button and add this as a settings category") at the maintainer's
-#: request.
+#: reading the stored list through this keeps their arrangement.
+#: Cellpose-SAM is now Object detection, and Auto-filter objects is now the
+#: Filter category.
 _RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection",
                        "Auto-filter objects": "Filter"}
 
 #: The two inks this screen cannot take from the shipped stylesheet: the
-#: Filter category's removal ledger, which item 419 point 7 asks to be RED,
-#: and the Invert warning of point 9e, which is a warning and not prose.
+#: Filter category's removal ledger, which is RED because it lists what was
+#: deleted, and the Invert warning, which is a warning and not prose.
 #: Registered rather than written inline, so both follow the user's theme --
 #: a colour set on the widget at build time is the colour it keeps when the
 #: theme changes under it.
@@ -450,9 +447,8 @@ FILTER_LOG_NAME = "MakeMasksFilterLog"
 #: The banner that says the detectors are reading an inverted image.
 INVERT_WARNING_NAME = "MakeMasksInvertWarning"
 
-#: What that banner says. Item 419 point 9e asks for "a warning somewhere
-#: reminding the user that masks are generated from the inverted image", and
-#: SOMEWHERE IS NOT INSIDE THE SETTINGS PANEL: the Settings toggle hides that
+#: What that banner says. It reminds the curator that masks are generated
+#: from the inverted image, and it is NOT INSIDE THE SETTINGS PANEL: the Settings toggle hides that
 #: panel to give the image the width, and the magnifier goes on inverting
 #: while it is hidden. It sits between the tool row and the image, where
 #: nothing can fold it away.
@@ -464,7 +460,7 @@ INVERT_WARNING_TEXT = (
     "changes only the picture.")
 
 #: How many removal rows the Filter category's ledger shows before it
-#: scrolls. Item 419 point 7 asks for one row per removed object, and a
+#: scrolls. The ledger has one row per removed object, and a
 #: filter tightened too far removes hundreds; a box that grew with them
 #: would push every other category off the panel, so it is a fixed six rows
 #: with the rest a scroll away.
@@ -477,21 +473,20 @@ FILTER_LOG_ROWS = 6
 #: can start on it without importing a private name.
 OTSU_SMOOTHING = 1.0
 
-#: Where item 435's local-threshold window starts, in pixels. Comfortably
+#: Where the local-threshold window starts, in pixels. Comfortably
 #: larger than a cell at the magnifications this screen is used at and far
 #: smaller than the scale illumination falls off over, which is the band a
 #: local threshold has to sit in to be worth switching on. It is odd because
 #: the window is centred on the pixel it judges.
 OTSU_LOCAL_WINDOW = 51
 
-#: How many bars item 435's histogram preview draws. 256 is what a reader can
+#: How many bars the Otsu histogram preview draws. 256 is what a reader can
 #: tell apart at the width the dialog opens at, and enough that a 16-bit
 #: field's two populations are two humps rather than one.
 OTSU_HISTOGRAM_BINS = 256
 
-#: The shortcut list item 419 puts beside the Mask / Cell probability / Flows
-#: views, as ``(keys, what it does)``. ONE TERSE LINE EACH, as the request
-#: asked: the panel is read at a glance between strokes, and a paragraph
+#: The shortcut list beside the Mask / Cell probability / Flows
+#: views, as ``(keys, what it does)``. ONE TERSE LINE EACH: the panel is read at a glance between strokes, and a paragraph
 #: there would be read once and then never again. Every line is a gesture
 #: this module actually implements -- :data:`PAN_MODIFIERS`,
 #: :meth:`_MaskCanvas.wheelEvent`, :meth:`_MaskCanvas.mousePressEvent` and
@@ -619,7 +614,7 @@ class _MaskCanvas(QLabel):
     stroke_finished = Signal()
     zoom_changed = Signal(bool)
     #: Something the user did needs a sentence on the status line. Emitted
-    #: by the Ctrl+click edits of item 419 point 8, which are the canvas's
+    #: by the Ctrl+click edits, which are the canvas's
     #: only gestures that can decline to do anything for a reason worth
     #: telling: a click on background, and an object with no waist to cut.
     #: A gesture that did nothing and said nothing reads as a broken
@@ -635,7 +630,7 @@ class _MaskCanvas(QLabel):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
         #: What the corner readout says about the pixel under the mouse, or
-        #: None while the mouse is off the image (item 419, point 1).
+        #: None while the mouse is off the image.
         self.readout: Optional[engine.PixelReadout] = None
         self._lookup: Optional[engine.ObjectLookup] = None
         self._lookup_mask: Optional[np.ndarray] = None
@@ -649,7 +644,7 @@ class _MaskCanvas(QLabel):
         self.brush_radius: int = 10
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
-        #: Draw the photographic complement of the image (item 435). A VIEW
+        #: Draw the photographic complement of the image. A VIEW
         #: setting beside the two percentiles, not an edit: :attr:`image`
         #: keeps the pixels that were read off disk, so the readout, the
         #: filter, every detector and the save all see the original numbers
@@ -688,7 +683,7 @@ class _MaskCanvas(QLabel):
         #: two things. Set by the screen; 0 leaves the engine's own floor.
         self.split_min_area: int = 0
         #: The BUTTON now down that was pressed with Ctrl, or None. It makes
-        #: that press one of point 8's edits and NOT the start of a drag:
+        #: that press one of the Ctrl+click edits and NOT the start of a drag:
         #: without it the release reaches the magnifier, whose own release
         #: with no stroke open IS a click -- so a Ctrl+click that split one
         #: object would commit every object in the box on the way back up.
@@ -795,7 +790,7 @@ class _MaskCanvas(QLabel):
 
         :attr:`image` unless :attr:`invert_display` is on, in which case the
         photographic complement of it (:func:`spacr.qt.mask_engine.
-        invert_intensity`). ITEM 435: the complement is computed here and
+        invert_intensity`). The complement is computed here and
         nowhere else, so everything that measures, detects, filters or saves
         goes on reading :attr:`image` and cannot silently be handed inverted
         pixels. A curator can leave Invert on all day and the numbers on
@@ -1169,12 +1164,10 @@ class _MaskCanvas(QLabel):
     def _value_at(source, spot) -> float:
         """The intensity at ``spot`` of whichever array is handed in.
 
-        ITEM 435, corrected 2026-09-20. This used to read :attr:`image`
-        always, so with Invert on the picture was the negative and the
-        number under the mouse was not -- and the readout is the instrument
-        a curator checks the inversion WITH. The maintainer reported it as
-        "the hover allows me to see the intensities and they dont seem to
-        change at all when i press invert, so it is not done".
+        Reading :attr:`image` always would leave the number under the mouse
+        unchanged while the picture showed the negative with Invert on --
+        and the readout is the instrument a curator checks the inversion
+        WITH, so a readout that does not move makes Invert look broken.
 
         It now reads what is DRAWN, so the number agrees with the picture.
         What is saved and what the Filter measures still read the loaded
@@ -1413,11 +1406,10 @@ class _MaskCanvas(QLabel):
         return True
 
     def _ctrl_edit_at(self, pt, *, split: bool) -> bool:
-        """Split or remove the object under ``pt`` -- item 419 point 8.
+        """Split or remove the object under ``pt``.
 
-        "if the user holds down ctrl and left clicks then the object should
-        be split, if the user holds ctrl and right clicks the object that is
-        hovered should be removed", the maintainer, 2026-09-16.
+        Ctrl + left click splits the hovered object; Ctrl + right click
+        removes it.
 
         BOTH ARE ONE STROKE, so each is one undo step and one ledger entry,
         like every other edit on this canvas. The stroke is opened only once
@@ -1476,7 +1468,7 @@ class _MaskCanvas(QLabel):
 
         Three gestures are checked before the tool, because they work from
         *any* tool: Ctrl + left splits and Ctrl + right removes the object
-        under the cursor (item 419 point 8), the right button sweep-deletes,
+        under the cursor, the right button sweep-deletes,
         and Shift/Alt + left pans. All of them are things you want mid-edit
         without putting the brush down and picking it up again. With the
         magnifier on in whole-image scope the right button removes the one
@@ -1980,7 +1972,7 @@ def _zoo_cellpose_models() -> List[tuple]:
     cannot be read leaves the Model box with the Cellpose installed here.
 
     OFFERS WHAT THE ZOO OFFERS, AND NOTHING ELSE. The source headings the
-    Model zoo picker carries (item 440) are a preference, not a property of
+    Model zoo picker carries are a preference, not a property of
     one dialog: a user who folded bioimage.io away in the picker has said
     they do not want those models, and a Mode box that listed them anyway
     would be the one place that ignored them. So the same persisted headings
@@ -2098,8 +2090,8 @@ def cellpose_detect(image: np.ndarray, model, *,
 #: of 0 is each model's own default cut.
 _MAGNIFIER_SIZE = 128
 #: The size's range BEFORE A FIELD IS OPEN. Once one is, the top of the range
-#: is that field's own longer side (item 417: "this number should be able to
-#: be as high as the image is high/wide") -- see :func:`_magnifier_size_range`.
+#: is that field's own longer side, so the magnifier can cover the whole
+#: field -- see :func:`_magnifier_size_range`.
 _MAGNIFIER_SIZE_RANGE = (32, 512)
 _MAGNIFIER_ZOOM = 2.0
 _MAGNIFIER_ZOOM_RANGE = (1.0, 8.0)
@@ -2174,7 +2166,7 @@ class _MagnifierRequest(NamedTuple):
     #: ``region`` for the box under the mouse, ``image`` for the whole field.
     scope: str = "region"
     #: The Object detection settings' flow threshold, cell-probability
-    #: threshold and normalization, which the models read (item 417).
+    #: threshold and normalization, which the models read.
     flow_threshold: float = FLOW_THRESHOLD
     cellprob_threshold: float = CELLPROB_THRESHOLD
     normalize: bool = True
@@ -2186,8 +2178,8 @@ class _MagnifierRequest(NamedTuple):
     otsu_fill_holes: bool = True
     #: Whether the Otsu mode cuts a blob with two centres into two objects.
     otsu_split: bool = True
-    #: Whether :attr:`crop` was inverted before it was copied in (item 419
-    #: point 9). It is carried on the request, though nothing downstream
+    #: Whether :attr:`crop` was inverted before it was copied in. It is
+    #: carried on the request, though nothing downstream
     #: reads it, because it is part of what makes two requests the same
     #: request: the same box under the same settings with Invert on and off
     #: are two different questions with two different answers.
@@ -2251,8 +2243,8 @@ def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
 
     Reads the Otsu category's settings -- the threshold correction, the
     smoothing, whether holes are filled and whether a blob with two centres
-    is cut in two -- and the magnifier's own sensitivity. Item 419 renamed
-    this mode from ``classical``; the old name still reaches it, through
+    is cut in two -- and the magnifier's own sensitivity. This mode was
+    once called ``classical``; the old name still reaches it, through
     :func:`canonical_magnifier_mode`.
     """
     return engine._classical_region_labels(
@@ -2267,7 +2259,7 @@ def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
 def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
     """Segment the region with the Object detection settings the screen has.
 
-    ONE SOURCE OF TRUTH (item 417): the model, the flow threshold, the
+    ONE SOURCE OF TRUTH: the model, the flow threshold, the
     cell-probability threshold, the diameter and the normalization are the
     Object detection category's, exactly as the detect button passes them, so
     the box and the button cannot disagree about what Cellpose was asked. The
@@ -2288,13 +2280,12 @@ def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
 
 
 #: The optional models the magnifier runs through
-#: :mod:`spacr._segmentation_backends` (items 404, 405, 419 point 3 and
-#: 423): ``mode -> (backend, the label the Mode box shows)``. A Cellpose 3
-#: mode names its model after the colon. Each is always listed, greyed until
-#: its backend is installed, and choosing a greyed one offers the install --
-#: into an environment of its own, which is the maintainer's 2026-09-19
-#: answer for item 423 and replaces the pip-into-spaCR's-own-environment
-#: route item 419 built.
+#: :mod:`spacr._segmentation_backends`: ``mode -> (backend, the label the
+#: Mode box shows)``. A Cellpose 3 mode names its model after the colon.
+#: Each is always listed, greyed until its backend is installed, and
+#: choosing a greyed one offers the install -- into an environment of its
+#: own rather than into spaCR's, so a backend's dependencies cannot break
+#: spaCR's.
 _MAGNIFIER_BACKENDS = {
     "cellpose3:cyto3": ("cellpose3", "Cellpose 3 · cyto3"),
     "cellpose3:cyto2": ("cellpose3", "Cellpose 3 · cyto2"),
@@ -2386,8 +2377,7 @@ def _backend_ready(mode: str) -> bool:
 
 
 def _backend_segmenter(request: _MagnifierRequest, load_model=None):
-    """Segment the region with Cellpose 3, DINOCell or SAMCell (items 417
-    and 423).
+    """Segment the region with Cellpose 3, DINOCell or SAMCell.
 
     A backend answers ``CellposeModel.eval``'s own call, so the region goes
     through :func:`cellpose_detect` with the Object detection settings as
@@ -2422,8 +2412,8 @@ _MAGNIFIER_SEGMENTERS = {
 }
 
 #: Mode names this screen used to carry, and what they are called now. The
-#: magnifier's threshold mode was ``classical`` until item 419 renamed it to
-#: ``otsu`` at the maintainer's request; a mode name reaches this module from
+#: magnifier's threshold mode was once called ``classical`` and is now
+#: ``otsu``; a mode name reaches this module from
 #: a saved session, a script or a test, so the old one still arrives and is
 #: translated rather than refused.
 _MAGNIFIER_MODE_ALIASES = {"classical": "otsu"}
@@ -2550,7 +2540,7 @@ def _stretch_for_box(image: np.ndarray, box, part,
     region it magnifies and what it must PAY FOR is the part of that region
     a user can see. At the default box the two are one thing and this
     returns exactly what that function would (``part`` is the whole box and
-    the sample is every pixel of it); at the largest box item 417 allows,
+    the sample is every pixel of it); at the largest box allowed,
     with most of the lens off the canvas, it is the difference between a
     move a user feels and one nobody can.
 
@@ -2599,9 +2589,9 @@ def _ghosted_overlay(labels: np.ndarray, overlay: np.ndarray,
 
     RUN HERE, ON THE WORKER, AND NOT WHERE THE BOX IS DRAWN. The first
     version of this was a paintEvent's work, and the rule is counted over
-    the box's pixels: on the largest box item 417 allows -- the field's own
+    the box's pixels: on the largest box allowed -- the field's own
     longer side -- that measured 125.5 ms per delivered result on the GUI
-    thread, nine frames of item 380's budget, for a picture the worker
+    thread, nine frames of the interactive frame budget, for a picture the worker
     could have brought with it. What it needs from the GUI thread is the
     mask, and the mask is copied into the request beside the crop
     (:meth:`_LiveMagnifier.build_request`), which is how everything else a
@@ -2869,7 +2859,7 @@ class _LiveMagnifier(QObject):
     remove_requested = Signal(int, int)
     #: A whole-image run started (True) or ended (False).
     busy_changed = Signal(bool)
-    #: A press-and-drag's objects (item 417) as ``(outcome, final)``: shown
+    #: A press-and-drag's objects as ``(outcome, final)``: shown
     #: while the button is down, committed once when ``final``.
     drag_ready = Signal(object)
 
@@ -2975,8 +2965,8 @@ class _LiveMagnifier(QObject):
 
         A mode this screen has renamed arrives under either name and is
         stored under the current one (:func:`canonical_magnifier_mode`), so
-        a session or a script written before item 419 still selects a mode
-        that exists.
+        a session or a script written under an old mode name still selects
+        a mode that exists.
         """
         self.mode = canonical_magnifier_mode(mode)
         self._unavailable.clear()
@@ -3260,8 +3250,8 @@ class _LiveMagnifier(QObject):
         """Whether Invert is on, as the screen's panel holds it now.
 
         Asked by :meth:`paint`, which runs outside the request path and so
-        cannot read the answer off a request: item 419 point 9c wants the
-        box showing the inverted image, and the box repaints on moves that
+        cannot read the answer off a request: the box shows the inverted
+        image while Invert is on, and the box repaints on moves that
         never build a request at all.
         """
         if self._context is None:
@@ -3271,7 +3261,7 @@ class _LiveMagnifier(QObject):
     def inverted_field(self) -> np.ndarray:
         """The WHOLE open field reflected about its own range, cached.
 
-        Item 419 point 9d makes the inversion what the DETECTOR sees, so the
+        The inversion is what the DETECTOR sees, so the
         box and the detect button have to invert the same way -- and a
         region reflected about ITS OWN extremes is reflected differently
         wherever the box is put. Inverting the whole field once and cutting
@@ -3282,7 +3272,7 @@ class _LiveMagnifier(QObject):
         Computed once per field and not once per mouse move, keyed on the
         array's identity: a full-field pass on every hover is work on the
         GUI thread for an answer that cannot have changed, and another field
-        is another array and asks again. The canvas caches item 435's
+        is another array and asks again. The canvas caches its
         display complement against its own image the same way.
         """
         image = self.canvas.image
@@ -3646,8 +3636,8 @@ class _LiveMagnifier(QObject):
     def _note_pace(self, key: tuple, pixels: int, seconds: float) -> None:
         """Remember what this mode and model cost per megapixel, last time.
 
-        A RUN THAT LOADED ITS MODEL IS NOT WHAT THE NEXT RUN COSTS. Item
-        407 measured the same field at 10.3 s cold and 3.9 s warm on the
+        A RUN THAT LOADED ITS MODEL IS NOT WHAT THE NEXT RUN COSTS. The
+        same field measures 10.3 s cold and 3.9 s warm on the
         same Cellpose model: most of a first run is the load, and a bar
         that counted down from it would promise two and a half times the
         time the run it is drawn over actually takes, then finish while it
@@ -3730,7 +3720,7 @@ class _LiveMagnifier(QObject):
 
 
     def _init_stroke(self) -> None:
-        """Hold no press, and add every object in the box as item 407 did."""
+        """Hold no press, and start in the mode that adds every object in the box."""
         from PySide6.QtCore import QTimer
 
         from .._magnifier_drag import _PREVIEW_MS
@@ -3755,7 +3745,7 @@ class _LiveMagnifier(QObject):
         """Start a stroke under the mouse: what a left press does while on.
 
         Nothing is added on the press. A release that has not moved is a
-        click -- :meth:`click`, as item 407 built it -- except that with only
+        click -- :meth:`click` -- except that with only
         objects touching the mouse it adds just the object under the cursor.
         A press that pulls is a drag; what a drag adds is
         :mod:`spacr.qt._magnifier_drag`'s to say. Under Whole image a drag
@@ -4092,8 +4082,8 @@ class _LiveMagnifier(QObject):
         mask for every edit -- and it asks for the region again rather than
         redrawing a promise made about a mask that is gone.
 
-        WITH INVERT FOR DETECTION ON THE BOX SHOWS THE INVERTED REGION
-        (item 419 point 9c), off the same :meth:`inverted_field` the
+        WITH INVERT ON THE BOX SHOWS THE INVERTED REGION,
+        off the same :meth:`inverted_field` the
         request's crop is cut from, so what the user is looking at inside
         the box is what the model was given. The canvas under it is
         untouched.
@@ -4166,12 +4156,12 @@ class _LiveMagnifier(QObject):
         """The part of ``box`` that is on the canvas, and where it is drawn.
 
         THE BOX IS NOT BOUNDED BY THE WINDOW. Its side is the Size box's
-        value in image pixels and item 417 raised that to the field's own
+        value in image pixels and may be as large as the field's own
         longer side, and the lens then draws it ``zoom`` times larger
         again: on a 2,048 px field most of the lens is off the widget, and
         every pixel of it was being stretched, coloured and handed to Qt on
-        the GUI thread for every move. Measured by item 380's own harness
-        at 2,048 px: a median move of 183.9 ms, 23 frames dropped.
+        the GUI thread for every move. Measured by the responsiveness
+        harness at 2,048 px: a median move of 183.9 ms, 23 frames dropped.
 
         :param box: ``(x0, y0, x1, y1)`` in image pixels.
         :param lens: where the whole box would be drawn.
@@ -4315,8 +4305,8 @@ class _FlowPane(QLabel):
 class _OtsuHistogramPlot(QWidget):
     """The field's intensity histogram with the chosen level drawn on it.
 
-    ITEM 435 asks for "a preview showing the histogram with the chosen level
-    marked". It is painted rather than plotted: the whole figure is a few
+    A preview of the histogram with the chosen level marked, so a curator
+    can see where the cut falls. It is painted rather than plotted: the whole figure is a few
     hundred bars and two or three vertical lines, and a chart library on this
     screen would mean importing one on the path that opens Make Masks.
 
@@ -4870,7 +4860,7 @@ class MakeMasksScreen(QWidget):
     def _take_any_terminal_queue(self) -> bool:
         """Open the queue ``spacr-make-masks`` handed over, if there is one.
 
-        The terminal half of ledger item 396 ends here. ``spacr-make-masks``
+        The terminal entry point hands over here. ``spacr-make-masks``
         reads the folder, builds the session and leaves it in
         :mod:`spacr.cli_make_masks`; the first screen built in that process
         takes it. The import is of a CLI module that pulls argparse and
@@ -5063,7 +5053,7 @@ class MakeMasksScreen(QWidget):
         self._magnifier.drag_ready.connect(self._apply_magnifier_drag)
         #: The mask a magnifier drag pastes onto, and the last one it showed.
         self._drag_base = self._drag_shown = None
-        #: Item 435's histogram preview while it is open, kept so pressing
+        #: The Otsu histogram preview while it is open, kept so pressing
         #: the button twice reuses one window rather than stacking them and
         #: so the screen can take it down with itself.
         self._otsu_histogram_dialog: Optional[QDialog] = None
@@ -5610,7 +5600,7 @@ class MakeMasksScreen(QWidget):
     def _on_open_features(self, _checked: bool = False):
         """Open the measurement-input window on the folder being drawn in.
 
-        The whole of this screen's part in instruction 421: the window, the
+        The whole of this screen's part in measuring: the window, the
         table and the run live in
         :mod:`spacr.qt.screens.measure_inputs`, so Make Masks holds a button
         and a folder and nothing else about measuring.
@@ -5672,8 +5662,7 @@ class MakeMasksScreen(QWidget):
     def _advance_after_verdict(self, keep: bool, judged: str) -> bool:
         """Move to the next field, and say what the verdict was on the way.
 
-        The maintainer, 2026-09-20: "for the keep discard button, pressing
-        either should take the user to the next image." Curation is a walk,
+        Pressing Keep or Discard moves to the next image. Curation is a walk,
         and a verdict is the thing that ends a field -- a curator who has to
         press Keep and then Next presses twice per field for a thousand
         fields.
@@ -6408,16 +6397,14 @@ class MakeMasksScreen(QWidget):
     def _on_invert_display(self, on: bool) -> None:
         """Draw the image as its own negative, or stop.
 
-        ITEM 435, then the maintainer's decision of 2026-09-20 that there
-        should be ONE of these. The screen used to carry two inversions that
+        There is ONE of these. The screen used to carry two inversions that
         a user could hold in disagreeing states: this one, which drew a
-        negative and swore detection was unaffected, and item 419 point 9's
-        "Invert for detection", which inverted what the detectors read and
-        drew nothing. The reason given for wanting it was the reason to
-        merge them -- "if there are black objects on an image then inverting
-        allows the user to use otsu and magnifier" is one intention, and a
-        curator who inverts the picture to see dark objects means the
-        detector to see them too.
+        negative and left detection unaffected, and "Invert for detection",
+        which inverted what the detectors read and drew nothing. The reason
+        to invert is the reason they are merged -- inverting a field of dark
+        objects so that Otsu and the magnifier can find them is one
+        intention, and a curator who inverts the picture to see dark objects
+        means the detector to see them too.
 
         So this switch now drives both, through
         :func:`spacr.qt.mask_engine.invert_normalized`, and
@@ -6426,7 +6413,7 @@ class MakeMasksScreen(QWidget):
 
         WHAT STILL READS THE LOADED PIXELS, and the status line says it:
         the Filter category and the mask that is saved. THE HOVER READOUT
-        NO LONGER DOES, corrected 2026-09-20: it reported the loaded value
+        NO LONGER DOES: it once reported the loaded value
         while the picture showed the negative, and since the readout is the
         instrument a curator checks an inversion WITH, that read as the
         switch doing nothing. The pixel intensity now follows the picture
@@ -6691,9 +6678,8 @@ class MakeMasksScreen(QWidget):
     def _filter_removal_line(self, removal, bounds: dict) -> str:
         """One removed object as the Filter category's ledger prints it.
 
-        Item 419 point 7 asked for "object 22 with area x and intensity y
-        was removed by minimum intensity", and this is that sentence with
-        the bound's own number in it: a row saying only which bound removed
+        The line reads like "object 22 with area x and intensity y was
+        removed by minimum intensity", with the bound's own number in it: a row saying only which bound removed
         an object leaves the reader looking for the box it came from.
 
         The id is :func:`mask_engine.canonical_labels`' id, which is the id
@@ -6744,7 +6730,7 @@ class MakeMasksScreen(QWidget):
         as a click.
 
         Every removal is also written into the Filter category's ledger, one
-        red row each (item 419 point 7). The rows are cleared at the START of
+        red row each. The rows are cleared at the START of
         every run, including the run that found nothing and the one that had
         no field: they describe the mask on screen, and a row left over from
         the last field names an object that is not there.
@@ -6848,7 +6834,8 @@ class MakeMasksScreen(QWidget):
     def _otsu_description(self) -> str:
         """How the threshold was taken, for a status line and the preview.
 
-        Item 435 added two ways of cutting that are not "bright" or "dark",
+        Local and multi-class Otsu are two ways of cutting that are not
+        "bright" or "dark",
         and a line that went on saying one of those two would be describing
         a run that had not happened.
         """
@@ -6864,8 +6851,8 @@ class MakeMasksScreen(QWidget):
     def _on_show_otsu_histogram(self) -> None:
         """Open this field's histogram with the level it is cut at marked.
 
-        ITEM 435: "the preview's marked level matches the threshold actually
-        used" is only true if the two come from one place, so the marker is
+        The preview's marked level matches the threshold actually used only
+        if the two come from one place, so the marker is
         :func:`spacr.qt.mask_engine._otsu_levels` -- the same call the detect
         button's threshold is made from, with the same correction, the same
         smoothing and the same class count.
@@ -6924,10 +6911,10 @@ class MakeMasksScreen(QWidget):
         return tabs
 
     def _build_view_pane(self) -> QWidget:
-        """The views, with item 419's shortcut list down their right side.
+        """The views, with the shortcut list down their right side.
 
-        The request was for the shortcuts to be "to the right of the mak,
-        cell probability, Flows" -- the three view tabs -- so the pane the
+        The shortcuts sit to the right of the Mask, Cell probability and
+        Flows views -- the three view tabs -- so the pane the
         splitter holds is the tabs and the list side by side, and the list
         travels with the views when the settings are hidden and the image
         takes their width.
@@ -6951,7 +6938,7 @@ class MakeMasksScreen(QWidget):
         return pane
 
     def _build_shortcut_panel(self) -> QWidget:
-        """Item 419 point 4: the gestures, one terse line each.
+        """The gestures, one terse line each.
 
         Every row comes from :data:`SHORTCUT_HINTS`, so the list and the
         gestures cannot drift apart without the table being edited, and a
@@ -7011,11 +6998,9 @@ class MakeMasksScreen(QWidget):
     def _build_cellpose_card(self) -> Section:
         """The Object detection settings, and the detect button they drive.
 
-        "Cellpose-SAM" until item 419: the maintainer asked on 2026-09-16
-        for the category to be called Object detection, because what belongs
-        in it is every model that finds objects and not one of them. The
-        Otsu settings that used to sit at the bottom of it moved out to
-        their own category in the same change.
+        Called Object detection rather than "Cellpose-SAM", because what
+        belongs in it is every model that finds objects and not one of them.
+        The Otsu settings have a category of their own.
 
         The settings are ON THE PANEL rather than assumed. Both
         thresholds start at Cellpose's own defaults —
@@ -7163,13 +7148,10 @@ class MakeMasksScreen(QWidget):
     def _build_otsu_card(self) -> Section:
         """The Otsu settings, driving both the button and the magnifier.
 
-        ITEM 419, POINT 5: "please add some more settings for the Otsu mode,
-        change the name of classical to Otsu" (the maintainer, 2026-09-16).
-        The threshold correction was the only one there was, and it sat at
-        the bottom of the Cellpose-SAM category, where a user looking for
-        the Otsu settings had no reason to open it. It moves here with the
-        Bright switch, which was a bare tick-box beside the detect button,
-        and four new ones.
+        The threshold correction once sat at the bottom of the Cellpose-SAM
+        category, where a user looking for the Otsu settings had no reason
+        to open it. It lives here with the Bright switch, which was a bare
+        tick-box beside the detect button, and four more settings.
 
         ALL SIX DRIVE BOTH PLACES OTSU RUNS -- the Otsu detect button on the
         whole field, and the Live magnifier's Otsu mode on the box under the
@@ -7198,7 +7180,7 @@ class MakeMasksScreen(QWidget):
         holds no two clear populations;
         :func:`spacr.qt.mask_engine._otsu_instances` does none of the three.
         Driven from these defaults over twelve synthetic 96x96 fields of
-        three to six bright discs on noise (2026-09-19) the two agreed on
+        three to six bright discs on noise, the two agreed on
         the object COUNT in twelve of twelve and were pixel-identical in two
         of twelve, the other ten differing by 3 to 16 boundary pixels out of
         9,216. So the box tells a curator what the button is about to do; it
@@ -7353,7 +7335,7 @@ class MakeMasksScreen(QWidget):
         """Leave enabled only the Otsu boxes that are answering anything.
 
         A control that is being read and a control that is being ignored
-        look identical, which is the defect item 435 was filed about. So:
+        look identical, and a curator cannot tell which is which. So:
         the foreground class is a choice only once there is more than one
         band to choose from, the local window only matters while the local
         threshold is on, and the two cannot both be on -- a level per window
@@ -7376,13 +7358,14 @@ class MakeMasksScreen(QWidget):
         One reader for the button and the magnifier, so a setting added to
         the category reaches both by being read here once.
 
-        ITEM 435's THREE ARE THE BUTTON'S ONLY, and the tooltips say so, on
-        the precedent "Drop objects the image border cuts" already set.
+        THE CLASS COUNT, FOREGROUND CLASS AND LOCAL WINDOW ARE THE BUTTON'S
+        ONLY, and the tooltips say so, on the precedent "Drop objects the
+        image border cuts" already set.
         Multi-level Otsu and a local window are judgements about a WHOLE
         FIELD: the histogram of a 64 px box rarely holds three populations,
         and a window the size of the box is the box's own threshold, so
         offering either to the magnifier would be offering a control that
-        does nothing there -- the defect this item exists for.
+        does nothing there.
         :func:`spacr.qt.mask_engine._classical_region_labels`, which is the
         magnifier's own routine, is untouched by them.
         """
@@ -7644,7 +7627,7 @@ class MakeMasksScreen(QWidget):
         close; the button is disabled and the cursor says wait instead.
 
         With Invert on the model is given the INVERTED field
-        (:meth:`_detector_image`) -- item 419 point 9d -- and the status
+        (:meth:`_detector_image`), and the status
         line and the ledger entry both say so.
         """
         if self._canvas.image is None or self._canvas.mask is None:
@@ -7734,7 +7717,7 @@ class MakeMasksScreen(QWidget):
         model, thresholds, diameter and normalization from the Object
         detection category, and Otsu mode reads Min area from Object
         operations and everything else from the Otsu category, so
-        each of those judgements is still made in one box (item 417). No
+        each of those judgements is still made in one box. No
         value here persists between sessions, like every other setting on this
         panel; only which categories are folded does.
         """
@@ -7748,6 +7731,15 @@ class MakeMasksScreen(QWidget):
         form = QFormLayout()
 
         def installed(package: str) -> bool:
+            """Whether ``package`` can be imported here, without importing it.
+
+            Asks :func:`importlib.util.find_spec`, so a heavy package such
+            as Cellpose is located but not loaded. A spec lookup that raises
+            counts as not installed.
+
+            :param package: the top-level import name.
+            :returns: True when the package is importable.
+            """
             try:
                 return find_spec(package) is not None
             except (ImportError, ValueError):
@@ -7914,7 +7906,7 @@ class MakeMasksScreen(QWidget):
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
-        """Item 417, part 6: which objects a click or a drag adds.
+        """Which objects a click or a drag adds.
 
         A method of its own with one call from the Live magnifier card, so the
         card can be rearranged without rewriting this row. The choice is read
@@ -8042,7 +8034,7 @@ class MakeMasksScreen(QWidget):
 
         File checks only (:func:`_state_ready`), so it is cheap enough to run
         on every choice, which is the moment it has to be right. The drawing
-        is :meth:`_grey_uninstalled_modes`, item 419's, so there is one
+        is :meth:`_grey_uninstalled_modes`, so there is one
         description of what a greyed row looks like and it stays translated.
         """
         for mode in _MAGNIFIER_BACKENDS:
@@ -8055,12 +8047,11 @@ class MakeMasksScreen(QWidget):
     def _offer_backend_install(self, mode) -> bool:
         """Install the backend ``mode`` needs, into an environment of its own.
 
-        Item 419 point 3 asked for a greyed row that installs itself when it
-        is chosen; the maintainer's answer of 2026-09-19 for item 423 says
-        WHERE it installs -- "Isolated env per backend!" -- so this goes
+        A greyed row installs its backend when it is chosen, and each
+        backend gets an isolated environment of its own, so this goes
         through the Model Zoo's own install dialog: off the GUI thread, with
         progress and Cancel, into ~/.spacr/backends/<name>, and spaCR's own
-        environment is never touched. It replaces the route through
+        environment is never touched. It is used instead of
         :class:`spacr.qt.model_install.PackageInstall`, which ran
         `pip install "spacr[<backend>]"` against the environment spaCR is
         running in; that module is unchanged and still serves the Mask
@@ -8068,7 +8059,7 @@ class MakeMasksScreen(QWidget):
 
         Every mode of that backend -- all four Cellpose 3 models at once --
         stops being greyed when it lands, and the row that was chosen is
-        selected, which is what item 419's background install did at its end.
+        selected, as the earlier in-process install also did at its end.
 
         :param mode: a key of :data:`_MAGNIFIER_BACKENDS`.
         :returns: True when the backend can segment afterwards.
@@ -8139,7 +8130,7 @@ class MakeMasksScreen(QWidget):
         self._mag_progress.setTextVisible(True)
 
     def _on_invert_toggled(self, on: bool) -> None:
-        """Show or hide the Invert warning -- item 419 point 9e.
+        """Show or hide the Invert warning.
 
         The magnifier is told separately, by the same signal reaching
         :meth:`_on_magnifier_context_changed`, which throws away objects
@@ -8150,19 +8141,19 @@ class MakeMasksScreen(QWidget):
     def _detector_image(self) -> Optional[np.ndarray]:
         """The field as the detectors must read it: inverted when Invert is on.
 
-        ITEM 419 POINT 9d. The inversion is not a display trick, so the one
+        The inversion is not a display trick, so the one
         thing the detect buttons segment comes from here rather than from
         the canvas directly, and Otsu detect and Object detection cannot end
         up disagreeing about which way up the image was.
 
         The canvas's own array is never changed: the hover readout and the
         Filter category read that one and go on reporting the field's real
-        values, which point 9's own note asks for -- a user filtering by
+        values -- a user filtering by
         intensity would otherwise be judging inverted numbers.
 
         :func:`mask_engine.invert_for_detection`, NOT
-        :func:`mask_engine.invert_intensity` -- which is item 435's, belongs
-        to "Invert image", and would leave the Otsu threshold correction
+        :func:`mask_engine.invert_intensity` -- the dtype complement, which
+        would leave the Otsu threshold correction
         pointing at intensities the field does not contain. The measurement
         is in the first function's docstring.
         """
@@ -8790,8 +8781,8 @@ class MakeMasksScreen(QWidget):
     def _on_invert(self):
         """Swap object and background in the MASK, and say what that gave.
 
-        Not the picture invert -- that is :meth:`_on_invert_display`, item
-        435's reading of "the invert in make masks doesnt actually invert".
+        Not the picture invert -- that is :meth:`_on_invert_display`, which
+        is what a curator expecting Invert to change the image wants.
         This one is kept under the name that describes it, and it now
         reports its own result, because the thing that made it look broken
         is that its result is invisible: a field whose background is one
@@ -8871,10 +8862,9 @@ class MakeMasksScreen(QWidget):
     def _on_clear_mask(self):
         """Throw the whole mask away, after confirming.
 
-        Item 419 point 6 asks for Clear to confirm, which it already did;
-        what it says is new. "Zero out the current mask?" did not say how
-        much was about to go, and the answer is the one fact that decides
-        the question.
+        The confirmation says how many objects are about to go: "Zero out
+        the current mask?" alone did not, and the count is the one fact that
+        decides the question.
         """
         if self._canvas.mask is None:
             return

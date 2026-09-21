@@ -1360,8 +1360,7 @@ def _offer_the_run_model(combo: QComboBox, wanted: str,
     checkpoint path with no file behind it, or anything the run's resolver
     reported absent (``here=False``). The second is on purpose. It is what
     the run is configured with, and hiding it would put the preview back to
-    showing cpsam while saying nothing, which is the silence item 333 exists
-    to end. The pass falls back and states it; see
+    showing cpsam while saying nothing. The pass falls back and states it; see
     :meth:`LivePreviewPanel._model_for_this_pass`.
 
     Anything else is a typo, and is not offered.
@@ -3737,8 +3736,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         setting cell channel to 2 with cell already primary repainted the
         plane that was already on screen: the settings said channel 2 and the
         picture stayed channel 1, and every diameter, flow and background
-        judgement from then on was made against the wrong pixels. Asked for by
-        the maintainer on 2026-09-19 (item 442).
+        judgement from then on was made against the wrong pixels.
 
         The follow repaints when it moves, so this repaints only when it did
         not -- otherwise the full-size image is redrawn twice for every

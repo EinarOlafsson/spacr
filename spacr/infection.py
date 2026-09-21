@@ -407,10 +407,9 @@ def write_infection_report(db_path: str, *, by_field: bool = False,
                            destination: Optional[str] = None) -> Optional[str]:
     """Write the infection report beside the database it came from.
 
-    ITEM 377's SURFACE, chosen by the maintainer on 2026-09-20: a Measure
-    run emits the report, so anyone who has measured a plate already has
-    it. There is no button and no screen, and nothing has to be asked for
-    -- which is the point, because the runs that most need these numbers
+    A MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate
+    already has it. There is no button and no screen, and nothing has to be
+    asked for -- which is the point, because the runs that most need these numbers
     are the ones that would never have thought to ask.
 
     NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell

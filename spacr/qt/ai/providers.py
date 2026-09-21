@@ -130,7 +130,7 @@ _GEMINI_POSIX = (_GEMINI_NPM,
 #:
 #: Keyed by tool name, then by ``"linux"``, ``"darwin"`` or ``"win32"`` (see
 #: :func:`platform_family`). Claude's rows are Anthropic's documented native
-#: installers (item 414); the npm and Homebrew rows are the vendors' package
+#: installers; the npm and Homebrew rows are the vendors' package
 #: names; the GitHub CLI rows are from cli.github.com. The rows for
 #: :data:`UNVERIFIED_PLATFORMS` have not been run on those systems.
 INSTALL_METHODS: Dict[str, Dict[str, Tuple[InstallMethod, ...]]] = {

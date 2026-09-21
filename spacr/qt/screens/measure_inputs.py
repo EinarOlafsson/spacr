@@ -251,8 +251,7 @@ class MeasureInputsScreen(QWidget):
 
         The Measure module shows its settings three levels deep -- an
         umbrella, then one sub-heading per object -- and this window used to
-        flatten them into one group per top-level title (item 421's open
-        point). ``own_rows`` are this heading's own controls and
+        flatten them into one group per top-level title. ``own_rows`` are this heading's own controls and
         ``children`` the headings nested below it; a plain ``(title, rows)``
         pair has neither and is drawn flat, as before. Every control is
         still placed exactly once.

@@ -1028,7 +1028,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _on_crop_size_changed(self, _value: int) -> None:
         """Re-crop at the new size, once the typing has stopped.
 
-        The crop size reaches the crops themselves now (item 443), so it has
+        The crop size reaches the crops themselves, so it has
         to trigger the same refresh the other crop controls do. It is
         debounced because a spinner passes through 1, 12 and 128 on the way to
         1280, and each of those would otherwise re-cut every object.

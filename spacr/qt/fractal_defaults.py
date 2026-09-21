@@ -46,8 +46,8 @@ GPU_ONLY_PATTERNS: Final[frozenset] = frozenset({"mandelbrot", "orbit_gpu"})
 DEFAULT_BACKEND: Final[str] = "auto"
 #: Samples per pixel per side.
 #:
-#: ONE, changed 2026-09-01: "default to computationally easy settings
-#: like supersampling 1 and scale 0.5 and speed 1". Supersampling SQUARES
+#: ONE, because the defaults are the computationally easy settings
+#: (supersampling 1, scale 0.5, speed 1). Supersampling SQUARES
 #: the cost -- 2 is four samples per pixel, not two -- so on a backdrop
 #: it is the single most expensive setting to have on by default.
 #:

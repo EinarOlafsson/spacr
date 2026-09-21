@@ -1351,7 +1351,7 @@ def _to_loudness(audio: np.ndarray, target_lufs: float, peak_db: float,
     eight of the ten night themes it is. It is not for the two whose bed
     still breaks the ceiling on the second round: the loop applies the knee
     and then RETURNS, so the loudness the knee just cost is never taken back.
-    Measured 2026-09-20 on the ten themes' beds, declared -18.0 LUFS:
+    Measured on the ten themes' beds, declared -18.0 LUFS:
 
         rounds   meridian   aphelion   peak after
              2    -18.562    -18.579   -11.36 dB

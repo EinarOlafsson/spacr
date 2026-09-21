@@ -108,8 +108,8 @@ RECRUITMENT_EXAMPLE_REPO = "einarolafsson/spacr-example-recruitment"
 IMPORT_EXAMPLE_REPO = _IMPORT_EXAMPLE_REPO
 
 #: The Invasion Assay's example, and it is SYNTHETIC. No real two-colour
-#: differential-staining acquisition exists to publish; the maintainer chose
-#: synthetic fields, clearly labelled. The object masks are the drawn objects,
+#: differential-staining acquisition exists to publish, so the fields are
+#: synthetic and clearly labelled. The object masks are the drawn objects,
 #: not a Cellpose segmentation; spaCR's own Measure makes the database. See
 #: ``tools/build_invasion_example_dataset.py``.
 INVASION_EXAMPLE_REPO = "einarolafsson/spacr-example-invasion"
@@ -119,7 +119,7 @@ INVASION_EXAMPLE_REPO = "einarolafsson/spacr-example-invasion"
 #: A SAMPLE OF SOMEONE ELSE'S SCREEN, NOT THE LAB'S OWN. The fields are from
 #: Funk et al. 2022 (BioImage Archive S-BIAD394), byte for byte. The dataset
 #: card carries the citation and the licence; the repository exists only once
-#: the maintainer has approved rehosting it. Item 461.
+#: rehosting it has been approved.
 OPS_EXAMPLE_REPO = "einarolafsson/spacr-example-ops"
 
 #: Align & Stitch's example: a 3 x 3 block of overlapping tiles from the same
@@ -196,7 +196,7 @@ class ExampleSet:
     :param expands_npz: whether ``.npz`` arrays have to be written back out as
         the ``.npy`` Measure reads. See :func:`expand_measure_arrays`.
     :param in_default: whether ``spacr-download`` with no arguments fetches
-        it. False for the OPS and Align & Stitch samples (item 461): together
+        it. False for the OPS and Align & Stitch samples: together
         they are 0.6 GB of one screen's tiles, and adding them would push the
         default run past ``CONFIRM_ABOVE_BYTES``, so the command would start
         asking to confirm the thing it does with no arguments. They are

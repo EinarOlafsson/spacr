@@ -3956,14 +3956,13 @@ class AppScreen(QWidget):
     def _install_plaque_example_button(self, section) -> None:
         """Add Plaque Analysis's test-data control.
 
-        Asked for 2026-09-20. The module had no example data at all -- it was not in
-        EXAMPLE_DATA_SECTIONS, so the dispatch above never reached it and no button was
-        built. It offers TWO sets, because the module has two halves and they take
+        The module is not in EXAMPLE_DATA_SECTIONS, so the dispatch above never
+        reaches it and this builds its button instead. It offers TWO sets, because the module has two halves and they take
         different input: ten segmented plaque FIELDS, which is what the cpsam_plaque
         model was trained on, and ten whole plate FIGURES, which is what the pipeline
         actually consumes before it has found a well.
 
-        The sample machinery is item 450's, unchanged. What differs is what happens
+        The sample machinery is the shared example-dataset one, unchanged. What differs is what happens
         afterwards: Make Masks opens the folder in the editor, and this points ``src``
         at it.
         """
@@ -3985,7 +3984,7 @@ class AppScreen(QWidget):
     def _install_ops_example_button(self, section) -> None:
         """Add OPS's test-data control: two fields of a published screen.
 
-        Item 461. The sample is a well's last two sequencing fields with all
+        The sample is a well's last two sequencing fields with all
         eleven cycles and the guide library, so stitch, objects and decode all
         have something real to do. See :mod:`spacr.qt.ops_stitch_demo`.
         """
@@ -6656,8 +6655,8 @@ class AppScreen(QWidget):
 
         Issue 117: a user with "Report errors as GitHub issues" on watched a
         run fail and expected an issue to have been filed. None was, by
-        design: since instruction 45 (2026-08-14) a report goes to the PUBLIC
-        tracker only after a click on that specific report. The console never
+        design: in 'ask' mode a report goes to the PUBLIC tracker only after
+        a click on that specific report. The console never
         said so, and the button that files it had appeared in the row under
         the console with nothing pointing to it. This line goes where the user
         looks when a run fails, directly under "✗ Failed".
@@ -6738,8 +6737,7 @@ class AppScreen(QWidget):
     def _file_the_report_automatically(self) -> None:
         """File the failed run's report without a preview ('always').
 
-        The maintainer's decision of 2026-09-19: "Do real auto-filing, and
-        make this the default". Consent is Section 5.6 of the terms of use,
+        Automatic filing is the default mode. Consent is Section 5.6 of the terms of use,
         and :meth:`_settle_the_report` calls this only for a profile that has
         accepted them (:meth:`_the_terms_allow_automatic_filing`).
 

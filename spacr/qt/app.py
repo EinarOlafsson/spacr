@@ -460,8 +460,8 @@ SECTION_TOOLS = "Tools"
 #:
 #: The Help-menu modules were filed under Data, so the dock drew them
 #: under Data next to the modules that get data in, which is not what
-#: any of them does. The maintainer asked for them under a Help heading,
-#: lowest in the dock.
+#: any of them does. They sit under a Help heading instead, lowest in the
+#: dock.
 #:
 #: PUTTING IT IN `SECTION_ORDER` WAS TRIED FIRST AND REVERTED. A section
 #: is Home's categorisation: `home_categories`, `home_bands` and
@@ -554,8 +554,8 @@ _PLUGIN_SECTION_MAP = {
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
 #:
-#: Raised to 40 on 2026-09-05 at the maintainer's instruction. Data had
-#: reached exactly twenty -- the previous ceiling -- the moment the three
+#: The cap is 40 because Data reached exactly twenty -- the previous
+#: ceiling -- the moment the three
 #: self-registering modules joined the table, so the next registration in
 #: that section would have tripped the cap rather than caught a real
 #: mistake.
@@ -1200,8 +1200,7 @@ def app_stage(key: str) -> str:
 #: somewhere else -- a button in the module it belongs to.
 #: NOT `feature_dict`. It already has a Help entry of its own --
 #: `widgets/feature_dictionary.py` installs "Feature Dictionary…" -- which
-#: is exactly what the maintainer meant by "it is in the help menue which
-#: is enough". Only its TILE was asked for. A second entry here would put
+#: is enough on its own; only its TILE is added. A second entry here would put
 #: the same screen in the same menu twice.
 _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
     ("run_history", "Run History",
@@ -1978,7 +1977,7 @@ def _the_missing_pip_escape(output: str) -> Optional[str]:
     return shlex.join(parts)
 
 
-#: The in-session paint diagnostic (item 408) is armed only when the process
+#: The in-session paint diagnostic is armed only when the process
 #: was LAUNCHED with this set to ``1``. Nothing is bound and nothing is shown
 #: otherwise.
 _PAINT_DIAG_ENV = "SPACR_PAINT_DIAG"
@@ -2619,7 +2618,7 @@ class MainWindow(QMainWindow):
             shortcuts.install(self)
         except Exception:
             pass
-        #: Item 408's in-session paint diagnostic; ``None`` unless the
+        #: The in-session paint diagnostic; ``None`` unless the
         #: process was launched with ``SPACR_PAINT_DIAG=1``.
         self._paint_diagnostic_shortcut = _install_the_paint_diagnostic(self)
 
@@ -5075,7 +5074,7 @@ class MainWindow(QMainWindow):
         AND THE SEARCH STRIP GOES ON HERE TOO, for the same reason in
         reverse. `settings_search.install` reparents the whole settings
         form into a new container; done at first show, after the page has
-        been sheeted, that move cost about 250 ms of the open (item 380).
+        been sheeted, that move cost about 250 ms of the open.
         Here the page is marked and not yet sheeted, so the same move is
         free. `install` returns the strip it already made if the stack
         watcher gets there first, so the two cannot fight.

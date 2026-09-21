@@ -1,6 +1,6 @@
 """What a press-and-drag with the live magnifier adds: the stroke's arithmetic.
 
-Item 417, parts 5 and 6, built on item 407's live magnifier
+Built on the live magnifier
 (:class:`spacr.qt.screens.make_masks._LiveMagnifier`). Pressing and pulling
 with the magnifier on keeps segmenting boxes along the path and applying what
 they find, and the objects the cursor passes over become ONE object.

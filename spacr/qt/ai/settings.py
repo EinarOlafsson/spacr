@@ -163,8 +163,8 @@ def get_auto_file_issues() -> bool:
     preview first, and with 'never' nothing is filed.
 
     :returns: the stored choice, or :data:`DEFAULT_AUTO_FILE_ISSUES` for a
-        profile that never made one. The maintainer made reporting the
-        default on 2026-09-19. A stored False, from the installer's consent
+        profile that never made one; reporting is on by default. A stored
+        False, from the installer's consent
         page or from this switch, is kept.
     """
     raw = _settings().value(_KEY_AUTO_ISSUE, DEFAULT_AUTO_FILE_ISSUES)

@@ -103,10 +103,9 @@ DEFAULT_ANCHOR = DEFAULT_PRIMARY
 #:
 #: WHY THERE IS A BUDGET AT ALL. Every fact this panel shows about a plate --
 #: which object tables the file has, which plates are in it, how many anchor
-#: rows -- comes from `sqlite3.connect` on a path the USER supplied. Measured
-#: on the maintainer's machine 2026-09-04, a single `os.path.exists` under
-#: `/nas_mnt` (an `autofs` mount whose share was asleep) had not returned
-#: after TWENTY SECONDS, and step 1 of this tab opens every attached database
+#: rows -- comes from `sqlite3.connect` on a path the USER supplied. A single
+#: `os.path.exists` under an `autofs` mount whose share is asleep can take
+#: more than TWENTY SECONDS to return, and step 1 of this tab opens every attached database
 #: the moment the Measurements tab is built. That was the whole interface,
 #: frozen, with no traceback -- see `spacr/qt/path_probe.py` for what it was
 #: reported as.

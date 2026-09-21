@@ -1,8 +1,7 @@
 """Test data for OPS and for Align & Stitch, one button away in each.
 
-Item 461. The maintainer, presenting to his group: "For OPS use a small sample
-of the ops screen i have on disk" and "allign and stitch can also use a small
-segment of the OPS data".
+OPS uses a small sample of an optical pooled screen, and Align & Stitch uses
+a small segment of the same OPS data.
 
 TWO SAMPLES OF ONE PUBLISHED SCREEN. Both are cut from plate
 ``20200202_6W-LaC024A``, well A1, of Funk et al. 2022 (BioImage Archive

@@ -212,8 +212,8 @@ def _host_array(value: Any) -> np.ndarray:
 
     Ultralytics returns its boxes as torch tensors on the device it ran on.
     ``np.asarray`` of a CUDA tensor raises "can't convert cuda:0 device type
-    tensor to numpy", which is how Figure mode failed on the maintainer's GPU
-    on 2026-09-21 while every CPU test passed. A tensor is copied to the host
+    tensor to numpy", which is how Figure mode fails on a GPU while every
+    CPU test passes. A tensor is copied to the host
     first.
 
     :param value: a tensor, an array or a sequence.

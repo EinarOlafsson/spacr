@@ -1,6 +1,6 @@
 """A Refresh button for every live preview: read src again and reload.
 
-Item 464. The previews load their first field from ``src`` once, on their
+The previews load their first field from ``src`` once, on their
 own. When the folder changes under the same path, or the automatic load
 picked nothing because the path was wrong at the time, the user needs a way
 to say "look again". This is that button, one implementation for all of

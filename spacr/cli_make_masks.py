@@ -1,8 +1,8 @@
 """``spacr-make-masks`` — open the mask editor on a folder, as a queue.
 
-Ledger item 396 asks for a curation session that can be started from a
-terminal, pointed at a folder, bounded, and resumed. Curation is done over
-SSH and on more than one machine, and the answer until now was
+A curation session has to be startable from a terminal, pointed at a
+folder, bounded, and resumable. Curation is done over SSH and on more than
+one machine, and the answer until now was
 ``spacr/cli.py``'s flat refusal — *"Make Masks is a manual mask editor; run
 it in the GUI"*. That sentence is still true about the brush and false about
 the session. This module is the session::

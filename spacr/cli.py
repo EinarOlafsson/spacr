@@ -1234,7 +1234,7 @@ def _under_todays_names(settings: Dict[str, Any],
     "the NEW name wins where both are present", which is right for a file
     but wrong for a file LAYERED ON TOP OF DEFAULTS: the defaults have
     already filled in the new name, so the file's value lost to it every
-    time. Measured on 2026-09-19, before this: a regression file saying
+    time. Before this ordering, a regression file saying
     `min_cell_count,50` resolved to `min_cells_per_well = 100`, the
     default, and the fold said "this settings file names both" about a file
     that named one.
@@ -1254,8 +1254,8 @@ def _under_todays_names(settings: Dict[str, Any],
     ``spacr-run <module> --dry-run`` and, worse, on ``validate``: that
     command formats its own report and never calls :func:`setup_logging`, so
     a log line there escapes to `logging.lastResort` on stderr, unformatted
-    and outside the report the user is reading. Measured on 2026-09-19,
-    before this: a file saying `min_cell_count,50` and `toxo,False`
+    and outside the report the user is reading. Without ``moved``, a file
+    saying `min_cell_count,50` and `toxo,False`
     validated with ``--module regression`` reported one warning (`barcodes`,
     the only key with no successor) where the same file with no ``--module``
     reported three. A caller that passes nothing keeps the log line and is

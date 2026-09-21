@@ -1,15 +1,14 @@
 """A sample of every dataset spaCR has a model for, one dialog away in Make Masks.
 
-The maintainer, 2026-09-20: "for the generate masks modular, there should be multiple
-datasets for the user to choose from, a small sample of each dataset a model is trained
-on where I have the data on my huggingface."
+Make Masks offers several datasets to choose from: a small sample of each dataset a
+published model was trained on, fetched from Hugging Face.
 
-Item 412 gave Make Masks ONE button and ONE dataset -- ten Toxoplasma vacuole fields.
-This is that idea for the rest of the zoo: every published model was trained on a dataset
-that is already on Hugging Face, and a user who wants to see what a model was taught
-should be able to open ten of its fields without knowing a repository name.
+The "Load test data…" example set gives Make Masks ONE dataset -- ten Toxoplasma vacuole
+fields. This is that idea for the rest of the zoo: every published model was trained on a
+dataset that is already on Hugging Face, and a user who wants to see what a model was
+taught should be able to open ten of its fields without knowing a repository name.
 
-NO NEW REPOSITORIES, AND NO ARCHIVES. Item 412's set is a purpose-built repo with a
+NO NEW REPOSITORIES, AND NO ARCHIVES. The example set is a purpose-built repo with a
 single tar. The training datasets are not: they are 556 to 6,062 files of `images/` and
 `masks/`, and nobody is downloading 3,029 fields to look at ten. Each sample is fetched
 FILE BY FILE with `hf_hub_download`, which is why :data:`MASK_DATASETS` carries the two
@@ -17,19 +16,20 @@ folder names per repo rather than assuming them -- `cross-channel-toxoplasma-fro
 calls its masks `masks_pv`, and assuming `masks` would have given ten images and no
 labels with no error to explain it.
 
-WHICH FIELDS. A random draw in which every field of the dataset has the same chance,
-at the maintainer's instruction of 2026-09-21 -- the first N by name are the first plate
+WHICH FIELDS. A random draw in which every field of the dataset has the same chance
+-- the first N by name are the first plate
 of the first domain, which is not the dataset. SEEDED by the dataset key, so the draw is
 the same on every machine: a sample that changes between two people's machines is a
 sample nobody can talk about -- "the third field looks wrong" has to mean the same field
 for both of them. A dataset with a quota draws that way within each domain.
 
 THE LAYOUT IS MAKE MASKS' OWN: images at the top of the folder, masks in `masks/`
-beneath them, which is what `curation_queue.detect_layout` calls `nested` and what the
-maintainer's rule of 2026-09-20 puts everywhere. So a sample opens for EDITING, with the
-published masks as the drafts -- deliberately unlike item 412's set, which hides its
-truth in `ground_truth_masks/` so the fields open raw. Those are two different jobs: 412
-is "try segmenting this", and this is "look at what the model was taught".
+beneath them, which is what `curation_queue.detect_layout` calls `nested` and the layout
+spaCR uses everywhere. So a sample opens for EDITING, with the published masks as the
+drafts -- deliberately unlike the example set, which hides its truth in
+`ground_truth_masks/` so the fields open raw. Those are two different jobs: the example
+set is "try segmenting this", and a training-dataset sample is "look at what the model
+was taught".
 
 THE WELL-DETECTOR DATASET IS NOT HERE. `toxoplasma-plaque-well-detector-dataset` has
 `images/` and `labels/`, and those labels are YOLO bounding boxes. A box is not a mask
@@ -51,18 +51,18 @@ from .i18n import tr
 
 LOG = logging.getLogger(__name__)
 
-#: How many fields a sample holds. Ten is item 412's number and there is no reason to
-#: differ; it is enough to see a domain and small enough to fetch over a hotel wifi.
+#: How many fields a sample holds. Ten matches the example set and there is no reason
+#: to differ; it is enough to see a domain and small enough to fetch over a hotel wifi.
 SAMPLE_SIZE = 10
 
-#: How samples are drawn, in the cache folder's name. ``random1``: a seeded
-#: random draw over the whole dataset, or within each domain of a quota
-#: (2026-09-21). Samples cached under the first-N rule sit under other names
-#: and are not reopened.
+#: How samples are drawn, in the cache folder's name: a seeded random draw
+#: over the whole dataset, or within each domain of a quota. Samples cached
+#: under an older rule (such as first-N by name) sit under other names and
+#: are not reopened.
 SAMPLE_RULE = "random2"
 
 #: The smallest share of a sample that must show something: at least 80% of
-#: the fields drawn carry objects, at most 20% are negatives (2026-09-21).
+#: the fields drawn carry objects, at most 20% are negatives.
 FOREGROUND_SHARE = 0.8
 
 
@@ -189,7 +189,7 @@ def datasets_for(app_key: str) -> Tuple[MaskDataset, ...]:
 def examples_root() -> Path:
     """Where spaCR keeps downloaded example data.
 
-    The same ``~/.cache/spacr/example_data`` that item 412's set unpacks beside, so a
+    The same ``~/.cache/spacr/example_data`` that the example set unpacks beside, so a
     user who clears one clears both and there is one place to look.
 
     :returns: the folder. It is not created here.
@@ -235,9 +235,8 @@ def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
 def _random_pick(stems: List[str], count: int, seed: str) -> List[str]:
     """``count`` stems drawn at random, each with the same chance, reproducibly.
 
-    The maintainer, 2026-09-21: "make sure each is a random selection of the
-    dataset so everything in the dataset has the same chance to be included."
-    The first N by name are the first plate of the first domain, which is not
+    Every field in the dataset has the same chance to be included. The first
+    N by name are the first plate of the first domain, which is not
     the dataset. The draw is seeded by ``seed`` -- the dataset key and the
     domain -- so two machines, and two openings on one, get the same sample.
 
@@ -277,6 +276,7 @@ def foreground_stems(dataset: MaskDataset, *, download: Optional[Callable] = Non
             from huggingface_hub import HfApi
 
             def tree(repo, folder):
+                """List ``folder`` of ``repo`` as ``[(path, size)]``, files only."""
                 return [(t.path, getattr(t, "size", 0)) for t in
                         HfApi().list_repo_tree(repo, path_in_repo=folder,
                                                repo_type="dataset", recursive=True)
@@ -288,6 +288,7 @@ def foreground_stems(dataset: MaskDataset, *, download: Optional[Callable] = Non
         from huggingface_hub import hf_hub_download
 
         def download(repo, filename):
+            """Fetch ``filename`` from dataset ``repo`` and return its local path."""
             return hf_hub_download(repo, filename, repo_type="dataset")
     out = set()
     with open(download(dataset.repo, dataset.counts), newline="",
@@ -382,15 +383,29 @@ class _SampleWorker(QObject):
     finished = Signal(bool, str, str, str)
 
     def __init__(self, dataset: MaskDataset, dest: Path, parent=None) -> None:
+        """Remember what to fetch and where to put it.
+
+        :param dataset: the dataset to sample.
+        :param dest: the sample folder; masks go in its ``masks/``.
+        :param parent: the Qt parent, if any.
+        """
         super().__init__(parent)
         self.dataset = dataset
         self.dest = Path(dest)
         self._cancelled = False
 
     def cancel(self) -> None:
+        """Ask the fetch to stop before its next field."""
         self._cancelled = True
 
     def run(self) -> None:
+        """Choose the sample and download its image/mask pairs into ``dest``.
+
+        Lists the repository, draws the sample with :func:`choose_sample` (favouring
+        fields with objects when :func:`foreground_stems` can say which), then fetches
+        each pair, skipping files already present. Emits ``progress`` per field and
+        ``finished(ok, folder, "", error)`` once, on success, failure or cancel.
+        """
         try:
             from huggingface_hub import HfApi, hf_hub_download
         except Exception as exc:                                  # noqa: BLE001
@@ -440,13 +455,18 @@ class _SampleWorker(QObject):
 
 
 class DatasetPicker(QDialog):
-    """The list the maintainer asked for: one row per dataset, with what it is.
+    """The dataset list: one row per dataset, with what it is.
 
     A dialog rather than a dropdown on the toolbar, because each row needs two lines --
     a title a user recognises and the model it trained -- and a dropdown gives one.
     """
 
     def __init__(self, parent=None, datasets=MASK_DATASETS) -> None:
+        """Build the dialog with one row per dataset, the first selected.
+
+        :param parent: the Qt parent.
+        :param datasets: the datasets to list.
+        """
         super().__init__(parent)
         self.setWindowTitle(tr("Open a sample of a training dataset"))
         self.setMinimumWidth(520)
@@ -484,7 +504,7 @@ class DatasetPicker(QDialog):
 def install_dataset_button(screen, app_key: str = "mask", use=None):
     """Build Make Masks' "Training datasets…" button, wired to ``screen``.
 
-    It sits beside item 412's "Load test data…" rather than replacing it. The two
+    It sits beside the example set's "Load test data…" rather than replacing it. The two
     answer different questions: that one gives raw fields to segment, this one gives
     fields WITH the masks a published model was trained on.
 
@@ -551,6 +571,7 @@ def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None,
         button.setEnabled(False)
 
     def done(result, error) -> None:
+        """Re-enable the button, then open the fetched folder or report why not."""
         if button is not None:
             button.setEnabled(True)
         if result is None or error:

@@ -450,7 +450,7 @@ class SegmentationBackendCombo(QComboBox):
     def missing(self) -> List[str]:
         """The backends listed but not installed, by name.
 
-        Installed means "can segment now", which since item 423 is either an
+        Installed means "can segment now", which is either an
         environment of its own under ``~/.spacr/backends`` or -- the older
         arrangement, still honoured -- the package importable in spaCR's own
         environment. :func:`spacr._segmentation_backends._backend_state`
@@ -529,12 +529,11 @@ class SegmentationBackendCombo(QComboBox):
     def offer_install(self, name: str) -> bool:
         """Install backend ``name`` into an environment of its own.
 
-        THE DESTINATION CHANGED, NOT THE GESTURE. This box was asked for on
-        2026-09-16 -- a greyed row that installs itself when it is chosen --
-        and it ran ``pip install "spacr[<backend>]"`` against the environment
-        spaCR is running in. On 2026-09-19, answering item 423, the
-        maintainer said "Isolated env per backend!", so the install goes
-        through the Model Zoo's own dialog instead: off the GUI thread, with
+        THE DESTINATION CHANGED, NOT THE GESTURE. A greyed row installs
+        itself when it is chosen. It used to run
+        ``pip install "spacr[<backend>]"`` against the environment spaCR is
+        running in; each backend now gets an isolated environment, so the
+        install goes through the Model Zoo's own dialog instead: off the GUI thread, with
         progress and Cancel, into ``~/.spacr/backends/<name>``, and spaCR's
         own environment is never changed.
 

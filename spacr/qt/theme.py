@@ -3269,7 +3269,7 @@ def _sheets_itself_before_it_shows(widget) -> bool:
     ``aboutToShow`` is emitted by ``QMenu.popup`` and ``QMenu.exec``
     BEFORE Qt measures the menu, so a menu sheeted there has the same
     geometry it would have had sheeted at its polish, and a menu nobody
-    opens is never sheeted at all. The maintainer chose this over letting
+    opens is never sheeted at all. This is preferred over letting
     a parented popup inherit its page's sheet, which would also have
     covered a QComboBox's popup -- a QFrame with no such signal -- but
     would have let a page's registered blocks reach inside its menus.
@@ -3992,9 +3992,8 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     #:
     #: READ FROM :data:`MENU_BAR_ALPHA`, NOT WRITTEN AGAIN HERE. This was a
     #: second hand-written `0.94`, and it silently outranked the constant:
-    #: `MENU_BAR_ALPHA` was set to 1.0 when the maintainer looked at 0.94 on
-    #: a real screen and said "remove the transparency for the bar and it
-    #: will be perfect", `menu_bar_background()` returned `#0d0e10`
+    #: `MENU_BAR_ALPHA` was set to 1.0 to make the bar opaque on a real
+    #: screen, `menu_bar_background()` returned `#0d0e10`
     #: correctly, and the generated stylesheet went on emitting
     #: `rgba(13, 14, 16, 0.940)` because this line never asked.
     #:

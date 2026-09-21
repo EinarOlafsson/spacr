@@ -61,12 +61,11 @@ import numpy as np
 #: the same everywhere while the pixel offset is the part that shrinks.
 MAX_USEFUL_DEPTH: Final[float] = 21.0
 
-#: The defaults, as given on 2026-08-28 -- the exact command line the
-#: maintainer runs the original renderer with.
+#: The defaults: the command line the original renderer is run with.
 #:
 #: PATH IS FIXED. Guided steering was built, and it shook: the search moves
 #: the camera, and no amount of smoothing the MOTION removes the fact that
-#: it is being moved at all. "just go back to this for now" -- so the dive
+#: it is being moved at all. So the dive
 #: descends to one point and stays pointed at it, which is what the original
 #: does at these settings and what looked right.
 #:

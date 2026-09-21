@@ -777,7 +777,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
 
 #: Models that are no longer OFFERED, by filename.
 #:
-#: Retired 2026-08-31 at the maintainer's instruction. ``toxo_plaque_cyto``
+#: ``toxo_plaque_cyto`` is retired: it
 #: recalls 0.631 on the literature set -- it misses about a third of the
 #: plaques -- against 0.811 for ``toxoplasma_plaque_v1``, and it published no
 #: checksum, so its row in the picker had a Download button that could never
@@ -2410,7 +2410,7 @@ def community_entries(allow_network: bool = False,
 #: list can carry, and a boolean that means "also show these" cannot fold away
 #: the four groups a reader is not looking at.
 #:
-#: These are the names the maintainer chose, and they are IDENTIFIERS as well
+#: These names are IDENTIFIERS as well
 #: as captions: :func:`source_of` returns one of them, and the picker
 #: remembers which are on by this spelling. Renaming one is a migration.
 ZOO_SOURCES: Tuple[str, ...] = (
@@ -3298,6 +3298,7 @@ def _default_segmenter(entries: Sequence[ModelEntry], mc: Any) -> Callable:
                  if e.kind == "cellpose3"}
 
     def _segment(images, config):
+        """Segment ``images`` with the backend the config's model belongs to."""
         model = str(getattr(config, "model", "") or "")
         if model in cellpose3:
             return _cellpose3_segment(model, images, config)
@@ -3501,6 +3502,7 @@ def scorecard_html(entry) -> str:
     name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")
             or getattr(entry, "key", ""))
     def cell(value):
+        """A scorecard value as shown, or "not recorded" when blank."""
         return value if str(value).strip() else "not recorded"
     rows = []
     for label, key in SCORECARD_ROWS:

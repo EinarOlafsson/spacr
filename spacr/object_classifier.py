@@ -1,11 +1,11 @@
 """Say what each object in a mask is, after any segmenter has made it.
 
-ITEM 449. Segmentation answers "where is there an object"; this answers
+Segmentation answers "where is there an object"; this answers
 "what is it". The two are kept apart on purpose: the same classification
 must be available whether spaCR segmented the field a moment ago or is
 handed a mask Cellpose wrote last week.
 
-TWO WAYS IN, and the request named both:
+TWO WAYS IN:
 
 * :func:`segment_and_classify` takes a segmentation backend and its
   options, segments, and classifies what it made.
@@ -23,8 +23,7 @@ so a plate counts from whichever stain it has.
 WHAT THIS MODULE DECIDES WITHOUT A HEAD, because geometry is not a matter
 of opinion: whether an object touches the image border, and which pairs of
 labels look like one object the segmenter cut in two. Those are the "cut"
-classes, and the maintainer's answer of 2026-09-20 was that the two kinds
-are told apart -- only a segmenter-split object can be merged where it
+classes, and the two kinds are told apart because only a segmenter-split object can be merged where it
 stands, because the other half of a border object is in the next field.
 
 IDS ARE NEVER RENUMBERED. Everything here keys on the label ids the mask
@@ -52,9 +51,9 @@ OBJECT_CLASSES: Tuple[str, ...] = (
 )
 
 #: How the parasite count is reported once a head has predicted it. The
-#: head predicts a COUNT; these are the bins the count is shown in, which
-#: is the maintainer's decision of 2026-09-20 -- a vacuole of three stays a
-#: three in the model and is binned only for the report.
+#: head predicts a COUNT; these are the bins the count is shown in. A
+#: vacuole of three stays a three in the model and is binned only for the
+#: report.
 PV_BINS: Tuple[int, ...] = (1, 2, 4, 8, 16)
 
 
@@ -62,9 +61,8 @@ def bin_parasite_count(count: int) -> str:
     """Put a predicted parasite count in the bin a report shows it in.
 
     THE BIN IS A DISPLAY CHOICE, NOT A TRAINED ONE. The head predicts how
-    many parasites it sees; this is only how that number is shown. That is
-    the maintainer's decision of 2026-09-20 and the reason it matters is
-    that the rule below can change -- or be replaced by a different one
+    many parasites it sees; this is only how that number is shown. That
+    matters because the rule below can change -- or be replaced by a different one
     per report -- without retraining anything.
 
     TIES GO DOWN, and 12 is the case: it is four from 8 and four from 16.

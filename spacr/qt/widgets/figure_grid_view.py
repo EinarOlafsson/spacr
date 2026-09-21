@@ -47,8 +47,7 @@ CELL_SPAN = 1
 def _letter_for(position: int) -> str:
     """A, B, ... Z, then AA. Publication lettering, not an index.
 
-    Upper-case, no period -- the convention the published figures use and the
-    one asked for by name.
+    Upper-case, no period -- the convention the published figures use.
     """
     letters = ""
     position += 1

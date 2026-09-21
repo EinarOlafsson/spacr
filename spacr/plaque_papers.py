@@ -1,6 +1,6 @@
 """Plaque measurements from published papers: a DOI, PMID or PDF in, rows out.
 
-Item 424. Given a paper, this module finds its figures, finds the plaque
+Given a paper, this module finds its figures, finds the plaque
 images inside them with the zoo's well detector, reads the text printed
 around each image, works out which condition each image shows, segments and
 measures the plaques, and writes everything to a SQLite database together
@@ -582,7 +582,7 @@ def read_words(image: Any, *, engine: Optional[Callable] = None) -> List[Word]:
 
 _ENGINE: Dict[str, Any] = {}
 
-#: The figure reader's own environment (item 469): ultralytics and RapidOCR
+#: The figure reader's own environment: ultralytics and RapidOCR
 #: installed apart from spaCR, so their torch and opencv cannot change it.
 READER_BACKEND = "papers"
 
@@ -813,6 +813,7 @@ def _blocks(regions: Sequence[Region]) -> List[int]:
     parent = list(range(len(regions)))
 
     def root(i: int) -> int:
+        """The block ``i`` belongs to, compressing the path on the way."""
         while parent[i] != i:
             parent[i] = parent[parent[i]]
             i = parent[i]
@@ -834,9 +835,9 @@ def _blocks(regions: Sequence[Region]) -> List[int]:
 class TextOptions:
     """How the text around a plaque image is turned into its condition.
 
-    The maintainer, 2026-09-21: the text "seems to pick up the text correctly
-    but it is not annotating correctly allways so whatever settings you can
-    add there please do". These are the knobs the reading has; the defaults
+    Text near a panel is usually read correctly but not always assigned to
+    the right image, so every choice the assignment makes is exposed here.
+    These are the knobs the reading has; the defaults
     are the values measured on PMC9744290 Fig 6 and Fig 7 (8 of 8 read).
 
     :ivar reach_above: how far above the grid a column header may sit, in
@@ -897,6 +898,7 @@ def text_options_from_settings(settings: Mapping[str, Any]) -> TextOptions:
     """
     base = DEFAULT_TEXT_OPTIONS
     def pick(key, default, cast):
+        """``settings[key]`` cast by ``cast``, or ``default`` if blank or invalid."""
         value = settings.get(key)
         if value in (None, ""):
             return default
@@ -905,10 +907,12 @@ def text_options_from_settings(settings: Mapping[str, Any]) -> TextOptions:
         except (TypeError, ValueError):
             return default
     def patterns(value):
+        """A tuple of patterns from a comma-separated string or a sequence."""
         if isinstance(value, str):
             return tuple(p.strip() for p in value.split(",") if p.strip())
         return tuple(str(p) for p in value)
     def sides(value):
+        """The valid sides named in ``value``, or the default order if none are."""
         if isinstance(value, str):
             value = [p.strip() for p in value.split(",")]
         chosen = tuple(v for v in value if v in ("above", "left", "below"))
@@ -1109,6 +1113,7 @@ def _grid_positions(regions: Sequence[Region]) -> List[Tuple[int, int]]:
     :returns: ``(row, column)`` per region, both starting at 1.
     """
     def ranks(centres: List[float], sizes: List[float]) -> List[int]:
+        """A 1-based rank per centre, sharing a rank within half a size."""
         order = sorted(range(len(centres)), key=lambda i: centres[i])
         out = [0] * len(centres)
         rank, last = 0, None
@@ -1344,6 +1349,7 @@ def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
     model = models.CellposeModel(pretrained_model=path, device=None, **kwargs)
 
     def segment(crop: np.ndarray) -> np.ndarray:
+        """The Cellpose label mask of one plaque image crop."""
         masks = model.eval(crop)[0]
         return np.asarray(masks)
     return segment
@@ -1689,6 +1695,7 @@ def measure_figure_folder(
     waiting = {"n": 0}
 
     def review(figure: Figure, found: List[Annotation]) -> List[Annotation]:
+        """Apply the saved overrides to a figure and count what still awaits approval."""
         stem = figure.path.stem
         out = apply_overrides(stem, found, overrides, confirm_each=confirm_each)
         waiting["n"] += sum(1 for index, a in enumerate(out, start=1)
@@ -1733,8 +1740,8 @@ def fetch_paper_to_folder(reference: Any, dest: Any, *,
                           pdf_opener: Optional[Callable] = None) -> Dict[str, Any]:
     """Put a paper's figures in a folder Plaque Assay's Figure mode can read.
 
-    The maintainer's 424 request: "if the figure pannel letter is detected,
-    there should be a mechanism to auto gather the figure ledgend". A DOI,
+    When a figure's panel letters are detected, its legend is gathered
+    automatically. A DOI,
     PMID or PMC id is fetched from Europe PMC with its JATS legends; a PDF is
     rendered page by page with the legends found in its text. Either way the
     images land in ``dest`` and each figure's legend in ``dest/legends.csv``,

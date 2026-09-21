@@ -1120,12 +1120,12 @@ def split_wells(settings):
 
     AN IMAGE THE DETECTOR FINDS NOTHING IN IS COPIED INTO THE SPLIT FOLDER
     WHOLE, with no geometry, so it is still analysed and simply has no ruler.
-    Until instruction 445 the warning said it was "passed through whole" and
-    then hit ``continue``, which passed nothing through: when some images in a
-    folder split and others did not, the others contributed no crop and no
-    row and nothing said they had existed. Only the all-or-nothing case --
-    where the function falls back to ``src`` -- behaved as the message
-    promised.
+    A warning that says "passed through whole" and then skips the image
+    passes nothing through: when some images in a
+    folder split and others did not, the others would contribute no crop and
+    no row and nothing would say they had existed. The all-or-nothing case --
+    where the function falls back to ``src`` -- is the only one that would
+    behave as the message promised.
     """
     from .plaque import crop_well, detect_wells
 
@@ -1210,7 +1210,7 @@ def _resolve_training_base(requested):
 
     Training used to start from stock ``'cpsam'`` whatever was asked, so a
     second fine-tuning stage silently restarted from scratch while its log
-    said it was continuing (item 426). ``base_model`` names it: a checkpoint
+    said it was continuing. ``base_model`` names it: a checkpoint
     path, a :mod:`spacr.model_zoo` key (fetched into ``~/.spacr/models`` on
     first use), or a stock Cellpose name.
 
@@ -1236,9 +1236,8 @@ def _resolve_training_base(requested):
 
 
 #: The plaque model a run segments with when none is named: cpsam_plaque_r5,
-#: trained on the curated v5 set. ``'bundled'`` was the default until
-#: 2026-09-21, when the maintainer moved it here: the bundled checkpoint is a
-#: Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
+#: trained on the curated v5 set. ``'bundled'`` is not the default because
+#: the bundled checkpoint is a Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
 DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v2'
 
 
@@ -1290,18 +1289,17 @@ def _resolve_plaque_model(settings, fetch=True):
     3. the legacy bundled pack, kept reachable as ``'bundled'`` so a run
        recorded against the old model can be reproduced -- with Cellpose 3.
 
-    THE DEFAULT WAS ``'bundled'`` until 2026-09-21, a deliberate refusal to
-    change counts behind anyone's back. It stopped being a choice: the bundled
-    checkpoint is a Cellpose 3 model and the Cellpose 4 spaCR installs will
-    not load it, so the default run failed. The maintainer chose
-    ``toxoplasma_plaque_v2`` (cpsam_plaque_r5) in its place.
+    THE DEFAULT IS NOT ``'bundled'``, though keeping it would avoid changing
+    counts behind anyone's back: the bundled checkpoint is a Cellpose 3 model
+    and the Cellpose 4 spaCR installs will not load it, so a default run on it
+    fails. ``toxoplasma_plaque_v2`` (cpsam_plaque_r5) is the default instead.
 
     :param settings: the plaque settings dict.
     :param fetch: download what is not here -- the bundled pack through
         :func:`spacr.utils.download_models`, a zoo key through
         :func:`spacr.model_zoo.fetch`. ``False`` is for a caller that must
         not start a download, which is the live preview: a 1.2 GB fetch from
-        a preview refresh is the surprise item 333 forbids. It takes only
+        a preview refresh is a surprise a preview must never spring. It takes only
         what is already on this machine and raises :class:`ModelZooMissing`
         for the rest, so the preview answers with THIS resolver rather than
         with a copy of its rules.
@@ -1524,7 +1522,7 @@ def _segment_plaque_folder(settings, model_path):
     Each image is segmented by :func:`spacr.plaque.segment_plaque_image`, the
     same call the Plaque preview makes, so what the preview shows is what the
     run measures. The historical path through ``identify_masks_finetune``
-    normalised 8-bit crops to a constant and found nothing (item 468).
+    normalised 8-bit crops to a constant and found nothing.
 
     :param settings: the plaque settings, ``src`` and ``dst`` resolved.
     :param model_path: the plaque checkpoint.

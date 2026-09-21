@@ -1,13 +1,13 @@
 """Timeflows: a time head on Cellpose-SAM, trained on tracked movies.
 
-Item 426, steps 3 to 6. Cellpose predicts, per pixel, a flow toward the centre
+Cellpose predicts, per pixel, a flow toward the centre
 of the object the pixel belongs to. Timeflows adds the same idea through TIME:
 per pixel of frame ``t``, where the centre of that object is in frame ``t+1``,
 and whether it has a successor at all (cells die, divide, leave the field).
 Linking objects between frames then reads the model instead of guessing from
 overlap, which is where the plain IoU stitcher fails: fast cells that move
 more than their own size between frames (the MuSC movies move 3-4 diameters
-per frame at p95, item 426 step 1).
+per frame at p95).
 
 WHAT IS HERE, ALL RUNNABLE ON A CPU:
 
@@ -32,7 +32,7 @@ WHAT IS HERE, ALL RUNNABLE ON A CPU:
   predictions, and the check that a model recovers identities after the next
   frame's labels are shuffled.
 
-Training on the GPU is item 426's queued job; nothing here starts one.
+Nothing here starts a GPU training run; that is a separate, queued job.
 """
 from __future__ import annotations
 
@@ -123,7 +123,7 @@ def time_targets(labels_t: np.ndarray, labels_t1: np.ndarray
       the same thing for a large cell and a small one;
     * ``successor`` -- 1 where the object's label is present in ``t+1``,
       0 where it is not (it died, divided -- children take new labels in the
-      movies checked, item 426 step 1 -- or left the field).
+      movies checked -- or left the field).
 
     The vector is supervised only where there IS a successor (``vector_weight``);
     the successor flag everywhere inside an object (``object_weight``).
@@ -162,8 +162,8 @@ def augment_pair(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
     """One random flip and quarter-turn, the SAME for every frame and label.
 
     A flip applied to frame ``t`` and not ``t+1`` teaches a displacement that
-    never happened -- "the single easiest way to get a model that trains
-    beautifully and tracks nothing" (item 426 step 5). Targets are computed
+    never happened, which is the easiest way to get a model that trains
+    beautifully and tracks nothing. Targets are computed
     from the augmented labels afterwards, so the vectors follow automatically.
 
     :param frames: the images, ``(H, W)`` or ``(H, W, C)``.
@@ -175,6 +175,7 @@ def augment_pair(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
     flip = bool(rng.integers(0, 2))
 
     def apply(array):
+        """Apply this call's quarter-turns and optional flip to ``array``."""
         out = np.rot90(array, k=turns, axes=(0, 1))
         return np.ascontiguousarray(out[:, ::-1] if flip else out)
 
@@ -185,7 +186,7 @@ def pair_sampling_weights(label_stack: np.ndarray, bins: int = 5) -> np.ndarray:
     """Weights that draw pairs evenly across how far their objects move.
 
     Most consecutive frames are nearly still, so drawing pairs uniformly shows
-    the head mostly easy pairs (item 426 step 5). Each pair's median
+    the head mostly easy pairs. Each pair's median
     displacement over diameter falls in one of ``bins`` equal-width bins
     across the range seen, and a pair's weight is the inverse of its bin's
     size. Quantile bins were tried first and collapse when most pairs move
@@ -292,6 +293,11 @@ def TimeflowsNet(backbone, channels: Optional[int] = None, ps: Optional[int] = N
         """Shared backbone, joined features, a time head."""
 
         def __init__(self):
+            """Register the backbone and build the head and upsampler.
+
+            The backbone (or its ``net``) is registered as ``encoder`` when it
+            is a module, so its weights train and move with the network.
+            """
             super().__init__()
             self.backbone = backbone
             if isinstance(backbone, nn.Module):
@@ -306,9 +312,17 @@ def TimeflowsNet(backbone, channels: Optional[int] = None, ps: Optional[int] = N
                                          stride=ps)
 
         def head_parameters(self):
+            """The new layers' parameters: the head and the upsampler."""
             return list(self.head.parameters()) + list(self.up.parameters())
 
         def forward(self, frame_t, frame_t1):
+            """Join both frames' backbone features and predict the time maps.
+
+            :param frame_t: frame ``t``, ``(B, 3, H, W)``.
+            :param frame_t1: frame ``t+1``, the same shape.
+            :returns: ``(B, 3, H, W)``: the vector ``(dy, dx)`` and the
+                successor logit.
+            """
             joined = torch.cat([self.backbone(frame_t), self.backbone(frame_t1)], 1)
             return self.up(self.head(joined))
 
@@ -371,7 +385,7 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
                     log: Optional[Callable[[str], None]] = None) -> List[float]:
     """Train the time head, then the whole network, on track-labelled pairs.
 
-    The curriculum of item 426 step 5: the backbone's segmentation is already
+    A two-stage curriculum: the backbone's segmentation is already
     paid for, so it is frozen while the new head learns, then everything is
     trained at a low learning rate. Every pair is augmented identically on
     both frames before its targets are computed.
@@ -398,6 +412,7 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
                        if not (n.startswith("head") or n.startswith("up"))]
 
     def run(steps, params, lr, frozen):
+        """Train ``params`` for ``steps`` steps, the backbone frozen or not."""
         for p in backbone_params:
             p.requires_grad_(not frozen)
         optimiser = torch.optim.AdamW(params, lr=lr)
@@ -495,7 +510,7 @@ def scramble_test(labels_t: np.ndarray, labels_t1: np.ndarray,
                   seed: int = 0) -> Dict[str, float]:
     """Shuffle frame ``t+1``'s labels and ask whether the model finds them.
 
-    Item 426 step 6: with the next frame's ids scrambled, the only way to
+    With the next frame's ids scrambled, the only way to
     recover which object is which is to have learned motion. The share of
     objects linked to their true successor is the score; the plain IoU
     stitcher on the same pair is the reference the model has to beat.
@@ -569,6 +584,7 @@ def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
     import tifffile
 
     def indexed(folder, prefix):
+        """Map frame number to path for the ``prefix*.tif`` files in ``folder``."""
         out = {}
         if not os.path.isdir(folder):
             return out

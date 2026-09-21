@@ -11,7 +11,7 @@ preference:
   and until somebody turns it on :func:`apply_sound_preferences` returns
   before constructing anything: no thread, no event filter, no Qt
   Multimedia import. An application-wide event filter costs every event in
-  the process (item 380 measured 0.93 us per event per filter), so the
+  the process (measured at 0.93 us per event per filter), so the
   filter is installed only while a click or hover sound is actually wanted,
   and removed the moment neither is.
 * **Qt Multimedia is touched only on the GUI thread.**
@@ -19,21 +19,20 @@ preference:
   and lives where the application's event loop does; the dedicated
   ``QThread`` keeps the part that is genuinely slow, which is synthesizing
   a sound set (:class:`_SoundRenderer`, numpy and file writes, nothing
-  from Qt Multimedia). Connecting to the sound server is slow -- 354 ms on
-  the maintainer's workstation (PipeWire) -- so it is paid ONCE, on an idle
+  from Qt Multimedia). Connecting to the sound server is slow -- 354 ms
+  measured on a PipeWire workstation -- so it is paid ONCE, on an idle
   timer after sound is switched on (:meth:`SoundEngine._warm`), and logged
   rather than felt. Playing an already loaded sound is ``play()``, which
   returns at once: 0.007-0.014 ms on the GUI thread against the
   real stack.
 
-  This is item 444 and it is a rule written in a crash. Building the
-  effects on the audio thread instead did move the connection off the GUI
-  thread -- and Qt Multimedia's device handling belongs to the thread that
-  owns the event loop, so with the FFmpeg backend it enabled socket
-  notifiers from the wrong thread. Reopening Preferences with sound on
-  then segfaulted three times out of three, and on the maintainer's
-  workstation stopped the interface with an empty Preferences frame until
-  he force quit.
+  This rule is written in a crash. Building the effects on the audio
+  thread instead does move the connection off the GUI thread -- but Qt
+  Multimedia's device handling belongs to the thread that owns the event
+  loop, so with the FFmpeg backend it enables socket notifiers from the
+  wrong thread. Reopening Preferences with sound on then segfaults, or
+  wedges the interface with an empty Preferences frame until it is force
+  quit.
 * **A missing sound stack is silence.** No device, no server, no Qt
   Multimedia, a file that will not load: each ends in a debug log line and
   no sound. Nothing here raises into a caller and nothing opens a dialog.
@@ -142,7 +141,7 @@ SHUTDOWN_WAIT_MS = 3000
 #: How long after sound is switched on the sound server is connected to.
 #: Long enough that the Save which switched it on has closed its dialog,
 #: and that a launch with sound already on has its window up, so that the
-#: one connection -- 354 ms on the maintainer's workstation -- is paid
+#: one connection -- 354 ms measured on a PipeWire workstation -- is paid
 #: while nobody is waiting on anything. See :meth:`SoundEngine._warm`.
 DEVICE_WARM_DELAY_MS = 400
 
@@ -316,8 +315,8 @@ class _SoundRenderer(QObject):
     This is the only part of playing a sound that is slow enough to be
     worth a thread of its own: rendering one set is numpy arithmetic and a
     handful of file writes, and it takes as long as it takes. Nothing here
-    touches Qt Multimedia -- see the module docstring's second rule, and
-    item 444 for what happened when it did.
+    touches Qt Multimedia -- see the module docstring's second rule for
+    why, and for the crash that follows when it does.
 
     :param cache_root: where rendered files go; ``None`` means
         :func:`spacr.qt.sound_synth.sound_cache_root`.
@@ -487,10 +486,10 @@ class _SoundPlayer(QObject):
 
     ``QMediaDevices`` and every ``QSoundEffect`` are created and used here,
     and here is wherever the :class:`SoundEngine` lives, which is the
-    thread that owns the application's event loop. That is the whole of
-    item 444: Qt Multimedia's device handling installs socket notifiers on
+    thread that owns the application's event loop. That is the point of
+    this class: Qt Multimedia's device handling installs socket notifiers on
     the event loop's thread, and driving them from another one is undefined
-    behaviour that segfaulted or wedged the application.
+    behaviour that segfaults or wedges the application.
 
     Nothing here blocks except the first device call, which
     :meth:`warm` pays deliberately at an idle moment; a file that is not
@@ -948,8 +947,7 @@ class _SoundPlayer(QObject):
         that pass takes its effects with it while their deletion events are
         still queued. Qt reports "shared QObject was deleted directly" and
         the next ``sendPostedEvents`` segfaults in ``~QObject`` --
-        reproduced with the input filter, which went the same way, on
-        2026-09-19.
+        the input filter went the same way.
         """
         self._stop_fade()
         effects, self._effects = self._effects, {}
@@ -1064,7 +1062,7 @@ class InputSoundFilter(QObject):
 class SoundEngine(QObject):
     """Decides when a sound plays, and plays it on the thread it belongs to.
 
-    Two halves, and which thread each lives on is the whole of item 444.
+    Two halves, and which thread each lives on is what keeps sound safe.
     :class:`_SoundPlayer` holds every Qt Multimedia object and lives here,
     on the GUI thread, because that is the thread that owns the event loop
     Qt Multimedia's device handling attaches to. :class:`_SoundRenderer`
@@ -1178,10 +1176,10 @@ class SoundEngine(QObject):
         """Connect to the sound server, once, at an idle moment.
 
         The connection costs hundreds of milliseconds and it is a GUI
-        thread that has to pay it (item 444). So it is paid HERE, on a
-        timer that fires once the application has nothing else queued
-        after sound was switched on, rather than inside whatever dialog,
-        press or finishing run first wants a sound.
+        thread that has to pay it (see the module docstring's second rule).
+        So it is paid HERE, on a timer that fires once the application has
+        nothing else queued after sound was switched on, rather than inside
+        whatever dialog, press or finishing run first wants a sound.
         """
         if self._closed or not self._settings.enabled:
             return
@@ -1383,9 +1381,9 @@ def _stop_at_exit() -> None:
     ``aboutToQuit`` covers an application that quits through its event
     loop. Nothing covered a process that ends any other way -- and a
     ``QThread`` whose last reference goes while it is still running aborts
-    the process, which is how item 444's run ended: "QThread: Destroyed
-    while thread 'spacr-sound' is still running", then a core dump that
-    took whatever the run journal had not flushed with it.
+    the process: "QThread: Destroyed while thread 'spacr-sound' is still
+    running", then a core dump that takes whatever the run journal has not
+    flushed with it.
 
     Registered only once sound has actually been switched on, so a user
     who never asked for sound is charged nothing, not even a hook.

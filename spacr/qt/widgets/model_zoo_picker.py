@@ -136,10 +136,9 @@ def _remember_sources(names) -> None:
 class _SourceHeading(QLabel):
     """One clickable source heading: blue when on, muted when off.
 
-    The colour IS the state. There is no box and no tick, because the
-    maintainer asked for a row of names that read as a row of names -- "if
-    clicked the text turns blue and the models in that category are
-    visible" -- and a checkbox beside each would put five boxes above a
+    The colour IS the state. There is no box and no tick, because a row of
+    names should read as a row of names -- clicked, the text turns blue and
+    the models in that category are visible -- and a checkbox beside each would put five boxes above a
     table that already has a column of them.
 
     Styled per widget rather than through the application sheet, exactly as
@@ -907,9 +906,10 @@ class ModelZooPicker(QDialog):
             lambda: model_zoo.shared_catalogue(block=True),
             lambda _entries: self.refresh())
 
-        # Fill the bioimage.io cache on the same background pass, so the
-        # listing has its rows without catalogue() ever making a network call.
         def _warm_bioimageio():
+            """Fill the bioimage.io cache on the same background pass, so the
+            listing has its rows without catalogue() ever making a network call.
+            """
             try:
                 from ... import model_zoo
                 model_zoo.bioimageio_entries(allow_network=True)
@@ -934,6 +934,7 @@ class ModelZooPicker(QDialog):
         done = threading.Event()
 
         def _probe():
+            """Record which backends cannot be installed here, then signal done."""
             try:
                 found.update(backends._probe_blockers())
             finally:
@@ -942,6 +943,7 @@ class ModelZooPicker(QDialog):
         timer = QTimer(self)
 
         def _landed():
+            """Once the probe has finished, stop polling and redraw if it found any."""
             if not done.is_set():
                 return
             timer.stop()
@@ -1225,6 +1227,7 @@ class ModelZooPicker(QDialog):
             self.status.setText("Fetching community uploads…")
 
             def _warm():
+                """Fetch the community catalogue into its cache."""
                 try:
                     from ... import model_zoo
                     model_zoo.community_entries(allow_network=True)

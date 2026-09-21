@@ -20,6 +20,11 @@ class ShareDialog(QDialog):
     """
 
     def __init__(self, filename: str, parent: Optional[QWidget] = None):
+        """Build the form for sharing ``filename``.
+
+        :param filename: the checkpoint being shared, named in the title.
+        :param parent: the dialog's parent widget.
+        """
         super().__init__(parent)
         self.setWindowTitle(f"Share {filename}")
         outer = QVBoxLayout(self)

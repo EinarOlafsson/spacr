@@ -3616,9 +3616,8 @@ def measure_crop(settings):
 def _emit_infection_report(db_path):
     """Write the infection report a finished run can support, if any.
 
-    Item 377: the maintainer chose that Measure emits the report rather
-    than a button producing it, so this runs at the end of every complete
-    run and says where it went.
+    Measure emits the report rather than a button producing it, so this
+    runs at the end of every complete run and says where it went.
 
     A REPORT IS NOT WORTH A RUN. Everything here is inside a try: a plate
     whose tables the metrics cannot read, a disk that refuses the file, or
@@ -4205,8 +4204,7 @@ def crop_objects_from_array(data, mask_dim, channels=(0, 1, 2),
         ``PIL.Image.resize`` call at its default resampling -- because this
         feeds the Measure preview, whose purpose is to show what a run will
         write. Without it the preview showed bounding boxes while the run
-        wrote squares, and the crop-size setting looked like it did nothing
-        (item 443).
+        wrote squares, and the crop-size setting looked like it did nothing.
     :returns: list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest
         objects first.
 

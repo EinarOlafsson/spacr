@@ -18,9 +18,9 @@ object-count database, saving and segmentation QC -- run unchanged. The only
 dispatch is at model construction, and segmentation_backend='cellpose' (or
 the key absent) never reaches this module's loaders at all.
 
-WHERE A BACKEND RUNS. Maintainer's decision, 2026-09-19: "Isolated env per
-backend! But with the addition of adding cellpose 3 and its cyto, nucleus,
-and cyto2 and cyto3 models." Each optional backend is installed into an
+WHERE A BACKEND RUNS. Each backend gets an isolated environment, and
+Cellpose 3 is one of them, with its cyto, nuclei, cyto2 and cyto3 models.
+Each optional backend is installed into an
 environment of its own under ``~/.spacr/backends/<name>`` (or
 ``$SPACR_BACKENDS_DIR/<name>``), and spaCR calls it out of process. spaCR's
 own environment is never modified: DINOCell pins exact versions of torch,
@@ -82,7 +82,7 @@ environment still works, in process, exactly as before; a backend
 environment wins when both exist.
 
 Nothing here imports torch, cellpose, transformers or either package at
-module scope (item 282); tests/test_perf_guard.py holds the launch path to
+module scope; tests/test_perf_guard.py holds the launch path to
 that.
 """
 from __future__ import annotations
@@ -1041,6 +1041,7 @@ def _run_step(argv, *, env=None, cwd=None, on_line=None, cancel=None,
     tail = collections.deque(maxlen=400)
 
     def _drain():
+        """Pass every line the reader has queued to ``tail`` and ``on_line``."""
         while True:
             try:
                 line = lines.get_nowait()
@@ -1234,6 +1235,7 @@ def _install_backend(name, *, root=None, progress=None, cancel=None,
                 log.flush()
 
                 def _line(text, _number=number, _label=step.label):
+                    """Log one output line of this step and report it as progress."""
                     log.write(text + "\n")
                     report(_number, len(steps), f"{_label}: {text}")
 
@@ -2045,7 +2047,7 @@ class _Cellpose3Adapter:
         Cellpose 3 normalizes as it was trained to.
 
         :param batch_size: forwarded to Cellpose 3, which has its own
-            default of 8; before item 446 the user's value never arrived.
+            default of 8, so the user's value has to be passed on.
         :param other: anything else the call site passes. What this
             Cellpose cannot take is recorded in :attr:`ignored` and
             reported by name, rather than disappearing.

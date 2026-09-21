@@ -485,8 +485,8 @@ def mask_save_path(folder: str, filename: str,
     return os.path.join(masks_folder(folder, masks_dir), stem + ".tif")
 
 
-#: The curation CSV's columns, in the order the maintainer asked for them
-#: on 2026-09-20. They are written on every rewrite, so a reader never has
+#: The curation CSV's columns, in a fixed order. They are written on every
+#: rewrite, so a reader never has
 #: to guess which column is which.
 CURATION_COLUMNS: Tuple[str, ...] = (
     "image path", "mask path", "object count", "keep",
@@ -500,8 +500,8 @@ CURATION_CSV_NAME = "keep_discard.csv"
 def curation_folder(folder: str) -> str:
     """Where a folder of images keeps its curation files.
 
-    The maintainer's layout, 2026-09-20: masks live at ``<images>/masks``
-    and the curation CSV at ``<images>/csv``. It is a folder rather than a
+    spaCR's layout: masks live at ``<images>/masks`` and the curation CSV at
+    ``<images>/csv``. It is a folder rather than a
     file beside the images so that a folder listing of the fields is still
     a listing of the fields.
 
@@ -764,21 +764,20 @@ def normalize_for_detection(image: np.ndarray, lower_pct: float = 1.0,
 def invert_normalized(image: np.ndarray) -> np.ndarray:
     """Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.
 
-    THE ONE INVERSION. The maintainer's words, 2026-09-20: "invert should
-    normalize between 0 and 1 then take 1- pixel value for all pixels. this
-    will generate an inverted image that otsu can work on if there are black
-    objects on an image then inverting allows the user to use otsu and
-    magnifier. that is the reason for this button."
+    THE ONE INVERSION. The field is normalised to 0..1 and every pixel
+    becomes ``1 - value``, which gives an image that Otsu and the magnifier
+    can work on when the objects are dark. That is the reason for the
+    button.
 
     So the purpose is a DETECTOR reading dark objects, and the picture the
     curator sees has to be the picture the detector reads -- one switch, one
     meaning. That decision replaced the two inversions this module used to
     carry for Make Masks, :func:`invert_intensity` (the dtype complement,
-    item 435, drawn but never detected on) and :func:`invert_for_detection`
-    (item 419 point 9, detected on but never drawn). Both are kept for
+    drawn but never detected on) and :func:`invert_for_detection`
+    (detected on but never drawn). Both are kept for
     callers outside Make Masks and neither is what the screen uses now.
 
-    WHY NORMALISING FIRST IS THE POINT AND NOT A DETAIL. Item 417's Otsu
+    WHY NORMALISING FIRST IS THE POINT AND NOT A DETAIL. The Otsu threshold
     correction is a MULTIPLIER on an absolute level, so what it means depends
     on where the field's intensities sit. A dtype complement moves a 12-bit
     field (216..4095) up into 61440..65535, and a correction of 0.8 then asks
@@ -830,14 +829,13 @@ def invert_normalized(image: np.ndarray) -> np.ndarray:
 def invert_intensity(image: np.ndarray) -> np.ndarray:
     """Return the photographic complement of ``image``: dark becomes bright.
 
-    ITEM 435. The maintainer asked for "invert so that low intensity becomes
-    high intensity and vice versa. 1/intensity i think and then fitted to
-    dtype i guess". WHAT IS BUILT IS THE COMPLEMENT, ``dtype_max - value``,
+    Low intensity becomes high intensity and vice versa, fitted to the
+    dtype. WHAT IS BUILT IS THE COMPLEMENT, ``dtype_max - value``,
     NOT THE RECIPROCAL, for three reasons that are worth having written
     down because the reciprocal is the obvious first thought:
 
     * it is what every image viewer means by Invert, so the picture that
-      comes back is the one the user is picturing when asking for it;
+      comes back is the one a reader expects from Invert;
     * it is EXACTLY reversible on an integer field -- inverting twice
       returns the identical array, which is what makes it safe to leave
       switched on while curating, and is asserted by comparing arrays;
@@ -848,8 +846,8 @@ def invert_intensity(image: np.ndarray) -> np.ndarray:
     The reciprocal remains a reasonable SECOND mode for anyone who wants a
     log-like lift of the dim end; it is not this one.
 
-    WHICH RANGE IS COMPLEMENTED depends on the dtype, because "fitted to
-    dtype" only has a meaning where the dtype has ends:
+    WHICH RANGE IS COMPLEMENTED depends on the dtype, because fitting to
+    the dtype only has a meaning where the dtype has ends:
 
     ``unsigned integers``
         the dtype's own range, so a ``uint16`` field is ``65535 - value``.
@@ -898,9 +896,9 @@ def invert_intensity(image: np.ndarray) -> np.ndarray:
 def invert_for_detection(image: np.ndarray, *, bounds=None) -> np.ndarray:
     """Reflect an image about its OWN range, for a DETECTOR to read.
 
-    ITEM 419 POINT 9, which asks that the masks be generated from the
-    inverted image so a threshold written for bright objects can take dark
-    ones. It is ``max + min - value`` on the field's own extremes.
+    Masks are generated from the inverted image so a threshold written for
+    bright objects can take dark ones. It is ``max + min - value`` on the
+    field's own extremes.
 
     WHY THIS IS NOT :func:`invert_intensity`, which is the other inversion
     in this module and is one line away. The difference is not taste and it
@@ -910,7 +908,7 @@ def invert_for_detection(image: np.ndarray, *, bounds=None) -> np.ndarray:
     * :func:`invert_intensity` complements the DTYPE and is what "Invert
       image" draws with. It has to be exactly reversible, because a curator
       leaves it on all day, and nothing downstream reads its result.
-    * this one is read by a THRESHOLD, and item 417's threshold correction
+    * this one is read by a THRESHOLD, and the Otsu threshold correction
       is a MULTIPLIER on the level Otsu finds, applied to absolute intensity
       in :func:`_otsu_levels`. Multiplying is not invariant to an offset, so
       an inversion that moves the field's span moves what the correction
@@ -1229,8 +1227,8 @@ def invert_mask(mask: np.ndarray) -> np.ndarray:
     becomes foreground, and what comes out is then labelled afresh. On an
     ordinary field the background is one connected region, so what comes back
     is a SINGLE field-sized object with holes where the objects were -- which
-    is why item 435 reports it as "doesn't actually invert": one flat overlay
-    over the whole frame reads as nothing having happened.
+    is why it looks as if it does not invert at all: one flat overlay over
+    the whole frame reads as nothing having happened.
 
     It is kept because it is a real thing to want -- a curator who has
     outlined the space BETWEEN the cells has drawn the complement of what is
@@ -1371,7 +1369,7 @@ def split_object_at(mask: np.ndarray, x: int, y: int, *,
                     min_area: int = 0) -> Tuple[np.ndarray, List[int]]:
     """Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.
 
-    Item 419 point 8's Ctrl + left click. The cut is a watershed on the
+    What Ctrl + left click does. The cut is a watershed on the
     object's own distance to background, the same recipe
     :func:`_split_touching_objects` runs on a whole field: every local
     maximum of that distance is one half's middle and the ridge between two
@@ -1482,9 +1480,9 @@ FILTER_BOUNDS = ("min_area", "max_area", "min_intensity", "max_intensity")
 class FilterRemoval(NamedTuple):
     """One object the filter dropped, and which bound dropped it.
 
-    Item 419 point 7 asks the screen for "object 22 with area x and
-    intensity y was removed by minimum intensity", one row per object, so
-    the filter has to say more than which ids went.
+    The screen reports "object 22 with area x and intensity y was removed
+    by minimum intensity", one row per object, so the filter has to say
+    more than which ids went.
 
     :ivar label: the id :func:`canonical_labels` gave the object -- the same
         id the hover readout showed for it.
@@ -1743,9 +1741,9 @@ def _otsu_levels(image: np.ndarray, *, bright: bool = True,
                  classes: int = 2) -> List[float]:
     """The intensity or intensities the field is actually cut at.
 
-    ITEM 435's histogram preview asks for "the chosen level" and the only
-    way a preview can be trusted to show it is for the detector to read the
-    level from here too -- so :func:`_otsu_instances` calls this rather than
+    The histogram preview shows the chosen level, and the only way a
+    preview can be trusted to show it is for the detector to read the level
+    from here too -- so :func:`_otsu_instances` calls this rather than
     finding its own, and a preview cannot drift from the button.
 
     The numbers are on the SMOOTHED image and already carry ``correction``,
@@ -1788,7 +1786,7 @@ def _otsu_histogram(image: np.ndarray, *, smoothing: float = 0.0,
                     bins: int = 256) -> Tuple[np.ndarray, np.ndarray]:
     """Counts and bin edges of the values the threshold is measured on.
 
-    The picture behind item 435's preview. Measured on :func:`_otsu_values`
+    The picture behind the histogram preview. Measured on :func:`_otsu_values`
     for the same reason the levels are: a histogram of the raw field under a
     level found on the smoothed one would put the marker in the wrong valley.
 
@@ -1851,7 +1849,7 @@ def _local_otsu_binary(values: np.ndarray, *, window: int, bright: bool,
                        correction: float) -> np.ndarray:
     """Threshold every pixel against Otsu's level in the window around it.
 
-    ITEM 435, "more options for otsu": one level for the whole field loses
+    Adaptive Otsu: one level for the whole field loses
     an object wherever the illumination falls away, because the corner of a
     field can be dimmer than the background at its centre. Here each pixel is
     compared with the level found inside a ``window`` x ``window`` square
@@ -1902,7 +1900,7 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
                     window: int = 51) -> np.ndarray:
     """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
 
-    Item 417's "threshold correction", which is CellProfiler's threshold
+    The "threshold correction", which is CellProfiler's threshold
     correction factor: the level Otsu finds is multiplied before it is used.
     Above 1 is stricter and below 1 takes in dimmer pixels, on either side --
     for dark objects the level is measured on the inverted image, the way a
@@ -1912,8 +1910,8 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
     :func:`otsu_instances`, looked up by name at call time, so the
     uncorrected path does not move at all.
 
-    THE FOUR SWITCHES ARE ITEM 419'S "more settings for the Otsu mode", and
-    they all default OFF -- a plain threshold and a connected-components
+    THE FOUR SWITCHES ARE THE OTSU MODE'S EXTRA SETTINGS, and they all
+    default OFF -- a plain threshold and a connected-components
     labelling, which is what this did before they existed. Three of them are
     the steps the magnifier's Otsu mode has always taken and the detect
     button never did (:func:`_classical_region_labels`), which is why the
@@ -1931,7 +1929,7 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
         (:func:`_split_touching_objects`) instead of labelling it whole.
     :param exclude_border: drop the objects the field's own edge cuts
         through (:func:`_drop_border_objects`).
-    :param classes: ITEM 435's multi-level Otsu. 2 is Otsu's own two-class
+    :param classes: multi-level Otsu. 2 is Otsu's own two-class
         split and is what this did before. 3 or more splits the histogram
         into that many brightness bands
         (:func:`skimage.filters.threshold_multiotsu`), which is how a field
@@ -1944,7 +1942,7 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
         gives the halo without the nuclei inside it -- which is the point of
         asking for more than two classes. ``bright`` is NOT read here: the
         class number already says which side is meant.
-    :param local: ITEM 435's adaptive threshold. Each pixel is judged
+    :param local: the adaptive threshold. Each pixel is judged
         against Otsu's level in the ``window`` around it rather than against
         one level for the whole field (:func:`_local_otsu_binary`), which is
         what recovers objects in a corner the illumination has fallen away
@@ -2225,7 +2223,7 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
                              split_touching: bool = True) -> np.ndarray:
     """Threshold one magnifier region and split the objects that touch.
 
-    The Otsu magnifier mode -- ``classical`` until item 419 renamed it --
+    The Otsu magnifier mode -- formerly named ``classical`` --
     and the fallback whenever a model cannot run: it needs nothing beyond
     scikit-image. The region is smoothed (``smoothing``, by default
     :data:`_CLASSICAL_SMOOTHING`) and then cut one of two ways. A region
@@ -2239,8 +2237,8 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
 
     THE THREE SWITCHES DEFAULT TO WHAT THIS DID BEFORE THEY EXISTED, so the
     call the magnifier has always made comes back the mask it has always
-    come back. They are here because item 419 puts them on the panel, and
-    the panel drives both this and :func:`_otsu_instances`.
+    come back. They are here because the Otsu settings panel shows them,
+    and the panel drives both this and :func:`_otsu_instances`.
 
     :param region: 2-D intensity crop.
     :param sensitivity: 0 is the default cut; positive takes in dimmer
@@ -2251,7 +2249,7 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
         far apart two seeds must be, so an object of the smallest allowed
         size is not split in two.
     :param correction: Otsu's level is multiplied by this before
-        ``sensitivity`` moves it (item 417's threshold correction; see
+        ``sensitivity`` moves it (the threshold correction; see
         :func:`_otsu_instances`). Above 1 is stricter. A region with no two
         clear populations is cut at its noise floor, which is not Otsu's
         level, and this does not apply to it.
@@ -2424,7 +2422,8 @@ def _surviving_region_objects(labels: np.ndarray, occupied: np.ndarray, *,
     IT IS COUNTED ONCE OVER THE PIXELS, NOT ONCE PER OBJECT. The loop this
     replaced ran a whole-region comparison and, under ``clip``, a whole
     connected-component pass for EVERY object, which is fine for the ten
-    objects in a 128 px box and is not fine for the box item 417 allows: on
+    objects in a 128 px box and is not fine for the largest box the
+    magnifier allows: on
     a 2048 px region holding 500 objects it took 6.1 s for ``clip`` and
     0.82 s for ``skip``, on the GUI thread, with the user's click waiting on
     it. The same work is 46 ms and 33 ms here.

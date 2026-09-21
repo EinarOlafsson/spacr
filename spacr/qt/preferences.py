@@ -3401,21 +3401,18 @@ DEFAULT_SETTING_ANIMATIONS = False
 #: on the two switches.
 #:
 #: NEITHER TOUCHES THE CATEGORY STRIP, which answers a different question --
-#: "what is this whole group of settings for" -- and was not part of the
-#: request.
-#: THE BOX DEFAULTS OFF, AND THAT IS NOT A JUDGEMENT ABOUT THE BOX. On
-#: 2026-09-01 the maintainer asked: "i dont need the popup box if the tooltip
-#: is shown on the bottom of the window", and that preference has been wired
-#: in ever since -- the popup appeared only on screens with no strip.
-#: Both surfaces were asked to be CHOOSABLE, which is a request
-#: for a switch, not a request to reverse the earlier answer. Defaulting the
-#: box on would hand back the popup somebody had explicitly said they did not
-#: want, and they would have to find a checkbox to undo it.
+#: "what is this whole group of settings for".
+#: THE BOX DEFAULTS OFF, AND THAT IS NOT A JUDGEMENT ABOUT THE BOX. The
+#: popup box is redundant when the tooltip is shown at the bottom of the
+#: window, so it appears by default only on screens with no strip. Both
+#: surfaces are CHOOSABLE, and the switch does not reverse that default:
+#: defaulting the box on would hand back a popup a user who reads the strip
+#: does not need, and they would have to find a checkbox to undo it.
 #:
-#: So the shipped behaviour is unchanged and the box is one click away.
+#: So the box is one click away.
 #: `tests/qt/test_setting_tooltip_footer.py::
 #: test_hovering_a_real_setting_shows_no_tooltip_box` is the guard for the
-#: 2026-09-01 request and still passes.
+#: default.
 DEFAULT_TOOLTIPS_BOX = False
 DEFAULT_TOOLTIPS_BOTTOM = True
 
@@ -3636,9 +3633,8 @@ _SUPERSEDED_ISSUE_PROMPT_MODE = ISSUE_PROMPT_ASK
 
 #: The mode of a profile that has never chosen one.
 #:
-#: The maintainer's decision of 2026-09-19: "Do real auto-filing, and make
-#: this the default, and add the user agreeing to this in the user
-#: agreement, if set to always." The agreement is Section 5.6 of
+#: Automatic filing is the default, and a user agrees to it in the user
+#: agreement when the mode is 'always'. The agreement is Section 5.6 of
 #: :data:`spacr.qt.terms.TERMS`, which every profile is asked to accept
 #: again (4.1 -> 4.2) and which nothing is filed without. A stored choice is
 #: kept.
@@ -4229,14 +4225,13 @@ def set_log_levels(file_levels, console_levels) -> tuple:
 
 #: Verbose diagnostic logging is ON unless the user turns it off.
 #:
-#: It was off because of a measurement taken on 2026-08-28: offscreen, a
-#: usable Home took 3.05 s with verbose off and 65.28 s with it on. That cost
-#: was the interpreter-wide function tracer, which the preference installed
-#: then. It stopped installing it on 2026-08-30, so the preference now raises
-#: log levels and adds no work to an ordinary call.
+#: It used to be off because the preference installed the interpreter-wide
+#: function tracer: offscreen, a usable Home took 3.05 s with verbose off and
+#: 65.28 s with it on. The preference no longer installs the tracer; it only
+#: raises log levels and adds no work to an ordinary call.
 #:
-#: Re-measured on 2026-09-19 with ``tools/spacr_startup_benchmark.py``'s
-#: workers, offscreen. Every one of the 45 registered modules was opened, in
+#: Benchmarked with ``tools/spacr_startup_benchmark.py``'s workers,
+#: offscreen. Every one of the 45 registered modules was opened, in
 #: a cold and a warm process per arm, and the arms were run off, on, on, off:
 #:
 #:     Home, cold       on 4.00 / 4.07 s     off 4.04 / 4.18 s    budget 5 s

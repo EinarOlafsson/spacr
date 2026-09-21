@@ -368,9 +368,7 @@ def _attach(screen: QWidget, app_key: str,
 def _insert_above_console(screen: QWidget, widget: QWidget) -> bool:
     """Put a preview card in the runtime splitter, directly ABOVE the console.
 
-    Reported 2026-09-20: "the plaque modular live [preview] being under the console".
-
-    WHY IT WAS UNDER IT. Every preview card went through
+    WHY IT WOULD OTHERWISE BE UNDER IT. Every preview card went through
     :func:`_insert_above_actions`, which puts a widget in the runtime panel just above
     the Run row -- and the figures/console splitter is added to that same panel BEFORE
     the actions row. So "above the Run button" is below the console, and the preview

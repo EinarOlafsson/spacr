@@ -1,6 +1,6 @@
 """The search field beside the Help menu, and what each result opens.
 
-Instruction 422. :mod:`spacr.qt.help_index` decides WHAT is addressable by
+:mod:`spacr.qt.help_index` decides WHAT is addressable by
 name; this module is where a user types a name and where the answer takes
 them. The two halves are apart because only this one needs a display.
 
@@ -902,16 +902,15 @@ class _FieldPlacer(QObject):
 
     WHY NOT A ``QWidgetAction`` ON THE MENU BAR, which is the one-line way to
     get a widget into the menu row: a widget inside a menu-bar action is
-    driven as a menu item. Measured 2026-09-19 on this window: the field
-    installed that way never took focus (``focus_field`` left
-    ``hasFocus()`` False) and the results popup never became visible, so
-    Ctrl+Shift+H and the whole result list stopped working.
+    driven as a menu item. On this window the field installed that way never
+    takes focus (``focus_field`` left
+    ``hasFocus()`` False) and the results popup never becomes visible, so
+    Ctrl+Shift+H and the whole result list stop working.
 
     WHY NOT THE CORNER WIDGET, which is where the field started: the corner
     strip is right-aligned inside the bar, so the field sat against the
-    minimise, full screen and close marks at the far edge of the window --
-    "not on the side as the minimize, expand, close", as the maintainer put
-    it on 2026-09-19.
+    minimise, full screen and close marks at the far edge of the window,
+    away from the menus it belongs with.
 
     So the field is an ordinary child of the bar, moved to sit after the last
     menu. It is re-placed whenever the bar is resized, shown, or re-laid out
@@ -926,6 +925,7 @@ class _FieldPlacer(QObject):
     GAP = 8
 
     def __init__(self, bar, field) -> None:
+        """Remember the menu bar and the field it places; owned by the bar."""
         super().__init__(bar)
         self._bar = bar
         self._field = field
@@ -974,10 +974,9 @@ def install(window: QMainWindow) -> Optional[HelpSearchField]:
 
     IN THE MENU ROW, NOT THE CORNER. The field was first installed in the
     menu bar's top-right corner widget, which put it beside the minimise,
-    full screen and close marks at the far right of the window. The
-    maintainer asked for it "directly to the right of help, not on the side
-    as the minimize, expand, close" on 2026-09-19, so it is now a
-    `QWidgetAction` appended to the menu bar itself: the bar lays its actions
+    full screen and close marks at the far right of the window, away from
+    the menus. It belongs directly to the right of Help, so it is placed in
+    the menu row itself: the bar lays its actions
     out left to right, and Help is the last menu, so the field follows Help
     and moves with it when the menus are re-translated or re-ordered.
 

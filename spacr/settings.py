@@ -2011,8 +2011,8 @@ def _fold_toxoplasma(settings, quiet=False):
 
     ONE QUESTION, ONE ANSWER. `Toxoplasma` was a boolean beside
     `annotation_source`, and the name already says everything the boolean
-    did except one thing: false, which meant no annotation at all. Retired on
-    2026-09-19 under instruction 364, at the maintainer's decision.
+    did except one thing: false, which meant no annotation at all. So the
+    boolean is retired.
 
     THE MIGRATION IS THE POINT, not the removal. A name in
     `annotation_source` wins, because it won before the retirement. A blank

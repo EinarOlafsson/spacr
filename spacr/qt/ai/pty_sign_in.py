@@ -1,7 +1,7 @@
 """Sign in to an AI command-line tool without leaving spaCR.
 
-Item 420: "installed, logged in and marked READY, with no terminal used".
-The Claude, GPT and Gemini command-line tools sign in by conversation -- a web
+The goal is a tool installed, logged in and marked READY with no terminal
+used. The Claude, GPT and Gemini command-line tools sign in by conversation -- a web
 page to confirm in, sometimes a code to paste back -- and they only hold that
 conversation with a TERMINAL, which is why spaCR used to open one. A
 pseudo-terminal is a terminal as far as the tool can tell, so the sign-in is

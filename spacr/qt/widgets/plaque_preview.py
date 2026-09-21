@@ -1,6 +1,6 @@
 """Plaque Assay's live preview, in its two modes, and the switch between them.
 
-Item 468. Plaque Assay reads two kinds of folder, and the Mask preview it
+Plaque Assay reads two kinds of folder, and the Mask preview it
 used to borrow fitted neither:
 
 * **Plaque mode** -- a folder of cropped plaque images. The run segments
@@ -190,6 +190,7 @@ def missing_papers_packages(importable: Optional[Callable[[str], bool]] = None
     :returns: display names of the missing packages, empty when all are here.
     """
     def found(module: str) -> bool:
+        """Whether ``module`` can be found without importing it."""
         try:
             return find_spec(module) is not None
         except (ImportError, ValueError):
@@ -557,6 +558,7 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
             return {"error": _explain_model_failure(model_path, exc)}
 
         def segment(p: Path) -> np.ndarray:
+            """The plaque label mask of the image at ``p``."""
             return segment_plaque_image(model, load_display_image(p), settings)
 
     rgb = load_display_image(path)
@@ -610,6 +612,7 @@ def figure_pass(path: Any, settings: Dict[str, Any], *,
             return {"error": _explain_model_failure(model_path, exc)}
 
         def segment(crop: np.ndarray) -> np.ndarray:
+            """The Cellpose label mask of one plaque-well crop."""
             return np.asarray(model.eval(crop)[0])
 
     image = _load_image(path)
@@ -673,10 +676,9 @@ def detect_figure(path: Any, settings: Dict[str, Any], *,
                   read_text: Optional[Callable] = None) -> Dict[str, Any]:
     """Figure mode's Run preview: find the plaque wells and read the text.
 
-    Nothing is segmented here. The maintainer, 2026-09-21: "run preview
-    should detect the plaque wells, and add another button called Plaque
-    preview that generates plaques from the hichlighted rw and plaque well
-    box" -- plaques are found per well, on request (:func:`segment_well`).
+    Nothing is segmented here: Run preview detects the plaque wells, and a
+    separate Plaque preview button segments the plaques of the highlighted
+    row and well box (:func:`segment_well`).
 
     :param path: the figure.
     :param settings: the module's settings.
@@ -800,6 +802,7 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
             return {"error": _explain_model_failure(model_path, exc)}
 
         def segment(c: np.ndarray) -> np.ndarray:
+            """The plaque label mask of one well crop."""
             return segment_plaque_image(model, c, settings)
 
     labels = _match_shape(segment(crop), crop.shape[:2])
@@ -1571,9 +1574,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _stow_free_widgets(self) -> int:
         """Put every child that is in no layout into the holder that never shows.
 
-        Reported 2026-09-21: "when i start live preview in plaque assay i get
-        a field that covers the mode to the left of the plaque and figure
-        button ... as soon as i pressed settings it went away". The settings
+        Without this, starting the live preview shows a field covering the
+        Mode label beside the Plaque and Figure buttons until Settings is
+        opened and closed once. The settings
         controls are homeless on purpose -- the panel owns them so their
         values outlive the Settings window, which lays them out only while it
         is open -- and a QWidget parented to the panel but in no layout
@@ -1798,9 +1801,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def open_settings(self, tab: Optional[str] = None) -> "PlaqueSettingsDialog":
         """Open (or raise) the one settings window, in the tab for this mode.
 
-        The maintainer, 2026-09-21: "have one settings button for plaque
-        assay live and add several tabs one for figure and one for plaque
-        detection". A ``QDialog``, so :mod:`spacr.qt.widgets.glass` gives it
+        One settings button serves the whole live preview, with a tab for
+        figure detection and one for plaque detection. A ``QDialog``, so :mod:`spacr.qt.widgets.glass` gives it
         the same rounded, translucent card every other settings window has.
 
         :param tab: ``'figure'`` or ``'plaque'`` to open on; the mode's own
@@ -2214,9 +2216,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
     def _offer_install(self, *, dialog: Any = None) -> None:
         """Install the figure reader into an environment of its own.
 
-        The maintainer, 2026-09-21: "if the downlode changes the dependencies
-        and so on it would be great if we could contain it in a different
-        environment" (item 469). The same dialog the Model Zoo uses for
+        Its download brings dependencies of its own, so they are contained
+        in a separate environment. The same dialog the Model Zoo uses for
         Cellpose 3, DINOCell and SAMCell: it says where it installs and what
         it downloads, shows progress, and Cancel removes what it built.
 
@@ -2560,6 +2561,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         :returns: dicts, one per plaque, well by well.
         """
         def annotation(index: int) -> Any:
+            """The annotation of region ``index``, or None if it has none."""
             return self._annotations[index] \
                 if index < len(self._annotations) else None
 
@@ -2706,7 +2708,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                     fetch: Optional[Callable] = None) -> bool:
         """Fetch a paper's figures into ``parent/<paper>``, off the GUI thread.
 
-        Item 424, "auto gather the figure ledgend":
+        The figure legends are gathered automatically:
         :func:`spacr.plaque_papers.fetch_paper_to_folder` writes the figures
         and ``legends.csv``, which this panel already reads. When it is done
         the form's ``src`` is pointed at the new folder, so the figures load
@@ -2849,6 +2851,7 @@ def install_plaque_mode(screen: Any) -> Optional[PlaqueModeSwitch]:
         getattr(model, "_defaults", {}).get(MODE_KEY))}
 
     def show(mode: str) -> None:
+        """Show ``mode`` on the switch and the preview, and hide the other mode's rows."""
         mode = normalise_mode(mode)
         state["mode"] = mode
         switch.set_mode(mode)
@@ -2864,6 +2867,7 @@ def install_plaque_mode(screen: Any) -> Optional[PlaqueModeSwitch]:
                           exc_info=True)
 
     def choose(mode: str) -> None:
+        """Store ``mode`` in the form, then show it."""
         mode = normalise_mode(mode)
         if field is not None:
             try:

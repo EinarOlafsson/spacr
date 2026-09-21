@@ -342,8 +342,8 @@ class SettingsSearchBar(QWidget):
     def reveal(self, key: str) -> bool:
         """Show one setting with every other category shut.
 
-        WHAT INSTRUCTION 422 ASKS FOR, and it is deliberately NOT the search
-        filter. Typing the key into the box above would hide every other
+        WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the
+        search filter. Typing the key into the box above would hide every other
         setting as well, so a user who arrived from the Help search and then
         wanted to look at the neighbouring rows would first have to work out
         what had happened to the form. Revealing instead leaves the module

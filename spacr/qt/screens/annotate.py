@@ -185,7 +185,7 @@ HOST_KEY = "annotate"
 #: How long a real answer about a folder is still worth acting on.
 #:
 #: An answer is proof the mount was awake when it was taken, not that it still
-#: is -- an idle `autofs` share goes back to sleep (the maintainer's is
+#: is -- an idle `autofs` share goes back to sleep (a typical one has
 #: `timeout=600`), and a picker started in a folder that has since dozed off
 #: is the original freeze again. Two minutes is comfortably inside any
 #: plausible automount timeout and comfortably longer than opening Settings,
@@ -1915,9 +1915,9 @@ class _SettingsDialog(QDialog):
 
     #: Other spellings the same question has been written under.
     #:
-    #: `crop_size` IS THE NAME SINCE 2026-09-19, when 364 renamed the
-    #: factory's `img_size` at the maintainer's decision. Every settings CSV
-    #: written before that says `img_size`, including the example dataset's,
+    #: `crop_size` IS THE CURRENT NAME of what the factory used to call
+    #: `img_size`. Every settings CSV written before the rename says
+    #: `img_size`, including the example dataset's,
     #: so the old spelling is still read here when the new one is absent.
     #:
     #: `image_size` IS NOT ACCEPTED, and that is the point of the rename.

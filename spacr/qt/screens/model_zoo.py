@@ -196,6 +196,7 @@ def group_entries(entries) -> list:
 
 
 def _version_sort_key(label: str):
+    """The first integer in ``label``, or 0, so versions sort numerically."""
     m = re.search(r"(\d+)", str(label))
     return int(m.group(1)) if m else 0
 
@@ -810,6 +811,7 @@ class ModelZooScreen(QWidget):
     def rows(self) -> List[List[str]]:
         """The listing as plain strings."""
         def text(r, c):
+            """The text shown in cell ``(r, c)``, from its item or its combo box."""
             item = self._table.item(r, c)
             if item is not None:
                 return item.text()

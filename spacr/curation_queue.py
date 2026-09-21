@@ -1,8 +1,7 @@
-"""``396`` — a curation session is a queue with a memory, not one field.
+"""A curation session is a queue with a memory, not one field.
 
 Make Masks is the better editor and the bespoke tool outside the repository
-is the better workflow, and ledger item 396 is the observation that neither
-is both. This module is the workflow half, pulled inside spaCR: which fields
+is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields
 are waiting, which order to offer them in, how many to offer before the
 session ends, and what was already decided about each one.
 
@@ -18,9 +17,8 @@ functions that actually read a draft mask off the disk.
 Three layouts, all accepted
 ---------------------------
 
-Ledger item 396 names the layout mismatch as the thing to settle first, and
-warns that silently assuming one is how a folder full of work gets loaded as
-empty. So all three are accepted and the one in front of us is detected::
+The layout mismatch is the thing to settle first: silently assuming one
+layout is how a folder full of work gets loaded as empty. So all three are accepted and the one in front of us is detected::
 
     nested    <folder>/*.tif           + <folder>/masks/*.tif
     sibling   <folder>/images/*.tif    + <folder>/masks/*.tif
@@ -355,7 +353,7 @@ class StatusRow:
 
 @dataclass(frozen=True)
 class QueueSummary:
-    """What is left to do, in the terms ledger item 396 asks for.
+    """What is left to do in a curation session.
 
     :ivar total: fields in the folder.
     :ivar done: curated.

@@ -631,8 +631,8 @@ def _dropped_paths(event) -> List[str]:
     decide whether to accept, inside every ``dragMoveEvent`` as well, so the
     stats ran repeatedly while the pointer simply moved over the table. On a
     microscope rig the dropped folder is on the share the images live on:
-    measured on the maintainer's machine, ONE stat under a sleeping
-    ``autofs`` mount had not returned after twenty seconds. Expanding the
+    ONE stat under a sleeping ``autofs`` mount can take more than twenty
+    seconds to return. Expanding the
     folder is :func:`files_under`'s job, on a worker.
     """
     mime = event.mimeData() if hasattr(event, 'mimeData') else None

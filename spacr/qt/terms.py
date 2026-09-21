@@ -33,10 +33,9 @@ from typing import Dict, Tuple
 #: translation is a convenience and the English governs; that is a term
 #: of the agreement rather than a note about it, so it is IN the
 #: agreement and a profile that accepted 4.0 is asked again.
-#: 4.2 adds Section 5.6, AUTOMATIC ERROR REPORTS, on 2026-09-19. The
-#: maintainer decided that day: "Do real auto-filing, and make this the
-#: default, and add the user agreeing to this in the user agreement, if set
-#: to always." Sections 5.1 and 5.5 said nothing was ever transmitted
+#: 4.2 adds Section 5.6, AUTOMATIC ERROR REPORTS: automatic filing is the
+#: default, and a user agrees to it in the agreement when the mode is
+#: 'always'. Sections 5.1 and 5.5 said nothing was ever transmitted
 #: automatically and that Diagnostic Data was not published, and neither is
 #: true with 'always'. A profile that accepted 4.1 accepted neither, and is
 #: asked again.

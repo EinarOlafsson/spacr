@@ -815,7 +815,7 @@ class FeatureHelpFilter(QObject):
         THE EVENT TYPE IS READ FIRST, and the liveness checks follow it.
         This filter is on the QApplication, so both `_still_alive` calls
         used to run for every event in the process -- 94,431 of them
-        during one Regression open, and item 284 profiled the pair at
+        during one Regression open, and a profile counted the pair at
         839,906 calls in one Mask open. Reading the type of an object
         whose C++ half has gone raises, which the `except` below already
         answers with the same `False`, so the order costs nothing and the

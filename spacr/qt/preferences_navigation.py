@@ -1,6 +1,6 @@
 """Open the Preferences dialog on one tab, at one row.
 
-Instruction 422. A preference result in the Help search field has to land on
+A preference result in the Help search field has to land on
 the row the user asked for, and the dialog it lands in is built by seven
 thousand lines of procedure with no schema to address. So this module
 navigates the BUILT dialog, by the two handles the build leaves behind:

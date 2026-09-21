@@ -1,9 +1,8 @@
 """Test data for the assay modules: a measured plate, one button away.
 
-Item 463. The maintainer's decision was that Replication, Invasion and
-Recruitment get test data: small datasets on Hugging Face and a "Load test
-data…" button in each module. Replication and Recruitment are slices of real
-screens. Invasion's is SYNTHETIC, by the maintainer's choice: no two-colour
+Replication, Invasion and Recruitment get test data: small datasets on
+Hugging Face and a "Load test data…" button in each module. Replication and
+Recruitment are slices of real screens. Invasion's is SYNTHETIC: no two-colour
 differential-staining acquisition exists, so its fields and their object
 masks are drawn by spaCR and then measured by the Measure module. Its tooltip
 says so.
