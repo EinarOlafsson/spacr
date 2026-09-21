@@ -58,6 +58,35 @@ def _nothing_is_really_installed(monkeypatch):
     monkeypatch.setenv("PATH", os.environ.get("PATH", ""))
 
 
+@pytest.fixture(autouse=True)
+def signed_in_here(monkeypatch):
+    """Record the sign-ins spaCR holds itself instead of starting them.
+
+    Since 96f8014f8 (item 420, "no terminal used") a sign-in on Linux and
+    macOS runs on a pseudo-terminal inside a spaCR window rather than in a
+    terminal. Left real, that window would run the vendor's actual
+    ``claude auth login`` on the developer's machine. Each command it would
+    have run is appended here, joined back into one string.
+    """
+    from spacr.qt.ai import pty_sign_in
+
+    started = []
+
+    class _RecordedSignIn:
+        def __init__(self, label, argv, parent=None, **kwargs):
+            started.append(" ".join(argv))
+
+        def show(self):
+            pass
+
+        def close(self):
+            pass
+
+    monkeypatch.setattr(pty_sign_in, "pty_available", lambda: True)
+    monkeypatch.setattr(pty_sign_in, "SignInDialog", _RecordedSignIn)
+    return started
+
+
 @pytest.fixture
 def present(monkeypatch):
     """The programs this machine has, as far as the code can tell."""
@@ -224,7 +253,8 @@ def _click(qtbot, widget):
 
 
 def test_install_runs_claudes_own_command_off_the_gui_thread_then_signs_in(
-        slides, qtbot, present, press, spawned, monkeypatch, tmp_path):
+        slides, qtbot, present, press, spawned, monkeypatch, tmp_path,
+        signed_in_here):
     """The whole request, pressed through: mark, Install, sign-in, READY."""
     present.update(curl="/usr/bin/curl", bash="/usr/bin/bash")
     claude = providers.get_provider("claude")
@@ -250,7 +280,8 @@ def test_install_runs_claudes_own_command_off_the_gui_thread_then_signs_in(
     assert call["command"] == ["/usr/bin/bash", "-o", "pipefail", "-c",
                                claude.install_hint]
     assert call["gui_thread"] is False, "the installer ran on the GUI thread"
-    assert launched == ["claude auth login"]
+    assert signed_in_here == ["claude auth login"]
+    assert launched == [], "the sign-in opened a terminal"
     assert "Claude" in panel.message.text()
     assert holder._buttons["claude"].status == ProviderMark.READY
     assert holder._buttons["claude"].available
@@ -482,8 +513,8 @@ def test_a_github_install_is_named_when_closing(slides, press):
 
 
 def test_signing_in_to_an_installed_provider_is_watched_to_the_end(
-        slides, qtbot, press, monkeypatch):
-    """"Sign in now" opens the terminal; Done re-reads the marks."""
+        slides, qtbot, press, monkeypatch, signed_in_here):
+    """"Sign in now" starts the sign-in inside spaCR; Done re-reads the marks."""
     stub = types.SimpleNamespace(
         label="GPT", cli_name="codex", login_command="codex login",
         install_hint="npm install -g @openai/codex",
@@ -503,7 +534,8 @@ def test_signing_in_to_an_installed_provider_is_watched_to_the_end(
     press("Sign in now")
     _click(qtbot, holder._buttons["gpt"])
 
-    assert launched == ["codex login"]
+    assert signed_in_here == ["codex login"]
+    assert launched == [], "the sign-in opened a terminal"
     assert panel.state == CONFIRM and panel.done_button.isVisible()
     assert panel.command.text() == "codex login"
     refreshed.clear()
@@ -520,6 +552,8 @@ def test_with_no_terminal_the_sign_in_command_stays_to_copy(
         is_configured=lambda: False)
     monkeypatch.setattr(SetupSlides, "_provider_object",
                         staticmethod(lambda code, command="": stub))
+    monkeypatch.setattr("spacr.qt.ai.pty_sign_in.pty_available",
+                        lambda: False)
     slides._run_in_a_terminal = lambda command: False
     holder = _assistant(slides)
     panel = slides._ai_setup
@@ -630,7 +664,8 @@ def test_the_account_button_opens_githubs_sign_up_page(slides, qtbot, opened,
 # ------------------------------------------------- the screen's bookkeeping
 
 
-def test_without_its_panels_the_screen_still_signs_in(slides, monkeypatch):
+def test_without_its_panels_the_screen_still_signs_in(slides, monkeypatch,
+                                                      signed_in_here):
     from shiboken6 import delete
 
     launched = []
@@ -640,7 +675,8 @@ def test_without_its_panels_the_screen_still_signs_in(slides, monkeypatch):
     assert slides._install_provider(providers.get_provider("claude"),
                                     "claude") is False
     assert slides._sign_in_to_provider(None, "claude auth login") is True
-    assert launched == ["claude auth login"]
+    assert signed_in_here == ["claude auth login"]
+    assert launched == []
     del slides._gh_setup
     assert slides._live_panel("_gh_setup") is None
     slides._stop_the_installs()
@@ -925,7 +961,8 @@ def test_shutdown_stops_everything(panel):
 
 @pytest.mark.skipif(sys.platform.startswith("win"), reason="POSIX script")
 def test_a_real_installer_process_takes_gpt_to_ready(
-        qapp, qtbot, press, monkeypatch, tmp_path, signed_out_of_github):
+        qapp, qtbot, press, monkeypatch, tmp_path, signed_out_of_github,
+        signed_in_here):
     """Real pipes, a real worker thread, a real PATH: nothing real installed.
 
     A shell script named ``npm`` stands in for npm. It prints like an
@@ -969,7 +1006,8 @@ def test_a_real_installer_process_takes_gpt_to_ready(
         _click(qtbot, holder._buttons["gpt"])
         qtbot.waitUntil(lambda: panel.state == READY, timeout=20000)
 
-        assert launched == ["codex login"]
+        assert signed_in_here == ["codex login"]
+        assert launched == [], "the sign-in opened a terminal"
         assert os.environ["PATH"].split(os.pathsep)[0] == str(target)
         assert holder._buttons["gpt"].status == ProviderMark.READY
     finally:
