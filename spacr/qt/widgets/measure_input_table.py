@@ -214,6 +214,9 @@ class MeasureInputTable(QWidget):
         self.setAcceptDrops(True)
         self._rebuild()
 
+        from ..screens.settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
+
     def table(self) -> FieldTable:
         """The model this widget edits. Live, not a copy."""
         return self._table
