@@ -4065,3 +4065,29 @@ wiring is covered above.
 THE BASELINE IS NOT UPDATED BY THIS NOTE. `tools/verify_module_coverage.py
 --update-baseline --reason` is how the ratchet tightens, and it wants a full
 coverage run rather than the three files this was measured with.
+
+--------------------------------------------------------------------------------
+2026-09-21 — CODEX: SELECTED-ARCHIVE OUTCOMES, WITHOUT A QTHREAD
+--------------------------------------------------------------------------------
+
+Added tests/qt/test_the_selected_archives_report_every_ending.py: 12 offline
+cases drive _ChosenArchivesWorker.run() on the test thread. They verify the
+selected archive order and request URLs, streamed bytes at extraction,
+archive removal, progress units, an empty selection, cancellation before a
+request/during a stream/between archives, short and overlong responses, and
+failures during the request, extraction and final path preparation. Every
+ending is checked as one completion signal, and failures never emit the
+success progress marker or fetch later archives.
+
+Matched focused measurement, with branch coverage enabled:
+  Existing worker-outcome and percentage-dialog files: 48 passed, 81.71%.
+  Same selection plus the new file:                    60 passed, 83.85%.
+  hf_download.py: 369 statements, 62 missing (was 67); 52 branches,
+                  4 partial branches (was 8).
+
+The selected-archive worker's remaining statement and branch gaps are closed.
+The MODULE IS STILL BELOW 90%; this is a bounded improvement, not closure of
+288. The public QThread launcher remains unexecuted in this selection, as
+required by the handover's core-dump warning. No production source, coverage
+exemption or baseline was changed. Both runs used run_capped.sh with a 6 GiB
+cap, CUDA disabled, and the Python import resolved to the Codex checkout.
