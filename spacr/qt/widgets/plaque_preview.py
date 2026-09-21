@@ -44,8 +44,8 @@ import numpy as np
 from PySide6.QtCore import QRectF, Qt, Signal
 from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (
-    QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDoubleSpinBox,
-    QFileDialog, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
+    QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDialog,
+    QDialogButtonBox, QDoubleSpinBox, QFileDialog, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy, QTableWidget,
     QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
@@ -92,6 +92,8 @@ __all__ = [
     "region_at",
     "plaque_rows",
     "segment_well",
+    "paper_folder_name",
+    "PaperDialog",
     "annotate_figure",
 ]
 
@@ -785,6 +787,96 @@ def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
             "note": note}
 
 
+def paper_folder_name(reference: Any) -> str:
+    """The sub-folder a paper's figures are fetched into.
+
+    :param reference: a DOI, PMID, PMC id or PDF path.
+    :returns: a name safe on every file system: a PDF's stem, or the
+        reference with every character that is not a letter, digit, dot or
+        dash turned into ``_``.
+    """
+    import re
+
+    text = str(reference or "").strip()
+    if text.lower().endswith(".pdf"):
+        text = Path(text).stem
+    for prefix in ("https://doi.org/", "http://doi.org/", "doi:"):
+        if text.lower().startswith(prefix):
+            text = text[len(prefix):]
+    name = re.sub(r"[^A-Za-z0-9.\-]+", "_", text).strip("._")
+    return name or "paper"
+
+
+class PaperDialog(QDialog):
+    """Ask which paper to fetch, and where its folder goes.
+
+    :param parent: the owning widget.
+    :param folder: the folder the paper's own folder is made in.
+    """
+
+    def __init__(self, parent: Optional[QWidget] = None, folder: str = ""):
+        """Build the two fields.
+
+        :param parent: the owning widget.
+        :param folder: the starting parent folder.
+        """
+        super().__init__(parent)
+        self.setObjectName("PlaquePaperDialog")
+        self.setWindowTitle(tr("Figures from a paper"))
+        layout = QVBoxLayout(self)
+        intro = QLabel(tr(
+            "A DOI, PMID or PMC id is fetched from Europe PMC with its figure "
+            "legends; a PDF is read page by page. The figures go into a new "
+            "folder, with their legends in legends.csv, and the preview "
+            "switches to it."))
+        intro.setWordWrap(True)
+        layout.addWidget(intro)
+        grid = QGridLayout()
+        grid.addWidget(QLabel(tr("Paper")), 0, 0)
+        self.reference = QLineEdit(self)
+        self.reference.setPlaceholderText(tr("DOI, PMID or PMC id"))
+        grid.addWidget(self.reference, 0, 1)
+        pdf = QToolButton(self)
+        pdf.setText(tr("PDF…"))
+        pdf.clicked.connect(self._pick_pdf)
+        grid.addWidget(pdf, 0, 2)
+        grid.addWidget(QLabel(tr("Into")), 1, 0)
+        self.folder = QLineEdit(folder, self)
+        grid.addWidget(self.folder, 1, 1)
+        where = QToolButton(self)
+        where.setText(tr("Browse…"))
+        where.clicked.connect(self._pick_folder)
+        grid.addWidget(where, 1, 2)
+        layout.addLayout(grid)
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.button(QDialogButtonBox.Ok).setText(tr("Fetch"))
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+        self.setMinimumWidth(520)
+
+    def _pick_pdf(self) -> None:
+        """Choose a PDF instead of typing an identifier."""
+        chosen, _ = QFileDialog.getOpenFileName(
+            self, tr("Choose a paper"), "", tr("PDF files (*.pdf)"))
+        if chosen:
+            self.reference.setText(chosen)
+
+    def _pick_folder(self) -> None:
+        """Choose where the paper's folder is made."""
+        chosen = QFileDialog.getExistingDirectory(
+            self, tr("Put the paper's folder in"), self.folder.text())
+        if chosen:
+            self.folder.setText(chosen)
+
+    def values(self) -> Tuple[str, str]:
+        """The reference and the parent folder, stripped.
+
+        :returns: ``(reference, folder)``.
+        """
+        return self.reference.text().strip(), self.folder.text().strip()
+
+
 class PlaqueModeSwitch(QWidget):
     """A two-button Plaque | Figure switch.
 
@@ -1052,6 +1144,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                     user_visible=False)
         self._jobs.job_failed.connect(self._on_job_failed)
         self._load_jobs.job_failed.connect(self._on_job_failed)
+        self._paper_jobs = JobRunner(self, threaded=threaded,
+                                     app_key="plaque paper")
+        self._paper_jobs.job_failed.connect(self._on_paper_failed)
         self._build()
         self.set_mode(PLAQUE_MODE)
 
@@ -1219,12 +1314,25 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "Find the plaques in every well found on this figure, one after "
             "another. Cancel stops after the well in progress."))
         self._all_btn.clicked.connect(lambda: self.find_plaques_in_all_wells())
-        for widget in (self._figure_settings_btn, self._plaque_settings_btn,
+        self._paper_btn = QPushButton(tr("From a paper…"))
+        self._paper_btn.setObjectName("PlaqueFromPaper")
+        self._paper_btn.setToolTip(tr(
+            "Fetch a paper's figures and legends by DOI, PMID, PMC id or PDF "
+            "into a new folder, and preview them."))
+        self._paper_btn.clicked.connect(self._ask_for_paper)
+        for widget in (self._paper_btn, self._figure_settings_btn,
+                       self._plaque_settings_btn,
                        self._run_btn, self._well_btn, self._all_btn,
                        self._cancel_btn, self._use_btn):
             buttons.addWidget(widget)
         buttons.addStretch(1)
         outer.addLayout(buttons)
+
+        self._paper_note = QLabel("")
+        self._paper_note.setObjectName("PlaquePaperNote")
+        self._paper_note.setWordWrap(True)
+        self._paper_note.hide()
+        outer.addWidget(self._paper_note)
 
         self._status = QLabel(tr(self.PREVIEW_SOURCE_HINT))
         self._status.setObjectName("PlaquePreviewStatus")
@@ -1365,6 +1473,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._tabs.setVisible(figure)
         self._well_side.setVisible(figure)
         self._well_btn.setVisible(figure)
+        self._paper_btn.setVisible(figure)
+        self._paper_note.setVisible(figure and bool(self._paper_note.text()))
         self._all_btn.setVisible(figure)
         self._save_row.setVisible(figure)
         self._confirm_note.setVisible(figure and self._confirm.isChecked())
@@ -2197,9 +2307,84 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """Say what Confirm annotations does to the run."""
         self._confirm_note.setVisible(bool(on) and self.mode() == FIGURE_MODE)
 
+    def _ask_for_paper(self) -> None:
+        """Ask for a paper, then fetch it."""
+        folder = self._folder()
+        dialog = PaperDialog(self, str(folder) if folder else "")
+        if dialog.exec() != QDialog.Accepted:
+            return
+        reference, parent = dialog.values()
+        if not parent:
+            parent = QFileDialog.getExistingDirectory(
+                self, tr("Put the paper's folder in"), "")
+        if reference and parent:
+            self.fetch_paper(reference, parent)
+
+    def fetch_paper(self, reference: str, parent: Any, *,
+                    fetch: Optional[Callable] = None) -> bool:
+        """Fetch a paper's figures into ``parent/<paper>``, off the GUI thread.
+
+        Item 424, "auto gather the figure ledgend":
+        :func:`spacr.plaque_papers.fetch_paper_to_folder` writes the figures
+        and ``legends.csv``, which this panel already reads. When it is done
+        the form's ``src`` is pointed at the new folder, so the figures load
+        the way any folder does.
+
+        :param reference: a DOI, PMID, PMC id or PDF path.
+        :param parent: the folder the paper's folder is made in.
+        :param fetch: replaces ``fetch_paper_to_folder`` (tests).
+        :returns: True when the fetch was started.
+        """
+        reference = str(reference or "").strip()
+        if not reference or not parent:
+            return False
+        if self._paper_jobs.is_busy():
+            self.set_preview_status(tr("A paper is already being fetched."))
+            return False
+        dest = Path(str(parent)).expanduser() / paper_folder_name(reference)
+        if fetch is None:
+            from ...plaque_papers import fetch_paper_to_folder as fetch
+        self._paper_btn.setEnabled(False)
+        self._paper_btn.setText(tr("Fetching…"))
+        self.set_preview_status(tr("Fetching {ref} into {path}…",
+                                   ref=reference, path=dest))
+        self._paper_jobs.submit(lambda: fetch(reference, dest),
+                                self._on_paper_fetched)
+        return True
+
+    def _paper_idle(self) -> None:
+        """Put the paper button back."""
+        self._paper_btn.setEnabled(True)
+        self._paper_btn.setText(tr("From a paper…"))
+
+    def _on_paper_failed(self, message: str) -> None:
+        """Say why a fetch failed."""
+        self._paper_idle()
+        self.set_preview_status(tr("Could not fetch the paper: {why}",
+                                   why=message))
+
+    def _on_paper_fetched(self, result: Dict[str, Any]) -> None:
+        """Report the fetch and switch the preview to the new folder."""
+        self._paper_idle()
+        folder = str(result.get("folder") or "")
+        licence = result.get("licence") or tr("not stated")
+        self._paper_note.setText(tr(
+            "{paper}: {n} figures, {m} with legends (licence {licence}), in "
+            "{path}.", paper=result.get("paper") or "", n=result.get("figures", 0),
+            m=result.get("with_legend", 0), licence=licence, path=folder))
+        self._paper_note.show()
+        if not folder:
+            return
+        if self._propagate_cb is not None:
+            try:
+                self._propagate_cb({"src": folder})
+            except Exception:
+                LOG.debug("could not write src", exc_info=True)
+        self.load_source_async(folder)
+
     def shutdown(self) -> None:
         """Leave no worker thread behind."""
-        for runner in (self._jobs, self._load_jobs):
+        for runner in (self._jobs, self._load_jobs, self._paper_jobs):
             runner.shutdown()
 
     def closeEvent(self, event):                             # noqa: N802

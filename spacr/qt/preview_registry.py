@@ -122,6 +122,7 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "figure_confidence": "figure_confidence",
             "figure_read_text": "figure_read_text",
             "confirm_annotations": "confirm_annotations",
+            "src": "src",
         }),
 }
 

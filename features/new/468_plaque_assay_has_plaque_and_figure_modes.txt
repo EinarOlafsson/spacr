@@ -173,10 +173,29 @@ MEASURED, headless on CPU, the real screen with worker threads,
 The 54 plaques are the same total the one-shot pass found on this figure.
 
 --------------------------------------------------------------------------------
+FROM A PAPER (item 424's "auto gather the figure ledgend")
+--------------------------------------------------------------------------------
+
+Figure mode has a "From a paper…" button. Its dialog takes a DOI, PMID or
+PMC id (or a PDF via PDF…) and the folder to put the paper's folder in
+(default: the current src). spacr.plaque_papers.fetch_paper_to_folder runs
+off the GUI thread into <folder>/<paper_folder_name(reference)>, the button
+reads "Fetching…" meanwhile, and when it lands the form's src is set to the
+new folder (the registry's propagation map now carries src), the figures load
+as any folder does, and a note says "<paper>: N figures, M with legends
+(licence …), in <path>". The legends go to legends.csv, which the preview
+already keys, so a fetched figure asks for no legend.
+
+MEASURED, headless, the real screen, DOI 10.1371/journal.ppat.1011009:
+40 s; "9 figures, 9 with legends (licence cc by)"; form src set to
+<out>/10.1371_journal.ppat.1011009; picker holds the 9 figures
+(ppat.1011009.g001.jpg ... g009.jpg), plus legends.csv and paper.json.
+
+--------------------------------------------------------------------------------
 TESTS
 --------------------------------------------------------------------------------
 
-tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 29 tests, the
+tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 34 tests, the
 detector, text reader and Cellpose faked.
 
 2026-09-21 — CODEX TRANSLATION LANE: PREVIEW EVIDENCE REBOUND

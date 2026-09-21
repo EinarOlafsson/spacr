@@ -454,3 +454,63 @@ def test_region_at_prefers_the_smallest_box():
     assert ppv.region_at([big, small], 20, 20) == 1
     assert ppv.region_at([big, small], 80, 80) == 0
     assert ppv.region_at([big, small], 200, 200) is None
+
+
+def test_a_paper_becomes_a_folder_the_preview_reads(panel, tmp_path):
+    """Item 424, "auto gather the figure ledgend": From a paper... fetches the
+    figures and legends.csv into <parent>/<paper>, and the preview loads it."""
+    calls = []
+
+    def fetch(reference, dest):
+        calls.append((reference, dest))
+        dest.mkdir(parents=True)
+        _png(dest / "fig1.png")
+        ppv.write_legend(dest / pp.LEGENDS_FILE, "fig1",
+                         "Figure 1. (A) WT and KO plaques.")
+        return {"folder": str(dest), "paper": "10.1371/x", "figures": 1,
+                "with_legend": 1, "licence": "CC BY"}
+
+    written = []
+    panel.set_propagate_callback(written.append)
+    panel.set_mode("figure")
+    assert panel._paper_btn.isVisibleTo(panel) or not panel.isVisible()
+    assert panel.fetch_paper("doi:10.1371/journal.ppat.1011009", tmp_path,
+                             fetch=fetch)
+    dest = tmp_path / "10.1371_journal.ppat.1011009"
+    assert calls == [("doi:10.1371/journal.ppat.1011009", dest)]
+    assert written == [{"src": str(dest)}]
+    assert panel.current_path() == dest / "fig1.png"
+    assert "1 figures, 1 with legends (licence CC BY)" in \
+        panel._paper_note.text()
+    assert panel._paper_btn.isEnabled()
+    panel.run_preview(detect=_detect, read_text=_read_text)
+    assert panel._legend_box.isHidden(), "the fetched legend is used"
+    assert "WT and KO" in panel._table.item(0, 3).text()
+
+
+def test_a_failed_fetch_is_said_and_the_button_comes_back(panel, tmp_path):
+    def fetch(reference, dest):
+        raise RuntimeError("Europe PMC has no figures for it")
+
+    assert panel.fetch_paper("12345", tmp_path, fetch=fetch)
+    assert "Europe PMC has no figures" in panel.preview_status()
+    assert panel._paper_btn.isEnabled()
+
+
+def test_paper_folder_names_are_safe():
+    assert ppv.paper_folder_name("https://doi.org/10.1/a b") == "10.1_a_b"
+    assert ppv.paper_folder_name("/x/y/My Paper.pdf") == "My_Paper"
+    assert ppv.paper_folder_name("PMC123") == "PMC123"
+    assert ppv.paper_folder_name("") == "paper"
+
+
+def test_the_paper_dialog_hands_back_what_was_typed(qtbot):
+    dialog = ppv.PaperDialog(None, "/data")
+    qtbot.addWidget(dialog)
+    dialog.reference.setText("  PMC9744290 ")
+    assert dialog.values() == ("PMC9744290", "/data")
+
+
+def test_the_screen_writes_the_fetched_folder_into_src(screen, tmp_path):
+    screen._propagate_live_settings({"src": str(tmp_path)})
+    assert screen._settings_model.collect()["src"] == str(tmp_path)
