@@ -23,6 +23,7 @@ import pytest
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import Qt  # noqa: E402
+from PySide6.QtWidgets import QWidget  # noqa: E402
 
 from spacr import plaque_papers as pp  # noqa: E402
 from spacr.qt.widgets import plaque_preview as ppv  # noqa: E402
@@ -349,7 +350,7 @@ def test_one_settings_button_opens_one_window_with_two_tabs(qtbot):
         "a QDialog, so spacr.qt.widgets.glass gives it the rounded "
         "translucent card every settings window has")
     assert [dialog.tabs.tabText(i) for i in range(dialog.tabs.count())] == [
-        "Figure", "Plaque detection"]
+        "Figure", "Text detection", "Plaque detection"]
     assert dialog.tabs.isTabVisible(0)
     assert dialog.tabs.currentIndex() == 0
     assert panel._detector_box.isVisibleTo(dialog.figure_tab)
@@ -363,9 +364,11 @@ def test_one_settings_button_opens_one_window_with_two_tabs(qtbot):
     panel.set_mode("plaque")
     dialog = panel.open_settings()
     assert not dialog.tabs.isTabVisible(0), "no Figure tab in Plaque mode"
-    assert dialog.tabs.currentIndex() == 1
+    assert not dialog.tabs.isTabVisible(1), "no Text detection tab either"
+    assert dialog.tabs.currentIndex() == 2
     panel.set_mode("figure")
     assert dialog.tabs.isTabVisible(0), "the window follows the switch"
+    assert dialog.tabs.isTabVisible(1)
     dialog.reject()
 
 
@@ -539,3 +542,171 @@ def test_the_paper_dialog_hands_back_what_was_typed(qtbot):
 def test_the_screen_writes_the_fetched_folder_into_src(screen, tmp_path):
     screen._propagate_live_settings({"src": str(tmp_path)})
     assert screen._settings_model.collect()["src"] == str(tmp_path)
+
+
+def _read_text_with_a_row_label(path):
+    return _read_text(path) + [pp.Word("+ATc", 40, 130, 80, 145)]
+
+
+def _text_panel(panel, tmp_path):
+    _png(tmp_path / "fig1.png")
+    panel.apply_settings({"plaque_mode": "figure"})
+    panel.load_source_async(str(tmp_path))
+    assert panel.run_preview(detect=_detect,
+                             read_text=_read_text_with_a_row_label)
+    return panel
+
+
+def _condition(panel, row=0):
+    return panel._table.item(row, ppv.CONDITION_COLUMN).text()
+
+
+def test_text_detection_settings_re_propose_the_condition_at_once(
+        panel, tmp_path):
+    """2026-09-21: "also add a tab for text detection, as this seems to pick
+    up the text correctly but it is not annotating correctly allways so
+    whatever settings you can add there please do." Every change re-annotates
+    the words already read -- the detector and OCR are not asked again."""
+    calls = []
+
+    def read(path):
+        calls.append(path)
+        return _read_text_with_a_row_label(path)
+
+    _png(tmp_path / "fig1.png")
+    panel.apply_settings({"plaque_mode": "figure"})
+    panel.load_source_async(str(tmp_path))
+    panel.run_preview(detect=_detect, read_text=read)
+    assert _condition(panel) == "WT / +ATc"
+
+    t = panel._text
+    t["text_order"].setCurrentText("left,above")
+    assert _condition(panel) == "+ATc / WT"
+    t["text_separator"].setText(" | ")
+    assert _condition(panel) == "+ATc | WT"
+    t["text_use_left"].setChecked(False)
+    assert _condition(panel) == "WT"
+    t["text_use_left"].setChecked(True)
+    t["text_ignore"].setText("^WT$")
+    assert _condition(panel) == "+ATc"
+    t["text_ignore"].setText("")
+    t["text_reach_above"].setValue(0.0)
+    assert _condition(panel) == "+ATc", "the header is out of reach"
+    assert len(calls) == 1, "tuning never reads the figure again"
+    assert "proposed again" in panel.preview_status()
+
+
+def test_the_panel_letter_reach_decides_the_panel(panel, tmp_path):
+    _text_panel(panel, tmp_path)
+    assert panel._table.item(0, 1).text() == "A"
+    panel._text["text_panel_reach"].setValue(0.0)
+    assert panel._table.item(0, 1).text() == ""
+
+
+def test_a_low_confidence_word_can_be_dropped(panel, tmp_path):
+    def read(path):
+        return [pp.Word("WT", 120, 80, 160, 95, 0.4),
+                pp.Word("KO", 240, 80, 280, 95, 0.9)]
+
+    _png(tmp_path / "fig1.png")
+    panel.apply_settings({"plaque_mode": "figure"})
+    panel.load_source_async(str(tmp_path))
+    panel.run_preview(detect=_detect, read_text=read)
+    assert _condition(panel, 0) == "WT"
+    panel._text["text_min_confidence"].setValue(0.5)
+    assert "WT" not in _condition(panel, 0)
+    assert _condition(panel, 1) == "KO"
+
+
+def test_the_second_reading_asks_for_a_new_run(panel, tmp_path):
+    _text_panel(panel, tmp_path)
+    before = _condition(panel)
+    panel._text["text_reread_scale"].setValue(5)
+    assert "Run preview" in panel.preview_status()
+    assert _condition(panel) == before
+
+
+def test_text_settings_are_seeded_and_written_back(panel):
+    panel.apply_settings({"plaque_mode": "figure", "text_reach_left": 2.5,
+                          "text_use_below": False, "text_ignore": "^\\d+$",
+                          "text_order": "left,above,below",
+                          "text_separator": " - ", "text_reread_scale": 4})
+    assert panel._text["text_reach_left"].value() == pytest.approx(2.5)
+    assert not panel._text["text_use_below"].isChecked()
+    out = panel.settings_for_propagation()
+    assert out["text_reach_left"] == pytest.approx(2.5)
+    assert out["text_use_below"] is False
+    assert out["text_ignore"] == "^\\d+$"
+    assert out["text_order"] == "left,above,below"
+    assert out["text_separator"] == " - "
+    assert out["text_reread_scale"] == 4
+    options = panel.text_options()
+    assert options.order == ("left", "above", "below")
+    assert options.ignore == ("^\\d+$",)
+
+
+def test_the_text_tab_holds_a_control_per_setting(qtbot):
+    panel = ppv.PlaquePreviewPanel()
+    qtbot.addWidget(panel)
+    panel.set_mode("figure")
+    dialog = panel.open_settings("text")
+    assert dialog.tabs.currentIndex() == 1
+    for key in ppv.TEXT_KEYS:
+        assert panel._text[key].isVisibleTo(dialog.text_tab), key
+    assert panel._text["text_reach_above"].toolTip(), "the setting's tooltip"
+    dialog.reject()
+    assert panel._text["text_order"].parent() is panel._controls
+
+
+def test_the_form_hides_the_text_settings_in_plaque_mode(screen):
+    hidden = set(screen._settings_model.keys_hidden_by_the_run())
+    assert set(ppv.TEXT_KEYS) & set(screen._settings_model._widgets) <= hidden
+    screen._plaque_mode_switch.button("figure").click()
+    hidden = set(screen._settings_model.keys_hidden_by_the_run())
+    assert not set(ppv.TEXT_KEYS) & hidden
+
+
+def test_use_these_settings_writes_the_text_settings(screen):
+    from spacr.qt.preview_registry import PREVIEWS
+
+    for key in ppv.TEXT_KEYS:
+        assert PREVIEWS["analyze_plaques"].propagation.get(key) == key
+    screen._plaque_mode_switch.button("figure").click()
+    screen._live_preview._text["text_separator"].setText(" ; ")
+    screen._live_preview.propagate()
+    assert screen._settings_model.collect()["text_separator"] == " ; "
+
+
+@pytest.mark.parametrize("mode", ["plaque", "figure"])
+def test_no_settings_control_paints_over_the_mode_switch(qtbot, mode):
+    """Reported 2026-09-21: "when i start live preview in plaque assay i get a
+    field that covers the mode to the left of the plaque and figure button
+    ... as soon as i pressed settings it went away". Settings never opened."""
+    from PySide6.QtCore import QRect
+
+    panel = ppv.PlaquePreviewPanel()
+    qtbot.addWidget(panel)
+    panel.resize(1000, 800)
+    panel.set_mode(mode)
+    panel.show()
+    qtbot.waitExposed(panel)
+    assert panel._stow_free_widgets() == 0, "nothing left homeless"
+    lent = [panel._detector_box, panel._sizes, panel._confidence,
+            panel._read_text, panel._confirm, panel._model_row,
+            panel._diameter, panel._flow, panel._cellprob,
+            *panel._text.values()]
+    assert not [w for w in lent if w.isVisible()]
+    switch = panel._mode_switch
+    area = QRect(switch.mapTo(panel, switch.rect().topLeft()), switch.size())
+    area = area.united(QRect(0, 0, switch.x() + 1, switch.height()))
+    for child in panel.findChildren(QWidget):
+        if not child.isVisible() or child.isWindow():
+            continue
+        if child is switch or switch.isAncestorOf(child):
+            continue
+        if child.isAncestorOf(switch):
+            continue
+        box = QRect(child.mapTo(panel, child.rect().topLeft()), child.size())
+        assert not box.intersects(area), (
+            f"{child.metaObject().className()} {child.objectName()!r} at "
+            f"{box} paints over the mode switch at {area}")

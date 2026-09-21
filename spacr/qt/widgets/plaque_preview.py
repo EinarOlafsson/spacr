@@ -47,7 +47,7 @@ from PySide6.QtWidgets import (
     QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QDoubleSpinBox, QFileDialog, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy, QTableWidget,
-    QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
+    QSpinBox, QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
 from ..i18n import tr
@@ -96,6 +96,7 @@ __all__ = [
     "PaperDialog",
     "PlaqueSettingsDialog",
     "annotate_figure",
+    "TEXT_KEYS",
 ]
 
 PLAQUE_MODE = "plaque"
@@ -104,8 +105,20 @@ MODES = (PLAQUE_MODE, FIGURE_MODE)
 
 MODE_KEY = "plaque_mode"
 
+TEXT_KEYS = ("text_reach_above", "text_reach_left", "text_reach_below",
+             "text_use_above", "text_use_left", "text_use_below",
+             "text_panel_reach", "text_min_confidence", "text_ignore",
+             "text_order", "text_separator", "text_reread",
+             "text_reread_scale")
+
+TEXT_READ_KEYS = ("text_reread", "text_reread_scale")
+
+TEXT_ORDERS = ("above,left,below", "left,above,below", "above,below,left",
+               "left,below,above", "below,above,left", "below,left,above",
+               "above,left", "left,above", "above", "left")
+
 FIGURE_ONLY_KEYS = ("figure_detector", "figure_imgsz", "figure_confidence",
-                    "figure_read_text", "confirm_annotations")
+                    "figure_read_text", "confirm_annotations") + TEXT_KEYS
 
 PLAQUE_ONLY_KEYS = ("well_detection", "well_confidence", "well_pad")
 
@@ -624,7 +637,7 @@ def figure_pass(path: Any, settings: Dict[str, Any], *,
 
 
 def annotate_figure(result: Dict[str, Any], caption: str, src: Any, *,
-                    confirm: bool) -> List[Any]:
+                    confirm: bool, options: Any = None) -> List[Any]:
     """Propose a condition per image, with any saved review applied.
 
     :param result: a :func:`figure_pass` result.
@@ -633,6 +646,8 @@ def annotate_figure(result: Dict[str, Any], caption: str, src: Any, *,
     :param confirm: ``confirm_annotations``. When on, an image nobody has
         approved starts unticked; when off it starts ticked, because the run
         measures it.
+    :param options: a :class:`spacr.plaque_papers.TextOptions` -- the Text
+        detection settings; the defaults when None.
     :returns: :class:`spacr.plaque_papers.Annotation` per region.
     """
     from ...plaque_papers import (ANNOTATIONS_FILE, annotate_regions,
@@ -640,7 +655,8 @@ def annotate_figure(result: Dict[str, Any], caption: str, src: Any, *,
 
     stem = Path(result["path"]).stem
     found = annotate_regions(result["regions"], result["words"],
-                             caption=caption, figure_label=stem)
+                             caption=caption, figure_label=stem,
+                             options=options)
     overrides = read_annotation_overrides(Path(str(src)) / ANNOTATIONS_FILE) \
         if src else {}
     apply_overrides(stem, found, overrides, confirm_each=confirm)
@@ -670,9 +686,11 @@ def detect_figure(path: Any, settings: Dict[str, Any], *,
         ``{'error', 'entry'}``.
     """
     from ...plaque_papers import (_load_image, find_plaque_regions,
-                                  read_words, reread_around)
+                                  read_words, reread_around,
+                                  text_options_from_settings)
 
     path = Path(path)
+    options = text_options_from_settings(settings)
     weights = "fake"
     if detect is None:
         weights, why, entry = resolve_detector(
@@ -687,10 +705,12 @@ def detect_figure(path: Any, settings: Dict[str, Any], *,
     words: List[Any] = []
     if regions and settings.get("figure_read_text", True) not in (False, "False"):
         words = list((read_text or read_words)(path))
-        if read_text is None:
-            words = reread_around(image, regions, words)
+        if read_text is None and options.reread:
+            words = reread_around(image, regions, words,
+                                  scale=int(options.reread_scale))
     return {"path": str(path), "image": image, "regions": list(regions),
-            "words": words}
+            "words": words,
+            "read_with": {k: settings.get(k) for k in TEXT_READ_KEYS}}
 
 
 def region_at(regions: Sequence[Any], x: float, y: float) -> Optional[int]:
@@ -878,6 +898,37 @@ class PaperDialog(QDialog):
         return self.reference.text().strip(), self.folder.text().strip()
 
 
+TEXT_LABELS = (
+    ("text_use_above", "Use the column header"),
+    ("text_reach_above", "Reach above (image heights)"),
+    ("text_use_left", "Use the row label"),
+    ("text_reach_left", "Reach left (image widths)"),
+    ("text_use_below", "Use the text below"),
+    ("text_reach_below", "Reach below (image heights)"),
+    ("text_panel_reach", "Panel letter reach (image sizes)"),
+    ("text_min_confidence", "Minimum OCR confidence"),
+    ("text_ignore", "Ignore words matching"),
+    ("text_order", "Order in the condition"),
+    ("text_separator", "Separator"),
+    ("text_reread", "Read again, enlarged"),
+    ("text_reread_scale", "Enlargement for the second reading"),
+)
+
+
+def _setting_tooltip(key: str) -> str:
+    """The setting's own tooltip, so the control and the form say the same.
+
+    :param key: a setting name.
+    :returns: the tooltip, or ``''``.
+    """
+    try:
+        from ...settings import tooltips
+
+        return str(tooltips.get(key, "") or "")
+    except Exception:
+        return ""
+
+
 class PlaqueSettingsDialog(QDialog):
     """The Plaque Assay preview's settings: a Figure tab and a Plaque detection tab.
 
@@ -915,6 +966,21 @@ class PlaqueSettingsDialog(QDialog):
         form.addRow("", panel._confirm)
         self.figure_tab = figure
 
+        text = QWidget()
+        form = QFormLayout(text)
+        for key, label in TEXT_LABELS:
+            widget = panel._text[key]
+            if isinstance(widget, QCheckBox):
+                form.addRow("", widget)
+            else:
+                form.addRow(tr(label), widget)
+        note = QLabel(tr("Changes re-propose the conditions at once from the "
+                         "text already read. The second reading needs a new "
+                         "Run preview."))
+        note.setWordWrap(True)
+        form.addRow(note)
+        self.text_tab = text
+
         plaque = QWidget()
         form = QFormLayout(plaque)
         form.addRow(tr("Plaque model"), panel._model_row)
@@ -924,6 +990,7 @@ class PlaqueSettingsDialog(QDialog):
         self.plaque_tab = plaque
 
         self.tabs.addTab(figure, tr("Figure"))
+        self.tabs.addTab(text, tr("Text detection"))
         self.tabs.addTab(plaque, tr("Plaque detection"))
         outer.addWidget(self.tabs)
         for widget in self._lent():
@@ -938,18 +1005,22 @@ class PlaqueSettingsDialog(QDialog):
         """The panel controls this window holds while it is open."""
         p = self._panel
         return (p._detector_box, p._sizes, p._confidence, p._read_text,
-                p._confirm, p._model_row, p._diameter, p._flow, p._cellprob)
+                p._confirm, p._model_row, p._diameter, p._flow, p._cellprob,
+                *p._text.values())
 
     def show_mode(self, mode: Any, tab: Optional[str] = None) -> None:
         """Show the tabs ``mode`` uses and open the right one.
 
         :param mode: ``'plaque'`` or ``'figure'``.
-        :param tab: ``'figure'`` or ``'plaque'`` to open on.
+        :param tab: ``'figure'``, ``'text'`` or ``'plaque'`` to open on.
         """
         figure = normalise_mode(mode) == FIGURE_MODE
         self.tabs.setTabVisible(0, figure)
+        self.tabs.setTabVisible(1, figure)
         wanted = tab or ("figure" if figure else "plaque")
-        self.tabs.setCurrentIndex(0 if wanted == "figure" and figure else 1)
+        if not figure:
+            wanted = "plaque"
+        self.tabs.setCurrentIndex({"figure": 0, "text": 1}.get(wanted, 2))
 
     def give_back(self) -> None:
         """Return every lent control to the panel, hidden, values intact."""
@@ -1230,6 +1301,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                      app_key="plaque paper")
         self._paper_jobs.job_failed.connect(self._on_paper_failed)
         self._build()
+        self._stow_free_widgets()
         self.set_mode(PLAQUE_MODE)
 
     def _build(self) -> None:
@@ -1319,6 +1391,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._confirm.setToolTip(tr("When on, the run measures only the "
                                     "images ticked OK and saved here."))
         self._confirm.toggled.connect(self._on_confirm_toggled)
+        self._build_text_controls()
         self._settings_dialog: Optional[PlaqueSettingsDialog] = None
         outer.addWidget(self._controls)
         self._outer = outer
@@ -1480,13 +1553,192 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._save_row.setLayout(save_row)
         outer.addWidget(self._save_row)
 
+    def _stow_free_widgets(self) -> int:
+        """Put every child that is in no layout into the holder that never shows.
+
+        Reported 2026-09-21: "when i start live preview in plaque assay i get
+        a field that covers the mode to the left of the plaque and figure
+        button ... as soon as i pressed settings it went away". The settings
+        controls are homeless on purpose -- the panel owns them so their
+        values outlive the Settings window, which lays them out only while it
+        is open -- and a QWidget parented to the panel but in no layout
+        paints at the panel's top left, over the Mode label, until something
+        hides it. The Settings window hid them on its way out, which is why
+        the field went away once it had been opened.
+
+        The same class of defect, and the same fix, as
+        :meth:`spacr.qt.widgets.live_preview.LivePreviewPanel._stow_free_widgets`:
+        blunt on purpose, it moves whatever it finds, so a control added
+        later is covered without anyone remembering this.
+
+        :returns: how many widgets were moved; zero on a second call.
+        """
+        holder = self._controls
+        laid_out = set()
+        stack = [self.layout()]
+        while stack:
+            layout = stack.pop()
+            if layout is None:
+                continue
+            for index in range(layout.count()):
+                item = layout.itemAt(index)
+                child = item.widget()
+                if child is not None:
+                    laid_out.add(id(child))
+                stack.append(item.layout())
+        moved = 0
+        for child in self.findChildren(QWidget,
+                                       options=Qt.FindDirectChildrenOnly):
+            if child is holder or id(child) in laid_out or child.isWindow():
+                continue
+            child.setParent(holder)
+            moved += 1
+        return moved
+
+    def _build_text_controls(self) -> None:
+        """One control per Text detection setting, seeded with the defaults.
+
+        Every change re-proposes the conditions from the text already read
+        (:meth:`_on_text_changed`), so a label can be tuned until it is right
+        without running the detector or OCR again.
+        """
+        from ...plaque_papers import DEFAULT_TEXT_OPTIONS as d
+
+        self._text: Dict[str, QWidget] = {}
+        self._seeding_text = False
+        for key, value in (("text_reach_above", d.reach_above),
+                           ("text_reach_left", d.reach_left),
+                           ("text_reach_below", d.reach_below),
+                           ("text_panel_reach", d.panel_reach)):
+            spin = self._spin(0, 10, 2, float(value), 0.1)
+            spin.valueChanged.connect(lambda _v, k=key: self._on_text_changed(k))
+            self._text[key] = spin
+        spin = self._spin(0, 1, 2, float(d.min_confidence), 0.05)
+        spin.valueChanged.connect(
+            lambda _v: self._on_text_changed("text_min_confidence"))
+        self._text["text_min_confidence"] = spin
+        for key, value, label in (
+                ("text_use_above", d.use_above, "text_use_above"),
+                ("text_use_left", d.use_left, "text_use_left"),
+                ("text_use_below", d.use_below, "text_use_below"),
+                ("text_reread", d.reread, "text_reread")):
+            text = dict(TEXT_LABELS)[label]
+            box = QCheckBox(tr(text), self._controls)
+            box.setChecked(bool(value))
+            box.toggled.connect(lambda _on, k=key: self._on_text_changed(k))
+            self._text[key] = box
+        scale = QSpinBox(self._controls)
+        scale.setRange(1, 8)
+        scale.setValue(int(d.reread_scale))
+        scale.valueChanged.connect(
+            lambda _v: self._on_text_changed("text_reread_scale"))
+        self._text["text_reread_scale"] = scale
+        ignore = QLineEdit(",".join(d.ignore), self._controls)
+        ignore.setPlaceholderText(tr("comma-separated regular expressions, "
+                                     "e.g. ^\\d+$, μm"))
+        ignore.textChanged.connect(lambda _t: self._on_text_changed("text_ignore"))
+        self._text["text_ignore"] = ignore
+        order = QComboBox(self._controls)
+        order.setEditable(True)
+        order.addItems(list(TEXT_ORDERS))
+        order.setCurrentText(",".join(d.order))
+        order.currentTextChanged.connect(
+            lambda _t: self._on_text_changed("text_order"))
+        self._text["text_order"] = order
+        separator = QLineEdit(d.separator, self._controls)
+        separator.textChanged.connect(
+            lambda _t: self._on_text_changed("text_separator"))
+        self._text["text_separator"] = separator
+        for key, widget in self._text.items():
+            widget.setObjectName(f"PlaqueText_{key}")
+            tip = _setting_tooltip(key)
+            if tip:
+                widget.setToolTip(tip)
+            widget.setParent(self._controls)
+            widget.hide()
+
+    def text_values(self) -> Dict[str, Any]:
+        """The Text detection controls as ``text_*`` settings.
+
+        :returns: setting name -> value, in the form's own types.
+        """
+        out: Dict[str, Any] = {}
+        for key, widget in self._text.items():
+            if isinstance(widget, QCheckBox):
+                out[key] = widget.isChecked()
+            elif isinstance(widget, QSpinBox):
+                out[key] = int(widget.value())
+            elif isinstance(widget, QDoubleSpinBox):
+                out[key] = float(widget.value())
+            elif isinstance(widget, QComboBox):
+                out[key] = widget.currentText().strip()
+            else:
+                out[key] = widget.text()
+        return out
+
+    def text_options(self):
+        """The :class:`spacr.plaque_papers.TextOptions` the controls describe."""
+        from ...plaque_papers import text_options_from_settings
+
+        return text_options_from_settings(self.text_values())
+
+    def _seed_text(self, settings: Dict[str, Any]) -> None:
+        """Put the form's ``text_*`` values into the controls, quietly.
+
+        :param settings: the form's values.
+        """
+        self._seeding_text = True
+        try:
+            for key, widget in self._text.items():
+                if key not in settings or settings[key] is None:
+                    continue
+                value = settings[key]
+                try:
+                    if isinstance(widget, QCheckBox):
+                        widget.setChecked(bool(value))
+                    elif isinstance(widget, (QSpinBox, QDoubleSpinBox)):
+                        widget.setValue(type(widget.value())(float(value)))
+                    elif isinstance(widget, QComboBox):
+                        if isinstance(value, (list, tuple)):
+                            value = ",".join(str(v) for v in value)
+                        widget.setCurrentText(str(value))
+                    else:
+                        if isinstance(value, (list, tuple)):
+                            value = ",".join(str(v) for v in value)
+                        widget.setText(str(value))
+                except (TypeError, ValueError):
+                    continue
+        finally:
+            self._seeding_text = False
+
+    def _on_text_changed(self, key: str) -> None:
+        """Re-propose the conditions from the words already read.
+
+        A change to the second reading cannot be applied to words already
+        read, so it says a new Run preview is needed instead.
+
+        :param key: the setting that changed.
+        """
+        if self._seeding_text or self._figure is None:
+            return
+        if key in TEXT_READ_KEYS:
+            self.set_preview_status(tr(
+                "The second reading changed: press Run preview to read the "
+                "figure again."))
+            return
+        self._reannotate()
+        if self._selected is not None:
+            self._show_well(self._selected)
+        self.set_preview_status(tr("Conditions proposed again with the new "
+                                   "text settings."))
+
     def _spin(self, low: float, high: float, decimals: int, value: float,
               step: float) -> QDoubleSpinBox:
         """A number box.
 
         :returns: the box.
         """
-        spin = QDoubleSpinBox(self)
+        spin = QDoubleSpinBox(self._controls)
         spin.setRange(low, high)
         spin.setDecimals(decimals)
         spin.setSingleStep(step)
@@ -1669,6 +1921,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._read_text.setChecked(bool(s.get("figure_read_text")))
         if "confirm_annotations" in s:
             self._confirm.setChecked(bool(s.get("confirm_annotations")))
+        self._seed_text(s)
         self._describe_model()
 
     def _fill_model_box(self, wanted: str) -> None:
@@ -1730,6 +1983,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "figure_read_text": self._read_text.isChecked(),
             "confirm_annotations": self._confirm.isChecked(),
         })
+        out.update(self.text_values())
         return out
 
     def settings_for_propagation(self) -> Dict[str, Any]:
@@ -1748,7 +2002,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             out["plaque_model"] = s["plaque_model"]
         if self.mode() == FIGURE_MODE:
             for key in ("figure_imgsz", "figure_confidence",
-                        "figure_read_text", "confirm_annotations"):
+                        "figure_read_text", "confirm_annotations") + TEXT_KEYS:
                 out[key] = s[key]
             if s["figure_detector"] != self._seeded_detector:
                 out["figure_detector"] = s["figure_detector"]
@@ -1962,8 +2216,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return
         self._annotations = annotate_figure(
             result, self._caption, self._folder(),
-            confirm=self._confirm.isChecked())
+            confirm=self._confirm.isChecked(), options=self.text_options())
         self._fill_table()
+        self._fill_plaque_table()
         self._redraw_boxes()
 
     def _redraw_boxes(self) -> None:

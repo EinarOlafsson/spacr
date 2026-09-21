@@ -43,6 +43,13 @@ Requested: 2026-09-21, after trying the two pop-ups -- "make sure the
            windown with rounded edges transparent black background, and have
            one settings button for plaque assay live and add several tabs one
            for figure and one for plaque detection."
+Requested: 2026-09-21 -- "for this module now i need you to make the
+           settings window in the same visual format as the other settings
+           windows for live previews, and plaque and figure should each get
+           their own tab in this new settings window. also add a tab for
+           text detection, as this seems to pick up the text correctly but
+           it is not annotating correctly allways so whatever settings you
+           can add there please do."
 
 --------------------------------------------------------------------------------
 WHAT WAS BUILT
@@ -223,10 +230,63 @@ Checked offscreen in dark and light, composited over the screen, beside
 Measure's crop settings as the reference: frameless, glassed, 496 x 298.
 
 --------------------------------------------------------------------------------
+TEXT DETECTION TAB (the fourth request above)
+--------------------------------------------------------------------------------
+
+The settings window has a third tab, "Text detection", between Figure and
+Plaque detection, hidden in Plaque mode like the Figure tab. One control per
+declared setting, each carrying the setting's own tooltip from
+spacr.settings.tooltips:
+
+    text_use_above / _left / _below        check boxes
+    text_reach_above / _left / _below      spin boxes, image sizes
+    text_panel_reach                       spin box
+    text_min_confidence                    spin box, 0-1
+    text_ignore                            line edit, comma-separated regexes
+    text_order                             editable combo of the orders
+    text_separator                         line edit
+    text_reread, text_reread_scale         check box, spin box
+
+TUNING IS IMMEDIATE. Every change except the two reread settings re-runs
+annotate_regions(..., options=TextOptions) on the regions and words already
+cached from the last Run preview -- no YOLO, no OCR -- and refreshes the
+Wells table, the Plaques tab's conditions and the well title. The two reread
+settings cannot apply to words already read, so they say "press Run preview
+to read the figure again"; detect_figure then rereads at text_reread_scale,
+or not at all when text_reread is off. The controls are seeded from the form
+by apply_settings, written back by Use these settings (the thirteen names are
+in the registry's propagation map), and the form hides them in Plaque mode
+(FIGURE_ONLY_KEYS). Re-proposing replaces unsaved edits in the Condition
+column with the new proposal; saved reviews are re-applied from
+figure_annotations.csv as before.
+
+Tested with faked words: the default "WT / +ATc" becomes "+ATc / WT" with
+order left,above; "+ATc | WT" with separator " | "; "WT" with the row label
+off; "+ATc" when ^WT$ is ignored and when the header is out of reach; a word
+scoring 0.4 drops out at minimum confidence 0.5; panel reach 0 loses the
+panel letter; and the figure is read exactly once throughout.
+
+--------------------------------------------------------------------------------
+BUG, 2026-09-21: A FIELD OVER THE MODE LABEL UNTIL SETTINGS WAS OPENED
+--------------------------------------------------------------------------------
+
+Reported on c63dfe309: "when i start live preview in plaque assay i get a
+field that covers the mode to the left of the plaque and figure button in the
+tob left ... as soon as i pressed settings it went away". The four
+QDoubleSpinBoxes _spin made (diameter, flow, cell probability, confidence)
+were parented to the panel and in no layout, so they painted at its (0, 0)
+until the Settings window, handing them back, hid them. The same class of
+defect Mask's live preview had three times (0bdf151be, "95 widgets at
+(0, 0)"), fixed the same way: _spin parents to the hidden holder, and
+PlaquePreviewPanel._stow_free_widgets moves any child in no layout into it
+at construction. The test (Settings never opened, both modes) fails with the
+fix removed -- four visible spin boxes -- and passes with it.
+
+--------------------------------------------------------------------------------
 TESTS
 --------------------------------------------------------------------------------
 
-tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 37 tests, the
+tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py -- 47 tests, the
 detector, text reader and Cellpose faked.
 
 2026-09-21 — CODEX TRANSLATION LANE: PREVIEW EVIDENCE REBOUND
