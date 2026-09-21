@@ -1,3 +1,35 @@
+"""spaCR's packaging: the dependency ranges and the reasons behind them.
+
+The longer notes behind individual bounds are in ``docs/notes/setup.md``.
+Two of them stay here, beside the list they govern, because they are what
+the next person editing a bound has to see.
+
+WHAT "THE OPTIMAL DEPENDENCY VERSIONS" MEANS. The phrase has two readings
+that imply opposite CI jobs -- the oldest set that passes, or the newest set
+that passes -- and a list edited under both readings at once drifts in both
+directions. spaCR means the NEWEST.
+
+WHAT A USER GETS is the newest. ``pip install spacr`` resolves the top of
+every range below, so the upper end of each range is the version spaCR
+recommends. The ``Fast / Full suite control`` job in
+.github/workflows/tests.yml installs with no constraints file and runs the
+suite against whatever pip picks that day.
+
+WHAT A USER IS PROMISED is the floor. A lower bound is for an environment
+pinned by something else, and it is worthless unless something installs it,
+so the ``Minimum dependencies`` job in the same workflow installs
+.github/constraints/minimum-py39.txt on CPython 3.9 and runs the same suite
+there. A lower bound is therefore the oldest version CI actually installs
+and tests, never a guess. An upper bound is a major version spaCR has not
+seen, raised deliberately after testing.
+
+INTEL MAC HAS A CEILING on numba and llvmlite, and it is a fact about wheels
+rather than about spaCR: llvmlite 0.46+ publishes no macOS x86_64 wheel, and
+numba 0.63+ requires that unavailable line. Without the ceiling pip selects
+the newest of each, finds no wheel, falls back to a source build and stops
+on a missing ``cmake``. ``install_spacr_unix.sh`` applies the identical pair;
+it is declared here too so a developer install from git gets wheels as well.
+"""
 import sys
 
 from setuptools import setup, find_packages
