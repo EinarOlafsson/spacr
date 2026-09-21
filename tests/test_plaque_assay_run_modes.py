@@ -90,3 +90,36 @@ def test_figure_mode_hands_the_folder_to_the_figure_engine(tmp_path,
     assert seen["confirm_each"] is True
     assert seen["read_text"]("any.png") == []
     assert seen["dst"].endswith("plaque_figures")
+
+
+def test_detector_boxes_on_a_gpu_are_copied_to_the_host(monkeypatch):
+    """2026-09-21: Figure mode failed with "can't convert cuda:0 device type
+    tensor to numpy" on the maintainer's GPU; every CPU test had passed."""
+    from spacr import plaque
+
+    class DeviceTensor:
+        def __init__(self, values):
+            self.values = np.asarray(values, dtype=float)
+
+        def __array__(self, *args, **kwargs):
+            raise TypeError("can't convert cuda:0 device type tensor to numpy")
+
+        def cpu(self):
+            return self
+
+        def numpy(self):
+            return self.values
+
+    class Box:
+        xyxy = DeviceTensor([[1, 2, 41, 42]])
+        conf = DeviceTensor([0.9])
+
+    class Model:
+        def predict(self, **kw):
+            return [type("R", (), {"boxes": [Box()]})()]
+
+    monkeypatch.setattr(plaque, "_load_detector", lambda w: Model())
+    wells = plaque.detect_wells(np.zeros((50, 50, 3), np.uint8), "w.pt",
+                                min_axis_ratio=0)
+    assert [(w.x0, w.y0, w.x1, w.y1) for w in wells] == [(1, 2, 41, 42)]
+    assert wells[0].confidence == pytest.approx(0.9)

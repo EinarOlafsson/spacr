@@ -207,6 +207,27 @@ def _to_detector_channel_order(image: np.ndarray) -> np.ndarray:
     return np.ascontiguousarray(image[:, :, ::-1])
 
 
+def _host_array(value: Any) -> np.ndarray:
+    """A detector output as a numpy array, wherever it was computed.
+
+    Ultralytics returns its boxes as torch tensors on the device it ran on.
+    ``np.asarray`` of a CUDA tensor raises "can't convert cuda:0 device type
+    tensor to numpy", which is how Figure mode failed on the maintainer's GPU
+    on 2026-09-21 while every CPU test passed. A tensor is copied to the host
+    first.
+
+    :param value: a tensor, an array or a sequence.
+    :returns: the values as a host numpy array.
+    """
+    to_host = getattr(value, "cpu", None)
+    if callable(to_host):
+        value = to_host()
+    to_numpy = getattr(value, "numpy", None)
+    if callable(to_numpy):
+        return np.asarray(to_numpy())
+    return np.asarray(value)
+
+
 def detect_wells(image: np.ndarray, weights: str, *,
                  confidence: float = DEFAULT_CONFIDENCE,
                  imgsz: int = 640,
@@ -240,8 +261,9 @@ def detect_wells(image: np.ndarray, weights: str, *,
         if boxes is None:
             continue
         for box in boxes:
-            x0, y0, x1, y1 = (float(v) for v in np.asarray(box.xyxy).ravel()[:4])
-            score = float(np.asarray(box.conf).ravel()[0]) if box.conf is not None else 1.0
+            x0, y0, x1, y1 = (float(v) for v in _host_array(box.xyxy).ravel()[:4])
+            score = (float(_host_array(box.conf).ravel()[0])
+                     if box.conf is not None else 1.0)
             well = Well(int(round(x0)), int(round(y0)),
                         int(round(x1)), int(round(y1)), score)
             if well.width <= 0 or well.height <= 0:
