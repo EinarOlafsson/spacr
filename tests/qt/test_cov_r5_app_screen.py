@@ -744,8 +744,10 @@ class TestTheGuardsNothingCanTrip:
             condition = ('self.app_key in ("mask", "analyze_plaques"):'
                          if key in {"mask", "analyze_plaques"}
                          else f'self.app_key == "{key}":')
-            branch = source.split(condition)[1]
-            assert f"self.{attr} = (" in branch.split("elif self.app_key")[0]
+            branch = source.split(condition)[1].split("elif self.app_key")[0]
+            assert (f"self.{attr} = (" in branch
+                    or f"_, self.{attr} = " in branch), (
+                f"{key} never fills {attr}")
 
         from spacr.qt.widgets.motility_preview import (
             build_motility_preview_card)

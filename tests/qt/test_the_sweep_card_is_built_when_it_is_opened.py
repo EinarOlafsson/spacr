@@ -109,11 +109,19 @@ def test_closing_it_again_keeps_the_panel(qtbot):
 
 
 def test_the_screen_builds_half_as_many_plots(qtbot, monkeypatch):
-    """Eleven, not twenty-two: one results panel, not two."""
+    """Eleven, not twenty-two: one results panel, not two.
+
+    The results panel is itself built on first use now (items 284/380), so
+    the probe asks for it -- the count this test guards is what the
+    screen's OWN results cost once it has any, without the sweep's second
+    panel riding along.
+    """
     seen = _plot_count(monkeypatch)
-    _regression(qtbot)
+    screen = _regression(qtbot)
+    assert screen._results_panel is not None
     assert len(seen) > 0, "the screen drew no plots at all -- wrong probe"
-    assert len(seen) <= 12, f"{len(seen)} plots built at construction: {seen}"
+    assert len(seen) <= 12, f"{len(seen)} plots built with the results: {seen}"
+    assert screen._sweep.built() is False
 
 
 def test_forcing_the_sweep_builds_the_other_half(qtbot, monkeypatch):

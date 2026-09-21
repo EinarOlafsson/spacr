@@ -76,6 +76,60 @@ class Card(QFrame):
                                         persist_key=fold_key)
         self._outer = outer
         self._title_row = None
+        self._build_body = None
+
+    def build_body_when_first_shown(self, build) -> None:
+        """Defer filling this card's body until the card is first shown.
+
+        ITEMS 284 AND 380. A module screen is polished widget by widget
+        against the whole stylesheet when it opens, so every widget on it
+        costs time whether or not anybody can see it. A card that starts
+        hidden -- a results panel before there are results, a search panel
+        behind its switch -- is the largest share of that on the heavy
+        screens, and nobody sees its body until the card is shown.
+
+        ``build`` runs ONCE, before the card becomes visible, from
+        :meth:`setVisible`; :meth:`showEvent` is the belt to that brace for
+        a card that is revealed by its parent rather than shown itself. The
+        caller may also run it earlier through :meth:`ensure_body_built`,
+        which is what a screen does when code asks for the panel inside.
+
+        :param build: a callable with no arguments that fills
+            :attr:`body_layout`.
+        """
+        self._build_body = build
+
+    def body_is_built(self) -> bool:
+        """Whether no deferred body is still waiting to be built."""
+        return self._build_body is None
+
+    def ensure_body_built(self) -> bool:
+        """Build the deferred body now, if one is waiting.
+
+        :returns: ``True`` when this call built it.
+        """
+        build, self._build_body = self._build_body, None
+        if build is None:
+            return False
+        build()
+        return True
+
+    def setVisible(self, visible: bool) -> None:                 # noqa: N802
+        """Build a deferred body before the card can be seen.
+
+        Before, not after: children added to a widget that is already
+        visible are only shown on a later turn of the event loop, so a body
+        built from the show would leave one frame of an empty card.
+        """
+        if visible and self._build_body is not None:
+            self.ensure_body_built()
+        super().setVisible(visible)
+
+    def showEvent(self, event) -> None:                          # noqa: N802
+        """Build a deferred body that a parent's show revealed."""
+        if self._build_body is not None:
+            self.ensure_body_built()
+        super().showEvent(event)
 
     def add_title_action(self, widget: QWidget) -> None:
         """Put ``widget`` at the right-hand end of the title row.

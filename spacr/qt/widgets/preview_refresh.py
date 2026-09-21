@@ -9,7 +9,7 @@ them, because each preview only differs in the name of its loader.
 from __future__ import annotations
 
 import os
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QToolButton
@@ -75,13 +75,17 @@ def reload_from_src(screen: Any, panel: Any) -> bool:
     return False
 
 
-def install_refresh_button(screen: Any, card: Any, panel: Any
+def install_refresh_button(screen: Any, card: Any, panel: Any,
+                           *, panel_getter: Optional[Callable[[], Any]] = None
                            ) -> Optional[QToolButton]:
     """Add a Refresh button to a preview card's title row.
 
     :param screen: the module screen.
     :param card: the preview's :class:`~spacr.qt.widgets.card.Card`.
     :param panel: the preview panel it reloads.
+    :param panel_getter: asked for the panel at the click instead of
+        ``panel``, for a card whose panel is built the first time the card
+        is shown (items 284/380) and so does not exist when the button does.
     :returns: the button, or ``None`` when the card has no title row to take it.
     """
     add = getattr(card, "add_title_action", None)
@@ -94,7 +98,9 @@ def install_refresh_button(screen: Any, card: Any, panel: Any
     button.setToolTip(tr(
         "Read the source setting again and reload this preview from it. Use "
         "it after changing the folder's contents or fixing the path."))
-    button.clicked.connect(lambda _checked=False: reload_from_src(screen, panel))
+    button.clicked.connect(
+        lambda _checked=False: reload_from_src(
+            screen, panel_getter() if panel_getter is not None else panel))
     add(button)
     card._refresh_button = button
     return button

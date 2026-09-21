@@ -175,6 +175,8 @@ def test_generic_hover_help_stays_sticky_without_claiming_an_api_role(
 
     screen = AppScreen("mask")
     qtbot.addWidget(screen)
+    assert screen._live_preview is not None, (
+        "the live preview is built on first use; the label is in it")
     label = next(child for child in screen.findChildren(QLabel)
                  if child.text() == "View:")
 
@@ -221,6 +223,8 @@ def test_umap_objective_settings_gain_links_and_generic_help_does_not(
     }
     screen = AppScreen("umap")
     qtbot.addWidget(screen)
+    assert screen._hyperparam is not None, (
+        "the search panel is built on first use; the controls are in it")
     labels = [child for child in screen.findChildren(QWidget)
               if child.property("settingHelpLabel")]
     objectives = {str(label.property("settingKey")): label

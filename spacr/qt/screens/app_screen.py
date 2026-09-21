@@ -1413,6 +1413,87 @@ def _setting_has_an_animation(key: str) -> bool:
         return False
 
 
+#: The regression results panel and everything built with it: the Runs,
+#: Results, Measurements and Cells tabs, the figure grid and its pages.
+_REGRESSION_RESULTS = "regression results"
+#: The hyperparameter search panel inside its card.
+_HYPERPARAM_PANEL = "hyperparameter panel"
+#: Mask's Cellpose live preview panel inside its card.
+_LIVE_PREVIEW = "live preview"
+#: Measure's crop preview panel inside its card.
+_MEASURE_PREVIEW = "measure preview"
+
+
+class _BuiltOnFirstUse:
+    """A screen attribute whose widgets are built the first time it is used.
+
+    ITEMS 284 AND 380. Opening a module polishes every widget on its screen
+    against the whole stylesheet, so a panel nobody can see yet still costs
+    its share of the stall. The largest such panels -- Regression's results
+    tabs, the hyperparameter search -- sit in a card that starts hidden,
+    and their attributes are read from dozens of places, most of them
+    long after the screen opened.
+
+    This descriptor keeps every one of those readers working unchanged.
+    While the screen still owes the named PART, reading or assigning any of
+    its attributes builds the part first, so the caller sees exactly what an
+    eagerly-built screen would have shown it: the widget, ``None`` where the
+    eager build fell back to ``None``, or ``AttributeError`` where the eager
+    build never assigned the name.
+
+    THE VALUE IS NOT KEPT UNDER THE ATTRIBUTE'S OWN NAME. Shiboken's
+    attribute lookup reads a wrapper's instance dictionary BEFORE the
+    class's data descriptors -- the reverse of plain Python -- so a value
+    stored under ``_results_panel`` would answer every later read directly
+    and this descriptor would never be asked again. It is kept under
+    :attr:`slot` instead.
+
+    :param part: which deferred part assigns this attribute.
+    """
+
+    def __init__(self, part: str) -> None:
+        """Remember which part assigns the attribute this descriptor names."""
+        self.part = part
+        self.name = ""
+        self.slot = ""
+
+    def __set_name__(self, owner, name: str) -> None:
+        """Learn the attribute name from the class body."""
+        self.name = name
+        self.slot = f"_built_on_first_use{name}"
+
+    def __get__(self, screen, owner=None):
+        """Build the owed part, then answer as a plain attribute would."""
+        if screen is None:
+            return self
+        values = screen.__dict__
+        owed = values.get("_parts_owed")
+        if owed and self.part in owed:
+            screen._build_owed_part(self.part)
+        try:
+            return values[self.slot]
+        except KeyError:
+            raise AttributeError(self.name) from None
+
+    def __set__(self, screen, value) -> None:
+        """Build the owed part first, so an assignment lands after it."""
+        owed = screen.__dict__.get("_parts_owed")
+        if owed and self.part in owed:
+            screen._build_owed_part(self.part)
+        screen.__dict__[self.slot] = value
+
+    def __delete__(self, screen) -> None:
+        """Forget the attribute, as ``del`` on a plain one would."""
+        try:
+            del screen.__dict__[self.slot]
+        except KeyError:
+            raise AttributeError(self.name) from None
+
+    def peek(self, screen):
+        """The value held now, WITHOUT building an owed part; else ``None``."""
+        return screen.__dict__.get(self.slot)
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -1434,6 +1515,27 @@ class AppScreen(QWidget):
     _backdrop_applied = None
     _backdrops_ready = False
     _dna_rain = None
+
+    _results_panel = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figure_grid = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figure_detail = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _volcano_page = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _gene_split = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figure_size = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figures_stack = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _sweep_runs = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _results_split = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _results_page = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _scan_panel = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _column_run_handles = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _sweep_panel = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _cell_montage = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _results_tabs = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figures_split = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _grid_refresh = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _hyperparam = _BuiltOnFirstUse(_HYPERPARAM_PANEL)
+    _live_preview = _BuiltOnFirstUse(_LIVE_PREVIEW)
+    _measure_preview = _BuiltOnFirstUse(_MEASURE_PREVIEW)
 
     def __init__(self, app_key: str, parent=None):
         """Build one module page: the settings column beside the runtime panel.
@@ -4911,7 +5013,7 @@ class AppScreen(QWidget):
         whose ``src`` was already set.
         """
         from PySide6.QtWidgets import QLineEdit
-        if getattr(self, "_live_preview", None) is None:
+        if getattr(self, "_live_preview_card", None) is None:
             return
         src_widget = getattr(self._settings_model, "_widgets", {}).get("src")
         if not isinstance(src_widget, QLineEdit):
@@ -4948,15 +5050,18 @@ class AppScreen(QWidget):
         400 ms wait as the ``src`` field, so a pattern typed a character at a
         time is read once.
         """
-        panel = getattr(self, "_live_preview", None)
         widgets = getattr(self._settings_model, "_widgets", {}) or {}
-        if panel is None or not callable(
-                getattr(panel, "regroup_the_folder", None)):
-            return
+        if self._part_is_owed(_LIVE_PREVIEW):
+            regroup = self._regroup_the_live_preview
+        else:
+            panel = getattr(self, "_live_preview", None)
+            regroup = getattr(panel, "regroup_the_folder", None)
+            if panel is None or not callable(regroup):
+                return
         timer = QTimer(self)
         timer.setSingleShot(True)
         timer.setInterval(400)
-        timer.timeout.connect(panel.regroup_the_folder)
+        timer.timeout.connect(regroup)
         self._live_naming_timer = timer
         for key in ("metadata_type", "custom_regex"):
             widget = widgets.get(key)
@@ -4988,13 +5093,35 @@ class AppScreen(QWidget):
         if t and t not in placeholders:
             card.hide()
 
+    def _regroup_the_live_preview(self) -> None:
+        """Regroup a live preview that exists; nothing to do for one that does not.
+
+        A panel still waiting to be built has loaded no folder, so it has
+        nothing to regroup, and the folder it loads when it is built is read
+        with the naming the form holds then -- the same grouping a
+        regrouping now would have produced.
+        """
+        if self._part_is_owed(_LIVE_PREVIEW):
+            return
+        panel = getattr(self, "_live_preview", None)
+        regroup = getattr(panel, "regroup_the_folder", None)
+        if callable(regroup):
+            regroup()
+
     def _autoload_live_preview(self, src: str) -> None:
         """Ask the preview panel to discover/decode ``src`` asynchronously.
 
         Silent if ``src`` is empty or a placeholder. Directory traversal and
         image decoding both happen in the panel's worker so a large plate or
         slow NAS mount cannot freeze Qt.
+
+        A panel that is not built yet is not built for this: the source is
+        kept and loaded when the panel is, which is the first time the card
+        is shown -- typing a path must not cost the preview's construction.
         """
+        if self._part_is_owed(_LIVE_PREVIEW):
+            self.__dict__["_live_src_waiting"] = src
+            return
         panel = getattr(self, "_live_preview", None)
         if panel is None:
             return
@@ -5168,6 +5295,440 @@ class AppScreen(QWidget):
         return tr("Hover any setting for details and a link to its "
                   "documentation.")
 
+    def _owe_part(self, part: str,
+                  build: Callable[[], Optional[QWidget]]) -> None:
+        """Record that ``part`` is built by ``build`` on its first use.
+
+        See :class:`_BuiltOnFirstUse`, which does the building when one of
+        the part's attributes is read or assigned.
+        """
+        owed = self.__dict__.get("_parts_owed")
+        if owed is None:
+            owed = self.__dict__["_parts_owed"] = {}
+        owed[part] = build
+
+    def _if_built(self, name: str):
+        """The attribute ``name`` if it exists yet, never building a part.
+
+        For teardown: a panel that was never built has nothing to shut
+        down, and building 740 widgets to close them again is the worst
+        moment to do it.
+        """
+        for klass in type(self).__mro__:
+            slot = klass.__dict__.get(name)
+            if isinstance(slot, _BuiltOnFirstUse):
+                return slot.peek(self)
+        return getattr(self, name, None)
+
+    def _part_is_owed(self, part: str) -> bool:
+        """Whether ``part`` has been deferred and not built yet."""
+        return part in (self.__dict__.get("_parts_owed") or {})
+
+    def _build_owed_part(self, part: str) -> bool:
+        """Build ``part`` now if it is still owed.
+
+        The part is struck off BEFORE it is built, so the builder assigns
+        its attributes as plain ones instead of asking for itself again.
+        The builder returns the root of what it built, or ``None`` when it
+        fell back to building nothing. What follows keeps the ORDER an
+        eager screen had: the surface sweep its construction ran, then
+        whatever was queued with :meth:`_after_part_is_built` (Regression's
+        fold strip adding the Hits tab, which came after that sweep), then
+        the language pass and the polish, which reached the Hits tab too.
+
+        :returns: ``True`` when this call built it.
+        """
+        owed = self.__dict__.get("_parts_owed") or {}
+        build = owed.pop(part, None)
+        if build is None:
+            return False
+        from .. import timing
+
+        with timing.span("build deferred part", part):
+            root = build()
+            if root is not None:
+                self._clear_a_late_parts_surfaces(root)
+            waiting = (self.__dict__.get("_after_parts") or {}).pop(part, [])
+            for callback in waiting:
+                try:
+                    callback()
+                except Exception:                            # noqa: BLE001
+                    LOG.exception("could not finish a deferred %s", part)
+            if root is not None:
+                self._translate_a_late_part(root)
+        return True
+
+    def _after_part_is_built(self, part: str, callback) -> bool:
+        """Run ``callback`` once ``part`` is built, if it is still owed.
+
+        For code that decorates a deferred part from outside the screen --
+        Regression's fold strip adds its Hits tab to the results panel --
+        and would otherwise build the part just to decorate it.
+
+        :returns: ``True`` when the callback was queued; ``False`` when the
+            part is not owed, in which case the caller does its work now.
+        """
+        if not self._part_is_owed(part):
+            return False
+        waiting = self.__dict__.get("_after_parts")
+        if waiting is None:
+            waiting = self.__dict__["_after_parts"] = {}
+        waiting.setdefault(part, []).append(callback)
+        return True
+
+    def results_panel_if_built(self):
+        """Regression's results panel if it exists yet, WITHOUT building it.
+
+        For a question an unbuilt panel answers the same way a fresh one
+        would -- which run is loaded, when none can be -- so asking it does
+        not cost the ~740 widgets the deferral saved.
+        """
+        return self._if_built("_results_panel")
+
+    def when_results_are_built(self, callback) -> bool:
+        """Run ``callback`` once Regression's results panel exists.
+
+        :returns: ``True`` when it was queued behind the deferred build;
+            ``False`` when the panel is built already or never will be, and
+            the caller should go ahead now.
+        """
+        return self._after_part_is_built(_REGRESSION_RESULTS, callback)
+
+    def _clear_a_late_parts_surfaces(self, root: QWidget) -> None:
+        """Make a late part's layout containers transparent, as opening did.
+
+        The screen's construction swept its whole tree once
+        (``_clear_page_surfaces``) and took tab scroll arrows off; a part
+        built later missed both. The sweep is run from the part's PARENT
+        because it tags the descendants of what it is given, and the
+        part's own root is one of the containers it tags.
+
+        Never raises: a part that keeps its fill still works.
+        """
+        try:
+            from ..theme import (clear_container_surfaces,
+                                 take_the_scroll_arrows_off)
+
+            clear_container_surfaces(root.parentWidget() or root)
+            take_the_scroll_arrows_off(root)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not clear a late part's surfaces",
+                      exc_info=True)
+
+    def _translate_a_late_part(self, root: QWidget) -> None:
+        """Polish and translate a late part, as opening the screen did.
+
+        THE POLISH IS THE SHEET, AND IT COMES FIRST. The page already
+        carries the stylesheet, so nothing has to be applied, but an eager
+        screen had its widgets polished before the language pass reached
+        them -- laying the page out at construction asks every size hint,
+        and a size hint polishes -- and hidden tab pages polished at the
+        page's first show. ``ensurePolished`` walks the part the same way.
+        The ORDER matters beyond the look: :mod:`spacr.qt.button_roles`
+        classifies a button by its visible text when it is polished, and a
+        Swedish "Kör förhandsgranskning" is not an English "Run", so a
+        button translated first loses its Run colour.
+
+        Then the language pass and the move of field help onto captions,
+        which ``MainWindow`` ran once over the screen when it built it --
+        the help move over the whole screen, because it keeps its event
+        filter on the root it is handed and the screen's is the one every
+        other caption uses.
+
+        Never raises: a part in the wrong language still works.
+        """
+        try:
+            root.ensurePolished()
+        except RuntimeError:
+            return
+        try:
+            from ..i18n import retranslate_widget_tree
+            from .settings_model import retarget_field_tooltips
+
+            retranslate_widget_tree(root)
+            retarget_field_tooltips(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not translate a late part", exc_info=True)
+
+    @staticmethod
+    def _regression_results_can_be_built() -> bool:
+        """Import what the regression results need, without building them.
+
+        The imports stay at the screen's open, where they always were, so
+        the widget blocks those modules register reach the page's sheet
+        exactly as before; only the construction waits. A missing module
+        answers ``False`` and the screen falls back to the figure queue,
+        which is what the eager build did when its import failed.
+        """
+        try:
+            from importlib import import_module
+
+            for name in ("..widgets.regression_results",
+                         "..widgets.figure_grid_view", "..widgets.sweep_runs",
+                         "..widgets.measurement_scan_panel",
+                         "..widgets.sweep_panel",
+                         "..widgets.cell_montage_view", "..preferences"):
+                import_module(name, __package__)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no fast results panel", exc_info=True)
+            return False
+        return True
+
+    def _build_regression_results(self) -> Optional[QWidget]:
+        """Build Regression's results tabs and figure pages into their card.
+
+        Deferred from the screen's open to the first time the Figures card
+        is shown or any of these attributes is used -- about 740 widgets
+        that nobody can see until a run has results. See
+        :class:`_BuiltOnFirstUse`. A failure falls back to the figure
+        queue, as the eager build did.
+        """
+        try:
+            from ..widgets.regression_results import RegressionResultsPanel
+            from ..preferences import get_figure_grid_size
+            from ..widgets.figure_grid_view import (
+                MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
+
+            self._results_panel = RegressionResultsPanel(
+                self._figures_card, external_volcano=True)
+            self._results_panel.refit_requested.connect(self._on_refit)
+
+            self._figure_grid = FigureGridView(self._figures_card)
+            self._figure_grid.figure_activated.connect(
+                self._open_figure_from_grid)
+            self._figure_grid.figure_menu_requested.connect(
+                self._figure_grid_menu)
+
+            detail = QWidget(self._figures_card)
+            detail_layout = QVBoxLayout(detail)
+            detail_layout.setContentsMargins(0, 0, 0, 0)
+            detail_layout.setSpacing(4)
+            back = QPushButton("← All figures")
+            back.setFlat(True)
+            back.setToolTip("Back to the grid of every figure this run "
+                            "produced.")
+            back.clicked.connect(self._show_figure_grid)
+            row = QHBoxLayout()
+            row.addWidget(back)
+            row.addStretch(1)
+            detail_layout.addLayout(row)
+            detail_layout.addWidget(self._queue_the_results_hold, 1)
+            self._figure_detail = detail
+
+            volcano_page = QWidget(self._figures_card)
+            volcano_layout = QVBoxLayout(volcano_page)
+            volcano_layout.setContentsMargins(0, 0, 0, 0)
+            volcano_layout.setSpacing(4)
+            back_to_grid = QPushButton("← All figures")
+            back_to_grid.setFlat(True)
+            back_to_grid.clicked.connect(self._show_figure_grid)
+            volcano_row = QHBoxLayout()
+            volcano_row.addWidget(back_to_grid)
+            volcano_row.addStretch(1)
+            volcano_layout.addLayout(volcano_row)
+            gene_split = QSplitter(Qt.Vertical, volcano_page)
+            gene_split.setChildrenCollapsible(True)
+            gene_split.addWidget(self._results_panel.volcano)
+            gene_split.addWidget(self._results_panel.gene)
+            gene_split.setStretchFactor(0, 3)
+            gene_split.setStretchFactor(1, 1)
+            gene_split.setSizes([1000, 0])
+            self._gene_split = gene_split
+            volcano_layout.addWidget(gene_split, 1)
+            self._volcano_page = volcano_page
+
+            grid_page = QWidget(self._figures_card)
+            grid_layout = QVBoxLayout(grid_page)
+            grid_layout.setContentsMargins(0, 0, 0, 0)
+            grid_layout.setSpacing(4)
+            size_row = QHBoxLayout()
+            size_row.addWidget(QLabel("Figure size"))
+            self._figure_size = QSlider(Qt.Horizontal, grid_page)
+            self._figure_size.setRange(MIN_CELL_PX, MAX_CELL_PX)
+            self._figure_size.setValue(get_figure_grid_size())
+            self._figure_size.setMaximumWidth(220)
+            self._figure_size.setToolTip(
+                "How wide each figure is drawn, which is also how tall: "
+                "the tiles keep each figure's own aspect ratio. Fewer, "
+                "bigger figures per row to the right.")
+            self._figure_size.valueChanged.connect(self._on_figure_size)
+            size_row.addWidget(self._figure_size)
+            size_row.addStretch(1)
+            grid_layout.addLayout(size_row)
+            grid_layout.addWidget(self._figure_grid, 1)
+            self._figure_grid.set_target_cell_width(
+                self._figure_size.value())
+
+            self._figures_stack = QStackedWidget(self._figures_card)
+            self._figures_stack.addWidget(grid_page)
+            self._figures_stack.addWidget(detail)
+            self._figures_stack.addWidget(volcano_page)
+            self._figure_grid.pinned_activated.connect(
+                self._show_regression_graph)
+            self._figure_grid.pinned_menu_requested.connect(
+                self._pinned_menu)
+            self._figure_grid.live_tile_activated.connect(
+                self._open_live_tile)
+            self._figure_grid.live_tile_menu_requested.connect(
+                self._live_tile_menu)
+            self._results_panel.table.key_selected.connect(
+                self._on_guide_selected)
+
+            from ..widgets.sweep_runs import SweepRunsPanel
+            self._sweep_runs = SweepRunsPanel(self._figures_card)
+            self._sweep_runs.trial_activated.connect(self._show_trial)
+            self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+            self._sweep_runs.loaded_run_changed.connect(
+                self._on_loaded_run_changed_refresh_tabs)
+            self._sweep_runs.runs_removed.connect(self._on_runs_removed)
+            self._sweep_runs.compare_requested.connect(
+                self.open_run_beside)
+            self._sweep_runs.workspace_restore_requested.connect(
+                self.restore_run_workspace)
+            self._sweep_runs.set_photo_provider(self.run_photograph)
+            left = QTabWidget(self._figures_card)
+            left.addTab(self._sweep_runs, "Runs")
+            self._results_split = QSplitter(Qt.Horizontal)
+            self._results_split.setChildrenCollapsible(False)
+            self._results_split.addWidget(self._results_panel)
+            self._results_page = self._results_split
+            left.addTab(self._results_split, "Results")
+            left.setTabToolTip(0, "Every run: this session's own, its "
+                                  "re-fits, and every trial the parameter "
+                                  "sweep ran. Pick one to see its results "
+                                  "and its figures.")
+            left.setTabToolTip(1, "The selected run's coefficient table, "
+                                  "its volcano and its diagnostics. "
+                                  "Picking a row in Runs re-points this "
+                                  "at that run.")
+
+            from ..widgets.measurement_scan_panel import (
+                MeasurementScanPanel)
+            self._scan_panel = MeasurementScanPanel(
+                frame_provider=self._scan_source_frame,
+                database_provider=self._attached_database_rows,
+                destination_provider=self._measurements_destination,
+                settings_provider=self._column_fit_settings,
+                parent=left)
+            self._column_run_handles = {}
+            self._scan_panel.regression.fit_started.connect(
+                self._on_column_fit_started)
+            self._scan_panel.regression.fit_finished.connect(
+                self._on_column_fit_finished)
+            from ..widgets.sweep_panel import SweepPanel
+            self._sweep_panel = SweepPanel(
+                cells_provider=self._scan_panel.databases_frame,
+                counts_provider=self._sweep_counts,
+                scores_provider=self._sweep_scores,
+                parent=left)
+            self._sweep_panel.finished.connect(self._keep_the_effects_grid)
+            self._scan_panel.add_section(self._sweep_panel,
+                                         "Gene × measurement sweep")
+            try:
+                self._scan_panel.restore_section_layout()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not restore the measurements layout",
+                          exc_info=True)
+
+            left.addTab(self._scan_panel, "Measurements")
+            left.setTabToolTip(
+                2, "Hold the model fixed and sweep the dependent "
+                   "variable. Corrected ACROSS the scan, not only within "
+                   "each measurement -- a measurement that passes alone "
+                   "and fails across the scan is the one worth knowing "
+                   "about.")
+            from ..widgets.cell_montage_view import CellMontageView
+            self._cell_montage = CellMontageView(
+                frame_provider=self._results_panel.results_frame,
+                results_provider=self._results_source_path,
+                database_provider=self._attached_database_rows,
+                parent=left)
+            cells_tab = left.addTab(self._cell_montage, "Cells")
+            left.setTabToolTip(
+                cells_tab,
+                "The cells most consistent with the selected "
+                "coefficient. This screen is POOLED: the sequencing says "
+                "what fraction of a well carried a guide, never which "
+                "cells did, so these are candidates consistent with the "
+                "effect and the caption says so.")
+            self._results_panel.table.key_selected.connect(
+                self._cell_montage.set_coefficient)
+            self._results_panel.table.keys_selected.connect(
+                self._cell_montage.set_coefficients)
+
+            left.currentChanged.connect(self._on_results_tab_changed)
+            self._results_tabs = left
+            left.setCurrentWidget(self._results_page)
+
+            split = QSplitter(Qt.Horizontal, self._figures_card)
+            split.setChildrenCollapsible(False)
+            split.addWidget(left)
+            split.addWidget(self._figures_stack)
+            split.setStretchFactor(0, 1)
+            split.setStretchFactor(1, 1)
+            left.setMinimumWidth(520)
+            self._figures_stack.setMinimumWidth(360)
+            split.setSizes([780, 620])
+            self._figures_split = split
+            self._figures_card.body_layout.addWidget(split, 1)
+
+            self._grid_refresh = QTimer(self)
+            self._grid_refresh.setSingleShot(True)
+            self._grid_refresh.setInterval(250)
+            self._grid_refresh.timeout.connect(self._refresh_figure_grid)
+        except Exception:
+            LOG.debug("no fast results panel", exc_info=True)
+            self._results_panel = None
+            self._figures_stack = None
+            self._cell_montage = None
+            self._figures_card.body_layout.addWidget(
+                self._queue_the_results_hold, 1)
+            self._figures_card.setMinimumHeight(360)
+            return None
+        return self._figures_split
+
+    def _build_hyperparam_panel(self) -> QWidget:
+        """Build the hyperparameter search panel into its card.
+
+        Deferred from the screen's open to the first time the card is
+        shown or ``_hyperparam`` is used; see :class:`_BuiltOnFirstUse`.
+        """
+        from .hyperparam import fill_hyperparam_card
+
+        panel = fill_hyperparam_card(self, self._hyperparam_card)
+        self._hyperparam = panel
+        panel.set_apply_callback(self._propagate_live_settings)
+        panel.set_settings_provider(
+            lambda model=self._settings_model: model.collect())
+        return panel
+
+    def _build_live_preview_panel(self) -> QWidget:
+        """Build Mask's live preview panel into its card.
+
+        Deferred from the screen's open to the first time the card is shown
+        or ``_live_preview`` is used; see :class:`_BuiltOnFirstUse`. A
+        source typed while the panel did not exist is loaded now, which is
+        where the eager screen's hidden panel had already loaded it.
+        """
+        panel = _fill_live_preview_card(self, self._live_preview_card)
+        self._live_preview = panel
+        panel.set_propagate_callback(self._propagate_live_settings)
+        waiting = self.__dict__.pop("_live_src_waiting", None)
+        if waiting is not None:
+            self._autoload_live_preview(waiting)
+        return panel
+
+    def _build_measure_preview_panel(self) -> QWidget:
+        """Build Measure's crop preview panel into its card.
+
+        Deferred from the screen's open to the first time the card is shown
+        or ``_measure_preview`` is used; see :class:`_BuiltOnFirstUse`.
+        """
+        panel = _fill_measure_preview_card(self._measure_preview_card)
+        self._measure_preview = panel
+        panel.set_propagate_callback(self._propagate_live_settings)
+        return panel
+
     def _build_runtime_panel(self) -> QWidget:
         """Build the right-hand column: figures, live preview, console and actions.
 
@@ -5182,6 +5743,11 @@ class AppScreen(QWidget):
         from ..widgets.figure_queue import FigureQueue
         self._figures_card = Card(title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
+        #: The queue the regression results page holds, kept apart from
+        #: ``_figure_queue`` because that name can be rebound before the
+        #: deferred results are built, and the page an eagerly-built screen
+        #: laid out held the queue made HERE.
+        self._queue_the_results_hold = self._figure_queue
 
         self._results_panel = None
         self._results_page = None
@@ -5192,206 +5758,16 @@ class AppScreen(QWidget):
         #: Cell-montage tab, when this screen supports regression results.
         #: Initialised before tab-change handlers can read it.
         self._cell_montage = None
-        if self.app_key == "regression":
-            try:
-                from ..widgets.regression_results import RegressionResultsPanel
-                from ..preferences import get_figure_grid_size
-                from ..widgets.figure_grid_view import (
-                    MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
-
-                self._results_panel = RegressionResultsPanel(
-                    self._figures_card, external_volcano=True)
-                self._results_panel.refit_requested.connect(self._on_refit)
-
-                self._figure_grid = FigureGridView(self._figures_card)
-                self._figure_grid.figure_activated.connect(
-                    self._open_figure_from_grid)
-                self._figure_grid.figure_menu_requested.connect(
-                    self._figure_grid_menu)
-
-                detail = QWidget(self._figures_card)
-                detail_layout = QVBoxLayout(detail)
-                detail_layout.setContentsMargins(0, 0, 0, 0)
-                detail_layout.setSpacing(4)
-                back = QPushButton("← All figures")
-                back.setFlat(True)
-                back.setToolTip("Back to the grid of every figure this run "
-                                "produced.")
-                back.clicked.connect(self._show_figure_grid)
-                row = QHBoxLayout()
-                row.addWidget(back)
-                row.addStretch(1)
-                detail_layout.addLayout(row)
-                detail_layout.addWidget(self._figure_queue, 1)
-                self._figure_detail = detail
-
-                volcano_page = QWidget(self._figures_card)
-                volcano_layout = QVBoxLayout(volcano_page)
-                volcano_layout.setContentsMargins(0, 0, 0, 0)
-                volcano_layout.setSpacing(4)
-                back_to_grid = QPushButton("← All figures")
-                back_to_grid.setFlat(True)
-                back_to_grid.clicked.connect(self._show_figure_grid)
-                volcano_row = QHBoxLayout()
-                volcano_row.addWidget(back_to_grid)
-                volcano_row.addStretch(1)
-                volcano_layout.addLayout(volcano_row)
-                gene_split = QSplitter(Qt.Vertical, volcano_page)
-                gene_split.setChildrenCollapsible(True)
-                gene_split.addWidget(self._results_panel.volcano)
-                gene_split.addWidget(self._results_panel.gene)
-                gene_split.setStretchFactor(0, 3)
-                gene_split.setStretchFactor(1, 1)
-                gene_split.setSizes([1000, 0])
-                self._gene_split = gene_split
-                volcano_layout.addWidget(gene_split, 1)
-                self._volcano_page = volcano_page
-
-                grid_page = QWidget(self._figures_card)
-                grid_layout = QVBoxLayout(grid_page)
-                grid_layout.setContentsMargins(0, 0, 0, 0)
-                grid_layout.setSpacing(4)
-                size_row = QHBoxLayout()
-                size_row.addWidget(QLabel("Figure size"))
-                self._figure_size = QSlider(Qt.Horizontal, grid_page)
-                self._figure_size.setRange(MIN_CELL_PX, MAX_CELL_PX)
-                self._figure_size.setValue(get_figure_grid_size())
-                self._figure_size.setMaximumWidth(220)
-                self._figure_size.setToolTip(
-                    "How wide each figure is drawn, which is also how tall: "
-                    "the tiles keep each figure's own aspect ratio. Fewer, "
-                    "bigger figures per row to the right.")
-                self._figure_size.valueChanged.connect(self._on_figure_size)
-                size_row.addWidget(self._figure_size)
-                size_row.addStretch(1)
-                grid_layout.addLayout(size_row)
-                grid_layout.addWidget(self._figure_grid, 1)
-                self._figure_grid.set_target_cell_width(
-                    self._figure_size.value())
-
-                self._figures_stack = QStackedWidget(self._figures_card)
-                self._figures_stack.addWidget(grid_page)
-                self._figures_stack.addWidget(detail)
-                self._figures_stack.addWidget(volcano_page)
-                self._figure_grid.pinned_activated.connect(
-                    self._show_regression_graph)
-                self._figure_grid.pinned_menu_requested.connect(
-                    self._pinned_menu)
-                self._figure_grid.live_tile_activated.connect(
-                    self._open_live_tile)
-                self._figure_grid.live_tile_menu_requested.connect(
-                    self._live_tile_menu)
-                self._results_panel.table.key_selected.connect(
-                    self._on_guide_selected)
-
-                from ..widgets.sweep_runs import SweepRunsPanel
-                self._sweep_runs = SweepRunsPanel(self._figures_card)
-                self._sweep_runs.trial_activated.connect(self._show_trial)
-                self._sweep_runs.loaded_run_changed.connect(self._show_trial)
-                self._sweep_runs.loaded_run_changed.connect(
-                    self._on_loaded_run_changed_refresh_tabs)
-                self._sweep_runs.runs_removed.connect(self._on_runs_removed)
-                self._sweep_runs.compare_requested.connect(
-                    self.open_run_beside)
-                self._sweep_runs.workspace_restore_requested.connect(
-                    self.restore_run_workspace)
-                self._sweep_runs.set_photo_provider(self.run_photograph)
-                left = QTabWidget(self._figures_card)
-                left.addTab(self._sweep_runs, "Runs")
-                self._results_split = QSplitter(Qt.Horizontal)
-                self._results_split.setChildrenCollapsible(False)
-                self._results_split.addWidget(self._results_panel)
-                self._results_page = self._results_split
-                left.addTab(self._results_split, "Results")
-                left.setTabToolTip(0, "Every run: this session's own, its "
-                                      "re-fits, and every trial the parameter "
-                                      "sweep ran. Pick one to see its results "
-                                      "and its figures.")
-                left.setTabToolTip(1, "The selected run's coefficient table, "
-                                      "its volcano and its diagnostics. "
-                                      "Picking a row in Runs re-points this "
-                                      "at that run.")
-
-                from ..widgets.measurement_scan_panel import (
-                    MeasurementScanPanel)
-                self._scan_panel = MeasurementScanPanel(
-                    frame_provider=self._scan_source_frame,
-                    database_provider=self._attached_database_rows,
-                    destination_provider=self._measurements_destination,
-                    settings_provider=self._column_fit_settings,
-                    parent=left)
-                self._column_run_handles = {}
-                self._scan_panel.regression.fit_started.connect(
-                    self._on_column_fit_started)
-                self._scan_panel.regression.fit_finished.connect(
-                    self._on_column_fit_finished)
-                from ..widgets.sweep_panel import SweepPanel
-                self._sweep_panel = SweepPanel(
-                    cells_provider=self._scan_panel.databases_frame,
-                    counts_provider=self._sweep_counts,
-                    scores_provider=self._sweep_scores,
-                    parent=left)
-                self._sweep_panel.finished.connect(self._keep_the_effects_grid)
-                self._scan_panel.add_section(self._sweep_panel,
-                                             "Gene × measurement sweep")
-                try:
-                    self._scan_panel.restore_section_layout()
-                except Exception:                                # noqa: BLE001
-                    LOG.debug("could not restore the measurements layout",
-                              exc_info=True)
-
-                left.addTab(self._scan_panel, "Measurements")
-                left.setTabToolTip(
-                    2, "Hold the model fixed and sweep the dependent "
-                       "variable. Corrected ACROSS the scan, not only within "
-                       "each measurement -- a measurement that passes alone "
-                       "and fails across the scan is the one worth knowing "
-                       "about.")
-                from ..widgets.cell_montage_view import CellMontageView
-                self._cell_montage = CellMontageView(
-                    frame_provider=self._results_panel.results_frame,
-                    results_provider=self._results_source_path,
-                    database_provider=self._attached_database_rows,
-                    parent=left)
-                cells_tab = left.addTab(self._cell_montage, "Cells")
-                left.setTabToolTip(
-                    cells_tab,
-                    "The cells most consistent with the selected "
-                    "coefficient. This screen is POOLED: the sequencing says "
-                    "what fraction of a well carried a guide, never which "
-                    "cells did, so these are candidates consistent with the "
-                    "effect and the caption says so.")
-                self._results_panel.table.key_selected.connect(
-                    self._cell_montage.set_coefficient)
-                self._results_panel.table.keys_selected.connect(
-                    self._cell_montage.set_coefficients)
-
-                left.currentChanged.connect(self._on_results_tab_changed)
-                self._results_tabs = left
-                left.setCurrentWidget(self._results_page)
-
-                split = QSplitter(Qt.Horizontal, self._figures_card)
-                split.setChildrenCollapsible(False)
-                split.addWidget(left)
-                split.addWidget(self._figures_stack)
-                split.setStretchFactor(0, 1)
-                split.setStretchFactor(1, 1)
-                left.setMinimumWidth(520)
-                self._figures_stack.setMinimumWidth(360)
-                split.setSizes([780, 620])
-                self._figures_split = split
-                self._figures_card.body_layout.addWidget(split, 1)
-
-                self._grid_refresh = QTimer(self)
-                self._grid_refresh.setSingleShot(True)
-                self._grid_refresh.setInterval(250)
-                self._grid_refresh.timeout.connect(self._refresh_figure_grid)
-            except Exception:
-                LOG.debug("no fast results panel", exc_info=True)
-                self._results_panel = None
-                self._figures_stack = None
-                self._cell_montage = None
-        if self._results_panel is None:
+        if (self.app_key == "regression"
+                and self._regression_results_can_be_built()):
+            self._owe_part(_REGRESSION_RESULTS,
+                           self._build_regression_results)
+            self._figures_card.build_body_when_first_shown(
+                partial(self._build_owed_part, _REGRESSION_RESULTS))
+        results_expected = (
+            self._part_is_owed(_REGRESSION_RESULTS)
+            or self._if_built("_results_panel") is not None)
+        if not results_expected:
             self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         self._figure_queue.set_propagate_callback(
             self._propagate_live_settings)
@@ -5408,7 +5784,7 @@ class AppScreen(QWidget):
             self._figures_card.body_layout.addWidget(
                 self._umap_explorer, 1)
         self._figures_card.setMinimumHeight(
-            560 if self._results_panel is not None else 360)
+            560 if results_expected else 360)
         self._figures_card.hide()
 
         from ..widgets import ConsolePanel
@@ -5449,11 +5825,14 @@ class AppScreen(QWidget):
 
                 self._live_preview, self._live_preview_card = (
                     build_plaque_preview_card(self))
+                self._live_preview.set_propagate_callback(
+                    self._propagate_live_settings)
             else:
-                self._live_preview, self._live_preview_card = (
-                    _build_live_preview_card(self))
-            self._live_preview.set_propagate_callback(
-                self._propagate_live_settings)
+                _, self._live_preview_card = _build_live_preview_card(
+                    self, panel_later=True)
+                self._owe_part(_LIVE_PREVIEW, self._build_live_preview_panel)
+                self._live_preview_card.build_body_when_first_shown(
+                    partial(self._build_owed_part, _LIVE_PREVIEW))
             splitter.addWidget(self._live_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5500,10 +5879,11 @@ class AppScreen(QWidget):
         elif self.app_key == "measure":
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
-            self._measure_preview, self._measure_preview_card = (
-                _build_measure_preview_card(self))
-            self._measure_preview.set_propagate_callback(
-                self._propagate_live_settings)
+            _, self._measure_preview_card = _build_measure_preview_card(
+                self, panel_later=True)
+            self._owe_part(_MEASURE_PREVIEW, self._build_measure_preview_panel)
+            self._measure_preview_card.build_body_when_first_shown(
+                partial(self._build_owed_part, _MEASURE_PREVIEW))
             splitter.addWidget(self._measure_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5524,7 +5904,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(0, 3)
             splitter.setStretchFactor(1, 2)
             splitter.setStretchFactor(2, 1)
-            splitter.setSizes([720, 300, 220] if self._results_panel is not None
+            splitter.setSizes([720, 300, 220] if results_expected
                               else [480, 360, 240])
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
@@ -5532,10 +5912,11 @@ class AppScreen(QWidget):
             from .hyperparam import build_hyperparam_card
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
-            self._hyperparam, self._hyperparam_card = build_hyperparam_card(self)
-            self._hyperparam.set_apply_callback(self._propagate_live_settings)
-            self._hyperparam.set_settings_provider(
-                lambda model=self._settings_model: model.collect())
+            _, self._hyperparam_card = build_hyperparam_card(
+                self, panel_later=True)
+            self._owe_part(_HYPERPARAM_PANEL, self._build_hyperparam_panel)
+            self._hyperparam_card.build_body_when_first_shown(
+                partial(self._build_owed_part, _HYPERPARAM_PANEL))
             splitter.addWidget(self._hyperparam_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5730,11 +6111,20 @@ class AppScreen(QWidget):
         }
         from ..widgets.preview_refresh import install_refresh_button
 
-        for panel_attr in ("_live_preview", "_measure_preview",
-                           "_timelapse_preview", "_motility_preview"):
-            panel = getattr(self, panel_attr, None)
+        for panel_attr, part in (("_live_preview", _LIVE_PREVIEW),
+                                 ("_measure_preview", _MEASURE_PREVIEW),
+                                 ("_timelapse_preview", None),
+                                 ("_motility_preview", None)):
             card = getattr(self, f"{panel_attr}_card", None)
-            if panel is not None and card is not None:
+            if card is None:
+                continue
+            if part is not None and self._part_is_owed(part):
+                install_refresh_button(
+                    self, card, None,
+                    panel_getter=partial(getattr, self, panel_attr))
+                continue
+            panel = getattr(self, panel_attr, None)
+            if panel is not None:
                 install_refresh_button(self, card, panel)
 
         preview_control = preview_controls.get(self.app_key)
@@ -5766,7 +6156,7 @@ class AppScreen(QWidget):
 
         self._gpu_switch = None
         if self.app_key == "umap" and getattr(
-                self, "_hyperparam", None) is not None:
+                self, "_hyperparam_card", None) is not None:
             self._gpu_switch = AiToggleLabel(
                 text="GPU",
                 tooltip=(
@@ -5787,7 +6177,7 @@ class AppScreen(QWidget):
             row.addWidget(self._sweep_switch)
             self._on_sweep_switch(False)
 
-        if getattr(self, "_hyperparam", None) is not None:
+        if getattr(self, "_hyperparam_card", None) is not None:
             from .hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
             self._hp_switch = AiToggleLabel(text=TOGGLE_TEXT,
                                             tooltip=TOGGLE_TOOLTIP)
@@ -7327,7 +7717,7 @@ class AppScreen(QWidget):
                     jobs.shutdown()
                 except RuntimeError:
                     pass
-        montage = getattr(self, "_cell_montage", None)
+        montage = self._if_built("_cell_montage")
         if montage is not None:
             try:
                 montage.shutdown()
@@ -9593,7 +9983,7 @@ def _hyperparam_searchable(app_key: str) -> bool:
     return searchable(app_key)
 
 
-def _build_live_preview_card(host):
+def _build_live_preview_card(host, *, panel_later: bool = False):
     """Build the ``Live preview`` card + panel pair without adding it
     to any layout.
 
@@ -9609,20 +9999,49 @@ def _build_live_preview_card(host):
     """
     from ..widgets.live_preview import LivePreviewPanel
     card = Card(title="Live preview")
+    card.setMinimumHeight(300)
+    if panel_later:
+        return None, card
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(300)
     return panel, card
 
 
-def _build_measure_preview_card(host):
+def _fill_live_preview_card(host, card):
+    """Build the live preview panel into a card from
+    :func:`_build_live_preview_card`, and return the panel.
+
+    Separate so a screen can build the card at open and the panel -- about
+    280 widgets -- the first time the card is shown (items 284/380). The
+    card builder still imports the panel's module, so the widget blocks it
+    registers reach the page's sheet at open as they always did.
+    """
+    from ..widgets.live_preview import LivePreviewPanel
+    panel = LivePreviewPanel(
+        card, module=str(getattr(host, "app_key", "") or ""))
+    card.body_layout.addWidget(panel)
+    return panel
+
+
+def _build_measure_preview_card(host, *, panel_later: bool = False):
     """Build the Measure ``Crop preview`` card + panel pair (not added to a
     layout). Mirrors the Mask live preview but shows object crops from a merged
     array, tuned with the crop settings the Measure run will use."""
     from ..widgets.measure_preview import MeasurePreviewPanel
     card = Card(title="Crop preview")
+    card.setMinimumHeight(300)
+    if panel_later:
+        return None, card
     panel = MeasurePreviewPanel(card)
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(300)
     return panel, card
+
+
+def _fill_measure_preview_card(card):
+    """Build the crop preview panel into a card from
+    :func:`_build_measure_preview_card`, and return the panel."""
+    from ..widgets.measure_preview import MeasurePreviewPanel
+    panel = MeasurePreviewPanel(card)
+    card.body_layout.addWidget(panel)
+    return panel

@@ -2725,7 +2725,7 @@ def _complete_metrics_when_opened(combo) -> None:
     combo.showPopup = show_popup.__get__(combo, type(combo))
 
 
-def build_hyperparam_card(host):
+def build_hyperparam_card(host, *, panel_later: bool = False):
     """Build the ``Hyperparameter search`` card + panel pair.
 
     Mirrors ``spacr.qt.screens.app_screen._build_live_preview_card``: it returns
@@ -2734,14 +2734,31 @@ def build_hyperparam_card(host):
 
     :param host: the :class:`AppScreen` asking for the card; its ``app_key``
         selects the parameter set.
+    :param panel_later: return ``None`` for the panel and leave the card's
+        body empty. The screen fills it with :func:`fill_hyperparam_card`
+        when the card is first shown, so a module whose search nobody opens
+        does not build and polish its ~130 widgets at open (items 284/380).
     :returns: ``(panel, card)``.
     """
     from ..widgets.card import Card
     card = Card(title="Hyperparameter search")
+    card.setMinimumHeight(320)
+    if panel_later:
+        return None, card
+    return fill_hyperparam_card(host, card), card
+
+
+def fill_hyperparam_card(host, card):
+    """Build the search panel into a card from :func:`build_hyperparam_card`.
+
+    :param host: the screen the card belongs to; its ``app_key`` selects the
+        parameter set.
+    :param card: the card to fill.
+    :returns: the panel.
+    """
     panel = HyperparamPanel(getattr(host, "app_key", "umap"), card)
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(320)
-    return panel, card
+    return panel
 
 
 def searchable(app_key: str) -> bool:

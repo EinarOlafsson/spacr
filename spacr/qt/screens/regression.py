@@ -370,7 +370,7 @@ def project_path(screen) -> str:
     """
     if screen is None:
         return ""
-    folder = _run_folder(results_panel(screen))
+    folder = _run_folder(_results_panel_if_built(screen))
     while folder and folder != os.path.dirname(folder):
         parent = os.path.dirname(folder)
         if os.path.basename(folder) == RESULTS_DIRNAME:
@@ -415,6 +415,19 @@ def results_panel(screen):
     """``screen``'s results panel, or None on a screen that has none."""
     return getattr(screen, "_results_panel", None) if screen is not None \
         else None
+
+
+def _results_panel_if_built(screen):
+    """``screen``'s results panel if it exists yet; never builds one.
+
+    A Regression screen builds its results panel on first use (items
+    284/380). A panel that is not built has no run loaded, so a question
+    about the loaded run gets the same answer from its absence.
+    """
+    probe = getattr(screen, "results_panel_if_built", None)
+    if callable(probe):
+        return probe()
+    return results_panel(screen)
 
 
 def open_publication_figure(host_window: Optional[QWidget] = None,
@@ -636,16 +649,26 @@ def install_extras(screen: QWidget) -> bool:
     tab, the publication-figure entry and the one-family cut are on the
     panel whether or not a masthead could be found to hang buttons on.
 
+    A screen that builds its results panel on first use (items 284/380)
+    runs this when the panel is built rather than building it here, so
+    the extras arrive with the panel and a screen nobody has run yet does
+    not pay for either. The Hit List module is still imported here, at
+    the open, so the widget block it registers joins every sheet from then
+    on exactly as it did.
+
     :returns: True when a panel was found and prepared.
     """
     if getattr(screen, "app_key", None) != HOST_KEY:
         return False
+    from .hit_list import connect_investigation
+
+    later = getattr(screen, "when_results_are_built", None)
+    if callable(later) and later(partial(install_extras, screen)):
+        return True
     panel = results_panel(screen)
     if panel is None:
         return False
     install_correction_families(panel)
-    from .hit_list import connect_investigation
-
     connect_investigation(install_hits_tab(panel), screen.window())
     install_publication_figure(panel, publication_opener(screen).open)
     return True

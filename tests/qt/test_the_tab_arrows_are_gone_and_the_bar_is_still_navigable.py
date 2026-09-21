@@ -77,6 +77,8 @@ def test_the_regression_screen_has_none(qtbot):
 
     screen = AppScreen("regression")
     qtbot.addWidget(screen)
+    assert screen._results_tabs is not None, (
+        "the results tabs are built on first use; ask for them")
     assert {t.tabBar().usesScrollButtons()
             for t in screen.findChildren(QTabWidget)} == {False}
 

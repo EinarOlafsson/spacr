@@ -63,11 +63,18 @@ def _carry_preview_state(old, fresh) -> None:
     Best effort and silent on failure: a rebuild that raised here would cost
     the user their whole screen to save them a re-load, which is the wrong
     trade. Each attribute is copied independently for the same reason.
+
+    A retiring preview that was never built has loaded nothing, so it is
+    read without being built (items 284/380) and there is nothing to carry.
     """
     if old is None or fresh is None:
         return
+    peek = getattr(old, "_if_built", None)
     for name in ("_live_preview", "_preview_panel", "_live_panel"):
-        source = getattr(old, name, None)
+        source = (peek(name) if callable(peek)
+                  else getattr(old, name, None))
+        if source is None:
+            continue
         target = getattr(fresh, name, None)
         if source is None or target is None:
             continue
