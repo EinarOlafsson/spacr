@@ -188,7 +188,10 @@ def test_each_module_is_offered_only_its_own_sets():
 
 
 def test_a_dataset_with_no_masks_folder_samples_images_alone():
-    dataset = md.DATASETS_BY_KEY["plaque_figures"]
+    from dataclasses import replace
+
+    dataset = replace(md.DATASETS_BY_KEY["plaque_figures"], images="images",
+                      pool="")
     assert dataset.masks == ""
     listing = [f"images/p{i:02d}.jpg" for i in range(20)] + \
               [f"labels/p{i:02d}.txt" for i in range(20)]
@@ -307,7 +310,10 @@ def test_the_old_ten_field_plaque_cache_is_not_reopened(tmp_path):
 def test_at_least_eighty_percent_of_a_sample_has_objects():
     """2026-09-21, the maintainer: "i need 80 % of image for each dataset to
     have actual foreground and max 20 percent to be negative"."""
-    dataset = md.DATASETS_BY_KEY["plaque_figures"]
+    from dataclasses import replace
+
+    dataset = replace(md.DATASETS_BY_KEY["plaque_figures"], images="images/test",
+                      pool="", foreground_share=md.FOREGROUND_SHARE)
     listing = [f"images/test/f{i:03d}.png" for i in range(200)]
     foreground = {f"f{i:03d}" for i in range(0, 200, 4)}
     picked = md.choose_sample(dataset, listing, foreground=foreground)
@@ -359,3 +365,28 @@ def test_the_live_cell_sample_spans_its_sources_and_modalities():
     assert len(domains) == 8
     assert {d.rsplit("_", 1)[-1] for d in domains} >= {"phase", "brightfield", "dic"}
     assert picked == md.choose_sample(dataset, list(reversed(listing)))
+
+
+def test_the_plaque_figures_are_high_resolution_training_figures_with_wells():
+    """2026-09-21, the maintainer: the figures must come from the training
+    set, all of them must have plaque wells on them, and only high-resolution
+    figures are picked."""
+    import csv
+
+    dataset = md.DATASETS_BY_KEY["plaque_figures"]
+    pool = md.pool_stems(dataset)
+    path = (md.Path(md.__file__).resolve().parent.parent / "resources" / "data"
+            / dataset.pool)
+    rows = list(csv.DictReader(open(path, encoding="utf-8")))
+    assert len(rows) >= md.SAMPLE_SIZE
+    assert all(int(r["n_wells"]) > 0 for r in rows)
+    assert all(max(int(r["width"]), int(r["height"])) >= 1500 for r in rows)
+    in_pool = sorted(pool)[:15]
+    listing = ([f"images/train/{s}.png" for s in in_pool]
+               + ["images/train/low_res_one.png", "images/test/elsewhere.png"])
+    picked = md.choose_sample(dataset, listing, foreground=set(in_pool[:12])
+                              | {"low_res_one", "elsewhere"})
+    stems = [md.Path(image).stem for image, _m in picked]
+    assert len(stems) == md.SAMPLE_SIZE
+    assert all(s in in_pool[:12] for s in stems), (
+        "only pooled, well-carrying training figures may be drawn")

@@ -87,6 +87,14 @@ class MaskDataset:
         with an ``n_objects`` column keyed by ``stem`` or ``name``, or
         ``labels/`` for a YOLO set, whose empty label files are the images
         with nothing in them. Read by :func:`foreground_stems`.
+    :ivar foreground_share: the smallest share of the sample that must show
+        objects; :data:`FOREGROUND_SHARE` unless the set says otherwise.
+    :ivar pool: a CSV in ``spacr/resources/data`` whose ``filename`` column
+        lists the only fields the sample may be drawn from; empty draws from
+        the whole folder. The plaque figures use it for what the repository
+        does not record -- which figures are high resolution.
+    :ivar revision: added to the cache folder's name when this set's draw
+        changes, so a sample drawn the old way is not reopened as the new one.
     """
 
     key: str
@@ -99,6 +107,9 @@ class MaskDataset:
     apps: Tuple[str, ...] = ("mask",)
     quota: Tuple[Tuple[str, int], ...] = ()
     counts: str = ""
+    foreground_share: float = FOREGROUND_SHARE
+    pool: str = ""
+    revision: str = ""
 
     @property
     def size(self) -> int:
@@ -130,12 +141,17 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         key="plaque_figures",
         title="Plaque assay figures, whole plates",
         repo="einarolafsson/toxoplasma-plaque-well-detector-dataset",
-        images="images", masks="",
+        images="images/train", masks="",
         model="yolo well detector, then cpsam_plaque",
-        note="Whole figures, no masks: this is what the Plaque Analysis pipeline "
-             "takes as input -- find the wells, read the text, then segment.",
+        note="High-resolution whole figures (longer side 1,500 px or more) from "
+             "the well detector's TRAINING split, every one with plaque wells on "
+             "it: what the Plaque Analysis pipeline takes as input -- find the "
+             "wells, read the text, then segment.",
         apps=("analyze_plaques",),
-        counts="labels/"),
+        counts="labels/train/",
+        foreground_share=1.0,
+        pool="plaque_figures_sample_pool.csv",
+        revision="-train-wells-hires"),
     MaskDataset(
         key="live_cell",
         title="Live cells: phase contrast, brightfield and DIC",
@@ -206,7 +222,8 @@ def sample_folder(root, dataset: MaskDataset) -> Path:
         sample was drawn, so a copy drawn under an older rule is never opened
         as if it were this one.
     """
-    return Path(root) / "mask_datasets" / f"{dataset.key}_{SAMPLE_RULE}"
+    return (Path(root) / "mask_datasets"
+            / f"{dataset.key}_{SAMPLE_RULE}{dataset.revision}")
 
 
 def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
@@ -305,13 +322,16 @@ def foreground_stems(dataset: MaskDataset, *, download: Optional[Callable] = Non
 
 
 def _mostly_foreground(stems: List[str], count: int, seed: str,
-                       foreground: Optional[set]) -> List[str]:
-    """``count`` stems at random, at least :data:`FOREGROUND_SHARE` with objects.
+                       foreground: Optional[set],
+                       share: float = FOREGROUND_SHARE) -> List[str]:
+    """``count`` stems at random, at least ``share`` of them with objects.
 
     :param stems: the candidates.
     :param count: how many to take.
     :param seed: the draw's seed.
     :param foreground: stems that have objects; ``None`` draws from all alike.
+    :param share: the smallest share with objects. At 1.0 no empty field is
+        taken even when too few have objects to fill the sample.
     :returns: the picked stems, sorted.
     """
     import math
@@ -320,11 +340,31 @@ def _mostly_foreground(stems: List[str], count: int, seed: str,
         return _random_pick(stems, count, seed)
     positive = [s for s in stems if s in foreground]
     negative = [s for s in stems if s not in foreground]
-    want_positive = min(len(positive), math.ceil(FOREGROUND_SHARE * count))
-    want_negative = min(len(negative), count - want_positive)
+    want_positive = min(len(positive), math.ceil(share * count))
+    want_negative = (0 if share >= 1.0
+                     else min(len(negative), count - want_positive))
     want_positive = min(len(positive), count - want_negative)
     return sorted(_random_pick(positive, want_positive, seed + "/fg")
                   + _random_pick(negative, want_negative, seed + "/bg"))
+
+
+def pool_stems(dataset: MaskDataset) -> Optional[set]:
+    """The stems a sample may be drawn from, when the dataset names a pool.
+
+    Written by ``tools/build_plaque_figure_sample_pool.py``, which measures
+    what the repository does not record.
+
+    :param dataset: the dataset.
+    :returns: the stems, or None when every field may be drawn.
+    """
+    import csv
+
+    if not dataset.pool:
+        return None
+    path = Path(__file__).resolve().parent.parent / "resources" / "data" / dataset.pool
+    with open(path, newline="", encoding="utf-8") as handle:
+        return {Path(row["filename"]).stem for row in csv.DictReader(handle)
+                if row.get("filename")}
 
 
 def choose_sample(dataset: MaskDataset, listing: List[str],
@@ -352,9 +392,13 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
     """
     prefix_i = f"{dataset.images}/"
     images = {Path(p).stem: p for p in listing if p.startswith(prefix_i)}
+    allowed = pool_stems(dataset)
+    if allowed is not None:
+        images = {stem: p for stem, p in images.items() if stem in allowed}
     if not dataset.masks:
         return [(images[stem], "") for stem in
-                _mostly_foreground(list(images), size, dataset.key, foreground)]
+                _mostly_foreground(list(images), size, dataset.key, foreground,
+                                   dataset.foreground_share)]
     prefix_m = f"{dataset.masks}/"
     masks = {Path(p).stem: p for p in listing if p.startswith(prefix_m)}
     both = sorted(set(images) & set(masks))
@@ -363,10 +407,11 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
         for domain, count in dataset.quota:
             picked += _mostly_foreground(
                 [s for s in both if s.startswith(f"{domain}__")], count,
-                f"{dataset.key}/{domain}", foreground)
+                f"{dataset.key}/{domain}", foreground, dataset.foreground_share)
         return [(images[stem], masks[stem]) for stem in sorted(picked)]
     return [(images[stem], masks[stem]) for stem in
-            _mostly_foreground(both, size, dataset.key, foreground)]
+            _mostly_foreground(both, size, dataset.key, foreground,
+                               dataset.foreground_share)]
 
 
 class _SampleWorker(QObject):
