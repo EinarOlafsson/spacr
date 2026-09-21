@@ -2,9 +2,9 @@
 THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
 ================================================================================
 
-Status:    FILED 2026-09-21, before any of it is built. Blocked on the Hugging
-           Face upload: the zoo entry needs the published weights' sha256 and the
-           test scores, and the Make Masks entry needs the dataset repo to exist.
+Status:    LANDED 2026-09-21. Zoo entry `live_cell_v1` in spacr/model_zoo.py;
+           MaskDataset `live_cell` in spacr/qt/make_masks_datasets.py. See the
+           trailing note for what was published and what the sample draws.
 
 Requested: 2026-09-21 -- "when it hits 40 (or 44 if thats the next checkpoint)
            stop training and uploade to hugging face (qc, train test valid
@@ -26,7 +26,8 @@ or a plaque assay.
   data      11,007 fields from 14 public datasets, group-split so no
             acquisition, well or time-lapse spans two sets:
             6,778 train, 2,030 valid, 2,199 test
-  recipe    100 epochs asked for; STOPPED AT EPOCH 44 at the maintainer's word.
+  recipe    100 epochs asked for; PUBLISHED AT EPOCH 37 at the maintainer's word
+            ("ok lets just publish that model at 37 epchs"). 
             lr 1e-5, batch 4, bsize 256, min_train_masks 1, file mode
   project   /mnt/wd4tb/af3/projects/live_cell (START_HERE.md, INGEST.json)
   repos     einarolafsson/live-cell-segmentation-cpsam            (model)
@@ -89,3 +90,32 @@ HOW TO KNOW IT WORKED
   * "Training datasets…" in Make Masks lists live cell, and the ten fields it
     opens come from more than one source.
   * choose_sample on the live repo listing is run, not only against a fixture.
+
+--------------------------------------------------------------------------------
+LANDED 2026-09-21
+--------------------------------------------------------------------------------
+
+Published checkpoint: epoch 37, weights/live_cell_v1, sha256
+7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090.
+
+Test split, F1 at IoU 0.5, 2,199 fields:
+
+  all datasets                     stock 0.738   live_cell_v1 0.694   -0.044
+  datasets stock never trained on  stock 0.885   live_cell_v1 0.960   +0.075
+  LIVECell + YeaZ (stock saw them) stock 0.729   live_cell_v1 0.677
+
+It MISSED its own pre-registered promotion bar (overall +0.02 over stock) because
+of LIVECell phase, 0.724 to 0.671. The zoo entry says so in versus_stock and notes,
+with both stock comparisons, as Part A asks.
+
+THE DESIGN QUESTION, SETTLED. Between filing and building, item 450's first-ten
+rule was replaced by a seeded random draw. That fixes the name-order problem but
+not the size one: a uniform draw of 10 from these 11,007 fields is expected to
+be about 5 LIVECell and 3 DeepSea, all phase. So the entry carries a quota:
+LIVECell 2, DeepSea 2, QPI 1, YeaZ brightfield 1, yeast microstructures 1, CTC
+MuSC brightfield 1, BBBC030 DIC 1, CTC HeLa DIC 1 -- 8 sources, all three
+modalities. Foreground counts come from the repo's splits.csv (name, n_objects).
+
+choose_sample was run on the real 22,014-file images/ + masks/ listing with the
+real splits.csv: 10 pairs, 8 sources, 3 modalities. Test:
+test_the_live_cell_sample_spans_its_sources_and_modalities.

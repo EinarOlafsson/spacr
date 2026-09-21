@@ -176,10 +176,10 @@ def test_the_button_is_on_the_make_masks_screen(qtbot, qt_theme_applied):
 
 
 def test_each_module_is_offered_only_its_own_sets():
-    """Item 451: the plaque module gained its own two, and Make Masks kept its five."""
+    """Item 451: the plaque module gained its own two; item 467 gave Make Masks a sixth."""
     mask = md.datasets_for("mask")
     plaque = md.datasets_for("analyze_plaques")
-    assert len(mask) == 5 and len(plaque) == 2
+    assert len(mask) == 6 and len(plaque) == 2
     assert {d.key for d in plaque} == {"toxoplasma_plaque", "plaque_figures"}
     assert "plaque_figures" not in {d.key for d in mask}, (
         "the figures have no masks; Make Masks would open ten blank fields")
@@ -335,3 +335,27 @@ def test_counts_are_read_from_a_csv_and_from_empty_yolo_labels(tmp_path):
     figures = md.DATASETS_BY_KEY["plaque_figures"]
     tree = [("labels/test/x.txt", 40), ("labels/test/y.txt", 0)]
     assert md.foreground_stems(figures, tree=lambda r, f: tree) == {"x"}
+
+
+def test_the_live_cell_sample_spans_its_sources_and_modalities():
+    """Item 467: fourteen datasets in one repo, sorted by name, start with bbbc009_dic.
+
+    Ten fields by name would all be DIC red blood cells; ten at random would be mostly
+    LIVECell and DeepSea phase. The quota draws from eight sources and all three
+    modalities, and every domain it names must exist in the repository's naming.
+    """
+    dataset = md.DATASETS_BY_KEY["live_cell"]
+    sources = ("bbbc009_dic", "bbbc030_dic", "ctc_bf_hsc_brightfield",
+               "ctc_bf_musc_brightfield", "ctc_dic_hela", "ctc_phc_psc", "ctc_phc_u373",
+               "deepsea_phase", "livecell_phase", "qpi_phase_adherent",
+               "revvity_brightfield", "yeast_microstructures_brightfield",
+               "yeaz_brightfield", "yeaz_phase")
+    assert {d for d, _n in dataset.quota} <= set(sources)
+    listing = [f"{folder}/{src}__f{i:03d}.tif" for src in sources for i in range(20)
+               for folder in ("images", "masks")]
+    picked = md.choose_sample(dataset, listing)
+    assert len(picked) == md.SAMPLE_SIZE == dataset.size
+    domains = {image[len("images/"):].split("__")[0] for image, _m in picked}
+    assert len(domains) == 8
+    assert {d.rsplit("_", 1)[-1] for d in domains} >= {"phase", "brightfield", "dic"}
+    assert picked == md.choose_sample(dataset, list(reversed(listing)))

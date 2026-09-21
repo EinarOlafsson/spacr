@@ -626,6 +626,51 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         ),
     },
     {
+        "key": "live_cell_v1",
+        "name": "live_cell_v1",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/live-cell-segmentation-cpsam",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "live-cell-segmentation-cpsam/resolve/main/"
+               "weights/live_cell_v1",
+        "sha256":
+            "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
+        "metrics": {'n_train': '6,778 fields, 14 datasets', 'train_objects': 'not recorded', 'n_test': '2,199 fields', 'test_objects': 'not recorded', 'cv': 'no (acquisition-grouped train/valid/test)', 'f1': '0.694 all / 0.960 on datasets stock never saw', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': '0.738 all / 0.885 on datasets stock never saw', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '37 (stopped by the maintainer)'},
+        "display_name": "Live cell v1 (phase, brightfield, DIC)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "11,007 transmitted-light fields from 14 public datasets, "
+                   "split by acquisition 6,778 train / 2,030 validation / "
+                   "2,199 test; training data at "
+                   "einarolafsson/live-cell-segmentation-dataset",
+        "versus_stock": "on the datasets stock cpsam_v2 never trained on, F1 "
+                        "0.960 against 0.885 at IoU 0.5; over all 2,199 test "
+                        "fields, 0.694 against 0.738, because stock trained "
+                        "on LIVECell and YeaZ and wins on LIVECell",
+        "trained_on": (
+            "unstained cells in phase contrast, brightfield and DIC: "
+            "LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell "
+            "Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. "
+            "Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at "
+            "epoch 37 of 100"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell "
+            "and YeaZ, so its score there is partly memorisation. On the "
+            "datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, "
+            "QPI, Revvity, yeast microstructures) this model scores F1 0.960 "
+            "against 0.885",
+            "it does NOT replace stock on LIVECell-style Incucyte phase: "
+            "0.671 against 0.724 there, and it missed its own pre-registered "
+            "promotion bar",
+            "by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC "
+            "+0.026 over stock, phase 0.689 (stock 0.735)",
+            "F1 0.865 on a train sample, 0.696 on validation and 0.694 on "
+            "test; no per-epoch loss was recorded",
+        ),
+    },
+    {
         "key": "nuclei_from_cellmask_v1",
         "name": "nuclei_from_cellmask_best",
         "kind": "cellpose",

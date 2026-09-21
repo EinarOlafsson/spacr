@@ -137,6 +137,18 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         apps=("analyze_plaques",),
         counts="labels/"),
     MaskDataset(
+        key="live_cell",
+        title="Live cells: phase contrast, brightfield and DIC",
+        repo="einarolafsson/live-cell-segmentation-dataset",
+        images="images", masks="masks",
+        model="live_cell_v1 (transmitted-light cell segmentation)",
+        note="10 of 11,007 fields from 14 public datasets, drawn across all three "
+             "modalities: 5 phase, 3 brightfield, 2 DIC.",
+        quota=(("livecell_phase", 2), ("deepsea_phase", 2), ("qpi_phase_adherent", 1),
+               ("yeaz_brightfield", 1), ("yeast_microstructures_brightfield", 1),
+               ("ctc_bf_musc_brightfield", 1), ("bbbc030_dic", 1), ("ctc_dic_hela", 1)),
+        counts="splits.csv"),
+    MaskDataset(
         key="cell_from_hoechst",
         title="Cross-channel: cell from Hoechst",
         repo="einarolafsson/cross-channel-cell-from-hoechst",
