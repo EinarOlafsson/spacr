@@ -1679,9 +1679,39 @@ class SetupSlides(QDialog):
         """
         panel = self._live_panel("_ai_setup")
         if panel is None:
+            return bool(self._sign_in_here_or_in_a_terminal(provider, login))
+        return panel.sign_in(
+            provider,
+            lambda: self._sign_in_here_or_in_a_terminal(provider, login))
+
+    def _sign_in_here_or_in_a_terminal(self, provider, login: str) -> bool:
+        """Hold the sign-in inside spaCR, or hand it to a terminal.
+
+        Item 420 asked for "no terminal used". On Linux and macOS the sign-in
+        runs on a pseudo-terminal in a small spaCR window
+        (:class:`spacr.qt.ai.pty_sign_in.SignInDialog`), which opens the
+        sign-in page and passes any code back; the panel's status polling
+        notices the sign-in as before. Windows, which has no pseudo-terminal
+        in the standard library, still opens a terminal.
+
+        :param provider: the provider being signed in to.
+        :param login: its sign-in command.
+        :returns: whether the sign-in was started.
+        """
+        from ..ai.pty_sign_in import SignInDialog, pty_available
+
+        argv = str(login).split()
+        if not argv or not pty_available():
             return bool(self._run_in_a_terminal(login))
-        return panel.sign_in(provider,
-                             lambda: self._run_in_a_terminal(login))
+        try:
+            dialog = SignInDialog(str(getattr(provider, "label", "") or argv[0]),
+                                  argv, self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not sign in inside spaCR", exc_info=True)
+            return bool(self._run_in_a_terminal(login))
+        self._sign_in_dialog = dialog
+        dialog.show()
+        return True
 
     def _stop_the_installs(self) -> None:
         """Stop any installer or sign-in watch the panels are running.

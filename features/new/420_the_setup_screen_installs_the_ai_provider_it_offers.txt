@@ -2,7 +2,9 @@
 THE SETUP SCREEN INSTALLS THE AI PROVIDER IT OFFERS, INSTEAD OF PRINTING A LINK
 ================================================================================
 
-Status:    BUILT ON LINUX AND LANDED ON NIGHTLY 2026-09-19, after review.
+Status:    DONE ON LINUX AND macOS 2026-09-21: the AI sign-ins run inside spaCR
+           on a pseudo-terminal, no terminal window (Windows still opens one).
+           Earlier: BUILT ON LINUX AND LANDED ON NIGHTLY 2026-09-19, after review.
            NOT DONE: the AI CLIs' sign-in still runs in a terminal window
            spaCR opens, so the first DONE WHEN ("no terminal used") is met
            for the GitHub CLI only. Windows and macOS commands are data from
@@ -287,3 +289,24 @@ landing, plus six smaller points. What was done about each:
 
 Left: everything in WHAT IS LEFT above. Windows, macOS, a real install and
 the AI sign-ins without a terminal are the open parts.
+
+--------------------------------------------------------------------------------
+2026-09-21 -- NO TERMINAL: THE AI SIGN-INS RUN INSIDE spaCR
+--------------------------------------------------------------------------------
+
+The open DONE WHEN was "no terminal used": after the install, the Claude, GPT
+and Gemini sign-ins were handed to a terminal window. They now run on a
+pseudo-terminal inside a small spaCR window (spacr/qt/ai/pty_sign_in.py): the
+tool believes it is on a terminal, the sign-in page it prints is opened in the
+browser, and a code it asks for is typed into a box and sent. The panel's
+status polling marks the provider READY as before.
+
+Measured with the real Claude CLI on this machine, in a scratch HOME so no
+real login was touched: `claude auth login` on the pseudo-terminal printed its
+OAuth link and "Paste code here if prompted >", which is exactly the shape the
+window handles; it was stopped before signing in. A stand-in tool that exits
+unless it IS on a terminal, prints a coloured link and checks a pasted code
+passes end to end in tests/qt/test_ai_sign_in_happens_inside_spacr.py.
+
+Windows keeps the terminal: it has no pseudo-terminal in the standard
+library. `codex login` and `gemini` were not run here (not installed).
