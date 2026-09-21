@@ -759,3 +759,287 @@ def test_the_settings_window_shows_the_zoo_buttons(panel):
     assert panel._detector_row in dialog._lent()
     assert panel._model_zoo_btn.parent() is panel._model_row
     dialog.give_back() if hasattr(dialog, "give_back") else None
+
+
+# 2026-09-21, the maintainer: "in plaque mode i can only see the outlines, i
+# should be able to right click on the image and get settings and choose to
+# see outlines, and pick their color including random color, their
+# thickness, or to see the objects as overlayed with fill and i should be
+# able to pick the fill color and opacity. there should also be several tabs
+# where the first is the image with overlays, the second the objects without
+# overlay, then cell probability and a flows tab."
+
+
+def _flat_png(path: Path, value=40, size=(60, 60)) -> Path:
+    from PIL import Image
+
+    Image.fromarray(np.full(size + (3,), value, dtype=np.uint8)).save(path)
+    return path
+
+
+def _square(shape=(60, 60)):
+    labels = np.zeros(shape, dtype=np.int32)
+    labels[10:30, 10:30] = 1
+    labels[35:50, 35:55] = 2
+    return labels
+
+
+def _fake_flows(shape=(60, 60)):
+    flow = np.zeros(shape + (3,), dtype=np.uint8)
+    flow[..., 0] = 200
+    prob = np.full(shape, -6.0, dtype=np.float32)
+    prob[10:30, 10:30] = 6.0
+    return {"flow_rgb": flow, "cellprob": prob}
+
+
+def _with_flows(path):
+    return _square(), _fake_flows()
+
+
+@pytest.fixture
+def fresh_style(monkeypatch):
+    monkeypatch.setitem(ppv._SESSION, "style", ppv.OverlayStyle())
+
+
+@pytest.fixture
+def ran(panel, tmp_path, fresh_style):
+    _flat_png(tmp_path / "a.png")
+    panel.load_source_async(str(tmp_path))
+    assert panel.run_preview(segment=_with_flows)
+    return panel
+
+
+def _overlay(panel):
+    return panel._view.array()
+
+
+def test_the_image_has_four_tabs_in_order(panel):
+    tabs = panel._image_tabs
+    assert [tabs.tabText(i) for i in range(tabs.count())] == [
+        "Overlay", "Objects", "Cell probability", "Flows"]
+    assert tabs.currentIndex() == 0
+    assert tabs.widget(0) is panel._view
+
+
+def test_tabs_without_data_say_so_instead_of_staying_blank(
+        panel, tmp_path, fresh_style):
+    _flat_png(tmp_path / "a.png")
+    panel.load_source_async(str(tmp_path))
+    for view in (panel._objects_view, panel._prob_view, panel._flow_view):
+        assert view.text() == "Press Run preview to see this."
+    assert panel.run_preview(segment=lambda p: _square())
+    assert panel._objects_view.array() is not None
+    assert panel._prob_view.text() == "This run gave no cell probability map."
+    assert panel._flow_view.text() == "This run gave no flows."
+
+
+def test_the_tabs_show_the_mask_cellprob_and_flows_of_the_run(ran):
+    objects = ran._objects_view.array()
+    assert objects.shape == (60, 60, 3)
+    assert not objects[0, 0].any(), "background is black, no image"
+    assert objects[20, 20].any() and objects[40, 45].any()
+    assert tuple(objects[20, 20]) != tuple(objects[40, 45]), (
+        "one colour per object")
+    prob = ran._prob_view.array()
+    assert prob[20, 20].sum() > prob[0, 0].sum(), "high probability is bright"
+    assert (ran._flow_view.array() == _fake_flows()["flow_rgb"]).all()
+
+
+def test_the_default_overlay_is_the_yellow_outline(ran):
+    shown = _overlay(ran)
+    assert tuple(shown[10, 20]) == ppv.OUTLINE_COLOUR
+    assert tuple(shown[20, 20]) == (40, 40, 40), "inside is untouched"
+
+
+def test_right_click_opens_the_overlay_options(ran, monkeypatch):
+    from PySide6.QtCore import QPoint
+
+    shown = []
+    monkeypatch.setattr(ppv.PlaquePreviewPanel, "_exec_menu",
+                        staticmethod(lambda menu, pos: shown.append(menu)))
+    ran._view.context_requested.emit(QPoint(5, 5))
+    assert shown
+    texts = [a.text() for a in shown[0].actions() if a.text()]
+    assert texts == ["Outlines", "Filled overlay",
+                     "Random colour per object", "Overlay settings…"]
+    settings = [a for a in shown[0].actions()
+                if a.text() == "Overlay settings…"][0]
+    settings.trigger()
+    dialog = ran._overlay_dialog
+    assert isinstance(dialog, ppv.PlaqueOverlayDialog)
+    from spacr.qt.widgets import glass
+
+    assert glass.wants_glass(dialog)
+    dialog.reject()
+
+
+def test_a_real_right_click_event_reaches_the_menu(ran, monkeypatch):
+    from PySide6.QtCore import QPoint
+    from PySide6.QtGui import QContextMenuEvent
+
+    shown = []
+    monkeypatch.setattr(ppv.PlaquePreviewPanel, "_exec_menu",
+                        staticmethod(lambda menu, pos: shown.append(pos)))
+    event = QContextMenuEvent(QContextMenuEvent.Mouse, QPoint(3, 3),
+                              QPoint(30, 40))
+    ran._objects_view.contextMenuEvent(event)
+    assert shown == [QPoint(30, 40)]
+
+
+def test_outline_colour_and_thickness_change_the_pixels(ran):
+    ran.open_overlay_settings()
+    dialog = ran._overlay_dialog
+    dialog.outline_colour.set_fixed("#ff0000")
+    assert tuple(_overlay(ran)[10, 20]) == (255, 0, 0)
+    assert tuple(_overlay(ran)[12, 20]) == (40, 40, 40)
+    dialog.thickness.setValue(5)
+    assert tuple(_overlay(ran)[12, 20]) == (255, 0, 0), "thicker outline"
+    assert ran.overlay_style().outline_thickness == 5
+    dialog.reject()
+
+
+def test_random_outline_colour_differs_per_object(ran):
+    from dataclasses import replace
+
+    ran.set_overlay_style(replace(ran.overlay_style(),
+                                  outline_colour=ppv.RANDOM_COLOUR))
+    shown = _overlay(ran)
+    first, second = tuple(shown[10, 20]), tuple(shown[35, 45])
+    assert first != (40, 40, 40) and second != (40, 40, 40)
+    assert first != second
+    assert first != ppv.OUTLINE_COLOUR
+
+
+def test_the_menu_switches_to_fill_and_to_random(ran, monkeypatch):
+    menus = []
+    monkeypatch.setattr(ppv.PlaquePreviewPanel, "_exec_menu",
+                        staticmethod(lambda menu, pos: menus.append(menu)))
+    ran._on_view_context(None)
+    fill = [a for a in menus[0].actions() if a.text() == "Filled overlay"][0]
+    fill.trigger()
+    assert ran.overlay_style().display == "fill"
+    assert tuple(_overlay(ran)[10, 20]) != ppv.OUTLINE_COLOUR
+    assert tuple(_overlay(ran)[20, 20]) != (40, 40, 40), "inside is filled"
+
+
+def test_fill_colour_and_opacity_change_the_pixels(ran):
+    ran.open_overlay_settings()
+    dialog = ran._overlay_dialog
+    dialog.display.setCurrentIndex(1)
+    assert dialog.fill_group.isEnabled() and not dialog.outline_group.isEnabled()
+    dialog.fill_colour.set_fixed((0, 0, 255))
+    dialog.opacity.setValue(100)
+    assert tuple(_overlay(ran)[20, 20]) == (0, 0, 255)
+    assert tuple(_overlay(ran)[5, 5]) == (40, 40, 40), "background untouched"
+    dialog.opacity.setValue(50)
+    assert tuple(_overlay(ran)[20, 20]) == (20, 20, 148)
+    assert dialog.opacity_slider.value() == 50
+    dialog.opacity.setValue(0)
+    assert tuple(_overlay(ran)[20, 20]) == (40, 40, 40)
+    dialog.fill_colour.kind.setCurrentIndex(1)
+    dialog.opacity.setValue(100)
+    shown = _overlay(ran)
+    assert tuple(shown[20, 20]) != tuple(shown[40, 45])
+    dialog.reject()
+
+
+def test_the_style_redraws_without_segmenting_again(ran, monkeypatch):
+    from dataclasses import replace
+
+    calls = []
+    monkeypatch.setattr(ppv, "plaque_pass",
+                        lambda *a, **k: calls.append(a) or {})
+    monkeypatch.setattr(ppv, "segment_plaque_image",
+                        lambda *a, **k: calls.append(a))
+
+    ran.set_overlay_style(replace(ran.overlay_style(), display="fill",
+                                  fill_opacity=100,
+                                  fill_colour=(0, 255, 0)))
+    assert not calls
+    assert tuple(_overlay(ran)[20, 20]) == (0, 255, 0)
+
+
+def test_the_style_lasts_the_session(qtbot, ran, no_papers_check):
+    from dataclasses import replace
+
+    ran.set_overlay_style(replace(ran.overlay_style(), outline_thickness=3))
+    later = ppv.PlaquePreviewPanel(threaded=False)
+    qtbot.addWidget(later)
+    assert later.overlay_style().outline_thickness == 3
+
+
+def test_figure_mode_draws_wells_in_the_chosen_style(panel, tmp_path,
+                                                     fresh_style,
+                                                     monkeypatch):
+    from dataclasses import replace
+
+    _figure_panel(panel, tmp_path)
+    assert not panel._image_tabs.tabBar().isVisibleTo(panel)
+    panel.select_well(0)
+    assert panel.preview_selected_well(segment=_segment_crop)
+    crop = panel._well_view.array()
+    assert tuple(crop[10, 15]) == ppv.OUTLINE_COLOUR
+    panel.set_overlay_style(replace(panel.overlay_style(), display="fill",
+                                    fill_colour=(0, 0, 255),
+                                    fill_opacity=100))
+    crop = panel._well_view.array()
+    assert tuple(crop[15, 15]) == (0, 0, 255)
+    overlay = panel._figure["overlay"]
+    assert tuple(overlay[100 + 15, 100 + 15]) == (0, 0, 255)
+    menus = []
+    monkeypatch.setattr(ppv.PlaquePreviewPanel, "_exec_menu",
+                        staticmethod(lambda menu, pos: menus.append(menu)))
+    panel._well_view.context_requested.emit(None)
+    assert menus, "the well picture offers the same options"
+
+
+def test_a_right_click_does_not_select_a_well(panel, tmp_path):
+    from PySide6.QtCore import QPointF
+    from PySide6.QtGui import QMouseEvent
+
+    _figure_panel(panel, tmp_path)
+    got = []
+    panel._view.clicked.connect(lambda x, y: got.append((x, y)))
+    panel._view.resize(400, 400)
+    event = QMouseEvent(QMouseEvent.MouseButtonPress, QPointF(200, 200),
+                        QPointF(200, 200), Qt.RightButton, Qt.RightButton,
+                        Qt.NoModifier)
+    panel._view.mousePressEvent(event)
+    assert not got
+
+
+def test_segment_plaque_image_can_hand_back_its_flows():
+    from spacr.plaque import segment_plaque_image
+
+    class _Tensor:
+        def __init__(self, array):
+            self.array = array
+
+        def cpu(self):
+            return self
+
+        def numpy(self):
+            return self.array
+
+    class _Model:
+        def eval(self, image, **_kwargs):
+            flows = _fake_flows()
+            return (_Tensor(_square()),
+                    [_Tensor(flows["flow_rgb"]), None,
+                     _Tensor(flows["cellprob"])], None)
+
+    image = np.zeros((60, 60, 3), dtype=np.uint8)
+    labels = segment_plaque_image(_Model(), image, {})
+    assert isinstance(labels, np.ndarray) and labels.max() == 2
+    labels, flows = segment_plaque_image(_Model(), image, {},
+                                         return_flows=True)
+    assert flows["flow_rgb"].shape == (60, 60, 3)
+    assert flows["cellprob"].dtype == np.float32
+    assert flows["cellprob"][20, 20] == pytest.approx(6.0)
+
+
+def test_a_result_without_flows_gives_none():
+    from spacr.plaque import plaque_flow_outputs
+
+    assert plaque_flow_outputs((np.zeros((4, 4)),)) == {
+        "flow_rgb": None, "cellprob": None}

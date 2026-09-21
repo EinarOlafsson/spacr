@@ -36,17 +36,19 @@ import csv
 import logging
 import os
 import threading
+from dataclasses import dataclass
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QRectF, Qt, Signal
-from PySide6.QtGui import QColor, QFont, QImage, QPainter, QPen, QPixmap
+from PySide6.QtCore import QPoint, QRectF, Qt, Signal
+from PySide6.QtGui import (QActionGroup, QColor, QFont, QImage, QPainter,
+                           QPen, QPixmap)
 from PySide6.QtWidgets import (
     QAbstractItemView, QButtonGroup, QCheckBox, QComboBox, QDialog,
     QDialogButtonBox, QDoubleSpinBox, QFileDialog, QFrame, QGridLayout, QHBoxLayout, QHeaderView, QLabel,
-    QLineEdit, QPlainTextEdit, QPushButton, QSizePolicy, QTableWidget,
+    QLineEdit, QMenu, QPlainTextEdit, QPushButton, QSizePolicy, QTableWidget,
     QSpinBox, QTableWidgetItem, QTabWidget, QToolButton, QVBoxLayout, QWidget,
 )
 
@@ -82,6 +84,17 @@ __all__ = [
     "images_in",
     "load_display_image",
     "outline_labels",
+    "OverlayStyle",
+    "OVERLAY_OUTLINES",
+    "OVERLAY_FILL",
+    "RANDOM_COLOUR",
+    "IMAGE_TABS",
+    "overlay_colour",
+    "object_palette",
+    "render_overlay",
+    "render_objects",
+    "render_cellprob",
+    "PlaqueOverlayDialog",
     "plaque_model_choices",
     "detector_choices",
     "resolve_plaque_model",
@@ -336,6 +349,225 @@ def outline_labels(rgb: np.ndarray, labels: np.ndarray,
     return rgb
 
 
+OVERLAY_OUTLINES = "outlines"
+OVERLAY_FILL = "fill"
+OVERLAY_DISPLAYS = (OVERLAY_OUTLINES, OVERLAY_FILL)
+RANDOM_COLOUR = "random"
+MAX_OUTLINE_THICKNESS = 20
+
+IMAGE_TABS = ("Overlay", "Objects", "Cell probability", "Flows")
+
+
+@dataclass(frozen=True)
+class OverlayStyle:
+    """How the segmented plaques are drawn over the image.
+
+    Changing it redraws what is already segmented; nothing is run again.
+
+    :param display: ``'outlines'`` or ``'fill'``.
+    :param outline_colour: an ``(r, g, b)`` triple, or ``'random'`` for one
+        colour per object.
+    :param outline_thickness: outline width in pixels.
+    :param fill_colour: an ``(r, g, b)`` triple, or ``'random'``.
+    :param fill_opacity: fill opacity in percent, 0 to 100.
+    """
+
+    display: str = OVERLAY_OUTLINES
+    outline_colour: Any = OUTLINE_COLOUR
+    outline_thickness: int = 1
+    fill_colour: Any = RANDOM_COLOUR
+    fill_opacity: int = 40
+
+    def normalised(self) -> "OverlayStyle":
+        """The same style with every value clamped to what can be drawn.
+
+        :returns: a new :class:`OverlayStyle`.
+        """
+        display = self.display if self.display in OVERLAY_DISPLAYS \
+            else OVERLAY_OUTLINES
+        return OverlayStyle(
+            display=display,
+            outline_colour=overlay_colour(self.outline_colour, OUTLINE_COLOUR),
+            outline_thickness=max(1, min(MAX_OUTLINE_THICKNESS,
+                                         int(self.outline_thickness or 1))),
+            fill_colour=overlay_colour(self.fill_colour, RANDOM_COLOUR),
+            fill_opacity=max(0, min(100, int(round(float(
+                self.fill_opacity or 0))))))
+
+
+_SESSION: Dict[str, OverlayStyle] = {"style": OverlayStyle()}
+
+
+def overlay_colour(value: Any, default: Any = OUTLINE_COLOUR) -> Any:
+    """A colour setting as ``'random'`` or an ``(r, g, b)`` triple.
+
+    :param value: ``'random'``, a ``#rrggbb`` string, a :class:`QColor` or a
+        triple.
+    :param default: what an unreadable value means.
+    :returns: ``'random'`` or a tuple of three ints in 0..255.
+    """
+    if isinstance(value, str):
+        if value.strip().lower() == RANDOM_COLOUR:
+            return RANDOM_COLOUR
+        value = QColor(value.strip())
+    if isinstance(value, QColor):
+        if not value.isValid():
+            return default
+        return (value.red(), value.green(), value.blue())
+    try:
+        red, green, blue = (int(v) for v in list(value)[:3])
+    except (TypeError, ValueError):
+        return default
+    return tuple(max(0, min(255, v)) for v in (red, green, blue))
+
+
+def object_palette(labels: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+    """The object ids in a label image and one distinct colour for each.
+
+    The palette is the Mask preview's ``color (random)`` one
+    (:func:`spacr.qt.widgets.live_preview._random_outline_palette`), so an
+    object keeps its colour across the Overlay and Objects tabs and across
+    a change of thickness or opacity.
+
+    :param labels: a label image, 0 = background.
+    :returns: ``(ids, colours)``: sorted positive ids and an ``N x 3``
+        ``uint8`` array.
+    """
+    from .live_preview import _random_outline_palette
+
+    labels = np.asarray(labels)
+    ids = np.unique(labels[labels > 0]).astype(np.int64)
+    return ids, _random_outline_palette(ids)
+
+
+def _per_pixel(labels: np.ndarray, where: np.ndarray, colour: Any
+               ) -> np.ndarray:
+    """The colour of every pixel in ``where``, by object or all the same.
+
+    :param labels: the label image.
+    :param where: the pixels to colour.
+    :param colour: ``'random'`` or a triple.
+    :returns: ``N x 3`` ``uint8``, one row per True pixel of ``where``.
+    """
+    picked = labels[where]
+    if colour == RANDOM_COLOUR:
+        ids, palette = object_palette(labels)
+        return palette[np.searchsorted(ids, picked)]
+    return np.tile(np.asarray(colour, dtype=np.uint8), (picked.size, 1))
+
+
+def render_overlay(rgb: np.ndarray, labels: np.ndarray,
+                   style: Optional[OverlayStyle] = None,
+                   offset: Tuple[int, int] = (0, 0)) -> np.ndarray:
+    """Draw the labelled objects onto an image as outlines or a filled overlay.
+
+    :param rgb: ``H x W x 3`` ``uint8`` image; changed in place.
+    :param labels: a label image, 0 = background.
+    :param style: the :class:`OverlayStyle`; yellow one-pixel outlines when
+        None, which is what the preview always drew.
+    :param offset: ``(y, x)`` where ``labels`` sits inside ``rgb``.
+    :returns: ``rgb``.
+    """
+    style = (style or OverlayStyle()).normalised()
+    labels = np.asarray(labels)
+    if labels.ndim != 2 or not labels.any():
+        return rgb
+    y0, x0 = offset
+    height = min(labels.shape[0], rgb.shape[0] - y0)
+    width = min(labels.shape[1], rgb.shape[1] - x0)
+    if height <= 0 or width <= 0:
+        return rgb
+    labels = labels[:height, :width].astype(np.int64)
+    window = rgb[y0:y0 + height, x0:x0 + width]
+    if style.display == OVERLAY_FILL:
+        where = labels > 0
+        alpha = style.fill_opacity / 100.0
+        colours = _per_pixel(labels, where, style.fill_colour)
+        blended = (window[where].astype(np.float32) * (1.0 - alpha)
+                   + colours.astype(np.float32) * alpha)
+        window[where] = np.clip(np.rint(blended), 0, 255).astype(np.uint8)
+        return rgb
+    from skimage.segmentation import find_boundaries
+
+    owners = np.where(find_boundaries(labels, mode="inner"), labels, 0)
+    thickness = style.outline_thickness
+    if thickness > 1:
+        from scipy.ndimage import grey_dilation
+
+        grown = grey_dilation(owners, size=(thickness, thickness))
+        owners = np.where(owners > 0, owners, grown)
+    where = owners > 0
+    if where.any():
+        window[where] = _per_pixel(owners, where, style.outline_colour)
+    return rgb
+
+
+def render_objects(labels: Optional[np.ndarray]) -> Optional[np.ndarray]:
+    """The label image alone, one colour per object on black.
+
+    :param labels: a label image, 0 = background, or None.
+    :returns: ``H x W x 3`` ``uint8``, or None when there is nothing to draw.
+    """
+    if labels is None:
+        return None
+    labels = np.asarray(labels).astype(np.int64)
+    if labels.ndim != 2:
+        return None
+    out = np.zeros(labels.shape + (3,), dtype=np.uint8)
+    where = labels > 0
+    if where.any():
+        out[where] = _per_pixel(labels, where, RANDOM_COLOUR)
+    return out
+
+
+def render_cellprob(cellprob: Optional[np.ndarray]) -> Optional[np.ndarray]:
+    """Cellpose's cell probability as a colour image.
+
+    Cellpose hands the probability back in logits; it is drawn as the
+    probability itself, 0 to 1 on a fixed scale, so two images can be
+    compared by eye and the ``CP_prob`` threshold (a logit) sits at the
+    colour of ``1 / (1 + e^-CP_prob)``.
+
+    :param cellprob: ``H x W`` logits, or None.
+    :returns: ``H x W x 3`` ``uint8`` on the ``magma`` scale, or None.
+    """
+    if cellprob is None:
+        return None
+    logits = np.asarray(cellprob, dtype=np.float32)
+    if logits.ndim != 2:
+        return None
+    prob = 1.0 / (1.0 + np.exp(-np.clip(logits, -30.0, 30.0)))
+    try:
+        from matplotlib import colormaps
+
+        rgba = colormaps["magma"](prob)
+        return np.ascontiguousarray(
+            (rgba[..., :3] * 255.0).round().astype(np.uint8))
+    except Exception:
+        grey = (prob * 255.0).round().astype(np.uint8)
+        return np.ascontiguousarray(np.stack([grey] * 3, axis=-1))
+
+
+def _match_image(array: Optional[np.ndarray], shape: Tuple[int, int]
+                 ) -> Optional[np.ndarray]:
+    """Resize a flow picture or probability map onto ``shape`` when needed.
+
+    :param array: ``H x W`` or ``H x W x 3``, or None.
+    :param shape: ``(H, W)``.
+    :returns: the array at ``shape``, in its own dtype, or None.
+    """
+    if array is None:
+        return None
+    array = np.asarray(array)
+    if array.shape[:2] == tuple(shape):
+        return array
+    from skimage.transform import resize
+
+    target = tuple(shape) + array.shape[2:]
+    return resize(array, target, order=1, preserve_range=True,
+                  anti_aliasing=False).astype(array.dtype)
+
+
 def _catalogue() -> List[Any]:
     """The model zoo's listing, or nothing when it cannot be read.
 
@@ -540,9 +772,14 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
 
     :param path: the image.
     :param settings: the module's settings.
-    :param segment: ``fn(path) -> labels``; the run's model when None.
-    :returns: ``{'path', 'overlay', 'count', 'mean_area', 'areas', 'note'}``,
-        or ``{'error', 'entry'}`` when the model cannot be used.
+    :param segment: ``fn(path) -> labels`` or ``fn(path) -> (labels,
+        flows)`` with ``flows`` as
+        :func:`spacr.plaque.plaque_flow_outputs` gives it; the run's model,
+        with its flows, when None.
+    :returns: ``{'path', 'image', 'labels', 'overlay', 'flow_rgb',
+        'cellprob', 'count', 'mean_area', 'areas', 'note'}``, or
+        ``{'error', 'entry'}`` when the model cannot be used. ``flow_rgb``
+        and ``cellprob`` are None when the segmenter gave no flows.
     """
     from ...plaque_papers import measure_region
 
@@ -557,16 +794,25 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
         except Exception as exc:
             return {"error": _explain_model_failure(model_path, exc)}
 
-        def segment(p: Path) -> np.ndarray:
-            """The plaque label mask of the image at ``p``."""
-            return segment_plaque_image(model, load_display_image(p), settings)
+        def segment(p: Path) -> Tuple[np.ndarray, Dict[str, Any]]:
+            """The plaque label mask of the image at ``p``, with its flows."""
+            return segment_plaque_image(model, load_display_image(p),
+                                        settings, return_flows=True)
 
     rgb = load_display_image(path)
-    labels = _match_shape(segment(path), rgb.shape[:2])
+    segmented = segment(path)
+    flows: Dict[str, Any] = {}
+    if isinstance(segmented, tuple):
+        segmented, flows = segmented[0], dict(segmented[1] or {})
+    labels = _match_shape(segmented, rgb.shape[:2])
     rows = measure_region(labels)
     areas = [row["area_px"] for row in rows]
     overlay = outline_labels(rgb.copy(), labels)
-    return {"path": str(path), "overlay": overlay, "count": len(rows),
+    return {"path": str(path), "image": rgb, "labels": labels,
+            "overlay": overlay,
+            "flow_rgb": _match_image(flows.get("flow_rgb"), rgb.shape[:2]),
+            "cellprob": _match_image(flows.get("cellprob"), rgb.shape[:2]),
+            "count": len(rows),
             "mean_area": float(np.mean(areas)) if areas else 0.0,
             "areas": areas, "note": note}
 
@@ -1035,6 +1281,248 @@ class PlaqueSettingsDialog(QDialog):
             widget.hide()
 
 
+class _ColourChoice(QWidget):
+    """A colour setting: one fixed colour from a swatch, or random per object.
+
+    :param value: ``'random'`` or an ``(r, g, b)`` triple to start on.
+    :param parent: the owning widget.
+    """
+
+    changed = Signal(object)
+
+    def __init__(self, value: Any, parent: Optional[QWidget] = None):
+        """Build the choice and the swatch.
+
+        :param value: the starting colour.
+        :param parent: the owning widget.
+        """
+        super().__init__(parent)
+        row = QHBoxLayout(self)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(6)
+        self.kind = QComboBox(self)
+        self.kind.addItem(tr("Fixed colour"), "fixed")
+        self.kind.addItem(tr("Random (per object)"), RANDOM_COLOUR)
+        self.swatch = QToolButton(self)
+        self.swatch.setToolTip(tr("Choose the colour"))
+        self.swatch.setMinimumWidth(64)
+        row.addWidget(self.kind, 1)
+        row.addWidget(self.swatch)
+        self._fixed: Tuple[int, int, int] = OUTLINE_COLOUR
+        self.set_value(value)
+        self.kind.currentIndexChanged.connect(self._on_kind)
+        self.swatch.clicked.connect(self._choose)
+
+    def value(self) -> Any:
+        """``'random'`` or the fixed ``(r, g, b)``."""
+        if self.kind.currentData() == RANDOM_COLOUR:
+            return RANDOM_COLOUR
+        return self._fixed
+
+    def set_value(self, value: Any) -> None:
+        """Show ``value`` without announcing it.
+
+        :param value: ``'random'`` or a colour.
+        """
+        value = overlay_colour(value, self._fixed)
+        blocked = self.kind.blockSignals(True)
+        if value == RANDOM_COLOUR:
+            self.kind.setCurrentIndex(1)
+        else:
+            self._fixed = value
+            self.kind.setCurrentIndex(0)
+        self.kind.blockSignals(blocked)
+        self._paint()
+
+    def _paint(self) -> None:
+        """Show the fixed colour on the swatch, or a hue ramp when random.
+
+        A disabled choice -- the settings of the display not shown -- drops
+        the colour so it reads as off, like every other disabled control.
+        """
+        colour = QColor(*self._fixed)
+        random = self.kind.currentData() == RANDOM_COLOUR
+        self.swatch.setEnabled(not random)
+        self.swatch.setText("" if random else colour.name())
+        if not self.isEnabled():
+            self.swatch.setStyleSheet("")
+        elif random:
+            self.swatch.setStyleSheet(
+                "background: qlineargradient(x1:0, y1:0, x2:1, y2:0, "
+                "stop:0 #ff3b3b, stop:0.25 #ffd600, stop:0.5 #2bd96b, "
+                "stop:0.75 #2b8cff, stop:1 #d63bff);")
+        else:
+            self.swatch.setStyleSheet(
+                f"background-color: {colour.name()}; "
+                f"color: {'#000' if colour.lightness() > 127 else '#fff'};")
+
+    def changeEvent(self, event):                            # noqa: N802
+        """Repaint the swatch when the choice is enabled or disabled.
+
+        :param event: the change event.
+        """
+        super().changeEvent(event)
+        from PySide6.QtCore import QEvent
+
+        if event.type() == QEvent.Type.EnabledChange:
+            self._paint()
+
+    def _on_kind(self, _index: int) -> None:
+        """Fixed or random was picked."""
+        self._paint()
+        self.changed.emit(self.value())
+
+    def _choose(self) -> None:
+        """Ask for a colour with the GUI's one picker, and keep a real one."""
+        from .colour_picker import pick_colour
+
+        colour = pick_colour(self, QColor(*self._fixed), tr("Overlay colour"))
+        if colour.isValid():
+            self.set_fixed(colour)
+
+    def set_fixed(self, colour: Any) -> None:
+        """Make ``colour`` the fixed colour, select it and announce it.
+
+        :param colour: anything :func:`overlay_colour` reads.
+        """
+        value = overlay_colour(colour, self._fixed)
+        if value == RANDOM_COLOUR:
+            value = self._fixed
+        self._fixed = value
+        blocked = self.kind.blockSignals(True)
+        self.kind.setCurrentIndex(0)
+        self.kind.blockSignals(blocked)
+        self._paint()
+        self.changed.emit(self.value())
+
+
+class PlaqueOverlayDialog(QDialog):
+    """How the plaques are drawn: outlines or a filled overlay, and in what.
+
+    Opened from a right-click on the preview image. Every change is applied
+    at once to what is already segmented, so the window stays open beside
+    the picture it changes; nothing is segmented again. A ``QDialog``, so
+    :mod:`spacr.qt.widgets.glass` gives it the rounded, translucent card of
+    the other settings windows.
+
+    :param style: the :class:`OverlayStyle` to start from.
+    :param parent: the preview panel.
+    """
+
+    style_changed = Signal(object)
+
+    def __init__(self, style: OverlayStyle,
+                 parent: Optional[QWidget] = None):
+        """Lay the controls out.
+
+        :param style: the starting style.
+        :param parent: the owning widget.
+        """
+        from PySide6.QtWidgets import QFormLayout, QGroupBox, QSlider
+
+        super().__init__(parent)
+        style = style.normalised()
+        self.setObjectName("PlaqueOverlayDialog")
+        self.setWindowTitle(tr("Plaque overlay"))
+        outer = QVBoxLayout(self)
+
+        top = QFormLayout()
+        self.display = QComboBox(self)
+        self.display.addItem(tr("Outlines"), OVERLAY_OUTLINES)
+        self.display.addItem(tr("Filled overlay"), OVERLAY_FILL)
+        self.display.setCurrentIndex(OVERLAY_DISPLAYS.index(style.display))
+        top.addRow(tr("Display"), self.display)
+        outer.addLayout(top)
+
+        self.outline_group = QGroupBox(tr("Outlines"), self)
+        form = QFormLayout(self.outline_group)
+        self.outline_colour = _ColourChoice(style.outline_colour,
+                                            self.outline_group)
+        form.addRow(tr("Colour"), self.outline_colour)
+        self.thickness = QSpinBox(self.outline_group)
+        self.thickness.setRange(1, MAX_OUTLINE_THICKNESS)
+        self.thickness.setSuffix(" px")
+        self.thickness.setValue(style.outline_thickness)
+        form.addRow(tr("Thickness"), self.thickness)
+        outer.addWidget(self.outline_group)
+
+        self.fill_group = QGroupBox(tr("Fill"), self)
+        form = QFormLayout(self.fill_group)
+        self.fill_colour = _ColourChoice(style.fill_colour, self.fill_group)
+        form.addRow(tr("Colour"), self.fill_colour)
+        opacity_row = QWidget(self.fill_group)
+        row = QHBoxLayout(opacity_row)
+        row.setContentsMargins(0, 0, 0, 0)
+        self.opacity_slider = QSlider(Qt.Horizontal, opacity_row)
+        self.opacity_slider.setRange(0, 100)
+        self.opacity = QSpinBox(opacity_row)
+        self.opacity.setRange(0, 100)
+        self.opacity.setSuffix(" %")
+        self.opacity.setValue(style.fill_opacity)
+        self.opacity_slider.setValue(style.fill_opacity)
+        self.opacity_slider.valueChanged.connect(self.opacity.setValue)
+        self.opacity.valueChanged.connect(self.opacity_slider.setValue)
+        row.addWidget(self.opacity_slider, 1)
+        row.addWidget(self.opacity)
+        form.addRow(tr("Opacity"), opacity_row)
+        outer.addWidget(self.fill_group)
+
+        note = QLabel(tr("Applies at once to the plaques already found; "
+                         "nothing is segmented again."))
+        note.setWordWrap(True)
+        outer.addWidget(note)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close, self)
+        buttons.rejected.connect(self.reject)
+        outer.addWidget(buttons)
+
+        self.display.currentIndexChanged.connect(self._changed)
+        self.outline_colour.changed.connect(self._changed)
+        self.thickness.valueChanged.connect(self._changed)
+        self.fill_colour.changed.connect(self._changed)
+        self.opacity.valueChanged.connect(self._changed)
+        self._enable_groups()
+        self.setMinimumWidth(360)
+
+    def overlay_style(self) -> OverlayStyle:
+        """The style the controls describe."""
+        return OverlayStyle(
+            display=self.display.currentData(),
+            outline_colour=self.outline_colour.value(),
+            outline_thickness=self.thickness.value(),
+            fill_colour=self.fill_colour.value(),
+            fill_opacity=self.opacity.value()).normalised()
+
+    def set_overlay_style(self, style: OverlayStyle) -> None:
+        """Show ``style`` without announcing it.
+
+        :param style: the style to show.
+        """
+        style = style.normalised()
+        widgets = (self.display, self.thickness, self.opacity,
+                   self.opacity_slider)
+        states = [w.blockSignals(True) for w in widgets]
+        self.display.setCurrentIndex(OVERLAY_DISPLAYS.index(style.display))
+        self.thickness.setValue(style.outline_thickness)
+        self.opacity.setValue(style.fill_opacity)
+        self.opacity_slider.setValue(style.fill_opacity)
+        for widget, state in zip(widgets, states):
+            widget.blockSignals(state)
+        self.outline_colour.set_value(style.outline_colour)
+        self.fill_colour.set_value(style.fill_colour)
+        self._enable_groups()
+
+    def _enable_groups(self) -> None:
+        """Only the settings of the chosen display can be edited."""
+        fill = self.display.currentData() == OVERLAY_FILL
+        self.outline_group.setEnabled(not fill)
+        self.fill_group.setEnabled(fill)
+
+    def _changed(self, *_args: Any) -> None:
+        """Any control moved: announce the style it now describes."""
+        self._enable_groups()
+        self.style_changed.emit(self.overlay_style())
+
+
 class PlaqueModeSwitch(QWidget):
     """A two-button Plaque | Figure switch.
 
@@ -1145,6 +1633,7 @@ class _ImageView(QLabel):
     """
 
     clicked = Signal(float, float)
+    context_requested = Signal(QPoint)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Start empty.
@@ -1154,9 +1643,25 @@ class _ImageView(QLabel):
         super().__init__(parent)
         self.setObjectName("PlaquePreviewImage")
         self.setAlignment(Qt.AlignCenter)
+        self.setWordWrap(True)
         self.setMinimumHeight(320)
         self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self._pixmap: Optional[QPixmap] = None
+        self._array: Optional[np.ndarray] = None
+
+    def array(self) -> Optional[np.ndarray]:
+        """The pixels last shown, before any box was painted, or None."""
+        return self._array
+
+    def show_message(self, text: str) -> None:
+        """Show a line of text in place of a picture.
+
+        :param text: what to say, already translated.
+        """
+        self.set_image(None)
+        self.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        self.setMargin(16)
+        self.setText(text)
 
     def set_image(self, rgb: Optional[np.ndarray],
                   boxes: Sequence[Tuple[Any, bool]] = (),
@@ -1169,9 +1674,13 @@ class _ImageView(QLabel):
         """
         if rgb is None:
             self._pixmap = None
+            self._array = None
             self.clear()
             return
         rgb = np.ascontiguousarray(rgb, dtype=np.uint8)
+        self._array = rgb
+        self.setAlignment(Qt.AlignCenter)
+        self.setMargin(0)
         height, width = rgb.shape[:2]
         image = QImage(rgb.data, width, height, 3 * width,
                        QImage.Format_RGB888).copy()
@@ -1232,9 +1741,17 @@ class _ImageView(QLabel):
         """
         position = event.position()
         point = self.image_point(position.x(), position.y())
-        if point is not None:
+        if point is not None and event.button() == Qt.LeftButton:
             self.clicked.emit(point[0], point[1])
         super().mousePressEvent(event)
+
+    def contextMenuEvent(self, event):                       # noqa: N802
+        """A right-click asks the panel for the overlay options.
+
+        :param event: the context-menu event.
+        """
+        self.context_requested.emit(event.globalPos())
+        event.accept()
 
     def _rescale(self) -> None:
         """Fit the pixmap to the label, keeping its shape."""
@@ -1296,6 +1813,15 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._batch: List[int] = []
         self._batch_total = 0
         self._batch_segment: Optional[Callable] = None
+        self._overlay_style: OverlayStyle = _SESSION["style"]
+        self._fixed_colours: Dict[str, Tuple[int, int, int]] = {
+            "outline": OUTLINE_COLOUR, "fill": OUTLINE_COLOUR}
+        for key, colour in (("outline", self._overlay_style.outline_colour),
+                            ("fill", self._overlay_style.fill_colour)):
+            if colour != RANDOM_COLOUR:
+                self._fixed_colours[key] = colour
+        self._overlay_dialog: Optional[PlaqueOverlayDialog] = None
+        self._plaque_result: Optional[Dict[str, Any]] = None
         self._jobs = JobRunner(self, threaded=threaded, app_key="plaque preview")
         self._load_jobs = JobRunner(self, threaded=threaded,
                                     app_key="plaque preview image",
@@ -1481,7 +2007,28 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._view = _ImageView(self)
         self._view.setCursor(Qt.PointingHandCursor)
         self._view.clicked.connect(self._on_figure_clicked)
-        pictures.addWidget(self._view, 3)
+        self._objects_view = _ImageView(self)
+        self._objects_view.setObjectName("PlaqueObjectsImage")
+        self._prob_view = _ImageView(self)
+        self._prob_view.setObjectName("PlaqueCellprobImage")
+        self._flow_view = _ImageView(self)
+        self._flow_view.setObjectName("PlaqueFlowsImage")
+        self._image_tabs = QTabWidget(self)
+        self._image_tabs.setObjectName("PlaqueImageTabs")
+        tips = (tr("The image with the plaques drawn over it. Right-click "
+                   "for outlines or a filled overlay, colour, thickness and "
+                   "opacity."),
+                tr("The plaque mask alone, one colour per plaque."),
+                tr("Cellpose's cell probability, 0 to 1."),
+                tr("Cellpose's flow field: direction as hue, strength as "
+                   "brightness."))
+        for index, (view, title) in enumerate(zip(
+                (self._view, self._objects_view, self._prob_view,
+                 self._flow_view), IMAGE_TABS)):
+            self._image_tabs.addTab(view, tr(title))
+            self._image_tabs.setTabToolTip(index, tips[index])
+            view.context_requested.connect(self._on_view_context)
+        pictures.addWidget(self._image_tabs, 3)
         self._well_side = QWidget(self)
         side = QVBoxLayout(self._well_side)
         side.setContentsMargins(0, 0, 0, 0)
@@ -1491,6 +2038,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         side.addWidget(self._well_title)
         self._well_view = _ImageView(self._well_side)
         self._well_view.setObjectName("PlaqueWellImage")
+        self._well_view.context_requested.connect(self._on_view_context)
         side.addWidget(self._well_view, 1)
         pictures.addWidget(self._well_side, 2)
         outer.addLayout(pictures, 3)
@@ -1779,6 +2327,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if dialog is not None:
             dialog.show_mode(mode)
         self._tabs.setVisible(figure)
+        self._image_tabs.tabBar().setVisible(not figure)
+        if figure:
+            self._image_tabs.setCurrentIndex(0)
+        self._plaque_result = None
         self._well_side.setVisible(figure)
         self._well_btn.setVisible(figure)
         self._paper_btn.setVisible(figure)
@@ -1900,6 +2452,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             return
         self._load_token += 1
         token = self._load_token
+        self._plaque_result = None
+        self._show_plaque_tabs()
         self.set_preview_status(tr("{name}: press Run preview.",
                                    name=path.name))
         self._load_jobs.submit(
@@ -2163,12 +2717,180 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if "regions" in result:
             self._show_figure(result)
         else:
-            self._view.set_image(result["overlay"])
+            self._plaque_result = result
+            self._show_plaque_tabs()
             self.set_preview_status(tr(
                 "{name}: {count} plaques, mean area {area:.0f} px.",
                 name=Path(result["path"]).name, count=result["count"],
                 area=result["mean_area"]))
         self.preview_ready.emit(result)
+
+    def overlay_style(self) -> OverlayStyle:
+        """How the plaques are drawn now."""
+        return self._overlay_style
+
+    def set_overlay_style(self, style: OverlayStyle) -> None:
+        """Draw the plaques another way, from what is already segmented.
+
+        The style is kept for the rest of the session: a panel built later
+        starts from it.
+
+        :param style: the new :class:`OverlayStyle`.
+        """
+        style = style.normalised()
+        for key, colour in (("outline", style.outline_colour),
+                            ("fill", style.fill_colour)):
+            if colour != RANDOM_COLOUR:
+                self._fixed_colours[key] = colour
+        self._overlay_style = style
+        _SESSION["style"] = style
+        dialog = self._overlay_dialog
+        if dialog is not None:
+            dialog.set_overlay_style(style)
+        self._redraw_plaques()
+
+    def _redraw_plaques(self) -> None:
+        """Redraw every picture that shows plaques, in the current style."""
+        if self._plaque_result is not None:
+            self._show_plaque_tabs()
+        if self._figure is not None:
+            self._repaint_overlay()
+            self._redraw_boxes()
+            if self._selected is not None:
+                self._show_well(self._selected)
+
+    def _show_plaque_tabs(self) -> None:
+        """Fill the Overlay, Objects, Cell probability and Flows tabs.
+
+        Before a run, and for a run that gave no flows, a tab says what is
+        missing instead of staying blank. The Overlay tab keeps the plain
+        image until there is something to draw on it.
+        """
+        result = self._plaque_result
+        if result is None:
+            waiting = tr("Press Run preview to see this.")
+            for view in (self._objects_view, self._prob_view,
+                         self._flow_view):
+                view.show_message(waiting)
+            return
+        image = result.get("image")
+        labels = result.get("labels")
+        if image is not None and labels is not None:
+            self._view.set_image(render_overlay(
+                np.array(image, dtype=np.uint8, copy=True), labels,
+                self._overlay_style))
+        else:
+            self._view.set_image(result.get("overlay"))
+        objects = render_objects(labels)
+        if objects is None:
+            self._objects_view.show_message(tr("This run gave no mask."))
+        elif not np.any(np.asarray(labels) > 0):
+            self._objects_view.show_message(tr(
+                "No plaques were found in this image."))
+        else:
+            self._objects_view.set_image(objects)
+        prob = render_cellprob(result.get("cellprob"))
+        if prob is None:
+            self._prob_view.show_message(tr(
+                "This run gave no cell probability map."))
+        else:
+            self._prob_view.set_image(prob)
+        flows = result.get("flow_rgb")
+        if flows is None:
+            self._flow_view.show_message(tr("This run gave no flows."))
+        else:
+            self._flow_view.set_image(flows)
+
+    def overlay_menu(self) -> QMenu:
+        """The right-click menu of the preview images.
+
+        :returns: a menu with Outlines / Filled overlay, a random-colour
+            toggle for whichever is shown, and the full overlay settings.
+        """
+        style = self._overlay_style
+        menu = QMenu(self)
+        menu.setObjectName("PlaqueOverlayMenu")
+        group = QActionGroup(menu)
+        group.setExclusive(True)
+        for display, label in ((OVERLAY_OUTLINES, tr("Outlines")),
+                               (OVERLAY_FILL, tr("Filled overlay"))):
+            action = menu.addAction(label)
+            action.setCheckable(True)
+            action.setChecked(style.display == display)
+            action.setData(display)
+            group.addAction(action)
+            action.triggered.connect(
+                lambda _checked=False, d=display: self._set_display(d))
+        menu.addSeparator()
+        fill = style.display == OVERLAY_FILL
+        current = style.fill_colour if fill else style.outline_colour
+        randomise = menu.addAction(tr("Random colour per object"))
+        randomise.setObjectName("PlaqueOverlayRandom")
+        randomise.setCheckable(True)
+        randomise.setChecked(current == RANDOM_COLOUR)
+        randomise.toggled.connect(self._set_random)
+        menu.addSeparator()
+        settings = menu.addAction(tr("Overlay settings…"))
+        settings.setObjectName("PlaqueOverlaySettings")
+        settings.triggered.connect(lambda _checked=False:
+                                   self.open_overlay_settings())
+        return menu
+
+    def _set_display(self, display: str) -> None:
+        """Switch between outlines and a filled overlay."""
+        from dataclasses import replace
+
+        self.set_overlay_style(replace(self._overlay_style, display=display))
+
+    def _set_random(self, on: bool) -> None:
+        """Random colours per object for the shown display, or the last fixed one."""
+        from dataclasses import replace
+
+        style = self._overlay_style
+        fill = style.display == OVERLAY_FILL
+        if on:
+            colour: Any = RANDOM_COLOUR
+        else:
+            colour = self._fixed_colours["fill" if fill else "outline"]
+        key = "fill_colour" if fill else "outline_colour"
+        self.set_overlay_style(replace(style, **{key: colour}))
+
+    @staticmethod
+    def _exec_menu(menu: QMenu, position: QPoint) -> Any:
+        """Show a menu at ``position`` and wait for it; tests replace this."""
+        return menu.exec(position)
+
+    def _on_view_context(self, position: QPoint) -> None:
+        """A preview image was right-clicked: offer the overlay options.
+
+        :param position: where, in global coordinates.
+        """
+        self._exec_menu(self.overlay_menu(), position)
+
+    def open_overlay_settings(self) -> PlaqueOverlayDialog:
+        """Open (or raise) the overlay settings, applied live.
+
+        Non-modal, because what it answers is how the picture beside it
+        looks.
+
+        :returns: the dialog, shown.
+        """
+        dialog = self._overlay_dialog
+        if dialog is None:
+            dialog = PlaqueOverlayDialog(self._overlay_style, self)
+            dialog.style_changed.connect(self.set_overlay_style)
+            dialog.finished.connect(self._overlay_closed)
+            self._overlay_dialog = dialog
+        dialog.show()
+        dialog.raise_()
+        return dialog
+
+    def _overlay_closed(self, *_args: Any) -> None:
+        """Forget the overlay window once it is closed."""
+        dialog = self._overlay_dialog
+        self._overlay_dialog = None
+        if dialog is not None:
+            dialog.deleteLater()
 
     def _offer_download(self, entry: Any) -> None:
         """Show the Download button for a zoo model that is not here."""
@@ -2432,7 +3154,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                         region.x0:region.x1], copy=True)
         well = self._wells.get(index)
         if well is not None:
-            outline_labels(crop, well["labels"])
+            render_overlay(crop, well["labels"], self._overlay_style)
         self._well_view.set_image(crop)
         a = self._annotations[index] if index < len(self._annotations) else None
         parts = [tr("Well {n}", n=index + 1)]
@@ -2548,7 +3270,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         overlay = np.array(result["image"], copy=True)
         for index, well in self._wells.items():
             region = result["regions"][index]
-            outline_labels(overlay, well["labels"],
+            render_overlay(overlay, well["labels"], self._overlay_style,
                            offset=(region.y0, region.x0))
         result["overlay"] = overlay
 

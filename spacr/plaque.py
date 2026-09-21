@@ -42,6 +42,7 @@ __all__ = [
     "crop_well",
     "scale_from_well",
     "segment_plaque_image",
+    "plaque_flow_outputs",
 ]
 
 #: Interior diameter, in millimetres, of a well in each standard plate format.
@@ -351,8 +352,46 @@ def _number(settings: Dict[str, Any], key: str,
         return default
 
 
+def plaque_flow_outputs(output: Any) -> Dict[str, Optional[np.ndarray]]:
+    """The flow picture and cell probability out of a Cellpose result.
+
+    Cellpose's ``eval`` returns ``(masks, flows, styles)``, and ``flows`` is
+    a list whose first entry is the flow field already drawn as an RGB image
+    (direction as hue, strength as brightness, the picture the Cellpose GUI
+    shows) and whose third is the cell-probability map, in logits. Either
+    can be a torch tensor on the device the model ran on, so both go through
+    :func:`_host_array`. A result that has no flows -- a stub, or a model
+    that returned only masks -- gives ``None`` for both.
+
+    :param output: what ``model.eval`` returned.
+    :returns: ``{'flow_rgb': H x W x 3 uint8 or None,
+        'cellprob': H x W float32 or None}``.
+    """
+    found: Dict[str, Optional[np.ndarray]] = {"flow_rgb": None,
+                                              "cellprob": None}
+    if not isinstance(output, (list, tuple)) or len(output) < 2:
+        return found
+    flows = output[1]
+    if not isinstance(flows, (list, tuple)):
+        flows = [flows]
+    try:
+        if len(flows) > 0 and flows[0] is not None:
+            rgb = np.squeeze(_host_array(flows[0]))
+            if rgb.ndim == 3 and rgb.shape[-1] >= 3:
+                found["flow_rgb"] = np.ascontiguousarray(
+                    np.clip(rgb[..., :3], 0, 255).astype(np.uint8))
+        if len(flows) > 2 and flows[2] is not None:
+            prob = np.squeeze(_host_array(flows[2]))
+            if prob.ndim == 2:
+                found["cellprob"] = prob.astype(np.float32)
+    except Exception:
+        LOG.debug("the Cellpose flows could not be read", exc_info=True)
+    return found
+
+
 def segment_plaque_image(model: Any, image: np.ndarray,
-                         settings: Dict[str, Any]) -> np.ndarray:
+                         settings: Dict[str, Any], *,
+                         return_flows: bool = False) -> Any:
     """Segment one plaque image the way both Plaque mode's preview and run do.
 
     The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises
@@ -366,7 +405,10 @@ def segment_plaque_image(model: Any, image: np.ndarray,
     :param model: a Cellpose model.
     :param image: ``H x W`` or ``H x W x 3``.
     :param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.
-    :returns: the label image.
+    :param return_flows: also hand back what the live preview's Flows and
+        Cell probability tabs show, from the same call.
+    :returns: the label image; with ``return_flows``, ``(labels, flows)``
+        where ``flows`` is :func:`plaque_flow_outputs`.
     """
     from .spacr_cellpose import cellpose_channel_axis
 
@@ -375,4 +417,7 @@ def segment_plaque_image(model: Any, image: np.ndarray,
                         diameter=diameter if diameter else None,
                         flow_threshold=_number(settings, "flow_threshold", 0.4),
                         cellprob_threshold=_number(settings, "CP_prob", 0.0))
-    return np.asarray(output[0])
+    labels = _host_array(output[0])
+    if return_flows:
+        return labels, plaque_flow_outputs(output)
+    return labels
