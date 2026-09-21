@@ -1803,3 +1803,12 @@ loads again. This restores report generation, not the docs/catalog gate.
 Chinese recovery now has 80 reviewed draft records (76 corrections), 42
 obsolete keys removed, and 83 remaining full-runtime audit diagnostics.
 Future/411 carries current source counts and the remaining API/runtime debt.
+
+2026-09-21 — CODEX DOCS LANE ONLY: Chinese preserved-draft review now covers
+306 distinct sources (272 corrected, 34 retained), for 949 reviewed strings.
+Its full runtime audit fell from 83 to 40 diagnostics at eed895c2f; remaining
+format/literal errors and missing rows keep the docs/catalog gate open.
+Integrated 536de9a61: live inventory is now 6231 runtime / 11166 API sources.
+Current Chinese catalog coverage is 6058/6231 with zero orphan keys; all nine
+API catalogs remain 10419/11166 fresh. Reports and future/411 record the new
+source boundary without changing the extractor debt baseline.

@@ -2181,3 +2181,7 @@ exact sentence overrides repair these and preserve other lessons/languages.
 Evidence: tools/tutorials/evidence/2026-09-21-map-barcodes-current-capture.json.
 Final corrected media/player checks, the full language/voice/caption matrix,
 listening acceptance and complete-set publication remain open.
+The corrected English audio is complete at 233.2 seconds with a new media
+hash; all three formerly wrong read-noun phoneme sequences now use reed.
+Its video/player verification is rerunning. The remaining English voices
+have started on CPU, retaining the corrected af_heart track. No publication.

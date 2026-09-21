@@ -9078,3 +9078,10 @@ newly observed Map read-pronunciation cases. Initial Map media passed full
 4K decode/player checks but is preserved as superseded because the phoneme
 review found red for three read nouns. Corrected narration is rendering;
 the receipt explicitly withholds current media acceptance until reverified.
+Integrated 536de9a61 without conflicts. Reports now use 6231 runtime / 11166
+API sources; Chinese is 6058/6231 current, all API locales 10419/11166.
+API debt: 629 added, two removed, 118 changed; no baseline raised. The final
+Chinese audit's 40 diagnostics remain tied to the earlier eed895c2f source.
+Corrected Map audio is complete: the three inspected noun-read phoneme
+sequences now all use reed. Video/player checks are rerunning; all remaining
+English Map voices have started on CPU. Full matrix/listening remain open.

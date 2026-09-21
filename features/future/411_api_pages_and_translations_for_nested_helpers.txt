@@ -1054,3 +1054,9 @@ At the eed895c2f application-source boundary, the final Chinese audit falls
 from 83 to 40 diagnostics. It still reports 20 missing setting labels,
 20 missing tooltips, 110 missing UI entries and remaining literal/format-field
 debt. The complete reviewed draft is applied; the audit gate remains red.
+Integrated 536de9a61 after the draft checkpoint: live inventory grows to
+6231 runtime entries and 11166 API symbols. Chinese has 6058 current runtime
+entries and zero orphans; API freshness is 10419/11166 in every locale.
+The API debt is 629 added, two removed and 118 changed sources against the
+English manifest. Both source-bound review loaders and reports regenerate.
+The earlier 40-diagnostic audit is tied to eed895c2f, before these additions.
