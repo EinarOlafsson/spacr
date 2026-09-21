@@ -5729,6 +5729,9 @@ UI = {
     'x {x}, y {y}   intensity {value}': 'x {x}, y {y}   강도 {value}',
     'x {x}, y {y}   intensity {value} (inverted)': 'x {x}, y {y}   강도 {value} (반전됨)',
     'Show histogram and level': '히스토그램과 임계값 표시',
+    'Downloading {count} fields of {name}…': '{count}개의 시야를 {name}에서 다운로드하는 중…',
+    '{name}: {count} fields and the masks the model was trained on': '{name}: 시야 {count}개와 모델 학습에 사용한 마스크',
+    'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.': '게시된 모델의 학습에 사용된 데이터셋에서 표본과 해당 마스크를 열어 여기에서 편집합니다. Model Zoo의 모델마다 항목이 하나씩 있습니다. 처음 다운로드한 뒤 캐시에 저장됩니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -11582,4 +11585,7 @@ SOURCE_HASHES = {
     ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
     ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
     ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
+    ('UI', 'Downloading {count} fields of {name}…'): 'f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c',
+    ('UI', '{name}: {count} fields and the masks the model was trained on'): '5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595',
+    ('UI', 'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.'): 'd6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586',
 }

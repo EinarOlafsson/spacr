@@ -5730,6 +5730,9 @@ UI = {
     'x {x}, y {y}   intensity {value}': 'x {x}, y {y}   强度 {value}',
     'x {x}, y {y}   intensity {value} (inverted)': 'x {x}, y {y}   强度 {value}（已反相）',
     'Show histogram and level': '显示直方图和阈值',
+    'Downloading {count} fields of {name}…': '正在下载 {count} 个来自 {name} 的视野…',
+    '{name}: {count} fields and the masks the model was trained on': '{name}：{count} 个视野及模型训练所用的掩膜',
+    'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.': '打开已发布模型训练数据集的一个样本及其掩膜，并在此编辑。Model Zoo 中的每个模型对应一个条目。首次下载后会缓存。',
 }
 
 MODULE_SUMMARIES = {
@@ -11583,4 +11586,7 @@ SOURCE_HASHES = {
     ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
     ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
     ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
+    ('UI', 'Downloading {count} fields of {name}…'): 'f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c',
+    ('UI', '{name}: {count} fields and the masks the model was trained on'): '5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595',
+    ('UI', 'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.'): 'd6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586',
 }

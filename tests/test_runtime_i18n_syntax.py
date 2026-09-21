@@ -168,10 +168,26 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(background_sources) == 8
     assert not added_sources & background_sources
     assert background_sources <= reviewed.keys()
-    assert len(reviewed.keys() - added_sources - background_sources) == 319
+    samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                           "2026-09-21-dataset-sample-counts.json").read_text())
+    sample_sources = {record["source"] for record in samples["records"]}
+    assert len(sample_sources) == 3
+    assert sample_sources <= reviewed.keys()
+    assert not sample_sources & (added_sources | background_sources)
+    scientific = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-scientific-settings.json").read_text())
+    scientific_sources = {record["source"] for record in scientific["records"]}
+    assert len(scientific_sources) == 39
+    assert scientific_sources <= reviewed.keys()
+    assert not scientific_sources & (added_sources | background_sources)
+    assert not sample_sources & scientific_sources
+    older_sources = reviewed.keys() - scientific_sources - sample_sources
+    assert len(older_sources - added_sources - background_sources) == 319
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources) == 327
-    assert len(reviewed) == 335
+    assert len(older_sources - background_sources) == 327
+    assert len(older_sources) == 335
+    assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
+    assert len(reviewed) == 377  # +3 variable-count dataset captions.
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -323,10 +339,17 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(background_sources) == 8
     assert not added_sources & background_sources
     assert background_sources <= reviewed.keys()
-    assert len(reviewed.keys() - added_sources - background_sources) == 310
+    samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                           "2026-09-21-dataset-sample-counts.json").read_text())
+    sample_sources = {record["source"] for record in samples["records"]}
+    assert len(sample_sources) == 3
+    assert sample_sources <= reviewed.keys()
+    assert not sample_sources & (added_sources | background_sources)
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 310
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources) == 318
-    assert len(reviewed) == 326
+    assert len(reviewed.keys() - background_sources - sample_sources) == 318
+    assert len(reviewed.keys() - sample_sources) == 326
+    assert len(reviewed) == 329  # +3 variable-count dataset captions.
     for source, translated in reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

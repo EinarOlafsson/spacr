@@ -690,13 +690,6 @@
     },
     {
       "table": "ui",
-      "key": "Downloading ten fields of {name}…",
-      "source": "Downloading ten fields of {name}…",
-      "source_sha256": "53a132b5c4bb75643aba3e68f95f1b99ce935217227cac3cfb80602fa42021ca",
-      "translation": "Zehn Felder von {name} werden heruntergeladen…"
-    },
-    {
-      "table": "ui",
       "key": "Downloading {name}",
       "source": "Downloading {name}",
       "source_sha256": "61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c",
@@ -1247,13 +1240,6 @@
       "source": "Open a sample of a training dataset",
       "source_sha256": "4224e03e2d6d635713e1934bba639c52fa932bd0726fd4b06708f6f0c1cea2e1",
       "translation": "Stichprobe eines Trainingsdatensatzes öffnen"
-    },
-    {
-      "table": "ui",
-      "key": "Open ten fields of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.",
-      "source": "Open ten fields of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.",
-      "source_sha256": "12cd02aed5501a294272d544d91312d7372b59e07a73aa4ab9b728ad8aef18e7",
-      "translation": "Öffnet zehn Felder des Datensatzes, mit dem ein veröffentlichtes Modell trainiert wurde, samt Masken zur Bearbeitung hier. Ein Eintrag je Modell im Model Zoo. Nach dem ersten Download zwischengespeichert."
     },
     {
       "table": "ui",
@@ -2192,13 +2178,6 @@
       "source": "{name} is not installed. Choosing it offers to install it.",
       "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff",
       "translation": "{name} ist nicht installiert. Durch Auswählen wird seine Installation angeboten."
-    },
-    {
-      "table": "ui",
-      "key": "{name}: ten fields and the masks the model was trained on",
-      "source": "{name}: ten fields and the masks the model was trained on",
-      "source_sha256": "0bdee4dfc6d0e6022c7530dbc476936c1fd9038a6d123c6168de0fe917adb0b9",
-      "translation": "{name}: zehn Felder und die Masken, auf denen das Modell trainiert wurde"
     }
   ]
 }

@@ -5729,6 +5729,9 @@ UI = {
     'x {x}, y {y}   intensity {value}': 'x {x}, y {y}   तीव्रता {value}',
     'x {x}, y {y}   intensity {value} (inverted)': 'x {x}, y {y}   तीव्रता {value} (उलटी की गई)',
     'Show histogram and level': 'हिस्टोग्राम और सीमा-मान दिखाएँ',
+    'Downloading {count} fields of {name}…': '{count} दृश्य क्षेत्र {name} से डाउनलोड हो रहे हैं…',
+    '{name}: {count} fields and the masks the model was trained on': '{name}: {count} दृश्य क्षेत्र और मॉडल को प्रशिक्षित करने में उपयोग किए गए मास्क',
+    'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.': 'जिस डेटासेट पर प्रकाशित मॉडल को प्रशिक्षित किया गया था, उसका एक नमूना और उसके मास्क खोलें तथा यहाँ संपादित करें। Model Zoo में हर मॉडल के लिए एक प्रविष्टि है। पहली बार डाउनलोड करने के बाद इसे कैश में रखा जाता है।',
 }
 
 MODULE_SUMMARIES = {
@@ -11582,4 +11585,7 @@ SOURCE_HASHES = {
     ('SETTING_TOOLTIPS', 'remove_background_organellec'): '1970a99022970b83c57b8a5170be300ee72151208cb60936c2e9e9d9d80c453e',
     ('SETTING_LABELS', 'remove_background_organelled'): '075679268890148f6b15548b60202afed795fa18a63fa37b6e2d9056b9f38d88',
     ('SETTING_TOOLTIPS', 'remove_background_organelled'): 'b6d1750f51059a04d2d7881990e6b320098fe29a8562adb34f71ca47596146a3',
+    ('UI', 'Downloading {count} fields of {name}…'): 'f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c',
+    ('UI', '{name}: {count} fields and the masks the model was trained on'): '5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595',
+    ('UI', 'Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.'): 'd6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586',
 }
