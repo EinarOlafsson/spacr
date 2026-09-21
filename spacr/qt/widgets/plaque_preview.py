@@ -961,7 +961,7 @@ class PlaqueSettingsDialog(QDialog):
 
         figure = QWidget()
         form = QFormLayout(figure)
-        form.addRow(tr("Detector"), panel._detector_box)
+        form.addRow(tr("Detector"), panel._detector_row)
         form.addRow(tr("Inference sizes"), panel._sizes)
         form.addRow(tr("Confidence"), panel._confidence)
         form.addRow("", panel._read_text)
@@ -1006,7 +1006,7 @@ class PlaqueSettingsDialog(QDialog):
     def _lent(self) -> Tuple[QWidget, ...]:
         """The panel controls this window holds while it is open."""
         p = self._panel
-        return (p._detector_box, p._sizes, p._confidence, p._read_text,
+        return (p._detector_row, p._sizes, p._confidence, p._read_text,
                 p._confirm, p._model_row, p._diameter, p._flow, p._cellprob,
                 *p._text.values())
 
@@ -1373,13 +1373,24 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         browse.setText(tr("Browse…"))
         browse.clicked.connect(self._browse_model)
         model_row.addWidget(browse)
+        self._model_zoo_btn = self._zoo_button(
+            self._model_row, "cellpose", lambda: self._model_box)
+        model_row.addWidget(self._model_zoo_btn)
         self._diameter = self._spin(0, 2000, 1, 30, 1)
         self._flow = self._spin(0, 3, 2, 0.4, 0.05)
         self._cellprob = self._spin(-8, 8, 2, 0, 0.25)
-        self._detector_box = QComboBox(self._controls)
+        self._detector_row = QWidget(self._controls)
+        detector_row = QHBoxLayout(self._detector_row)
+        detector_row.setContentsMargins(0, 0, 0, 0)
+        detector_row.setSpacing(4)
+        self._detector_box = QComboBox(self._detector_row)
         self._detector_box.setObjectName("PlaquePreviewDetector")
         self._detector_box.setEditable(True)
         self._detector_box.setMinimumWidth(260)
+        detector_row.addWidget(self._detector_box, 1)
+        self._detector_zoo_btn = self._zoo_button(
+            self._detector_row, "detector", lambda: self._detector_box)
+        detector_row.addWidget(self._detector_zoo_btn)
         self._sizes = QLineEdit(",".join(str(s) for s in DEFAULT_SIZES),
                                 self._controls)
         self._sizes.setToolTip(tr("Detector inference sizes, comma "
@@ -1947,6 +1958,58 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         if self._detector_box.findText(wanted) < 0:
             self._detector_box.addItem(wanted)
         self._detector_box.setCurrentText(wanted)
+
+    def _zoo_button(self, parent: QWidget, kind: str,
+                    box: Callable[[], QComboBox]) -> QToolButton:
+        """A "Model zoo…" button that fills ``box`` from the zoo.
+
+        The same second way in the settings panel gives every Cellpose
+        field: browse what spaCR knows about, download what is not on this
+        machine, and have it chosen here. The zoo is shown filtered to
+        ``kind`` -- the plaque model is a Cellpose checkpoint, the detector a
+        YOLO detector -- so nothing offered fails when the preview runs.
+
+        :param parent: the row the button sits in.
+        :param kind: the :data:`spacr.model_zoo.KINDS` entry to list.
+        :param box: returns the combo box the choice is written into.
+        :returns: the button.
+        """
+        button = QToolButton(parent)
+        button.setText(tr("Model zoo…"))
+        button.setToolTip(tr(
+            "Browse the models spaCR knows about, see what each was trained "
+            "on, download one and fill in this field. You can still type a "
+            "path yourself. "
+            "API: spacr.qt.widgets.model_zoo_picker.choose_model."))
+        button.clicked.connect(
+            lambda _checked=False: self._choose_from_zoo(kind, box()))
+        return button
+
+    def _choose_from_zoo(self, kind: str, box: QComboBox) -> Optional[str]:
+        """Open the zoo for ``kind`` and put the chosen model in ``box``.
+
+        The zoo KEY is written when the chosen file is a zoo entry's, so the
+        setting stays portable between machines; a file the zoo does not
+        name is written as its path.
+
+        :param kind: the model kind to list.
+        :param box: the combo box to fill.
+        :returns: what was written, or None when cancelled.
+        """
+        from PySide6.QtWidgets import QDialog
+
+        from .model_zoo_picker import ModelZooPicker
+
+        dialog = ModelZooPicker(kinds=(kind,), parent=self)
+        if dialog.exec() != QDialog.Accepted or not dialog.chosen_path():
+            return None
+        entry = dialog.selected_entry()
+        key = str(getattr(entry, "key", "") or "")
+        value = key if key else str(dialog.chosen_path())
+        if box.findText(value) < 0:
+            box.addItem(value)
+        box.setCurrentText(value)
+        return value
 
     def _browse_model(self) -> None:
         """Pick a checkpoint file for the plaque model."""

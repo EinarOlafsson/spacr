@@ -358,7 +358,7 @@ def test_one_settings_button_opens_one_window_with_two_tabs(qtbot):
     panel._confidence.setValue(0.4)
     dialog.reject()
     assert panel._settings_dialog is None
-    assert panel._detector_box.parent() is panel._controls
+    assert panel._detector_row.parent() is panel._controls
     assert panel._confidence.value() == pytest.approx(0.4), "values survive"
 
     panel.set_mode("plaque")
@@ -710,3 +710,52 @@ def test_no_settings_control_paints_over_the_mode_switch(qtbot, mode):
         assert not box.intersects(area), (
             f"{child.metaObject().className()} {child.objectName()!r} at "
             f"{box} paints over the mode switch at {area}")
+
+
+class _FakeZoo:
+    """The zoo picker, answered without a window or a download."""
+
+    opened_with = []
+
+    def __init__(self, kinds=None, parent=None):
+        _FakeZoo.opened_with.append(tuple(kinds or ()))
+        self._kinds = kinds
+
+    def exec(self):
+        from PySide6.QtWidgets import QDialog
+
+        return QDialog.Accepted
+
+    def chosen_path(self):
+        return "/models/downloaded.pt"
+
+    def selected_entry(self):
+        from types import SimpleNamespace
+
+        key = ("toxoplasma_well_detector_v9" if "detector" in self._kinds
+               else "toxoplasma_plaque_v9")
+        return SimpleNamespace(key=key)
+
+
+@pytest.mark.parametrize("button, box, kind, key", [
+    ("_detector_zoo_btn", "_detector_box", "detector",
+     "toxoplasma_well_detector_v9"),
+    ("_model_zoo_btn", "_model_box", "cellpose", "toxoplasma_plaque_v9"),
+])
+def test_the_detector_and_plaque_model_fields_have_a_model_zoo_button(
+        panel, monkeypatch, button, box, kind, key):
+    from spacr.qt.widgets import model_zoo_picker
+
+    monkeypatch.setattr(model_zoo_picker, "ModelZooPicker", _FakeZoo)
+    _FakeZoo.opened_with.clear()
+    getattr(panel, button).click()
+    assert _FakeZoo.opened_with == [(kind,)]
+    assert getattr(panel, box).currentText() == key
+
+
+def test_the_settings_window_shows_the_zoo_buttons(panel):
+    dialog = ppv.PlaqueSettingsDialog(panel)
+    assert panel._detector_zoo_btn.parent() is panel._detector_row
+    assert panel._detector_row in dialog._lent()
+    assert panel._model_zoo_btn.parent() is panel._model_row
+    dialog.give_back() if hasattr(dialog, "give_back") else None
