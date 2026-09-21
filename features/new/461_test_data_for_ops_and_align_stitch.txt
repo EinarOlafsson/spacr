@@ -95,3 +95,8 @@ OPS, run_ops on the two fields, ops_gpu off:
              read, 3,729 assigned a barcode, 3,549 of them library-exact
              (95 %), 3,600 mapped to a guide; 20.7 s
     phenotype skipped: no phenotype_source.
+
+2026-09-21 — CODEX TRANSLATIONS ONLY: current source extraction includes this
+item's nine new runtime captions. They are present in the English manifest;
+the nine-language translations remain open under future/411. No example-data
+implementation or acceptance decision was changed by this translation pass.

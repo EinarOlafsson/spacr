@@ -1743,3 +1743,9 @@ in all nine locales, restoring a runnable audit. New source debt is explicit:
 58 new runtime sources plus changed plaque_model, 508 full-audit diagnostics,
 and API inventory 548 added/two removed/115 changed. Both reports are current;
 ten source/preservation and four reporter checks pass. Docs remains open.
+
+2026-09-21 — CODEX DOCS: after integrating nightly through 3a4468e32, runtime
+inventory is 6128 and the runnable runtime audit reports 535 diagnostics.
+API inventory is 11095 live symbols, with 558 added, two removed and 115
+changed versus the English catalog. Reports and future/411 carry these current
+counts; the docs lane remains open and no coverage gate was weakened.

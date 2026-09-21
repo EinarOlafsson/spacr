@@ -8859,3 +8859,18 @@ receipt updated. Full locale/voice/audible/publication work remains.
 Coverage batch 26's real animation sweep finished exit 0 with no lost data;
 batch 28 runs. CPU narration reached 95/150; GPU remains occupied. No restart,
 coverage baseline update, claim of full CI success or live media publication.
+
+2026-09-21 — CODEX: INTEGRATED CHECKPOINT BEFORE PUSH
+--------------------------------------------------------------------------------
+Integrated nightly through 3a4468e32, preserving Claude's scenario-2 result
+and Codex's translation note in 421. Current runtime inventory is 6128; the
+all-runtime audit runs with 535 diagnostics. API debt is 558 added, two removed,
+115 changed across 11095 live symbols. Six source/data-copy checks pass.
+Feature notes 43 docs, 461 translation-only and future/411 record this growth.
+Coverage and narration worker handles were revalidated live, with 30/95
+coverage batches complete and 105/150 narration tracks at the last observation.
+The French recovery and Annotate capture/master/browser evidence are included
+in this checkpoint. Full task closure and live tutorial publication remain open.
+Integrated report verification passes: four reporter tests in 138.29 s, the
+feature-index check and whitespace check. This confirms current debt reporting,
+not a green all-language audit or completed docs lane.

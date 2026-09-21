@@ -912,3 +912,13 @@ reports 508 diagnostics, not 508 unique strings. API debt is now 548 added,
 two removed and 115 changed symbols, 11085 live; the exact inventory and both
 reports are updated. Ten review/preservation tests and four reporter tests
 (123.96 s) pass. No current full-locale or API green result is claimed.
+
+2026-09-21 — CODEX: NIGHTLY INTEGRATION THROUGH 3a4468e32
+--------------------------------------------------------------------------------
+The OPS/Align examples add nine more runtime sources. Current inventory is
+6128 runtime entries and 11095 API symbols: 558 added, two removed, 115 changed
+API sources versus the English catalog. The exact inventory/report is refreshed;
+no API baseline is loosened. The all-runtime audit runs and exits 1 with 535
+diagnostics. Six source-bound translation/data-copy checks pass in 34.98 s.
+French and Annotate checkpoint work is retained; the remaining catalogs and
+final tutorial acceptance remain open. No GPU translation has started.
