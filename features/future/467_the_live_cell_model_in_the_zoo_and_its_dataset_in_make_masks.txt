@@ -1,0 +1,91 @@
+================================================================================
+THE LIVE-CELL MODEL IN THE ZOO, UNDER spaCR, AND ITS DATASET IN MAKE MASKS
+================================================================================
+
+Status:    FILED 2026-09-21, before any of it is built. Blocked on the Hugging
+           Face upload: the zoo entry needs the published weights' sha256 and the
+           test scores, and the Make Masks entry needs the dataset repo to exist.
+
+Requested: 2026-09-21 -- "when it hits 40 (or 44 if thats the next checkpoint)
+           stop training and uploade to hugging face (qc, train test valid
+           split, percormance vs stock, etc.) and make a new feature item to
+           wire the new model in to the model zoo under spacr category. also the
+           new dataset should be wired into make masks (like the others)"
+
+Owner:     Claude (spacr/model_zoo.py, spacr/qt/make_masks_datasets.py).
+
+--------------------------------------------------------------------------------
+WHAT THE MODEL IS
+--------------------------------------------------------------------------------
+
+A Cellpose-SAM fine-tune of cpsam_v2 for cells in TRANSMITTED-LIGHT microscopy --
+phase contrast, brightfield and DIC -- which is the half of microscopy the zoo
+has nothing for. Every spaCR model to date is fluorescence (PV, cross-channel)
+or a plaque assay.
+
+  data      11,007 fields from 14 public datasets, group-split so no
+            acquisition, well or time-lapse spans two sets:
+            6,778 train, 2,030 valid, 2,199 test
+  recipe    100 epochs asked for; STOPPED AT EPOCH 44 at the maintainer's word.
+            lr 1e-5, batch 4, bsize 256, min_train_masks 1, file mode
+  project   /mnt/wd4tb/af3/projects/live_cell (START_HERE.md, INGEST.json)
+  repos     einarolafsson/live-cell-segmentation-cpsam            (model)
+            einarolafsson/live-cell-segmentation-dataset          (dataset)
+
+--------------------------------------------------------------------------------
+PART A -- THE ZOO ENTRY
+--------------------------------------------------------------------------------
+
+One dict in spacr/model_zoo.py, shaped like `toxoplasma_pv_v3`: key, name,
+kind "cellpose", repo_id, repo_type "model", uri to weights/live_cell_v1,
+sha256 OF THE PUBLISHED FILE, metrics, display_name, architecture, dataset,
+versus_stock, trained_on, trained_by, notes.
+
+UNDER spaCR, and no code is needed to put it there: `model_zoo.py:2430`
+returns "spaCR" as the source for any entry that does not name another, and
+the picker's "spaCR" heading is "Models trained by the spaCR maintainer and by
+spaCR users, each with the scorecard it was measured against." The scorecard is
+the part that has to be right.
+
+THE SCORECARD MUST CARRY TWO STOCK COMPARISONS, NOT ONE. Stock cpsam_v2 was
+trained on LIVECell (5% of its samples) and on YeaZ -- verified from the
+Cellpose-SAM paper's Methods, see WHAT_STOCK_CPSAM_HAS_SEEN.md in the model
+repo. On those datasets stock's score is partly memorisation. `versus_stock`
+and `notes` must give the overall figure AND the figure over the datasets stock
+never saw -- DeepSea, the five CTC sets, BBBC009, BBBC030, QPI, Revvity -- and
+say which is which. A single stock number here would be the plaque r3 mistake
+the r5 card already warned about.
+
+THE sha256 IS OF THE UPLOADED FILE. Computed from what Hugging Face serves, not
+from the local checkpoint, because the zoo verifies downloads against it and a
+mismatch refuses the model.
+
+--------------------------------------------------------------------------------
+PART B -- THE DATASET IN MAKE MASKS
+--------------------------------------------------------------------------------
+
+One MaskDataset in spacr/qt/make_masks_datasets.py (item 450's registry):
+repo einarolafsson/live-cell-segmentation-dataset, images "images", masks
+"masks", apps ("mask",). The repo is published in exactly that layout so there
+is no special case.
+
+TEN FIELDS BY SORTED NAME WILL ALL BE ONE DATASET. The curated names are
+`<source>__<stem>`, and sorting puts every `bbbc009_dic__` first. Item 450's
+first-ten rule is right for its five sets, which are one domain each, and
+wrong for this one, which is fourteen. This entry needs a sample that takes
+fields ACROSS sources -- still deterministic, so two machines agree -- or a user
+opens "live cell" and sees five red blood cells and five CHO cells and nothing
+else. That is the one real design question here and it is to be settled in
+the build, not assumed.
+
+--------------------------------------------------------------------------------
+HOW TO KNOW IT WORKED
+--------------------------------------------------------------------------------
+
+  * The model appears under the spaCR heading in the picker, installs, and its
+    download verifies against the sha256.
+  * Its scorecard shows both stock comparisons and names which datasets stock
+    had already seen.
+  * "Training datasets…" in Make Masks lists live cell, and the ten fields it
+    opens come from more than one source.
+  * choose_sample on the live repo listing is run, not only against a fixture.
