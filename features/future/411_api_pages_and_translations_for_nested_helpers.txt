@@ -803,3 +803,29 @@ the earlier green runtime result is not a claim about that later source.
 The integrated English manifest now has 3813 UI sources: exactly five new
 465 normalization captions, with no earlier reviewed source renamed. These
 five nine-language rows remain the next runtime follow-on.
+
+2026-09-21 — CODEX: 465 CAPTIONS AND SPANISH SCIENTIFIC SETTINGS
+--------------------------------------------------------------------------------
+The five incoming normalization captions are now reviewed in all nine
+languages (45 records). German and Swedish full runtime audits pass at the
+3813-UI-source manifest. All ten source/syntax/reporter checks pass (204.52 s).
+The first 39 Spanish scientific-setting drafts are also corrected and pass
+the current gates, preserving literal identifiers, formulas and defaults.
+Spanish UI/category review is continuing; the next read/correction slice is
+prepared separately from the published rows. API and full-runtime audits are
+running to replace the handover's historical debt counts with measured ones.
+No helper-page completion or green docs CI verdict is claimed.
+
+Audit attribution correction: the format-field errors are in the runtime
+lane. Its all-language audit now reports 428 diagnostics at the 3813-source
+snapshot, including missing/stale rows and placeholder/HTML mismatches.
+This count describes diagnostics, not unique rows, and excludes later Import
+sources. The independent API audit is still running; no new API debt count
+has been established. The earlier 392-docstring count remains historical.
+
+The next Spanish slice is now saved: 42 current UI/category sources, with
+32 corrections and ten drafts retained after review. They cover the three
+OPS category descriptions, initial Model Zoo/embeddings controls, filtering
+instructions and sound descriptions. All pass the existing gates. The file
+is es/2026-09-21-runtime-ui-first-slice.json under docs/i18n/reviewed/runtime.
+The earlier 428-diagnostic runtime audit precedes this 42-row addition.

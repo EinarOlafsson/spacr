@@ -143,3 +143,13 @@ WHAT IS STILL OWED, and it is the only thing:
     the same settings whatever the backend, and a Cellpose 3 user sees
     Cellpose-SAM's wording. That is worth its own item if the maintainer
     wants it.
+
+2026-09-21 — CODEX: SPANISH MODEL-SETTINGS WORDING REVIEWED
+--------------------------------------------------------------------------------
+The scientific-settings translation slice corrects the Spanish cell, nucleus
+and pathogen model descriptions and flow thresholds. It preserves cyto/cyto2/
+cyto3/nuclei, cpsam, segmentation_backend, 30/diameter, model_type, diam_mean
+and the distinction between CPSAM and Cellpose 3 checkpoints. The reviewed
+source-bound rows are in es/2026-09-21-scientific-settings.json under
+ docs/i18n/reviewed/runtime. This does not claim the real GPU run owed above
+or completion of every locale; no scientific code or model was changed.

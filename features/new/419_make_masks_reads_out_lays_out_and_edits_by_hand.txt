@@ -1044,3 +1044,12 @@ STILL OPEN FOR THIS ITEM, unchanged: the nine-language catalog rows. The
 audit now runs and says what they are, and the answer is large -- Portuguese
 alone reports 243 missing UI rows -- so it is a translation-model pass, and
 the model needs the GPU, which was busy all afternoon.
+
+2026-09-21 — CODEX TRANSLATION SLICE
+--------------------------------------------------------------------------------
+The first Spanish UI review slice corrects the explanation of applying the
+active object bounds, and preserves the one-step undo and removed-object
+area/intensity report. It also reviews the Add field and Channels captions.
+Source-bound record: docs/i18n/reviewed/runtime/es/
+2026-09-21-runtime-ui-first-slice.json. This is partial locale progress,
+not closure of all translations or any remaining production UI work.

@@ -2981,3 +2981,17 @@ the other lacks. They are the catalog debt, not this.
 
 LEFT ON 364 AFTER THIS: the two parked motility renames, a name for the
 per-slot `remove_background_<slot>` switch, and the translations.
+
+2026-09-21 — CODEX: SPANISH SCIENTIFIC-SETTINGS TRANSLATION SLICE
+--------------------------------------------------------------------------------
+Reviewed and corrected 39 Spanish setting labels/tooltips against their
+current English sources. Repairs include control sgRNAs, trajectory filtering,
+OPS channel/read/window settings and phenotype input, filename conventions,
+Cellpose model/scaling semantics and regression plot bounds. Machine drafts
+had translated identifiers/formulas, omitted instructions, and confused
+training with a vehicle and image tiles with floor tiles. The source-bound
+records and selected catalog rows now preserve code names, formula tokens,
+column names, defaults and scientific meaning. All 39 pass the current gates.
+Record: docs/i18n/reviewed/runtime/es/2026-09-21-scientific-settings.json.
+This is a bounded Spanish slice; the complete nine-language debt remains open.
+The non-translation decisions in this item remain with Claude.

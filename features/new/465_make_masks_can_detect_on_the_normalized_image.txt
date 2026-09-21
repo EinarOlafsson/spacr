@@ -30,3 +30,13 @@ does, and says "(as loaded)". What is saved never changes.
 
 A float field has no integer range to fill, so normalize_for_detection puts
 it on 0..1 instead of calling normalize_uint16, which would fail on it.
+
+2026-09-21 — CODEX: TRANSLATION FOLLOW-ON
+--------------------------------------------------------------------------------
+All five normalization captions now have source-bound reviewed records in
+all nine runtime languages, including the unchanged {x}, {y} and {value}
+fields. The full German and Swedish runtime audits pass with 3813 UI sources.
+All ten source/syntax/reporter tests pass (204.52 s). Record file in each
+language: docs/i18n/reviewed/runtime/<language>/
+2026-09-21-normalized-detection.json. This changes only translations; Claude
+retains ownership of the detector and screen behavior.

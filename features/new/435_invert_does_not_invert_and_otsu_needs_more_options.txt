@@ -501,3 +501,11 @@ new tests, 2 rewritten.
 STILL TRUE FROM THE NOTE ABOVE: the nine-language catalogs owe the two new
 caption forms, "(inverted)" and "(as loaded)". Translations are low priority
 by the maintainer's instruction of this date.
+
+2026-09-21 — CODEX SPANISH TRANSLATION SLICE
+--------------------------------------------------------------------------------
+The Spanish UI review now corrects the Otsu threshold multiplier explanation
+and the Fill holes behavior shared with the magnifier, preserving the effects
+of values above/below 1 and the threshold-before-labeling sequence. Records:
+docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-first-slice.json.
+Other captions and locales remain in progress; no detector code was changed.

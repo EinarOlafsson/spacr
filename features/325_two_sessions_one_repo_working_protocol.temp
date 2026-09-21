@@ -8739,3 +8739,20 @@ the affected entries in features/new and features/future, not only this
 coordination log. This checkpoint updates 288, 411, 368, 286 and 43's docs
 lane alongside the 358/447 capture notes, with verified results and explicit
 remaining work. Future pushes will keep those item records current.
+
+2026-09-21 — CODEX: NORMALIZATION CAPTIONS AND SPANISH SETTINGS
+--------------------------------------------------------------------------------
+The five 465 normalization captions have 45 reviewed rows across nine
+languages. Full German/Swedish runtime audits pass at 3813 UI sources; all
+ten source/syntax/reporter checks pass (204.52 s). Spanish adds 39 reviewed
+scientific-setting corrections. Items 465, 364, 446 and future/411 record
+these slices and the remaining work. Full API/runtime audits are running;
+new Import sources from e4fd5f31e are outside the above audit boundary.
+The all-language runtime audit exits 1 with 428 diagnostics at that snapshot.
+Correction to the previous checkpoint notes: "format fields changed" belongs
+to runtime, not API. The separate API audit is still running; 43's docs note
+and future/411 now distinguish their evidence correctly.
+Spanish's next 42 UI/category sources also pass the existing gates: 32
+corrections and ten reviewed retentions. Items 419/435 record the relevant
+filtering/Otsu wording; future/411 records the full slice. The all-runtime
+428-diagnostic result was measured before these additional 42 rows.

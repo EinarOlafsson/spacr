@@ -1692,3 +1692,12 @@ docs job: API format-field errors, missing/stale rows and the explicit
 392-docstring debt remain open in Codex's translation lane. Other failures
 and decisions in this item remain with Claude. See future/411's dated note
 and docs/i18n/2026-09-21-runtime-swedish-refresh.md for the revision boundary.
+
+Audit attribution correction, 2026-09-21: "format fields changed" is a
+RUNTIME-catalog diagnostic, not an API-catalog diagnostic as the preceding
+checkpoint wording implied. The complete runtime audit at the 3813-source
+snapshot exits 1 with 428 diagnostics (the tool prints 200 plus a remainder
+of 228), despite de/sv passing. Missing/stale rows and placeholder/HTML
+mismatches in other locales remain. These diagnostics are not counts of
+unique translation rows. The separate API audit is still running; the
+392-docstring figure remains historical debt, not a new measurement.

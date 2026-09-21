@@ -5745,6 +5745,11 @@ UI = {
     'Refresh: the source setting is empty.': '刷新：源设置为空。',
     'Refresh: {path} does not exist.': '刷新：{path} 不存在。',
     'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.': '显示或隐藏控制台上方的噬斑分割预览。运行实验分析前，先在一个视野中检查噬斑直径和阈值。',
+    'Detect on the normalized image': '在归一化图像上检测',
+    'Detection reads the image as drawn (normalized).': '检测使用显示的图像（已归一化）。',
+    'Detection reads the image as loaded.': '检测使用加载时的图像。',
+    'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.': '关闭：Otsu、Cellpose 和放大镜使用加载时的图像（开启反相时使用反相图像），下限 % / 上限 % 仅改变显示效果。开启：它们使用在下限 % 与上限 % 之间拉伸强度后的图像，与屏幕显示完全一致，左上角的强度也显示该拉伸后的值。保存的数据始终不变。',
+    'x {x}, y {y}   intensity {value} (normalized, as detected)': 'x {x}, y {y}   强度 {value}（已归一化，与检测时一致）',
 }
 
 MODULE_SUMMARIES = {
@@ -11613,4 +11618,9 @@ SOURCE_HASHES = {
     ('UI', 'Refresh: the source setting is empty.'): 'b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b',
     ('UI', 'Refresh: {path} does not exist.'): 'b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc',
     ('UI', 'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.'): '3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da',
+    ('UI', 'Detect on the normalized image'): 'b9419fd5aa6d352e2f2695d338337d3e7d3ba2acd0f3523f2b87281b361efab4',
+    ('UI', 'Detection reads the image as drawn (normalized).'): '3014b9208f241d848ac044fa6cfdeb6033b41cef39841149c861444b79af880b',
+    ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
+    ('UI', 'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.'): '9eed53b13f2726d64d04bafd35c4d0b31b3f2b05650e87e6edaba101c10c9d9e',
+    ('UI', 'x {x}, y {y}   intensity {value} (normalized, as detected)'): 'a4e14490fc49f565f00140220ee671d5445fbc7f2140a574527151bb958ae9f6',
 }

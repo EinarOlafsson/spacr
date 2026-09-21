@@ -5995,6 +5995,11 @@ UI = {
     'Refresh: the source setting is empty.': 'Uppdatera: källinställningen är tom.',
     'Refresh: {path} does not exist.': 'Uppdatera: {path} finns inte.',
     'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.': 'Visa eller dölj förhandsvisningen av placksegmenteringen ovanför konsolen. Kontrollera plackdiametern och tröskelvärdena i ett bildfält innan analysen körs.',
+    'Detect on the normalized image': 'Detektera i den normaliserade bilden',
+    'Detection reads the image as drawn (normalized).': 'Detekteringen använder bilden som den visas (normaliserad).',
+    'Detection reads the image as loaded.': 'Detekteringen använder bilden som den lästes in.',
+    'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.': 'Av: Otsu, Cellpose och förstoringsglaset använder bilden som den lästes in (inverterad om Invertera är på), och Nedre % / Övre % ändrar bara hur den visas. På: de använder bilden med intensiteterna utsträckta mellan Nedre % och Övre %, precis som den visas, och intensiteten längst upp till vänster visar det utsträckta värdet. Sparade data ändras aldrig.',
+    'x {x}, y {y}   intensity {value} (normalized, as detected)': 'x {x}, y {y}   intensitet {value} (normaliserad, som vid detektering)',
 }
 
 MODULE_SUMMARIES = {
@@ -12114,4 +12119,9 @@ SOURCE_HASHES = {
     ('UI', 'Refresh: the source setting is empty.'): 'b8a586ac2d0f365ba1122e7aea8df73828264286323dc8aa55e866fe20b6e11b',
     ('UI', 'Refresh: {path} does not exist.'): 'b9fad6fe15a976cff1500ce86c45ba38f851b7003711e556152771e920cac1cc',
     ('UI', 'Show or hide the plaque segmentation preview above the console. Check the plaque diameter and thresholds on one field before running the assay.'): '3962943f61060ff56005e5fc509ea9ab782e077acc768df9fd648b36995387da',
+    ('UI', 'Detect on the normalized image'): 'b9419fd5aa6d352e2f2695d338337d3e7d3ba2acd0f3523f2b87281b361efab4',
+    ('UI', 'Detection reads the image as drawn (normalized).'): '3014b9208f241d848ac044fa6cfdeb6033b41cef39841149c861444b79af880b',
+    ('UI', 'Detection reads the image as loaded.'): '9bc6aba98b1dd55d0560e7c2c8808e18025dab70a626e294ebaab7435a75c5d4',
+    ('UI', 'Off: Otsu, Cellpose and the magnifier read the image as it was loaded (inverted if Invert is on), and Lower % / Upper % only change how it is drawn. On: they read it stretched between Lower % and Upper %, exactly as drawn, and the intensity in the top-left corner shows that stretched value. What is saved is never changed.'): '9eed53b13f2726d64d04bafd35c4d0b31b3f2b05650e87e6edaba101c10c9d9e',
+    ('UI', 'x {x}, y {y}   intensity {value} (normalized, as detected)'): 'a4e14490fc49f565f00140220ee671d5445fbc7f2140a574527151bb958ae9f6',
 }

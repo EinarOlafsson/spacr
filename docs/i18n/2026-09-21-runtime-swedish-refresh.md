@@ -51,3 +51,8 @@ English manifest is refreshed to 3813 UI sources; translations for these five
 remain open. The full German/Swedish green result above applies to the prior
 3808-source manifest. No earlier reviewed runtime source was renamed in this
 incoming change.
+
+The five normalization sources now have 45 reviewed translations across all
+nine languages. The full German/Swedish runtime audits pass at 3813 UI
+sources, and all ten selected source/syntax/reporter tests pass (204.52 s).
+This verification precedes the Import sources in `e4fd5f31e`.
