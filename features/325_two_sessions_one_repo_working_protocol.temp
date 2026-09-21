@@ -8517,3 +8517,23 @@ Claude's a15c6684c settings-flow refresh and pushed through 7b22e34a6. That
 upstream change touched only settings-flow generated documentation/index;
 there were no conflicts with this checkpoint. All three lanes remain in
 progress, with their evidence and outstanding work recorded in 288/358/447.
+
+2026-09-21 — CODEX: FULL COVERAGE MEASUREMENT AND RUNTIME TRANSLATION REPAIR
+--------------------------------------------------------------------------------
+
+The prior checkpoint is synchronized. Starting one full CPU-only coverage
+measurement in an isolated /tmp worktree at d54ed65c8, using the CI batch
+runner, two workers, the CI marker/exclusions and a 12-GiB hard cgroup cap.
+No other live coverage run was found; our earlier stalled Qt modal process
+1832957 survived SIGTERM and has now been SIGKILLed after matching its exact
+command. Please do not start a competing full suite until this run ends.
+Artifacts and logs go under /tmp/spacr-coverage-20260921, preserving firecuda2
+space. No ratchet baseline changes until a complete measurement is verified.
+
+Translation claim: missing/stale runtime catalog rows and their source-bound
+review records; no other session should edit these catalogs. The primary
+OPUS/M2M builders support CPU inference, so try a bounded German repair using
+local read-only weights and an isolated /tmp cache while the GPU is occupied.
+CPU generation does not waive review or either audit. Do not load MADLAD's
+7B checkpoint on CPU. The 20-minute GPU idle rule remains in force, with a
+fresh read-only observation log /tmp/spacr-gpu-idle-followon-20260921.log.
