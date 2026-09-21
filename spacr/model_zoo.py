@@ -2256,7 +2256,9 @@ def installable_backend_entries() -> List["ModelEntry"]:
             kind="backend", source=state.state, uri=f"backend:{name}",
             sha256="", size_bytes=0, trained_on=spec.blurb,
             trained_by=spec.label, licence=spec.licence,
-            notes=(f"{state.state}: {state.reason}", spec.licence_note)))
+            notes=tuple(note for note in (f"{state.state}: {state.reason}",
+                                          spec.licence_note, spec.published)
+                        if note)))
     return out
 
 

@@ -229,6 +229,9 @@ class _BackendSpec:
         own environment is still used.
     :param models: the named models the backend offers.
     :param blurb: one sentence for the zoo row.
+    :param published: the project's own reported results, quoted with their
+        source, for the zoo row's scorecard note. spaCR has not measured
+        these backends on its own data, and the note says so.
     """
 
     name: str
@@ -247,6 +250,7 @@ class _BackendSpec:
     in_process: bool = False
     models: tuple = ()
     blurb: str = ""
+    published: str = ""
 
 
 #: Every optional backend. The versions are the ones each adapter was
@@ -272,7 +276,13 @@ _SPECS = {
             "Cellpose 3 with its cyto3, cyto2, cyto and nuclei models, and "
             "any Cellpose-format model added from bioimage.io. It runs in "
             "an environment of its own, so spaCR's Cellpose 4 is "
-            "untouched.")),
+            "untouched."),
+        published=(
+            "Published results: Stringer and Pachitariu, 'Cellpose3: one-click "
+            "image restoration for improved cellular segmentation', Nature "
+            "Methods 2025 (doi:10.1038/s41592-025-02595-5). The project's "
+            "README publishes no results table. spaCR has not scored this "
+            "backend on its own data.")),
     _DINOCELL: _BackendSpec(
         name=_DINOCELL, label="DINOCell", module="dinocell",
         probe=("dinocell.main", "dinocell.model", "dinocell.pipeline",
@@ -289,7 +299,12 @@ _SPECS = {
         blurb=(
             "DINOCell, a DINOv2 model that predicts Cellpose-style flows, "
             "for live-cell and label-free images. It pins its own torch, "
-            "numpy and Cellpose, so it runs in an environment of its own.")),
+            "numpy and Cellpose, so it runs in an environment of its own."),
+        published=(
+            "Published results (project README, read 2026-09-21; Stillwagon et "
+            "al. 2026, arXiv:2604.10609): LIVECell test set SEG 0.784, DET "
+            "0.926, MMA 0.876, against Cellpose-SAM 0.710 / 0.852 / 0.807. "
+            "spaCR has not scored this backend on its own data.")),
     _SAMCELL: _BackendSpec(
         name=_SAMCELL, label="SAMCell", module="samcell",
         probe=("samcell.model", "samcell.pipeline"),
@@ -304,7 +319,13 @@ _SPECS = {
         blurb=(
             "SAMCell, SAM ViT-B fine-tuned to predict a cell distance map, "
             "trained partly on LIVECell. It runs in an environment of its "
-            "own.")),
+            "own."),
+        published=(
+            "Published results (project README, read 2026-09-21; "
+            "Sanganeriya et al., PLOS ONE 2025, doi:10.1371/journal.pone."
+            "0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, "
+            "against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored "
+            "this backend on its own data.")),
 }
 
 

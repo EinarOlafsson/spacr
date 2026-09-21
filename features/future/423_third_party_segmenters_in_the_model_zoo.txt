@@ -4,7 +4,15 @@ DINOCELL AND SAMCELL IN THE MODEL ZOO, INSTALLED ON CLICK
 
 Filed as 414 on 2026-09-18; renumbered 2026-09-19 because 414 also names features/new/414_claude_code_installs_with_curl_on_every_system.txt.
 
-Status:    BUILT TO THE MAINTAINER'S DECISION, ~92%, 2026-09-19 (the two
+Status:    DONE 2026-09-21 on Linux. The last cells are filled: each
+           backend's zoo row quotes its project's own published results with
+           their source (DINOCell arXiv:2604.10609, SAMCell PLOS ONE
+           doi:10.1371/journal.pone.0319532, Cellpose 3 Nature Methods
+           doi:10.1038/s41592-025-02595-5) and says spaCR has not scored it on
+           its own data. Scoring on spaCR's data is items 404/405, which wait
+           on the maintainer's curated sets. Not run: an install on Windows or
+           macOS, which needs those hosts (as item 416).
+           Earlier: BUILT TO THE MAINTAINER'S DECISION, ~92%, 2026-09-19 (the two
            trailing notes of that date). Every optional backend -- Cellpose 3,
            DINOCell, SAMCell -- installs into a venv of its own under
            ~/.spacr/backends/<name>, off the GUI thread, with progress and

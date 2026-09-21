@@ -1677,3 +1677,15 @@ def test_under_cellpose3_an_objects_model_name_is_read_as_it_was_written(
     assert "predates Cellpose-SAM" not in capsys.readouterr().out
     settings["segmentation_backend"] = "cellpose"
     assert _get_object_settings("cell", settings)["model_name"] == "cpsam"
+
+
+def test_every_backend_row_quotes_its_published_results_with_a_source():
+    """Item 423's scorecard cells: a project's own numbers, quoted with their
+    source, and a plain statement that spaCR has not measured them."""
+    from spacr import model_zoo
+
+    for entry in model_zoo.installable_backend_entries():
+        published = [n for n in entry.notes if n.startswith("Published results")]
+        assert len(published) == 1, entry.name
+        assert "spaCR has not scored" in published[0]
+        assert "doi:" in published[0] or "arXiv:" in published[0]
