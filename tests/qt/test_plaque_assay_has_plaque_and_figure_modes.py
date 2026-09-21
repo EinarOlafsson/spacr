@@ -27,6 +27,7 @@ from PySide6.QtWidgets import QWidget  # noqa: E402
 
 from spacr import plaque_papers as pp  # noqa: E402
 from spacr.qt.widgets import plaque_preview as ppv  # noqa: E402
+from tests.conftest import MISSING_CHANNEL_AXIS, check_cellpose_eval_call  # noqa: E402
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -1022,7 +1023,17 @@ def test_segment_plaque_image_can_hand_back_its_flows():
             return self.array
 
     class _Model:
-        def eval(self, image, **_kwargs):
+        def eval(self, x, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
+            check_cellpose_eval_call(x, channel_axis, z_axis=z_axis,
+                                     do_3D=do_3D,
+                                     stitch_threshold=stitch_threshold)
             flows = _fake_flows()
             return (_Tensor(_square()),
                     [_Tensor(flows["flow_rgb"]), None,
