@@ -128,3 +128,6 @@ def test_current_release_and_other_software_versions_are_accepted(qtbot):
     qtbot.addWidget(label)
     label.show()
     verify_visible_paths([label], "/tmp/tutorial")
+    label.setText("spaCR 0.0.0.1; Python 3.12; Qt 6.11.2")
+    with pytest.raises(RuntimeError, match="another spaCR release"):
+        verify_visible_paths([label], "/tmp/tutorial")

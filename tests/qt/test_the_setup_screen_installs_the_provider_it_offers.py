@@ -688,8 +688,12 @@ def test_a_panel_that_will_not_stop_does_not_stop_the_screen(slides,
     def refuse():
         raise RuntimeError("stuck")
 
+    stopped = []
     monkeypatch.setattr(slides._ai_setup, "shutdown", refuse)
+    monkeypatch.setattr(slides._gh_setup, "shutdown",
+                        lambda: stopped.append("github"))
     slides._stop_the_installs()
+    assert stopped == ["github"], "the next panel is still stopped"
 
 
 def test_a_mark_that_is_not_installed_says_choosing_it_offers_the_install(

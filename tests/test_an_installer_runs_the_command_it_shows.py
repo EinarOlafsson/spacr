@@ -30,6 +30,10 @@ from spacr.qt.ai.providers import (INSTALL_METHODS, InstallMethod,
                                    GitHubCli, github_cli, install_hint_for,
                                    install_methods_for, platform_family)
 
+#: Where the fake installer's CLI turns up: the running user's own
+#: ``~/.local/bin``, as the real installers use, and on no fixed machine.
+_INSTALLED_AT = str(Path.home() / ".local" / "bin" / "x")
+
 
 @pytest.fixture(autouse=True)
 def _nothing_is_really_run(monkeypatch):
@@ -319,12 +323,12 @@ def test_a_successful_install_streams_its_output_and_finds_the_cli(
     process = FakeProcess([b"\x1b[32mDownloading\x1b[0m 10%\r20%",
                            b"\r100%\nInstalled\n", b"\n  \n", b"last"])
     found = {"curl": "/usr/bin/curl", "bash": "/usr/bin/bash"}
-    process._on_exit = lambda: found.update(fakecli="/home/u/.local/bin/x")
+    process._on_exit = lambda: found.update(fakecli=_INSTALLED_AT)
     outcome, lines, seen, _found = run_with(monkeypatch, process,
                                             found=found)
     assert lines == ["Downloading 10%", "20%", "100%", "Installed", "last"]
     assert outcome.ok and outcome.kind == cli_install.INSTALLED
-    assert outcome.location == "/home/u/.local/bin/x"
+    assert outcome.location == _INSTALLED_AT
     assert outcome.exit_status == 0
     command, kwargs = seen[0]
     assert command[-1] == CURL.command

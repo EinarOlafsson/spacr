@@ -921,11 +921,14 @@ def test_return_on_nothing_opens_nothing(qtbot, window, field):
     """Return with an empty list, and a row carrying no entry, do nothing."""
     from PySide6.QtWidgets import QListWidgetItem
 
-    field.type_and_search("zzzzzznotathing")
+    opened = []
+    field.opened.connect(opened.append)
+    assert field.type_and_search("zzzzzznotathing") == []
     field._activate_current()
     empty = QListWidgetItem("a row nobody filled in")
     field._list.addItem(empty)
     field._on_activated(empty)
+    assert opened == []
 
 
 def test_a_window_with_no_status_bar_is_still_told_where_it_went(qtbot,
@@ -941,8 +944,9 @@ def test_a_window_with_no_status_bar_is_still_told_where_it_went(qtbot,
 
     monkeypatch.setattr(window, "statusBar", no_bar, raising=False)
     field._list.setCurrentRow(results.index(row))
-    with qtbot.waitSignal(field.opened, timeout=2000):
+    with qtbot.waitSignal(field.opened, timeout=2000) as blocker:
         field._activate_current()
+    assert blocker.args == [row]
 
 
 def test_paging_keys_with_an_empty_list_fall_through(qtbot, window, field):

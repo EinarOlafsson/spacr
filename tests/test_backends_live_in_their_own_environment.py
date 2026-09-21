@@ -43,6 +43,7 @@ import numpy as np
 import pytest
 
 import spacr._segmentation_backends as SB
+from tests.conftest import MISSING_CHANNEL_AXIS
 
 #: The real one, for teardown: a test may stand in for it.
 _SHUTDOWN_WORKERS = SB._shutdown_workers
@@ -579,11 +580,17 @@ def test_kill_tree_escalates_when_asking_is_not_enough(monkeypatch):
 
 
 def test_kill_tree_survives_a_process_that_is_already_gone(monkeypatch):
+    sent = []
+
     def _gone(pid, sig):
+        sent.append(sig)
         raise ProcessLookupError()
 
     monkeypatch.setattr(SB.os, "killpg", _gone)
-    SB._kill_tree(_Proc(), grace=0.01, windows=False)
+    proc = _Proc()
+    SB._kill_tree(proc, grace=0.01, windows=False)
+    assert sent == [signal.SIGTERM, signal.SIGKILL]
+    assert proc.waits == 2, "it still waits for the process it could not signal"
 
 
 def test_kill_tree_uses_taskkill_on_windows(monkeypatch):
@@ -1158,7 +1165,14 @@ def test_a_segment_request_writes_masks_and_flows_beside_the_images(
 
 def test_the_worker_saves_only_the_flows_a_backend_has(tmp_path):
     class _Adapter:
-        def eval(self, images, **params):
+        def eval(self, images, batch_size=8, resample=True, channels=None,
+                 channel_axis=MISSING_CHANNEL_AXIS, z_axis=None,
+                 normalize=True, rescale=None, diameter=None,
+                 flow_threshold=0.4, cellprob_threshold=0.0, do_3D=False,
+                 anisotropy=None, flow3D_smooth=0, stitch_threshold=0.0,
+                 min_size=15, max_size_fraction=0.4, niter=None,
+                 augment=False, tile_overlap=0.1, bsize=None,
+                 compute_masks=True, progress=None):
             return ([np.ones((2, 2), np.uint16)] * len(images),
                     [[None, "not an array"]], None)
 
