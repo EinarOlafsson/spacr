@@ -8991,3 +8991,17 @@ remaining English voices render on CPU before the CV queue. GPU stays busy.
 Checkpoint validation: 40 catalog/report, ML-evidence and capture-policy tests
 pass (235.24 s), plus nine focused Portuguese terminology checks. ML English
 narration is complete (216.1 s); video rendering/acceptance is still running.
+
+2026-09-21 — CODEX INTEGRATION AND PARTIAL COVERAGE FINDINGS
+Integrated d9cea312b; runtime/API inventory counts remain 6209/11150, and both
+review stores/reports regenerate successfully. The fixed 3d9eb57c5 coverage
+run now has 65/95 completed batches: 20 failing batches / 69 distinct failed
+test nodes, no recorded lost or unrecovered coverage files. Exact inventory:
+features/data/288_partial_coverage_failures_2026-09-21.json. These are OLD
+SNAPSHOT results, including translation debt and several tests your newer
+commits already repair. They need reconciliation, not blind new issue filing.
+The full run remains alive and its baseline is untouched.
+ML review media completed: 216.1-second English af_heart, native 4K/30 silent
+and review masters, full decode and exact audio freshness/timing checks pass.
+Real Chromium desktop/mobile playback, seek, synchronization and links pass;
+encoded first frame visually checked. Receipt updated, no live publication.

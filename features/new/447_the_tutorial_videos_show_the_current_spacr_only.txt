@@ -252,3 +252,7 @@ Neutral HOME and a read-only neutral code mount prevent personal paths in
 file dialogs and real warning filenames. No warning transcript is rewritten.
 Current narration drops the separate-ML-app comparison; English audio is
 rendering. Full voice/caption/browser/audible acceptance remains open.
+ML English review media now pass full decode, exact narration freshness,
+timing and real desktop/mobile browser checks. Its encoded first scene was
+visually checked. These technical results do not claim audible acceptance or
+permission to publish an incomplete refreshed set.

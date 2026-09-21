@@ -999,3 +999,6 @@ The full locale audit has 39 remaining diagnostics for newer catalog debt.
 An exact-source normalization correction keeps the installer screen as tela
 rather than triagem; nine Portuguese/scientific-sense regression checks pass.
 No checker or baseline was relaxed. API/newer-runtime work remains open.
+Integration through d9cea312b retains 6209 runtime entries and 11150 API
+symbols; both review stores and regenerated reports remain current. The
+Portuguese audit count above belongs to the reviewed 78a8c4a36 source boundary.

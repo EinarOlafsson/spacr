@@ -1792,3 +1792,5 @@ English inversion descriptions are deferred to their application owner.
 Runtime coverage is 6058/6209; the locale audit still reports 39 diagnostics.
 The new exact installer-screen sense correction preserves scientific-screen
 terminology and passes nine relevant checks. Full docs/catalog gate stays open.
+Integration through d9cea312b leaves the live inventory counts unchanged;
+both review stores load and both localization reports regenerate successfully.

@@ -2139,3 +2139,9 @@ English narration is rendering on CPU. Receipt:
  tools/tutorials/evidence/2026-09-21-classify-ml-current-capture.json.
 Remaining: full media/locale/caption/listening acceptance, overview composition,
 Mask recapture and complete-set publication. No media has been uploaded.
+ML's 216.1-second English af_heart narration and native 4K/30 silent/review
+masters now pass full decode and synthesis freshness/timing checks. Actual
+Chromium desktop/mobile playback, chapter seek, synchronization and related
+links pass. The encoded opening frame was visually checked; hashes and player
+proof are in the current ML receipt. Full locale/caption/listening and final
+publication acceptance still remain.

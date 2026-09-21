@@ -4196,3 +4196,13 @@ Current nightly source additions still require reconciliation after measurement.
 without restarting its fixed source snapshot. No final coverage verdict or
 baseline update yet. Portuguese terminology and current ML capture work are
 verified separately; these checks do not stand in for full coverage.
+
+2026-09-21 — CODEX PARTIAL FAILURE INVENTORY, NOT A NIGHTLY VERDICT
+At 65/95 completed batches of the fixed 3d9eb57c5 run, 20 batches exited with
+failures and 69 distinct failing test nodes were observed. No lost or
+unrecovered coverage files are recorded. The exact inventory and integrity
+hash are in features/data/288_partial_coverage_failures_2026-09-21.json.
+It includes known translation debt and tests that newer nightly changes
+already address; do not file these as new current regressions without a
+current-tree reproduction. Preserve the running measurement and reconcile
+its snapshot at the final gate. No baseline is updated.
