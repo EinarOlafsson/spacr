@@ -7,8 +7,8 @@ cluster, where the data has to be on disk BEFORE a batch job starts and there
 is no display to press a button on. This is that download as a command.
 
 WHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches
-the three example sets -- Mask, Measure, Annotate/Classify -- which come to
-about 1.1 GB. It does NOT fetch the published TSG101 screen, which is 33 GB.
+the example sets -- Mask, Measure, Annotate/Classify, Replication and
+Recruitment -- which come to about 1.4 GB. It does NOT fetch the published TSG101 screen, which is 33 GB.
 A command that spent 33 GB of somebody's quota because they typed its name
 with no arguments would be a bug however well documented, so the screen is
 opt-in, is asked for in pieces, and is confirmed before it starts. The pieces
@@ -29,9 +29,9 @@ imports PySide6 at module scope. ``tests/test_cli_download.py`` pins it.
 
 Usage::
 
-    spacr-download                            # every example set (~1.1 GB)
+    spacr-download                            # every example set (~1.4 GB)
     spacr-download --list                     # what exists, what is here
-    spacr-download measure annotate           # two of the three
+    spacr-download measure annotate           # two of the five
     spacr-download --screen measurements      # the four databases (~2.1 GB)
     spacr-download --screen crops --plate 1   # one plate of crops (~8.9 GB)
     spacr-download all --yes                  # everything, screen included
@@ -86,7 +86,7 @@ EXIT_USAGE = 2
 
 #: Above this, the download is confirmed before a byte moves.
 #:
-#: TWO GIGABYTES, which is a little more than all three example sets together
+#: TWO GIGABYTES, which is a little more than all five example sets together
 #: and a little less than the four measurement databases. So the default run
 #: never asks -- being asked to confirm the thing the command does when you
 #: give it no arguments teaches people to type ``--yes`` reflexively, and a
@@ -135,12 +135,15 @@ def default_destination() -> Path:
 
 
 def example_folder(dest) -> Path:
-    """The one plate folder all three example sets unpack into.
+    """The one plate folder the three plate example sets unpack into.
 
     ONE FOLDER because the sets compose: the Measure example's ``merged/``,
     the Annotate example's ``data/`` and ``measurements/``, and the Mask
     demo's raw images are three stages of the same plate, and spaCR expects to
     be pointed at a plate.
+
+    The assay sets are not stages of that plate and each unpacks into a
+    folder of its own; see :func:`spacr.example_archives.example_set_folder`.
 
     :param dest: the root everything unpacks under.
     """
@@ -285,8 +288,8 @@ def build_plan(examples: Sequence[ExampleSet], assets: Sequence[ScreenAsset],
     """
     dest = Path(dest)
     plan: List[Piece] = []
-    folder = example_folder(dest)
     for example in examples:
+        folder = dest / example.folder
         plan.append(Piece(
             key=example.key,
             name=example.key,
@@ -368,12 +371,14 @@ def render_listing(plan: Sequence[Piece], chosen: Sequence[Piece], dest,
     """
     dest = Path(dest)
     keys = [piece.key for piece in chosen]
-    examples = [p for p in plan if p.folder == example_folder(dest)]
+    example_keys = {s.key for s in EXAMPLE_SETS}
+    examples = [p for p in plan if p.key in example_keys]
     screen = [p for p in plan if p not in examples]
 
     out: List[str] = []
     if examples:
-        out.append(f"Example data — unpacked into {example_folder(dest)}")
+        out.append(f"Example data — unpacked into {example_folder(dest)}, "
+                   f"the assay sets beside it")
         out.append("")
         out.extend(_rows(examples, keys))
         out.append("")
@@ -703,14 +708,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser = _Parser(
         prog="spacr-download",
         description="Download spaCR's published example data. With no "
-                    "arguments: every example set, about 1.1 GB. The 33 GB "
+                    "arguments: every example set, about 1.4 GB. The 33 GB "
                     "TSG101 screen is never downloaded unless it is asked "
                     "for by name.",
         epilog=textwrap.dedent("""\
             examples:
               spacr-download                            every example set
               spacr-download --list                     what exists, and what is already here
-              spacr-download measure annotate           two of the three
+              spacr-download measure annotate           two of the five
               spacr-download --screen measurements      the four screen databases
               spacr-download --screen crops --plate 1   one plate of object crops
               spacr-download all --yes                  everything, screen included
@@ -723,7 +728,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "what", nargs="*", metavar="WHAT",
         help=f"What to download: {keys}, classify (an alias for annotate), "
-             f"examples (all three), screen, or all. Default: examples.")
+             f"examples (all five), screen, or all. Default: examples.")
     parser.add_argument(
         "--dest", "-d", metavar="DIR",
         help="Where to unpack it. Default: ~/.cache/spacr/example_data, "

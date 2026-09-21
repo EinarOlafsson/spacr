@@ -1,0 +1,117 @@
+================================================================================
+TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS
+================================================================================
+
+Status:    in progress. Replication and Recruitment built, published and run
+           on their samples. Invasion BLOCKED: no two-colour
+           differential-staining data was found (see below).
+
+Requested: 2026-09-21 -- the maintainer's decision, as the orchestrating
+           session holds it: "Replication / Invasion / Recruitment" should get
+           test data, meaning small image datasets published to Hugging Face
+           (approved publishing under einarolafsson) plus a "Load test data…"
+           button in each module.
+
+Owner:     Claude.
+
+--------------------------------------------------------------------------------
+WHAT EACH MODULE TAKES
+--------------------------------------------------------------------------------
+
+All three read `<src>/measurements/measurements.db`, the output of Mask then
+Measure (`analyze_replication`, `analyze_invasion`, `analyze_recruitment` in
+`spacr/submodules.py`). None of them segments. So an example is a slice of a
+real screen's database, plus a couple of merged fields so the objects can be
+looked at -- Recruitment also draws its outline overlays from `merged/`.
+
+--------------------------------------------------------------------------------
+WHAT WAS PUBLISHED
+--------------------------------------------------------------------------------
+
+  Replication  einarolafsson/spacr-example-replication     168,263,680 bytes
+               MTOC screen plate 1
+               (/nas_mnt/data/MTOC_Screen/mtocScreen_20250530_111302/plate1),
+               rows r3-r8 of columns c1 (nc) and c2 (pc): 11,416 pathogen and
+               4,561 cell rows; fields plate1_H01_17_1, plate1_G02_5_1.
+  Recruitment  einarolafsson/spacr-example-recruitment     146,503,680 bytes
+               THP-1 RNF213 screen plate 1
+               (/nas_mnt/data/THP1_screen/THP1RNF213_20250218_153752/plate1),
+               the same twelve wells: 2,374 cell, 2,807 nucleus, 3,321
+               pathogen, 2,374 cytoplasm rows; fields PLATE1_E01_1_1,
+               PLATE1_E02_1_1.
+
+Built by `tools/build_assay_example_datasets.py` from local copies under
+/mnt/wd4tb/spacr_testdata/assays/ (the script refuses a /nas_mnt source).
+
+WHY THESE TWO PLATES. The THP-1 plate's own `settings/recruitment.csv` is the
+file `analyze_recruitment` saves -- that screen was analysed with this module,
+and its settings (channel_of_interest 1, nc=c1, pc=c2) are what ships, with
+`src`, `cell_types` and `plot_nr` changed. The MTOC plate's pathogen mask is
+segmented from the parasite stain and splits vacuoles into parasites, with up
+to 20 objects per host cell, which is what a parasites-per-vacuole count
+needs; the pv_counts stacks on /mnt/wd4tb carry vacuole masks only (one
+object per vacuole) and no parasite channel, so they cannot be counted.
+
+--------------------------------------------------------------------------------
+INVASION: NOTHING FOUND, NOTHING FAKED
+--------------------------------------------------------------------------------
+
+The assay needs an outside (pre-permeabilisation) stain and a total stain on
+the same parasites. Looked for, 2026-09-21:
+
+  features/, Notebooks/16_invasion.ipynb, git log --grep=invasion: the module
+    and its tutorial were built on synthetic data; no screen is named.
+  /mnt/wd4tb, /mnt/firecuda2, /home: no invasion data (find -iname
+    '*invasion*').
+  NAS /nas_mnt/data: MTOC_Screen, THP1_screen, 4h_maf_screen, mef12h,
+    CSA screen, tsg101_screen (plates empty), mitoscreen (protocols only),
+    barragan (timelapse motility, CMTMR), ops, trade. Every plate with
+    settings is four channels -- nucleus 0, target 1, parasite 2, cell 3 --
+    with one parasite stain. None records an outside/inside pair.
+
+Needs the maintainer: which acquisition, if any, is a red/green invasion
+assay.
+
+--------------------------------------------------------------------------------
+WIRING
+--------------------------------------------------------------------------------
+
+  spacr/example_archives.py   the two sets join EXAMPLE_SETS, each with its
+                              own folder (`ExampleSet.folder`), because both
+                              ship `measurements/measurements.db` and the
+                              shared plate already has one.
+  spacr/cli_download.py       unpacks each set into its own folder.
+  spacr/qt/assay_examples.py  the button and the load: cached copy used
+                              as is, otherwise the shared tar worker, then
+                              the shipped settings are applied and src set.
+  spacr/qt/screens/app_screen.py  EXAMPLE_DATA_SECTIONS gains both modules.
+
+--------------------------------------------------------------------------------
+MEASURED
+--------------------------------------------------------------------------------
+
+Each archive unpacked, its settings read through `settings_from_pack` (none
+dropped), and the module run on CPU:
+
+  Replication  13.5 s. 3,406 pc / 3,362 nc vacuoles (spatial). 71% / 73%
+               single-parasite vacuoles, 11% off the power-of-two ladder in
+               both. Mann-Whitney on log2 count p = 0.0099 between the two
+               screen controls -- not a replication claim.
+  Recruitment  40 s. 2,026 cells in 12 wells after the merge (348 cells have
+               no nucleus row in the screen's own database). Per-well
+               recruitment ratio nc 5.07 +/- 0.56, pc 4.87 +/- 0.23. Two
+               overlay PDFs, cells.csv, wells.csv.
+
+Both buttons also driven headless end to end against the LIVE repositories:
+click, real download into a scratch HOME, settings in the panel, the panel's
+own `collect()` handed to the module -- the same numbers as above. A second
+press used the cache without a request. `validate_settings` finds nothing in
+either shipped settings file.
+
+NOT DONE: the nine-language catalogs owe the two button tooltips, the two
+dialog titles and the new docstrings. The API-surface ratchets in
+tests/test_docstring_correctness.py and tests/test_api_i18n_extractor.py were
+ALREADY RED at the base (608e5e6bf) and at 715687246 -- callables 9,058 vs a
+pin of 9,047, surface 10,959/10,960 vs 10,947 and a reviewed 10,931. This
+change adds 5 callables and 6 documented entries on top (9,063 / 10,966). The
+pins were left alone rather than bumped over drift this item did not make.

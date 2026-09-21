@@ -1232,6 +1232,8 @@ EXAMPLE_DATA_SECTIONS = {
     "classify_merged": "Plate Sources & Workflow",
     "map_barcodes": "Sequencing Input",
     "analyze_plaques": "Input & Channels",
+    "replication": "Assay Inputs",
+    "recruitment": "Data source",
 }
 
 
@@ -2786,6 +2788,10 @@ class AppScreen(QWidget):
                 self._install_sequencing_example_button(section)
             elif self.app_key == "analyze_plaques":
                 self._install_plaque_example_button(section)
+            elif self.app_key in ("replication", "recruitment"):
+                from ..assay_examples import install_assay_example_button
+
+                install_assay_example_button(self, section)
             else:
                 self._install_example_images_button(section)
         self._settings_sections.append(section)

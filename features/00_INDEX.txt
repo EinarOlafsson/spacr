@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-439 in features/new, 11 in features/future. NEITHER LIST BLOCKS A RELEASE.
+440 in features/new, 11 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -518,3 +518,4 @@ NEW FEATURES
   451  TEST DATA FOR THE PLAQUE MODULE, AND IT HAD NONE
   452  THE LIVE PREVIEW SITS ABOVE THE CONSOLE, NOT UNDER IT
   453  A MEMORY WATCHDOG, SO ONE RUNAWAY PROCESS CANNOT TAKE THE DESKTOP DOWN
+  463  TEST DATA FOR THE REPLICATION, INVASION AND RECRUITMENT ASSAYS

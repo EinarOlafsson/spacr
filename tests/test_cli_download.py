@@ -127,10 +127,10 @@ def _row_for(out, name):
 
 def _make_present(dest, keys=(), screen=()):
     """Put the markers on disk that make a piece count as downloaded."""
-    folder = cli_download.example_folder(dest)
-    folder.mkdir(parents=True, exist_ok=True)
+    cli_download.example_folder(dest).mkdir(parents=True, exist_ok=True)
     for key in keys:
         example = next(s for s in EXAMPLE_SETS if s.key == key)
+        folder = Path(dest) / example.folder
         for marker in example.markers:
             target = folder / marker.replace("*", "made")
             target.parent.mkdir(parents=True, exist_ok=True)
@@ -380,7 +380,7 @@ def test_the_listing_says_which_pieces_are_already_on_disk(capsys, dest, hub):
 def test_the_listing_totals_only_what_was_selected(capsys, dest, hub):
     run(["--list", "--screen", "measurements", "--plate", "1"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 1 of 11 pieces" in out
+    assert "Selected: 1 of 13 pieces" in out
     assert "555.7 MB to download" in out
 
 
@@ -389,7 +389,7 @@ def test_the_total_leaves_out_what_is_already_on_disk(capsys, dest, hub):
     _make_present(dest, keys=["mask", "measure"])
     run(["--list"], dest)
     out = capsys.readouterr().out
-    assert "Selected: 3 of 11 pieces, about 280.0 MB to download." in out
+    assert "Selected: 5 of 13 pieces, about 595.0 MB to download." in out
     assert "2 already on disk and skipped" in out
 
 
@@ -417,7 +417,7 @@ def test_the_default_run_says_how_to_ask_for_the_screen(capsys, dest, hub):
 
 
 def test_a_piece_already_on_disk_is_not_downloaded_again(capsys, dest, hub):
-    _make_present(dest, keys=["mask", "measure", "annotate"])
+    _make_present(dest, keys=[s.key for s in EXAMPLE_SETS])
     assert run([], dest) == cli_download.EXIT_OK
     assert hub.calls == []
     assert "already in" in capsys.readouterr().out
@@ -438,12 +438,25 @@ def test_only_the_missing_pieces_are_fetched(dest, hub):
         s.archive for s in EXAMPLE_SETS if s.key != "mask"]
 
 
-def test_every_example_set_unpacks_into_the_one_shared_plate_folder(dest, hub):
-    """The three sets are three stages of one plate, and spaCR is pointed at
-    a plate rather than at three folders."""
-    run([], dest)
+def test_every_plate_example_set_unpacks_into_the_one_shared_plate_folder(
+        dest, hub):
+    """The three plate sets are three stages of one plate, and spaCR is
+    pointed at a plate rather than at three folders."""
+    run(["mask", "measure", "annotate"], dest)
     assert {call[2] for call in hub.calls} == {
         cli_download.example_folder(dest)}
+
+
+def test_each_assay_example_set_unpacks_into_a_folder_of_its_own(dest, hub):
+    """Replication and Recruitment each ship measurements/measurements.db,
+    as the Annotate set in the shared plate does. Unpacked there, each would
+    overwrite the other's database."""
+    run([], dest)
+    folders = {call[1]: call[2] for call in hub.calls}
+    assert folders["spacr-example-replication.tar"] == dest / "replication"
+    assert folders["spacr-example-recruitment.tar"] == dest / "recruitment"
+    assert folders["spacr-example-annotate.tar"] == (
+        cli_download.example_folder(dest))
 
 
 def test_the_summary_names_the_folder_to_point_src_at(capsys, dest, hub):
