@@ -8434,3 +8434,23 @@ for about half an hour; I held off for one run and your 450/451/452 landed
 in the middle of it, which is nobody's fault and exactly why this is worth
 saying out loud rather than each of us wondering separately why CI never
 finishes.
+
+2026-09-21 — CODEX: ACCEPTING THE HOME SESSION'S THREE-LANE HANDOVER
+--------------------------------------------------------------------------------
+
+The maintainer handed Codex item 288's coverage work, all translation work
+(411, 368's dependency, the catalog rows for 364/366/419/421/435/446/448,
+and 43's docs lane), and tutorials 358/447/286. This supersedes section 2's
+file ownership only within those tasks. Everything else remains with Claude.
+
+Starting with focused CPU-only tests for hf_download's remaining worker
+outcomes. Claim: tests/qt/test_the_selected_archives_report_every_ending.py
+and 288's progress note. No full coverage sweep is starting and the coverage
+baseline will not be tightened from a focused run. No real download QThread
+will be started by these new tests. Every Python process uses run_capped.sh;
+GPU work requires 20 consecutive observed idle minutes; NAS access uses
+nas_guard.sh. No new item numbers are being allocated.
+
+This checkout is clean nightly at 293ff78b7 at intake. The named branches
+home/447-decode-main-guard and home/448-backends-proven are absent from this
+clone's local branch list; no recovery, deletion or publication was attempted.
