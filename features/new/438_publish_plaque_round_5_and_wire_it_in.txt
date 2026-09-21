@@ -3,7 +3,10 @@ PLAQUE ROUND 5 COVERS FOUR DOMAINS; NOTHING IN spaCR OR ON HUGGINGFACE KNOWS IT
 YET
 ================================================================================
 
-Status:    DONE 2026-09-20 — published and listed; NOT promoted
+Status:    DONE 2026-09-20 — published and listed; PROMOTED 2026-09-21:
+           toxoplasma_plaque_v2 (cpsam_plaque_r5) is Plaque Assay's default
+           plaque model, the maintainer's choice, and the Make Masks and Plaque
+           Assay samples are drawn from its curated v5 dataset
 Requested: 2026-09-19 — "if the new toxo and yolo models are trained i want you
            to uploade everything to hugging face in the format i discribed with
            the training data also uploaded than add a new features items to wire

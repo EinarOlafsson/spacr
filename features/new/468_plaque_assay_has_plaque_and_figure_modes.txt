@@ -2,10 +2,10 @@
 PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
 ================================================================================
 
-Status:    GUI side built 2026-09-21 (preview panel, switch, review, legend
-           prompt). The run side -- the plaque_mode / figure_* settings in
-           spacr/settings.py and the Figure branch of analyze_plaques -- is
-           being built in parallel and lands beside it.
+Status:    DONE 2026-09-21. Run side f7803de0b, preview and switch 42e03b752;
+           240 tests passed on the merged tree. Plaque mode and the preview
+           segment through one function, spacr.plaque.segment_plaque_image.
+           Owed to Codex: the nine-language captions.
 Requested: 2026-09-21 -- "you seem to have copied all the settings from the
            mask generation live preview and i cannot cheoose the yolo module
            ... what i need to happen for this particular live preview is :
