@@ -2468,6 +2468,26 @@ def _magnifier_mode_label(mode: str) -> str:
     return tr(name)
 
 
+def _updating_caption(name: str) -> str:
+    """The magnifier's "Updating <model>…" mark, in the current language.
+
+    A language whose catalog has no row for the named form yet keeps its
+    reviewed "Updating…" and names the model after it, rather than showing
+    English words in a translated window.
+
+    :param name: what is running, from :meth:`running_name`.
+    :returns: the caption.
+    """
+    from ..i18n import current_language, tr
+
+    template = "Updating {name}…"
+    translated = tr(template, name=name)
+    if (current_language() or "en").startswith("en") or \
+            translated != template.format(name=name):
+        return translated
+    return f"{tr('Updating…')} {name}"
+
+
 def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     """Run the request's mode, falling back to Otsu when it cannot run.
 
@@ -3197,6 +3217,22 @@ class _LiveMagnifier(QObject):
                 bool(context["otsu_fill_holes"]),
                 bool(context["otsu_split"]),
                 bool(context["invert"]))
+
+    def running_name(self) -> str:
+        """What the box is running, as the Updating mark names it.
+
+        The Cellpose model by its own name (``cpsam``,
+        ``toxoplasma_plaque_v1``), since that is what the user chose and what
+        the wait depends on; any other mode by the caption its Mode box shows
+        (``Otsu``, ``DINOCell``). A mode that could not load is named as the
+        Otsu it fell back to, because that is what is running.
+
+        :returns: the name, in the current language where it is a caption.
+        """
+        settings = self._model_settings()
+        if settings[0] == "cellpose":
+            return str(settings[4])
+        return _magnifier_mode_label(settings[0])
 
     @staticmethod
     def _accent() -> tuple:
@@ -4042,7 +4078,7 @@ class _LiveMagnifier(QObject):
         box an enhanced view rather than a bigger copy of the canvas. The
         last completed result is drawn where ITS region lies, so a result
         that is behind the mouse is offset rather than wrong, and the frame
-        turns dashed with an "Updating…" mark until the result for this
+        turns dashed with an "Updating <model>…" mark until the result for this
         region arrives -- the box never blanks while it waits.
 
         In whole-image scope the box draws its slice of the whole-image
@@ -4114,7 +4150,7 @@ class _LiveMagnifier(QObject):
         if updating:
             from ..i18n import tr
 
-            caption = tr("Updating…")
+            caption = _updating_caption(self.running_name())
             metrics = painter.fontMetrics()
             badge = QRectF(lens.left() + 4, lens.top() + 4,
                            metrics.horizontalAdvance(caption) + 10,
