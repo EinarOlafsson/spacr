@@ -787,14 +787,29 @@ class TestContracts:
         nowhere else — the seam the Qt GUI, the Tk GUI and the CLI all
         launch runs through. If a second call site appears, either this
         assertion or the "one script per chain" behaviour is wrong.
+
+        Read from the AST, so a name in code -- an import, a call, an
+        attribute -- counts and a name inside a string does not: the
+        generated Help search index lists ``spacr.macro.begin_recording``
+        as text to match on, which wires nothing.
         """
         import spacr
+        hooks = {"begin_recording", "finish_recording"}
         root = Path(spacr.__file__).parent
         callers = set()
         for path in root.rglob("*.py"):
             if path.name in ("macro.py",):
                 continue
             text = path.read_text(errors="ignore")
-            if "begin_recording" in text or "finish_recording" in text:
-                callers.add(path.relative_to(root).as_posix())
+            if not any(hook in text for hook in hooks):
+                continue
+            for node in ast.walk(ast.parse(text)):
+                named = (
+                    (isinstance(node, ast.Name) and node.id in hooks)
+                    or (isinstance(node, ast.Attribute) and node.attr in hooks)
+                    or (isinstance(node, ast.alias)
+                        and node.name.split(".")[-1] in hooks))
+                if named:
+                    callers.add(path.relative_to(root).as_posix())
+                    break
         assert callers == {"run_journal.py"}, callers
