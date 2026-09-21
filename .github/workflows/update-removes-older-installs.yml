@@ -96,7 +96,13 @@ jobs:
         with:
           python-version: "3.12"
       - name: Generate the installers' messages
-        run: python packaging/i18n/render.py
+        shell: powershell
+        run: |
+          python .\packaging\i18n\render.py
+          if ($LASTEXITCODE -ne 0) { throw "installer messages failed" }
+          $Catalog = (Resolve-Path ".\packaging\online\generated\installer_messages.ps1").Path
+          $Text = [System.IO.File]::ReadAllText($Catalog, [System.Text.Encoding]::UTF8)
+          [System.IO.File]::WriteAllText($Catalog, $Text, (New-Object System.Text.UTF8Encoding($true)))
       - name: Install the older release
         shell: powershell
         run: |
