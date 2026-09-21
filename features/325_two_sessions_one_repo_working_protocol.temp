@@ -9169,3 +9169,18 @@ tutorial review-promotion checks plus four live-source report checks) in
 246.90 s. Independent Annotate staging verification checks all thirteen
 reviews, exact current speech inputs, geometry/links and the nineteen
 retained scenes. Receipt: 2026-09-21-annotate-current-translations.json.
+Nightly push succeeded at 0bdadab3d after integrating the separate README
+deck tooling commit f76e0ecd2. Both verified progress commits and their
+feature-list updates are shared. Coverage subsequently finished 95/95:
+37 non-passing batches, 115 distinct failed nodes, zero lost/unrecovered
+files. Combining preserved raw data and generating the module report at
+fixed 3d9eb57c5 now. Do not mistake these for current-nightly failures or
+change the baseline from the earlier partial report. Measure's capped CPU
+batch and Annotate/CV/Map narration remain live.
+Combined coverage report completed, exit 1: 600/600 fixed-snapshot shipped
+modules checked, 394 at 100%, 25 below 90%, 72 failing the ratchet, 40
+improved, one floor exemption. Data integrity is complete. The JSON/text
+report and provenance are preserved under features/data/288_*2026-09-21*.
+The next coverage step is to reconcile the 25 floor gaps and 115 failed
+nodes with changes since 3d9eb57c5; current nightly's 604-module inventory
+and newer fixes are not certified by this older 600-module measurement.

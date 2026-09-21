@@ -2,8 +2,8 @@
   "schema": 1,
   "date": "2026-09-21",
   "source_commit": "3d9eb57c5",
-  "status": "partial_fixed_snapshot_not_current_nightly_verdict",
-  "batches_finished": 89,
+  "status": "all_batches_finished_fixed_snapshot_not_current_nightly_verdict",
+  "batches_finished": 95,
   "batches_total": 95,
   "failed_batches": [
     10,
@@ -39,7 +39,10 @@
     80,
     81,
     83,
-    87
+    87,
+    90,
+    93,
+    94
   ],
   "failed_test_nodes": [
     "tests/qt/test_cov_r5_app_screen.py::TestTheGuardsNothingCanTrip::test_every_module_with_a_preview_toggle_has_a_card_to_toggle",
@@ -149,10 +152,17 @@
     "tests/test_the_animation_audit_is_complete.py::test_no_verdict_names_an_animation_that_does_not_ship",
     "tests/test_the_animation_audit_is_complete.py::test_the_verdict_was_judged_against_the_settings_that_ship",
     "tests/test_the_decode_survives_what_the_plate_did_to_it.py::test_library_correction_agrees_with_brute_force_and_scales_to_a_screen",
-    "tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name"
+    "tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name",
+    "tests/test_the_scorecard_measures_against_ground_truth.py::test_the_zoo_tooltip_is_unchanged_for_a_model_without_a_scorecard",
+    "tests/test_the_scorecard_measures_against_ground_truth.py::test_the_zoo_tooltip_leads_with_the_headline_and_keeps_the_card",
+    "tests/test_the_settings_panel_nests.py::test_the_advanced_families_nest_under_one_umbrella",
+    "tests/test_tooltip_length_and_shape.py::test_no_tooltip_is_an_archive",
+    "tests/test_tooltips_are_on_the_setting_not_the_field.py::test_no_screen_puts_hover_help_on_an_editable_field",
+    "tests/test_user_facing_docstrings.py::test_internal_docstrings_describe_behavior_not_task_history",
+    "tests/test_user_facing_docstrings.py::test_public_docstrings_do_not_expose_internal_task_history"
   ],
   "unrecovered_files": [],
   "lost_files": [],
-  "integrity_sha256": "e501fb1a258e5c1e2bf74272c674d83fc27cbd1e5f211eab5fd2f02fe6bc0b19",
+  "integrity_sha256": "cb765081ec2230204152ddd08b805c6534d7cac43579c5b042b76f5480ab296f",
   "baseline_updated": false
 }

@@ -1,0 +1,787 @@
+spaCR shipped-module coverage ratchet: FAIL
+Rule: every shipped module is at 90% or better and none of them loses coverage; a module's bar is max(90%, what it already has).
+Shipped modules: 600
+Modules checked: 600 of 600
+Coverage rows: 604 (604 inside repository)
+Shard integrity: complete (1 of 1 shards finished; 0 batch(es) recovered a lost worker's coverage)
+Baseline: tools/coverage_baseline.json, 566 modules (392 at 100%, 174 with gaps), last written 2026-09-15T18:50:25Z by retire at 372: the old
+Modules at 100%: 394
+Modules below the 90% floor: 25
+Modules exempt from the floor, with a stated reason: 1 (tools/coverage_floor_exemptions.txt)
+Modules between the floor and 100% (more where coverage is useful): 181
+Modules failing the ratchet: 72
+Modules with unconfirmed rises (measurement incomplete): 0
+Modules improved: 40
+Stale baseline entries: 0
+ERROR: spacr/accelerator.py: is below the 90% floor at 81.67% and its baseline does not lift the floor: 50 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/barcode_search.py: uncovered statements rose from 1 to 3
+ERROR: spacr/barcode_search.py: uncovered branches rose from 1 to 3
+ERROR: spacr/cli.py: was at 100% in the baseline and now has 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/convert.py: was at 100% in the baseline and now has 13 uncovered statements, 10 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/crop_loader.py: is below the 90% floor at 87.17% and is not in the baseline: 41 uncovered statements, 22 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/embeddings.py: is below the 90% floor at 78.68% and its baseline does not lift the floor: 48 uncovered statements, 23 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/foreign.py: was at 100% in the baseline and now has 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/io.py: uncovered statements rose from 2 to 44
+ERROR: spacr/io.py: uncovered branches rose from 2 to 27
+ERROR: spacr/measure.py: uncovered statements rose from 6 to 34
+ERROR: spacr/measure.py: uncovered branches rose from 9 to 39
+ERROR: spacr/model_zoo.py: uncovered statements rose from 4 to 27
+ERROR: spacr/model_zoo.py: uncovered branches rose from 1 to 7
+ERROR: spacr/object.py: was at 100% in the baseline and now has 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/picture_settings.py: was at 100% in the baseline and now has 5 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/plaque_papers.py: is below the 90% floor at 59.55% and is not in the baseline: 271 uncovered statements, 110 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/ai/issue_report.py: was at 100% in the baseline and now has 10 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/ai/providers.py: uncovered statements rose from 0 to 2
+ERROR: spacr/qt/ai/providers.py: uncovered branches rose from 1 to 2
+ERROR: spacr/qt/ai/settings.py: was at 100% in the baseline and now has 5 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/app.py: uncovered statements rose from 139 to 150
+ERROR: spacr/qt/app.py: uncovered branches rose from 56 to 61
+ERROR: spacr/qt/dialogs.py: was at 100% in the baseline and now has 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/import_demo.py: is below the 90% floor at 72.30% and is not in the baseline: 24 uncovered statements, 17 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/live_zoom.py: is below the 90% floor at 88.84% and its baseline does not lift the floor: 19 uncovered statements, 7 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/make_masks_datasets.py: is below the 90% floor at 56.03% and is not in the baseline: 77 uncovered statements, 25 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/mask_engine.py: uncovered statements rose from 11 to 33
+ERROR: spacr/qt/mask_engine.py: uncovered branches rose from 11 to 32
+ERROR: spacr/qt/model_install.py: is below the 90% floor at 83.83% and is not in the baseline: 31 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/notify.py: was at 100% in the baseline and now has 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/preferences.py: uncovered statements rose from 89 to 106
+ERROR: spacr/qt/preferences.py: uncovered branches rose from 25 to 29
+ERROR: spacr/qt/preview_registry.py: was at 100% in the baseline and now has 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/screens/annotate.py: uncovered statements rose from 219 to 220
+ERROR: spacr/qt/screens/annotate.py: uncovered branches rose from 77 to 81
+ERROR: spacr/qt/screens/app_screen.py: uncovered statements rose from 113 to 152
+ERROR: spacr/qt/screens/app_screen.py: uncovered branches rose from 64 to 72
+ERROR: spacr/qt/screens/db_browser.py: uncovered statements rose from 1 to 2
+ERROR: spacr/qt/screens/db_browser.py: uncovered branches rose from 2 to 4
+ERROR: spacr/qt/screens/dose_response.py: was at 100% in the baseline and now has 10 uncovered statements, 8 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/screens/embeddings.py: uncovered statements rose from 9 to 20
+ERROR: spacr/qt/screens/embeddings.py: uncovered branches rose from 1 to 9
+ERROR: spacr/qt/screens/experiment_design.py: was at 100% in the baseline and now has 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/screens/foreign.py: uncovered statements rose from 1 to 3
+ERROR: spacr/qt/screens/image_import.py: is below the 90% floor at 86.57% and its baseline does not lift the floor: 64 uncovered statements, 28 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/screens/make_masks.py: uncovered statements rose from 59 to 137
+ERROR: spacr/qt/screens/make_masks.py: uncovered branches rose from 28 to 84
+ERROR: spacr/qt/screens/map_barcodes.py: is below the 90% floor at 88.41% and its baseline does not lift the floor: 107 uncovered statements, 64 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/screens/map_barcodes.py: uncovered statements rose from 99 to 107
+ERROR: spacr/qt/screens/map_barcodes.py: uncovered branches rose from 59 to 64
+ERROR: spacr/qt/screens/measure_inputs.py: is below the 90% floor at 77.35% and is not in the baseline: 44 uncovered statements, 21 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/screens/model_zoo.py: uncovered statements rose from 2 to 14
+ERROR: spacr/qt/screens/model_zoo.py: uncovered branches rose from 0 to 7
+ERROR: spacr/qt/screens/plate_view.py: uncovered statements rose from 1 to 2
+ERROR: spacr/qt/screens/plate_view.py: uncovered branches rose from 1 to 2
+ERROR: spacr/qt/screens/regression.py: uncovered branches rose from 6 to 7
+ERROR: spacr/qt/screens/run_history.py: is below the 90% floor at 87.26% and its baseline does not lift the floor: 42 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/settings_pack.py: uncovered statements rose from 11 to 17
+ERROR: spacr/qt/settings_pack.py: uncovered branches rose from 1 to 4
+ERROR: spacr/qt/settings_search.py: uncovered statements rose from 2 to 15
+ERROR: spacr/qt/settings_search.py: uncovered branches rose from 0 to 3
+ERROR: spacr/qt/shortcuts.py: uncovered statements rose from 1 to 8
+ERROR: spacr/qt/sound.py: is below the 90% floor at 87.40% and is not in the baseline: 83 uncovered statements, 42 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/theme.py: uncovered statements rose from 21 to 31
+ERROR: spacr/qt/theme.py: uncovered branches rose from 4 to 6
+ERROR: spacr/qt/verbose_logger.py: uncovered statements rose from 3 to 4
+ERROR: spacr/qt/verbose_logger.py: uncovered branches rose from 1 to 2
+ERROR: spacr/qt/widgets/ambient.py: uncovered statements rose from 1 to 3
+ERROR: spacr/qt/widgets/ambient.py: uncovered branches rose from 0 to 2
+ERROR: spacr/qt/widgets/card.py: was at 100% in the baseline and now has 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/column_aligned_row.py: is below the 90% floor at 85.00% and its baseline does not lift the floor: 16 uncovered statements, 11 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/console_panel.py: uncovered statements rose from 2 to 8
+ERROR: spacr/qt/widgets/console_panel.py: uncovered branches rose from 2 to 4
+ERROR: spacr/qt/widgets/dose_response.py: uncovered statements rose from 18 to 41
+ERROR: spacr/qt/widgets/dose_response.py: uncovered branches rose from 19 to 44
+ERROR: spacr/qt/widgets/fold_strip.py: uncovered statements rose from 20 to 22
+ERROR: spacr/qt/widgets/fold_strip.py: uncovered branches rose from 14 to 15
+ERROR: spacr/qt/widgets/graph_spec.py: was at 100% in the baseline and now has 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/live_preview.py: uncovered statements rose from 56 to 73
+ERROR: spacr/qt/widgets/live_preview.py: uncovered branches rose from 32 to 39
+ERROR: spacr/qt/widgets/measure_input_table.py: is below the 90% floor at 78.93% and is not in the baseline: 57 uncovered statements, 30 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/measurements_example.py: is below the 90% floor at 80.22% and is not in the baseline: 12 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/model_share.py: is below the 90% floor at 11.18% and is not in the baseline: 109 uncovered statements, 26 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/model_share_dialog.py: is below the 90% floor at 18.37% and is not in the baseline: 36 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/model_zoo_picker.py: is below the 90% floor at 85.71% and its baseline does not lift the floor: 110 uncovered statements, 34 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/model_zoo_picker.py: uncovered statements rose from 37 to 110
+ERROR: spacr/qt/widgets/model_zoo_picker.py: uncovered branches rose from 13 to 34
+ERROR: spacr/qt/widgets/object_grid_binding.py: is below the 90% floor at 89.70% and its baseline does not lift the floor: 11 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/object_settings_grid.py: is below the 90% floor at 83.99% and its baseline does not lift the floor: 64 uncovered statements, 33 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/plate_layout.py: was at 100% in the baseline and now has 4 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/preview_refresh.py: is below the 90% floor at 80.00% and is not in the baseline: 7 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/qc_field_browser.py: uncovered branches rose from 9 to 10
+ERROR: spacr/qt/widgets/sra_picker.py: is below the 90% floor at 73.63% and its baseline does not lift the floor: 38 uncovered statements, 10 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/qt/widgets/tile.py: was at 100% in the baseline and now has 2 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/regex_infer.py: was at 100% in the baseline and now has 4 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/regression_panels.py: is below the 90% floor at 87.41% and its baseline does not lift the floor: 47 uncovered statements, 42 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines
+ERROR: spacr/settings.py: uncovered statements rose from 13 to 36
+ERROR: spacr/settings.py: uncovered branches rose from 11 to 18
+ERROR: spacr/settings_advisor.py: uncovered statements rose from 1 to 2
+ERROR: spacr/settings_advisor.py: uncovered branches rose from 1 to 2
+ERROR: spacr/utils.py: uncovered statements rose from 1 to 12
+ERROR: spacr/utils.py: uncovered branches rose from 1 to 13
+IMPROVED: spacr/accelerator.py: uncovered statements fell from 51 to 50; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/cli_make_masks.py: uncovered statements fell from 7 to 6; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/cli_make_masks.py: uncovered branches fell from 3 to 2; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/cli_make_masks.py: pragma: no cover comments fell from 2 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/curation_queue.py: uncovered statements fell from 37 to 27; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/curation_queue.py: uncovered branches fell from 25 to 17; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/doctor.py: uncovered statements fell from 3 to 2; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/doctor.py: uncovered branches fell from 3 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/infection.py: uncovered statements fell from 24 to 12; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/infection.py: uncovered branches fell from 14 to 5; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_accel.py: uncovered statements fell from 30 to 22; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_accel.py: uncovered branches fell from 17 to 13; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_compose.py: uncovered statements fell from 5 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_compose.py: uncovered branches fell from 6 to 2; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_cycles.py: uncovered statements fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_cycles.py: uncovered branches fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_layout.py: uncovered branches fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_objects.py: uncovered statements fell from 2 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_phenotype.py: uncovered statements fell from 18 to 8; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_phenotype.py: uncovered branches fell from 15 to 12; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_register.py: uncovered statements fell from 19 to 12; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_register.py: uncovered branches fell from 8 to 5; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_sbs.py: uncovered statements fell from 14 to 4; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_sbs.py: uncovered branches fell from 10 to 4; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_store.py: uncovered statements fell from 14 to 4; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/ops_store.py: uncovered branches fell from 5 to 3; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/ai/issue_preview.py: uncovered statements fell from 31 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/ai/issue_preview.py: uncovered branches fell from 11 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/command_palette.py: uncovered statements fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/dnd.py: uncovered statements fell from 56 to 44; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/dnd.py: uncovered branches fell from 19 to 13; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/gc_policy.py: uncovered statements fell from 12 to 2; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/gc_policy.py: uncovered branches fell from 3 to 2; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/hf_download.py: uncovered statements fell from 149 to 19; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/hf_download.py: uncovered branches fell from 35 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/live_zoom.py: uncovered statements fell from 25 to 19; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/live_zoom.py: uncovered branches fell from 11 to 7; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/module_hints.py: uncovered statements fell from 12 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/module_hints.py: uncovered branches fell from 5 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/screens/settings_model.py: uncovered statements fell from 137 to 72; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/screens/settings_model.py: uncovered branches fell from 61 to 36; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/stall_watch.py: uncovered statements fell from 15 to 3; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/stall_watch.py: uncovered branches fell from 6 to 5; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/timing.py: uncovered branches fell from 2 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/tutorials.py: uncovered statements fell from 4 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/column_picker.py: uncovered statements fell from 2 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/flow.py: uncovered statements fell from 3 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/flow.py: uncovered branches fell from 3 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/fractal_travel.py: uncovered statements fell from 19 to 13; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/fractal_travel.py: uncovered branches fell from 11 to 9; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/height_grip.py: uncovered statements fell from 34 to 6; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/height_grip.py: uncovered branches fell from 11 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/home.py: uncovered statements fell from 71 to 64; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/home.py: uncovered branches fell from 30 to 27; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/module_hint_bar.py: uncovered statements fell from 7 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/module_hint_bar.py: uncovered branches fell from 5 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/object_grid_binding.py: uncovered statements fell from 15 to 11; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/object_grid_binding.py: uncovered branches fell from 9 to 6; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/setup_slides.py: uncovered statements fell from 26 to 23; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/sortable_table.py: uncovered statements fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/qt/widgets/sortable_table.py: uncovered branches fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/regression_qc.py: uncovered statements fell from 3 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/regression_qc.py: uncovered branches fell from 2 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/schema.py: uncovered statements fell from 4 to 3; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/schema.py: uncovered branches fell from 4 to 3; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/screen_data.py: uncovered statements fell from 7 to 1; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/suggest.py: uncovered statements fell from 16 to 6; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/suggest.py: uncovered branches fell from 10 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/timelapse.py: uncovered statements fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/timelapse.py: uncovered branches fell from 1 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/validate.py: uncovered statements fell from 2 to 0; tighten the baseline with --update-baseline --reason
+IMPROVED: spacr/validate.py: uncovered branches fell from 4 to 2; tighten the baseline with --update-baseline --reason
+Every module not at 100%, lowest first; the ones under 90% are the work, the rest get more coverage only where it is useful:
+BELOW FLOOR: spacr/qt/widgets/model_share.py: 11.18%, 109 uncovered statements, 26 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 50-51, 53-58, 61, 64-67, 104-108, 110-112, 114-117, 120-121, 124, 126-133, 136-137, 140-145, 147, 154, 157, 159-161, 163-170, 175-176, 181-186, 188-190, 194-195, 201-207, 256, 258-267, 270-276, 281, 283, 285-289, 292-295, 297, 300
+    uncovered branches: 54->55, 54->56, 57->58, 57->61, 110->111, 110->112, 128->129, 128->147, 160->161, 160->170, 164->165, 164->169, 166->167, 166->168, 181->182, 181->185, 183->181, 183->184, 263->264, 263->265, 265->266, 265->270, 266->265, 266->267, 287->288, 287->289
+BELOW FLOOR: spacr/qt/widgets/model_share_dialog.py: 18.37%, 36 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 23-26, 30-31, 33-39, 43-48, 52-55, 57, 59-61, 65, 67-70, 74, 78-80
+    uncovered branches: 35->36, 35->39, 67->68, 67->69
+BELOW FLOOR: spacr/qt/make_masks_datasets.py: 56.03%, 77 uncovered statements, 25 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 164, 213, 265-268, 271, 274-286, 290-292, 294-306, 308-312, 323-328, 332-343, 345-347, 351-354, 413, 424, 428, 435, 437, 447-450, 455, 457
+    uncovered branches: 212->213, 285->286, 285->291, 294->295, 294->312, 295->296, 295->298, 301->302, 301->303, 303->294, 303->304, 304->305, 304->306, 335->336, 335->340, 338->335, 338->339, 352->353, 352->354, 412->413, 423->424, 427->428, 434->435, 448->449, 448->450
+BELOW FLOOR: spacr/plaque_papers.py: 59.55%, 271 uncovered statements, 110 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 204-205, 251, 253-255, 275-285, 297-302, 304-305, 307-315, 326, 328-340, 342-344, 363-394, 398-400, 411-421, 443-447, 450-462, 465-471, 475, 488, 528, 551-558, 560-561, 573-577, 580-581, 622, 631-632, 634, 738, 761, 824, 826-842, 844-845, 847, 850-852, 931-932, 972, 974-977, 989-990, 992, 994-995, 1007-1008, 1010-1018, 1020-1022, 1076-1078, 1080-1081, 1083, 1092, 1094, 1096-1099, 1139-1146, 1148-1152, 1154-1158, 1161-1162, 1166-1168, 1170-1172, 1179-1181, 1205, 1208, 1212-1215, 1217, 1220-1221, 1228, 1292, 1320-1321, 1450-1451, 1482-1484, 1493, 1495, 1498, 1500-1503, 1505, 1507, 1509-1510, 1515-1516, 1520
+    uncovered branches: 276->277, 276->278, 278->279, 278->280, 280->281, 280->282, 283->284, 283->285, 299->300, 299->302, 308->309, 308->310, 310->311, 310->312, 333->334, 333->344, 337->338, 337->339, 339->333, 339->340, 342->339, 342->343, 363->364, 363->365, 370->371, 370->372, 373->374, 373->375, 379->380, 379->387, 381->382, 381->383, 385->379, 385->386, 387->388, 387->400, 413->414, 413->421, 419->413, 419->420, 443->444, 443->451, 459->460, 459->475, 467->468, 467->471, 468->467, 468->469, 487->488, 492->494, 495->485, 527->528, 551->552, 551->553, 555->556, 555->560, 573->574, 573->581, 621->622, 630->631, 737->738, 760->761, 764->751, 800->795, 826->827, 826->828, 831->832, 831->852, 839->840, 839->841, 844->831, 844->845, 847->850, 847->851, 930->931, 970->972, 975->976, 975->977, 1007->1008, 1007->1022, 1015->1016, 1015->1017, 1017->1018, 1017->1020, 1076->1077, 1076->1078, 1149->1150, 1149->1152, 1154->1155, 1154->1180, 1157->1158, 1157->1161, 1167->1154, 1167->1168, 1168->1170, 1168->1172, 1204->1205, 1207->1208, 1211->1212, 1213->1214, 1213->1220, 1220->1221, 1220->1222, 1222->1224, 1227->1228, 1291->1292, 1297->1295, 1371->1373, 1449->1450, 1519->1520
+BELOW FLOOR: spacr/qt/import_demo.py: 72.30%, 24 uncovered statements, 17 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 96, 155, 172-173, 210, 212-224, 226-229, 236, 238
+    uncovered branches: 136->139, 143->146, 146->155, 171->172, 212->213, 212->222, 213->214, 213->215, 216->217, 216->218, 218->212, 218->219, 220->212, 220->221, 223->224, 223->229, 235->236
+BELOW FLOOR: spacr/qt/widgets/sra_picker.py: 73.63%, 38 uncovered statements, 10 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 38/10/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 60-64, 68, 78-83, 88-92, 259-262, 264-268, 277, 290-297, 302-303, 313
+    uncovered branches: 80->81, 80->92, 81->82, 81->83, 260->261, 260->262, 293->294, 293->297, 301->302, 311->313
+BELOW FLOOR: spacr/qt/screens/measure_inputs.py: 77.35%, 44 uncovered statements, 21 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 95-96, 99, 101-108, 110-118, 123-126, 230-231, 233, 277-278, 280, 314, 321-322, 339, 342-343, 428-429, 436-438, 444, 462-463
+    uncovered branches: 98->99, 101->102, 101->104, 109->110, 111->112, 111->113, 113->114, 113->115, 115->116, 115->117, 120->123, 123->124, 123->126, 313->314, 338->339, 380->384, 435->436, 443->444, 459->458, 491->493, 493->496
+BELOW FLOOR: spacr/embeddings.py: 78.68%, 48 uncovered statements, 23 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 48/23/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 142, 176-177, 269, 297, 363, 368, 370, 375, 389, 433, 504, 516, 523, 533-537, 541-543, 545, 555-559, 562-563, 565, 611, 615-623, 625-626, 628-632
+    uncovered branches: 141->142, 268->269, 296->297, 362->363, 367->368, 369->370, 374->375, 388->389, 430->459, 432->433, 443->451, 503->504, 515->516, 522->523, 557->558, 557->563, 619->620, 619->621, 625->626, 625->628, 630->631, 630->632, 673->678
+    pragma: no cover comments: 536
+BELOW FLOOR: spacr/qt/widgets/measure_input_table.py: 78.93%, 57 uncovered statements, 30 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 229, 280, 283, 293, 306-307, 309-310, 340, 343-348, 357-362, 374, 378-381, 385, 395-396, 401-404, 482-483, 511, 528-537, 539-540, 547, 554, 570, 577, 590-591, 618, 663-664
+    uncovered branches: 279->280, 282->283, 292->293, 343->344, 343->346, 344->343, 344->345, 346->347, 346->348, 373->374, 377->378, 379->380, 379->381, 384->385, 387->389, 394->395, 465->470, 510->511, 529->530, 529->531, 531->532, 531->533, 533->534, 533->539, 546->547, 551->554, 555->-542, 567->570, 589->590, 617->618
+BELOW FLOOR: spacr/qt/widgets/preview_refresh.py: 80.00%, 7 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 48-50, 62-63, 71, 75
+    uncovered branches: 34->-26, 45->50, 61->62, 67->75, 69->67, 70->71
+BELOW FLOOR: spacr/qt/widgets/measurements_example.py: 80.22%, 12 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 59, 61, 66, 104, 144, 155-158, 169-171
+    uncovered branches: 101->104, 125->128, 132->135, 143->144, 152->159, 165->171
+BELOW FLOOR: spacr/accelerator.py: 81.67%, 50 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 51/18/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 216-217, 270-271, 309-312, 314, 317-322, 333-334, 337-338, 350-357, 373, 392-393, 425-427, 472, 475-476, 493, 536, 571, 596, 599, 635, 640-641, 644, 675, 689, 737-738, 748
+    uncovered branches: 267->278, 309->310, 309->311, 317->318, 317->322, 318->317, 318->319, 351->352, 351->353, 372->373, 492->493, 595->596, 598->599, 634->635, 643->644, 674->675, 688->689, 746->748
+BELOW FLOOR: spacr/ops_accel.py: 82.76%, 22 uncovered statements, 13 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 30/17/0/0 since 2026-09-15T11:54:08Z) [EXEMPT: three CuPy kernels -- the cupy branch of maximum_filter, of matmul and of nearest_neighbours -- are 20 of its 147 statements and run only on CUDA, so 88% is this module's ceiling on any machine without a card, CI included. Every other line is covered (2026-09-19: 77.83% -> 83.74%, with the torch probes, the named-backend refusals and a cupy that imports without a driver all tested). A cupy faked out of numpy would execute those 20 lines and check nothing, which is what tests/test_the_ops_primitives_agree_on_every_backend.py already refuses to do: it SKIPS the cupy agreement case rather than passing it, because a skip says "not asked" where a pass would say "checked" about a path that never ran.]
+    uncovered statements: 77, 106, 186-189, 191, 237-240, 311-317, 319-321, 323
+    uncovered branches: 76->77, 105->106, 185->186, 187->188, 187->189, 236->237, 238->239, 238->240, 310->311, 312->313, 312->314, 315->316, 315->323
+BELOW FLOOR: spacr/qt/model_install.py: 83.83%, 31 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 69, 78-81, 94, 125, 135, 201-205, 268-269, 273-274, 276, 320, 322, 345, 353, 361-363, 382, 395, 400, 516, 527, 548
+    uncovered branches: 66->69, 119->125, 202->203, 202->205, 219->-211, 234->-232, 239->241, 361->362, 361->363, 381->382, 394->395, 396->400, 497->499, 499->-489, 515->516, 524->527, 525->524, 547->548
+BELOW FLOOR: spacr/qt/widgets/object_settings_grid.py: 83.99%, 64 uncovered statements, 33 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 64/33/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 112-113, 136, 150, 243, 247, 258, 263, 271, 293, 297, 327-328, 369-374, 383-388, 392-393, 397-401, 631, 635, 639, 666, 671, 676-677, 689, 693-695, 703, 708-710, 715-722, 784-785, 809, 815-816, 1025, 1027-1028, 1065
+    uncovered branches: 135->136, 143->151, 149->150, 242->243, 246->247, 257->258, 262->263, 270->271, 292->293, 296->297, 325->327, 369->370, 369->374, 383->384, 383->388, 397->398, 397->401, 630->631, 634->635, 638->639, 665->666, 670->671, 688->689, 692->693, 702->703, 715->716, 715->717, 806->808, 808->809, 813->-792, 1002->1000, 1024->1025, 1064->1065
+BELOW FLOOR: spacr/qt/widgets/column_aligned_row.py: 85.00%, 16 uncovered statements, 11 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 16/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 69-70, 121, 132, 145, 166-168, 225-226, 235, 277, 280, 283, 291, 323
+    uncovered branches: 112->-90, 131->132, 166->167, 166->168, 234->235, 276->277, 279->280, 282->283, 290->291, 322->323, 327->334
+BELOW FLOOR: spacr/qt/widgets/model_zoo_picker.py: 85.71%, 110 uncovered statements, 34 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 37/13/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 82-84, 94-95, 118-119, 132-133, 169, 182-185, 193-194, 286, 289, 394, 396-397, 402-403, 405, 421, 430, 446, 902-903, 916-917, 1076-1082, 1091, 1093, 1095, 1098-1106, 1108, 1117-1118, 1122, 1124-1125, 1127-1137, 1139-1141, 1143-1145, 1152-1162, 1167-1170, 1187-1188, 1235, 1247, 1305, 1307, 1320, 1323-1326, 1334, 1341-1342, 1344, 1404, 1427-1430, 1487-1488
+    uncovered branches: 81->82, 182->183, 182->185, 285->286, 288->289, 417->421, 426->430, 444->446, 1076->1077, 1076->1078, 1098->1099, 1098->1100, 1108->1117, 1108->1118, 1128->1129, 1128->1143, 1130->1131, 1130->1132, 1144->1145, 1144->1153, 1153->1154, 1153->1158, 1155->1156, 1155->1157, 1216->-1205, 1234->1235, 1246->1247, 1304->1305, 1323->-1318, 1323->1324, 1333->1334, 1403->1404, 1426->1427, 1432->-1422
+BELOW FLOOR: spacr/qt/screens/image_import.py: 86.57%, 64 uncovered statements, 28 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 64/28/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 201, 205-206, 222, 317-320, 330, 334-335, 349, 372, 720-722, 726-728, 732, 735-736, 740, 742-743, 783-788, 801, 812-814, 824, 875, 887, 940-942, 985-986, 1024, 1028-1029, 1037-1039, 1096, 1123-1125, 1152, 1162-1164, 1203-1205, 1213-1216
+    uncovered branches: 200->201, 204->205, 220->222, 318->319, 318->320, 329->330, 333->334, 348->349, 370->372, 721->-718, 721->722, 727->-724, 727->728, 735->-730, 735->736, 742->-738, 742->743, 782->783, 800->801, 811->812, 823->824, 874->875, 984->985, 1023->1024, 1036->1037, 1159->1165, 1187->1186, 1193->-1190
+    pragma: no cover comments: 1028
+BELOW FLOOR: spacr/crop_loader.py: 87.17%, 41 uncovered statements, 22 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 274, 307, 328-329, 361-362, 384, 389-390, 440, 493, 549, 565-566, 570, 593-594, 599-600, 630-631, 634, 636, 668, 670, 696-697, 699, 724, 759-760, 768, 846, 851, 854-855, 858-859, 864, 874, 876
+    uncovered branches: 273->274, 299->301, 306->307, 363->354, 383->384, 436->438, 439->440, 490->493, 548->549, 565->566, 565->570, 633->634, 635->636, 667->668, 669->670, 723->724, 767->768, 845->846, 850->851, 863->864, 873->874, 875->876
+BELOW FLOOR: spacr/qt/screens/run_history.py: 87.26%, 42 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 42/18/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 576-584, 593-598, 600, 602-605, 607-608, 621-629, 632-636, 638-640, 645, 647, 657
+    uncovered branches: 577->578, 577->584, 581->577, 581->582, 594->595, 594->596, 603->604, 603->607, 604->-586, 604->605, 607->-586, 607->608, 621->622, 621->623, 634->635, 634->636, 639->640, 639->645
+BELOW FLOOR: spacr/qt/sound.py: 87.40%, 83 uncovered statements, 42 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 103-104, 217-218, 256, 258, 261-262, 367, 401-403, 417, 427-430, 447-448, 452-453, 476-482, 556, 581-582, 584, 606, 668, 748, 752-753, 794, 801, 809-810, 824, 831, 841-843, 862, 896-897, 899-900, 902, 907-915, 939-940, 1049-1050, 1053, 1059-1060, 1166, 1208, 1270, 1283, 1324, 1328-1329, 1332, 1395-1396, 1413-1414, 1439, 1449, 1470
+    uncovered branches: 255->256, 257->258, 269->-265, 366->367, 416->417, 446->447, 477->478, 477->479, 605->606, 667->668, 747->748, 793->794, 800->801, 823->824, 830->831, 846->849, 861->862, 866->868, 873->-852, 893->896, 908->909, 908->910, 911->912, 911->915, 1047->1049, 1050->1053, 1050->1061, 1165->1166, 1207->1208, 1233->1235, 1238->1240, 1269->1270, 1282->1283, 1303->-1296, 1323->1324, 1331->1332, 1410->1416, 1416->1419, 1438->1439, 1441->1447, 1448->1449, 1469->1470
+BELOW FLOOR: spacr/regression_panels.py: 87.41%, 47 uncovered statements, 42 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 47/42/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 649-650, 654, 657, 660, 663, 680, 684, 688, 692, 698, 701-707, 722, 727, 743, 750, 833, 836, 839, 845, 848, 973, 996, 1021, 1023, 1028, 1084, 1089, 1096, 1100, 1112, 1130, 1139, 1146, 1152-1153, 1163, 1177, 1220-1222
+    uncovered branches: 653->654, 656->657, 659->660, 662->663, 679->680, 683->684, 687->688, 691->692, 695->701, 697->698, 702->703, 702->704, 721->722, 726->727, 742->743, 749->750, 832->833, 835->836, 838->839, 844->845, 846->850, 847->848, 941->948, 972->973, 995->996, 1006->1005, 1020->1021, 1022->1023, 1027->1028, 1083->1084, 1087->1089, 1095->1096, 1099->1100, 1111->1112, 1128->1130, 1138->1139, 1145->1146, 1162->1163, 1176->1177, 1219->1220, 1221->1215, 1221->1222
+BELOW FLOOR: spacr/qt/screens/map_barcodes.py: 88.41%, 107 uncovered statements, 64 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 99/59/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 187-188, 324-327, 500, 503, 883-884, 886, 889, 1182, 1237-1238, 1240, 1244-1246, 1248-1251, 1274-1275, 1278-1283, 1315, 1323, 1399-1401, 1415-1417, 1456-1457, 1459, 1482-1483, 1816, 1845-1847, 1855-1857, 1864, 1871, 1883, 1908, 1956, 1959-1960, 1962, 1983-1984, 2009, 2012, 2014, 2026, 2028, 2038, 2050, 2053, 2055, 2058-2059, 2105-2106, 2108-2109, 2204, 2222, 2227, 2229, 2235, 2245, 2251, 2259, 2271, 2289-2290, 2310, 2369, 2382-2389, 2396-2397, 2440, 2443, 2474-2476, 2478-2480
+    uncovered branches: 323->324, 499->500, 502->503, 888->889, 890->887, 1181->1182, 1232->1244, 1244->1245, 1244->1251, 1246->1248, 1246->1250, 1248->1246, 1248->1249, 1277->1278, 1278->1279, 1278->1282, 1280->1278, 1280->1281, 1282->1283, 1282->1284, 1314->1315, 1322->1323, 1330->1329, 1447->1451, 1789->-1775, 1815->1816, 1844->1845, 1855->1856, 1855->1857, 1882->1883, 1907->1908, 1955->1956, 1981->1979, 2008->2009, 2011->2012, 2025->2026, 2037->2038, 2040->2042, 2049->2050, 2052->2053, 2057->2058, 2079->2085, 2096->2110, 2186->2177, 2203->2204, 2207->2206, 2209->2211, 2221->2222, 2228->2229, 2244->2245, 2250->2251, 2258->2259, 2263->2271, 2288->2289, 2305->2310, 2314->2317, 2368->2369, 2385->2386, 2385->2387, 2388->-2376, 2388->2389, 2439->2440, 2442->2443, 2477->2478
+BELOW FLOOR: spacr/qt/live_zoom.py: 88.84%, 19 uncovered statements, 7 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 25/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 113-118, 156, 298, 307-308, 321, 357, 368-369, 424-425, 431-432, 448
+    uncovered branches: 149->156, 272->281, 297->298, 320->321, 356->357, 426->-372, 447->448
+BELOW FLOOR: spacr/qt/widgets/object_grid_binding.py: 89.70%, 11 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 15/9/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 136-138, 166-168, 173, 207, 238-239, 251
+    uncovered branches: 130->126, 172->173, 206->207, 211->205, 235->-217, 250->251
+GAP: spacr/ops_merge.py: 90.32%, 6 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 6/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 89, 114, 168, 171, 223, 237
+    uncovered branches: 88->89, 113->114, 167->168, 170->171, 222->223, 236->237
+GAP: spacr/qt/dnd.py: 90.70%, 44 uncovered statements, 13 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 56/19/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 272-287, 289-290, 292-296, 454-455, 487, 560-561, 572, 612, 623, 625-627, 632-633, 635-636, 639-640, 642-643, 964-965
+    uncovered branches: 274->275, 274->296, 277->278, 277->281, 282->283, 282->284, 285->286, 285->295, 486->487, 542->-528, 543->542, 571->572, 622->623
+    pragma: no cover comments: 883
+GAP: spacr/ops_stitch.py: 90.77%, 6 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 6/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 125, 136, 168, 187, 233, 253
+    uncovered branches: 124->125, 135->136, 163->168, 186->187, 232->233, 252->253
+GAP: spacr/object_classifier.py: 91.01%, 7 uncovered statements, 9 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 102, 111, 123, 185, 324-325, 330
+    uncovered branches: 101->102, 110->111, 122->123, 184->185, 235->237, 302->304, 322->-308, 323->324, 327->330
+GAP: spacr/qt/terms.py: 91.25%, 5 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 338-339, 346-348
+    uncovered branches: 333->340, 345->346
+GAP: spacr/cli_make_masks.py: 91.40%, 6 uncovered statements, 2 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 7/3/2/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 205, 236-238, 240, 291
+    uncovered branches: 204->205, 290->291
+    pragma: no cover comments: 236
+GAP: spacr/qt/screens/annotate.py: 91.42%, 220 uncovered statements, 81 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 219/77/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 231-232, 255, 318, 343, 821-826, 829, 831-832, 1088-1089, 1829-1830, 1834-1840, 1844, 1854-1855, 1857-1859, 1861-1864, 1866, 1868-1874, 1876-1880, 1888, 1890-1894, 1896-1898, 1954-1956, 1971, 2250, 2633, 2665, 2668-2669, 2691-2692, 3131-3133, 3135, 3137-3141, 3144-3145, 3147-3150, 3152-3154, 3183-3184, 3248, 3252-3253, 3286-3287, 3289, 3291, 3300-3301, 3303, 3316, 3318, 3320-3321, 3323, 3329-3330, 3334, 3346, 3348, 3404-3405, 3746-3747, 4061-4062, 4074, 4102-4103, 4145-4151, 4154, 4156, 4158-4162, 4164, 4166-4168, 4170, 4172, 4183-4187, 4192-4196, 4198-4200, 4205-4206, 4211, 4214, 4219, 4221-4222, 4232-4240, 4243-4247, 4258, 4260-4264, 4266-4270, 4275, 4278, 4281-4283, 4286-4289, 4291-4292, 4525-4528, 4530-4538, 4917-4918, 4928-4929, 5422-5425, 5429-5434
+    uncovered branches: 254->255, 317->318, 342->343, 828->829, 1087->1088, 1792->-1778, 1828->1829, 1834->1835, 1834->1837, 1837->1838, 1837->1840, 1843->1844, 1858->1859, 1858->1861, 1862->1863, 1862->1866, 1868->1869, 1868->1871, 1871->1872, 1871->1874, 1877->1878, 1877->1879, 1896->1897, 1896->1898, 1970->1971, 2249->2250, 2632->2633, 2664->2665, 3110->3112, 3128->3131, 3139->3140, 3139->3145, 3148->3149, 3148->3153, 3149->3150, 3149->3152, 3180->3185, 3247->3248, 3288->3289, 3315->3316, 3333->3334, 3345->3346, 4072->4074, 4145->4146, 4145->4148, 4149->4150, 4149->4156, 4159->4160, 4159->4166, 4161->4162, 4161->4166, 4194->4195, 4194->4200, 4205->4206, 4205->4211, 4238->4239, 4238->4240, 4240->4243, 4240->4247, 4262->4263, 4262->4264, 4266->4267, 4266->4269, 4269->4270, 4269->4275, 4278->4281, 4278->4282, 4286->4287, 4286->4288, 4497->4489, 4526->4527, 4526->4528, 4531->4532, 4531->4533, 4953->-4947, 5399->5402, 5421->5422, 5425->5429, 5425->5433, 5433->5434, 5433->5435
+GAP: spacr/ops_register.py: 91.54%, 12 uncovered statements, 5 uncovered branches, 2 pragma: no cover comments, 0 coverage-excluded lines (baseline 19/8/2/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 248-257, 281, 369
+    uncovered branches: 249->250, 249->251, 276->281, 354->368, 368->369
+    pragma: no cover comments: 249, 368
+GAP: spacr/qt/sound_preferences.py: 91.62%, 10 uncovered statements, 5 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 171-172, 256, 258, 260, 263-265, 270, 291
+    uncovered branches: 263->264, 263->265, 269->270, 290->291, 306->308
+GAP: spacr/qt/widgets/fold_strip.py: 91.81%, 22 uncovered statements, 15 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 20/14/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 155-156, 180, 233, 236-237, 259, 262, 283, 300, 303-304, 319-320, 323, 334, 441, 555-557, 596, 722
+    uncovered branches: 258->259, 261->262, 279->283, 281->283, 286->294, 290->286, 299->300, 321->334, 322->323, 331->321, 332->331, 440->441, 553->557, 595->596, 721->722
+GAP: spacr/qt/resonance.py: 91.99%, 19 uncovered statements, 8 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 237, 242, 246-248, 327-328, 392, 489-495, 549-550, 640, 656
+    uncovered branches: 236->237, 239->246, 241->242, 326->327, 391->392, 541->551, 639->640, 655->656
+GAP: spacr/qt/screens/mask.py: 92.14%, 16 uncovered statements, 9 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 16/9/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 445, 448-450, 462, 465-466, 468, 478, 481-482, 484, 495, 520, 523, 569
+    uncovered branches: 444->445, 447->448, 461->462, 477->478, 483->484, 494->495, 519->520, 522->523, 568->569
+GAP: spacr/import_examples.py: 92.21%, 3 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 240, 252-253
+    uncovered branches: 237->240, 251->252, 303->301
+GAP: spacr/qt/ai/settings.py: 92.45%, 5 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 198-199, 201, 228, 233
+    uncovered branches: 200->201, 227->228, 232->233
+GAP: spacr/qt/_layout_policy.py: 92.50%, 5 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 103-104, 106, 144-145
+    uncovered branches: 105->106
+GAP: spacr/curation_queue.py: 92.76%, 27 uncovered statements, 17 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 37/25/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 323, 327, 390, 393, 520, 690-691, 792, 801, 845-846, 977-978, 986, 988-989, 1008, 1016, 1029, 1086, 1097, 1100-1101, 1174, 1198, 1270, 1340
+    uncovered branches: 318->327, 322->323, 389->390, 392->393, 519->520, 791->792, 800->801, 985->986, 1007->1008, 1015->1016, 1028->1029, 1085->1086, 1096->1097, 1173->1174, 1197->1198, 1269->1270, 1339->1340
+GAP: spacr/flowview/panel.py: 92.88%, 19 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 19/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 251-256, 265-270, 274-275, 279-283
+    uncovered branches: 251->252, 251->256, 265->266, 265->270, 279->280, 279->283
+GAP: spacr/image_import.py: 92.97%, 22 uncovered statements, 14 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 22/14/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 221, 334-335, 339, 350-351, 440, 546, 744-745, 747, 752-755, 860, 866-871
+    uncovered branches: 220->221, 264->258, 283->268, 338->339, 439->440, 539->541, 545->546, 705->707, 743->744, 744->745, 744->747, 753->754, 753->755, 859->860
+    pragma: no cover comments: 334
+GAP: spacr/infection.py: 93.03%, 12 uncovered statements, 5 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 24/14/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 126-127, 144-145, 154-155, 212-213, 349-351, 488
+    uncovered branches: 348->349, 350->351, 350->353, 429->431, 487->488
+GAP: spacr/qt/settings_pack.py: 93.11%, 17 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 11/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 273-274, 303-304, 307-308, 323-324, 327-328, 407, 414, 421-423, 474, 497
+    uncovered branches: 406->407, 413->414, 472->474, 496->497
+GAP: spacr/qt/widgets/api_help_label.py: 93.16%, 4 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 111, 114, 135, 139
+    uncovered branches: 110->111, 113->114, 134->135, 138->139
+GAP: spacr/qt/widgets/home.py: 93.35%, 64 uncovered statements, 27 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 71/30/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 374, 463, 816-824, 826-829, 849, 851-852, 855, 910-911, 929, 939, 941-943, 963-964, 977, 1193, 1195-1197, 1214-1215, 1218, 1233, 1235, 1237-1244, 1344, 1474-1475, 1538, 1567, 1569-1570, 1968-1970, 2348-2349, 2354, 2415, 2458-2459, 2461, 2485
+    uncovered branches: 373->374, 454->457, 827->828, 827->829, 848->849, 927->929, 976->977, 1217->1218, 1237->1238, 1237->1244, 1238->1239, 1238->1240, 1242->1237, 1242->1243, 1501->1508, 1509->1518, 1537->1538, 1942->1940, 1968->-1962, 1968->1969, 1969->1968, 1969->1970, 2348->-2339, 2348->2349, 2456->2458, 2460->2461, 2484->2485
+GAP: spacr/qt/widgets/drawer.py: 93.40%, 8 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 8/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 201, 268-269, 271, 393-394, 401-402
+    uncovered branches: 168->-153, 200->201, 268->269, 268->271, 292->291, 310->-308
+GAP: spacr/ops_phenotype.py: 93.44%, 8 uncovered statements, 12 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 18/15/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 267, 320, 393, 400, 405, 412, 418, 508
+    uncovered branches: 266->267, 319->320, 384->386, 386->392, 390->392, 392->393, 399->400, 404->405, 411->412, 416->418, 507->508, 509->512
+GAP: spacr/ops_engine.py: 93.57%, 34 uncovered statements, 27 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 118, 595-596, 614-615, 617-620, 623, 635, 638-639, 682, 703-704, 707, 771, 837, 843-844, 853-854, 869, 902, 905, 907, 909, 922, 931, 936, 959, 1446, 1756
+    uncovered branches: 117->118, 612->614, 614->615, 614->617, 619->620, 619->623, 634->635, 678->682, 679->678, 680->679, 706->707, 739->737, 740->739, 770->771, 836->837, 868->869, 901->902, 904->905, 906->907, 908->909, 916->958, 921->922, 930->931, 935->936, 958->959, 1445->1446, 1755->1756
+GAP: spacr/ops_sample.py: 93.70%, 3 uncovered statements, 5 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/5/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 190, 197, 244
+    uncovered branches: 97->87, 189->190, 196->197, 210->216, 243->244
+GAP: spacr/qt/screens/regression.py: 93.76%, 19 uncovered statements, 7 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 19/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 545, 555-557, 562, 564-566, 570-575, 577-578, 580, 717-718
+    uncovered branches: 518->514, 544->545, 553->548, 565->566, 565->571, 572->573, 572->580
+GAP: spacr/qt/widgets/screen_data_picker.py: 93.80%, 6 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 6/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 169-170, 237-240
+    uncovered branches: 238->239, 238->240
+GAP: spacr/qt/app.py: 93.87%, 150 uncovered statements, 61 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 139/56/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 79-80, 1369-1370, 1376-1377, 1399-1400, 1403, 1414, 1443-1444, 1457, 1460, 1542-1543, 1920-1921, 1972, 1974, 2018-2020, 2034, 2060, 2064, 2093, 2108-2109, 2153, 2163, 2173, 2208, 2229, 2259-2261, 2287-2288, 2305, 2309, 2313-2314, 2318-2319, 2327-2328, 2339-2340, 2387-2388, 2398-2399, 2408-2409, 2427-2428, 2440-2441, 2451-2452, 2468, 2472-2473, 2590-2592, 2939-2940, 2974, 2987-2988, 3028, 3231, 3753-3754, 3756-3758, 3786-3787, 3797-3798, 3950, 3970-3971, 4056-4057, 4200-4201, 4225, 4236-4237, 4240-4242, 4389-4391, 4612, 4639-4649, 4651-4655, 4769, 4996-4997, 5007-5008, 5014-5015, 5039-5040, 5043-5044, 5087-5088, 5094-5095, 5131, 5185, 5194-5195, 5200-5201, 5229-5230, 5241-5242, 5745-5749, 5758-5759, 5846-5847
+    uncovered branches: 1375->1376, 1379->1373, 1401->1414, 1402->1403, 1411->1401, 1412->1411, 1456->1457, 1459->1460, 1495->1499, 1497->1499, 1504->1511, 1508->1504, 1971->1972, 2032->2034, 2059->2060, 2061->2064, 2073->2079, 2085->2093, 2104->2108, 2152->2153, 2162->2163, 2172->2173, 2206->2208, 2228->2229, 2304->2305, 2306->2309, 2348->2356, 2365->2382, 2383->2390, 2412->2429, 2467->2468, 2470->-2457, 2973->2974, 3027->3028, 3055->3057, 3230->3231, 3539->3549, 3752->3753, 3949->3950, 3969->3970, 4022->4029, 4030->4038, 4055->4056, 4224->4225, 4281->4283, 4392->-4368, 4611->4612, 4640->4641, 4640->4642, 4645->4646, 4645->4652, 4652->4653, 4652->4655, 4768->4769, 5012->-4909, 5037->5041, 5130->5131, 5184->5185, 5193->5194, 5238->5240, 5744->5745
+    pragma: no cover comments: 5777
+GAP: spacr/qt/stall_watch.py: 93.89%, 3 uncovered statements, 5 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 15/6/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 161, 180, 218
+    uncovered branches: 143->-127, 154->156, 160->161, 179->180, 217->218
+    pragma: no cover comments: 224
+GAP: spacr/qt/widgets/card.py: 94.03%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 101-102
+    uncovered branches: 88->104, 94->101
+GAP: spacr/qt/screens/embeddings.py: 94.06%, 20 uncovered statements, 9 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 9/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 541-542, 546, 548-551, 585-586, 589, 592, 716, 725-727, 926-927, 933, 957, 959
+    uncovered branches: 413->411, 541->542, 541->546, 548->549, 548->551, 584->585, 588->589, 715->716, 724->725
+GAP: spacr/cli_download.py: 94.27%, 13 uncovered statements, 9 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 13/9/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 135, 344, 442, 461-464, 493-494, 697-699, 786
+    uncovered branches: 266->265, 343->344, 380->386, 386->393, 441->442, 569->572, 587->568, 643->648, 785->786
+GAP: spacr/qt/assay_examples.py: 94.44%, 2 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 180, 182
+    uncovered branches: 160->164, 168->171, 179->180
+GAP: spacr/qt/gc_policy.py: 94.52%, 2 uncovered statements, 2 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 12/3/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 83-84
+    uncovered branches: 117->119, 143->145
+    pragma: no cover comments: 83
+GAP: spacr/ops_solve.py: 94.55%, 1 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 56
+    uncovered branches: 55->56, 77->76
+GAP: spacr/qt/widgets/pca_model.py: 94.83%, 14 uncovered statements, 11 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 14/11/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 301, 306, 311, 316, 511, 687, 701, 706-707, 746-747, 769, 843, 960
+    uncovered branches: 300->301, 305->306, 310->311, 315->316, 686->687, 700->701, 705->706, 745->746, 768->769, 842->843, 959->960
+    pragma: no cover comments: 973
+GAP: spacr/qt/widgets/database_set.py: 95.09%, 11 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 11/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 402, 421, 424, 428-429, 626, 659-660, 664, 690-691
+    uncovered branches: 401->402, 420->421, 423->424, 625->626, 654->662, 663->664
+GAP: spacr/qt/widgets/dose_response.py: 95.15%, 41 uncovered statements, 44 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 18/19/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 535, 769, 799, 802, 822, 860-861, 863, 867, 888, 894, 902, 910, 951, 966, 1034, 1042, 2106-2107, 2109, 2111, 2115, 2157, 2160, 2288, 2899, 2902, 2962-2966, 2985, 3062, 3105, 3186, 3263, 3408, 3420, 3610, 3643
+    uncovered branches: 534->535, 768->769, 773->777, 798->799, 801->802, 821->822, 862->863, 866->867, 887->888, 893->894, 901->902, 909->910, 950->951, 965->966, 1033->1034, 1041->1042, 1677->1680, 2108->2109, 2110->2111, 2114->2115, 2119->2121, 2156->2157, 2159->2160, 2162->2164, 2287->2288, 2304->2315, 2350->2358, 2576->2595, 2898->2899, 2901->2902, 2960->2962, 2962->2963, 2962->2964, 2964->2965, 2964->2966, 2984->2985, 3061->3062, 3104->3105, 3185->3186, 3262->3263, 3407->3408, 3419->3420, 3609->3610, 3642->3643
+GAP: spacr/qt/hf_download.py: 95.25%, 19 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 149/35/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 700-701, 703, 705, 707, 769-771, 788-790, 852-857, 861-862
+    uncovered branches: 845->863
+GAP: spacr/organelle_types.py: 95.26%, 8 uncovered statements, 4 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 8/4/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 490-491, 540, 568, 571-572, 657-658
+    uncovered branches: 489->490, 535->544, 539->540, 567->568
+    pragma: no cover comments: 657
+GAP: spacr/scorecard.py: 95.48%, 13 uncovered statements, 12 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 13/12/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 110, 438, 462, 513, 689, 718, 826-827, 914-915, 956, 979, 1064
+    uncovered branches: 109->110, 356->353, 437->438, 461->462, 512->513, 688->689, 717->718, 825->826, 852->864, 955->956, 978->979, 1063->1064
+GAP: spacr/qt/screens/make_masks.py: 95.58%, 137 uncovered statements, 84 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 59/28/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 811, 1115, 1125-1127, 1435, 1439, 1628, 1813-1814, 1860, 2488, 2546, 2551, 2712, 2782-2783, 2788, 2975, 2977, 3051-3052, 3139-3141, 3164, 3232, 3263, 3365, 3390, 3409, 3422, 3490-3491, 3515, 3666, 3671, 3747, 3781, 3863, 3906, 3963, 3986-3987, 3989, 3992, 4026, 4073, 4149, 4155, 4319, 4325-4342, 4344-4350, 4849-4851, 4901-4902, 4904, 5596, 5599-5600, 5618-5619, 5624-5626, 5629, 5631, 5672, 5689, 5698-5699, 5703-5704, 5773-5775, 6303-6304, 6407, 6619, 6839, 6841, 6851-6853, 7333, 7427, 7448, 7461, 7493, 7495, 7502, 7506, 7509-7511, 7551, 7553-7554, 7717-7718, 7992, 8179-8180, 8202, 8213, 8216, 8255, 8493, 8791, 8797, 8824
+    uncovered branches: 810->811, 1005->1008, 1114->1115, 1434->1435, 1438->1439, 1533->1538, 1627->1628, 1812->1813, 1859->1860, 2487->2488, 2545->2546, 2550->2551, 2706->2709, 2711->2712, 2787->2788, 2974->2975, 2976->2977, 3050->3051, 3138->3139, 3162->3164, 3183->3185, 3231->3232, 3262->3263, 3364->3365, 3388->3390, 3408->3409, 3421->3422, 3514->3515, 3664->3666, 3670->3671, 3745->3747, 3780->3781, 3862->3863, 3905->3906, 3962->3963, 3981->3985, 3985->3986, 3996->3999, 4002->4007, 4025->4026, 4072->4073, 4148->4149, 4154->4155, 4178->-4175, 4318->4319, 4332->4333, 4332->4344, 4338->4339, 4338->4344, 4340->4341, 4340->4342, 4347->4348, 4347->4350, 4900->4901, 4903->4904, 5595->5596, 5617->5618, 5667->5672, 5688->5689, 5697->5698, 6406->6407, 6618->6619, 6838->6839, 7332->7333, 7426->7427, 7447->7448, 7460->7461, 7469->-7466, 7492->7493, 7501->7502, 7505->7506, 7526->-7523, 7538->7540, 7541->7543, 7550->7551, 7991->7992, 8178->8179, 8201->8202, 8212->8213, 8254->8255, 8492->8493, 8790->8791, 8796->8797, 8823->8824
+    pragma: no cover comments: 4668
+GAP: spacr/qt/widgets/qc_field_browser.py: 95.60%, 30 uncovered statements, 10 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 30/9/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 471, 475-476, 1094, 1096-1097, 1222, 1303-1304, 1354, 1370-1371, 1384-1385, 1399-1400, 1420-1429, 1496-1497, 1505-1506
+    uncovered branches: 470->471, 1221->1222, 1274->-1255, 1302->1303, 1353->1354, 1361->1363, 1369->1370, 1398->1399, 1422->1423, 1422->1424
+GAP: spacr/qt/mask_engine.py: 95.87%, 33 uncovered statements, 32 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 11/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 341-342, 350, 409, 561, 756, 760, 814, 816, 824, 882, 893, 973, 978, 1439, 1633, 1774, 1844-1845, 1847, 1879, 1889, 2165, 2180-2182, 2204, 2274, 2279, 2282, 2310, 2353, 2525
+    uncovered branches: 334->345, 343->334, 348->350, 406->409, 452->454, 455->462, 539->537, 559->561, 755->756, 759->760, 813->814, 815->816, 823->824, 881->882, 890->893, 972->973, 974->978, 1438->1439, 1632->1633, 1773->1774, 1878->1879, 1887->1889, 2164->2165, 2178->2180, 2203->2204, 2273->2274, 2278->2279, 2281->2282, 2289->2292, 2309->2310, 2352->2353, 2524->2525
+GAP: spacr/qt/preferences.py: 96.22%, 106 uncovered statements, 29 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 89/25/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1445-1446, 3564, 3581-3582, 3860, 3879-3880, 3933, 3972-3973, 4538-4539, 4543-4544, 4656-4660, 4674-4675, 4690-4693, 4741-4742, 4751-4754, 4763-4764, 4770-4771, 4777-4778, 4781, 4918, 4922-4927, 4957, 5791-5792, 5810, 5812, 5814-5818, 5820-5821, 5823-5828, 6752, 6864-6865, 6868, 6875-6876, 7335, 7346-7355, 7360-7365, 7383-7384, 7389-7396, 7460-7461, 7463, 7475-7476, 7507, 7534, 7573-7574
+    uncovered branches: 3563->3564, 3859->3860, 3932->3933, 4655->4656, 4769->4770, 4780->4781, 4917->4918, 4956->4957, 5814->5815, 5814->5816, 5823->5824, 5823->5827, 6378->6380, 6380->-6341, 6506->6510, 6524->6526, 6526->6528, 6749->6752, 6867->6868, 7334->7335, 7347->7348, 7347->7349, 7349->7350, 7349->7352, 7361->7362, 7361->7363, 7462->7463, 7506->7507, 7533->7534
+    pragma: no cover comments: 5241
+GAP: spacr/suggest.py: 96.27%, 6 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 16/10/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 95-96, 256-257, 340-341
+GAP: spacr/qt/widgets/live_preview.py: 96.34%, 73 uncovered statements, 39 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 56/32/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 153-154, 817-818, 1161, 1167-1168, 1173-1174, 1271-1272, 1274, 1283-1284, 1286, 1584, 1603, 2137-2138, 2193-2197, 2202, 2221-2228, 2230-2231, 2352, 2500, 2505, 2883-2884, 2892-2893, 2941-2942, 3006, 3023, 3245, 3403-3404, 3468, 3474, 3497-3498, 3521, 3524, 3544-3550, 3563, 3592, 3600-3602, 3631, 3665, 3668, 3713, 4566-4567
+    uncovered branches: 1160->1161, 1321->1316, 1583->1584, 1602->1603, 2191->2193, 2221->2222, 2221->2223, 2223->2224, 2223->2225, 2225->2226, 2225->2227, 2351->2352, 2499->2500, 2504->2505, 2858->2861, 3005->3006, 3022->3023, 3244->3245, 3467->3468, 3473->3474, 3485->3491, 3488->3485, 3491->3500, 3520->3521, 3523->3524, 3546->-3542, 3546->3547, 3562->3563, 3572->3570, 3591->3592, 3599->3600, 3630->3631, 3664->3665, 3666->3668, 3712->3713, 3784->3789, 3802->3805, 4564->4566, 4651->4648
+GAP: spacr/qt/screens/app_screen.py: 96.34%, 152 uncovered statements, 72 uncovered branches, 3 pragma: no cover comments, 0 coverage-excluded lines (baseline 113/64/3/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 491, 996-997, 1406, 1410, 2125-2126, 2170, 2202-2203, 2226-2227, 2231-2232, 2238, 2272-2273, 2281-2282, 2286, 2289-2290, 2364, 2547, 2550-2551, 2555-2556, 2846-2849, 2966, 2968, 3400-3401, 3403, 3763-3764, 3860-3861, 3877, 3879, 3900, 3910-3911, 3917-3921, 3924-3925, 3927-3928, 3932, 3988-3990, 3993-3998, 4000, 4045-4046, 4052-4056, 4059-4060, 4064, 4102, 4159-4160, 4260-4261, 4263-4264, 4266-4269, 4271, 4273, 4275-4279, 4282-4283, 4285-4289, 4305, 4433, 4884, 4901-4902, 4945, 4954-4956, 5019-5020, 5057, 5061-5062, 5686-5687, 5826, 5898, 5908, 6080-6081, 6134, 6136, 6545-6546, 6560-6561, 6575-6576, 6688, 6705-6706, 6710-6711, 6718-6719, 6722-6724, 6726-6727, 6734, 6758-6759, 6983-6984, 7310-7311, 7892-7893, 9171
+    uncovered branches: 490->491, 1405->1406, 2122->2129, 2169->2170, 2237->2238, 2269->2274, 2285->2286, 2363->2364, 2520->2517, 2546->2547, 2965->2966, 2967->2968, 3398->3400, 3400->3401, 3400->3403, 3899->3900, 3909->3910, 3917->3918, 3917->3920, 3920->3921, 3920->3925, 3931->3932, 3993->3994, 3993->3995, 3997->3998, 3997->4000, 4044->4045, 4052->4053, 4052->4055, 4055->4056, 4055->4060, 4063->4064, 4101->4102, 4121->4123, 4158->4159, 4161->4163, 4172->4174, 4237->4239, 4263->4264, 4263->4266, 4267->4268, 4267->4271, 4275->4276, 4275->4278, 4278->4279, 4278->4283, 4286->4287, 4286->4288, 4304->4305, 4409->4411, 4429->4433, 4882->4884, 4894->4890, 4944->4945, 4951->4954, 4955->4956, 4955->4957, 4983->4986, 5015->5021, 5056->5057, 5068->5071, 5072->5075, 5665->5676, 5733->5735, 5825->5826, 5897->5898, 5907->5908, 6132->6134, 6687->6688, 6733->6734, 7883->7880, 9170->9171
+    pragma: no cover comments: 4432, 4953, 9501
+GAP: spacr/qt/widgets/read_view.py: 96.36%, 6 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 6/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 186, 298, 330, 333, 543, 707
+    uncovered branches: 185->186, 297->298, 329->330, 331->333, 542->543, 706->707
+GAP: spacr/qt/widgets/height_grip.py: 96.49%, 6 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 34/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 208-210, 217-219
+GAP: spacr/point_patterns.py: 96.50%, 2 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 176, 265
+    uncovered branches: 175->176, 264->265, 306->308
+GAP: spacr/qt/widgets/motility_preview.py: 96.61%, 25 uncovered statements, 11 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 25/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 918, 1013-1020, 1035-1036, 1400-1401, 1426-1427, 1429-1430, 1447-1448, 1474-1477, 1480-1481
+    uncovered branches: 917->918, 1014->1015, 1014->1016, 1017->-997, 1017->1018, 1125->-1120, 1425->1426, 1428->1429, 1446->1447, 1473->1474, 1479->1480
+GAP: spacr/screen_data.py: 96.72%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 7/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 182
+    uncovered branches: 176->182
+GAP: spacr/qt/widgets/import_workbench.py: 96.76%, 8 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 8/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 80-84, 275, 308-309
+    uncovered branches: 58->49, 274->275
+GAP: spacr/qt/dnd_handlers.py: 96.81%, 43 uncovered statements, 13 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 43/13/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 432, 434-435, 465-469, 471, 562-568, 692, 697-698, 703, 708-709, 713-714, 719-720, 997-998, 1493-1494, 2251, 2325, 2370, 2380, 2394, 2408, 2418, 2541, 2588, 2627, 2742, 2804-2805
+    uncovered branches: 431->432, 463->465, 465->466, 465->467, 468->-438, 468->469, 469->-438, 469->471, 516->-481, 561->562, 691->692, 2393->2394, 2540->2541
+GAP: spacr/qt/settings_search.py: 96.83%, 15 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 375, 385, 388-389, 425, 447-448, 503-504, 602-603, 611-612, 639-640
+    uncovered branches: 374->375, 384->385, 444->446
+GAP: spacr/ops_store.py: 96.83%, 4 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 14/5/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 146, 165-166, 346
+    uncovered branches: 145->146, 164->165, 345->346
+GAP: spacr/openmp_guard.py: 96.88%, 4 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 316-319
+    uncovered branches: 315->316
+GAP: spacr/qt/ai/issue_report.py: 96.89%, 10 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 146-147, 150-151, 156-157, 160-161, 747-748
+    uncovered branches: 355->359
+GAP: spacr/qt/sound_synth.py: 96.90%, 12 uncovered statements, 12 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 876, 922, 984, 1216, 1218, 1317-1318, 1331, 1377, 1383, 1751-1752
+    uncovered branches: 759->762, 875->876, 921->922, 967->970, 983->984, 1215->1216, 1217->1218, 1316->1317, 1330->1331, 1374->1383, 1376->1377, 1539->1556
+GAP: spacr/qt/plate_queue.py: 96.96%, 5 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 177-181
+    uncovered branches: 178->179, 178->181
+GAP: spacr/bystanders.py: 97.08%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 86, 288
+    uncovered branches: 85->86, 287->288
+GAP: spacr/qt/path_probe.py: 97.22%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 115-116
+    uncovered branches: 247->-231
+GAP: spacr/qt/widgets/tile.py: 97.24%, 2 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 119, 226
+    uncovered branches: 118->119, 225->226, 348->354
+GAP: spacr/qt/notify.py: 97.26%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 122-123
+GAP: spacr/frame_handoff.py: 97.30%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 219-220
+    uncovered branches: 216->221
+GAP: spacr/qt/widgets/section.py: 97.31%, 4 uncovered statements, 5 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/5/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 261, 482, 511, 591
+    uncovered branches: 260->261, 480->486, 481->482, 590->591, 659->661
+GAP: spacr/ops_sbs.py: 97.50%, 4 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 14/10/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 400, 461-462, 613
+    uncovered branches: 333->337, 399->400, 460->461, 612->613
+GAP: spacr/qt/screens/dose_response.py: 97.52%, 10 uncovered statements, 8 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 240, 300, 767, 769, 781, 786, 801, 805, 815, 818
+    uncovered branches: 237->240, 299->300, 766->767, 780->781, 785->786, 800->801, 804->805, 814->815
+GAP: spacr/measure.py: 97.60%, 34 uncovered statements, 39 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 6/9/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1160, 1231-1232, 1234, 1236, 2923, 4366, 4369, 4377, 4391, 4489, 4491, 4553, 4649-4650, 4653, 4655-4656, 4659, 4672, 4674, 4680, 4683, 4689, 4708, 4712, 4769, 4804, 4813, 4822, 4826, 4830, 4883, 5014
+    uncovered branches: 1159->1160, 1235->1236, 2848->2857, 2895->2908, 2922->2923, 3169->3172, 3332->3335, 3335->-3246, 3395->3399, 4302->4305, 4365->4366, 4368->4369, 4375->4377, 4390->4391, 4488->4489, 4490->4491, 4552->4553, 4648->4649, 4649->4650, 4649->4653, 4654->4655, 4655->4656, 4655->4659, 4671->4672, 4679->4680, 4685->4689, 4707->4708, 4711->4712, 4761->4763, 4765->4767, 4768->4769, 4803->4804, 4806->4811, 4811->4813, 4821->4822, 4825->4826, 4829->4830, 4882->4883, 5013->5014
+    pragma: no cover comments: 840
+GAP: spacr/timeflows_qc.py: 97.64%, 4 uncovered statements, 5 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 137, 244, 356, 492
+    uncovered branches: 136->137, 243->244, 355->356, 491->492, 530->551
+GAP: spacr/qt/screens/model_zoo.py: 97.67%, 14 uncovered statements, 7 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 159, 356-357, 360, 680, 696-697, 720-725, 810
+    uncovered branches: 158->159, 358->360, 679->680, 695->696, 720->721, 720->722, 809->810
+GAP: spacr/qt/screens/graph_builder.py: 97.72%, 2 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 58, 139
+    uncovered branches: 57->58, 136->139, 137->136
+GAP: spacr/qt/widgets/sweep_runs.py: 97.74%, 21 uncovered statements, 6 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 21/6/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 130-131, 173-175, 204, 206-207, 255, 274, 313-315, 628, 631-632, 1362-1364, 1511-1512
+    uncovered branches: 203->204, 251->255, 269->274, 627->628, 1361->1362, 1534->1542
+    pragma: no cover comments: 274
+GAP: spacr/qt/shortcuts.py: 97.78%, 8 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 305-306, 359, 734-735, 737-739
+    uncovered branches: 266->269, 358->359
+GAP: spacr/model_zoo.py: 97.78%, 27 uncovered statements, 7 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 989, 1704-1705, 1709-1710, 2060-2061, 2068-2069, 2071-2075, 2301-2302, 2320-2321, 2331, 2335-2336, 2448-2451, 2461-2462
+    uncovered branches: 934->936, 988->989, 2067->2068, 2317->2325, 2330->2331, 2449->2450, 2449->2451
+GAP: spacr/qt/theme.py: 97.81%, 31 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 21/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1922-1923, 2644-2645, 3252, 3256-3257, 3290, 3294-3295, 3384-3385, 3405-3406, 3414, 3433-3434, 3476-3477, 3495-3496, 3540-3541, 3583-3584, 3587-3588, 3608-3609, 3624, 3698
+    uncovered branches: 1411->1405, 3251->3252, 3289->3290, 3413->3414, 3623->3624, 3697->3698
+GAP: spacr/qt/screens/settings_model.py: 97.87%, 72 uncovered statements, 36 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 137/61/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 726-727, 3363-3364, 3372, 3521-3522, 3535, 3728-3729, 3732, 3850-3851, 3858-3859, 6663-6665, 6705, 6725, 6847, 6920, 6925-6926, 6934-6935, 6982-6983, 7995-7999, 8001-8013, 8881-8887, 8896-8899, 9317-9318, 9480, 9804, 9808-9813, 9861, 9865-9866, 9870-9871
+    uncovered branches: 2109->2108, 2112->2111, 2115->2114, 2118->2117, 3371->3372, 3534->3535, 3731->3732, 3855->3860, 6704->6705, 6708->6702, 6724->6725, 6836->6839, 6846->6847, 6919->6920, 6922->6927, 6931->6936, 6981->6982, 7998->7999, 7998->8013, 8001->8002, 8001->8003, 8004->8005, 8004->8006, 8007->7998, 8007->8008, 8009->8010, 8009->8011, 8011->8007, 8011->8012, 8882->8883, 8882->8884, 8897->8898, 8897->8899, 9478->9480, 9803->9804, 9860->9861
+    pragma: no cover comments: 919
+GAP: spacr/qt/verbose_logger.py: 97.89%, 4 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 184, 206, 345-346
+    uncovered branches: 183->184, 205->206
+GAP: spacr/qt/widgets/setup_slides.py: 97.91%, 23 uncovered statements, 8 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 26/8/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 288-290, 318-320, 326-327, 331, 1902, 1913-1914, 1918-1919, 1969-1970, 1993-1995, 2032, 2035-2037
+    uncovered branches: 317->318, 325->326, 330->331, 336->342, 1901->1902, 1906->1922, 1920->1922, 2031->2032
+GAP: spacr/ops_compose.py: 97.94%, 0 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 100->-75, 101->107
+GAP: spacr/settings.py: 98.04%, 36 uncovered statements, 18 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 13/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 275, 277-280, 286, 309-311, 317, 319-322, 325-329, 356-357, 359, 585, 696, 699, 704-705, 715, 728, 738, 1899, 1971, 1975, 2030, 2661, 5698
+    uncovered branches: 260->262, 279->280, 279->286, 307->309, 310->311, 310->321, 695->696, 698->699, 703->704, 714->715, 719->728, 737->738, 1881->1899, 1970->1971, 1974->1975, 2029->2030, 2660->2661, 5697->5698
+GAP: spacr/qt/chaining.py: 98.16%, 9 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 9/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 259-260, 275-276, 666, 668, 671, 694, 764
+    uncovered branches: 687->690, 693->694, 763->764
+GAP: spacr/qt/widgets/pca_view.py: 98.23%, 4 uncovered statements, 6 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/6/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 132, 142, 469, 511
+    uncovered branches: 131->132, 141->142, 466->468, 468->469, 510->511, 924->927
+GAP: spacr/qt/screens/data_manager.py: 98.24%, 8 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 8/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 320, 355-356, 943-944, 1037, 1191-1192
+    uncovered branches: 319->320, 352->-327, 1036->1037
+GAP: spacr/qt/screens/qc_dashboard.py: 98.27%, 2 uncovered statements, 3 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/3/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 51, 423
+    uncovered branches: 50->51, 417->419, 422->423
+    pragma: no cover comments: 285
+GAP: spacr/convert.py: 98.32%, 13 uncovered statements, 10 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1212-1213, 1236, 1240, 1246, 1252, 1329, 1331, 1455, 1457, 1518, 1900-1901
+    uncovered branches: 1235->1236, 1239->1240, 1245->1246, 1251->1252, 1328->1329, 1330->1331, 1454->1455, 1456->1457, 1517->1518, 1896->1900
+GAP: spacr/qt/widgets/fractal_travel.py: 98.40%, 13 uncovered statements, 9 uncovered branches, 2 pragma: no cover comments, 0 coverage-excluded lines (baseline 19/11/2/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 391, 393, 1166-1167, 1517-1519, 1586, 1732, 1734-1735, 1905, 1988
+    uncovered branches: 390->391, 392->393, 930->933, 1163->1168, 1585->1586, 1731->1732, 1904->1905, 1987->1988, 1997->2000
+    pragma: no cover comments: 40, 618
+GAP: spacr/qt/widgets/timelapse_preview.py: 98.48%, 18 uncovered statements, 9 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 18/9/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1513-1523, 1653-1654, 1771, 1791, 1793-1794, 1797
+    uncovered branches: 1514->1515, 1514->1516, 1517->1518, 1517->1520, 1651->1653, 1770->1771, 1790->1791, 1792->1793, 1796->1797
+GAP: spacr/example_data.py: 98.50%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 127
+    uncovered branches: 126->127
+GAP: spacr/qt/widgets/figure_queue.py: 98.57%, 18 uncovered statements, 7 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 18/7/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 971, 983-984, 1066, 1124-1125, 1247, 1251, 1255, 1259, 1361, 1364-1365, 1394, 1400-1401, 1551, 1560
+    uncovered branches: 970->971, 1065->1066, 1123->1124, 1360->1361, 1393->1394, 1550->1551, 1559->1560
+    pragma: no cover comments: 606
+GAP: spacr/graph_types.py: 98.58%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 445
+    uncovered branches: 444->445
+GAP: spacr/picture_settings.py: 98.60%, 5 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 850-851, 855-856, 858
+    uncovered branches: 857->858
+GAP: spacr/flowview/feeder.py: 98.61%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 84-85
+GAP: spacr/qt/widgets/file_list.py: 98.62%, 9 uncovered statements, 5 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 9/5/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 451-452, 470, 474, 477, 496, 499, 503-504
+    uncovered branches: 469->470, 473->474, 476->477, 495->496, 498->499
+GAP: spacr/qt/widgets/plate_layout.py: 98.70%, 4 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 608-609, 618-619
+GAP: spacr/qt/hidpi.py: 98.74%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 275-276
+GAP: spacr/io.py: 98.75%, 44 uncovered statements, 27 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1059, 1144, 1423-1424, 1739-1740, 2507, 2518, 2526-2527, 2545-2546, 2567-2572, 2597-2598, 2600, 2606, 2609, 2615, 2620-2623, 2626-2627, 2737, 2780-2781, 2785, 2799, 2884-2885, 2905, 2909, 3011, 3021, 3050-3051, 3192
+    uncovered branches: 1058->1059, 1143->1144, 1843->1841, 1847->1845, 2506->2507, 2517->2518, 2544->2545, 2565->2567, 2599->2600, 2605->2606, 2608->2609, 2612->2615, 2621->2622, 2621->2623, 2736->2737, 2776->2780, 2780->2781, 2780->2785, 2796->2803, 2798->2799, 2817->2815, 2904->2905, 2966->2968, 3010->3011, 3013->3024, 3014->3021, 3190->3192
+GAP: spacr/regex_infer.py: 98.77%, 4 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1389-1390, 1448, 1472
+    uncovered branches: 1447->1448, 1471->1472
+GAP: spacr/timeflows_baseline.py: 98.77%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 229, 338
+    uncovered branches: 228->229, 337->338
+GAP: spacr/qt/regex_editor.py: 98.78%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 80
+    uncovered branches: 79->80
+GAP: spacr/guide_attribution.py: 98.83%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 325, 649
+    uncovered branches: 324->325, 648->649
+GAP: spacr/qt/resource_cleanup.py: 98.85%, 10 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 10/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 309, 972-973, 1099-1100, 1103, 1106-1107, 1148-1149
+    uncovered branches: 303->309, 1102->1103
+GAP: spacr/regression_diagnostics.py: 98.85%, 3 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 104, 114, 117
+    uncovered branches: 102->113, 103->104, 113->114, 116->117
+GAP: spacr/stream_dataset.py: 98.86%, 1 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 389
+    uncovered branches: 364->363, 388->389
+GAP: spacr/qt/ai/providers.py: 98.94%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 478-479
+    uncovered branches: 619->622, 637->640
+GAP: spacr/qt/widgets/test_data_chooser.py: 99.00%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 143->149
+GAP: spacr/qt/widgets/feature_dictionary.py: 99.02%, 5 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 783-784, 797, 800-801
+    uncovered branches: 796->797
+GAP: spacr/qt/widgets/console_panel.py: 99.10%, 8 uncovered statements, 4 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/2/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 381, 1491, 2004-2006, 2012, 2017-2018
+    uncovered branches: 380->381, 1490->1491, 2003->2004, 2011->2012
+    pragma: no cover comments: 448
+GAP: spacr/qt/widgets/foldable.py: 99.12%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 214->221
+GAP: spacr/qt/preview_registry.py: 99.15%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 379-380
+GAP: spacr/qt/i18n.py: 99.20%, 5 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 3703, 4004-4005, 4137-4138
+    uncovered branches: 3702->3703
+GAP: spacr/qt/prerun.py: 99.20%, 4 uncovered statements, 4 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/4/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 699-700, 740-741
+    uncovered branches: 696->699, 739->740, 771->773, 825->-822
+    pragma: no cover comments: 319
+GAP: spacr/qt/wand_rescue.py: 99.24%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 269
+    uncovered branches: 268->269
+GAP: spacr/barcode_search.py: 99.26%, 3 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 601, 677, 696
+    uncovered branches: 600->601, 676->677, 695->696
+GAP: spacr/ops_objects.py: 99.26%, 1 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 292
+    uncovered branches: 291->292, 1002->1004
+GAP: spacr/qt/widgets/measure_preview.py: 99.27%, 5 uncovered statements, 4 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 5/4/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 908-909, 1821, 1878-1879
+    uncovered branches: 530->533, 1820->1821, 1876->1872, 1921->1914
+    pragma: no cover comments: 393
+GAP: spacr/qt/help_search.py: 99.32%, 4 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 947-948, 955-956
+GAP: spacr/active_learning.py: 99.34%, 7 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 7/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 2866, 2889, 2924-2927, 2934
+    uncovered branches: 2865->2866, 2888->2889, 2923->2924
+GAP: spacr/qt/job_runner.py: 99.34%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 256->255
+GAP: spacr/qt/ai/issue_preview.py: 99.35%, 1 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 31/11/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 136
+GAP: spacr/qt/dialogs.py: 99.37%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 672
+    uncovered branches: 671->672
+GAP: spacr/qt/screens/foreign.py: 99.38%, 3 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 63, 760, 762
+    uncovered branches: 62->63, 698->700
+GAP: spacr/qt/screens/experiment_design.py: 99.40%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 549, 563
+    uncovered branches: 562->563
+GAP: spacr/settings_advisor.py: 99.42%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 21, 803
+    uncovered branches: 20->21, 795->803
+GAP: spacr/qt/widgets/measurement_scan_panel.py: 99.42%, 11 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 11/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 133, 887, 891, 1808-1809, 1869-1870, 1883-1884, 1897-1898
+    uncovered branches: 1333->1331, 1896->1897
+GAP: spacr/curation.py: 99.44%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 54
+    uncovered branches: 53->54
+GAP: spacr/qt/widgets/class_editor.py: 99.44%, 1 uncovered statements, 1 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/1/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 23
+    uncovered branches: 22->23
+    pragma: no cover comments: 22
+GAP: spacr/qt/screens/plate_view.py: 99.48%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 723, 867
+    uncovered branches: 722->723, 864->867
+GAP: spacr/cli.py: 99.53%, 2 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1282, 1680
+    uncovered branches: 1281->1282, 1679->1680
+GAP: spacr/qt/startup_benchmark.py: 99.53%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 301
+    uncovered branches: 300->301
+GAP: spacr/qt/widgets/measurement_compare_dialog.py: 99.54%, 3 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 729-731
+GAP: spacr/qt/timing.py: 99.55%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 265-266
+    uncovered branches: 267->262
+GAP: spacr/schema.py: 99.55%, 3 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 4/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 256-257, 342
+    uncovered branches: 255->256, 338->342, 340->338
+GAP: spacr/regression_annotation.py: 99.57%, 1 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1982
+    uncovered branches: 1754->1757, 1917->1923, 1957->1962, 1981->1982
+GAP: spacr/qt/widgets/dock.py: 99.62%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 327->321
+GAP: spacr/utils.py: 99.62%, 12 uncovered statements, 13 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 484, 486-488, 491-494, 497-499, 502
+    uncovered branches: 483->484, 485->486, 486->487, 486->492, 487->488, 487->491, 492->493, 492->498, 493->494, 493->497, 498->499, 498->502, 748->760
+GAP: spacr/qt/command_palette.py: 99.64%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 318->-296
+GAP: spacr/qt/widgets/graph_spec.py: 99.64%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 524-525
+GAP: spacr/qt/widgets/gene_panel.py: 99.65%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 204->-127
+GAP: spacr/qt/widgets/folding_summary.py: 99.67%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 101->96
+GAP: spacr/qt/widgets/column_picker.py: 99.68%, 0 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 886->-877, 1499->1497, 1567->1569
+GAP: spacr/qt/widgets/data_filter_panel.py: 99.68%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 505->498
+GAP: spacr/qt/screens/db_browser.py: 99.68%, 2 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 104, 1721
+    uncovered branches: 103->104, 1720->1721, 1723->-1706, 2997->2996
+GAP: spacr/qt/screens/train_compare.py: 99.69%, 0 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 891->893, 896->898
+GAP: spacr/qt/iconset.py: 99.69%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 449->451
+GAP: spacr/doctor.py: 99.71%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1271-1272
+    uncovered branches: 1260->1264
+GAP: spacr/_segmentation_backends.py: 99.71%, 3 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 2050-2051, 2153
+    uncovered branches: 2152->2153
+GAP: spacr/qt/widgets/trellis_spec.py: 99.72%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 583->585
+GAP: spacr/qt/ortho_view.py: 99.74%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 585->588
+GAP: spacr/qt/widgets/graph_builder.py: 99.74%, 0 uncovered statements, 3 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/3/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 1284->-1255, 1362->1361, 1488->-1466
+GAP: spacr/qt/widgets/qc_summary.py: 99.76%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 351->353
+GAP: spacr/crops.py: 99.77%, 1 uncovered statements, 4 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 2890
+    uncovered branches: 1039->1043, 1040->1039, 2889->2890, 2892->2894
+GAP: spacr/qt/widgets/volcano_explorer.py: 99.77%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 948-949
+GAP: spacr/qt/widgets/ambient.py: 99.79%, 3 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 4422, 4472, 5669
+    uncovered branches: 4421->4422, 4471->4472
+GAP: spacr/object.py: 99.82%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 952-953
+    uncovered branches: 951->952
+GAP: spacr/qt/screens/agreement.py: 99.83%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 910->909
+GAP: spacr/install_cleanup.py: 99.84%, 2 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (no baseline entry)
+    uncovered statements: 1686-1687
+GAP: spacr/qt/screens/model_compare.py: 99.85%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 1024->1023
+GAP: spacr/foreign.py: 99.85%, 2 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1851-1852
+    uncovered branches: 1850->1851
+GAP: spacr/qt/widgets/umap_explorer.py: 99.86%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 559->563
+GAP: spacr/qt/widgets/outlier_model.py: 99.86%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 1034->1037
+GAP: spacr/qt/screens/power.py: 99.87%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 1269->1268
+GAP: spacr/regression_summary.py: 99.87%, 1 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1944
+    uncovered branches: 1943->1944
+GAP: spacr/sequencing.py: 99.87%, 1 uncovered statements, 0 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 1/0/0/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 1175
+GAP: spacr/validate.py: 99.88%, 0 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 2/4/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 918->920, 928->903
+GAP: spacr/feature_dict.py: 99.89%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 2798->2804
+GAP: spacr/qt/widgets/cell_montage_view.py: 99.90%, 0 uncovered statements, 2 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/2/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 2533->2517, 2556->2547
+GAP: spacr/qt/widgets/fast_plots.py: 99.91%, 3 uncovered statements, 2 uncovered branches, 4 pragma: no cover comments, 0 coverage-excluded lines (baseline 3/2/4/0 since 2026-09-15T11:54:08Z)
+    uncovered statements: 7599-7601
+    uncovered branches: 2273->2275, 6782->6785
+    pragma: no cover comments: 33, 83, 3044, 4125
+GAP: spacr/qt/widgets/gate_editor.py: 99.96%, 0 uncovered statements, 1 uncovered branches, 0 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/1/0/0 since 2026-09-15T11:54:08Z)
+    uncovered branches: 2434->2436
+GAP: spacr/image_stitch.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 200
+GAP: spacr/qt/ai/manuscript.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 236
+GAP: spacr/qt/annotate_engine.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 2 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/2/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 893, 1104
+GAP: spacr/qt/bridge.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 1295
+GAP: spacr/qt/laptop_mode.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 45
+GAP: spacr/qt/menus.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 2 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/2/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 51, 182
+GAP: spacr/qt/screens/model_explanation.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 124
+GAP: spacr/qt/screens/outliers.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 2 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/2/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 513, 531
+GAP: spacr/qt/widgets/formula.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 221
+GAP: spacr/qt/widgets/formula_editor.py: 100.00%, 0 uncovered statements, 0 uncovered branches, 1 pragma: no cover comments, 0 coverage-excluded lines (baseline 0/0/1/0 since 2026-09-15T11:54:08Z)
+    pragma: no cover comments: 513
+Baseline history: 2026-09-15T11:54:08Z reset b740c741dbf1: Seed for item 288's ratchet gate (maintainer decision 2026-09-15): CI run 34942026220 on b740c741d, the most recent complete coverage report, measured against that commit's tree
+Baseline history: 2026-09-15T18:50:25Z retire 372: the old: spacr/spacrops.py deleted by the maintainer's decision 'Delete it now' (item 372, 2026-09-15)

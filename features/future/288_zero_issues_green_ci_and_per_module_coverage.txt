@@ -4238,3 +4238,21 @@ inventory records 34 non-passing batches and 108 distinct failed nodes,
 with no lost or unrecovered worker files. These are results from the fixed
 older source, not a count of current-nightly regressions. Newly integrated
 fixes still need reconciliation. Baseline and coverage floor remain unchanged.
+
+2026-09-21 — CODEX: ALL 95 BATCHES FINISHED; MODULE REPORT GENERATING
+The fixed 3d9eb57c5 measurement finished all 95 batches with no lost or
+unrecovered worker data. It retains 37 non-passing batch records and 115
+distinct failed test nodes. This uses the same not-gui selection and five
+excluded files as CI. Original process data is preserved; combination and
+the per-module ratchet report are running at that exact source revision.
+The fixed snapshot's failures must be reconciled with current nightly fixes.
+Neither baseline tightening nor a passing coverage verdict is claimed.
+The combined report is complete and FAILS the ratchet: all 600 shipped
+modules at 3d9eb57c5 were checked; 394 are at 100%, 25 are below the 90%
+floor, 72 fail the no-regression/floor gate, and 40 improved. One module has
+a recorded floor exemption. No results are unconfirmed through worker-data
+loss. Full module/line/branch evidence and measurement provenance are in
+features/data/288_per_module_fixed_2026-09-21.{json,txt} and
+features/data/288_measurement_provenance_2026-09-21.json. This older tree
+ships 600 modules; current nightly has a different inventory and subsequent
+fixes. Reconcile unchanged versus changed source before using these gaps.
