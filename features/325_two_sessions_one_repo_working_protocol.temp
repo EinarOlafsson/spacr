@@ -9119,3 +9119,32 @@ preview recapture after this checkpoint; no preseeded arrays or app edits.
 Final report verification passes: four tests in 219.15 s. The feature index
 and whitespace checks pass. Coverage is now live at 82/95; its committed
 partial-failure inventory remains explicitly the 80-batch checkpoint.
+
+2026-09-21 — CODEX: 358/447 MEASURE + 411 KOREAN CHECKPOINT
+Nightly 7046d9485 contains the preceding verified Map/Chinese/English-voice
+checkpoint and feature updates. Fresh Measure preview now passes: nine
+native 4K dark/Blobs frames, 27 -> 27 channel-switch candidates and 15 in
+the second field, exact settings restoration and unchanged source hashes.
+The empty private stage used the real download route; no source arrays or
+old result database were preseeded. Its fresh 16-field CPU batch is running
+under a 24-GiB hard cap, with one measurement worker. Do not stop it.
+Current Measure verifier/composer paths now accept this preview evidence;
+34 pixel and preview tests pass. No production app changes.
+Korean review corrected forty existing draft sources (589 reviewed total),
+with no gate relaxation. Full reports/audit and focused tests are running.
+Coverage remains the fixed 3d9eb57c5 measurement; no baseline tightening.
+GPU monitoring still has no qualifying 20-minute idle window. No GPU job or
+live-media publication has been started.
+Korean checkpoint audit completed: 5790/6232 current entries, 42 orphans,
+589 reviewed sources. Five focused source/syntax/context/semantic checks
+pass. Other format errors and missing/stale rows remain; no green catalog
+claim. The report-verification tests are running against these fresh counts.
+All four current-source localization report tests pass (250.45 s). The
+feature index and whitespace checks pass. Concurrent nightly 2ad085145
+changes Home to Ctrl+0 and edits the shortcuts module docstring; this will
+be integrated and the API/report counts re-measured before the next push.
+Measure's capture inventory binds its startup commit 7046d9485; that actual
+recording provenance is preserved across the forthcoming integration.
+Coverage inventory refreshed at 89/95: 34 non-passing batches, 108 distinct
+failed nodes, zero lost/unrecovered files. Still fixed 3d9eb57c5, not current
+nightly. No baseline change.

@@ -3,7 +3,7 @@
   "date": "2026-09-21",
   "source_commit": "3d9eb57c5",
   "status": "partial_fixed_snapshot_not_current_nightly_verdict",
-  "batches_finished": 80,
+  "batches_finished": 89,
   "batches_total": 95,
   "failed_batches": [
     10,
@@ -36,7 +36,10 @@
     76,
     77,
     78,
-    80
+    80,
+    81,
+    83,
+    87
   ],
   "failed_test_nodes": [
     "tests/qt/test_cov_r5_app_screen.py::TestTheGuardsNothingCanTrip::test_every_module_with_a_preview_toggle_has_a_card_to_toggle",
@@ -137,10 +140,19 @@
     "tests/test_plugins.py::test_model_provider_extends_catalogue_without_network",
     "tests/test_prose_that_reaches_a_catalog_can_be_translated.py::test_no_catalog_bound_block_puts_a_bare_project_label_in_subject_position",
     "tests/test_readme_presentation.py::test_the_readme_lists_every_published_model_with_its_limits",
-    "tests/test_settings_tooltip_quality.py::test_real_default_claims_have_no_unrecorded_drift"
+    "tests/test_settings_tooltip_quality.py::test_real_default_claims_have_no_unrecorded_drift",
+    "tests/test_test_suite_hygiene.py::test_no_new_assertion_free_tests",
+    "tests/test_test_suite_hygiene.py::test_no_user_home_paths_in_the_suite",
+    "tests/test_test_suite_hygiene.py::test_the_cellpose_mock_ratchet_is_empty_and_stays_that_way",
+    "tests/test_test_suite_hygiene.py::test_the_cellpose_mocks_do_not_swallow_channel_axis",
+    "tests/test_the_animation_audit_is_complete.py::test_every_shipped_animation_has_a_verdict",
+    "tests/test_the_animation_audit_is_complete.py::test_no_verdict_names_an_animation_that_does_not_ship",
+    "tests/test_the_animation_audit_is_complete.py::test_the_verdict_was_judged_against_the_settings_that_ship",
+    "tests/test_the_decode_survives_what_the_plate_did_to_it.py::test_library_correction_agrees_with_brute_force_and_scales_to_a_screen",
+    "tests/test_the_name_is_spaCR.py::test_no_file_mis_cases_the_name"
   ],
   "unrecovered_files": [],
   "lost_files": [],
-  "integrity_sha256": "cd1067733a5a97450c4af5feabe1a8b11dd9bcdffe5233c15f96a03be7fe0ece",
+  "integrity_sha256": "e501fb1a258e5c1e2bf74272c674d83fc27cbd1e5f211eab5fd2f02fe6bc0b19",
   "baseline_updated": false
 }

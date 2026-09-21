@@ -7,6 +7,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from measure_controls_evidence import check_controls
+from measure_evidence import _check_preview_sources
 
 
 def example():
@@ -26,6 +27,30 @@ def example():
 
 def test_real_shape_positive_counterpart():
     check_controls(example())
+
+
+def test_preview_and_completed_measurements_share_the_exact_source_arrays():
+    proof = example()
+    proof['source_hashes'] = {'field1.npy': 'first', 'field2.npy': 'second'}
+    result = _check_preview_sources(proof, {'field1': 'first', 'field2': 'second'})
+    assert result['preview_source_arrays_preserved_after_batch'] is True
+    assert result['live_grid_counts'] == [1, 1, 1]
+
+
+@pytest.mark.parametrize('fault', ['missing', 'changed', 'extra', 'changed_controls'])
+def test_preview_evidence_cannot_substitute_other_arrays_or_controls(fault):
+    proof = example()
+    proof['source_hashes'] = {'field1.npy': 'first', 'field2.npy': 'second'}
+    if fault == 'missing':
+        del proof['source_hashes']['field2.npy']
+    elif fault == 'changed':
+        proof['source_hashes']['field2.npy'] = 'different'
+    elif fault == 'extra':
+        proof['source_hashes']['field3.npy'] = 'third'
+    else:
+        proof['single_channel']['objects'][0]['area'] += 1
+    with pytest.raises(ValueError):
+        _check_preview_sources(proof, {'field1': 'first', 'field2': 'second'})
 
 
 @pytest.mark.parametrize('flag', ['source_unchanged', 'batch_settings_restored',

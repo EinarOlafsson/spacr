@@ -1086,3 +1086,24 @@ errors in this Chinese audit. Current coverage is 6094/6232, zero orphans.
 API remains 10419/11166 per locale; no full translation closure is claimed.
 All four integrated coverage/review-report tests pass in 219.15 s after the
 final literal repairs. The five focused catalog/context checks also pass.
+
+2026-09-21 — CODEX: KOREAN DRAFT REVIEW, FIRST FORTY SOURCES
+Reviewed and corrected the first 40 of 308 distinct saved Korean draft
+sources. The current source-bound reviewed inventory increases 549 to 589.
+Corrections restore image crop versus plants, trajectories versus commands
+to throw tracks, sequencing bases/reads/library meaning, Cellpose weights
+and backend behavior, regression annotation, privacy text, acquisition
+parameters and missing defaults. Literal database names stay intact rather
+than absorbing Korean particles. Both review files pass the unchanged
+source/literal/semantic checks and the strict reviewed loader.
+The rest of the Korean drafts, missing/new runtime sources and API catalogs
+remain open. This is AI-assisted technical review, not native-speaker
+approval. Current coverage reports and the full Korean audit are rerunning.
+The first-forty checkpoint audit confirms 5790/6232 current runtime entries,
+42 orphaned entries and 589 reviewed sources. All nine API catalogs remain
+10419/11166 current. Five focused reviewed-store, syntax, context and Korean
+semantic checks pass (138.65 s). Unreviewed format-field errors, the other
+268 distinct draft sources, new-source gaps and stale rows remain debt.
+All four regenerated report checks pass at the 7046d9485 application-source
+boundary (250.45 s). Nightly's subsequent Home-shortcut/docstring change
+will be integrated and re-measured; these counts do not certify that change.

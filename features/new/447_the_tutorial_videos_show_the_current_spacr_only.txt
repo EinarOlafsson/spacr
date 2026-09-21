@@ -286,3 +286,10 @@ technical and browser/mobile checks; the actual new phoneme sequences and
 media hashes are retained. Classify ML's 24 English voices also pass full
 technical acceptance. Remaining language/caption/listening/publication work
 is still open; none of these receipts claims native-speaker signoff.
+
+2026-09-21 — CODEX: MEASURE THEME RECAPTURE SHARES 358'S FRESH RUN
+Nine current native Measure preview frames are verified in dark mode with
+painted Blobs and neutral private paths. Actual QC findings remain visible.
+Current full-batch footage is still recording; it must pass independent
+pixel/output checks before joining the lesson. No publication or completed
+language/voice/caption/listening acceptance is claimed.

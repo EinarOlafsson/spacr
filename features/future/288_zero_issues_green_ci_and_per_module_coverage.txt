@@ -4231,3 +4231,10 @@ At 80/95 completed batches the fixed-source inventory records 31 failing
 batches and 99 distinct failed nodes, still zero lost/unrecovered files.
 Nightly now contains many of the other session's reconciliations; these
 numbers continue to describe the original 3d9eb57c5 measurement only.
+
+2026-09-21 — CODEX: FIXED MEASUREMENT AT 89/95
+The retained 3d9eb57c5 run has finished 89 of 95 batches. The partial
+inventory records 34 non-passing batches and 108 distinct failed nodes,
+with no lost or unrecovered worker files. These are results from the fixed
+older source, not a count of current-nightly regressions. Newly integrated
+fixes still need reconciliation. Baseline and coverage floor remain unchanged.

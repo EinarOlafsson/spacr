@@ -82,7 +82,24 @@ def verify_field(raw, rows, merges=None):
             'source_supported_merges': bridges}
 
 
-def inspect_project(project: Path, capture: Path):
+def _check_preview_sources(proof, source_hashes):
+    from measure_controls_evidence import check_controls
+
+    check_controls(proof)
+    expected = {proof[key]['source'] for key in ('original', 'second_field')}
+    if set(proof.get('source_hashes', {})) != expected:
+        raise ValueError('Both demonstrated preview fields need their source hashes')
+    for source, digest in proof['source_hashes'].items():
+        if source_hashes.get(Path(source).stem) != digest:
+            raise ValueError('Preview and batch must use byte-identical source arrays')
+    return {'preview_controls_verified': True,
+            'live_grid_counts': [len(proof[key]['objects']) for key in
+                                 ('original', 'single_channel', 'second_field')],
+            'preview_source_arrays_preserved_after_batch': True}
+
+
+def inspect_project(project: Path, capture: Path, *, preview_capture=None,
+                    recorded_project=None):
     """Audit a finished private native run without updating its database."""
     project, capture = Path(project).resolve(), Path(capture).resolve()
     db = project / 'measurements/measurements.db'
@@ -119,7 +136,13 @@ def inspect_project(project: Path, capture: Path):
         paths = [row[0] for row in connection.execute('SELECT png_path FROM png_list')]
         if len(paths) != counts['cell'] or len(set(paths)) != len(paths):
             raise ValueError('Expected one distinct crop path per measured cell')
-        expected_prefix = Path('/home/olafsson/.cache/spacr/example_data/plate1')
+        expected_prefix = Path(recorded_project or '/home/olafsson/.cache/spacr/example_data/plate1')
+        if recorded_project is not None:
+            settings = json.loads((capture / 'batch_settings.json').read_text())
+            configured = settings['src']
+            configured = [configured] if isinstance(configured, str) else configured
+            if configured != [str(expected_prefix)]:
+                raise ValueError('Recorded crop root must match the actual batch source setting')
         from PIL import Image
         for recorded in paths:
             relative = Path(recorded).relative_to(expected_prefix)
@@ -136,6 +159,23 @@ def inspect_project(project: Path, capture: Path):
             raise ValueError('The raw-intensity comparison requires identity rescaling')
     if hashlib.sha256(db.read_bytes()).hexdigest() != before_hash:
         raise ValueError('Database changed during read-only inspection')
+    if preview_capture is not None:
+        proof = json.loads((Path(preview_capture) / 'scientific_acceptance.json').read_text())
+        preview_result = _check_preview_sources(proof, source_hashes)
+    else:
+        preview_result = _check_legacy_preview(project, capture)
+    return {'accepted': True, 'run_status': status, 'database_sha256': before_hash,
+            'database_bytes': db.stat().st_size, 'table_counts': counts,
+            'field_checks': checks, 'source_file_sha256': source_hashes,
+            'values_checked': sum(x['values_checked'] for x in checks.values()),
+            'decoded_rgb_crops': len(paths), 'crop_size': [224, 224],
+            **preview_result,
+            'all_measurement_columns_validated': False,
+            'biological_segmentation_validated': False,
+            'registry_and_gui_staleness_accepted': False}
+
+
+def _check_legacy_preview(project, capture):
     live = json.loads((capture / 'live_variants.json').read_text())
     source = project / 'merged' / Path(live['source']).name
     if hashlib.sha256(np.load(source).tobytes()).hexdigest() != live['source_sha256']:
@@ -145,13 +185,5 @@ def inspect_project(project: Path, capture: Path):
     for key in ('source_unchanged', 'propagation_off_preserved_batch', 'propagation_on_updated_batch'):
         if live[key] is not True:
             raise ValueError('Live filter or propagation proof failed')
-    return {'accepted': True, 'run_status': status, 'database_sha256': before_hash,
-            'database_bytes': db.stat().st_size, 'table_counts': counts,
-            'field_checks': checks, 'source_file_sha256': source_hashes,
-            'values_checked': sum(x['values_checked'] for x in checks.values()),
-            'decoded_rgb_crops': len(paths), 'crop_size': [224, 224],
-            'live_grid_counts': [len(live[key]) for key in ('before', 'after', 'restored')],
-            'live_source_array_preserved_after_batch': True,
-            'all_measurement_columns_validated': False,
-            'biological_segmentation_validated': False,
-            'registry_and_gui_staleness_accepted': False}
+    return {'live_grid_counts': [len(live[key]) for key in ('before', 'after', 'restored')],
+            'live_source_array_preserved_after_batch': True}

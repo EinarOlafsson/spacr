@@ -1818,3 +1818,8 @@ diagnostics covering 138 missing runtime entries and their hashes/fallbacks;
 current coverage is 6094/6232, zero orphans. API freshness remains 10419/11166
 per locale. Five focused current-catalog/context checks pass. The docs lane
 remains open for missing rows and API translation debt.
+
+2026-09-21 — CODEX DOCS LANE: forty Korean draft sources corrected and
+source-bound review inventory increased to 589. Current reports/audit are
+being regenerated; remaining Korean and API debt is still explicit. No
+catalog gate or source denominator was relaxed.

@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "current_native_preview_verified_full_batch_and_media_pending",
+  "artifact_directory": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current",
+  "capture": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current/captures/measure_current_preview_20260921",
+  "provenance": {
+    "commit": "7046d948543ed7f0e1938ee68b1f71c245a678b1",
+    "version": "1.5.0.8",
+    "module": "measure",
+    "download_requested": true,
+    "dataset_cache": "/tmp/spacr-measure/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frames": [
+    {
+      "name": "00_home",
+      "image": "00_home.png",
+      "sha256": "81e80d67f7de9b4fb56d2bcfbe22b12fcdd6ae8dc27ee7fc58505ddff577f109",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 12
+      }
+    },
+    {
+      "name": "01_module",
+      "image": "01_module.png",
+      "sha256": "3df7d2b8c0fa89ed4f3b2fb9cefa25452af67a8e8d80f5bd5be003e01695d9ea",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 34
+      }
+    },
+    {
+      "name": "02_download",
+      "image": "02_download.png",
+      "sha256": "1547b5aca59814e0c4d7e0306b71a35f0308e9ef461d9eb77ab7c88ba23890c4",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 47
+      }
+    },
+    {
+      "name": "03_data_ready",
+      "image": "03_data_ready.png",
+      "sha256": "838c64cea3308510293e1af7454f5c477c7e5397c36cef606f05cb35cb08c147",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1543
+      }
+    },
+    {
+      "name": "04_preview_normalization_setup",
+      "image": "04_preview_normalization_setup.png",
+      "sha256": "448767e0581c0a1b891db3d1e71bb6500f721e0985fe82f4a8589f4ca4a0bb61",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1563
+      }
+    },
+    {
+      "name": "05_live_all_channels",
+      "image": "05_live_all_channels.png",
+      "sha256": "b14721db4de700fdb21fddab92a6ed0d26d4c3ce2a9581cfdd34395b16b16f09",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1721
+      }
+    },
+    {
+      "name": "06_live_channel_zero",
+      "image": "06_live_channel_zero.png",
+      "sha256": "887c7e4f7092e2d3c093089148ad0a9449a5f9a2e920b623a6f1b1357d0baf0c",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1776
+      }
+    },
+    {
+      "name": "07_live_second_field",
+      "image": "07_live_second_field.png",
+      "sha256": "9e7bef7ba01eb877716025083abb29a3cbb75e0f6ff1f373d16efea8a8264952",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1868
+      }
+    },
+    {
+      "name": "08_saved_normalization_restored",
+      "image": "08_saved_normalization_restored.png",
+      "sha256": "82bf0fc26cf7791a5fec57070ea3e53ca8712c07f3570db890018a70d850b377",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1896
+      }
+    }
+  ],
+  "preview_counts": {
+    "original": 27,
+    "single_channel": 27,
+    "restored": 27,
+    "second_field": 15
+  },
+  "source_hashes": {
+    "/tmp/spacr-measure/user_state/.cache/spacr/example_data/plate1/merged/plate1_E02_1_1.npy": "489e0d7875beb595b239c5fb87ed174b0be07cfb616a49717a40f67c3745414b",
+    "/tmp/spacr-measure/user_state/.cache/spacr/example_data/plate1/merged/plate1_E02_9_1.npy": "82e3831a9d715eadddb330b8a6b4c8cd8c83db97b5d05a3099f5f816fee71a74"
+  },
+  "scientific_acceptance_sha256": "72a630a357822a6fdd17bb8618a65329ef635464ce0fb426bd3a98d2c0809f2f",
+  "source_arrays_unchanged": true,
+  "batch_settings_restored": true,
+  "preview_control_checks": "passed",
+  "visual_review": [
+    "Channel zero shows the same candidates in grayscale",
+    "Second field shows fifteen candidates in color",
+    "Live closed and Normalize restored off",
+    "Dark theme with painted Blobs and neutral private paths",
+    "Actual segmentation QC findings remain visible"
+  ],
+  "application_modified": false,
+  "published": false,
+  "remaining": [
+    "Independently verify the complete current sixteen-field batch",
+    "Update lesson claims from the current saved evidence",
+    "Full language/voice/caption matrix",
+    "Video and player checks",
+    "Audible narration acceptance",
+    "Complete-set publication"
+  ]
+}

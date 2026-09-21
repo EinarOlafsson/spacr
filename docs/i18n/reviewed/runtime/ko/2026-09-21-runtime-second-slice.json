@@ -1,0 +1,146 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_flow_threshold",
+      "source": "Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "핵 마스크의 Cellpose flow_threshold: 마스크에서 다시 계산한 흐름과 신경망이 예측한 흐름 사이에 허용되는 최대 오차입니다. 값을 낮추면 모양이 불규칙한 핵을 더 많이 제외하므로 객체 수는 줄지만 더 깔끔한 객체가 남습니다. 값을 높이면 Cellpose가 제안하는 거의 모든 객체를 유지합니다. 일반적인 범위는 0~3이며, 3을 넘으면 거의 모든 후보를 유지합니다. 기본값은 Cellpose 자체 기본값인 0.4입니다.",
+      "source_sha256": "c21542dce208ebb2b4c0511d434405fc96c9cfc6a1c835810b8e851735f16e07"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
+      "translation": "핵 분할에 사용할 모델 가중치입니다. 유효한 값은 'cpsam' 또는 Train Cellpose로 만든 사용자 지정 CPSAM 체크포인트 경로입니다. Cellpose 4에서 SAM 이전 모델이 제거되었으므로 'nuclei'와 'nucleus'는 'cpsam'으로 연결됩니다. 단, segmentation_backend가 'cellpose3'이면 실제 Cellpose 3 'nuclei' 모델을 실행합니다. nucleus_diameter로 크기를 조절하세요. 이전에 모델을 구분하던 세 매개변수 중 diameter만 여전히 작동하며, eval은 30/diameter 비율로 크기를 조정합니다. model_type과 diam_mean은 무시됩니다. 기본값은 'cpsam'입니다.",
+      "source_sha256": "288cd1bce7442ea139575cf1cfa904c0245ad41a4289d7c61081f012535b1224"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. Given a phenotype folder it also records where each phenotype field lands on the stitched well. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ.",
+      "translation": "광학 풀링 스크리닝의 시퀀싱 영상에서 각 웰의 타일을 결과 표로 변환합니다. 핵 영상 타일을 이어 붙이고, 웰 전체의 핵을 분할하여 번호를 부여한 다음, 각 시야의 리드를 디코딩하고 리드가 일치하는 핵마다 바코드를 배정합니다. 표현형 폴더를 지정하면 각 표현형 시야가 이어 붙인 웰의 어디에 위치하는지도 기록합니다. 표는 measurements.db 파일에 저장됩니다. 리드는 FASTQ가 아니라 이미지에서 디코딩합니다.",
+      "source_sha256": "0088ccbc77f2ea1c7f609918336830ef4a067258728251546a50a4f8d0daca9c"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_base_channels",
+      "source": "Which channels carry the four bases, in the order G, T, A, C, separated by commas. These names are matched against the channel token in each tile's file name, so a run whose base channels are named differently is read by changing this rather than by renaming files. Exactly four are required: a shorter list decodes a shorter barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+      "translation": "네 염기에 해당하는 채널을 G, T, A, C 순서로 쉼표로 구분하여 지정합니다. 각 타일 파일명의 채널 토큰과 이 이름을 대조하므로, 염기 채널 이름이 다른 데이터는 파일명을 바꾸는 대신 이 설정을 바꾸어 읽습니다. 정확히 네 채널이 필요합니다. 목록이 더 짧으면 라이브러리의 바코드보다 짧은 바코드가 디코딩됩니다. 기본값은 'CY3,A594,CY5,CY7'입니다.",
+      "source_sha256": "e642706d65b469a850f000aed84c98dc5b7e7e4578c7e0e7b7780f14f0f28bf5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_footprint",
+      "source": "How far beyond a nucleus's boundary a read may lie and still be counted as that nucleus's read, in pixels. On the reference plate 10 pixels held 98 % of the detected spots and 3 held 67 %, and the wider setting assigned 28 % more objects a barcode at slightly higher purity, because the reads sit around the rim rather than inside. Too wide starts giving a read to a neighbour. Default 10.",
+      "translation": "핵 경계 밖에 있는 리드를 해당 핵의 리드로 인정할 최대 거리를 픽셀 단위로 지정합니다. 기준 플레이트에서는 10픽셀 범위에 검출된 점의 98 %가, 3픽셀 범위에 67 %가 포함되었습니다. 리드가 핵 내부보다 가장자리에 분포하므로, 더 넓은 범위를 사용했을 때 바코드가 배정된 객체가 28 % 늘고 순도도 약간 높아졌습니다. 너무 넓으면 이웃 핵에 리드가 배정되기 시작합니다. 기본값은 10입니다.",
+      "source_sha256": "5a22332a20cb91e21c7cca30d20a5afb12b426838315e5601491dfca7643cc53"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "translation": "가이드 바코드가 담긴 CSV 파일로, 바코드 열 이름은 prefix, barcode 또는 sequence여야 합니다. 파일을 지정하면 각 핵에서 판독한 바코드를 가장 가까운 가이드와도 대조하고, 라이브러리와 정확히 일치하는 점의 수를 보고합니다. 이 수치는 디코딩이 제대로 작동했는지를 판단하는 핵심 지표입니다. 비워 두어도 바코드는 판독하지만 일치 여부를 평가할 수는 없습니다. 기본값은 None입니다.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_raster_overlap",
+      "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
+      "translation": "현미경의 래스터에서 이웃하는 시퀀싱 타일이 겹치는 거리를 픽셀 단위로 지정합니다. 조정용 값이 아니라 영상 획득 시 사용한 설정입니다. 타일을 이어 붙일 때 이웃을 찾을 위치를 정하며, 실제 값과 크게 다르면 연결을 찾지 못하고 일부 시야를 배치하지 못합니다. 기본값은 213으로, 기준 플레이트의 1,480픽셀 타일에서 측정한 값입니다.",
+      "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_read_threshold",
+      "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
+      "translation": "점을 리드로 인정하려면 주변보다 얼마나 밝아야 하는지를 지정합니다. 값을 낮추면 더 많은 리드와 잔해가 검출되며, 이는 오류 메시지 대신 라이브러리 일치율 하락으로 나타납니다. 값을 높이면 실제 리드를 놓쳐 핵에 바코드를 결정할 리드가 너무 적게 남습니다. 기본값은 315로, 이 플레이트의 기준 실행에서 사용한 값입니다.",
+      "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "translation": "바코드 판독에 사용된 모든 리드를 ops_reads 표에 저장합니다. 리드마다 사이클당 한 행에 판독한 염기, 판독 마진 및 판독에 사용한 네 강도 값을 기록합니다. 이를 통해 의심스러운 바코드를 원래 픽셀까지 추적할 수 있습니다. 데이터가 크므로 기본적으로 꺼져 있습니다. 기준 플레이트의 웰 하나 전체는 약 3천만 행이므로 플레이트 전체보다 한두 웰에만 켜세요. 기본값은 False입니다.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_window_overlap",
+      "source": "How far the segmentation windows overlap each other, in pixels. A nucleus is only numbered once if at least one window saw all of it, so this has to exceed the largest nucleus; when it does not, the run reports the objects no window saw whole and says by how much. Raising it costs time, because more of the well is segmented twice. Default 96.",
+      "translation": "분할 윈도우가 서로 겹치는 거리를 픽셀 단위로 지정합니다. 최소한 한 윈도우가 핵 전체를 포함해야 그 핵에 번호를 한 번만 부여할 수 있으므로, 중첩 거리는 가장 큰 핵보다 커야 합니다. 그렇지 않으면 어느 윈도우에도 온전히 들어오지 않은 객체와 부족한 거리를 보고합니다. 값을 높이면 웰의 더 넓은 부분을 두 번 분할하므로 시간이 더 걸립니다. 기본값은 96입니다.",
+      "source_sha256": "1e1581eba24e7267258152e0476fc54bb84ab9ead261eebb0dada01a4bceb64e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_flow_threshold",
+      "source": "Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "병원체 마스크의 Cellpose flow_threshold: 후보 마스크에서 다시 계산한 흐름과 신경망 예측의 차이가 이 값을 넘으면 해당 마스크를 제외합니다. 값을 높이면 때로는 형태가 불규칙한 기생충까지 더 많이 유지하며, 값을 낮추면 깔끔하고 형태가 잘 잡힌 객체만 유지합니다. 일반적인 범위는 0.0-3.0이며, 3을 넘으면 거의 모든 후보를 유지합니다. 기본값은 Cellpose 자체 기본값인 0.4입니다.",
+      "source_sha256": "0a3f78719e3890bbd4dec0e03a665a47c180d20c6278b1c8a57c4fc193d31ff6"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_model_name",
+      "source": "Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "병원체 분할에 사용할 모델 가중치입니다. 'cpsam' 또는 Train Cellpose로 만든 체크포인트 경로를 지정합니다. 함께 제공되는 toxo_pv_lumen / toxo_cyto 체크포인트는 Cellpose-3 CPnet 형식이라 CPSAM이 불러올 수 없으므로 'cpsam'으로 연결하고 이를 보고합니다. segmentation_backend가 'cellpose3'이면 Cellpose 3 모델 이름이나 체크포인트 경로를 지정한 그대로 실행합니다. 이전 키인 'pathogen_model'이 설정되어 있으면 여전히 이 키보다 우선합니다. 이전에 모델을 구분하던 세 매개변수 중 diameter만 작동하며, eval은 30/diameter 비율로 크기를 조정합니다. model_type과 diam_mean은 'not used in v4.0.1+'로 기록되고 무시됩니다. 기본값은 'cpsam'입니다.",
+      "source_sha256": "edd77ffdd67ac22d1f2475ccff81df4243b85c717c39f4265bccef8968fe45f5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source": "The folder holding the high-magnification phenotype acquisition of the same wells. Given one, the run aligns a few of its fields to the stitched sequencing well, fits the acquisition raster to those, and records where every phenotype field lands and which sequencing tile covers it. Empty skips that step and decodes the sequencing acquisition alone. Default None.",
+      "translation": "동일한 웰에서 고배율로 획득한 표현형 영상이 담긴 폴더입니다. 지정하면 일부 시야를 이어 붙인 시퀀싱 웰에 정합하고, 이 정합 결과에 영상 획득 래스터를 맞춘 뒤 각 표현형 시야의 위치와 이를 덮는 시퀀싱 타일을 기록합니다. 비워 두면 이 단계를 건너뛰고 시퀀싱 영상만 디코딩합니다. 기본값은 None입니다.",
+      "source_sha256": "b192dcf04f65557cdc8eac339b97f06fed7b0fc80bc962f04f13cee6a03244e4"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "reuse_existing_measurements",
+      "source": "If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
+      "translation": "measurements.db 파일에 db_table_name으로 지정한 표가 이미 있으면 merged/*.npy에서 regionprops를 다시 추출하는 대신 그 표를 불러옵니다. 감염 QC나 그래프만 다시 실행할 때 대부분의 실행 시간을 절약하지만, 궤적 평활화도 건너뜁니다. 따라서 max_displacement 또는 track_outlier_zscore 변경은 이 설정이 False일 때만 적용됩니다. 기본값은 True입니다.",
+      "source_sha256": "fbbf8825498bec4058509211f8e38cdc27b25ae3f2d4d2eb133f885fc70df9a0"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "route_errors_through_ai",
+      "source": "Send a failing run's traceback to the AI Console automatically and request an explanation. The traceback and the settings leave your machine when this is on; leave it off if your paths or filenames are themselves sensitive. Default True.",
+      "translation": "실패한 실행의 traceback을 AI Console로 자동 전송하여 설명을 요청합니다. 켜면 traceback과 설정이 이 컴퓨터 밖으로 전송됩니다. 경로나 파일명 자체가 민감한 정보라면 꺼 두세요. 기본값은 True입니다.",
+      "source_sha256": "08c2d5211c74b3254e6d9a57f666baeb2c701fca240723e1b87724cc61e7d6a3"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+      "translation": "세포, 핵, 병원체를 분할할 모델입니다. 서로 다른 모델로 만든 마스크는 비교할 수 없습니다. 기본값인 'cellpose'는 객체별로 지정한 모델 이름을 사용합니다. 'cellpose3'은 객체의 cyto3, cyto2, cyto 또는 nuclei 모델 이름이나 Cellpose 3 체크포인트 경로로 Cellpose 3를 실행합니다. 그 밖의 이름은 핵 객체이면 nuclei, 나머지 객체이면 cyto3로 처리합니다. 'samcell'과 'dinocell'은 살아 있는 세포 및 비표지 영상용 2-D 모델로, 해당 객체의 채널만 읽습니다. 'cellpose' 이외의 모든 백엔드는 Model Zoo에서 별도 환경에 설치되며 z_stack 및 t_stack 실행을 허용하지 않습니다. 기본값은 'cellpose'입니다.",
+      "source_sha256": "bf311c83ef2ff4f8a92accb1b6d01d1b7cc6dea6c3f9def8597317afab04ab3e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "straightness_threshold",
+      "source": "Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
+      "translation": "직선성 임계값입니다. 직선성 = 순변위 / 전체 경로 길이이며, 0은 시작점으로 돌아온 경우, 1은 완전한 직선입니다. drop_straight_tracks가 True이면 이 값 이상인 궤적을 드리프트 또는 추적 오류로 간주하여 제외하므로, 값을 낮추면 더 많은 궤적이 제외됩니다. 해당 개수는 항상 로그에 기록됩니다. 기본값은 0.95입니다.",
+      "source_sha256": "efc1651d6361235dc8ca9d2c4ca0644038287e1e488172f06cae576bae7b125c"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "track_outlier_zscore",
+      "source": "Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+      "translation": "궤적 내 스칼라 특징(면적, bbox 면적, 등가 직경, 둘레, solidity, 평균/최대/최소 강도)을 평활화할 때의 이상치 민감도입니다. 한 프레임의 값이 해당 궤적의 평균에서 이 값에 해당하는 표준편차 수보다 더 벗어나고 양쪽 이웃 프레임은 모두 그 절반 이내에 있으면, 그 값을 두 이웃의 평균으로 대체합니다. 값을 낮추면 더 많이 평활화하지만 데이터는 삭제하지 않습니다. 기본값은 3.0입니다.",
+      "source_sha256": "3d7840b2fb1de858799460a454d088e85f6a98d04d77b01aac262bdadac5c775"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "x_lim",
+      "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
+      "translation": "annotation_source가 함께 제공되는 Toxoplasma 주석일 때 회귀 파이프라인이 만드는 Toxoplasma 볼케이노 플롯의 계수(x) 축 범위를 두 원소 [min, max]로 지정합니다. 범위를 좁히면 0 근처에 모인 히트를 확대하고, 넓히면 효과가 큰 유전자도 플롯에 남깁니다. None이면 자동으로 크기를 조정하지 않고 [-0.5, 0.5]를 사용합니다. 기본값은 None입니다.",
+      "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7"
+    },
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "translation": "점을 염기로 판독하는 방법입니다. 각 채널이 어떤 염기 문자에 대응하는지, 점을 리드로 인정하려면 주변보다 얼마나 밝아야 하는지, 핵에서 얼마나 떨어진 리드까지 해당 핵에 배정할지를 정합니다. 이 값들은 개인 취향이 아니라 영상 획득 조건에서 측정되는 특성입니다. 실행 시 이 값들이 적절한지 판단할 수 있도록 라이브러리 일치율을 보고합니다.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca"
+    }
+  ]
+}

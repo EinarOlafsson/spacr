@@ -2204,3 +2204,19 @@ pronunciation phonemes, decoded peak and browser proof. No live publication.
 Next capture: a fresh private Measure stage is prepared for the real example
 download and native preview controls, using CPU/software graphics. No arrays
 are preseeded and the recording has not yet been accepted.
+
+2026-09-21 — CODEX: CURRENT MEASURE PREVIEW VERIFIED; FRESH BATCH RUNNING
+The actual Load test data route downloaded and expanded all sixteen arrays
+in an empty private stage. Nine native 4K frames at 7046d9485 show dark mode
+and painted Blobs, with neutral paths. E02_1_1 has 27 candidates; channel
+zero preserves their identities and restoring All channels restores pixels.
+E02_9_1 has 15 candidates. Live and Normalize are restored off, all batch
+settings match their starting values, and both source arrays retain hashes.
+Receipt: tools/tutorials/evidence/2026-09-21-measure-current-preview.json.
+The full sixteen-field normal-mode run is now recording on CPU with Plot
+and one worker, under a 24-GiB cap (the historical measured peak was 17 GiB).
+No previous database/output was seeded. The independent output verifier and
+composition tool now accept explicit current paths and the actual preview
+proof, retaining the older filter/propagation checks for historical footage.
+34 pixel/preview tests pass. Full batch, lesson copy, media and acceptance
+remain open; the preview receipt is not a completed-lesson verdict.
