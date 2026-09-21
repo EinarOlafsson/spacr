@@ -1701,3 +1701,13 @@ of 228), despite de/sv passing. Missing/stale rows and placeholder/HTML
 mismatches in other locales remain. These diagnostics are not counts of
 unique translation rows. The separate API audit is still running; the
 392-docstring figure remains historical debt, not a new measurement.
+
+2026-09-21 — CODEX DOCS LANE ONLY: SPANISH RUNTIME GREEN
+--------------------------------------------------------------------------------
+After reconstructing the lost uncommitted review, the complete Spanish
+runtime audit now passes at 3824 UI sources (985 settings, 194 categories,
+68 modules). Source-bound evidence contains 642 distinct reviewed Spanish
+sources. This does not close docs: other runtime languages owe the eleven
+new Import/Invasion captions and their remaining repairs; API debt remains.
+See docs/i18n/2026-09-21-runtime-spanish-recovery.md. All non-docs work remains
+with Claude.

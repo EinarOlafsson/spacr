@@ -35,7 +35,7 @@
       "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
       "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
       "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d",
-      "translation": "<b>Notificar errores como incidencias en GitHub</b><br><span style='color:gray;'>Los informes se envían al repositorio público de spaCR en GitHub, con las rutas, los nombres y las credenciales ocultos. Si la notificación de incidencias está en always, el valor predeterminado, una ejecución fallida envía su informe automáticamente una vez por error, cuando se ha iniciado sesión en GitHub abajo. Con ask, aparece el botón \"File as issue\" debajo de la consola y el informe solo se envía al pulsar Enviar informe en la vista previa. Puede cambiarlo en Ayuda → Configurar spaCR de nuevo….</span>"
+      "translation": "<b>Notificar errores como incidencias en GitHub</b><br><span style='color:gray;'>Los informes se envían al repositorio público de spaCR en GitHub, con las rutas, los nombres y las credenciales ocultos. Si la notificación de incidencias está en always, el valor predeterminado, una ejecución fallida envía su informe automáticamente una vez por error, cuando se ha iniciado sesión en GitHub abajo. Con ask, aparece el botón \"File as issue\" (Registrar como incidencia) debajo de la consola y el informe solo se envía al pulsar Enviar informe en la vista previa. Puede cambiarlo en Ayuda → Configurar spaCR de nuevo….</span>"
     },
     {
       "table": "ui",
@@ -245,7 +245,7 @@
       "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
       "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
       "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b",
-      "translation": "Elija cómo se codifican los canales y pulse Generar representaciones vectoriales. La tabla se rellena con las primeras dimensiones de cada objeto."
+      "translation": "Elija cómo se codifican los canales y pulse Vectorizar. La tabla se rellena con las primeras dimensiones de cada objeto."
     },
     {
       "table": "ui",

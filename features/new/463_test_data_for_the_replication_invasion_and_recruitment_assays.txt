@@ -179,3 +179,12 @@ repository (same numbers both ways), CPU, 21 s:
 
 `validate_settings` finds nothing. The ratchet counts did not move with this
 part (callables 9,063, surface 10,966, as after the first part).
+
+2026-09-21 — CODEX TRANSLATION LANE ONLY
+--------------------------------------------------------------------------------
+The two new synthetic Invasion download captions now have reviewed Spanish
+translations and current English source hashes. The text explicitly calls
+the data synthetic and says the fields/masks are drawn, not acquired or
+segmented. Full Spanish runtime audit passes at 3824 UI sources. These two
+captions remain owed in the other eight languages; API translations remain
+open. No assay behavior, measurements or data changed in this checkpoint.

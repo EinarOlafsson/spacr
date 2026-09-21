@@ -849,3 +849,17 @@ revalidate those records before recording them as delivered. API regeneration
 and the all-language runtime repair remain open. The maintainer clarified
 that the GPU is still occupied; no GPU job will start until the established
 20 consecutive observed idle minutes have elapsed.
+
+2026-09-21 — CODEX: SPANISH RECOVERED AND FULL RUNTIME AUDIT GREEN
+--------------------------------------------------------------------------------
+Reconstructed and directly reviewed all 227 remaining Spanish draft sources:
+161 corrected, 66 retained. Added three action labels, nine Import captions
+and two synthetic Invasion captions; corrected earlier help text to match
+actual button labels. Three already reviewed OPS category descriptions also
+populate their UI occurrences. Removed 42 keys absent from canonical English.
+
+Fresh full Spanish audit passes: 985 settings, 194 categories, 3824 UI sources,
+68 modules. All 642 distinct reviewed Spanish sources pass the existing gates.
+Evidence and scope: docs/i18n/2026-09-21-runtime-spanish-recovery.md. The other
+eight languages still owe these eleven new captions. API debt and the full
+docs lane remain open; no old lost audit artifact was reused as evidence.

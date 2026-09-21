@@ -8777,3 +8777,20 @@ route test passed. Updated 358/447/286 and future/288/411 with exact recovery
 state. No baseline was tightened and no final tutorial acceptance is claimed.
 The maintainer clarified the GPU is not yet free. GPU jobs remain paused;
 the 20-minute observed-idle rule still applies. All Python remains capped.
+
+2026-09-21 — CODEX: RECOVERED SPANISH AUDIT GREEN; DURABLE JOBS RUNNING
+--------------------------------------------------------------------------------
+Spanish recovery has 227 reviewed UI sources (161 corrections, 66 retentions),
+three action captions and all eleven new Import/synthetic-Invasion captions.
+Removed 42 keys whose English sources no longer exist. Full Spanish runtime
+audit passes: 985 settings, 194 categories, 3824 UI strings, 68 modules, 642
+distinct reviewed sources. Updated future/411 and new/43 docs, 419, 435, 462,
+463. Other locales and API remain open; no gate was relaxed.
+
+Full coverage is running from fixed 3d9eb57c5 in
+/mnt/firecuda2/Claude/repo/codex-coverage-20260921, 12-GiB cgroup, two CPU
+workers, private NAS shadow. Data/logs persist in
+/mnt/firecuda2/Claude/repo/codex-artifacts-20260921. No competing full coverage
+run was present on restart. CPU narration and current Home/04 video rendering
+use separate 6-GiB caps and the same durable artifact root. GPU monitor still
+sees PID 15715 active; no GPU job has been started.

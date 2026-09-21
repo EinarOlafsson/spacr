@@ -144,3 +144,11 @@ is refreshed to 3822 UI sources; all 4467 existing reviewed runtime records
 still bind to their current sources and hashes. The nine-language rows for
 these nine captions remain open in Codex's translation lane (future/411).
 No Import behavior or data was changed by this integration checkpoint.
+
+2026-09-21 — CODEX: SPANISH IMPORT CAPTIONS COMPLETE
+--------------------------------------------------------------------------------
+All nine new Import captions now have reviewed Spanish records, including
+named-group identifiers and the protected Format Converter name. The full
+Spanish runtime audit passes at the current 3824-source English manifest.
+The other eight languages and the API docstrings remain translation debt.
+No Import behavior or example data was changed.

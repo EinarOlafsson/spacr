@@ -1053,3 +1053,12 @@ area/intensity report. It also reviews the Add field and Channels captions.
 Source-bound record: docs/i18n/reviewed/runtime/es/
 2026-09-21-runtime-ui-first-slice.json. This is partial locale progress,
 not closure of all translations or any remaining production UI work.
+
+2026-09-21 — CODEX SPANISH TRANSLATION FOLLOW-ON
+--------------------------------------------------------------------------------
+Reviewed the remaining Spanish readout, crop-loading, object-editing and
+FEATURES assignment/measurement captions. They now distinguish cells from
+table cells, fields from runs, and shrinking from removing labels. The
+complete Spanish runtime audit passes with 642 source-bound reviewed texts.
+This changes translations only; the application's outstanding UI issues and
+final tutorial recording remain separate work.

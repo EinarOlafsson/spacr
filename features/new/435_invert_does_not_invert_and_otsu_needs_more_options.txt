@@ -509,3 +509,11 @@ and the Fill holes behavior shared with the magnifier, preserving the effects
 of values above/below 1 and the threshold-before-labeling sequence. Records:
 docs/i18n/reviewed/runtime/es/2026-09-21-runtime-ui-first-slice.json.
 Other captions and locales remain in progress; no detector code was changed.
+
+2026-09-21 — CODEX SPANISH TRANSLATION FOLLOW-ON
+--------------------------------------------------------------------------------
+Restored reviewed Spanish Otsu, local-threshold, inversion, band-selection,
+object-boundary and magnifier wording. Protected quoted controls and model
+identifiers survive, and dimmer objects are described by intensity rather
+than size. The full Spanish runtime audit passes at 3824 UI sources. No
+segmentation behavior changed; other-language and API debt stays with 411.
