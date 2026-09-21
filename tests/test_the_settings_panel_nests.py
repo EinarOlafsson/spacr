@@ -122,7 +122,6 @@ def test_the_advanced_families_nest_under_one_umbrella(mask_tree):
     assert [child.title for child in umbrella.children] == [
         "Image Preprocessing (per object)",
         "Object Filtration (all objects)",
-        "Intensity Handling (all objects)",
     ]
     assert umbrella.own_rows == [], "the umbrella holds headings, not rows"
     assert umbrella.rows, "and it reports the rows underneath it"
