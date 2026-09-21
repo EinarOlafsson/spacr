@@ -3045,6 +3045,19 @@ expected_types = {
     "figure_confidence": float,
     "figure_read_text": bool,
     "confirm_annotations": bool,
+    "text_reach_above": float,
+    "text_reach_left": float,
+    "text_reach_below": float,
+    "text_use_above": bool,
+    "text_use_left": bool,
+    "text_use_below": bool,
+    "text_panel_reach": float,
+    "text_min_confidence": float,
+    "text_ignore": str,
+    "text_order": str,
+    "text_separator": str,
+    "text_reread": bool,
+    "text_reread_scale": int,
     "well_detection": (str, bool),
     "well_confidence": float,
     "well_pad": int,
@@ -4115,6 +4128,19 @@ tooltips = {
     "figure_confidence": "(float) - Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25.",
     "figure_read_text": "(bool) - Figure mode: read the text printed around each plaque image (needs RapidOCR, part of spacr[papers]) to annotate it with its panel and condition. False names each image by its figure, row and column only. Default True.",
     "confirm_annotations": "(bool) - Figure mode: measure only images whose condition a person approved in the Figure preview (saved to figure_annotations.csv in the source folder); the others are counted as waiting. Default False.",
+    "text_reach_above": '(float) - Figure mode, text detection: How far above the grid of plaque images a column header may sit, in image heights. Raise it when headers are printed well above the images; lower it when the header of a neighbouring panel is picked up. Default 1.0.',
+    "text_reach_left": '(float) - Figure mode, text detection: How far left of the grid a row label may sit, in image widths. Raise it when row labels are set far to the left; lower it when text from the panel on the left is picked up. Default 1.0.',
+    "text_reach_below": '(float) - Figure mode, text detection: How far below the grid text may sit and still count as a label, in image heights. Default 0.5.',
+    "text_use_above": '(bool) - Figure mode, text detection: Use the column header printed above each image as part of its condition. Default True.',
+    "text_use_left": '(bool) - Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.',
+    "text_use_below": '(bool) - Figure mode, text detection: Use text printed under the images as part of the condition. Turn off when captions or axis labels sit under the images. Default True.',
+    "text_panel_reach": "(float) - Figure mode, text detection: How far up and left of a grid's top-left corner the panel letter (A, B, C...) may sit, in image sizes. Raise it when the letter is set far from the images; lower it when another panel's letter is taken. Default 1.0.",
+    "text_min_confidence": '(float) - Figure mode, text detection: Ignore OCR words the reader scored below this (0-1). Raise it when stray specks are read as text. Default 0.0.',
+    "text_ignore": "(str) - Figure mode, text detection: Comma-separated regular expressions; a word matching any is not used as a label, for example scale bars and axis numbers: '^\\\\d+$, [uμ]m$'. Default ''.",
+    "text_order": "(str) - Figure mode, text detection: Which labels come first when they are joined into one condition: a comma-separated order of above, left and below. Default 'above,left,below'.",
+    "text_separator": "(str) - Figure mode, text detection: What joins the labels into one condition. Default ' / '.",
+    "text_reread": '(bool) - Figure mode, text detection: Read the text around each grid of images a second time, enlarged, which finds small or rotated labels the first reading missed. Default True.',
+    "text_reread_scale": '(int) - Figure mode, text detection: How many times to enlarge the text around each grid for the second reading. Default 3.',
     "well_detection": "(str or bool) - Split a plate image into detected wells before plaque segmentation. False passes each source image through whole; True selects the default YOLO detector, while a model-zoo key or checkpoint path selects another detector. Enabling it changes result rows from one per image to one per detected well. Default False.",
     "well_confidence": "(float) - Minimum YOLO confidence, from 0 to 1, for keeping a detected well when well_detection is enabled. Raising it removes uncertain boxes but can lose an entire condition; lowering it retains more candidates and can create spurious well crops. Default 0.25.",
     "well_pad": "(int) - Extra image pixels retained on every side of a detected well crop, clipped at the source-image boundary. Increase it when the detector box trims the well edge; excessive padding can include neighbouring wells or background. Default 0.",
@@ -4826,7 +4852,7 @@ categories = {
 
     "Object Crops": ["save_png", "crop_mode", "png_size", "png_channel_mapping", "png_dims", "dialate_pngs", "dialate_png_ratios", "use_bounding_box", "normalize_by", "save_arrays"],
 
-    "Plate Layout & Controls": ["plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
+    "Plate Layout & Controls": ["plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence", "figure_read_text", "confirm_annotations", "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale", "well_detection", "well_confidence", "well_pad", "plate_format", "well_diameter_mm", "plateID", "plate", "cell_types", "cell_plate_metadata", "cells", "cell_loc", "pathogen_types", "pathogen_plate_metadata", "pathogens", "pathogen_loc", "treatments", "treatment_plate_metadata", "treatment_loc", "location_column", "group_column", "level", "change_plate", "positive_control_id", "negative_control_id", "exclude_grnas", "positive_control_wells", "negative_control_wells", "mixed_control_wells", "nontargeting_control_grnas", "pos", "neg", "mix", "exclude_conditions", "exclude_rows", "filter_column", "filter_value", "target", "batch_correction", "batch_column", "batch_control_column", "batch_control_values", "batch_covariate_column", "batch_combat_mean_only", "batch_min_samples", "batch_missing_control"],
 
 
 
@@ -5869,6 +5895,19 @@ def get_analyze_plaque_settings(settings):
     settings.setdefault('figure_confidence', 0.25)
     settings.setdefault('figure_read_text', True)
     settings.setdefault('confirm_annotations', False)
+    settings.setdefault('text_reach_above', 1.0)
+    settings.setdefault('text_reach_left', 1.0)
+    settings.setdefault('text_reach_below', 0.5)
+    settings.setdefault('text_use_above', True)
+    settings.setdefault('text_use_left', True)
+    settings.setdefault('text_use_below', True)
+    settings.setdefault('text_panel_reach', 1.0)
+    settings.setdefault('text_min_confidence', 0.0)
+    settings.setdefault('text_ignore', '')
+    settings.setdefault('text_order', 'above,left,below')
+    settings.setdefault('text_separator', ' / ')
+    settings.setdefault('text_reread', True)
+    settings.setdefault('text_reread_scale', 3)
     settings.setdefault('well_detection', False)
     settings.setdefault('well_confidence', 0.25)
     settings.setdefault('well_pad', 0)

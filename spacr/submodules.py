@@ -1549,7 +1549,8 @@ def _analyze_plaque_figures(settings, model_path):
         segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
         confidence=float(settings.get('figure_confidence', 0.25)),
         confirm_each=bool(settings.get('confirm_annotations', False)),
-        plate_format=settings.get('plate_format'), read_text=read_text)
+        plate_format=settings.get('plate_format'), read_text=read_text,
+        text_options=plaque_papers.text_options_from_settings(settings))
     print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
           f"plaque image(s), {summary['plaques']} plaque(s) -> "
           f"{summary['database']}")

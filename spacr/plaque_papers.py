@@ -68,6 +68,9 @@ __all__ = [
     "read_words",
     "find_plaque_regions",
     "text_near",
+    "TextOptions",
+    "DEFAULT_TEXT_OPTIONS",
+    "text_options_from_settings",
     "annotate_regions",
     "measure_region",
     "measure_plaques_from_papers",
@@ -827,8 +830,108 @@ def _blocks(regions: Sequence[Region]) -> List[int]:
     return [root(i) for i in range(len(regions))]
 
 
+@dataclass(frozen=True)
+class TextOptions:
+    """How the text around a plaque image is turned into its condition.
+
+    The maintainer, 2026-09-21: the text "seems to pick up the text correctly
+    but it is not annotating correctly allways so whatever settings you can
+    add there please do". These are the knobs the reading has; the defaults
+    are the values measured on PMC9744290 Fig 6 and Fig 7 (8 of 8 read).
+
+    :ivar reach_above: how far above the grid a column header may sit, in
+        image heights.
+    :ivar reach_left: how far left of the grid a row label may sit, in image
+        widths.
+    :ivar reach_below: how far below the grid text may sit, in image heights.
+    :ivar use_above: take the column header.
+    :ivar use_left: take the row label.
+    :ivar use_below: take text printed under the images.
+    :ivar panel_reach: how far up and left of the grid's corner a panel letter
+        may sit, in image sizes.
+    :ivar min_confidence: OCR words scoring below this are ignored.
+    :ivar ignore: regular expressions; a word matching any is ignored (scale
+        bars such as ``5 μm``, axis numbers).
+    :ivar order: which labels come first in the condition, e.g.
+        ``("above", "left", "below")``.
+    :ivar separator: what joins the labels into one condition.
+    :ivar reread: read the text around each grid again, enlarged.
+    :ivar reread_scale: how much to enlarge for that second reading.
+    """
+
+    reach_above: float = 1.0
+    reach_left: float = 1.0
+    reach_below: float = 0.5
+    use_above: bool = True
+    use_left: bool = True
+    use_below: bool = True
+    panel_reach: float = 1.0
+    min_confidence: float = 0.0
+    ignore: Tuple[str, ...] = ()
+    order: Tuple[str, ...] = ("above", "left", "below")
+    separator: str = " / "
+    reread: bool = True
+    reread_scale: int = 3
+
+    def keeps(self, word: "Word") -> bool:
+        """Whether a word survives the confidence and ignore filters.
+
+        :param word: the word.
+        :returns: True to keep it.
+        """
+        if float(word.confidence) < float(self.min_confidence):
+            return False
+        text = word.text.strip()
+        return not any(re.search(pattern, text) for pattern in self.ignore
+                       if pattern)
+
+
+DEFAULT_TEXT_OPTIONS = TextOptions()
+
+
+def text_options_from_settings(settings: Mapping[str, Any]) -> TextOptions:
+    """:class:`TextOptions` from a settings dict's ``text_*`` keys.
+
+    :param settings: settings; missing keys keep the defaults.
+    :returns: the options.
+    """
+    base = DEFAULT_TEXT_OPTIONS
+    def pick(key, default, cast):
+        value = settings.get(key)
+        if value in (None, ""):
+            return default
+        try:
+            return cast(value)
+        except (TypeError, ValueError):
+            return default
+    def patterns(value):
+        if isinstance(value, str):
+            return tuple(p.strip() for p in value.split(",") if p.strip())
+        return tuple(str(p) for p in value)
+    def sides(value):
+        if isinstance(value, str):
+            value = [p.strip() for p in value.split(",")]
+        chosen = tuple(v for v in value if v in ("above", "left", "below"))
+        return chosen or base.order
+    return TextOptions(
+        reach_above=pick("text_reach_above", base.reach_above, float),
+        reach_left=pick("text_reach_left", base.reach_left, float),
+        reach_below=pick("text_reach_below", base.reach_below, float),
+        use_above=pick("text_use_above", base.use_above, bool),
+        use_left=pick("text_use_left", base.use_left, bool),
+        use_below=pick("text_use_below", base.use_below, bool),
+        panel_reach=pick("text_panel_reach", base.panel_reach, float),
+        min_confidence=pick("text_min_confidence", base.min_confidence, float),
+        ignore=pick("text_ignore", base.ignore, patterns),
+        order=pick("text_order", base.order, sides),
+        separator=pick("text_separator", base.separator, str),
+        reread=pick("text_reread", base.reread, bool),
+        reread_scale=pick("text_reread_scale", base.reread_scale, int))
+
+
 def text_near(region: Region, words: Sequence[Word], *,
-              regions: Sequence[Region] = (), reach: float = 1.0) -> Dict[str, Any]:
+              regions: Sequence[Region] = (), reach: float = 1.0,
+              options: Optional[TextOptions] = None) -> Dict[str, Any]:
     """The text a reader would take as this image's label.
 
     Distances are measured from the edge of the GRID the image sits in, not
@@ -850,10 +953,15 @@ def text_near(region: Region, words: Sequence[Word], *,
     :param region: the image.
     :param words: every word in the figure.
     :param regions: every plaque image in the figure, including ``region``.
-    :param reach: how far past the grid to look, in image sizes.
+    :param reach: how far past the grid to look, in image sizes; used when
+        ``options`` is not given.
+    :param options: the reading's settings (:class:`TextOptions`).
     :returns: ``{'panel': letter or None, 'above': [...], 'left': [...],
         'below': [...]}``.
     """
+    if options is None:
+        options = replace(DEFAULT_TEXT_OPTIONS, reach_above=reach,
+                          reach_left=reach, reach_below=0.5 * reach)
     boxes = list(regions) or [region]
     if region not in boxes:
         boxes.append(region)
@@ -867,7 +975,8 @@ def text_near(region: Region, words: Sequence[Word], *,
     top = min(b.y0 for b in column)
     bottom = max(b.y1 for b in column)
     left_edge = min(b.x0 for b in row)
-    free = [w for w in words if not any(r.contains(w) for r in boxes)]
+    free = [w for w in words if not any(r.contains(w) for r in boxes)
+            and options.keeps(w)]
     above, left, below = [], [], []
     for w in free:
         if w.panel_letter is not None:
@@ -875,42 +984,50 @@ def text_near(region: Region, words: Sequence[Word], *,
         width, height = w.x1 - w.x0, w.y1 - w.y0
         if _overlap(w.x0, w.x1, region.x0, region.x1) >= 0.3 * max(width, 1):
             gap = top - w.y1
-            if -0.5 * height <= gap <= reach * region.height:
+            if options.use_above and (
+                    -0.5 * height <= gap <= options.reach_above * region.height):
                 above.append((gap, w))
             gap = w.y0 - bottom
-            if -0.5 * height <= gap <= 0.5 * reach * region.height:
+            if options.use_below and (
+                    -0.5 * height <= gap <= options.reach_below * region.height):
                 below.append((gap, w))
         if _overlap(w.y0, w.y1, region.y0, region.y1) >= 0.3 * max(height, 1):
             gap = left_edge - w.x1
-            if -0.5 * width <= gap <= reach * region.width:
+            if options.use_left and (
+                    -0.5 * width <= gap <= options.reach_left * region.width):
                 left.append((gap, w))
-    return {"panel": _panel_letter(free, grid),
+    return {"panel": _panel_letter(free, grid, options.panel_reach),
             "above": [w.text for w in _nearest_line(above)],
             "left": [w.text for w in _nearest_column(left)],
             "below": [w.text for w in _nearest_line(below)]}
 
 
-def _panel_window(grid: Sequence[Region]) -> Tuple[float, float, float, float]:
+def _panel_window(grid: Sequence[Region], reach: float = 1.0
+                  ) -> Tuple[float, float, float, float]:
     """Where a grid's panel letter can be: up and left of its corner.
 
     :param grid: the images of one grid.
+    :param reach: how far up and left, in image sizes.
     :returns: ``(x0, y0, x1, y1)`` in figure pixels.
     """
     x0 = min(b.x0 for b in grid)
     y0 = min(b.y0 for b in grid)
     size_w = float(np.median([b.width for b in grid]))
     size_h = float(np.median([b.height for b in grid]))
-    return (x0 - size_w, y0 - size_h, x0 + 0.25 * size_w, y0 + 0.25 * size_h)
+    return (x0 - reach * size_w, y0 - reach * size_h,
+            x0 + 0.25 * size_w, y0 + 0.25 * size_h)
 
 
-def _panel_letter(words: Sequence[Word], grid: Sequence[Region]) -> Optional[str]:
+def _panel_letter(words: Sequence[Word], grid: Sequence[Region],
+                  reach: float = 1.0) -> Optional[str]:
     """The panel letter printed at a grid's top-left corner, if any.
 
     :param words: the figure's words outside every image.
     :param grid: the images of one grid.
+    :param reach: how far from the corner, in image sizes.
     :returns: the letter in upper case, or None.
     """
-    wx0, wy0, wx1, wy1 = _panel_window(grid)
+    wx0, wy0, wx1, wy1 = _panel_window(grid, reach)
     corner = (min(b.x0 for b in grid), min(b.y0 for b in grid))
     best, letter = None, None
     for w in words:
@@ -1007,7 +1124,8 @@ def _grid_positions(regions: Sequence[Region]) -> List[Tuple[int, int]]:
 
 
 def annotate_regions(regions: Sequence[Region], words: Sequence[Word], *,
-                     caption: str = "", figure_label: str = "") -> List[Annotation]:
+                     caption: str = "", figure_label: str = "",
+                     options: Optional[TextOptions] = None) -> List[Annotation]:
     """Propose a condition for every plaque image in one figure.
 
     Both strategies run for every image. See the module docstring for how
@@ -1017,10 +1135,14 @@ def annotate_regions(regions: Sequence[Region], words: Sequence[Word], *,
     :param words: the figure's text.
     :param caption: the figure legend, ``''`` when unknown.
     :param figure_label: the figure's name, used when nothing else is known.
+    :param options: how the text is read (:class:`TextOptions`); defaults
+        to :data:`DEFAULT_TEXT_OPTIONS`.
     :returns: one annotation per region, in the order given.
     """
+    options = options or DEFAULT_TEXT_OPTIONS
     legend = split_legend(caption)
-    near = [text_near(r, words, regions=regions) for r in regions]
+    near = [text_near(r, words, regions=regions, options=options)
+            for r in regions]
     by_panel: Dict[Optional[str], List[int]] = {}
     for index, found in enumerate(near):
         by_panel.setdefault(found["panel"], []).append(index)
@@ -1031,9 +1153,9 @@ def annotate_regions(regions: Sequence[Region], words: Sequence[Word], *,
     out: List[Annotation] = []
     for index, region in enumerate(regions):
         found = near[index]
-        label_parts = [" ".join(found[side]) for side in ("above", "left", "below")
-                       if found[side]]
-        label_text = " / ".join(label_parts)
+        label_parts = [" ".join(found[side]) for side in options.order
+                       if found.get(side)]
+        label_text = options.separator.join(label_parts)
         legend_text = legend.get(found["panel"] or "", "") if found["panel"] else ""
         row, column = positions[index]
         annotation = Annotation(
@@ -1331,17 +1453,20 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
          int(image.shape[0])))
     if not regions:
         return
+    options = kw.get("text_options") or DEFAULT_TEXT_OPTIONS
     words = figure.words or kw["read_text"](figure.path)
-    if not figure.words and kw["read_text"] is read_words:
-        words = reread_around(image, regions, words)
+    if not figure.words and kw["read_text"] is read_words and options.reread:
+        words = reread_around(image, regions, words,
+                              scale=int(options.reread_scale))
     annotations = annotate_regions(regions, words, caption=figure.caption,
-                                   figure_label=figure.label)
+                                   figure_label=figure.label, options=options)
     if any(a.panel for a in annotations) and not figure.caption:
         pasted = kw["ask_legend"](figure, annotations)
         if pasted:
             figure.caption, figure.legend_source = pasted, "pasted"
             annotations = annotate_regions(regions, words, caption=pasted,
-                                           figure_label=figure.label)
+                                           figure_label=figure.label,
+                                           options=options)
             connection.execute(
                 "UPDATE figures SET caption=?, legend_source=? WHERE figure_sha256=?",
                 (pasted, "pasted", figure.sha256))
@@ -1530,8 +1655,8 @@ def measure_figure_folder(
         confidence: float = 0.25, confirm_each: bool = False,
         plate_format: Optional[str] = None, legends: Any = None,
         annotations: Any = None, read_text: Optional[Callable] = None,
-        detect: Optional[Callable] = None, segment: Optional[Callable] = None
-        ) -> Dict[str, Any]:
+        detect: Optional[Callable] = None, segment: Optional[Callable] = None,
+        text_options: Optional[TextOptions] = None) -> Dict[str, Any]:
     """Figure mode of Plaque Assay: find, read, annotate and measure a folder.
 
     Nothing here stops to ask. Legends come from ``legends`` (default
@@ -1553,6 +1678,7 @@ def measure_figure_folder(
     :param read_text: ``fn(path) -> [Word]``.
     :param detect: passed to :func:`find_plaque_regions`.
     :param segment: ``fn(crop) -> labels``.
+    :param text_options: how the text is read (:class:`TextOptions`).
     :returns: the summary, with ``awaiting_approval`` added.
     """
     src = Path(src)
@@ -1594,7 +1720,8 @@ def measure_figure_folder(
                         plate_format=plate_format,
                         ask_legend=lambda *_a: None, review=review,
                         read_text=read_text or read_words, detect=detect,
-                        segment=segment, summary=summary)
+                        segment=segment, summary=summary,
+                        text_options=text_options)
         connection.commit()
     connection.close()
     summary["awaiting_approval"] = waiting["n"]
