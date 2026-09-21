@@ -353,6 +353,7 @@ class _PipelinePreloader:
         "spacr.sequencing",
         "spacr.submodules",
         "spacr.spacr_cellpose",
+        "spacr.qt.widgets.fast_plots",
     )
 
     def __init__(self, on_step=None, on_done=None):
