@@ -150,3 +150,32 @@ DONE WHEN
   * The labels called not real are removed from the datasets, the cleaned
     datasets are republished as a new version, and the cross-channel models are
     retrained on them and scored against the old ones.
+
+--------------------------------------------------------------------------------
+PROGRESS 2026-09-21
+--------------------------------------------------------------------------------
+
+  1. STACKS (tools/build_ground_truth_crop_stacks.py). One (H, W, 6) uint16
+     stack per field -- hoechst, toxoplasma, cellmask, cell mask, nucleus mask,
+     PV mask -- in <root>/<plate>/merged, root
+     /mnt/wd4tb/af3/projects/cross_channel_models/ground_truth_crops, with a
+     fields.csv per plate tying each spaCR field name to the dataset stem and
+     the datasets that hold it. 3,719 fields over 12 experiment-plates. The
+     Toxoplasma plane is local (data/_dsred_source) for every field sampled;
+     the NAS fallback is there for any that are not. A mask a field's datasets
+     did not draw is written empty, so that field gives no crop of that type.
+
+  2. CROPS (tools/measure_ground_truth_crops.py). Measure, ONE OBJECT TYPE PER
+     RUN: the three ground-truth masks come from different datasets and do not
+     nest (a PV straddling two ground-truth cells made Measure refuse the
+     field), so each type is measured alone under <root>/<type>/<plate>. No
+     size filters, no edge-cell merging, uninfected kept, heavy measurements
+     off. Verified on 6 fields: crops per type EQUAL the labels per mask
+     (CSA plate1: 76 PV / 292 cell / 306 nucleus; THP1 PLATE1: 66 / 173 /
+     169). Crops are full resolution, not resized, RGB = CellMask / Toxoplasma
+     / Hoechst, windowed and rimmed per type from measured object extents
+     (PV 128 px, rim 1.5 x sqrt(area); nucleus 128 px, 0.5; cell 320 px, 0.3)
+     so each label is judged with its surroundings. png_list in each
+     measurements.db, so the crops open in Annotate.
+
+  Next: the full crop run over every plate, then the maintainer's annotation.
