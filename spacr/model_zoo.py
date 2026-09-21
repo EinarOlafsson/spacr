@@ -493,16 +493,17 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "remote_name": "best.pt",
         "sha256":
             "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
-        "metrics": {'n_train': '1,070 images', 'train_objects': '2,455 boxes', 'n_test': '129 images, 84 of them with no well', 'test_objects': '297 boxes', 'cv': 'no', 'f1': 'mAP50 0.9457 (shared test set)', 'aji': 'mAP50-95 0.8341', 'dice': 'P 0.8912 / R 0.9440', 'stock_f1': 'v3 scores 0.8838 on this set', 'stock_aji': 'v3 scores 0.7630', 'stock_dice': 'v3 P 0.8613 / R 0.9085', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '28'},
+        "metrics": {'n_train': '1,070 images', 'train_objects': '2,455 boxes', 'n_test': '129 images, 84 of them with no well', 'test_objects': '297 boxes', 'cv': 'no', 'f1': 'mAP50 0.9457 (shared test set)', 'aji': 'mAP50-95 0.8341', 'dice': 'P 0.8912 / R 0.9440', 'stock_f1': 'v1 scores 0.8838 on this set', 'stock_aji': 'v1 scores 0.7630', 'stock_dice': 'v1 P 0.8613 / R 0.9085', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '28'},
         "display_name": "Toxoplasma Plaque Well Detector v2",
         "architecture": "YOLO26n (ultralytics 8.4.155)",
         "dataset": "plate images and literature figures; 1,070 train / 254 "
                    "val / 129 test, split by PMC article so no paper is in two "
                    "sets; training data at einarolafsson/"
                    "toxoplasma-plaque-well-detector-dataset",
-        "versus_stock": "mAP50 0.9457 and mAP50-95 0.8341 against v3's 0.8838 "
-                        "and 0.7630 on the SAME test set; stock YOLO has no "
-                        "plaque-well class, so v3 is the baseline",
+        "versus_stock": "mAP50 0.9457 and mAP50-95 0.8341 against v1's "
+                        "(yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME "
+                        "test set; stock YOLO has no plaque-well class, so v1 "
+                        "is the baseline",
         "trained_on": (
             "whole-plate and multi-well Toxoplasma plaque-assay images plus 939 "
             "newly reviewed PMC figures, accepted boxes and confirmed negatives "

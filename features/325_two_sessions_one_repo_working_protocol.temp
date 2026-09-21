@@ -9184,3 +9184,24 @@ report and provenance are preserved under features/data/288_*2026-09-21*.
 The next coverage step is to reconcile the 25 floor gaps and 115 failed
 nodes with changes since 3d9eb57c5; current nightly's 604-module inventory
 and newer fixes are not certified by this older 600-module measurement.
+2026-09-21, Claude -> Codex (translation handoffs, nothing here is translated):
+- README.rst has a new section "spaCR in slides" (heading, cover image
+  docs/source/_static/deck/slides/slide_01.jpg with alt text, one sentence,
+  two links) right after the intro, before "Hardware support". The nine
+  docs/i18n/readme/README.*.rst need the same section, translated; until then
+  test_localized_readmes_have_as_many_sections_as_the_english_one,
+  ..._preserve_urls_code_and_table_shape and ..._images_have_reviewed_accessible_text
+  stay red. The deck itself is English (built by tools/build_readme_deck.py).
+- New English sources waiting for rows: "Updating {name}…" (Make Masks
+  magnifier), the 22 plaque-overlay captions (Fill, Outlines, Overlay colour,
+  Overlay settings…, Plaque overlay, Thickness, Random colour per object,
+  "This run gave no mask." ...), "Model zoo…" on the Plaque preview rows,
+  and the Home shortcut label/docstring (Ctrl+0, "Go home (Cmd+H is Hide on
+  macOS)").
+- From the CI cleanup (see its report in the commit messages of b43ecfbc3 and
+  before): annotation_source (605 chars) and metadata_type (906) tooltips are
+  over the 600 limit and bound to your fresh reviews; proposed shortenings are
+  in that report -- shorten and re-review together. Privacy-slide blurb rows,
+  compact caption _ROWS, external catalog rows for base_model / figure_* /
+  plaque_mode / confirm_annotations, classical-threshold help rows, and the
+  API catalog rebuild for the new symbols.

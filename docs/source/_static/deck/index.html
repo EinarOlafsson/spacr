@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>spaCR in slides</title>
+<meta name="description" content="Flip through the spaCR info deck: what spaCR does, every module, and the trained models.">
+<style>
+  :root {
+    --bg: #0b0e14; --panel: #151a23; --fg: #e6e9ef; --muted: #8b93a3;
+    --accent: #2ec4b6; --edge: #262d3a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+    font: 15px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { display: flex; flex-direction: column; }
+  header { display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+    border-bottom: 1px solid var(--edge); flex-wrap: wrap; }
+  header h1 { font-size: 16px; margin: 0; font-weight: 600; }
+  header h1 span { color: var(--accent); }
+  header .title { color: var(--muted); flex: 1; min-width: 0; overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap; }
+  header a, header button { color: var(--fg); background: var(--panel);
+    border: 1px solid var(--edge); border-radius: 8px; padding: 6px 10px;
+    font: inherit; font-size: 13px; text-decoration: none; cursor: pointer; }
+  header a:hover, header button:hover { border-color: var(--accent); }
+  main { flex: 1; min-height: 0; display: flex; align-items: center;
+    justify-content: center; position: relative; padding: 12px 56px; }
+  #frame { position: relative; border-radius: 6px; overflow: hidden;
+    box-shadow: 0 8px 40px rgba(0,0,0,.5); }
+  #frame img { position: absolute; user-select: none; -webkit-user-drag: none; }
+  #slide { inset: 0; width: 100%; height: 100%; }
+  .nav { position: absolute; top: 50%; transform: translateY(-50%);
+    width: 44px; height: 64px; border-radius: 10px; border: 1px solid var(--edge);
+    background: rgba(21,26,35,.85); color: var(--fg); font-size: 26px;
+    cursor: pointer; }
+  .nav:hover { border-color: var(--accent); }
+  .nav:disabled { opacity: .25; cursor: default; }
+  #prev { left: 6px; } #next { right: 6px; }
+  footer { border-top: 1px solid var(--edge); padding: 8px 12px; }
+  .counter { text-align: center; color: var(--muted); font-size: 13px;
+    margin-bottom: 6px; }
+  .strip { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: thin; }
+  .strip button { flex: 0 0 auto; padding: 0; border: 2px solid transparent;
+    border-radius: 5px; background: none; cursor: pointer; opacity: .6; }
+  .strip button.on { border-color: var(--accent); opacity: 1; }
+  .strip button:hover { opacity: 1; }
+  .strip img { display: block; width: 120px; height: auto; border-radius: 3px; }
+  @media (max-width: 640px) {
+    main { padding: 8px 4px; }
+    .nav { display: none; }
+    .strip img { width: 84px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1><span>spaCR</span> in slides</h1>
+  <div class="title" id="title"></div>
+  <a id="pdf" href="spacr_deck.pdf" download>PDF</a>
+  <button id="full" type="button" title="Full screen (F)">Full screen</button>
+  <a href="https://github.com/EinarOlafsson/spacr">GitHub</a>
+</header>
+<main id="stage">
+  <button class="nav" id="prev" type="button" aria-label="Previous slide">&#8249;</button>
+  <div id="frame"><img id="slide" alt=""></div>
+  <button class="nav" id="next" type="button" aria-label="Next slide">&#8250;</button>
+</main>
+<footer>
+  <div class="counter" id="counter"></div>
+  <div class="strip" id="strip"></div>
+</footer>
+<script>
+const DECK = {"count": 51, "source": "spacr_overview.pptx", "aspect": 1.77778, "slides": [{"image": "slides/slide_01.jpg", "thumb": "thumbs/slide_01.jpg", "title": "spaCR", "animations": []}, {"image": "slides/slide_02.jpg", "thumb": "thumbs/slide_02.jpg", "title": "What is spaCR?", "animations": []}, {"image": "slides/slide_03.jpg", "thumb": "thumbs/slide_03.jpg", "title": "Where spaCR fits among existing tools", "animations": []}, {"image": "slides/slide_04.jpg", "thumb": "thumbs/slide_04.jpg", "title": "Six steps from plate to hit list", "animations": []}, {"image": "slides/slide_05.jpg", "thumb": "thumbs/slide_05.jpg", "title": "22 modules in one desktop app", "animations": []}, {"image": "slides/slide_06.jpg", "thumb": "thumbs/slide_06.jpg", "title": "Runs on a laptop, a workstation or a cluster", "animations": []}, {"image": "slides/slide_07.jpg", "thumb": "thumbs/slide_07.jpg", "title": "Install spaCR", "animations": []}, {"image": "slides/slide_08.jpg", "thumb": "thumbs/slide_08.jpg", "title": "Core pipeline", "animations": []}, {"image": "slides/slide_09.jpg", "thumb": "thumbs/slide_09.jpg", "title": "Mask: segmentation", "animations": []}, {"image": "slides/slide_10.jpg", "thumb": "thumbs/slide_10.jpg", "title": "Mask: every object class", "animations": []}, {"image": "slides/slide_11.jpg", "thumb": "thumbs/slide_11.jpg", "title": "Measure: features and crops", "animations": []}, {"image": "slides/slide_12.jpg", "thumb": "thumbs/slide_12.jpg", "title": "Annotate: label cells by hand", "animations": []}, {"image": "slides/slide_13.jpg", "thumb": "thumbs/slide_13.jpg", "title": "Classify: score every cell", "animations": []}, {"image": "slides/slide_14.jpg", "thumb": "thumbs/slide_14.jpg", "title": "Classify: image model", "animations": []}, {"image": "slides/slide_15.jpg", "thumb": "thumbs/slide_15.jpg", "title": "Classify: measurement model", "animations": []}, {"image": "slides/slide_16.jpg", "thumb": "thumbs/slide_16.jpg", "title": "Map Barcodes: which guides, which well", "animations": []}, {"image": "slides/slide_17.jpg", "thumb": "thumbs/slide_17.jpg", "title": "Regression: from wells to genes", "animations": []}, {"image": "slides/slide_18.jpg", "thumb": "thumbs/slide_18.jpg", "title": "Regression: the hit list", "animations": []}, {"image": "slides/slide_19.jpg", "thumb": "thumbs/slide_19.jpg", "title": "Data", "animations": []}, {"image": "slides/slide_20.jpg", "thumb": "thumbs/slide_20.jpg", "title": "Import: bring outside data in", "animations": []}, {"image": "slides/slide_21.jpg", "thumb": "thumbs/slide_21.jpg", "title": "Embeddings: a fingerprint per cell", "animations": []}, {"image": "slides/slide_22.jpg", "thumb": "thumbs/slide_22.jpg", "title": "Run Compare: what changed?", "animations": []}, {"image": "slides/slide_23.jpg", "thumb": "thumbs/slide_23.jpg", "title": "Experiment Design: plan the plate", "animations": []}, {"image": "slides/slide_24.jpg", "thumb": "thumbs/slide_24.jpg", "title": "Power / Design: how big a screen?", "animations": []}, {"image": "slides/slide_25.jpg", "thumb": "thumbs/slide_25.jpg", "title": "Dose–Response: honest EC50s", "animations": []}, {"image": "slides/slide_26.jpg", "thumb": "thumbs/slide_26.jpg", "title": "QC: is this run usable?", "animations": []}, {"image": "slides/slide_27.jpg", "thumb": "thumbs/slide_27.jpg", "title": "Tools", "animations": []}, {"image": "slides/slide_28.jpg", "thumb": "thumbs/slide_28.jpg", "title": "Make Masks: fix masks by hand", "animations": []}, {"image": "slides/slide_29.jpg", "thumb": "thumbs/slide_29.jpg", "title": "Make Masks: magnifier and Features", "animations": [{"src": "anim/slide_29_image-29-2.gif", "x": 0.0891, "y": 0.19333, "w": 0.28681, "h": 0.54493}]}, {"image": "slides/slide_30.jpg", "thumb": "thumbs/slide_30.jpg", "title": "Make Masks: train and compare models", "animations": []}, {"image": "slides/slide_31.jpg", "thumb": "thumbs/slide_31.jpg", "title": "Align & Stitch: tiles to mosaic", "animations": []}, {"image": "slides/slide_32.jpg", "thumb": "thumbs/slide_32.jpg", "title": "Image UMAP: map all cells", "animations": []}, {"image": "slides/slide_33.jpg", "thumb": "thumbs/slide_33.jpg", "title": "Gate Editor: gate cells like FACS", "animations": []}, {"image": "slides/slide_34.jpg", "thumb": "thumbs/slide_34.jpg", "title": "Graph Builder: plots without code", "animations": []}, {"image": "slides/slide_35.jpg", "thumb": "thumbs/slide_35.jpg", "title": "Assays", "animations": []}, {"image": "slides/slide_36.jpg", "thumb": "thumbs/slide_36.jpg", "title": "Plaque Assay: count and size plaques", "animations": []}, {"image": "slides/slide_37.jpg", "thumb": "thumbs/slide_37.jpg", "title": "Recruitment: marker at the vacuole", "animations": []}, {"image": "slides/slide_38.jpg", "thumb": "thumbs/slide_38.jpg", "title": "Invasion: attached or invaded?", "animations": []}, {"image": "slides/slide_39.jpg", "thumb": "thumbs/slide_39.jpg", "title": "Replication: parasites per vacuole", "animations": []}, {"image": "slides/slide_40.jpg", "thumb": "thumbs/slide_40.jpg", "title": "Project tools in the Help menu", "animations": []}, {"image": "slides/slide_41.jpg", "thumb": "thumbs/slide_41.jpg", "title": "Trained models", "animations": []}, {"image": "slides/slide_42.jpg", "thumb": "thumbs/slide_42.jpg", "title": "Seven models, one line in a settings file", "animations": []}, {"image": "slides/slide_43.jpg", "thumb": "thumbs/slide_43.jpg", "title": "Toxoplasma PV v3", "animations": []}, {"image": "slides/slide_44.jpg", "thumb": "thumbs/slide_44.jpg", "title": "Toxoplasma Plaque v2", "animations": []}, {"image": "slides/slide_45.jpg", "thumb": "thumbs/slide_45.jpg", "title": "Plaque Well Detector v2", "animations": []}, {"image": "slides/slide_46.jpg", "thumb": "thumbs/slide_46.jpg", "title": "Toxoplasma from Cell Mask", "animations": []}, {"image": "slides/slide_47.jpg", "thumb": "thumbs/slide_47.jpg", "title": "Nuclei from Cell Mask", "animations": []}, {"image": "slides/slide_48.jpg", "thumb": "thumbs/slide_48.jpg", "title": "Cell from Hoechst", "animations": []}, {"image": "slides/slide_49.jpg", "thumb": "thumbs/slide_49.jpg", "title": "Toxoplasma from Hoechst", "animations": []}, {"image": "slides/slide_50.jpg", "thumb": "thumbs/slide_50.jpg", "title": "Other models available in spaCR", "animations": []}, {"image": "slides/slide_51.jpg", "thumb": "thumbs/slide_51.jpg", "title": "Get started", "animations": []}]};
+const slides = DECK.slides;
+let at = 0;
+const img = document.getElementById("slide");
+const frame = document.getElementById("frame");
+const stage = document.getElementById("stage");
+const aspect = DECK.aspect || 16 / 9;
+function fit() {
+  const style = getComputedStyle(stage);
+  const w = stage.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight);
+  const h = stage.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom);
+  const width = Math.min(w, h * aspect);
+  frame.style.width = width + "px";
+  frame.style.height = (width / aspect) + "px";
+}
+window.addEventListener("resize", fit);
+const strip = document.getElementById("strip");
+const thumbs = slides.map((s, i) => {
+  const b = document.createElement("button");
+  b.type = "button";
+  b.title = (i + 1) + ". " + s.title;
+  const t = document.createElement("img");
+  t.src = s.thumb; t.alt = s.title; t.loading = "lazy";
+  b.appendChild(t);
+  b.onclick = () => show(i);
+  strip.appendChild(b);
+  return b;
+});
+function show(i, keepHash) {
+  at = Math.max(0, Math.min(slides.length - 1, i));
+  const s = slides[at];
+  img.src = s.image;
+  img.alt = s.title;
+  frame.querySelectorAll(".anim").forEach(el => el.remove());
+  (s.animations || []).forEach(a => {
+    const el = document.createElement("img");
+    el.className = "anim";
+    el.src = a.src;
+    el.alt = "";
+    Object.assign(el.style, {left: a.x * 100 + "%", top: a.y * 100 + "%",
+                             width: a.w * 100 + "%", height: a.h * 100 + "%"});
+    frame.appendChild(el);
+  });
+  document.getElementById("title").textContent = s.title;
+  document.getElementById("counter").textContent = (at + 1) + " / " + slides.length;
+  document.getElementById("prev").disabled = at === 0;
+  document.getElementById("next").disabled = at === slides.length - 1;
+  thumbs.forEach((b, j) => b.classList.toggle("on", j === at));
+  thumbs[at].scrollIntoView({block: "nearest", inline: "center"});
+  if (!keepHash) history.replaceState(null, "", "#" + (at + 1));
+  [at - 1, at + 1].forEach(j => { if (slides[j]) new Image().src = slides[j].image; });
+}
+document.getElementById("prev").onclick = () => show(at - 1);
+document.getElementById("next").onclick = () => show(at + 1);
+document.getElementById("full").onclick = () => {
+  if (document.fullscreenElement) document.exitFullscreen();
+  else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen();
+};
+document.addEventListener("keydown", e => {
+  if (["ArrowRight", "PageDown", " "].includes(e.key)) { show(at + 1); e.preventDefault(); }
+  else if (["ArrowLeft", "PageUp"].includes(e.key)) { show(at - 1); e.preventDefault(); }
+  else if (e.key === "Home") show(0);
+  else if (e.key === "End") show(slides.length - 1);
+  else if (e.key === "f" || e.key === "F") document.getElementById("full").click();
+});
+let x0 = null;
+stage.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, {passive: true});
+stage.addEventListener("touchend", e => {
+  if (x0 === null) return;
+  const dx = e.changedTouches[0].clientX - x0;
+  if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));
+  x0 = null;
+});
+frame.addEventListener("click", e => {
+  const r = frame.getBoundingClientRect();
+  show(at + (e.clientX - r.left > r.width / 2 ? 1 : -1));
+});
+window.addEventListener("hashchange", () => show((parseInt(location.hash.slice(1), 10) || 1) - 1, true));
+fit();
+show((parseInt(location.hash.slice(1), 10) || 1) - 1, true);
+</script>
+</body>
+</html>

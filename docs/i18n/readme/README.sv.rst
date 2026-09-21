@@ -521,7 +521,7 @@ spaCR skickar en katalog med utbildade modeller och hämtar dem på begäran. Ö
    * - ``toxoplasma_well_detector_v2``
        (YOLO26n (ultralytics 8.4.155))
      - plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset
-     - mAP50 0.9457 and mAP50-95 0.8341 against v3's 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v3 is the baseline
+     - mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline
    * - ``toxoplasma_from_cellmask_v1``
        (Cellpose-SAM (cpsam_v2))
      - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1

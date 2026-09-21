@@ -191,6 +191,57 @@ def animations(pptx: Path, folder: Path) -> dict:
     return out
 
 
+def deck_titles(pptx: Path) -> List[str]:
+    """A title per slide from the deck itself: its topmost large text.
+
+    Read from the slide XML rather than from the PDF's text, whose line order
+    follows the layout: a slide whose heading sits beside a table read as
+    "INTRODUCTION tool lacks it". Of the text at least 60% the size of the
+    slide's largest, the topmost is the heading. Text that is only numbers
+    (a statistic, a section number) and a capitals kicker are passed over.
+
+    :param pptx: the deck.
+    :returns: one title per slide, empty where a slide has no text.
+    """
+    import posixpath
+    import zipfile
+    from xml.etree import ElementTree as ET
+
+    out = []
+    with zipfile.ZipFile(pptx) as deck:
+        root = ET.fromstring(deck.read("ppt/presentation.xml"))
+        rels = ET.fromstring(deck.read("ppt/_rels/presentation.xml.rels"))
+        targets = {rel.get("Id"): rel.get("Target")
+                   for rel in rels.findall("rel:Relationship", EMU_NS)}
+        for sid in root.findall("p:sldIdLst/p:sldId", EMU_NS):
+            slide = posixpath.normpath(posixpath.join(
+                "ppt", targets[sid.get(f"{{{EMU_NS['r']}}}id")]))
+            tree = ET.fromstring(deck.read(slide))
+            shapes = []
+            for shape in tree.iter(f"{{{EMU_NS['p']}}}sp"):
+                runs = shape.findall(".//a:r", EMU_NS)
+                text = " ".join("".join(t.text or "" for t in run.findall("a:t", EMU_NS))
+                                for run in runs).strip()
+                text = " ".join(text.split())
+                sizes = [int(rp.get("sz")) for rp in shape.findall(".//a:rPr", EMU_NS)
+                         if rp.get("sz")]
+                offset = shape.find("p:spPr/a:xfrm/a:off", EMU_NS)
+                top = int(offset.get("y")) if offset is not None else 0
+                if text and sizes:
+                    shapes.append((max(sizes), top, text))
+            shapes = [(size, top, text) for size, top, text in shapes
+                      if not (text.isupper() and len(text) > 3)
+                      and any(c.isalpha() for c in text)]
+            if not shapes:
+                out.append("")
+                continue
+            biggest = max(size for size, _t, _x in shapes)
+            large = [(top, text) for size, top, text in shapes
+                     if size >= 0.6 * biggest]
+            out.append(min(large)[1][:90])
+    return out
+
+
 def pdf_from(slides: Sequence[Path], target: Path) -> None:
     """One PDF of the slide pictures, for GitHub's page-by-page view.
 
@@ -236,6 +287,12 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         slides = render(pdf, args.out / "slides", args.width, args.quality)
         render(pdf, args.out / "thumbs", 320, 75)
         names = titles(pdf, len(slides))
+    try:
+        from_deck = deck_titles(args.pptx)
+    except Exception:
+        from_deck = []
+    if len(from_deck) == len(names):
+        names = [own or found for own, found in zip(from_deck, names)]
     moving = animations(args.pptx, args.out / "anim")
     pdf_from(slides, args.out / "spacr_deck.pdf")
     manifest = {"count": len(slides), "source": args.pptx.name,

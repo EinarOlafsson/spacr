@@ -77,7 +77,7 @@ Toxoplasma Plaque Well Detector v2
 
 **Trained on.** whole-plate and multi-well Toxoplasma plaque-assay images plus 939 newly reviewed PMC figures, accepted boxes and confirmed negatives alike; yolo26n base, best validation mAP50-95 at epoch 28
 
-**Measured.** mAP50 0.9457 and mAP50-95 0.8341 against v3's 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v3 is the baseline
+**Measured.** mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline
 
 * on the shared test set it beats v1 (the v3 weights) on every measure, and cuts false boxes on no-well figures from 152 to 49
 * 84 of the 129 test images contain no well at all, which is what the false-box count is measured on
