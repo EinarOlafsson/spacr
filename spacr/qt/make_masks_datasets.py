@@ -59,7 +59,11 @@ SAMPLE_SIZE = 10
 #: random draw over the whole dataset, or within each domain of a quota
 #: (2026-09-21). Samples cached under the first-N rule sit under other names
 #: and are not reopened.
-SAMPLE_RULE = "random1"
+SAMPLE_RULE = "random2"
+
+#: The smallest share of a sample that must show something: at least 80% of
+#: the fields drawn carry objects, at most 20% are negatives (2026-09-21).
+FOREGROUND_SHARE = 0.8
 
 
 @dataclass(frozen=True)
@@ -79,6 +83,10 @@ class MaskDataset:
     :ivar quota: how many fields to take from each domain, as ``(domain, count)``,
         a domain being the ``<domain>__`` prefix of a file name. Empty means
         :data:`SAMPLE_SIZE` fields from the whole set.
+    :ivar counts: where the repository says which fields have objects: a CSV
+        with an ``n_objects`` column keyed by ``stem`` or ``name``, or
+        ``labels/`` for a YOLO set, whose empty label files are the images
+        with nothing in them. Read by :func:`foreground_stems`.
     """
 
     key: str
@@ -90,6 +98,7 @@ class MaskDataset:
     note: str = ""
     apps: Tuple[str, ...] = ("mask",)
     quota: Tuple[Tuple[str, int], ...] = ()
+    counts: str = ""
 
     @property
     def size(self) -> int:
@@ -104,7 +113,8 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         repo="einarolafsson/toxoplasma-pv-segmentation-dataset",
         images="images", masks="masks",
         model="cpsam_v2_toxo (PV segmentation)",
-        note="556 merged fluorescence fields, curated twice in September 2026."),
+        note="556 merged fluorescence fields, curated twice in September 2026.",
+        counts="fields.csv"),
     MaskDataset(
         key="toxoplasma_plaque",
         title="Toxoplasma plaque assays",
@@ -114,7 +124,8 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         note="20 of the 488 curated v5 fields that trained cpsam_plaque_r5: 8 patrick, "
              "4 bigbean, 4 malnio, 4 literature. The objects are plaques, not cells.",
         apps=("mask", "analyze_plaques"),
-        quota=(("patrick", 8), ("bigbean", 4), ("malnio", 4), ("literature", 4))),
+        quota=(("patrick", 8), ("bigbean", 4), ("malnio", 4), ("literature", 4)),
+        counts="manifest.csv"),
     MaskDataset(
         key="plaque_figures",
         title="Plaque assay figures, whole plates",
@@ -123,28 +134,32 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         model="yolo well detector, then cpsam_plaque",
         note="Whole figures, no masks: this is what the Plaque Analysis pipeline "
              "takes as input -- find the wells, read the text, then segment.",
-        apps=("analyze_plaques",)),
+        apps=("analyze_plaques",),
+        counts="labels/"),
     MaskDataset(
         key="cell_from_hoechst",
         title="Cross-channel: cell from Hoechst",
         repo="einarolafsson/cross-channel-cell-from-hoechst",
         images="images", masks="masks",
         model="cross-channel-cell-from-hoechst",
-        note="A nuclear stain in, a whole-cell mask out."),
+        note="A nuclear stain in, a whole-cell mask out.",
+        counts="fields.csv"),
     MaskDataset(
         key="nuclei_from_cellmask",
         title="Cross-channel: nuclei from CellMask",
         repo="einarolafsson/cross-channel-nuclei-from-cellmask",
         images="images", masks="masks",
         model="cross-channel-nuclei-from-cellmask",
-        note="A whole-cell stain in, nuclei out."),
+        note="A whole-cell stain in, nuclei out.",
+        counts="fields.csv"),
     MaskDataset(
         key="toxoplasma_from_cellmask",
         title="Cross-channel: Toxoplasma from CellMask",
         repo="einarolafsson/cross-channel-toxoplasma-from-cellmask",
         images="images", masks="masks_pv",
         model="cross-channel-toxoplasma-from-cellmask",
-        note="Its masks folder is masks_pv, not masks."),
+        note="Its masks folder is masks_pv, not masks.",
+        counts="fields.csv"),
 )
 
 DATASETS_BY_KEY: Dict[str, MaskDataset] = {d.key: d for d in MASK_DATASETS}
@@ -228,8 +243,80 @@ def _random_pick(stems: List[str], count: int, seed: str) -> List[str]:
     return sorted(random.Random(int(digest[:16], 16)).sample(pool, count))
 
 
+def foreground_stems(dataset: MaskDataset, *, download: Optional[Callable] = None,
+                     tree: Optional[Callable] = None) -> Optional[set]:
+    """The stems of the fields that have at least one object, or ``None``.
+
+    :param dataset: the dataset, whose :attr:`MaskDataset.counts` says where
+        to look.
+    :param download: ``fn(repo, filename) -> local path``; defaults to
+        :func:`huggingface_hub.hf_hub_download`.
+    :param tree: ``fn(repo, folder) -> [(path, size)]``; defaults to
+        :meth:`huggingface_hub.HfApi.list_repo_tree`.
+    :returns: the stems, or ``None`` when the dataset says nothing, in which
+        case every field is treated alike.
+    """
+    import csv
+
+    if not dataset.counts:
+        return None
+    if dataset.counts.endswith("/"):
+        if tree is None:
+            from huggingface_hub import HfApi
+
+            def tree(repo, folder):
+                return [(t.path, getattr(t, "size", 0)) for t in
+                        HfApi().list_repo_tree(repo, path_in_repo=folder,
+                                               repo_type="dataset", recursive=True)
+                        if hasattr(t, "size")]
+        return {Path(path).stem for path, size in tree(dataset.repo,
+                                                       dataset.counts.rstrip("/"))
+                if size}
+    if download is None:
+        from huggingface_hub import hf_hub_download
+
+        def download(repo, filename):
+            return hf_hub_download(repo, filename, repo_type="dataset")
+    out = set()
+    with open(download(dataset.repo, dataset.counts), newline="",
+              encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            try:
+                n = float(row.get("n_objects") or 0)
+            except ValueError:
+                continue
+            stem = (row.get("stem") or row.get("name") or "").strip()
+            if n > 0 and stem:
+                out.add(Path(stem).stem if stem.endswith((".tif", ".png")) else stem)
+    return out
+
+
+def _mostly_foreground(stems: List[str], count: int, seed: str,
+                       foreground: Optional[set]) -> List[str]:
+    """``count`` stems at random, at least :data:`FOREGROUND_SHARE` with objects.
+
+    :param stems: the candidates.
+    :param count: how many to take.
+    :param seed: the draw's seed.
+    :param foreground: stems that have objects; ``None`` draws from all alike.
+    :returns: the picked stems, sorted.
+    """
+    import math
+
+    if foreground is None:
+        return _random_pick(stems, count, seed)
+    positive = [s for s in stems if s in foreground]
+    negative = [s for s in stems if s not in foreground]
+    want_positive = min(len(positive), math.ceil(FOREGROUND_SHARE * count))
+    want_negative = min(len(negative), count - want_positive)
+    want_positive = min(len(positive), count - want_negative)
+    return sorted(_random_pick(positive, want_positive, seed + "/fg")
+                  + _random_pick(negative, want_negative, seed + "/bg"))
+
+
 def choose_sample(dataset: MaskDataset, listing: List[str],
-                  size: int = SAMPLE_SIZE) -> List[Tuple[str, str]]:
+                  size: int = SAMPLE_SIZE, *,
+                  foreground: Optional[set] = None) -> List[Tuple[str, str]]:
     """Pick which files a sample holds, as ``(image path, mask path)`` in the repo.
 
     A field is only taken when BOTH its image and its mask are in the listing, by stem.
@@ -245,6 +332,8 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
     :param listing: every path in the repository.
     :param size: how many pairs to take. Ignored when the dataset has a
         :attr:`MaskDataset.quota`, which says how many per domain instead.
+    :param foreground: from :func:`foreground_stems`: at least 80% of what is
+        drawn (per domain, with a quota) has objects, at most 20% is empty.
     :returns: up to ``size`` pairs drawn by :func:`_random_pick`, sorted, the
         same on every machine.
     """
@@ -252,18 +341,19 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
     images = {Path(p).stem: p for p in listing if p.startswith(prefix_i)}
     if not dataset.masks:
         return [(images[stem], "") for stem in
-                _random_pick(list(images), size, dataset.key)]
+                _mostly_foreground(list(images), size, dataset.key, foreground)]
     prefix_m = f"{dataset.masks}/"
     masks = {Path(p).stem: p for p in listing if p.startswith(prefix_m)}
     both = sorted(set(images) & set(masks))
     if dataset.quota:
         picked: List[str] = []
         for domain, count in dataset.quota:
-            picked += _random_pick([s for s in both if s.startswith(f"{domain}__")],
-                                   count, f"{dataset.key}/{domain}")
+            picked += _mostly_foreground(
+                [s for s in both if s.startswith(f"{domain}__")], count,
+                f"{dataset.key}/{domain}", foreground)
         return [(images[stem], masks[stem]) for stem in sorted(picked)]
     return [(images[stem], masks[stem]) for stem in
-            _random_pick(both, size, dataset.key)]
+            _mostly_foreground(both, size, dataset.key, foreground)]
 
 
 class _SampleWorker(QObject):
@@ -299,7 +389,14 @@ class _SampleWorker(QObject):
         except Exception as exc:                                  # noqa: BLE001
             self.finished.emit(False, "", "", str(exc))
             return
-        pairs = choose_sample(self.dataset, list(listing))
+        try:
+            foreground = foreground_stems(self.dataset)
+        except Exception as exc:                                  # noqa: BLE001
+            LOG.warning("could not read which fields of %s have objects (%s); "
+                        "the sample is drawn from all fields alike",
+                        self.dataset.repo, exc)
+            foreground = None
+        pairs = choose_sample(self.dataset, list(listing), foreground=foreground)
         if not pairs:
             self.finished.emit(
                 False, "", "",

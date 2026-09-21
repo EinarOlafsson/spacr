@@ -104,3 +104,22 @@ plaque set keeps the maintainer's 8/4/4/4 split by domain and draws at random
 within each. Samples cache under <key>_random1, so the first-N samples already
 on a machine are not reopened. Checked against the live repositories: the PV
 set's ten now span lit, MTOC, MEF and RH fields.
+
+--------------------------------------------------------------------------------
+2026-09-21 — AT LEAST 80% OF EVERY SAMPLE HAS OBJECTS
+--------------------------------------------------------------------------------
+
+Requested: 2026-09-21, verbatim -- "when you made the test datasets random (i
+am now looking at the figure test set in plaque module) most images here dont
+actually have plaques. so i need 80 % of image for each dataset to have actual
+foreground and max 20 percent to be negative and have no foreground."
+
+The figure set is 53% negatives (767 of its 1,453 YOLO label files are empty),
+so a uniform draw showed mostly figures without a plaque. Each dataset now
+names where it records which fields have objects -- the n_objects column of
+fields.csv / manifest.csv, or empty files under labels/ -- and the draw takes
+at least 80% from fields with objects and at most 20% from the rest, still at
+random within each group, per domain for the plaque quota. Measured on the
+live repositories: PV 8/2, plaque 20/0, figures 8/2, cell-from-Hoechst 10/0,
+nuclei-from-CellMask 10/0, Toxoplasma-from-CellMask 8/2 (with objects / empty).
+Samples cache under <key>_random2, so the uniform draws are refetched.

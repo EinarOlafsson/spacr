@@ -302,3 +302,36 @@ def test_the_old_ten_field_plaque_cache_is_not_reopened(tmp_path):
         (old / f"bigbean__{i}.tif").write_bytes(b"x")
         (old / "masks" / f"bigbean__{i}.tif").write_bytes(b"x")
     assert not md.is_present(md.sample_folder(tmp_path, dataset), dataset.size)
+
+
+def test_at_least_eighty_percent_of_a_sample_has_objects():
+    """2026-09-21, the maintainer: "i need 80 % of image for each dataset to
+    have actual foreground and max 20 percent to be negative"."""
+    dataset = md.DATASETS_BY_KEY["plaque_figures"]
+    listing = [f"images/test/f{i:03d}.png" for i in range(200)]
+    foreground = {f"f{i:03d}" for i in range(0, 200, 4)}
+    picked = md.choose_sample(dataset, listing, foreground=foreground)
+    stems = [md.Path(image).stem for image, _m in picked]
+    assert len(stems) == md.SAMPLE_SIZE
+    assert sum(s in foreground for s in stems) >= 0.8 * len(stems)
+
+
+def test_a_quota_keeps_the_rule_inside_each_domain():
+    dataset = md.DATASETS_BY_KEY["toxoplasma_plaque"]
+    listing = _plaque_listing()
+    foreground = {md.Path(p).stem for p in listing
+                  if p.startswith("images/") and int(p[-7:-4]) % 3 == 0}
+    picked = md.choose_sample(dataset, listing, foreground=foreground)
+    for domain in ("patrick", "bigbean", "malnio", "literature"):
+        stems = [md.Path(i).stem for i, _m in picked if f"/{domain}__" in i]
+        assert sum(s in foreground for s in stems) >= 0.8 * len(stems)
+
+
+def test_counts_are_read_from_a_csv_and_from_empty_yolo_labels(tmp_path):
+    csv_path = tmp_path / "fields.csv"
+    csv_path.write_text("stem,n_objects\na,3\nb,0\nc,1\n", encoding="utf-8")
+    pv = md.DATASETS_BY_KEY["toxoplasma_pv"]
+    assert md.foreground_stems(pv, download=lambda r, f: str(csv_path)) == {"a", "c"}
+    figures = md.DATASETS_BY_KEY["plaque_figures"]
+    tree = [("labels/test/x.txt", 40), ("labels/test/y.txt", 0)]
+    assert md.foreground_stems(figures, tree=lambda r, f: tree) == {"x"}
