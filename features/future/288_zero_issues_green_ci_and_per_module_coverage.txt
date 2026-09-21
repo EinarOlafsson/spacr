@@ -4105,3 +4105,19 @@ empty finished stream, the exact timeout boundary, truncation, and an empty
 analysis. They verify the approved payload, timer state and restored button,
 without requesting an AI provider or sending a report. No production or
 baseline change. Full-suite ratchet tightening remains outstanding.
+
+2026-09-21 — CODEX: THE SHARED HEIGHT HANDLE CLEARS THE FLOOR
+
+spacr/qt/widgets/height_grip.py measures 93.57% with all 38 tests passing in
+test_height_grip_pointer_and_keyboard.py plus
+test_every_measurements_container_resizes.py. Thirteen new cases drive real
+Qt pointer and keyboard events: global displacement even when the handle
+moves, no resize without a left-button drag, one completion signal on release,
+all nine documented resize keys, propagation of an unhandled key, and the
+actual Reset height menu action. No production change or floor exemption.
+
+The context-menu test now selects and closes the real menu through a scoped
+timer. The first class-method stub did not intercept this Qt menu and was
+stopped; the final combined run used a thread-based 45-second per-test timeout
+and completed in 4.44 seconds. Signal-based pytest timeouts did not interrupt
+the earlier C++ modal loop. All runs used a 6 GiB cap and disabled CUDA.
