@@ -806,3 +806,166 @@ the one legitimate sheeting of the page itself (~640 ms) and reparenting the
 settings form when the search strip is installed at first show (~250 ms).
 A QComboBox's popup is still sheeted at its polish, by the maintainer's
 choice above.
+
+--------------------------------------------------------------------------------
+2026-09-21 -- FEWER WIDGETS AT OPEN: HIDDEN PANELS ARE BUILT WHEN FIRST SHOWN
+--------------------------------------------------------------------------------
+
+The lever the previous note left: build fewer widgets when a module opens.
+Taken, on the five heaviest screens, by deferring the panels that sit in a
+card that starts hidden. Nothing is removed; each panel is built, whole, the
+first time its card is shown or anything asks for it.
+
+WHAT WAS HIDDEN AT OPEN, counted with the page on screen in a real
+MainWindow (every widget under the page, and which subtrees were not
+visible):
+
+    screen           widgets  hidden   the big hidden subtrees
+    regression         1,455   1,192   Figures card 747 (results tabs 661:
+                                       results panel 332, Measurements 214,
+                                       Cells 79, Runs 29; figure pages 79)
+    mask               1,124     956   Live preview 281, Timelapse fold's
+                                       Track preview 130, settings sections
+    classify_merged      857     769   settings sections 572, Hyperparameter
+                                       search 133
+    umap                 669     513   settings sections 210, Hyperparameter
+                                       search 136, Figures 65
+    measure              591     446   settings sections 246, Crop preview 120
+
+WHAT IS DEFERRED NOW:
+  * Regression: the results panel and everything built with it -- the Runs,
+    Results, Measurements and Cells tabs, the figure grid, detail and
+    volcano pages, the scan and sweep panels -- built when the Figures card
+    is first shown or any of those attributes is used. The fold strip's
+    extras (Hits tab, publication figure, one-family cut) wait for it
+    instead of building it.
+  * UMAP and Classify: the hyperparameter search panel, built when its
+    switch first shows the card.
+  * Mask: the Cellpose live preview, built when Live is first switched on;
+    a src typed before then is loaded when it is built. The folded
+    Timelapse Track preview (attached through preview_registry), built when
+    its toggle first opens it.
+  * Measure: the crop preview, built when Live is first switched on.
+  Settings sections are NOT touched: rows are already built per category,
+  and the hidden sections that remain are the next lever (below).
+
+HOW, in one mechanism with one helper:
+  * `widgets/card.py:_CardBuiltWhenShown` -- a Card that runs a builder
+    once, from setVisible BEFORE the card becomes visible (no empty frame),
+    with showEvent as the belt for a card revealed by its parent.
+  * `AppScreen` owes a "part"; `_BuiltOnFirstUse` descriptors on the
+    part's attributes (_results_panel, _results_tabs, _figure_grid, ...,
+    _hyperparam, _live_preview, _measure_preview) build it on first read or
+    assignment, so every one of the ~40 call sites and ~100 tests that read
+    those names works unchanged. SHIBOKEN TRAP, recorded in the class
+    docstring: a PySide wrapper's getattr reads the instance dict BEFORE a
+    class data descriptor, so the values are stored under another key or
+    the descriptor is never consulted again.
+  * A late part gets what opening gave everything else, in the same order:
+    the transparent-container sweep, then queued decorations (Hits tab),
+    then ensurePolished, then the language pass and help-onto-caption move.
+    Polish BEFORE translate matters: button_roles classifies by visible
+    text at polish, and a Swedish "Kör förhandsgranskning" is not "Run".
+  * Imports stay at the open (the panel modules, hit_list), so the widget
+    QSS blocks they register reach every page's sheet exactly as before;
+    only construction waits.
+  * Teardown and pure questions never build: closeEvent, the rebuild-for-
+    scale carry-over, and regression.project_path peek.
+
+WIDGETS AT OPEN, same probe, same tree, before -> after:
+
+    regression   1,455 ->   730
+    mask         1,124 ->   723
+    classify       857 ->   728
+    umap           669 ->   537
+    measure        591 ->   476
+
+MEASURED, `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only`, six runs per arm alternating base/changed on one machine,
+base origin/nightly 92b0dcfc4. THE MACHINE WAS AT LOAD 23-36 ON 32 CORES
+(other sessions' test batches), against ~3 for the earlier notes in this
+file, so every absolute below is inflated and noisy; read the medians and
+the conservative column only. "cons" is the changed arm's 75th percentile
+minus the baseline's 25th: negative means better even read pessimistically.
+Worst event-loop stall per module, ms:
+
+    module            base med  lazy med   delta    cons   open s base->lazy
+    regression            4770      2290   -2480   -1312    6.12 -> 4.29
+    mask                  3577      2904    -673    -359    5.75 -> 4.69
+    umap                  2621      1680    -942    -170    4.28 -> 2.54
+    measure               1766      1431    -335     +20    2.40 -> 2.12
+    classify_merged       2938      2802    -136   +1587    3.90 -> 4.03
+    external_masks  (ctl) 1016      1138    +122    +470
+    __preferences__ (ctl) 2076      2384    +308   +1209
+    __home__        (ctl)  632       772    +140    +330
+
+    intervals over 500 ms (median of six)   29.5 -> 29.0
+    total of those stalls, ms (median)    42,357 -> 34,388
+
+READ CONSERVATIVELY: the three controls, which this change cannot reach,
+moved by +120 to +310 ms on the medians, so that is the noise floor here.
+Regression's halving is far outside it and holds at the pessimistic
+quantiles; Mask and UMAP hold too. Measure's -335 is inside the noise read
+pessimistically, and Classify shows nothing -- expected, since only 130 of
+its 857 widgets were deferred and its hidden mass is settings sections. The
+over-ceiling COUNT does not move at this load, because at load ~30 almost
+every module breaches 500 ms; the count needs a quiet machine to mean
+anything.
+
+BEHAVIOUR IS THE SAME, CHECKED RATHER THAN ARGUED. Fingerprint of every
+widget (class, name, geometry, visibility, eight palette roles, font, size
+hints, autoFill, WA_StyledBackground, text, tooltip, placeholder, tab texts,
+dynamic properties, own stylesheet) on both trees, English and Swedish:
+  * at open, every VISIBLE widget on all five screens is identical except
+    the live RAM/CPU/GPU usage bars, and the page stylesheets are
+    byte-identical;
+  * after revealing the deferred parts, UMAP's search panel is identical;
+    Classify differs only in three never-laid-out hidden widgets; Regression
+    differs only in hidden widgets' geometry/size hints (unshown scroll
+    bars, tab scroll arrows, a hidden table header) and an i18n bookkeeping
+    property on one hidden combo whose displayed tooltip is identical;
+  * Mask's live preview and Measure's crop preview match in visible layout
+    and text. Measure's status line after priming with the placeholder src
+    races a worker against a 250 ms timer ("Not a file or folder: path" vs
+    "Load a merged array first."); the base shows the same race.
+TWO DIFFERENCES ARE FIXES, and are said rather than hidden: Mask's folded
+Track preview is now TRANSLATED -- it was inserted into the runtime splitter
+after the language pass and no watcher reached it, so on a Swedish UI it
+opened in English -- which also widens the runtime column by ~18 px in
+Swedish; and Regression's Hits tab and results containers are swept like
+the rest of the page.
+
+WHAT BUILDS A DEFERRED PART, so nobody is surprised by a stall later: the
+card being shown (results arriving, the Live / search / track switches),
+any read of its attributes (a dropped results folder, a refit, the UMAP GPU
+switch), and the run journal's workspace collection at the end of ANY run
+while a Regression screen that never showed results is open -- kept on
+purpose, because the journal records the panel's (default) state and
+skipping it would change what the workspace file says.
+
+TESTS: `tests/qt/test_a_hidden_panel_is_built_when_it_is_first_shown.py`
+(19): not built at open, built once and whole on first show or first use,
+fold extras wait, close does not build, translated in Swedish, Run keeps
+its role under translation, attached previews build on first toggle. Eight
+existing tests that counted the regression plots, tab bars, "View:" label
+or UMAP search controls at construction now ask for the part first; the
+public-callable parameter ratchet moves 18,311 -> 18,315 (four optional
+keywords), and the signature digest move is proved by subtraction.
+
+IS 284 DONE? NO, and not by this change alone. Its DONE-WHEN asks for no
+multi-second GUI gap and every module under the 500 ms ceiling on the
+reference profile. On this loaded machine Regression's worst stall is now a
+median 2.3 s (4.8 s before), Mask 2.9 s, Classify 2.8 s, UMAP 1.7 s -- all
+still over 0.5 s, and the ceiling is breached by ~29 intervals at load ~30
+(13 at load ~3 before this change, not re-measured quietly). What remains,
+in size order:
+  * THE HIDDEN SETTINGS SECTIONS: Classify still opens with ~570 widgets in
+    sections it hides (the folded modules' categories), Mask and Measure
+    with ~250 each. They are settings rows, built when a category is
+    first built, but the gated sections are built with it; deferring them
+    touches the settings model and its collect()/apply paths and wants its
+    own equivalence pass.
+  * the per-widget polish of what remains visible (~500-700 widgets per
+    screen), which the earlier notes showed cannot be moved, only shrunk;
+  * a quiet-machine and real-display close-out, and the macOS/Windows
+    numbers, which need those machines.
