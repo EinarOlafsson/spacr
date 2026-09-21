@@ -710,12 +710,11 @@ class ModelZooScreen(QWidget):
         """The table row showing model family ``group`` now, or None.
 
         THE TABLE SORTS, and a sort moves rows but not :attr:`_groups`.
-        Reported 2026-09-21: the well detector's v2 was "not an option" and
-        live_cell offered another model's versions. The table was filled with
-        sorting on, so each cell written could re-sort it and the next cell
-        landed on another family's row; and a version pick rewrote the row at
-        the family's UNSORTED position. Every write now finds its row through
-        the identity stamped on the first cell.
+        Filling the table with sorting on lets each written cell re-sort it,
+        so the next cell lands on another family's row; and a version pick
+        that rewrote the row at the family's UNSORTED position would change
+        another model's versions. Every write finds its row through the
+        identity stamped on the first cell.
 
         :param group: an index into :attr:`_groups`.
         :returns: the row.

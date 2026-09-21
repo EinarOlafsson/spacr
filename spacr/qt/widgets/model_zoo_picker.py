@@ -1052,12 +1052,11 @@ class ModelZooPicker(QDialog):
         """Which model group the table row ``row`` shows NOW.
 
         THE TABLE SORTS (a header click), and a sort moves rows but not
-        :attr:`_groups`. Reported 2026-09-21: "if i download the live_cell
-        model, it says downloaded v4 and has only v1 as the option" -- the
-        row picked was looked up by its position in the unsorted list, so a
-        sorted table downloaded another model (the well detector's v4) and
-        the version box answered for another row. Each row's first cell
-        carries its group instead, and every lookup goes through it.
+        :attr:`_groups`. Looking a picked row up by its position in the
+        unsorted list would, on a sorted table, download another model (the
+        well detector's v4 for a live_cell pick) and let the version box
+        answer for another row. Each row's first cell carries its group
+        instead, and every lookup goes through it.
 
         :param row: a table row.
         :returns: an index into :attr:`_groups`, or None.
