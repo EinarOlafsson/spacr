@@ -292,7 +292,7 @@ class TestTheStraightnessFilter:
     def test_the_filter_is_off_unless_asked_for(self):
         source = inspect.getsource(T._compute_velocities_and_well_summary)
 
-        assert 'settings.get("straightness_filter", False)' in source, (
+        assert 'settings.get("drop_straight_tracks", False)' in source, (
             "the straightness filter now defaults ON, so tracks are dropped "
             "for being too straight without the user asking")
         assert 'settings.get("straightness_threshold", 0.95)' in source

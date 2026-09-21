@@ -11032,7 +11032,7 @@ SETTING_CONSUMERS = {
     'stain_baseline_wells': (('spacr.settings', 'set_analyze_invasion_defaults'), ('spacr.submodules', 'analyze_invasion'),),
     'starved_read_fraction': (('spacr.sequencing_qc', 'barcode_qc'), ('spacr.sequencing_qc', 'barcode_qc_defaults'),),
     'stitch_threshold': (('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.zstack', 'plan_4d_from_settings'), ('spacr.zstack', 'plan_from_settings'),),
-    'straightness_filter': (('spacr.settings', 'get_automated_motility_assay_default_settings'),),
+    'drop_straight_tracks': (('spacr.settings', 'get_automated_motility_assay_default_settings'),),
     'straightness_threshold': (('spacr.settings', 'get_automated_motility_assay_default_settings'),),
     'stream_method': (('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_setting_dependencies'),),
     'strict_errors': (('spacr.errors', 'strict_errors'), ('spacr.settings', 'deep_spacr_defaults'), ('spacr.settings', 'get_measure_crop_settings'), ('spacr.settings', 'get_perform_regression_default_settings'), ('spacr.settings', 'set_default_settings_preprocess_generate_masks'), ('spacr.settings', 'set_default_train_test_model'),),

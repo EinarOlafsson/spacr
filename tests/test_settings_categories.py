@@ -144,7 +144,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "seg_qc_min_objects", "seg_qc_outlier_fraction", "seg_qc_outlier_mad",
     "seg_qc_plate_fail_fraction", "seg_qc_size_ratio", "seg_qc_split_ratio",
     "seg_qc_tiny_fraction", "shuffle", "signal_direction", "single_direction", "size",
-    "smooth_lines", "split_axis_lims", "src", "straightness_filter", "straightness_threshold",
+    "smooth_lines", "split_axis_lims", "src", "drop_straight_tracks", "straightness_threshold",
     "summarize_organelles_by", "tables", "target", "target_height", "target_intensity_min",
     "target_layer", "target_sequence", "target_unique_count", "target_width", "test",
     "test_images", "test_mode", "test_nr", "test_size", "test_split", "threshold_method",

@@ -5039,7 +5039,7 @@ def _compute_velocities_and_well_summary(
     straightness_threshold = float(
         settings.get("straightness_threshold", 0.95)
     )
-    straightness_filter = bool(settings.get("straightness_filter", False))
+    drop_straight_tracks = bool(settings.get("drop_straight_tracks", False))
     n_tracks_before = track_df.shape[0]
     n_high = int((track_df["straightness"] >= straightness_threshold).sum())
     print(
@@ -5049,7 +5049,7 @@ def _compute_velocities_and_well_summary(
         "(net displacement / path length)."
     )
 
-    if straightness_filter and n_high > 0:
+    if drop_straight_tracks and n_high > 0:
         drop_mask = track_df["straightness"] >= straightness_threshold
         dropped = track_df.loc[
             drop_mask, ["plateID", "wellID", "fieldID", "cellID"]

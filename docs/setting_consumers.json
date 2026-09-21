@@ -42357,11 +42357,11 @@
     "qualname": "plan_4d_from_settings"
    }
   ],
-  "straightness_filter": [
+  "drop_straight_tracks": [
    {
     "form": "get",
     "function_depth": 1,
-    "key": "straightness_filter",
+    "key": "drop_straight_tracks",
     "line": 1183,
     "module": "spacr.qt.widgets.motility_preview",
     "nested": false,
@@ -42370,7 +42370,7 @@
    {
     "form": "get",
     "function_depth": 1,
-    "key": "straightness_filter",
+    "key": "drop_straight_tracks",
     "line": 6103,
     "module": "spacr.settings",
     "nested": false,
@@ -42379,7 +42379,7 @@
    {
     "form": "get",
     "function_depth": 1,
-    "key": "straightness_filter",
+    "key": "drop_straight_tracks",
     "line": 5042,
     "module": "spacr.timelapse",
     "nested": false,
@@ -52383,7 +52383,7 @@
    "module": "spacr.zstack",
    "symbol": "plan_from_settings"
   },
-  "straightness_filter": {
+  "drop_straight_tracks": {
    "exact": false,
    "module": "spacr.timelapse",
    "symbol": ""

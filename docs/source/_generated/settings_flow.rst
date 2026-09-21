@@ -15579,9 +15579,9 @@ stitch_threshold
 
 Read by :py:func:`~spacr.zstack.plan_4d_from_settings`, :py:func:`~spacr.zstack.plan_from_settings`.
 
-.. _setting-flow-straightness_filter:
+.. _setting-flow-drop_straight_tracks:
 
-straightness_filter
+drop_straight_tracks
 -------------------
 
 (bool) - Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.
@@ -15603,7 +15603,7 @@ Read by :py:func:`~spacr.qt.widgets.motility_preview.apply_settings`, ``_compute
 straightness_threshold
 ----------------------
 
-(float) - Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When straightness_filter is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.
+(float) - Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.
 
 | :py:func:`~spacr.core.preprocess_generate_masks_timelapse`
 |     :py:func:`~spacr.core.preprocess_generate_masks`

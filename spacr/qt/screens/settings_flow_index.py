@@ -926,7 +926,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'starved_read_fraction',
     'stdevs',
     'stitch_threshold',
-    'straightness_filter',
+    'drop_straight_tracks',
     'straightness_threshold',
     'stream_method',
     'stream_source',
