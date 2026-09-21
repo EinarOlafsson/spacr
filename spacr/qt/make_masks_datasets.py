@@ -17,9 +17,12 @@ folder names per repo rather than assuming them -- `cross-channel-toxoplasma-fro
 calls its masks `masks_pv`, and assuming `masks` would have given ten images and no
 labels with no error to explain it.
 
-WHICH TEN. The first ten by sorted filename, not a random draw. A sample that changes
-between two people's machines is a sample nobody can talk about -- "the third field looks
-wrong" has to mean the same field for both of them.
+WHICH FIELDS. A random draw in which every field of the dataset has the same chance,
+at the maintainer's instruction of 2026-09-21 -- the first N by name are the first plate
+of the first domain, which is not the dataset. SEEDED by the dataset key, so the draw is
+the same on every machine: a sample that changes between two people's machines is a
+sample nobody can talk about -- "the third field looks wrong" has to mean the same field
+for both of them. A dataset with a quota draws that way within each domain.
 
 THE LAYOUT IS MAKE MASKS' OWN: images at the top of the folder, masks in `masks/`
 beneath them, which is what `curation_queue.detect_layout` calls `nested` and what the
@@ -34,6 +37,7 @@ and Make Masks would open every field blank.
 """
 from __future__ import annotations
 
+import hashlib
 import logging
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -50,6 +54,12 @@ LOG = logging.getLogger(__name__)
 #: How many fields a sample holds. Ten is item 412's number and there is no reason to
 #: differ; it is enough to see a domain and small enough to fetch over a hotel wifi.
 SAMPLE_SIZE = 10
+
+#: How samples are drawn, in the cache folder's name. ``random1``: a seeded
+#: random draw over the whole dataset, or within each domain of a quota
+#: (2026-09-21). Samples cached under the first-N rule sit under other names
+#: and are not reopened.
+SAMPLE_RULE = "random1"
 
 
 @dataclass(frozen=True)
@@ -69,8 +79,6 @@ class MaskDataset:
     :ivar quota: how many fields to take from each domain, as ``(domain, count)``,
         a domain being the ``<domain>__`` prefix of a file name. Empty means
         :data:`SAMPLE_SIZE` fields from the whole set.
-    :ivar revision: bumped whenever the sample a dataset gives changes, so a copy
-        cached under an older rule is not opened as if it were the new one.
     """
 
     key: str
@@ -82,7 +90,6 @@ class MaskDataset:
     note: str = ""
     apps: Tuple[str, ...] = ("mask",)
     quota: Tuple[Tuple[str, int], ...] = ()
-    revision: int = 1
 
     @property
     def size(self) -> int:
@@ -107,8 +114,7 @@ MASK_DATASETS: Tuple[MaskDataset, ...] = (
         note="20 of the 488 curated v5 fields that trained cpsam_plaque_r5: 8 patrick, "
              "4 bigbean, 4 malnio, 4 literature. The objects are plaques, not cells.",
         apps=("mask", "analyze_plaques"),
-        quota=(("patrick", 8), ("bigbean", 4), ("malnio", 4), ("literature", 4)),
-        revision=2),
+        quota=(("patrick", 8), ("bigbean", 4), ("malnio", 4), ("literature", 4))),
     MaskDataset(
         key="plaque_figures",
         title="Plaque assay figures, whole plates",
@@ -169,11 +175,11 @@ def sample_folder(root, dataset: MaskDataset) -> Path:
 
     :param root: the folder example data is kept in.
     :param dataset: the dataset.
-    :returns: ``<root>/mask_datasets/<key>``, with ``_r<revision>`` after the key
-        from the second revision on.
+    :returns: ``<root>/mask_datasets/<key>_<rule>``, the rule naming how the
+        sample was drawn, so a copy drawn under an older rule is never opened
+        as if it were this one.
     """
-    name = dataset.key if dataset.revision <= 1 else f"{dataset.key}_r{dataset.revision}"
-    return Path(root) / "mask_datasets" / name
+    return Path(root) / "mask_datasets" / f"{dataset.key}_{SAMPLE_RULE}"
 
 
 def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
@@ -199,19 +205,27 @@ def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
     return len(paired) >= expected
 
 
-def _spread(stems: List[str], count: int) -> List[str]:
-    """``count`` stems spread evenly through a sorted list, not its first ``count``.
+def _random_pick(stems: List[str], count: int, seed: str) -> List[str]:
+    """``count`` stems drawn at random, each with the same chance, reproducibly.
 
-    The first N in name order are the first N wells of the first plate, which is
-    one plate standing for a whole domain.
+    The maintainer, 2026-09-21: "make sure each is a random selection of the
+    dataset so everything in the dataset has the same chance to be included."
+    The first N by name are the first plate of the first domain, which is not
+    the dataset. The draw is seeded by ``seed`` -- the dataset key and the
+    domain -- so two machines, and two openings on one, get the same sample.
 
-    :param stems: sorted stems.
+    :param stems: every candidate stem.
     :param count: how many to take.
-    :returns: the picked stems, in order.
+    :param seed: what the draw is seeded with.
+    :returns: the picked stems, sorted.
     """
-    if count >= len(stems):
-        return list(stems)
-    return [stems[int((i + 0.5) * len(stems) / count)] for i in range(count)]
+    import random
+
+    pool = sorted(stems)
+    if count >= len(pool):
+        return pool
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    return sorted(random.Random(int(digest[:16], 16)).sample(pool, count))
 
 
 def choose_sample(dataset: MaskDataset, listing: List[str],
@@ -231,21 +245,25 @@ def choose_sample(dataset: MaskDataset, listing: List[str],
     :param listing: every path in the repository.
     :param size: how many pairs to take. Ignored when the dataset has a
         :attr:`MaskDataset.quota`, which says how many per domain instead.
-    :returns: up to ``size`` pairs, in sorted order so two machines agree.
+    :returns: up to ``size`` pairs drawn by :func:`_random_pick`, sorted, the
+        same on every machine.
     """
     prefix_i = f"{dataset.images}/"
     images = {Path(p).stem: p for p in listing if p.startswith(prefix_i)}
     if not dataset.masks:
-        return [(images[stem], "") for stem in sorted(images)[:size]]
+        return [(images[stem], "") for stem in
+                _random_pick(list(images), size, dataset.key)]
     prefix_m = f"{dataset.masks}/"
     masks = {Path(p).stem: p for p in listing if p.startswith(prefix_m)}
     both = sorted(set(images) & set(masks))
     if dataset.quota:
         picked: List[str] = []
         for domain, count in dataset.quota:
-            picked += _spread([s for s in both if s.startswith(f"{domain}__")], count)
+            picked += _random_pick([s for s in both if s.startswith(f"{domain}__")],
+                                   count, f"{dataset.key}/{domain}")
         return [(images[stem], masks[stem]) for stem in sorted(picked)]
-    return [(images[stem], masks[stem]) for stem in both[:size]]
+    return [(images[stem], masks[stem]) for stem in
+            _random_pick(both, size, dataset.key)]
 
 
 class _SampleWorker(QObject):

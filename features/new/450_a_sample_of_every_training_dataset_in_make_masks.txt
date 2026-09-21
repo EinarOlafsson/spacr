@@ -84,3 +84,23 @@ both injectable, because a test that needs Hugging Face is a test that fails on
 a train. Separately, and because a selector that is right in a fixture can
 still be wrong against the real thing, `choose_sample` was run against the LIVE
 repository listings for all five: ten pairs each, `masks_pv` included.
+
+--------------------------------------------------------------------------------
+2026-09-21 — EVERY SAMPLE IS A RANDOM DRAW, NOT THE FIRST FILES BY NAME
+--------------------------------------------------------------------------------
+
+Requested: 2026-09-21, verbatim -- "for the test datasets for make masks. you
+seem to have just taken the first images for each. mor many of these datasets
+there are several domains in the dataset and just showing the first 20 images
+isnt representative of the dataset. redo these datasets and make sure each is a
+random selection of the dataset so everything in the dataset has the same chance
+to be included."
+
+choose_sample took the first N stems by name, and the first names in a
+multi-domain set are the first plate of the first domain. It now draws with
+random.Random seeded by the dataset key (by key and domain inside a quota), so
+every field has the same chance and every machine draws the same sample. The
+plaque set keeps the maintainer's 8/4/4/4 split by domain and draws at random
+within each. Samples cache under <key>_random1, so the first-N samples already
+on a machine are not reopened. Checked against the live repositories: the PV
+set's ten now span lit, MTOC, MEF and RH fields.

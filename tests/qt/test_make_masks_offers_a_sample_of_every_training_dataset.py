@@ -50,7 +50,8 @@ def test_the_sample_pairs_on_the_stem_and_is_the_same_ten_everywhere():
     listing += [f"masks/f{i:03d}.tif" for i in range(30)]
     picked = md.choose_sample(dataset, listing)
     assert len(picked) == md.SAMPLE_SIZE
-    assert picked[0] == ("images/f000.tif", "masks/f000.tif")
+    assert all(image[len("images/"):] == mask[len("masks/"):]
+               for image, mask in picked)
     assert picked == md.choose_sample(dataset, list(reversed(listing))), (
         "the sample must not depend on the order the repository lists its files")
 
@@ -261,18 +262,41 @@ def test_the_plaque_sample_is_twenty_fields_split_by_domain():
     assert all(mask for _image, mask in picked)
 
 
-def test_a_domain_is_sampled_across_it_and_not_from_its_start():
+def test_the_sample_is_random_and_not_the_first_by_name():
+    """2026-09-21, the maintainer: "make sure each is a random selection of the
+    dataset so everything in the dataset has the same chance to be included"."""
+    dataset = md.DATASETS_BY_KEY["toxoplasma_pv"]
+    listing = [f"images/f{i:03d}.tif" for i in range(300)]
+    listing += [f"masks/f{i:03d}.tif" for i in range(300)]
+    picked = [image for image, _m in md.choose_sample(dataset, listing)]
+    assert picked != [f"images/f{i:03d}.tif" for i in range(md.SAMPLE_SIZE)]
+    assert max(picked) > "images/f150.tif"
+
+
+def test_every_field_has_the_same_chance():
+    counts = {}
+    for seed in range(2000):
+        for stem in md._random_pick([f"s{i:02d}" for i in range(40)], 10,
+                                    f"seed{seed}"):
+            counts[stem] = counts.get(stem, 0) + 1
+    assert len(counts) == 40
+    assert max(counts.values()) / min(counts.values()) < 1.35
+
+
+def test_a_domain_is_drawn_at_random_within_it():
     dataset = md.DATASETS_BY_KEY["toxoplasma_plaque"]
     picked = md.choose_sample(dataset, _plaque_listing())
     patrick = sorted(image for image, _m in picked if "patrick__" in image)
-    assert patrick[0] != "images/patrick__field000.tif"
-    assert patrick[-1] >= "images/patrick__field050.tif"
+    assert len(patrick) == 8
+    assert patrick != [f"images/patrick__field{i:03d}.tif" for i in range(8)]
 
 
 def test_the_old_ten_field_plaque_cache_is_not_reopened(tmp_path):
     dataset = md.DATASETS_BY_KEY["toxoplasma_plaque"]
     old = tmp_path / "mask_datasets" / "toxoplasma_plaque"
     assert md.sample_folder(tmp_path, dataset) != old
+    assert md.sample_folder(tmp_path, dataset) != (
+        tmp_path / "mask_datasets" / "toxoplasma_plaque_r2")
     for i in range(10):
         (old / "masks").mkdir(parents=True, exist_ok=True)
         (old / f"bigbean__{i}.tif").write_bytes(b"x")
