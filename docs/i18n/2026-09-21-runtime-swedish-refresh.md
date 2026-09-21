@@ -33,3 +33,8 @@ Validation: the two finalized Swedish/French review checks pass (63.91 seconds).
 The other eight selected syntax/reporter checks passed in the preceding run;
 that run loaded the earlier count assertions and correctly rejected the two
 new seven-source additions before their explicit count updates were applied.
+
+Integration note: `1eadae49e` subsequently adds five preview-refresh/plaque
+captions. The English manifest includes them; their nine-language translations
+remain follow-on debt. The complete green audits above were measured before
+that source addition. No existing reviewed source was renamed by this update.

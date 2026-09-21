@@ -8689,3 +8689,7 @@ translation process remains live. No cause is established from the scoped
 system journal; no GPU job was started. Please preserve the active Codex
 processes rather than terminating them as abandoned jobs. Recovery will keep
 existing evidence and never claim an interrupted measurement was complete.
+
+Integration of 1eadae49e adds five preview-refresh/plaque captions. English is
+refreshed; Codex owns these five new nine-language rows as a follow-on. The
+German/Swedish full green audits above apply to e29ac7783, before this addition.
