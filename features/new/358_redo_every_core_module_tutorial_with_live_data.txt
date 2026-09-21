@@ -1980,3 +1980,23 @@ root bookmarked. No home shortcut or repository path is used in that frame.
 Receipt: tools/tutorials/evidence/2026-09-21_make_masks_dark_blobs_capture.json.
 All source/copy array hashes match. Final narration, column-assignment/run
 coverage and integration into the Make Masks lesson remain open.
+
+2026-09-21 — CPU NARRATION AND A COMPOSED HOME REVIEW CANDIDATE
+--------------------------------------------------------------------------------
+The dedicated refresh environment can render Kokoro on CPU. Three fresh
+English af_heart tracks (01, 04, 05) passed full decoding, exact narration
+freshness, sentence timing, media identity and speech-activity verification.
+The six-scene Home master is now composed from the native 4K dark/Blobs
+captures and exact matching narration. It is 3840x2160, 30 fps, 92.833333 s;
+the whole stream decodes without errors. Encoded frames from all six scenes
+were sampled; the contact sheet and Performance scene were visually checked.
+A local preview also contains the af_heart narration. It is a review candidate,
+not a published or fully accepted lesson.
+
+Evidence: tools/tutorials/evidence/2026-09-21-cpu-narration-home-master.json.
+Artifacts: /tmp/spacr-tutorial-audio-20260921/production/05_home/video/.
+The full supported voice/language matrix for 01/04/05 is now rendering under
+a 6-GiB cap, CPU only. No GPU idle window has occurred. Listening/pronunciation,
+browser/mobile checks, captions/matrix reconciliation and remaining captures
+stay open; the rendered phoneme pˈIp is recorded for all three af_heart PyPI
+sentences, which does not replace listening to their audio.

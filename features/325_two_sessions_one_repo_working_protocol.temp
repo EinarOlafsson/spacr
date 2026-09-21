@@ -8615,3 +8615,37 @@ catalog/review checks passed. The new identifier test uses ASCII identifier
 boundaries so a Korean grammatical particle does not make an intact token
 look absent. Runtime translation gates were not loosened.
 The two DnD/square-size test corrections also pass all 38 affected checks.
+
+2026-09-21 — CODEX: RECTANGULAR CROP FIX AND TUTORIAL CPU RENDERING
+--------------------------------------------------------------------------------
+A real regression found by coverage is fixed: seeding png_size=[96,72] no
+longer fires the width control's user-edit handler and turns the rectangle
+into a square. An actual keyboard edit still requests a square. All 33
+Measure/seeding checks and all 20 source-selector checks pass. Square-size
+expectations use the current scalar form; the gradient fixture explicitly
+chooses 32 pixels so it measures the object rather than black padding.
+
+Three 01/04/05 English af_heart narration pilots pass full audio verification.
+Home's six-scene 4K/30 master is composed and fully decoded; sampled encoded
+frames show dark/Blobs, Performance and Help search. Receipt and remaining
+acceptance work are in tools/tutorials/evidence/2026-09-21-cpu-narration-home-master.json.
+All supported voices/languages for these three lessons are rendering on CPU.
+No GPU work or live-media publication has occurred.
+
+2026-09-21 — CODEX: REVIEWED CATALOG FOLLOW-ON AND COVERAGE FINDINGS
+--------------------------------------------------------------------------------
+Reviewed 39 Swedish scientific settings, with 35 source-level corrections.
+The dataset sample-count rename in 715687246 invalidated three German review
+records. Removed those obsolete runtime records and replaced the three
+captions in all nine languages with 27 current source-bound records. Ordered
+format fields are preserved, including count-before-name download captions.
+All ten runtime syntax/review-reporter checks pass (136.09 s); German's full
+runtime audit is green. Remaining generated locale drafts are not published.
+
+The Qt function-trace test now sends a real QEvent instead of None, preserving
+its trace-exclusion check: both selected checks pass (4.80 s).
+The d54ed65c8 coverage snapshot also reports Measure input-table contract
+failures: _grid lacks install_sorting(), and lines 445/457 construct bare
+QTableWidgetItems. Make Masks' readout-after-edit test times out waiting for
+label 0. These production UI findings remain with Claude's corresponding
+lanes; Codex has not changed their behavior. The full run is still running.

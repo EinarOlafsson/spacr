@@ -133,3 +133,13 @@ These frames still need narration/captions and integration into lesson 14;
 they do not close the complete FEATURES workflow or the video's acceptance.
 Including the instruction-index checks, the focused capture suite is now
 41 passing tests. Home's fourth frame (opened Mask) was also visually checked.
+
+2026-09-21 — RENDERING NOW WORKS ON CPU
+--------------------------------------------------------------------------------
+Current 01/04/05 English af_heart narration is rendered and verified; Home has
+a matching 4K/30-fps six-scene master and a local narrated review preview.
+The full supported narration matrix is rendering on CPU. Hashes and explicit
+unfinished acceptance work are recorded in 2026-09-21-cpu-narration-home-master.json
+under tools/tutorials/evidence. The pype rule reached the generated phonemes
+in all three PyPI sentences, but audible pronunciation review is still open.
+No live media was published. See 358's dated note for measured results.
