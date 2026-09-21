@@ -68,6 +68,7 @@ SETTINGS_WITH_A_FLOW_SECTION = frozenset({
     'barcode_mismatches',
     'barcode_qc',
     'barcode_set',
+    'base_model',
     'baselines',
     'batch_column',
     'batch_combat_mean_only',

@@ -339,8 +339,10 @@ def train_cellpose(settings):
 
     save_settings(settings, name=model_name)
 
+    base = _resolve_training_base(settings.get('base_model'))
+    print(f"Training starts from {base}")
     model = cp_models.CellposeModel(
-        gpu=_cellpose_use_gpu(), pretrained_model='cpsam'
+        gpu=_cellpose_use_gpu(), pretrained_model=base
     )
 
     
@@ -1201,6 +1203,34 @@ def _resolve_well_detector(settings):
 
 class ModelZooMissing(FileNotFoundError):
     """A named model is not where it should be."""
+
+
+def _resolve_training_base(requested):
+    """The weights Cellpose training starts from.
+
+    Training used to start from stock ``'cpsam'`` whatever was asked, so a
+    second fine-tuning stage silently restarted from scratch while its log
+    said it was continuing (item 426). ``base_model`` names it: a checkpoint
+    path, a :mod:`spacr.model_zoo` key (fetched into ``~/.spacr/models`` on
+    first use), or a stock Cellpose name.
+
+    :param requested: the ``base_model`` setting.
+    :returns: what to hand ``CellposeModel(pretrained_model=...)``.
+    """
+    name = str(requested or 'cpsam').strip() or 'cpsam'
+    if os.path.isfile(name):
+        return name
+    from . import model_zoo
+    entry = next((e for e in model_zoo.catalogue(remote=True)
+                  if e.key == name), None)
+    if entry is None:
+        return name
+    local = str(getattr(entry, 'path', '') or '')
+    if local and os.path.isfile(local):
+        return local
+    dest = os.path.join(os.path.expanduser('~'), '.spacr', 'models')
+    os.makedirs(dest, exist_ok=True)
+    return str(model_zoo.fetch(entry, dest))
 
 
 #: The plaque model a run segments with when none is named: cpsam_plaque_r5,

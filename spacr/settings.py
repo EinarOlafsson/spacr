@@ -2427,6 +2427,7 @@ def get_train_cellpose_default_settings(settings):
     """
     settings.setdefault('model_name','new_model')
     settings.setdefault('model_type','cpsam')
+    settings.setdefault('base_model','cpsam')
     settings.setdefault('Signal_to_noise',10)
     settings.setdefault('background',200)
     settings.setdefault('remove_background',False)
@@ -3274,6 +3275,7 @@ expected_types = {
     "cell_intensity_range": list,
     "target_intensity_min": int,
     "model_type": str,
+    "base_model": str,
     "heatmap_feature": str,
     "grouping": str,
     "min_max": str,
@@ -4321,6 +4323,7 @@ tooltips = {
     "min_samples": "(int) - Meaning depends on 'clustering': for DBSCAN it is how many points must fall within eps for a point to count as a core point, so raising it yields fewer, denser clusters and more noise; for KMeans this same value is reused as n_clusters, the exact number of clusters produced. Lower it (or raise eps) when no clusters are found. Default 100.",
     "mix": "(str) - Plate column ID whose wells hold a mixed positive/negative population; rows with this columnID are labelled cond='mix' for the image UMAP, so they can be coloured separately or dropped via exclude_conditions. Any column matching none of pos, neg or mix is labelled 'screen'. Default 'c3'.",
     "model_name": "(str) - Cellpose model used for segmentation. Cellpose 4 provides one stock model, 'cpsam'. Pre-SAM names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted for compatibility with older settings, but they are mapped to 'cpsam' and reported. Of the three parameters that previously distinguished models, only diameter remains operational in Cellpose 4 (eval rescales the image by 30/diameter); model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Use 'cpsam' unless loading a custom CPSAM checkpoint. Default 'cpsam'.",
+    "base_model": "(str) - Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
     "model_type": "(str) - Backbone architecture for the single-object image classifier: any TorchVision classification model name (resnet50, maxvit_t, densenet121, ...). An unrecognized name does not fail during initial validation: choose_model reports 'Invalid model_type' and returns None, after which training fails. The special name 'custom' passes validation and then raises NotImplementedError. Larger backbones require more memory and generally need more labeled crops than smaller backbones. Default 'maxvit_t'.",
     "model_type_ml": "(str) - Classifier fitted by ml_analysis to separate positive- from negative-control wells and rank per-object features by permutation importance. Options are xgboost (default), lightgbm, catboost, random_forest, extra_trees, gradient_boosting, logistic_regression, svm and mlp; lightgbm and catboost require their optional packages. reg_alpha, reg_lambda and learning_rate affect only boosted models; logistic_regression provides a linear reference model.",
     "negative_control_id": "(str) - Identifier of the negative-control class. In ML screening it is the value in location_column (e.g. 'c1') whose objects are labelled class 0 for training; in gRNA regression it is a gene/gRNA ID substring (e.g. '233460') matched against coefficient names to tag them 'nc' in the results and volcano plot. Defaults 'c1' and '233460' respectively.",
@@ -4830,7 +4833,7 @@ categories = {
 
     "General": ["cell_mask_dim", "cytoplasm", "cell_chann_dim", "cell_channel", "nucleus_chann_dim", "nucleus_channel", "nucleus_mask_dim", "organelle_channel", "organelle_mask_dim", "organelle_chann_dim", "pathogen_mask_dim", "pathogen_chann_dim", "pathogen_channel", "segmentation_backend", "channels", "channel_dims", "normalize", "magnification", "metadata_type", "custom_regex", "experiment", "plot", "test_mode", "timelapse", "apply_model_to_dataset", "generate_training_dataset", "generate_full_dataset", "delete_intermediate", "uninfected"],
 
-    "Cellpose": ["custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
+    "Cellpose": ["base_model", "custom_model", "fill_in", "from_scratch", "n_epochs", "width_height", "target_size", "resample", "rescale", "CP_prob", "flow_threshold", "percentiles", "invert", "diameter", "grayscale", "Signal_to_noise", "resize", "target_height", "target_width", "plaque_model"],
 
 
     "Cell": ["cell_model_name", "cell_diameter", "cell_background", "cell_signal_to_noise", "cell_cellprob_threshold", "cell_flow_threshold", "remove_background_cell", "adjust_cells", "cell_min_area", "cell_max_area", "cell_min_intensity", "cell_max_intensity", "cell_remove_border_objects", "cell_perimeter_fraction"],

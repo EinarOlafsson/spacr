@@ -344,6 +344,8 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # mode's detector, text reading and review switch.
     "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",
     "figure_read_text", "confirm_annotations",
+    # 426, 2026-09-21: the weights Cellpose training starts from.
+    "base_model",
     # 468, 2026-09-21: Figure mode's text-detection knobs.
     "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale",
     # Feature 418: absolute object-mean intensity bounds in each own channel.
