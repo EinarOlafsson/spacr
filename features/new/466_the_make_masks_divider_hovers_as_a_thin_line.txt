@@ -1,0 +1,19 @@
+================================================================================
+THE MAKE MASKS DIVIDER HOVERS AS A THIN LINE, NOT A BLUE BAR
+================================================================================
+
+Status:    BUILT 2026-09-21.
+
+Requested: 2026-09-21, verbatim -- "in make masks the bar between the settings
+           and the image is too wide when hovered jsut a thin blue line in
+           between the two hould appear, not the entire space between them
+           become blue. the space between has a good thickness though"
+
+Owner:     Claude (spacr/qt/screens/make_masks.py).
+
+The gap is the splitter handle, SETTINGS_GAP = 12 px wide so it is easy to
+grab, and the theme's QSplitter::handle:hover rule painted the whole handle in
+the accent colour. The Make Masks splitter now carries its own hover rule: a
+horizontal gradient with hard stops that paints only the middle 2 px. The gap
+keeps its 12 px and its resting colour. Measured by grabbing the rendered
+handle: 12 columns, 2 of them accent, centred.

@@ -1,0 +1,32 @@
+================================================================================
+MAKE MASKS CAN DETECT ON THE NORMALIZED IMAGE
+================================================================================
+
+Status:    BUILT 2026-09-21.
+
+Requested: 2026-09-21, verbatim -- "in make masks there should be an option
+           for the cellpose/otsu object detection to work on the normalized
+           image or not. now i think the normalized image is only used for
+           visualization. if used for object detection, the intensity values in
+           the top left corner should also reflect the normalized image."
+
+Owner:     Claude (spacr/qt/screens/make_masks.py, spacr/qt/mask_engine.py).
+
+THE REPORT WAS RIGHT. Lower % and Upper % stretched only what the canvas
+drew; Otsu detect, Cellpose detect and the magnifier read the pixels as
+loaded (inverted when Invert was on), and Cellpose applied only its own
+internal percentile normalization.
+
+A switch under Display, "Detect on the normalized image", OFF by default so
+nothing changes for anyone who does not turn it on. On, the canvas's
+detection_source() is the drawn field -- inverted if Invert is on, then
+stretched between the two percentiles with the same normalize_uint16 call
+refresh() draws with -- and all three detectors and the magnifier box take
+their pixels from it. It is cached against the array and the two
+percentiles, so a hover does not recompute it and a changed percentile does.
+The corner readout reads the same array and says "(normalized, as detected)";
+an object's mean intensity keeps reading the loaded pixels, as the Filter
+does, and says "(as loaded)". What is saved never changes.
+
+A float field has no integer range to fill, so normalize_for_detection puts
+it on 0..1 instead of calling normalize_uint16, which would fail on it.

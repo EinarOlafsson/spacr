@@ -737,6 +737,30 @@ def normalize_uint16(image: np.ndarray,
     return (out * max_val).astype(image.dtype)
 
 
+def normalize_for_detection(image: np.ndarray, lower_pct: float = 1.0,
+                            upper_pct: float = 99.9) -> np.ndarray:
+    """``image`` stretched between two percentiles, as Make Masks draws it.
+
+    :func:`normalize_uint16` for an integer field, so a detector reads the
+    exact numbers the canvas paints; a float field has no integer range to
+    fill and comes back on 0..1 instead.
+
+    :param image: the field.
+    :param lower_pct: the percentile mapped to the bottom of the range.
+    :param upper_pct: the percentile mapped to the top.
+    :returns: the stretched field, the same shape.
+    """
+    if np.issubdtype(image.dtype, np.integer):
+        return normalize_uint16(image, lower_pct, upper_pct)
+    if not image.size:
+        return image
+    lo = float(np.percentile(image, lower_pct))
+    hi = float(np.percentile(image, upper_pct))
+    if hi <= lo:
+        hi = lo + 1.0
+    return ((np.clip(image, lo, hi) - lo) / (hi - lo)).astype(np.float32)
+
+
 def invert_normalized(image: np.ndarray) -> np.ndarray:
     """Normalise ``image`` to 0..1 on its OWN range, take ``1 - v``, fit back.
 

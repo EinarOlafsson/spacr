@@ -393,6 +393,26 @@ SETTINGS_WIDTH = 380
 #: handle, so the gap is also where the settings are dragged wider.
 SETTINGS_GAP = 12
 
+def thin_hover_line_sheet() -> str:
+    """The splitter-handle style for the gap beside the settings.
+
+    The gap is :data:`SETTINGS_GAP` wide on purpose, so it is easy to grab,
+    and the theme's hover rule painted all of it blue: a twelve-pixel bar.
+    Hovered, only a two-pixel line down its middle turns the accent colour,
+    through a gradient with hard stops; the rest stays the gap it was.
+
+    :returns: a stylesheet for the settings/image splitter.
+    """
+    accent = active_palette().get("accent", "#4c8dff")
+    lo, hi = 0.5 - 1.0 / SETTINGS_GAP, 0.5 + 1.0 / SETTINGS_GAP
+    return (
+        "QSplitter::handle:horizontal:hover { background: qlineargradient("
+        "x1:0, y1:0, x2:1, y2:0, "
+        f"stop:0 transparent, stop:{lo:.4f} transparent, "
+        f"stop:{lo + 0.0001:.4f} {accent}, stop:{hi:.4f} {accent}, "
+        f"stop:{hi + 0.0001:.4f} transparent, stop:1 transparent); }}")
+
+
 #: Width of the shortcut list beside the views, in pixels. FIXED, so every
 #: pixel a wider window gives the right-hand pane goes to the image; the list
 #: is a dozen short lines and does not want the room. Wide enough that the
@@ -637,6 +657,11 @@ class _MaskCanvas(QLabel):
         self.invert_display: bool = False
         self._inverted: Optional[np.ndarray] = None
         self._inverted_of: Optional[np.ndarray] = None
+        #: Give the detectors the field as it is DRAWN -- stretched between
+        #: the two display percentiles -- rather than as it was loaded.
+        #: Off by default, which keeps the stretch a view setting.
+        self.detect_on_normalized: bool = False
+        self._detection_cache: Optional[tuple] = None
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -790,6 +815,32 @@ class _MaskCanvas(QLabel):
             self._inverted = engine.invert_normalized(self.image)
             self._inverted_of = self.image
         return self._inverted
+
+    def detection_source(self) -> Optional[np.ndarray]:
+        """The intensities the detectors read.
+
+        :meth:`displayed_source` -- the loaded field, or its inversion with
+        Invert on -- and, with :attr:`detect_on_normalized` on, that array
+        stretched between :attr:`norm_lo` and :attr:`norm_hi` exactly as
+        :meth:`refresh` stretches it for drawing, so Otsu, Cellpose and the
+        magnifier segment the picture the curator is looking at.
+
+        Cached against the array and the two percentiles: the magnifier asks
+        on every mouse move, and a percentile pass over a megapixel field
+        per move would be felt.
+
+        :returns: the array, or None with no image.
+        """
+        base = self.displayed_source()
+        if base is None or not self.detect_on_normalized:
+            return base
+        key = (base, float(self.norm_lo), float(self.norm_hi))
+        cached = self._detection_cache
+        if cached is not None and cached[0] is base and cached[1:3] == key[1:]:
+            return cached[3]
+        out = engine.normalize_for_detection(base, self.norm_lo, self.norm_hi)
+        self._detection_cache = (base, key[1], key[2], out)
+        return out
 
     def refresh(self) -> None:
         """Recompose image + mask overlay and repaint the canvas pixmap.
@@ -1095,11 +1146,12 @@ class _MaskCanvas(QLabel):
         spot = (None if pos is None or self.image is None
                 else self._canvas_to_image(pos.x(), pos.y()))
         if spot is not None:
-            source = self.displayed_source()
+            source = self.detection_source()
             lookup = self._object_lookup() if measure else None
             if lookup is not None:
                 readout = lookup.at(*spot)
-                if readout is not None and self.invert_display:
+                if readout is not None and (self.invert_display
+                                            or self.detect_on_normalized):
                     readout = readout._replace(
                         intensity=self._value_at(source, spot))
             else:
@@ -1167,7 +1219,11 @@ class _MaskCanvas(QLabel):
         readout = self.readout
         if readout is None:
             return ""
-        if self.invert_display:
+        if self.detect_on_normalized:
+            lines = [tr("x {x}, y {y}   intensity {value} (normalized, as detected)",
+                        x=readout.x, y=readout.y,
+                        value=_readout_number(readout.intensity))]
+        elif self.invert_display:
             lines = [tr("x {x}, y {y}   intensity {value} (inverted)",
                         x=readout.x, y=readout.y,
                         value=_readout_number(readout.intensity))]
@@ -1176,7 +1232,7 @@ class _MaskCanvas(QLabel):
                         y=readout.y,
                         value=_readout_number(readout.intensity))]
         if readout.label:
-            if self.invert_display:
+            if self.invert_display or self.detect_on_normalized:
                 lines.append(tr(
                     "Object {label}   area {area} px   mean intensity "
                     "{mean} (as loaded)",
@@ -3203,6 +3259,8 @@ class _LiveMagnifier(QObject):
 
     def detector_field(self) -> np.ndarray:
         """The field the box magnifies: inverted, or the canvas's own."""
+        if self.canvas.detect_on_normalized:
+            return self.canvas.detection_source()
         if not self.inverting():
             return self.canvas.image
         return self.inverted_field()
@@ -3225,7 +3283,10 @@ class _LiveMagnifier(QObject):
         :param invert: whether Invert for detection is on.
         """
         x0, y0, x1, y1 = box
-        source = self.inverted_field() if invert else self.canvas.image
+        if self.canvas.detect_on_normalized:
+            source = self.canvas.detection_source()
+        else:
+            source = self.inverted_field() if invert else self.canvas.image
         return np.array(source[y0:y1, x0:x1], copy=True)
 
     def build_request(self, *, ghost: bool = True
@@ -4951,6 +5012,7 @@ class MakeMasksScreen(QWidget):
         self._body_splitter = QSplitter(Qt.Horizontal)
         self._body_splitter.setChildrenCollapsible(False)
         self._body_splitter.setHandleWidth(SETTINGS_GAP)
+        self._body_splitter.setStyleSheet(thin_hover_line_sheet())
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
@@ -5968,6 +6030,17 @@ class MakeMasksScreen(QWidget):
         self._norm_hi.valueChanged.connect(self._on_normalize_changed)
         norm_form.addRow("Lower %", self._norm_lo)
         norm_form.addRow("Upper %", self._norm_hi)
+        self._detect_normalized = Toggle("Detect on the normalized image")
+        self._detect_normalized.setChecked(False)
+        self._detect_normalized.setToolTip(
+            "Off: Otsu, Cellpose and the magnifier read the image as it was "
+            "loaded (inverted if Invert is on), and Lower % / Upper % only "
+            "change how it is drawn. On: they read it stretched between Lower "
+            "% and Upper %, exactly as drawn, and the intensity in the "
+            "top-left corner shows that stretched value. What is saved is "
+            "never changed.")
+        self._detect_normalized.toggled.connect(self._on_detect_normalized)
+        norm_form.addRow(self._detect_normalized)
         self._zoom_speed = QDoubleSpinBox()
         self._zoom_speed.setDecimals(2)
         self._zoom_speed.setRange(1.01, 3.0)
@@ -6281,6 +6354,20 @@ class MakeMasksScreen(QWidget):
         self._canvas.norm_lo = float(self._norm_lo.value())
         self._canvas.norm_hi = float(self._norm_hi.value())
         self._canvas.refresh()
+        if self._canvas.detect_on_normalized:
+            self._on_magnifier_context_changed()
+
+    def _on_detect_normalized(self, on: bool) -> None:
+        """Hand the detectors the stretched field, or the loaded one.
+
+        :param on: whether detection reads the normalized image.
+        """
+        self._canvas.detect_on_normalized = bool(on)
+        self._canvas.refresh()
+        self._on_magnifier_context_changed()
+        self._status_label.setText(
+            "Detection reads the image as drawn (normalized)." if on else
+            "Detection reads the image as loaded.")
 
     def _on_invert_display(self, on: bool) -> None:
         """Draw the image as its own negative, or stop.
@@ -8044,6 +8131,8 @@ class MakeMasksScreen(QWidget):
         is in the first function's docstring.
         """
         image = self._canvas.image
+        if image is not None and self._canvas.detect_on_normalized:
+            return self._canvas.detection_source()
         if image is None or not self._cp_invert.isChecked():
             return image
         return engine.invert_normalized(image)
