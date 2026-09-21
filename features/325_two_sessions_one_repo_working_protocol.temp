@@ -9085,3 +9085,9 @@ Chinese audit's 40 diagnostics remain tied to the earlier eed895c2f source.
 Corrected Map audio is complete: the three inspected noun-read phoneme
 sequences now all use reed. Video/player checks are rerunning; all remaining
 English Map voices have started on CPU. Full matrix/listening remain open.
+Push raced with nightly's integration through f87f915bb. Rebased both progress
+commits cleanly; publishing the verified checkpoint so the sessions share it.
+The four report tests passed at the preceding 536de9a61 source boundary;
+those report counts are not a verdict on the just-integrated additions.
+A fresh integrated report measurement follows. Captured tutorial provenance
+remains eed895c2f, and corrected Map media verification is still running.

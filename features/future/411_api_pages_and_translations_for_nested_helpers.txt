@@ -1060,3 +1060,7 @@ entries and zero orphans; API freshness is 10419/11166 in every locale.
 The API debt is 629 added, two removed and 118 changed sources against the
 English manifest. Both source-bound review loaders and reports regenerate.
 The earlier 40-diagnostic audit is tied to eed895c2f, before these additions.
+The push then raced with integration through f87f915bb. Both progress commits
+rebase cleanly. The four report checks passed before that second integration;
+the 6231/11166 inventories above describe the 536de9a61 boundary, and the
+newly integrated source must be remeasured. No full catalog closure claimed.
