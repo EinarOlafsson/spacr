@@ -232,15 +232,7 @@ class MeasureInputsScreen(QWidget):
                       exc_info=True)
             sections = []
         for section in sections:
-            title, rows = section[0], section[1]
-            content = QWidget(body)
-            form = QFormLayout(content)
-            form.setContentsMargins(6, 6, 6, 6)
-            for label, widget in rows:
-                form.addRow(label, widget)
-            layout.addWidget(
-                CollapsibleSection(str(title), content, expanded=False,
-                                   parent=body))
+            layout.addWidget(self._nested_section(section, body))
         layout.addStretch(1)
         self._settings_area.setWidget(body)
         self._decided_widgets = {
@@ -253,6 +245,42 @@ class MeasureInputsScreen(QWidget):
                 "The file table decides this. Change the table's channels "
                 "or mask columns and this follows.")
         return model
+
+    def _nested_section(self, section, parent: QWidget) -> QWidget:
+        """One heading of Measure's settings tree, with its sub-headings.
+
+        The Measure module shows its settings three levels deep -- an
+        umbrella, then one sub-heading per object -- and this window used to
+        flatten them into one group per top-level title (item 421's open
+        point). ``own_rows`` are this heading's own controls and
+        ``children`` the headings nested below it; a plain ``(title, rows)``
+        pair has neither and is drawn flat, as before. Every control is
+        still placed exactly once.
+
+        :param section: a ``SettingsSection`` or a ``(title, rows)`` pair.
+        :param parent: the widget the heading is drawn in.
+        :returns: the collapsible heading.
+        """
+        title = getattr(section, "title", None)
+        if title is None:
+            title = section[0]
+        own_rows = getattr(section, "own_rows", None)
+        rows = section[1] if own_rows is None else own_rows
+        children = tuple(getattr(section, "children", ()) or ())
+        content = QWidget(parent)
+        column = QVBoxLayout(content)
+        column.setContentsMargins(6, 6, 6, 6)
+        if rows:
+            form_host = QWidget(content)
+            form = QFormLayout(form_host)
+            form.setContentsMargins(0, 0, 0, 0)
+            for label, widget in rows:
+                form.addRow(label, widget)
+            column.addWidget(form_host)
+        for child in children:
+            column.addWidget(self._nested_section(child, content))
+        return CollapsibleSection(str(title), content, expanded=False,
+                                  parent=parent)
 
     def set_destination(self, path: Optional[str]) -> None:
         """Where the project is written. ``None`` puts it beside the files."""

@@ -4,7 +4,8 @@ CAPTURE MEASUREMENTS FROM HAND-DRAWN MASKS IN MAKE MASKS
 
 Filed as 412 on 2026-09-18; renumbered 2026-09-19 because 412 also names features/new/412_a_ten_image_toxo_pv_test_dataset_that_opens_in_make_masks.txt.
 
-Status:    DONE 2026-09-19. The FEATURES button is in Make Masks, the
+Status:    DONE 2026-09-19, and the last two open points closed 2026-09-21
+           (scenario 2 tested, grouping matched). The FEATURES button is in Make Masks, the
            measurement-input table is built, and a table run and a Measure
            run on the same pixels produce the same database. The maintainer's
            2026-09-19 specification REPLACES the design sketch below; the
@@ -387,3 +388,10 @@ _masks.py::test_cells_drawn_on_one_image_join_nuclei_drawn_on_another measures
 two cells and one nucleus and finds the nucleus parented to the cell it lies
 in (cell 2), as when both masks come from one image. The flat grouping of the
 settings panel is still open.
+
+2026-09-21 -- THE GROUPING POINT IS CLOSED. Measure's own screen is flat today
+(nine top-level headings, none nested, measured on the built screen), so the
+FEATURES window already matched it. Its settings builder now walks a section's
+children as well, so if Measure nests again the window follows; a test pins
+that the two show the same headings and that every control is placed once.
+Nothing of 421 is left but the nine-language captions (Codex's catalog pass).

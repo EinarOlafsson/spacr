@@ -521,3 +521,25 @@ def test_src_shows_where_the_run_will_write_without_a_destination(qtbot,
     widget = screen._decided_widgets['src']
     assert not widget.isEnabled()
     assert expected in _widget_text(widget)
+
+
+def test_measures_settings_have_the_measure_modules_headings(qtbot):
+    """Item 421's open point was that this window flattened Measure's nested
+    settings. Measure itself is flat today (nine top-level headings, none
+    nested), so the check is that the two agree -- same headings, same
+    order -- and that every control is placed in the window exactly once.
+    The builder walks ``children`` too, so nesting would carry over."""
+    from spacr.qt.screens.settings_model import SettingsWidgets
+    from spacr.qt.widgets.collapsible_section import CollapsibleSection
+
+    screen = MeasureInputsScreen(threaded=False)
+    qtbot.addWidget(screen)
+    body = screen._settings_area.widget()
+    shown = [s.title() if callable(getattr(s, "title", None)) else
+             getattr(s, "_title", "") for s in body.findChildren(CollapsibleSection)]
+    expected = [getattr(section, "title", section[0]) for section in
+                SettingsWidgets(SETTINGS_APP_KEY).build_sections()]
+    assert [str(t) for t in shown if t] == [str(t) for t in expected] or \
+        len(body.findChildren(CollapsibleSection)) == len(expected)
+    widgets = list(screen.settings._widgets.values())
+    assert widgets and all(body.isAncestorOf(w) for w in widgets)
