@@ -1203,6 +1203,34 @@ class ModelZooMissing(FileNotFoundError):
     """A named model is not where it should be."""
 
 
+#: The plaque model a run segments with when none is named: cpsam_plaque_r5,
+#: trained on the curated v5 set. ``'bundled'`` was the default until
+#: 2026-09-21, when the maintainer moved it here: the bundled checkpoint is a
+#: Cellpose 3 model, and the Cellpose 4 spaCR installs refuses to load it.
+DEFAULT_PLAQUE_MODEL = 'toxoplasma_plaque_v2'
+
+
+class Cellpose3Checkpoint(ValueError):
+    """A Cellpose 3 checkpoint was handed to Cellpose 4, which cannot load it."""
+
+
+def explain_cellpose3(exc, model):
+    """Turn Cellpose 4's refusal of a Cellpose 3 checkpoint into advice.
+
+    :param exc: the exception Cellpose raised.
+    :param model: what was asked for, for the message.
+    :returns: a :class:`Cellpose3Checkpoint` when ``exc`` is that refusal,
+        else ``exc`` unchanged.
+    """
+    if 'not appear to be a CP4 model' not in str(exc):
+        return exc
+    return Cellpose3Checkpoint(
+        f"{model} is a Cellpose 3 model, and the Cellpose installed here is "
+        f"version 4, which cannot load it. Choose "
+        f"'{DEFAULT_PLAQUE_MODEL}' (the current plaque model) or "
+        f"'toxoplasma_plaque_v1' in plaque_model.")
+
+
 def _requested_plaque_model(settings):
     """What ``plaque_model`` asks for, with the run's default applied.
 
@@ -1214,7 +1242,7 @@ def _requested_plaque_model(settings):
     :returns: a path, a :mod:`spacr.model_zoo` key, or ``'bundled'``, which is
         also what an unset or empty value means.
     """
-    return str(settings.get('plaque_model') or 'bundled')
+    return str(settings.get('plaque_model') or DEFAULT_PLAQUE_MODEL)
 
 
 def _resolve_plaque_model(settings, fetch=True):
@@ -1226,19 +1254,15 @@ def _resolve_plaque_model(settings, fetch=True):
        checkpoint and means it;
     2. ``plaque_model`` naming a :mod:`spacr.model_zoo` key, fetched from
        Hugging Face on first use and checksum-verified. This is the default,
-       and it is ``toxoplasma_plaque_v1``;
+       and it is :data:`DEFAULT_PLAQUE_MODEL`;
     3. the legacy bundled pack, kept reachable as ``'bundled'`` so a run
-       recorded against the old model can be reproduced.
+       recorded against the old model can be reproduced -- with Cellpose 3.
 
-    THE DEFAULT REMAINS ``'bundled'``, which is a deliberate refusal to improve
-    results behind the user's back. ``toxoplasma_plaque_v1`` is markedly better
-    -- F1 0.856 against 0.718 in-domain, and the bundled model recalls only
-    0.631 on the literature set, so it misses about a third of the plaques --
-    and it is still not the default, because making it one would download 1.2
-    GB the first time anyone opens the module and would change the counts
-    reported by every existing pipeline that never asked for a new model.
-    Choosing it is one setting. Neither of those surprises is undoable by
-    someone who did not notice them.
+    THE DEFAULT WAS ``'bundled'`` until 2026-09-21, a deliberate refusal to
+    change counts behind anyone's back. It stopped being a choice: the bundled
+    checkpoint is a Cellpose 3 model and the Cellpose 4 spaCR installs will
+    not load it, so the default run failed. The maintainer chose
+    ``toxoplasma_plaque_v2`` (cpsam_plaque_r5) in its place.
 
     :param settings: the plaque settings dict.
     :param fetch: download what is not here -- the bundled pack through
@@ -1311,9 +1335,11 @@ def analyze_plaques(settings):
         - ``src`` — folder containing plaque images.
         - ``masks`` — if truthy, run segmentation before analysis; if
           falsy, expect masks already in ``<src>/masks``.
-        - Standard Cellpose knobs (``diameter``, ``flow_threshold``,
-          ``cellprob_threshold``, ``resample``, etc.) forwarded to
-          :func:`spacr.spacr_cellpose.identify_masks_finetune`.
+        - ``diameter``, ``flow_threshold`` and ``CP_prob``, read by
+          :func:`spacr.plaque.segment_plaque_image`, the call the Plaque
+          preview makes too.
+        - ``plaque_mode`` -- ``'figure'`` hands the folder to
+          :func:`spacr.plaque_papers.measure_figure_folder` instead.
 
     :returns: None. Writes ``<src>/masks/plaques_analysis.db``.
 
@@ -1327,7 +1353,6 @@ def analyze_plaques(settings):
         :func:`analyze_recruitment` — intensity-ratio phenotype
         instead of plaque counts.
     """
-    from .spacr_cellpose import identify_masks_finetune
     from .settings import get_analyze_plaque_settings
     from .utils import save_settings, download_models
     spacr_path = os.path.join(os.path.dirname(__file__), '__init__.py')
@@ -1339,13 +1364,16 @@ def analyze_plaques(settings):
     settings = get_analyze_plaque_settings(settings)
     save_settings(settings, name='analyze_plaques', show=True)
 
+    if str(settings.get('plaque_mode', 'plaque')) == 'figure':
+        return _analyze_plaque_figures(settings, model_path)
+
     if settings.get('well_detection'):
         settings['src'] = split_wells(settings)
 
     settings['dst'] = os.path.join(settings['src'], 'masks')
 
     if settings['masks']:
-        identify_masks_finetune(settings)
+        _segment_plaque_folder(settings, model_path)
         folder = settings['dst']
     else:
         folder = settings['dst']
@@ -1353,6 +1381,8 @@ def analyze_plaques(settings):
     summary_data = []
     details_data = []
     stats_data = []
+    per_image = []
+    per_plaque = []
     
     for filename in os.listdir(folder):
         filepath = os.path.join(folder, filename)
@@ -1388,6 +1418,30 @@ def analyze_plaques(settings):
             for size in sizes:
                 details_data.append({'file': filename, 'plaque_size': size,
                                      'plaque_size_mm2': mm2(size)})
+            median = float(np.median(sizes)) if sizes else 0.0
+            per_image.append({
+                'file': filename, 'plaque_count': object_count,
+                'mean_area_px': average_size, 'median_area_px': median,
+                'std_area_px': std_dev_size,
+                'total_area_px': float(np.sum(sizes)) if sizes else 0.0,
+                'image_height': int(labeled_image.shape[0]),
+                'image_width': int(labeled_image.shape[1]),
+                'well_diameter_px': well_px, 'px_per_mm': px_per_mm,
+                'mean_area_mm2': mm2(average_size),
+                'plaque_model': settings.get('plaque_model')})
+            for region in regions:
+                per_plaque.append({
+                    'file': filename, 'plaque_id': int(region.label),
+                    'area_px': int(region.area),
+                    'area_mm2': mm2(region.area),
+                    'area_vs_image_median': (float(region.area) / median
+                                             if median else None),
+                    'perimeter_px': float(region.perimeter),
+                    'equivalent_diameter_px': float(region.equivalent_diameter),
+                    'eccentricity': float(region.eccentricity),
+                    'solidity': float(region.solidity),
+                    'centroid_y': float(region.centroid[0]),
+                    'centroid_x': float(region.centroid[1])})
     
     summary_df = pd.DataFrame(summary_data)
     details_df = pd.DataFrame(details_data)
@@ -1399,10 +1453,111 @@ def analyze_plaques(settings):
     summary_df.to_sql('summary', conn, if_exists='replace', index=False)
     details_df.to_sql('details', conn, if_exists='replace', index=False)
     stats_df.to_sql('stats', conn, if_exists='replace', index=False)
-    
+    pd.DataFrame(per_image).to_sql('per_image', conn, if_exists='replace',
+                                   index=False)
+    pd.DataFrame(per_plaque).to_sql('per_plaque', conn, if_exists='replace',
+                                    index=False)
+
     conn.close()
     
     print(f"Analysis completed and saved to database '{db_name}'.")
+
+def _plaque_cellpose_model(model_path):
+    """Load the plaque checkpoint on the accelerator spaCR resolved.
+
+    :param model_path: the checkpoint.
+    :returns: a ``cellpose.models.CellposeModel``.
+    :raises Cellpose3Checkpoint: when the checkpoint is a Cellpose 3 model.
+    """
+    try:
+        from .accelerator import cellpose_kwargs
+
+        kwargs = cellpose_kwargs()
+    except Exception:
+        kwargs = {'gpu': False}
+    kwargs.pop('device', None)
+    try:
+        return cp_models.CellposeModel(pretrained_model=model_path,
+                                       device=None, **kwargs)
+    except ValueError as exc:
+        explained = explain_cellpose3(exc, model_path)
+        if explained is exc:
+            raise
+        raise explained from exc
+
+
+def _segment_plaque_folder(settings, model_path):
+    """Plaque mode's segmentation: every image in ``src``, one mask each.
+
+    Each image is segmented by :func:`spacr.plaque.segment_plaque_image`, the
+    same call the Plaque preview makes, so what the preview shows is what the
+    run measures. The historical path through ``identify_masks_finetune``
+    normalised 8-bit crops to a constant and found nothing (item 468).
+
+    :param settings: the plaque settings, ``src`` and ``dst`` resolved.
+    :param model_path: the plaque checkpoint.
+    :returns: how many images were segmented.
+    """
+    import tifffile
+
+    from .plaque import segment_plaque_image
+
+    src, dst = settings['src'], settings['dst']
+    os.makedirs(dst, exist_ok=True)
+    names = [f for f in sorted(os.listdir(src))
+             if os.path.isfile(os.path.join(src, f))
+             and f.lower().endswith(('.tif', '.tiff', '.png', '.jpg', '.jpeg'))]
+    if not names:
+        return 0
+    model = _plaque_cellpose_model(model_path)
+    for index, name in enumerate(names, start=1):
+        image = cellpose.io.imread(os.path.join(src, name))
+        labels = segment_plaque_image(model, image, settings)
+        stem = os.path.splitext(name)[0]
+        tifffile.imwrite(os.path.join(dst, f"{stem}.tif"),
+                         np.asarray(labels).astype(np.uint16))
+        print(f"segmented {index}/{len(names)}: {name}, "
+              f"{int(np.asarray(labels).max())} plaque(s)")
+    return len(names)
+
+
+def _analyze_plaque_figures(settings, model_path):
+    """Plaque Assay's Figure mode: published figures in, annotated plaques out.
+
+    The YOLO detector finds the plaque images in each figure, the text around
+    them is read and keyed to the legend, each image gets a condition, and its
+    plaques are segmented with the same plaque model Plaque mode uses. All of
+    it is :func:`spacr.plaque_papers.measure_figure_folder`; this reads the
+    settings into its arguments.
+
+    :param settings: the plaque settings dict, defaults applied.
+    :param model_path: the resolved plaque checkpoint.
+    :returns: the summary :func:`~spacr.plaque_papers.measure_figure_folder`
+        returns.
+    """
+    from . import plaque_papers
+
+    sizes = tuple(int(float(part)) for part in
+                  str(settings.get('figure_imgsz') or '640').split(',')
+                  if part.strip())
+    read_text = None if settings.get('figure_read_text', True) else (
+        lambda _path: [])
+    summary = plaque_papers.measure_figure_folder(
+        settings['src'], os.path.join(settings['src'], 'plaque_figures'),
+        detector=str(settings.get('figure_detector')
+                     or plaque_papers.DEFAULT_DETECTOR),
+        segmenter=model_path, imgsz=sizes or plaque_papers.DEFAULT_IMGSZ,
+        confidence=float(settings.get('figure_confidence', 0.25)),
+        confirm_each=bool(settings.get('confirm_annotations', False)),
+        plate_format=settings.get('plate_format'), read_text=read_text)
+    print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
+          f"plaque image(s), {summary['plaques']} plaque(s) -> "
+          f"{summary['database']}")
+    if summary.get('awaiting_approval'):
+        print(f"{summary['awaiting_approval']} plaque image(s) wait for "
+              "approval in the Figure preview and were not measured.")
+    return summary
+
 
 def count_phenotypes(settings):
     """Count unique phenotype annotations per plate/row/column and export to CSV.

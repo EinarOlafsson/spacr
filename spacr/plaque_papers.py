@@ -1091,7 +1091,14 @@ def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
     """
     from cellpose import models
 
-    model = models.CellposeModel(pretrained_model=path, gpu=False)
+    try:
+        from .accelerator import cellpose_kwargs
+
+        kwargs = cellpose_kwargs()
+    except Exception:
+        kwargs = {"gpu": False}
+    kwargs.pop("device", None)
+    model = models.CellposeModel(pretrained_model=path, device=None, **kwargs)
 
     def segment(crop: np.ndarray) -> np.ndarray:
         masks = model.eval(crop)[0]

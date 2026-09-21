@@ -41,6 +41,7 @@ __all__ = [
     "detect_wells",
     "crop_well",
     "scale_from_well",
+    "segment_plaque_image",
 ]
 
 #: Interior diameter, in millimetres, of a well in each standard plate format.
@@ -308,3 +309,48 @@ def scale_from_well(well: Well, *,
                        well_diameter_px=diameter_px,
                        well_diameter_mm=float(well_diameter_mm),
                        source=source)
+
+
+def _number(settings: Dict[str, Any], key: str,
+            default: Optional[float]) -> Optional[float]:
+    """A numeric setting, or ``default`` when it is empty or not a number.
+
+    :param settings: the plaque settings.
+    :param key: the setting.
+    :param default: what an empty or unreadable value means.
+    :returns: the number.
+    """
+    value = settings.get(key)
+    if value in (None, ""):
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def segment_plaque_image(model: Any, image: np.ndarray,
+                         settings: Dict[str, Any]) -> np.ndarray:
+    """Segment one plaque image the way both Plaque mode's preview and run do.
+
+    The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises
+    it. It is NOT sent through the run's historical loader
+    (``_load_normalized_images_and_labels`` with ``background=200``): on an
+    8-bit crop that loader saturated every pixel to 1.0 -- measured on
+    ``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found
+    no plaques while the preview, reading the image as it is, found 67. One
+    function for both is what keeps them from disagreeing again.
+
+    :param model: a Cellpose model.
+    :param image: ``H x W`` or ``H x W x 3``.
+    :param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.
+    :returns: the label image.
+    """
+    from .spacr_cellpose import cellpose_channel_axis
+
+    diameter = _number(settings, "diameter", None)
+    output = model.eval(image, channel_axis=cellpose_channel_axis(image),
+                        diameter=diameter if diameter else None,
+                        flow_threshold=_number(settings, "flow_threshold", 0.4),
+                        cellprob_threshold=_number(settings, "CP_prob", 0.0))
+    return np.asarray(output[0])

@@ -340,6 +340,10 @@ KEYS_RETIRED = frozenset({
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 468, 2026-09-21: Plaque Assay's Plaque/Figure mode and the Figure
+    # mode's detector, text reading and review switch.
+    "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",
+    "figure_read_text", "confirm_annotations",
     # Feature 418: absolute object-mean intensity bounds in each own channel.
     # Numbered organelle slots use the existing dynamic registry expansion.
     "cell_min_intensity", "cell_max_intensity",

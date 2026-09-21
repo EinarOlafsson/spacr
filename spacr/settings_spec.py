@@ -241,6 +241,7 @@ def convert_settings_dict_for_gui(settings):
         'grna_statistic': ('combo', ['pearson', 'rank'], 'pearson'),
         'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
         'metadata_type': ('combo', _metadata_type_choices(), 'cellvoyager'),
+        'plaque_mode': ('combo', ['plaque', 'figure'], 'plaque'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', chan_list, '[0,1,2,3]'),

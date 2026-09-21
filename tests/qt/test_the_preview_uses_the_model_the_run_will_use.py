@@ -431,7 +431,10 @@ def test_the_plaque_preview_uses_the_model_the_plaque_run_resolves(
 
 def test_the_plaque_preview_follows_the_real_screens_default(
         qtbot, monkeypatch):
-    """End to end on a built Plaque Assay screen, whose default is 'bundled'.
+    """End to end on a built Plaque Assay screen, whose default is the v2 model.
+
+    Resolved WITHOUT fetching, as the preview does: the default is a 1.2 GB
+    zoo checkpoint since 2026-09-21, and a test must not download it.
 
     Before this the preview seeded ``model_name`` ('cpsam') from the same
     form, so the two most visible values on the screen disagreed.
@@ -447,38 +450,40 @@ def test_the_plaque_preview_follows_the_real_screens_default(
     qtbot.wait(50)
     screen = window._screens["analyze_plaques"]
     install_search(screen)
-    host = install(screen)
+    assert install(screen) is None, "since item 452 AppScreen builds it"
     collected = screen._settings_model.collect()
-    assert collected["plaque_model"] == "bundled"
+    from spacr.submodules import DEFAULT_PLAQUE_MODEL
+
+    assert collected["plaque_model"] == DEFAULT_PLAQUE_MODEL
     try:
-        expected = _resolve_plaque_model(dict(collected))
+        expected = _resolve_plaque_model(dict(collected), fetch=False)
     except ModelZooMissing:
-        expected = "bundled"
+        expected = DEFAULT_PLAQUE_MODEL
 
-    host.toggle.setChecked(True)
+    screen._preview_switch.setChecked(True)
 
-    _wait_for_model(qtbot, host.panel, expected)
+    _wait_for_model(qtbot, screen._live_preview, expected)
 
 
 def test_an_unset_plaque_model_means_what_the_run_takes_it_to_mean(
         module_panel, tmp_path, monkeypatch, no_download):
-    """``None`` is 'bundled' to the run. Read the bundled pack from a
-    package directory the test controls, so this does not depend on what
-    this machine happens to have installed."""
+    """``None`` is the run's default, the v2 zoo model since 2026-09-21. A
+    copy already on this machine -- under a HOME the test controls -- is what
+    the preview previews, and nothing is downloaded to find it."""
     import spacr.submodules as sm
 
-    package = tmp_path / "package"
-    bundled = (package / "resources" / "models"
-               / "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model")
-    bundled.parent.mkdir(parents=True)
-    bundled.write_bytes(b"w")
-    monkeypatch.setattr(sm, "__file__", str(package / "submodules.py"))
+    monkeypatch.setenv("HOME", str(tmp_path))
+    local = tmp_path / ".spacr" / "models" / "cpsam_plaque_r5"
+    local.parent.mkdir(parents=True)
+    local.write_bytes(b"w")
+    assert sm._requested_plaque_model({"plaque_model": None}) == (
+        sm.DEFAULT_PLAQUE_MODEL)
 
     panel = module_panel("analyze_plaques")
     panel.apply_settings({"plaque_model": None, "model_name": "cyto2"})
 
-    assert panel._model_box.currentText() == str(bundled)
-    assert panel._model_for_this_pass() == (str(bundled), "")
+    assert panel._model_box.currentText() == str(local)
+    assert panel._model_for_this_pass() == (str(local), "")
 
 
 def test_a_downloaded_plaque_zoo_key_previews_its_local_copy(

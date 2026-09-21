@@ -191,8 +191,10 @@ def patched_model(monkeypatch):
         holder["model"] = _AxisRecordingModel(*a, **k)
         return holder["model"]
 
-    monkeypatch.setattr(SC, "cp_models",
-                        types.SimpleNamespace(CellposeModel=_factory))
+    fake = types.SimpleNamespace(CellposeModel=_factory)
+    monkeypatch.setattr(SC, "cp_models", fake)
+    from spacr import submodules as SUB
+    monkeypatch.setattr(SUB, "cp_models", fake)
     monkeypatch.setattr(SC, "display", lambda *a, **k: None, raising=False)
     return holder
 
@@ -247,47 +249,22 @@ def test_analyze_plaques_settings_run_through_real_cellpose_path(
         tmp_path, patched_model, monkeypatch):
     """analyze_plaques' own settings dict must survive the real eval call.
 
-    analyze_plaques delegates segmentation to identify_masks_finetune, so it
-    inherited the same defect: the user's plaque assay raised IndexError
-    before a single mask was written.
-
-    The handoff is captured (no network: ``download_models`` is stubbed, and
-    the bundled checkpoint is redirected into tmp_path rather than written
-    into the installed package), then the captured settings are replayed
-    through the REAL identify_masks_finetune.
+    Since item 468 Plaque mode segments through
+    :func:`spacr.plaque.segment_plaque_image`, the call its preview makes, not
+    through identify_masks_finetune (whose loader turned 8-bit plaque crops
+    into a constant). The contract this file is about still holds there:
+    every eval names the channel axis, and a mask is written per image.
     """
     from spacr import submodules as SUB
     from spacr import utils as UTILS
 
     src = _write_imgs(tmp_path / "src", channels=3)
-    monkeypatch.setattr(UTILS, "download_models", lambda *a, **k: None)
-
-    captured = {}
-    real_identify = SC.identify_masks_finetune       # before it is patched
-
-    def _capture(settings):
-        captured["settings"] = dict(settings)
-        raise RuntimeError("__handoff__")
-
-    monkeypatch.setattr(SC, "identify_masks_finetune", _capture)
-
-    with pytest.raises(RuntimeError, match="__handoff__"):
-        SUB.analyze_plaques({"src": str(src), "masks": True})
-
-    resolved = captured["settings"]
-    # It is the plaque model that gets selected, and it is a custom_model
-    # (which is what makes this path hit identify_masks_finetune's eval).
-    assert resolved["custom_model"].endswith(
-        "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model")
-
-    # Replay through the real function with the checkpoint redirected to a
-    # tmp stand-in, so nothing is written inside the package tree.
-    stand_in = tmp_path / "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model"
+    stand_in = tmp_path / "plaque_model"
     stand_in.write_bytes(b"stand-in checkpoint")
-    resolved["custom_model"] = str(stand_in)
-    resolved["save"] = True
+    monkeypatch.setattr(UTILS, "save_settings", lambda *a, **k: None)
 
-    real_identify(resolved)
+    SUB.analyze_plaques({"src": str(src), "masks": True,
+                         "plaque_model": str(stand_in)})
 
     calls = patched_model["model"].calls
     assert calls, "analyze_plaques' settings never reached model.eval"
