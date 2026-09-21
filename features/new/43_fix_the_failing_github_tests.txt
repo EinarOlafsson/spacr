@@ -1823,3 +1823,7 @@ remains open for missing rows and API translation debt.
 source-bound review inventory increased to 589. Current reports/audit are
 being regenerated; remaining Korean and API debt is still explicit. No
 catalog gate or source denominator was relaxed.
+The subsequent nightly Home-shortcut edit invalidated nine reviewed API
+source bindings. Those historical records are now retired with reasons and
+nine current-source replacements added; the loader is being revalidated.
+Published API regeneration remains separate debt.

@@ -2220,3 +2220,20 @@ composition tool now accept explicit current paths and the actual preview
 proof, retaining the older filter/propagation checks for historical footage.
 34 pixel/preview tests pass. Full batch, lesson copy, media and acceptance
 remain open; the preview receipt is not a completed-lesson verdict.
+Classify overview's complete 24-track English matrix now passes full AAC
+decode, exact synthesis freshness, sentence timing/activity and independent
+true-peak measurements (highest observed -1.1 dBFS, unchanged -1 dBFS gate).
+Receipt: tools/tutorials/evidence/2026-09-21-classify-overview-english-voices.json.
+Other spoken languages, captions and listening acceptance remain open.
+Annotate's prior thirteen language/caption reviews were checked against the
+exact old English hash. Only scene 5's image-size wording changed to crop
+size; all nineteen other English narrations and translated scenes are
+retained. That sentence is corrected in every locale and the reviews are
+bound to the actual current twenty-scene English lesson. All thirteen were
+staged privately. The promoter now uses repository pronunciation helpers
+rather than an older external authoring copy. The remaining 26 spoken
+language/voice tracks are starting on CPU; no GPU or publication is involved.
+Independent staging verification confirms all thirteen current Annotate
+reviews, scene geometry/links and exact current speech inputs. Receipt:
+tools/tutorials/evidence/2026-09-21-annotate-current-translations.json.
+Eight promotion tests pass; the CPU multilingual render is live.

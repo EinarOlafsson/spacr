@@ -9148,3 +9148,24 @@ recording provenance is preserved across the forthcoming integration.
 Coverage inventory refreshed at 89/95: 34 non-passing batches, 108 distinct
 failed nodes, zero lost/unrecovered files. Still fixed 3d9eb57c5, not current
 nightly. No baseline change.
+After integrating 2ad085145, nine API review records for spacr.qt.shortcuts#2
+became source-stale: Go home gained the macOS Cmd+H Hide explanation. Old
+records are retained as retired with reasons; new source-bound translations
+are added for all nine locales. Published API pages remain explicitly stale.
+Classify overview finished all 24 English tracks; full decode, exact
+freshness, timing/activity and independent numeric peaks pass, with highest
+observed -1.1 dBFS. The receipt and 358/447 entries record this limited scope.
+Annotate translation reuse was verified against the exact prior English
+hash 094b2810 and current f51745cb: only scene 5's image-size/crop-size
+sentence changed. Updated all thirteen reviews and staged them privately;
+all nineteen other translated scenes are retained unchanged. Remaining
+26 spoken-language voices are starting under a 6-GiB CPU cap. An initial
+CLI call was rejected before rendering because the language list must be
+comma-separated; corrected that invocation. No track was overwritten by it.
+All nine current API review stores now load. Integrated source inventory
+remains 6232 runtime entries and 11166 API symbols; API debt is still 629
+added, two removed and 118 changed sources. Twelve final tests pass (eight
+tutorial review-promotion checks plus four live-source report checks) in
+246.90 s. Independent Annotate staging verification checks all thirteen
+reviews, exact current speech inputs, geometry/links and the nineteen
+retained scenes. Receipt: 2026-09-21-annotate-current-translations.json.

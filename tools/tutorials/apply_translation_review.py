@@ -15,9 +15,7 @@ from pathlib import Path
 
 from stage_lesson import DEFAULT_STAGE, REPO, read, write
 
-authoring_tools = DEFAULT_STAGE.parent / 'tools'
-if not authoring_tools.is_dir():
-    authoring_tools = Path(__file__).resolve().parent / 'authoring/tools'
+authoring_tools = Path(__file__).resolve().parent / 'authoring/tools'
 sys.path.insert(0, str(authoring_tools))
 from pronunciation import spoken_form, assert_pronunciation_safe
 

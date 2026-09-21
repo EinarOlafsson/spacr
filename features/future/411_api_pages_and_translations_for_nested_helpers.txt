@@ -1107,3 +1107,13 @@ semantic checks pass (138.65 s). Unreviewed format-field errors, the other
 All four regenerated report checks pass at the 7046d9485 application-source
 boundary (250.45 s). Nightly's subsequent Home-shortcut/docstring change
 will be integrated and re-measured; these counts do not certify that change.
+Integration of 2ad085145 exposed nine reviewed API records pinned to the old
+Go home text. The historical records are retained as retired with reasons;
+nine source-bound replacements translate the added macOS Cmd+H Hide note.
+This restores the strict API review loader without marking the still-stale
+published shortcuts page current. Integrated report measurement follows.
+All nine replacement review stores load, and the four integrated live-source
+report checks pass alongside eight tutorial review-promotion checks (12 total,
+246.90 s). Source inventory remains 6232 runtime / 11166 API; API debt remains
+629 added, two removed and 118 changed sources. Catalog generation and
+remaining review debt are still open.

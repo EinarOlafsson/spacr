@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lesson": "09_annotate",
+  "english_sha256": "f51745cb600291406bce5f96d5de0560a999b23f9ddb6aa770ce9a22a0640b55",
+  "previous_english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
+  "scene_count": 20,
+  "semantic_change": "Scene 5 now says crop size rather than image size, matching current Annotate behavior",
+  "languages": [
+    {
+      "language": "da",
+      "review_sha256": "a2235e6c6ee7f3754c491e02ec985b7c42afad1b014b8876491dfd8055c88196",
+      "staged_catalog_sha256": "262eaeba25979e5e7c34c5d1020552336ca2bc6e4db78ba7e7956ad63a5f5f5c",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "de",
+      "review_sha256": "348fcfc1e7130cb5f048343d6f8e65b76170e447643d2307ab9b3036d15c96bc",
+      "staged_catalog_sha256": "d1cc2a5843409270b3bae5dee7cb11a2083233895f3ab8550f93a9388a79dd1f",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "es",
+      "review_sha256": "759a794f4a210fc71c8d4609ce2826b8fc466281ae2e0d05508e23eda39089fb",
+      "staged_catalog_sha256": "727f380ccd88f525f7e1e153fb306a30f261718d7062062be3dd601dbb08a56b",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "fr",
+      "review_sha256": "30929e68793dffc63ae5c749901630e3aee4cf8d9222b022e2a42273d53c7731",
+      "staged_catalog_sha256": "5fed08243941a651ab9b5f538c7078bd1c7c6cec16668c0c95ad2f404a4b9e87",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "hi",
+      "review_sha256": "f4b87a8d0e57ed7008eb3ab79b1d4dc9b260b001adc392242bb9ce6a348d8163",
+      "staged_catalog_sha256": "11f23e1cf7ce0ee90f7bbb38b6f12dd7fd0981fa15bf227be67575f0906e87d2",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "is",
+      "review_sha256": "f9040c1e3f8319dd96686774dfc78dc35ff8e080fd33c1b83c9fb60b5c7b50ba",
+      "staged_catalog_sha256": "7782d6b1752ae1abf66f72debcf818624b008313bcab7b4f6d20bee2bd3a885d",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "it",
+      "review_sha256": "dd90b8f273e003bec7c5ae627a2d02db5b9a63e97185ab2ef0f807cb61fc0a2c",
+      "staged_catalog_sha256": "3f939a6a7262df17d82d6a97c35494d454b4828f897f77e5d052b311d745c37a",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "ja",
+      "review_sha256": "6320e0ef24e9076606a30d183de4b32e7410c8c38074ae0e96e31eb06ba9870c",
+      "staged_catalog_sha256": "b8360341479543f5efb5ffabd5e82addeb740ed3529d91aacb07033b92fe95e1",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "ko",
+      "review_sha256": "6337f9e54adab0785725f26b8296a8b54a23f5aa71c647be9facf9e60e691025",
+      "staged_catalog_sha256": "1908e17a78162d630a345781a95bbd2dc54f1724e6b002a0ad2d21a469ab1110",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "nb",
+      "review_sha256": "b3a9af9e926c5ffc333cd4c44f0d6b216b4fb302f97dcee7aa84cf056481963c",
+      "staged_catalog_sha256": "68778e8ba1867af773dd2baae98ac63a785763ccddbc4e989d6fddf7fa47eb84",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "pt-BR",
+      "review_sha256": "28ffe210c8f09cc8112974f0f33be2491f3620a467a1f3b6fc0cabef5fb7cf3f",
+      "staged_catalog_sha256": "08508f10a765d9075a2b401e43a1f69761a1effb95fbfefb22635e850135ced0",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "sv",
+      "review_sha256": "30d93d8a2888acecb1de4a268efb3f94865bece05dd67ae3bb73828b9fb461b7",
+      "staged_catalog_sha256": "f5a6bdf4168f258685ebb54c30a5807a02132c7c044fbf4567101b5ce9aa317f",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "zh-CN",
+      "review_sha256": "c718ccb253282acdb8275e282f511c7af375f2f737de296feb44929a26b753ac",
+      "staged_catalog_sha256": "7eaf8dcc0e4c582bb670bbcc0b38a7fcb4a7900e32c8d13b2e772b564b66ced3",
+      "retained_translated_scenes": 19,
+      "changed_scene_index": 4,
+      "current_speech_helpers": true
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Complete and verify the remaining spoken-language tracks",
+    "Caption/player and audible acceptance",
+    "Complete-set publication"
+  ]
+}

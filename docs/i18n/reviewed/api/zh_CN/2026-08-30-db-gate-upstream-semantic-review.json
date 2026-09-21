@@ -735,7 +735,9 @@
       "source_sha256": "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
       "source": "Go home",
       "context": "Go home",
-      "translation": "转到主页"
+      "translation": "转到主页",
+      "retired": true,
+      "retired_reason": "Nightly 2ad085145 changed Home to Ctrl+0 and added the macOS Cmd+H Hide explanation. Historical review retained; replacement reviewed in 2026-09-21-home-shortcut.json."
     },
     {
       "label": "spacr.qt.shortcuts#3",

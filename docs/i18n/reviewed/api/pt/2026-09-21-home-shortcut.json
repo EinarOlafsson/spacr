@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "label": "spacr.qt.shortcuts#2",
+      "source": "Go home (Cmd+H is Hide on macOS)",
+      "context": "Go home (Cmd+H is Hide on macOS)",
+      "source_sha256": "283cbcc80a66ed5da5f37cf1a26f3311dd808cf85013792d207fd576a4daf32e",
+      "translation": "Ir para o início (Cmd+H oculta a aplicação no macOS)"
+    }
+  ]
+}

@@ -293,3 +293,10 @@ painted Blobs and neutral private paths. Actual QC findings remain visible.
 Current full-batch footage is still recording; it must pass independent
 pixel/output checks before joining the lesson. No publication or completed
 language/voice/caption/listening acceptance is claimed.
+Classify overview now also has all 24 English voices technically verified,
+including independent decoded peaks. This does not close other-language,
+caption/listening or complete-set publication work.
+Annotate's thirteen current-source translation/caption reviews are now
+staged with crop-size wording matching the fresh recording. The remaining
+spoken-language audio is starting on CPU using current repository
+pronunciation helpers; final media/listening acceptance remains open.
