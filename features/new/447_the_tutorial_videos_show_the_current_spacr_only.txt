@@ -356,3 +356,10 @@ limits. Removed historical reference-table comparisons and updated version
 metadata to1.5.0.8. All13independent stage/source checks and9promotion/bundle
 tests pass. Remaining26spoken tracks are rendering CPU-only; full media,
 caption/listening/player acceptance and complete-set publication remain open.
+
+2026-09-21 — CODEX: ANNOTATE AUTO-OPEN FIX INVALIDATES ONE SCENE
+Nightly e04294be5 removes the extra Open source step narrated in scene 4 of
+our private Annotate candidate. Its unfinished narration worker was stopped
+with completed files retained. The opening needs a fresh dark/Blobs capture,
+updated language reviews and audio before acceptance with 358. Earlier technical
+verification is retained as dated evidence, not presented as current approval.

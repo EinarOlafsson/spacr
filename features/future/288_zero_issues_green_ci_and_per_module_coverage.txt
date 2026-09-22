@@ -4367,3 +4367,17 @@ metadata. Together with existing real-file planning/loading tests:45pass in
 features/data/288_crop_loader_2026-09-21.json. Eleven original floor modules
 now pass targeted selections; the full-suite ratchet remains open. No baseline
 update was made from these targeted results.
+
+2026-09-21 — CODEX: RUN HISTORY DELETION COVERAGE
+Run History reaches 97.66% combined coverage (383/389 statements, 77/82
+branches), from 87.26% in the fixed full run. New tests use temporary journal
+folders and real deletion to verify selection, Cancel as default, preservation
+of project outputs and unseen runs, and refusal reporting. Real Qt actions
+verify context-menu targets; a controlled menu factory avoids a modal loop.
+The initial class-level exec patch did not intercept that loop; its stack was
+inspected and the stuck test process terminated before the corrected run.
+All four selected files pass: 33 tests in 21.97s, 6GiB, one CPU thread, no GPU.
+Receipt: features/data/288_run_history_deletion_2026-09-21.json. Twelve original
+floor modules now pass targeted selections; full-suite ratchet remains open.
+No app change or baseline update. The app owner is notified in 325 that the
+refusal status is immediately replaced by the refresh-completion status.

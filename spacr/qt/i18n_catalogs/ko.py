@@ -5845,6 +5845,8 @@ UI = {
     'Downloading {name}': '{name} 다운로드 중',
     'Downloading {name} in the background.': '백그라운드에서 {name} 항목을 다운로드하고 있습니다.',
     'Channel {index}; the file names call it {name}.': '채널 {index}; 파일 이름에서는 {name}으로 표시됩니다.',
+    'The test data has no measurements database at {path}': '테스트 데이터의 {path}에 측정 데이터베이스가 없습니다',
+    'Could not open the test data: {detail}': '테스트 데이터를 열 수 없습니다: {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -11814,4 +11816,6 @@ SOURCE_HASHES = {
     ('UI', 'Downloading {name}'): '61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c',
     ('UI', 'Downloading {name} in the background.'): 'f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b',
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
+    ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
+    ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
 }

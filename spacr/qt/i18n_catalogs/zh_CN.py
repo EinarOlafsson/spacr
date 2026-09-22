@@ -6046,6 +6046,8 @@ UI = {
     'PDF…': 'PDF…',
     'Updating {name}…': '正在更新 {name}…',
     'Channel {index}; the file names call it {name}.': '通道 {index}；文件名中将其标为 {name}。',
+    'The test data has no measurements database at {path}': '测试数据在 {path} 处没有测量数据库',
+    'Could not open the test data: {detail}': '无法打开测试数据：{detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -12215,4 +12217,6 @@ SOURCE_HASHES = {
     ('UI', 'PDF…'): 'e39b05d4001896ab9ed3abc9cdd5676546d282b9b6f053ba300e6c656a9bd4a2',
     ('UI', 'Updating {name}…'): 'c97a0a747f2376346f83d80de43010763636f73ae886f39826feceed5d03e908',
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
+    ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
+    ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
 }

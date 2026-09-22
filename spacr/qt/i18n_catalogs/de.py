@@ -6012,6 +6012,8 @@ UI = {
     'Downloading the synthetic Invasion Assay test data': 'Die synthetischen Testdaten für Invasion Assay werden heruntergeladen',
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': 'Die Plaque-Vorschau über der Konsole ein- oder ausblenden. Im Modus Plaque wird ein Bild segmentiert; im Modus Figure werden die Plaque-Bilder in einer Abbildung gefunden, ihre Beschriftungen gelesen und die Bilder segmentiert.',
     'Channel {index}; the file names call it {name}.': 'Kanal {index}; in den Dateinamen heißt er {name}.',
+    'The test data has no measurements database at {path}': 'Die Testdaten enthalten keine Messdatenbank unter {path}',
+    'Could not open the test data: {detail}': 'Die Testdaten konnten nicht geöffnet werden: {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -12148,4 +12150,6 @@ SOURCE_HASHES = {
     ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
+    ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
+    ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
 }

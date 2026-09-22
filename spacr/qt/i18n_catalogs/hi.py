@@ -5761,6 +5761,8 @@ UI = {
     'Downloading the synthetic Invasion Assay test data': 'Invasion Assay का कृत्रिम परीक्षण डेटा डाउनलोड हो रहा है',
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': 'कंसोल के ऊपर प्लाक का पूर्वावलोकन दिखाएँ या छिपाएँ। Plaque मोड में एक छवि का विभाजन होता है; Figure मोड में एक चित्र के भीतर प्लाक की छवियाँ खोजी जाती हैं, उनके लेबल पढ़े जाते हैं और उनका विभाजन किया जाता है।',
     'Channel {index}; the file names call it {name}.': 'चैनल {index}; फ़ाइल नामों में इसे {name} कहा गया है।',
+    'The test data has no measurements database at {path}': 'परीक्षण डेटा में {path} पर मापों का डेटाबेस नहीं है',
+    'Could not open the test data: {detail}': 'परीक्षण डेटा नहीं खोला जा सका: {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -11646,4 +11648,6 @@ SOURCE_HASHES = {
     ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
+    ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
+    ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
 }

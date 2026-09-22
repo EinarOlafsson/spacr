@@ -1889,3 +1889,13 @@ are refreshed before the checkpoint; existing wider catalog debt remains open.
 Final verification: the runtime review-contract test passes (3.39s), and all
 four report consistency tests pass (443.76s). This is not a green docs-workflow
 claim; the reports continue to expose the outstanding catalog debt.
+
+2026-09-21 — CODEX DOCS: ANNOTATE OPENING DIAGNOSTICS
+Integrated e04294be5 and translated its two new diagnostics in all nine
+runtime locales. Exact-source reviews reload and actual formatted tr() output
+passes for all eighteen translations. Runtime inventory now 6235; public API
+count remains 11166. Reports refreshed; overall catalog debt remains open.
+The TestDataChooser descriptions also need inventory extraction and catalog
+rows: current mechanical coverage does not yet count that indirect prose.
+All four final report consistency tests pass in 405.39s against the integrated
+source. This verifies report accuracy, not completion of the docs lane.

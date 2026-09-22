@@ -1248,3 +1248,16 @@ All nine review stores reload successfully; the runtime review-contract test
 passes (3.39s) and all four final report consistency tests pass (443.76s).
 The remaining catalog debt stays open; these checks verify the new row and
 the accuracy of the reports, not completion of all translations.
+
+2026-09-21 — CODEX: ANNOTATE OPENING ERRORS IN NINE LANGUAGES
+Integrated e04294be5, which opens the downloaded plate automatically. Its two
+new error messages now have exact-source reviews and translations in all nine
+locales. Full review stores reload, and actual tr() calls preserve the path
+and detail fields in all eighteen outputs. Runtime inventory is 6235; public
+API count remains 11166. Reports are refreshed against this integrated tree.
+Receipt: features/data/411_annotate_opening_2026-09-21.json. Native approval is
+not claimed. Found separate unclosed debt: TestDataChooser.ROUTES descriptions
+and RESTING_TEXT are absent from the generated UI inventory. They need explicit
+extraction and translation; the source-coverage percentages omit that prose.
+Final report consistency checks pass: four tests in 405.39s. The generated
+feature index and whitespace checks pass. Catalog debt remains explicit.

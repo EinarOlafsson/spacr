@@ -1,0 +1,58 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "e04294be5",
+  "sources": [
+    "The test data has no measurements database at {path}",
+    "Could not open the test data: {detail}"
+  ],
+  "languages": [
+    {
+      "language": "de",
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-21-annotate-opening.json",
+      "review_sha256": "8b764befab194dfa153221a4f587766c6d44b65c52b1024d2b3afcc244ff3485"
+    },
+    {
+      "language": "es",
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-21-annotate-opening.json",
+      "review_sha256": "46fefe170e23f1cc2499e100d96a3bad7309cae06ef1f42152d8ed1be26150ac"
+    },
+    {
+      "language": "fr",
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-21-annotate-opening.json",
+      "review_sha256": "587d0e8a166023ecd4209566fdf0cf5605cdfcd60a57cfaef164bfcee790351e"
+    },
+    {
+      "language": "hi",
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-21-annotate-opening.json",
+      "review_sha256": "a183e88baf29488106b27f548cd6421b1df95dbf79b2c2c3fae61f359c48332a"
+    },
+    {
+      "language": "is",
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-21-annotate-opening.json",
+      "review_sha256": "0046ceac1086a6f1a4ad424d1782b42ca11d26b1a569adae37f72469e8331987"
+    },
+    {
+      "language": "ko",
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-21-annotate-opening.json",
+      "review_sha256": "b392d2f77a253eab35b6ab745e5376b3a5603ece44ba2659d9287b2afa3e183e"
+    },
+    {
+      "language": "pt",
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-21-annotate-opening.json",
+      "review_sha256": "9e9e7d475d6bfb96a6d2fbac610728bb7899e964e8c4b6afd34345f808b581cc"
+    },
+    {
+      "language": "sv",
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-21-annotate-opening.json",
+      "review_sha256": "cec85d703c15b67923e3e1c9af0cc308c5f80c0b0890b3f0f61c215cb7f6b2e1"
+    },
+    {
+      "language": "zh_CN",
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-annotate-opening.json",
+      "review_sha256": "94313dc6e6f633bfac1b335c86f3cb1d100dbc4987c180909726a734cbf57e9b"
+    }
+  ],
+  "runtime_formatting_verified": true,
+  "native_speaker_signoff": false
+}

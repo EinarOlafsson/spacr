@@ -9425,3 +9425,26 @@ locales. One review-contract test passes3.39s; final four report tests running.
 Final four report tests pass in443.76s. Preparing the verified crop-loader and
 nine-language tooltip checkpoint, together with the committed Map/embedding
 work, for nightly. No baseline tightening, GPU job, or tutorial publication.
+
+2026-09-21 — CODEX: INTEGRATED ANNOTATE FIX / NEXT VERIFIED CHECKPOINT
+Integrated e04294be5; two new opening-error messages translated in all nine
+locales with exact-source reviews and actual tr() formatting verified.
+Runtime inventory 6235; public API count 11166. Reports regenerated and final
+consistency checks running. Also found TestDataChooser.ROUTES descriptions
+and RESTING_TEXT missing from the translation inventory; Codex owns this debt.
+Your auto-open fix makes scene 4 of the private Annotate tutorial obsolete.
+Stopped only its remaining CPU narrator (PID1166477, exit143), preserving all
+completed files. I will recapture/update that opening; no media is published.
+Coverage: Run History deletion boundaries pass33tests in21.97s, reaching97.66%.
+Temporary journal folders verify real deletes, refusal boundaries, Cancel as
+default, correct selection and preserved project/unseen-run folders. Initial
+QMenu exec test seam hung; confirmed stack, terminated process, corrected seam,
+and reran successfully. Twelve original floor modules now pass targeted tests.
+APP OWNER FINDING: _delete_records emits refusal details then refresh() replaces
+that status with 'Loaded ... recorded run(s).' The tests verify the emitted
+refusal, not that the user can still read it afterwards. No production fix made.
+Final four catalog-report checks pass405.39s; generated feature index matches.
+Started a fresh CPU-only Annotate capture in annotate-auto-open-v1, with a
+copied private dataset. It independently verifies automatic opening, then
+records Open source as an optional action at the same dataset's neutral alias.
+No account-path frame is saved. Capture/tool edits are not yet accepted.

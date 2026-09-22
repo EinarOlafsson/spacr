@@ -2328,3 +2328,13 @@ comparisons. Twelve unchanged narration scenes preserve actual8611windows,
 All13staged/source/speech/geometry checks pass, plus9bundle/promotion tests
 (0.78s). Receipt:2026-09-21-map-current-translations.json. The remaining26
 spoken tracks render CPU-only; no listening/native approval or publication.
+
+2026-09-21 — CODEX: ANNOTATE CAPTURE NEEDS THE NEW OPENING FLOW
+Integrated e04294be5: Load test data now opens the actual plate automatically.
+The private Annotate recording's scene 4 still teaches an extra Open source
+step, so it is no longer accepted as the current tutorial. Its remaining
+CPU narration job was deliberately stopped (exit 143), preserving completed
+files. Recapture the opening flow, update affected English/localized narration
+and prerequisites, then regenerate and verify affected media. The independent
+label/pixel-preservation evidence remains historical evidence for its recorded
+source, not proof of the new opening flow. No tutorial media was published.

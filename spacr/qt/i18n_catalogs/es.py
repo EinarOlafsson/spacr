@@ -6012,6 +6012,8 @@ UI = {
     '{key} is not a filename convention Import knows.': '{key} no es una convención de nombres de archivo que Import reconozca.',
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': 'Mostrar u ocultar la vista previa de placas de lisis sobre la consola. En modo Plaque se segmenta una imagen; en modo Figure se localizan las imágenes de placas de lisis dentro de una figura, se leen sus etiquetas y se segmentan.',
     'Channel {index}; the file names call it {name}.': 'Canal {index}; en los nombres de archivo se llama {name}.',
+    'The test data has no measurements database at {path}': 'Los datos de prueba no tienen una base de datos de mediciones en {path}',
+    'Could not open the test data: {detail}': 'No se pudieron abrir los datos de prueba: {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -12148,4 +12150,6 @@ SOURCE_HASHES = {
     ('UI', '{key} is not a filename convention Import knows.'): 'eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
+    ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
+    ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
 }

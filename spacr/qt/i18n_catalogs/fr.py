@@ -6012,6 +6012,8 @@ UI = {
     '{name} is not installed. Choosing it offers to install it.': "{name} n'est pas installé. Le choisir propose de l'installer.",
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': "Afficher ou masquer l'aperçu des plages de lyse au-dessus de la console. En mode Plaque, il segmente une image ; en mode Figure, il repère les images de plages de lyse dans une figure, lit leurs étiquettes et les segmente.",
     'Channel {index}; the file names call it {name}.': 'Canal {index} ; les noms de fichiers le désignent par {name}.',
+    'The test data has no measurements database at {path}': 'Les données de test ne contiennent pas de base de données de mesures à cet emplacement : {path}',
+    'Could not open the test data: {detail}': 'Impossible d’ouvrir les données de test : {detail}',
 }
 
 MODULE_SUMMARIES = {
@@ -12148,4 +12150,6 @@ SOURCE_HASHES = {
     ('UI', '{name} is not installed. Choosing it offers to install it.'): '1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
+    ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
+    ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
 }
