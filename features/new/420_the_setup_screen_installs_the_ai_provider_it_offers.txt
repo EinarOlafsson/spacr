@@ -310,3 +310,26 @@ passes end to end in tests/qt/test_ai_sign_in_happens_inside_spacr.py.
 
 Windows keeps the terminal: it has no pseudo-terminal in the standard
 library. `codex login` and `gemini` were not run here (not installed).
+
+2026-09-22 — EMBEDDED SIGN-IN LIFETIME AND TERMINAL CLEANUP
+The sign-in window now owns the entire process group it starts. Cancelling
+stops the launcher and its descendants, including a child that ignores TERM;
+it reaps the launcher and joins the terminal reader. Cleanup is idempotent,
+so closing/destroying a finished window cannot close a reused descriptor.
+Failed process creation closes both terminal descriptors. Completion drains
+remaining output and releases the terminal while the result window stays open.
+Destruction of the parent also stops sign-in; closing setup or choosing a new
+sign-in closes the old embedded window. The setup note now says "Signing in
+to {label}…" rather than incorrectly promising an external terminal.
+
+Three regressions reproduced on the previous code: parent destruction left
+sign-in running, failed creation leaked descriptors, and cancelling a launcher
+left its child alive. All now pass with real local Python stand-ins; no vendor
+authentication is needed. Older setup tests now explicitly cover embedded and
+terminal-fallback paths. The Qt test harness refuses an unmocked embedded
+process launch; tests of real terminal behavior opt into local stand-ins.
+Windows still uses the external terminal fallback. Real-host acceptance and
+the wider item420 requirements remain OPEN.
+Validation: 155 distinct focused setup/sign-in checks pass across the recorded
+runs (125 initial, 28 additional setup checks, and two added lifecycle cases).
+The final nine terminal lifecycle checks pass in5.93s; fatal-error Ruff passes.

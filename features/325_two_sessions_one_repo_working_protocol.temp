@@ -10596,3 +10596,42 @@ late construction, as are ordinary figures, first payload, reuse and teardown.
 GPU watcher still shows activity (35-41% in the latest samples); no qualifying
 20-minute idle window and no GPU job launched by this session.
 Releasing app_screen.py/test claim after this commit for other workers.
+
+2026-09-22 — IMPLEMENTATION: OPS LIBRARY-CORRECTION INVESTIGATION
+The UMAP change is pushed as4c3cd43ed. Taking the remaining43/372 CPU
+barcode-correction performance failure: ops_sbs.correct_to_library and
+its focused correctness/scaling tests. No GPU, NAS, Make Masks, tutorial
+or catalog changes. Investigating on the current source before changing it.
+The OPS correction failure does not reproduce at4c3cd43ed: the planted
+20,445-guide/500-read brute-force comparison and one-second budget pass both
+normally (1.89s whole test) and with branch coverage (5.04s whole test).
+No correction-code change warranted; releasing that claim. Continuing43's
+rendered field-text opacity and setup sign-in failures on current source.
+
+2026-09-22 — IMPLEMENTATION:43/420 EMBEDDED SIGN-IN LIFECYCLE CLAIM
+Field-fade pixel checks pass on current source. The two setup tests reproduce:
+they stub external terminals while POSIX now creates an embedded sign-in.
+That exposed a real orphan: the setup dialog's teardown left a codex login
+process alive in this test's capped scope. It was identified and terminated.
+Claiming pty_sign_in.py, setup_slides.py sign-in lifecycle, and their focused
+tests: stop/reap the owned process group, close terminal descriptors on failed
+spawn/completion/destruction, and stop a previous/parent-owned sign-in when
+its window is replaced or setup closes. All further commands use local
+stand-ins or recorded launchers, never a provider authentication command.
+
+2026-09-22 — IMPLEMENTATION:43/420 SIGN-IN CLEANUP VERIFIED / CLAIM RELEASE
+Fixed the three reproduced embedded sign-in lifecycle defects: parent
+teardown, failed-spawn descriptors, and launcher children outliving cancellation.
+Also handles stubborn launchers, repeated cleanup after descriptor reuse,
+completion output drain, and stopping a previous window when setup closes or
+starts another sign-in. No provider login performed; final validation used
+local Python stand-ins. No matching test/sign-in processes remain.
+155 distinct setup/sign-in checks pass across focused runs:125 initial,
+28 additional setup checks, plus two added lifecycle cases; final lifecycle
+suite9/9 in5.93s. Fatal-error Ruff and git diff --check pass.
+API/translation lane: pty_sign_in.PtySession.stop docstring changed; new private
+pty_sign_in._spawn seam and SetupSlides._stop_sign_in method. The
+_sign_in_to_provider docstring now describes embedded/platform fallback.
+One new runtime caption: "Signing in to {label}…" (via _say); replaces the
+misleading terminal-specific note. No catalog edits by implementation.
+420 and full-CI43 remain OPEN. Releasing these files after the commit.

@@ -2110,3 +2110,21 @@ flag. All real rendered-pixel/pen/first-frame contrast assertions are retained.
 All54 startup-contrast and existing platform-theme/default checks pass in7.48s.
 No production palette or threshold changed. Real Windows acceptance stays open
 under415; full CI stays open under43.
+
+2026-09-22 — SIGN-IN FAILURES EXPOSED AN OWNERSHIP BUG
+The two setup sign-in failures used terminal-only mocks after POSIX sign-in
+moved into spaCR. Reproduction also exposed an orphaned sign-in process when
+the setup window closed; that test-owned process was identified and stopped.
+Fixed embedded sign-in process-group/descriptor/reader cleanup, parent
+destruction and replacement, and the misleading terminal status note (420).
+The old tests now cover the actual embedded path and a separate fallback.
+The Qt test harness refuses unmocked embedded launches; real process tests
+run only local Python stand-ins. No authentication is completed by tests.
+
+The older field-fade text-opacity failure and OPS library-correction scaling
+failure do not reproduce on4c3cd43ed: all field-fade pixel checks pass, and the
+20,445-guide/500-read brute-force/scaling check passes normally and under branch
+coverage. Their production behavior and thresholds were left unchanged.
+Full CI remains OPEN; these focused checks do not establish suite acceptance.
+Validation for the repair: 155 distinct setup/sign-in checks pass across the
+focused runs; final terminal lifecycle suite9/9 and fatal-error Ruff pass.
