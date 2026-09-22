@@ -6180,6 +6180,8 @@ UI = {
     'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.': '“反相图像”已开启：显示和检测均使用反转后的图像。悬停处的像素强度随反转变化；对象平均强度和“过滤器”阈值使用原始载入值。已载入的图像数据和现有掩膜保持不变。',
     "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "反转图像及用于检测的像素，使暗对象变亮。视野先归一化到 0..1，然后每个像素变为 1 减去自身的值。悬停处的像素强度随反转变化；对象平均强度和“过滤器”阈值使用原始载入值。已载入的图像数据和现有掩膜保持不变。要交换已完成掩膜中的前景和背景，请使用“对象操作”中的«交换对象和背景» ('Swap object and background')。",
     'Swap object and background': '交换对象和背景',
+    'Confirm annotations': '确认标注',
+    'model.pt': 'model.pt',
 }
 
 MODULE_SUMMARIES = {
@@ -12483,4 +12485,6 @@ SOURCE_HASHES = {
     ('UI', 'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.'): '442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d',
     ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
     ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
+    ('UI', 'Confirm annotations'): 'ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12',
+    ('UI', 'model.pt'): 'd68732da8bd6b6829356ddb90a0dd56abe11f341c1b7667ace779729c3e1c5e8',
 }

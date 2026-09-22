@@ -6016,6 +6016,9 @@ UI = {
     "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "이미지와 검출에 사용하는 픽셀을 반전하여 어두운 객체를 밝게 만듭니다. 시야를 0..1로 정규화한 다음 각 픽셀 값을 1에서 해당 값을 뺀 값으로 바꿉니다. 커서 아래의 픽셀 강도는 반전을 반영하지만 객체 평균 강도와 필터 임계값은 처음 불러온 원래 값을 사용합니다. 불러온 이미지 데이터와 기존 마스크는 바뀌지 않습니다. 완성된 마스크의 전경과 배경을 바꾸려면 객체 작업에서 «객체와 배경 바꾸기» ('Swap object and background')를 사용하세요.",
     'Invert image': '이미지 반전',
     'Swap object and background': '객체와 배경 바꾸기',
+    'Confirm annotations': '주석 확인',
+    'PDF…': 'PDF…',
+    'model.pt': 'model.pt',
 }
 
 MODULE_SUMMARIES = {
@@ -12156,4 +12159,7 @@ SOURCE_HASHES = {
     ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
     ('UI', 'Invert image'): '4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613',
     ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
+    ('UI', 'Confirm annotations'): 'ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12',
+    ('UI', 'PDF…'): 'e39b05d4001896ab9ed3abc9cdd5676546d282b9b6f053ba300e6c656a9bd4a2',
+    ('UI', 'model.pt'): 'd68732da8bd6b6829356ddb90a0dd56abe11f341c1b7667ace779729c3e1c5e8',
 }

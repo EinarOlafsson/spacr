@@ -5936,6 +5936,9 @@ UI = {
     "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "Snýr við myndinni og mynddílunum sem notaðir eru við greiningu svo dökkir hlutir verði bjartir. Myndsviðið er staðlað á bilið 0..1 og gildi hvers mynddíls verður síðan 1 að frádregnu eigin gildi. Styrkur mynddíls undir bendlinum fylgir viðsnúningnum; meðalstyrkur hluta og þröskuldar í Síu nota upphaflegu innlesnu gildin. Innlesin myndgögn og fyrirliggjandi maski haldast óbreytt. Til að víxla forgrunni og bakgrunni í fullgerðum maska skaltu nota «Víxla hlut og bakgrunni» ('Swap object and background') undir Hlutaaðgerðir.",
     'Invert image': 'Snúa við mynd',
     'Swap object and background': 'Víxla hlut og bakgrunni',
+    'Confirm annotations': 'Staðfesta merkingar',
+    'PDF…': 'PDF…',
+    'model.pt': 'model.pt',
 }
 
 MODULE_SUMMARIES = {
@@ -11996,4 +11999,7 @@ SOURCE_HASHES = {
     ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
     ('UI', 'Invert image'): '4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613',
     ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
+    ('UI', 'Confirm annotations'): 'ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12',
+    ('UI', 'PDF…'): 'e39b05d4001896ab9ed3abc9cdd5676546d282b9b6f053ba300e6c656a9bd4a2',
+    ('UI', 'model.pt'): 'd68732da8bd6b6829356ddb90a0dd56abe11f341c1b7667ace779729c3e1c5e8',
 }

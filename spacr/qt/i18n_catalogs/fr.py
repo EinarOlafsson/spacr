@@ -6157,6 +6157,9 @@ UI = {
     'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.': "Inverser l'image est activé : l’affichage et la détection utilisent l’image INVERSÉE. L’intensité du pixel sous le pointeur suit l’inversion ; l’intensité moyenne des objets et les seuils de Filtrer utilisent les valeurs d’origine chargées. Les données d’image chargées et le masque existant restent inchangés.",
     "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "Inverse l’image et les pixels utilisés pour la détection afin que les objets sombres deviennent clairs. Le champ est normalisé sur 0..1, puis chaque pixel prend la valeur 1 moins sa propre valeur. L’intensité du pixel sous le pointeur suit l’inversion ; l’intensité moyenne des objets et les seuils de Filtrer utilisent les valeurs d’origine chargées. Les données d’image chargées et le masque existant restent inchangés. Pour permuter le premier plan et l’arrière-plan dans un masque terminé, utilisez «Permuter l’objet et l’arrière-plan» ('Swap object and background') dans Opérations d'objets.",
     'Swap object and background': 'Permuter l’objet et l’arrière-plan',
+    'Confirm annotations': 'Confirmer les annotations',
+    'PDF…': 'PDF…',
+    'model.pt': 'model.pt',
 }
 
 MODULE_SUMMARIES = {
@@ -12438,4 +12441,7 @@ SOURCE_HASHES = {
     ('UI', 'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.'): '442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d',
     ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
     ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
+    ('UI', 'Confirm annotations'): 'ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12',
+    ('UI', 'PDF…'): 'e39b05d4001896ab9ed3abc9cdd5676546d282b9b6f053ba300e6c656a9bd4a2',
+    ('UI', 'model.pt'): 'd68732da8bd6b6829356ddb90a0dd56abe11f341c1b7667ace779729c3e1c5e8',
 }

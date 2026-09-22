@@ -5936,6 +5936,9 @@ UI = {
     "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "छवि और पहचान के लिए इस्तेमाल किए जाने वाले पिक्सेल उलटें, ताकि गहरे ऑब्जेक्ट चमकीले हो जाएँ। फ़ील्ड को 0..1 में सामान्यीकृत किया जाता है और फिर हर पिक्सेल का मान 1 में से उसके अपने मान को घटाकर मिलता है। कर्सर के नीचे पिक्सेल की तीव्रता उलटने के अनुसार बदलती है; ऑब्जेक्ट की औसत तीव्रता और फ़िल्टर की सीमाएँ मूल लोड किए गए मानों का उपयोग करती हैं। लोड किया गया छवि डेटा और मौजूदा मास्क नहीं बदलते। तैयार मास्क में अग्रभूमि और पृष्ठभूमि बदलने के लिए ऑब्जेक्ट संचालन में «ऑब्जेक्ट और पृष्ठभूमि बदलें» ('Swap object and background') का उपयोग करें।",
     'Invert image': 'छवि उलटें',
     'Swap object and background': 'ऑब्जेक्ट और पृष्ठभूमि बदलें',
+    'Confirm annotations': 'एनोटेशन की पुष्टि करें',
+    'PDF…': 'PDF…',
+    'model.pt': 'model.pt',
 }
 
 MODULE_SUMMARIES = {
@@ -11996,4 +11999,7 @@ SOURCE_HASHES = {
     ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
     ('UI', 'Invert image'): '4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613',
     ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
+    ('UI', 'Confirm annotations'): 'ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12',
+    ('UI', 'PDF…'): 'e39b05d4001896ab9ed3abc9cdd5676546d282b9b6f053ba300e6c656a9bd4a2',
+    ('UI', 'model.pt'): 'd68732da8bd6b6829356ddb90a0dd56abe11f341c1b7667ace779729c3e1c5e8',
 }
