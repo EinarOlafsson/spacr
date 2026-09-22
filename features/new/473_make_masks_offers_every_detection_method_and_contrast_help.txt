@@ -95,3 +95,200 @@ DONE WHEN
   documented order, and the magnifier shows the enhanced image.
 * Each option is tested on a real field, and the chain is recorded with the
   masks it produced.
+
+
+================================================================================
+2026-09-22 -- BUILT AND MEASURED ON REAL FIELDS
+================================================================================
+
+WHAT LANDED (nightly, commits 226397ff8, 9a87d7dec, 6202379a1, 10b049b95,
+e36fd3f9d, 7d74945eb)
+
+* spacr/qt/organelle_modes.py -- the bridge. A Make Masks mode names an
+  (organelle_morphology, organelle_method) pair, the parameters that pair
+  reads (PARAMETERS_FOR) and the call that runs it. `segment()` reaches
+  spacr.object._segment_single_image and, for unet, _segment_unet: THE SAME
+  FUNCTIONS THE ORGANELLE MASK PIPELINE'S WORKERS CALL. There is no second
+  implementation; tests/qt/test_make_masks_offers_every_detection_method.py
+  ::test_a_method_runs_through_the_organelle_engine_and_not_a_copy holds
+  that down by intercepting the engine's entry point.
+  The morphology each mode runs under, and why: adaptive -> irregular (the
+  branch that smooths, closes, opens, fills holes and watershed-splits,
+  which is what a solid object wants; the spots branch's adaptive top-hats
+  first and erases anything wider than its disk); log and dog -> spots;
+  ridge, hysteresis and unet -> network. Those are the only branches that
+  implement them.
+* spacr/organelle_types.py -- morphologies_for_method() and
+  method_guidance(), built from LEGAL_METHODS, so the sentence the Mode box
+  and the Detection methods card show about a method is spaCR's own record
+  of which shape it detects and not a second opinion.
+* spacr/qt/detect_chain.py -- the chain, in ONE fixed order, CHAIN_ORDER:
+      percentile stretch -> background -> denoise -> contrast -> sharpen
+          -> detect -> morphology -> split
+  The percentile stretch is the existing "Detect on the normalized image"
+  and stays on the canvas, because its two levels are percentiles of the
+  WHOLE FIELD and the magnifier's box is not the field. The module
+  docstring argues each of the other boundaries. provenance() records only
+  the steps that ran, with the order, so a mask can be regenerated.
+* spacr/qt/screens/make_masks.py -- six new rows in the Mode box (Adaptive
+  threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis, U-Net), all
+  through one segmenter, _organelle_segmenter; two settings categories,
+  "Detection methods" (the chosen mode's own parameters, the rest hidden)
+  and "Image enhancement" (the chain, with the order printed on the card);
+  "Show the enhanced image" on the canvas and in the magnifier's box, and
+  "Compare raw and enhanced", which shows the box under the mouse when
+  there is one and the whole field otherwise.
+  The chain and the parameters are part of the magnifier's REQUEST KEY and
+  are applied on the WORKER thread, to the box's own region, so a heavy
+  step is never a frozen window; whole-image scope is item 407's machinery
+  unchanged, with a ticket check before and after the detector.
+  Both detect buttons read the chain, through one call:
+  _detector_image() is now _MaskCanvas.detection_source().
+
+MEASURED: F1 AT IoU 0.5 AGAINST THE GROUND TRUTH
+--------------------------------------------------------------------------------
+
+Three fields of ~/.cache/spacr/example_data/make_masks_toxo_pv --
+plate1_A02_12 (33 vacuoles), plate2_E08_13 (23), plate3_I10_4 (18); 74
+objects in all, pooled. Whole fields, CPU, Min area 200 px (the smallest
+ground-truth vacuole is 248 px). Greedy one-to-one matching at IoU 0.5.
+The Otsu row is Make Masks' own Otsu detect at the panel's defaults
+(correction 1.0, smoothing 1.0, fill holes, split).
+
+  run                                     F1     P      R    tp  fp  fn   s/field
+  otsu (baseline)                       0.297  0.352  0.257  19   35  55     0.7
+  adaptive  block 151, offset 80        0.348  0.238  0.649  48  154  26     2.8
+  log       sigma 8-25, split on        0.000  0.000  0.000   0  419  74     7.0
+  log       sigma 8-25, split OFF       0.154  0.091  0.514  38  381  36     6.6
+  dog       sigma 8-25, split on        0.000  0.000  0.000   0  257  74     3.3
+  dog       sigma 8-25, split OFF       0.266  0.171  0.595  44  213  30     2.0
+  ridge     frangi, sigmas 3/6/9        0.133  0.132  0.135  10   66  64     3.8
+  hysteresis  low 0.985, high 0.995     0.523  0.607  0.459  34   22  40     0.4
+
+  otsu + top-hat background r40         0.297  0.352  0.257  19   35  55    27.4
+  otsu + median denoise r3              0.333  0.359  0.311  23   41  51     1.8
+  otsu + gamma 0.5                      0.639  0.568  0.730  54   41  20     4.0
+  otsu + CLAHE tile 128, clip 0.01      0.350  0.381  0.324  24   39  50     4.2
+  otsu + histogram equalisation         0.605  0.557  0.662  49   39  25     4.0
+  otsu + unsharp mask r3, amount 1      0.157  0.220  0.122   9   32  65     4.1
+  otsu + top-hat + median + CLAHE       0.400  0.408  0.392  29   42  45    24.7
+  adaptive + closing r3                 0.596  0.850  0.459  34    6  40     1.9
+  adaptive + split                      0.348  0.238  0.649  48  154  26     2.6
+  hysteresis + closing r3               0.523  0.607  0.459  34   22  40     0.6
+  hysteresis + split                    0.357  0.263  0.554  41  115  33     0.7
+  hysteresis + gamma 0.5                0.523  0.607  0.459  34   22  40     3.9
+
+WHAT THE NUMBERS SAY, beyond "it runs"
+
+* THE CHAIN IS THE BIGGEST EFFECT ON THIS DATA. Gamma 0.5 more than doubles
+  Otsu's F1, 0.297 -> 0.639, and histogram equalisation does nearly as well
+  (0.605). Both lift the dim end of a 16-bit histogram whose vacuoles sit
+  just above a bright host-cell haze, which is exactly the complaint the
+  item was filed about. Neither changes a pixel on disk.
+* AND IT CAN ALSO HURT. The unsharp mask halves Otsu's F1 (0.297 ->
+  0.157): it puts a rim round every vacuole and a moat outside it, and the
+  threshold lands on the rim. A top-hat at r40 changed nothing here and
+  cost 27 s a field. The card is a set of things to TRY on the box before
+  the button, which is why the magnifier shows what they did.
+* HYSTERESIS IS THE BEST BARE METHOD ON VACUOLES (0.523) and the fastest
+  (0.4 s a field): two percentile levels suit a bright, well-separated
+  object on a dim field. Its thresholds are percentiles, so a monotone
+  contrast curve cannot move them -- "hysteresis + gamma 0.5" is the same
+  mask to the object, which is a true fact about the pair and not a bug.
+* ADAPTIVE FINDS THE MOST VACUOLES (recall 0.649) and pays for it in false
+  positives (154); one morphological closing at r3 turns that into the best
+  precision in the table (0.850) at F1 0.596. That pair -- a permissive
+  detector and a cleanup step -- is what the chain's post-detection half is
+  for.
+* THE BLOB DETECTORS ARE THE WRONG TOOL HERE AND SAY SO. LoG and DoG are
+  spot detectors; a 40 px vacuole is not a spot. With the spot watershed on
+  they score 0.000, because _blobs_to_labels grows a watershed over
+  everything above the 20th percentile and one object swallows the field;
+  with it off they stamp discs and reach 0.154 and 0.266. The Detection
+  methods card's "Split touching spots" is therefore the box that matters
+  most for those two, and the organelle_types guidance on the row already
+  says they suit "small round spots and puncta".
+* RIDGE IS THE WRONG TOOL AND SAYS SO TOO (0.133): its guidance reads
+  "Suits filaments, tubules and networks", and a vacuole is neither.
+
+That is the point of the row's guidance sentence: the box now offers eight
+ways of looking, and the numbers above are what each one is for.
+
+TIMING AND THE HEAVY MARK
+
+Whole 1,994 px fields, CPU: Otsu with no chain 0.7 s; hysteresis 0.4 s;
+adaptive 2.8 s; dog 2.0-3.3 s; ridge 3.8 s; log 6.6-7.0 s. Chain steps, on
+top of a 0.7 s detection: median denoise +1.1 s, gamma +3.3 s, CLAHE
++3.5 s, top-hat r40 +26.7 s. heavy_steps() therefore warns on non-local
+means, bilateral denoising, and a BACKGROUND RADIUS over 20 px -- the
+radius and not the method, because a 5 px top-hat is instant. On the
+magnifier's box every one of these is a small fraction of the above.
+
+SCREENSHOTS (offscreen, 1366x768, looked at)
+
+  473_mode_box.png            all fourteen rows: Otsu, the six organelle
+                              methods, Cellpose, and the six backends greyed
+  473_ridge_parameters.png    the Detection methods card under Ridge filter:
+                              the guidance sentence and exactly its seven
+                              parameters
+  473_compare_raw_enhanced.png  a real field as loaded beside the same field
+                              after "top-hat background -> CLAHE"
+  473_settings_panel.png      the panel with both new categories in place
+  473_screen.png              the screen drawing the enhanced image
+
+TESTS
+
+tests/qt/test_make_masks_offers_every_detection_method.py -- 36 tests: the
+box offers every method; every (morphology, method) pair the engine would
+accept; the engine itself is what runs; each method finds objects; a mode
+shows its own parameters and no others; the guidance comes from
+LEGAL_METHODS; CHAIN_ORDER is the order prepare() runs in; an empty chain
+costs no copy; every step changes the image; the split and the morphology
+do what they say; the Otsu mode is left to its own; the chain and the
+parameters are in the request key; a whole-image run can be cancelled; the
+ledger carries the chain; the heavy marks; the canvas draws the enhanced
+image without touching the data; the Compare window.
+Five existing files were updated where they counted positions in the
+request key or listed the Mode box and the settings categories.
+
+DONE WHEN -- MET
+
+* "Make Masks' mode box offers otsu, cellpose, the backends, and adaptive,
+  log, dog, ridge, hysteresis and unet, each detecting through the same
+  code as organelle detection, with its own parameters." MET. See
+  473_mode_box.png and the engine-reuse test.
+* "Contrast enhancement (gamma, CLAHE, histogram equalisation, percentile
+  stretch) and the other strategies (background subtraction, denoising,
+  sharpening, morphology, split) can be switched on before detection, in a
+  documented order, and the magnifier shows the enhanced image." MET.
+  CHAIN_ORDER is the order, it is printed on the card, and "Show the
+  enhanced image" plus "Compare raw and enhanced" are the view.
+* "Each option is tested on a real field, and the chain is recorded with
+  the masks it produced." MET. The table above is three real fields with
+  ground truth; detect_chain.provenance() goes into the field's curation
+  ledger beside every detect and every magnifier commit, with the order.
+
+STILL OPEN
+
+* THE MASK MODULE'S OWN PREPROCESSING IS UNTOUCHED, deliberately. The item
+  says to ask the maintainer first, and the question is a real one: a model
+  trained on masks curated over an enhanced image would want the same
+  enhancement at inference, and that is a decision about the pipeline
+  rather than about this screen. FOR THE MAINTAINER: should Mask's
+  preprocessing grow the same chain, reading the same detect_chain module,
+  so a mask run can be told to detect on the enhanced image?
+* THE NINE TRANSLATION CATALOGS ARE NOT REGENERATED. The new captions are
+  listed for the catalog lane by
+  tests/qt/test_make_masks_settings_explain_themselves.py
+  ::_awaiting_translation, and a second test in that file fails as soon as
+  the lane has translated one, so the list empties itself. Only the English
+  source layer was refreshed (tools/build_i18n_catalogs.py --sources-only),
+  which the caption ratchet requires.
+* U-NET IS OFFERED AND NOT MEASURED HERE: it needs a .pt/.pth checkpoint,
+  and there is none in the example data. Its parameters, its heavy mark and
+  its path picker are on the card; the numbers above are the seven methods
+  that need nothing installed.
+* The whole-image progress BAR stays indeterminate for the classical
+  methods -- item 407's counter is Cellpose's tiles and a scikit-image
+  filter has none. Cancel is honoured between steps. Seconds a field, so
+  this is not felt; it is written down in _organelle_segmenter's docstring.
