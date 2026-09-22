@@ -59,7 +59,6 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSlider,
     QSpinBox,
-    QSplitter,
     QTreeWidget,
     QTreeWidgetItem,
     QVBoxLayout,
@@ -72,6 +71,7 @@ from ..job_runner import JobRunner
 from ..theme import (SPACING, active_palette, block_surface,
                      mark_surface, register_widget_qss)
 from .app_screen import ModuleHeader
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting, tree_item
 from ..app_catalog import declared_app, register_declared
 
@@ -316,7 +316,12 @@ class ProfilerScreen(QWidget):
 
 
     def _build_ui(self) -> None:
-        """Picker, status strip, then the ranked inputs beside the plot."""
+        """Picker, status strip, then the ranked inputs beside the plot.
+
+        Item 471: the ranked inputs ("Inputs") and the curve ("Curve") fold
+        by their headings; the inputs share a draggable edge with the
+        profile column, and the curve with the held values below it.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -369,7 +374,8 @@ class ProfilerScreen(QWidget):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-        splitter = QSplitter(Qt.Horizontal)
+        splitter = CollapsibleSplitter(Qt.Horizontal,
+                                       persist_key="profiler::body")
 
         self._inputs = QTreeWidget()
         install_sorting(self._inputs)
@@ -378,7 +384,8 @@ class ProfilerScreen(QWidget):
         self._inputs.setMinimumWidth(260)
         self._inputs.currentItemChanged.connect(self._on_input_selected)
         mark_surface(self._inputs)
-        splitter.addWidget(self._inputs)
+        splitter.add_section(self._inputs, "Inputs",
+                             persist_key="profiler/Inputs", stretch=1)
 
         right = QWidget()
         right_layout = QVBoxLayout(right)
@@ -392,7 +399,12 @@ class ProfilerScreen(QWidget):
                                        SPACING["sm"], SPACING["sm"])
         self._canvas = CurveCanvas()
         plot_layout.addWidget(self._canvas)
-        right_layout.addWidget(plot_frame, 3)
+        curve_split = CollapsibleSplitter(Qt.Vertical,
+                                          persist_key="profiler::curve")
+        curve_split.add_section(plot_frame, "Curve",
+                                persist_key="profiler/Curve", stretch=3)
+        self._curve_splitter = curve_split
+        right_layout.addWidget(curve_split, 1)
 
         self._held_area = QScrollArea()
         self._held_area.setObjectName("ProfilerHeld")
@@ -404,7 +416,7 @@ class ProfilerScreen(QWidget):
                                              SPACING["sm"], SPACING["sm"])
         self._held_layout.setSpacing(SPACING["xs"])
         self._held_area.setWidget(self._held_host)
-        right_layout.addWidget(self._held_area, 2)
+        curve_split.add_pane(self._held_area, "Held values", stretch=2)
 
         actions = QHBoxLayout()
         self._reset_button = QPushButton("Reset held values")
@@ -416,9 +428,8 @@ class ProfilerScreen(QWidget):
         actions.addStretch(1)
         right_layout.addLayout(actions)
 
-        splitter.addWidget(right)
-        splitter.setStretchFactor(0, 1)
-        splitter.setStretchFactor(1, 3)
+        splitter.add_pane(right, "Profile", stretch=3)
+        self._body_splitter = splitter
         outer.addWidget(splitter, 1)
 
 

@@ -81,7 +81,6 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QVBoxLayout,
     QWidget,
@@ -108,6 +107,7 @@ from ..widgets.power_design import (
     simulator_kwargs,
     wells_grid,
 )
+from ..widgets.collapsible_splitter import CollapsibleSplitter, FoldSection
 from ..widgets.sortable_table import install_sorting, table_item
 from .app_screen import ModuleHeader
 
@@ -622,11 +622,11 @@ class PowerScreen(QWidget):
         self._header = header
         root.addWidget(header)
 
-        splitter = QSplitter(Qt.Horizontal)
-        splitter.addWidget(self._build_form())
-        splitter.addWidget(self._build_output())
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
+        splitter = CollapsibleSplitter(Qt.Horizontal,
+                                       persist_key="power::body")
+        splitter.add_pane(self._build_form(), "Design", stretch=0)
+        splitter.add_pane(self._build_output(), "Answer", stretch=1)
+        self._body_splitter = splitter
         root.addWidget(splitter, 1)
 
         self._status = QLabel("")
@@ -806,6 +806,12 @@ class PowerScreen(QWidget):
     def _build_output(self) -> QWidget:
         """Build the right column: the answer line, caveats, both curves and the table.
 
+        Item 471: the caveats fold under their own heading, and the two
+        curves and the table are sections of one vertical
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``power::results``), so each folds by its heading and the edges
+        between them drag.
+
         :returns: the output panel.
         """
         panel = QWidget()
@@ -823,12 +829,19 @@ class PowerScreen(QWidget):
         layout.addWidget(self._answer)
 
         self._caveats = CaveatPanel()
-        layout.addWidget(self._caveats)
+        layout.addWidget(FoldSection(self._caveats, "Caveats",
+                                     persist_key="power/Caveats", stretch=0))
 
         self._cells_view = PowerCurveView("Detection probability vs cells per well")
         self._wells_view = PowerCurveView("Detection probability vs wells")
-        layout.addWidget(self._cells_view, 1)
-        layout.addWidget(self._wells_view, 1)
+        results = CollapsibleSplitter(Qt.Vertical,
+                                      persist_key="power::results")
+        results.add_section(self._cells_view, "Power vs cells per well",
+                            persist_key="power/Power vs cells per well")
+        results.add_section(self._wells_view, "Power vs wells",
+                            persist_key="power/Power vs wells")
+        self._results_splitter = results
+        layout.addWidget(results, 1)
 
         self._table = QTableWidget(0, len(_TABLE_HEADERS))
         install_sorting(self._table)
@@ -840,7 +853,8 @@ class PowerScreen(QWidget):
             QHeaderView.ResizeToContents)
         self._table.setMinimumHeight(140)
         mark_surface(self._caveats, self._table)
-        layout.addWidget(self._table, 1)
+        results.add_section(self._table, "Power table",
+                            persist_key="power/Power table")
         return panel
 
     @staticmethod
