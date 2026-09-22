@@ -338,7 +338,8 @@ _SPECS = {
         name=_SPOTNET, label="SpotNet (DeepCell)", module="deepcell_spots",
         probe=("deepcell_spots", "deepcell_spots.applications", "tensorflow"),
         distribution="deepcell-spots",
-        requirements=("deepcell-spots==0.4.2",),
+        requirements=("trackpy==0.6.1", "deepcell==0.12.10",
+                      "deepcell-spots==0.4.2"),
         torch=(), python=((3, 7), (3, 10)),
         licence="Modified Apache-2.0, NON-COMMERCIAL ACADEMIC USE ONLY",
         licence_note=(
@@ -357,7 +358,10 @@ _SPECS = {
             "coordinates, not masks. It is TensorFlow, so it installs into "
             "an environment of its own; deepcell-spots 0.4.2 needs Python "
             "3.7 to 3.10, so a spaCR running a newer Python cannot build "
-            "it. The weights need a free DeepCell token."),
+            "it. The weights need a free DeepCell token. trackpy and "
+            "deepcell are pinned with it: deepcell-spots pins neither, and "
+            "pip walked back to trackpy 0.2.3 (2014), whose setup.py cannot "
+            "build (reported 2026-09-22)."),
         published=(
             "Published results: Laubscher et al., 'Accurate single-molecule "
             "spot detection for image-based spatial transcriptomics with "

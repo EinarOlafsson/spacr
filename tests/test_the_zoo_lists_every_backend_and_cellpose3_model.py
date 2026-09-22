@@ -347,3 +347,15 @@ def test_spotnet_is_not_offered_as_a_segmentation_backend():
     assert "spotnet" not in _BACKEND_NAMES
     with pytest.raises(ValueError):
         _backend_name("spotnet")
+
+
+def test_spotnet_pins_the_dependencies_deepcell_spots_leaves_open():
+    """Reported 2026-09-22: the install walked back to trackpy 0.2.3, whose
+    setup.py imports ez_setup and cannot build. deepcell-spots pins nothing,
+    so spaCR pins what it needs."""
+    from spacr._segmentation_backends import _SPECS, _SPOTNET
+
+    requirements = _SPECS[_SPOTNET].requirements
+    assert any(r.startswith("trackpy==") for r in requirements)
+    assert any(r.startswith("deepcell==") for r in requirements)
+    assert requirements[-1].startswith("deepcell-spots==")
