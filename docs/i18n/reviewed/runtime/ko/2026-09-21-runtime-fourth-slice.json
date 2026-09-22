@@ -60,13 +60,6 @@
     },
     {
       "table": "ui",
-      "key": "Channels",
-      "source": "Channels",
-      "translation": "채널",
-      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
-    },
-    {
-      "table": "ui",
       "key": "Choose a database or a folder first",
       "source": "Choose a database or a folder first",
       "translation": "먼저 데이터베이스나 폴더를 선택하세요",
@@ -274,6 +267,19 @@
       "source": "Downloading {name} in the background.",
       "translation": "백그라운드에서 {name} 항목을 다운로드하고 있습니다.",
       "source_sha256": "f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Channels",
+        "source": "Channels",
+        "translation": "채널",
+        "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
+      }
     }
   ]
 }

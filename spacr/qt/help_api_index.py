@@ -3443,7 +3443,7 @@ API_ENTRIES = (
     ('spacr.qt.ai.pty_sign_in.PtySession.poll', 'The exit code, or None while it runs.'),
     ('spacr.qt.ai.pty_sign_in.PtySession.read', 'Everything the command has written since the last call.'),
     ('spacr.qt.ai.pty_sign_in.PtySession.send', 'Type ``text`` and press Enter.'),
-    ('spacr.qt.ai.pty_sign_in.PtySession.stop', 'End the command and close the terminal.'),
+    ('spacr.qt.ai.pty_sign_in.PtySession.stop', 'Reap the command, stop its process group and close the terminal.'),
     ('spacr.qt.ai.pty_sign_in.SignInDialog', "A tool's sign-in, held inside spaCR."),
     ('spacr.qt.ai.pty_sign_in.SignInDialog.done', 'Stop the sign-in when the window closes.'),
     ('spacr.qt.ai.pty_sign_in.find_urls', 'Every web address in ``text``, in order, without trailing punctuation.'),

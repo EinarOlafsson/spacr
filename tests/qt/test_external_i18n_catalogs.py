@@ -328,9 +328,9 @@ def test_form_labels_and_detector_help_enter_the_runtime_source_inventory():
     finally:
         sys.path.pop(0)
     from spacr.qt import cpu_modes, organelle_modes
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    known = set(builder.extract_static_ui_sources()) | set(_ROWS)
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
     assert "Method" in known
     for modes in (cpu_modes, organelle_modes):
         assert set(modes.MODE_LABELS.values()) <= known
@@ -360,9 +360,9 @@ def test_every_set_translatable_text_call_has_static_catalog_sources():
     finally:
         sys.path.remove(tools_dir)
 
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
 
-    known = set(builder.extract_static_ui_sources()) | set(_ROWS)
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS) | set(_TERM_ROWS)
     unresolved = []
     missing = []
     checked = 0

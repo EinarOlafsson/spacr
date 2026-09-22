@@ -37953,10 +37953,11 @@
     },
     "spacr.qt.ai.pty_sign_in.PtySession.stop": {
       "source_blocks_sha256": [
-        "ad77da822d45383ff0032b030c2c8d03c3e2632a60aec7a7571eb1d217bbe8c0"
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
       ],
-      "source_sha256": "ad77da822d45383ff0032b030c2c8d03c3e2632a60aec7a7571eb1d217bbe8c0",
-      "text": "End the command and close the terminal."
+      "source_sha256": "0f99e7bc45c78eb8337f8310a79843758172f23d1f7b73a8e05baea88466dfaa",
+      "text": "Reap the command, stop its process group and close the terminal.\n\nLaunchers can leave a child holding the terminal after they exit.\nThe group belongs to this session, so cancellation also ends those\nchildren. Repeated teardown cannot close a reused file descriptor."
     },
     "spacr.qt.ai.pty_sign_in.SignInDialog": {
       "source_blocks_sha256": [

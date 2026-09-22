@@ -207,13 +207,6 @@
     },
     {
       "table": "ui",
-      "key": "Channels",
-      "source": "Channels",
-      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
-      "translation": "Canales"
-    },
-    {
-      "table": "ui",
       "key": "Choose a database or a folder first",
       "source": "Choose a database or a folder first",
       "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db",
@@ -295,6 +288,19 @@
       "source": "Could not open {name}.",
       "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0",
       "translation": "No se pudo abrir {name}."
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Channels",
+        "source": "Channels",
+        "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+        "translation": "Canales"
+      }
     }
   ]
 }

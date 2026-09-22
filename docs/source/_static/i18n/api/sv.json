@@ -58896,6 +58896,18 @@
         "e6e224bb275da5cb4cd7db379c4c7aa1eb7050b9589f0cd97dd267ef9fcb7724"
       ]
     },
+    "spacr.qt.ai.pty_sign_in.PtySession.stop": {
+      "source_blocks_sha256": [
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
+      ],
+      "source_sha256": "0f99e7bc45c78eb8337f8310a79843758172f23d1f7b73a8e05baea88466dfaa",
+      "text": "Invänta och hämta kommandots avslutningsstatus, stoppa dess processgrupp och stäng terminalen.\n\nStartprogram kan lämna kvar en underprocess som håller terminalen öppen efter att de själva har avslutats. Gruppen tillhör den här sessionen, så avbrott avslutar även dessa underprocesser. Upprepad stängning kan inte stänga en återanvänd filbeskrivare.",
+      "translation_source_blocks_sha256": [
+        "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+        "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad"
+      ]
+    },
     "spacr.qt.ai.settings": {
       "source_blocks_sha256": [
         "29e1b6ed1606dd00f3e589667761ec3f05aec331fc5a1100a5148d4fbe5cce78",

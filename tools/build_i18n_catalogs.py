@@ -3915,8 +3915,8 @@ def extract_static_ui_sources() -> tuple[str, ...]:
     found.update(_indirect_runtime_ui_sources())
 
     # The compact catalog already owns these and has stronger human review.
-    from spacr.qt.i18n import _ROWS
-    return tuple(sorted(found - set(_ROWS)))
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+    return tuple(sorted(found - set(_ROWS) - set(_TERM_ROWS)))
 
 
 def canonical_sources() -> dict[str, object]:
@@ -3940,7 +3940,7 @@ def canonical_sources() -> dict[str, object]:
     import spacr.qt.widgets.setup_slides  # noqa: F401
     from spacr.gene_tile import _GENE_TILE_UI_SOURCES
     from spacr.qt.app import _SECTION_NOTE_LIBRARY, APPS
-    from spacr.qt.i18n import _ROWS
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
     from spacr.qt.screens.app_screen import (
         APP_INTROS,
         APP_TITLES,
@@ -4121,6 +4121,10 @@ def canonical_sources() -> dict[str, object]:
     # wins for the complete assembled UI set as well: one visible caption has
     # one authoritative translation layer, never two drifting translations.
     ui_sources.difference_update(_ROWS)
+    # Exact term matches also precede generated UI text in tr(). Their
+    # translations already have a compact owner, including legitimate
+    # same-spelling terms such as German "Clustering" and French "Classes".
+    ui_sources.difference_update(_TERM_ROWS)
     return {
         "setting_labels": dict(sorted(labels.items())),
         "setting_tooltips": dict(sorted(tooltips.items())),

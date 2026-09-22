@@ -1,0 +1,21 @@
+{
+  "language": "zh_CN",
+  "records": [
+    {
+      "context": "Reap the command, stop its process group and close the terminal.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#0",
+      "source": "Reap the command, stop its process group and close the terminal.",
+      "source_sha256": "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+      "translation": "等待命令结束并回收其退出状态，终止其进程组并关闭终端。"
+    },
+    {
+      "context": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#1",
+      "source": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "source_sha256": "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad",
+      "translation": "启动器退出后，可能留下仍占用终端的子进程。该进程组属于本会话，因此取消操作也会终止这些子进程。重复清理不会关闭已被重新使用的文件描述符。"
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and process-lifecycle review; no native-speaker sign-off",
+  "schema": 1
+}

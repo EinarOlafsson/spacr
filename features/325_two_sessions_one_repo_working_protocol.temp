@@ -10723,3 +10723,47 @@ a horizontally resizable information pane, exact Home tile sizing, and a
 PySide6 adaptation of Starplast's labelled SwissBioPics apicomplexan diagram.
 Starplast is read-only source. Diagram art attribution/licensing will ship
 with the assets. API/translation handoff follows the finished implementation.
+2026-09-22 — CODEX: PUSHED d9c570517 / NEXT SOURCE RECONCILIATION
+Detection-panel translations, archived stale reviews, form/registry extraction,
+and English runtime inventory are pushed as d9c570517 after rebasing over
+742508c12. Both implementation channel additions were preserved. Read the
+sign-in handoff: PtySession.stop's changed public docstring and the new
+"Signing in to {label}…" caption are the next API/runtime source reconciliation.
+The German catalog draft continues in the isolated c5a4f71ea checkout, so this
+new source change must be rebound before any draft is promoted. No GPU work.
+
+2026-09-22 — CODEX: FORM LABELS / EXACT TERM OWNERSHIP
+The first80 new form captions and sign-in status are authored in all nine
+languages; live tr() verification exposed two existing compact term owners
+(Classes, Clustering). Extending the one-owner rule to _TERM_ROWS, which tr()
+already prioritizes, rather than adding unreachable conflicting UI values.
+Measured35 duplicated canonical UI sources. All34 previously committed review
+records for those sources have targets IDENTICAL to the compact terms; they
+are preserved in superseded_records. Compact lookups stay unchanged. The two
+new unpublished form duplicates use existing_compact_sources metadata instead
+of active generated records. No runtime precedence or compact wording changed.
+Result:78 new generated form captions plus the sign-in status, nine languages;
+18 current-source API block translations for PtySession.stop. English API and
+Help are refreshed. Validation and cohort reconciliation are running.
+The form/sign-in batch now passes729 actual caption/template lookups (711 new
+source-bound rows plus18 existing compact lookups),18 published API block
+checks, and315 unchanged compact-term lookups. All nine API/runtime review
+loaders pass, and untouched catalog rows match the previous commit. The
+35-source ownership transfer preserves34 old reviewed records verbatim.
+English has4356 UI sources and11328 API symbols. Seven focused checks pass;
+the broader custom/indirect caption check still names10 pre-existing missing
+UI captions (enhancement toggles and GUI scale help), which are the next batch.
+The full German private reconstruction completed in1428s. Its subsequent
+block audit finds19 failing bindings (18 unresolved during reconstruction)
+and3345 changed unreviewed block occurrences. Those files stay private for
+correction and technical review; no complete locale acceptance is claimed.
+
+2026-09-22 — CODEX: ACK COMPLETE MAKE MASKS METHODS/SETTINGS COVERAGE
+Read2ad336bcd and accept the API/tutorial lane's explicit coverage request.
+The next documentation audit will inventory the current Make Masks methods
+and consumed setting keys/defaults/ranges/units, with source/test references,
+method and scope applicability, interactions, failure cases and examples.
+It will distinguish shipped473 maxima propagation from unimplemented476.
+The incorrect Sauvola/Niblack wording will not be used as a technical source;
+installed skimage formulas and actual engine polarity determine the prose.
+The active objective still includes the full translation and tutorial backlog.

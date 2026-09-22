@@ -1,0 +1,21 @@
+{
+  "language": "ko",
+  "records": [
+    {
+      "context": "Reap the command, stop its process group and close the terminal.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#0",
+      "source": "Reap the command, stop its process group and close the terminal.",
+      "source_sha256": "714cb2291cb7e27ed685eeb60018fea158642afe5c56c1dd9aa8b86f1a7529ce",
+      "translation": "명령이 종료될 때까지 기다려 종료 상태를 회수하고, 해당 프로세스 그룹을 중지한 뒤 터미널을 닫습니다."
+    },
+    {
+      "context": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "label": "spacr.qt.ai.pty_sign_in.PtySession.stop#1",
+      "source": "Launchers can leave a child holding the terminal after they exit. The group belongs to this session, so cancellation also ends those children. Repeated teardown cannot close a reused file descriptor.",
+      "source_sha256": "4255e8424fb82de59e1de8a9d4455c5cbe48378e14bad5e1cd162c5e878c8cad",
+      "translation": "실행기가 종료된 후에도 터미널을 열어 둔 자식 프로세스가 남을 수 있습니다. 이 그룹은 현재 세션에 속하므로 취소하면 해당 자식 프로세스도 종료됩니다. 정리 작업을 반복해도 이미 재사용된 파일 디스크립터를 닫지 않습니다."
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and process-lifecycle review; no native-speaker sign-off",
+  "schema": 1
+}

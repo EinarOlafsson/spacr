@@ -466,13 +466,6 @@
     },
     {
       "table": "ui",
-      "key": "Channels",
-      "source": "Channels",
-      "translation": "Canaux",
-      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
-    },
-    {
-      "table": "ui",
       "key": "Choose a database or a folder first",
       "source": "Choose a database or a folder first",
       "translation": "Choisissez d'abord une base de données ou un dossier",
@@ -547,6 +540,19 @@
       "source": "Could not file the issue: the reporter would not start.",
       "translation": "Impossible de créer le ticket : l'outil de signalement n'a pas pu démarrer.",
       "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Channels",
+        "source": "Channels",
+        "translation": "Canaux",
+        "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
+      }
     }
   ]
 }

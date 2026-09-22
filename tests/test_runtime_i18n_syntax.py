@@ -68,6 +68,19 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert not panel_sources & sources
     sources.update(panel_sources)
     assert len(sources) == (167 if language == "sv" else 166)
+    for filename, expected in (("form-labels-a", 78), ("sign-in-status", 1)):
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                               f"2026-09-22-{filename}.json").read_text())
+        added = {record["source"] for record in document["records"]}
+        assert len(document["records"]) == len(added) == expected
+        assert added <= reviewed.keys()
+        if filename == "form-labels-a":
+            # The UI row reuses an already reviewed setting-label source.
+            assert "Crop size" in added
+            added.remove("Crop size")
+        assert not added & sources
+        sources.update(added)
+    assert len(sources) == (245 if language == "sv" else 244)
     return sources
 
 
@@ -109,8 +122,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
     ui_sources = {record["source"] for record in ui_refresh["records"]}
-    assert len(ui_refresh["records"]) == 267
-    assert len(ui_sources) == 264
+    assert len(ui_refresh["records"]) == 266  # Channels already has a compact owner.
+    assert len(ui_sources) == 263
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -263,7 +276,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                            "2026-09-21-make-masks-readouts.json").read_text())
     added_sources = {record["source"] for record in readouts["records"]}
-    assert len(added_sources) == 8
+    assert len(added_sources) == 7  # Quality already has a compact owner.
     assert added_sources <= reviewed.keys()
     background = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-organelle-background.json").read_text())
@@ -288,19 +301,19 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert not scientific_sources & (added_sources | background_sources)
     assert not sample_sources & scientific_sources
     older_sources = reviewed.keys() - scientific_sources - sample_sources
-    assert len(older_sources - added_sources - background_sources) == 319
+    assert len(older_sources - added_sources - background_sources) == 317
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(older_sources - background_sources) == 327
-    assert len(older_sources) == 335
-    assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
-    assert len(reviewed) == 377  # +3 variable-count dataset captions.
+    assert len(older_sources - background_sources) == 324
+    assert len(older_sources) == 332
+    assert len(reviewed.keys() - sample_sources) == 371  # +39 scientific sources.
+    assert len(reviewed) == 374  # Features, Controls and Quality use compact rows.
     # The new panel cohort also reuses the earlier whole-field model tooltip.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 640
-    assert len(older_all_sources - preview_sources - normalized_sources) == 647
-    assert len(older_all_sources - normalized_sources) == 652
-    assert len(older_all_sources) == 657
-    assert len(all_reviewed.keys() - subsequent_sources) == 668
-    assert len(all_reviewed) == 835  # Five retired captions, five new sources.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 636
+    assert len(older_all_sources - preview_sources - normalized_sources) == 643
+    assert len(older_all_sources - normalized_sources) == 648
+    assert len(older_all_sources) == 653
+    assert len(all_reviewed.keys() - subsequent_sources) == 664
+    assert len(all_reviewed) == 909  # 77 new form sources, one sign-in, four transfers.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -323,10 +336,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
-    assert len(refresh["records"]) == len(refresh_sources) == 78
+    assert len(refresh["records"]) == len(refresh_sources) == 77
     assert not refresh_sources & _compact_tooltip_sources("fr")
     refresh_sources |= _compact_tooltip_sources("fr")
-    assert len(refresh_sources) == 80
+    assert len(refresh_sources) == 79
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())
@@ -344,7 +357,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 303
+    assert len(refresh_sources) == 302
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -500,7 +513,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                            "2026-09-21-make-masks-readouts.json").read_text())
     added_sources = {record["source"] for record in readouts["records"]}
-    assert len(added_sources) == 8
+    assert len(added_sources) == 7  # Quality already has a compact owner.
     assert added_sources <= reviewed.keys()
     background = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                               "2026-09-21-organelle-background.json").read_text())
@@ -514,17 +527,17 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(sample_sources) == 3
     assert sample_sources <= reviewed.keys()
     assert not sample_sources & (added_sources | background_sources)
-    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 310
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 308
     # +8/-0: four source-bound background labels and four scientific tooltips.
-    assert len(reviewed.keys() - background_sources - sample_sources) == 318
-    assert len(reviewed.keys() - sample_sources) == 326
-    assert len(reviewed) == 329  # +3 variable-count dataset captions.
-    assert len(older_all_sources - preview_sources - normalized_sources) == 336
-    assert len(older_all_sources - normalized_sources) == 341
-    assert len(older_all_sources) == 346
-    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 357
-    assert len(all_reviewed.keys() - subsequent_sources) == 664
-    assert len(all_reviewed) == 830  # Five retired captions, five new sources.
+    assert len(reviewed.keys() - background_sources - sample_sources) == 315
+    assert len(reviewed.keys() - sample_sources) == 323
+    assert len(reviewed) == 326  # Features, Controls and Quality use compact rows.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 333
+    assert len(older_all_sources - normalized_sources) == 338
+    assert len(older_all_sources) == 343
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 354
+    assert len(all_reviewed.keys() - subsequent_sources) == 660
+    assert len(all_reviewed) == 904  # 77 new form sources, one sign-in, four transfers.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

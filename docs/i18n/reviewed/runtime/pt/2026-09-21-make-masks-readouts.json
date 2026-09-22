@@ -4,13 +4,6 @@
   "records": [
     {
       "table": "ui",
-      "key": "Features",
-      "source": "Features",
-      "source_sha256": "5697d03daef4de9cf8db7cb11755f71358a32b4acca94909a9d449f71040d2dd",
-      "translation": "Características"
-    },
-    {
-      "table": "ui",
       "key": "Magnifier could not add objects: {error}",
       "source": "Magnifier could not add objects: {error}",
       "source_sha256": "06647e0526246c0361bce7b86f30a3c1ab39a964777baa977a2797b2434dd92d",
@@ -57,6 +50,19 @@
       "source": "Show histogram and level",
       "source_sha256": "8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee",
       "translation": "Mostrar histograma e limiar"
+    }
+  ],
+  "superseded_records": [
+    {
+      "date": "2026-09-22",
+      "reason": "Exact caption already belongs to spacr.qt.i18n._TERM_ROWS. Its compact translation is identical to this review; remove the unreachable generated duplicate while preserving the evidence.",
+      "record": {
+        "table": "ui",
+        "key": "Features",
+        "source": "Features",
+        "source_sha256": "5697d03daef4de9cf8db7cb11755f71358a32b4acca94909a9d449f71040d2dd",
+        "translation": "Características"
+      }
     }
   ]
 }
