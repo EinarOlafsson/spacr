@@ -1946,3 +1946,43 @@ are not reachable any other way.
 
 380 STILL NOT DONE, for the same reasons 284 gives in its note of today;
 this closes the last lever the earlier notes named on the settings side.
+
+--------------------------------------------------------------------------------
+2026-09-22 -- A CLOSED CATEGORY IS BUILT WHEN IT IS OPENED; ITS VALUES ARE READ UNBUILT
+--------------------------------------------------------------------------------
+
+The last settings-side lever the notes named -- the model's control build --
+taken; the full account (design, call sites, equivalence checks, tests) is
+in 284's note of the same title. In one paragraph: `SettingsWidgets._widgets`
+is now a mapping whose plain controls may wait (membership and keys answer
+without building, a read builds one control, collect() and the rules read a
+waiting control from its plan, held equal to the built control for all
+1,135 plain settings of 59 modules), and a category closed at open is built
+as a heading only, its rows laid out the first time it is opened, revealed
+or asked for. No second value store: 48 of 886 settings read back
+differently from their declared default because the control normalises
+them, so a store would either change what the run gets or duplicate each
+control's normalisation.
+
+WIDGETS CREATED BY OPENING THE MODULE, nightly ad01caeca -> 48e431db4:
+Classify 738 -> 335, Mask 742 -> 459, Measure 486 -> 302, UMAP 547 -> 384,
+Regression 740 -> 601, External masks 508 -> 319, Plaques 529 -> 370.
+
+WORST STALL, twelve alternating benchmark runs per arm, paired median of the
+per-run difference (controls Home / Preferences / Annotate / Map barcodes
++1..+21 ms, which is the noise floor): Classify -159 ms (better in 12 of 12
+pairs), Mask -134 (10/12), UMAP -130 (11/12), Regression -109 (11/12),
+Measure -75 (11/12), External masks -55 (10/12), Plaques -7 (7/12). Over-500
+total 13.7 s -> 12.4 s, count 15.5 -> 14.5. Module open 10-30% shorter.
+
+A MEASUREMENT TRAP, FOR WHOEVER RUNS THE NEXT A/B: the benchmark sets
+PYTHONDONTWRITEBYTECODE=1, so an arm whose edited modules have no .pyc
+recompiles them in every run. It cost the changed arm ~0.8 s of startup and
+~200 ms on Home until found; `python -m compileall -q spacr` in both trees
+first. The earlier A/Bs in this file compared a freshly edited tree with a
+cached one and carry that bias against the change.
+
+380 NOT DONE: every heavy module still breaches 500 ms at load ~10 (Mask
+1.3 s, Regression 1.1 s, UMAP 0.8 s, Classify 0.7 s). What remains is the
+visible page's construction and polish, and the quiet-machine, real-display
+and macOS/Windows close-out.

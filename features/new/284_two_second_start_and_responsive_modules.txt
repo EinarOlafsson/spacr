@@ -1095,3 +1095,200 @@ nothing here touches, is at 0.7-0.9 s. What remains is the styling and
 construction of what IS visible, the settings model's control build
 (~200 ms per heavy screen, which only a separate value store would move),
 and a quiet-machine and real-display close-out plus macOS/Windows numbers.
+
+--------------------------------------------------------------------------------
+2026-09-22 -- A CLOSED CATEGORY IS BUILT WHEN IT IS OPENED; ITS VALUES ARE READ UNBUILT
+--------------------------------------------------------------------------------
+
+The lever the previous note left: "the settings model's control build
+(~200 ms per heavy screen, which only a separate value store would move)".
+Taken, but not with a second value store, for a reason that was measured.
+
+MEASURED FIRST: WHAT IS THERE TO WIN, AND WHERE IT HIDES.
+  * An upper bound, before any design: a throwaway arm that simply did not
+    build the controls or rows of the categories a real window leaves
+    closed (headings kept), six alternating benchmark runs per arm. Worst
+    stall: Regression -418 ms (pessimistic -349), External masks -220
+    (-165), Measure -189 (-78), UMAP -161 (-95), Classify -140 (-12); the
+    controls (Home, Preferences, Annotate, Map barcodes) moved -34..+31.
+    So it pays, if the controls can be kept from being built at all.
+  * Warm control construction alone is 30-90 ms per module (Classify 92,
+    Regression 81, External masks 75, Measure 70); the rest of the bound is
+    rows, captions, and the passes and events over them.
+  * A FIRST CUT THAT ONLY DEFERRED THE ROWS WAS WORSE (Regression +404 ms,
+    Classify +217 median): the chaining strip calls collect() while the
+    screen is built, collect() read every control, and reading a waiting
+    control built it -- 90 of them in one batch, with none of the 25 ms
+    breaths the panel build takes. Reverted; the controls had to be
+    readable unbuilt.
+
+WHY NOT A SEPARATE VALUE STORE. The control is what turns a declared value
+into the one the run gets: a spin box turns 200 into 200.0 and rounds to six
+places, a text box turns '' into None, UMAP's folder list turns 'path' into
+[]. Over 886 settings on 22 modules, 48 read back differently from their
+declared default. A store holding raw values would give the run different
+settings; one holding normalised values would have to repeat each control's
+normalisation and drift from it.
+
+WHAT SHIPPED, in two halves:
+  * THE MODEL (`settings_model.py`). `_widget_for` is split into
+    `_route_control`, which decides the control and returns either a PLAN
+    for one of the seven plain controls (toggle, combo, int / float / auto
+    spin box, text, list text) or a builder for every other one, and
+    `_build_plain`, which builds a plan. `_value_a_plain_control_holds(plan)`
+    is what that control reads back, computed without building it. A test
+    holds it to the built control for all 1,135 plain settings of all 59
+    modules (0 differ; the one that did, a NaN default the spin box clamps
+    to its maximum, is handled). `_widgets` becomes
+    `_ControlsBuiltWhenAskedFor`, a MutableMapping with the dict's contract:
+    `in`, `len`, iterating the keys answer for every setting; `m[key]` and
+    `.get` build that one control; `.items()`/`.values()` build what is left
+    in one batch; `built_items()` / `built()` never build. So every one of
+    the ~90 production call sites and ~570 test lines that read
+    `model._widgets` works unchanged -- a reader always gets a real control.
+    Measured on the call sites: 262 references, most of them `.get(key)` or
+    `key in`, so the mapping was the smaller safe change; seven sites were
+    migrated because they copied or walked the whole map at open or close
+    (below).
+    Reading without building: `collect()`, `modified_keys()`, the
+    dependency rules' current values, the object rule's values,
+    `_current_setting` and `_setting_value` go through `_read_value`: the
+    control if built, else its plan's value. WRITING BUILDS THE ONE CONTROL
+    (`set_value_for_key` reads `_widgets.get`), deliberately: a written value
+    has to pass through the control's clamping and matching for collect() to
+    return what an eager panel would, and one control costs about a
+    millisecond. Recipes, CSV import and drops therefore build only the
+    controls they write, never a category.
+    State passes (classifier family, training basis, UMAP reducer, analysis
+    unit, dependency rules, exclusion editor, regression backend) touch only
+    built controls and run again when a control they own arrives, so a
+    control built late is greyed, locked or filled as it would have been.
+    Only a screen asks for any of this (`categories_may_wait`); every model
+    built for its values, every test that builds a `SettingsWidgets`, and
+    every fold builds everything as before.
+  * THE SCREEN (`app_screen.py`). A top-level category that starts closed --
+    all but the example-data one, and not one the Essentials view opens as
+    the search strip installs (a category built by being opened pays the
+    opening passes on top of the build) -- is built as a heading only by
+    `_build_a_waiting_heading`: title, maturity, blurb, its keys registered
+    with the object rule, the search strip, the dimension switches and the
+    palette. Its rows are laid out by `_open_a_waiting_heading`, through
+    the same `_build_settings_section` every category takes, the first time
+    it is expanded, revealed, asked for its rows, or asked whether a row is
+    visible; then its sub-headings are recorded ahead of it, the category
+    hints, surface sweep, maturity, dimension switches, object rule and
+    search index reach the new rows, and the rows are polished before the
+    language pass and the help move, in that order (`_translate_a_late_part`).
+    `MainWindow._build_screen` turns this on for the screens it builds, via
+    `spacr.qt.screens._categories_wait_to_be_opened` (not a class attribute:
+    reaching AppScreen from `_build_screen` imported the module screens while
+    Home was drawn). A control built before its row -- one nothing can read
+    unbuilt, or one something read -- is taken off the page until its row is
+    laid out; made with the form as its parent, it was being drawn at the
+    form's top-left corner (caught by the fingerprint below).
+
+CALL SITES CHANGED, because they walked or copied the whole map at open or
+close: `chaining._widgets` and `prerun._widgets` (a `dict(...)` copy),
+`_widget_key_index`, `_dimension_rows`, the search strip's `_build_index`,
+`_shutdown_settings_widgets` (teardown built every control to shut it down),
+and `_the_rows_moved` (iterating a row list forced every waiting caption).
+Also, the palette and the search strip's `reveal` open a waiting category
+first, and `_install_dimension_switches` counts waiting dimensional keys (it
+offered no 3D/Time switch while the z and t rows waited, so the Volumetric
+category showed).
+
+ONE BEHAVIOUR FIX, needed to make "late equals eager" true: changing the
+classifier family, the training basis or the UMAP reducer now re-runs the
+dependency rules after re-greying. Before, the family pass re-enabled every
+setting it owns, so `batch_column` came back live under
+`batch_correction='none'` after a family change -- and a control built
+after the change would have disagreed with one built before.
+
+WIDGETS CREATED BY OPENING THE MODULE, real MainWindow, fresh home
+(Essentials, as the benchmark), nightly ad01caeca -> this change, and
+controls built at open:
+
+    module            widgets created      controls built
+    classify_merged      738 ->  335       101 -> 21 of 101
+    mask                 742 ->  459       132 -> 54 of 132
+    measure              486 ->  302        63 -> 17 of 63
+    umap                 547 ->  384        58 -> 20 of 58
+    regression           740 ->  601        77 -> 49 of 77
+    external_masks       508 ->  319        68 -> 22 of 68
+    analyze_plaques      529 ->  370        48 ->  6 of 48
+
+MEASURED, `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only`, six runs per arm alternating nightly ad01caeca and this
+change, load 9-12 on 32 cores. "cons" = this change's 75th percentile minus
+nightly's 25th. BOTH TREES BYTE-COMPILED FIRST: the benchmark runs with
+PYTHONDONTWRITEBYTECODE=1, so a tree whose edited modules have no .pyc
+recompiles them in every run -- it cost the changed arm ~0.8 s of startup and
++200 ms on Home, a module this change cannot reach, until it was found.
+Earlier A/B notes in 284 and 380 compared a freshly edited tree against one
+with caches and carry that bias against the change. Worst event-loop stall
+per module, ms:
+
+    module            nightly  this  delta  cons  paired  pairs better  open s
+    classify_merged       877   697   -180   -73    -159     12/12       1.30 -> 0.89
+    mask                 1385  1279   -105   +48    -134     10/12       2.04 -> 1.87
+    umap                  961   820   -141    -5    -130     11/12       1.32 -> 1.08
+    regression           1241  1141   -100   -14    -109     11/12       1.98 -> 1.78
+    measure               721   573   -148   +83     -75     11/12       0.92 -> 0.73
+    external_masks        526   441    -85    +8     -55     10/12       0.86 -> 0.72
+    analyze_plaques       807   758    -48  +114      -7      7/12       0.99 -> 0.84
+    __home__        (ctl) 379   399    +19   +90     +14      4/12
+    __preferences__ (ctl)1196  1324   +128  +230      +5      4/12
+    annotate        (ctl) 716   705    -11   +67      +1      6/12
+    map_barcodes    (ctl) 566   635    +69  +165     +21      3/12
+
+    intervals over 500 ms (median)        15.5 -> 14.5
+    total of those stalls, ms (median)  13,723 -> 12,352
+
+TWELVE RUNS PER ARM, pooled from two sessions of six (the second on the
+pushed commit 48e431db4; the first on the same open path before the
+dependency-order fix, which only acts on a user's change). The load fell
+from ~10 to ~3 during the second session, which widens the unpaired
+quantiles, so the PAIRED column is the one to read: the median of each
+run's difference from the nightly run beside it. The controls, which this
+change cannot reach, sit at +1..+21 ms paired and 3-6 of 12 pairs better --
+that is the noise floor. Every settings-heavy module clears it: Classify
+better in all twelve pairs, UMAP, Regression and Measure in eleven, Mask and
+External masks in ten; Plaques (whose preview dominates) is flat. Opening a
+module is 10-30% shorter on all seven.
+
+BEHAVIOUR IS THE SAME, CHECKED: for seven modules (Classify, Mask, Measure,
+UMAP, Regression, External masks, Plaques), in a real window, under both
+Essentials and All settings: collect() with most controls unbuilt equals
+collect() after every category is opened, equals a second window that built
+everything at once (0 differing keys); every row of every category once
+opened -- key, caption, row visibility, enabled, tooltip, field type --
+equals the eager window's (0 differing sections); every widget visible at
+open (class, name, text, geometry, enabled) equals the eager window's,
+except the live CPU/RAM usage labels.
+
+TESTS: `tests/qt/test_a_closed_category_builds_nothing_until_opened.py`
+(14): the plan-value invariant over every plain setting of every module; an
+eager model stays eager; the map answers membership without building and
+builds on read; collect() and modified_keys() read unbuilt controls and
+build nothing; a write builds only its control; on real windows, closed
+categories have no rows, collect() and every row equal an eager window's
+(Classify and Mask), a value written before the category opens is shown
+when it does, the search strip and the palette reveal a setting in a waiting
+category, a category opened after a switch to Swedish is in Swedish, the
+family rule reaches controls built after it ran, the dimension switches are
+offered for waiting rows, and closing builds nothing. Updated: the detach
+tests (a closed category is now waiting OR detached), two survey tests that
+count rows on a real window now open every category first (the path a user
+takes), and the menu-source test reads `_route_control`, where the branch
+moved.
+
+IS 284 DONE? NO. Every heavy module is faster and still over the 500 ms
+ceiling on this machine: Classify 0.7 s, Measure 0.6 s, UMAP 0.8 s,
+Regression 1.1 s, Mask 1.3 s worst stall, at load ~10. The settings side
+of the open is now mostly what the user can see; what remains is
+the construction and polish of the visible page (runtime panel, previews,
+the open categories), and the quiet-machine, real-display and
+macOS/Windows close-out. Opening a waiting category costs its build on
+that click (measured 10-170 ms per category at load ~10, Regression's Model
+& Inference the largest); an idle-time prebuild would move that too, and is
+not done.
