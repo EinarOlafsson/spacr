@@ -507,8 +507,45 @@ class SettingsSearchBar(QWidget):
         if model is None or not self._index:
             self._count.setText("")
             return
-
         total = len(self._index)
+        wanted, in_the_grid, grid_section, narrowing, essentials = \
+            self._wanted_now()
+
+        self._wanted = set(wanted)
+        for key, (section, field) in self._index.items():
+            if field is not None:
+                _set_row_visible(section, field, key in wanted)
+
+        shown_per_section: Dict[int, int] = {}
+        for key, (section, _field) in self._index.items():
+            if key in wanted:
+                shown_per_section[id(section)] = (
+                    shown_per_section.get(id(section), 0) + 1)
+        if grid_section is not None:
+            shown_per_section[id(grid_section)] = len(in_the_grid)
+
+        self._apply_section_state(
+            self._counting_the_sub_headings(shown_per_section),
+            narrowing, reopen)
+        self._count.setText(
+            self._compose_count(len(wanted), total, len(essentials)))
+
+    def keys_it_hides(self) -> set:
+        """The indexed settings :meth:`apply` would hide right now.
+
+        What the object rule asks before it sets rows
+        (``SettingsWidgets.rows_the_screen_hides``), so a row this strip is
+        about to hide is not shown by the rule first.
+        """
+        if self._model is None or not self._index:
+            return set()
+        wanted = self._wanted_now()[0]
+        return set(self._index) - wanted
+
+    def _wanted_now(self):
+        """What :meth:`apply` keeps: ``(wanted, in_the_grid, grid_section,
+        narrowing, essentials)``."""
+        model = self._model
         hidden: set = set()
         hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
         if callable(hidden_by_run):
@@ -559,27 +596,9 @@ class SettingsSearchBar(QWidget):
         wanted = narrowed(set(self._index) - hidden)
         in_the_grid = (narrowed(set(grid_keys) - lacking)
                        if grid_section is not None else set())
-
-        self._wanted = set(wanted)
-        for key, (section, field) in self._index.items():
-            if field is not None:
-                _set_row_visible(section, field, key in wanted)
-
-        shown_per_section: Dict[int, int] = {}
-        for key, (section, _field) in self._index.items():
-            if key in wanted:
-                shown_per_section[id(section)] = (
-                    shown_per_section.get(id(section), 0) + 1)
-        if grid_section is not None:
-            shown_per_section[id(grid_section)] = len(in_the_grid)
-
         narrowing = bool(query) or self._modified.isChecked() \
             or (self._level == ESSENTIALS and bool(essentials))
-        self._apply_section_state(
-            self._counting_the_sub_headings(shown_per_section),
-            narrowing, reopen)
-        self._count.setText(
-            self._compose_count(len(wanted), total, len(essentials)))
+        return wanted, in_the_grid, grid_section, narrowing, essentials
 
     def _counting_the_sub_headings(
             self, shown: Dict[int, int]) -> Dict[int, int]:

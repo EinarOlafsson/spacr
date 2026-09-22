@@ -4150,6 +4150,11 @@ _NOTE_BACKUP_PROPERTY = "_spacr_help_before_note"
 #: it before there was anywhere to keep the original.
 _PENDING_NOTE_PROPERTY = "_spacr_greyed_reason"
 
+#: The greyed-out reason a LABEL is showing, so the language pass
+#: (:func:`refresh_api_tooltips`), which rebuilds the label's help from its
+#: description, puts the reason back after it instead of dropping it.
+_LABEL_NOTE_PROPERTY = "_spacr_label_note"
+
 
 
 #: The `level` choices offered when the backend is a fixed-effects one.
@@ -5173,16 +5178,28 @@ def section_explainer_html(app_key: str, title: str,
     return permutation_test_explainer_html(palette, language)
 
 
+#: :func:`explainer_width` per UI language. Rendering every explainer to
+#: measure it was 20 ms, paid by every Regression screen that built its
+#: model category, and the answer depends only on the language.
+_EXPLAINER_WIDTHS: Dict[str, int] = {}
+
+
 def explainer_width() -> int:
     """Return the minimum explainer width in monospace characters.
 
     The width is derived from the longest unbreakable formula. Prose remains
-    free to wrap to the available panel width.
+    free to wrap to the available panel width. Computed once per UI
+    language.
     """
+    code = _language_code()
+    known = _EXPLAINER_WIDTHS.get(code)
+    if known is not None:
+        return known
     longest = _EXPLAINER_WIDTH
     for text in _every_explainer_line():
         if text.strip().startswith(("y ~", "rho =", "minimise")):
             longest = max(longest, len(text))
+    _EXPLAINER_WIDTHS[code] = longest
     return longest
 
 
@@ -5660,6 +5677,7 @@ def _note_on_label(label, note: str) -> None:
         label.setProperty(_NOTE_BACKUP_PROPERTY, base)
     base = str(label.property(_NOTE_BACKUP_PROPERTY) or "")
     text = f"{base}<br><i>{note}</i>" if base else note
+    label.setProperty(_LABEL_NOTE_PROPERTY, note)
     label.setProperty("apiTooltipHtml", text)
     label.setToolTip(text)
 
@@ -5685,6 +5703,7 @@ def _clear_greyed_note(control) -> None:
     label = getattr(control, "_spacr_setting_label", None)
     if label is not None:
         label.setEnabled(control.isEnabled())
+        label.setProperty(_LABEL_NOTE_PROPERTY, None)
         backup = label.property(_NOTE_BACKUP_PROPERTY)
         if backup is not None:
             label.setProperty("apiTooltipHtml", backup)
@@ -5738,7 +5757,10 @@ def refresh_api_tooltips(
     """Refresh semantic setting help beneath ``root`` in ``language``.
 
     Canonical English prose is retained in ``apiTooltipDescriptionSource``;
-    only the presentation HTML/plain accessibility chrome is regenerated.
+    only the presentation HTML/plain accessibility chrome is regenerated. A
+    label showing why its setting is greyed keeps that reason after the
+    regenerated help (``_LABEL_NOTE_PROPERTY``); before, the language pass
+    dropped it, so a greyed row's name never said why.
     Field widgets marked ``metadata`` stay quiet because their visible label
     owns hover help. API-dot destinations carry the selected documentation
     language while retaining the same module page.
@@ -5771,6 +5793,10 @@ def refresh_api_tooltips(
             source = descriptions.get(str(key), "")
         source = str(source or "")
         html = format_tooltip(source, str(app_key), str(key), code)
+        note = str(widget.property(_LABEL_NOTE_PROPERTY) or "")
+        if note:
+            widget.setProperty(_NOTE_BACKUP_PROPERTY, html)
+            html = f"{html}<br><i>{note}</i>" if html else note
         widget.setProperty("apiTooltipDescriptionSource", source)
         widget.setProperty("apiTooltipDescription", source)
         widget.setProperty("apiTooltipHtml", html)
@@ -7873,11 +7899,16 @@ class _ControlsBuiltWhenAskedFor(MutableMapping):
         """The plan a waiting control is built from, or ``None``."""
         return self._to_come.get(key)
 
-    def build(self, keys) -> None:
-        """Build every control in ``keys`` that has not been built yet."""
+    def build(self, keys, *, decide: bool = True) -> None:
+        """Build every control in ``keys`` that has not been built yet.
+
+        :param decide: run the passes that grey controls from others after
+            the batch; ``False`` for a caller that runs them itself once for
+            several batches.
+        """
         waiting = [key for key in keys if key in self._to_come]
         if waiting:
-            self._model._build_controls(waiting)
+            self._model._build_controls(waiting, decide=decide)
 
     def settle(self, key: str, widget: Optional[QWidget]) -> None:
         """Record the control the model built for a waiting ``key``.
@@ -8032,6 +8063,14 @@ class SettingsWidgets:
         #: model built for its values rather than for a screen.
         self.rows_are_laid_out_by = None
         self.rows_are_filtered_by = None
+        #: Called with no arguments during the object pass, after the pass
+        #: has decided what it hides: the keys the screen's own filters (the
+        #: settings search, the 3D and Time switches) will hide again the
+        #: moment the pass ends. Each row is then set ONCE, to where it will
+        #: end up, instead of shown by this pass and hidden again by the next;
+        #: see :meth:`refresh_object_visibility`. ``None`` on a model built
+        #: for its values.
+        self.rows_the_screen_hides = None
         self._hidden_by_their_object: set = set()
         self._tooltips = get_tooltips()
         self._data_context: Dict[str, Any] = {'plate_count': None}
@@ -8248,7 +8287,7 @@ class SettingsWidgets:
             return _ControlToCome(key)
         return control
 
-    def _build_controls(self, keys) -> None:
+    def _build_controls(self, keys, *, decide: bool = True) -> None:
         """Build the waiting controls for ``keys``, then settle their state.
 
         Each control is built exactly as :meth:`_build_sections` builds one,
@@ -8258,6 +8297,10 @@ class SettingsWidgets:
         reducer or the analysis unit -- run once for the batch: they touch
         only controls that exist, so a control that arrives later is decided
         when it arrives, as it would have been had it been there all along.
+
+        :param keys: the settings whose waiting controls to build.
+        :param decide: run those passes afterwards; ``False`` for a caller
+            that runs them itself once for several batches.
         """
         with language_resolved_once():
             self._controls_arriving += 1
@@ -8272,7 +8315,8 @@ class SettingsWidgets:
                     self._widgets.settle(key, widget)
             finally:
                 self._controls_arriving -= 1
-            if (self._controls_arriving == 0 and self._state_passes_ready
+            if (decide and self._controls_arriving == 0
+                    and self._state_passes_ready
                     and self._decided_by_a_pass().intersection(keys)):
                 self._decide_the_state_of_every_control()
 
@@ -8312,14 +8356,8 @@ class SettingsWidgets:
         self._keys_decided_by_a_pass = owned
         return owned
 
-    def _decide_the_state_of_every_control(self) -> None:
-        """Run every pass that greys, locks or fills a control from another.
-
-        The same four calls :meth:`_build_sections` ends with. Each decides
-        every control it owns from the values it reads, so running them
-        again after controls arrive leaves the panel as an eager build
-        would have left it.
-        """
+    def _state_pass_steps(self):
+        """:meth:`_decide_the_state_of_every_control`, one pass per step."""
         for decide in (self._refresh_contextual_widgets,
                        self._refresh_umap_reducer_enablement,
                        self._refresh_analysis_unit_lock,
@@ -8329,6 +8367,18 @@ class SettingsWidgets:
             except Exception:                                # noqa: BLE001
                 LOGGER.debug("could not settle the controls that arrived",
                              exc_info=True)
+            yield
+
+    def _decide_the_state_of_every_control(self) -> None:
+        """Run every pass that greys, locks or fills a control from another.
+
+        The same four calls :meth:`_build_sections` ends with. Each decides
+        every control it owns from the values it reads, so running them
+        again after controls arrive leaves the panel as an eager build
+        would have left it.
+        """
+        for _step in self._state_pass_steps():
+            pass
 
     @staticmethod
     def _keys_of_objects_the_run_has_no_channel_for(settings,
@@ -8529,9 +8579,18 @@ class SettingsWidgets:
         for every object whose channel names a plane, so setting a pathogen
         channel brings the Pathogen Segmentation rows into Essentials as well
         as into All settings. See :meth:`_essentials_that_follow_their_object`.
+
+        The module's layout part is computed once per set of settings: it
+        rebuilds the module's whole category layout, 16 ms on Regression,
+        and the search strip asks on every pass of the object rule.
         """
-        keys = [key for key in essential_keys(self.app_key)
-                if key in self._widgets]
+        cached = getattr(self, "_essential_keys_cache", None)
+        if cached is None or cached[0] != len(self._widgets):
+            cached = (len(self._widgets),
+                      [key for key in essential_keys(self.app_key)
+                       if key in self._widgets])
+            self._essential_keys_cache = cached
+        keys = list(cached[1])
         keys.extend(self._essentials_that_follow_their_object())
         return list(dict.fromkeys(keys))
 
@@ -9758,6 +9817,15 @@ class SettingsWidgets:
         screen that lays the rows out, and the screen that hands row
         visibility back after a filter.
 
+        EACH ROW IS SET ONCE. The rows the screen's filters hide anyway --
+        everything under the Essentials view that is not essential, the rows
+        of a switched-off dimension -- are left hidden here instead of being
+        shown and then hidden again by the filter that runs next
+        (``rows_the_screen_hides``). The rows end where they always ended;
+        what goes is the round trip. Measured on Regression under
+        Essentials, showing and re-hiding 145 rows was 68 ms of a 90 ms
+        pass, run twice every time a category was built.
+
         The pass ends by calling ``rows_are_filtered_by`` when the screen has
         set it. This pass shows every row its objects allow, so the settings
         search, which also decides rows, has to be applied after it; without
@@ -9781,8 +9849,20 @@ class SettingsWidgets:
                 except Exception:                            # noqa: BLE001
                     LOGGER.debug("could not lay out the rows that are back",
                                  exc_info=True)
+            also = set()
+            ask = getattr(self, "rows_the_screen_hides", None)
+            if ask is not None:
+                try:
+                    also = set(ask() or ())
+                except Exception:                            # noqa: BLE001
+                    LOGGER.debug("could not ask what the screen hides",
+                                 exc_info=True)
+                    also = set()
             for key in list(self._widgets):
-                self._set_row_visible(key, key not in hidden)
+                self._set_row_visible(
+                    key, key not in hidden and key not in also)
+            if also:
+                self._lay_the_forms_out_again()
             self._guard_hidden_rows(hidden)
             self._hide_the_headings_of_slots_the_run_lacks(current)
         except Exception:                                    # noqa: BLE001
@@ -9796,6 +9876,27 @@ class SettingsWidgets:
             except Exception:                                # noqa: BLE001
                 LOGGER.debug("could not re-apply the settings filter",
                              exc_info=True)
+
+    def _lay_the_forms_out_again(self) -> None:
+        """Ask every settings form to lay itself out again.
+
+        What showing and re-hiding every row used to do as a side effect,
+        without the round trip. A field whose height changed while its
+        own row stayed put -- Mask's filename-convention box grows a line
+        when its example is filled in -- was re-measured only because some
+        row on the panel was shown and hidden again; with every row set
+        once, nothing asked its form, and it kept the height of the line
+        before. Invalidating a form costs one layout pass, not an event per
+        widget.
+        """
+        for section, _keys, _nested in list(
+                (getattr(self, "_section_rows", None) or {}).values()):
+            try:
+                form = getattr(section, "_form", None)
+                if isinstance(form, QFormLayout):
+                    form.invalidate()
+            except RuntimeError:
+                continue
 
     def keys_hidden_by_the_run(self) -> List[str]:
         """Return settings hidden by the latest object-visibility pass.

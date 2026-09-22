@@ -27,6 +27,7 @@ from PySide6.QtCore import (
 )
 from PySide6.QtGui import QColor, QIcon, QPainter, QPalette, QPixmap
 from PySide6.QtWidgets import (
+    QApplication,
     QHBoxLayout,
     QLabel,
     QMessageBox,
@@ -1424,6 +1425,183 @@ _LIVE_PREVIEW = "live preview"
 _MEASURE_PREVIEW = "measure preview"
 
 
+def _run_to_the_end(steps):
+    """Run a generator of build steps to the end and return what it returns.
+
+    The settings form's builders are generators so that the idle prebuild
+    (:class:`_IdlePrebuild`) can run them a step at a time; everything else
+    runs them through here, in one go, which is the same code doing the same
+    work in the same order.
+    """
+    while True:
+        try:
+            next(steps)
+        except StopIteration as done:
+            return done.value
+
+
+class _IdlePrebuild(QObject):
+    """Builds a screen's waiting settings categories while nobody is using it.
+
+    A category closed at open is built when it is first opened
+    (:meth:`AppScreen._build_a_waiting_heading`), and that first open costs
+    its build on the click. This builds them beforehand, in the gaps: once
+    the screen has been on show with no input for :attr:`IDLE_MS`, it runs
+    the same steps a click runs (:meth:`AppScreen._run_a_step_of`), for about
+    :attr:`SLICE_MS` at a time, then gives the event loop back.
+
+    INPUT STOPS IT. While slices are running it watches the application's
+    events, and any mouse, key, wheel or touch event pushes the next slice
+    to :attr:`IDLE_MS` after that input, so a user never waits on more than
+    the one slice already running. It stops when the screen is hidden and
+    starts again when it is shown.
+
+    THE WATCH IS OFF WHILE IT WAITS FOR POINTER INPUT TO STOP. An
+    application-wide event filter is a Python call per event, and opening a
+    module delivers tens of thousands of them: installed for the whole wait,
+    it cost every module open about 10 ms in the benchmark. So after pointer
+    input, and at the start, the wait ends by comparing where the pointer
+    is now with where it was; after a key the watch stays on, so typing
+    keeps the build waiting key after key. A key typed with the pointer
+    still after a pointer wait is caught one slice late, by the watch that
+    slice installs.
+
+    :param screen: the :class:`AppScreen` whose categories it builds.
+    """
+
+    #: No input for this long, in ms, before a slice runs.
+    IDLE_MS = 400
+
+    #: How long, in ms, a slice keeps taking steps. A step is one control,
+    #: one row, or one pass, so a slice ends within one step of this; a
+    #: step that took half of it ends the slice on its own, so a costly step
+    #: is not run on top of several cheap ones.
+    SLICE_MS = 4.0
+
+    _POINTER = frozenset({
+        QEvent.Type.MouseButtonPress, QEvent.Type.MouseButtonRelease,
+        QEvent.Type.MouseButtonDblClick, QEvent.Type.MouseMove,
+        QEvent.Type.Wheel, QEvent.Type.TouchBegin, QEvent.Type.TouchUpdate,
+        QEvent.Type.TabletPress, QEvent.Type.TabletMove,
+    })
+    _KEYS = frozenset({QEvent.Type.KeyPress, QEvent.Type.KeyRelease,
+                       QEvent.Type.ShortcutOverride})
+
+    def __init__(self, screen) -> None:
+        """Prepare, without starting; see :meth:`resume`."""
+        super().__init__(screen)
+        self._screen = screen
+        self._timer = QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._slice)
+        self._watching = False
+        self._pointer = None
+        #: Wall time, in ms, of each slice run so far; read by the tests
+        #: and the measurements, never by the application.
+        self.slices_ms: list = []
+
+    def _work_left(self) -> list:
+        """The headings still to build, in the order the form shows them."""
+        screen = self._screen
+        try:
+            return [section for section
+                    in screen.rendered_settings_sections()
+                    if screen._heading_is_waiting(section)]
+        except RuntimeError:
+            return []
+
+    @staticmethod
+    def _pointer_now():
+        """Where the pointer is, and which buttons are down."""
+        from PySide6.QtGui import QCursor
+
+        return (QCursor.pos(), int(QApplication.mouseButtons().value))
+
+    def _wait(self, ms: int, *, watch: bool = False) -> None:
+        """Note the pointer and try again in ``ms``.
+
+        :param watch: keep watching events while waiting. After a key, so
+            that typing keeps the build waiting key after key; after
+            pointer input the watch comes off, because a click is how a user
+            opens the next module and the next module's build is where an
+            event filter costs the most.
+        """
+        if not watch:
+            self._unwatch()
+        self._pointer = self._pointer_now()
+        self._timer.start(ms)
+
+    def _unwatch(self) -> None:
+        if self._watching:
+            app = QApplication.instance()
+            if app is not None:
+                app.removeEventFilter(self)
+            self._watching = False
+
+    def resume(self) -> None:
+        """Start, or restart after a hide, if there is anything to build."""
+        if not self._work_left():
+            self.stop()
+            return
+        self._wait(self.IDLE_MS)
+
+    def stop(self) -> None:
+        """Stop building and stop watching input."""
+        self._timer.stop()
+        self._unwatch()
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        """Input: stop, and wait :attr:`IDLE_MS` after it."""
+        kind = event.type()
+        if kind in self._POINTER:
+            self._wait(self.IDLE_MS)
+        elif kind in self._KEYS:
+            self._wait(self.IDLE_MS, watch=True)
+        return False
+
+    def _slice(self) -> None:
+        """Take steps for about :attr:`SLICE_MS`, then give the loop back."""
+        import time
+
+        screen = self._screen
+        try:
+            if not screen.isVisible():
+                self.stop()
+                return
+        except RuntimeError:
+            self.stop()
+            return
+        if not self._watching:
+            if self._pointer_now() != self._pointer:
+                self._wait(self.IDLE_MS)
+                return
+            app = QApplication.instance()
+            if app is None:
+                return
+            app.installEventFilter(self)
+            self._watching = True
+        work = self._work_left()
+        if not work:
+            self.stop()
+            return
+        section = work[0]
+        started = time.perf_counter()
+        more = True
+        while more:
+            before = time.perf_counter()
+            more = screen._run_a_step_of(section)
+            after = time.perf_counter()
+            if ((after - started) * 1000.0 >= self.SLICE_MS
+                    or (after - before) * 1000.0 >= self.SLICE_MS / 2):
+                break
+        self.slices_ms.append((time.perf_counter() - started) * 1000.0)
+        if not more and not self._work_left():
+            self.stop()
+            return
+        if self._watching:
+            self._timer.start(0)
+
+
 class _BuiltOnFirstUse:
     """A screen attribute whose widgets are built the first time it is used.
 
@@ -2173,6 +2351,8 @@ class AppScreen(QWidget):
             self._lay_out_the_rows_that_are_back
         self._settings_model.rows_are_filtered_by = \
             self._refilter_the_settings_search
+        self._settings_model.rows_the_screen_hides = \
+            self._rows_the_filters_hide
         #: ``key -> heading`` for each setting whose category waits to be
         #: opened; see :meth:`_build_a_waiting_heading`.
         self._waiting_heading_of = {}
@@ -2891,6 +3071,16 @@ class AppScreen(QWidget):
     def _build_settings_section(self, spec, depth: int = 0, into=None):
         """Build one heading of the settings TREE, and everything under it.
 
+        :meth:`_settings_section_steps` run to the end; see it for the
+        parameters.
+
+        :returns: the built :class:`Section` widget.
+        """
+        return _run_to_the_end(self._settings_section_steps(spec, depth, into))
+
+    def _settings_section_steps(self, spec, depth: int = 0, into=None):
+        """Build one heading of the settings TREE, and everything under it.
+
         ``SettingsWidgets.build_sections`` returns a
         :class:`~spacr.qt.screens.settings_model.SettingsSection`: still the
         ``(title, rows)`` pair it always was, with ``own_rows`` for the rows
@@ -2948,10 +3138,12 @@ class AppScreen(QWidget):
             if key in waiting:
                 self._rows_awaiting_layout[key] = section
                 section.add_prose(widget)
+                yield
                 continue
             self._lay_out_setting_row(section, label, widget)
+            yield
         for child in children:
-            nested = self._build_settings_section(child, depth + 1)
+            nested = yield from self._settings_section_steps(child, depth + 1)
             if not self._section_holds_anything(nested):
                 section.add_prose(nested)
                 self._discard_settings_section(nested, section)
@@ -2959,6 +3151,8 @@ class AppScreen(QWidget):
             section.add_prose(nested)
             nested.toggled.connect(
                 partial(self._open_the_headings_above, section))
+            yield
+        yield
         from .settings_model import has_section_explainer
 
         if depth == 0 and has_section_explainer(self.app_key, title):
@@ -3167,9 +3361,15 @@ class AppScreen(QWidget):
         return section
 
     def _heading_is_waiting(self, section) -> bool:
-        """Whether ``section`` is a heading whose rows are not built yet."""
+        """Whether ``section`` is a heading whose build is not finished.
+
+        True from :meth:`_build_a_waiting_heading` until the last step of
+        :meth:`_waiting_heading_steps`, including while an idle prebuild is
+        part-way through it.
+        """
         try:
-            return getattr(section, "_spacr_waiting_spec", None) is not None
+            return (getattr(section, "_spacr_waiting_spec", None) is not None
+                    or "_spacr_opening" in section.__dict__)
         except RuntimeError:
             return False
 
@@ -3212,38 +3412,117 @@ class AppScreen(QWidget):
         :returns: ``True`` when this call built the rows; ``False`` when the
             heading was built already.
         """
-        spec = getattr(section, "_spacr_waiting_spec", None)
-        if spec is None:
+        steps = section.__dict__.get("_spacr_opening")
+        if steps is None:
+            if getattr(section, "_spacr_waiting_spec", None) is None:
+                return False
+            steps = section._spacr_opening = self._waiting_heading_steps(
+                section)
+        if section.__dict__.get("_spacr_opening_now"):
             return False
-        section._spacr_waiting_spec = None
-        section._spacr_build_body = None
-        rows = section.__dict__.get("_row_widgets")
-        if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
-            rows._build_the_rest = None
         from .. import timing
         from .settings_model import language_resolved_once
 
-        title = str(getattr(spec, "title", None) or spec[0])
-        with timing.span("build waiting category", title), \
-                language_resolved_once():
-            for _label, widget in spec[1] or ():
-                key = self._key_of_row(widget)
-                if key and self._waiting_heading_of.get(key) is section:
-                    del self._waiting_heading_of[key]
-            real = self._with_the_controls(spec)
-            before = {id(other) for other in self._settings_sections}
-            self._run_has_no_object_for = None
-            try:
-                self._build_settings_section(real, 0, into=section)
-            finally:
-                self._run_has_no_object_for = None
-            self._put_new_headings_ahead_of(section, before)
-            self._wire_category_hints()
-            self._clear_a_late_parts_surfaces(section._body)
-            self.refresh_maturity_visibility()
-            self._the_rows_moved(judge_them=True)
-            self._translate_a_late_part(section._body)
+        title = str(section.property("settingsCategorySource") or "")
+        section._spacr_opening_now = True
+        try:
+            with timing.span("build waiting category", title), \
+                    language_resolved_once():
+                _run_to_the_end(steps)
+        finally:
+            section._spacr_opening_now = False
         return True
+
+    def _run_a_step_of(self, section) -> bool:
+        """Run one step of building a waiting category.
+
+        What :class:`_IdlePrebuild` calls. The steps are the ones
+        :meth:`_open_a_waiting_heading` runs, from the same generator, so a
+        category half built in idle time is finished by a click exactly as
+        it would have been built by one.
+
+        :returns: ``True`` while there is more to do; ``False`` once the
+            category is built (or cannot be).
+        """
+        steps = section.__dict__.get("_spacr_opening")
+        if steps is None:
+            if getattr(section, "_spacr_waiting_spec", None) is None:
+                return False
+            steps = section._spacr_opening = self._waiting_heading_steps(
+                section)
+        if section.__dict__.get("_spacr_opening_now"):
+            return True
+        from .settings_model import language_resolved_once
+
+        section._spacr_opening_now = True
+        try:
+            with language_resolved_once():
+                next(steps)
+        except StopIteration:
+            return False
+        except RuntimeError:
+            LOG.debug("a waiting category went away mid-build", exc_info=True)
+            section.__dict__.pop("_spacr_opening", None)
+            return False
+        finally:
+            section._spacr_opening_now = False
+        return True
+
+    def _waiting_heading_steps(self, section):
+        """The steps of building a waiting category, in the order they run.
+
+        One control per step; the passes that grey controls from others once
+        for the batch; one row, or one sub-heading, per step; then the
+        passes the category needs once its rows exist, each its own step.
+        Until the last step the heading counts as waiting
+        (:meth:`_heading_is_waiting`) and opening it finishes the build first.
+        """
+        spec = section._spacr_waiting_spec
+        model = self._settings_model
+        widgets = model._widgets
+        pending = [widget.key for _label, widget in spec[1] or ()
+                   if self._is_control_to_come(widget)]
+        arrived = []
+        for key in pending:
+            if key in widgets and not widgets.is_built(key):
+                widgets.build((key,), decide=False)
+                arrived.append(key)
+                yield
+        if arrived and model._decided_by_a_pass().intersection(arrived):
+            yield from model._state_pass_steps()
+        real = self._with_the_controls(spec)
+        before = {id(other) for other in self._settings_sections}
+        self._run_has_no_object_for = None
+        try:
+            yield from self._settings_section_steps(real, 0, into=section)
+        finally:
+            self._run_has_no_object_for = None
+        section._spacr_waiting_spec = None
+        rows = section.__dict__.get("_row_widgets")
+        if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
+            rows._build_the_rest = None
+        self._put_new_headings_ahead_of(section, before)
+        self._wire_category_hints()
+        yield
+        self._clear_a_late_parts_surfaces(section._body)
+        yield
+        self.refresh_maturity_visibility()
+        yield
+        yield from self._rows_moved_steps(judge_them=True)
+        yield from self._translate_a_late_part_steps(section._body)
+        for _label, widget in spec[1] or ():
+            key = self._key_of_row(widget)
+            if key and self._waiting_heading_of.get(key) is section:
+                del self._waiting_heading_of[key]
+        section._spacr_build_body = None
+        section.__dict__.pop("_spacr_opening", None)
+
+    @staticmethod
+    def _is_control_to_come(widget) -> bool:
+        """Whether a spec row's widget is a stand-in for a waiting control."""
+        from .settings_model import _ControlToCome
+
+        return isinstance(widget, _ControlToCome)
 
     def _put_new_headings_ahead_of(self, section, before) -> None:
         """Record the sub-headings a category just built ahead of it.
@@ -3315,6 +3594,33 @@ class AppScreen(QWidget):
             LOG.debug("could not re-apply the settings search", exc_info=True)
         finally:
             self._refiltering_settings = False
+
+    def _rows_the_filters_hide(self) -> set:
+        """The settings the search strip and the dimension switches hide.
+
+        Asked by the object rule before it sets rows, so that a row one of
+        these hides anyway is left hidden rather than shown and hidden again
+        (see ``SettingsWidgets.rows_the_screen_hides``). Only asked while
+        the strip is not already re-filtering: the pass it runs from inside
+        a re-filter is answered by that re-filter.
+
+        :returns: setting keys.
+        """
+        hides = set()
+        bar = getattr(self, "_settings_search", None)
+        if bar is not None and not getattr(self, "_refiltering_settings",
+                                           False):
+            try:
+                hides.update(bar.keys_it_hides())
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not ask the search strip", exc_info=True)
+        try:
+            for _section, key, _field in self._dimension_rows():
+                if self._dimension_is_gated(setting_dimension(key)):
+                    hides.add(key)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not ask the dimension switches", exc_info=True)
+        return hides
 
     def _headings_the_run_lacks(self) -> set:
         """``id()`` of each heading the object rule is holding off the form.
@@ -3442,6 +3748,15 @@ class AppScreen(QWidget):
     def _the_rows_moved(self, judge_them: bool = True) -> None:
         """Put the panel's row-shaped answers back in step after a build.
 
+        :meth:`_rows_moved_steps` run to the end; see it.
+
+        :param judge_them: run the object rule over the new rows.
+        """
+        _run_to_the_end(self._rows_moved_steps(judge_them))
+
+    def _rows_moved_steps(self, judge_them: bool = True):
+        """Put the panel's row-shaped answers back in step after a build.
+
         A row that arrives after the panel was laid out has to be judged by
         everything that judges a row -- the object rule and the dimension
         switches decide whether it is on screen, the settings search has to be
@@ -3454,7 +3769,7 @@ class AppScreen(QWidget):
             itself would be a second pass saying the same thing.
         """
         for section in getattr(self, "_settings_sections", []) or []:
-            if self._heading_is_waiting(section):
+            if getattr(section, "_spacr_waiting_spec", None) is not None:
                 continue
             rows = section.__dict__.get("_row_widgets")
             declared = getattr(section, "_spacr_declared_rows", None)
@@ -3464,6 +3779,7 @@ class AppScreen(QWidget):
                      for index, (_k, _l, widget) in enumerate(declared)}
             if all(id(pair[1]) in order for pair in list.__iter__(rows)):
                 rows.sort(key=lambda pair: order[id(pair[1])])
+        yield
         if judge_them:
             model = getattr(self, "_settings_model", None)
             if model is not None:
@@ -3472,11 +3788,13 @@ class AppScreen(QWidget):
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not re-decide the object rows",
                               exc_info=True)
+            yield
         try:
             self._apply_dimension_visibility()
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-apply the dimension switches",
                       exc_info=True)
+        yield
         late = getattr(self, "_captioned_late", None) or set()
         self._captioned_late = set()
         if late:
@@ -3490,11 +3808,17 @@ class AppScreen(QWidget):
             except Exception:                                # noqa: BLE001
                 LOG.debug("could not translate a caption that arrived late",
                           exc_info=True)
+            yield
         bar = getattr(self, "_settings_search", None)
         if bar is None:
             return
         try:
             bar._build_index()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-index the settings search", exc_info=True)
+            return
+        yield
+        try:
             bar.apply(reopen=False)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-index the settings search", exc_info=True)
@@ -3578,9 +3902,31 @@ class AppScreen(QWidget):
             self._hint_map[lbl_widget] = hint
             self._html_tip_map[lbl_widget] = html
             lbl_widget.installEventFilter(self)
+            self._put_the_greyed_reason_on(field, lbl_widget)
         section.add_row(lbl_widget, widget, info_widget=None,
                         wrap_label=True)
         self._attach_column_picker(field_key, field)
+
+    @staticmethod
+    def _put_the_greyed_reason_on(field, label) -> None:
+        """Give a new caption the reason its field is greyed, if it is.
+
+        A rule that greys a field before its row is laid out keeps the
+        reason on the field (``settings_model._PENDING_NOTE_PROPERTY``, "so
+        it can be put on a label that does not exist yet"), and nothing put
+        it there: a greyed row's name, which is where the help lives, said
+        nothing about why. The reason reached the name only if some later
+        pass happened to grey the field again -- so whether it did depended
+        on the order categories were built in.
+
+        :param field: the setting's control.
+        :param label: the caption just made for it.
+        """
+        from .settings_model import _PENDING_NOTE_PROPERTY, _note_on_label
+
+        note = str(field.property(_PENDING_NOTE_PROPERTY) or "")
+        if note and not field.isEnabled():
+            _note_on_label(label, note)
 
     @staticmethod
     def _open_the_headings_above(parent, expanded: bool) -> None:
@@ -5822,15 +6168,47 @@ class AppScreen(QWidget):
 
         Never raises: a part in the wrong language still works.
         """
+        _run_to_the_end(self._translate_a_late_part_steps(root))
+
+    def _translate_a_late_part_steps(self, root):
+        """:meth:`_translate_a_late_part`, a step at a time.
+
+        The polish is taken one direct child of ``root`` at a time, then
+        ``root`` itself, which polishes exactly what polishing ``root`` alone
+        would (each child's whole subtree, then what is left), in the same
+        order relative to the language pass. The language pass is taken the
+        same way: each child's subtree in full, then ``root`` with
+        ``only_new``, which visits what the children's passes did not -- the
+        widgets they stamped are the ones it skips.
+        """
+        try:
+            children = [child for child in root.children()
+                        if isinstance(child, QWidget)]
+        except RuntimeError:
+            return
+        for child in children:
+            try:
+                child.ensurePolished()
+            except RuntimeError:
+                pass
+            yield
         try:
             root.ensurePolished()
         except RuntimeError:
             return
+        yield
         try:
             from ..i18n import retranslate_widget_tree
             from .settings_model import retarget_field_tooltips
 
-            retranslate_widget_tree(root)
+            for child in children:
+                try:
+                    retranslate_widget_tree(child)
+                except RuntimeError:
+                    pass
+                yield
+            retranslate_widget_tree(root, only_new=True)
+            yield
             retarget_field_tooltips(self)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not translate a late part", exc_info=True)
@@ -7123,12 +7501,25 @@ class AppScreen(QWidget):
                 LOG.debug("could not clear the page surfaces on first show",
                           exc_info=True)
         self.refresh_ambient_background()
+        self._prebuild_when_idle()
+
+    def _prebuild_when_idle(self) -> None:
+        """Build the waiting categories in idle time; see :class:`_IdlePrebuild`."""
+        if not getattr(self, "_waiting_heading_of", None):
+            return
+        builder = self.__dict__.get("_idle_prebuild")
+        if builder is None:
+            builder = self._idle_prebuild = _IdlePrebuild(self)
+        builder.resume()
 
     def hideEvent(self, event) -> None:  # noqa: N802 - Qt override
         """Let the screen stop paying for things nobody can see.
 
         :param event: the Qt hide event.
         """
+        builder = self.__dict__.get("_idle_prebuild")
+        if builder is not None:
+            builder.stop()
         self._usage_generation += 1
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None:
@@ -8257,6 +8648,9 @@ class AppScreen(QWidget):
         dropping its references or force-terminating it could corrupt an
         output and triggers Qt's fatal "QThread destroyed while running".
         """
+        builder = self.__dict__.get("_idle_prebuild")
+        if builder is not None:
+            builder.stop()
         self._stop_the_heartbeat()
         th = getattr(self, "_thread", None)
         if th is not None:
