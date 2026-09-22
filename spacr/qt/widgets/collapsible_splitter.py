@@ -67,6 +67,12 @@ THE THREE PIECES, AND WHAT SLICE C REUSES
     a figure tile in a column): keeps its heading at the bottom of whatever
     room its layout gives it, which is the "auto lock to the bottom" rule on
     its own.
+:class:`FoldSection`, :meth:`CollapsibleSplitter.add_section`, :func:`fold_card`
+    Slice C's use of the three above inside the screens: a heading that folds
+    a table, a figure, a side panel; the same heading in a splitter, so the
+    section also trades room with its neighbours by dragging; and the same
+    fold on a titled card. Folding never shows or builds a panel its owner
+    keeps hidden.
 """
 from __future__ import annotations
 
@@ -182,7 +188,22 @@ def lock_folded_to_bottom(container: QWidget, folder,
     :param folder: its :class:`~spacr.qt.widgets.foldable.Folder`.
     :param orientation: ``Qt.Horizontal`` locks it to the left instead, for a
         panel that folds sideways.
+
+    Called twice for one container and folder -- a :class:`FoldSection`
+    locks itself and :meth:`CollapsibleSplitter.add_pane` locks every HEADER
+    pane -- the second call does nothing, so there is only ever one stretch
+    and the first orientation asked for wins.
     """
+    locked = getattr(container, "_spacr_bottom_locks", None)
+    if locked is None:
+        locked = set()
+        try:
+            container._spacr_bottom_locks = locked
+        except Exception:                                    # noqa: BLE001
+            locked = set()
+    if id(folder) in locked:
+        return
+    locked.add(id(folder))
     state = {"spacer": None}
 
     def apply(shut: bool, _by_user: bool = True) -> None:
@@ -209,6 +230,161 @@ def lock_folded_to_bottom(container: QWidget, folder,
     folder.add_listener(apply)
     if folder.shut:
         apply(True)
+
+
+def _hidden_by_owner(widget) -> bool:
+    """Whether someone called ``hide()`` on ``widget`` (not merely unshown).
+
+    A widget with no parent that was never shown also answers ``isHidden()``
+    -- it is a window nobody opened -- and taking that for "its owner keeps
+    it hidden" would hide every section built before it is laid out.
+    """
+    return bool(_alive(widget)
+                and widget.testAttribute(Qt.WA_WState_ExplicitShowHide)
+                and widget.isHidden())
+
+
+class FoldSection(QWidget):
+    """A body under a clickable heading; folded, the heading sits at the bottom.
+
+    Item 471, slice C: "any sections inside the figures or live preview
+    containers should also be colapseable ... evey GUI element be it a figure
+    or a table". This is the one way a section inside a screen gets a fold
+    control, so every one of them looks and behaves alike: an arrow and a
+    name above the body (the same :class:`~spacr.qt.widgets.foldable.Folder`
+    the console and System use), a click folds it, and a folded section is
+    its heading locked to the BOTTOM of whatever room it is given
+    (:func:`lock_folded_to_bottom`).
+
+    THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S. The fold hides an inner
+    holder, never the body, so unfolding cannot show a panel its owner hid
+    or build a panel that is built on first show (items 284/380). The other
+    way round, the section follows its body: while the owner keeps the body
+    hidden the whole section -- heading included -- is hidden too, and it
+    comes back when the owner shows the body. Only the body's hidden flag is
+    read for that, so nothing is shown, measured or built to find out.
+
+    :param body: the section's content. Re-parented into the section.
+    :param name: stable English name; the heading shows it translated.
+    :param parent: parent widget.
+    :param persist_key: ``"<module>/<section>"``; given, a fold the USER
+        makes survives a restart (a fold made on their behalf never does).
+    :param stretch: the body's stretch inside the section.
+    :param actions: widgets put at the right-hand end of the heading row
+        (a Refresh button, a count); they stay visible while folded.
+    :param follow_body: False keeps the section shown whatever the body's
+        own flag says.
+    :ivar heading: the heading label (object name ``FoldHeading``).
+    :ivar folder: the section's Folder; HELD, it owns the click filter.
+    :ivar body: the content widget.
+    """
+
+    def __init__(self, body: QWidget, name: str, parent=None, *,
+                 persist_key: str = "", stretch: int = 1, actions=(),
+                 follow_body: bool = True):
+        """Wrap ``body`` under a heading called ``name``."""
+        super().__init__(parent)
+        from PySide6.QtWidgets import QHBoxLayout, QLabel, QVBoxLayout
+
+        from .foldable import make_foldable
+
+        self.setObjectName("FoldSection")
+        self.body = body
+        self._follow_body = bool(follow_body)
+        body_hidden = _hidden_by_owner(body)
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+        self.heading = QLabel(str(name), self)
+        self.heading.setObjectName("FoldHeading")
+        self.heading.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        actions = [w for w in (actions or ()) if w is not None]
+        if actions:
+            row = QHBoxLayout()
+            row.setContentsMargins(0, 0, 0, 0)
+            row.setSpacing(4)
+            row.addWidget(self.heading)
+            row.addStretch(1)
+            for widget in actions:
+                row.addWidget(widget)
+            layout.addLayout(row)
+        else:
+            layout.addWidget(self.heading)
+        self._holder = QWidget(self)
+        self._holder.setObjectName("FoldSectionBody")
+        inner = QVBoxLayout(self._holder)
+        inner.setContentsMargins(0, 0, 0, 0)
+        inner.setSpacing(0)
+        inner.addWidget(body)
+        layout.addWidget(self._holder, max(0, int(stretch)))
+        if body_hidden:
+            body.setVisible(False)
+        self.folder = make_foldable(self.heading, self._holder, name=str(name),
+                                    persist_key=persist_key)
+        lock_folded_to_bottom(self, self.folder, Qt.Vertical)
+        if self._follow_body:
+            body.installEventFilter(self)
+            if body_hidden:
+                self.setVisible(False)
+
+    @property
+    def shut(self) -> bool:
+        """Whether the section is folded."""
+        return bool(self.folder.shut)
+
+    def set_folded(self, folded: bool, *, by_user: bool = True) -> bool:
+        """Fold or open the section; returns the new folded state.
+
+        :param folded: True to fold it.
+        :param by_user: False for a fold made on the user's behalf, which is
+            never remembered.
+        """
+        return self.folder.set_shut(folded, by_user=by_user)
+
+    def eventFilter(self, watched, event) -> bool:           # noqa: N802
+        """Hide the section with its body, and show it again with it.
+
+        :param watched: the body.
+        :param event: only ShowToParent and HideToParent are read.
+        :returns: False, so the event goes on as usual.
+        """
+        if (watched is getattr(self, "body", None)
+                and getattr(self, "_follow_body", False)):
+            kind = event.type()
+            if kind == QEvent.HideToParent and not self.isHidden():
+                self.setVisible(False)
+            elif kind == QEvent.ShowToParent and self.isHidden():
+                self.setVisible(True)
+        return False
+
+
+def fold_card(card, name: str = "", *, persist_key: str = ""):
+    """Make a titled :class:`~spacr.qt.widgets.card.Card` fold by its title.
+
+    The card keeps its frame and its title; clicking the title folds the
+    body away and the folded card's title locks to the bottom of its room.
+    A card whose body is built on first show stays unbuilt: the fold moves
+    the card's body widget only, never the card.
+
+    :param card: the card; one without a title is left alone.
+    :param name: English name; defaults to the card's title text.
+    :param persist_key: ``"<module>/<card>"`` to remember a user's fold.
+    :returns: the card's Folder, or None when it has no title.
+    """
+    folder = getattr(card, "folder", None)
+    title = getattr(card, "title_label", None)
+    body = getattr(card, "body", None)
+    if folder is None:
+        if title is None or body is None:
+            return None
+        from .foldable import make_foldable
+
+        folder = make_foldable(title, body,
+                               name=name or title.text().strip(),
+                               persist_key=persist_key)
+        card.folder = folder
+    lock_folded_to_bottom(card, folder, Qt.Vertical)
+    return folder
 
 
 class Pane:
@@ -485,6 +661,35 @@ class CollapsibleSplitter(QSplitter):
         self._sync_flags()
         self._queue_rebalance()
         return pane
+
+    def add_section(self, widget: QWidget, name: str, *,
+                    persist_key: str = "", stretch: int = 1, extent: int = 0,
+                    minimum: Optional[int] = None, focus: bool = False,
+                    index: Optional[int] = None, actions=()) -> "FoldSection":
+        """Wrap ``widget`` in a :class:`FoldSection` and add it as a pane.
+
+        The short way to give a splitter child a heading that folds it: the
+        section's Folder makes it a HEADER pane, so it resizes by its edge,
+        collapses at the limit of a drag, and folded, is its heading at the
+        bottom of its room.
+
+        :param widget: the content. Must not already be in this splitter.
+        :param name: stable English name for the heading and the stored size.
+        :param persist_key: ``"<module>/<section>"`` to remember a user fold.
+        :param stretch: 0 keeps its own size as the splitter grows.
+        :param extent: the size to open at when the user never dragged it.
+        :param minimum: its minimum while open.
+        :param focus: showing it also opens it.
+        :param index: where to insert it; the end by default.
+        :param actions: widgets for the right-hand end of the heading.
+        :returns: the section; its pane is ``self.pane(name)``.
+        """
+        section = FoldSection(widget, name, persist_key=persist_key,
+                              actions=actions)
+        self.add_pane(section, name, folder=section.folder, stretch=stretch,
+                      extent=extent, minimum=minimum, focus=focus,
+                      index=index)
+        return section
 
     def pane(self, name: str) -> Optional[Pane]:
         """The pane called ``name``, or None.
@@ -1139,7 +1344,7 @@ def splitter_of(widget) -> Optional[CollapsibleSplitter]:
 
 
 __all__ = [
-    "CollapsibleSplitter", "EDGE", "FocusCollapse", "HEADER", "Pane",
-    "get_pane_extents", "lock_folded_to_bottom", "set_pane_extents",
-    "splitter_of",
+    "CollapsibleSplitter", "EDGE", "FocusCollapse", "FoldSection", "HEADER",
+    "Pane", "fold_card", "get_pane_extents", "lock_folded_to_bottom",
+    "set_pane_extents", "splitter_of",
 ]

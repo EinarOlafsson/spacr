@@ -4794,6 +4794,13 @@ QLabel#SectionHeading {{
     font-weight: 600;
     background: transparent;
 }}
+QLabel#FoldHeading {{
+    color: {P["fg"]};
+    font-size: {F["body"]}px;
+    font-weight: 600;
+    padding: 1px 0px;
+    background: transparent;
+}}
 
 /* -----------------------------------------------------------------
  *  Buttons
