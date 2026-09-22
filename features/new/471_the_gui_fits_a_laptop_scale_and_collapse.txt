@@ -222,3 +222,125 @@ settings column more room -- the app-shell sizing is slice B's. The Mask
 tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence
 pins docstring counts and moves with any new docstring; the catalog lane
 owns that report.
+
+--------------------------------------------------------------------------------
+2026-09-22 — SLICE B LANDED: THE SHELL COLLAPSES AND EVERY EDGE DRAGS
+(points 2, 3, 4, 7 and the DRAG AN EDGE addendum)
+--------------------------------------------------------------------------------
+
+Commits 01ac8a80b (the mechanism), ec09c3608 (the shell), e37f9e347 (the
+module at 100 % branch coverage). Points 5-6 (every section, figure and table
+inside every screen) are slice C, and slice C builds on the primitive below.
+
+ONE MECHANISM. spacr/qt/widgets/collapsible_splitter.py. A QSplitter already
+gives a draggable handle and a child that can be taken to zero, so collapse is
+the limit of dragging, not a second system.
+
+* CollapsibleSplitter(orientation, parent=None, *, persist_key="") -- a
+  QSplitter whose children are named panes:
+    add_pane(widget, name, *, folder=None, mode=None, stretch=1, extent=0,
+             minimum=None, focus=False, fold_key="", index=None) -> Pane
+    pane(name), panes(), is_collapsed(name),
+    set_collapsed(name, collapsed, *, by_user=False), toggle_pane(name),
+    rebalance(), extents(); signal pane_toggled(name, collapsed, by_user).
+  Pane kinds:
+    HEADER (give it a Folder from widgets/foldable.make_foldable) -- folds
+      to its heading, and the heading is LOCKED TO THE BOTTOM of the room the
+      pane has (a stretch goes in above it). A folded HEADER pane is held at
+      its heading's height by a maximum, so no window resize or drag hands it
+      a gap. When nothing that stretches is left open, the first folded
+      heading takes the spare room, so every folded heading stacks at the
+      bottom of the container.
+    EDGE (mode=EDGE) -- folds to nothing; the handle beside it is the strip:
+      it carries an arrow, a click on it folds or restores the pane, a drag
+      resizes it. fold_key remembers the user's fold across restarts.
+    plain (no folder, no mode) -- resizes, never folds.
+  Dragging an open pane past its minimum collapses it (Qt's own collapse,
+  turned into the pane's fold). Sizes are remembered per pane NAME (not
+  index) under persist_key in the preferences store (layout/panes/<key>), so
+  adding a pane to a screen does not scramble the old layout. A drag never
+  moves anything the user did not move; a width change re-fits only
+  fixed-size panes that wrap (the Run row), since no handle is held then.
+  A widget that is later wrapped in a container put in its place (the
+  settings search strip does this) hands its registration to the container.
+* FocusCollapse(parent) -- watch(widget) a FOCUS widget, target(splitter,
+  name) a pane; while any focus widget is shown the targets fold, and when
+  the last is hidden the ones it folded open again. begin_view()/end_view()
+  and is_pinned(splitter, name). It reads hidden flags only: nothing is
+  shown, measured or built to register it.
+* lock_folded_to_bottom(container, folder, orientation=Qt.Vertical) -- the
+  bottom-lock on its own, for a fold that is not in a splitter (a section
+  in a scroll area). This is the piece slice C applies to sections.
+* Folder.set_shut(shut, *, by_user=True), Folder.toggle(*, by_user=True),
+  Folder.add_listener(cb(shut, by_user)), Folder.last_change_by_user. A fold
+  made on the user's behalf (by_user=False) is never persisted.
+
+FOR SLICE C: to make a panel collapsible, give it a heading and
+make_foldable(heading, body, name=..., persist_key="<module>/<panel>"); if its
+siblings should trade height with it by dragging, put them in a
+CollapsibleSplitter and add_pane each with its folder; otherwise call
+lock_folded_to_bottom(panel, folder). Card(title=..., foldable=True,
+fold_key=...) already gives a Folder on the title.
+
+THE SHELL (spacr/qt/screens/app_screen.py).
+* The runtime column is ONE vertical CollapsibleSplitter, top to bottom:
+  Figures, the module's preview (Mask/Plaque Live preview, Measure Crop
+  preview, Timelapse Track preview, Motility preview) or its Parameter sweep
+  / Hyperparameter search card, Console, System, and the new buttons section
+  ("Actions": the Run row, whatever is mounted above it -- chaining strip,
+  QC banner, diameter panel, map-barcodes strips -- and the two hover-help
+  strips). Every one of them resizes by its edge and folds by its title; the
+  buttons section has a heading it did not have before. A folded one is its
+  heading at the bottom: the console no longer folds to the middle.
+* The settings column is an EDGE pane of the body splitter: click its handle
+  (or drag it to nothing) and it collapses to the LEFT; click or drag again
+  and it comes back at its old width. Ctrl+F opens it first if it is folded.
+* Keys: runtime sizes under "<module>::runtime", the column under
+  "<module>::body"; folds under "<module>/Console", "/System", "/Actions",
+  "/Settings" (Console and System keep their existing keys).
+* The four "above the Run row" inserters (prerun, chaining, preview_registry,
+  map_barcodes) now follow the Run row into its section; a preview mounted
+  by preview_registry is adopted (adopt_runtime_pane) as a focus pane.
+
+AUTO-COLLAPSE (points 2-4).
+* FOCUS panes: the figures card and every preview card, including registry
+  previews. When one is shown -- a Live switch turned on, the first figure of
+  a run, the image-UMAP explorer -- Console, System, the buttons section and
+  the settings column fold, and the focus takes the height. When the last is
+  hidden, whatever the auto-collapse folded opens again; what the user had
+  folded stays folded.
+* The user can fold the figures panel and the preview by their titles, and
+  open anything at any time. A focus pane the user folded opens again when it
+  is next shown (switching Live on means "show me the preview").
+* NEVER FIGHTS THE USER. A target the user opens by hand WHILE a focus is
+  shown -- clicking its heading or its handle, or dragging it open -- is
+  PINNED: no later auto-collapse folds it again during the view. Opening a
+  pane when no focus is shown overrules nothing and is not a pin.
+* THE VIEW is one visit to one module screen: from the screen's showEvent to
+  its hideEvent (going to another module or screen). Spontaneous events
+  (minimising the window) do not end it. Returning to the module starts a new
+  view: pins are forgotten and, if a preview or figures are still showing,
+  the surroundings fold again.
+
+KNOWN CONSEQUENCE. The Live / 3D / Time / OPS / AI switches live in the Run
+row, so while a preview has the height they are behind the folded "Actions"
+strip, one click away. Moving the preview switch into the preview card's
+title row would keep it in reach; left for the maintainer to decide.
+
+SCREENSHOTS (offscreen, scratchpad b471shots/): 1366x768 and 1920x1080 of
+Mask with the console folded (locked to the bottom, directly above System),
+Mask with Live preview open (auto-collapsed; the preview has the height),
+the same after the console was reopened by hand, and Measure with a figure
+showing (settings folded left, console/System/Actions folded).
+
+TESTS. tests/qt/test_a_collapsed_pane_locks_to_the_bottom.py (the mechanism:
+bottom lock, drag-to-collapse, the settings handle, persistence by name, the
+never-fight rules, views), tests/qt/test_the_shell_collapses_and_resizes.py
+(Mask and a registry preview end to end, Ctrl+F, a lazy panel stays
+unbuilt), tests/qt/test_cov_collapsible_splitter.py (every branch). Updated:
+test_cov_app_screen (pane order), test_preview_registry, test_prerun,
+test_chaining_gui (the Run row's section).
+
+NEW CAPTIONS for the catalog lane (not translated here): "Actions";
+"Click to hide {name}, or drag to resize it."; "Click to show {name} again,
+or drag to resize it."
