@@ -1,14 +1,15 @@
 {
   "lesson": "09_annotate",
   "language": "de",
-  "english_sha256": "f51745cb600291406bce5f96d5de0560a999b23f9ddb6aa770ce9a22a0640b55",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
   "review": {
     "kind": "Editorial caption translation checked against English and the verified real-data recording",
     "native_speaker_signoff": false,
     "corrections": [
       "Distinguish queued labels from database persistence through real Next/Back actions.",
       "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
-      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged."
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
     ]
   },
   "title": "Annotate: echte Bildausschnitte, gespeicherte Labels und Prüfwerkzeuge",
@@ -19,12 +20,12 @@
     "Klassenhäufigkeiten und Abdeckung prüfen sowie Anzeigefarben ändern, ohne Bilddateien zu verändern.",
     "Das eingebettete Agreement, die aktuellen Trainingswege, die Annotationsdatenbank-Erzeugung und die optionale AI-Konsole finden."
   ],
-  "prerequisite": "Öffnen Sie spaCR und wählen Sie Annotate unter den Core-Modulen. Diese Aufnahme verwendet den herunterladbaren Load-Datensatz: 2.341 exportierte PNG-Ausschnitte mit ihrer Messdatenbank. Weder Modelltraining noch KI-Dienst sind erforderlich. Definieren Sie biologische Klassen vor einer echten Annotationsrunde; das vorübergehende Label demonstriert nur das Speichern, keine biologische Beurteilung.",
+  "prerequisite": "Aufgenommen mit spaCR 1.5.0.8. Das automatische Öffnen wurde unabhängig geprüft, bevor dieselben Beispieldateien über einen neutralen Aufnahmepfad ausgewählt wurden. Öffnen Sie spaCR und wählen Sie Annotate unter den Core-Modulen. Diese Aufnahme verwendet den herunterladbaren Load-Datensatz: 2.341 exportierte PNG-Ausschnitte mit ihrer Messdatenbank. Weder Modelltraining noch KI-Dienst sind erforderlich. Definieren Sie biologische Klassen vor einer echten Annotationsrunde; das vorübergehende Label demonstriert nur das Speichern, keine biologische Beurteilung.",
   "scenes": [
     "Öffnen Sie Annotate unter den Core-Modulen. Der Hauptbereich ist ein Bildausschnitt-Raster mit einer Messdatenbank im Hintergrund. Das aktuelle Modul enthält außerdem Abdeckungsprüfungen, Lern- und Trainingsfunktionen, Datenbankerzeugung und das eingebettete Werkzeug Annotator Agreement.",
     "Wählen Sie Load test data und betrachten Sie die beiden Möglichkeiten. Load liefert exportierte Bildausschnitte und eine Datenbank. Das Beispiel enthält 2.341 PNG-Ausschnitte. Diese Aufnahme verwendet den vollständig heruntergeladenen Cache; Bilder und Labels werden nicht erfunden.",
-    "Stream liefert zusammengeführte Bildarrays und die Datenbank, um Ausschnitte bei Bedarf zu erzeugen. Wählen Sie nach der gewünschten Art des Bildlesens. Der Download einer Variante beweist nicht, dass die andere vorhanden ist. In dieser Demonstration verwenden wir durchgehend Load.",
-    "Falls das Raster nach dem Download weiterhin keine ausgewählte Quelle meldet, wählen Sie Open source. Wählen Sie den Plattenordner mit dem Unterordner measurements und seiner Datenbank, nicht die Datenbankdatei selbst. Dieser zusätzliche Schritt ist in der hier gezeigten Anwendungsversion tatsächlich nötig.",
+    "Stream liefert die zusammengeführten Bildarrays, um Ausschnitte bei Bedarf zu laden. Falls die Messdatenbank fehlt, wird sie ebenfalls heruntergeladen. Load liefert gespeicherte Ausschnitte und ihre Datenbank. In dieser Demonstration verwenden wir durchgehend Load; wählen Sie den Weg passend dazu, wie Sie die Bilder einlesen möchten.",
+    "Load test data öffnet die heruntergeladene Platte automatisch. Für eine vorhandene lokale Platte ist Open source ein optionaler Weg: Wählen Sie den Plattenordner mit measurements und der Datenbank, nicht die Datenbankdatei selbst. Hier wählen wir einen neutralen Aufnahmepfad zu denselben Beispieldateien.",
     "Prüfen Sie, ob echte Ausschnitte erscheinen und der Seitenzähler zum erwarteten Datensatz passt. Die Bildanzahl pro Seite hängt von der Fenstergröße und der Größe der Ausschnitte ab. Ein erfolgreich geöffneter Ordner allein reicht nicht: Betrachten Sie die Bilder vor Annotationsentscheidungen.",
     "Öffnen Sie Settings und erstellen Sie für diese Demonstration eine separate Annotationsspalte. Lassen Sie die ursprünglichen Labels unverändert. Dokumentieren Sie vor der echten Arbeit die Bedeutung jeder Klasse und vereinbaren Sie eine einheitliche Ansicht. Unser Beispiellabel prüft lediglich den Speicherweg.",
     "Klicken Sie mit links auf den ersten Ausschnitt, um Klasse eins zu vergeben. Rechtsklick vergibt Klasse zwei; dieselbe Klasse erneut anzuklicken löscht sie. Der klassenfarbige Ring zeigt die aktuelle Entscheidung, der zusätzliche weiße Ring den Fokus. Ein veränderter Ring beweist noch nicht, dass das Label in der Datenbank angekommen ist.",

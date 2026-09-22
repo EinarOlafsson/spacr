@@ -207,7 +207,7 @@ def main() -> int:
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation') else args.module)),
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation', 'annotate') else args.module)),
         # XDG_CONFIG_HOME moves QSettings only. Chaining pins (a module's
         # remembered `src`) live in XDG STATE storage, and without this a
         # "fresh" Mask recording opened on whatever path a test last pinned
@@ -772,7 +772,12 @@ def main() -> int:
             screen = window._screens[args.module]
             if not screen.isVisible():
                 raise RuntimeError('The current module screen is not visible after loading data')
-            capture('03_data_ready')
+            if not (args.module == 'annotate' and args.annotation_tour):
+                capture('03_data_ready')
+            # Annotate's automatic opening displays the real account cache
+            # path. Its tour verifies that opening independently, then shows
+            # the optional source picker at a neutral alias before capturing
+            # the loaded grid. No frame with a personal path is saved.
             if hasattr(screen, '_settings_model'):
                 settings = screen._settings_model.collect()
                 write_json(captures / 'settings.json', settings)

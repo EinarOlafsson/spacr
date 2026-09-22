@@ -1,14 +1,15 @@
 {
   "lesson": "09_annotate",
   "language": "it",
-  "english_sha256": "f51745cb600291406bce5f96d5de0560a999b23f9ddb6aa770ce9a22a0640b55",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
   "review": {
     "kind": "Editorial translation checked against English and the verified real-data recording",
     "native_speaker_signoff": false,
     "corrections": [
       "Distinguish queued labels from database persistence through real Next/Back actions.",
       "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
-      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged."
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
     ]
   },
   "title": "Annotate: ritagli reali, etichette salvate e strumenti di revisione",
@@ -19,12 +20,12 @@
     "Esaminare i conteggi per classe e la copertura e cambiare i colori di visualizzazione senza modificare i file immagine.",
     "Individuare il percorso integrato Agreement, le opzioni attuali di addestramento, il generatore del database di annotazione e la console AI facoltativa."
   ],
-  "prerequisite": "Apri spaCR e scegli Annotate tra i moduli Core. La registrazione usa il dataset scaricabile Load: 2.341 ritagli PNG esportati e il relativo database delle misure. Non servono addestramento di modelli o servizi di intelligenza artificiale. Definisci le classi biologiche prima di un'annotazione reale; l'etichetta temporanea dimostra il salvataggio, non un giudizio biologico.",
+  "prerequisite": "Registrato con spaCR 1.5.0.8. L’apertura automatica è stata verificata indipendentemente prima di selezionare gli stessi file di esempio tramite un percorso neutro per la registrazione. Apri spaCR e scegli Annotate tra i moduli Core. La registrazione usa il dataset scaricabile Load: 2.341 ritagli PNG esportati e il relativo database delle misure. Non servono addestramento di modelli o servizi di intelligenza artificiale. Definisci le classi biologiche prima di un'annotazione reale; l'etichetta temporanea dimostra il salvataggio, non un giudizio biologico.",
   "scenes": [
     "Apri Annotate tra i moduli Core. L'area principale è una griglia di ritagli collegata a un database delle misure. Il modulo attuale comprende anche controlli della copertura, apprendimento e addestramento, generazione del database e lo strumento integrato Annotator Agreement.",
     "Scegli Load test data ed esamina le due opzioni. Load fornisce ritagli esportati e un database. L'esempio contiene duemilatrecentoquarantuno ritagli PNG. Questa registrazione riutilizza la cache completa già scaricata: non inventa immagini o etichette.",
-    "Stream fornisce le matrici delle immagini unite e il database per ottenere ritagli su richiesta. Scegli l'opzione in base a come vuoi leggere le immagini; scaricarne una non dimostra che sia disponibile anche l'altra. Usiamo Load per tutta la dimostrazione.",
-    "Se dopo il download la griglia indica ancora che non è stata selezionata una sorgente, scegli Open source. Seleziona la cartella della piastra che contiene la sottocartella measurements e il suo database, non il file del database. È il passaggio aggiuntivo realmente necessario nella versione dell'applicazione mostrata qui.",
+    "Stream fornisce gli array di immagini uniti per ottenere ritagli su richiesta. Scarica anche il database delle misurazioni se quella parte manca. Load fornisce i ritagli salvati e il relativo database. Usiamo Load per tutta questa dimostrazione; scegliete il percorso adatto al modo in cui volete leggere le immagini.",
+    "Load test data apre automaticamente la piastra scaricata. Per una piastra locale esistente, Open source è un percorso facoltativo: selezionate la cartella della piastra contenente measurements e il relativo database, non il file del database. Qui scegliamo un percorso neutro per la registrazione verso gli stessi file di esempio.",
     "Verifica che compaiano i ritagli reali e che il contatore delle pagine corrisponda al dataset previsto. Il numero di immagini per pagina dipende dalla finestra e dalla dimensione dei ritagli. Aprire correttamente una cartella non basta: esamina le immagini prima di prendere decisioni di annotazione.",
     "Apri Settings e crea una colonna di annotazione separata per questa dimostrazione. Mantieni intatte le etichette originali. Prima del lavoro reale, documenta il significato delle classi e concorda una visualizzazione coerente; l'etichetta che assegneremo verifica soltanto il percorso di salvataggio.",
     "Fai clic sinistro sul primo ritaglio per assegnare la classe uno. Il clic destro assegna la classe due; ripetere la stessa classe la cancella. L'anello colorato mostra la decisione attuale e l'anello bianco aggiuntivo indica il focus. Il cambiamento dell'anello, da solo, non prova che l'etichetta sia arrivata al database.",

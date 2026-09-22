@@ -363,3 +363,13 @@ our private Annotate candidate. Its unfinished narration worker was stopped
 with completed files retained. The opening needs a fresh dark/Blobs capture,
 updated language reviews and audio before acceptance with 358. Earlier technical
 verification is retained as dated evidence, not presented as current approval.
+
+2026-09-21 — CODEX: ANNOTATE CURRENT OPENING CAPTURE AND LANGUAGE REVIEWS
+Recaptured after e04294be5: automatic opening is independently proven before
+using the real source picker to select a neutral alias of the same dataset.
+Open source is taught as optional; no obsolete required workaround remains in
+the two corrected English scenes or thirteen localized reviews. Eighteen other
+narrations are unchanged. Full live label/pixel checks pass, with dark/Blobs,
+neutral paths and current1.5.0.8.19 path/appearance and22 preservation/promotion/
+geometry tests pass. Fresh English review narration renders CPU-only; audio,
+player/listening and joint publication acceptance remain open with358.

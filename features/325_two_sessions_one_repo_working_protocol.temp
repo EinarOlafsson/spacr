@@ -9448,3 +9448,19 @@ Started a fresh CPU-only Annotate capture in annotate-auto-open-v1, with a
 copied private dataset. It independently verifies automatic opening, then
 records Open source as an optional action at the same dataset's neutral alias.
 No account-path frame is saved. Capture/tool edits are not yet accepted.
+
+2026-09-21 — CODEX: a30412e01 PUSHED / ANNOTATE AUTO-OPEN RECAPTURE PASSES
+The combined coverage/runtime/Map-review checkpoint is on nightly at a30412e01.
+New Annotate capture v3 in private annotate-auto-open-v1 now completes: real
+Load auto-opens128crops with infected labels, then an unrecorded real-picker
+choice selects the identical files at a neutral alias before filming the
+optional picker. Every saved frame passes the unchanged path/appearance gate.
+v1 was refused for the cache path behind the picker; v2 inherited private Qt
+settings, so Annotate now uses per-capture XDG_CONFIG_HOME. Neither saved a
+rejected frame. No HOME change or app mock. Full label transition empty/1/empty
+and2341sourcePNG/original-column checks pass; three key images inspected.
+English scenes3/4 and13reviews updated;18narrations retained.19policy tests and
+22annotation/promotion/geometry tests pass. New af_heart job10495 renders CPU-only
+at the new stage; old Annotate narrator56023 remains intentionally stopped.
+Receipt:2026-09-21-annotate-auto-opening.json. No media/listening approval or
+publication. Other voice jobs, API drafts and GPU idle monitor remain active.

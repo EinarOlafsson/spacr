@@ -13,7 +13,7 @@
     "Inspect class counts and coverage and change display colours without modifying image files.",
     "Locate the nested Agreement workflow, current training routes, annotation-database generator and optional AI console."
   ],
-  "prerequisite": "Open spaCR and choose Annotate from the Core modules. This recording uses the downloadable Load dataset: 2,341 exported PNG crops and their measurements database. No model training or AI service is required. Define your biological class scheme before a real annotation pass; the temporary label here demonstrates saving, not a biological judgement.",
+  "prerequisite": "Recorded with spaCR 1.5.0.8. Automatic opening was independently checked before selecting the same example files through a neutral recording path. Open spaCR and choose Annotate from the Core modules. This recording uses the downloadable Load dataset: 2,341 exported PNG crops and their measurements database. No model training or AI service is required. Define your biological class scheme before a real annotation pass; the temporary label here demonstrates saving, not a biological judgement.",
   "scenes": [
     {
       "visual": "01_module",
@@ -24,9 +24,9 @@
       "visual": "02_data_choice_load",
       "focus": [
         1680,
-        914,
+        896,
         460,
-        393
+        477
       ],
       "narration": "Choose Load test data, then inspect the two routes. Load supplies exported image crops and a database. The example contains two thousand three hundred and forty-one PNG crops. This recording reuses the complete downloaded cache; it does not invent images or labels.",
       "hold_after": 0.7
@@ -35,22 +35,22 @@
       "visual": "02_data_choice_stream",
       "focus": [
         1680,
-        914,
+        896,
         460,
-        393
+        477
       ],
-      "narration": "Stream supplies merged image arrays and the database for obtaining crops on demand. Choose the route that matches how you want to read images; downloading one is not evidence that you have the other. We use Load throughout this demonstration.",
+      "narration": "Stream supplies merged image arrays for obtaining crops on demand. It also fetches the measurements database if that part is missing. Load supplies saved crops and their database. We use Load throughout this demonstration; choose the route that matches how you want to read images.",
       "hold_after": 0.7
     },
     {
       "visual": "04_open_source_dialog",
       "focus": [
-        1439,
+        1393,
         810,
         1300,
         950
       ],
-      "narration": "If the grid still says no source selected after the download, choose Open source. Select the plate folder containing the measurements subfolder and its database, not the database file itself. This is the real extra step needed by the application build shown here.",
+      "narration": "Load test data opens the downloaded plate automatically. For an existing local plate, Open source is an optional route: select the plate folder containing measurements and its database, not the database file. Here we choose a neutral recording path to the same example files.",
       "hold_after": 0.7
     },
     {
@@ -139,7 +139,7 @@
     {
       "visual": "16_training_routes",
       "focus": [
-        1836,
+        1832,
         204,
         416,
         80

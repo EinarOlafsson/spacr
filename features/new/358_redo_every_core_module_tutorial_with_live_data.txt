@@ -2338,3 +2338,20 @@ files. Recapture the opening flow, update affected English/localized narration
 and prerequisites, then regenerate and verify affected media. The independent
 label/pixel-preservation evidence remains historical evidence for its recorded
 source, not proof of the new opening flow. No tutorial media was published.
+
+2026-09-21 — CODEX: ANNOTATE AUTO-OPEN RECAPTURE VERIFIED
+The new capture passes against a30412e01 / 1.5.0.8. Load automatically opens
+128 crops with the published infected labels before any extra source action.
+For recording privacy the real picker then selects the identical dataset via
+its neutral alias; the recorded Open source step is now explicitly optional.
+No HOME change, app mock, personal-path frame or alternate dataset is used.
+Full annotation tour passes: 2341 rows/PNGs, empty -> 1 -> empty persistence,
+original database columns and every PNG independently rechecked, RGB/CMY/RGB,
+current Agreement and training routes, unsent AI question. Source picker,
+Stream explanation and final console images visually inspected.
+Updated English scenes 3/4 and all13 source-bound translations; eighteen
+narration scenes retained unchanged. Current prerequisites name1.5.0.8.
+19 appearance/path tests pass11.96s;22 annotation/promotion/geometry tests
+pass1.94s. Receipt:tools/tutorials/evidence/2026-09-21-annotate-auto-opening.json.
+Fresh af_heart narration is rendering on CPU. Narrated master, full voices,
+captions/player/listening acceptance and complete-set publication remain open.

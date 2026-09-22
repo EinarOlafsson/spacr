@@ -27,8 +27,8 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     from spacr.qt.widgets.fold_strip import FoldButton
 
     # capture_refresh binds this private dataset onto the downloader's cache.
-    # Open its neutral recording path in the real picker so no account name
-    # appears in the footage; the files and application loader are identical.
+    # First verify the genuine automatic opening, then show the optional
+    # folder picker using this neutral alias of the same private dataset.
     source = Path(stage) / 'example_data/plate1'
     cache = Path.home() / '.cache/spacr/example_data/plate1'
     if not source.is_dir() or not cache.is_dir() or not source.samefile(cache):
@@ -62,10 +62,8 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
 
     before = snapshot()
     write_json(captures / 'annotation_originals.json', before)
-    # The genuine downloader reports its account-specific cache location.
-    # Preserve that transcript privately, then start this annotation segment
-    # with a fresh console. The subsequent Open source action and all label
-    # operations emit their own unmodified messages at the neutral path.
+    # Preserve the genuine loading transcript before starting the annotation
+    # segment. Subsequent label operations emit their own unmodified messages.
     write_json(captures / 'console_before_annotation.json', {
         'text': screen._console.as_text(),
         'reason': 'New annotation segment after the cached-data chooser',
@@ -124,11 +122,21 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'Dialog action was cancelled')
 
-    def choose_source(dialog):
+    wait_for(page_ready, 'Load test data did not automatically open real crops')
+    if not Path(screen._settings.src).samefile(source):
+        raise RuntimeError('Automatic opening selected a different dataset')
+    if screen._settings.annotation_column != 'infected':
+        raise RuntimeError('Automatic opening did not select the published labels')
+    write_json(captures / 'automatic_opening.json', {
+        'accepted': True, 'trigger': 'Load test data / Load',
+        'extra_open_source_action': False, 'source': screen._settings.src,
+        'annotation_column': screen._settings.annotation_column,
+        'loaded_crops': len(screen._page_paths),
+        'original_rows': before['row_count'],
+    })
+    def choose_source(dialog, *, record_picker=True):
         if not isinstance(dialog, QFileDialog):
             raise RuntimeError('Open source did not open the folder picker')
-        # Navigate the actual picker before recording it. Merely typing the
-        # path leaves its location bar displaying the launch directory.
         dialog.setDirectory(str(source))
         dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
         settle()
@@ -137,11 +145,29 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         if edit is None:
             raise RuntimeError('Folder picker has no filename field')
         fill(edit, source)
-        capture('04_open_source_dialog')
+        if record_picker:
+            capture('04_open_source_dialog')
         QTest.keyClick(edit, Qt.Key_Return)
 
+    # The automatically opened grid displays the actual account cache path
+    # behind the picker. First select the same files through their neutral
+    # alias without saving a frame, then demonstrate the optional picker.
+    # This changes only the displayed path, not the dataset or opening proof.
+    modal_action(screen._btn_open, lambda dialog: choose_source(dialog, record_picker=False))
+    wait_for(page_ready, 'The neutral alias did not reopen the same real crops')
+    if not Path(screen._settings.src).samefile(source):
+        raise RuntimeError('Neutral source preparation changed the dataset')
+    write_json(captures / 'neutral_source_preparation.json', {
+        'method': 'Actual Open source button and folder picker before recording',
+        'same_dataset': True, 'source': screen._settings.src,
+        'changes_automatic_opening_evidence': False,
+        'preceding_console': screen._console.as_text(),
+    })
+    screen._console.clear()
+    # This is an optional, separately narrated choice of an existing plate,
+    # never a workaround required to make Load test data open the grid.
     modal_action(screen._btn_open, choose_source)
-    wait_for(page_ready, 'The actual Open source action did not load real crops')
+    wait_for(page_ready, 'The optional Open source action did not load real crops')
     capture('05_loaded_crops')
 
     def settings(column=None, primaries=None, frame='06_annotation_settings'):

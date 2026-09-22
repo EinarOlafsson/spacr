@@ -1,14 +1,15 @@
 {
   "lesson": "09_annotate",
   "language": "fr",
-  "english_sha256": "f51745cb600291406bce5f96d5de0560a999b23f9ddb6aa770ce9a22a0640b55",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
   "review": {
     "kind": "Editorial translation checked against English and the verified real-data recording",
     "native_speaker_signoff": false,
     "corrections": [
       "Distinguish queued labels from database persistence through real Next/Back actions.",
       "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
-      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged."
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
     ]
   },
   "title": "Annotate : vrais recadrages, étiquettes enregistrées et outils de révision",
@@ -19,12 +20,12 @@
     "Examiner les effectifs par classe et la couverture, puis changer les couleurs d'affichage sans modifier les fichiers image.",
     "Repérer le parcours intégré Agreement, les options actuelles d'entraînement, le générateur de base d'annotation et la console AI facultative."
   ],
-  "prerequisite": "Ouvrez spaCR et choisissez Annotate parmi les modules Core. Cet enregistrement utilise le jeu téléchargeable Load : 2 341 recadrages PNG exportés et leur base de mesures. Aucun entraînement de modèle ni service d'intelligence artificielle n'est nécessaire. Définissez les classes biologiques avant une véritable annotation ; l'étiquette temporaire démontre l'enregistrement, pas un jugement biologique.",
+  "prerequisite": "Enregistré avec spaCR 1.5.0.8. L’ouverture automatique a été vérifiée indépendamment avant de sélectionner les mêmes fichiers d’exemple par un chemin neutre pour l’enregistrement. Ouvrez spaCR et choisissez Annotate parmi les modules Core. Cet enregistrement utilise le jeu téléchargeable Load : 2 341 recadrages PNG exportés et leur base de mesures. Aucun entraînement de modèle ni service d'intelligence artificielle n'est nécessaire. Définissez les classes biologiques avant une véritable annotation ; l'étiquette temporaire démontre l'enregistrement, pas un jugement biologique.",
   "scenes": [
     "Ouvrez Annotate parmi les modules Core. Son espace principal est une grille de recadrages reliée à une base de mesures. Le module actuel comprend aussi les contrôles de couverture, l'apprentissage et l'entraînement, la génération de bases de données et l'outil intégré Annotator Agreement.",
     "Choisissez Load test data, puis examinez les deux options. Load fournit des recadrages exportés et une base de données. L'exemple contient deux mille trois cent quarante et un recadrages PNG. Cet enregistrement réutilise le cache téléchargé complet ; il n'invente ni images ni étiquettes.",
-    "Stream fournit les tableaux d'images fusionnées et la base de données pour obtenir les recadrages à la demande. Choisissez selon la façon dont vous souhaitez lire les images ; télécharger une option ne prouve pas que l'autre est présente. Nous utilisons Load pendant toute la démonstration.",
-    "Si la grille indique encore qu'aucune source n'est sélectionnée après le téléchargement, choisissez Open source. Sélectionnez le dossier de la plaque contenant le sous-dossier measurements et sa base, pas le fichier de base lui-même. C'est l'étape supplémentaire réellement nécessaire dans la version montrée ici.",
+    "Stream fournit les tableaux d’images fusionnés pour obtenir des recadrages à la demande. Il télécharge aussi la base de données de mesures si cette partie manque. Load fournit les recadrages enregistrés et leur base de données. Nous utilisons Load tout au long de cette démonstration ; choisissez la voie qui correspond à la manière dont vous souhaitez lire les images.",
+    "Load test data ouvre automatiquement la plaque téléchargée. Pour une plaque locale existante, Open source est une voie facultative : sélectionnez le dossier de la plaque contenant measurements et sa base de données, pas le fichier de base de données lui-même. Ici, nous choisissons un chemin neutre pour l’enregistrement vers les mêmes fichiers d’exemple.",
     "Vérifiez que les vrais recadrages apparaissent et que le compteur de pages correspond au jeu attendu. Le nombre d'images par page dépend de la fenêtre et de la taille des recadrages. Ouvrir un dossier ne suffit pas : examinez les images avant de décider des annotations.",
     "Ouvrez Settings et créez une colonne d'annotation distincte pour cette démonstration. Préservez les étiquettes d'origine. Avant un travail réel, documentez la signification de chaque classe et convenez d'un affichage cohérent ; l'étiquette d'exemple sert uniquement à tester l'enregistrement.",
     "Cliquez avec le bouton gauche sur le premier recadrage pour attribuer la classe un. Le bouton droit attribue la classe deux, et répéter la même classe l'efface. L'anneau de couleur indique la décision actuelle ; l'anneau blanc supplémentaire signale le focus. Un anneau modifié ne prouve pas, à lui seul, que l'étiquette est enregistrée dans la base.",

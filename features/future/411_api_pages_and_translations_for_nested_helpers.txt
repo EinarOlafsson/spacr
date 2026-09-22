@@ -1261,3 +1261,12 @@ and RESTING_TEXT are absent from the generated UI inventory. They need explicit
 extraction and translation; the source-coverage percentages omit that prose.
 Final report consistency checks pass: four tests in 405.39s. The generated
 feature index and whitespace checks pass. Catalog debt remains explicit.
+
+2026-09-21 — CODEX: THIRTEEN ANNOTATE REVIEWS FOLLOW AUTO-OPEN
+Two translated scenes now explain Stream's database download and automatic
+example opening, with Open source explicitly optional. Updated source-bound
+prerequisites and retained eighteen unchanged narration scenes in all thirteen
+languages. Full current-capture data checks and22 promotion/annotation/geometry
+tests pass;19 path/appearance tests pass. No runtime/API catalog count changes,
+native-speaker approval or publication claim. Receipt is the new Annotate
+auto-opening tutorial evidence; fresh English narration is rendering on CPU.

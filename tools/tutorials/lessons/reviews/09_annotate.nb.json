@@ -1,14 +1,15 @@
 {
   "lesson": "09_annotate",
   "language": "nb",
-  "english_sha256": "f51745cb600291406bce5f96d5de0560a999b23f9ddb6aa770ce9a22a0640b55",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
   "review": {
     "kind": "Editorial caption translation checked against English and the verified real-data recording",
     "native_speaker_signoff": false,
     "corrections": [
       "Distinguish queued labels from database persistence through real Next/Back actions.",
       "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
-      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged."
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
     ]
   },
   "title": "Annotate: ekte bildeutsnitt, lagrede etiketter og gjennomgangsverktøy",
@@ -19,12 +20,12 @@
     "Undersøke antall per klasse og dekning og endre visningsfarger uten å endre bildefiler.",
     "Finne den innebygde Agreement-arbeidsflyten, dagens treningsvalg, generatoren for annotasjonsdatabaser og den valgfrie AI-konsollen."
   ],
-  "prerequisite": "Åpne spaCR og velg Annotate blant Core-modulene. Opptaket bruker det nedlastbare Load-datasettet: 2 341 eksporterte PNG-utsnitt og måledatabasen deres. Det kreves verken modelltrening eller KI-tjeneste. Definer biologiske klasser før en ekte annotasjonsrunde; den midlertidige etiketten demonstrerer lagring, ikke en biologisk vurdering.",
+  "prerequisite": "Tatt opp med spaCR 1.5.0.8. Automatisk åpning ble kontrollert uavhengig før de samme eksempelfilene ble valgt via en nøytral opptakssti. Åpne spaCR og velg Annotate blant Core-modulene. Opptaket bruker det nedlastbare Load-datasettet: 2 341 eksporterte PNG-utsnitt og måledatabasen deres. Det kreves verken modelltrening eller KI-tjeneste. Definer biologiske klasser før en ekte annotasjonsrunde; den midlertidige etiketten demonstrerer lagring, ikke en biologisk vurdering.",
   "scenes": [
     "Åpne Annotate blant Core-modulene. Hovedområdet er et rutenett av bildeutsnitt støttet av en måledatabase. Dagens modul har også dekningskontroll, lærings- og treningsfunksjoner, databasegenerering og det innebygde verktøyet Annotator Agreement.",
     "Velg Load test data og undersøk de to alternativene. Load leverer eksporterte bildeutsnitt og en database. Eksemplet inneholder 2 341 PNG-utsnitt. Opptaket bruker den fullstendige nedlastede hurtigbufferen på nytt; det finner ikke på bilder eller etiketter.",
-    "Stream leverer sammenslåtte bildearrayer og databasen for å hente utsnitt ved behov. Velg etter hvordan du vil lese bilder. Nedlasting av det ene alternativet beviser ikke at det andre finnes. Vi bruker Load gjennom hele demonstrasjonen.",
-    "Hvis rutenettet fremdeles sier at ingen kilde er valgt etter nedlastingen, velger du Open source. Velg platemappen med undermappen measurements og databasen, ikke selve databasefilen. Dette ekstra trinnet er faktisk nødvendig i programversjonen som vises her.",
+    "Stream gir de sammenslåtte bildearrayene slik at utsnitt kan hentes ved behov. Måledatabasen lastes også ned hvis den delen mangler. Load gir lagrede utsnitt og databasen deres. Vi bruker Load gjennom hele demonstrasjonen; velg ruten som passer til måten du vil lese bildene på.",
+    "Load test data åpner den nedlastede platen automatisk. For en eksisterende lokal plate er Open source en valgfri vei: velg platemappen som inneholder measurements og databasen, ikke selve databasefilen. Her velger vi en nøytral opptakssti til de samme eksempelfilene.",
     "Kontroller at ekte utsnitt vises, og at sidetelleren passer med forventet datasett. Antall bilder per side avhenger av vinduet og størrelsen på utsnittene. Det holder ikke at en mappe åpnes: undersøk bildene før du tar annotasjonsbeslutninger.",
     "Åpne Settings og opprett en egen annotasjonskolonne for demonstrasjonen. Bevar de opprinnelige etikettene. Dokumenter hva hver klasse betyr, og avtal en konsekvent visning før virkelig arbeid. Eksempeletiketten vi skal sette, tester bare lagringsveien.",
     "Venstreklikk på det første utsnittet for å sette klasse én. Høyreklikk setter klasse to, og samme klasse en gang til fjerner etiketten. Ringen i klassefargen viser gjeldende beslutning; den ekstra hvite ringen viser fokus. En endret ring beviser ikke i seg selv at etiketten er kommet til databasen.",
