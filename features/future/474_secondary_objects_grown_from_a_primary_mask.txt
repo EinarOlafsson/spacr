@@ -1,0 +1,88 @@
+================================================================================
+SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
+================================================================================
+
+Status:    OPEN, filed 2026-09-22. Not started. NOT BLOCKING.
+Owner:     spacr/qt/mask_engine.py (the propagation), spacr/qt/cpu_modes.py
+           and the Make Masks Detection method category.
+Requested: 2026-09-22, by the maintainer, in these words:
+
+           "in cellprofiler i used to propogate objects either propogate
+           cells from nuclei or similar with primary and secondary objects.
+           for the object detection here id like to add the capacity to (on
+           the whole image and on the image in magnefication only) find
+           local maxima and propagate with a quantile threshold from that
+           mazimam and have an option for a sigma before the maxima
+           detection. so what i want to be able to do is: 1. pass gausian
+           2. find maxima 3. propagate from maxima until threshold is met
+           (threshold defined by % of maxima or absolute value , etc. have
+           some different options ) 4. this yeald objects."
+
+WHAT WAS BUILT ALREADY, UNDER ITEM 473
+--------------------------------------------------------------------------------
+
+The four numbered steps above are done and shipped: Make Masks' Detection
+method category offers "Maxima + propagate", which blurs, finds the local
+maxima, grows a seeded watershed out of each one and stops by one of four
+rules. It runs in both scopes -- the magnifier's box and the whole image --
+and records its settings with the mask.
+
+The engine is
+:func:`spacr.qt.mask_engine.maxima_propagate_instances`.
+
+WHAT IS LEFT, AND WHY IT IS A SEPARATE ITEM
+--------------------------------------------------------------------------------
+
+CellProfiler's primary/secondary pair is TWO features and Make Masks now
+has one of them:
+
+* PRIMARY objects are found from the image alone -- a nucleus channel, say.
+  That is "Maxima + propagate", and it is done.
+* SECONDARY objects are grown from an EXISTING mask of another object
+  type: cells grown outward from the nuclei already segmented, each cell
+  keeping its own nucleus's identity, so cell 7 is the cell around nucleus
+  7 and the two tables join on that number.
+
+The second is a different feature because its INPUT is different. It does
+not find seeds; it is given them, as a labelled mask of another object
+class, and the identity of each seed has to survive into the result -- that
+is the whole point of the pair. Make Masks has no notion of "the other
+object's mask" today: it edits one mask at a time.
+
+WHAT IT WOULD REUSE
+--------------------------------------------------------------------------------
+
+The propagation itself, unchanged. :func:`maxima_propagate_instances`
+already builds a marker image and grows it with
+``skimage.segmentation.watershed(-image, markers, mask=...)``; a secondary
+run is that call with the markers taken from the primary MASK instead of
+from ``peak_local_max``, and with the resulting labels kept rather than
+renumbered. The four stop rules, the hole filling and the minimum-area
+filter apply as they stand.
+
+So the work is:
+
+1. Split the marker-building out of :func:`maxima_propagate_instances`, so
+   "grow these markers by this rule" is a function of its own and the
+   maxima are one way of producing markers.
+2. A way for Make Masks to hold a SECOND mask -- the primary objects -- and
+   a picker for which object class it is. This is the real design question
+   and the reason this is not a half-hour change: the screen, the queue,
+   the save path and the curation ledger are all one-mask-at-a-time today.
+3. The label identity contract: a secondary object carries its primary's
+   id, and a primary with no secondary and a secondary with no primary are
+   both reportable states rather than silent ones.
+4. Measure it the way item 473 measured the rest, on a set with both a
+   nucleus and a cell ground truth.
+
+WHAT TO BE CAREFUL WITH
+--------------------------------------------------------------------------------
+
+* CellProfiler's Propagate walks a cost that mixes intensity difference
+  with distance, weighted by a lambda. spaCR's propagation is the
+  lambda-zero end of that -- pure intensity -- because
+  ``skimage.segmentation.watershed`` has no such parameter. If the
+  secondary case needs the distance term (it is the case where it matters
+  most: a cell boundary is often where the intensity says nothing), that
+  cost has to be implemented, and it would be spaCR's own segmentation
+  code rather than a call into scikit-image. Decide that deliberately.
