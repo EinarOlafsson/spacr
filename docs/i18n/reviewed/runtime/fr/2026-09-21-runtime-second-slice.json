@@ -389,10 +389,10 @@
     },
     {
       "table": "ui",
-      "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
-      "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
-      "translation": "L'inversion pour la détection est activée : tous les masques — détection d'objets, détection Otsu et loupe en direct — sont générés à partir de l'image INVERSÉE. Les valeurs affichées et la catégorie de filtrage utilisent toujours les valeurs réelles de l'image ; 'Invert image', dans la catégorie d'affichage, est un réglage distinct qui modifie uniquement l'image affichée.",
-      "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535"
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "Inverser l'image est activé : l’affichage et la détection utilisent l’image INVERSÉE. L’intensité du pixel sous le pointeur suit l’inversion ; l’intensité moyenne des objets et les seuils de Filtrer utilisent les valeurs d’origine chargées. Les données d’image chargées et le masque existant restent inchangés."
     },
     {
       "table": "ui",
@@ -519,6 +519,19 @@
       "source": "Music bed",
       "translation": "Musique de fond",
       "source_sha256": "a3b649dac67ac6d7354ee7ae235ba3b4c86dc950876b264506e55dade0e51a27"
+    }
+  ],
+  "superseded_records": [
+    {
+      "record": {
+        "table": "ui",
+        "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+        "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+        "translation": "L'inversion pour la détection est activée : tous les masques — détection d'objets, détection Otsu et loupe en direct — sont générés à partir de l'image INVERSÉE. Les valeurs affichées et la catégorie de filtrage utilisent toujours les valeurs réelles de l'image ; 'Invert image', dans la catégorie d'affichage, est un réglage distinct qui modifie uniquement l'image affichée.",
+        "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535"
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
     }
   ]
 }

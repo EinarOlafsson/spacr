@@ -571,3 +571,21 @@ The English-source findings reported above are resolved. Nine-language source
 refresh/rebinding remains assigned to the separate Codex translation session;
 no reviewed record or catalog was edited here, and translation completion is
 not claimed.
+
+2026-09-22 — CODEX TRANSLATION LANE: CURRENT HELP AND CONTROL LABELS
+The corrected warning and tooltip are translated in all nine GUI languages.
+They distinguish inverted hover pixels from object means and Filter thresholds
+computed from original loaded values, without changing detection behavior.
+13 old help review records are preserved under superseded_records and replaced
+with current source-bound records; five missing warning reviews are added.
+Actual control lookup exposed three partially translated Invert image labels,
+nine missing Swap object and background labels, and wrong Swedish/Icelandic
+Filter captions (FilterName/Fólkur). These are corrected, including their shared
+filter setting labels.19 new control review records cover the previously
+unreviewed controls. The tuple-fed Swap caption is now in the existing indirect
+UI source inventory; English has4134 UI sources.
+105 focused tests pass in48.32s, including actual widget translation in all nine
+languages and the existing inversion/filter pixel-behavior checks. Independent
+source/hash/gate/live-tr/setting-label checks pass and prove unrelated catalog
+rows unchanged. Receipt:features/data/435_inversion_translations_2026-09-22.json.
+No native-speaker signoff or complete-catalog audit acceptance is claimed.

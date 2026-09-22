@@ -3555,7 +3555,6 @@ UI = {
     'Interface font': 'Interface-Schriftzeichen',
     'Interior colour of bars and histogram bins.': 'Innenfarbe der Stäbe und Histogrammbehälter.',
     'Interval': 'Intervall',
-    "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.": "Invertieren für die Erkennung ist aktiviert: Alle Masken -- Objekterkennung, Otsu-Erkennung und Live-Lupe -- werden aus dem INVERTIERTEN Bild erzeugt. Die Werteanzeige und die Kategorie Filter melden weiterhin die tatsächlichen Bildwerte. 'Invert image' (Bild invertieren) unter Anzeige ist ein separater Schalter, der nur die Darstellung verändert.",
     'Invert image': 'Bild invertieren',
     'Invert x axis': 'x-Achse umkehren',
     'Invert y axis': 'Inverse y-Achse',
@@ -4710,7 +4709,6 @@ UI = {
     'Show the full app list. Also revealed by moving the pointer to the left edge of the window.': 'Zeigt die vollständige App-Liste an. Auch durch Verschieben des Zeigers auf den linken Rand des Fensters.',
     'Show the full keyboard reference': 'Vollständige Tastaturreferenz anzeigen',
     "Show the next object's channel. Cycles cell, nucleus, both.": 'Zeigt den Kanal des nächsten Objekts.',
-    "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.": "Zeigt das Bild als Negativ und führt die Erkennung auf demselben Negativ aus: Das Feld wird auf 0..1 normalisiert und jeder Pixelwert durch 1 minus seinen Wert ersetzt. Das dunkelste Pixel wird dadurch zum hellsten. So können Otsu und die Live-Lupe, die nach hellen Objekten suchen, DUNKLE Objekte erkennen: Ein dunkles Objekt in einem hellen Durchlichtbild erscheint für Auge und Detektor wie ein fluoreszierendes Objekt. BEI AKTIVIERTER OPTION WERDEN MASKEN AUS DEM INVERTIERTEN BILD ERZEUGT; darauf weist eine dauerhafte Warnung über dem Bild hin. Mauszeiger-Werteanzeige, Filterkategorie und gespeicherte Maske verwenden weiterhin die tatsächlichen Bildwerte, sodass sich Messwerte nicht ändern. Dies ist nicht 'Swap object and background' (Objekt und Hintergrund vertauschen) in Objektoperationen: Dort wird eine fertige MASKE umgekehrt, ohne die Bilddarstellung zu ändern.",
     "Show the previous object's channel. Cycles cell, nucleus, both.": 'Zeigt den Kanal des vorherigen Objekts an, kreist Zelle, Kern, beides.',
     'Show the rest of the caveats': 'Zeigen Sie den Rest der Vorbehalte',
     'Show the selected objects as crops, parents first.': 'Zeigen Sie die ausgewählten Objekte als Feldfrüchte an, Eltern zuerst.',
@@ -6156,6 +6154,9 @@ UI = {
     'Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.': 'Wählen Sie die Art Ihres Experiments. spaCR öffnet das erste Modul dieses Ablaufs mit Beispieldaten, damit Sie sehen können, wie es funktioniert, bevor Sie Ihre eigenen Bilder verwenden.',
     'Modules, in order: {names}': 'Module in der Reihenfolge: {names}',
     'Start': 'Starten',
+    'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.': 'Bild invertieren ist eingeschaltet: Darstellung und Erkennung verwenden das INVERTIERTE Bild. Die Pixelintensität unter dem Mauszeiger folgt der Invertierung; mittlere Objektintensitäten und Schwellenwerte unter Filtern verwenden die ursprünglich geladenen Werte. Die geladenen Bilddaten und die vorhandene Maske bleiben unverändert.',
+    "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "Invertiert das Bild und die zur Erkennung verwendeten Pixel, sodass dunkle Objekte hell werden. Das Bildfeld wird auf 0..1 normalisiert; anschließend wird jeder Pixelwert durch 1 minus seinen Wert ersetzt. Die Pixelintensität unter dem Mauszeiger folgt der Invertierung; mittlere Objektintensitäten und Schwellenwerte unter Filtern verwenden die ursprünglich geladenen Werte. Die geladenen Bilddaten und die vorhandene Maske bleiben unverändert. Zum Vertauschen von Vordergrund und Hintergrund in einer fertigen Maske verwenden Sie «Objekt und Hintergrund vertauschen» ('Swap object and background') unter Objektoperationen.",
+    'Swap object and background': 'Objekt und Hintergrund vertauschen',
 }
 
 MODULE_SUMMARIES = {
@@ -9789,7 +9790,6 @@ SOURCE_HASHES = {
     ('UI', 'Interface font'): 'ad55b73eb9e0ae7e86043bcda1d94e9f94cd1aab0f48c47974e377f333aab507',
     ('UI', 'Interior colour of bars and histogram bins.'): '89f8255e8f6547c4825ac18481966607a96ad6c6f08567a548132018061c14f7',
     ('UI', 'Interval'): '6f45b0005e3b7c18ecd474b906b61876b7bb18e969e89d8728187e4417c364f8',
-    ('UI', "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture."): '159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535',
     ('UI', 'Invert image'): '4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613',
     ('UI', 'Invert x axis'): '5873a95affc691a3547c03fb6c3c7a0de77b1eb9eca56d08eb3587937cdecb5c',
     ('UI', 'Invert y axis'): '3d73d45768978831a8defb5e48c73ac7638df43557fb40aaa1569e8e6399ed09',
@@ -10944,7 +10944,6 @@ SOURCE_HASHES = {
     ('UI', 'Show the full app list. Also revealed by moving the pointer to the left edge of the window.'): 'e1a3c540a212fd7a3c631ddc6e32a879d97334c3c8ce4744f14a5825320d6251',
     ('UI', 'Show the full keyboard reference'): '3ce12e11a3e6270fd018cf609bab07261c6257eccffb3d9ace1b8fa3f309245e',
     ('UI', "Show the next object's channel. Cycles cell, nucleus, both."): '17c71a7765740cbd9341b4bdcab50a475a1332566cf78accb6d3f6dfaaacb2a9',
-    ('UI', "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture."): 'd71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789',
     ('UI', "Show the previous object's channel. Cycles cell, nucleus, both."): 'dab2cfeb886d33229c18767704edf303682d50ad983a58ba2c5f11339638e811',
     ('UI', 'Show the rest of the caveats'): '64285e95588f31d03d509a2f52d0f4e59eaa03db3cf7e6db1a739ac19c04693e',
     ('UI', 'Show the selected objects as crops, parents first.'): '7fcd44821835727ed582b95ed4222a62baaf9d24d24c05285830970553120bf6',
@@ -12436,4 +12435,7 @@ SOURCE_HASHES = {
     ('UI', 'Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.'): '656145cc460919c9a99834c49f8d14080f65a5c13cc9445db5149c59527967b2',
     ('UI', 'Modules, in order: {names}'): 'fae5a56b3884a34bf71a0844166d262580f79903bc609031ff2844d08390493a',
     ('UI', 'Start'): 'e4bb9f1ece9af9264a3b9e3913bbdb2cf497457167b14ced5f85688bfde74644',
+    ('UI', 'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.'): '442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d',
+    ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
+    ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
 }

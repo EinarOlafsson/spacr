@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "6273a50785d0fec56e05ebcf8be57a2f276640e6",
+  "help_translations": 18,
+  "old_help_reviews_updated": 13,
+  "new_help_reviews": 5,
+  "new_control_reviews": 19,
+  "new_swap_button_translations": 9,
+  "new_invert_button_translations": 3,
+  "corrected_filter_caption_and_setting_languages": [
+    "sv",
+    "is"
+  ],
+  "languages": [
+    {
+      "language": "sv",
+      "existing_help_reviews_updated": 2,
+      "new_help_reviews": 0,
+      "new_control_reviews": 2,
+      "filter_setting_label_corrected": true,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "de",
+      "existing_help_reviews_updated": 2,
+      "new_help_reviews": 0,
+      "new_control_reviews": 2,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "existing_help_reviews_updated": 2,
+      "new_help_reviews": 0,
+      "new_control_reviews": 1,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 2,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "existing_help_reviews_updated": 1,
+      "new_help_reviews": 1,
+      "new_control_reviews": 2,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 1,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "existing_help_reviews_updated": 1,
+      "new_help_reviews": 1,
+      "new_control_reviews": 2,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 1,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "existing_help_reviews_updated": 1,
+      "new_help_reviews": 1,
+      "new_control_reviews": 3,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 1,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "existing_help_reviews_updated": 1,
+      "new_help_reviews": 1,
+      "new_control_reviews": 3,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 1,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "existing_help_reviews_updated": 1,
+      "new_help_reviews": 1,
+      "new_control_reviews": 3,
+      "filter_setting_label_corrected": true,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 1,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "existing_help_reviews_updated": 2,
+      "new_help_reviews": 0,
+      "new_control_reviews": 1,
+      "filter_setting_label_corrected": false,
+      "live_caption_checks": 5,
+      "live_setting_label_checks": 1,
+      "old_evidence_preserved": 2,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "review_kind": "AI-assisted linguistic and technical review against item 435 corrected English",
+  "native_speaker_signoff": false,
+  "full_catalog_audit_passed": false
+}

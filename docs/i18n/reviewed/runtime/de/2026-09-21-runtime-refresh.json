@@ -949,10 +949,10 @@
     },
     {
       "table": "ui",
-      "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
-      "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
-      "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535",
-      "translation": "Invertieren für die Erkennung ist aktiviert: Alle Masken -- Objekterkennung, Otsu-Erkennung und Live-Lupe -- werden aus dem INVERTIERTEN Bild erzeugt. Die Werteanzeige und die Kategorie Filter melden weiterhin die tatsächlichen Bildwerte. 'Invert image' (Bild invertieren) unter Anzeige ist ein separater Schalter, der nur die Darstellung verändert."
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "Bild invertieren ist eingeschaltet: Darstellung und Erkennung verwenden das INVERTIERTE Bild. Die Pixelintensität unter dem Mauszeiger folgt der Invertierung; mittlere Objektintensitäten und Schwellenwerte unter Filtern verwenden die ursprünglich geladenen Werte. Die geladenen Bilddaten und die vorhandene Maske bleiben unverändert."
     },
     {
       "table": "ui",
@@ -1453,10 +1453,10 @@
     },
     {
       "table": "ui",
-      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
-      "translation": "Zeigt das Bild als Negativ und führt die Erkennung auf demselben Negativ aus: Das Feld wird auf 0..1 normalisiert und jeder Pixelwert durch 1 minus seinen Wert ersetzt. Das dunkelste Pixel wird dadurch zum hellsten. So können Otsu und die Live-Lupe, die nach hellen Objekten suchen, DUNKLE Objekte erkennen: Ein dunkles Objekt in einem hellen Durchlichtbild erscheint für Auge und Detektor wie ein fluoreszierendes Objekt. BEI AKTIVIERTER OPTION WERDEN MASKEN AUS DEM INVERTIERTEN BILD ERZEUGT; darauf weist eine dauerhafte Warnung über dem Bild hin. Mauszeiger-Werteanzeige, Filterkategorie und gespeicherte Maske verwenden weiterhin die tatsächlichen Bildwerte, sodass sich Messwerte nicht ändern. Dies ist nicht 'Swap object and background' (Objekt und Hintergrund vertauschen) in Objektoperationen: Dort wird eine fertige MASKE umgekehrt, ohne die Bilddarstellung zu ändern."
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "Invertiert das Bild und die zur Erkennung verwendeten Pixel, sodass dunkle Objekte hell werden. Das Bildfeld wird auf 0..1 normalisiert; anschließend wird jeder Pixelwert durch 1 minus seinen Wert ersetzt. Die Pixelintensität unter dem Mauszeiger folgt der Invertierung; mittlere Objektintensitäten und Schwellenwerte unter Filtern verwenden die ursprünglich geladenen Werte. Die geladenen Bilddaten und die vorhandene Maske bleiben unverändert. Zum Vertauschen von Vordergrund und Hintergrund in einer fertigen Maske verwenden Sie «Objekt und Hintergrund vertauschen» ('Swap object and background') unter Objektoperationen."
     },
     {
       "table": "ui",
@@ -2177,6 +2177,28 @@
       },
       "superseded_on": "2026-09-22",
       "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+        "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+        "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535",
+        "translation": "Invertieren für die Erkennung ist aktiviert: Alle Masken -- Objekterkennung, Otsu-Erkennung und Live-Lupe -- werden aus dem INVERTIERTEN Bild erzeugt. Die Werteanzeige und die Kategorie Filter melden weiterhin die tatsächlichen Bildwerte. 'Invert image' (Bild invertieren) unter Anzeige ist ein separater Schalter, der nur die Darstellung verändert."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+        "translation": "Zeigt das Bild als Negativ und führt die Erkennung auf demselben Negativ aus: Das Feld wird auf 0..1 normalisiert und jeder Pixelwert durch 1 minus seinen Wert ersetzt. Das dunkelste Pixel wird dadurch zum hellsten. So können Otsu und die Live-Lupe, die nach hellen Objekten suchen, DUNKLE Objekte erkennen: Ein dunkles Objekt in einem hellen Durchlichtbild erscheint für Auge und Detektor wie ein fluoreszierendes Objekt. BEI AKTIVIERTER OPTION WERDEN MASKEN AUS DEM INVERTIERTEN BILD ERZEUGT; darauf weist eine dauerhafte Warnung über dem Bild hin. Mauszeiger-Werteanzeige, Filterkategorie und gespeicherte Maske verwenden weiterhin die tatsächlichen Bildwerte, sodass sich Messwerte nicht ändern. Dies ist nicht 'Swap object and background' (Objekt und Hintergrund vertauschen) in Objektoperationen: Dort wird eine fertige MASKE umgekehrt, ohne die Bilddarstellung zu ändern."
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
     }
   ]
 }

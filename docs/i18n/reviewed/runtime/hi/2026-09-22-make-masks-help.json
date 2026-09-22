@@ -32,10 +32,10 @@
     },
     {
       "table": "ui",
-      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
-      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
-      "translation": "छवि को नेगेटिव के रूप में दिखाएँ और उसी नेगेटिव पर ऑब्जेक्ट पहचानें: दृश्य क्षेत्र को 0..1 पर सामान्यीकृत किया जाता है और प्रत्येक पिक्सेल का नया मान 1 में से उसका पुराना मान घटाकर बनता है, इसलिए सबसे गहरा पिक्सेल सबसे चमकीला हो जाता है। इससे चमकीले ऑब्जेक्ट खोजने वाले Otsu और लाइव आवर्धक गहरे ऑब्जेक्ट भी पहचान सकते हैं। हल्के ब्राइटफ़ील्ड में गहरा ऑब्जेक्ट आँख और पहचान प्रक्रिया दोनों को प्रतिदीप्त ऑब्जेक्ट जैसा दिखता है। यह विकल्प चालू होने पर मास्क उलटी तीव्रता वाली छवि से बनते हैं, और छवि के ऊपर इसकी चेतावनी रहती है। पॉइंटर के नीचे की रीडिंग, फ़िल्टर श्रेणी और सहेजा जाने वाला मास्क छवि के वास्तविक मानों का उपयोग करते रहते हैं, इसलिए माप नहीं बदलते। यह ऑब्जेक्ट संबंधी क्रियाओं में ऑब्जेक्ट और पृष्ठभूमि को आपस में बदलने वाली क्रिया ('Swap object and background') से अलग है: वह तैयार मास्क को उलटती है और छवि को नहीं बदलती।"
+      "key": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source": "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.",
+      "source_sha256": "ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612",
+      "translation": "छवि और पहचान के लिए इस्तेमाल किए जाने वाले पिक्सेल उलटें, ताकि गहरे ऑब्जेक्ट चमकीले हो जाएँ। फ़ील्ड को 0..1 में सामान्यीकृत किया जाता है और फिर हर पिक्सेल का मान 1 में से उसके अपने मान को घटाकर मिलता है। कर्सर के नीचे पिक्सेल की तीव्रता उलटने के अनुसार बदलती है; ऑब्जेक्ट की औसत तीव्रता और फ़िल्टर की सीमाएँ मूल लोड किए गए मानों का उपयोग करती हैं। लोड किया गया छवि डेटा और मौजूदा मास्क नहीं बदलते। तैयार मास्क में अग्रभूमि और पृष्ठभूमि बदलने के लिए ऑब्जेक्ट संचालन में «ऑब्जेक्ट और पृष्ठभूमि बदलें» ('Swap object and background') का उपयोग करें।"
     },
     {
       "table": "ui",
@@ -190,6 +190,13 @@
       "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
       "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
       "translation": "मास्क में पहले से ऑब्जेक्ट होने पर नया ऑब्जेक्ट क्या करे। काटने का नियम केवल उसके बिना लेबल वाले पिक्सेल रखता है, इसलिए पुराने ऑब्जेक्ट का कोई पिक्सेल नहीं जाता। छोड़ने का नियम पुराने ऑब्जेक्ट को छूते किसी भी नए ऑब्जेक्ट को छोड़ देता है। बदलने का नियम नए ऑब्जेक्ट को उसके ढके सभी पिक्सेल लेने देता है। माउस के नीचे के क्षेत्र की झलक में बॉक्स नियम का परिणाम दिखाता है: क्लिक से जोड़े जाने वाले भाग ठोस रंग में और हटने वाले भाग धुँधले दिखते हैं।"
+    },
+    {
+      "table": "ui",
+      "key": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source": "Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.",
+      "source_sha256": "442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d",
+      "translation": "“छवि उलटें” चालू है: प्रदर्शन और पहचान दोनों उलटी छवि का उपयोग करते हैं। कर्सर के नीचे पिक्सेल की तीव्रता उलटने के अनुसार बदलती है; ऑब्जेक्ट की औसत तीव्रता और फ़िल्टर की सीमाएँ मूल लोड किए गए मानों का उपयोग करती हैं। लोड किया गया छवि डेटा और मौजूदा मास्क नहीं बदलते।"
     }
   ],
   "superseded_records": [
@@ -203,6 +210,17 @@
       },
       "superseded_on": "2026-09-22",
       "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "record": {
+        "table": "ui",
+        "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+        "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+        "translation": "छवि को नेगेटिव के रूप में दिखाएँ और उसी नेगेटिव पर ऑब्जेक्ट पहचानें: दृश्य क्षेत्र को 0..1 पर सामान्यीकृत किया जाता है और प्रत्येक पिक्सेल का नया मान 1 में से उसका पुराना मान घटाकर बनता है, इसलिए सबसे गहरा पिक्सेल सबसे चमकीला हो जाता है। इससे चमकीले ऑब्जेक्ट खोजने वाले Otsu और लाइव आवर्धक गहरे ऑब्जेक्ट भी पहचान सकते हैं। हल्के ब्राइटफ़ील्ड में गहरा ऑब्जेक्ट आँख और पहचान प्रक्रिया दोनों को प्रतिदीप्त ऑब्जेक्ट जैसा दिखता है। यह विकल्प चालू होने पर मास्क उलटी तीव्रता वाली छवि से बनते हैं, और छवि के ऊपर इसकी चेतावनी रहती है। पॉइंटर के नीचे की रीडिंग, फ़िल्टर श्रेणी और सहेजा जाने वाला मास्क छवि के वास्तविक मानों का उपयोग करते रहते हैं, इसलिए माप नहीं बदलते। यह ऑब्जेक्ट संबंधी क्रियाओं में ऑब्जेक्ट और पृष्ठभूमि को आपस में बदलने वाली क्रिया ('Swap object and background') से अलग है: वह तैयार मास्क को उलटती है और छवि को नहीं बदलती।"
+      },
+      "superseded_on": "2026-09-22",
+      "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
     }
   ]
 }

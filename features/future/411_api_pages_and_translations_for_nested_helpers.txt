@@ -1577,3 +1577,13 @@ superseded_records in each review file, and the current record replaces its
 old catalog key. No review gate or count was relaxed. Runtime English is
 refreshed to4133 UI sources. All nine complete runtime review stores load;
 full catalog translation audit still has missing text and remains open.
+
+2026-09-22 — CODEX:435 SOURCE CHANGES RECONCILED
+Current inversion help now has18 translations, preserving13 superseded reviews
+and adding five missing warning reviews.19 new source-bound control reviews
+cover all missing Swap captions, three Invert image captions and unreviewed
+Filter labels; Swedish FilterName and Icelandic Fólkur are corrected in both
+caption and setting-label tables.105 focused tests pass, including the complete
+nine-language widget pass and unchanged inversion/filter behavior. All nine
+runtime review stores accept current sources. English inventory has4134 UI
+sources; remaining catalog, API/nested-helper and tutorial work is still open.

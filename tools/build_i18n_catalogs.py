@@ -216,6 +216,7 @@ _INDIRECT_CHROME_UI_SOURCES = frozenset({
     # linger here and new filter captions cannot silently miss translation.
     "Signal to noise",
     "Remove background",
+    "Swap object and background",
     "Outline colour",
     "Upper percentile",
     # Figure-settings rows. QFormLayout.addRow is intentionally not treated

@@ -6097,7 +6097,6 @@ UI = {
     '{source} / conflict': '{source} / 冲突',
     '{source}: {ppm} px/mm': '{source}: {ppm} px/mm',
     'What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.': '在 Draw 模式下拖动所创建的形状。Lasso 和 Rectangle through view 可在任意角度使用：旋转体积，直到目标群体清晰分离，再围绕它绘制轮廓，门控将保留在该视图中位置落在轮廓内的所有对象。长方体、椭圆、圆和多边形在所选平面上绘制，再通过第二次拖动赋予深度。按住鼠标右键拖动始终会旋转体积。',
-    "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.": "将图像显示为负片，并在同一负片上检测：先把视野归一化到 0..1，再将每个像素值替换为 1 减去原值，因此最暗的像素变成最亮的像素。这样，寻找亮对象的 Otsu 和实时放大镜就能检测暗对象；明场图像浅色背景上的暗对象，在视觉和检测器看来都像荧光对象。启用此选项时，掩膜由反转后的图像生成，图像上方会持续显示相应警告。悬停读数、筛选类别和保存的掩膜仍使用图像的真实数值，因此测量值不会改变。这不同于对象操作中的对象与背景互换（'Swap object and background'）：后者只反转已生成的掩膜，不改变图像。",
     'GUI scale {gui}%, font scale {font}%': 'GUI 缩放 {gui}%，字体缩放 {font}%',
     'Keep these settings?': '保留这些设置？',
     'Revert': '还原',
@@ -6178,6 +6177,9 @@ UI = {
     'Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.': '选择您的实验类型。spaCR 将打开该流程的第一个模块并加载示例数据，让您在使用自己的图像之前了解它的工作方式。',
     'Modules, in order: {names}': '模块顺序：{names}',
     'Start': '开始',
+    'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.': '“反相图像”已开启：显示和检测均使用反转后的图像。悬停处的像素强度随反转变化；对象平均强度和“过滤器”阈值使用原始载入值。已载入的图像数据和现有掩膜保持不变。',
+    "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations.": "反转图像及用于检测的像素，使暗对象变亮。视野先归一化到 0..1，然后每个像素变为 1 减去自身的值。悬停处的像素强度随反转变化；对象平均强度和“过滤器”阈值使用原始载入值。已载入的图像数据和现有掩膜保持不变。要交换已完成掩膜中的前景和背景，请使用“对象操作”中的«交换对象和背景» ('Swap object and background')。",
+    'Swap object and background': '交换对象和背景',
 }
 
 MODULE_SUMMARIES = {
@@ -12358,7 +12360,6 @@ SOURCE_HASHES = {
     ('UI', '{source} / conflict'): '1d45f4580144c5e5ef1e1bd1b23c95d42c445a7e0316f93cd36360fe7d0a2235',
     ('UI', '{source}: {ppm} px/mm'): '4c1e51c1b4b41e936cf6fedf733afe187381c5a79b24172c662c1e7902104933',
     ('UI', 'What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.'): '6214ddcae0e4795ce47eed00c66a24c9ac4a645cd1fc331c9343821206923888',
-    ('UI', "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture."): 'd71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789',
     ('UI', 'GUI scale {gui}%, font scale {font}%'): 'a7a66cfd641029216c0f7fd60ce13b26135d6895f1e612348b086b63bde45945',
     ('UI', 'Keep these settings?'): 'e96d53602a776b3c70506ffe6b71db2a91347f0d24e7f2e36f345b481ad7c000',
     ('UI', 'Revert'): '0026c505347863ae188a99df6946e16ac83262585044660440699346d24784e7',
@@ -12479,4 +12480,7 @@ SOURCE_HASHES = {
     ('UI', 'Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.'): '656145cc460919c9a99834c49f8d14080f65a5c13cc9445db5149c59527967b2',
     ('UI', 'Modules, in order: {names}'): 'fae5a56b3884a34bf71a0844166d262580f79903bc609031ff2844d08390493a',
     ('UI', 'Start'): 'e4bb9f1ece9af9264a3b9e3913bbdb2cf497457167b14ced5f85688bfde74644',
+    ('UI', 'Invert image is on: the picture and detection use the INVERTED image. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged.'): '442f48373af356249b2681ce360c695bb1e258d823306192dd1f27ab5390671d',
+    ('UI', "Invert the picture and the pixels used for detection, so dark objects become bright. The field is normalized to 0..1, then each pixel becomes 1 minus itself. Hover pixel intensity follows the inversion; object mean intensity and Filter thresholds use the original loaded values. The loaded image data and existing mask are unchanged. To swap foreground and background in a finished mask, use 'Swap object and background' in Object operations."): 'ed765dd4155a043c1c41c950c183818902c0ed756293b746528907c66bbdd612',
+    ('UI', 'Swap object and background'): '5a37e508cad8efab39fe3b395f3768384d518873f46d2a7fa5cdd21a226fd2be',
 }
