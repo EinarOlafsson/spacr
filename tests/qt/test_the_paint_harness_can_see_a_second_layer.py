@@ -167,10 +167,12 @@ def test_the_magnifier_row_measures_both_scopes_and_both_box_sizes(harness):
     rows = harness.measure_magnifier(field_px=192, moves=4)
 
     assert [row.get("scope") for row in rows] == ["region", "image",
-                                                  "region"], (
+                                                  "region", "image"], (
         "the harness did not measure both scopes: " + repr(rows))
-    assert rows[-1]["box_px"] == 192 > rows[0]["box_px"], (
-        "the largest box the field allows was not measured: " + repr(rows))
+    assert rows[-2]["box_px"] == rows[-1]["box_px"] == 192 \
+        > rows[0]["box_px"], (
+        "the largest box the field allows was not measured in both "
+        "scopes: " + repr(rows))
     for row in rows:
         assert row["measurement"] == "magnifier"
         assert row["mode"], "the row does not say which model ran"

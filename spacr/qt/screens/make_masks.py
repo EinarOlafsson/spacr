@@ -505,6 +505,7 @@ SHORTCUT_HINTS = (
     ("Ctrl+S", "Save the mask"),
     ("Esc", "Reset the zoom"),
     ("B E W D V Z R", "Brush, erase, wand, draw, divide, zoom, recrop"),
+    ("M", "Live magnifier"),
     ("Magnifier: wheel", "Box zoom"),
     ("Magnifier: Shift + wheel", "Box size"),
     ("Magnifier: drag", "Add the objects it passes over"),
@@ -2012,7 +2013,18 @@ def load_cellpose_model(model_name: str):
     substituting stock weights for a checkpoint that is not there. Going
     around it with a second, simpler call would give this screen a
     different answer from the run it is meant to be correcting.
+
+    ON A CPU THE WEIGHTS ARE LOADED IN FLOAT32. Cellpose-SAM loads them in
+    bfloat16 by default, and a processor without native bfloat16
+    arithmetic runs every tile through a slow emulation of it: measured on
+    an AMD Ryzen 9 5950X, one 256 px tile took 162-197 s in bfloat16 and
+    31-46 s in float32, alternating, under the same load. A whole field is a hundred such tiles, so this is
+    the difference between most of an hour and most of a day. On a GPU
+    nothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides
+    there, as it does for the pipeline.
     """
+    import inspect
+
     import torch
     from cellpose import models as cp_models
 
@@ -2021,8 +2033,16 @@ def load_cellpose_model(model_name: str):
     pretrained = _resolve_cellpose_pretrained(model_name)
     from ...accelerator import cellpose_kwargs
 
-    return cp_models.CellposeModel(pretrained_model=pretrained,
-                                    **cellpose_kwargs())
+    kwargs = cellpose_kwargs()
+    if not kwargs.get("gpu"):
+        try:
+            accepts = "use_bfloat16" in inspect.signature(
+                cp_models.CellposeModel).parameters
+        except (TypeError, ValueError):
+            accepts = False
+        if accepts:
+            kwargs["use_bfloat16"] = False
+    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
 
 
 def cellpose_detect(image: np.ndarray, model, *,
@@ -2194,6 +2214,154 @@ class _MagnifierRequest(NamedTuple):
     overlap: str = "replace"
     occupied: Optional[np.ndarray] = None
     mask_token: int = 0
+    #: A whole-image run's :class:`_RunTicket`: how far the model has got
+    #: and whether the run is still wanted. None for a region, which is
+    #: small enough to finish. Not part of ``key``, for the same reason.
+    ticket: Any = None
+
+
+class _RunCancelled(Exception):
+    """A whole-image run was stopped, between two of the model's tiles."""
+
+
+class _RunTicket:
+    """How far one whole-image run has got, and whether it is still wanted.
+
+    A MODEL CALL COULD NOT BE STOPPED, and on a CPU that was the difference
+    between a tool and a trap. Cellpose-SAM on a CPU takes most of an hour
+    for one 2,000 px field, and Cancel could only throw the answer
+    away once it arrived: the model went on holding the processor, and the
+    shared model lock with it, for the rest of those minutes. Cellpose runs
+    a field as a series of 256 px tiles, one network call each, so the run
+    CAN be asked between two of them -- this is what it is asked.
+
+    Shared between the GUI thread, which reads the progress and cancels,
+    and the worker, which counts and checks; every field is one assignment
+    or one Event, so neither side takes a lock.
+
+    :param total: how many tiles the run is expected to take, when known.
+    """
+
+    def __init__(self, total: int = 0):
+        """A ticket for a run that has not started a tile yet."""
+        self._stop = threading.Event()
+        #: Tiles the model has STARTED, and how many it will run in all
+        #: (0 while unknown).
+        self.done = 0
+        self.total = int(total)
+        #: ``time.monotonic()`` when the first and the latest tile started.
+        self.first_at: Optional[float] = None
+        self.last_at: Optional[float] = None
+
+    def cancel(self) -> None:
+        """Ask the run to stop at its next tile."""
+        self._stop.set()
+
+    def cancelled(self) -> bool:
+        """Whether the run has been asked to stop."""
+        return self._stop.is_set()
+
+    def check(self) -> None:
+        """Raise :class:`_RunCancelled` if the run has been asked to stop."""
+        if self._stop.is_set():
+            raise _RunCancelled()
+
+    def step(self, tiles: int = 1) -> None:
+        """Count ``tiles`` starting now, unless the run is to stop instead.
+
+        :raises _RunCancelled: when :meth:`cancel` was called.
+        """
+        self.check()
+        now = time.monotonic()
+        if self.first_at is None:
+            self.first_at = now
+        self.last_at = now
+        self.done += max(1, int(tiles))
+
+    def remaining_seconds(self) -> Optional[float]:
+        """How long the tiles still to run will take, from this run's pace.
+
+        MEASURED ON THIS RUN, so the first run of a session has an estimate
+        too -- the one run that most needs one, on a CPU, and the one the
+        per-megapixel pace (:meth:`_LiveMagnifier.remaining_seconds`) has to
+        stay silent through. The pace is the time between the first tile
+        and the latest one, so the model's load, which comes before the
+        first, is not counted as tile time.
+
+        :returns: seconds, or None before two tiles have started, when the
+            total is unknown, or once the last tile is under way -- what
+            follows it, turning the network's output into objects, is not
+            made of tiles and is not guessed at.
+        """
+        done, total = self.done, self.total
+        first, last = self.first_at, self.last_at
+        if total <= 0 or done < 2 or first is None or last is None \
+                or done >= total:
+            return None
+        pace = (last - first) / (done - 1)
+        left = pace * (total - done + 1) - (time.monotonic() - last)
+        return max(0.0, left)
+
+
+def _cellpose_tile_count(shape, diameter: int = 0, bsize: int = 256,
+                         tile_overlap: float = 0.1) -> int:
+    """How many network calls Cellpose makes for one field of ``shape``.
+
+    ``cellpose.core.run_net``'s own arithmetic, for one 2-D image: the
+    field is rescaled by ``30 / diameter`` when a diameter is set, padded
+    by ``cellpose.transforms.get_pad_yx``, and cut into overlapping tiles of
+    ``bsize``. Cellpose-SAM's ``bsize`` is 256 and cannot be changed. Used
+    only to say how far a run has got; a Cellpose that tiles differently
+    makes the bar wrong and nothing else, and the bar never claims more than
+    it has counted (:meth:`_RunTicket.remaining_seconds`).
+
+    :param shape: the field's ``(height, width, ...)``.
+    :param diameter: the Object detection diameter; 0 for none.
+    :returns: the number of tiles, at least 1.
+    """
+    height, width = int(shape[0]), int(shape[1])
+    if diameter and int(diameter) > 0:
+        rescale = 30.0 / float(diameter)
+        height, width = int(height * rescale), int(width * rescale)
+    try:
+        from cellpose.transforms import get_pad_yx
+
+        ypad1, ypad2, xpad1, xpad2 = get_pad_yx(
+            height, width, min_size=(bsize, bsize))
+    except Exception:                                       # noqa: BLE001
+        ypad1 = ypad2 = xpad1 = xpad2 = 0
+    padded_y = height + ypad1 + ypad2
+    padded_x = width + xpad1 + xpad2
+    ny = 1 if padded_y <= bsize else int(
+        math.ceil((1.0 + 2 * tile_overlap) * padded_y / bsize))
+    nx = 1 if padded_x <= bsize else int(
+        math.ceil((1.0 + 2 * tile_overlap) * padded_x / bsize))
+    return max(1, ny * nx)
+
+
+def _counting_tiles(model, ticket):
+    """Count ``model``'s network calls on ``ticket``, and stop on a cancel.
+
+    A forward PRE-hook on the model's network: it runs before each tile, so
+    a cancelled run stops before spending another tile on an answer nobody
+    wants, and the exception it raises leaves ``eval`` the way any error
+    would -- the model lock is released by its own ``with``.
+
+    :returns: the hook's handle, to ``remove()`` afterwards, or None when
+        there is no ticket or the model has no torch network to hook -- a
+        stand-in, or a backend that runs out of process.
+    """
+    net = getattr(model, "net", None)
+    register = getattr(net, "register_forward_pre_hook", None)
+    if ticket is None or not callable(register):
+        return None
+
+    def before_a_tile(_module, inputs):
+        """Count this call's tiles, or stop the run here."""
+        batch = inputs[0] if inputs else None
+        ticket.step(int(getattr(batch, "shape", (1,))[0] or 1))
+
+    return register(before_a_tile)
 
 
 #: Everything a model reads, in the order :meth:`_LiveMagnifier._model_settings`
@@ -2217,8 +2385,9 @@ class _MagnifierResult(NamedTuple):
     the box edge cut (:func:`spacr.qt.mask_engine._drop_cut_objects`). A
     whole-image request's crop is the whole field, so nothing in it is cut.
     ``mode`` is the mode that actually ran and ``note`` says why when that is
-    not the one asked for; ``overlay`` is the RGBA picture of the outlines,
-    or None for a whole-image result, whose box draws its own slice of it;
+    not the one asked for; ``overlay`` is the RGBA picture of the outlines
+    -- for a whole-image result, of the whole field, which the box slices
+    rather than outlining its part of the field again on every move;
     ``count`` is how many objects ``labels`` holds.
 
     ``ghost`` is ``overlay`` again with the pixels the request's Overlap
@@ -2236,6 +2405,18 @@ class _MagnifierResult(NamedTuple):
     overlay: Optional[np.ndarray]
     count: int = 0
     ghost: Optional[np.ndarray] = None
+    #: A whole-image result's ``scipy.ndimage.find_objects`` of ``labels``:
+    #: every object's bounding box, from one pass on the worker. What the
+    #: Overlap rule's promise for one object is computed over, since the
+    #: rule's answer for an object depends on all of it and not on the
+    #: part the box shows. See :func:`_object_window`.
+    extents: Optional[tuple] = None
+
+    def nbytes(self) -> int:
+        """What this result holds in memory: its labels and its pictures."""
+        return int(sum(np.asarray(part).nbytes
+                       for part in (self.labels, self.overlay, self.ghost)
+                       if part is not None))
 
 
 def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
@@ -2264,18 +2445,37 @@ def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
     Object detection category's, exactly as the detect button passes them, so
     the box and the button cannot disagree about what Cellpose was asked. The
     magnifier's own sensitivity is the Otsu mode's and is not read here.
+
+    A WHOLE-IMAGE RUN COUNTS ITS TILES AND CAN BE STOPPED between two of
+    them, through the request's :class:`_RunTicket`: on a CPU that run is
+    minutes long, and a Cancel that could only discard the answer left the
+    processor and the model lock taken until it arrived.
     """
     loader = load_model or load_cellpose_model
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+        ticket.total = _cellpose_tile_count(request.crop.shape,
+                                            int(request.diameter))
     with _CELLPOSE_LOCK:
+        if ticket is not None:
+            ticket.check()
         model = loader(request.model_name)
-        labels, _cellprob, _flow = cellpose_detect(
-            request.crop, model,
-            diameter=int(request.diameter),
-            normalize=bool(request.normalize),
-            flow_threshold=float(request.flow_threshold),
-            cellprob_threshold=float(request.cellprob_threshold),
-            min_size=int(request.min_area),
-        )
+        hook = _counting_tiles(model, ticket)
+        try:
+            labels, _cellprob, _flow = cellpose_detect(
+                request.crop, model,
+                diameter=int(request.diameter),
+                normalize=bool(request.normalize),
+                flow_threshold=float(request.flow_threshold),
+                cellprob_threshold=float(request.cellprob_threshold),
+                min_size=int(request.min_area),
+            )
+        finally:
+            if hook is not None:
+                hook.remove()
+    if ticket is not None:
+        ticket.check()
     return labels
 
 
@@ -2491,6 +2691,8 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
     """
+    if request.ticket is not None:
+        request.ticket.check()
     mode = canonical_magnifier_mode(request.mode)
     segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
@@ -2499,6 +2701,8 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     elif segmenter is not _otsu_segmenter:
         try:
             return segmenter(request, load_model), mode, ""
+        except _RunCancelled:
+            raise
         except Exception as exc:                            # noqa: BLE001
             LOG.warning("magnifier mode %s could not run; using Otsu",
                         request.mode, exc_info=True)
@@ -2554,15 +2758,160 @@ def _stretch_for_box(image: np.ndarray, box, part,
     whole = image[y0:y1, x0:x1]
     if not whole.size:
         return np.ascontiguousarray(whole)
+    low, high = _box_levels(image, box, lower_pct, upper_pct)
+    vx0, vy0, vx1, vy1 = (int(v) for v in part)
+    crop = np.ascontiguousarray(image[vy0:vy1, vx0:vx1])
+    out = (np.clip(crop, low, high).astype(np.float64) - low) / (high - low)
+    return (out * float(np.iinfo(crop.dtype).max)).astype(crop.dtype)
+
+
+def _box_levels(image: np.ndarray, box, lower_pct: float,
+                upper_pct: float) -> tuple:
+    """The two levels the box is stretched between: ``(black, white)``.
+
+    Read from the WHOLE region the box magnifies, over a grid of at most
+    :data:`_STRETCH_SAMPLES` of its pixels -- every pixel, at a box the
+    window holds. :func:`_stretch_for_box` and :func:`_box_picture` both
+    read them here, so the two cannot stretch one box two ways.
+
+    :param image: the field.
+    :param box: ``(x0, y0, x1, y1)`` in image pixels; not empty.
+    :param lower_pct: the percentile that becomes black.
+    :param upper_pct: the percentile that becomes white.
+    """
+    x0, y0, x1, y1 = (int(v) for v in box)
+    whole = image[y0:y1, x0:x1]
     step = max(1, int(math.sqrt(whole.size / _STRETCH_SAMPLES)))
     sample = whole[::step, ::step]
     low, high = np.percentile(sample, [lower_pct, upper_pct])
     if high <= low:
         high = low + 1
+    return low, high
+
+
+#: ``(dtype, black, white) -> the pixel each value is drawn as``, for the
+#: last levels the box was drawn at. One entry: the levels change when the
+#: box moves over a different region, and a table for levels nobody is
+#: looking at any more is 256 KB held for nothing.
+_BOX_GREY_TABLE: dict = {}
+
+
+def _rgb32(rgb: np.ndarray) -> np.ndarray:
+    """``(h, w, 3)`` uint8 as ``(h, w)`` ``0xFFRRGGBB`` -- Qt's own RGB32."""
+    rgb = np.asarray(rgb, dtype=np.uint32)
+    return (np.uint32(0xFF000000) | (rgb[..., 0] << 16)
+            | (rgb[..., 1] << 8) | rgb[..., 2]).astype(np.uint32)
+
+
+def _box_grey_table(dtype, low, high) -> Optional[np.ndarray]:
+    """Every value of ``dtype`` as the grey pixel the box draws it as, or None.
+
+    The box's picture is two passes that read ONE value each --
+    :func:`_stretch_for_box` rescales a pixel between the levels,
+    :func:`spacr.qt.mask_engine.overlay_mask` turns the result into 8 bits
+    -- so the pair is a function of the pixel's value and the levels alone,
+    and for a 16-bit field it is a table of 65,536 entries. Built by
+    running those same two formulas over every value, which is what makes a
+    look-up in it byte-identical to the two passes rather than close to
+    them; `test_the_fast_box_picture_is_the_slow_one_to_the_byte` holds
+    it to that.
+
+    :param dtype: the field's dtype.
+    :param low: the black level, from :func:`_box_levels`.
+    :param high: the white level.
+    :returns: a ``0xFFgggggg`` uint32 table indexed by value, or None for a
+        dtype it cannot index -- a float field, a signed one, or one wider
+        than 16 bits -- which then takes the two passes.
+    """
+    dtype = np.dtype(dtype)
+    if dtype.kind != "u" or dtype.itemsize > 2:
+        return None
+    key = (dtype.str, float(low), float(high))
+    table = _BOX_GREY_TABLE.get(key)
+    if table is None:
+        values = np.arange(np.iinfo(dtype).max + 1, dtype=dtype)
+        out = (np.clip(values, low, high).astype(np.float64) - low) \
+            / (high - low)
+        stretched = (out * float(np.iinfo(dtype).max)).astype(dtype)
+        grey = (stretched.astype(np.float32) / 256.0).clip(0, 255) \
+            .astype(np.uint32)
+        table = (np.uint32(0xFF000000) | (grey << 16) | (grey << 8)
+                 | grey).astype(np.uint32)
+        _BOX_GREY_TABLE.clear()
+        _BOX_GREY_TABLE[key] = table
+    return table
+
+
+def _box_picture(image: np.ndarray, box, part, mask_part: np.ndarray,
+                 lower_pct: float, upper_pct: float,
+                 step: int = 1) -> np.ndarray:
+    """What the box draws of ``part``: stretched, in grey, with the mask over it.
+
+    EXACTLY ``overlay_mask(_stretch_for_box(...), mask, alpha=0.5)``, and
+    made to cost a frame at the largest box the Size box allows. That box
+    is as wide as the field and most of it is on the canvas: 1.4 Mpx per
+    move on a 2,048 px field, and the two passes spent 41.5 ms of float
+    arithmetic over 4.2 M channel values on it, per move, on the GUI thread
+    -- three frames, measured by ``tools/perf_paint.py --only magnifier``.
+
+    THE DESIGN DECISION: NOTHING IS CACHED BETWEEN MOVES. The picture could
+    have been built once per field, mask and levels and blitted from, but
+    the levels move with the box and the mask moves with every edit, so
+    that cache misses exactly when the user is working -- and its miss is
+    the whole field, a 150 ms frame of its own. Instead every move is made
+    cheap, and there is no first move that pays for the rest:
+
+    * the stretch and the 8-bit conversion become one look-up in a table
+      built for the levels (:func:`_box_grey_table`), straight into Qt's
+      native 32-bit pixel, so the picture is never converted again on its
+      way to the screen, as a 24-bit one is on every draw;
+    * the blend, which at ``alpha`` 0.5 is the floor of the mean of grey
+      and colour, is the carry-free byte average ``(a & b) + ((a ^ b) >> 1)``
+      over whole pixels, and only where the mask has an object.
+
+    Nothing is approximated --
+    `test_the_fast_box_picture_is_the_slow_one_to_the_byte`.
+
+    ``step`` thins the picture when the lens shows more image pixels than
+    the screen has device pixels for them (a zoom below one device pixel per
+    image pixel): drawing unsmoothed, Qt would drop those pixels anyway, so
+    they are not made. At every zoom that magnifies, it is 1 and nothing is
+    dropped -- the box stays exactly as sharp as it was.
+
+    :param image: the field the box magnifies.
+    :param box: ``(x0, y0, x1, y1)`` the box covers; the levels come from it.
+    :param part: ``(x0, y0, x1, y1)`` of it to draw, inside ``box``.
+    :param mask_part: the mask's labels over ``part``.
+    :param lower_pct: the percentile that becomes black.
+    :param upper_pct: the percentile that becomes white.
+    :param step: take every ``step``-th pixel of ``part`` each way.
+    :returns: a C-contiguous ``(h, w)`` uint32 picture, ``0xFFRRGGBB``.
+    """
+    step = max(1, int(step))
     vx0, vy0, vx1, vy1 = (int(v) for v in part)
-    crop = np.ascontiguousarray(image[vy0:vy1, vx0:vx1])
-    out = (np.clip(crop, low, high).astype(np.float64) - low) / (high - low)
-    return (out * float(np.iinfo(crop.dtype).max)).astype(crop.dtype)
+    crop = image[vy0:vy1:step, vx0:vx1:step]
+    labels = np.asarray(mask_part)[::step, ::step]
+    low, high = _box_levels(image, box, lower_pct, upper_pct)
+    table = _box_grey_table(image.dtype, low, high)
+    if table is None:
+        stretched = _stretch_for_box(image, box, part, lower_pct, upper_pct)
+        return np.ascontiguousarray(_rgb32(engine.overlay_mask(
+            stretched[::step, ::step], labels, alpha=0.5)))
+    out = table[crop]
+    flat = np.ascontiguousarray(labels).reshape(-1)
+    inside = np.flatnonzero(flat != 0)
+    if inside.size:
+        top = int(flat.max())
+        rng = np.random.default_rng(0)
+        colours = rng.integers(30, 255, size=(top + 1, 3), dtype=np.uint8)
+        colours[0] = [0, 0, 0]
+        paint = _rgb32(colours)
+        pixels = out.reshape(-1)
+        grey = pixels[inside]
+        colour = paint[flat[inside]]
+        pixels[inside] = (grey & colour) + (
+            ((grey ^ colour) >> 1) & np.uint32(0x7F7F7F))
+    return out
 
 
 def _canonical_overlap_rule(rule) -> str:
@@ -2633,6 +2982,46 @@ def _object_count(labels: np.ndarray) -> int:
     return int(np.count_nonzero(np.unique(np.asarray(labels))))
 
 
+def _object_extents(labels: np.ndarray) -> tuple:
+    """Every object's bounding box in ``labels``, in one pass.
+
+    ``scipy.ndimage.find_objects``: entry ``id - 1`` is ``(rows, cols)`` as
+    slices, or None for an id with no pixels.
+    """
+    from scipy import ndimage
+
+    lab = np.asarray(labels)
+    if not lab.size or int(lab.max()) <= 0:
+        return ()
+    return tuple(ndimage.find_objects(lab.astype(np.int32, copy=False)))
+
+
+def _object_window(result: _MagnifierResult, label: int) -> Optional[tuple]:
+    """``(x0, y0, x1, y1)`` around object ``label`` of a whole-image result.
+
+    Read from :attr:`_MagnifierResult.extents` when the worker counted
+    them, which is every whole-image result it builds; otherwise found by a
+    pass over the whole field, which is what this used to cost per click.
+
+    :returns: the window, exclusive ends, or None when no pixel has the id.
+    """
+    label = int(label)
+    extents = result.extents
+    if extents is not None and 0 < label <= len(extents):
+        found = extents[label - 1]
+        if found is None:
+            return None
+        rows, cols = found
+        return (int(cols.start), int(rows.start),
+                int(cols.stop), int(rows.stop))
+    body = np.asarray(result.labels) == label
+    rows = np.flatnonzero(body.any(axis=1))
+    cols = np.flatnonzero(body.any(axis=0))
+    if not rows.size:
+        return None
+    return (int(cols[0]), int(rows[0]), int(cols[-1]) + 1, int(rows[-1]) + 1)
+
+
 def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     """One object of a whole-image result, as a result of its own.
 
@@ -2644,15 +3033,12 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     :param result: a whole-image result.
     :param label: an id present in ``result.labels``.
     """
-    body = np.asarray(result.labels) == int(label)
-    rows = np.flatnonzero(body.any(axis=1))
-    cols = np.flatnonzero(body.any(axis=0))
-    y0, y1 = int(rows[0]), int(rows[-1]) + 1
-    x0, x1 = int(cols[0]), int(cols[-1]) + 1
-    labels = np.where(body[y0:y1, x0:x1], int(label), 0).astype(np.int32)
+    x0, y0, x1, y1 = _object_window(result, label)
+    body = np.asarray(result.labels)[y0:y1, x0:x1] == int(label)
+    labels = np.where(body, int(label), 0).astype(np.int32)
     request = result.request._replace(box=(x0, y0, x1, y1))
     return result._replace(request=request, labels=labels, overlay=None,
-                           count=1)
+                           count=1, ghost=None, extents=None)
 
 
 class _NewestRequestWorker:
@@ -2899,8 +3285,12 @@ class _LiveMagnifier(QObject):
         self._image_result: Optional[_MagnifierResult] = None
         #: The key of a run cancelled or failed, not started again by itself.
         self._image_halted: Optional[tuple] = None
-        #: ``(result, (box, object under the mouse), picture)`` last drawn.
+        #: ``(result, (box, object under the mouse, rule, mask), picture,
+        #: its pixels)`` last drawn; the pixels are what the picture reads.
         self._image_view: Optional[tuple] = None
+        #: ``(result, (object, rule, mask), what the rule takes)`` -- see
+        #: :meth:`_image_promise`.
+        self._image_promised: Optional[tuple] = None
         #: What a click would add where the mask already has objects; the
         #: Overlap rule the screen's box is on. See :func:`_ghosted_overlay`.
         self.overlap = _MAGNIFIER_OVERLAP_DEFAULT
@@ -2917,6 +3307,9 @@ class _LiveMagnifier(QObject):
         #: how long it is expected to take -- None when nothing says.
         self._image_started: Optional[float] = None
         self._image_estimate: Optional[float] = None
+        #: The :class:`_RunTicket` of the whole-image run on its way, which
+        #: counts its tiles and is how that run is stopped.
+        self._image_ticket: Optional[_RunTicket] = None
         #: ``(mode, model) -> seconds per megapixel`` from the last run
         #: that finished under it and was worth believing. See
         #: :meth:`_note_pace`, which says which runs those are, and
@@ -3114,6 +3507,8 @@ class _LiveMagnifier(QObject):
         The kept whole-image objects go with them: the screen is closing,
         and a label image per field is the largest thing this object holds.
         """
+        if self._image_ticket is not None:
+            self._image_ticket.cancel()
         region = self._worker.close()
         image = self._image_worker.close()
         self._image_cache.clear()
@@ -3517,7 +3912,7 @@ class _LiveMagnifier(QObject):
             pass
         names = list(self._image_cache)
         entries = [(index,
-                    self._image_cache[name].labels.nbytes / 1e6,
+                    self._image_cache[name].nbytes() / 1e6,
                     self._image_cache_used.get(name, 0.0))
                    for index, name in enumerate(names)]
         for dropped in what_to_drop(entries, time.time(), ceiling_mb=ceiling):
@@ -3576,6 +3971,9 @@ class _LiveMagnifier(QObject):
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
         values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
+        if self._image_ticket is not None:
+            self._image_ticket.cancel()
+        self._image_ticket = _RunTicket()
         self._image_key = key
         self._image_halted = None
         self._image_started = time.monotonic()
@@ -3588,7 +3986,7 @@ class _LiveMagnifier(QObject):
                                   invert=values["invert"]),
             box=(0, 0, width, height), shape=(height, width),
             colour=self._accent(), exclude_border=False, scope="image",
-            **values))
+            ticket=self._image_ticket, **values))
         self._set_busy(True)
 
     @staticmethod
@@ -3621,6 +4019,22 @@ class _LiveMagnifier(QObject):
             return None
         left = self._image_estimate - (time.monotonic() - self._image_started)
         return left if left > 0 else None
+
+    def image_progress(self) -> Optional[tuple]:
+        """``(tiles started, tiles in all, seconds left or None)``, or None.
+
+        What the whole-image run on its way has itself counted, which a
+        model that tiles -- Cellpose -- does from its first tile
+        (:class:`_RunTicket`). None for a run that counts nothing (Otsu, a
+        backend out of process), for which :meth:`remaining_seconds` is the
+        only estimate there is.
+        """
+        ticket = self._image_ticket
+        if not self._busy or ticket is None or ticket.total <= 0 \
+                or ticket.done <= 0:
+            return None
+        return (min(ticket.done, ticket.total), ticket.total,
+                ticket.remaining_seconds())
 
     def estimated_seconds(self) -> Optional[float]:
         """The whole run's estimate, or None when nothing was estimated.
@@ -3662,7 +4076,17 @@ class _LiveMagnifier(QObject):
         self._image_pace[pace_key] = seconds / (pixels / 1e6)
 
     def _stop_image(self) -> None:
-        """Forget the whole-image run on its way, dropping it if not started."""
+        """Forget the whole-image run on its way, and stop it.
+
+        One not started yet is dropped; one running is asked to stop at the
+        model's next tile (:class:`_RunTicket`), which frees the processor
+        and the model lock within one tile rather than at the end of the
+        run. A model that does not tile finishes, and its answer is thrown
+        away when it arrives, as before.
+        """
+        if self._image_ticket is not None:
+            self._image_ticket.cancel()
+            self._image_ticket = None
         self._image_key = None
         self._image_started = None
         self._image_estimate = None
@@ -3903,8 +4327,10 @@ class _LiveMagnifier(QObject):
         """
         if request.scope == "image":
             labels, used, note = self._segment_now(request)
-            return _MagnifierResult(request, labels, used, note, None,
-                                    _object_count(labels))
+            return _MagnifierResult(
+                request, labels, used, note,
+                _candidate_overlay(labels, request.colour),
+                _object_count(labels), extents=_object_extents(labels))
         model_key = request.key[:-1]
         cached = self._raw
         if cached is not None and cached[0] == model_key:
@@ -4003,7 +4429,11 @@ class _LiveMagnifier(QObject):
         started, self._image_started = self._image_started, None
         self._image_key = None
         self._image_estimate = None
+        if request.ticket is self._image_ticket:
+            self._image_ticket = None
         self._set_busy(False)
+        if isinstance(error, _RunCancelled):
+            return
         if error is None and started is not None:
             height, width = (int(v) for v in request.shape[:2])
             self._note_pace(request.key, height * width,
@@ -4073,7 +4503,8 @@ class _LiveMagnifier(QObject):
 
         In whole-image scope the box draws its slice of the whole-image
         objects instead, with the object a click would add filled more
-        strongly, and the frame is dashed while a run is on its way.
+        strongly and what the Overlap rule would take from it ghosted, and
+        the frame is dashed while a run is on its way.
 
         NOTHING IS COMPUTED FROM PIXELS HERE beyond the magnified region
         itself: the picture the box draws over it was built on the worker,
@@ -4098,19 +4529,23 @@ class _LiveMagnifier(QObject):
         if part is None:
             return
         vx0, vy0, vx1, vy1 = part
-        stretched = _stretch_for_box(self.detector_field(), box, part,
-                                     canvas.norm_lo, canvas.norm_hi)
-        rgb = np.ascontiguousarray(engine.overlay_mask(
-            stretched, canvas.mask[vy0:vy1, vx0:vx1], alpha=0.5))
+        step = self._picture_step(scale)
+        rgb = _box_picture(self.detector_field(), box, part,
+                           canvas.mask[vy0:vy1, vx0:vx1],
+                           canvas.norm_lo, canvas.norm_hi, step)
         height, width = rgb.shape[:2]
-        picture = QImage(rgb.data, width, height, 3 * width,
-                         QImage.Format_RGB888)
+        picture = QImage(rgb.data, width, height, 4 * width,
+                         QImage.Format_RGB32)
+        if step > 1:
+            area = QRectF(area.left(), area.top(), width * step * scale,
+                          height * step * scale)
         palette = active_palette()
         painter.save()
         painter.setRenderHint(QPainter.SmoothPixmapTransform, False)
         painter.setClipRect(lens)
         painter.drawImage(area, picture)
         if self.scope == "image":
+            self.mask_generation()
             view = self._image_slice(part)
             if view is not None:
                 painter.drawImage(area, view)
@@ -4151,6 +4586,24 @@ class _LiveMagnifier(QObject):
             painter.setPen(QPen(QColor(palette["fg"])))
             painter.drawText(badge, Qt.AlignCenter, caption)
         painter.restore()
+
+    def _picture_step(self, scale: float) -> int:
+        """How many image pixels one pixel of the box's picture stands for.
+
+        One whenever the lens magnifies -- a device pixel or more per image
+        pixel -- which is every zoom at which the box is used to look
+        closely. Below that, Qt drawing the picture unsmoothed would keep
+        one image pixel in every ``1 / (scale x device ratio)`` anyway, so
+        :func:`_box_picture` does not make the others.
+
+        :param scale: widget pixels per image pixel inside the lens.
+        """
+        ratio_of = getattr(self.canvas, "devicePixelRatioF", None)
+        ratio = float(ratio_of()) if callable(ratio_of) else 1.0
+        device = float(scale) * (ratio or 1.0)
+        if device <= 0 or device >= 1.0:
+            return 1
+        return max(1, int(1.0 / device))
 
     def _visible_part(self, box, lens, scale):
         """The part of ``box`` that is on the canvas, and where it is drawn.
@@ -4213,8 +4666,17 @@ class _LiveMagnifier(QObject):
         magnifies, for the reason given there: what is off the widget costs
         the same to build and shows nobody anything.
 
-        The object under the mouse is filled more strongly than the rest. The
-        picture is kept until the box, that object or the objects themselves
+        The outlines are CUT FROM THE WORKER'S PICTURE of the whole field
+        (:attr:`_MagnifierResult.overlay`), not drawn again here: at the
+        largest box, outlining the part of the field on the canvas was a
+        boundary pass over a megapixel and more per move.
+
+        The object under the mouse -- the one a click would add -- is filled
+        more strongly than the rest, and THE OVERLAP RULE'S ANSWER FOR IT IS
+        DRAWN THE WAY THE REGION MODE DRAWS ITS OWN: what a click would add
+        is solid, what the rule would take away keeps a quarter of its
+        alpha. See :meth:`_image_promise`. The picture is kept until the
+        box, that object, the rule, the mask or the objects themselves
         change, so repainting without moving recomputes nothing -- and
         nothing here calls a model.
         """
@@ -4223,19 +4685,88 @@ class _LiveMagnifier(QObject):
             return None
         x0, y0, x1, y1 = (int(v) for v in box)
         cx, cy = self._cursor
-        under = int(result.labels[cy, cx])
-        where = ((x0, y0, x1, y1), under)
+        labels = result.labels
+        under = int(labels[cy, cx])
+        rule = _canonical_overlap_rule(self.overlap)
+        where = ((x0, y0, x1, y1), under, rule,
+                 self._mask_token if rule != "replace" else 0)
         cached = self._image_view
         if cached is not None and cached[0] is result and cached[1] == where:
             return cached[2]
-        crop = result.labels[y0:y1, x0:x1]
-        rgba = _candidate_overlay(crop, result.request.colour)
-        if under > 0:
-            focus = (crop == under) & (rgba[..., 3] < 140)
-            rgba[focus, 3] = 140
-        picture = _rgba_qimage(rgba)
-        self._image_view = (result, where, picture)
+        if result.overlay is not None:
+            rgba = np.array(result.overlay[y0:y1, x0:x1], copy=True)
+        else:
+            rgba = _candidate_overlay(labels[y0:y1, x0:x1],
+                                      result.request.colour)
+        window = _object_window(result, under) if under > 0 else None
+        if window is not None:
+            wx0, wy0, wx1, wy1 = window
+            ix0, iy0 = max(x0, wx0), max(y0, wy0)
+            ix1, iy1 = min(x1, wx1), min(y1, wy1)
+            if ix1 > ix0 and iy1 > iy0:
+                body = labels[iy0:iy1, ix0:ix1] == under
+                alpha = rgba[iy0 - y0:iy1 - y0, ix0 - x0:ix1 - x0, 3]
+                alpha[body & (alpha < 140)] = 140
+                lost = self._image_promise(result, under)
+                if lost is not None:
+                    gone = lost[iy0 - wy0:iy1 - wy0, ix0 - wx0:ix1 - wx0]
+                    alpha[gone] = alpha[gone] // 4
+        rgba = np.ascontiguousarray(rgba)
+        height, width = rgba.shape[:2]
+        picture = QImage(rgba.data, width, height, 4 * width,
+                         QImage.Format_RGBA8888)
+        self._image_view = (result, where, picture, rgba)
         return picture
+
+    def _image_promise(self, result: _MagnifierResult,
+                       label: int) -> Optional[np.ndarray]:
+        """What the Overlap rule would take from whole-image object ``label``.
+
+        A whole-image click adds ONE WHOLE OBJECT, and most of it can lie
+        outside the box, so the rule's answer cannot be read off the box's
+        slice: Skip asks whether the object touches the mask ANYWHERE, and
+        Clip keeps its largest surviving piece, which may be off the box.
+        The answer is therefore computed over the object's own bounding box
+        (:func:`_object_window`, from the worker's one ``find_objects``
+        pass), against the mask there, by
+        :func:`spacr.qt.mask_engine._surviving_region_objects` -- the same
+        function, over the same window, that the click's paste runs
+        (:func:`_single_object`, then
+        :func:`spacr.qt.mask_engine._paste_region_objects`), so the promise
+        and the edit cannot disagree.
+
+        Its cost is the object's bounding box, once per object, rule and
+        mask: kept in :attr:`_image_promised`.
+
+        :param result: the whole-image result on screen.
+        :param label: the object under the mouse.
+        :returns: a bool array over the object's window, True where a click
+            would NOT add the pixel, or None when the rule takes nothing --
+            under Replace, over an empty window, or when all of it survives.
+        """
+        rule = _canonical_overlap_rule(self.overlap)
+        mask = self.canvas.mask
+        if rule == "replace" or mask is None \
+                or tuple(mask.shape[:2]) != tuple(result.labels.shape[:2]):
+            return None
+        key = (label, rule, self._mask_token)
+        cached = self._image_promised
+        if cached is not None and cached[0] is result and cached[1] == key:
+            return cached[2]
+        lost = None
+        window = _object_window(result, label)
+        if window is not None:
+            x0, y0, x1, y1 = window
+            occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
+            if occupied.any():
+                single = _single_object(result, label).labels
+                kept = engine._surviving_region_objects(
+                    single, occupied, overlap=rule,
+                    min_area=int(result.request.min_area))
+                gone = (single > 0) & (kept == 0)
+                lost = gone if gone.any() else None
+        self._image_promised = (result, key, lost)
+        return lost
 
 
 class _FlowPane(QLabel):
@@ -6345,10 +6876,39 @@ class MakeMasksScreen(QWidget):
         QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
         QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
         QShortcut(QKeySequence("R"), self, lambda: self._set_mode(MODE_RECROP))
+        QShortcut(QKeySequence("M"), self, self._toggle_magnifier_key)
         QShortcut(QKeySequence("Escape"), self, self._on_reset_zoom)
         QShortcut(QKeySequence("Ctrl+Z"), self, self._on_undo)
         QShortcut(QKeySequence("Ctrl+Y"), self, self._on_redo)
         QShortcut(QKeySequence("Ctrl+Shift+Z"), self, self._on_redo)
+
+    def _toggle_magnifier_key(self) -> bool:
+        """Turn the live magnifier on or off from the keyboard: the M key.
+
+        THE SAME TOGGLE AS THE TOOL-ROW BUTTON, pressed rather than
+        imitated: ``toggle()`` on :attr:`_btn_magnifier` sends the button's
+        own ``toggled`` signal, so the status line, the box and the button's
+        checked look go through :meth:`_on_toggle_magnifier` exactly as a
+        click on it does, and the two can never disagree about whether the
+        magnifier is on. A button that is disabled or hidden is not pressed
+        by its key either.
+
+        WHY M. Every other letter this screen binds names its tool (B brush,
+        E erase, W wand, D draw, V divide, Z zoom, R recrop), and M is the
+        first free letter of "magnifier". It is bare, like theirs, so it
+        carries no Ctrl and therefore no Command on macOS, where Cmd+M
+        minimises the window. :data:`spacr.qt.shortcuts.SCREEN_SHORTCUTS`
+        lists it with this screen as its scope, under the card's own caption
+        "Live magnifier", which the generated catalog already translates.
+
+        :returns: whether the magnifier changed state.
+        """
+        button = getattr(self, "_btn_magnifier", None)
+        if button is None or not button.isEnabled() \
+                or not button.isVisibleTo(self):
+            return False
+        button.toggle()
+        return True
 
     def _set_mode(self, mode: str):
         """Switch the canvas between draw, erase and wand.
@@ -8114,9 +8674,29 @@ class MakeMasksScreen(QWidget):
         mode and model, per megapixel. Before there is one, and once an
         estimate has run out, the bar goes back to indeterminate rather than
         counting down past zero or sitting at 99%.
+
+        A RUN THAT COUNTS ITS OWN TILES SAYS HOW FAR IT HAS GOT instead
+        (:meth:`_LiveMagnifier.image_progress`): Cellpose on a whole field,
+        which is the run that takes minutes on a CPU. The bar then fills by
+        tiles, from the first run of the session on, and the time left is
+        this run's own pace; after the last tile, while the network's
+        output is turned into objects, it holds its place and says no time,
+        because that step is not made of tiles and is not guessed at.
         """
         from ..i18n import tr
 
+        counted = self._magnifier.image_progress()
+        if counted is not None:
+            done, total, tiles_left = counted
+            self._mag_progress.setRange(0, int(total))
+            self._mag_progress.setValue(max(0, int(done) - 1))
+            if tiles_left is None:
+                self._mag_progress.setFormat("%p%")
+            else:
+                self._mag_progress.setFormat(tr(
+                    "about {seconds} s left", seconds=int(tiles_left) + 1))
+            self._mag_progress.setTextVisible(True)
+            return
         left = self._magnifier.remaining_seconds()
         estimate = self._magnifier.estimated_seconds()
         if left is None or not estimate:

@@ -140,6 +140,8 @@ SCREEN_SHORTCUTS: List[ShortcutSpec] = [
                  "the Make Masks screen"),
     ShortcutSpec("Z",            "Zoom",                   "Make Masks",
                  "the Make Masks screen"),
+    ShortcutSpec("M",            "Live magnifier",         "Make Masks",
+                 "the Make Masks screen"),
     ShortcutSpec("Esc",          "Reset the zoom",         "Make Masks",
                  "the Make Masks screen"),
     ShortcutSpec("Ctrl+S",       "Save the mask",          "Make Masks",

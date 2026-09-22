@@ -1186,8 +1186,13 @@ def test_what_is_offered_again_is_what_was_found_under_those_settings(
 
 def test_the_memory_budget_takes_the_field_nobody_came_back_to(
         qtbot, screen, monkeypatch):
-    """The ceiling is the lower of this cache's own and the user's."""
-    monkeypatch.setattr(mm, "_MAGNIFIER_IMAGE_CACHE_MB", 0.02)
+    """The ceiling is the lower of this cache's own and the user's.
+
+    A kept result is its int32 labels AND the worker's RGBA outlines of the
+    whole field, which the box slices (32 KB each at 64x64), and the budget
+    counts both -- `_MagnifierResult.nbytes`.
+    """
+    monkeypatch.setattr(mm, "_MAGNIFIER_IMAGE_CACHE_MB", 0.05)
     stub = CodedStub({1: (20, 20, 26, 25)})
     whole_image_on(screen, stub)
     wait_for_whole_image(qtbot, screen)
@@ -1196,7 +1201,7 @@ def test_the_memory_budget_takes_the_field_nobody_came_back_to(
     screen._on_next()
     wait_for_whole_image(qtbot, screen)
     assert len(screen._magnifier._image_cache) == 1, (
-        "two 64x64 int32 label images are over a 0.02 MB ceiling")
+        "two 64x64 results of 32 KB each are over a 0.05 MB ceiling")
 
     screen._on_prev()
     wait_for_whole_image(qtbot, screen)

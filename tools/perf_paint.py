@@ -444,7 +444,9 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
     reading taken only at 128 px says nothing about the same control at
     2,048. Half of each object is painted in already, so the rule keeps
     some of what the model finds and drops the rest, which is the case
-    that costs.
+    that costs. The largest box is measured in BOTH scopes: Whole image
+    draws its slice of the field's objects on every move, and at that size
+    the slice is most of the field.
 
     :param field_px: the side of the synthetic field, in pixels.
     :param moves: how many mouse moves to time per measurement.
@@ -491,7 +493,8 @@ def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
         default_px = int(screen._magnifier.size)
         largest_px = int(screen._magnifier.size_range()[1])
         for scope, box_px in (("region", default_px), ("image", default_px),
-                              ("region", largest_px)):
+                              ("region", largest_px),
+                              ("image", largest_px)):
             box = screen._mag_scope
             box.setCurrentIndex(box.findData(scope))
             screen._mag_size.setValue(box_px)
