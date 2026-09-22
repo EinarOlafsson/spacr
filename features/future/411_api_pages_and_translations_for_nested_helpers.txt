@@ -1533,3 +1533,18 @@ this is actual remaining work, not a successful full audit.
 Both API symbol-count pins move10539->11280 with the receipt's +743/-2 set
 difference. Their full locale/hash/browser assertions remain unchanged and red
 until those translations are complete; moving the live count grants no exemption.
+
+2026-09-22 — CODEX: FIGURE / PLAQUE SETTINGS IN NINE LANGUAGES
+369 source-bound review records fill 360 missing setting labels/tooltips,
+replace eight stale plaque-model tooltips and retain the already approved
+Chinese plaque-model wording. Every source/hash, translation gate and actual
+setting lookup passes; unrelated catalog rows are unchanged. Receipt:
+features/data/411_figure_settings_translations_2026-09-22.json.
+Quoted comma-separated configuration lists now stay literal through lexical
+contextualization; Portuguese text previously changed left inside the default
+'above,left,below'. Four literal-boundary regressions and 75 runtime/plaque/
+tooltip checks pass. The broader documentation selection passed 34 tests but
+exposed a separate shortcut paragraph parser failure: compound shortcuts merge
+into translatable prose. That remains open for the next API repair, along with
+the full catalog audit, nested helpers and tutorial media. No native-speaker
+signoff or full translation acceptance is claimed.

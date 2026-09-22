@@ -410,8 +410,8 @@ _SHORT_QUOTED_LITERAL_RE = re.compile(
     r"(?: [A-Za-z0-9_.:/…-]+){0,3}'(?![A-Za-z0-9_])"
 )
 _SINGLE_QUOTED_LITERAL_RE = re.compile(
-    r"(?<!\w)'[A-Za-z][A-Za-z0-9_.:/-]*'(?![A-Za-z0-9_])|"
-    r'(?<!\w)"[A-Za-z][A-Za-z0-9_.:/-]*"'
+    r"(?<!\w)'[A-Za-z][A-Za-z0-9_.:/,-]*'(?![A-Za-z0-9_])|"
+    r'(?<!\w)"[A-Za-z][A-Za-z0-9_.:/,-]*"'
 )
 _TRAILING_SPACE_LITERAL_RE = re.compile(
     r"(?<!\w)'[A-Za-z][A-Za-z0-9_.:/ -]*\s+'(?![A-Za-z0-9_])|"

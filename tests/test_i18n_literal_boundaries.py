@@ -9,7 +9,7 @@ TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
 
-from build_i18n_catalogs import _syntax_preserved  # noqa: E402
+from build_i18n_catalogs import _contextualize, _syntax_preserved  # noqa: E402
 
 
 def test_korean_particle_may_follow_an_exact_quoted_literal():
@@ -27,3 +27,20 @@ def test_english_apostrophes_do_not_become_quoted_api_literals():
     translated = "사용자가 선택한 소스를 바꾸지 않습니다."
 
     assert _syntax_preserved(source, translated)
+
+
+def test_comma_separated_option_values_survive_context_repairs():
+    source = "The remaining text is left as is. Default 'above,left,below'."
+    translated = "O texto restante é left como está. Padrão 'above,left,below'."
+    result = _contextualize(translated, "pt", source)
+    assert result == "O texto restante é deixado como está. Padrão 'above,left,below'."
+    assert _syntax_preserved(source, result)
+    assert not _syntax_preserved(source, result.replace("'above,left,below'", "'above,deixado,below'"))
+
+
+def test_comma_separated_options_are_literals_with_either_quote_style():
+    source = 'Choose "above,left,below" or \'left,below\'.'
+    translated = 'Escolha "above,left,below" ou \'left,below\'.'
+    assert _syntax_preserved(source, translated)
+    assert _contextualize(translated, "pt", source) == translated
+    assert not _syntax_preserved(source, translated.replace("left,below", "below,left"))

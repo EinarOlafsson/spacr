@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "94cb83be1ec673dca00844b40fa532c105554dc0",
+  "source_bound_records": 369,
+  "missing_catalog_rows_filled": 360,
+  "stale_plaque_model_tooltips_replaced": 8,
+  "existing_approved_plaque_model_tooltips_retained": 1,
+  "review_kind": "AI-assisted linguistic and technical review of each source and target; existing approved Chinese plaque-model prose retained",
+  "native_speaker_signoff": false,
+  "languages": [
+    {
+      "language": "sv",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-22-figure-settings.json",
+      "review_sha256": "dca890d40f1eabda552b58e7309e84815599b6348aec14cc4c7ac054ee866516",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "de",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-22-figure-settings.json",
+      "review_sha256": "046a6742c99afba26b6a12d3baab202297ada39940c75abd0b16d413726e2286",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "es",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-22-figure-settings.json",
+      "review_sha256": "dbee6ebe0e3e26b37d133d935992c7ec221bc1218af2883325e8830a667baa58",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "zh_CN",
+      "new_rows": 40,
+      "updated_rows": 0,
+      "existing_approved_rows_retained": 1,
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-figure-settings.json",
+      "review_sha256": "94b59a6842f4e300a114ac4b676e4f3f0647c462ce09b868938539c06bebe371",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "pt",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-22-figure-settings.json",
+      "review_sha256": "4c267050d21d8122d7162f65928580f767bc7ef2de774a528b9bb7546d69f495",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "hi",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-22-figure-settings.json",
+      "review_sha256": "b4d7e70da9cb365b71d7dfe238ee9c19c3f45122b99fda893c03283560881392",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "ko",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-22-figure-settings.json",
+      "review_sha256": "4ff692409307a0750f032c4764924195e4a15078347a46ed9fa633b5b087bef9",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "is",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-22-figure-settings.json",
+      "review_sha256": "7d7b7018d4e387b00dc51509f830f07800e5f6ea97cfef899399d0ca169a418d",
+      "live_setting_lookup_checks": 41
+    },
+    {
+      "language": "fr",
+      "new_rows": 40,
+      "updated_rows": 1,
+      "existing_approved_rows_retained": 0,
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-22-figure-settings.json",
+      "review_sha256": "c9dbbe8bc391cf3ddd069ec3c7107d53fceb7870239543a54cc36a22d1068128",
+      "live_setting_lookup_checks": 41
+    }
+  ],
+  "unrelated_catalog_rows_unchanged": true,
+  "full_catalog_audit_passed": false,
+  "quoted_option_lists_protected_from_translation": true
+}

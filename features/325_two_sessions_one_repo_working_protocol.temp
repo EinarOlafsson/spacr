@@ -10123,3 +10123,13 @@ not exemptions. The previous full runtime audit was467 issues before the423
 pathway rows; it has not been claimed green. Full API locale rebuild and nested
 helper rollout are also still open. Four English lessons78-81 remain unrecorded.
 No GPU jobs started by this session. Goal stays active.
+
+2026-09-22 — CODEX: FIGURE SETTINGS VERIFIED / SHORTCUT PARSER CLAIM
+369 Figure/Plaque setting review records verified across all nine languages:
+360 missing rows filled, eight stale tips replaced, one approved Chinese tip
+retained. Four literal-boundary and 75 runtime/plaque/tooltip checks pass.
+Quoted option lists are now protected during translation contextualization.
+Next claiming only tools/build_documentation_i18n.py shortcut-list parsing and
+its documentation tests/catalog evidence: Ctrl+Shift+H, Ctrl+Alt+0, Ctrl+End
+and F11 currently merge into a translatable paragraph. No shortcuts.py runtime
+edit intended. Full locale audit and media acceptance remain owed.

@@ -1,0 +1,293 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "base_model",
+      "source": "Base model",
+      "source_sha256": "9922fc98cc51cfbfe95d6b00af9ec9418784c4c849170aeabd6367f5d150d05c",
+      "translation": "Modèle de départ"
+    },
+    {
+      "table": "setting_labels",
+      "key": "confirm_annotations",
+      "source": "Confirm annotations",
+      "source_sha256": "ecca8c1cb85edc2efbec1974a89d59bbeed44c99ecdc0dccfb276d0960ec9a12",
+      "translation": "Confirmer les annotations"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_confidence",
+      "source": "Figure confidence",
+      "source_sha256": "f37e6544f17a69c0d3f378e8dffc34594314f08a73e68a7d0cca070d8d53140d",
+      "translation": "Confiance du détecteur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_detector",
+      "source": "Figure detector",
+      "source_sha256": "f2a338f37de72fa2321927f56900b47b062c275d38d7c5761ce70c0af0f08ee9",
+      "translation": "Détecteur de figures"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_imgsz",
+      "source": "Figure imgsz",
+      "source_sha256": "70cbbc06e6235528539ac4d5495130eb5281d94e28bfc4b23eecf71a981be2fa",
+      "translation": "Tailles d’entrée du détecteur"
+    },
+    {
+      "table": "setting_labels",
+      "key": "figure_read_text",
+      "source": "Figure read text",
+      "source_sha256": "e5defc31897230668d1f2f5628d949a4ed9cf0474a5f1c63b5e8e4c3fa566736",
+      "translation": "Lire le texte des figures"
+    },
+    {
+      "table": "setting_labels",
+      "key": "plaque_mode",
+      "source": "Plaque mode",
+      "source_sha256": "84f94598660e6453d03264a82067ba2c0707aca9f437a4bda6f9b42f9b8a9a6c",
+      "translation": "Mode plages"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_ignore",
+      "source": "Text ignore",
+      "source_sha256": "207f84635b6ebcf344a8ec8496977594494f16978b86d4f9aa6bcb155426dab6",
+      "translation": "Texte à ignorer"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_min_confidence",
+      "source": "Text min confidence",
+      "source_sha256": "464af619516137c86e6e73c7f625e593ea2dd1b936a723a863478d8457212ec5",
+      "translation": "Confiance minimale du texte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_order",
+      "source": "Text order",
+      "source_sha256": "c69361473025889eaea03128a1af6ba6b3b41f6bc411f1c370cdc6fddba6ba4f",
+      "translation": "Ordre du texte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_panel_reach",
+      "source": "Text panel reach",
+      "source_sha256": "2e2d5b1d0cd3b18fd1a459da09b238ca08e426e0c6afd138dfc321c412005231",
+      "translation": "Distance de recherche des lettres de panneau"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_above",
+      "source": "Text reach above",
+      "source_sha256": "ff0b3a0401952ea169f42ea3e8f58ea0e44097985f55b087899862a4c2484697",
+      "translation": "Distance de recherche au-dessus"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_below",
+      "source": "Text reach below",
+      "source_sha256": "0172a8aedb7811a0f3d91034a29d91aa01a0c0740fc18fadafc1ffd341edb05b",
+      "translation": "Distance de recherche en dessous"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reach_left",
+      "source": "Text reach left",
+      "source_sha256": "e285faba23ac0817a70bcd128203563e8c29a1d433bab70ad5b04e5d255f4a88",
+      "translation": "Distance de recherche à gauche"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reread",
+      "source": "Text reread",
+      "source_sha256": "4815dfc08eb6c8413dc38457e2248dbbdd5746d926ca4685cba6f774256f6207",
+      "translation": "Relire le texte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_reread_scale",
+      "source": "Text reread scale",
+      "source_sha256": "99c783c877a4545eb9bf5af20f1618df4885bf2f4784d11b8faf23c608ba34c5",
+      "translation": "Agrandissement pour la relecture"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_separator",
+      "source": "Text separator",
+      "source_sha256": "a1b4086101600a35f39f621f3e4524d8700c62623aba06caf73d8fbba21a76d6",
+      "translation": "Séparateur de texte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_above",
+      "source": "Text use above",
+      "source_sha256": "ebad8879527dc29bd7942296ea64a1c7cc6d4b8b7f315c69b8110bd81f7a33ca",
+      "translation": "Utiliser le texte au-dessus"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_below",
+      "source": "Text use below",
+      "source_sha256": "941bea1abb38906055c2d09f0f9228dac790fe888206916c6be8da64dcb434ea",
+      "translation": "Utiliser le texte en dessous"
+    },
+    {
+      "table": "setting_labels",
+      "key": "text_use_left",
+      "source": "Text use left",
+      "source_sha256": "dd3413558cb5d7a36d004b5cea0133e05f337557d2d1514d45ccebf53f19443a",
+      "translation": "Utiliser le texte à gauche"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "base_model",
+      "source": "Train Cellpose: the weights training starts from. 'cpsam' is stock Cellpose-SAM; a model-zoo key (for example 'toxoplasma_plaque_v2') or a path to a checkpoint continues from that model, which is how a second fine-tuning stage builds on the first. The model that was started from is recorded with the run's settings. Default 'cpsam'.",
+      "source_sha256": "02df0d545ca4af497d88c2cf7790246e4d258ac618effbc17acc37456abfd057",
+      "translation": "Entraîner Cellpose : poids utilisés au début de l’entraînement. 'cpsam' est le modèle standard Cellpose-SAM ; une clé du catalogue de modèles, par exemple 'toxoplasma_plaque_v2', ou un chemin vers un point de contrôle permet de poursuivre à partir de ce modèle. Une seconde étape d’ajustement fin peut ainsi prolonger la première. Le modèle de départ est enregistré avec les réglages de l’exécution. Valeur par défaut 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "confirm_annotations",
+      "source": "Figure mode: measure only images whose condition a person approved in the Figure preview (saved to figure_annotations.csv in the source folder); the others are counted as waiting. Default False.",
+      "source_sha256": "c1abdf01536cd38799534d038cbba751891e83e0c1bd82185dd79a0e296f905f",
+      "translation": "Mode figures : mesurer uniquement les images dont une personne a approuvé la condition dans l’aperçu des figures ; cette approbation est enregistrée dans figure_annotations.csv, dans le dossier source. Les autres images sont comptées comme en attente. Valeur par défaut False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_confidence",
+      "source": "Figure mode: minimum detector score, 0 to 1, for a box to count as a plaque image. Default 0.25.",
+      "source_sha256": "e924b788a58c589949a81bf90d955c32fbe40978cbe09a149b4e3c5160385780",
+      "translation": "Mode figures : score minimal du détecteur, de 0 à 1, pour qu’un cadre soit considéré comme une image de plages. Valeur par défaut 0.25."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_detector",
+      "source": "Figure mode: model-zoo key or checkpoint path of the YOLO detector that finds plaque images inside a figure. Default 'toxoplasma_well_detector_v2', which was measured to find cropped plaque panels in published figures.",
+      "source_sha256": "81adda124c35d2151b43f4dfa22e646eb01a274c7c30b72f277d4d8ec784d68b",
+      "translation": "Mode figures : clé du catalogue de modèles ou chemin vers le point de contrôle du détecteur YOLO qui repère les images de plages au sein d’une figure. Valeur par défaut 'toxoplasma_well_detector_v2', dont la capacité à repérer des panneaux de plages recadrés dans des figures publiées a été évaluée."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_imgsz",
+      "source": "Figure mode: comma-separated detector input sizes, all of which are asked and their boxes merged. 640 finds whole faint panels, 1280 finds small dilution spots; neither alone finds both. Default '640,1280'.",
+      "source_sha256": "f9cc7de360ffec8cf35085e50911195ac7832e8bb703628844cb31f397f72731",
+      "translation": "Mode figures : tailles d’entrée du détecteur séparées par des virgules. Toutes sont utilisées et leurs cadres sont fusionnés. 640 repère les panneaux entiers peu contrastés, 1280 les petits dépôts de dilution ; aucune taille seule ne repère les deux. Valeur par défaut '640,1280'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "figure_read_text",
+      "source": "Figure mode: read the text printed around each plaque image (needs RapidOCR, part of spacr[papers]) to annotate it with its panel and condition. False names each image by its figure, row and column only. Default True.",
+      "source_sha256": "ce6b97f8a8b74958687ae5555e4f8fa7a0b66d2f1cd987c08a3587986de9fd86",
+      "translation": "Mode figures : lire le texte imprimé autour de chaque image de plages pour l’annoter avec son panneau et sa condition. Nécessite RapidOCR, fourni par spacr[papers]. Avec False, chaque image est nommée uniquement d’après sa figure, sa ligne et sa colonne. Valeur par défaut True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_mode",
+      "source": "What Plaque Assay reads. 'plaque' takes images that each show one plaque field (a well or a cropped plaque image), segments the plaques and writes per_image and per_plaque tables. 'figure' takes published figures: the YOLO detector finds the plaque images in each figure, the text around them is read (panel letter, column and row labels) and keyed to the figure legend, each image is annotated with its condition and its plaques are segmented, into plaque_figures/plaque_figures.db. Default 'plaque'.",
+      "source_sha256": "e3523637f364946f0b6f49aa7a328c7b6bcb481dcec98fb03ae1857f36856207",
+      "translation": "Ce que lit le test de plages (Plaque Assay). 'plaque' utilise des images montrant chacune un champ de plages, soit un puits, soit une image recadrée, segmente les plages et écrit les tables per_image et per_plaque. 'figure' utilise des figures publiées : le détecteur YOLO repère les images de plages dans chaque figure. Le texte qui les entoure, notamment la lettre du panneau et les étiquettes de colonnes et de lignes, est lu puis associé à la légende. Chaque image est annotée avec sa condition et ses plages sont segmentées ; les résultats sont enregistrés dans plaque_figures/plaque_figures.db. Valeur par défaut 'plaque'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_ignore",
+      "source": "Figure mode, text detection: Comma-separated regular expressions; a word matching any is not used as a label, for example scale bars and axis numbers: '^\\\\d+$, [uμ]m$'. Default ''.",
+      "source_sha256": "c7e9a0498f07e9524c4f6a88a5875551b0da2208b595d2395df510b60e4ce4e7",
+      "translation": "Mode figures, détection de texte : expressions régulières séparées par des virgules. Un mot correspondant à l’une d’elles n’est pas utilisé comme étiquette, par exemple les barres d’échelle et les nombres des axes : '^\\\\d+$, [uμ]m$'. Valeur par défaut ''."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_min_confidence",
+      "source": "Figure mode, text detection: Ignore OCR words the reader scored below this (0-1). Raise it when stray specks are read as text. Default 0.0.",
+      "source_sha256": "71b1b9f1aedf3329d9eb254ea5b2e9310fd9d05868ed7e5c753daa7797143eba",
+      "translation": "Mode figures, détection de texte : ignorer les mots OCR dont le score de confiance est inférieur à ce seuil (0-1). Augmentez-le lorsque de petites taches sont interprétées comme du texte. Valeur par défaut 0.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_order",
+      "source": "Figure mode, text detection: Which labels come first when they are joined into one condition: a comma-separated order of above, left and below. Default 'above,left,below'.",
+      "source_sha256": "88abe3e53f682988c9686cc41f2b665af5d3364392865f87015b553af55e87c1",
+      "translation": "Mode figures, détection de texte : ordre des étiquettes lors de leur assemblage en une condition ; une liste séparée par des virgules des positions au-dessus, à gauche et en dessous. Valeur par défaut 'above,left,below'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_panel_reach",
+      "source": "Figure mode, text detection: How far up and left of a grid's top-left corner the panel letter (A, B, C...) may sit, in image sizes. Raise it when the letter is set far from the images; lower it when another panel's letter is taken. Default 1.0.",
+      "source_sha256": "e14c76b01d94d2dbd290f34fdf904bd21120c17eb05eac888932e547a358dc07",
+      "translation": "Mode figures, détection de texte : distance maximale de la lettre du panneau (A, B, C...) au-dessus et à gauche du coin supérieur gauche de la grille, en tailles d’image. Augmentez-la si la lettre est éloignée des images ; réduisez-la si la lettre d’un autre panneau est retenue. Valeur par défaut 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_above",
+      "source": "Figure mode, text detection: How far above the grid of plaque images a column header may sit, in image heights. Raise it when headers are printed well above the images; lower it when the header of a neighbouring panel is picked up. Default 1.0.",
+      "source_sha256": "698b44dff1f5a4a5c4d4c7ec5f25b3d874c66dc7255edfdd5fca03f93abe5731",
+      "translation": "Mode figures, détection de texte : distance maximale d’un en-tête de colonne au-dessus de la grille d’images de plages, en hauteurs d’image. Augmentez-la si les en-têtes sont très éloignés au-dessus ; réduisez-la si l’en-tête d’un panneau voisin est retenu. Valeur par défaut 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_below",
+      "source": "Figure mode, text detection: How far below the grid text may sit and still count as a label, in image heights. Default 0.5.",
+      "source_sha256": "adba49e07eaae864f743cd8116e55385c372650a039d6e2770af584ca2118a92",
+      "translation": "Mode figures, détection de texte : distance maximale sous la grille à laquelle le texte compte encore comme étiquette, en hauteurs d’image. Valeur par défaut 0.5."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reach_left",
+      "source": "Figure mode, text detection: How far left of the grid a row label may sit, in image widths. Raise it when row labels are set far to the left; lower it when text from the panel on the left is picked up. Default 1.0.",
+      "source_sha256": "ccb203f755b8316ae4727e034f1b44d09f482d855c8beb23233cb5f735b32fe8",
+      "translation": "Mode figures, détection de texte : distance maximale d’une étiquette de ligne à gauche de la grille, en largeurs d’image. Augmentez-la si les étiquettes sont très éloignées à gauche ; réduisez-la si du texte du panneau voisin de gauche est retenu. Valeur par défaut 1.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reread",
+      "source": "Figure mode, text detection: Read the text around each grid of images a second time, enlarged, which finds small or rotated labels the first reading missed. Default True.",
+      "source_sha256": "d451c873f83e4e164194d2e22ec7f4de1fb25d0657464d04fe6c99b76c6cc5a6",
+      "translation": "Mode figures, détection de texte : lire une seconde fois, après agrandissement, le texte autour de chaque grille d’images. Cela permet de repérer les étiquettes petites ou tournées qui ont échappé à la première lecture. Valeur par défaut True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_reread_scale",
+      "source": "Figure mode, text detection: How many times to enlarge the text around each grid for the second reading. Default 3.",
+      "source_sha256": "18f8ea213a4563eab2c7172295c8d48a93056a11f88ac6845b490d465deb094a",
+      "translation": "Mode figures, détection de texte : facteur d’agrandissement du texte autour de chaque grille pour la seconde lecture. Valeur par défaut 3."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_separator",
+      "source": "Figure mode, text detection: What joins the labels into one condition. Default ' / '.",
+      "source_sha256": "d7634d92e10e99fda04571f5437d8fbcb601afedf166a25a8c949eab3fc13eb1",
+      "translation": "Mode figures, détection de texte : texte reliant les étiquettes pour former une condition. Valeur par défaut ' / '."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_above",
+      "source": "Figure mode, text detection: Use the column header printed above each image as part of its condition. Default True.",
+      "source_sha256": "a0aff21f64e7ba644ca9c3b90346ecdd2bc6723c8d53d2e7cd01823cf6c80562",
+      "translation": "Mode figures, détection de texte : utiliser l’en-tête de colonne imprimé au-dessus de chaque image comme partie de sa condition. Valeur par défaut True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_below",
+      "source": "Figure mode, text detection: Use text printed under the images as part of the condition. Turn off when captions or axis labels sit under the images. Default True.",
+      "source_sha256": "9529336b33d40999347ea62510479a48f8681bc9bd56b4999aa9c5316da2dd79",
+      "translation": "Mode figures, détection de texte : utiliser le texte imprimé sous les images comme partie de la condition. Désactivez cette option si des légendes ou des étiquettes d’axes se trouvent sous les images. Valeur par défaut True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "text_use_left",
+      "source": "Figure mode, text detection: Use the row label printed to the left of each image as part of its condition. Default True.",
+      "source_sha256": "bbe9791694ee60c254cc9012fb5a148ccd7e39879d273364fa4693ac882f4aed",
+      "translation": "Mode figures, détection de texte : utiliser l’étiquette de ligne imprimée à gauche de chaque image comme partie de sa condition. Valeur par défaut True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "plaque_model",
+      "source": "Cellpose checkpoint used to segment plaques: a model-zoo key downloads a checksum-verified checkpoint on first use ('toxoplasma_plaque_v2' is cpsam_plaque_r5, trained on the curated v5 set), a filesystem path selects a custom checkpoint, and 'bundled' is the historical packaged model, which is a Cellpose 3 checkpoint and needs Cellpose 3. Changing it can change every plaque count, so recorded runs should keep the chosen value. Default 'toxoplasma_plaque_v2'.",
+      "source_sha256": "ee38a3079dc7236266c01be3dbf95be36877398aa74c0acbdfa4e4dbd52fcb16",
+      "translation": "Point de contrôle Cellpose utilisé pour segmenter les plages : une clé du catalogue de modèles télécharge, à la première utilisation, un point de contrôle dont la somme de contrôle est vérifiée. 'toxoplasma_plaque_v2' correspond à cpsam_plaque_r5, entraîné sur le jeu v5 vérifié. Un chemin de fichier sélectionne un point de contrôle personnalisé. 'bundled' désigne l’ancien modèle fourni avec le paquet : un point de contrôle Cellpose 3 qui nécessite Cellpose 3. Le changer peut modifier tous les comptages de plages ; les exécutions enregistrées doivent donc conserver la valeur choisie. Valeur par défaut 'toxoplasma_plaque_v2'."
+    }
+  ]
+}
