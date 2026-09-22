@@ -1454,3 +1454,15 @@ features/data/411_runtime_download_status_2026-09-22.json. Four refreshed-report
 tests pass in 148.47s. Live inventory: 6298 runtime sources, 11195 API symbols;
 API debt remains 658 added, 2 removed, 128 changed against the English manifest.
 No full-catalog, native-speaker or debt-baseline completion claim.
+
+2026-09-22 — CODEX: REVIEW-COUNT RECONCILIATION AND PRIVATE DRAFTS
+The full run exposed stale Swedish/French review-count assertions. Six later
+review files add exactly 27 distinct sources in each language (14 earlier
+channel/Annotate/chooser/plaque/Gate sources plus 13 download-status sources).
+Tests now name those files, prove disjointness and preserve every historical
+count before validating all current records. All three runtime-syntax tests
+pass in 39.69s. No missing-translation or API debt allowance was increased.
+A separate fixed-source CPU draft queue starts at bc726ac90 in
+codex-runtime-20260922, four threads under 6G, local models only. Its model cache
+and unreviewed output are private and separate from the ongoing API draft run.
+It does not modify catalogs or count raw model output as accepted translations.

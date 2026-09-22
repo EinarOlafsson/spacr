@@ -1995,3 +1995,10 @@ report tests pass (148.47s). Receipt:411_runtime_download_status_2026-09-22.json
 The catalog audit remains open on other missing/stale rows and API debt;
 658 added, 2 removed, 128 changed API sources are explicitly recorded against
 11195 live symbols. Other item 43 lanes untouched.
+
+2026-09-22 — CODEX DOCS LANE ONLY: SOURCE-BOUND REVIEW COUNT CHECKS
+The two failed Swedish/French count checks now account for the exact six later
+review files: 27 distinct sources each, with all historical counts preserved.
+The full runtime-syntax file passes all three tests in 39.69s. This reconciles
+accepted evidence; it does not enlarge missing/stale translation allowances.
+The full catalog audit and CI verdict remain open.

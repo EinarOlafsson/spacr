@@ -9784,3 +9784,15 @@ report. Retained Qt widget warning remains explicitly recorded. Full coverage
 has reached 80/96, with 25 failed batches and no lost files in completed records.
 Latest fetched nightly 8d206445e contains two item 470 commits; preserving them
 before this checkpoint push. No GPU work or complete-set publication.
+
+2026-09-22 — CODEX: bc726ac90 PUSH VERIFIED / RUNTIME DRAFT QUEUE
+Nightly confirms bc726ac90 with reviewed download/status rows and coverage fixes,
+preserving both item 470 commits. Full run batch 80 reveals only two stale
+review-count assertions: sv/fr omitted six later files with 27 distinct sources
+each. Accounted explicitly, keeping historical counts; all three syntax tests
+pass 39.69s. Updated 411 and 43 docs; no debt allowance raised.
+Private runtime model draft queue starts on frozen bc726ac90 in
+codex-runtime-20260922, CPU4/6G, separate model cache, no secondary model or GPU.
+Total configured CPU allocation is now12: full coverage2, API drafts2,
+Make Masks English2/other2, runtime drafts4. All outputs remain unaccepted
+until source-bound semantic review. GPU monitor19946 still awaits qualification.

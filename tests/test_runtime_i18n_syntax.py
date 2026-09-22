@@ -26,6 +26,28 @@ def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
     return sources
 
 
+def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[str]:
+    """Reconcile later accepted records without changing historical counts."""
+    sources: set[str] = set()
+    for filename, expected in (
+        ("2026-09-21-channel-index-tooltip.json", 1),
+        ("2026-09-21-annotate-opening.json", 2),
+        ("2026-09-21-test-data-chooser.json", 3),
+        ("2026-09-21-plaque-scale-conflict.json", 7),
+        ("2026-09-22-view-gate-tooltip.json", 1),
+        ("2026-09-22-download-status.json", 13),
+    ):
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                               filename).read_text())
+        added = {record["source"] for record in document["records"]}
+        assert len(document["records"]) == len(added) == expected
+        assert added <= reviewed.keys()
+        assert not added & sources
+        sources.update(added)
+    assert len(sources) == 27
+    return sources
+
+
 def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
     from build_i18n_catalogs import _syntax_preserved
 
@@ -76,9 +98,10 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert normalized_sources <= all_reviewed.keys()
     assert not normalized_sources & (example_sources | preview_sources)
     download_sources = _new_download_sources("sv", all_reviewed)
-    older_all_sources = all_reviewed.keys() - download_sources
+    subsequent_sources = _subsequent_review_sources("sv", all_reviewed)
+    older_all_sources = all_reviewed.keys() - download_sources - subsequent_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources}
+                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources | subsequent_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -238,7 +261,8 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 653
     assert len(older_all_sources - normalized_sources) == 658
     assert len(older_all_sources) == 663
-    assert len(all_reviewed) == 674  # +9 Import and +2 synthetic Invasion.
+    assert len(all_reviewed.keys() - subsequent_sources) == 674
+    assert len(all_reviewed) == 701  # +27 independently named later reviews.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -306,9 +330,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     download_sources = _new_download_sources("fr", all_reviewed)
     assert not refresh_sources & (download_sources | example_sources |
                                   preview_sources | normalized_sources)
-    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources
+    subsequent_sources = _subsequent_review_sources("fr", all_reviewed)
+    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources - subsequent_sources
     reviewed = {source: value for source, value in all_reviewed.items()
-                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources}
+                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources | subsequent_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -455,8 +480,9 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - preview_sources - normalized_sources) == 336
     assert len(older_all_sources - normalized_sources) == 341
     assert len(older_all_sources) == 346
-    assert len(all_reviewed.keys() - refresh_sources) == 357
-    assert len(all_reviewed) == 670  # +308 reviewed sources and five action labels.
+    assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 357
+    assert len(all_reviewed.keys() - subsequent_sources) == 670
+    assert len(all_reviewed) == 697  # +27 independently named later reviews.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
