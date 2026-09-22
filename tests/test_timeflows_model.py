@@ -150,3 +150,32 @@ def test_a_ctc_movie_becomes_consecutive_track_labelled_pairs(tmp_path):
     assert len(pairs) == 2
     assert set(np.unique(pairs[0].labels_t)) == {0, 11, 22}
     assert pairs[0].frame_t.max() <= 1.0
+
+
+def test_a_training_window_is_the_encoder_tile_and_shared_by_both_frames():
+    """2026-09-22: whole CTC frames failed the encoder's fixed 32 x 32 position
+    embedding; training reads one shared 256 px window per pair."""
+    import numpy as np
+
+    from spacr import timeflows_model as tm
+
+    rng = np.random.default_rng(0)
+    frame = rng.random((600, 700)).astype(np.float32)
+    labels = np.zeros((600, 700), dtype=np.int32)
+    labels[300:320, 400:420] = 7
+    moved = np.roll(labels, 5, axis=1)
+    frames, labs = tm.random_window([frame, frame * 2], [labels, moved], rng)
+    assert all(f.shape == (tm.TILE, tm.TILE) for f in frames + labs)
+    assert np.allclose(frames[1], frames[0] * 2), "the same window of both frames"
+    assert (labs[0] == 7).any(), "the window holds the object it was centred on"
+
+
+def test_a_small_frame_is_padded_to_the_tile():
+    import numpy as np
+
+    from spacr import timeflows_model as tm
+
+    rng = np.random.default_rng(1)
+    frames, labs = tm.random_window([np.ones((100, 120), np.float32)] * 2,
+                                    [np.zeros((100, 120), np.int32)] * 2, rng)
+    assert frames[0].shape == (tm.TILE, tm.TILE)
