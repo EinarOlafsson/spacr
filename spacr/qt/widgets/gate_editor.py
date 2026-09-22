@@ -60,7 +60,7 @@ from .gate_spec import (
     PolygonGate, RectGate, ThresholdGate,
     CYLINDER, PRISM,
     COMPOSITE,
-    CylinderGate, PrismGate,
+    CylinderGate, PrismGate, VIEW_LASSO, ViewGate,
 )
 from .toggle import Toggle
 from .volume_view import rotate_about_world, trackball, view_axes
@@ -218,6 +218,8 @@ TOOL_LABELS = {
               "extended along the third measurement",
     PRISM: "Prism — a polygon drawn on one plane of the 3D view, "
            "extended along the third measurement",
+    VIEW_LASSO: "Through the view — an outline drawn on the 3D view at any "
+                "angle, extended straight through the volume",
     COMPOSITE: "Combined — other gates added to or subtracted from each "
                "other, chosen in the gates panel",
 }
@@ -232,11 +234,18 @@ TOOL_LABELS = {
 #: that they are "not drag tools"; that reasoning served the implementation,
 #: and left the control looking as though 3D gating had not been built.
 VOLUME_SHAPES: Tuple[Tuple[str, str], ...] = (
+    ("lasso", "Lasso through view"),
+    ("view_rect", "Rectangle through view"),
     ("box", "Box gate"),
     ("oval", "Oval gate"),
     ("circle", "Circle gate"),
     ("polygon", "Polygon gate"),
 )
+
+
+#: The volume shapes drawn on the screen and swept along the line of sight,
+#: at any angle, rather than on one of the three axis planes.
+VIEW_SHAPES = ("lasso", "view_rect")
 
 
 class GateCanvas(GraphCanvas):
@@ -356,6 +365,9 @@ class GateCanvas(GraphCanvas):
         self._last_gesture: Optional[str] = None
         #: Where a draw-in-the-volume drag started, or None.
         self._volume_drag = None
+        #: The outline being drawn through the view, in canvas pixels, or
+        #: None when no such drag is in flight.
+        self._lasso: Optional[List[Tuple[float, float]]] = None
         #: A 3D shape is two gestures: first its footprint on the selected
         #: plane, then its depth along that plane's normal.  The first gate is
         #: held here until the second gesture makes that statement complete.
@@ -935,6 +947,9 @@ class GateCanvas(GraphCanvas):
             colour = self.gate_colour(gate.name)
             if isinstance(gate, BoxGate) and gate.z_column == self._z_column:
                 self._draw_box(ax, gate, colour)
+            if isinstance(gate, ViewGate) and set(gate.columns) == {
+                    spec.x, spec.y, self._z_column}:
+                self._draw_view_gate(ax, gate, colour)
             picked = frame.loc[inside]
             ax.scatter(
                 pd.to_numeric(picked[spec.x], errors="coerce"),
@@ -1497,6 +1512,10 @@ class GateCanvas(GraphCanvas):
         drawing = self.drag_mode() == "draw" and not _is_right_button(event)
         self._last_gesture = "draw" if drawing else "spin"
         if drawing:
+            if self.volume_shape() in VIEW_SHAPES:
+                self._lasso = [(float(getattr(event, "x", 0) or 0),
+                                float(getattr(event, "y", 0) or 0))]
+                return True
             if self.volume_shape() == "polygon":
                 return False
             if self._pending_volume_gate is not None:
@@ -1520,6 +1539,9 @@ class GateCanvas(GraphCanvas):
         """
         if not self._in_volume():
             return False
+        if self._lasso is not None:
+            self._extend_lasso(event)
+            return True
         if self._volume_drag is not None:
             self._show_volume_drag(event)
             return True
@@ -1590,6 +1612,20 @@ class GateCanvas(GraphCanvas):
         """
         if not self._in_volume():
             return False
+        if self._lasso is not None:
+            self._extend_lasso(event)
+            outline, self._lasso = self._lasso_outline(), None
+            self._clear_ghost()
+            gate = self.gate_from_screen_outline(outline)
+            if gate is None:
+                self.depth_requested.emit(tr(
+                    "That outline encloses nothing: drag around the objects "
+                    "to keep."))
+                self._canvas.draw_idle()
+                return True
+            self.depth_requested.emit("")
+            self.gate_drawn.emit(gate)
+            return True
         if self._depth_drag_from is not None:
             bounds = self._depth_bounds_from_drag(self._depth_drag_from, event)
             self._depth_drag_from = None
@@ -1719,6 +1755,174 @@ class GateCanvas(GraphCanvas):
                        x_low=x_low, x_high=x_high,
                        y_low=y_low, y_high=y_high,
                        z_low=z_low, z_high=z_high)
+
+    def _extend_lasso(self, event) -> None:
+        """Add the pointer to the outline being drawn, and show it."""
+        if self._lasso is None:
+            return
+        point = (float(getattr(event, "x", 0) or 0),
+                 float(getattr(event, "y", 0) or 0))
+        last = self._lasso[-1]
+        if self.volume_shape() == "view_rect":
+            self._lasso = [self._lasso[0], point]
+        elif (point[0] - last[0]) ** 2 + (point[1] - last[1]) ** 2 >= 4.0:
+            self._lasso.append(point)
+        self._show_lasso_ghost()
+
+    def _lasso_outline(self) -> List[Tuple[float, float]]:
+        """The outline drawn so far, in canvas pixels, as a closed shape."""
+        points = list(self._lasso or ())
+        if self.volume_shape() == "view_rect" and len(points) >= 2:
+            (x0, y0), (x1, y1) = points[0], points[-1]
+            return [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
+        return points
+
+    def _show_lasso_ghost(self) -> None:
+        """Draw the outline under the pointer, flat on the screen."""
+        from matplotlib.lines import Line2D
+        from matplotlib.transforms import IdentityTransform
+
+        self._clear_ghost()
+        outline = self._lasso_outline()
+        if len(outline) < 2:
+            return
+        xs = [p[0] for p in outline] + [outline[0][0]]
+        ys = [p[1] for p in outline] + [outline[0][1]]
+        line = Line2D(xs, ys, transform=IdentityTransform(),
+                      color=active_palette()["warning"], linewidth=1.2,
+                      linestyle="--")
+        self._figure.add_artist(line)
+        self._ghost.append(line)
+        self._canvas.draw_idle()
+
+    def view_projection(self, ax=None) -> Optional[np.ndarray]:
+        """The camera now on screen, as a :class:`ViewGate` stores it.
+
+        matplotlib's own projection matrix for the current angles and limits,
+        rescaled so its homogeneous coordinate is positive in front of the
+        camera. Taken fresh from ``get_proj`` rather than from the matrix of
+        the last draw, so a gate drawn straight after a spin uses the angle
+        the spin left.
+
+        :returns: a 4 x 4 array, or None when the volume is not on screen.
+        """
+        ax = ax if ax is not None else self.axes_at(0, 0)
+        if ax is None or not hasattr(ax, "get_proj"):
+            return None
+        try:
+            matrix = np.asarray(ax.get_proj(), dtype=float)
+            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        except Exception:
+            LOG.debug("could not read the 3D camera", exc_info=True)
+            return None
+        if matrix.shape != (4, 4) or not np.isfinite(matrix).all():
+            return None
+        centre = np.array([(lo + hi) / 2.0 for lo, hi in limits] + [1.0])
+        weight = float(matrix[3] @ centre)
+        if weight == 0.0:
+            return None
+        return matrix / abs(weight) * (1.0 if weight > 0 else -1.0)
+
+    def gate_from_screen_outline(self, outline, *,
+                                 name: str = "(unnamed)") -> Optional[Gate]:
+        """A :class:`ViewGate` for an outline drawn on the screen.
+
+        :param outline: the outline's vertices in canvas pixels, in the order
+            drawn.
+        :returns: the gate, or None when the outline has fewer than three
+            distinct corners or no area, or the volume is not on screen.
+        """
+        ax = self.axes_at(0, 0)
+        spec = self._spec
+        columns = (spec.x, spec.y, self._z_column)
+        if ax is None or not all(columns) or len(set(columns)) != 3:
+            return None
+        matrix = self.view_projection(ax)
+        if matrix is None:
+            return None
+        pixels = np.asarray(outline, dtype=float).reshape(-1, 2)
+        if len(pixels) < 3:
+            return None
+        try:
+            projected = ax.transData.inverted().transform(pixels)
+        except Exception:
+            LOG.debug("could not map the outline off the screen",
+                      exc_info=True)
+            return None
+        width = pixels[:, 0].max() - pixels[:, 0].min()
+        height = pixels[:, 1].max() - pixels[:, 1].min()
+        if width < 3.0 or height < 3.0:
+            return None
+        vertices = tuple((float(a), float(b)) for a, b in projected)
+        limits = (tuple(ax.get_xlim3d()), tuple(ax.get_ylim3d()),
+                  tuple(ax.get_zlim3d()))
+        view = (float(getattr(ax, "elev", 0.0) or 0.0),
+                float(getattr(ax, "azim", 0.0) or 0.0),
+                float(getattr(ax, "roll", 0.0) or 0.0))
+        try:
+            return ViewGate(name=name, x_column=columns[0],
+                            y_column=columns[1], z_column=columns[2],
+                            projection=tuple(map(tuple, matrix)),
+                            vertices=vertices, view=view, limits=limits)
+        except GateError as exc:
+            self.depth_requested.emit(str(exc))
+            return None
+
+    def _draw_view_gate(self, ax, gate: ViewGate, colour) -> None:
+        """Show a view gate's outline swept through the volume.
+
+        The outline is placed at the nearest and farthest depths of the box
+        and joined, so from the angle it was drawn at it reads as the shape
+        the user drew, and from any other angle as the solid it cuts.
+        """
+        matrix = np.asarray(gate.projection, dtype=float)
+        try:
+            limits = (ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d())
+        except Exception:
+            return
+        shown = (self._spec.x, self._spec.y, self._z_column)
+        order = [shown.index(column) for column in gate.columns]
+        ranges = [limits[i] for i in order]
+        corners = np.array([[x, y, z, 1.0] for x in ranges[0]
+                            for y in ranges[1] for z in ranges[2]])
+        view = corners @ matrix.T
+        with np.errstate(divide="ignore", invalid="ignore"):
+            depth = view[:, 2] / view[:, 3]
+        depth = depth[np.isfinite(depth)]
+        if not len(depth):
+            return
+        rings = []
+        for target in (float(depth.min()), float(depth.max())):
+            ring = []
+            for sx, sy in gate.vertices:
+                system = np.vstack([matrix[0] - sx * matrix[3],
+                                    matrix[1] - sy * matrix[3],
+                                    matrix[2] - target * matrix[3]])
+                try:
+                    point = np.linalg.solve(system[:, :3], -system[:, 3])
+                except np.linalg.LinAlgError:
+                    return
+                placed = np.empty(3)
+                placed[order] = point
+                ring.append(placed)
+            rings.append(np.asarray(ring))
+        width = self._line_width + 0.6
+        try:
+            for ring, alpha in zip(rings, (0.95, 0.45)):
+                closed = np.vstack([ring, ring[:1]])
+                self._artists.extend(ax.plot(
+                    closed[:, 0], closed[:, 1], closed[:, 2], color=colour,
+                    linewidth=width, alpha=alpha))
+            step = max(1, len(gate.vertices) // 8)
+            for index in range(0, len(gate.vertices), step):
+                a, b = rings[0][index], rings[1][index]
+                self._artists.extend(ax.plot(
+                    [a[0], b[0]], [a[1], b[1]], [a[2], b[2]], color=colour,
+                    linewidth=self._line_width, alpha=0.35))
+        finally:
+            ax.set_xlim3d(*limits[0])
+            ax.set_ylim3d(*limits[1])
+            ax.set_zlim3d(*limits[2])
 
     def set_pending_depth(self, low, high) -> None:
         """The slab depth the next volume gate is made with.
@@ -1902,7 +2106,7 @@ class GateCanvas(GraphCanvas):
         disappears the moment it points at the viewer.
         """
         plane = self.anchor_plane()
-        if plane is None:
+        if plane is None or self.volume_shape() in VIEW_SHAPES:
             return
         first, second, normal = plane
         spec = self._spec
@@ -2879,7 +3083,7 @@ class GateEditorPanel(QWidget):
         self._tool = QComboBox(self)
         self._tool.setObjectName("GateToolPicker")
         for key in ("",) + GATE_KINDS:
-            if key in (BOX, CYLINDER, PRISM, COMPOSITE):
+            if key in (BOX, CYLINDER, PRISM, VIEW_LASSO, COMPOSITE):
                 continue
             self._tool.addItem(TOOL_LABELS[key].split(" — ")[0], key)
         self._tool.setToolTip("\n".join(TOOL_LABELS.values()))
@@ -2966,13 +3170,17 @@ class GateEditorPanel(QWidget):
         self._volume_shape = QComboBox(self)
         self._volume_shape.setObjectName("VolumeShapePicker")
         for key, label in VOLUME_SHAPES:
-            self._volume_shape.addItem(label, key)
-        self._volume_shape.setToolTip(
-            "What a drag on the chosen plane draws. Every one of these is "
-            "extended along the plane's own axis when the gate is made, so "
-            "the drawing gesture stays flat and the gate is solid.")
+            self._volume_shape.addItem(tr(label), key)
+        self._volume_shape.setToolTip(tr(
+            "What a drag in Draw mode makes. Lasso and Rectangle through view "
+            "work at any angle: turn the volume until the population stands "
+            "apart, draw around it, and the gate keeps every object whose "
+            "position on that view falls inside the outline. Box, oval, "
+            "circle and polygon are drawn on the chosen plane and given a "
+            "depth with a second drag. A right-button drag always turns the "
+            "volume."))
         self._volume_shape.currentIndexChanged.connect(
-            lambda _i: self.canvas.set_volume_shape(self.volume_shape()))
+            lambda _i: self._on_volume_shape_picked())
         volume_tools.addWidget(self._volume_shape)
 
         self._box_gate = QPushButton("From view", self)
@@ -3044,6 +3252,7 @@ class GateEditorPanel(QWidget):
         self.body.setChildrenCollapsible(False)
 
         self.canvas = GateCanvas(self, link=link, source=source)
+        self.canvas.set_volume_shape(self.volume_shape())
         self.canvas.gate_drawn.connect(self._on_gate_drawn)
         self.canvas.wand_failed.connect(self._status.setText)
         self.canvas.depth_requested.connect(self._status.setText)
@@ -3374,6 +3583,19 @@ class GateEditorPanel(QWidget):
         if button is not None and not button.isChecked():
             button.setChecked(True)
             self._on_drag_mode("draw")
+
+    def _on_volume_shape_picked(self) -> None:
+        """Arm the picked 3-D shape, and make the next drag draw it.
+
+        Picking a shape is asking to draw one; leaving the drag on Spin made
+        the first attempt turn the volume instead.
+        """
+        self.canvas.set_volume_shape(self.volume_shape())
+        button = getattr(self, "_drag_buttons", {}).get("draw")
+        if button is not None and not button.isChecked():
+            button.setChecked(True)
+            self._on_drag_mode("draw")
+        self.canvas.render_now()
 
     def _on_drag_mode(self, mode: str) -> None:
         """Switch dragging between spinning the view and drawing.

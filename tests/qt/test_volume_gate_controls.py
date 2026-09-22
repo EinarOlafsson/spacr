@@ -68,18 +68,32 @@ def test_the_dropdown_lists_every_volume_shape(panel):
     offered = [panel._volume_shape.itemData(i)
                for i in range(panel._volume_shape.count())]
     assert offered == [key for key, _label in VOLUME_SHAPES]
-    assert offered == ["box", "oval", "circle", "polygon"]
+    assert offered == ["lasso", "view_rect", "box", "oval", "circle",
+                       "polygon"]
 
 
 def test_the_labels_are_the_words_the_request_used(panel):
     labels = [panel._volume_shape.itemText(i)
               for i in range(panel._volume_shape.count())]
-    assert labels[:3] == ["Box gate", "Oval gate", "Circle gate"]
+    assert labels[2:5] == ["Box gate", "Oval gate", "Circle gate"]
 
 
 def test_choosing_a_shape_reaches_the_canvas(panel):
-    panel._volume_shape.setCurrentIndex(1)
+    panel._volume_shape.setCurrentIndex(3)
     assert panel.canvas.volume_shape() == "oval"
+
+
+def test_the_lasso_through_the_view_is_the_default_shape(panel):
+    """It is the one shape that works at any angle."""
+    assert panel.volume_shape() == "lasso"
+    assert panel.canvas.volume_shape() == "lasso"
+
+
+def test_choosing_a_shape_arms_drawing(panel):
+    assert panel.drag_mode() == "spin"
+    panel._volume_shape.setCurrentIndex(2)
+    assert panel.drag_mode() == "draw"
+    assert panel.canvas.drag_mode() == "draw"
 
 
 # ---------------------------------------------------------------------------

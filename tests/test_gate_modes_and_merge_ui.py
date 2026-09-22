@@ -352,6 +352,7 @@ def test_draw_mode_draws_instead_of_spinning(screen):
     canvas = _volume(screen)
     canvas.set_tool(RECTANGLE)
     canvas.set_drag_mode("draw")
+    canvas.set_volume_shape("box")
     ax = canvas.axes_at(0, 0)
     azimuth = float(ax.azim)
 

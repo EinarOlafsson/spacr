@@ -75,6 +75,7 @@ __all__ = [
     "GateError",
     "THRESHOLD", "RECTANGLE", "POLYGON", "CYLINDER", "PRISM", "COMPOSITE",
     "COMPOSITE_OPS", "GATE_KINDS", "CylinderGate", "PrismGate",
+    "VIEW_LASSO", "ViewGate",
     "CompositeGate", "BoxGate", "EllipseGate", "PolygonGate", "RectGate",
     "ThresholdGate", "Gate",
     "Gate", "ThresholdGate", "RectGate", "PolygonGate",
@@ -106,6 +107,9 @@ BOX = "box"
 CYLINDER = "cylinder"
 #: A polygon drawn on one plane of the volume and extended along the third.
 PRISM = "prism"
+#: A shape drawn on the 3D view at any orientation and extended straight
+#: through the volume along the line of sight -- a projected lasso.
+VIEW_LASSO = "view_lasso"
 #: Other gates combined: union, intersection or difference.
 COMPOSITE = "composite"
 
@@ -114,7 +118,8 @@ COMPOSITE_OPS: Tuple[str, ...] = ("union", "intersect", "subtract")
 
 #: Every shape a gate can be, in the order the tool buttons list them.
 GATE_KINDS: Tuple[str, ...] = (THRESHOLD, RECTANGLE, POLYGON, ELLIPSE,
-                              WAND, BOX, CYLINDER, PRISM, COMPOSITE)
+                              WAND, BOX, CYLINDER, PRISM, VIEW_LASSO,
+                              COMPOSITE)
 
 
 def _clean_name(name: str) -> str:
@@ -2045,6 +2050,189 @@ _GATE_CLASSES[PRISM] = PrismGate
 
 
 @dataclass(frozen=True)
+class ViewGate(Gate):
+    """A shape drawn on the 3D view, extended through it along the line of sight.
+
+    The projected lasso. The user turns the volume to whatever angle
+    separates a population, then draws around it on the screen; the gate is
+    every object whose PROJECTION on that view falls inside the outline --
+    the outline swept straight back through the volume, whatever the angle.
+    Unlike :class:`PrismGate` nothing about it is tied to one of the three
+    axis planes.
+
+    THE VIEW IS PART OF THE GATE. An outline on the screen means nothing
+    without the camera it was drawn through, so the gate carries the camera
+    as ``projection``: a 4 x 4 matrix taking a measurement ``(x, y, z, 1)``
+    to homogeneous view coordinates ``(sx, sy, depth, sw)``, scaled so that
+    ``sw`` is positive in front of the camera. The outline lives in
+    ``(sx / sw, sy / sw)``. Rows one, two and four are the whole of what
+    :meth:`mask` needs, so re-applying a saved gate needs no plotting library
+    and gives the same answer on any machine; the depth row only lets the
+    outline be drawn back into the volume from another angle.
+
+    ``view`` and ``limits`` record the camera angles ``(elev, azim, roll)``
+    and the axis limits the outline was drawn at, so the view can be
+    described and shown again. They are not read by :meth:`mask`.
+    """
+
+    x_column: str = ""
+    y_column: str = ""
+    z_column: str = ""
+    projection: Tuple[Tuple[float, float, float, float], ...] = ()
+    vertices: Tuple[Tuple[float, float], ...] = ()
+    view: Tuple[float, ...] = ()
+    limits: Tuple[Tuple[float, float], ...] = ()
+
+    def __post_init__(self) -> None:
+        """Normalise the columns, the camera and the outline.
+
+        :raises GateError: blank or repeated columns, a projection that is not
+            three finite rows of four, or an outline of fewer than three
+            vertices.
+        """
+        super().__post_init__()
+        for name in ("x_column", "y_column", "z_column"):
+            value = str(getattr(self, name)).strip()
+            if not value:
+                raise GateError(
+                    f"view gate {self.name!r} has no {name}; a view gate "
+                    f"reads three measurements")
+            object.__setattr__(self, name, value)
+        if len({self.x_column, self.y_column, self.z_column}) != 3:
+            raise GateError(
+                f"view gate {self.name!r} names the same measurement twice")
+        try:
+            matrix = np.asarray(self.projection, dtype=float)
+        except (TypeError, ValueError):
+            matrix = np.zeros((0,))
+        if matrix.shape != (4, 4) or not np.isfinite(matrix).all():
+            raise GateError(
+                f"view gate {self.name!r} needs its camera as four rows of "
+                f"four numbers; without it the outline has no meaning")
+        object.__setattr__(self, "projection",
+                           tuple(tuple(float(v) for v in row)
+                                 for row in matrix))
+        vertices = tuple((float(a), float(b)) for a, b in self.vertices)
+        if len(vertices) < 3:
+            raise GateError(
+                f"view gate {self.name!r} has {len(vertices)} vertices; an "
+                f"outline needs at least three")
+        object.__setattr__(self, "vertices", vertices)
+        object.__setattr__(self, "view",
+                           tuple(float(v) for v in (self.view or ())))
+        object.__setattr__(self, "limits", tuple(
+            (float(lo), float(hi)) for lo, hi in (self.limits or ())))
+
+    @property
+    def kind(self) -> str:
+        """The tag a saved view gate carries.
+
+        :returns: the shape tag.
+        """
+        return VIEW_LASSO
+
+    @property
+    def columns(self) -> Tuple[str, ...]:
+        """The three measurements the gate reads.
+
+        :returns: ``(x, y, z)``.
+        """
+        return (self.x_column, self.y_column, self.z_column)
+
+    def project(self, x, y, z) -> Tuple[np.ndarray, np.ndarray]:
+        """Where measurements land on the view the gate was drawn on.
+
+        :returns: ``(sx, sy)``; NaN wherever a measurement is missing or the
+            point is at or behind the camera.
+        """
+        matrix = np.asarray(self.projection, dtype=float)
+        points = np.column_stack([np.asarray(x, float), np.asarray(y, float),
+                                  np.asarray(z, float),
+                                  np.ones(len(np.asarray(x)))])
+        view = points @ matrix.T
+        with np.errstate(divide="ignore", invalid="ignore"):
+            sx = view[:, 0] / view[:, 3]
+            sy = view[:, 1] / view[:, 3]
+        behind = ~(view[:, 3] > 0)
+        sx[behind] = np.nan
+        sy[behind] = np.nan
+        return sx, sy
+
+    def mask(self, frame: pd.DataFrame) -> np.ndarray:
+        """Which rows project inside the outline.
+
+        :param frame: the measurements to test.
+        :returns: a boolean array, one entry per row.
+        """
+        what = f"gate {self.name!r}"
+        x = _numeric(frame, self.x_column, what)
+        y = _numeric(frame, self.y_column, what)
+        z = _numeric(frame, self.z_column, what)
+        sx, sy = self.project(x, y, z)
+        return points_in_polygon(sx, sy, self.vertices)
+
+    def describe(self) -> str:
+        """The outline, its three measurements and the angle it was drawn at.
+
+        :returns: a one-line description.
+        """
+        text = (f"{len(self.vertices)}-point outline through the view of "
+                f"{self.x_column}/{self.y_column}/{self.z_column}")
+        if len(self.view) >= 2:
+            text += (f" (elevation {self.view[0]:.0f}°, azimuth "
+                     f"{self.view[1]:.0f}°)")
+        return text
+
+    def to_dict(self) -> Dict[str, Any]:
+        """This gate as plain data, camera included.
+
+        :returns: a JSON-safe dict.
+        """
+        return {"kind": VIEW_LASSO, "name": self.name, "parent": self.parent,
+                "x_column": self.x_column, "y_column": self.y_column,
+                "z_column": self.z_column,
+                "projection": [list(row) for row in self.projection],
+                "vertices": [list(v) for v in self.vertices],
+                "view": list(self.view),
+                "limits": [list(pair) for pair in self.limits]}
+
+    def translated(self, dx: float, dy: float) -> "ViewGate":
+        """A copy with the outline moved on its own view.
+
+        :param dx: shift along the view's horizontal, in view coordinates.
+        :param dy: shift along its vertical.
+        :returns: the moved copy.
+        """
+        return replace(self, vertices=tuple(
+            (a + float(dx), b + float(dy)) for a, b in self.vertices))
+
+    def centre(self) -> Tuple[Optional[float], Optional[float]]:
+        """The outline's middle, in view coordinates.
+
+        :returns: ``(sx, sy)``.
+        """
+        array = np.asarray(self.vertices, dtype=float)
+        return (float(array[:, 0].mean()), float(array[:, 1].mean()))
+
+    def scaled(self, factor: float, *,
+               about: Optional[Tuple[float, float]] = None) -> "ViewGate":
+        """A copy with the outline grown or shrunk on its own view.
+
+        :param factor: multiplier; must be positive.
+        :param about: the anchor, defaulting to the outline's centre.
+        :returns: the resized copy.
+        """
+        _check_factor(factor)
+        cx, cy = about if about is not None else self.centre()
+        return replace(self, vertices=tuple(
+            (cx + (a - cx) * factor, cy + (b - cy) * factor)
+            for a, b in self.vertices))
+
+
+_GATE_CLASSES[VIEW_LASSO] = ViewGate
+
+
+@dataclass(frozen=True)
 class CompositeGate(Gate):
     """Other gates, combined. The point 5.
 
@@ -2649,6 +2837,12 @@ def gate_from_dict(payload: Mapping[str, Any]) -> Gate:
         data["vertices"] = tuple(tuple(v) for v in data["vertices"])
     if kind == PRISM and "vertices" in data:
         data["vertices"] = tuple(tuple(v) for v in data["vertices"])
+    if kind == VIEW_LASSO:
+        for key in ("projection", "vertices", "limits"):
+            if key in data:
+                data[key] = tuple(tuple(v) for v in data[key] or ())
+        if "view" in data:
+            data["view"] = tuple(data["view"] or ())
     if kind == COMPOSITE and "operands" in data:
         data["operands"] = tuple(data["operands"])
     fields = {f for f in cls.__dataclass_fields__}
