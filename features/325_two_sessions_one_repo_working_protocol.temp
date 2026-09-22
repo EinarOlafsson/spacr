@@ -10153,3 +10153,22 @@ intact, and its unused source archive is pruned after all locales are current.
 Nested inventory is now940 entries/201 modules,1643 blocks/1586 unique blocks;
 rollout remains disabled, so this is still substantial owed work. Full catalog
 translation/audit, Home map adapter, and tutorial media remain open. No GPU use.
+
+2026-09-22 — IMPLEMENTATION TAKEOVER / ALL FEATURE LISTS
+The maintainer assigned this replacement Codex session Claude's implementation
+lane and running-job follow-up, in /mnt/firecuda2/Claude/repo/spacr. The separate
+Codex session retains tutorials, API documentation, translations, and its claimed
+472 sample_project.py integration. The maintainer explicitly requested progress
+communication here and a commit and push whenever an item is finished. The new
+standing goal is to implement and finish all items in features/new and
+features/future, preserving those lane boundaries and maintainer-only decisions.
+
+Read-only recovery found no live run_ops_plate.py process. The saved run stops
+at B1's start, 2026-09-22 07:12:48; A1 and A3 completed, A2 failed with only two
+phenotype anchors. The existing 680438073 search-window repair already addresses
+that A2 failure; it needs validation on the resumed run, not a duplicate fix.
+Claiming the 372 run recovery and its feature-file evidence. NAS currently
+answers. GPU utilization is nonzero, so no GPU job has been started. Item 473's
+original worktree still has active real-field CPU validation and uncommitted
+follow-ups; preserving that worktree while its owner finishes. The implementation
+checkout has been rebased to 29ab0e6c2.
