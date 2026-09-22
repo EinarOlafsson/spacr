@@ -391,26 +391,6 @@ SETTINGS_WIDTH = 380
 #: handle, so the gap is also where the settings are dragged wider.
 SETTINGS_GAP = 12
 
-def thin_hover_line_sheet() -> str:
-    """The splitter-handle style for the gap beside the settings.
-
-    The gap is :data:`SETTINGS_GAP` wide on purpose, so it is easy to grab,
-    and the theme's hover rule painted all of it blue: a twelve-pixel bar.
-    Hovered, only a two-pixel line down its middle turns the accent colour,
-    through a gradient with hard stops; the rest stays the gap it was.
-
-    :returns: a stylesheet for the settings/image splitter.
-    """
-    accent = active_palette().get("accent", "#4c8dff")
-    lo, hi = 0.5 - 1.0 / SETTINGS_GAP, 0.5 + 1.0 / SETTINGS_GAP
-    return (
-        "QSplitter::handle:horizontal:hover { background: qlineargradient("
-        "x1:0, y1:0, x2:1, y2:0, "
-        f"stop:0 transparent, stop:{lo:.4f} transparent, "
-        f"stop:{lo + 0.0001:.4f} {accent}, stop:{hi:.4f} {accent}, "
-        f"stop:{hi + 0.0001:.4f} transparent, stop:1 transparent); }}")
-
-
 #: Width of the shortcut list beside the views, in pixels. FIXED, so every
 #: pixel a wider window gives the right-hand pane goes to the image; the list
 #: is a dozen short lines and does not want the room. Wide enough that the
@@ -5566,10 +5546,10 @@ class MakeMasksScreen(QWidget):
         )
         self._body_stack.addWidget(self._empty_state)
 
-        self._body_splitter = QSplitter(Qt.Horizontal)
-        self._body_splitter.setChildrenCollapsible(False)
-        self._body_splitter.setHandleWidth(SETTINGS_GAP)
-        self._body_splitter.setStyleSheet(thin_hover_line_sheet())
+        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+        self._body_splitter = CollapsibleSplitter(
+            Qt.Horizontal, persist_key="make_masks::body")
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
@@ -5613,11 +5593,12 @@ class MakeMasksScreen(QWidget):
             changed.connect(self._on_magnifier_context_changed)
         self._min_area.valueChanged.connect(self._on_min_area_changed)
         self._on_min_area_changed(self._min_area.value())
-        self._body_splitter.addWidget(self._settings_scroll)
-        self._body_splitter.addWidget(self._build_view_pane())
-        self._body_splitter.setStretchFactor(0, 1)
-        self._body_splitter.setStretchFactor(1, 3)
-        self._body_splitter.setSizes([SETTINGS_WIDTH, 900])
+        self._body_splitter.add_pane(
+            self._settings_scroll, "Settings", mode=EDGE, stretch=1,
+            extent=SETTINGS_WIDTH, fold_key="make_masks/Settings",
+            hint="or drag to make the settings wider or narrower")
+        self._body_splitter.add_pane(self._build_view_pane(), "Masks",
+                                     stretch=3, extent=900)
         self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
