@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "abf558ccf6b98d859854a00238ef4a21a9af69a3",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/widgets/preview_refresh.py",
+  "source_sha256": "fc550949423c3e86a7b236721032bb3971879c5a83f83f2e4a17c3c27ff61d4a",
+  "coverage_json_sha256": "73bd2320724dddc4df9554e82f18930114217017720212416c5cc9d1cfe91810",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 49,
+    "num_statements": 49,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 16,
+    "num_partial_branches": 0,
+    "covered_branches": 16,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "missing_lines": [],
+  "missing_branches": [],
+  "selection": [
+    "tests/qt/test_preview_refresh_endings.py",
+    "tests/qt/test_every_live_preview_can_be_refreshed.py"
+  ],
+  "passed": 32,
+  "failed": 0,
+  "elapsed_seconds": 30.44,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false
+}

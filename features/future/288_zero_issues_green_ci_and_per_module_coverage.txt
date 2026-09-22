@@ -4318,3 +4318,14 @@ Source-bound receipts: features/data/288_measurements_example_2026-09-21.json
 and features/data/288_sra_picker_2026-09-21.json. Both runs use 6 GiB/one CPU thread.
 No production implementation or coverage baseline changed. Full-suite and
 ratchet acceptance remain open; these are two additional targeted floor gains.
+
+2026-09-21 — CODEX: PREVIEW REFRESH REACHES100% IN TARGETED CHECKS
+The shared preview-refresh helper improves from80% in the fixed full run to
+100% of49statements and16branches. New behavior tests cover absent/failed
+form readers, placeholder and missing paths, all four loader families,
+loader priority/refusal, optional console/auto-load state, lazy panel lookup
+at click time and duplicate/unsupported title actions. Combined with the
+existing real-screen wiring tests:32pass in30.44s,6GiB cap,oneCPUthread,noGPU.
+Source-bound receipt:features/data/288_preview_refresh_2026-09-21.json.
+Production source and baseline remain unchanged. This is the eighth original
+floor module improved by targeted checks, not a fresh full-suite verdict.

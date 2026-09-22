@@ -1861,3 +1861,12 @@ The remaining CPU-generated API drafts stay private pending language review;
 the full docs/catalog audit remains open.
 Four final report checks pass in 201.04 seconds; all ten accepted German
 entries independently regenerate verbatim from their source-bound reviews.
+
+2026-09-21 — CODEX DOCS: CURRENT README NAVIGATION IN NINE LANGUAGES
+The new opening-deck Back/Next links now have reviewed labels in all nine
+localized READMEs, with source-bound regeneration records and unchanged link
+targets. All nine regenerate without a model; fourteen existing README tests
+pass. Refreshed the coverage report for the new README bytes. This does not
+close the remaining API/runtime catalog debt or claim a green docs workflow.
+Four final report consistency tests pass (266.24s); this checks the reported
+remaining debt and current README bytes, not completion of that debt.

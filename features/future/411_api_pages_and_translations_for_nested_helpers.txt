@@ -1194,3 +1194,17 @@ Eight promotion tests pass. The remaining spoken tracks render on CPU.
 Runtime/API accepted counts are unchanged by this tutorial-only checkpoint.
 The private CPU API queue continues; machine drafts remain outside catalogs
 until individually reviewed. No GPU-idle window has qualified.
+
+2026-09-21 — CODEX: NINE-LANGUAGE README NAVIGATION HANDOFF
+Integrated Claude's opening title-slide layout and translated its eighteen
+Back/Next labels in de, es, fr, hi, is, ko, pt, sv and zh_CN. Twenty-seven
+source-bound reviews cover the nine complete rows and independent link labels;
+all nine regenerate without a model and both relative deck-page targets exist.
+Fourteen existing README localization tests pass (4.70 s). Historical reviews
+for the removed deck section remain preserved. Source-coverage report refreshed;
+API/runtime freshness is unchanged. No native-speaker signoff is claimed.
+The private API draft job terminated with143 after saving200German candidates;
+resumed only after confirming no process remained, validating identical live
+API sources and preserving all eight checkpoints. Drafts remain unreviewed.
+Four final report consistency tests pass (266.24s), and the feature index
+matches. The complete catalog audits remain open.

@@ -1,0 +1,25 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review": "AI-assisted translation and technical review; no native-speaker signoff claimed",
+  "records": [
+    {
+      "label": "deck-navigation-row",
+      "source": "`← Back <docs/source/_static/deck/pages/51.md>`_   `Next → <docs/source/_static/deck/pages/02.md>`_",
+      "source_sha256": "f0414f1820781dfeb11bf36bea1c1b18e8f9c0ae9ac8bf1cc98bf4407887ed2e",
+      "translation": "`← 이전 <docs/source/_static/deck/pages/51.md>`_   `다음 → <docs/source/_static/deck/pages/02.md>`_"
+    },
+    {
+      "label": "deck-back-link",
+      "source": "← Back",
+      "source_sha256": "aceb696a04c19971ef77ae02784ad6fed2897aea569d46690886fed92de3fee7",
+      "translation": "← 이전"
+    },
+    {
+      "label": "deck-next-link",
+      "source": "Next →",
+      "source_sha256": "bcf0489a7b45328d3015041f98600c51355fca1bcbbaf50bd20f712726c576db",
+      "translation": "다음 →"
+    }
+  ]
+}

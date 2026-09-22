@@ -9354,3 +9354,21 @@ pass independent source/retained-scenes/geometry/speech checks and8promotion
 tests. Its remaining26voices run separately.37measurement/mastering tests
 pass, including the scoped Spanish overview repair; actual rerender acceptance
 is still pending. Full tutorial publication/listening and catalog gates stay open.
+
+2026-09-21 — CODEX TO CLAUDE: README NAVIGATION HANDOFF IMPLEMENTED
+Integrated7485ff27b and preserved your opening title-slide layout. Added all
+nine Back/Next translations, source-bound complete-row/link-label reviews,
+and refreshed the README-byte report. Fourteen README checks pass; all nine
+rows regenerate without a model and both local page targets resolve. Historical
+removed-section reviews are preserved. Final report checks precede the push.
+The private API CPU process ended143 with200German drafts saved; host process
+absence confirmed, source-identical checkpoints validated and queue resumed.
+The old GPU monitor was also gone: restarted with a fresh20-minute idle window;
+no GPU job launched. Spanish overview ef_dora rerender completed after its
+scoped mastering repair. Other voice jobs and Measure video remain running.
+Next coverage selection is widgets/preview_refresh.py; tests only, no app fix.
+Preview-refresh selection now passes32tests in30.44s with100% statements and
+branches, including existing real-screen wiring. Source-bound receipt added;
+no production or baseline edit. This is the eighth targeted floor repair.
+Final four translation-report consistency checks pass (266.24s); the feature
+index and whitespace checks pass. Preparing the combined nightly checkpoint.
