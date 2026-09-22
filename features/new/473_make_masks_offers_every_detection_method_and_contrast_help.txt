@@ -1,0 +1,97 @@
+================================================================================
+MAKE MASKS OFFERS EVERY DETECTION METHOD, AND WAYS TO MAKE OBJECTS EASIER TO SEE
+================================================================================
+
+Status:    OPEN, filed 2026-09-22. Not started.
+Owner:     Claude (spacr/qt/screens/make_masks.py and the detection engine).
+Requested: 2026-09-22, by the maintainer, in these words:
+
+           "in the make mnasks modual, in addition to the otsu, and cellpose
+           options i would like to add all the options that are available for
+           organell detection. i would also like to add aoption to enhance
+           contrast in the image and other strategies to potentially make
+           objects easier to detect on the image."
+
+WHAT IS THERE TODAY (nightly, 2026-09-22)
+--------------------------------------------------------------------------------
+
+* Make Masks' magnifier and whole-image detection offer these modes
+  (spacr/qt/screens/make_masks.py, `_MAGNIFIER_SEGMENTERS` ~2608): "otsu",
+  "cellpose", and the installable backends in `_MAGNIFIER_BACKENDS`
+  (Cellpose 3 cyto3/cyto2/cyto/nuclei, DINOCell, SAMCell).
+* Organelle detection already implements eight methods
+  (spacr/settings_spec.py:287, `organelle_method`; engine in spacr/object.py
+  ~1437; guidance per morphology in spacr/organelle_types.py, whose
+  LEGAL_METHODS says which suit which shape): otsu, adaptive, log, dog,
+  ridge, hysteresis, cellpose, unet.
+* Make Masks can already detect on the normalised image or not (the
+  "detect on the normalized image" option added 2026-09-21) and invert for
+  detection (item 419 point 9c).
+
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. EVERY ORGANELLE METHOD IN MAKE MASKS. Add adaptive, log (Laplacian of
+   Gaussian), dog (difference of Gaussians), ridge, hysteresis and unet to
+   the Make Masks mode box beside Otsu and Cellpose, for the magnifier and for
+   whole-image detection alike. REUSE the organelle engine in spacr/object.py
+   rather than a second copy, so a method means the same thing in both
+   places. Each method brings its own parameters (block size and offset for
+   adaptive; sigma(s) for log/dog; scale and threshold for ridge; low/high
+   for hysteresis; the model for unet), shown only when that method is
+   chosen, with the organelle_types guidance on what each suits (spots,
+   puncta, tubules/networks, blobs). The Otsu mode's smoothing / correction /
+   fill-holes / split options stay as they are.
+2. CONTRAST ENHANCEMENT before detection, as options the detection reads
+   (and the magnifier box shows, the way it already shows the normalised
+   image), chosen independently of the method:
+     * percentile stretch (already there as normalisation -- keep, name it);
+     * gamma correction;
+     * CLAHE (contrast-limited adaptive histogram equalisation), with tile
+       size and clip limit;
+     * global histogram equalisation.
+3. OTHER STRATEGIES TO MAKE OBJECTS EASIER TO DETECT, each an option in the
+   same pre-detection chain:
+     * background subtraction (rolling ball / top-hat, radius in pixels;
+       spaCR already has background-removal settings for Mask -- reuse them);
+     * denoising (Gaussian, median, and non-local means or bilateral where
+       scikit-image provides it);
+     * sharpening (unsharp mask);
+     * morphological opening/closing to separate touching or join broken
+       objects;
+     * a distance-transform / watershed split for touching objects (Otsu
+       already has "split"; offer it to the other threshold methods);
+     * invert (already there; keep).
+   The chain applies in a fixed, documented order (e.g. background ->
+   denoise -> contrast -> sharpen -> detect -> morphology -> split), and the
+   whole chain is saved with the mask's provenance so a mask can be
+   regenerated.
+4. SHOW WHAT THE DETECTOR SEES: the magnifier and the canvas can show the
+   enhanced image (not only the raw one) so the user can judge each step; a
+   one-click "compare" (raw vs enhanced) is enough.
+5. PERFORMANCE: every step runs on the magnifier's box region live, as today;
+   whole-image runs stay off the GUI thread with progress and cancel (item
+   407's whole-image machinery). Heavy steps (non-local means, unet) say so.
+
+WHAT TO BE CAREFUL WITH
+--------------------------------------------------------------------------------
+
+* Whether the enhancement chain also belongs in the Mask module's own
+  pre-processing (so a model trained on enhanced masks sees the same input at
+  inference) -- ask the maintainer before wiring it into Mask; within Make
+  Masks it only changes how objects are detected for curation.
+* New captions and tooltips are translated strings in nine languages: list
+  them for the catalog lane rather than regenerating spacr/qt/i18n_catalogs.
+
+DONE WHEN
+--------------------------------------------------------------------------------
+
+* Make Masks' mode box offers otsu, cellpose, the backends, and adaptive,
+  log, dog, ridge, hysteresis and unet, each detecting through the same code
+  as organelle detection, with its own parameters.
+* Contrast enhancement (gamma, CLAHE, histogram equalisation, percentile
+  stretch) and the other strategies (background subtraction, denoising,
+  sharpening, morphology, split) can be switched on before detection, in a
+  documented order, and the magnifier shows the enhanced image.
+* Each option is tested on a real field, and the chain is recorded with the
+  masks it produced.
