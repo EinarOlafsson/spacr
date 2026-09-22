@@ -1,0 +1,135 @@
+================================================================================
+AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
+THAT SAY WHAT FEEDS WHAT, AND A HOME SCREEN THAT SHOWS WHERE TO START
+================================================================================
+
+Status:    OPEN, filed 2026-09-22. Not started.
+Issue:     GitHub #130, "Guide what to do after installation" (momeara,
+           2026-09-22).
+Owners:    CODEX -- the tutorials, walkthroughs and API prose (parts 1-4), the
+           lane that already owns items 358, 447 and 286.
+           CLAUDE -- the Home screen part (part 5).
+
+THE ISSUE, IN THE REPORTER'S WORDS
+--------------------------------------------------------------------------------
+
+    "After installing the package, looking at the homescreen I can't figure
+    out what do."
+    "I would like to open a sample project that is similar to a project I may
+    have and see the platform in action."
+    "When I look at the tiles, I can click them and nothing seems to happen."
+    "When I go online looking for the documentation, I don't see guidance on
+    what to do next."
+    "I also looks at the interactive video tutorials and it also seemed be a
+    mix of installation, capabilities, and technical details without a clear
+    guide for workflow usage."
+
+THE MAINTAINER'S REQUEST (2026-09-22), in his words
+--------------------------------------------------------------------------------
+
+    "the user is asking for a clearer path between modals. so there should be
+    a Tutorial giving an overview of how the modulus are linked. that the mask
+    generation outputs are used as inputs for the measurements, and
+    measurement data base as input for classify machine learning and
+    measurement image crops a (or streamed from masks) as input for computer
+    vision, and classify modual outputs and Map barecodes as inputs for
+    regression. and so on.
+
+    this should be clearly stated in a new tutorial on spaCR screens, and
+    another on Modual inports and outputs (covering all moduals and how they
+    relate to each other), also make a tutorial on image analasys related
+    moduals and how they relate to each other, and on sequensing elated
+    moduals and how they relate to each other.
+
+    links between moduals should also be discribed in the API, and in the
+    walkthroughs, add a new walkthrough that covers what to start with on the
+    home screen if doing a spaCR screen (make-->measure-->annotate-->classify
+    and map barecodes-->regression), doing a high content image analasys
+    experiment (mask--> measure--> several ), generating a mode (make
+    masks-->train cellpose model), if you can think of any other common
+    experiments and pathways through spacr discribe them to.
+
+    the API, walkthroughs, and Tutorials should match each other."
+
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+0. ONE SOURCE OF TRUTH FOR THE LINKS. Before any prose: a single machine-
+   readable map of every module's inputs and outputs -- what it reads (folder,
+   file kind, database table/column) and what it writes -- from which the
+   tutorials, the walkthroughs and the API pages are all written or checked,
+   so the three "match each other" by construction and a test fails when a
+   module's real inputs/outputs drift from the map. Start from what the code
+   already declares (settings `src`/output folders, the tables each module
+   writes to measurements.db, the preview registry, the Home registry's
+   groups). The chain the maintainer names must come out of it verbatim:
+
+     Mask generation -> masks + merged arrays
+       -> Measure (reads the masks and images) -> measurements.db + crops
+       -> Classify, machine learning (reads measurements.db)
+       -> Classify, computer vision (reads the crops, or streams them from the
+          masks)
+       -> Annotate (labels crops in png_list) -> the classifiers' training data
+     Map Barcodes (sequencing) -> per-well guide/gene counts
+     Classify outputs + Map Barcodes outputs -> Regression -> hit list
+
+1. TUTORIAL "spaCR screens": the pooled-screen story end to end -- what a
+   spaCR screen is, and which module does each step, in order.
+2. TUTORIAL "Module inputs and outputs": EVERY module, what it takes and what
+   it produces, and which modules come before and after it (from part 0).
+3. TUTORIAL "Image analysis modules and how they relate": Mask, Make Masks,
+   Measure, Annotate, Classify, Image UMAP, Gate Editor, Align & Stitch, the
+   assays (Plaque, Recruitment, Invasion, Replication), QC, Embeddings.
+4. TUTORIAL "Sequencing modules and how they relate": Map Barcodes, OPS,
+   Regression, Power / Design, Experiment Design, Dose-Response, Run Compare.
+5. WALKTHROUGHS (the interactive ones), one per common pathway, each starting
+   from the Home screen and saying which tile to press first:
+     a. A spaCR screen: Mask -> Measure -> Annotate -> Classify, and
+        Map Barcodes -> Regression.
+     b. A high-content image analysis experiment: Mask -> Measure -> then
+        Classify / Image UMAP / Gate Editor / Graph Builder / the assays.
+     c. Training a segmentation model: Make Masks (curate) -> train a Cellpose
+        model -> use it in Mask.
+     d. OTHERS the maintainer asked us to think of -- candidates:
+        - a parasite assay: Mask -> Plaque / Recruitment / Invasion /
+          Replication;
+        - an optical pooled screen: Align & Stitch -> OPS -> Regression;
+        - importing someone else's data: Import -> Measure -> ...;
+        - phenotype discovery without labels: Measure -> Embeddings /
+          Image UMAP -> Gate Editor -> Annotate;
+        - planning a screen before running it: Experiment Design ->
+          Power / Design;
+        - live-cell tracking: Mask (timelapse) -> Measure -> motility.
+       Each named from the Home tiles as they read today.
+6. API: each module's API page (and the Home tile's API link) states its
+   inputs, its outputs, and the modules before and after it, generated from
+   the part-0 map so it cannot disagree with the tutorials.
+7. The three -- tutorials, walkthroughs, API -- say the same thing: a test
+   (or the docs build) compares each one's stated links against the part-0
+   map.
+
+PART 5 -- THE HOME SCREEN (CLAUDE)
+--------------------------------------------------------------------------------
+
+   a. "I can click them and nothing seems to happen": reproduce a Home tile
+      click on a fresh install (a module that opens slowly with no feedback,
+      a single- vs double-click expectation, a tile that opens off screen or
+      behind, an empty state that looks like nothing happened) and fix it so
+      every tile click visibly does something at once.
+   b. "Open a sample project similar to mine": a clear first-run entry on
+      Home -- choose the kind of experiment (the pathways in 5a-d), get its
+      example data (the existing test-data downloads) and land in its first
+      module with the settings filled, with the walkthrough for that pathway
+      one click away.
+
+DONE WHEN
+--------------------------------------------------------------------------------
+
+  * The four tutorials and the pathway walkthroughs exist in every tutorial
+    language the library carries, and the API pages state inputs, outputs and
+    neighbours for every module.
+  * One map of module inputs/outputs exists and a test fails if the
+    tutorials, walkthroughs or API disagree with it or with the code.
+  * A Home tile click always visibly does something, and a new user can start
+    a sample project of their kind from Home.
+  * Issue #130 is answered with links to the tutorials and the Home entry.

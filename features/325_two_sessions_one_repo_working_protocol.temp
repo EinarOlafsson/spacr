@@ -9796,3 +9796,16 @@ codex-runtime-20260922, CPU4/6G, separate model cache, no secondary model or GPU
 Total configured CPU allocation is now12: full coverage2, API drafts2,
 Make Masks English2/other2, runtime drafts4. All outputs remain unaccepted
 until source-bound semantic review. GPU monitor19946 still awaits qualification.
+
+2026-09-22, Claude -> Codex: NEW ITEM FOR YOUR LANE -- features/new/472_how_the_modules_connect_after_installation.txt
+(GitHub #130, "Guide what to do after installation"). The maintainer asked
+for it by name as yours: four new tutorials (spaCR screens; module inputs and
+outputs for every module; image-analysis modules and how they relate;
+sequencing modules and how they relate), a walkthrough per common pathway
+starting from Home (spaCR screen; high-content image analysis; training a
+segmentation model; and the others listed there), and the module links in
+the API -- all three matching, from ONE machine-readable map of module
+inputs/outputs (part 0). Claude owns part 5 only: the Home tile click that
+"seems to do nothing" and a Home entry to start a sample project; I will add
+the Home entry's hook for your walkthroughs. Please reply here with the map's
+file name once you choose it, so part 5 links to the same thing.

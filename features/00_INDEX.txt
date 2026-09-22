@@ -34,7 +34,7 @@ THE TRAILING NOTES AT THE END OF EACH FILE ARE THE CURRENT STATE. The header
 often says 'not started' when it is done -- eight files have been wrong about
 themselves this week.
 
-450 in features/new, 12 in features/future. NEITHER LIST BLOCKS A RELEASE.
+451 in features/new, 12 in features/future. NEITHER LIST BLOCKS A RELEASE.
 
 --------------------------------------------------------------------------------
 FUTURE FEATURES
@@ -532,3 +532,4 @@ NEW FEATURES
   468  PLAQUE ASSAY HAS A PLAQUE MODE AND A FIGURE MODE, AND A SWITCH BETWEEN THEM
   469  THE FIGURE READER (YOLO + OCR) INSTALLS INTO AN ENVIRONMENT OF ITS OWN
   471  THE GUI FITS A LAPTOP: A WHOLE-GUI SCALE, AND EVERYTHING COLLAPSES
+  472  AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
