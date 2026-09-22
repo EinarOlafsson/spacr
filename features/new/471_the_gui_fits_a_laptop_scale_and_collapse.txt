@@ -429,3 +429,418 @@ screens except 380 px in the window's own corner marks, which refresh_theme
 rebuilds two pixels lower -- the same rebuild a Zoom change has always
 done. At 100 % the screens are pixel-identical to nightly apart from the
 live RAM/GPU meters and a status message.
+
+--------------------------------------------------------------------------------
+2026-09-22 — SLICE C LANDED: EVERYTHING COLLAPSES (points 5 and 6, and the
+DRAG AN EDGE addendum inside the screens)
+--------------------------------------------------------------------------------
+
+Slice C is points 5 and 6: every SECTION inside the figures panel and inside
+every live preview, and then -- wherever possible -- every figure and every
+table in every module. It adds no second mechanism: everything below is slice
+B's CollapsibleSplitter, FocusCollapse and Folder.
+
+WHAT SLICE C ADDED TO THE MECHANISM (spacr/qt/widgets/collapsible_splitter.py)
+
+* FoldSection(body, "Name", persist_key="<module>/<Section>", actions=...)
+  -- the one way a section inside a screen gets a fold control, so every one
+  of them looks alike: the arrow and the name above the body, a click folds
+  it, and a folded section is its heading locked to the BOTTOM of its room
+  (lock_folded_to_bottom, now idempotent per container and folder).
+  THE BODY'S OWN VISIBILITY STAYS ITS OWNER'S: the fold hides an inner
+  holder, never the body, so unfolding can never show a panel its owner hid
+  or build one that is built on first show (items 284/380). The other way
+  round, the section follows its body: while the owner keeps the body hidden
+  the whole section is hidden with it, read from the hidden flag alone --
+  nothing is shown, measured or built to find out.
+* CollapsibleSplitter.add_section(widget, "Name", ...) -- the same section as
+  a pane, so it also trades room with its neighbours by dragging, and a drag
+  past its minimum folds it. Sizes are remembered per pane NAME under the
+  splitter's persist_key, exactly as in slice B; only a fold the USER makes
+  is stored.
+* fold_card(card, persist_key=...) -- the same fold on a titled Card.
+* add_pane(..., hint="...") -- an EDGE pane can carry its own sentence in the
+  handle's tooltip (the image-UMAP divider keeps "the points do not move").
+* A splitter that has never been shown no longer shares out a size it does
+  not have: the first show lays it out from the remembered sizes.
+* The heading wears QLabel#FoldHeading (theme.py): the body font, 600.
+
+WHICH CONTROL WHERE. A section with a name of its own gets a HEADING (click
+it to fold; folded, it is a strip at the bottom of its room). A side column
+with no name of its own -- the settings column in slice B, Gate Editor's
+Filter/Search tabs, the figure queue's thumbnail strip, image UMAP's sidebar,
+Regression's results beside its figure pages, Plaque's well picture -- is an
+EDGE pane: the handle beside it carries the arrow, a click folds or restores
+it and a drag resizes it. Both are the same splitter.
+
+THE INVENTORY. One row per figure, table or section per module: whether it
+now FOLDS, whether it now DRAGS (an edge it shares with a neighbour), and
+how. HOW is one of
+  section   a FoldSection registered as a splitter pane (add_section): it
+            folds by its heading and trades room with its neighbours
+  fold only a FoldSection with no sibling to trade with
+  EDGE      an EDGE pane: the handle beside it carries the arrow
+  card      fold_card on a titled Card
+  already   a fold that existed before this slice (item 417's settings
+            categories, the fold strips, CollapsibleSection, the figure
+            grid's own section headers, the console's topic sections)
+  pane      a plain splitter pane: drags, never folds
+  no [x]    not folded, for the reason in the note below the block
+
+THE PREVIEWS AND THE FIGURES (the maintainer's own list)
+
+  module                element                      fold drag how
+  --------------------------------------------------------------------------
+  live_preview (Mask)   image-set table              yes  yes  section
+                        image area (both canvases)   yes  yes  section
+                        pixel and compare strip      yes  yes  section
+                        pick row, action row         no   no   no [a]
+  measure_preview       crop grid                    yes  no   already [b]
+  plaque_preview        pictures (image tabs)        yes  yes  section
+                        well picture beside them     yes  yes  EDGE
+                        wells / plaques tables       yes  yes  section [c]
+                        legend prompt, notices       no   no   no [a]
+  timelapse_preview     settings groups              yes  yes  section
+                        movie and scrub              yes  yes  section
+                        track-quality read-out       yes  yes  section
+  motility_preview      settings groups              yes  yes  section
+                        plot                         yes  yes  section
+                        summary                      yes  yes  section
+  umap_explorer         sidebar (crop, form, status) yes  yes  EDGE [d]
+                        the chart                    yes  yes  already [b]
+  umap_search_viewer    the 2D/3D view               yes  yes  section [e]
+  annotation_umap_tab   purity plot                  yes  yes  section
+                        score table                  yes  yes  section
+                        report                       yes  yes  section
+  figure_queue          thumbnail strip              yes  yes  EDGE [f]
+                        the figure itself            yes  yes  already [b]
+  figure_grid_view      per-run figure sections      yes  no   already
+  figure_grid           the search grid              yes  yes  section [e]
+  regression_results    volcano plot                 yes  yes  section
+                        coefficient table            yes  yes  section
+                        guide-agreement plot         yes  yes  section
+                        guide support table          yes  yes  section
+                        the other diagnostic tabs    no   no   no [g]
+  cell_montage_view     crops                        yes  yes  section
+                        caption                      yes  yes  section
+  gene_panel            gene record                  yes  yes  section
+                        what is known                yes  yes  section
+  app_screen/Regression results beside the figures   yes  yes  EDGE
+                        gene tile under the volcano  yes  yes  EDGE [h]
+                        a second run opened beside   no   yes  pane
+
+  * [a] a toolbar, a picker row or a prompt that belongs to the picture
+    beside it: folding it hides the controls that drive the figure and frees
+    one line.
+  * [b] the panel's own card title is the fold; a second heading over the
+    same thing would be two controls for one fold.
+  * [c] hidden with its tabs in Plaque mode, so there is no empty heading.
+  * [d] the display settings' sidebar width is kept for when it opens again
+    rather than forcing it open.
+  * [e] no sections of its own; folded where Hyperparameter search mounts it.
+  * [f] its 160 px fixed width became a draggable, remembered one.
+  * [g] one plot per tab: the tab bar already hides all but one, and folding
+    a tab's only child leaves an empty tab.
+  * [h] it still starts shut, as it did -- but the strip that opens it is
+    now always there.
+
+THE SCREENS, A TO F
+
+  module                element                      fold drag how
+  --------------------------------------------------------------------------
+  activation            (no UI of its own)           --   --   [i]
+  agreement             annotation-column list       yes  yes  section
+                        pairwise-kappa table         yes  yes  section
+                        confusion matrix             yes  yes  section
+                        disagreeing rows             yes  yes  section
+                        crop preview                 yes  yes  section
+                        top block / review block     no   yes  pane
+  align                 tile-layout figure           yes  yes  section
+                        plan report                  yes  yes  section
+  annotate              crop grid                    yes  yes  section
+                        Console + AI side panel      yes  yes  section [j]
+                        legend, toolbar, switches    no   no   no [a]
+                        report / settings dialogs    no   no   no [k]
+  batch                 job queue                    yes  yes  section
+                        validation problems          yes  yes  section [l]
+                        job log                      yes  yes  section
+  classifier_evaluation the six result tabs          yes  no   fold only
+                        confusion table              yes  yes  section
+                        error inspector              yes  yes  section
+  classify              fold strip, categories       yes  no   already
+  control_chart         chart canvas                 yes  yes  section
+                        report                       yes  yes  section
+                        rule violations              yes  yes  section
+                        left control column          no   yes  pane
+  convert               conversion plan table        yes  yes  section
+                        run summary                  yes  yes  section [l]
+  curate                layer viewer                 yes  yes  section
+                        Brush / Tracks tools         yes  yes  section
+  data_manager          Usage/Prune/Archive tabs     yes  no   fold only
+                        "can be deleted" table       yes  yes  section
+                        kept table                   yes  yes  section
+                        delete confirmation          no   no   no [k]
+  db_browser            table list                   yes  yes  section
+                        table preview and paging     yes  yes  section
+                        filter row, SQL line         no   no   no [a]
+  distributed_jobs      job table                    yes  yes  section
+                        details and log              yes  yes  section
+                        "Submission" card            no   no   no [a]
+  dose_response         curve canvas                 yes  yes  section
+                        fit table                    yes  yes  section
+                        report                       yes  yes  section
+  embeddings            crop preview stack           yes  no   fold only
+  experiment_design     condition table              yes  yes  section [l]
+                        plate map                    yes  yes  section
+                        findings                     yes  no   fold only [m]
+  feature_explorer      ranking table                yes  yes  section
+                        distribution figure          yes  yes  section
+                        Filter / Columns side tabs   yes  yes  section
+  foreign               column mapping               yes  yes  section
+                        import report                yes  yes  section [l]
+
+  * [i] it builds the generic settings screen; the shell's own panes are
+    slice B's.
+  * [j] it stays hidden behind its switch, folding never shows it, and its
+    heading actions (Copy console, File as issue) stay reachable while
+    folded. It also reopens at the height it was dragged to.
+  * [k] a dialog: nothing inside it takes the room a fold would free.
+  * [l] a fixed maximum height became a draggable, remembered size, so the
+    handle beside it does something (Batch 140 px, Convert 140 px, Foreign
+    190 px, Experiment Design's table 220 px).
+  * [m] kept out of the splitter so a remembered size can never clip a list
+    that has grown since.
+
+THE SCREENS, G TO P
+
+  module                element                      fold drag how
+  --------------------------------------------------------------------------
+  gate_editor           graph canvas                 yes  yes  section
+                        gate table                   yes  yes  section
+                        Filter / Search side tabs    yes  yes  EDGE [n]
+                        gate console                 yes  yes  EDGE [o]
+                        Filter / Columns forms       no   no   no [a]
+  graph_builder         column shelf                 yes  yes  section
+                        graph canvas                 yes  yes  section
+                        local data filter            yes  yes  section
+  pca                   feature shelf                yes  yes  section
+                        scree plot                   yes  no   fold only
+                        scores canvas and report     yes  yes  section
+                        filter                       yes  yes  section
+  outliers              result tabs                  yes  yes  section
+                        scan column                  yes  yes  section
+  model_compare         parameters table             yes  yes  section
+                        per-field table and summary  yes  yes  section
+                        mask previews A / B          yes  yes  section [p]
+  model_explanation     Explain-CV result tabs       yes  no   fold only
+                        Investigate-hit tabs         yes  no   fold only
+  map_barcodes          findings table               yes  yes  section
+                        reads view                   yes  yes  section
+                        proposal notes               yes  yes  section
+                        "Find barcodes" card         yes  yes  card [q]
+                        fold strip, categories       yes  no   already
+  parameter_sweep       settings column              yes  yes  EDGE
+                        trials table                 yes  yes  section
+                        regression results           yes  yes  section
+                        figure queue                 yes  yes  section [r]
+  hyperparam            trial table                  yes  yes  section
+                        search preview               yes  yes  section
+                        search settings dialog       no   no   no [k]
+  image_scatter         point cloud                  yes  yes  section
+                        crop preview column          yes  yes  section
+  lineage               object tree                  yes  yes  section
+                        unattached children          yes  yes  section
+  model_zoo             model table                  yes  no   fold only
+                        benchmark table              yes  yes  section
+                        mask preview                 yes  yes  section
+                        detail read-out              no   no   no [a]
+  measure_inputs        "the files" table card       yes  yes  card
+                        settings scroll area         yes  yes  already
+  methods_export        draft tabs                   yes  no   fold only
+  hit_list              hit table                    yes  no   fold only
+                        filter strip                 no   no   no [a]
+  image_import          proposed-layout table        yes  yes  section
+                        questions table              yes  yes  section
+                        scan report                  yes  yes  section
+  import_workbench      file table                   yes  yes  section
+                        folder preview               yes  yes  section
+  image_umap            (fold-strip builders only)   yes  no   already [s]
+  make_masks, mask,     settings categories          yes  yes  already [t]
+  measure
+
+  * [n] an EDGE pane rather than a heading: a heading above the tab strip
+    would break the one-row layout the maintainer asked for, and
+    align_side_panel still holds (a test pins both).
+  * [o] it starts collapsed, as it did at width 0 -- now with a strip that
+    opens it.
+  * [p] the two sides drag apart inside it and carry their own captions.
+  * [q] the card's 560 px floor is dropped while it is folded, so the fold
+    frees real room; the card still stays hidden behind its toggle.
+  * [r] it stays hidden until its owner shows it.
+  * [s] its views are Image Scatter's and PCA's, both above.
+  * [t] item 417's categories and the fold strips; the settings column
+    itself is slice B's EDGE pane.
+
+THE SCREENS, P TO Z
+
+  module                element                      fold drag how
+  --------------------------------------------------------------------------
+  pipeline_graph        the graph                    yes  yes  section
+                        step details                 yes  yes  section
+  plate_view            plate map                    yes  yes  section
+                        edge-effect report           yes  yes  section
+  power                 power vs cells per well      yes  yes  section
+                        power vs wells               yes  yes  section
+                        power table                  yes  yes  section
+                        caveats                      yes  no   fold only
+                        design form                  no   yes  pane
+  profiler              inputs                       yes  yes  section
+                        timing curve                 yes  yes  section
+  project_browser       project table                yes  yes  section
+                        project details              yes  yes  section
+  qc_dashboard          every QC card                yes  no   fold only [u]
+  queue                 queue table                  yes  no   fold only
+  regression (screen)   fold strip and its pages     yes  no   already [v]
+  report                sections found               yes  no   fold only
+  run_compare           comparison tabs              yes  no   fold only
+  run_history           runs table                   yes  yes  section
+                        run details                  yes  yes  section
+  tabulate              pivot                        yes  yes  section
+                        graph                        yes  yes  section
+                        filter                       yes  yes  section
+  pivot_builder         field shelf                  yes  yes  section
+                        pivot table                  yes  yes  section
+  train_cellpose        (a settings form and Run)    --   --   no [a]
+  train_compare         runs list                    yes  yes  section
+                        training curves              yes  yes  section
+                        settings diff                yes  yes  section
+  trellis               channel shelf                yes  yes  section
+                        trellis canvas               yes  yes  section
+                        filter / columns side        yes  yes  section
+  volcano               volcano plot                 yes  yes  section
+                        selected point               yes  yes  section
+
+  * [u] each card folds to its heading where it stands in the column, its
+    verdict chip kept in the heading.
+  * [v] the results themselves are the figures panel's, above.
+
+WHAT IS NOT COLLAPSIBLE, AND WHY ("wherever possible")
+
+* FORMS AND TOOLBARS. A row of buttons, a picker row, a filter strip, a
+  settings form, a one-line status or hint: folding these hides the controls
+  that drive the figure beside them and frees a line of height. They keep
+  their old behaviour; where such a column shares an edge it is still a plain
+  pane, so it drags.
+* DIALOGS. Gate settings, crop settings, aggregation rules, the UMAP search
+  settings, the plaque overlay, the delete confirmation: a dialog is sized to
+  its content and nothing inside it takes the room a fold would free.
+* A CONTAINER'S ONLY CHILD. Where a screen's whole body is one tabbed panel
+  or one grid, the section folds but does not drag -- there is no sibling to
+  trade with -- and where that one child is already inside a titled card, the
+  card's own title is the fold (Measure's crop grid, the figure queue's
+  picture): a second heading over the same thing would be two controls for
+  one fold.
+* ONE FIGURE PER TAB. Regression's diagnostic tabs (Effect rank, p-values,
+  Q-Q, Controls, Residuals, Influence, Summary, ...) hold a single plot each.
+  The tab bar already hides them all but one, and folding a tab's only child
+  leaves an empty tab.
+* A GROWING LIST THAT MUST NOT BE CLIPPED. Experiment Design's findings folds
+  but stays out of its splitter, so a remembered size can never cut a list
+  that grew since it was stored.
+
+TESTS. One file per family, all offscreen and capped:
+  tests/qt/test_every_section_folds_to_the_bottom.py        (the mechanism)
+  tests/qt/test_471c_previews_sections_fold.py              (the previews)
+  tests/qt/test_471c_figures_sections_fold.py               (figures, results)
+  tests/qt/test_471c_screens_a_to_f_sections_fold.py        (16 screens)
+  tests/qt/test_471c_screens_g_to_p_sections_fold.py        (18 screens)
+  tests/qt/test_471c_screens_p_to_z_sections_fold.py        (16 screens)
+Each family asserts the same three things the maintainer asked for: every
+named figure/table folds by its heading, a folded heading is at the BOTTOM of
+its room (and folding a whole column stacks the headings there), and a size
+the user dragged comes back when the screen is rebuilt. Each family also
+pins the 284/380 rule: a hidden or deferred panel -- Mask's live preview,
+Regression's results, Annotate's console, the sweep's figure queue, Map
+Barcodes' search card -- is neither built nor shown by any of the folding.
+Existing tests updated where a splitter child is now a section or an EDGE
+pane: test_preview_source_selectors, test_annotation_umap_plot,
+test_umap_figure_container_drag, test_the_umap_divider_moves (by the new
+handle tooltip), test_gate_editing.
+Pre-existing failures on nightly, unchanged by this slice and confirmed on
+the commit before it: the four caption ratchets in
+tests/qt/test_i18n_caption_ratchet.py, the four docstring-inventory ratchets
+in tests/test_docstring_correctness.py, tests/test_api_i18n_extractor.py (2),
+tests/test_documentation_i18n.py (4), test_import_test_data_chooser (2, no
+pylibCZIrw here). The catalog and docstring lanes own those.
+
+SCREENSHOTS (offscreen, 1366x768, scratchpad c471shots/): Mask with the live
+preview open and then with its table, its pixel strip and its images folded
+(the three headings stacked at the bottom of the preview); Plaque in Figure
+mode and with its pictures folded; Regression's results beside its figure
+pages and then collapsed to the left; the results panel with the volcano
+folded; image UMAP with its sidebar open and collapsed; and, in a real
+window, Gate Editor, Tabulate, Model Compare, Power, Annotate and Database
+Browser, each open and with every section folded.
+
+NEW CAPTIONS for the catalog lane (not translated here). Every one is a
+section heading or a pane name; the Folder translates the name it is given,
+so they are English in the source. The two new tooltip lines are
+"Click to hide {name}." and "Click to show {name} again." (an EDGE pane that
+carries its own hint), beside slice B's two.
+
+  the previews and the figures: "Image sets", "Images", "Pixel info",
+    "Pictures", "Well", "Wells and plaques", "Preview settings", "Movie",
+    "Track quality", "Plot", "Summary", "Sidebar", "Chart", "Purity plot",
+    "Scores", "Report", "Results", "Figure list", "Figure", "Figure pages",
+    "Volcano plot", "Coefficient table", "Model", "Guide agreement",
+    "Guide support table", "Cells", "Caption", "Gene record",
+    "Known about this gene", "Gene".
+  screens A-F: "Annotation columns", "Pairwise agreement",
+    "Confusion matrix", "Disagreeing rows", "Crop preview", "Agreement",
+    "Review", "Tile layout", "Plan report", "Crops", "Console + AI",
+    "Job queue", "Validation problems", "Job log", "Evaluation results",
+    "Confusion table", "Error inspector", "Control chart",
+    "Rule violations", "Controls", "Conversion plan", "Image",
+    "Curation tools", "Project data", "Can be deleted", "Kept, and why",
+    "Tables", "Table preview", "Jobs", "Job details and log",
+    "Dose-response curves", "Fit results", "Conditions", "Plate map",
+    "Findings", "Feature ranking", "Distributions", "Filter and columns",
+    "Explorer", "Column mapping", "Import report", "Output".
+  screens G-P: "Graph", "Gate table", "Filter and search", "Console",
+    "Columns", "Filter", "Features", "Scree plot", "Scan", "Mask previews",
+    "Model A", "Model B", "Per-field comparison",
+    "Parameters that reached each model", "Reads", "Proposal", "Trials",
+    "Regression results", "Figures", "Sweep settings", "Search preview",
+    "Point cloud", "Crop", "Objects", "Unattached children", "Models",
+    "Benchmark", "Mask preview", "Draft", "Hits", "Proposed layout",
+    "Questions", "Files", "Folders", "The files".
+  screens P-Z: "Pipeline graph", "Details", "Edge-effect report",
+    "Power vs cells per well", "Power vs wells", "Power table", "Caveats",
+    "Inputs", "Curve", "Projects", "Project details", "Queue",
+    "Sections found in this folder:", "Comparison", "Runs", "Run details",
+    "Pivot", "Pivot fields", "Pivot table", "Curves", "Settings diff",
+    "Channels", "Trellis", "Selected point", plus each QC card's own title,
+    which was already a translated string.
+
+THE OPEN QUESTION FROM SLICE B IS STILL OPEN. The Live / 3D / Time / OPS / AI
+switches stay in the Run row inside the folded "Actions" strip. Slice C did
+not move them: where that switch lives is the maintainer's call.
+
+DONE WHEN, checked
+
+* "Every figure and table in every module can be collapsed" -- yes, with the
+  exceptions listed above (forms, toolbars, dialogs, and a tab that holds one
+  plot), each named in the inventory with its reason.
+* "A collapsed element sits at the bottom of its container, the console
+  included" -- yes: every section uses lock_folded_to_bottom, and the tests
+  measure the folded heading's position rather than trusting it.
+* The two shell lines (a preview or figures collapsing console/System/the
+  buttons/the settings, and each expandable again) were slice B's and still
+  hold, re-run here.
+* The GUI-scale line is slice A's.
+* The DRAG AN EDGE addendum: the shell's containers were slice B; inside the
+  screens, every section that shares an edge with another now drags, with the
+  fold as the limit of shrinking.
+So 471's DONE WHEN is met. What is left is not a missing fold but taste: a
+handful of one-figure tabs and forms that are deliberately not foldable, and
+slice B's open question about the Live switch.
