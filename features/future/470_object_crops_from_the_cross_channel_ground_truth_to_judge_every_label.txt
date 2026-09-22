@@ -202,3 +202,22 @@ not-real annotation -- 585k crops is more than anyone labels by hand, so the
 practical route is a sample per type and dataset, then a first classifier
 from it, then review of what it calls not real (the DONE WHEN already allows
 "or the chosen sample").
+
+2026-09-22 -- THE FIRST ANNOTATION ROUND IS READY TO OPEN
+--------------------------------------------------------------------------------
+
+tools/build_ground_truth_annotation_sample.py drew 1,000 crops per object
+type, every object of that type on all twelve plates with the same chance
+(seeded "470/<type>"; the plates come out in proportion to their object
+counts, e.g. PV: 36 to 138 per plate). Each sample is one Annotate source,
+nothing copied:
+
+    ground_truth_crops/annotation_sample/pathogen   1,000 of 37,753 PVs
+    ground_truth_crops/annotation_sample/cell       1,000 of 283,055 cells
+    ground_truth_crops/annotation_sample/nucleus    1,000 of 264,503 nuclei
+
+TO ANNOTATE: in Annotate, Open source... -> one of the three folders, and in
+Settings set the annotation column to `real` (1 = real, 2 = not real); the
+keys 1 and 2 label and advance. Verified offscreen: the PV sample opens on
+page 1 of 1,000 with the crops drawn. Rerunning the tool with a larger
+--per-type adds crops and keeps every judgement already made.
