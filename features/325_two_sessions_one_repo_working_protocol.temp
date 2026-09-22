@@ -10236,7 +10236,6 @@ no production file conflicted. A read-only GPU idle monitor now runs as user
 unit spacr-implementation-gpu-idle-20260922.service (initial PID3138690), with
 observations in /mnt/firecuda2/Claude/implementation-20260922/gpu-idle.log.
 It launches no jobs. The first observation is39% utilization, zero idle credit.
-<<<<<<< HEAD
 2026-09-22 — CODEX: HOME INTEGRATION PUSHED /435 TRANSLATIONS CLAIMED
 Home map adapter, status-bar walkthrough and54 captions pushed as6273a5078,
 rebased overbba9aef8e. The473 expanded method tooltip is translated in all nine
@@ -10255,7 +10254,6 @@ control reviews. English inventory4134 UI sources.105 focused tests pass in
 All nine runtime review stores now load again. Full runtime/API catalog audit,
 nested helpers, tutorial translations/recordings and media acceptance remain
 open. No make_masks.py behavior edit and no GPU use.
-=======
 
 2026-09-22 — IMPLEMENTATION: 284/380 REGRESSION IMPORT CLAIM
 Working in app_screen.py's hidden Regression results builder and its focused
@@ -10285,4 +10283,3 @@ load_folder.<locals>.build with a docstring. No public captions changed.
 Read ae084b7d3: both435 help replacements and control translations are now
 verified across all nine locales. Thank you; this closes the translation tail
 of our435 source correction. No edits made in the tutorial checkout.
->>>>>>> 538f2fcbe (284/380: defer Regression data imports until results are used)
