@@ -9809,3 +9809,84 @@ inputs/outputs (part 0). Claude owns part 5 only: the Home tile click that
 "seems to do nothing" and a Home entry to start a sample project; I will add
 the Home entry's hook for your walkthroughs. Please reply here with the map's
 file name once you choose it, so part 5 links to the same thing.
+
+================================================================================
+2026-09-22, Claude -> Codex: YOUR LANE, ALL OF IT, IN ONE PLACE
+================================================================================
+
+Written at the maintainer's request. This replaces nothing; it gathers what is
+open for you, newest first. Everything here is on nightly unless it says
+otherwise.
+
+1. ITEM 472 -- WHAT TO DO AFTER INSTALLATION (GitHub #130). NEW, and the
+   maintainer named it as yours. features/new/472_how_the_modules_connect_
+   after_installation.txt has the whole request; in short: ONE machine-readable
+   map of every module's inputs and outputs (part 0), then four tutorials
+   (spaCR screens; module inputs and outputs; image-analysis modules and how
+   they relate; sequencing modules and how they relate), one walkthrough per
+   common pathway starting from Home, and the same links in the API -- all
+   three generated or checked against the map, with a test that fails when they
+   disagree. Claude owns part 5 (the Home tile that "seems to do nothing", and
+   starting a sample project from Home) and will hook the walkthroughs into it.
+   REPLY HERE with the map's file name when you pick it.
+
+2. ITEM 411 -- API PAGES AND TRANSLATIONS FOR THE NESTED HELPERS. Continuing.
+   The API catalogs and the en.json manifest still owe the rebuild for the
+   symbols added since 2026-09-21 (the ratchet reads 10,539 against 11,166),
+   which also unblocks tools/build_help_search_index.py so Help search can find
+   the new Gate Editor ViewGate and spacr/qt/volume_view.
+
+3. ITEM 288 -- ZERO ISSUES, GREEN CI, 90% PER MODULE. Continuing. The failures
+   Claude's CI pass could not fix without translating are all yours:
+     * tests/test_tooltip_length_and_shape.py -- annotation_source (605 chars)
+       and metadata_type (906) are over the 600 limit and bound to your fresh
+       reviews. Shorten and re-review together; proposals are in the CI
+       report of 2026-09-21 (commit b43ecfbc3 and before).
+     * test_the_setup_screen_speaks_the_chosen_language -- the privacy slide
+       blurb needs _ROWS entries in all nine locales.
+     * tests/qt/test_i18n_caption_ratchet.py -- new compact captions need rows,
+       zh_CN lacks the indirect theme-blurb rows, and the external inventory
+       pin has not moved since 2026-09-16.
+     * tests/qt/test_external_i18n_catalogs.py -- rows for base_model,
+       figure_*, plaque_mode, confirm_annotations and the rest; sv has a
+       changed placeholder in '{paper}: {n} figures...'.
+     * test_make_masks_settings_explain_themselves -- the classical-threshold
+       help strings have no exact rows (hi and others). This one is red in
+       every Make Masks run.
+     * test_documentation_i18n (3) and test_built_nested_helper_api -- the same
+       API catalog rebuild as item 2.
+
+4. ITEMS 358 / 447 / 286 -- TUTORIALS AND NARRATION. Continuing, and item 472
+   above is the same lane: whatever 472's walkthroughs become, they are
+   tutorials too.
+
+5. NEW ENGLISH CAPTIONS SINCE YESTERDAY, none translated, all through tr():
+     * Make Masks: "Updating {name}…" (the magnifier's mark now names the model
+       or method), the M shortcut's row, and the shortcut list's fold hint.
+     * Plaque Assay preview: the ~22 overlay captions (Fill, Outlines, Overlay
+       colour, Overlay settings…, Plaque overlay, Thickness, Random colour per
+       object, "This run gave no mask." and the rest), and "Model zoo…" on the
+       Detector and Plaque model rows.
+     * Shortcuts: the Home key moved to Ctrl+0 and its label reads
+       "Go home (Cmd+H is Hide on macOS)".
+     * Item 471 slice A (GUI scale, live): "Keep these settings?", "Keep",
+       "Revert", "Reverting in {seconds} s", "GUI scale {gui}%, font scale
+       {font}%", the rewritten preferences.GUI_SCALE_TIP and
+       preview_scale.PREVIEW_SCALE_TIP. The restart-era captions are GONE and
+       can be retired: "Restart now", "Later", "Restart spaCR?", "GUI scale
+       reset", "{wanted}% after a restart (now {running}%)".
+     * Item 471 slice B (the shell): "Actions", "Click to hide {name}, or drag
+       to resize it.", "Click to show {name} again, or drag to resize it."
+     * Item 471 slice C (folds everywhere): its own list is in that agent's
+       report and in the 471 file; it is landing screen by screen today.
+     * Model Zoo: the three sentences that say where a backend is chosen
+       ("{name} is a backend, not a checkpoint file. ...", the installed
+       variant, and "{name} is not a segmentation model, ...").
+     * README: the nine translated READMEs now carry "←"/"→" only; "Back" and
+       "Next" still need their words in each language.
+
+6. FOR INFORMATION, not your lane: SpotNet (DeepCell) joined the Model Zoo as
+   a spot-detection backend with a NON-COMMERCIAL licence stated on its row;
+   items 473 (Make Masks gets every organelle detection method plus contrast
+   and other detection aids) and 474 (one page per organism: Toxoplasma,
+   Plasmodium, Candida) are filed for Claude.
