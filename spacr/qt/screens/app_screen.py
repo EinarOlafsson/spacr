@@ -6916,7 +6916,23 @@ class AppScreen(QWidget):
                     text="Live", tooltip=tooltip)
                 self._preview_switch.toggled.connect(
                     self._on_preview_switch)
-                row.addWidget(self._preview_switch)
+                # ON THE PREVIEW CARD, not in the Run row (the maintainer,
+                # 2026-09-22). A preview takes the whole height and folds the
+                # Actions section under it (item 471), which put the switch
+                # that turns the preview OFF behind the thing it controls.
+                # Beside Refresh and the preview's own scale slider, it is
+                # always where the preview is.
+                card = getattr(self, card_attr, None)
+                placed = False
+                if hasattr(card, "add_title_action"):
+                    try:
+                        card.add_title_action(self._preview_switch)
+                        placed = True
+                    except Exception:                    # noqa: BLE001
+                        LOG.debug("the preview card took no title action",
+                                  exc_info=True)
+                if not placed:
+                    row.addWidget(self._preview_switch)
                 if self.app_key == "mask":
                     self._lp_switch = self._preview_switch
                 self._on_preview_switch(False)

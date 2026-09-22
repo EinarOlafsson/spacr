@@ -48,14 +48,21 @@ def test_a_registry_mounted_preview_has_one_too(qtbot):
     assert len(_refresh_buttons(screen)) == 1
 
 
-def test_plaques_live_switch_sits_just_left_of_ai(qtbot):
+def test_plaques_live_switch_rides_on_the_preview_card(qtbot):
+    """It sat just left of AI in the Run row until 2026-09-22. A preview now
+    takes the whole height and folds that row under it (item 471), so the
+    switch that turns the preview off moved onto the card it controls,
+    beside Refresh."""
     screen = _screen(qtbot, "analyze_plaques")
     switch = screen._preview_switch
-    row = switch.parentWidget().layout()
-    texts = [row.itemAt(i).widget().text() for i in range(row.count())
-             if row.itemAt(i).widget() is not None
-             and hasattr(row.itemAt(i).widget(), "text")]
-    assert texts.index("Live") + 1 == texts.index("AI")
+    card = getattr(screen, screen._preview_card_attr)
+    parents, node = [], switch
+    while node is not None:
+        parents.append(node)
+        node = node.parent()
+    assert card in parents
+    assert switch.text().strip() == "Live"
+    assert _refresh_buttons(screen), "Refresh is on the same card"
 
 
 def test_plaque_is_not_mounted_a_second_time_by_the_registry(qtbot):
