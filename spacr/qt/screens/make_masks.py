@@ -7997,7 +7997,7 @@ class MakeMasksScreen(QWidget):
         try:
             out = engine.combine_masks(self._canvas.mask, detected, mode)
         except Exception as exc:
-            self._warn("Otsu detect failed", str(exc))
+            self._warn("Detect failed", str(exc))
             return
         changed = self._pixels_changed(out)
         self._canvas.mask = out
@@ -8331,8 +8331,8 @@ class MakeMasksScreen(QWidget):
         drives = QLabel(
             "The Live magnifier reads these settings too: Cellpose mode uses "
             "the model, both thresholds, the diameter and the normalization, "
-            "and DINOCell the cell probability. The Otsu mode reads the Otsu "
-            "category instead.")
+            "and DINOCell the cell probability. Choosing another method "
+            "above shows that method's settings here instead.")
         drives.setObjectName("CardSubtitle")
         drives.setWordWrap(True)
         card.body_layout.addWidget(drives)
@@ -9058,6 +9058,24 @@ class MakeMasksScreen(QWidget):
         if heavy:
             note = f"{note} {tr('Heavy: this mode {what}.', what=tr(heavy))}"
         self._method_note.setText(note)
+        self._sync_detect_button(mode)
+
+    def _sync_detect_button(self, mode: str) -> None:
+        """Name the whole-image CPU detect button after the chosen method.
+
+        The button runs the method, so it says the method. A model mode
+        leaves it reading "Otsu detect", because that is what it falls back
+        to and a button that claimed to run Cellpose while running Otsu
+        would be the disagreement this fold was meant to end.
+        """
+        from ..i18n import tr
+
+        button = getattr(self, "_btn_otsu", None)
+        if button is None:
+            return
+        named = ("otsu" if self._mode_family(mode) == "cellpose" else mode)
+        button.setText(tr("{method} detect",
+                          method=_magnifier_mode_label(named)))
 
     def _method_params(self) -> "organelle_modes.MethodParams":
         """The Detection methods card as the engine's parameters.
@@ -9453,6 +9471,7 @@ class MakeMasksScreen(QWidget):
         if multi and int(self._otsu_classes.value()) < 3:
             self._otsu_classes.setValue(3)
         self._otsu_local_k.setEnabled(window_family)
+        self._otsu_local.setEnabled(not window_family)
         self._otsu_local_k_label.setVisible(window_family)
         self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
