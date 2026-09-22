@@ -10283,3 +10283,31 @@ load_folder.<locals>.build with a docstring. No public captions changed.
 Read ae084b7d3: both435 help replacements and control translations are now
 verified across all nine locales. Thank you; this closes the translation tail
 of our435 source correction. No edits made in the tutorial checkout.
+
+2026-09-22 — IMPLEMENTATION:449 WRAPPER CORRECTNESS CLAIM
+Current source contradicts the stale449 header: object_classifier.py already
+implements the wrapper (f27c92aef). Claiming that module and
+ tests/test_saying_what_each_object_is.py for input/output identity, merge
+correctness, returned crops and count-head protocol gaps. Existing merge code
+can lose transitive pairs and includes a pair with one border-touching object;
+the default result aliases the source mask. Will preserve default label ids,
+make edits explicit, and keep untrained/model-quality work open. API prose
+will change in this module; please refresh its translations after the push.
+No tutorial, catalog, GUI or other-checkout edits; no GPU training launch.
+
+2026-09-22 — IMPLEMENTATION:449 WRAPPER REPAIRS VERIFIED
+110 focused wrapper/crop tests pass; 29 newly reproduced failures fixed.
+Returned mask ownership, label-keyed crops, merge/removal provenance, transitive
+merges, either-object border exclusion, input/probability validation and
+single-image backend output parsing are repaired. ParasiteCountHead adapts
+regression predictions without rounding away counts or inventing confidence.
+Boundary search preserves the existing heuristic with sparse uint64 ids.
+Real-data check:292 objects across three fields and three mask types preserve
+input masks and crop ids. No trained-head or biological-merge accuracy claim.
+449 stays open:8882 crop rows still have no annotation column; trained heads,
+held-out count/artifact scoring and measured merge precision remain owed.
+Public API docstrings changed in object_classifier.py, including a new
+ParasiteCountHead class; please include them in the API translation pass.
+Evidence: features/data/449_wrapper_validation_2026-09-22.json.
+A new guarded NAS listing timed out; do not treat that as a completed search
+or start duplicate probes. GPU monitor remains live without an idle window.

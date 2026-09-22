@@ -227,3 +227,206 @@ def test_the_same_field_gives_the_same_answer_both_ways_in():
     direct = oc.classify_objects(image, mask)
     assert through["objects"] == direct["objects"]
     assert backend.calls[0][1]["diameter"] == 30
+
+
+def test_result_mask_is_owned_even_without_requested_edits():
+    mask = _two_cells()
+    result = oc.classify_objects(np.zeros(mask.shape), mask)
+    result['mask'][:] = 0
+    assert set(np.unique(mask)) == {0, 1, 7}
+
+
+def test_a_pair_with_either_half_on_the_border_is_not_merged():
+    mask = np.zeros((40, 40), dtype=np.uint16)
+    mask[10:30, :10] = 5
+    mask[10:30, 10:20] = 6
+    assert oc.split_candidates(mask) == [(5, 6)]
+    result = oc.classify_objects(np.zeros(mask.shape), mask, merge_split=True)
+    assert result['merged'] == []
+    np.testing.assert_array_equal(result['mask'], mask)
+
+
+def test_overlapping_merge_pairs_are_transitive_and_order_independent():
+    from itertools import permutations
+
+    mask = np.array([[0, 1, 5, 9, 20]], dtype=np.uint64)
+    for pairs in permutations([(5, 9), (1, 9), (9, 5)]):
+        np.testing.assert_array_equal(
+            oc.merge_halves(mask, pairs), [[0, 1, 1, 1, 20]])
+    np.testing.assert_array_equal(mask, [[0, 1, 5, 9, 20]])
+
+
+@pytest.mark.parametrize('pair', [(0, 1), (1, 999), (1.5, 7)])
+def test_merges_refuse_background_absent_or_fractional_labels(pair):
+    with pytest.raises(ValueError, match='label'):
+        oc.merge_halves(_two_cells(), [pair])
+
+
+@pytest.mark.parametrize('mask', [np.zeros((40, 40), dtype=float),
+                                 np.full((40, 40), -1),
+                                 np.zeros((1, 40, 40), dtype=int)])
+def test_mask_validation_precedes_head_inference(mask):
+    head = _Head([])
+    with pytest.raises(ValueError, match='mask'):
+        oc.classify_objects(np.zeros((40, 40)), mask, head=head)
+    assert not head.seen
+
+
+@pytest.mark.parametrize('options', [{'channels': []}, {'channels': [-1]},
+                                    {'channels': [2]}, {'channels': [0.5]},
+                                    {'size': 0}, {'padding': -1}])
+def test_invalid_crop_options_fail_even_on_an_empty_field(options):
+    with pytest.raises(ValueError):
+        oc.classify_objects(np.zeros((40, 40, 2)),
+                            np.zeros((40, 40), dtype=int), **options)
+
+
+def test_image_and_mask_must_describe_the_same_field():
+    with pytest.raises(ValueError, match='shape'):
+        oc.classify_objects(np.zeros((20, 20)), _two_cells())
+
+
+def test_returned_crops_keep_label_and_channel_identity_after_removal():
+    mask = _two_cells()
+    image = np.stack([np.full(mask.shape, 11), np.full(mask.shape, 29)], -1)
+    result = oc.classify_objects(image, mask, channels=[1], size=8,
+                                 head=_Head([('cell', .9), ('artifact', .99)]),
+                                 remove_artifacts=True)
+    assert list(result['crops']) == [1, 7]
+    assert result['removed_count'] == 1
+    assert result['label_map'] == {1: 1, 7: 0}
+    assert all(c.shape == (8, 8, 1) for c in result['crops'].values())
+    assert all(np.all(c == 29) for c in result['crops'].values())
+    assert [row['label'] for row in result['objects']] == [1, 7]
+
+
+def test_merge_provenance_maps_each_input_label_to_its_survivor():
+    result = oc.classify_objects(np.zeros((40, 40)), _one_object_cut_in_two(),
+                                 merge_split=True)
+    assert result['label_map'] == {3: 3, 4: 3}
+    assert list(result['crops']) == [3]
+
+
+def test_artifact_removal_requires_a_head():
+    with pytest.raises(ValueError, match='head'):
+        oc.classify_objects(np.zeros((40, 40)), _two_cells(),
+                            remove_artifacts=True)
+
+
+@pytest.mark.parametrize('probability', [-.1, 1.1, np.nan, np.inf])
+def test_invalid_probabilities_cannot_delete_objects(probability):
+    mask = _two_cells()
+    with pytest.raises(ValueError, match='probability'):
+        oc.classify_objects(np.zeros(mask.shape), mask,
+                            head=_Head([('artifact', probability)] * 2),
+                            remove_artifacts=True)
+    assert set(np.unique(mask)) == {0, 1, 7}
+
+
+def test_count_head_preserves_fractional_predictions_and_channel_choice():
+    class Regressor:
+        def predict(self, crops):
+            assert all(np.all(crop == 29) for crop in crops)
+            return np.array([[3.75], [16.2]])
+
+    mask = _two_cells()
+    image = np.stack([np.full(mask.shape, 11), np.full(mask.shape, 29)], -1)
+    result = oc.classify_objects(image, mask, channels=[1], size=8,
+                                 head=oc.ParasiteCountHead(Regressor()))
+    assert [r['count'] for r in result['objects']] == [3.75, 16.2]
+    assert [r['class'] for r in result['objects']] == ['4', '>16']
+    assert all(r['probability'] is None for r in result['objects'])
+
+
+@pytest.mark.parametrize('count', [-1, np.nan, np.inf])
+def test_invalid_regression_counts_are_rejected(count):
+    with pytest.raises(ValueError, match='count'):
+        oc.bin_parasite_count(count)
+
+
+@pytest.mark.parametrize('form', ['list', 'stack', 'single'])
+def test_backend_mask_formats_give_identical_predictions(form):
+    mask = _two_cells()
+    class Backend:
+        def eval(self, **kwargs):
+            masks = {'list': [mask], 'stack': mask[None], 'single': mask}[form]
+            return masks, None, None
+    options = dict(head=_Head([('cell', .9), ('artifact', .8)]), size=8)
+    direct = oc.classify_objects(np.zeros(mask.shape), mask, **options)
+    through = oc.segment_and_classify(Backend(), np.zeros(mask.shape), **options)
+    assert through['objects'] == direct['objects']
+    np.testing.assert_array_equal(through['mask'], direct['mask'])
+
+
+def test_backend_cannot_silently_return_multiple_fields():
+    class Backend:
+        def eval(self, **kwargs):
+            return [_two_cells(), _two_cells()], None, None
+    with pytest.raises(ValueError, match='one mask'):
+        oc.segment_and_classify(Backend(), np.zeros((40, 40)))
+
+
+@pytest.mark.parametrize('share', [0, .25, .5, 1])
+def test_boundary_search_matches_the_pairwise_rule(share):
+    from itertools import combinations
+
+    rng = np.random.default_rng(449)
+    for _ in range(10):
+        mask = rng.choice(np.array([0, 1, 5, 2**63 + 9], dtype=np.uint64),
+                          size=(15, 12))
+        expected = []
+        for first, second in combinations([1, 5, 2**63 + 9], 2):
+            shared = oc._shared_border(mask, first, second)
+            perimeter = min(oc._perimeter_pixels(mask, first),
+                            oc._perimeter_pixels(mask, second))
+            if shared and shared / perimeter >= share:
+                expected.append((first, second))
+        assert oc.split_candidates(mask, share) == expected
+
+
+@pytest.mark.parametrize('share', [-1, 1.1, np.nan])
+def test_invalid_split_threshold_is_rejected(share):
+    with pytest.raises(ValueError, match='share'):
+        oc.split_candidates(_two_cells(), share)
+
+
+def test_empty_field_returns_empty_outputs_without_calling_the_head():
+    head = _Head([])
+    result = oc.classify_objects(np.zeros((10, 10)),
+                                 np.zeros((10, 10), dtype=np.uint16), head=head)
+    assert not head.seen
+    assert result['objects'] == [] and result['crops'] == {}
+    assert result['label_map'] == {} and result['removed_count'] == 0
+
+
+def test_removing_a_merged_artifact_records_both_original_ids():
+    mask = _one_object_cut_in_two()
+    result = oc.classify_objects(np.zeros(mask.shape), mask, merge_split=True,
+                                 remove_artifacts=True,
+                                 head=_Head([('artifact', .99)]))
+    assert result['label_map'] == {3: 0, 4: 0}
+    assert result['removed'] == [3] and result['removed_count'] == 1
+    assert result['objects'][0]['area'] == 400
+    assert set(result['crops']) == {3}
+    assert not result['mask'].any()
+    assert set(np.unique(mask)) == {0, 3, 4}
+
+
+def test_sparse_large_ids_survive_crops_predictions_and_provenance():
+    mask = _two_cells().astype(np.uint64)
+    mask[mask == 7] = 2**63 + 9
+    result = oc.classify_objects(np.zeros(mask.shape), mask,
+                                 head=_Head([('cell', 1), ('nucleus', 1)]))
+    assert list(result['crops']) == [1, 2**63 + 9]
+    assert result['label_map'] == {1: 1, 2**63 + 9: 2**63 + 9}
+    assert result['mask'].dtype == np.uint64
+
+
+@pytest.mark.parametrize('answers', [[1], [[1, 2], [3, 4]], [np.nan, 2], [-1, 2]])
+def test_count_head_rejects_bad_predictions(answers):
+    class Regressor:
+        def predict(self, crops):
+            return answers
+    with pytest.raises(ValueError, match='count'):
+        oc.classify_objects(np.zeros((40, 40)), _two_cells(),
+                            head=oc.ParasiteCountHead(Regressor()))

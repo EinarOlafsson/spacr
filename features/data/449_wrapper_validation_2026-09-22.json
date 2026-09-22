@@ -1,0 +1,110 @@
+{
+  "date": "2026-09-22",
+  "real_fields": [
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A02_2.npy",
+      "object": "cell",
+      "objects": 50,
+      "seconds": 0.584164226995199,
+      "split_pairs": 8,
+      "border_objects": 20,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A02_2.npy",
+      "object": "nucleus",
+      "objects": 58,
+      "seconds": 0.49688892300764564,
+      "split_pairs": 8,
+      "border_objects": 8,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A02_2.npy",
+      "object": "pv",
+      "objects": 48,
+      "seconds": 0.4303031620074762,
+      "split_pairs": 1,
+      "border_objects": 4,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A02_9.npy",
+      "object": "cell",
+      "objects": 27,
+      "seconds": 0.37441280200437177,
+      "split_pairs": 1,
+      "border_objects": 12,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A02_9.npy",
+      "object": "nucleus",
+      "objects": 37,
+      "seconds": 0.35374233800393995,
+      "split_pairs": 5,
+      "border_objects": 4,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A02_9.npy",
+      "object": "pv",
+      "objects": 17,
+      "seconds": 0.22192290499515366,
+      "split_pairs": 0,
+      "border_objects": 1,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A03_11.npy",
+      "object": "cell",
+      "objects": 28,
+      "seconds": 0.3871346960077062,
+      "split_pairs": 0,
+      "border_objects": 13,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A03_11.npy",
+      "object": "nucleus",
+      "objects": 26,
+      "seconds": 0.275192834000336,
+      "split_pairs": 0,
+      "border_objects": 6,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    },
+    {
+      "file": "/mnt/wd4tb/spacr_pv_counts/MTOCScreen-plate1/merged/MTOCScreen-plate1_A03_11.npy",
+      "object": "pv",
+      "objects": 1,
+      "seconds": 0.10542985200299881,
+      "split_pairs": 0,
+      "border_objects": 0,
+      "mask_unchanged": true,
+      "crop_label_alignment": true
+    }
+  ],
+  "synthetic_boundary_search": {
+    "shape": [
+      256,
+      256
+    ],
+    "objects": 100,
+    "old_seconds": 0.2726609660021495,
+    "new_seconds": 0.0005013649933971465,
+    "same_pairs": true
+  },
+  "limits": [
+    "No trained head or biological precision assessed.",
+    "MTOCScreen png_list has 8882 crops and no annotation column as of this probe.",
+    "Count adapter tests use a deterministic stand-in regressor; no model weights are supplied."
+  ]
+}

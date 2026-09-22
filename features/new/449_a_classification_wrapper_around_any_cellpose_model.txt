@@ -3,9 +3,12 @@ A CLASSIFICATION WRAPPER AROUND ANY CELLPOSE-SAM MODEL: PARASITES PER VACUOLE,
 AND WHAT EACH OBJECT ACTUALLY IS
 ================================================================================
 
-Status:    OPEN, filed 2026-09-20. Not started. Four questions below need the
-           maintainer before the classifier can be trained; the wrapper
-           itself does not wait on them.
+Status:    OPEN on trained heads and biological validation. The wrapper
+           landed in f27c92aef; input/output, merge and count-adapter repairs
+           were validated 2026-09-22 (see the final note). Design questions
+           were answered below. The 8,882-crop set still has no annotation
+           column; parasite-stain training data and measured merge precision
+           remain missing. Filed 2026-09-20.
 
 Requested: 2026-09-20 -- "it would be cool to have a cellpose model that
            detects toxo then detects how many nuclei are in each PV. so this
@@ -486,3 +489,52 @@ into the classes. Then the Hoechst head and the CellMask head can be
 trained from the same annotated set, each on its own channel of the same
 crops, which is the design he asked for. The parasite-stain head still has
 no data anywhere reachable.
+
+--------------------------------------------------------------------------------
+2026-09-22 — WRAPPER AUDITED AND REPAIRED; TRAINED HEADS STILL OPEN
+--------------------------------------------------------------------------------
+The old header was stale: f27c92aef already supplied object_classifier.py and
+its seam tests. The takeover's initial priority list also missed that module.
+The header now describes the remaining work rather than saying not started.
+
+Reproduced 29 failures before the repairs. The default output now owns a copy
+of the mask; input label ids and dtype survive. Every object has a returned,
+label-keyed crop, including objects later removed, and label_map records each
+original id's survivor (or zero). Artifact removal reports removed_count and
+requires a head. Input dimensions, labels and crop settings are checked even
+for empty masks; probabilities must be finite and in [0,1]. One-image backend
+results work as a list, a 2-D mask or a singleton stack; extra masks are refused
+instead of silently discarded.
+
+Merging now computes transitive groups independently of pair order, always
+keeping the lowest existing id. Either border-touching object excludes a pair
+from automatic merging (the old code excluded only pairs with BOTH at the
+border). Background, absent ids and fractional ids are refused by merge_halves.
+The shared-boundary rule is explicitly a heuristic, not a biological verdict.
+Its all-pairs/full-image search is now a boundary search with the SAME rule:
+randomized comparisons, including uint64 ids above 2**63, match the reference.
+On 100 separated objects in a 256x256 field, 273 ms became 0.50 ms; this is a
+synthetic scaling check, not a biological accuracy result.
+
+ParasiteCountHead adapts a supplied regressor to the common head interface.
+Raw fractional counts remain in the rows; display binning no longer truncates
+them first (3.75 -> display4;16.2 -> display>16). No class probability is
+invented for a regressor. The caller selects the trained head and channels,
+so separate Hoechst/CellMask/parasite-stain models can share annotation labels.
+This adds NO trained weights and claims NO count accuracy.
+
+VALIDATION: 110 focused object-wrapper/crop-source tests passed. Eight count
+checks passed again after the final prediction-code cleanup. Three real local
+MTOCScreen fields, all three object masks (292 objects), preserved masks and
+label/crop identity. Those nine geometry/cropping runs took 0.11–0.58 s each;
+no trained inference, artifact precision or merge correctness was assessed.
+Evidence: features/data/449_wrapper_validation_2026-09-22.json.
+
+STILL OPEN: train the object classifier and per-stain count regressors, report
+held-out accuracy per count bin and artifact precision separately, and measure
+merge precision against independently labelled examples. The current
+/mnt/wd4tb/spacr_pv_crops/MTOCScreen/measurements/measurements.db still contains
+8,882 png_list rows and NO annotation column. Parasite-stain source data remains
+unlocated: a fresh guarded NAS directory listing did not answer in10seconds;
+that is an availability failure, not evidence that the data is absent. No GPU
+training started; the live idle monitor has accumulated no qualifying window.
