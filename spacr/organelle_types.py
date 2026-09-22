@@ -272,6 +272,52 @@ LEGAL_METHODS: Dict[str, Tuple[str, ...]] = {
     "ring": ("otsu", "adaptive", "dog", "log", "cellpose"),
 }
 
+#: What each morphology LOOKS LIKE, in the words a curator choosing a
+#: detector needs rather than in the words a pipeline setting needs. The
+#: module docstring's four-line table, written out so
+#: :func:`method_guidance` can put it in front of somebody who is picking a
+#: method and has never read ``organelle_morphology``.
+MORPHOLOGY_APPEARANCE: Dict[str, str] = {
+    "spots": "small round spots and puncta",
+    "network": "filaments, tubules and networks",
+    "irregular": "solid blobby objects",
+    "ring": "hollow rings with a dark middle",
+}
+
+
+def morphologies_for_method(method: str) -> Tuple[str, ...]:
+    """The shapes ``method`` is a legal detector for.
+
+    Read out of :data:`LEGAL_METHODS`, so this answer and the validator's
+    cannot come apart.
+
+    :param method: an ``organelle_method`` value.
+    :returns: the morphology names, in :data:`LEGAL_METHODS` order; empty
+        for a method no morphology allows.
+    """
+    name = str(method or "").strip().lower()
+    return tuple(morphology for morphology, methods in LEGAL_METHODS.items()
+                 if name in methods)
+
+
+def method_guidance(method: str) -> str:
+    """What ``method`` suits, as one sentence a picker can show.
+
+    :param method: an ``organelle_method`` value.
+    :returns: an English sentence naming the shapes the method is legal
+        for, or a sentence saying it belongs to no morphology. Not
+        translated: a caller showing it passes it through ``tr``.
+    """
+    shapes = [MORPHOLOGY_APPEARANCE[m] for m in morphologies_for_method(method)
+              if m in MORPHOLOGY_APPEARANCE]
+    if not shapes:
+        return f"No organelle morphology lists {method} as a detector."
+    if len(shapes) == 1:
+        listed = shapes[0]
+    else:
+        listed = f"{', '.join(shapes[:-1])} and {shapes[-1]}"
+    return f"Suits {listed}."
+
 
 def known_types() -> Tuple[str, ...]:
     """Every `organelle_type`, in the order the picker shows them."""
