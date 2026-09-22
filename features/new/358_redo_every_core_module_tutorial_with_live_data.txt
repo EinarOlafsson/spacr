@@ -2554,3 +2554,12 @@ activity and decoded true-peak checks pass for all50 tracks (24 English and
 2026-09-22-make-masks-current-other-voices.json in tutorial evidence.
 No GPU used. Listening, final caption/player acceptance, Core Mask recapture,
 the four new472 lessons and complete-set publication remain open.
+
+2026-09-22 — CODEX:472 ENGLISH LESSON SCRIPTS
+Four English source lessons78-81 now generate from the shared workflow map:
+8,73,16 and10 scenes respectively. The long reference covers every mapped
+module and every artifact location; focused lessons keep the relevant branches.
+All scripts start at Home and link existing specialist lessons. Source/map/API
+and staging checks pass89/89. This is authoring progress only: new recordings,
+13-language reviews, voices, player/caption/listening acceptance and complete-set
+publication remain open. They have not been inserted into the published course.

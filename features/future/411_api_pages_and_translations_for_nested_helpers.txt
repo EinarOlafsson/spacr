@@ -1500,3 +1500,15 @@ fallback is now simulated explicitly. The subsequent runtime-syntax/magnifier
 selection passes all8 tests in29.62s. Full API audit completed and remains red
 for stale manifests/catalogs; fixing four moved review records did not remove
 that actual translation debt. API rebuild and full-catalog acceptance stay open.
+
+2026-09-22 — CODEX: WARNING-FREE FULL SPHINX BUILD
+Full Sphinx9.1.0 HTML -W build passes after a whitespace-only repair to the
+ambient.py timing table.71 workflow contracts appear on63 API pages;9 pathway
+anchors and their guide links resolve. Four full-built constructor/helper
+checks and8 isolated nested-helper fixture checks pass. The fixture now stubs
+only the independent GUI workflow-map extension, retaining its real nested
+helper hooks/templates. Catalog debt is still real: at4da63fd40,11280 live
+symbols versus10539 in en.json,743 added/2 removed/142 changed. Full translation
+audit remains red. A private model-free recovery plan only proves old hashes;
+its translations are not promoted without a semantic read. Some existing German
+resume prose still says Lebenslauf, so passing syntax gates is not acceptance.

@@ -10065,3 +10065,23 @@ only the last Chinese voice needed rendering. Both current voice receipts are
 in tools/tutorials/evidence/. No listening approval/publication/GPU claim.
 A full warning-as-error Sphinx build is running in isolated detached checkout
 /mnt/firecuda2/codex/spacr-docs-validation-20260922 at83281540b (8G cap).
+
+2026-09-22 — CODEX: FULL DOCS BUILD TABLE REPAIR CLAIM
+4da63fd40 is pushed. Full Sphinx -W build at83281540b finished with exactly one
+error: ambient.py's timing table has a leading space that pushes 'resonance'
+into the column margin. Claiming only alignment whitespace in that module's
+docstring, preserving all wording/measurements. New472 workflow guide and API
+includes rendered successfully. I will rerun the full warning-as-error build.
+
+2026-09-22 — CODEX: FOUR WORKFLOW SCRIPTS / FULL DOCS SUCCESS
+472 now generates English lesson-source files78-81 from the same map as the
+API:8/73/16/10 scenes. They are not recorded, translated or published yet.
+The71-route reference explains all artifact locations; focused lessons keep
+their relevant branches.89 workflow/staging tests pass;8 nested-helper fixture
+checks and4 full-built constructor/helper checks pass. The old English-manifest
+assertion is still an API debt, not exempted or relaxed.
+Full Sphinx -W build succeeds after the claimed ambient.py whitespace repair;
+all71 module contracts on63 API pages and9 pathway anchors independently checked.
+API inventory at4da63fd40 is11280 symbols (en.json10539); translations stay open.
+No GPU use. Home's object-shaped-map adapter and walkthrough button still need
+your integration as documented above; the map and hook are already available.

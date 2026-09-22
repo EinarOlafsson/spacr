@@ -66,6 +66,9 @@ def validate(data, root=ROOT, *, live=True):
         if set(route.get("alternatives", [])) - modules.keys():
             raise ValueError(f"{key}: unknown alternative")
     for key, lesson in data["tutorials"].items():
+        for field in ("description", "introduction", "conclusion"):
+            if not str(lesson.get(field, "")).strip():
+                raise ValueError(f"{key}: missing tutorial {field}")
         if set(lesson["modules"]) - modules.keys():
             raise ValueError(f"{key}: unknown module")
         if set(lesson["pathways"]) - data["pathways"].keys():
@@ -164,6 +167,66 @@ def module_rst(data, key):
     return "".join(parts)
 
 
+def lesson_document(data, key):
+    """Write narration from the same artifacts and handoffs used by the API."""
+    tutorial = data["tutorials"][key]
+    number, slug = key.split("_", 1)
+    scenes = [{"visual": "home", "narration": tutorial["introduction"],
+               "hold_after": 0.7, "related_lessons": ["05_home"]}]
+    detailed = key == "79_module_inputs_outputs"
+    included = set(tutorial["modules"])
+    introduced_artifacts = set()
+    for module_key in tutorial["modules"]:
+        module = data["modules"][module_key]
+        parent = module["parent"]
+        if parent:
+            opening = f"Open {data['modules'][parent]['name']} from Home, then choose {module['name']}."
+        elif module["home"]:
+            opening = f"Open {module['name']} from Home."
+        else:
+            opening = f"Find {module['name']} in the application's Help or tools menus."
+        parts = [opening, module["guidance"]]
+        for field, title in (("inputs", "Input data"), ("outputs", "Output data")):
+            parts.append(title + ": " + "; ".join(
+                data["artifacts"][artifact]["title"] for artifact in module[field]) + ".")
+            if detailed:
+                for artifact in module[field]:
+                    if artifact in introduced_artifacts:
+                        continue
+                    introduced_artifacts.add(artifact)
+                    item = data["artifacts"][artifact]
+                    parts.append(item["title"] + ": " + item["location"])
+                    if item["tables"]:
+                        parts.append("Relevant tables depend on the selected route: " + ", ".join(item["tables"]) + ".")
+                    if item["columns"]:
+                        parts.append("Relevant columns depend on the selected route: " + ", ".join(item["columns"]) + ".")
+        links = {module["lesson"]} if module.get("lesson") else set()
+        for edge in data["connections"]:
+            if module_key not in (edge["from"], edge["to"]):
+                continue
+            if not detailed and not (
+                {edge["from"], edge["to"]} <= included or edge["to"] == "regression"
+            ):
+                continue
+            producer = data["modules"][edge["from"]]
+            consumer = data["modules"][edge["to"]]
+            parts.append(f"{producer['name']} to {consumer['name']}: {edge['handoff']}")
+            links.update(row["lesson"] for row in (producer, consumer) if row.get("lesson"))
+        scenes.append({"visual": "module_" + module_key,
+                       "narration": " ".join(parts), "hold_after": 0.7,
+                       "related_lessons": sorted(links)})
+    scenes.append({"visual": "home_summary", "narration": tutorial["conclusion"],
+                   "hold_after": 0.7})
+    return {"id": key, "number": int(number), "slug": slug,
+            "title": tutorial["title"], "series": 1, "app_key": None,
+            "section": "Workflows", "description": tutorial["description"],
+            "objectives": ["Choose a starting module from the data you already have.",
+                           "Identify what each module reads and writes.",
+                           "Follow the linked module lessons and API contracts for the next step."],
+            "prerequisite": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+            "scenes": scenes}
+
+
 def outputs(data):
     """Return deterministic documentation and tutorial handoff artifacts."""
     intro = (_heading("Choose a workflow after installation", "=")
@@ -204,6 +267,8 @@ def outputs(data):
                        connections=[e for e in data["connections"]
                                     if e["from"] in lesson["modules"] and e["to"] in lesson["modules"]])
         result[Path(f"tools/tutorials/workflows/{key}.json")] = json.dumps(payload, ensure_ascii=False, indent=2) + "\n"
+        result[Path(f"tools/tutorials/lessons/{key}.json")] = json.dumps(
+            lesson_document(data, key), ensure_ascii=False, indent=2) + "\n"
     return result
 
 

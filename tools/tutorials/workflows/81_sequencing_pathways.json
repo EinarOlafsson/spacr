@@ -1,5 +1,8 @@
 {
   "title": "Sequencing modules and how they relate",
+  "description": "Connect sequencing and optical barcode workflows to phenotype scores, regression, experiment planning, power estimates, dose-response analysis and run comparison.",
+  "introduction": "Start on Home with the question and the type of barcode data. Map Barcodes reads sequencing files; optical pooled screening reads registered image cycles through OPS. Both need an explicit mapping from barcode identities to the experiment. Regression relates compatible perturbation counts and phenotype scores; it does not replace barcode decoding. Experiment Design and Power belong before acquisition when you are planning the screen, while Dose-Response and Run Compare inspect suitable results afterwards.",
+  "conclusion": "Keep sequencing references and plate layouts with the counts, and check the join to image-derived scores before interpreting a regression. Optical assignments require their own object join and aggregation; they are not automatically a drop-in sequencing count file. Treat planning assumptions, fitted effects and comparisons between completed runs as distinct results. The linked lessons and Home walkthroughs show the route for each kind of experiment.",
   "pathways": [
     "pooled_screen",
     "optical_screen",

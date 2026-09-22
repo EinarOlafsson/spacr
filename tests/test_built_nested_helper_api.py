@@ -120,6 +120,13 @@ def test_empty_rollout_does_not_scan_or_touch_any_catalog(monkeypatch):
 def test_sphinx_and_extractor_import_the_same_switch(monkeypatch, fixture_source):
     pytest.importorskip("jinja2")
     from jinja2 import Environment
+    import build_module_workflows
+
+    def fixture_workflows(env, root):
+        assert root == fixture_source
+        env.globals["spacr_workflow_includes"] = {}
+
+    monkeypatch.setattr(build_module_workflows, "prepare_jinja", fixture_workflows)
 
     tree = ast.parse((ROOT / "docs/source/conf.py").read_text())
     hook = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
@@ -166,6 +173,10 @@ def _build_site(fixture_source, enabled, label, *, inventory_root=None):
     (source / "conf.py").write_text(
         f"import sys\nfrom pathlib import Path\nsys.path.insert(0, {str(ROOT / 'tools')!r})\n"
         "import nested_helper_docs as _nested_helper_docs\n"
+        # This synthetic package models nested functions, not GUI routes.
+        # The real workflow hook has its own source/map/build tests.
+        "import build_module_workflows\n"
+        "build_module_workflows.prepare_jinja = lambda env, root: env.globals.update(spacr_workflow_includes={})\n"
         f"_nested_helper_docs.ENABLED_MODULES = frozenset({sorted(enabled)!r})\n"
         "spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))\n"
         f"_SOURCE_ROOT = Path({str(inventory_root or fixture_source)!r})\n"

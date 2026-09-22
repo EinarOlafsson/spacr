@@ -186,3 +186,23 @@ A real Sphinx HTML build of the guide and all generated API include fragments
 passes with warnings treated as errors. Real 1280x900 Home and Experiment
 Design pathway cards were inspected; the first-run overlay no longer covers
 the requested guide. No full application/API-docs build is claimed.
+
+2026-09-22 — CODEX: FOUR ENGLISH LESSON SOURCES AND FULL DOCS BUILD
+The workflow map now generates real English lesson-source JSON for78-81, not
+only authoring contracts:8 pooled-screen scenes,73 module-reference scenes,
+16 image-analysis scenes and10 sequencing scenes. All start from Home. The
+reference covers all71 mapped routes and explains each shared artifact's
+storage/tables/columns on first use; the shorter lessons keep their relevant
+branches. These are scripts awaiting recordings and all13 translated reviews,
+not published tutorials. No module tutorial identity was replaced.
+Tests tie rendered narration to map changes, preserve both regression inputs,
+check classifier alternatives and prove all artifact locations are explained.
+89 workflow/staging tests pass in5.96s; the prior pathway selection had29 passes.
+A full Sphinx9.1.0 build under8G at83281540b found one ambient.py timing-table
+alignment error; removing the leading margin space fixed it without changing
+words or numbers. The repeated full -W build succeeds. Independent HTML checks
+find all71 module contracts on63 API pages, all9 pathway anchors and resolving
+guide links. Four built-site constructor/helper checks pass;8 nested-helper
+fixture checks pass with the independent GUI-map hook explicitly isolated.
+The existing stale-English-manifest assertion remains a separate open API debt.
+Receipt:features/data/472_full_docs_build_2026-09-22.json.

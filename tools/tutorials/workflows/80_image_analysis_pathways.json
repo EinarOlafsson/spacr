@@ -1,5 +1,8 @@
 {
   "title": "Image analysis modules and how they relate",
+  "description": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+  "introduction": "Begin on Home by deciding whether you have raw images, existing masks or measured objects. Mask creates segmentation outputs; Make Masks curates individual fields; Measure turns compatible images and labels into object measurements and optional crops. From there, the scientific question determines whether to classify, explore a projection, define a gate or run an assay. Align tiled images before the analysis that needs a common coordinate system. The routes here are alternatives and branches, not a requirement to run every module.",
+  "conclusion": "For high-content analysis, follow Mask into Measure and then choose the method that answers your question. For segmentation training, curate image-mask pairs in Make Masks before Train Cellpose and test the saved model in Mask. Existing compatible masks or measurements let you enter later. Preserve channel identities, units, object keys and the settings used to create each result; follow the dedicated walkthrough for the route you choose.",
   "pathways": [
     "high_content",
     "segmentation_training",

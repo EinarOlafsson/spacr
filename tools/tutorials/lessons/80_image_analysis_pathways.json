@@ -1,0 +1,176 @@
+{
+  "id": "80_image_analysis_pathways",
+  "number": 80,
+  "slug": "image_analysis_pathways",
+  "title": "Image analysis modules and how they relate",
+  "series": 1,
+  "app_key": null,
+  "section": "Workflows",
+  "description": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+  "objectives": [
+    "Choose a starting module from the data you already have.",
+    "Identify what each module reads and writes.",
+    "Follow the linked module lessons and API contracts for the next step."
+  ],
+  "prerequisite": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+  "scenes": [
+    {
+      "visual": "home",
+      "narration": "Begin on Home by deciding whether you have raw images, existing masks or measured objects. Mask creates segmentation outputs; Make Masks curates individual fields; Measure turns compatible images and labels into object measurements and optional crops. From there, the scientific question determines whether to classify, explore a projection, define a gate or run an assay. Align tiled images before the analysis that needs a common coordinate system. The routes here are alternatives and branches, not a requirement to run every module.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "05_home"
+      ]
+    },
+    {
+      "visual": "module_mask",
+      "narration": "Open Mask from Home. Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table. Input data: Microscope images; Segmentation checkpoint. Output data: Images and label masks; Label masks; Object counts. Mask to Measure: Use the same project and the correct image/mask channel indices.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask",
+        "08_measure"
+      ]
+    },
+    {
+      "visual": "module_make_masks",
+      "narration": "Open Make Masks from Home. Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier. Input data: Microscope images; Label masks. Output data: Curated training fields; Label masks. Make Masks to Measure: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Make Masks to Plaque Assay: Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "14_make_masks",
+        "24_plaque"
+      ]
+    },
+    {
+      "visual": "module_measure",
+      "narration": "Open Measure from Home. Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops. Input data: Images and label masks; Label masks. Output data: Measured objects; Object crops. Mask to Measure: Use the same project and the correct image/mask channel indices. Measure to Annotate: Save or stream crops with stable object identities. Measure to Classify: Choose the image or tabular family to match your input. Make Masks to Measure: Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays. Measure to Image UMAP: Choose feature columns and inspect representative crops. Measure to Embeddings: Retain encoder and channel-policy provenance. Measure to Gate Editor: Use the actual measured feature definitions and units. Measure to QC: Review available checks and missing evidence. Measure to Recruitment: Require the intended compartment intensities and identities. Measure to Invasion Assay: Require two-colour stain measurements and appropriate baseline controls. Measure to Replication Assay: Require explicit parasite-to-vacuole identities.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "07_mask",
+        "08_measure",
+        "09_annotate",
+        "14_make_masks",
+        "15_image_umap",
+        "25_recruitment",
+        "26_invasion",
+        "27_replication",
+        "41_classify",
+        "54_qc_dashboard",
+        "64_gate_editor",
+        "77_embeddings"
+      ]
+    },
+    {
+      "visual": "module_annotate",
+      "narration": "Open Annotate from Home. Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent. Input data: Measured objects; Object crops; Reusable gates. Output data: Training annotations. Measure to Annotate: Save or stream crops with stable object identities. Annotate to Classify: Keep labelled training and evaluation groups separate. Gate Editor to Annotate: Apply compatible gates, then review candidate labels.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "09_annotate",
+        "41_classify",
+        "64_gate_editor"
+      ]
+    },
+    {
+      "visual": "module_classify_merged",
+      "narration": "Open Classify from Home. Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs. Input data: Measured objects; Object crops; Training annotations. Output data: Object classification scores; Trained image classifier; Fitted feature classifier; Classifier evaluation bundle. Measure to Classify: Choose the image or tabular family to match your input. Annotate to Classify: Keep labelled training and evaluation groups separate. Classify to Regression: Select the intended CV or ML score column and preserve plate/well identity.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "09_annotate",
+        "13_regression",
+        "41_classify"
+      ]
+    },
+    {
+      "visual": "module_umap",
+      "narration": "Open Image UMAP from Home. Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype. Input data: Measured objects; Object crops; Image embeddings. Output data: Projection and clusters. Measure to Image UMAP: Choose feature columns and inspect representative crops. Embeddings to Image UMAP: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it. Image UMAP to Gate Editor: Supply the matching coordinate/feature columns when defining a selection.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "15_image_umap",
+        "64_gate_editor",
+        "77_embeddings"
+      ]
+    },
+    {
+      "visual": "module_gate_editor",
+      "narration": "Open Gate Editor from Home. Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects. Input data: Measured objects; Projection and clusters. Output data: Reusable gates. Image UMAP to Gate Editor: Supply the matching coordinate/feature columns when defining a selection. Gate Editor to Annotate: Apply compatible gates, then review candidate labels. Measure to Gate Editor: Use the actual measured feature definitions and units.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "09_annotate",
+        "15_image_umap",
+        "64_gate_editor"
+      ]
+    },
+    {
+      "visual": "module_align",
+      "narration": "Open Align & Stitch from Home. Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities. Input data: Microscope images. Output data: Aligned mosaic and coordinates.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "32_align_stitch"
+      ]
+    },
+    {
+      "visual": "module_analyze_plaques",
+      "narration": "Open Plaque Assay from Home. Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example. Input data: Microscope images; Label masks. Output data: Assay results; Label masks. Make Masks to Plaque Assay: Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "14_make_masks",
+        "24_plaque"
+      ]
+    },
+    {
+      "visual": "module_recruitment",
+      "narration": "Open Recruitment from Home. Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios. Input data: Measured objects. Output data: Assay results. Measure to Recruitment: Require the intended compartment intensities and identities.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "25_recruitment"
+      ]
+    },
+    {
+      "visual": "module_invasion",
+      "narration": "Open Invasion Assay from Home. Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion. Input data: Measured objects. Output data: Assay results. Measure to Invasion Assay: Require two-colour stain measurements and appropriate baseline controls.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "26_invasion"
+      ]
+    },
+    {
+      "visual": "module_replication",
+      "narration": "Open Replication Assay from Home. Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole. Input data: Measured objects. Output data: Assay results. Measure to Replication Assay: Require explicit parasite-to-vacuole identities.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "27_replication"
+      ]
+    },
+    {
+      "visual": "module_qc_dashboard",
+      "narration": "Open QC from Home. Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection. Input data: Measured objects; Quality-control results. Output data: Quality-control results; Figures and table exports. Measure to QC: Review available checks and missing evidence.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "54_qc_dashboard"
+      ]
+    },
+    {
+      "visual": "module_embeddings",
+      "narration": "Open Embeddings from Home. Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration. Input data: Measured objects; Object crops. Output data: Image embeddings. Measure to Embeddings: Retain encoder and channel-policy provenance. Embeddings to Image UMAP: Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "08_measure",
+        "15_image_umap",
+        "77_embeddings"
+      ]
+    },
+    {
+      "visual": "home_summary",
+      "narration": "For high-content analysis, follow Mask into Measure and then choose the method that answers your question. For segmentation training, curate image-mask pairs in Make Masks before Train Cellpose and test the saved model in Mask. Existing compatible masks or measurements let you enter later. Preserve channel identities, units, object keys and the settings used to create each result; follow the dedicated walkthrough for the route you choose.",
+      "hold_after": 0.7
+    }
+  ]
+}

@@ -52,10 +52,45 @@ def test_generated_api_and_tutorial_contracts_match_the_map():
     assert set(data["tutorials"]["79_module_inputs_outputs"]["modules"]) == module_keys
     for key, lesson in data["tutorials"].items():
         contract = json.loads((workflow.ROOT / f"tools/tutorials/workflows/{key}.json").read_text())
+        script = json.loads((workflow.ROOT / f"tools/tutorials/lessons/{key}.json").read_text())
+        assert script["app_key"] is None
+        assert script["scenes"][0]["visual"] == "home"
+        assert script["scenes"][-1]["visual"] == "home_summary"
+        assert [scene["visual"] for scene in script["scenes"][1:-1]] == [
+            "module_" + module for module in lesson["modules"]]
         for module in lesson["modules"]:
             assert contract["module_contracts"][module] == data["modules"][module]
         for pathway in lesson["pathways"]:
             assert contract["pathway_steps"][pathway] == data["pathways"][pathway]
+
+
+def test_changed_storage_contract_reaches_api_and_narration_together():
+    data = copy.deepcopy(workflow.load())
+    data["artifacts"]["measurements"]["location"] = "replacement/objects.db"
+    generated = workflow.outputs(data)
+    for path in ("docs/source/workflows.rst",
+                 "docs/source/_generated/module_workflows/spacr.measure.rst",
+                 "tools/tutorials/lessons/79_module_inputs_outputs.json"):
+        assert "replacement/objects.db" in generated[Path(path)]
+
+
+def test_screen_script_keeps_both_regression_inputs_and_classifier_alternatives():
+    lesson = workflow.lesson_document(workflow.load(), "78_spacr_screens")
+    scenes = {scene["visual"]: scene for scene in lesson["scenes"]}
+    regression = scenes["module_regression"]["narration"]
+    assert "Classify to Regression" in regression
+    assert "Map Barcodes to Regression" in regression
+    classifier = scenes["module_classify_merged"]["narration"]
+    assert "Computer Vision" in classifier
+    assert "Tabular Machine Learning" in classifier
+
+
+def test_reference_lesson_explains_every_artifact_location():
+    data = workflow.load()
+    script = workflow.lesson_document(data, "79_module_inputs_outputs")
+    narration = " ".join(scene["narration"] for scene in script["scenes"])
+    for artifact in data["artifacts"].values():
+        assert artifact["location"] in narration
 
 
 def test_both_screen_branches_feed_regression_and_labels_feed_classification():
