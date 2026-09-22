@@ -155,3 +155,19 @@ STILL OWED
   Note that the loading screen only appears with the "eager" preload policy;
   the default is "on_demand". Under the default, what shows at startup is
   MainWindow's first frame, which this also fixes.
+
+2026-09-22 — CURRENT SYSTEM-THEME BOUNDARY VERIFIED OFFSCREEN
+The three archived light/system failures reproduce on current source. Their
+fixture simulated an OS scheme using only QApplication.palette. Since the
+September21 dark-default/platform-theme change, an explicitly chosen Follow
+system reads QStyleHints through system_colour_scheme; it intentionally does
+not read the application's own, already-themed palette. Offscreen Qt reports
+no OS scheme, which correctly resolves to dark.
+
+The fixture now supplies the reported OS scheme at that boundary separately
+from the application palette, and restores both stored theme keys. All pen,
+rendered-pixel, direction-of-contrast and first-frame checks are retained.
+The19 rendered startup cases and35 existing dark-default/platform-scheme
+checks pass together (54 in7.48s). No production palette, contrast target or
+fallback behavior changed. The application's current default is dark; Follow
+system is an explicit choice. Real Windows acceptance is still outstanding.

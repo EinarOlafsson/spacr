@@ -2100,3 +2100,13 @@ installed. The12 barcode checks plus ArrayScan cache also pass in the original
 spacr environment without the writer (13 in2.13s). No runtime fallback, import
 behavior, dependency requirement, CI threshold or test was removed or skipped.
 Full CI remains open; new pushes are cancelling older runs before completion.
+
+2026-09-22 — STARTUP CONTRAST FIXTURE USES THE OS-SCHEME BOUNDARY
+Reproduced the three light/system failures. Their fixture changed the app
+palette, which production deliberately stopped using as an OS-theme proxy.
+The test now supplies system_colour_scheme's reported value while independently
+setting the palette; it also restores the explicit-Follow-system preference
+flag. All real rendered-pixel/pen/first-frame contrast assertions are retained.
+All54 startup-contrast and existing platform-theme/default checks pass in7.48s.
+No production palette or threshold changed. Real Windows acceptance stays open
+under415; full CI stays open under43.

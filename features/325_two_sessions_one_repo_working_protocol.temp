@@ -10433,3 +10433,20 @@ real Zeiss CZI. The12 barcode checks and ArrayScan cache check also pass in the
 original environment without pylibCZIrw (13 total). No production/API/caption
 changes and no skipped tests. Observed original worker's d3ab71b37 Make Masks
 changes on origin; preserving those. Full CI remains open.
+
+2026-09-22 — IMPLEMENTATION: STARTUP CONTRAST TEST CLAIM
+43/415: reproduced all three archived light/system failures. The tests simulate
+an OS scheme by changing QApplication.palette, but production now correctly
+reads QStyleHints and deliberately ignores its own themed palette. Claiming
+only test_the_startup_window_reads_in_every_scheme.py to supply the reported
+OS scheme at that boundary while retaining rendered-pixel/pen contrast and
+first-frame checks. Real Windows acceptance remains outstanding.
+
+2026-09-22 — IMPLEMENTATION: STARTUP CONTRAST TESTS VERIFIED
+43/415:19 rendered contrast cases now supply the OS-scheme report independently
+of the app palette, as production's QStyleHints-based resolution requires.
+All54 contrast/platform-scheme/default checks pass; pixel/pen contrast targets
+unchanged. Both stored theme keys restored. No production/API/caption change.
+The three archived failures were reproduced before correcting the fixture.
+Windows host acceptance remains open; the test file is released after push.
+Barcode/Import sample test isolation was pushed asd1e325c44.
