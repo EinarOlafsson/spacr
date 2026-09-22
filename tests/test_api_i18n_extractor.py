@@ -1179,7 +1179,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE EITHER; the
     # debt recorded for the 392 above now covers 627 symbols, and
     # test_documentation_i18n names them until the rebuild runs.
-    expected = 11_317
+    expected = 11_328
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1221,7 +1221,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_317
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_328
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1562,7 +1562,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,390,
     # post-filter 10,931 -> 11,166, boundary 224 -> 224. Both halves moved
     # by exactly 235, so every arrival is rendered.
-    assert 11_541 - len(docs) == 224
+    assert 11_552 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

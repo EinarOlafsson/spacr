@@ -108,6 +108,19 @@
       "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
       "text": ":returns: the path of this queue's ``curate_status.csv``."
     },
+    "109b810380661abb41b43d29b2a184d61236b5765218cf53e775b7ca92039a2c": {
+      "source_blocks_sha256": [
+        "62c4de71e67a51f3d79da70c2e0f0353158cc751dd5cb5d9a015ddec91b21143",
+        "f6fde9b08ac77ecbb4aa5e4cba66efa2f7c43d32c4bf81d8cd545d1731f902f6",
+        "033c6bb6f64b450f09ebe148559c652cfe433acf6c0b7da5a457a191c0217342",
+        "766e9fa539df6fdd5daa9f4358ea4e36740e117d017a2698fcf2361dc2576a0e",
+        "d81842390342c0f41c2a64b56c745206a4a4d32c8c1d77ce8291349d81da76fe",
+        "9e804aab51147be0c0629b9d964ef93afd7676dfcbc3b9855b79ee32707ccd08",
+        "9dc19e51717d3f57d35cb94e5802783998bb18252153da9163cadba5ae10ffaf"
+      ],
+      "source_sha256": "109b810380661abb41b43d29b2a184d61236b5765218cf53e775b7ca92039a2c",
+      "text": "Discover, enumerate and decode one preview source. Data in, data out.\n\nThis is the whole of a preview load, written so it touches **no widget and\nno Qt object** and can therefore be handed straight to\n:class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of\na hand-rolled ``QThread`` that emitted two signals, which kept the panel's\nsampler warm by ordering ``enumerated`` before ``loaded``; returning both\nhalves in one dict gets the same ordering for free, because the caller\nadopts the enumeration and installs the image in a single GUI-thread call.\n\nThe enumeration reads **file names only** — it never opens an image — so\nthe single decode here stays the only file read for a folder of any size.\n\n:param source: image file or directory to load a preview from.\n:param max_sets: cap for the sample drawn when ``source`` is a directory.\n:param enumerate_sets: ``False`` skips the folder scan entirely. The FOV\n    dropdown hands out a path from a set the sampler already produced, so\n    re-scanning for it would burn a full pass over a 98 000-file plate to\n    rediscover what is already cached.\n:returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is\n    ``None`` when no enumeration was done or it failed, which the caller\n    reads as \"leave the sampler alone\"."
+    },
     "10a64a25af34d4c89e9248c6797fd23d6a16b57fd8e5f69ba5d7503590276b8d": {
       "source_blocks_sha256": [
         "1782ff18ad967054f6b3da1ed013ab810da7709e2ba5e25c76c4aae5932998f6",
@@ -574,6 +587,17 @@
       "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
       "text": "A bounded session of curation work over one folder.\n\n:ivar layout: what was found, and where.\n:ivar items: the fields to offer THIS session — unreviewed, ordered, and\n    cut to ``limit``.\n:ivar status: every status row read, including rows about stems that are\n    not in this folder.\n:ivar order: the ordering that was asked for.\n:ivar effective_order: the ordering actually used, which differs from\n    ``order`` when ``prob`` or ``easy`` fell back to ``value`` for want\n    of probabilities.\n:ivar limit: the cap that was applied, or ``None``.\n:ivar summary: counts over the WHOLE folder, not over this session."
     },
+    "4e74110589822706051f3f1fe91111a5d9cdc03de342d8b1071cd8afaebba57f": {
+      "source_blocks_sha256": [
+        "ec4db3d774ad21aeba18444e1eb8a04b1cf447b3ac7126301e6faa16eec88f22",
+        "b31b743c551d59c3fc72d363e5165b3930798b39e8d245b253156fe88f0aae83",
+        "ad2e3c237b5eac0b87979badb10d6d50ec4dd4736cad08a07628cfb87fcc28df",
+        "55ab295c3c9717577299dcb562af9b81faa387ede103bf96fe1b86229baecc9a",
+        "a4b1fc3cd90f8710369c1606d4284cb0a77930940aa1f232fe46b47b55260282"
+      ],
+      "source_sha256": "4e74110589822706051f3f1fe91111a5d9cdc03de342d8b1071cd8afaebba57f",
+      "text": "Discover and decode a file/folder source on a worker thread.\n\nNew requests supersede older ones by token. An old decoder is allowed\nto finish safely, but its result is ignored.\n\n:param source: direct supported image or directory containing images.\n:param enumerate_sets: ``False`` reuses the sampler's cached listing\n    instead of re-scanning. See :func:`load_source_payload`.\n:returns: ``True`` when a worker was started."
+    },
     "4f178bef2b3ef0a8e3bcb62e547e3c43c7c7e2163befefe4f10bad6e01cd7a64": {
       "source_blocks_sha256": [
         "717536ed307fb089163a3adf36cf1965f33fa3b01ea4910aeb1998ab84eb9040",
@@ -996,6 +1020,17 @@
       ],
       "source_sha256": "95a27b6af28b29b05fc4408397cce48383fbb1d8127ac396e62690c96cf7920e",
       "text": "One published example dataset, described before it is downloaded.\n\n:param key: what a user types to ask for this one.\n:param repo: the Hugging Face dataset repository it is published in.\n:param summary: one line saying what the set is and what it is for.\n:param bytes: the archive's size. APPROXIMATE, and deliberately so: these\n    are the figures the GUI buttons already state (\"about 280 MB\"), taken\n    from the archives at publication. They exist to let someone decide\n    whether to spend the download, not to be checked against. The exact\n    length is verified during the transfer, against what the server\n    declares.\n:param markers: what the unpacked set LEAVES BEHIND, as globs relative to\n    the folder it unpacks into. Presence is tested on these rather than on\n    the folder, because all three sets share one plate directory: the\n    directory existing says nothing about which of them is in it.\n:param expands_npz: whether ``.npz`` arrays have to be written back out as\n    the ``.npy`` Measure reads. See :func:`expand_measure_arrays`."
+    },
+    "97c0012f4de027652435a4e0afc41444bb502287bbd3c44f2e9de9f4cb32c049": {
+      "source_blocks_sha256": [
+        "c5824be366715a94b97838cd8eb9c56ed09469f9167ad3e5de7a3fcbf19aa369",
+        "5da14674a8c9b94949562ce005dea74a07d7fcde4dd212c72843458ef4993dc5",
+        "339ca3277c4a146ab327ecc6d8969b16b29c92c41a3bad67a763f0f8ecebbd3b",
+        "9e997bbc16ba06608c6207226ba189cb43826503bcc8a6b6f4aa039b003a8eb6",
+        "7c85d92f9e522d6bb39d5c3ef777d7fc6de369473bf0ee1245e16568e864bac7"
+      ],
+      "source_sha256": "97c0012f4de027652435a4e0afc41444bb502287bbd3c44f2e9de9f4cb32c049",
+      "text": "Max-project a field's planes, the way the ingest already does.\n\n``io._rename_and_organize_image_files`` reduces every z-stack to\n``np.max`` over its planes, per field and per channel, before anything\nreaches ``stack/``. This is the preview's copy of that, so what the user\nis looking at is what masking will actually run on.\n\nPlanes are folded one at a time rather than stacked: a 60-plane field at\n2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview\nis on the GUI thread.\n\n:param paths: plane paths in acquisition order; one path is returned\n    unchanged, so a flat 2-D field costs nothing.\n:raises FileNotFoundError: if no path can be read."
     },
     "9d769113de4fdfac10df36fdc3fefe6f1e53d17b2929c37d02a373fca6d7001f": {
       "source_blocks_sha256": [

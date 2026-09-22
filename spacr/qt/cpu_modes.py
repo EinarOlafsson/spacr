@@ -126,8 +126,8 @@ GUIDANCE: Dict[str, str] = {
 class CpuParams(NamedTuple):
     """Everything the CPU modes read, as one hashable value.
 
-    One tuple for the same reason :class:`spacr.qt.organelle_modes.
-    MethodParams` is one: it rides on the magnifier's request key, and a
+    One tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`
+    is one: it rides on the magnifier's request key, and a
     mode that falls back to another must still find its own settings in it.
 
     :param local_k: Sauvola's and Niblack's ``k`` -- how much of a window's
@@ -194,7 +194,10 @@ def threshold_modes() -> Tuple[str, ...]:
 
 
 def guidance(mode: str) -> str:
-    """What ``mode`` suits, as one sentence a picker can show."""
+    """What ``mode`` suits, as one sentence a picker can show.
+
+    :param mode: the detector mode key, such as ``otsu`` or ``li``.
+    """
     return GUIDANCE.get(str(mode), "")
 
 
@@ -204,6 +207,8 @@ def engine_algorithm(mode: str) -> str:
     Multi-Otsu is asked for by a class count rather than by name, so it
     maps back to ``otsu``; the engine's ``classes`` parameter is what makes
     it multi-level. Everything else is its own name.
+
+    :param mode: the detector mode key to map to an engine algorithm.
     """
     return "otsu" if str(mode) == MULTIOTSU else str(mode)
 
@@ -211,6 +216,8 @@ def engine_algorithm(mode: str) -> str:
 def provenance(mode: str, params: CpuParams) -> Dict[str, object]:
     """The parameters this mode actually read, for a mask's ledger entry.
 
+    :param mode: the selected detector mode key.
+    :param params: the CPU-mode settings carried by the detection request.
     :returns: ``{field: value}``, JSON-safe; empty for a mode that reads
         none of them -- a global threshold reads only the Otsu category's
         own settings, which the entry already carries.
@@ -223,8 +230,8 @@ def propagate(image: np.ndarray, params: CpuParams, *, min_area: int = 0,
               fill_holes: bool = True):
     """Grow objects out of the local maxima of ``image``.
 
-    A thin wrapper on :func:`spacr.qt.mask_engine.
-    maxima_propagate_instances`, so the screen has one place to turn its
+    A thin wrapper on :func:`spacr.qt.mask_engine.maxima_propagate_instances`,
+    so the screen has one place to turn its
     controls into that call's keywords.
 
     :param image: the 2-D field or region, already through the chain.

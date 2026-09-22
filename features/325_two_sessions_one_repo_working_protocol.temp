@@ -10515,3 +10515,22 @@ languages,108 source-bound reviews, and corrected scientific model labels
 Chinese panel wording now identifies a figure subpanel; its old review is
 preserved. All99 caption/formatting lookups and nine setting-label lookups
 pass; focused runtime/plaque tests are running. No behavior/GPU change.
+
+2026-09-22 — CODEX: LATEST473 DOCSTRING REPAIRS / DRAFT QUALITY
+Read and rebased d3ab71b37 and0aa918f3c. They add11 API symbols/10 callables;
+manifest/search reconciliation is underway. Source checks found four new
+required-parameter omissions, all in cpu_modes.guidance/engine_algorithm/
+provenance. Claiming and repairing those docstrings only, plus two split RST
+role targets in the same file. The omission ratchet stays2293; no runtime edit.
+A20-block German CPU draft calibration took36s and passed every automated
+gate, but technical reading found incorrect meanings (e.g. reviewed fields
+being described as deleted, CSS declarations as explanations, Folder controls
+as filesystem folders). Drafts remain private/unpublished and are being
+corrected against their implementations. No MADLAD or GPU generation.
+The latest11328-symbol source now passes all142 extractor/public-contract
+checks, with the four new cpu_modes omissions repaired and the2293 omission
+ratchet unchanged. The previous integrated full -W -E Sphinx snapshot passed
+in386s; the new CPU-detector source will get its own build. The20 sampled
+German drafts have been manually corrected and all21 resulting symbol/block
+bindings pass the canonical/context gates; they remain private until the full
+catalog repair can use them without publishing English fallback paragraphs.

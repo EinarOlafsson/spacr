@@ -40132,6 +40132,88 @@
       "source_sha256": "e840cd78357865fbd5903b8086f5a8b9c3d40beeab17ac16db3d0fab8bfe5ada",
       "text": "Add or remove one marker."
     },
+    "spacr.qt.cpu_modes": {
+      "source_blocks_sha256": [
+        "808be977f309473c6cc2deff59fbf0a1ce2a578308a16c1cdaaeeeb536758f11",
+        "ae3b710827e726fbbf22871ad025d9ed07af25e7c40b061cbc41fa9e6c5ba984",
+        "bdd745d49aedc5d013c4e19982b8076a695ecfe8fb44903eecb0a640766c464c",
+        "f4418bed1cd7b0e233be546d4370ba7fbe0b9978385dfb9d1cbcecd5ff430a90",
+        "d03e65b593106aa8dace5f508c875538677a37bb4358943ec24b1fb2cb20fc94"
+      ],
+      "source_sha256": "860deb77751d1618f2375af261a98db481c3481a6585712b0d51f8c348effb3a",
+      "text": "The CPU detectors: a histogram's worth of thresholds, and propagation.\n\nMake Masks' plain-threshold mode was Otsu and only Otsu. Otsu asks one\nquestion of a histogram -- where is the cut that separates it into two\ngroups with the least variance inside each -- and it is a good question\nfor a field with two clear populations and a poor one for everything else.\nA field that is mostly background, or whose objects are a thin bright\ntail, has been thresholded better by Li's minimum cross entropy or by the\ntriangle method since before spaCR existed, and both are one call away in\nscikit-image.\n\nSo the threshold algorithms here are NAMES OF A LEVEL AND NOTHING ELSE.\nEach is one line in :data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or\n:data:`spacr.qt.mask_engine.LOCAL_THRESHOLDS`, and everything around the\nlevel -- the smoothing, the threshold correction, the bright or dark side,\nfilling holes, the watershed split, the border rule, the minimum area --\nis the code Otsu already went through. Choosing Li instead of Otsu changes\nwhere one number comes from and nothing else, which is exactly what it\nshould change.\n\nMAXIMA + PROPAGATE IS THE ONE THAT IS NOT A THRESHOLD. It is\nCellProfiler's Propagate: blur, find the bright centres, grow an object\nout of each one until a stop rule is met. It exists because a threshold\ncannot separate two objects that touch and share a border above the level,\nhowever good the level is -- and two touching vacuoles with bright centres\nare most of what a curator is correcting by hand.\n\nWHAT IS NOT HERE, AND WHY. Local MEAN and local GAUSSIAN thresholding are\nnot offered again: they are the Adaptive threshold mode, which runs the\norganelle engine's ``adaptive`` branch with a block size and an offset.\nLocal OTSU is not offered again either: it is the \"Local threshold (uneven\nillumination)\" switch, which every global algorithm on this list can be\ncombined with. Sauvola and Niblack ARE here, because their level is the\nwindow's mean MINUS a multiple of its standard deviation, which neither of\nthose two computes."
+    },
+    "spacr.qt.cpu_modes.CpuParams": {
+      "source_blocks_sha256": [
+        "fbd1b57e408158db1604856372782d60eaebee43838b2bba36b566e82d34d146",
+        "7c4015cf3b18c910d0e8e06482a68da43b6dcc8fb3403f14b0ab89d5b36551b8",
+        "5b622043923ce0c960496ecbad07417d7de117a199dd996176c24b40547dedae",
+        "27b28a2d5ec91c0e4282b1a9d0f887895d04920e2ccae861bbbb5103895f1206",
+        "967a42f4926266b77a09a1b16b5340d7ee81f282da9fc09730d77510862a145c",
+        "d4b9f30070980ea3ce6abb60557f3b0c3c9bac18ed586ec662314f8ab829851f",
+        "f257b5f597bdf4c4b933c5f23b7789a866f2b5a0c94bc0a3e731b9ae34b32e33",
+        "8adb561d6c68f95a6fd11ee8adfeaca27f902dbc7af473aaa0adc80242ec0933",
+        "d286e31d307a43bef4d7b3ee6749f6b264e4f57734b27e9774291a65030dcef1",
+        "0585c2133c1a07f2f6964ff752c0d00cb07438abd78bdd7057134391c5e6323d",
+        "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12"
+      ],
+      "source_sha256": "ea8b38a2f3cef43e96e2e1a36b00dc00abe7c66026601192b0911ff7f86c82ad",
+      "text": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: Sauvola's and Niblack's ``k`` -- how much of a window's\n    standard deviation comes off its mean. Sauvola's usual 0.2 keeps\n    less; Niblack's usual -0.2 keeps more.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule."
+    },
+    "spacr.qt.cpu_modes.engine_algorithm": {
+      "source_blocks_sha256": [
+        "3e1eae45f98d8ad0726e1ee80196ef4245becea8d22d8f4578fefd7d8129b772",
+        "a43331146c2ebfdcef88ce35443595b9785371cfbc4f51f867187114df0e1340",
+        "7778e21eaa66d3857902cc5c661a68c0005f05f7dc1117baea72e13a48ba7079"
+      ],
+      "source_sha256": "b88a93549f9f65e316a91d018f6adfdd2554913c15805f796ebe9c48d902378c",
+      "text": "The name :mod:`spacr.qt.mask_engine` knows ``mode`` by.\n\nMulti-Otsu is asked for by a class count rather than by name, so it\nmaps back to ``otsu``; the engine's ``classes`` parameter is what makes\nit multi-level. Everything else is its own name.\n\n:param mode: the detector mode key to map to an engine algorithm."
+    },
+    "spacr.qt.cpu_modes.guidance": {
+      "source_blocks_sha256": [
+        "ddf7010085aa92c7b6872792fadfb3dfa21d03ddec409082f0dd5626d8b9ec88",
+        "49f72c308ec6c35aab077a12a3dc04b542b7980e278202970bb134ad7c85b52c"
+      ],
+      "source_sha256": "96bc904a0a05979b7e4a738ca9f5c2e37f0e3eb13ed14e8d63175e225cca23cf",
+      "text": "What ``mode`` suits, as one sentence a picker can show.\n\n:param mode: the detector mode key, such as ``otsu`` or ``li``."
+    },
+    "spacr.qt.cpu_modes.modes": {
+      "source_blocks_sha256": [
+        "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee"
+      ],
+      "source_sha256": "20bb835a8c166e997a504dc2b110ffcdb7cfc4181b7d6d546d2763e5bb4011ee",
+      "text": "Every mode this module adds, in the box's order."
+    },
+    "spacr.qt.cpu_modes.propagate": {
+      "source_blocks_sha256": [
+        "c910a95b9bdd8de1b7a36b023e5ae9f14fcf6c3c4a1cbb387dcd32b8b83f0b90",
+        "cdea70c8ddff7f69d67f8c6785bf57be477528104538221f761d5587b262a87d",
+        "e267dbda139293dc9d445c2f7e637f7c5d2d3153e60436ff06158cc8c3486253",
+        "6c19a3745f9cc82e43302c57f4be4b95ceb5709a47c04ef7dbbe51c1fd576cb8",
+        "7b84ac670e29463bc8c8686feb80e01f05e951280f0f2c84e7a1fe6d14868ec5",
+        "a3da86f2927526d8e83b5916ef19ba4c568471ffb30a6da45bed9576158ba530",
+        "ea8bf4662624af0977b6ef496c9fae8e9b3007d8228410d83c1c3e8158dd47ca"
+      ],
+      "source_sha256": "b136e2a51f8002ae83a61b1997990e53de5242466714c6c755fb2dd976aba8d9",
+      "text": "Grow objects out of the local maxima of ``image``.\n\nA thin wrapper on :func:`spacr.qt.mask_engine.maxima_propagate_instances`,\nso the screen has one place to turn its\ncontrols into that call's keywords.\n\n:param image: the 2-D field or region, already through the chain.\n:param params: the settings as the panel holds them.\n:param min_area: the smallest object to keep, in pixels.\n:param fill_holes: close the holes inside each grown object.\n:returns: a :class:`spacr.qt.mask_engine.PropagateResult`."
+    },
+    "spacr.qt.cpu_modes.provenance": {
+      "source_blocks_sha256": [
+        "6f64fb7e98ebeb348e713ad431d9520cdceae2cf626c18b99899d03dc58efb44",
+        "e2b3a7f8afb3e4262d2e0d5118a961c46cc4f4f37721d172f7486f8547c5a527",
+        "e67bb95ca456966be8be567b6d9744ec6043b373b30e4c79f335f18283e89e17",
+        "7e7c95b3cedd164bd0395985d5e378f7337eff05230bfc0ff92818256a7a7c98"
+      ],
+      "source_sha256": "16e636ab50cdc07d8b866a270069436fa743cbaab345795004d1a7174e681e2c",
+      "text": "The parameters this mode actually read, for a mask's ledger entry.\n\n:param mode: the selected detector mode key.\n:param params: the CPU-mode settings carried by the detection request.\n:returns: ``{field: value}``, JSON-safe; empty for a mode that reads\n    none of them -- a global threshold reads only the Otsu category's\n    own settings, which the entry already carries."
+    },
+    "spacr.qt.cpu_modes.threshold_modes": {
+      "source_blocks_sha256": [
+        "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb"
+      ],
+      "source_sha256": "778ea321cfccdc7d829e0f4f38142b7f645e5b8c7da98a47decf0a9d9bd5f0cb",
+      "text": "The modes that are a threshold algorithm, Multi-Otsu included."
+    },
     "spacr.qt.crash_recovery": {
       "source_blocks_sha256": [
         "6c340413b7b6b4b439f53de0c2d8ce995bd93ca7dbb399c923cbe13287fcb8cc",
@@ -45374,6 +45456,16 @@
       "source_sha256": "3a260c53ebacbbabb66a0e5a766cce937b3b77b147bd94a2f09f7746debabeac",
       "text": "What the Make Masks readout says about one pixel of the open field.\n\n:ivar x: column, in image pixels.\n:ivar y: row, in image pixels.\n:ivar intensity: the raw image value at the pixel, before any display\n    stretching.\n:ivar label: the id of the object under the pixel, as\n    :func:`canonical_labels` numbers it; 0 on background.\n:ivar area: that object's pixel count; 0 on background.\n:ivar mean_intensity: that object's mean raw intensity, or ``None`` on\n    background."
     },
+    "spacr.qt.mask_engine.PropagateResult": {
+      "source_blocks_sha256": [
+        "bcbad8c5ffba7b6862da3c6a6d3fcc47c6cf453cccadc80163c01128d0dee9b2",
+        "13a526d3d43e2bd638dacb61a234d9e891320e98c1b79588875446553d8cc223",
+        "8cab76a3e6a48bb4c1a8ba79827f0c3367163641338f991d28a714e887644cfc",
+        "9c8adc01665a52b80c301747e96a05e36091192a2aba546d5c9dcf4966ee0e70"
+      ],
+      "source_sha256": "80565e06b5aa02adefcea20c9bdc1f0a56825441fe0dc64da695686cbcda232e",
+      "text": "What one maxima-and-propagate run found.\n\n:param labels: the objects, one label per seed that survived.\n:param seeds: how many local maxima were found. THE NUMBER THE USER\n    TUNES AGAINST: too many and the minimum distance or the seed level\n    is too low, too few and an object has no centre to grow from, and\n    neither is visible from the objects alone.\n:param level: the intensity the growth stopped at, for the stop rules\n    that have ONE -- absolute, percentile and a global threshold. None\n    for ``seed_fraction``, which has a different level per object and\n    so has no single number to report."
+    },
     "spacr.qt.mask_engine.Recrop": {
       "source_blocks_sha256": [
         "d700c80113c426a712ae3309842793310627c9a73cd41aa217d0251bf9e809b6",
@@ -45720,6 +45812,31 @@
       "source_sha256": "016d3c24888258493c4aa02c619a1e8a1169c3a7b3802b524a9edb92a10abf08",
       "text": "Where the masks of the images in ``folder`` are kept.\n\n:param folder: the folder the editor opened.\n:param masks_dir: the masks folder, when it is not beneath ``folder`` --\n    the ``sibling`` layout's ``<root>/masks`` beside ``<root>/images``.\n:returns: ``masks_dir`` when given, else ``<folder>/masks``."
     },
+    "spacr.qt.mask_engine.maxima_propagate_instances": {
+      "source_blocks_sha256": [
+        "945d595b295745c89040b7a4c0bf323f867fd491a12520bf1dd39d8ed109329d",
+        "d462197840ae30184e447edd72370b755106b7e3969789588ffb3bff9417ccb9",
+        "11039852cedccfb9214ff6ee662779cd9bdf2b184fd2642cace6563be185ac22",
+        "d2f119bdb06e3784943d9fbb7b2ea17142871c7198517f033c2302dec694116a",
+        "c54616a135d1859fc4b5ab69bb921c0cfae69fb9889282e6623d6be129b4e38a",
+        "f10de82d17223bdb61799c5f4461a861984fa8f37db0156d9def13f0c7f69161",
+        "90d348146205449645ee6837568c2c46d60eeceea505b4d34f9e788ecc66e36e",
+        "c9906ad57866ca1d7fbf0b97a432f95da31a20f8e9bf9e906c9c968d175dd6f0",
+        "825e347ef9e8209218e9e7c5edec11b67d780e3265e62bda0065088411fa4fb1",
+        "fa5b6e99c0eca45452d771a07ab0cffbacd0ddd3a71878920afcf2b892f40bd4",
+        "9554142036b8e9a25335459c56c79bcd64c439e94b9fc1764dcea2a14cbe835f",
+        "e9448a9d974a135bea3c40262284e34bd683dab5f73a3d8700c9c8a26f119dce",
+        "aa9f5be2f4bbfa1d037d8e44ede57cb3d85b8d81239ff62db8807aac0d6d205c",
+        "c5b9961c3dc8c63d33075564803e896292205b048921ca2c602c216c23e0595f",
+        "154105f9cdf59b5ec7d84b071549b53b8cdcc944fb6d4e576cd7a99670c349b2",
+        "174a0c6a9cb230a88819192b206944d80b82835190576e1d7f0eddfc7d0b7ca8",
+        "a3da86f2927526d8e83b5916ef19ba4c568471ffb30a6da45bed9576158ba530",
+        "704b534650051b7f8fbe497fdf3f8846fdf6d2f4f789c949ac1dd19d2a754f55",
+        "8b27f1c14f6269710096408b28b170ce873d0b3cadd65e758e6746a2c1166c85"
+      ],
+      "source_sha256": "916d535d0e33e822899eb28c28c47e01a1400a87a78f7b3089549430562688b4",
+      "text": "Find bright centres and grow an object out of each one.\n\nCellProfiler's IdentifyPrimaryObjects with Propagate, as four steps a\nperson can see and set separately:\n\n1. BLUR, so that one object has one centre. A raw fluorescence object\n   has a dozen local maxima in its own noise; a Gaussian of about the\n   object's own radius leaves it with one.\n2. FIND THE MAXIMA (:func:`skimage.feature.peak_local_max`), no closer\n   together than ``min_distance`` and no dimmer than ``seed_level``.\n   One seed is one object, so this step alone decides how many objects\n   there will be, which is why :class:`PropagateResult` carries the\n   count.\n3. GROW each seed outward over the blurred intensity, by a seeded\n   watershed on ``-image`` -- downhill from each peak, meeting its\n   neighbours at the ridge between them, which is what makes two\n   touching objects come apart at their waist instead of at a\n   threshold.\n4. STOP by one of :data:`PROPAGATE_STOPS`.\n\nTHE STOP RULE IS THE INTERESTING CHOICE. ``seed_fraction`` is\nper-object -- each object keeps the pixels at or above ``stop_value``\ntimes ITS OWN peak -- which is what \"a quantile threshold from that\nmaximum\" means, and it is the only rule under which a bright object and\na dim one are measured the same way. The other three are one level for\nthe whole field: an absolute intensity, a percentile of it, or whatever\none of :data:`GLOBAL_THRESHOLDS` makes of it.\n\nCELLPROFILER'S LAMBDA IS NOT OFFERED. Propagate there walks a cost\nthat mixes intensity difference with distance, weighted by a lambda;\n:func:`skimage.segmentation.watershed` has no such parameter, and a\nre-implementation of that cost would be a second segmentation engine to\nkeep. What is here is the lambda-zero end of it -- pure intensity --\nwhich is the setting CellProfiler's own documentation recommends for\nobjects with a visible edge.\n\nBRIGHT CENTRES ONLY, and deliberately: the whole idea is a peak to grow\naway from. Make Masks' Invert switch is how a field of dark objects is\ngiven to this, and it inverts the field for every detector alike.\n\n:param image: the 2-D field or region, already through the enhancement\n    chain if one is on.\n:param sigma: Gaussian blur before the maxima are found, in pixels. 0\n    finds maxima in the raw noise.\n:param min_distance: the smallest gap between two seeds, in pixels.\n    About one object radius is the usual answer.\n:param seed_level: how bright a maximum must be to count as a seed.\n:param seed_level_is_percentile: read ``seed_level`` as a percentile of\n    the blurred image (the default, so one setting suits any exposure)\n    rather than as an absolute intensity.\n:param exclude_border: drop maxima within ``min_distance`` of the edge.\n:param stop: a key of :data:`PROPAGATE_STOPS`.\n:param stop_value: the fraction, intensity or percentile that rule\n    reads. Not read by ``threshold``.\n:param stop_algorithm: which of :data:`GLOBAL_THRESHOLDS` provides the\n    floor under the ``threshold`` rule.\n:param min_area: objects smaller than this are dropped, and the rest\n    renumbered. Touching objects are NOT merged by this.\n:param fill_holes: close the holes inside each grown object.\n:returns: a :class:`PropagateResult`.\n:raises ValueError: for an unknown stop rule or an empty image."
+    },
     "spacr.qt.mask_engine.next_label": {
       "source_blocks_sha256": [
         "7fb460537568ba27c6921780f36418b0073c6af9909cf1e25d7f960372bf2fd9",
@@ -45972,6 +46089,13 @@
       ],
       "source_sha256": "a98b230f030c0b6c835d81f00ae72a9597160fc6f70d51a61410eb5980dee470",
       "text": "Cut the object under (x, y) where its halves meet; ``(mask, new_ids)``.\n\nWhat Ctrl + left click does. The cut is a watershed on the\nobject's own distance to background, the same recipe\n:func:`_split_touching_objects` runs on a whole field: every local\nmaximum of that distance is one half's middle and the ridge between two\nof them is the waist where they meet.\n\nThree decisions, and the first is the one to read:\n\n* **AN OBJECT WITH ONE CENTRE IS LEFT ALONE** and reported as such,\n  rather than being halved through the click. A single click carries no\n  direction, so a forced cut would have to invent one, and the object\n  that needs cutting is almost always a pair that merged -- which has\n  two centres. The gesture for a cut the user aims themselves already\n  exists and is the Divide tool (:func:`divide_object`).\n* **The largest piece keeps the id** and the others are given ids above\n  the mask's top label, which is :func:`canonical_labels`' own rule, so\n  splitting and then saving renumbers nothing.\n* **NO PIXEL IS LOST.** Every pixel of the object ends up under one of\n  the new ids. ``min_area`` sets how far apart two centres must be to\n  count as two (:func:`_split_touching_objects`' seed spacing) and is\n  NOT applied as a drop here: a hand edit moves pixels between ids, and\n  a gesture that quietly erased the smaller half would be a delete\n  wearing a split's name.\n\n:param mask: the label image.\n:param x: column clicked, in image pixels.\n:param y: row clicked, in image pixels.\n:param min_area: the smallest object the screen is willing to keep, in\n    pixels; it sets the seed spacing, so an object this size is not\n    itself cut in two.\n:returns: ``(mask, new_ids)`` -- a new mask and the ids the split\n    created, or a copy and an empty list when the click was on\n    background, outside the field, or on an object with one centre."
+    },
+    "spacr.qt.mask_engine.threshold_algorithms": {
+      "source_blocks_sha256": [
+        "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e"
+      ],
+      "source_sha256": "04421cf0cee56a409c25224536e4233e2909c8766b3421e8d7e48ed2d8ddde3e",
+      "text": "Every threshold algorithm name, global then local."
     },
     "spacr.qt.mask_engine.write_recrop": {
       "source_blocks_sha256": [
@@ -82702,10 +82826,11 @@
         "b31b743c551d59c3fc72d363e5165b3930798b39e8d245b253156fe88f0aae83",
         "ad2e3c237b5eac0b87979badb10d6d50ec4dd4736cad08a07628cfb87fcc28df",
         "55ab295c3c9717577299dcb562af9b81faa387ede103bf96fe1b86229baecc9a",
+        "6a45bdb2880e787a3ee16ca4672571b7732343e212ee6f91bae9156aeb623ff5",
         "a4b1fc3cd90f8710369c1606d4284cb0a77930940aa1f232fe46b47b55260282"
       ],
-      "source_sha256": "4e74110589822706051f3f1fe91111a5d9cdc03de342d8b1071cd8afaebba57f",
-      "text": "Discover and decode a file/folder source on a worker thread.\n\nNew requests supersede older ones by token. An old decoder is allowed\nto finish safely, but its result is ignored.\n\n:param source: direct supported image or directory containing images.\n:param enumerate_sets: ``False`` reuses the sampler's cached listing\n    instead of re-scanning. See :func:`load_source_payload`.\n:returns: ``True`` when a worker was started."
+      "source_sha256": "d1045f60e4979ba0aecfbe37611fd04d74d0f091f9b235e6ca4af3ae77e15a49",
+      "text": "Discover and decode a file/folder source on a worker thread.\n\nNew requests supersede older ones by token. An old decoder is allowed\nto finish safely, but its result is ignored.\n\n:param source: direct supported image or directory containing images.\n:param enumerate_sets: ``False`` reuses the sampler's cached listing\n    instead of re-scanning. See :func:`load_source_payload`.\n:param display_plane: channel plane selected by the table, if any.\n:returns: ``True`` when a worker was started."
     },
     "spacr.qt.widgets.live_preview.LivePreviewPanel.max_images": {
       "source_blocks_sha256": [
@@ -82885,25 +83010,27 @@
       "source_blocks_sha256": [
         "c5824be366715a94b97838cd8eb9c56ed09469f9167ad3e5de7a3fcbf19aa369",
         "5da14674a8c9b94949562ce005dea74a07d7fcde4dd212c72843458ef4993dc5",
-        "339ca3277c4a146ab327ecc6d8969b16b29c92c41a3bad67a763f0f8ecebbd3b",
+        "c9776d9918fb054a5b08af8cc2e4b75cf863c5a39361f664344222d1f20a7dc9",
         "9e997bbc16ba06608c6207226ba189cb43826503bcc8a6b6f4aa039b003a8eb6",
         "7c85d92f9e522d6bb39d5c3ef777d7fc6de369473bf0ee1245e16568e864bac7"
       ],
-      "source_sha256": "97c0012f4de027652435a4e0afc41444bb502287bbd3c44f2e9de9f4cb32c049",
-      "text": "Max-project a field's planes, the way the ingest already does.\n\n``io._rename_and_organize_image_files`` reduces every z-stack to\n``np.max`` over its planes, per field and per channel, before anything\nreaches ``stack/``. This is the preview's copy of that, so what the user\nis looking at is what masking will actually run on.\n\nPlanes are folded one at a time rather than stacked: a 60-plane field at\n2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview\nis on the GUI thread.\n\n:param paths: plane paths in acquisition order; one path is returned\n    unchanged, so a flat 2-D field costs nothing.\n:raises FileNotFoundError: if no path can be read."
+      "source_sha256": "69114defecc350887da955d827d762007e16d4d6a4a0a92873ddef2f405e4174",
+      "text": "Max-project a field's planes, the way the ingest already does.\n\n``io._rename_and_organize_image_files`` reduces every z-stack to\n``np.max`` over its planes, per field and per channel, before anything\nreaches ``stack/``. This is the preview's copy of that, so what the user\nis looking at is what masking will actually run on.\n\nPlanes are folded one at a time rather than stacked: a 60-plane field at\n2048x2048 uint16 is 500 MB as one array and 8 MB folded.\n\n:param paths: plane paths in acquisition order; one path is returned\n    unchanged, so a flat 2-D field costs nothing.\n:raises FileNotFoundError: if no path can be read."
     },
     "spacr.qt.widgets.live_preview.load_source_payload": {
       "source_blocks_sha256": [
         "62c4de71e67a51f3d79da70c2e0f0353158cc751dd5cb5d9a015ddec91b21143",
         "f6fde9b08ac77ecbb4aa5e4cba66efa2f7c43d32c4bf81d8cd545d1731f902f6",
-        "033c6bb6f64b450f09ebe148559c652cfe433acf6c0b7da5a457a191c0217342",
+        "bf2e5994b850e392e3fcf4acff969cc57fbc11645b50309030b69f3d7978a234",
         "766e9fa539df6fdd5daa9f4358ea4e36740e117d017a2698fcf2361dc2576a0e",
         "d81842390342c0f41c2a64b56c745206a4a4d32c8c1d77ce8291349d81da76fe",
         "9e804aab51147be0c0629b9d964ef93afd7676dfcbc3b9855b79ee32707ccd08",
+        "368c3e7da5caf168a8d6af57b79e5994ab49d1fcfee4cb1d0a0a349d76fae076",
+        "6e945ff0bccc6eda7211c739e4726b621daff1ad3b45b35263658de474940f80",
         "9dc19e51717d3f57d35cb94e5802783998bb18252153da9163cadba5ae10ffaf"
       ],
-      "source_sha256": "109b810380661abb41b43d29b2a184d61236b5765218cf53e775b7ca92039a2c",
-      "text": "Discover, enumerate and decode one preview source. Data in, data out.\n\nThis is the whole of a preview load, written so it touches **no widget and\nno Qt object** and can therefore be handed straight to\n:class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of\na hand-rolled ``QThread`` that emitted two signals, which kept the panel's\nsampler warm by ordering ``enumerated`` before ``loaded``; returning both\nhalves in one dict gets the same ordering for free, because the caller\nadopts the enumeration and installs the image in a single GUI-thread call.\n\nThe enumeration reads **file names only** — it never opens an image — so\nthe single decode here stays the only file read for a folder of any size.\n\n:param source: image file or directory to load a preview from.\n:param max_sets: cap for the sample drawn when ``source`` is a directory.\n:param enumerate_sets: ``False`` skips the folder scan entirely. The FOV\n    dropdown hands out a path from a set the sampler already produced, so\n    re-scanning for it would burn a full pass over a 98 000-file plate to\n    rediscover what is already cached.\n:returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is\n    ``None`` when no enumeration was done or it failed, which the caller\n    reads as \"leave the sampler alone\"."
+      "source_sha256": "5d2e5025bac4dd246f7ecc4a89c212d8f0ac51249de25b9f0b6cb6d939060cc1",
+      "text": "Discover, enumerate and decode one preview source. Data in, data out.\n\nThis is the whole of a preview load, written so it touches **no widget and\nno Qt object** and can therefore be handed straight to\n:class:`spacr.qt.job_runner.JobRunner`. It used to be the ``run`` method of\na hand-rolled ``QThread`` that emitted two signals, which kept the panel's\nsampler warm by ordering ``enumerated`` before ``loaded``; returning both\nhalves in one dict gets the same ordering for free, because the caller\nadopts the enumeration and installs the image in a single GUI-thread call.\n\nThe enumeration reads **file names only**. Decoding reads the selected\nimage, plus its channel's z-planes when projection is requested.\n\n:param source: image file or directory to load a preview from.\n:param max_sets: cap for the sample drawn when ``source`` is a directory.\n:param enumerate_sets: ``False`` skips the folder scan entirely. The FOV\n    dropdown hands out a path from a set the sampler already produced, so\n    re-scanning for it would burn a full pass over a 98 000-file plate to\n    rediscover what is already cached.\n:param project: project the selected channel's z-stack on this worker.\n:param known_sets: cached image sets used when enumeration is skipped.\n:returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is\n    ``None`` when no enumeration was done or it failed, which the caller\n    reads as \"leave the sampler alone\"."
     },
     "spacr.qt.widgets.live_preview.numpy_to_qpixmap": {
       "source_blocks_sha256": [

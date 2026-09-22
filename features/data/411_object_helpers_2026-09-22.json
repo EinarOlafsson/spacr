@@ -217,6 +217,88 @@
     "spacr.object.merge_split_filter_masks._run_one": "Run the configured filter pipeline against a single FOV mask."
   },
   "item": 411,
+  "latest_rebase": {
+    "callables_added": {
+      "spacr.qt.cpu_modes.CpuParams": "spacr.qt.cpu_modes.CpuParams\u0000namedtuple_constructor\u0000autoapi\u0000local_k,propagate_exclude_border,propagate_min_distance,propagate_seed_level,propagate_seed_percentile,propagate_sigma,propagate_stop,propagate_stop_algorithm,propagate_stop_value\u0000\u0000local_k,propagate_exclude_border,propagate_min_distance,propagate_seed_level,propagate_seed_percentile,propagate_sigma,propagate_stop,propagate_stop_algorithm,propagate_stop_value\u00000\u00001\u00000\u00000",
+      "spacr.qt.cpu_modes.engine_algorithm": "spacr.qt.cpu_modes.engine_algorithm\u0000function\u0000autoapi\u0000mode\u0000mode\u0000mode\u00000\u00001\u00000\u00000",
+      "spacr.qt.cpu_modes.guidance": "spacr.qt.cpu_modes.guidance\u0000function\u0000autoapi\u0000mode\u0000mode\u0000mode\u00000\u00001\u00000\u00000",
+      "spacr.qt.cpu_modes.modes": "spacr.qt.cpu_modes.modes\u0000function\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "spacr.qt.cpu_modes.propagate": "spacr.qt.cpu_modes.propagate\u0000function\u0000autoapi\u0000fill_holes,image,min_area,params\u0000image,params\u0000fill_holes,image,min_area,params\u00000\u00001\u00000\u00000",
+      "spacr.qt.cpu_modes.provenance": "spacr.qt.cpu_modes.provenance\u0000function\u0000autoapi\u0000mode,params\u0000mode,params\u0000mode,params\u00000\u00001\u00000\u00000",
+      "spacr.qt.cpu_modes.threshold_modes": "spacr.qt.cpu_modes.threshold_modes\u0000function\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "spacr.qt.mask_engine.PropagateResult": "spacr.qt.mask_engine.PropagateResult\u0000namedtuple_constructor\u0000autoapi\u0000labels,level,seeds\u0000labels,level,seeds\u0000labels,level,seeds\u00000\u00001\u00000\u00000",
+      "spacr.qt.mask_engine.maxima_propagate_instances": "spacr.qt.mask_engine.maxima_propagate_instances\u0000function\u0000autoapi\u0000exclude_border,fill_holes,image,min_area,min_distance,seed_level,seed_level_is_percentile,sigma,stop,stop_algorithm,stop_value\u0000image\u0000exclude_border,fill_holes,image,min_area,min_distance,seed_level,seed_level_is_percentile,sigma,stop,stop_algorithm,stop_value\u00000\u00001\u00000\u00000",
+      "spacr.qt.mask_engine.threshold_algorithms": "spacr.qt.mask_engine.threshold_algorithms\u0000function\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000"
+    },
+    "callables_removed": {},
+    "counts": {
+      "boundary": 224,
+      "callables": 9382,
+      "categories": {
+        "constructor": 428,
+        "dataclass_constructor": 502,
+        "exception_constructor": 147,
+        "function": 4175,
+        "inherited_or_default_constructor": 58,
+        "method": 4055,
+        "namedtuple_constructor": 17
+      },
+      "constructor_prose_variants": 427,
+      "constructors_with_prose": 427,
+      "exposures": {
+        "autoapi": 9377,
+        "cli_only": 2,
+        "compatibility": 3
+      },
+      "parameters": 18613,
+      "public": 11328,
+      "required": 9585,
+      "signature_digest": "ac7e2d1feeda6f91941e825043dc960b8e3c429fa48cb71852afdd59d18dff70",
+      "unfiltered": 11552,
+      "variant_counts": {
+        "1": 9375,
+        "2": 7
+      },
+      "variants": 9389
+    },
+    "implementation_head": "d3ab71b37",
+    "public_added": [
+      "spacr.qt.cpu_modes",
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.cpu_modes.engine_algorithm",
+      "spacr.qt.cpu_modes.guidance",
+      "spacr.qt.cpu_modes.modes",
+      "spacr.qt.cpu_modes.propagate",
+      "spacr.qt.cpu_modes.provenance",
+      "spacr.qt.cpu_modes.threshold_modes",
+      "spacr.qt.mask_engine.PropagateResult",
+      "spacr.qt.mask_engine.maxima_propagate_instances",
+      "spacr.qt.mask_engine.threshold_algorithms"
+    ],
+    "public_removed": [],
+    "restored_prior_digest": "d14da650fd91a3be0c8b58bcdf7b239f410da64481898fcb31e89269f266fe0d",
+    "signature_changes": {
+      "spacr.qt.widgets.live_preview.LivePreviewPanel.load_source_async": {
+        "after": "spacr.qt.widgets.live_preview.LivePreviewPanel.load_source_async\u0000method\u0000autoapi\u0000display_plane,enumerate_sets,source\u0000source\u0000display_plane,enumerate_sets,source\u00000\u00001\u00000\u00000",
+        "before": "spacr.qt.widgets.live_preview.LivePreviewPanel.load_source_async\u0000method\u0000autoapi\u0000enumerate_sets,source\u0000source\u0000enumerate_sets,source\u00000\u00001\u00000\u00000"
+      },
+      "spacr.qt.widgets.live_preview.load_source_payload": {
+        "after": "spacr.qt.widgets.live_preview.load_source_payload\u0000function\u0000autoapi\u0000enumerate_sets,known_sets,max_sets,project,source\u0000source\u0000enumerate_sets,known_sets,max_sets,project,source\u00000\u00001\u00000\u00000",
+        "before": "spacr.qt.widgets.live_preview.load_source_payload\u0000function\u0000autoapi\u0000enumerate_sets,max_sets,source\u0000source\u0000enumerate_sets,max_sets,source\u00000\u00001\u00000\u00000"
+      }
+    },
+    "validation": {
+      "extractor_and_public_contract_tests": 142,
+      "repaired_new_omissions": [
+        "spacr.qt.cpu_modes.guidance:mode",
+        "spacr.qt.cpu_modes.engine_algorithm:mode",
+        "spacr.qt.cpu_modes.provenance:mode",
+        "spacr.qt.cpu_modes.provenance:params"
+      ],
+      "required_parameter_omissions": 2293,
+      "split_rst_roles_repaired": 2
+    }
+  },
   "manifest_preexisting_added": [
     "spacr.organelle_types.method_guidance",
     "spacr.organelle_types.morphologies_for_method",
@@ -328,6 +410,11 @@
     "validation": {
       "extractor_and_public_contract_tests": 142,
       "full_catalog_browser_acceptance": "Still pending full locale repair; no freshness gate bypass.",
+      "full_sphinx_warning_as_error": {
+        "exit": 0,
+        "seconds": 386.44,
+        "snapshot": "80b319d01, before the final CPU-detector additions"
+      },
       "real_help_search_tests": 49
     }
   },
