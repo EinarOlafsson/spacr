@@ -50,6 +50,16 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         assert not added & sources
         sources.update(added)
     assert len(sources) == (150 if language == "sv" else 149)
+    overlay = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                          "2026-09-22-plaque-overlays.json").read_text())
+    overlay_sources = {record["source"] for record in overlay["records"]}
+    # Plaque model has both a UI caption and a setting-label record.
+    assert len(overlay["records"]) == 12
+    assert len(overlay_sources) == 11
+    assert overlay_sources <= reviewed.keys()
+    assert not overlay_sources & sources
+    sources.update(overlay_sources)
+    assert len(sources) == (161 if language == "sv" else 160)
     return sources
 
 
@@ -280,7 +290,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 658
     assert len(older_all_sources) == 663
     assert len(all_reviewed.keys() - subsequent_sources) == 674
-    assert len(all_reviewed) == 824  # 822 plus two inversion-control captions.
+    assert len(all_reviewed) == 835  # 824 plus eleven distinct plaque captions.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -503,7 +513,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources) == 346
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 357
     assert len(all_reviewed.keys() - subsequent_sources) == 670
-    assert len(all_reviewed) == 819  # 818 plus the mask foreground/background caption.
+    assert len(all_reviewed) == 830  # 819 plus eleven distinct plaque captions.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

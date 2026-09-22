@@ -1,0 +1,96 @@
+{
+  "schema": 1,
+  "source_commit": "8c499c38b485deea42bb77e8148190b73ec0aefa",
+  "languages": [
+    {
+      "language": "sv",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "Plackmodell",
+      "plaque_model_label_after": "Plackmodell",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "de",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "Plaque-Modell",
+      "plaque_model_label_after": "Plaque-Modell",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "Modelo de placa",
+      "plaque_model_label_after": "Modelo de placas de lisis",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "new_ui_rows": 8,
+      "corrected_existing_rows": {
+        "panel {p}": {
+          "before": "面板 {p}",
+          "after": "子图 {p}"
+        }
+      },
+      "plaque_model_label_before": "板模型",
+      "plaque_model_label_after": "空斑模型",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "Modelo de placa",
+      "plaque_model_label_after": "Modelo de placas de lise",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "प्लेक मॉडल",
+      "plaque_model_label_after": "प्लाक मॉडल",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "플레이트 모델",
+      "plaque_model_label_after": "플라크 모델",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "Plákurmóli",
+      "plaque_model_label_after": "Líkan fyrir sýkingarskellur",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "new_ui_rows": 11,
+      "corrected_existing_rows": {},
+      "plaque_model_label_before": "Modèle de plaque",
+      "plaque_model_label_after": "Modèle de plages de lyse",
+      "live_caption_checks": 11,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "review_records": 108,
+  "new_ui_rows": 96,
+  "native_speaker_signoff": false,
+  "full_runtime_audit_passed": false
+}

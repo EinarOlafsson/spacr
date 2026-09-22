@@ -4618,3 +4618,16 @@ source-group and picker fixtures explicitly reject before deletion and do not
 launch live HTTP warming; controlled tests exercise the real JobRunner path.
 No coverage baseline, test threshold or leak-reporting rule changed. Full
 coverage and the per-module90% requirement remain unproven and open.
+
+2026-09-22 — CODEX TRANSLATION REPAIRS, FULL CI STILL OPEN
+Restored26 missing UI rows from existing reviewed wording for Confirm
+annotations, PDF… and model.pt, and corrected the German ComBat tooltip's
+literal column list. Plaque preview/overlay adds96 missing rows in nine
+languages and108 source-bound reviews, including matching model setting labels.
+Chinese/Korean plate-vs-plaque labels and Icelandic malformed model wording are
+corrected. Chinese figure-panel wording is corrected with its prior reviewed
+record preserved.99 actual caption/formatting lookups and nine setting-label
+lookups pass; eight distinct runtime/plaque checks pass after review counts are
+reconciled against the exact eleven-source addition. Unrelated catalog rows
+are unchanged. Full runtime and API audits remain red on the broader backlog;
+these batches do not imply green CI or native-speaker sign-off.
