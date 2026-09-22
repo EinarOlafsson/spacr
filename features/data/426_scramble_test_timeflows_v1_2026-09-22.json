@@ -1,0 +1,44 @@
+{
+ "model": "timeflows_v1.pt",
+ "held_out": {
+  "U373": {
+   "pairs": 50,
+   "objects": 317,
+   "timeflows_correct": 0.9937,
+   "iou_stitcher_correct": 0.9937
+  },
+  "DIC-HeLa": {
+   "pairs": 50,
+   "objects": 603,
+   "timeflows_correct": 0.9917,
+   "iou_stitcher_correct": 0.9983
+  }
+ },
+ "metric": "share of objects linked to their true successor after t+1 ids are scrambled",
+ "frame_gaps": {
+  "U373 gap 3": {
+   "pairs": 40,
+   "objects": 248,
+   "timeflows_correct": 0.9919,
+   "iou_stitcher_correct": 0.9919
+  },
+  "DIC-HeLa gap 3": {
+   "pairs": 40,
+   "objects": 464,
+   "timeflows_correct": 0.9828,
+   "iou_stitcher_correct": 0.9978
+  },
+  "U373 gap 6": {
+   "pairs": 40,
+   "objects": 244,
+   "timeflows_correct": 0.9836,
+   "iou_stitcher_correct": 0.9754
+  },
+  "DIC-HeLa gap 6": {
+   "pairs": 40,
+   "objects": 444,
+   "timeflows_correct": 0.964,
+   "iou_stitcher_correct": 1.0
+  }
+ }
+}
