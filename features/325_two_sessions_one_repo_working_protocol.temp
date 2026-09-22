@@ -9723,3 +9723,19 @@ German reviews. Annotate verifier94481 finishes0: all24 current English tracks
 pass source/timing/full-decode/activity/true-peak checks. Added receipt and
 358/447 notes; other-language renderer3791 remains live. Make Masks first
 English29031 remains live. No publication/listening or full coverage claim.
+
+2026-09-22 — CODEX: 4192dc19b VERIFIED / MAKE MASKS REVIEWS / BATCH9
+Nightly confirmed4192dc19b before this turn. Make Masks English and13reviews
+now share the27-scene current source; six new readout scenes, current controls,
+332x267 crop and explicit bad-detection comparison are translated. Independent
+source/staging checks and54tests pass3.22s. First English29031 finishes0 with
+474.0s narration. Native4K/master/browser job26837 runs at2CPU under caps.
+Full coverage74460 advances beyond11/96. Completed batch9 has1failed/1332passed:
+the stale Ctrl+H expectation in test_cov_qt_app, fixed here to shippedCtrl+0
+and also checking Help searchCtrl+Shift+H. Production behavior unchanged; the
+25-test shortcut selection passes37.27s. Both batch9 workers are terminal and
+returned coverage; only that completed section of the full-run output was
+extracted for its traceback. Entire32-file batch now reruns separately under
+12G/two workers; frozen full checkout is untouched. With four other narrators,
+API drafts, full coverage, this recheck and the master, allocation is16CPU.
+No GPU work or publication. Core Mask recapture still needs the idle interval.

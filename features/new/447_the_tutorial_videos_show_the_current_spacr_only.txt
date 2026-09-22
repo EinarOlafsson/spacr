@@ -470,3 +470,12 @@ All24 English narration tracks for the current auto-open Annotate lesson pass
 independent freshness, timing, decode, activity and true-peak verification.
 Evidence:2026-09-22-annotate-current-english-voices.json. Other languages and
 final visual/caption/listening acceptance remain open; media remain private.
+
+2026-09-22 — CODEX: CURRENT MAKE MASKS NARRATION AND TRANSLATIONS
+The27-scene lesson and all13 source-bound reviews now cover the requested
+magnifier and FEATURES workflow from the same current dark/Blobs capture.
+Updated current button names and crop dimensions; explicitly teach the observed
+model/mask mismatch. Independent staged-catalog/scene/link/pronunciation checks
+and54 tests pass. First English voice has rendered; master verification and
+remaining voices/listening/publication stay open. Receipt:
+2026-09-22-make-masks-current-translations.json.

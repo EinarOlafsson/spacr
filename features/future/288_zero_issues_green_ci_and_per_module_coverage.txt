@@ -4533,3 +4533,15 @@ other two are the existing CuPy-only floor exemption and the above-floor
 FEATURES table with its recorded editing defect. This is not a full-suite
 verdict: a new immutable checkout will measure the current complete CI coverage
 selection, including the no-regression ratchet. Baseline unchanged.
+
+2026-09-22 — CODEX: FULL RUN FINDS A STALE HOME SHORTCUT ASSERTION
+The new fixed-source full run continues. Completed batch9 reports one failure
+and1332 passes,13 warnings in629.67s; both workers are down and returned their
+coverage, with no lost/unrecovered files. Its only failed assertion still expects
+Ctrl+H for Home, although production commit2ad085145 moved Home toCtrl+0 to avoid
+macOS's application-hide binding. Updated only that test's expectation/comment
+and additionally checks the current Ctrl+Shift+H Help search binding. The failing
+case plus whole-map/shortcut behavior selection passes25tests37.27s. All32 files
+from the failed batch now rerun with2workers in a separate capped coverage
+selection; the frozen full checkout and coverage baseline remain unchanged.
+No claim that the full run or ratchet has passed yet.

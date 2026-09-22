@@ -2317,7 +2317,7 @@ def test_the_window_still_opens_without_shortcuts_or_the_tour(
 
 def test_shortcuts_are_installed_when_the_module_is_available(win):
     # BOTH HOLDERS, because a key can legitimately live on either. The menu
-    # builds Home and Preferences as QActions carrying Ctrl+H and Ctrl+P so
+    # builds Home and Preferences as QActions carrying Ctrl+0 and Ctrl+P so
     # it can print the accelerator beside the item -- which binds them -- and
     # `shortcuts.BOUND_ELSEWHERE` keeps `install` from binding a QShortcut
     # for the same sequence. Qt answers a key with two holders by firing
@@ -2328,7 +2328,7 @@ def test_shortcuts_are_installed_when_the_module_is_available(win):
     bound = {sc.key().toString() for sc in win.findChildren(QShortcut)}
     bound |= {seq.toString() for act in win.findChildren(QAction)
               for seq in act.shortcuts()}
-    for keys in ("Ctrl+H", "Ctrl+K", "Ctrl+1", "Ctrl+9", "F1"):
+    for keys in ("Ctrl+0", "Ctrl+K", "Ctrl+1", "Ctrl+9", "Ctrl+Shift+H", "F1"):
         assert keys in bound, f"{keys} was never bound"
     # And exactly one holder each, or they are ambiguous again.
     from spacr.qt import shortcuts as _sc

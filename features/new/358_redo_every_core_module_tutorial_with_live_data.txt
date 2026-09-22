@@ -2503,3 +2503,16 @@ activity and decoded true peak at or below -1dBFS. Receipt:
 tools/tutorials/evidence/2026-09-22-annotate-current-english-voices.json.
 Other-language rendering continues; listening and complete-set publication
 remain open. No technical check is recorded as human listening approval.
+
+2026-09-22 — CODEX: MAKE MASKS CURRENT LESSON AND ALL13 REVIEWS
+Canonical lesson14 now has27 scenes, including six Otsu magnifier/FEATURES
+scenes tied to the single current capture. All13 language reviews share the
+exact new English source and preserve unchanged editing/recrop explanations.
+They explain the visible stale regex counter,114 source-verified cell rows,
+current Filter/Object detection labels,332x267 crop and the model's upper-left
+partial-object result instead of the existing central-cell mask. Independent
+review/staging checks preserve unrelated lessons, scene geometry, links and
+pronunciation text.54 relevant tests pass3.22s. Evidence:
+2026-09-22-make-masks-current-translations.json. First English af_heart renders
+474.0s on CPU; native4K master/browser verification26837 now runs. Complete
+voices, final listening/caption/player acceptance and publication remain open.

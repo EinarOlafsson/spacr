@@ -1432,3 +1432,12 @@ source/context checks pass for every accepted document. German API freshness
 is10487/11194. Receipt:411_german_api_ops_2026-09-22.json. Refreshed report tests
 run before the progress push. No native-speaker, full-catalog or debt-pin claim.
 Final refreshed-report selection:4 passed in223.43s. Feature index matches.
+
+2026-09-22 — CODEX TUTORIAL TRANSLATION CHECKPOINT
+All13 Make Masks language reviews now match its current27-scene English lesson,
+including six magnifier/FEATURES scenes,114-cell measurement, the stale regex
+counter caveat and an explicit explanation of the model/mask mismatch. Scene
+geometry, links, existing unrelated catalogs and pronunciation helpers verify;
+54 staging/translation/acceptance checks pass3.22s. Receipt:
+tools/tutorials/evidence/2026-09-22-make-masks-current-translations.json.
+No native-speaker/listening or media-publication claim; API catalog debt unchanged.
