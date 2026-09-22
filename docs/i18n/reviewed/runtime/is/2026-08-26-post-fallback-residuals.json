@@ -46,13 +46,6 @@
     },
     {
       "table": "ui",
-      "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
-      "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
-      "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
-      "translation": "Lögun sem er teiknuð með drætti á valda fletinum. Þegar gate er búið til er hvert þessara forma framlengt eftir ási fletsins; teikningin helst því flöt en gate verður þrívítt."
-    },
-    {
-      "table": "ui",
       "key": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",
       "source_sha256": "fd36fe0d20280113f5ebfbb7cb79391cfdd7328d68962a75c5c4a1f5a7bcb3f8",
       "source": "Which mask plane a crop is cut by. 'cytoplasm' has no plane on disk and is derived as cell minus nucleus/pathogen, exactly as measure_crop derives it.",

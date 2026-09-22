@@ -109,7 +109,7 @@ class TestDataChooser(QDialog):
             button = QPushButton(tr(label), self)
             button.setCursor(Qt.PointingHandCursor)
             button.setProperty("routeKey", key)
-            button.setToolTip(description)
+            button.setToolTip(tr(description))
             button.installEventFilter(self)
             button.clicked.connect(
                 lambda checked=False, k=key: self._choose(k))
@@ -121,7 +121,7 @@ class TestDataChooser(QDialog):
             self._buttons[key] = button
         layout.addLayout(buttons)
 
-        self._description = QLabel(self.RESTING_TEXT, self)
+        self._description = QLabel(tr(self.RESTING_TEXT), self)
         self._description.setWordWrap(True)
         self._description.setObjectName("TestDataDescription")
         self._size_the_description_pane()
@@ -144,10 +144,10 @@ class TestDataChooser(QDialog):
             key = str(watched.property("routeKey") or "")
             for route_key, _label, description in self.ROUTES:
                 if route_key == key:
-                    self._description.setText(description)
+                    self._description.setText(tr(description))
                     break
         elif kind == QEvent.Leave:
-            self._description.setText(self.RESTING_TEXT)
+            self._description.setText(tr(self.RESTING_TEXT))
         return super().eventFilter(watched, event)
 
     def description_text(self) -> str:
@@ -162,8 +162,8 @@ class TestDataChooser(QDialog):
         list, and building a second one risks measuring a different set
         of strings than the pane can actually display.
         """
-        return (self.RESTING_TEXT,) + tuple(
-            description for _key, _label, description in self.ROUTES)
+        return (tr(self.RESTING_TEXT),) + tuple(
+            tr(description) for _key, _label, description in self.ROUTES)
 
     def _size_the_description_pane(self) -> None:
         """Make the pane as tall as its tallest possible text, and pin it.

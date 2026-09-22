@@ -1,0 +1,35 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "08_measure",
+  "language": "de",
+  "english_sha256": "b38108290d13c808c7abbafa7d550bde4e0e57279232f4e7063fe6b309cbb543",
+  "previous_english_sha256": "6ff85bcfb26101dbec22349f6e4bb42f70baeb6bde11f98dd4d29cb32d1cb186",
+  "changed_scenes": [
+    6,
+    7,
+    8,
+    11
+  ],
+  "retained_scenes": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    9,
+    10,
+    12
+  ],
+  "scene_count": 13,
+  "review_sha256": "e0bf3012f359685fe56a5bc002ff1ecbd88f52a50cf86613b844eb271ad76f7a",
+  "staged_catalog_sha256": "69813609b4b3f6f533d93f1bb19b10c2857191e2aa16efbe617ecbdad13d0aa3",
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Twelve other Measure language reviews",
+    "Caption/player acceptance and complete-set publication"
+  ]
+}

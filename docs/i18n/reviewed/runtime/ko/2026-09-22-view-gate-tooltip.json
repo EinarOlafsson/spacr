@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review": "AI-assisted editorial/technical review: projected view membership at arbitrary angle is distinct from plane shapes with a second depth drag; right-button drag rotates. No native-speaker signoff.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.",
+      "source": "What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.",
+      "source_sha256": "6214ddcae0e4795ce47eed00c66a24c9ac4a645cd1fc331c9343821206923888",
+      "translation": "Draw 모드에서 드래그하여 만드는 도형입니다. Lasso와 Rectangle through view는 어느 각도에서나 작동합니다. 집단이 구분되어 보일 때까지 볼륨을 돌린 다음 그 둘레를 그리면, 게이트는 해당 뷰에서 위치가 윤곽선 안에 들어가는 모든 객체를 유지합니다. 상자, 타원, 원, 다각형은 선택한 평면에 그리고 두 번째 드래그로 깊이를 지정합니다. 오른쪽 버튼으로 드래그하면 항상 볼륨이 회전합니다."
+    }
+  ]
+}

@@ -523,10 +523,21 @@ def test_setup_py_does_not_import_subprocess():
 
 
 def test_setup_py_contains_no_pip_install_shellout():
-    """Comment lines are stripped first: the file legitimately *documents*
-    `pip install spacr[czi]` in prose, and describing an install command is
-    not the same as running one."""
+    """Comment lines and the module docstring are stripped first: the file
+    legitimately *documents* `pip install spacr[czi]` in prose, and describing
+    an install command is not the same as running one. The prose moved from
+    comments into the module docstring on 2026-09-21 (the intel-Mac and
+    optimal-versions tests read it there), which is why the docstring is
+    removed by its exact source span rather than by a text pattern."""
+    import ast
+
     src = SETUP_PY.read_text(encoding="utf-8")
+    tree = ast.parse(src)
+    first = tree.body[0] if tree.body else None
+    if (isinstance(first, ast.Expr) and isinstance(first.value, ast.Constant)
+            and isinstance(first.value.value, str)):
+        lines = src.splitlines(keepends=True)
+        src = "".join(lines[:first.lineno - 1] + lines[first.end_lineno:])
     code = "\n".join(
         ln for ln in src.splitlines() if not ln.lstrip().startswith("#")
     )

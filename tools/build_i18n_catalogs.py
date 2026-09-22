@@ -286,6 +286,9 @@ _IDENTITY_TEXT = {
     "EAF1_g1, EAF1_g2", "Huber t", "RdBu_r", "Tensorboard", "dst", "xD",
     "gRNA", "gRNA CSV", "image_path", "metadata_column_map.json",
     "png_list", "png_path", "{report}", "■ {note}",
+    # The plaque scale caption contains only runtime fields and a scientific
+    # unit. Translating px/mm would change the displayed calibration unit.
+    "{source}: {ppm} px/mm",
 }
 
 _KNOWN_CONTAMINATION_MARKERS = (
@@ -3634,8 +3637,17 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.widgets.gate_editor import TOOL_LABELS
     from spacr.qt.widgets.graph_builder import CHANNEL_HINTS
     from spacr.qt.widgets.live_preview import COMPARTMENT_FIELDS
+    from spacr.qt.widgets.test_data_chooser import TestDataChooser
+    from spacr.qt.import_demo import ImportTestDataChooser
+    from spacr.import_examples import IMPORT_VARIANTS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    # Hover explanations are class data, passed to Qt through loop variables.
+    # Keep their exact English sources separate from runtime-translated text.
+    chooser_sources = {TestDataChooser.RESTING_TEXT, ImportTestDataChooser.RESTING_TEXT}
+    chooser_sources.update(description for _key, _label, description in TestDataChooser.ROUTES)
+    for variant in IMPORT_VARIANTS:
+        chooser_sources.update((variant.label, variant.description))
     found.update(_INDIRECT_CHROME_UI_SOURCES)
     found.update(str(row[1]) for row in COMPARTMENT_FIELDS)
     for _table in (CATEGORY_TOOLTIPS, PATH_LIST_TITLES, APP_TITLES,
@@ -3723,7 +3735,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
             drift_direction_label(name),
             drift_direction_note(name),
         ))
-    return {
+    # These registry values are known presentation prose. A filename, URL or
+    # example regex inside an explanation must not make the AST heuristic
+    # discard the whole paragraph.
+    return {value.strip() for value in chooser_sources} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 
@@ -4770,6 +4785,14 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     corrected = _CONTEXT_HARD_PROTECT_RE.sub(
         hide_context_literal, corrected,
     )
+    # This Gate Editor mode is an unquoted control label in its tooltip.
+    # Preserve it when repeated verbatim: the Portuguese prose cleanup for
+    # "through" otherwise changes the name of the control the user must find.
+    # This does not require translations to keep the label in English.
+    if "Rectangle through view" in str(source):
+        corrected = re.sub(
+            r"\bRectangle through view\b", hide_context_literal, corrected,
+        )
     # Known multilingual-model control-token leaks. These sequences recur as
     # sentence fillers across unrelated sources and carry no target meaning.
     # Remove them only outside protected API/RST literals and, where a token
