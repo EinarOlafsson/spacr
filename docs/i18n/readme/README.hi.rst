@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: पिछले 30 पूरे दिनों में spaCR की PyPI डाउनलोड रैंकिंग
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← <../../source/_static/deck/pages/51.md>`_   `→ <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -80,16 +83,6 @@ segmentation, measurement, annotation और classification modules भी ए�
 छवियाँ, मास्क, क्रॉप, मापन, एनोटेशन, भविष्यवाणियाँ, बारकोड और वेल पहचानकर्ता एक ही SQLite परियोजना में रहते हैं।
 
 यह डेस्कटॉप एप्लिकेशन के रूप में, या वर्कस्टेशन, सर्वर या क्लस्टर पर हेडलेस रूप में चलता है।
-
-स्लाइडों में spaCR
-~~~~~~~~~~~~~~~~~
-
-.. image:: ../../source/_static/deck/slides/slide_01.jpg
-   :alt: स्लाइडों में spaCR: 51 स्लाइडों में सभी मॉड्यूल और प्रशिक्षित मॉडल
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-51 स्लाइडों में सभी मॉड्यूल और प्रशिक्षित मॉडलों का परिचय। `स्लाइड व्यूअर <https://einarolafsson.github.io/spacr/_static/deck/>`_ में तीर कुंजियों से या स्वाइप करके स्लाइडें देखें, या `GitHub पर PDF <../../source/_static/deck/spacr_deck.pdf>`_ के पन्ने पलटें।
 
 हार्डवेयर समर्थन
 ~~~~~~~~~~~~~~~~

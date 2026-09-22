@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← <../../source/_static/deck/pages/51.md>`_   `→ <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -80,16 +83,6 @@ Los módulos de segmentación, medición, anotación y clasificación también f
 Imágenes, máscaras, recortes, mediciones, anotaciones, predicciones, códigos de barras e identificadores de pocillo residen en un único proyecto SQLite.
 
 Se ejecuta como una aplicación de escritorio o sin interfaz gráfica en una estación de trabajo, servidor o clúster.
-
-spaCR en diapositivas
-~~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../source/_static/deck/slides/slide_01.jpg
-   :alt: spaCR en diapositivas: todos los módulos y los modelos entrenados en 51 diapositivas
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-Un recorrido por todos los módulos y los modelos entrenados en 51 diapositivas. Explore el `visor de diapositivas <https://einarolafsson.github.io/spacr/_static/deck/>`_ con las teclas de flecha o deslizando el dedo, o consulte el `PDF en GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
 
 Soporte de hardware
 ~~~~~~~~~~~~~~~~~~~

@@ -1,6 +1,15 @@
 {
  "count": 51,
  "source": "spacr_overview.pptx",
+ "title_line": {
+  "x": 0.0525,
+  "y": 0.8733333333333333,
+  "w": 0.75,
+  "h": 0.05333333333333334,
+  "size": 0.025925925925925925,
+  "colour": "#6B7785",
+  "text": "spaCR {version}  ·  github.com/EinarOlafsson/spacr"
+ },
  "aspect": 1.77778,
  "slides": [
   {
@@ -317,5 +326,6 @@
    "title": "Get started",
    "animations": []
   }
- ]
+ ],
+ "version": "1.5.0.8"
 }

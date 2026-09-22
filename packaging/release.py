@@ -324,11 +324,37 @@ def bump_release(
     citation_path.write_text(citation_text, encoding="utf-8")
     if package_version_path is not None:
         package_version_path.write_text(updated_package, encoding="utf-8")
+    restamp_info_deck(setup_path.parent, new)
     return verify_release_metadata(
         setup_path,
         citation_path,
         package_version_path=package_version_path,
     )
+
+
+def restamp_info_deck(root: Path, version: str) -> str | None:
+    """Redraw the README info deck's title slide for ``version``.
+
+    The title slide reads ``spaCR <version> · github.com/...``; the deck is
+    rendered once from its .pptx, which lives outside the repository, so the
+    version line is drawn onto the kept picture instead
+    (``tools/build_readme_deck.py``). Nothing happens in a tree without the
+    deck.
+
+    :param root: the repository root.
+    :param version: the release being bumped to.
+    :returns: the line drawn, or None.
+    """
+    import importlib.util
+
+    tool = root / "tools" / "build_readme_deck.py"
+    deck = root / "docs" / "source" / "_static" / "deck"
+    if not tool.is_file() or not (deck / "slides.json").is_file():
+        return None
+    spec = importlib.util.spec_from_file_location("build_readme_deck", tool)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.stamp_title(deck, version)
 
 
 def _installer_paths(source: Path, version: str) -> list[tuple[str, Path]]:

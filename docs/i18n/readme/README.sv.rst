@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: spaCR:s PyPI-nedladdningsranking de senaste 30 hela dygnen
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← <../../source/_static/deck/pages/51.md>`_   `→ <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -80,16 +83,6 @@ Segmenterings-, mät-, annoterings- och klassificeringsmodulerna körs även uta
 Bilder, masker, bildutsnitt, mätningar, annoteringar, förutsägelser, streckkoder och brunnsidentifierare ligger i ett och samma SQLite-projekt.
 
 Körs som ett skrivbordsprogram eller utan grafiskt gränssnitt på en arbetsstation, server eller kluster.
-
-spaCR i bilder
-~~~~~~~~~~~~~~~
-
-.. image:: ../../source/_static/deck/slides/slide_01.jpg
-   :alt: spaCR i bilder: alla moduler och tränade modeller i 51 presentationsbilder
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-En genomgång av alla moduler och tränade modeller i 51 presentationsbilder. Bläddra i `bildvisaren <https://einarolafsson.github.io/spacr/_static/deck/>`_ med piltangenterna eller genom att svepa, eller läs `PDF-filen på GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
 
 Hårdvarustöd
 ~~~~~~~~~~~~~~~~

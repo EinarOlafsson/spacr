@@ -3967,13 +3967,12 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         # the English README, because it described the nine and the nine
         # had been left behind. Every image in the English README owes the
         # nine an alt text, so the English README is the count.
-        # The 2026-09-21 slide deck adds one cover image to the prior 51.
+        # 2026-09-21: the info deck's title slide REPLACED the logo at the
+        # top, keeping its alternative text, so the count is the prior 51.
         assert len(alt_text) == len(
-            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == 52
-        deck_alt = "spaCR in slides: every module and the trained models, in 51 slides"
-        assert REVIEWED_README_EVIDENCE_BLOCKS[deck_alt][language] in alt_text
-        assert deck_alt not in alt_text
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == 51
         assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
+        assert "logo_spacr_readme.png" not in text
         assert all(
             module in alt
             for module, alt in zip(

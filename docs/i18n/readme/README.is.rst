@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: Röðun spaCR eftir PyPI-niðurhali síðustu 30 heilu dagana
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← <../../source/_static/deck/pages/51.md>`_   `→ <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -80,16 +83,6 @@ Segmingu, mæling, notkun og flokksmiðju mótmælur virkar einnig án sekkunara
 Myndir, grímur, myndúrklippur, mælingar, merkingar, spár, strikamerki og auðkenni brunna eru geymd í einu SQLite-verkefni.
 
 Keyrist sem skjáborðsforrit eða án grafísks viðmóts á vinnustöð, þjóni eða reikniklasa.
-
-spaCR á glærum
-~~~~~~~~~~~~~~~
-
-.. image:: ../../source/_static/deck/slides/slide_01.jpg
-   :alt: spaCR á glærum: allar einingar og þjálfuðu líkönin á 51 glæru
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-Yfirlit yfir allar einingar og þjálfuðu líkönin á 51 glæru. Flettu þeim í `glæruskoðaranum <https://einarolafsson.github.io/spacr/_static/deck/>`_ með örvatökkunum eða með því að strjúka, eða flettu `PDF-skjalinu á GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
 
 Hardware aðstoð
 ~~~~~~~~~~~~~~~~

@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: spaCR PyPI download ranking over the previous 30 complete days
 
-.. image:: spacr/resources/icons/logo_spacr_readme.png
+.. image:: docs/source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← Back <docs/source/_static/deck/pages/51.md>`_   `Next → <docs/source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -87,19 +90,6 @@ well identifiers live in one SQLite project.
 
 Runs as a desktop application or headlessly on a workstation, server or
 cluster.
-
-spaCR in slides
-~~~~~~~~~~~~~~~
-
-.. image:: docs/source/_static/deck/slides/slide_01.jpg
-   :alt: spaCR in slides: every module and the trained models, in 51 slides
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-A tour of every module and the trained models in 51 slides. Flip through
-them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_
-(arrow keys or swipe), or page through the
-`PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.
 
 Hardware support
 ~~~~~~~~~~~~~~~~

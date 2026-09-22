@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: spaCR 在过去 30 个完整日的 PyPI 下载量排名
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← <../../source/_static/deck/pages/51.md>`_   `→ <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -80,16 +83,6 @@ spaCR 对高内涵显微镜图像中的单细胞进行分割和测量，将逐�
 图像、掩膜、裁剪图像块、测量值、标注、预测、条形码和微孔标识符都存放在同一个 SQLite 项目中。
 
 可作为桌面应用程序运行，也可在工作站、服务器或集群上以无图形界面方式运行。
-
-通过幻灯片了解 spaCR
-~~~~~~~~~~~~~~~~~~~~
-
-.. image:: ../../source/_static/deck/slides/slide_01.jpg
-   :alt: 通过幻灯片了解 spaCR：51 张幻灯片介绍所有模块和训练好的模型
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-通过 51 张幻灯片浏览所有模块和训练好的模型。可在 `幻灯片查看器 <https://einarolafsson.github.io/spacr/_static/deck/>`_ 中使用方向键或滑动翻页，也可阅读 `GitHub 上的 PDF <../../source/_static/deck/spacr_deck.pdf>`_。
 
 硬件支持
 ~~~~~~~~~~~~~~~~

@@ -58,9 +58,12 @@
    :target: https://clickpy.clickhouse.com/dashboard/spacr
    :alt: spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← <../../source/_static/deck/pages/51.md>`_   `→ <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -80,16 +83,6 @@ Die Segmentierungs-, Mess-, Anmerkungs- und Klassifizierungsmodule laufen auch o
 Bilder, Masken, Bildausschnitte, Messungen, Anmerkungen, Vorhersagen, Barcodes und Well-Identifikatoren liegen in einem einzigen SQLite-Projekt.
 
 Läuft als Desktop-Anwendung oder ohne grafische Oberfläche auf einer Workstation, einem Server oder Cluster.
-
-spaCR in Folien
-~~~~~~~~~~~~~~~
-
-.. image:: ../../source/_static/deck/slides/slide_01.jpg
-   :alt: spaCR in Folien: alle Module und die trainierten Modelle auf 51 Folien
-   :width: 720
-   :target: https://einarolafsson.github.io/spacr/_static/deck/
-
-Ein Überblick über alle Module und die trainierten Modelle auf 51 Folien. Blättern Sie im `Folienbetrachter <https://einarolafsson.github.io/spacr/_static/deck/>`_ mit den Pfeiltasten oder durch Wischen, oder lesen Sie das `PDF auf GitHub <../../source/_static/deck/spacr_deck.pdf>`_.
 
 Hardware-Unterstützung
 ~~~~~~~~~~~~~~~~~~~~~~

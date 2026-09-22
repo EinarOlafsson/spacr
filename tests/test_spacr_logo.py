@@ -41,10 +41,15 @@ def test_all_published_logo_copies_are_identical():
     assert all(path.read_bytes() == canonical for path in generator.OUTPUTS[1:])
 
 
-def test_readme_uses_the_logo_from_the_current_branch():
+def test_readme_opens_with_the_info_deck_from_the_current_branch():
+    """2026-09-21, the maintainer: "replace the picture (spacr logo) at the
+    top with the slides", with only Back and Next beneath it."""
     text = README.read_text(encoding="utf-8")
-    assert ".. image:: spacr/resources/icons/logo_spacr_readme.png" in text
+    assert ".. image:: docs/source/_static/deck/slides/slide_01.jpg" in text
+    assert "logo_spacr_readme.png" not in text
     assert "   :width: 920" in text
+    assert "`← Back <docs/source/_static/deck/pages/51.md>`_" in text
+    assert "`Next → <docs/source/_static/deck/pages/02.md>`_" in text
     assert "raw.githubusercontent.com/EinarOlafsson/spacr/main" not in text
 
 

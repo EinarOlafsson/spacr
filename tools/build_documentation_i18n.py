@@ -3750,14 +3750,19 @@ def _readme_substitution_alt_text(text: str, names: Iterable[str]) -> list[str]:
 
 
 def _readme_logo_alt_text(text: str) -> str:
-    """Return the alternative text for the unlabelled README logo image."""
+    """Return the alternative text for the README's opening picture.
+
+    The spaCR logo until 2026-09-21; since then the info deck's title slide,
+    which carries the same alternative text.
+    """
     directive = re.search(
-        r"(?ms)^\.\. image:: [^\n]*logo_spacr_readme\.png\n"
+        r"(?ms)^\.\. image:: [^\n]*(?:logo_spacr_readme\.png|"
+        r"_static/deck/slides/slide_01\.jpg)\n"
         r"(?P<body>(?:   [^\n]*(?:\n|$))*)",
         text,
     )
     if directive is None:
-        raise ValueError("README is missing the spaCR logo image definition")
+        raise ValueError("README is missing its opening image definition")
     alt = re.search(r"(?m)^   :alt: (.+)$", directive.group("body"))
     if alt is None:
         raise ValueError("README spaCR logo is missing alternative text")

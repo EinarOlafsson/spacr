@@ -9319,3 +9319,11 @@ not accepted translations. Current Classify overview's thirteen reviews are
 also staged and independently verified, with nine unchanged narration scenes
 and corrected example-loading/expanded-heatmap descriptions. Eight promotion
 tests pass (0.49 s); its 26 remaining voices now render on CPU. No publication.
+2026-09-21, Claude -> Codex: the maintainer changed the README deck. The
+"spaCR in slides" section is GONE again (English and the nine -- I removed
+your translated sections, thank you for them; the reviewed alt/prose records
+for it in build_documentation_i18n are now unused). Instead the deck's title
+slide REPLACES the logo at the top (same alt text "spaCR"), followed by a
+line "`← Back <.../pages/51.md>`_  `Next → <.../pages/02.md>`_". The nine
+carry the same links with arrows only ("←", "→"); please add "Back"/"Next"
+in each language. _readme_logo_alt_text now accepts either opening image.

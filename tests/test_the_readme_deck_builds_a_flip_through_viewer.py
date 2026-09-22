@@ -84,3 +84,39 @@ def test_an_animated_gif_is_read_out_of_the_deck_with_its_place(tmp_path):
         pytest.approx((0.5, 0.2, 0.2, 0.4), abs=1e-3)
     copied = tmp_path / moving["src"]
     assert Image.open(copied).n_frames == 4
+
+
+def test_every_github_page_links_back_and_next_and_wraps(tmp_path):
+    pages = deck.github_pages(tmp_path, ["One", "Two", "Three"])
+    text = [p.read_text() for p in pages]
+    assert 'href="03.md">← Back' in text[0] and 'href="02.md">Next →' in text[0]
+    assert 'href="02.md">← Back' in text[2] and 'href="01.md">Next →' in text[2]
+    assert 'src="../slides/slide_02.jpg"' in text[1]
+
+
+def test_the_title_slide_is_restamped_with_the_version(tmp_path):
+    """2026-09-21, the maintainer: "the title page should autoupdate with
+    version bumps"."""
+    from PIL import Image
+
+    for folder in ("slides", "thumbs"):
+        (tmp_path / folder).mkdir()
+    Image.new("RGB", (800, 450), "black").save(tmp_path / "title_base.jpg")
+    Image.new("RGB", (800, 450), "black").save(tmp_path / "slides" / "slide_01.jpg")
+    (tmp_path / "slides.json").write_text(json.dumps({
+        "slides": [{"image": "slides/slide_01.jpg", "thumb": "thumbs/slide_01.jpg"}],
+        "title_line": {"x": 0.05, "y": 0.85, "w": 0.7, "h": 0.06, "size": 0.04,
+                       "colour": "#FFFFFF", "text": "spaCR {version}  ·  x"}}))
+    assert deck.stamp_title(tmp_path, "9.8.7.6") == "spaCR 9.8.7.6  ·  x"
+    drawn = Image.open(tmp_path / "slides" / "slide_01.jpg").convert("L")
+    assert drawn.crop((0, 360, 800, 420)).getextrema()[1] > 128
+    assert json.loads((tmp_path / "slides.json").read_text())["version"] == "9.8.7.6"
+    assert (tmp_path / "spacr_deck.pdf").is_file()
+
+
+def test_the_published_deck_carries_the_current_version():
+    manifest = json.loads((ROOT / "docs" / "source" / "_static" / "deck"
+                           / "slides.json").read_text(encoding="utf-8"))
+    assert manifest["version"] == deck.current_version(), (
+        "run python tools/build_readme_deck.py --stamp "
+        "(packaging/release.py does it on every bump)")
