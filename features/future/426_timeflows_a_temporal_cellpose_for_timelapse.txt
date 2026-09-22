@@ -364,3 +364,38 @@ Cellpose-SAM backbone in a smoke run:
   * spaCR's own Cellpose training takes a base_model now (a checkpoint, a zoo
     key or cpsam), so step 0's second stage can continue from the first
     instead of silently restarting from stock weights.
+
+2026-09-22 -- THE FIRST GPU RUN, AND WHAT THE HELD-OUT MOVIES SAY
+--------------------------------------------------------------------------------
+
+TRAINED: timeflows_v1.pt (/mnt/wd4tb/af3/projects/live_cell/timeflows/, with
+its .json and log), base cpsam, 694 pairs -- at most 60 per sequence, spaced
+evenly -- from six CTC movies (PhC-PSC, Fluo-MSC, BF-MuSC, BF-HSC, Fluo-GOWT1,
+Fluo-N2DL-HeLa), 2,000 head-only then 2,000 full steps on the GPU after 20
+idle minutes. Loss 0.87 -> ~0.05, noisy step to step. Two defects surfaced
+and were fixed on the way (both on nightly, with tests): every frame of all
+movies was read before training (killed at 48 GB), and the Cellpose-SAM
+encoder only takes 256 px tiles (training now reads one shared window per
+pair; prediction tiles the frame).
+
+THE SCRAMBLE TEST, HELD-OUT MOVIES (U373 phase, DIC-HeLa), share of objects
+linked to their true successor after t+1's ids are shuffled, against the IoU
+stitcher on the same pairs (features/data/426_scramble_test_timeflows_v1_2026-09-22.json):
+
+    movie      gap   objects   Timeflows v1   IoU stitcher
+    U373        1      317       0.994          0.994
+    U373        3      248       0.992          0.992
+    U373        6      244       0.984          0.975
+    DIC-HeLa    1      603       0.992          0.998
+    DIC-HeLa    3      464       0.983          0.998
+    DIC-HeLa    6      444       0.964          1.000
+
+V1 DOES NOT BEAT THE STITCHER, and the table says why rather than only that
+it lost: these cells are large and slow against their own diameter, so frame
+overlap alone is almost perfect even six frames apart. The one cell where
+motion outruns overlap (U373 at gap 6) is the one Timeflows wins. The test
+that would show what the item is for needs held-out movies whose objects
+move more than they overlap -- small fast cells, sparse frame rates (the
+bacterial CTC sets, Fluo-N2DH-SIM+, or a subsampled PSC/HSC sequence held out
+from training) -- and a training set weighted towards those pairs. Not
+promoted; v1 stays an experiment.

@@ -1,0 +1,68 @@
+{
+ "date": "2026-09-22",
+ "dataset": "make_masks_toxo_pv (item 412, 10 fields)",
+ "metric": "F1 at IoU 0.5, Hungarian matched",
+ "results": [
+  {
+   "arm": "cellpose3:cyto3 via spaCR (normalize translated)",
+   "mean_f1": 0.4035,
+   "objects_found": 1207,
+   "objects_true": 910,
+   "per_image": {
+    "plate1_A02_12": 0.119,
+    "plate2_E08_13": 0.045,
+    "plate2_N04_5": 0.5,
+    "plate3_B18_17": 0.588,
+    "plate3_I10_4": 0.0,
+    "plate4_C01_6": 0.859,
+    "plate5_G12_7": 0.707,
+    "plate6_D16_24": 0.462,
+    "plate7_D05_7": 0.427,
+    "plate7_N21_6": 0.329
+   },
+   "seconds": 166.6,
+   "ignored": [],
+   "translated": []
+  },
+  {
+   "arm": "cellpose3:cyto2 via spaCR (normalize translated)",
+   "mean_f1": 0.5487,
+   "objects_found": 927,
+   "objects_true": 910,
+   "per_image": {
+    "plate1_A02_12": 0.434,
+    "plate2_E08_13": 0.0,
+    "plate2_N04_5": 0.685,
+    "plate3_B18_17": 0.639,
+    "plate3_I10_4": 0.0,
+    "plate4_C01_6": 0.902,
+    "plate5_G12_7": 0.75,
+    "plate6_D16_24": 0.658,
+    "plate7_D05_7": 0.837,
+    "plate7_N21_6": 0.582
+   },
+   "seconds": 119.9,
+   "ignored": [],
+   "translated": []
+  },
+  {
+   "arm": "cpsam (Cellpose-SAM stock) via spaCR's normalize=False",
+   "mean_f1": 0.4911,
+   "objects_found": 461,
+   "objects_true": 910,
+   "per_image": {
+    "plate1_A02_12": 0.633,
+    "plate2_E08_13": 0.323,
+    "plate2_N04_5": 0.373,
+    "plate3_B18_17": 0.484,
+    "plate3_I10_4": 0.273,
+    "plate4_C01_6": 0.798,
+    "plate5_G12_7": 0.621,
+    "plate6_D16_24": 0.492,
+    "plate7_D05_7": 0.581,
+    "plate7_N21_6": 0.333
+   },
+   "seconds": 60.0
+  }
+ ]
+}

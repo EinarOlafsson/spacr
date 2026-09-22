@@ -182,6 +182,63 @@ def augment_pair(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
     return [apply(f) for f in frames], [apply(l) for l in labels]
 
 
+#: The side of the square the Cellpose-SAM encoder takes. Its position
+#: embedding is fixed at 32 x 32 patches of 8 px; a whole 1,100 px frame fails
+#: at the first step (measured 2026-09-22), so training reads windows of this
+#: size and prediction tiles the frame with them.
+TILE = 256
+
+
+def _pad_to(array: np.ndarray, size: int, *, labels: bool) -> np.ndarray:
+    """``array`` padded at the bottom and right to at least ``size`` square.
+
+    :param array: ``(H, W)`` or ``(H, W, C)``.
+    :param size: the smallest side wanted.
+    :param labels: pad with background (0) rather than by reflection.
+    :returns: the padded array.
+    """
+    pad_y, pad_x = max(0, size - array.shape[0]), max(0, size - array.shape[1])
+    if not pad_y and not pad_x:
+        return array
+    widths = [(0, pad_y), (0, pad_x)] + [(0, 0)] * (array.ndim - 2)
+    return np.pad(array, widths, mode="constant" if labels else "reflect")
+
+
+def random_window(frames: Sequence[np.ndarray], labels: Sequence[np.ndarray],
+                  rng: np.random.Generator, size: int = TILE
+                  ) -> Tuple[List[np.ndarray], List[np.ndarray]]:
+    """One ``size`` square, the SAME window of every frame and label.
+
+    Centred on a random object of the first label image, jittered by up to a
+    quarter window, so windows hold cells rather than empty background. A
+    window shared by both frames keeps every displacement true.
+
+    :param frames: the images.
+    :param labels: the label images.
+    :param rng: the random generator.
+    :param size: the window's side.
+    :returns: the windowed frames and labels.
+    """
+    frames = [_pad_to(f, size, labels=False) for f in frames]
+    labels = [_pad_to(l, size, labels=True) for l in labels]
+    height, width = labels[0].shape[:2]
+    ids = np.unique(labels[0])
+    ids = ids[ids != 0]
+    if ids.size:
+        ys, xs = np.nonzero(labels[0] == ids[int(rng.integers(0, ids.size))])
+        cy, cx = int(ys.mean()), int(xs.mean())
+        jitter = size // 4
+        cy += int(rng.integers(-jitter, jitter + 1))
+        cx += int(rng.integers(-jitter, jitter + 1))
+    else:
+        cy, cx = int(rng.integers(0, height)), int(rng.integers(0, width))
+    y0 = int(np.clip(cy - size // 2, 0, height - size))
+    x0 = int(np.clip(cx - size // 2, 0, width - size))
+    window = (slice(y0, y0 + size), slice(x0, x0 + size))
+    return ([np.ascontiguousarray(f[window]) for f in frames],
+            [np.ascontiguousarray(l[window]) for l in labels])
+
+
 def pair_sampling_weights(label_stack: np.ndarray, bins: int = 5) -> np.ndarray:
     """Weights that draw pairs evenly across how far their objects move.
 
@@ -419,8 +476,9 @@ def train_timeflows(net, pairs: Sequence[_Pair], *, head_steps: int = 100,
         net.train()
         for step in range(steps):
             pair = pairs[int(rng.choice(len(pairs), p=probs))]
-            frames, labels = augment_pair([pair.frame_t, pair.frame_t1],
-                                          [pair.labels_t, pair.labels_t1], rng)
+            frames, labels = random_window([pair.frame_t, pair.frame_t1],
+                                           [pair.labels_t, pair.labels_t1], rng)
+            frames, labels = augment_pair(frames, labels, rng)
             target = time_targets(labels[0], labels[1])
             batch = {k: torch.from_numpy(v)[None].to(device) for k, v in target.items()}
             output = net(_to_input(frames[0]).to(device), _to_input(frames[1]).to(device))
@@ -447,12 +505,36 @@ def predict_pair(net, frame_t: np.ndarray, frame_t1: np.ndarray,
     :param frame_t1: frame ``t+1``, normalised.
     :param device: where to run.
     :returns: ``vector`` (2, H, W) and ``successor`` probability (H, W).
+        The frame is read in :data:`TILE`-pixel tiles with a quarter-tile
+        overlap and the overlaps averaged; the vectors are in each object's
+        own diameters, so a tile needs no context beyond the object.
     """
     torch = _torch()
     net = net.to(device).eval()
+    height, width = frame_t.shape[:2]
+    a = _pad_to(frame_t, TILE, labels=False)
+    b = _pad_to(frame_t1, TILE, labels=False)
+    padded_h, padded_w = a.shape[:2]
+    stride = TILE * 3 // 4
+
+    def starts(extent):
+        """Tile origins covering ``extent`` with a quarter-tile overlap."""
+        found = list(range(0, max(1, extent - TILE + 1), stride))
+        if found[-1] + TILE < extent:
+            found.append(extent - TILE)
+        return found
+
+    total = np.zeros((3, padded_h, padded_w), dtype=np.float32)
+    count = np.zeros((padded_h, padded_w), dtype=np.float32)
     with torch.no_grad():
-        out = net(_to_input(frame_t).to(device), _to_input(frame_t1).to(device))[0]
-    out = out.cpu().numpy()
+        for y0 in starts(padded_h):
+            for x0 in starts(padded_w):
+                window = (slice(y0, y0 + TILE), slice(x0, x0 + TILE))
+                out = net(_to_input(np.ascontiguousarray(a[window])).to(device),
+                          _to_input(np.ascontiguousarray(b[window])).to(device))[0]
+                total[:, y0:y0 + TILE, x0:x0 + TILE] += out.float().cpu().numpy()
+                count[y0:y0 + TILE, x0:x0 + TILE] += 1.0
+    out = (total / np.maximum(count, 1.0))[:, :height, :width]
     return {"vector": out[:2], "successor": 1.0 / (1.0 + np.exp(-out[2]))}
 
 
@@ -566,7 +648,8 @@ def _normalise(image: np.ndarray) -> np.ndarray:
     return np.clip((image - low) / max(high - low, 1e-6), 0, 1).astype(np.float32)
 
 
-def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
+def ctc_pairs(movie: str, sequence: str = "01",
+              max_pairs: Optional[int] = None) -> List[_Pair]:
     """Consecutive-frame training pairs from one Cell Tracking Challenge movie.
 
     Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver
@@ -577,6 +660,10 @@ def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
 
     :param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).
     :param sequence: ``'01'`` or ``'02'``.
+    :param max_pairs: at most this many pairs, spaced evenly through the
+        movie and chosen BEFORE any file is read. Measured 2026-09-22: six
+        movies read whole do not fit in 48 GB -- the HSC and MuSC movies alone
+        are about 3,000 frames -- so a training run takes a sample of each.
     :returns: the pairs, in time order.
     """
     import os
@@ -598,13 +685,18 @@ def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
     frames = indexed(os.path.join(movie, sequence), "t")
     segs = indexed(os.path.join(movie, f"{sequence}_ST", "SEG"), "man_seg")
     tracks = indexed(os.path.join(movie, f"{sequence}_GT", "TRA"), "man_track")
-    usable = sorted(set(frames) & set(segs) & set(tracks))
+    usable = set(frames) & set(segs) & set(tracks)
+    starts = sorted(n for n in usable if n + 1 in usable)
+    if max_pairs is not None and len(starts) > max_pairs > 0:
+        picks = np.linspace(0, len(starts) - 1, max_pairs).round().astype(int)
+        starts = [starts[i] for i in sorted(set(picks.tolist()))]
+    needed = sorted({n for s in starts for n in (s, s + 1)})
     loaded = {n: (_normalise(tifffile.imread(frames[n])),
                   track_masks_from_ctc(tifffile.imread(segs[n]),
                                        tifffile.imread(tracks[n])))
-              for n in usable}
+              for n in needed}
     return [_Pair(loaded[n][0], loaded[n + 1][0], loaded[n][1], loaded[n + 1][1])
-            for n in usable if n + 1 in loaded]
+            for n in starts]
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -630,11 +722,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--head-steps", type=int, default=2000)
     parser.add_argument("--full-steps", type=int, default=2000)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--max-pairs", type=int, default=60,
+                        help="pairs per movie sequence, spaced evenly (0 = all)")
     args = parser.parse_args(argv)
     pairs: List[_Pair] = []
     for movie in args.movies:
         for sequence in ("01", "02"):
-            pairs.extend(ctc_pairs(movie, sequence))
+            pairs.extend(ctc_pairs(movie, sequence,
+                                   max_pairs=args.max_pairs or None))
+            print(f"{movie.rsplit('/', 1)[-1]} {sequence}: {len(pairs)} pairs so far",
+                  flush=True)
     if not pairs:
         raise SystemExit("no usable pairs: each movie needs NN/, NN_ST/SEG and NN_GT/TRA")
     weights = pair_sampling_weights(np.stack([p.labels_t for p in pairs]
@@ -652,6 +749,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     torch.save(net.state_dict(), args.out)
     with open(args.out + ".json", "w", encoding="utf-8") as handle:
         json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
+                   "max_pairs_per_sequence": args.max_pairs,
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
                    "final_loss": losses[-1] if losses else None}, handle, indent=2)
     print(f"saved {args.out} ({len(pairs)} pairs, final loss {losses[-1]:.4f})")
