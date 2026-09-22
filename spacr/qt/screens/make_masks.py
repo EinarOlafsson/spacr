@@ -8525,8 +8525,10 @@ class MakeMasksScreen(QWidget):
             "keeps only what is brighter than its surroundings within that "
             "radius and is much faster. Set the radius comfortably LARGER "
             "than the largest object: a radius under the object size eats "
-            "the objects with the background. HEAVY: the rolling ball is "
-            "seconds on a whole field.")
+            "the objects with the background. HEAVY: on one 1,994 px field "
+            "a 40 px top-hat took a minute against one second for the same "
+            "detection with no chain, and the rolling ball is slower still; "
+            "on the magnifier's box both are a fraction of that.")
         form.addRow("Background", self._enh_background)
 
         self._enh_background_radius = QSpinBox()
@@ -8796,9 +8798,9 @@ class MakeMasksScreen(QWidget):
         raw = np.array(self._canvas.displayed_source()
                        [box[1]:box[3], box[0]:box[2]], copy=True)
         enhanced = detect_chain.prepare(raw, chain)
-        steps = detect_chain.describe(
+        steps = " → ".join(tr(name) for name in detect_chain.step_names(
             chain,
-            percentile_stretch=bool(self._canvas.detect_on_normalized))
+            percentile_stretch=bool(self._canvas.detect_on_normalized)))
         self._compare_dialog = _ComparePreview(
             raw, enhanced,
             steps or tr("No enhancement step is switched on."), self)

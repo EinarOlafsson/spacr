@@ -76,13 +76,33 @@ DENOISE_METHODS: Tuple[str, ...] = (
 #: ``morphology`` values, applied to what the detector labelled.
 MORPHOLOGY_OPS: Tuple[str, ...] = ("none", "open", "close", "open_close")
 
+#: Above this radius, in pixels, a background subtraction is slow enough
+#: on a whole field to be worth warning about: the disk it is computed over
+#: grows with the square of it.
+HEAVY_BACKGROUND_RADIUS = 20
+
 #: The steps slow enough that a screen offering them should say so, as
-#: ``(field, the value that is slow, what to say)``. Read by
+#: ``(what to say, a predicate on the chain)``. Read by
 #: :func:`heavy_steps`.
-_HEAVY: Tuple[Tuple[str, object, str], ...] = (
-    ("denoise", "nlm", "non-local means"),
-    ("denoise", "bilateral", "bilateral denoising"),
-    ("background", "rolling_ball", "rolling-ball background"),
+#:
+#: MEASURED, on one 1,994 px toxo vacuole field on a CPU (2026-09-22, the
+#: table in ``features/new/473_make_masks_offers_every_detection_method_
+#: and_contrast_help.txt``): an Otsu detection with no chain took 1.0 s for
+#: the whole field; the same detection behind a 40 px top-hat took 58 s,
+#: behind a median denoise 1.9 s, and behind CLAHE 4.3 s. A background
+#: radius is therefore the one number on this card that can turn a second
+#: into a minute, which is why the warning reads it rather than only the
+#: method. On a magnifier box every one of them is a small fraction of
+#: that, since the box is a few hundred pixels across and the field is four
+#: megapixels.
+_HEAVY = (
+    ("non-local means", lambda chain: chain.denoise == "nlm"),
+    ("bilateral denoising", lambda chain: chain.denoise == "bilateral"),
+    ("a background radius over {radius} px".format(
+        radius=HEAVY_BACKGROUND_RADIUS),
+     lambda chain: (chain.background != "none"
+                    and int(chain.background_radius)
+                    > HEAVY_BACKGROUND_RADIUS)),
 )
 
 
@@ -178,8 +198,7 @@ def heavy_steps(chain: Chain) -> Tuple[str, ...]:
     :returns: the names, in :data:`CHAIN_ORDER`; empty when nothing
         switched on is heavy.
     """
-    return tuple(words for field, slow, words in _HEAVY
-                 if getattr(chain, field) == slow)
+    return tuple(words for words, is_heavy in _HEAVY if is_heavy(chain))
 
 
 def _span(image: np.ndarray) -> Tuple[float, float]:
@@ -399,17 +418,61 @@ def provenance(chain: Chain, *, percentile_stretch: bool = False) -> Dict:
     return {"enhancement": steps}
 
 
+#: The words each value of a chain's choice fields is named by, for
+#: :func:`step_names`. A caption a person reads should say "top-hat
+#: background", not the field name and the value it holds.
+_STEP_WORDS: Dict[str, Dict[str, str]] = {
+    "background": {"rolling_ball": "rolling-ball background",
+                   "tophat": "top-hat background"},
+    "denoise": {"gaussian": "Gaussian denoise", "median": "median denoise",
+                "bilateral": "bilateral denoise",
+                "nlm": "non-local means denoise"},
+    "morphology": {"open": "morphological opening",
+                   "close": "morphological closing",
+                   "open_close": "morphological opening then closing"},
+}
+
+
+def step_names(chain: Chain, *,
+               percentile_stretch: bool = False) -> Tuple[str, ...]:
+    """The switched-on steps, in order, in the words a caption uses.
+
+    English, and each name is one row a caller can translate on its own --
+    the alternative, one row per combination of fifteen fields, is a
+    catalog nobody can fill.
+
+    :param chain: the chain to describe.
+    :param percentile_stretch: whether the screen's stretch was on.
+    :returns: the names, in :data:`CHAIN_ORDER`; empty when nothing ran.
+    """
+    names = []
+    if percentile_stretch:
+        names.append("percentile stretch")
+    for field in ("background", "denoise"):
+        value = getattr(chain, field)
+        if value != "none":
+            names.append(_STEP_WORDS[field].get(value, value))
+    if abs(float(chain.gamma) - 1.0) > 1e-9:
+        names.append(f"gamma {float(chain.gamma):.2f}")
+    if chain.clahe:
+        names.append("CLAHE")
+    if chain.equalize:
+        names.append("histogram equalisation")
+    if chain.sharpen:
+        names.append("unsharp mask")
+    if chain.morphology != "none":
+        names.append(_STEP_WORDS["morphology"].get(chain.morphology,
+                                                   chain.morphology))
+    if chain.split:
+        names.append("split touching objects")
+    return tuple(names)
+
+
 def describe(chain: Chain, *, percentile_stretch: bool = False) -> str:
     """The switched-on steps in one line, for a status line or a tooltip.
 
     :returns: the steps separated by arrows, or an empty string when the
         chain does nothing.
     """
-    recorded = provenance(
-        chain, percentile_stretch=percentile_stretch)["enhancement"]
-    if recorded == "none":
-        return ""
-    names = [key for key in recorded if key != "order"
-             and not key.endswith(("_radius", "_strength", "_tile",
-                                   "_clip", "_amount"))]
-    return " → ".join(str(name).replace("_", " ") for name in names)
+    return " → ".join(step_names(chain,
+                                 percentile_stretch=percentile_stretch))

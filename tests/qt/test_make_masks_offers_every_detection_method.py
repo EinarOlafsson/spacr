@@ -348,6 +348,12 @@ def test_the_heavy_steps_say_they_are_heavy(screen):
     assert "non-local means" in dc.heavy_steps(dc.Chain(denoise="nlm"))
     assert om.HEAVY_MODES["unet"]
 
+    small = dc.Chain(background="tophat", background_radius=5)
+    large = dc.Chain(background="tophat", background_radius=60)
+    assert dc.heavy_steps(small) == (), \
+        "a small background radius is not slow and must not say it is"
+    assert dc.heavy_steps(large), "a large background radius says nothing"
+
     assert screen._enh_heavy.text() == ""
     screen._enh_denoise.setCurrentIndex(
         screen._enh_denoise.findData("nlm"))
@@ -373,6 +379,16 @@ def test_the_canvas_can_draw_what_the_detector_reads(screen):
     assert canvas.enhance_display is False
 
 
+def test_the_chain_is_described_in_the_words_a_caption_uses():
+    """The caption names the steps, not the fields that hold them."""
+    assert dc.step_names(dc.NO_CHAIN) == ()
+    assert dc.step_names(
+        dc.Chain(background="tophat", gamma=0.5, clahe=True, split=True),
+        percentile_stretch=True) == (
+        "percentile stretch", "top-hat background", "gamma 0.50", "CLAHE",
+        "split touching objects")
+
+
 def test_the_compare_window_shows_the_raw_and_the_enhanced_side_by_side(
         screen):
     """One click, two pictures, and the list of what ran between them."""
@@ -381,7 +397,7 @@ def test_the_compare_window_shows_the_raw_and_the_enhanced_side_by_side(
     dialog = screen._compare_dialog
     try:
         assert dialog is not None and dialog.isVisible()
-        assert "clahe" in dialog.caption.text()
+        assert "CLAHE" in dialog.caption.text()
         left, right = (pane.pixmap().toImage() for pane in dialog.panes)
         assert not left.isNull() and not right.isNull()
         assert left != right, "the two pictures are the same picture"
