@@ -51,6 +51,30 @@ WHAT A STEP COSTS. :func:`heavy_steps` names the switched-on steps that are
 slow enough to say so before they run -- non-local means above all, which
 is minutes on a 2,000 px field and is the reason the whole-image run keeps
 item 407's progress and Cancel.
+
+WHAT THIS IS NOT, AND WHAT IT IS NEXT TO.
+:func:`spacr.object._preprocess_batch` is the mask pipeline's own
+pre-processing for organelles: a rolling ball and CLAHE, in that order,
+over a batch of fields, driven by ``organelle_rolling_ball`` and
+``organelle_clahe``. Two of this module's ten steps are that pair, and
+they mean the same thing. They are written here rather than called there
+because that function takes an ``(N, H, W)`` batch and a pipeline settings
+dict, and because splitting one chain across two modules -- rolling ball
+and CLAHE from the pipeline, top-hat, denoise, gamma, equalisation,
+sharpen, morphology and split from here -- would leave nowhere that the
+ORDER is stated, which is the one thing about a chain that has to be
+stated in one place.
+:mod:`spacr.settings`' Mask background settings (``remove_background``,
+``background``, ``signal_to_noise``) are a different operation again: a
+floor applied per channel to the pixels a mask RUN segments, not a surface
+fitted and subtracted for one curator's look at one field.
+
+WITHIN MAKE MASKS ONLY. A chain changes how objects are FOUND for a
+curator to accept or reject; it does not change a pixel on disk and it is
+not wired into the Mask module's own pre-processing. Whether it should be
+-- so that a model trained on masks curated over an enhanced image sees
+the same input at inference -- is a question for the maintainer, and item
+473 says to ask before answering it.
 """
 from __future__ import annotations
 
