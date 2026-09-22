@@ -3,7 +3,7 @@ AFTER INSTALLATION: HOW THE MODULES CONNECT -- TUTORIALS, WALKTHROUGHS AND API
 THAT SAY WHAT FEEDS WHAT, AND A HOME SCREEN THAT SHOWS WHERE TO START
 ================================================================================
 
-Status:    OPEN, filed 2026-09-22. Not started.
+Status:    OPEN; English workflow map, guide and pathway implementation in progress.
 Issue:     GitHub #130, "Guide what to do after installation" (momeara,
            2026-09-22).
 Owners:    CODEX -- the tutorials, walkthroughs and API prose (parts 1-4), the
@@ -160,3 +160,29 @@ completion is claimed yet.
      further change, so the dialog and the tutorials cannot drift.
      STILL OWED on part 5: the walkthrough for the chosen pathway one click
      away, which needs Codex's walkthroughs to exist.
+2026-09-22 — CODEX: FIRST ENGLISH MAP / GUIDE / WALKTHROUGH IMPLEMENTATION
+spacr/resources/module_workflows.json maps 71 registered/nested/mode routes
+and nine pathways. Existing spacr.ports declarations are copied exactly and
+checked against current code, alongside live names, parents, Home/API routes
+and key saved-column/table literals. Explicit handoff notes distinguish
+conditional inputs, Plaque's direct image route, and the OPS join/aggregation
+needed before Regression. This checks declared contracts and selected source
+anchors; it does not establish runtime execution of all 71 workflows.
+
+build_module_workflows.py generates workflows.rst, per-API input/output and
+neighbour includes, and four tutorial authoring contracts. Sphinx refuses
+stale generated artifacts. Help -> Walkthroughs exposes all nine pathways;
+show_walkthrough(window, 'pathway:<id>') begins on Home, navigates to each
+module/host, and never starts analysis. Real visual inspection found and fixed
+a competing delayed first-run tour. The map is included in wheel/sdist data.
+
+These are English implementation checkpoints, not four finished narrated
+lessons. All-language pathway wording, actual new tutorial media, broader
+runtime I/O evidence and Claude's Home-map adapter/walkthrough link remain.
+The API/runtime rebuild and completed-set tutorial publication remain open.
+Validation for this slice: 121 focused map/navigation/first-run tests pass
+in 24.51 s; the preceding ports/artifacts selection passed 75 existing checks.
+A real Sphinx HTML build of the guide and all generated API include fragments
+passes with warnings treated as errors. Real 1280x900 Home and Experiment
+Design pathway cards were inspected; the first-run overlay no longer covers
+the requested guide. No full application/API-docs build is claimed.

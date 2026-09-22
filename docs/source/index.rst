@@ -80,6 +80,9 @@ in rather than gone. Home lists whatever the running build offers.
 Applications and workflow
 -------------------------
 
+New to spaCR? :doc:`Choose a workflow after installation <workflows>` for
+the first Home tile, the inputs each step needs, and what to open next.
+
 Every tile links to the API page used by that application's in-product help.
 
 .. include:: _generated/workflow_grid.rst
@@ -121,6 +124,7 @@ Contents
    :maxdepth: 2
 
    installer_guide
+   workflows
    installers
    features
    python_api

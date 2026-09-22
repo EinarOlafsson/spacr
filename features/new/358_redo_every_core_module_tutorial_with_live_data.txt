@@ -2535,3 +2535,10 @@ Run and Run preview resolve to distinct buttons. Tutorial tests also wait for
 real window-owned preview/usage jobs to retire. All 73 script tests pass in
 75.74s without a lingering JobRunner report; retained Qt widgets still appear
 in the harness shutdown report. Capture/publication status is unchanged.
+
+2026-09-22 — CODEX: 472 SHARED WORKFLOW CONTRACTS
+Four new tutorial authoring contracts under tools/tutorials/workflows/ are
+now generated from spacr/resources/module_workflows.json, which also feeds
+the API guide and nine interactive Home-starting pathway walkthroughs.
+These contracts are not finished recordings or translated lesson catalogs;
+the existing live-media acceptance requirements remain in force.

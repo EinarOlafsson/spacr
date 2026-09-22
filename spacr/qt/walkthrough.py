@@ -39,6 +39,7 @@ from PySide6.QtGui import QAction
 from PySide6.QtWidgets import QMainWindow, QMenu, QWidget
 
 from .first_run import TourStep, _TourOverlay, find_menu
+from .i18n import tr
 
 LOG = logging.getLogger("spacr.qt.walkthrough")
 
@@ -175,6 +176,8 @@ def build_steps(app_key: str) -> List[WalkStep]:
 
     :param app_key: the module's app key.
     """
+    if app_key.startswith("pathway:"):
+        return _pathway_steps(app_key.partition(":")[2])
     name = _module_name(app_key)
     steps: List[WalkStep] = []
 
@@ -335,6 +338,8 @@ def show_walkthrough(window: QMainWindow, app_key: str,
         asking for it.
     :returns: the overlay, or ``None`` when it was skipped.
     """
+    if app_key.startswith("pathway:"):
+        return _show_pathway(window, app_key.partition(":")[2])
     if not force and was_seen(app_key):
         return None
     screen = None
@@ -359,6 +364,82 @@ def show_walkthrough(window: QMainWindow, app_key: str,
         for step in steps
     ]
     overlay = _TourOverlay(window, tour, on_finish=_Seen(app_key).mark)
+    overlay.show()
+    overlay.raise_()
+    overlay.setFocus()
+    return overlay
+
+
+def _workflow_map():
+    """Read the bundled, source-checked module and pathway contracts."""
+    import json
+    from importlib.resources import files
+    return json.loads((files("spacr") / "resources" / "module_workflows.json")
+                      .read_text(encoding="utf-8"))
+
+
+def _pathway_steps(key):
+    """Use exactly the actions shared with the API and tutorial source map."""
+    data = _workflow_map()
+    route = data["pathways"][key]
+    first = data["modules"][route["home_app"]]["name"]
+    steps = [WalkStep(tr("Home"), tr(
+        "Start on Home with {module}. Next shows the route; it does not run the analysis. "
+        "Close the walkthrough whenever you are ready to work.", module=tr(first)))]
+    steps.extend(WalkStep(tr(data["modules"][step["module"]]["name"]),
+                          tr(step["action"])) for step in route["steps"])
+    if route.get("note"):
+        steps.append(WalkStep(tr(route["title"]), tr(route["note"])))
+    return steps
+
+
+class _PathwayOverlay(_TourOverlay):
+    """A guided route that opens screens without loading data or running jobs."""
+
+    def __init__(self, window, key, data):
+        """Keep the same pathway record used to build the displayed steps."""
+        self._route = data["pathways"][key]
+        self._modules = data["modules"]
+        super().__init__(window, [TourStep(step.title, step.body)
+                                 for step in _pathway_steps(key)],
+                         on_finish=self._release)
+
+    def _release(self):
+        """Restore automatic module tours when this route ends."""
+        self._window._pathway_walkthrough_active = False
+
+    def _next(self):
+        """Open the next module's host, leaving nested actions for the user."""
+        next_index = self._idx
+        if next_index < len(self._route["steps"]):
+            module = self._modules[self._route["steps"][next_index]["module"]]
+            target = module["parent"] or module["home"]
+            if target:
+                self._window._on_nav_selected(target)
+        super()._next()
+        if self._idx < len(self._steps):
+            self.raise_()
+            self.setFocus()
+
+
+def _show_pathway(window, key):
+    """Begin a mapped pathway at Home and suppress overlapping module tours."""
+    data = _workflow_map()
+    if key not in data["pathways"]:
+        raise KeyError(key)
+    for previous in window.findChildren(_TourOverlay):
+        try:
+            previous._finish()
+        except RuntimeError:
+            pass
+    window._pathway_walkthrough_active = True
+    try:
+        window._on_nav_selected("__home__")
+        overlay = _PathwayOverlay(window, key, data)
+    except Exception:
+        window._pathway_walkthrough_active = False
+        raise
+    window._pathway_overlay = overlay
     overlay.show()
     overlay.raise_()
     overlay.setFocus()
@@ -456,6 +537,8 @@ class _WalkthroughHandler(QObject):
 
     def on_current_changed(self, _index: int) -> None:
         """Offer the walkthrough the first time a module is opened."""
+        if getattr(self._window, "_pathway_walkthrough_active", False):
+            return
         try:
             screen = self._window._stack.currentWidget()
             app_key = str(getattr(screen, "app_key", "") or "")
@@ -515,6 +598,14 @@ def install_help_menu(window: QMainWindow) -> Optional[QMenu]:
 
     submenu = QMenu(MENU_TITLE, window)
     submenu.setToolTipsVisible(True)
+    for key, route in _workflow_map()["pathways"].items():
+        action = QAction(tr(route["title"]), submenu)
+        action.setProperty("workflowPathway", key)
+        trigger = _MenuTrigger(window, "pathway:" + key)
+        action.triggered.connect(trigger.on_triggered)
+        action._spacr_walkthrough_trigger = trigger
+        submenu.addAction(action)
+    submenu.addSeparator()
     try:
         from .app import APPS, app_is_visible
         rows = [row for row in APPS if app_is_visible(row[0])]

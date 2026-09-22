@@ -472,6 +472,8 @@ def maybe_show_tour(window: QMainWindow,
     :returns: the overlay widget (already visible) or None if the
         tour was skipped because it had been seen.
     """
+    if getattr(window, "_pathway_walkthrough_active", False):
+        return None
     if not force and was_tour_shown():
         return None
     overlay = _TourOverlay(window, DEFAULT_TOUR)

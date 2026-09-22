@@ -3642,6 +3642,13 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.import_examples import IMPORT_VARIANTS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    workflow_path = ROOT / "spacr" / "resources" / "module_workflows.json"
+    workflow = json.loads(workflow_path.read_text(encoding="utf-8"))
+    for route in workflow["pathways"].values():
+        found.add(route["title"])
+        found.update(step["action"] for step in route["steps"])
+        if route.get("note"):
+            found.add(route["note"])
     # Hover explanations are class data, passed to Qt through loop variables.
     # Keep their exact English sources separate from runtime-translated text.
     chooser_sources = {TestDataChooser.RESTING_TEXT, ImportTestDataChooser.RESTING_TEXT}

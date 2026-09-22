@@ -1,0 +1,877 @@
+{
+  "title": "Image analysis modules and how they relate",
+  "pathways": [
+    "high_content",
+    "segmentation_training",
+    "parasite_assay",
+    "import_images",
+    "phenotype_discovery",
+    "live_cell_tracking"
+  ],
+  "modules": [
+    "mask",
+    "make_masks",
+    "measure",
+    "annotate",
+    "classify_merged",
+    "umap",
+    "gate_editor",
+    "align",
+    "analyze_plaques",
+    "recruitment",
+    "invasion",
+    "replication",
+    "qc_dashboard",
+    "embeddings"
+  ],
+  "schema_version": 1,
+  "source": "spacr/resources/module_workflows.json",
+  "module_contracts": {
+    "mask": {
+      "name": "Mask",
+      "home": "mask",
+      "parent": null,
+      "api_module": "spacr.core",
+      "lesson": "07_mask",
+      "inputs": [
+        "raw_images",
+        "segmentation_model"
+      ],
+      "outputs": [
+        "merged",
+        "masks",
+        "counts"
+      ],
+      "guidance": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "declared_ports": {
+        "key": "mask",
+        "consumes": [
+          {
+            "kind": "raw-images",
+            "role": "images",
+            "path": "",
+            "pattern": "*|orig/*|consolidated/*",
+            "required": true,
+            "min_count": 1,
+            "extensions": [
+              ".tif",
+              ".tiff",
+              ".png",
+              ".jpg",
+              ".jpeg",
+              ".bmp"
+            ],
+            "shape": null,
+            "tables": [],
+            "description": "raw files in src, orig/ or consolidated/"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "merged-arrays",
+            "role": "merged",
+            "path": "merged",
+            "pattern": "*.npy",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": {
+              "ndim": 3,
+              "min_planes": 2,
+              "dtype": ""
+            },
+            "tables": [],
+            "description": "image channels and label masks, one array per field"
+          },
+          {
+            "kind": "object-counts",
+            "role": "counts",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "object counts and the run-status stamp"
+          },
+          {
+            "kind": "masks",
+            "role": "masks",
+            "path": "masks",
+            "pattern": "*",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "per-object label arrays; removed by cleanup"
+          },
+          {
+            "kind": "settings-csv",
+            "role": "settings",
+            "path": "settings/gen_mask_settings.csv",
+            "pattern": "",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the settings this run used"
+          }
+        ],
+        "summary": "raw microscope files to merged arrays carrying label masks"
+      }
+    },
+    "make_masks": {
+      "name": "Make Masks",
+      "home": "make_masks",
+      "parent": null,
+      "api_module": "spacr.qt.screens.make_masks",
+      "lesson": "14_make_masks",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "outputs": [
+        "curated_pairs",
+        "masks"
+      ],
+      "guidance": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier."
+    },
+    "measure": {
+      "name": "Measure",
+      "home": "measure",
+      "parent": null,
+      "api_module": "spacr.measure",
+      "lesson": "08_measure",
+      "inputs": [
+        "merged",
+        "masks"
+      ],
+      "outputs": [
+        "measurements",
+        "crops"
+      ],
+      "guidance": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "declared_ports": {
+        "key": "measure",
+        "consumes": [
+          {
+            "kind": "merged-arrays",
+            "role": "merged",
+            "path": "merged",
+            "pattern": "*.npy",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": {
+              "ndim": 3,
+              "min_planes": 2,
+              "dtype": ""
+            },
+            "tables": [],
+            "description": "one array per field, written by mask"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "one table per object type"
+          },
+          {
+            "kind": "crops",
+            "role": "crops",
+            "path": "data",
+            "pattern": "**/*_png",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "single-object PNGs, when save_png is on"
+          }
+        ],
+        "summary": "merged arrays to per-object measurements and crops"
+      }
+    },
+    "annotate": {
+      "name": "Annotate",
+      "home": "annotate",
+      "parent": null,
+      "api_module": "spacr.qt.screens.annotate",
+      "lesson": "09_annotate",
+      "inputs": [
+        "measurements",
+        "crops",
+        "gates"
+      ],
+      "outputs": [
+        "labels"
+      ],
+      "guidance": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent."
+    },
+    "classify_merged": {
+      "name": "Classify",
+      "home": "classify_merged",
+      "parent": null,
+      "api_module": "spacr.classify",
+      "lesson": "41_classify",
+      "inputs": [
+        "measurements",
+        "crops",
+        "labels"
+      ],
+      "outputs": [
+        "scores",
+        "classifier",
+        "feature_model",
+        "evaluation"
+      ],
+      "guidance": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "declared_ports": {
+        "key": "classify_merged",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the feature table, and png_list when the image classifier is the one being fitted"
+          },
+          {
+            "kind": "crops",
+            "role": "crops",
+            "path": "data",
+            "pattern": "**/*_png",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the crops themselves, when not read from a tar"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "model-weights",
+            "role": "model",
+            "path": "model",
+            "pattern": "**/*.pth",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the trained classifier"
+          },
+          {
+            "kind": "predictions",
+            "role": "scores",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "per-object scores merged back into the database"
+          }
+        ],
+        "summary": "crops or measured features to a trained classifier and per-object scores"
+      }
+    },
+    "umap": {
+      "name": "Image UMAP",
+      "home": "umap",
+      "parent": null,
+      "api_module": "spacr.core",
+      "lesson": "15_image_umap",
+      "inputs": [
+        "measurements",
+        "crops",
+        "embedding_features"
+      ],
+      "outputs": [
+        "projection"
+      ],
+      "guidance": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+      "declared_ports": {
+        "key": "umap",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [
+              "png_list"
+            ],
+            "description": "features, and the crop paths drawn on the embedding"
+          }
+        ],
+        "produces": [
+          {
+            "kind": "embedding",
+            "role": "embedding",
+            "path": "results",
+            "pattern": "*",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "embedding table, scatter and grid figures"
+          },
+          {
+            "kind": "settings-csv",
+            "role": "settings",
+            "path": "settings/embedding_settings.csv",
+            "pattern": "",
+            "required": false,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the settings this run used"
+          }
+        ],
+        "summary": "per-object features to a 2-D embedding"
+      }
+    },
+    "gate_editor": {
+      "name": "Gate Editor",
+      "home": "gate_editor",
+      "parent": null,
+      "api_module": "spacr.qt.screens.gate_editor",
+      "lesson": "64_gate_editor",
+      "inputs": [
+        "measurements",
+        "projection"
+      ],
+      "outputs": [
+        "gates"
+      ],
+      "guidance": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects."
+    },
+    "align": {
+      "name": "Align & Stitch",
+      "home": "align",
+      "parent": null,
+      "api_module": "spacr.align",
+      "lesson": "32_align_stitch",
+      "inputs": [
+        "raw_images"
+      ],
+      "outputs": [
+        "mosaic"
+      ],
+      "guidance": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities."
+    },
+    "analyze_plaques": {
+      "name": "Plaque Assay",
+      "home": "analyze_plaques",
+      "parent": null,
+      "api_module": "spacr.submodules",
+      "lesson": "24_plaque",
+      "inputs": [
+        "raw_images",
+        "masks"
+      ],
+      "outputs": [
+        "assay_results",
+        "masks"
+      ],
+      "guidance": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example."
+    },
+    "recruitment": {
+      "name": "Recruitment",
+      "home": "recruitment",
+      "parent": null,
+      "api_module": "spacr.submodules",
+      "lesson": "25_recruitment",
+      "inputs": [
+        "measurements"
+      ],
+      "outputs": [
+        "assay_results"
+      ],
+      "guidance": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "declared_ports": {
+        "key": "recruitment",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the measurements this analysis reads"
+          }
+        ],
+        "produces": [],
+        "summary": "reads the measurements database"
+      }
+    },
+    "invasion": {
+      "name": "Invasion Assay",
+      "home": "invasion",
+      "parent": null,
+      "api_module": "spacr.submodules",
+      "lesson": "26_invasion",
+      "inputs": [
+        "measurements"
+      ],
+      "outputs": [
+        "assay_results"
+      ],
+      "guidance": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "declared_ports": {
+        "key": "invasion",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the measurements this analysis reads"
+          }
+        ],
+        "produces": [],
+        "summary": "reads the measurements database"
+      }
+    },
+    "replication": {
+      "name": "Replication Assay",
+      "home": "replication",
+      "parent": null,
+      "api_module": "spacr.submodules",
+      "lesson": "27_replication",
+      "inputs": [
+        "measurements"
+      ],
+      "outputs": [
+        "assay_results"
+      ],
+      "guidance": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "declared_ports": {
+        "key": "replication",
+        "consumes": [
+          {
+            "kind": "measurements-db",
+            "role": "db",
+            "path": "measurements/measurements.db",
+            "pattern": "",
+            "required": true,
+            "min_count": 1,
+            "extensions": [],
+            "shape": null,
+            "tables": [],
+            "description": "the measurements this analysis reads"
+          }
+        ],
+        "produces": [],
+        "summary": "reads the measurements database"
+      }
+    },
+    "qc_dashboard": {
+      "name": "QC",
+      "home": "qc_dashboard",
+      "parent": null,
+      "api_module": "spacr.qt.screens.qc_dashboard",
+      "lesson": "54_qc_dashboard",
+      "inputs": [
+        "measurements",
+        "qc"
+      ],
+      "outputs": [
+        "qc",
+        "figures"
+      ],
+      "guidance": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection."
+    },
+    "embeddings": {
+      "name": "Embeddings",
+      "home": "embeddings",
+      "parent": null,
+      "api_module": "spacr.qt.screens.embeddings",
+      "lesson": "77_embeddings",
+      "inputs": [
+        "measurements",
+        "crops"
+      ],
+      "outputs": [
+        "embedding_features"
+      ],
+      "guidance": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration."
+    }
+  },
+  "pathway_steps": {
+    "high_content": {
+      "title": "High-content image analysis",
+      "home_app": "mask",
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Start on Home with Mask and inspect segmentation on representative fields.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure on the resulting project and quantify objects.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Open Image UMAP to explore measured phenotypes and inspect crops.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "gate_editor",
+          "action": "Open Gate Editor to define an explicit population filter.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "graph_builder",
+          "action": "Open Graph Builder to compare the chosen measurements and groups.",
+          "after": [
+            "measure"
+          ]
+        }
+      ],
+      "alternatives": [
+        "classify_merged",
+        "recruitment",
+        "invasion",
+        "replication"
+      ]
+    },
+    "segmentation_training": {
+      "title": "Train a segmentation model",
+      "home_app": "make_masks",
+      "steps": [
+        {
+          "module": "make_masks",
+          "action": "Start on Home with Make Masks and curate matching images and integer label masks.",
+          "after": []
+        },
+        {
+          "module": "train_cellpose",
+          "action": "Inside Make Masks open Cellpose Workbench, choose Train and use the curated pairs.",
+          "after": [
+            "make_masks"
+          ]
+        },
+        {
+          "module": "mask",
+          "action": "Return Home, open Mask and select the trained checkpoint; verify separate fields before a full run.",
+          "after": [
+            "train_cellpose"
+          ]
+        }
+      ]
+    },
+    "parasite_assay": {
+      "title": "A parasite imaging assay",
+      "home_app": "mask",
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Start on Home with Mask and configure the host, parasite and required compartment masks.",
+          "after": []
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure and collect the compartment or staining measurements needed by your assay.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "recruitment",
+          "action": "For a recruitment question, open Recruitment and inspect compartment intensity ratios.",
+          "after": [
+            "measure"
+          ]
+        }
+      ],
+      "alternatives": [
+        "invasion",
+        "replication",
+        "analyze_plaques"
+      ],
+      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home."
+    },
+    "import_images": {
+      "title": "Import existing data",
+      "home_app": "foreign",
+      "steps": [
+        {
+          "module": "foreign",
+          "action": "Start on Home with Import and select the route matching images, external masks or external measurements.",
+          "after": []
+        },
+        {
+          "module": "mask",
+          "action": "For image-only imports, open Mask to add segmentation; skip this when valid masks already exist.",
+          "after": [
+            "foreign"
+          ]
+        },
+        {
+          "module": "measure",
+          "action": "Use Measure when features have not already been imported or computed by External Masks.",
+          "after": [
+            "foreign"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Open Image UMAP to inspect the resulting measured objects and matching crops.",
+          "after": [
+            "measure"
+          ]
+        }
+      ]
+    },
+    "phenotype_discovery": {
+      "title": "Discover phenotypes without labels",
+      "home_app": "measure",
+      "steps": [
+        {
+          "module": "measure",
+          "action": "Start on Home with Measure using an already segmented project, or use its example data.",
+          "after": []
+        },
+        {
+          "module": "embeddings",
+          "action": "Open Embeddings to encode object images; retain the object IDs and encoder/channel settings.",
+          "after": [
+            "measure"
+          ]
+        },
+        {
+          "module": "umap",
+          "action": "Open Image UMAP with compatible measured or encoder feature columns and inspect candidate groups.",
+          "after": [
+            "measure",
+            "embeddings"
+          ]
+        },
+        {
+          "module": "gate_editor",
+          "action": "Define a reproducible selection in Gate Editor using the matching feature or projection columns.",
+          "after": [
+            "umap"
+          ]
+        },
+        {
+          "module": "annotate",
+          "action": "Open Annotate and review candidate labels before using them as supervised training data.",
+          "after": [
+            "gate_editor"
+          ]
+        }
+      ]
+    },
+    "live_cell_tracking": {
+      "title": "Track live cells",
+      "home_app": "mask",
+      "steps": [
+        {
+          "module": "mask",
+          "action": "Start on Home with Mask and point it at an ordered time-series project.",
+          "after": []
+        },
+        {
+          "module": "timelapse",
+          "action": "Open the Timelapse action in Mask, configure timing and inspect linked objects.",
+          "after": [
+            "mask"
+          ]
+        },
+        {
+          "module": "measure",
+          "action": "Open Measure on the tracked project to quantify the objects.",
+          "after": [
+            "timelapse"
+          ]
+        },
+        {
+          "module": "motility",
+          "action": "Inside Measure open Motility Assay and check frame interval, pixel calibration and track filters.",
+          "after": [
+            "timelapse",
+            "measure"
+          ]
+        }
+      ]
+    }
+  },
+  "connections": [
+    {
+      "from": "mask",
+      "to": "measure",
+      "artifacts": [
+        "merged"
+      ],
+      "handoff": "Use the same project and the correct image/mask channel indices."
+    },
+    {
+      "from": "measure",
+      "to": "annotate",
+      "artifacts": [
+        "measurements",
+        "crops"
+      ],
+      "handoff": "Save or stream crops with stable object identities."
+    },
+    {
+      "from": "measure",
+      "to": "classify_merged",
+      "artifacts": [
+        "measurements",
+        "crops"
+      ],
+      "handoff": "Choose the image or tabular family to match your input."
+    },
+    {
+      "from": "annotate",
+      "to": "classify_merged",
+      "artifacts": [
+        "labels"
+      ],
+      "handoff": "Keep labelled training and evaluation groups separate."
+    },
+    {
+      "from": "make_masks",
+      "to": "measure",
+      "artifacts": [
+        "masks"
+      ],
+      "handoff": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays."
+    },
+    {
+      "from": "measure",
+      "to": "umap",
+      "artifacts": [
+        "measurements",
+        "crops"
+      ],
+      "handoff": "Choose feature columns and inspect representative crops."
+    },
+    {
+      "from": "measure",
+      "to": "embeddings",
+      "artifacts": [
+        "measurements",
+        "crops"
+      ],
+      "handoff": "Retain encoder and channel-policy provenance."
+    },
+    {
+      "from": "embeddings",
+      "to": "umap",
+      "artifacts": [
+        "embedding_features"
+      ],
+      "handoff": "Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it."
+    },
+    {
+      "from": "umap",
+      "to": "gate_editor",
+      "artifacts": [
+        "projection"
+      ],
+      "handoff": "Supply the matching coordinate/feature columns when defining a selection."
+    },
+    {
+      "from": "gate_editor",
+      "to": "annotate",
+      "artifacts": [
+        "gates"
+      ],
+      "handoff": "Apply compatible gates, then review candidate labels."
+    },
+    {
+      "from": "measure",
+      "to": "gate_editor",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Use the actual measured feature definitions and units."
+    },
+    {
+      "from": "measure",
+      "to": "qc_dashboard",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Review available checks and missing evidence."
+    },
+    {
+      "from": "measure",
+      "to": "recruitment",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Require the intended compartment intensities and identities."
+    },
+    {
+      "from": "measure",
+      "to": "invasion",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Require two-colour stain measurements and appropriate baseline controls."
+    },
+    {
+      "from": "measure",
+      "to": "replication",
+      "artifacts": [
+        "measurements"
+      ],
+      "handoff": "Require explicit parasite-to-vacuole identities."
+    },
+    {
+      "from": "make_masks",
+      "to": "analyze_plaques",
+      "artifacts": [
+        "masks"
+      ],
+      "handoff": "Use plaque masks with matching source images; cell masks are not automatically plaque labels."
+    }
+  ]
+}

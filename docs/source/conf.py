@@ -141,6 +141,8 @@ spacr_nested_helper_modules = tuple(sorted(_nested_helper_docs.ENABLED_MODULES))
 
 
 def autoapi_prepare_jinja_env(env):
+    import build_module_workflows
+    build_module_workflows.prepare_jinja(env, root=_SOURCE_ROOT)
     _nested_helper_docs.prepare_jinja(
         env, root=_SOURCE_ROOT, ignore_patterns=autoapi_ignore,
     )
