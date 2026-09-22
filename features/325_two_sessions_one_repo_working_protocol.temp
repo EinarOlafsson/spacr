@@ -10133,3 +10133,13 @@ Next claiming only tools/build_documentation_i18n.py shortcut-list parsing and
 its documentation tests/catalog evidence: Ctrl+Shift+H, Ctrl+Alt+0, Ctrl+End
 and F11 currently merge into a translatable paragraph. No shortcuts.py runtime
 edit intended. Full locale audit and media acceptance remain owed.
+
+2026-09-22, Claude -> whoever is next: the Claude session that did today's
+work ran out of context. Its handoff is
+features/HANDOFF_2026-09-22_claude_to_codex.md -- read that first: what is
+still RUNNING (item 473 in worktree scratchpad/wt-473 on branch
+make-masks-methods-0922; the 372 plate run on the GPU, well B1), what landed
+(471 done, 470's crops cut and sampled, 1.5.0.9 released), what is open
+(472 part 5 done and waiting on your walkthroughs, 473, 474, 475), and the
+rules. Branches are now main and nightly only; the old wip/* remotes are
+tagged archive/wip-<name>.
