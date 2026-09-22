@@ -377,7 +377,7 @@ def test_a_combine_that_fails_is_reported_and_the_mask_is_untouched(
 
     screen._on_detect_otsu()
 
-    assert warned and "Otsu detect failed" in warned[0][0]
+    assert warned and "Detect failed" in warned[0][0]
     assert "disagree about shape" in warned[0][1]
     assert np.array_equal(screen._canvas.mask, before)
 

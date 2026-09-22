@@ -292,3 +292,274 @@ STILL OPEN
   methods -- item 407's counter is Cellpose's tiles and a scikit-image
   filter has none. Cancel is honoured between steps. Seconds a field, so
   this is not felt; it is written down in _organelle_segmenter's docstring.
+
+
+================================================================================
+2026-09-22 (later) -- THREE DEFECTS FIXED, AND THE CATEGORY FOLDED
+================================================================================
+
+THE MAINTAINER REPORTED THREE THINGS
+--------------------------------------------------------------------------------
+
+  "the rolling ball if i choose it crashes the program right away, th
+   comparison window is to small to see, i need to be able to enlarge the
+   window and the images in it with the window, and i need to be able to
+   zoom into the images (zoomin one image should zoom both)"
+
+1. THE ROLLING BALL "CRASH" WAS A DENOISER NOBODY ASKED FOR.
+   Measured before guessing, on plate1_A02_12 (1,994 px, uint16, CPU):
+   ``skimage.restoration.rolling_ball`` alone costs 0.3 s at radius 5,
+   0.9 s at 10, 4.1 s at 25 and 14.5 s at radius 50 -- the default -- and
+   peaks at 103 MB. Slow, but not a crash and not a memory problem.
+
+   The crash was :func:`spacr.qt.detect_chain._denoise`. Its final
+   ``else`` was reached by ``denoise="none"`` as well as by ``"nlm"``, so
+   ANY active chain ran non-local means over the whole field. Choosing a
+   background made the chain active; the readout, which is re-read on every
+   mouse move, then called it on the GUI thread. Three fixes, each a
+   separate property now under test:
+
+   * every step returns its input UNTOUCHED when it is off, rather than
+     falling through to a default. ``_contrast`` also used to make the trip
+     to the unit interval and back with nothing switched on, which moved
+     the bottom bits of every pixel;
+   * the readout reads :meth:`_MaskCanvas.detection_base` -- the percentile
+     stretch -- and never the chain. That is what the readout was always
+     for: the value under the cursor, as loaded or as stretched;
+   * the canvas's enhanced picture is built on a worker thread
+     (:class:`_NewestRequestWorker`, the magnifier's own) and never waited
+     for. The first ask hands back the field as loaded; the picture arrives
+     on ``_MaskCanvas.enhanced_ready`` and the canvas redraws.
+
+   THE MAINTAINER THEN CHOSE HOW TO MAKE IT FAST: "compute on a
+   downscaled copy, have a setting that controlls how downscaled, and
+   default to 0.5". Done, as :attr:`Chain.background_scale` and a
+   "Background scale" box, 0.10 to 1.00, default 0.50. The background is
+   estimated on a copy at that scale and the surface is scaled back up and
+   subtracted from the full-size image -- sound because a background is by
+   definition what varies slowly, so it is the one thing that survives
+   being looked at smaller. Measured on the same field, rolling ball at
+   radius 50: 14.49 s at scale 1.00, 1.07 s at 0.50, 0.28 s at 0.25. The
+   top-hat, which gets the same treatment: 35.89 s, 2.30 s, 0.23 s.
+   AT SCALE 1.00 NOTHING IS SCALED and the call is scikit-image's own; the
+   test asserts that to the bit, for both the ball and the top-hat.
+   Below :data:`MIN_BACKGROUND_SIDE` (64 px) a region is not scaled at all,
+   because a magnifier box is small already.
+
+   The heavy warning now reads the radius AND the scale, so the default
+   (effective radius 25, about a second) does not warn and the exact path
+   at radius 50 does.
+
+2. THE COMPARE WINDOW opened at 780x440 with two 360 px thumbnails. It now
+   opens at 1100x700, has a size grip, grows its pictures with it, carries
+   Zoom out / Zoom in / Fit, and remembers the size it was left at under
+   ``make_masks::compare``.
+
+3. THE TWO ZOOMS ARE ONE ZOOM. The QC field browser's ``_FieldView`` --
+   fit on load, wheel zoom, drag pan, re-fit on resize -- moved to
+   ``spacr/qt/widgets/zoom_view.py`` as ``ZoomableImageView`` and the
+   browser keeps using it under its old name, so there is ONE such view in
+   the codebase rather than a third copy. ``link_to`` ties a group of them
+   to one transform and one scroll position: zooming or panning either
+   picture moves both, because a difference between the two is what the
+   window is for and a difference in where they point is the one
+   difference that is not information.
+
+THE FOLD THE MAINTAINER ASKED FOR NEXT
+--------------------------------------------------------------------------------
+
+  "fold otsu and object detection srettings categories into detection
+   method into the detection method and call detection method"
+
+Otsu, Object detection and the first half of this item's own "Detection
+methods" were three categories answering one question, and only the one
+the Mode box was on was ever being read. They are now ONE category,
+"Detection method", holding the Method box itself and four groups of
+which exactly one is shown. ``_RENAMED_CATEGORIES`` maps all three old
+titles onto the new one, so a user who folded any of them finds the new
+one folded. The Method box moved out of Live magnifier into this
+category, because the method drives the detect buttons and the
+whole-image run as well and the category whose contents it changes should
+hold it. The whole-image CPU detect button is named after the method it
+will run, and runs it, rather than running Otsu regardless.
+
+TEN MORE CPU ALGORITHMS, AND PROPAGATION
+--------------------------------------------------------------------------------
+
+  "add cross entropy and any othe rcommonly used algorithms for object
+   detection on the cpu. also add the appropreate settings"
+
+Li's minimum cross entropy, Yen, Triangle, IsoData (Ridler-Calvard),
+Mean, Minimum, Multi-Otsu, Sauvola and Niblack. Each is ONE LINE in
+:data:`spacr.qt.mask_engine.GLOBAL_THRESHOLDS` or
+:data:`LOCAL_THRESHOLDS` -- the name of a scikit-image function that
+returns a level -- and everything around the level is the code Otsu
+already went through: the smoothing, the threshold correction, the bright
+or dark side, filling holes, the watershed split, the border rule and the
+minimum area. A test asserts that: Li's mask equals Otsu's mask run with
+a correction of Li's level over Otsu's.
+
+NOT ADDED, ON PURPOSE. Local MEAN and local GAUSSIAN thresholding are the
+Adaptive threshold mode, which runs the organelle engine's ``adaptive``
+branch with a block size and an offset. Local OTSU is the "Local
+threshold (uneven illumination)" switch, which every global algorithm can
+be combined with. Adding either again would be two controls for one
+operation. Sauvola and Niblack ARE added, because their level is a
+window's mean minus a multiple of its standard deviation, which neither
+of those computes.
+
+MAXIMA + PROPAGATE is CellProfiler's Propagate, and is the maintainer's
+four numbered steps with a setting each: blur (its own sigma, separate
+from the chain's denoise and the tooltip says why), find the local maxima
+(minimum spacing, a seed level that is a percentile by default or an
+absolute intensity, optionally excluding the border), grow by a seeded
+watershed on the blurred intensity, and stop by one of four rules -- a
+fraction of THIS seed's own peak (the default, and what "a quantile
+threshold from that maximum" means), an absolute intensity, a percentile
+of the image, or one of the global thresholds' levels. It says how many
+centres it found, on the status line, because that is the number the
+settings are tuned against. CellProfiler's LAMBDA is not offered:
+``skimage.segmentation.watershed`` has no distance/intensity mixing
+parameter and writing that cost would be a second segmentation engine to
+keep; what is here is its lambda-zero end, pure intensity.
+
+MEASURED: F1 AT IoU 0.5, ALL TEN FIELDS
+--------------------------------------------------------------------------------
+
+Every field of ~/.cache/spacr/example_data/make_masks_toxo_pv, 910
+ground-truth vacuoles pooled. Whole fields, CPU, Min area 200 px, greedy
+one-to-one matching at IoU 0.5, smoothing 1.0, fill holes and split on.
+
+  run                                     F1     P      R    tp   fp   fn   s/field
+  otsu (baseline)                       0.291  0.445  0.216 197  246  713    0.8
+  li (minimum cross entropy)            0.717  0.716  0.718 653  259  257    1.2
+  triangle                              0.687  0.699  0.675 614  264  296    1.0
+  isodata                               0.381  0.502  0.307 279  277  631    0.8
+  mean                                  0.279  0.238  0.337 307  982  603    1.4
+  yen                                   0.000  0.000  0.000   0    0  910    0.4
+  minimum                               0.000  0.000  0.000   0    0  910    0.4
+  multi-otsu, 3 classes, class 2        0.000  0.000  0.000   0    3  910    0.5
+  sauvola w=151 k=0.2                   0.000  0.000  0.000   0    9  910    1.0
+  niblack w=151 k=-0.2                  0.176  0.100  0.738 672 6048  238    5.2
+  local otsu w=151                      0.479  0.573  0.412 375  280  535    4.3
+  adaptive block 151 offset 80          0.389  0.284  0.621 565 1427  345    2.6
+  hysteresis 0.985 / 0.995              0.308  0.535  0.216 197  171  713    0.6
+  otsu + gamma 0.5                      0.689  0.702  0.677 616  262  294    1.0
+  li + gamma 0.5                        0.667  0.649  0.686 624  338  286    1.3
+  propagate, 30 % of each peak          0.418  0.623  0.314 286  173  624    4.9
+  propagate, 40 % of each peak          0.404  0.607  0.303 276  179  634    5.1
+  propagate, 25 % of each peak          0.390  0.582  0.293 267  192  643    4.9
+  propagate, 30 % + closing r3          0.411  0.544  0.330 300  251  610    5.1
+  propagate, stop at 98.5th pct         0.288  0.459  0.210 191  225  719    4.3
+  propagate, stop at Li's level         0.265  0.396  0.199 181  276  729    4.7
+  propagate + gamma 0.5                 0.361  0.540  0.271 247  210  663    5.1
+
+WHAT EACH ONE IS FOR, WITH ITS NUMBER
+--------------------------------------------------------------------------------
+
+The vacuoles are about 1.2 % of the pixels. The levels each algorithm
+picks on plate1_A02_12 (smoothing 1.0) say the whole story:
+
+  otsu     823   0.80 % of pixels above    li       249   1.59 %
+  isodata  823   0.80 %                    triangle 193   1.75 %
+  mean      36  10.58 %                    yen     6368   0.01 %
+  minimum 25776  0.00 %                    multi-otsu class 2 is above 6010
+
+* LI IS THE RESULT. 0.717 against Otsu's 0.291, on the same settings with
+  one number changed. Li does not assume two equal populations, and a
+  field that is 99 % background is exactly where that assumption costs
+  Otsu the dim half of its objects. This is the algorithm the maintainer
+  asked for by name and it is now spaCR's best CPU threshold on this data.
+* TRIANGLE IS NEARLY AS GOOD (0.687) and for the same reason: one
+  dominant background peak with a shoulder is what it is built for.
+* OTSU AND ISODATA cut at 823, four times Li's level, so they keep only
+  the bright cores; recall 0.216 and 0.307. They are not broken -- they
+  are answering a question this field does not pose.
+* MEAN (0.279) takes a tenth of the field and merges neighbours; it is
+  the baseline it says it is.
+* YEN (0.000) cuts at 6,368 and keeps 0.01 % of the pixels: every
+  survivor is under the 200 px floor, so it finds NOTHING. On a field with
+  a long bright tail it is a reasonable algorithm; here it is the wrong
+  one, and the number says so rather than hiding it.
+* MINIMUM (0.000) cuts at 25,776 -- it smooths the histogram until two
+  humps remain and on this data the second hump is the hot-pixel tail. A
+  poor fit, honestly reported.
+* MULTI-OTSU (0.000 for class 2 of 3) puts its upper level at 6,010, so
+  the top class is Yen's problem again. Class 1 of 3 would be the band to
+  take here; the control for that is on the card.
+* SAUVOLA (0.000) keeps whole background windows: its level is a window's
+  mean adjusted by that window's standard deviation, and an empty window
+  has almost no deviation, so the level sits just under the background it
+  is measuring. It is a document-binarisation algorithm and it assumes
+  there is ink in every window. NIBLACK (0.176) does the same thing more
+  willingly -- recall 0.738, precision 0.100, 6,048 false objects. Both
+  are for uneven illumination with detail everywhere, which this is not.
+* LOCAL OTSU (0.479) beats global Otsu here, which is the uneven-
+  illumination case behaving as advertised.
+* THE PROPAGATION IS DENSITY-DEPENDENT, and its per-field numbers are the
+  interesting part of the table rather than its pooled 0.418. At one
+  setting (sigma 6, spacing 20 px, seeds above the 99th percentile, stop
+  at 30 % of each peak) it scores 0.81 and 0.80 on the two sparsest fields
+  (18 and 23 vacuoles), 0.62 on two middling ones (45 and 57), and 0.20 on
+  the densest (218). One seed spacing cannot serve fields whose object
+  density differs twelve-fold: on the dense fields 20 px between centres
+  is wider than the vacuoles are apart, so they are under-seeded and
+  recall collapses. That is what the "Min centre spacing" box is for, and
+  it is why the status line reports the centre count. On the three sparse
+  fields alone the same settings score 0.697, second only to Li.
+  Its precision is the highest of any method on this data at 0.623: what
+  it does find, it finds correctly, which is the property that matters
+  when a curator is accepting objects one click at a time.
+* The stop rule matters as much as the seeds: per-centre fractions
+  (0.390-0.418) beat the whole-field rules (0.265-0.288), because a bright
+  vacuole and a dim one are then measured the same way.
+
+THE TABLE FROM THE EARLIER SECTION IS SUPERSEDED IN ONE ROW. Those
+numbers were taken before the ``_denoise`` fall-through was found, so
+every row of it that switched a chain step on was also running non-local
+means. The three-field numbers for the bare methods stand; "otsu +
+top-hat background 27.4 s/field" was 26 s of an unasked-for denoiser and
+the top-hat's real cost at the default scale is 2.3 s.
+
+SCREENSHOTS (offscreen, 1366x768, looked at)
+
+  473_method_box.png          all 24 rows: Otsu, nine more CPU thresholds,
+                              Maxima + propagate, the six organelle
+                              methods, Cellpose and the six backends greyed
+  473_method_otsu.png         Detection method under Otsu
+  473_method_li.png           under Li: the same settings, a new sentence
+  473_method_sauvola.png      under Sauvola: Local k appears, Classes and
+                              Foreground class grey out
+  473_method_propagate.png    the four steps, with Stop threshold greyed
+                              because the rule is the per-centre fraction
+  473_method_cellpose.png     the Cellpose group, in the same category
+  473_compare_small.png       the Compare window at 820x520
+  473_compare_large.png       the same window at 1320x760, pictures grown
+  473_compare_zoomed.png      zoomed 4x: both pictures on the same vacuoles
+
+TESTS
+
+tests/qt/test_make_masks_offers_every_detection_method.py is now 63
+tests. The new ones: an off step returns the very array it was given (the
+crash); the background is estimated small and 1.00 is scikit-image's
+answer to the bit; a tiny region is never scaled; the readout cannot
+reach the chain; the enhanced picture is asked for and not waited for;
+the Compare window's size, growth and memory; the linked zoom and pan;
+one zoom view in the codebase; every CPU algorithm offered, guided and
+running; an algorithm is one number and not a second engine; Multi-Otsu
+is a class count; the k box appears only where it is read; the
+propagation's four stop rules, its centre count, its record, and the pair
+of touching objects a threshold cannot split; one category showing one
+family; a folded old category staying folded.
+
+WHAT IS LEFT
+
+* The Mask module's own preprocessing is still untouched, and the question
+  in the previous section is still open for the maintainer.
+* CellProfiler's SECONDARY objects -- cells grown from an existing nucleus
+  mask -- is filed as features/future/474_secondary_objects_grown_from_a_
+  primary_mask.txt, with what the propagation already does and what that
+  item would reuse.
+* The nine translation catalogs are still not regenerated; the list in
+  tests/qt/test_make_masks_settings_explain_themselves.py::
+  _awaiting_translation has grown with the new category's captions.
