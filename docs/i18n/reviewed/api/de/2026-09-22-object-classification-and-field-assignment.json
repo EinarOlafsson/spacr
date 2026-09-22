@@ -1,0 +1,766 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Sort dropped files into rows and image data channel/mask columns with one regex.",
+      "label": "spacr.measure.assign_paths_by_regex#0",
+      "source": "Sort dropped files into rows and channel/mask columns with one regex.",
+      "source_sha256": "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
+      "translation": "Ordnet abgelegte Dateien mit einem regulären Ausdruck Zeilen sowie Kanal- und Maskenspalten zu."
+    },
+    {
+      "context": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
+      "label": "spacr.measure.assign_paths_by_regex#1",
+      "source": "The regex is matched against each file's BASENAME. What it captures decides where the file goes:",
+      "source_sha256": "02c3a82f8385346fe30dc5aa0765bec82c258e660567679ffd67a6488752652a",
+      "translation": "Der reguläre Ausdruck wird auf den BASISNAMEN jeder Datei angewendet. Seine erfassten Gruppen bestimmen die Zuordnung:"
+    },
+    {
+      "context": "one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a microscope field of view token share a row, which is what makes a four-channel microscope field of view one row rather than four.",
+      "label": "spacr.measure.assign_paths_by_regex#2",
+      "source": "one of :data:`FIELD_TABLE_FIELD_GROUPS` names the row. Files sharing a field token share a row, which is what makes a four-channel field one row rather than four.",
+      "source_sha256": "66ddf6f2e9eac71ca8fafd017b209be12db40f17d947c464ecb0f06dca3fade6",
+      "translation": "Eine Gruppe aus :data:`FIELD_TABLE_FIELD_GROUPS` benennt die Zeile. Dateien mit demselben Bildfeld-Token teilen sich eine Zeile. So ergibt ein Bildfeld mit vier Kanälen eine Zeile statt vier Zeilen."
+    },
+    {
+      "context": "one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column, through :func:`mask_role_of`.",
+      "label": "spacr.measure.assign_paths_by_regex#3",
+      "source": "one of :data:`FIELD_TABLE_MASK_GROUPS` sends it to a mask column, through :func:`mask_role_of`.",
+      "source_sha256": "4c57c9ade5c5c3f15a35ac9060ac72956feb5a079f3052522375e60e268b8802",
+      "translation": "Eine Gruppe aus :data:`FIELD_TABLE_MASK_GROUPS` ordnet die Datei über :func:`mask_role_of` einer Maskenspalte zu."
+    },
+    {
+      "context": "one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.",
+      "label": "spacr.measure.assign_paths_by_regex#4",
+      "source": "one of :data:`FIELD_TABLE_CHANNEL_GROUPS` sends it to a channel column.",
+      "source_sha256": "f023346a87acc0b365d033b4e2c831d6caab37dcc2ffc8f33e7f4e8ccc413bb5",
+      "translation": "Eine Gruppe aus :data:`FIELD_TABLE_CHANNEL_GROUPS` ordnet sie einer Kanalspalte zu."
+    },
+    {
+      "context": "The channel token is ranked, not read as a number, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
+      "label": "spacr.measure.assign_paths_by_regex#5",
+      "source": "THE CHANNEL TOKEN IS RANKED, NOT READ AS A NUMBER, and that is the one decision here worth knowing about. ``C1``/``C2``/``C3`` and ``w1``/``w2`` and ``0``/``1``/``2`` all have to end up as channels 0, 1, 2, and there is no reading of ``C1`` that is right for all three -- a literal read makes the first set start at channel 1 and leaves channel 0 empty for ever. So the DISTINCT channel tokens are sorted (numerically on their trailing digits) and mapped onto 0, 1, 2 ... in that order. The mapping is therefore a property of the set of files, not of any one of them, which is why the window shows the assignment rather than describing the rule.",
+      "source_sha256": "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
+      "translation": "Das Kanal-Token wird nach seinem Rang zugeordnet und nicht unmittelbar als Zahl gelesen. Das ist die entscheidende Festlegung: ``C1``/``C2``/``C3`` ebenso wie ``w1``/``w2`` und ``0``/``1``/``2`` müssen die Kanäle 0, 1, 2 ergeben. Keine unmittelbare numerische Auslegung von ``C1`` passt auf alle drei Schreibweisen; sie ließe die erste Reihe bei Kanal 1 beginnen und Kanal 0 dauerhaft leer. Deshalb werden die unterschiedlichen Kanal-Token anhand ihrer abschließenden Ziffern numerisch sortiert und in dieser Reihenfolge auf 0, 1, 2 ... abgebildet. Die Zuordnung hängt somit von der gesamten Dateimenge ab und nicht von einer einzelnen Datei. Deshalb zeigt das Fenster die tatsächliche Zuordnung, statt nur die Regel zu beschreiben."
+    },
+    {
+      "context": "The set is the table's, not the drop's. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second microscope field of view's ``C2`` in column 0 beside a first microscope field of view's ``C1``, and the only sign of it would be in the database.",
+      "label": "spacr.measure.assign_paths_by_regex#6",
+      "source": "THE SET IS THE TABLE'S, NOT THE DROP'S. ``table`` remembers which token owns which column in :attr:`FieldTable.channel_tokens`, and a later drop is ranked against the union of what it brings and what is already there. A token that ranks before one already placed renumbers the columns and MOVES the files already in them (:func:`_renumber_channels`), so every row agrees about what channel 0 is. Ranking each drop on its own instead would put a second field's ``C2`` in column 0 beside a first field's ``C1``, and the only sign of it would be in the database.",
+      "source_sha256": "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
+      "translation": "Maßgeblich ist die gesamte Tabelle und nicht nur die zuletzt abgelegte Dateigruppe. ``table`` merkt sich in :attr:`FieldTable.channel_tokens`, welches Token welche Spalte belegt. Bei später abgelegten Dateien wird die Vereinigung der neuen und bereits vorhandenen Token sortiert. Ein Token, das vor einem bereits eingeordneten Token steht, nummeriert die Spalten neu und verschiebt die darin liegenden Dateien (:func:`_renumber_channels`). Dadurch bezeichnet Kanal 0 in jeder Zeile denselben Kanal. Würde jede abgelegte Dateigruppe separat sortiert, könnte ``C2`` eines zweiten Bildfelds in Spalte 0 neben ``C1`` des ersten Bildfelds landen. Sichtbar würde dieser Fehler erst in der Datenbank."
+    },
+    {
+      "context": "file paths to assign.",
+      "label": "spacr.measure.assign_paths_by_regex#7",
+      "source": "file paths to assign.",
+      "source_sha256": "ab496304aa92d5b4aa46ed2c09302d6fce61ea50af41e9d959c33e8d089c26be",
+      "translation": "die zuzuordnenden Dateipfade."
+    },
+    {
+      "context": "a regex with at least a microscope field of view group and one of an image data channel or mask group.",
+      "label": "spacr.measure.assign_paths_by_regex#8",
+      "source": "a regex with at least a field group and one of a channel or mask group.",
+      "source_sha256": "ca46bfe8f8c2ce8f6209f85629f8f50ec9a39d34b2c5c988795b86c753dd8262",
+      "translation": "ein regulärer Ausdruck mit mindestens einer Bildfeldgruppe sowie einer Kanal- oder Maskengruppe."
+    },
+    {
+      "context": "an existing table to add to. A new one is built when this is ``None``; its image data channel count and mask columns come from what the files turn out to hold.",
+      "label": "spacr.measure.assign_paths_by_regex#9",
+      "source": "an existing table to add to. A new one is built when this is ``None``; its channel count and mask columns come from what the files turn out to hold.",
+      "source_sha256": "fc42067ba6a5a59eeeeea077e97a34951cecce8d3aebf317e1ceeb035b227c3d",
+      "translation": "eine vorhandene Tabelle, die ergänzt werden soll. Bei ``None`` wird eine neue Tabelle angelegt; ihre Kanalzahl und Maskenspalten ergeben sich aus den Dateien."
+    },
+    {
+      "context": "the plate name for a new table.",
+      "label": "spacr.measure.assign_paths_by_regex#10",
+      "source": "the plate name for a new table.",
+      "source_sha256": "b16afdd51adc67e4a7971f7126812ca4437591378242619771865e9344316eec",
+      "translation": "der Plattenname für eine neue Tabelle."
+    },
+    {
+      "context": "a :class:`TableAssignment`. Nothing is read from disk and nothing is written.",
+      "label": "spacr.measure.assign_paths_by_regex#11",
+      "source": "a :class:`TableAssignment`. Nothing is read from disk and nothing is written.",
+      "source_sha256": "10d7377a97eec21c603e92b3571ec69f40a372eea009cfafda6dee39db9486ea",
+      "translation": "eine :class:`TableAssignment`. Es werden weder Dateien gelesen noch Daten geschrieben."
+    },
+    {
+      "context": "if ``pattern`` does not compile. The window catches this and shows it under the box rather than letting it reach a run.",
+      "label": "spacr.measure.assign_paths_by_regex#12",
+      "source": "if ``pattern`` does not compile. The window catches this and shows it under the box rather than letting it reach a run.",
+      "source_sha256": "7c16fabbcb13db681607d7005497d36c75c222b3b5500e33eb930bc818d778e4",
+      "translation": "wenn ``pattern`` nicht kompiliert werden kann. Das Fenster fängt den Fehler ab und zeigt ihn unter dem Eingabefeld an, bevor ein Lauf erreicht wird."
+    },
+    {
+      "context": "Extract an image region around every object in an in-memory merged image+mask array.",
+      "label": "spacr.measure.crop_objects_from_array#0",
+      "source": "Crop every object out of an in-memory merged image+mask array.",
+      "source_sha256": "149cd6c355b41e09a992589ea0a982da53bbfc8334d3a2cbe83fc08da7361e32",
+      "translation": "Schneidet jedes Objekt aus einem zusammengeführten Bild- und Maskenarray im Arbeitsspeicher aus."
+    },
+    {
+      "context": "This is the no-database counterpart of :func:`generate_object_dataset`, used by the Measure live preview to show what the extracted image regions will look like before a run: it reads the object labels straight from a mask slice of a single merged ``.npy`` and returns the extracted image regions, normalised images.",
+      "label": "spacr.measure.crop_objects_from_array#1",
+      "source": "This is the no-database counterpart of :func:`generate_object_dataset`, used by the Measure live preview to show what the crops will look like before a run: it reads the object labels straight from a mask slice of a single merged ``.npy`` and returns the cropped, normalised images.",
+      "source_sha256": "155663bac093865e2588057ab194b60f6a9b8ee7b4274a2c6c3a177ab40dcbef",
+      "translation": "Dies ist das Gegenstück zu :func:`generate_object_dataset` ohne Datenbankzugriff. Die Live-Vorschau von Measure zeigt damit vor einem Lauf, wie die Bildausschnitte aussehen werden: Die Funktion liest die Objektkennungen direkt aus einer Maskenebene einer einzelnen zusammengeführten ``.npy``-Datei und gibt die ausgeschnittenen, normalisierten Bilder zurück."
+    },
+    {
+      "context": "merged array ``(H, W, C)`` — image data channels then mask slices.",
+      "label": "spacr.measure.crop_objects_from_array#2",
+      "source": "merged array ``(H, W, C)`` — image channels then mask slices.",
+      "source_sha256": "c3c7e07fffd9bd2ff6cd1bfa20c9d095a797eab2eec4a4e5b6e5c32439fcf255",
+      "translation": "zusammengeführtes Array ``(H, W, C)`` mit Bildkanälen, gefolgt von Maskenebenen."
+    },
+    {
+      "context": "mask image layer for the object class used to extract the image region.",
+      "label": "spacr.measure.crop_objects_from_array#3",
+      "source": "slice index of the object-class mask to crop by.",
+      "source_sha256": "5fa7042c3f266dbfb09f0bb19e615f637fbd6eccf8cd38e77fee9961df21acf7",
+      "translation": "Index der Maskenebene der Objektklasse, nach der ausgeschnitten wird."
+    },
+    {
+      "context": "image data channel indices to assemble (order = RGB order).",
+      "label": "spacr.measure.crop_objects_from_array#4",
+      "source": "image channel indices to assemble (order = RGB order).",
+      "source_sha256": "46c5cd22c6df3cd00eac8fb4becee498a05be26d08a2e1f6949b0ce145854b5b",
+      "translation": "Indizes der zusammenzustellenden Bildkanäle; ihre Reihenfolge bestimmt die RGB-Reihenfolge."
+    },
+    {
+      "context": "smallest object area (px) to keep; ``0`` = no lower bound.",
+      "label": "spacr.measure.crop_objects_from_array#5",
+      "source": "smallest object area (px) to keep; ``0`` = no lower bound.",
+      "source_sha256": "22049c043e760e9d48f08d245557d626d0ebecd56b84d7b75ba24144be6a7538",
+      "translation": "kleinste beizubehaltende Objektfläche (px); ``0`` bedeutet keine Untergrenze."
+    },
+    {
+      "context": "largest object area (px) to keep; ``0`` = no upper bound.",
+      "label": "spacr.measure.crop_objects_from_array#6",
+      "source": "largest object area (px) to keep; ``0`` = no upper bound.",
+      "source_sha256": "b01675b6a96f3423204c327a167d99772da64617777f5ef8e53da9f22f323213",
+      "translation": "größte beizubehaltende Objektfläche (px); ``0`` bedeutet keine Obergrenze."
+    },
+    {
+      "context": "zero pixels outside the object.",
+      "label": "spacr.measure.crop_objects_from_array#7",
+      "source": "zero pixels outside the object.",
+      "source_sha256": "10d40b8c867018d111d77383f093fa179079d94366d096250be91ba9d9d7a955",
+      "translation": "Pixel außerhalb des Objekts auf null setzen."
+    },
+    {
+      "context": "per-channel percentile-normalise each extracted image region.",
+      "label": "spacr.measure.crop_objects_from_array#8",
+      "source": "per-channel percentile-normalise each crop.",
+      "source_sha256": "361a2529e6e6b6cce5583c4c4070b346baa18d1427111ebde6d4dd11fa824294",
+      "translation": "jeden Bildausschnitt kanalweise anhand von Perzentilen normalisieren."
+    },
+    {
+      "context": "``(low, high)`` for normalisation.",
+      "label": "spacr.measure.crop_objects_from_array#9",
+      "source": "``(low, high)`` for normalisation.",
+      "source_sha256": "3376682a137b65f1ad3e893ce369ced743d72fec495f7dbcbc34230d94ef52ba",
+      "translation": "``(low, high)`` für die Normalisierung."
+    },
+    {
+      "context": "padding (px) around each object's bounding box.",
+      "label": "spacr.measure.crop_objects_from_array#10",
+      "source": "padding (px) around each object's bounding box.",
+      "source_sha256": "bf3e5df53d50df7b4a584c36d23881cb9bf4c011c3da95e5df6f37617163880c",
+      "translation": "zusätzlicher Rand (px) um das umschließende Rechteck jedes Objekts."
+    },
+    {
+      "context": "assemble the chosen image data channels into an HxWx3 uint8 image (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N image data channels **in the merged array's own dtype**.",
+      "label": "spacr.measure.crop_objects_from_array#11",
+      "source": "assemble the chosen channels into an HxWx3 uint8 image (1→grey→RGB, 2→padded, 3→RGB, >3→first three); else keep N channels **in the merged array's own dtype**.",
+      "source_sha256": "110c7e12285d9ba13532c0d40947d624b517ff911cd3dc77efa60c24e7fd878e",
+      "translation": "die gewählten Kanäle zu einem HxWx3 uint8-Bild zusammenstellen (1→Graustufen→RGB, 2→aufgefüllt, 3→RGB, >3→erste drei); andernfalls N Kanäle **im ursprünglichen dtype des zusammengeführten Arrays** beibehalten."
+    },
+    {
+      "context": "cap the number of objects returned.",
+      "label": "spacr.measure.crop_objects_from_array#12",
+      "source": "cap the number of objects returned.",
+      "source_sha256": "d603b3a5299429fc619680e4af85aff3f4d62b8c45eb94b59d67443a6f15f017",
+      "translation": "Höchstzahl der zurückgegebenen Objekte."
+    },
+    {
+      "context": "``(width, height)`` to resize every extracted image region to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized the way the processing session resizes -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a processing session will write. Without it the preview showed bounding boxes while the processing session wrote squares, and the extracted image region-size setting looked like it did nothing.",
+      "label": "spacr.measure.crop_objects_from_array#13",
+      "source": "``(width, height)`` to resize every crop to, or ``None`` to return each object's own bounding box. This is ``measure_crop``'s ``png_size``, resized THE WAY THE RUN RESIZES -- the same ``PIL.Image.resize`` call at its default resampling -- because this feeds the Measure preview, whose purpose is to show what a run will write. Without it the preview showed bounding boxes while the run wrote squares, and the crop-size setting looked like it did nothing.",
+      "source_sha256": "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
+      "translation": "``(width, height)``, auf die jeder Bildausschnitt skaliert wird, oder ``None``, um das jeweilige umschließende Rechteck beizubehalten. Dies entspricht der Einstellung von ``measure_crop``, die ``png_size`` heißt, und verwendet dieselbe Größenänderung wie der Lauf: denselben Aufruf von ``PIL.Image.resize`` mit dessen standardmäßigem Resampling. Die Funktion speist die Vorschau von Measure, die zeigen soll, was der Lauf schreibt. Ohne diese Größenanpassung zeigte die Vorschau die umschließenden Rechtecke, während der Lauf quadratische Bilder schrieb; die Einstellung der Ausschnittgröße schien dadurch wirkungslos."
+    },
+    {
+      "context": "list of ``{'label', 'area', 'bbox', 'crop'}`` key-value mappings, largest objects first.",
+      "label": "spacr.measure.crop_objects_from_array#14",
+      "source": "list of ``{'label', 'area', 'bbox', 'crop'}`` dicts, largest objects first.",
+      "source_sha256": "06a016a357e5a85053719ea5192e03a90cbce544c9d65970a84ffa6b10a2711d",
+      "translation": "eine Liste von Wörterbüchern ``{'label', 'area', 'bbox', 'crop'}``, nach absteigender Objektgröße."
+    },
+    {
+      "context": "``to_rgb=True`` is the one place this function leaves the working dtype, because a GUI image is 8-bit. It narrows with :func:`_crop_to_uint8` (a rescale off the dtype range), not with a clip at 255 -- a clip made every pixel of an unnormalised 16-bit object come back as pure white, so the preview showed a white blob and the run it was previewing did not.",
+      "label": "spacr.measure.crop_objects_from_array#15",
+      "source": "``to_rgb=True`` is the one place this function leaves the working dtype, because a GUI image is 8-bit. It narrows with :func:`_crop_to_uint8` (a rescale off the dtype range), not with a clip at 255 -- a clip made every pixel of an unnormalised 16-bit object come back as pure white, so the preview showed a white blob and the run it was previewing did not.",
+      "source_sha256": "7bba178fef40d37162258e172c72fc46eb3e72d49829c297d7430c61c2a0aaaf",
+      "translation": "Nur bei ``to_rgb=True`` verlässt die Funktion den Arbeits-dtype, weil ein GUI-Bild 8 Bit verwendet. Die Umwandlung mit :func:`_crop_to_uint8` skaliert anhand des Wertebereichs des dtype, statt bei 255 abzuschneiden. Abschneiden ließ jedes Pixel eines nicht normalisierten 16-Bit-Objekts rein weiß erscheinen. Dadurch zeigte die Vorschau einen weißen Fleck, den der dargestellte Lauf nicht erzeugte."
+    },
+    {
+      "context": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
+      "label": "spacr.measure.measure_from_field_table#0",
+      "source": "Measure a table of hand-picked images and masks. The FEATURES entry point.",
+      "source_sha256": "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
+      "translation": "Misst eine Tabelle einzeln ausgewählter Bilder und Masken; der Einstiegspunkt für FEATURES."
+    },
+    {
+      "context": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a workflow already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the microscope fields of view came from. The database, the extracted image regions and the folder tree are therefore the Measure module's, because they are made by it.",
+      "label": "spacr.measure.measure_from_field_table#1",
+      "source": "The other way into this module. :func:`measure_crop` starts from a ``merged/`` folder a pipeline already built; this starts from a table a user filled in by dropping files onto it, writes that folder, and then calls :func:`measure_crop` ITSELF -- unchanged, with no flag saying where the fields came from. The database, the crops and the folder tree are therefore the Measure module's, because they are made by it.",
+      "source_sha256": "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
+      "translation": "Der zweite Zugang zu diesem Modul: :func:`measure_crop` beginnt mit einem ``merged/``-Ordner, den ein Verarbeitungsablauf bereits erstellt hat. Diese Funktion beginnt hingegen mit einer durch Ablegen von Dateien ausgefüllten Tabelle, schreibt diesen Ordner und ruft anschließend :func:`measure_crop` selbst auf, unverändert und ohne Kennzeichnung der Herkunft der Bildfelder. Datenbank, Bildausschnitte und Ordnerstruktur entsprechen deshalb dem Modul Measure: Dieses Modul erstellt sie."
+    },
+    {
+      "context": "the :class:`FieldTable` the FEATURES window edited.",
+      "label": "spacr.measure.measure_from_field_table#2",
+      "source": "the :class:`FieldTable` the FEATURES window edited.",
+      "source_sha256": "5da4813e8295f95f89038414c660841ee291e2a2aac75eb0ec678d7093c5284d",
+      "translation": "die im FEATURES-Fenster bearbeitete :class:`FieldTable`."
+    },
+    {
+      "context": "the user's answers from the settings panel. The structured-data names that the table decides are overwritten from it -- see :func:`field_table_settings`.",
+      "label": "spacr.measure.measure_from_field_table#3",
+      "source": "the user's answers from the settings panel. The keys the table decides are overwritten from it -- see :func:`field_table_settings`.",
+      "source_sha256": "147e809f4cbdc8ec4aedcb1ceddf4731b8c59776b471dd71a4f8c52783ae5a5c",
+      "translation": "die Nutzereinstellungen aus dem Einstellungsbereich. Schlüssel, deren Werte die Tabelle festlegt, werden aus ihr überschrieben; siehe :func:`field_table_settings`."
+    },
+    {
+      "context": "the project root to write. Defaults to a ``features`` folder beside the first channel file of the first row, which is where a user who dropped a folder in expects to find the results. See :func:`field_table_destination`, which is the one place that default is worked out.",
+      "label": "spacr.measure.measure_from_field_table#4",
+      "source": "the project root to write. Defaults to a ``features`` folder beside the first channel file of the first row, which is where a user who dropped a folder in expects to find the results. See :func:`field_table_destination`, which is the one place that default is worked out.",
+      "source_sha256": "c071897510d7102e7e62aabbd0d515eeb6c4c5cff9eb4473f328c82b1beaf9c3",
+      "translation": "das zu schreibende Projektverzeichnis. Vorgabe ist ein Ordner ``features`` neben der ersten Kanaldatei der ersten Zeile, wo Nutzer nach dem Ablegen eines Ordners ihre Ergebnisse erwarten. Siehe :func:`field_table_destination`, die einzige Stelle, an der diese Vorgabe ermittelt wird."
+    },
+    {
+      "context": "called with a sentence as each stage starts, or ``None``. It executes on whatever independent execution path this does -- the FEATURES window runs this on a worker and its callback only emits a signal. Writing the arrays and measuring them are separate stages because on a large table the second takes minutes and the first does not.",
+      "label": "spacr.measure.measure_from_field_table#5",
+      "source": "called with a sentence as each stage starts, or ``None``. It runs on whatever thread this does -- the FEATURES window runs this on a worker and its callback only emits a signal. Writing the arrays and measuring them are separate stages because on a large table the second takes minutes and the first does not.",
+      "source_sha256": "645c7da7a34005badb6c8abc0e5d815c046cf6775320a649524450e499231dbf",
+      "translation": "eine mit einem Satz zum Beginn jeder Stufe aufgerufene Funktion oder ``None``. Sie läuft auf demselben Thread wie diese Funktion. Das FEATURES-Fenster führt diese Funktion in einem Worker aus; dessen Rückruf sendet nur ein Signal. Das Schreiben der Arrays und ihre Messung sind getrennte Stufen, weil bei einer großen Tabelle die zweite Minuten dauert, die erste jedoch nicht."
+    },
+    {
+      "context": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` is the measurements database whether or not it exists, so a caller can report the path it was asked for.",
+      "label": "spacr.measure.measure_from_field_table#6",
+      "source": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` is the measurements database whether or not it exists, so a caller can report the path it was asked for.",
+      "source_sha256": "ea2eed0d50b013fad298ad8ede7e9f3f5ec9281b76a9bdb1ad94419a1943b64d",
+      "translation": "``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` bezeichnet die Messdatenbank unabhängig davon, ob sie bereits existiert. So kann der Aufrufer den angeforderten Pfad melden."
+    },
+    {
+      "context": "if the table is incomplete or a file breaks the array contract. Nothing is measured in that case.",
+      "label": "spacr.measure.measure_from_field_table#7",
+      "source": "if the table is incomplete or a file breaks the array contract. Nothing is measured in that case.",
+      "source_sha256": "47c7d25b397f58281374c5da6ab1554e0eb9868923ea4381f100c48cb6203ac0",
+      "translation": "wenn die Tabelle unvollständig ist oder eine Datei die Anforderungen an das Array verletzt. In diesem Fall wird nichts gemessen."
+    },
+    {
+      "context": "Example:",
+      "label": "spacr.measure.measure_from_field_table#8",
+      "source": "Example:",
+      "source_sha256": "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+      "translation": "Beispiel:"
+    },
+    {
+      "context": "See Also: :func:`measure_crop` -- the processing session this delegates to, unchanged. :func:`write_field_table_project` -- the folders it writes first.",
+      "label": "spacr.measure.measure_from_field_table#9",
+      "source": "See Also: :func:`measure_crop` -- the run this delegates to, unchanged. :func:`write_field_table_project` -- the folders it writes first.",
+      "source_sha256": "24e2a1736002f331eead760689093685c87e8d3a22713148a88b0dd28a829ce7",
+      "translation": "Siehe auch: :func:`measure_crop` -- der Lauf, an den unverändert weitergegeben wird. :func:`write_field_table_project` -- die zuerst geschriebenen Ordner."
+    },
+    {
+      "context": "One model the zoo knows about, wherever it lives.",
+      "label": "spacr.model_zoo.ModelEntry#0",
+      "source": "One model the zoo knows about, wherever it lives.",
+      "source_sha256": "8c2ab9fed6c956dcc2e09ac2bea6ab11f8c25a1aed0e642b7a0773cdde8e2b27",
+      "translation": "Ein dem Modellkatalog bekanntes Modell, unabhängig von seinem Speicherort."
+    },
+    {
+      "context": "Frozen because an entry is a *record of a file at a moment* — the hash, the size and the provenance describe those bytes. Changing one in place would silently invalidate the other two; :func:`dataclasses.replace` makes the new record explicit.",
+      "label": "spacr.model_zoo.ModelEntry#1",
+      "source": "Frozen because an entry is a *record of a file at a moment* — the hash, the size and the provenance describe those bytes. Changing one in place would silently invalidate the other two; :func:`dataclasses.replace` makes the new record explicit.",
+      "source_sha256": "ee3466ed99b0742fd1d5e7d6f75ae656b8ed640fcdb14898742b934c818e9462",
+      "translation": "Unveränderlich, weil ein Eintrag *eine Datei zu einem bestimmten Zeitpunkt beschreibt*: Hash, Größe und Herkunft beziehen sich auf genau diese Bytes. Eine Änderung eines dieser Werte am vorhandenen Eintrag würde die beiden anderen unbemerkt ungültig machen. :func:`dataclasses.replace` macht den neuen Datensatz ausdrücklich sichtbar."
+    },
+    {
+      "context": "stable id, unique within a listing. For a local file this is derived from the filename; for a catalogue entry it is whatever the catalogue declared.",
+      "label": "spacr.model_zoo.ModelEntry#2",
+      "source": "stable id, unique within a listing. For a local file this is derived from the filename; for a catalogue entry it is whatever the catalogue declared.",
+      "source_sha256": "3bd2efb6f1fd346c254d03779388eb3e107c62da3fe7e0862c74a1a61e41d177",
+      "translation": "stabile, innerhalb einer Liste eindeutige Kennung. Bei einer lokalen Datei wird sie aus dem Dateinamen abgeleitet; bei einem Katalogeintrag wird die dort angegebene Kennung verwendet."
+    },
+    {
+      "context": "the filename (or the published name) — what a human reads.",
+      "label": "spacr.model_zoo.ModelEntry#3",
+      "source": "the filename (or the published name) — what a human reads.",
+      "source_sha256": "5600441ef6cc4c7cd6f7a37a0e1f10a668a325aa4cc4b3fc848e6e2c9eced382",
+      "translation": "der Dateiname oder veröffentlichte Name, den Nutzer lesen."
+    },
+    {
+      "context": "``'cellpose'`` or ``'classifier'``; see :data:`KINDS`.",
+      "label": "spacr.model_zoo.ModelEntry#4",
+      "source": "``'cellpose'`` or ``'classifier'``; see :data:`KINDS`.",
+      "source_sha256": "4ba526ba1cbffcbed87bc428b22e726d547480071248bf98c98ca56ac32ae8ee",
+      "translation": "``'cellpose'`` oder ``'classifier'``; siehe :data:`KINDS`."
+    },
+    {
+      "context": "``'bundled'`` (ships with spaCR), ``'local'`` (found on this machine) or ``'remote'`` (declared in a catalogue, not yet fetched).",
+      "label": "spacr.model_zoo.ModelEntry#5",
+      "source": "``'bundled'`` (ships with spaCR), ``'local'`` (found on this machine) or ``'remote'`` (declared in a catalogue, not yet fetched).",
+      "source_sha256": "367358efc5786c126a6d166819f353e0b1089781fd704530451b8628d172e6ae",
+      "translation": "``'bundled'`` (mit spaCR ausgeliefert), ``'local'`` (auf diesem Rechner gefunden) oder ``'remote'`` (im Katalog verzeichnet, noch nicht heruntergeladen)."
+    },
+    {
+      "context": "absolute path on this machine, or ``''`` for a remote entry.",
+      "label": "spacr.model_zoo.ModelEntry#6",
+      "source": "absolute path on this machine, or ``''`` for a remote entry.",
+      "source_sha256": "1d26a6360ade512e0052a07eebba27a38a2563974d871b548a5aac42997662f5",
+      "translation": "absoluter Pfad auf diesem Rechner oder ``''`` bei einem entfernten Eintrag."
+    },
+    {
+      "context": "where a remote entry is fetched from, or ``''``.",
+      "label": "spacr.model_zoo.ModelEntry#7",
+      "source": "where a remote entry is fetched from, or ``''``.",
+      "source_sha256": "9033fc06fbf5dec9f2f17515f2d8ba61e49c479321cd7d9054097ebb10ee2eec",
+      "translation": "die Download-Adresse eines entfernten Eintrags oder ``''``."
+    },
+    {
+      "context": "the zoo's own version number for a filename. ``'1'`` for a plain name, ``'2'`` for ``foo_v2.CP_model`` (see :func:`versioned_path`), or whatever a catalogue declared.",
+      "label": "spacr.model_zoo.ModelEntry#8",
+      "source": "the zoo's own version number for a filename. ``'1'`` for a plain name, ``'2'`` for ``foo_v2.CP_model`` (see :func:`versioned_path`), or whatever a catalogue declared.",
+      "source_sha256": "da72b006f8b5a23dba77e44ebb2679d775796bd524cd2bf65a798b8a368247ee",
+      "translation": "die eigene Versionsnummer des Modellkatalogs für einen Dateinamen. ``'1'`` für einen einfachen Namen, ``'2'`` für ``foo_v2.CP_model`` (siehe :func:`versioned_path`) oder die im Katalog angegebene Version."
+    },
+    {
+      "context": "hex digest. For a downloaded model this is the digest of the bytes that were actually written; for a catalogue entry it is the published digest to check against; ``''`` means \"no checksum known\", which :func:`fetch` treats as a refusal rather than a pass.",
+      "label": "spacr.model_zoo.ModelEntry#9",
+      "source": "hex digest. For a downloaded model this is the digest of the bytes that were actually written; for a catalogue entry it is the published digest to check against; ``''`` means \"no checksum known\", which :func:`fetch` treats as a refusal rather than a pass.",
+      "source_sha256": "ffe7281a58ae2aa15da597f13a7ec077e8747873b0f837ea8ec019bd9f13f70f",
+      "translation": "hexadezimale Prüfsumme. Bei einem heruntergeladenen Modell gehört sie zu den tatsächlich geschriebenen Bytes; bei einem Katalogeintrag ist sie die veröffentlichte Vergleichsprüfsumme. ``''`` bedeutet \"no checksum known\", also keine bekannte Prüfsumme. :func:`fetch` lehnt dies ab, statt es als bestandene Prüfung zu behandeln."
+    },
+    {
+      "context": "file size, ``0`` when unknown.",
+      "label": "spacr.model_zoo.ModelEntry#10",
+      "source": "file size, ``0`` when unknown.",
+      "source_sha256": "d50eb613773d55e438b819a1be4bc3478b6b51cbc446b0cad54cf39276e6ab47",
+      "translation": "Dateigröße; ``0``, wenn unbekannt."
+    },
+    {
+      "context": "what data produced this model, in prose, or :data:`UNKNOWN`. Never ``''``.",
+      "label": "spacr.model_zoo.ModelEntry#11",
+      "source": "what data produced this model, in prose, or :data:`UNKNOWN`. Never ``''``.",
+      "source_sha256": "74454f591c35302c7ec5c4e0d400c10c9cad75b5931548c221ad1fcfbb0e4cf0",
+      "translation": "die zum Training verwendeten Daten als Text oder :data:`UNKNOWN`. Niemals ``''``."
+    },
+    {
+      "context": "who produced it, or :data:`UNKNOWN`. Never ``''``.",
+      "label": "spacr.model_zoo.ModelEntry#12",
+      "source": "who produced it, or :data:`UNKNOWN`. Never ``''``.",
+      "source_sha256": "4eb7607804afc958edf0f18ac2fe9692cf73f6e1f03abc7060d27688192a8c7c",
+      "translation": "die trainierende Person oder Stelle oder :data:`UNKNOWN`. Niemals ``''``."
+    },
+    {
+      "context": "whatever numbers came with it — for a machine-learning classification model, the best/last epoch metrics :func:`spacr.train_compare.load_run` recovered. Excluded from equality: two records of the same bytes are the same model whether or not somebody attached numbers to one of them.",
+      "label": "spacr.model_zoo.ModelEntry#13",
+      "source": "whatever numbers came with it — for a classifier, the best/last epoch metrics :func:`spacr.train_compare.load_run` recovered. Excluded from equality: two records of the same bytes are the same model whether or not somebody attached numbers to one of them.",
+      "source_sha256": "9f1af84724ed42e7c242e69736d9dfe5037a35c4e93c033628db02541e428f63",
+      "translation": "die mitgelieferten Kennzahlen; bei einem Klassifikationsmodell die von :func:`spacr.train_compare.load_run` wiedergewonnenen Kennzahlen der besten beziehungsweise letzten Epoche. Vom Gleichheitsvergleich ausgeschlossen: Zwei Datensätze zu denselben Bytes bezeichnen dasselbe Modell, auch wenn nur einer Kennzahlen enthält."
+    },
+    {
+      "context": "everything the reader needs to know that is not a field: missing provenance, an unverified download, a file that does not look like a checkpoint.",
+      "label": "spacr.model_zoo.ModelEntry#14",
+      "source": "everything the reader needs to know that is not a field: missing provenance, an unverified download, a file that does not look like a checkpoint.",
+      "source_sha256": "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
+      "translation": "weitere wichtige Angaben, die kein eigenes Feld haben: fehlende Herkunft, ein nicht verifizierter Download oder eine Datei, die nicht wie ein Checkpoint aussieht."
+    },
+    {
+      "context": "True only when :attr:`sha256` was checked against a published digest. A downloaded file whose hash was merely *recorded* is not verified, and says so.",
+      "label": "spacr.model_zoo.ModelEntry#15",
+      "source": "True only when :attr:`sha256` was checked against a published digest. A downloaded file whose hash was merely *recorded* is not verified, and says so.",
+      "source_sha256": "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
+      "translation": "nur dann True, wenn :attr:`sha256` mit einer veröffentlichten Prüfsumme verglichen wurde. Eine heruntergeladene Datei, deren Hash lediglich *aufgezeichnet* wurde, gilt nicht als verifiziert; dies wird angegeben."
+    },
+    {
+      "context": "where the provenance came from, for the reader who wants to go and look at it.",
+      "label": "spacr.model_zoo.ModelEntry#16",
+      "source": "where the provenance came from, for the reader who wants to go and look at it.",
+      "source_sha256": "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
+      "translation": "die Quelle der Herkunftsangaben, die Nutzer selbst nachlesen können."
+    },
+    {
+      "context": "the licence the model or package is published under, as its publisher states it (an SPDX identifier where there is one), or ``''`` when none is recorded.",
+      "label": "spacr.model_zoo.ModelEntry#17",
+      "source": "the licence the model or package is published under, as its publisher states it (an SPDX identifier where there is one), or ``''`` when none is recorded.",
+      "source_sha256": "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb",
+      "translation": "die vom Herausgeber angegebene Lizenz des Modells oder Pakets, nach Möglichkeit als SPDX-Kennung, oder ``''``, wenn keine Lizenz erfasst wurde."
+    },
+    {
+      "context": "Say what each object in a mask is, after any segmenter has made it.",
+      "label": "spacr.object_classifier#0",
+      "source": "Say what each object in a mask is, after any segmenter has made it.",
+      "source_sha256": "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
+      "translation": "Bestimmt, was jedes Objekt einer Maske ist, nachdem ein beliebiger Segmentierer sie erzeugt hat."
+    },
+    {
+      "context": "Segmentation answers \"where is there an object\"; this answers \"what is it\". The two are kept apart on purpose: the same classification must be available whether spaCR segmented the microscope field of view a moment ago or is handed a mask Cellpose wrote last week.",
+      "label": "spacr.object_classifier#1",
+      "source": "Segmentation answers \"where is there an object\"; this answers \"what is it\". The two are kept apart on purpose: the same classification must be available whether spaCR segmented the field a moment ago or is handed a mask Cellpose wrote last week.",
+      "source_sha256": "8f231b55b0d7eaf23e0e5e9322e2b13aec786979241d389863e6fff104221aca",
+      "translation": "Segmentierung beantwortet \"where is there an object\", also wo sich ein Objekt befindet. Dieses Modul beantwortet \"what is it\", also was es ist. Beide Aufgaben bleiben bewusst getrennt: Dieselbe Klassifikation muss verfügbar sein, ob spaCR das Bildfeld gerade segmentiert hat oder eine letzte Woche von Cellpose erzeugte Maske erhält."
+    },
+    {
+      "context": "Two ways in:",
+      "label": "spacr.object_classifier#2",
+      "source": "TWO WAYS IN:",
+      "source_sha256": "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
+      "translation": "ZWEI EINSTIEGSPUNKTE:"
+    },
+    {
+      "context": ":func:`segment_and_classify` takes a segmentation backend and its options, segments, and classifies what it made.",
+      "label": "spacr.object_classifier#3",
+      "source": ":func:`segment_and_classify` takes a segmentation backend and its options, segments, and classifies what it made.",
+      "source_sha256": "3d1da2379b8c57640df73c47a43b78f4486924f16f6e5495eb5f92521e17b4a0",
+      "translation": ":func:`segment_and_classify` erhält ein Segmentierungs-Backend samt Optionen, segmentiert und klassifiziert die gefundenen Objekte."
+    },
+    {
+      "context": ":func:`classify_objects` takes an image and a mask that already exists and classifies it as it stands. Nothing is re-segmented.",
+      "label": "spacr.object_classifier#4",
+      "source": ":func:`classify_objects` takes an image and a mask that already exists and classifies it as it stands. Nothing is re-segmented.",
+      "source_sha256": "4be790be28eebf6c3fa55b8c8348aed98402b198a24d74abb58039b6058236ae",
+      "translation": ":func:`classify_objects` erhält ein Bild und eine bereits vorhandene Maske und klassifiziert deren Objekte. Es wird nichts erneut segmentiert."
+    },
+    {
+      "context": "What a head is. A head is a trained machine-learning classification model: it is handed a batch of extracted image regions and returns a class and a probability for each. It is a protocol rather than a base class, so a torch module, a scikit-learn estimator or a stub in a test are all equally a head. Two are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
+      "label": "spacr.object_classifier#5",
+      "source": "WHAT A HEAD IS. A head is a trained classifier: it is handed a batch of crops and returns a class and a probability for each. It is a protocol rather than a base class, so a torch module, a scikit-learn estimator or a stub in a test are all equally a head. Two are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
+      "source_sha256": "bb13df85f32d337ace2290ec188394602429aa063d98400ceabd80ce744b033f",
+      "translation": "Was ein Klassifikationskopf ist: ein trainiertes Klassifikationsmodell, das einen Stapel von Bildausschnitten erhält und für jeden eine Klasse und eine Wahrscheinlichkeit zurückgibt. Es handelt sich um ein Protokoll und nicht um eine Basisklasse. Deshalb können ein torch-Modul, ein scikit-learn-Schätzer oder ein Test-Dummy gleichermaßen diese Rolle erfüllen. Zwei Aufgaben sind vorgesehen: die Parasitenzahl pro Vakuole und die Objektart. Für PV sind praktisch drei getrennte Klassifikationsköpfe vorgesehen, trainiert auf Hoechst, der Parasitenfärbung beziehungsweise CellMask, damit mit der jeweils auf der Platte vorhandenen Färbung gezählt werden kann."
+    },
+    {
+      "context": "What this module decides without a head, because geometry is not a matter of opinion: whether an object touches the image border, and which pairs of labels look like one object the segmenter cut in two. Those are the \"cut\" classes, and the two kinds are told apart because only a segmenter-split object can be merged where it stands, because the other half of a border object is in the next microscope field of view.",
+      "label": "spacr.object_classifier#6",
+      "source": "WHAT THIS MODULE DECIDES WITHOUT A HEAD, because geometry is not a matter of opinion: whether an object touches the image border, and which pairs of labels look like one object the segmenter cut in two. Those are the \"cut\" classes, and the two kinds are told apart because only a segmenter-split object can be merged where it stands, because the other half of a border object is in the next field.",
+      "source_sha256": "13b87365d96535e6f1e93c020369e93eb7fb70eea156341ffedbeb8e2a7bc7ad",
+      "translation": "Was dieses Modul ohne Klassifikationskopf entscheidet, weil es sich geometrisch bestimmen lässt: ob ein Objekt den Bildrand berührt und welche Kennungspaare wie ein einziges, vom Segmentierer zweigeteiltes Objekt aussehen. Dies sind die \"cut\"-Klassen. Die beiden Fälle werden unterschieden, weil nur ein durch Segmentierung aufgeteiltes Objekt an Ort und Stelle zusammengeführt werden kann. Die andere Hälfte eines Randobjekts liegt im nächsten Bildfeld."
+    },
+    {
+      "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
+      "label": "spacr.object_classifier#7",
+      "source": "IDS ARE NEVER RENUMBERED. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the crops and the tracks are all keyed on those ids.",
+      "source_sha256": "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021",
+      "translation": "Kennungen werden niemals neu nummeriert. Sämtliche Zuordnungen verwenden die Objektkennungen der übergebenen Maske; jede zurückgegebene Maske behält sie bei. `canonical_labels` in `mask_engine` erklärt die Folgen einer Neunummerierung: Messwerte, Bildausschnitte und Objektspuren sind über diese Kennungen verknüpft."
+    },
+    {
+      "context": "Put a predicted parasite count in the bin a report shows it in.",
+      "label": "spacr.object_classifier.bin_parasite_count#0",
+      "source": "Put a predicted parasite count in the bin a report shows it in.",
+      "source_sha256": "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
+      "translation": "Ordnet eine vorhergesagte Parasitenzahl der im Bericht angezeigten Größenklasse zu."
+    },
+    {
+      "context": "The bin is a display choice, not a trained one. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
+      "label": "spacr.object_classifier.bin_parasite_count#1",
+      "source": "THE BIN IS A DISPLAY CHOICE, NOT A TRAINED ONE. The head predicts how many parasites it sees; this is only how that number is shown. That matters because the rule below can change -- or be replaced by a different one per report -- without retraining anything.",
+      "source_sha256": "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
+      "translation": "Die Größenklasse ist eine Darstellungsentscheidung und keine trainierte Eigenschaft. Der Klassifikationskopf sagt voraus, wie viele Parasiten er erkennt; diese Funktion bestimmt nur die Darstellung dieser Zahl. Die folgende Regel kann deshalb geändert oder je Bericht ersetzt werden, ohne ein Modell neu zu trainieren."
+    },
+    {
+      "context": "Ties go down, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
+      "label": "spacr.object_classifier.bin_parasite_count#2",
+      "source": "TIES GO DOWN, and 12 is the case: it is four from 8 and four from 16. A vacuole of 12 has finished eight and is partway to sixteen, so it is reported as the round it has completed rather than the one it has not.",
+      "source_sha256": "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
+      "translation": "Bei gleichem Abstand wird die kleinere Klasse gewählt. Die Zahl 12 liegt beispielsweise jeweils vier von 8 und 16 entfernt. Eine Vakuole mit 12 Parasiten hat die Stufe acht abgeschlossen und befindet sich auf dem Weg zu sechzehn. Angezeigt wird deshalb die bereits abgeschlossene Stufe und nicht die noch nicht erreichte."
+    },
+    {
+      "context": "how many parasites the head counted.",
+      "label": "spacr.object_classifier.bin_parasite_count#3",
+      "source": "how many parasites the head counted.",
+      "source_sha256": "49134a948e9a69ac96249006bfa64a432e3acb85a137d5fa39999b9378b435b2",
+      "translation": "die vom Klassifikationskopf gezählte Parasitenzahl."
+    },
+    {
+      "context": "one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or ``\">16\"``.",
+      "label": "spacr.object_classifier.bin_parasite_count#4",
+      "source": "one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or ``\">16\"``.",
+      "source_sha256": "df1ba0be843a1bfb128c975f5fa764f8002f024fa8cc4a122e6ca4e3ce2114a9",
+      "translation": "einer der Werte ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` oder ``\">16\"``."
+    },
+    {
+      "context": "Classify every object of a mask that already exists.",
+      "label": "spacr.object_classifier.classify_objects#0",
+      "source": "Classify every object of a mask that already exists.",
+      "source_sha256": "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
+      "translation": "Klassifiziert jedes Objekt einer bereits vorhandenen Maske."
+    },
+    {
+      "context": "the field, ``(H, W)`` or ``(H, W, planes)``.",
+      "label": "spacr.object_classifier.classify_objects#1",
+      "source": "the field, ``(H, W)`` or ``(H, W, planes)``.",
+      "source_sha256": "890927b19cc2e4998b7dbf5ed0df59699e421076bcb4535b1d47f4ce431dd443",
+      "translation": "das Bildfeld, ``(H, W)`` oder ``(H, W, planes)``."
+    },
+    {
+      "context": "its labels. Not modified; any mask returned is a new one.",
+      "label": "spacr.object_classifier.classify_objects#2",
+      "source": "its labels. Not modified; any mask returned is a new one.",
+      "source_sha256": "e8d6c5584c2f179a2423042417706a66f5e3b2f64582e7bb536ec63f09401cb9",
+      "translation": "die Objektkennungen. Die übergebene Maske wird nicht verändert; eine zurückgegebene veränderte Maske ist neu."
+    },
+    {
+      "context": "something with ``predict(crops)`` returning a class per extracted image region, or ``(class, probability)`` per extracted image region. None reports geometry only, which is what is useful before a head is trained.",
+      "label": "spacr.object_classifier.classify_objects#3",
+      "source": "something with ``predict(crops)`` returning a class per crop, or ``(class, probability)`` per crop. None reports geometry only, which is what is useful before a head is trained.",
+      "source_sha256": "5c1667fcb52a5ce87a50d76ad516e5ca20fafe0066d7fc1d234c15d3af6bb10d",
+      "translation": "ein Objekt mit ``predict(crops)``, das pro Bildausschnitt eine Klasse oder ``(class, probability)`` zurückgibt. None liefert ausschließlich geometrische Angaben, was bereits vor dem Training eines Klassifikationskopfs nützlich ist."
+    },
+    {
+      "context": "which image layers the head sees, in order. Defaults to every image layer the image has.",
+      "label": "spacr.object_classifier.classify_objects#4",
+      "source": "which planes the head sees, in order. Defaults to every plane the image has.",
+      "source_sha256": "f81c772296c9f3ccdbfa2781789840f558db0d6d4f8b332c6c3dca9b7d17094e",
+      "translation": "die dem Klassifikationskopf übergebenen Bildebenen in ihrer Reihenfolge. Standardmäßig werden alle Bildebenen verwendet."
+    },
+    {
+      "context": "resize each extracted image region to ``size x size`` for the head.",
+      "label": "spacr.object_classifier.classify_objects#5",
+      "source": "resize each crop to ``size x size`` for the head.",
+      "source_sha256": "581b8398dd8ddd85afdfcb3fbf7ddf2fa03a6e7ae80dc80f59cd9780e8ca841d",
+      "translation": "jeden Bildausschnitt für den Klassifikationskopf auf ``size x size`` skalieren."
+    },
+    {
+      "context": "``bounding_box`` or ``object``; see :func:`spacr.crop_source.crop_object`.",
+      "label": "spacr.object_classifier.classify_objects#6",
+      "source": "``bounding_box`` or ``object``; see :func:`spacr.crop_source.crop_object`.",
+      "source_sha256": "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
+      "translation": "``bounding_box`` oder ``object``; siehe :func:`spacr.crop_source.crop_object`."
+    },
+    {
+      "context": "pixels of context around each object.",
+      "label": "spacr.object_classifier.classify_objects#7",
+      "source": "pixels of context around each object.",
+      "source_sha256": "0250aae25c4e2a7b06cbd177b961e88a4b72a6a2d07502e29c5659625929e54f",
+      "translation": "zusätzlicher Bildkontext in Pixeln um jedes Objekt."
+    },
+    {
+      "context": "return a mask with whatever the head called an artifact erased. OFF by default: a false artifact is a deleted object, so this is a decision the caller makes rather than a default they inherit.",
+      "label": "spacr.object_classifier.classify_objects#8",
+      "source": "return a mask with whatever the head called an artifact erased. OFF by default: a false artifact is a deleted object, so this is a decision the caller makes rather than a default they inherit.",
+      "source_sha256": "9faa26138d5798f10e8d3ca69aa1c3e1d17c509ba4e3040290d92e4306aae889",
+      "translation": "eine Maske zurückgeben, aus der die als Artefakte klassifizierten Objekte entfernt wurden. Standardmäßig ausgeschaltet: Eine falsche Artefaktklassifikation löscht ein Objekt. Deshalb entscheidet dies der Aufrufer ausdrücklich, statt es als Vorgabe zu übernehmen."
+    },
+    {
+      "context": "merge pairs :func:`split_candidates` finds. Acts on segmenter-split objects only -- an object cut by the microscope field of view's edge has its other half in the next microscope field of view and is left alone.",
+      "label": "spacr.object_classifier.classify_objects#9",
+      "source": "merge pairs :func:`split_candidates` finds. Acts on segmenter-split objects only -- an object cut by the field's edge has its other half in the next field and is left alone.",
+      "source_sha256": "ffc3dc38394a964a91d3ae5361b315a8fced1b7ff2ca0f0ff5e0504a28928d1b",
+      "translation": "die von :func:`split_candidates` gefundenen Paare zusammenführen. Dies betrifft ausschließlich durch Segmentierung aufgeteilte Objekte. Ein vom Bildfeldrand angeschnittenes Objekt bleibt unverändert, weil seine andere Hälfte im nächsten Bildfeld liegt."
+    },
+    {
+      "context": "which class name means \"not a real object\", for ``remove_artifacts``. A parameter rather than a constant because a head trained on somebody else's labels may spell it differently, and a removal that silently matches nothing is worse than one that cannot be configured.",
+      "label": "spacr.object_classifier.classify_objects#10",
+      "source": "which class name means \"not a real object\", for ``remove_artifacts``. A parameter rather than a constant because a head trained on somebody else's labels may spell it differently, and a removal that silently matches nothing is worse than one that cannot be configured.",
+      "source_sha256": "171b772850f6bca42b7aebaf8e72ff5d3639fac8f21d1bca151d5aff78717fdf",
+      "translation": "der Klassenname für \"not a real object\", also kein echtes Objekt, bei ``remove_artifacts``. Dies ist ein Parameter statt einer Konstanten, weil ein mit anderen Klassenbezeichnungen trainierter Klassifikationskopf eine andere Schreibweise verwenden kann. Eine Entfernung, die unbemerkt nichts erfasst, wäre schlechter als eine nicht konfigurierbare Entfernung."
+    },
+    {
+      "context": "``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` is the mask as it stands after the options asked for; with none of them it is the mask passed in.",
+      "label": "spacr.object_classifier.classify_objects#11",
+      "source": "``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` is the mask as it stands after the options asked for; with none of them it is the mask passed in.",
+      "source_sha256": "5a8d3ff4074b24a813b65570c7651770b635dbfb0f22b1f4818e506e3f4c7f02",
+      "translation": "``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` enthält die Maske nach Anwendung der angeforderten Optionen; ohne solche Optionen ist es die übergebene Maske."
+    },
+    {
+      "context": "What can be said about every object without a trained head at all.",
+      "label": "spacr.object_classifier.describe_objects#0",
+      "source": "What can be said about every object without a trained head at all.",
+      "source_sha256": "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
+      "translation": "Beschreibt jedes Objekt anhand der ohne trainierten Klassifikationskopf bestimmbaren Eigenschaften."
+    },
+    {
+      "context": "the label image.",
+      "label": "spacr.object_classifier.describe_objects#1",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "translation": "das Bild der Objektkennungen."
+    },
+    {
+      "context": "one row per object -- ``label``, ``area``, ``touches_border`` and ``split_with`` (the ids it may be one object with).",
+      "label": "spacr.object_classifier.describe_objects#2",
+      "source": "one row per object -- ``label``, ``area``, ``touches_border`` and ``split_with`` (the ids it may be one object with).",
+      "source_sha256": "d59fb15adbbd6d2fff0fbf1a2f2c4e2afcf5381b5b15d855902236421db9c0a3",
+      "translation": "eine Zeile pro Objekt mit ``label``, ``area``, ``touches_border`` und ``split_with``; Letzteres nennt Kennungen, die möglicherweise zu demselben Objekt gehören."
+    },
+    {
+      "context": "Join each pair into one object, keeping the lower id.",
+      "label": "spacr.object_classifier.merge_halves#0",
+      "source": "Join each pair into one object, keeping the lower id.",
+      "source_sha256": "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
+      "translation": "Führt jedes Paar zu einem Objekt zusammen und behält die kleinere Kennung bei."
+    },
+    {
+      "context": "The lower id survives so that a merge is stable however the pairs are ordered, and so the object keeps the id that measurements and tracks already know it by wherever that is the lower one.",
+      "label": "spacr.object_classifier.merge_halves#1",
+      "source": "The lower id survives so that a merge is stable however the pairs are ordered, and so the object keeps the id that measurements and tracks already know it by wherever that is the lower one.",
+      "source_sha256": "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
+      "translation": "Die kleinere Kennung bleibt erhalten, damit das Ergebnis unabhängig von der Reihenfolge der Paare ist. So behält das Objekt die bereits in Messwerten und Objektspuren verwendete Kennung, sofern diese die kleinere ist."
+    },
+    {
+      "context": "the label image.",
+      "label": "spacr.object_classifier.merge_halves#2",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "translation": "das Bild der Objektkennungen."
+    },
+    {
+      "context": "pairs of ids, as :func:`split_candidates` returns them.",
+      "label": "spacr.object_classifier.merge_halves#3",
+      "source": "pairs of ids, as :func:`split_candidates` returns them.",
+      "source_sha256": "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
+      "translation": "Kennungspaare, wie sie :func:`split_candidates` zurückgibt."
+    },
+    {
+      "context": "a NEW mask; the one passed in is not touched.",
+      "label": "spacr.object_classifier.merge_halves#4",
+      "source": "a NEW mask; the one passed in is not touched.",
+      "source_sha256": "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb",
+      "translation": "eine NEUE Maske; die übergebene Maske bleibt unverändert."
+    },
+    {
+      "context": "Take objects out of a mask without renumbering what is left.",
+      "label": "spacr.object_classifier.remove_labels#0",
+      "source": "Take objects out of a mask without renumbering what is left.",
+      "source_sha256": "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
+      "translation": "Entfernt Objekte aus einer Maske, ohne die verbleibenden Kennungen neu zu nummerieren."
+    },
+    {
+      "context": "the label image.",
+      "label": "spacr.object_classifier.remove_labels#1",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "translation": "das Bild der Objektkennungen."
+    },
+    {
+      "context": "the ids to erase.",
+      "label": "spacr.object_classifier.remove_labels#2",
+      "source": "the ids to erase.",
+      "source_sha256": "ebbd5667e52f78168127395921ab9703ea8e5b810a638709eaecbb944524c9b8",
+      "translation": "die zu löschenden Kennungen."
+    },
+    {
+      "context": "a NEW mask with those ids set to background.",
+      "label": "spacr.object_classifier.remove_labels#3",
+      "source": "a NEW mask with those ids set to background.",
+      "source_sha256": "17d253bcef05cd94f47ed9e0a17d79042337d7775758bdae1df108d35361646c",
+      "translation": "eine NEUE Maske, in der diese Kennungen auf Hintergrund gesetzt sind."
+    },
+    {
+      "context": "Segment a field with any backend, then classify what it found.",
+      "label": "spacr.object_classifier.segment_and_classify#0",
+      "source": "Segment a field with any backend, then classify what it found.",
+      "source_sha256": "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
+      "translation": "Segmentiert ein Bildfeld mit einem beliebigen Backend und klassifiziert anschließend die gefundenen Objekte."
+    },
+    {
+      "context": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
+      "label": "spacr.object_classifier.segment_and_classify#1",
+      "source": "The backend is anything with Cellpose's ``eval`` -- Cellpose-SAM, Cellpose 3, DINOCell and SAMCell all answer it, which is what items 404, 405, 423 and 446 built. This function therefore wraps a model without knowing which model it has.",
+      "source_sha256": "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
+      "translation": "Das Backend muss die ``eval``-Schnittstelle von Cellpose anbieten. Cellpose-SAM, Cellpose 3, DINOCell und SAMCell unterstützen sie; dies wurde in den Punkten 404, 405, 423 und 446 umgesetzt. Die Funktion kann deshalb ein Modell verwenden, ohne dessen konkrete Art zu kennen."
+    },
+    {
+      "context": "the segmenter.",
+      "label": "spacr.object_classifier.segment_and_classify#2",
+      "source": "the segmenter.",
+      "source_sha256": "7eb6d52f58ee170b1a1dedc982c4ea49c869732d4ef1ed9b60a2f2f96a9ee036",
+      "translation": "der Segmentierer."
+    },
+    {
+      "context": "one field.",
+      "label": "spacr.object_classifier.segment_and_classify#3",
+      "source": "one field.",
+      "source_sha256": "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+      "translation": "ein Bildfeld."
+    },
+    {
+      "context": "passed to the backend's ``eval``.",
+      "label": "spacr.object_classifier.segment_and_classify#4",
+      "source": "passed to the backend's ``eval``.",
+      "source_sha256": "9ca276ff0d7fdba2d330b465fc9b8ffc91754279e24e71adfa918449c7651d0c",
+      "translation": "an ``eval`` des Backends übergebene Argumente."
+    },
+    {
+      "context": "passed to :func:`classify_objects`.",
+      "label": "spacr.object_classifier.segment_and_classify#5",
+      "source": "passed to :func:`classify_objects`.",
+      "source_sha256": "7e654e613e7425fcaee50327ebe5fcc5a1b3288f721867771d8f58f7aabdc086",
+      "translation": "an :func:`classify_objects` übergebene Argumente."
+    },
+    {
+      "context": "what :func:`classify_objects` returns, with the mask the backend produced under ``\"mask\"`` when no option changed it.",
+      "label": "spacr.object_classifier.segment_and_classify#6",
+      "source": "what :func:`classify_objects` returns, with the mask the backend produced under ``\"mask\"`` when no option changed it.",
+      "source_sha256": "32325e18e6b638a8df38be9096ae7441a20ec4af343ada8b98780dbead0b5160",
+      "translation": "die Rückgabe von :func:`classify_objects`, mit der vom Backend erzeugten Maske unter ``\"mask\"``, sofern keine Option sie verändert hat."
+    },
+    {
+      "context": "Pairs of labels that look like one object cut in two.",
+      "label": "spacr.object_classifier.split_candidates#0",
+      "source": "Pairs of labels that look like one object cut in two.",
+      "source_sha256": "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
+      "translation": "Kennungspaare, die wie ein in zwei Teile zerlegtes Objekt aussehen."
+    },
+    {
+      "context": "The rule, and it is deliberately conservative: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
+      "label": "spacr.object_classifier.split_candidates#1",
+      "source": "THE RULE, and it is deliberately conservative: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
+      "source_sha256": "ca5785ac0717472dbfcaeb659f83dd4c87fc66cf07e07144bd9646c374492c1c",
+      "translation": "Die Regel ist bewusst konservativ: Zwei Objektkennungen gelten als Kandidaten, wenn sich ihre Flächen berühren und die gemeinsame Grenze mindestens den Anteil ``share`` des Umfangs des kleineren Objekts ausmacht. Eine an eine andere Zelle angrenzende Zelle teilt nur einen kleinen Teil ihres Randes; bei einer vom Segmentierer mittig geteilten Zelle ist es ein großer Teil."
+    },
+    {
+      "context": "This finds candidates. It does not merge them -- :func:`merge_halves` does, and only when asked, because a wrong merge destroys two objects to make one.",
+      "label": "spacr.object_classifier.split_candidates#2",
+      "source": "This finds candidates. It does not merge them -- :func:`merge_halves` does, and only when asked, because a wrong merge destroys two objects to make one.",
+      "source_sha256": "d41090b8a1d003c8ccd6882bdcdb5673fa80c27e1316f018e7c756c6401666d3",
+      "translation": "Die Funktion findet Kandidaten und führt sie nicht zusammen. Dies übernimmt :func:`merge_halves` nur auf ausdrückliche Anforderung, weil eine falsche Zusammenführung aus zwei Objekten eines macht und damit beide ursprünglichen Objekte zerstört."
+    },
+    {
+      "context": "the label image.",
+      "label": "spacr.object_classifier.split_candidates#3",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "translation": "das Bild der Objektkennungen."
+    },
+    {
+      "context": "the fraction of the smaller object's perimeter that must be shared. 0.25 was chosen as the default and is measured in the tests rather than argued for here.",
+      "label": "spacr.object_classifier.split_candidates#4",
+      "source": "the fraction of the smaller object's perimeter that must be shared. 0.25 was chosen as the default and is measured in the tests rather than argued for here.",
+      "source_sha256": "d7734b2dfd0dd8f5c2a75d0635146d09bd449793a6bac1e3e02c7794066fac10",
+      "translation": "der gemeinsam verlaufende Mindestanteil am Umfang des kleineren Objekts. 0.25 wurde als Vorgabe gewählt und wird in den Tests gemessen, statt hier begründet zu werden."
+    },
+    {
+      "context": "pairs ``(low id, high id)``, each pair once.",
+      "label": "spacr.object_classifier.split_candidates#5",
+      "source": "pairs ``(low id, high id)``, each pair once.",
+      "source_sha256": "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1",
+      "translation": "Paare ``(low id, high id)``, jedes Paar genau einmal."
+    }
+  ],
+  "review": {
+    "corrections": [
+      "Preserve table-wide channel ranking across successive file drops, crop normalization and unchanged Measure delegation.",
+      "Restore display bins and tie handling, stable object identities and the distinction between segmentation splits and border objects.",
+      "Preserve model provenance and verification semantics; remove untranslated paragraphs and mistranslated classifier-head terminology."
+    ],
+    "device": "cpu",
+    "draft_model": "Helsinki-NLP/opus-mt-en-de",
+    "kind": "AI-assisted technical and German-language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

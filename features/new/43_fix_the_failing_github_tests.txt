@@ -1971,3 +1971,10 @@ stale debt; this checkpoint does not close the docs lane or claim green CI.
 Evidence:features/data/411_german_api_model_routing_2026-09-22.json.
 Final report consistency selection passes4/4 in230.32s; the full catalog debt
 and CI verdict remain separate and open.
+
+2026-09-22 — CODEX DOCS LANE ONLY: GERMAN CLASSIFICATION API REVIEW
+Twelve additional current API documents accepted with 107 German review blocks
+(four reused). Independent model-free regeneration passes; refreshed reports
+show German API freshness 10478/11194. Four report tests pass in 253.49s.
+Receipt:features/data/411_german_api_object_classification_2026-09-22.json.
+Full catalog audit and CI verdict remain open. Other 43 lanes untouched.

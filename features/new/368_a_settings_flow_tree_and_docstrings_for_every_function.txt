@@ -752,3 +752,10 @@ or docstring debt pins. Receipt:411_german_api_import_fields_2026-09-22.json.
 model routing, with 52 source-bound blocks and independent model-free
 regeneration. Receipt:411_german_api_model_routing_2026-09-22.json. The remaining
 translation tail stays open on 411; English documentation debt is unchanged.
+
+2026-09-22 — CODEX TRANSLATION CHECKPOINT
+411 accepts twelve German field-assignment/object-classification API documents,
+with 107 source-bound review blocks (four reused). Independent regeneration
+and source/context checks pass; four live-report tests pass in 253.49s.
+Receipt:411_german_api_object_classification_2026-09-22.json. Translation debt
+remains open on 411; English documentation debt is unchanged.

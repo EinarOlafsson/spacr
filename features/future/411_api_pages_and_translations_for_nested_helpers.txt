@@ -1409,3 +1409,14 @@ German fresh API coverage is now 10466/11194; remaining locales stay 10409.
 Reports regenerated; full report consistency checks are running. No English
 manifest/debt-pin change, native-speaker signoff or complete-catalog claim.
 Final report consistency checks:4passed in230.32s. Feature index matches.
+
+2026-09-22 — CODEX: GERMAN OBJECT CLASSIFICATION AND FIELD ASSIGNMENT
+Twelve further API documents accepted with 107 exact-source review blocks
+(four reused). Corrected count bins, ties, stable object identities, channel
+ranking and catalog-defined model identifiers; preserved API literals and
+examples. Independent model-free regeneration and current source/context
+hash checks pass for all twelve. German fresh API coverage is 10478/11194.
+All four live-report tests pass in 253.49s. Receipt:
+features/data/411_german_api_object_classification_2026-09-22.json.
+Full catalog audit and native-language acceptance remain open; English manifest
+and extractor debt pins are unchanged.

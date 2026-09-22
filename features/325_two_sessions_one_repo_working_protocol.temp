@@ -9681,3 +9681,18 @@ After this checkpoint commits, starting a fresh fixed-source full CI coverage
 selection in codex-coverage-20260922 with2workers under12G, each worker's own
 5G test guard. Existing CPU narrators/API plus that measurement stay at14threads.
 Old95-batch evidence is retained and will not be mixed with the new run.
+
+2026-09-22 — CODEX: 3b10d1aad PUSH VERIFIED / GERMAN REVIEW / CAPTURE
+Nightly tracking ref confirms 3b10d1aad. Twelve German classification/field
+assignment API documents now independently regenerate from 107 reviewed blocks
+(four reused); all source/context hashes current. Fresh German API 10478/11194.
+Four report tests pass in 253.49s. Updated 411/368/43 docs and both reports.
+Full fixed-source coverage session 74460 is live: four of 96 batches finished,
+all exit zero, no lost files in those batches. No baseline tightening yet.
+Make Masks combined readouts/editor capture starts in session 50952 under 8G,
+two CPU threads, CUDA disabled, using local weights and neutral account paths.
+It includes magnifier, FEATURES and real editor detection in one capture pass.
+Capture CLI/input/policy tests pass 28/28 in 5.04s. Actual capture acceptance
+is pending. Five CPU narration jobs, API drafts and full coverage stay live;
+with the capture, total configured CPU allocation is 16. GPU monitor 19013
+is live; no qualified idle interval and no GPU work started by this session.

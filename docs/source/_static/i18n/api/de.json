@@ -39704,6 +39704,40 @@
         "d453715bd3b75e9f2ce7ef9ed78bc91d797c1d6488c02bf6749988ff9d296405"
       ]
     },
+    "spacr.measure.assign_paths_by_regex": {
+      "source_blocks_sha256": [
+        "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
+        "02c3a82f8385346fe30dc5aa0765bec82c258e660567679ffd67a6488752652a",
+        "66ddf6f2e9eac71ca8fafd017b209be12db40f17d947c464ecb0f06dca3fade6",
+        "4c57c9ade5c5c3f15a35ac9060ac72956feb5a079f3052522375e60e268b8802",
+        "f023346a87acc0b365d033b4e2c831d6caab37dcc2ffc8f33e7f4e8ccc413bb5",
+        "f6acd04f48d6d519144ecb96dd4d8888afc9f9a2c07588a2cf62a61dbe947901",
+        "26d27a5481fafcdfabeb96a65e8fde3d5203722bc07143d8a0b5f91159d67902",
+        "ab496304aa92d5b4aa46ed2c09302d6fce61ea50af41e9d959c33e8d089c26be",
+        "ca46bfe8f8c2ce8f6209f85629f8f50ec9a39d34b2c5c988795b86c753dd8262",
+        "fc42067ba6a5a59eeeeea077e97a34951cecce8d3aebf317e1ceeb035b227c3d",
+        "b16afdd51adc67e4a7971f7126812ca4437591378242619771865e9344316eec",
+        "10d7377a97eec21c603e92b3571ec69f40a372eea009cfafda6dee39db9486ea",
+        "7c16fabbcb13db681607d7005497d36c75c222b3b5500e33eb930bc818d778e4"
+      ],
+      "source_sha256": "b135916e38d9d6c3795de26610609a197402cd416b4a5c19d1fe96ae9a2db531",
+      "text": "Ordnet abgelegte Dateien mit einem regulären Ausdruck Zeilen sowie Kanal- und Maskenspalten zu.\n\nDer reguläre Ausdruck wird auf den BASISNAMEN jeder Datei angewendet. Seine erfassten Gruppen bestimmen die Zuordnung:\n\n* Eine Gruppe aus :data:`FIELD_TABLE_FIELD_GROUPS` benennt die Zeile. Dateien mit demselben Bildfeld-Token teilen sich eine Zeile. So ergibt ein Bildfeld mit vier Kanälen eine Zeile statt vier Zeilen.\n* Eine Gruppe aus :data:`FIELD_TABLE_MASK_GROUPS` ordnet die Datei über :func:`mask_role_of` einer Maskenspalte zu.\n* Eine Gruppe aus :data:`FIELD_TABLE_CHANNEL_GROUPS` ordnet sie einer Kanalspalte zu.\n\nDas Kanal-Token wird nach seinem Rang zugeordnet und nicht unmittelbar als Zahl gelesen. Das ist die entscheidende Festlegung: ``C1``/``C2``/``C3`` ebenso wie ``w1``/``w2`` und ``0``/``1``/``2`` müssen die Kanäle 0, 1, 2 ergeben. Keine unmittelbare numerische Auslegung von ``C1`` passt auf alle drei Schreibweisen; sie ließe die erste Reihe bei Kanal 1 beginnen und Kanal 0 dauerhaft leer. Deshalb werden die unterschiedlichen Kanal-Token anhand ihrer abschließenden Ziffern numerisch sortiert und in dieser Reihenfolge auf 0, 1, 2 ... abgebildet. Die Zuordnung hängt somit von der gesamten Dateimenge ab und nicht von einer einzelnen Datei. Deshalb zeigt das Fenster die tatsächliche Zuordnung, statt nur die Regel zu beschreiben.\n\nMaßgeblich ist die gesamte Tabelle und nicht nur die zuletzt abgelegte Dateigruppe. ``table`` merkt sich in :attr:`FieldTable.channel_tokens`, welches Token welche Spalte belegt. Bei später abgelegten Dateien wird die Vereinigung der neuen und bereits vorhandenen Token sortiert. Ein Token, das vor einem bereits eingeordneten Token steht, nummeriert die Spalten neu und verschiebt die darin liegenden Dateien (:func:`_renumber_channels`). Dadurch bezeichnet Kanal 0 in jeder Zeile denselben Kanal. Würde jede abgelegte Dateigruppe separat sortiert, könnte ``C2`` eines zweiten Bildfelds in Spalte 0 neben ``C1`` des ersten Bildfelds landen. Sichtbar würde dieser Fehler erst in der Datenbank.\n\n:param paths: die zuzuordnenden Dateipfade.\n:param pattern: ein regulärer Ausdruck mit mindestens einer Bildfeldgruppe sowie einer Kanal- oder Maskengruppe.\n:param table: eine vorhandene Tabelle, die ergänzt werden soll. Bei ``None`` wird eine neue Tabelle angelegt; ihre Kanalzahl und Maskenspalten ergeben sich aus den Dateien.\n:param plate: der Plattenname für eine neue Tabelle.\n:returns: eine :class:`TableAssignment`. Es werden weder Dateien gelesen noch Daten geschrieben.\n:raises re.error: wenn ``pattern`` nicht kompiliert werden kann. Das Fenster fängt den Fehler ab und zeigt ihn unter dem Eingabefeld an, bevor ein Lauf erreicht wird.",
+      "translation_source_blocks_sha256": [
+        "8964f353e16949212585ad375fea9c4e1ffd46c003ce0bbd3994326860a2c5e4",
+        "02c3a82f8385346fe30dc5aa0765bec82c258e660567679ffd67a6488752652a",
+        "6f0aec8416795a81d468b4521add424c258fedd6c9731548d29591eae2a38e0a",
+        "4c57c9ade5c5c3f15a35ac9060ac72956feb5a079f3052522375e60e268b8802",
+        "f023346a87acc0b365d033b4e2c831d6caab37dcc2ffc8f33e7f4e8ccc413bb5",
+        "572d21298c84b4d61e2fd3d429859d3da06dd44d0bb2204a271b619681c53749",
+        "5e7b9b3c7fd6b8995d027208cc2411ea264f09483a6d9f4fa1f34565998ffeda",
+        "ab496304aa92d5b4aa46ed2c09302d6fce61ea50af41e9d959c33e8d089c26be",
+        "6b2892daa811c4cd3db03a4fdac4a9ace67c5145fea03d5bb7447636ec1676d2",
+        "249aee45506df870c83c79763fd0411dcdbd7f1ee0893f42ee05980d50494bb1",
+        "b16afdd51adc67e4a7971f7126812ca4437591378242619771865e9344316eec",
+        "10d7377a97eec21c603e92b3571ec69f40a372eea009cfafda6dee39db9486ea",
+        "7c16fabbcb13db681607d7005497d36c75c222b3b5500e33eb930bc818d778e4"
+      ]
+    },
     "spacr.measure.crop_objects_from_array": {
       "source_blocks_sha256": [
         "149cd6c355b41e09a992589ea0a982da53bbfc8334d3a2cbe83fc08da7361e32",
@@ -39719,11 +39753,12 @@
         "bf3e5df53d50df7b4a584c36d23881cb9bf4c011c3da95e5df6f37617163880c",
         "110c7e12285d9ba13532c0d40947d624b517ff911cd3dc77efa60c24e7fd878e",
         "d603b3a5299429fc619680e4af85aff3f4d62b8c45eb94b59d67443a6f15f017",
+        "6ac99987542fe799ee5c1449ec346e4227ab90f0c47c64e634c5bf93ab1651a8",
         "06a016a357e5a85053719ea5192e03a90cbce544c9d65970a84ffa6b10a2711d",
         "7bba178fef40d37162258e172c72fc46eb3e72d49829c297d7430c61c2a0aaaf"
       ],
-      "source_sha256": "3efb67ed45d8cd2df420ee50e6e39ad44e5423f2e25b6f25320a03fa529b4aad",
-      "text": "Extrahieren Sie eine Bildregion um jedes Objekt in einem in-Memory zusammengeführten Bild+Masken-Array.\n\nDies ist das no-database Pendant von :func:`generate_object_dataset`, das von der Live-Vorschau Measure verwendet wird, um zu zeigen, wie die extrahierten Bildregionen vor einem Lauf aussehen werden: Es liest die Objektetiketten direkt aus einem Maskenschnitt eines einzelnen zusammengeführten ``.npy`` und gibt die extrahierten Bildregionen, normalisierte Bilder zurück.\n\n:param data: zusammengeführtes Array ``(H, W, C)`` — Bilddatenkanäle dann Maskenschnitte.\n:param mask_dim: Maskenbildebene für die Objektklasse, die verwendet wird, um die Bildregion zu extrahieren.\n:param channels: Bilddatenkanal-Indizes zum Zusammenstellen (Ordnung = RGB Reihenfolge).\n:param min_area: kleinste zu haltende Objektfläche (px); ``0`` = keine untere Grenze.\n:param max_area: größte zu haltende Objektfläche (px); ``0`` = keine obere Begrenzung.\n:param mask_background: Null Pixel außerhalb des Objekts.\n:param normalize: Per-Channel Perzentile-Normalisierung jeder extrahierten Bildregion.\n:param percentiles: ``(low, high)`` zur Normalisierung.\n:param buffer: Polsterung (px) um die Begrenzungsbox jedes Objekts.\n:param to_rgb: die ausgewählten Bilddatenkanäle in ein HxWx3 uint8-Bild (1→grau→RGB, 2→gepolstert, 3→ RGB, >3→erste drei zusammenfügen; ansonsten N-Imagedatenkanäle **im eigenen dtype des zusammengeführten Arrays** speichern.\n:param limit: cap die Anzahl der zurückgegebenen Objekte.\n:returns: Liste von ``{'label', 'area', 'bbox', 'crop'}`` Schlüssel-Wert-Mappings, größte Objekte zuerst.\n\n.. note::\n\n   ``to_rgb=True`` ist der eine Ort, an dem diese Funktion den arbeitenden dtype verlässt, da ein GUI-Bild 8-Bit ist. Es verengt sich mit :func:`_crop_to_uint8` (ein Reskalieren des dtypes-Bereichs), nicht mit einem Clip bei 255 -- ein Clip machte jeden Pixel eines unnormalisierten 16-Bit-Objekts wieder als rein weiß zurück, so dass die Vorschau einen weißen Blob zeigte und der Lauf, den es vorhersah, nicht war.",
+      "source_sha256": "98a856b6ddb905a21f86b4132f50d8404a7600ba6e16b3a7bed2d8eeb4fbfc4d",
+      "text": "Schneidet jedes Objekt aus einem zusammengeführten Bild- und Maskenarray im Arbeitsspeicher aus.\n\nDies ist das Gegenstück zu :func:`generate_object_dataset` ohne Datenbankzugriff. Die Live-Vorschau von Measure zeigt damit vor einem Lauf, wie die Bildausschnitte aussehen werden: Die Funktion liest die Objektkennungen direkt aus einer Maskenebene einer einzelnen zusammengeführten ``.npy``-Datei und gibt die ausgeschnittenen, normalisierten Bilder zurück.\n\n:param data: zusammengeführtes Array ``(H, W, C)`` mit Bildkanälen, gefolgt von Maskenebenen.\n:param mask_dim: Index der Maskenebene der Objektklasse, nach der ausgeschnitten wird.\n:param channels: Indizes der zusammenzustellenden Bildkanäle; ihre Reihenfolge bestimmt die RGB-Reihenfolge.\n:param min_area: kleinste beizubehaltende Objektfläche (px); ``0`` bedeutet keine Untergrenze.\n:param max_area: größte beizubehaltende Objektfläche (px); ``0`` bedeutet keine Obergrenze.\n:param mask_background: Pixel außerhalb des Objekts auf null setzen.\n:param normalize: jeden Bildausschnitt kanalweise anhand von Perzentilen normalisieren.\n:param percentiles: ``(low, high)`` für die Normalisierung.\n:param buffer: zusätzlicher Rand (px) um das umschließende Rechteck jedes Objekts.\n:param to_rgb: die gewählten Kanäle zu einem HxWx3 uint8-Bild zusammenstellen (1→Graustufen→RGB, 2→aufgefüllt, 3→RGB, >3→erste drei); andernfalls N Kanäle **im ursprünglichen dtype des zusammengeführten Arrays** beibehalten.\n:param limit: Höchstzahl der zurückgegebenen Objekte.\n:param size: ``(width, height)``, auf die jeder Bildausschnitt skaliert wird, oder ``None``, um das jeweilige umschließende Rechteck beizubehalten. Dies entspricht der Einstellung von ``measure_crop``, die ``png_size`` heißt, und verwendet dieselbe Größenänderung wie der Lauf: denselben Aufruf von ``PIL.Image.resize`` mit dessen standardmäßigem Resampling. Die Funktion speist die Vorschau von Measure, die zeigen soll, was der Lauf schreibt. Ohne diese Größenanpassung zeigte die Vorschau die umschließenden Rechtecke, während der Lauf quadratische Bilder schrieb; die Einstellung der Ausschnittgröße schien dadurch wirkungslos.\n:returns: eine Liste von Wörterbüchern ``{'label', 'area', 'bbox', 'crop'}``, nach absteigender Objektgröße.\n\n.. note::\n\n   Nur bei ``to_rgb=True`` verlässt die Funktion den Arbeits-dtype, weil ein GUI-Bild 8 Bit verwendet. Die Umwandlung mit :func:`_crop_to_uint8` skaliert anhand des Wertebereichs des dtype, statt bei 255 abzuschneiden. Abschneiden ließ jedes Pixel eines nicht normalisierten 16-Bit-Objekts rein weiß erscheinen. Dadurch zeigte die Vorschau einen weißen Fleck, den der dargestellte Lauf nicht erzeugte.",
       "translation_source_blocks_sha256": [
         "612b7fbaa5ee1f35b113163e1634929280322308800d5164af0277a38b4b8490",
         "3e93fd63f640317066a16d51eccd86b2904d98a26655a8fef95e75bc5f934828",
@@ -39738,6 +39773,7 @@
         "bf3e5df53d50df7b4a584c36d23881cb9bf4c011c3da95e5df6f37617163880c",
         "e37638f712f600778daf5015454d44789e0ec5b4393c617f0db90951e163ea43",
         "d603b3a5299429fc619680e4af85aff3f4d62b8c45eb94b59d67443a6f15f017",
+        "fb079838146d72e2ef463455bd318264b013a863888e7b29e45fbe60d751f048",
         "265a18887c72c19e4f74a64abae7b4437a292de39e91f5c1f366345bae32c497",
         "7bba178fef40d37162258e172c72fc46eb3e72d49829c297d7430c61c2a0aaaf"
       ]
@@ -39968,6 +40004,34 @@
         "54ce3a0757995f7f3843bcb35d895d61a46b1b54bbf72cc9837d46da152edb4c",
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "0435063b6c1d1ab1c8f135661088e1f29811eecdc7446c7714cb2a8f88d057ee"
+      ]
+    },
+    "spacr.measure.measure_from_field_table": {
+      "source_blocks_sha256": [
+        "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
+        "70366df5ba0f3d39eed7dee6d1e3f6f955bc4752f9cc79a2d04358e0bb3f1b36",
+        "5da4813e8295f95f89038414c660841ee291e2a2aac75eb0ec678d7093c5284d",
+        "147e809f4cbdc8ec4aedcb1ceddf4731b8c59776b471dd71a4f8c52783ae5a5c",
+        "c071897510d7102e7e62aabbd0d515eeb6c4c5cff9eb4473f328c82b1beaf9c3",
+        "645c7da7a34005badb6c8abc0e5d815c046cf6775320a649524450e499231dbf",
+        "ea2eed0d50b013fad298ad8ede7e9f3f5ec9281b76a9bdb1ad94419a1943b64d",
+        "47c7d25b397f58281374c5da6ab1554e0eb9868923ea4381f100c48cb6203ac0",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "24e2a1736002f331eead760689093685c87e8d3a22713148a88b0dd28a829ce7"
+      ],
+      "source_sha256": "15cf02e26ccec3a15592fa3c08659c209a7bbfd3a8975eea60f5e38c525ae954",
+      "text": "Misst eine Tabelle einzeln ausgewählter Bilder und Masken; der Einstiegspunkt für FEATURES.\n\nDer zweite Zugang zu diesem Modul: :func:`measure_crop` beginnt mit einem ``merged/``-Ordner, den ein Verarbeitungsablauf bereits erstellt hat. Diese Funktion beginnt hingegen mit einer durch Ablegen von Dateien ausgefüllten Tabelle, schreibt diesen Ordner und ruft anschließend :func:`measure_crop` selbst auf, unverändert und ohne Kennzeichnung der Herkunft der Bildfelder. Datenbank, Bildausschnitte und Ordnerstruktur entsprechen deshalb dem Modul Measure: Dieses Modul erstellt sie.\n\n:param table: die im FEATURES-Fenster bearbeitete :class:`FieldTable`.\n:param settings: die Nutzereinstellungen aus dem Einstellungsbereich. Schlüssel, deren Werte die Tabelle festlegt, werden aus ihr überschrieben; siehe :func:`field_table_settings`.\n:param dst: das zu schreibende Projektverzeichnis. Vorgabe ist ein Ordner ``features`` neben der ersten Kanaldatei der ersten Zeile, wo Nutzer nach dem Ablegen eines Ordners ihre Ergebnisse erwarten. Siehe :func:`field_table_destination`, die einzige Stelle, an der diese Vorgabe ermittelt wird.\n:param progress: eine mit einem Satz zum Beginn jeder Stufe aufgerufene Funktion oder ``None``. Sie läuft auf demselben Thread wie diese Funktion. Das FEATURES-Fenster führt diese Funktion in einem Worker aus; dessen Rückruf sendet nur ein Signal. Das Schreiben der Arrays und ihre Messung sind getrennte Stufen, weil bei einer großen Tabelle die zweite Minuten dauert, die erste jedoch nicht.\n:returns: ``{'destination', 'db_path', 'settings', 'stems', 'merged'}``. ``db_path`` bezeichnet die Messdatenbank unabhängig davon, ob sie bereits existiert. So kann der Aufrufer den angeforderten Pfad melden.\n:raises spacr.errors.ConfigurationError: wenn die Tabelle unvollständig ist oder eine Datei die Anforderungen an das Array verletzt. In diesem Fall wird nichts gemessen.\n\nBeispiel:\n    .. code-block:: python\n\n        from spacr.measure import (\n            assign_paths_by_regex, measure_from_field_table)\n\n        found = assign_paths_by_regex(\n            paths,\n            r'(?P<field>fov\\d+)_(?:C(?P<channel>\\d+)'\n            r'|(?P<mask>cell|nucleus))')\n        measure_from_field_table(found.table, {'save_png': True})\n\nSiehe auch: :func:`measure_crop` -- der Lauf, an den unverändert weitergegeben wird. :func:`write_field_table_project` -- die zuerst geschriebenen Ordner.",
+      "translation_source_blocks_sha256": [
+        "6d951081f41ed5fd87164da32a3012d300692d56f55da9dcf700a8675f7171bb",
+        "2ad98a012872305bbd812442ed2e8abbf787fecfe9a08e56eaae60b112a740e0",
+        "5da4813e8295f95f89038414c660841ee291e2a2aac75eb0ec678d7093c5284d",
+        "e65a1eada2a1144ad1421b099b7aaac4261fb705adf38f1e6faed165be404984",
+        "c071897510d7102e7e62aabbd0d515eeb6c4c5cff9eb4473f328c82b1beaf9c3",
+        "ccf4c0ecaa3912f00077b894a782f59055ca19ab57115b892e1a8023f8df9c56",
+        "ea2eed0d50b013fad298ad8ede7e9f3f5ec9281b76a9bdb1ad94419a1943b64d",
+        "47c7d25b397f58281374c5da6ab1554e0eb9868923ea4381f100c48cb6203ac0",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "7a739f6a09506a198da71a521b1a6ba933237e31502c65f932feedda0f0972ea"
       ]
     },
     "spacr.measure.process_meassure_crop_results": {
@@ -44030,10 +44094,11 @@
         "9f1af84724ed42e7c242e69736d9dfe5037a35c4e93c033628db02541e428f63",
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
-        "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465"
+        "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
       ],
-      "source_sha256": "27f801065f6bfce391fde9cdbed5b72d128123122e29932c8965cb7a8f268373",
-      "text": "Ein Modell, das der Zoo kennt, wo er auch lebt.\n\nEin Eintrag ist ein *Aufzeichnung einer Datei zu einem Zeitpunkt* — der Hash, die Größe und die Herkunft beschreiben diese Bytes. Eine Änderung an Ort und Stelle würde die anderen beiden stillschweigend ungültig machen; :func:`dataclasses.replace` macht den neuen Datensatz explizit.\n\n:param key: stabile id, einzigartig in einer Auflistung. Für eine lokale Datei wird dies vom Dateinamen abgeleitet; für einen Katalogeintrag ist es unabhängig vom Katalog.\n:param name: den Dateinamen (oder den veröffentlichten Namen) — was ein Mensch liest.\n:param kind: ``'cellpose'`` oder ``'classifier'``; siehe :data:`KINDS`.\n:param source: ``'bundled'`` (Schiffe mit spaCR), ``'local'`` (auf dieser Maschine gefunden) oder ``'remote'`` (in einem Katalog angemeldet, noch nicht abgeholt).\n:param path: Absoluter Pfad auf dieser Maschine, oder ``''`` für einen Remote-Eintrag.\n:param uri: wenn ein entfernter Eintrag ausgelesen wird, oder ``''``.\n:param version: die eigene Versionsnummer des Zoos für einen Dateinamen. ``'1'`` für einen einfachen Namen, ``'2'`` für ``foo_v2.CP_model`` (siehe :func:`versioned_path`), oder unabhängig von einem Katalog.\n:param sha256: hex digest. Für ein heruntergeladenes Modell ist dies der Digest der tatsächlich geschriebenen Bytes; für einen Katalogeintrag ist es der veröffentlichte Digest zu prüfen; ``''`` bedeutet \"no checksum known\", was :func:`fetch` eher als Verweigerung als Pass behandelt.\n:param size_bytes: Dateigröße, ``0`` wenn unbekannt.\n:param trained_on: Welche Daten dieses Modell produzierten, in Prosa, oder :data:`UNKNOWN`. Niemals ``''``.\n:param trained_by: die es produziert haben, oder :data:`UNKNOWN`. Niemals ``''``.\n:param metrics: Was auch immer Zahlen mit ihm kamen — für ein Maschinen-Lernen-Klassifikationsmodell, die besten / letzte Epoche Metriken :func:`spacr.train_compare.load_run` erholt. Ausgenommen von Gleichheit: zwei Datensätze der gleichen Bytes sind das gleiche Modell, ob jemand Zahlen an einen von ihnen befestigt oder nicht.\n:param notes: alles, was der Leser wissen muss, ist kein Feld: fehlende Herkunft, ein ungeprüfter Download, eine Datei, die nicht wie ein Checkpoint aussieht.\n:param verified: True nur, wenn :attr:`sha256` gegen einen veröffentlichten Digest überprüft wurde. Eine heruntergeladene Datei, deren Hash lediglich *aufgenommen wurde*, ist nicht verifiziert und sagt das.\n:param settings_path: woher die Provenienz kam, für den Leser, der gehen will und es sich ansehen will.",
+      "source_sha256": "dc2226139e55570acc8d267cb693b8cd3dd1a0406beab013a1303a8e87eb548d",
+      "text": "Ein dem Modellkatalog bekanntes Modell, unabhängig von seinem Speicherort.\n\nUnveränderlich, weil ein Eintrag *eine Datei zu einem bestimmten Zeitpunkt beschreibt*: Hash, Größe und Herkunft beziehen sich auf genau diese Bytes. Eine Änderung eines dieser Werte am vorhandenen Eintrag würde die beiden anderen unbemerkt ungültig machen. :func:`dataclasses.replace` macht den neuen Datensatz ausdrücklich sichtbar.\n\n:param key: stabile, innerhalb einer Liste eindeutige Kennung. Bei einer lokalen Datei wird sie aus dem Dateinamen abgeleitet; bei einem Katalogeintrag wird die dort angegebene Kennung verwendet.\n:param name: der Dateiname oder veröffentlichte Name, den Nutzer lesen.\n:param kind: ``'cellpose'`` oder ``'classifier'``; siehe :data:`KINDS`.\n:param source: ``'bundled'`` (mit spaCR ausgeliefert), ``'local'`` (auf diesem Rechner gefunden) oder ``'remote'`` (im Katalog verzeichnet, noch nicht heruntergeladen).\n:param path: absoluter Pfad auf diesem Rechner oder ``''`` bei einem entfernten Eintrag.\n:param uri: die Download-Adresse eines entfernten Eintrags oder ``''``.\n:param version: die eigene Versionsnummer des Modellkatalogs für einen Dateinamen. ``'1'`` für einen einfachen Namen, ``'2'`` für ``foo_v2.CP_model`` (siehe :func:`versioned_path`) oder die im Katalog angegebene Version.\n:param sha256: hexadezimale Prüfsumme. Bei einem heruntergeladenen Modell gehört sie zu den tatsächlich geschriebenen Bytes; bei einem Katalogeintrag ist sie die veröffentlichte Vergleichsprüfsumme. ``''`` bedeutet \"no checksum known\", also keine bekannte Prüfsumme. :func:`fetch` lehnt dies ab, statt es als bestandene Prüfung zu behandeln.\n:param size_bytes: Dateigröße; ``0``, wenn unbekannt.\n:param trained_on: die zum Training verwendeten Daten als Text oder :data:`UNKNOWN`. Niemals ``''``.\n:param trained_by: die trainierende Person oder Stelle oder :data:`UNKNOWN`. Niemals ``''``.\n:param metrics: die mitgelieferten Kennzahlen; bei einem Klassifikationsmodell die von :func:`spacr.train_compare.load_run` wiedergewonnenen Kennzahlen der besten beziehungsweise letzten Epoche. Vom Gleichheitsvergleich ausgeschlossen: Zwei Datensätze zu denselben Bytes bezeichnen dasselbe Modell, auch wenn nur einer Kennzahlen enthält.\n:param notes: weitere wichtige Angaben, die kein eigenes Feld haben: fehlende Herkunft, ein nicht verifizierter Download oder eine Datei, die nicht wie ein Checkpoint aussieht.\n:param verified: nur dann True, wenn :attr:`sha256` mit einer veröffentlichten Prüfsumme verglichen wurde. Eine heruntergeladene Datei, deren Hash lediglich *aufgezeichnet* wurde, gilt nicht als verifiziert; dies wird angegeben.\n:param settings_path: die Quelle der Herkunftsangaben, die Nutzer selbst nachlesen können.\n:param licence: die vom Herausgeber angegebene Lizenz des Modells oder Pakets, nach Möglichkeit als SPDX-Kennung, oder ``''``, wenn keine Lizenz erfasst wurde.",
       "translation_source_blocks_sha256": [
         "8c2ab9fed6c956dcc2e09ac2bea6ab11f8c25a1aed0e642b7a0773cdde8e2b27",
         "ee3466ed99b0742fd1d5e7d6f75ae656b8ed640fcdb14898742b934c818e9462",
@@ -44051,7 +44116,8 @@
         "7b6096d3756f33d00870cce30c8e0793bae4df4025ea0373294d19027ebec86f",
         "2de95c850863f69a7e8108dba21b32c33e4ae423668d17b0c2ef15520c596245",
         "81c3515ab578b2e0f9514e4f31726833f5e4c37e979541a333bb840d27c82a7e",
-        "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465"
+        "f9f1d4802d834c1642e674516be0bd72af17c2dcb532e8312c8826f5f0475465",
+        "f5ec5baba894fe0d212397ff9ceecab0a436392adbdd5c0b39306bef40d81fdb"
       ]
     },
     "spacr.model_zoo.ModelEntry.__post_init__": {
@@ -46448,6 +46514,170 @@
         "d0f3340abaf6946224b67872a905818aaf4ca2f1e49b7ffd6d58426c6b767b45",
         "a2c4408f704ee4b390e685cedb28e86c17c3f5f654eee0731bcc4b87c583f950",
         "c43e00e51f647b00d283f99462d98e814d2a53d3f7bf18f7cc2ee7a1990b1a55"
+      ]
+    },
+    "spacr.object_classifier": {
+      "source_blocks_sha256": [
+        "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
+        "8f231b55b0d7eaf23e0e5e9322e2b13aec786979241d389863e6fff104221aca",
+        "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
+        "3d1da2379b8c57640df73c47a43b78f4486924f16f6e5495eb5f92521e17b4a0",
+        "4be790be28eebf6c3fa55b8c8348aed98402b198a24d74abb58039b6058236ae",
+        "bb13df85f32d337ace2290ec188394602429aa063d98400ceabd80ce744b033f",
+        "13b87365d96535e6f1e93c020369e93eb7fb70eea156341ffedbeb8e2a7bc7ad",
+        "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021"
+      ],
+      "source_sha256": "df12cfe94d478be8d3b4c74dfc6428bece7c442f149d6010c6754a9a551789aa",
+      "text": "Bestimmt, was jedes Objekt einer Maske ist, nachdem ein beliebiger Segmentierer sie erzeugt hat.\n\nSegmentierung beantwortet \"where is there an object\", also wo sich ein Objekt befindet. Dieses Modul beantwortet \"what is it\", also was es ist. Beide Aufgaben bleiben bewusst getrennt: Dieselbe Klassifikation muss verfügbar sein, ob spaCR das Bildfeld gerade segmentiert hat oder eine letzte Woche von Cellpose erzeugte Maske erhält.\n\nZWEI EINSTIEGSPUNKTE:\n\n* :func:`segment_and_classify` erhält ein Segmentierungs-Backend samt Optionen, segmentiert und klassifiziert die gefundenen Objekte.\n* :func:`classify_objects` erhält ein Bild und eine bereits vorhandene Maske und klassifiziert deren Objekte. Es wird nichts erneut segmentiert.\n\nWas ein Klassifikationskopf ist: ein trainiertes Klassifikationsmodell, das einen Stapel von Bildausschnitten erhält und für jeden eine Klasse und eine Wahrscheinlichkeit zurückgibt. Es handelt sich um ein Protokoll und nicht um eine Basisklasse. Deshalb können ein torch-Modul, ein scikit-learn-Schätzer oder ein Test-Dummy gleichermaßen diese Rolle erfüllen. Zwei Aufgaben sind vorgesehen: die Parasitenzahl pro Vakuole und die Objektart. Für PV sind praktisch drei getrennte Klassifikationsköpfe vorgesehen, trainiert auf Hoechst, der Parasitenfärbung beziehungsweise CellMask, damit mit der jeweils auf der Platte vorhandenen Färbung gezählt werden kann.\n\nWas dieses Modul ohne Klassifikationskopf entscheidet, weil es sich geometrisch bestimmen lässt: ob ein Objekt den Bildrand berührt und welche Kennungspaare wie ein einziges, vom Segmentierer zweigeteiltes Objekt aussehen. Dies sind die \"cut\"-Klassen. Die beiden Fälle werden unterschieden, weil nur ein durch Segmentierung aufgeteiltes Objekt an Ort und Stelle zusammengeführt werden kann. Die andere Hälfte eines Randobjekts liegt im nächsten Bildfeld.\n\nKennungen werden niemals neu nummeriert. Sämtliche Zuordnungen verwenden die Objektkennungen der übergebenen Maske; jede zurückgegebene Maske behält sie bei. `canonical_labels` in `mask_engine` erklärt die Folgen einer Neunummerierung: Messwerte, Bildausschnitte und Objektspuren sind über diese Kennungen verknüpft.",
+      "translation_source_blocks_sha256": [
+        "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
+        "a870f5526e0dd2ac361cd646a097ad42807da9c4de7c062bf41d799f6542fbaf",
+        "219ea5d3e6f7328e56c48b52c8aa4a0139e64ebfd122e8872f136602c7aa894b",
+        "3d1da2379b8c57640df73c47a43b78f4486924f16f6e5495eb5f92521e17b4a0",
+        "4be790be28eebf6c3fa55b8c8348aed98402b198a24d74abb58039b6058236ae",
+        "2207bd41cb17b0a1777d0a123f1f1f5ce0bf0882fa1988a4c000e19cd7671c21",
+        "79d1dccc49184a8cd633b5a308c96df7be64cc5a14285d347abb746570d15346",
+        "69452963e088240688b5ef033db261ac98e81f2187b919b9eef4500fbda4cf88"
+      ]
+    },
+    "spacr.object_classifier.bin_parasite_count": {
+      "source_blocks_sha256": [
+        "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
+        "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
+        "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
+        "49134a948e9a69ac96249006bfa64a432e3acb85a137d5fa39999b9378b435b2",
+        "df1ba0be843a1bfb128c975f5fa764f8002f024fa8cc4a122e6ca4e3ce2114a9"
+      ],
+      "source_sha256": "c12c02f0398824eb4d2277ab3d3852bcba0c941ac4455c5de1eedad99d5a9c27",
+      "text": "Ordnet eine vorhergesagte Parasitenzahl der im Bericht angezeigten Größenklasse zu.\n\nDie Größenklasse ist eine Darstellungsentscheidung und keine trainierte Eigenschaft. Der Klassifikationskopf sagt voraus, wie viele Parasiten er erkennt; diese Funktion bestimmt nur die Darstellung dieser Zahl. Die folgende Regel kann deshalb geändert oder je Bericht ersetzt werden, ohne ein Modell neu zu trainieren.\n\nBei gleichem Abstand wird die kleinere Klasse gewählt. Die Zahl 12 liegt beispielsweise jeweils vier von 8 und 16 entfernt. Eine Vakuole mit 12 Parasiten hat die Stufe acht abgeschlossen und befindet sich auf dem Weg zu sechzehn. Angezeigt wird deshalb die bereits abgeschlossene Stufe und nicht die noch nicht erreichte.\n\n:param count: die vom Klassifikationskopf gezählte Parasitenzahl.\n:returns: einer der Werte ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` oder ``\">16\"``.",
+      "translation_source_blocks_sha256": [
+        "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
+        "13a6f7b37b0e5bebff984012f127fbf007e890f1b3ad4ed4792e2bcd27d565fa",
+        "5f36078b40ae6b635947daa89d0e6a669c3e88b0af7747e51983994e23114cb1",
+        "49134a948e9a69ac96249006bfa64a432e3acb85a137d5fa39999b9378b435b2",
+        "df1ba0be843a1bfb128c975f5fa764f8002f024fa8cc4a122e6ca4e3ce2114a9"
+      ]
+    },
+    "spacr.object_classifier.classify_objects": {
+      "source_blocks_sha256": [
+        "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
+        "890927b19cc2e4998b7dbf5ed0df59699e421076bcb4535b1d47f4ce431dd443",
+        "e8d6c5584c2f179a2423042417706a66f5e3b2f64582e7bb536ec63f09401cb9",
+        "5c1667fcb52a5ce87a50d76ad516e5ca20fafe0066d7fc1d234c15d3af6bb10d",
+        "f81c772296c9f3ccdbfa2781789840f558db0d6d4f8b332c6c3dca9b7d17094e",
+        "581b8398dd8ddd85afdfcb3fbf7ddf2fa03a6e7ae80dc80f59cd9780e8ca841d",
+        "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
+        "0250aae25c4e2a7b06cbd177b961e88a4b72a6a2d07502e29c5659625929e54f",
+        "9faa26138d5798f10e8d3ca69aa1c3e1d17c509ba4e3040290d92e4306aae889",
+        "ffc3dc38394a964a91d3ae5361b315a8fced1b7ff2ca0f0ff5e0504a28928d1b",
+        "171b772850f6bca42b7aebaf8e72ff5d3639fac8f21d1bca151d5aff78717fdf",
+        "5a8d3ff4074b24a813b65570c7651770b635dbfb0f22b1f4818e506e3f4c7f02"
+      ],
+      "source_sha256": "b1f66fe6ac882876d13f5b17d8edfb65c519ad00febd8bfb2a63a87cae017900",
+      "text": "Klassifiziert jedes Objekt einer bereits vorhandenen Maske.\n\n:param image: das Bildfeld, ``(H, W)`` oder ``(H, W, planes)``.\n:param mask: die Objektkennungen. Die übergebene Maske wird nicht verändert; eine zurückgegebene veränderte Maske ist neu.\n:param head: ein Objekt mit ``predict(crops)``, das pro Bildausschnitt eine Klasse oder ``(class, probability)`` zurückgibt. None liefert ausschließlich geometrische Angaben, was bereits vor dem Training eines Klassifikationskopfs nützlich ist.\n:param channels: die dem Klassifikationskopf übergebenen Bildebenen in ihrer Reihenfolge. Standardmäßig werden alle Bildebenen verwendet.\n:param size: jeden Bildausschnitt für den Klassifikationskopf auf ``size x size`` skalieren.\n:param shape: ``bounding_box`` oder ``object``; siehe :func:`spacr.crop_source.crop_object`.\n:param padding: zusätzlicher Bildkontext in Pixeln um jedes Objekt.\n:param remove_artifacts: eine Maske zurückgeben, aus der die als Artefakte klassifizierten Objekte entfernt wurden. Standardmäßig ausgeschaltet: Eine falsche Artefaktklassifikation löscht ein Objekt. Deshalb entscheidet dies der Aufrufer ausdrücklich, statt es als Vorgabe zu übernehmen.\n:param merge_split: die von :func:`split_candidates` gefundenen Paare zusammenführen. Dies betrifft ausschließlich durch Segmentierung aufgeteilte Objekte. Ein vom Bildfeldrand angeschnittenes Objekt bleibt unverändert, weil seine andere Hälfte im nächsten Bildfeld liegt.\n:param artifact_class: der Klassenname für \"not a real object\", also kein echtes Objekt, bei ``remove_artifacts``. Dies ist ein Parameter statt einer Konstanten, weil ein mit anderen Klassenbezeichnungen trainierter Klassifikationskopf eine andere Schreibweise verwenden kann. Eine Entfernung, die unbemerkt nichts erfasst, wäre schlechter als eine nicht konfigurierbare Entfernung.\n:returns: ``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` enthält die Maske nach Anwendung der angeforderten Optionen; ohne solche Optionen ist es die übergebene Maske.",
+      "translation_source_blocks_sha256": [
+        "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
+        "890927b19cc2e4998b7dbf5ed0df59699e421076bcb4535b1d47f4ce431dd443",
+        "e8d6c5584c2f179a2423042417706a66f5e3b2f64582e7bb536ec63f09401cb9",
+        "4ee8de1f5aa898dcc8f1d57716426337bcb5c40ae3b2daef224dc1281719c5e4",
+        "0b803e536483bc7570151a1e92e6dbf891d5e8c975f8d3d984a211d29381ac27",
+        "8a37e0314b160847f1bf2eeabc2b90eb86a9226bedbd078e00da4df1373ef124",
+        "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
+        "0250aae25c4e2a7b06cbd177b961e88a4b72a6a2d07502e29c5659625929e54f",
+        "9faa26138d5798f10e8d3ca69aa1c3e1d17c509ba4e3040290d92e4306aae889",
+        "e610a1377914865723fba729a00ca446a6386721c73544c12c8b68f6acf2554d",
+        "171b772850f6bca42b7aebaf8e72ff5d3639fac8f21d1bca151d5aff78717fdf",
+        "5a8d3ff4074b24a813b65570c7651770b635dbfb0f22b1f4818e506e3f4c7f02"
+      ]
+    },
+    "spacr.object_classifier.describe_objects": {
+      "source_blocks_sha256": [
+        "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "d59fb15adbbd6d2fff0fbf1a2f2c4e2afcf5381b5b15d855902236421db9c0a3"
+      ],
+      "source_sha256": "43cfa6781cc77681896cd4f860e359ef2dd1d4cc2e4a5093d0fc14d9ff70e3bc",
+      "text": "Beschreibt jedes Objekt anhand der ohne trainierten Klassifikationskopf bestimmbaren Eigenschaften.\n\n:param mask: das Bild der Objektkennungen.\n:returns: eine Zeile pro Objekt mit ``label``, ``area``, ``touches_border`` und ``split_with``; Letzteres nennt Kennungen, die möglicherweise zu demselben Objekt gehören.",
+      "translation_source_blocks_sha256": [
+        "470e604f9fa4f8b89a7b91dfd2ff33c1acf9cc1c04ae61422ead20afeb2da480",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "d59fb15adbbd6d2fff0fbf1a2f2c4e2afcf5381b5b15d855902236421db9c0a3"
+      ]
+    },
+    "spacr.object_classifier.merge_halves": {
+      "source_blocks_sha256": [
+        "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
+        "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
+        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb"
+      ],
+      "source_sha256": "378bb2e93c8866158ac97f69421efaa89a6f94932ab71138d602b7850ff36485",
+      "text": "Führt jedes Paar zu einem Objekt zusammen und behält die kleinere Kennung bei.\n\nDie kleinere Kennung bleibt erhalten, damit das Ergebnis unabhängig von der Reihenfolge der Paare ist. So behält das Objekt die bereits in Messwerten und Objektspuren verwendete Kennung, sofern diese die kleinere ist.\n\n:param mask: das Bild der Objektkennungen.\n:param pairs: Kennungspaare, wie sie :func:`split_candidates` zurückgibt.\n:returns: eine NEUE Maske; die übergebene Maske bleibt unverändert.",
+      "translation_source_blocks_sha256": [
+        "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
+        "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
+        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb"
+      ]
+    },
+    "spacr.object_classifier.remove_labels": {
+      "source_blocks_sha256": [
+        "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "ebbd5667e52f78168127395921ab9703ea8e5b810a638709eaecbb944524c9b8",
+        "17d253bcef05cd94f47ed9e0a17d79042337d7775758bdae1df108d35361646c"
+      ],
+      "source_sha256": "8280e907d05f59d9ef3a0a53c3b5cbbd265947d6d155ca54ca6d48ab0e3c84d1",
+      "text": "Entfernt Objekte aus einer Maske, ohne die verbleibenden Kennungen neu zu nummerieren.\n\n:param mask: das Bild der Objektkennungen.\n:param labels: die zu löschenden Kennungen.\n:returns: eine NEUE Maske, in der diese Kennungen auf Hintergrund gesetzt sind.",
+      "translation_source_blocks_sha256": [
+        "e5bb6008ae3835eb73ecba8d680e1a9909e5f64eb164d47e2453c59d55c0f5c9",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "ebbd5667e52f78168127395921ab9703ea8e5b810a638709eaecbb944524c9b8",
+        "17d253bcef05cd94f47ed9e0a17d79042337d7775758bdae1df108d35361646c"
+      ]
+    },
+    "spacr.object_classifier.segment_and_classify": {
+      "source_blocks_sha256": [
+        "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
+        "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
+        "7eb6d52f58ee170b1a1dedc982c4ea49c869732d4ef1ed9b60a2f2f96a9ee036",
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "9ca276ff0d7fdba2d330b465fc9b8ffc91754279e24e71adfa918449c7651d0c",
+        "7e654e613e7425fcaee50327ebe5fcc5a1b3288f721867771d8f58f7aabdc086",
+        "32325e18e6b638a8df38be9096ae7441a20ec4af343ada8b98780dbead0b5160"
+      ],
+      "source_sha256": "03ab6e8e3062802d55f9ebf2f2bc42998b02db4016415acd2272be08aaf605dd",
+      "text": "Segmentiert ein Bildfeld mit einem beliebigen Backend und klassifiziert anschließend die gefundenen Objekte.\n\nDas Backend muss die ``eval``-Schnittstelle von Cellpose anbieten. Cellpose-SAM, Cellpose 3, DINOCell und SAMCell unterstützen sie; dies wurde in den Punkten 404, 405, 423 und 446 umgesetzt. Die Funktion kann deshalb ein Modell verwenden, ohne dessen konkrete Art zu kennen.\n\n:param backend: der Segmentierer.\n:param image: ein Bildfeld.\n:param eval_kwargs: an ``eval`` des Backends übergebene Argumente.\n:param classify_kwargs: an :func:`classify_objects` übergebene Argumente.\n:returns: die Rückgabe von :func:`classify_objects`, mit der vom Backend erzeugten Maske unter ``\"mask\"``, sofern keine Option sie verändert hat.",
+      "translation_source_blocks_sha256": [
+        "216c67b3ee07adb30c8b3c77c8c3659cfb26c2e38e4eab300b85a58a1db05d83",
+        "2ed9d5992e6c9b2ae9a468bea3fb29f6bb0e91d5a8a19b4db431ff0bd0149d15",
+        "7eb6d52f58ee170b1a1dedc982c4ea49c869732d4ef1ed9b60a2f2f96a9ee036",
+        "224144df3fabf2c29c2576cb49ea544a6ad3f8d1c2d8abe8bd6e85e60b68130c",
+        "9ca276ff0d7fdba2d330b465fc9b8ffc91754279e24e71adfa918449c7651d0c",
+        "7e654e613e7425fcaee50327ebe5fcc5a1b3288f721867771d8f58f7aabdc086",
+        "32325e18e6b638a8df38be9096ae7441a20ec4af343ada8b98780dbead0b5160"
+      ]
+    },
+    "spacr.object_classifier.split_candidates": {
+      "source_blocks_sha256": [
+        "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
+        "ca5785ac0717472dbfcaeb659f83dd4c87fc66cf07e07144bd9646c374492c1c",
+        "d41090b8a1d003c8ccd6882bdcdb5673fa80c27e1316f018e7c756c6401666d3",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "d7734b2dfd0dd8f5c2a75d0635146d09bd449793a6bac1e3e02c7794066fac10",
+        "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1"
+      ],
+      "source_sha256": "8ca337ae36217466a0e32bc24e1b184941486f4fd46e19093a21b7900e75ef30",
+      "text": "Kennungspaare, die wie ein in zwei Teile zerlegtes Objekt aussehen.\n\nDie Regel ist bewusst konservativ: Zwei Objektkennungen gelten als Kandidaten, wenn sich ihre Flächen berühren und die gemeinsame Grenze mindestens den Anteil ``share`` des Umfangs des kleineren Objekts ausmacht. Eine an eine andere Zelle angrenzende Zelle teilt nur einen kleinen Teil ihres Randes; bei einer vom Segmentierer mittig geteilten Zelle ist es ein großer Teil.\n\nDie Funktion findet Kandidaten und führt sie nicht zusammen. Dies übernimmt :func:`merge_halves` nur auf ausdrückliche Anforderung, weil eine falsche Zusammenführung aus zwei Objekten eines macht und damit beide ursprünglichen Objekte zerstört.\n\n:param mask: das Bild der Objektkennungen.\n:param share: der gemeinsam verlaufende Mindestanteil am Umfang des kleineren Objekts. 0.25 wurde als Vorgabe gewählt und wird in den Tests gemessen, statt hier begründet zu werden.\n:returns: Paare ``(low id, high id)``, jedes Paar genau einmal.",
+      "translation_source_blocks_sha256": [
+        "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
+        "2cd815a5c229f9618eea4a1ab05cfd680d127e122fff962e6c140af9b23271dd",
+        "d41090b8a1d003c8ccd6882bdcdb5673fa80c27e1316f018e7c756c6401666d3",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "d7734b2dfd0dd8f5c2a75d0635146d09bd449793a6bac1e3e02c7794066fac10",
+        "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1"
       ]
     },
     "spacr.object_distances": {
