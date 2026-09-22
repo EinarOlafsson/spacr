@@ -556,7 +556,7 @@ def test_there_is_one_invert_and_it_is_the_display_one(screen):
     assert screen._cp_invert is screen._invert_display
     assert screen._cp_invert.text() == "Invert image"
     assert category(screen, "Display").isAncestorOf(screen._cp_invert)
-    assert not category(screen, "Object detection").isAncestorOf(
+    assert not category(screen, "Detection method").isAncestorOf(
         screen._cp_invert)
 
 

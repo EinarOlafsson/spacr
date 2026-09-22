@@ -26,6 +26,7 @@ import pytest
 from PySide6.QtCore import QPointF
 
 from spacr.qt import detect_chain as dc
+from spacr.qt import mask_engine as engine
 from spacr.qt import organelle_modes as om
 from spacr.qt.screens import make_masks as mm
 
@@ -152,17 +153,37 @@ def test_a_mode_shows_its_own_parameters_and_no_others(screen):
         assert screen._method_note.text(), f"{mode} says nothing about itself"
 
 
-def test_the_card_stays_and_says_so_for_a_mode_that_reads_none_of_it(screen):
-    """Otsu leaves the category in place with a sentence in it.
+def test_one_category_shows_one_family_and_hides_the_rest(screen):
+    """Item 473's fold: Otsu, Object detection and the methods are one.
 
-    A category that comes and goes is one whose place and folded state
-    cannot be learned; see :meth:`MakeMasksScreen._sync_method_controls`.
+    The category stays put whatever is chosen -- a category that comes and
+    goes is one whose place and folded state cannot be learned -- and the
+    group inside it follows the method.
     """
-    screen._mag_mode.setCurrentIndex(screen._mag_mode.findData("otsu"))
-    assert screen._methods_card.isVisibleTo(screen._settings_scroll)
-    assert not any(screen._method_form.isRowVisible(widget)
-                   for widget in screen._method_widgets.values())
-    assert "Adaptive threshold" in screen._method_note.text()
+    titles = [title for title, _section in screen._settings_categories]
+    assert "Detection method" in titles
+    assert not {"Otsu", "Object detection", "Detection methods"} & set(titles)
+
+    for mode, family in (("otsu", "threshold"), ("li", "threshold"),
+                         ("sauvola", "threshold"),
+                         ("propagate", "propagate"),
+                         ("adaptive", "organelle"),
+                         ("cellpose", "cellpose")):
+        if screen._mag_mode.findData(mode) < 0:
+            continue
+        screen._mag_mode.setCurrentIndex(screen._mag_mode.findData(mode))
+        assert screen._methods_card.isVisibleTo(screen._settings_scroll)
+        shown = {name for name, group in screen._method_groups.items()
+                 if group.isVisibleTo(screen._methods_card)}
+        assert shown == {family}, f"{mode} showed {shown}"
+        assert screen._method_note.text(), f"{mode} says nothing about itself"
+
+
+def test_a_folded_old_category_stays_folded_after_the_rename():
+    """Three titles a user folded become the one that replaced them."""
+    for old in ("Otsu", "Object detection", "Detection methods",
+                "Cellpose-SAM"):
+        assert mm._RENAMED_CATEGORIES[old] == "Detection method"
 
 
 def test_the_guidance_a_method_shows_comes_from_legal_methods():
@@ -687,3 +708,178 @@ def test_the_zoom_view_is_the_one_the_qc_browser_already_had():
     from spacr.qt.widgets.zoom_view import ZoomableImageView
 
     assert qc_field_browser._FieldView is ZoomableImageView
+
+
+def test_every_cpu_threshold_algorithm_is_offered_and_runs(screen):
+    """Li's cross entropy and the rest, each a row and each a real cut."""
+    from spacr.qt import cpu_modes as cm
+
+    offered = [screen._mag_mode.itemData(i)
+               for i in range(screen._mag_mode.count())]
+    for mode in ("li", "yen", "triangle", "isodata", "mean", "minimum",
+                 "multiotsu", "sauvola", "niblack", "propagate"):
+        assert mode in offered, f"{mode} is not offered"
+        assert mode in mm._MAGNIFIER_SEGMENTERS
+        assert cm.guidance(mode).startswith("Suits "), mode
+
+    field = blob_field(160)
+    levels = set()
+    for algorithm in engine.GLOBAL_THRESHOLDS:
+        levels.add(round(engine._otsu_levels(
+            field, algorithm=algorithm)[0], 3))
+    assert len(levels) > 3, \
+        "the algorithms are all returning the same level; one is not running"
+
+
+def test_a_threshold_algorithm_is_one_number_and_not_a_second_engine():
+    """Choosing Li changes where the level comes from and nothing else.
+
+    Proved by running Otsu and Li through the same call and checking that
+    the ONLY difference is the level: at Li's level, the Otsu algorithm
+    gives Li's mask to the pixel.
+    """
+    field = blob_field(160)
+    li_level = engine._otsu_levels(field, algorithm="li", smoothing=1.0)[0]
+    otsu_level = engine._otsu_levels(field, algorithm="otsu",
+                                     smoothing=1.0)[0]
+    assert li_level != otsu_level
+
+    by_name = engine._otsu_instances(field, min_area=10, smoothing=1.0,
+                                     algorithm="li")
+    by_hand = engine._otsu_instances(
+        field, min_area=10, smoothing=1.0, algorithm="otsu",
+        correction=li_level / otsu_level)
+    np.testing.assert_array_equal(by_name, by_hand)
+
+
+@pytest.mark.parametrize("mode", ["li", "yen", "triangle", "isodata",
+                                  "mean", "minimum", "sauvola", "niblack"])
+def test_each_algorithm_runs_in_the_box_and_on_the_button(screen, mode):
+    """One algorithm, two places, one answer to what it means."""
+    field = blob_field(96)
+    request = mm._MagnifierRequest(
+        key=("k",), crop=field, box=(0, 0, 96, 96), shape=(96, 96),
+        mode=mode, sensitivity=0.0, bright=True, min_area=10,
+        model_name="cpsam", diameter=0, colour=(1, 2, 3), otsu_window=31)
+    labels, used, note = mm._segment_region(request)
+    assert used == mode and note == "", note
+    assert labels.shape == field.shape
+
+    whole, seeds = screen._cpu_detect(field, mode, screen._otsu_settings())
+    assert seeds is None
+    assert whole.shape == field.shape
+
+
+def test_multi_otsu_is_asked_for_by_a_class_count(screen):
+    """Multi-Otsu is the class count, and the screen will not leave it at 2."""
+    from spacr.qt import cpu_modes as cm
+
+    assert cm.engine_algorithm("multiotsu") == "otsu"
+    assert cm.engine_algorithm("li") == "li"
+
+    screen._otsu_classes.setValue(2)
+    screen._mag_mode.setCurrentIndex(screen._mag_mode.findData("multiotsu"))
+    assert screen._otsu_classes.value() >= 3, \
+        "Multi-Otsu was left on two classes, which is plain Otsu"
+
+
+def test_the_k_box_is_shown_only_for_the_algorithms_that_read_it(screen):
+    """Sauvola and Niblack read k; nothing else does."""
+    for mode, wanted in (("otsu", False), ("li", False), ("sauvola", True),
+                         ("niblack", True), ("propagate", False)):
+        screen._mag_mode.setCurrentIndex(screen._mag_mode.findData(mode))
+        assert screen._otsu_local_k.isEnabled() is wanted, mode
+
+
+def test_maxima_and_propagate_grows_one_object_per_centre():
+    """Four bright centres, four objects, however they are stopped."""
+    from spacr.qt import cpu_modes as cm
+
+    size = 200
+    rng = np.random.default_rng(5)
+    field = (rng.random((size, size)) * 80).astype(np.float32)
+    yy, xx = np.ogrid[:size, :size]
+    for cy, cx in ((60, 60), (60, 100), (140, 60), (140, 140)):
+        field += 3000 * np.exp(
+            -(((yy - cy) ** 2 + (xx - cx) ** 2) / (2 * 18.0 ** 2)))
+
+    for stop, value in (("seed_fraction", 0.4), ("percentile", 95.0),
+                        ("threshold", 0.0), ("absolute", 800.0)):
+        params = cm.DEFAULT_PARAMS._replace(
+            propagate_sigma=3.0, propagate_min_distance=15,
+            propagate_seed_level=95.0, propagate_stop=stop,
+            propagate_stop_value=value)
+        found = cm.propagate(field, params, min_area=50)
+        assert found.seeds == 4, f"{stop} found {found.seeds} centres"
+        assert int(found.labels.max()) == 4, \
+            f"{stop} grew {int(found.labels.max())} objects from 4 centres"
+        if stop == "seed_fraction":
+            assert found.level is None, \
+                "a per-centre rule has no single level to report"
+        else:
+            assert found.level is not None
+
+    assert set(engine.PROPAGATE_STOPS) == {
+        "seed_fraction", "absolute", "percentile", "threshold"}
+
+
+def test_the_two_touching_objects_a_threshold_cannot_split_come_apart():
+    """The reason propagation exists, on a pair that shares a bright bridge."""
+    from spacr.qt import cpu_modes as cm
+
+    field = np.zeros((80, 140), dtype=np.float32)
+    yy, xx = np.ogrid[:80, :140]
+    for cx in (50, 90):
+        field += 2000 * np.exp(
+            -(((yy - 40) ** 2 + (xx - cx) ** 2) / (2 * 14.0 ** 2)))
+
+    one = engine._otsu_instances(field, min_area=50, split_touching=False)
+    assert int(one.max()) == 1, "the pair is meant to threshold as one blob"
+
+    params = cm.DEFAULT_PARAMS._replace(
+        propagate_sigma=2.0, propagate_min_distance=12,
+        propagate_seed_level=90.0)
+    found = cm.propagate(field, params, min_area=50)
+    assert found.seeds == 2 and int(found.labels.max()) == 2
+
+
+def test_the_propagation_says_how_many_centres_it_found(screen):
+    """The number the user tunes against reaches the status line."""
+    screen._mag_mode.setCurrentIndex(screen._mag_mode.findData("propagate"))
+    screen._propagate_widgets["propagate_seed_level"].setValue(99.0)
+    screen._propagate_widgets["propagate_min_distance"].setValue(6)
+    screen._on_detect_otsu()
+    said = screen._status_label.text()
+    assert "centre" in said, said
+
+
+def test_the_propagation_records_its_settings_with_the_mask(screen):
+    """A propagated mask carries the four steps that made it."""
+    from spacr.qt import cpu_modes as cm
+
+    screen._mag_mode.setCurrentIndex(screen._mag_mode.findData("propagate"))
+    screen._propagate_widgets["propagate_stop"].setCurrentIndex(
+        screen._propagate_widgets["propagate_stop"].findData("percentile"))
+    screen._propagate_widgets["propagate_stop_value"].setValue(92.0)
+    screen._on_detect_otsu()
+    entries = [edit for edit in screen._log._edits if edit.kind == "detect"]
+    assert entries, "the propagation recorded nothing"
+    detail = entries[-1].detail
+    assert detail["method"] == "propagate"
+    assert detail["method_parameters"]["propagate_stop"] == "percentile"
+    assert detail["method_parameters"]["propagate_stop_value"] == 92.0
+    assert set(cm.PARAMETERS_FOR["propagate"]) <= set(
+        detail["method_parameters"])
+
+
+def test_the_stop_value_and_the_stop_algorithm_are_never_both_live(screen):
+    """A control being read and one being ignored must not look alike."""
+    screen._mag_mode.setCurrentIndex(screen._mag_mode.findData("propagate"))
+    stop = screen._propagate_widgets["propagate_stop"]
+    stop.setCurrentIndex(stop.findData("seed_fraction"))
+    assert screen._propagate_widgets["propagate_stop_value"].isEnabled()
+    assert not screen._propagate_widgets[
+        "propagate_stop_algorithm"].isEnabled()
+    stop.setCurrentIndex(stop.findData("threshold"))
+    assert not screen._propagate_widgets["propagate_stop_value"].isEnabled()
+    assert screen._propagate_widgets["propagate_stop_algorithm"].isEnabled()

@@ -302,8 +302,9 @@ def test_the_mode_is_called_otsu_and_the_category_object_detection(screen):
     assert not [row for row in modes if row[1] == "classical"]
     assert "Classical" not in [text for text, _data in modes]
     titles = [title for title, _section in screen._settings_categories]
-    assert "Object detection" in titles and "Otsu" in titles
-    assert "Cellpose-SAM" not in titles
+    assert "Detection method" in titles, (
+        "item 473 folded Otsu and Object detection into one category")
+    assert not {"Object detection", "Otsu", "Cellpose-SAM"} & set(titles)
     assert screen._btn_cellpose.text() == "Object detection"
 
 
@@ -312,7 +313,7 @@ def test_the_old_mode_name_still_selects_the_mode_it_was_renamed_from():
     assert mm.canonical_magnifier_mode("classical") == "otsu"
     assert mm.canonical_magnifier_mode("cellpose") == "cellpose"
     assert mm.canonical_magnifier_mode(None) == "otsu"
-    assert mm._MAGNIFIER_SEGMENTERS["otsu"] is mm._otsu_segmenter
+    assert mm._MAGNIFIER_SEGMENTERS["otsu"] is mm._threshold_segmenter
 
 
 def test_set_mode_takes_the_old_name_and_stores_the_new_one(screen):
@@ -336,7 +337,7 @@ def test_a_layout_that_folded_the_old_category_folds_the_new_one(
     try:
         folded = {title for title, section in made._settings_categories
                   if not section.is_expanded()}
-        assert folded == {"Object detection", "Brush"}
+        assert folded == {"Detection method", "Brush"}
     finally:
         made._magnifier.close()
         made.close_folded()
@@ -344,7 +345,7 @@ def test_a_layout_that_folded_the_old_category_folds_the_new_one(
 
 def test_the_otsu_category_holds_six_settings_and_drives_the_magnifier(screen):
     categories = dict(screen._settings_categories)
-    otsu = categories["Otsu"]
+    otsu = categories["Detection method"]
     for control in (screen._otsu_correction, screen._otsu_smoothing,
                     screen._otsu_bright, screen._otsu_fill_holes,
                     screen._otsu_split, screen._otsu_exclude_border):

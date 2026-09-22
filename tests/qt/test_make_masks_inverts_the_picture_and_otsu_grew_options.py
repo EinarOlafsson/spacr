@@ -521,7 +521,7 @@ def test_each_new_otsu_control_is_in_the_otsu_category_with_help(screen, name):
     from spacr.qt.screens.settings_model import _sibling_label_for
 
     control = getattr(screen, name)
-    category = dict(screen._settings_categories)["Otsu"]
+    category = dict(screen._settings_categories)["Detection method"]
     assert category.isAncestorOf(control), name
     label = _sibling_label_for(control)
     helped = control.toolTip() or (label is not None and label.toolTip())
@@ -583,20 +583,27 @@ def test_the_detect_run_records_the_new_settings(screen):
     assert detail["otsu_window"] == mm.OTSU_LOCAL_WINDOW
 
 
-def test_the_three_new_settings_are_the_detect_buttons_own(screen):
-    """They are whole-field judgements, so the magnifier does not read them.
+def test_the_whole_field_settings_are_the_detect_buttons_own(screen):
+    """Multi-class and local Otsu are whole-field judgements, so the box
+    does not read them.
 
-    A 64 px box rarely holds three populations and a window the size of the
-    box is the box's own threshold, so offering either there would be
+    A 64 px box rarely holds three populations and a window the size of
+    the box is the box's own threshold, so offering either there would be
     offering a control that does nothing -- the same defect, moved. The
     precedent is 419's own "Drop objects the image border cuts".
+
+    THE LOCAL WINDOW IS THE EXCEPTION SINCE ITEM 473, and deliberately:
+    Sauvola and Niblack measure in that window and are offered in the box,
+    so a window the box ignored would be a control that does nothing in
+    the other direction.
     """
     context = screen._magnifier_context()
-    for key in ("classes", "foreground_class", "local", "window",
-                "otsu_classes", "otsu_local", "otsu_window"):
+    for key in ("classes", "foreground_class", "local",
+                "otsu_classes", "otsu_local"):
         assert key not in context, key
     assert "otsu_classes" not in mm._MODEL_SETTING_FIELDS
     assert "otsu_local" not in mm._MODEL_SETTING_FIELDS
+    assert context["otsu_window"] == screen._otsu_window.value()
 
 
 def test_the_minimum_area_after_the_threshold_is_the_one_box_there_was(screen):
@@ -617,7 +624,7 @@ def test_the_minimum_area_after_the_threshold_is_the_one_box_there_was(screen):
     screen._btn_otsu.click()
     assert int(screen._canvas.mask.max()) < small
 
-    category = dict(screen._settings_categories)["Otsu"]
+    category = dict(screen._settings_categories)["Detection method"]
     said = [label.text() for label in category.findChildren(QLabel)]
     assert any("Min area" in text and "Object operations" in text
                for text in said), said

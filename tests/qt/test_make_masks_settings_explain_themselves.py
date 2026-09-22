@@ -200,11 +200,15 @@ def _awaiting_translation(screen) -> set:
     than becoming a permanent hole.
 
     Owed since 2026-09-22 by item 473 (Make Masks offers every detection
-    method): the Detection methods card and the Image enhancement card.
-    The Mode box's rewritten tooltip was owed too and the lane has since
-    done it, so it left this list -- which is the loop working.
+    method): the Detection method category's own rows -- the Method box,
+    the organelle methods' parameters, the propagation's, the local k --
+    and the Image enhancement card. An earlier version of the Mode box's
+    tooltip was owed too and the lane did it; the fold rewrote it, so it
+    is owed again, which is the loop working in both directions.
     """
-    widgets = list(getattr(screen, "_method_widgets", {}).values())
+    widgets = [screen._mag_mode, screen._otsu_local_k, screen._btn_otsu]
+    widgets += list(getattr(screen, "_method_widgets", {}).values())
+    widgets += list(getattr(screen, "_propagate_widgets", {}).values())
     for name in ("_enh_background", "_enh_background_radius",
                  "_enh_background_scale", "_enh_denoise",
                  "_enh_denoise_strength", "_enh_gamma", "_enh_clahe",

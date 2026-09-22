@@ -167,6 +167,7 @@ from PySide6.QtWidgets import (
 )
 
 from ...curation import CurationLog
+from .. import cpu_modes
 from .. import detect_chain
 from .. import iconset
 from .. import mask_engine as engine
@@ -410,9 +411,15 @@ _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 #: layout is a list of TITLES, so a user who folded the old one away would
 #: find it open again after a rename and would have to fold it a second time;
 #: reading the stored list through this keeps their arrangement.
-#: Cellpose-SAM is now Object detection, and Auto-filter objects is now the
-#: Filter category.
-_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection",
+#: Cellpose-SAM became Object detection and Auto-filter objects became the
+#: Filter category; item 473 then folded Otsu, Object detection and its own
+#: Detection methods into ONE "Detection method" category, because they
+#: were three categories answering one question -- what finds the objects
+#: -- and only one of them was ever being read.
+_RENAMED_CATEGORIES = {"Cellpose-SAM": "Detection method",
+                       "Object detection": "Detection method",
+                       "Otsu": "Detection method",
+                       "Detection methods": "Detection method",
                        "Auto-filter objects": "Filter"}
 
 #: The two inks this screen cannot take from the shipped stylesheet: the
@@ -570,6 +577,31 @@ class _MaskLoadWorker(QThread):
                 self.filename,
                 self.folder,
             )
+
+
+class _MethodGroup(QWidget):
+    """One family of detection settings inside the Detection method category.
+
+    The category holds four of these -- the threshold family's, Cellpose's,
+    the organelle methods' and the propagation's -- and shows the one the
+    chosen mode reads. A GROUP AND NOT A ROW RULE, because these families
+    are not all forms: the threshold group has toggles, a histogram button
+    and two nested form layouts, and hiding those one at a time would be a
+    list of widget names that goes stale the day one is added.
+
+    It carries ``body_layout`` so the builders that used to fill a
+    :class:`~spacr.qt.widgets.section.Section` fill one of these instead,
+    unchanged.
+
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(self, parent=None):
+        """Build an empty group with a vertical body layout."""
+        super().__init__(parent)
+        self.body_layout = QVBoxLayout(self)
+        self.body_layout.setContentsMargins(0, 0, 0, 0)
+        self.body_layout.setSpacing(SPACING["sm"])
 
 
 class _EnhanceRequest(NamedTuple):
@@ -2379,6 +2411,13 @@ class _MagnifierRequest(NamedTuple):
     #: here: a mode that cannot run hands the request to another, which
     #: must find its own settings in it.
     method_params: Any = organelle_modes.DEFAULT_PARAMS
+    #: The CPU modes' parameters
+    #: (:class:`spacr.qt.cpu_modes.CpuParams`) -- Sauvola's and Niblack's
+    #: k, and everything Maxima + propagate reads.
+    cpu_params: Any = cpu_modes.DEFAULT_PARAMS
+    #: The local window, in pixels, that Sauvola and Niblack measure in.
+    #: The Otsu category's own "Local window", read by them too.
+    otsu_window: int = OTSU_LOCAL_WINDOW
     #: The Overlap rule the box is to draw its promise in, and the mask it
     #: is to be read against: the pixels the mask already owns inside
     #: ``box``, and a number that changes whenever the canvas is handed a
@@ -2549,7 +2588,8 @@ _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
                          "otsu_smoothing", "otsu_fill_holes", "otsu_split",
-                         "invert", "chain", "method_params")
+                         "invert", "chain", "method_params", "cpu_params",
+                         "otsu_window")
 
 
 class _MagnifierResult(NamedTuple):
@@ -2592,24 +2632,6 @@ class _MagnifierResult(NamedTuple):
         return int(sum(np.asarray(part).nbytes
                        for part in (self.labels, self.overlay, self.ghost)
                        if part is not None))
-
-
-def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
-    """Threshold and watershed the region; needs nothing installed.
-
-    Reads the Otsu category's settings -- the threshold correction, the
-    smoothing, whether holes are filled and whether a blob with two centres
-    is cut in two -- and the magnifier's own sensitivity. This mode was
-    once called ``classical``; the old name still reaches it, through
-    :func:`canonical_magnifier_mode`.
-    """
-    return engine._classical_region_labels(
-        request.crop, sensitivity=request.sensitivity,
-        bright=request.bright, min_area=request.min_area,
-        correction=request.otsu_correction,
-        smoothing=request.otsu_smoothing,
-        fill_holes=request.otsu_fill_holes,
-        split_touching=request.otsu_split)
 
 
 def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
@@ -2776,6 +2798,85 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
     return labels
 
 
+def _cellpose_installed() -> bool:
+    """Whether Cellpose can be imported here, WITHOUT importing it.
+
+    :func:`importlib.util.find_spec`, so a package that pulls in torch is
+    located and not loaded. A spec lookup that raises counts as absent.
+    """
+    try:
+        return find_spec("cellpose") is not None
+    except (ImportError, ValueError):
+        return False
+
+
+def _threshold_label(name: str) -> str:
+    """The caption a threshold algorithm goes under in a box."""
+    if name == "otsu":
+        return "Otsu"
+    return cpu_modes.THRESHOLD_LABELS.get(name, str(name).title())
+
+
+def _threshold_segmenter(request: _MagnifierRequest, load_model=None):
+    """Cut the region at the level the chosen ALGORITHM finds.
+
+    Otsu, Li's minimum cross entropy, Yen, Triangle, IsoData, Mean,
+    Minimum, Multi-Otsu, Sauvola and Niblack all arrive here, and the mode
+    name IS the algorithm name
+    (:func:`spacr.qt.cpu_modes.engine_algorithm`). What differs between
+    them is one number; the smoothing, the threshold correction, the
+    bright or dark side, the filled holes and the split are the Detection
+    method category's, read the same way for every one of them, by
+    :func:`spacr.qt.mask_engine._classical_region_labels`.
+
+    This is the Otsu mode under its old name too: ``otsu`` reaches it and
+    gets exactly the call it always got.
+    """
+    mode = canonical_magnifier_mode(request.mode)
+    params = request.cpu_params
+    return engine._classical_region_labels(
+        request.crop, sensitivity=request.sensitivity,
+        bright=request.bright, min_area=request.min_area,
+        correction=request.otsu_correction,
+        smoothing=request.otsu_smoothing,
+        fill_holes=request.otsu_fill_holes,
+        split_touching=request.otsu_split,
+        algorithm=cpu_modes.engine_algorithm(mode),
+        window=int(request.otsu_window),
+        local_k=float(params.local_k))
+
+
+def _propagate_segmenter(request: _MagnifierRequest, load_model=None):
+    """Grow one object out of each bright centre of the region.
+
+    CellProfiler's Propagate; see
+    :func:`spacr.qt.mask_engine.maxima_propagate_instances`. How many
+    centres were found is carried back on the request's ticket-free path
+    through :data:`_LAST_PROPAGATE_SEEDS`, because it is the number a
+    curator tunes the settings against and the labels alone do not show
+    it: an object that never grew and a centre that was never found look
+    the same.
+    """
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+    found = cpu_modes.propagate(
+        request.crop, request.cpu_params, min_area=int(request.min_area),
+        fill_holes=bool(request.otsu_fill_holes))
+    _LAST_PROPAGATE_SEEDS[request.scope] = (found.seeds, found.level)
+    if ticket is not None:
+        ticket.check()
+    return found.labels
+
+
+#: ``scope -> (centres found, the level they were grown to)`` for the last
+#: propagation of each scope. Read by the screen's status line. A plain
+#: dict and not a signal: it is written on the worker and read on the GUI
+#: thread right after the result arrives, and a stale entry can only say a
+#: number about a run that has just been superseded.
+_LAST_PROPAGATE_SEEDS: dict = {}
+
+
 def _organelle_segmenter(request: _MagnifierRequest, load_model=None):
     """Segment the region with one of organelle detection's own methods.
 
@@ -2817,7 +2918,9 @@ def _organelle_segmenter(request: _MagnifierRequest, load_model=None):
 #: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
 #: :func:`_segment_region` gives it the Otsu fallback for nothing.
 _MAGNIFIER_SEGMENTERS = {
-    "otsu": _otsu_segmenter,
+    "otsu": _threshold_segmenter,
+    **{mode: _threshold_segmenter for mode in cpu_modes.threshold_modes()},
+    cpu_modes.PROPAGATE: _propagate_segmenter,
     **{mode: _organelle_segmenter for mode in organelle_modes.modes()},
     "cellpose": _cellpose_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
@@ -2846,6 +2949,7 @@ def canonical_magnifier_mode(mode) -> str:
 #: organelle detection's own methods (:mod:`spacr.qt.organelle_modes`) and
 #: Cellpose. The rest are named by :data:`_MAGNIFIER_BACKENDS`.
 _MAGNIFIER_MODE_LABELS = {"otsu": "Otsu",
+                          **cpu_modes.MODE_LABELS,
                           **organelle_modes.MODE_LABELS,
                           "cellpose": "Cellpose"}
 
@@ -2919,7 +3023,7 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     note = ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
-    elif segmenter is not _otsu_segmenter:
+    elif mode != "otsu":
         try:
             labels = segmenter(request, load_model)
             return _finished_labels(labels, chain, prepared), mode, ""
@@ -2929,7 +3033,8 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
             LOG.warning("magnifier mode %s could not run; using Otsu",
                         request.mode, exc_info=True)
             note = f"{type(exc).__name__}: {exc}"
-    return _otsu_segmenter(request, load_model), "otsu", note
+    return (_threshold_segmenter(request._replace(mode="otsu"), load_model),
+            "otsu", note)
 
 
 def _finished_labels(labels, chain, image):
@@ -3827,7 +3932,9 @@ class _LiveMagnifier(QObject):
                    "otsu_fill_holes": True, "otsu_split": True,
                    "invert": False,
                    "chain": detect_chain.NO_CHAIN,
-                   "method_params": organelle_modes.DEFAULT_PARAMS}
+                   "method_params": organelle_modes.DEFAULT_PARAMS,
+                   "cpu_params": cpu_modes.DEFAULT_PARAMS,
+                   "otsu_window": OTSU_LOCAL_WINDOW}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
@@ -3846,7 +3953,9 @@ class _LiveMagnifier(QObject):
                 bool(context["otsu_split"]),
                 bool(context["invert"]),
                 context["chain"],
-                context["method_params"])
+                context["method_params"],
+                context["cpu_params"],
+                int(context["otsu_window"]))
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -7247,11 +7356,14 @@ class MakeMasksScreen(QWidget):
         self._btn_otsu = QPushButton("Otsu detect")
         self._btn_otsu.setCursor(Qt.PointingHandCursor)
         self._btn_otsu.setToolTip(
-            "Threshold the image at Otsu's level and label what is left, "
-            "honouring the minimum area above. Everything about the "
-            "threshold — the correction, the smoothing, which side is the "
-            "object, filling holes, splitting a pair that touches and "
-            "dropping what the frame cut — is the Otsu category.")
+            "Run the CPU method chosen under Detection method on the whole "
+            "image and label what it finds, honouring the minimum area "
+            "above. Everything the method reads is that category: the "
+            "level's algorithm, the correction, the smoothing, which side "
+            "is the object, filling holes, splitting a pair that touches "
+            "and dropping what the frame cut. With Cellpose or a backend "
+            "chosen this button falls back to Otsu, because those have "
+            "the Object detection button of their own.")
         self._btn_otsu.clicked.connect(self._on_detect_otsu)
         detect_row.addWidget(self._btn_otsu)
         self._combine_mode = QComboBox()
@@ -7277,12 +7389,10 @@ class MakeMasksScreen(QWidget):
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
-        col.addWidget(self._build_otsu_card())
-        self._methods_card = self._build_methods_card()
+        self._methods_card = self._build_detection_card()
         col.addWidget(self._methods_card)
         self._sync_method_controls()
         col.addWidget(self._build_enhance_card())
-        col.addWidget(self._build_cellpose_card())
         col.addWidget(self._build_magnifier_card())
 
         col.addStretch(1)
@@ -7812,35 +7922,77 @@ class MakeMasksScreen(QWidget):
         """Apply the object filter to the mask on screen."""
         self.apply_object_filter(on_load=False)
 
-    def _on_detect_otsu(self):
-        """Threshold the image and fold the result in per replace/merge.
+    def _cpu_detect(self, image, method: str, otsu: dict) -> tuple:
+        """Run the CPU method ``method`` on ``image``.
 
-        With Invert on it thresholds the INVERTED field
+        The one place the detect button's method is dispatched, so the
+        button and the magnifier's box cannot end up running different
+        things under one name. A model mode (Cellpose, a backend) falls
+        back to Otsu, because those have the Object detection button.
+
+        :returns: ``(labels, centres)``; ``centres`` is the number of
+            maxima for the propagation and None for everything else.
+        """
+        if method in organelle_modes.MODE_LABELS:
+            return (organelle_modes.segment(
+                image, method, self._method_params(),
+                min_area=self._detect_min_area()), None)
+        if method == cpu_modes.PROPAGATE:
+            found = cpu_modes.propagate(
+                image, self._cpu_params(), min_area=self._detect_min_area(),
+                fill_holes=bool(otsu["fill_holes"]))
+            return (found.labels, found.seeds)
+        algorithm = cpu_modes.engine_algorithm(
+            method if method in cpu_modes.THRESHOLD_LABELS else "otsu")
+        settings = dict(otsu)
+        if method == cpu_modes.MULTIOTSU:
+            settings["classes"] = max(3, int(settings["classes"]))
+        return (engine._otsu_instances(
+            image, bright=self._otsu_bright.isChecked(),
+            min_area=int(self._min_area.value()), algorithm=algorithm,
+            local_k=float(self._otsu_local_k.value()), **settings), None)
+
+    def _on_detect_otsu(self):
+        """Detect on the whole image and fold the result in per replace/merge.
+
+        IT RUNS WHATEVER THE DETECTION METHOD CATEGORY IS SET TO, not Otsu
+        alone: after item 473 that category holds ten threshold
+        algorithms, the propagation and the organelle methods, and a
+        button that went on running Otsu while the box under the mouse ran
+        Li would be two answers to one question. Only a model mode falls
+        back, and only because it has a button of its own.
+
+        With Invert on it detects on the INVERTED field
         (:meth:`_detector_image`), which is what lets it take dark objects:
         Bright and Invert together are the dark side of the dark side, and
         the ledger records which way up the image was.
         """
+        from ..i18n import tr
+
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
         otsu = self._otsu_settings()
         correction = otsu["correction"]
+        method = canonical_magnifier_mode(
+            getattr(self._magnifier, "mode", None))
         try:
-            detected = engine._otsu_instances(
-                self._detector_image(),
-                bright=self._otsu_bright.isChecked(),
-                min_area=int(self._min_area.value()),
-                **otsu,
-            )
+            detected, seeds = self._cpu_detect(self._detector_image(),
+                                               method, otsu)
         except Exception as exc:
-            self._warn("Otsu detect failed", str(exc))
+            self._warn("Detect failed", str(exc))
             return
+        if method != cpu_modes.PROPAGATE:
+            detected = detect_chain.finish(detected, self._detect_chain(),
+                                           intensity=self._detector_image())
         found = int(detected.max())
+        centres = ("" if seeds is None
+                   else tr(" from {n} centre(s)", n=seeds))
         if not found:
-            self._status_label.setText(
-                "Otsu found no objects — the mask is unchanged. Lower the "
-                "minimum area, or try the other side."
-            )
+            self._status_label.setText(tr(
+                "{method}{centres} found no objects — the mask is "
+                "unchanged. Lower the minimum area, or try the other side.",
+                method=_magnifier_mode_label(method), centres=centres))
             return
         try:
             out = engine.combine_masks(self._canvas.mask, detected, mode)
@@ -7850,7 +8002,8 @@ class MakeMasksScreen(QWidget):
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
-        self._record("detect", mode, changed, method="otsu", n_objects=found,
+        self._record("detect", mode, changed, method=method,
+                      n_objects=found,
                       invert=bool(self._cp_invert.isChecked()),
                       bright=bool(self._otsu_bright.isChecked()),
                       min_area=int(self._min_area.value()),
@@ -7863,15 +8016,23 @@ class MakeMasksScreen(QWidget):
                       otsu_foreground_class=otsu["foreground_class"],
                       otsu_local=otsu["local"],
                       otsu_window=otsu["window"],
+                      method_parameters=(
+                          organelle_modes.provenance(
+                              method, self._method_params())
+                          or cpu_modes.provenance(method, self._cpu_params())),
                       **self._chain_provenance())
         self._history.push(out)
         self._refresh_history_buttons()
-        inverted = (" of the INVERTED image"
+        inverted = (tr(" of the INVERTED image")
                     if self._cp_invert.isChecked() else "")
-        self._status_label.setText(
-            f"Otsu ({self._otsu_description()}){inverted} found {found} "
-            f"object(s) — {mode}d into the mask"
-        )
+        described = (self._otsu_description()
+                     if method in ("otsu",) + cpu_modes.threshold_modes()
+                     else _magnifier_mode_label(method))
+        self._status_label.setText(tr(
+            "{method} ({how}){inverted}{centres} found {n} object(s) — "
+            "{combine}d into the mask",
+            method=_magnifier_mode_label(method), how=described,
+            inverted=inverted, centres=centres, n=found, combine=mode))
 
     def _otsu_description(self) -> str:
         """How the threshold was taken, for a status line and the preview.
@@ -8042,7 +8203,7 @@ class MakeMasksScreen(QWidget):
         self._flow_pane.clear_view()
         self._view_tabs.setCurrentIndex(0)
 
-    def _build_cellpose_card(self) -> Section:
+    def _build_cellpose_card(self) -> _MethodGroup:
         """The Object detection settings, and the detect button they drive.
 
         Called Object detection rather than "Cellpose-SAM", because what
@@ -8066,11 +8227,7 @@ class MakeMasksScreen(QWidget):
         #: session runs it once per field.
         self._cp_loaded: dict = {}
 
-        card = self._settings_category(
-            "Object detection",
-            "Segments the open field with a model. Both thresholds start "
-            "at Cellpose's own defaults.",
-        )
+        card = _MethodGroup()
         form = QFormLayout()
 
         self._cp_model = QComboBox()
@@ -8192,7 +8349,7 @@ class MakeMasksScreen(QWidget):
         self.add_toolbar_action(self._btn_cellpose)
         return card
 
-    def _build_otsu_card(self) -> Section:
+    def _build_otsu_card(self) -> _MethodGroup:
         """The Otsu settings, driving both the button and the magnifier.
 
         The threshold correction once sat at the bottom of the Cellpose-SAM
@@ -8233,11 +8390,7 @@ class MakeMasksScreen(QWidget):
         9,216. So the box tells a curator what the button is about to do; it
         does not promise the same array.
         """
-        card = self._settings_category(
-            "Otsu",
-            "Thresholds at Otsu's level. Drives Otsu detect and the Live "
-            "magnifier's Otsu mode.",
-        )
+        card = _MethodGroup()
         form = QFormLayout()
 
         self._otsu_correction = QDoubleSpinBox()
@@ -8343,6 +8496,20 @@ class MakeMasksScreen(QWidget):
             "hollow; too large and it is the whole-field threshold again. "
             "Even numbers are rounded up, so the square has a centre.")
         more.addRow("Local window", self._otsu_window)
+
+        self._otsu_local_k = QDoubleSpinBox()
+        self._otsu_local_k.setDecimals(3)
+        self._otsu_local_k.setRange(-2.0, 2.0)
+        self._otsu_local_k.setSingleStep(0.05)
+        self._otsu_local_k.setValue(0.2)
+        self._otsu_local_k.setToolTip(
+            "How much of a window's own standard deviation comes off its "
+            "mean, for Sauvola and Niblack. Sauvola's usual 0.2 keeps "
+            "less and is the safer default; Niblack has no normalisation "
+            "and is usually given a NEGATIVE k, around -0.2, which keeps "
+            "more. Raise it to take fewer background pixels.")
+        self._otsu_local_k_label = QLabel("Local k")
+        more.addRow(self._otsu_local_k_label, self._otsu_local_k)
         card.body_layout.addLayout(more)
 
         self._otsu_local = Toggle("Local threshold (uneven illumination)")
@@ -8357,6 +8524,10 @@ class MakeMasksScreen(QWidget):
             "detect only.")
         self._otsu_local.toggled.connect(self._sync_otsu_controls)
         self._otsu_classes.valueChanged.connect(self._sync_otsu_controls)
+        self._otsu_local_k.valueChanged.connect(
+            self._on_magnifier_context_changed)
+        self._otsu_window.valueChanged.connect(
+            self._on_magnifier_context_changed)
         card.body_layout.addWidget(self._otsu_local)
 
         min_area_note = QLabel(
@@ -8378,7 +8549,7 @@ class MakeMasksScreen(QWidget):
         self._sync_otsu_controls()
         return card
 
-    def _build_methods_card(self) -> Section:
+    def _build_methods_card(self) -> _MethodGroup:
         """The parameters of organelle detection's methods, one mode at a time.
 
         Six of the Mode box's rows are organelle detection's own methods
@@ -8401,14 +8572,7 @@ class MakeMasksScreen(QWidget):
         :data:`spacr.organelle_types.LEGAL_METHODS` -- the shapes spaCR
         already records the method as a legal detector for.
         """
-        card = self._settings_category(
-            "Detection methods",
-            "The parameters of the Mode box's organelle methods. Only the "
-            "chosen method's own parameters are shown.",
-        )
-        self._method_note = QLabel()
-        self._method_note.setWordWrap(True)
-        card.body_layout.addWidget(self._method_note)
+        card = _MethodGroup()
         form = self._method_form = QFormLayout()
         #: ``field of MethodParams -> its control``. One control per
         #: parameter and not one per mode-and-parameter, so the block size
@@ -8611,6 +8775,250 @@ class MakeMasksScreen(QWidget):
         self._sync_method_controls()
         return card
 
+    def _build_detection_card(self) -> Section:
+        """ONE category for what finds the objects, whatever finds them.
+
+        Make Masks used to carry three categories answering one question:
+        "Otsu" (the threshold's settings), "Object detection" (Cellpose's)
+        and, from the first half of item 473, "Detection methods" (the
+        organelle methods'). Only one of the three was ever being read --
+        the one the Mode box was on -- and the other two sat open in front
+        of a curator with no way to tell which. The maintainer asked for
+        them folded into one, and this is it.
+
+        THE MODE BOX MOVED IN HERE, out of Live magnifier, because the mode
+        is not a magnifier setting: it drives the detect buttons and the
+        whole-image run as well, and a category whose contents change has
+        to hold the control that changes them. Live magnifier keeps what is
+        really the box's -- its size, its zoom, its scope, its overlap
+        rule, its sensitivity.
+
+        Inside, four :class:`_MethodGroup` s, of which one is shown:
+        the threshold family's settings (Otsu's own, and every algorithm in
+        :mod:`spacr.qt.cpu_modes` reads them), Cellpose's, the organelle
+        methods' and the propagation's. :meth:`_sync_method_controls` is
+        what shows one and hides three.
+        """
+        card = self._settings_category(
+            "Detection method",
+            "What finds the objects, and the settings that method reads. "
+            "Drives the detect buttons and the Live magnifier alike.",
+        )
+        form = QFormLayout()
+        self._mag_mode = QComboBox()
+        self._mag_mode.setSizeAdjustPolicy(
+            QComboBox.AdjustToMinimumContentsLengthWithIcon)
+        self._mag_mode.setMinimumContentsLength(14)
+        self._mag_mode.addItem("Otsu", "otsu")
+        for source in (cpu_modes.MODE_LABELS, organelle_modes.MODE_LABELS):
+            for mode, label in source.items():
+                self._mag_mode.addItem(label, mode)
+                self._mag_mode.setItemData(
+                    self._mag_mode.count() - 1, self._mode_guidance(mode),
+                    Qt.ToolTipRole)
+        if _cellpose_installed():
+            self._mag_mode.addItem("Cellpose", "cellpose")
+        self._mag_uninstalled = set()
+        for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
+            self._mag_mode.addItem(label, mode)
+        self._resync_magnifier_modes()
+        self._mag_mode.setToolTip(
+            "Which algorithm finds the objects, for the detect buttons and "
+            "for the Live magnifier alike. Otsu and the threshold "
+            "algorithms under it cut the field at one level and need "
+            "nothing installed; Maxima + propagate grows an object out of "
+            "each bright centre, which is how two touching objects come "
+            "apart; the organelle methods are the ones organelle detection "
+            "runs, through the same code; Cellpose and the backends are "
+            "models. Choosing a row changes which settings this category "
+            "shows, and the row's own tooltip says what it suits.")
+        self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
+        self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
+        form.addRow("Method", self._mag_mode)
+        card.body_layout.addLayout(form)
+
+        self._method_note = QLabel()
+        self._method_note.setWordWrap(True)
+        card.body_layout.addWidget(self._method_note)
+
+        self._method_groups = {
+            "threshold": self._build_otsu_card(),
+            "organelle": self._build_methods_card(),
+            "propagate": self._build_propagate_card(),
+            "cellpose": self._build_cellpose_card(),
+        }
+        for group in self._method_groups.values():
+            card.body_layout.addWidget(group)
+        return card
+
+    def _mode_guidance(self, mode: str) -> str:
+        """What the mode ``mode`` suits, from whichever module owns it.
+
+        A backend is named after Cellpose's sentence: they are all models
+        that know what a cell looks like, and what distinguishes them from
+        each other is the training set rather than the kind of object.
+        """
+        if mode in organelle_modes.MODE_LABELS:
+            return organelle_modes.guidance(mode)
+        if mode in _MAGNIFIER_BACKENDS:
+            return cpu_modes.guidance("cellpose")
+        return cpu_modes.guidance(mode)
+
+    @staticmethod
+    def _mode_family(mode: str) -> str:
+        """Which :attr:`_method_groups` family ``mode`` belongs to."""
+        if mode in organelle_modes.MODE_LABELS:
+            return "organelle"
+        if mode == cpu_modes.PROPAGATE:
+            return "propagate"
+        if mode == "cellpose" or mode in _MAGNIFIER_BACKENDS:
+            return "cellpose"
+        return "threshold"
+
+    def _build_propagate_card(self) -> _MethodGroup:
+        """The settings of Maxima + propagate, CellProfiler's Propagate.
+
+        Four steps with a setting each, in the order they run: blur, find
+        the maxima, grow, stop. The engine is
+        :func:`spacr.qt.mask_engine.maxima_propagate_instances`, whose
+        docstring carries the argument for each of them and says why
+        CellProfiler's lambda is not offered.
+        """
+        card = _MethodGroup()
+        form = self._propagate_form = QFormLayout()
+        self._propagate_widgets: dict = {}
+
+        def row(field: str, caption: str, widget, tip: str) -> None:
+            """Add one parameter row and remember it under its field name."""
+            widget.setToolTip(tip)
+            self._propagate_widgets[field] = widget
+            if caption:
+                form.addRow(caption, widget)
+            else:
+                form.addRow(widget)
+
+        sigma = QDoubleSpinBox()
+        sigma.setDecimals(2)
+        sigma.setRange(0.0, 50.0)
+        sigma.setSingleStep(0.5)
+        sigma.setValue(2.0)
+        sigma.setSuffix(" px")
+        row("propagate_sigma", "Blur first", sigma,
+            "Gaussian blur applied before the centres are found, in "
+            "pixels. It is what makes ONE object have ONE centre: a raw "
+            "object has a dozen maxima in its own noise. About a third of "
+            "the object radius is a starting point. This is NOT the Image "
+            "enhancement card's denoise, which has already run by now; "
+            "leave that one off unless the field is genuinely noisy, or "
+            "the two blurs compound.")
+
+        distance = QSpinBox()
+        distance.setRange(1, 500)
+        distance.setValue(10)
+        distance.setSuffix(" px")
+        row("propagate_min_distance", "Min centre spacing", distance,
+            "No two centres closer together than this, so one object "
+            "cannot become two. About one object radius. Raise it when "
+            "objects are being split, lower it when two touching objects "
+            "come back as one.")
+
+        level = QDoubleSpinBox()
+        level.setDecimals(2)
+        level.setRange(0.0, 1_000_000.0)
+        level.setValue(90.0)
+        row("propagate_seed_level", "Centre level", level,
+            "How bright a maximum has to be to count as a centre. Read as "
+            "a percentile of the blurred image by default, so one setting "
+            "suits any exposure: 90 means the top tenth of the pixels. "
+            "This and the distance together decide HOW MANY objects there "
+            "will be, and the status line says how many centres were "
+            "found.")
+
+        percentile = Toggle("Centre level is a percentile")
+        percentile.setChecked(True)
+        row("propagate_seed_percentile", "", percentile,
+            "On: the number above is a percentile of this image. Off: it "
+            "is an absolute intensity, which is what to use when the "
+            "same setting must mean the same thing across fields of "
+            "different exposure.")
+
+        border = Toggle("Drop centres near the edge")
+        row("propagate_exclude_border", "", border,
+            "Leave out maxima within one minimum distance of the frame. "
+            "An object the edge cuts has its centre in the wrong place, "
+            "so what grows from it is the wrong shape.")
+
+        stop = QComboBox()
+        stop.addItem("Fraction of this centre's own peak", "seed_fraction")
+        stop.addItem("Absolute intensity", "absolute")
+        stop.addItem("Percentile of the image", "percentile")
+        stop.addItem("A threshold algorithm's level", "threshold")
+        row("propagate_stop", "Grow until", stop,
+            "Where each object stops growing. The first is PER OBJECT -- "
+            "keep the pixels at or above this fraction of that centre's "
+            "own peak -- so a bright object and a dim one are measured the "
+            "same way, and it is what a quantile from the maximum means. "
+            "The other three are one level for the whole field.")
+        stop.currentIndexChanged.connect(self._sync_propagate_controls)
+
+        stop_value = QDoubleSpinBox()
+        stop_value.setDecimals(3)
+        stop_value.setRange(0.0, 1_000_000.0)
+        stop_value.setValue(0.4)
+        row("propagate_stop_value", "Stop at", stop_value,
+            "The number the rule above reads: a fraction from 0 to 1 for "
+            "the per-centre rule, an intensity for the absolute one, a "
+            "percentile from 0 to 100 for the third. Not read when a "
+            "threshold algorithm provides the level.")
+
+        algorithm = QComboBox()
+        for name in engine.GLOBAL_THRESHOLDS:
+            algorithm.addItem(_threshold_label(name), name)
+        row("propagate_stop_algorithm", "Stop threshold", algorithm,
+            "Which global threshold provides the floor, when the rule "
+            "above is a threshold algorithm's level. The same algorithms "
+            "the Method box offers on their own.")
+
+        card.body_layout.addLayout(form)
+        for widget in self._propagate_widgets.values():
+            for signal in ("valueChanged", "currentIndexChanged", "toggled"):
+                changed = getattr(widget, signal, None)
+                if changed is not None:
+                    changed.connect(self._on_magnifier_context_changed)
+        self._sync_propagate_controls()
+        return card
+
+    def _sync_propagate_controls(self, *_args) -> None:
+        """Leave enabled only the propagation boxes that answer anything."""
+        widgets = getattr(self, "_propagate_widgets", None)
+        if not widgets:
+            return
+        rule = str(widgets["propagate_stop"].currentData())
+        widgets["propagate_stop_value"].setEnabled(rule != "threshold")
+        widgets["propagate_stop_algorithm"].setEnabled(rule == "threshold")
+
+    def _cpu_params(self) -> "cpu_modes.CpuParams":
+        """The CPU modes' settings, as the engine's parameters."""
+        widgets = getattr(self, "_propagate_widgets", None)
+        if not widgets:
+            return cpu_modes.DEFAULT_PARAMS
+        return cpu_modes.CpuParams(
+            local_k=float(self._otsu_local_k.value()),
+            propagate_sigma=float(widgets["propagate_sigma"].value()),
+            propagate_min_distance=int(
+                widgets["propagate_min_distance"].value()),
+            propagate_seed_level=float(widgets["propagate_seed_level"].value()),
+            propagate_seed_percentile=bool(
+                widgets["propagate_seed_percentile"].isChecked()),
+            propagate_exclude_border=bool(
+                widgets["propagate_exclude_border"].isChecked()),
+            propagate_stop=str(widgets["propagate_stop"].currentData()),
+            propagate_stop_value=float(
+                widgets["propagate_stop_value"].value()),
+            propagate_stop_algorithm=str(
+                widgets["propagate_stop_algorithm"].currentData()),
+        )
+
     def _on_pick_unet_model(self) -> None:
         """Choose the U-Net checkpoint the U-Net mode is to load."""
         from ..i18n import tr
@@ -8637,16 +9045,15 @@ class MakeMasksScreen(QWidget):
         from ..i18n import tr
 
         mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+        family = self._mode_family(mode)
+        for name, group in getattr(self, "_method_groups", {}).items():
+            group.setVisible(name == family)
         shown = organelle_modes.PARAMETERS_FOR.get(mode, ())
         for field, widget in self._method_widgets.items():
             self._method_form.setRowVisible(widget, field in shown)
-        if not shown:
-            self._method_note.setText(tr(
-                "The mode chosen in Live magnifier reads no parameters "
-                "here. Choose Adaptive threshold, LoG blobs, DoG blobs, "
-                "Ridge filter, Hysteresis or U-Net to see its own."))
-            return
-        note = tr(organelle_modes.guidance(mode))
+        self._sync_otsu_controls()
+        note = tr(self._mode_guidance(mode)) if self._mode_guidance(mode) \
+            else ""
         heavy = organelle_modes.HEAVY_MODES.get(mode)
         if heavy:
             note = f"{note} {tr('Heavy: this mode {what}.', what=tr(heavy))}"
@@ -9030,7 +9437,7 @@ class MakeMasksScreen(QWidget):
         self._compare_dialog.show()
 
     def _sync_otsu_controls(self, *_args) -> None:
-        """Leave enabled only the Otsu boxes that are answering anything.
+        """Leave enabled only the threshold boxes that answer anything.
 
         A control that is being read and a control that is being ignored
         look identical, and a curator cannot tell which is which. So:
@@ -9040,15 +9447,24 @@ class MakeMasksScreen(QWidget):
         and a split into several bands have no joint meaning, and the engine
         refuses the pair rather than quietly dropping one.
         """
+        mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+        multi = mode == cpu_modes.MULTIOTSU
+        window_family = mode in ("sauvola", "niblack")
+        if multi and int(self._otsu_classes.value()) < 3:
+            self._otsu_classes.setValue(3)
+        self._otsu_local_k.setEnabled(window_family)
+        self._otsu_local_k_label.setVisible(window_family)
+        self._otsu_local_k.setVisible(window_family)
         classes = int(self._otsu_classes.value())
-        local = bool(self._otsu_local.isChecked())
-        self._otsu_classes.setEnabled(not local)
+        local = bool(self._otsu_local.isChecked()) and not window_family
+        self._otsu_classes.setEnabled(not local and (multi or classes > 2
+                                                     or not window_family))
         self._otsu_foreground.setEnabled(not local and classes > 2)
         self._otsu_foreground.setRange(0, max(1, classes - 1))
         if classes > 2 and self._otsu_foreground.value() > classes - 1:
             self._otsu_foreground.setValue(classes - 1)
-        self._otsu_window.setEnabled(local)
-        self._otsu_bright.setEnabled(local or classes == 2)
+        self._otsu_window.setEnabled(local or window_family)
+        self._otsu_bright.setEnabled(local or classes == 2 or window_family)
 
     def _otsu_settings(self) -> dict:
         """What the Otsu category says, as :func:`_otsu_instances` keywords.
@@ -9414,13 +9830,15 @@ class MakeMasksScreen(QWidget):
         request named -- mode, size, zoom, sensitivity -- and the overlap rule
         go here, with what is segmented (the region under the mouse or the
         whole image once), whether objects cut by the box are offered, and
-        the progress and Cancel of a whole-image run. Cellpose mode reads its
-        model, thresholds, diameter and normalization from the Object
-        detection category, and Otsu mode reads Min area from Object
-        operations and everything else from the Otsu category, so
-        each of those judgements is still made in one box. No
-        value here persists between sessions, like every other setting on this
-        panel; only which categories are folded does.
+        the progress and Cancel of a whole-image run.
+
+        THE METHOD IS NOT HERE ANY MORE. It moved to the Detection method
+        category with item 473, because it is not the box's: the same
+        choice drives the detect buttons and the whole-image run, and the
+        category whose settings it changes is the one that should hold it.
+        Min area is still Object operations', for the same reason it
+        always was. No value here persists between sessions, like every
+        other setting on this panel; only which categories are folded does.
         """
         magnifier = self._magnifier
         card = self._settings_category(
@@ -9430,57 +9848,6 @@ class MakeMasksScreen(QWidget):
             "objects to the mask.",
         )
         form = QFormLayout()
-
-        def installed(package: str) -> bool:
-            """Whether ``package`` can be imported here, without importing it.
-
-            Asks :func:`importlib.util.find_spec`, so a heavy package such
-            as Cellpose is located but not loaded. A spec lookup that raises
-            counts as not installed.
-
-            :param package: the top-level import name.
-            :returns: True when the package is importable.
-            """
-            try:
-                return find_spec(package) is not None
-            except (ImportError, ValueError):
-                return False
-
-        self._mag_mode = QComboBox()
-        self._mag_mode.addItem("Otsu", "otsu")
-        for mode, label in organelle_modes.MODE_LABELS.items():
-            self._mag_mode.addItem(label, mode)
-            self._mag_mode.setItemData(
-                self._mag_mode.count() - 1,
-                organelle_modes.guidance(mode), Qt.ToolTipRole)
-        if installed("cellpose"):
-            self._mag_mode.addItem("Cellpose", "cellpose")
-        self._mag_uninstalled = set()
-        for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
-            self._mag_mode.addItem(label, mode)
-        self._resync_magnifier_modes()
-        self._mag_mode.setToolTip(
-            "Which model segments the region in the box. Otsu thresholds "
-            "the region at Otsu's level and splits touching objects with a "
-            "watershed; it needs nothing installed, follows the Min area box "
-            "under Object operations and the "
-            "threshold correction and the rest of the Otsu category, and "
-            "runs whenever a "
-            "model cannot be loaded. Adaptive threshold, LoG blobs, DoG "
-            "blobs, Ridge filter, Hysteresis and U-Net are organelle "
-            "detection's own methods, running through the same code as a "
-            "mask run and reading the Detection methods category; the row's "
-            "tooltip says what each suits. Cellpose uses the model, both thresholds, "
-            "the diameter and the normalization set under Object detection, "
-            "and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, "
-            "nuclei), DINOCell and SAMCell are always listed and greyed "
-            "until installed, and choosing one offers to install it into an "
-            "environment of its own; Cellpose 3 reads both thresholds and "
-            "the diameter set under Object detection, DINOCell reads the "
-            "cell probability, and SAMCell uses its own thresholds.")
-        self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
-        self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
-        form.addRow("Mode", self._mag_mode)
 
         #: Kept empty: the install sentence used to live on the panel, and
         #: now the greyed Mode row offers the install itself.
@@ -9661,6 +10028,8 @@ class MakeMasksScreen(QWidget):
             "invert": bool(self._cp_invert.isChecked()),
             "chain": self._detect_chain(),
             "method_params": self._method_params(),
+            "cpu_params": self._cpu_params(),
+            "otsu_window": int(self._otsu_window.value()),
         }
 
     def _on_magnifier_mode(self, mode) -> None:

@@ -209,6 +209,12 @@ def test_the_toggle_hides_and_shows_the_settings_as_one_group(
         assert w.isVisibleTo(screen._body_splitter)
 
 
+#: How many pixels of the width the settings give up go to the splitter's
+#: grips and margins rather than to the canvas. Measured, and a CONSTANT
+#: rather than a share of the panel: see the note inside the test.
+_SPLITTER_OVERHEAD = 60
+
+
 def test_the_canvas_takes_the_space_the_settings_give_up(
         qtbot, qt_theme_applied, folder_2: Path):
     """Measured in pixels off a laid-out screen, not inferred from the code.
@@ -233,11 +239,16 @@ def test_the_canvas_takes_the_space_the_settings_give_up(
     qtbot.waitUntil(lambda: screen._canvas.width() > before)
     assert screen._body_splitter.sizes()[0] == 0
     # MOST of it, not all: the shortcut list became a pane of its own on
-    # 2026-09-22 so it can be hidden too, and its splitter's grips take a few
-    # pixels of the width the settings gave up. The shortcut list itself must
-    # not grow -- the room is the canvas's.
+    # 2026-09-22 so it can be hidden too, and its splitter's grips take a
+    # FIXED few dozen pixels of the width the settings gave up. This used to
+    # allow 25 % of the panel's width for that, which was a proportion
+    # standing in for a constant and broke the day the panel got narrower
+    # (item 473 folded three settings categories into one and the panel went
+    # from 245 px to 194 px; the overhead stayed at 52). The shortcut list
+    # itself must not grow -- the room is the canvas's.
     shortcuts = screen._view_pane.pane("Shortcuts")
-    assert screen._canvas.width() >= before + int(wide_open[0] * 0.75), (
+    assert screen._canvas.width() >= (
+        before + wide_open[0] - _SPLITTER_OVERHEAD), (
         "the canvas did not grow into the space the settings vacated")
     assert screen._shortcut_panel.width() <= shortcuts.extent, (
         "the shortcut list took the room instead of the canvas")

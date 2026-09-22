@@ -1736,9 +1736,99 @@ def _otsu_values(image: np.ndarray, smoothing: float = 0.0) -> np.ndarray:
     return values
 
 
+#: The GLOBAL threshold algorithms this module can cut a field at, as
+#: ``name -> the scikit-image function that finds the level``. Each takes
+#: one image and returns one intensity, so all of them reach the detection
+#: through the very same code: the correction, the smoothing, the
+#: bright/dark side, fill holes, the split, the border rule and the minimum
+#: area are found once, in :func:`_otsu_instances`, and an algorithm is the
+#: one line that differs. ADDING ONE IS A ROW HERE.
+#:
+#: ``otsu`` is first and is the default everywhere, so a field thresholded
+#: by a screen that knows nothing of this dictionary is thresholded exactly
+#: as it always was.
+GLOBAL_THRESHOLDS: Dict[str, str] = {
+    "otsu": "threshold_otsu",
+    "li": "threshold_li",
+    "yen": "threshold_yen",
+    "triangle": "threshold_triangle",
+    "isodata": "threshold_isodata",
+    "mean": "threshold_mean",
+    "minimum": "threshold_minimum",
+}
+
+#: The LOCAL threshold algorithms, which return one level PER PIXEL rather
+#: than one for the field, as ``name -> the scikit-image function``. They
+#: read a window size, and Sauvola and Niblack read ``k`` as well.
+#:
+#: WHAT IS DELIBERATELY NOT HERE. Local MEAN and local GAUSSIAN
+#: (``skimage.filters.threshold_local``) are not listed, because Make Masks
+#: already offers them: they are what the Adaptive threshold mode runs,
+#: through the organelle engine's own ``adaptive`` branch, with the same
+#: block size and offset. Local OTSU is not listed either: it is the Otsu
+#: category's "Local threshold (uneven illumination)" switch and is
+#: :func:`_local_otsu_binary`. Listing either again would be two controls
+#: for one operation.
+LOCAL_THRESHOLDS: Dict[str, str] = {
+    "sauvola": "threshold_sauvola",
+    "niblack": "threshold_niblack",
+}
+
+
+def threshold_algorithms() -> Tuple[str, ...]:
+    """Every threshold algorithm name, global then local."""
+    return tuple(GLOBAL_THRESHOLDS) + tuple(LOCAL_THRESHOLDS)
+
+
+def _global_level(values: np.ndarray, algorithm: str) -> float:
+    """The one intensity ``algorithm`` cuts ``values`` at.
+
+    :param values: the smoothed float image, from :func:`_otsu_values`.
+    :param algorithm: a key of :data:`GLOBAL_THRESHOLDS`.
+    :raises ValueError: for an algorithm this module does not know, rather
+        than quietly thresholding by Otsu under another name.
+    """
+    from skimage import filters
+
+    name = GLOBAL_THRESHOLDS.get(str(algorithm))
+    if name is None:
+        raise ValueError(
+            f"{algorithm!r} is not a global threshold algorithm; "
+            f"the ones there are: {sorted(GLOBAL_THRESHOLDS)}.")
+    return float(getattr(filters, name)(values))
+
+
+def _local_level_map(values: np.ndarray, algorithm: str, *, window: int,
+                     k: float) -> np.ndarray:
+    """A per-pixel threshold for ``values`` from a local algorithm.
+
+    Sauvola and Niblack both compare a pixel with the mean AND the standard
+    deviation of its window, which is what lets them keep faint text-like
+    or filament-like detail that a local mean washes out; ``k`` is how much
+    of the deviation counts.
+
+    :param values: the smoothed float image.
+    :param algorithm: a key of :data:`LOCAL_THRESHOLDS`.
+    :param window: the odd window size, in pixels.
+    :param k: the algorithm's ``k``.
+    :raises ValueError: for an algorithm this module does not know.
+    """
+    from skimage import filters
+
+    name = LOCAL_THRESHOLDS.get(str(algorithm))
+    if name is None:
+        raise ValueError(
+            f"{algorithm!r} is not a local threshold algorithm; "
+            f"the ones there are: {sorted(LOCAL_THRESHOLDS)}.")
+    return np.asarray(
+        getattr(filters, name)(values, window_size=_odd_window(window),
+                               k=float(k)),
+        dtype=np.float32)
+
+
 def _otsu_levels(image: np.ndarray, *, bright: bool = True,
                  correction: float = 1.0, smoothing: float = 0.0,
-                 classes: int = 2) -> List[float]:
+                 classes: int = 2, algorithm: str = "otsu") -> List[float]:
     """The intensity or intensities the field is actually cut at.
 
     The histogram preview shows the chosen level, and the only way a
@@ -1761,10 +1851,13 @@ def _otsu_levels(image: np.ndarray, *, bright: bool = True,
     :param classes: 2 for Otsu's own two-class split, 3 or more for
         multi-level Otsu (:func:`skimage.filters.threshold_multiotsu`),
         which returns ``classes - 1`` rising levels.
+    :param algorithm: which of :data:`GLOBAL_THRESHOLDS` finds the level.
+        Read only for two classes; multi-level Otsu is its own algorithm
+        and is asked for by a class count above two.
     :raises ValueError: on an empty image, a correction that is not greater
-        than 0, or fewer than two classes.
+        than 0, fewer than two classes, or an unknown algorithm.
     """
-    from skimage.filters import threshold_multiotsu, threshold_otsu
+    from skimage.filters import threshold_multiotsu
 
     factor = _otsu_correction_factor(correction)
     count = int(classes)
@@ -1773,7 +1866,7 @@ def _otsu_levels(image: np.ndarray, *, bright: bool = True,
             f"Otsu needs at least two classes; got {classes!r}.")
     values = _otsu_values(image, smoothing)
     if count == 2:
-        level = float(threshold_otsu(values))
+        level = _global_level(values, algorithm)
         if bright:
             return [level * factor]
         top = float(values.max())
@@ -1897,8 +1990,18 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
                     classes: int = 2,
                     foreground_class: Optional[int] = None,
                     local: bool = False,
-                    window: int = 51) -> np.ndarray:
+                    window: int = 51,
+                    algorithm: str = "otsu",
+                    local_k: float = 0.2) -> np.ndarray:
     """:func:`otsu_instances` with Otsu's level multiplied by ``correction``.
+
+    OR ANOTHER ALGORITHM'S LEVEL. ``algorithm`` names one of
+    :data:`GLOBAL_THRESHOLDS` or :data:`LOCAL_THRESHOLDS`, and it changes
+    exactly one thing: where the number the field is cut at comes from.
+    The smoothing, the correction, the bright-or-dark side, filling holes,
+    the watershed split, the border rule and the minimum area are the same
+    code for every one of them, which is the whole reason the algorithms
+    are a dictionary and not ten functions.
 
     The "threshold correction", which is CellProfiler's threshold
     correction factor: the level Otsu finds is multiplied before it is used.
@@ -1948,7 +2051,13 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
         what recovers objects in a corner the illumination has fallen away
         from. Two classes only.
     :param window: the local window, in pixels; rounded up to an odd number
-        so it has a centre pixel. Read only when ``local`` is on.
+        so it has a centre pixel. Read when ``local`` is on and by the
+        algorithms in :data:`LOCAL_THRESHOLDS`.
+    :param algorithm: which algorithm finds the level -- one of
+        :data:`GLOBAL_THRESHOLDS` or :data:`LOCAL_THRESHOLDS`. ``otsu``,
+        the default, is what this function did before there were others.
+    :param local_k: Sauvola's and Niblack's ``k``: how much of the window's
+        standard deviation is taken off its mean.
     :raises ValueError: on an empty image, a correction that is not greater
         than 0, fewer than two classes, a foreground class outside them, a
         window under 3 px, or ``local`` asked for together with more than
@@ -1970,18 +2079,28 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
             "A local threshold finds one level per window, so it cannot "
             "also split the field into more than two classes. Turn one of "
             "the two off.")
+    if str(algorithm or "otsu") in LOCAL_THRESHOLDS and count > 2:
+        raise ValueError(
+            f"{algorithm} finds one level per window, so it cannot also "
+            f"split the field into {count} classes. Use Multi-Otsu, or "
+            f"put the class count back to 2.")
+    name = str(algorithm or "otsu")
     plain = (factor == 1.0 and sigma == 0.0 and not fill_holes
              and not split_touching and not exclude_border
-             and count == 2 and not local)
+             and count == 2 and not local and name == "otsu")
     if plain:
         return otsu_instances(image, bright=bright, min_area=min_area)
     values = _otsu_values(image, sigma)
-    if local:
+    if name in LOCAL_THRESHOLDS:
+        levels = _local_level_map(values, name, window=window, k=local_k)
+        binary = (values > levels * factor if bright
+                  else values < levels * factor)
+    elif local:
         binary = _local_otsu_binary(values, window=window, bright=bright,
                                     correction=factor)
     elif count == 2:
         level = _otsu_levels(values, bright=bright, correction=factor,
-                             smoothing=0.0, classes=2)[0]
+                             smoothing=0.0, classes=2, algorithm=name)[0]
         binary = values > level if bright else values < level
     else:
         levels = _otsu_levels(values, bright=bright, correction=factor,
@@ -2214,13 +2333,204 @@ def _drop_border_objects(labels: np.ndarray) -> np.ndarray:
     return lookup[lab]
 
 
+#: How a propagation decides where to stop growing, as
+#: ``name -> what the number beside it means``. See
+#: :func:`maxima_propagate_instances`.
+PROPAGATE_STOPS: Dict[str, str] = {
+    "seed_fraction": "a fraction of THIS seed's own peak value",
+    "absolute": "an absolute intensity",
+    "percentile": "a percentile of the whole image",
+    "threshold": "a global threshold algorithm's level",
+}
+
+
+class PropagateResult(NamedTuple):
+    """What one maxima-and-propagate run found.
+
+    :param labels: the objects, one label per seed that survived.
+    :param seeds: how many local maxima were found. THE NUMBER THE USER
+        TUNES AGAINST: too many and the minimum distance or the seed level
+        is too low, too few and an object has no centre to grow from, and
+        neither is visible from the objects alone.
+    :param level: the intensity the growth stopped at, for the stop rules
+        that have ONE -- absolute, percentile and a global threshold. None
+        for ``seed_fraction``, which has a different level per object and
+        so has no single number to report.
+    """
+
+    labels: np.ndarray
+    seeds: int
+    level: Optional[float]
+
+
+def maxima_propagate_instances(
+        image: np.ndarray, *, sigma: float = 2.0, min_distance: int = 10,
+        seed_level: float = 90.0, seed_level_is_percentile: bool = True,
+        exclude_border: bool = False, stop: str = "seed_fraction",
+        stop_value: float = 0.4, stop_algorithm: str = "otsu",
+        min_area: int = 0, fill_holes: bool = True) -> PropagateResult:
+    """Find bright centres and grow an object out of each one.
+
+    CellProfiler's IdentifyPrimaryObjects with Propagate, as four steps a
+    person can see and set separately:
+
+    1. BLUR, so that one object has one centre. A raw fluorescence object
+       has a dozen local maxima in its own noise; a Gaussian of about the
+       object's own radius leaves it with one.
+    2. FIND THE MAXIMA (:func:`skimage.feature.peak_local_max`), no closer
+       together than ``min_distance`` and no dimmer than ``seed_level``.
+       One seed is one object, so this step alone decides how many objects
+       there will be, which is why :class:`PropagateResult` carries the
+       count.
+    3. GROW each seed outward over the blurred intensity, by a seeded
+       watershed on ``-image`` -- downhill from each peak, meeting its
+       neighbours at the ridge between them, which is what makes two
+       touching objects come apart at their waist instead of at a
+       threshold.
+    4. STOP by one of :data:`PROPAGATE_STOPS`.
+
+    THE STOP RULE IS THE INTERESTING CHOICE. ``seed_fraction`` is
+    per-object -- each object keeps the pixels at or above ``stop_value``
+    times ITS OWN peak -- which is what "a quantile threshold from that
+    maximum" means, and it is the only rule under which a bright object and
+    a dim one are measured the same way. The other three are one level for
+    the whole field: an absolute intensity, a percentile of it, or whatever
+    one of :data:`GLOBAL_THRESHOLDS` makes of it.
+
+    CELLPROFILER'S LAMBDA IS NOT OFFERED. Propagate there walks a cost
+    that mixes intensity difference with distance, weighted by a lambda;
+    :func:`skimage.segmentation.watershed` has no such parameter, and a
+    re-implementation of that cost would be a second segmentation engine to
+    keep. What is here is the lambda-zero end of it -- pure intensity --
+    which is the setting CellProfiler's own documentation recommends for
+    objects with a visible edge.
+
+    BRIGHT CENTRES ONLY, and deliberately: the whole idea is a peak to grow
+    away from. Make Masks' Invert switch is how a field of dark objects is
+    given to this, and it inverts the field for every detector alike.
+
+    :param image: the 2-D field or region, already through the enhancement
+        chain if one is on.
+    :param sigma: Gaussian blur before the maxima are found, in pixels. 0
+        finds maxima in the raw noise.
+    :param min_distance: the smallest gap between two seeds, in pixels.
+        About one object radius is the usual answer.
+    :param seed_level: how bright a maximum must be to count as a seed.
+    :param seed_level_is_percentile: read ``seed_level`` as a percentile of
+        the blurred image (the default, so one setting suits any exposure)
+        rather than as an absolute intensity.
+    :param exclude_border: drop maxima within ``min_distance`` of the edge.
+    :param stop: a key of :data:`PROPAGATE_STOPS`.
+    :param stop_value: the fraction, intensity or percentile that rule
+        reads. Not read by ``threshold``.
+    :param stop_algorithm: which of :data:`GLOBAL_THRESHOLDS` provides the
+        floor under the ``threshold`` rule.
+    :param min_area: objects smaller than this are dropped, and the rest
+        renumbered. Touching objects are NOT merged by this.
+    :param fill_holes: close the holes inside each grown object.
+    :returns: a :class:`PropagateResult`.
+    :raises ValueError: for an unknown stop rule or an empty image.
+    """
+    from skimage.feature import peak_local_max
+    from skimage.segmentation import watershed
+
+    if str(stop) not in PROPAGATE_STOPS:
+        raise ValueError(
+            f"{stop!r} is not a propagation stop rule; the ones there are: "
+            f"{sorted(PROPAGATE_STOPS)}.")
+    values = np.asarray(image, dtype=np.float32)
+    if values.ndim != 2 or not values.size:
+        raise ValueError("Propagation needs a 2-D image; this one is empty.")
+    empty = np.zeros(values.shape, dtype=np.int32)
+    blurred = (_ndimage().gaussian_filter(values, float(sigma))
+               if float(sigma) > 0.0 else values)
+
+    floor = (float(np.percentile(blurred, float(seed_level)))
+             if seed_level_is_percentile else float(seed_level))
+    coordinates = peak_local_max(
+        blurred, min_distance=max(1, int(min_distance)), threshold_abs=floor,
+        exclude_border=max(1, int(min_distance)) if exclude_border else False)
+    if not len(coordinates):
+        return PropagateResult(empty, 0, None)
+
+    markers = np.zeros(values.shape, dtype=np.int32)
+    markers[tuple(coordinates.T)] = np.arange(1, len(coordinates) + 1)
+
+    level: Optional[float] = None
+    if stop == "seed_fraction":
+        grown = watershed(-blurred, markers)
+        peaks = np.zeros(len(coordinates) + 1, dtype=np.float32)
+        peaks[1:] = blurred[tuple(coordinates.T)]
+        keep = blurred >= peaks[grown] * float(stop_value)
+        labels = np.where(keep, grown, 0).astype(np.int32)
+    else:
+        if stop == "absolute":
+            level = float(stop_value)
+        elif stop == "percentile":
+            level = float(np.percentile(blurred, float(stop_value)))
+        else:
+            level = _global_level(blurred, stop_algorithm)
+        mask = blurred >= level
+        if not mask.any():
+            return PropagateResult(empty, int(len(coordinates)), level)
+        labels = np.asarray(watershed(-blurred, markers, mask=mask),
+                            dtype=np.int32)
+
+    if fill_holes:
+        labels = _fill_label_holes(labels)
+    return PropagateResult(_drop_small_labels(labels, min_area),
+                           int(len(coordinates)), level)
+
+
+def _fill_label_holes(labels: np.ndarray) -> np.ndarray:
+    """Close the holes inside each object, without joining two of them.
+
+    ``binary_fill_holes`` over the whole foreground would fill the gap
+    BETWEEN two objects that happen to ring a piece of background, so the
+    holes are filled per label and written back only where nothing else has
+    a claim.
+    """
+    ndimage = _ndimage()
+    out = np.asarray(labels, dtype=np.int32).copy()
+    background = out == 0
+    for value in np.unique(out):
+        if value == 0:
+            continue
+        filled = ndimage.binary_fill_holes(out == value)
+        out[filled & background] = value
+    return out
+
+
+def _drop_small_labels(labels: np.ndarray, min_area: int) -> np.ndarray:
+    """Remove objects under ``min_area`` and renumber the rest from 1.
+
+    Renumbering by remapping and NOT by re-labelling the foreground: two
+    objects that touch are two objects, and connected-components would make
+    them one again.
+    """
+    out = np.asarray(labels, dtype=np.int32)
+    counts = np.bincount(out.ravel())
+    if int(min_area) > 0:
+        small = counts < int(min_area)
+        small[0] = True
+        out = np.where(small[out], 0, out)
+    present = np.unique(out)
+    present = present[present > 0]
+    remap = np.zeros(int(out.max()) + 1, dtype=np.int32)
+    remap[present] = np.arange(1, len(present) + 1, dtype=np.int32)
+    return remap[out]
+
+
 def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
                              bright: bool = True,
                              min_area: int = 0,
                              correction: float = 1.0,
                              smoothing: float = _CLASSICAL_SMOOTHING,
                              fill_holes: bool = True,
-                             split_touching: bool = True) -> np.ndarray:
+                             split_touching: bool = True,
+                             algorithm: str = "otsu",
+                             window: int = 51,
+                             local_k: float = 0.2) -> np.ndarray:
     """Threshold one magnifier region and split the objects that touch.
 
     The Otsu magnifier mode -- formerly named ``classical`` --
@@ -2260,11 +2570,17 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
     :param split_touching: cut each blob at the ridge between two centres
         (:func:`_split_touching_objects`). Off labels each blob whole, so a
         pair of touching cells arrives as one object.
+    :param algorithm: which of :data:`GLOBAL_THRESHOLDS` or
+        :data:`LOCAL_THRESHOLDS` finds the level. ``otsu`` is the default
+        and is what this did before there were others. A LOCAL ALGORITHM
+        SKIPS THE TWO-POPULATION TEST below, because that test is a
+        judgement about a whole region's histogram and a local algorithm
+        does not take one.
+    :param window: the window a local algorithm measures in, in pixels.
+    :param local_k: Sauvola's and Niblack's ``k``.
     :returns: int32 labels 1..N shaped like ``region``; all zero for a
         region with nothing above its noise.
     """
-    from skimage.filters import threshold_otsu
-
     ndimage = _ndimage()
     values = np.asarray(region, dtype=np.float32)
     empty = np.zeros(values.shape, dtype=np.int32)
@@ -2279,7 +2595,15 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
     if hi <= lo:
         return empty
     stretched = np.clip((smooth - lo) / (hi - lo), 0.0, 1.0)
-    level = float(threshold_otsu(stretched))
+    name = str(algorithm or "otsu")
+    if name in LOCAL_THRESHOLDS:
+        levels = _local_level_map(stretched, name, window=window, k=local_k)
+        foreground = stretched > levels * float(correction)
+        return _finish_region_binary(foreground, ndimage, empty,
+                                     fill_holes=fill_holes,
+                                     split_touching=split_touching,
+                                     min_area=min_area)
+    level = _global_level(stretched, name)
     upper = stretched > level
     share = float(upper.mean())
     total = float(stretched.var())
@@ -2299,6 +2623,22 @@ def _classical_region_labels(region: np.ndarray, *, sensitivity: float = 0.0,
         sigmas = max(1.0, _CLASSICAL_NOISE_SIGMAS - 0.5 * float(sensitivity))
         foreground = smooth > centre + sigmas * spread
 
+    return _finish_region_binary(foreground, ndimage, empty,
+                                 fill_holes=fill_holes,
+                                 split_touching=split_touching,
+                                 min_area=min_area)
+
+
+def _finish_region_binary(foreground, ndimage, empty, *, fill_holes: bool,
+                          split_touching: bool, min_area: int) -> np.ndarray:
+    """Open, fill and label a magnifier region's foreground.
+
+    The tail of :func:`_classical_region_labels`, in a function of its own
+    because a local algorithm reaches it without passing through the
+    two-population test in the middle of that one. Splitting it out is what
+    keeps there being ONE description of what happens to a region's
+    foreground after it has been decided.
+    """
     binary = ndimage.binary_opening(foreground, structure=_EIGHT)
     if fill_holes:
         binary = ndimage.binary_fill_holes(binary)
