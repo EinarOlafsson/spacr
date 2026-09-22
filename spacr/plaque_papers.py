@@ -20,15 +20,37 @@ both, because two readings that agree are evidence and one is a guess:
 
 When both are present they are both kept; a label whose words the legend also
 uses is ``strong``, one the legend does not echo is ``medium`` -- a legend that
-says "under indicated conditions" is not a disagreement. ``conflict`` is kept
-for a reviewer to set. When neither is present the image is named by its
+says "under indicated conditions" is not a disagreement. They DISAGREE when the
+panel's legend passage names conditions this figure prints on its other
+images and none of this image's own: that sets ``conflict``, with the words
+that caused it, and the row is kept for a person to settle rather than one
+reading being preferred. When neither is present the image is named by its
 figure and its row and column in the panel, and marked ``weak`` so a dataset
 can leave those rows out.
 
 SIZES. A plaque area in pixels depends on the paper's printing, so every
 plaque also carries its area relative to the median plaque in the same panel,
-and an area in mm^2 only when the image is a whole well of a stated plate
-format. Rows with no ruler say so.
+and an area in mm^2 only when there is a ruler: a scale bar read in or under
+the image (its length from the label beside it, or from the legend's "scale
+bar, 1 mm"), or a whole well of a plate format the settings or the legend
+state. A stated magnification is recorded but is never a ruler, because a
+printed figure has been rescaled since the picture was taken. Rows with no
+ruler say their sizes are in pixels.
+
+DUPLICATES. A figure is identified by its paper (the DOI when there is one)
+and its image hash. The same image seen again -- the same bytes, or the same
+pixels in another file format, under another name or another paper, such as a
+preprint and its published version -- is measured once and recorded in the
+``duplicates`` table against the copy that was measured. A paper already
+measured from one source (Europe PMC) is not measured again from another (its
+PDF). An image that merely LOOKS the same (a near-identical perceptual hash,
+as a re-encoded or resized copy would have) is recorded as a possible
+duplicate and still measured, because on figures that is a resemblance, not
+a proof.
+
+TEXT. A PDF's own text layer is used for legends and labels before any OCR;
+OCR is asked only when the text layer has nothing near the plaque images,
+which is what a figure pasted into the PDF as one picture looks like.
 
 The optional pieces -- ``ultralytics`` for the detector, ``rapidocr`` for the
 text in figure images, ``pdfplumber`` for a PDF's text layer -- are the
@@ -115,7 +137,9 @@ class Paper:
 
     :param key: the identifier rows are filed under: the DOI when there is
         one, else the PMC id, else the PDF's sha256.
-    :param source: ``'europepmc'`` or ``'pdf'``.
+    :param source: ``'europepmc'``, ``'pdf'`` or ``'folder'``.
+    :param doi_from: where the DOI was read: ``'europepmc'``, ``'pdf
+        metadata'`` or ``'pdf text'``; None when there is no DOI.
     """
 
     key: str
@@ -126,6 +150,7 @@ class Paper:
     title: Optional[str] = None
     licence: Optional[str] = None
     pdf: Optional[str] = None
+    doi_from: Optional[str] = None
 
 
 @dataclass
@@ -244,7 +269,10 @@ class Annotation:
     :param strength: ``'strong'`` when both readings agree, ``'medium'`` for
         one reading, ``'weak'`` for position only, ``'manual'`` when a person
         wrote it.
-    :param conflict: set by a reviewer who finds the two readings disagree.
+    :param conflict: True when the two readings disagree -- the panel's
+        legend names conditions the figure prints elsewhere and none of this
+        image's (see :func:`annotate_regions`).
+    :param conflict_terms: the legend's words that caused ``conflict``.
     :param approved: ``True``/``False`` once a person has reviewed it,
         ``None`` when nobody has.
     """
@@ -260,7 +288,21 @@ class Annotation:
     source: str = "position"
     strength: str = "weak"
     conflict: bool = False
+    conflict_terms: List[str] = field(default_factory=list)
     approved: Optional[bool] = None
+
+
+def _conflict_reason(a: "Annotation") -> str:
+    """An annotation's conflict in words, for the database and the annotations file.
+
+    :param a: the annotation.
+    :returns: ``''`` when its two readings do not disagree.
+    """
+    if not a.conflict:
+        return ""
+    return (f"legend for panel {a.panel or '?'} names "
+            f"{', '.join(a.conflict_terms)}; the label reads "
+            f"{a.label_text!r}")
 
 
 def _get(url: str, **kwargs: Any):
@@ -308,8 +350,130 @@ def parse_reference(ref: Any) -> Dict[str, str]:
         f"{text!r} is not a DOI, a PMC id, a PMID or a path to a PDF")
 
 
+_DOI_CHARS = re.compile(r"10\.\d{4,9}/[A-Za-z0-9._;()/:-]+")
+_FIGURE_DOI_SUFFIX = re.compile(r"\.(?:g|s|t|sd|e)\d{3,4}$", re.IGNORECASE)
+
+
+def _doi_candidates(text: str) -> List[str]:
+    """The DOIs a stretch of PDF text may name, likeliest first.
+
+    A PDF's text layer breaks a DOI wherever the line did --
+    ``https://d oi.org/10.1371/j ournal.\nppat.1011009`` is what one PLOS
+    first page gives -- so the DOI is looked for twice: as printed, and with
+    the whitespace taken out, which rejoins it and also glues it to the next
+    word (``...1011009Editor:``). A glued run is cut where a digit meets a
+    capital letter. A figure's own DOI (``....g004``) names its paper once
+    the suffix is dropped, and journals print one under every figure, so
+    the DOI named most often comes first.
+
+    :param text: the text.
+    :returns: distinct candidates, most frequently named first; the longest
+        of equally frequent ones first.
+    """
+    counts: Dict[str, int] = {}
+    order: List[str] = []
+
+    def add(doi: str) -> None:
+        """Count one sighting of a cleaned candidate."""
+        doi = _FIGURE_DOI_SUFFIX.sub("", doi.rstrip(".,;:)"))
+        if not re.match(r"^10\.\d{4,9}/.+", doi):
+            return
+        if doi not in counts:
+            order.append(doi)
+        counts[doi] = counts.get(doi, 0) + 1
+    joined = re.sub(r"\s+", "", text or "")
+    for match in _DOI_CHARS.finditer(joined):
+        run = match.group(0)
+        cut = re.search(r"\d(?=[A-Z])", run)
+        add(run[:cut.end()] if cut else run)
+    for match in _DOI.finditer(text or ""):
+        add(match.group(1))
+    return sorted(order, key=lambda d: (-counts[d], -len(d), order.index(d)))
+
+
+def _doi_in_pdf(pdf: Any) -> Tuple[Optional[str], Optional[str]]:
+    """The DOI a PDF states, from its metadata or its first pages' text.
+
+    Read with ``pypdf``, which spaCR already depends on, so this works
+    without the ``spacr[papers]`` extra. See :func:`_doi_candidates` for how
+    a DOI broken across lines is put back together.
+
+    :param pdf: the PDF path.
+    :returns: ``(doi, 'pdf metadata'|'pdf text')``, the likeliest candidate,
+        or ``(None, None)`` when it names none or cannot be read.
+    """
+    found = _pdf_doi_candidates(pdf)
+    return found[0] if found else (None, None)
+
+
+def _pdf_doi_candidates(pdf: Any) -> List[Tuple[str, str]]:
+    """Every DOI a PDF's metadata or first pages may name, likeliest first.
+
+    :param pdf: the PDF path.
+    :returns: ``[(doi, 'pdf metadata'|'pdf text')]``; empty when it names
+        none or cannot be read.
+    """
+    try:
+        from pypdf import PdfReader
+
+        reader = PdfReader(str(pdf))
+    except Exception:
+        return []
+    out: List[Tuple[str, str]] = []
+    try:
+        meta = reader.metadata or {}
+        for key in ("/doi", "/DOI", "/prism:doi", "/Subject", "/Keywords"):
+            match = _DOI.search(str(meta.get(key) or ""))
+            if match:
+                out.append((match.group(1).rstrip(".,;)"), "pdf metadata"))
+    except Exception:
+        pass
+    text = []
+    for page in list(reader.pages)[:2]:
+        try:
+            text.append(page.extract_text() or "")
+        except Exception:
+            continue
+    for doi in _doi_candidates("\n".join(text)):
+        if doi not in [d for d, _ in out]:
+            out.append((doi, "pdf text"))
+    return out
+
+
+def _epmc_hit(query: str, fetch: Callable) -> Optional[Dict[str, Any]]:
+    """The first Europe PMC search hit, or None.
+
+    A reply that is not a search result -- an error status, or a 200 with
+    a short body, which Europe PMC sometimes sends under load -- is asked
+    again, up to three times, a second apart and then two.
+
+    :param query: a Europe PMC query.
+    :param fetch: the HTTP getter.
+    :returns: the hit.
+    """
+    for attempt in range(3):
+        response = fetch(f"{EPMC}/search", params={
+            "query": query, "format": "json", "resultType": "core",
+            "pageSize": 1})
+        try:
+            body = response.json() if getattr(response, "status_code", 200) == 200 \
+                else None
+        except ValueError:
+            body = None
+        if isinstance(body, dict) and "resultList" in body:
+            hits = (body.get("resultList") or {}).get("result", [])
+            return hits[0] if hits else None
+        time.sleep(1.0 * (attempt + 1))
+    return None
+
+
 def resolve_paper(ref: Any, *, get: Optional[Callable] = None) -> Paper:
     """Look a reference up in Europe PMC, or describe a local PDF.
+
+    A PDF is filed under its DOI when it states one and Europe PMC knows
+    that DOI (the three likeliest candidates are asked) -- so the same paper given once as a DOI and once as a PDF is
+    one paper, not two -- and under its sha256 otherwise, with the DOI it
+    names kept as unconfirmed.
 
     :param ref: anything :func:`parse_reference` accepts.
     :param get: ``fn(url, params=...) -> response``; defaults to requests.
@@ -318,25 +482,36 @@ def resolve_paper(ref: Any, *, get: Optional[Callable] = None) -> Paper:
     """
     parsed = parse_reference(ref)
     kind, value = parsed["kind"], parsed["value"]
+    fetch = get or _get
     if kind == "pdf":
         digest = sha256_bytes(Path(value).read_bytes())
-        return Paper(key=f"pdf:{digest}", source="pdf", pdf=str(value))
+        candidates = _pdf_doi_candidates(value)
+        for doi, doi_from in candidates[:3]:
+            try:
+                hit = _epmc_hit(f'DOI:"{doi}"', fetch)
+            except Exception:
+                hit = None
+            if hit and str(hit.get("doi") or "").lower() == doi.lower():
+                return Paper(key=hit["doi"], source="pdf", doi=hit["doi"],
+                             pmcid=hit.get("pmcid"), pmid=hit.get("pmid"),
+                             title=hit.get("title"),
+                             licence=(hit.get("license") or "").strip().lower() or None,
+                             pdf=str(value), doi_from=doi_from)
+        doi, doi_from = candidates[0] if candidates else (None, None)
+        return Paper(key=f"pdf:{digest}", source="pdf", pdf=str(value), doi=doi,
+                     doi_from=f"{doi_from}, unconfirmed" if doi else None)
     query = {"doi": f'DOI:"{value}"', "pmcid": f"PMCID:{value}",
              "pmid": f"EXT_ID:{value} AND SRC:MED"}[kind]
-    fetch = get or _get
-    response = fetch(f"{EPMC}/search", params={
-        "query": query, "format": "json", "resultType": "core", "pageSize": 1})
-    hits = []
-    if getattr(response, "status_code", 200) == 200:
-        hits = (response.json().get("resultList", {}) or {}).get("result", [])
-    if not hits:
-        return Paper(key=value, source="europepmc", **{kind: value})
-    hit = hits[0]
+    hit = _epmc_hit(query, fetch)
+    if not hit:
+        return Paper(key=value, source="europepmc", **{kind: value},
+                     doi_from="reference" if kind == "doi" else None)
     doi = hit.get("doi") or (value if kind == "doi" else None)
     pmcid = hit.get("pmcid") or (value if kind == "pmcid" else None)
     return Paper(key=doi or pmcid or value, source="europepmc", doi=doi,
                  pmcid=pmcid, pmid=hit.get("pmid"), title=hit.get("title"),
-                 licence=(hit.get("license") or "").strip().lower() or None)
+                 licence=(hit.get("license") or "").strip().lower() or None,
+                 doi_from="europepmc" if doi else None)
 
 
 def _graphic_stem(name: str) -> str:
@@ -458,6 +633,55 @@ def legends_from_text(text: str) -> Dict[str, str]:
     return out
 
 
+#: How close two characters must sit to be one word in a PDF's text layer,
+#: in points. pdfplumber's default of 3 runs a tightly set journal page
+#: into one word per line ("Fig4.ThecytosolicTPI1...", PLOS Pathogens
+#: 2022); 1.5 splits it into words and still keeps each word whole.
+PDF_X_TOLERANCE = 1.5
+
+
+def _pdf_pages_here(pdf: Any, dest: Path, dpi: int,
+                    opener: Callable) -> List[Dict[str, Any]]:
+    """Render a PDF's pages and read their text layer in this process.
+
+    :param pdf: the PDF path.
+    :param dest: directory for the page images.
+    :param dpi: render resolution.
+    :param opener: ``fn(path) -> pdfplumber-like document``.
+    :returns: per page ``{'path', 'text', 'words': [[text, x0, y0, x1, y1]]}``
+        with the words in the rendered image's pixels.
+    """
+    scale = dpi / 72.0
+    pages: List[Dict[str, Any]] = []
+    with opener(str(pdf)) as document:
+        for number, page in enumerate(document.pages, start=1):
+            target = dest / f"page_{number:03d}.png"
+            page.to_image(resolution=dpi).save(str(target))
+            pages.append({
+                "path": str(target),
+                "text": page.extract_text(x_tolerance=PDF_X_TOLERANCE) or "",
+                "words": [[w["text"], w["x0"] * scale, w["top"] * scale,
+                           w["x1"] * scale, w["bottom"] * scale]
+                          for w in page.extract_words(x_tolerance=PDF_X_TOLERANCE)]})
+    return pages
+
+
+def _pdf_pages_in_reader(pdf: Any, dest: Path, dpi: int) -> List[Dict[str, Any]]:
+    """:func:`_pdf_pages_here`, answered by the figure reader's environment.
+
+    :param pdf: the PDF path.
+    :param dest: directory for the page images.
+    :param dpi: render resolution.
+    :returns: the same per-page records.
+    """
+    from ._segmentation_backends import _worker_for
+
+    reply = _worker_for(READER_BACKEND, reader_environment()).request(
+        "read_pdf", pdf=str(Path(pdf).resolve()), dest=str(dest.resolve()),
+        dpi=int(dpi), x_tolerance=PDF_X_TOLERANCE)
+    return list(reply.get("pages", []))
+
+
 def figures_from_pdf(pdf: Any, dest: Any, *, dpi: int = 200,
                      opener: Optional[Callable] = None) -> List[Figure]:
     """Every page of a PDF as a figure image, with its text layer attached.
@@ -468,6 +692,9 @@ def figures_from_pdf(pdf: Any, dest: Any, *, dpi: int = 200,
     The text layer comes back as :class:`Word` objects in the rendered
     image's pixels, so no OCR is needed for a PDF that has one.
 
+    Rendering needs ``pdfplumber``: in this process when it is installed
+    here, else in the figure reader's own environment, which installs it.
+
     :param pdf: the PDF path.
     :param dest: directory for the page images.
     :param dpi: render resolution.
@@ -475,40 +702,41 @@ def figures_from_pdf(pdf: Any, dest: Any, *, dpi: int = 200,
         :func:`pdfplumber.open`.
     :returns: one figure per page, legend attached from the text when the
         page names a figure.
-    :raises ImportError: when pdfplumber is not installed.
+    :raises ImportError: when pdfplumber is available neither way.
     """
-    if opener is None:
-        try:
-            import pdfplumber
-        except ImportError as exc:
-            raise ImportError(
-                "Reading a PDF needs 'pdfplumber'. Install it with:\n  "
-                + INSTALL_HINT) from exc
-        opener = pdfplumber.open
     dest = Path(dest)
     dest.mkdir(parents=True, exist_ok=True)
-    scale = dpi / 72.0
+    if opener is None and not _importable("pdfplumber") and \
+            reader_environment() is not None:
+        pages = _pdf_pages_in_reader(pdf, dest, dpi)
+    else:
+        if opener is None:
+            try:
+                import pdfplumber
+            except ImportError as exc:
+                raise ImportError(
+                    "Reading a PDF needs 'pdfplumber'. Install the plaque "
+                    "figure reader from Plaque Assay's Figure mode or the "
+                    "Model Zoo, or install it here with:\n  "
+                    + INSTALL_HINT) from exc
+            opener = pdfplumber.open
+        pages = _pdf_pages_here(pdf, dest, dpi, opener)
+    legends = legends_from_text("\n\n".join(p["text"] for p in pages))
     figures: List[Figure] = []
-    with opener(str(pdf)) as document:
-        pages = list(document.pages)
-        texts = [page.extract_text() or "" for page in pages]
-        legends = legends_from_text("\n\n".join(texts))
-        for number, page in enumerate(pages, start=1):
-            target = dest / f"page_{number:03d}.png"
-            page.to_image(resolution=dpi).save(str(target))
-            words = [Word(w["text"], w["x0"] * scale, w["top"] * scale,
-                          w["x1"] * scale, w["bottom"] * scale)
-                     for w in page.extract_words()]
-            named = [m.group(1) for m in _FIGURE_START.finditer(texts[number - 1])]
-            label, caption = "", ""
-            for figure_number in named:
-                if figure_number in legends:
-                    label, caption = f"Fig {figure_number}", legends[figure_number]
-                    break
-            figures.append(Figure(
-                path=target, label=label or f"page {number}", caption=caption,
-                legend_source="pdf" if caption else "none",
-                sha256=sha256_bytes(target.read_bytes()), words=words))
+    for number, page in enumerate(pages, start=1):
+        target = Path(page["path"])
+        words = [Word(str(w[0]), float(w[1]), float(w[2]), float(w[3]),
+                      float(w[4])) for w in page["words"]]
+        named = [m.group(1) for m in _FIGURE_START.finditer(page["text"])]
+        label, caption = "", ""
+        for figure_number in named:
+            if figure_number in legends:
+                label, caption = f"Fig {figure_number}", legends[figure_number]
+                break
+        figures.append(Figure(
+            path=target, label=label or f"page {number}", caption=caption,
+            legend_source="pdf" if caption else "none",
+            sha256=sha256_bytes(target.read_bytes()), words=words))
     return figures
 
 
@@ -1202,7 +1430,40 @@ def annotate_regions(regions: Sequence[Region], words: Sequence[Word], *,
                                     f"row {row}, column {column}")
             annotation.source, annotation.strength = "position", "weak"
         out.append(annotation)
+    _flag_conflicts(out)
     return out
+
+
+def _flag_conflicts(annotations: Sequence[Annotation]) -> List[Annotation]:
+    """Mark the images whose label and legend passage disagree.
+
+    The figure's own labels are the vocabulary: every word printed beside
+    any of its plaque images. A legend passage that uses none of that
+    vocabulary ("plaque assays under the indicated conditions") says nothing
+    about which image is which, and is not a disagreement. A passage that
+    names some of it -- but none of the words beside THIS image -- is
+    describing other conditions than the label here, and one of the two
+    readings is wrong. Which one is not decided here; both are kept and the
+    row is flagged.
+
+    :param annotations: one figure's annotations; changed in place.
+    :returns: the same annotations.
+    """
+    vocabulary: set = set()
+    for a in annotations:
+        vocabulary |= _tokens(a.label_text)
+    for a in annotations:
+        a.conflict, a.conflict_terms = False, []
+        if a.source != "label+legend":
+            continue
+        own = _tokens(a.label_text)
+        legend = _tokens(a.legend_text)
+        if own & legend:
+            continue
+        named = sorted((legend & vocabulary) - own)
+        if named:
+            a.conflict, a.conflict_terms = True, named
+    return annotations
 
 
 def measure_region(labels: np.ndarray, *, px_per_mm: Optional[float] = None
@@ -1241,6 +1502,305 @@ def _ruler(region: Region, plate_format: Optional[str],
     if not diameter_mm:
         return None
     return ((region.width + region.height) / 2.0) / diameter_mm
+
+
+_UNIT_MM = {"nm": 1e-6, "um": 1e-3, "µm": 1e-3, "μm": 1e-3, "mm": 1.0,
+            "cm": 10.0}
+_SCALE_TEXT = re.compile(r"^(\d+(?:[.,]\d+)?)\s*(nm|um|µm|μm|mm|cm)$", re.IGNORECASE)
+_NUMBER = re.compile(r"^\d+(?:[.,]\d+)?$")
+_UNIT = re.compile(r"^(nm|um|µm|μm|mm|cm)$", re.IGNORECASE)
+_LEGEND_BAR = re.compile(
+    r"scale\s*bars?\s*(?:[,:=]|represents?|indicates?|are|is|of)?\s*"
+    r"(\d+(?:[.,]\d+)?)\s*(nm|um|µm|μm|mm|cm)\b", re.IGNORECASE)
+_LEGEND_PLATE = re.compile(r"\b(6|12|24|48|96)\s*-?\s*well", re.IGNORECASE)
+_LEGEND_MAGNIFICATION = re.compile(
+    r"(\d+(?:\.\d+)?)\s*[x×]\s*(?:magnification|objective|lens)"
+    r"|magnification[^.;]{0,20}?(\d+(?:\.\d+)?)\s*[x×]", re.IGNORECASE)
+
+
+@dataclass(frozen=True)
+class _Scale:
+    """How a plaque image's pixels become millimetres, or why they do not.
+
+    :param px_per_mm: pixels per millimetre, or None when there is no ruler
+        and sizes stay in pixels.
+    :param source: ``'scale bar'`` (read in or under this image),
+        ``'scale bar, same panel'`` (read on another image of the same size
+        in the same grid), ``'scale bar, length from legend'``,
+        ``'well: <format> (settings)'``, ``'well: <format> (legend)'`` or
+        ``'none'``.
+    :param detail: what was measured, e.g. ``'1 mm bar = 120 px'``.
+    :param magnification: a magnification the legend states, recorded and
+        never used as a ruler.
+    """
+
+    px_per_mm: Optional[float] = None
+    source: str = "none"
+    detail: str = ""
+    magnification: str = ""
+
+    @property
+    def unit(self) -> str:
+        """``'mm2'`` when areas can be given in mm^2, else ``'px'``."""
+        return "mm2" if self.px_per_mm else "px"
+
+
+def _unit_mm(unit: str) -> float:
+    """Millimetres in one ``unit``.
+
+    :param unit: ``nm``, ``um``, ``µm``, ``mm`` or ``cm``, any case.
+    :returns: the factor.
+    """
+    unit = unit.strip()
+    return _UNIT_MM.get(unit, _UNIT_MM.get(unit.lower(), 1.0))
+
+
+def _scale_labels(words: Sequence[Word]) -> List[Tuple[Word, float]]:
+    """The words that state a length, such as ``1 mm`` or ``500 µm``.
+
+    A number and its unit read as two words on one line are joined.
+
+    :param words: a figure's words.
+    :returns: ``(word, millimetres)`` pairs, the word spanning number and
+        unit.
+    """
+    out: List[Tuple[Word, float]] = []
+    used = set()
+    ordered = sorted(words, key=lambda w: (w.y0, w.x0))
+    for index, w in enumerate(ordered):
+        match = _SCALE_TEXT.match(w.text.strip())
+        if match:
+            value = float(match.group(1).replace(",", "."))
+            out.append((w, value * _unit_mm(match.group(2))))
+            continue
+        if index in used or not _NUMBER.match(w.text.strip()):
+            continue
+        height = max(1.0, w.y1 - w.y0)
+        for j in range(index + 1, len(ordered)):
+            unit = ordered[j]
+            if not _UNIT.match(unit.text.strip()):
+                continue
+            if abs(unit.cy - w.cy) <= 0.6 * height and \
+                    0 <= unit.x0 - w.x1 <= 1.5 * height:
+                value = float(w.text.strip().replace(",", "."))
+                joined = Word(f"{w.text.strip()} {unit.text.strip()}", w.x0,
+                              min(w.y0, unit.y0), unit.x1, max(w.y1, unit.y1),
+                              min(w.confidence, unit.confidence))
+                out.append((joined, value * _unit_mm(unit.text.strip())))
+                used.add(j)
+                break
+    return out
+
+
+def _bar_components(gray: np.ndarray, *, max_thickness: float,
+                    min_length: int) -> List[Tuple[int, int, int, int]]:
+    """Solid, thin, horizontal bars in a greyscale window, either polarity.
+
+    :param gray: the window, ``H x W`` 0..255.
+    :param max_thickness: the thickest a bar may be, in pixels.
+    :param min_length: the shortest a bar may be, in pixels.
+    :returns: ``(y0, x0, y1, x1)`` per bar that does not touch the window's
+        left or right edge -- a gutter between two images runs out of the
+        window, a scale bar ends inside it.
+    """
+    from skimage.measure import label as label_components, regionprops
+
+    height, width = gray.shape[:2]
+    out = []
+    for mask in (gray < 80, gray > 190):
+        for prop in regionprops(label_components(mask, connectivity=2)):
+            y0, x0, y1, x1 = prop.bbox
+            thick, long = y1 - y0, x1 - x0
+            if x0 == 0 or x1 == width or long < min_length:
+                continue
+            if thick > max_thickness or long < 3 * thick:
+                continue
+            if prop.area < 0.85 * thick * long:
+                continue
+            out.append((y0, x0, y1, x1))
+    return out
+
+
+def _measure_scale_bar(image: np.ndarray, word: Word) -> Optional[Tuple[int, int, int, int]]:
+    """The bar a length label such as ``1 mm`` sits beside, if one is there.
+
+    Looked for above and below the label, within three label heights, as a
+    solid thin horizontal line in black or white that ends inside the search
+    window.
+
+    :param image: the figure, ``H x W x 3``.
+    :param word: the length label, from :func:`_scale_labels`.
+    :returns: the bar as ``(x0, y0, x1, y1)`` in figure pixels, or None.
+    """
+    height, width = image.shape[:2]
+    h = max(2.0, word.y1 - word.y0)
+    w = max(h, word.x1 - word.x0)
+    x0 = int(max(0, word.x0 - 3 * w))
+    x1 = int(min(width, word.x1 + 3 * w))
+    y0 = int(max(0, word.y0 - 3 * h))
+    y1 = int(min(height, word.y1 + 3 * h))
+    if x1 - x0 < 8 or y1 - y0 < 4:
+        return None
+    window = np.asarray(image[y0:y1, x0:x1], dtype=float)
+    gray = window.mean(axis=2) if window.ndim == 3 else window
+    best, best_key = None, None
+    for by0, bx0, by1, bx1 in _bar_components(
+            gray, max_thickness=max(2.0, 0.8 * h), min_length=max(8, int(0.5 * h))):
+        fx0, fy0, fx1, fy1 = bx0 + x0, by0 + y0, bx1 + x0, by1 + y0
+        if _overlap(fy0, fy1, word.y0, word.y1) > 0 and \
+                _overlap(fx0, fx1, word.x0, word.x1) > 0:
+            continue
+        if _overlap(fx0, fx1, word.x0 - 0.5 * w, word.x1 + 0.5 * w) <= 0:
+            continue
+        gap = min(abs(fy0 - word.y1), abs(word.y0 - fy1))
+        key = (gap, -(fx1 - fx0))
+        if best_key is None or key < best_key:
+            best, best_key = (fx0, fy0, fx1, fy1), key
+    return best
+
+
+def _unlabelled_bar(image: np.ndarray, region: Region) -> Optional[Tuple[int, int, int, int]]:
+    """A scale bar printed inside an image with no length beside it.
+
+    Only the bottom quarter of the image is searched, and only a line 5 to
+    60 % of the image's width and at most 4 % of its height thick counts,
+    which is how an unlabelled scale bar whose length the legend states is
+    drawn.
+
+    :param image: the figure.
+    :param region: the plaque image.
+    :returns: the bar as ``(x0, y0, x1, y1)`` in figure pixels, or None.
+    """
+    y0 = int(region.y0 + 0.75 * region.height)
+    crop = np.asarray(image[y0:region.y1, region.x0:region.x1], dtype=float)
+    if crop.size == 0 or crop.shape[0] < 3 or crop.shape[1] < 20:
+        return None
+    gray = crop.mean(axis=2) if crop.ndim == 3 else crop
+    found = [b for b in _bar_components(
+        gray, max_thickness=max(2.0, 0.04 * region.height),
+        min_length=max(8, int(0.05 * region.width)))
+        if (b[3] - b[1]) <= 0.6 * region.width]
+    if len(found) != 1:
+        return None
+    by0, bx0, by1, bx1 = found[0]
+    return (bx0 + region.x0, by0 + y0, bx1 + region.x0, by1 + y0)
+
+
+def _legend_scale_facts(text: str) -> Dict[str, Any]:
+    """What a legend says about scale.
+
+    :param text: a legend or one panel's passage.
+    :returns: ``{'bar_mm': float or None, 'bar_text': str,
+        'plate_format': '6-well'... or None, 'magnification': str}``.
+    """
+    text = str(text or "")
+    out: Dict[str, Any] = {"bar_mm": None, "bar_text": "",
+                           "plate_format": None, "magnification": ""}
+    bar = _LEGEND_BAR.search(text)
+    if bar:
+        out["bar_mm"] = float(bar.group(1).replace(",", ".")) * _unit_mm(bar.group(2))
+        out["bar_text"] = bar.group(0)
+    plates = {f"{m.group(1)}-well" for m in _LEGEND_PLATE.finditer(text)}
+    if len(plates) == 1:
+        out["plate_format"] = plates.pop()
+    magnification = _LEGEND_MAGNIFICATION.search(text)
+    if magnification:
+        out["magnification"] = magnification.group(0)
+    return out
+
+
+def _scales_for_regions(image: np.ndarray, regions: Sequence[Region],
+                       words: Sequence[Word], *, caption: str = "",
+                       annotations: Optional[Sequence[Annotation]] = None,
+                       plate_format: Optional[str] = None) -> List[_Scale]:
+    """The ruler, if any, for every plaque image in one figure.
+
+    In order of preference:
+
+    1. a scale bar in or directly under the image, its length read from the
+       label beside it (``1 mm``);
+    2. a scale bar on another image of the same grid and the same size -- a
+       figure prints one bar per panel of identically scaled crops;
+    3. a scale bar inside the image with no label, when the panel's legend
+       passage (or the legend) states its length (``_Scale bar, 500 µm``);
+    4. a whole well (a nearly square box) of a plate format the settings
+       give, or else that the legend names (``6-well plates``) -- the same
+       ruler the plate pipeline uses.
+
+    Otherwise there is no ruler and the image's sizes stay in pixels. A
+    stated magnification is recorded on every image of the panel but never
+    used: a printed figure has been rescaled since the picture was taken.
+    More than one plate format in a legend is not guessed between.
+
+    :param image: the figure, ``H x W x 3``.
+    :param regions: its plaque images.
+    :param words: its words, OCR or text layer, including those inside the
+        images.
+    :param caption: the figure legend.
+    :param annotations: the images' annotations, whose ``legend_text`` is
+        the panel's passage.
+    :param plate_format: a key of :data:`spacr.plaque.WELL_DIAMETERS_MM`
+        from the settings; it wins over the legend.
+    :returns: one :class:`_Scale` per region.
+    """
+    whole = _legend_scale_facts(caption)
+    if annotations:
+        passages = [_legend_scale_facts(a.legend_text) if a.legend_text else {}
+                    for a in annotations]
+    else:
+        passages = [{} for _ in regions]
+    own: Dict[int, _Scale] = {}
+    for word, mm in _scale_labels(words):
+        if mm <= 0:
+            continue
+        bar = _measure_scale_bar(image, word)
+        if bar is None:
+            continue
+        length = bar[2] - bar[0]
+        centre_x, centre_y = (bar[0] + bar[2]) / 2.0, (bar[1] + bar[3]) / 2.0
+        for index, r in enumerate(regions):
+            inside = r.x0 <= centre_x <= r.x1 and r.y0 <= centre_y <= r.y1
+            under = (r.x0 <= centre_x <= r.x1
+                     and 0 <= min(bar[1], word.y0) - r.y1 <= 0.25 * r.height)
+            if (inside or under) and index not in own:
+                own[index] = _Scale(length / mm, "scale bar",
+                                   f"{word.text} bar = {length} px")
+                break
+    block = _blocks(regions) if regions else []
+    out: List[_Scale] = []
+    for index, r in enumerate(regions):
+        facts = passages[index] if index < len(passages) else {}
+        magnification = facts.get("magnification") or whole["magnification"]
+        if index in own:
+            out.append(replace(own[index], magnification=magnification))
+            continue
+        twin = next((own[j] for j in own if block[j] == block[index]
+                     and abs(regions[j].width - r.width) <= 0.1 * max(r.width, 1)
+                     and abs(regions[j].height - r.height) <= 0.1 * max(r.height, 1)),
+                    None)
+        if twin is not None:
+            out.append(_Scale(twin.px_per_mm, "scale bar, same panel",
+                             twin.detail, magnification))
+            continue
+        bar_mm = facts.get("bar_mm") or whole["bar_mm"]
+        if bar_mm:
+            bar = _unlabelled_bar(image, r)
+            if bar is not None:
+                length = bar[2] - bar[0]
+                stated = facts.get("bar_text") or whole["bar_text"]
+                out.append(_Scale(length / bar_mm, "scale bar, length from legend",
+                                 f"{stated!r}: bar = {length} px", magnification))
+                continue
+        chosen, where = plate_format, "settings"
+        if not chosen:
+            chosen, where = facts.get("plate_format") or whole["plate_format"], "legend"
+        ppm = _ruler(r, chosen)
+        if ppm:
+            out.append(_Scale(ppm, f"well: {chosen} ({where})",
+                             f"{(r.width + r.height) / 2.0:.0f} px across", magnification))
+            continue
+        out.append(_Scale(None, "none", "sizes in pixels", magnification))
+    return out
 
 
 def console_legend_prompt(figure: Figure, annotations: Sequence[Annotation], *,
@@ -1288,29 +1848,78 @@ def console_review(figure: Figure, annotations: List[Annotation], *,
     return annotations
 
 
-_SCHEMA = """
-CREATE TABLE IF NOT EXISTS papers (
-    paper_key TEXT PRIMARY KEY, source TEXT, doi TEXT, pmcid TEXT, pmid TEXT,
-    title TEXT, licence TEXT, pdf TEXT, added REAL);
-CREATE TABLE IF NOT EXISTS figures (
-    figure_sha256 TEXT PRIMARY KEY, paper_key TEXT, label TEXT, caption TEXT,
-    legend_source TEXT, path TEXT, width INTEGER, height INTEGER);
-CREATE TABLE IF NOT EXISTS regions (
-    region_id INTEGER PRIMARY KEY AUTOINCREMENT, figure_sha256 TEXT,
-    paper_key TEXT, x0 INTEGER, y0 INTEGER, x1 INTEGER, y1 INTEGER,
-    detector_confidence REAL, found_at_sizes TEXT, panel TEXT, panel_row INTEGER,
-    panel_column INTEGER, near_text TEXT, label_text TEXT, legend_text TEXT,
-    condition TEXT, condition_source TEXT, strength TEXT, conflict INTEGER,
-    approved INTEGER, crop_path TEXT, plaque_count INTEGER, has_ruler INTEGER,
-    px_per_mm REAL, detector TEXT, segmenter TEXT, imgsz TEXT);
-CREATE TABLE IF NOT EXISTS plaques (
-    region_id INTEGER, label INTEGER, area_px INTEGER, area_mm2 REAL,
-    area_vs_panel_median REAL);
-"""
+#: The results database, table by table: ``(column, SQL type)`` in order.
+#: A database written by an older spaCR is brought up to this by adding the
+#: columns it lacks (:func:`open_database`); nothing is dropped or renamed.
+TABLES: Dict[str, Tuple[Tuple[str, str], ...]] = {
+    "runs": (
+        ("run_id", "INTEGER PRIMARY KEY AUTOINCREMENT"), ("started", "REAL"),
+        ("finished", "REAL"), ("entry", "TEXT"), ("source", "TEXT"),
+        ("detector", "TEXT"), ("segmenter", "TEXT"), ("imgsz", "TEXT"),
+        ("confidence", "REAL"), ("plate_format", "TEXT"),
+        ("confirm_each", "INTEGER"), ("text_options", "TEXT"),
+        ("spacr_version", "TEXT"), ("summary", "TEXT")),
+    "papers": (
+        ("paper_key", "TEXT PRIMARY KEY"), ("source", "TEXT"), ("doi", "TEXT"),
+        ("pmcid", "TEXT"), ("pmid", "TEXT"), ("title", "TEXT"),
+        ("licence", "TEXT"), ("pdf", "TEXT"), ("added", "REAL"),
+        ("doi_from", "TEXT"), ("run_id", "INTEGER")),
+    "figures": (
+        ("figure_sha256", "TEXT PRIMARY KEY"), ("paper_key", "TEXT"),
+        ("label", "TEXT"), ("caption", "TEXT"), ("legend_source", "TEXT"),
+        ("path", "TEXT"), ("width", "INTEGER"), ("height", "INTEGER"),
+        ("pixel_sha256", "TEXT"), ("dhash", "TEXT"), ("words_source", "TEXT"),
+        ("words", "INTEGER"), ("regions_found", "INTEGER"),
+        ("run_id", "INTEGER")),
+    "legend_panels": (
+        ("figure_sha256", "TEXT"), ("panel", "TEXT"), ("passage", "TEXT"),
+        ("legend_source", "TEXT")),
+    "figure_annotations": (
+        ("figure_sha256", "TEXT"), ("paper_key", "TEXT"),
+        ("region_index", "INTEGER"), ("x0", "INTEGER"), ("y0", "INTEGER"),
+        ("x1", "INTEGER"), ("y1", "INTEGER"), ("detector_confidence", "REAL"),
+        ("found_at_sizes", "TEXT"), ("panel", "TEXT"), ("panel_row", "INTEGER"),
+        ("panel_column", "INTEGER"), ("near_text", "TEXT"),
+        ("label_text", "TEXT"), ("legend_text", "TEXT"), ("condition", "TEXT"),
+        ("condition_source", "TEXT"), ("strength", "TEXT"),
+        ("conflict", "INTEGER"), ("conflict_reason", "TEXT"),
+        ("approved", "INTEGER"), ("measured", "INTEGER"),
+        ("region_id", "INTEGER"), ("scale_source", "TEXT"),
+        ("px_per_mm", "REAL"), ("run_id", "INTEGER")),
+    "regions": (
+        ("region_id", "INTEGER PRIMARY KEY AUTOINCREMENT"),
+        ("figure_sha256", "TEXT"), ("paper_key", "TEXT"), ("x0", "INTEGER"),
+        ("y0", "INTEGER"), ("x1", "INTEGER"), ("y1", "INTEGER"),
+        ("detector_confidence", "REAL"), ("found_at_sizes", "TEXT"),
+        ("panel", "TEXT"), ("panel_row", "INTEGER"), ("panel_column", "INTEGER"),
+        ("near_text", "TEXT"), ("label_text", "TEXT"), ("legend_text", "TEXT"),
+        ("condition", "TEXT"), ("condition_source", "TEXT"),
+        ("strength", "TEXT"), ("conflict", "INTEGER"), ("approved", "INTEGER"),
+        ("crop_path", "TEXT"), ("plaque_count", "INTEGER"),
+        ("has_ruler", "INTEGER"), ("px_per_mm", "REAL"), ("detector", "TEXT"),
+        ("segmenter", "TEXT"), ("imgsz", "TEXT"), ("conflict_reason", "TEXT"),
+        ("scale_source", "TEXT"), ("scale_detail", "TEXT"),
+        ("magnification", "TEXT"), ("size_unit", "TEXT"),
+        ("words_source", "TEXT"), ("region_index", "INTEGER"),
+        ("run_id", "INTEGER")),
+    "plaques": (
+        ("region_id", "INTEGER"), ("label", "INTEGER"), ("area_px", "INTEGER"),
+        ("area_mm2", "REAL"), ("area_vs_panel_median", "REAL")),
+    "duplicates": (
+        ("figure_sha256", "TEXT"), ("paper_key", "TEXT"), ("path", "TEXT"),
+        ("label", "TEXT"), ("match", "TEXT"), ("distance", "INTEGER"),
+        ("duplicate_of_sha256", "TEXT"), ("duplicate_of_paper_key", "TEXT"),
+        ("duplicate_of_path", "TEXT"), ("measured", "INTEGER"),
+        ("run_id", "INTEGER"), ("noted", "REAL")),
+}
 
 
 def open_database(path: Any) -> sqlite3.Connection:
-    """Open (and create) the results database.
+    """Open (and create, or bring up to date) the results database.
+
+    Every table in :data:`TABLES` is created if missing, and a table an
+    older spaCR wrote gets the columns it lacks, so rows already in it stay
+    readable next to new ones.
 
     Waits up to 30 seconds for a lock another process holds, as
     :func:`spacr.database_concurrency.connect` does, rather than failing
@@ -1324,8 +1933,201 @@ def open_database(path: Any) -> sqlite3.Connection:
     :returns: an open connection.
     """
     connection = sqlite3.connect(str(path), timeout=30.0)
-    connection.executescript(_SCHEMA)
+    for table, columns in TABLES.items():
+        connection.execute(
+            f"CREATE TABLE IF NOT EXISTS {table} ("
+            + ", ".join(f"{name} {kind}" for name, kind in columns) + ")")
+        have = {row[1] for row in connection.execute(f"PRAGMA table_info({table})")}
+        for name, kind in columns:
+            if name not in have:
+                kind = kind.replace(" PRIMARY KEY AUTOINCREMENT", "") \
+                    .replace(" PRIMARY KEY", "")
+                connection.execute(f"ALTER TABLE {table} ADD COLUMN {name} {kind}")
+    connection.commit()
     return connection
+
+
+def _insert(connection: sqlite3.Connection, table: str, row: Mapping[str, Any],
+            *, replace_row: bool = False) -> sqlite3.Cursor:
+    """Insert one row by column name.
+
+    :param connection: the open database.
+    :param table: a table of :data:`TABLES`.
+    :param row: ``{column: value}``; columns not named are left NULL.
+    :param replace_row: ``INSERT OR REPLACE`` instead of ``INSERT``.
+    :returns: the cursor, whose ``lastrowid`` is the new row.
+    """
+    names = list(row)
+    verb = "INSERT OR REPLACE" if replace_row else "INSERT"
+    return connection.execute(
+        f"{verb} INTO {table} ({', '.join(names)}) VALUES "
+        f"({', '.join('?' for _ in names)})", [row[n] for n in names])
+
+
+def _start_run(connection: sqlite3.Connection, **fields: Any) -> int:
+    """Record one run of the pipeline and return its id.
+
+    :param connection: the open database.
+    :param fields: the run's settings, columns of the ``runs`` table.
+    :returns: the ``run_id`` every row this run writes carries.
+    """
+    try:
+        from importlib.metadata import version
+
+        spacr_version = version("spacr")
+    except Exception:
+        spacr_version = ""
+    fields.setdefault("spacr_version", spacr_version)
+    fields.setdefault("started", time.time())
+    return int(_insert(connection, "runs", fields).lastrowid)
+
+
+def _finish_run(connection: sqlite3.Connection, run_id: int,
+                summary: Mapping[str, Any]) -> None:
+    """Stamp a run finished, with its summary.
+
+    :param connection: the open database.
+    :param run_id: the run.
+    :param summary: what the run measured.
+    """
+    connection.execute("UPDATE runs SET finished=?, summary=? WHERE run_id=?",
+                       (time.time(), json.dumps(dict(summary)), run_id))
+    connection.commit()
+
+
+def _store_paper(connection: sqlite3.Connection, paper: Paper, run_id: int) -> None:
+    """Write (or refresh) a paper's row.
+
+    :param connection: the open database.
+    :param paper: the paper.
+    :param run_id: the run writing it.
+    """
+    _insert(connection, "papers", {
+        "paper_key": paper.key, "source": paper.source, "doi": paper.doi,
+        "pmcid": paper.pmcid, "pmid": paper.pmid, "title": paper.title,
+        "licence": paper.licence, "pdf": paper.pdf, "added": time.time(),
+        "doi_from": paper.doi_from, "run_id": run_id}, replace_row=True)
+
+
+def _image_fingerprint(image: np.ndarray) -> Tuple[str, str]:
+    """Two hashes of a figure's pixels, for finding it again.
+
+    :param image: the figure, ``H x W x 3`` uint8.
+    :returns: ``(pixel_sha256, dhash)``: the sha256 of the decoded pixels
+        and their shape -- the same picture in another file format or with
+        other metadata has the same one -- and a 64-bit difference hash of
+        a 9 x 8 greyscale thumbnail, which a resized or re-encoded copy
+        shares to within a few bits.
+    """
+    from PIL import Image
+
+    array = np.ascontiguousarray(image)
+    pixel = hashlib.sha256(repr(array.shape).encode() + array.tobytes()).hexdigest()
+    small = np.asarray(Image.fromarray(array).convert("L").resize(
+        (9, 8), Image.BILINEAR), dtype=float)
+    bits = (small[:, 1:] > small[:, :-1]).ravel()
+    value = 0
+    for bit in bits:
+        value = (value << 1) | int(bit)
+    return pixel, f"{value:016x}"
+
+
+def _hamming(a: str, b: str) -> int:
+    """Bits that differ between two hex difference hashes.
+
+    :param a: one hash.
+    :param b: the other.
+    :returns: the count; 64 when either is missing.
+    """
+    try:
+        return bin(int(a, 16) ^ int(b, 16)).count("1")
+    except (TypeError, ValueError):
+        return 64
+
+
+#: Difference hashes this close are the same picture resized or re-encoded
+#: -- or a different figure that looks alike, which is why such a match is
+#: recorded and not acted on.
+SIMILAR_BITS = 4
+
+
+def _find_duplicate(connection: sqlite3.Connection, paper: Paper, figure: Figure,
+                   pixel_sha256: str, dhash: str, *, width: int = 0,
+                   height: int = 0) -> Optional[Dict[str, Any]]:
+    """Whether this figure was already measured, and as what.
+
+    Identity is the paper (the DOI when there is one) plus the image hash.
+    The same file of the same paper is the same figure measured again, not a
+    duplicate.
+
+    :param connection: the open database.
+    :param paper: the paper the figure came with.
+    :param figure: the figure.
+    :param pixel_sha256: from :func:`_image_fingerprint`.
+    :param dhash: from :func:`_image_fingerprint`.
+    :param width: the figure's width, to compare shapes for a similar match.
+    :param height: its height.
+    :returns: None, or ``{'match': 'bytes'|'pixels'|'similar',
+        'distance', 'sha256', 'paper_key', 'path', 'skip'}`` -- ``skip`` is
+        True when the figure must not be measured again.
+    """
+    rows = connection.execute(
+        "SELECT figure_sha256, paper_key, path, pixel_sha256, dhash, width, "
+        "height FROM figures").fetchall()
+    name = Path(str(figure.path)).name
+
+    def same_figure(row) -> bool:
+        """The row is this very file of this very paper."""
+        return row[1] == paper.key and Path(str(row[2])).name == name
+
+    def found(row, match, distance=0, skip=True) -> Dict[str, Any]:
+        """The duplicate record for ``row``."""
+        return {"match": match, "distance": distance, "sha256": row[0],
+                "paper_key": row[1], "path": row[2], "skip": skip}
+    for row in rows:
+        if row[0] == figure.sha256 and not same_figure(row):
+            return found(row, "bytes")
+    for row in rows:
+        if pixel_sha256 and row[3] == pixel_sha256 and not same_figure(row):
+            return found(row, "pixels")
+    best = None
+    for row in rows:
+        if same_figure(row) or not row[4] or not width or not height:
+            continue
+        if not row[5] or not row[6]:
+            continue
+        if abs(row[5] / row[6] - width / height) > 0.03 * (width / height):
+            continue
+        distance = _hamming(dhash, row[4])
+        if distance <= SIMILAR_BITS and (best is None or distance < best[0]):
+            best = (distance, row)
+    if best is not None:
+        return found(best[1], "similar", best[0], skip=False)
+    return None
+
+
+def _record_duplicate(connection: sqlite3.Connection, paper: Paper,
+                      figure: Figure, duplicate: Mapping[str, Any],
+                      run_id: int) -> None:
+    """Write one row of the ``duplicates`` table, replacing an older one.
+
+    :param connection: the open database.
+    :param paper: the paper the duplicate came with.
+    :param figure: the duplicate figure.
+    :param duplicate: from :func:`_find_duplicate`.
+    :param run_id: the run.
+    """
+    connection.execute("DELETE FROM duplicates WHERE paper_key=? AND path=?",
+                       (paper.key, str(figure.path)))
+    _insert(connection, "duplicates", {
+        "figure_sha256": figure.sha256, "paper_key": paper.key,
+        "path": str(figure.path), "label": figure.label,
+        "match": duplicate["match"], "distance": int(duplicate["distance"]),
+        "duplicate_of_sha256": duplicate["sha256"],
+        "duplicate_of_paper_key": duplicate["paper_key"],
+        "duplicate_of_path": duplicate["path"],
+        "measured": int(not duplicate["skip"]), "run_id": run_id,
+        "noted": time.time()})
 
 
 def _load_image(path: Path) -> np.ndarray:
@@ -1381,6 +2183,28 @@ def _cellpose_segmenter(path: str) -> Callable[[np.ndarray], np.ndarray]:
     return segment
 
 
+def _new_summary(database: Path, run_id: int) -> Dict[str, Any]:
+    """The counters every entry point reports.
+
+    :param database: the database path.
+    :param run_id: the run.
+    :returns: the summary, zeroed.
+    """
+    return {"papers": 0, "figures": 0, "skipped_figures": 0, "duplicates": 0,
+            "possible_duplicates": 0, "regions": 0, "plaques": 0,
+            "conflicts": 0, "with_ruler": 0, "text_layer_figures": 0,
+            "database": str(database), "run_id": run_id}
+
+
+def _text_options_json(options: Optional["TextOptions"]) -> str:
+    """The text reading's settings as JSON, for the run's record.
+
+    :param options: the options, or None for the defaults.
+    :returns: the JSON.
+    """
+    return json.dumps(asdict(options or DEFAULT_TEXT_OPTIONS))
+
+
 def measure_plaques_from_papers(
         references: Iterable[Any], dst: Any, *,
         detector: str = DEFAULT_DETECTOR, segmenter: str = DEFAULT_SEGMENTER,
@@ -1392,6 +2216,10 @@ def measure_plaques_from_papers(
         pdf_opener: Optional[Callable] = None) -> Dict[str, Any]:
     """Measure the plaques in every figure of every paper given.
 
+    A figure already measured -- the same image in another paper, or the
+    same paper from another source -- is recorded in the ``duplicates``
+    table and not measured again (see the module docstring).
+
     :param references: DOIs, PMC ids, PMIDs or PDF paths.
     :param dst: output folder: ``plaque_papers.db``, ``figures/`` and
         ``crops/`` are written under it.
@@ -1402,21 +2230,25 @@ def measure_plaques_from_papers(
     :param confirm_each: when True, every proposed condition is shown to a
         person (``review``) before it is stored as approved.
     :param plate_format: plate format for whole-well images, which gives
-        them a ruler; None keeps every area in pixels and ratios.
+        them a ruler; None lets the legend name one, and otherwise keeps
+        every area in pixels and ratios.
     :param ask_legend: ``fn(figure, annotations) -> legend or None``, called
         when a panel letter was read but no legend could be fetched.
         Defaults to :func:`console_legend_prompt`.
     :param review: ``fn(figure, annotations) -> annotations``, called per
         figure when ``confirm_each``. Defaults to :func:`console_review`.
     :param read_text: ``fn(image path) -> [Word]``; defaults to
-        :func:`read_words`.
+        :func:`read_words`. Not called for a figure whose PDF text layer
+        already has the words around its plaque images.
     :param detect: passed to :func:`find_plaque_regions`.
     :param segment: ``fn(crop) -> labels``; defaults to a Cellpose model
         loaded from ``segmenter``.
     :param get: HTTP getter for Europe PMC.
     :param pdf_opener: passed to :func:`figures_from_pdf`.
     :returns: a summary: papers, figures, figures skipped as already
-        measured, regions, plaques, and the database path.
+        measured, duplicates (not measured) and possible duplicates
+        (measured), regions, plaques, conflicts, regions with a ruler,
+        figures read from a text layer, the run id and the database path.
     """
     dst = Path(dst)
     dst.mkdir(parents=True, exist_ok=True)
@@ -1431,8 +2263,14 @@ def measure_plaques_from_papers(
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
         segment = _cellpose_segmenter(segmenter_path)
-    summary = {"papers": 0, "figures": 0, "skipped_figures": 0, "regions": 0,
-               "plaques": 0, "database": str(database)}
+    references = list(references)
+    run_id = _start_run(
+        connection, entry="papers", source=json.dumps([str(r) for r in references]),
+        detector=detector_id, segmenter=segmenter_id,
+        imgsz=json.dumps(list(imgsz)), confidence=float(confidence),
+        plate_format=plate_format, confirm_each=int(bool(confirm_each)),
+        text_options=_text_options_json(None))
+    summary = _new_summary(database, run_id)
     for reference in references:
         paper = resolve_paper(reference, get=get)
         folder = re.sub(r"[^A-Za-z0-9._-]+", "_", paper.key)[:120]
@@ -1441,14 +2279,26 @@ def measure_plaques_from_papers(
                                        opener=pdf_opener)
         else:
             figures = fetch_figures(paper, dst / "figures" / folder, get=get)
-        connection.execute(
-            "INSERT OR REPLACE INTO papers VALUES (?,?,?,?,?,?,?,?,?)",
-            (paper.key, paper.source, paper.doi, paper.pmcid, paper.pmid,
-             paper.title, paper.licence, paper.pdf, time.time()))
         summary["papers"] += 1
+        prior = connection.execute("SELECT source FROM papers WHERE paper_key=?",
+                                   (paper.key,)).fetchone()
+        measured_before = connection.execute(
+            "SELECT 1 FROM figures WHERE paper_key=?", (paper.key,)).fetchone()
+        if prior and prior[0] != paper.source and measured_before:
+            for figure in figures:
+                _record_duplicate(connection, paper, figure, {
+                    "match": "paper", "distance": 0, "sha256": None,
+                    "paper_key": paper.key, "path": f"measured from {prior[0]}",
+                    "skip": True}, run_id)
+                summary["duplicates"] += 1
+            connection.commit()
+            continue
+        _store_paper(connection, paper, run_id)
         for figure in figures:
-            if connection.execute("SELECT 1 FROM figures WHERE figure_sha256=?",
-                                  (figure.sha256,)).fetchone():
+            again = connection.execute(
+                "SELECT path FROM figures WHERE figure_sha256=? AND paper_key=?",
+                (figure.sha256, paper.key)).fetchone()
+            if again and Path(str(again[0])).name == figure.path.name:
                 summary["skipped_figures"] += 1
                 continue
             _measure_figure(connection, paper, figure, dst / "crops" / folder,
@@ -1457,10 +2307,171 @@ def measure_plaques_from_papers(
                             confidence=confidence, confirm_each=confirm_each,
                             plate_format=plate_format, ask_legend=ask_legend,
                             review=review, read_text=read_text, detect=detect,
-                            segment=segment, summary=summary)
+                            segment=segment, summary=summary, run_id=run_id)
             connection.commit()
+    _finish_run(connection, run_id, summary)
     connection.close()
     return summary
+
+
+def _text_lines(words: Sequence[Word]) -> List[List[Word]]:
+    """Words grouped into printed lines, left to right.
+
+    :param words: the words.
+    :returns: the lines; two words share one when their centres are within
+        half a letter height vertically and the gap between them is under
+        1.5 letter heights. A letter height is a box's shorter side, so a
+        label printed rotated, whose box is tall, does not reach across the
+        figure and gather a line of other words.
+    """
+    lines: List[List[Word]] = []
+    for w in sorted(words, key=lambda w: (w.cy, w.x0)):
+        height = max(1.0, min(w.y1 - w.y0, w.x1 - w.x0))
+        for line in lines:
+            last = line[-1]
+            if abs(last.cy - w.cy) <= 0.5 * height and \
+                    -0.5 * height <= w.x0 - last.x1 <= 1.5 * height:
+                line.append(w)
+                break
+        else:
+            lines.append([w])
+    return lines
+
+
+def _label_words(layer: Sequence[Word], *, max_words: int = 6) -> List[Word]:
+    """The words of a text layer that can be a figure's labels.
+
+    A PDF page's text layer holds the article as well as the figure: the
+    legend paragraph under the figure sits right next to its bottom row of
+    images, and taken as labels it names every crop "4. The cytosolic"
+    (PLOS Pathogens, PMC9744290, 2026-09-21). Labels are short lines on
+    their own, so a line of more than ``max_words`` words is running text,
+    and so is a short line directly below one -- the last line of a
+    paragraph. A short line directly ABOVE a paragraph is kept: that is
+    where a figure's bottom row label sits, one line over its legend. Words are counted inside each piece of text too, as
+    OCR returns a whole phrase as one piece.
+
+    :param layer: the text layer's words.
+    :param max_words: the most words a label line has.
+    :returns: the words that may be labels.
+    """
+    def size(line: List[Word]) -> int:
+        """Words in a line, counting inside each piece of text."""
+        return sum(max(1, len(w.text.split())) for w in line)
+    lines = _text_lines(layer)
+    long = [line for line in lines if size(line) > max_words]
+    out: List[Word] = []
+    for line in lines:
+        if size(line) > max_words:
+            continue
+        x0, x1 = line[0].x0, line[-1].x1
+        y0, y1 = min(w.y0 for w in line), max(w.y1 for w in line)
+        height = max(1.0, min(min(w.y1 - w.y0, w.x1 - w.x0) for w in line))
+        near_paragraph = any(
+            _overlap(x0, x1, other[0].x0, other[-1].x1) > 0
+            and -0.5 * height <= y0 - max(w.y1 for w in other)
+            <= 1.0 * min(height, max(1.0, max(w.y1 for w in other)
+                                     - min(w.y0 for w in other)))
+            for other in long)
+        if not near_paragraph:
+            out.extend(line)
+    return out
+
+
+def _layer_reaches(regions: Sequence[Region], words: Sequence[Word],
+                   options: "TextOptions") -> bool:
+    """Whether a text layer has anything to say about these plaque images.
+
+    :param regions: the figure's plaque images.
+    :param words: the text layer's words.
+    :param options: how the text is read.
+    :returns: True when some image gets a panel letter or a label from it.
+    """
+    for region in regions:
+        near = text_near(region, words, regions=regions, options=options)
+        if near["panel"] or near["above"] or near["left"] or near["below"]:
+            return True
+    return False
+
+
+def _figure_words(image: np.ndarray, regions: Sequence[Region],
+                 layer: Sequence[Word], *, path: Any = None,
+                 read_text: Optional[Callable] = None,
+                 options: Optional["TextOptions"] = None,
+                 default_reader: bool = False) -> Tuple[List[Word], str]:
+    """The words to read a figure's conditions from, and where they came from.
+
+    A PDF's own text layer comes first: it is exact, and reading it costs
+    nothing. Only its label-like words are used (:func:`_label_words`), so
+    the legend paragraph printed under a figure is not read as the labels
+    of the images above it. OCR is asked only when those words say nothing
+    about any plaque image -- a figure pasted into the PDF as a single
+    picture has a text layer for the article around it and none for its own
+    labels -- and what OCR finds is added to them, not put in their place.
+
+    :param image: the figure.
+    :param regions: its plaque images.
+    :param layer: the text layer's words; empty when there is none.
+    :param path: the figure's file, for ``read_text``.
+    :param read_text: ``fn(path) -> [Word]``; None means text is not read
+        beyond the layer.
+    :param options: how the text is read (:class:`TextOptions`).
+    :param default_reader: ``read_text`` is RapidOCR, so the enlarged second
+        reading (:func:`reread_around`) is added when the options ask.
+    :returns: ``(words, source)``, source one of ``'pdf text layer'``,
+        ``'pdf text layer + ocr'``, ``'ocr'`` or ``'none'``.
+    """
+    options = options or DEFAULT_TEXT_OPTIONS
+    had_layer = bool(layer)
+    layer = _label_words(layer or [])
+    if layer and (not regions or _layer_reaches(regions, layer, options)):
+        return layer, "pdf text layer"
+    if not regions or read_text is None:
+        return layer, "pdf text layer" if had_layer else "none"
+    ocr = list(read_text(path))
+    if default_reader and options.reread:
+        ocr = reread_around(image, regions, ocr, scale=int(options.reread_scale))
+    if not had_layer:
+        return ocr, "ocr"
+    ocr = _label_words(ocr)
+    if not ocr:
+        return layer, "pdf text layer"
+    merged = list(layer) + [
+        w for w in ocr if not any(_overlap(w.x0, w.x1, o.x0, o.x1) > 0
+                                  and _overlap(w.y0, w.y1, o.y0, o.y1) > 0
+                                  for o in layer)]
+    return merged, "pdf text layer + ocr"
+
+
+def _annotation_row(figure: Figure, paper: Paper, index: int, a: Annotation,
+                    scale: _Scale, *, measured: bool, region_id: Optional[int],
+                    run_id: Optional[int]) -> Dict[str, Any]:
+    """One row of the ``figure_annotations`` table.
+
+    :param figure: the figure.
+    :param paper: its paper.
+    :param index: the image's 1-based place in reading order.
+    :param a: its annotation.
+    :param scale: its ruler.
+    :param measured: whether its plaques were measured.
+    :param region_id: its ``regions`` row when measured.
+    :param run_id: the run.
+    :returns: the row.
+    """
+    r = a.region
+    return {"figure_sha256": figure.sha256, "paper_key": paper.key,
+            "region_index": index, "x0": r.x0, "y0": r.y0, "x1": r.x1,
+            "y1": r.y1, "detector_confidence": r.confidence,
+            "found_at_sizes": json.dumps(list(r.sizes)), "panel": a.panel,
+            "panel_row": a.row, "panel_column": a.column,
+            "near_text": json.dumps(a.near), "label_text": a.label_text,
+            "legend_text": a.legend_text, "condition": a.condition,
+            "condition_source": a.source, "strength": a.strength,
+            "conflict": int(a.conflict), "conflict_reason": _conflict_reason(a),
+            "approved": None if a.approved is None else int(a.approved),
+            "measured": int(measured), "region_id": region_id,
+            "scale_source": scale.source, "px_per_mm": scale.px_per_mm,
+            "run_id": run_id}
 
 
 def _measure_figure(connection: sqlite3.Connection, paper: Paper,
@@ -1475,23 +2486,38 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
     """
     image = _load_image(figure.path)
     summary = kw["summary"]
+    run_id = kw.get("run_id")
     summary["figures"] += 1
+    height, width = int(image.shape[0]), int(image.shape[1])
+    pixel_sha, dhash = _image_fingerprint(image)
+    duplicate = _find_duplicate(connection, paper, figure, pixel_sha, dhash,
+                               width=width, height=height)
+    if duplicate is not None:
+        _record_duplicate(connection, paper, figure, duplicate, run_id)
+        if duplicate["skip"]:
+            summary["duplicates"] += 1
+            return
+        summary["possible_duplicates"] += 1
+    else:
+        connection.execute("DELETE FROM duplicates WHERE paper_key=? AND path=?",
+                           (paper.key, str(figure.path)))
+    connection.execute("DELETE FROM plaques WHERE region_id IN (SELECT region_id "
+                       "FROM regions WHERE figure_sha256=? AND paper_key=?)",
+                       (figure.sha256, paper.key))
+    connection.execute("DELETE FROM regions WHERE figure_sha256=? AND paper_key=?",
+                       (figure.sha256, paper.key))
     regions = find_plaque_regions(image, kw["detector_path"], imgsz=kw["imgsz"],
                                   confidence=kw["confidence"], detect=kw["detect"])
-    connection.execute(
-        "INSERT OR REPLACE INTO figures VALUES (?,?,?,?,?,?,?,?)",
-        (figure.sha256, paper.key, figure.label, figure.caption,
-         figure.legend_source, str(figure.path), int(image.shape[1]),
-         int(image.shape[0])))
-    if not regions:
-        return
     options = kw.get("text_options") or DEFAULT_TEXT_OPTIONS
-    words = figure.words or kw["read_text"](figure.path)
-    if not figure.words and kw["read_text"] is read_words and options.reread:
-        words = reread_around(image, regions, words,
-                              scale=int(options.reread_scale))
+    words, words_source = _figure_words(
+        image, regions, figure.words, path=figure.path,
+        read_text=kw["read_text"], options=options,
+        default_reader=kw["read_text"] is read_words)
+    if words_source.startswith("pdf text layer"):
+        summary["text_layer_figures"] += 1
     annotations = annotate_regions(regions, words, caption=figure.caption,
-                                   figure_label=figure.label, options=options)
+                                   figure_label=figure.label, options=options) \
+        if regions else []
     if any(a.panel for a in annotations) and not figure.caption:
         pasted = kw["ask_legend"](figure, annotations)
         if pasted:
@@ -1499,53 +2525,86 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
             annotations = annotate_regions(regions, words, caption=pasted,
                                            figure_label=figure.label,
                                            options=options)
-            connection.execute(
-                "UPDATE figures SET caption=?, legend_source=? WHERE figure_sha256=?",
-                (pasted, "pasted", figure.sha256))
         elif not kw["confirm_each"]:
             annotations = kw["review"](figure, annotations)
-    if kw["confirm_each"]:
+    if annotations and kw["confirm_each"]:
         annotations = kw["review"](figure, annotations)
+    _insert(connection, "figures", {
+        "figure_sha256": figure.sha256, "paper_key": paper.key,
+        "label": figure.label, "caption": figure.caption,
+        "legend_source": figure.legend_source, "path": str(figure.path),
+        "width": width, "height": height, "pixel_sha256": pixel_sha,
+        "dhash": dhash, "words_source": words_source, "words": len(words),
+        "regions_found": len(regions), "run_id": run_id}, replace_row=True)
+    connection.execute("DELETE FROM legend_panels WHERE figure_sha256=?",
+                       (figure.sha256,))
+    for panel, passage in split_legend(figure.caption).items():
+        _insert(connection, "legend_panels", {
+            "figure_sha256": figure.sha256, "panel": panel, "passage": passage,
+            "legend_source": figure.legend_source})
+    connection.execute(
+        "DELETE FROM figure_annotations WHERE figure_sha256=? AND paper_key=?",
+        (figure.sha256, paper.key))
+    if not regions:
+        return
+    scales = _scales_for_regions(image, regions, words, caption=figure.caption,
+                                annotations=annotations,
+                                plate_format=kw["plate_format"])
     crops.mkdir(parents=True, exist_ok=True)
-    measured: List[Tuple[Annotation, List[Dict[str, Any]], str, Optional[float]]] = []
+    measured: List[Tuple[int, Annotation, List[Dict[str, Any]], str, _Scale]] = []
     for index, a in enumerate(annotations, start=1):
+        scale = scales[index - 1]
         if a.approved is False:
+            _insert(connection, "figure_annotations", _annotation_row(
+                figure, paper, index, a, scale, measured=False,
+                region_id=None, run_id=run_id))
             continue
         r = a.region
         crop = image[r.y0:r.y1, r.x0:r.x1]
         crop_path = crops / f"{figure.path.stem}_r{index:02d}.png"
         _save_png(crop, crop_path)
-        scale = _ruler(r, kw["plate_format"])
-        rows = measure_region(kw["segment"](crop), px_per_mm=scale)
-        measured.append((a, rows, str(crop_path), scale))
+        rows = measure_region(kw["segment"](crop), px_per_mm=scale.px_per_mm)
+        measured.append((index, a, rows, str(crop_path), scale))
     medians: Dict[Optional[str], float] = {}
-    for panel in {a.panel for a, *_ in measured}:
-        areas = [row["area_px"] for a, rows, *_ in measured if a.panel == panel
+    for panel in {a.panel for _i, a, *_ in measured}:
+        areas = [row["area_px"] for _i, a, rows, *_ in measured if a.panel == panel
                  for row in rows]
         medians[panel] = float(np.median(areas)) if areas else 0.0
-    for a, rows, crop_path, scale in measured:
+    for index, a, rows, crop_path, scale in measured:
         r = a.region
-        cursor = connection.execute(
-            "INSERT INTO regions (figure_sha256, paper_key, x0, y0, x1, y1, "
-            "detector_confidence, found_at_sizes, panel, panel_row, panel_column, "
-            "near_text, label_text, legend_text, condition, condition_source, "
-            "strength, conflict, approved, crop_path, plaque_count, has_ruler, "
-            "px_per_mm, detector, segmenter, imgsz) VALUES "
-            "(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            (figure.sha256, paper.key, r.x0, r.y0, r.x1, r.y1, r.confidence,
-             json.dumps(list(r.sizes)), a.panel, a.row, a.column,
-             json.dumps(a.near), a.label_text, a.legend_text, a.condition,
-             a.source, a.strength, int(a.conflict),
-             None if a.approved is None else int(a.approved), crop_path,
-             len(rows), int(scale is not None), scale, kw["detector_id"],
-             kw["segmenter_id"], json.dumps(list(kw["imgsz"]))))
+        cursor = _insert(connection, "regions", {
+            "figure_sha256": figure.sha256, "paper_key": paper.key,
+            "x0": r.x0, "y0": r.y0, "x1": r.x1, "y1": r.y1,
+            "detector_confidence": r.confidence,
+            "found_at_sizes": json.dumps(list(r.sizes)), "panel": a.panel,
+            "panel_row": a.row, "panel_column": a.column,
+            "near_text": json.dumps(a.near), "label_text": a.label_text,
+            "legend_text": a.legend_text, "condition": a.condition,
+            "condition_source": a.source, "strength": a.strength,
+            "conflict": int(a.conflict), "conflict_reason": _conflict_reason(a),
+            "approved": None if a.approved is None else int(a.approved),
+            "crop_path": crop_path, "plaque_count": len(rows),
+            "has_ruler": int(scale.px_per_mm is not None),
+            "px_per_mm": scale.px_per_mm, "scale_source": scale.source,
+            "scale_detail": scale.detail, "magnification": scale.magnification,
+            "size_unit": scale.unit, "words_source": words_source,
+            "region_index": index, "detector": kw["detector_id"],
+            "segmenter": kw["segmenter_id"], "imgsz": json.dumps(list(kw["imgsz"])),
+            "run_id": run_id})
+        region_id = int(cursor.lastrowid)
+        _insert(connection, "figure_annotations", _annotation_row(
+            figure, paper, index, a, scale, measured=True, region_id=region_id,
+            run_id=run_id))
         median = medians.get(a.panel) or 0.0
         connection.executemany(
-            "INSERT INTO plaques VALUES (?,?,?,?,?)",
-            [(cursor.lastrowid, row["label"], row["area_px"], row["area_mm2"],
+            "INSERT INTO plaques (region_id, label, area_px, area_mm2, "
+            "area_vs_panel_median) VALUES (?,?,?,?,?)",
+            [(region_id, row["label"], row["area_px"], row["area_mm2"],
               row["area_px"] / median if median else None) for row in rows])
         summary["regions"] += 1
         summary["plaques"] += len(rows)
+        summary["conflicts"] += int(a.conflict)
+        summary["with_ruler"] += int(scale.px_per_mm is not None)
 
 
 def _save_png(array: np.ndarray, path: Path) -> None:
@@ -1561,6 +2620,15 @@ def _save_png(array: np.ndarray, path: Path) -> None:
 
 LEGENDS_FILE = "legends.csv"
 ANNOTATIONS_FILE = "figure_annotations.csv"
+TEXT_LAYER_FILE = "text_layer.json"
+PAPER_FILE = "paper.json"
+
+#: The columns of ``figure_annotations.csv``. ``condition`` and ``approved``
+#: are what a person sets and what is read back; the rest record what was
+#: proposed and why, the conflict flag among them.
+ANNOTATION_COLUMNS = ("file", "region", "condition", "approved", "panel",
+                      "label_text", "legend_text", "source", "strength",
+                      "conflict", "conflict_reason")
 
 
 def read_legends(path: Any) -> Dict[str, str]:
@@ -1584,29 +2652,42 @@ def read_legends(path: Any) -> Dict[str, str]:
     return out
 
 
-def read_annotation_overrides(path: Any) -> Dict[Tuple[str, int], Dict[str, Any]]:
-    """Conditions a person edited or approved, keyed by figure and image.
+def _annotation_rows(path: Any) -> Dict[Tuple[str, int], Dict[str, str]]:
+    """Every row of ``figure_annotations.csv``, all columns, by figure and image.
 
-    :param path: a CSV with ``file``, ``region`` (1-based, in reading order),
-        ``condition`` and ``approved`` columns -- what the Figure preview
-        saves.
-    :returns: ``{(stem, region): {'condition': str, 'approved': bool}}``.
+    :param path: the CSV.
+    :returns: ``{(stem, region): row}``; empty when the file does not exist.
     """
     import csv
 
     path = Path(path)
     if not path.is_file():
         return {}
-    out: Dict[Tuple[str, int], Dict[str, Any]] = {}
+    out: Dict[Tuple[str, int], Dict[str, str]] = {}
     with open(path, newline="", encoding="utf-8") as handle:
         for row in csv.DictReader(handle):
             try:
                 key = (Path(row["file"]).stem, int(row["region"]))
-            except (KeyError, ValueError):
+            except (KeyError, TypeError, ValueError):
                 continue
-            approved = str(row.get("approved", "")).strip().lower()
-            out[key] = {"condition": (row.get("condition") or "").strip(),
-                        "approved": approved in ("1", "true", "yes", "ok")}
+            out[key] = {k: (v or "") for k, v in row.items() if k}
+    return out
+
+
+def read_annotation_overrides(path: Any) -> Dict[Tuple[str, int], Dict[str, Any]]:
+    """Conditions a person edited or approved, keyed by figure and image.
+
+    :param path: a CSV with ``file``, ``region`` (1-based, in reading order),
+        ``condition`` and ``approved`` columns -- what the Figure preview
+        saves. Its other columns are the record of what was proposed and are
+        not read back.
+    :returns: ``{(stem, region): {'condition': str, 'approved': bool}}``.
+    """
+    out: Dict[Tuple[str, int], Dict[str, Any]] = {}
+    for key, row in _annotation_rows(path).items():
+        approved = str(row.get("approved", "")).strip().lower()
+        out[key] = {"condition": (row.get("condition") or "").strip(),
+                    "approved": approved in ("1", "true", "yes", "ok")}
     return out
 
 
@@ -1614,34 +2695,67 @@ def write_annotation_overrides(path: Any, rows: Iterable[Mapping[str, Any]]) -> 
     """Save reviewed conditions for :func:`read_annotation_overrides`.
 
     Rows for figures not in ``rows`` are kept, so reviewing one figure does
-    not erase another's approvals.
+    not erase another's approvals. Every column of
+    :data:`ANNOTATION_COLUMNS` is written; a row that does not give one
+    leaves it blank.
 
     :param path: the CSV to write.
-    :param rows: mappings with ``file``, ``region``, ``condition``, ``approved``.
+    :param rows: mappings with ``file``, ``region``, ``condition``,
+        ``approved`` and optionally the other annotation columns.
     :returns: the path written.
     """
     import csv
 
     path = Path(path)
-    kept = read_annotation_overrides(path)
+    kept = _annotation_rows(path)
     for row in rows:
-        kept[(Path(str(row["file"])).stem, int(row["region"]))] = {
-            "condition": str(row.get("condition", "")),
-            "approved": bool(row.get("approved"))}
+        key = (Path(str(row["file"])).stem, int(row["region"]))
+        record = {k: "" if row.get(k) is None else str(row.get(k))
+                  for k in ANNOTATION_COLUMNS}
+        record["file"], record["region"] = key[0], str(key[1])
+        record["approved"] = "true" if row.get("approved") else "false"
+        record["conflict"] = "true" if row.get("conflict") in (True, "true", "1", 1) \
+            else ("false" if "conflict" in row else "")
+        kept[key] = record
     path.parent.mkdir(parents=True, exist_ok=True)
     with open(path, "w", newline="", encoding="utf-8") as handle:
         writer = csv.writer(handle)
-        writer.writerow(["file", "region", "condition", "approved"])
+        writer.writerow(ANNOTATION_COLUMNS)
         for (stem, region), value in sorted(kept.items()):
-            writer.writerow([stem, region, value["condition"],
-                             "true" if value["approved"] else "false"])
+            cells = [stem, region] + [value.get(k, "") for k in ANNOTATION_COLUMNS[2:]]
+            writer.writerow(cells)
     return path
+
+
+def _annotation_file_row(file: str, region: int, a: Annotation, *,
+                        condition: Optional[str] = None,
+                        approved: Optional[bool] = None) -> Dict[str, Any]:
+    """One ``figure_annotations.csv`` row for an annotation.
+
+    :param file: the figure's file name.
+    :param region: the image's 1-based place in reading order.
+    :param a: its annotation.
+    :param condition: the condition as a person left it; ``a.condition``
+        when None.
+    :param approved: whether a person OK'd it; ``a.approved`` when None.
+    :returns: the row, for :func:`write_annotation_overrides`.
+    """
+    return {"file": file, "region": int(region),
+            "condition": a.condition if condition is None else condition,
+            "approved": bool(a.approved if approved is None else approved),
+            "panel": a.panel or "", "label_text": a.label_text,
+            "legend_text": a.legend_text, "source": a.source,
+            "strength": a.strength, "conflict": bool(a.conflict),
+            "conflict_reason": _conflict_reason(a)}
 
 
 def apply_overrides(stem: str, annotations: List[Annotation],
                     overrides: Mapping[Tuple[str, int], Mapping[str, Any]], *,
                     confirm_each: bool = False) -> List[Annotation]:
     """Put a person's edits and approvals onto one figure's proposals.
+
+    A conflict flag stays on an edited image: the record keeps that the two
+    readings disagreed, and the edit and OK record how a person settled it.
 
     :param stem: the figure's file stem.
     :param annotations: the proposals, in reading order.
@@ -1661,15 +2775,61 @@ def apply_overrides(stem: str, annotations: List[Annotation],
     return annotations
 
 
-def figures_in_folder(src: Any, legends: Optional[Mapping[str, str]] = None
+def _read_text_layer(path: Any) -> Dict[str, List[Word]]:
+    """The PDF text layer saved beside a folder of page images.
+
+    :param path: ``text_layer.json``: ``{file name: [[text, x0, y0, x1,
+        y1], ...]}`` in the page image's pixels.
+    :returns: ``{stem: [Word]}``; empty when the file does not exist or
+        cannot be read.
+    """
+    path = Path(path)
+    if not path.is_file():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+    out: Dict[str, List[Word]] = {}
+    for name, words in (data or {}).items():
+        try:
+            out[Path(name).stem] = [Word(str(w[0]), float(w[1]), float(w[2]),
+                                         float(w[3]), float(w[4])) for w in words]
+        except (TypeError, ValueError, IndexError):
+            continue
+    return out
+
+
+def _write_text_layer(path: Any, figures: Iterable[Figure]) -> Optional[Path]:
+    """Save the figures' text-layer words for :func:`_read_text_layer`.
+
+    :param path: the JSON file.
+    :param figures: figures, those with ``words`` saved.
+    :returns: the path, or None when no figure had a text layer.
+    """
+    data = {f.path.name: [[w.text, w.x0, w.y0, w.x1, w.y1] for w in f.words]
+            for f in figures if f.words}
+    if not data:
+        return None
+    path = Path(path)
+    path.write_text(json.dumps(data), encoding="utf-8")
+    return path
+
+
+def figures_in_folder(src: Any, legends: Optional[Mapping[str, str]] = None,
+                      text_layer: Optional[Mapping[str, List[Word]]] = None
                       ) -> List[Figure]:
     """Every figure image directly in ``src``, with its legend when known.
 
     :param src: the folder.
     :param legends: ``{stem: legend}``.
+    :param text_layer: ``{stem: [Word]}``, a PDF's words for its pages;
+        read from ``src/text_layer.json`` when None.
     :returns: the figures, by file name.
     """
     legends = legends or {}
+    if text_layer is None:
+        text_layer = _read_text_layer(Path(src) / TEXT_LAYER_FILE)
     out = []
     for path in sorted(Path(src).iterdir()):
         if not path.is_file() or path.suffix.lower() not in IMAGE_SUFFIXES:
@@ -1677,8 +2837,33 @@ def figures_in_folder(src: Any, legends: Optional[Mapping[str, str]] = None
         caption = legends.get(path.stem, "")
         out.append(Figure(path=path, label=path.stem, caption=caption,
                           legend_source="file" if caption else "none",
-                          sha256=sha256_bytes(path.read_bytes())))
+                          sha256=sha256_bytes(path.read_bytes()),
+                          words=list(text_layer.get(path.stem, []))))
     return out
+
+
+def _folder_paper(src: Any) -> Paper:
+    """The paper a folder of figures came from.
+
+    :param src: the folder.
+    :returns: the paper :func:`fetch_paper_to_folder` recorded in
+        ``paper.json``, so rows keep the DOI and licence; a paper named after
+        the folder when there is none.
+    """
+    from dataclasses import fields
+
+    src = Path(src)
+    record = src / PAPER_FILE
+    if record.is_file():
+        try:
+            data = json.loads(record.read_text(encoding="utf-8"))
+            known = {f.name for f in fields(Paper)}
+            paper = Paper(**{k: v for k, v in data.items() if k in known})
+            if paper.key:
+                return paper
+        except (OSError, ValueError, TypeError):
+            pass
+    return Paper(key=f"folder:{src.resolve()}", source="folder", title=src.name)
 
 
 def measure_figure_folder(
@@ -1692,10 +2877,14 @@ def measure_figure_folder(
     """Figure mode of Plaque Assay: find, read, annotate and measure a folder.
 
     Nothing here stops to ask. Legends come from ``legends`` (default
-    ``<src>/legends.csv``), and a person's edits and approvals from
-    ``annotations`` (default ``<src>/figure_annotations.csv``), which the
+    ``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``,
+    the paper from ``<src>/paper.json``, and a person's edits and approvals
+    from ``annotations`` (default ``<src>/figure_annotations.csv``), which the
     Figure preview writes. With ``confirm_each`` on, only approved images are
-    measured and the rest are counted as waiting.
+    measured and the rest are counted as waiting. A figure measured again
+    replaces its earlier rows; the same image under a second name is
+    measured once and recorded as a duplicate -- the copy with a legend is
+    the one measured, since figures with legends are taken first.
 
     :param src: the folder of figure images.
     :param dst: output folder; default ``<src>/plaque_figures``.
@@ -1736,16 +2925,19 @@ def measure_figure_folder(
     if segment is None:
         segmenter_path, segmenter_id = _zoo_path(segmenter, dst / "models")
         segment = _cellpose_segmenter(segmenter_path)
-    paper = Paper(key=f"folder:{src.resolve()}", source="folder")
-    connection.execute("INSERT OR REPLACE INTO papers VALUES (?,?,?,?,?,?,?,?,?)",
-                       (paper.key, "folder", None, None, None, src.name, None,
-                        None, time.time()))
-    summary = {"papers": 1, "figures": 0, "skipped_figures": 0, "regions": 0,
-               "plaques": 0, "database": str(database)}
-    for figure in figures_in_folder(src, legend_map):
-        connection.execute("DELETE FROM plaques WHERE region_id IN (SELECT region_id "
-                           "FROM regions WHERE figure_sha256=?)", (figure.sha256,))
-        connection.execute("DELETE FROM regions WHERE figure_sha256=?", (figure.sha256,))
+    run_id = _start_run(
+        connection, entry="folder", source=str(src.resolve()),
+        detector=detector_id, segmenter=segmenter_id,
+        imgsz=json.dumps(list(imgsz)), confidence=float(confidence),
+        plate_format=plate_format, confirm_each=int(bool(confirm_each)),
+        text_options=_text_options_json(text_options))
+    paper = _folder_paper(src)
+    _store_paper(connection, paper, run_id)
+    summary = _new_summary(database, run_id)
+    summary["papers"] = 1
+    figures = sorted(figures_in_folder(src, legend_map),
+                     key=lambda f: (not f.caption, f.path.name))
+    for figure in figures:
         _measure_figure(connection, paper, figure, dst / "crops",
                         detector_path=detector_path, detector_id=detector_id,
                         segmenter_id=segmenter_id, imgsz=imgsz,
@@ -1754,10 +2946,11 @@ def measure_figure_folder(
                         ask_legend=lambda *_a: None, review=review,
                         read_text=read_text or read_words, detect=detect,
                         segment=segment, summary=summary,
-                        text_options=text_options)
+                        text_options=text_options, run_id=run_id)
         connection.commit()
-    connection.close()
     summary["awaiting_approval"] = waiting["n"]
+    _finish_run(connection, run_id, summary)
+    connection.close()
     return summary
 
 
@@ -1773,12 +2966,16 @@ def fetch_paper_to_folder(reference: Any, dest: Any, *,
     images land in ``dest`` and each figure's legend in ``dest/legends.csv``,
     which Figure mode and :func:`measure_figure_folder` read -- so a paper
     becomes an ordinary folder of figures, annotated with its own legends.
+    A PDF's text layer is kept in ``dest/text_layer.json`` so its labels are
+    read from the PDF itself before any OCR, and the paper's identity in
+    ``dest/paper.json``.
 
     :param reference: a DOI, PMID, PMC id or PDF path.
     :param dest: the folder to fill; created if missing.
     :param get: HTTP getter for Europe PMC.
     :param pdf_opener: passed to :func:`figures_from_pdf`.
-    :returns: ``{'folder', 'paper', 'figures', 'with_legend', 'licence'}``.
+    :returns: ``{'folder', 'paper', 'figures', 'with_legend', 'licence',
+        'text_layer'}`` -- ``text_layer`` counts the pages that have one.
     """
     import csv
 
@@ -1800,10 +2997,12 @@ def fetch_paper_to_folder(reference: Any, dest: Any, *,
         names = {Path(f.path.name).stem: f.path.name for f in figures}
         for stem, legend in sorted(existing.items()):
             writer.writerow([names.get(stem, stem), legend])
-    (dest / "paper.json").write_text(json.dumps(asdict(paper), indent=2),
-                                     encoding="utf-8")
+    _write_text_layer(dest / TEXT_LAYER_FILE, figures)
+    (dest / PAPER_FILE).write_text(json.dumps(asdict(paper), indent=2),
+                                   encoding="utf-8")
     return {"folder": str(dest), "paper": paper.key, "figures": len(figures),
-            "with_legend": len(rows), "licence": paper.licence}
+            "with_legend": len(rows), "licence": paper.licence,
+            "text_layer": sum(1 for f in figures if f.words)}
 
 
 def annotation_as_dict(annotation: Annotation) -> Dict[str, Any]:

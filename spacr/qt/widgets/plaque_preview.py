@@ -156,6 +156,7 @@ BOX_SELECTED = QColor(0, 200, 255)
 TABLE_COLUMNS = ("#", "Panel", "Label text", "Legend passage", "Condition",
                  "Source", "Plaques", "Mean area", "OK")
 CONDITION_COLUMN = 4
+SOURCE_COLUMN = 5
 PLAQUES_COLUMN = 6
 MEAN_AREA_COLUMN = 7
 OK_COLUMN = 8
@@ -163,12 +164,42 @@ OK_COLUMN = 8
 PLAQUE_COLUMNS = ("Well", "Panel", "Condition", "Plaque", "Area (px)",
                   "Vs panel median", "Vs well median", "Perimeter (px)",
                   "Equivalent diameter (px)", "Eccentricity", "Solidity",
-                  "Centroid y", "Centroid x")
+                  "Centroid y", "Centroid x", "Area (mm²)", "Scale")
 
 PLAQUE_KEYS = ("well", "panel", "condition", "plaque_id", "area_px",
                "area_vs_panel_median", "area_vs_well_median",
                "perimeter_px", "equivalent_diameter_px", "eccentricity",
-               "solidity", "centroid_y", "centroid_x")
+               "solidity", "centroid_y", "centroid_x", "area_mm2", "scale")
+
+#: The colour of a Source cell whose label and legend disagree.
+CONFLICT_COLOUR = QColor(230, 90, 60)
+
+
+def _conflict_note(annotation: Any) -> str:
+    """Why an image's two readings disagree, for its Source cell's tooltip.
+
+    :param annotation: a :class:`spacr.plaque_papers.Annotation`.
+    :returns: ``''`` when they do not disagree.
+    """
+    if not getattr(annotation, "conflict", False):
+        return ""
+    return tr("The legend for panel {panel} names {terms}, which the label "
+              "beside this image does not: one of the two readings is wrong. "
+              "Check the condition before you OK it.",
+              panel=annotation.panel or "?",
+              terms=", ".join(annotation.conflict_terms))
+
+
+def _scale_note(scale: Any) -> str:
+    """What a plaque image's sizes are measured in, for the Scale column.
+
+    :param scale: a :class:`spacr.plaque_papers._Scale`, or None.
+    :returns: the note.
+    """
+    if scale is None or not getattr(scale, "px_per_mm", None):
+        return tr("pixels (no scale bar or whole well)")
+    return tr("{source}: {ppm} px/mm", source=scale.source,
+              ppm=f"{scale.px_per_mm:.1f}")
 
 
 def normalise_mode(value: Any) -> str:
@@ -917,6 +948,28 @@ def annotate_figure(result: Dict[str, Any], caption: str, src: Any, *,
     return found
 
 
+def _figure_scales(result: Dict[str, Any], annotations: Sequence[Any],
+                  caption: str, plate_format: Any = None) -> List[Any]:
+    """The ruler of every well in a figure, as the run finds it.
+
+    :param result: a :func:`detect_figure` result.
+    :param annotations: its annotations, for each panel's legend passage.
+    :param caption: the figure's legend.
+    :param plate_format: the ``plate_format`` setting, or None.
+    :returns: :class:`spacr.plaque_papers._Scale` per region; empty when the
+        result has no image.
+    """
+    from ...plaque_papers import _scales_for_regions
+
+    image = result.get("image")
+    if image is None or not result.get("regions"):
+        return []
+    fmt = str(plate_format).strip() if plate_format not in (None, "", "None") else None
+    return _scales_for_regions(image, result["regions"], result.get("words", []),
+                              caption=caption, annotations=annotations,
+                              plate_format=fmt)
+
+
 def detect_figure(path: Any, settings: Dict[str, Any], *,
                   detect: Optional[Callable] = None,
                   read_text: Optional[Callable] = None) -> Dict[str, Any]:
@@ -932,12 +985,13 @@ def detect_figure(path: Any, settings: Dict[str, Any], *,
         the zoo detector when None.
     :param read_text: ``fn(path) -> [Word]``; RapidOCR, followed by the
         enlarged second reading, when None.
-    :returns: ``{'path', 'image', 'regions', 'words'}``, or
-        ``{'error', 'entry'}``.
+    :returns: ``{'path', 'image', 'regions', 'words', 'words_source'}``,
+        or ``{'error', 'entry'}``. A PDF's text layer saved beside the
+        figure (``text_layer.json``) is read before any OCR.
     """
-    from ...plaque_papers import (_load_image, find_plaque_regions,
-                                  read_words, reread_around,
-                                  text_options_from_settings)
+    from ...plaque_papers import (TEXT_LAYER_FILE, _load_image, _figure_words,
+                                  find_plaque_regions, _read_text_layer,
+                                  read_words, text_options_from_settings)
 
     path = Path(path)
     options = text_options_from_settings(settings)
@@ -952,14 +1006,14 @@ def detect_figure(path: Any, settings: Dict[str, Any], *,
         image, weights, imgsz=parse_sizes(settings.get("figure_imgsz")),
         confidence=float(settings.get("figure_confidence") or 0.25),
         detect=detect)
-    words: List[Any] = []
-    if regions and settings.get("figure_read_text", True) not in (False, "False"):
-        words = list((read_text or read_words)(path))
-        if read_text is None and options.reread:
-            words = reread_around(image, regions, words,
-                                  scale=int(options.reread_scale))
+    layer = _read_text_layer(path.parent / TEXT_LAYER_FILE).get(path.stem, [])
+    reading = settings.get("figure_read_text", True) not in (False, "False")
+    words, words_source = _figure_words(
+        image, regions, layer, path=path,
+        read_text=(read_text or read_words) if reading else None,
+        options=options, default_reader=read_text is None)
     return {"path": str(path), "image": image, "regions": list(regions),
-            "words": words,
+            "words": words, "words_source": words_source,
             "read_with": {k: settings.get(k) for k in TEXT_READ_KEYS}}
 
 
@@ -1803,6 +1857,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._seeded_detector = ""
         self._figure: Optional[Dict[str, Any]] = None
         self._annotations: List[Any] = []
+        self._scales: List[Any] = []
         self._caption = ""
         self._missing_entry: Any = None
         self._download = None
@@ -2991,11 +3046,23 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._legend_box.show()
         else:
             self._legend_box.hide()
-        self.set_preview_status(tr(
+        status = tr(
             "{name}: {regions} plaque wells found, {words} words read. Click "
             "a well, then Plaque preview, or Find plaques in all wells.",
             name=Path(result["path"]).name,
-            regions=len(result["regions"]), words=len(result["words"])))
+            regions=len(result["regions"]), words=len(result["words"]))
+        if str(result.get("words_source", "")).startswith("pdf text layer"):
+            status += " " + tr("The words were read from the PDF's own text.")
+        conflicts = sum(1 for a in self._annotations if a.conflict)
+        if conflicts:
+            status += " " + tr(
+                "{n} well(s): the label and the legend disagree (marked "
+                "conflict in Source).", n=conflicts)
+        if result["regions"] and not any(
+                getattr(s, "px_per_mm", None) for s in self._scales):
+            status += " " + tr("No scale bar or whole well was found: plaque "
+                               "sizes are in pixels.")
+        self.set_preview_status(status)
         if result["regions"]:
             self.select_well(0)
 
@@ -3007,6 +3074,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._annotations = annotate_figure(
             result, self._caption, self._folder(),
             confirm=self._confirm.isChecked(), options=self.text_options())
+        self._scales = _figure_scales(result, self._annotations, self._caption,
+                                     self.current_settings().get("plate_format"))
         self._fill_table()
         self._fill_plaque_table()
         self._redraw_boxes()
@@ -3036,9 +3105,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._table.setRowCount(len(self._annotations))
         for row, a in enumerate(self._annotations):
             well = self._wells.get(row)
+            source = f"{a.source} / {a.strength}"
+            if a.conflict:
+                source = tr("{source} / conflict", source=source)
             cells = (str(row + 1), a.panel or "", a.label_text,
-                     a.legend_text, a.condition,
-                     f"{a.source} / {a.strength}",
+                     a.legend_text, a.condition, source,
                      str(well["count"]) if well else "",
                      f"{well['mean_area']:.0f}" if well else "")
             for column, text in enumerate(cells):
@@ -3047,6 +3118,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 item.setToolTip(text)
                 if column != CONDITION_COLUMN:
                     item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                if column == SOURCE_COLUMN and a.conflict:
+                    item.setForeground(CONFLICT_COLOUR)
+                    item.setToolTip(_conflict_note(a))
                 self._table.setItem(row, column, item)
             ok = table_item("")
             ok.setData(Qt.UserRole, row)
@@ -3087,6 +3161,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """Forget the figure, its wells and both tables."""
         self._figure = None
         self._annotations = []
+        self._scales = []
         self._wells = {}
         self._selected = None
         self._batch = []
@@ -3294,17 +3369,22 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 r["area_px"] for r in well["rows"])
         medians = {k: float(np.median(v)) if v else 0.0
                    for k, v in by_panel.items()}
+        scales = self._scales
         out = []
         for index in sorted(self._wells):
             a = annotation(index)
             panel = a.panel if a is not None else None
             median = medians.get(panel) or 0.0
+            scale = scales[index] if index < len(scales) else None
+            ppm = getattr(scale, "px_per_mm", None)
             for row in self._wells[index]["rows"]:
                 out.append({"well": index + 1, "panel": panel or "",
                             "condition": a.condition if a is not None else "",
                             "area_vs_panel_median":
                             row["area_px"] / median if median else None,
-                            **row})
+                            **row,
+                            "area_mm2": row["area_px"] / ppm ** 2 if ppm else None,
+                            "scale": _scale_note(scale)})
         return out
 
     def _fill_plaque_table(self) -> None:
@@ -3355,14 +3435,20 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         result = self._figure
         if result is None:
             return []
+        from ...plaque_papers import _annotation_file_row
+
         name = Path(result["path"]).name
         rows = []
         for row in range(self._table.rowCount()):
             condition = self._table.item(self._view_row(row), CONDITION_COLUMN)
-            rows.append({"file": name, "region": row + 1,
-                         "condition": condition.text().strip()
-                         if condition is not None else "",
-                         "approved": self._row_ok(row)})
+            text = condition.text().strip() if condition is not None else ""
+            if row < len(self._annotations):
+                rows.append(_annotation_file_row(
+                    name, row + 1, self._annotations[row], condition=text,
+                    approved=self._row_ok(row)))
+            else:
+                rows.append({"file": name, "region": row + 1,
+                             "condition": text, "approved": self._row_ok(row)})
         return rows
 
     def save_annotations(self) -> Optional[Path]:

@@ -1585,6 +1585,22 @@ def _analyze_plaque_figures(settings, model_path):
     if summary.get('awaiting_approval'):
         print(f"{summary['awaiting_approval']} plaque image(s) wait for "
               "approval in the Figure preview and were not measured.")
+    if summary.get('duplicates'):
+        print(f"{summary['duplicates']} figure(s) were already measured under "
+              "another name and were recorded as duplicates, not measured "
+              "again (table 'duplicates').")
+    if summary.get('possible_duplicates'):
+        print(f"{summary['possible_duplicates']} figure(s) look like one "
+              "already measured and were measured anyway; see the "
+              "'duplicates' table.")
+    if summary.get('conflicts'):
+        print(f"{summary['conflicts']} plaque image(s): the label and the "
+              "legend disagree; flagged in the database for review.")
+    if summary.get('regions'):
+        pixels = summary['regions'] - summary.get('with_ruler', 0)
+        if pixels:
+            print(f"{pixels} plaque image(s) have no scale bar or whole well "
+                  "to measure by: their plaque sizes are in pixels.")
     return summary
 
 

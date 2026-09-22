@@ -2430,7 +2430,13 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # install_refresh_button gains panel_getter=None, and PreviewSpec gains
     # the field fill="" -- the hidden panels a module now builds when their
     # card is first shown. The required sum below does not move.
-    assert sum(len(item.parameters) for item in callables) == 18_315
+    # 18,315 -> 18,318 on 2026-09-21, +3, all optional, none a new callable
+    # (424: dedup, conflict, text layer): Paper gains doi_from=None,
+    # Annotation gains conflict_terms=[], figures_in_folder gains
+    # text_layer=None. Diffed row by row against bfb2c7d99 with this file's
+    # own _public_callables: those three rows differ, no symbol is added or
+    # removed, and the required sum does not move.
+    assert sum(len(item.parameters) for item in callables) == 18_318
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2485,6 +2491,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # exactly. Both parameters and accepted_documented_parameters changed;
     # its sole required parameter remains mask_src. All other 8,697 rows,
     # 8,705 variants and 8,830 required parameters are unchanged.
+    # Moved 2026-09-21 for 424 by the three optional parameters named at
+    # the parameter total above (Paper.doi_from, Annotation.conflict_terms,
+    # figures_in_folder's text_layer); against bfb2c7d99, whose digest is
+    # 3b46c411..., no other row differs.
     assert _sha256_lines(
         f"{item.symbol}\0{item.category}\0{item.exposure}\0"
         f"{','.join(sorted(item.parameters))}\0"
@@ -2539,7 +2549,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # build_timelapse_preview_card, each gaining one optional keyword --
     # and restoring those four baseline rows returns 8215ebec..., the
     # previous pin, byte for byte.
-) == "3b46c411453095932962eae0497b58d4dba439f6de3b164eb0cf3ed95fe7331e"
+) == "3e4aebd2461ebf76d61b01a938d7443ef22e453ed939df16e165b3107a827cb6"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing

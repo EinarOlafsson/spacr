@@ -924,3 +924,206 @@ person's edits and approvals from <src>/figure_annotations.csv, and with
 confirm_each on only approved crops are measured. The optional pieces are the
 spacr[papers] extra (ultralytics, rapidocr-onnxruntime, pdfplumber; pdfplumber
 rather than PyMuPDF because spaCR is BSD-3 and PyMuPDF is AGPL).
+
+--------------------------------------------------------------------------------
+2026-09-21 — THE SHIPPED SIZES MEASURED, AND THE FIVE UNTOUCHED QUESTIONS BUILT
+--------------------------------------------------------------------------------
+
+WHAT WAS STILL OPEN, CHECKED AGAINST THE CODE RATHER than against the list.
+Of "WHAT IS LEFT, HONESTLY": the rerun was done (2026-09-20); imgsz was
+varied at one step (2026-09-20) and the module ships 640 AND 1280 merged
+(DEFAULT_IMGSZ), a combination nobody had measured; OCR was decided and
+built. Still open: the merged measurement, and five questions the engine
+had half or not at all -- deduplication (it skipped a figure whose sha256
+was already in the table and said nothing), the conflict flag (never set
+since the engine landed), scale (only a whole well of a plate format the
+SETTINGS named), the PDF text layer (read by figures_from_pdf, then thrown
+away by fetch_paper_to_folder, so Figure mode always OCR'd), and the
+database (plaque_papers.db and plaque_figures.db from the same schema, but
+with no record of an image nobody OK'd, no legend passages, no run, and a
+folder run filed under "folder:<path>" even when paper.json had the DOI).
+
+1. THE MEASUREMENT: v2 AT THE SHIPPED SIZES, MERGED THE WAY THE MODULE MERGES
+
+  Evidence: features/data/424_detector_transfer_merged_2026-09-21.json.
+  Harness: tools/measure_plaque_detector_transfer.py --imgsz 640,1280 (new:
+  several sizes are asked and the boxes are replayed through
+  spacr.plaque_papers.find_plaque_regions, so the merge measured is the
+  shipped one, not a copy of it). v2 only, conf 0.25, CPU, GPU hidden.
+
+  INSTRUMENT: corpus refetched, 182 of 182 byte-identical; detector sha256
+  f2a1e1110f09 as before; 148 boxes at 640, coordinate-identical to the
+  2026-09-20 record on 182 of 182 figures; 194 at 1280, the sweep's total.
+  Merged: 206.
+
+  NOTHING WAS RELABELLED. The region counts are the 2026-09-19 reader's.
+  A 2026-09-20 verdict is carried only onto a merged box that IS a 640 box;
+  a box on a figure with no region is false by the protocol; a box on a
+  figure whose regions the 640 boxes had all claimed cannot be a true
+  positive. Everything else is given as a bound.
+
+    wells found            61/259 (61/67 without the 192-well plate) --
+                           unchanged; every well figure's merged boxes are
+                           its 640 boxes
+    crops found            at least 63/110, at most 106/110; about 80/110
+                           counting the strips the 2026-09-20 reader saw
+                           boxed at 1280 (~9/30, 4/8, 4/5 on the three
+                           lawn-strip figures, which score 0 at 640)
+    faint whole panels     NOT lost: the merge keeps every 640 find, so
+                           PMC9744290 g004/g006/g007 stay 6/6, 4/4, 4/4 and
+                           PMC13309054 g003 keeps its one box -- the 1280
+                           losses of 2026-09-20 do not reach the product
+    false boxes, 158       16 on 5 figures (15 at 640, 12 at 1280): the
+      no-region figures    union -- 10 Listeria motility plates, 2 electron
+                           micrographs, 2 brightfield monolayers, the
+                           flowchart box, and 1280's cartoon virion
+    new non-TP boxes       PMC13170237 f001: 2, found only at 1280, on the
+                           "client protein" cartoons of panel A (a false box
+                           on a schematic); PMC13279940 Fig4: 2 on spots of
+                           rows already boxed (duplicates by the protocol)
+    precision              124/206 = 0.602 to 167/206 = 0.811; about 0.684
+                           with the ~17 strips. At 640 alone 0.838.
+    macro recall, 24 figs  0.670 at 640, about 0.737 merged
+
+  WHAT THE DROP IN PRECISION IS. Mostly the protocol, not the detector: at
+  1280 v2 boxes each dilution spot, and the reader counted a strip as one
+  region, so about 36 of the 53 lawn-strip boxes are "further spots on a
+  claimed strip". For plaque counting per dilution the spot is arguably the
+  unit; the protocol said strip. The rest is 4 real false boxes the merge
+  imports from 1280 (2 on a schematic, the cartoon virion, and none lost).
+
+  WHAT A PERSON MUST STILL CHECK, and nothing here stands in for it:
+    * the three lawn-strip figures on the merged overlays: which strips carry
+      a box. This is the only thing between the bounds and a number.
+    * PMC13279940 Fig4's two 1280-only boxes: duplicate or false.
+    * the region counts: still one reader, boxes visible; no second reader.
+    * n: 10 crop-bearing figures, 38 of 110 crops in one. A sample drawn for
+      crop figures on purpose is still the right next measurement.
+
+  THE QUEUED GPU JOB (424a) IS STILL NOT JUSTIFIED. At the shipped sizes the
+  detector keeps every crop it found and adds most of the lawn-strip form;
+  what the merge costs is precision on schematics and per-spot duplicates,
+  which a round trained on crops would not buy back. Not queued, not run.
+
+2. DEDUPLICATION BY PAPER PLUS IMAGE HASH
+
+  Every measured figure records its byte sha256, a sha256 of its decoded
+  pixels and a 64-bit difference hash. A figure is measured once:
+    bytes    the same file again under another name or paper -- not
+             measured, recorded in the new `duplicates` table against the
+             copy that was
+    pixels   the same picture in another format (PNG/BMP) -- likewise
+    paper    a paper already measured from one source (Europe PMC) given
+             again from another (its PDF, now filed under its DOI) -- its
+             figures recorded, none measured
+    similar  difference hash within 4 bits and the same shape -- RECORDED
+             AND STILL MEASURED: on figures that is resemblance, not proof
+  The same file of the same paper is a re-measurement, not a duplicate
+  (a folder run replaces its own rows). Of two copies in one folder the one
+  with a legend is measured -- found on the real paper below, where the copy
+  sorted first and the measured rows lost their legend.
+
+3. THE TWO CONDITION STRATEGIES AND THEIR CONFLICT FLAG
+
+  The figure's own labels are the vocabulary. A panel passage that shares a
+  word with the image's label is agreement (strong); one that uses none of
+  the vocabulary ("under the indicated conditions") is not a disagreement
+  (medium, as before); one that names the figure's OTHER conditions and none
+  of this image's is a CONFLICT: flagged, both readings kept, the legend's
+  words recorded. Nothing is resolved automatically. It lands in the
+  database (regions and figure_annotations: conflict, conflict_reason), in
+  figure_annotations.csv (new columns: panel, label_text, legend_text,
+  source, strength, conflict, conflict_reason -- only condition and approved
+  are read back), and in the preview: the Source cell says "/ conflict" in
+  a warning colour with the reason as its tooltip, and the status line
+  counts them. On the real PDF below it fired on the three crops whose "+"
+  row label OCR had not yet read -- a partial label that the legend did not
+  echo -- and went away once the label was read.
+
+4. SCALE
+
+  In order: a scale bar in or directly under the image with its length read
+  beside it ("1 mm", or "500" and "µm" as two words); a bar on another image
+  of the same size in the same grid; an unlabelled bar in the image's bottom
+  quarter when the legend states "Scale bar, 500 µm"; a whole well of a plate
+  format the settings give or else the legend names ("6-well plates", and
+  only when it names one format). Otherwise sizes stay in pixels and every
+  row says so: regions.size_unit 'px' or 'mm2', scale_source, scale_detail.
+  A stated magnification ("10x objective") is recorded in regions.magnification
+  and never used: a printed figure has been rescaled since. The preview's
+  Plaques tab gains Area (mm²) and Scale, and the status says "plaque sizes
+  are in pixels" when no image has a ruler; the run's console says how many.
+  Measured on synthetic bars only: the three real PMC9744290 figures below
+  print no scale bar, and all 14 of their images come out in pixels.
+
+5. THE PDF TEXT LAYER
+
+  pdfplumber stays in the spacr[papers] extra and is now also in the reader
+  environment's pins (pdfplumber==0.11.10), with a `read_pdf` worker op, so
+  a PDF can be read when only the isolated reader is installed. pypdf,
+  already a core dependency, reads the DOI. The text layer is saved as
+  text_layer.json beside the page images and read before any OCR, in the
+  run and in the preview. Only label-like words are used: lines of at most
+  six words that are not the last line of a paragraph. OCR runs only when
+  those say nothing about any plaque image, and is added to them.
+
+  ON A REAL PDF (PLOS Pathogens, PMC9744290, the publisher's PDF), which
+  found four defects, all fixed and pinned by tests:
+    * pdfplumber's default x_tolerance ran every line into one word
+      ("Fig4.ThecytosolicTPI1..."): 0 of 9 legends matched. At 1.5, 9 of 9.
+    * pypdf broke the DOI across lines ("10.1371/j"): candidates are now
+      rejoined, cut where a digit meets a capital, the three likeliest asked
+      of Europe PMC; confirmed, the PDF is filed under the DOI with its
+      licence (cc by). Europe PMC once answered 200 with a 17-byte body;
+      that is now retried.
+    * the legend paragraph under a figure was taken as its labels ("4. The
+      cytosolic" on every crop): paragraph lines are now excluded.
+    * a rotated row label, whose box is tall, gathered a whole line of words
+      and was dropped with it: lines are now grouped by letter height.
+  After: Figs 4, 6 and 7 as PDF pages, 14 of 14 crops with both labels
+  (iTPI2 read "iTP12" by OCR), words from "pdf text layer + ocr" -- this PDF
+  prints its figure labels inside the picture, so its text layer alone
+  names none of them. The four Fig 6 crops are "medium", not "strong": the
+  label and legend share no word as read from this PDF; not chased.
+  The same three figures from Europe PMC's JATS images: 14 of 14 labels read.
+
+6. THE DATABASE
+
+  plaque_papers.db and plaque_figures.db share one schema (TABLES):
+    runs                every run: entry, source, detector and segmenter
+                        with sha256, sizes, confidence, plate format,
+                        confirm_each, text options, spaCR version, summary
+    papers              + doi_from; a folder run takes paper.json, so rows
+                        carry the DOI and licence, not "folder:<path>"
+    figures             + pixel_sha256, dhash, words_source, words,
+                        regions_found, run_id
+    legend_panels       the legend split by panel letter
+    figure_annotations  EVERY detected image, measured or not: both
+                        readings, condition, strength, conflict and reason,
+                        approved, measured, region_id, scale
+    regions             + conflict_reason, scale_source, scale_detail,
+                        magnification, size_unit, words_source,
+                        region_index, run_id
+    plaques             unchanged
+    duplicates          as in 2 above
+  An older database is brought up to date by adding the columns it lacks;
+  its rows stay.
+
+TESTS: tests/test_plaque_papers_dedup_conflict_scale_db.py (24),
+tests/qt/test_plaque_preview_flags_conflicts_and_scale.py (5), and two in
+tests/test_the_plaque_transfer_spike_counts_what_it_saw.py for the harness
+merge and the new record. The new helpers are private, so the public API
+ratchets did not move; three optional parameters did, and the parameter
+pin and digest in test_docstring_correctness moved with them, diffed row by
+row against bfb2c7d99. The English UI inventory was regenerated
+(build_i18n_catalogs.py --sources-only); no translation written. Five
+documentation-i18n tests fail on bfb2c7d99 without this change as well.
+
+STILL NOT DONE, honestly:
+  * the three lawn-strip figures need a person on the merged overlays;
+  * a second reader for the region counts;
+  * a corpus drawn for crop figures on purpose;
+  * the scale-bar reader has been run on no real figure that has a bar;
+  * the similar-hash duplicate threshold (4 bits) is set, not measured;
+  * Europe PMC JATS figures have no text layer, so those still OCR;
+  * "strong" on Fig 6 of the PDF route is "medium" and nobody has said why.

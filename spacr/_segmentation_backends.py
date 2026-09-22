@@ -335,11 +335,13 @@ _SPECS = {
         name=_PAPERS, label="Plaque figure reader", module="ultralytics",
         probe=("ultralytics", "rapidocr_onnxruntime"),
         distribution="ultralytics",
-        requirements=("ultralytics==8.4.157", "rapidocr-onnxruntime==1.4.4"),
+        requirements=("ultralytics==8.4.157", "rapidocr-onnxruntime==1.4.4",
+                      "pdfplumber==0.11.10"),
         torch=("torch", "torchvision"), python=((3, 9), (3, 12)),
-        licence="AGPL-3.0 (ultralytics) / Apache-2.0 (RapidOCR)",
+        licence="AGPL-3.0 (ultralytics) / Apache-2.0 (RapidOCR) / MIT (pdfplumber)",
         licence_note=(
-            "ultralytics is AGPL-3.0 and RapidOCR Apache-2.0. They are "
+            "ultralytics is AGPL-3.0, RapidOCR Apache-2.0 and pdfplumber "
+            "MIT. They are "
             "installed into this environment of their own and run in a "
             "separate process, so spaCR's own environment and licence are "
             "untouched."),
@@ -347,8 +349,9 @@ _SPECS = {
         segments=False,
         blurb=(
             "What Plaque Assay's Figure mode needs: the YOLO detector that "
-            "finds plaque images in a figure, and RapidOCR, which reads the "
-            "panel letters and labels around them. Installed apart from "
+            "finds plaque images in a figure, RapidOCR, which reads the "
+            "panel letters and labels around them, and pdfplumber, which "
+            "renders a PDF's pages and reads its text layer. Installed apart from "
             "spaCR so its torch and opencv cannot change spaCR's."),
         published=(
             "Published results: none for this use. The detector's own "
@@ -2276,6 +2279,41 @@ def _worker_read_text(request, adapters):
     return {"words": words}
 
 
+def _worker_read_pdf(request, adapters):
+    """Render a PDF's pages and read their text layer with pdfplumber.
+
+    :param request: ``pdf`` (a path), ``dest`` (a folder for the page
+        images), ``dpi`` and ``x_tolerance`` (pdfplumber's, in points).
+    :param adapters: the worker's cache; unused.
+    :returns: ``{"pages": [{"path", "text", "words": [[text, x0, y0, x1,
+        y1], ...]}, ...]}`` with the words in the rendered image's pixels.
+    """
+    try:
+        import pdfplumber
+    except ImportError as exc:
+        raise ImportError(
+            "This figure reader was installed before it read PDFs. "
+            "Reinstall the plaque figure reader from the Model Zoo to add "
+            "pdfplumber.") from exc
+    dest = request["dest"]
+    os.makedirs(dest, exist_ok=True)
+    dpi = int(request.get("dpi", 200))
+    tolerance = float(request.get("x_tolerance", 1.5))
+    scale = dpi / 72.0
+    pages = []
+    with pdfplumber.open(request["pdf"]) as document:
+        for number, page in enumerate(document.pages, start=1):
+            target = os.path.join(dest, f"page_{number:03d}.png")
+            page.to_image(resolution=dpi).save(target)
+            pages.append({
+                "path": target,
+                "text": page.extract_text(x_tolerance=tolerance) or "",
+                "words": [[w["text"], w["x0"] * scale, w["top"] * scale,
+                           w["x1"] * scale, w["bottom"] * scale]
+                          for w in page.extract_words(x_tolerance=tolerance)]})
+    return {"pages": pages}
+
+
 def _handle(name, request, adapters):
     """Answer one request; every failure becomes an error reply, never a
     dead worker."""
@@ -2297,6 +2335,8 @@ def _handle(name, request, adapters):
             body = _worker_detect(request, adapters)
         elif op == "read_text":
             body = _worker_read_text(request, adapters)
+        elif op == "read_pdf":
+            body = _worker_read_pdf(request, adapters)
         elif op == "shutdown":
             body = {}
         else:
