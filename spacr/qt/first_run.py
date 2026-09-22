@@ -204,7 +204,8 @@ class _TourOverlay(QWidget):
     """Translucent overlay + step card. Owns the tour lifecycle."""
 
     def __init__(self, window: QMainWindow, steps: List[TourStep],
-                 on_finish: Optional[Callable[[], None]] = None):
+                 on_finish: Optional[Callable[[], None]] = None,
+                 *, translated: bool = False):
         """
         :param window: the main window the overlay covers.
         :param steps: the narrated coach-marks, in order.
@@ -214,6 +215,8 @@ class _TourOverlay(QWidget):
             per-module tour without its own copy of the rendering — a second
             dimmed card would be a second thing to keep looking like this
             one.
+        :param translated: the caller already translated and formatted the
+            step text. Preserve it instead of translating it a second time.
         """
         super().__init__(window)
         self._window = window
@@ -246,18 +249,21 @@ class _TourOverlay(QWidget):
         col.setSpacing(8)
 
         from .i18n import tr
+        self._step_text = str if translated else tr
         self._step_lbl = QLabel(tr("Step {n} / {total}", n=1,
                                    total=len(steps)))
         self._step_lbl.setObjectName("TourStep")
         self._step_lbl.setStyleSheet("color: #4A9EFF;")
         col.addWidget(self._step_lbl)
 
-        self._title_lbl = QLabel(tr(steps[0].title))
+        self._title_lbl = QLabel(self._step_text(steps[0].title))
+        self._title_lbl.setProperty("i18nSkipText", translated)
         self._title_lbl.setObjectName("TourTitle")
         self._title_lbl.setStyleSheet("color: #e5e5e5;")
         col.addWidget(self._title_lbl)
 
-        self._body_lbl = QLabel(tr(steps[0].body))
+        self._body_lbl = QLabel(self._step_text(steps[0].body))
+        self._body_lbl.setProperty("i18nSkipText", translated)
         self._body_lbl.setObjectName("TourBody")
         self._body_lbl.setWordWrap(True)
         self._body_lbl.setStyleSheet("color: #a1a6ad;")
@@ -378,8 +384,8 @@ class _TourOverlay(QWidget):
         step = self._steps[self._idx]
         self._step_lbl.setText(tr("Step {n} / {total}", n=self._idx + 1,
                                   total=len(self._steps)))
-        self._title_lbl.setText(tr(step.title))
-        self._body_lbl.setText(tr(step.body))
+        self._title_lbl.setText(self._step_text(step.title))
+        self._body_lbl.setText(self._step_text(step.body))
         if self._idx == len(self._steps) - 1:
             self._next_btn.setText(tr("Finish"))
         self._update_card_position()

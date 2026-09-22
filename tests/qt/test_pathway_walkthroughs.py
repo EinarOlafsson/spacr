@@ -103,3 +103,36 @@ def test_real_home_to_experiment_design_route(qtbot):
     from spacr.qt.first_run import maybe_show_tour
     assert maybe_show_tour(window, force=True) is None
     overlay._skip()
+
+
+@pytest.mark.parametrize("language", ["sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr"])
+def test_localized_pathways_render_every_step_and_preserve_navigation(qtbot, monkeypatch, language):
+    from spacr.qt import i18n
+
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, language)
+    window = Window()
+    qtbot.addWidget(window)
+    window.show()
+    data = W._workflow_map()
+    menu = W.install_help_menu(window)
+    actions = {action.property("workflowPathway"): action for action in menu.actions()
+               if action.property("workflowPathway")}
+    for key, route in data["pathways"].items():
+        assert actions[key].text() == i18n.tr(route["title"], language)
+        assert actions[key].text() != route["title"]
+        overlay = W.show_walkthrough(window, "pathway:" + key)
+        assert window.navigated[-1] == "__home__"
+        assert "{module}" not in overlay._body_lbl.text()
+        assert i18n.tr(data["modules"][route["home_app"]]["name"], language) in overlay._body_lbl.text()
+        for step in route["steps"]:
+            qtbot.mouseClick(overlay._next_btn, Qt.LeftButton)
+            i18n.retranslate_widget_tree(overlay, language)
+            assert overlay._body_lbl.text() == i18n.tr(step["action"], language)
+            assert overlay._body_lbl.text() != step["action"]
+            module = data["modules"][step["module"]]
+            assert window.navigated[-1] == (module["parent"] or module["home"])
+        if route.get("note"):
+            qtbot.mouseClick(overlay._next_btn, Qt.LeftButton)
+            assert overlay._body_lbl.text() == i18n.tr(route["note"], language)
+            assert overlay._body_lbl.text() != route["note"]
+        overlay._skip()

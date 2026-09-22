@@ -10095,3 +10095,16 @@ Help UI check found nine Sound preferences offered in ordinary spaCR although
 their tab is now spaceout-only. Claiming only help_index._CONDITIONAL_TABS to
 filter Sound exactly as Fractal, and testing both real dialogs. No preferences
 or sound implementation edit. Locale translations and full audit remain open.
+
+2026-09-22 — CODEX: GUI WORKFLOW TRANSLATIONS AND OVERLAY FIX
+English API/Help refresh pushed as65c0bef2b.423 source-bound workflow rows
+(47 in each GUI locale) pass all source/hash/gate/actual-tr checks. GUI tests
+caught our472 pathway text being translated twice by first_run._TourOverlay.
+Claimed only the shared overlay's optional translated-text flag and label
+skip-text properties; walkthrough passes that flag for pretranslated pathway
+steps.45 pathway/module-tour tests pass; wider onboarding regression running.
+Long hi/zh_CN/fr cards fit in actual rendered screenshots. Tutorials' four
+additional languages and recorded media remain owed; no partial publication.
+Final wider check:72 passes in42.14s, including the actual generic widget
+translation pass on every translated pathway step. Source/target verification
+covers all423 rows and proves no unrelated catalog table/row changed.

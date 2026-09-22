@@ -402,7 +402,7 @@ class _PathwayOverlay(_TourOverlay):
         self._modules = data["modules"]
         super().__init__(window, [TourStep(step.title, step.body)
                                  for step in _pathway_steps(key)],
-                         on_finish=self._release)
+                         on_finish=self._release, translated=True)
 
     def _release(self):
         """Restore automatic module tours when this route ends."""

@@ -37,6 +37,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         ("2026-09-22-view-gate-tooltip.json", 1),
         ("2026-09-22-download-status.json", 13),
         ("2026-09-22-shared-controls.json", 27),
+        ("2026-09-22-workflow-pathways.json", 47),
     ):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                filename).read_text())
@@ -45,7 +46,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
         assert added <= reviewed.keys()
         assert not added & sources
         sources.update(added)
-    assert len(sources) == 54
+    assert len(sources) == 101
     return sources
 
 
@@ -276,7 +277,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 658
     assert len(older_all_sources) == 663
     assert len(all_reviewed.keys() - subsequent_sources) == 674
-    assert len(all_reviewed) == 728  # 701 plus 27 shared-control reviews.
+    assert len(all_reviewed) == 775  # 728 plus 47 workflow-pathway reviews.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -499,7 +500,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources) == 346
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 357
     assert len(all_reviewed.keys() - subsequent_sources) == 670
-    assert len(all_reviewed) == 724  # 697 plus 27 shared-control reviews.
+    assert len(all_reviewed) == 771  # 724 plus 47 workflow-pathway reviews.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

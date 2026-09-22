@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "65c0bef2b1258f2e3746404601dd50d2ed1a1762",
+  "source_bound_records": 423,
+  "review_kind": "AI-assisted linguistic and technical review of every source and target",
+  "native_speaker_signoff": false,
+  "languages": [
+    {
+      "language": "sv",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-22-workflow-pathways.json",
+      "review_sha256": "27d86d386c85ff301390844bd4124e8160e94dff0d1d17f7bdb4ba1506c3334e",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "de",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-22-workflow-pathways.json",
+      "review_sha256": "0d0a131a9ce1db5d71f7889fbadec79c460343866ac15bf57878c74945b1891e",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "es",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-22-workflow-pathways.json",
+      "review_sha256": "93e0b6bfe77559c92c55c8da22ac71f8b6742c92900de7e5f34f1d5302229209",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "zh_CN",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-workflow-pathways.json",
+      "review_sha256": "a718cd9c403c8a9a73642772166587ede5aba109a2001f9b162801e18e6d6611",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "pt",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-22-workflow-pathways.json",
+      "review_sha256": "b1380dc8409275ce4e72a33c95971492bce4a78a520a2bfd797ad091916d6c6e",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "hi",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-22-workflow-pathways.json",
+      "review_sha256": "483556256c9c66d25b3a3eb14020b5366705e2b58f672f577085617bfc9692ac",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "ko",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-22-workflow-pathways.json",
+      "review_sha256": "b76bd90382e97499d38e5feb65e851e9f1a63b96786a56ca383e38c78ec815c9",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "is",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-22-workflow-pathways.json",
+      "review_sha256": "a0e3b59a9de50eb7549ae1d03eca90e366d3e2cde746aaa75cf4b779c6caf327",
+      "real_tr_checks": 47
+    },
+    {
+      "language": "fr",
+      "records": 47,
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-22-workflow-pathways.json",
+      "review_sha256": "c61383dac455ad1d5b7e983de51b57113ae88f5c41e498c45ddde35d95326252",
+      "real_tr_checks": 47
+    }
+  ],
+  "unrelated_catalog_rows_unchanged": true,
+  "protected_module_name": "Image UMAP is retained verbatim under the product-token contract; other module references include the displayed localized name where available.",
+  "full_catalog_audit_passed": false,
+  "tutorial_narration_or_caption_translation_claimed": false
+}

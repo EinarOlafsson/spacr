@@ -206,3 +206,26 @@ guide links. Four built-site constructor/helper checks pass;8 nested-helper
 fixture checks pass with the independent GUI-map hook explicitly isolated.
 The existing stale-English-manifest assertion remains a separate open API debt.
 Receipt:features/data/472_full_docs_build_2026-09-22.json.
+
+2026-09-22 — CODEX: NINE-LANGUAGE GUI PATHWAYS
+All47 new pathway titles/actions/notes and the formatted Home introduction
+now have source-bound reviews in the nine GUI languages:423 translated rows.
+An independent verifier checks live sources, hashes, catalog values, candidate
+gates and actual formatted tr() output, and proves unrelated rows unchanged.
+Receipt:features/data/472_workflow_translations_2026-09-22.json. This is an
+AI-assisted semantic/technical review, not native-speaker signoff. Image UMAP
+stays verbatim under the protected product-name rule; other module references
+include their current localized label where available.
+The actual-overlay test caught a double-translation bug: pathway builder had
+already translated each step before the shared tour translated it again.
+The shared overlay now accepts already-translated text explicitly, and its
+labels skip a second generic translation pass. Ordinary tours keep their
+existing translation behavior.45 pathway/module-tour tests pass. Real Hindi,
+Chinese and French long-note cards were visually inspected at1280x900; text
+and controls fit. Their private captures are in workflow-authoring-20260922.
+Additional tutorial languages da/nb/it/ja, four tutorial translations,
+recordings and media acceptance remain open; no claim of complete472 yet.
+Final validation:72 focused pathway/first-run/onboarding/runtime-syntax/English
+manifest checks pass in42.14s. The localized path test also runs the application's
+generic translation pass over each visible step, proving the approved wording
+survives both rendering paths.
