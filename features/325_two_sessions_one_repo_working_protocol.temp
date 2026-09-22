@@ -9556,3 +9556,20 @@ checks idempotence, so retaining the label needed a narrow source-conditioned
 context cleanup fix; two tests prove the label remains and ordinary Portuguese
 through prose still changes. FEATURES table: 33 pass / 1 strict known xfail,
 95.07%, evidence recorded. Fetched85a6d4c40 for integration before audit refresh.
+85a6d4c40 integrated cleanly. Our four commits are562579454/727f88092/
+2215d3d01/6dcbec7f1. All sixteen earlier coverage source hashes plus the new
+FEATURES table hash still match. Reports regenerated:6298runtime/11194API,
+657added/2removed/127changed API sources against unchanged English manifest.
+All nine runtime/API review stores load. Final report tests are running.
+German Measure captions reviewed/staged against current13-scene capture:
+four updated/nine retained,48/48 figures, obsolete build claims removed and
+warning limits retained. Independent source/staging/visual metadata checks pass.
+Twelve other Measure reviews remain; English narration inputs are unchanged.
+Fetched0b9fddce3 while final tests run: release1.5.0.9 metadata/deck only,
+no covered implementation or translated runtime/API prose change. Will rebase
+before pushing. Tutorial receipts continue to state their actual captured
+1.5.0.8 version; they are not silently relabeled as new recordings. Appearance/
+version acceptance against the newer release remains part of358/447's final
+review, with complete-set publication still withheld.
+Final report/label checks:6pass299.11s. Index and whitespace pass. Publishing
+these completed coverage, translation and tutorial-review checkpoints to nightly.

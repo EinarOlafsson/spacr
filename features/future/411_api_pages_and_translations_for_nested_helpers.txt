@@ -1338,3 +1338,18 @@ source-conditioned literal protection fixes it without changing ordinary prose
 cleanup or requiring English in translated labels. Two regression tests pass
 in 1.56s. No Gate geometry change or native-speaker approval. Current-source
 report regeneration follows integration of newly fetched 85a6d4c40.
+Integrated85a6d4c40: report regeneration completes with all nine runtime/API
+review stores accepted. Live inventory is6298 runtime entries and11194 public
+API symbols. Exact English-manifest debt is657 added,2 removed,127 changed;
+features/data/411_api_debt_after_view_lasso_2026-09-22.json records every ID.
+English manifest/debt pins remain unchanged. Against the older private draft
+snapshot,28 added and24 changed documents need current-source handling.
+Fresh report and label-regression tests run before the nightly push.
+Tutorial translation: German Measure now matches the current recording in all
+13scenes (four updated/nine retained); prerequisite metadata removes obsolete
+claims and preserves current scientific limits. Independent stage/source and
+visual/timing checks pass; twelve other Measure reviews remain. Receipt under
+tools/tutorials/evidence/2026-09-22-measure-german-current.json.
+Final integrated live-report and literal-label checks:6pass299.11s. All nine
+source-bound runtime/API review stores load. Feature-index/whitespace checks
+pass; full translation completion and native/listening approval remain open.

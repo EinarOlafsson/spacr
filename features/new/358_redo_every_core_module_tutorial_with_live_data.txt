@@ -2381,3 +2381,14 @@ were visually inspected; hashes and browser checks are added to the existing
 voices now render CPU-only against the new source, replacing the superseded
 opening's tracks. Full voice/caption and listening acceptance plus complete-set
 publication remain open. No tutorial media was published.
+
+2026-09-22 — CODEX: GERMAN MEASURE REVIEW MATCHES CURRENT CAPTURE
+Updated four narration scenes and prerequisite metadata to the current English
+source b3810829. Nine translated scenes are preserved byte-for-byte. Removed
+obsolete oversized-dialog/test-folder/export-limit descriptions and the old
+47-of-48 figure claim; the lesson now describes all48 figures and keeps the
+unvalidated stale-output warning/automatic handoff limits. Current source hash,
+all thirteen staged captions, and all visual/focus/timing/link metadata pass
+independent checks. Receipt:2026-09-22-measure-german-current.json. Twelve other
+Measure reviews remain; this caption-only update does not alter the running
+English narration inputs. No media publication or listening approval.

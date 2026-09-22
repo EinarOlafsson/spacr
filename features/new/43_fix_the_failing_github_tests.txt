@@ -1938,3 +1938,9 @@ preserved in an evidence receipt and replaced by current nine-locale reviews.
 All nine runtime review stores load and actual tooltip translations match.
 Literal label cleanup has two passing regression tests. Full docs CI is not
 claimed green; API/runtime source debt and current report refresh remain open.
+Current report regeneration after85a6d4c40 completes:6298runtime/11194API,
+with657added/2removed/127changed API sources explicitly inventoried against
+the unchanged English manifest. All nine review stores load; full docs debt
+remains open. Live-report regression checks run before pushing.
+Final integrated report/label selection passes6/6 in299.11s. This establishes
+report consistency and the label fix, not a green full docs workflow.

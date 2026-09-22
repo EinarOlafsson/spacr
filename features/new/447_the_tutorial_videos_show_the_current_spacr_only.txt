@@ -390,3 +390,16 @@ audio source/timing/activity and-1.0dBFS peak pass. Real desktop/mobile playback
 seek clocks,20 scenes and related links pass; screenshots inspected and hashed
 in2026-09-21-annotate-auto-opening.json. Remaining English/other voices render
 CPU-only. Complete voice/caption/listening acceptance and publication stay open.
+
+2026-09-22 — CODEX: CURRENT MEASURE GERMAN CAPTIONS
+German now follows the current13-scene Measure source: four revised scenes,
+nine retained, current48/48 figures, no obsolete oversized-dialog/test-folder
+claims. Staged visual/timing/related-link metadata independently matches English.
+Source-bound receipt:2026-09-22-measure-german-current.json. Twelve other reviews
+and full caption/player/listening/publication acceptance remain with358.
+Concurrent nightly now includes1.5.0.9 release metadata and a theme update.
+Existing recording receipts retain their real1.5.0.8 source/version; no claim
+of a new recording is made by relabeling them. Final acceptance must check
+visible versions and appearance against the integrated release before joint
+publication. Retained narration work continues where the lesson prose is
+unchanged; this does not close the current-application acceptance requirement.
