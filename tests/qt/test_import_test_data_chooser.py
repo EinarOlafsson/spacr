@@ -98,7 +98,7 @@ def test_the_import_screen_has_the_button_and_every_convention(screen):
 
 
 def test_choosing_zeiss_downloads_fills_and_previews(screen, tmp_path):
-    download = _Download()
+    download = _Download(keys=["zeiss_czi"])
     assert demo.load_import_test_data(screen, "zeiss_czi", ask=download,
                                       plate=tmp_path) is False
     assert download.calls == [tmp_path]
@@ -118,7 +118,7 @@ def test_choosing_zeiss_downloads_fills_and_previews(screen, tmp_path):
 
 
 def test_a_second_variant_opens_from_the_cache(screen, tmp_path):
-    _build_into(tmp_path)
+    _build_into(tmp_path, keys=["arrayscan"])
     download = _Download()
     assert demo.load_import_test_data(screen, "arrayscan", ask=download,
                                       plate=tmp_path) is True

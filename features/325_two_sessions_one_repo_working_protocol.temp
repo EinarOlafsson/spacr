@@ -10413,3 +10413,23 @@ GPU idle watcher remains active, with no qualifying 20-minute idle window;
 no GPU training or OPS resume launched. Release of live_preview.py after push.
 The remaining live-preview/source-selector/sampling checks also pass:100 tests
 in13.69s. Total244 distinct focused checks pass for this change.
+
+2026-09-22 — IMPLEMENTATION: BARCODE/IMPORT SAMPLE FAILURE CLAIM
+43/403: three barcode fallback tests move actual packaged CSVs onto /tmp,
+which fails across filesystem devices before testing any fallback behavior.
+Claiming test_loading_test_data_fills_the_barcode_references.py to isolate
+package data under tmp_path and retain exact-byte/integrity/non-overwrite checks.
+Also investigating the two frozen Import chooser failures under43/462; no
+Import production change selected yet. Tutorials/catalogs remain in other lane.
+
+2026-09-22 — IMPLEMENTATION: BARCODE/IMPORT SAMPLE TESTS VERIFIED
+43/403/462: fallback tests now use temporary copies of the real bundled CSVs,
+retaining download integrity/cache/non-overwrite checks without touching the
+installed files or relying on cross-filesystem rename. Import chooser tests
+build only the selected sample variant. The archived CZI failure was a missing
+writer in that environment; primary CI already requests the czi extra.
+All100 focused tests pass, including all generated manifest round trips and
+real Zeiss CZI. The12 barcode checks and ArrayScan cache check also pass in the
+original environment without pylibCZIrw (13 total). No production/API/caption
+changes and no skipped tests. Observed original worker's d3ab71b37 Make Masks
+changes on origin; preserving those. Full CI remains open.

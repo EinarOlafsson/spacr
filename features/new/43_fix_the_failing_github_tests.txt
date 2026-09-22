@@ -2082,3 +2082,21 @@ completion checks. No leftover-worker report; repository fatal Ruff checks pass.
 No CI threshold or coverage baseline changed. Full CI/coverage remain open.
 A further100 live-preview/source-selector/sampling checks pass in13.69s:
 244 distinct focused checks pass for the final change.
+
+2026-09-22 — SAMPLE-DATA TESTS ARE ISOLATED FROM PACKAGE FILES
+The three barcode fallback failures were EXDEV errors: tests renamed tracked
+package CSVs onto pytest's /tmp filesystem before exercising the fallback.
+They now copy the real reference bytes into a temporary package layout and
+remove only those copies. Download bytes, release URL, cache reuse, integrity
+rejection, partial-file absence and preservation of the other references are
+still checked. Tests never move or rewrite the installed references.
+
+Import's frozen Zeiss/cache failures came from pylibCZIrw missing in that
+coverage environment. The primary CI workflow already requests the czi extra.
+The chooser tests now build only their selected variant; the ArrayScan cache
+check does not need the CZI writer, while Zeiss still writes and reads real CZI.
+All100 barcode/chooser/manifest-round-trip checks pass in3.84s with the writer
+installed. The12 barcode checks plus ArrayScan cache also pass in the original
+spacr environment without the writer (13 in2.13s). No runtime fallback, import
+behavior, dependency requirement, CI threshold or test was removed or skipped.
+Full CI remains open; new pushes are cancelling older runs before completion.
