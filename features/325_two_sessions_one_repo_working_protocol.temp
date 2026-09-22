@@ -10311,3 +10311,23 @@ ParasiteCountHead class; please include them in the API translation pass.
 Evidence: features/data/449_wrapper_validation_2026-09-22.json.
 A new guarded NAS listing timed out; do not treat that as a completed search
 or start duplicate probes. GPU monitor remains live without an idle window.
+
+2026-09-22 — IMPLEMENTATION:43 QUALITY GATE CLAIM
+Current GitHub job106950836020 (run35788303880) fails Xenon on the combined
+file-shard partition/stability test, rankC. Claiming only
+ tests/test_ci_suite_classification.py to separate those two contracts while
+retaining every assertion and the same shard counts. No threshold, workflow,
+coverage baseline or translation change. Will run the full maintained-code
+quality command and this focused test file before pushing.
+The partition/stability split preserves every check and its20test file passes.
+Local mypy lacks types-PyYAML, which the workflow installs, so checking in an
+isolated quality-tool environment with the workflow's actual dependencies.
+Also investigating the previously reported ModelZoo picker JobRunner teardown;
+its close/reject path currently stops downloads but not catalogue loading.
+
+2026-09-22 — IMPLEMENTATION:43 QUALITY GATE VERIFIED
+Partition and path-stability contracts separated; files grouped once instead
+of scanning them for every shard. All assertions/counts retained. Exact workflow
+Ruff/mypy/Xenon sequence passes with its declared dependencies in a private
+venv;20 focused classification tests pass. No target/threshold/baseline change.
+This resolves job106950836020's rankC failure, not the remaining full-CI debt.

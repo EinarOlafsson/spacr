@@ -2002,3 +2002,15 @@ review files: 27 distinct sources each, with all historical counts preserved.
 The full runtime-syntax file passes all three tests in 39.69s. This reconciles
 accepted evidence; it does not enlarge missing/stale translation allowances.
 The full catalog audit and CI verdict remain open.
+
+2026-09-22 — IMPLEMENTATION: CURRENT QUALITY-GATE FAILURE FIXED
+GitHub run35788303880/job106950836020 failed Xenon: the combined file-shard
+partition/stability test rankedC. Separated partition coverage from absolute/
+relative-path stability and grouped files in one pass. Every original assertion
+and shard count remains; invalid shard indices still fail dictionary lookup.
+No test, gate, maintained target or threshold was removed or weakened.
+The exact workflow quality sequence now passes in a private environment with
+its declared tooling: fatal Ruff repository checks, broader target Ruff, mypy
+and Xenon B/B/A. All20 CI-classification tests pass in2.04s. The ambient Python
+lacked types-PyYAML; installing the workflow dependencies in the private venv
+resolved that environment-only type-check failure. Full CI remains open.
