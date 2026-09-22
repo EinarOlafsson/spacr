@@ -131,3 +131,94 @@ DONE WHEN: the settings column, console, System, the buttons section, the live
 preview and the figures panel can each be resized by dragging an edge, the
 sizes survive leaving and returning to a module, and dragging never fights an
 auto-collapse the user has already undone.
+
+--------------------------------------------------------------------------------
+2026-09-22 — SLICE A LANDED: THE GUI SCALE AND THE PREVIEW SCALE (point 1)
+--------------------------------------------------------------------------------
+
+Slice A is point 1 only. Points 2-7 and the drag-to-resize addendum are other
+slices and are not touched here.
+
+THE MECHANISM, DECIDED BY AN AUDIT. A live scale would have to route every
+hard-coded pixel size through one helper. Counted on nightly across the 328
+modules under spacr/qt: 470 setContentsMargins, 489 setSpacing, 179
+setMinimumWidth/Height, 67 setMaximumWidth/Height, 74 setFixed*, 30
+setMinimumSize, 56 QSize(...), 64 resize(...), 6 setIconSize -- about 1,420
+geometry calls in 181 files -- plus 486 "px" literals in style-sheet text in
+64 files (177 of them in theme.py). Too invasive, and every size added later
+would have to remember the helper. So the GUI scale is a HYBRID:
+
+* GUI scale (Preferences, beside Font scale; 10-200 %, default 100 %) is a
+  startup-time Qt scale factor. spacr/qt/gui_scale.py writes it into
+  QT_SCALE_FACTOR before the QApplication exists (called from launch() in
+  spacr/qt/app.py), so Qt scales every logical pixel: widget sizes, fixed
+  sizes, margins, spacing, QSS paddings, icons, pictures, text. A change
+  needs a restart; the row says so, shows "N% after a restart (now M%)" and
+  offers Restart now, which saves the dialog and restarts through the same
+  record Force restart writes (the module and its settings come back; a run
+  in progress is asked about first). At 100 % nothing is written, so a
+  default launch is byte-for-byte today's.
+* Font scale ("Zoom") stays live, on top. They multiply: 50 % GUI at 200 %
+  font gives half-size widgets with text at its usual size on screen
+  (tested in a child process: body text 26 logical px = 13 device px, a
+  100 px box = 50 device px).
+* A user's own QT_SCALE_FACTOR is kept (SPACR_GUI_SCALE_BASE) and a restart
+  does not compound it. SPACR_GUI_SCALE=1 overrides the stored value for one
+  launch; safespacr reads it as its default, 100 %.
+* The window keeps its physical size at any GUI scale
+  (fit_window_to_gui_scale), so the room gained goes to the content.
+* matplotlib's toolbar icon engine multiplies the device ratio in twice;
+  below a ratio of 1 the pan/zoom icons drew 3 px tall at 50 %.
+  gui_scale.mend_matplotlib_icons() holds the engine's ratio at >= 1 (only
+  when running below 100 %); measured 11 px, and no change at ratio 1 or 2.
+
+EACH PREVIEW'S OWN SCALE, live. spacr/qt/widgets/preview_scale.py (re-exported
+from preview_controls.py) is one implementation used by Mask
+(live_preview.py), Measure (measure_preview.py), Plaque, Timelapse, Motility
+and the three image-UMAP views (umap_explorer.py, umap_search_viewer.py,
+annotation_umap_tab.py). A 10-200 % slider scales, inside that preview only:
+style-sheet sizes it inherits and its widgets set (font sizes, paddings,
+margins, min/max sizes, radii; border widths left alone), min/max/fixed
+widget sizes, layout margins and spacing, button icon sizes, and through a
+hook what the panel draws itself (Measure's crop thumbnails, the UMAP
+figure's dpi). Bases are remembered per widget so it never compounds, a size
+the code sets later becomes the new base, and at 100 % nothing is touched at
+all. Saved per preview under prefs/preview_scale/<name>. The slider sits in
+the preview card's title row beside Refresh (placed on first show) -- in the
+toolbar row it raised the column's minimum and the settings column lost
+68 px at 100 %. It is exempt from its own scale; double-click its value for
+100 %.
+
+SURVIVAL AT 10 %. Ctrl+Alt+0 (free in shortcuts.py; Cmd+Option+0 is not a
+macOS-reserved combination) puts GUI scale, font scale and every preview
+scale back to 100 % and asks to restart with Restart now as the DEFAULT
+button, so Ctrl+Alt+0 then Enter recovers without reading anything. Tested
+on a real MainWindow built at 10 % in a child process (the binding exists,
+Preferences still opens with the row at 10, Enter restarts). Honest limit:
+at 10 % Preferences itself is a ~60 px postage stamp on a 1366x768 screen --
+reachable, not usable by mouse; the keyboard route is the way back.
+
+CHECKED. At GUI 50 % on 1366x768 and 1280x800 (offscreen), Mask live
+preview, Measure crop preview and image UMAP show every control, the image
+canvases and the figure. At 100 % the screens pixel-compare against nightly
+at ec09c3608 (slice B landed): Home identical (0 px); Mask, Measure and
+image UMAP differ by 683 px each, all inside the new slider's own box.
+Tests: tests/qt/test_the_gui_scale_fits_a_laptop.py (23). The shipped-module
+ratchet moves 606 -> 608 for the two new modules.
+
+NEW CAPTIONS for the catalog lane (not translated here): "GUI scale",
+"Restart now", "Later", "Restart spaCR?", "GUI scale reset",
+"{wanted}% after a restart (now {running}%)",
+"GUI scale is back to 100 %. It takes effect when spaCR restarts.",
+"A run is still going. Restarting stops it; the module and its settings come
+back, the run does not.", "Reset GUI scale and font scale to 100%", the GUI
+scale tooltip (preferences.GUI_SCALE_TIP), the Restart now tooltip, and the
+preview-scale tooltip (preview_scale.PREVIEW_SCALE_TIP).
+
+LEFT FOR OTHER SLICES / NOTED. With a saved preview scale below 100 % the
+body splitter's first allocation follows the smaller minimum and gives the
+settings column more room -- the app-shell sizing is slice B's. The Mask
+"MIP" toggle paints its own text and does not follow the preview scale.
+tests/test_i18n_coverage_audit.py::test_written_review_scope_matches_current_source_bound_evidence
+pins docstring counts and moves with any new docstring; the catalog lane
+owns that report.
