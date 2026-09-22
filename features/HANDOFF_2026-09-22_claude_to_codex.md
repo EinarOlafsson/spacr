@@ -20,11 +20,9 @@ workflow.
 
 | Thing | State | Where |
 |---|---|---|
-| Item 473, Make Masks detection methods | an agent is building it | worktree `scratchpad/wt-473`, branch `make-masks-methods-0922` (the only agent branch left on purpose) |
 | Item 372, full-plate OPS run | wells A1 and A3 done, B1 started 07:12 | driver `tools/run_ops_plate.py`, results under `/mnt/wd4tb/spacr_testdata/ops_plate_run/`, GPU busy |
 
-If the 473 agent is gone, its branch holds whatever it had; rebase it on
-nightly before trusting it. The OPS run writes per-well JSON and a log; item
+**Item 473 FINISHED** after this was written and is on nightly. The OPS run
 372 wants the per-well table appended to its file when it finishes, and B2's
 low library-exact rate (0.666 against ~0.72) explained if the data allows.
 
@@ -74,10 +72,17 @@ low library-exact rate (0.666 against ~0.72) explained if the data allows.
   "Start a sample project…" which reads that map when it exists
   (`spacr/qt/widgets/sample_project.py`). Still owed there: the chosen
   pathway's walkthrough one click away, once the walkthroughs exist.
-* **473** (in progress, above): the six remaining organelle detection methods
+* **473 — DONE.** The six remaining organelle detection methods are in
+  Make Masks through `spacr/qt/organelle_modes.py`, which calls the
+  organelle pipeline's own functions, and the enhancement chain is
+  `spacr/qt/detect_chain.py`, with a raw-vs-enhanced compare. Measured on
+  the ten-field PV set, F1 at IoU 0.5: Otsu 0.297 baseline, hysteresis
+  0.523 (best bare method), Otsu + gamma 0.5 0.639, adaptive + closing r3
+  the best precision (0.850); LoG/DoG need "Split touching spots" OFF.
+  TWO QUESTIONS FOR THE MAINTAINER in the item: whether Mask's own
+  preprocessing should grow the same chain, and U-Net is offered but
+  unscored (no checkpoint in the example data).
   in Make Masks plus a pre-detection chain (contrast, background, denoise,
-  sharpen, morphology, split) and a raw-vs-enhanced compare. NOT to be wired
-  into the Mask module without asking the maintainer.
 * **474** (future): one page per organism — Toxoplasma, Plasmodium, Candida —
   each with a description, links and eight tiles, "Coming soon" on the unbuilt
   ones. The proposed module lists are in the item for the maintainer to confirm.
