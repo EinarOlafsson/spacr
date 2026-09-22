@@ -175,7 +175,8 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
 # ---------------------------------------------------------------------------
 
 CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
-              "Object operations", "Otsu", "Object detection",
+              "Object operations", "Otsu", "Detection methods",
+              "Image enhancement", "Object detection",
               "Live magnifier")
 
 
@@ -208,6 +209,8 @@ def test_every_category_is_the_core_applications_folding_section(
             "Filter": made._filter_min_area,
             "Object operations": made._btn_otsu,
             "Otsu": made._otsu_correction,
+            "Detection methods": made._method_note,
+            "Image enhancement": made._enh_gamma,
             "Object detection": made._cp_flow,
             "Live magnifier": made._mag_size,
         }
@@ -709,8 +712,11 @@ def test_dinocell_and_samcell_are_offered_where_installed(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
-        assert [made._mag_mode.itemText(i) for i in range(8)][2:] == [
+        assert _modes(made) == ["otsu", *mm.organelle_modes.modes(),
+                                "cellpose", *_BACKEND_MODES]
+        backends = _modes(made).index("cellpose3:cyto3")
+        assert [made._mag_mode.itemText(i)
+                for i in range(backends, made._mag_mode.count())] == [
             "Cellpose 3 · cyto3", "Cellpose 3 · cyto2", "Cellpose 3 · cyto",
             "Cellpose 3 · nuclei", "DINOCell", "SAMCell"]
         assert made._mag_uninstalled == set()
@@ -740,7 +746,8 @@ def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
+        assert _modes(made) == ["otsu", *mm.organelle_modes.modes(),
+                                "cellpose", *_BACKEND_MODES]
         assert made._mag_uninstalled == set(_BACKEND_MODES)
         for mode in _BACKEND_MODES:
             index = made._mag_mode.findData(mode)

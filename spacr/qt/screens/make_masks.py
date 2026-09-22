@@ -167,8 +167,10 @@ from PySide6.QtWidgets import (
 )
 
 from ...curation import CurationLog
+from .. import detect_chain
 from .. import iconset
 from .. import mask_engine as engine
+from .. import organelle_modes
 from .. import prefs
 from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
@@ -638,6 +640,15 @@ class _MaskCanvas(QLabel):
         #: Off by default, which keeps the stretch a view setting.
         self.detect_on_normalized: bool = False
         self._detection_cache: Optional[tuple] = None
+        #: The pre-detection chain the detectors read the field through
+        #: (:mod:`spacr.qt.detect_chain`), and whether the canvas DRAWS
+        #: what that chain produced instead of the field as loaded. Both
+        #: are view-and-detection settings in the same sense the two
+        #: percentiles are: :attr:`image` keeps the numbers off disk.
+        self.enhance_chain = detect_chain.NO_CHAIN
+        self.enhance_display: bool = False
+        self._enhanced_cache: Optional[tuple] = None
+        self._enhanced_picture: Optional[tuple] = None
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -733,6 +744,8 @@ class _MaskCanvas(QLabel):
         self._gesture_points = []
         self.recrop_boxes = []
         self._inverted = self._inverted_of = None
+        self._detection_cache = None
+        self._enhanced_cache = self._enhanced_picture = None
         self._lookup = self._lookup_mask = self._lookup_image = None
         self.readout = None
         if self.magnifier is not None:
@@ -792,14 +805,21 @@ class _MaskCanvas(QLabel):
             self._inverted_of = self.image
         return self._inverted
 
-    def detection_source(self) -> Optional[np.ndarray]:
-        """The intensities the detectors read.
+    def detection_base(self) -> Optional[np.ndarray]:
+        """The field the enhancement chain starts from.
 
         :meth:`displayed_source` -- the loaded field, or its inversion with
         Invert on -- and, with :attr:`detect_on_normalized` on, that array
         stretched between :attr:`norm_lo` and :attr:`norm_hi` exactly as
         :meth:`refresh` stretches it for drawing, so Otsu, Cellpose and the
         magnifier segment the picture the curator is looking at.
+
+        THE STRETCH IS THE CHAIN'S FIRST STAGE and it is here rather than
+        in :mod:`spacr.qt.detect_chain` because its two levels are
+        percentiles of the WHOLE FIELD: taken inside the magnifier's box
+        they would be a different stretch in every box. Everything after it
+        is applied to whatever region is being detected, which is the box
+        for the magnifier and the field for the detect buttons.
 
         Cached against the array and the two percentiles: the magnifier asks
         on every mouse move, and a percentile pass over a megapixel field
@@ -818,6 +838,60 @@ class _MaskCanvas(QLabel):
         self._detection_cache = (base, key[1], key[2], out)
         return out
 
+    def detection_source(self) -> Optional[np.ndarray]:
+        """The WHOLE FIELD as a detector on it reads it: base plus the chain.
+
+        What the detect buttons segment and what "Show the enhanced image"
+        draws. The magnifier does NOT come through here: its box is
+        enhanced on the worker thread, region by region, so a heavy step is
+        never a frozen window and item 407's progress and Cancel have
+        something to cover.
+
+        Cached against the base array and the chain, because drawing the
+        enhanced field asks on every repaint.
+
+        :returns: the array, or None with no image.
+        """
+        base = self.detection_base()
+        if base is None:
+            return None
+        chain = self.enhance_chain or detect_chain.NO_CHAIN
+        cached = self._enhanced_cache
+        if cached is not None and cached[0] is base and cached[1] == chain:
+            return cached[2]
+        out = detect_chain.prepare(base, chain)
+        self._enhanced_cache = (base, chain, out)
+        return out
+
+    def enhanced_picture(self) -> Optional[np.ndarray]:
+        """:meth:`detection_source`, on the range the canvas can DRAW.
+
+        The chain works in float and the box's picture is a look-up table
+        indexed by an unsigned integer value (:func:`_box_grey_table`), so
+        an enhanced field is put back on the loaded field's own integer
+        range before anything draws it. The numbers a detector read are the
+        float ones; this is the picture of them.
+
+        :returns: the array, or None with no image.
+        """
+        out = self.detection_source()
+        base = self.displayed_source()
+        if out is None or base is None or out is base:
+            return out
+        dtype = np.dtype(base.dtype)
+        if dtype.kind != "u":
+            return out
+        cached = self._enhanced_picture
+        if cached is not None and cached[0] is out:
+            return cached[1]
+        low = float(np.min(out)) if out.size else 0.0
+        span = (float(np.max(out)) - low) if out.size else 1.0
+        scaled = ((np.asarray(out, dtype=np.float64) - low)
+                  / (span or 1.0) * float(np.iinfo(dtype).max))
+        picture = np.clip(scaled, 0, np.iinfo(dtype).max).astype(dtype)
+        self._enhanced_picture = (out, picture)
+        return picture
+
     def refresh(self) -> None:
         """Recompose image + mask overlay and repaint the canvas pixmap.
 
@@ -828,8 +902,9 @@ class _MaskCanvas(QLabel):
         self._schedule_readout()
         if self.image is None or self.mask is None:
             return
-        img = engine.normalize_uint16(self.displayed_source(),
-                                      self.norm_lo, self.norm_hi)
+        source = (self.enhanced_picture() if self.enhance_display
+                  else self.displayed_source())
+        img = engine.normalize_uint16(source, self.norm_lo, self.norm_hi)
         x0, y0, x1, y1 = self._viewport_bounds()
         sub_img = img[y0:y1, x0:x1]
         sub_mask = self.mask[y0:y1, x0:x1]
@@ -2184,6 +2259,17 @@ class _MagnifierRequest(NamedTuple):
     #: request: the same box under the same settings with Invert on and off
     #: are two different questions with two different answers.
     invert: bool = False
+    #: The pre- and post-detection chain (:mod:`spacr.qt.detect_chain`).
+    #: Applied by :func:`_segment_region` on the WORKER thread: a non-local
+    #: means over a whole field is minutes, and item 407's progress and
+    #: Cancel are only worth having if the slow part is behind them.
+    chain: Any = detect_chain.NO_CHAIN
+    #: Every organelle method's parameters
+    #: (:class:`spacr.qt.organelle_modes.MethodParams`). All of them
+    #: whichever mode is chosen, for the reason every other setting is
+    #: here: a mode that cannot run hands the request to another, which
+    #: must find its own settings in it.
+    method_params: Any = organelle_modes.DEFAULT_PARAMS
     #: The Overlap rule the box is to draw its promise in, and the mask it
     #: is to be read against: the pixels the mask already owns inside
     #: ``box``, and a number that changes whenever the canvas is handed a
@@ -2354,7 +2440,7 @@ _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
                          "cellprob_threshold", "normalize", "otsu_correction",
                          "otsu_smoothing", "otsu_fill_holes", "otsu_split",
-                         "invert")
+                         "invert", "chain", "method_params")
 
 
 class _MagnifierResult(NamedTuple):
@@ -2581,12 +2667,38 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
     return labels
 
 
+def _organelle_segmenter(request: _MagnifierRequest, load_model=None):
+    """Segment the region with one of organelle detection's own methods.
+
+    Adaptive, LoG, DoG, ridge, hysteresis and U-Net reach this one
+    function, and it reaches :mod:`spacr.qt.organelle_modes`, which reaches
+    :func:`spacr.object._segment_single_image` -- the routine the organelle
+    mask pipeline's own workers call. THERE IS NO SECOND COPY of any of
+    these methods: a block size tuned on the box under the mouse is the
+    block size a mask run will read, and a method that is fixed in the
+    engine is fixed here on the same day.
+
+    ``load_model`` is the CELLPOSE loader and is not used; a U-Net is
+    loaded from the path the U-Net parameters name.
+    """
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+    labels = organelle_modes.segment(
+        request.crop, canonical_magnifier_mode(request.mode),
+        request.method_params, min_area=int(request.min_area))
+    if ticket is not None:
+        ticket.check()
+    return labels
+
+
 #: ``mode -> segmenter``, in the order the Mode box offers them. A segmenter
 #: takes ``(request, load_model)`` and returns labels shaped like
 #: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
 #: :func:`_segment_region` gives it the Otsu fallback for nothing.
 _MAGNIFIER_SEGMENTERS = {
     "otsu": _otsu_segmenter,
+    **{mode: _organelle_segmenter for mode in organelle_modes.modes()},
     "cellpose": _cellpose_segmenter,
     **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
 }
@@ -2610,9 +2722,12 @@ def canonical_magnifier_mode(mode) -> str:
     return _MAGNIFIER_MODE_ALIASES.get(name, name)
 
 
-#: The two modes the Mode box builds itself, as ``mode -> its caption``.
-#: The rest are named by :data:`_MAGNIFIER_BACKENDS`.
-_MAGNIFIER_MODE_LABELS = {"otsu": "Otsu", "cellpose": "Cellpose"}
+#: The modes the Mode box builds itself, as ``mode -> its caption``: Otsu,
+#: organelle detection's own methods (:mod:`spacr.qt.organelle_modes`) and
+#: Cellpose. The rest are named by :data:`_MAGNIFIER_BACKENDS`.
+_MAGNIFIER_MODE_LABELS = {"otsu": "Otsu",
+                          **organelle_modes.MODE_LABELS,
+                          "cellpose": "Cellpose"}
 
 
 def _magnifier_mode_label(mode: str) -> str:
@@ -2673,6 +2788,10 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     """
     if request.ticket is not None:
         request.ticket.check()
+    chain = request.chain or detect_chain.NO_CHAIN
+    prepared = detect_chain.prepare(request.crop, chain)
+    if prepared is not request.crop:
+        request = request._replace(crop=prepared)
     mode = canonical_magnifier_mode(request.mode)
     segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
@@ -2680,7 +2799,8 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
         note = f"no magnifier mode is called {request.mode!r}"
     elif segmenter is not _otsu_segmenter:
         try:
-            return segmenter(request, load_model), mode, ""
+            labels = segmenter(request, load_model)
+            return _finished_labels(labels, chain, prepared), mode, ""
         except _RunCancelled:
             raise
         except Exception as exc:                            # noqa: BLE001
@@ -2688,6 +2808,25 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
                         request.mode, exc_info=True)
             note = f"{type(exc).__name__}: {exc}"
     return _otsu_segmenter(request, load_model), "otsu", note
+
+
+def _finished_labels(labels, chain, image):
+    """The chain's last two stages, for every mode but Otsu.
+
+    THE OTSU MODE IS LEFT ALONE and keeps the "Fill holes inside an object"
+    and "Split objects that touch" of its own category, which it has always
+    had. The chain's morphology and split would arrive on top of them, and
+    the first thing either does is read the detection back as ONE
+    foreground -- so a pair Otsu had just cut apart would be joined again
+    before being cut a second time. The chain's split is there to give the
+    other threshold methods what Otsu already has, not to give Otsu it
+    twice.
+
+    :param labels: what the mode found.
+    :param chain: the request's chain.
+    :param image: the image the mode read, as the split's landscape.
+    """
+    return detect_chain.finish(labels, chain, intensity=image)
 
 
 def _candidate_overlay(labels: np.ndarray, colour) -> np.ndarray:
@@ -3564,7 +3703,9 @@ class _LiveMagnifier(QObject):
                    "normalize": True, "otsu_correction": 1.0,
                    "otsu_smoothing": OTSU_SMOOTHING,
                    "otsu_fill_holes": True, "otsu_split": True,
-                   "invert": False}
+                   "invert": False,
+                   "chain": detect_chain.NO_CHAIN,
+                   "method_params": organelle_modes.DEFAULT_PARAMS}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
@@ -3581,7 +3722,9 @@ class _LiveMagnifier(QObject):
                 round(float(context["otsu_smoothing"]), 4),
                 bool(context["otsu_fill_holes"]),
                 bool(context["otsu_split"]),
-                bool(context["invert"]))
+                bool(context["invert"]),
+                context["chain"],
+                context["method_params"])
 
     def running_name(self) -> str:
         """What the box is running, as the Updating mark names it.
@@ -3659,12 +3802,51 @@ class _LiveMagnifier(QObject):
         return out
 
     def detector_field(self) -> np.ndarray:
-        """The field the box magnifies: inverted, or the canvas's own."""
+        """The field the box magnifies: enhanced, inverted, or the canvas's own.
+
+        With "Show the enhanced image" on it is the canvas's own enhanced
+        picture (:meth:`_MaskCanvas.enhanced_picture`), so the box and the
+        canvas under it show one image and a curator comparing them is
+        comparing the same chain. The box's DETECTION still enhances the
+        box's own region, on the worker; the difference between the two is
+        the difference between a CLAHE tile grid laid over a field and one
+        laid over a box, and it is why the Compare window shows the box's
+        own region.
+        """
+        if self.canvas.enhance_display:
+            return self.canvas.enhanced_picture()
         if self.canvas.detect_on_normalized:
-            return self.canvas.detection_source()
+            return self.canvas.detection_base()
         if not self.inverting():
             return self.canvas.image
         return self.inverted_field()
+
+    def refresh_view(self) -> None:
+        """Repaint the box because the PICTURE under it changed.
+
+        Not :meth:`refresh`, which asks the model again: switching the
+        enhanced view on and off changes what is drawn and not what was
+        detected, and the objects on screen are still the objects the
+        settings ask for.
+        """
+        self.canvas.update()
+
+    def compare_box(self) -> tuple:
+        """The region a raw-versus-enhanced comparison is to show.
+
+        THE BOX UNDER THE MOUSE when there is one, because that is the
+        region the chain really ran on for the detection that is on screen;
+        the whole field otherwise, which is the region the detect buttons
+        run it on.
+
+        :returns: ``(x0, y0, x1, y1)`` in image pixels.
+        """
+        image = self.canvas.image
+        height, width = (int(v) for v in image.shape[:2])
+        if self.enabled and self._cursor is not None:
+            return engine._magnifier_box(image.shape, self._cursor[0],
+                                         self._cursor[1], self.size)
+        return (0, 0, width, height)
 
     def region_for(self, box, *, invert: bool) -> np.ndarray:
         """A copy of ``box`` of the open field, inverted if Invert is on.
@@ -3685,7 +3867,7 @@ class _LiveMagnifier(QObject):
         """
         x0, y0, x1, y1 = box
         if self.canvas.detect_on_normalized:
-            source = self.canvas.detection_source()
+            source = self.canvas.detection_base()
         else:
             source = self.inverted_field() if invert else self.canvas.image
         return np.array(source[y0:y1, x0:x1], copy=True)
@@ -4927,6 +5109,115 @@ class _OtsuHistogramDialog(QDialog):
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
         self.resize(520, 340)
+
+
+def _parsed_sigmas(text: str) -> tuple:
+    """The filament widths a text box holds, as numbers the engine can read.
+
+    A LIST OF SCALES IS A TEXT BOX and not a row of spin boxes, because how
+    many scales the ridge filter is given is part of the answer: one width
+    for a uniform bundle, four to cover fine tubules and thick ones at
+    once. So the box is parsed rather than validated -- anything that is
+    not a positive number is dropped, and a box that holds nothing usable
+    falls back to the engine's own default rather than raising on the
+    worker thread, where the only way to show the error would be an empty
+    magnifier box.
+
+    :param text: what the user typed, numbers separated by commas or spaces.
+    :returns: the scales, in the order typed, never empty.
+    """
+    out = []
+    for piece in str(text or "").replace(",", " ").split():
+        try:
+            value = float(piece)
+        except ValueError:
+            continue
+        if value > 0:
+            out.append(value)
+    return tuple(out) or organelle_modes.DEFAULT_PARAMS.ridge_sigmas
+
+
+def _grey_pixmap(image: np.ndarray, lower_pct: float,
+                 upper_pct: float) -> QPixmap:
+    """``image`` stretched between two percentiles, as a grey pixmap.
+
+    One conversion for both halves of the Compare window, so the raw
+    picture and the enhanced one are drawn by the same arithmetic and a
+    difference between them is a difference the chain made.
+
+    :param image: any 2-D array; float and integer fields alike.
+    :param lower_pct: the percentile drawn black.
+    :param upper_pct: the percentile drawn white.
+    """
+    data = np.asarray(image, dtype=np.float64)
+    if not data.size:
+        return QPixmap()
+    low = float(np.percentile(data, lower_pct))
+    high = float(np.percentile(data, upper_pct))
+    if high <= low:
+        high = low + 1.0
+    grey = np.ascontiguousarray(
+        (np.clip(data, low, high) - low) / (high - low) * 255.0
+    ).astype(np.uint8)
+    height, width = grey.shape[:2]
+    picture = QImage(grey.data, width, height, width,
+                     QImage.Format_Grayscale8).copy()
+    return QPixmap.fromImage(picture)
+
+
+class _ComparePreview(QDialog):
+    """The image as loaded beside the image the detector reads.
+
+    ONE CLICK IS THE WHOLE FEATURE. A chain of eight optional steps is a
+    chain a curator cannot judge from the objects alone -- a threshold that
+    found nothing may have been given an image with nothing left in it --
+    and the cheapest way to say which it was is to put the two pictures
+    next to each other under the list of what ran.
+
+    Modeless, for :class:`_OtsuHistogramDialog`'s reason: the point is to
+    change a step and look again.
+
+    :param raw: the region as loaded (or inverted, as it is drawn).
+    :param enhanced: the same region after the chain.
+    :param steps: the steps that ran, in words.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, raw: np.ndarray, enhanced: np.ndarray,
+                 steps: str, parent=None):
+        """Build the two pictures, the caption over them and Close."""
+        from ..i18n import tr
+
+        super().__init__(parent)
+        self.setWindowTitle(tr("Raw and enhanced"))
+        layout = QVBoxLayout(self)
+        layout.setSpacing(SPACING["sm"])
+        self.caption = QLabel(steps)
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+        row = QHBoxLayout()
+        self.panes = []
+        for title, array in ((tr("As loaded"), raw),
+                             (tr("As the detector reads it"), enhanced)):
+            column = QVBoxLayout()
+            heading = QLabel(title)
+            heading.setObjectName("Muted")
+            column.addWidget(heading)
+            pane = QLabel()
+            pane.setAlignment(Qt.AlignCenter)
+            pane.setMinimumSize(240, 240)
+            pixmap = _grey_pixmap(array, 1.0, 99.9)
+            if not pixmap.isNull():
+                pane.setPixmap(pixmap.scaled(360, 360, Qt.KeepAspectRatio,
+                                             Qt.SmoothTransformation))
+            self.panes.append(pane)
+            column.addWidget(pane, 1)
+            row.addLayout(column, 1)
+        layout.addLayout(row, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.close)
+        layout.addWidget(buttons)
+        self.resize(780, 440)
 
 
 def fold_description(key: str) -> tuple:
@@ -6782,6 +7073,10 @@ class MakeMasksScreen(QWidget):
         col.addWidget(obj_card)
 
         col.addWidget(self._build_otsu_card())
+        self._methods_card = self._build_methods_card()
+        col.addWidget(self._methods_card)
+        self._sync_method_controls()
+        col.addWidget(self._build_enhance_card())
         col.addWidget(self._build_cellpose_card())
         col.addWidget(self._build_magnifier_card())
 
@@ -7362,7 +7657,8 @@ class MakeMasksScreen(QWidget):
                       otsu_classes=otsu["classes"],
                       otsu_foreground_class=otsu["foreground_class"],
                       otsu_local=otsu["local"],
-                      otsu_window=otsu["window"])
+                      otsu_window=otsu["window"],
+                      **self._chain_provenance())
         self._history.push(out)
         self._refresh_history_buttons()
         inverted = (" of the INVERTED image"
@@ -7877,6 +8173,637 @@ class MakeMasksScreen(QWidget):
         self._sync_otsu_controls()
         return card
 
+    def _build_methods_card(self) -> Section:
+        """The parameters of organelle detection's methods, one mode at a time.
+
+        Six of the Mode box's rows are organelle detection's own methods
+        (:mod:`spacr.qt.organelle_modes`), and each reads different numbers:
+        a block size and an offset, a pair of sigmas, a list of filament
+        widths, two hysteresis levels, a checkpoint. Putting all nineteen on
+        the panel at once would put eighteen controls that are being ignored
+        in front of a curator who cannot tell which is which -- the argument
+        :meth:`_sync_otsu_controls` already makes about three of them.
+
+        SO THE CARD SHOWS ONE MODE'S PARAMETERS AND HIDES THE REST, from
+        :data:`spacr.qt.organelle_modes.PARAMETERS_FOR`, which is also what
+        the ledger records (:func:`spacr.qt.organelle_modes.provenance`). One
+        list, read by the form, by the recorder and by the engine's own
+        settings dict, so the three cannot disagree about what a method
+        read.
+
+        The sentence at the top is
+        :func:`spacr.organelle_types.method_guidance`, built from
+        :data:`spacr.organelle_types.LEGAL_METHODS` -- the shapes spaCR
+        already records the method as a legal detector for.
+        """
+        card = self._settings_category(
+            "Detection methods",
+            "The parameters of the Mode box's organelle methods. Only the "
+            "chosen method's own parameters are shown.",
+        )
+        self._method_note = QLabel()
+        self._method_note.setWordWrap(True)
+        card.body_layout.addWidget(self._method_note)
+        form = self._method_form = QFormLayout()
+        #: ``field of MethodParams -> its control``. One control per
+        #: parameter and not one per mode-and-parameter, so the block size
+        #: the Adaptive mode was tuned at is the block size the Ridge
+        #: mode's adaptive threshold then uses.
+        self._method_widgets: dict = {}
+
+        def row(field: str, caption: str, widget, tip: str) -> None:
+            """Add one parameter row and remember it under its field name."""
+            widget.setToolTip(tip)
+            self._method_widgets[field] = widget
+            if caption:
+                form.addRow(caption, widget)
+            else:
+                form.addRow(widget)
+
+        block = QSpinBox()
+        block.setRange(3, 999)
+        block.setSingleStep(2)
+        block.setValue(51)
+        block.setSuffix(" px")
+        row("adaptive_block", "Block size", block,
+            "The square the local threshold is measured in, centred on each "
+            "pixel; the engine forces it odd. A few times the object "
+            "diameter is the starting point: too small and the middle of a "
+            "large object becomes its own background, too large and it is a "
+            "whole-field threshold again.")
+
+        offset = QDoubleSpinBox()
+        offset.setDecimals(2)
+        offset.setRange(-1000.0, 1000.0)
+        offset.setSingleStep(1.0)
+        offset.setValue(5.0)
+        row("adaptive_offset", "Offset", offset,
+            "Subtracted from the local level before the comparison, in the "
+            "image's own intensity units. Raise it to take fewer background "
+            "pixels, lower it to keep dimmer edges.")
+
+        morph = QSpinBox()
+        morph.setRange(0, 50)
+        morph.setValue(3)
+        morph.setSuffix(" px")
+        row("morph_radius", "Cleanup radius", morph,
+            "The disk the detection is closed and opened with after it is "
+            "thresholded. Raise it to smooth ragged outlines, lower it to "
+            "keep fine detail. The Adaptive mode also pre-smooths with half "
+            "of it; the network methods close with half of it.")
+
+        holes = QSpinBox()
+        holes.setRange(0, 1_000_000)
+        holes.setValue(64)
+        holes.setSuffix(" px²")
+        row("fill_holes", "Fill holes up to", holes,
+            "Holes inside an object smaller than this are filled, so an "
+            "object dimmer in the middle than at its rim does not come back "
+            "as a ring. 0 leaves every hole where it is.")
+
+        watershed = Toggle("Split touching spots")
+        watershed.setChecked(True)
+        row("watershed_spots", "", watershed,
+            "Grow a watershed from each blob centre instead of stamping a "
+            "disk whose radius comes from that blob's own scale. Turn it "
+            "off when single spots are being fragmented.")
+
+        log_min = QDoubleSpinBox()
+        log_min.setDecimals(2)
+        log_min.setRange(0.1, 100.0)
+        log_min.setValue(1.0)
+        row("log_min_sigma", "Min sigma", log_min,
+            "The smallest scale searched, in pixels; a blob's radius is "
+            "about sigma times the square root of two, so 1 finds roughly "
+            "1.4 px puncta. Raise it to ignore single-pixel noise.")
+
+        log_max = QDoubleSpinBox()
+        log_max.setDecimals(2)
+        log_max.setRange(0.1, 200.0)
+        log_max.setValue(10.0)
+        row("log_max_sigma", "Max sigma", log_max,
+            "The largest scale searched, in pixels. Raise it to catch large "
+            "puncta; the filter runs once per scale, so it costs time.")
+
+        log_num = QSpinBox()
+        log_num.setRange(1, 50)
+        log_num.setValue(10)
+        row("log_num_sigma", "Scales", log_num,
+            "How many scales are evaluated between the two sigmas. More "
+            "resolves a wider spread of spot sizes and costs one filter "
+            "pass each; 3 to 5 is enough when the spots are all one size.")
+
+        log_thresh = QDoubleSpinBox()
+        log_thresh.setDecimals(4)
+        log_thresh.setRange(0.0001, 1.0)
+        log_thresh.setSingleStep(0.005)
+        log_thresh.setValue(0.01)
+        row("log_threshold", "Blob threshold", log_thresh,
+            "The blob response a spot has to reach to be kept. Lower it to "
+            "find fainter spots and more noise. DoG reads this one too: it "
+            "has no threshold of its own.")
+
+        dog_low = QDoubleSpinBox()
+        dog_low.setDecimals(2)
+        dog_low.setRange(0.1, 100.0)
+        dog_low.setValue(1.0)
+        row("dog_sigma_low", "Low sigma", dog_low,
+            "The smaller of the two Gaussians, in pixels: the finest "
+            "detail kept. Raise it to suppress noise.")
+
+        dog_high = QDoubleSpinBox()
+        dog_high.setDecimals(2)
+        dog_high.setRange(0.1, 200.0)
+        dog_high.setValue(3.0)
+        row("dog_sigma_high", "High sigma", dog_high,
+            "The larger of the two Gaussians, in pixels. Scales step up "
+            "from the low sigma by a factor of 1.6 until this bound, so a "
+            "wider gap covers more spot sizes and costs more passes.")
+
+        ridge_filter = QComboBox()
+        for name in ("frangi", "sato", "meijering"):
+            ridge_filter.addItem(name, name)
+        row("ridge_filter", "Ridge filter", ridge_filter,
+            "Which vesselness filter measures how tube-like each pixel's "
+            "neighbourhood is. Frangi is the usual choice; Sato responds "
+            "more to bright tubes, Meijering to thin neurite-like ones.")
+
+        ridge_sigmas = QLineEdit("1, 2, 3")
+        row("ridge_sigmas", "Filament widths", ridge_sigmas,
+            "The scales the filter looks for, in pixels, separated by "
+            "commas; each should be about the half-width of a filament. Add "
+            "a larger value for thick bundles and keep the small ones for "
+            "fine tubules. Runtime grows with the list.")
+
+        ridge_threshold = QComboBox()
+        ridge_threshold.addItem("Otsu", "otsu")
+        ridge_threshold.addItem("Adaptive", "adaptive")
+        row("ridge_threshold", "Cut the response at", ridge_threshold,
+            "How the filter's response becomes a foreground. Otsu takes one "
+            "level for the whole region; Adaptive uses the block size and "
+            "offset above and keeps faint filaments in dim corners, at the "
+            "cost of background elsewhere.")
+
+        skeleton = Toggle("Reduce to a one-pixel skeleton")
+        row("skeletonize", "", skeleton,
+            "Label the centre line of the network instead of the filled "
+            "filaments, so a measured area tracks network LENGTH rather "
+            "than filament thickness. Leave it off to measure filament "
+            "mass.")
+
+        hyst_low = QDoubleSpinBox()
+        hyst_low.setDecimals(3)
+        hyst_low.setRange(0.0, 1_000_000.0)
+        hyst_low.setValue(0.2)
+        row("hysteresis_low", "Weak level", hyst_low,
+            "Pixels above this are kept only where they connect to a seed "
+            "above the strong level. Under 1.0 it is read as a fraction and "
+            "becomes that percentile of the region (0.2 is the 20th); 1.0 "
+            "and above is an absolute intensity.")
+
+        hyst_high = QDoubleSpinBox()
+        hyst_high.setDecimals(3)
+        hyst_high.setRange(0.0, 1_000_000.0)
+        hyst_high.setValue(0.6)
+        row("hysteresis_high", "Strong level", hyst_high,
+            "Only pieces holding a pixel above this survive at all, and "
+            "they then grow outward down to the weak level. Read as a "
+            "percentile below 1.0, as an absolute intensity above it.")
+
+        unet_path = QWidget()
+        unet_row = QHBoxLayout(unet_path)
+        unet_row.setContentsMargins(0, 0, 0, 0)
+        self._unet_path_edit = QLineEdit()
+        self._unet_path_edit.setPlaceholderText("model.pt")
+        unet_browse = QPushButton("Browse…")
+        unet_browse.setCursor(Qt.PointingHandCursor)
+        unet_browse.clicked.connect(self._on_pick_unet_model)
+        unet_row.addWidget(self._unet_path_edit, 1)
+        unet_row.addWidget(unet_browse)
+        row("unet_model_path", "U-Net checkpoint", unet_path,
+            "A .pt or .pth file holding a model that takes one channel and "
+            "returns one channel of logits. HEAVY: the file is loaded and "
+            "the network is run, which on a CPU is seconds per box and "
+            "minutes per field.")
+
+        unet_threshold = QDoubleSpinBox()
+        unet_threshold.setDecimals(3)
+        unet_threshold.setRange(0.0, 1.0)
+        unet_threshold.setSingleStep(0.05)
+        unet_threshold.setValue(0.5)
+        row("unet_threshold", "Probability cut-off", unet_threshold,
+            "Where the network's output is cut. Lower it to recover faint "
+            "branches along with false positives; raise it to keep only "
+            "confident pixels, which tends to break weak connections.")
+
+        card.body_layout.addLayout(form)
+        for widget in self._method_widgets.values():
+            for signal in ("valueChanged", "currentIndexChanged",
+                           "textChanged", "toggled"):
+                changed = getattr(widget, signal, None)
+                if changed is not None:
+                    changed.connect(self._on_magnifier_context_changed)
+        self._sync_method_controls()
+        return card
+
+    def _on_pick_unet_model(self) -> None:
+        """Choose the U-Net checkpoint the U-Net mode is to load."""
+        from ..i18n import tr
+
+        path, _filter = QFileDialog.getOpenFileName(
+            self, tr("Choose a U-Net checkpoint"), "",
+            tr("Torch checkpoints (*.pt *.pth)"))
+        if path:
+            self._unet_path_edit.setText(path)
+
+    def _sync_method_controls(self, *_args) -> None:
+        """Show the chosen mode's parameters and hide every other method's.
+
+        A control that is being read and a control that is being ignored
+        look identical; the modes each read four to seven of nineteen, so
+        the card would otherwise be mostly controls that do nothing.
+
+        THE CARD ITSELF STAYS, empty but for a sentence, under Otsu,
+        Cellpose and the backends, which read none of these parameters. A
+        category that comes and goes is a category whose folded state, and
+        whose place on the panel, a user cannot learn -- and the note is
+        where they are told which category their mode reads instead.
+        """
+        from ..i18n import tr
+
+        mode = canonical_magnifier_mode(getattr(self._magnifier, "mode", None))
+        shown = organelle_modes.PARAMETERS_FOR.get(mode, ())
+        for field, widget in self._method_widgets.items():
+            self._method_form.setRowVisible(widget, field in shown)
+        if not shown:
+            self._method_note.setText(tr(
+                "The mode chosen in Live magnifier reads no parameters "
+                "here. Choose Adaptive threshold, LoG blobs, DoG blobs, "
+                "Ridge filter, Hysteresis or U-Net to see its own."))
+            return
+        note = tr(organelle_modes.guidance(mode))
+        heavy = organelle_modes.HEAVY_MODES.get(mode)
+        if heavy:
+            note = f"{note} {tr('Heavy: this mode {what}.', what=tr(heavy))}"
+        self._method_note.setText(note)
+
+    def _method_params(self) -> "organelle_modes.MethodParams":
+        """The Detection methods card as the engine's parameters.
+
+        Read on the GUI thread whenever a request is built, like every
+        other setting a model reads, so the box under the mouse and the
+        whole-image run cannot be answering under different numbers.
+        """
+        widgets = getattr(self, "_method_widgets", None)
+        if not widgets:
+            return organelle_modes.DEFAULT_PARAMS
+        return organelle_modes.MethodParams(
+            adaptive_block=int(widgets["adaptive_block"].value()),
+            adaptive_offset=float(widgets["adaptive_offset"].value()),
+            morph_radius=int(widgets["morph_radius"].value()),
+            fill_holes=int(widgets["fill_holes"].value()),
+            watershed_spots=bool(widgets["watershed_spots"].isChecked()),
+            log_min_sigma=float(widgets["log_min_sigma"].value()),
+            log_max_sigma=float(widgets["log_max_sigma"].value()),
+            log_num_sigma=int(widgets["log_num_sigma"].value()),
+            log_threshold=float(widgets["log_threshold"].value()),
+            dog_sigma_low=float(widgets["dog_sigma_low"].value()),
+            dog_sigma_high=float(widgets["dog_sigma_high"].value()),
+            ridge_filter=str(widgets["ridge_filter"].currentData()),
+            ridge_sigmas=_parsed_sigmas(widgets["ridge_sigmas"].text()),
+            ridge_threshold=str(widgets["ridge_threshold"].currentData()),
+            skeletonize=bool(widgets["skeletonize"].isChecked()),
+            hysteresis_low=float(widgets["hysteresis_low"].value()),
+            hysteresis_high=float(widgets["hysteresis_high"].value()),
+            unet_model_path=str(self._unet_path_edit.text()).strip(),
+            unet_threshold=float(widgets["unet_threshold"].value()),
+        )
+
+    def _build_enhance_card(self) -> Section:
+        """The pre- and post-detection chain, for every mode alike.
+
+        :mod:`spacr.qt.detect_chain` is what each row means and
+        :data:`spacr.qt.detect_chain.CHAIN_ORDER` is the order they run in,
+        which is fixed and is printed at the top of the card rather than
+        left to be inferred from the order the rows happen to sit in.
+
+        THE FIRST STAGE IS NOT HERE. The percentile stretch is the Display
+        category's "Detect on the normalized image", because its two levels
+        are percentiles of the WHOLE FIELD and the magnifier's box is not
+        the field. The note says where it is rather than putting a second
+        switch for it on this card.
+
+        THE CHAIN IS NOT WIRED INTO THE MASK MODULE. Within Make Masks it
+        changes only how objects are found for a curator to accept or
+        reject; making a mask RUN detect on an enhanced image is a
+        different decision, because a model trained on those masks would
+        then have to see the same input at inference. Item 473 asks the
+        maintainer first, and until that answer the Mask module's own
+        preprocessing is untouched.
+        """
+        card = self._settings_category(
+            "Image enhancement",
+            "Optional steps applied to what the detector reads, in one "
+            "fixed order. The image on disk is never changed.",
+        )
+        order = QLabel(
+            "Order: percentile stretch (Display) → background → denoise → "
+            "contrast → sharpen → detect → morphology → split.")
+        order.setWordWrap(True)
+        order.setObjectName("Muted")
+        card.body_layout.addWidget(order)
+
+        form = QFormLayout()
+        self._enh_background = QComboBox()
+        self._enh_background.addItem("None", "none")
+        self._enh_background.addItem("Rolling ball", "rolling_ball")
+        self._enh_background.addItem("Top-hat", "tophat")
+        self._enh_background.setToolTip(
+            "Subtract the slowly varying background before anything else. "
+            "Rolling ball fits a surface of the radius below and takes it "
+            "away, which is what flattens uneven illumination; Top-hat "
+            "keeps only what is brighter than its surroundings within that "
+            "radius and is much faster. Set the radius comfortably LARGER "
+            "than the largest object: a radius under the object size eats "
+            "the objects with the background. HEAVY: the rolling ball is "
+            "seconds on a whole field.")
+        form.addRow("Background", self._enh_background)
+
+        self._enh_background_radius = QSpinBox()
+        self._enh_background_radius.setRange(1, 2000)
+        self._enh_background_radius.setValue(50)
+        self._enh_background_radius.setSuffix(" px")
+        self._enh_background_radius.setToolTip(
+            "The ball's or the top-hat disk's radius, in pixels. Larger "
+            "than the largest object and smaller than the scale the "
+            "illumination itself varies on.")
+        form.addRow("Background radius", self._enh_background_radius)
+
+        self._enh_denoise = QComboBox()
+        self._enh_denoise.addItem("None", "none")
+        self._enh_denoise.addItem("Gaussian", "gaussian")
+        self._enh_denoise.addItem("Median", "median")
+        self._enh_denoise.addItem("Bilateral", "bilateral")
+        self._enh_denoise.addItem("Non-local means", "nlm")
+        self._enh_denoise.setToolTip(
+            "Smooth the noise before the contrast step amplifies it. "
+            "Gaussian is a blur and softens edges with the noise; Median "
+            "removes speckle and keeps edges; Bilateral and Non-local means "
+            "keep edges better still and are much slower. HEAVY: non-local "
+            "means is minutes on a whole 2,000 px field, and seconds on a "
+            "magnifier box.")
+        form.addRow("Denoise", self._enh_denoise)
+
+        self._enh_denoise_strength = QDoubleSpinBox()
+        self._enh_denoise_strength.setDecimals(2)
+        self._enh_denoise_strength.setRange(0.1, 50.0)
+        self._enh_denoise_strength.setValue(1.0)
+        self._enh_denoise_strength.setToolTip(
+            "How much smoothing: the Gaussian's sigma in pixels, the "
+            "median's and the bilateral's disk radius, or the non-local "
+            "means' cut-off in multiples of the noise it measures.")
+        form.addRow("Denoise strength", self._enh_denoise_strength)
+
+        self._enh_gamma = QDoubleSpinBox()
+        self._enh_gamma.setDecimals(2)
+        self._enh_gamma.setRange(0.05, 5.0)
+        self._enh_gamma.setSingleStep(0.05)
+        self._enh_gamma.setValue(1.0)
+        self._enh_gamma.setToolTip(
+            "The exponent the intensities are raised to on 0..1. Below 1 "
+            "lifts the dim end, so faint objects rise out of the "
+            "background; above 1 pushes it down and leaves only the bright "
+            "ones. 1.00 is off.")
+        form.addRow("Gamma", self._enh_gamma)
+        card.body_layout.addLayout(form)
+
+        self._enh_clahe = Toggle("CLAHE (local histogram equalisation)")
+        self._enh_clahe.setToolTip(
+            "Equalise the histogram inside each tile rather than over the "
+            "whole field, with a limit on how much any one level may be "
+            "stretched. It is what brings out objects in a dim corner "
+            "without blowing out the bright middle. It also amplifies "
+            "noise in empty tiles, which is what the clip limit is for.")
+        card.body_layout.addWidget(self._enh_clahe)
+
+        clahe_form = QFormLayout()
+        self._enh_clahe_tile = QSpinBox()
+        self._enh_clahe_tile.setRange(8, 1024)
+        self._enh_clahe_tile.setValue(64)
+        self._enh_clahe_tile.setSuffix(" px")
+        self._enh_clahe_tile.setToolTip(
+            "The side of one tile, in pixels. Comfortably larger than one "
+            "object and smaller than the scale the illumination varies on; "
+            "a tile the size of one object equalises the object against "
+            "itself.")
+        clahe_form.addRow("CLAHE tile", self._enh_clahe_tile)
+
+        self._enh_clahe_clip = QDoubleSpinBox()
+        self._enh_clahe_clip.setDecimals(3)
+        self._enh_clahe_clip.setRange(0.001, 1.0)
+        self._enh_clahe_clip.setSingleStep(0.005)
+        self._enh_clahe_clip.setValue(0.01)
+        self._enh_clahe_clip.setToolTip(
+            "How much contrast a tile may be given, 0 to 1. Higher is more "
+            "contrast and more amplified noise in tiles that hold only "
+            "background.")
+        clahe_form.addRow("CLAHE clip limit", self._enh_clahe_clip)
+        card.body_layout.addLayout(clahe_form)
+
+        self._enh_equalize = Toggle("Histogram equalisation (whole image)")
+        self._enh_equalize.setToolTip(
+            "Flatten the histogram of the whole region at once, so every "
+            "brightness band ends up with the same number of pixels. It is "
+            "the strongest of the contrast steps and the least respectful "
+            "of the data: a field that is mostly background has its "
+            "background stretched across half the range.")
+        card.body_layout.addWidget(self._enh_equalize)
+
+        self._enh_sharpen = Toggle("Unsharp mask")
+        self._enh_sharpen.setToolTip(
+            "Add back a high-pass copy of the image, which makes edges "
+            "steeper and helps a threshold land on the boundary rather "
+            "than in the halo. Too much amount puts a bright rim around "
+            "every object and a dark moat outside it.")
+        card.body_layout.addWidget(self._enh_sharpen)
+
+        sharpen_form = QFormLayout()
+        self._enh_sharpen_radius = QDoubleSpinBox()
+        self._enh_sharpen_radius.setDecimals(2)
+        self._enh_sharpen_radius.setRange(0.1, 50.0)
+        self._enh_sharpen_radius.setValue(1.0)
+        self._enh_sharpen_radius.setSuffix(" px")
+        self._enh_sharpen_radius.setToolTip(
+            "The blur the mask is built from, in pixels: about the scale "
+            "of the edges to sharpen.")
+        sharpen_form.addRow("Sharpen radius", self._enh_sharpen_radius)
+
+        self._enh_sharpen_amount = QDoubleSpinBox()
+        self._enh_sharpen_amount.setDecimals(2)
+        self._enh_sharpen_amount.setRange(0.0, 10.0)
+        self._enh_sharpen_amount.setValue(1.0)
+        self._enh_sharpen_amount.setToolTip(
+            "How much of the mask is added back. 1 is a normal sharpen; "
+            "above 2 the halos start to become objects of their own.")
+        sharpen_form.addRow("Sharpen amount", self._enh_sharpen_amount)
+        card.body_layout.addLayout(sharpen_form)
+
+        after_form = QFormLayout()
+        self._enh_morphology = QComboBox()
+        self._enh_morphology.addItem("None", "none")
+        self._enh_morphology.addItem("Opening (separate)", "open")
+        self._enh_morphology.addItem("Closing (join)", "close")
+        self._enh_morphology.addItem("Opening then closing", "open_close")
+        self._enh_morphology.setToolTip(
+            "Applied to what the detector found, not to the image. Opening "
+            "erases what is thinner than the radius, which breaks two "
+            "objects joined by a bridge; Closing fills what is thinner, "
+            "which joins one object broken into pieces.")
+        after_form.addRow("Morphology", self._enh_morphology)
+
+        self._enh_morphology_radius = QSpinBox()
+        self._enh_morphology_radius.setRange(1, 50)
+        self._enh_morphology_radius.setValue(1)
+        self._enh_morphology_radius.setSuffix(" px")
+        self._enh_morphology_radius.setToolTip(
+            "The disk the opening or closing uses, in pixels. It is a "
+            "length: a bridge narrower than twice this is broken, a gap "
+            "narrower than twice this is filled.")
+        after_form.addRow("Morphology radius", self._enh_morphology_radius)
+        card.body_layout.addLayout(after_form)
+
+        self._enh_split = Toggle("Split objects that touch")
+        self._enh_split.setToolTip(
+            "Cut an object with two centres in two, at the ridge between "
+            "them, on the distance to the background. It is the Otsu "
+            "category's own split offered to every other method. The Otsu "
+            "mode is not affected by this box and keeps using its own: "
+            "applying both would join what Otsu had just separated and cut "
+            "it again.")
+        card.body_layout.addWidget(self._enh_split)
+
+        self._enh_show = Toggle("Show the enhanced image")
+        self._enh_show.setToolTip(
+            "Draw the image the detector reads, on the canvas and in the "
+            "magnifier's box, instead of the image as loaded. Nothing that "
+            "measures, filters or saves is affected; the hover readout "
+            "goes on reporting the field's own values.")
+        self._enh_show.toggled.connect(self._on_show_enhanced)
+        card.body_layout.addWidget(self._enh_show)
+
+        self._btn_compare = QPushButton("Compare raw and enhanced")
+        self._btn_compare.setCursor(Qt.PointingHandCursor)
+        self._btn_compare.setToolTip(
+            "Put the image as loaded beside the image the detector reads, "
+            "for the magnifier's box when it has one and for the whole "
+            "field otherwise, so every step of the chain can be judged by "
+            "looking at what it did.")
+        self._btn_compare.clicked.connect(self._on_compare_enhanced)
+        card.body_layout.addWidget(self._btn_compare)
+
+        self._enh_heavy = QLabel()
+        self._enh_heavy.setWordWrap(True)
+        card.body_layout.addWidget(self._enh_heavy)
+
+        for widget in (self._enh_background, self._enh_denoise,
+                       self._enh_morphology):
+            widget.currentIndexChanged.connect(self._on_chain_changed)
+        for widget in (self._enh_background_radius, self._enh_gamma,
+                       self._enh_denoise_strength, self._enh_clahe_tile,
+                       self._enh_clahe_clip, self._enh_sharpen_radius,
+                       self._enh_sharpen_amount,
+                       self._enh_morphology_radius):
+            widget.valueChanged.connect(self._on_chain_changed)
+        for widget in (self._enh_clahe, self._enh_equalize,
+                       self._enh_sharpen, self._enh_split):
+            widget.toggled.connect(self._on_chain_changed)
+        self._on_chain_changed()
+        return card
+
+    def _detect_chain(self) -> "detect_chain.Chain":
+        """The Image enhancement card as one :class:`detect_chain.Chain`."""
+        if not hasattr(self, "_enh_background"):
+            return detect_chain.NO_CHAIN
+        return detect_chain.Chain(
+            background=str(self._enh_background.currentData()),
+            background_radius=int(self._enh_background_radius.value()),
+            denoise=str(self._enh_denoise.currentData()),
+            denoise_strength=float(self._enh_denoise_strength.value()),
+            gamma=float(self._enh_gamma.value()),
+            clahe=bool(self._enh_clahe.isChecked()),
+            clahe_tile=int(self._enh_clahe_tile.value()),
+            clahe_clip=float(self._enh_clahe_clip.value()),
+            equalize=bool(self._enh_equalize.isChecked()),
+            sharpen=bool(self._enh_sharpen.isChecked()),
+            sharpen_radius=float(self._enh_sharpen_radius.value()),
+            sharpen_amount=float(self._enh_sharpen_amount.value()),
+            morphology=str(self._enh_morphology.currentData()),
+            morphology_radius=int(self._enh_morphology_radius.value()),
+            split=bool(self._enh_split.isChecked()),
+        )
+
+    def _chain_provenance(self) -> dict:
+        """The chain as a mask's ledger entry records it.
+
+        The percentile stretch is read from the Display category, because
+        it is the chain's first stage and lives there; see
+        :meth:`_build_enhance_card`.
+        """
+        return detect_chain.provenance(
+            self._detect_chain(),
+            percentile_stretch=bool(self._canvas.detect_on_normalized))
+
+    def _on_chain_changed(self, *_args) -> None:
+        """A chain step changed: warn about the slow ones and re-detect."""
+        from ..i18n import tr
+
+        chain = self._detect_chain()
+        heavy = detect_chain.heavy_steps(chain)
+        self._enh_heavy.setText(
+            tr("Heavy: {steps}. A whole-image run shows progress and can be "
+               "cancelled.", steps=", ".join(tr(step) for step in heavy))
+            if heavy else "")
+        self._canvas.enhance_chain = chain
+        self._canvas.refresh()
+        self._on_magnifier_context_changed()
+
+    def _on_show_enhanced(self, on: bool) -> None:
+        """Draw the image the detector reads, or the image as loaded."""
+        from ..i18n import tr
+
+        self._canvas.enhance_display = bool(on)
+        self._canvas.enhance_chain = self._detect_chain()
+        self._canvas.refresh()
+        self._magnifier.refresh_view()
+        self._status_label.setText(
+            tr("Showing the enhanced image the detector reads.") if on else
+            tr("Showing the image as loaded."))
+
+    def _on_compare_enhanced(self) -> None:
+        """Open the raw image beside the enhanced one, and say what ran.
+
+        The magnifier's box when there is one, because that is the region a
+        curator is judging and the region every step ran on live; the whole
+        field otherwise.
+        """
+        from ..i18n import tr
+
+        image = self._canvas.image
+        if image is None:
+            return
+        chain = self._detect_chain()
+        box = self._magnifier.compare_box()
+        raw = np.array(self._canvas.displayed_source()
+                       [box[1]:box[3], box[0]:box[2]], copy=True)
+        enhanced = detect_chain.prepare(raw, chain)
+        steps = detect_chain.describe(
+            chain,
+            percentile_stretch=bool(self._canvas.detect_on_normalized))
+        self._compare_dialog = _ComparePreview(
+            raw, enhanced,
+            steps or tr("No enhancement step is switched on."), self)
+        self._compare_dialog.show()
+
     def _sync_otsu_controls(self, *_args) -> None:
         """Leave enabled only the Otsu boxes that are answering anything.
 
@@ -8212,6 +9139,8 @@ class MakeMasksScreen(QWidget):
         self._show_intermediates(cellprob, flow)
         self._sync_model_choices()
 
+        labels = detect_chain.finish(labels, self._detect_chain(),
+                                     intensity=self._detector_image())
         found = int(labels.max()) if labels.size else 0
         if not found:
             self._status_label.setText(
@@ -8235,7 +9164,8 @@ class MakeMasksScreen(QWidget):
                       cellprob_threshold=float(self._cp_cellprob.value()),
                       flow_threshold=float(self._cp_flow.value()),
                       diameter=int(self._cp_diameter.value()),
-                      min_size=self._detect_min_area())
+                      min_size=self._detect_min_area(),
+                      **self._chain_provenance())
         self._history.push(out)
         self._refresh_history_buttons()
         inverted = (" from the INVERTED image"
@@ -8293,6 +9223,11 @@ class MakeMasksScreen(QWidget):
 
         self._mag_mode = QComboBox()
         self._mag_mode.addItem("Otsu", "otsu")
+        for mode, label in organelle_modes.MODE_LABELS.items():
+            self._mag_mode.addItem(label, mode)
+            self._mag_mode.setItemData(
+                self._mag_mode.count() - 1,
+                organelle_modes.guidance(mode), Qt.ToolTipRole)
         if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
         self._mag_uninstalled = set()
@@ -8306,7 +9241,11 @@ class MakeMasksScreen(QWidget):
             "under Object operations and the "
             "threshold correction and the rest of the Otsu category, and "
             "runs whenever a "
-            "model cannot be loaded. Cellpose uses the model, both thresholds, "
+            "model cannot be loaded. Adaptive threshold, LoG blobs, DoG "
+            "blobs, Ridge filter, Hysteresis and U-Net are organelle "
+            "detection's own methods, running through the same code as a "
+            "mask run and reading the Detection methods category; the row's "
+            "tooltip says what each suits. Cellpose uses the model, both thresholds, "
             "the diameter and the normalization set under Object detection, "
             "and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, "
             "nuclei), DINOCell and SAMCell are always listed and greyed "
@@ -8495,13 +9434,20 @@ class MakeMasksScreen(QWidget):
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
             "invert": bool(self._cp_invert.isChecked()),
+            "chain": self._detect_chain(),
+            "method_params": self._method_params(),
         }
 
     def _on_magnifier_mode(self, mode) -> None:
-        """Choose the magnifier's model; Sensitivity is the Otsu mode's."""
+        """Choose the magnifier's model; Sensitivity is the Otsu mode's.
+
+        The Detection methods card follows the mode, so the parameters on
+        screen are the ones the mode just chosen reads and no others.
+        """
         name = canonical_magnifier_mode(mode)
         self._mag_sensitivity.setEnabled(name == "otsu")
         self._magnifier.set_mode(name)
+        self._sync_method_controls()
 
     def _on_mode_row_changed(self, _index: int) -> None:
         """The Mode box's row changed: hand the mode on, if it can run.
@@ -8722,13 +9668,19 @@ class MakeMasksScreen(QWidget):
         would leave the Otsu threshold correction
         pointing at intensities the field does not contain. The measurement
         is in the first function's docstring.
+
+        IT IS ONE CALL because the canvas already assembles exactly this
+        array for the Image enhancement card: the inversion is
+        :meth:`_MaskCanvas.displayed_source`, the percentile stretch is
+        :meth:`_MaskCanvas.detection_base`, and the chain is
+        :meth:`_MaskCanvas.detection_source`. This method used to repeat
+        the first two, which is how a detect button and the magnifier could
+        have ended up reading different arrays the day one of them changed.
         """
         image = self._canvas.image
-        if image is not None and self._canvas.detect_on_normalized:
-            return self._canvas.detection_source()
-        if image is None or not self._cp_invert.isChecked():
-            return image
-        return engine.invert_normalized(image)
+        if image is None:
+            return None
+        return self._canvas.detection_source()
 
     def _on_min_area_changed(self, value) -> None:
         """Hand Min area to the canvas, for Ctrl + left click's seed spacing.
@@ -8824,7 +9776,13 @@ class MakeMasksScreen(QWidget):
                       cellprob_threshold=float(request.cellprob_threshold),
                       diameter=int(request.diameter),
                       otsu_correction=float(request.otsu_correction),
-                      n_objects=len(added), scope=request.scope)
+                      n_objects=len(added), scope=request.scope,
+                      method_parameters=organelle_modes.provenance(
+                          result.mode, request.method_params),
+                      **detect_chain.provenance(
+                          request.chain or detect_chain.NO_CHAIN,
+                          percentile_stretch=bool(
+                              self._canvas.detect_on_normalized)))
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(tr(
