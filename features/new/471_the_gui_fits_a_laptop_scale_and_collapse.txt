@@ -344,3 +344,88 @@ test_chaining_gui (the Run row's section).
 NEW CAPTIONS for the catalog lane (not translated here): "Actions";
 "Click to hide {name}, or drag to resize it."; "Click to show {name} again,
 or drag to resize it."
+
+--------------------------------------------------------------------------------
+2026-09-22 — SLICE A, SECOND ROUND: THE GUI SCALE IS LIVE, AND EVERY SCALE
+CHANGE ASKS KEEP OR REVERT
+--------------------------------------------------------------------------------
+
+In the maintainer's words:
+
+    "the GUI scale is only adjusted after startup. please make this work with
+    out restarting. and if either font or GUI scale are modified the user
+    should be prompted with a Keep or Revert popup."
+
+WHAT CHANGED. The startup Qt scale factor of the section above is gone. The
+GUI scale is now applied live by a scaling layer over Qt's own setters
+(spacr/qt/gui_scale.py, install_scaling_layer, called from launch() before
+the first widget exists). No restart path is left in Preferences.
+
+HOW THE LAYER WORKS, and why it is not 1,420 edits. It replaces the setters
+themselves on the Qt classes -- QWidget's setMinimum/Maximum/Fixed
+Width/Height/Size and setStyleSheet, the layouts' setContentsMargins,
+setSpacing, setHorizontal/VerticalSpacing and addSpacing, every setIconSize
+in QtWidgets, QSplitter.setSizes -- and each replacement:
+
+  * remembers on the object the value the code asked for, its size at 100 %;
+  * hands Qt that value times the current scale;
+  * answers the matching getter in 100 % units, so the theme's sheet
+    digests, slice B's persisted splitter sizes and any code that reads a
+    size and sets it again keep working in one unit and never compound.
+
+set_gui_scale_live() then walks every live widget and layout, puts the
+remembered values back at the new scale, rebuilds what a sheet cannot reach
+(refresh_theme: the window chrome and the Home tiles' painted pixmaps) and
+asks the windows to lay out again. Widgets built later are scaled as they
+are built, so the lazily built panels (284/380) and the settings categories
+that wait off the page need nothing of their own.
+
+STYLE SHEETS. scale_qss_text rewrites only the values of size properties --
+font-size, font, padding, margin, min/max width and height, width, height,
+spacing, border radii -- in place, by regex, leaving selectors, colours,
+borders and url(...) data untouched. The theme's sheet goes through the
+same replacement, which is how font scale and GUI scale compose: a font
+size is base x font scale x GUI scale. A user's own QT_SCALE_FACTOR is not
+touched and still multiplies on the outside.
+
+WHAT ELSE FOLLOWS. Matplotlib figure dpi (base x GUI scale x that preview's
+own scale), matplotlib toolbar icons and any other icon size the style
+supplies rather than the code, Measure's crop thumbnails, and the preview
+sliders of the first round, which compose with it.
+
+WHAT STILL DOES NOT FOLLOW, named rather than hidden: text and shapes a
+widget paints at fixed pixel coordinates, pixmaps scaled to a number a
+widget computed, setFont with an explicit size, move/setGeometry positions,
+header section sizes, a Python sizeHint override that returns a constant,
+style metrics the theme's sheet does not restate, and pyqtgraph's axis
+text. A size computed from font metrics is scaled once by the font and
+again by the setter; the layer keeps a base that looks like its own scaled
+value (within 6 %) rather than re-basing, which is what stopped the window
+chrome coming back half size after a round trip.
+
+KEEP OR REVERT. change_scales() applies the new GUI and font scale at once
+and opens "Keep these settings?" without blocking, counting down 15 s.
+Revert, Esc, closing the window and the end of the countdown all put the
+old values back; Keep leaves them. The question is exempt from the scale
+(EXEMPT property on its window) and states its own text sizes, so it stays
+readable at 10 % GUI and 10 % font -- which is the recovery that matters,
+and the Z + wheel gesture now ends with the same question. Ctrl+Alt+0
+remains the backup and no longer restarts anything.
+
+CHECKED. tests/qt/test_the_gui_scale_fits_a_laptop.py (27) covers a live
+change reaching widgets already built and widgets built afterwards, the
+zero-drift round trip 100 -> 50 -> 170 -> 10 -> 100 on every recorded size,
+the re-measuring widget that must not re-base, the exempt window, the
+composition of the two scales, the sheet rewrite leaving borders and data
+URIs alone, the countdown's auto-revert, Keep, Revert, Esc, the readable
+question at 10 %, the Preferences slider applying live and asking, the
+reset key, and the figure dpi following both scales. 919 tests across the
+preferences, zoom, theme, shell, preview and figure suites pass beside it.
+
+Screenshots at 1366x768, offscreen: mask/measure/umap at live100, live50
+and live100b (one process, scale changed under a running window) and the
+Keep question at 50 %. Going back to 100 % is pixel-identical on all three
+screens except 380 px in the window's own corner marks, which refresh_theme
+rebuilds two pixels lower -- the same rebuild a Zoom change has always
+done. At 100 % the screens are pixel-identical to nightly apart from the
+live RAM/GPU meters and a status message.

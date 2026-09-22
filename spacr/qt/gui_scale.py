@@ -653,8 +653,15 @@ def add_listener(callback: Callable[[float], None]) -> None:
     _LISTENERS.append(ref)
 
 
-def _reapply_widget(widget, factor: float) -> None:
-    """Put a widget's remembered sizes, sheet and icon back at ``factor``."""
+def _reapply_widget(widget, factor: float, previous: float = 1.0) -> None:
+    """Put a widget's remembered sizes, sheet and icon back at ``factor``.
+
+    :param widget: the widget to re-scale.
+    :param factor: the scale it is drawn at now.
+    :param previous: the scale it was drawn at, which is how an icon size
+        nobody ever set -- matplotlib's toolbar takes the style's 24 px --
+        is read back into 100 % units the first time the scale moves.
+    """
     from PySide6.QtCore import QSize
     from PySide6.QtWidgets import QWidget
 
@@ -673,6 +680,21 @@ def _reapply_widget(widget, factor: float) -> None:
             widget._gs_sheet = (sheet[0], scaled)
             _ORIGINAL[(QWidget, "setStyleSheet")](widget, scaled)
     icon = getattr(widget, "_gs_icon", None)
+    if icon is None and factor != previous:
+        getter = _original_for(widget, "iconSize")
+        if getter is not None:
+            try:
+                actual = getter(widget)
+                base = (int(round(actual.width() / previous)),
+                        int(round(actual.height() / previous)))
+            except (RuntimeError, ZeroDivisionError):
+                base = None
+            if base and base[0] > 0 and base[1] > 0:
+                icon = (base, (0, 0))
+                try:
+                    widget._gs_icon = icon
+                except (AttributeError, TypeError):
+                    icon = None
     if icon is not None:
         wanted = tuple(scale_int(v, factor) for v in icon[0])
         if wanted != icon[1]:
@@ -823,7 +845,7 @@ def set_gui_scale_live(scale: float) -> float:
     for widget in widgets:
         try:
             factor = 1.0 if _exempt(widget) else scale
-            _reapply_widget(widget, factor)
+            _reapply_widget(widget, factor, 1.0 if _exempt(widget) else old)
             layout = widget.layout()
             if layout is not None:
                 _reapply_layout(layout, factor)
