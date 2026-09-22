@@ -55,7 +55,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 6,235 runtime entries and 11,166 public API docstrings. As before,
+remembered one: 6,287 runtime entries and 11,166 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -63,17 +63,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 6,235 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
+| Language | Reviewed runtime records | Of 6,287 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 677 | 10.86% | 5,558 | 710 | 6.36% | 10,456 |
-| German | 640 | 10.26% | 5,595 | 750 | 6.72% | 10,416 |
-| Spanish | 645 | 10.34% | 5,590 | 570 | 5.10% | 10,596 |
-| Simplified Chinese | 987 | 15.83% | 5,248 | 853 | 7.64% | 10,313 |
-| Portuguese | 653 | 10.47% | 5,582 | 798 | 7.15% | 10,368 |
-| Hindi | 433 | 6.94% | 5,802 | 747 | 6.69% | 10,419 |
-| Korean | 651 | 10.44% | 5,584 | 820 | 7.34% | 10,346 |
-| Icelandic | 501 | 8.04% | 5,734 | 1,316 | 11.79% | 9,850 |
-| French | 673 | 10.79% | 5,562 | 734 | 6.57% | 10,432 |
+| Swedish | 680 | 10.82% | 5,607 | 710 | 6.36% | 10,456 |
+| German | 643 | 10.23% | 5,644 | 750 | 6.72% | 10,416 |
+| Spanish | 648 | 10.31% | 5,639 | 570 | 5.10% | 10,596 |
+| Simplified Chinese | 990 | 15.75% | 5,297 | 853 | 7.64% | 10,313 |
+| Portuguese | 656 | 10.43% | 5,631 | 798 | 7.15% | 10,368 |
+| Hindi | 436 | 6.93% | 5,851 | 747 | 6.69% | 10,419 |
+| Korean | 654 | 10.40% | 5,633 | 820 | 7.34% | 10,346 |
+| Icelandic | 504 | 8.02% | 5,783 | 1,316 | 11.79% | 9,850 |
+| French | 676 | 10.75% | 5,611 | 734 | 6.57% | 10,432 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven

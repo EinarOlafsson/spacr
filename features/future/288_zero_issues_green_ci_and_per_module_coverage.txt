@@ -4381,3 +4381,30 @@ Receipt: features/data/288_run_history_deletion_2026-09-21.json. Twelve original
 floor modules now pass targeted selections; full-suite ratchet remains open.
 No app change or baseline update. The app owner is notified in 325 that the
 refusal status is immediately replaced by the refresh-completion status.
+
+2026-09-21 — CODEX: OBJECT GRID BINDING REACHES 96.36%
+The binding reaches 96.36% combined coverage (113/115 statements, 46/50
+branches), from 89.70% in the fixed full run. Real grid/form edits verify
+recovery after failed reads, missing fields, deleted-editor connection errors,
+and visibility-refresh failures without losing committed values. The initial
+fixture had only one diameter field, so the grid correctly omitted that row;
+the corrected fixture provides two object kinds. All 55 tests in the combined
+grid/chooser selection pass in 177.67s with 6GiB, one CPU thread and no GPU.
+Receipt: features/data/288_object_grid_binding_2026-09-21.json. Thirteen of
+the original 25 below-floor modules now pass targeted selections. Production
+binding and baseline are unchanged; full-suite and no-regression gates remain.
+
+2026-09-21 — CODEX: TRAINING-DATASET DOWNLOADS REACH 98.70%
+make_masks_datasets improves from 56.03% in the fixed run to 98.70% combined
+coverage (240/242 statements, 64/66 branches). Tests run workers on the test
+thread, substituting remote service calls while copying real local bytes.
+They verify image/mask pairs, resume without overwriting an existing image,
+images-only samples, unavailable dependencies/listings, missing masks,
+foreground-manifest fallback, cancellation before/between pairs, and retention
+of completed files after a later failure. Real CSV/tree readers, picker
+selection/cancel, button re-enable and opening-failure messages are exercised.
+The shared download adapter is intercepted before any QThread starts.
+Combined selection: 41 pass in 23.10s, 6GiB/one CPU thread, no GPU or network.
+Receipt: features/data/288_training_datasets_2026-09-21.json. Fourteen original
+below-floor modules now pass targeted selections. Production and baseline are
+unchanged; this does not replace the required full-suite/ratchet verdict.

@@ -1,0 +1,65 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "40c231106",
+  "scope": "targeted statement and branch coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/make_masks_datasets.py",
+  "source_sha256": "d007b457f47fd394ed6c4e377312449eea5463f6054e8c54525c13eceaf61823",
+  "coverage_json_sha256": "a126c3c627f3d6b45d5c2f12c2be146673ae578b31f1ca2f61d82271b82cb3da",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 240,
+    "num_statements": 242,
+    "percent_covered": 98.7012987012987,
+    "percent_covered_display": "98.70",
+    "missing_lines": 2,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.17355371900827,
+    "percent_statements_covered_display": "99.17",
+    "num_branches": 66,
+    "num_partial_branches": 2,
+    "covered_branches": 64,
+    "missing_branches": 2,
+    "percent_branches_covered": 96.96969696969697,
+    "percent_branches_covered_display": "96.97"
+  },
+  "missing_lines": [
+    213,
+    605
+  ],
+  "missing_branches": [
+    [
+      530,
+      527
+    ],
+    [
+      604,
+      605
+    ]
+  ],
+  "validation": {
+    "passed": 41,
+    "seconds": 23.1,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "network_used": false,
+    "real_qthreads_started": false,
+    "files": [
+      "tests/qt/test_training_dataset_download_outcomes.py",
+      "tests/qt/test_make_masks_offers_a_sample_of_every_training_dataset.py"
+    ],
+    "log_sha256": "008e3046b612facd8bd6f54d1f596504ab24fb89269ef3a79d54d9be7833e807",
+    "test_sha256": {
+      "tests/qt/test_training_dataset_download_outcomes.py": "1e3167249f471ddc086f24eff11cf7f9a074f5a5193f5f7eac9ef633e6e97bef",
+      "tests/qt/test_make_masks_offers_a_sample_of_every_training_dataset.py": "67cc46b34ba64b9ef6a8dd365b36da6d93e20cc6b6b266bc67061878d3b8f213"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Workers execute on the test thread; the shared download adapter is intercepted before starting a QThread.",
+    "Remote service calls are substituted; local file reads and writes are real."
+  ]
+}

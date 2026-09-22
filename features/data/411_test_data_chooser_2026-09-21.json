@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "final_report_checks": {"passed": 4, "seconds": 390.41, "source_boundary": "40c231106 plus this chooser change"},
+  "source_commit": "40c231106",
+  "sources": [
+    "Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.",
+    "Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.",
+    "Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one."
+  ],
+  "languages": [
+    {
+      "language": "de",
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-21-test-data-chooser.json",
+      "review_sha256": "a3919413126f2ef60618e21e8e21cd04807ba5db2552af8649c099e24de7a874"
+    },
+    {
+      "language": "es",
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-21-test-data-chooser.json",
+      "review_sha256": "c289fece1eb5dad3254365b5cc4ceed243c9ec5da9efa36c552925070fb944d8"
+    },
+    {
+      "language": "fr",
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-21-test-data-chooser.json",
+      "review_sha256": "f6f985655ca66ccc7a941ca78f2cd8b21e1775da8d11c7280ccc5abb6d4caefc"
+    },
+    {
+      "language": "hi",
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-21-test-data-chooser.json",
+      "review_sha256": "467016d7e89511fa19564c9c6c4ec8783a74e22842b3596f85c98f91c1e2b1c0"
+    },
+    {
+      "language": "is",
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-21-test-data-chooser.json",
+      "review_sha256": "da657c6397439f53096bebc2592e952caea8b75a029aeb1d4fb939809b01b47c"
+    },
+    {
+      "language": "ko",
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-21-test-data-chooser.json",
+      "review_sha256": "32686e7dcf24327e04958902059f0c1b0e07b3c7c18133cfaba3a0f1d722c502"
+    },
+    {
+      "language": "pt",
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-21-test-data-chooser.json",
+      "review_sha256": "054daedca616101ba2a0c6de49cd30c3fab115cf094b9f545bc959bfe3dfa6c7"
+    },
+    {
+      "language": "sv",
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-21-test-data-chooser.json",
+      "review_sha256": "061a2f2a2c9dcdd11a18434b60fae9fdbda810626298eb52ff56dd0899c264a3"
+    },
+    {
+      "language": "zh_CN",
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-test-data-chooser.json",
+      "review_sha256": "b9921403d3441dc635df32b617bd6df054d8b7221c2901516f1c345f203eac02"
+    }
+  ],
+  "native_speaker_signoff": false,
+  "note": "Newly inventoried class-level prose; widget hover and sizing checks are separate from translation gates.",
+  "validation": {
+    "combined_passed": 55,
+    "seconds": 177.67,
+    "gpu_used": false,
+    "actual_widget_languages": 9,
+    "checks": [
+      "Initial/resting translation",
+      "Hover translation",
+      "Button tooltip translation",
+      "Translated sizing independently measured with QTextDocument",
+      "Hover does not choose or download",
+      "English inventory is unchanged by active UI language",
+      "All Import variant labels and descriptions enter the inventory"
+    ],
+    "source_sha256": {
+      "spacr/qt/widgets/test_data_chooser.py": "45c55b02b9fba97d30c01637846ca083683355b9ebe1a1c2acad950df7143fbb",
+      "tools/build_i18n_catalogs.py": "3545f336af81c59b918379b1ae4e90a3e7b52e6013d6446c2697dc4954baea10"
+    },
+    "tests_sha256": "1d3c2375c7160bfb9fee00fa6481b857eaf13bae6c8b793c13e4a52397e3f82d"
+  },
+  "current_runtime_inventory": 6287,
+  "remaining": [
+    "Import variant translations now exposed by explicit extraction",
+    "Wider runtime and API catalog debt",
+    "Native-speaker review"
+  ]
+}

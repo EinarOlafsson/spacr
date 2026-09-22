@@ -3634,8 +3634,17 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.qt.widgets.gate_editor import TOOL_LABELS
     from spacr.qt.widgets.graph_builder import CHANNEL_HINTS
     from spacr.qt.widgets.live_preview import COMPARTMENT_FIELDS
+    from spacr.qt.widgets.test_data_chooser import TestDataChooser
+    from spacr.qt.import_demo import ImportTestDataChooser
+    from spacr.import_examples import IMPORT_VARIANTS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    # Hover explanations are class data, passed to Qt through loop variables.
+    # Keep their exact English sources separate from runtime-translated text.
+    chooser_sources = {TestDataChooser.RESTING_TEXT, ImportTestDataChooser.RESTING_TEXT}
+    chooser_sources.update(description for _key, _label, description in TestDataChooser.ROUTES)
+    for variant in IMPORT_VARIANTS:
+        chooser_sources.update((variant.label, variant.description))
     found.update(_INDIRECT_CHROME_UI_SOURCES)
     found.update(str(row[1]) for row in COMPARTMENT_FIELDS)
     for _table in (CATEGORY_TOOLTIPS, PATH_LIST_TITLES, APP_TITLES,
@@ -3723,7 +3732,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
             drift_direction_label(name),
             drift_direction_note(name),
         ))
-    return {
+    # These registry values are known presentation prose. A filename, URL or
+    # example regex inside an explanation must not make the AST heuristic
+    # discard the whole paragraph.
+    return {value.strip() for value in chooser_sources} | {
         value.strip() for value in found if _looks_translatable(value)
     }
 

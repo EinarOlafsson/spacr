@@ -5847,6 +5847,9 @@ UI = {
     'Channel {index}; the file names call it {name}.': '채널 {index}; 파일 이름에서는 {name}으로 표시됩니다.',
     'The test data has no measurements database at {path}': '테스트 데이터의 {path}에 측정 데이터베이스가 없습니다',
     'Could not open the test data: {detail}': '테스트 데이터를 열 수 없습니다: {detail}',
+    'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.': '약 280 MB 다운로드: 이미 준비된 단일 세포 크롭 2341개와 이를 색인하는 측정 데이터베이스입니다. 크롭에는 감염 또는 비감염 레이블이 지정되어 있습니다.\n\n디스크에 이미 있는 이미지에 어노테이션을 추가할 때 사용합니다. 소스 폴더와 어노테이션 설정이 채워지고 Image source는 LOAD IMAGES로 설정됩니다.',
+    'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.': '약 390 MB 다운로드: 크롭을 잘라낸 원본 병합 배열입니다. 저장된 크롭을 디스크에서 읽는 대신 페이지를 그릴 때 필요한 크롭 집합을 제공합니다.\n\n내보낸 크롭은 필요하지 않습니다. Load와 같은 플레이트 폴더에 압축을 풀므로 두 버튼을 모두 누르면 완전한 플레이트가 구성되어 어느 경로든 사용할 수 있습니다. 스트리밍은 측정 데이터베이스에서 각 세포의 위치를 읽으므로 Load에 해당하는 부분이 아직 디스크에 없으면 그것도 다운로드합니다. Image source는 STREAM IMAGES로 설정됩니다.',
+    'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.': '버튼 위에 포인터를 올리면 무엇을 다운로드하고 어떤 설정을 변경하는지 볼 수 있습니다. 버튼을 누르기 전에는 아무것도 다운로드하지 않습니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -11818,4 +11821,7 @@ SOURCE_HASHES = {
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
     ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
     ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
+    ('UI', 'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.'): 'ab58e9b360dcefb8a8ac1a72eb801b55908d382312f7858abd021c7a969e779b',
+    ('UI', 'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.'): '4c3eb748e8de32a54a348ebd2b08991649cb8638dec5fa417868327aed8913aa',
+    ('UI', 'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.'): '8d28b4549f0efd8db6e87af89a740ffb3b37ee461f6d442478a32ccefd8e6022',
 }

@@ -6048,6 +6048,9 @@ UI = {
     'Channel {index}; the file names call it {name}.': '通道 {index}；文件名中将其标为 {name}。',
     'The test data has no measurements database at {path}': '测试数据在 {path} 处没有测量数据库',
     'Could not open the test data: {detail}': '无法打开测试数据：{detail}',
+    'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.': '下载约 280 MB：2341 张已裁剪好的单细胞图像，以及为其建立索引的测量数据库；图像标有感染或未感染标签。\n\n用于标注磁盘上已有的图像。程序会填入源文件夹和标注设置，并将 Image source 设为 LOAD IMAGES。',
+    'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.': '下载约 390 MB：裁剪图像所来自的合并数组，以便在绘制页面时按需获取一组裁剪图像，而不是从磁盘读取已保存的裁剪图像。\n\n不需要已导出的裁剪图像。内容解压到与 Load 相同的板文件夹中，因此两个按钮都执行后即可得到完整的板，两种方式都能使用。按需读取时会从测量数据库中获取每个细胞的位置，因此如果磁盘上还没有 Load 对应的部分，也会一并下载。Image source 设为 STREAM IMAGES。',
+    'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.': '将指针悬停在按钮上，可查看它会下载什么内容及更改哪些设置。按下按钮之前不会下载任何内容。',
 }
 
 MODULE_SUMMARIES = {
@@ -12219,4 +12222,7 @@ SOURCE_HASHES = {
     ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
     ('UI', 'The test data has no measurements database at {path}'): '29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9',
     ('UI', 'Could not open the test data: {detail}'): '47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286',
+    ('UI', 'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.'): 'ab58e9b360dcefb8a8ac1a72eb801b55908d382312f7858abd021c7a969e779b',
+    ('UI', 'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.'): '4c3eb748e8de32a54a348ebd2b08991649cb8638dec5fa417868327aed8913aa',
+    ('UI', 'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.'): '8d28b4549f0efd8db6e87af89a740ffb3b37ee461f6d442478a32ccefd8e6022',
 }

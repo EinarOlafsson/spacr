@@ -1899,3 +1899,15 @@ The TestDataChooser descriptions also need inventory extraction and catalog
 rows: current mechanical coverage does not yet count that indirect prose.
 All four final report consistency tests pass in 405.39s against the integrated
 source. This verifies report accuracy, not completion of the docs lane.
+
+2026-09-21 — CODEX DOCS: CHOOSER INVENTORY GAP EXPOSED
+The extractor now includes both test-data choosers' descriptions, resting text
+and Import variant labels, even when prose contains an example URL or regex.
+All nine languages translate the shared chooser's three explanations, with
+exact-source reviews and real-widget hover/tooltip/sizing checks. Inventory
+is 6287 runtime entries; newly inventoried Import prose is remaining debt.
+Runtime/API coverage and review reports reflect that larger inventory, without
+changing the English API debt pins. Receipt and counts are in future/411 and
+features/data/411_test_data_chooser_2026-09-21.json. The docs lane remains open.
+All four report consistency tests pass in 390.41s before integrating the next
+plaque changes; reports will be refreshed again against their source inventory.

@@ -1270,3 +1270,21 @@ languages. Full current-capture data checks and22 promotion/annotation/geometry
 tests pass;19 path/appearance tests pass. No runtime/API catalog count changes,
 native-speaker approval or publication claim. Receipt is the new Annotate
 auto-opening tutorial evidence; fresh English narration is rendering on CPU.
+
+2026-09-21 — CODEX: CHOOSER PROSE IS INVENTORIED AND TRANSLATED
+Load, Stream and resting explanations now have exact-source reviews and
+catalog rows in all nine runtime languages (27 entries). The actual chooser
+translates its hover pane and tooltips and reserves height from translated
+text. Real Enter/Leave events, independent QTextDocument sizing and unchanged
+selection are verified in every locale. English inventory remains English
+under a German UI. Combined chooser/grid checks: 55 pass in 177.67s.
+Explicit extraction also includes all Import variant labels/descriptions and
+its resting text, including prose containing a URL, filename or example regex.
+These known UI sources must not be discarded by generic string heuristics.
+Inventory is now 6287 runtime sources; newly exposed Import translations remain
+debt. Fresh counts: de/es/sv/fr 6066, zh_CN 6100, pt 6064, ko 5857, hi/is 5755.
+API inventory remains 11166, German fresh 10434 and other locales 10416.
+Receipt: features/data/411_test_data_chooser_2026-09-21.json. No native-speaker
+approval or full-catalog completion claim. Reports regenerated for this scope.
+All four final report checks pass in 390.41s on the pre-integration source.
+The generated feature index and whitespace checks pass.
