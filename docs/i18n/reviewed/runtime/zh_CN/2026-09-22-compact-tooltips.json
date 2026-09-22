@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Organism annotation joined to regression results. 'toxoplasma' uses bundled Toxoplasma gondii tables without a network. Other organism names or NCBI taxon IDs fetch UniProt entries; a single accession such as P04637 fetches that entry. Results are cached beside the outputs for offline reuse. An unrecognised name leaves results unannotated and suggests similar names. Leave empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "51e99dde4b4c7188b918d5b48d0f89b1b4310d7332fd345908a6d6886a2c7921",
+      "translation": "合并到回归结果中的物种注释。'toxoplasma' 无需联网即可使用随附的 Toxoplasma gondii 表。其他物种名称或 NCBI 分类单元 ID 会从 UniProt 获取条目；P04637 等单个登录号只获取该条目。结果缓存于输出旁，可离线复用。无法识别的名称会使结果保持未注释状态，并提示相近名称。留空则不添加注释。默认 'toxoplasma'。"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
+      "source_sha256": "da585a654be3db66be5a0e082e9423e5deb7d95d16b56f46cc545386e87cd173",
+      "translation": "原始图像的文件命名规则，按显微镜厂商分组。默认 'cellvoyager'（Yokogawa CV7000/CV8000）。'custom' 使用 custom_regex；'auto' 先将文件重命名为 Yokogawa 格式，若提供 custom_regex 则使用该规则，否则自动识别。暂定规则依据公开数据集中的文件名推断，并非来自厂商文档。选错规则可能导致板、孔、视野或通道 ID 以及通道文件夹分配错误。运行前请使用 “在我的文件夹中测试”。"
+    }
+  ]
+}

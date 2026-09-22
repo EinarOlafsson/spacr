@@ -95,13 +95,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "annotation_source",
-      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
-      "translation": "회귀 결과에 결합할 주석의 생물종입니다. 'toxoplasma'는 함께 제공되는 Toxoplasma gondii 표를 사용하며, 네트워크 연결이 필요 없는 기본 선택입니다. 다른 생물종 이름이나 NCBI 분류군 ID('human', 'Plasmodium falciparum', 'Neospora caninum', '9606')를 지정하면 UniProt에서 해당 생물종의 항목을 가져오며, P04637처럼 단일 접근 번호를 지정하면 그 항목을 가져옵니다. 결과는 출력 파일 옆에 캐시되므로 다시 실행할 때는 네트워크가 필요하지 않습니다. spaCR이 인식하지 못하는 이름이면 결과에 주석을 붙이지 않고 유사한 이름을 알려 줍니다. 주석이 필요 없으면 비워 두세요. 기본값은 'toxoplasma'입니다.",
-      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d"
-    },
-    {
-      "table": "setting_tooltips",
       "key": "auto_file_issues",
       "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
       "translation": "실패한 실행을 공개 spaCR GitHub 저장소의 이슈로 보고합니다. 보고서에는 traceback, 실행 설정, 소프트웨어 버전이 포함되며, 경로, 로그인 이름, 호스트 이름 및 인증 정보는 가려집니다. 이슈 보고를 기본값인 'always'로 설정하면 GitHub에 로그인되어 있을 때 오류마다 한 번씩 자동으로 제출됩니다. 'ask'로 설정하면 미리보기가 열리고 보고서 보내기를 눌러야 전송됩니다. 기본값은 True입니다.",
@@ -134,13 +127,6 @@
       "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
       "translation": "고정된 픽셀 수 대신 객체 크기에 대한 비율로 윤곽선 두께를 지정하여 crop_size가 달라져도 상대적인 두께를 유지합니다. 값을 높이면 작은 썸네일에서 경계가 더 잘 보이지만 내부 픽셀을 더 많이 가립니다. 기본값은 0.1입니다.",
       "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "metadata_type",
-      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
-      "translation": "원본 이미지 파일명을 해석하는 규칙으로, 제조사별 목록에서 선택합니다. Yokogawa CV7000/CV8000(기본값 'cellvoyager') 및 CQ1, PerkinElmer/Revvity Opera Phenix 및 Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan 및 EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X 및 Matrix Screener, Micro-Manager를 지원합니다. 'custom'은 custom_regex를 사용합니다. 'auto'는 먼저 폴더의 파일명을 Yokogawa 규칙으로 바꾼 후 해석하며, custom_regex가 있으면 이를 사용하고 없으면 자동으로 감지합니다. 잠정 규칙은 제조사 문서가 아니라 공개 데이터셋의 실제 파일명에서 재구성했습니다. 잘못된 규칙은 플레이트, 웰, 시야 또는 채널 식별자를 잘못 배정하고 이미지를 다른 채널 폴더에 넣을 수 있으므로, 실행 전에 'Test on my folder'로 확인하세요.",
-      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5"
     }
   ]
 }

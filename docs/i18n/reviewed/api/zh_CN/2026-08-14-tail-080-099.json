@@ -75,7 +75,7 @@
       "translation": "``\"gene\"``（合并各向导，与真实分析和 spaCRPower 的做法相同）或 ``\"guide\"``（每个构建体作为独立文库单元）。"
     },
     {
-      "label": "spacr.qt.widgets.preview_controls#46",
+      "label": "spacr.qt.widgets.preview_controls#47",
       "source_sha256": "8118e3353a26aa6492cc19d41c89445bc17fdd067970f0112979deca94c70176",
       "source": ":func:`enumerate_image_sets` replaces it. It reads **file names only**, via ``os.scandir`` and the project's own acquisition regex (``spacr.utils._get_regex``), and groups them into :class:`ImageSet` records keyed by ``(plate, well, field)`` with the channel files hanging off each. No image is opened, decoded or stacked to build that list. :func:`sample_image_sets` then draws a bounded random sample — 20 sets by default, adjustable from the :class:`FlatSpinBox` that sits immediately left of the sets dropdown.",
       "context": ":func:`enumerate_image_sets` replaces it. It reads **file names only**, via ``os.scandir`` and the project's own acquisition regex (``spacr.utils._get_regex``), and groups them into :class:`ImageSet` records keyed by ``(plate, well, field)`` with the image data channel files hanging off each. No image is opened, decoded or stacked to build that list. :func:`sample_image_sets` then draws a bounded random sample — 20 sets by default, adjustable from the :class:`FlatSpinBox` that sits immediately left of the sets dropdown.",

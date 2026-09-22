@@ -1466,3 +1466,14 @@ A separate fixed-source CPU draft queue starts at bc726ac90 in
 codex-runtime-20260922, four threads under 6G, local models only. Its model cache
 and unreviewed output are private and separate from the ongoing API draft run.
 It does not modify catalogs or count raw model output as accepted translations.
+
+2026-09-22 — CODEX: CURRENT TOOLTIP REVIEWS AND API EVIDENCE REBINDING
+Eighteen replacement tooltip translations (two per runtime language) now match
+the concise current English sources, with the old source-bound evidence archived.
+Setup privacy chrome translated in all nine languages. The English runtime
+manifest now has1005 setting tooltips,194 categories and4081 external UI sources,
+including the new472 pathway captions; this refresh does not translate them.
+Four preview_controls API reviews had unchanged prose at shifted paragraph
+indices (French, Icelandic and Chinese); rebound the indices without discarding
+or relabelling the translations as newly reviewed. Full API catalog rebuild,
+English API manifest/Help index refresh and native-language acceptance stay open.

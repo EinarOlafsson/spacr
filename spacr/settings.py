@@ -3962,16 +3962,13 @@ tooltips = {
         "centroid. False measures geometry only. Ignored when "
         "object_distances is off. Default True.",
     'annotation_source':
-        "(str) - Which organism's annotation to join onto the regression "
-        "results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, "
-        "which need no network and are the default. Any other "
-        "organism name or NCBI taxon id -- 'human', 'Plasmodium "
-        "falciparum', 'Neospora caninum', '9606' -- pulls that organism's "
-        "entries from UniProt, and a single accession such as P04637 retrieves "
-        "that entry. The result is cached beside the outputs, so a "
-        "rerun needs no network. A name spaCR does not recognise leaves the "
-        "results unannotated and says which names were close. Leave it "
-        "empty for no annotation. Default 'toxoplasma'.",
+        "(str) - Organism annotation joined to regression results. "
+        "'toxoplasma' uses bundled Toxoplasma gondii tables without a network. "
+        "Other organism names or NCBI taxon IDs fetch UniProt entries; a "
+        "single accession such as P04637 fetches that entry. Results are "
+        "cached beside the outputs for offline reuse. An unrecognised name "
+        "leaves results unannotated and suggests similar names. Leave empty "
+        "for no annotation. Default 'toxoplasma'.",
     'cell_area_outlier_mads':
         "(float | None) - Optionally remove objects whose cell area exceeds "
         "this many scaled "
@@ -4148,7 +4145,7 @@ tooltips = {
     "well_pad": "(int) - Extra image pixels retained on every side of a detected well crop, clipped at the source-image boundary. Increase it when the detector box trims the well edge; excessive padding can include neighbouring wells or background. Default 0.",
     "plate_format": "(str or None) - Standard culture-plate format used as the physical ruler for detected wells: '6-well', '12-well', '24-well', '48-well' or '96-well'. It converts plaque areas from pixels to square millimetres; None leaves physical-area columns empty unless well_diameter_mm is supplied. Default None.",
     "well_diameter_mm": "(float, int or None) - Known interior diameter of a detected well in millimetres, overriding plate_format when both are set. It converts the detected pixel diameter into pixels per millimetre and therefore rescales every physical plaque area; use None when the diameter is unknown. Default None.",
-    "metadata_type": "(str) - Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
+    "metadata_type": "(str) - Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
     "n_jobs": "(int) - CPU workers for parallel stages: measurement, mask adjustment, DataLoader loading, and the sklearn/UMAP calls where -1 means every core. Raise it to shorten CPU-bound steps until RAM or disk I/O saturates. Note the measure-and-crop pipeline overrides your value with cpu_count()-4. Defaults vary by pipeline: cpu_count()-4, -1, or None.",
     "normalize_by": "(str) - Percentile source used to rescale cropped PNGs, and only active when 'normalize' is a [low, high] percentile pair: 'png' stretches each crop to its own percentiles, maximising per-object contrast; 'fov' uses percentiles from the whole field, keeping brightness comparable between objects. Choose 'fov' if crop intensities will be compared. Default 'png'.",
     "nuclei_limit": '(int, bool, or None) - Cap on nuclei per cell, applied when the per-object tables are merged. None disables the filter, True keeps only single-nucleus cells, and an integer N keeps cells with N or fewer. Cells over the cap are dropped from the merged table entirely. Do not pass False: it is interpreted as 0 and removes every cell, leaving an empty analysis rather than raising an error. Default None. Merged Classifier starts at True and Recruitment starts at 1, so both initially retain only single-nucleus cells.',

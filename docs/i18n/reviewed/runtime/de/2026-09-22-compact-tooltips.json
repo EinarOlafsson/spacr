@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Organism annotation joined to regression results. 'toxoplasma' uses bundled Toxoplasma gondii tables without a network. Other organism names or NCBI taxon IDs fetch UniProt entries; a single accession such as P04637 fetches that entry. Results are cached beside the outputs for offline reuse. An unrecognised name leaves results unannotated and suggests similar names. Leave empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "51e99dde4b4c7188b918d5b48d0f89b1b4310d7332fd345908a6d6886a2c7921",
+      "translation": "Organismusannotation, die den Regressionsergebnissen zugeordnet wird. 'toxoplasma' verwendet mitgelieferte Tabellen für Toxoplasma gondii ohne Netzwerk. Andere Organismusnamen oder NCBI-Taxon-IDs rufen UniProt-Einträge ab; eine einzelne Zugangsnummer wie P04637 ruft genau diesen Eintrag ab. Ergebnisse werden neben den Ausgaben für die Offline-Wiederverwendung zwischengespeichert. Bei einem unbekannten Namen bleiben Ergebnisse unannotiert und ähnliche Namen werden vorgeschlagen. Leer lassen für keine Annotation. Standard 'toxoplasma'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
+      "source_sha256": "da585a654be3db66be5a0e082e9423e5deb7d95d16b56f46cc545386e87cd173",
+      "translation": "Dateinamenskonvention für Rohbilder, nach Mikroskophersteller gruppiert. Standard 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' nutzt custom_regex; 'auto' benennt Dateien zuerst nach der Yokogawa-Konvention um, mit custom_regex, falls angegeben, sonst durch automatische Erkennung. Vorläufige Konventionen stammen aus Dateinamen öffentlicher Datensätze, nicht aus Herstellerdokumentation. Eine falsche Wahl kann Platten-, Well-, Bildfeld- oder Kanal-IDs und Kanalordner falsch zuordnen. Vor dem Lauf “An meinem Ordner testen” verwenden."
+    }
+  ]
+}

@@ -4571,3 +4571,16 @@ Final tutorial lifecycle check: all 73 tests pass in 75.74s, with no lingering
 JobRunner report. The harness still reports retained Qt widgets at shutdown;
 no application cleanup claim is made. Source/log evidence:
 features/data/288_current_cohort_rechecks_2026-09-22.json.
+
+2026-09-22 — CODEX: TOOLTIP AND SETUP LANGUAGE FAILURES REPAIRED
+The annotation-source and filename-convention explanations now fit the existing
+600-character limit while retaining offline/network behaviour and the warning
+about provisional filename conventions. All nine runtime languages have fresh,
+source-bound tooltip reviews; superseded evidence is retained under
+ docs/i18n/retired/runtime/2026-09-22-compact-tooltips.json.
+The static setup catalog now explains always/ask/never reporting in all nine
+languages, including automatic public GitHub reports under the signed-in account.
+Focused tooltip length, setup language and runtime syntax selection: 14 passed
+in31.35s. Historical Swedish/French counts are preserved by explicitly linking
+the two replacement records to their original review cohorts. Make Masks and
+full runtime/API translation CI remain open; this is not a green-CI claim.

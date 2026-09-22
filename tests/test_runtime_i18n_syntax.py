@@ -48,6 +48,16 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     return sources
 
 
+def _compact_tooltip_sources(language: str) -> set[str]:
+    """Two concise replacements retain the scientific review cohort's size."""
+    path = ROOT / "docs/i18n/reviewed/runtime" / language / "2026-09-22-compact-tooltips.json"
+    records = json.loads(path.read_text())["records"]
+    assert len(records) == 2
+    assert {record["table"] for record in records} == {"setting_tooltips"}
+    assert {record["key"] for record in records} == {"annotation_source", "metadata_type"}
+    return {record["source"] for record in records}
+
+
 def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
     from build_i18n_catalogs import _syntax_preserved
 
@@ -246,6 +256,9 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     scientific = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-scientific-settings.json").read_text())
     scientific_sources = {record["source"] for record in scientific["records"]}
+    assert len(scientific_sources) == 37
+    assert not scientific_sources & _compact_tooltip_sources("sv")
+    scientific_sources |= _compact_tooltip_sources("sv")
     assert len(scientific_sources) == 39
     assert scientific_sources <= reviewed.keys()
     assert not scientific_sources & (added_sources | background_sources)
@@ -285,7 +298,10 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-runtime-first-slice.json").read_text())
     refresh_sources = {record["source"] for record in refresh["records"]}
-    assert len(refresh["records"]) == len(refresh_sources) == 80
+    assert len(refresh["records"]) == len(refresh_sources) == 78
+    assert not refresh_sources & _compact_tooltip_sources("fr")
+    refresh_sources |= _compact_tooltip_sources("fr")
+    assert len(refresh_sources) == 80
     assert refresh_sources <= all_reviewed.keys()
     second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                          "2026-09-21-runtime-second-slice.json").read_text())

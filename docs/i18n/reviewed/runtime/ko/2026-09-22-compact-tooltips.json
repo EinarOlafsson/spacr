@@ -1,0 +1,20 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Organism annotation joined to regression results. 'toxoplasma' uses bundled Toxoplasma gondii tables without a network. Other organism names or NCBI taxon IDs fetch UniProt entries; a single accession such as P04637 fetches that entry. Results are cached beside the outputs for offline reuse. An unrecognised name leaves results unannotated and suggests similar names. Leave empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "51e99dde4b4c7188b918d5b48d0f89b1b4310d7332fd345908a6d6886a2c7921",
+      "translation": "회귀 결과에 연결할 생물종 주석입니다. 'toxoplasma'는 네트워크 없이 포함된 Toxoplasma gondii 표를 사용합니다. 다른 생물종 이름이나 NCBI 분류군 ID는 UniProt 항목을 가져오며, P04637 같은 단일 접근 번호는 해당 항목만 가져옵니다. 결과는 출력 옆에 캐시되어 오프라인에서 재사용할 수 있습니다. 인식하지 못하는 이름이면 결과에 주석을 붙이지 않고 비슷한 이름을 제안합니다. 주석을 붙이지 않으려면 비워 두세요. 기본값 'toxoplasma'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Raw-image filename convention, grouped by microscope vendor. Default 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom' uses custom_regex; 'auto' first renames files to Yokogawa naming, using custom_regex when supplied or automatic detection. Provisional conventions come from public-dataset filenames, not vendor documentation. A wrong choice can misassign plate, well, field or channel IDs and channel folders. Use Test on my folder before running.",
+      "source_sha256": "da585a654be3db66be5a0e082e9423e5deb7d95d16b56f46cc545386e87cd173",
+      "translation": "현미경 제조사별로 묶인 원본 이미지 파일명 규칙입니다. 기본값 'cellvoyager' (Yokogawa CV7000/CV8000). 'custom'은 custom_regex를 사용합니다. 'auto'는 먼저 파일명을 Yokogawa 규칙에 맞게 바꾸며, custom_regex가 있으면 이를 사용하고 없으면 자동으로 감지합니다. 잠정 규칙은 제조사 문서가 아닌 공개 데이터셋의 파일명에서 도출되었습니다. 잘못 선택하면 플레이트, 웰, 시야 또는 채널 ID와 채널 폴더가 잘못 지정될 수 있습니다. 실행 전에 “Test on my folder”를 사용하세요."
+    }
+  ]
+}
