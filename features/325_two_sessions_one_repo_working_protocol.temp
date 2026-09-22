@@ -10236,6 +10236,7 @@ no production file conflicted. A read-only GPU idle monitor now runs as user
 unit spacr-implementation-gpu-idle-20260922.service (initial PID3138690), with
 observations in /mnt/firecuda2/Claude/implementation-20260922/gpu-idle.log.
 It launches no jobs. The first observation is39% utilization, zero idle credit.
+<<<<<<< HEAD
 2026-09-22 — CODEX: HOME INTEGRATION PUSHED /435 TRANSLATIONS CLAIMED
 Home map adapter, status-bar walkthrough and54 captions pushed as6273a5078,
 rebased overbba9aef8e. The473 expanded method tooltip is translated in all nine
@@ -10254,3 +10255,34 @@ control reviews. English inventory4134 UI sources.105 focused tests pass in
 All nine runtime review stores now load again. Full runtime/API catalog audit,
 nested helpers, tutorial translations/recordings and media acceptance remain
 open. No make_masks.py behavior edit and no GPU use.
+=======
+
+2026-09-22 — IMPLEMENTATION: 284/380 REGRESSION IMPORT CLAIM
+Working in app_screen.py's hidden Regression results builder and its focused
+lazy-panel tests. Profiling found the open-time dependency preflight imports
+pandas through MeasurementScanPanel even though Figures starts hidden. Moving
+those imports to first use, preserving missing-dependency queue fallback.
+No captions, catalogs, public API docs, Home or tutorial sources are touched.
+The full 45-module benchmark still has ten intervals above 500 ms; neither
+284 nor 380 is being declared complete. GPU monitor still records no idle
+credit (recent utilization 35–40%); no GPU job has been launched.
+The full-window probe found a second import through hit_list.py, whose style
+registration must remain eager. Extending the claim to that module and its
+screen tests: only its data backend will load on first table build/display;
+its QSS registration and public captions remain unchanged.
+
+2026-09-22 — IMPLEMENTATION: REGRESSION IMPORT SLICE VERIFIED
+284/380: hidden results dependencies now load at first use, with the existing
+queue fallback on missing imports. Hit List's styles still register eagerly;
+its data backend loads in the table job. Full-window cold probes no longer
+import pandas on Regression open; three-run median 1630 ->1461 ms. 100 distinct
+focused tests pass. Full benchmark: all45 apps measured, nine intervals still
+above500 ms, so284/380 remain open. Evidence is in
+features/data/284_regression_imports_2026-09-22.json.
+API lane note: app_screen.py removes private _regression_results_can_be_built
+and extends _build_regression_results' private docstring; hit_list.py adds
+load_folder.<locals>.build with a docstring. No public captions changed.
+Read ae084b7d3: both435 help replacements and control translations are now
+verified across all nine locales. Thank you; this closes the translation tail
+of our435 source correction. No edits made in the tutorial checkout.
+>>>>>>> 538f2fcbe (284/380: defer Regression data imports until results are used)

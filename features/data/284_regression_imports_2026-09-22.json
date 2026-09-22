@@ -1,0 +1,161 @@
+{
+  "date": "2026-09-22",
+  "base_commit": "19cee264a",
+  "scope": "284/380 deferred Regression results imports; items remain open",
+  "probe": "/mnt/firecuda2/Claude/implementation-20260922/regression_open_probe.py",
+  "direct_open": {
+    "before": [
+      {
+        "open_ms": 2051.980058007757,
+        "pandas_imported": true
+      },
+      {
+        "open_ms": 1630.1797360065393,
+        "pandas_imported": true
+      },
+      {
+        "open_ms": 1558.9205830037827,
+        "pandas_imported": true
+      }
+    ],
+    "after": [
+      {
+        "open_ms": 1412.2653270023875,
+        "pandas_imported": false
+      },
+      {
+        "open_ms": 1460.601491999114,
+        "pandas_imported": false
+      },
+      {
+        "open_ms": 1471.8683590035653,
+        "pandas_imported": false
+      }
+    ],
+    "before_median_ms": 1630.1797360065393,
+    "after_median_ms": 1460.601491999114
+  },
+  "benchmark_before": {
+    "artifact": "/mnt/firecuda2/Claude/implementation-20260922/startup-baseline-19cee264a.json",
+    "registry_count": 45,
+    "passed": false,
+    "intervals_over_500_ms": 10,
+    "stalls_ms": {
+      "__home__": 225.96364800119773,
+      "__preferences__": 973.616849994869,
+      "mask": 835.7352349994471,
+      "measure": 504.24195699451957,
+      "annotate": 592.7985540038208,
+      "classify_merged": 588.3908049872844,
+      "map_barcodes": 490.07015499228146,
+      "regression": 818.9654180023354,
+      "feature_explorer": 396.65722398785874,
+      "convert": 196.38089300133288,
+      "foreign": 282.7519149868749,
+      "external_masks": 333.3240990032209,
+      "queue": 67.41006499214564,
+      "batch": 149.3658170074923,
+      "distributed_jobs": 134.68110100075137,
+      "db_browser": 225.32688699720893,
+      "run_history": 166.86727000342216,
+      "report": 87.70468400325626,
+      "data_manager": 170.15333799645305,
+      "pipeline_graph": 81.25047099019866,
+      "qc_dashboard": 171.82686500018463,
+      "lineage": 93.42761199513916,
+      "experiment_design": 479.0505760029191,
+      "layer_viewer": 177.4193360033678,
+      "power": 274.0150870085927,
+      "run_compare": 147.620422008913,
+      "tabulate": 329.92828800342977,
+      "dose_response": 567.0178809959907,
+      "project_browser": 98.23350900842343,
+      "outliers": 209.27138200204354,
+      "embeddings": 216.87513698998373,
+      "control_chart": 299.3010909995064,
+      "train_compare": 158.85271900333464,
+      "align": 172.27352601184975,
+      "make_masks": 972.9328160028672,
+      "plate_view": 193.76529099827167,
+      "umap": 644.8728559917072,
+      "profiler": 126.09402700036298,
+      "graph_builder": 290.32388600171544,
+      "investigate_hit": 255.79353599459864,
+      "gate_editor": 429.77405700366944,
+      "feature_dict": 478.7483060063096,
+      "trellis": 286.8060990003869,
+      "analyze_plaques": 537.9372229945147,
+      "recruitment": 308.32488599116914,
+      "invasion": 328.20229399658274,
+      "replication": 331.9958920037607
+    }
+  },
+  "benchmark_after": {
+    "artifact": "/mnt/firecuda2/Claude/implementation-20260922/startup-regression-imports.json",
+    "registry_count": 45,
+    "passed": false,
+    "intervals_over_500_ms": 9,
+    "stalls_ms": {
+      "__home__": 215.74724599486217,
+      "__preferences__": 939.8840089997975,
+      "mask": 792.031771998154,
+      "measure": 439.0587969974149,
+      "annotate": 389.3425849964842,
+      "classify_merged": 565.0530749990139,
+      "map_barcodes": 525.6164119928144,
+      "regression": 785.0836500001606,
+      "feature_explorer": 323.5122229962144,
+      "convert": 176.02231599448714,
+      "foreign": 271.85838999866974,
+      "external_masks": 332.84717200149316,
+      "queue": 56.187455003964715,
+      "batch": 148.9152239955729,
+      "distributed_jobs": 136.21752300241496,
+      "db_browser": 224.0635049965931,
+      "run_history": 177.46860500483308,
+      "report": 85.06432500144001,
+      "data_manager": 175.47024998930283,
+      "pipeline_graph": 82.70336501300335,
+      "qc_dashboard": 163.55681398999877,
+      "lineage": 82.50054898962844,
+      "experiment_design": 437.80626900843345,
+      "layer_viewer": 174.5523220015457,
+      "power": 274.52536100463476,
+      "run_compare": 147.54131500376388,
+      "tabulate": 318.8824399985606,
+      "dose_response": 526.350108004408,
+      "project_browser": 98.24999400007073,
+      "outliers": 198.49605199124198,
+      "embeddings": 214.92039399163332,
+      "control_chart": 285.3318919951562,
+      "train_compare": 149.4549159979215,
+      "align": 171.82505800155923,
+      "make_masks": 929.4907259900356,
+      "plate_view": 193.36134298646357,
+      "umap": 620.3927430033218,
+      "profiler": 121.8743520003045,
+      "graph_builder": 308.731381999678,
+      "investigate_hit": 251.6002699994715,
+      "gate_editor": 423.9763439982198,
+      "feature_dict": 486.8474429968046,
+      "trellis": 343.5755300015444,
+      "analyze_plaques": 555.5596470076125,
+      "recruitment": 295.5512810003711,
+      "invasion": 336.9054859940661,
+      "replication": 356.69765100465156
+    }
+  },
+  "validation": {
+    "existing_and_dependency_tests_passed": 99,
+    "followup_cold_import_and_error_tests_passed": 2,
+    "overlap": 1,
+    "total_distinct_tests": 100
+  },
+  "limits": [
+    "Offscreen diagnostics on a loaded Linux machine, not release acceptance.",
+    "Direct-opening observations are three sequential processes per version, not interleaved controlled trials.",
+    "Full benchmark loads data dependencies on earlier screens, so Regression does not measure first pandas import.",
+    "Results imports and panel construction still cost time on first use.",
+    "Nine intervals still exceed 500 ms; real-display and cross-platform acceptance remain open."
+  ]
+}

@@ -383,13 +383,35 @@ def test_the_threaded_path_builds_the_same_list_and_retires(qtbot, folder):
 
 
 def test_a_failing_build_reports_inline_and_never_modally(qtbot, monkeypatch):
+    from spacr import hits
+
     widget = screen_module.HitListScreen(threaded=False)
     qtbot.addWidget(widget)
     monkeypatch.setattr(
-        screen_module, "build_hit_list",
+        hits, "build_hit_list",
         lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("csv went bad")))
 
     widget.load_folder("/nowhere")
 
     assert widget.last_error == "csv went bad"
     assert "csv went bad" in widget._summary.text()
+
+
+def test_empty_hit_list_registers_its_style_without_loading_pandas():
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-c", """
+import sys
+from PySide6.QtWidgets import QApplication
+from spacr.qt.screens.hit_list import HitListScreen
+from spacr.qt.theme import widget_qss_names
+app = QApplication([])
+screen = HitListScreen(threaded=False)
+assert 'HitListFilters' in widget_qss_names()
+assert 'pandas' not in sys.modules
+assert 'spacr.hits' not in sys.modules
+screen.close()
+"""], capture_output=True, text=True, timeout=30)
+    assert result.returncode == 0, result.stdout + result.stderr

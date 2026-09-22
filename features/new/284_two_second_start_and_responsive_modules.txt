@@ -1466,3 +1466,31 @@ builds nothing; no slice is a whole category; a greyed name says why after
 the language pass and stops saying so when re-enabled; the prebuild changes
 no visibility or expansion outside the categories; the object pass that
 sets each row once ends where the round trip ended.
+
+2026-09-22 — REGRESSION'S HIDDEN RESULTS NO LONGER IMPORT DATA LIBRARIES
+The open-time results capability check imported MeasurementScanPanel and pandas
+before its hidden card was needed. Those imports now run together at the start
+of the deferred builder. Missing dependencies retain the figure-queue fallback,
+without constructing a partial results panel or retrying on every show.
+The full-window probe exposed a second path through Hit List's style registrar.
+Its QSS still registers eagerly, but its data backend imports in the table job;
+flag definitions load when displaying data. No captions or stylesheet changed.
+
+At base 19cee264a, three fresh full-window Home -> Regression probes took
+2052/1630/1559 ms; the final change took 1412/1461/1472 ms. Medians: 1630 ->
+1461 ms (about 10%). Pandas was loaded in all three baseline probes and none
+of the final probes. Both trees were byte-compiled. These are sequential,
+offscreen measurements on a loaded machine, not a controlled release claim.
+The 45-module benchmark still warms data libraries before Regression: its
+stall changed 819 -> 785 ms; intervals over 500 ms changed 10 -> 9, with some
+other screens crossing the threshold in either direction. Both runs FAIL the
+stall requirement. Item 284 remains OPEN; this closes only the import slice.
+
+100 distinct focused tests passed: 99 lazy-panel, fold, hit-list and capability
+checks, plus a fresh-process check that an empty Hit List registers its QSS
+without pandas or spacr.hits. The inline-error check also passed again after
+moving backend loading into the job. Two new dependency tests failed before
+the fix and pass after it, including the missing-dependency fallback.
+Evidence: features/data/284_regression_imports_2026-09-22.json; private probe,
+profiles and complete benchmark artifacts under the recorded workspace path.
+First results use still pays imports/construction; no all-platform acceptance.

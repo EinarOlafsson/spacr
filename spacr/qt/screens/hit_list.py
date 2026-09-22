@@ -38,7 +38,7 @@ from __future__ import annotations
 
 import math
 import os
-from typing import Any, Dict, List, Optional, Sequence
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Sequence
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
@@ -58,7 +58,8 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from ...hits import FLAG_MEANING, HitList, build_hit_list
+if TYPE_CHECKING:
+    from ...hits import HitList
 from ..job_runner import JobRunner
 from ..theme import (SPACING, block_surface, mark_surface,
                      register_widget_qss)
@@ -392,10 +393,15 @@ class HitListScreen(QWidget):
         metadata = list(self._metadata_files)
         backend = self._regression_type
         self._jobs.cancel()
-        self._jobs.submit(
-            lambda root=folder: build_hit_list(
-                root, metadata_files=metadata, regression_type=backend),
-            self._on_hits_ready)
+
+        def build():
+            """Load the data backend in the job that reads the table."""
+            from ...hits import build_hit_list
+
+            return build_hit_list(
+                folder, metadata_files=metadata, regression_type=backend)
+
+        self._jobs.submit(build, self._on_hits_ready)
 
     def set_metadata_files(self, paths: Sequence[str]) -> None:
         """Replace the annotation files and rebuild if a folder is loaded."""
@@ -461,6 +467,8 @@ class HitListScreen(QWidget):
         """Narrow, redraw and report."""
         if self._all is None:
             return
+        from ...hits import FLAG_MEANING
+
         self._shown = self._all.filter(**self.current_filters())
         self._fill_table(self._shown)
         summary = self._shown.summary()
@@ -480,6 +488,8 @@ class HitListScreen(QWidget):
 
     def _fill_table(self, hit_list: HitList) -> None:
         """Redraw the table from a list."""
+        from ...hits import FLAG_MEANING
+
         self._table.clear()
         for hit in hit_list:
             interval = ("—" if math.isnan(hit.ci_low)
@@ -670,5 +680,3 @@ def make_hit_list_screen(app_key: Optional[str] = None, host=None) -> QWidget:
     screen = HitListScreen()
     connect_investigation(screen, host)
     return screen
-
-

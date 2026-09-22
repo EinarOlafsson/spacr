@@ -2100,3 +2100,12 @@ tests.
 heavy module is still over the 500 ms ceiling on a loaded machine. What it
 closes is the click that used to pay for a closed category, and two
 whole-panel passes that were costing every channel commit as well.
+
+2026-09-22 — REGRESSION DATA IMPORTS WAIT FOR RESULTS
+See the dated note in 284 and features/data/284_regression_imports_2026-09-22.json.
+The hidden results dependency preflight and Hit List style-import path no longer
+load pandas on first Regression open. The direct full-window median changed
+1630 -> 1461 ms in three fresh processes per version; this is diagnostic only.
+100 distinct focused tests pass, including cold import, QSS registration,
+first-use construction, missing-dependency fallback and hit-list capabilities.
+The full 45-module run still has nine intervals above 500 ms. 380 REMAINS OPEN.

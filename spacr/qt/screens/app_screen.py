@@ -6213,30 +6213,6 @@ class AppScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not translate a late part", exc_info=True)
 
-    @staticmethod
-    def _regression_results_can_be_built() -> bool:
-        """Import what the regression results need, without building them.
-
-        The imports stay at the screen's open, where they always were, so
-        the widget blocks those modules register reach the page's sheet
-        exactly as before; only the construction waits. A missing module
-        answers ``False`` and the screen falls back to the figure queue,
-        which is what the eager build did when its import failed.
-        """
-        try:
-            from importlib import import_module
-
-            for name in ("..widgets.regression_results",
-                         "..widgets.figure_grid_view", "..widgets.sweep_runs",
-                         "..widgets.measurement_scan_panel",
-                         "..widgets.sweep_panel",
-                         "..widgets.cell_montage_view", "..preferences"):
-                import_module(name, __package__)
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("no fast results panel", exc_info=True)
-            return False
-        return True
-
     def _build_regression_results(self) -> Optional[QWidget]:
         """Build Regression's results tabs and figure pages into their card.
 
@@ -6244,13 +6220,21 @@ class AppScreen(QWidget):
         is shown or any of these attributes is used -- about 740 widgets
         that nobody can see until a run has results. See
         :class:`_BuiltOnFirstUse`. A failure falls back to the figure
-        queue, as the eager build did.
+        queue, as the eager build did. Dependencies are imported together
+        before constructing the panels, so opening the screen does not
+        load their data libraries and a missing dependency leaves no
+        partially constructed results widgets.
         """
         try:
             from ..widgets.regression_results import RegressionResultsPanel
             from ..preferences import get_figure_grid_size
             from ..widgets.figure_grid_view import (
                 MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
+            from ..widgets.sweep_runs import SweepRunsPanel
+            from ..widgets.measurement_scan_panel import (
+                MeasurementScanPanel)
+            from ..widgets.sweep_panel import SweepPanel
+            from ..widgets.cell_montage_view import CellMontageView
 
             self._results_panel = RegressionResultsPanel(
                 self._figures_card, external_volcano=True)
@@ -6339,7 +6323,6 @@ class AppScreen(QWidget):
             self._results_panel.table.key_selected.connect(
                 self._on_guide_selected)
 
-            from ..widgets.sweep_runs import SweepRunsPanel
             self._sweep_runs = SweepRunsPanel(self._figures_card)
             self._sweep_runs.trial_activated.connect(self._show_trial)
             self._sweep_runs.loaded_run_changed.connect(self._show_trial)
@@ -6367,8 +6350,6 @@ class AppScreen(QWidget):
                                   "Picking a row in Runs re-points this "
                                   "at that run.")
 
-            from ..widgets.measurement_scan_panel import (
-                MeasurementScanPanel)
             self._scan_panel = MeasurementScanPanel(
                 frame_provider=self._scan_source_frame,
                 database_provider=self._attached_database_rows,
@@ -6380,7 +6361,6 @@ class AppScreen(QWidget):
                 self._on_column_fit_started)
             self._scan_panel.regression.fit_finished.connect(
                 self._on_column_fit_finished)
-            from ..widgets.sweep_panel import SweepPanel
             self._sweep_panel = SweepPanel(
                 cells_provider=self._scan_panel.databases_frame,
                 counts_provider=self._sweep_counts,
@@ -6402,7 +6382,6 @@ class AppScreen(QWidget):
                    "each measurement -- a measurement that passes alone "
                    "and fails across the scan is the one worth knowing "
                    "about.")
-            from ..widgets.cell_montage_view import CellMontageView
             self._cell_montage = CellMontageView(
                 frame_provider=self._results_panel.results_frame,
                 results_provider=self._results_source_path,
@@ -6524,8 +6503,7 @@ class AppScreen(QWidget):
         #: Cell-montage tab, when this screen supports regression results.
         #: Initialised before tab-change handlers can read it.
         self._cell_montage = None
-        if (self.app_key == "regression"
-                and self._regression_results_can_be_built()):
+        if self.app_key == "regression":
             self._owe_part(_REGRESSION_RESULTS,
                            self._build_regression_results)
             self._figures_card.build_body_when_first_shown(
