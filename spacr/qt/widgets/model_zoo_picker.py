@@ -1551,6 +1551,24 @@ class ModelZooPicker(QDialog):
         self._stop_any_download()
         super().reject()
 
+    def done(self, result: int) -> None:
+        """Retire catalogue callbacks and probe polling on every dialog exit.
+
+        :param result: dialog result passed unchanged to Qt.
+
+        A network request may still be running. Its thread is retained by
+        the shared drain mechanism until it finishes. Retiring catalogue
+        work never waits for HTTP, and discarded results cannot refresh
+        this dialog.
+        """
+        runner = getattr(self, "_catalogue_job", None)
+        if runner is not None:
+            runner.shutdown(timeout_ms=0)
+        timer = getattr(self, "_probe_timer", None)
+        if timer is not None:
+            timer.stop()
+        super().done(result)
+
     def chosen_path(self) -> Optional[str]:
         """The path the user accepted, or ``None`` if they cancelled."""
         return self._chosen_path

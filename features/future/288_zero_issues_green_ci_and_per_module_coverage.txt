@@ -4606,3 +4606,15 @@ missing-row condition instead of assuming Swedish is incomplete. Its recheck
 plus runtime syntax:8 passed in29.62s;96 other focused UI checks had passed.
 One Model Zoo test reported a surviving JobRunner despite passing; noted in
 the shared channel for its production owner. No full-CI completion claim.
+
+2026-09-22 — IMPLEMENTATION: QUALITY GATE AND PICKER LIFECYCLE
+43 records the repaired rankC shard-contract test: exact maintained-code gates
+pass locally, and GitHub quality job106955363195 confirms success at35df972c4.
+The reported ModelZoo picker runner leak now has a production teardown fix:
+every dialog result discards catalogue callbacks and stops probe polling.
+Seven controlled asynchronous tests prove prompt close and no late refresh;
+the full42test picker selection passes with no leftover-worker report. The
+source-group and picker fixtures explicitly reject before deletion and do not
+launch live HTTP warming; controlled tests exercise the real JobRunner path.
+No coverage baseline, test threshold or leak-reporting rule changed. Full
+coverage and the per-module90% requirement remain unproven and open.

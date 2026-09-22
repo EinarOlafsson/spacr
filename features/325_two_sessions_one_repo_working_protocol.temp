@@ -10331,3 +10331,24 @@ of scanning them for every shard. All assertions/counts retained. Exact workflow
 Ruff/mypy/Xenon sequence passes with its declared dependencies in a private
 venv;20 focused classification tests pass. No target/threshold/baseline change.
 This resolves job106950836020's rankC failure, not the remaining full-CI debt.
+
+2026-09-22 — IMPLEMENTATION: MODEL ZOO CATALOGUE LIFECYCLE CLAIM
+Claiming widgets/model_zoo_picker.py's catalogue teardown and focused picker
+fixtures/tests under43/288. Existing close/reject handles only downloads;
+accept/done can leave catalogue callbacks and the backend probe timer active.
+Will retire catalogue work through the existing JobRunner shutdown mechanism,
+with zero GUI wait and no worker termination, and exercise all dialog exits.
+No new captions, registry/module paths, tutorial files or catalog changes.
+
+2026-09-22 — IMPLEMENTATION: QUALITY JOB GREEN / PICKER TEARDOWN VERIFIED
+35df972c4 pushed; GitHub quality job106955363195 now passes. Other CI jobs and
+coverage remain open. Picker catalogue cleanup now runs in done() for all exits,
+with zero wait for catalogue HTTP and no late refresh.42 focused tests pass
+without the reported leftover-worker warning;7 controlled lifecycle cases
+include visible/never-shown paths and a500ms close ceiling. Live metadata reads
+may finish safely after close; results are discarded, never forcibly killed.
+Fixtures reject never-shown dialogs and mock live HTTP warming; the new tests
+exercise the actual catalogue JobRunner with a controlled blocked request.
+API note: widgets/model_zoo_picker.py adds public override done(result) with
+a docstring. No new captions or catalog edits. Read56cb61c1b's473 rolling-ball
+fix during rebase; no overlap with its detection-chain or Make Masks files.

@@ -123,11 +123,13 @@ def test_an_unrecognised_row_goes_under_spacr_and_says_so(caplog):
 @pytest.fixture
 def picker(qapp, tmp_path, monkeypatch):
     """A picker whose downloads would land in a throwaway folder."""
+    monkeypatch.setattr(mzp.ModelZooPicker, "_warm_the_community_catalogue",
+                        lambda self: None)
     monkeypatch.setattr(mzp, "DEFAULT_MODEL_DIR", str(tmp_path))
     monkeypatch.setattr(mzp, "remembered_model_dir", lambda: str(tmp_path))
     dialog = mzp.ModelZooPicker()
     yield dialog
-    dialog._stop_any_download()
+    dialog.reject()
     dialog.deleteLater()
 
 

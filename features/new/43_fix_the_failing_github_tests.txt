@@ -2014,3 +2014,24 @@ its declared tooling: fatal Ruff repository checks, broader target Ruff, mypy
 and Xenon B/B/A. All20 CI-classification tests pass in2.04s. The ambient Python
 lacked types-PyYAML; installing the workflow dependencies in the private venv
 resolved that environment-only type-check failure. Full CI remains open.
+GitHub confirmation: the repaired quality job passed at35df972c4:
+https://github.com/EinarOlafsson/spacr/actions/runs/35789748489/job/106955363195
+Other jobs in that run are not claimed complete.
+
+2026-09-22 — IMPLEMENTATION: MODEL ZOO PICKER CATALOGUE TEARDOWN
+The reported lingering ModelZoo JobRunner exposed a production omission:
+close/reject stopped downloads but never retired catalogue results or stopped
+the backend-probe timer; accept/done omitted catalogue cleanup too. All four
+visible-dialog paths reproduced the pending-runner failure.
+The picker now retires catalogue work in done(), through JobRunner.shutdown(0),
+and stops probe polling. An in-flight read may finish under the existing safe
+thread-retention mechanism; its result is discarded and cannot refresh the
+closed dialog. Existing download teardown is unchanged.
+Seven deterministic lifecycle cases cover visible exits and accept/reject/done
+on never-shown dialogs, with a blocked fake HTTP read, a500ms close ceiling,
+late-result checks and explicit worker release/retirement. Existing picker/
+source-group tests now reject their never-shown dialogs before deletion and
+leave live HTTP warming to the controlled lifecycle tests. This removes their
+network-dependent parked-thread warnings without suppressing the leak checker.
+All42 focused tests pass in5.69s without a leftover-worker report; seven final
+lifecycle checks and repository fatal Ruff checks also pass. Full CI stays open.

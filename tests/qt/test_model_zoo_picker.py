@@ -52,13 +52,15 @@ def _row_needing_download(picker):
 
 @pytest.fixture
 def picker(qapp, tmp_path, monkeypatch):
+    monkeypatch.setattr(mzp.ModelZooPicker, "_warm_the_community_catalogue",
+                        lambda self: None)
     monkeypatch.setattr(mzp, "DEFAULT_MODEL_DIR", str(tmp_path))
     monkeypatch.setattr(mzp, "remembered_model_dir", lambda: str(tmp_path))
     dialog = mzp.ModelZooPicker(kinds=("cellpose",))
     yield dialog
     # Join any worker BEFORE the dialog is destroyed: a QThread deleted while
     # running aborts the process, which is how this was found.
-    dialog._stop_any_download()
+    dialog.reject()
     dialog.deleteLater()
 
 
