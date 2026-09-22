@@ -438,3 +438,34 @@ def test_the_compare_window_says_so_when_nothing_is_switched_on(screen):
         assert "No enhancement step" in dialog.caption.text()
     finally:
         dialog.close()
+
+
+def test_denoising_needs_no_pywavelets_and_a_broken_step_is_skipped():
+    """Reported 2026-09-22: hovering the image filled the console with
+    'PyWavelets is not installed' -- scikit-image's estimate_sigma needs an
+    optional package spaCR does not carry, and the exception came out of a
+    mouse-move. The noise estimate is numpy's now, and any step that cannot
+    run is skipped rather than raised."""
+    import numpy as np
+
+    from spacr.qt import detect_chain as dc
+
+    rng = np.random.default_rng(0)
+    field = rng.normal(0.5, 0.05, (48, 48)).astype(np.float32)
+    assert dc._noise_sigma(field) > 0
+    assert dc._noise_sigma(np.zeros((8, 8), np.float32)) == 0.0
+
+    chain = dc.Chain(denoise="nl_means", denoise_strength=1.0)
+    out = dc.prepare(field, chain)
+    assert out.shape == field.shape and out.dtype == np.float32
+
+    def explode(image, chain):
+        raise ImportError("PyWavelets is not installed")
+
+    original = dc._denoise
+    dc._denoise = explode
+    try:
+        kept = dc.prepare(field, chain)
+    finally:
+        dc._denoise = original
+    assert kept.shape == field.shape, "the chain carries on without that step"

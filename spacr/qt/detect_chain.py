@@ -54,9 +54,12 @@ item 407's progress and Cancel.
 """
 from __future__ import annotations
 
+import logging
 from typing import Dict, NamedTuple, Optional, Tuple
 
 import numpy as np
+
+LOG = logging.getLogger(__name__)
 
 #: The stages, in the order they run. The first is Make Masks' own
 #: "detect on the normalized image" switch and is applied by the screen
@@ -235,6 +238,28 @@ def _background(image: np.ndarray, chain: Chain) -> np.ndarray:
     return image
 
 
+def _noise_sigma(unit: np.ndarray) -> float:
+    """How noisy ``unit`` is, without PyWavelets.
+
+    Reported 2026-09-22: scikit-image's ``estimate_sigma`` raises
+    ``PyWavelets is not installed`` -- it is an optional dependency spaCR
+    does not carry -- and the exception came out of a mouse-move, so hovering
+    the image filled the console. The estimate here is the classic robust
+    one: the median absolute deviation of the image's Laplacian, scaled so a
+    Gaussian gives back its own sigma, which needs numpy alone.
+
+    :param unit: the image, scaled to 0-1.
+    :returns: the noise's standard deviation, never negative.
+    """
+    rows = np.diff(unit, n=2, axis=0) if unit.shape[0] > 2 else np.zeros(1)
+    columns = np.diff(unit, n=2, axis=1) if unit.shape[1] > 2 else np.zeros(1)
+    both = np.concatenate([np.ravel(rows), np.ravel(columns)])
+    if not both.size:
+        return 0.0
+    mad = float(np.median(np.abs(both - np.median(both))))
+    return max(mad / (0.6745 * np.sqrt(6.0)), 0.0)
+
+
 def _denoise(image: np.ndarray, chain: Chain) -> np.ndarray:
     """Smooth the noise ``chain`` names away, keeping the intensities."""
     strength = float(chain.denoise_strength)
@@ -256,9 +281,9 @@ def _denoise(image: np.ndarray, chain: Chain) -> np.ndarray:
         out = denoise_bilateral(unit, sigma_color=max(strength * 0.05, 1e-3),
                                 sigma_spatial=max(strength, 1e-3))
     else:
-        from skimage.restoration import denoise_nl_means, estimate_sigma
+        from skimage.restoration import denoise_nl_means
 
-        sigma = float(estimate_sigma(unit, channel_axis=None))
+        sigma = _noise_sigma(unit)
         out = denoise_nl_means(unit, h=max(strength, 0.1) * max(sigma, 1e-4),
                                sigma=sigma, fast_mode=True, patch_size=5,
                                patch_distance=6, channel_axis=None)
@@ -321,11 +346,23 @@ def prepare(image: np.ndarray, chain: Chain) -> np.ndarray:
     if not pre_active(chain):
         return image
     out = np.asarray(image, dtype=np.float32)
-    out = _background(out, chain)
-    out = _denoise(out, chain)
-    out = _contrast(out, chain)
-    if chain.sharpen:
-        out = _sharpen(out, chain)
+    for name, step in (("background", _background), ("denoise", _denoise),
+                       ("contrast", _contrast),
+                       ("sharpen", _sharpen if chain.sharpen else None)):
+        if step is None:
+            continue
+        try:
+            out = step(out, chain)
+        except Exception:                                    # noqa: BLE001
+            # A STEP THAT CANNOT RUN IS SKIPPED, NOT RAISED. This is called
+            # from a mouse-move (the readout under the cursor) and from the
+            # magnifier, so an exception here is one per mouse event: a
+            # missing optional package filled the console with tracebacks
+            # once (PyWavelets, 2026-09-22) and made the screen unusable.
+            # The detector then reads the image as far as the chain got.
+            LOG.warning("the %s step of the detection chain could not run; "
+                        "the image is used as it is so far", name,
+                        exc_info=True)
     return np.asarray(out, dtype=np.float32)
 
 
