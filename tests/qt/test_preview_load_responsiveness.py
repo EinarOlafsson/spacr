@@ -261,6 +261,168 @@ def _panel(qtbot):
     return p
 
 
+@pytest.mark.parametrize("action", ["table", "spinner"])
+def test_selecting_a_channel_keeps_the_gui_responsive(
+        qtbot, plate, monkeypatch, action):
+    panel = _panel(qtbot)
+    panel.load_image(sorted(plate.iterdir())[0])
+    qtbot.wait(20)
+    real = LP.load_preview_image
+    monkeypatch.setattr(
+        LP, "load_preview_image",
+        lambda path: (time.sleep(SLOW_DECODE_S), real(path))[1])
+    target = panel._set_table.item(0, 1).data(Qt.UserRole)
+    dog = LoopWatchdog()
+    dog.start()
+
+    if action == "table":
+        panel._on_set_cell_clicked(0, 1)
+    else:
+        panel._cell_channel.setValue(1)
+
+    _drive(qtbot, dog, lambda: not panel._image_loaders)
+    assert str(panel._image_path) == target
+    np.testing.assert_array_equal(panel._image, real(target))
+    assert dog.ticks > 10
+    assert dog.worst < STALL_BUDGET_S
+
+
+@pytest.mark.parametrize("return_to_current", [False, True])
+def test_a_late_channel_read_cannot_replace_the_latest_selection(
+        qtbot, plate, monkeypatch, return_to_current):
+    from threading import Event
+
+    panel = _panel(qtbot)
+    panel.load_image(sorted(plate.iterdir())[0])
+    qtbot.wait(20)
+    first = panel._image_path
+    slow_path = panel._set_table.item(0, 1).data(Qt.UserRole)
+    entered, release = Event(), Event()
+    real = LP.load_preview_image
+
+    def delayed(path):
+        if str(path) == slow_path:
+            entered.set()
+            if not release.wait(5):
+                raise TimeoutError("test did not release decoder")
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", delayed)
+    try:
+        panel._on_set_cell_clicked(0, 1)
+        qtbot.waitUntil(entered.is_set)
+        row = 0 if return_to_current else 1
+        target = panel._set_table.item(row, 0).data(Qt.UserRole)
+        panel._on_set_cell_clicked(row, 0)
+        qtbot.waitUntil(lambda: str(panel._image_path) == target)
+        assert (panel._image_path == first) == return_to_current
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert str(panel._image_path) == target
+    np.testing.assert_array_equal(panel._image, real(target))
+    assert (panel._table_row, panel._table_col) == (row, 0)
+
+
+def test_projection_and_channel_changes_decode_off_the_gui_thread(
+        qtbot, tmp_path, monkeypatch):
+    from threading import get_ident
+
+    for channel in (1, 2):
+        for z in (1, 2, 3):
+            tifffile.imwrite(
+                tmp_path / f"plate1_A01_T0001F001L01A01Z{z:02d}C{channel:02d}.tif",
+                np.full((8, 8), channel * 10 + z, dtype=np.uint16))
+    panel = _panel(qtbot)
+    panel.load_image(sorted(tmp_path.iterdir())[0])
+    qtbot.wait(20)
+    gui_thread = get_ident()
+    calls = []
+    real = LP.load_preview_image
+
+    def record(path):
+        calls.append(get_ident())
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", record)
+    panel._mip_toggle.setChecked(True)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    np.testing.assert_array_equal(panel._image, 13)
+    panel._on_set_cell_clicked(0, 1)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    np.testing.assert_array_equal(panel._image, 23)
+    panel._mip_toggle.setChecked(False)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    np.testing.assert_array_equal(panel._image, 21)
+    assert len(calls) >= 9
+    assert gui_thread not in calls
+
+
+def test_a_worker_load_keeps_the_clicked_plane_and_reuses_the_same_file(
+        qtbot, tmp_path, monkeypatch):
+    for field in (1, 2):
+        image = np.stack([np.full((8, 8), field * 10 + ch, dtype=np.uint16)
+                          for ch in range(3)], axis=-1)
+        tifffile.imwrite(tmp_path / f"field{field}.tif", image)
+    panel = _panel(qtbot)
+    panel.load_image(tmp_path / "field1.tif")
+    qtbot.wait(20)
+    reads = []
+    real = LP.load_preview_image
+
+    def record(path):
+        reads.append(path)
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", record)
+    panel._on_set_cell_clicked(1, 2)
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert panel._image_path == tmp_path / "field2.tif"
+    assert panel.display_channel() == 2
+    np.testing.assert_array_equal(panel._image[..., panel.display_channel()], 22)
+    assert len(reads) == 1
+
+    panel._on_set_cell_clicked(1, 1)
+    assert panel.display_channel() == 1
+    np.testing.assert_array_equal(panel._image[..., panel.display_channel()], 21)
+    assert len(reads) == 1
+
+
+def test_projection_toggled_during_a_load_keeps_the_requested_channel(
+        qtbot, tmp_path, monkeypatch):
+    from threading import Event
+
+    for channel in (1, 2):
+        for z in (1, 2):
+            tifffile.imwrite(
+                tmp_path / f"plate1_A01_T0001F001L01A01Z{z:02d}C{channel:02d}.tif",
+                np.full((8, 8), channel * 10 + z, dtype=np.uint16))
+    panel = _panel(qtbot)
+    panel.load_image(sorted(tmp_path.iterdir())[0])
+    qtbot.wait(20)
+    entered, release = Event(), Event()
+    real = LP.load_preview_image
+
+    def delayed(path):
+        if "C02" in str(path):
+            entered.set()
+            if not release.wait(5):
+                raise TimeoutError("test did not release decoder")
+        return real(path)
+
+    monkeypatch.setattr(LP, "load_preview_image", delayed)
+    try:
+        panel._on_set_cell_clicked(0, 1)
+        qtbot.waitUntil(entered.is_set)
+        panel._mip_toggle.setChecked(True)
+    finally:
+        release.set()
+    qtbot.waitUntil(lambda: not panel._image_loaders)
+    assert panel._image_path.name.endswith("Z01C02.tif")
+    assert panel._table_col == 1
+    np.testing.assert_array_equal(panel._image, 22)
+
+
 # ---------------------------------------------------------------------------
 # The three paths that used to block
 # ---------------------------------------------------------------------------

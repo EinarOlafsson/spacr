@@ -68,3 +68,24 @@ three-channel plate written to disk:
     user means.
   * ONE repaint per keystroke, not two. This is the test that fails on
     unmodified nightly.
+
+2026-09-22 — TABLE CHANNEL LOADS AND PROJECTIONS STAY RESPONSIVE
+Channel-file table clicks and object-channel spinners now use the tokened
+image loader. Changing a plane within the displayed multi-channel file still
+reuses its pixels. Returning to the currently displayed file invalidates an
+older pending read, and toggling MIP while a channel loads projects the pending
+selection rather than reopening the previous channel. Projection decodes run
+on the worker; accepted payloads are installed without reading the stack again
+on the GUI thread. The legacy dropdown no longer causes a second repaint after
+the table has already selected the requested channel file.
+
+The original five channel tests now inspect the selected file, table column
+and actual pixel values, since a single-channel file's legacy display dropdown
+is not its acquisition-channel identity. Seven added cases exercise controlled
+one-second reads, late results, current-file reselection, worker-only projection,
+projection toggled during loading, and multi-channel file reuse. All 144 focused
+channel/table/projection/load checks pass in 42.77 seconds with no leftover
+worker report. Capped offscreen execution, CUDA hidden; repository fatal Ruff
+checks pass. Broader startup performance (284) and full CI (43) remain open.
+A further100 live-preview/source-selector/sampling checks pass in13.69s:
+244 distinct focused checks pass for the final change.

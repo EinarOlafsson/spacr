@@ -270,8 +270,7 @@ def load_preview_mip(paths) -> np.ndarray:
     is looking at is what masking will actually run on.
 
     Planes are folded one at a time rather than stacked: a 60-plane field at
-    2048x2048 uint16 is 500 MB as one array and 8 MB folded, and the preview
-    is on the GUI thread.
+    2048x2048 uint16 is 500 MB as one array and 8 MB folded.
 
     :param paths: plane paths in acquisition order; one path is returned
         unchanged, so a flat 2-D field costs nothing.
@@ -663,7 +662,8 @@ def first_supported_image(source: Path) -> Optional[Path]:
 
 
 def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
-                        enumerate_sets: bool = True) -> Dict[str, Any]:
+                        enumerate_sets: bool = True, *,
+                        project: bool = False, known_sets=()) -> Dict[str, Any]:
     """Discover, enumerate and decode one preview source. Data in, data out.
 
     This is the whole of a preview load, written so it touches **no widget and
@@ -674,8 +674,8 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
     halves in one dict gets the same ordering for free, because the caller
     adopts the enumeration and installs the image in a single GUI-thread call.
 
-    The enumeration reads **file names only** — it never opens an image — so
-    the single decode here stays the only file read for a folder of any size.
+    The enumeration reads **file names only**. Decoding reads the selected
+    image, plus its channel's z-planes when projection is requested.
 
     :param source: image file or directory to load a preview from.
     :param max_sets: cap for the sample drawn when ``source`` is a directory.
@@ -683,6 +683,8 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
         dropdown hands out a path from a set the sampler already produced, so
         re-scanning for it would burn a full pass over a 98 000-file plate to
         rediscover what is already cached.
+    :param project: project the selected channel's z-stack on this worker.
+    :param known_sets: cached image sets used when enumeration is skipped.
     :returns: ``{path, array, directory, sets, channels, error}``. ``sets`` is
         ``None`` when no enumeration was done or it failed, which the caller
         reads as "leave the sampler alone".
@@ -712,6 +714,18 @@ def load_source_payload(source, max_sets: int = DEFAULT_MAX_SETS,
                               path.parent)
         out["path"] = path
         out["array"] = load_preview_image(path) if path is not None else None
+        if project and path is not None:
+            for picked in out["sets"] if out["sets"] is not None else known_sets:
+                if Path(picked.directory) != path.parent or picked.z_count <= 1:
+                    continue
+                channel = next((ch for ch, names in picked.planes.items()
+                                if path.name in names), None)
+                if channel is not None:
+                    try:
+                        out["array"] = load_preview_mip(picked.plane_paths(channel))
+                    except Exception:
+                        LOG.exception("Could not project preview source %s", path)
+                    break
     except Exception as exc:
         LOG.exception("Could not load live-preview source %s", source)
         out["error"] = str(exc) or exc.__class__.__name__
@@ -2028,7 +2042,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         runner = getattr(self, "_load_jobs", None)
         return [] if runner is None else [0] * runner.pending_jobs()
 
-    def load_source_async(self, source, *, enumerate_sets: bool = True) -> bool:
+    def load_source_async(self, source, *, enumerate_sets: bool = True,
+                          display_plane: Optional[int] = None) -> bool:
         """Discover and decode a file/folder source on a worker thread.
 
         New requests supersede older ones by token. An old decoder is allowed
@@ -2037,6 +2052,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         :param source: direct supported image or directory containing images.
         :param enumerate_sets: ``False`` reuses the sampler's cached listing
             instead of re-scanning. See :func:`load_source_payload`.
+        :param display_plane: channel plane selected by the table, if any.
         :returns: ``True`` when a worker was started.
         """
         text = os.fspath(source).strip() if source is not None else ""
@@ -2045,13 +2061,19 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._image_load_token += 1
         token = self._image_load_token
         max_sets = int(self._sampler.max_sets)
+        project = self._mip_enabled
+        known_sets = tuple(self._sampler.sets)
+        self._load_request = (text, enumerate_sets, display_plane)
         self._status.setText(f"Loading preview from {text}…")
         self._load_jobs.submit(
-            lambda: load_source_payload(text, max_sets, enumerate_sets),
-            lambda payload, _t=token: self._on_source_payload(_t, payload))
+            lambda: load_source_payload(text, max_sets, enumerate_sets,
+                                        project=project, known_sets=known_sets),
+            lambda payload, _t=token: self._on_source_payload(
+                _t, payload, display_plane=display_plane))
         return True
 
-    def _on_source_payload(self, token: int, payload) -> None:
+    def _on_source_payload(self, token: int, payload, *,
+                           display_plane: Optional[int] = None) -> None:
         """Apply the newest asynchronous load result. Always on the GUI thread.
 
         Adopting the enumeration *before* installing the image is what keeps
@@ -2061,6 +2083,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         if token != self._image_load_token or not isinstance(payload, dict):
             return
+        self._load_request = None
         error = payload.get("error") or ""
         if error:
             self._status.setText(f"Load failed: {error}")
@@ -2073,7 +2096,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if path is None or arr is None:
             self._status.setText("No supported preview image found.")
             return
-        self._install_loaded_image(Path(path), arr)
+        self._install_loaded_image(Path(path), arr, project=False,
+                                   display_plane=display_plane)
 
     def shutdown(self) -> None:
         """Abandon any load in flight and leave no QThread behind.
@@ -2091,17 +2115,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self.shutdown()
         super().closeEvent(event)
 
-    def _install_loaded_image(self, path: Path, arr: np.ndarray) -> None:
+    def _install_loaded_image(self, path: Path, arr: np.ndarray, *,
+                              project: bool = True,
+                              display_plane: Optional[int] = None) -> None:
         """Replace preview state with an already-decoded image.
 
-        MIP is re-applied here rather than only where the switch is clicked.
-        This is the one funnel every image arrives through, and the array a
-        background load hands over was decoded by a worker that reads a single
-        file and knows nothing about the switch — so with MIP on, changing
-        field or channel used to drop silently back to one plane until the
-        switch was toggled off and on again.
+        Synchronous callers can request projection here. Worker results have
+        already applied the projection setting and pass ``project=False`` to
+        keep decoding off the GUI thread. The selected plane is installed
+        before the first repaint.
         """
-        if getattr(self, "_mip_enabled", False):
+        if project and getattr(self, "_mip_enabled", False):
             try:
                 projected = self._load_for_display(Path(path))
             except Exception:
@@ -2117,6 +2141,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._path_full = str(path)
         self._show_elided_path()
         self._refresh_source_selectors()
+        self._loaded_projection = self._mip_enabled
+        if display_plane is not None:
+            self._select_display_channel(display_plane)
+            self._composite_roles = ()
+            self._refresh_cycle_controls()
         note = self.sample_note()
         self._status.setText(f"Loaded {arr.shape} {arr.dtype}"
                              + (f" — {note}" if note else ""))
@@ -2572,11 +2601,18 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         if not path:
             return
         plane = item.data(_PLANE_ROLE)
-        if (plane is None or self._image is None
-                or str(self._image_path) != str(path)):
-            if not self.load_image(Path(path)):
-                return
+        if (self._image is None or str(self._image_path) != str(path)
+                or getattr(self, "_loaded_projection", False) != self._mip_enabled):
+            self.load_source_async(path, enumerate_sets=False,
+                                   display_plane=plane)
+            return
+        self._image_load_token += 1
+        self._load_request = None
+        note = self.sample_note()
+        self._status.setText(f"Loaded {self._image.shape} {self._image.dtype}"
+                             + (f" — {note}" if note else ""))
         if plane is None:
+            self._refresh_canvases()
             return
         self._select_display_channel(int(plane))
         self._on_display_channel_changed()
@@ -2618,11 +2654,17 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
     def _reload_for_mip(self) -> None:
         """Re-read the file on screen under the new projection setting."""
+        requested = getattr(self, "_load_request", None)
+        if requested is not None:
+            path, enumerate_sets, plane = requested
+            self.load_source_async(path, enumerate_sets=enumerate_sets,
+                                   display_plane=plane)
+            return
         path = getattr(self, "_image_path", None)
         if not path:
             return
-        arr = self._load_for_display(Path(path))
-        self._install_loaded_image(Path(path), arr)
+        self.load_source_async(path, enumerate_sets=False,
+                               display_plane=self.display_channel())
 
     def _on_max_sets_changed(self, value: int) -> None:
         """Draw a new sample at the user's new cap — without re-enumerating."""
@@ -3784,8 +3826,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         wanted = self._channel_for_object(ordered[0])
         if wanted is None:
             return False
-        if self._follow_in_table(int(wanted)):
-            return True
+        if int(wanted) in (getattr(self, "_column_channels", None) or []):
+            return self._follow_in_table(int(wanted))
         box = self._channel_box
         target = f"Ch {wanted}"
         for index in range(box.count()):
@@ -3822,11 +3864,14 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             return False
         column = channels.index(wanted)
         row = getattr(self, "_table_row", 0) or 0
-        if column == getattr(self, "_table_col", None):
-            return False
         item = table.item(row, column)
         if item is None or not item.data(Qt.UserRole):
             return False
+        if column == getattr(self, "_table_col", None):
+            plane = item.data(_PLANE_ROLE)
+            if (plane is None or self.display_channel() == int(plane)
+                    or str(self._image_path) != str(item.data(Qt.UserRole))):
+                return False
         self._selected_cells = [(row, column)]
         self._table_row, self._table_col = row, column
         blocked = table.blockSignals(True)

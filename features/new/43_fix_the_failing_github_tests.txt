@@ -2065,3 +2065,20 @@ in7.09s with CUDA hidden and no real training/download. Model classes and
 train_seg remain recording doubles; production resolver behavior is unchanged.
 The corrections remove environment-dependent assertions rather than accepting
 an arbitrary path or weakening checkpoint identity. Full CI remains open.
+
+2026-09-22 — LIVE PREVIEW CHANNEL TESTS AND RESPONSIVENESS REPAIRED
+Frozen channel-follow tests inspected the old display dropdown after the table
+had selected another single-channel file. They now verify selected source and
+actual pixels. Investigation also found synchronous image reads in table clicks
+and channel spinners; these now use the existing tokened worker. Projection is
+computed there too, including when toggled during a pending channel selection.
+Late results cannot overwrite a newer selection, even a return to the current
+file. Same-file channel-plane changes reuse pixels without another decode.
+Table selection is authoritative, avoiding the legacy dropdown's extra repaint.
+
+All 144 focused channel/table/projection/load tests pass in 42.77 seconds,
+including seven new responsiveness/race/reuse cases and updated asynchronous
+completion checks. No leftover-worker report; repository fatal Ruff checks pass.
+No CI threshold or coverage baseline changed. Full CI/coverage remain open.
+A further100 live-preview/source-selector/sampling checks pass in13.69s:
+244 distinct focused checks pass for the final change.

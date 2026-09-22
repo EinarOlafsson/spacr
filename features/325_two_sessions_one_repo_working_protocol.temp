@@ -10387,3 +10387,29 @@ entries. Tests prove cached and absent-stock naming plus exact resolved-path
 forwarding;25 focused naming/plumbing/base-model tests pass with CUDA hidden.
 No real weights, download, training, production code or API prose changed.
 Movie export repair already pushed as90236a6ff; full CI/coverage remain open.
+
+2026-09-22 — IMPLEMENTATION: LIVE PREVIEW CHANNEL/LOAD CLAIM
+Claiming widgets/live_preview.py and focused channel/table/load tests under
+43/442/284. Frozen channel failures inspect the old dropdown after the table
+opens a channel-specific file; will verify actual selected files and pixels.
+Found a production responsiveness regression: _open_cell calls synchronous
+load_image from table clicks/channel spinners. Moving table reads onto the
+existing tokened loader, preserving same-file plane changes and rejecting stale
+results. Projection reads must also stay off the GUI thread on those loads.
+No Make Masks/detect_chain, tutorials, catalogs or other-checkout files touched.
+
+2026-09-22 — IMPLEMENTATION: LIVE PREVIEW CHANNEL/LOAD REPAIR VERIFIED
+43/442/284: table clicks and object-channel spinners now load on the existing
+worker; projection reads stay there too. Stale reads cannot replace newer
+selections, same-file planes reuse pixels, and MIP toggled during a pending
+channel load follows that requested channel. Table selection no longer falls
+through to the legacy dropdown and causes an extra repaint.
+144 focused tests pass in 42.77s, including seven added slow-read/race/reuse
+cases; no leftover-worker report. Fatal Ruff passes. Full CI/startup remain open.
+API lane: load_source_payload adds keyword-only project/known_sets, and
+LivePreviewPanel.load_source_async adds keyword-only display_plane. Docstrings
+updated in place. No new user caption, tutorial, catalog or Make Masks change.
+GPU idle watcher remains active, with no qualifying 20-minute idle window;
+no GPU training or OPS resume launched. Release of live_preview.py after push.
+The remaining live-preview/source-selector/sampling checks also pass:100 tests
+in13.69s. Total244 distinct focused checks pass for this change.
