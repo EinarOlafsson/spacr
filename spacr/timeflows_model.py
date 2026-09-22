@@ -566,7 +566,8 @@ def _normalise(image: np.ndarray) -> np.ndarray:
     return np.clip((image - low) / max(high - low, 1e-6), 0, 1).astype(np.float32)
 
 
-def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
+def ctc_pairs(movie: str, sequence: str = "01",
+              max_pairs: Optional[int] = None) -> List[_Pair]:
     """Consecutive-frame training pairs from one Cell Tracking Challenge movie.
 
     Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver
@@ -577,6 +578,10 @@ def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
 
     :param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).
     :param sequence: ``'01'`` or ``'02'``.
+    :param max_pairs: at most this many pairs, spaced evenly through the
+        movie and chosen BEFORE any file is read. Measured 2026-09-22: six
+        movies read whole do not fit in 48 GB -- the HSC and MuSC movies alone
+        are about 3,000 frames -- so a training run takes a sample of each.
     :returns: the pairs, in time order.
     """
     import os
@@ -598,13 +603,18 @@ def ctc_pairs(movie: str, sequence: str = "01") -> List[_Pair]:
     frames = indexed(os.path.join(movie, sequence), "t")
     segs = indexed(os.path.join(movie, f"{sequence}_ST", "SEG"), "man_seg")
     tracks = indexed(os.path.join(movie, f"{sequence}_GT", "TRA"), "man_track")
-    usable = sorted(set(frames) & set(segs) & set(tracks))
+    usable = set(frames) & set(segs) & set(tracks)
+    starts = sorted(n for n in usable if n + 1 in usable)
+    if max_pairs is not None and len(starts) > max_pairs > 0:
+        picks = np.linspace(0, len(starts) - 1, max_pairs).round().astype(int)
+        starts = [starts[i] for i in sorted(set(picks.tolist()))]
+    needed = sorted({n for s in starts for n in (s, s + 1)})
     loaded = {n: (_normalise(tifffile.imread(frames[n])),
                   track_masks_from_ctc(tifffile.imread(segs[n]),
                                        tifffile.imread(tracks[n])))
-              for n in usable}
+              for n in needed}
     return [_Pair(loaded[n][0], loaded[n + 1][0], loaded[n][1], loaded[n + 1][1])
-            for n in usable if n + 1 in loaded]
+            for n in starts]
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -630,11 +640,16 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--head-steps", type=int, default=2000)
     parser.add_argument("--full-steps", type=int, default=2000)
     parser.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
+    parser.add_argument("--max-pairs", type=int, default=60,
+                        help="pairs per movie sequence, spaced evenly (0 = all)")
     args = parser.parse_args(argv)
     pairs: List[_Pair] = []
     for movie in args.movies:
         for sequence in ("01", "02"):
-            pairs.extend(ctc_pairs(movie, sequence))
+            pairs.extend(ctc_pairs(movie, sequence,
+                                   max_pairs=args.max_pairs or None))
+            print(f"{movie.rsplit('/', 1)[-1]} {sequence}: {len(pairs)} pairs so far",
+                  flush=True)
     if not pairs:
         raise SystemExit("no usable pairs: each movie needs NN/, NN_ST/SEG and NN_GT/TRA")
     weights = pair_sampling_weights(np.stack([p.labels_t for p in pairs]
@@ -652,6 +667,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     torch.save(net.state_dict(), args.out)
     with open(args.out + ".json", "w", encoding="utf-8") as handle:
         json.dump({"base": args.base, "movies": args.movies, "pairs": len(pairs),
+                   "max_pairs_per_sequence": args.max_pairs,
                    "head_steps": args.head_steps, "full_steps": args.full_steps,
                    "final_loss": losses[-1] if losses else None}, handle, indent=2)
     print(f"saved {args.out} ({len(pairs)} pairs, final loss {losses[-1]:.4f})")
