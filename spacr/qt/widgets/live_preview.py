@@ -2502,7 +2502,47 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._fov_box.setCurrentIndex(index)
         finally:
             self._fov_box.blockSignals(False)
+        self._adopt_clicked_channel(column)
         self._open_cell(item)
+
+    def _adopt_clicked_channel(self, column: int) -> bool:
+        """Give the chosen object the channel of the column the user clicked.
+
+        The maintainer, 2026-09-22: the channel setting already moves the
+        table to its column (:meth:`_follow_in_table`); the click has to move
+        the setting the same way, or clicking channel 2 with cell on channel 1
+        shows channel 2 for an instant and snaps back -- "it dosnt mater what
+        channel the user clicks it is always the channel selected for the
+        object". So a click on a channel column sets the chosen object's
+        channel to that column's channel, and the view and the setting agree
+        again whichever one the user moved.
+
+        Only with ONE object chosen: with "cell + nucleus" there is no single
+        setting the click could mean, and the click just shows the channel.
+        A column that is not a channel (a file the naming could not read) sets
+        nothing.
+
+        :param column: the table column clicked.
+        :returns: whether a channel setting was changed.
+        """
+        channels = getattr(self, "_column_channels", None) or []
+        if not (0 <= column < len(channels)) or channels[column] is None:
+            return False
+        ordered = self._selected_object_types()
+        if len(ordered) != 1:
+            return False
+        role = ordered[0]
+        spinner = {"cell": self._cell_channel, "nucleus": self._nucleus_channel,
+                   "pathogen": self._pathogen_channel}.get(role)
+        if spinner is None and role == getattr(self, "_active_organelle_role", None):
+            spinner = self._organelle_channel
+        if spinner is None:
+            return False
+        wanted = int(channels[column])
+        if int(spinner.value()) == wanted or wanted > spinner.maximum():
+            return False
+        spinner.setValue(wanted)
+        return True
 
     def _open_cell(self, item) -> None:
         """Show the file a table cell names, at the plane it names if any.
