@@ -1548,3 +1548,21 @@ exposed a separate shortcut paragraph parser failure: compound shortcuts merge
 into translatable prose. That remains open for the next API repair, along with
 the full catalog audit, nested helpers and tutorial media. No native-speaker
 signoff or full translation acceptance is claimed.
+
+2026-09-22 — CODEX: SHORTCUT API TRANSLATION BOUNDARIES REPAIRED
+The shortcut parser now preserves compound modifiers, named keys and standalone
+function keys as literal bindings. The module splits into 14 prose blocks rather
+than seven; all 11 bindings stay exact while every description is translated.
+Nine locale catalogs now carry the current module, including Help search and
+scale reset. 81 new exact-source review records cover restored/new actions and
+the closing paragraph; retired review files remain unchanged. One obsolete
+English archive record is removed only after all nine locales cease referring
+to it. Other symbols and remaining archive records are unchanged.
+36 parser/literal/context checks and all 12 ordinary-build history tests pass.
+The complete reviewed-record binding checker passes. Independent verification
+checks every locale's text, 14 block hashes, 11 literal bindings and unchanged
+unrelated catalog entries. Receipt:411_shortcut_api_translations_2026-09-22.json.
+English symbol count stays11280. Full locale audit and nested rollout are open.
+The fresh nested inventory atfaa66fda0 measures950 eligible definitions in201
+modules,940 canonical entries,1643 canonical blocks and1586 unique blocks;
+ENABLED_MODULES remains empty. Older842-helper measurements are no longer current.

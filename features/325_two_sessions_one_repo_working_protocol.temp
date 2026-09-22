@@ -10143,3 +10143,13 @@ make-masks-methods-0922; the 372 plate run on the GPU, well B1), what landed
 (472 part 5 done and waiting on your walkthroughs, 473, 474, 475), and the
 rules. Branches are now main and nightly only; the old wip/* remotes are
 tagged archive/wip-<name>.
+2026-09-22 — CODEX: FIGURE SETTINGS PUSHED / SHORTCUT API COMPLETE LOCALLY
+Figure/Plaque settings and quoted-option protection landed asfaa66fda0.
+Shortcut parser fix and all nine module translations now pass36 parser checks,
+12 history checks and the complete reviewed API binding checker.81 new review
+records;11 literal shortcut bindings verified per locale; no shortcuts.py edit.
+Only this module changes in English/nine locale catalogs. Retired reviews stay
+intact, and its unused source archive is pruned after all locales are current.
+Nested inventory is now940 entries/201 modules,1643 blocks/1586 unique blocks;
+rollout remains disabled, so this is still substantial owed work. Full catalog
+translation/audit, Home map adapter, and tutorial media remain open. No GPU use.

@@ -3826,8 +3826,10 @@ _CODE_DEFINITION_RE = re.compile(
 _ALIGNED_LITERAL_DEFINITION_RE = re.compile(
     r"^(?P<prefix>(?:"
     r"[012]|"
-    r"(?:Ctrl\+(?:[A-Za-z0-9]|1\.\.9|[,/]))|"
-    r"F\d+\s+/\s+\?|Esc|"
+    r"(?:(?:Ctrl|Alt|Shift|Meta|Cmd)\+)+(?:"
+    r"[A-Za-z0-9]|1\.\.9|[,/]|F\d+|End|Home|Tab|Enter|Return|Space|"
+    r"Backspace|Delete|Insert|PageUp|PageDown|Up|Down|Left|Right)|"
+    r"F\d+(?:\s+/\s+\?)?|Esc|"
     r"!?pathogen|NOT\s+pathogen|"
     r"cell\s+(?:AND\s+(?:NOT\s+)?pathogen|AND\s+nucleus|OR\s+nucleus)"
     r")\s{2,})(?P<prose>.+)$"

@@ -1721,6 +1721,29 @@ def test_indented_query_and_shortcut_keys_stay_literal_while_help_translates():
                    for block in shortcut_blocks)
 
 
+def test_shortcut_translation_keeps_compound_bindings_and_layout_exact():
+    from build_documentation_i18n import rebuild_document, translatable_blocks
+
+    bindings = [
+        "Ctrl+0", "Ctrl+1..9", "Ctrl+K", "Ctrl+Shift+H", "F1  / ?",
+        "Ctrl+P", "Ctrl+Alt+0", "Ctrl+/", "Ctrl+End", "F11", "Esc",
+        "Meta+Shift+Left", "Cmd+Alt+Home", "Alt+F4", "Ctrl+,",
+    ]
+    source = "Shortcuts:\n\n" + "\n".join(
+        f"    {binding:<20}  Action {index}"
+        for index, binding in enumerate(bindings)
+    )
+    blocks, layout = translatable_blocks(source)
+    assert blocks == ["Shortcuts:"] + [
+        f"Action {index}" for index in range(len(bindings))
+    ]
+    assert rebuild_document(layout, blocks) == source
+    translated = ["Shortcuts:"] + [
+        f"Acción {index}" for index in range(len(bindings))
+    ]
+    assert rebuild_document(layout, translated) == source.replace("Action", "Acción")
+
+
 def test_parser_preserves_directive_options_and_translates_admonition_title():
     from build_documentation_i18n import rebuild_document, translatable_blocks
 

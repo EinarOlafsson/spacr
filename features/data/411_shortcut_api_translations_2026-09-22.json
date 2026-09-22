@@ -1,0 +1,29 @@
+{
+  "all_locales_no_longer_reference_removed_archive": true,
+  "current_blocks": 14,
+  "date": "2026-09-22",
+  "english_symbols": 11280,
+  "full_catalog_audit_passed": false,
+  "languages": [
+    "sv",
+    "de",
+    "es",
+    "zh_CN",
+    "pt",
+    "hi",
+    "ko",
+    "is",
+    "fr"
+  ],
+  "literal_shortcut_bindings_per_language": 11,
+  "native_speaker_signoff": false,
+  "new_source_bound_reviews": 81,
+  "obsolete_archive_records_removed": [
+    "69dd903a0901e2f7be6385182c0d0f03a27af9fe7e358476c4b9dd4521ce0e33"
+  ],
+  "previous_blocks": 7,
+  "retired_review_files_unchanged": true,
+  "schema": 1,
+  "source_commit": "faa66fda05b209718663e59843c1c122358fefb6",
+  "symbol": "spacr.qt.shortcuts"
+}
