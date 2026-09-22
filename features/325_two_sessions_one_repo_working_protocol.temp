@@ -9739,3 +9739,20 @@ extracted for its traceback. Entire32-file batch now reruns separately under
 12G/two workers; frozen full checkout is untouched. With four other narrators,
 API drafts, full coverage, this recheck and the master, allocation is16CPU.
 No GPU work or publication. Core Mask recapture still needs the idle interval.
+
+2026-09-22 — CODEX: VOICES VERIFIED / CURRENT COVERAGE TRIAGE
+Four independent verifiers 56018/76074/7006/89426 finish 0: Annotate other 26,
+Measure other 26 and Regression 24+26 pass; each lesson has 50 technical tracks.
+Make Masks master/browser 26837 completes 0, desktop/mobile inspected, receipt
+updated. English 14790 and other 26 session 39037 continue CPU rendering.
+Home batch 9 recheck 10472 passes 1333 tests in 627.04s. Regression sorting test
+now shows its deferred Figures card; all 39 cases pass in 19.76s. Whole batch 17
+recheck 44529 runs separately; frozen full source/baseline unchanged.
+Full 74460 has 78/96 completed, 24 failed batches, no lost files in those records;
+remaining failures need triage. No full-suite green claim. API drafts 79972 live.
+Runtime inventory 16305 finishes with expected audit exit 1: zero existing-row
+format mismatches; missing rows 226 sv/de/es/fr, 193 zh_CN, 228 pt, 519 hi/is, 435 ko.
+GPU monitor 19013 reached 1204 idle seconds, but prelaunch recheck shows 40%
+utilization. No GPU job started; fresh monitor 19946 must qualify again.
+CPU allocation currently 10 (coverage 2, API 2, Make Masks 2+2, batch 17 recheck 2).
+Nightly fetched at 680438073; other-session commits will be preserved before push.

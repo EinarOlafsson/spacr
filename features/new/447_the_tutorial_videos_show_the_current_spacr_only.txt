@@ -479,3 +479,12 @@ model/mask mismatch. Independent staged-catalog/scene/link/pronunciation checks
 and54 tests pass. First English voice has rendered; master verification and
 remaining voices/listening/publication stay open. Receipt:
 2026-09-22-make-masks-current-translations.json.
+
+2026-09-22 — CODEX: CURRENT VOICE MATRICES AND MAKE MASKS PLAYBACK
+Current Annotate, Measure and Regression each have all 50 narration tracks
+independently verified for source, timing, decode, activity and true peak.
+Make Masks native 4K masters and 27-scene browser playback/seek/link checks pass;
+desktop/mobile frames were inspected. Evidence is recorded with source/media
+hashes in the four voice receipts and combined Make Masks capture receipt.
+Make Masks remaining voices, final listening/caption acceptance, Core Mask
+GPU recapture and complete-set publication remain open.

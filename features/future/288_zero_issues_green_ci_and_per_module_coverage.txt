@@ -4545,3 +4545,13 @@ case plus whole-map/shortcut behavior selection passes25tests37.27s. All32 files
 from the failed batch now rerun with2workers in a separate capped coverage
 selection; the frozen full checkout and coverage baseline remain unchanged.
 No claim that the full run or ratchet has passed yet.
+
+2026-09-22 — CODEX: HOME COHORT PASSES / DEFERRED RESULTS TEST
+All 32 files from batch 9 now pass: 1333 tests, 13 warnings, 627.04s. Batch 17
+exposed another stale assumption: Regression defers its hidden Figures panel,
+so the sorting sweep must show that card before counting its views. The test
+now follows the real show path and waits for the panel; all original sorting
+assertions remain. All 39 module cases pass in 19.76s. Its complete 32-file cohort
+recheck is running separately. No production change or baseline tightening.
+The frozen full run has completed 78/96 batches with 24 failed batches so far;
+remaining failures need triage. These passes are not a full-suite/ratchet verdict.

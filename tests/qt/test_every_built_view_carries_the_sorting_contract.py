@@ -83,6 +83,13 @@ def test_every_view_a_module_builds_sorts_descending_first(
     screen.show()
     qt_theme_applied.processEvents()
 
+    if app_key == "regression":
+        # Results are built when their Figures card first appears. Exercise
+        # that real show path, as loading a run does, before inspecting its
+        # tables; opening an empty module intentionally leaves them unbuilt.
+        screen._figures_card.show()
+        qtbot.waitUntil(lambda: screen._results_panel_if_built() is not None)
+
     seen = 0
     for view in _views(screen):
         if view.objectName() in EXEMPT_OBJECTS:

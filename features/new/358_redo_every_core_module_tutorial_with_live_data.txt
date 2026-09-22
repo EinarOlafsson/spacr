@@ -2516,3 +2516,15 @@ pronunciation text.54 relevant tests pass3.22s. Evidence:
 2026-09-22-make-masks-current-translations.json. First English af_heart renders
 474.0s on CPU; native4K master/browser verification26837 now runs. Complete
 voices, final listening/caption/player acceptance and publication remain open.
+
+2026-09-22 — CODEX: THREE COMPLETE VOICE SETS / MAKE MASKS MASTER
+Annotate and Measure's remaining 26 tracks and Regression's 24 English plus 26
+other-language tracks independently pass source freshness, timing, full decode,
+activity and decoded true peak checks. Each current lesson now has 50 technically
+verified tracks. Four dated current-voices receipts are in tutorial evidence.
+Make Masks silent/review masters pass full native 4K/30fps decode; af_heart audio
+passes at -3.4dBFS. Browser playback, seek, 27 scenes and 10 related links pass;
+desktop/mobile screenshots were inspected. Combined-capture receipt updated.
+Make Masks English and other-language matrices are rendering on CPU. Listening,
+remaining caption acceptance, Core Mask GPU capture and complete-set publication
+remain open. No technical verification is treated as listening approval.

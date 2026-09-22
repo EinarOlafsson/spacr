@@ -543,9 +543,90 @@
   "visual_review": "Magnifier, completed FEATURES table, area filter, detection, probability, flow and undo frames inspected. Detection covers the upper-left partial object rather than the existing central-cell mask; the lesson must explain this mismatch. Visible paths use the neutral tutorial workspace.",
   "ready_for_publication": false,
   "outstanding": [
-    "Integrate the current UI labels, 332x267 crop, magnifier and FEATURES scenes into the lesson and its 13 translations.",
-    "Explain the observed detection mismatch instead of implying a correct segmentation.",
+    "Full voice/language/caption and audible acceptance, then complete-set publication.",
     "The FEATURES regex status caption remains stale after manual assignment; assigned rows and database are independently verified.",
-    "Narration, all voices, captions, player, listening and complete-set publication."
-  ]
+    "The model detection differs from the existing mask; the narration explicitly explains this limitation."
+  ],
+  "videos": [
+    {
+      "file": "14_make_masks_silent.mp4",
+      "sha256": "1d839d81ff148131074d2e078f921bebb04c2e6318245d12de4a950d93d6c458",
+      "duration": 474.0,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "1648e5a45f17811e1fdf86decdfd57da2334e3ffcc72a2c7a9c26fc9ccf73bb1",
+      "duration": 474.1,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "07110b688ac6a7cb301bf03a217270084922f422388c8e40f20b7db4703ecaed",
+    "freshness_timing_activity": "passed",
+    "decoded_true_peak_dbfs": -3.4
+  },
+  "status": "native_capture_saved_outputs_and_english_review_master_verified_not_published",
+  "remaining": [
+    "Full voice/language/caption acceptance",
+    "Audible narration acceptance",
+    "Complete-set publication"
+  ],
+  "browser": {
+    "checks": {
+      "lesson": "14_make_masks",
+      "scope": "en/af_heart playback and scene links only",
+      "uploaded": false,
+      "translation_or_listening_review": false,
+      "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "navigation_contains_staged_lesson": true,
+      "example_files": [],
+      "loaded_audio_sha256": "07110b688ac6a7cb301bf03a217270084922f422388c8e40f20b7db4703ecaed",
+      "scene_count": 27,
+      "seek_playback_clocks": {
+        "audio": 79.320159,
+        "video": 79.361612,
+        "expectedVideo": 79.31848561422755,
+        "audioDuration": 474.1,
+        "videoDuration": 474,
+        "mediaError": null
+      },
+      "chapter_and_transcript_links": [
+        "06_api",
+        "07_mask",
+        "08_measure",
+        "09_annotate",
+        "19_train_cellpose",
+        "20_cellpose_masks",
+        "21_model_compare",
+        "22_model_zoo",
+        "42_curate",
+        "46_napari_bridge"
+      ],
+      "passed": true
+    },
+    "checks_sha256": "d0af2a71877b0b60857fcd1ff24053edbdf456c0506f388faf2884cc02748c19",
+    "screenshots": {
+      "desktop": {
+        "sha256": "7ff319777c48fb8b80e6c54f6040d34dacd33dfb70a14f1db2215231ebd2943f",
+        "inspected": true
+      },
+      "mobile": {
+        "sha256": "1703c19fda175e0c8db92e6f8f5600bb5b03044b673f056098946eb00f31269b",
+        "inspected": true
+      }
+    },
+    "scope": "Current en/af_heart playback, seek clocks, lesson navigation and screenshots; not full voice/caption or listening acceptance",
+    "verifier_sha256": "2decc97fd950a1a900d2cbbd36452633a73d644fac93c63585ff02d8797d3ceb",
+    "layout_check": "Inspected desktop at page top and mobile after the closed navigation sidebar finished sliding offscreen."
+  },
+  "scene_count": 27
 }
