@@ -65,7 +65,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QVBoxLayout,
     QWidget,
 )
@@ -76,6 +75,7 @@ from ..bridge import make_thread
 from ..linked_selection import LinkedView
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.measurements_example import (
     EXAMPLE_MEASUREMENT, install_test_data_button,
 )
@@ -490,7 +490,14 @@ class PlateViewScreen(LinkedView, QWidget):
 
 
     def _build_ui(self) -> None:
-        """Lay out the source row, the pickers, the heatmap and the edge-effect report."""
+        """Lay out the source row, the pickers, the heatmap and the edge-effect report.
+
+        Item 471: the heatmap ("Plate map") and the report ("Edge-effect
+        report") are sections of one
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``plate_view::body``): each folds by its heading and the edge
+        between them drags, opening at the old 620 / 520 split.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(SPACING["lg"], SPACING["lg"],
                                  SPACING["lg"], SPACING["lg"])
@@ -596,17 +603,14 @@ class PlateViewScreen(LinkedView, QWidget):
         opt_row.addWidget(self._btn_render)
         outer.addLayout(opt_row)
 
-        split = QSplitter(Qt.Horizontal, self)
-        self._grid = PlateGridWidget(split)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="plate_view::body")
+        self._grid = PlateGridWidget()
         self._grid.well_clicked.connect(self._on_well_clicked)
-        split.addWidget(self._grid)
+        split.add_section(self._grid, "Plate map",
+                          persist_key="plate_view/Plate map", extent=620)
 
-        right = QWidget(split)
-        right_layout = QVBoxLayout(right)
-        right_layout.setContentsMargins(0, 0, 0, 0)
-        right_layout.setSpacing(SPACING["xs"])
-        right_layout.addWidget(QLabel("Edge-effect report", right))
-        self._report_view = QPlainTextEdit(right)
+        self._report_view = QPlainTextEdit()
         self._report_view.setReadOnly(True)
         self._report_view.setLineWrapMode(QPlainTextEdit.NoWrap)
         mono = QFont("monospace")
@@ -615,11 +619,10 @@ class PlateViewScreen(LinkedView, QWidget):
         self._report_view.setPlaceholderText(
             "The outer-ring test, the ring-by-ring profile and the "
             "row/column gradients appear here once a plate is rendered.")
-        right_layout.addWidget(self._report_view, 1)
-        split.addWidget(right)
-        split.setStretchFactor(0, 1)
-        split.setStretchFactor(1, 1)
-        split.setSizes([620, 520])
+        split.add_section(self._report_view, "Edge-effect report",
+                          persist_key="plate_view/Edge-effect report",
+                          extent=520)
+        self._body_splitter = split
         outer.addWidget(split, 1)
 
         self._well_label = QLabel("Click a well to see what is behind it.", self)

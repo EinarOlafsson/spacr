@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
     QMessageBox,
     QPlainTextEdit,
     QPushButton,
-    QSplitter,
     QTabWidget,
     QTableWidget,
     QTableWidgetItem,
@@ -39,6 +38,7 @@ from ..iconset import icon
 from ..theme import (SPACING, active_palette, page_tabs_qss,
                      register_widget_qss)
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger(__name__)
@@ -158,7 +158,14 @@ class RunHistoryScreen(QWidget):
         install_for(self, "run_history")
 
     def _build_ui(self) -> None:
-        """Construct filters, run table, and tabbed detail inspector."""
+        """Construct filters, run table, and tabbed detail inspector.
+
+        Item 471: the run table ("Runs") and the inspector ("Run details")
+        are sections of one vertical
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``run_history::body``): each folds by its heading and the edge
+        between them drags.
+        """
         outer = QVBoxLayout(self)
         outer.setContentsMargins(
             SPACING["lg"], SPACING["lg"], SPACING["lg"], SPACING["lg"],
@@ -211,8 +218,9 @@ class RunHistoryScreen(QWidget):
         filters.addWidget(self._clear_all)
         outer.addLayout(filters)
 
-        splitter = QSplitter(Qt.Vertical, self)
-        self._table = QTableWidget(0, len(_COLUMNS), splitter)
+        splitter = CollapsibleSplitter(Qt.Vertical, self,
+                                       persist_key="run_history::body")
+        self._table = QTableWidget(0, len(_COLUMNS))
         install_sorting(self._table)
         self._table.setHorizontalHeaderLabels(_COLUMNS)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
@@ -226,9 +234,10 @@ class RunHistoryScreen(QWidget):
         header.setSectionResizeMode(QHeaderView.ResizeToContents)
         header.setSectionResizeMode(0, QHeaderView.Stretch)
         self._table.itemSelectionChanged.connect(self._show_selection)
-        splitter.addWidget(self._table)
+        splitter.add_section(self._table, "Runs",
+                             persist_key="run_history/Runs", stretch=3)
 
-        detail = QWidget(splitter)
+        detail = QWidget()
         detail_layout = QVBoxLayout(detail)
         detail_layout.setContentsMargins(0, 0, 0, 0)
         detail_layout.setSpacing(SPACING["sm"])
@@ -265,9 +274,9 @@ class RunHistoryScreen(QWidget):
         ):
             self._tabs.addTab(widget, label)
         detail_layout.addWidget(self._tabs, 1)
-        splitter.addWidget(detail)
-        splitter.setStretchFactor(0, 3)
-        splitter.setStretchFactor(1, 2)
+        splitter.add_section(detail, "Run details",
+                             persist_key="run_history/Run details", stretch=2)
+        self._body_splitter = splitter
         outer.addWidget(splitter, 1)
 
         self._status = QLabel("", self)

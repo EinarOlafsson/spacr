@@ -36,6 +36,7 @@ from spacr.cancellation import (
 from ..plate_queue import (
     PlateQueue, QueueItem, Status, import_plates_from_csv,
 )
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.sortable_table import install_sorting, table_item
 
 LOG = logging.getLogger("spacr.qt.queue_screen")
@@ -173,6 +174,9 @@ class QueueScreen(QWidget):
     def _build_ui(self):
         """Lay out the toolbar and the plate table.
 
+        The table folds under a "Queue" heading (item 471), which then sits
+        at the bottom of the screen.
+
         ``Add current plate`` is deliberately left unwired here: the settings it
         adds belong to whichever app screen is active, so ``MainWindow`` connects
         it -- see ``wire_add_current``.
@@ -220,7 +224,9 @@ class QueueScreen(QWidget):
         self._table.verticalHeader().setVisible(False)
         self._table.setEditTriggers(QAbstractItemView.NoEditTriggers)
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
-        outer.addWidget(self._table, 1)
+        self._table_section = FoldSection(self._table, "Queue",
+                                          persist_key="queue/Queue")
+        outer.addWidget(self._table_section, 1)
 
 
     def wire_add_current(self, callback):
