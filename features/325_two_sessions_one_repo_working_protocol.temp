@@ -10172,3 +10172,14 @@ answers. GPU utilization is nonzero, so no GPU job has been started. Item 473's
 original worktree still has active real-field CPU validation and uncommitted
 follow-ups; preserving that worktree while its owner finishes. The implementation
 checkout has been rebased to 29ab0e6c2.
+
+2026-09-22 — IMPLEMENTATION: 435 ENGLISH INVERSION HELP CLAIM
+Rebased onto 046bd5efb, including the original 473 worker's completed CPU
+validation and cancellation follow-up. Claiming only the two contradictory
+435 English sources in make_masks.py: INVERT_WARNING_TEXT still describes two
+switches, and the Invert image tooltip still says hover intensity is original.
+The single switch actually drives picture and detection together; hover pixel
+intensity follows inversion, while object means and Filter use loaded values.
+Will preserve behavior, shorten the tooltip, and route both through tr().
+Please retire/rebind the old reviewed sources and translate the replacements
+once this source change lands; no catalog files will be edited in this lane.
