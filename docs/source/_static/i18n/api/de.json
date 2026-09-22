@@ -13756,6 +13756,140 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
+    "spacr.crop_loader.CropLoadError": {
+      "source_blocks_sha256": [
+        "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
+        "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778"
+      ],
+      "source_sha256": "e55aec1d89589129fcc58b20b3bbc05aaac9670eafafbcd08d74545ae5ad3122",
+      "text": "Eine Menge von Bildausschnitten, die sich nicht laden lassen, und der Grund dafür.\n\nEnthält einen für die Statusleiste geeigneten Satz: Jede in diesem Modul ausgelöste Ausnahme nennt den auslösenden Pfad, die Klasse oder das Auswahlkriterium. Die aufrufende Komponente ist eine Ansicht der Benutzeroberfläche und kann den Fehler nur durch Wiedergabe dieses Textes erklären.",
+      "translation_source_blocks_sha256": [
+        "d7b66e38e52600ff5f5ae5dbdf6b64556996fd1174fa4080c47441896740085e",
+        "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.__post_init__": {
+      "source_blocks_sha256": [
+        "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+        "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c"
+      ],
+      "source_sha256": "21366ae082684840e44a326cbd4c6f90a3a35f43333bacbaebca1ff3eb3fabf4",
+      "text": "Setzt ``selected`` standardmäßig auf die Zeilenanzahl, wenn der Plan ohne Join erstellt wurde.\n\nWenn die Zeilen eines Plans direkt aus der Auswahl stammen — beim Laden aus einem Ordner oder bei einem manuell in einem Test oder Skript erstellten Plan —, entspricht die Auswahl genau den enthaltenen Zeilen. Diese Anzahl muss daher nicht zusätzlich angegeben werden.",
+      "translation_source_blocks_sha256": [
+        "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+        "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.capped": {
+      "source_blocks_sha256": [
+        "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
+        "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140"
+      ],
+      "source_sha256": "d4e164a9f0bb338266b82b4f5feea739f38348c7bdb7f1a354695b17b1fffe12",
+      "text": "Gibt an, ob die Obergrenze Bildausschnitte aus diesem Plan ausgeschlossen hat.\n\nDer Vergleich erfolgt mit :attr:`selected`, niemals mit :attr:`count`: Wenn beim Laden über zusammengeführte Daten Zeilen durch den Join verloren gehen, gilt ``matched > count``, auch ohne jede Obergrenze. Dies als Begrenzung auszugeben, würde dem Versprechen dieses Moduls widersprechen, den Einfluss der Obergrenze korrekt anzugeben.",
+      "translation_source_blocks_sha256": [
+        "053cc35952f1ba97c8f26e307cba116c64e8595c7101295c0139ead343c81e93",
+        "2e5db422010af735b41d2c02de31eba776450f1fdd7aa95cc49b40139a9d1fb9"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.describe": {
+      "source_blocks_sha256": [
+        "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+        "187ec99c4bdf7a02d259ccd36b18da370ed11edde57bd937ac27918e91d49b07"
+      ],
+      "source_sha256": "c91f576dd55f45416cc81ab4c1df4263fb4a44cee511ca3422d1b947a67a2efd",
+      "text": "Eine Zeile für die Statusleiste, sobald die Planung abgeschlossen ist.\n\nGibt an, welche Teilmenge aus welcher Gesamtmenge ausgewählt wurde. Eine begrenzte Ladung erscheint dadurch als bewusst gewählte Teilmenge statt als vollständige Mikrotiterplatte. Verworfene Zeilen werden in einem eigenen Satzteil genannt, damit beide Zahlen unterscheidbar bleiben.",
+      "translation_source_blocks_sha256": [
+        "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+        "bc1f93835c377a4f85bc252771896bcd56630418fbc440b58dce560186f35ec5"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.dropped": {
+      "source_blocks_sha256": [
+        "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
+        "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0"
+      ],
+      "source_sha256": "349a49360554e1dba552be0ec98ce811ab3f1e54bf79670710734892d6e1f0d9",
+      "text": "Wie viele ausgewählte Zeilen sich überhaupt nicht in einen Bildausschnitt umwandeln ließen.\n\nNur beim Laden über zusammengeführte Daten kann dieser Wert von null abweichen. Er beschreibt den vollständigen Verlust, keine Begrenzung: Die Zeilen entfallen, weil sich daraus keine Bildausschnitte ausschneiden lassen. Eine höhere Obergrenze würde daran nichts ändern.",
+      "translation_source_blocks_sha256": [
+        "1baf638aa364a4599f7443f9a150ea91264ae894b5cf09d23b9a1d32b0591a47",
+        "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.pages": {
+      "source_blocks_sha256": [
+        "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+        "09b9cca425e30be907c8a04079133a410a3c83c1e993ff77a898c86f12987194"
+      ],
+      "source_sha256": "23a22f432dd6ab60adf3e9b7bffcc68bd2bdc870bf7d044d0cbe61e3bc8c2c34",
+      "text": "``(start, stop)`` für jede Seite, sodass jede Zeile genau einmal erfasst wird.\n\n:param page_size: Bildausschnitte pro Seite; ``0`` übernimmt die Seitengröße der Abfrage.",
+      "translation_source_blocks_sha256": [
+        "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+        "5ff28a1d2544828d9cffd2b25c0da9d73da172f206689d503ddc8c5870553de7"
+      ]
+    },
+    "spacr.crop_loader.CropQuery.describe": {
+      "source_blocks_sha256": [
+        "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+        "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413"
+      ],
+      "source_sha256": "4ab462987ba16cb86433e1a32a32f7cf6ff93aac6b9e4c519fc1234cb3a132c1",
+      "text": "Eine Zeile, die sämtliche Auswahlkriterien dieser Abfrage nennt.\n\nWird in der Statusleiste und bei jeder Ablehnung verwendet. Wer die Meldung \"no crops\" liest, sieht dadurch auch die auslösende Abfrage, ohne den Bereich erneut öffnen zu müssen.",
+      "translation_source_blocks_sha256": [
+        "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+        "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413"
+      ]
+    },
+    "spacr.crop_loader.object_classes": {
+      "source_blocks_sha256": [
+        "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
+        "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+        "686737cd5a6b1f8a8f953b25d2d1c0b33fe1ed09ff815c55392323aab1ad5665"
+      ],
+      "source_sha256": "6096dc61d403242abb14b632615fcd4f959ed095df06d13fb10cf5a8d4ebb8f0",
+      "text": "Für welche Objektklassen diese Datenbank tatsächlich Bildausschnitte enthält.\n\nEine Klasse wird nur angeboten, wenn ihre ID-Spalte vorhanden ist UND mindestens einen Wert enthält. Eine für Zellen geschriebene ``png_list`` enthält in manchen Schemata eine leere ``nucleus_id``-Spalte. Diese Klasse anzubieten würde eine Auswahl erzeugen, die immer leer bleibt.\n\n:param db_path: die ``measurements.db``.\n:param table: die Tabelle mit den Bildausschnitten; ``'png_list'``.\n:returns: Klassennamen in der Reihenfolge von :data:`spacr.png_list.PNG_LIST_ID_COLUMNS`. Leer, wenn die Datenbank keine Tabelle mit Bildausschnitten enthält.",
+      "translation_source_blocks_sha256": [
+        "5ad5e6833614cd1d85f7df7e35fc94b462609beddd11c15cef04bf6a81b1f200",
+        "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "a13a13f58b6ba664d543d8c71e7eacba9e6343edc0a89f2c1a14710274570726",
+        "67804cbb52a2bd7fd828af4246c3277561d865459eb3373cbcc591eceb60c6f3"
+      ]
+    },
+    "spacr.crop_loader.plan_crops": {
+      "source_blocks_sha256": [
+        "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+        "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+        "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+        "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92"
+      ],
+      "source_sha256": "48fb91733a2cdbb536c46eab60e11831892225cdf396808b3e2610f07dc033d9",
+      "text": "Beantwortet ``query``, ohne Pixeldaten zu lesen.\n\n:param query: die Auswahlkriterien.\n:returns: ein :class:`CropPlan`. Vor dem Laden :attr:`CropPlan.is_empty` prüfen — ein leerer Plan ist ein Ergebnis, kein Fehler, und enthält den erklärenden Satz.\n:raises CropLoadError: eine unbekannte Quelle oder ein nicht vorhandener Pfad.",
+      "translation_source_blocks_sha256": [
+        "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+        "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+        "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+        "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92"
+      ]
+    },
+    "spacr.crop_loader.plan_from_folder": {
+      "source_blocks_sha256": [
+        "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
+        "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+        "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+        "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3"
+      ],
+      "source_sha256": "951a4ed4fb7ad1dbb722e02e2387e64f5e939f27d26b33d5508523297d7dbdf5",
+      "text": "Wählt Bildausschnitte aus einem Ordner mit ``*.png`` aus, ohne Pixeldaten zu lesen.\n\n:param query: die Auswahlkriterien. Nur ``path`` und ``limit`` werden berücksichtigt: Ein Ordner enthält keine Angaben zur Klasse oder Mikrotiterplatte. Dies in :attr:`CropPlan.source_label` anzugeben ist besser, als nach einer Dateinamenskonvention zu filtern, die kein Lauf garantiert.\n:returns: ein :class:`CropPlan`, gegebenenfalls ein leerer Plan mit :attr:`CropPlan.empty_reason`.\n:raises CropLoadError: Es wurde kein Ordner ausgewählt, oder der Pfad bezeichnet kein Verzeichnis.",
+      "translation_source_blocks_sha256": [
+        "d2f79d973a84b8aba948fc4f0e5d03f65e4df1672389e5d3e4409e4bbf904518",
+        "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+        "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+        "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3"
+      ]
+    },
     "spacr.crop_source": {
       "source_blocks_sha256": [
         "3dd5265b38e484f226d1712550f4ccf2e193fb31dd1504b2342bc38f64248e13",

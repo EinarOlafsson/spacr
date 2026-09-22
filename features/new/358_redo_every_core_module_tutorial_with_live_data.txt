@@ -2262,3 +2262,17 @@ Current CV English rendering has also finished: all 24 tracks pass full
 technical verification and independent decoded peak measurement, highest
 -1.0 dBFS. Receipt: 2026-09-21-classify-cv-english-voices.json. Its remaining
 26 spoken-language tracks continue separately; no listening signoff inferred.
+
+2026-09-21 — CODEX: CURRENT CLASSIFY OVERVIEW TRANSLATIONS
+All thirteen translation/caption reviews now bind the verified current
+English overview (f850fcd6). Scene 3 names example loading and source
+confirmation; scene 4 describes the expanded plate heatmap actually shown.
+Nine other narration scenes retain their accepted text. Prerequisites name
+spaCR 1.5.0.8 and omit the removed old-parser sentence. Spanish's description
+also drops "now"; German restores the instruction to inspect real results.
+Independent verification checks all thirteen staged catalogs, source hashes,
+retained scenes, current speech helpers and visual/related-lesson geometry.
+Eight review-promotion tests pass (0.49 s). Receipt:
+tools/tutorials/evidence/2026-09-21-classify-overview-current-translations.json.
+The remaining 26 spoken tracks are rendering CPU-only with two threads and
+a 6 GiB cap. No live publication or native/listening signoff is implied.

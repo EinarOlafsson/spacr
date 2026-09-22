@@ -1161,3 +1161,26 @@ are remeasured on d966189d0 and the final integrated consistency check runs
 before publication of this checkpoint. All nine reviewed API stores load.
 Final integrated consistency verification: four tests pass in 180.30 seconds;
 feature-index and whitespace checks also pass. Full catalog acceptance stays open.
+
+2026-09-21 — CODEX: CPU API TRANSLATION PROVEN AND FIRST TEN ENTRIES REVIEWED
+The local OPUS English/German checkpoint generated ten missing crop-loader
+API entries on CPU in 79.8 seconds, with two threads and a 6 GiB cap. This
+removes the GPU wait for primary draft generation. The structural gates
+accepted all ten, but review found poor prose and a GUI/scientific-screen
+confusion, so the raw model output was not published. Corrected German now
+has 27 exact-source reviewed blocks and ten added current API entries.
+Source-bound review, syntax/context and verbatim regeneration are checked;
+six focused review-contract tests pass in 29.09 seconds. German freshness
+is now 10426/11166; the other eight locales remain at 10416/11166. Current
+coverage/review reports are regenerated. No English manifest or extractor
+debt baseline was changed; this is a scoped accepted translation addition.
+Evidence: features/data/411_german_api_cpu_pilot_2026-09-21.json. Reviews are
+AI-assisted technical/language review, not native-speaker approval.
+The remaining missing/stale API entries are queued as private CPU drafts,
+checkpointed every 25 documents in nine locales. Those drafts are explicitly
+unreviewed and do not count as accepted catalog progress. Shared model files
+are read-only, the cache is private, and no GPU job has been started.
+Final report consistency checks pass: four tests in 201.04 seconds. All ten
+accepted German API entries regenerate verbatim without loading a model.
+The first private draft batch has 25 entries, only 18 of which pass technical
+checks; neither number is accepted translation coverage pending review.

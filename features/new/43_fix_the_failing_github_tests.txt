@@ -1850,3 +1850,14 @@ locale: reports now record 10416/11166 fresh rows and 121 changed sources.
 Runtime counts stay unchanged. The new source is explicitly included in debt.
 Four integrated report consistency tests pass in 180.30 seconds. This checks
 the accuracy of the debt reports; the full translation audit remains red.
+
+2026-09-21 — CODEX DOCS: TEN REVIEWED GERMAN API ADDITIONS
+CPU translation is feasible with the installed primary model: ten crop-loader
+API entries are corrected and published with 27 exact-source review records.
+Six focused review-contract tests pass. German has 10426/11166 fresh API
+entries; eight locales still have 10416/11166. Current reports are regenerated.
+Neither the English manifest nor the extractor debt pin has been relabelled.
+The remaining CPU-generated API drafts stay private pending language review;
+the full docs/catalog audit remains open.
+Four final report checks pass in 201.04 seconds; all ten accepted German
+entries independently regenerate verbatim from their source-bound reviews.

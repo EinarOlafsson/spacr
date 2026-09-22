@@ -4286,3 +4286,20 @@ preview consequently has zero image fields. No application change or fake
 reader was used to hide this. Details handed to the other session in 325.
 Evidence: features/data/288_import_demo_2026-09-21.json. No baseline change
 or whole-suite pass is claimed; production reader compatibility remains open.
+
+2026-09-21 — CODEX: TWO MORE MODULES ABOVE THE COVERAGE FLOOR
+ColumnAlignedRow rises from 85.00% to 92.78% with 21 passing tests. Real Qt
+tests verify hidden/out-of-range columns keep buttons available, reordered
+columns move the right buttons, table deletion preserves the strip, and a
+failed/reentrant translated-caption refit does not disable later refits.
+The new fixture retains its owning window through teardown; an initial
+fixture-lifetime mistake was corrected before the passing measurement.
+Model-install rises from 83.83% to 92.74% with 29 passing tests. Tests cover
+real harmless-process cancellation, exactly-once completion after late
+download endings, checksum forwarding, install consent, and unavailable
+backends. Download workers run directly on the test thread; no new real
+QThread launcher, external download or package installation is exercised.
+Receipts: features/data/288_column_alignment_2026-09-21.json and
+features/data/288_model_install_2026-09-21.json. Both runs include branch
+coverage and use a 6 GiB cap. Production code and the baseline are unchanged;
+the full current suite and ratchet still need to pass before item closure.

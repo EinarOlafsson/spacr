@@ -1,0 +1,86 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "e7972eafe497e1c9a6f321b2d76a775972a5f311",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/model_install.py",
+  "source_sha256": "861834283b7dc57a1d8a27ca1d4d3cffd6a50c8b0b7ce8623aadca98e4df518a",
+  "coverage_json_sha256": "0676d4f84d7651ac885e64fd8dde33e705e8ebea41829b1525b19902f8c6a50d",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 228,
+    "num_statements": 243,
+    "percent_covered": 92.73927392739274,
+    "percent_covered_display": "92.74",
+    "missing_lines": 15,
+    "excluded_lines": 0,
+    "percent_statements_covered": 93.82716049382717,
+    "percent_statements_covered_display": "93.83",
+    "num_branches": 60,
+    "num_partial_branches": 7,
+    "covered_branches": 53,
+    "missing_branches": 7,
+    "percent_branches_covered": 88.33333333333333,
+    "percent_branches_covered_display": "88.33"
+  },
+  "missing_lines": [
+    94,
+    331,
+    332,
+    333,
+    334,
+    335,
+    336,
+    337,
+    338,
+    339,
+    340,
+    341,
+    400,
+    516,
+    527
+  ],
+  "missing_branches": [
+    [
+      219,
+      -211
+    ],
+    [
+      361,
+      363
+    ],
+    [
+      396,
+      400
+    ],
+    [
+      497,
+      499
+    ],
+    [
+      515,
+      516
+    ],
+    [
+      524,
+      527
+    ],
+    [
+      525,
+      524
+    ]
+  ],
+  "selection": [
+    "tests/qt/test_model_install_completion.py",
+    "tests/qt/test_model_install_runs_off_the_gui_thread.py"
+  ],
+  "passed": 29,
+  "failed": 0,
+  "elapsed_seconds": 10.6,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false
+}

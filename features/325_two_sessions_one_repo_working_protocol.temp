@@ -9289,3 +9289,33 @@ Final integrated report checks pass: four tests in 180.30 seconds. Feature-index
 and whitespace checks pass. At 20:08 local, Measure's fresh batch remains active;
 Annotate has rendered 8/26 additional voices and CV 3/26. GPU monitoring still
 shows activity, so the required twenty-minute idle window has not qualified.
+
+2026-09-21 — CODEX: COLUMN-ALIGNMENT COVERAGE AND CPU API PILOT
+Taking tests/qt/test_column_alignment_lifecycle.py for column_aligned_row.py's
+85% fixed-run gap: real Qt hiding/reordering, teardown, layout replacement,
+and failed/reentrant caption refits. No production layout changes planned.
+Local permissively licensed translation checkpoints are present. Trying a
+small current API batch on CPU with a private cache; no GPU use or shared
+model/cache mutation, and no publication of unreviewed draft output.
+Also taking tests/qt/test_model_install_completion.py for model_install.py's
+83.83% gap: installer cancellation, exactly-once download endings, checksum
+forwarding and explicit install consent. Workers run on the test thread;
+no real download, pip install or new QThread entry-point test.
+Verified: alignment 92.78%, 21 passed; model-install 92.74%, 29 passed.
+Source-bound receipts are in features/data. No production/baseline edits.
+The CPU API pilot generated ten German entries in 79.8 seconds. Structural
+checks pass, but review found bad prose and a GUI/scientific-screen confusion;
+raw drafts are not accepted. Corrected source-bound reviews are being checked.
+The ten German entries are corrected and added with 27 exact-source review
+records; six focused review-contract tests pass. German API freshness is
+10426/11166; other locales remain 10416/11166. Reports are regenerated and
+final consistency checks run before pushing. The primary-model CPU queue
+now checkpoints private unreviewed drafts every25documents across nine
+locales; no GPU job or shared model/cache mutation. Full catalog debt stays open.
+Four final report tests pass (201.04 s), and the ten reviewed German API
+entries regenerate verbatim without a model. Feature-index and whitespace
+checks pass. The first private draft batch is 25 entries/18 technical passes,
+not accepted translations. Current Classify overview's thirteen reviews are
+also staged and independently verified, with nine unchanged narration scenes
+and corrected example-loading/expanded-heatmap descriptions. Eight promotion
+tests pass (0.49 s); its 26 remaining voices now render on CPU. No publication.

@@ -313,3 +313,13 @@ native-speaker/listening approval is claimed by these technical checkpoints.
 Current CV now also has all 24 English voices independently verified for
 full decode, freshness, timing/activity and true peaks (maximum -1.0 dBFS).
 Remaining-language narration and the broader acceptance matrix stay open.
+
+2026-09-21 — CODEX: OVERVIEW CAPTIONS MATCH CURRENT RECORDING
+Classify's thirteen language reviews now describe current example loading,
+source confirmation and the expanded plate heatmap. They retain nine unchanged
+narration scenes and all scientific limitations, update the version to 1.5.0.8,
+and remove the obsolete parser sentence and Spanish "now" reference.
+Independent staged-source/geometry/speech checks pass for all thirteen locales;
+eight promotion tests pass. Remaining spoken narration is rendering on CPU.
+Evidence: 2026-09-21-classify-overview-current-translations.json. Full media,
+audible acceptance and complete-set publication remain open with 358.
