@@ -403,3 +403,13 @@ of a new recording is made by relabeling them. Final acceptance must check
 visible versions and appearance against the integrated release before joint
 publication. Retained narration work continues where the lesson prose is
 unchanged; this does not close the current-application acceptance requirement.
+
+2026-09-22 — CODEX: MEASURE REVIEW MATRIX AND ML AUDIO VERIFIED
+All13Measure reviews now match the current recorded script, with four revised
+scenes/nine retained and48/48figures. Current source/staging/pronunciation and
+visual metadata checks pass; eight promotion tests pass.26remaining voices
+renderCPU-only. Classify ML's26other-language tracks independently pass full
+technical audio checks, joining its previously checked English selection.
+Receipts:2026-09-22-measure-current-translations.json and
+2026-09-22-classify-ml-current-other-voices.json. Full audible/caption/player,
+latest-release appearance/version acceptance and joint publication remain open.

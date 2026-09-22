@@ -9573,3 +9573,19 @@ version acceptance against the newer release remains part of358/447's final
 review, with complete-set publication still withheld.
 Final report/label checks:6pass299.11s. Index and whitespace pass. Publishing
 these completed coverage, translation and tutorial-review checkpoints to nightly.
+
+2026-09-22 — CODEX: 2f7b3cd1a PUSH VERIFIED / NEXT COVERAGE AND MEDIA BATCH
+Previous five checkpoints are on nightly; remote verified2f7b3cd1a. New object
+settings grid tests reach96.53% (476/488statements,109/118branches):98pass,
+2existing fixture skips,36.73s. Real drag gestures, sparse cells and help
+recovery covered; no production/baseline change. All13Measure reviews now match
+current recorded source: four scenes corrected/nine retained,48/48figures and
+warning limits preserved. Independent staging/source/pronunciation checks and
+8promotion tests pass. ML narrator26855 finished26tracks; verifier75434 passed
+all26. NewMeasure narrator14953 replaces its two CPU threads. Six narrators
+plus frozen API remain within14backgroundCPUthreads, noGPU work. Final visual/
+version review against1.5.0.9 and complete-set publication remain open.
+Fetched702df1618/c4d57c90a: release-packaging behavior/tests only; no application
+source or tutorial source touched. Integrating before this progress push.
+Index and whitespace checks pass. ML now has50 technically verified tracks
+(24English+26other); final audible/visual acceptance remains separate.

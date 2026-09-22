@@ -1353,3 +1353,12 @@ tools/tutorials/evidence/2026-09-22-measure-german-current.json.
 Final integrated live-report and literal-label checks:6pass299.11s. All nine
 source-bound runtime/API review stores load. Feature-index/whitespace checks
 pass; full translation completion and native/listening approval remain open.
+
+2026-09-22 — CODEX: MEASURE'S THIRTEEN LANGUAGE REVIEWS COMPLETE
+All13source-bound reviews now match the recorded current English script:
+four scenes and prerequisites corrected, nine scenes retained per language.
+Independent catalog/source/pronunciation/visual-metadata checks pass; eight
+promotion tests pass0.74s. NewCPU narrator14953 renders26remaining tracks.
+Classify ML's26other-language tracks also completed independent technical
+verification. Neither result claims native-speaker/listening approval or
+publication. Runtime/API catalog debt is unchanged by this tutorial batch.

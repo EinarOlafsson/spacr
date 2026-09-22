@@ -2392,3 +2392,22 @@ all thirteen staged captions, and all visual/focus/timing/link metadata pass
 independent checks. Receipt:2026-09-22-measure-german-current.json. Twelve other
 Measure reviews remain; this caption-only update does not alter the running
 English narration inputs. No media publication or listening approval.
+
+2026-09-22 — CODEX: ALL THIRTEEN MEASURE LANGUAGE REVIEWS CURRENT
+Completed the twelve remaining reviews after German. All13 now match source
+b3810829: four changed scenes and updated prerequisites; nine scenes retained
+in every language. Independent verification checks actual source hashes,
+metadata, captions, visual/focus/timing/related links and pronunciation helpers.
+All48 saved/GUI figures are described; removed obsolete oversized-dialog,
+test-folder and export-limit claims. Warning/automatic handoff limitations
+remain explicit. Eight promotion tests pass0.74s. Receipt:
+2026-09-22-measure-current-translations.json. NewCPU job14953 renders26other
+language voices in measure-current-v2; running English inputs were not changed.
+No listening approval/publication; final1.5.0.9 appearance/version review remains.
+
+2026-09-22 — CODEX: CLASSIFY ML OTHER VOICES INDEPENDENTLY VERIFIED
+CPU render26855 completed26tracks in241.7minutes. Independent verifier75434
+finished0: all26 pass current-source freshness, timing, activity, full decode
+and decoded true-peak threshold<=-1dBFS; file hashes unchanged. Receipt:
+2026-09-22-classify-ml-current-other-voices.json. Listening, captions/player,
+latest-release visual acceptance and complete-set publication remain open.

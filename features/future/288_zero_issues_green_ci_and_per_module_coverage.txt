@@ -4451,3 +4451,15 @@ seventeenth fully passing repair: real Well editing exposes a deleted active
 SortableTableItem during setData. The regression remains strict xfail and the
 application owner is notified in 325. Four existing fork warnings remain.
 The full-suite/ratchet verdict is still open; no baseline was tightened.
+
+2026-09-22 — CODEX: OBJECT SETTINGS GRID REACHES96.53%
+The current existing selection first measured83.99% (84pass/2fixture skips).
+Added real left/right drag, release and double-click resize gestures; sparse
+noneditable cells; typed-value round trips; delayed-help cancellation; failed
+help/animation/browser/picker handling. Combined selection:98pass/2existing
+fixture skips in36.73s,476/488statements and109/118branches. The sparse-model
+case covers absent-object cells even though the two older fixture cases skip.
+Receipt:features/data/288_object_settings_grid_2026-09-22.json. No production
+change or baseline adjustment. Seventeen original floor modules have passing
+targeted repairs; FEATURES table separately measures above90 with its explicitly
+recorded editing defect. Whole-suite coverage and the ratchet remain open.
