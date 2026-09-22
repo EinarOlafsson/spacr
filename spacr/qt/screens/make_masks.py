@@ -572,6 +572,45 @@ class _MaskLoadWorker(QThread):
             )
 
 
+class _EnhanceRequest(NamedTuple):
+    """One whole-field enhanced picture to build, off the GUI thread.
+
+    ``key`` is what :class:`_NewestRequestWorker` matches two requests by:
+    the base array and the chain, which together are the whole of what the
+    answer depends on.
+    """
+
+    key: tuple
+    image: np.ndarray
+    chain: Any
+
+
+def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[np.ndarray]:
+    """The enhanced field as a drawable picture. ON THE WORKER THREAD.
+
+    The chain in float (:func:`spacr.qt.detect_chain.prepare`), then back
+    onto the loaded field's own unsigned range so
+    :func:`_box_grey_table` can index it and :func:`refresh` can stretch
+    it. A float field has no integer range to return to and is handed back
+    as it is.
+
+    :param request: the field and the chain.
+    :returns: the picture, or None when there is nothing to draw.
+    """
+    base = request.image
+    if base is None:
+        return None
+    out = detect_chain.prepare(base, request.chain)
+    dtype = np.dtype(base.dtype)
+    if out is base or dtype.kind != "u":
+        return out
+    low = float(np.min(out)) if out.size else 0.0
+    span = (float(np.max(out)) - low) if out.size else 1.0
+    top = float(np.iinfo(dtype).max)
+    scaled = (np.asarray(out, dtype=np.float64) - low) / (span or 1.0) * top
+    return np.clip(scaled, 0, top).astype(dtype)
+
+
 class _MaskCanvas(QLabel):
     """QLabel that displays the composited image+mask (optionally zoomed
     into a sub-region) and captures mouse events for brush / erase /
@@ -607,6 +646,11 @@ class _MaskCanvas(QLabel):
     #: small, or a re-draw of one already cut — because what it becomes is
     #: two files and a queue position, and none of that is a canvas's job.
     recrop_requested = Signal(int, int, int, int)
+    #: A whole-field enhanced picture finished on the worker thread, as
+    #: ``(the base array it was made from, the chain, the picture)``.
+    #: Connected to :meth:`_take_enhanced` in ``__init__``, which is what
+    #: carries it from the worker thread to this one.
+    enhanced_ready = Signal(object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
@@ -648,6 +692,13 @@ class _MaskCanvas(QLabel):
         self.enhance_display: bool = False
         self._enhanced_cache: Optional[tuple] = None
         self._enhanced_picture: Optional[tuple] = None
+        #: The whole-field enhanced picture is built OFF THIS THREAD; see
+        #: :meth:`enhanced_picture`. ``_enhance_asked`` is the
+        #: ``(base, chain)`` a request is already out for, so a repaint
+        #: while one is running does not ask again.
+        self._enhance_worker = None
+        self._enhance_asked: Optional[tuple] = None
+        self.enhanced_ready.connect(self._take_enhanced)
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -745,6 +796,7 @@ class _MaskCanvas(QLabel):
         self._inverted = self._inverted_of = None
         self._detection_cache = None
         self._enhanced_cache = self._enhanced_picture = None
+        self._enhance_asked = None
         self._lookup = self._lookup_mask = self._lookup_image = None
         self.readout = None
         if self.magnifier is not None:
@@ -863,7 +915,7 @@ class _MaskCanvas(QLabel):
         return out
 
     def enhanced_picture(self) -> Optional[np.ndarray]:
-        """:meth:`detection_source`, on the range the canvas can DRAW.
+        """The enhanced field as a PICTURE, and never at the cost of a frame.
 
         The chain works in float and the box's picture is a look-up table
         indexed by an unsigned integer value (:func:`_box_grey_table`), so
@@ -871,25 +923,73 @@ class _MaskCanvas(QLabel):
         range before anything draws it. The numbers a detector read are the
         float ones; this is the picture of them.
 
-        :returns: the array, or None with no image.
+        IT IS BUILT ON A WORKER THREAD AND THIS METHOD NEVER WAITS. A chain
+        over a whole field is filters over four megapixels -- a rolling ball
+        at the default is about a second, and a curator is free to ask for
+        the exact one, which is fifteen. This is called from
+        :meth:`refresh`, which runs on every edit, every stroke point and
+        every zoom, so a second spent here is a second the window does not
+        answer in. The first call for a new field or a new chain starts the
+        work and hands back the field as loaded; when the picture arrives
+        (:attr:`enhanced_ready`) the canvas refreshes and shows it.
+
+        :returns: the enhanced picture, the field as loaded while one is
+            being built, or None with no image.
         """
-        out = self.detection_source()
-        base = self.displayed_source()
-        if out is None or base is None or out is base:
-            return out
-        dtype = np.dtype(base.dtype)
-        if dtype.kind != "u":
-            return out
+        base = self.detection_base()
+        if base is None:
+            return None
+        chain = self.enhance_chain or detect_chain.NO_CHAIN
+        if not detect_chain.pre_active(chain):
+            return base
         cached = self._enhanced_picture
-        if cached is not None and cached[0] is out:
-            return cached[1]
-        low = float(np.min(out)) if out.size else 0.0
-        span = (float(np.max(out)) - low) if out.size else 1.0
-        scaled = ((np.asarray(out, dtype=np.float64) - low)
-                  / (span or 1.0) * float(np.iinfo(dtype).max))
-        picture = np.clip(scaled, 0, np.iinfo(dtype).max).astype(dtype)
-        self._enhanced_picture = (out, picture)
-        return picture
+        if cached is not None and cached[0] is base and cached[1] == chain:
+            return cached[2]
+        self._ask_for_enhanced(base, chain)
+        return base
+
+    def _ask_for_enhanced(self, base: np.ndarray, chain) -> None:
+        """Start the enhanced picture for ``(base, chain)`` on the worker.
+
+        One request at a time and the newest wins
+        (:class:`_NewestRequestWorker`): dragging the background radius
+        makes a request per step, and every one but the last is about a
+        picture nobody will see.
+        """
+        asked = self._enhance_asked
+        if asked is not None and asked[0] is base and asked[1] == chain:
+            return
+        self._enhance_asked = (base, chain)
+        if self._enhance_worker is None:
+            self._enhance_worker = _NewestRequestWorker(
+                _enhanced_picture_for, self._enhanced_done,
+                name="spacr-enhance")
+        self._enhance_worker.submit(
+            _EnhanceRequest(key=(id(base), chain), image=base, chain=chain))
+
+    def _enhanced_done(self, request, result, error) -> None:
+        """Hand a finished picture to the GUI thread. ON THE WORKER THREAD."""
+        if error is not None or result is None:
+            LOG.warning("the enhanced picture could not be built",
+                        exc_info=error)
+            return
+        self.enhanced_ready.emit((request.image, request.chain, result))
+
+    def _take_enhanced(self, payload) -> None:
+        """Keep a finished enhanced picture and draw it, on the GUI thread."""
+        base, chain, picture = payload
+        if self.detection_base() is not base:
+            return
+        self._enhanced_picture = (base, chain, picture)
+        if self.enhance_display:
+            self.refresh()
+
+    def close_enhancer(self) -> bool:
+        """Stop the enhanced-picture worker; True when none is left running."""
+        worker = self._enhance_worker
+        self._enhance_worker = None
+        self._enhance_asked = None
+        return True if worker is None else worker.close()
 
     def refresh(self) -> None:
         """Recompose image + mask overlay and repaint the canvas pixmap.
@@ -1186,6 +1286,16 @@ class _MaskCanvas(QLabel):
 
         :param pos: where the mouse is, in widget coordinates, or ``None``
             when it has left the canvas.
+        THE READOUT READS :meth:`detection_base` AND NOT
+        :meth:`detection_source`, so it never runs the enhancement chain.
+        This method is called on EVERY MOUSE MOVE, and a chain is filters
+        over a whole field: pointing the readout at the chain's output made
+        choosing a background subtraction freeze the window, because the
+        first move after choosing it ran the estimate on the GUI thread.
+        What the readout is for is the value under the cursor -- as loaded,
+        or stretched when "Detect on the normalized image" is on -- and the
+        stretch is exactly what :meth:`detection_base` is.
+
         :param measure: also report the object under the pixel. False while
             a button is held, because a brush stroke changes the mask on every
             move and the object is re-read when the stroke ends.
@@ -1196,7 +1306,7 @@ class _MaskCanvas(QLabel):
         spot = (None if pos is None or self.image is None
                 else self._canvas_to_image(pos.x(), pos.y()))
         if spot is not None:
-            source = self.detection_source()
+            source = self.detection_base()
             lookup = self._object_lookup() if measure else None
             if lookup is not None:
                 readout = lookup.at(*spot)
@@ -8542,10 +8652,10 @@ class MakeMasksScreen(QWidget):
             "keeps only what is brighter than its surroundings within that "
             "radius and is much faster. Set the radius comfortably LARGER "
             "than the largest object: a radius under the object size eats "
-            "the objects with the background. HEAVY: on one 1,994 px field "
-            "a 40 px top-hat took a minute against one second for the same "
-            "detection with no chain, and the rolling ball is slower still; "
-            "on the magnifier's box both are a fraction of that.")
+            "the objects with the background. The background is ESTIMATED "
+            "on a smaller copy, at the scale below, because a background is "
+            "by definition what varies slowly across the field and so is "
+            "the one thing that survives being looked at smaller.")
         form.addRow("Background", self._enh_background)
 
         self._enh_background_radius = QSpinBox()
@@ -8557,6 +8667,22 @@ class MakeMasksScreen(QWidget):
             "than the largest object and smaller than the scale the "
             "illumination itself varies on.")
         form.addRow("Background radius", self._enh_background_radius)
+
+        self._enh_background_scale = QDoubleSpinBox()
+        self._enh_background_scale.setDecimals(2)
+        self._enh_background_scale.setRange(0.10, 1.00)
+        self._enh_background_scale.setSingleStep(0.05)
+        self._enh_background_scale.setValue(0.50)
+        self._enh_background_scale.setToolTip(
+            "What fraction of full size the background is measured at. The "
+            "surface is then scaled back up and subtracted from the "
+            "full-size image, so only the ESTIMATE is smaller. On one "
+            "1,994 px field a rolling ball at radius 50 takes 14.5 s at "
+            "1.00 and about 1 s at 0.50. 1.00 is scikit-image's own answer "
+            "exactly, for when you want it and will wait; lower it further "
+            "on a very large field, and raise it if the surface is missing "
+            "illumination that changes over a short distance.")
+        form.addRow("Background scale", self._enh_background_scale)
 
         self._enh_denoise = QComboBox()
         self._enh_denoise.addItem("None", "none")
@@ -8727,7 +8853,8 @@ class MakeMasksScreen(QWidget):
         for widget in (self._enh_background, self._enh_denoise,
                        self._enh_morphology):
             widget.currentIndexChanged.connect(self._on_chain_changed)
-        for widget in (self._enh_background_radius, self._enh_gamma,
+        for widget in (self._enh_background_radius,
+                       self._enh_background_scale, self._enh_gamma,
                        self._enh_denoise_strength, self._enh_clahe_tile,
                        self._enh_clahe_clip, self._enh_sharpen_radius,
                        self._enh_sharpen_amount,
@@ -8746,6 +8873,7 @@ class MakeMasksScreen(QWidget):
         return detect_chain.Chain(
             background=str(self._enh_background.currentData()),
             background_radius=int(self._enh_background_radius.value()),
+            background_scale=float(self._enh_background_scale.value()),
             denoise=str(self._enh_denoise.currentData()),
             denoise_strength=float(self._enh_denoise_strength.value()),
             gamma=float(self._enh_gamma.value()),
@@ -10062,6 +10190,7 @@ class MakeMasksScreen(QWidget):
         if download is not None:
             download.cancel()
         self._magnifier.close()
+        self._canvas.close_enhancer()
         self.close_folded()
         self._pending_load = None
         worker, self._load_worker = self._load_worker, None

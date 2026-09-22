@@ -374,10 +374,15 @@ def test_the_heavy_steps_say_they_are_heavy(screen):
     assert om.HEAVY_MODES["unet"]
 
     small = dc.Chain(background="tophat", background_radius=5)
-    large = dc.Chain(background="tophat", background_radius=60)
+    default = dc.Chain(background="rolling_ball", background_radius=50)
+    exact = dc.Chain(background="rolling_ball", background_radius=50,
+                     background_scale=1.0)
     assert dc.heavy_steps(small) == (), \
         "a small background radius is not slow and must not say it is"
-    assert dc.heavy_steps(large), "a large background radius says nothing"
+    assert dc.heavy_steps(default) == (), \
+        "the default radius at the default scale is about a second"
+    assert dc.heavy_steps(exact), \
+        "the exact background at the default radius is fifteen seconds"
 
     assert screen._enh_heavy.text() == ""
     screen._enh_denoise.setCurrentIndex(
@@ -385,12 +390,21 @@ def test_the_heavy_steps_say_they_are_heavy(screen):
     assert "non-local means" in screen._enh_heavy.text()
 
 
-def test_the_canvas_can_draw_what_the_detector_reads(screen):
-    """"Show the enhanced image" changes the picture and nothing else."""
+def test_the_canvas_can_draw_what_the_detector_reads(qtbot, screen):
+    """"Show the enhanced image" changes the picture and nothing else.
+
+    The picture is built off the GUI thread, so the first ask hands back
+    the field as loaded and the enhanced one arrives on
+    :attr:`_MaskCanvas.enhanced_ready`; that is the behaviour
+    :func:`test_a_slow_background_never_runs_on_the_gui_thread` is about.
+    """
     canvas = screen._canvas
     loaded = np.array(canvas.image, copy=True)
     screen._enh_gamma.setValue(0.4)
-    screen._enh_show.setChecked(True)
+
+    with qtbot.waitSignal(canvas.enhanced_ready, timeout=20000):
+        screen._enh_show.setChecked(True)
+        canvas.enhanced_picture()
 
     drawn = canvas.enhanced_picture()
     assert drawn is not None
@@ -398,10 +412,11 @@ def test_the_canvas_can_draw_what_the_detector_reads(screen):
     np.testing.assert_array_equal(
         canvas.image, loaded,
         err_msg="the enhanced view changed the data underneath")
-    assert canvas.enhanced_picture().dtype == canvas.image.dtype
+    assert drawn.dtype == canvas.image.dtype
 
     screen._enh_show.setChecked(False)
     assert canvas.enhance_display is False
+    canvas.close_enhancer()
 
 
 def test_the_chain_is_described_in_the_words_a_caption_uses():
@@ -469,3 +484,129 @@ def test_denoising_needs_no_pywavelets_and_a_broken_step_is_skipped():
     finally:
         dc._denoise = original
     assert kept.shape == field.shape, "the chain carries on without that step"
+
+
+def test_a_step_that_is_off_runs_nothing_at_all():
+    """The crash of 2026-09-22: a step nobody asked for, on every field.
+
+    :func:`spacr.qt.detect_chain._denoise` used to fall through to
+    non-local means for ``denoise="none"``, so ANY active chain -- a
+    background, a gamma -- ran a minutes-long denoiser over the whole
+    field, from a mouse-move. It was reported as "the rolling ball crashes
+    the program right away". What is asserted is the shape of the fix: an
+    off step hands back the very array it was given, so it cannot be
+    running anything.
+    """
+    field = blob_field(64).astype(np.float32)
+    assert dc._denoise(field, dc.NO_CHAIN) is field
+    assert dc._denoise(field, dc.Chain(background="tophat")) is field
+    assert dc._contrast(field, dc.NO_CHAIN) is field
+    assert dc._contrast(field, dc.Chain(denoise="median")) is field
+    assert dc._background(field, dc.NO_CHAIN) is field
+
+
+def test_the_background_is_estimated_small_and_1_0_is_exact():
+    """The scale buys the speed; 1.00 buys scikit-image's own answer.
+
+    A background is what varies slowly, so estimating it on a smaller copy
+    and scaling the surface back up is sound. At 1.00 nothing is scaled and
+    the call is scikit-image's, which this checks to the bit rather than to
+    a tolerance -- that is the promise the tooltip makes.
+    """
+    from skimage.morphology import disk, white_tophat
+    from skimage.restoration import rolling_ball
+
+    field = blob_field(256).astype(np.float32)
+    exact_ball = dc.Chain(background="rolling_ball", background_radius=20,
+                          background_scale=1.0)
+    exact_hat = dc.Chain(background="tophat", background_radius=20,
+                         background_scale=1.0)
+    np.testing.assert_array_equal(
+        dc.prepare(field, exact_ball),
+        np.clip(field - rolling_ball(field, radius=20), 0.0, None))
+    np.testing.assert_array_equal(
+        dc.prepare(field, exact_hat),
+        white_tophat(field, disk(20)))
+
+    small = dc.Chain(background="rolling_ball", background_radius=20,
+                     background_scale=0.5)
+    scaled = dc.prepare(field, small)
+    assert scaled.shape == field.shape
+    assert not np.array_equal(scaled, dc.prepare(field, exact_ball)), \
+        "a scaled estimate that equals the exact one is not being scaled"
+    assert dc.background_surface(field, small).shape == field.shape
+    assert np.array_equal(dc.background_surface(field, dc.NO_CHAIN),
+                          np.zeros_like(field))
+
+
+def test_a_tiny_region_is_never_estimated_on_a_thumbnail():
+    """Below a floor the copy stops being scaled: a box is small already.
+
+    The magnifier's box is a few dozen pixels; halving it would leave a
+    surface with no detail to follow, and the exact call on something that
+    small costs nothing anyway.
+    """
+    box = blob_field(48).astype(np.float32)
+    chain = dc.Chain(background="rolling_ball", background_radius=10,
+                     background_scale=0.25)
+    from skimage.restoration import rolling_ball
+
+    np.testing.assert_allclose(
+        dc.background_surface(box, chain),
+        rolling_ball(box, radius=10), rtol=1e-6)
+
+
+def test_the_readout_never_runs_the_enhancement_chain(screen, monkeypatch):
+    """A mouse move must not be able to start a background estimate.
+
+    The readout is re-read on EVERY move. Pointing it at the chain's
+    output is what made choosing a rolling ball freeze the window, so this
+    fails if anything in that path reaches :func:`detect_chain.prepare`.
+    """
+    from PySide6.QtCore import QPointF
+
+    ran = []
+    real = dc.prepare
+    monkeypatch.setattr(dc, "prepare",
+                        lambda image, chain: ran.append(chain) or real(
+                            image, chain))
+    screen._enh_background.setCurrentIndex(
+        screen._enh_background.findData("rolling_ball"))
+    screen._enh_background_radius.setValue(50)
+    ran.clear()
+
+    screen._canvas.resize(600, 400)
+    screen._canvas.refresh()
+    for x in range(20, 60, 8):
+        screen._canvas.update_readout(QPointF(*_canvas_xy(screen, x, x)))
+    assert ran == [], \
+        "the readout ran the chain: " + repr(ran[:1])
+
+
+def test_a_slow_background_never_runs_on_the_gui_thread(qtbot, screen):
+    """The enhanced picture is asked for, not waited for.
+
+    "Show the enhanced image" with a background subtraction switched on
+    must return at once with the field as loaded, and deliver the enhanced
+    picture afterwards. Measured rather than asserted about: the call has
+    to be far quicker than the work it starts.
+    """
+    import time
+
+    canvas = screen._canvas
+    screen._enh_background.setCurrentIndex(
+        screen._enh_background.findData("rolling_ball"))
+    screen._enh_background_radius.setValue(40)
+    screen._enh_show.setChecked(True)
+
+    started = time.monotonic()
+    first = canvas.enhanced_picture()
+    asked_in = time.monotonic() - started
+
+    assert asked_in < 0.5, f"enhanced_picture blocked for {asked_in:.2f} s"
+    np.testing.assert_array_equal(first, canvas.detection_base())
+    with qtbot.waitSignal(canvas.enhanced_ready, timeout=30000):
+        pass
+    assert not np.array_equal(canvas.enhanced_picture(),
+                              canvas.detection_base())
+    assert canvas.close_enhancer()

@@ -50,7 +50,12 @@ the chain is offered to every mode and not only to Otsu.
 WHAT A STEP COSTS. :func:`heavy_steps` names the switched-on steps that are
 slow enough to say so before they run -- non-local means above all, which
 is minutes on a 2,000 px field and is the reason the whole-image run keeps
-item 407's progress and Cancel.
+item 407's progress and Cancel. A STEP NOBODY ASKED FOR COSTS THE MOST:
+:func:`_denoise` used to reach non-local means whenever ``denoise`` was
+``"none"``, so merely choosing a background ran it over the whole field
+from a mouse-move. That was the "rolling ball crashes the program right
+away" of 2026-09-22 and it is why every step now returns its input
+untouched when it is off, rather than falling through to a default.
 
 WHAT THIS IS NOT, AND WHAT IT IS NEXT TO.
 :func:`spacr.object._preprocess_batch` is the mask pipeline's own
@@ -103,32 +108,40 @@ DENOISE_METHODS: Tuple[str, ...] = (
 #: ``morphology`` values, applied to what the detector labelled.
 MORPHOLOGY_OPS: Tuple[str, ...] = ("none", "open", "close", "open_close")
 
-#: Above this radius, in pixels, a background subtraction is slow enough
-#: on a whole field to be worth warning about: the disk it is computed over
-#: grows with the square of it.
-HEAVY_BACKGROUND_RADIUS = 20
+#: Above this EFFECTIVE radius -- the radius times
+#: :attr:`Chain.background_scale`, which is the radius the estimate really
+#: runs at -- a background subtraction is slow enough on a whole field to
+#: be worth warning about. 30 is where the measurements in
+#: :func:`background_surface` cross about four seconds on a 1,994 px
+#: field; the default radius of 50 at the default scale of 0.5 is an
+#: effective 25 and takes about a second, so it does not warn.
+HEAVY_BACKGROUND_RADIUS = 30
 
 #: The steps slow enough that a screen offering them should say so, as
 #: ``(what to say, a predicate on the chain)``. Read by
 #: :func:`heavy_steps`.
 #:
-#: MEASURED, on one 1,994 px toxo vacuole field on a CPU (2026-09-22, the
-#: table in ``features/new/473_make_masks_offers_every_detection_method_
-#: and_contrast_help.txt``): an Otsu detection with no chain took 1.0 s for
-#: the whole field; the same detection behind a 40 px top-hat took 58 s,
-#: behind a median denoise 1.9 s, and behind CLAHE 4.3 s. A background
-#: radius is therefore the one number on this card that can turn a second
-#: into a minute, which is why the warning reads it rather than only the
-#: method. On a magnifier box every one of them is a small fraction of
-#: that, since the box is a few hundred pixels across and the field is four
+#: MEASURED, on one 1,994 px toxo vacuole field on a CPU, re-measured
+#: 2026-09-22 after the fall-through bug in :func:`_denoise` was fixed (the
+#: numbers taken before it are wrong: every chain was running non-local
+#: means whether or not it had been asked to). The chain alone, on the whole
+#: field: gamma 0.01 s, CLAHE 0.19 s, median denoise 1.30 s, a rolling ball
+#: at radius 50 and the default scale 1.07 s, at scale 1.0 14.49 s; a
+#: top-hat at radius 50 and the default scale 2.30 s, at scale 1.0 35.89 s.
+#: The one number on the card that can still turn a second into half a
+#: minute is therefore the background's EFFECTIVE radius, which is why the
+#: warning reads the radius and the scale together rather than the method.
+#: On a magnifier box every one of these is a small fraction of the above,
+#: since the box is a few hundred pixels across and the field is four
 #: megapixels.
 _HEAVY = (
     ("non-local means", lambda chain: chain.denoise == "nlm"),
     ("bilateral denoising", lambda chain: chain.denoise == "bilateral"),
-    ("a background radius over {radius} px".format(
+    ("a background estimated at over {radius} px".format(
         radius=HEAVY_BACKGROUND_RADIUS),
      lambda chain: (chain.background != "none"
                     and int(chain.background_radius)
+                    * min(max(float(chain.background_scale), 0.05), 1.0)
                     > HEAVY_BACKGROUND_RADIUS)),
 )
 
@@ -148,6 +161,10 @@ class Chain(NamedTuple):
     :param background_radius: the ball's or the top-hat disk's radius, in
         pixels. Set it comfortably larger than the largest object: a radius
         under the object size eats the objects along with the background.
+    :param background_scale: the fraction of full size the background is
+        ESTIMATED at, 0.1 to 1.0. See :func:`background_surface` for what
+        that buys and what it costs; 1.0 is scikit-image's own answer,
+        exactly.
     :param denoise: one of :data:`DENOISE_METHODS`.
     :param denoise_strength: the Gaussian's sigma in pixels, the median's
         and the bilateral's disk radius, or the non-local means' cut-off in
@@ -176,6 +193,7 @@ class Chain(NamedTuple):
 
     background: str = "none"
     background_radius: int = 50
+    background_scale: float = 0.5
     denoise: str = "none"
     denoise_strength: float = 1.0
     gamma: float = 1.0
@@ -248,18 +266,107 @@ def _unit(image: np.ndarray) -> Tuple[np.ndarray, float, float]:
     return np.clip((image - low) / span, 0.0, 1.0), low, span
 
 
-def _background(image: np.ndarray, chain: Chain) -> np.ndarray:
-    """Subtract the slowly varying background ``chain`` names."""
+#: The smallest side, in pixels, a downscaled copy is allowed to have. A
+#: background estimated on a thumbnail is a thumbnail's worth of detail,
+#: and below this the upsampled surface stops following the illumination
+#: it is meant to remove.
+MIN_BACKGROUND_SIDE = 64
+
+
+def background_surface(image: np.ndarray, chain: Chain) -> np.ndarray:
+    """The slowly varying background under ``image``, at ``image``'s size.
+
+    A ROLLING BALL ON A FULL FIELD IS NOT INTERACTIVE, and that is what
+    this function exists for. Measured 2026-09-22 on one 1,994 px toxo
+    field (uint16, as float32), CPU: ``skimage.restoration.rolling_ball``
+    took 0.3 s at radius 5, 0.9 s at 10, 4.1 s at 25 and 14.5 s at 50 --
+    the default radius. Fourteen seconds is not a crash, but it arrived on
+    the GUI thread, from a mouse-move, and a window that stops answering
+    for fourteen seconds is a window a person force-quits. It was reported
+    as "the rolling ball crashes the program right away".
+
+    SO THE BACKGROUND IS ESTIMATED ON A SMALLER COPY, at
+    :attr:`Chain.background_scale`, and the surface is scaled back up. That
+    is sound rather than a corner cut: a background is by definition what
+    varies SLOWLY across the field, so it is the one thing in the image
+    that survives being looked at on a smaller copy. The radius shrinks
+    with the image, so the ball is the same ball relative to the picture.
+    Cost falls with the pixels AND with the radius, so it falls fast: at
+    the default 0.5 the same field takes about a second.
+
+    1.0 IS AN ESCAPE HATCH AND IS EXACT. At a scale of 1.0 this calls
+    ``rolling_ball`` (or ``white_tophat``) on the full field with the full
+    radius and returns precisely what scikit-image returns, for anyone who
+    wants the exact answer and will wait for it.
+
+    :param image: the field or region, as float.
+    :param chain: the chain, for its background method, radius and scale.
+    :returns: the background, the same shape as ``image``; zeros when the
+        chain subtracts no background.
+    """
+    if chain.background == "none":
+        return np.zeros_like(image)
     radius = max(1, int(chain.background_radius))
-    if chain.background == "rolling_ball":
+    scale = min(max(float(chain.background_scale), 0.05), 1.0)
+    height, width = (int(v) for v in image.shape[:2])
+    if (scale >= 1.0 or min(height, width) * scale < MIN_BACKGROUND_SIDE
+            or max(1, int(round(radius * scale))) >= radius):
+        return _background_estimate(image, chain.background, radius)
+
+    from skimage.transform import resize
+
+    small = resize(image, (max(MIN_BACKGROUND_SIDE, int(round(height * scale))),
+                           max(MIN_BACKGROUND_SIDE, int(round(width * scale)))),
+                   order=1, mode="reflect", anti_aliasing=True,
+                   preserve_range=True).astype(np.float32)
+    surface = _background_estimate(
+        small, chain.background, max(1, int(round(radius * scale))))
+    return resize(surface, (height, width), order=1, mode="edge",
+                  anti_aliasing=False,
+                  preserve_range=True).astype(np.float32)
+
+
+def _background_estimate(image: np.ndarray, method: str,
+                         radius: int) -> np.ndarray:
+    """scikit-image's own background surface for ``method`` at ``radius``.
+
+    The rolling ball's surface is what ``rolling_ball`` returns; the
+    top-hat's is the morphological opening, since ``white_tophat`` IS
+    ``image - opening`` and the caller subtracts.
+    """
+    if method == "rolling_ball":
         from skimage.restoration import rolling_ball
 
-        return np.clip(image - rolling_ball(image, radius=radius), 0.0, None)
-    if chain.background == "tophat":
+        return np.asarray(rolling_ball(image, radius=int(radius)),
+                          dtype=np.float32)
+    from skimage.morphology import disk, opening
+
+    return np.asarray(opening(image, disk(int(radius))), dtype=np.float32)
+
+
+def _background(image: np.ndarray, chain: Chain) -> np.ndarray:
+    """Subtract the slowly varying background ``chain`` names.
+
+    At a scale of 1.0 the exact scikit-image call is made and its result
+    used unchanged, so ``tophat`` is ``white_tophat`` to the bit; below it
+    the surface comes from :func:`background_surface` and is subtracted
+    here. Either way the result is clipped at zero: a background
+    subtraction that goes negative is saying the background was over-
+    estimated there, and a negative intensity has no meaning downstream.
+    """
+    if chain.background == "none":
+        return image
+    radius = max(1, int(chain.background_radius))
+    if float(chain.background_scale) >= 1.0:
+        if chain.background == "rolling_ball":
+            from skimage.restoration import rolling_ball
+
+            return np.clip(image - rolling_ball(image, radius=radius),
+                           0.0, None)
         from skimage.morphology import disk, white_tophat
 
         return white_tophat(image, disk(radius))
-    return image
+    return np.clip(image - background_surface(image, chain), 0.0, None)
 
 
 def _noise_sigma(unit: np.ndarray) -> float:
@@ -285,7 +392,19 @@ def _noise_sigma(unit: np.ndarray) -> float:
 
 
 def _denoise(image: np.ndarray, chain: Chain) -> np.ndarray:
-    """Smooth the noise ``chain`` names away, keeping the intensities."""
+    """Smooth the noise ``chain`` names away, keeping the intensities.
+
+    THE FIRST LINE IS THE ONE THAT MATTERS. Without it this function's
+    final ``else`` is reached by ``denoise="none"`` as well as by
+    ``denoise="nlm"``, so every chain with ANY step switched on ran
+    non-local means over the whole field -- minutes, from a mouse-move,
+    with no box ticked asking for it. That was reported on 2026-09-22 as
+    "the rolling ball crashes the program right away": choosing a
+    background made the chain active, and the crash was the denoiser
+    nobody had asked for.
+    """
+    if chain.denoise == "none":
+        return image
     strength = float(chain.denoise_strength)
     if chain.denoise == "gaussian":
         from skimage.filters import gaussian
@@ -321,7 +440,17 @@ def _contrast(image: np.ndarray, chain: Chain) -> np.ndarray:
     trip to the unit interval: converting back between them would only
     re-measure a span that a monotone curve cannot have changed the ends
     of.
+
+    NOTHING SWITCHED ON IS A NO-OP AND RETURNS THE VERY ARRAY. The trip to
+    the unit interval and back is a divide and a multiply in float32, so
+    an "off" contrast stage that made the round trip anyway moved the
+    bottom bits of every pixel -- which is why a chain of nothing but a
+    background subtraction did not agree with scikit-image's own answer to
+    the last decimal.
     """
+    if (abs(float(chain.gamma) - 1.0) <= 1e-9 and not chain.clahe
+            and not chain.equalize):
+        return image
     unit, low, span = _unit(image)
     if abs(float(chain.gamma) - 1.0) > 1e-9:
         from skimage.exposure import adjust_gamma
@@ -360,6 +489,13 @@ def prepare(image: np.ndarray, chain: Chain) -> np.ndarray:
     another. The percentile stretch is the screen's, applied to the whole
     field before ``image`` was cut from it.
 
+    A STEP THAT CANNOT RUN IS SKIPPED, NOT RAISED. This is reached from a
+    mouse-move (the readout under the cursor) and from the magnifier, so
+    an exception here is one per mouse event: a missing optional package
+    filled the console with tracebacks once (PyWavelets, 2026-09-22) and
+    made the screen unusable. The detector then reads the image as far as
+    the chain got, and the log says which step was dropped.
+
     :param image: the field, or the magnifier's box region cut from it.
         Never modified.
     :param chain: what to do to it.
@@ -378,12 +514,6 @@ def prepare(image: np.ndarray, chain: Chain) -> np.ndarray:
         try:
             out = step(out, chain)
         except Exception:                                    # noqa: BLE001
-            # A STEP THAT CANNOT RUN IS SKIPPED, NOT RAISED. This is called
-            # from a mouse-move (the readout under the cursor) and from the
-            # magnifier, so an exception here is one per mouse event: a
-            # missing optional package filled the console with tracebacks
-            # once (PyWavelets, 2026-09-22) and made the screen unusable.
-            # The detector then reads the image as far as the chain got.
             LOG.warning("the %s step of the detection chain could not run; "
                         "the image is used as it is so far", name,
                         exc_info=True)
@@ -453,6 +583,7 @@ def provenance(chain: Chain, *, percentile_stretch: bool = False) -> Dict:
     if chain.background != "none":
         steps["background"] = str(chain.background)
         steps["background_radius"] = int(chain.background_radius)
+        steps["background_scale"] = float(chain.background_scale)
     if chain.denoise != "none":
         steps["denoise"] = str(chain.denoise)
         steps["denoise_strength"] = float(chain.denoise_strength)
