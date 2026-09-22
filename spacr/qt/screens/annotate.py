@@ -101,7 +101,6 @@ from PySide6.QtWidgets import (
     QScrollArea,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QStackedWidget,
     QToolButton,
     QVBoxLayout,
@@ -143,6 +142,7 @@ from ..theme import SPACING, palette_for, register_widget_qss
 from ..widgets.column_picker import attach_column_picker
 from ..widgets import Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from .map_barcodes import FoldOpener, restate_fold_button
 
 from ..widgets.test_data_chooser import TestDataChooser  # noqa: F401
@@ -3019,33 +3019,20 @@ class AnnotateScreen(QWidget):
         self._content_stack.addWidget(self._grid_scroll)
         self._content_stack.setCurrentWidget(self._empty_state)
 
-        self._runtime_splitter = QSplitter(Qt.Vertical, self)
-        self._runtime_splitter.setChildrenCollapsible(False)
-        self._runtime_splitter.addWidget(self._content_stack)
+        self._runtime_splitter = CollapsibleSplitter(
+            Qt.Vertical, self, persist_key="annotate::runtime")
+        self._runtime_splitter.add_section(
+            self._content_stack, "Crops", persist_key="annotate/Crops",
+            stretch=4)
 
-        self._console_wrap = QWidget(self)
-        console_layout = QVBoxLayout(self._console_wrap)
-        console_layout.setContentsMargins(0, 0, 0, 0)
-        console_layout.setSpacing(SPACING["xs"])
-        title_row = QHBoxLayout()
-        title_row.setContentsMargins(0, 0, 0, 0)
-        title_row.setSpacing(SPACING["sm"])
-        console_title = QLabel("Console + AI", self._console_wrap)
-        console_title.setObjectName("CardTitle")
-        title_row.addWidget(console_title)
-        title_row.addStretch(1)
-
-        self._btn_copy_console = QPushButton(tr("Copy console"),
-                                             self._console_wrap)
+        self._btn_copy_console = QPushButton(tr("Copy console"))
         self._btn_copy_console.setObjectName("GhostButton")
         self._btn_copy_console.setCursor(Qt.PointingHandCursor)
         self._btn_copy_console.setToolTip(tr(
             "Copy everything in the console, section headers included."))
         self._btn_copy_console.clicked.connect(self._on_copy_console)
-        title_row.addWidget(self._btn_copy_console)
 
-        self._btn_file_issue = QPushButton(tr("File as issue"),
-                                           self._console_wrap)
+        self._btn_file_issue = QPushButton(tr("File as issue"))
         self._btn_file_issue.setObjectName("GhostButton")
         self._btn_file_issue.setCursor(Qt.PointingHandCursor)
         self._btn_file_issue.setToolTip(tr(
@@ -3054,14 +3041,10 @@ class AnnotateScreen(QWidget):
         self._btn_file_issue.setVisible(False)
         self._btn_file_issue.setEnabled(False)
         self._btn_file_issue.clicked.connect(self._on_file_issue)
-        title_row.addWidget(self._btn_file_issue)
 
-        console_layout.addLayout(title_row)
         from ..widgets import ConsolePanel
-        self._console = ConsolePanel(
-            active_app_label="Annotate", parent=self._console_wrap)
+        self._console = ConsolePanel(active_app_label="Annotate")
         self._console.setMinimumHeight(180)
-        console_layout.addWidget(self._console, 1)
 
         _original_append_error = self._console.append_error
 
@@ -3078,9 +3061,10 @@ class AnnotateScreen(QWidget):
                 self.note_console_error()
 
         self._console.append_error = _append_error_and_offer_the_report
-        self._runtime_splitter.addWidget(self._console_wrap)
-        self._runtime_splitter.setStretchFactor(0, 4)
-        self._runtime_splitter.setStretchFactor(1, 2)
+        self._console_wrap = self._runtime_splitter.add_section(
+            self._console, "Console + AI", persist_key="annotate/Console + AI",
+            stretch=2,
+            actions=[self._btn_copy_console, self._btn_file_issue])
         self._console_wrap.hide()
         outer.addWidget(self._runtime_splitter, 1)
 
@@ -3115,10 +3099,17 @@ class AnnotateScreen(QWidget):
         self._rebuild_grid()
 
     def _on_console_switch(self, on: bool) -> None:
-        """Expand or collapse Annotate's merged Console + AI pane."""
+        """Expand or collapse Annotate's merged Console + AI pane.
+
+        Opened again, the pane takes the height the user last dragged it to
+        when there is one, and otherwise about a third of the column.
+        """
         self._console_wrap.setVisible(on)
         self._set_console_switch_text(on)
-        if on:
+        pane = self._runtime_splitter.pane("Console + AI")
+        if on and pane is not None and pane.extent > 0:
+            self._runtime_splitter.rebalance(grow=pane)
+        elif on:
             height = max(480, self._runtime_splitter.height())
             self._runtime_splitter.setSizes(
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
