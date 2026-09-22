@@ -1502,12 +1502,11 @@ class _SettingsDialog(QDialog):
     def __init__(self, settings: AnnotateSettings, parent: Optional[QWidget] = None):
         """Build the form, detached from the window manager."""
         super().__init__(parent)
-        from ..dialogs import detach_from_window_manager
+        from ..dialogs import RESIZABLE, detach_from_window_manager
         detach_from_window_manager(self)
+        self.setProperty(RESIZABLE, True)
         self.setWindowTitle("Annotate — Settings")
         from ..preferences import scaled_px
-        
-        self.setMinimumWidth(scaled_px(480))
         self._settings = settings
 
         form = QFormLayout()
@@ -1788,13 +1787,27 @@ class _SettingsDialog(QDialog):
         self._queue_limit.setSpecialValueText("all unlabelled")
         form.addRow("Queue length", self._queue_limit)
 
+        form_widget = QWidget()
+        form_widget.setLayout(form)
+        self._form_scroll = QScrollArea()
+        self._form_scroll.setFrameShape(QScrollArea.NoFrame)
+        self._form_scroll.setWidgetResizable(True)
+        self._form_scroll.setWidget(form_widget)
+
         self.setLayout(QVBoxLayout())
-        self.layout().addLayout(form)
+        self.layout().addWidget(self._form_scroll, 1)
 
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         self.layout().addWidget(buttons)
+
+        from ..dialogs import give_it_a_size_grip
+        give_it_a_size_grip(self)
+        available = self.screen().availableGeometry()
+        self.setMinimumWidth(min(scaled_px(480), available.width()))
+        self.resize(min(scaled_px(640), available.width()),
+                    min(scaled_px(720), int(available.height() * 0.9)))
 
         from .settings_model import install_api_tooltips
         install_api_tooltips(self, "annotate", {

@@ -1744,3 +1744,33 @@ DELIBERATELY NOT COVERED, and each is a choice rather than debt:
   * A REAL DISPLAY. Everything here is offscreen, so occlusion and
     compositing are outside it by construction. 381 carries the one case
     that needs a screen.
+
+2026-09-22 — REOPENED FOR ANNOTATE SETTINGS ACTIONS (GITHUB #128)
+--------------------------------------------------------------------------------
+Requested: GitHub #128 reports, "The panel is initially in a size that partially
+hides the cancel/ok buttons, and then is resizable to fully hide them."
+The form currently delegates shrinking to the whole-dialog wrapper, which
+scrolls the action buttons along with the fields. This follow-up will keep
+OK/Cancel visible while the form scrolls and will bound the opening size to the
+available screen. It does not reopen unrelated completed parts of item 350.
+
+2026-09-22 — ANNOTATE SETTINGS FOLLOW-UP FIXED
+The settings form now owns its scrolling viewport. OK and Cancel sit outside
+it and stay visible at the top, middle and bottom of the scroll range. The
+dialog owns its resize grip and declares itself already resizable, so the
+application's generic wrapper cannot put the buttons back inside a second
+scroll area. Its initial size is bounded to the available screen, and its
+minimum width is bounded there too. No setting, caption or save/apply behavior
+changed.
+
+Evidence: tests/qt/test_annotate_settings_actions_stay_visible.py reproduced
+four invisible-button failures on the previous implementation. All five checks
+now pass (640x480 and 480x320, two requested font sizes, top/middle/bottom scroll
+positions, reachable last field, Cancel, and screen-bounded initial size).
+Another 24 existing settings/source/example-loading/lifecycle checks pass.
+A separate rendered probe installed the actual application dialog filters and
+theme: both buttons remain fully visible in all four size/scroll combinations.
+The 480x320 bottom screenshot was visually inspected. Artifacts are under
+/mnt/firecuda2/Claude/implementation-20260922/annotate-settings-*.png.
+This proves the reproduced geometry defect fixed on Linux/offscreen; it is
+not a claim to have run a macOS desktop. Issue 128's local repair is complete.

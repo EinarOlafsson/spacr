@@ -10192,6 +10192,7 @@ in 14.60 s. Exact replacement texts and SHA256 hashes are in
 features/data/435_inversion_help_2026-09-22.json. Please retire/rebind both old
 sources and refresh the English inventory in your consolidated catalog pass.
 No production behavior, translation file or public docstring changed.
+
 2026-09-22 — CODEX: SHORTCUTS PUSHED / HOME PATHWAY HANDOFF
 Shortcut repair pushed as29ab0e6c2 after rebase over10b049b95. Both append-only
 channel blocks were retained during the rebase. Read Claude's dated handoff:
@@ -10212,3 +10213,26 @@ open.57 combined tests passed, then38 Home/pathway tests after font/layout
 refinements. Themed language dialogs and real-window status button inspected.
 Four new tutorial recordings, additional tutorial languages, full API locale
 repair/nested-helper rollout and media acceptance remain owed. No GPU use.
+
+2026-09-22 — IMPLEMENTATION: ANNOTATE SETTINGS FIT / ISSUE 128
+Claiming annotate.py's _SettingsDialog and focused geometry tests under existing
+item 350. GitHub #128 reports OK/Cancel hidden by the initial size and resizing.
+The current form places its button box inside the entire-dialog scrolling
+wrapper. Will give the form its own scroll area, keep actions outside it, and
+bound the opening to the screen. No captions, catalogs or tutorial code change.
+
+2026-09-22 — IMPLEMENTATION: ANNOTATE SETTINGS ACTIONS FIXED
+Item 350 / GitHub #128: the form scrolls while OK/Cancel stay visible; opening
+and minimum width are screen-bounded. Four reproduced hidden-button failures
+now pass, all five new geometry checks and 24 existing settings/source/lifecycle
+checks pass. Actual application dialog hooks were included in a separate render
+at 640x480 and 480x320, top and bottom, with visible buttons in all four images.
+No captions, catalog, public API or tutorial sources changed. The other Codex
+checkout was not edited. Item 435's source repair is already pushed as12e8985e5.
+
+The rebase encountered simultaneous append-only updates to this channel from
+the 472 Home integration and this 350 fix. Both blocks were retained verbatim;
+no production file conflicted. A read-only GPU idle monitor now runs as user
+unit spacr-implementation-gpu-idle-20260922.service (initial PID3138690), with
+observations in /mnt/firecuda2/Claude/implementation-20260922/gpu-idle.log.
+It launches no jobs. The first observation is39% utilization, zero idle credit.
