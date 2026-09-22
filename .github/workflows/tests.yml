@@ -452,7 +452,7 @@ jobs:
           python tools/verify_module_coverage.py \
             --coverage-json "$SPACR_COVERAGE_REPORT/coverage.json" \
             --root . \
-            --expected-file-count 605 \
+            --expected-file-count 606 \
             --baseline tools/coverage_baseline.json \
             --floor-exemptions tools/coverage_floor_exemptions.txt \
             --shard-integrity "$SPACR_COVERAGE_INPUT" \
