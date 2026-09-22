@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "language": "de",
+  "review_kind": "AI-assisted linguistic and implementation review; corrected primary-model drafts, no native-speaker sign-off",
+  "records": [
+    {
+      "label": "spacr.ops_register.register_edge#5",
+      "source": "\"vertical\" or \"horizontal\".",
+      "context": "\"vertical\" or \"horizontal\".",
+      "source_sha256": "81dbecac6a83350a04997e04a796a89ad6a8e9e0784d534730ea8a3e0ec8adba",
+      "translation": "\"vertical\" oder \"horizontal\"."
+    },
+    {
+      "label": "spacr.qt.widgets.gate_spec.ViewGate.translated#0",
+      "source": "A copy with the outline moved on its own view.",
+      "context": "A copy with the outline moved on its own view.",
+      "source_sha256": "e447fefa581afc9e005b0ed2f1376b2febf64361f7a8e055ee0666ee1608504d",
+      "translation": "Eine Kopie mit einem in der eigenen Ansicht verschobenen Umriss."
+    },
+    {
+      "label": "spacr.qt.mask_engine.ObjectLookup#1",
+      "source": "Built once for a mask state and then asked about one pixel at a time, so a readout that follows the mouse costs a bounding box per question rather than the whole field. The id is the one :func:`canonical_labels` gives, the area is that id's pixel count, and the mean is taken on the raw image in ``float32`` over the object's pixels in raster order, which is the arithmetic :func:`skimage.measure.regionprops` performs for the filter. So an intensity bound set to the mean shown keeps the object, and a bound just past it removes it.",
+      "context": "Built once for a mask state and then asked about one pixel at a time, so a readout that follows the mouse costs a bounding box per question rather than the whole field. The id is the one :func:`canonical_labels` gives, the area is that id's pixel count, and the mean is taken on the raw image in ``float32`` over the object's pixels in raster order, which is the arithmetic :func:`skimage.measure.regionprops` performs for the filter. So an intensity bound set to the mean shown keeps the object, and a bound just past it removes it.",
+      "source_sha256": "8d94b19b68f64ec4d5c30fd568eae94bb00652dec28e5fa1c58ebb91e3b6f7d9",
+      "translation": "Einmal pro Maskenzustand aufgebaut und anschließend pixelweise abgefragt. Dadurch muss eine der Maus folgende Anzeige pro Abfrage nur den umschließenden Rahmen und nicht das gesamte Bildfeld auswerten. Die ID stammt von :func:`canonical_labels`, die Fläche entspricht der Anzahl ihrer Pixel, und der Mittelwert wird auf dem Rohbild in ``float32`` über die Objektpixel in Rasterreihenfolge berechnet. Das entspricht der Berechnung von :func:`skimage.measure.regionprops` für den Filter. Eine auf den angezeigten Mittelwert gesetzte Intensitätsgrenze behält das Objekt bei; eine Grenze knapp darüber entfernt es."
+    },
+    {
+      "label": "spacr.qt.screens.foreign.ForeignScreen.set_metadata_type#2",
+      "source": "False, with the reason inline, for a key the list lacks.",
+      "context": "False, with the reason inline, for a key the list lacks.",
+      "source_sha256": "626276e23c2db295f407cd7edf1b514a0b8f601e90bc31569dc59e3dbd443d04",
+      "translation": "False mit direkt angezeigter Begründung, wenn der Schlüssel in der Liste fehlt."
+    },
+    {
+      "label": "spacr.curation_queue#1",
+      "source": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
+      "context": "Make Masks is the better editor and the bespoke tool outside the repository is the better workflow, and neither is both. This module is the workflow half, pulled inside spaCR: which fields are waiting, which order to offer them in, how many to offer before the session ends, and what was already decided about each one.",
+      "source_sha256": "f08654017bb002c7e1b24f54ab252e691fae9f380f64007960025997e3dbf7bb",
+      "translation": "Make Masks ist der bessere Editor; das eigens entwickelte Werkzeug außerhalb des Repositorys bietet den besseren Arbeitsablauf. Keines von beiden vereint beides. Dieses Modul integriert den Teil für den Arbeitsablauf in spaCR: welche Bildfelder noch ausstehen, in welcher Reihenfolge sie angeboten werden, wie viele bis zum Ende der Sitzung angeboten werden und was für jedes bereits entschieden wurde."
+    },
+    {
+      "label": "spacr.qt.widgets.volume_view#1",
+      "source": "Pure numpy, no Qt and no matplotlib, so it can be tested on its own.",
+      "context": "Pure numpy, no Qt and no matplotlib, so it can be tested on its own.",
+      "source_sha256": "fb482a462fca3cec43c0bd6b83f2a88a0e8a83d72a562d4844b908ec66fb46ae",
+      "translation": "Reines numpy, ohne Qt und matplotlib, sodass es sich eigenständig testen lässt."
+    },
+    {
+      "label": "spacr.qt.widgets.sample_project#0",
+      "source": "Start a sample project of the kind you have, from the Home screen.",
+      "context": "Start a sample project of the kind you have, from the Home application view.",
+      "source_sha256": "1ffdd049dbae1bb0b8e9ab612eec6d8f62c4a3d5ac31b114620f3bca351224a7",
+      "translation": "Starten Sie über die Home-Ansicht ein Beispielprojekt des passenden Typs."
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.AppScreen.point_src_at#1",
+      "source": "The counterpart of Make Masks' ``_open_folder`` for a module screen: a module does not open a folder, it runs on one. Reaches the widget the same way :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift on where ``src`` lives.",
+      "context": "The counterpart of Make Masks' ``_open_folder`` for a module application view: a module does not open a folder, it executes on one. Reaches the widget the same way :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift on where ``src`` lives.",
+      "source_sha256": "13822cc9f525cd1c975921f35bcdfc3cdc67f73cc24b57cfc2f2d8a628e76212",
+      "translation": "Das Gegenstück zu ``_open_folder`` von Make Masks für eine Modulansicht: Ein Modul öffnet keinen Ordner, sondern arbeitet mit einem Ordner. Es erreicht das Widget auf dieselbe Weise wie :meth:`_put_the_measure_example_in_place`, sodass beide Zugriffswege denselben Speicherort von ``src`` verwenden."
+    },
+    {
+      "label": "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue#1",
+      "source": "The session decides WHICH fields and in WHAT ORDER -- reviewed ones already dropped, ``--limit`` already applied -- and this screen shows them. All three layouts are edited where they lie:",
+      "context": "The session decides WHICH fields and in what order -- reviewed ones already dropped, ``--limit`` already applied -- and this application view shows them. All three layouts are edited where they lie:",
+      "source_sha256": "14d89157828bce9c71a2db6697acc472be994e1468055056a0e7e7a2419fda86",
+      "translation": "Die Sitzung legt fest, WELCHE Bildfelder in WELCHER REIHENFOLGE erscheinen – bereits geprüfte sind ausgeschlossen, ``--limit`` ist bereits angewendet – und diese Ansicht zeigt sie an. Alle drei Anordnungen werden direkt an ihrer jeweiligen Position bearbeitet:"
+    },
+    {
+      "label": "spacr.timeflows_qc#10",
+      "source": "WHAT IT DOES NOT DO",
+      "context": "What it does not do",
+      "source_sha256": "9a9145ac156bce724a68959d47440c091849dd65b0cdf01b74926927193e7778",
+      "translation": "WAS ES NICHT TUT"
+    },
+    {
+      "label": "spacr.qt.screens.app_screen.module_maturity#3",
+      "source": "``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``.",
+      "context": "``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``.",
+      "source_sha256": "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854",
+      "translation": "``\"alpha\"``, ``\"beta\"`` oder ``\"stable\"``."
+    },
+    {
+      "label": "spacr.qt.widgets.fold_strip.FoldButton.set_stage#2",
+      "source": "``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``.",
+      "context": "``\"alpha\"``, ``\"beta\"`` or ``\"stable\"``.",
+      "source_sha256": "7d5468e72b90f9e20d01224a1f9e8d0f945f1f441f006fcee1b4b99a7dc1c854",
+      "translation": "``\"alpha\"``, ``\"beta\"`` oder ``\"stable\"``."
+    },
+    {
+      "label": "spacr.plaque.segment_plaque_image#4",
+      "source": "``diameter``, ``flow_threshold`` and ``CP_prob``.",
+      "context": "``diameter``, ``flow_threshold`` and ``CP_prob``.",
+      "source_sha256": "2fb9fc9640c7040a9ae2f57f4aaf78809c09f02f4d24ec87b21d183eb27b797a",
+      "translation": "``diameter``, ``flow_threshold`` und ``CP_prob``."
+    },
+    {
+      "label": "spacr.qt.resonance.analysis_path_for#4",
+      "source": "a folder to keep the analysis in instead of beside it.",
+      "context": "a folder to keep the analysis in instead of beside it.",
+      "source_sha256": "7250678ece4147aede150937f9f2bbaa4ebd3adad3dffc8b689e09b03173e613",
+      "translation": "Ein Ordner, in dem die Analyse statt neben der Audiodatei gespeichert wird."
+    },
+    {
+      "label": "spacr.timeflows_baseline.aogm_costs#8",
+      "source": "dict of the six operation counts (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and ``aogm_0`` for tracking.",
+      "context": "key-value mapping of the six operation counts (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), the graph sizes (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) and the four costs: ``aogm_d`` and ``aogm_d0`` for detection, ``aogm`` and ``aogm_0`` for tracking.",
+      "source_sha256": "b04d5df75825f235fc203e61205948e2b90ed034ba8d7c17fee9e51cebeaac91",
+      "translation": "Zuordnung mit den Anzahlen der sechs Operationen (``fn``, ``fp``, ``ns``, ``ed``, ``ea``, ``ec``), den Graphengrößen (``n_gt_vertices``, ``n_pred_vertices``, ``n_gt_edges``, ``n_pred_edges``) und den vier Kostenwerten: ``aogm_d`` und ``aogm_d0`` für die Detektion, ``aogm`` und ``aogm_0`` für die Verfolgung."
+    },
+    {
+      "label": "spacr.qt.widgets.preview_scale.scale_qss#3",
+      "source": "keep only the declarations that were scaled, in rules that had any. That is what a preview's own sheet is built from: the sizes of every rule it inherits, re-stated at its scale, and nothing about colour -- so a theme change needs no rebuild of it.",
+      "context": "keep only the declarations that were scaled, in rules that had any. That is what a preview's own sheet is built from: the sizes of every rule it inherits, re-stated at its scale, and nothing about colour -- so a theme change needs no rebuild of it.",
+      "source_sha256": "5f75daf3f9801ea92b76b317c0a6a4603a87bd8248024dd0d815ec30a6ad29fc",
+      "translation": "Nur die skalierten Deklarationen aus Regeln mit solchen Deklarationen beibehalten. Daraus besteht das eigene Stylesheet einer Vorschau: die Größen aller geerbten Regeln, für ihre Skalierung neu angegeben, ohne Farbangaben. Daher muss es bei einem Designwechsel nicht neu erstellt werden."
+    },
+    {
+      "label": "spacr.qt.widgets.dose_response.HormesisCheck#13",
+      "source": "residual degrees of freedom of the hormetic fit, ``n - 5``.",
+      "context": "residual degrees of freedom of the hormetic fit, ``n - 5``.",
+      "source_sha256": "c324ec40938d59bf3e026d3780e2720899b9659047a461dae8cbad8f653e3c54",
+      "translation": "Residualfreiheitsgrade der hormetischen Modellanpassung, ``n - 5``."
+    },
+    {
+      "label": "spacr.qt.model_install.confirm_backend_install#2",
+      "source": "the backend's name, for example ``'SAMCell'``.",
+      "context": "the backend's name, for example ``'SAMCell'``.",
+      "source_sha256": "2844635f65690d061656aa7fdaf40738d51888ed6b31c1fb7d62624babd9d657",
+      "translation": "Name des Backends, z. B. ``'SAMCell'``."
+    },
+    {
+      "label": "spacr.qt.widgets.collapsible_splitter.Pane#5",
+      "source": "the heading's Folder, for a HEADER pane.",
+      "context": "the heading's Folder, for a HEADER pane.",
+      "source_sha256": "801de882a965fa0944b1ccd58157d39906b9819f67a8c337fc675ddd9c45c7d0",
+      "translation": "Das Folder-Steuerelement der Überschrift für einen HEADER-Bereich."
+    },
+    {
+      "label": "spacr.plaque_papers.console_review#2",
+      "source": "the proposals; changed in place.",
+      "context": "the proposals; changed in place.",
+      "source_sha256": "9c8dd03539c92c0848238a35daeaed395e44d5034c25323655df338ae62ffcd0",
+      "translation": "Die Vorschläge; Änderungen erfolgen direkt an den übergebenen Daten."
+    },
+    {
+      "label": "spacr.qt.gui_scale.keep_or_revert_dialog#1",
+      "source": "the window it is centred on.",
+      "context": "the window it is centred on.",
+      "source_sha256": "e6e9d2a97e07d1f010d7aeca762ad5eec593be91972012d4ba1a24fce3e53532",
+      "translation": "Das Fenster, über dem der Dialog zentriert wird."
+    }
+  ]
+}

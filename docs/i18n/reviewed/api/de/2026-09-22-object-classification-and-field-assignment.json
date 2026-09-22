@@ -440,14 +440,18 @@
       "label": "spacr.object_classifier#5",
       "source": "WHAT A HEAD IS. A head is a trained classifier: it is handed a batch of crops and returns a class and a probability for each. It is a protocol rather than a base class, so a torch module, a scikit-learn estimator or a stub in a test are all equally a head. Two are planned -- parasites per vacuole, and what each object is -- and the PV one is three heads in practice, trained on Hoechst, the parasite stain and CellMask separately, so a plate counts from whichever stain it has.",
       "source_sha256": "bb13df85f32d337ace2290ec188394602429aa063d98400ceabd80ce744b033f",
-      "translation": "Was ein Klassifikationskopf ist: ein trainiertes Klassifikationsmodell, das einen Stapel von Bildausschnitten erhält und für jeden eine Klasse und eine Wahrscheinlichkeit zurückgibt. Es handelt sich um ein Protokoll und nicht um eine Basisklasse. Deshalb können ein torch-Modul, ein scikit-learn-Schätzer oder ein Test-Dummy gleichermaßen diese Rolle erfüllen. Zwei Aufgaben sind vorgesehen: die Parasitenzahl pro Vakuole und die Objektart. Für PV sind praktisch drei getrennte Klassifikationsköpfe vorgesehen, trainiert auf Hoechst, der Parasitenfärbung beziehungsweise CellMask, damit mit der jeweils auf der Platte vorhandenen Färbung gezählt werden kann."
+      "translation": "Was ein Klassifikationskopf ist: ein trainiertes Klassifikationsmodell, das einen Stapel von Bildausschnitten erhält und für jeden eine Klasse und eine Wahrscheinlichkeit zurückgibt. Es handelt sich um ein Protokoll und nicht um eine Basisklasse. Deshalb können ein torch-Modul, ein scikit-learn-Schätzer oder ein Test-Dummy gleichermaßen diese Rolle erfüllen. Zwei Aufgaben sind vorgesehen: die Parasitenzahl pro Vakuole und die Objektart. Für PV sind praktisch drei getrennte Klassifikationsköpfe vorgesehen, trainiert auf Hoechst, der Parasitenfärbung beziehungsweise CellMask, damit mit der jeweils auf der Platte vorhandenen Färbung gezählt werden kann.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "What this module decides without a head, because geometry is not a matter of opinion: whether an object touches the image border, and which pairs of labels look like one object the segmenter cut in two. Those are the \"cut\" classes, and the two kinds are told apart because only a segmenter-split object can be merged where it stands, because the other half of a border object is in the next microscope field of view.",
       "label": "spacr.object_classifier#6",
       "source": "WHAT THIS MODULE DECIDES WITHOUT A HEAD, because geometry is not a matter of opinion: whether an object touches the image border, and which pairs of labels look like one object the segmenter cut in two. Those are the \"cut\" classes, and the two kinds are told apart because only a segmenter-split object can be merged where it stands, because the other half of a border object is in the next field.",
       "source_sha256": "13b87365d96535e6f1e93c020369e93eb7fb70eea156341ffedbeb8e2a7bc7ad",
-      "translation": "Was dieses Modul ohne Klassifikationskopf entscheidet, weil es sich geometrisch bestimmen lässt: ob ein Objekt den Bildrand berührt und welche Kennungspaare wie ein einziges, vom Segmentierer zweigeteiltes Objekt aussehen. Dies sind die \"cut\"-Klassen. Die beiden Fälle werden unterschieden, weil nur ein durch Segmentierung aufgeteiltes Objekt an Ort und Stelle zusammengeführt werden kann. Die andere Hälfte eines Randobjekts liegt im nächsten Bildfeld."
+      "translation": "Was dieses Modul ohne Klassifikationskopf entscheidet, weil es sich geometrisch bestimmen lässt: ob ein Objekt den Bildrand berührt und welche Kennungspaare wie ein einziges, vom Segmentierer zweigeteiltes Objekt aussehen. Dies sind die \"cut\"-Klassen. Die beiden Fälle werden unterschieden, weil nur ein durch Segmentierung aufgeteiltes Objekt an Ort und Stelle zusammengeführt werden kann. Die andere Hälfte eines Randobjekts liegt im nächsten Bildfeld.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "Ids are never renumbered. Everything here keys on the label ids the mask arrived with, and every mask it returns keeps them. `canonical_labels` in `mask_engine` says what renumbering costs: the measurements, the extracted image regions and the tracks are all keyed on those ids.",
@@ -482,7 +486,9 @@
       "label": "spacr.object_classifier.bin_parasite_count#3",
       "source": "how many parasites the head counted.",
       "source_sha256": "49134a948e9a69ac96249006bfa64a432e3acb85a137d5fa39999b9378b435b2",
-      "translation": "die vom Klassifikationskopf gezählte Parasitenzahl."
+      "translation": "die vom Klassifikationskopf gezählte Parasitenzahl.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or ``\">16\"``.",
@@ -517,7 +523,9 @@
       "label": "spacr.object_classifier.classify_objects#3",
       "source": "something with ``predict(crops)`` returning a class per crop, or ``(class, probability)`` per crop. None reports geometry only, which is what is useful before a head is trained.",
       "source_sha256": "5c1667fcb52a5ce87a50d76ad516e5ca20fafe0066d7fc1d234c15d3af6bb10d",
-      "translation": "ein Objekt mit ``predict(crops)``, das pro Bildausschnitt eine Klasse oder ``(class, probability)`` zurückgibt. None liefert ausschließlich geometrische Angaben, was bereits vor dem Training eines Klassifikationskopfs nützlich ist."
+      "translation": "ein Objekt mit ``predict(crops)``, das pro Bildausschnitt eine Klasse oder ``(class, probability)`` zurückgibt. None liefert ausschließlich geometrische Angaben, was bereits vor dem Training eines Klassifikationskopfs nützlich ist.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "which image layers the head sees, in order. Defaults to every image layer the image has.",
@@ -559,7 +567,9 @@
       "label": "spacr.object_classifier.classify_objects#9",
       "source": "merge pairs :func:`split_candidates` finds. Acts on segmenter-split objects only -- an object cut by the field's edge has its other half in the next field and is left alone.",
       "source_sha256": "ffc3dc38394a964a91d3ae5361b315a8fced1b7ff2ca0f0ff5e0504a28928d1b",
-      "translation": "die von :func:`split_candidates` gefundenen Paare zusammenführen. Dies betrifft ausschließlich durch Segmentierung aufgeteilte Objekte. Ein vom Bildfeldrand angeschnittenes Objekt bleibt unverändert, weil seine andere Hälfte im nächsten Bildfeld liegt."
+      "translation": "die von :func:`split_candidates` gefundenen Paare zusammenführen. Dies betrifft ausschließlich durch Segmentierung aufgeteilte Objekte. Ein vom Bildfeldrand angeschnittenes Objekt bleibt unverändert, weil seine andere Hälfte im nächsten Bildfeld liegt.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "which class name means \"not a real object\", for ``remove_artifacts``. A parameter rather than a constant because a head trained on somebody else's labels may spell it differently, and a removal that silently matches nothing is worse than one that cannot be configured.",
@@ -573,7 +583,9 @@
       "label": "spacr.object_classifier.classify_objects#11",
       "source": "``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` is the mask as it stands after the options asked for; with none of them it is the mask passed in.",
       "source_sha256": "5a8d3ff4074b24a813b65570c7651770b635dbfb0f22b1f4818e506e3f4c7f02",
-      "translation": "``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` enthält die Maske nach Anwendung der angeforderten Optionen; ohne solche Optionen ist es die übergebene Maske."
+      "translation": "``{\"objects\": rows, \"mask\": mask, \"merged\": pairs, \"removed\": ids}``. ``mask`` enthält die Maske nach Anwendung der angeforderten Optionen; ohne solche Optionen ist es die übergebene Maske.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "What can be said about every object without a trained head at all.",
@@ -720,7 +732,9 @@
       "label": "spacr.object_classifier.split_candidates#1",
       "source": "THE RULE, and it is deliberately conservative: two labels are a candidate when they touch, and the boundary they share is at least ``share`` of the smaller one's perimeter. A cell lying against another cell shares a little of its edge; a cell the segmenter cut down the middle shares most of it.",
       "source_sha256": "ca5785ac0717472dbfcaeb659f83dd4c87fc66cf07e07144bd9646c374492c1c",
-      "translation": "Die Regel ist bewusst konservativ: Zwei Objektkennungen gelten als Kandidaten, wenn sich ihre Flächen berühren und die gemeinsame Grenze mindestens den Anteil ``share`` des Umfangs des kleineren Objekts ausmacht. Eine an eine andere Zelle angrenzende Zelle teilt nur einen kleinen Teil ihres Randes; bei einer vom Segmentierer mittig geteilten Zelle ist es ein großer Teil."
+      "translation": "Die Regel ist bewusst konservativ: Zwei Objektkennungen gelten als Kandidaten, wenn sich ihre Flächen berühren und die gemeinsame Grenze mindestens den Anteil ``share`` des Umfangs des kleineren Objekts ausmacht. Eine an eine andere Zelle angrenzende Zelle teilt nur einen kleinen Teil ihres Randes; bei einer vom Segmentierer mittig geteilten Zelle ist es ein großer Teil.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "This finds candidates. It does not merge them -- :func:`merge_halves` does, and only when asked, because a wrong merge destroys two objects to make one.",
@@ -741,7 +755,9 @@
       "label": "spacr.object_classifier.split_candidates#4",
       "source": "the fraction of the smaller object's perimeter that must be shared. 0.25 was chosen as the default and is measured in the tests rather than argued for here.",
       "source_sha256": "d7734b2dfd0dd8f5c2a75d0635146d09bd449793a6bac1e3e02c7794066fac10",
-      "translation": "der gemeinsam verlaufende Mindestanteil am Umfang des kleineren Objekts. 0.25 wurde als Vorgabe gewählt und wird in den Tests gemessen, statt hier begründet zu werden."
+      "translation": "der gemeinsam verlaufende Mindestanteil am Umfang des kleineren Objekts. 0.25 wurde als Vorgabe gewählt und wird in den Tests gemessen, statt hier begründet zu werden.",
+      "retired": "2026-09-22",
+      "retired_reason": "Object-classifier implementation and documentation changed: count regression, explicit validation, merge exclusions and returned evidence. Replaced by current source-bound translations in 2026-09-22-object-classifier-current-contract.json."
     },
     {
       "context": "pairs ``(low id, high id)``, each pair once.",

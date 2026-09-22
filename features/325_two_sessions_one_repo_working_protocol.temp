@@ -10534,3 +10534,35 @@ in386s; the new CPU-detector source will get its own build. The20 sampled
 German drafts have been manually corrected and all21 resulting symbol/block
 bindings pass the canonical/context gates; they remain private until the full
 catalog repair can use them without publishing English fallback paragraphs.
+
+2026-09-22 — CODEX: PUSHED c5a4f71ea / FULL API REPAIR CONTINUES
+Pushed after rebase over bea1283bd. Landed batches:
+ a9aaddd0c —26 missing reviewed UI rows and German ComBat literal repair;
+ b1e1dfd06 —three object helpers/27 translations,17 parameter doc repairs,
+             exact inventory evidence and full-catalog browser acceptance test;
+ 54413527e —incoming14 APIs, helper Help search, corrected inversion prose;
+ 21eaee328 —96 missing plaque captions,108 reviews and model-label corrections;
+ c5a4f71ea —incoming11 CPU-detector APIs and four more parameter doc repairs.
+Current English manifest11328; no new required-parameter debt was admitted.
+All142 source-contract checks pass at the latest API boundary;49 real Help
+search checks and eight runtime/plaque checks pass at their recorded sources.
+Three full Sphinx snapshots passed, the last in386s before the CPU additions;
+a final current-source build follows. The nine real-catalog language-switch
+checks and complete translation audits are still red on the global backlog.
+Tutorial recordings/translations/media acceptance and remaining helper slices
+are still owed. No GPU jobs. The20 German draft blocks are corrected and being
+added as21 source-bound review records; whole-catalog reconstruction remains
+pending, without English fallback materialization or relaxed freshness gates.
+
+2026-09-22 — CODEX: CURRENT BUILD PASSES / REVIEW BINDINGS REPAIRED
+The c5a4f71ea full Sphinx -W -E build passed in 368.74s. The actual built
+site contains each of the three enabled helper anchors exactly once (1 test,
+8.30s). Full-catalog language-switch acceptance is still owed.
+Preserved eight outdated German object-classifier reviews with retirement
+reasons and added 18 current-contract translations. Added the 21 corrected
+sample records covering 20 unique blocks. All nine complete review sets now
+pass source/hash/context/target/conflict validation (German 1097 unique blocks).
+No source or runtime behavior changed. These are rebuild inputs, not a claim
+that the full translated catalogs have been published. A full German catalog
+reconstruction is running on CPU in the owned integration checkout at
+c5a4f71ea, using a private cache and draft output; no GPU or shared-cache write.
