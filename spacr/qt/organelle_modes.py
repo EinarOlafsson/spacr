@@ -83,8 +83,14 @@ class MethodParams(NamedTuple):
     :param adaptive_block: the local threshold's window, in pixels, forced
         odd by the engine. Read by ``adaptive`` and by ``ridge`` when its
         threshold is adaptive.
-    :param adaptive_offset: subtracted from the local mean before the
-        comparison; raise it to take fewer background pixels.
+    :param adaptive_offset: subtracted from the Gaussian-weighted local
+        mean before the bright-foreground comparison. Increasing it lowers
+        the threshold and admits more pixels before cleanup; a negative
+        offset raises the threshold. Units are those of the processed
+        detector image: smoothed image intensity for ``adaptive``, ridge
+        response for ``ridge`` with an adaptive threshold. Default 5.0;
+        an offset suitable for raw intensities can overwhelm a response
+        whose values lie between 0 and 1.
     :param morph_radius: the cleanup disk, in pixels. ``adaptive`` also
         pre-smooths with half of it; the network branches close with half.
     :param fill_holes: holes up to this area, in square pixels, are filled.

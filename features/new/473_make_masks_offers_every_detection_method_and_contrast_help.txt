@@ -563,3 +563,46 @@ WHAT IS LEFT
 * The nine translation catalogs are still not regenerated; the list in
   tests/qt/test_make_masks_settings_explain_themselves.py::
   _awaiting_translation has grown with the new category's captions.
+
+2026-09-22 — LOCAL THRESHOLD HELP NOW MATCHES THE DETECTORS
+--------------------------------------------------------------------------------
+The API lane correctly flagged wrong source explanations. Corrected the
+Sauvola/Niblack guidance, CpuParams.local_k and engine docstrings, the Local k
+and Threshold correction tooltips, and MethodParams/adaptive Offset help.
+No detector implementation, parameter default or saved-setting key changed.
+
+Niblack is T=m-k*s; increasing k lowers the threshold, admitting more bright
+pixels and fewer dark pixels. The earlier claim that negative k keeps more
+bright pixels was reversed. Sauvola is T=m*(1+k*(s/R-1)), a different formula.
+The engine passes float32 without range rescaling, so scikit-image uses R=1.
+Its direction depends on m and s/R; a constant positive window with k=0.2
+has T=0.8*m and can be entirely foreground. No claim that blank windows are
+automatically rejected remains in these help strings.
+
+Adaptive offset is subtracted from a Gaussian-weighted local mean. Raising
+it lowers the threshold and admits more foreground before cleanup; the old
+help again said the opposite. Its units are those of the processed image:
+smoothed intensity in Adaptive, ridge response in Ridge/adaptive. A value
+suited to raw intensity can overwhelm a normalized ridge response.
+
+The correction-factor help now distinguishes global/local Otsu correction
+from Sauvola/Niblack's direct level multiplication and mentions Multi-Otsu's
+moving class boundaries. This documents current behavior rather than silently
+changing an existing workflow while the API lane documents it.
+
+90 distinct focused checks pass (72 detector/numerical, 18 settings-help),
+including nine new numerical cases. Examples on a seeded31x31 float field:
+Niblack k=-0.2 ->0.2 changes bright foreground428 ->538 pixels and dark
+foreground533 ->423. A positive constant Sauvola field is entirely foreground
+at k=0.2 and empty at k=0. Increasing Sauvola k lowers the local thresholds on
+the 0.2-to-0.8 field but raises them after100x intensity scaling. Real adaptive
+organelle segmentation verifies offset polarity. No GPU was used.
+The already translated Method tooltip was removed from the translation-debt
+list; only the new correction tooltip was added to that existing explicit
+list. The settings-help coverage and debt-removal guards both pass.
+
+Evidence, all five replacement runtime sources and SHA-256s, and primary
+references are in features/data/473_local_threshold_guidance_2026-09-22.json.
+Installed scikit-image0.23.2 source was checked against its official formulas.
+API/runtime translation reconciliation is handed to the other Codex session;
+473 remains OPEN for that work and its other previously recorded acceptance.

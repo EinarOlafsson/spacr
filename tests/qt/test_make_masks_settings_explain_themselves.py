@@ -202,11 +202,13 @@ def _awaiting_translation(screen) -> set:
     Owed since 2026-09-22 by item 473 (Make Masks offers every detection
     method): the Detection method category's own rows -- the Method box,
     the organelle methods' parameters, the propagation's, the local k --
-    and the Image enhancement card. An earlier version of the Mode box's
-    tooltip was owed too and the lane did it; the fold rewrote it, so it
-    is owed again, which is the loop working in both directions.
+    and the Image enhancement card. The threshold-correction tooltip was
+    corrected on 2026-09-22 to explain the local bright/dark distinction;
+    that replacement source is also owed. The Method box's tooltip is now
+    translated in all nine languages and is no longer excluded here.
     """
-    widgets = [screen._mag_mode, screen._otsu_local_k, screen._btn_otsu]
+    widgets = [screen._otsu_local_k, screen._otsu_correction,
+               screen._btn_otsu]
     widgets += list(getattr(screen, "_method_widgets", {}).values())
     widgets += list(getattr(screen, "_propagate_widgets", {}).values())
     for name in ("_enh_background", "_enh_background_radius",

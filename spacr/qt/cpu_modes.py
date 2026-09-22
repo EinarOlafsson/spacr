@@ -30,9 +30,11 @@ not offered again: they are the Adaptive threshold mode, which runs the
 organelle engine's ``adaptive`` branch with a block size and an offset.
 Local OTSU is not offered again either: it is the "Local threshold (uneven
 illumination)" switch, which every global algorithm on this list can be
-combined with. Sauvola and Niblack ARE here, because their level is the
-window's mean MINUS a multiple of its standard deviation, which neither of
-those two computes.
+combined with. Niblack uses ``T = m - k*s``; Sauvola uses
+``T = m*(1 + k*(s/R - 1))``, where ``m`` and ``s`` are the local mean and
+standard deviation. The engine supplies float32 values without rescaling
+their range, so scikit-image's default Sauvola ``R`` is 1. These formulas
+are different, and changing the intensity scale can change Sauvola's result.
 """
 from __future__ import annotations
 
@@ -108,14 +110,19 @@ GUIDANCE: Dict[str, str] = {
                  "level between all of them is a compromise that fits "
                  "none. Set the class count and which class is the "
                  "foreground.",
-    "sauvola": "Suits uneven illumination and faint detail: the level at "
-               "each pixel is its window's mean adjusted by the window's "
-               "own standard deviation, so a flat empty window keeps "
-               "nothing and a textured one keeps its bright part.",
-    "niblack": "Suits the same uneven fields as Sauvola and is more "
-               "willing: mean minus k times the deviation, with no "
-               "normalisation, so it finds fainter objects and more "
-               "background with them.",
+    "sauvola": "Suits uneven illumination when local contrast separates "
+               "objects: the mean is "
+               "weighted by local contrast. Check the image intensity "
+               "scale: this detector uses R=1 without rescaling its float "
+               "input. A constant positive window can become foreground "
+               "with bright objects and positive k; blank areas are not "
+               "automatically rejected.",
+    "niblack": "Suits uneven illumination when local intensity statistics "
+               "separate objects, using the "
+               "window's mean minus k times its standard deviation. "
+               "Increasing k lowers the threshold and keeps more bright "
+               "pixels, including background; negative k raises it. "
+               "For dark objects the direction of pixel inclusion reverses.",
     PROPAGATE: "Suits touching round objects with a bright centre -- "
                "nuclei, vacuoles, colonies. Each centre becomes one "
                "object, and two that touch come apart at the ridge "
@@ -130,9 +137,13 @@ class CpuParams(NamedTuple):
     is one: it rides on the magnifier's request key, and a
     mode that falls back to another must still find its own settings in it.
 
-    :param local_k: Sauvola's and Niblack's ``k`` -- how much of a window's
-        standard deviation comes off its mean. Sauvola's usual 0.2 keeps
-        less; Niblack's usual -0.2 keeps more.
+    :param local_k: dimensionless local contrast weight; default 0.2 for
+        both modes. Niblack uses ``T = m - k*s``: increasing k lowers the
+        threshold, admitting more bright pixels and fewer dark pixels.
+        Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats
+        without range rescaling, giving scikit-image's default ``R = 1``.
+        Its response to k depends on the local mean m and deviation s;
+        positive k does not guarantee rejection of a flat background.
     :param propagate_sigma: the Gaussian blur before the maxima are found,
         in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,
         which has already run by the time a detector sees the image: this

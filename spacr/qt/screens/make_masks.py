@@ -8399,11 +8399,13 @@ class MakeMasksScreen(QWidget):
         self._otsu_correction.setSingleStep(0.05)
         self._otsu_correction.setValue(1.0)
         self._otsu_correction.setToolTip(
-            "A threshold correction factor: Otsu's level is multiplied by it "
-            "before it is used. Above 1 is stricter, so objects shrink and "
-            "faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's "
-            "own level. Otsu detect uses it, and so does the Live magnifier's "
-            "Otsu mode wherever a region holds two clear populations.")
+            "Threshold factor (default 1; range 0.1 to 5), applied before "
+            "foreground selection. For positive global thresholds and local "
+            "Otsu, increasing it keeps fewer bright or dark pixels. Sauvola "
+            "and Niblack multiply their direct local levels: at positive "
+            "levels, increasing it keeps fewer bright but more dark pixels; "
+            "negative levels reverse that direction. Multi-Otsu shifts class "
+            "boundaries, so a selected middle band can gain and lose pixels.")
         form.addRow("Threshold correction", self._otsu_correction)
 
         self._otsu_smoothing = QDoubleSpinBox()
@@ -8503,11 +8505,13 @@ class MakeMasksScreen(QWidget):
         self._otsu_local_k.setSingleStep(0.05)
         self._otsu_local_k.setValue(0.2)
         self._otsu_local_k.setToolTip(
-            "How much of a window's own standard deviation comes off its "
-            "mean, for Sauvola and Niblack. Sauvola's usual 0.2 keeps "
-            "less and is the safer default; Niblack has no normalisation "
-            "and is usually given a NEGATIVE k, around -0.2, which keeps "
-            "more. Raise it to take fewer background pixels.")
+            "Dimensionless local contrast weight (default 0.2; range -2 to 2). "
+            "Niblack uses T=m-k*s: increasing k lowers the threshold and keeps "
+            "more bright pixels, fewer dark pixels. Sauvola uses "
+            "T=m*(1+k*(s/R-1)), where m is the local mean and s its standard "
+            "deviation. Here R=1 because the detector receives floats without "
+            "range rescaling; its response to k depends on m and s/R. "
+            "Check the preview after changing intensity scale.")
         self._otsu_local_k_label = QLabel("Local k")
         more.addRow(self._otsu_local_k_label, self._otsu_local_k)
         card.body_layout.addLayout(more)
@@ -8607,9 +8611,12 @@ class MakeMasksScreen(QWidget):
         offset.setSingleStep(1.0)
         offset.setValue(5.0)
         row("adaptive_offset", "Offset", offset,
-            "Subtracted from the local level before the comparison, in the "
-            "image's own intensity units. Raise it to take fewer background "
-            "pixels, lower it to keep dimmer edges.")
+            "Subtracted from the Gaussian-weighted local mean (default 5). "
+            "Increasing the offset lowers the threshold and keeps more "
+            "foreground pixels before cleanup; a negative offset is stricter. "
+            "Units follow the processed image: smoothed intensity for Adaptive "
+            "threshold, ridge response for Ridge filter with an adaptive "
+            "threshold. A raw-intensity offset can overwhelm a 0-to-1 response.")
 
         morph = QSpinBox()
         morph.setRange(0, 50)

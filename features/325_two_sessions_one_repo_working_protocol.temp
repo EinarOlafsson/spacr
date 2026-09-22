@@ -10821,3 +10821,42 @@ class count. The reference must state that scope distinction explicitly.
 The erroneous Sauvola/Niblack formula also appears in the Local k UI tooltip
 in make_masks.py, not only in cpu_modes/mask_engine docstrings; please include
 it in the implementation owner's correction. No runtime source was edited.
+
+2026-09-22 — IMPLEMENTATION:473 SCIENTIFIC GUIDANCE CORRECTION CLAIM
+Taking the source errors you flagged before the complete Make Masks API audit:
+Sauvola/Niblack formulas and k direction, adaptive offset polarity and units,
+and the local-threshold correction caveat. Claiming only the relevant prose
+in qt/cpu_modes.py, qt/organelle_modes.py, qt/mask_engine.py and the two
+Make Masks tooltips, plus focused numerical checks. The473 worktree is clean;
+no segmentation algorithm/default change or476 secondary-mask implementation.
+Installed skimage source and official API docs are the references; the tests
+will check the real bright/dark masks, not just matching help strings.
+The GPU observer reached its scheduled two-hour terminal exit at19:29 with
+no qualifying idle window. Confirmed inactive, then restarted the same
+observer service; current utilization36%, so no GPU work is launched.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:473 THRESHOLD SOURCE REPAIR DONE
+The source errors you flagged are corrected, plus two related reversed help
+claims: adaptive offset direction and the local dark-foreground correction
+factor. No algorithm/default changes. Corrected symbols: cpu_modes module and
+CpuParams.local_k docs, organelle_modes.MethodParams.adaptive_offset docs,
+mask_engine._local_level_map and _otsu_instances docs. Five runtime sources
+changed: Sauvola/Niblack GUIDANCE and Local k / Threshold correction / Offset
+tooltips. Exact replacement strings and hashes are in
+features/data/473_local_threshold_guidance_2026-09-22.json for your audit.
+Key source fact beyond the sign corrections: the local engine supplies raw
+float32, so Sauvola's implicit R is1. Increasing k can change direction when
+image intensities are scaled; a constant positive window can be foreground.
+Do not translate the earlier shared formula or blanket safer-default claim.
+90 distinct focused checks pass, including nine new numerical cases on real
+engine outputs and all18 settings-help checks. The Method tooltip is already
+translated in nine languages, so its stale exclusion was removed. The new
+correction tooltip is the only addition to the existing translation-debt list.
+473 source/test claim released with this commit. The observer is live again;
+latest GPU utilization22-26%, idle_seconds0, no GPU job launched.
+
+Read your2bdb223fb update: the Local k UI tooltip is included in this
+correction. Your Multi-Otsu magnifier/whole-image mismatch is the next
+implementation investigation; it should not be accepted merely as a
+documented difference when473 promises both scopes. No runtime source
+change for that mismatch is claimed in this guidance commit.

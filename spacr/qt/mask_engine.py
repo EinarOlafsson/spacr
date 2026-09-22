@@ -1802,10 +1802,12 @@ def _local_level_map(values: np.ndarray, algorithm: str, *, window: int,
                      k: float) -> np.ndarray:
     """A per-pixel threshold for ``values`` from a local algorithm.
 
-    Sauvola and Niblack both compare a pixel with the mean AND the standard
-    deviation of its window, which is what lets them keep faint text-like
-    or filament-like detail that a local mean washes out; ``k`` is how much
-    of the deviation counts.
+    Niblack uses ``T = m - k*s`` and Sauvola uses
+    ``T = m*(1 + k*(s/R - 1))``, with local mean m and deviation s.
+    Values from :func:`_otsu_values` are float32 without range rescaling;
+    scikit-image therefore defaults Sauvola's R to 1, not to the observed
+    intensity range. Sauvola can consequently behave differently when the
+    same image is multiplied by an intensity scale factor.
 
     :param values: the smoothed float image.
     :param algorithm: a key of :data:`LOCAL_THRESHOLDS`.
@@ -2005,9 +2007,12 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
 
     The "threshold correction", which is CellProfiler's threshold
     correction factor: the level Otsu finds is multiplied before it is used.
-    Above 1 is stricter and below 1 takes in dimmer pixels, on either side --
-    for dark objects the level is measured on the inverted image, the way a
-    dark-object threshold is, so a correction reads the same way for both.
+    For positive global thresholds and local Otsu, above 1 is stricter on
+    either side: dark-object correction uses the distance below the image
+    maximum (255 after rescaling for local Otsu).
+    Sauvola and Niblack instead multiply their direct local level maps;
+    for positive thresholds, raising the factor keeps fewer bright pixels
+    but more dark pixels. Negative thresholds reverse those directions.
 
     A correction of exactly 1 with every switch below off IS
     :func:`otsu_instances`, looked up by name at call time, so the
@@ -2056,8 +2061,13 @@ def _otsu_instances(image: np.ndarray, *, bright: bool = True,
     :param algorithm: which algorithm finds the level -- one of
         :data:`GLOBAL_THRESHOLDS` or :data:`LOCAL_THRESHOLDS`. ``otsu``,
         the default, is what this function did before there were others.
-    :param local_k: Sauvola's and Niblack's ``k``: how much of the window's
-        standard deviation is taken off its mean.
+    :param local_k: dimensionless local contrast weight, default 0.2.
+        Niblack uses ``T = m - k*s``; Sauvola uses
+        ``T = m*(1 + k*(s/R - 1))``, with local mean m, standard deviation
+        s and scikit-image's float-input default R=1. Increasing k lowers
+        Niblack's threshold; Sauvola's direction depends on m and s/R.
+        Bright foreground is strictly above the corrected level and dark
+        foreground strictly below it. No automatic intensity rescaling.
     :raises ValueError: on an empty image, a correction that is not greater
         than 0, fewer than two classes, a foreground class outside them, a
         window under 3 px, or ``local`` asked for together with more than
