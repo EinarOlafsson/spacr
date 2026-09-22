@@ -404,10 +404,12 @@ class Pane:
     :param focus: showing it also opens it (a live preview the user folded
         opens again when it is switched back on).
     :param fold_key: stores an EDGE pane's collapse across restarts.
+    :param hint: what dragging this EDGE pane's handle does, in English; it
+        replaces the generic "or drag to resize it" in the handle's tooltip.
     """
 
     def __init__(self, widget, name, mode, folder, stretch, extent, minimum,
-                 focus, fold_key):
+                 focus, fold_key, hint=""):
         """Hold the pane's description; see the class for each field."""
         self.widget = widget
         self.name = str(name)
@@ -418,6 +420,7 @@ class Pane:
         self.minimum = minimum
         self.focus = bool(focus)
         self.fold_key = str(fold_key or "")
+        self.hint = str(hint or "")
         self.edge_collapsed = False
 
     def is_collapsed(self) -> bool:
@@ -458,7 +461,12 @@ class _PaneHandle(QSplitterHandle):
             self.setToolTip("")
             return
         name = tr(pane.name, language)
-        if pane.is_collapsed():
+        if pane.hint:
+            action = (tr("Click to show {name} again.", language, name=name)
+                      if pane.is_collapsed() else
+                      tr("Click to hide {name}.", language, name=name))
+            self.setToolTip(f"{action} {tr(pane.hint, language)}")
+        elif pane.is_collapsed():
             self.setToolTip(tr("Click to show {name} again, or drag to "
                                "resize it.", language, name=name))
         else:
@@ -611,7 +619,7 @@ class CollapsibleSplitter(QSplitter):
                  mode: Optional[str] = None, stretch: int = 1,
                  extent: int = 0, minimum: Optional[int] = None,
                  focus: bool = False, fold_key: str = "",
-                 index: Optional[int] = None) -> Pane:
+                 index: Optional[int] = None, hint: str = "") -> Pane:
         """Register ``widget`` as the pane ``name``, adding it if need be.
 
         :param widget: the pane. Added at ``index`` (or the end) unless it is
@@ -625,6 +633,7 @@ class CollapsibleSplitter(QSplitter):
         :param minimum: its minimum while open; ``None`` keeps the widget's.
         :param focus: showing the widget also opens the pane.
         :param fold_key: remembers an EDGE pane's collapse across restarts.
+        :param hint: what dragging the pane's handle does, for its tooltip.
         :returns: the :class:`Pane`.
         """
         if self.indexOf(widget) < 0:
@@ -641,7 +650,7 @@ class CollapsibleSplitter(QSplitter):
             minimum = self._along(widget.minimumSize())
         pane = Pane(widget, name, mode, folder, stretch,
                     self._stored.get(str(name), extent), minimum, focus,
-                    fold_key)
+                    fold_key, hint)
         self._panes.append(pane)
         self.setStretchFactor(self.indexOf(widget), max(0, int(stretch)))
         widget.installEventFilter(self)
@@ -939,9 +948,15 @@ class CollapsibleSplitter(QSplitter):
         QTimer.singleShot(0, self._run_queued_rebalance)
 
     def _run_queued_rebalance(self) -> None:
-        """The queued rebalance."""
+        """The queued rebalance.
+
+        Skipped for a splitter that has never been shown: it has no real
+        size yet, so sharing it out would squeeze every fixed pane down to
+        its minimum and a later resize would hand the growth to the others.
+        The first show lays everything out from the remembered sizes anyway.
+        """
         self._rebalance_queued = False
-        if not _alive(self):
+        if not _alive(self) or not self._laid_out:
             return
         first = bool(getattr(self, "_first_layout", False))
         self._first_layout = False

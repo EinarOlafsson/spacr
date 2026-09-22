@@ -214,3 +214,17 @@ def test_fold_card_folds_a_titled_card_and_leaves_an_untitled_one(qapp):
     assert cs.fold_card(Card()) is None
     already = Card(title="QC", foldable=True)
     assert cs.fold_card(already) is already.folder
+
+
+@pytest.mark.qt
+def test_an_edge_pane_hint_says_what_its_drag_does(qapp):
+    split = cs.CollapsibleSplitter(Qt.Horizontal)
+    split.add_pane(QWidget(), "Chart")
+    split.add_pane(QWidget(), "Sidebar", mode=cs.EDGE,
+                   hint="The points do not move.")
+    handle = split.handle(1)
+    handle.retranslate_dynamic_content()
+    assert handle.toolTip() == "Click to hide Sidebar. The points do not move."
+    split.set_collapsed("Sidebar", True)
+    handle.retranslate_dynamic_content()
+    assert handle.toolTip().startswith("Click to show Sidebar again.")

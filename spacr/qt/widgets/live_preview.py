@@ -58,7 +58,7 @@ from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
     QGraphicsScene, QGraphicsView, QHBoxLayout, QLabel, QPushButton,
-    QHeaderView, QSizePolicy, QSpinBox, QSplitter, QTableWidget,
+    QHeaderView, QSizePolicy, QSpinBox, QTableWidget,
     QTableWidgetItem,
     QVBoxLayout, QWidget,
 )
@@ -1466,6 +1466,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         diverging.
     """
 
+    #: Where this preview's section folds and sizes are remembered
+    #: (item 471): folds under ``"<key>/<section>"``, sizes under
+    #: ``"<key>::sections"``.
+    SECTION_KEY = "live_preview"
+
     preview_ready = Signal(object)
 
     PREVIEW_SOURCE_HINT = "Load an image first."
@@ -1916,22 +1921,27 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         canvas.addWidget(self._mask_view, 1)
         canvas_host = QWidget(self)
         canvas_host.setLayout(canvas)
-        self._table_split = QSplitter(Qt.Vertical, self)
+        from .collapsible_splitter import CollapsibleSplitter
+        self._table_split = CollapsibleSplitter(
+            Qt.Vertical, self, persist_key=f"{self.SECTION_KEY}::sections")
         self._table_split.setObjectName('PreviewTableSplit')
-        self._table_split.setChildrenCollapsible(False)
-        self._table_split.setHandleWidth(1)
-        self._table_split.addWidget(self._set_table)
-        self._table_split.addWidget(canvas_host)
-        self._table_split.setStretchFactor(0, 0)
-        self._table_split.setStretchFactor(1, 1)
-        self._table_split.setSizes([170, 600])
-        root.addWidget(self._table_split, 1)
+        self._sections = {}
+        self._sections["Image sets"] = self._table_split.add_section(
+            self._set_table, "Image sets", stretch=0, extent=170,
+            persist_key=f"{self.SECTION_KEY}/Image sets")
+        self._sections["Images"] = self._table_split.add_section(
+            canvas_host, "Images", stretch=1, extent=600,
+            persist_key=f"{self.SECTION_KEY}/Images")
 
+        info = QWidget(self)
+        info_col = QVBoxLayout(info)
+        info_col.setContentsMargins(0, 0, 0, 0)
+        info_col.setSpacing(2)
         self._hover_label = QLabel("Hover over the image to inspect pixels.",
                                      self)
         self._hover_label.setStyleSheet("color: #ffffff; "
                                             "font-family: monospace;")
-        root.addWidget(self._hover_label)
+        info_col.addWidget(self._hover_label)
 
         from PySide6.QtWidgets import QSlider
         self._history: list = []
@@ -1948,7 +1958,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._compare_label.setStyleSheet("color: #ffffff; font-family: monospace;")
         comp.addWidget(self._compare_label)
         self._compare_row.setVisible(False)
-        root.addWidget(self._compare_row)
+        info_col.addWidget(self._compare_row)
+        self._sections["Pixel info"] = self._table_split.add_section(
+            info, "Pixel info", stretch=0,
+            persist_key=f"{self.SECTION_KEY}/Pixel info")
+        root.addWidget(self._table_split, 1)
 
         self._live_settings_dialog: Optional["LiveSettingsDialog"] = None
         self._on_model_or_object_changed()

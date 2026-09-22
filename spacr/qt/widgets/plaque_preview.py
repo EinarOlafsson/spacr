@@ -1834,6 +1834,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     PREVIEW_SOURCE_HINT = "Choose a source folder with images first."
 
+    #: Where this preview's section folds and sizes are remembered (item
+    #: 471): the pictures and the wells/plaques tables fold by their
+    #: headings and trade height by their edge; the well picture beside the
+    #: image collapses to the right by its handle.
+    SECTION_KEY = "plaque_preview"
+
     mode_changed = Signal(str)
     preview_ready = Signal(dict)
 
@@ -2060,7 +2066,11 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._status.setWordWrap(True)
         outer.addWidget(self._status)
 
-        pictures = QHBoxLayout()
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        key = self.SECTION_KEY
+        pictures = CollapsibleSplitter(Qt.Horizontal, self,
+                                       persist_key=f"{key}::pictures")
+        self._pictures_split = pictures
         self._view = _ImageView(self)
         self._view.setCursor(Qt.PointingHandCursor)
         self._view.clicked.connect(self._on_figure_clicked)
@@ -2085,7 +2095,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._image_tabs.addTab(view, tr(title))
             self._image_tabs.setTabToolTip(index, tips[index])
             view.context_requested.connect(self._on_view_context)
-        pictures.addWidget(self._image_tabs, 3)
+        self._sections = {}
+        pictures.add_pane(self._image_tabs, "Image", stretch=3)
         self._well_side = QWidget(self)
         side = QVBoxLayout(self._well_side)
         side.setContentsMargins(0, 0, 0, 0)
@@ -2097,8 +2108,12 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._well_view.setObjectName("PlaqueWellImage")
         self._well_view.context_requested.connect(self._on_view_context)
         side.addWidget(self._well_view, 1)
-        pictures.addWidget(self._well_side, 2)
-        outer.addLayout(pictures, 3)
+        pictures.add_pane(self._well_side, "Well", mode=EDGE, stretch=2,
+                          fold_key=f"{key}/Well")
+        picture_host = QWidget(self)
+        picture_col = QVBoxLayout(picture_host)
+        picture_col.setContentsMargins(0, 0, 0, 0)
+        picture_col.addWidget(pictures, 1)
 
         self._legend_box = QFrame(self)
         self._legend_box.setObjectName("PlaqueLegendPrompt")
@@ -2121,7 +2136,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         legend_buttons.addWidget(self._legend_skip)
         legend_buttons.addStretch(1)
         legend.addLayout(legend_buttons)
-        outer.addWidget(self._legend_box)
+        picture_col.addWidget(self._legend_box)
 
         self._confirm_note = QLabel(tr(
             "Confirm annotations is on: the run measures ONLY the images "
@@ -2130,7 +2145,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._confirm_note.setObjectName("PlaqueConfirmNotice")
         self._confirm_note.setWordWrap(True)
         self._confirm_note.setStyleSheet("font-weight: 600;")
-        outer.addWidget(self._confirm_note)
+        picture_col.addWidget(self._confirm_note)
 
         self._table = QTableWidget(0, len(TABLE_COLUMNS), self)
         self._table.setObjectName("PlaqueAnnotationTable")
@@ -2161,7 +2176,16 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._tabs.addTab(self._table, tr("Wells"))
         self._tabs.addTab(self._plaque_table, tr("Plaques"))
         self._tabs.setMinimumHeight(200)
-        outer.addWidget(self._tabs, 2)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key=f"{key}::sections")
+        self._section_split = split
+        self._sections["Pictures"] = split.add_section(
+            picture_host, "Pictures", stretch=3,
+            persist_key=f"{key}/Pictures")
+        self._sections["Wells and plaques"] = split.add_section(
+            self._tabs, "Wells and plaques", stretch=2,
+            persist_key=f"{key}/Wells and plaques")
+        outer.addWidget(split, 5)
 
         save_row = QHBoxLayout()
         self._save_btn = QPushButton(tr("Save annotations"))

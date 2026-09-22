@@ -25,7 +25,6 @@ from PySide6.QtWidgets import (
     QLabel,
     QPlainTextEdit,
     QPushButton,
-    QSplitter,
     QVBoxLayout,
     QWidget,
 )
@@ -150,6 +149,10 @@ class AnnotationUmapTab(QWidget):
     #: rather than the screen.
     MINIMUM_SEPARATION = 0.0
 
+    #: Where the plot, table and report folds and sizes are remembered
+    #: (item 471).
+    SECTION_KEY = "annotation_umap"
+
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the tab: the embedding beside the per-guide table.
 
@@ -187,20 +190,26 @@ class AnnotationUmapTab(QWidget):
             self, "annotation_umap", row, prefer_card=False)
         layout.addLayout(row)
 
-        self.body = QSplitter(Qt.Horizontal)
-        self.body.setChildrenCollapsible(False)
+        from .collapsible_splitter import CollapsibleSplitter
+        key = self.SECTION_KEY
+        self.body = CollapsibleSplitter(Qt.Horizontal,
+                                        persist_key=f"{key}::body")
         self.plot = PurityScatter()
-        self.body.addWidget(self.plot)
+        self.body.add_section(self.plot, "Purity plot", stretch=3,
+                              persist_key=f"{key}/Purity plot")
         self.table = ResultsTable()
-        self.body.addWidget(self.table)
-        self.body.setStretchFactor(0, 3)
-        self.body.setStretchFactor(1, 2)
-        layout.addWidget(self.body, 1)
+        self.body.add_section(self.table, "Scores", stretch=2,
+                              persist_key=f"{key}/Scores")
+        self.sections = CollapsibleSplitter(Qt.Vertical,
+                                            persist_key=f"{key}::sections")
+        self.sections.add_pane(self.body, "Results", stretch=1)
 
         self.report = QPlainTextEdit()
         self.report.setReadOnly(True)
         self.report.setMaximumHeight(180)
-        layout.addWidget(self.report)
+        self.sections.add_section(self.report, "Report", stretch=0,
+                                  persist_key=f"{key}/Report")
+        layout.addWidget(self.sections, 1)
         self.say("Pick a method and press Embed and score. Nothing is "
                  "computed until then.")
         self.clear_result("Nothing has been embedded yet.")
