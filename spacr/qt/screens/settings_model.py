@@ -597,7 +597,7 @@ def section_shows_anything(section) -> bool:
     :returns: ``False`` only when a section owns rows or nested sections and
         all of them are hidden. Sections without setting rows remain visible.
     """
-    from ..widgets.section import Section
+    from ..widgets.section import Section, _sections_below
 
     form = getattr(section, "_form", None)
     if not isinstance(form, QFormLayout):
@@ -610,8 +610,8 @@ def section_shows_anything(section) -> bool:
         own_rows += 1
         if form.isRowVisible(index):
             return True
-    children = [child for child in section.findChildren(Section)
-                if child is not section]
+    children = [child for child in _sections_below(section)
+                if child is not section and isinstance(child, Section)]
     if any(section_shows_anything(child) for child in children):
         return True
     return not own_rows and not children
@@ -9366,13 +9366,13 @@ class SettingsWidgets:
                 self._slot_heading_cache = cache
             return cache
         try:
-            from ..widgets.section import Section
+            from ..widgets.section import Section, _sections_below
 
             by_widget = {id(widget): key
                          for key, widget in self._widgets.items()}
-            for section in self._parent.findChildren(Section):
-                if [child for child in section.findChildren(Section)
-                        if child is not section]:
+            for section in _sections_below(self._parent):
+                if (not isinstance(section, Section)
+                        or _sections_below(section)):
                     continue
                 form = getattr(section, "_form", None)
                 if not isinstance(form, QFormLayout):

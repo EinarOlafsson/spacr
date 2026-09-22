@@ -4774,7 +4774,8 @@ class MainWindow(QMainWindow):
             return
         if key in self._screens and self._screen_scale_is_stale(key):
             self._rebuild_for_scale(key)
-        if key not in self._screens:
+        built_now = key not in self._screens
+        if built_now:
             card = self._show_preparing(key)
             try:
                 self._screens[key] = self._build_screen(key)
@@ -4799,6 +4800,14 @@ class MainWindow(QMainWindow):
             retarget_field_tooltips(self._screens[key])
         except Exception:
             LOG.exception("Could not retarget help on the %s screen", key)
+        detach = getattr(self._screens[key], "_detach_what_the_form_hides",
+                         None)
+        if built_now and callable(detach):
+            try:
+                detach()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not detach the hidden settings",
+                          exc_info=True)
         self._stack.setCurrentWidget(self._screens[key])
         _timing.watch_interactive(
             self._screens[key], "interactive module", key,

@@ -2460,7 +2460,7 @@ class AppScreen(QWidget):
         umbrella over three empty sub-headings would survive as four empty
         headings instead of none.
         """
-        from ..widgets.section import Section
+        from ..widgets.section import Section, _sections_below
 
         def already_built_rows(owner):
             """Iterate registered rows without forcing deferred captions."""
@@ -2486,13 +2486,64 @@ class AppScreen(QWidget):
             return True
         if holds_an_active_slot(section):
             return True
-        for child in section.findChildren(Section):
+        for child in _sections_below(section):
+            if not isinstance(child, Section):
+                continue
             if any(widget is not None for _label, widget
                    in already_built_rows(child)):
                 return True
             if holds_an_active_slot(child):
                 return True
         return False
+
+    def _detach_what_the_form_hides(self) -> int:
+        """Take every category body nobody can see out of the page.
+
+        Called by the window just before the page is first shown, which is
+        when the stylesheet lands on it and every widget under the page is
+        styled; see
+        :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.
+        By then the maturity preference, the dimension switches and the
+        settings search's Essentials view have all decided which categories
+        are on the form, so what leaves the page is exactly what the user
+        first sees collapsed or hidden. Only top-level categories are
+        detached; a sub-heading travels with its category.
+
+        :returns: how many widgets left the page.
+        """
+        moved = 0
+        for section in self.rendered_settings_sections():
+            if getattr(section, "_settings_top_level_order", None) is None:
+                continue
+            detach = getattr(section, "_detach_body_while_hidden", None)
+            if not callable(detach):
+                continue
+            try:
+                section._body_came_back = self._a_category_body_came_back
+                moved += int(detach())
+            except RuntimeError:
+                continue
+        return moved
+
+    def _a_category_body_came_back(self, section) -> None:
+        """Give a body that was detached what the page had while it was away.
+
+        The language pass and the move of field help onto captions run over
+        the page, and a detached body is not on it; the language may have
+        changed, or a caption may have been built, while it waited. Both are
+        idempotent, so a body that missed nothing is left as it was.
+        """
+        try:
+            from ..i18n import retranslate_widget_tree
+            from .settings_model import retarget_field_tooltips
+
+            retranslate_widget_tree(section._body)
+            retarget_field_tooltips(self)
+        except RuntimeError:
+            pass
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not dress a category that came back",
+                      exc_info=True)
 
     def rendered_settings_sections(self) -> tuple:
         """The section widgets actually mounted in the settings panel.
@@ -2515,10 +2566,11 @@ class AppScreen(QWidget):
         form and model row registration.  Park the whole tree under a hidden
         owned widget instead; visual consumers explicitly ignore it.
         """
-        from ..widgets.section import Section
+        from ..widgets.section import Section, _sections_below
 
         section._settings_restore_parent = restore_parent
-        for member in (section, *section.findChildren(Section)):
+        for member in (section, *(child for child in _sections_below(section)
+                                  if isinstance(child, Section))):
             member.setProperty("settingsSectionDiscarded", True)
             member.hide()
         if restore_parent is None:

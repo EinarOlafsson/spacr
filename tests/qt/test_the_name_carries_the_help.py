@@ -22,7 +22,17 @@ def _survey(screen):
     Counting `_widgets` instead is misleading: touching it MATERIALISES lazy
     widgets that were never placed on any form, which is what made an early
     measurement read 1,551 rows on a screen showing 106.
+
+    A category the user has not opened keeps its body off the page until it
+    is opened, so the survey opens each one first -- the only way a user
+    reaches those rows too.
     """
+    for section in list(getattr(screen, "_settings_sections", ()) or ()):
+        try:
+            if section._body_is_detached() and not section.isHidden():
+                section.set_expanded(True)
+        except RuntimeError:
+            continue
     on_field = []
     on_name = 0
     for form in screen.findChildren(QFormLayout):

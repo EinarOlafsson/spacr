@@ -283,7 +283,9 @@ class CommandPalette(QDialog):
             return
         for section in getattr(screen, "_settings_sections", []) or []:
             try:
-                if section.isAncestorOf(widget):
+                holds = getattr(section, "_holds", None)
+                if (holds(widget) if callable(holds)
+                        else section.isAncestorOf(widget)):
                     section.set_expanded(True)
                     break
             except (AttributeError, RuntimeError):

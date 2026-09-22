@@ -3876,6 +3876,14 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
     :param sheet: the complete application stylesheet, as
         :func:`stylesheet` composes it.
     :returns: the number of windows the sheet was put on.
+
+    A settings category's body that is waiting off the page is parentless,
+    so Qt lists it among the top-level widgets, but it is not a window: it
+    goes back under its page before anybody sees it and wears the page's
+    sheet from there. Sheeting it here would leave it carrying a copy of
+    the sheet of the moment when it went back, which the next theme change
+    would not reach. See
+    :meth:`spacr.qt.widgets.section.Section._detach_body_while_hidden`.
     """
     global _WINDOW_SHEET_FILTER
 
@@ -3894,6 +3902,8 @@ def apply_stylesheet_per_window(app, sheet: str) -> int:
 
     sheeted = 0
     for window in list(app.topLevelWidgets()):
+        if getattr(window, "_spacr_detached_from", None) is not None:
+            continue
         for root in _roots_for(window):
             if _sheet_one_window(root):
                 sheeted += 1

@@ -60,6 +60,7 @@ from PySide6.QtWidgets import (
 )
 
 from .i18n import tr
+from .widgets.section import _logical_parent
 from .widgets.toggle import Toggle
 
 LOG = logging.getLogger("spacr.qt.settings_search")
@@ -598,7 +599,7 @@ class SettingsSearchBar(QWidget):
                 continue
             reached = {id(section)}
             try:
-                node = section.parentWidget()
+                node = _logical_parent(section)
             except RuntimeError:
                 continue
             while node is not None:
@@ -607,7 +608,7 @@ class SettingsSearchBar(QWidget):
                     rolled[marker] = rolled.get(marker, 0) + count
                     reached.add(marker)
                 try:
-                    node = node.parentWidget()
+                    node = _logical_parent(node)
                 except RuntimeError:
                     break
         return rolled
