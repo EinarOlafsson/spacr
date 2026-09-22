@@ -9408,3 +9408,20 @@ Embedding selection passes49tests/1explicit pretrained-backbone deselection
 in16.22s;97.30% module coverage. Real CPU tensors and local cached bytes tested,
 no weights download/GPU/app source change. Receipt and288updated. Map13reviews
 and9tests passed; preparing this combined verified checkpoint for nightly.
+Integrated64addaf2d before pushing; it adds one runtime source and no public
+API changes (11166same sources). Took its channel-index/filename tooltip in
+all nine locales, preserving both fields and verifying actual tr() output.
+Review stores/reports are validating before the combined push. Runtime count
+is6233, each locale gains one fresh row; broader catalog debt remains explicit.
+Prepared source-bound Measure translation plan privately: nine scenes unchanged,
+indices6/7/8/11and prerequisites changed; no Measure reviews promoted yet.
+While final translation reports check, taking test_crop_loader_endings.py for
+the shared crop-loader floor gap: failed/empty pixel sources, grayscale pages,
+missing inputs and folder-listing races. Tests only; no app source changes.
+Crop-loader selection passes45tests in8.49s and reaches91.45% combinedcoverage.
+Receipt/288updated; no app code or baseline change. All nine runtime review
+stores reload, and the new tooltip renders correctly through tr() in all nine
+locales. One review-contract test passes3.39s; final four report tests running.
+Final four report tests pass in443.76s. Preparing the verified crop-loader and
+nine-language tooltip checkpoint, together with the committed Map/embedding
+work, for nightly. No baseline tightening, GPU job, or tutorial publication.

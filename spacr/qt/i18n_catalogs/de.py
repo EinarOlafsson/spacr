@@ -6011,6 +6011,7 @@ UI = {
     'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.': 'Lädt etwa {size} MB SYNTHETISCHE Testdaten herunter: zweifarbige Bildfelder und Objektmasken, die spaCR gezeichnet hat, nicht aufgenommen oder segmentiert, und anschließend mit Measure gemessen hat. Enthalten sind eine Färbekontrollspalte und zwei Bedingungen mit bekanntem Anteil eingedrungener Parasiten sowie die tatsächlichen Werte zum Vergleich. Die Einstellungen werden ausgefüllt; als Nächstes können Sie Ausführen wählen. Nach dem ersten Download werden die Daten zwischengespeichert.',
     'Downloading the synthetic Invasion Assay test data': 'Die synthetischen Testdaten für Invasion Assay werden heruntergeladen',
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': 'Die Plaque-Vorschau über der Konsole ein- oder ausblenden. Im Modus Plaque wird ein Bild segmentiert; im Modus Figure werden die Plaque-Bilder in einer Abbildung gefunden, ihre Beschriftungen gelesen und die Bilder segmentiert.',
+    'Channel {index}; the file names call it {name}.': 'Kanal {index}; in den Dateinamen heißt er {name}.',
 }
 
 MODULE_SUMMARIES = {
@@ -12146,4 +12147,5 @@ SOURCE_HASHES = {
     ('UI', 'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.'): '507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e',
     ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }

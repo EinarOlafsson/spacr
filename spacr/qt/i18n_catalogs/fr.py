@@ -6011,6 +6011,7 @@ UI = {
     '{name} is not installed.\n\nInstalling it runs:\n    pip install "{requirement}"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?': '{name} n\'est pas installé.\n\nL\'installation exécute :\n    pip install "{requirement}"\n\ndans l\'environnement où spaCR s\'exécute. Elle télécharge un paquet volumineux et peut modifier la version installée de torch, ce qui peut affecter Cellpose et, dans le pire des cas, empêcher spaCR de démarrer. Cela peut prendre plusieurs minutes ; spaCR reste utilisable pendant l\'installation.\n\nL\'installer maintenant ?',
     '{name} is not installed. Choosing it offers to install it.': "{name} n'est pas installé. Le choisir propose de l'installer.",
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': "Afficher ou masquer l'aperçu des plages de lyse au-dessus de la console. En mode Plaque, il segmente une image ; en mode Figure, il repère les images de plages de lyse dans une figure, lit leurs étiquettes et les segmente.",
+    'Channel {index}; the file names call it {name}.': 'Canal {index} ; les noms de fichiers le désignent par {name}.',
 }
 
 MODULE_SUMMARIES = {
@@ -12146,4 +12147,5 @@ SOURCE_HASHES = {
     ('UI', '{name} is not installed.\n\nInstalling it runs:\n    pip install "{requirement}"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?'): '7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157',
     ('UI', '{name} is not installed. Choosing it offers to install it.'): '1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }

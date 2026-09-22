@@ -4356,3 +4356,14 @@ test,16.22s,6GiB/oneCPUthread. No model-quality or pretrained-weight validation
 claim. Receipt:features/data/288_embedding_contracts_2026-09-21.json.
 Production/baseline unchanged. Ten original floor modules now pass targeted
 selections; full source-matched suite and no-regression ratchet remain open.
+
+2026-09-21 — CODEX: CROP LOADER PASSES THE90% FLOOR
+Crop-loader targeted coverage reaches91.45% (343/371statements,106/120branches),
+from87.17% in the fixed full run. New tests preserve source error causes and
+page context, refuse missing/empty sources, retain grayscale pixel values and
+dtype, name missing choices and folder-listing races, and handle legacy SQLite
+metadata. Together with existing real-file planning/loading tests:45pass in
+8.49s,6GiB/oneCPUthread,noGPU or production change. Source-bound receipt:
+features/data/288_crop_loader_2026-09-21.json. Eleven original floor modules
+now pass targeted selections; the full-suite ratchet remains open. No baseline
+update was made from these targeted results.

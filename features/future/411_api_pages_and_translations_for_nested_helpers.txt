@@ -1233,3 +1233,18 @@ Twelve retained narration scenes preserve measured counts and scientific
 limitations. All13source/stage/speech/geometry checks and9promotion/bundle
 tests pass. Remaining26spoken tracks render CPU-only. Runtime/API catalog
 counts are unchanged; native/listening approval and publication remain open.
+
+2026-09-21 — CODEX: MASK CHANNEL-INDEX TOOLTIP IN NINE LANGUAGES
+Integrated64addaf2d from the other session. Its new runtime tooltip distinguishes
+the zero-based channel index from the channel ID in a filename. Added all nine
+translations and exact-source review records, preserving{index}and{name}.
+Independent actual tr() calls render index0 and labelC01 separately in every
+locale, with no literal fields left. The public API inventory is unchanged
+at11166with no added/removed/edited docstrings relative to the CPU draft source.
+Runtime inventory adds one source (6233); accepted catalog totals add one per
+locale. Reports and full review-store validation run before publishing.
+Receipt:features/data/411_channel_index_tooltip_2026-09-21.json. No native approval.
+All nine review stores reload successfully; the runtime review-contract test
+passes (3.39s) and all four final report consistency tests pass (443.76s).
+The remaining catalog debt stays open; these checks verify the new row and
+the accuracy of the reports, not completion of all translations.

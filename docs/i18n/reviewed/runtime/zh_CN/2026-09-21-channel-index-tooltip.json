@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "review": "AI-assisted translation and technical review; no native-speaker signoff claimed",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Channel {index}; the file names call it {name}.",
+      "source": "Channel {index}; the file names call it {name}.",
+      "source_sha256": "d0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb",
+      "translation": "通道 {index}；文件名中将其标为 {name}。"
+    }
+  ]
+}

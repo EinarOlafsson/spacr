@@ -1879,3 +1879,13 @@ against current source. Full docs/catalog completion remains open.
 Independent regeneration passes for all eight; three review-contract tests
 and four final report consistency tests pass. German freshness10434/11166;
 eight other API locales10416/11166. No green workflow/completion claim.
+
+2026-09-21 — CODEX DOCS: NEW CHANNEL TOOLTIP IS TRANSLATED
+The integrated Mask preview update adds one runtime tooltip. All nine locales
+now distinguish the channel index from its filename label, with exact source
+hashes/reviews and actual runtime formatting verified. Source inventory is6233
+runtime entries; public API inventory/content remains11166unchanged. Reports
+are refreshed before the checkpoint; existing wider catalog debt remains open.
+Final verification: the runtime review-contract test passes (3.39s), and all
+four report consistency tests pass (443.76s). This is not a green docs-workflow
+claim; the reports continue to expose the outstanding catalog debt.

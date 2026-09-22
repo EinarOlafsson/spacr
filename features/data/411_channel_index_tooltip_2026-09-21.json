@@ -1,0 +1,68 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "64addaf2d",
+  "source": "Channel {index}; the file names call it {name}.",
+  "parameters": {
+    "index": 0,
+    "name": "C01"
+  },
+  "languages": [
+    {
+      "language": "de",
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "f6de1565d360732a8d816533b6d9498c354307a8d347da365d88bd366669bdf4",
+      "actual_runtime_text": "Kanal 0; in den Dateinamen heißt er C01."
+    },
+    {
+      "language": "es",
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "0dac7b36084de8d98a183417c68d4330a2995bde13920453f5c9abca1a905187",
+      "actual_runtime_text": "Canal 0; en los nombres de archivo se llama C01."
+    },
+    {
+      "language": "fr",
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "828644ea71e3bf30dfc9527324b02dd1f67fa38728a3ddf53cec7e705828f6f2",
+      "actual_runtime_text": "Canal 0 ; les noms de fichiers le désignent par C01."
+    },
+    {
+      "language": "hi",
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "4feeb9c0708b7e9452300c01e498ba021520e1235b169f2081f0e8e587fbd2f3",
+      "actual_runtime_text": "चैनल 0; फ़ाइल नामों में इसे C01 कहा गया है।"
+    },
+    {
+      "language": "is",
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "ab7028f49dc6f52f276c45bf85727aead08a07de527267d6e289bfeb48832112",
+      "actual_runtime_text": "Rás 0; í skráarnöfnunum er hún kölluð C01."
+    },
+    {
+      "language": "ko",
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "bffa5003a1b0cdb5af6bbe3538f397600690e94dc022049bd63474fe826419a3",
+      "actual_runtime_text": "채널 0; 파일 이름에서는 C01으로 표시됩니다."
+    },
+    {
+      "language": "pt",
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "fd39c434df4f9115ebbc856ee05eb517168061927f5e34f1f6b234748ca9ffb4",
+      "actual_runtime_text": "Canal 0; nos nomes dos arquivos, ele é chamado de C01."
+    },
+    {
+      "language": "sv",
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "927ae7b01fb67224d9280388483d06503f3af6b377437a406dec48f7046a9416",
+      "actual_runtime_text": "Kanal 0; i filnamnen kallas den C01."
+    },
+    {
+      "language": "zh_CN",
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-21-channel-index-tooltip.json",
+      "review_sha256": "43d368cf6fffb22a8c3c86b9c2790ce3b675478e1b44d5419287ef97120e0480",
+      "actual_runtime_text": "通道 0；文件名中将其标为 C01。"
+    }
+  ],
+  "runtime_formatting_verified": true,
+  "native_speaker_signoff": false
+}

@@ -5844,6 +5844,7 @@ UI = {
     'Downloaded {name}, but the folder would not open': '{name} 항목을 다운로드했지만 폴더를 열 수 없습니다',
     'Downloading {name}': '{name} 다운로드 중',
     'Downloading {name} in the background.': '백그라운드에서 {name} 항목을 다운로드하고 있습니다.',
+    'Channel {index}; the file names call it {name}.': '채널 {index}; 파일 이름에서는 {name}으로 표시됩니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -11812,4 +11813,5 @@ SOURCE_HASHES = {
     ('UI', 'Downloaded {name}, but the folder would not open'): '598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4',
     ('UI', 'Downloading {name}'): '61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c',
     ('UI', 'Downloading {name} in the background.'): 'f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }

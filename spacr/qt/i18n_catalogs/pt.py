@@ -6009,6 +6009,7 @@ UI = {
     '{name} is not in Preferences at the moment.': '{name} não está em Preferências no momento.',
     '{name} is not installed.\n\nInstalling it runs:\n    pip install "{requirement}"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?': '{name} não está instalado.\n\nA instalação executa:\n    pip install "{requirement}"\n\nno ambiente em que spaCR está sendo executado. Ela baixa um pacote grande e pode alterar a versão instalada de torch, o que pode afetar Cellpose e, no pior caso, impedir spaCR de iniciar. Isso pode levar vários minutos; spaCR permanece utilizável durante a instalação.\n\nInstalar agora?',
     '{name} is not installed. Choosing it offers to install it.': '{name} não está instalado. Escolhê-lo oferece a opção de instalá-lo.',
+    'Channel {index}; the file names call it {name}.': 'Canal {index}; nos nomes dos arquivos, ele é chamado de {name}.',
 }
 
 MODULE_SUMMARIES = {
@@ -12142,4 +12143,5 @@ SOURCE_HASHES = {
     ('UI', '{name} is not in Preferences at the moment.'): '2c8e70ee0d319354080834a828c0274746b8da6a5d1de385eac7f3138684d641',
     ('UI', '{name} is not installed.\n\nInstalling it runs:\n    pip install "{requirement}"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?'): '7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157',
     ('UI', '{name} is not installed. Choosing it offers to install it.'): '1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }

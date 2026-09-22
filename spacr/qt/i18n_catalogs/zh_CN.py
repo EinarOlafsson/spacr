@@ -6045,6 +6045,7 @@ UI = {
     '{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.': '{paper}：{n} 个图版，其中 {m} 个有图注（许可协议 {licence}），位于 {path}。',
     'PDF…': 'PDF…',
     'Updating {name}…': '正在更新 {name}…',
+    'Channel {index}; the file names call it {name}.': '通道 {index}；文件名中将其标为 {name}。',
 }
 
 MODULE_SUMMARIES = {
@@ -12213,4 +12214,5 @@ SOURCE_HASHES = {
     ('UI', '{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.'): '870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c',
     ('UI', 'PDF…'): 'e39b05d4001896ab9ed3abc9cdd5676546d282b9b6f053ba300e6c656a9bd4a2',
     ('UI', 'Updating {name}…'): 'c97a0a747f2376346f83d80de43010763636f73ae886f39826feceed5d03e908',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }

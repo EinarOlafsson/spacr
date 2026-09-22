@@ -6011,6 +6011,7 @@ UI = {
     'The Format Converter could not be opened.': 'No se pudo abrir Format Converter.',
     '{key} is not a filename convention Import knows.': '{key} no es una convención de nombres de archivo que Import reconozca.',
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': 'Mostrar u ocultar la vista previa de placas de lisis sobre la consola. En modo Plaque se segmenta una imagen; en modo Figure se localizan las imágenes de placas de lisis dentro de una figura, se leen sus etiquetas y se segmentan.',
+    'Channel {index}; the file names call it {name}.': 'Canal {index}; en los nombres de archivo se llama {name}.',
 }
 
 MODULE_SUMMARIES = {
@@ -12146,4 +12147,5 @@ SOURCE_HASHES = {
     ('UI', 'The Format Converter could not be opened.'): '19cf1ad6db47ffe954813ae87bbc79a01988ec6600bef0b439548210f670e81b',
     ('UI', '{key} is not a filename convention Import knows.'): 'eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }

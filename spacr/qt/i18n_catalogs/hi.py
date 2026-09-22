@@ -5760,6 +5760,7 @@ UI = {
     'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.': 'लगभग {size} MB कृत्रिम परीक्षण डेटा डाउनलोड करें: दो रंगों वाले दृश्य-क्षेत्र और वस्तुओं के मास्क spaCR ने बनाए हैं; इन्हें माइक्रोस्कोप से चित्रित या विभाजित नहीं किया गया है। फिर इन्हें Measure से मापा गया है। इसमें रंगाई-नियंत्रण का एक कॉलम और दो स्थितियाँ हैं, जिनमें कोशिकाओं में प्रवेश कर चुके परजीवियों का अनुपात ज्ञात है; तुलना के लिए सही मान भी दिए गए हैं। सेटिंग अपने आप भर जाती हैं, इसलिए अगला चरण चलाना है। पहली बार डाउनलोड करने के बाद डेटा कैश में रखा जाता है।',
     'Downloading the synthetic Invasion Assay test data': 'Invasion Assay का कृत्रिम परीक्षण डेटा डाउनलोड हो रहा है',
     'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.': 'कंसोल के ऊपर प्लाक का पूर्वावलोकन दिखाएँ या छिपाएँ। Plaque मोड में एक छवि का विभाजन होता है; Figure मोड में एक चित्र के भीतर प्लाक की छवियाँ खोजी जाती हैं, उनके लेबल पढ़े जाते हैं और उनका विभाजन किया जाता है।',
+    'Channel {index}; the file names call it {name}.': 'चैनल {index}; फ़ाइल नामों में इसे {name} कहा गया है।',
 }
 
 MODULE_SUMMARIES = {
@@ -11644,4 +11645,5 @@ SOURCE_HASHES = {
     ('UI', 'Download about {size} MB of SYNTHETIC test data: two-colour fields and object masks drawn by spaCR, not imaged or segmented, then measured by Measure. A staining-control column and two conditions with a known share of invaded parasites, with the truth beside them. Settings are filled in, so Run is the next step. Cached after the first download.'): '507d4d3281c7bca17f60d89a601d9e36305c25bb0ef5435258a9553c62b7c39e',
     ('UI', 'Downloading the synthetic Invasion Assay test data'): 'f809593e31f76a60b85535ee278c87d8fb5673a0ab317c9ffb0eb1413486f27e',
     ('UI', 'Show or hide the plaque preview above the console. In Plaque mode it segments one image; in Figure mode it finds the plaque images in one figure, reads their labels and segments them.'): 'd5e5930b06196440ac93bbd054c86ce580d1916e21d24b21e1729fc51bf608f5',
+    ('UI', 'Channel {index}; the file names call it {name}.'): 'd0b519a7055fe6515606420f79e306d13baf5c7980164479a455bc26dc7bb3fb',
 }
