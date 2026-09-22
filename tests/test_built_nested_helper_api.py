@@ -471,3 +471,54 @@ def test_enabled_helpers_exist_in_the_full_built_site():
         page = output / "api" / Path(*entry.module.split(".")) / "index.html"
         assert page.is_file(), page
         assert page.read_text().count(f'id="{entry.qualified_key}"') == 1
+
+
+@pytest.mark.skipif(not os.environ.get("SPACR_DOCS_BUILT"), reason="requires a fresh full docs build")
+@pytest.mark.parametrize("language", sorted(builder.MODEL_SPECS))
+def test_object_helpers_use_their_own_real_catalog_entries_in_the_browser(language):
+    """Exercise the first rollout, including a helper under a hidden parent."""
+    spec = importlib.util.spec_from_file_location(
+        "_feature_411_real_frontend", ROOT / "tests/test_api_i18n_frontend.py",
+    )
+    frontend = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(frontend)
+    active = helpers.active_entries(ROOT, ignore_patterns=builder.AUTOAPI_IGNORE)
+    keys = [entry.qualified_key for entry in active if entry.module == "spacr.object"]
+    assert len(keys) == 3
+    page = (ROOT / "docs/_build/html/api/spacr/object/index.html").read_text()
+    assert 'id="spacr.object._cellpose_z_segment_fn"' not in page
+    english = json.loads((builder.API_DIR / "en.json").read_text())
+    catalog = json.loads((builder.API_DIR / f"{language}.json").read_text())
+    expected = {key: catalog["symbols"][key]["text"] for key in keys}
+    for key in keys:
+        assert catalog["symbols"][key]["source_sha256"] == english["symbols"][key]["source_sha256"]
+    harness = r'''
+<script src="/api/api_i18n.js" data-api-catalog-version="feature-411-real"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(() => {
+    const expected = EXPECTED;
+    const normalize = value => value.replace(/\s+/g, ' ').trim();
+    const nodes = Object.entries(expected).map(([key, target]) => {
+      const anchor = document.getElementById(key);
+      const node = anchor && anchor.parentElement.querySelector(':scope > dd > .spacr-api-translation');
+      if (!node) return null;
+      const prose = node.cloneNode(true);
+      prose.querySelector('.spacr-api-translation__label').remove();
+      return normalize(prose.textContent) === normalize(target) ? node : null;
+    });
+    document.body.dataset.realHelpers = nodes.every(Boolean) && new Set(nodes).size === 3 ? 'pass' : 'fail';
+  }, 900);
+});
+</script>
+'''.replace("EXPECTED", json.dumps(expected, ensure_ascii=False))
+    page = page.replace("</head>", harness + "</head>")
+    files = {
+        "/api/page.html": page.encode(),
+        "/api/api_i18n.js": frontend.SCRIPT.read_bytes(),
+        "/api/i18n/api/en.json": json.dumps(english).encode(),
+        f"/api/i18n/api/{language}.json": json.dumps(catalog).encode(),
+    }
+    with frontend._server(files) as (base, _requests):
+        dom = frontend._dump_dom(f"{base}/api/page.html?lang={language}", budget=2400)
+    assert 'data-real-helpers="pass"' in dom

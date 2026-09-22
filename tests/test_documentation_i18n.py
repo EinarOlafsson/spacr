@@ -1,6 +1,9 @@
 """Structural contracts for external API/docstring localization."""
 from __future__ import annotations
 
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
 import hashlib
 import json
 import os
@@ -184,7 +187,7 @@ TOOLS = ROOT / "tools"
 # Exact added/removed keys: features/data/411_api_manifest_refresh_2026-09-22.json.
 # English is refreshed; the locale inventory and source-hash assertions below
 # remain strict and still report the unfinished translated catalog rebuild.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_280
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_303
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

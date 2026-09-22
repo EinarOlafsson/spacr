@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+# 2026-09-22: measured public growth and the three object helpers are
+# accounted separately in features/data/411_object_helpers_2026-09-22.json.
+
 import ast
 import hashlib
 import importlib
@@ -32,7 +35,7 @@ builder = importlib.import_module("build_documentation_i18n")
 # without that one dunder returns 8b07b969..., the previous pin, byte for
 # byte. The 16 constant attributes did not move.
 _NEW_VISIBLE_DIGEST = (
-    "bde8181cba26219a512a2f351d64c67fd0aa28d4e1651e45ecd5003df311387e"
+    "13bd9984ddd7853bfac646da2ac620f25894745ff2c2f1b9e495cae323edb660"
 )
 def _sha256_lines(lines) -> str:
     return hashlib.sha256("\n".join(sorted(lines)).encode()).hexdigest()
@@ -219,7 +222,8 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # dtype and hands back float32 neck features. A callable object's
     # __call__ IS its interface, so it belongs on the page. Set-differenced
     # against 6ae5e1b36: +1 / -0.
-    assert len(dunders) == 213
+    # ViewGate.__post_init__ is the one new documented special method.
+    assert len(dunders) == 214
     assert len(assignments) == 16
     assert _sha256_lines(
         [*(f"new_dunder\0{key}" for key in dunders),
@@ -1175,7 +1179,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # THE NINE CATALOGS HAVE NOT BEEN REGENERATED FOR THESE EITHER; the
     # debt recorded for the 392 above now covers 627 symbols, and
     # test_documentation_i18n names them until the rebuild runs.
-    expected = 11_166
+    expected = 11_303
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1217,7 +1221,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_166
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_303
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1558,7 +1562,7 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # RE-MEASURED 2026-09-21 the same way: pre-filter 11,155 -> 11,390,
     # post-filter 10,931 -> 11,166, boundary 224 -> 224. Both halves moved
     # by exactly 235, so every arrival is rendered.
-    assert 11_390 - len(docs) == 224
+    assert 11_527 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

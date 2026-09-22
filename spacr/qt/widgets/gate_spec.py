@@ -2073,6 +2073,8 @@ class ViewGate(Gate):
     ``view`` and ``limits`` record the camera angles ``(elev, azim, roll)``
     and the axis limits the outline was drawn at, so the view can be
     described and shown again. They are not read by :meth:`mask`.
+
+    :param name: the gate's unique name within its saved gate set.
     """
 
     x_column: str = ""
@@ -2087,7 +2089,7 @@ class ViewGate(Gate):
         """Normalise the columns, the camera and the outline.
 
         :raises GateError: blank or repeated columns, a projection that is not
-            three finite rows of four, or an outline of fewer than three
+            four finite rows of four, or an outline of fewer than three
             vertices.
         """
         super().__post_init__()
@@ -2142,6 +2144,9 @@ class ViewGate(Gate):
     def project(self, x, y, z) -> Tuple[np.ndarray, np.ndarray]:
         """Where measurements land on the view the gate was drawn on.
 
+        :param x: each object's measurement along the first data axis.
+        :param y: each object's measurement along the second data axis.
+        :param z: each object's measurement along the third data axis.
         :returns: ``(sx, sy)``; NaN wherever a measurement is missing or the
             point is at or behind the camera.
         """

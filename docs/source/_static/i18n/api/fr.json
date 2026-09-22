@@ -45700,6 +45700,16 @@
         "bf88156b86d98b776bac448350915cceab2805a8cd57b5627f50a1f49073c11d"
       ]
     },
+    "spacr.object._cellpose_z_segment_fn._segment": {
+      "source_blocks_sha256": [
+        "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12"
+      ],
+      "source_sha256": "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12",
+      "text": "Renvoie les étiquettes issues d’un appel à Cellpose en 3-D, sur une liste de plans ou sur un seul plan.",
+      "translation_source_blocks_sha256": [
+        "3352ce416d49aa833f9c28dd8c21bdf4793dd6022379f5f931b7269d2c535f60"
+      ]
+    },
     "spacr.object.display": {
       "source_blocks_sha256": [
         "44ad2f40babdb517f86f263b1d0d2bc2c78807d715c4b6dd1a88cde4900b9da7"
@@ -45800,6 +45810,26 @@
         "d0f3340abaf6946224b67872a905818aaf4ca2f1e49b7ffd6d58426c6b767b45",
         "a2c4408f704ee4b390e685cedb28e86c17c3f5f654eee0731bcc4b87c583f950",
         "c43e00e51f647b00d283f99462d98e814d2a53d3f7bf18f7cc2ee7a1990b1a55"
+      ]
+    },
+    "spacr.object.merge_split_filter_masks._progress": {
+      "source_blocks_sha256": [
+        "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b"
+      ],
+      "source_sha256": "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b",
+      "text": "Enregistre la durée par champ de vision (FOV) et émet la ligne de progression commune.",
+      "translation_source_blocks_sha256": [
+        "8bab9a562f5c7de68d87baff88e564b76d7d73ea6d1886a28c524f725578a5b9"
+      ]
+    },
+    "spacr.object.merge_split_filter_masks._run_one": {
+      "source_blocks_sha256": [
+        "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c"
+      ],
+      "source_sha256": "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c",
+      "text": "Exécute la chaîne de filtres configurée sur le masque d’un seul champ de vision (FOV).",
+      "translation_source_blocks_sha256": [
+        "5db807fbd6959c95de1b857c1f407ff6d8d0b384f2e000d34eec709d616d29ae"
       ]
     },
     "spacr.object_distances": {

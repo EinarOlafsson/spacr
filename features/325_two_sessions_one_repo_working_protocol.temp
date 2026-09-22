@@ -10450,3 +10450,45 @@ unchanged. Both stored theme keys restored. No production/API/caption change.
 The three archived failures were reproduced before correcting the fixture.
 Windows host acceptance remains open; the test file is released after push.
 Barcode/Import sample test isolation was pushed asd1e325c44.
+2026-09-22 — CODEX:435 PUSHED / FIRST NESTED-HELPER SLICE CLAIM
+435 translations/control repairs pushed asae084b7d3. Current missing UI counts:
+215 eachsv/de/es/pt/fr,193zh_CN,398ko,454hi/is; hi/is additionally owe11 setting
+labels and10 tooltips. Full translation work is still open.
+Claiming411's first real helper rollout forspacr.object: three documented local
+helpers, including one inside a private parent, without publishing that private
+parent itself. Measuring the current public/manifest/callable boundaries before
+moving any pins; all three helper blocks will have nine source-bound reviews.
+The old Phase B handoff is present (2026-09-15). No object.py implementation
+edit, runtime implementation ownership change, or GPU work.
+
+2026-09-22 — CODEX: FIRST HELPER CHECKS / RECENT PARAMETER DOCS
+The three spacr.object helpers now have 27 source-bound translations. Full
+Sphinx and baseline API audit are running in isolated checkouts. The public
+inventory difference is +135/-1 (thin_hover_line_sheet removed), separately
+from +3 helpers; the previous signature digest is exactly reconstructible.
+Focused checks also found 17 new required-parameter omissions in detect_chain,
+widgets/gate_spec and widgets/volume_view. Claiming docstring-only repairs in
+those three files; no implementation changes. Keeping the omission ratchet
+unchanged. Existing catalog debt and tutorial media remain open.
+
+2026-09-22 — CODEX: API BASELINE VERIFIED / INCOMING SOURCE CHANGES READ
+Read through fcce6c062, including449, the473 rolling-ball/Compare changes and
+Model Zoo done(result). My first helper build on ae084b7d3 passed -W -E in
+375s; 142 extractor/public-contract checks now pass after17 docstring-only
+parameter repairs, plus60 Help search/source-history checks. Nine-language
+real-page browser checks are running. The full pre-slice API audit still fails
+on existing catalog debt and takes992s. I will refresh the manifest/counts
+again after rebase; these measurements are not a claim about the new sources.
+Also restored26 missing UI rows from existing reviewed wording (Confirm
+annotations, PDF…, model.pt), and repaired German ComBat column-list wording.
+No runtime behavior or GPU job changed in this lane.
+
+2026-09-22 — CODEX: REAL API BROWSER FAILURE IDENTIFIED
+All three helper anchors render, but all nine real-catalog language switches
+fail: the browser rejects each whole stale/incomplete locale catalog, so even
+current helper rows fall back to English. Keeping that fail-closed behavior
+and the full-catalog browser test intact. First helper acceptance now depends
+on completing the global API catalog repair; no helper completion claimed.
+Repair planning is running against the isolated validated source and existing
+translation cache, without model generation or GPU work. Runtime caption and
+German literal repairs are committed locally as281556f70, pending integration.

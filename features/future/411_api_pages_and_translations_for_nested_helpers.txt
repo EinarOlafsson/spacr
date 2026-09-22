@@ -1587,3 +1587,29 @@ caption and setting-label tables.105 focused tests pass, including the complete
 nine-language widget pass and unchanged inversion/filter behavior. All nine
 runtime review stores accept current sources. English inventory has4134 UI
 sources; remaining catalog, API/nested-helper and tutorial work is still open.
+
+2026-09-22 — CODEX: FIRST REAL HELPERS / FULL CATALOG REPAIR REQUIRED
+The rollout switch now selects spacr.object's three helpers, including
+_cellpose_z_segment_fn._segment beneath a private parent. All three have nine
+source-bound translations (27 reviewed blocks). English has11303 symbols:
+20 pre-existing public arrivals since its last refresh, plus three helpers.
+The public callable boundary remains independent from the nested inventory.
+Its changes and restored historical digest are recorded, by exact symbol and
+signature, in features/data/411_object_helpers_2026-09-22.json.
+
+The fresh full Sphinx -W -E build passes in375s; the final docstring update
+build passes in374s.142 extractor/public-contract checks pass after repairing
+17 newly omitted required parameters without increasing the omission ratchet.
+The existing helper/fixture checks pass, as does the three-anchor built check.
+60 Help search/source-history checks pass; the search index includes the20
+recent public arrivals. These measurements are against ae084b7d3 plus this
+slice, before the next implementation rebase.
+
+THE REAL NINE-LANGUAGE BROWSER CHECKS FAIL. The shipped browser validates the
+entire catalog's symbol set and source hashes before showing any translation.
+Existing locale debt therefore rejects all nine complete catalogs, including
+these otherwise current helper records. The test uses complete real catalogs;
+there is no filtered-catalog substitute or relaxed freshness check. The first
+helper slice is not accepted or complete until full catalog repair makes this
+check pass. Baseline full API audit fails in992s; current full audit and exact
+repair planning are in progress. Item411 remains open.

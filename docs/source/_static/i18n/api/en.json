@@ -28798,6 +28798,13 @@
       "source_sha256": "bf88156b86d98b776bac448350915cceab2805a8cd57b5627f50a1f49073c11d",
       "text": "Object segmentation, filtering, mask generation, and post-processing."
     },
+    "spacr.object._cellpose_z_segment_fn._segment": {
+      "source_blocks_sha256": [
+        "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12"
+      ],
+      "source_sha256": "69fb093d60c5f3a4c8687e027a4339217828a20e2ce72617f6b179aa0a14cf12",
+      "text": "Return labels from a 3-D, plane-list, or single-plane Cellpose call."
+    },
     "spacr.object.display": {
       "source_blocks_sha256": [
         "44ad2f40babdb517f86f263b1d0d2bc2c78807d715c4b6dd1a88cde4900b9da7"
@@ -28858,6 +28865,20 @@
       ],
       "source_sha256": "5128290c9019d91a7c8fb16c2fbcbc199ff2b067e6dc419c9b089ec5012b3ff6",
       "text": "Merge by perimeter and filter each in-memory field's objects.\n\nSkips work when no operation is enabled for ``object_type``; otherwise\nprocesses each FOV serially so progress reporting stays in order.\n\n:param masks: 2D/3D ndarray or iterable of masks (one per field).\n:param intensity_images: Original own-channel arrays matching the masks,\n    required only when an intensity bound is enabled. For channel-last\n    batches the first channel must be the object's own channel.\n:param settings: Dict of pipeline settings; per-object-type suffixes control\n    perimeter merging, min/max area, border removal and min/max intensity.\n    Intensity bounds compare whole-object means in original image units;\n    equality is retained and 0 disables each bound independently.\n:param object_type: Label used to look up per-object settings (``'cell'``,\n    ``'nucleus'``, ``'pathogen'``, ``'organelle'``).\n:param batch_filenames: Optional per-FOV filenames used only for logging.\n:returns: Original ``masks`` unchanged when no operation is enabled, else a\n    list of filtered mask arrays (one per FOV)."
+    },
+    "spacr.object.merge_split_filter_masks._progress": {
+      "source_blocks_sha256": [
+        "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b"
+      ],
+      "source_sha256": "2a2db7aace90da66b8f3d1d5cb4f6fe415ce33ae1d64a78a3fbe1663c19df86b",
+      "text": "Record a per-FOV duration and emit the shared progress line."
+    },
+    "spacr.object.merge_split_filter_masks._run_one": {
+      "source_blocks_sha256": [
+        "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c"
+      ],
+      "source_sha256": "5ecb7cca7863d3e69d0c79feb04e3514d9d558fb070bf6eac66df73f2bb9337c",
+      "text": "Run the configured filter pipeline against a single FOV mask."
     },
     "spacr.object_classifier": {
       "source_blocks_sha256": [
@@ -31951,6 +31972,25 @@
       ],
       "source_sha256": "36dd2c7d71a8c7c25544e63505aa6901a4433ef8f66486187f7ab8ddf085a895",
       "text": "Every `organelle_type`, in the order the picker shows them."
+    },
+    "spacr.organelle_types.method_guidance": {
+      "source_blocks_sha256": [
+        "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
+        "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+        "5c5851cde60e02f4922dbd97e6444fdfcc0fad59b7d7628f9b247d71041a1be4"
+      ],
+      "source_sha256": "75612edbf498e24f308446e89804098c302dfef96ea0e60b495ca1a370b3f499",
+      "text": "What ``method`` suits, as one sentence a picker can show.\n\n:param method: an ``organelle_method`` value.\n:returns: an English sentence naming the shapes the method is legal\n    for, or a sentence saying it belongs to no morphology. Not\n    translated: a caller showing it passes it through ``tr``."
+    },
+    "spacr.organelle_types.morphologies_for_method": {
+      "source_blocks_sha256": [
+        "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
+        "4d19ec217ae5b94f6be4c57d2b9357673165b5d11419a2aa97e824e2c72042cf",
+        "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+        "5b8ae676ad4999461bc716d6b375db20ffeaa5f2f0a4b84633d4afefb6be3392"
+      ],
+      "source_sha256": "f2d96e3677719633a56f6b4fb180b0721be0edca4f61f62a67a68ca75ae0e5c7",
+      "text": "The shapes ``method`` is a legal detector for.\n\nRead out of :data:`LEGAL_METHODS`, so this answer and the validator's\ncannot come apart.\n\n:param method: an ``organelle_method`` value.\n:returns: the morphology names, in :data:`LEGAL_METHODS` order; empty\n    for a method no morphology allows."
     },
     "spacr.organelle_types.organelle_count": {
       "source_blocks_sha256": [
@@ -40468,6 +40508,139 @@
       "source_sha256": "450d041bbbd8c4ac967155068554c11a4dfd8a5327490c8b4fe8e0d32bf41526",
       "text": "Split the selected track at the frame in the spinner."
     },
+    "spacr.qt.detect_chain": {
+      "source_blocks_sha256": [
+        "d0358d435f8634b0a8d4c8b79a0d42cee56feb0c7f27ceba0c18860da753bafd",
+        "d6dcf743790fb2688ca6975699f2d88d672c8d0cb4bd299e529526e25f23be9d",
+        "06cf43874d457ca50e814e50d8d0129f7e145545b1845b4eb7ebcb8725063fb1",
+        "b994f4b0200c649b43f80665502e6354839951c1e76963a4c491fa62b560970c",
+        "c4abbac7544f948c62fe45b3b11a36ec0c55dde136accd0280eea9bcf2025552",
+        "710e67b70b82da2f242e299639d3e1d14dea8d73d1cb1767f8e1a15e53322613",
+        "42b8c46a966016416ee2c545ecfbec7ea4fc6c3a88504a241c7329e5d4273777",
+        "7a4beeca873f5d01cdad0ed0d34862b3967aa5501584609311653b6e9a7ae70c",
+        "33c023cfb3947d179a836b756a33ff2395eef2b11f20dc8bb9d62e9250409b44",
+        "4fd0768e60053d027ee8a4568daa52a4a0d62edbd4436b9d708f82662740dc1d",
+        "6f4519a7a85d6b8ee820a69b580717517b28b04d37db9b58e6feb60b6f271b14",
+        "238d5e935049f43edd84fd17ef15e7dff668aa6051fc50de01b28e8d912d61ff",
+        "a87f23ae76db79a2e111e4f1b181a681e92240bbf62e2ec1859539c5f78c7bfe",
+        "1fb8e34bb75905d2c3e665743efc3696544e710004b842fdaa74b7b58a773bfc"
+      ],
+      "source_sha256": "b40c9552d2e026c5b1b203d1e8530a38239177511677a3529b561109fe86d7c9",
+      "text": "What is done to a field BEFORE and AFTER a detector looks at it.\n\nMake Masks detects on the image as it was loaded. A curator whose objects\nare faint, whose field is lit unevenly, or whose puncta sit on grainy\nbackground has no way to say \"look at it like this instead\" short of\nediting the data, and editing the data would make every mask depend on the\ncontrast it was drawn at.\n\nThis module is that sentence, as a chain of optional steps that the\nDETECTOR reads and the magnifier can show. Nothing here touches the array\non disk or the array the hover readout reports: a chain is applied to a\ncopy on its way into a detector and to a copy on its way onto the screen.\n\nTHE ORDER IS FIXED AND IS NOT A PREFERENCE.\n:data:`CHAIN_ORDER` is the whole of it::\n\n    percentile stretch -> background -> denoise -> contrast -> sharpen\n        -> detect -> morphology -> split\n\nand each stage is there rather than somewhere else for a reason:\n\n* THE PERCENTILE STRETCH IS FIRST AND IS NOT IN :class:`Chain`. It is Make\n  Masks' own \"detect on the normalized image\" switch, and it is a\n  WHOLE-FIELD judgement: its two levels are percentiles of the field. A\n  stretch measured inside the magnifier's 64 px box would be a different\n  stretch in every box, so it is taken once on the field, before the box is\n  cut, and the rest of the chain runs on what it produced. That is also why\n  moving it into this module would be wrong: one array is stretched, many\n  boxes are cut from it.\n* BACKGROUND BEFORE DENOISE, because a rolling ball fitted to a noisy\n  surface follows the noise, and subtracting that surface leaves the noise\n  behind twice.\n* DENOISE BEFORE CONTRAST, because gamma, CLAHE and histogram equalisation\n  all amplify whatever is in the dim end of the histogram, and on a raw\n  field most of what is down there is noise. Denoising afterwards has to\n  undo an amplification instead of preventing it.\n* CONTRAST BEFORE SHARPEN, because an unsharp mask's amount is relative to\n  the local contrast it finds; run it first and the contrast step then\n  stretches its halos along with everything else.\n* MORPHOLOGY BEFORE SPLIT, because opening and closing change which pixels\n  are connected and the split is a question about connected pieces. Closing\n  a gap and then splitting is \"join these two fragments, then cut the\n  result where it has two centres\"; the reverse order cuts fragments that\n  the closing was about to join.\n\n:func:`prepare` is the first four stages and :func:`finish` is the last\ntwo. Between them is whichever detector the Mode box named, which is why\nthe chain is offered to every mode and not only to Otsu.\n\nWHAT A STEP COSTS. :func:`heavy_steps` names the switched-on steps that are\nslow enough to say so before they run -- non-local means above all, which\nis minutes on a 2,000 px field and is the reason the whole-image run keeps\nitem 407's progress and Cancel.\n\nWHAT THIS IS NOT, AND WHAT IT IS NEXT TO.\n:func:`spacr.object._preprocess_batch` is the mask pipeline's own\npre-processing for organelles: a rolling ball and CLAHE, in that order,\nover a batch of fields, driven by ``organelle_rolling_ball`` and\n``organelle_clahe``. Two of this module's ten steps are that pair, and\nthey mean the same thing. They are written here rather than called there\nbecause that function takes an ``(N, H, W)`` batch and a pipeline settings\ndict, and because splitting one chain across two modules -- rolling ball\nand CLAHE from the pipeline, top-hat, denoise, gamma, equalisation,\nsharpen, morphology and split from here -- would leave nowhere that the\nORDER is stated, which is the one thing about a chain that has to be\nstated in one place.\n:mod:`spacr.settings`' Mask background settings (``remove_background``,\n``background``, ``signal_to_noise``) are a different operation again: a\nfloor applied per channel to the pixels a mask RUN segments, not a surface\nfitted and subtracted for one curator's look at one field.\n\nWITHIN MAKE MASKS ONLY. A chain changes how objects are FOUND for a\ncurator to accept or reject; it does not change a pixel on disk and it is\nnot wired into the Mask module's own pre-processing. Whether it should be\n-- so that a model trained on masks curated over an enhanced image sees\nthe same input at inference -- is a question for the maintainer, and item\n473 says to ask before answering it."
+    },
+    "spacr.qt.detect_chain.Chain": {
+      "source_blocks_sha256": [
+        "264f88b244ad0f3358e15f83e115cd158f78bba25f33b21e021ef93063233a37",
+        "a67f1885e9dc7b6f7b612b673995e50e281fe24f408b8a918477e91e0a5bd04b",
+        "247b69142f5c228609738770f88a63d6c9b658786500cdc07ad3e142aabd30e9",
+        "9fe10fb8de82d62d750a24229f1d1eb998374073f8749039340e8fd0bd298bc3",
+        "a7e6629de96d48105c1bf9460384bc8c3d3db4adf6365e5f9e4acfa15f02a32b",
+        "f26b92f3e9427ee9ccba7c58729790e7ab4655f599711cca69749f3d0d42ab51",
+        "057d5d2989d5948831ba1dfdc404ef118c6d402a7cd1125e4dd830114ba255ac",
+        "21f80c67790e294845a53b1de63897e563e940f4e747c80693d7db30800571c9",
+        "22e42ef441e05a10d9475d26fb0f6a04b1b40993ce59d8710acdf03c3068fdb7",
+        "89d121b52760d0ec4a20108d43753c07cd9dd6d7767e9f7c0a3cb6ad54bd419b",
+        "6e1cd226462538a354054da1a4adfdc97e6ce15f48ad67d766b2d742565f87dd",
+        "c5738fe3372ef82a89c39be495725ef65ae569368653cff35573ba09cb2e0103",
+        "beb604d5a3a9d5d75987c8ebc2a702797967f1fc6cd2aa882b3c16028789e086",
+        "69fdf4382f355c44834915bf15910d5ebd9f5dd2947705de5496110694912be7",
+        "6308c394745f5ae94e3e66619b465c839640e51f78b535e2f6fb6e9945f04dbb",
+        "6a37a1882422e9457f95e67a01a795bf608267ba17dd45ef0c53e26989fc0607",
+        "cd1fd64c5bf6f5e76c52edbe39d3aa0fc3c60b11c6c506f85d2d979415f86ebc",
+        "a3540c0286531774dd6d53541390eae48d16e3d80e8f8905ae93e29eba0eee42"
+      ],
+      "source_sha256": "18cd910e20078af8f6ab65c358f1672cd154832a6dee8addcdaebdd6e6050d33",
+      "text": "One pre- and post-detection chain, as a value a request can carry.\n\nA plain tuple of scalars, so it is hashable and goes into the\nmagnifier's request key: the same box under two different chains is two\ndifferent questions and must not be answered from one cached result.\n\nEvery field's default is the step switched off, so\n:data:`NO_CHAIN` is \"detect the image as it is\" and an old session that\nknows nothing about this chain keeps behaving as it did.\n\n:param background: one of :data:`BACKGROUND_METHODS`.\n:param background_radius: the ball's or the top-hat disk's radius, in\n    pixels. Set it comfortably larger than the largest object: a radius\n    under the object size eats the objects along with the background.\n:param denoise: one of :data:`DENOISE_METHODS`.\n:param denoise_strength: the Gaussian's sigma in pixels, the median's\n    and the bilateral's disk radius, or the non-local means' cut-off in\n    multiples of the estimated noise.\n:param gamma: the exponent the intensities are raised to on 0..1. Below\n    1 lifts the dim end (faint objects become visible), above 1 pushes\n    it down. 1.0 is off.\n:param clahe: contrast-limited adaptive histogram equalisation.\n:param clahe_tile: the side of one CLAHE tile, in pixels.\n:param clahe_clip: CLAHE's clip limit, 0..1. Higher is more contrast\n    and more amplified noise.\n:param equalize: global histogram equalisation.\n:param sharpen: an unsharp mask.\n:param sharpen_radius: the blur radius the mask is built from, in\n    pixels: about the scale of the edges to sharpen.\n:param sharpen_amount: how much of the mask is added back.\n:param morphology: one of :data:`MORPHOLOGY_OPS`, applied to what was\n    detected. ``open`` separates objects joined by a thin bridge,\n    ``close`` joins objects broken into pieces, ``open_close`` does\n    both in that order.\n:param morphology_radius: the disk radius, in pixels.\n:param split: a distance-transform watershed on what was detected,\n    cutting an object with two centres in two. It is the Otsu mode's\n    \"Split objects that touch\", offered to every other method."
+    },
+    "spacr.qt.detect_chain.describe": {
+      "source_blocks_sha256": [
+        "1310cde820dd4c2f6276a378d7bdec574955265692a995d1120db95fac2436f9",
+        "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6",
+        "e65c15d1d9b70c33ce6935ffa8d99e28b960f61a91377e9b2c0b2534f16dc8a8",
+        "fa2adc5c3d5a21854d82cf67c9adbc5bf228e8441f84c59953308396f1dff1d9"
+      ],
+      "source_sha256": "591a65880a9e81ce80f251b53e3aac768be272d82376ea1685cebb1c113cf6cb",
+      "text": "The switched-on steps in one line, for a status line or a tooltip.\n\n:param chain: the configured pre- and post-detection steps to inspect.\n:param percentile_stretch: whether to include the screen's initial\n    percentile stretch before the steps in the chain.\n:returns: the steps separated by arrows, or an empty string when the\n    chain does nothing."
+    },
+    "spacr.qt.detect_chain.finish": {
+      "source_blocks_sha256": [
+        "637d7e636fe6d5268cfcd52391253a0a58df9297d8c0590e175173ba4d892e2f",
+        "983d5f61da3db274bb7942b08147ae61e3879b0445ba6e0326394dad0c41fe46",
+        "661a37631b37fce4e8dab128d45481cb8f48d71bb7b27207d6d052ce941c282b",
+        "58b93d8483397ff3b4c9a19b9a698634c12613f5a3a1685a742801eb2a1c9e11",
+        "35e83f62514d84a0c2c633c99901e8ec782a590980f733b5de7fc4d305016781",
+        "26e5b6660eaf66f67c537489c9905469491f4708aaadc4816b96e46466b82f89"
+      ],
+      "source_sha256": "3784155d6e994706577d68f64389d1542cde40bd221b9138bd11e79ebc1bf2a0",
+      "text": "What the detector labelled, opened or closed and then split.\n\nMorphology and the split are both questions about WHICH PIXELS ARE ONE\nOBJECT, so both are asked of the detection as a whole: the labels are\nread as a foreground, reshaped, and labelled again. The ids therefore\nchange, which costs nothing here -- Make Masks renumbers every object it\npastes into a mask (:func:`spacr.qt.mask_engine._paste_region_objects`).\n\n:param labels: the detector's label image.\n:param chain: what to do to it.\n:param intensity: the image the detector read, used as the watershed's\n    landscape where it is given.\n:returns: ``labels`` itself when neither step is switched on."
+    },
+    "spacr.qt.detect_chain.heavy_steps": {
+      "source_blocks_sha256": [
+        "c199ef46944374ded9e80d47c23e76cedfe5aa97005e1d32b72feca877ec603e",
+        "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6",
+        "6095c005e582c5e1bb94b096ebfeba8e2a106b01c429163922c55aa5fcd590b9"
+      ],
+      "source_sha256": "ff01e0c05d5957558513909ee6b4995e9505558fdb48ecf89722109492417a0f",
+      "text": "The switched-on steps slow enough to warn about, in words.\n\n:param chain: the configured pre- and post-detection steps to inspect.\n:returns: the names, in :data:`CHAIN_ORDER`; empty when nothing\n    switched on is heavy."
+    },
+    "spacr.qt.detect_chain.is_active": {
+      "source_blocks_sha256": [
+        "f0abba164c99919060b9f2ddaa7e24f1b01ad5d1c4e99209a5f94069fbce415e",
+        "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6"
+      ],
+      "source_sha256": "88fd46a24cd10f795a0168f747930d4a503815f92420e163947c019ddbecf8f2",
+      "text": "Whether any step of the chain is switched on.\n\n:param chain: the configured pre- and post-detection steps to inspect."
+    },
+    "spacr.qt.detect_chain.post_active": {
+      "source_blocks_sha256": [
+        "122c8baf0b948d230c1fdec2feaff0c5a30f72a053a0e692261e5e5eacc8adfc",
+        "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6"
+      ],
+      "source_sha256": "4e02e2c6fa7545656b7a19eee05310cf914d84f73977f6f4b5d2aec0101600b9",
+      "text": "Whether :func:`finish` would change what the detector labelled.\n\n:param chain: the configured pre- and post-detection steps to inspect."
+    },
+    "spacr.qt.detect_chain.pre_active": {
+      "source_blocks_sha256": [
+        "014ce410a8dfc551da334b49ada7d04e3cdc096859eb860e6ef808cd4f790648",
+        "73d9edc6490613a0b4e7beb82f97caeacc0adabef7b1bb65837545d8a6ba1181",
+        "3cd3fa280d102849ed5c2164e9908729cb41df32d5a2c41c11d50b921c27e7e6"
+      ],
+      "source_sha256": "50224d0054a50416712d4b9d69d3afc0b4e28fffff33831bfb3c5b449f71fb8f",
+      "text": "Whether :func:`prepare` would change the image at all.\n\nAsked before a copy is made: a chain with nothing switched on must hand\nthe detector the very array it would have had, not a float copy of it.\n\n:param chain: the configured pre- and post-detection steps to inspect."
+    },
+    "spacr.qt.detect_chain.prepare": {
+      "source_blocks_sha256": [
+        "18f57ad30323388a3a2f122828469d23062cefbbae337d579362e8f31c0702ac",
+        "ed4edf6f1c195a7558a7a465e14ddc05721f64e1445d82e22f8664c5d2b4ecc8",
+        "deea43efa4d59fa4f506620103fbf3a0bb8cf271219440f7e88769b1887ec90c",
+        "58b93d8483397ff3b4c9a19b9a698634c12613f5a3a1685a742801eb2a1c9e11",
+        "3776c55de19a5437406c74c6c1bbb7412186af032e59be86f79ca53ee970a78e"
+      ],
+      "source_sha256": "dadb9a165061ccec449ea658d539b82ba1a47c6e3905c2a1d7b5f4c940b30311",
+      "text": "The image a detector is to read: the first four stages of the chain.\n\nBackground, then denoise, then contrast, then sharpen --\n:data:`CHAIN_ORDER`, whose docstring says why that order and not\nanother. The percentile stretch is the screen's, applied to the whole\nfield before ``image`` was cut from it.\n\n:param image: the field, or the magnifier's box region cut from it.\n    Never modified.\n:param chain: what to do to it.\n:returns: ``image`` itself when nothing is switched on -- so a detector\n    reading an untouched field reads the very array and not a float\n    copy -- and otherwise a new float32 array of the same shape."
+    },
+    "spacr.qt.detect_chain.provenance": {
+      "source_blocks_sha256": [
+        "cf11827fa66d421c7c448695b5d34728b05294974b903b37fc189d4ec1361fdc",
+        "cf5074dc18cc71c759ccc7febf25004b7495367d607f58d33d959d1ff7c3fb18",
+        "ccf9214a9eaa26aca8efe938977335b8f73328c781afbbef8c905ca8d06fec76",
+        "98db5176de8628252445ef3bc2f30e134a6aebfd48d9699c678904c58c02209d",
+        "05d8e2a39429a1add01e96cad9344a3439b06042231479cacb1eb7ca27fc27c6"
+      ],
+      "source_sha256": "1d1733f0d02ce66515d099bca5f4f1cea3e0aff2c7390e43670002bb632d330b",
+      "text": "The chain as it goes into a mask's ledger entry.\n\nONLY THE STEPS THAT RAN, plus the order they ran in, so an entry says\nwhat was done rather than listing fourteen defaults around it; a chain\nwith nothing on records nothing but the switch that was off. The order\nis written out because it is what makes the entry enough to reproduce\nthe mask: the same steps in another order are another mask.\n\n:param chain: the chain the detection used.\n:param percentile_stretch: whether the screen's \"detect on the\n    normalized image\" was on -- the chain's first stage, which is the\n    screen's and not this module's.\n:returns: a JSON-safe dict, empty of steps when none ran."
+    },
+    "spacr.qt.detect_chain.step_names": {
+      "source_blocks_sha256": [
+        "1304864395f9ffb03c5fbe7ee21ed02d35d9c4a68531d491032751e2eb3ee43d",
+        "c47a8a8da855312a854eef97a2414edeb724684e1b2b266b40525bd45319b27e",
+        "cd4bfa7e6f9439c4765b4349e451277995f769a7e3169c9cb9867ff5e636b9a9",
+        "a499c5a518689a5c7be476641054b261f3b1acda44d1764726380871f9552294",
+        "c1350123cb672898bf6a955147410f9420f804f391b6124e9b910f5921876625"
+      ],
+      "source_sha256": "4a4869073759963c5eab4245e91e604b6d22507742271731177144417e3db458",
+      "text": "The switched-on steps, in order, in the words a caption uses.\n\nEnglish, and each name is one row a caller can translate on its own --\nthe alternative, one row per combination of fifteen fields, is a\ncatalog nobody can fill.\n\n:param chain: the chain to describe.\n:param percentile_stretch: whether the screen's stretch was on.\n:returns: the names, in :data:`CHAIN_ORDER`; empty when nothing ran."
+    },
     "spacr.qt.dialogs": {
       "source_blocks_sha256": [
         "65331a05d7e0bac26e79bdc2640b1e94265c26972b8002ec008a8b5c749c255f",
@@ -46448,6 +46621,102 @@
       ],
       "source_sha256": "2a05ebafff8b8a01230ab48b43a66fef2168764bef538dfd6aa2d2b99250520a",
       "text": "The Align & Stitch settings that plan and write the unpacked block.\n\n:param folder: where the stitch sample was unpacked.\n:returns: a :func:`spacr.align.default_settings`-shaped partial dict."
+    },
+    "spacr.qt.organelle_modes": {
+      "source_blocks_sha256": [
+        "eae1d26068b2f719a3c0c575ec1182f24fb661d2f36ad52b8ca701f66adf1f5b",
+        "0e4e72c1469c8e2ed7d03e5658d62ed005d4065ca217f1fe4840cbfe2cef8bc3",
+        "1fbf3b8c242eac5111c79419122796cef02819c896a7870ba9b0f040a5947dd4",
+        "b3215079556b7e4b56851b5cdc38f3e3ab2264d1ddd8a8fb24b11463e01e282d",
+        "c17f3c03924a3592f6db0da7e666dc12e95b37f4f5cb176f8b77121682f426fa",
+        "af5d7f49aa2d1b812588733a4917830af8c934c14755263e2ef81b825a27398e",
+        "eca7e9b5d59d866eeda0ca129bcc3c170982f7c2d9da7fc8102dcfb0901a146b",
+        "dc5212603a8b0b5e0846361c301fa508dae0f212269cd3843f223a7c979ce1e4"
+      ],
+      "source_sha256": "baf01ac86313233631d5adf86379d5290be3883e5460a25ec5488cb0dae1f659",
+      "text": "Organelle detection's methods, offered to Make Masks as magnifier modes.\n\nspaCR already implements eight ways of finding an object -- ``otsu``,\n``adaptive``, ``log``, ``dog``, ``ridge``, ``hysteresis``, ``cellpose`` and\n``unet`` -- in :func:`spacr.object.generate_organelle_masks_sam`. Make Masks\noffered two of them. A curator correcting a mask of tubules had Otsu and\nCellpose; the ridge filter that would have found the tubules was three\nscreens away, in a batch pipeline, and could not be tried on the field in\nfront of them.\n\nTHIS MODULE IS A BRIDGE AND NOT A SECOND IMPLEMENTATION. Every classical\nmethod runs through :func:`spacr.object._segment_single_image`, the one the\norganelle pipeline's workers call, and ``unet`` through\n:func:`spacr.object._segment_unet`. So \"adaptive\" means in Make Masks\nexactly what it means in a mask run, and a curator who tunes a block size\non one field is tuning the setting the pipeline will read. The whole of\nthis module's own work is naming the parameters, turning them into the\n``organelle_*`` keys that engine reads, and saying what each method suits.\n\nWHICH MORPHOLOGY A MODE RUNS UNDER. The organelle engine dispatches on\n``organelle_morphology`` FIRST and the method second, because the same word\nmeans different code for different shapes. Make Masks has no morphology\nbox -- a curator picks a detector, not a cell-biology category -- so each\nmode names the morphology whose branch implements that method in the form\na curator of whole objects wants, and :data:`MODE_MORPHOLOGY` is that\nchoice written down:\n\n* ``adaptive`` runs under ``irregular``: the branch that smooths, closes,\n  opens, fills holes and watershed-splits, which is what a solid object\n  wants. The ``spots`` branch's adaptive is a top-hat filter first and\n  erases anything wider than its disk.\n* ``log`` and ``dog`` run under ``spots``, the only branch that has them.\n* ``ridge``, ``hysteresis`` and ``unet`` run under ``network``, likewise.\n\n:data:`spacr.organelle_types.LEGAL_METHODS` remains the statement of which\nmethod is legal for which shape, and :func:`guidance` reads the sentence\neach mode shows straight out of it rather than restating it here."
+    },
+    "spacr.qt.organelle_modes.MethodParams": {
+      "source_blocks_sha256": [
+        "247292ec6234acc96fc1546925b57e286b5241caf2ea8f3465ea69ec7c4e528a",
+        "24d0b33912d167553d67f4c18f2e809494efa63788b88209bd117fb67cfa0f10",
+        "23c473233b9410e7dd6c1104d67afa3062141e087e222e09d099ed38ab0e874e",
+        "395c8a0de19408c9de2c3d8fdfb01c4b4974d7c54a1b992b46042ef5c03b804e",
+        "a0ab03a1fae02f44309480c4cb15c99c631d31b9d24d52478ceb0ade07505e89",
+        "1c8e6e115e3845a87b5351307e014fc02845a421effa340b87a146c2e9769f2b",
+        "cd40201ad81b9bb2ca2fa04bc82bcec75a022a270a06ea1e440410cfc54cbf0f",
+        "ace7f0604708f74d5ef50a20a5c279221e91d3012ade8a55b0fa3387318f13be",
+        "0a7ac9404d5659f020aaef5edb046ffbb909c85caaf127a8c25f3203f94e1932",
+        "c4dd217cbf6d3923181b9360a683454fd131235194b6761c7924bcd106081a47",
+        "a79c9a4b8fb324689853e7c6c0b0339dc41edcf92bb4bc900ba854a6e692740d",
+        "55c4238fb67e719212ae2a2621173850c28338e1274b7922dc24f523d9a444f9",
+        "7c14d1ffa04de1fd0187eb39af4a4b019f8ec6d60d4f87cf011f4cbaa117a12a",
+        "ea3b6542c5dadb731116ddd45a3d58065e23d5cc982e09f88c2beb1b45793c83",
+        "156cfccac4b7e20d43cd886e307b4edf8432ad871fe06a4546e39ce3c1c99810",
+        "ec3e1fb20c7b815e26321391109bed03601903fdfc89365d872b15065cd5497c",
+        "7fad0eb1d2d597933caaa82a7ae44f90e5804f7c2c5fa8a58d3c3632e6b99a5b",
+        "9ef9bbcdf278d67dc311774bf8d542dfea43e6253a4d591521c037b779e181d2",
+        "565a779086893d5ff86f7f31ff20dc36ecc5f0ca0cd3787f0114083ed08d179c",
+        "e88eb2bda8093614bd3ef20f2cdd0243b2013467197548954b9df8a91ce61842",
+        "b29675e340256ef99d8b4805919ec6a74b4497219d6a9181c9c833de7e8b7548"
+      ],
+      "source_sha256": "dd25eda9d297568863d11f7f83f9856c961bfe2b3270db72cedeea5f0dc24611",
+      "text": "Every parameter the organelle methods read, as one hashable value.\n\nOne tuple rather than one per method, because it goes into the\nmagnifier's request key: a request carries every setting a detector\ncould read, so a mode that falls back to another still finds its own\nsettings in it. The defaults are\n:func:`spacr.settings._set_organelle_defaults`', so a method means the\nsame thing here as it does in a mask run until somebody moves a box.\n\n:param adaptive_block: the local threshold's window, in pixels, forced\n    odd by the engine. Read by ``adaptive`` and by ``ridge`` when its\n    threshold is adaptive.\n:param adaptive_offset: subtracted from the local mean before the\n    comparison; raise it to take fewer background pixels.\n:param morph_radius: the cleanup disk, in pixels. ``adaptive`` also\n    pre-smooths with half of it; the network branches close with half.\n:param fill_holes: holes up to this area, in square pixels, are filled.\n    ``adaptive`` only.\n:param watershed_spots: whether ``log`` and ``dog`` grow a watershed\n    from each blob centre rather than stamping a disk.\n:param log_min_sigma: smallest Gaussian scale LoG searches, in pixels;\n    a blob's radius is about sigma times root two.\n:param log_max_sigma: the largest.\n:param log_num_sigma: how many scales between the two.\n:param log_threshold: the blob-response cut-off, read by ``log`` AND by\n    ``dog``, which has no threshold of its own.\n:param dog_sigma_low: DoG's smallest scale, in pixels.\n:param dog_sigma_high: DoG's largest.\n:param ridge_filter: ``frangi``, ``sato`` or ``meijering``.\n:param ridge_sigmas: the filament half-widths to look for, in pixels.\n:param ridge_threshold: ``otsu`` or ``adaptive``, how the ridge\n    response is cut.\n:param skeletonize: reduce a network to a one-pixel skeleton and label\n    that, so area measures length rather than thickness.\n:param hysteresis_low: the weak level; under 1.0 it is read as a\n    fraction and becomes that percentile of the smoothed image.\n:param hysteresis_high: the seeding level, read the same way.\n:param unet_model_path: the ``.pt``/``.pth`` file to load.\n:param unet_threshold: the probability the sigmoid output is cut at."
+    },
+    "spacr.qt.organelle_modes.guidance": {
+      "source_blocks_sha256": [
+        "5df1f40adf7383ce06020d1144d1ca6deb321ad30f8f26fe8481f97bcb27b11c",
+        "1a5137ae13b50b996564e1d369ab30af0d619f107d3756c6cdfcd45998b19fec",
+        "952201ba48587c4e41c7194e883150303fdd2caf868c41339f68389ae23efa42",
+        "79b37b09fa85c577cede573641c72768f22169060a2c64f71f5bd82465f9b19f"
+      ],
+      "source_sha256": "efeb68c66b16f14b4064b308096a3fced16557b9b876b364bdcac27f290acef0",
+      "text": "What this method suits, from :mod:`spacr.organelle_types`.\n\nThe sentence is built from\n:data:`spacr.organelle_types.LEGAL_METHODS`, which is where spaCR\nalready records which method belongs to which shape, so a method that\ngains or loses a shape there gains or loses it here too rather than\ndrifting into a second opinion.\n\n:param mode: one of :func:`modes`, or any organelle method name.\n:returns: an English sentence, not yet translated: a caller showing it\n    passes it through ``tr``."
+    },
+    "spacr.qt.organelle_modes.modes": {
+      "source_blocks_sha256": [
+        "d9b62de3aa3fe4eae3e537303b3c9f87bf6a2dc2916177049651d3a441bdc670"
+      ],
+      "source_sha256": "d9b62de3aa3fe4eae3e537303b3c9f87bf6a2dc2916177049651d3a441bdc670",
+      "text": "Every mode this module adds to Make Masks, in the box's order."
+    },
+    "spacr.qt.organelle_modes.organelle_settings": {
+      "source_blocks_sha256": [
+        "0fbcd4f4bb62bce74279fcb33fccbd48fb013f632d39bb4a6c006550bdcab329",
+        "e5469f81c3be88d056d3141a91b08c8892e52496ff196bbccd14a4770f61aab6",
+        "000a1162408d70a49483ac8a25d5edf89a10f4275dfda56b10f14386d702a697",
+        "e6bb3935d0bcd0670e18e4548c9b53fbd94eae2c0dd86018d3d019feb9b51efb",
+        "a59fff01581b30eaf3ed030cc8107451d64a1cf2a3f7251cd8b5117cc1ee56bc",
+        "78bb6b6957cab2abaaa7754e8b11facdfd3e6911a6b221e039b318529ed92d4b"
+      ],
+      "source_sha256": "7aceeacef56009cbcd941e7c4dc37ab862dfa3615e7fe8e7b2e7b00f00c3d810",
+      "text": "``params`` as the ``organelle_*`` keys the engine reads.\n\n:param mode: one of :func:`modes`.\n:param params: the parameters as the screen holds them.\n:param min_area: the smallest object to keep, in pixels -- Make Masks'\n    own Min area, so one number governs the magnifier, the detect\n    buttons and the Remove-small button.\n:returns: a dict for :func:`spacr.object._segment_single_image`.\n:raises KeyError: for a mode this module does not add."
+    },
+    "spacr.qt.organelle_modes.provenance": {
+      "source_blocks_sha256": [
+        "6f64fb7e98ebeb348e713ad431d9520cdceae2cf626c18b99899d03dc58efb44",
+        "c22d2fc0df7bba3b5fb57e0e54667a522ea9d8e13d93755221fb3de840a1a6a3",
+        "ad12d9894b77c38dc06c8a7474711ee90d8ce1b21f39d3ad90c36551d9132002",
+        "5574c091712098ce5117eb3da3e20ee17b4a3f8ec6d7ce74189ceb05c71be2a6",
+        "2f9f0b438f8cbf5a15117911425e0a5e5b1124589ab15bd48c325b5922ce1744"
+      ],
+      "source_sha256": "370422a21787fce9caa5472d63e905f2cef311c950fb148484f2f614107126e5",
+      "text": "The parameters this mode actually read, for a mask's ledger entry.\n\nA mode's own parameters and no others, so an entry says what the\ndetection was told rather than carrying nineteen numbers eighteen of\nwhich no branch looked at.\n\n:param mode: one of :func:`modes`, or any other magnifier mode, which\n    reads nothing here and records nothing.\n:param params: the parameters the detection ran with.\n:returns: ``{field: value}``, JSON-safe; empty for a mode that is not\n    one of this module's."
+    },
+    "spacr.qt.organelle_modes.segment": {
+      "source_blocks_sha256": [
+        "35c9205cd847459c64bab368a66c3c451ac844ec909bf8c7f02a7f7cf7b073bb",
+        "06780da8871daaeecae551c957f69197031290fa4a5c3fcbac1973105f9b1806",
+        "e5469f81c3be88d056d3141a91b08c8892e52496ff196bbccd14a4770f61aab6",
+        "41575c6213574f8d47f034f86353f2fbcd0650890a863817dd7013360610bfed",
+        "7b84ac670e29463bc8c8686feb80e01f05e951280f0f2c84e7a1fe6d14868ec5",
+        "44716361ad01d183aea5a83501803ddfa06b5b66cfcc15bcbba33679c1661335",
+        "d7b3a2f67c1065e197504e3c0e3077e1f2d6855b9f0e184c72490cb5caa8149a",
+        "78bb6b6957cab2abaaa7754e8b11facdfd3e6911a6b221e039b318529ed92d4b",
+        "f19de4cf5b318f4bacb6d18e3d1281cdccb94b423a5a1aed174f10bec51d031f"
+      ],
+      "source_sha256": "83af67250fc283d424fb8860cef9ea79211008fd11bab0c9f39f9a1751b73972",
+      "text": "Detect objects in ``image`` the way organelle detection would.\n\n:param image: a 2-D field or region. Read, never modified.\n:param mode: one of :func:`modes`.\n:param params: the parameters the method reads.\n:param min_area: the smallest object to keep, in pixels.\n:param model: a loaded U-Net, for ``unet``; loaded from\n    :attr:`MethodParams.unet_model_path` when not given.\n:returns: a 2-D label image the shape of ``image``.\n:raises KeyError: for a mode this module does not add.\n:raises ValueError: from the engine, for a parameter it refuses -- an\n    unknown ridge filter, a U-Net path that is not a file."
     },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
@@ -79728,18 +79997,19 @@
         "d8973b8c3ceaaec0bd9da49d19c623a582b6e1063447626b6351f449cfd2d1a0",
         "1f078c612ce5b797f3fa0b03a7b8ab07d89b52dd1176662918f453fad4994cc5",
         "5ffd77d153f1ecb3055c33246d3e40f396b198de4d44f934ad50256a85329eb6",
-        "15a1a5d8003fd57a526de5b1baaf7c81faec6d331227cef405601b31dbc364d9"
+        "15a1a5d8003fd57a526de5b1baaf7c81faec6d331227cef405601b31dbc364d9",
+        "b29495ae478ae5027c26d5cb073b19eda3f54ce9f3e12140ffae53d51a471bce"
       ],
-      "source_sha256": "6c1af2b6cc4194a2d13df8e7d80bf714ab550cb5d331a7eccb3fcde2fb7387ff",
-      "text": "A shape drawn on the 3D view, extended through it along the line of sight.\n\nThe projected lasso. The user turns the volume to whatever angle\nseparates a population, then draws around it on the screen; the gate is\nevery object whose PROJECTION on that view falls inside the outline --\nthe outline swept straight back through the volume, whatever the angle.\nUnlike :class:`PrismGate` nothing about it is tied to one of the three\naxis planes.\n\nTHE VIEW IS PART OF THE GATE. An outline on the screen means nothing\nwithout the camera it was drawn through, so the gate carries the camera\nas ``projection``: a 4 x 4 matrix taking a measurement ``(x, y, z, 1)``\nto homogeneous view coordinates ``(sx, sy, depth, sw)``, scaled so that\n``sw`` is positive in front of the camera. The outline lives in\n``(sx / sw, sy / sw)``. Rows one, two and four are the whole of what\n:meth:`mask` needs, so re-applying a saved gate needs no plotting library\nand gives the same answer on any machine; the depth row only lets the\noutline be drawn back into the volume from another angle.\n\n``view`` and ``limits`` record the camera angles ``(elev, azim, roll)``\nand the axis limits the outline was drawn at, so the view can be\ndescribed and shown again. They are not read by :meth:`mask`."
+      "source_sha256": "e40828488740199ea42e70804808cea42c6713f28123f0a8b27d1d9ff649970b",
+      "text": "A shape drawn on the 3D view, extended through it along the line of sight.\n\nThe projected lasso. The user turns the volume to whatever angle\nseparates a population, then draws around it on the screen; the gate is\nevery object whose PROJECTION on that view falls inside the outline --\nthe outline swept straight back through the volume, whatever the angle.\nUnlike :class:`PrismGate` nothing about it is tied to one of the three\naxis planes.\n\nTHE VIEW IS PART OF THE GATE. An outline on the screen means nothing\nwithout the camera it was drawn through, so the gate carries the camera\nas ``projection``: a 4 x 4 matrix taking a measurement ``(x, y, z, 1)``\nto homogeneous view coordinates ``(sx, sy, depth, sw)``, scaled so that\n``sw`` is positive in front of the camera. The outline lives in\n``(sx / sw, sy / sw)``. Rows one, two and four are the whole of what\n:meth:`mask` needs, so re-applying a saved gate needs no plotting library\nand gives the same answer on any machine; the depth row only lets the\noutline be drawn back into the volume from another angle.\n\n``view`` and ``limits`` record the camera angles ``(elev, azim, roll)``\nand the axis limits the outline was drawn at, so the view can be\ndescribed and shown again. They are not read by :meth:`mask`.\n\n:param name: the gate's unique name within its saved gate set."
     },
     "spacr.qt.widgets.gate_spec.ViewGate.__post_init__": {
       "source_blocks_sha256": [
         "72f4f873dc342000ac000a1800f399b735bd119032805412ff6bddf8ceb5ce6b",
-        "7e0342a86ea638a82c96411f3f5a57cba2c931721e944c2bb1f9088a77fbfacc"
+        "101f2ad04eca888386e64da6ef5db1702c2a8e417689d9ebab1c553cf17a2d63"
       ],
-      "source_sha256": "67af2041e4dbeb369d999c25ae36b93d325af9b6d0fb067de692587883b7c065",
-      "text": "Normalise the columns, the camera and the outline.\n\n:raises GateError: blank or repeated columns, a projection that is not\n    three finite rows of four, or an outline of fewer than three\n    vertices."
+      "source_sha256": "472d345c0111aa8e47e3d2d2981eb948b7bc3d1eb6176e840045f095f02bc77a",
+      "text": "Normalise the columns, the camera and the outline.\n\n:raises GateError: blank or repeated columns, a projection that is not\n    four finite rows of four, or an outline of fewer than three\n    vertices."
     },
     "spacr.qt.widgets.gate_spec.ViewGate.centre": {
       "source_blocks_sha256": [
@@ -79785,10 +80055,13 @@
     "spacr.qt.widgets.gate_spec.ViewGate.project": {
       "source_blocks_sha256": [
         "c87861e8d9b83973b22cbf26e93efe7b48e501ad81c4a843a4d38d4fb578aaa2",
+        "9ec8760ee0d5f7ba85be16db7db2e5492a3cf7235feebcc7ee584c2f295aa2e1",
+        "d21454af26f3b3e567171f84a5526e480dcd1ff5985072ede07341254c8fb3e0",
+        "dc7d93c3292406e863216eaaccc86e6cbfa6788edd91fb83aba523d90540ca79",
         "bd50f8eff635f868f6e317f4d01e81211f9e1f7fbe084bbd65a7891071102ba1"
       ],
-      "source_sha256": "e1f006fc9936b78616f31439320a1bf13b14f68867031235ae3ccd30496f88d2",
-      "text": "Where measurements land on the view the gate was drawn on.\n\n:returns: ``(sx, sy)``; NaN wherever a measurement is missing or the\n    point is at or behind the camera."
+      "source_sha256": "78b4663993bc2a378a0614df7c6d4e920e725c787c648f7f77ba49f60910a208",
+      "text": "Where measurements land on the view the gate was drawn on.\n\n:param x: each object's measurement along the first data axis.\n:param y: each object's measurement along the second data axis.\n:param z: each object's measurement along the third data axis.\n:returns: ``(sx, sy)``; NaN wherever a measurement is missing or the\n    point is at or behind the camera."
     },
     "spacr.qt.widgets.gate_spec.ViewGate.scaled": {
       "source_blocks_sha256": [
@@ -90142,10 +90415,10 @@
       "source_blocks_sha256": [
         "1ffdd049dbae1bb0b8e9ab612eec6d8f62c4a3d5ac31b114620f3bca351224a7",
         "07daacb626661c6cf1e8db309e1f98776a2c218aecc46b43f16998280447434c",
-        "01db978928e19c836846ad6c5be341895433fbc826fc584e81e000b5b7055cef"
+        "6a92d2dbc72c89073b2f3cb40f58edff2ca52c2bca4bf774fbfc632da2babde0"
       ],
-      "source_sha256": "62bc8eeae0a15baa8091418e2f281876d70355039e717c3b77eb0a5085659b47",
-      "text": "Start a sample project of the kind you have, from the Home screen.\n\nGitHub #130, 2026-09-22: \"I would like to open a sample project that is\nsimilar to a project I may have and see the platform in action.\" Home shows\nevery module and says nothing about which one to press first; this asks what\nkind of experiment the person has and starts it -- the first module of that\npathway, opened with its example data already downloaded and its settings\nfilled in.\n\nTHE PATHWAYS COME FROM THE SHARED MAP when it is there:\n``spacr/resources/module_workflows.json``, the one source of truth item 472\nbuilds for the tutorials, the walkthroughs and the API pages alike, so what\nthis dialog offers and what the tutorials teach cannot drift apart. Until that\nfile exists the three pathways below are used, which are the ones the\nmaintainer named."
+      "source_sha256": "df33d306ee95160337e00ae3df0df6a3ae461876436f624203e693406efbcce3",
+      "text": "Start a sample project of the kind you have, from the Home screen.\n\nGitHub #130, 2026-09-22: \"I would like to open a sample project that is\nsimilar to a project I may have and see the platform in action.\" Home shows\nevery module and says nothing about which one to press first; this asks what\nkind of experiment the person has and starts it -- the first module of that\npathway, opened with its example data already downloaded and its settings\nfilled in.\n\nTHE PATHWAYS COME FROM THE SHARED MAP when it is there:\n``spacr/resources/module_workflows.json``, the one source of truth item 472\nbuilds for the tutorials, the walkthroughs and the API pages alike, so what\nthis dialog offers and what the tutorials teach cannot drift apart. Until that\nfile exists the three pathways below are used, which are the ones the\nmaintainer named. The selected route remains available from a walkthrough\nbutton in the status bar after its example opens."
     },
     "spacr.qt.widgets.sample_project.SampleProjectDialog": {
       "source_blocks_sha256": [
@@ -93786,32 +94059,41 @@
     "spacr.qt.widgets.volume_view.rotate_about_world": {
       "source_blocks_sha256": [
         "f952811fc9ca5432b4caedeee60a8e3e71f3d3a1a30fd7e49a89f9158e636f00",
+        "da4f49bb42c24fbc90308a3046c4cc3d25c724b62839119e0a5115e54ef2ad86",
+        "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+        "d71603d1d6d08c0a3579c9a4c179c728eac29b1223704c64385f60206c26816f",
         "6df2d5a4635d117709db79a8c67be9018a2ff2f71aeeb690e5898989aa183087",
         "8eda035c9980fadc8b03117d8672b5c4f522efd8c419167ea9fc08bb6ed44b05",
         "a151df9ea3c2af8018455d737e6fb11dce72f2e53e3a8e3d1b1e80900844b30e"
       ],
-      "source_sha256": "5f4ac05c33b09e7a9007850e1fb5ea72105f1638e139d68892bf2064113c3280",
-      "text": "Turn the volume about one of its own data axes.\n\n:param axis: ``\"x\"``, ``\"y\"`` or ``\"z\"`` -- the measurement the volume\n    spins about, which stays put on screen while the other two turn.\n:param degrees: how far; positive turns the volume anticlockwise when\n    that axis points at the viewer.\n:returns: the new ``(elev, azim, roll)``."
+      "source_sha256": "2ab8dd32aa71036580224bc14c9f9595806af0782d68072d162ce09b40cff29a",
+      "text": "Turn the volume about one of its own data axes.\n\n:param elev: the camera elevation in degrees.\n:param azim: the camera azimuth in degrees.\n:param roll: the camera roll in degrees.\n:param axis: ``\"x\"``, ``\"y\"`` or ``\"z\"`` -- the measurement the volume\n    spins about, which stays put on screen while the other two turn.\n:param degrees: how far; positive turns the volume anticlockwise when\n    that axis points at the viewer.\n:returns: the new ``(elev, azim, roll)``."
     },
     "spacr.qt.widgets.volume_view.trackball": {
       "source_blocks_sha256": [
         "70215b4417d077775134c40ff7e12c9d17696b5aa19b6a5081da31b7af0233f7",
         "fe783ffcd7c067b77213be0c435afa1867eedf95aa7d72af0eaa936ffcfe5f24",
+        "da4f49bb42c24fbc90308a3046c4cc3d25c724b62839119e0a5115e54ef2ad86",
+        "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+        "d71603d1d6d08c0a3579c9a4c179c728eac29b1223704c64385f60206c26816f",
         "47598778f4bf7647a075568edb569f9ad59e0cae4dbd0fb4a7282b955e99a1b8",
         "0f305ab349df3eb8a00f2ee723faaaa5346a45e180539f4a598bfc856a18db82",
         "a151df9ea3c2af8018455d737e6fb11dce72f2e53e3a8e3d1b1e80900844b30e"
       ],
-      "source_sha256": "787889649d1fa8c6eaeb5a9437c917bb2f8aae6b38a03b83573bdf796bb43c3d",
-      "text": "Turn the view as if the volume were grabbed and dragged.\n\nA drag to the right turns the volume about the screen's vertical so its\nfront follows the pointer; a drag up turns it about the screen's\nhorizontal. Both are applied to the frame, not to the angles, so the\ntwo directions compose freely and there is no pole to stop at.\n\n:param right_degrees: how far the pointer moved right, as an angle.\n:param up_degrees: how far it moved up, as an angle.\n:returns: the new ``(elev, azim, roll)``."
+      "source_sha256": "ceb9006f6646f68b13292430020e9e51885de2a865c9388ef9d59636342e979f",
+      "text": "Turn the view as if the volume were grabbed and dragged.\n\nA drag to the right turns the volume about the screen's vertical so its\nfront follows the pointer; a drag up turns it about the screen's\nhorizontal. Both are applied to the frame, not to the angles, so the\ntwo directions compose freely and there is no pole to stop at.\n\n:param elev: the camera elevation in degrees.\n:param azim: the camera azimuth in degrees.\n:param roll: the camera roll in degrees.\n:param right_degrees: how far the pointer moved right, as an angle.\n:param up_degrees: how far it moved up, as an angle.\n:returns: the new ``(elev, azim, roll)``."
     },
     "spacr.qt.widgets.volume_view.view_axes": {
       "source_blocks_sha256": [
         "f61d8e8d45cb875a567ac752101cf777a6420d2593f146c03488f3ea38bebcfd",
         "094e71d6607e19bf8bf191a398edaa694f0a6a43f68f21e9346f75080eaebc3e",
+        "da4f49bb42c24fbc90308a3046c4cc3d25c724b62839119e0a5115e54ef2ad86",
+        "abf9c3e2b257f2488fca33fc06d3bb60dabf1e863bbd364c31e3d2ec5cdfcaab",
+        "d71603d1d6d08c0a3579c9a4c179c728eac29b1223704c64385f60206c26816f",
         "69411a1934d3e544cdc561ab377f6cf9499833be53a42ee021843fc4a5e075af"
       ],
-      "source_sha256": "7442b75ef519af1654bff752ac5882dab82ec0c1f48837ea7c251711523a06cd",
-      "text": "The screen axes matplotlib builds from three camera angles.\n\nMirrors ``Axes3D.get_proj`` and ``proj3d._view_axes`` for a Z-up axes:\n``w`` points from the centre of the box to the eye, ``u`` is\n``V x w`` with ``V`` the vertical axis (negated past the pole), and\n``roll`` turns ``u`` and ``v`` about ``w``.\n\n:returns: ``(u, v, w)``, three orthonormal vectors."
+      "source_sha256": "3cc5f5d87ed52c0eceb7b555fd98d12a64dc56d206368e852a260693382fc0d7",
+      "text": "The screen axes matplotlib builds from three camera angles.\n\nMirrors ``Axes3D.get_proj`` and ``proj3d._view_axes`` for a Z-up axes:\n``w`` points from the centre of the box to the eye, ``u`` is\n``V x w`` with ``V`` the vertical axis (negated past the pole), and\n``roll`` turns ``u`` and ``v`` about ``w``.\n\n:param elev: the camera elevation in degrees.\n:param azim: the camera azimuth in degrees.\n:param roll: the camera roll in degrees.\n:returns: ``(u, v, w)``, three orthonormal vectors."
     },
     "spacr.read_background": {
       "source_blocks_sha256": [

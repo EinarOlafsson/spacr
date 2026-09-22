@@ -219,6 +219,8 @@ def pre_active(chain: Chain) -> bool:
 
     Asked before a copy is made: a chain with nothing switched on must hand
     the detector the very array it would have had, not a float copy of it.
+
+    :param chain: the configured pre- and post-detection steps to inspect.
     """
     return bool(
         chain.background != "none"
@@ -228,18 +230,25 @@ def pre_active(chain: Chain) -> bool:
 
 
 def post_active(chain: Chain) -> bool:
-    """Whether :func:`finish` would change what the detector labelled."""
+    """Whether :func:`finish` would change what the detector labelled.
+
+    :param chain: the configured pre- and post-detection steps to inspect.
+    """
     return bool(chain.morphology != "none" or chain.split)
 
 
 def is_active(chain: Chain) -> bool:
-    """Whether any step of the chain is switched on."""
+    """Whether any step of the chain is switched on.
+
+    :param chain: the configured pre- and post-detection steps to inspect.
+    """
     return pre_active(chain) or post_active(chain)
 
 
 def heavy_steps(chain: Chain) -> Tuple[str, ...]:
     """The switched-on steps slow enough to warn about, in words.
 
+    :param chain: the configured pre- and post-detection steps to inspect.
     :returns: the names, in :data:`CHAIN_ORDER`; empty when nothing
         switched on is heavy.
     """
@@ -663,6 +672,9 @@ def step_names(chain: Chain, *,
 def describe(chain: Chain, *, percentile_stretch: bool = False) -> str:
     """The switched-on steps in one line, for a status line or a tooltip.
 
+    :param chain: the configured pre- and post-detection steps to inspect.
+    :param percentile_stretch: whether to include the screen's initial
+        percentile stretch before the steps in the chain.
     :returns: the steps separated by arrows, or an empty string when the
         chain does nothing.
     """
