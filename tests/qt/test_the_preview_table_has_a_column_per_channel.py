@@ -164,7 +164,7 @@ def test_a_channel_some_fields_lack_keeps_its_column(qtbot, tmp_path):
         pytest.fail("every draw held the one field with channel 04")
     panel._populate_set_table()
 
-    assert _headers(panel) == ["ch 01", "ch 02", "ch 03", "ch 04"]
+    assert _headers(panel) == ["ch 0", "ch 1", "ch 2", "ch 3"]
 
 
 def test_choosing_the_naming_after_loading_regroups_the_table(
@@ -191,10 +191,10 @@ def test_choosing_the_naming_after_loading_regroups_the_table(
     assert _headers(panel) == ["image"]
 
     naming.set_value("cellvoyager")
-    qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 01"], timeout=10000)
+    qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 0"], timeout=10000)
     QApplication.processEvents()
 
-    assert _headers(panel) == ["ch 01", "ch 02", "ch 03", "ch 04"]
+    assert _headers(panel) == ["ch 0", "ch 1", "ch 2", "ch 3"]
     assert panel._set_table.rowCount() == 12
 
 
@@ -223,7 +223,7 @@ def test_a_regrouping_read_under_a_naming_since_changed_is_dropped(
     naming.set_value("cellvoyager")
     model._widgets["src"].setText(str(folder))
     panel = screen._live_preview
-    qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 01"], timeout=10000)
+    qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 0"], timeout=10000)
     qtbot.waitUntil(lambda: not panel._image_loaders, timeout=10000)
     QApplication.processEvents()
 
@@ -250,7 +250,7 @@ def test_a_regrouping_read_under_a_naming_since_changed_is_dropped(
     done(found)
 
     assert scans == [], "the stale grouping was adopted and the folder re-read"
-    assert _headers(panel) == ["ch 01", "ch 02", "ch 03", "ch 04"]
+    assert _headers(panel) == ["ch 0", "ch 1", "ch 2", "ch 3"]
 
 
 def _with_macos_sidecars(folder):
@@ -309,9 +309,41 @@ def test_a_folder_on_an_exfat_drive_previews_its_images(qtbot, tmp_path):
 
     assert panel._image is not None, "the preview opened a sidecar"
     assert not panel._image_path.name.startswith(".")
-    assert _headers(panel) == ["ch 01", "ch 02", "ch 03"]
+    assert _headers(panel) == ["ch 0", "ch 1", "ch 2"]
     table = panel._set_table
     assert table.rowCount() == 3
     labels = [table.verticalHeaderItem(row).text()
               for row in range(table.rowCount())]
     assert not [label for label in labels if "._" in label], labels
+
+
+def test_the_headers_are_the_channel_index_from_zero(qtbot, tmp_path):
+    """2026-09-21, the maintainer: "the channel headers should be 0 indexed
+    not 1 indexed" -- the number the channel settings take. Yokogawa's C01 is
+    the stack's channel 0; its own ID is in the tooltip."""
+    panel = _panel(qtbot)
+    panel.load_source_async(_cellvoyager_folder(tmp_path, fields=3, rare_field=99))
+    qtbot.waitUntil(lambda: _headers(panel)[:1] == ["ch 0"], timeout=10000)
+    assert _headers(panel) == ["ch 0", "ch 1", "ch 2"]
+    assert "01" in panel._set_table.horizontalHeaderItem(0).toolTip()
+
+
+@pytest.mark.parametrize("folder_of", [_multichannel_folder, _cellvoyager_folder])
+def test_the_table_follows_the_object_channel_in_the_same_row(
+        qtbot, tmp_path, folder_of):
+    """2026-09-21, the maintainer: with cell chosen and cell channel 1, a
+    table showing another column switches to channel 1's, in the same row,
+    so the user always sees what they are going to segment on."""
+    panel = _panel(qtbot)
+    panel.load_source_async(folder_of(tmp_path))
+    qtbot.waitUntil(lambda: panel._set_table.columnCount() >= 3, timeout=10000)
+    _click(qtbot, panel, 1, 0)
+    assert (panel._table_row, panel._table_col) == (1, 0)
+
+    panel._cell_channel.setValue(1)
+    qtbot.waitUntil(lambda: panel._table_col == 1, timeout=5000)
+    assert panel._table_row == 1, "the field stays; only the channel moves"
+
+    panel._cell_channel.setValue(2)
+    qtbot.waitUntil(lambda: panel._table_col == 2, timeout=5000)
+    assert panel._table_row == 1

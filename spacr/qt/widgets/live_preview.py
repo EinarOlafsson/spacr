@@ -53,7 +53,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QRectF, Qt, QThread, Signal
+from PySide6.QtCore import QRectF, Qt, QThread, QTimer, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
@@ -2168,6 +2168,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._localise_channel_combo()
         self._populate_set_table()
         self._refresh_mip_toggle()
+        QTimer.singleShot(0, self, self._follow_object_channel)
 
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""
@@ -2291,6 +2292,16 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             table.setColumnCount(len(columns))
             table.setHorizontalHeaderLabels(
                 [caption for caption, _chan, _plane in columns])
+            self._column_channels = [
+                index if (chan or plane is not None) and caption.startswith("ch ")
+                else None
+                for index, (caption, chan, plane) in enumerate(columns)]
+            for index, (caption, chan, _plane) in enumerate(columns):
+                header_item = table.horizontalHeaderItem(index)
+                if header_item is not None and chan:
+                    header_item.setToolTip(tr(
+                        "Channel {index}; the file names call it {name}.",
+                        index=index, name=chan))
             table.setVerticalHeaderLabels([s.label for s in sets])
             for row, image_set in enumerate(sets):
                 for col, (_caption, chan, plane) in enumerate(columns):
@@ -2334,6 +2345,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
           channel spin boxes in Live settings number. More planes than those
           spin boxes can name is taken for something other than channels.
 
+        THE CAPTION IS THE CHANNEL'S INDEX, from 0 (the maintainer,
+        2026-09-21): the number the Cell / Nucleus / Pathogen channel settings
+        take, not the ID the file name carries. The pipeline stacks the
+        channels in the sorted order of their IDs (``spacr.io``), which is the
+        order the columns come in, so column N is channel N; a Yokogawa
+        ``C01`` is ``ch 0``. The file's own ID stays in the header's tooltip.
+
         :param sets: the sampled image sets the rows show.
         :returns: the columns, never empty.
         """
@@ -2345,7 +2363,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         named = sorted((named | found) - {""})
         unread = "" in found
         columns: List[Tuple[str, Optional[str], Optional[int]]] = [
-            (f"ch {chan}", chan, None) for chan in named]
+            (f"ch {index}", chan, None) for index, chan in enumerate(named)]
         if named:
             if unread:
                 columns.append(("image", "", None))
@@ -3710,6 +3728,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         wanted = self._channel_for_object(ordered[0])
         if wanted is None:
             return False
+        if self._follow_in_table(int(wanted)):
+            return True
         box = self._channel_box
         target = f"Ch {wanted}"
         for index in range(box.count()):
@@ -3728,6 +3748,38 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._refresh_canvases()
             return True
         return False
+
+    def _follow_in_table(self, wanted: int) -> bool:
+        """Move the set table to channel ``wanted``'s column, in the same row.
+
+        The maintainer, 2026-09-21: with cell chosen and cell channel 1, a
+        table showing another channel's column switches to channel 1's --
+        staying on the same field -- so what is on screen is always what the
+        object will be segmented on.
+
+        :param wanted: the channel index.
+        :returns: whether the table moved (and opened that cell).
+        """
+        table = getattr(self, "_set_table", None)
+        channels = getattr(self, "_column_channels", None) or []
+        if table is None or wanted not in channels:
+            return False
+        column = channels.index(wanted)
+        row = getattr(self, "_table_row", 0) or 0
+        if column == getattr(self, "_table_col", None):
+            return False
+        item = table.item(row, column)
+        if item is None or not item.data(Qt.UserRole):
+            return False
+        self._selected_cells = [(row, column)]
+        self._table_row, self._table_col = row, column
+        blocked = table.blockSignals(True)
+        try:
+            table.setCurrentCell(row, column)
+        finally:
+            table.blockSignals(blocked)
+        self._open_cell(item)
+        return True
 
     def _on_object_channel_changed(self, *_args) -> None:
         """Move the view onto the channel the user just typed, then repaint.
