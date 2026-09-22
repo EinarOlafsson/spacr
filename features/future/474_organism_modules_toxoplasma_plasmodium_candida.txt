@@ -1,0 +1,133 @@
+================================================================================
+ONE MODULE PER ORGANISM: TOXOPLASMA, PLASMODIUM AND CANDIDA, EACH A PAGE OF ITS
+OWN WITH THE ASSAYS INSIDE IT
+================================================================================
+
+Status:    FUTURE, filed 2026-09-22. Not started.
+Owner:     unassigned.
+Requested: 2026-09-22, by the maintainer, in these words:
+
+           "i want to merge all the Assays into one called Toxoplasma with the
+           replication assay icon as the icon. This should be a new type of
+           modual, to the left should be a description of Toxoplasma gondii
+           with some images, with a link to ToxoDB, and some other appropriate
+           links you can think of (e.g. uniprot) then on a grid to the right of
+           should be the modual icons as they are on the home screen but now in
+           this more defined modual. In the future i will add more Toxoplasma
+           moduals, also i want to add some moduals for Plasmodium spp.,
+           Candida spp. for now, make buttons for Toxoplasma, Plasmodium spp.,
+           Candida spp. populate each with a description and some images over
+           the description and a grid to the right. each should have 8 modals,
+           for toxo the first 4 should be the ones currently in assays, and the
+           rest you should come up with and come up with icons, and write under
+           when hovered coming soon. do the same for all 8 modals for the other
+           organisms. Determine what modals would be most useful for the field
+           that are image analasys based for comming up with the additional
+           moduals"
+
+WHAT IS THERE TODAY (nightly, 2026-09-22)
+--------------------------------------------------------------------------------
+
+* Home has four sections (spacr/qt/app.py, SECTION_ORDER ~497): Core, Data,
+  Tools and Assays. Assays holds exactly four modules (~1062-1065):
+  `analyze_plaques` (Plaque Assay), `recruitment`, `invasion`, `replication`.
+* Their icons are spacr/resources/icons/{analyze_plaques,recruitment,invasion,
+  replication}.png; `replication.png` is the one this item's Toxoplasma page
+  takes as its own.
+* Every Home tile is a module screen. What this item introduces is a NEW KIND
+  OF SCREEN: an organism page that is a description plus a grid of module
+  tiles, sitting between Home and the assay modules.
+
+WHAT TO BUILD
+--------------------------------------------------------------------------------
+
+1. HOME'S ASSAYS SECTION BECOMES THREE ORGANISM TILES: "Toxoplasma",
+   "Plasmodium spp." and "Candida spp.". Toxoplasma's icon is the current
+   replication icon. The four assay modules leave Home's top level and live
+   inside the Toxoplasma page (their settings, runs and API are unchanged --
+   only where they are reached from changes).
+2. THE ORGANISM PAGE, one layout used by all three:
+     * LEFT: images of the organism above a description -- what it is, what it
+       causes, why it is imaged -- and a row of links: ToxoDB / PlasmoDB /
+       CandidaDB (all VEuPathDB), UniProt, NCBI Taxonomy, and where it exists
+       a genome browser and the relevant strain resource (e.g. BEI, ATCC).
+       Every image needs a licence that allows shipping it (or is made by the
+       maintainer); record the source beside each.
+     * RIGHT: a grid of eight module tiles, drawn exactly like Home's tiles.
+     * A tile that is not built yet is dimmed and says "Coming soon" when
+       hovered; it opens nothing.
+3. EIGHT TILES PER ORGANISM. The first four of Toxoplasma are the modules that
+   exist today; the rest are proposals, to be confirmed by the maintainer:
+
+   TOXOPLASMA GONDII
+     1. Plaque Assay          (exists)  lysis over days; plaque number and size
+     2. Recruitment           (exists)  host protein at the vacuole membrane
+     3. Invasion Assay        (exists)  attached vs invaded, two-colour staining
+     4. Replication Assay     (exists)  parasites per vacuole
+     5. Egress                (new)     time-lapse: when vacuoles rupture and
+                                        parasites leave, per condition
+     6. Gliding motility      (new)     trail length and speed of extracellular
+                                        parasites (spaCR already tracks motility)
+     7. Bradyzoite conversion (new)     cyst-wall staining: tachyzoite to
+                                        bradyzoite switching per condition
+     8. Host cell damage      (new)     monolayer integrity, host death and
+                                        detachment after infection
+
+   PLASMODIUM SPP.
+     1. Parasitaemia          (new)     infected red cells per field, from
+                                        Giemsa or fluorescence
+     2. Blood-stage staging   (new)     ring / trophozoite / schizont per cell
+     3. Merozoite invasion    (new)     invasion of erythrocytes over minutes
+     4. Liver-stage growth    (new)     exo-erythrocytic form size and number in
+                                        hepatocytes
+     5. Sporozoite motility   (new)     gliding trails and speed
+     6. Cell traversal        (new)     wounded host cells along a sporozoite's
+                                        path (dextran uptake)
+     7. Gametocyte maturity   (new)     stage and sex ratio for transmission work
+     8. Drug response imaging (new)     growth inhibition curves per compound
+                                        from images rather than a plate reader
+
+   CANDIDA SPP.
+     1. Filamentation         (new)     yeast to hyphae: how many switch, how far
+     2. Germ tube formation   (new)     the early filamentation readout, per cell
+     3. Biofilm               (new)     biofilm area and thickness over time
+     4. Adhesion              (new)     cells bound to an epithelial monolayer
+     5. Epithelial invasion   (new)     inside vs outside, two-colour staining
+                                        (the same idea as Toxoplasma's invasion)
+     6. Phagocytosis          (new)     uptake and killing by macrophages
+     7. Morphology            (new)     yeast / pseudohyphae / hyphae per cell
+     8. Antifungal response   (new)     growth and morphology against drug
+                                        concentration
+
+4. ICONS: one per new tile, in the style of the existing icons
+   (spacr/resources/icons/*.png, the workflow set), plus the three organism
+   icons (Toxoplasma reuses replication.png).
+5. EVERY CAPTION IS A TRANSLATED STRING in nine languages -- organism names,
+   descriptions, tile names, "Coming soon" -- and goes to the catalog lane.
+6. THE ROUTE MUST STAY SHORT for people who already use the assays: Home ->
+   Toxoplasma -> Plaque Assay is one click more than today. Keep the search
+   field and the command palette finding "Plaque Assay" directly, and keep
+   any saved recipe or script that names a module working unchanged.
+
+WHAT TO BE CAREFUL WITH
+--------------------------------------------------------------------------------
+
+* A "Coming soon" tile is a promise. Either it carries a date or it says
+  plainly that it is not built; the maintainer decides the wording.
+* The organism pages hold prose about biology. It should be short, sourced and
+  correct, and say where the numbers come from; the maintainer is the
+  authority on what it claims.
+* This is a new screen KIND, so it needs its own place in the Home registry,
+  the API pages, the tutorials (see item 472's map of what feeds what) and the
+  walkthroughs.
+
+DONE WHEN
+--------------------------------------------------------------------------------
+
+* Home's Assays section is three organism tiles, Toxoplasma carrying the
+  replication icon.
+* Each organism page shows images, a sourced description and its links, and a
+  grid of eight tiles; the four Toxoplasma assays open and run as before.
+* Unbuilt tiles are dimmed and say "Coming soon" on hover.
+* Search, the command palette, recipes and scripts still reach every assay
+  module directly.
