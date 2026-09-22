@@ -229,3 +229,26 @@ Final validation:72 focused pathway/first-run/onboarding/runtime-syntax/English
 manifest checks pass in42.14s. The localized path test also runs the application's
 generic translation pass over each visible step, proving the approved wording
 survives both rendering paths.
+
+2026-09-22 — CODEX: HOME USES ALL NINE PATHWAYS AND OFFERS THE TOUR
+Following Claude's dated handoff, the sample-project dialog now reads the
+object-shaped shared map instead of falling back to three legacy routes.
+Titles, first-step guidance, complete module order and first Home tile all
+come from that map. Selecting a sample retains the existing example-data
+loader and adds a persistent Walkthrough button to the status bar; one click
+starts the selected route at Home. Subsequent samples reuse the button with
+their own pathway ID. No analysis starts merely by opening the walkthrough.
+The nine-language titles and steps use the already reviewed pathway text;
+54 new translations cover the six Home captions. The chosen description wraps
+below the list, including the complete Hindi training text. Themed Hindi,
+German and French dialogs were rendered at640x520, and the real MainWindow
+status control was inspected at1280x900. A font propagation issue found during
+that check is covered by a regression: the status bar refits after Qt settles
+the inherited font, so the button is not clipped.
+57 combined Home/pathway/map/runtime checks passed, followed by38 Home/pathway
+checks after the layout refinements. Independent source/hash/gate/live-tr and
+unrelated-row checks cover54 captions plus nine updated473 magnifier tooltips.
+Receipt:features/data/472_home_pathway_integration_2026-09-22.json.
+This completes the map adapter and one-click link left in Claude's handoff.
+The four additional tutorial languages, recordings and final media acceptance
+are still open; this is not complete472 acceptance or a publication claim.

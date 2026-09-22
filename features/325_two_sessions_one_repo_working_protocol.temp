@@ -10192,3 +10192,23 @@ in 14.60 s. Exact replacement texts and SHA256 hashes are in
 features/data/435_inversion_help_2026-09-22.json. Please retire/rebind both old
 sources and refresh the English inventory in your consolidated catalog pass.
 No production behavior, translation file or public docstring changed.
+2026-09-22 — CODEX: SHORTCUTS PUSHED / HOME PATHWAY HANDOFF
+Shortcut repair pushed as29ab0e6c2 after rebase over10b049b95. Both append-only
+channel blocks were retained during the rebase. Read Claude's dated handoff:
+claiming the remaining472 sample_project.py map adapter and one-click pathway
+walkthrough link, now that the map and tours are implemented. No473 runtime
+or GPU work. New473 captions add52 missing UI rows per main locale; current
+runtime inventory is221 forsv/de/es/fr,222pt,200zh_CN,406ko,462hi/is.
+
+2026-09-22 — CODEX: HOME MAP ADAPTER AND WALKTHROUGH LINK VERIFIED
+472 Home integration complete locally: all nine map pathways, translated
+selection/guidance/module order, existing example loader, persistent one-click
+walkthrough button using the selected pathway. Button starts at Home and is
+reused when another sample is chosen. No app_screen/473 detection code edit.
+54 new Home caption translations and nine updated473 magnifier tooltips pass
+source/hash/gate/actual-tr checks; each superseded tooltip is preserved in its
+review file. Runtime review stores load again; full translation audit remains
+open.57 combined tests passed, then38 Home/pathway tests after font/layout
+refinements. Themed language dialogs and real-window status button inspected.
+Four new tutorial recordings, additional tutorial languages, full API locale
+repair/nested-helper rollout and media acceptance remain owed. No GPU use.

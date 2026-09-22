@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Walkthrough",
+      "source": "Walkthrough",
+      "source_sha256": "b463b316cebfc24441413d705d65e7707fae189ff880ff9e704aad73c5353be6",
+      "translation": "Guia passo a passo"
+    },
+    {
+      "table": "ui",
+      "key": "Start a sample project",
+      "source": "Start a sample project",
+      "source_sha256": "5b9dfc722a3a4819857d022b3803627d772fb413e68a777c89f115e70b5fcac5",
+      "translation": "Iniciar um projeto de exemplo"
+    },
+    {
+      "table": "ui",
+      "key": "Start a sample project…",
+      "source": "Start a sample project…",
+      "source_sha256": "c50a24a7657ef468672f44f1dd31cbcdbba3b8ffe673d5cc5e9ea3721610afcf",
+      "translation": "Iniciar um projeto de exemplo…"
+    },
+    {
+      "table": "ui",
+      "key": "Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.",
+      "source": "Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.",
+      "source_sha256": "656145cc460919c9a99834c49f8d14080f65a5c13cc9445db5149c59527967b2",
+      "translation": "Escolha o tipo de experimento que você tem. O spaCR abre o primeiro módulo desse fluxo de trabalho com dados de exemplo para você ver como ele funciona antes de usar suas próprias imagens."
+    },
+    {
+      "table": "ui",
+      "key": "Modules, in order: {names}",
+      "source": "Modules, in order: {names}",
+      "source_sha256": "fae5a56b3884a34bf71a0844166d262580f79903bc609031ff2844d08390493a",
+      "translation": "Módulos, em ordem: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Start",
+      "source": "Start",
+      "source_sha256": "e4bb9f1ece9af9264a3b9e3913bbdb2cf497457167b14ced5f85688bfde74644",
+      "translation": "Iniciar"
+    }
+  ]
+}

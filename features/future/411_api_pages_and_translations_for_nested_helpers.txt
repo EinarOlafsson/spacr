@@ -1566,3 +1566,14 @@ English symbol count stays11280. Full locale audit and nested rollout are open.
 The fresh nested inventory atfaa66fda0 measures950 eligible definitions in201
 modules,940 canonical entries,1643 canonical blocks and1586 unique blocks;
 ENABLED_MODULES remains empty. Older842-helper measurements are no longer current.
+
+2026-09-22 — CODEX: HOME CAPTIONS AND CURRENT473 MAGNIFIER HELP
+54 Home sample-project captions added across all nine GUI languages. The new
+473 organelle-method paragraph replaced a reviewed tooltip and made the
+runtime review loader fail closed. Each locale now includes a reviewed
+translation of that paragraph; the preceding and following technical guidance
+is unchanged. The original source/translation is preserved under
+superseded_records in each review file, and the current record replaces its
+old catalog key. No review gate or count was relaxed. Runtime English is
+refreshed to4133 UI sources. All nine complete runtime review stores load;
+full catalog translation audit still has missing text and remains open.

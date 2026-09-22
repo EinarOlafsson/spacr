@@ -12,7 +12,8 @@ THE PATHWAYS COME FROM THE SHARED MAP when it is there:
 builds for the tutorials, the walkthroughs and the API pages alike, so what
 this dialog offers and what the tutorials teach cannot drift apart. Until that
 file exists the three pathways below are used, which are the ones the
-maintainer named.
+maintainer named. The selected route remains available from a walkthrough
+button in the status bar after its example opens.
 """
 from __future__ import annotations
 
@@ -21,10 +22,10 @@ import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
 
-from PySide6.QtCore import Qt, Signal
+from PySide6.QtCore import Qt, QTimer, Signal
 from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QLabel, QListWidget, QListWidgetItem,
-    QVBoxLayout,
+    QToolButton, QVBoxLayout,
 )
 
 from ..i18n import tr
@@ -71,11 +72,23 @@ def pathways(map_file: Optional[Path] = None) -> List[Dict]:
     try:
         written = json.loads(path.read_text(encoding="utf-8"))
         found = written.get("pathways") if isinstance(written, dict) else written
+        if isinstance(found, dict):
+            modules = written["modules"]
+            return [
+                {"id": key, "title": route["title"],
+                 "summary": route["steps"][0]["action"],
+                 "modules": [step["module"] for step in route["steps"]],
+                 "module_names": [modules[step["module"]]["name"]
+                                  for step in route["steps"]],
+                 "home_app": route["home_app"], "walkthrough": True}
+                for key, route in found.items()
+                if route.get("steps") and route.get("title")
+            ]
         out = [dict(entry) for entry in found or []
                if entry.get("modules") and entry.get("title")]
         if out:
             return out
-    except (OSError, ValueError, AttributeError, TypeError):
+    except (OSError, ValueError, AttributeError, TypeError, KeyError):
         LOG.debug("no usable workflow map at %s", path, exc_info=True)
     return [dict(entry) for entry in FALLBACK]
 
@@ -116,6 +129,7 @@ class SampleProjectDialog(QDialog):
         super().__init__(parent)
         self.setObjectName("SampleProjectDialog")
         self.setWindowTitle(tr("Start a sample project"))
+        self.resize(640, 520)
         self._entries = list(entries if entries is not None else pathways())
         layout = QVBoxLayout(self)
         intro = QLabel(tr(
@@ -126,13 +140,17 @@ class SampleProjectDialog(QDialog):
         layout.addWidget(intro)
         self.list = QListWidget(self)
         self.list.setObjectName("SampleProjectList")
+        self.list.setWordWrap(True)
+        self.list.setTextElideMode(Qt.ElideNone)
         for entry in self._entries:
-            item = QListWidgetItem(
-                f"{entry['title']}\n{entry.get('summary', '')}", self.list)
+            item = QListWidgetItem(tr(entry["title"]), self.list)
             item.setData(Qt.UserRole, entry)
         self.list.setCurrentRow(0)
         self.list.itemDoubleClicked.connect(lambda _item: self.accept())
         layout.addWidget(self.list, 1)
+        self.summary = QLabel("", self)
+        self.summary.setWordWrap(True)
+        layout.addWidget(self.summary)
         self.steps = QLabel("", self)
         self.steps.setWordWrap(True)
         layout.addWidget(self.steps)
@@ -141,6 +159,7 @@ class SampleProjectDialog(QDialog):
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
                                    self)
         buttons.button(QDialogButtonBox.Ok).setText(tr("Start"))
+        buttons.button(QDialogButtonBox.Cancel).setText(tr("Cancel"))
         buttons.accepted.connect(self.accept)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
@@ -148,7 +167,10 @@ class SampleProjectDialog(QDialog):
     def _say_the_steps(self, row: int) -> None:
         """Name the modules the selected pathway goes through, in order."""
         entry = self.selected()
-        names = self._module_names(entry.get("modules", ()) if entry else ())
+        self.summary.setText(tr(entry.get("summary", "")) if entry else "")
+        names = ([tr(name) for name in entry["module_names"]]
+                 if entry and entry.get("module_names")
+                 else self._module_names(entry.get("modules", ()) if entry else ()))
         self.steps.setText(
             tr("Modules, in order: {names}", names=" → ".join(names))
             if names else "")
@@ -160,7 +182,7 @@ class SampleProjectDialog(QDialog):
             from ..screens.app_screen import APP_TITLES
         except Exception:                                     # noqa: BLE001
             APP_TITLES = {}
-        return [APP_TITLES.get(key, key) for key in keys]
+        return [tr(APP_TITLES.get(key, key)) for key in keys]
 
     def selected(self) -> Optional[Dict]:
         """The pathway highlighted now, or None."""
@@ -172,7 +194,37 @@ class SampleProjectDialog(QDialog):
         entry = self.selected()
         super().accept()
         if entry and entry.get("modules"):
-            self.chosen.emit(str(entry["modules"][0]))
+            self.chosen.emit(str(entry.get("home_app") or entry["modules"][0]))
+
+
+def _offer_pathway_walkthrough(window, entry) -> None:
+    """Keep the chosen route one click away without starting any analysis.
+
+    Fit the status bar again after Qt propagates the inherited font to the
+    new button. Its initial size hint can still use the previous font size.
+    """
+    if window is None or not entry.get("walkthrough"):
+        return
+    from ..walkthrough import show_walkthrough
+
+    status = window.statusBar()
+    button = getattr(window, "_sample_pathway_button", None)
+    if button is None:
+        button = QToolButton(status)
+        button.setObjectName("SamplePathwayWalkthrough")
+        button.setAutoRaise(True)
+        button.clicked.connect(lambda _checked=False: show_walkthrough(
+            window, "pathway:" + button.property("workflowPathway")))
+        status.addPermanentWidget(button)
+        window._sample_pathway_button = button
+    button.setProperty("workflowPathway", entry["id"])
+    button.setText(tr("Walkthrough"))
+    button.setToolTip(tr(entry["title"]))
+    button.ensurePolished()
+    button.show()
+    status.setFixedHeight(max(status.height(), status.sizeHint().height()))
+    QTimer.singleShot(0, status, lambda: status.setFixedHeight(
+        max(status.height(), status.sizeHint().height())))
 
 
 def offer_a_sample_project(window, opener: Callable[[str], object],
@@ -192,7 +244,9 @@ def offer_a_sample_project(window, opener: Callable[[str], object],
     keys = list(entry.get("modules") or ())
     if not keys:
         return ""
-    screen = opener(keys[0])
+    key = entry.get("home_app") or keys[0]
+    screen = opener(key)
     if screen is not None:
+        _offer_pathway_walkthrough(window, entry)
         start_example(screen)
-    return keys[0]
+    return key

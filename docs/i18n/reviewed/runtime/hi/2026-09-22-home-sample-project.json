@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Walkthrough",
+      "source": "Walkthrough",
+      "source_sha256": "b463b316cebfc24441413d705d65e7707fae189ff880ff9e704aad73c5353be6",
+      "translation": "चरण-दर-चरण मार्गदर्शिका"
+    },
+    {
+      "table": "ui",
+      "key": "Start a sample project",
+      "source": "Start a sample project",
+      "source_sha256": "5b9dfc722a3a4819857d022b3803627d772fb413e68a777c89f115e70b5fcac5",
+      "translation": "एक उदाहरण प्रोजेक्ट शुरू करें"
+    },
+    {
+      "table": "ui",
+      "key": "Start a sample project…",
+      "source": "Start a sample project…",
+      "source_sha256": "c50a24a7657ef468672f44f1dd31cbcdbba3b8ffe673d5cc5e9ea3721610afcf",
+      "translation": "एक उदाहरण प्रोजेक्ट शुरू करें…"
+    },
+    {
+      "table": "ui",
+      "key": "Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.",
+      "source": "Pick the kind of experiment you have. spaCR opens the first module of that pathway with example data, so you can see it work before pointing it at your own images.",
+      "source_sha256": "656145cc460919c9a99834c49f8d14080f65a5c13cc9445db5149c59527967b2",
+      "translation": "अपने प्रयोग का प्रकार चुनें। spaCR उस कार्यप्रवाह का पहला मॉड्यूल उदाहरण डेटा के साथ खोलता है, ताकि अपनी छवियों का उपयोग करने से पहले आप देख सकें कि यह कैसे काम करता है।"
+    },
+    {
+      "table": "ui",
+      "key": "Modules, in order: {names}",
+      "source": "Modules, in order: {names}",
+      "source_sha256": "fae5a56b3884a34bf71a0844166d262580f79903bc609031ff2844d08390493a",
+      "translation": "मॉड्यूल, क्रम में: {names}"
+    },
+    {
+      "table": "ui",
+      "key": "Start",
+      "source": "Start",
+      "source_sha256": "e4bb9f1ece9af9264a3b9e3913bbdb2cf497457167b14ced5f85688bfde74644",
+      "translation": "शुरू करें"
+    }
+  ]
+}
