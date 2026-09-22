@@ -295,6 +295,31 @@ def test_the_otsu_mode_is_left_to_its_own_split_and_fill(monkeypatch):
     assert "yes" not in called, "the chain's split ran on top of Otsu's"
 
 
+def test_a_whole_image_run_of_a_new_method_can_be_cancelled():
+    """Item 407's ticket covers the new modes, at the steps between filters.
+
+    The classical methods have no tiles to count, so what is asserted is
+    the part that matters to a person: a Cancel is seen, and the run stops
+    with :class:`mm._RunCancelled` instead of finishing an answer nobody
+    wants.
+    """
+    ticket = mm._RunTicket()
+    field = blob_field(96)
+    request = mm._MagnifierRequest(
+        key=("k",), crop=field, box=(0, 0, 96, 96), shape=(96, 96),
+        mode="adaptive", sensitivity=0.0, bright=True, min_area=20,
+        model_name="cpsam", diameter=0, colour=(1, 2, 3), scope="image",
+        ticket=ticket, chain=dc.Chain(gamma=0.8))
+
+    labels, used, note = mm._segment_region(request)
+    assert used == "adaptive" and note == ""
+    assert labels.shape == field.shape
+
+    ticket.cancel()
+    with pytest.raises(mm._RunCancelled):
+        mm._segment_region(request)
+
+
 def test_the_chain_and_the_parameters_are_part_of_the_request_key(screen):
     """A cached answer under one chain must not answer for another."""
     magnifier = screen._magnifier

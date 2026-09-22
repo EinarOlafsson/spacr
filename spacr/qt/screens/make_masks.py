@@ -2680,6 +2680,17 @@ def _organelle_segmenter(request: _MagnifierRequest, load_model=None):
 
     ``load_model`` is the CELLPOSE loader and is not used; a U-Net is
     loaded from the path the U-Net parameters name.
+
+    A WHOLE-IMAGE RUN CAN BE CANCELLED BETWEEN STEPS AND NOT INSIDE ONE.
+    :class:`_RunTicket`'s progress is Cellpose's tiles, counted by a
+    forward hook on its network (:func:`_counting_tiles`); a scikit-image
+    filter has no tiles, so the bar stays indeterminate and Cancel is
+    honoured at the boundaries -- before the chain, before the detector,
+    after it. That is the honest bar rather than a thin one: these runs are
+    seconds on a field where Cellpose-SAM on a CPU is most of an hour. The
+    exception a curator can feel is a heavy chain step over a whole field,
+    which :func:`spacr.qt.detect_chain.heavy_steps` warns about before it
+    is switched on.
     """
     ticket = request.ticket
     if ticket is not None:
@@ -2792,6 +2803,8 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     prepared = detect_chain.prepare(request.crop, chain)
     if prepared is not request.crop:
         request = request._replace(crop=prepared)
+    if request.ticket is not None:
+        request.ticket.check()
     mode = canonical_magnifier_mode(request.mode)
     segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
@@ -3854,6 +3867,15 @@ class _LiveMagnifier(QObject):
         The one place the box's pixels are taken, so what the model is given
         and what the box paints cannot disagree about whether they were
         inverted.
+
+        THE ENHANCEMENT CHAIN IS NOT APPLIED HERE. This runs on the GUI
+        thread, once per mouse move, and a non-local means or a wide
+        background radius over a region is not something to do between two
+        frames; :func:`_segment_region` applies it on the worker, to this
+        crop, which is also what makes every step live on the box. The
+        percentile stretch is the exception and is already in
+        :meth:`_MaskCanvas.detection_base`, because its levels are the
+        whole field's.
 
         The inverted case is a slice of :meth:`inverted_field`, which uses
         :func:`mask_engine.invert_for_detection` and NOT
