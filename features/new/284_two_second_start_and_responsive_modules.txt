@@ -1292,3 +1292,177 @@ macOS/Windows close-out. Opening a waiting category costs its build on
 that click (measured 10-170 ms per category at load ~10, Regression's Model
 & Inference the largest); an idle-time prebuild would move that too, and is
 not done.
+
+--------------------------------------------------------------------------------
+2026-09-22 -- THE CLOSED CATEGORIES ARE BUILT IN IDLE TIME, A FEW MS AT A TIME
+--------------------------------------------------------------------------------
+
+The cost the previous note moved, not removed: a category closed at open is
+built on its first open, 36-200 ms on that click. Asked for by the
+coordinator: build them beforehand while nobody is using the screen, in
+slices well under a frame, stopping for input, through exactly the passes a
+click-open runs.
+
+WHAT SHIPPED
+  * ONE CODE PATH, RUN IN STEPS. `_build_settings_section`,
+    `_the_rows_moved` and `_translate_a_late_part` are now generators run to
+    the end (`_run_to_the_end`), so a click runs the same code, in the same
+    order, as before. `_waiting_heading_steps` is a waiting category's whole
+    build as steps: one control, the greying passes (one per step), one row
+    or sub-heading, the section explainer, then the hints, surface sweep,
+    maturity, object rule, dimension switches, late captions, search index,
+    search filter, each child's polish, each child's language pass, and the
+    help move. A click on a category the idle build is half-way through
+    finishes that build (the same generator); the heading counts as waiting
+    until the last step.
+  * `_IdlePrebuild` (app_screen.py) drives it: 400 ms after the screen is
+    shown with no pointer movement it runs steps for up to 4 ms a slice (a
+    step that alone took 2 ms ends its slice), then gives the loop back
+    with a zero timer. While slices run it watches the application's
+    events; any pointer, wheel, touch or key event pushes the next slice to
+    400 ms after it. It stops when the screen is hidden or closed and
+    uninstalls itself when done. It never expands, shows or hides anything
+    outside category bodies (tested; for item 471's collapsible panes).
+  * THE WATCH IS NOT ON WHILE IT WAITS. The first version kept an
+    application-wide event filter installed from the screen's show: a
+    Python call per event, and a module open delivers tens of thousands --
+    it cost every module open ~10 ms in the benchmark (6 runs/arm: every
+    module +5..+16 ms median, controls +2..+12). Now the wait ends by
+    comparing the pointer's position; after a key the watch stays on so
+    typing keeps it waiting. The benchmark A/B below is flat.
+  * TWO WHOLE-PANEL COSTS THE SLICES EXPOSED, both fixed at the source
+    because they are paid by clicks and channel commits too:
+      - THE OBJECT RULE SHOWED EVERY ROW AND THE SEARCH STRIP HID MOST OF
+        THEM AGAIN. Under Essentials (every module's default) that round
+        trip was 68 ms of a 90 ms pass on Regression, run twice per
+        category built. The rule now asks the screen which rows its filters
+        will hide (`rows_the_screen_hides`: the search strip's
+        `keys_it_hides` and the switched-off dimensions) and sets each row
+        once. The forms are then invalidated once (`_lay_the_forms_out_again`)
+        -- without that, Mask's filename-convention box stayed at its old
+        height after a channel commit in Swedish (96 px instead of 114),
+        because only the round trip had been re-laying its form out.
+      - `essential_keys()` rebuilt the module's category layout on every
+        search pass (16 ms on Regression); cached per settings set.
+        `explainer_width()` rendered all 180 regression explainers to
+        measure them (20 ms per Regression category build); cached per
+        language.
+  * ONE LONG-STANDING BUG FOUND BY THE EQUIVALENCE CHECK: a greyed
+    setting's NAME never said why it was greyed. `_note_on_label` exists
+    for exactly that, but a rule that greyed a field before its label
+    existed left the reason on the field (`_PENDING_NOTE_PROPERTY`, "so it
+    can be put on a label that does not exist yet") and nothing put it
+    there, and the window's language pass (`refresh_api_tooltips`)
+    rebuilt every label's help from its description and dropped any reason
+    that had reached it. So whether a greyed name explained itself depended
+    on the order categories happened to be built in. Now a new caption takes
+    the pending reason (`_put_the_greyed_reason_on`) and the language pass
+    keeps it (`_LABEL_NOTE_PROPERTY`). On nightly no greyed name said why;
+    now all do -- e.g. Classify's batch_column: "batch_column is read only
+    when batch_correction is enabled (currently 'none')".
+
+FIRST OPEN OF A CLOSED CATEGORY, ms, All settings (under Essentials the
+closed categories are hidden until All is chosen), median / max over every
+closed category of the module, offscreen, load ~3:
+
+    module            nightly ad01caeca    lazy e2f082bf8    idle-prebuilt
+                      (built at open)      (built on click)
+    mask                 33 /  47             55 /  83           24 / 26
+    measure              36 /  58             64 / 106           25 / 28
+    classify_merged      45 /  74             71 / 139           28 / 31
+    regression           47 /  87             92 / 175           27 / 37
+    umap                 32 /  40             49 /  88           23 / 28
+    external_masks       34 /  65             49 /  94           26 / 32
+    analyze_plaques      28 /  63             35 / 119           27 / 28
+
+A prebuilt category opens faster than one built at open used to: its body
+is on the page (hidden), where nightly's detached bodies paid a reparent and
+restyle on the first open.
+
+THE IDLE BUILD ITSELF, per module, offscreen, a 16 ms timer measuring how
+late it fires; "moving" = pointer moved every 20 ms from 0.6 s after the
+open (the build had started at 0.4 s), then 6 s idle:
+
+                    slices   worst slice  idle: worst lateness     slices while   input delay
+                             ms           (nightly | prebuild) ms  moving         max ms
+    Essentials view
+    mask               64      16.5          28 | 27                  0              0.5
+    measure            59      25.2           9 | 55*                 0              1.9
+    classify_merged   107      13.1           1 | 12                  0              1.4
+    regression         45      11.3           3 | 12                  0              0.5
+    umap               61      12.3          32 | 19                  0              2.3
+    external_masks     57      23.8          27 | 11                  0              1.7
+    analyze_plaques    37       9.1          51 | 37                  0              0.2
+    All settings
+    mask               89      10.6          44 | 18                  0              1.4
+    measure            59      24.5          42 | 39                  0              1.9
+    classify_merged    99      14.1          48 | 16                  0              0.3
+    regression         97      20.3          28 | 23                  0              0.8
+    umap               68       9.2          15 | 19                  0              1.5
+    external_masks     70      23.5          30 | 21                  0              0.7
+    analyze_plaques    38       9.4           3 | 26                  0              0.2
+
+  (* the machine's load rose from ~3 to ~8 during that row; nightly, which
+  runs no prebuild at all, shows 28-51 ms idle lateness on its own -- the
+  gc tick, usage timers and the ambient backdrop -- so the idle column's
+  worst values are that noise floor, not the build.)
+
+READ PLAINLY: p95 slices are 7-9 ms. The worst slice is 20-25 ms on Measure,
+External masks and Regression -- over the 16 ms target by up to 9 ms -- and
+it is ONE indivisible Qt call: laying out one combo row (`addRow` plus the
+maturity repolish, 12-20 ms for "Crop mode" / "Number of organelles") or
+Regression's section explainer. No slice ran while the pointer moved, in any
+module, and input waited at most 2.3 ms. So the worst a user moving the
+mouse can meet is the one slice already running when they started, at most
+about one frame; a 100 ms freeze from the prebuild did not occur in any run.
+
+BENCHMARK, `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only`, six alternating runs per arm, BOTH TREES BYTE-COMPILED,
+nightly 954587cac vs this change, load 3.8-4.9. The benchmark leaves each
+module within ~100 ms, before the 400 ms wait ends, so this measures what
+the prebuild costs a module open (nothing), not what it saves:
+
+    module            nightly med  this med  delta  cons
+    regression             795       764     -31    +12
+    mask                   831       811     -20    +30
+    classify_merged        515       508      -8    +17
+    umap                   588       570     -18    +14
+    measure                423       408     -14    +19
+    external_masks         308       302      -6     +1
+    analyze_plaques        466       484     +17    +36
+    __preferences__ (ctl)  937       915     -22    +16
+    __home__        (ctl)  229       224      -5    +22
+    over-500 count 6.5 -> 7.0, total 4,973 -> 5,258 ms (inside the noise)
+
+THE .pyc BIAS, AGAIN, BECAUSE IT DECIDES A/B RESULTS: the benchmark runs
+with PYTHONDONTWRITEBYTECODE=1, so a tree whose edited modules have no .pyc
+recompiles them in every run (~0.8 s startup, ~+200 ms on Home). Every A/B
+here byte-compiled both trees first (`python -m compileall -q spacr`); any
+A/B in 284 or 380 older than today's lazy-category note compared a freshly
+edited tree against a cached one and is biased against the change.
+
+BEHAVIOUR IS THE SAME, CHECKED: on seven modules, Essentials and All,
+English and Swedish, every visible settings widget after opening every
+category (class, name, text, geometry, enabled, eight palette roles, font,
+tooltip, size hint, dynamic properties) plus the search strip's index,
+visible keys and count line, and collect(): prebuilt == click-opened ==
+built-with-the-panel, 0 differences. Against nightly, over the same four
+combinations (and again after a nucleus-channel commit on Mask), the only
+differences are 158 greyed labels that now carry their reason (above) and,
+on Mask and Measure under All settings, the row flag of the z/t rows inside
+the Volumetric / 3D category the 3D switch is hiding: nightly left those row
+flags visible inside the hidden category (the search strip re-showed them
+after the switch hid them), this keeps them hidden, as the switch says.
+Nothing on screen differs; switching 3D on shows them as before.
+
+TESTS: `tests/qt/test_idle_time_builds_the_closed_categories.py` (12): the
+idle build builds everything and is sliced; prebuilt equals click-opened
+equals eager (rows, captions, help, colours, collect(), search state) on
+Classify and Regression; opening a prebuilt category builds nothing; a click
+mid-build finishes it; a category prebuilt after a switch to Swedish
+matches a window built in Swedish; the pointer moving stops it (no slice in
+2 s of movement) and idle resumes it; input mid-build waits; a hidden screen
+builds nothing; no slice is a whole category; a greyed name says why after
+the language pass and stops saying so when re-enabled; the prebuild changes
+no visibility or expansion outside the categories; the object pass that
+sets each row once ends where the round trip ended.
