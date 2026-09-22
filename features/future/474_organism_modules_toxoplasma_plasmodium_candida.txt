@@ -3,8 +3,9 @@ ONE MODULE PER ORGANISM: TOXOPLASMA, PLASMODIUM AND CANDIDA, EACH A PAGE OF ITS
 OWN WITH THE ASSAYS INSIDE IT
 ================================================================================
 
-Status:    FUTURE, filed 2026-09-22. Not started.
-Owner:     unassigned.
+Status:    OPEN. Organism pages implemented 2026-09-22; translations, API/
+           tutorial integration and proposal review remain.
+Owner:     implementation lane; API/tutorial/translation lane for catalogs.
 Requested: 2026-09-22, by the maintainer, in these words:
 
            "i want to merge all the Assays into one called Toxoplasma with the
@@ -131,3 +132,67 @@ DONE WHEN
 * Unbuilt tiles are dimmed and say "Coming soon" on hover.
 * Search, the command palette, recipes and scripts still reach every assay
   module directly.
+
+2026-09-22 — IMPLEMENTATION AND MAINTAINER'S EXPANDED PAGE REQUEST
+--------------------------------------------------------------------------------
+Home's Assays section now opens three organism directories, each containing
+exactly eight Home AppTiles. The four existing Toxoplasma assay registry keys
+remain directly accessible through command palette/help search, CLI and saved
+recipes; their pipelines were not modified. The other twenty tiles are
+inert, dimmed proposals with Coming soon tooltips. The new directories remain
+alpha while translation and final review are outstanding.
+
+The maintainer subsequently requested much more text, several sections that
+reference the modules, horizontal expansion of the left information pane,
+prettier illustrations using Starplast's apicomplexan diagram, and precisely
+Home's button shape. Implemented:
+* Each organism has an introduction, four substantive assay-referenced
+  sections, a cell illustration, compartment selector, source attribution,
+  and research-resource links. Toxoplasma's four active assays have links
+  directly in the prose. The planned workflows are described as proposals.
+* A horizontal QSplitter separates independently scrolling information and
+  module panes. Drag its divider or use Widen text / Restore columns. Tiles
+  reflow after divider movement and scrollbar/viewport resizing.
+* AppTile uses Home's 172/260 width bounds, 124 height, 48 icon size, Preferred
+  width policy and 4-pixel spacing (all scaled through the existing helpers).
+* Toxoplasma and Plasmodium use the SwissBioPics apicomplexan SVG from
+  Starplast 53703bafdf0604576a05b589400051a6b09e62ea. Toxoplasma exposes
+  Starplast's hyperLOPIT-to-UniProt SL mapping; Plasmodium uses common
+  compartment labels without transferring Toxoplasma measurements.
+* Candida uses SwissBioPics' generic budding-yeast illustration, explicitly
+  identified as a schematic rather than a species/morphology reference.
+* The original SVGs are bundled unchanged, with source URLs and SHA-256s in
+  spacr/resources/images/organism_sources.json. Runtime rendering adds a
+  schematic pastel palette and selection outline and removes hidden metadata,
+  canvas backgrounds and the logo. Visible attribution credits Philippe Le
+  Mercier / SIB and links the source and CC BY 4.0 licence. No runtime network
+  access, PyQt6 dependency or import from the separate Starplast checkout.
+* Shared hyperLOPIT shapes are disclosed. SL0171 (mitochondrial membrane)
+  exists as an empty metadata group in the source; selecting it highlights
+  the mitochondrial outline and explicitly explains that no separate shape
+  exists. Dense granules use the stated generic cytoplasmic-granule shape.
+* Twenty-two native vector module icons are bundled. The existing icon loader
+  now renders SVG through Qt into the same bounded, theme-aware raster cache.
+
+Resources checked: CDC DPDx toxoplasmosis/malaria and CDC candidiasis; ToxoDB,
+PlasmoDB, UniProt, NCBI Taxonomy and BEI/MR4; the hyperLOPIT paper (PMID33053376)
+and SwissBioPics Apicomplexa_cell / Budding_yeast_cell. Candida's current
+resource is Candida Genome Database, with /jbrowse2/; the initial feature's
+claim that CandidaDB is another VEuPathDB site was not reproduced in the UI.
+
+Validation: 45 distinct focused checks pass across the organism page, icon
+cache, dock reachability and the two affected Home layout/artwork checks.
+The final organism suite is 24/24, including a real MainWindow -> Toxoplasma
+-> Replication -> Toxoplasma -> Home route, divider drag, expand/restore,
+wide/narrow no-horizontal-overflow, exact Home tile geometry, all mapped SL
+selections, source hashes/licences, direct search routes and inert proposals.
+Actual MainWindow screenshots were reviewed in dark and light themes; the
+light-theme expansion control was changed to the standard QPushButton.
+Fatal-error Ruff and source-code git diff --check pass. The two verbatim
+upstream SVGs retain upstream trailing whitespace. Private logs/renders:
+/mnt/firecuda2/Claude/implementation-20260922/organisms/.
+
+Still OPEN: nine-language caption/prose coverage, API/tutorial integration
+owned by the other Codex lane, and maintainer review of the proposed assays.
+This ships the organism directories; it does not implement the twenty future
+assay pipelines. No GPU work or NAS access was required.

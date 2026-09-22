@@ -1,0 +1,24 @@
+[
+  {
+    "file": "organism_apicomplexa.svg",
+    "source_page": "https://www.swissbiopics.org/name/Apicomplexa_cell",
+    "source_image": "https://raw.githubusercontent.com/EinarOlafsson/starplast/53703bafdf0604576a05b589400051a6b09e62ea/starplast/data/icons/Apicomplexa_cells.svg",
+    "sha256": "77bd023a000bd1f89ac3ee13d0bdfb8d6db2078b1e4c0c57f62aabb4170589a1",
+    "retrieved": "2026-09-22",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "credit": "Philippe Le Mercier \u00b7 SIB Swiss Institute of Bioinformatics",
+    "modifications": "Original bundled SVG unchanged. Rendering removes hidden text, links, canvas backgrounds and logo; organelles receive a schematic pastel palette and selected compartment outlines are accented. Attribution is shown beside the drawing. The apicomplexan mitochondrial-membrane label shares its parent outline because its SL group has no separate geometry."
+  },
+  {
+    "file": "organism_yeast.svg",
+    "source_page": "https://www.swissbiopics.org/name/Budding_yeast_cell",
+    "source_image": "https://www.swissbiopics.org/api/image/Yeast_cells.svg",
+    "sha256": "286b6e92daccac6f8166c43711466bf0031133a5e52a846b2d0f9e9cb40f160f",
+    "retrieved": "2026-09-22",
+    "licence": "CC BY 4.0",
+    "licence_url": "https://creativecommons.org/licenses/by/4.0/",
+    "credit": "Philippe Le Mercier \u00b7 SIB Swiss Institute of Bioinformatics",
+    "modifications": "Original bundled SVG unchanged. Rendering removes hidden text, links, canvas backgrounds and logo; organelles receive a schematic pastel palette and selected compartment outlines are accented. Attribution is shown beside the drawing. The apicomplexan mitochondrial-membrane label shares its parent outline because its SL group has no separate geometry."
+  }
+]

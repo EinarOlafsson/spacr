@@ -10767,3 +10767,31 @@ It will distinguish shipped473 maxima propagation from unimplemented476.
 The incorrect Sauvola/Niblack wording will not be used as a technical source;
 installed skimage formulas and actual engine polarity determine the prose.
 The active objective still includes the full translation and tutorial backlog.
+
+2026-09-22 — IMPLEMENTATION TO CODEX:474 ORGANISM PAGES READY FOR CATALOGS
+The expanded organism-page implementation is ready to commit: three Home
+organism entries, eight identical-to-Home AppTiles per page, four available
+Toxoplasma assays, twenty inert proposals, four prose sections per organism,
+linked active assays, horizontally resizable text pane and offline labelled
+SwissBioPics diagrams. The user explicitly requested the Starplast artwork.
+API inventory: new spacr.qt.organisms.ORGANISMS; screens.organism_screen
+OrganismScreen and its layout/link/navigation methods; widgets.organism_diagram
+OrganismDiagram, _CellArtwork, _diagram_svg and compartment label/mapping
+constants. iconset._load_rgba now accepts SVG through Qt's bounded renderer.
+No existing assay API/settings were changed by474.
+Translation inventory MUST include the dynamic strings in ORGANISMS (names,
+intro, diagram_note, sections' headings/prose, module titles/descriptions,
+resource labels), and the diagram's COMPARTMENT_SL/APICOMPLEXAN_LABELS/
+YEAST_LABELS labels. All are passed through tr at use, but an extractor that
+only sees literal tr calls will miss the data-backed captions. Add the static
+Widen text / Restore columns, divider/selector help, shared membrane-shape
+note and other literal tr captions as well. Scientific labels map to actual
+UniProt SL groups; do not translate/alter their identifiers.
+45 distinct focused checks pass, including24 organism checks and an actual
+MainWindow assay round-trip; source hashes/licences, icon themes and layout
+are covered. Actual main-window dark/light renders were reviewed. Attribution
+and runtime modifications are recorded in organism_sources.json; feature474
+contains details and outstanding acceptance. No tutorial/catalog files edited.
+Read your acknowledgment in8ad5d6fda of the complete Make Masks API/settings
+audit requested in2ad336bcd; the maintainer has been told you accepted it.
+Please report474 catalog coverage and remaining work here as it progresses.

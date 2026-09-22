@@ -785,6 +785,7 @@ SECTIONS = _LiveSections()
 #: pipeline that names one still resolves it. What changed is what Home
 #: OFFERS, not what exists.
 TILELESS_APPS = frozenset({
+    "analyze_plaques", "recruitment", "invasion", "replication",
     "feature_dict",
     "run_history",
     "pipeline_graph",
@@ -1039,6 +1040,9 @@ def _call_screen_factory(factory, key: str, host=None):
 
 
 _BUILTIN_APPS = [
+    ("toxoplasma", "Toxoplasma", "Image-analysis assays for Toxoplasma gondii", SECTION_ASSAYS),
+    ("plasmodium", "Plasmodium spp.", "Image-analysis modules for malaria parasites", SECTION_ASSAYS),
+    ("candida", "Candida spp.", "Image-analysis modules for Candida species", SECTION_ASSAYS),
     ("mask",           "Mask",           "Generate segmentation masks for cells, nuclei, pathogens and organelles from microscopy images using Cellpose and supported alternatives", SECTION_CORE),
     ("measure",        "Measure",        "Quantify per-object intensity and morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Assign annotations to single-object images and store them in the project database",  SECTION_CORE),
@@ -1107,7 +1111,15 @@ APP_STAGE = {
 }
 
 for _row in _BUILTIN_APPS:
-    register_app(*_row)
+    if _row[0] in {"toxoplasma", "plasmodium", "candida"}:
+        register_app(
+            *_row,
+            factory=LazyScreenFactory("spacr.qt.screens.organism_screen", "OrganismScreen"),
+            stage=STAGE_ALPHA,
+            cli_note="Open the organism page in the spaCR GUI; run its assays by their module keys.",
+            api_module="qt/screens/organism_screen")
+    else:
+        register_app(*_row)
 del _row
 
 
@@ -1526,8 +1538,7 @@ SECTION_TILE_ORDER: Dict[str, Tuple[str, ...]] = {
                    "qc_dashboard"),
     SECTION_TOOLS: ("make_masks", "align", "umap", "gate_editor",
                     "graph_builder"),
-    SECTION_ASSAYS: ("analyze_plaques", "recruitment", "invasion",
-                     "replication"),
+    SECTION_ASSAYS: ("toxoplasma", "plasmodium", "candida"),
 }
 
 
@@ -1688,6 +1699,9 @@ def demo_label_for_app(app_key: str) -> Optional[str]:
 
 _ICON_OVERRIDES = {
     "train_cellpose":  "cellpose_masks.png",
+    "toxoplasma": "replication.png",
+    "plasmodium": "organism_plasmodium.svg",
+    "candida": "organism_candida.svg",
 }
 
 _FORCE_GLYPH: set = set()

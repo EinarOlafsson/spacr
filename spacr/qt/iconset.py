@@ -211,6 +211,28 @@ def _load_rgba(path: str):
     try:
         import numpy as np
         from PIL import Image
+        if str(path).lower().endswith(".svg"):
+            from PySide6.QtCore import Qt
+            from PySide6.QtGui import QImage, QPainter
+            from PySide6.QtSvg import QSvgRenderer
+
+            renderer = QSvgRenderer(str(path))
+            if not renderer.isValid():
+                return None
+            size = renderer.defaultSize().scaled(
+                MAX_WORK_SIZE, MAX_WORK_SIZE, Qt.KeepAspectRatio)
+            if size.isEmpty():
+                return None
+            image = QImage(size, QImage.Format_RGBA8888)
+            image.fill(0)
+            painter = QPainter(image)
+            try:
+                renderer.render(painter)
+            finally:
+                painter.end()
+            return np.frombuffer(image.constBits(), dtype=np.uint8).reshape(
+                image.height(), image.bytesPerLine())[:, :image.width() * 4].reshape(
+                    image.height(), image.width(), 4).astype(np.float64)
         with Image.open(path) as im:
             im = im.convert("RGBA")
             if max(im.size) > MAX_WORK_SIZE:

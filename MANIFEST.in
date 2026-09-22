@@ -1,5 +1,6 @@
 recursive-include spacr/resources/models/cp *
 recursive-include spacr/resources/icons *
+recursive-include spacr/resources/images organism_*.svg organism_sources.json
 recursive-include spacr/resources/font *
 recursive-include spacr/resources/data *.csv
 # The bundled GitHub release notes Home's News panel draws. Built by

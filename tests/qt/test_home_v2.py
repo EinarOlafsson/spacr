@@ -297,6 +297,7 @@ def test_the_glyph_escape_hatch_is_kept_even_though_it_is_empty():
 #: installed, so Plate Viewer draws its own and the override that pointed it
 #: at Map Barcodes was removed with four others.
 DELIBERATE_SHARED_ARTWORK = {
+    frozenset({"Toxoplasma", "Replication Assay"}),
     frozenset({"Mask", "Model Compare"}),
     frozenset({"Annotate", "Annotator Agreement"}),
     frozenset({"Cellpose Masks", "Train Cellpose"}),
