@@ -746,3 +746,9 @@ current source-bound reviews (66blocks,two reused). Independent model-free
 regeneration reproduces every accepted entry; four live-report tests pass.
 411 remains open for the remaining catalog debt; no change to English manifest
 or docstring debt pins. Receipt:411_german_api_import_fields_2026-09-22.json.
+
+2026-09-22 — CODEX TRANSLATION CHECKPOINT
+411 adds thirteen reviewed German API documents for field-table projects and
+model routing, with 52 source-bound blocks and independent model-free
+regeneration. Receipt:411_german_api_model_routing_2026-09-22.json. The remaining
+translation tail stays open on 411; English documentation debt is unchanged.

@@ -4488,3 +4488,20 @@ actively rendering real QC figures, confirmed by its stack; it was not restarted
 Receipt:features/data/288_regression_panels_2026-09-22.json. No production or
 baseline change. Nineteen original floor modules have clean targeted repairs;
 five remain below target, plus the separate FEATURES defect and full ratchet.
+
+2026-09-22 — CODEX: SOUND AND IMPORT IMAGES ABOVE THE TARGET
+sound.py reaches91.43% combined coverage (712/764statements,195/228branches),
+85tests pass216.41s. New cases cover unavailable analysis/files/audio sinks,
+stopped rendering, absent applications and shutdown-hook failures. The existing
+thread-shutdown test timed out both alone and with the new tests while waiting
+for full music synthesis. Its fixture now supplies short real WAV files, keeping
+real queued worker/GUI ownership and cleanup assertions; isolated and combined
+runs pass. No production sound behavior changed.
+Import Images reaches94.60% (547/569statements,101/116branches),49tests pass39.80s.
+Added cancelled picker preservation, real saved-plan round trips, unwritable
+plan recovery, empty destinations/results and failed worker/completion recovery.
+Receipts:288_sound_recovery_2026-09-22.json and288_image_import_recovery_2026-09-22.json.
+Twenty-one original floor modules now have clean targeted repairs. Three remain:
+ops_accel (named CuPy exemption), plaque_papers and screens/map_barcodes. The
+FEATURES editing defect, full-source coverage run and ratchet remain open;
+no baseline update or whole-suite green claim.

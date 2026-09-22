@@ -1961,3 +1961,13 @@ Nineteen additional German API entries accepted and independently regenerated
 without model decoding. Current reports refreshed;4 live-report tests pass
 241.23s. Full catalog debt and GitHub tests remain open. No English-manifest or
 extractor-debt baseline change; other43 lanes untouched.
+
+2026-09-22 — CODEX, DOCS LANE ONLY: GERMAN FIELD/MODEL API REVIEW
+Thirteen current API documents now have 52 validated German review blocks;
+independent regeneration uses only the accepted source-bound reviews. German
+fresh API coverage reaches10466/11194. Reports are regenerated and their
+consistency tests are running. The catalog audit still has explicit missing/
+stale debt; this checkpoint does not close the docs lane or claim green CI.
+Evidence:features/data/411_german_api_model_routing_2026-09-22.json.
+Final report consistency selection passes4/4 in230.32s; the full catalog debt
+and CI verdict remain separate and open.

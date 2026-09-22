@@ -1396,3 +1396,16 @@ Tutorial translation: Regression now has all13 reviews bound to its fresh
 1.5.0.9 capture; one scene explicitly discloses the exchangeability diagnostic
 failure and20 narration scenes remain unchanged. Independent staging/source,
 caption, geometry/link and pronunciation-helper checks pass. Narration is CPU-only.
+
+2026-09-22 — CODEX: FIELD PROJECTS AND MODEL ROUTING IN GERMAN
+Thirteen more current API documents now have 52 source-bound German review
+blocks. Corrections preserve FEATURES/Measure agreement, the partial-write
+boundary, case-insensitive mask roles, backend environment isolation and
+Cellpose 3/bioimage.io routing. Checksum integrity remains distinct from model
+quality. Protected names and source literals pass the unchanged validation.
+Every accepted document independently regenerates verbatim without model
+inference. Receipt: features/data/411_german_api_model_routing_2026-09-22.json.
+German fresh API coverage is now 10466/11194; remaining locales stay 10409.
+Reports regenerated; full report consistency checks are running. No English
+manifest/debt-pin change, native-speaker signoff or complete-catalog claim.
+Final report consistency checks:4passed in230.32s. Feature index matches.

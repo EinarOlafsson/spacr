@@ -9633,3 +9633,26 @@ Final capture/staging checks run before pushing this batch.
 Final63 capture/staging/promotion checks pass10.92s. Feature index/whitespace
 pass; nightly remains8936a1c94. Publishing this completed batch with19German
 API entries (10453fresh), regression-panel coverage and current capture/reviews.
+
+2026-09-22 — CODEX: 4b1a0803f PUSH VERIFIED / NEXT CHECKPOINT
+Nightly fetch confirms4b1a0803f with no new remote commits. Thirteen German
+field-project/model-routing API documents promoted (52reviewed blocks), all
+independently regenerate without model decoding. Protected names retain their
+exact forms; validation gates unchanged. Reports and411/368/43docs updated;
+report checks run before pushing. Sound reaches91.43%, but an existing real-bed
+thread-shutdown test times out both with and without the new tests. Its fixture
+now supplies short real WAVs while preserving worker/GUI/thread cleanup checks;
+the isolated check passes and the full85-test selection is rerunning.
+Map other-language narrator73065 completes4remaining/22reused tracks; independent
+26-track checks run next. Import Images recovery coverage is also running.
+GPU probe still reports30% utilization; no GPU work has been started.
+Sound completes85pass216.41s at91.43%; Import Images49pass39.80s at94.60%.
+Both source-bound receipts and288 updated;21clean original floor repairs now.
+The four refreshed translation-report checks pass230.32s; index matches.
+Freed CPU slots now render Regression's26 other-language voices (CPU2threads);
+background allocation remains within16. No GPU work or media publication.
+Map verifier61449 finishes0: all26other-language tracks pass, making50technical
+tracks including priorEnglish. Updated358/447 and the source-bound receipt.
+This checkpoint is ready to push: sound/Image Import coverage,13German API
+documents, current reports and Map50-track evidence. Regression master70932
+continues full native4K decode verification; not included until complete.

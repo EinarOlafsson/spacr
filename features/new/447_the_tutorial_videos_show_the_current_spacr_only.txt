@@ -435,3 +435,11 @@ first English narration is rendering. See matching2026-09-22Regression capture
 and translation receipts. Audible/visual master/full-matrix/player acceptance
 and complete-set publication remain open. Map narration resumes after a confirmed
 143exit; the22 completed tracks are retained, not blindly regenerated.
+
+2026-09-22 — CODEX: CURRENT MAP BARCODE AUDIO COMPLETE TECHNICALLY
+All26 current non-English tracks independently pass source/timing/decode/
+activity/true-peak checks, completing50 tracks with the previously verified
+English matrix. Receipt:2026-09-22-map-current-other-voices.json. Listening,
+full visual/caption acceptance and complete-set publication remain open.
+Regression's fresh1.5.0.9 caption sources drive CPU narration in both selections;
+no GPU has been used and no media has been published from this checkpoint.

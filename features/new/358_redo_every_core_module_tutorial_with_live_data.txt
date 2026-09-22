@@ -2452,3 +2452,13 @@ complete-set publication remain open. Map's original renderer ended143 after
 22tracks; resumable render73065 preserves completed tracks and finishes the rest.
 Final capture-policy, staging, translation-promotion and acceptance tests:
 63pass10.92s. Feature index and whitespace checks pass before the progress push.
+
+2026-09-22 — CODEX: MAP BARCODE NARRATION MATRIX VERIFIED
+The resumed current Map Barcodes renderer finishes its four remaining tracks
+and reuses22 valid tracks. Independent source/freshness/timing/full-decode/
+activity/true-peak checks pass all26 non-English tracks. Together with the
+previous24 English tracks, all50 current tracks are technically verified.
+Receipt:tools/tutorials/evidence/2026-09-22-map-current-other-voices.json.
+No listening approval or complete-set publication is implied. Regression's
+current English and non-English CPU narration continue; final visual/caption/
+audible acceptance and the GPU-dependent Masks recapture remain open.
