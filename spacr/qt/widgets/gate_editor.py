@@ -2971,6 +2971,7 @@ class GateEditorPanel(QWidget):
         self._status.setObjectName("GateStatus")
         self._status.setWordWrap(True)
         tools.addWidget(self._status, 1)
+        self.tool_row = tools
         outer.addLayout(tools)
         outer.addLayout(volume_tools)
 
