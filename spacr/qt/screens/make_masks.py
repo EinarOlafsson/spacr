@@ -5296,6 +5296,15 @@ def _grey_pixmap(image: np.ndarray, lower_pct: float,
     return QPixmap.fromImage(picture)
 
 
+#: What the Compare window is remembered under, and the size it opens at
+#: the first time. A comparison is a LOOKING task -- the two pictures have
+#: to be big enough to see a difference in -- and the first version of this
+#: window opened at 780x440 with two 360 px thumbnails in it, which the
+#: maintainer reported as "too small to see".
+COMPARE_LAYOUT_KEY = "make_masks::compare"
+COMPARE_DEFAULT_SIZE = (1100, 700)
+
+
 class _ComparePreview(QDialog):
     """The image as loaded beside the image the detector reads.
 
@@ -5304,6 +5313,14 @@ class _ComparePreview(QDialog):
     found nothing may have been given an image with nothing left in it --
     and the cheapest way to say which it was is to put the two pictures
     next to each other under the list of what ran.
+
+    IT IS A WINDOW TO LOOK IN, so it is resizable, it remembers the size it
+    was left at (:data:`COMPARE_LAYOUT_KEY`), the two pictures grow with it
+    rather than sitting at a fixed size, and both can be zoomed into. THE
+    TWO ZOOMS ARE ONE ZOOM (:meth:`spacr.qt.widgets.zoom_view.
+    ZoomableImageView.link_to`): a difference between the pictures is what
+    the window is for, and a difference in where they are pointing is the
+    one difference that is not information.
 
     Modeless, for :class:`_OtsuHistogramDialog`'s reason: the point is to
     change a step and look again.
@@ -5316,39 +5333,100 @@ class _ComparePreview(QDialog):
 
     def __init__(self, raw: np.ndarray, enhanced: np.ndarray,
                  steps: str, parent=None):
-        """Build the two pictures, the caption over them and Close."""
+        """Build the two linked views, the caption over them and the tools."""
         from ..i18n import tr
+        from ..widgets.zoom_view import ZoomableImageView
 
         super().__init__(parent)
         self.setWindowTitle(tr("Raw and enhanced"))
+        self.setSizeGripEnabled(True)
         layout = QVBoxLayout(self)
         layout.setSpacing(SPACING["sm"])
         self.caption = QLabel(steps)
         self.caption.setWordWrap(True)
         layout.addWidget(self.caption)
+
         row = QHBoxLayout()
-        self.panes = []
+        self.views: List[ZoomableImageView] = []
         for title, array in ((tr("As loaded"), raw),
                              (tr("As the detector reads it"), enhanced)):
             column = QVBoxLayout()
             heading = QLabel(title)
             heading.setObjectName("Muted")
             column.addWidget(heading)
-            pane = QLabel()
-            pane.setAlignment(Qt.AlignCenter)
-            pane.setMinimumSize(240, 240)
-            pixmap = _grey_pixmap(array, 1.0, 99.9)
-            if not pixmap.isNull():
-                pane.setPixmap(pixmap.scaled(360, 360, Qt.KeepAspectRatio,
-                                             Qt.SmoothTransformation))
-            self.panes.append(pane)
-            column.addWidget(pane, 1)
+            view = ZoomableImageView(self)
+            view.setMinimumSize(200, 200)
+            view.set_pixmap(_grey_pixmap(array, 1.0, 99.9))
+            view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+            self.views.append(view)
+            column.addWidget(view, 1)
             row.addLayout(column, 1)
         layout.addLayout(row, 1)
+        self.views[0].link_to(self.views[1])
+
+        tools = QHBoxLayout()
+        self.hint = QLabel(tr(
+            "Scroll to zoom, drag to pan. Both pictures move together."))
+        self.hint.setObjectName("Muted")
+        self.hint.setWordWrap(True)
+        tools.addWidget(self.hint, 1)
+        for caption, action in ((tr("Zoom out"), lambda: self.zoom(1 / 1.4)),
+                                (tr("Zoom in"), lambda: self.zoom(1.4)),
+                                (tr("Fit"), self.fit)):
+            button = QPushButton(caption)
+            button.setCursor(Qt.PointingHandCursor)
+            button.clicked.connect(action)
+            tools.addWidget(button)
+        layout.addLayout(tools)
+
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         buttons.rejected.connect(self.close)
         layout.addWidget(buttons)
-        self.resize(780, 440)
+        self.resize(*_remembered_compare_size())
+
+    def zoom(self, factor: float) -> None:
+        """Zoom both pictures by ``factor``; the link does the second one."""
+        if self.views:
+            self.views[0].zoom_by(factor)
+
+    def fit(self) -> None:
+        """Put both pictures back to fitting their pane."""
+        if self.views:
+            self.views[0].fit()
+
+    def closeEvent(self, event):                            # noqa: N802
+        """Remember the size the window was left at, then close.
+
+        On the way out rather than on every resize: a drag is a hundred
+        resize events and this writes to the preference store.
+        """
+        _remember_compare_size(self.width(), self.height())
+        super().closeEvent(event)
+
+
+def _remembered_compare_size() -> tuple:
+    """``(width, height)`` the Compare window was last left at."""
+    try:
+        from ..preferences import get_section_layout
+
+        sizes = get_section_layout(COMPARE_LAYOUT_KEY).get("sizes") or ()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the Compare window size", exc_info=True)
+        sizes = ()
+    if len(sizes) == 2 and all(int(value) > 200 for value in sizes):
+        return (int(sizes[0]), int(sizes[1]))
+    return COMPARE_DEFAULT_SIZE
+
+
+def _remember_compare_size(width: int, height: int) -> None:
+    """Keep the Compare window's size for the next time it is opened."""
+    try:
+        from ..preferences import set_section_layout
+
+        set_section_layout(COMPARE_LAYOUT_KEY,
+                           sizes=(int(width), int(height)))
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not keep the Compare window size", exc_info=True)
 
 
 def fold_description(key: str) -> tuple:

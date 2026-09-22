@@ -438,7 +438,8 @@ def test_the_compare_window_shows_the_raw_and_the_enhanced_side_by_side(
     try:
         assert dialog is not None and dialog.isVisible()
         assert "CLAHE" in dialog.caption.text()
-        left, right = (pane.pixmap().toImage() for pane in dialog.panes)
+        left, right = (view._item.pixmap().toImage()
+                       for view in dialog.views)
         assert not left.isNull() and not right.isNull()
         assert left != right, "the two pictures are the same picture"
     finally:
@@ -610,3 +611,79 @@ def test_a_slow_background_never_runs_on_the_gui_thread(qtbot, screen):
     assert not np.array_equal(canvas.enhanced_picture(),
                               canvas.detection_base())
     assert canvas.close_enhancer()
+
+
+def test_the_compare_window_is_a_window_to_look_in(qtbot, screen):
+    """Reported too small to see: it opens big, resizes, and remembers.
+
+    The first version put two 360 px thumbnails in a fixed 780x440 dialog.
+    What is asserted is the three things that fixes: a usable opening size,
+    pictures that grow with the window rather than staying put, and the
+    size being kept for next time.
+    """
+    screen._enh_clahe.setChecked(True)
+    screen._on_compare_enhanced()
+    dialog = screen._compare_dialog
+    qtbot.addWidget(dialog)
+    try:
+        assert dialog.width() >= 1000 and dialog.height() >= 600
+        assert dialog.isSizeGripEnabled()
+
+        small = [view.size() for view in dialog.views]
+        dialog.resize(1400, 900)
+        qtbot.waitUntil(lambda: dialog.views[0].width() > small[0].width(),
+                        timeout=2000)
+        assert all(view.width() > was.width()
+                   for view, was in zip(dialog.views, small)), \
+            "the pictures did not grow with the window"
+        dialog.close()
+    finally:
+        dialog.deleteLater()
+
+    assert mm._remembered_compare_size() == (1400, 900)
+    again = mm._ComparePreview(blob_field(64), blob_field(64), "x")
+    qtbot.addWidget(again)
+    try:
+        assert (again.width(), again.height()) == (1400, 900)
+    finally:
+        again.deleteLater()
+
+
+def test_zooming_one_picture_zooms_the_other(qtbot, screen):
+    """Raw and enhanced stay in register, however the zoom is driven."""
+    screen._on_compare_enhanced()
+    dialog = screen._compare_dialog
+    qtbot.addWidget(dialog)
+    dialog.show()
+    try:
+        left, right = dialog.views
+        assert right in left._linked and left in right._linked
+
+        dialog.zoom(2.0)
+        assert left.zoom_factor() == pytest.approx(right.zoom_factor()), \
+            "the two pictures are at different zooms"
+        zoomed = left.zoom_factor()
+
+        left.horizontalScrollBar().setValue(
+            left.horizontalScrollBar().maximum())
+        assert (right.horizontalScrollBar().value()
+                == left.horizontalScrollBar().value()), \
+            "panning one picture left the other behind"
+
+        right.zoom_by(1.0 / 2.0)
+        assert left.zoom_factor() == pytest.approx(right.zoom_factor())
+        assert left.zoom_factor() < zoomed, "the second view drove nothing"
+
+        dialog.fit()
+        assert left.zoom_factor() == pytest.approx(right.zoom_factor())
+    finally:
+        dialog.close()
+        dialog.deleteLater()
+
+
+def test_the_zoom_view_is_the_one_the_qc_browser_already_had():
+    """One fit-zoom-pan view in the codebase, not a second copy of it."""
+    from spacr.qt.widgets import qc_field_browser
+    from spacr.qt.widgets.zoom_view import ZoomableImageView
+
+    assert qc_field_browser._FieldView is ZoomableImageView
