@@ -5751,10 +5751,10 @@ def launch(argv: Optional[list[str]] = None) -> int:
     os.environ.setdefault("QT_AUTO_SCREEN_SCALE_FACTOR", "1")
 
     try:
-        from .gui_scale import apply_gui_scale_to_environment
-        apply_gui_scale_to_environment()
+        from .gui_scale import install_scaling_layer
+        install_scaling_layer()
     except Exception:                                        # noqa: BLE001
-        LOG.debug("could not apply the GUI scale", exc_info=True)
+        LOG.debug("could not install the GUI scale", exc_info=True)
 
     try:
         if "matplotlib" in sys.modules:
@@ -5773,6 +5773,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication(sys.argv[:1])
+    try:
+        from .gui_scale import apply_saved_gui_scale
+        apply_saved_gui_scale()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the saved GUI scale", exc_info=True)
     try:
         from .theme import use_a_style_that_honours_the_palette
         use_a_style_that_honours_the_palette(app)
@@ -5873,11 +5878,6 @@ def launch(argv: Optional[list[str]] = None) -> int:
         )
     win._startup_benchmark_controller = benchmark_controller
     _open_at_the_measured_width(win)
-    try:
-        from .gui_scale import fit_window_to_gui_scale
-        fit_window_to_gui_scale(win)
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("could not fit the window to the GUI scale", exc_info=True)
     win.show()
 
     install_the_dialog_filters(app)

@@ -5719,11 +5719,23 @@ def apply_close_mark(button, *, tooltip: Optional[str] = None,
 
 
 def size_close_mark(button, body_px: Optional[int] = None) -> None:
-    """Resize a close-mark button for its current font and interface scale."""
+    """Resize a close-mark button for its current font and interface scale.
+
+    THE FLOORS ARE CONVERTED, and that is the whole of the GUI scale in
+    here. ``minimumWidth`` answers in 100 % units (the scaling layer in
+    :mod:`spacr.qt.gui_scale` remembers what the code asked for) while the
+    glyph is measured in the pixels actually being drawn, so comparing them
+    raw made the box 12 px wider than the mark at 50 % and left the chrome
+    shifted when the scale came back.
+    """
+    from .gui_scale import scale_int
+
     side = close_mark_side(button, body_px)
     hint = button.sizeHint()
-    height = max(side, button.minimumHeight(), hint.height())
-    width = max(side, button.minimumWidth(), min(hint.width(), height))
+    floor_h = scale_int(button.minimumHeight())
+    floor_w = scale_int(button.minimumWidth())
+    height = max(side, floor_h, hint.height())
+    width = max(side, floor_w, min(hint.width(), height))
     button.setFixedSize(width, height)
 
 

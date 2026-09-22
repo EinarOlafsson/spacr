@@ -482,6 +482,8 @@ class ImageUmapExplorer(LinkedView, QWidget):
         surface = active_palette()["surface"]
         self._figure = Figure(figsize=(8, 6), facecolor=surface)
         self._canvas = _OwnedTimerFigureCanvas(self._figure)
+        from ..gui_scale import follow_canvas
+        follow_canvas(self._canvas)
         self._canvas.setStyleSheet(f"background: {surface};")
         from ..gui_scale import mend_matplotlib_icons
         mend_matplotlib_icons()

@@ -558,6 +558,8 @@ def _canvas_class():
             self.setAttribute(Qt.WA_TranslucentBackground, True)
             make_transparent(self)
             figure.patch.set_alpha(0.0)
+            from ..gui_scale import follow_canvas
+            follow_canvas(self)
 
         def paintEvent(self, event):  # noqa: N802 - Qt name
             """Draw the page panel, then let matplotlib draw over it."""

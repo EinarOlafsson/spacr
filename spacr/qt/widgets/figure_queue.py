@@ -1499,6 +1499,8 @@ class FigureQueue(QWidget):
                 return True
             self._teardown_canvas()
             canvas = FigureCanvasQTAgg(fig)
+            from ..gui_scale import follow_canvas
+            follow_canvas(canvas)
             canvas.setStyleSheet("background: transparent;")
             canvas.setAttribute(Qt.WA_TranslucentBackground, True)
             canvas.setAutoFillBackground(False)

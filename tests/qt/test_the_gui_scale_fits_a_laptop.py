@@ -1,19 +1,19 @@
-"""471 slice A -- a whole-GUI scale, and a scale slider on every preview.
+"""471 slice A -- a live whole-GUI scale, Keep or Revert, and preview sliders.
 
 The request: "add scale GUI as a setting from 10% to 200% default 100%
-... also for each live preview". The GUI scale is a startup-time Qt scale
-factor (see :mod:`spacr.qt.gui_scale` for the audit that decided it), so
-the tests that need a scaled application run it in a child process: a Qt
-scale factor is fixed for the life of the process that reads it.
+... also for each live preview", then "please make this work with out
+restarting. and if either font or GUI scale are modified the user should be
+prompted with a Keep or Revert popup".
 
-The preview scale is live, so its tests run here.
+So the GUI scale is a scaling layer over Qt's own setters
+(:mod:`spacr.qt.gui_scale`), and these tests hold it to the four things that
+make it usable: a change reaches widgets already built AND widgets built
+afterwards, going back to 100 % restores exactly what the code asked for,
+the Keep question reverts by itself, and font scale composes with it.
 """
 from __future__ import annotations
 
 import os
-import subprocess
-import sys
-import textwrap
 from pathlib import Path
 
 import pytest
@@ -22,7 +22,9 @@ os.environ.setdefault("QT_QPA_PLATFORM", "offscreen")
 pytest.importorskip("PySide6")
 
 from PySide6.QtCore import QSettings  # noqa: E402
-from PySide6.QtWidgets import (QHBoxLayout, QLabel, QPushButton,  # noqa: E402
+from PySide6.QtCore import QSize  # noqa: E402
+from PySide6.QtWidgets import (QDialog, QHBoxLayout, QLabel,  # noqa: E402
+                               QPushButton, QSlider, QToolButton,
                                QVBoxLayout, QWidget)
 
 from spacr.qt import gui_scale  # noqa: E402
@@ -44,26 +46,33 @@ def _never_the_real_preferences():
     prefs.set_font_scale(1.0)
 
 
-def _child(code: str, tmp_path, **env) -> list:
-    """Run ``code`` in a fresh Python with its own preference store."""
-    home = tmp_path / "home"
-    (home / ".config").mkdir(parents=True, exist_ok=True)
-    environ = dict(os.environ, PYTHONPATH=TREE, QT_QPA_PLATFORM="offscreen",
-                   HOME=str(home), XDG_CONFIG_HOME=str(home / ".config"),
-                   SPACR_NO_BACKDROP="1", SPACR_NO_GL="1", MPLBACKEND="Agg")
-    for key in ("QT_SCALE_FACTOR", gui_scale.BASE_ENV,
-                gui_scale.OVERRIDE_ENV):
-        environ.pop(key, None)
-    environ.update({k: str(v) for k, v in env.items()})
-    done = subprocess.run([sys.executable, "-c", textwrap.dedent(code)],
-                          env=environ, capture_output=True, text=True,
-                          timeout=480)
-    assert done.returncode == 0, done.stderr[-3000:]
-    return [line for line in done.stdout.splitlines() if line.startswith("@")]
+@pytest.fixture(autouse=True)
+def _the_layer_is_in_and_the_scale_goes_back(qapp):
+    """Install the scaling layer once, and leave every test at 100 %."""
+    gui_scale.install_scaling_layer()
+    yield
+    gui_scale.set_gui_scale_live(1.0)
+
+
+def raw(widget, name: str):
+    """Call a Qt method as it was before the layer replaced it.
+
+    The layer answers ``minimumWidth`` in 100 % units on purpose, so a test
+    that wants the pixels Qt is really using has to ask underneath it.
+
+    :param widget: the widget or layout to ask.
+    :param name: the method's name.
+    """
+    original = gui_scale._original_for(widget, name)
+    if original is None:
+        from PySide6.QtWidgets import QWidget as _W
+
+        original = gui_scale._ORIGINAL[(_W, name)]
+    return original(widget)
 
 
 # ---------------------------------------------------------------------------
-# The preference and the environment it writes
+# The preference
 # ---------------------------------------------------------------------------
 
 def test_the_range_is_ten_to_two_hundred_and_the_default_is_one_hundred():
@@ -73,263 +82,303 @@ def test_the_range_is_ten_to_two_hundred_and_the_default_is_one_hundred():
     assert prefs.get_gui_scale() == pytest.approx(0.10)
     prefs.set_gui_scale(9)
     assert prefs.get_gui_scale() == pytest.approx(2.0)
-    prefs.set_gui_scale(0.5)
-    assert prefs.get_gui_scale() == pytest.approx(0.5)
-
-
-def test_one_hundred_percent_writes_nothing_so_today_is_unchanged():
     prefs.set_gui_scale(1.0)
-    environ = {}
-    assert gui_scale.apply_gui_scale_to_environment(environ) == 1.0
-    assert "QT_SCALE_FACTOR" not in environ
-
-
-def test_fifty_percent_is_a_qt_scale_factor_of_one_half():
-    prefs.set_gui_scale(0.5)
-    environ = {}
-    gui_scale.apply_gui_scale_to_environment(environ)
-    assert float(environ["QT_SCALE_FACTOR"]) == pytest.approx(0.5)
-
-
-def test_a_users_own_factor_is_kept_and_a_restart_does_not_compound_it():
-    """QT_SCALE_FACTOR=2 set by the user, GUI scale 50 %: 1.0, every launch."""
-    prefs.set_gui_scale(0.5)
-    environ = {"QT_SCALE_FACTOR": "2"}
-    gui_scale.apply_gui_scale_to_environment(environ)
-    assert float(environ["QT_SCALE_FACTOR"]) == pytest.approx(1.0)
-    restarted = dict(environ)
-    gui_scale.apply_gui_scale_to_environment(restarted)
-    assert float(restarted["QT_SCALE_FACTOR"]) == pytest.approx(1.0)
-    prefs.set_gui_scale(1.0)
-    gui_scale.apply_gui_scale_to_environment(restarted)
-    assert float(restarted["QT_SCALE_FACTOR"]) == pytest.approx(2.0)
-
-
-def test_the_environment_override_beats_the_stored_value():
-    prefs.set_gui_scale(0.1)
-    environ = {gui_scale.OVERRIDE_ENV: "1"}
-    assert gui_scale.apply_gui_scale_to_environment(environ) == 1.0
-    assert "QT_SCALE_FACTOR" not in environ
-
-
-def test_the_window_keeps_its_size_on_the_screen():
-    """At 50 % a 1200 px window asks for 2400 scaled px, within the screen."""
-    from PySide6.QtCore import QRect
-
-    class Screen:
-        def __init__(self, w, h):
-            self._rect = QRect(0, 0, w, h)
-
-        def availableGeometry(self):
-            return self._rect
-
-    class Window:
-        def __init__(self, screen):
-            self.size = (1200, 800)
-            self._screen = screen
-
-        def width(self):
-            return self.size[0]
-
-        def height(self):
-            return self.size[1]
-
-        def screen(self):
-            return self._screen
-
-        def resize(self, w, h):
-            self.size = (w, h)
-
-    window = Window(Screen(2732, 1536))
-    assert gui_scale.fit_window_to_gui_scale(window, 0.5)
-    assert window.size == (2400, 1536), "clamped to the scaled screen"
-    window = Window(Screen(2732, 1536))
-    assert not gui_scale.fit_window_to_gui_scale(window, 1.0)
-    assert window.size == (1200, 800)
 
 
 # ---------------------------------------------------------------------------
-# Preferences
+# The live change
+# ---------------------------------------------------------------------------
+
+def _panel_with_every_kind_of_size(qtbot):
+    """A panel whose sizes come from each setter the layer replaces."""
+    panel = QWidget()
+    column = QVBoxLayout(panel)
+    column.setContentsMargins(8, 8, 8, 8)
+    column.setSpacing(6)
+    column.addSpacing(20)
+    button = QToolButton(panel)
+    button.setFixedSize(100, 40)
+    button.setIconSize(QSize(24, 24))
+    label = QLabel("status", panel)
+    label.setStyleSheet(
+        "QLabel { font-size: 20px; padding: 4px; border: 1px solid red; }")
+    view = QWidget(panel)
+    view.setMinimumHeight(160)
+    view.setMaximumWidth(400)
+    column.addWidget(button)
+    column.addWidget(label)
+    column.addWidget(view)
+    qtbot.addWidget(panel)
+    panel.show()
+    return panel, column, button, label, view
+
+
+def test_a_live_change_scales_sizes_margins_icons_and_sheets(qtbot,
+                                                            qt_theme_applied):
+    """Half the scale: half the pixels, in widgets that already exist."""
+    panel, column, button, label, view = _panel_with_every_kind_of_size(qtbot)
+    gui_scale.set_gui_scale_live(0.5)
+    assert raw(button, "minimumWidth") == 50
+    assert raw(button, "minimumHeight") == 20
+    assert raw(button, "iconSize") == QSize(12, 12)
+    assert raw(view, "minimumHeight") == 80
+    assert raw(view, "maximumWidth") == 200
+    assert raw(column, "contentsMargins").left() == 4
+    assert raw(column, "spacing") == 3
+    sheet = raw(label, "styleSheet")
+    assert "font-size: 10px" in sheet
+    assert "padding: 2px" in sheet
+    assert "1px solid red" in sheet, "a hairline must stay a hairline"
+
+
+def test_a_widget_built_after_the_change_is_scaled_too(qtbot,
+                                                       qt_theme_applied):
+    gui_scale.set_gui_scale_live(0.5)
+    later = QWidget()
+    qtbot.addWidget(later)
+    later.setFixedWidth(80)
+    later.setStyleSheet("QWidget { font-size: 12px; }")
+    assert raw(later, "minimumWidth") == 40
+    assert "font-size: 6px" in raw(later, "styleSheet")
+    assert later.minimumWidth() == 80, "it reads back in 100 % units"
+
+
+def test_a_round_trip_has_zero_drift_on_every_recorded_size(qtbot,
+                                                            qt_theme_applied):
+    """100 % to 50 % and back is the same pixel in every size the code set."""
+    panel, column, button, label, view = _panel_with_every_kind_of_size(qtbot)
+    before = {
+        "button_w": raw(button, "minimumWidth"),
+        "button_h": raw(button, "minimumHeight"),
+        "icon": raw(button, "iconSize"),
+        "view_min": raw(view, "minimumHeight"),
+        "view_max": raw(view, "maximumWidth"),
+        "margins": raw(column, "contentsMargins"),
+        "spacing": raw(column, "spacing"),
+        "sheet": raw(label, "styleSheet"),
+    }
+    for scale in (0.5, 1.7, 0.1, 1.0):
+        gui_scale.set_gui_scale_live(scale)
+    after = {
+        "button_w": raw(button, "minimumWidth"),
+        "button_h": raw(button, "minimumHeight"),
+        "icon": raw(button, "iconSize"),
+        "view_min": raw(view, "minimumHeight"),
+        "view_max": raw(view, "maximumWidth"),
+        "margins": raw(column, "contentsMargins"),
+        "spacing": raw(column, "spacing"),
+        "sheet": raw(label, "styleSheet"),
+    }
+    assert after == before
+
+
+def test_a_widget_that_re_measures_itself_keeps_its_hundred_percent_size(
+        qtbot, qt_theme_applied):
+    """The close-mark case: a size re-derived from the scaled font.
+
+    Setting a size that is what the layer itself applied must not become a
+    new 100 % size, or the round trip leaves the widget shrunken.
+    """
+    widget = QWidget()
+    qtbot.addWidget(widget)
+    widget.setFixedWidth(40)
+    gui_scale.set_gui_scale_live(0.5)
+    widget.setFixedWidth(raw(widget, "minimumWidth"))
+    gui_scale.set_gui_scale_live(1.0)
+    assert raw(widget, "minimumWidth") == 40
+
+
+def test_the_scale_does_not_touch_the_exempt_window(qtbot, qt_theme_applied):
+    """A window marked exempt -- the Keep question -- is drawn at 100 %."""
+    dialog = QDialog()
+    dialog.setProperty(gui_scale.EXEMPT, True)
+    inner = QLabel("x", dialog)
+    inner.setFixedWidth(120)
+    qtbot.addWidget(dialog)
+    gui_scale.set_gui_scale_live(0.25)
+    assert raw(inner, "minimumWidth") == 120
+
+
+def test_font_scale_and_gui_scale_compose(qtbot, qt_theme_applied):
+    """50 % GUI at 200 % font: half-size widgets, text its usual size."""
+    from spacr.qt.theme import FONT_SIZE, stylesheet
+
+    body = FONT_SIZE["body"]
+    sheet = stylesheet(font_scale=2.0, load_widget_registrars=False)
+    assert f"font-size: {body * 2}px" in sheet
+    gui_scale.set_gui_scale_live(0.5)
+    scaled = gui_scale.scale_qss_text(sheet)
+    assert f"font-size: {body}px" in scaled, (
+        "base x 2 x 0.5 is the size it was at 100 %")
+
+
+def test_the_style_sheet_rewrite_leaves_everything_but_sizes_alone():
+    text = ("QLabel#A { color: red; font-size: 13px; border: 2px solid red;"
+            " padding: 0px 10px; background: url(data:image/png;base64,AA); }")
+    assert gui_scale.scale_qss_text(text, 1.0) == text
+    half = gui_scale.scale_qss_text(text, 0.5)
+    assert "font-size: 7px" in half or "font-size: 6px" in half
+    assert "border: 2px solid red" in half
+    assert "padding: 0px 5px" in half
+    assert "color: red" in half
+    assert "url(data:image/png;base64,AA)" in half
+
+
+# ---------------------------------------------------------------------------
+# Keep or Revert
+# ---------------------------------------------------------------------------
+
+def test_the_countdown_reverts_by_itself(qtbot, qt_theme_applied):
+    prefs.set_gui_scale(1.0)
+    prefs.set_font_scale(1.0)
+    answered = []
+    gui_scale.change_scales(None, gui=0.5, font=1.5, seconds=1,
+                            require_parent=False,
+                            on_done=answered.append)
+    assert prefs.get_gui_scale() == pytest.approx(0.5)
+    assert gui_scale.current_scale() == pytest.approx(0.5)
+    qtbot.waitUntil(lambda: bool(answered), timeout=8000)
+    assert answered == [False]
+    assert prefs.get_gui_scale() == pytest.approx(1.0)
+    assert prefs.get_font_scale() == pytest.approx(1.0)
+    assert gui_scale.current_scale() == pytest.approx(1.0)
+
+
+def test_keep_keeps_and_revert_puts_the_old_values_back(qtbot,
+                                                        qt_theme_applied):
+    prefs.set_gui_scale(1.0)
+    answered = []
+    dialog = gui_scale.change_scales(None, gui=0.75, seconds=60,
+                                     require_parent=False,
+                                     on_done=answered.append)
+    assert dialog is not None
+    dialog.keep_button.click()
+    qtbot.waitUntil(lambda: bool(answered), timeout=3000)
+    assert answered == [True]
+    assert prefs.get_gui_scale() == pytest.approx(0.75)
+
+    answered.clear()
+    dialog = gui_scale.change_scales(None, gui=0.2, seconds=60,
+                                     require_parent=False,
+                                     on_done=answered.append)
+    dialog.revert_button.click()
+    qtbot.waitUntil(lambda: bool(answered), timeout=3000)
+    assert answered == [False]
+    assert prefs.get_gui_scale() == pytest.approx(0.75)
+    prefs.set_gui_scale(1.0)
+    gui_scale.set_gui_scale_live(1.0)
+
+
+def test_escape_reverts_as_well(qtbot, qt_theme_applied):
+    from PySide6.QtCore import Qt
+    from PySide6.QtGui import QKeyEvent
+    from PySide6.QtCore import QEvent
+
+    prefs.set_gui_scale(1.0)
+    answered = []
+    dialog = gui_scale.change_scales(None, gui=0.5, seconds=60,
+                                     require_parent=False,
+                                     on_done=answered.append)
+    dialog.keyPressEvent(QKeyEvent(QEvent.KeyPress, Qt.Key_Escape,
+                                   Qt.NoModifier))
+    qtbot.waitUntil(lambda: bool(answered), timeout=3000)
+    assert answered == [False]
+    assert prefs.get_gui_scale() == pytest.approx(1.0)
+
+
+def test_the_question_is_readable_at_ten_percent(qtbot, qt_theme_applied):
+    """It is exempt from the scale and states its own text sizes."""
+    gui_scale.set_gui_scale_live(0.1)
+    dialog = gui_scale.keep_or_revert_dialog(None, seconds=60, what="x")
+    qtbot.addWidget(dialog)
+    dialog.show()
+    assert dialog.property(gui_scale.EXEMPT)
+    assert raw(dialog, "minimumWidth") == 360
+    assert "font-size: 17px" in dialog._own_rule
+    assert dialog.keep_button.isDefault(), "Enter keeps"
+    dialog.reject()
+
+
+# ---------------------------------------------------------------------------
+# Preferences, the reset key and the module's own screens
 # ---------------------------------------------------------------------------
 
 def _dialog(qtbot):
-    from PySide6.QtWidgets import QSlider
-
     dialog = prefs.PreferencesDialog(None)
     qtbot.addWidget(dialog)
     slider = dialog.findChild(QSlider, "GuiScale")
-    restart = dialog.findChild(QPushButton, "GuiScaleRestart")
-    assert slider is not None and restart is not None
-    return dialog, slider, restart
+    font_slider = dialog.findChild(QSlider, "FontScale")
+    assert slider is not None and font_slider is not None
+    return dialog, slider, font_slider
 
 
 def test_preferences_offers_it_beside_font_scale(qtbot, qt_theme_applied):
-    dialog, slider, restart = _dialog(qtbot)
+    dialog, slider, font_slider = _dialog(qtbot)
     assert (slider.minimum(), slider.maximum()) == (10, 200)
     assert slider.value() == 100
-    assert restart.isHidden(), "nothing to restart for at the running scale"
+    assert dialog.findChild(QPushButton, "GuiScaleRestart") is None, (
+        "nothing restarts any more")
     tip = prefs.PREFERENCE_TIPS["GUI scale"].lower()
-    assert "restart" in tip and "font scale" in tip, (
-        "the row has to say it takes a restart and how it meets font scale")
+    assert "font scale" in tip and "keep" in tip
 
 
-def test_moving_it_offers_a_restart_and_save_stores_it(qtbot,
-                                                      qt_theme_applied):
-    from PySide6.QtWidgets import QDialogButtonBox
+def test_moving_the_slider_applies_it_and_asks(qtbot, qt_theme_applied):
+    from PySide6.QtCore import QTimer
 
-    dialog, slider, restart = _dialog(qtbot)
+    dialog, slider, font_slider = _dialog(qtbot)
+    dialog.show()
+    settle = dialog.findChild(QTimer, "ScaleSettle")
+    assert settle is not None
     slider.setValue(50)
-    assert not restart.isHidden()
-    value = dialog.findChild(QLabel, "GuiScaleValue")
-    assert "50" in value.text() and "restart" in value.text().lower()
-    buttons = dialog.findChild(QDialogButtonBox)
-    buttons.button(QDialogButtonBox.Save).click()
-    assert prefs.get_gui_scale() == pytest.approx(0.5)
+    qtbot.waitUntil(lambda: gui_scale.current_scale() == pytest.approx(0.5),
+                    timeout=5000)
+    question = [w for w in dialog.findChildren(QDialog)
+                if w.objectName() == "SpacrKeepOrRevert"]
+    if not question:
+        from PySide6.QtWidgets import QApplication
 
-
-def test_restart_now_saves_and_restarts_through_the_force_restart_record(
-        qtbot, qt_theme_applied, monkeypatch):
-    calls = []
-    monkeypatch.setattr(gui_scale, "restart_to_apply",
-                        lambda owner=None, **kw: calls.append(owner) or True)
-    dialog, slider, restart = _dialog(qtbot)
-    slider.setValue(60)
-    restart.click()
-    qtbot.waitUntil(lambda: bool(calls), timeout=3000)
-    assert prefs.get_gui_scale() == pytest.approx(0.6)
-
-
-def test_restart_to_apply_uses_the_screens_force_restart(monkeypatch):
-    class Screen:
-        def __init__(self):
-            self.restarted = False
-
-        def running_modules(self):
-            return []
-
-        def force_restart(self, *, launcher=None, exiter=None):
-            self.restarted = True
-            return True
-
-    class Stack:
-        def __init__(self, screen):
-            self._screen = screen
-
-        def currentWidget(self):
-            return self._screen
-
-    class Window:
-        pass
-
-    window = Window()
-    window._stack = Stack(Screen())
-    monkeypatch.setattr(gui_scale, "_main_window", lambda _w=None: window)
-    assert gui_scale.restart_to_apply(None)
-    assert window._stack.currentWidget().restarted
-
-
-# ---------------------------------------------------------------------------
-# Composition, and the 10 % floor -- in a child, because Qt reads the factor
-# once per process
-# ---------------------------------------------------------------------------
-
-def test_fifty_percent_gui_at_two_hundred_percent_font_compose(tmp_path):
-    """Half-size widgets with text the usual size on the screen."""
-    lines = _child("""
-        from spacr.qt import gui_scale, preferences as p
-        p.set_gui_scale(0.5)
-        p.set_font_scale(2.0)
-        gui_scale.apply_gui_scale_to_environment()
-        from PySide6.QtGui import QFontInfo
-        from PySide6.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
-        app = QApplication([])
-        p.apply_preferences_to_app(app)
-        from spacr.qt.theme import FONT_SIZE
-        page = QWidget(); lay = QVBoxLayout(page)
-        body = QLabel("Plate 3"); lay.addWidget(body)
-        box = QWidget(); box.setFixedSize(100, 40); lay.addWidget(box)
-        page.show()
-        for _ in range(30):
-            app.processEvents()
-        print("@ratio", page.devicePixelRatioF())
-        print("@body_logical", QFontInfo(body.font()).pixelSize())
-        print("@body_base", FONT_SIZE["body"])
-        print("@box_device", box.grab().width())
-        """, tmp_path)
-    got = dict(line[1:].split(" ", 1) for line in lines)
-    assert float(got["ratio"]) == pytest.approx(0.5)
-    base = int(got["body_base"])
-    logical = int(got["body_logical"])
-    assert logical == pytest.approx(base * 2, abs=1), "font scale lost"
-    assert logical * 0.5 == pytest.approx(base, abs=1), (
-        "on screen the text should be its usual size: 2 x 0.5")
-    assert int(got["box_device"]) == 50, "the GUI scale did not reach widgets"
-
-
-def test_at_ten_percent_the_way_back_needs_no_reading(tmp_path):
-    """spaCR opens at 10 %, and Ctrl+Alt+0 then Enter brings it back.
-
-    The window is built for real, at the floor. The shortcut must be bound
-    on it, and pressing it must put every scale back to 100 % and ask for a
-    restart whose DEFAULT button is Restart now -- the user presses Enter
-    without being able to read the dialog. Preferences also still opens,
-    with the GUI scale row in it.
-    """
-    lines = _child("""
-        from spacr.qt import gui_scale, preferences as p
-        p.set_gui_scale(0.1)
-        p.set_font_scale(0.1)
-        gui_scale.apply_gui_scale_to_environment()
-        from PySide6.QtGui import QKeySequence, QShortcut
-        from PySide6.QtCore import Qt
-        from PySide6.QtWidgets import QApplication, QMessageBox, QSlider
-        app = QApplication([])
-        p.apply_preferences_to_app(app)
-        from spacr.qt.app import MainWindow
-        win = MainWindow()
-        win.resize(13660, 7680)
-        win.show()
-        for _ in range(60):
-            app.processEvents()
-        print("@ratio", win.devicePixelRatioF())
-        keys = [s for s in win.findChildren(QShortcut)
-                if s.key() == QKeySequence("Ctrl+Alt+0")]
-        print("@bound", len(keys))
-        dialog = p.PreferencesDialog(win)
-        slider = dialog.findChild(QSlider, "GuiScale")
-        print("@prefs_slider", slider.value() if slider else None)
-        dialog.deleteLater()
-        restarted = []
-        gui_scale.restart_to_apply = lambda owner=None, **kw: restarted.append(1) or True
-        def press_enter(box):
-            button = box.defaultButton()
-            print("@default", button.text() if button else None)
-            button.click()
-            return 0
-        QMessageBox.exec = press_enter
-        keys[0].activated.emit()
-        for _ in range(10):
-            app.processEvents()
-        print("@gui", p.get_gui_scale())
-        print("@font", p.get_font_scale())
-        print("@restarted", len(restarted))
-        """, tmp_path)
-    got = dict(line[1:].split(" ", 1) for line in lines)
-    assert float(got["ratio"]) == pytest.approx(0.1)
-    assert got["bound"] == "1"
-    assert got["prefs_slider"] == "10"
-    assert got["default"] == "Restart now"
-    assert float(got["gui"]) == pytest.approx(1.0)
-    assert float(got["font"]) == pytest.approx(1.0)
-    assert got["restarted"] == "1"
+        question = [w for w in QApplication.topLevelWidgets()
+                    if w.objectName() == "SpacrKeepOrRevert"]
+    assert question, "a change of scale asks whether to keep it"
+    question[0].revert_button.click()
+    qtbot.waitUntil(
+        lambda: gui_scale.current_scale() == pytest.approx(1.0), timeout=5000)
+    assert slider.value() == 100, "Revert puts the slider back too"
 
 
 def test_the_reset_key_is_declared_and_clashes_with_nothing():
     from spacr.qt import shortcuts
 
-    declared = [s.keys for s in shortcuts.SHORTCUTS + shortcuts.SCREEN_SHORTCUTS]
+    declared = [s.keys for s in shortcuts.SHORTCUTS
+                + shortcuts.SCREEN_SHORTCUTS]
     assert declared.count("Ctrl+Alt+0") == 1
-    assert "Meta+Alt+0" not in declared
+
+
+def test_the_reset_key_puts_every_scale_back_without_a_restart(
+        qtbot, qt_theme_applied):
+    prefs.set_gui_scale(0.3)
+    prefs.set_font_scale(0.4)
+    gui_scale.set_gui_scale_live(0.3)
+    assert gui_scale.reset_every_scale(None)
+    assert prefs.get_gui_scale() == pytest.approx(1.0)
+    assert prefs.get_font_scale() == pytest.approx(1.0)
+    assert gui_scale.current_scale() == pytest.approx(1.0)
+
+
+def test_the_figure_dpi_follows_both_scales(qtbot, qt_theme_applied):
+    from spacr.qt.widgets.umap_explorer import ImageUmapExplorer
+
+    explorer = ImageUmapExplorer()
+    qtbot.addWidget(explorer)
+    figure = explorer._canvas.figure
+    base = figure.dpi
+    gui_scale.set_gui_scale_live(0.5)
+    assert figure.dpi == pytest.approx(base * 0.5)
+    explorer._scale_control.scaler.set_scale(0.5)
+    assert figure.dpi == pytest.approx(base * 0.25), "the two multiply"
+    explorer._scale_control.scaler.set_scale(1.0)
+    gui_scale.set_gui_scale_live(1.0)
+    assert figure.dpi == pytest.approx(base)
 
 
 # ---------------------------------------------------------------------------

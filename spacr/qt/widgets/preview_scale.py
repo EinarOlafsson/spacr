@@ -843,31 +843,17 @@ def scale_figure_canvas(canvas, scale: float) -> bool:
     A figure draws in points, so its dpi is what makes a 9 pt label take
     more or fewer pixels. Scaling the dpi the canvas was built with -- and
     keeping the widget's size -- scales everything the figure draws, at the
-    cost of nothing but a redraw.
+    cost of nothing but a redraw. It composes with the GUI scale:
+    :func:`spacr.qt.gui_scale.apply_canvas_dpi` draws base dpi x GUI scale
+    x this preview's scale.
 
     :param canvas: a ``FigureCanvasQTAgg``.
     :param scale: the preview's scale.
     :returns: ``True`` if the canvas was rescaled.
     """
-    figure = getattr(canvas, "figure", None)
-    if figure is None:
+    if getattr(canvas, "figure", None) is None:
         return False
-    try:
-        base = getattr(figure, "_spacr_preview_base_dpi", None)
-        if base is None:
-            base = float(getattr(figure, "_original_dpi", figure.dpi))
-            figure._spacr_preview_base_dpi = base
-        wanted = base * float(scale)
-        ratio = float(getattr(canvas, "device_pixel_ratio", 1.0) or 1.0)
-        figure._original_dpi = wanted
-        figure._set_dpi(wanted * ratio, forward=False)
-        from PySide6.QtCore import QCoreApplication
-        from PySide6.QtGui import QResizeEvent
+    canvas._spacr_preview_scale = float(scale)
+    from ..gui_scale import apply_canvas_dpi
 
-        QCoreApplication.sendEvent(
-            canvas, QResizeEvent(canvas.size(), canvas.size()))
-        canvas.draw_idle()
-        return True
-    except Exception:                                        # noqa: BLE001
-        LOG.debug("could not rescale the figure canvas", exc_info=True)
-        return False
+    return apply_canvas_dpi(canvas)

@@ -450,13 +450,13 @@ def _open_preferences(window: QMainWindow) -> None:
 
 
 def _reset_every_scale(window: QMainWindow) -> None:
-    """Put GUI scale, font scale and every preview scale back to 100 %.
+    """Put GUI scale, font scale and every preview scale back to 100 %, now.
 
-    The way back from a scale too small to read (item 471): it needs no
-    reading, and the restart it asks for is the default button, so Enter
-    completes it. Ctrl+Alt rather than Ctrl+Shift, which some Windows
-    keyboard setups take for switching layout, and 0 rather than a letter,
-    because Cmd+Option+0 is not one of the combinations macOS reserves.
+    The backup way out of a scale too small to read (item 471): it needs no
+    reading and asks nothing. Ctrl+Alt rather than Ctrl+Shift, which some
+    Windows keyboard setups take for switching layout, and 0 rather than a
+    letter, because Cmd+Option+0 is not one of the combinations macOS
+    reserves.
 
     :param window: the main window.
     """
