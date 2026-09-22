@@ -82,7 +82,7 @@ from functools import partial
 from typing import Callable, List, Optional
 
 from PySide6.QtCore import QEvent, QObject, QPoint, Qt, QTimer, Signal
-from PySide6.QtGui import QColor, QPainter, QPolygon
+from PySide6.QtGui import QColor, QPainter, QPen, QPolygon
 from PySide6.QtWidgets import (QSizePolicy, QSpacerItem, QSplitter,
                                QSplitterHandle, QWidget)
 from shiboken6 import isValid
@@ -515,7 +515,7 @@ class _PaneHandle(QSplitterHandle):
             palette = active_palette()
         except Exception:                                    # noqa: BLE001
             palette = {}
-        hovered = self.underMouse()
+        hovered = self.underMouse() or self._pressed_at is not None
         line = QColor(palette.get("accent" if hovered else "border_soft",
                                   "#4c8dff" if hovered else "#3a3f4b"))
         painter = QPainter(self)
@@ -532,7 +532,13 @@ class _PaneHandle(QSplitterHandle):
         painter.end()
 
     def _paint_arrow(self, painter, pane, palette, hovered) -> None:
-        """A small tab with a triangle pointing where a click sends the pane."""
+        """A dark tab with a chevron pointing where a click sends the pane.
+
+        The maintainer, 2026-09-22: the tab is dark grey rather than black,
+        and the mark is a stroked chevron -- "< or >" -- rather than a filled
+        triangle. Hovered or held down, the chevron and the tab's edge turn
+        the accent colour, so the thing that is about to move says so.
+        """
         splitter = self.splitter()
         before = splitter.indexOf(pane.widget) < splitter.indexOf(
             splitter.widget(self._index()))
@@ -540,10 +546,16 @@ class _PaneHandle(QSplitterHandle):
         towards_start = before != collapsed
         rect = self.rect()
         painter.setRenderHint(QPainter.Antialiasing, True)
-        tab = QColor(palette.get("surface", "#2a2e37"))
-        edge = QColor(palette.get("accent" if hovered else "border",
-                                  "#4c8dff"))
-        ink = QColor(palette.get("text", "#e6e6e6"))
+        tab = QColor(palette.get("surface_alt", palette.get("surface",
+                                                            "#2a2e37")))
+        # Dark GREY, not the near-black the surfaces carry: the tab has to
+        # read as a control sitting on the page rather than a hole in it.
+        tab = tab.lighter(165) if tab.lightness() < 128 else tab.darker(108)
+        accent = QColor(palette.get("accent", "#4c8dff"))
+        edge = accent if hovered else QColor(palette.get("border", "#3a3f4b"))
+        ink = accent if hovered else QColor(palette.get("text_muted",
+                                                        palette.get("text",
+                                                                    "#b9bfca")))
         if self.orientation() == Qt.Horizontal:
             w = rect.width()
             h = max(24, w * 3)
@@ -556,6 +568,7 @@ class _PaneHandle(QSplitterHandle):
                        QPoint(cx + s, cy + 2 * s)] if towards_start else
                       [QPoint(cx - s, cy - 2 * s), QPoint(cx + s, cy),
                        QPoint(cx - s, cy + 2 * s)])
+            thickness = max(1, w // 6)
         else:
             h = rect.height()
             w = max(24, h * 3)
@@ -568,9 +581,13 @@ class _PaneHandle(QSplitterHandle):
                        QPoint(cx + 2 * s, cy + s)] if towards_start else
                       [QPoint(cx - 2 * s, cy - s), QPoint(cx, cy + s),
                        QPoint(cx + 2 * s, cy - s)])
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(ink)
-        painter.drawPolygon(QPolygon(points))
+            thickness = max(1, h // 6)
+        stroke = QPen(ink, thickness)
+        stroke.setCapStyle(Qt.RoundCap)
+        stroke.setJoinStyle(Qt.RoundJoin)
+        painter.setPen(stroke)
+        painter.setBrush(Qt.NoBrush)
+        painter.drawPolyline(QPolygon(points))
 
     def _index(self) -> int:
         """This handle's index in its splitter."""
