@@ -4801,6 +4801,9 @@ QLabel#FoldHeading {{
     padding: 1px 0px;
     background: transparent;
 }}
+QWidget#FoldSection, QWidget#FoldSectionBody {{
+    background: transparent;
+}}
 
 /* -----------------------------------------------------------------
  *  Buttons

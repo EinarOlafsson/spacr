@@ -228,3 +228,21 @@ def test_an_edge_pane_hint_says_what_its_drag_does(qapp):
     split.set_collapsed("Sidebar", True)
     handle.retranslate_dynamic_content()
     assert handle.toolTip().startswith("Click to show Sidebar again.")
+
+
+@pytest.mark.qt
+def test_a_section_paints_no_background_of_its_own(qapp):
+    """The page's backdrop shows through a section, as through a card.
+
+    The blanket ``QWidget`` rule fills every plain widget with the window
+    colour, and a section is two plain widgets over whatever the screen
+    draws. Without this the fold's own wrapper would paint a grey slab over
+    the page.
+    """
+    from spacr.qt.theme import stylesheet
+
+    sheet = stylesheet()
+    assert "QWidget#FoldSection, QWidget#FoldSectionBody" in sheet
+    section = cs.FoldSection(_body(), "See through me")
+    assert section.objectName() == "FoldSection"
+    assert section.folder.body.objectName() == "FoldSectionBody"

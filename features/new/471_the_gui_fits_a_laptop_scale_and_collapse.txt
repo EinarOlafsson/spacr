@@ -693,12 +693,15 @@ THE SCREENS, P TO Z
                         power vs wells               yes  yes  section
                         power table                  yes  yes  section
                         caveats                      yes  no   fold only
-                        design form                  no   yes  pane
+                        design form                  no   yes  pane [a]
   profiler              inputs                       yes  yes  section
                         timing curve                 yes  yes  section
+                        held values                  no   yes  pane [a]
   project_browser       project table                yes  yes  section
                         project details              yes  yes  section
+                        search-root list, toolbar    no   no   no [a]
   qc_dashboard          every QC card                yes  no   fold only [u]
+                        source row, verdict line     no   no   no [a]
   queue                 queue table                  yes  no   fold only
   regression (screen)   fold strip and its pages     yes  no   already [v]
   report                sections found               yes  no   fold only
@@ -710,7 +713,7 @@ THE SCREENS, P TO Z
                         filter                       yes  yes  section
   pivot_builder         field shelf                  yes  yes  section
                         pivot table                  yes  yes  section
-  train_cellpose        (a settings form and Run)    --   --   no [a]
+  train_cellpose        its two module tabs          no   no   no [w]
   train_compare         runs list                    yes  yes  section
                         training curves              yes  yes  section
                         settings diff                yes  yes  section
@@ -719,10 +722,17 @@ THE SCREENS, P TO Z
                         filter / columns side        yes  yes  section
   volcano               volcano plot                 yes  yes  section
                         selected point               yes  yes  section
+                        style controls (56 fields)   yes  yes  already [x]
 
   * [u] each card folds to its heading where it stands in the column, its
-    verdict chip kept in the heading.
+    verdict chip kept in the heading, so a folded card still says pass or
+    fail. The cards are a scroll column: there is no sibling to trade width
+    with.
   * [v] the results themselves are the figures panel's, above.
+  * [w] each of its two tabs IS a module screen with slice B's own shell
+    folds; a fold here would hide a whole module.
+  * [x] its categories are widgets/section.py Sections and already fold; the
+    column itself now drags.
 
 WHAT IS NOT COLLAPSIBLE, AND WHY ("wherever possible")
 
@@ -821,6 +831,13 @@ carries its own hint), beside slice B's two.
     "Pivot", "Pivot fields", "Pivot table", "Curves", "Settings diff",
     "Channels", "Trellis", "Selected point", plus each QC card's own title,
     which was already a translated string.
+
+WHAT A HEADING COSTS. Every section adds one heading row to its screen's
+minimum height. Measured at 1366 px wide, before and after: Tabulate
+1085 -> 1144, Power 817 -> 889, Train Compare 562 -> 602, Profiler
+584 -> 601, Volcano 514 -> 552, Run History 379 -> 419. Tabulate and Power
+were already taller than a 768 px screen before this slice; folding is now
+the way down from that, but the heading row is what it costs.
 
 THE OPEN QUESTION FROM SLICE B IS STILL OPEN. The Live / 3D / Time / OPS / AI
 switches stay in the Run row inside the folded "Actions" strip. Slice C did
