@@ -412,3 +412,36 @@ def test_the_committed_labels_obey_the_rule_the_scorer_enforces():
                 assert (found["well"] + found["other"]
                         == verdicts.count("tp")), figure["key"]
                 assert "?" not in verdicts, figure["key"]
+
+
+def test_several_sizes_are_merged_by_the_modules_own_merge():
+    """2026-09-21: the harness measures the sizes the module ships (640 and
+    1280) the way the module merges them, not by a merge of its own."""
+    assert spike._sizes("640,1280") == [640, 1280]
+    assert spike._sizes(640) == [640]
+    same = {"x0": 10, "y0": 10, "x1": 50, "y1": 50, "confidence": 0.5}
+    per_size = {"640": [same, {"x0": 100, "y0": 100, "x1": 140, "y1": 140,
+                               "confidence": 0.6}],
+                "1280": [dict(same, x1=52, confidence=0.7),
+                         {"x0": 200, "y0": 10, "x1": 230, "y1": 40,
+                          "confidence": 0.4}]}
+    merged = spike._merged_like_the_module(per_size)
+    assert [(b["x0"], b["sizes"]) for b in merged] == [
+        (10, [640, 1280]), (200, [1280]), (100, [640])]
+    assert merged[0]["confidence"] == 0.7, "the higher score is kept"
+
+
+def test_the_merged_run_record_adds_up():
+    """The 2026-09-21 record: 640 and 1280 reproduce the earlier totals, and
+    the merged boxes split exactly into the kept 640 boxes and the new ones."""
+    record = json.loads((ROOT / "features" / "data" /
+                         "424_detector_transfer_merged_2026-09-21.json").read_text())
+    totals = record["totals"]
+    assert totals["v2_boxes"] == {"640": 148, "1280": 194, "merged": 206}
+    rows = record["per_figure"]
+    assert len(rows) == 182
+    assert sum(r["merged"] for r in rows) == 206
+    assert totals["merged_boxes_on_the_24_region_bearing_figures"] == (
+        totals["of_those_also_found_at_640"]
+        + totals["of_those_found_only_at_1280"])
+    assert all(r["boxes_640_identical_to_2026_09_20"] for r in rows)

@@ -633,6 +633,47 @@ def _keep_ultralytics_out_of_the_user_config(args: argparse.Namespace,
     return chosen
 
 
+def _sizes(value: Any) -> List[int]:
+    """The inference sizes ``--imgsz`` names.
+
+    :param value: an int, or a comma-separated string of them.
+    :returns: the sizes, in the order given.
+    """
+    if isinstance(value, int):
+        return [value]
+    sizes = [int(part) for part in str(value).split(",") if part.strip()]
+    if not sizes:
+        raise SystemExit("--imgsz names no size")
+    return sizes
+
+
+def _merged_like_the_module(per_size: Dict[str, List[Dict]]) -> List[Dict]:
+    """Merge one model's boxes over several sizes exactly as spaCR does.
+
+    The merge is not reimplemented here: the recorded boxes are replayed
+    through :func:`spacr.plaque_papers.find_plaque_regions`, so what is
+    measured is the module's own merge and a change to it changes this
+    number.
+
+    :param per_size: ``{size: [box dicts]}`` from :func:`plaque.detect_wells`.
+    :returns: the merged boxes, each carrying ``sizes`` -- every size that
+        found it.
+    """
+    from types import SimpleNamespace
+
+    from spacr.plaque_papers import find_plaque_regions
+
+    def replay(_image, _weights, *, confidence, imgsz, min_axis_ratio):
+        """The boxes already found at ``imgsz``."""
+        return [SimpleNamespace(**b) for b in per_size.get(str(imgsz), [])]
+
+    regions = find_plaque_regions(None, None, imgsz=[int(s) for s in per_size],
+                                  detect=replay)
+    return [{"x0": r.x0, "y0": r.y0, "x1": r.x1, "y1": r.y1,
+             "confidence": round(float(r.confidence), 4),
+             "sizes": list(r.sizes)} for r in regions]
+
+
 def stage_detect(args: argparse.Namespace) -> None:
     """Run every detector over every figure and write the overlays.
 
@@ -667,6 +708,7 @@ def stage_detect(args: argparse.Namespace) -> None:
     shipped_ratio = float(inspect.signature(plaque.detect_wells)
                           .parameters["min_axis_ratio"].default)
     font = Path(args.font) if args.font else None
+    sizes = _sizes(args.imgsz)
     records: List[Dict[str, Any]] = []
     started = time.time()
     for position, figure in enumerate(figures, start=1):
@@ -679,26 +721,37 @@ def stage_detect(args: argparse.Namespace) -> None:
             continue
         height, width = image.shape[:2]
         boxes_by_model: Dict[str, List[Dict]] = {}
+        by_size: Dict[str, Dict[str, List[Dict]]] = {}
         for key, info in models.items():
-            wells = plaque.detect_wells(
-                image, info["path"], confidence=args.conf,
-                imgsz=args.imgsz, min_axis_ratio=0.0)
-            boxes = []
-            for well in wells:
-                box = well.as_dict()
-                box["confidence"] = round(float(box["confidence"]), 4)
-                box["diameter_px"] = round(float(box["diameter_px"]), 1)
-                box["axis_ratio"] = round(float(box["axis_ratio"]), 3)
-                box["kept_by_shipped_filter"] = (
-                    well.axis_ratio >= shipped_ratio)
-                boxes.append(box)
-            boxes_by_model[key] = boxes
-        records.append({
+            per_size: Dict[str, List[Dict]] = {}
+            for size in sizes:
+                wells = plaque.detect_wells(
+                    image, info["path"], confidence=args.conf,
+                    imgsz=size, min_axis_ratio=0.0)
+                boxes = []
+                for well in wells:
+                    box = well.as_dict()
+                    box["confidence"] = round(float(box["confidence"]), 4)
+                    box["diameter_px"] = round(float(box["diameter_px"]), 1)
+                    box["axis_ratio"] = round(float(box["axis_ratio"]), 3)
+                    box["kept_by_shipped_filter"] = (
+                        well.axis_ratio >= shipped_ratio)
+                    boxes.append(box)
+                per_size[str(size)] = boxes
+            if len(sizes) == 1:
+                boxes_by_model[key] = per_size[str(sizes[0])]
+            else:
+                boxes_by_model[key] = _merged_like_the_module(per_size)
+                by_size[key] = per_size
+        record = {
             "key": figure["key"], "pmcid": figure["pmcid"],
             "doi": figure.get("doi"), "fig_label": figure.get("fig_label"),
             "width": int(width), "height": int(height),
             "boxes": boxes_by_model,
-        })
+        }
+        if by_size:
+            record["boxes_by_size"] = by_size
+        records.append(record)
         for key, boxes in boxes_by_model.items():
             if boxes or args.overlay_all:
                 _draw_overlay(path, {key: boxes},
@@ -710,7 +763,12 @@ def stage_detect(args: argparse.Namespace) -> None:
                   f"{time.time() - started:.0f}s")
     target = root / "detections.json"
     target.write_text(json.dumps({
-        "models": models, "conf": args.conf, "imgsz": args.imgsz,
+        "models": models, "conf": args.conf,
+        "imgsz": sizes[0] if len(sizes) == 1 else sizes,
+        "merge": None if len(sizes) == 1 else (
+            "spacr.plaque_papers.find_plaque_regions: every size asked, a box "
+            "overlapping a kept one at IoU > 0.5 is the same region, the "
+            "higher score kept and both sizes recorded"),
         "shipped_min_axis_ratio": shipped_ratio,
         "channel_order": "bgr",
         "spacr_from": getattr(spacr, "__file__", None),
@@ -936,7 +994,11 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
                              "a figure graphic")
     parser.add_argument("--models", default=",".join(DEFAULT_MODELS))
     parser.add_argument("--conf", type=float, default=0.25)
-    parser.add_argument("--imgsz", type=int, default=640)
+    parser.add_argument("--imgsz", default="640",
+                        help="inference size, or several comma-separated "
+                             "(640,1280 is what spaCR's figure reader "
+                             "ships); several are merged the way the module "
+                             "merges them and each size's boxes are kept")
     parser.add_argument("--gpu", action="store_true",
                         help="let ultralytics see the GPU. Off by default: "
                              "two yolo-n checkpoints over a few hundred "
