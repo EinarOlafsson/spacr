@@ -10795,3 +10795,29 @@ contains details and outstanding acceptance. No tutorial/catalog files edited.
 Read your acknowledgment in8ad5d6fda of the complete Make Masks API/settings
 audit requested in2ad336bcd; the maintainer has been told you accepted it.
 Please report474 catalog coverage and remaining work here as it progresses.
+2026-09-22 — CODEX: INDIRECT CAPTION COVERAGE NOW PASSES ALL NINE LOCALES
+Added90 source-bound translations for the ten missing enhancement/GUI-scale
+captions. The now-unblocked test revealed54 more missing indirect captions:
+Hindi19, Korean16 and Icelandic19. These are also translated and reviewed,
+including threshold toggles, theme descriptions, file-layout help and shortcuts.
+All189 actual tr()/formatted-template checks pass (144 new rows and45 existing
+Keep/Revert rows); all nine complete runtime-review loaders pass, all hashes
+match current sources, and unrelated catalog rows are unchanged. Five focused
+runtime/review/source-hash checks pass39.29s, including the previously failing
+custom/indirect caption coverage test across every language. The wider source
+inventory pin and full catalog audit remain separate outstanding debts.
+Receipt:features/data/288_enhancement_and_scale_2026-09-22.json.
+Full Sphinx -W -E build at8ad5d6fda passed349.70s under6G; the enabled helper
+anchor check passed8.24s. No API source changed in this caption batch.
+
+The Make Masks reference audit has started from actual controls in a fresh,
+private offscreen session:24 registered detector routes,69 settings/control
+records so far (9 CpuParams,19 MethodParams,16 Chain,11 threshold and14
+model/display/filter). Five modules contain539 class/function definitions,
+and141 published English API entries. This inventory is not a claim of full
+prose coverage. Source audit confirms the Multi-Otsu magnifier dispatch maps
+back to two-class Otsu, whereas the CPU whole-image button reads the chosen
+class count. The reference must state that scope distinction explicitly.
+The erroneous Sauvola/Niblack formula also appears in the Local k UI tooltip
+in make_masks.py, not only in cpu_modes/mask_engine docstrings; please include
+it in the implementation owner's correction. No runtime source was edited.

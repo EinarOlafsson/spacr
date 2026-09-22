@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review_kind": "AI-assisted linguistic and technical review of source-bound missing indirect captions; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d",
+      "translation": "여기에 이미지와 마스크를 끌어 놓거나, 이를 분류하는 정규 표현식 하나를 작성하세요. 행은 시야이고 열은 채널과 마스크 유형입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Drop objects the image border cuts",
+      "source": "Drop objects the image border cuts",
+      "source_sha256": "61c81158a6c877c40aec7f3fc2549aaff4455e5fc2a0f58f3d9b862af536fd48",
+      "translation": "이미지 경계에 걸친 객체 제외"
+    },
+    {
+      "table": "ui",
+      "key": "Dusk",
+      "source": "Dusk",
+      "source_sha256": "abd7160c1f46a06471bb88bd281a04bf2f32d195b618ae0fc9e095e19eb5ea6a",
+      "translation": "황혼"
+    },
+    {
+      "table": "ui",
+      "key": "Enable — report a failed run as a GitHub issue",
+      "source": "Enable — report a failed run as a GitHub issue",
+      "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f",
+      "translation": "활성화 — 실패한 실행을 GitHub 이슈로 보고"
+    },
+    {
+      "table": "ui",
+      "key": "Fill holes inside an object",
+      "source": "Fill holes inside an object",
+      "source_sha256": "435801ce592611dccfeaa141d681ac4d0813ba9242460018f0de502a6eabb95c",
+      "translation": "객체 내부의 구멍 채우기"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold (uneven illumination)",
+      "source": "Local threshold (uneven illumination)",
+      "source_sha256": "96ed765787b60b41e78cc401115d499d7fe9c4ac591ce1644c57046880986ede",
+      "translation": "국소 임계값 (불균일한 조명)"
+    },
+    {
+      "table": "ui",
+      "key": "Low sun",
+      "source": "Low sun",
+      "source_sha256": "d4db8b6e7c0a115bf73963503aedbc431cfb19511f69b817062d191690fccf58",
+      "translation": "낮게 뜬 태양"
+    },
+    {
+      "table": "ui",
+      "key": "Midnight",
+      "source": "Midnight",
+      "source_sha256": "aa996cf21f0dbc617e27fac13ab13916a07944c2de10c2dbcd60b95a6023f80b",
+      "translation": "한밤중"
+    },
+    {
+      "table": "ui",
+      "key": "Objects are brighter than background",
+      "source": "Objects are brighter than background",
+      "source_sha256": "becac3876b3e17f23be849eb7047a6ab5e5bed2e29e32603da84c48d953675b6",
+      "translation": "객체가 배경보다 밝음"
+    },
+    {
+      "table": "ui",
+      "key": "Resonance",
+      "source": "Resonance",
+      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
+      "translation": "공명"
+    },
+    {
+      "table": "ui",
+      "key": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source_sha256": "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
+      "translation": "진동하는 판 위의 모래가 움직이지 않는 선을 따라 모입니다. 배경 음악이 재생되면 음악에 맞춰 변하고, 아무것도 재생되지 않을 때는 스스로 숨 쉬듯 움직이는 Chladni 무늬입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Shortcuts",
+      "source": "Shortcuts",
+      "source_sha256": "46e978d0c19397c7d0318f6440950c15e046f5841a0feb03c35fdc68e1dfc68a",
+      "translation": "단축키"
+    },
+    {
+      "table": "ui",
+      "key": "Split objects that touch",
+      "source": "Split objects that touch",
+      "source_sha256": "25d4d69647265e4f5d692cab9ad3bfda5163ade1cedb54e43a7b880d1fa27a07",
+      "translation": "서로 맞닿은 객체 분리"
+    },
+    {
+      "table": "ui",
+      "key": "The files",
+      "source": "The files",
+      "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
+      "translation": "파일"
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "translation": "하늘에 마지막으로 남은 색입니다. 차분한 금빛 위의 장밋빛과 마젠타, 그리고 어두워지기 직전 지평선이 띠는 자두빛입니다."
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "translation": "수면 아래의 바다색과 민트색, 그리고 따뜻한 색이 모두 흡수되고 마지막으로 남는 청록색입니다."
+    }
+  ]
+}

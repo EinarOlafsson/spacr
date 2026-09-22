@@ -1,0 +1,77 @@
+{
+  "schema": 1,
+  "language": "is",
+  "review_kind": "AI-assisted linguistic and technical review of the actual enhancement controls and multiplicative GUI/font scale; no native-speaker sign-off",
+  "records": [
+    {
+      "table": "ui",
+      "key": "CLAHE (local histogram equalisation)",
+      "source": "CLAHE (local histogram equalisation)",
+      "source_sha256": "9f37b253a0a712e3825dc006a660c93d49c235279644d77387290fbdc7fa36ff",
+      "translation": "CLAHE (staðbundin jöfnun styrkdreifingar)"
+    },
+    {
+      "table": "ui",
+      "key": "Centre level is a percentile",
+      "source": "Centre level is a percentile",
+      "source_sha256": "16ded384729f13f11ad79d29bdf146245478485c4496a1350a42bc7d09067d1c",
+      "translation": "Þröskuldur miðju er hundraðshlutamark"
+    },
+    {
+      "table": "ui",
+      "key": "Drop centres near the edge",
+      "source": "Drop centres near the edge",
+      "source_sha256": "4e3ffdffda54979571ba14e0d2b39c5ba332430a7900e125cf271e5fbb257a38",
+      "translation": "Sleppa miðjum nálægt jaðri"
+    },
+    {
+      "table": "ui",
+      "key": "GUI scale",
+      "source": "GUI scale",
+      "source_sha256": "581f9c8e0ea51f9d0ada1090d7255ee5d22e712b6f866a203f841a7f5c1ca1e8",
+      "translation": "GUI-kvarði"
+    },
+    {
+      "table": "ui",
+      "key": "Histogram equalisation (whole image)",
+      "source": "Histogram equalisation (whole image)",
+      "source_sha256": "60efae0b6a6ef2a9cd81474f185ba5728cab5b6eaa974b21810b1138876a9198",
+      "translation": "Jöfnun styrkdreifingar (öll myndin)"
+    },
+    {
+      "table": "ui",
+      "key": "Reduce to a one-pixel skeleton",
+      "source": "Reduce to a one-pixel skeleton",
+      "source_sha256": "2bec27824e5334880825900054733f37fd7525d7af522706e8898e30c255fc2a",
+      "translation": "Þynna í beinagrind sem er einn myndpunktur á breidd"
+    },
+    {
+      "table": "ui",
+      "key": "Show the enhanced image",
+      "source": "Show the enhanced image",
+      "source_sha256": "c7e42861b48c38362b9cad0b778a53a42db6ab9330912bf469583ff32f199f5d",
+      "translation": "Sýna endurbættu myndina"
+    },
+    {
+      "table": "ui",
+      "key": "Split touching spots",
+      "source": "Split touching spots",
+      "source_sha256": "3f81f796ea719d086839bac0c3043051fa28978599bca62a360d3088f44e6843",
+      "translation": "Aðskilja bletti sem snertast"
+    },
+    {
+      "table": "ui",
+      "key": "Unsharp mask",
+      "source": "Unsharp mask",
+      "source_sha256": "d1041d04116cafd96c602625268d676850f5fd052aeabb87de0155d5d2510952",
+      "translation": "Skerpa með óskýrri grímu"
+    },
+    {
+      "table": "ui",
+      "key": "Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.",
+      "source": "Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.",
+      "source_sha256": "ef27671f0e9e14db10cb2f2f3a7e5ae9e1ea384f9300d7543ab36a33536e3670",
+      "translation": "Breyttu stærð allra hluta viðmótsins -- stjórntækja, bila, tákna, mynda og texta -- frá 10 % í 200 %. Lækkaðu gildið til að koma meiru fyrir á litlum skjá eða skjá með lága upplausn. Breytingin tekur strax gildi og síðan er spurt hvort eigi að halda henni; ef ekkert svar berst fer hún sjálfkrafa til baka eftir 15 sekúndur. Leturkvarðinn leggst ofan á: 50 % GUI með 200 % letri gefur stjórntæki í hálfri stærð en texta í venjulegri stærð. Ctrl+Alt+0 færir GUI-kvarða og leturkvarða aftur í 100 % hvar sem þú ert."
+    }
+  ]
+}

@@ -6242,6 +6242,16 @@ UI = {
     'Max area (px)': '最大面积 (px)',
     'Max displacement': '最大位移',
     'Signing in to {label}…': '正在登录 {label}…',
+    'CLAHE (local histogram equalisation)': 'CLAHE（局部直方图均衡化）',
+    'Centre level is a percentile': '中心阈值采用百分位数',
+    'Drop centres near the edge': '排除靠近边缘的中心',
+    'GUI scale': 'GUI 缩放',
+    'Histogram equalisation (whole image)': '直方图均衡化（整幅图像）',
+    'Reduce to a one-pixel skeleton': '细化为单像素宽的骨架',
+    'Show the enhanced image': '显示增强后的图像',
+    'Split touching spots': '分离相互接触的斑点',
+    'Unsharp mask': '反锐化掩模',
+    'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.': '将界面的所有部分 -- 控件大小、间距、图标、图表和文字 -- 缩放至 10 % 到 200 %。调低此值可在小型或低分辨率显示器上显示更多内容。更改会立即生效，随后会询问是否保留；若未作答，15 秒后将自动还原。字体缩放会在此基础上叠加：GUI 为 50 %、字体为 200 % 时，控件缩小为一半，而文字保持通常的大小。在任意位置按 Ctrl+Alt+0 均可将 GUI 缩放和字体缩放重置为 100 %。',
 }
 
 MODULE_SUMMARIES = {
@@ -12607,4 +12617,14 @@ SOURCE_HASHES = {
     ('UI', 'Max area (px)'): '0a9de30cab1594bca5504fc4efca84b33b2a238a0048288543ddbf6fb47c9af9',
     ('UI', 'Max displacement'): '922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df',
     ('UI', 'Signing in to {label}…'): 'f46524a477333bffbe911ff367d4093c69bf82618e40eebb7224391fc3100949',
+    ('UI', 'CLAHE (local histogram equalisation)'): '9f37b253a0a712e3825dc006a660c93d49c235279644d77387290fbdc7fa36ff',
+    ('UI', 'Centre level is a percentile'): '16ded384729f13f11ad79d29bdf146245478485c4496a1350a42bc7d09067d1c',
+    ('UI', 'Drop centres near the edge'): '4e3ffdffda54979571ba14e0d2b39c5ba332430a7900e125cf271e5fbb257a38',
+    ('UI', 'GUI scale'): '581f9c8e0ea51f9d0ada1090d7255ee5d22e712b6f866a203f841a7f5c1ca1e8',
+    ('UI', 'Histogram equalisation (whole image)'): '60efae0b6a6ef2a9cd81474f185ba5728cab5b6eaa974b21810b1138876a9198',
+    ('UI', 'Reduce to a one-pixel skeleton'): '2bec27824e5334880825900054733f37fd7525d7af522706e8898e30c255fc2a',
+    ('UI', 'Show the enhanced image'): 'c7e42861b48c38362b9cad0b778a53a42db6ab9330912bf469583ff32f199f5d',
+    ('UI', 'Split touching spots'): '3f81f796ea719d086839bac0c3043051fa28978599bca62a360d3088f44e6843',
+    ('UI', 'Unsharp mask'): 'd1041d04116cafd96c602625268d676850f5fd052aeabb87de0155d5d2510952',
+    ('UI', 'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.'): 'ef27671f0e9e14db10cb2f2f3a7e5ae9e1ea384f9300d7543ab36a33536e3670',
 }

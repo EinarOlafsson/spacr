@@ -6223,6 +6223,16 @@ UI = {
     'Max area (px)': 'Maximale Fläche (px)',
     'Max displacement': 'Maximale Verschiebung',
     'Signing in to {label}…': 'Anmeldung bei {label}…',
+    'CLAHE (local histogram equalisation)': 'CLAHE (lokaler Histogrammausgleich)',
+    'Centre level is a percentile': 'Zentrumsschwelle als Perzentil',
+    'Drop centres near the edge': 'Zentren nahe dem Bildrand ausschließen',
+    'GUI scale': 'GUI-Skalierung',
+    'Histogram equalisation (whole image)': 'Histogrammausgleich (gesamtes Bild)',
+    'Reduce to a one-pixel skeleton': 'Auf ein ein Pixel breites Skelett reduzieren',
+    'Show the enhanced image': 'Verbessertes Bild anzeigen',
+    'Split touching spots': 'Sich berührende Punkte trennen',
+    'Unsharp mask': 'Unscharf maskieren',
+    'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.': 'Skaliert alle Teile der Oberfläche -- Größe der Bedienelemente, Abstände, Symbole, Abbildungen und Text -- von 10 % bis 200 %. Verringern Sie den Wert, damit auf einem kleinen oder niedrig auflösenden Bildschirm mehr Platz ist. Die Änderung gilt sofort; anschließend werden Sie gefragt, ob Sie sie beibehalten möchten. Ohne Antwort wird sie nach 15 Sekunden automatisch zurückgenommen. Die Schriftskalierung wirkt zusätzlich: 50 % GUI bei 200 % Schriftskalierung ergibt halb so große Bedienelemente mit Text in gewohnter Größe. Ctrl+Alt+0 setzt GUI- und Schriftskalierung von überall auf 100 % zurück.',
 }
 
 MODULE_SUMMARIES = {
@@ -12570,4 +12580,14 @@ SOURCE_HASHES = {
     ('UI', 'Max area (px)'): '0a9de30cab1594bca5504fc4efca84b33b2a238a0048288543ddbf6fb47c9af9',
     ('UI', 'Max displacement'): '922493ac45277ec11eb37292c575e00830afe3d3403dc2f93d9f5f72be60f0df',
     ('UI', 'Signing in to {label}…'): 'f46524a477333bffbe911ff367d4093c69bf82618e40eebb7224391fc3100949',
+    ('UI', 'CLAHE (local histogram equalisation)'): '9f37b253a0a712e3825dc006a660c93d49c235279644d77387290fbdc7fa36ff',
+    ('UI', 'Centre level is a percentile'): '16ded384729f13f11ad79d29bdf146245478485c4496a1350a42bc7d09067d1c',
+    ('UI', 'Drop centres near the edge'): '4e3ffdffda54979571ba14e0d2b39c5ba332430a7900e125cf271e5fbb257a38',
+    ('UI', 'GUI scale'): '581f9c8e0ea51f9d0ada1090d7255ee5d22e712b6f866a203f841a7f5c1ca1e8',
+    ('UI', 'Histogram equalisation (whole image)'): '60efae0b6a6ef2a9cd81474f185ba5728cab5b6eaa974b21810b1138876a9198',
+    ('UI', 'Reduce to a one-pixel skeleton'): '2bec27824e5334880825900054733f37fd7525d7af522706e8898e30c255fc2a',
+    ('UI', 'Show the enhanced image'): 'c7e42861b48c38362b9cad0b778a53a42db6ab9330912bf469583ff32f199f5d',
+    ('UI', 'Split touching spots'): '3f81f796ea719d086839bac0c3043051fa28978599bca62a360d3088f44e6843',
+    ('UI', 'Unsharp mask'): 'd1041d04116cafd96c602625268d676850f5fd052aeabb87de0155d5d2510952',
+    ('UI', 'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.'): 'ef27671f0e9e14db10cb2f2f3a7e5ae9e1ea384f9300d7543ab36a33536e3670',
 }
