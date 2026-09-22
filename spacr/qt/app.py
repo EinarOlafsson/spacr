@@ -5748,6 +5748,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication(sys.argv[:1])
+    try:
+        from .theme import use_a_style_that_honours_the_palette
+        use_a_style_that_honours_the_palette(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not choose the Fusion style", exc_info=True)
     if os.environ.get("SPACR_WATCH_GUI_STALLS"):
         try:
             from .stall_watch import watch_this_application

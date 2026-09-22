@@ -363,9 +363,14 @@ class TestTheDialogMovesTheOtherThreeControls:
     """HANDOFF 0b: press the control a user presses, then read what moved."""
 
     @pytest.fixture
-    def dialog(self, store, qtbot, qt_theme_applied):
+    def dialog(self, store, qtbot, qt_theme_applied, monkeypatch):
+        """Built in spaceout mode, the only mode with a Sound set control
+        (maintainer, 2026-09-21); the theme and backdrop controls behave the
+        same in both."""
+        from spacr.qt import theme as spacr_theme
         from spacr.qt.preferences import PreferencesDialog
 
+        monkeypatch.setattr(spacr_theme, "spaceout_enabled", lambda: True)
         dlg = PreferencesDialog()
         qtbot.addWidget(dlg)
         dlg.resize(900, 700)

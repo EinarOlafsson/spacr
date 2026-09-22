@@ -239,9 +239,32 @@ GPU_TABLE_ROWS = (
     ("UMAP / t-SNE / cluster", "UMAP", "Machine learning"),
 )
 
-#: The colours the verdict is drawn in.
+#: The colours the verdict is drawn in on a dark theme.
 GPU_YES_INK = "#3FB950"
 GPU_NO_INK = "#F85149"
+
+
+def verdict_ink(ok: bool) -> str:
+    """The colour a GPU verdict is drawn in on the theme in force.
+
+    :data:`GPU_YES_INK` and :data:`GPU_NO_INK` are the dark theme's green
+    and red, and on a light page that green is under 2.5:1. A light theme
+    draws the verdict in its own ``success`` and ``error`` instead, which
+    its contrast rules hold readable.
+
+    :param ok: whether the verdict is good news.
+    :returns: a hex colour.
+    """
+    try:
+        from ..theme import active_palette, relative_luminance
+
+        palette = active_palette()
+        if relative_luminance(palette["bg"]) > relative_luminance(
+                palette["fg"]):
+            return palette["success"] if ok else palette["error"]
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("no palette for the GPU verdict", exc_info=True)
+    return GPU_YES_INK if ok else GPU_NO_INK
 
 #: What to say when the card is there and torch cannot use it.
 #:
@@ -1972,7 +1995,7 @@ class SetupSlides(QDialog):
             line = (f'{_say("GPU")}: '
                     f'<span style="color:{{ink}};">'
                     f'{_say("none detected")}</span>')
-        ink = GPU_YES_INK if usable else GPU_NO_INK
+        ink = verdict_ink(usable)
         html = [f'<div>{_say(GPU_REQUIREMENT)}</div>',
                 f'<div style="font-weight:600;">{line.format(ink=ink)}</div>']
         if hint:
@@ -2042,7 +2065,7 @@ class SetupSlides(QDialog):
                     continue
                 if library.startswith("Cellpose"):
                     library = SetupSlides._cellpose_label()
-                ink = GPU_YES_INK if accelerated else GPU_NO_INK
+                ink = verdict_ink(bool(accelerated))
                 where = _say("GPU") if accelerated else _say("CPU")
                 cells.append(
                     f'<tr>'

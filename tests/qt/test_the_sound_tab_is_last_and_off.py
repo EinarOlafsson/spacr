@@ -22,6 +22,18 @@ from PySide6.QtWidgets import QComboBox, QDialogButtonBox, QPushButton, QSlider,
 from spacr.qt import sound as snd
 from spacr.qt.sound_synth import CACHE_ENV
 
+
+@pytest.fixture(autouse=True)
+def _in_spaceout_mode(monkeypatch):
+    """Sound exists only in spaceout mode since 2026-09-21 ("in normal
+    spacr sound should be off by default and there should be no sound tab
+    in preferences"), so everything here runs as the ``spaceout`` launcher
+    would. Ordinary spaCR is covered by
+    ``test_sound_lives_only_in_spaceout.py``."""
+    from spacr.qt import theme
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
+
 EVENT_SWITCHES = ("SoundClick", "SoundHover", "SoundRunFinished",
                   "SoundRunFailed", "SoundMusicBed")
 

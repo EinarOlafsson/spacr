@@ -83,10 +83,15 @@ CONTROLS = {
     # moved with it rather than being left unreachable.
     "AiProvider": "AI",
     "AiProvidersButton": "AI",
-    # The Sound tab arrived on 2026-09-19 (item 427), LAST and off by
-    # default: "the tab is last because it is the least important thing in
-    # Preferences". A master switch, a volume, a sound set, and one switch
-    # and one Preview per event.
+}
+
+#: The Sound tab arrived on 2026-09-19 (item 427), LAST and off by default:
+#: "the tab is last because it is the least important thing in
+#: Preferences". A master switch, a volume, a sound set, and one switch and
+#: one Preview per event. SINCE 2026-09-21 IT IS BUILT ONLY IN SPACEOUT MODE
+#: ("transfer the sound tab in preferences to only be visible in spaceout
+#: mode"), so these are checked against a dialog built with spaceout on.
+SPACEOUT_CONTROLS = {
     "SoundTabHelp": "Sound",
     "SoundEnabled": "Sound",
     "SoundVolume": "Sound",
@@ -106,9 +111,11 @@ CONTROLS = {
 #: Tab order, not just tab membership: General must stay first (see below),
 #: and the rest are ordered by how often a user goes looking for them.
 #: "Logging" was appended on 2026-08-05 by f1183805, and "Sound" on
-#: 2026-09-19 by item 427 -- last, and it must stay last.
+#: 2026-09-19 by item 427 -- last, and it must stay last. Sound and Fractal
+#: exist only in spaceout mode (:data:`EXPECTED_SPACEOUT_TABS`).
 EXPECTED_TABS = ("General", "Appearance", "Theme", "Animation", "Performance",
-                 "Modules", "Figures", "Logging", "AI", "Sound")
+                 "Modules", "Figures", "Logging", "AI")
+EXPECTED_SPACEOUT_TABS = EXPECTED_TABS + ("Fractal", "Sound")
 
 
 @pytest.fixture(autouse=True)
@@ -122,6 +129,18 @@ def _isolated_qsettings(monkeypatch, qt_theme_applied, tmp_path):
 @pytest.fixture
 def dialog(qtbot, qt_theme_applied):
     from spacr.qt.preferences import PreferencesDialog
+    dlg = PreferencesDialog()
+    qtbot.addWidget(dlg)
+    return dlg
+
+
+@pytest.fixture
+def spaceout_dialog(qtbot, qt_theme_applied, monkeypatch):
+    """The dialog as the ``spaceout`` launcher builds it."""
+    from spacr.qt import theme
+    from spacr.qt.preferences import PreferencesDialog
+
+    monkeypatch.setattr(theme, "spaceout_enabled", lambda: True)
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
     return dlg
@@ -153,6 +172,25 @@ def test_the_dialog_has_the_expected_subject_tabs_in_order(dialog):
     in this order, whatever the count happens to be."""
     tabs = _tabs(dialog)
     assert tuple(tabs.tabText(i) for i in range(tabs.count())) == EXPECTED_TABS
+
+
+def test_spaceout_adds_fractal_and_sound_last(spaceout_dialog):
+    """In spaceout mode Sound is back, and still the last tab."""
+    tabs = _tabs(spaceout_dialog)
+    assert (tuple(tabs.tabText(i) for i in range(tabs.count()))
+            == EXPECTED_SPACEOUT_TABS)
+
+
+@pytest.mark.parametrize("object_name,tab", sorted(SPACEOUT_CONTROLS.items()))
+def test_every_sound_control_is_there_in_spaceout(spaceout_dialog,
+                                                  object_name, tab):
+    assert _tab_of(spaceout_dialog, object_name) == tab
+
+
+@pytest.mark.parametrize("object_name", sorted(SPACEOUT_CONTROLS))
+def test_no_sound_control_is_built_outside_spaceout(dialog, object_name):
+    assert dialog.findChild(QWidget, object_name) is None, (
+        f"{object_name} is built in ordinary spaCR, which has no Sound tab")
 
 
 def test_general_is_first_because_language_is_in_it(dialog):

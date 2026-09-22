@@ -57,7 +57,7 @@ DARK_PALETTE = {
     "border_soft": "#1c1e22",
     "fg":          "#ffffff",
     "fg_muted":    "#a1a6ad",
-    "fg_dim":      "#6b6f76",
+    "fg_dim":      "#858a92",
     "accent":      "#4A9EFF",
     "accent_hi":   "#66B2FF",
     "accent_lo":   "#2F80D9",
@@ -81,7 +81,7 @@ LIGHT_PALETTE = {
     "border_soft": "#e5e8ec",
     "fg":          "#0d0e10",
     "fg_muted":    "#4b5460",
-    "fg_dim":      "#68707e",
+    "fg_dim":      "#596170",
     "accent":      "#0a63c4",
     "accent_hi":   "#0851a3",
     "accent_lo":   "#063d7a",
@@ -1752,6 +1752,47 @@ def palette_for(theme: str = "dark") -> dict:
     return out
 
 
+def button_accent_text(palette: Optional[dict] = None) -> str:
+    """The colour for TEXT drawn in the button accent straight on the page.
+
+    ``button_accent`` is the same blue on every theme (see
+    :data:`CONSTANT_ROLES`), and as a fill or an outline it is. As the ink
+    of an outlined button's caption it is not readable on a light page:
+    #4A9EFF on the light theme's page is about 2.2:1, and on Glass's
+    lightest panel it is 3.9:1. So the caption takes the first of a short
+    list that clears 4.5:1 on every panel the theme has: on a dark theme
+    the constant blue, then its lighter ``button_accent_hi``; on a light
+    theme the theme's darker ``accent_hi``, then ``accent_lo``. The ink
+    itself is the last resort, which clears it on any theme that passes
+    its own contrast rules.
+
+    Derived on request rather than stored as a palette role, so the spaceout
+    dressing (which re-hues every stored role) needs no entry for it.
+
+    :param palette: a palette carrying ``bg``, ``fg`` and the accent roles;
+        :func:`active_palette` when omitted.
+    :returns: a hex colour.
+    """
+    if palette is None:
+        palette = active_palette()
+    constant = palette.get("button_accent", CONSTANT_ROLES["button_accent"])
+    try:
+        light = relative_luminance(palette["bg"]) > relative_luminance(
+            palette["fg"])
+        surfaces = [palette[role] for role in PAGE_SURFACES
+                    if role in palette]
+        order = (("accent_hi", "accent_lo", "fg") if light else
+                 ("button_accent", "button_accent_hi", "fg"))
+        for role in order:
+            ink = palette.get(role)
+            if ink and all(contrast_ratio(ink, surface) >= 4.5
+                           for surface in surfaces):
+                return ink
+    except (KeyError, TypeError, ValueError):
+        return constant
+    return palette.get("fg", constant)
+
+
 def active_palette() -> dict:
     """The palette for the theme that is **on screen right now**.
 
@@ -2300,13 +2341,22 @@ TYPOGRAPHY = {
 }
 
 
-def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
+def apply_qpalette(app: QApplication, theme: str = "dark", *,
+                   follow_system: bool = False) -> None:
     """Apply the palette to the QApplication so native controls (menu
     bars, tooltips, dialogs) match the QSS-styled widgets.
 
+    The platform is told the theme's scheme first (see
+    :func:`hold_the_colour_scheme`), so a theme change the operating system
+    reports afterwards cannot repaint the roles set here. Disabled text is
+    the dim ink, so a disabled control reads as disabled on every theme.
+
     :param app: the running QApplication.
     :param theme: one of :data:`THEMES`; unknown values fall back to dark.
+    :param follow_system: release the scheme to the operating system
+        instead of pinning it; the explicit "Follow system" choice.
     """
+    hold_the_colour_scheme(app, None if follow_system else theme)
     P = palette_for(theme)
     p = app.palette()
     p.setColor(QPalette.Window,          QColor(P["bg"]))
@@ -2328,7 +2378,141 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
     p.setColor(QPalette.Midlight,        QColor(P["border_soft"]))
     p.setColor(QPalette.Dark,            QColor(P["surface_alt"]))
     p.setColor(QPalette.Shadow,          QColor("#000000"))
+    for role in (QPalette.WindowText, QPalette.Text, QPalette.ButtonText):
+        p.setColor(QPalette.Disabled, role, QColor(P["fg_dim"]))
     app.setPalette(p)
+
+
+def scheme_of(theme: str) -> str:
+    """``"light"`` or ``"dark"``: which way ``theme`` draws its text.
+
+    Read off the palette rather than listed, so a new theme needs no entry
+    here: a theme whose page is brighter than its ink is a light theme.
+
+    :param theme: one of :data:`THEMES`.
+    :returns: ``"light"`` when the page outshines the ink, else ``"dark"``.
+    """
+    P = palette_for(theme)
+    return ("light" if relative_luminance(P["bg"])
+            > relative_luminance(P["fg"]) else "dark")
+
+
+def _colour_scheme_enum():
+    """``Qt.ColorScheme``, or ``None`` on a Qt that predates it (6.5)."""
+    return getattr(Qt, "ColorScheme", None)
+
+
+def system_colour_scheme(app=None) -> Optional[str]:
+    """What the operating system's own light/dark setting is, if Qt knows.
+
+    Any scheme spaCR asked for earlier is released first
+    (``QStyleHints.unsetColorScheme``, Qt 6.8+), so the answer is the
+    platform's -- macOS appearance, the Windows app mode, or the GTK/KDE
+    preference on Linux -- and not an echo of what spaCR requested. Only
+    the ``"system"`` theme calls this.
+
+    :param app: the running application; ``QApplication.instance()`` when
+        omitted.
+    :returns: ``"dark"``, ``"light"``, or ``None`` when Qt cannot tell
+        (the offscreen platform, a desktop with no preference, Qt < 6.5).
+    """
+    app = app or QApplication.instance()
+    scheme = _colour_scheme_enum()
+    if app is None or scheme is None:
+        return None
+    try:
+        hints = app.styleHints()
+        if hasattr(hints, "unsetColorScheme"):
+            hints.unsetColorScheme()
+        current = hints.colorScheme()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the system colour scheme", exc_info=True)
+        return None
+    if current == scheme.Dark:
+        return "dark"
+    if current == scheme.Light:
+        return "light"
+    return None
+
+
+def hold_the_colour_scheme(app, theme: Optional[str]) -> bool:
+    """Tell the platform which scheme spaCR draws in, so it cannot differ.
+
+    Qt 6.8 added ``QStyleHints.setColorScheme``. Without it a Mac in light
+    appearance draws spaCR's title bar, native menus and file dialogs light
+    around a dark window, and Windows does the same with its title bar; on
+    Linux the GTK and KDE platform themes feed their own palette to the
+    style. Setting it pins those to the theme in force. ``None`` releases
+    the request, which is what the explicit "Follow system" choice wants.
+
+    A no-op returning ``False`` on a Qt older than 6.8, where the palette
+    and stylesheet (and the Fusion style :func:`use_a_style_that_honours_the_palette`
+    installs) still carry the colours.
+
+    :param app: the running application.
+    :param theme: a theme from :data:`THEMES`, or ``None`` to follow the
+        system again.
+    :returns: ``True`` when the request reached Qt.
+    """
+    scheme = _colour_scheme_enum()
+    if app is None or scheme is None:
+        return False
+    try:
+        hints = app.styleHints()
+        if not hasattr(hints, "setColorScheme"):
+            return False
+        if theme is None:
+            if hasattr(hints, "unsetColorScheme"):
+                hints.unsetColorScheme()
+            else:
+                hints.setColorScheme(scheme.Unknown)
+            return True
+        wanted = (scheme.Light if scheme_of(theme) == "light"
+                  else scheme.Dark)
+        if hints.colorScheme() != wanted:
+            hints.setColorScheme(wanted)
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not hold the colour scheme", exc_info=True)
+        return False
+
+
+def use_a_style_that_honours_the_palette(app=None, environ=None) -> str:
+    """Put the application on Fusion unless somebody asked for a style.
+
+    spaCR's stylesheet is written against Fusion, which draws every control
+    from the palette. The native macOS and Windows styles draw some of them
+    -- combo boxes, spin-box buttons, scroll bars, the parts of a control no
+    rule reaches -- from the operating system's own light or dark setting,
+    which is how a dark spaCR came out with light fields on a light Mac.
+
+    Left alone when ``QT_STYLE_OVERRIDE`` is set: that is somebody choosing
+    a style on purpose. (``launch`` hands Qt only the program name, so a
+    ``-style`` argument never reaches Qt and needs no exception here.)
+
+    :param app: the application; ``QApplication.instance()`` when omitted.
+    :param environ: environment to consult; ``os.environ`` when omitted.
+    :returns: the name of the style in force afterwards, lower case.
+    """
+    import os
+
+    from PySide6.QtWidgets import QStyleFactory
+
+    app = app or QApplication.instance()
+    if app is None:
+        return ""
+    environ = os.environ if environ is None else environ
+    current = str(app.style().name() if app.style() else "").lower()
+    asked = bool(str(environ.get("QT_STYLE_OVERRIDE", "")).strip())
+    if asked or current == "fusion":
+        return current
+    fusion = QStyleFactory.create("Fusion")
+    if fusion is None:
+        return current
+    app.setStyle(fusion)
+    LOG.info("style %r replaced by Fusion so the theme's palette holds",
+             current)
+    return "fusion"
 
 
 #: Dynamic property that marks a widget as a *page surface*: something
@@ -4644,7 +4828,7 @@ QPushButton:disabled {{
 QPushButton#PrimaryButton,
 QPushButton[buttonActionRole="positive"] {{
     background-color: transparent;
-    color: {P["button_accent"]};
+    color: {button_accent_text(base)};
     border: 1px solid {P["button_accent"]};
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
@@ -4652,7 +4836,7 @@ QPushButton[buttonActionRole="positive"] {{
 QPushButton#PrimaryButton:hover,
 QPushButton[buttonActionRole="positive"]:hover {{
     background-color: {css_color(P["button_accent"], 0.18)};
-    color: {P["button_accent"]};
+    color: {button_accent_text(base)};
     border-color: {P["button_accent"]};
 }}
 QPushButton#PrimaryButton:pressed,
@@ -4762,6 +4946,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextEdit {{
     padding: {S["xs"]}px {S["sm"]}px;
     selection-background-color: {P["accent"]};
     selection-color: {P["bg"]};
+    placeholder-text-color: {P["fg_dim"]};
 }}
 QPlainTextEdit#Console {{
     background-color: {CONSOLE_BG};
@@ -4786,13 +4971,10 @@ QComboBox:focus, QPlainTextEdit:focus, QTextEdit:focus {{
     border: 1px solid {P["accent"]};
 }}
 QLineEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled,
-QComboBox:disabled {{
+QComboBox:disabled, QPlainTextEdit:disabled, QTextEdit:disabled {{
     color: {P["fg_dim"]};
     background-color: {P["surface"]};
     border-color: {P["border_soft"]};
-}}
-QLineEdit::placeholder {{
-    color: {P["fg_dim"]};
 }}
 QSpinBox::up-button, QSpinBox::down-button,
 QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{

@@ -124,11 +124,11 @@ def test_preferences_dialog_offers_and_saves_every_language(
 # Theme
 # ---------------------------------------------------------------------------
 
-def test_theme_default_follows_the_system(qt_theme_applied):
-    """A desktop app that ignores the OS colour scheme looks broken on a
-    light desktop, so the shipped default follows it."""
+def test_theme_default_is_dark(qt_theme_applied):
+    """Maintainer, 2026-09-21: spaCR starts dark by default, whatever the
+    operating system's own scheme is, until somebody chooses otherwise."""
     from spacr.qt.preferences import get_theme_choice
-    assert get_theme_choice() == "system"
+    assert get_theme_choice() == "dark"
 
 
 def test_theme_roundtrip(qt_theme_applied):
@@ -149,7 +149,7 @@ def test_theme_recovers_from_corrupt_value(qt_theme_applied):
     from spacr.qt.preferences import get_theme
     from PySide6.QtCore import QSettings
     QSettings("spacr", "qt").setValue("prefs/theme", "garbage")
-    assert get_theme() == "system"
+    assert get_theme() == "dark"
 
 
 def test_figure_png_dpi_roundtrip_and_validation(qt_theme_applied):

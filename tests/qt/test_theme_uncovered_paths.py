@@ -74,8 +74,12 @@ def test_registering_a_block_without_qt_widgets_still_returns_the_block(
 # --- solvers asked for something they cannot deliver -----------------------
 
 def test_a_surface_no_scrim_can_rescue_reports_a_full_floor():
-    """``page`` fails every contrast rule even painted fully opaque."""
-    assert theme.legible_scrim_floor("dark", "page") == 1.0
+    """Nocturne's ``page`` fails a contrast rule even painted fully opaque.
+
+    Dark's page was the example until 2026-09-21, when the dark theme's dim
+    ink was brightened (#6b6f76 to #858a92) and its page became rescuable.
+    """
+    assert theme.legible_scrim_floor("nocturne", "page") == 1.0
 
 
 def test_a_role_with_no_contrast_rule_gets_no_ink_band():

@@ -93,7 +93,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QPushButton, QSpinBox
 
-from ..theme import active_palette, font_px
+from ..theme import active_palette, button_accent_text, font_px
 
 LOG = logging.getLogger("spacr.qt.preview_controls")
 
@@ -147,7 +147,7 @@ def _flat_qss(selector: str) -> str:
         f"  border-radius: 0px;"
         f"}}"
         f"{selector}#{FLAT_CONTROL_NAME}:hover {{"
-        f"  color: {palette['button_accent']};"
+        f"  color: {button_accent_text(palette)};"
         f"}}"
         f"{selector}#{FLAT_CONTROL_NAME}:focus {{"
         f"  border: none;"

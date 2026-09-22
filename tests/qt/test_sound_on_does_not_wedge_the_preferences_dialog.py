@@ -94,6 +94,8 @@ def run_child(body: str, tmp_path: Path, cache: Path):
         "    sys.stderr.write('QT: ' + text + '\\n')\n"
         "qInstallMessageHandler(_listen)\n"
         "app = QApplication([])\n"
+        "from spacr.qt.theme import enable_spaceout\n"
+        "enable_spaceout()\n"
         "from spacr.qt import preferences as prefs\n"
         "prefs.set_sound_enabled(True)\n"
         "prefs.set_sound_volume(0.0)\n"

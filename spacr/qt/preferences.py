@@ -55,8 +55,11 @@ Values:
 
 * ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` | one of
   the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
-  ``"system"`` (default ``"system"``). ``"system"`` follows the operating
-  system color scheme. ``"cell"`` uses fluorescence imagery and ``"glass"``
+  ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
+  system color scheme, and only once somebody has picked it: a stored
+  ``"system"`` written before dark became the default (2026-09-21) was
+  the old default, not a choice, and reads as ``"dark"``; see
+  :func:`get_theme`. ``"cell"`` uses fluorescence imagery and ``"glass"``
   uses neutral layered materials over a built-in light field. A night
   theme also carries a backdrop and a sound set, written by
   :func:`apply_night_theme` when it is chosen. Space is not a selectable
@@ -161,6 +164,7 @@ _ORG = "spacr"
 _APP = "qt"
 
 _KEY_THEME       = "prefs/theme"
+_KEY_THEME_FOLLOW_SYSTEM_CHOSEN = "prefs/theme_follow_system_chosen"
 _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
@@ -518,9 +522,11 @@ PALETTE_THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
 #: with more themes) falls back to :data:`DEFAULT_THEME` rather than
 #: raising.
 VALID_THEMES = PALETTE_THEMES + ("system",)
-#: Follow the reader's OS colour scheme unless they choose otherwise. A
-#: desktop app that ignores the system setting looks broken on a light desktop.
-DEFAULT_THEME = "system"
+#: Dark on every platform until somebody chooses otherwise (maintainer,
+#: 2026-09-21: start spaCR dark by default, and the setup screen too). The
+#: operating system's own light or dark setting does not override it; only
+#: an explicit "Follow system" choice does.
+DEFAULT_THEME = "dark"
 
 #: RETIRED 2026-09-09. Kept as names only so `_forget_the_space_theme_keys`
 #: can remove a stored value; nothing reads them. See the note above
@@ -1447,8 +1453,30 @@ def _forget_the_space_theme_keys(store) -> None:
                   exc_info=True)
 
 
+def _follow_system_was_chosen(store) -> bool:
+    """Whether a stored ``"system"`` theme was somebody's choice.
+
+    Until 2026-09-21 ``"system"`` was the default, and both the setup
+    screen and Preferences write the value their Theme control shows when
+    they are saved. So a store holding ``"system"`` without this flag was
+    most likely written by a user who never touched the control, and the
+    maintainer's rule is that such a user gets dark. :func:`set_theme`
+    sets the flag whenever ``"system"`` is chosen from now on.
+
+    :param store: the preference store being read.
+    :returns: ``True`` only when the flag is present and true.
+    """
+    return _as_bool(store.value(_KEY_THEME_FOLLOW_SYSTEM_CHOSEN, False),
+                    False)
+
+
 def get_theme() -> str:
     """Return the saved application theme, or the default when invalid.
+
+    A stored ``"system"`` counts only when it was chosen (see
+    :func:`_follow_system_was_chosen`); otherwise it reads as
+    :data:`DEFAULT_THEME`, which is dark. An explicit Light, or any other
+    stored theme, is returned as it is.
 
     The first read of a store also removes the retired Space theme's
     ``space_variant`` and ``space_seed`` values from it; see
@@ -1457,18 +1485,28 @@ def get_theme() -> str:
     store = _settings()
     _forget_the_space_theme_keys(store)
     raw = str(store.value(_KEY_THEME, DEFAULT_THEME))
+    if raw == "system" and not _follow_system_was_chosen(store):
+        raw = DEFAULT_THEME
     return raw if raw in VALID_THEMES else DEFAULT_THEME
 
 
 def set_theme(theme: str) -> None:
     """Persist a supported application theme.
 
+    Choosing ``"system"`` also records that it was chosen, so
+    :func:`get_theme` honours it instead of reading it as the default.
+
     :raises ValueError: if ``theme`` is not in :data:`VALID_THEMES`.
     """
     if theme not in VALID_THEMES:
         raise ValueError(f"unknown theme {theme!r}. "
                           f"Choose from {VALID_THEMES}.")
-    _settings().setValue(_KEY_THEME, theme)
+    store = _settings()
+    store.setValue(_KEY_THEME, theme)
+    if theme == "system":
+        store.setValue(_KEY_THEME_FOLLOW_SYSTEM_CHOSEN, True)
+    else:
+        store.remove(_KEY_THEME_FOLLOW_SYSTEM_CHOSEN)
 
 
 def theme_choices() -> tuple:
@@ -1684,25 +1722,23 @@ def theme_background_path(theme: str, width: int = 0, height: int = 0):
 def resolve_effective_theme() -> str:
     """Return the theme to render — one of :data:`PALETTE_THEMES`.
 
-    Resolves ``"system"`` to the OS colour scheme, defaulting to dark
-    when Qt can't tell. Every other value passes through, so callers
-    that only understand light/dark should compare against ``"light"``
-    and treat everything else as dark (Space and Cell are dark themes).
+    Resolves an explicitly chosen ``"system"`` to the operating system's
+    colour scheme as Qt reports it (``QStyleHints.colorScheme``), and to
+    dark when Qt can't tell. It does not read the application palette:
+    that is spaCR's own once a theme has been applied, so it would answer
+    with whatever was applied last. Every other value passes through, so
+    callers that only understand light/dark should compare against
+    ``"light"`` and treat everything else as dark (Space and Cell are dark
+    themes).
     """
     theme = get_theme()
     if theme in PALETTE_THEMES:
         return theme
     try:
-        from PySide6.QtGui import QPalette
-        from PySide6.QtWidgets import QApplication
-        app = QApplication.instance()
-        if app is not None:
-            bg = app.palette().color(QPalette.ColorRole.Window)
-            lum = (0.299 * bg.red() + 0.587 * bg.green()
-                   + 0.114 * bg.blue())
-            return "dark" if lum < 128 else "light"
+        from .theme import system_colour_scheme
+        return system_colour_scheme() or "dark"
     except Exception:
-        pass
+        LOG.debug("could not read the system colour scheme", exc_info=True)
     return "dark"
 
 
@@ -4505,7 +4541,8 @@ def apply_preferences_to_app(app=None) -> None:
     )
     if style_changed:
         set_widget_qss_context(app, theme, scale, pane_opacity)
-        apply_qpalette(app, theme=theme)
+        apply_qpalette(app, theme=theme,
+                       follow_system=get_theme() == "system")
         sheet = stylesheet(
             theme=theme, font_scale=scale, background=background,
             surface_opacity=pane_opacity, load_widget_registrars=False)
@@ -6464,8 +6501,11 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
-        from .sound_preferences import SoundPage
-        sound_page = SoundPage(_page("Sound", "PreferencesTabSound"), dlg)
+        sound_page = None
+        if sound_is_offered():
+            from .sound_preferences import SoundPage
+            sound_page = SoundPage(_page("Sound", "PreferencesTabSound"),
+                                   dlg)
 
         def _the_theme_brings_its_backdrop_and_its_sound(_index=0) -> None:
             """Move the other three controls when a night theme is picked.
@@ -6496,14 +6536,16 @@ class PreferencesDialog:
                 return
             night = theme_for(choice)
             if ambient_theme_combo.currentData() == NO_ANIMATION:
-                sound_page.select_theme(night.sound)
+                if sound_page is not None:
+                    sound_page.select_theme(night.sound)
                 return
             for index in range(ambient_theme_combo.count()):
                 if ambient_theme_combo.itemData(index) == night.ambient:
                     ambient_theme_combo.setCurrentIndex(index)
                     break
             _reload_ambient_palettes(night.ambient_palette)
-            sound_page.select_theme(night.sound)
+            if sound_page is not None:
+                sound_page.select_theme(night.sound)
 
         theme_combo.currentIndexChanged.connect(
             _the_theme_brings_its_backdrop_and_its_sound)
@@ -6601,7 +6643,8 @@ class PreferencesDialog:
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
-                sound_page.reset()
+                if sound_page is not None:
+                    sound_page.reset()
             finally:
                 _settings = original
 
@@ -6730,7 +6773,8 @@ class PreferencesDialog:
             _save_budget_for_level(mode_combo.currentData(),
                                    idle_spin.value(), cache_spin.value(),
                                    headroom_spin.value())
-            sound_page.save()
+            if sound_page is not None:
+                sound_page.save()
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
@@ -7423,14 +7467,56 @@ SOUND_EVENT_DEFAULTS = {
 SOUND_BED_RESTS_AT = ("laptop", "extra_performance")
 
 
-def get_sound_enabled() -> bool:
-    """Whether spaCR plays any sound at all. Default ``False``.
+def sound_is_offered() -> bool:
+    """Whether this process offers sound at all: only in spaceout mode.
 
-    :returns: the stored master switch.
+    Maintainer, 2026-09-21: "transfer the sound tab in preferences to only
+    be visible in spaceout mode. in normal spacr sound should be off by
+    default and there should be no sound tab in preferences." Spaceout is
+    process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by
+    the ``spaceout`` launcher), so this is read live and never stored.
+
+    Does not import :mod:`spacr.qt.theme`: a process that has not imported
+    it cannot have enabled spaceout, and this is asked on paths that must
+    stay free of QtGui.
+
+    :returns: ``True`` in spaceout mode, ``False`` in ordinary spaCR.
+    """
+    import sys as _sys
+
+    theme = _sys.modules.get(__package__ + ".theme")
+    if theme is None:
+        return False
+    try:
+        return bool(theme.spaceout_enabled())
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def get_saved_sound_enabled() -> bool:
+    """The stored master sound switch, whatever the mode.
+
+    Ordinary spaCR ignores it (see :func:`get_sound_enabled`) but never
+    erases it, so a user who switched sound on in spaceout finds it on the
+    next time spaceout starts.
+
+    :returns: the stored switch, default ``False``.
     """
     return _as_bool(_settings().value(_KEY_SOUND_ENABLED,
                                       DEFAULT_SOUND_ENABLED),
                     DEFAULT_SOUND_ENABLED)
+
+
+def get_sound_enabled() -> bool:
+    """Whether spaCR plays any sound at all. Default ``False``.
+
+    Always ``False`` outside spaceout mode (:func:`sound_is_offered`),
+    whatever is stored: ordinary spaCR has no Sound tab, so a switch the
+    user cannot see must not be able to make a noise.
+
+    :returns: the stored master switch in spaceout mode, else ``False``.
+    """
+    return sound_is_offered() and get_saved_sound_enabled()
 
 
 def set_sound_enabled(on: bool) -> None:

@@ -189,8 +189,18 @@ def test_a_card_that_will_not_reread_does_not_stop_the_others(qapp, qtbot):
 # ---------------------------------------------------------------------------
 
 @pytest.fixture()
-def light_application_palette(qapp):
-    """Put the application into a light palette and put it back after."""
+def light_application_palette(qapp, monkeypatch):
+    """A desktop whose own colour scheme is light.
+
+    The operating system's scheme is read from ``QStyleHints.colorScheme``
+    (see :func:`spacr.qt.theme.system_colour_scheme`), which the offscreen
+    platform always reports as unknown, so the answer is stood in for. The
+    application palette is made light as well, to show it is not what the
+    decision reads.
+    """
+    from spacr.qt import theme
+
+    monkeypatch.setattr(theme, "system_colour_scheme", lambda app=None: "light")
     original = qapp.palette()
     palette = QPalette(original)
     palette.setColor(QPalette.ColorRole.Window, QColor("#ffffff"))

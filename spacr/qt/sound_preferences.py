@@ -3,7 +3,9 @@
 Built into the dialog by :class:`spacr.qt.preferences.PreferencesDialog`
 as its LAST tab -- it is the least important thing in Preferences -- and
 kept in its own module so the dialog only has to create the page, save it
-and reset it.
+and reset it. Built ONLY IN SPACEOUT MODE since 2026-09-21: ordinary spaCR
+has no Sound tab and plays nothing (see
+:func:`spacr.qt.preferences.sound_is_offered`).
 
 Every event has its own switch and a Preview button beside it. The
 switches, the volume, the sound set and the Previews are all disabled while
