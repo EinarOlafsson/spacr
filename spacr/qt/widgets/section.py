@@ -17,7 +17,7 @@ from __future__ import annotations
 import re
 from typing import Optional, Union
 
-from PySide6.QtCore import QEvent, QSize, Qt, Signal
+from PySide6.QtCore import QCoreApplication, QEvent, QObject, QSize, Qt, Signal
 from PySide6.QtWidgets import (
     QApplication,
     QFormLayout,
@@ -86,6 +86,38 @@ def scroll_host(widget):
             return node
         node = node.parentWidget()
     return None
+
+
+class _BodyBackOnShow(QObject):
+    """Puts an open category's detached body back when the category shows.
+
+    Installed on a category only while its body is away, so no other
+    widget's events reach it. ``Show`` is delivered before anything is
+    painted, whichever way the category was revealed -- shown itself, or by
+    a parent -- and the body is visible again in the same pass.
+    """
+
+    _show = QEvent.Type.Show
+
+    def eventFilter(self, watched, event):                   # noqa: N802
+        """Bring an open category's body back as the category appears."""
+        if (event.type() == self._show and isinstance(watched, Section)
+                and watched._expanded
+                and watched._detached_at is not None):
+            watched._attach_body()
+        return False
+
+
+#: The one filter every category with a body away carries.
+_BACK_ON_SHOW: Optional[_BodyBackOnShow] = None
+
+
+def _back_on_show() -> _BodyBackOnShow:
+    """The shared :class:`_BodyBackOnShow`, made on first use."""
+    global _BACK_ON_SHOW
+    if _BACK_ON_SHOW is None:
+        _BACK_ON_SHOW = _BodyBackOnShow(QCoreApplication.instance())
+    return _BACK_ON_SHOW
 
 
 def _logical_parent(widget):
@@ -274,6 +306,7 @@ class Section(QFrame):
         self._body.setParent(None)
         self._body.setVisible(False)
         self.destroyed.connect(self._body.deleteLater)
+        self.installEventFilter(_back_on_show())
         self._detached_at = index
         return count
 
@@ -284,8 +317,9 @@ class Section(QFrame):
     def _attach_body(self) -> bool:
         """Put a detached body back where it was, before it can be seen.
 
-        Called from :meth:`setVisible` and on expanding, so the body is in
-        place, styled and laid out in the same pass that shows it. Whoever
+        Called on expanding, and on the category's ``Show`` while it is
+        open (see :class:`_BodyBackOnShow`), so the body is in place, styled
+        and laid out in the same pass that shows it. Whoever
         set :attr:`_body_came_back` is then told, which is how a screen runs
         the language pass the body missed while it was away.
 
@@ -300,6 +334,8 @@ class Section(QFrame):
             self.destroyed.disconnect(body.deleteLater)
         except (RuntimeError, TypeError):
             pass
+        if _BACK_ON_SHOW is not None:
+            self.removeEventFilter(_BACK_ON_SHOW)
         body.setParent(self)
         body._spacr_detached_from = None
         self.layout().insertWidget(index, body)
@@ -340,12 +376,6 @@ class Section(QFrame):
                 return True
             node = _logical_parent(node)
         return False
-
-    def setVisible(self, visible: bool) -> None:                 # noqa: N802
-        """Put an open category's body back before the category is shown."""
-        if visible and self._expanded and self._detached_at is not None:
-            self._attach_body()
-        super().setVisible(visible)
 
     def add_row(
         self,
@@ -722,12 +752,6 @@ class Section(QFrame):
         )
         parts = [part for part in (self._hint, note) if part]
         self._header.setToolTip("\n\n".join(parts))
-
-    def showEvent(self, event) -> None:                          # noqa: N802
-        """Put an open body back if the category was revealed by its parent."""
-        if self._expanded and self._detached_at is not None:
-            self._attach_body()
-        super().showEvent(event)
 
     def _pre_resolve_the_scrollbar(self, scroll) -> None:
         """Decide the scrollbar BEFORE the body moves, not during.

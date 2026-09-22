@@ -1825,3 +1825,124 @@ Regression -- the worst stall since 380 began -- is halved again. 380 is
 NOT done: area 3's stalls are still over 500 ms on the heavy screens, and
 "on all platforms" still needs the macOS and Windows machines. The next
 lever is the hidden settings sections named in 284's note of today.
+
+--------------------------------------------------------------------------------
+2026-09-22 -- HIDDEN SETTINGS CATEGORIES WAIT OFF THE PAGE UNTIL OPENED
+--------------------------------------------------------------------------------
+
+The lever the 2026-09-21 note named next, asked for by the coordinator:
+the settings sections a screen hides at open.
+
+WHAT IS HIDDEN AT OPEN, and why it cannot simply be "not built". Counted
+on a real MainWindow: Classify had 584 of its 596 settings widgets hidden
+(every category but one, under the Essentials view), Mask 490 of 576 and
+Measure 305 of 334 (collapsed bodies, plus beta categories hidden by the
+maturity preference). About 60% of those widgets are the controls
+themselves -- 352 of Classify's 584 -- and THE CONTROLS ARE THE SETTINGS
+MODEL: `SettingsWidgets.collect()` reads them, `set_value_for_key` writes
+them, the dependency and object-visibility rules are wired to their
+signals, and recipes, CSV import and the drop handlers all go through
+`_widgets`. Not building them means a second value store and every one of
+those paths learning it. Measured before choosing, offscreen, one Classify
+screen: the constructor is 379 ms, of which the model's control build is
+209 ms and the category captions 51 ms; the page's stylesheet costs 178 ms
+with everything on the page and 38 ms with the hidden bodies off it, and
+removing only the captions moved it to 174 ms. So captions alone buy
+nothing, controls cannot go, and the cost worth taking is the styling and
+the per-widget passes over widgets nobody can see.
+
+TRIED FIRST AND REJECTED, WITH NUMBERS: leave hidden widgets in place but
+mark them unpolished (clear WA_WState_Polished) so the sheet skips them,
+and polish them when their category opens. Fingerprints were identical,
+but six alternating benchmark runs per arm made it WORSE -- Classify's
+worst stall 1,678 -> 1,885 ms median, the over-ceiling total 17.6 s ->
+21.3 s -- and an event count showed why: Qt still delivers Style, Palette
+and Font changes down the whole subtree whether it polishes or not
+(30,392 vs 29,662 events on a Classify open). Reverted.
+
+WHAT SHIPPED: the body of every top-level category that is collapsed or
+hidden is taken OUT of the page -- made parentless, not rebuilt -- by
+`AppScreen._detach_what_the_form_hides`, which the window calls just
+before the page is first shown (after maturity, the dimension switches
+and the search strip's Essentials view have decided what is on the form).
+`Section._attach_body` puts it back, at its old layout index, the moment
+the category is expanded or an open category is shown (a per-section
+Show filter, installed only while the body is away), and the screen then
+runs the language pass and the help-onto-caption move over it, so a
+category that was away while the language changed opens in the new one.
+The same trial with bodies detached cut Classify's events 29,662 ->
+18,869.
+
+WHAT STILL REACHES A CATEGORY THAT IS AWAY, and how:
+  * the run: the controls are untouched, so collect() returns every key,
+    including values set while the body was away (tested);
+  * recipes, CSV import, drops: all go through the model's `_widgets`;
+  * the search strip: indexes rows from each section's own form, finds
+    matches by key, and opening a match's section brings its body back
+    (tested); its sub-heading roll-up walks `_logical_parent`, which
+    answers a detached body's category;
+  * the palette's reveal: `Section._holds` instead of isAncestorOf;
+  * the empty-heading checks and the object rule's slot-heading scan:
+    `_sections_below` sees through detached bodies;
+  * the theme: a detached body is not a window, so per-window sheeting
+    skips it and it wears the page's current sheet when it comes back;
+  * teardown: a body away when its category dies goes with it.
+Everything new is private, so the public API ratchets do not move (the
+same seven fail on nightly c4d57c90a and here, with identical numbers).
+
+WIDGETS UNDER THE PAGE AT OPEN, same probe, nightly -> this change:
+
+    classify_merged    728 ->  172
+    mask               723 ->  413
+    measure            476 ->  243
+    umap               537 ->  345
+    regression         730 ->  550
+    external_masks     498 ->  233
+    analyze_plaques    519 ->  329
+
+MEASURED, `tools/spacr_startup_benchmark.py --offscreen --runs 1
+--record-only`, six runs per arm alternating nightly 64addaf2d and this
+change, AT LOAD 34-36 ON 32 CORES (other sessions), so read pessimistically:
+"cons" is the changed arm's 75th percentile minus nightly's 25th.
+
+    module            nightly med  this med   delta    cons
+    classify_merged          3585      1924   -1660    -224
+    umap                     2512      2059    -453    +267
+    mask                     3405      3062    -343    +422
+    analyze_plaques          1981      1629    -352    +181
+    external_masks           1473      1186    -287    +266
+    measure                  1763      1487    -275    +171
+    regression               2633      2764    +131    +596
+    __preferences__ (ctl)    2564      2858    +294   +1208
+    __home__        (ctl)     691       858    +167    +202
+
+CLASSIFY IS THE ONE THAT CLEARS THE NOISE: its stall nearly halves and
+stays better at the pessimistic quantiles (six of six paired runs better).
+The others move the right way on the medians by about as much as the
+controls moved the wrong way (+170 to +290), so they are reported, not
+claimed. Regression is flat, as expected: its settings mostly stay on the
+page. Over-ceiling count 35 -> 35.5 and total 50.0 s -> 48.1 s, both inside
+the noise at this load.
+
+BEHAVIOUR IS THE SAME, CHECKED: every visible settings widget
+fingerprinted (class, name, geometry, visibility, eight palette roles,
+font, size hints, text, tooltip, dynamic properties, own stylesheet) on
+seven screens, both trees, English and Swedish, at open and again with
+"All settings" and every category expanded -- identical, 0 differing rows
+of 2,144. One Swedish run once showed a 21 px larger size hint on one
+Classify chip strip (never its geometry); four repeats did not reproduce it.
+
+TESTS: `tests/qt/test_a_hidden_category_stays_off_the_page_until_opened.py`
+(13): a collapsed body leaves and an open one stays, expanding brings it
+back styled, showing an open hidden category brings it back, a collapsed
+one shown keeps its body away, it returns to its index, nested headings
+and `_holds` see through it, the came-back hook fires, and on a real
+Classify window: >200 widgets away, collect() has every key, a value set
+while away is collected, search reveals an away setting, and a category
+that comes back after a switch to Swedish is in Swedish. Two survey tests
+that walk the page with findChildren now open each category first, or use
+`_sections_below` -- the path a user takes, since a closed category's rows
+are not reachable any other way.
+
+380 STILL NOT DONE, for the same reasons 284 gives in its note of today;
+this closes the last lever the earlier notes named on the settings side.
