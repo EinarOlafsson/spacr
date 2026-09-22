@@ -10,6 +10,7 @@ a real Qt widget grouped into logical Section boxes based on
 from __future__ import annotations
 
 import ast
+from collections.abc import MutableMapping
 import csv
 from contextlib import contextmanager
 from functools import partial
@@ -7721,6 +7722,223 @@ def list_shape_for(key: str, default: Any) -> Optional[Tuple[bool, bool, Any, An
     return nested_capable, allow_none, element_type, container
 
 
+#: What ``QLineEdit`` keeps of a longer text: its default ``maxLength``.
+_LINE_EDIT_MAX_LENGTH = 32767
+
+
+def _to_decimals(value: float, decimals: int = 6) -> float:
+    """``value`` rounded the way ``QDoubleSpinBox`` rounds what it is given.
+
+    Qt formats the number with ``decimals`` places and reads it back, which
+    is what ``'%.*f'`` does here: both round the binary value correctly.
+    """
+    return float("%.*f" % (decimals, float(value)))
+
+
+def _value_a_plain_control_holds(plan) -> Any:
+    """What the plain control ``plan`` describes reads back, unbuilt.
+
+    The value :meth:`SettingsWidgets._read_widget` returns from the control
+    :meth:`SettingsWidgets._build_plain` builds from the same plan -- a spin
+    box's rounding and range, a text box's empty-is-``None``, a combo's
+    choice among its entries. It is how a setting whose category has not
+    been opened is collected without its control being built.
+    ``tests/qt/test_a_closed_category_builds_nothing_until_opened.py`` holds
+    it to the built control for every setting of every module.
+
+    :param plan: what :meth:`SettingsWidgets._route_control` answered.
+    """
+    control = plan["control"]
+    value = plan["value"]
+    if control == "toggle":
+        return bool(value)
+    if control == "combo":
+        for shown, stored in plan["items"]:
+            if stored == value or shown == str(value):
+                return stored
+        if value is not None and str(value) != "":
+            return value
+        return plan["items"][0][1] if plan["items"] else ""
+    if control == "auto":
+        if value is None or str(value).strip().lower() == AUTO_TEXT:
+            return AUTO_TEXT
+        try:
+            number = min(max(_to_decimals(value), 0.0), 1e6)
+        except (TypeError, ValueError):
+            return AUTO_TEXT
+        return AUTO_TEXT if number <= 0.0 else number
+    if control == "int":
+        low, high = plan["range"]
+        return int(min(max(int(value), low), high))
+    if control == "float":
+        low, high = plan["range"]
+        number = _to_decimals(value)
+        if number != number:
+            return _to_decimals(high)
+        return float(min(max(number, _to_decimals(low)),
+                         _to_decimals(high)))
+    if control == "list":
+        if value is None:
+            return None
+        text = repr(value)[:_LINE_EDIT_MAX_LENGTH].strip()
+        if not text:
+            return None
+        try:
+            return ast.literal_eval(text)
+        except Exception:                                    # noqa: BLE001
+            return text
+    if value is None:
+        return None
+    return str(value)[:_LINE_EDIT_MAX_LENGTH] or None
+
+
+class _ControlToCome(NamedTuple):
+    """Stands in a section's rows for a control that has not been built.
+
+    What :meth:`SettingsWidgets.build_sections` puts in the widget slot of a
+    row whose category waits to be opened (see
+    `SettingsWidgets.categories_may_wait`). Only a screen that asked
+    for waiting categories is ever handed one, and it swaps each for the
+    real control when it builds the category.
+
+    :param key: the setting the control is for.
+    """
+
+    key: str
+
+
+class _ControlsBuiltWhenAskedFor(MutableMapping):
+    """``key -> control`` for a settings panel, some controls still to come.
+
+    ``SettingsWidgets._widgets`` has always been a plain dict, and about a
+    hundred call sites and five hundred test lines read it as one. This is
+    that dict with one difference: a setting can be REGISTERED without its
+    control existing yet, and reading it builds the control first. So every
+    reader still gets a real control, and everything asking only which
+    settings the panel has -- ``in``, ``len``, iterating the keys -- is
+    answered without building anything.
+
+    WHY THE CONTROL IS BUILT ON A READ, rather than the value being kept
+    somewhere else until the category opens. The control is what puts a
+    value into the form the run is given: a spin box turns ``200`` into
+    ``200.0``, a free-text box turns ``''`` into ``None``, a folder list
+    turns ``'path'`` into ``[]``. Measured over 886 settings on 22 modules,
+    48 read back differently from their declared default. A value store
+    would have to repeat each control's normalisation, and would drift from
+    it; building the one control asked for costs about a millisecond, and
+    what waits for the category to be opened -- its rows, captions, layout
+    and styling -- is where the time is.
+
+    ``items()`` and ``values()`` build every control still to come in one
+    batch, which is what :meth:`SettingsWidgets.collect` needs. Code that
+    only wants what exists uses :meth:`built_items` or :meth:`built`.
+    """
+
+    def __init__(self, model: "SettingsWidgets") -> None:
+        """:param model: the panel that builds a control when it is asked."""
+        self._model = model
+        self._built: Dict[str, QWidget] = {}
+        self._to_come: Dict[str, Any] = {}
+        self._order: Dict[str, None] = {}
+
+    def wait_for(self, key: str, meta: Any) -> None:
+        """Register ``key`` without building its control.
+
+        :param key: the setting.
+        :param meta: the plan :meth:`SettingsWidgets._route_control` gave
+            for its plain control.
+        """
+        self._built.pop(key, None)
+        self._to_come[key] = meta
+        self._order[key] = None
+
+    def is_built(self, key: str) -> bool:
+        """Whether ``key``'s control exists."""
+        return key in self._built
+
+    def built(self, key: str) -> Optional[QWidget]:
+        """``key``'s control if it exists, never building it."""
+        return self._built.get(key)
+
+    def built_items(self) -> List[Tuple[str, QWidget]]:
+        """``(key, control)`` for every control that exists, in panel order."""
+        return [(key, self._built[key]) for key in self._order
+                if key in self._built]
+
+    def keys_to_come(self) -> List[str]:
+        """The settings whose control has not been built, in panel order."""
+        return [key for key in self._order if key in self._to_come]
+
+    def meta_for(self, key: str) -> Any:
+        """The plan a waiting control is built from, or ``None``."""
+        return self._to_come.get(key)
+
+    def build(self, keys) -> None:
+        """Build every control in ``keys`` that has not been built yet."""
+        waiting = [key for key in keys if key in self._to_come]
+        if waiting:
+            self._model._build_controls(waiting)
+
+    def settle(self, key: str, widget: Optional[QWidget]) -> None:
+        """Record the control the model built for a waiting ``key``.
+
+        ``None`` when the kind has no control, in which case the setting
+        leaves the panel exactly as an eager build would have left it out.
+        """
+        self._to_come.pop(key, None)
+        if widget is None:
+            self._order.pop(key, None)
+            return
+        self._built[key] = widget
+
+    def __getitem__(self, key):
+        if key not in self._built and key in self._to_come:
+            self.build((key,))
+        return self._built[key]
+
+    def __setitem__(self, key, widget) -> None:
+        self._to_come.pop(key, None)
+        self._built[key] = widget
+        self._order[key] = None
+
+    def __delitem__(self, key) -> None:
+        if key not in self._built and key not in self._to_come:
+            raise KeyError(key)
+        self._built.pop(key, None)
+        self._to_come.pop(key, None)
+        self._order.pop(key, None)
+
+    def __contains__(self, key) -> bool:
+        return key in self._built or key in self._to_come
+
+    def __iter__(self):
+        return iter(list(self._order))
+
+    def __len__(self) -> int:
+        return len(self._order)
+
+    def __bool__(self) -> bool:
+        return bool(self._order)
+
+    def items(self):
+        """Every ``(key, control)``, building what is still to come first."""
+        self.build(self.keys_to_come())
+        return [(key, self._built[key]) for key in self._order
+                if key in self._built]
+
+    def values(self):
+        """Every control, building what is still to come first."""
+        return [widget for _key, widget in self.items()]
+
+    def copy(self) -> Dict[str, QWidget]:
+        """A plain dict of every control, as ``dict.copy`` would give."""
+        return dict(self.items())
+
+    def __repr__(self) -> str:
+        return (f"<controls: {len(self._built)} built, "
+                f"{len(self._to_come)} to come>")
+
+
 class SettingsWidgets:
     """Container for the Qt widgets bound to a settings dict.
 
@@ -7786,7 +8004,15 @@ class SettingsWidgets:
         self._slots_the_panel_added = {
             key: value for key, value in self._defaults.items()
             if key not in shipped and key not in current_values}
-        self._widgets: Dict[str, QWidget] = {}
+        self._widgets = _ControlsBuiltWhenAskedFor(self)
+        #: ``(title, keys) -> bool`` for a top-level category whose controls
+        #: may wait until it is opened, set by a screen before
+        #: :meth:`build_sections`. ``None`` builds every control at once,
+        #: which is what every model not built for a screen does.
+        self.categories_may_wait = None
+        #: Nesting depth of :meth:`_build_controls`, so the state passes it
+        #: runs afterwards run once for a batch, not once per control.
+        self._controls_arriving = 0
         self._hidden_by_the_run: set = set()
         self._guarded_rows: Dict[int, str] = {}
         #: ``id(section) -> section`` for the slot headings this hid, so it
@@ -7858,17 +8084,27 @@ class SettingsWidgets:
 
         import time as _time
 
+        cats = categories_for_app(self.app_key, get_categories())
+        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
+        may_wait = self._keys_that_may_wait(cats, hidden, variables,
+                                            hidden_keys)
         _BREATH = 0.025
         next_breath = _time.perf_counter() + _BREATH
         with _timing.span("build widgets", f"{len(variables)} settings"):
             for key, meta in variables.items():
                 if key in hidden_keys:
                     continue
+                kind, options, default = meta
+                if key in may_wait:
+                    route, what = self._route_control(kind, options, default,
+                                                      key)
+                    if route == "plain":
+                        self._widgets.wait_for(key, what)
+                        continue
                 if _time.perf_counter() >= next_breath:
                     next_breath = _time.perf_counter() + _BREATH
                     QCoreApplication.processEvents(
                         QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents)
-                kind, options, default = meta
                 widget = self._widget_for(kind, options, default, key)
                 if widget is not None:
                     attach_api_tooltip(
@@ -7931,10 +8167,9 @@ class SettingsWidgets:
         self._refresh_umap_reducer_enablement()
         self._refresh_analysis_unit_lock()
         self._refresh_regression_backend()
+        self._state_passes_ready = True
 
-        cats = categories_for_app(self.app_key, get_categories())
         used_keys = set()
-        hidden = _APP_HIDDEN_CATEGORIES.get(self.app_key, set())
         split_by_object = set(_shared_category_parents())
         sections: List[SettingsSection] = []
         for cat_name, keys in cats.items():
@@ -7944,7 +8179,7 @@ class SettingsWidgets:
             row_keys: List[str] = []
             for k in keys:
                 if k in self._widgets and k not in used_keys:
-                    rows.append((self._label_for(k), self._widgets[k]))
+                    rows.append((self._label_for(k), self._row_control(k)))
                     row_keys.append(k)
                     used_keys.add(k)
             if not rows:
@@ -7955,7 +8190,7 @@ class SettingsWidgets:
             else:
                 sections.append(SettingsSection(cat_name, rows))
 
-        remaining = [(self._label_for(k), self._widgets[k])
+        remaining = [(self._label_for(k), self._row_control(k))
                      for k in self._widgets if k not in used_keys]
         if remaining:
             sections.append(SettingsSection("Other", remaining))
@@ -7968,6 +8203,132 @@ class SettingsWidgets:
             timer.start(0)
 
         return _nest_sections(sections)
+
+    def _keys_that_may_wait(self, cats, hidden, variables,
+                            hidden_keys) -> set:
+        """The settings whose control can wait for its category to open.
+
+        A setting waits when the top-level category it is laid out under --
+        the first category that lists it, as :meth:`_build_sections` places
+        it, or the umbrella that category hangs from -- is one
+        :attr:`categories_may_wait` says may wait, and its control is one of
+        the plain ones (:meth:`_build_plain`), whose value can be read
+        without building it. Every other control is built with the panel.
+
+        :returns: the keys that may wait; empty when no screen asked.
+        """
+        judge = self.categories_may_wait
+        if judge is None:
+            return set()
+        parents = _shared_category_parents()
+        owner: Dict[str, str] = {}
+        for cat_name, keys in cats.items():
+            if cat_name in hidden:
+                continue
+            for key in keys:
+                owner.setdefault(key, parents.get(cat_name, cat_name))
+        members: Dict[str, List[str]] = {}
+        for key in variables:
+            if key not in hidden_keys:
+                members.setdefault(owner.get(key, "Other"), []).append(key)
+        waiting = set()
+        for top, keys in members.items():
+            try:
+                wait = bool(judge(top, tuple(keys)))
+            except Exception:                                # noqa: BLE001
+                wait = False
+            if wait:
+                waiting.update(keys)
+        return waiting
+
+    def _row_control(self, key: str):
+        """``key``'s control for a section row, or a stand-in if it waits."""
+        control = self._built_control(key)
+        if control is None and key in self._widgets:
+            return _ControlToCome(key)
+        return control
+
+    def _build_controls(self, keys) -> None:
+        """Build the waiting controls for ``keys``, then settle their state.
+
+        Each control is built exactly as :meth:`_build_sections` builds one,
+        from the same declaration, with its help attached. Then the passes
+        that decide a control's STATE rather than its value -- greyed by the
+        classifier family, the training basis, a dependency rule, the UMAP
+        reducer or the analysis unit -- run once for the batch: they touch
+        only controls that exist, so a control that arrives later is decided
+        when it arrives, as it would have been had it been there all along.
+        """
+        with language_resolved_once():
+            self._controls_arriving += 1
+            try:
+                for key in keys:
+                    plan = self._widgets.meta_for(key)
+                    if plan is None:
+                        continue
+                    widget = self._build_plain(plan)
+                    attach_api_tooltip(widget, self.app_key, key,
+                                       _descriptions=self._tooltips)
+                    self._widgets.settle(key, widget)
+            finally:
+                self._controls_arriving -= 1
+            if (self._controls_arriving == 0 and self._state_passes_ready
+                    and self._decided_by_a_pass().intersection(keys)):
+                self._decide_the_state_of_every_control()
+
+    #: Set once :meth:`_build_sections` has wired the panel; before that a
+    #: control that arrives is decided by the passes the build runs itself.
+    _state_passes_ready = False
+
+    def _decided_by_a_pass(self) -> set:
+        """Every setting whose control's state one of the passes decides.
+
+        What :meth:`_build_controls` checks an arriving batch against, so a
+        batch no pass has an opinion about -- most of them -- costs no pass.
+        Computed once per panel; the rules and tables it reads are fixed.
+        """
+        owned = getattr(self, "_keys_decided_by_a_pass", None)
+        if owned is not None:
+            return owned
+        owned = {"exclude_rows", "regression_backend", "metric"}
+        owned.update(self._rules_for_this_panel())
+        owned.update(_ALL_BASIS_SETTINGS)
+        for keys in _UMAP_REDUCER_SETTINGS.values():
+            owned.update(keys)
+        try:
+            from spacr.classify import FAMILY_SETTINGS
+
+            for keys in FAMILY_SETTINGS.values():
+                owned.update(keys)
+        except Exception:                                    # noqa: BLE001
+            pass
+        try:
+            from ...settings_advisor import UNIT_REQUIREMENTS
+
+            for keys in UNIT_REQUIREMENTS.values():
+                owned.update(keys)
+        except Exception:                                    # noqa: BLE001
+            pass
+        self._keys_decided_by_a_pass = owned
+        return owned
+
+    def _decide_the_state_of_every_control(self) -> None:
+        """Run every pass that greys, locks or fills a control from another.
+
+        The same four calls :meth:`_build_sections` ends with. Each decides
+        every control it owns from the values it reads, so running them
+        again after controls arrive leaves the panel as an eager build
+        would have left it.
+        """
+        for decide in (self._refresh_contextual_widgets,
+                       self._refresh_umap_reducer_enablement,
+                       self._refresh_analysis_unit_lock,
+                       self._refresh_regression_backend):
+            try:
+                decide()
+            except Exception:                                # noqa: BLE001
+                LOGGER.debug("could not settle the controls that arrived",
+                             exc_info=True)
 
     @staticmethod
     def _keys_of_objects_the_run_has_no_channel_for(settings,
@@ -8145,12 +8506,12 @@ class SettingsWidgets:
         from ..settings_diff import _values_equal
 
         out: List[str] = []
-        for key, widget in self._widgets.items():
+        for key in self._widgets:
             if key not in self._defaults:
                 continue
             try:
                 current = self._coerce_to_expected_type(
-                    key, self._read_widget(widget))
+                    key, self._read_value(key))
             except Exception:
                 continue
             if not _values_equal(current, self._defaults[key]):
@@ -8264,6 +8625,71 @@ class SettingsWidgets:
 
     def _widget_for(self, kind: str, options: Any, default: Any,
                     key: str) -> Optional[QWidget]:
+        """Build the control one setting gets on this screen.
+
+        See :meth:`_route_control` for how it is chosen.
+
+        :returns: the control, or ``None`` when the kind has none.
+        """
+        route, what = self._route_control(kind, options, default, key)
+        if route == "special":
+            return what()
+        if route == "plain":
+            return self._build_plain(what)
+        return None
+
+    @staticmethod
+    def _build_plain(plan) -> QWidget:
+        """Build the plain control ``plan`` describes, holding its value.
+
+        :param plan: what :meth:`_route_control` answered for the setting.
+        """
+        control = plan["control"]
+        value = plan["value"]
+        if control == "toggle":
+            w = Toggle()
+            w.setChecked(bool(value))
+            return w
+        if control == "combo":
+            w = _ValueCombo()
+            w.setSizeAdjustPolicy(
+                QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            w.setMinimumContentsLength(12)
+            for shown, stored in plan["items"]:
+                w.addItem(shown, userData=stored)
+            for i in range(w.count()):
+                if w.itemData(i) == value or w.itemText(i) == str(value):
+                    w.setCurrentIndex(i)
+                    break
+            else:
+                if value is not None and str(value) != "":
+                    w.insertItem(0, str(value), userData=value)
+                    w.setCurrentIndex(0)
+            return w
+        if control == "auto":
+            return _auto_or_number_box(value)
+        if control == "int":
+            w = QSpinBox()
+            w.setRange(*plan["range"])
+            w.setValue(value)
+            return w
+        if control == "float":
+            w = QDoubleSpinBox()
+            w.setRange(*plan["range"])
+            w.setSingleStep(plan["step"])
+            w.setDecimals(6)
+            w.setValue(value)
+            return w
+        if control == "list":
+            w = _ListEdit()
+            w.set_value(value)
+            return w
+        w = _ScalarEdit()
+        w.set_value(value)
+        return w
+
+    def _route_control(self, kind: str, options: Any, default: Any,
+                       key: str):
         """Choose the control one setting gets on this screen.
 
         The order of the checks is load-bearing. Path-list and column-naming
@@ -8278,11 +8704,15 @@ class SettingsWidgets:
         :param default: the declared default.
         :param key: the setting name; several controls are chosen from this
             alone, since the setting's meaning is narrower than its type.
-        :returns: the control, or ``None`` when the kind has none.
+        :returns: ``("plain", plan)`` for one of the plain Qt controls,
+            which :meth:`_build_plain` builds and
+            :func:`_value_a_plain_control_holds` can read without building;
+            ``("special", build)`` for every other control, with a callable
+            that builds it; ``(None, None)`` when the kind has none.
         """
         parent = self._parent
         if self.app_key == "umap" and key == "src":
-            return DatabaseSetWidget(
+            return "special", lambda: DatabaseSetWidget(
                 value=self._defaults.get(key, default),
                 mode="folder",
                 table="cell",
@@ -8291,31 +8721,34 @@ class SettingsWidgets:
                 parent=parent,
             )
         if self.app_key == "umap" and key == "exclude_rows":
-            return RowExclusionEditor(
+            return "special", lambda: RowExclusionEditor(
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
         if self.app_key == "external_masks" and key == "inputs":
-            return ExternalMaskInputWidget(
+            return "special", lambda: ExternalMaskInputWidget(
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
         if key == "classes":
-            widget = ClassEditorWidget(
-                value=self._defaults.get(key, default),
-                parent=parent,
-            )
-            frame = getattr(self, "_preview_frame", None)
-            if frame is not None:
-                widget.set_frame(frame)
-            return widget
+            def class_editor():
+                """The class editor, told which frame it is previewing."""
+                widget = ClassEditorWidget(
+                    value=self._defaults.get(key, default),
+                    parent=parent,
+                )
+                frame = getattr(self, "_preview_frame", None)
+                if frame is not None:
+                    widget.set_frame(frame)
+                return widget
+            return "special", class_editor
         if key == "png_channel_mapping":
-            return ChannelMappingWidget(
+            return "special", lambda: ChannelMappingWidget(
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
         if key in PATH_LIST_KEYS:
-            return FilePathListWidget(
+            return "special", lambda: FilePathListWidget(
                 value=self._defaults.get(key, default),
                 kind=PATH_LIST_KEYS[key],
                 title=PATH_LIST_TITLES.get(key, "Choose input files"),
@@ -8323,11 +8756,11 @@ class SettingsWidgets:
                 parent=parent,
             )
         if key == "paired_data":
-            return PairedFileTableWidget(
+            return "special", lambda: PairedFileTableWidget(
                 value=self._defaults.get(key, default), parent=parent)
         source = CSV_COLUMN_SOURCES.get(self.app_key, {}).get(key)
         if source is not None:
-            return _CsvColumnField(
+            return "special", lambda: _CsvColumnField(
                 key=key,
                 default=self._defaults.get(key, default),
                 paths=partial(self._input_csv_paths, source.roles),
@@ -8335,17 +8768,17 @@ class SettingsWidgets:
                 parent=parent,
             )
         if key == "regression_backend":
-            return _RegressionBackendField(
+            return "special", lambda: _RegressionBackendField(
                 default=self._defaults.get(key, default),
                 regression_type=self._defaults.get("regression_type"),
                 parent=parent,
             )
         if key == "segmentation_backend":
             from ..model_install import SegmentationBackendCombo
-            return SegmentationBackendCombo(
+            return "special", lambda: SegmentationBackendCombo(
                 default=self._defaults.get(key, default), parent=parent)
         if key == "metadata_type":
-            return _MetadataTypeField(
+            return "special", lambda: _MetadataTypeField(
                 default=self._defaults.get(key, default),
                 source_folder=self._current_source_folder,
                 custom_regex=partial(self._current_setting, "custom_regex"),
@@ -8367,19 +8800,19 @@ class SettingsWidgets:
             kind = "combo"
             options = list(UMAP_METRICS)
         if self.app_key == "map_barcodes" and key == "regex":
-            return BarcodeRegexWidget(
+            return "special", lambda: BarcodeRegexWidget(
                 value=self._defaults.get(key, default),
                 parent=parent,
             )
         if key in FIXED_ALPHABETS:
-            return _AlphabetSelect(
+            return "special", lambda: _AlphabetSelect(
                 key=key,
                 default=self._defaults.get(key, default),
                 choices=FIXED_ALPHABETS[key],
                 parent=parent,
             )
         if key in EXCLUDE_LIST_KEYS:
-            return _ListEditor(
+            return "special", lambda: _ListEditor(
                 key=key,
                 default=self._defaults.get(key, default),
                 nested_capable=False,
@@ -8395,81 +8828,57 @@ class SettingsWidgets:
         ):
             kind = "entry"
         if kind == "check":
-            w = Toggle()
-            w.setChecked(bool(default))
-            return w
+            return "plain", {"control": "toggle", "value": bool(default)}
         if kind == "combo":
-            w = _ValueCombo()
-            w.setSizeAdjustPolicy(
-                QComboBox.AdjustToMinimumContentsLengthWithIcon)
-            w.setMinimumContentsLength(12)
+            items = []
             for opt in (options or []):
                 if isinstance(opt, tuple) and len(opt) == 2:
                     stored, shown = opt
                 else:
                     stored = opt
                     shown = "None" if opt is None else str(opt)
-                w.addItem(str(shown), userData=stored)
+                items.append((str(shown), stored))
             if key in self._defaults:
                 default = self._defaults[key]
             if key == "image_source":
                 default = _image_source_the_panel_offers(default)
-            for i in range(w.count()):
-                if w.itemData(i) == default or w.itemText(i) == str(default):
-                    w.setCurrentIndex(i)
-                    break
-            else:
-                if default is not None and str(default) != "":
-                    w.insertItem(0, str(default), userData=default)
-                    w.setCurrentIndex(0)
-            return w
+            return "plain", {"control": "combo", "items": items,
+                             "value": default}
         if kind == "entry":
             shape = list_shape_for(key, self._defaults.get(key, default))
             if shape is not None:
                 nested_capable, allow_none, element_type, container = shape
-                return _ListEditor(key=key,
+                return "special", lambda: _ListEditor(key=key,
                                    default=self._defaults.get(key, default),
                                    nested_capable=nested_capable,
                                    allow_none=allow_none,
                                    element_type=element_type,
                                    container=container)
             if key in AUTO_OR_NUMBER_SETTINGS:
-                return _auto_or_number_box(self._defaults.get(key, default))
+                return "plain", {"control": "auto",
+                                 "value": self._defaults.get(key, default)}
             if _is_clearable_plane_setting(key):
-                w = _ScalarEdit()
-                w.set_value(self._defaults.get(key, default))
-                return w
+                return "plain", {"control": "text",
+                                 "value": self._defaults.get(key, default)}
             if isinstance(default, bool):
-                w = Toggle()
-                w.setChecked(default)
-                return w
+                return "plain", {"control": "toggle", "value": default}
             if isinstance(default, int) and _permits_float(key):
                 default = float(default)
             if isinstance(default, int):
-                w = QSpinBox()
                 minimum = (
                     1 if key in POSITIVE_INTEGER_SETTINGS
                     else -2_147_483_648
                 )
-                w.setRange(minimum, 2_147_483_647)
-                w.setValue(default)
-                return w
+                return "plain", {"control": "int", "value": default,
+                                 "range": (minimum, 2_147_483_647)}
             if isinstance(default, float):
-                w = QDoubleSpinBox()
                 low, high, step = _float_domain(key, default)
-                w.setRange(low, high)
-                w.setSingleStep(step)
-                w.setDecimals(6)
-                w.setValue(default)
-                return w
+                return "plain", {"control": "float", "value": default,
+                                 "range": (low, high), "step": step}
             if isinstance(default, list):
-                w = _ListEdit()
-                w.set_value(default)
-                return w
-            w = _ScalarEdit()
-            w.set_value(default)
-            return w
-        return None
+                return "plain", {"control": "list", "value": default}
+            return "plain", {"control": "text", "value": default}
+        return None, None
 
     @staticmethod
     def _coerce_to_expected_type(key: str, value: Any) -> Any:
@@ -8546,12 +8955,51 @@ class SettingsWidgets:
             LOGGER.debug("could not canonicalise %s", key, exc_info=True)
             return value
 
+    def _built_control(self, key: str) -> Optional[QWidget]:
+        """``key``'s control if it has been built, never building it.
+
+        Tolerates a plain dict in ``_widgets``, which is what several tests
+        and older callers put there.
+        """
+        built = getattr(self._widgets, "built", None)
+        return built(key) if callable(built) else self._widgets.get(key)
+
+    def _built_controls(self) -> List[Tuple[str, QWidget]]:
+        """``(key, control)`` for every control built so far, in panel order."""
+        built = getattr(self._widgets, "built_items", None)
+        return built() if callable(built) else list(self._widgets.items())
+
+    def _plan_of(self, key: str) -> Any:
+        """The plan a control still waiting is built from, or ``None``."""
+        meta_for = getattr(self._widgets, "meta_for", None)
+        return meta_for(key) if callable(meta_for) else None
+
+    def _read_value(self, key: str) -> Any:
+        """``key``'s value as its control reads, built or not.
+
+        A built control is read. One still waiting for its category is read
+        from its plan by :func:`_value_a_plain_control_holds`, which is what
+        the control would read back; only plain controls wait. A setting
+        without a control reads as ``None``, as ``_read_widget(None)`` did.
+        """
+        widget = self._built_control(key)
+        if widget is not None:
+            return self._read_widget(widget)
+        plan = self._plan_of(key)
+        if plan is not None:
+            return _value_a_plain_control_holds(plan)
+        return None
+
     def collect(self) -> Dict[str, Any]:
-        """Read all widgets and return the current settings dict."""
+        """Read all widgets and return the current settings dict.
+
+        A control still waiting for its category to be opened is read
+        without being built; see :meth:`_read_value`.
+        """
         out: Dict[str, Any] = {}
-        for key, w in self._widgets.items():
+        for key in self._widgets:
             out[key] = self._canonical(
-                key, self._coerce_to_expected_type(key, self._read_widget(w)))
+                key, self._coerce_to_expected_type(key, self._read_value(key)))
         for k, v in self._defaults.items():
             out.setdefault(k, v)
         return self._organelle_slots_worth_keeping(out)
@@ -8712,8 +9160,13 @@ class SettingsWidgets:
         backend.set_regression_type(value)
 
     def _on_umap_reducer_changed(self, *_args) -> None:
-        """Re-grey method-specific Image UMAP controls immediately."""
+        """Re-grey method-specific Image UMAP controls immediately.
+
+        Then the dependency rules, for the reason
+        :meth:`_on_classifier_family_changed` gives.
+        """
         self._refresh_umap_reducer_enablement()
+        self._refresh_setting_dependencies()
 
     def _refresh_analysis_unit_lock(self) -> None:
         """Apply and display settings constrained by ``analysis_unit``.
@@ -8743,7 +9196,7 @@ class SettingsWidgets:
                 f"and no other, so it is shown rather than left editable. "
                 f"Choose analysis_unit='well' to set it yourself.")
         for key in sorted(owned):
-            widget = self._widgets.get(key)
+            widget = self._built_control(key)
             if widget is None:
                 continue
             if key in required:
@@ -8775,7 +9228,7 @@ class SettingsWidgets:
         active = _UMAP_REDUCER_SETTINGS[method]
         note = f"Used only when dimensionality reduction is {method}."
         for key in owned:
-            control = self._widgets.get(key)
+            control = self._built_control(key)
             if control is None:
                 continue
             enabled = key in active
@@ -8791,7 +9244,7 @@ class SettingsWidgets:
             else:
                 _apply_greyed_note(control, note)
 
-        metric = self._widgets.get("metric")
+        metric = self._built_control("metric")
         if metric is not None:
             metric.setEnabled(True)
             _clear_greyed_note(metric)
@@ -8820,7 +9273,7 @@ class SettingsWidgets:
         except Exception:
             return
 
-        for key, control in self._widgets.items():
+        for key, control in self._built_controls():
             if key in greyed:
                 control.setEnabled(False)
                 _apply_greyed_note(control, _family_note(family))
@@ -8829,8 +9282,18 @@ class SettingsWidgets:
                 _clear_greyed_note(control)
 
     def _on_classifier_family_changed(self, *_args) -> None:
-        """Re-grey the panel when the classifier family changes."""
+        """Re-grey the panel when the classifier family changes.
+
+        The dependency rules run after it, as they do when the panel is
+        built: the family pass re-enables every setting the family owns, and
+        a setting a rule greys -- ``batch_column`` under
+        ``batch_correction='none'`` -- has to stay greyed whichever family is
+        chosen. Without this the order of the last two changes decided it,
+        and a control built after the change (in a category opened later)
+        would disagree with one built before.
+        """
         self._refresh_classifier_family_enablement()
+        self._refresh_setting_dependencies()
 
     def _on_training_basis_changed(self, *_args) -> None:
         """Re-grey the panel when the training basis changes.
@@ -8838,9 +9301,11 @@ class SettingsWidgets:
         A named method rather than a lambda: INVARIANTS 4 is about
         QThread.finished specifically, but the same lifetime reasoning
         applies to any signal connection that has to outlive the call that
-        made it.
+        made it. The dependency rules run after it, for the reason
+        :meth:`_on_classifier_family_changed` gives.
         """
         self.refresh_training_basis_enablement()
+        self._refresh_setting_dependencies()
 
     def refresh_training_basis_enablement(self) -> None:
         """Disable settings that the selected training basis does not use.
@@ -8863,7 +9328,7 @@ class SettingsWidgets:
         except Exception:
             return
 
-        for key, control in self._widgets.items():
+        for key, control in self._built_controls():
             if key in greyed:
                 control.setEnabled(False)
                 _apply_greyed_note(control, _basis_note(basis))
@@ -8878,11 +9343,10 @@ class SettingsWidgets:
         folder is tested against the path on screen rather than the one the
         settings file was loaded with.
         """
-        widget = self._widgets.get(key)
-        if widget is None:
+        if key not in self._widgets:
             return self._defaults.get(key)
         try:
-            return self._read_widget(widget)
+            return self._read_value(key)
         except Exception:                                      # noqa: BLE001
             return self._defaults.get(key)
 
@@ -8902,7 +9366,7 @@ class SettingsWidgets:
         """Refresh widgets whose choices come from the selected data source."""
         self.refresh_training_basis_enablement()
         self._refresh_setting_dependencies()
-        editor = self._widgets.get("exclude_rows")
+        editor = self._built_control("exclude_rows")
         if not isinstance(editor, RowExclusionEditor):
             return
         src_widget = self._widgets.get("src")
@@ -8983,13 +9447,14 @@ class SettingsWidgets:
 
         :returns: the declared defaults overlaid with whatever each control now
             holds; a control that cannot be read or coerced leaves its default
-            in place rather than dropping the key.
+            in place rather than dropping the key. A control not built yet is
+            read without being built (:meth:`_read_value`).
         """
         current = dict(self._defaults)
-        for key, widget in self._widgets.items():
+        for key in self._widgets:
             try:
                 current[key] = self._coerce_to_expected_type(
-                    key, self._read_widget(widget))
+                    key, self._read_value(key))
             except Exception:
                 pass
         return current
@@ -9131,7 +9596,9 @@ class SettingsWidgets:
             self._data_context = self._plate_context(
                 self._loaded_table_paths(current))
         for key, rule in dependencies.items():
-            control = self._widgets[key]
+            control = self._built_control(key)
+            if control is None:
+                continue
             try:
                 enabled = bool(rule['predicate'](current, self._data_context))
             except Exception:
@@ -9212,13 +9679,12 @@ class SettingsWidgets:
         """
         current: Dict[str, Any] = {}
         for key in self._object_visibility_keys():
-            widget = self._widgets.get(key)
-            if widget is None:
+            if key not in self._widgets:
                 current[key] = self._defaults.get(key)
                 continue
             try:
                 current[key] = self._coerce_to_expected_type(
-                    key, self._read_widget(widget))
+                    key, self._read_value(key))
             except Exception:                                # noqa: BLE001
                 current[key] = self._defaults.get(key)
         return current
@@ -9369,7 +9835,7 @@ class SettingsWidgets:
             from ..widgets.section import Section, _sections_below
 
             by_widget = {id(widget): key
-                         for key, widget in self._widgets.items()}
+                         for key, widget in self._built_controls()}
             for section in _sections_below(self._parent):
                 if (not isinstance(section, Section)
                         or _sections_below(section)):
@@ -9470,7 +9936,7 @@ class SettingsWidgets:
             return
         guarded = self._guarded_rows
         for key in hidden:
-            widget = self._widgets.get(key)
+            widget = self._built_control(key)
             if widget is None or id(widget) in guarded:
                 continue
             guarded[id(widget)] = key
@@ -9514,7 +9980,7 @@ class SettingsWidgets:
         the holder that is in the row. The walk goes up until a form
         recognises the node it is being handed.
         """
-        widget = self._widgets.get(key)
+        widget = self._built_control(key)
         if widget is None:
             return
         from ..settings_search import _set_row_visible as set_row
@@ -9605,11 +10071,10 @@ class SettingsWidgets:
 
     def _setting_value(self, key: str) -> Any:
         """Return one widget value with the same coercion as ``collect``."""
-        widget = self._widgets.get(key)
-        if widget is None:
+        if key not in self._widgets:
             return self._defaults.get(key)
         try:
-            return self._coerce_to_expected_type(key, self._read_widget(widget))
+            return self._coerce_to_expected_type(key, self._read_value(key))
         except Exception:                                    # noqa: BLE001
             return self._defaults.get(key)
 

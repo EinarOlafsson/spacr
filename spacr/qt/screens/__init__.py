@@ -20,3 +20,10 @@ So: to add a screen, declare its row in ``app_catalog`` and — if it registers
 a QSS block — name it in ``WIDGET_QSS_MODULES`` so exhaustive sheets remain
 complete. Do not import it here merely for startup styling.
 """
+
+#: Whether an ``AppScreen`` constructed now leaves each closed settings
+#: category unbuilt until it is opened. Here rather than on ``AppScreen``
+#: because the window sets it around EVERY screen it builds, Home included,
+#: and reaching the class would import the module screens -- pandas and all
+#: -- while Home is being drawn. See ``AppScreen._build_a_waiting_heading``.
+_categories_wait_to_be_opened = False

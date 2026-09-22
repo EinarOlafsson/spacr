@@ -225,6 +225,10 @@ class Section(QFrame):
         #: it did. See :meth:`_detach_body_while_hidden`.
         self._detached_at: Optional[int] = None
         self._body_came_back = None
+        #: Builds the body's rows the first time the category is opened,
+        #: for a category whose rows wait for that; see
+        #: ``AppScreen._build_a_waiting_heading``. ``None`` otherwise.
+        self._spacr_build_body = None
 
         outer = QVBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
@@ -812,6 +816,9 @@ class Section(QFrame):
             Qt.DownArrow if self._expanded else Qt.RightArrow)
         if self._expanded and self._detached_at is not None:
             self._attach_body()
+        if self._expanded and self._spacr_build_body is not None:
+            build, self._spacr_build_body = self._spacr_build_body, None
+            build()
 
         scroll = scroll_host(self)
         if scroll is None:

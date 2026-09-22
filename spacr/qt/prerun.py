@@ -238,9 +238,13 @@ class _ShowFilter(QObject):
 
 
 def _widgets(screen) -> Dict[str, QWidget]:
-    """The screen's settings widgets, keyed by settings key."""
+    """The screen's settings widgets, keyed by settings key.
+
+    The model's own mapping, not a copy: copying it reads every control,
+    and a control in a category not opened yet is built by being read.
+    """
     model = getattr(screen, "_settings_model", None)
-    return dict(getattr(model, "_widgets", {}) or {})
+    return getattr(model, "_widgets", None) or {}
 
 
 def _widget_value(widget) -> Any:

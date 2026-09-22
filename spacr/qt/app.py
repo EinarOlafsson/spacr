@@ -5336,11 +5336,21 @@ class MainWindow(QMainWindow):
     def _build_screen(self, key: str) -> QWidget:
         """Build one module's screen, timed.
 
+        A settings screen built here leaves each closed category unbuilt
+        until it is opened; see ``AppScreen._build_a_waiting_heading``.
+
         :param key: the module to build.
         :returns: the screen widget.
         """
-        with _timing.span("build screen", key):
-            return self._build_screen_timed(key)
+        from . import screens as _screens_package
+
+        waited = _screens_package._categories_wait_to_be_opened
+        _screens_package._categories_wait_to_be_opened = True
+        try:
+            with _timing.span("build screen", key):
+                return self._build_screen_timed(key)
+        finally:
+            _screens_package._categories_wait_to_be_opened = waited
 
     def _build_screen_timed(self, key: str) -> QWidget:
         """Return a freshly-built screen widget for the given app ``key``.

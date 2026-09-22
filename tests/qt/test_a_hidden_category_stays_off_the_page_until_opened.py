@@ -192,8 +192,23 @@ def _window(qtbot, key):
 
 
 def _away(screen) -> list:
+    """Categories whose body is off the page: detached, or not built yet.
+
+    Since 2026-09-22 a category closed at open is not built at all until it
+    is opened (``AppScreen._build_a_waiting_heading``); detaching is what
+    happens to the categories that ARE built and closed.
+    """
     return [section for section in screen.rendered_settings_sections()
-            if section._body_is_detached()]
+            if section._body_is_detached()
+            or screen._heading_is_waiting(section)]
+
+
+def _detach_every_built_category(screen) -> None:
+    """Build every category, close them all, and detach them as at open."""
+    screen._open_every_waiting_heading()
+    for section in screen.rendered_settings_sections():
+        section.set_expanded(False)
+    screen._detach_what_the_form_hides()
 
 
 def _key_in_a_detached_body(screen):
@@ -208,7 +223,13 @@ def test_opening_a_module_takes_what_it_hides_off_the_page(qtbot):
     _window_, screen = _window(qtbot, "classify_merged")
     away = _away(screen)
     assert away, "no category left the page"
-    assert sum(len(s._body.findChildren(QWidget)) for s in away) > 200
+    for section in away:
+        assert (not screen.isAncestorOf(section._body)
+                or not section._body.findChildren(QWidget))
+    unbuilt = len(screen._waiting_heading_of)
+    detached = sum(len(s._body.findChildren(QWidget)) for s in away
+                   if s._body_is_detached())
+    assert unbuilt > 50 or detached > 200
 
 
 def test_every_setting_still_reaches_the_run(qtbot):
@@ -249,6 +270,7 @@ def test_a_category_that_comes_back_speaks_the_language_of_now(qtbot):
     from spacr.qt.i18n import retranslate_widget_tree, tr
 
     window, screen = _window(qtbot, "mask")
+    _detach_every_built_category(screen)
     found = None
     for section in _away(screen):
         for label in section._body.findChildren(QLabel):

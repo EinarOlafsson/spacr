@@ -1606,6 +1606,10 @@ class AppScreen(QWidget):
         body.setChildrenCollapsible(False)
 
         self._settings_body = body
+        from .. import screens as _screens_package
+
+        self._categories_wait = bool(getattr(
+            _screens_package, "_categories_wait_to_be_opened", False))
         self._settings_panel = self._build_settings_panel()
         body.addWidget(self._settings_panel)
         self.the_name_carries_the_help()
@@ -2161,6 +2165,13 @@ class AppScreen(QWidget):
             self._lay_out_the_rows_that_are_back
         self._settings_model.rows_are_filtered_by = \
             self._refilter_the_settings_search
+        #: ``key -> heading`` for each setting whose category waits to be
+        #: opened; see :meth:`_build_a_waiting_heading`.
+        self._waiting_heading_of = {}
+        if (getattr(self, "_categories_wait", False)
+                and str(self.app_key) not in self.SETTINGS_AS_TABS):
+            self._settings_model.categories_may_wait = \
+                self._a_category_may_wait
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -2196,6 +2207,13 @@ class AppScreen(QWidget):
         if not sections:
             layout.addWidget(QLabel("No settings defined for this app."))
         for section_order, spec in enumerate(sections):
+            if self._spec_waits(spec) and self._spec_holds_anything(spec):
+                section = self._build_a_waiting_heading(spec)
+                section._settings_top_level_order = section_order
+                layout.addWidget(section)
+                continue
+            if self._spec_waits(spec):
+                spec = self._with_the_controls(spec)
             section = self._build_settings_section(spec)
             section._settings_top_level_order = section_order
             if not self._section_holds_anything(section):
@@ -2416,10 +2434,12 @@ class AppScreen(QWidget):
         """
         model = getattr(self, "_settings_model", None)
         widgets = getattr(model, "_widgets", None) or {}
-        stamp = (id(model), len(widgets))
+        built = getattr(widgets, "built_items", None)
+        pairs = built() if callable(built) else list(widgets.items())
+        stamp = (id(model), len(pairs))
         if getattr(self, "_widget_key_stamp", None) != stamp:
             index: dict = {}
-            for key, widget in widgets.items():
+            for key, widget in pairs:
                 index.setdefault(id(widget), key)
             self._widget_key_cache = index
             self._widget_key_stamp = stamp
@@ -2516,7 +2536,7 @@ class AppScreen(QWidget):
             if getattr(section, "_settings_top_level_order", None) is None:
                 continue
             detach = getattr(section, "_detach_body_while_hidden", None)
-            if not callable(detach):
+            if not callable(detach) or self._heading_is_waiting(section):
                 continue
             try:
                 section._body_came_back = self._a_category_body_came_back
@@ -2860,7 +2880,7 @@ class AppScreen(QWidget):
         finally:
             self._rebuilding_the_form = False
 
-    def _build_settings_section(self, spec, depth: int = 0):
+    def _build_settings_section(self, spec, depth: int = 0, into=None):
         """Build one heading of the settings TREE, and everything under it.
 
         ``SettingsWidgets.build_sections`` returns a
@@ -2883,6 +2903,10 @@ class AppScreen(QWidget):
 
         :param spec: a ``SettingsSection`` or a plain ``(title, rows)`` pair.
         :param depth: 0 for a top-level category; deeper for a sub-heading.
+        :param into: a heading built earlier by
+            :meth:`_build_a_waiting_heading`, to lay the rows out in instead
+            of a new one. It is already titled and recorded, so only its body
+            is built.
         :returns: the built :class:`Section` widget.
         """
         title = getattr(spec, "title", None)
@@ -2892,14 +2916,10 @@ class AppScreen(QWidget):
         own_rows = getattr(spec, "own_rows", None)
         rows = spec[1] if own_rows is None else own_rows
         children = tuple(getattr(spec, "children", ()) or ())
-        section = Section(title)
-        section.setProperty("settingsCategorySource", title)
-        section.set_maturity(
-            settings_section_maturity(self.app_key, title)
-        )
-        blurb = section_tooltip(self.app_key, spec)
-        section.set_hint(blurb)
-        self._category_blurbs.setdefault(title, blurb)
+        if into is None:
+            section = self._titled_heading(spec, title)
+        else:
+            section = into
         declared = tuple((self._key_of_field(widget), label, widget)
                          for label, widget in rows)
         no_object = self._keys_the_run_has_no_object_for()
@@ -2957,8 +2977,287 @@ class AppScreen(QWidget):
                 self._install_ops_example_button(section)
             else:
                 self._install_example_images_button(section)
+        if into is None:
+            self._settings_sections.append(section)
+        return section
+
+    def _titled_heading(self, spec, title: str):
+        """A new, empty heading for ``spec``: title, maturity and blurb."""
+        section = Section(title)
+        section.setProperty("settingsCategorySource", title)
+        section.set_maturity(
+            settings_section_maturity(self.app_key, title)
+        )
+        blurb = section_tooltip(self.app_key, spec)
+        section.set_hint(blurb)
+        self._category_blurbs.setdefault(title, blurb)
+        return section
+
+    def _a_category_may_wait(self, title: str, keys=()) -> bool:
+        """Whether top-level category ``title`` may wait to be opened.
+
+        Not the one holding the module's example-data control, which
+        :meth:`_build_settings_section` opens. Not one the settings search
+        will open either: under the Essentials view -- where every module
+        starts -- the strip opens each category holding an essential setting
+        as it is installed, and a category built by being opened pays the
+        passes an opening runs on top of what building it with the panel
+        costs. The essentials are over-counted on purpose (every object's
+        segmentation settings, whether or not its channel is set): a
+        category wrongly kept is built as it always was, and one wrongly
+        left waiting is built a moment later, so either mistake is safe.
+
+        :param title: the category.
+        :param keys: the settings laid out under it.
+        """
+        if str(title) == EXAMPLE_DATA_SECTIONS.get(self.app_key):
+            return False
+        return not (set(keys) & self._settings_the_essentials_view_opens())
+
+    def _settings_the_essentials_view_opens(self) -> set:
+        """The settings the Essentials view shows, if it is the view used."""
+        found = getattr(self, "_essentials_it_opens", None)
+        if found is not None:
+            return found
+        found = set()
+        try:
+            from ..settings_search import ESSENTIALS, disclosure_for
+            from .settings_model import (
+                _APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT,
+                _expand_layout_tokens, categories_for_app, essential_keys,
+                get_categories)
+
+            if disclosure_for(self.app_key) == ESSENTIALS:
+                cats = categories_for_app(self.app_key, get_categories())
+                found.update(essential_keys(self.app_key, cats))
+                found.update(_expand_layout_tokens(
+                    cats, _APP_ESSENTIALS_THAT_FOLLOW_THEIR_OBJECT.get(
+                        str(self.app_key), ())))
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not tell which settings Essentials shows",
+                      exc_info=True)
+        self._essentials_it_opens = found
+        return found
+
+    @staticmethod
+    def _spec_waits(spec) -> bool:
+        """Whether any row under ``spec`` is a control still to come."""
+        from .settings_model import _ControlToCome
+
+        return any(isinstance(widget, _ControlToCome)
+                   for _label, widget in (spec[1] or ()))
+
+    def _key_of_row(self, widget) -> Optional[str]:
+        """The setting a spec row is for, whether or not it is built."""
+        from .settings_model import _ControlToCome
+
+        if isinstance(widget, _ControlToCome):
+            return widget.key
+        return self._key_of_field(widget)
+
+    def _spec_holds_anything(self, spec) -> bool:
+        """:meth:`_section_holds_anything`, answered from the keys alone.
+
+        A heading holds something when a row under it is laid out -- every
+        row whose object the run has -- or belongs to an organelle slot the
+        count asked for, which is the same test the built heading is given.
+        """
+        from ...organelle_types import organelle_role_of
+
+        lacking = self._keys_the_run_has_no_object_for()
+        for _label, widget in spec[1] or ():
+            key = self._key_of_row(widget)
+            if key is None:
+                continue
+            if key not in lacking or organelle_role_of(key) is not None:
+                return True
+        return False
+
+    def _with_the_controls(self, spec):
+        """``spec`` with every control still to come built and in its row."""
+        from .settings_model import SettingsSection, _ControlToCome
+
+        model = self._settings_model
+        widgets = model._widgets
+        widgets.build([widget.key for _label, widget in spec[1] or ()
+                       if isinstance(widget, _ControlToCome)])
+
+        def swap(node):
+            """``node`` rebuilt with its stand-ins replaced by controls."""
+            own = getattr(node, "own_rows", None)
+            own = node[1] if own is None else own
+            rows = []
+            for label, widget in own:
+                if isinstance(widget, _ControlToCome):
+                    widget = widgets.built(widget.key)
+                    if widget is None:
+                        continue
+                rows.append((label, widget))
+            children = [swap(child)
+                        for child in getattr(node, "children", ()) or ()]
+            title = getattr(node, "title", None)
+            return SettingsSection(node[0] if title is None else title,
+                                   rows, children)
+
+        return swap(spec)
+
+    def _build_a_waiting_heading(self, spec):
+        """A category's heading, with its rows left until it is opened.
+
+        WHAT WAITS. Every row of the category -- caption, field, help, and
+        the sub-headings below it -- and every control in it that nothing
+        has read. Measured on a real window, those were most of what a
+        module built at open and nobody could see: 91 of Classify's 101
+        settings, 101 of Mask's 132. The heading itself is built, titled,
+        rated for maturity and recorded, so the form looks exactly as it
+        does with the rows in place and closed.
+
+        WHAT STILL ANSWERS FOR IT. The model knows every key, so ``in``,
+        the search strip and the palette find its settings; a read of any of
+        its controls builds that control (see
+        :class:`~spacr.qt.screens.settings_model._ControlsBuiltWhenAskedFor`)
+        so ``collect()``, recipes, imports and drops read and write real
+        values. The object rule knows its keys through
+        ``remember_section_rows``, the dimension switches through
+        :meth:`_dimension_hidden_sections`.
+
+        A control that was built anyway -- one nothing can read unbuilt, or
+        one something read while the panel was being built -- is taken off
+        the page until its row is laid out: it was made with the form as its
+        parent, and a child of a shown widget that belongs to no row is drawn
+        where it stands, at the form's top-left corner.
+
+        WHAT OPENS IT: expanding it, revealing one of its settings, asking
+        for its rows, or anything that needs a row on the form. See
+        :meth:`_open_a_waiting_heading`.
+        """
+        title = str(getattr(spec, "title", None) or spec[0])
+        children = tuple(getattr(spec, "children", ()) or ())
+        section = self._titled_heading(spec, title)
+        own = getattr(spec, "own_rows", None)
+        own = spec[1] if own is None else own
+        own_keys = [key for key in (self._key_of_row(widget)
+                                    for _label, widget in own) if key]
+        try:
+            self._settings_model.remember_section_rows(
+                section, own_keys, bool(children))
+        except AttributeError:
+            pass
+        for _label, widget in spec[1] or ():
+            if isinstance(widget, QWidget) and widget.parentWidget() is not None:
+                widget.setParent(None)
+        section._spacr_waiting_spec = spec
+        section._spacr_declared_rows = ()
+        opener = partial(self._open_a_waiting_heading, section)
+        section._spacr_build_body = opener
+        section._row_widgets = _RowsBuiltWhenTheyAreAskedFor(opener)
+        for _label, widget in spec[1] or ():
+            key = self._key_of_row(widget)
+            if key:
+                self._waiting_heading_of[key] = section
         self._settings_sections.append(section)
         return section
+
+    def _heading_is_waiting(self, section) -> bool:
+        """Whether ``section`` is a heading whose rows are not built yet."""
+        try:
+            return getattr(section, "_spacr_waiting_spec", None) is not None
+        except RuntimeError:
+            return False
+
+    def _open_the_heading_of(self, key: str) -> bool:
+        """Build the waiting category ``key`` belongs to, if it waits.
+
+        :returns: ``True`` when a category was built by this call.
+        """
+        section = (getattr(self, "_waiting_heading_of", None) or {}).get(
+            str(key))
+        if section is None:
+            return False
+        return self._open_a_waiting_heading(section)
+
+    def _open_every_waiting_heading(self) -> int:
+        """Build every category still waiting.
+
+        :returns: how many were built.
+        """
+        opened = 0
+        for section in list(getattr(self, "_settings_sections", ()) or ()):
+            if self._heading_is_waiting(section):
+                opened += int(self._open_a_waiting_heading(section))
+        return opened
+
+    def _open_a_waiting_heading(self, section) -> bool:
+        """Build a waiting category's rows, as opening the screen would have.
+
+        The rows are laid out by :meth:`_build_settings_section`, the path
+        every category takes, into the heading already on the form. Then the
+        category is given what the page gave every other one while it was
+        opening, in the same order: its sub-headings are recorded ahead of
+        it (deepest first, as the search strip and the palette expect), the
+        category hints reach them, the surface sweep runs, the maturity and
+        dimension switches and the object rule decide the new rows, the
+        search strip indexes them, and the language pass and the move of
+        help onto captions run last, after the rows are polished -- the
+        order :meth:`_translate_a_late_part` explains.
+
+        :returns: ``True`` when this call built the rows; ``False`` when the
+            heading was built already.
+        """
+        spec = getattr(section, "_spacr_waiting_spec", None)
+        if spec is None:
+            return False
+        section._spacr_waiting_spec = None
+        section._spacr_build_body = None
+        rows = section.__dict__.get("_row_widgets")
+        if isinstance(rows, _RowsBuiltWhenTheyAreAskedFor):
+            rows._build_the_rest = None
+        from .. import timing
+        from .settings_model import language_resolved_once
+
+        title = str(getattr(spec, "title", None) or spec[0])
+        with timing.span("build waiting category", title), \
+                language_resolved_once():
+            for _label, widget in spec[1] or ():
+                key = self._key_of_row(widget)
+                if key and self._waiting_heading_of.get(key) is section:
+                    del self._waiting_heading_of[key]
+            real = self._with_the_controls(spec)
+            before = {id(other) for other in self._settings_sections}
+            self._run_has_no_object_for = None
+            try:
+                self._build_settings_section(real, 0, into=section)
+            finally:
+                self._run_has_no_object_for = None
+            self._put_new_headings_ahead_of(section, before)
+            self._wire_category_hints()
+            self._clear_a_late_parts_surfaces(section._body)
+            self.refresh_maturity_visibility()
+            self._the_rows_moved(judge_them=True)
+            self._translate_a_late_part(section._body)
+        return True
+
+    def _put_new_headings_ahead_of(self, section, before) -> None:
+        """Record the sub-headings a category just built ahead of it.
+
+        :param before: ``id()`` of every heading recorded until now.
+        """
+        fresh = [other for other in self._settings_sections
+                 if id(other) not in before]
+        if not fresh:
+            return
+        kept = [other for other in self._settings_sections
+                if id(other) in before]
+        at = next((i for i, other in enumerate(kept) if other is section),
+                  len(kept))
+        self._settings_sections[:] = kept[:at] + fresh + kept[at:]
+        bar = getattr(self, "_settings_search", None)
+        known = getattr(bar, "_sections", None)
+        if isinstance(known, list):
+            where = next((i for i, other in enumerate(known)
+                          if other is section), len(known))
+            known[where:where] = [other for other in fresh
+                                  if not any(other is k for k in known)]
 
     def _keys_the_run_has_no_object_for(self) -> set:
         """The settings whose object this run does not have, right now.
@@ -3075,6 +3374,7 @@ class AppScreen(QWidget):
         re-run afterwards, so this cannot put a setting for an absent object
         on screen -- it only makes sure there is nothing left to find.
         """
+        self._open_every_waiting_heading()
         waiting = getattr(self, "_rows_awaiting_layout", None)
         if not waiting:
             return
@@ -3146,13 +3446,15 @@ class AppScreen(QWidget):
             itself would be a second pass saying the same thing.
         """
         for section in getattr(self, "_settings_sections", []) or []:
+            if self._heading_is_waiting(section):
+                continue
             rows = section.__dict__.get("_row_widgets")
             declared = getattr(section, "_spacr_declared_rows", None)
             if not isinstance(rows, list) or not declared:
                 continue
             order = {id(widget): index
                      for index, (_k, _l, widget) in enumerate(declared)}
-            if all(id(pair[1]) in order for pair in rows):
+            if all(id(pair[1]) in order for pair in list.__iter__(rows)):
                 rows.sort(key=lambda pair: order[id(pair[1])])
         if judge_them:
             model = getattr(self, "_settings_model", None)
@@ -4724,6 +5026,10 @@ class AppScreen(QWidget):
             return self._dimension_switches
         offered = {setting_dimension(key)
                    for _section, key, _field in self._dimension_rows()}
+        offered.update(
+            setting_dimension(key)
+            for key in (getattr(self, "_waiting_heading_of", None) or {})
+            if setting_dimension(key))
         for dimension, label, tooltip in DIMENSION_TOGGLES:
             if dimension not in offered:
                 continue
@@ -4800,7 +5106,9 @@ class AppScreen(QWidget):
         widgets = getattr(model, "_widgets", None) or {}
         if not widgets or str(self.app_key) not in DIMENSION_TOGGLE_APPS:
             return []
-        by_widget = {id(widget): key for key, widget in widgets.items()}
+        built = getattr(widgets, "built_items", None)
+        pairs = built() if callable(built) else widgets.items()
+        by_widget = {id(widget): key for key, widget in pairs}
         found = []
         for section in getattr(self, "_settings_sections", []) or []:
             form = getattr(section, "_form", None)
@@ -4839,6 +5147,18 @@ class AppScreen(QWidget):
             if all(self._dimension_is_gated(setting_dimension(key))
                    for key in keys):
                 hidden.add(marker)
+        if str(self.app_key) not in DIMENSION_TOGGLE_APPS:
+            return hidden
+        for section in getattr(self, "_settings_sections", []) or []:
+            spec = getattr(section, "_spacr_waiting_spec", None)
+            if spec is None or getattr(spec, "children", ()):
+                continue
+            keys = [self._key_of_row(widget) for _label, widget in spec[1]]
+            if keys and all(
+                    key and setting_dimension(key)
+                    and self._dimension_is_gated(setting_dimension(key))
+                    for key in keys):
+                hidden.add(id(section))
         return hidden
 
     def _apply_dimension_visibility(self) -> None:
@@ -4887,6 +5207,7 @@ class AppScreen(QWidget):
         """
         from PySide6.QtWidgets import QFormLayout
 
+        self._open_the_heading_of(str(key))
         model = getattr(self, "_settings_model", None)
         field = (getattr(model, "_widgets", None) or {}).get(str(key))
         if field is None:
@@ -7821,7 +8142,11 @@ class AppScreen(QWidget):
         model = getattr(self, "_settings_model", None)
         widgets = getattr(model, "_widgets", None) if model is not None else None
         try:
-            values = list(widgets.values()) if widgets else []
+            built = getattr(widgets, "built_items", None)
+            if callable(built):
+                values = [widget for _key, widget in built()]
+            else:
+                values = list(widgets.values()) if widgets else []
         except Exception:
             return
         for widget in values:

@@ -220,6 +220,9 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
     stay off the form. That half is held by
     ``test_a_channel_brings_its_segmentation_settings.py``; this test counts
     every nucleus row the object rule gates, which only "All settings" shows.
+    Every category is opened first: since 2026-09-22 a closed category's
+    rows are not built until it is, and a row that does not exist is
+    neither shown nor hidden.
     """
     from spacr.qt.settings_search import forget_disclosure, remember_disclosure
 
@@ -230,6 +233,8 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
     qapp.processEvents()
     try:
         screen = win._screens["mask"]
+        screen._open_every_waiting_heading()
+        qapp.processEvents()
         widgets = screen._settings_model._widgets
         nucleus = [k for k in widgets if k.startswith("nucleus_")]
         assert len(nucleus) > 10, f"only {len(nucleus)} nucleus rows built"

@@ -342,9 +342,14 @@ class ChainingBar(QFrame):
 
 
     def _widgets(self) -> Dict[str, QWidget]:
-        """Return the screen's settings widgets, keyed by settings key."""
+        """Return the screen's settings widgets, keyed by settings key.
+
+        The model's own mapping, not a copy: copying it reads every
+        control, and a control in a category not opened yet is built by
+        being read. Every caller here looks keys up.
+        """
         model = getattr(self._screen, "_settings_model", None)
-        return dict(getattr(model, "_widgets", {}) or {})
+        return getattr(model, "_widgets", None) or {}
 
     def _bound_settings(self) -> Tuple[str, ...]:
         """Return the settings keys this module's input ports fill.

@@ -80,7 +80,9 @@ def test_the_help_is_on_the_name_not_the_field(window, qapp, key):
     Essentials, the level a module opens at, Measure shows eleven settings;
     before 8d7426b59 (GitHub #120) the object rule ran after the settings
     search and put the rows Essentials excludes back on the form, which is
-    how Essentials used to clear the "> 20" bar here.
+    how Essentials used to clear the "> 20" bar here. Every category is
+    opened first, as a user reaching every row would: since 2026-09-22 a
+    closed category's rows are not built until it is.
     """
     from spacr.qt.settings_search import remember_disclosure
 
@@ -88,6 +90,8 @@ def test_the_help_is_on_the_name_not_the_field(window, qapp, key):
     window._on_nav_selected(key)
     qapp.processEvents()
     screen = window._screens[key]
+    screen._open_every_waiting_heading()
+    qapp.processEvents()
 
     on_field, on_name = _survey(screen)
 
