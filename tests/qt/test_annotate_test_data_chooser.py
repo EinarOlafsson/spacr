@@ -84,9 +84,12 @@ def test_choosing_load_sets_the_local_source_and_the_load_mode(screen, tmp_path,
     """The reported defect: the source must be LOCAL, not the publisher's."""
     from spacr.qt.screens import annotate as mod
 
+    import sqlite3
+
     plate = tmp_path / "plate1"
     (plate / "measurements").mkdir(parents=True)
-    (plate / "measurements" / "measurements.db").write_text("")
+    with sqlite3.connect(plate / "measurements" / "measurements.db") as conn:
+        conn.execute('CREATE TABLE "png_list" (png_path TEXT PRIMARY KEY)')
     monkeypatch.setattr(mod, "example_plate_folder", lambda: plate,
                         raising=False)
     import spacr.qt.hf_download as hf
@@ -107,7 +110,7 @@ def test_choosing_load_sets_the_local_source_and_the_load_mode(screen, tmp_path,
     # their temp path hits it. Say what is meant instead: the source is under
     # the test's own directory.
     assert source.startswith(str(tmp_path)), source
-    assert screen._settings.crop_source == "load_images"
+    assert screen._settings.crop_source == "png"
 
 
 def test_choosing_stream_sets_the_stream_mode(screen, tmp_path, monkeypatch):
@@ -117,6 +120,8 @@ def test_choosing_stream_sets_the_stream_mode(screen, tmp_path, monkeypatch):
 
     plate = tmp_path / "plate1"
     (plate / "merged").mkdir(parents=True)
+    (plate / "measurements").mkdir(parents=True)
+    (plate / "measurements" / "measurements.db").write_text("")
     np.save(plate / "merged" / "f.npy", np.zeros((2, 2)))
     monkeypatch.setattr(hf, "example_plate_folder", lambda: plate)
 
@@ -124,8 +129,11 @@ def test_choosing_stream_sets_the_stream_mode(screen, tmp_path, monkeypatch):
         chosen = "stream"
         def exec(self): return 1
 
-    screen._choose_the_test_data(chooser=Chose())
-    assert screen._settings.crop_source == "stream_images"
+    asked = []
+    screen._choose_the_test_data(chooser=Chose(),
+                                 ask=lambda *a: asked.append(a))
+    assert not asked, "both halves were on disk"
+    assert screen._settings.crop_source == "merged"
 
 
 def test_cancelling_the_chooser_downloads_nothing(screen, monkeypatch):

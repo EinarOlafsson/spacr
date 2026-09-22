@@ -1440,6 +1440,55 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             "queue_summary": "", "note": ""}
 
 
+def _read_example_settings(path) -> Dict[str, str]:
+    """Read a settings CSV that shipped with a dataset, as ``key -> value``.
+
+    Shared by the settings form, which fills its widgets from it, and by the
+    screen's Load test data, which fills the live settings from it before
+    opening the plate.
+
+    :returns: an empty dict when the file is missing or unreadable.
+    """
+    import csv
+    from pathlib import Path
+
+    path = Path(path)
+    if not path.is_file():
+        return {}
+    try:
+        with path.open(newline="") as handle:
+            return {str(row[0]).strip(): str(row[1]).strip()
+                    for row in csv.reader(handle)
+                    if len(row) >= 2 and row[0] != "Key"}
+    except OSError:
+        LOG.debug("could not read %s", path, exc_info=True)
+        return {}
+
+
+def _plate_of_source(src: str) -> str:
+    """The plate folder a typed source names.
+
+    The screen's ``src`` is the plate folder and the database is derived from
+    it as ``measurements/measurements.db``. The published example settings
+    name the DATABASE instead, and a source given that way used to be joined
+    as it stood, so the form looked for
+    ``.../measurements.db/measurements/measurements.db`` and OK found nothing
+    to page. A path to that database is read as the plate that holds it,
+    whether it is given as ``measurements/measurements.db`` or, as the
+    shipped file spells it, as ``measurements.db`` beside the plate's folders.
+    """
+    text = str(src or "").strip()
+    if not text:
+        return ""
+    path = os.path.normpath(text)
+    if os.path.basename(path) != "measurements.db":
+        return text
+    parent = os.path.dirname(path)
+    if os.path.basename(parent) == "measurements":
+        return os.path.dirname(parent)
+    return parent
+
+
 class _SettingsDialog(QDialog):
     """Modal dialog that edits an :class:`AnnotateSettings` in place.
 
@@ -1940,19 +1989,8 @@ class _SettingsDialog(QDialog):
 
         :returns: how many fields were set.
         """
-        import csv
-        from pathlib import Path
-
-        path = Path(path)
-        if not path.is_file():
-            return 0
-        try:
-            with path.open(newline="") as handle:
-                rows = {str(row[0]).strip(): str(row[1]).strip()
-                        for row in csv.reader(handle)
-                        if len(row) >= 2 and row[0] != "Key"}
-        except OSError:
-            LOG.debug("could not read %s", path, exc_info=True)
+        rows = _read_example_settings(path)
+        if not rows:
             return 0
 
         applied = 0
@@ -2045,7 +2083,7 @@ class _SettingsDialog(QDialog):
     def collect(self) -> AnnotateSettings:
         """Read every editor and return the updated settings object."""
         s = self._settings
-        s.src = self._src_edit.text().strip()
+        s.src = _plate_of_source(self._src_edit.text())
         s.db_path = os.path.join(s.src, "measurements", "measurements.db")
         s.annotation_column = self._ann_col.text().strip() or "annotate"
         size = int(self._img_size.value())
@@ -3086,25 +3124,31 @@ class AnnotateScreen(QWidget):
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
 
     def _choose_the_test_data(self, *, chooser=None, ask=None) -> str:
-        """Ask which half of the example plate to fetch, then fetch it.
+        """Ask which half of the example plate to use, fetch it, and open it.
 
         The two routes need different halves of the plate and differ in size,
         so the choice is made in a dialog that can describe both before either
-        starts -- see :class:`TestDataChooser`. They were two buttons beside
-        the source box, naming the choice ("crops" / "streaming") with the
-        explanation hidden in a tooltip.
+        starts -- see :class:`TestDataChooser`.
 
-        Whichever route is taken, three things follow and all three matter:
-        the data arrives, the source is re-pointed at the LOCAL folder it
-        landed in, and Image source is set to the mode that route implies.
-        The second is the one that used to be missing -- the shipped settings
-        carry the paths of the machine that generated them, so applying them
-        left ``src`` pointing at a stranger's home directory.
+        Whichever route is taken, the press ends with the plate OPEN: the
+        crops on the screen, the save worker running, and the settings filled
+        in from the pack that shipped with the data. Data already on disk is
+        opened at once; a missing half is downloaded first, with the shared
+        progress dialog, and the plate is opened from the download's
+        completion callback. Nothing waits on a timer, so a download that
+        takes a minute on a busy machine ends in the same state as one that
+        takes a second.
+
+        Load needs the crops and the measurements database. Stream needs the
+        merged arrays AND that database, because the database is what lists
+        the objects and where each one sits; the database half is fetched
+        first when it is missing, then the arrays.
 
         :param chooser: replaces the dialog, for tests.
-        :param ask: replaces the downloader, for tests.
-        :returns: the source that was set, or ``""`` when nothing was chosen
-            or the download has not finished yet.
+        :param ask: replaces every downloader, for tests. Called as
+            ``ask(parent, destination, on_done)`` once per missing half.
+        :returns: the source that was opened, or ``""`` when nothing was
+            chosen or a download is still running.
         """
         dialog = chooser if chooser is not None else TestDataChooser(self)
         if hasattr(dialog, "exec"):
@@ -3113,76 +3157,131 @@ class AnnotateScreen(QWidget):
         if not route:
             return ""
 
-        from ..hf_download import example_plate_folder
+        from .. import hf_download
 
-        destination = example_plate_folder()
+        destination = hf_download.example_plate_folder()
         destination.mkdir(parents=True, exist_ok=True)
 
+        missing = []
+        if not (destination / "measurements" / "measurements.db").is_file():
+            missing.append(ask or hf_download.download_annotate_example)
         if route == "stream":
             merged = destination / "merged"
-            have_it = merged.is_dir() and any(merged.glob("*.npy"))
-        else:
-            have_it = (destination / "measurements"
-                       / "measurements.db").is_file()
+            if not (merged.is_dir() and any(merged.glob("*.npy"))):
+                missing.append(ask or hf_download.download_measure_example)
 
-        if have_it:
+        if not missing:
             return self._use_the_test_data(destination, route)
 
         was = self._btn_test_data.text()
         self._btn_test_data.setEnabled(False)
         self._btn_test_data.setText(tr("Fetching test data…"))
 
-        def _done(result, error):
-            """Restore the button whether the load worked or failed."""
-            self._btn_test_data.setEnabled(True)
-            self._btn_test_data.setText(was)
+        def _restore():
+            """Give the button back, whether the download worked or not."""
+            try:
+                self._btn_test_data.setEnabled(True)
+                self._btn_test_data.setText(was)
+            except RuntimeError:
+                pass
+
+        def _next(result=True, error=""):
+            """Start the next missing half, or open the plate after the last."""
+            if self._closing:
+                return
             if result is None:
+                _restore()
                 LOG.info("test data not downloaded: %s", error)
                 self._console.append_notice(
                     "Test data was not downloaded: {detail}\n",
                     detail=error or "cancelled")
                 return
+            if missing:
+                download = missing.pop(0)
+                download(self, destination, _next)
+                return
+            _restore()
             self._use_the_test_data(destination, route)
 
-        download = ask
-        if download is None:
-            if route == "stream":
-                from ..hf_download import download_measure_example as download
-            else:
-                from ..hf_download import download_annotate_example as download
-        download(self, destination, _done)
+        _next()
         return ""
 
     def _use_the_test_data(self, destination, route: str) -> str:
-        """Point this screen at the downloaded plate, in ``route``'s mode.
+        """Fill the settings from the plate's own pack, then open the plate.
 
-        The LOCAL destination, whatever the shipped settings said. Applied
-        after them rather than before, so a path recorded on the publisher's
-        machine cannot be the last write. Applied the other way round, the
-        source came back as ``/home/carruthers/datasets/plate1`` on a machine
-        that had never heard of that user.
+        The pack's display settings are taken -- the annotation column the
+        labels live in, the crop size, the channels, the image type -- and its
+        PATHS are not: they were written on the publisher's machine, so
+        ``src`` is always the LOCAL plate folder, set after the pack so that
+        nothing from the pack can be the last write. It is the FOLDER, not the
+        database: the settings form derives the database from the folder, and
+        a source naming the database file sent it looking for
+        ``measurements.db/measurements/measurements.db``.
+
+        Opening goes through :meth:`_open_source`, the same path as picking
+        the folder by hand, which counts and reads the crops off the GUI
+        thread.
+
+        :returns: the source that was opened, or ``""`` when the plate has
+            no database to open.
         """
         from pathlib import Path
 
+        from ...crops import LOAD_IMAGES, STREAM_IMAGES
+
         destination = Path(destination)
         database = destination / "measurements" / "measurements.db"
-        source = str(database if database.is_file() else destination)
-
-        self._settings.src = source
-        self._settings.db_path = str(database) if database.is_file() else ""
-
+        self._apply_test_data_settings(
+            _read_example_settings(destination / "settings"
+                                   / "annotate_settings.csv"))
         self._settings.crop_source = (
-            "stream_images" if route == "stream" else "load_images")
+            STREAM_IMAGES if route == "stream" else LOAD_IMAGES)
 
-        self._console.append_notice(
-            "Test data ready: {path}\n", path=source)
-        refresh = getattr(self, "_refresh_total", None)
-        if callable(refresh):
-            try:
-                refresh()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not refresh after the test data", exc_info=True)
+        source = str(destination)
+        self._settings.src = source
+        self._settings.db_path = str(database)
+        if not database.is_file():
+            self._console.append_notice(
+                "The test data has no measurements database at {path}\n",
+                path=str(database))
+            return ""
+        try:
+            self._open_source(source)
+        except Exception as exc:                             # noqa: BLE001
+            LOG.warning("could not open the test data", exc_info=True)
+            self._console.append_notice(
+                "Could not open the test data: {detail}\n", detail=exc)
+            return ""
+        self._console.append_notice("Test data ready: {path}\n", path=source)
         return source
+
+    def _apply_test_data_settings(self, rows: Dict[str, str]) -> None:
+        """Copy the display settings a dataset shipped with onto the screen.
+
+        Field by field, and a value that does not parse leaves that field as
+        it was. ``annotation_column`` falls back to ``infected``, the column
+        the example's labels are stored in, so the published labels show even
+        when the pack does not name it.
+
+        :param rows: the pack, as :func:`_read_example_settings` returns it.
+        """
+        s = self._settings
+        s.annotation_column = (rows.get("annotation_column")
+                               or "infected").strip()
+        size = rows.get("crop_size") or rows.get("img_size")
+        try:
+            if size:
+                value = int(float(size))
+                s.image_size = (value, value)
+        except ValueError:
+            LOG.debug("example settings: crop size %r is not usable", size)
+        channels = rows.get("channels")
+        if channels:
+            s.channels = _csv_to_list(channels)
+        image_type = rows.get("image_type")
+        if image_type and image_type != "None":
+            s.image_type = image_type
+
 
     def _on_copy_console(self) -> None:
         """Copy the whole console, and say so.
@@ -3643,7 +3742,14 @@ class AnnotateScreen(QWidget):
         self._load_page()
 
     def _on_open_settings(self):
-        """Open the annotation settings dialog."""
+        """Open the annotation settings dialog, and apply it on OK.
+
+        OK OPENS THE SOURCE WHENEVER NONE IS OPEN, not only when the source
+        field changed. A source can be filled in without being opened -- by
+        a remembered session, or by the test data before this was fixed --
+        and comparing old against new then found nothing changed, repainted
+        an empty screen, and OK appeared to do nothing.
+        """
         dlg = _SettingsDialog(self._settings, self)
         self._settings_dialog = dlg
         dlg.destroyed.connect(self._on_settings_dialog_destroyed)
@@ -3652,9 +3758,12 @@ class AnnotateScreen(QWidget):
                 return
             old_src = self._settings.src
             old_col = self._settings.annotation_column
+            nothing_open = self._worker is None
             self._settings = dlg.collect()
             self._rebuild_grid()
-            if (self._settings.src != old_src
+            if self._settings.src and (
+                    nothing_open
+                    or self._settings.src != old_src
                     or self._settings.annotation_column != old_col):
                 self._open_source(self._settings.src)
             else:

@@ -55,7 +55,9 @@ class TestDataChooser(QDialog):
          "so a set can be streamed as the page is drawn rather than read off "
          "disk.\n\nNeeds no exported crops. Unpacks into the same plate "
          "folder as Load, so pressing both leaves a complete plate and either "
-         "route then works. Image source is set to STREAM IMAGES."),
+         "route then works. Streaming reads where each cell sits from the "
+         "measurements database, so the Load half is fetched too when it is "
+         "not on disk yet. Image source is set to STREAM IMAGES."),
     )
 
     #: What the description pane says before anything is hovered.
