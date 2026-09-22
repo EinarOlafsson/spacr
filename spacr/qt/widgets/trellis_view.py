@@ -44,11 +44,12 @@ import pandas as pd
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QGridLayout, QHBoxLayout, QLabel, QPushButton,
-    QSpinBox, QSplitter, QVBoxLayout, QWidget,
+    QSpinBox, QVBoxLayout, QWidget,
 )
 
 from ...selection import Selection
 from ..theme import SPACING, active_palette
+from .collapsible_splitter import CollapsibleSplitter
 from .graph_builder import ColumnWell, DropZone, GraphCanvas
 from .graph_spec import (
     BAR, BINNED, CHANNELS, EMPTY, FACET_COL, FACET_ROW, HISTOGRAM, PLOT_KINDS,
@@ -353,6 +354,12 @@ class TrellisPanelWidget(QWidget):
     def __init__(self, parent=None, *, link=None, source: str = "trellis"):
         """Build the channel shelf beside the trellis canvas.
 
+        Item 471: the shelf ("Channels") and the canvas ("Trellis") are
+        sections of one
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``trellis_view::panel``): each folds by its heading and the edge
+        between them drags, opening at the old 300 / 900 split.
+
         :param parent: parent widget, or ``None``.
         :param link: shared selection link, passed to the canvas.
         :param source: this view's name in the link.
@@ -365,8 +372,9 @@ class TrellisPanelWidget(QWidget):
         outer = QHBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
-        splitter = QSplitter(Qt.Horizontal, self)
-        splitter.setChildrenCollapsible(False)
+        splitter = CollapsibleSplitter(Qt.Horizontal, self,
+                                       persist_key="trellis_view::panel")
+        self._splitter = splitter
         outer.addWidget(splitter, 1)
 
         shelf = QWidget(self)
@@ -444,12 +452,13 @@ class TrellisPanelWidget(QWidget):
         self._clear.clicked.connect(self.clear_channels)
         shelf_layout.addWidget(self._clear)
 
-        splitter.addWidget(shelf)
+        splitter.add_section(shelf, "Channels",
+                             persist_key="trellis_view/Channels",
+                             stretch=0, extent=300)
         self.canvas = TrellisCanvas(self, link=link, source=source)
-        splitter.addWidget(self.canvas)
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        splitter.setSizes([300, 900])
+        splitter.add_section(self.canvas, "Trellis",
+                             persist_key="trellis_view/Trellis",
+                             stretch=1, extent=900)
         from ..screens.settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
 

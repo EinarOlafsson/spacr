@@ -46,12 +46,13 @@ from PySide6.QtGui import QBrush, QColor, QFont
 from PySide6.QtWidgets import (
     QAbstractItemView, QDoubleSpinBox, QFileDialog, QGridLayout,
     QHBoxLayout, QHeaderView, QLabel, QListWidget, QListWidgetItem,
-    QPushButton, QSplitter, QTableWidget, QTableWidgetItem, QVBoxLayout,
+    QPushButton, QTableWidget, QTableWidgetItem, QVBoxLayout,
     QWidget,
 )
 
 from ..theme import (RADIUS, SPACING, active_palette, apply_close_mark,
                      font_px, mark_surface, register_widget_qss)
+from .collapsible_splitter import CollapsibleSplitter
 from .graph_builder import COLUMN_MIME, ColumnWell
 from .pivot_spec import (
     AGGREGATION_LABELS, AGGREGATIONS, COUNT_ONLY, LOW_N, MEAN, N, SD,
@@ -476,6 +477,12 @@ class PivotPanel(QWidget):
     def __init__(self, parent=None):
         """Build the pivot shelf beside the table.
 
+        Item 471: the shelf ("Pivot fields") and the table ("Pivot table")
+        are sections of one
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (``pivot_builder::panel``): each folds by its heading, and the edge
+        between them drags, opening at the old 300 / 900 split.
+
         :param parent: parent widget, or ``None``.
         """
         super().__init__(parent)
@@ -487,8 +494,9 @@ class PivotPanel(QWidget):
         outer = QHBoxLayout(self)
         outer.setContentsMargins(0, 0, 0, 0)
         outer.setSpacing(SPACING["sm"])
-        splitter = QSplitter(Qt.Horizontal, self)
-        splitter.setChildrenCollapsible(False)
+        splitter = CollapsibleSplitter(Qt.Horizontal, self,
+                                       persist_key="pivot_builder::panel")
+        self._splitter = splitter
         outer.addWidget(splitter, 1)
 
         shelf = QWidget(self)
@@ -556,7 +564,9 @@ class PivotPanel(QWidget):
         self._plot.clicked.connect(self._on_plot)
         buttons.addWidget(self._plot)
         shelf_layout.addLayout(buttons)
-        splitter.addWidget(shelf)
+        splitter.add_section(shelf, "Pivot fields",
+                             persist_key="pivot_builder/Pivot fields",
+                             stretch=0, extent=300)
 
         right = QWidget(self)
         right_layout = QVBoxLayout(right)
@@ -569,10 +579,9 @@ class PivotPanel(QWidget):
         self.notice.setObjectName("PivotNotice")
         self.notice.setWordWrap(True)
         right_layout.addWidget(self.notice)
-        splitter.addWidget(right)
-        splitter.setStretchFactor(0, 0)
-        splitter.setStretchFactor(1, 1)
-        splitter.setSizes([300, 900])
+        splitter.add_section(right, "Pivot table",
+                             persist_key="pivot_builder/Pivot table",
+                             stretch=1, extent=900)
 
         self._debounce = QTimer(self)
         self._debounce.setSingleShot(True)
