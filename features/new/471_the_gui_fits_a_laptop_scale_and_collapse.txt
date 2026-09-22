@@ -104,3 +104,30 @@ DONE WHEN
 * Every figure and table in every module can be collapsed.
 * A collapsed element sits at the bottom of its container, the console
   included.
+
+--------------------------------------------------------------------------------
+2026-09-22 — ADDED BY THE MAINTAINER: DRAG AN EDGE TO RESIZE
+--------------------------------------------------------------------------------
+
+In his words:
+
+    "to the same feature whenever possible make the container expandable or
+    shrinkable by draging the edges."
+
+WHAT IS THERE TODAY: drag-to-resize already exists in places -- 67
+QSplitter constructions across 51 files under spacr/qt (among them
+layer_viewer.py, screens/agreement.py, screens/align.py, screens/annotate.py, screens/app_screen.py, screens/batch.py) -- but only partly in the app shell
+itself (spacr/qt/screens/app_screen.py): the settings column, the console, System and the
+button section below it, the live preview and the figures panel are not
+resized by dragging their edges.
+
+WHAT TO BUILD: wherever a container can sensibly change size, the user can
+drag its edge to grow or shrink it, with collapse (points 2-7 above) as the
+limit of shrinking rather than a separate mechanism. A QSplitter already gives
+both -- a draggable handle and collapsing a pane to zero -- so the two halves
+of this item can share one mechanism.
+
+DONE WHEN: the settings column, console, System, the buttons section, the live
+preview and the figures panel can each be resized by dragging an edge, the
+sizes survive leaving and returning to a module, and dragging never fights an
+auto-collapse the user has already undone.
