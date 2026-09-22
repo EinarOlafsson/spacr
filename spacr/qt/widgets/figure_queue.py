@@ -519,6 +519,11 @@ class FigureQueue(QWidget):
     :param parent: parent widget.
     """
 
+    #: Where the thumbnail strip's width and collapse are remembered (item
+    #: 471): the strip collapses to the left by the handle beside it and
+    #: drags to any width.
+    SECTION_KEY = "figures"
+
     #: The displayed figure was clicked (not dragged).
     figure_clicked = Signal()
 
@@ -583,19 +588,21 @@ class FigureQueue(QWidget):
         root.setContentsMargins(0, 0, 0, 0)
         root.setSpacing(4)
 
-        body = QHBoxLayout()
-        body.setContentsMargins(0, 0, 0, 0)
-        body.setSpacing(8)
+        from .collapsible_splitter import EDGE, CollapsibleSplitter
+        body = CollapsibleSplitter(Qt.Horizontal, self,
+                                   persist_key=f"{self.SECTION_KEY}::body")
+        self._body_split = body
 
         self._list = QListWidget()
         self._list.setObjectName("FiguresList")
-        self._list.setFixedWidth(160)
+        self._list.setMinimumWidth(80)
         self._list.setIconSize(THUMB_SIZE)
         self._list.setContextMenuPolicy(Qt.CustomContextMenu)
         self._list.customContextMenuRequested.connect(self._list_context_menu)
         self._list.setSpacing(4)
         self._list.currentRowChanged.connect(self._on_row_changed)
-        body.addWidget(self._list)
+        body.add_pane(self._list, "Figure list", mode=EDGE, stretch=0,
+                      extent=160, fold_key=f"{self.SECTION_KEY}/Figure list")
 
         self._view = _ZoomView(self)
         self._view.zoom_changed.connect(self._on_view_zoomed)
@@ -642,8 +649,8 @@ class FigureQueue(QWidget):
         #: pipeline, which is still what a spilled or PDF-only figure uses.
         self._live_canvas_enabled = True
         self._stack.setMinimumHeight(280)
-        body.addWidget(self._stack, 1)
-        root.addLayout(body, 1)
+        body.add_pane(self._stack, "Figure", stretch=1)
+        root.addWidget(body, 1)
 
         nav = QHBoxLayout()
         self._pos_label = QLabel("0 / 0", self)

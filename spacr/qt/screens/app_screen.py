@@ -5911,12 +5911,14 @@ class AppScreen(QWidget):
             volcano_row.addWidget(back_to_grid)
             volcano_row.addStretch(1)
             volcano_layout.addLayout(volcano_row)
-            gene_split = QSplitter(Qt.Vertical, volcano_page)
-            gene_split.setChildrenCollapsible(True)
-            gene_split.addWidget(self._results_panel.volcano)
-            gene_split.addWidget(self._results_panel.gene)
-            gene_split.setStretchFactor(0, 3)
-            gene_split.setStretchFactor(1, 1)
+            from ..widgets.collapsible_splitter import (
+                EDGE, CollapsibleSplitter)
+            gene_split = CollapsibleSplitter(Qt.Vertical, volcano_page)
+            gene_split.add_pane(self._results_panel.volcano, "Volcano",
+                                stretch=3)
+            gene_split.add_pane(self._results_panel.gene, "Gene", mode=EDGE,
+                                stretch=1)
+            gene_split.set_collapsed("Gene", True, by_user=False)
             gene_split.setSizes([1000, 0])
             self._gene_split = gene_split
             volcano_layout.addWidget(gene_split, 1)
@@ -6045,12 +6047,10 @@ class AppScreen(QWidget):
             self._results_tabs = left
             left.setCurrentWidget(self._results_page)
 
-            split = QSplitter(Qt.Horizontal, self._figures_card)
-            split.setChildrenCollapsible(False)
-            split.addWidget(left)
-            split.addWidget(self._figures_stack)
-            split.setStretchFactor(0, 1)
-            split.setStretchFactor(1, 1)
+            split = CollapsibleSplitter(Qt.Horizontal, self._figures_card)
+            split.add_pane(left, "Results", mode=EDGE, stretch=1,
+                           extent=780, fold_key="regression/Results")
+            split.add_pane(self._figures_stack, "Figure pages", stretch=1)
             left.setMinimumWidth(520)
             self._figures_stack.setMinimumWidth(360)
             split.setSizes([780, 620])
@@ -9455,6 +9455,9 @@ class AppScreen(QWidget):
             return
         if not getattr(self, "_gene_opened", False) and split.sizes()[1] == 0:
             self._gene_opened = True
+            if getattr(split, "is_collapsed", None) and \
+                    split.is_collapsed("Gene"):
+                split.set_collapsed("Gene", False, by_user=False)
             total = sum(split.sizes()) or split.height() or 600
             split.setSizes([int(total * 0.6), int(total * 0.4)])
 

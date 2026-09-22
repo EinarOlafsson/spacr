@@ -33,7 +33,7 @@ from PySide6.QtWidgets import (
     QComboBox, QDialog, QDoubleSpinBox, QFrame, QGridLayout, QHBoxLayout,
     QLabel,
     QLineEdit, QPlainTextEdit, QPushButton, QScrollArea, QSizePolicy,
-    QSpinBox, QSplitter, QTabBar, QTabWidget, QVBoxLayout, QWidget,
+    QSpinBox, QTabBar, QTabWidget, QVBoxLayout, QWidget,
 )
 
 from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
@@ -1046,8 +1046,10 @@ class _WellTab(QWidget):
         self._note.setWordWrap(True)
         self._note.setVisible(False)
         layout.addWidget(self._note)
-        split = QSplitter(Qt.Vertical)
-        split.setChildrenCollapsible(False)
+        from .collapsible_splitter import CollapsibleSplitter
+        split = CollapsibleSplitter(Qt.Vertical,
+                                    persist_key="regression::cells")
+        self._split = split
 
         self._scroll = QScrollArea()
         self._scroll.setWidgetResizable(True)
@@ -1059,7 +1061,8 @@ class _WellTab(QWidget):
         self._scroll.setWidget(self._body)
         self._scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self._scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        split.addWidget(self._scroll)
+        split.add_section(self._scroll, "Cells", stretch=3, extent=380,
+                          persist_key="regression/Cells")
 
         self._thumb_px = THUMBNAIL_PX
         #: The size the user asked for, which is the CEILING the fitted
@@ -1092,10 +1095,8 @@ class _WellTab(QWidget):
         self._caption = QPlainTextEdit()
         self._caption.setReadOnly(True)
         self._caption.setMinimumHeight(70)
-        split.addWidget(self._caption)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 1)
-        split.setSizes([380, 140])
+        split.add_section(self._caption, "Caption", stretch=1, extent=140,
+                          persist_key="regression/Caption")
         layout.addWidget(split, 1)
 
     def set_content(self, rows, crops: Sequence[Any], caption: str,

@@ -49,7 +49,7 @@ from typing import Any, Callable, List, Optional, Sequence, Tuple
 from PySide6.QtCore import QSize, Qt, Signal
 from PySide6.QtGui import QPainter, QPixmap
 from PySide6.QtWidgets import (QApplication, QFileDialog, QHBoxLayout,
-                               QLabel, QPushButton, QSizePolicy, QSplitter,
+                               QLabel, QPushButton, QSizePolicy,
                                QTextBrowser, QVBoxLayout, QWidget)
 
 from ..theme import SPACING, font_px
@@ -156,19 +156,21 @@ class GenePanel(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(SPACING.get("xs", 4))
 
-        split = QSplitter(Qt.Vertical, self)
+        from .collapsible_splitter import CollapsibleSplitter
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="regression::gene")
         #: The record half: identity, this screen's numbers, the guides.
         self.summary = GeneTilePanel(frame_provider=frame_provider)
-        split.addWidget(self.summary)
+        split.add_section(self.summary, "Gene record", stretch=3,
+                          persist_key="regression/Gene record")
 
         self._known = QTextBrowser()
         self._known.setOpenLinks(False)
         self._known.setOpenExternalLinks(False)
         self._known.setProperty("i18nSkipText", True)
         self._known.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        split.addWidget(self._known)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 4)
+        split.add_section(self._known, "Known about this gene", stretch=4,
+                          persist_key="regression/Known about this gene")
         self.split = split
         layout.addWidget(split, 1)
 
