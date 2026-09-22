@@ -126,6 +126,7 @@ APP_TRANSLATIONS = (
     "Niðurstöðulisti",
     "Liste des résultats",
 )
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.toggle import Toggle
 from ..widgets.sortable_table import install_sorting, tree_item
 
@@ -367,7 +368,9 @@ class HitListScreen(QWidget):
         header.setStretchLastSection(True)
         header.setSectionResizeMode(2, QHeaderView.Stretch)
         mark_surface(self._table)
-        outer.addWidget(self._table, 1)
+        self.table_section = FoldSection(
+            self._table, "Hits", self, persist_key=f"{APP_KEY}/Hits")
+        outer.addWidget(self.table_section, 1)
 
         self._legend = QLabel("")
         self._legend.setObjectName("Muted")

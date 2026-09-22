@@ -42,7 +42,7 @@ from PySide6.QtCore import QPointF, QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (QComboBox, QFileDialog, QFrame, QHBoxLayout,
                                QLabel, QLineEdit, QPushButton, QSizePolicy,
-                               QSplitter, QVBoxLayout, QWidget)
+                               QVBoxLayout, QWidget)
 
 from ...selection import (OBJECT_KEY_COLUMNS, match_keys, object_keys,
                           with_object_type)
@@ -51,6 +51,7 @@ from ..job_runner import JobRunner
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import (RADIUS, SPACING, active_palette, block_surface,
                      register_widget_qss)
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 
 LOG = logging.getLogger(__name__)
 
@@ -520,11 +521,15 @@ class ImageScatterScreen(LinkedView, QWidget):
         axes.addWidget(self._y_choice, 1)
         outer.addLayout(axes)
 
-        split = QSplitter(Qt.Horizontal, self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key=f"{APP_KEY}::body")
+        self._body = split
         self.canvas = ScatterCanvas(self)
         self.canvas.hover_changed.connect(self._on_hover)
         self.canvas.point_clicked.connect(self._on_click)
-        split.addWidget(self.canvas)
+        self.canvas_section = split.add_section(
+            self.canvas, "Point cloud", persist_key=f"{APP_KEY}/Point cloud",
+            stretch=1, extent=700)
 
         side = QWidget(self)
         column = QVBoxLayout(side)
@@ -544,10 +549,9 @@ class ImageScatterScreen(LinkedView, QWidget):
         self._open_button.clicked.connect(self._open_hovered)
         column.addWidget(self._open_button)
         column.addStretch(1)
-        split.addWidget(side)
-        split.setStretchFactor(0, 1)
-        split.setStretchFactor(1, 0)
-        split.setSizes([700, 240])
+        self.crop_section = split.add_section(
+            side, "Crop", persist_key=f"{APP_KEY}/Crop", stretch=0,
+            extent=240)
         outer.addWidget(split, 1)
 
         self.status = QLabel("", self)

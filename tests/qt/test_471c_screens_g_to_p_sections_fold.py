@@ -403,3 +403,149 @@ def test_the_hyperparam_trials_and_preview_fold_and_drag(qapp, qtbot):
     panel._split.moveSplitter(500, 1)
     _pump()
     assert cs.get_pane_extents("umap::hyperparam").get("Trials", 0) >= 440
+
+
+# ---------------------------------------------------------------------------
+# Image Scatter, Lineage, Model Zoo
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_the_point_cloud_and_its_crop_column_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.image_scatter import APP_KEY, ImageScatterScreen
+
+    screen = ImageScatterScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen, 1100, 800)
+    for section in (screen.canvas_section, screen.crop_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    screen._body.moveSplitter(600, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{APP_KEY}::body").get("Point cloud", 0) >= 540
+
+
+@pytest.mark.qt
+def test_the_lineage_tree_and_orphans_fold(qapp, qtbot):
+    from spacr.qt.screens.lineage import LineageScreen
+
+    screen = LineageScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen, 1100, 800)
+    for section in (screen.tree_section, screen.orphans_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+
+
+@pytest.mark.qt
+def test_the_model_zoo_table_and_benchmark_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.model_zoo import FOLD_KEY, ModelZooScreen
+
+    screen = ModelZooScreen()
+    qtbot.addWidget(screen)
+    _show(screen, 1200, 900)
+    for section in (screen.models_section, screen.bench_section,
+                    screen.preview_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    screen._bench_split.moveSplitter(500, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{FOLD_KEY}::benchmark").get(
+        "Benchmark", 0) >= 440
+
+
+# ---------------------------------------------------------------------------
+# Measure inputs, Methods Export, Hit List, Import Images
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_the_measure_input_table_folds_by_its_card_title(qapp, qtbot):
+    from spacr.qt.screens.measure_inputs import FOLD_KEY, MeasureInputsScreen
+
+    screen = MeasureInputsScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen, 1100, 800)
+    card = screen.table_card
+    open_height = screen._body.sizes()[0]
+    _click(card.title_label)
+    _pump()
+    assert screen.table_folder.shut
+    assert not card.body.isVisibleTo(card)
+    assert screen._body.is_collapsed("The files")
+    _pump()
+    sizes = screen._body.sizes()
+    assert sizes[0] < open_height, sizes
+    assert sizes[0] <= card.sizeHint().height() + 8, sizes
+    assert sizes[1] > sizes[0], "the settings did not take the room freed"
+    screen.table_folder.set_shut(False)
+    _pump()
+    screen._body.moveSplitter(300, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{FOLD_KEY}::body").get("The files", 0) > 0
+
+
+@pytest.mark.qt
+def test_the_methods_draft_and_the_hit_table_fold(qapp, qtbot, tmp_path):
+    from spacr.qt.screens.hit_list import HitListScreen
+    from spacr.qt.screens.methods_export import MethodsExportScreen
+
+    methods = MethodsExportScreen(threaded=False)
+    qtbot.addWidget(methods)
+    _show(methods, 900, 700)
+    _click(methods.draft_section.heading)
+    _pump()
+    _assert_heading_at_bottom(methods.draft_section)
+
+    hits = HitListScreen(folder=str(tmp_path), threaded=False)
+    qtbot.addWidget(hits)
+    _show(hits, 1100, 800)
+    _click(hits.table_section.heading)
+    _pump()
+    _assert_heading_at_bottom(hits.table_section)
+
+
+@pytest.mark.qt
+def test_the_import_tables_and_report_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.image_import import FOLD_KEY, ImageImportScreen
+
+    screen = ImageImportScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen, 1200, 900)
+    for section in (screen.proposal_section, screen.answers_section,
+                    screen.report_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    screen._tables.moveSplitter(320, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{FOLD_KEY}::tables").get(
+        "Proposed layout", 0) >= 260
+
+
+@pytest.mark.qt
+def test_the_import_workbench_preview_folds_and_drags(qapp, qtbot):
+    from spacr.qt.widgets.import_workbench import ImportWorkbench
+
+    bench = ImportWorkbench()
+    qtbot.addWidget(bench)
+    _show(bench, 1000, 700)
+    for section in (bench.table_section, bench.tree_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    bench.split.moveSplitter(600, 1)
+    _pump()
+    assert cs.get_pane_extents("import_workbench::preview").get(
+        "Files", 0) >= 540
