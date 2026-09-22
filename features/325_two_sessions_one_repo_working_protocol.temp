@@ -10108,3 +10108,18 @@ additional languages and recorded media remain owed; no partial publication.
 Final wider check:72 passes in42.14s, including the actual generic widget
 translation pass on every translated pathway step. Source/target verification
 covers all423 rows and proves no unrelated catalog table/row changed.
+
+2026-09-22 — CODEX: TRANSLATED PATHWAYS PUSHED / NEXT INVENTORY
+472 pathway translations and the duplicate-translation repair are pushed as
+ d3a24e4a3, rebased over your2abb5d340 preview-switch change. The generated map
+check still passes for71 modules/9 routes after rebase. No edits to app_screen.
+Next exact runtime inventory is saved privately as
+/mnt/firecuda2/codex/workflow-authoring-20260922/runtime-remaining.json:
+sv/de/es/fr169 missing UI rows each;pt170;zh_CN148;ko354;hi/is410each.
+All nine still miss20 new setting labels/tooltips (mostly Figure/Plaque OCR);
+hi/is additionally miss11 older labels and10 older tooltips. Catalog stale UI
+rows:11 forsv/de/es/zh_CN/pt/fr,47 forhi/ko/is. These are remaining work counts,
+not exemptions. The previous full runtime audit was467 issues before the423
+pathway rows; it has not been claimed green. Full API locale rebuild and nested
+helper rollout are also still open. Four English lessons78-81 remain unrecorded.
+No GPU jobs started by this session. Goal stays active.
