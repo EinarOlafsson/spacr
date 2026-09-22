@@ -317,9 +317,8 @@
   "human_listening_signoff": false,
   "published": false,
   "remaining": [
-    "New narration/master render and verification",
-    "Full voice/language/caption/player acceptance",
-    "Listening review",
+    "Full voice/language/caption acceptance",
+    "Audible narration acceptance",
     "Complete-set publication"
   ],
   "validation": {
@@ -333,5 +332,74 @@
       "02_data_choice_stream",
       "18_annotation_console"
     ]
+  },
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "freshness_timing_activity": "passed",
+    "sha256": "0ded305bad114698f44330e17b7b5c0379ec3320903ec81f012ab401630122ad",
+    "decoded_true_peak_dbfs": -1.0
+  },
+  "videos": [
+    {
+      "file": "09_annotate_silent.mp4",
+      "sha256": "1346a867e426c10cbd245c11e95806390701fda4c8607d62d11bba483b9754ef",
+      "duration": 356.8,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "fbdcf1bb2aee6cd56738bb4fa3a593314934421ed55c920b820b22cf35f6ce3a",
+      "duration": 356.8,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "browser": {
+    "checks": {
+      "lesson": "09_annotate",
+      "scope": "en/af_heart playback and scene links only",
+      "uploaded": false,
+      "translation_or_listening_review": false,
+      "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "navigation_contains_staged_lesson": true,
+      "example_files": [],
+      "loaded_audio_sha256": "0ded305bad114698f44330e17b7b5c0379ec3320903ec81f012ab401630122ad",
+      "scene_count": 20,
+      "seek_playback_clocks": {
+        "audio": 86.079216,
+        "video": 86.073924,
+        "expectedVideo": 86.079216,
+        "audioDuration": 356.8,
+        "videoDuration": 356.8,
+        "mediaError": null
+      },
+      "chapter_and_transcript_links": [
+        "06_api",
+        "08_measure",
+        "10_classify_cv",
+        "11_classify_ml",
+        "23_agreement",
+        "41_classify"
+      ],
+      "passed": true
+    },
+    "checks_sha256": "c01cfd1e57e1187fa3ba77b264065a59e66de2c8f9f3272fe32ccf1b8aa2bcb0",
+    "screenshots": {
+      "desktop": {
+        "sha256": "a8fb1fe2148518368b7c3ebcbcfc57ff7cff6bc1271d264b832d4e47ed5efbe1",
+        "inspected": true
+      },
+      "mobile": {
+        "sha256": "c46afd11ca98562b239c7f1c4565d8b7c4c97e0ec14c876ad249957ddf06db80",
+        "inspected": true
+      }
+    },
+    "scope": "Current en/af_heart playback, seek clocks, lesson navigation and screenshots; not full voice/caption or listening acceptance"
   }
 }

@@ -4408,3 +4408,17 @@ Combined selection: 41 pass in 23.10s, 6GiB/one CPU thread, no GPU or network.
 Receipt: features/data/288_training_datasets_2026-09-21.json. Fourteen original
 below-floor modules now pass targeted selections. Production and baseline are
 unchanged; this does not replace the required full-suite/ratchet verdict.
+
+2026-09-21 — CODEX: ACCELERATOR FALLBACKS REACH97.04%
+accelerator.py reaches97.04% combined coverage (281/287 statements,
+79/84 branches), from81.67% in the fixed run. New tests exercise unavailable
+drivers, failed marketing-name queries, DirectML availability, absent/malformed
+macOS profiler output, unsupported versus inconclusive dtype allocation,
+recovery to a later backend, cache-cleanup failure, and agreement between
+device queries and Cellpose arguments. CPU/ROCm/XPU/Metal are simulated; no
+real GPU workload or hardware-compatibility claim. Initial62 passing tests
+reached88.68%; adding the device-argument and missing-dependency contracts
+brings the five-file selection to70 passes in16.11s,6GiB/one CPU thread.
+Receipt:features/data/288_accelerator_probes_2026-09-21.json. Fifteen original
+below-floor modules now pass targeted selections. Production and baseline
+remain unchanged; the complete source-matched suite/ratchet is still required.

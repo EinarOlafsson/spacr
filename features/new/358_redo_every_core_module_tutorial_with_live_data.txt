@@ -2355,3 +2355,29 @@ narration scenes retained unchanged. Current prerequisites name1.5.0.8.
 pass1.94s. Receipt:tools/tutorials/evidence/2026-09-21-annotate-auto-opening.json.
 Fresh af_heart narration is rendering on CPU. Narrated master, full voices,
 captions/player/listening acceptance and complete-set publication remain open.
+
+2026-09-21 — CODEX: CURRENT CLASSIFY CV HAS ALL50 VOICES VERIFIED
+All26 non-English tracks finished (CPU-only,220.5min) and independently pass
+source freshness, timing, decoded activity, full decode and true-peak<=-1dBFS
+checks with unchanged audio hashes. Together with24 previously verified
+English voices, the current classify-cv-current-v4 stage now has50 technically
+verified tracks. The initial verification wrapper selected one English lesson
+against full translated catalogs; it correctly failed on lesson-id mismatch.
+The corrected wrapper makes matching one-lesson copies for every language,
+without modifying renderer catalogs/audio, then verifies all26 successfully.
+Receipt:tools/tutorials/evidence/2026-09-21-classify-cv-current-other-voices.json.
+This does not supply listening approval or publish the tutorial set.
+Current Annotate's remaining English voices now render CPU-only; its new4K
+master is undergoing full decode before browser/mobile playback acceptance.
+
+2026-09-21 — CODEX: ANNOTATE CURRENT REVIEW MASTER VERIFIED
+The new automatic-opening lesson's af_heart narration is356.8s, source/timing/
+activity checked with decoded true peak-1.0dBFS. Both silent and narrated
+masters fully decode at3840x2160/30fps. The repository player loads the exact
+verified audio, exposes20 scenes and expected related links, and seeks with
+audio/video clocks86.079/86.074s and no media error. Desktop/mobile screenshots
+were visually inspected; hashes and browser checks are added to the existing
+2026-09-21-annotate-auto-opening.json receipt. Remaining23 English and26 other
+voices now render CPU-only against the new source, replacing the superseded
+opening's tracks. Full voice/caption and listening acceptance plus complete-set
+publication remain open. No tutorial media was published.

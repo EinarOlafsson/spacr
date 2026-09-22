@@ -1911,3 +1911,13 @@ changing the English API debt pins. Receipt and counts are in future/411 and
 features/data/411_test_data_chooser_2026-09-21.json. The docs lane remains open.
 All four report consistency tests pass in 390.41s before integrating the next
 plaque changes; reports will be refreshed again against their source inventory.
+
+2026-09-21 — CODEX DOCS: INTEGRATED PLAQUE MESSAGES IN NINE LOCALES
+The seven runtime messages introduced by026317df7 now have63 source-bound
+review records and checked formatted outputs. Scale units px/mm are preserved
+through the explicit technical-identity mechanism. Runtime inventory is6294;
+public API count remains11166, with14 docstrings changed against the older CPU
+draft snapshot. Reports are regenerated for the integrated source. Broader
+runtime/API debt remains; no English debt pin or baseline is raised.
+All four integrated report consistency tests pass359.29s; the six plaque/unit
+checks pass10.16s. This verifies the checkpoint, not a green full docs workflow.

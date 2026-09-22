@@ -5850,6 +5850,13 @@ UI = {
     'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.': '약 280 MB 다운로드: 이미 준비된 단일 세포 크롭 2341개와 이를 색인하는 측정 데이터베이스입니다. 크롭에는 감염 또는 비감염 레이블이 지정되어 있습니다.\n\n디스크에 이미 있는 이미지에 어노테이션을 추가할 때 사용합니다. 소스 폴더와 어노테이션 설정이 채워지고 Image source는 LOAD IMAGES로 설정됩니다.',
     'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.': '약 390 MB 다운로드: 크롭을 잘라낸 원본 병합 배열입니다. 저장된 크롭을 디스크에서 읽는 대신 페이지를 그릴 때 필요한 크롭 집합을 제공합니다.\n\n내보낸 크롭은 필요하지 않습니다. Load와 같은 플레이트 폴더에 압축을 풀므로 두 버튼을 모두 누르면 완전한 플레이트가 구성되어 어느 경로든 사용할 수 있습니다. 스트리밍은 측정 데이터베이스에서 각 세포의 위치를 읽으므로 Load에 해당하는 부분이 아직 디스크에 없으면 그것도 다운로드합니다. Image source는 STREAM IMAGES로 설정됩니다.',
     'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.': '버튼 위에 포인터를 올리면 무엇을 다운로드하고 어떤 설정을 변경하는지 볼 수 있습니다. 버튼을 누르기 전에는 아무것도 다운로드하지 않습니다.',
+    'No scale bar or whole well was found: plaque sizes are in pixels.': '스케일 바나 웰 전체를 찾지 못했습니다. 플라크 크기는 픽셀 단위입니다.',
+    'The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.': '패널 {panel}의 그림 설명에는 {terms}이(가) 있지만 이 이미지 옆의 라벨에는 없습니다. 두 판독 중 하나가 잘못되었습니다. OK로 승인하기 전에 조건을 확인하세요.',
+    "The words were read from the PDF's own text.": '단어는 PDF 자체의 텍스트에서 읽었습니다.',
+    'pixels (no scale bar or whole well)': '픽셀(스케일 바나 웰 전체 없음)',
+    '{n} well(s): the label and the legend disagree (marked conflict in Source).': '웰 {n}개: 라벨과 그림 설명이 일치하지 않습니다(Source에 충돌로 표시됨).',
+    '{source} / conflict': '{source} / 충돌',
+    '{source}: {ppm} px/mm': '{source}: {ppm} px/mm',
 }
 
 MODULE_SUMMARIES = {
@@ -11824,4 +11831,11 @@ SOURCE_HASHES = {
     ('UI', 'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.'): 'ab58e9b360dcefb8a8ac1a72eb801b55908d382312f7858abd021c7a969e779b',
     ('UI', 'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.'): '4c3eb748e8de32a54a348ebd2b08991649cb8638dec5fa417868327aed8913aa',
     ('UI', 'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.'): '8d28b4549f0efd8db6e87af89a740ffb3b37ee461f6d442478a32ccefd8e6022',
+    ('UI', 'No scale bar or whole well was found: plaque sizes are in pixels.'): '3eb11a2352cdc106f082717e75d1239670bfea3aff04733a93636b86d6b25e8c',
+    ('UI', 'The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.'): '297137ac88ae9fa6891635d186dedad52ac3cd667101c047a82076d9b08aa1a2',
+    ('UI', "The words were read from the PDF's own text."): 'c47c2be3e2827ba4ef51afc74f2851b5b74d62c3ca413fc7a5cc58c474ff7f78',
+    ('UI', 'pixels (no scale bar or whole well)'): '49e741b3d353e72338bec503dbfa4d2c272fe1d4349e558fa5a61e68d156613f',
+    ('UI', '{n} well(s): the label and the legend disagree (marked conflict in Source).'): '7c6e83438616dfcf9626c7a82e250cee0b061d853e6b0fd8f724d74c1964dba0',
+    ('UI', '{source} / conflict'): '1d45f4580144c5e5ef1e1bd1b23c95d42c445a7e0316f93cd36360fe7d0a2235',
+    ('UI', '{source}: {ppm} px/mm'): '4c1e51c1b4b41e936cf6fedf733afe187381c5a79b24172c662c1e7902104933',
 }

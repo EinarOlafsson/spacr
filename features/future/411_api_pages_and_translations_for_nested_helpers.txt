@@ -1288,3 +1288,23 @@ Receipt: features/data/411_test_data_chooser_2026-09-21.json. No native-speaker
 approval or full-catalog completion claim. Reports regenerated for this scope.
 All four final report checks pass in 390.41s on the pre-integration source.
 The generated feature index and whitespace checks pass.
+
+2026-09-21 — CODEX: INTEGRATED PLAQUE SCALE/CONFLICT MESSAGES
+Integrated 983aab591 and 026317df7. Seven new runtime messages now have nine
+locale catalogs and exact-source review rows (63 records): physical scale
+absence keeps pixel units, PDF text is identified, and label/legend disagreement
+asks for condition review before approval. The field/unit-only caption
+'{source}: {ppm} px/mm' is an explicit technical identity in all nine locales,
+using the existing identity mechanism; no generic translation gate is relaxed.
+All 63 formatted tr() outputs match the reviewed targets, and all nine full
+runtime review stores reload. Receipt: 411_plaque_scale_conflict_2026-09-21.json.
+Inventory is 6294 runtime sources. Public API count remains11166, but14 public
+docstrings changed against the running private CPU draft snapshot. Those drafts
+remain unreviewed/source-bound; changed prose must be checked before acceptance.
+The English API debt manifest/pins are unchanged. No native-speaker signoff.
+Technical-identity and integrated plaque scale/conflict checks: six pass in
+10.16s. Classify CV's26 other-language spoken tracks now pass independent
+source/timing/decode/activity/peak checks; no listening or publication claim.
+All four integrated report checks pass359.29s; feature index and whitespace
+checks pass. Fresh runtime counts: de/es/sv/fr6073,zh_CN6107,pt6071,ko5864,
+hi/is5762 out of6294. API freshness remains10434 German/10416 other locales.

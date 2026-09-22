@@ -5766,6 +5766,13 @@ UI = {
     'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.': 'Sækja um 280 MB: 2341 tilbúinn myndútskurður af stökum frumum ásamt mælingagagnagrunninum sem skráir þá, merktir sem sýktir eða ósýktir.\n\nTil að merkja myndir sem þegar eru á diski. Upprunamappan og stillingar merkinga eru fylltar út og Image source er stillt á LOAD IMAGES.',
     'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.': 'Sækja um 390 MB: sameinuðu fylkin sem myndútskurðirnir voru skornir úr, svo hægt sé að sækja safn eftir þörfum þegar síðan er teiknuð í stað þess að lesa vistaða myndútskurði af diski.\n\nKrefst engra útfluttra myndútskurða. Gögnin eru afþjöppuð í sömu plötumöppu og Load; þegar ýtt er á báða hnappana er platan fullbúin og báðar leiðir virka. Streymið les staðsetningu hverrar frumu úr mælingagagnagrunninum, svo Load-hlutinn er einnig sóttur ef hann er ekki enn á diski. Image source er stillt á STREAM IMAGES.',
     'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.': 'Haltu bendlinum yfir hnappi til að sjá hvað hann sækir og hvaða stillingar hann velur. Ekkert er sótt fyrr en þú ýtir á hnapp.',
+    'No scale bar or whole well was found: plaque sizes are in pixels.': 'Hvorki fannst kvarðastika né heill brunnur: stærðir skella eru gefnar upp í pixlum.',
+    'The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.': 'Skýringartexti myndhluta {panel} nefnir {terms}, en merkingin við þessa mynd gerir það ekki: annar lesturinn er rangur. Athugaðu skilyrðið áður en þú staðfestir það með OK.',
+    "The words were read from the PDF's own text.": 'Orðin voru lesin úr texta PDF-skjalsins sjálfs.',
+    'pixels (no scale bar or whole well)': 'pixlar (engin kvarðastika eða heill brunnur)',
+    '{n} well(s): the label and the legend disagree (marked conflict in Source).': '{n} brunnur/brunnar: merking og skýringartexti stangast á (merkt sem ósamræmi í Source).',
+    '{source} / conflict': '{source} / ósamræmi',
+    '{source}: {ppm} px/mm': '{source}: {ppm} px/mm',
 }
 
 MODULE_SUMMARIES = {
@@ -11656,4 +11663,11 @@ SOURCE_HASHES = {
     ('UI', 'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.'): 'ab58e9b360dcefb8a8ac1a72eb801b55908d382312f7858abd021c7a969e779b',
     ('UI', 'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.'): '4c3eb748e8de32a54a348ebd2b08991649cb8638dec5fa417868327aed8913aa',
     ('UI', 'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.'): '8d28b4549f0efd8db6e87af89a740ffb3b37ee461f6d442478a32ccefd8e6022',
+    ('UI', 'No scale bar or whole well was found: plaque sizes are in pixels.'): '3eb11a2352cdc106f082717e75d1239670bfea3aff04733a93636b86d6b25e8c',
+    ('UI', 'The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.'): '297137ac88ae9fa6891635d186dedad52ac3cd667101c047a82076d9b08aa1a2',
+    ('UI', "The words were read from the PDF's own text."): 'c47c2be3e2827ba4ef51afc74f2851b5b74d62c3ca413fc7a5cc58c474ff7f78',
+    ('UI', 'pixels (no scale bar or whole well)'): '49e741b3d353e72338bec503dbfa4d2c272fe1d4349e558fa5a61e68d156613f',
+    ('UI', '{n} well(s): the label and the legend disagree (marked conflict in Source).'): '7c6e83438616dfcf9626c7a82e250cee0b061d853e6b0fd8f724d74c1964dba0',
+    ('UI', '{source} / conflict'): '1d45f4580144c5e5ef1e1bd1b23c95d42c445a7e0316f93cd36360fe7d0a2235',
+    ('UI', '{source}: {ppm} px/mm'): '4c1e51c1b4b41e936cf6fedf733afe187381c5a79b24172c662c1e7902104933',
 }

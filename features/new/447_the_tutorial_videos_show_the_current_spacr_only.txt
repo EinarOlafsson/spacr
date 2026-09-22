@@ -373,3 +373,20 @@ narrations are unchanged. Full live label/pixel checks pass, with dark/Blobs,
 neutral paths and current1.5.0.8.19 path/appearance and22 preservation/promotion/
 geometry tests pass. Fresh English review narration renders CPU-only; audio,
 player/listening and joint publication acceptance remain open with358.
+
+2026-09-21 — CODEX: CURRENT CLASSIFY CV VOICE MATRIX TECHNICALLY COMPLETE
+All26 other-language tracks now pass independent current-source, timing,
+decoded activity, full-decode and true-peak checks; audio hashes are unchanged.
+With24 checked English voices, this current dark/Blobs capture has50 verified
+tracks. Receipt:2026-09-21-classify-cv-current-other-voices.json. The verifier's
+first catalog selection was inconsistent and failed; matching private lesson
+selections fix that wrapper without altering any source/audio. Listening,
+full caption/player acceptance and joint publication remain open with358.
+
+2026-09-21 — CODEX: ANNOTATE CURRENT MASTER AND PLAYER PASS
+The corrected automatic-opening capture now has a356.8s narrated review master
+and silent master, both independently fully decoded at native4K/30fps. Current
+audio source/timing/activity and-1.0dBFS peak pass. Real desktop/mobile playback,
+seek clocks,20 scenes and related links pass; screenshots inspected and hashed
+in2026-09-21-annotate-auto-opening.json. Remaining English/other voices render
+CPU-only. Complete voice/caption/listening acceptance and publication stay open.

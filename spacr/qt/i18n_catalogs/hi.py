@@ -5766,6 +5766,13 @@ UI = {
     'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.': 'लगभग 280 MB डाउनलोड करें: पहले से तैयार 2341 एकल-कोशिका क्रॉप और उन्हें सूचीबद्ध करने वाला मापों का डेटाबेस; क्रॉप को संक्रमित या असंक्रमित लेबल दिया गया है।\n\nडिस्क पर पहले से मौजूद इमेज के एनोटेशन के लिए। स्रोत फ़ोल्डर और एनोटेशन सेटिंग भर दी जाती हैं, और Image source को LOAD IMAGES पर सेट किया जाता है।',
     'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.': 'लगभग 390 MB डाउनलोड करें: वे मर्ज किए गए ऐरे जिनसे क्रॉप निकाले गए थे, ताकि पेज बनते समय क्रॉप का सेट उपलब्ध कराया जा सके, न कि डिस्क से सहेजे गए क्रॉप पढ़े जाएँ।\n\nनिर्यात किए गए क्रॉप की आवश्यकता नहीं है। डेटा उसी प्लेट फ़ोल्डर में निकाला जाता है जिसमें Load का डेटा आता है; इसलिए दोनों बटन दबाने पर पूरी प्लेट मिलती है और दोनों तरीके काम करते हैं। स्ट्रीमिंग में हर कोशिका की स्थिति मापों के डेटाबेस से पढ़ी जाती है, इसलिए यदि Load वाला भाग अभी डिस्क पर नहीं है तो वह भी डाउनलोड किया जाता है। Image source को STREAM IMAGES पर सेट किया जाता है।',
     'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.': 'किसी बटन पर पॉइंटर ले जाकर देखें कि वह क्या डाउनलोड करता है और कौन-सी सेटिंग बदलता है। बटन दबाने तक कुछ डाउनलोड नहीं किया जाता।',
+    'No scale bar or whole well was found: plaque sizes are in pixels.': 'न तो स्केल बार मिला और न ही पूरा वेल: प्लाक के आकार पिक्सेल में हैं।',
+    'The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.': 'पैनल {panel} की चित्र-व्याख्या में {terms} हैं, लेकिन इस छवि के पास के लेबल में नहीं: दोनों में से एक पठन गलत है। OK से पुष्टि करने से पहले कंडीशन जाँचें।',
+    "The words were read from the PDF's own text.": 'शब्द PDF के अपने पाठ से पढ़े गए थे।',
+    'pixels (no scale bar or whole well)': 'पिक्सेल (स्केल बार या पूरा वेल नहीं मिला)',
+    '{n} well(s): the label and the legend disagree (marked conflict in Source).': '{n} वेल: लेबल और चित्र-व्याख्या में असहमति है (Source में विरोध के रूप में चिह्नित)।',
+    '{source} / conflict': '{source} / विरोध',
+    '{source}: {ppm} px/mm': '{source}: {ppm} px/mm',
 }
 
 MODULE_SUMMARIES = {
@@ -11656,4 +11663,11 @@ SOURCE_HASHES = {
     ('UI', 'Download about 280 MB: 2,341 single-cell crops already cut, with the measurements database that indexes them, labelled infected or not.\n\nFor annotating images that already exist on disk. The source folder and the annotation settings are filled in with it, and Image source is set to LOAD IMAGES.'): 'ab58e9b360dcefb8a8ac1a72eb801b55908d382312f7858abd021c7a969e779b',
     ('UI', 'Download about 390 MB: the merged arrays the crops were cut from, so a set can be streamed as the page is drawn rather than read off disk.\n\nNeeds no exported crops. Unpacks into the same plate folder as Load, so pressing both leaves a complete plate and either route then works. Streaming reads where each cell sits from the measurements database, so the Load half is fetched too when it is not on disk yet. Image source is set to STREAM IMAGES.'): '4c3eb748e8de32a54a348ebd2b08991649cb8638dec5fa417868327aed8913aa',
     ('UI', 'Hover a button to see what it downloads and what it sets. Nothing is fetched until you press one.'): '8d28b4549f0efd8db6e87af89a740ffb3b37ee461f6d442478a32ccefd8e6022',
+    ('UI', 'No scale bar or whole well was found: plaque sizes are in pixels.'): '3eb11a2352cdc106f082717e75d1239670bfea3aff04733a93636b86d6b25e8c',
+    ('UI', 'The legend for panel {panel} names {terms}, which the label beside this image does not: one of the two readings is wrong. Check the condition before you OK it.'): '297137ac88ae9fa6891635d186dedad52ac3cd667101c047a82076d9b08aa1a2',
+    ('UI', "The words were read from the PDF's own text."): 'c47c2be3e2827ba4ef51afc74f2851b5b74d62c3ca413fc7a5cc58c474ff7f78',
+    ('UI', 'pixels (no scale bar or whole well)'): '49e741b3d353e72338bec503dbfa4d2c272fe1d4349e558fa5a61e68d156613f',
+    ('UI', '{n} well(s): the label and the legend disagree (marked conflict in Source).'): '7c6e83438616dfcf9626c7a82e250cee0b061d853e6b0fd8f724d74c1964dba0',
+    ('UI', '{source} / conflict'): '1d45f4580144c5e5ef1e1bd1b23c95d42c445a7e0316f93cd36360fe7d0a2235',
+    ('UI', '{source}: {ppm} px/mm'): '4c1e51c1b4b41e936cf6fedf733afe187381c5a79b24172c662c1e7902104933',
 }
