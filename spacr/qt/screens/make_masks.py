@@ -435,11 +435,10 @@ INVERT_WARNING_NAME = "MakeMasksInvertWarning"
 #: while it is hidden. It sits between the tool row and the image, where
 #: nothing can fold it away.
 INVERT_WARNING_TEXT = (
-    "Invert for detection is on: every mask — Object detection, Otsu detect "
-    "and the Live magnifier — is being generated from the INVERTED image. "
-    "The readout and the Filter category still report the image's real "
-    "values, and 'Invert image' in Display is a separate switch that "
-    "changes only the picture.")
+    "Invert image is on: the picture and detection use the INVERTED image. "
+    "Hover pixel intensity follows the inversion; object mean intensity "
+    "and Filter thresholds use the original loaded values. "
+    "The loaded image data and existing mask are unchanged.")
 
 #: How many removal rows the Filter category's ledger shows before it
 #: scrolls. The ledger has one row per removed object, and a
@@ -5837,7 +5836,8 @@ class MakeMasksScreen(QWidget):
         self._tool_row = self._build_tool_row()
         outer.addWidget(self._tool_row)
 
-        self._invert_warning = QLabel(INVERT_WARNING_TEXT)
+        from ..i18n import tr
+        self._invert_warning = QLabel(tr(INVERT_WARNING_TEXT))
         self._invert_warning.setObjectName(INVERT_WARNING_NAME)
         self._invert_warning.setWordWrap(True)
         self._invert_warning.hide()
@@ -6611,6 +6611,7 @@ class MakeMasksScreen(QWidget):
 
         :returns: the assembled panel.
         """
+        from ..i18n import tr
         wrap = QWidget()
         col = QVBoxLayout(wrap)
         col.setContentsMargins(0, 0, 0, 0)
@@ -6906,21 +6907,15 @@ class MakeMasksScreen(QWidget):
         norm_card.body_layout.addLayout(norm_form)
 
         self._invert_display = Toggle("Invert image")
-        self._invert_display.setToolTip(
-            "Show the picture as a negative and detect on that same "
-            "negative: the field is normalized to 0..1 and each pixel "
-            "becomes 1 minus itself, so its darkest pixel is its brightest. "
-            "That is what lets Otsu and the Live magnifier, which look for "
-            "bright objects, take DARK ones — a dark object on a pale "
-            "brightfield reads the way a fluorescent one does, to the eye "
-            "and to the detector alike. THE MASKS ARE MADE FROM THE "
-            "INVERTED IMAGE while this is on, and a warning stays above the "
-            "image saying so. The hover readout, the Filter category and "
-            "the mask you save go on reading the image's real values, so "
-            "nothing you measure changes. This is not 'Swap object and "
-            "background' in Object operations, which flips a finished MASK "
-            "and does nothing to the picture."
-        )
+        self._invert_display.setToolTip(tr(
+            "Invert the picture and the pixels used for detection, so dark "
+            "objects become bright. The field is normalized to 0..1, then "
+            "each pixel becomes 1 minus itself. Hover pixel intensity follows "
+            "the inversion; object mean intensity and Filter thresholds use "
+            "the original loaded values. The loaded image data and existing "
+            "mask are unchanged. To swap foreground and background in a "
+            "finished mask, use 'Swap object and background' in Object operations."
+        ))
         self._invert_display.toggled.connect(self._on_invert_display)
         self._invert_display.toggled.connect(self._on_invert_toggled)
         norm_card.body_layout.addWidget(self._invert_display)

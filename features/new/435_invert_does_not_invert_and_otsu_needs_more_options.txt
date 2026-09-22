@@ -551,3 +551,23 @@ while _on_invert_display's status explicitly says hover intensity follows the
 inverted picture. Portuguese review defers this source too; please reconcile
 the live English tooltip in the application lane. Reviewed translations will
 need rebinding when either source changes. No detection behavior was edited.
+
+2026-09-22 — THE TWO ENGLISH CONTRADICTIONS ARE CORRECTED
+--------------------------------------------------------------------------------
+The warning and Invert image tooltip now describe the actual single switch:
+picture and detector input invert together; hover pixel intensity follows the
+inversion, while object mean intensity and Filter thresholds use loaded values.
+Neither the loaded image data nor the existing mask changes just from toggling
+inversion. The tooltip names Swap object and background for that separate mask
+operation. Both corrected texts pass through tr(); no detector behavior changed.
+
+The 93 existing focused inversion/filter/Otsu checks pass in 14.60 s, including
+actual detector inputs, hover pixel intensity, unchanged object means and loaded
+arrays, warning visibility, and single-switch identity. The tooltip is below the
+600-character cap. Source text and hashes: features/data/
+435_inversion_help_2026-09-22.json.
+
+The English-source findings reported above are resolved. Nine-language source
+refresh/rebinding remains assigned to the separate Codex translation session;
+no reviewed record or catalog was edited here, and translation completion is
+not claimed.

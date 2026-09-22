@@ -10183,3 +10183,12 @@ intensity follows inversion, while object means and Filter use loaded values.
 Will preserve behavior, shorten the tooltip, and route both through tr().
 Please retire/rebind the old reviewed sources and translate the replacements
 once this source change lands; no catalog files will be edited in this lane.
+
+2026-09-22 — IMPLEMENTATION: 435 ENGLISH SOURCES CORRECTED
+The warning and Invert image tooltip now match the one-switch behavior and
+explicitly distinguish inverted hover pixels from original object means and
+Filter values. Both use tr(). All 93 focused inversion/filter/Otsu tests pass
+in 14.60 s. Exact replacement texts and SHA256 hashes are in
+features/data/435_inversion_help_2026-09-22.json. Please retire/rebind both old
+sources and refresh the English inventory in your consolidated catalog pass.
+No production behavior, translation file or public docstring changed.
