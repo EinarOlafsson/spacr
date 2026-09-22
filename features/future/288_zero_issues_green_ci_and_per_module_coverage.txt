@@ -4505,3 +4505,31 @@ Twenty-one original floor modules now have clean targeted repairs. Three remain:
 ops_accel (named CuPy exemption), plaque_papers and screens/map_barcodes. The
 FEATURES editing defect, full-source coverage run and ratchet remain open;
 no baseline update or whole-suite green claim.
+
+2026-09-22 — CODEX: MAP BARCODES SCREEN REACHES91.06%
+The shared fold/search screen reaches91.06% combined coverage, with190tests
+passing in171.46s. Added single-file mate recognition, reference-set fallback,
+read/prepare failures, cancellation's late callbacks, partial Apply failures,
+stack watcher/page reuse and registered-factory fallback checks. One existing
+child-window test now closes the actual screen and waits for its usage worker
+before parent destruction; the final selection reports no lingering QThread.
+Receipt:features/data/288_map_screen_recovery_2026-09-22.json. No production or
+baseline change. Twenty-two original floor modules have clean targeted repairs.
+plaque_papers now measures83.75% on current source (111pass,one existing warning);
+its new boundary tests are running. ops_accel's named CuPy exemption, the
+separate FEATURES edit defect, full coverage measurement and ratchet remain.
+
+2026-09-22 — CODEX: PLAQUE PAPER READER ABOVE THE TARGET
+Current plaque_papers reaches91.56% combined coverage,131tests pass73.68s with
+one existing skimage equivalent_diameter deprecation warning. Added service
+retry/corrupt-bundle handling, OCR ordering and enlarged-crop coordinates,
+reader-environment/optional-module failures, OCR cache reuse, manual accept/
+skip/correction decisions and CLI review/inference choices. No model inference,
+network requests or production changes in these new tests.
+Receipt:288_plaque_reader_boundaries_2026-09-22.json. All23 clean targeted repair
+source hashes match current files; aggregate receipt:
+288_current_floor_repairs_after_reader_2026-09-22.json. Of the original25, the
+other two are the existing CuPy-only floor exemption and the above-floor
+FEATURES table with its recorded editing defect. This is not a full-suite
+verdict: a new immutable checkout will measure the current complete CI coverage
+selection, including the no-regression ratchet. Baseline unchanged.

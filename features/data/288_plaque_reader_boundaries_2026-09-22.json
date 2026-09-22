@@ -1,0 +1,385 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "93747b198847c5ca43fe8364e65210407fa5df4c",
+  "scope": "Targeted statement and branch coverage; not a whole-suite verdict.",
+  "source_path": "spacr/plaque_papers.py",
+  "source_sha256": "24a42b250262097faa0515936bbf00be50c785093fe8520400566edbb7c027c3",
+  "coverage_json_sha256": "6955584c4e8ce131c41f96fafaedcca00dc7b8a8ec21c7c294abd04fe6609666",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 1217,
+    "num_statements": 1306,
+    "percent_covered": 91.5614236509759,
+    "percent_covered_display": "91.56",
+    "missing_lines": 89,
+    "excluded_lines": 0,
+    "percent_statements_covered": 93.18529862174579,
+    "percent_statements_covered_display": "93.19",
+    "num_branches": 436,
+    "num_partial_branches": 54,
+    "covered_branches": 378,
+    "missing_branches": 58,
+    "percent_branches_covered": 86.69724770642202,
+    "percent_branches_covered_display": "86.70"
+  },
+  "missing_lines": [
+    315,
+    317,
+    318,
+    319,
+    380,
+    420,
+    421,
+    429,
+    430,
+    435,
+    436,
+    438,
+    439,
+    492,
+    493,
+    507,
+    594,
+    714,
+    715,
+    716,
+    717,
+    722,
+    753,
+    793,
+    817,
+    927,
+    929,
+    1153,
+    1154,
+    1159,
+    1213,
+    1217,
+    1243,
+    1425,
+    1426,
+    1503,
+    1582,
+    1617,
+    1619,
+    1643,
+    1652,
+    1654,
+    1677,
+    1684,
+    1755,
+    1758,
+    1978,
+    1979,
+    2044,
+    2045,
+    2098,
+    2100,
+    2152,
+    2153,
+    2154,
+    2156,
+    2157,
+    2159,
+    2168,
+    2170,
+    2171,
+    2173,
+    2174,
+    2175,
+    2176,
+    2177,
+    2179,
+    2181,
+    2182,
+    2183,
+    2264,
+    2265,
+    2430,
+    2433,
+    2438,
+    2524,
+    2525,
+    2549,
+    2671,
+    2672,
+    2791,
+    2792,
+    2798,
+    2799,
+    2864,
+    2865,
+    2926,
+    2927,
+    3052
+  ],
+  "missing_branches": [
+    [
+      379,
+      380
+    ],
+    [
+      437,
+      438
+    ],
+    [
+      438,
+      437
+    ],
+    [
+      438,
+      439
+    ],
+    [
+      506,
+      507
+    ],
+    [
+      549,
+      551
+    ],
+    [
+      554,
+      551
+    ],
+    [
+      593,
+      594
+    ],
+    [
+      597,
+      591
+    ],
+    [
+      631,
+      625
+    ],
+    [
+      713,
+      714
+    ],
+    [
+      732,
+      736
+    ],
+    [
+      733,
+      732
+    ],
+    [
+      752,
+      753
+    ],
+    [
+      757,
+      759
+    ],
+    [
+      760,
+      750
+    ],
+    [
+      792,
+      793
+    ],
+    [
+      816,
+      817
+    ],
+    [
+      926,
+      927
+    ],
+    [
+      1157,
+      1159
+    ],
+    [
+      1162,
+      1164
+    ],
+    [
+      1212,
+      1213
+    ],
+    [
+      1216,
+      1217
+    ],
+    [
+      1241,
+      1243
+    ],
+    [
+      1288,
+      1283
+    ],
+    [
+      1424,
+      1425
+    ],
+    [
+      1502,
+      1503
+    ],
+    [
+      1579,
+      1570
+    ],
+    [
+      1581,
+      1582
+    ],
+    [
+      1583,
+      1579
+    ],
+    [
+      1616,
+      1617
+    ],
+    [
+      1618,
+      1619
+    ],
+    [
+      1642,
+      1643
+    ],
+    [
+      1650,
+      1652
+    ],
+    [
+      1653,
+      1654
+    ],
+    [
+      1657,
+      1647
+    ],
+    [
+      1676,
+      1677
+    ],
+    [
+      1683,
+      1684
+    ],
+    [
+      1754,
+      1755
+    ],
+    [
+      1757,
+      1758
+    ],
+    [
+      1761,
+      1753
+    ],
+    [
+      1765,
+      1761
+    ],
+    [
+      1788,
+      1794
+    ],
+    [
+      2097,
+      2098
+    ],
+    [
+      2099,
+      2100
+    ],
+    [
+      2152,
+      2153
+    ],
+    [
+      2152,
+      2154
+    ],
+    [
+      2263,
+      2264
+    ],
+    [
+      2429,
+      2430
+    ],
+    [
+      2432,
+      2433
+    ],
+    [
+      2437,
+      2438
+    ],
+    [
+      2523,
+      2524
+    ],
+    [
+      2548,
+      2549
+    ],
+    [
+      2650,
+      2648
+    ],
+    [
+      2831,
+      2833
+    ],
+    [
+      2862,
+      2866
+    ],
+    [
+      2925,
+      2926
+    ],
+    [
+      3051,
+      3052
+    ]
+  ],
+  "validation": {
+    "passed": 131,
+    "skipped": 0,
+    "warnings": 1,
+    "seconds": 73.68,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/test_plaque_reader_boundaries.py",
+      "tests/test_plaque_figures_are_read_and_annotated.py",
+      "tests/test_plaque_papers_dedup_conflict_scale_db.py",
+      "tests/test_plaque_assay_run_modes.py",
+      "tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py",
+      "tests/qt/test_plaque_preview_flags_conflicts_and_scale.py"
+    ],
+    "log_sha256": "1a246e957fe3a63b82b22dd61b7720beef01f6097c7da09c0687f029d3223cb8",
+    "test_sha256": {
+      "tests/test_plaque_reader_boundaries.py": "5a1aff16f6072d1eb970e9df8256f889910431247c1e477ff79c3bde66e982e1",
+      "tests/test_plaque_figures_are_read_and_annotated.py": "6432e588821c2b3ce95031fe3465963add5f821ebee5fc47792624b01a987929",
+      "tests/test_plaque_papers_dedup_conflict_scale_db.py": "95c4c114f60b97ff85cb44690fa757a7f73dd91fc6ac633db2f99ba95a6d4aad",
+      "tests/test_plaque_assay_run_modes.py": "b46aaed3cc8fde786ac2ed5c96c3dbf579d665dfb3513a72802706a9f3e3596a",
+      "tests/qt/test_plaque_assay_has_plaque_and_figure_modes.py": "90fbf5f32982938de49f382a38a761fdc8b829f32076960c6e6d7c68bd5cb457",
+      "tests/qt/test_plaque_preview_flags_conflicts_and_scale.py": "398a7498a455d38030926355b9bea5f409b317c1a9e1d3ae2de6d6ac8d0f9812"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "External HTTP and optional OCR engines are simulated; no new downloads or model inference.",
+    "Real temporary files, OCR coordinate geometry, annotation decisions and existing figure/database integration are exercised.",
+    "One existing skimage equivalent_diameter deprecation warning remains."
+  ]
+}

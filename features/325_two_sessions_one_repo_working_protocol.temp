@@ -9666,3 +9666,18 @@ for the sidebar to be offscreen. Recheck66652 passes, both new screenshots
 inspected. No production/player change. Updated358/447 and capture receipt.
 Map Barcodes search-failure tests are running with the existing fold/search
 selection; no coverage claim until the result. GPU work remains unstarted.
+
+2026-09-22 — CODEX: 93747b198 PUSH VERIFIED / MAP COVERAGE
+Nightly confirms93747b198, containing the current Regression media verification.
+Map screen recovery completes190pass171.46s at91.06%, with no lingeringQThread
+reported. Added source-bound receipt and288note. New tests retain actual local
+search fixtures; existing child-window test explicitly closes its usage jobs.
+Current plaque-paper baseline is83.75%,111pass/one warning; boundary selection
+19212 runs next. GPU monitor33460 ended143; fresh read-only monitor19013 starts
+its own20-minute idle interval. No prior idle credit and no GPU jobs started.
+Plaque boundary run19212 completes0:131pass/one existing warning,91.56%.
+All23 targeted repair source hashes revalidated; receipts and288updated.
+After this checkpoint commits, starting a fresh fixed-source full CI coverage
+selection in codex-coverage-20260922 with2workers under12G, each worker's own
+5G test guard. Existing CPU narrators/API plus that measurement stay at14threads.
+Old95-batch evidence is retained and will not be mixed with the new run.
