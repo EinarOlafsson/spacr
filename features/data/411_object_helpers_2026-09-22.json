@@ -251,6 +251,86 @@
       "body"
     ]
   },
+  "post_rebase": {
+    "callables_added": {
+      "spacr.object_classifier.ParasiteCountHead": "spacr.object_classifier.ParasiteCountHead\u0000constructor\u0000autoapi\u0000regressor\u0000regressor\u0000regressor\u00000\u00001\u00000\u00000",
+      "spacr.object_classifier.ParasiteCountHead.predict": "spacr.object_classifier.ParasiteCountHead.predict\u0000method\u0000autoapi\u0000crops\u0000crops\u0000crops\u00000\u00001\u00000\u00000",
+      "spacr.qt.detect_chain.background_surface": "spacr.qt.detect_chain.background_surface\u0000function\u0000autoapi\u0000chain,image\u0000chain,image\u0000chain,image\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done": "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done\u0000method\u0000autoapi\u0000result\u0000result\u0000result\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView": "spacr.qt.widgets.zoom_view.ZoomableImageView\u0000constructor\u0000autoapi\u0000parent\u0000\u0000parent\u00000\u00001\u00000\u00001",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image": "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.fit": "spacr.qt.widgets.zoom_view.ZoomableImageView.fit\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to": "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to\u0000method\u0000autoapi\u0000other\u0000other\u0000other\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.resizeEvent": "spacr.qt.widgets.zoom_view.ZoomableImageView.resizeEvent\u0000method\u0000autoapi\u0000event\u0000event\u0000event\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.set_pixmap": "spacr.qt.widgets.zoom_view.ZoomableImageView.set_pixmap\u0000method\u0000autoapi\u0000pixmap\u0000pixmap\u0000pixmap\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.wheelEvent": "spacr.qt.widgets.zoom_view.ZoomableImageView.wheelEvent\u0000method\u0000autoapi\u0000event\u0000event\u0000event\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_by": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_by\u0000method\u0000autoapi\u0000factor\u0000factor\u0000factor\u00000\u00001\u00000\u00000",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_factor": "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_factor\u0000method\u0000autoapi\u0000\u0000\u0000\u00000\u00001\u00000\u00000"
+    },
+    "callables_removed": {},
+    "counts": {
+      "boundary": 224,
+      "callables": 9372,
+      "categories": {
+        "constructor": 428,
+        "dataclass_constructor": 502,
+        "exception_constructor": 147,
+        "function": 4167,
+        "inherited_or_default_constructor": 58,
+        "method": 4055,
+        "namedtuple_constructor": 15
+      },
+      "constructor_prose_variants": 427,
+      "constructors_with_prose": 427,
+      "exposures": {
+        "autoapi": 9367,
+        "cli_only": 2,
+        "compatibility": 3
+      },
+      "parameters": 18579,
+      "public": 11317,
+      "required": 9575,
+      "signature_digest": "d14da650fd91a3be0c8b58bcdf7b239f410da64481898fcb31e89269f266fe0d",
+      "unfiltered": 11541,
+      "variant_counts": {
+        "1": 9365,
+        "2": 7
+      },
+      "variants": 9379
+    },
+    "help_search": "Includes the 14 public arrivals and three enabled nested helpers; all helper URLs use the object module page and exact anchor, and all three offline docstrings resolve.",
+    "implementation_head": "fcce6c062",
+    "public_added": [
+      "spacr.object_classifier.ParasiteCountHead",
+      "spacr.object_classifier.ParasiteCountHead.predict",
+      "spacr.qt.detect_chain.background_surface",
+      "spacr.qt.widgets.model_zoo_picker.ModelZooPicker.done",
+      "spacr.qt.widgets.zoom_view",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.clear_image",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.fit",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.link_to",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.resizeEvent",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.set_pixmap",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.wheelEvent",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_by",
+      "spacr.qt.widgets.zoom_view.ZoomableImageView.zoom_factor"
+    ],
+    "public_removed": [],
+    "restored_prior_digest": "1cc32cc335a162034355a641f518ad8a090a7fae654c1084db8c82bee20bab68",
+    "signature_changes": {
+      "spacr.qt.detect_chain.Chain": {
+        "after": "spacr.qt.detect_chain.Chain\u0000namedtuple_constructor\u0000autoapi\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,sharpen,sharpen_amount,sharpen_radius,split\u0000\u0000background,background_radius,background_scale,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,sharpen,sharpen_amount,sharpen_radius,split\u00000\u00001\u00000\u00000",
+        "before": "spacr.qt.detect_chain.Chain\u0000namedtuple_constructor\u0000autoapi\u0000background,background_radius,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,sharpen,sharpen_amount,sharpen_radius,split\u0000\u0000background,background_radius,clahe,clahe_clip,clahe_tile,denoise,denoise_strength,equalize,gamma,morphology,morphology_radius,sharpen,sharpen_amount,sharpen_radius,split\u00000\u00001\u00000\u00000"
+      }
+    },
+    "source_only_correction": "Make Masks module prose now distinguishes inverted hover pixels from original object means and removes the obsolete three-control description.",
+    "validation": {
+      "extractor_and_public_contract_tests": 142,
+      "full_catalog_browser_acceptance": "Still pending full locale repair; no freshness gate bypass.",
+      "real_help_search_tests": 49
+    }
+  },
   "public_added": [
     "spacr.organelle_types.method_guidance",
     "spacr.organelle_types.morphologies_for_method",

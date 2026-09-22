@@ -10492,3 +10492,26 @@ on completing the global API catalog repair; no helper completion claimed.
 Repair planning is running against the isolated validated source and existing
 translation cache, without model generation or GPU work. Runtime caption and
 German literal repairs are committed locally as281556f70, pending integration.
+
+2026-09-22 — CODEX: POST-REBASE API RECONCILIATION
+Rebased over fcce6c062; both channel blocks retained, detect_chain docstring
+repairs merged automatically. Incoming code adds14 API symbols and13 public
+callables; measuring exact sets/signatures before moving pins. Also correcting
+only the Make Masks module docstring: it still said there were three inversion
+controls and that hover intensity stayed original, contradicting435's tested
+one-switch behavior. No runtime change. Complete API locale repair remains
+necessary before real-catalog helper browser acceptance.
+
+2026-09-22 — CODEX: INTEGRATED SOURCE CHECKS / PLAQUE CAPTIONS
+After the fcce6c062 rebase, all142 extractor/public-contract checks pass with
+11317 English API symbols and9372 public callables. The14 arrivals and one
+changed signature are recorded with an exactly restored previous digest.
+Help now includes the three explicitly enabled private helpers, with correct
+module-page anchors and offline docstrings;49 real search tests pass.
+The full real-catalog browser gate remains red until the global locale repair.
+Plaque preview/overlay captions now have96 missing rows filled across nine
+languages,108 source-bound reviews, and corrected scientific model labels
+(including Chinese/Korean plate-vs-plaque confusion and Icelandic gibberish).
+Chinese panel wording now identifies a figure subpanel; its old review is
+preserved. All99 caption/formatting lookups and nine setting-label lookups
+pass; focused runtime/plaque tests are running. No behavior/GPU change.

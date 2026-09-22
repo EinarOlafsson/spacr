@@ -56,17 +56,17 @@ object and background, size filtering and Otsu detection, with undo and redo
 over all of them -- alongside the brush, wand and display controls, and can
 be hidden to return its width to the canvas.
 
-THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME. Only the
-second changes what a detector reads, and the
-captions are what tell them apart on the panel.
+Image inversion and swapping object and background are separate operations.
+The first changes the image seen by the detector; the second changes labels.
 
 **Invert image**, in the Display category, is THE inversion. It draws the
 field as its own negative and hands the detectors that same negative: both
 detect buttons and the live magnifier segment
 :meth:`MakeMasksScreen._detector_image`, so a threshold written for bright
 objects takes dark ones, and a banner above the image says so for as long as
-it is on. The corner readout, the object filter and the saved mask go on
-reading the pixels that were loaded, so nothing measured moves.
+it is on. The corner readout's pixel intensity follows the inverted image.
+Object mean intensities and the object filter still read the loaded pixels.
+Saving writes label masks without changing the source image.
 
 IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only "Invert
 image" drew a negative and left detection untouched; "Invert for detection"

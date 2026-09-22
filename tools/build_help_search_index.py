@@ -12,7 +12,7 @@ at runtime because those are already data rather than prose.
 What this writes into ``spacr/qt/help_api_index.py``:
 
 ``API_ENTRIES``
-    ``(dotted symbol, summary)`` for every PUBLIC symbol in
+    ``(dotted symbol, summary)`` for every public symbol and enabled helper in
     ``docs/source/_static/i18n/api/en.json`` -- the manifest
     ``tools/build_documentation_i18n.py`` writes, which is the same list the
     published API pages are built from. The summary is the first paragraph of
@@ -24,8 +24,8 @@ What this writes into ``spacr/qt/help_api_index.py``:
     ``spacr/qt/screens/setting_api_targets.py`` already names ONE consumer per
     setting, which is what a settings row links to; the search field promises
     "the API entry of EACH function that takes that setting", so it needs all
-    of them. Closures are dropped: Sphinx cannot address one, so a link to it
-    would be a dead link with extra steps.
+    of them. This consumer index currently excludes closures. The API index
+    includes the helpers enabled by the shared documentation rollout.
 
 ``PREFERENCE_ENTRIES``
     ``(label, tab title, tab object name, tooltip)`` read off the REAL
@@ -102,7 +102,7 @@ def _is_public(symbol: str) -> bool:
 
 
 def api_entries() -> List[Tuple[str, str]]:
-    """Every public API symbol with a one-line summary.
+    """Every public API symbol and enabled helper with a one-line summary.
 
     :returns: ``(symbol, summary)`` sorted by symbol.
     :raises SystemExit: when the manifest has not been built.
@@ -113,9 +113,18 @@ def api_entries() -> List[Tuple[str, str]]:
             "tools/build_documentation_i18n.py --sources-only first")
     payload = json.loads(API_MANIFEST.read_text(encoding="utf-8"))
     symbols = payload.get("symbols") or {}
+    from build_documentation_i18n import AUTOAPI_IGNORE
+    from nested_helper_docs import active_entries
+
+    helper_keys = {
+        entry.qualified_key
+        for entry in active_entries(ROOT, ignore_patterns=AUTOAPI_IGNORE)
+    }
+    if not helper_keys <= symbols.keys():
+        raise SystemExit("API manifest is missing enabled helper entries")
     out: List[Tuple[str, str]] = []
     for symbol in sorted(symbols):
-        if not _is_public(symbol):
+        if not _is_public(symbol) and symbol not in helper_keys:
             continue
         record = symbols[symbol]
         text = record.get("text", "") if isinstance(record, dict) else ""

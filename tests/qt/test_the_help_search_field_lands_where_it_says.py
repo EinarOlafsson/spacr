@@ -32,6 +32,24 @@ def help_index_rows():
     return build_index()
 
 
+def test_enabled_object_helpers_have_search_rows_local_prose_and_exact_links():
+    """Publishing a private nested helper also makes its real page findable."""
+    from spacr.qt.help_api_index import API_ENTRIES
+    from spacr.qt.help_search import api_url, local_docstring
+
+    entries = dict(API_ENTRIES)
+    keys = (
+        "spacr.object._cellpose_z_segment_fn._segment",
+        "spacr.object.merge_split_filter_masks._progress",
+        "spacr.object.merge_split_filter_masks._run_one",
+    )
+    for key in keys:
+        assert key in entries
+        assert local_docstring(key).startswith(entries[key])
+        assert api_url(key, "en").endswith(f"/spacr/object/index.html#{key}")
+    assert "spacr.object._cellpose_z_segment_fn" not in entries
+
+
 @pytest.fixture
 def window(qtbot, qt_theme_applied):
     """A real main window with the field installed, as a user gets it."""

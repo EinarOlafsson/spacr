@@ -350,6 +350,17 @@
       "source_sha256": "36fffc47f5ebe1b9dcbd7e9e8d3039492175d2a1a689e8b86516474e4d39e44e",
       "text": "Load a measurement table, pivot it, and plot the summary.\n\n:param link: a private\n    :class:`~spacr.qt.linked_selection.LinkedSelection` for tests. ``None``\n    joins the process-wide one.\n:param parent: parent widget; ownership only.\n:param threaded: ``False`` runs every table read inline instead of on the\n    job runner's thread. A TEST NEEDS THE RESULT ON THE LINE AFTER THE\n    CALL; a user needs the window to keep painting while a large table\n    loads. The jobs are the same either way -- they still register, still\n    report failure through ``job_failed`` -- so only the waiting differs.\nBuild the screen: the pivot builder beside the shared filter.\n\n:param parent: parent widget, or ``None``.\n:param link: shared selection link.\n:param threaded: read the database on a worker thread. Set ``False`` in\n    tests so a load finishes before it returns."
     },
+    "378bb2e93c8866158ac97f69421efaa89a6f94932ab71138d602b7850ff36485": {
+      "source_blocks_sha256": [
+        "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
+        "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
+        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb"
+      ],
+      "source_sha256": "378bb2e93c8866158ac97f69421efaa89a6f94932ab71138d602b7850ff36485",
+      "text": "Join each pair into one object, keeping the lower id.\n\nThe lower id survives so that a merge is stable however the pairs are\nordered, and so the object keeps the id that measurements and tracks\nalready know it by wherever that is the lower one.\n\n:param mask: the label image.\n:param pairs: pairs of ids, as :func:`split_candidates` returns them.\n:returns: a NEW mask; the one passed in is not touched."
+    },
     "386c04c8d17dfd3f15ee41f10d97903501a4c3daf6824f8b2fb75187b281c9c6": {
       "source_blocks_sha256": [
         "329ea05b2f4e1126b8af9d898a8793f8e00c43b1216256d8e9faaf4653214d50",
@@ -921,6 +932,18 @@
       "source_sha256": "8c7a0a20b25bf625ef1976d170a18d801d72cd82194354f484a810d58a8cf9ee",
       "text": "Return the mask with foreground/background flipped and relabeled."
     },
+    "8ca337ae36217466a0e32bc24e1b184941486f4fd46e19093a21b7900e75ef30": {
+      "source_blocks_sha256": [
+        "aec9d084ce34ebaab68b4737e27e79db5c41d7e38d4585ea3e0b74962e8d0552",
+        "ca5785ac0717472dbfcaeb659f83dd4c87fc66cf07e07144bd9646c374492c1c",
+        "d41090b8a1d003c8ccd6882bdcdb5673fa80c27e1316f018e7c756c6401666d3",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "d7734b2dfd0dd8f5c2a75d0635146d09bd449793a6bac1e3e02c7794066fac10",
+        "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1"
+      ],
+      "source_sha256": "8ca337ae36217466a0e32bc24e1b184941486f4fd46e19093a21b7900e75ef30",
+      "text": "Pairs of labels that look like one object cut in two.\n\nTHE RULE, and it is deliberately conservative: two labels are a\ncandidate when they touch, and the boundary they share is at least\n``share`` of the smaller one's perimeter. A cell lying against another\ncell shares a little of its edge; a cell the segmenter cut down the\nmiddle shares most of it.\n\nThis finds candidates. It does not merge them -- :func:`merge_halves`\ndoes, and only when asked, because a wrong merge destroys two objects\nto make one.\n\n:param mask: the label image.\n:param share: the fraction of the smaller object's perimeter that must\n    be shared. 0.25 was chosen as the default and is measured in the\n    tests rather than argued for here.\n:returns: pairs ``(low id, high id)``, each pair once."
+    },
     "8d52c74e218e60482a3b2f942c883886c1aa2c2e840b77d3162743dd3e282060": {
       "source_blocks_sha256": [
         "877a6c61b362da77372a9b3e7f9462c22fcf9b55e07a1baf17a8a1e7c3ef075b",
@@ -1091,6 +1114,24 @@
       "source_sha256": "b063b3d8c4d99fd28b48507135bd7f20a3d0a63d2275fd8cdf035c53e2f3c5d9",
       "text": "Show/hide Alpha and Beta settings without discarding typed values.\n\nALSO THE ONE PLACE A SECTION'S VISIBILITY IS DECIDED. Maturity is not\nthe only reason a category is not on the form -- a category every one\nof whose settings needs a z axis is not on a flat plate's form\neither -- and two functions each calling ``setVisible`` on the same\ncard is how a card comes back the next time Preferences is saved.\nSo the dimension switches are answered here as well, and the settings\nsearch hands visibility back to this method for the same reason.\n\nThe notice below still speaks only for maturity: a category the 3D\nswitch is holding back is not \"hidden by Preferences\", and saying so\nwould send the user to a dialog that cannot bring it back."
     },
+    "b1f66fe6ac882876d13f5b17d8edfb65c519ad00febd8bfb2a63a87cae017900": {
+      "source_blocks_sha256": [
+        "f1ff68dda3afd6a5f49c07888499b9cf131d6ec31613edeb7cfdd80ca8777c65",
+        "890927b19cc2e4998b7dbf5ed0df59699e421076bcb4535b1d47f4ce431dd443",
+        "e8d6c5584c2f179a2423042417706a66f5e3b2f64582e7bb536ec63f09401cb9",
+        "5c1667fcb52a5ce87a50d76ad516e5ca20fafe0066d7fc1d234c15d3af6bb10d",
+        "f81c772296c9f3ccdbfa2781789840f558db0d6d4f8b332c6c3dca9b7d17094e",
+        "581b8398dd8ddd85afdfcb3fbf7ddf2fa03a6e7ae80dc80f59cd9780e8ca841d",
+        "a54acb1a88a2451e5243ef7cdca718a781b3af5f7b5a9f98e1263f26a3509da1",
+        "0250aae25c4e2a7b06cbd177b961e88a4b72a6a2d07502e29c5659625929e54f",
+        "9faa26138d5798f10e8d3ca69aa1c3e1d17c509ba4e3040290d92e4306aae889",
+        "ffc3dc38394a964a91d3ae5361b315a8fced1b7ff2ca0f0ff5e0504a28928d1b",
+        "171b772850f6bca42b7aebaf8e72ff5d3639fac8f21d1bca151d5aff78717fdf",
+        "5a8d3ff4074b24a813b65570c7651770b635dbfb0f22b1f4818e506e3f4c7f02"
+      ],
+      "source_sha256": "b1f66fe6ac882876d13f5b17d8edfb65c519ad00febd8bfb2a63a87cae017900",
+      "text": "Classify every object of a mask that already exists.\n\n:param image: the field, ``(H, W)`` or ``(H, W, planes)``.\n:param mask: its labels. Not modified; any mask returned is a new one.\n:param head: something with ``predict(crops)`` returning a class per\n    crop, or ``(class, probability)`` per crop. None reports geometry\n    only, which is what is useful before a head is trained.\n:param channels: which planes the head sees, in order. Defaults to\n    every plane the image has.\n:param size: resize each crop to ``size x size`` for the head.\n:param shape: ``bounding_box`` or ``object``; see\n    :func:`spacr.crop_source.crop_object`.\n:param padding: pixels of context around each object.\n:param remove_artifacts: return a mask with whatever the head called\n    an artifact erased. OFF by default: a false artifact is a deleted\n    object, so this is a decision the caller makes rather than a\n    default they inherit.\n:param merge_split: merge pairs :func:`split_candidates` finds. Acts on\n    segmenter-split objects only -- an object cut by the field's edge\n    has its other half in the next field and is left alone.\n:param artifact_class: which class name means \"not a real object\", for\n    ``remove_artifacts``. A parameter rather than a constant because a\n    head trained on somebody else's labels may spell it differently,\n    and a removal that silently matches nothing is worse than one that\n    cannot be configured.\n:returns: ``{\"objects\": rows, \"mask\": mask, \"merged\": pairs,\n    \"removed\": ids}``. ``mask`` is the mask as it stands after the\n    options asked for; with none of them it is the mask passed in."
+    },
     "b2d5d59baf95b872d44bcfd4916b31ba6d615f5e69e90f7f31f47d9570fb7aee": {
       "source_blocks_sha256": [
         "1d2caa3a3ed2d99abf429a3f7c3ec025bc96e4be94a9831054e622cecc0b5e21",
@@ -1162,6 +1203,17 @@
       ],
       "source_sha256": "bef2ecf1029a8e6f30efb86443a7ebfb1c1549645c7c8305d4afd60051cca98f",
       "text": "Close the slides and record that they have been seen.\n\nRECORDED, so first-run guidance does not greet a returning user as a\nnew one."
+    },
+    "c12c02f0398824eb4d2277ab3d3852bcba0c941ac4455c5de1eedad99d5a9c27": {
+      "source_blocks_sha256": [
+        "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
+        "d7618b919802bddf31c2c65b3bc52f12a5436d31a1f176c28f1648a2e7c626ec",
+        "f489563863bb337016021857502aeddad5f971eb66a6acb93f4abc66cc498a6b",
+        "49134a948e9a69ac96249006bfa64a432e3acb85a137d5fa39999b9378b435b2",
+        "df1ba0be843a1bfb128c975f5fa764f8002f024fa8cc4a122e6ca4e3ce2114a9"
+      ],
+      "source_sha256": "c12c02f0398824eb4d2277ab3d3852bcba0c941ac4455c5de1eedad99d5a9c27",
+      "text": "Put a predicted parasite count in the bin a report shows it in.\n\nTHE BIN IS A DISPLAY CHOICE, NOT A TRAINED ONE. The head predicts how\nmany parasites it sees; this is only how that number is shown. That\nmatters because the rule below can change -- or be replaced by a different one\nper report -- without retraining anything.\n\nTIES GO DOWN, and 12 is the case: it is four from 8 and four from 16.\nA vacuole of 12 has finished eight and is partway to sixteen, so it is\nreported as the round it has completed rather than the one it has\nnot.\n\n:param count: how many parasites the head counted.\n:returns: one of ``\"1\"``, ``\"2\"``, ``\"4\"``, ``\"8\"``, ``\"16\"`` or\n    ``\">16\"``."
     },
     "c1596a322092001f45f21327bebf49ab1eef758b9e36ee7fdc5a8e0815238651": {
       "source_blocks_sha256": [
@@ -1537,6 +1589,20 @@
       ],
       "source_sha256": "dec2dd3419a7e0764f18ed626458c6aa3f3e51fdc6f1516c1b70763677c525c5",
       "text": "``spacr-download`` — fetch spaCR's published example data, with no GUI.\n\nEvery example dataset spaCR publishes has, until now, been reachable only by\npressing a button inside the application: \"Load test data\", \"Load example\ndata\", the screen-data picker. That is fine on a laptop and useless on a\ncluster, where the data has to be on disk BEFORE a batch job starts and there\nis no display to press a button on. This is that download as a command.\n\nWHAT IT WILL AND WILL NOT DO WITHOUT BEING ASKED. With no arguments it fetches\nthe three example sets -- Mask, Measure, Annotate/Classify -- which come to\nabout 1.1 GB. It does NOT fetch the published TSG101 screen, which is 33 GB.\nA command that spent 33 GB of somebody's quota because they typed its name\nwith no arguments would be a bug however well documented, so the screen is\nopt-in, is asked for in pieces, and is confirmed before it starts. The pieces\nare :mod:`spacr.screen_data`'s, unchanged: four measurement databases of about\n0.5 GB and four crop folders of about 8 GB, any subset of which can be named.\n\nNOTHING IS DOWNLOADED THAT CANNOT FIRST BE PRICED. ``--list`` prints every\npiece with its size and whether it is already on disk, and the total the\ncurrent selection would cost, without opening a socket. ``--dry-run`` is the\nsame listing for the same reason: a user deciding what to spend an hour of\nnetwork on should be able to see the bill first.\n\nImporting this module must stay light -- no Qt, no torch, no matplotlib -- so\n``spacr-download --help`` answers instantly on a login node with a cold NFS\ncache. That is why the download primitives live in\n:mod:`spacr.example_archives` rather than in :mod:`spacr.qt.hf_download`, which\nimports PySide6 at module scope. ``tests/test_cli_download.py`` pins it.\n\nUsage::\n\n    spacr-download                            # every example set (~1.1 GB)\n    spacr-download --list                     # what exists, what is here\n    spacr-download measure annotate           # two of the three\n    spacr-download --screen measurements      # the four databases (~2.1 GB)\n    spacr-download --screen crops --plate 1   # one plate of crops (~8.9 GB)\n    spacr-download all --yes                  # everything, screen included\n\nExit codes (a job that exits 0 having downloaded nothing is the classic\nfootgun, so these are exact)::\n\n  0  everything asked for is on disk, or a confirmation was declined\n  1  a download failed; the pieces that succeeded are still on disk\n  2  bad arguments, not enough disk space, or a large download that could not\n     be confirmed because nothing was there to confirm it"
+    },
+    "df12cfe94d478be8d3b4c74dfc6428bece7c442f149d6010c6754a9a551789aa": {
+      "source_blocks_sha256": [
+        "55bf98e60e63d3556af52fc587362685a99dadd4c4c0d0fd55be77a4ce7bb079",
+        "8f231b55b0d7eaf23e0e5e9322e2b13aec786979241d389863e6fff104221aca",
+        "e7ce735eee17dc1c7f8ab22820845e721d9201d6e175e6f50ece1b8bf8a4e0bc",
+        "3d1da2379b8c57640df73c47a43b78f4486924f16f6e5495eb5f92521e17b4a0",
+        "4be790be28eebf6c3fa55b8c8348aed98402b198a24d74abb58039b6058236ae",
+        "bb13df85f32d337ace2290ec188394602429aa063d98400ceabd80ce744b033f",
+        "13b87365d96535e6f1e93c020369e93eb7fb70eea156341ffedbeb8e2a7bc7ad",
+        "f31edfed0731163731e60637b5d35c05ec8aff98fdd39f0e044d181395c1e021"
+      ],
+      "source_sha256": "df12cfe94d478be8d3b4c74dfc6428bece7c442f149d6010c6754a9a551789aa",
+      "text": "Say what each object in a mask is, after any segmenter has made it.\n\nSegmentation answers \"where is there an object\"; this answers\n\"what is it\". The two are kept apart on purpose: the same classification\nmust be available whether spaCR segmented the field a moment ago or is\nhanded a mask Cellpose wrote last week.\n\nTWO WAYS IN:\n\n* :func:`segment_and_classify` takes a segmentation backend and its\n  options, segments, and classifies what it made.\n* :func:`classify_objects` takes an image and a mask that already exists\n  and classifies it as it stands. Nothing is re-segmented.\n\nWHAT A HEAD IS. A head is a trained classifier: it is handed a batch of\ncrops and returns a class and a probability for each. It is a protocol\nrather than a base class, so a torch module, a scikit-learn estimator or a\nstub in a test are all equally a head. Two are planned -- parasites per\nvacuole, and what each object is -- and the PV one is three heads in\npractice, trained on Hoechst, the parasite stain and CellMask separately,\nso a plate counts from whichever stain it has.\n\nWHAT THIS MODULE DECIDES WITHOUT A HEAD, because geometry is not a matter\nof opinion: whether an object touches the image border, and which pairs of\nlabels look like one object the segmenter cut in two. Those are the \"cut\"\nclasses, and the two kinds are told apart because only a segmenter-split object can be merged where it\nstands, because the other half of a border object is in the next field.\n\nIDS ARE NEVER RENUMBERED. Everything here keys on the label ids the mask\narrived with, and every mask it returns keeps them. `canonical_labels` in\n`mask_engine` says what renumbering costs: the measurements, the crops and\nthe tracks are all keyed on those ids."
     },
     "e1bbf46584e550dc0b7f16bd2133a784b9457a526492b19d64f97059b34b33ca": {
       "source_blocks_sha256": [
