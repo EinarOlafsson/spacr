@@ -40,14 +40,13 @@ class TestWritingAMovie:
 
         assert written.exists() and written.stat().st_size > 0
 
-        source = inspect.getsource(T._npz_to_movie)
-        assert "elif frame.shape[2] == 2:" not in source
-        assert "\n            else:\n" in source
-        assert "rgb_frame[..., 0] = frame[..., 0]" in source
-        assert "rgb_frame[..., 1] = frame[..., 1]" in source
-        assert "rgb_frame[..., 2]" not in source, (
-            "the blue channel is being written now, so a two-channel stack "
-            "no longer means 'there is no third stain'")
+        capture = T.cv2.VideoCapture(str(written))
+        try:
+            ok, decoded = capture.read()
+            assert ok
+            np.testing.assert_allclose(decoded[0, 0], [0, 100, 200], atol=5)
+        finally:
+            capture.release()
 
     def test_two_is_the_only_value_that_elif_can_see(self):
         """THE PIN, for the ``elif``'s FALSE arm.

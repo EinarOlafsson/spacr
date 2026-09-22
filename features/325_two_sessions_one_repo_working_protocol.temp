@@ -10352,3 +10352,23 @@ exercise the actual catalogue JobRunner with a controlled blocked request.
 API note: widgets/model_zoo_picker.py adds public override done(result) with
 a docstring. No new captions or catalog edits. Read56cb61c1b's473 rolling-ball
 fix during rebase; no overlap with its detection-chain or Make Masks files.
+
+2026-09-22 — IMPLEMENTATION:43/288 MOVIE EXPORT CLAIM
+The completed coverage log has a reproducible unsupported4-D movie-frame
+failure in _npz_to_movie. Claiming that function in timelapse.py and focused
+movie tests. Will validate frame shape/type/count before opening a writer,
+preserve source pixels while stamping labels, and always release the writer
+on failure. The old test incorrectly expected a4-D video frame to be encoded;
+its replacement will assert an explicit refusal, with real-container checks
+retained. Public/private API prose changes will be recorded for the other lane.
+No tracking algorithms, tutorials, translations or GPU jobs are touched.
+
+2026-09-22 — IMPLEMENTATION: MOVIE EXPORT REPAIR VERIFIED
+43/288: _npz_to_movie now validates inputs before opening a writer, copies RGB
+pixels before stamping labels, scales float64 like float32, reports failed
+writer opening and releases the writer on all encoding outcomes.16 new checks
+failed before;68 focused checks pass, including real MP4/AVI readback and
+red/green decoding. The old4-D writer test now checks explicit refusal.
+No tracking behavior, thresholds, tutorials or catalog files changed.
+API lane: spacr.timelapse._npz_to_movie's docstring now states the frame/type/
+conversion/error contract. No new callable or caption was added. Full CI open.

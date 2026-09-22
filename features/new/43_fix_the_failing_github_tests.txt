@@ -2035,3 +2035,20 @@ leave live HTTP warming to the controlled lifecycle tests. This removes their
 network-dependent parked-thread warnings without suppressing the leak checker.
 All42 focused tests pass in5.69s without a leftover-worker report; seven final
 lifecycle checks and repository fatal Ruff checks also pass. Full CI stays open.
+
+2026-09-22 — IMPLEMENTATION: MOVIE EXPORT VALIDATION AND OWNERSHIP
+The frozen coverage run expected _npz_to_movie to pass a4-D array to the video
+writer. Real OpenCV instead failed in putText; passing a volume unconverted is
+not a usable video contract. Export now refuses unsupported dimensions before
+opening a writer, with the caller responsible for a slice or projection.
+All frames must have matching nonempty spatial dimensions, supported pixel
+types, finite float values, one filename each and a finite positive frame rate.
+uint8/uint16 and finite floats retain their documented scaling; float64 now
+follows float32. Filename stamps use owned RGB storage and cannot edit source
+pixels, including read-only arrays. Failed writer opening is reported, and the
+writer is always released if annotation or encoding raises.
+Sixteen added checks failed before the fix; all68 focused movie/GIF/timelapse
+checks now pass in12.67s. Real MP4/AVI container readback remains exercised;
+the two-channel check now decodes actual red/green pixels rather than inspecting
+source-code indentation. The4-D expectation is an explicit-refusal test. No
+tracking algorithm, CI threshold or coverage baseline changed. Full CI is open.

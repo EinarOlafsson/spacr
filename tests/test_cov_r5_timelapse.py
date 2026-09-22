@@ -128,13 +128,8 @@ def fake_writer(monkeypatch):
     return _FakeWriter
 
 
-def test_a_frame_with_a_fourth_axis_reaches_the_writer_unconverted(tmp_path, fake_writer):
-    """(H, W, 2, 3) misses every channel branch and is written verbatim.
-
-    The RGB->BGR swap at the writer boundary only fires for a real 3- or
-    4-channel image, so the control frame below comes out reversed and the
-    4-D one does not.
-    """
+def test_a_frame_with_a_fourth_axis_is_refused_before_the_writer(tmp_path, fake_writer):
+    """A volume needs an explicit slice or projection before movie export."""
     stack = np.zeros((8, 10, 2, 3), dtype=np.uint8)
     stack[..., 0, 0] = 11
     stack[..., 1, 0] = 22
@@ -142,18 +137,10 @@ def test_a_frame_with_a_fourth_axis_reaches_the_writer_unconverted(tmp_path, fak
     rgb = np.zeros((8, 10, 3), dtype=np.uint8)
     rgb[..., 0] = 33  # red
 
-    tl._npz_to_movie([stack, rgb], ["stack.npy", "rgb.npy"], str(tmp_path / "m.avi"))
-
-    (writer,) = fake_writer.instances
-    assert writer.released is True
-    written_stack, written_rgb = writer.frames
-
-    # not packed into (H, W, 3), and not passed through the BGR swap
-    assert written_stack.shape == (8, 10, 2, 3)
-    assert written_stack[0, 0].tolist() == [[11, 0, 0], [22, 0, 0]]
-    # the control frame proves the swap really happens for (H, W, 3)
-    assert written_rgb.shape == (8, 10, 3)
-    assert written_rgb[0, 0].tolist() == [0, 0, 33]
+    with pytest.raises(ValueError, match="frame 0.*2-D"):
+        tl._npz_to_movie([stack, rgb], ["stack.npy", "rgb.npy"],
+                         str(tmp_path / "m.avi"))
+    assert fake_writer.instances == []
 
 
 # ===========================================================================
