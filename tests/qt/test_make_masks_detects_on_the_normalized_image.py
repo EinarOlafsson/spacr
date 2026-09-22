@@ -101,3 +101,28 @@ def test_the_settings_edge_is_the_shell_s_thin_line_and_collapses(qtbot):
     assert screen._settings_scroll.width() == 0
     splitter.set_collapsed("Settings", False, by_user=True)
     assert not splitter.is_collapsed("Settings")
+
+
+def test_the_shortcut_list_hides_like_the_settings(qtbot):
+    """2026-09-22, the maintainer: "in make masks i should also be able to
+    hide the shortcuts like i can hide the settings"."""
+    from spacr.qt.widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+    screen = mm.MakeMasksScreen()
+    qtbot.addWidget(screen)
+    screen.resize(1200, 800)
+    screen.show()
+    qtbot.wait(30)
+    views = screen._view_pane
+    assert isinstance(views, CollapsibleSplitter)
+    shortcuts = views.pane("Shortcuts")
+    assert shortcuts is not None and shortcuts.mode == EDGE
+
+    views.set_collapsed("Shortcuts", True, by_user=True)
+    qtbot.wait(30)
+    assert views.is_collapsed("Shortcuts")
+    assert screen._shortcut_panel.width() == 0
+    views.set_collapsed("Shortcuts", False, by_user=True)
+    qtbot.wait(30)
+    assert not views.is_collapsed("Shortcuts")
+    assert screen._shortcut_panel.width() > 0

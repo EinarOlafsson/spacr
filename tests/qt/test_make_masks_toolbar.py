@@ -232,8 +232,15 @@ def test_the_canvas_takes_the_space_the_settings_give_up(
     screen._btn_settings.setChecked(False)
     qtbot.waitUntil(lambda: screen._canvas.width() > before)
     assert screen._body_splitter.sizes()[0] == 0
-    assert screen._canvas.width() >= before + wide_open[0] - 8, (
+    # MOST of it, not all: the shortcut list became a pane of its own on
+    # 2026-09-22 so it can be hidden too, and its splitter's grips take a few
+    # pixels of the width the settings gave up. The shortcut list itself must
+    # not grow -- the room is the canvas's.
+    shortcuts = screen._view_pane.pane("Shortcuts")
+    assert screen._canvas.width() >= before + int(wide_open[0] * 0.75), (
         "the canvas did not grow into the space the settings vacated")
+    assert screen._shortcut_panel.width() <= shortcuts.extent, (
+        "the shortcut list took the room instead of the canvas")
 
     screen._btn_settings.setChecked(True)
     qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)

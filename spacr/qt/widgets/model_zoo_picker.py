@@ -1315,8 +1315,12 @@ class ModelZooPicker(QDialog):
         self.download_button.setEnabled(
             bool(entry) and not local and not backend_row or installs)
         self.uninstall_button.setEnabled(_removable(entry))
+        self.use_button.setToolTip(
+            _where_a_backend_is_chosen(entry) if backend_row else "")
         self._show_card(entry)
-        if installs or backend_row:
+        if backend_row:
+            self.status.setText(_where_a_backend_is_chosen(entry))
+        elif installs:
             self.status.setText("")
         elif entry is not None and not getattr(entry, "sha256", ""):
             self.status.setText(
@@ -1574,6 +1578,46 @@ def _status_text(entry, local) -> str:
     if kind == "cellpose3" and source == "stock" and not local:
         return "needs the Cellpose 3 backend"
     return "on this machine" if local else "not downloaded"
+
+
+def _where_a_backend_is_chosen(entry) -> str:
+    """Why "Use this model" is grey for a backend, and what to do instead.
+
+    Reported 2026-09-22: "i cannot use spotnet or samcell, or dinocell in the
+    make mask modual, the use this model button is grayed out". The button
+    fills in a CHECKPOINT PATH, and a backend is not a file -- it is an
+    environment with its own models, chosen by name. The row said nothing, so
+    the grey button read as a defect. It now says where the backend is used,
+    and a backend that does not segment says that it never will be.
+
+    :param entry: the selected catalogue entry.
+    :returns: the sentence for the status line and the button's tooltip.
+    """
+    from .. import i18n
+
+    name = str(getattr(entry, "name", "") or "this backend")
+    backend = str(getattr(entry, "uri", "") or "").partition("backend:")[2]
+    try:
+        from ..._segmentation_backends import _SPECS
+
+        spec = _SPECS.get(backend)
+    except Exception:                                        # noqa: BLE001
+        spec = None
+    installed = str(getattr(entry, "source", "")) == "installed"
+    if spec is not None and not spec.segments:
+        return i18n.tr(
+            "{name} is not a segmentation model, so no model field takes it. "
+            "It is installed and used where its own kind of result is asked "
+            "for.", name=name)
+    if not installed:
+        return i18n.tr(
+            "{name} is a backend, not a checkpoint file. Install it here, "
+            "then choose it in Make Masks' Mode box or set "
+            "segmentation_backend in Mask generation.", name=name)
+    return i18n.tr(
+        "{name} is installed. It is a backend rather than a checkpoint file, "
+        "so choose it in Make Masks' Mode box, or set segmentation_backend "
+        "in Mask generation; this field takes a checkpoint.", name=name)
 
 
 def _needs_install(entry) -> bool:

@@ -391,3 +391,34 @@ def test_a_version_box_changes_its_own_row_after_a_sort(picker):
     row = picker._row_of_group(group)
     assert picker.table.item(row, 0).text() == stem
     assert picker._chosen[stem] == len(pairs) - 1
+
+
+def _backend_row(picker, key):
+    """The catalogue entry of one backend, as the picker holds it."""
+    for _stem, pairs in picker._groups:
+        for _label, entry in pairs:
+            if getattr(entry, "key", "") == key:
+                return entry
+    return None
+
+
+def test_a_backend_row_says_where_it_is_chosen_instead(picker):
+    """2026-09-22: "i cannot use spotnet or samcell, or dinocell in the make
+    mask modual, the use this model button is grayed out". The button fills
+    in a checkpoint path; a backend is chosen by name, and the row now says
+    so rather than leaving a grey button unexplained."""
+    entry = _backend_row(picker, "dinocell_v1")
+    if entry is None:
+        pytest.skip("this catalogue lists no DINOCell backend")
+    said = mzp._where_a_backend_is_chosen(entry)
+    assert "Mode box" in said and "segmentation_backend" in said
+    assert "DINOCell" in said
+
+
+def test_spotnet_says_it_is_not_a_segmentation_model(picker):
+    entry = _backend_row(picker, "spotnet_v1")
+    if entry is None:
+        pytest.skip("this catalogue lists no SpotNet backend")
+    said = mzp._where_a_backend_is_chosen(entry)
+    assert "not a segmentation model" in said
+    assert "Mode box" not in said

@@ -7463,17 +7463,23 @@ class MakeMasksScreen(QWidget):
         THE LIST IS NOT SETTINGS, so the Settings toggle does not take it
         away: a shortcut list that disappears the moment the screen is
         cleared for work is a list you can only read when you do not need
-        it. It is given a fixed width instead, so the image keeps every
-        pixel the window grows by.
+        it. IT HIDES ON ITS OWN INSTEAD (the maintainer, 2026-09-22: "in make
+        masks i should also be able to hide the shortcuts like i can hide the
+        settings"): it is an EDGE pane of its own splitter, so its handle
+        folds it to the right edge and drags it wider, and the image takes
+        the room it leaves.
         """
-        pane = QWidget()
+        from ..widgets.collapsible_splitter import CollapsibleSplitter, EDGE
+
+        pane = CollapsibleSplitter(Qt.Horizontal,
+                                   persist_key="make_masks::views")
         pane.setObjectName("MakeMasksViewPane")
-        row = QHBoxLayout(pane)
-        row.setContentsMargins(0, 0, 0, 0)
-        row.setSpacing(SPACING["md"])
-        row.addWidget(self._view_tabs, 1)
         self._shortcut_panel = self._build_shortcut_panel()
-        row.addWidget(self._shortcut_panel)
+        pane.add_pane(self._view_tabs, "Views", stretch=1, extent=900)
+        pane.add_pane(self._shortcut_panel, "Shortcuts", mode=EDGE, stretch=0,
+                      extent=SHORTCUTS_WIDTH, minimum=SHORTCUTS_WIDTH,
+                      fold_key="make_masks/Shortcuts",
+                      hint="or drag to make the shortcut list wider")
         #: The splitter's right-hand child: the views and the shortcut list.
         self._view_pane = pane
         return pane
@@ -7498,8 +7504,7 @@ class MakeMasksScreen(QWidget):
         """
         panel = Card("Shortcuts")
         panel.setObjectName("Card")
-        panel.setFixedWidth(SHORTCUTS_WIDTH)
-        panel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        panel.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         body = panel.body_layout
         body.setSpacing(SPACING["xs"])
         #: ``keys -> (key label, what it does label)``, so a test can ask the
