@@ -182,6 +182,9 @@ class AnnotationUmapTab(QWidget):
         self.run_button = QPushButton("Embed and score")
         self.run_button.clicked.connect(self.run)
         row.addWidget(self.run_button)
+        from .preview_scale import install_preview_scale
+        self.scale_control = install_preview_scale(
+            self, "annotation_umap", row, prefer_card=False)
         layout.addLayout(row)
 
         self.body = QSplitter(Qt.Horizontal)

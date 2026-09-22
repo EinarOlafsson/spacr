@@ -1899,6 +1899,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(QLabel("View:", self))
         act.addWidget(self._view_mode)
         act.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "mask", act)
         root.addLayout(act)
 
         canvas = QHBoxLayout()

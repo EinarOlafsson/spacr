@@ -1503,6 +1503,8 @@ class FigureQueue(QWidget):
             canvas.setAttribute(Qt.WA_NoSystemBackground, True)
             canvas.setContextMenuPolicy(Qt.CustomContextMenu)
             canvas.customContextMenuRequested.connect(self._view_context_menu)
+            from ..gui_scale import mend_matplotlib_icons
+            mend_matplotlib_icons()
             toolbar = NavigationToolbar2QT(canvas, self._canvas_host)
             self._canvas_layout.addWidget(toolbar)
             self._canvas_layout.addWidget(canvas, 1)

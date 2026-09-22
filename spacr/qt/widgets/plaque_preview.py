@@ -2045,6 +2045,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                        self._cancel_btn, self._use_btn):
             buttons.addWidget(widget)
         buttons.addStretch(1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "plaque", buttons)
         outer.addLayout(buttons)
 
         self._paper_note = QLabel("")

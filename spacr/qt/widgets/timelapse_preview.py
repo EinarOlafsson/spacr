@@ -1378,6 +1378,8 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._relink_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "timelapse", act)
         root.addLayout(act)
 
         canvas = QHBoxLayout()

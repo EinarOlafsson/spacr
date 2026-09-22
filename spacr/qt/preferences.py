@@ -39,6 +39,7 @@ Public API::
         ambient_default_palette, apply_ambient_preferences,
         get_setting_animations_enabled, set_setting_animations_enabled,
         get_font_scale, set_font_scale,
+        get_gui_scale, set_gui_scale,
         get_figure_save_mode, set_figure_save_mode,
         get_color_blind_mode, set_color_blind_mode,
         get_db_browser_editable, set_db_browser_editable,
@@ -67,6 +68,10 @@ Values:
   removed from an older store the first time the theme is read; see
   :func:`get_theme`.
 * ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].
+* ``gui_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].
+  Scales every pixel of the interface, not only text; read once, before
+  the application starts, so a change takes a restart. See
+  :mod:`spacr.qt.gui_scale`.
 * ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
   (default ``"print"``). Controls the page and figure-element colours used
   for saved figures. ``SPACR_FIGURE_SAVE_MODE`` remains a process-local
@@ -167,6 +172,7 @@ _KEY_THEME       = "prefs/theme"
 _KEY_THEME_FOLLOW_SYSTEM_CHOSEN = "prefs/theme_follow_system_chosen"
 _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
+_KEY_GUI_SCALE   = "prefs/gui_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
 _KEY_VERBOSE_LOG = "prefs/verbose_logging"
 _KEY_PERFORMANCE_LOG = "prefs/performance_logging"
@@ -558,6 +564,25 @@ FONT_SCALE_MAX = 2.00
 #: The 4K case is a preference a user on that display sets once. The laptop
 #: case was everybody, silently, by default.
 DEFAULT_FONT_SCALE = 1.0
+
+#: The whole-GUI scale's bounds and default (item 471): the same 10 % to
+#: 200 % as Zoom, so the two sliders read alike. Unlike Zoom it is a Qt scale
+#: factor fixed at startup; :mod:`spacr.qt.gui_scale` says why.
+GUI_SCALE_MIN = 0.10
+GUI_SCALE_MAX = 2.00
+DEFAULT_GUI_SCALE = 1.0
+
+#: What the GUI scale row says it is. It has to say RESTART: a slider that
+#: moves and changes nothing on screen reads as broken unless it says why.
+GUI_SCALE_TIP = (
+    "Scale every part of the interface -- widget sizes, spacing, icons, "
+    "pictures and text -- from 10 % to 200 %. Lower it to fit more on a "
+    "small or low-resolution screen. It is set when spaCR starts, so a "
+    "change takes effect after a restart (Restart now does it and brings "
+    "this module back). Font scale still applies on top: 50 % GUI at 200 % "
+    "font gives half-size controls with text the usual size. "
+    "Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from "
+    "anywhere.")
 
 VALID_CB_MODES = ("off", "deuteranopia", "protanopia", "tritanopia")
 DEFAULT_CB_MODE = "off"
@@ -3631,6 +3656,29 @@ def set_font_scale(scale: float) -> None:
     scale = max(FONT_SCALE_MIN, min(FONT_SCALE_MAX, scale))
     _settings().setValue(_KEY_FONT_SCALE, scale)
 
+
+def get_gui_scale() -> float:
+    """Return the saved whole-GUI scale, clamped to supported bounds.
+
+    Read before the ``QApplication`` exists by
+    :func:`spacr.qt.gui_scale.apply_gui_scale_to_environment`, which is why
+    it takes effect only at the next start.
+    """
+    try:
+        raw = float(_settings().value(_KEY_GUI_SCALE, DEFAULT_GUI_SCALE))
+    except (TypeError, ValueError):
+        raw = DEFAULT_GUI_SCALE
+    return max(GUI_SCALE_MIN, min(GUI_SCALE_MAX, raw))
+
+
+def set_gui_scale(scale: float) -> None:
+    """Persist a whole-GUI scale after clamping it to supported bounds.
+
+    :param scale: the factor, 1.0 = 100 %; it takes effect at the next start.
+    """
+    scale = max(GUI_SCALE_MIN, min(GUI_SCALE_MAX, float(scale)))
+    _settings().setValue(_KEY_GUI_SCALE, scale)
+
 #: How the auto-issue reporter behaves when something goes wrong.
 #:
 #: Three states, not two. "prompt me" and "never prompt me" leave out the
@@ -4556,6 +4604,13 @@ def apply_preferences_to_app(app=None) -> None:
             repaint_fields(app)
         except Exception:
             pass
+        try:
+            import sys as _sys
+            if _sys.modules.get(__package__ + ".widgets.preview_scale"):
+                from .widgets.preview_scale import refresh_all_preview_scales
+                refresh_all_preview_scales()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-scale the previews", exc_info=True)
     from .button_roles import install_button_roles
     install_button_roles(app)
 
@@ -4912,6 +4967,7 @@ PREFERENCE_TIPS = {
     "Tight layout": "Adjust margins to fit labels within the saved figure.",
     "Theme": "Application colour scheme. 'Follow system' uses the desktop colour scheme.",
     "Font scale": "Scale interface text independently of saved-figure font sizes.",
+    "GUI scale": GUI_SCALE_TIP,
     "Colour-blind mode": "Use interface and figure colours designed to remain distinguishable for common colour-vision deficiencies.",
     "Module visibility": "Select the module maturity levels shown in navigation: stable only, or stable with beta and alpha modules.",
     "Show busy spinner after": "Delay before displaying the busy indicator for a running task.",
@@ -5519,6 +5575,58 @@ class PreferencesDialog:
         scale_row.addWidget(scale_value)
         _wrap = _hbox_wrap(scale_row)
         form.addRow(tr("Font scale"), _wrap)
+
+        from .gui_scale import restart_to_apply, running_gui_scale
+
+        gui_scale_slider = QSlider(Qt.Horizontal)
+        gui_scale_slider.setObjectName("GuiScale")
+        gui_scale_slider.setRange(int(round(GUI_SCALE_MIN * 100)),
+                                  int(round(GUI_SCALE_MAX * 100)))
+        gui_scale_slider.setSingleStep(5)
+        gui_scale_slider.setPageStep(25)
+        gui_scale_slider.setTickInterval(25)
+        gui_scale_slider.setValue(int(round(get_gui_scale() * 100)))
+        gui_scale_slider.setToolTip(tr(GUI_SCALE_TIP))
+        gui_scale_value = QLabel()
+        gui_scale_value.setObjectName("GuiScaleValue")
+        gui_scale_restart = QPushButton(tr("Restart now"))
+        gui_scale_restart.setObjectName("GuiScaleRestart")
+        gui_scale_restart.setToolTip(tr(
+            "Save these preferences and restart spaCR at the new GUI scale. "
+            "The module and its settings come back; a run in progress does "
+            "not, and you are asked first if one is going."))
+
+        def _update_gui_scale_lbl(v):
+            """Show the GUI scale, and whether a restart is still owed."""
+            running = int(round(running_gui_scale() * 100))
+            if int(v) == running:
+                gui_scale_value.setText(f"{v}%")
+            else:
+                gui_scale_value.setText(tr(
+                    "{wanted}% after a restart (now {running}%)",
+                    wanted=int(v), running=running))
+            gui_scale_restart.setVisible(int(v) != running)
+
+        gui_scale_slider.valueChanged.connect(_update_gui_scale_lbl)
+        _update_gui_scale_lbl(gui_scale_slider.value())
+
+        def _restart_for_gui_scale():
+            """Save everything, close the dialog, then restart."""
+            from PySide6.QtCore import QTimer
+
+            owner = parent if parent is not None else dlg
+            _save()
+            QTimer.singleShot(0, lambda: restart_to_apply(owner))
+
+        gui_scale_restart.clicked.connect(_restart_for_gui_scale)
+        gui_scale_line = QHBoxLayout()
+        gui_scale_line.setContentsMargins(0, 0, 0, 0)
+        gui_scale_line.addWidget(gui_scale_value, 1)
+        gui_scale_line.addWidget(gui_scale_restart)
+        gui_scale_row = QVBoxLayout()
+        gui_scale_row.addWidget(gui_scale_slider)
+        gui_scale_row.addLayout(gui_scale_line)
+        form.addRow(tr("GUI scale"), _hbox_wrap(gui_scale_row))
 
         dock_combo = QComboBox()
         for label, key in (
@@ -6629,6 +6737,7 @@ class PreferencesDialog:
                 spinner_slider.setValue(
                     int(round(get_spinner_delay() * 10)))
                 scale_slider.setValue(int(round(get_font_scale() * 100)))
+                gui_scale_slider.setValue(int(round(get_gui_scale() * 100)))
                 opacity_slider.setValue(
                     int(round(get_pane_opacity() * 100)))
 
@@ -6686,6 +6795,7 @@ class PreferencesDialog:
             set_preferred_provider(ai_provider_combo.currentData() or "")
             _tell_the_screens_the_object_grid_changed()
             set_font_scale(scale_slider.value() / 100.0)
+            set_gui_scale(gui_scale_slider.value() / 100.0)
             set_dock_mode(dock_combo.currentData())
             set_pane_opacity(opacity_slider.value() / 100.0)
             set_field_fade_enabled(field_fade_check.isChecked())

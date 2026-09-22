@@ -20,6 +20,9 @@ This module supplies the two dropdowns those panels now share, plus the flat
   the currently-loaded one.
 * :func:`enumerate_image_sets` / :func:`sample_image_sets` — the *sampled*
   source list, described below.
+* :func:`install_preview_scale` — each preview's own scale slider, from
+  :mod:`spacr.qt.widgets.preview_scale` and re-exported here so every
+  shared preview control is importable from one place.
 
 The palette is resolved through :func:`spacr.qt.theme.active_palette` at build
 time *and* again on every ``showEvent``, so a theme switch made in Preferences
@@ -94,6 +97,8 @@ from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QPushButton, QSpinBox
 
 from ..theme import active_palette, button_accent_text, font_px
+from .preview_scale import (install_preview_scale,  # noqa: F401
+                            reset_all_preview_scales)
 
 LOG = logging.getLogger("spacr.qt.preview_controls")
 

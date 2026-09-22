@@ -10,6 +10,7 @@ the whole app is usable without a mouse:
     Ctrl+Shift+H  Search spaCR from the field beside the Help menu
     F1  / ?       Show the shortcuts cheat sheet
     Ctrl+P        Open Preferences
+    Ctrl+Alt+0    Put GUI scale, font scale and preview scales back to 100 %
     Ctrl+/        Open the AI Console
     Ctrl+End      Jump to the newest console line
     F11           Toggle full screen
@@ -92,6 +93,8 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+B",       "Blank the background",   "Background"),
     ShortcutSpec("Z + scroll",   "Resize the interface text",
                  "Background"),
+    ShortcutSpec("Ctrl+Alt+0",   "Reset GUI scale and font scale to 100%",
+                 "Navigation"),
     ShortcutSpec("F11",          "Full screen",            "Actions"),
     ShortcutSpec("Ctrl+Shift+H", "Search spaCR from the Help bar", "Help"),
     ShortcutSpec("F1",           "Show this cheat sheet",  "Help"),
@@ -273,6 +276,7 @@ def install(window: QMainWindow) -> None:
     _bind(window, "Ctrl+Shift+H", lambda: _focus_help_search(window))
     _bind(window, "Ctrl+Shift+R", lambda: _open_recipes(window))
     _bind(window, "F1",     lambda: show_cheat_sheet(window))
+    _bind(window, "Ctrl+Alt+0", lambda: _reset_every_scale(window))
     _bind(window, "?",      lambda: _help_key(window))
     for i in range(1, 10):
         _bind(window, f"Ctrl+{i}",
@@ -443,6 +447,24 @@ def _open_preferences(window: QMainWindow) -> None:
         PreferencesDialog(window).exec()
     except Exception as e:
         LOG.debug("preferences dialog not available: %s", e)
+
+
+def _reset_every_scale(window: QMainWindow) -> None:
+    """Put GUI scale, font scale and every preview scale back to 100 %.
+
+    The way back from a scale too small to read (item 471): it needs no
+    reading, and the restart it asks for is the default button, so Enter
+    completes it. Ctrl+Alt rather than Ctrl+Shift, which some Windows
+    keyboard setups take for switching layout, and 0 rather than a letter,
+    because Cmd+Option+0 is not one of the combinations macOS reserves.
+
+    :param window: the main window.
+    """
+    try:
+        from .gui_scale import reset_every_scale
+        reset_every_scale(window)
+    except Exception:                                    # noqa: BLE001
+        LOG.debug("could not reset the scales", exc_info=True)
 
 
 def _toggle_ai(window: QMainWindow) -> None:

@@ -875,6 +875,8 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         act.addWidget(self._cancel_btn)
         act.addWidget(self._propagate_btn)
         act.addWidget(self._status, 1)
+        from .preview_scale import install_preview_scale
+        self._scale_control = install_preview_scale(self, "motility", act)
         root.addLayout(act)
 
         self._plot = QLabel(self)

@@ -32,7 +32,7 @@ from PySide6.QtCore import QSize, Qt, QThread, QTimer, Signal, Slot
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QDoubleSpinBox, QFormLayout,
-    QLabel, QLineEdit, QPushButton, QSpinBox, QSplitter, QVBoxLayout,
+    QHBoxLayout, QLabel, QLineEdit, QPushButton, QSpinBox, QSplitter, QVBoxLayout,
     QWidget,
 )
 
@@ -481,9 +481,19 @@ class ImageUmapExplorer(LinkedView, QWidget):
         self._figure = Figure(figsize=(8, 6), facecolor=surface)
         self._canvas = _OwnedTimerFigureCanvas(self._figure)
         self._canvas.setStyleSheet(f"background: {surface};")
+        from ..gui_scale import mend_matplotlib_icons
+        mend_matplotlib_icons()
         self._toolbar = NavigationToolbar2QT(self._canvas, self)
         chart = QVBoxLayout()
-        chart.addWidget(self._toolbar)
+        tools = QHBoxLayout()
+        tools.setContentsMargins(0, 0, 0, 0)
+        tools.addWidget(self._toolbar, 1)
+        from .preview_scale import install_preview_scale, scale_figure_canvas
+        self._scale_control = install_preview_scale(
+            self, "image_umap", tools, prefer_card=False)
+        self._scale_control.scaler.add_hook(
+            lambda scale: scale_figure_canvas(self._canvas, scale))
+        chart.addLayout(tools)
         chart.addWidget(self._canvas, 1)
         chart_wrap = QWidget(self)
         chart_wrap.setLayout(chart)

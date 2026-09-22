@@ -393,7 +393,15 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # 605 -> 606 on 2026-09-22: spacr/qt/widgets/collapsible_splitter.py,
     # the app shell's collapse and drag-to-resize mechanism (item 471).
     assert "spacr/qt/widgets/collapsible_splitter.py" in shipped
-    assert len(shipped) == 606
+    # 606 -> 608 on 2026-09-22, +2/-0, item 471 slice A:
+    #   `spacr/qt/gui_scale.py`              the whole-GUI scale, a Qt scale
+    #                                        factor set before the
+    #                                        application starts
+    #   `spacr/qt/widgets/preview_scale.py`  each live preview's own scale
+    #                                        slider
+    assert "spacr/qt/gui_scale.py" in shipped
+    assert "spacr/qt/widgets/preview_scale.py" in shipped
+    assert len(shipped) == 608
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -708,7 +716,8 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 572. 572 -> 604 on 2026-09-21, the same +32 as `shipped`.
     # 604 -> 605: the installed Gate Editor volume view (f6e92893b).
     # 605 -> 606: the collapsible splitter (item 471).
-    assert "--expected-file-count 606" in combine_script
+    # 606 -> 608: the GUI scale and the preview scale (471 slice A).
+    assert "--expected-file-count 608" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script
