@@ -2495,3 +2495,11 @@ Capture/input/policy checks:28 passed in5.04s. First English narration renders
 on CPU; 13 translated reviews, complete voices, listening/player acceptance and
 publication remain open. The canonical lesson/reviews are not replaced by a
 partial private draft. Core Mask's GPU-dependent recapture remains separate.
+
+2026-09-22 — CODEX: ANNOTATE ENGLISH MATRIX VERIFIED
+The current auto-open Annotate renderer completes. Independent checks pass all
+24 English voices: exact current source, timings, full decode, non-silent
+activity and decoded true peak at or below -1dBFS. Receipt:
+tools/tutorials/evidence/2026-09-22-annotate-current-english-voices.json.
+Other-language rendering continues; listening and complete-set publication
+remain open. No technical check is recorded as human listening approval.

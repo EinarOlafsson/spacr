@@ -9716,3 +9716,10 @@ and frozenAPI drafts79972 remain live. Feature index matches after7c14a86a6.
 OPS verification95655 finishes0: all9 regenerate, reports refreshed,4report
 checks pass223.43s. Feature index and whitespace checks pass. Annotate24-track
 verification94481 is still running; no completed-matrix claim included yet.
+
+2026-09-22 — CODEX: b2f28fcb8 PUSH / ANNOTATE ENGLISH VERIFIED
+Nightly push confirms b2f28fcb8 with combined Make Masks evidence and nine OPS
+German reviews. Annotate verifier94481 finishes0: all24 current English tracks
+pass source/timing/full-decode/activity/true-peak checks. Added receipt and
+358/447 notes; other-language renderer3791 remains live. Make Masks first
+English29031 remains live. No publication/listening or full coverage claim.

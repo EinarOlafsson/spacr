@@ -464,3 +464,9 @@ Independent source-pixel/database/recrop checks pass; accepted evidence is
 uses the current Filter/Object detection labels, correct332x267 crop and an
 explicit explanation of the observed model/mask mismatch. First narration is
 rendering; translations, voice/listening acceptance and publication remain open.
+
+2026-09-22 — CODEX: CURRENT ANNOTATE ENGLISH VOICES
+All24 English narration tracks for the current auto-open Annotate lesson pass
+independent freshness, timing, decode, activity and true-peak verification.
+Evidence:2026-09-22-annotate-current-english-voices.json. Other languages and
+final visual/caption/listening acceptance remain open; media remain private.
