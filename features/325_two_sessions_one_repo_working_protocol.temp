@@ -10027,3 +10027,15 @@ catalog coverage remains open. Four stale API evidence records were only moved
 paragraphs; indices rebound, text unchanged. Make Masks draft translations were
 inspected and are too inaccurate to accept as generated: rewriting the missing
 help rather than promoting the saved batch. Full API rebuild and media remain owed.
+
+288/411 checkpoint pushed as92e425948 after rebasing over c15875269. All reviewed
+API source bindings pass check_reviewed_api_evidence.py; index remains current.
+Full nine-language API audit is still running in a4G CPU scope; no GPU use.
+
+2026-09-22 — CODEX: MAKE MASKS HELP TRANSLATIONS READY
+79 missing help captions rewritten and checked:27 hi,27 is,23 ko,1 pt,1 zh_CN.
+All28 focused Make Masks/settings/setup/tooltip tests now pass. Independent
+source/hash/gate/real-tr verification passes all79 and proves other catalog
+rows unchanged. Production Make Masks code is untouched. Review receipt is
+features/data/411_make_masks_help_2026-09-22.json. Full runtime/API catalog
+coverage, new shell/backend captions and tutorial media remain in progress.

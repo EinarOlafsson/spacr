@@ -1477,3 +1477,12 @@ Four preview_controls API reviews had unchanged prose at shifted paragraph
 indices (French, Icelandic and Chinese); rebound the indices without discarding
 or relabelling the translations as newly reviewed. Full API catalog rebuild,
 English API manifest/Help index refresh and native-language acceptance stay open.
+
+2026-09-22 — CODEX:79 MISSING MAKE MASKS HELP TRANSLATIONS
+Accepted source-by-source rewrites of27 Hindi,27 Icelandic,23 Korean and one
+each Portuguese/Chinese help entries. The old model drafts omitted actions,
+confused the magnifier and mistranslated scientific terms; none was promoted
+unread. Current source-bound review, syntax/meaning gates and real tr() checks
+pass for all79; unrelated catalog rows are unchanged. Focused settings/setup/
+tooltip tests:28 passed in7.03s. Receipt:411_make_masks_help_2026-09-22.json.
+No native-speaker or full-catalog acceptance claim. API rebuild remains open.

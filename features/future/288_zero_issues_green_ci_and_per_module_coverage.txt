@@ -4584,3 +4584,15 @@ Focused tooltip length, setup language and runtime syntax selection: 14 passed
 in31.35s. Historical Swedish/French counts are preserved by explicitly linking
 the two replacement records to their original review cohorts. Make Masks and
 full runtime/API translation CI remain open; this is not a green-CI claim.
+
+2026-09-22 — CODEX: MAKE MASKS SETTINGS LANGUAGE FAILURE REPAIRED
+Rewrote the missing long help entries after rejecting inaccurate saved machine
+drafts. Added79 exact-source rows:27 Hindi,27 Icelandic,23 Korean, plus the
+inversion explanation in Portuguese and Simplified Chinese. Covers the settings
+panel and adjacent keep/discard, filter, morphology, measurement and histogram
+controls. Inversion explicitly distinguishes detector input from original-value
+measurements and from swapping a finished mask. All28 tests in the Make Masks
+settings/setup-language/tooltip-length selection pass in7.03s. An independent
+check validates each row's source/hash, review gate and real tr() result, and
+proves every unrelated catalog row unchanged. Receipt:
+features/data/411_make_masks_help_2026-09-22.json. Full catalog/CI remains open.

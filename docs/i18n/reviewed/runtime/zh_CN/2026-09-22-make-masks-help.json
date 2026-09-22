@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+      "translation": "将图像显示为负片，并在同一负片上检测：先把视野归一化到 0..1，再将每个像素值替换为 1 减去原值，因此最暗的像素变成最亮的像素。这样，寻找亮对象的 Otsu 和实时放大镜就能检测暗对象；明场图像浅色背景上的暗对象，在视觉和检测器看来都像荧光对象。启用此选项时，掩膜由反转后的图像生成，图像上方会持续显示相应警告。悬停读数、筛选类别和保存的掩膜仍使用图像的真实数值，因此测量值不会改变。这不同于对象操作中的对象与背景互换（'Swap object and background'）：后者只反转已生成的掩膜，不改变图像。"
+    }
+  ]
+}
