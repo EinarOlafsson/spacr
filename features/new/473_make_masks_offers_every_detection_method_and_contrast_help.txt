@@ -557,7 +557,7 @@ WHAT IS LEFT
 * The Mask module's own preprocessing is still untouched, and the question
   in the previous section is still open for the maintainer.
 * CellProfiler's SECONDARY objects -- cells grown from an existing nucleus
-  mask -- is filed as features/future/474_secondary_objects_grown_from_a_
+  mask -- is filed as features/future/476_secondary_objects_grown_from_a_
   primary_mask.txt, with what the propagation already does and what that
   item would reuse.
 * The nine translation catalogs are still not regenerated; the list in
