@@ -894,6 +894,12 @@ def install_chaining(screen, *, pins=None) -> Optional[ChainingBar]:
         if wrap is None or actions is None:
             return None
         layout = wrap.layout()
+        holder = actions.parentWidget()
+        if (holder is not None and holder is not wrap
+                and wrap.isAncestorOf(holder)
+                and holder.layout() is not None
+                and holder.layout().indexOf(actions) >= 0):
+            layout = holder.layout()
         if layout is None:
             return None
         bar = ChainingBar(screen, pins=pins)

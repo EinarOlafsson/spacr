@@ -1601,7 +1601,10 @@ class AppScreen(QWidget):
 
         outer.addWidget(Divider())
 
-        body = QSplitter(Qt.Horizontal)
+        from ..widgets.collapsible_splitter import EDGE, CollapsibleSplitter
+
+        body = CollapsibleSplitter(Qt.Horizontal,
+                                   persist_key=f"{app_key}::body")
         self._body_splitter = body
         body.setChildrenCollapsible(False)
 
@@ -1611,16 +1614,19 @@ class AppScreen(QWidget):
         self._categories_wait = bool(getattr(
             _screens_package, "_categories_wait_to_be_opened", False))
         self._settings_panel = self._build_settings_panel()
-        body.addWidget(self._settings_panel)
+        body.add_pane(self._settings_panel, "Settings", mode=EDGE,
+                      fold_key=f"{app_key}/Settings", stretch=1, extent=400)
         self.the_name_carries_the_help()
         self._form_shape_on_screen = self._form_shape()
         self._watch_the_settings_that_decide_the_form()
-        body.addWidget(self._build_runtime_panel())
+        body.add_pane(self._build_runtime_panel(), "Runtime", stretch=2,
+                      extent=800)
 
         body.setStretchFactor(0, 1)
         body.setStretchFactor(1, 2)
         body.setSizes([400, 800])
         outer.addWidget(body, 1)
+        self._shell_focus.target(body, "Settings")
 
         self._wire_live_preview_autoload()
         if self.app_key == "analyze_plaques":
@@ -2115,6 +2121,8 @@ class AppScreen(QWidget):
             getattr(self, "_runtime_wrap", None),
             getattr(self, "_console_wrap", None),
             getattr(self, "_actions_row", None),
+            getattr(self, "_actions_section", None),
+            getattr(self, "_actions_body", None),
             getattr(self, "_category_hint", None),
         )
 
@@ -3998,6 +4006,10 @@ class AppScreen(QWidget):
         """
         wrap = getattr(self, "_console_wrap", None)
         if wrap is None:
+            return
+        from ..widgets.collapsible_splitter import splitter_of
+
+        if splitter_of(wrap) is not None:
             return
         wrap.setMinimumHeight(0 if shut else 180)
         splitter = getattr(self, "_console_splitter", None)
@@ -6194,7 +6206,7 @@ class AppScreen(QWidget):
         self._runtime_splitter = None
 
         if self.app_key in ("mask", "analyze_plaques"):
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             if self.app_key == "analyze_plaques":
                 from ..widgets.plaque_preview import build_plaque_preview_card
@@ -6220,7 +6232,7 @@ class AppScreen(QWidget):
             self._remember_runtime_splitter(splitter)
         elif self.app_key == "timelapse":
             from ..widgets.timelapse_preview import build_timelapse_preview_card
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             self._timelapse_preview, self._timelapse_preview_card = (
                 build_timelapse_preview_card(self))
@@ -6237,7 +6249,7 @@ class AppScreen(QWidget):
             self._remember_runtime_splitter(splitter)
         elif self.app_key == "motility":
             from ..widgets.motility_preview import build_motility_preview_card
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             self._motility_preview, self._motility_preview_card = (
                 build_motility_preview_card(self))
@@ -6253,7 +6265,7 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
         elif self.app_key == "measure":
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             _, self._measure_preview_card = _build_measure_preview_card(
                 self, panel_later=True)
@@ -6270,7 +6282,7 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
         elif _sweepable(self.app_key):
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             from .parameter_sweep import build_parameter_sweep_card
             self._sweep, self._sweep_card = build_parameter_sweep_card(self)
@@ -6286,7 +6298,7 @@ class AppScreen(QWidget):
             self._remember_runtime_splitter(splitter)
         elif _hyperparam_searchable(self.app_key):
             from .hyperparam import build_hyperparam_card
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             _, self._hyperparam_card = build_hyperparam_card(
                 self, panel_later=True)
@@ -6303,7 +6315,7 @@ class AppScreen(QWidget):
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
         else:
-            splitter = QSplitter(Qt.Vertical)
+            splitter = self._new_runtime_splitter()
             splitter.setChildrenCollapsible(False)
             splitter.addWidget(self._figures_card)
             splitter.addWidget(console_wrap)
@@ -6353,7 +6365,21 @@ class AppScreen(QWidget):
         self._per_core_wrap.hide()
         usage_card.body_layout.addWidget(self._per_core_wrap)
 
-        layout.addWidget(usage_card)
+        section = QWidget()
+        self._actions_section = section
+        section_col = QVBoxLayout(section)
+        section_col.setContentsMargins(0, 0, 0, 0)
+        section_col.setSpacing(4)
+        actions_heading = QLabel("Actions")
+        actions_heading.setObjectName("CardTitle")
+        self._actions_heading = actions_heading
+        section_col.addWidget(actions_heading)
+        actions_body = QWidget(section)
+        self._actions_body = actions_body
+        body_col = QVBoxLayout(actions_body)
+        body_col.setContentsMargins(0, 0, 0, 0)
+        body_col.setSpacing(SPACING["md"])
+        section_col.addWidget(actions_body, 1)
 
         actions = QWidget()
         self._actions_row = actions
@@ -6584,7 +6610,7 @@ class AppScreen(QWidget):
 
         self._apply_ai_default()
 
-        layout.addWidget(actions)
+        body_col.addWidget(actions)
 
         self._category_hint_pinned = ""
         self._category_hint = QLabel(self._default_category_hint())
@@ -6594,7 +6620,7 @@ class AppScreen(QWidget):
         self._category_hint.setTextFormat(Qt.RichText)
         self._category_hint.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._sync_category_hint_height()
-        layout.addWidget(self._category_hint)
+        body_col.addWidget(self._category_hint)
 
         self._hint_strip = QLabel(self._default_hint())
         self._hint_strip.setObjectName("SubtitleSmall")
@@ -6603,8 +6629,12 @@ class AppScreen(QWidget):
         self._hint_strip.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self._hint_strip.setOpenExternalLinks(True)
         self._hint_strip.linkActivated.connect(self._on_hint_link)
-        layout.addWidget(self._hint_strip)
+        body_col.addWidget(self._hint_strip)
 
+        self._actions_folder = make_foldable(
+            actions_heading, actions_body, name="Actions",
+            persist_key=f"{self.app_key}/Actions")
+        self._install_the_shell_panes(layout, usage_card, section)
         return wrap
 
     #: Where a runtime splitter's state is stored. Distinct from the console
@@ -6614,14 +6644,179 @@ class AppScreen(QWidget):
     #: nothing, which is a layout that ignores the user with no message.
     RUNTIME_SPLIT_SUFFIX = "::runtime"
 
+    def _new_runtime_splitter(self):
+        """The vertical splitter the runtime column's panes live in.
+
+        A :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        (item 471): every pane in it resizes by its edge and collapses at the
+        limit, and it remembers the sizes the user dragged, per pane name,
+        under this module's key.
+        """
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        return CollapsibleSplitter(
+            Qt.Vertical,
+            persist_key=f"{self.app_key}{self.RUNTIME_SPLIT_SUFFIX}")
+
+    @staticmethod
+    def _fold_a_card(card, name: str):
+        """The Folder that collapses ``card`` by its title, made if need be.
+
+        No persist key: a panel that opens because the user switched it on
+        (a live preview) or because a run produced something (figures) must
+        open, not come back as the strip it was left as last session.
+
+        :returns: the Folder, or None for a card with no title to click.
+        """
+        if card is None:
+            return None
+        folder = getattr(card, "folder", None)
+        if folder is not None:
+            return folder
+        title = getattr(card, "title_label", None)
+        body = getattr(card, "body", None)
+        if title is None or body is None:
+            return None
+        from ..widgets.foldable import make_foldable
+
+        card.folder = make_foldable(title, body, name=name)
+        return card.folder
+
+    #: The runtime cards that are FOCUS panes: shown, they take the height
+    #: (item 471). ``(attribute, name, height to open at)``; the name is the
+    #: fallback for a card with no title, whose own title is used otherwise.
+    _FOCUS_CARDS = (
+        ("_figures_card", "Figures", 420),
+        ("_live_preview_card", "Live preview", 420),
+        ("_measure_preview_card", "Crop preview", 420),
+        ("_timelapse_preview_card", "Track preview", 420),
+        ("_motility_preview_card", "Motility preview", 420),
+    )
+
+    #: The runtime cards that collapse and resize but take nothing over.
+    _TOOL_CARDS = (
+        ("_sweep_card", "Parameter sweep", 300),
+        ("_hyperparam_card", "Hyperparameter search", 300),
+    )
+
+    #: The panes a focus pane collapses, and the order they stack in.
+    SHELL_TARGETS = ("Console", "System", "Actions")
+
+    def _install_the_shell_panes(self, layout, usage_card, section) -> None:
+        """Put System and the buttons in the splitter and name every pane.
+
+        Item 471, slice B. The console, System and the buttons section each
+        collapse and each resize by their edge; a collapsed one is its
+        heading, at the bottom of the column. The figures panel and the
+        previews are FOCUS panes: while one is shown the three below it and
+        the settings column collapse (:class:`FocusCollapse`), and the user
+        can open any of them again, which pins it open for the visit.
+
+        Nothing here shows, measures or builds a card: a lazily-built panel
+        is registered while hidden and stays unbuilt until its switch shows
+        it (items 284/380).
+
+        :param layout: the runtime column's layout, for the fallback.
+        :param usage_card: the System card.
+        :param section: the buttons section.
+        """
+        from ..widgets.collapsible_splitter import (CollapsibleSplitter,
+                                                    FocusCollapse)
+
+        focus = FocusCollapse(self)
+        self._shell_focus = focus
+        split = self._runtime_splitter
+        if not isinstance(split, CollapsibleSplitter):
+            layout.addWidget(usage_card)
+            layout.addWidget(section)
+            return
+        tall = (self._part_is_owed(_REGRESSION_RESULTS)
+                or self._if_built("_results_panel") is not None)
+        focus_attrs = {attr for attr, _name, _extent in self._FOCUS_CARDS}
+        for attr, name, extent in self._FOCUS_CARDS + self._TOOL_CARDS:
+            card = getattr(self, attr, None)
+            if card is None or split.indexOf(card) < 0:
+                continue
+            if attr == "_figures_card" and tall:
+                extent = 720
+            title = getattr(card, "title_label", None)
+            name = (title.text().strip() if title is not None else "") or name
+            is_focus = attr in focus_attrs
+            split.add_pane(card, name, folder=self._fold_a_card(card, name),
+                           focus=is_focus, extent=extent,
+                           minimum=card.minimumHeight())
+            if is_focus:
+                focus.watch(card)
+        split.add_pane(self._console_wrap, "Console",
+                       folder=self._console_folder, extent=300, minimum=0)
+        split.add_pane(usage_card, "System", folder=usage_card.folder,
+                       stretch=0)
+        split.add_pane(section, "Actions", folder=self._actions_folder,
+                       stretch=0)
+        for name in self.SHELL_TARGETS:
+            focus.target(split, name)
+
+    def adopt_runtime_pane(self, card, *, focus: bool = True):
+        """Name a card someone else put in the runtime splitter.
+
+        :mod:`spacr.qt.preview_registry` inserts a declared preview above the
+        console; adopting it makes it collapse by its title, resize by its
+        edge, and -- as a preview -- take the height when it is shown.
+
+        :param card: the card, already in the runtime splitter.
+        :param focus: whether showing it collapses the console, System, the
+            buttons and the settings column.
+        :returns: the pane, or None when this screen has no such splitter.
+        """
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        split = getattr(self, "_runtime_splitter", None)
+        if not isinstance(split, CollapsibleSplitter) or card is None:
+            return None
+        if split.indexOf(card) < 0:
+            return None
+        title = getattr(card, "title_label", None)
+        name = (title.text().strip() if title is not None else "") or \
+            card.objectName() or "Preview"
+        pane = split.add_pane(card, name, folder=self._fold_a_card(card, name),
+                              focus=focus, extent=420,
+                              minimum=card.minimumHeight())
+        shell = getattr(self, "_shell_focus", None)
+        if focus and shell is not None:
+            shell.watch(card)
+        return pane
+
+    def reveal_settings(self) -> bool:
+        """Open the settings column if it is collapsed; the user asked.
+
+        Ctrl+F puts the caret in the settings search, which cannot take it
+        from a column folded away to the left.
+
+        :returns: whether the column is open now.
+        """
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        body = getattr(self, "_body_splitter", None)
+        if not isinstance(body, CollapsibleSplitter):
+            return True
+        if body.is_collapsed("Settings"):
+            body.set_collapsed("Settings", False, by_user=True)
+        return not body.is_collapsed("Settings")
+
     def _remember_runtime_splitter(self, splitter) -> None:
         """Restore this screen's pane heights and persist each resize.
 
         Saving on every splitter move preserves the layout even when the
-        application does not reach its normal shutdown path.
+        application does not reach its normal shutdown path. A
+        :class:`~spacr.qt.widgets.collapsible_splitter.CollapsibleSplitter`
+        remembers its own sizes, per pane name, so it is only recorded here.
         """
         self._runtime_splitter = splitter
         if splitter is None:
+            return
+        from ..widgets.collapsible_splitter import CollapsibleSplitter
+
+        if isinstance(splitter, CollapsibleSplitter):
             return
         key = f"{self.app_key}{self.RUNTIME_SPLIT_SUFFIX}"
         try:
@@ -6894,6 +7089,9 @@ class AppScreen(QWidget):
         :meth:`refresh_ambient_background`.
         """
         super().showEvent(event)
+        focus = getattr(self, "_shell_focus", None)
+        if focus is not None and not event.spontaneous():
+            focus.begin_view()
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None and not usage_timer.isActive():
             usage_timer.start()
@@ -6935,6 +7133,9 @@ class AppScreen(QWidget):
         usage_timer = getattr(self, "_usage_timer", None)
         if usage_timer is not None:
             usage_timer.stop()
+        focus = getattr(self, "_shell_focus", None)
+        if focus is not None and not event.spontaneous():
+            focus.end_view()
         super().hideEvent(event)
 
     def _on_run(self, _checked=False, *, override=None):

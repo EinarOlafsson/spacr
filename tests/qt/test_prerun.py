@@ -218,7 +218,7 @@ def test_the_banner_is_reached_through_the_registered_factory(qtbot, registered)
     # Immediately above the Run row: the last thing the eye crosses on its
     # way to the button. A panel the user has to go and open is a panel
     # nobody opens.
-    layout = screen._runtime_wrap.layout()
+    layout = screen._actions_row.parentWidget().layout()
     assert layout.indexOf(found) == layout.indexOf(screen._actions_row) - 1
 
 
@@ -498,7 +498,7 @@ def panel(qtbot, registered):
 
 def test_the_panel_is_on_the_mask_screen_above_the_run_row(panel):
     screen = panel._screen
-    layout = screen._runtime_wrap.layout()
+    layout = screen._actions_row.parentWidget().layout()
     assert layout.indexOf(panel) >= 0
     assert layout.indexOf(panel) < layout.indexOf(screen._actions_row)
     assert panel.objectName() == prerun.DIAMETER_OBJECT_NAME

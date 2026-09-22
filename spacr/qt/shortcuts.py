@@ -709,7 +709,9 @@ def _focus_settings_search(window: QMainWindow) -> None:
 
     Ctrl+F on a settings form should mean "find a setting", which is the
     only thing on that screen anyone searches. Screens without a strip are
-    left alone rather than swallowing the key.
+    left alone rather than swallowing the key. A settings column collapsed to
+    the left is opened first (item 471): the caret cannot go into a box
+    nobody can see.
     """
     try:
         screen = window._stack.currentWidget()
@@ -718,6 +720,12 @@ def _focus_settings_search(window: QMainWindow) -> None:
     bar = getattr(screen, "_settings_search", None)
     if bar is None:
         return
+    reveal = getattr(screen, "reveal_settings", None)
+    if callable(reveal):
+        try:
+            reveal()
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not open the settings column", exc_info=True)
     try:
         bar._input.setFocus()
         bar._input.selectAll()

@@ -1655,10 +1655,13 @@ class TestRuntimePanels:
         # next layout change and still catches a pane going missing.
         splitter = scr._runtime_splitter
         panes = [splitter.widget(i) for i in range(splitter.count())]
-        assert panes == [scr._figures_card, card, scr._console_wrap], (
+        # Item 471 put System and the buttons section in the same splitter,
+        # under the console, so each of them resizes and collapses too.
+        assert panes == [scr._figures_card, card, scr._console_wrap,
+                         scr._usage_card, scr._actions_section], (
             f"{app_key}: the runtime splitter holds "
             f"{[type(w).__name__ for w in panes]}, not figures / preview / "
-            f"console")
+            f"console / System / buttons")
         assert scr._console.isAncestorOf(scr._console_wrap) is False
         assert scr._console_wrap.isAncestorOf(scr._console), (
             "the console pane must actually contain the console")

@@ -397,6 +397,12 @@ def _attach(screen: QWidget, app_key: str,
         card.deleteLater()
         return None
     card.setVisible(False)
+    adopt = getattr(screen, "adopt_runtime_pane", None)
+    if callable(adopt):
+        try:
+            adopt(card, focus=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not name the preview's pane", exc_info=True)
 
     from .widgets.preview_refresh import install_refresh_button
 
@@ -503,6 +509,12 @@ def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:
     if wrap is None or actions is None:
         return False
     layout = wrap.layout()
+    holder = actions.parentWidget()
+    if (holder is not None and holder is not wrap
+            and wrap.isAncestorOf(holder)
+            and holder.layout() is not None
+            and holder.layout().indexOf(actions) >= 0):
+        layout = holder.layout()
     if layout is None:
         return False
     index = layout.indexOf(actions)

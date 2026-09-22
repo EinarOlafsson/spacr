@@ -2439,6 +2439,12 @@ def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:
     if wrap is None or actions is None:
         return False
     layout = wrap.layout()
+    holder = actions.parentWidget()
+    if (holder is not None and holder is not wrap
+            and wrap.isAncestorOf(holder)
+            and holder.layout() is not None
+            and holder.layout().indexOf(actions) >= 0):
+        layout = holder.layout()
     if layout is None:
         return False
     index = layout.indexOf(actions)

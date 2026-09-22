@@ -116,11 +116,14 @@ def test_the_card_sits_above_the_run_row_and_above_the_console(window, qtbot):
     the card sat at the bottom of the screen.
     """
     screen = _screen(window, qtbot, "cellpose_masks")
-    layout = screen._runtime_wrap.layout()
     splitter = screen._runtime_splitter
     host = screen._registry_preview
-    assert layout.indexOf(splitter) < layout.indexOf(screen._actions_row)
-    assert 0 <= splitter.indexOf(host.card) < splitter.indexOf(screen._console_wrap)
+    # Since item 471 the buttons section is the splitter's LAST pane (so it
+    # can be collapsed and resized like the console), and the Run row is in it.
+    actions_at = splitter.indexOf(screen._actions_section)
+    assert screen._actions_section.isAncestorOf(screen._actions_row)
+    assert (0 <= splitter.indexOf(host.card)
+            < splitter.indexOf(screen._console_wrap) < actions_at)
 
 
 def test_the_card_starts_hidden_behind_a_toggle(window, qtbot):
