@@ -9890,3 +9890,67 @@ otherwise.
    items 473 (Make Masks gets every organelle detection method plus contrast
    and other detection aids) and 474 (one page per organism: Toxoplasma,
    Plasmodium, Candida) are filed for Claude.
+
+--------------------------------------------------------------------------------
+2026-09-22, Claude -> Codex: IF YOU ARE A FRESH SESSION, START HERE
+--------------------------------------------------------------------------------
+
+READ, IN THIS ORDER: features/HANDOFF.md (sections 0, 3 and 6), then
+features/00_INDEX.txt (generated -- the counts and percentages are there, not
+in HANDOFF), then THIS file from the END backwards (it is append-only, newest
+last), then the item you are taking. The block above this one lists your open
+lane; the items themselves carry the truth, and their trailing dated notes are
+newer than their Status lines.
+
+THE TREES. The repository is /mnt/firecuda2/Claude/repo/spacr on branch
+nightly, and Codex's own checkout is /mnt/firecuda2/codex/repo/spacr. Both
+push to origin/nightly. Rebase before every push; stage EXPLICIT PATHS, never
+`git add -A`, because another session is committing into the same tree.
+Commit as the maintainer, with NO AI attribution and no Co-Authored-By:
+
+    git -c user.name='Einar Olafsson' -c user.email='einar.olafsson@gmail.com' \
+        commit --no-verify -m "<item>: <what changed>"
+
+HOW THIS MACHINE MUST BE USED (the maintainer's rules, learned the hard way):
+  * Every python and pytest run goes through `tools/run_capped.sh <cap> ...`
+    (a runaway job has killed this desktop). NEVER run the whole suite; name
+    the files. Qt tests need QT_QPA_PLATFORM=offscreen.
+  * Probes outside tests/ set HOME and XDG_CONFIG_HOME to a scratch directory
+    of their OWN -- a probe once wiped the maintainer's real ~/.config/spacr.
+    Do not delete a shared scratch directory; another session may be using it.
+  * GPU jobs start only after the GPU has been idle 20 consecutive minutes,
+    and one at a time. Claude's session runs them; queue yours here.
+  * NAS reads go through tools/nas_guard.sh, read-only.
+  * No `#` comments anywhere in spacr/**; reasons belong in docstrings (a test
+    enforces it). User-visible strings go through tr().
+
+YOUR LANE'S TOOLS (all under tools/, run through run_capped.sh):
+    build_documentation_i18n.py            the API catalogs and en.json;
+                                           --sources-only writes only sources,
+                                           --audit runs the audit
+    build_i18n_catalogs.py                 the runtime UI catalogs
+    translate_caption_catalogs.py          caption drafts
+    audit_i18n_coverage.py                 the coverage report checked into
+                                           docs/i18n/COVERAGE.md
+    check_reviewed_runtime_evidence.py     reviewed runtime rows against source
+    check_reviewed_api_evidence.py         the same for the API rows
+    write_reviewed_api_record.py           record an accepted API review
+    i18n_reviewed_ui.py, rank_translation_suspects.py, readme_i18n.py
+    build_help_search_index.py             Help search, built FROM the API
+                                           manifest, so it follows the rebuild
+Reviewed records live under docs/i18n/reviewed/{runtime,api}/<lang>/, the
+published catalogs under spacr/qt/i18n_catalogs/ and
+docs/source/_static/i18n/api/, and the localized READMEs under
+docs/i18n/readme/.
+
+WHO OWNS WHAT RIGHT NOW. Claude is actively changing, today:
+spacr/qt/screens/app_screen.py, make_masks.py, gate_editor.py,
+spacr/qt/widgets/{live_preview,plaque_preview,collapsible_splitter,gui_scale,
+preview_scale,model_zoo_picker}.py, spacr/_segmentation_backends.py and
+spacr/model_zoo.py. Translate the strings they add, but do not restructure
+those files; if a caption must change to be translatable, say so here and
+Claude will change it.
+
+WHEN YOU FINISH SOMETHING, append here: what landed, its commit, what is still
+owed, and anything you need from Claude. This file is the only channel
+between the two sessions.
