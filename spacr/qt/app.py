@@ -4755,6 +4755,48 @@ class MainWindow(QMainWindow):
                     LOG.debug("could not restore %s workspace", key,
                               exc_info=True)
 
+    def _say_a_module_would_not_open(self, key, exc) -> str:
+        """Tell the person a module did not open, and what stopped it.
+
+        GitHub #130, 2026-09-22: "When I look at the tiles, I can click them
+        and nothing seems to happen". A screen that raises while it is built
+        raises inside a Qt slot, and Qt prints the traceback to a terminal
+        nobody is reading and carries on: the tile stays a tile and the
+        window never says a word. A missing optional package -- the Import
+        screen needs pylibCZIrw for Zeiss files -- looks exactly like a dead
+        button.
+
+        :param key: the module that would not open.
+        :param exc: what stopped it.
+        :returns: the sentence shown, for the tests.
+        """
+        from PySide6.QtWidgets import QMessageBox
+
+        from .i18n import tr
+
+        try:
+            from .screens.app_screen import APP_TITLES
+
+            name = APP_TITLES.get(key, key)
+        except Exception:                                     # noqa: BLE001
+            name = key
+        missing = getattr(exc, "name", "") if isinstance(exc, ImportError) else ""
+        if missing:
+            said = tr("{module} needs the Python package {package}, which is "
+                      "not installed here.", module=name, package=missing)
+        else:
+            said = tr("{module} could not open: {reason}",
+                      module=name, reason=f"{type(exc).__name__}: {exc}")
+        try:
+            self.statusBar().showMessage(said, 8000)
+        except Exception:                                     # noqa: BLE001
+            LOG.debug("no status bar to say it in", exc_info=True)
+        box = QMessageBox(QMessageBox.Warning, tr("That module did not open"),
+                          said, QMessageBox.Ok, self)
+        box.setDetailedText(f"{type(exc).__name__}: {exc}")
+        box.exec()
+        return said
+
     def _on_nav_selected(self, key: str):
         """Navigate to app ``key``, lazily instantiating its screen on first use."""
         interaction_started = _timing.interval_started("navigation", key)
@@ -4780,6 +4822,10 @@ class MainWindow(QMainWindow):
             try:
                 self._screens[key] = self._build_screen(key)
                 self._screen_scales[key] = _current_font_scale()
+            except Exception as exc:                          # noqa: BLE001
+                LOG.exception("Could not open the %s screen", key)
+                self._say_a_module_would_not_open(key, exc)
+                return
             finally:
                 self._hide_preparing(card)
             try:
