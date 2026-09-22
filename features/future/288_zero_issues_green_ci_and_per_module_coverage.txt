@@ -4596,3 +4596,13 @@ settings/setup-language/tooltip-length selection pass in7.03s. An independent
 check validates each row's source/hash, review gate and real tr() result, and
 proves every unrelated catalog row unchanged. Receipt:
 features/data/411_make_masks_help_2026-09-22.json. Full catalog/CI remains open.
+
+2026-09-22 — CODEX: NEW SHARED CAPTIONS TRANSLATED
+245 missing exact-source rows accepted across all nine runtime languages for
+Keep/Revert, splitter handles, plaque overlays, named magnifier updates and
+Model Zoo backend guidance. Independent actual tr() interpolation and source
+checks pass for every new row. The magnifier fallback test now creates the
+missing-row condition instead of assuming Swedish is incomplete. Its recheck
+plus runtime syntax:8 passed in29.62s;96 other focused UI checks had passed.
+One Model Zoo test reported a surviving JobRunner despite passing; noted in
+the shared channel for its production owner. No full-CI completion claim.

@@ -488,3 +488,11 @@ desktop/mobile frames were inspected. Evidence is recorded with source/media
 hashes in the four voice receipts and combined Make Masks capture receipt.
 Make Masks remaining voices, final listening/caption acceptance, Core Mask
 GPU recapture and complete-set publication remain open.
+
+2026-09-22 — CODEX: MAKE MASKS50-TRACK MATRIX VERIFIED
+The interrupted final Chinese track is now rendered on CPU; all24 English and
+26 other-language tracks independently pass current-source/synthesis, full
+decode, timing, activity and decoded true-peak checks. Current27-scene English
+lesson matches the private stage exactly. Evidence is in the two current
+Make Masks voice receipts under tools/tutorials/evidence/. Media remain private;
+this does not assert listening approval or complete-set publication. No GPU use.

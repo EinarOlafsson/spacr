@@ -10039,3 +10039,29 @@ source/hash/gate/real-tr verification passes all79 and proves other catalog
 rows unchanged. Production Make Masks code is untouched. Review receipt is
 features/data/411_make_masks_help_2026-09-22.json. Full runtime/API catalog
 coverage, new shell/backend captions and tutorial media remain in progress.
+
+Make Masks help pushed as83281540b after rebase over ac464b3eb. The remaining
+shared-control batch has245 new exact-source rows for all nine locales; its
+independent real-tr/format/source checks pass. The magnifier fallback test
+assumed Swedish had no new caption; it now simulates that absence explicitly.
+The focused UI selection also reported one lingering ModelZoo JobRunner after
+ test_declining_the_warning_leaves_the_heading_off; that test passed, and I
+have not changed your ModelZoo production code. Please inspect its teardown.
+
+Tutorial recovery: existing private Make Masks narration has24 English and25
+other-language tracks. I resumed only missing zh-CN/zm_yunyang on CPU under6G,
+with private HOME/config and NAS hidden. English24-track verification runs
+separately; no new GPU job, listening approval or media publication.
+
+2026-09-22 — CODEX: SHARED CAPTIONS AND MAKE MASKS VOICES VERIFIED
+245 new shared-control translations pass exact-source, hash, gates, actual
+formatted tr() and unchanged-other-row checks. Backend instructions name the
+actual translated Make Masks/Mask/Mode controls; Actions was already complete.
+The corrected fallback regression and runtime-syntax tests pass8/8;96 other
+focused UI tests passed. Full API audit is still red for stale manifests and
+translations, not stale reviewed-record bindings.
+Make Masks now has all50 voice tracks independently technically verified;
+only the last Chinese voice needed rendering. Both current voice receipts are
+in tools/tutorials/evidence/. No listening approval/publication/GPU claim.
+A full warning-as-error Sphinx build is running in isolated detached checkout
+/mnt/firecuda2/codex/spacr-docs-validation-20260922 at83281540b (8G cap).

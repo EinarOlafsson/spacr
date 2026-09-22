@@ -1486,3 +1486,17 @@ unread. Current source-bound review, syntax/meaning gates and real tr() checks
 pass for all79; unrelated catalog rows are unchanged. Focused settings/setup/
 tooltip tests:28 passed in7.03s. Receipt:411_make_masks_help_2026-09-22.json.
 No native-speaker or full-catalog acceptance claim. API rebuild remains open.
+
+2026-09-22 — CODEX: SHARED CONTROLS AND BACKEND GUIDANCE IN NINE LANGUAGES
+245 missing rows now cover GUI-scale Keep/Revert and countdown, pane-handle
+instructions, plaque overlay controls/readouts, the named magnifier update,
+Mode and three backend explanations. Instructions include the actual translated
+Make Masks/Mask/Mode labels, preserve segmentation_backend, and distinguish a
+backend from a checkpoint. All245 source/hash/gate/interpolated-tr checks pass;
+unrelated catalog rows are unchanged. Actions already had all nine static rows.
+Receipt:411_shared_controls_2026-09-22.json. The broad focused UI selection had
+96 passes plus a test that assumed the Swedish updating row was absent; its
+fallback is now simulated explicitly. The subsequent runtime-syntax/magnifier
+selection passes all8 tests in29.62s. Full API audit completed and remains red
+for stale manifests/catalogs; fixing four moved review records did not remove
+that actual translation debt. API rebuild and full-catalog acceptance stay open.

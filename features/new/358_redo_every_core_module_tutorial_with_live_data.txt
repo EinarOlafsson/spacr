@@ -2542,3 +2542,15 @@ now generated from spacr/resources/module_workflows.json, which also feeds
 the API guide and nine interactive Home-starting pathway walkthroughs.
 These contracts are not finished recordings or translated lesson catalogs;
 the existing live-media acceptance requirements remain in force.
+
+2026-09-22 — CODEX TAKEOVER: MAKE MASKS COMPLETE NARRATION MATRIX
+Recovered the finished24 English and25 other-language tracks; rendered only
+the missing Chinese zm_yunyang voice on CPU (371.1s,3.3min rendering). The
+staged English lesson is byte-for-JSON equal to the current canonical27-scene
+lesson. Independent full decode, current synthesis fingerprint, timing,
+activity and decoded true-peak checks pass for all50 tracks (24 English and
+26 others), each at or below -1dBFS. Source/media-hashed receipts:
+2026-09-22-make-masks-current-english-voices.json and
+2026-09-22-make-masks-current-other-voices.json in tutorial evidence.
+No GPU used. Listening, final caption/player acceptance, Core Mask recapture,
+the four new472 lessons and complete-set publication remain open.
