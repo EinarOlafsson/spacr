@@ -1,0 +1,106 @@
+================================================================================
+THE GUI FITS A LAPTOP: A WHOLE-GUI SCALE, AND EVERYTHING COLLAPSES
+================================================================================
+
+Status:    OPEN, filed 2026-09-22. Not started.
+Requested: 2026-09-22, by the maintainer, in these words:
+
+           "the scale of spacr works great on a 4k monitor, but on a laptop at
+           a lower resolution it there is often not enough spact to show
+           everything. This is esspecially true for live preview in mask
+           generatin, measure, image UMAP. so we need to add a setting that
+           will scale all the GUI elements to preferences. we already have
+           font scale but this dosnt effect the scale of many gui elements so
+           add scale GUI as a setting from 10% to 200% default 100%. also for
+           each live preview. appart from this scale slider, it would be nice
+           if live preview wuld ocupy the entire screen (vertically) so if
+           console, system and the buttons section below system were all auto
+           collapsed (we need to add the ability to collapse the section under
+           the systems container). it would also be cool if we could collapse
+           the settings to the left. same should be true of the figures,
+           whenever figures appear, consol, system, and buttons auto collapse
+           and the setting s collapse to the left. then if the user wants they
+           should be able to collapse the figures pannel and the live preview
+           pannel and uncollapse anything at any time. also any sections inside
+           the figures or live preview containers should also be colapseable.
+           really whenever possible evey GUI element be it a figure or a table,
+           should be collapseable in every modual, to acomodate smaller
+           screens. and whenever anything is collapsed it should auto loch to
+           the bottom of the container it is in (now for example when i
+           collapse the console it collapses to the middle of the container.)"
+
+Owner:     unassigned. Touches the app shell and nearly every screen: it is a
+           cross-cutting item, and whoever builds it should land it in slices
+           (the scale, the shell's collapse behaviour, then screen by screen).
+
+WHAT IS THERE TODAY (read on nightly e2f082bf8)
+-----------------------------------------------
+
+* A FONT scale exists and nothing else scales: spacr/qt/preferences.py
+  FONT_SCALE_MIN = 0.10 and FONT_SCALE_MAX = 2.00 (~540-541), clamped at
+  ~3625 and ~3631, with its slider at ~5504. No whole-GUI scale exists
+  anywhere in spacr/qt (no QT_SCALE_FACTOR, no scale-factor preference), which
+  is why widget sizes, paddings, icons and fixed pixel sizes stay put while the
+  text shrinks.
+* The console already collapses its own topic sections
+  (spacr/qt/widgets/console_panel.py collapse_section ~1647, toggle_section
+  ~1662; sections start expanded, ~1665), but the console panel itself, the
+  System container and the button section under System do not auto-collapse,
+  and the button section cannot collapse at all.
+* The live previews the maintainer names are spacr/qt/widgets/live_preview.py
+  (Mask), measure_preview.py (Measure) and the image-UMAP views
+  (umap_explorer.py, umap_search_viewer.py, annotation_umap_tab.py); the same
+  shape recurs in motility_preview.py, plaque_preview.py and
+  timelapse_preview.py. The figures panel is figure_grid.py /
+  figure_grid_view.py / figure_queue.py. Screen layout is in
+  spacr/qt/screens/app_screen.py.
+* Item 417 (the magnifier's second round) made Make Masks' settings
+  categories collapsible; that is the nearest existing pattern to reuse.
+
+WHAT TO BUILD
+-------------
+
+1. "GUI scale" in Preferences, beside font scale: 10% to 200%, default 100%,
+   scaling every GUI element -- widget sizes, spacing, icons, fixed pixel sizes
+   -- not only text. Each live preview gets its own scale slider as well.
+2. When a live preview opens, it takes the whole screen height: the console,
+   the System container and the button section below System auto-collapse, and
+   the settings collapse to the left. The button section needs a collapse
+   control it does not have today.
+3. The same when figures appear: console, System and the buttons auto-collapse
+   and the settings collapse to the left.
+4. The user can collapse the figures panel and the live preview panel, and can
+   expand anything again at any time. Auto-collapse never removes the user's
+   ability to undo it.
+5. Every section inside the figures and live preview containers collapses.
+6. Wherever possible, every GUI element -- a figure, a table -- is
+   collapsible, in every module.
+7. A collapsed element locks to the BOTTOM of its container. Today the console
+   collapses to the middle of its container; that is the bug this point fixes.
+
+WHAT TO BE CAREFUL WITH
+-----------------------
+
+* A true whole-GUI scale in Qt is either a startup-time scale factor (needs a
+  restart to change) or every size routed through one scaled helper (live, but
+  every hard-coded pixel size must go through it). Decide which before
+  building, and say in the setting which it is. The font scale and the GUI
+  scale must compose, not fight: 50% GUI at 200% font is a real combination.
+* Auto-collapse must not fight the user: once they expand something by hand,
+  it stays expanded for that view until they leave it.
+* 10% is very small. The screen must stay usable and recoverable there (the
+  same survival test item 413 added for the 10% font floor).
+* New captions (GUI scale, the collapse controls) are translated strings in
+  nine languages: list them for the catalog lane rather than regenerating
+  spacr/qt/i18n_catalogs.
+
+DONE WHEN
+---------
+
+* At GUI scale 50% on a laptop-sized window, Mask live preview, Measure live
+  preview and image UMAP show everything, and 100% looks as it does today.
+* Opening a live preview or figures collapses console, System, the buttons
+  and the settings, and each can be expanded again.
+* Every figure and table in every module can be collapsed.
+* A collapsed element sits at the bottom of its container, the console
+  included.
