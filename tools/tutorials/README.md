@@ -48,7 +48,12 @@ the real CPU Otsu magnifier and FEATURES assignment and measurement from two
 genuine Measure example arrays under `example_data/plate1/merged`. It assigns
 image and mask columns through real file pickers and verifies saved cell
 identities, areas and raw intensities against the source arrays. No GPU model
-is used. `--mask-editor-tour` remains the separate full editing route.
+is used. Add `--mask-editor-tour` to record these readouts and the complete
+editing route in one session on the same field; readout frame names receive a
+`readouts_` prefix to preserve both sets of scenes. `--editor-detect` additionally
+runs the real local model on the recropped field. The neutral capture wrapper
+disables GPU access, so that optional detection uses the CPU and requires local
+weights in the staged profile.
 
 The new frames and catalog wording are work in progress, not published
 videos. GPU rendering/translation must wait for 20 consecutive observed idle

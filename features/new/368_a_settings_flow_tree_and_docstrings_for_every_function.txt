@@ -759,3 +759,9 @@ with 107 source-bound review blocks (four reused). Independent regeneration
 and source/context checks pass; four live-report tests pass in 253.49s.
 Receipt:411_german_api_object_classification_2026-09-22.json. Translation debt
 remains open on 411; English documentation debt is unchanged.
+
+2026-09-22 — CODEX TRANSLATION CHECKPOINT
+411 adds nine German OPS/object-boundary/settings API documents with55
+source-bound blocks (two reused). Independent regeneration and source/context
+checks pass; German freshness10487/11194. Evidence:411_german_api_ops_2026-09-22.json.
+The remaining translation tail stays open on411; English debt pins unchanged.

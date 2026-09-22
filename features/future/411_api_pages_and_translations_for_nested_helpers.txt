@@ -2,8 +2,10 @@
 API PAGES, IN NINE LANGUAGES, FOR THE NESTED HELPER FUNCTIONS -- ASSIGNED TO CODEX
 ================================================================================
 
-Status:    IN PROGRESS, CODEX, 2026-09-15. Phase A inventory, rendering and
+Status:    IN PROGRESS, CODEX, 2026-09-22. Phase A inventory, rendering and
            extractor support and CI wiring implemented; exact-SHA CI pending.
+           German API freshness is 10487/11194 after source-bound reviews;
+           remaining catalog debt and full audit acceptance are still open.
            Still NOT BLOCKING the 1.5.0.8 release: the release is not held for
            it, and it must not turn a release gate red while it is built.
            Filed as FUTURE the same day ("don't work on it now"), then handed
@@ -1420,3 +1422,13 @@ All four live-report tests pass in 253.49s. Receipt:
 features/data/411_german_api_object_classification_2026-09-22.json.
 Full catalog audit and native-language acceptance remain open; English manifest
 and extractor debt pins are unchanged.
+
+2026-09-22 — CODEX: GERMAN OPS COORDINATES AND STORAGE REVIEW
+Nine additional API documents accepted with55 exact-source blocks (two reused).
+Corrected well/window coordinates, inclusive bounds, clipped observations,
+sequencing base calls, stored compensated intensities and authoritative
+SQLite versus cached Parquet semantics. Model-free regeneration and current
+source/context checks pass for every accepted document. German API freshness
+is10487/11194. Receipt:411_german_api_ops_2026-09-22.json. Refreshed report tests
+run before the progress push. No native-speaker, full-catalog or debt-pin claim.
+Final refreshed-report selection:4 passed in223.43s. Feature index matches.

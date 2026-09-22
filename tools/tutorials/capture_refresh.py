@@ -121,8 +121,8 @@ def main() -> int:
         parser.error('--annotation-tour requires --module annotate')
     if args.mask_editor_tour and args.module != 'make_masks':
         parser.error('--mask-editor-tour requires --module make_masks')
-    if args.mask_readouts_tour and (args.module != 'make_masks' or args.mask_editor_tour or args.editor_detect):
-        parser.error('--mask-readouts-tour requires --module make_masks and excludes the editor/detection tour')
+    if args.mask_readouts_tour and args.module != 'make_masks':
+        parser.error('--mask-readouts-tour requires --module make_masks')
     if args.editor_detect and not args.mask_editor_tour:
         parser.error('--editor-detect requires --mask-editor-tour')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
@@ -615,7 +615,8 @@ def main() -> int:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout, detect=args.editor_detect,
-                          readouts_only=args.mask_readouts_tour)
+                          readouts_only=args.mask_readouts_tour and not args.mask_editor_tour,
+                          include_readouts=args.mask_readouts_tour and args.mask_editor_tour)
         if args.module == 'import_images':
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,

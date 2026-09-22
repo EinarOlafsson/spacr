@@ -1,0 +1,402 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "Whether object ``label`` runs into the edge of the microscope field of view.",
+      "label": "spacr.object_classifier.touches_border#0",
+      "source": "Whether object ``label`` runs into the edge of the field.",
+      "source_sha256": "3ba31413a237ecdda26396e14b6e5a75c36c2e58ead75807f0a5a3ff51afac65",
+      "translation": "Ob das Objekt ``label`` den Rand des Bildfelds berührt."
+    },
+    {
+      "context": "the label image.",
+      "label": "spacr.object_classifier.touches_border#1",
+      "source": "the label image.",
+      "source_sha256": "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+      "translation": "das Bild der Objektkennungen."
+    },
+    {
+      "context": "the object.",
+      "label": "spacr.object_classifier.touches_border#2",
+      "source": "the object.",
+      "source_sha256": "c8e6b91d94735aa30860824b70435b3046e25ac333b8b721e8986ba7e0ab219d",
+      "translation": "das Objekt."
+    },
+    {
+      "context": "True when any of its pixels is in the first or last row or column, which is what makes it a cut object nothing here can mend.",
+      "label": "spacr.object_classifier.touches_border#3",
+      "source": "True when any of its pixels is in the first or last row or column, which is what makes it a cut object nothing here can mend.",
+      "source_sha256": "7d1f2039fbe6b0b9e9a351a7aecb2317b774f544d7ec2324196989cf17a04896",
+      "translation": "True, wenn eines seiner Pixel in der ersten oder letzten Zeile oder Spalte liegt. Das Objekt ist dann am Bildrand angeschnitten und lässt sich hier nicht vervollständigen."
+    },
+    {
+      "context": "Run an optical pooled screening experiment's sequencing acquisition from microscope image fields to tables.",
+      "label": "spacr.ops_engine#0",
+      "source": "Run an optical pooled screen's sequencing acquisition from tiles to tables.",
+      "source_sha256": "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
+      "translation": "Führt die Sequenzieraufnahme eines optischen gepoolten Screens von den Kacheln bis zu den Tabellen aus."
+    },
+    {
+      "context": "One call takes each microplate sample position from its microscope image field files to the tables of ``measurements.db``: ``ops_geometry``, where each nuclear microscope image field sits in the microplate sample position frame; ``ops_phenotype``, where each microscope field of view of the high-magnification phenotype acquisition lands on that frame and which microscope image field covers it; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the microplate sample position; ``ops_barcodes``, one row per nucleus whose attributed reads agree; and, when asked for, ``ops_reads``, one row per read per cycle behind those barcodes.",
+      "label": "spacr.ops_engine#1",
+      "source": "One call takes each well from its tile files to the tables of ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_phenotype``, where each field of the high-magnification phenotype acquisition lands on that frame and which tile covers it; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; ``ops_barcodes``, one row per nucleus whose attributed reads agree; and, when asked for, ``ops_reads``, one row per read per cycle behind those barcodes.",
+      "source_sha256": "cc03c06e1f1ace75bb3961455cc32b527512139a68406ab2d1802824d4b77ff4",
+      "translation": "Ein Aufruf verarbeitet jedes Well von seinen Kacheldateien bis zu den Tabellen in ``measurements.db``: ``ops_geometry`` enthält die Position jeder Zellkernkachel im Koordinatensystem des Wells; ``ops_phenotype`` beschreibt, wo jedes Bildfeld der Phänotypaufnahme mit hoher Vergrößerung in diesem Koordinatensystem liegt und welche Kachel es abdeckt; ``ops_objects`` enthält eine Zeile pro Zellkern, segmentiert auf der zusammengesetzten Zellkernkarte und einmalig für das gesamte Well nummeriert; ``ops_barcodes`` enthält eine Zeile pro Zellkern, dessen zugeordnete Reads übereinstimmen; und auf Wunsch enthält ``ops_reads`` eine Zeile pro Read und Zyklus als Grundlage dieser Barcodes."
+    },
+    {
+      "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position.",
+      "label": "spacr.ops_engine#2",
+      "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well.",
+      "source_sha256": "b476341a8c65bf90238d61ea67b7726f80fd216ebc6f614a3794d748540a5cd8",
+      "translation": "Eine nicht lesbare Datei führt zum Ausfall eines Zyklus des zugehörigen Bildfelds und wird im Bericht aufgeführt; das übrige Well wird weiterhin verarbeitet."
+    },
+    {
+      "context": "Stitch, place, segment and decode the microplate sample positions of one sequencing acquisition.",
+      "label": "spacr.ops_engine.run_ops#0",
+      "source": "Stitch, place, segment and decode the wells of one sequencing acquisition.",
+      "source_sha256": "5b698f781f00fdf4f81d71558d838168b5557a1be12f862fe52f433b71d88869",
+      "translation": "Setzt die Bildkacheln der Wells einer Sequenzierungsaufnahme zusammen, ordnet sie räumlich zu, segmentiert und dekodiert sie."
+    },
+    {
+      "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``phenotype_source``, the folder of the high-magnification phenotype acquisition, which the ``phenotype`` phase places on the stitched well and which an empty value skips; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``; ``ops_library``, a guide library CSV the ``library`` keyword overrides; and the five measured numbers ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` and ``ops_footprint``, each of which falls back to the value this laboratory microplate was validated at. ``ops_store_reads`` writes ``ops_reads``.",
+      "label": "spacr.ops_engine.run_ops#1",
+      "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``phenotype_source``, the folder of the high-magnification phenotype acquisition, which the ``phenotype`` phase places on the stitched well and which an empty value skips; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``; ``ops_library``, a guide library CSV the ``library`` keyword overrides; and the five measured numbers ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` and ``ops_footprint``, each of which falls back to the value this plate was validated at. ``ops_store_reads`` writes ``ops_reads``.",
+      "source_sha256": "f3e2948cc34155b832dd5d14cc0f906e7ca29f826ac0a2dc94223f412cf717ac",
+      "translation": "die OPS-Einstellungen. Hier verwendet werden: ``genotype_source``, der rekursiv durchsuchte Ordner der Sequenzierungskacheln; ``phenotype_source``, der Ordner der Phänotypaufnahme mit hoher Vergrößerung, die in der Phase ``phenotype`` auf dem zusammengesetzten Well platziert wird und bei leerem Wert entfällt; ``dst_root``, der Zielordner für ``measurements.db`` und die Berichte pro Well, bei leerem Wert der Quellordner; ``plate``, bei leerem Wert der Name des Quellordners; ``ops_gpu``; ``n_workers``, die Anzahl gleichzeitig dekodierter Bildfelder; ``cellpose_model`` und ``cellpose_diameter``; ``ops_library``, eine CSV mit der Guide-Bibliothek, die durch das Schlüsselwort ``library`` überschrieben wird; sowie die fünf gemessenen Werte ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` und ``ops_footprint``, für die jeweils der bei der Validierung dieser Platte verwendete Wert als Rückfallwert dient. ``ops_store_reads`` schreibt ``ops_reads``."
+    },
+    {
+      "context": "Either folder may be a parent of both halves, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the laboratory microplate, rather than filing 1,281 phenotype microscope fields of view and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
+      "label": "spacr.ops_engine.run_ops#2",
+      "source": "EITHER FOLDER MAY BE A PARENT OF BOTH HALVES, and each setting still reads its own: ``genotype_source`` indexes only names that carry a cycle and ``phenotype_source`` only names that do not, falling back to cycled names for a phenotype acquisition that carries them. Pointing both at ``20200202_6W-LaC024A`` therefore runs the plate, rather than filing 1,281 phenotype fields and 333 sequencing ones as one acquisition -- see :func:`_index_tiles`.",
+      "source_sha256": "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
+      "translation": "Beide Ordner dürfen übergeordnete Ordner beider Aufnahmeteile sein; jede Einstellung liest dennoch ihren eigenen Teil: ``genotype_source`` indexiert nur Namen mit einer Zyklusangabe und ``phenotype_source`` nur Namen ohne eine solche Angabe. Enthält die Phänotypaufnahme Zyklusangaben, werden ersatzweise diese Namen verwendet. Wenn beide auf ``20200202_6W-LaC024A`` zeigen, wird daher die Platte verarbeitet, statt 1.281 Phänotypfelder und 333 Sequenzierungsfelder als eine einzige Aufnahme zu behandeln; siehe :func:`_index_tiles`."
+    },
+    {
+      "context": "which microplate sample positions to run; every microplate sample position found when None.",
+      "label": "spacr.ops_engine.run_ops#3",
+      "source": "which wells to run; every well found when None.",
+      "source_sha256": "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
+      "translation": "die zu verarbeitenden Wells; bei None alle gefundenen Wells."
+    },
+    {
+      "context": "any of ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
+      "label": "spacr.ops_engine.run_ops#4",
+      "source": "any of ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
+      "source_sha256": "72925891ddf63f8f77a2a8f1a9409c8bb8f11ef14081338ddda5c20bfd474ffb",
+      "translation": "beliebige Auswahl aus ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` und ``\"decode\"``, ausgeführt in dieser Reihenfolge. Wird eine Phase ausgelassen, werden ihre benötigten Ergebnisse aus der Datenbank gelesen. Ein Well kann somit einmal zusammengesetzt und anschließend erneut dekodiert werden."
+    },
+    {
+      "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide. Overrides the ``ops_library`` setting.",
+      "label": "spacr.ops_engine.run_ops#5",
+      "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide. Overrides the ``ops_library`` setting.",
+      "source_sha256": "96d5aca3f0fd28c67172a9c271a9603bf34553c4920d4de0c0adcbfd4dd833c6",
+      "translation": "die Guide-Barcodes als Sequenz oder als Pfad zu einer CSV mit einer Spalte ``prefix``, ``barcode`` oder ``sequence``. Bei Angabe wird jeder Barcode zusätzlich seinem ähnlichsten Guide zugeordnet. Überschreibt die Einstellung ``ops_library``."
+    },
+    {
+      "context": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "label": "spacr.ops_engine.run_ops#6",
+      "source": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "source_sha256": "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
+      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``."
+    },
+    {
+      "context": "when the source holds no microscope image fields this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "label": "spacr.ops_engine.run_ops#7",
+      "source": "when the source holds no tiles this can name, an unknown phase or well is asked for, or a phase's input is missing.",
+      "source_sha256": "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c",
+      "translation": "wenn die Quelle keine anhand ihrer Namen zuordenbaren Kacheln enthält, eine unbekannte Phase oder ein unbekanntes Well angefordert wird oder die Eingabe einer Phase fehlt."
+    },
+    {
+      "context": "One nucleus, numbered for the whole well. The join key for sampling.",
+      "label": "spacr.ops_objects.PlateObject#0",
+      "source": "One nucleus, numbered for the whole well. The join key for sampling.",
+      "source_sha256": "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
+      "translation": "Ein Zellkern mit einer für das gesamte Well eindeutigen Nummer. Der Verknüpfungsschlüssel für die Stichprobenauswahl."
+    },
+    {
+      "context": "The field names are the ``ops_objects`` columns the storage contract specifies, so the table is written from these without a translation layer.",
+      "label": "spacr.ops_objects.PlateObject#1",
+      "source": "The field names are the ``ops_objects`` columns the storage contract specifies, so the table is written from these without a translation layer.",
+      "source_sha256": "617f96dff5915a91f13f109e95842c1b44df36dc77bf6cf9ce00f9da31796eae",
+      "translation": "Die Feldnamen entsprechen den im Speichervertrag festgelegten Spalten von ``ops_objects``. Die Tabelle wird daher ohne zusätzliche Übersetzungsschicht aus diesen Feldern geschrieben."
+    },
+    {
+      "context": "the well-wide number. Unique across the whole well, which is the entire reason this type exists -- per-window numbering gives two windows an object #1 apiece.",
+      "label": "spacr.ops_objects.PlateObject#2",
+      "source": "the well-wide number. Unique across the whole well, which is the entire reason this type exists -- per-window numbering gives two windows an object #1 apiece.",
+      "source_sha256": "a5eba814db15a79482b0220b9e374d0673825f6c925d6b5834fea1486e36a499",
+      "translation": "die im gesamten Well eindeutige Nummer. Dafür existiert dieser Typ: Bei einer Nummerierung pro Fenster hätten zwei Fenster jeweils ein Objekt #1."
+    },
+    {
+      "context": "column of the centroid, in well-frame pixels.",
+      "label": "spacr.ops_objects.PlateObject#3",
+      "source": "column of the centroid, in well-frame pixels.",
+      "source_sha256": "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
+      "translation": "Spalte des Schwerpunkts, in Pixeln des Well-Koordinatensystems."
+    },
+    {
+      "context": "row of the centroid, same frame.",
+      "label": "spacr.ops_objects.PlateObject#4",
+      "source": "row of the centroid, same frame.",
+      "source_sha256": "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
+      "translation": "Zeile des Schwerpunkts, im selben Koordinatensystem."
+    },
+    {
+      "context": "pixel count of the mask that was kept, which is the UNCLIPPED observation wherever one exists.",
+      "label": "spacr.ops_objects.PlateObject#5",
+      "source": "pixel count of the mask that was kept, which is the UNCLIPPED observation wherever one exists.",
+      "source_sha256": "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
+      "translation": "Pixelzahl der beibehaltenen Maske. Sofern vorhanden, wird die vollständige, nicht abgeschnittene Beobachtung verwendet."
+    },
+    {
+      "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them inclusive, as :class:`WindowObject` carries them.",
+      "label": "spacr.ops_objects.PlateObject#6",
+      "source": "``(top, left, bottom, right)`` in well-frame pixels, every one of them inclusive, as :class:`WindowObject` carries them.",
+      "source_sha256": "88d5364796cdc7adab3820e68030d6222f109ff808bd0779677590426c56bbe8",
+      "translation": "``(top, left, bottom, right)`` in Pixeln des Well-Koordinatensystems, alle Grenzen einschließlich, wie in :class:`WindowObject` gespeichert."
+    },
+    {
+      "context": "the window whose observation was kept, as ``(row, col)``. Recorded so a suspect object can be traced back to the pixels it was segmented from.",
+      "label": "spacr.ops_objects.PlateObject#7",
+      "source": "the window whose observation was kept, as ``(row, col)``. Recorded so a suspect object can be traced back to the pixels it was segmented from.",
+      "source_sha256": "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
+      "translation": "das Fenster, dessen Beobachtung beibehalten wurde, als ``(row, col)``. Damit lässt sich ein auffälliges Objekt zu den Pixeln zurückverfolgen, aus denen es segmentiert wurde."
+    },
+    {
+      "context": "how many windows saw this nucleus. Greater than one means it sat in an overlap and the observations were sewn.",
+      "label": "spacr.ops_objects.PlateObject#8",
+      "source": "how many windows saw this nucleus. Greater than one means it sat in an overlap and the observations were sewn.",
+      "source_sha256": "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2",
+      "translation": "Anzahl der Fenster, die diesen Zellkern erfasst haben. Ein Wert größer als eins bedeutet, dass er in einem Überlappungsbereich lag und die Beobachtungen zusammengeführt wurden."
+    },
+    {
+      "context": "One segmented object as ONE window saw it, in well-frame coordinates.",
+      "label": "spacr.ops_objects.WindowObject#0",
+      "source": "One segmented object as ONE window saw it, in well-frame coordinates.",
+      "source_sha256": "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
+      "translation": "Ein segmentiertes Objekt, wie es ein einzelnes Fenster erfasst hat, in Koordinaten des Wells."
+    },
+    {
+      "context": "the window it was segmented in, so a disagreement can be traced back to the pixels that produced it.",
+      "label": "spacr.ops_objects.WindowObject#1",
+      "source": "the window it was segmented in, so a disagreement can be traced back to the pixels that produced it.",
+      "source_sha256": "b19805146c0e651281562808614a7c4d8595a3ed21d97e6a54bdcf6c6ca56b96",
+      "translation": "das Fenster, in dem das Objekt segmentiert wurde. Damit lassen sich Abweichungen zu den zugrunde liegenden Pixeln zurückverfolgen."
+    },
+    {
+      "context": "its label value within that window's label image.",
+      "label": "spacr.ops_objects.WindowObject#2",
+      "source": "its label value within that window's label image.",
+      "source_sha256": "b54e7e0613ded479cdf1952602068302efb28e97e78cab851ac882c474d93cb1",
+      "translation": "sein Labelwert im Labelbild dieses Fensters."
+    },
+    {
+      "context": "whether its mask touches a window edge that is not also a canvas edge -- meaning this window did NOT see all of it. A clipped observation is never preferred and never emitted alone.",
+      "label": "spacr.ops_objects.WindowObject#3",
+      "source": "whether its mask touches a window edge that is not also a canvas edge -- meaning this window did NOT see all of it. A clipped observation is never preferred and never emitted alone.",
+      "source_sha256": "c531bfa81c783863267ad946371637abfadaa556ba897e1cd80300f122da56a7",
+      "translation": "ob seine Maske eine Fenstergrenze berührt, die nicht zugleich eine Grenze der Gesamtbildfläche ist. Dieses Fenster hat das Objekt dann nicht vollständig erfasst. Eine abgeschnittene Beobachtung wird niemals bevorzugt und niemals allein ausgegeben."
+    },
+    {
+      "context": "row of the object's centroid, in WELL-frame pixels -- not window-frame. Matching across a seam compares centroids from two different windows, so they have to be in a frame both agree on.",
+      "label": "spacr.ops_objects.WindowObject#4",
+      "source": "row of the object's centroid, in WELL-frame pixels -- not window-frame. Matching across a seam compares centroids from two different windows, so they have to be in a frame both agree on.",
+      "source_sha256": "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
+      "translation": "Zeile des Objektschwerpunkts, in Pixeln des Well-Koordinatensystems, nicht des Fensterkoordinatensystems. Beim Abgleich über eine Fenstergrenze werden Schwerpunkte aus zwei verschiedenen Fenstern verglichen; beide müssen daher im selben Koordinatensystem liegen."
+    },
+    {
+      "context": "column of the same centroid, same frame.",
+      "label": "spacr.ops_objects.WindowObject#5",
+      "source": "column of the same centroid, same frame.",
+      "source_sha256": "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
+      "translation": "Spalte desselben Schwerpunkts, im selben Koordinatensystem."
+    },
+    {
+      "context": "the mask's pixel count as this window saw it. Smaller than the truth whenever ``clipped`` is set, which is what makes it usable as the tie-break between two observations of one nucleus.",
+      "label": "spacr.ops_objects.WindowObject#6",
+      "source": "the mask's pixel count as this window saw it. Smaller than the truth whenever ``clipped`` is set, which is what makes it usable as the tie-break between two observations of one nucleus.",
+      "source_sha256": "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
+      "translation": "Pixelzahl der Maske, wie sie dieses Fenster erfasst hat. Bei gesetztem ``clipped`` ist sie kleiner als die tatsächliche Fläche. Damit lässt sich bei zwei Beobachtungen desselben Zellkerns entscheiden, welche bevorzugt wird."
+    },
+    {
+      "context": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
+      "label": "spacr.ops_objects.WindowObject#7",
+      "source": "``(top, left, bottom, right)`` in well-frame pixels, every one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row and column the mask occupies, so its height is ``bottom - top + 1``. This docstring said exclusive until 2026-09-19 and the code has always been inclusive (`_label_extents` reduces with ``np.maximum``), which cost anyone measuring an extent from it one pixel in each direction.",
+      "source_sha256": "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d",
+      "translation": "``(top, left, bottom, right)`` in Pixeln des Well-Koordinatensystems, alle Grenzen einschließlich. ``bottom`` und ``right`` sind die letzte von der Maske belegte Zeile und Spalte; ihre Höhe beträgt also ``bottom - top + 1``. Dieser Docstring bezeichnete die Grenzen bis zum 2026-09-19 als ausschließend, obwohl der Code sie stets einschloss (`_label_extents` reduziert mit ``np.maximum``). Wer anhand dieser Beschreibung eine Ausdehnung berechnete, erhielt daher in jeder Richtung ein Pixel zu wenig."
+    },
+    {
+      "context": "One record per group no window saw whole, for a run report.",
+      "label": "spacr.ops_objects.unseen_records#0",
+      "source": "One record per group no window saw whole, for a run report.",
+      "source_sha256": "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
+      "translation": "Ein Datensatz pro Gruppe, die kein Fenster vollständig erfasst hat, für den Laufbericht."
+    },
+    {
+      "context": "Why this is not the refusal message. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the processing session raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
+      "label": "spacr.ops_objects.unseen_records#1",
+      "source": "WHY THIS IS NOT THE REFUSAL MESSAGE. :func:`_unseen_report` names the LARGEST group and the remedy, which is what an operator reading one line needs. It is also all that survived well A1's run: 54 groups were dropped and the report kept one box and a count, so the question the run raised -- are these Cellpose fragments with no counterpart, or clips whose complete observation the join missed? -- could not be answered afterwards without segmenting the well again. These records are the cheap half of that answer, written while the observations are still in memory.",
+      "source_sha256": "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
+      "translation": "Der Unterschied zur Ablehnungsmeldung: :func:`_unseen_report` nennt die größte Gruppe und die Abhilfe, also die Information, die eine Bedienperson in einer Zeile benötigt. Nur diese Information blieb auch vom Lauf für Well A1 erhalten: 54 Gruppen wurden verworfen, und der Bericht bewahrte nur einen Begrenzungsrahmen und eine Anzahl. Die dadurch aufgeworfene Frage, ob es sich um Cellpose-Fragmente ohne Gegenstück oder um abgeschnittene Beobachtungen handelte, deren vollständige Beobachtung bei der Zusammenführung übersehen wurde, ließ sich nachträglich nur durch erneute Segmentierung des Wells beantworten. Diese Datensätze liefern den mit geringem Aufwand verfügbaren Teil der Antwort, solange die Beobachtungen noch im Arbeitsspeicher liegen."
+    },
+    {
+      "context": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty microplate sample position frame around it is a fragment.",
+      "label": "spacr.ops_objects.unseen_records#2",
+      "source": "The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each box against the objects that WERE numbered: a refusal with a numbered object over it is a join that missed, and one with empty well frame around it is a fragment.",
+      "source_sha256": "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
+      "translation": "Den anderen Teil liefert :func:`spacr.ops_engine.run_ops`: Jeder Begrenzungsrahmen wird mit den tatsächlich nummerierten Objekten verglichen. Liegt über einer abgelehnten Gruppe ein nummeriertes Objekt, wurde die Zusammenführung verpasst. Liegt sie dagegen in einem ansonsten leeren Bereich des Well-Koordinatensystems, handelt es sich um ein Fragment."
+    },
+    {
+      "context": "from :func:`sew` -- every group, not only the refused ones; the ones with a complete observation are skipped here.",
+      "label": "spacr.ops_objects.unseen_records#3",
+      "source": "from :func:`sew` -- every group, not only the refused ones; the ones with a complete observation are skipped here.",
+      "source_sha256": "8c871e97eef9c0ca7360f208441b7b3403d39654f2842a579ae59bcdad7c8f8a",
+      "translation": "aus :func:`sew`; alle Gruppen, nicht nur die abgelehnten. Gruppen mit einer vollständigen Beobachtung werden hier übersprungen."
+    },
+    {
+      "context": "one key-value mapping per refused group, in the order the groups came, each carrying the group's box in well-frame pixels, its centre, how many observations it holds and from how many windows, the largest window side it spans (0 when it spans none), and the summed and largest clipped areas.",
+      "label": "spacr.ops_objects.unseen_records#4",
+      "source": "one dict per refused group, in the order the groups came, each carrying the group's box in well-frame pixels, its centre, how many observations it holds and from how many windows, the largest window side it spans (0 when it spans none), and the summed and largest clipped areas.",
+      "source_sha256": "0de04fab1bc8ef29f800f743247f9248ff279af91f559d429500dbc4bf5939f4",
+      "translation": "ein dict pro abgelehnter Gruppe, in der ursprünglichen Reihenfolge. Jeder Eintrag enthält den Begrenzungsrahmen der Gruppe in Pixeln des Well-Koordinatensystems, ihren Mittelpunkt, die Anzahl ihrer Beobachtungen und der beteiligten Fenster, die größte überdeckte Fensterseite (0, wenn keine überdeckt wird) sowie die Summe und das Maximum der abgeschnittenen Flächen."
+    },
+    {
+      "context": "The intensities a call was made on, the barcode, and the margin per cycle.",
+      "label": "spacr.ops_sbs.called_bases#0",
+      "source": "The intensities a call was made on, the barcode, and the margin per cycle.",
+      "source_sha256": "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
+      "translation": "Die Intensitäten, auf denen die Basenbestimmung beruht, der Barcode und der Intensitätsabstand pro Zyklus."
+    },
+    {
+      "context": ":func:`call_reads` is this, with the per-cycle margins reduced to their minimum. The three pieces are separated because the ``ops_reads`` table of 372's storage contract is one row per read per cycle -- base, quality and the per-image data channel intensity -- and a caller that only gets the barcode and one number per read has to redo the normalisation to write it. Redoing it is what makes a stored intensity disagree with the call beside it.",
+      "label": "spacr.ops_sbs.called_bases#1",
+      "source": ":func:`call_reads` is this, with the per-cycle margins reduced to their minimum. The three pieces are separated because the ``ops_reads`` table of 372's storage contract is one row per read PER CYCLE -- base, quality and the per-channel intensity -- and a caller that only gets the barcode and one number per read has to redo the normalisation to write it. Redoing it is what makes a stored intensity disagree with the call beside it.",
+      "source_sha256": "575750b43b7c7bb13cd467c1de75292cc9beb1fbf3b58cdfc3c1093ee3602e3b",
+      "translation": ":func:`call_reads` liefert dasselbe, fasst jedoch die Intensitätsabstände pro Zyklus zu ihrem Minimum zusammen. Die drei Bestandteile werden getrennt bereitgestellt, weil die Tabelle ``ops_reads`` gemäß dem Speichervertrag aus 372 eine Zeile pro Read und Zyklus enthält: Base, Qualität und Intensität pro Kanal. Eine aufrufende Funktion, die nur den Barcode und einen einzelnen Wert pro Read erhält, müsste die Normalisierung zum Schreiben der Tabelle erneut ausführen. Genau diese Wiederholung kann dazu führen, dass eine gespeicherte Intensität nicht zur danebenstehenden Basenbestimmung passt."
+    },
+    {
+      "context": "``(N, cycles, channels)`` from :func:`extract_bases`.",
+      "label": "spacr.ops_sbs.called_bases#2",
+      "source": "``(N, cycles, channels)`` from :func:`extract_bases`.",
+      "source_sha256": "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
+      "translation": "``(N, cycles, channels)`` aus :func:`extract_bases`."
+    },
+    {
+      "context": "the letter for each channel, in channel order.",
+      "label": "spacr.ops_sbs.called_bases#3",
+      "source": "the letter for each channel, in channel order.",
+      "source_sha256": "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
+      "translation": "der Buchstabe für jeden Kanal, in Kanalreihenfolge."
+    },
+    {
+      "context": "undo cross-talk after normalising.",
+      "label": "spacr.ops_sbs.called_bases#4",
+      "source": "undo cross-talk after normalising.",
+      "source_sha256": "1c8cd59800d9716e5062cee6d69f93185ecc0164029164274935c7c6760a805b",
+      "translation": "Übersprechen nach der Normalisierung korrigieren."
+    },
+    {
+      "context": "passed to :func:`compensate_crosstalk`.",
+      "label": "spacr.ops_sbs.called_bases#5",
+      "source": "passed to :func:`compensate_crosstalk`.",
+      "source_sha256": "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+      "translation": "wird an :func:`compensate_crosstalk` weitergegeben."
+    },
+    {
+      "context": "divide each cycle's channels by their median over the reads first.",
+      "label": "spacr.ops_sbs.called_bases#6",
+      "source": "divide each cycle's channels by their median over the reads first.",
+      "source_sha256": "9e9a869c99a1fbafbcedcc87a758b397bf7ae9a1fb9a7d172b6837ca23732039",
+      "translation": "zunächst die Kanalintensitäten jedes Zyklus durch ihren jeweiligen Median über die Reads teilen."
+    },
+    {
+      "context": "let the compensation's multiply run on the card.",
+      "label": "spacr.ops_sbs.called_bases#7",
+      "source": "let the compensation's multiply run on the card.",
+      "source_sha256": "245c0d8abd82ab136bc2c05b86cfc16d8c2ffb92ea09d1d7020641d0162257a8",
+      "translation": "die Multiplikation zur Kompensation auf der Grafikkarte ausführen."
+    },
+    {
+      "context": "``(data, barcodes, margin)`` -- ``(N, cycles, channels)`` float32 intensities AFTER normalisation and any compensation, so they are the numbers the winner was picked from rather than the raw ones; one barcode string per read; and ``(N, cycles)`` float32 margins, NaN for a cycle that was not measured and whose letter is therefore ``N``.",
+      "label": "spacr.ops_sbs.called_bases#8",
+      "source": "``(data, barcodes, margin)`` -- ``(N, cycles, channels)`` float32 intensities AFTER normalisation and any compensation, so they are the numbers the winner was picked from rather than the raw ones; one barcode string per read; and ``(N, cycles)`` float32 margins, NaN for a cycle that was not measured and whose letter is therefore ``N``.",
+      "source_sha256": "f4b272b5a0535aa103cb22daaeeaa15753351a2efcea4723b662a9afdfb34a4d",
+      "translation": "``(data, barcodes, margin)``: ``(N, cycles, channels)`` mit float32- Intensitäten nach Normalisierung und gegebenenfalls Kompensation, also den Werten, anhand deren die stärkste Base ausgewählt wurde, statt den Rohwerten; eine Barcode-Zeichenfolge pro Read; und ``(N, cycles)`` mit float32- Intensitätsabständen. Ein nicht gemessener Zyklus erhält NaN und daher den Buchstaben ``N``."
+    },
+    {
+      "context": "Where an OPS run's tables live, and the data-selection boundary that says the objects exist.",
+      "label": "spacr.ops_store#0",
+      "source": "Where an OPS run's tables live, and the gate that says the objects exist.",
+      "source_sha256": "7159a2ef5f9d165342a4a18f2090a3ddf2babcc495c186f4f9c2dafc862fd94d",
+      "translation": "Speicherort der Tabellen eines OPS-Laufs und Prüfung, ob die Objekte vorliegen."
+    },
+    {
+      "context": "The storage contract has two halves. In ``measurements.db``, which is authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads`` and ``ops_barcodes``, written in the same step with their row counts asserted equal, so the sidecar cannot drift from the authority unnoticed.",
+      "label": "spacr.ops_store#1",
+      "source": "The storage contract has two halves. In ``measurements.db``, which is authoritative: ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` and ``ops_barcodes``. Beside it, as a cache: parquet copies of ``ops_reads`` and ``ops_barcodes``, written in the same step with their row counts asserted equal, so the sidecar cannot drift from the authority unnoticed.",
+      "source_sha256": "55ef06ddc342e014f703016360557706621f2a2a9930b21ca762f5c755f96b5a",
+      "translation": "Der Speichervertrag hat zwei Teile. In ``measurements.db`` liegen die maßgeblichen Tabellen ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` und ``ops_barcodes``. Daneben liegen parquet-Kopien von ``ops_reads`` und ``ops_barcodes`` als Cache. Beide werden im selben Schritt geschrieben und ihre Zeilenzahlen auf Gleichheit geprüft, damit die Zusatzdateien nicht unbemerkt von der maßgeblichen Datenbank abweichen können."
+    },
+    {
+      "context": "Sqlite is the authority and parquet is a cache, which is a decision and not a detail. The two can disagree, so one of them has to be right by definition -- otherwise a reader that picked the faster one would sometimes be reading yesterday's numbers with no way to tell. :func:`write_table` writes both in one call and asserts the counts match before either is visible as complete; :func:`read_table` prefers the cache and falls back without complaining, because a missing cache is a performance question and not a correctness one.",
+      "label": "spacr.ops_store#2",
+      "source": "SQLITE IS THE AUTHORITY AND PARQUET IS A CACHE, which is a decision and not a detail. The two can disagree, so one of them has to be right by definition -- otherwise a reader that picked the faster one would sometimes be reading yesterday's numbers with no way to tell. :func:`write_table` writes both in one call and asserts the counts match before either is visible as complete; :func:`read_table` prefers the cache and falls back without complaining, because a missing cache is a performance question and not a correctness one.",
+      "source_sha256": "1a9c5980a3d2e0b791d2fa3b2b569641c59dddfd10e28870ecef1230938994a4",
+      "translation": "SQLITE ist maßgeblich, PARQUET dient als Cache. Das ist eine bewusste Festlegung: Da die beiden voneinander abweichen können, muss eine Quelle per Definition maßgeblich sein. Andernfalls könnte eine lesende Funktion, die die schnellere Quelle wählt, unbemerkt die Werte vom Vortag lesen. :func:`write_table` schreibt beide mit einem Aufruf und prüft die übereinstimmenden Zeilenzahlen, bevor eine von ihnen als vollständig sichtbar wird. :func:`read_table` bevorzugt den Cache und greift bei Bedarf ohne Fehlermeldung auf die Datenbank zurück. Ein fehlender Cache betrifft die Geschwindigkeit, nicht die Korrektheit."
+    },
+    {
+      "context": "Readiness is a data-selection boundary, not a step. No sequencing or phenotype channel is read until ``ops_objects`` is on disk and its row count checked. :func:`objects_ready` is that sentence, and it returns a REASON when the answer is no -- a data-selection boundary that only says \"not yet\" makes the operator guess which half failed.",
+      "label": "spacr.ops_store#3",
+      "source": "READINESS IS A GATE, NOT A STEP. No sequencing or phenotype channel is read until ``ops_objects`` is on disk and its row count checked. :func:`objects_ready` is that sentence, and it returns a REASON when the answer is no -- a gate that only says \"not yet\" makes the operator guess which half failed.",
+      "source_sha256": "1c711f9c4ef2faf02bf75fde86dea76d0154e1adb77e71de2d6d114800e65abd",
+      "translation": "Die Bereitschaftsprüfung ist eine Voraussetzung für die Verarbeitung: Kein Sequenzierungs- oder Phänotypkanal wird gelesen, bevor ``ops_objects`` auf der Festplatte liegt und die Zeilenzahl geprüft wurde. :func:`objects_ready` setzt diese Regel um und gibt bei einem negativen Ergebnis einen Grund zurück. Die bloße Angabe \"not yet\" (noch nicht) würde die Bedienperson darüber im Unklaren lassen, welcher der beiden Teile fehlt."
+    },
+    {
+      "context": "Other measurement tables use the same object ids, so later steps need no special case. The numbering is deterministic for that reason: those ids join tables written at different times.",
+      "label": "spacr.ops_store#4",
+      "source": "Other measurement tables use the same object ids, so later steps need no special case. The numbering is deterministic for that reason: those ids join tables written at different times.",
+      "source_sha256": "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133",
+      "translation": "Andere Messtabellen verwenden dieselben Objekt-IDs, sodass spätere Schritte keine Sonderbehandlung benötigen. Deshalb ist die Nummerierung deterministisch: Diese IDs verknüpfen Tabellen, die zu unterschiedlichen Zeitpunkten geschrieben wurden."
+    },
+    {
+      "context": "``(settings, [note])`` with the retired keys taken out.",
+      "label": "spacr.picture_settings.drop_retired#0",
+      "source": "``(settings, [note])`` with the retired keys taken out.",
+      "source_sha256": "166fece7387d5b8c2e6cb2e078f1848a7de78cd1fa5ffcf45c932b938103d1c7",
+      "translation": "``(settings, [note])`` mit entfernten veralteten Schlüsseln."
+    },
+    {
+      "context": "saved picture-settings mapping to migrate.",
+      "label": "spacr.picture_settings.drop_retired#1",
+      "source": "saved picture-settings mapping to migrate.",
+      "source_sha256": "bbc4fd08cb02a571f80b7eb191c7cf4368e602a62333aafb9dec05d3f84fd604",
+      "translation": "die zu migrierende Zuordnung gespeicherter Bildeinstellungen."
+    },
+    {
+      "context": "Called wherever a saved picture-settings blob is read. The notes are returned rather than printed, so the caller decides whether this is worth a line -- it is worth one the first time and noise every time after.",
+      "label": "spacr.picture_settings.drop_retired#2",
+      "source": "Called wherever a saved picture-settings blob is read. The notes are returned rather than printed, so the caller decides whether this is worth a line -- it is worth one the first time and noise every time after.",
+      "source_sha256": "76a6991c10a88caa4bbc646b9ea18bcacb2cad119ab3d9a1778a6a9721e82d1b",
+      "translation": "Wird überall dort aufgerufen, wo gespeicherte Bildeinstellungen eingelesen werden. Die Hinweise werden zurückgegeben statt ausgegeben. Die aufrufende Funktion entscheidet, ob sie eine Meldung anzeigen soll: Beim ersten Mal ist diese hilfreich, bei jeder Wiederholung nur störend."
+    },
+    {
+      "context": "A renamed structured-data name is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a structured-data name this panel offers. The new name wins when a blob carries both.",
+      "label": "spacr.picture_settings.drop_retired#3",
+      "source": "A RENAMED key is moved rather than dropped: ``img_size`` became ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it. The rename is read from :func:`spacr.settings.surviving_setting_name`, the resolver the settings files use, and only onto a key this panel offers. The new name wins when a blob carries both.",
+      "source_sha256": "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a",
+      "translation": "Ein umbenannter Schlüssel wird verschoben statt entfernt: ``img_size`` wurde am 2026-09-19 zu ``crop_size``. Ein gespeicherter Lauf behält seine gewählte Größe. Die Umbenennung wird über :func:`spacr.settings.surviving_setting_name` ermittelt, den auch die Einstellungsdateien verwenden. Sie erfolgt nur zu einem Schlüssel, den dieses Panel anbietet. Sind beide Namen gespeichert, hat der neue Vorrang."
+    }
+  ],
+  "review": {
+    "corrections": [
+      "Restore well-frame versus window-frame coordinates, inclusive bounding boxes and complete versus clipped observations.",
+      "Translate sequencing base calling and intensity margins, preserving stored compensated intensities and missing-cycle semantics.",
+      "Restore authoritative database versus cache semantics, per-well object identity and renamed-setting precedence; remove untranslated paragraphs."
+    ],
+    "device": "cpu",
+    "draft_model": "Helsinki-NLP/opus-mt-en-de",
+    "kind": "AI-assisted technical and German-language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

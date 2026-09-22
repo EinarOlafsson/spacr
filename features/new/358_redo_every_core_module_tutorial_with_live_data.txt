@@ -4,13 +4,16 @@ REDO EVERY CORE-MODULE TUTORIAL WITH LIVE DATA AND THE FOLDED-IN ACTIONS
 
 Status:    OPEN, filed 2026-09-02. The version-update hold it was filed behind
            was lifted on 2026-09-15 and the candidate's media is uploaded, so
-           what is left is work rather than a wait. As of 2026-09-21: current
+           what is left is work rather than a wait. As of 2026-09-22: current
            Home/installers, Annotate and Classify CV/ML captures have private
            English review masters. Annotate and CV pass full decode and
            browser checks; all 150 narration tracks for 01/04/05 pass technical
            verification after CPU rendering. Classify overview has 11 scenes
            composed from verified current navigation and CV/ML recordings;
-           its English review media pass decode/audio/player checks. OPEN ON:
+           its English review media pass decode/audio/player checks. Map's
+           50 voices and Regression's current 4K master/player are verified.
+           Make Masks has a current combined magnifier/FEATURES/editor capture;
+           its updated lesson, translations and media remain private work. OPEN ON:
            Mask's GPU recapture, remaining
            captures, full language/voice/caption and audible acceptance,
            complete-set publication, and the maintainer's Pages deployment.
@@ -2474,3 +2477,21 @@ privately. No player/application changes. Capture receipt updated:
 tools/tutorials/evidence/2026-09-22-regression-current-capture.json.
 The exchangeability diagnostic limitation remains explicit. Full voice/caption
 and listening acceptance plus complete-set publication remain open.
+
+2026-09-22 — CODEX: MAKE MASKS CURRENT COMBINED CAPTURE VERIFIED
+One 1.5.0.9 session captures Otsu magnifier, FEATURES assignment/measurement,
+reversible editing, recrop and actual local Cellpose-SAM detection. All 40
+frames are native 3840x2160 with dark/Blobs and neutral visible paths. The two
+original Measure example arrays are unchanged. Independent verification checks
+all 114 cell areas and mean raw intensities against original planes, distinct
+field identities, child crop pixels and byte-identical archived parent image.
+The CPU detection produces one object in a 332x267 crop, but visual inspection
+shows it outlines the upper-left partial object instead of the existing central
+cell mask. The private revised narration explicitly explains this mismatch;
+it does not call the detection biologically correct. Its 27 scenes include six
+new magnifier/FEATURES scenes and current Filter/Object detection labels.
+Evidence:tools/tutorials/evidence/2026-09-22-make-masks-current-combined-capture.json.
+Capture/input/policy checks:28 passed in5.04s. First English narration renders
+on CPU; 13 translated reviews, complete voices, listening/player acceptance and
+publication remain open. The canonical lesson/reviews are not replaced by a
+partial private draft. Core Mask's GPU-dependent recapture remains separate.

@@ -1,0 +1,551 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "14_make_masks",
+  "capture": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/make-masks-current-v1/captures/make_masks_complete_20260922_v1",
+  "source": {
+    "commit": "3b10d1aad65a0f6528dedecc66e7ee798d30e419",
+    "version": "1.5.0.9",
+    "module": "make_masks",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frame_count": 40,
+  "frames": [
+    {
+      "name": "00_home",
+      "file": "00_home.png",
+      "sha256": "df442bb4df4e6c88985bf35ac065eda621ff88755feeaac492d976c223277c90",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "01_module",
+      "file": "01_module.png",
+      "sha256": "c458ad6bc4aa24133f7ecfb88ac2bc1407706da3f982023e8be6fba6b1c74438",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "02_folder_picker",
+      "file": "02_folder_picker.png",
+      "sha256": "47cfb25aa46df2aae3ab4a76f739d855dfa5f4e505a7779db71fd3bea20b3f9b",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "03_real_labels",
+      "file": "03_real_labels.png",
+      "sha256": "178cb504f666de29da71b17201e6cc65dcce857c8589741061af3621ce352791",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_04_otsu_magnifier_settings",
+      "file": "readouts_04_otsu_magnifier_settings.png",
+      "sha256": "b943cca0b05726140396195aff21cbe92358c50cccb3adbd6609784951cd95ec",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_05_live_otsu_magnifier",
+      "file": "readouts_05_live_otsu_magnifier.png",
+      "sha256": "b80171d366f943782bef73e143c1af6e4886420911a3eb1e357ee4e7802581b7",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_06_features_real_files",
+      "file": "readouts_06_features_real_files.png",
+      "sha256": "e8c2e1b693344501c6a9c9a2e7d4e88a0dd51c1f267e85f03774e88f413b3e3e",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_07_features_choose_image",
+      "file": "readouts_07_features_choose_image.png",
+      "sha256": "41e89a59a7a67843b9dfdce66511868b9522727aec51a641b8c9c1927bd1abf5",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_08_features_choose_cell_mask",
+      "file": "readouts_08_features_choose_cell_mask.png",
+      "sha256": "cef020d3efa40ced27f1ae199ae79b179bed4707c4d4f5000b1d808757e3b97c",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_09_features_assigned_table",
+      "file": "readouts_09_features_assigned_table.png",
+      "sha256": "a6e94109015e41e47d1d31727bccd430cc4ced959106c82eea92b700158fdb25",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_10_features_setting_n_jobs",
+      "file": "readouts_10_features_setting_n_jobs.png",
+      "sha256": "c03217107423f163f4a8f44ab37da8f587dd71395994f9605609bd32757e1541",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_10_features_setting_cell_min_size",
+      "file": "readouts_10_features_setting_cell_min_size.png",
+      "sha256": "dc576c374931f0ef347fd059585d2e5c103f072ead1e4d13ac5353b437ebbba1",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_10_features_setting_save_png",
+      "file": "readouts_10_features_setting_save_png.png",
+      "sha256": "f5127224aebe68fa3eaefb422e3090acf7afc78c26959b59bdff6ba984d426bf",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_11_features_measuring",
+      "file": "readouts_11_features_measuring.png",
+      "sha256": "7f1268fde5e418c633e5c0ce0c5d45a399eb4c180950dda5892539982cfc13ec",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "readouts_12_features_measurements_saved",
+      "file": "readouts_12_features_measurements_saved.png",
+      "sha256": "1e04e5cc969efe16d51e2dcc3ad79bc3227d56d38afe3e872a830ee57b0baf98",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "04_erase_one_object",
+      "file": "04_erase_one_object.png",
+      "sha256": "f848ac88a63a6abdf2e0b4eba98c4e451cd9b58069070720f190b73218b28776",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "05_undo_exactly",
+      "file": "05_undo_exactly.png",
+      "sha256": "b9d6bfc8ce825dab08a51654dcc676ba5b8fac1b7ffb3d1a25a27b9c115de5eb",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "06_redo",
+      "file": "06_redo.png",
+      "sha256": "3a52539e8f8993c63a621c8410a54bf7d2b60ea94ecea86a959db9e1817aa93e",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "07_draw_demo_not_annotation",
+      "file": "07_draw_demo_not_annotation.png",
+      "sha256": "724d9277f42cccf2283ad13bab43131e4d5fc8f74005294f994cf1f64c48e2b3",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "08_divide_gesture",
+      "file": "08_divide_gesture.png",
+      "sha256": "8a5f536ff2950536517f5396bf626eb8c7da2676cb2ba84320c042cd83600656",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "08_divide_demo",
+      "file": "08_divide_demo.png",
+      "sha256": "5489ece066ef35a16fc62537e682c0463010e67c515ad4c20a975d812a7cb1fa",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "08b_contrast_only",
+      "file": "08b_contrast_only.png",
+      "sha256": "c6f04d04e4587acb3055860de5572b304d7430d4e3f8671e540d4834302669ab",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "08c_filter_edits_labels",
+      "file": "08c_filter_edits_labels.png",
+      "sha256": "a074639e7da4b6cd10945ef6925dadba9adac26e4cf8451c2b4cc6c7dfd901e8",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "08d_filter_undone_bounds_disabled",
+      "file": "08d_filter_undone_bounds_disabled.png",
+      "sha256": "a2d6e9ad162dfa38825491cced35de8ec7cf8d7b6fb0fd1070ce90863b3a473d",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_fold_train_cellpose",
+      "file": "09_fold_train_cellpose.png",
+      "sha256": "510f50aa57bbe3be4924b3f309d41d287887bb640d6c7a62b0df5b260c66b5c6",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_fold_cellpose_all",
+      "file": "09_fold_cellpose_all.png",
+      "sha256": "f7d1d25e768bb015eb83809bd15f9e4f92a902bbd61a650d4de4c10231a8e29e",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_fold_model_compare",
+      "file": "09_fold_model_compare.png",
+      "sha256": "2986ae3be54572d1271508ba27540b9b6950d2bd85ba43c43138c495460d8e6c",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_fold_model_zoo",
+      "file": "09_fold_model_zoo.png",
+      "sha256": "ad30c4cb61d08cb03632dd32c811ef8029e7ab9b7732f298f633972033d5ad64",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_fold_curate",
+      "file": "09_fold_curate.png",
+      "sha256": "40d9e0b6c811905b22909966f206beb2068be2ba7b2b131a1ef61bdcb8fb5cf8",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "09_fold_napari_bridge",
+      "file": "09_fold_napari_bridge.png",
+      "sha256": "b53b9de2e6a57f7426800a98712e04d04e9d423231e6096819c527b537fb49ab",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "10_model_controls_not_run",
+      "file": "10_model_controls_not_run.png",
+      "sha256": "c9cf1b9946ae2756fdd05259562ca21f9abc417064098ce653b5fecec65d8e3d",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "11_saved_restored_mask",
+      "file": "11_saved_restored_mask.png",
+      "sha256": "56d80811ce9761e80db2f84514c7c22c42c3f61dd45014793cc7ec8078505311",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "12_recrop_written",
+      "file": "12_recrop_written.png",
+      "sha256": "e437c0f9910a9def9e3ebc03fa726e47dbd579eea546acb5136ecc39cf5aa41b",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "13_child_and_recovery_archive",
+      "file": "13_child_and_recovery_archive.png",
+      "sha256": "aec147b9ff30c35488b2ac77815a5fa2fd66db2ac4bc06568a03d9275f95b9cf",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "14_cellpose_settings",
+      "file": "14_cellpose_settings.png",
+      "sha256": "5d4fffa8eb35bf0cf7a94715a999f92bcf262fd0ce733dd4ee60987cf2b881f2",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "15_cellpose_detected",
+      "file": "15_cellpose_detected.png",
+      "sha256": "b0a7aa922fac351b1187b07028a2360bbcdb798b1b4ef81a2537b8593dd0e02d",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "16_cell_probability",
+      "file": "16_cell_probability.png",
+      "sha256": "fb698fda5ff3a5286e32659dee448b065b27f054ed2c4ddab2a6af4e3baa37e7",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "17_flows",
+      "file": "17_flows.png",
+      "sha256": "213bdd25a02030189229cb590676ab240a1225359ce803940320392f9adf746f",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "18_mask_again",
+      "file": "18_mask_again.png",
+      "sha256": "f21f33d55d054a146a009b09c77da990b8dd5787d4077d9a5d0775b939aa3fe6",
+      "size": [
+        3840,
+        2160
+      ]
+    },
+    {
+      "name": "19_detection_undone",
+      "file": "19_detection_undone.png",
+      "sha256": "250e361accf89be0b1f7cc6de5d688d0239051aa6a3573e3edb28e6ee0f243bb",
+      "size": [
+        3840,
+        2160
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_10_1.npy",
+      "source_sha256": "a45e1b9f13604925bde4adc2c705b14a01cbe57537a2ea1ab68a5ab16a95b096",
+      "image": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/plate1_E01_10_1_ER.tif",
+      "image_sha256": "909f903c59ac1af4950dcc6552c51cc9c7d2c74c01ed2acf7a00db87dab3bf67",
+      "mask": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/masks/plate1_E01_10_1_ER.tif",
+      "mask_sha256": "8f6e99d963b58f483ff88de44270ab45a3d265a71891a8f3be2b1d8e6914df29",
+      "image_plane": 1,
+      "cell_mask_plane": 4,
+      "objects": 63,
+      "shape": [
+        1994,
+        1994
+      ]
+    },
+    {
+      "source": "/tmp/spacr-tutorials/example_data/plate1/merged/plate1_E01_11_1.npy",
+      "source_sha256": "f03824eb96b6db6054ac31cb04ddc1c20878192c57cee923ff50563363be4c9f",
+      "image": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/plate1_E01_11_1_ER.tif",
+      "image_sha256": "0ce34c658d93ada05d738e542dbac82225aafe09d99b83056a1b9eb15e3daead",
+      "mask": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/masks/plate1_E01_11_1_ER.tif",
+      "mask_sha256": "4790aac50a70c17c9f5e3241c871b76a0c994d45d23078ebe346f47660163e1b",
+      "image_plane": 1,
+      "cell_mask_plane": 4,
+      "objects": 51,
+      "shape": [
+        1994,
+        1994
+      ]
+    }
+  ],
+  "measurement": {
+    "accepted": true,
+    "interaction": "visible file pickers, settings and Measure button",
+    "fields": 2,
+    "channels": 1,
+    "mask_roles": [
+      "cell"
+    ],
+    "settings_chosen_visibly": {
+      "n_jobs": 1,
+      "cell_min_size": 1,
+      "save_png": false
+    },
+    "test_mode": false,
+    "database": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/features/measurements/measurements.db",
+    "database_sha256": "2401ac017d5e22bee77c5479bf13313a7d7bcb095519ea66e454845c59e16686",
+    "database_tables": [
+      "cell",
+      "cytoplasm",
+      "intensity_rescale",
+      "run_status",
+      "settings",
+      "settings_history"
+    ],
+    "measured_cell_rows": 114,
+    "source_files_unchanged": true,
+    "every_cell_area_and_mean_verified_against_source_pixels": true,
+    "distinct_field_identities_verified": true
+  },
+  "editor": {
+    "accepted": true,
+    "input_folder": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a",
+    "initial_objects": 63,
+    "steps": [
+      {
+        "action": "erase_object",
+        "label": 17,
+        "before": 63,
+        "after": 62
+      },
+      {
+        "action": "draw",
+        "demonstration_only": true,
+        "before": 63,
+        "after": 64
+      },
+      {
+        "action": "divide",
+        "before": 63,
+        "after": 64
+      },
+      {
+        "action": "area_filter",
+        "minimum_area": 21022,
+        "before": 63,
+        "after": 31,
+        "model_rerun": false
+      }
+    ],
+    "reversible_label_edits_undone_before_recrop": true,
+    "saved_original_foreground_unchanged": true,
+    "original_images_unchanged": true,
+    "folded_routes_shown": [
+      "train_cellpose",
+      "cellpose_all",
+      "model_compare",
+      "model_zoo",
+      "curate",
+      "napari_bridge"
+    ],
+    "model_inference_requested": true,
+    "model_inference": {
+      "model": "cpsam",
+      "objects": 1,
+      "status": "Object detection (cpsam) found 1 object(s) \u2014 replaced into the mask. See the Cell probability and Flows tabs.",
+      "input_shape": [
+        332,
+        267
+      ],
+      "cell_probability": 0.0,
+      "flow_threshold": 0.4,
+      "diameter": 0,
+      "normalize": true,
+      "mode": "replace"
+    },
+    "recrop_recorded": true,
+    "recrop": {
+      "child": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/plate1_E01_10_1_ER__r00.tif",
+      "box": [
+        1451,
+        474,
+        1718,
+        806
+      ],
+      "image_sha256": "15a089a8e1a93ebb802d39d7726564f56b012564f65b2f21e017bcfc3b2d9de9",
+      "child_objects": 1,
+      "parent_recovery_path": "/tmp/spacr-tutorials/make_masks_runs/example-n6_y482a/recropped_originals/plate1_E01_10_1_ER.tif"
+    }
+  },
+  "readouts": {
+    "accepted": true,
+    "mode": "otsu",
+    "scope": "region",
+    "model_inference_on_gpu": false,
+    "features_rows": 2,
+    "features_files": 4,
+    "features_unassigned_files": 0,
+    "features_scope": "Visible assignment of ER images and companion cell masks, followed by the real Measure run",
+    "features_measurement_run": true,
+    "features_measured_cell_rows": 114,
+    "image_and_labels_unchanged": true,
+    "magnifier_result_type": "_MagnifierResult",
+    "magnifier_objects": 1
+  },
+  "independent_checks": {
+    "all_frame_hashes_and_4k_geometry": true,
+    "current_dark_blobs": true,
+    "source_arrays_match_measure_example": true,
+    "every_cell_area_and_raw_mean_from_original_planes": true,
+    "distinct_field_identities": true,
+    "original_images_and_saved_mask_foreground": true,
+    "recrop_pixels_match_parent": true,
+    "parent_archive_preserves_image_bytes": true
+  },
+  "capture_helper_sha256": {
+    "capture_refresh.py": "caad5e24320a42a2cbf4e5fe5121ce43db2f91a1edbc0612d8cf05bbafd0e952",
+    "capture_make_masks.py": "c5fbec852ad2769719eeccf2ce55440697ad193230eb43218084262b2376ac77",
+    "capture_mask_readouts.py": "c23e2f842e87ba7400f68d8122f4a8b1c520f8fb11cec8c7593ff142f4da93c3",
+    "capture_features_run.py": "b2568f844ec77ae2b64b493f9522a21f4104f26747002a81e8e91cd23a95d2d8",
+    "capture_policy.py": "a529949bca12de57e3247dcaa09a42c96e8e38b64e63a69dc8e4743bc1e141b5",
+    "run_neutral_capture.sh": "846854fcfd12affe5db850a00fa7afebab53024d762958e09923166c77a9614f"
+  },
+  "visual_review": "Magnifier, completed FEATURES table, area filter, detection, probability, flow and undo frames inspected. Detection covers the upper-left partial object rather than the existing central-cell mask; the lesson must explain this mismatch. Visible paths use the neutral tutorial workspace.",
+  "ready_for_publication": false,
+  "outstanding": [
+    "Integrate the current UI labels, 332x267 crop, magnifier and FEATURES scenes into the lesson and its 13 translations.",
+    "Explain the observed detection mismatch instead of implying a correct segmentation.",
+    "The FEATURES regex status caption remains stale after manual assignment; assigned rows and database are independently verified.",
+    "Narration, all voices, captions, player, listening and complete-set publication."
+  ]
+}

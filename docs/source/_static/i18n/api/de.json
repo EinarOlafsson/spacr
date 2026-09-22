@@ -46680,6 +46680,22 @@
         "47120d9d09af827a3b1c685c1a179509dd3ee6449ac4eaf29f04d8bc3a5b08f1"
       ]
     },
+    "spacr.object_classifier.touches_border": {
+      "source_blocks_sha256": [
+        "3ba31413a237ecdda26396e14b6e5a75c36c2e58ead75807f0a5a3ff51afac65",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "c8e6b91d94735aa30860824b70435b3046e25ac333b8b721e8986ba7e0ab219d",
+        "7d1f2039fbe6b0b9e9a351a7aecb2317b774f544d7ec2324196989cf17a04896"
+      ],
+      "source_sha256": "ea1ececd78fe675f571f3289db5cc05c0a1e7724e5afaf044351c641b69cd529",
+      "text": "Ob das Objekt ``label`` den Rand des Bildfelds berührt.\n\n:param mask: das Bild der Objektkennungen.\n:param label: das Objekt.\n:returns: True, wenn eines seiner Pixel in der ersten oder letzten Zeile oder Spalte liegt. Das Objekt ist dann am Bildrand angeschnitten und lässt sich hier nicht vervollständigen.",
+      "translation_source_blocks_sha256": [
+        "317eb5b4e01b11c0cfcda2e5d021abc6e23a1dceeadd28eca121e59b57471714",
+        "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
+        "c8e6b91d94735aa30860824b70435b3046e25ac333b8b721e8986ba7e0ab219d",
+        "7d1f2039fbe6b0b9e9a351a7aecb2317b774f544d7ec2324196989cf17a04896"
+      ]
+    },
     "spacr.object_distances": {
       "source_blocks_sha256": [
         "9df47c4fd1b18eb4bd9f837ef01f94e857bc6314575915e46030e43ec30b949b",
@@ -49731,35 +49747,37 @@
     "spacr.ops_engine": {
       "source_blocks_sha256": [
         "c0b0a48e91647737c5d13ebed3c67caaa78ac08e0d806a2b4886cbc56c3bc015",
-        "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
-        "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73"
+        "cc03c06e1f1ace75bb3961455cc32b527512139a68406ab2d1802824d4b77ff4",
+        "b476341a8c65bf90238d61ea67b7726f80fd216ebc6f614a3794d748540a5cd8"
       ],
-      "source_sha256": "addb1b55394a44a3dd693a8768539a205c86e4464bffb7637959171d38dc3c4d",
-      "text": "Führt die Sequenzieraufnahme eines optischen gepoolten Screens von den Kacheln bis zu den Tabellen aus.\n\nEin Aufruf bringt jedes Well von seinen Kacheldateien zu drei Tabellen in ``measurements.db``: ``ops_geometry``, wo jede Kernkachel im Well-Rahmen liegt; ``ops_objects``, eine Zeile pro Zellkern, segmentiert auf der zusammengesetzten Kernkarte und einmal für das Well nummeriert; und ``ops_barcodes``, eine Zeile pro Zellkern, dessen zugeordnete Reads übereinstimmen.\n\nEine Datei, die sich nicht lesen lässt, kostet einen Zyklus des Feldes, zu dem sie gehört, und wird im Bericht aufgeführt; sie kostet nicht das Well. Die Phänotyp-Aufnahme wird von diesem Schritt nicht platziert.",
+      "source_sha256": "69916629fefa3b8bc2b69995081fd52ae12ce5ab3f012feffd26f017b9a61bff",
+      "text": "Führt die Sequenzieraufnahme eines optischen gepoolten Screens von den Kacheln bis zu den Tabellen aus.\n\nEin Aufruf verarbeitet jedes Well von seinen Kacheldateien bis zu den Tabellen in ``measurements.db``: ``ops_geometry`` enthält die Position jeder Zellkernkachel im Koordinatensystem des Wells; ``ops_phenotype`` beschreibt, wo jedes Bildfeld der Phänotypaufnahme mit hoher Vergrößerung in diesem Koordinatensystem liegt und welche Kachel es abdeckt; ``ops_objects`` enthält eine Zeile pro Zellkern, segmentiert auf der zusammengesetzten Zellkernkarte und einmalig für das gesamte Well nummeriert; ``ops_barcodes`` enthält eine Zeile pro Zellkern, dessen zugeordnete Reads übereinstimmen; und auf Wunsch enthält ``ops_reads`` eine Zeile pro Read und Zyklus als Grundlage dieser Barcodes.\n\nEine nicht lesbare Datei führt zum Ausfall eines Zyklus des zugehörigen Bildfelds und wird im Bericht aufgeführt; das übrige Well wird weiterhin verarbeitet.",
       "translation_source_blocks_sha256": [
         "2c2458a62b571f8e72b70b8e635f8908f800ba1bc12bd66c9029a0483955d613",
-        "ca95d16ca07572e19ebe29c1a79463631431eea44d7765f09de50753f28d29db",
-        "e7b2d3445a7bdbb35cc8f223849a27555668a54900f5b526ae81aa3d0daf5d77"
+        "5c9f270f641228d72fd06d281a396844c53f2d5761d8e13e1f0aaf3f4831a770",
+        "bbfd27c77a3500bad2fba37cb41206f2f12ede8627480ed3aedc7c6d13f2c02f"
       ]
     },
     "spacr.ops_engine.run_ops": {
       "source_blocks_sha256": [
-        "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
-        "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
+        "5b698f781f00fdf4f81d71558d838168b5557a1be12f862fe52f433b71d88869",
+        "f3e2948cc34155b832dd5d14cc0f906e7ca29f826ac0a2dc94223f412cf717ac",
+        "20af16caf73243d9a48e62b293cb71e241e38947830291ed1fe0e81315bd2019",
         "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
-        "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
-        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "72925891ddf63f8f77a2a8f1a9409c8bb8f11ef14081338ddda5c20bfd474ffb",
+        "96d5aca3f0fd28c67172a9c271a9603bf34553c4920d4de0c0adcbfd4dd833c6",
         "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
         "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c"
       ],
-      "source_sha256": "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db",
-      "text": "Fügt die Wells einer Sequenzieraufnahme zusammen, segmentiert und decodiert sie.\n\n:param settings: die OPS-Einstellungen. Hier gelesen: ``genotype_source``, der Ordner mit den Sequenzierkacheln, rekursiv durchsucht; ``dst_root``, wohin ``measurements.db`` und die Berichte pro Well geschrieben werden, der Quellordner, wenn leer; ``plate``, der Name des Quellordners, wenn leer; ``ops_gpu``; ``n_workers``, wie viele Felder gleichzeitig decodiert werden; ``cellpose_model`` und ``cellpose_diameter``.\n:param wells: welche Wells laufen sollen; bei None jedes gefundene Well.\n:param phases: beliebige von ``\"stitch\"``, ``\"objects\"`` und ``\"decode\"``, in dieser Reihenfolge ausgeführt. Eine ausgelassene Phase liest, was sie braucht, aus der Datenbank, sodass ein Well einmal zusammengesetzt und erneut decodiert werden kann.\n:param library: die Guide-Barcodes, als Sequenz oder als Pfad einer CSV mit einer Spalte ``prefix``, ``barcode`` oder ``sequence``. Wenn angegeben, wird jeder Barcode zusätzlich seinem nächsten Guide zugeordnet.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: wenn die Quelle keine Kacheln enthält, die hiermit benannt werden können, eine unbekannte Phase oder ein unbekanntes Well angefordert wird oder die Eingabe einer Phase fehlt.",
+      "source_sha256": "1e4ddd57e8c92ad4aac59f326aa02866ce672220a1620b5af30029a7892b1b0c",
+      "text": "Setzt die Bildkacheln der Wells einer Sequenzierungsaufnahme zusammen, ordnet sie räumlich zu, segmentiert und dekodiert sie.\n\n:param settings: die OPS-Einstellungen. Hier verwendet werden: ``genotype_source``, der rekursiv durchsuchte Ordner der Sequenzierungskacheln; ``phenotype_source``, der Ordner der Phänotypaufnahme mit hoher Vergrößerung, die in der Phase ``phenotype`` auf dem zusammengesetzten Well platziert wird und bei leerem Wert entfällt; ``dst_root``, der Zielordner für ``measurements.db`` und die Berichte pro Well, bei leerem Wert der Quellordner; ``plate``, bei leerem Wert der Name des Quellordners; ``ops_gpu``; ``n_workers``, die Anzahl gleichzeitig dekodierter Bildfelder; ``cellpose_model`` und ``cellpose_diameter``; ``ops_library``, eine CSV mit der Guide-Bibliothek, die durch das Schlüsselwort ``library`` überschrieben wird; sowie die fünf gemessenen Werte ``ops_base_channels``, ``ops_read_threshold``, ``ops_raster_overlap``, ``ops_window_overlap`` und ``ops_footprint``, für die jeweils der bei der Validierung dieser Platte verwendete Wert als Rückfallwert dient. ``ops_store_reads`` schreibt ``ops_reads``.\n\n    Beide Ordner dürfen übergeordnete Ordner beider Aufnahmeteile sein; jede Einstellung liest dennoch ihren eigenen Teil: ``genotype_source`` indexiert nur Namen mit einer Zyklusangabe und ``phenotype_source`` nur Namen ohne eine solche Angabe. Enthält die Phänotypaufnahme Zyklusangaben, werden ersatzweise diese Namen verwendet. Wenn beide auf ``20200202_6W-LaC024A`` zeigen, wird daher die Platte verarbeitet, statt 1.281 Phänotypfelder und 333 Sequenzierungsfelder als eine einzige Aufnahme zu behandeln; siehe :func:`_index_tiles`.\n:param wells: die zu verarbeitenden Wells; bei None alle gefundenen Wells.\n:param phases: beliebige Auswahl aus ``\"stitch\"``, ``\"phenotype\"``, ``\"objects\"`` und ``\"decode\"``, ausgeführt in dieser Reihenfolge. Wird eine Phase ausgelassen, werden ihre benötigten Ergebnisse aus der Datenbank gelesen. Ein Well kann somit einmal zusammengesetzt und anschließend erneut dekodiert werden.\n:param library: die Guide-Barcodes als Sequenz oder als Pfad zu einer CSV mit einer Spalte ``prefix``, ``barcode`` oder ``sequence``. Bei Angabe wird jeder Barcode zusätzlich seinem ähnlichsten Guide zugeordnet. Überschreibt die Einstellung ``ops_library``.\n:returns: ``{\"db\": path, \"wells\": {well: {phase: report}}}``.\n:raises ValueError: wenn die Quelle keine anhand ihrer Namen zuordenbaren Kacheln enthält, eine unbekannte Phase oder ein unbekanntes Well angefordert wird oder die Eingabe einer Phase fehlt.",
       "translation_source_blocks_sha256": [
-        "55e436af9ddcabbeca29109f95002d1f971cdbb763fdebdec97d4d65a934f5fe",
-        "9b9693dc3a424fc9561a55eeb6b5a3b655b5a32405e846a949aa260b92f8259f",
+        "68204af3e84ca8766af6e87e9c546b7acb0dd2b0811974fd8697369efd200838",
+        "c6bc911b575858913942cb2a050c56117005359b26684db63cb3187288fbef0f",
+        "741770f46e27c2784573997338e0e96a5ff74e581e6ca8699c37624031798c6d",
         "6db1cb9e60478e98d15850455427024f6709b7bf66a1e6f0fae6b412185d4949",
-        "0b480320509f0847b25781cc61ee5b019505802f9ef812bc588bf34648024faf",
-        "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
+        "4c4d5e5ea4d4f16e0394ab1a95e7e1ee9159ea4ada80315362362bef6c8ad26a",
+        "96d5aca3f0fd28c67172a9c271a9603bf34553c4920d4de0c0adcbfd4dd833c6",
         "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
         "45581efb90904ef0ca2df0483b6d41f5b74785186657bde7b3af92131d744975"
       ]
@@ -50088,12 +50106,12 @@
         "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
         "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
         "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
-        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c",
+        "88d5364796cdc7adab3820e68030d6222f109ff808bd0779677590426c56bbe8",
         "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
         "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
       ],
-      "source_sha256": "3415ac1e8592c5fbaeab6c74544147aa1d667846212d67844976452109302b82",
-      "text": "Ein Kern, nummeriert für den ganzen Wells.\n\nDie Feldnamen sind die ``ops_objects`` Spalten, die der Speichervertrag spezifiziert, so dass die Tabelle ohne Übersetzungsebene aus diesen geschrieben wird.\n\n:param object_id: die weite Zahl. Einzigartig über den ganzen Wells, was der ganze Grund ist, warum dieser Typ existiert -- pro Fenster Nummerierung gibt zwei Fenstern ein Objekt #1 pro Stück.\n:param centroid_x: Spalte des Zentrioids, in Wellframe-Pixel.\n:param centroid_y: Reihe des Zentrioids, gleicher Rahmen.\n:param area: Pixelzahl der Maske, die gehalten wurde, was die UNCLIPPED-Beobachtung ist, wo immer man existiert.\n:param bbox: ``(top, left, bottom, right)`` in Wellframe-Pixel, unten/rechts exklusiv.\n:param window: das Fenster, dessen Beobachtung gehalten wurde, als ``(row, col)``. Aufgenommen, damit ein Verdächtiges Objekt zu den Pixeln zurückverfolgt werden kann, von denen es segmentiert wurde.\n:param n_observations: wie viele Fenster diesen Kern gesehen haben. Größere als eins bedeutet, dass er in einer Überlappung saß und die Beobachtungen genäht wurden.",
+      "source_sha256": "dba6b3014f86534f6aa20d8e49ed1fccb1f32e5ba5fac83c0166f92b17f944b1",
+      "text": "Ein Zellkern mit einer für das gesamte Well eindeutigen Nummer. Der Verknüpfungsschlüssel für die Stichprobenauswahl.\n\nDie Feldnamen entsprechen den im Speichervertrag festgelegten Spalten von ``ops_objects``. Die Tabelle wird daher ohne zusätzliche Übersetzungsschicht aus diesen Feldern geschrieben.\n\n:param object_id: die im gesamten Well eindeutige Nummer. Dafür existiert dieser Typ: Bei einer Nummerierung pro Fenster hätten zwei Fenster jeweils ein Objekt #1.\n:param centroid_x: Spalte des Schwerpunkts, in Pixeln des Well-Koordinatensystems.\n:param centroid_y: Zeile des Schwerpunkts, im selben Koordinatensystem.\n:param area: Pixelzahl der beibehaltenen Maske. Sofern vorhanden, wird die vollständige, nicht abgeschnittene Beobachtung verwendet.\n:param bbox: ``(top, left, bottom, right)`` in Pixeln des Well-Koordinatensystems, alle Grenzen einschließlich, wie in :class:`WindowObject` gespeichert.\n:param window: das Fenster, dessen Beobachtung beibehalten wurde, als ``(row, col)``. Damit lässt sich ein auffälliges Objekt zu den Pixeln zurückverfolgen, aus denen es segmentiert wurde.\n:param n_observations: Anzahl der Fenster, die diesen Zellkern erfasst haben. Ein Wert größer als eins bedeutet, dass er in einem Überlappungsbereich lag und die Beobachtungen zusammengeführt wurden.",
       "translation_source_blocks_sha256": [
         "dd14870f427a77beb13b68ed45b483d218419e890c2e93fb8fa3770de0288a70",
         "617f96dff5915a91f13f109e95842c1b44df36dc77bf6cf9ce00f9da31796eae",
@@ -50101,7 +50119,7 @@
         "0454ca39eccc6ea726b1d2c66877657aeef6eeff49ee6787116ac2e9e8377101",
         "642d2e1a7e1a5a857e204be52b3dc56fd052f4890ab19d05aea9ee7f351e7978",
         "cd87e7ead28e1ec5f093c3e677e5bea79aebd18f9df37b8d3aaa5abccfdd438d",
-        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c",
+        "88d5364796cdc7adab3820e68030d6222f109ff808bd0779677590426c56bbe8",
         "015b9666b0dbca7b2fa380d289f46f461a6e3d76dff95fa2d8219f8aa91481a8",
         "9d6587e77fa9bd5eb5ccd239102f86825c4e32e93aae003b0c1f7214d13fddf2"
       ]
@@ -50125,10 +50143,10 @@
         "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
         "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
         "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
-        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c"
+        "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d"
       ],
-      "source_sha256": "3938b7641e317740844cf61721b650f2ffde755ef9486f451b5d740e3471aea1",
-      "text": "Ein segmentiertes Objekt als EIN Fenster sah es, in gut gerahmten Koordinaten.\n\n:param window: das Fenster, in dem es segmentiert wurde, so dass eine Meinungsverschiedenheit zu den Pixeln zurückverfolgt werden kann, die es erzeugten.\n:param label: sein Label-Wert innerhalb des Label-Images dieses Fensters.\n:param clipped: ob seine Maske eine Fensterkante berührt, die nicht auch eine Leinwandkante ist - also dieses Fenster sah NICHT alles davon. Eine geclippte Beobachtung wird nie bevorzugt und nie allein ausgestrahlt.\n:param centroid_y: Reihe des Objekts Zentrioid, in WELL-Frame Pixel -- nicht Fensterrahmen. Passend über eine Naht vergleicht Zentriiden aus zwei verschiedenen Fenstern, so dass sie in einem Rahmen beide übereinstimmen.\n:param centroid_x: Spalte des gleichen Zentrioids, gleicher Rahmen.\n:param area: Der Pixel der Maske zählt, wie dieses Fenster es sah. Kleiner als die Wahrheit, wenn ``clipped`` gesetzt wird, was es als Bindebruch zwischen zwei Beobachtungen eines Kerns nutzbar macht.\n:param bbox: ``(top, left, bottom, right)`` in Wellframe-Pixel, unten/rechts exklusiv.",
+      "source_sha256": "e9d6d5139839f9915465f9eb5bc78ac1790228b3ac2bd40e725547153093cd69",
+      "text": "Ein segmentiertes Objekt, wie es ein einzelnes Fenster erfasst hat, in Koordinaten des Wells.\n\n:param window: das Fenster, in dem das Objekt segmentiert wurde. Damit lassen sich Abweichungen zu den zugrunde liegenden Pixeln zurückverfolgen.\n:param label: sein Labelwert im Labelbild dieses Fensters.\n:param clipped: ob seine Maske eine Fenstergrenze berührt, die nicht zugleich eine Grenze der Gesamtbildfläche ist. Dieses Fenster hat das Objekt dann nicht vollständig erfasst. Eine abgeschnittene Beobachtung wird niemals bevorzugt und niemals allein ausgegeben.\n:param centroid_y: Zeile des Objektschwerpunkts, in Pixeln des Well-Koordinatensystems, nicht des Fensterkoordinatensystems. Beim Abgleich über eine Fenstergrenze werden Schwerpunkte aus zwei verschiedenen Fenstern verglichen; beide müssen daher im selben Koordinatensystem liegen.\n:param centroid_x: Spalte desselben Schwerpunkts, im selben Koordinatensystem.\n:param area: Pixelzahl der Maske, wie sie dieses Fenster erfasst hat. Bei gesetztem ``clipped`` ist sie kleiner als die tatsächliche Fläche. Damit lässt sich bei zwei Beobachtungen desselben Zellkerns entscheiden, welche bevorzugt wird.\n:param bbox: ``(top, left, bottom, right)`` in Pixeln des Well-Koordinatensystems, alle Grenzen einschließlich. ``bottom`` und ``right`` sind die letzte von der Maske belegte Zeile und Spalte; ihre Höhe beträgt also ``bottom - top + 1``. Dieser Docstring bezeichnete die Grenzen bis zum 2026-09-19 als ausschließend, obwohl der Code sie stets einschloss (`_label_extents` reduziert mit ``np.maximum``). Wer anhand dieser Beschreibung eine Ausdehnung berechnete, erhielt daher in jeder Richtung ein Pixel zu wenig.",
       "translation_source_blocks_sha256": [
         "bbe5869f53461fac1f339f4906b81de90bd037d62c2e4a5a9730a390de9ef160",
         "b19805146c0e651281562808614a7c4d8595a3ed21d97e6a54bdcf6c6ca56b96",
@@ -50137,7 +50155,7 @@
         "6810b4ba6f97eda44eb8a5bbbbde5f3a1408c99cca3a44836516e98dcb1382f8",
         "22c94bc7a739e222cb1d8f00a13e848bcf51527ae0bba819bf3418b2ff31b16e",
         "1a8727fd6d97a011ac4e5e53440b5a0ff83ddfab2e1b838a684a48bb94d61d08",
-        "6735f044b8d688b14dc0c3f83847692739c1a7714b3a4ccfbfc9e2760f3f8d8c"
+        "d0bfa04e70362d383092ae307e95187807d8d7fedc557d7b828504bda1c9866d"
       ]
     },
     "spacr.ops_objects.number": {
@@ -50232,6 +50250,24 @@
         "c1a9d649f8ac852f5f7a30cbf50788ab21e3c9ab9d94814bd4351283610afb43",
         "61ba9400977b75e1d849d6bd85806e16d53f61ec4c272d19de24aef588d58a55",
         "8652217514c79f1a6e39a9962520c200894e3d4884fec22dced82361193bfa8a"
+      ]
+    },
+    "spacr.ops_objects.unseen_records": {
+      "source_blocks_sha256": [
+        "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
+        "4cd68cc51de86b0c9948d73e2b8e80c62075f900c438b909d77b76f9299618a8",
+        "bbb4199502e49727481c56fde8862bdf97f1589a42ecb0da4d0ea01e666a974e",
+        "8c871e97eef9c0ca7360f208441b7b3403d39654f2842a579ae59bcdad7c8f8a",
+        "0de04fab1bc8ef29f800f743247f9248ff279af91f559d429500dbc4bf5939f4"
+      ],
+      "source_sha256": "cc08e44580c476bf4ed649ff9800939c9d70f9530a3aaf64848fe7cd0d441e0d",
+      "text": "Ein Datensatz pro Gruppe, die kein Fenster vollständig erfasst hat, für den Laufbericht.\n\nDer Unterschied zur Ablehnungsmeldung: :func:`_unseen_report` nennt die größte Gruppe und die Abhilfe, also die Information, die eine Bedienperson in einer Zeile benötigt. Nur diese Information blieb auch vom Lauf für Well A1 erhalten: 54 Gruppen wurden verworfen, und der Bericht bewahrte nur einen Begrenzungsrahmen und eine Anzahl. Die dadurch aufgeworfene Frage, ob es sich um Cellpose-Fragmente ohne Gegenstück oder um abgeschnittene Beobachtungen handelte, deren vollständige Beobachtung bei der Zusammenführung übersehen wurde, ließ sich nachträglich nur durch erneute Segmentierung des Wells beantworten. Diese Datensätze liefern den mit geringem Aufwand verfügbaren Teil der Antwort, solange die Beobachtungen noch im Arbeitsspeicher liegen.\n\nDen anderen Teil liefert :func:`spacr.ops_engine.run_ops`: Jeder Begrenzungsrahmen wird mit den tatsächlich nummerierten Objekten verglichen. Liegt über einer abgelehnten Gruppe ein nummeriertes Objekt, wurde die Zusammenführung verpasst. Liegt sie dagegen in einem ansonsten leeren Bereich des Well-Koordinatensystems, handelt es sich um ein Fragment.\n\n:param groups: aus :func:`sew`; alle Gruppen, nicht nur die abgelehnten. Gruppen mit einer vollständigen Beobachtung werden hier übersprungen.\n:returns: ein dict pro abgelehnter Gruppe, in der ursprünglichen Reihenfolge. Jeder Eintrag enthält den Begrenzungsrahmen der Gruppe in Pixeln des Well-Koordinatensystems, ihren Mittelpunkt, die Anzahl ihrer Beobachtungen und der beteiligten Fenster, die größte überdeckte Fensterseite (0, wenn keine überdeckt wird) sowie die Summe und das Maximum der abgeschnittenen Flächen.",
+      "translation_source_blocks_sha256": [
+        "aa3af479bf02b15d887b422b7f050964b59d96e774b4081cf7a1fdeea6c605fc",
+        "bca841e535d88e033f6f35b173176d00488f85fcac50652bb9bdaa03b9a8769f",
+        "176c16647173a3cf6ff56c626be2d136a2b41ab98ca432b6d6ce4b93be2cfe7f",
+        "8c871e97eef9c0ca7360f208441b7b3403d39654f2842a579ae59bcdad7c8f8a",
+        "64cc2e8250645244a52ed0d9eaf7ba23bf4241b41f6c6a641f2a076a2be790ba"
       ]
     },
     "spacr.ops_phenotype": {
@@ -50934,6 +50970,32 @@
         "76c2cc45fdde42794b2007aa398b084c60f0664b49296cf0905578f7bec2fc19"
       ]
     },
+    "spacr.ops_sbs.called_bases": {
+      "source_blocks_sha256": [
+        "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
+        "575750b43b7c7bb13cd467c1de75292cc9beb1fbf3b58cdfc3c1093ee3602e3b",
+        "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
+        "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
+        "1c8cd59800d9716e5062cee6d69f93185ecc0164029164274935c7c6760a805b",
+        "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "9e9a869c99a1fbafbcedcc87a758b397bf7ae9a1fb9a7d172b6837ca23732039",
+        "245c0d8abd82ab136bc2c05b86cfc16d8c2ffb92ea09d1d7020641d0162257a8",
+        "f4b272b5a0535aa103cb22daaeeaa15753351a2efcea4723b662a9afdfb34a4d"
+      ],
+      "source_sha256": "b6abbb1f8f735bfc1bf28252f00423ee0a322aedb793f5522a3df70c075a5e95",
+      "text": "Die Intensitäten, auf denen die Basenbestimmung beruht, der Barcode und der Intensitätsabstand pro Zyklus.\n\n:func:`call_reads` liefert dasselbe, fasst jedoch die Intensitätsabstände pro Zyklus zu ihrem Minimum zusammen. Die drei Bestandteile werden getrennt bereitgestellt, weil die Tabelle ``ops_reads`` gemäß dem Speichervertrag aus 372 eine Zeile pro Read und Zyklus enthält: Base, Qualität und Intensität pro Kanal. Eine aufrufende Funktion, die nur den Barcode und einen einzelnen Wert pro Read erhält, müsste die Normalisierung zum Schreiben der Tabelle erneut ausführen. Genau diese Wiederholung kann dazu führen, dass eine gespeicherte Intensität nicht zur danebenstehenden Basenbestimmung passt.\n\n:param values: ``(N, cycles, channels)`` aus :func:`extract_bases`.\n:param bases: der Buchstabe für jeden Kanal, in Kanalreihenfolge.\n:param compensate: Übersprechen nach der Normalisierung korrigieren.\n:param method: wird an :func:`compensate_crosstalk` weitergegeben.\n:param normalise: zunächst die Kanalintensitäten jedes Zyklus durch ihren jeweiligen Median über die Reads teilen.\n:param gpu: die Multiplikation zur Kompensation auf der Grafikkarte ausführen.\n:returns: ``(data, barcodes, margin)``: ``(N, cycles, channels)`` mit float32- Intensitäten nach Normalisierung und gegebenenfalls Kompensation, also den Werten, anhand deren die stärkste Base ausgewählt wurde, statt den Rohwerten; eine Barcode-Zeichenfolge pro Read; und ``(N, cycles)`` mit float32- Intensitätsabständen. Ein nicht gemessener Zyklus erhält NaN und daher den Buchstaben ``N``.",
+      "translation_source_blocks_sha256": [
+        "7e18804ddf09662611c83786850181c60d716599521454b2daa329a463591318",
+        "39dedaa4c52381ee154cfcb5dc7feff8acff8ee92a7a29874df3395e179f80a7",
+        "72faff21d412838404cc8960cfaa3cf65cb1ca109a3df15a35fd60698bf257ed",
+        "dd177b5a156f4710c9e459078f2dc31bd70d0814ec2db21b60a89b54e5b8d4b1",
+        "1c8cd59800d9716e5062cee6d69f93185ecc0164029164274935c7c6760a805b",
+        "6082de1f21dd1f71dadde4bcf71173dd8c4672046e7e8c13142e4656cb233f36",
+        "9e9a869c99a1fbafbcedcc87a758b397bf7ae9a1fb9a7d172b6837ca23732039",
+        "245c0d8abd82ab136bc2c05b86cfc16d8c2ffb92ea09d1d7020641d0162257a8",
+        "f4b272b5a0535aa103cb22daaeeaa15753351a2efcea4723b662a9afdfb34a4d"
+      ]
+    },
     "spacr.ops_sbs.compensate_crosstalk": {
       "source_blocks_sha256": [
         "d119535e6cc1a1bef0e56a13c430f15ca980f23471d8d314eeb667f2b3115c94",
@@ -51289,16 +51351,16 @@
     "spacr.ops_store": {
       "source_blocks_sha256": [
         "7159a2ef5f9d165342a4a18f2090a3ddf2babcc495c186f4f9c2dafc862fd94d",
-        "4d46ed8ac943bf4c7198d39319ef0e4e905a8a284fd9c9c94057c2b605fd9b84",
+        "55ef06ddc342e014f703016360557706621f2a2a9930b21ca762f5c755f96b5a",
         "1a9c5980a3d2e0b791d2fa3b2b569641c59dddfd10e28870ecef1230938994a4",
         "1c711f9c4ef2faf02bf75fde86dea76d0154e1adb77e71de2d6d114800e65abd",
         "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133"
       ],
-      "source_sha256": "2bf9a0caca9d71b13e2ee88b2a235d72eea6b38084598ebb7e86ed755314bde8",
-      "text": "Wo die Tabellen eines OPS laufen, und die Datenauswahlgrenze, die besagt, dass die Objekte existieren.\n\nDer Lagervertrag hat zwei Hälften. In ``measurements.db``, was maßgeblich ist: ``ops_geometry``, ``ops_objects``, ``ops_reads`` und ``ops_barcodes``. Daneben, als Cache: Parkettkopien von ``ops_reads`` und ``ops_barcodes``, geschrieben in demselben Schritt mit ihren Reihenzahlen, die gleich sind, so dass der Beiwagen nicht unbemerkt von der Autorität abdriften kann.\n\nSqlite ist die Autorität und Parkett ist ein Cache, das ist eine Entscheidung und kein Detail. Die beiden können nicht zustimmen, also muss einer von ihnen per Definition richtig sein - sonst würde ein Leser, der den schnelleren wählte, manchmal die Zahlen von gestern lesen, ohne zu sagen. :func:`write_table` schreibt sowohl in einem Anruf und behauptet, dass die Zählung Übereinstimmung, bevor entweder als vollständig sichtbar ist; :func:`read_table` bevorzugt den Cache und fällt zurück, ohne sich zu beschweren, denn ein fehlender Cache ist eine Performance-Frage und keine Korrektheit.\n\nReadiness ist eine Datenselektionsgrenze, kein Schritt. Es wird kein Sequenzierungs- oder Phänotyp-Kanal gelesen, bis ``ops_objects`` auf der Festplatte ist und die Zeilenzahl überprüft ist. :func:`objects_ready` ist dieser Satz, und er gibt eine REASON zurück, wenn die Antwort nein ist -- eine Daten Selection-Grenze, die nur sagt, \"not yet\" lässt den Operator erraten, welche Hälfte fehlgeschlagen ist.\n\nAndere Messtabellen verwenden die gleichen Objekt-IDs, so dass spätere Schritte keinen speziellen Fall brauchen. Die Nummerierung ist deshalb deterministisch: Diese IDs verbinden Tabellen zu verschiedenen Zeiten geschrieben.",
+      "source_sha256": "52862c78bf34c8f78b577a66cfe4786f250d069af8ec78596723941e77115881",
+      "text": "Speicherort der Tabellen eines OPS-Laufs und Prüfung, ob die Objekte vorliegen.\n\nDer Speichervertrag hat zwei Teile. In ``measurements.db`` liegen die maßgeblichen Tabellen ``ops_geometry``, ``ops_phenotype``, ``ops_objects``, ``ops_reads`` und ``ops_barcodes``. Daneben liegen parquet-Kopien von ``ops_reads`` und ``ops_barcodes`` als Cache. Beide werden im selben Schritt geschrieben und ihre Zeilenzahlen auf Gleichheit geprüft, damit die Zusatzdateien nicht unbemerkt von der maßgeblichen Datenbank abweichen können.\n\nSQLITE ist maßgeblich, PARQUET dient als Cache. Das ist eine bewusste Festlegung: Da die beiden voneinander abweichen können, muss eine Quelle per Definition maßgeblich sein. Andernfalls könnte eine lesende Funktion, die die schnellere Quelle wählt, unbemerkt die Werte vom Vortag lesen. :func:`write_table` schreibt beide mit einem Aufruf und prüft die übereinstimmenden Zeilenzahlen, bevor eine von ihnen als vollständig sichtbar wird. :func:`read_table` bevorzugt den Cache und greift bei Bedarf ohne Fehlermeldung auf die Datenbank zurück. Ein fehlender Cache betrifft die Geschwindigkeit, nicht die Korrektheit.\n\nDie Bereitschaftsprüfung ist eine Voraussetzung für die Verarbeitung: Kein Sequenzierungs- oder Phänotypkanal wird gelesen, bevor ``ops_objects`` auf der Festplatte liegt und die Zeilenzahl geprüft wurde. :func:`objects_ready` setzt diese Regel um und gibt bei einem negativen Ergebnis einen Grund zurück. Die bloße Angabe \"not yet\" (noch nicht) würde die Bedienperson darüber im Unklaren lassen, welcher der beiden Teile fehlt.\n\nAndere Messtabellen verwenden dieselben Objekt-IDs, sodass spätere Schritte keine Sonderbehandlung benötigen. Deshalb ist die Nummerierung deterministisch: Diese IDs verknüpfen Tabellen, die zu unterschiedlichen Zeitpunkten geschrieben wurden.",
       "translation_source_blocks_sha256": [
         "fe299a3c34e427559810de34750bc76b4e477999b018779bb93db46fe4062ebb",
-        "4d46ed8ac943bf4c7198d39319ef0e4e905a8a284fd9c9c94057c2b605fd9b84",
+        "55ef06ddc342e014f703016360557706621f2a2a9930b21ca762f5c755f96b5a",
         "d593f1545c8d140fca16af2c5c88fd9c3ed07711508bc3a856fd2dd1e64e54fb",
         "fdb45349b513dc1e3e0ad2a1e7dcf656bca8a50205f3be8d3c120d99a39ef989",
         "a3038e969629b415c61f67a630292f6af922ad9a4a354fc49e9f4c9ef0010133"
@@ -52314,14 +52376,16 @@
       "source_blocks_sha256": [
         "166fece7387d5b8c2e6cb2e078f1848a7de78cd1fa5ffcf45c932b938103d1c7",
         "bbc4fd08cb02a571f80b7eb191c7cf4368e602a62333aafb9dec05d3f84fd604",
-        "76a6991c10a88caa4bbc646b9ea18bcacb2cad119ab3d9a1778a6a9721e82d1b"
+        "76a6991c10a88caa4bbc646b9ea18bcacb2cad119ab3d9a1778a6a9721e82d1b",
+        "6e641d90767dadf52e6614fbbb08ed6a48a4bb5181deefd65b442010fae0845a"
       ],
-      "source_sha256": "ee16bf72f7b2b1cf694495bee8eb219c26f0fa147422c17740599bebdc61d086",
-      "text": "``(settings, [note])`` mit den pensionierten Schlüsseln entfernt.\n\n:param picture: gespeicherte Bild-Einstellungen Mapping, um zu migrieren.\n\nWird überall dort aufgerufen, wo ein gespeicherter Bild-Settings-Blob gelesen wird. Die Noten werden zurückgegeben anstatt gedruckt, so dass der Anrufer entscheidet, ob dies eine Zeile wert ist - es ist eins das erste Mal und Lärm jedes Mal danach wert.",
+      "source_sha256": "b49eacb22776ecc5fec5a653b0a40cc43a0570e980aa44ab5cf93607a49a8c9e",
+      "text": "``(settings, [note])`` mit entfernten veralteten Schlüsseln.\n\n:param picture: die zu migrierende Zuordnung gespeicherter Bildeinstellungen.\n\nWird überall dort aufgerufen, wo gespeicherte Bildeinstellungen eingelesen werden. Die Hinweise werden zurückgegeben statt ausgegeben. Die aufrufende Funktion entscheidet, ob sie eine Meldung anzeigen soll: Beim ersten Mal ist diese hilfreich, bei jeder Wiederholung nur störend.\n\nEin umbenannter Schlüssel wird verschoben statt entfernt: ``img_size`` wurde am 2026-09-19 zu ``crop_size``. Ein gespeicherter Lauf behält seine gewählte Größe. Die Umbenennung wird über :func:`spacr.settings.surviving_setting_name` ermittelt, den auch die Einstellungsdateien verwenden. Sie erfolgt nur zu einem Schlüssel, den dieses Panel anbietet. Sind beide Namen gespeichert, hat der neue Vorrang.",
       "translation_source_blocks_sha256": [
         "166fece7387d5b8c2e6cb2e078f1848a7de78cd1fa5ffcf45c932b938103d1c7",
         "bbc4fd08cb02a571f80b7eb191c7cf4368e602a62333aafb9dec05d3f84fd604",
-        "76a6991c10a88caa4bbc646b9ea18bcacb2cad119ab3d9a1778a6a9721e82d1b"
+        "76a6991c10a88caa4bbc646b9ea18bcacb2cad119ab3d9a1778a6a9721e82d1b",
+        "f39e97a0cdb0047fd0187e7540206c6428dbca4de3542ca07e18ef33e8c05218"
       ]
     },
     "spacr.picture_settings.greyed_in": {
