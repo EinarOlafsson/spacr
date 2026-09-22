@@ -340,3 +340,11 @@ keeps the release threshold unchanged and the rerender must still pass it.
 Evidence: current ML translation and current Measure batch receipts under
 tools/tutorials/evidence. Complete-set, language/caption and audible acceptance
 remain open with 358. 37 measurement/mastering tests pass; 8 promotion tests pass.
+
+2026-09-21 — CODEX: MEASURE CURRENT 4K REVIEW MASTER VERIFIED
+The current dark/Blobs Measure capture is now a265.6second4K30review master.
+Both MP4s fully decode, af_heart audio passes freshness/activity/timing and
+-1dBFS peak gates (measured-1.5), and English playback/seek/scene links pass
+in the real player. Desktop/mobile screenshots inspected. Evidence updated:
+2026-09-21-measure-current-batch.json. RemainingEnglish voices are rendering;
+full language/caption/listening and joint publication requirements remain.

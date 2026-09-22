@@ -2306,3 +2306,13 @@ Overview Spanish ef_dora stopped after its decoded AAC peak reached -0.9 dBFS.
 Added the established fingerprinted two-decibel fallback only for that track;
 the -1 dBFS release limit is unchanged. The confirmed-terminal job has restarted;
 no successful repaired-track claim is made until its actual output passes.
+
+2026-09-21 — CODEX: CURRENT MEASURE ENGLISH MASTER AND BROWSER VERIFIED
+The13-scene Measure review master finished:265.6seconds,native3840x2160 at
+30fps. Silent and narrated videos fully decode; af_heart timings/activity/
+freshness pass and decoded true peak is-1.5dBFS. Real browser checks pass for
+English af_heart playback, seeking and authored scene links. Desktop/mobile
+screenshots inspected and hashed in the batch evidence; no listening or full
+language-matrix acceptance claimed. The remaining23English voices now render
+onCPU, preserving the verified af_heart. Translations/captions and complete-set
+publication remain open. The visible stale-output warning remains disclosed.

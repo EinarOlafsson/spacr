@@ -2,7 +2,7 @@
   "schema": 1,
   "date": "2026-09-21",
   "lesson": "08_measure",
-  "status": "current_native_batch_and_independent_saved_output_checks_passed_media_pending",
+  "status": "native_capture_saved_outputs_and_english_review_master_verified_not_published",
   "capture": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current-v2/captures/measure_current_batch_v2_20260921",
   "provenance": {
     "commit": "d1967b0bca293303c296238c1f57577e9f8679b4",
@@ -699,10 +699,74 @@
   "application_modified": false,
   "published": false,
   "remaining": [
-    "Update and compose the current lesson",
-    "Full voice/language/caption matrix",
-    "Native video and browser acceptance",
     "Audible narration acceptance",
-    "Complete-set publication"
-  ]
+    "Full language/voice/caption matrix",
+    "Complete-set publication",
+    "Browser/caption acceptance for the remaining language and voice matrix"
+  ],
+  "videos": [
+    {
+      "file": "08_measure_silent.mp4",
+      "sha256": "44b93fa20b6ed7c73b0842f7664e2f6856cbdfd33910fb4ae6bb2ee753070bab",
+      "duration": 265.633333,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "7f8ea17069ef83e888f23ec917b13a19887a74140aead424ebe57596bd0a15bd",
+      "duration": 265.7,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "4d7817a5cbfe1d6f765c82f1c892778c359b1a32b4a09e8e023a6f4ce0d91bc5",
+    "freshness_timing_activity": "passed",
+    "decoded_true_peak_dbfs": -1.5
+  },
+  "browser": {
+    "scope": "en/af_heart playback and scene links only",
+    "checks": {
+      "lesson": "08_measure",
+      "scope": "en/af_heart playback and scene links only",
+      "uploaded": false,
+      "translation_or_listening_review": false,
+      "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "navigation_contains_staged_lesson": true,
+      "example_files": [],
+      "loaded_audio_sha256": "4d7817a5cbfe1d6f765c82f1c892778c359b1a32b4a09e8e023a6f4ce0d91bc5",
+      "scene_count": 13,
+      "seek_playback_clocks": {
+        "audio": 100.163374,
+        "video": 100.148239,
+        "expectedVideo": 100.15897487302807,
+        "audioDuration": 265.7,
+        "videoDuration": 265.633333,
+        "mediaError": null
+      },
+      "chapter_and_transcript_links": [
+        "06_api",
+        "07_mask",
+        "09_annotate",
+        "11_classify_ml",
+        "18_motility",
+        "43_illumination",
+        "59_anndata_export"
+      ],
+      "passed": true
+    },
+    "screenshots": {
+      "desktop.png": "89dc75084079fb484688afb79e2e7bb675ac2a0d0a71d4caeaad5b4fba5a6428",
+      "mobile.png": "6f14e467b96c66eccc67333b8b6ef73ed18aa32e3eb9dbefd8ad4f84c8a4a88b"
+    },
+    "screenshots_inspected": true,
+    "full_language_matrix_accepted": false
+  }
 }

@@ -9372,3 +9372,8 @@ branches, including existing real-screen wiring. Source-bound receipt added;
 no production or baseline edit. This is the eighth targeted floor repair.
 Final four translation-report consistency checks pass (266.24s); the feature
 index and whitespace checks pass. Preparing the combined nightly checkpoint.
+Measure review master completed before rebase: native4K30,both full decodes,
+265.6s,af_heart decoded peak-1.5dBFS. English browser playback/seek/scene links
+pass; desktop/mobile screenshots inspected and hashes added to the receipt.
+Remaining23English tracks now render CPU-only. Adding this verified receipt
+and358/447updates before publishing the combined checkpoint.
