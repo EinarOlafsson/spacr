@@ -20,13 +20,19 @@ def require_preserved(before, after):
 
 def record_annotation(app, window, screen, stage, captures, capture, settle,
                       write_json, timeout):
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QDialogButtonBox, QFileDialog, QLineEdit, QMessageBox
     from spacr.qt.screens.annotate import _SettingsDialog
     from spacr.qt.widgets.fold_strip import FoldButton
 
-    source = Path.home() / '.cache/spacr/example_data/plate1'
+    # capture_refresh binds this private dataset onto the downloader's cache.
+    # First verify the genuine automatic opening, then show the optional
+    # folder picker using this neutral alias of the same private dataset.
+    source = Path(stage) / 'example_data/plate1'
+    cache = Path.home() / '.cache/spacr/example_data/plate1'
+    if not source.is_dir() or not cache.is_dir() or not source.samefile(cache):
+        raise RuntimeError('Annotate requires the isolated recording cache')
     database = source / 'measurements/measurements.db'
     if not database.is_file():
         raise RuntimeError('Download the real Annotate example first')
@@ -56,6 +62,13 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
 
     before = snapshot()
     write_json(captures / 'annotation_originals.json', before)
+    # Preserve the genuine loading transcript before starting the annotation
+    # segment. Subsequent label operations emit their own unmodified messages.
+    write_json(captures / 'console_before_annotation.json', {
+        'text': screen._console.as_text(),
+        'reason': 'New annotation segment after the cached-data chooser',
+    })
+    screen._console.clear()
 
     def wait_for(predicate, label):
         deadline = time.monotonic() + timeout
@@ -109,19 +122,52 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
         if errors or not accepted:
             raise RuntimeError('; '.join(errors) or 'Dialog action was cancelled')
 
-    def choose_source(dialog):
+    wait_for(page_ready, 'Load test data did not automatically open real crops')
+    if not Path(screen._settings.src).samefile(source):
+        raise RuntimeError('Automatic opening selected a different dataset')
+    if screen._settings.annotation_column != 'infected':
+        raise RuntimeError('Automatic opening did not select the published labels')
+    write_json(captures / 'automatic_opening.json', {
+        'accepted': True, 'trigger': 'Load test data / Load',
+        'extra_open_source_action': False, 'source': screen._settings.src,
+        'annotation_column': screen._settings.annotation_column,
+        'loaded_crops': len(screen._page_paths),
+        'original_rows': before['row_count'],
+    })
+    def choose_source(dialog, *, record_picker=True):
         if not isinstance(dialog, QFileDialog):
             raise RuntimeError('Open source did not open the folder picker')
+        dialog.setDirectory(str(source))
+        dialog.setSidebarUrls([QUrl.fromLocalFile(str(stage))])
+        settle()
         dialog.resize(1300, 950)
         edit = dialog.findChild(QLineEdit, 'fileNameEdit')
         if edit is None:
             raise RuntimeError('Folder picker has no filename field')
         fill(edit, source)
-        capture('04_open_source_dialog')
+        if record_picker:
+            capture('04_open_source_dialog')
         QTest.keyClick(edit, Qt.Key_Return)
 
+    # The automatically opened grid displays the actual account cache path
+    # behind the picker. First select the same files through their neutral
+    # alias without saving a frame, then demonstrate the optional picker.
+    # This changes only the displayed path, not the dataset or opening proof.
+    modal_action(screen._btn_open, lambda dialog: choose_source(dialog, record_picker=False))
+    wait_for(page_ready, 'The neutral alias did not reopen the same real crops')
+    if not Path(screen._settings.src).samefile(source):
+        raise RuntimeError('Neutral source preparation changed the dataset')
+    write_json(captures / 'neutral_source_preparation.json', {
+        'method': 'Actual Open source button and folder picker before recording',
+        'same_dataset': True, 'source': screen._settings.src,
+        'changes_automatic_opening_evidence': False,
+        'preceding_console': screen._console.as_text(),
+    })
+    screen._console.clear()
+    # This is an optional, separately narrated choice of an existing plate,
+    # never a workaround required to make Load test data open the grid.
     modal_action(screen._btn_open, choose_source)
-    wait_for(page_ready, 'The actual Open source action did not load real crops')
+    wait_for(page_ready, 'The optional Open source action did not load real crops')
     capture('05_loaded_crops')
 
     def settings(column=None, primaries=None, frame='06_annotation_settings'):
@@ -264,12 +310,14 @@ def record_annotation(app, window, screen, stage, captures, capture, settle,
     settle()
     if not screen._console.isVisible():
         raise RuntimeError('The Console switch did not reveal the actual console')
+    write_json(captures / 'annotation_console.json', {'text': screen._console.as_text()})
     capture('18_annotation_console')
     require_preserved(before, snapshot())
     if query(f'SELECT count(*) FROM png_list WHERE "{annotation}" IS NOT NULL')[0][0] != 0:
         raise RuntimeError('The demonstration left a label in the new column')
     write_json(captures / 'annotation_tour.json', {
         'accepted': True, 'source': str(source), 'database': str(database),
+        'console_reset_before_annotation': True,
         'source_png_count': len(source_images), 'rows': before['row_count'],
         'visible_crops': len(screen._page_paths), 'annotation_column': annotation,
         'demonstration_label': {'png_path': first_path, 'persisted_transitions': [None, 1, None]},

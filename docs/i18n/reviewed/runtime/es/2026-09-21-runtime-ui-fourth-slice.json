@@ -1,0 +1,503 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "translation": "Tamaño del cuadrado centrado en cada píxel donde se calcula el umbral local. Debe ser bastante mayor que un objeto y menor que la escala de variación de la iluminación. Si es demasiado pequeño, el interior de un objeto grande se toma como fondo y el objeto aparece hueco; si es demasiado grande, equivale al umbral de todo el campo. Los números pares se aumentan al siguiente impar para que el cuadrado tenga un píxel central.",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37"
+    },
+    {
+      "table": "ui",
+      "key": "There is nothing in the console to report.",
+      "source": "There is nothing in the console to report.",
+      "translation": "No hay nada en la consola que informar.",
+      "source_sha256": "a4029341ca3ddf6933f74cb69172a0600b76e78964de019e2c59b9276ffa029e"
+    },
+    {
+      "table": "ui",
+      "key": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "translation": "Otros usuarios de spaCR han subido estos modelos mediante el botón Añadir.\n\nNadie ha comprobado qué son, con qué datos se entrenaron ni si los resultados que declaran son reales. Sus sumas de comprobación solo demuestran que el archivo no ha cambiado desde que se subió; no demuestran su calidad ni que sea seguro confiarle sus datos.\n\n¿Desea mostrarlos de todos modos?",
+      "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e"
+    },
+    {
+      "table": "ui",
+      "key": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "source": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "translation": "Estos valores forman la tabla del modelo en Hugging Face. Deje en blanco lo que no haya medido: aparecerá como “no registrado”, lo cual es preferible a una estimación sin datos.",
+      "source_sha256": "ac05be35f089306b44992a5b53d18488f00f7f9c4961f74a53b16a6ef4083846"
+    },
+    {
+      "table": "ui",
+      "key": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "source": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "translation": "Esta distribución de spaCR no puede instalar paquetes en su propio entorno. Instale spaCR con pip o conda para añadir {name}.",
+      "source_sha256": "2fbccb1df6bda13739523c534157b51fd48dcbbb8bbc2fc4e2e97e23a3684d91"
+    },
+    {
+      "table": "ui",
+      "key": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "source": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "translation": "Esta es la copia almacenada en este equipo. La página publicada está disponible; ábrala para ver la versión con formato.",
+      "source_sha256": "5fe4a9cfd5da36dd2a2975dba7dc52a57dcd09ad6ddec49fc9196815245673c3"
+    },
+    {
+      "table": "ui",
+      "key": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "source": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "translation": "Esta es la descripción almacenada con el código en este equipo. Comprobando si la página publicada está disponible…",
+      "source_sha256": "f605135194ed5e4b3ea396566a391bf9d9d91f31ad3b7fd0fa2b57a16dcc9d68"
+    },
+    {
+      "table": "ui",
+      "key": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "source": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "translation": "Este modelo no publica ninguna suma de comprobación, por lo que spaCR no puede distinguir un archivo truncado o sustituido del real.",
+      "source_sha256": "7ba7fb2343daf2f4a73ceebe583fbcb1dc8c8c29e631dd2893ebbd34ae5011d3"
+    },
+    {
+      "table": "ui",
+      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "translation": "Aplica el umbral de Otsu a la imagen y etiqueta los objetos restantes, respetando el área mínima indicada arriba. Todos los ajustes del umbral están en la categoría Otsu: corrección, suavizado, lado que corresponde al objeto, relleno de huecos, separación de objetos en contacto y exclusión de objetos cortados por el borde.",
+      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8"
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "translation": "Aplica el umbral de Otsu. Controla la detección con Otsu y el modo Otsu de la lupa en tiempo real.",
+      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be"
+    },
+    {
+      "table": "ui",
+      "key": "Train data",
+      "source": "Train data",
+      "translation": "Datos de entrenamiento",
+      "source_sha256": "819aca1401b6fdd1995337f09735f6ceec767a167f8dab4a8e30794d06787d3e"
+    },
+    {
+      "table": "ui",
+      "key": "Training datasets…",
+      "source": "Training datasets…",
+      "translation": "Conjuntos de datos de entrenamiento…",
+      "source_sha256": "f181135dd60e4f79636e8092ac7b869d41d0645e3435ab328e50c986a4767ecd"
+    },
+    {
+      "table": "ui",
+      "key": "Try again",
+      "source": "Try again",
+      "translation": "Volver a intentar",
+      "source_sha256": "d8b8392e2c542950ca64867168e4ef87d4ad606882d5898f826b51c6d553988f"
+    },
+    {
+      "table": "ui",
+      "key": "Try anyway",
+      "source": "Try anyway",
+      "translation": "Intentar de todos modos",
+      "source_sha256": "c73761e35faddb8c473fef67ed5c0d9281586cf7a390c2f58dbf162798c4181c"
+    },
+    {
+      "table": "ui",
+      "key": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "source": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "translation": "Prueba todas las convenciones en la carpeta de origen y las ordena por el número de nombres que interpreta cada una. Solo muestra los resultados; no cambia el ajuste automáticamente.",
+      "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777"
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "translation": "Bajo la superficie: verde mar, menta y el verde azulado que queda cuando se han absorbido todos los tonos cálidos.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9"
+    },
+    {
+      "table": "ui",
+      "key": "Uninstall",
+      "source": "Uninstall",
+      "translation": "Desinstalar",
+      "source_sha256": "fe199528850a4e24c14d9ece87a07b40bdcfa5fe504c175c117b997c29259ca6"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed",
+      "source": "Upload failed",
+      "translation": "Ha fallado la subida",
+      "source_sha256": "6efc5d27f30b20c103ca1a855bfc65cdbdf9de98c3f8ac93a3df3f319c3388bd"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed.",
+      "source": "Upload failed.",
+      "translation": "Ha fallado la subida.",
+      "source_sha256": "3d209f4648d487b456bcd3690b347fdbab9818502d677d52ff6fa2af90d4267f"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to Hugging Face…",
+      "source": "Uploading to Hugging Face…",
+      "translation": "Subiendo a Hugging Face…",
+      "source_sha256": "da3a6c5625d44c4a509c2cfd07e65a295414a60eeec3844df84f04220f380755"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to the shared collection…",
+      "source": "Uploading to the shared collection…",
+      "translation": "Subiendo a la colección compartida…",
+      "source_sha256": "7f68a11457385bd32a50c81f55a3d1c859011816d8e179b622894492ace9f0c1"
+    },
+    {
+      "table": "ui",
+      "key": "Version",
+      "source": "Version",
+      "translation": "Versión",
+      "source_sha256": "dd167905de0defcaf72de673ee44c07431770d129ccffab286bd2edfdaf62396"
+    },
+    {
+      "table": "ui",
+      "key": "Volume",
+      "source": "Volume",
+      "translation": "Volumen",
+      "source_sha256": "b10fb966d72063f534774c7c6b404f4decca76ac283093ae65fef78d07c1b75e"
+    },
+    {
+      "table": "ui",
+      "key": "WAV audio (*.wav)",
+      "source": "WAV audio (*.wav)",
+      "translation": "Audio WAV (*.wav)",
+      "source_sha256": "88f088754737aa543793aa81c4fd9595e221413cff7e71c653115acb267364ad"
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "translation": "Determina qué hace un objeto nuevo donde la máscara ya contiene otro. Recortar conserva solo los píxeles sin etiqueta, por lo que ningún objeto existente pierde píxeles. Omitir descarta cualquier objeto que toque uno existente. Reemplazar permite que el nuevo objeto ocupe todos los píxeles que cubre. En Región bajo el ratón, el recuadro muestra el resultado de esta regla: lo que se añadiría al hacer clic aparece sólido y lo que se quitaría aparece atenuado.",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb"
+    },
+    {
+      "table": "ui",
+      "key": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "source": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "translation": "Nombre con el que se guardan los campos en la base de datos de mediciones. Estas imágenes no proceden de una placa; el nombre identifica su origen sin atribuirlas a una placa inexistente. Cada fila corresponde a un campo del pocillo A01, salvo que cambie el pocillo abajo.",
+      "source_sha256": "019f7eb09dec26f772999346db34ca3bac3a0535e60e4f98459a9521c2876134"
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "translation": "Objetos eliminados por el último filtro, con una fila por objeto: su identificador, el área y la intensidad media evaluadas, y el límite que causó su exclusión. Los identificadores coinciden con los que se muestran al pasar el cursor.",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2"
+    },
+    {
+      "table": "ui",
+      "key": "What the run writes appears here.",
+      "source": "What the run writes appears here.",
+      "translation": "Aquí aparece la salida de la ejecución.",
+      "source_sha256": "57d1a41411fd14075f9cee6de966df4d4ec327f0703009fd16b25a3008aaaf41"
+    },
+    {
+      "table": "ui",
+      "key": "Where:",
+      "source": "Where:",
+      "translation": "Ubicación:",
+      "source_sha256": "02cc020f791cdbd49b1e6761ee41577461874e05441615f9c872ccbb119d2d87"
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "translation": "Banda que se convierte en objetos, contando desde 0 para la más tenue. Con 3 clases, 2 selecciona los núcleos brillantes y 1 selecciona el halo tenue que los RODEA, sin incluir los núcleos: precisamente esa banda es la razón para usar más de dos clases. Con más de dos clases, este ajuste sustituye a 'Objects are brighter than background' (Los objetos son más brillantes que el fondo); el número indica qué banda se selecciona.",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173"
+    },
+    {
+      "table": "ui",
+      "key": "Which convention fits?",
+      "source": "Which convention fits?",
+      "translation": "¿Qué convención encaja?",
+      "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802"
+    },
+    {
+      "table": "ui",
+      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "translation": "Modelo que segmenta la región del recuadro. Otsu aplica su umbral y separa los objetos en contacto mediante segmentación por cuencas; no requiere instalaciones adicionales, respeta el área mínima de Operaciones de objetos, la corrección del umbral y los demás ajustes de Otsu, y se usa cuando no se puede cargar un modelo. Cellpose usa el modelo, ambos umbrales, el diámetro y la normalización de Detección de objetos; es lento sin GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell y SAMCell siempre aparecen en la lista, atenuados hasta que se instalan. Al elegir uno, se ofrece instalarlo en su propio entorno. Cellpose 3 usa ambos umbrales y el diámetro de Detección de objetos; DINOCell usa la probabilidad celular, y SAMCell usa sus propios umbrales.",
+      "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26"
+    },
+    {
+      "table": "ui",
+      "key": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "source": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "translation": "Clase de objeto que se convertirá en representaciones vectoriales. Determina la columna de etiquetas de png_list y el plano de máscara que delimita cada recorte leído en flujo. Por tanto, pedir núcleos en una tabla de recortes celulares no devuelve resultados, en lugar de devolver células.",
+      "source_sha256": "02a9d9a492e547fb229ec0108acf478b90968e389b6ecf3802d131d5fbaa9cae"
+    },
+    {
+      "table": "ui",
+      "key": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "source": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "translation": "Conjunto de sonidos que se reproduce. Se sintetiza en este equipo la primera vez que se necesita y se guarda en ~/.spacr/sounds; no consume recursos hasta que se utiliza.",
+      "source_sha256": "9e19140221cacc1aad9e1c263c25a7ebd850dcfaa7d8465b0c50372d739f3fe7"
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "translation": "Pesos que segmentan este campo y el recuadro de la lupa en tiempo real en modo Cellpose. La lista incluye Cellpose instalado en este equipo y todos los modelos Cellpose del catálogo de modelos. Los modelos aún no descargados aparecen atenuados; al elegir uno, se descarga y se selecciona.",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce"
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "translation": "Mientras el registro detallado esté activado en la pestaña Módulos, DEBUG siempre se escribe en los archivos de registro, por lo que esta opción permanece activada. Desactive el registro detallado para poder elegirla. Se conserva su elección para cuando lo desactive.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2"
+    },
+    {
+      "table": "ui",
+      "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "translation": "Escribe las matrices combinadas que describe esta tabla y las mide con el propio módulo Measure. Genera las carpetas de salida y la base de datos de mediciones habituales de Measure.",
+      "source_sha256": "147130125966f3373bbf16413f3447b8e93d5e59819f787418670ec517373fe9"
+    },
+    {
+      "table": "ui",
+      "key": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "source": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "translation": "Expresión propia. Debe capturar wellID, fieldID y chanID; plateID es opcional y, si falta, se usa el nombre de la carpeta.",
+      "source_sha256": "9c750e692d93b8ba467d5254fbcd956155b88e4e42b9f4148a1df1694343c43b"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filed on GitHub: {url}",
+      "source": "[issue] Filed on GitHub: {url}",
+      "translation": "[issue] Incidencia registrada en GitHub: {url}",
+      "source_sha256": "eaea483cca34761844d68fa512ab373aeba627605a16589e5c5c9b533551ecdd"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "source": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "translation": "[issue] Enviando un informe de este error con los datos sensibles ocultos al repositorio público de spaCR en GitHub, porque la notificación de incidencias está en 'always'…",
+      "source_sha256": "622cb693e15da21f5e23036870b1489957355512969a551538f08e9c8ad960ad"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "source": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "translation": "[issue] No se ha enviado: spaCR no ha iniciado sesión en GitHub. Ejecute `gh auth login` una vez en un terminal; los errores posteriores se enviarán automáticamente. Para enviar este, pulse Registrar como incidencia.",
+      "source_sha256": "5e7ce2b69473fb0c5ace2fc4459d0aaf3bc833d0813863f74a8792bdb076ea53"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "source": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "translation": "[issue] No se ha enviado: {detail}. Pulse Registrar como incidencia para volver a intentarlo.",
+      "source_sha256": "5af6114e6d7eec9d7d38b0257fb80c716133ee16e8f6cd9e79641fb66175d4fe"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "source": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "translation": "[issue] No se ha enviado nada a GitHub. El envío automático empieza cuando acepta las condiciones de uso (Ayuda → Configurar spaCR de nuevo…). Para enviar este informe ahora, pulse Registrar como incidencia.",
+      "source_sha256": "4a90b0bd752e2dace6815ddf2f3bef5530dc4b1eb31f53209057a7fbcdbc19e7"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "source": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "translation": "[issue] No se ha enviado nada a GitHub. Los informes son públicos, por lo que spaCR solo los envía cuando pulsa Registrar como incidencia y después Enviar informe.",
+      "source_sha256": "e46762e8dce3893d85fca8c1feb91aa2b0adf4f9a394dbd20b1b3303f5a54fe8"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "source": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "translation": "[issue] Este error ya tiene una incidencia abierta en GitHub. Se ha añadido esta aparición: {url}",
+      "source_sha256": "c0a3b0dc3a22355ad999380079f4ff248070991ac532acf47f928b7de4808375"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error is being reported already.",
+      "source": "[issue] This error is being reported already.",
+      "translation": "[issue] Ya se está notificando este error.",
+      "source_sha256": "98eacfbd1ef751932ad138775f1813a8260e120cec8469650346bf6f850559f7"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "source": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "translation": "[issue] Este error ya se notificó desde este equipo, por lo que no se ha enviado de nuevo: {url}",
+      "source_sha256": "425bf7825eca02541b5497dcd8c2d87ec8ad78d79a4f49f98450f6e72e1a425b"
+    },
+    {
+      "table": "ui",
+      "key": "about {seconds} s left",
+      "source": "about {seconds} s left",
+      "translation": "quedan unos {seconds} s",
+      "source_sha256": "63d5f63ca560382ccaa157f6e5973c9c2dc5fd358ced0f5a52ba350d6e1fb2c7"
+    },
+    {
+      "table": "ui",
+      "key": "any condition, e.g. cell_area > 500",
+      "source": "any condition, e.g. cell_area > 500",
+      "translation": "cualquier condición, por ejemplo cell_area > 500",
+      "source_sha256": "df8e48a50f45ae73df8a5a0d72cc4b4555303be6a30e29487c767fdb71bf1b26"
+    },
+    {
+      "table": "ui",
+      "key": "every plate",
+      "source": "every plate",
+      "translation": "todas las placas",
+      "source_sha256": "28fa0d807b39e588c00fb47a579f124697c925c0e234b894b5beb27c1210b87b"
+    },
+    {
+      "table": "ui",
+      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "translation": "npm no tiene permiso para escribir en su carpeta global. Ejecute `npm config set prefix ~/.local` una vez en un terminal para que npm instale en una carpeta de su propiedad y pulse Volver a intentar.",
+      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2"
+    },
+    {
+      "table": "ui",
+      "key": "path to a folder of crop PNGs",
+      "source": "path to a folder of crop PNGs",
+      "translation": "ruta a una carpeta de recortes PNG",
+      "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db",
+      "source": "path to measurements.db",
+      "translation": "ruta a measurements.db",
+      "source_sha256": "fdcd8c657e3f0866f87b73ff68a03d672540fd5fe8226ceb8477417c47be6573"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db, or to a *_png crop folder",
+      "source": "path to measurements.db, or to a *_png crop folder",
+      "translation": "ruta a measurements.db o a una carpeta de recortes *_png",
+      "source_sha256": "94b30260bb4812f5e3b2008e375948b67235e35bfe419a8065dc740fd41f7502"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "translation": "spaCR no puede instalarlo aquí automáticamente: necesita {needs} y no lo ha encontrado. Instálelo con:\n    {command}",
+      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "translation": "spaCR no puede ejecutarlo aquí automáticamente: necesita {needs} y no lo ha encontrado.",
+      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's own music",
+      "source": "spaCR's own music",
+      "translation": "Música propia de spaCR",
+      "source_sha256": "d6e65a15352eb413607f3d21e251559a385cc13859305c576c60880320fa784c"
+    },
+    {
+      "table": "ui",
+      "key": "status",
+      "source": "status",
+      "translation": "estado",
+      "source_sha256": "073c1634c496cdb649d1afe0a312bbb4b7e1741b271542e4a436c3b8824b1761"
+    },
+    {
+      "table": "ui",
+      "key": "version",
+      "source": "version",
+      "translation": "versión",
+      "source_sha256": "5ca4f3850ccc331aaf8a257d6086e526a3b42a63e18cb11d020847985b31d188"
+    },
+    {
+      "table": "ui",
+      "key": "{key} in {where}",
+      "source": "{key} in {where}",
+      "translation": "{key} en {where}",
+      "source_sha256": "19183b73f5e72273422f93a260407c7b8cea4ab7edc9563e66637681487e675d"
+    },
+    {
+      "table": "ui",
+      "key": "{key} is not on this module's form.",
+      "source": "{key} is not on this module's form.",
+      "translation": "{key} no está en el formulario de este módulo.",
+      "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e"
+    },
+    {
+      "table": "ui",
+      "key": "{label} is installed.",
+      "source": "{label} is installed.",
+      "translation": "{label} está instalado.",
+      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e"
+    },
+    {
+      "table": "ui",
+      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "translation": "{label} aún no está instalado.\n\nInstalar ejecuta el comando de abajo en este equipo: descarga y ejecuta el instalador del proveedor y después inicia la autenticación. spaCR nunca ve sus credenciales.",
+      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35"
+    },
+    {
+      "table": "ui",
+      "key": "{label} is signed in and ready.",
+      "source": "{label} is signed in and ready.",
+      "translation": "La sesión de {label} está iniciada y lista.",
+      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce"
+    },
+    {
+      "table": "ui",
+      "key": "{name} in {where}",
+      "source": "{name} in {where}",
+      "translation": "{name} en {where}",
+      "source_sha256": "b4ea8e92fe102b9a400ec486442cd1b091457fc7df15b36745fdbe5eaab9c699"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is downloaded and selected.",
+      "source": "{name} is downloaded and selected.",
+      "translation": "{name} está descargado y seleccionado.",
+      "source_sha256": "1430476f1e53629eafa87f20ef888591eb7ec95e193927ac0344beb18b0c71c1"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is installed and selected.",
+      "source": "{name} is installed and selected.",
+      "translation": "{name} está instalado y seleccionado.",
+      "source_sha256": "cd7d7ac6f935f90eeb80f1d9bc24f2200b6647b9608002b1394086278afabe8d"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "source": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "translation": "{name} no está descargado. Al elegirlo, se descarga del catálogo de modelos y se selecciona.",
+      "source_sha256": "128c8d38816cee6f1c8f5d6f5b3dbf727fa067613e984d02edd4fb5c92aa9257"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not in Preferences at the moment.",
+      "source": "{name} is not in Preferences at the moment.",
+      "translation": "{name} no está en Preferencias en este momento.",
+      "source_sha256": "2c8e70ee0d319354080834a828c0274746b8da6a5d1de385eac7f3138684d641"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "source": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "translation": "{name} no está instalado.\n\nLa instalación ejecuta:\n    pip install \"{requirement}\"\n\nen el entorno donde se ejecuta spaCR. Descarga un paquete grande y puede cambiar la versión instalada de torch, lo que puede afectar a Cellpose y, en el peor caso, impedir que spaCR se inicie. Puede tardar varios minutos; spaCR sigue disponible mientras se instala.\n\n¿Desea instalarlo ahora?",
+      "source_sha256": "7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed. Choosing it offers to install it.",
+      "source": "{name} is not installed. Choosing it offers to install it.",
+      "translation": "{name} no está instalado. Al elegirlo, se ofrece instalarlo.",
+      "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff"
+    }
+  ]
+}

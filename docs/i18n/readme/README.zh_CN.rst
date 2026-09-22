@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
+|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -16,7 +16,7 @@
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: 测试套件
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
-   :target: https://einarolafsson.github.io/spacr/
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/index.html#module-spacr.qt
    :alt: Qt 界面
 .. |Source| image:: https://img.shields.io/badge/GitHub-Source-181717?logo=github
    :target: https://github.com/EinarOlafsson/spacr
@@ -39,10 +39,31 @@
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: conda-forge 版本
+.. |Conda Downloads| image:: https://anaconda.org/conda-forge/spacr/badges/downloads.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge 下载量
+.. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: conda-forge 最新发布日期
+.. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
+   :target: https://pepy.tech/projects/spacr
+   :alt: PyPI 下载量
+.. |Platforms| image:: https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
+   :alt: Linux、macOS 和 Windows
+.. |Cite| image:: https://img.shields.io/badge/Cite-CITATION.cff-8A2BE2
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/CITATION.cff
+   :alt: 引用 spaCR
+.. |PyPI rank| image:: https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsql-clickhouse.clickhouse.com%2F%3Fuser%3Ddemo%26param_package_name%3Dspacr%26param_days%3D30%26query%3DWITH%2B%2528%2BSELECT%2Bsum%2528count%2529%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bproject%2B%253D%2B%257Bpackage_name%253AString%257D%2BAND%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B%2529%2BAS%2Bdownloads%2BSELECT%2Bdownloads%2BAS%2Bpackage_downloads%252C%2BcountIf%2528n%2B%253E%253D%2Bdownloads%2529%2BAS%2Brank%252C%2Bcount%2528%2529%2BAS%2Btotal_packages%252C%2B100.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2BAS%2Bpercentile%252C%2Bif%2528%2Btotal_packages%2B%253D%2B0%2BOR%2Bdownloads%2B%253D%2B0%252C%2B%2527no%2Bdata%2527%252C%2Bconcat%2528%2B%2527top%2B%2527%252C%2BtoString%2528ceil%25281000.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2529%2B%252F%2B10%2529%252C%2B%2527%2525%2527%2B%2529%2B%2529%2BAS%2Bmessage%2BFROM%2B%2528%2BSELECT%2Bproject%252C%2Bsum%2528count%2529%2BAS%2Bn%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2BGROUP%2BBY%2Bproject%2B%2529%2BFORMAT%2BJSON&query=%24.data%5B0%5D.message&label=PyPI+rank+%2830d%29&color=brightgreen&cacheSeconds=86400
+   :target: https://clickpy.clickhouse.com/dashboard/spacr
+   :alt: spaCR 在过去 30 个完整日的 PyPI 下载量排名
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← 上一页 <../../source/_static/deck/pages/51.md>`_   `下一页 → <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -186,10 +207,10 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
    conda install conda-forge::spacr
    spacr
 
-安装源
+从源代码安装
 ~~~~~~~~~~~~~~~~~~~
 
-克隆存储库并将其安装在可编辑模式下,以便您的工作副本 *is* 安装的包和编辑有效,而无需重新安装::
+克隆代码仓库并以可编辑模式安装。这样工作副本 *就是* 已安装的软件包，修改无需重新安装即可生效::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +219,21 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     pip install -e .
     spacr
 
-默认分支为 ``nightly``. 对于特定发布::
+这会克隆默认分支 ``main``，即最新的发布版本。开发在 ``nightly`` 分支上进行；如需改为克隆该分支，请添加 ``--branch nightly``。如需克隆特定版本::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-以后来的变化,从克隆的内部::
+之后如需拉取更新，请在克隆目录中运行::
 
     git pull
     pip install -e .
 
-第二行只需要当依赖或输入点改变时; Python 代码在没有它的情况下获取。 如果命令在拖动后仍然运行旧代码,则 ``spacr-doctor`` 报告 ``spacr`` 实际上是您的路径,这是常见原因。
+只有在依赖项或入口点发生变化时才需要第二行；Python 代码无需它即可生效。如果拉取后某个命令仍在运行旧代码，``spacr-doctor`` 会报告路径中实际使用的是哪个 ``spacr``，这通常就是原因所在。
 
-从源头安装(光)
+从源代码安装（精简版）
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-捐助者需要历史;只需运行 spaCR,请采取其中一个,测量为 2026-09-15 以 ``packaging/measure_clone_forms.sh``。::
+贡献者需要完整的提交历史；如果只想运行 spaCR，请选用以下任一方式。数据于 2026-09-15 由 ``packaging/measure_clone_forms.sh`` 测得::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +249,7 @@ spaCR 支持 Python **3.9 through 3.14**，但 Python 3.14.1 除外，torchvisio
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-完整的克隆下载 5.8 GB 为 1186 MB 支票. 添加 ``--filter=blob:none`` 到该克隆节省了什么:支票随之抓住了泡沫。
+完整克隆需下载 5.8 GB，检出的工作区为 1186 MB。给该克隆加上 ``--filter=blob:none`` 并不能节省任何下载量：检出时仍会获取这些 blob。
 
 
 命令行入口
@@ -416,15 +437,9 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.
+spaCR 附带的全部模块，按主页中的顺序排列：先是主要工作流程的六个模块，然后是其余模块。选择一个图块即可打开该模块的 API 页面。
 
-
-Make Masks
-~~~~~~~~~~
-
-Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
-
-查看每个工具的 `feature guide <../../source/features.rst>`_。
+各工具的说明见 `功能指南 <../../source/features.rst>`_。
 
 其他资源
 ~~~~~~~~~~~~~~~
@@ -438,9 +453,9 @@ Make Masks appears under **Tools** for manual correction of segmentation masks; 
 语言与翻译
 ~~~~~~~~~~~~~~~~~~~~~~
 
-界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <docs/source/localization.rst#contextual-help>`_。
+界面的导航和首选项支持十种语言。AI 和 LIVE 控件、模块说明以及经过审核的上下文帮助也会翻译。无需重启，即可在 **spaCR → 首选项 → 语言** 中更改语言。日志、路径、数据库值和测量结果不会被翻译；科学输出始终使用规范英语。请参阅 `上下文帮助政策 <../../source/localization.rst#contextual-help>`_。
 
-九个非英语目录是机器编写和技术审查的,而不是由每个语言的原住民发言人读到结尾。 `评论范围 <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ 记录哪种语言有人类的通道,覆盖的体积多少,并根据决定留在英语中的每一个术语。
+九个非英语目录是机器编写和技术审查的,而不是由每个语言的原住民发言人读到结尾。 `评论范围 <../REVIEW_SCOPE_2026-09-04.md>`_ 记录哪种语言有人类的通道,覆盖的体积多少,并根据决定留在英语中的每一个术语。
 
 动画设置指南
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -498,10 +513,46 @@ spaCR ships a catalogue of trained models and fetches them on demand. Open **Mod
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
      - F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)
+   * - ``toxoplasma_plaque_v2``
+       (Cellpose-SAM (cpsam_v2))
+     - 488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques
+     - not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)
    * - ``toxoplasma_well_detector_v1``
        (YOLO11n)
      - whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them
-     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987
+     - mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457
+   * - ``toxoplasma_well_detector_v2``
+       (YOLO26n (ultralytics 8.4.155))
+     - plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset
+     - mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline
+   * - ``toxoplasma_from_cellmask_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
+     - F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+   * - ``toxoplasma_pv_v2``
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds
+     - F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells
+   * - ``toxoplasma_pv_v3``
+       (Cellpose-SAM (cpsam_v2))
+     - the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset
+     - F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505
+   * - ``live_cell_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
+     - on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell
+   * - ``nuclei_from_cellmask_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1
+     - F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5
+   * - ``cell_from_hoechst_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides
+     - F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569
+   * - ``toxoplasma_from_hoechst_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
+     - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
 
 .. spacr-model-zoo-end
 
@@ -637,4 +688,4 @@ Olafsson EB, *et al.* 一张以图像为基础的 CRISPR 筛选将 EAF1 定义�
 致谢
 ~~~~~~~~~~~~~~~
 
-spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <docs/i18n/TRANSLATION_MODELS.md>`_。
+spaCR 构建于开放科学软件之上，包括 NumPy、pandas、scikit-image、scikit-learn、Cellpose、PyTorch 和 Qt。有关多语言文档和界面目录所使用的模型，请参阅`翻译模型署名 <../TRANSLATION_MODELS.md>`_。

@@ -138,3 +138,98 @@ c = float(np.sum(fixed_w) - np.sum(fixed_w ** 2) / np.sum(fixed_w))
 ```
 
 DerSimonian--Laird: the spread the plates' own uncertainty cannot explain.
+
+## 2026-09-19 — the five-parameter logistic and the hormesis test
+
+Written by hand rather than lifted by `tools/extract_source_notes.py`: item
+387's two remaining pieces carry their reasons in docstrings, and these are
+the three decisions a reader is most likely to want to argue with.
+
+**The 5PL is parameterised so that `log10_ec50` is the EC50.** The usual
+form puts the inflection parameter `c` in that slot, and at `x = 10**c` an
+asymmetric curve sits `1 / 2**s` of the way up rather than half — so a 5PL
+whose `c` is quoted as an EC50 is wrong by a factor that grows with the
+asymmetry. Scaling the exponential by `2**(1/s) - 1` moves the half-maximal
+point back onto `x = EC50` exactly. The gain is not only correctness: every
+rule already in the module — the three boundedness detectors, the profile
+walk, the back-transformed interval — reads `log10_ec50` and none of them
+had to learn a second meaning. At `s = 1` the expression is the 4PL term for
+term, which is what makes the F test on the fifth parameter a legitimate
+nested comparison.
+
+**`_plateau_sse` keeps a separate 4PL branch on purpose.** The general
+expression computes the sigmoid weight as `10 ** -(s·log10(u))`, which at
+`s = 1` is `1/u` only up to rounding. Routing the 4PL through it would have
+moved published intervals in the last bits for no reason anybody could point
+at. The branch costs one comparison per call.
+
+**Hormesis is tested against four criteria and not one.** Brain–Cousens
+nests the 4PL, so the extra-sum-of-squares F test is the likelihood-ratio
+test in the units this module already reports — but on a tight assay it
+reaches p < 0.001 for a hump worth 2% of the response span, which is a
+statement about the model rather than about the compound. So the verdict
+also needs a positive coefficient (a negative one is a shape correction, not
+stimulation), a corrected-AIC gap of 2, and a minimum effect of 10% of the
+fitted span. The threshold is measured against the span and not against the
+control, which is the convention in the hormesis literature, because this
+module normalises plates to percent inhibition — where the control is zero
+by construction and a percentage of it means nothing.
+
+The F test is two-sided and the hypothesis is one-sided. That is left
+uncorrected and stated: the reported p is conservative by about a factor of
+two, and on a screen whose whole habit is refusing, being conservative about
+a refusal-overriding finding is the right direction to be wrong in.
+
+**The test runs on series the monotonicity check passes.** That is the part
+that closes a gap rather than adding a feature: `MAX_REVERSAL` is 0.30, so a
+hump worth a fifth of the span sails through it, gets fitted, and yields an
+EC50 displaced by the hump with nothing said. On the calibration series in
+`tests/qt/test_dose_response_names_hormesis.py` that displacement is 1.0 to
+2.1. Those fits now carry `DoseResponseResult.hormesis` and a caveat.
+
+**The 5PL profile is minimised in two dimensions, not swept once.** With the
+midpoint fixed the 5PL still has four free parameters: both plateaus, which
+stay closed-form, and then slope and asymmetry, which do not. Those two are
+strongly correlated — a flatter curve with a more extreme exponent describes
+nearly the same data — and one sweep of coordinate descent zig-zags across
+that valley rather than reaching its floor. The first version of
+`_profile_sse`'s 5PL branch did exactly one sweep, and measured at the
+fitted midpoint, where the conditional minimum is by definition the
+unconditional one, it returned up to 3.06 times the fit's own SSE.
+
+A conditional SSE that is too high makes the interval too *narrow*, which is
+the dangerous direction. The walk may spend `sse · (1 + q²/dof)`, about
+1.20·sse at 22 df; an overshoot at the centre is subtracted from that
+allowance before the walk has moved at all. On the calibration series of
+`tests/qt/test_dose_response_fits_an_asymmetric_curve.py` the 95% profile
+interval — the default interval, on the model the new Curve picker offers —
+covered the true EC50 in 5 draws of 12, and one draw collapsed to a width of
+0.0009 in log10 because the profile was already above the threshold at the
+centre.
+
+`_profile_five_sse` evaluates the whole asymmetry-by-slope surface for
+basins and then polishes the best three separated cells with Nelder–Mead in
+log co-ordinates, which follows the valley instead of crossing it. Three
+starts because over 48 fitted series a single descent from the best grid
+cell missed the minimum by 26% on one of them; two attained it everywhere
+measured. It costs about 18 ms per evaluation, so a 5PL profile fit runs
+410–790 ms against 10 ms for the 4PL — off the GUI thread through
+`JobRunner`, and the 4PL default is untouched.
+
+The invariant is asserted directly on fitted data rather than inferred from
+the intervals, because an interval at 45% of its honest width still looks
+like an interval.
+
+**A 5PL that falls back to the 4PL keeps the four covariances it has.** When
+the five-parameter search finds nothing better, the curve reported *is* the
+4PL with the exponent pinned at 1, and its four parameters were estimated
+perfectly well. Setting `pcov = None` because the vector grew a fifth entry
+told the reader the covariance was not estimable — it was estimated and then
+discarded — and under `CI_WALD` it stripped the midpoint's interval too, so
+a cleanly bounded fit came back as `STATUS_UNBOUNDED` with no EC50.
+`_pad_symmetric_covariance` widens the block to 5×5 with a zero row and
+column for the pinned exponent, rescaled by `(n-4)/(n-5)` because
+`curve_fit` scaled it on four parameters and the rest of the fit reads it on
+five. The asymmetry alone reports `(None, None)`, because a zero variance
+would otherwise be published as a zero-width interval on a parameter that
+was never fitted.

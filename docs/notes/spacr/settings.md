@@ -10,10 +10,10 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [canonical_feature_selection](#canonical_feature_selection) (1 entry)
 - [BarcodeSet.resolve_groups](#barcodesetresolve_groups) (1 entry)
 - [barcode_set_from_settings](#barcode_set_from_settings) (3 entries)
-- [Module level](#module-level) (110 entries)
+- [Module level](#module-level) (111 entries)
 - [_merge_declarations](#_merge_declarations) (2 entries)
 - [_takes_an_argument](#_takes_an_argument) (1 entry)
-- [set_default_settings_preprocess_generate_masks](#set_default_settings_preprocess_generate_masks) (20 entries)
+- [set_default_settings_preprocess_generate_masks](#set_default_settings_preprocess_generate_masks) (21 entries)
 - [set_default_plot_data_from_db](#set_default_plot_data_from_db) (1 entry)
 - [_read_cellpose_models](#_read_cellpose_models) (1 entry)
 - [cellpose_model_choices](#cellpose_model_choices) (1 entry)
@@ -54,6 +54,8 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [get_plot_data_from_csv_default_settings](#get_plot_data_from_csv_default_settings) (1 entry)
 - [get_automated_motility_assay_default_settings](#get_automated_motility_assay_default_settings) (9 entries)
 - [_set_organelle_defaults](#_set_organelle_defaults) (11 entries)
+- [_fold_toxoplasma, 2026-09-19](#_fold_toxoplasma-2026-09-19) (3 entries)
+- [RENAMED_SETTINGS, 2026-09-19](#renamed_settings-2026-09-19) (2 entries)
 
 ## canonical_feature_selection
 
@@ -470,6 +472,14 @@ Every type below is the type of the value that module already ships, and tests/t
 ```
 
 A LIST OF BARCODES INSTEAD OF THREE NAMED ONES. Absent, which is what every settings file written so far has, means the three above: `barcode_set_from_settings` returns None and the run decodes exactly what it decoded before sets existed. Declared rather than merely tolerated so a panel can collect one and `check_settings` keeps the value instead of dropping it.
+
+### lines 3610-3630
+
+```python
+'folders': (list, type(None)),
+```
+
+THE TWENTY-ONE THAT HAD PROSE AND NO TYPE (397, typed 2026-09-19). Each had a tooltip in `tooltips` and no entry here, so a user read what the setting takes and neither `check_settings`, `spacr.validate` nor the CLI could hold a value to it. Every one is read by live code -- `generate_score_heatmap`, `interpret_vision_model`, `analyze_percent_positive`, the picture panel's channel choice -- so none was a stale tooltip, and each takes the type its own tooltip states. `None` is admitted where the tooltip says "Default None". `threshold` is the widest because two apps share the name: percent-positive ships 2000, Annotate ships '' and takes quantile codes and lists. The picture channels are plain `int`, as their tooltip says: a declared `None` would turn any `*_channel` into a clearable plane box (`_is_clearable_plane_setting`), and the picture panel already offers "not drawn" through its own picker. `barcode_qc` is deliberately NOT here; `tools/build_setting_consumer_map.py` says why.
 
 ### lines 4769-4775
 
@@ -1282,6 +1292,18 @@ from .illumination import illumination_settings
 ```
 
 Mask estimates the same optical field as Measure but applies it only to private Cellpose inputs; the persisted stack remains raw. Call the illumination module's factory so both screens expose one vocabulary and new controls cannot land in only one of them.
+
+### 2026-09-19, the flow thresholds (428, GitHub #123)
+
+```python
+settings.setdefault('cell_flow_threshold', 0.4)
+```
+
+`nucleus_`, `cell_` and `pathogen_flow_threshold` default to 0.4, and so does `FT` in `get_default_test_cellpose_model_settings` and `get_default_apply_cellpose_model_settings`. The maintainer chose it on 2026-09-19: it is Cellpose's own `CellposeModel.eval` default and the strictest of the options he was offered. It drops the most irregular objects (parasites included) and changes default segmentation results the most. History of this default: 100 (2024-07-18), 1.0 (4b9fef8b9, 2025-07-02), 100 again (df753075e, 2026-09-02; shipped in 1.5.0.5 to 1.5.0.8), 0.4 now. At 100 the flow check still ran but rejected practically nothing, and `spacr.validate` warned about that default on every run (GitHub #123).
+
+`setdefault` never overwrites a value the settings already hold. So a settings file that carries 100 keeps 100, in either spelling (`cell_flow_threshold` or the pre-2026-09-02 `cell_FT`, which `_fold_renamed_settings` moves first), and gets the corrected warning from `spacr.validate._flow_threshold_problems`. Nobody's saved choice is rewritten. The shipped example pack `spaCR_settings/1_generate_masks_settings.csv` is one such file, and it keeps its 100.
+
+`FT` was declared `int` in `expected_types`. With a 0.4 default that is a type error in `_check_types`, and `coerce_expected_types` would leave a CSV's `'0.4'` as text. It is `(int, float)` now, the same as the per-object keys.
 
 ## set_default_plot_data_from_db
 
@@ -3118,3 +3140,34 @@ for role in declared_organelle_roles(settings)[1:]:
 ```
 
 Each secondary slot gets the same defaults and its own independent type preset. Translate only at this boundary so the preset implementation has one vocabulary and one set of tests.
+
+## _fold_toxoplasma, 2026-09-19
+
+```python
+_fold_toxoplasma(settings)
+```
+
+`Toxoplasma` RETIRED on 2026-09-19, instruction 364, at the maintainer's decision ("Retire both", with `barcodes`). This replaces the two entries under `get_perform_regression_default_settings` anchored at `if 'toxo' in settings:` and at the `settings.setdefault(` that derived `annotation_source` from the switch. Their reasons still hold and moved into `_fold_toxoplasma`: an old file's switch is MIGRATED, never dropped, and false keeps meaning no annotation. What changed is that the switch no longer survives the migration, so the panel and the run have one control for one question.
+
+THE ONE BEHAVIOUR THAT CHANGES, found by reading the old code rather than the survey. Before the retirement a blank `annotation_source` with no switch in the file meant the bundled tables, because the factory defaulted the switch to true and `ml._annotation_source` fell back to it. Now a blank field is the only way to say no annotation, so that file annotates nothing. A file saved from the panel carries both keys and is unaffected: a true switch beside a blank field still gives `'toxoplasma'`. The upside is the reason for it: the switch was hidden on the panel, so a panel user had no way to turn annotation off at all.
+
+```python
+return value.strip().lower() not in (
+```
+
+A STRING 'False' IS OFF. A loader that does not type its values hands this the text, and `bool('False')` is True. The code this replaces used `bool()` on the raw value, both in the regression factory and in `ml._toxoplasma_is_on`, and `toxo` was never in `expected_types`, so no type table would have caught it on the way in. The CLI's own CSV reader does type `False`; the rule here does not depend on which reader ran.
+
+## RENAMED_SETTINGS, 2026-09-19
+
+```python
+"img_size": "crop_size",
+```
+
+RENAMED at the maintainer's decision, 2026-09-19. The proposal was `image_size`, and it could not be built as approved: `image_size` is already a live setting meaning the model's input crop (default 224), while `img_size` is how many pixels each cell is drawn at (default 200) on the Annotate screen and the Cells tab. `crop_size` is typed in `expected_types` so the fold has a live terminus, and `set_annotate_default_settings` folds before filling its defaults. The Cells tab's saved picture settings are moved by `picture_settings.drop_retired`, which asks `surviving_setting_name` rather than keeping a second table.
+
+```python
+"%s=%r is applied as %s. The setting was renamed and this "
+```
+
+THE LINE USED TO SAY "until now the value was ignored and the default used". That was true of the renames 15fa72737 repaired on 2026-09-12 and false of every rename made since, `img_size` first: its value always worked. The line now says only what is true of all of them.
+

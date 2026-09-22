@@ -63,11 +63,18 @@ def _carry_preview_state(old, fresh) -> None:
     Best effort and silent on failure: a rebuild that raised here would cost
     the user their whole screen to save them a re-load, which is the wrong
     trade. Each attribute is copied independently for the same reason.
+
+    A retiring preview that was never built has loaded nothing, so it is
+    read without being built and there is nothing to carry.
     """
     if old is None or fresh is None:
         return
+    peek = getattr(old, "_if_built", None)
     for name in ("_live_preview", "_preview_panel", "_live_panel"):
-        source = getattr(old, name, None)
+        source = (peek(name) if callable(peek)
+                  else getattr(old, name, None))
+        if source is None:
+            continue
         target = getattr(fresh, name, None)
         if source is None or target is None:
             continue
@@ -353,6 +360,7 @@ class _PipelinePreloader:
         "spacr.sequencing",
         "spacr.submodules",
         "spacr.spacr_cellpose",
+        "spacr.qt.widgets.fast_plots",
     )
 
     def __init__(self, on_step=None, on_done=None):
@@ -459,8 +467,8 @@ SECTION_TOOLS = "Tools"
 #:
 #: The Help-menu modules were filed under Data, so the dock drew them
 #: under Data next to the modules that get data in, which is not what
-#: any of them does. The maintainer asked for them under a Help heading,
-#: lowest in the dock.
+#: any of them does. They sit under a Help heading instead, lowest in the
+#: dock.
 #:
 #: PUTTING IT IN `SECTION_ORDER` WAS TRIED FIRST AND REVERTED. A section
 #: is Home's categorisation: `home_categories`, `home_bands` and
@@ -553,8 +561,8 @@ _PLUGIN_SECTION_MAP = {
 #: violation is a design mistake to fix in this table, not something to
 #: discover at startup.
 #:
-#: Raised to 40 on 2026-09-05 at the maintainer's instruction. Data had
-#: reached exactly twenty -- the previous ceiling -- the moment the three
+#: The cap is 40 because Data reached exactly twenty -- the previous
+#: ceiling -- the moment the three
 #: self-registering modules joined the table, so the next registration in
 #: that section would have tripped the cap rather than caught a real
 #: mistake.
@@ -1199,8 +1207,7 @@ def app_stage(key: str) -> str:
 #: somewhere else -- a button in the module it belongs to.
 #: NOT `feature_dict`. It already has a Help entry of its own --
 #: `widgets/feature_dictionary.py` installs "Feature Dictionary…" -- which
-#: is exactly what the maintainer meant by "it is in the help menue which
-#: is enough". Only its TILE was asked for. A second entry here would put
+#: is enough on its own; only its TILE is added. A second entry here would put
 #: the same screen in the same menu twice.
 _HELP_MODULES: Tuple[Tuple[str, str, str], ...] = (
     ("run_history", "Run History",
@@ -1779,6 +1786,22 @@ CHROME_HOVER = {
     "MinimiseWindow": "#3C82DC",
 }
 
+#: Edge of a window-chrome mark, in logical pixels before the interface
+#: scale. It is the default the three painters below already carried; it is
+#: named here because the icon SIZE has to be set from the same number, and
+#: it was not -- the marks were painted into an 18 px box and drawn into
+#: Qt's default 16 px one, then stayed 16 px while the whole interface
+#: around them zoomed.
+CHROME_ICON_PX = 18
+
+#: Thickness of a chrome mark's stroke, as a fraction of its box.
+#:
+#: A FRACTION, BECAUSE THE BOX MOVES NOW. The three painters carried a
+#: fixed 1.6 px pen, which is right at 18 px and reads as a hairline once
+#: the same glyph is drawn at 36. This is that 1.6 expressed as the share
+#: of the box it was, so the mark keeps its weight at every scale.
+CHROME_PEN = 1.6 / 18.0
+
 
 class _ChromeButton(QToolButton):
     """A frameless-window button whose MARK changes colour, not its plate.
@@ -1793,28 +1816,64 @@ class _ChromeButton(QToolButton):
         """Build one window-chrome button around a painted mark.
 
         :param parent: parent widget; ownership only.
-        :param painter: called with a colour and returning the icon for it.
-            A CALLABLE, not an icon, because the hover state is a second
-            painting of the same glyph -- QSS can colour a background but
-            not the contents of a QIcon.
+        :param painter: called with a size and a colour, returning the icon
+            for them. A CALLABLE, not an icon, for two reasons: the hover
+            state is a second painting of the same glyph -- QSS can colour
+            a background but not the contents of a QIcon -- and the
+            interface scale is a third, since a QIcon bakes its pixmap and
+            a mark painted small and stretched is a blur.
         :param colour: what the mark turns on hover and on press.
         """
         super().__init__(parent)
         self._paint_icon = painter
         self._hover_colour = colour
+        self._lit = False
         self.setAutoRaise(True)
         self.setCursor(Qt.CursorShape.PointingHandCursor)
         self._show(False)
 
-    def _show(self, lit: bool) -> None:
-        """Repaint the mark, lit or resting.
+    def _show(self, lit: bool, scale=None) -> None:
+        """Repaint the mark, lit or resting, at the interface scale.
 
         The icon is REPAINTED rather than recoloured: QSS can colour a background
         on hover but not the contents of a QIcon, which is why this button paints
         its glyph instead of shipping one.
+
+        PAINTED AT THE SIZE IT WILL BE DRAWN AT, which is the other half of
+        the same argument. A QIcon bakes its pixmap, so a mark painted into
+        an 18 px box and then drawn into a 36 px one is a blur; the size
+        goes to the painter and to ``setIconSize`` from the one number.
+
+        :param lit: whether the pointer is on the button or it is held down.
+        :param scale: the interface scale; the stored preference when None.
         """
-        self.setIcon(self._paint_icon(colour=self._hover_colour)
-                     if lit else self._paint_icon())
+        from .preferences import (_scaled_side, _set_scaled_icon_size,
+                                  get_font_scale)
+
+        self._lit = bool(lit)
+        if scale is None:
+            scale = get_font_scale()
+        side = _scaled_side(CHROME_ICON_PX, scale)
+        self.setIcon(self._paint_icon(size=side, colour=self._hover_colour)
+                     if lit else self._paint_icon(size=side))
+        _set_scaled_icon_size(self, CHROME_ICON_PX, scale=scale)
+
+    def _apply_icon_scale(self, scale=None) -> None:
+        """Repaint the mark for a new interface scale, keeping its state.
+
+        Found by name from
+        :func:`spacr.qt.preferences._rescale_icon_sizes`. It has to repaint
+        rather than only re-size, because the glyph is a pixmap this button
+        drew itself and Qt would otherwise stretch the old one.
+
+        ``self._lit`` is passed back in rather than assumed False: the
+        pointer can be resting on the close button while the wheel turns,
+        and a repaint that forgot would drop the hover colour until the
+        pointer moved.
+
+        :param scale: the interface scale; the stored preference when None.
+        """
+        self._show(self._lit, scale=scale)
 
     def enterEvent(self, event):        # noqa: N802 - Qt naming
         """Show the mark when the pointer arrives.
@@ -1925,7 +1984,7 @@ def _the_missing_pip_escape(output: str) -> Optional[str]:
     return shlex.join(parts)
 
 
-#: The in-session paint diagnostic (item 408) is armed only when the process
+#: The in-session paint diagnostic is armed only when the process
 #: was LAUNCHED with this set to ``1``. Nothing is bound and nothing is shown
 #: otherwise.
 _PAINT_DIAG_ENV = "SPACR_PAINT_DIAG"
@@ -2566,7 +2625,7 @@ class MainWindow(QMainWindow):
             shortcuts.install(self)
         except Exception:
             pass
-        #: Item 408's in-session paint diagnostic; ``None`` unless the
+        #: The in-session paint diagnostic; ``None`` unless the
         #: process was launched with ``SPACR_PAINT_DIAG=1``.
         self._paint_diagnostic_shortcut = _install_the_paint_diagnostic(self)
 
@@ -2764,7 +2823,7 @@ class MainWindow(QMainWindow):
         self.addAction(action)
 
     @staticmethod
-    def _close_icon(size: int = 18, colour=None):
+    def _close_icon(size: int = CHROME_ICON_PX, colour=None):
         """An x, drawn rather than shipped, and the SIZE OF THE SQUARE.
 
         It sits beside the full-screen mark, so the two are read as a
@@ -2778,7 +2837,7 @@ class MainWindow(QMainWindow):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
-        pen.setWidthF(1.6)
+        pen.setWidthF(size * CHROME_PEN)
         painter.setPen(pen)
         pad = size * CHROME_PAD
         painter.drawLine(pad, pad, size - pad, size - pad)
@@ -2787,7 +2846,7 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     @staticmethod
-    def _minimise_icon(size: int = 18, colour=None):
+    def _minimise_icon(size: int = CHROME_ICON_PX, colour=None):
         """A single rule, drawn low, the way a minimise mark is."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -2796,7 +2855,7 @@ class MainWindow(QMainWindow):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
-        pen.setWidthF(1.6)
+        pen.setWidthF(size * CHROME_PEN)
         painter.setPen(pen)
         pad = size * 0.22
         painter.drawLine(pad, size * 0.66, size - pad, size * 0.66)
@@ -2804,7 +2863,7 @@ class MainWindow(QMainWindow):
         return QIcon(pixmap)
 
     @staticmethod
-    def _fullscreen_icon(size: int = 18, colour=None):
+    def _fullscreen_icon(size: int = CHROME_ICON_PX, colour=None):
         """The four-corner expand mark, drawn rather than shipped."""
         from PySide6.QtGui import QIcon, QPainter, QPen, QPixmap
 
@@ -2813,7 +2872,7 @@ class MainWindow(QMainWindow):
         painter = QPainter(pixmap)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
         pen = QPen(QColor(colour) if colour else QColor(Qt.GlobalColor.gray))
-        pen.setWidthF(1.6)
+        pen.setWidthF(size * CHROME_PEN)
         painter.setPen(pen)
         arm, pad = size * 0.30, size * CHROME_PAD
         far = size - pad
@@ -2950,7 +3009,7 @@ class MainWindow(QMainWindow):
         app_menu = mb.addMenu("&spaCR")
 
         act_home = QAction("Home", self)
-        act_home.setShortcut(QKeySequence("Ctrl+H"))
+        act_home.setShortcut(QKeySequence("Ctrl+0"))
         act_home.triggered.connect(lambda: self._on_nav_selected("__home__"))
         app_menu.addAction(act_home)
         act_prefs = QAction("Preferences…", self)
@@ -3668,14 +3727,45 @@ class MainWindow(QMainWindow):
 
     def _open_preferences(self):
         """Open the Preferences dialog (theme, font size, colour-blind)."""
+        self.show_preferences_on()
+
+    def show_preferences_on(self, tab: str = "", label: str = "") -> bool:
+        """Open Preferences, on a named tab, with a named row marked.
+
+        The route the Help search field takes for a preference result: the
+        dialog carries nine tabs and a result that opened it on whichever
+        one it happened to start with has answered half the question.
+
+        Found by OBJECT NAME rather than by tab index or caption. An index
+        moves whenever a tab is added, and a caption is translated -- a
+        Korean interface would have matched nothing. Every page sets its own
+        ``PreferencesTab*`` name, and ``tools/build_help_search_index.py``
+        reads those same names out of this dialog's source, so the two ends
+        of the hand-off are the same string by construction.
+
+        :param tab: the page's object name, e.g. ``"PreferencesTabTheme"``;
+            ``""`` opens the dialog as it opens from the menu.
+        :param label: the row caption to mark; ``""`` marks nothing.
+        :returns: True when the named tab was found and shown.
+        """
         try:
             from .preferences import PreferencesDialog
         except Exception as e:
             self.statusBar().showMessage(
                 f"Preferences unavailable: {e}", 5000)
-            return
-        PreferencesDialog(self).exec()
+            return False
+        dialog = PreferencesDialog(self)
+        found = False
+        if tab:
+            try:
+                from .preferences_navigation import show_tab
+
+                found = show_tab(dialog, tab, label)
+            except Exception:
+                LOG.exception("could not open Preferences on %r", tab)
+        dialog.exec()
         self.refresh_theme()
+        return found
 
     def refresh_theme(self) -> None:
         """Rebuild everything preferences cannot update through QSS alone.
@@ -4988,13 +5078,29 @@ class MainWindow(QMainWindow):
         this the kind of defect that ships: it is wrong for one page out of
         forty-five, and that page is Home.
 
+        AND THE SEARCH STRIP GOES ON HERE TOO, for the same reason in
+        reverse. `settings_search.install` reparents the whole settings
+        form into a new container; done at first show, after the page has
+        been sheeted, that move cost about 250 ms of the open.
+        Here the page is marked and not yet sheeted, so the same move is
+        free. `install` returns the strip it already made if the stack
+        watcher gets there first, so the two cannot fight.
+
         :param page: the widget that has just been added to the stack.
         """
         try:
             from .theme import mark_as_a_sheet_target
             mark_as_a_sheet_target(page)
+        except Exception:
+            LOG.debug("could not mark a page as a sheet target",
+                      exc_info=True)
+        try:
+            from .settings_search import install as _install_settings_search
+
+            _install_settings_search(page)
         except Exception:                                    # noqa: BLE001
-            LOG.exception("Could not mark a new page for the theme sheet")
+            LOG.debug("could not install the settings search strip early",
+                      exc_info=True)
 
     def stylesheet_roots(self):
         """The widgets that carry the application sheet, instead of me.
@@ -5642,6 +5748,11 @@ def launch(argv: Optional[list[str]] = None) -> int:
     _app_name, _app_display_name = name_the_application()
 
     app = QApplication(sys.argv[:1])
+    try:
+        from .theme import use_a_style_that_honours_the_palette
+        use_a_style_that_honours_the_palette(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not choose the Fusion style", exc_info=True)
     if os.environ.get("SPACR_WATCH_GUI_STALLS"):
         try:
             from .stall_watch import watch_this_application
@@ -5692,13 +5803,13 @@ def launch(argv: Optional[list[str]] = None) -> int:
         _load_bundled_fonts()
         _use_open_sans(app)
 
+    from .logging_util import setup_logging
+    setup_logging()
+
     from .preferences import apply_preferences_to_app
     apply_preferences_to_app(app)
     from .i18n import install_qt_translations
     install_qt_translations(app)
-
-    from .logging_util import setup_logging
-    setup_logging()
 
     import logging as _lg
     import sys as _sys

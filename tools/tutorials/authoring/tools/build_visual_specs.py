@@ -202,6 +202,11 @@ def build_home_lesson(lesson: dict) -> None:
         "performance": ("keyframes/02_performance_4k.png", geometry["performance"]),
         "open_module": ("keyframes/03_mask_open_4k.png", geometry["open_module"]),
     }
+    if any(scene["visual"] == "search" for scene in lesson["scenes"]):
+        search_frame = keyframes / "04_help_search.png"
+        if not search_frame.is_file() or not geometry.get("search"):
+            raise RuntimeError("Home needs a current Help search capture and result region")
+        visuals["search"] = ("keyframes/04_help_search.png", geometry["search"])
     scenes = []
     for source in lesson["scenes"]:
         image, focus = visuals[source["visual"]]

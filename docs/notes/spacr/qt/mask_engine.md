@@ -1,5 +1,205 @@
 # Notes from `spacr/qt/mask_engine.py`
 
+## Item 419 point 1 (2026-09-19)
+
+- `canonical_labels`: each id is now labelled inside its own bounding box
+  (`scipy.ndimage.find_objects`) rather than across the whole field. The
+  pieces are the same and come in the same order, because a crop keeps the
+  raster order of the pixels in it and holds every pixel of that id, so the
+  kept piece and the minted ids are unchanged; the test
+  `test_canonical_labels_is_unchanged_by_the_bounding_box_rewrite` compares
+  60 random masks (uint8, uint16, int32; binary, split and touching ids)
+  against the whole-field algorithm it replaced. Measured on this machine:
+  2048 x 2048 with 400 objects, 3.1 s -> 64 ms; 1024 x 1024 with 200, 382 ms
+  -> 15 ms. `filter_objects` and `save_mask` go through it, so both got the
+  same speed-up. The int64 copy is only made once a split is found. Masks
+  with an id past uint16, and non-integer masks, keep the old whole-field
+  path, so their behaviour (including the ValueError) is exactly as before.
+- `ObjectLookup.measure`: the mean is `np.mean` of the float32 image over
+  the object's pixels taken from its bounding box, which is the arithmetic
+  `regionprops(...).intensity_mean` performs for `filter_objects`
+  (`image_intensity[image]`, float32, raster order), so the two are equal to
+  the last bit rather than approximately.
+
+## Item 419 points 5 and 6 (2026-09-19)
+
+- `dilate_objects`: `skimage.segmentation.expand_labels`, which grows each
+  label into background only and gives a contested pixel to the nearer
+  label. So no two objects can fuse and the object count cannot change,
+  which is what makes it safe on a curated mask: an id that has been got
+  right keeps every measurement, track and crop keyed to it.
+- `shrink_objects`: each object is eroded against everything that is not
+  itself -- background AND its neighbours -- so a pair that was touching
+  comes apart. Eroding `mask > 0` as one binary would leave that seam
+  untouched, which is the opposite of what Shrink is reached for. It works
+  inside each object's own bounding box (`find_objects`), for the same
+  reason `canonical_labels` does: cost follows the area of the objects, not
+  the area of the field. The distance is Euclidean, matching
+  `expand_labels`, so a Shrink undoes a Dilate of the same size on an object
+  that had room to grow -- asserted in
+  `tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py`. An object
+  thinner than twice the step disappears, which is what erosion means; the
+  screen counts what went and says so.
+- `_split_touching_objects`: the watershed tail `_classical_region_labels`
+  has always ended with, lifted out whole so `_otsu_instances` can reach the
+  same recipe. Before this the magnifier's threshold mode split touching
+  objects and the Otsu detect button did not, on the same field, and nothing
+  said so. `_drop_border_objects` is the new "exclude border" step beside it.
+- `_otsu_instances` and `_classical_region_labels` grew keyword-only
+  settings (`smoothing`, `fill_holes`, `split_touching`, `exclude_border`)
+  and EVERY default reproduces what each did before, so the two functions
+  return the same arrays for the calls that already existed: 40 random
+  fields x 6 sensitivities x 2 corrections x both sides hash identically
+  against `origin/nightly` (`b56c77d46`). The panel, not the engine, is
+  where the defaults moved.
+
+## Item 435 (2026-09-20)
+
+- `invert_intensity`: the maintainer asked for "invert so that low intensity
+  becomes high intensity and vice versa. 1/intensity i think and then fitted
+  to dtype i guess". WHAT IS BUILT IS THE COMPLEMENT, `dtype_max - value`,
+  and the reciprocal was considered and NOT built, so that nobody re-derives
+  it: `1/value` divides by zero on every background pixel, it squashes the
+  bright end so two objects a thousand counts apart come back
+  indistinguishable, and it is not reversible, while the complement is what
+  every image viewer means by Invert and returns the identical array when it
+  is applied twice. He can still have the reciprocal as a SECOND mode if he
+  wants a log-like lift of the dim end; it is not this one.
+- The range complemented is the dtype's for integers (so `uint16` is
+  `65535 - value`, which is "fitted to dtype") and the ARRAY's own for
+  floats, which have no dtype maximum worth speaking of. The integer round
+  trip is exact; the float one rounds twice and is out by up to one unit in
+  the last place of `min + max` -- measured at 0.002 in float32 and 4e-12 in
+  float64 over 0..65535, against an interval of one count. Every field this
+  editor opens is an integer dtype.
+- `_otsu_levels` / `_otsu_values` / `_otsu_histogram`: one reader for the
+  numbers the histogram preview marks and the numbers `_otsu_instances`
+  cuts at, because a preview that found its own level would be a second
+  opinion and could be right while the button was wrong. The dark-side
+  two-class level returned is the MIRRORED one, `top - (top - level) *
+  correction`, which is the value the detector actually compares against --
+  so the marker sits on the cut the user gets rather than on Otsu's own
+  number, which is a different place.
+- `_otsu_instances` grew `classes`, `foreground_class`, `local` and
+  `window`, and the two-class non-local path was rewritten to read its level
+  from `_otsu_levels`. That rewrite is byte-identical to what it replaced
+  over 3,840 parameter combinations (40 fields x correction x smoothing x
+  fill holes x split x exclude border x both sides), which is the check that
+  says the shared reader did not move anybody's threshold.
+- `_local_otsu_binary` measures its levels on a 256-step rescaling of the
+  smoothed field. `skimage.filters.rank.otsu` accepts uint16, but a 16-bit
+  rank filter builds a 65,536-bin histogram per pixel, which is not
+  pressable on a megapixel field. The cut is made on the same rescaling, so
+  nothing is compared across the two.
+- `_square_footprint` tries `footprint_rectangle` and falls back to
+  `square`: the first arrived in scikit-image 0.25 and the second is
+  deprecated there and gone in 0.27, and pinning the package over a helper
+  that returns an array of ones would be the wrong trade.
+- `invert_mask` keeps its name and its behaviour and gained the docstring
+  that says what it is NOT. It is the operation item 435 was filed about --
+  flipping the mask on an ordinary field gives one object covering the frame
+  -- and it is kept because outlining the space between the cells is a real
+  thing to do.
+
+## Item 407, the Overlap rule is counted once over the pixels (2026-09-20)
+
+- `_surviving_region_objects` / `_largest_piece_of_each`: the rule
+  `_paste_region_objects` applied per object -- a whole-region comparison for
+  every object, and under `clip` a whole connected-component pass for every
+  object as well. That is fine for the ten objects in a 128 px box and is not
+  fine for the box item 417 allows, which is as wide as the image. Measured on
+  this machine, one region, one click, on the GUI thread:
+
+      region   objects   clip        skip        replace
+      128 px        10   0.4 ms      0.3 ms      0.3 ms      (was 0.3/0.3)
+      256 px        30   1.3 ms      1.1 ms      0.9 ms      (was 7.2/1.2)
+      512 px        60   5.2 ms      4.4 ms      3.6 ms      (was 44.8/6.1)
+     1024 px       200  29.3 ms     22.2 ms     17.4 ms      (was 595/60.5)
+     2048 px       500 117.9 ms     87.4 ms     72.1 ms      (was 6085/821)
+
+  Six seconds of frozen window on a click, at a box size the Size box offers.
+  The ids added are identical at every size, which is how the two were
+  compared; `test_the_overlap_rule_agrees_with_the_rule_it_replaced` pins it
+  against the old rule written out object by object, over random regions,
+  for all three rules and three Min areas.
+- `_largest_piece_of_each` uses `skimage.measure.label` and NOT
+  `scipy.ndimage.label`, and the difference is not a preference. ndimage
+  labels connected runs of TRUE, so two different objects that touch become
+  one piece and the largest piece of the pair is the largest piece of
+  neither. skimage labels connected runs of one VALUE, which is what a piece
+  of an object is. The first version used ndimage and the random comparison
+  above caught it on two pixels of one seed.
+- The rule lives here and not in the screen because the box has to draw what
+  a click would add and the click has to add exactly that. Two
+  implementations of one rule is a promise the box cannot keep.
+
+## Item 419 points 7, 8 and 9 (2026-09-19)
+
+- `filter_report` / `FilterRemoval` / `filter_objects`: point 7 asks the
+  screen to say WHY each object went ("object 22 with area x and intensity y
+  was removed by minimum intensity"), and `filter_objects` measured all
+  three of those and threw two away. It is now `filter_report` with the
+  reasons dropped, so the ids in the mask and the rows the user reads come
+  from ONE pass over ONE set of measurements and cannot disagree. Its
+  arithmetic is unchanged: the same `regionprops` call, the same bounds, the
+  same "0 is off", and `ObjectLookup` still equals it to the last bit, which
+  is what makes a row name the numbers the hover readout showed.
+- `FilterRemoval.bounds` is a TUPLE and not one name. An object can miss on
+  two sides at once -- too small AND too dim -- and saying so is worth a
+  word, because an object outside two bounds does not come back by moving
+  one of them.
+- `split_object_at`: point 8's Ctrl + left click. A watershed on the
+  object's own distance to background, inside its bounding box: the recipe
+  `_split_touching_objects` already runs on a whole field, on one object.
+  THREE DECISIONS, and the first is the one a reader will want:
+  - An object with ONE centre is left alone and the screen says so, rather
+    than being halved through the click. A single click carries no
+    direction; a forced cut would have to invent one. The gesture for a cut
+    the user aims is the Divide tool, which already exists.
+  - The largest piece keeps the id and the rest are minted above the mask's
+    top label. That is `canonical_labels`' own rule and `divide_object`'s,
+    so splitting and then saving renumbers nothing.
+  - NO PIXEL IS LOST. `_split_touching_objects` drops pieces under
+    `min_area`; this does not, and passes `min_area` only as the seed
+    spacing. A hand edit moves pixels between ids, and a gesture that
+    quietly erased the smaller half would be a delete wearing a split's
+    name -- on a field of four hundred objects nobody would notice which.
+- `invert_for_detection`: point 9's inversion, `max + min - value` on the
+  image's OWN range. It is a SECOND function beside item 435's
+  `invert_intensity` and the name is the whole point, because the two look
+  like duplicates. THEY WERE BRIEFLY MERGED DURING THIS REBASE AND THE MERGE
+  WAS WRONG; what follows is the measurement that reversed it, so nobody
+  merges them again from the same reasoning.
+- The argument for merging was that both are `a - value` for a constant `a`,
+  so an offset should wash out of any detector that normalises. It does wash
+  out of the magnifier's own `_classical_region_labels`, which percentile-
+  stretches, and out of Cellpose, called with `normalize=True`. IT DOES NOT
+  WASH OUT OF THE DETECT BUTTON. Item 435 rewrote the two-class path of
+  `_otsu_instances` to take its level from `_otsu_levels`, which works on
+  ABSOLUTE smoothed intensity and applies item 417's threshold correction as
+  a MULTIPLIER there. Multiplying is not offset-invariant.
+- Measured on a 12-bit field (216..4095, dark objects on a pale background),
+  inverted and put through `_otsu_instances` on the bright side. Dtype
+  complement, which puts the field into 61440..65535: correction 0.8 gives
+  ONE object covering 100% of the field, 1.0 gives 3 objects over 8%, 1.3
+  gives NOTHING. Range reflection: 47 objects over 20%, the same 3 objects
+  over 8%, and 3 objects over 8%. The complement turns the correction dial
+  into an on/off switch, because 0.8 of 61440 is below every pixel in the
+  field and 1.3 of it is above all of them. At exactly 1.0 the two agree,
+  which is why the merge passed every test that pinned the default.
+- So the display inversion wants the dtype's ends -- it must be exactly
+  reversible and nothing reads it -- and the detector's wants the field's
+  own span, so that a number the user dials against the picture still means
+  what it meant. One function cannot be both, and the module docstring now
+  names three inversions rather than two.
+- `invert_for_detection(bounds=...)` is what a CROP is handed. A region
+  reflected about its own extremes is reflected differently wherever the box
+  is put, so the magnifier passes the whole field's pair and the box stays a
+  preview of what the detect button does with the same switch. Nonfinite
+  pixels take no part in finding the extremes and come back untouched: a NaN
+  is neither dark nor bright. `invert_intensity` needs no such parameter,
+  being a function of the pixel value alone -- another way the two differ.
+
 Prose lifted out of `spacr/qt/mask_engine.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

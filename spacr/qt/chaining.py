@@ -222,9 +222,9 @@ class ChainingBar(QFrame):
         self._collect_ok = False
         self._last_steps: Tuple[NextStep, ...] = ()
         #: The worker that resolves the registry. THE REGISTRY LIVES IN THE
-        #: PROJECT ROOT, and the roots are paths the user chose -- which on
-        #: this maintainer's machine includes an `autofs` share whose stat
-        #: did not return for twenty seconds. Doing that inline is what froze
+        #: PROJECT ROOT, and the roots are paths the user chose -- which can
+        #: include an `autofs` share whose stat does not return for twenty
+        #: seconds. Doing that inline is what froze
         #: the application on every module open; see `_refresh`.
         #:
         #: `user_visible=False`: nothing here is a run the user started, so

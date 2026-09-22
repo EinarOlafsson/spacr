@@ -2071,6 +2071,16 @@ from .logging_util import setup_logging
 
 Real Python logging → rotating file + Qt signal so ConsolePanel can render records inline. Set it up before the launch breadcrumb and MainWindow construction so neither is lost.
 
+IT RUNS BEFORE `apply_preferences_to_app`, AND THE ORDER IS THE FIX (2026-09-19, item 294). It used to run just after it. The package `setup_logging` sets the `spacr` logger to INFO, sets the master log's filter to INFO and above, and pins `cellpose` and the other `QUIET_LOGGERS` at WARNING. Running it second undid what the preferences had just applied, so until the user's first Preferences Save:
+
+    measured through launch() itself, fresh HOME, verbose on by default
+    spacr, spacr.io     INFO       (the preference had set DEBUG)
+    cellpose            WARNING    (the preference had set INFO)
+    master log filter   INFO+      (whatever the Logging tab said)
+    a spacr.io DEBUG record reached no log file
+
+The Logging tab's own choices were overridden the same way whether or not verbose was on. `docs/notes/spacr/qt/preferences.md` already said the per-level switches have to be what lands last; at startup they were not. Now the package defaults go in first and the preferences land on top of them. `setup_logging` is idempotent behind its own flag, so the later `apply_preferences_to_app` calls (after the setup screen, after every Save) are unaffected.
+
 ### line 6315  _(unsure)_
 
 ```python

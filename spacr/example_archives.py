@@ -13,9 +13,10 @@ module) keeps working unchanged.
 NOT TO BE CONFUSED WITH :mod:`spacr.example_data`, which fetches the Regression
 example screen's count and score CSVs from a GitHub release. That is a
 different set of files, a different host and a different transport. This module
-is about the four ``.tar`` archives of imaging data: the Mask demo plate, the
-Measure example, the Annotate/Classify example, and -- through
-:mod:`spacr.screen_data` -- the pieces of the published TSG101 screen.
+is about the ``.tar`` archives of imaging data: the Mask demo plate, the
+Measure example, the Annotate/Classify example, the Replication and
+Recruitment assay examples, and -- through :mod:`spacr.screen_data` -- the
+pieces of the published TSG101 screen.
 
 SIZES ARE STATED BEFORE ANYTHING IS FETCHED. A user choosing between example
 sets is choosing how many gigabytes to spend, and a picker (or a CLI) that
@@ -33,6 +34,9 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Tuple
 
+from .import_examples import IMPORT_EXAMPLE_ARCHIVE as _IMPORT_EXAMPLE_ARCHIVE
+from .import_examples import IMPORT_EXAMPLE_REPO as _IMPORT_EXAMPLE_REPO
+
 LOG = logging.getLogger("spacr.example_archives")
 
 __all__ = [
@@ -43,11 +47,18 @@ __all__ = [
     "EXAMPLE_ARCHIVES",
     "EXAMPLE_SETS",
     "ExampleSet",
+    "IMPORT_EXAMPLE_REPO",
+    "INVASION_EXAMPLE_REPO",
     "MEASURE_EXAMPLE_REPO",
+    "RECRUITMENT_EXAMPLE_REPO",
+    "REPLICATION_EXAMPLE_REPO",
+    "OPS_EXAMPLE_REPO",
     "SETTINGS_REPO",
+    "STITCH_EXAMPLE_REPO",
     "download_archive",
     "example_plate_folder",
     "example_set",
+    "example_set_folder",
     "expand_measure_arrays",
     "explain_download_failure",
     "extract_example_archive",
@@ -77,6 +88,44 @@ MEASURE_EXAMPLE_REPO = "einarolafsson/spacr-example-measure"
 #: double the download and let the two copies drift.
 ANNOTATE_EXAMPLE_REPO = "einarolafsson/spacr-example-annotate"
 
+#: The Replication Assay's example: every parasite object of twelve control
+#: wells of the Toxoplasma MTOC screen, plate 1, with two merged fields.
+#:
+#: ITS OWN FOLDER, like Recruitment's. Both assay sets ship
+#: ``measurements/measurements.db``, and so does the Annotate set in the shared
+#: plate, so unpacking either there would overwrite the other's database.
+REPLICATION_EXAMPLE_REPO = "einarolafsson/spacr-example-replication"
+
+#: The Recruitment module's example: twelve control wells of the THP-1 RNF213
+#: screen, plate 1, whose own recruitment settings ship with it.
+RECRUITMENT_EXAMPLE_REPO = "einarolafsson/spacr-example-recruitment"
+
+#: Import's test data: the same twelve planes written in every vendor format
+#: and filename convention Import reads, with their masks and measurements.
+#: Described in :mod:`spacr.import_examples`, which owns the variant list.
+#: Every member sits under ``import_example/``, so it unpacks into the shared
+#: plate without touching the other sets' files.
+IMPORT_EXAMPLE_REPO = _IMPORT_EXAMPLE_REPO
+
+#: The Invasion Assay's example, and it is SYNTHETIC. No real two-colour
+#: differential-staining acquisition exists to publish, so the fields are
+#: synthetic and clearly labelled. The object masks are the drawn objects,
+#: not a Cellpose segmentation; spaCR's own Measure makes the database. See
+#: ``tools/build_invasion_example_dataset.py``.
+INVASION_EXAMPLE_REPO = "einarolafsson/spacr-example-invasion"
+#: The optical pooled screen's example: two sequencing fields of one well of a
+#: published screen, every cycle, and the guide library to decode them against.
+#:
+#: A SAMPLE OF SOMEONE ELSE'S SCREEN, NOT THE LAB'S OWN. The fields are from
+#: Funk et al. 2022 (BioImage Archive S-BIAD394), byte for byte. The dataset
+#: card carries the citation and the licence; the repository exists only once
+#: rehosting it has been approved.
+OPS_EXAMPLE_REPO = "einarolafsson/spacr-example-ops"
+
+#: Align & Stitch's example: a 3 x 3 block of overlapping tiles from the same
+#: well, cut from the same published screen as :data:`OPS_EXAMPLE_REPO`.
+STITCH_EXAMPLE_REPO = "einarolafsson/spacr-example-stitch"
+
 #: The token a published settings file uses for "wherever this was unpacked".
 DATASET_PLACEHOLDER = "<dataset>"
 
@@ -95,6 +144,9 @@ def example_plate_folder() -> Path:
     archive's members are relative to this folder, so the three unpack into it
     side by side and compose into a plate that Measure, Annotate and Classify
     can all be pointed at.
+
+    The assay examples are not stages of this plate and each has a folder of
+    its own beside it; see :func:`example_set_folder`.
     """
     return Path.home() / ".cache" / "spacr" / "example_data" / "plate1"
 
@@ -115,6 +167,12 @@ EXAMPLE_ARCHIVES: Dict[str, str] = {
     DATASET_REPO: "spacr-example-mask.tar",
     MEASURE_EXAMPLE_REPO: "spacr-example-measure.tar",
     ANNOTATE_EXAMPLE_REPO: "spacr-example-annotate.tar",
+    REPLICATION_EXAMPLE_REPO: "spacr-example-replication.tar",
+    RECRUITMENT_EXAMPLE_REPO: "spacr-example-recruitment.tar",
+    IMPORT_EXAMPLE_REPO: _IMPORT_EXAMPLE_ARCHIVE,
+    INVASION_EXAMPLE_REPO: "spacr-example-invasion.tar",
+    OPS_EXAMPLE_REPO: "spacr-example-ops.tar",
+    STITCH_EXAMPLE_REPO: "spacr-example-stitch.tar",
 }
 
 
@@ -137,6 +195,16 @@ class ExampleSet:
         directory existing says nothing about which of them is in it.
     :param expands_npz: whether ``.npz`` arrays have to be written back out as
         the ``.npy`` Measure reads. See :func:`expand_measure_arrays`.
+    :param in_default: whether ``spacr-download`` with no arguments fetches
+        it. False for the OPS and Align & Stitch samples: together
+        they are 0.6 GB of one screen's tiles, and adding them would push the
+        default run past ``CONFIRM_ABOVE_BYTES``, so the command would start
+        asking to confirm the thing it does with no arguments. They are
+        fetched when named, and by ``all``.
+    :param folder: the folder under the example-data root the set unpacks
+        into. ``plate1`` -- the shared plate -- for the three sets that are
+        stages of one plate; a folder of its own for a set that would collide
+        with them.
     """
 
     key: str
@@ -145,6 +213,8 @@ class ExampleSet:
     bytes: int
     markers: Tuple[str, ...]
     expands_npz: bool = False
+    folder: str = "plate1"
+    in_default: bool = True
 
     @property
     def archive(self) -> str:
@@ -170,8 +240,18 @@ class ExampleSet:
 #: Measure cuts crops out of those stacks and measures them, Annotate and
 #: Classify label the crops. Someone downloading all three is following that
 #: sequence, and a list in any other order would have to be re-sorted in the
-#: reader's head.
+#: reader's head. The assay sets come last: each is a measured plate that an
+#: assay module reads, which is where they sit in the pipeline too.
 EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
+    ExampleSet(
+        key="import",
+        repo=IMPORT_EXAMPLE_REPO,
+        summary="Import test data: two wells, two fields and three channels "
+                "written in 22 formats and filename conventions, with masks "
+                "and measurements, plus public ND2 and LIF samples.",
+        bytes=284_000_000,
+        markers=("import_example/manifest.csv",),
+    ),
     ExampleSet(
         key="mask",
         repo=DATASET_REPO,
@@ -197,13 +277,64 @@ EXAMPLE_SETS: Tuple[ExampleSet, ...] = (
         bytes=280_000_000,
         markers=("measurements/measurements.db", "data"),
     ),
+    ExampleSet(
+        key="replication",
+        repo=REPLICATION_EXAMPLE_REPO,
+        summary="Replication Assay example: 11,416 parasites in twelve "
+                "control wells of the MTOC screen, and its settings.",
+        bytes=168_000_000,
+        markers=("measurements/measurements.db",
+                 "settings/replication_settings.csv"),
+        folder="replication",
+    ),
+    ExampleSet(
+        key="recruitment",
+        repo=RECRUITMENT_EXAMPLE_REPO,
+        summary="Recruitment example: twelve control wells of the THP-1 "
+                "RNF213 screen, and the settings it was analysed with.",
+        bytes=147_000_000,
+        markers=("measurements/measurements.db",
+                 "settings/recruitment_settings.csv"),
+        folder="recruitment",
+    ),
+    ExampleSet(
+        key="invasion",
+        repo=INVASION_EXAMPLE_REPO,
+        summary="Invasion Assay example, SYNTHETIC: two-colour fields and "
+                "masks drawn by spaCR, then measured by Measure.",
+        bytes=107_000_000,
+        markers=("measurements/measurements.db",
+                 "settings/invasion_settings.csv"),
+        folder="invasion",
+    ),
+    ExampleSet(
+        key="stitch",
+        repo=STITCH_EXAMPLE_REPO,
+        summary="Align & Stitch example: a 3 x 3 block of overlapping 10X "
+                "tiles from a published optical pooled screen.",
+        bytes=197_000_000,
+        markers=("manifest.csv", "tiles/*.tif"),
+        folder="align_stitch",
+        in_default=False,
+    ),
+    ExampleSet(
+        key="ops",
+        repo=OPS_EXAMPLE_REPO,
+        summary="OPS example: two fields of a published optical pooled "
+                "screen, all eleven sequencing cycles, and its guide library.",
+        bytes=394_000_000,
+        markers=("manifest.csv", "sequencing/c11/*.tif"),
+        folder="ops_screen",
+        in_default=False,
+    ),
 )
 
 
 def example_set(key: str) -> ExampleSet:
     """The set called ``key``.
 
-    :param key: ``mask``, ``measure`` or ``annotate``.
+    :param key: ``import``, ``mask``, ``measure``, ``annotate``,
+        ``replication``, ``recruitment`` or ``invasion``.
     :raises KeyError: naming the keys that do exist. A typo that returned
         ``None`` would download nothing and report success, which is the one
         outcome a download command must never produce.
@@ -213,6 +344,16 @@ def example_set(key: str) -> ExampleSet:
             return candidate
     raise KeyError(f"no example set named {key!r}; there is "
                    f"{', '.join(s.key for s in EXAMPLE_SETS)}")
+
+
+def example_set_folder(key: str) -> Path:
+    """Where the set called ``key`` unpacks: its folder beside the plate.
+
+    :param key: an :data:`EXAMPLE_SETS` key.
+    :returns: ``~/.cache/spacr/example_data/<folder>``. Not created here.
+    :raises KeyError: as :func:`example_set` does.
+    """
+    return example_plate_folder().parent / example_set(key).folder
 
 
 def explain_download_failure(exc: BaseException) -> str:

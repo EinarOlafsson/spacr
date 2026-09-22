@@ -1,0 +1,286 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "control_sgrnas",
+      "source": "Control sgRNAs",
+      "translation": "对照 sgRNAs",
+      "source_sha256": "901ad5d14d7f886866d801222012e3d537aaca54cf2fceea496618e06e5e534c"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_size",
+      "source": "Crop size",
+      "translation": "裁剪尺寸",
+      "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa"
+    },
+    {
+      "table": "setting_labels",
+      "key": "drop_straight_tracks",
+      "source": "Drop straight tracks",
+      "translation": "剔除直线轨迹",
+      "source_sha256": "76cda4b81b43d75683b5c0daae676cac553599c3f5f4e512828999cf05f9afbb"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_base_channels",
+      "source": "Ops base channels",
+      "translation": "OPS 碱基通道",
+      "source_sha256": "67acb65a94a536a66dac6894883c1295ef48e6e9c1d45b37f6fadcb2c58da3c8"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_footprint",
+      "source": "Ops footprint",
+      "translation": "OPS 读段归属范围",
+      "source_sha256": "c986798989127fe6c441a7b6711bbaad60a846cca0a4c0cc10590e612084e64e"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_library",
+      "source": "Ops library",
+      "translation": "OPS 条形码库",
+      "source_sha256": "6d6c47df2af4e9af42cd87cb562da3094bace42b9006fcdec56cec412f7530f8"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_raster_overlap",
+      "source": "Ops raster overlap",
+      "translation": "OPS 栅格重叠",
+      "source_sha256": "075e123047f407d4215396c2af89415d19c96fcb512e40b0e4c4279b7826d95f"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_read_threshold",
+      "source": "Ops read threshold",
+      "translation": "OPS 读段检测阈值",
+      "source_sha256": "08161b4f63ba9ba0047379e46294e94a1f703f7653309b7adb8837f70fe539e3"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_store_reads",
+      "source": "Ops store reads",
+      "translation": "OPS 保存读段",
+      "source_sha256": "2407539c761d452635379f42c0e1bad4ce52a79819ca4fd613fc65c37b19565f"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_window_overlap",
+      "source": "Ops window overlap",
+      "translation": "OPS 分割窗口重叠",
+      "source_sha256": "9cdde10632ff2d79a2c9a96404deeae3de1f2431c577520aa75a49f471063104"
+    },
+    {
+      "table": "setting_labels",
+      "key": "phenotype_source",
+      "source": "Phenotype source",
+      "translation": "表型图像来源",
+      "source_sha256": "4264d9c208a00855238fd5af02240140945329261083ed8037baeb468ce265f1"
+    },
+    {
+      "table": "setting_labels",
+      "key": "track_outlier_zscore",
+      "source": "Track outlier zscore",
+      "translation": "轨迹离群值 Z 分数",
+      "source_sha256": "bcafca9222a7830b82c4fead97743f85b9971477f20a69e0b5bb0acf6b508001"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "FT",
+      "source": "Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "独立应用模型/测试模型子模块的 Cellpose flow_threshold，对应 Mask 模块中各对象的 <object>_flow_threshold。若掩膜重新计算的流场与网络预测之间的误差超过此阈值，该掩膜就会被剔除。因此，较低的值会去掉边缘参差或不合理的对象，但也会丢失真实对象。典型范围为 0 到 3；超过 3 时几乎保留所有候选对象。默认值为 0.4，与 Cellpose 自身的默认值相同。",
+      "source_sha256": "7090700222ddcbc4b3821636ae3f290efdd28d22bfda92e3cb69a06002f3da90"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
+      "translation": "选择要将哪个物种的注释合并到回归结果中。默认的 'toxoplasma' 使用随软件提供的 Toxoplasma gondii 注释表，无需网络。其他物种名称或 NCBI taxon id，例如 'human'、'Plasmodium falciparum'、'Neospora caninum'、'9606'，会从 UniProt 获取相应物种的条目；P04637 这样的单个登录号则获取该条目。结果缓存在输出目录旁，再次运行无需网络。如果 spaCR 无法识别名称，结果将不添加注释，并提示相近的名称。留空表示不添加注释。默认值为 'toxoplasma'。",
+      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "auto_file_issues",
+      "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
+      "translation": "将失败的运行作为 issue 报告到公开的 spaCR GitHub 仓库。报告包含异常堆栈、运行设置和软件版本，并隐去路径、登录名、主机名及凭据。问题报告设置为 'always'（默认值）时，若已登录 GitHub，每个错误会自动提交一次；设置为 'ask' 时，会先打开预览，只有按下 Send report 才会发送。默认值为 True。",
+      "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_flow_threshold",
+      "source": "Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "Cellpose flow_threshold：候选掩膜重新计算的流场与网络预测流场之间允许的最大误差。超过阈值的掩膜会被剔除，因此降低阈值会去掉边缘参差或不合理的细胞，但也会丢失真实细胞；提高阈值则保留更多细胞。可用范围约为 0-3；超过 3 时几乎保留所有候选对象。默认值为 0.4，与 Cellpose 自身的默认值相同。",
+      "source_sha256": "1f20d8a299a118ec408e518911237c7bdc1ff3fda5f1739c413ec1ca763b9ebe"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "translation": "细胞分割权重。Cellpose 4 提供内置的 'cpsam' 模型；也可提供由 Train Cellpose 生成的 CPSAM 检查点，以 pretrained_model 加载。旧模型名称（'cyto'、'cyto2'、'cyto3'、'nuclei'）会映射到 cpsam，因为 Cellpose 4 不再提供这些模型；但 segmentation_backend 为 'cellpose3' 时，会运行该名称对应的真实模型。只有 diameter 会影响推理（按 30/diameter 缩放）；v4.0.1+ 不使用 model_type 和 diam_mean。默认值为 'cpsam'。",
+      "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "drop_straight_tracks",
+      "source": "Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.",
+      "translation": "应用直线度阈值。False 仅报告超过 straightness_threshold 的轨迹数量，不改变数据；True 则从速度表、逐孔汇总和图中移除这些轨迹。当载物台漂移或对象身份错配产生不合理的直线轨迹时，可启用此选项。默认值为 False。",
+      "source_sha256": "340f2cc9181003122524eb1e7699f19fbdb078789ff8a08805e9b516ef88ea2e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "edge_thickness",
+      "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
+      "translation": "轮廓宽度按对象尺寸的比例设置，而非固定像素数，从而在不同 crop_size 下保持相对宽度一致。较大的值使小缩略图中的边界更清晰，但也会遮盖更多内部像素。默认值为 0.1。",
+      "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
+      "translation": "解析原始图像所用的文件命名规则，从按厂商分组的列表中选择：Yokogawa CV7000/CV8000（'cellvoyager'，默认值）和 CQ1、PerkinElmer/Revvity Opera Phenix 和 Operetta、Molecular Devices ImageXpress、Thermo Fisher ArrayScan 和 EVOS、GE/Cytiva IN Cell Analyzer、Olympus/Evident ScanR、Agilent/BioTek Cytation、Zeiss ZEN、Nikon NIS-Elements、Leica LAS X 和 Matrix Screener，以及 Micro-Manager。'custom' 使用 custom_regex；'auto' 则先将文件夹内文件重命名为 Yokogawa 命名格式，再进行解析（提供 custom_regex 时使用它，否则自动检测）。标记为暂定的规则是根据公开数据集中的真实文件名重建的，并非取自厂商文档。错误的规则可能误配板、孔、视野或通道标识，并将图像放入错误的通道文件夹，因此运行前请使用 'Test on my folder' 检查。",
+      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_flow_threshold",
+      "source": "Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "细胞核掩膜的 Cellpose flow_threshold：掩膜重新计算的流场与网络预测流场之间允许的最大误差。降低阈值会剔除更多形状不规则的细胞核，得到数量更少但形状更规整的对象；提高阈值则几乎保留 Cellpose 提出的所有对象。典型范围为 0 到 3；超过 3 时几乎保留所有候选对象。默认值为 0.4，与 Cellpose 自身的默认值相同。",
+      "source_sha256": "c21542dce208ebb2b4c0511d434405fc96c9cfc6a1c835810b8e851735f16e07"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
+      "translation": "用于分割细胞核的权重。有效值为 'cpsam'，或 Train Cellpose 生成的自定义 CPSAM 检查点路径。'nuclei' 和 'nucleus' 会映射到 'cpsam'，因为 Cellpose 4 移除了 SAM 之前的模型；但 segmentation_backend 为 'cellpose3' 时，会运行真实的 Cellpose 3 'nuclei' 模型。通过 nucleus_diameter 控制尺度；原先用于区分模型的三个参数中，只有 diameter 仍起作用（eval 按 30/diameter 缩放），model_type 和 diam_mean 会被弃用。默认值为 'cpsam'。",
+      "source_sha256": "288cd1bce7442ea139575cf1cfa904c0245ad41a4289d7c61081f012535b1224"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. Given a phenotype folder it also records where each phenotype field lands on the stitched well. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ.",
+      "translation": "将光学混池筛选中每个孔的测序图像从图块转换为数据表：拼接细胞核图块，在全孔范围内分割细胞核并编号，然后解码各视野的读段，为读段结果一致的每个细胞核分配条形码。若提供表型图像文件夹，还会记录每个表型视野在拼接后的孔图中的位置。数据表写入 measurements.db。读段从图像中解码，而非来自 FASTQ。",
+      "source_sha256": "0088ccbc77f2ea1c7f609918336830ef4a067258728251546a50a4f8d0daca9c"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_base_channels",
+      "source": "Which channels carry the four bases, in the order G, T, A, C, separated by commas. These names are matched against the channel token in each tile's file name, so a run whose base channels are named differently is read by changing this rather than by renaming files. Exactly four are required: a shorter list decodes a shorter barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+      "translation": "按 G、T、A、C 的顺序指定四种碱基对应的通道，以逗号分隔。这些名称会与各图块文件名中的通道标记匹配，因此若某次采集的碱基通道名称不同，应修改此设置，无需重命名文件。必须恰好提供四个通道；较短的列表会解码出比条形码库中更短的条形码。默认值为 'CY3,A594,CY5,CY7'。",
+      "source_sha256": "e642706d65b469a850f000aed84c98dc5b7e7e4578c7e0e7b7780f14f0f28bf5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_footprint",
+      "source": "How far beyond a nucleus's boundary a read may lie and still be counted as that nucleus's read, in pixels. On the reference plate 10 pixels held 98 % of the detected spots and 3 held 67 %, and the wider setting assigned 28 % more objects a barcode at slightly higher purity, because the reads sit around the rim rather than inside. Too wide starts giving a read to a neighbour. Default 10.",
+      "translation": "读段位于细胞核边界之外多远时仍归属于该核，单位为像素。在参考板中，10 像素范围包含 98 % 的检测光点，3 像素包含 67 %；较宽范围使获得条形码的对象增加 28 %，且纯度略高，因为读段分布在核边缘周围而非内部。范围过宽会将读段误分配给邻近细胞核。默认值为 10。",
+      "source_sha256": "5a22332a20cb91e21c7cca30d20a5afb12b426838315e5601491dfca7643cc53"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "translation": "含有引导 RNA 条形码的 CSV 文件，条形码所在列必须命名为 prefix、barcode 或 sequence。提供该文件后，每个细胞核判定出的条形码还会与最接近的引导 RNA 匹配，并报告与条形码库完全匹配的光点数量；这一数值可用于判断解码是否有效。留空时仍会判定条形码，但无法对匹配情况评分。默认值为 None。",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_raster_overlap",
+      "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
+      "translation": "显微镜栅格中相邻测序图块的重叠距离，单位为像素。这是采集本身的参数，而非可随意调节的设置：它告诉拼接程序到哪里寻找相邻图块。若与真实值相差太大，就会丢失图块间的连接关系，导致部分视野无法定位。默认值为 213，根据参考板中边长为 1,480 像素的图块测得。",
+      "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_read_threshold",
+      "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
+      "translation": "光点必须比周围亮多少才会被计为读段。较低阈值会检出更多读段和杂质，表现为条形码库匹配率下降，而不一定报错；较高阈值会丢失真实读段，使细胞核缺少足够读段来投票确定条形码。默认值为 315，即该板参考运行所用的值。",
+      "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "translation": "将条形码背后的每个读段写入 ops_reads 表：每个读段在每个测序循环占一行，包含判定的碱基、判定优势幅度以及用于判定的四个强度值。这使可疑条形码能够追溯到原始像素。由于数据量很大（参考板的一个完整孔约有三千万行），默认关闭；建议只对一两个孔启用，而非整板启用。默认值为 False。",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_window_overlap",
+      "source": "How far the segmentation windows overlap each other, in pixels. A nucleus is only numbered once if at least one window saw all of it, so this has to exceed the largest nucleus; when it does not, the run reports the objects no window saw whole and says by how much. Raising it costs time, because more of the well is segmented twice. Default 96.",
+      "translation": "分割窗口相互重叠的距离，单位为像素。只有至少一个窗口完整覆盖某个细胞核，才能确保该核只编号一次，因此重叠距离必须大于最大细胞核的尺寸。否则，运行会报告没有任何窗口完整覆盖的对象，并说明差多少。增大重叠会增加耗时，因为孔内更多区域会被重复分割。默认值为 96。",
+      "source_sha256": "1e1581eba24e7267258152e0476fc54bb84ab9ead261eebb0dada01a4bceb64e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_flow_threshold",
+      "source": "Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "translation": "病原体掩膜的 Cellpose flow_threshold：如果候选掩膜重新计算的流场与网络预测之间的误差超过此阈值，该掩膜就会被剔除。提高阈值会保留更多寄生虫，包括部分形状异常的对象；降低阈值则只保留轮廓清晰、形状规整的对象。典型范围为 0.0-3.0；超过 3 时几乎保留所有候选对象。默认值为 0.4，与 Cellpose 自身的默认值相同。",
+      "source_sha256": "0a3f78719e3890bbd4dec0e03a665a47c180d20c6278b1c8a57c4fc193d31ff6"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_model_name",
+      "source": "Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "translation": "用于分割病原体的权重，可为 'cpsam' 或您自己的 Train Cellpose 检查点路径。内置的 toxo_pv_lumen / toxo_cyto 检查点属于 Cellpose-3 CPnet，CPSAM 无法加载，因此会映射到 'cpsam' 并提示；segmentation_backend 为 'cellpose3' 时，则按指定的 Cellpose 3 模型名称或检查点路径运行。若设置了旧的 'pathogen_model' 键，它仍会覆盖此设置。原先用于区分模型的三个参数中，只有 diameter 仍起作用（eval 按 30/diameter 缩放）；model_type 和 diam_mean 会被记录为 'not used in v4.0.1+' 后弃用。默认值为 'cpsam'。",
+      "source_sha256": "edd77ffdd67ac22d1f2475ccff81df4243b85c717c39f4265bccef8968fe45f5"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source": "The folder holding the high-magnification phenotype acquisition of the same wells. Given one, the run aligns a few of its fields to the stitched sequencing well, fits the acquisition raster to those, and records where every phenotype field lands and which sequencing tile covers it. Empty skips that step and decodes the sequencing acquisition alone. Default None.",
+      "translation": "包含同一批孔的高倍表型图像的文件夹。提供后，运行会将其中几个视野与拼接后的测序孔图对齐，据此拟合采集栅格，并记录每个表型视野的位置及覆盖它的测序图块。留空则跳过此步骤，只解码测序图像。默认值为 None。",
+      "source_sha256": "b192dcf04f65557cdc8eac339b97f06fed7b0fc80bc962f04f13cee6a03244e4"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "reuse_existing_measurements",
+      "source": "If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
+      "translation": "如果 measurements.db 已包含 db_table_name 指定的表，则直接加载，而不从 merged/*.npy 重新提取 regionprops。仅重新运行感染质控（QC）或绘图时，这能节省大部分运行时间，但也会跳过轨迹平滑，因此只有将此项设为 False，max_displacement 或 track_outlier_zscore 的更改才会生效。默认值为 True。",
+      "source_sha256": "fbbf8825498bec4058509211f8e38cdc27b25ae3f2d4d2eb133f885fc70df9a0"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "route_errors_through_ai",
+      "source": "Send a failing run's traceback to the AI Console automatically and request an explanation. The traceback and the settings leave your machine when this is on; leave it off if your paths or filenames are themselves sensitive. Default True.",
+      "translation": "自动将失败运行的异常堆栈发送到 AI Console，并请求解释。启用后，异常堆栈和设置会发送到本机之外；如果路径或文件名本身含敏感信息，请保持关闭。默认值为 True。",
+      "source_sha256": "08c2d5211c74b3254e6d9a57f666baeb2c701fca240723e1b87724cc61e7d6a3"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+      "translation": "选择用于分割细胞、细胞核和病原体的模型；不同模型生成的掩膜不可直接比较。'cellpose'（默认值）使用各对象指定的模型名称。'cellpose3' 使用 Cellpose 3 运行对象的 cyto3、cyto2、cyto 或 nuclei 模型名称，或 Cellpose 3 检查点路径；若指定其他名称，细胞核使用 nuclei，其他对象使用 cyto3。'samcell' 和 'dinocell' 是用于活细胞和无标记图像的二维模型，只读取对象指定的通道。除 'cellpose' 外，各后端都通过 Model Zoo 安装到各自独立的环境中，且拒绝 z_stack 和 t_stack 运行。默认值为 'cellpose'。",
+      "source_sha256": "bf311c83ef2ff4f8a92accb1b6d01d1b7cc6dea6c3f9def8597317afab04ab3e"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "straightness_threshold",
+      "source": "Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
+      "translation": "直线度阈值，其中直线度 = 净位移 / 总路径长度（0 表示回到起点，1 表示完全笔直）。当 drop_straight_tracks 为 True 时，达到或超过此阈值的轨迹会被视为漂移或跟踪伪影并剔除，因此降低阈值会剔除更多轨迹。轨迹数量始终会记录在日志中。默认值为 0.95。",
+      "source_sha256": "efc1651d6361235dc8ca9d2c4ca0644038287e1e488172f06cae576bae7b125c"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "track_outlier_zscore",
+      "source": "Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+      "translation": "对轨迹内的标量特征（面积、包围框面积、等效直径、周长、实心度、平均/最大/最小强度）进行平滑时的离群值敏感度。如果某帧的值偏离其轨迹均值超过此数量的标准差，而其前后两帧都在该阈值的一半以内，则用这两帧的平均值替换它。较低的值会平滑更多数据，不会删除任何数据。默认值为 3.0。",
+      "source_sha256": "3d7840b2fb1de858799460a454d088e85f6a98d04d77b01aac262bdadac5c775"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "x_lim",
+      "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
+      "translation": "回归流程生成的弓形虫火山图中，系数（x）轴的双元素 [min, max] 范围，仅在 annotation_source 使用内置的 Toxoplasma 注释时适用。缩小范围可放大零附近聚集的命中基因；扩大范围可保留效应较大的基因。设为 None 时使用 [-0.5, 0.5]，而非自动缩放。默认值为 None。",
+      "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7"
+    },
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "translation": "光点如何被判定为碱基：哪个通道对应哪个字母，光点必须比周围亮多少才计为读段，以及读段距离细胞核多远仍可归属于该核。这些是采集数据的实测属性，而非个人偏好；运行会报告条形码库匹配率，以判断设置是否正确。",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca"
+    }
+  ]
+}

@@ -22,13 +22,6 @@
       "source_sha256": "1cd1d0b88c2bf3b5d8eba4d989f64454533d80d48414a384eb5ad2e58cbd5458",
       "source": "Reg lambda",
       "translation": "Regulariseringslambda"
-    },
-    {
-      "table": "ui",
-      "key": "checksum",
-      "source_sha256": "96fa8f226d3801741e807533552bc4b177ac4544d834073b6a5298934d34b40b",
-      "source": "checksum",
-      "translation": "kontrollsumma"
     }
   ]
 }

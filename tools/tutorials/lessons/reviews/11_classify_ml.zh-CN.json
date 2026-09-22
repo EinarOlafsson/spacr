@@ -1,6 +1,6 @@
 {
   "lesson": "11_classify_ml",
-  "english_sha256": "a6ecbf0577a4a51b13206840d8914da097584eecf2fc0f3b8107ca17648528cf",
+  "english_sha256": "d042a85fceacc953e4c9f14cf04f6287ac61958c4f2931bf18802b6912439aab",
   "review_type": "source-pinned editorial translation",
   "native_speaker_reviewed": false,
   "listening_reviewed": false,
@@ -12,10 +12,11 @@
     "按板列定义类别，区分请求的比例与实际留出的孔。",
     "检查图形、未评分对象和输出，不把演示准确率当成生物学验证。"
   ],
-  "prerequisite": "在Classify中选择Load test data，然后选择Load，而不是Stream。示例的4个孔有2,341个对象；保留2,153个，188个因缺少对应的细胞核数据而未评分。c1为类别0，c2为类别1；这是板列标签，不是已验证的表型。设置：random_forest、channel_of_interest=1、n_estimators=16、n_jobs=2、n_repeats=1、top_features=10、batch_correction=none、prune_features=False、cross_validation=False、plot=True。让test_size=0.1与test_split=0.1一致：当前规范化会丢弃不同的ML专用值，此缺陷已报告。留出2个孔、1,035个对象，训练与测试之间没有相同的孔。特征筛选先于划分；置换重要性使用训练数据。准确率为0.6202898551，多数类基准为0.5632850242。已独立核对9个指标值及2,153个已保存预测。API：spacr.classify.classify调用spacr.ml.generate_ml_scores。输出位于results/random_forest/channel_1；predictions是二元类别，ml_pred是类别1的概率。只展示3幅真实图，不声称有SHAP输出、概率校准、因果关系或生物学验证。没有向AI发送问题。",
+  "prerequisite": "本次录制使用spaCR 1.5.0.8。在Classify中选择Load test data，然后选择Load，而不是Stream。示例的4个孔有2,341个对象；保留2,153个，188个因缺少对应的细胞核数据而未评分。c1为类别0，c2为类别1；这是板列标签，不是已验证的表型。设置：random_forest、channel_of_interest=1、n_estimators=16、n_jobs=2、n_repeats=1、top_features=10、batch_correction=none、prune_features=False、cross_validation=False、plot=True。为这个小型示例设置test_size=0.1；当前ML分发器会遵循此设置。运行前，通过Choose source data确认已加载的项目。留出2个孔、1,035个对象，训练与测试之间没有相同的孔。特征筛选先于划分；置换重要性使用训练数据。准确率为0.6202898551，多数类基准为0.5632850242。已独立核对9个指标值及2,153个已保存预测。API：spacr.classify.classify调用spacr.ml.generate_ml_scores。输出位于results/random_forest/channel_1；predictions是二元类别，ml_pred是类别1的概率。只展示3幅真实图，不声称有SHAP输出、概率校准、因果关系或生物学验证。没有向AI发送问题。",
   "scenes": [
-    "从Home打开Classify，将分类器家族设为Tabular Machine Learning。这是合并后的Classify界面，不是独立的ML应用。它从每个对象已保存的测量值中学习。计算机视觉设置可能仍然可见，但会变灰，因为它们属于另一个家族。",
-    "点击Load test data并选择Load。这会下载已测量的示例并准备路径；Stream是另一条路径。使用自己的项目时，请先完成Measure，再选择项目文件夹。不要假设任意图像文件夹都已经包含所需的测量数据库。",
+    "从Home打开Classify，将分类器家族设为Tabular Machine Learning。它从每个对象已保存的测量值中学习。计算机视觉设置可能仍然可见，但会变灰，因为它们属于另一个家族。",
+    "点击Load test data并选择Load。这会加载已测量的示例，必要时下载，并准备路径；Stream是另一条路径。使用自己的项目时，请先完成Measure，再选择项目文件夹。不要假设任意图像文件夹都已经包含所需的测量数据库。",
+    "通过Choose source data确认已下载的项目。选择包含measurements目录的板文件夹。在本次录制中，确认该文件夹会清除加载示例后留下的源路径为空提示。只有数据源包含已测量的对象，才能运行表格模型。",
     "使用元数据作为依据，从columnID定义两个Classes：c1和c2。这里它们是用于讲解流程的板列标签，不是经独立确认的健康和受影响细胞。基于标注的训练则需要Annotate中的真实标签。绝不能把缺失的标注变成虚构的真实标签。",
     "Channel of interest用于选择测量特征。我们使用通道一，但不赋予它未经核实的生物学意义。为自己的数据选择通道之前，请检查采集和测量设置。在这里选择特征通道不会重新分割图像，也不会重新测量。",
     "为这个小型演示选择Random Forest、十六个估计器和两个工作任务。这不是优化模型的推荐配置。我们关闭监督式特征筛选和交叉验证。关闭交叉验证并不会取消本次运行另行留出的测试集。",
@@ -24,5 +25,12 @@
     "本次运行对两千一百五十三个对象进行了评分。一百八十八个对象缺少对应的细胞核数据，因此仍未评分，而不是阴性。保存的测试准确率约为百分之六十二，多数类基准约为百分之五十六。一块板上的四个孔不能证明模型能泛化到新实验。",
     "共有三幅图：置换重要性、树模型特征重要性以及这幅板热图。选择Predictions并按均值汇总时，热图平均的是预测的二元类别，而不是概率。重要性不等于因果关系；置换计算使用的是训练数据。从彩色图得出结论之前，请检查保存的表格。",
     "AI开关允许借助服务提供方询问流程问题。这里是未发送的草稿，不是生成的回答。请将结果与设置一起保留，并核实任何建议。嵌套工具有各自的输入要求：Explain教程使用计算机视觉评分，而不是这些ML输出。AI不能替代标签和划分身份的核对。"
-  ]
+  ],
+  "review": {
+    "kind": "AI-assisted technical review",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "2026-09-21: current eleven-scene native ML recording. Remove merged/older-application framing; describe conditional download; add explicit Choose source data confirmation. Prerequisites name spaCR 1.5.0.8 and the respected test_size=0.1 setting. Eight retained narration scenes preserve all measured results and scientific limitations."
+    ]
+  }
 }

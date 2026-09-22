@@ -2589,7 +2589,7 @@ class TimelapsePreviewPanel(LivePreviewContract, QWidget):
         self.refresh_model_choices()
 
 
-def build_timelapse_preview_card(host):
+def build_timelapse_preview_card(host, *, panel_later: bool = False):
     """Build the ``Track preview`` card + panel pair.
 
     Mirrors ``spacr.qt.screens.hyperparam.build_hyperparam_card`` and
@@ -2598,18 +2598,40 @@ def build_timelapse_preview_card(host):
     likes and starts it hidden behind the toggle.
 
     :param host: the :class:`AppScreen` asking for the card.
+    :param panel_later: return ``None`` for the panel and leave the card
+        empty, for :func:`_fill_timelapse_preview_card` to fill the first
+        time it is shown -- how Mask carries this preview for its folded
+        Timelapse switch without building ~130 widgets nobody has asked to
+        see.
     :returns: ``(panel, card)``.
     """
-    from .card import Card
+    from .card import Card, _CardBuiltWhenShown
+    from .timelapse_movie import TimelapseMoviePanel  # noqa: F401
+
+    card = (_CardBuiltWhenShown if panel_later else Card)(
+        title="Track preview")
+    if panel_later:
+        card.setMinimumHeight(320)
+        return None, card
+    panel = _fill_timelapse_preview_card(host, card)
+    card.setMinimumHeight(320)
+    return panel, card
+
+
+def _fill_timelapse_preview_card(host, card):
+    """Build the track preview and its movie panel into ``card``.
+
+    :param host: the screen the card belongs to; unused, and taken so every
+        preview's fill has the same shape.
+    :param card: a card from :func:`build_timelapse_preview_card`.
+    :returns: the preview panel.
+    """
     from .timelapse_movie import TimelapseMoviePanel
 
-    card = Card(title="Track preview")
     panel = TimelapsePreviewPanel(card)
     card.body_layout.addWidget(panel)
 
     movie = TimelapseMoviePanel(card)
     card.body_layout.addWidget(movie, 1)
     panel.attach_movie_panel(movie)
-
-    card.setMinimumHeight(320)
-    return panel, card
+    return panel

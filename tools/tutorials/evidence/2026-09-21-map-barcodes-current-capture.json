@@ -1,0 +1,1326 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "native_capture_and_corrected_english_review_master_verified_not_published",
+  "artifact_directory": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/map-current-v2",
+  "recorded_source": {
+    "gui": {
+      "commit": "eed895c2f3652edb78cb385e389b9fb11e2cb3cd",
+      "version": "1.5.0.8",
+      "module": "map_barcodes",
+      "download_requested": true,
+      "dataset_cache": "/tmp/spacr-map/example_data",
+      "app_source_modified": false,
+      "cache_isolated_with_bind_mount": true,
+      "completed_capture": true
+    },
+    "api": {
+      "completed_capture": true,
+      "module": "map_barcodes",
+      "commit": "eed895c2f3652edb78cb385e389b9fb11e2cb3cd",
+      "version": "1.5.0.8",
+      "app_source_modified": false,
+      "actual_system_terminal": true,
+      "pipeline_execution_requested": true,
+      "private_display": ":101"
+    }
+  },
+  "scene_count": 15,
+  "frames": {
+    "gui": [
+      {
+        "name": "00_home",
+        "image": "00_home.png",
+        "sha256": "916ce1aa14d6d1918081ebcd6d624082a8b89fa9a3eb73477ec689e1c4ff0962",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 14
+        }
+      },
+      {
+        "name": "01_module",
+        "image": "01_module.png",
+        "sha256": "8945d8ceba5fab458503e1b56914585737105504b25b2ba9fb7d79f14ffb37f6",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 53
+        }
+      },
+      {
+        "name": "02_download",
+        "image": "02_download.png",
+        "sha256": "d1914667c9718307ff1f017091cab8cf41ea5842aa41bad577e8e4c60ac84a83",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 67
+        }
+      },
+      {
+        "name": "02_archive_all_runs",
+        "image": "02_archive_all_runs.png",
+        "sha256": "4bdc5543c5178945a46cd8eaee665adea9e0de5f59452068f261f67658df694d",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 72
+        }
+      },
+      {
+        "name": "02_archive_bounded_choice",
+        "image": "02_archive_bounded_choice.png",
+        "sha256": "f12109ccfec073b892604d283cb155d811758c765bca0ecf3288fa8c6b22ff4e",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 83
+        }
+      },
+      {
+        "name": "03_data_ready",
+        "image": "03_data_ready.png",
+        "sha256": "2e04ad282ac8fa8deba9e128055af80d54e7e680b858c48735a300d87e4631af",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 172
+        }
+      },
+      {
+        "name": "04_reference_tables",
+        "image": "04_reference_tables.png",
+        "sha256": "72bfa3d2c025b46bfea15f31ba23bfd9b1f83e91ec4392ade9acfcf4b001ef82",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 181
+        }
+      },
+      {
+        "name": "05_find_barcodes",
+        "image": "05_find_barcodes.png",
+        "sha256": "261b068f57edaa122c5b8a93e04e91286affb89e1010a5aeb1ba2b5da5570991",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 199
+        }
+      },
+      {
+        "name": "06_live_search_progress",
+        "image": "06_live_search_progress.png",
+        "sha256": "f22f676dcba56951b747f96fb05fe1d5a15505d67e405a551db741239f579f80",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 306
+        }
+      },
+      {
+        "name": "07_search_verdicts",
+        "image": "07_search_verdicts.png",
+        "sha256": "f8f2352f202f75ee4db3661f9715d1e536f15bab6254b5840d87d21041d4d5f4",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 334
+        }
+      },
+      {
+        "name": "07b_guide_verdicts",
+        "image": "07b_guide_verdicts.png",
+        "sha256": "ee85e44e1f3b33c8ae5040dce15365178e7247f1fcf6931bcfe678a1e75f9c9b",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 340
+        }
+      },
+      {
+        "name": "07c_row_verdicts",
+        "image": "07c_row_verdicts.png",
+        "sha256": "eacd8cf798c2c7ac79f7d38e4067e42ba2ae18045183bf192270a056cea3f844",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 347
+        }
+      },
+      {
+        "name": "08_coloured_reads",
+        "image": "08_coloured_reads.png",
+        "sha256": "4d75a9824c0ebe112b681cba225fe6c71f20d03a53ad8d05d33ce7cfa0195b0c",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 354
+        }
+      },
+      {
+        "name": "09_proposed_settings",
+        "image": "09_proposed_settings.png",
+        "sha256": "444681b47e641ee4b7439f5b6e0fb056900d4bc8e3e200f81f642bcbc686fa12",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 361
+        }
+      },
+      {
+        "name": "10_settings_applied",
+        "image": "10_settings_applied.png",
+        "sha256": "b6d46f3805d83d7b2d3291c9c482a1c086a567d15ebd20643371ebdaea722826",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 370
+        }
+      },
+      {
+        "name": "11_oriented_reference_copies",
+        "image": "11_oriented_reference_copies.png",
+        "sha256": "d70b96821982e015bc796f9f1b45f5e164ccfba2a2425f5362631cabf2375ebd",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 379
+        }
+      },
+      {
+        "name": "20_batch_settings",
+        "image": "20_batch_settings.png",
+        "sha256": "99f854c0973b72465aa3f5d4a4a15ba14ddcc20395586f009379d58f7edd9ba6",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 384
+        }
+      },
+      {
+        "name": "21_batch_running",
+        "image": "21_batch_running.png",
+        "sha256": "3ea99812c36196544f4d1eeabecd4a8965578a24285fcbdba24aff9e80f8eee7",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 391
+        }
+      },
+      {
+        "name": "23_batch_finished",
+        "image": "23_batch_finished.png",
+        "sha256": "fbce697fd608214aeb0535fd91cdfcdec73dcb6d00e802323ea4d15b88451327",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 466
+        }
+      },
+      {
+        "name": "30_ai_unsent_question",
+        "image": "30_ai_unsent_question.png",
+        "sha256": "19ccf82c6187383ec30ef6e0021e8e7017d182052b1d866e9272342564ba97a6",
+        "width": 3840,
+        "height": 2160,
+        "appearance": {
+          "theme": "dark",
+          "backdrop": "blobs",
+          "painted_frames": 475
+        }
+      }
+    ],
+    "api": [
+      {
+        "name": "01_actual_two_barcode_api",
+        "image": "01_actual_two_barcode_api.png",
+        "sha256": "a9e1bf9462d42d068af4a71ec1a7f8bfe63402565d153a97141611eabaf15e29",
+        "width": 3840,
+        "height": 2160
+      },
+      {
+        "name": "02_real_count_figure",
+        "image": "02_real_count_figure.png",
+        "sha256": "d16be72722251379b680c930bcc5397a997ba543b847b1764364117930109c6a",
+        "width": 3840,
+        "height": 2160
+      }
+    ]
+  },
+  "gui_result": {
+    "accepted": true,
+    "scope": "Exact saved barcode joins and count reconciliation",
+    "requested_pairs": 10000,
+    "extracted_rows": 8611,
+    "mapped_reads": 7657,
+    "count_rows": 4099,
+    "reference_sizes": {
+      "column": 24,
+      "row": 16,
+      "grna": 1377
+    },
+    "artifacts": {
+      "annotated_reads.h5": "086a8cea3ccb5c967ad84d538e6648c49e949bc7daa459bb606b1d88bd4fcbae",
+      "unique_combinations.csv": "f8d6e3615b58cb824873338f252bc555389be4ba8bd9619ea2e9a2e1cfb3d709",
+      "qc.csv": "978b8a1d5ea198379c2e7416af2b02a0f966f526e544fae3f9c0e2d0753f3579"
+    },
+    "biological_validation_claimed": false
+  },
+  "api_result": {
+    "accepted": true,
+    "scope": "Exact saved barcode joins and count reconciliation",
+    "requested_pairs": 1000,
+    "extracted_rows": 869,
+    "mapped_reads": 793,
+    "count_rows": 535,
+    "reference_sizes": {
+      "column": 24,
+      "grna": 1377
+    },
+    "artifacts": {
+      "annotated_reads.h5": "44d2f3ac4865b69fbee605504c5cbbe5dda1c75b51fac2055e9725003510612c",
+      "unique_combinations.csv": "52c0ed175e4efbac042477f17fef338bf36ba0140f747094fb12c042ebb55ed6",
+      "qc.csv": "f8a2f2127ab661c6db9993c0af22fa0fd0c8b792c3a6c4e14881c2cd13eac545"
+    },
+    "biological_validation_claimed": false
+  },
+  "inputs_unchanged": true,
+  "original_reference_copies_unchanged": true,
+  "barcode_search": {
+    "report": {
+      "findings": [
+        {
+          "table": "primers_3_column_barecodes",
+          "role": "column",
+          "file_label": "R1",
+          "orientation": "as_given",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+          "reads": 10000,
+          "hits": 9376,
+          "observed_rate": 0.9376,
+          "expected_rate": 0.05102095675552365,
+          "enrichment": 18.376762405548053,
+          "offset_start": 0,
+          "offset_span": 1,
+          "modal_offset": 0,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 24,
+          "table_size": 24,
+          "top_barcode_share": 0.04970136518771331,
+          "verdict": "present",
+          "reason": "93.76% of reads matched against 5.10% expected by chance, 18.4 times coincidence, with 24 of 24 barcodes seen and the matches confined to 1 base(s)",
+          "offset_counts": {
+            "37": 1,
+            "38": 1,
+            "0": 9366,
+            "87": 1,
+            "1": 5,
+            "31": 1,
+            "44": 1
+          }
+        },
+        {
+          "table": "primers_3_column_barecodes",
+          "role": "column",
+          "file_label": "R1",
+          "orientation": "reverse_complement",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+          "reads": 10000,
+          "hits": 58,
+          "observed_rate": 0.0058,
+          "expected_rate": 0.05102095675552365,
+          "enrichment": 0.11367877767937148,
+          "offset_start": 42,
+          "offset_span": 9,
+          "modal_offset": 42,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 6,
+          "table_size": 24,
+          "top_barcode_share": 0.4482758620689655,
+          "verdict": "absent",
+          "reason": "0.58% of reads matched against 5.10% expected by chance, which is not far enough above coincidence to mean anything",
+          "offset_counts": {
+            "42": 25,
+            "50": 20,
+            "35": 1,
+            "49": 3,
+            "41": 5,
+            "48": 2,
+            "47": 1,
+            "34": 1
+          }
+        },
+        {
+          "table": "grna_barcodes",
+          "role": "grna",
+          "file_label": "R1",
+          "orientation": "as_given",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+          "reads": 10000,
+          "hits": 11,
+          "observed_rate": 0.0011,
+          "expected_rate": 7.554990300029374e-08,
+          "enrichment": 14559.912803537594,
+          "offset_start": 34,
+          "offset_span": 1,
+          "modal_offset": 34,
+          "barcode_lengths": [
+            20,
+            21
+          ],
+          "distinct_barcodes_seen": 4,
+          "table_size": 1380,
+          "top_barcode_share": 0.45454545454545453,
+          "verdict": "indeterminate",
+          "reason": "clearly above chance at more than a thousand times the coincidence rate, but only 0.11% of reads carry it, which is the level index hopping produces and is too little to map from",
+          "offset_counts": {
+            "34": 9,
+            "35": 1,
+            "25": 1
+          }
+        },
+        {
+          "table": "grna_barcodes",
+          "role": "grna",
+          "file_label": "R1",
+          "orientation": "reverse_complement",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+          "reads": 10000,
+          "hits": 8198,
+          "observed_rate": 0.8198,
+          "expected_rate": 7.554990300029374e-08,
+          "enrichment": 10851105.923945561,
+          "offset_start": 34,
+          "offset_span": 1,
+          "modal_offset": 34,
+          "barcode_lengths": [
+            20,
+            21
+          ],
+          "distinct_barcodes_seen": 1104,
+          "table_size": 1380,
+          "top_barcode_share": 0.1810197609172969,
+          "verdict": "present",
+          "reason": "81.98% of reads matched against 0.00% expected by chance, more than a thousand times coincidence, with 1104 of 1380 barcodes seen and the matches confined to 1 base(s)",
+          "offset_counts": {
+            "34": 8039,
+            "27": 1,
+            "33": 119,
+            "32": 14,
+            "35": 20,
+            "31": 1,
+            "30": 1,
+            "21": 1,
+            "24": 1,
+            "23": 1
+          }
+        },
+        {
+          "table": "primers_3_row_barecodes",
+          "role": "row",
+          "file_label": "R1",
+          "orientation": "as_given",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+          "reads": 10000,
+          "hits": 98,
+          "observed_rate": 0.0098,
+          "expected_rate": 0.03430996957141352,
+          "enrichment": 0.2856312646853873,
+          "offset_start": 35,
+          "offset_span": 59,
+          "modal_offset": 92,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 10,
+          "table_size": 16,
+          "top_barcode_share": 0.46938775510204084,
+          "verdict": "absent",
+          "reason": "0.98% of reads matched against 3.43% expected by chance, which is not far enough above coincidence to mean anything",
+          "offset_counts": {
+            "92": 25,
+            "49": 10,
+            "93": 18,
+            "113": 10,
+            "37": 3,
+            "35": 8,
+            "69": 1,
+            "45": 2,
+            "90": 4,
+            "112": 3,
+            "48": 5,
+            "86": 2,
+            "40": 3,
+            "89": 2,
+            "33": 1,
+            "39": 1
+          }
+        },
+        {
+          "table": "primers_3_row_barecodes",
+          "role": "row",
+          "file_label": "R1",
+          "orientation": "reverse_complement",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+          "reads": 10000,
+          "hits": 9828,
+          "observed_rate": 0.9828,
+          "expected_rate": 0.03430996957141352,
+          "enrichment": 28.644735401305983,
+          "offset_start": 80,
+          "offset_span": 2,
+          "modal_offset": 80,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 16,
+          "table_size": 16,
+          "top_barcode_share": 0.0811965811965812,
+          "verdict": "present",
+          "reason": "98.28% of reads matched against 3.43% expected by chance, 28.6 times coincidence, with 16 of 16 barcodes seen and the matches confined to 2 base(s)",
+          "offset_counts": {
+            "81": 4363,
+            "80": 4381,
+            "74": 271,
+            "61": 6,
+            "57": 165,
+            "79": 262,
+            "78": 38,
+            "73": 27,
+            "99": 5,
+            "60": 4,
+            "69": 15,
+            "102": 1,
+            "68": 38,
+            "82": 39,
+            "98": 2,
+            "72": 20,
+            "62": 14,
+            "86": 5,
+            "76": 17,
+            "63": 18,
+            "90": 3,
+            "75": 12,
+            "92": 2,
+            "77": 21,
+            "83": 9,
+            "70": 8,
+            "65": 4,
+            "67": 6,
+            "94": 3,
+            "103": 6,
+            "91": 1,
+            "96": 3,
+            "104": 1,
+            "85": 3,
+            "66": 8,
+            "64": 7,
+            "93": 3,
+            "71": 10,
+            "56": 6,
+            "87": 1,
+            "58": 2,
+            "88": 5,
+            "95": 2,
+            "45": 1,
+            "84": 2,
+            "89": 3,
+            "44": 1,
+            "97": 2,
+            "48": 1,
+            "34": 1
+          }
+        },
+        {
+          "table": "anchor",
+          "role": "anchor",
+          "file_label": "R1",
+          "orientation": "as_given",
+          "table_path": null,
+          "reads": 10000,
+          "hits": 9742,
+          "observed_rate": 0.9742,
+          "expected_rate": 2.7755575615628914e-14,
+          "enrichment": 35099254055874.695,
+          "offset_start": 8,
+          "offset_span": 1,
+          "modal_offset": 8,
+          "barcode_lengths": [
+            26
+          ],
+          "distinct_barcodes_seen": 1,
+          "table_size": 1,
+          "top_barcode_share": 1,
+          "verdict": "present",
+          "reason": "97.42% of reads matched against 0.00% expected by chance, more than a thousand times coincidence, with 1 of 1 barcodes seen and the matches confined to 1 base(s)",
+          "offset_counts": {
+            "8": 9683,
+            "9": 12,
+            "7": 46,
+            "6": 1
+          }
+        },
+        {
+          "table": "anchor",
+          "role": "anchor",
+          "file_label": "R1",
+          "orientation": "reverse_complement",
+          "table_path": null,
+          "reads": 10000,
+          "hits": 0,
+          "observed_rate": 0,
+          "expected_rate": 2.7755575615628914e-14,
+          "enrichment": 0,
+          "offset_start": 0,
+          "offset_span": 0,
+          "modal_offset": null,
+          "barcode_lengths": [
+            26
+          ],
+          "distinct_barcodes_seen": 0,
+          "table_size": 1,
+          "top_barcode_share": 0,
+          "verdict": "absent",
+          "reason": "not one of 10000 reads carried a barcode from this table in this orientation",
+          "offset_counts": {}
+        },
+        {
+          "table": "primers_3_column_barecodes",
+          "role": "column",
+          "file_label": "R2",
+          "orientation": "as_given",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+          "reads": 10000,
+          "hits": 88,
+          "observed_rate": 0.0088,
+          "expected_rate": 0.05102095675552365,
+          "enrichment": 0.17247814544456366,
+          "offset_start": 31,
+          "offset_span": 71,
+          "modal_offset": 31,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 8,
+          "table_size": 24,
+          "top_barcode_share": 0.3181818181818182,
+          "verdict": "absent",
+          "reason": "0.88% of reads matched against 5.10% expected by chance, which is not far enough above coincidence to mean anything",
+          "offset_counts": {
+            "38": 13,
+            "140": 8,
+            "39": 13,
+            "115": 1,
+            "31": 25,
+            "45": 1,
+            "131": 1,
+            "100": 5,
+            "101": 7,
+            "122": 2,
+            "40": 5,
+            "142": 3,
+            "33": 1,
+            "47": 1,
+            "123": 1,
+            "134": 1
+          }
+        },
+        {
+          "table": "primers_3_column_barecodes",
+          "role": "column",
+          "file_label": "R2",
+          "orientation": "reverse_complement",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+          "reads": 10000,
+          "hits": 9802,
+          "observed_rate": 0.9802,
+          "expected_rate": 0.05102095675552365,
+          "enrichment": 19.21171342781378,
+          "offset_start": 80,
+          "offset_span": 2,
+          "modal_offset": 80,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 24,
+          "table_size": 24,
+          "top_barcode_share": 0.04978575800856968,
+          "verdict": "present",
+          "reason": "98.02% of reads matched against 5.10% expected by chance, 19.2 times coincidence, with 24 of 24 barcodes seen and the matches confined to 2 base(s)",
+          "offset_counts": {
+            "79": 268,
+            "81": 4321,
+            "80": 4338,
+            "74": 272,
+            "61": 7,
+            "57": 167,
+            "78": 35,
+            "73": 26,
+            "99": 6,
+            "60": 5,
+            "69": 15,
+            "102": 1,
+            "68": 38,
+            "82": 43,
+            "44": 9,
+            "98": 2,
+            "72": 20,
+            "62": 14,
+            "43": 11,
+            "86": 5,
+            "76": 18,
+            "48": 15,
+            "63": 17,
+            "90": 3,
+            "75": 12,
+            "92": 2,
+            "77": 19,
+            "83": 6,
+            "70": 8,
+            "49": 6,
+            "95": 3,
+            "65": 5,
+            "67": 6,
+            "47": 7,
+            "94": 3,
+            "103": 6,
+            "91": 1,
+            "96": 4,
+            "104": 1,
+            "85": 3,
+            "66": 8,
+            "50": 1,
+            "64": 7,
+            "93": 4,
+            "71": 10,
+            "56": 3,
+            "87": 1,
+            "40": 1,
+            "58": 1,
+            "36": 4,
+            "88": 5,
+            "38": 1,
+            "84": 2,
+            "89": 3,
+            "6": 1,
+            "97": 2
+          }
+        },
+        {
+          "table": "grna_barcodes",
+          "role": "grna",
+          "file_label": "R2",
+          "orientation": "as_given",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+          "reads": 10000,
+          "hits": 8175,
+          "observed_rate": 0.8175,
+          "expected_rate": 7.554990300029374e-08,
+          "enrichment": 10820662.469901802,
+          "offset_start": 34,
+          "offset_span": 1,
+          "modal_offset": 34,
+          "barcode_lengths": [
+            20,
+            21
+          ],
+          "distinct_barcodes_seen": 1104,
+          "table_size": 1380,
+          "top_barcode_share": 0.18103975535168196,
+          "verdict": "present",
+          "reason": "81.75% of reads matched against 0.00% expected by chance, more than a thousand times coincidence, with 1104 of 1380 barcodes seen and the matches confined to 1 base(s)",
+          "offset_counts": {
+            "33": 145,
+            "34": 7976,
+            "32": 7,
+            "21": 1,
+            "35": 41,
+            "30": 2,
+            "28": 1,
+            "31": 1,
+            "29": 1
+          }
+        },
+        {
+          "table": "grna_barcodes",
+          "role": "grna",
+          "file_label": "R2",
+          "orientation": "reverse_complement",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+          "reads": 10000,
+          "hits": 11,
+          "observed_rate": 0.0011,
+          "expected_rate": 7.554990300029374e-08,
+          "enrichment": 14559.912803537594,
+          "offset_start": 34,
+          "offset_span": 2,
+          "modal_offset": 35,
+          "barcode_lengths": [
+            20,
+            21
+          ],
+          "distinct_barcodes_seen": 4,
+          "table_size": 1380,
+          "top_barcode_share": 0.45454545454545453,
+          "verdict": "indeterminate",
+          "reason": "clearly above chance at more than a thousand times the coincidence rate, but only 0.11% of reads carry it, which is the level index hopping produces and is too little to map from",
+          "offset_counts": {
+            "35": 8,
+            "33": 2,
+            "34": 1
+          }
+        },
+        {
+          "table": "primers_3_row_barecodes",
+          "role": "row",
+          "file_label": "R2",
+          "orientation": "as_given",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+          "reads": 10000,
+          "hits": 9692,
+          "observed_rate": 0.9692,
+          "expected_rate": 0.03430996957141352,
+          "enrichment": 28.248349156436465,
+          "offset_start": 0,
+          "offset_span": 1,
+          "modal_offset": 0,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 16,
+          "table_size": 16,
+          "top_barcode_share": 0.08047874535699547,
+          "verdict": "present",
+          "reason": "96.92% of reads matched against 3.43% expected by chance, 28.2 times coincidence, with 16 of 16 barcodes seen and the matches confined to 1 base(s)",
+          "offset_counts": {
+            "0": 9687,
+            "1": 3,
+            "51": 1,
+            "92": 1
+          }
+        },
+        {
+          "table": "primers_3_row_barecodes",
+          "role": "row",
+          "file_label": "R2",
+          "orientation": "reverse_complement",
+          "table_path": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+          "reads": 10000,
+          "hits": 43,
+          "observed_rate": 0.0043,
+          "expected_rate": 0.03430996957141352,
+          "enrichment": 0.1253280038925679,
+          "offset_start": 32,
+          "offset_span": 90,
+          "modal_offset": 32,
+          "barcode_lengths": [
+            8
+          ],
+          "distinct_barcodes_seen": 9,
+          "table_size": 16,
+          "top_barcode_share": 0.2558139534883721,
+          "verdict": "absent",
+          "reason": "0.43% of reads matched against 3.43% expected by chance, which is not far enough above coincidence to mean anything",
+          "offset_counts": {
+            "137": 3,
+            "32": 14,
+            "43": 3,
+            "35": 2,
+            "136": 4,
+            "33": 3,
+            "46": 5,
+            "41": 4,
+            "34": 1,
+            "113": 1,
+            "120": 1,
+            "130": 1,
+            "121": 1
+          }
+        },
+        {
+          "table": "anchor",
+          "role": "anchor",
+          "file_label": "R2",
+          "orientation": "as_given",
+          "table_path": null,
+          "reads": 10000,
+          "hits": 0,
+          "observed_rate": 0,
+          "expected_rate": 2.7755575615628914e-14,
+          "enrichment": 0,
+          "offset_start": 0,
+          "offset_span": 0,
+          "modal_offset": null,
+          "barcode_lengths": [
+            26
+          ],
+          "distinct_barcodes_seen": 0,
+          "table_size": 1,
+          "top_barcode_share": 0,
+          "verdict": "absent",
+          "reason": "not one of 10000 reads carried a barcode from this table in this orientation",
+          "offset_counts": {}
+        },
+        {
+          "table": "anchor",
+          "role": "anchor",
+          "file_label": "R2",
+          "orientation": "reverse_complement",
+          "table_path": null,
+          "reads": 10000,
+          "hits": 9691,
+          "observed_rate": 0.9691,
+          "expected_rate": 2.7755575615628914e-14,
+          "enrichment": 34915507191077.98,
+          "offset_start": 54,
+          "offset_span": 2,
+          "modal_offset": 55,
+          "barcode_lengths": [
+            26
+          ],
+          "distinct_barcodes_seen": 1,
+          "table_size": 1,
+          "top_barcode_share": 1,
+          "verdict": "present",
+          "reason": "96.91% of reads matched against 0.00% expected by chance, more than a thousand times coincidence, with 1 of 1 barcodes seen and the matches confined to 2 base(s)",
+          "offset_counts": {
+            "53": 227,
+            "55": 4336,
+            "54": 4332,
+            "48": 274,
+            "35": 6,
+            "31": 169,
+            "73": 6,
+            "34": 4,
+            "43": 15,
+            "76": 1,
+            "42": 36,
+            "56": 37,
+            "52": 32,
+            "72": 2,
+            "46": 19,
+            "36": 14,
+            "60": 5,
+            "50": 18,
+            "37": 16,
+            "64": 3,
+            "49": 10,
+            "47": 22,
+            "66": 2,
+            "51": 18,
+            "57": 7,
+            "44": 7,
+            "69": 3,
+            "39": 5,
+            "41": 5,
+            "68": 3,
+            "77": 6,
+            "65": 1,
+            "70": 4,
+            "78": 1,
+            "59": 2,
+            "40": 8,
+            "38": 6,
+            "67": 4,
+            "45": 10,
+            "61": 1,
+            "32": 1,
+            "62": 5,
+            "58": 2,
+            "63": 3,
+            "71": 2,
+            "30": 1
+          }
+        }
+      ],
+      "reads_by_file": {
+        "R1": 10000,
+        "R2": 10000
+      },
+      "read_length_by_file": {
+        "R1": 150,
+        "R2": 150
+      },
+      "complete": false
+    },
+    "proposal": {
+      "settings": {
+        "src": "/tmp/spacr-map/user_state/.cache/spacr/example_data/sequencing",
+        "barcode_mismatches": 0,
+        "regex": "^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*",
+        "target_sequence": "TGCTGTTTCCAGCATAGCTCTTAAAC",
+        "offset_start": -8,
+        "window_length": 89,
+        "column_csv": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+        "grna_csv": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+        "row_csv": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+        "save_h5": true,
+        "comp_type": "zlib",
+        "comp_level": 5,
+        "chunk_size": 100000,
+        "n_jobs": null,
+        "mode": "paired",
+        "single_direction": "R1",
+        "test": false,
+        "fill_na": false
+      },
+      "reference_file": "R1",
+      "source_files": {
+        "column": "R1",
+        "grna": "R1",
+        "row": "R1"
+      },
+      "orientations": {
+        "column": "as_given",
+        "grna": "reverse_complement",
+        "row": "reverse_complement"
+      },
+      "reference_tables": {
+        "column": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+        "grna": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+        "row": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv"
+      },
+      "reverse_complement_needed": [
+        "grna",
+        "row"
+      ],
+      "unresolved_roles": [],
+      "notes": [
+        "the column table matches the reads as it is stored, so it needs no change",
+        "the grna table matches the reads only when reverse complemented, so the mapping run needs a flipped copy of it",
+        "the row table matches the reads only when reverse complemented, so the mapping run needs a flipped copy of it",
+        "the barcodes occupy the bases from 0 to 89 of the read while the anchor begins at 8, which fixes the window",
+        "both mates carry barcodes, so the run can build a consensus from the pair"
+      ]
+    },
+    "live_updates": [
+      {
+        "reads": 4000,
+        "complete": false
+      },
+      {
+        "reads": 8000,
+        "complete": false
+      },
+      {
+        "reads": 12000,
+        "complete": false
+      },
+      {
+        "reads": 16000,
+        "complete": false
+      },
+      {
+        "reads": 20000,
+        "complete": false
+      }
+    ],
+    "settings_before_apply": {
+      "src": "/tmp/spacr-map/user_state/.cache/spacr/example_data/sequencing",
+      "barcode_mismatches": 0,
+      "regex": "^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*",
+      "target_sequence": "TGCTGTTTCCAGCATAGCTCTTAAAC",
+      "offset_start": -8,
+      "window_length": 120,
+      "column_csv": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+      "grna_csv": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+      "row_csv": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+      "save_h5": true,
+      "comp_type": "zlib",
+      "comp_level": 5,
+      "chunk_size": 100000,
+      "n_jobs": null,
+      "mode": "paired",
+      "single_direction": "R1",
+      "test": false,
+      "fill_na": false
+    },
+    "settings_after_apply": {
+      "src": "/tmp/spacr-map/user_state/.cache/spacr/example_data/sequencing",
+      "barcode_mismatches": 0,
+      "regex": "^(?P<columnID>.{8})TGCTG.*TAAAC(?P<grna>.{20,21})AACTT.*AGAAG(?P<rowID>.{8}).*",
+      "target_sequence": "TGCTGTTTCCAGCATAGCTCTTAAAC",
+      "offset_start": -8,
+      "window_length": 89,
+      "column_csv": "/tmp/spacr-map/map_references/map_search_v2/primers_3_column_barecodes.csv",
+      "grna_csv": "/tmp/spacr-map/map_references/map_search_v2/grna_barcodes.csv",
+      "row_csv": "/tmp/spacr-map/map_references/map_search_v2/primers_3_row_barecodes.csv",
+      "save_h5": true,
+      "comp_type": "zlib",
+      "comp_level": 5,
+      "chunk_size": 100000,
+      "n_jobs": null,
+      "mode": "paired",
+      "single_direction": "R1",
+      "test": false,
+      "fill_na": false
+    },
+    "proposed_changes": [
+      [
+        "window_length",
+        120,
+        89
+      ]
+    ],
+    "no_automatic_settings_change": true,
+    "demonstration_initial_window_length": 120,
+    "applied_through_visible_button": true,
+    "visible_role_rows": {
+      "grna": [
+        [
+          "grna",
+          "R1",
+          "as stored",
+          "0.11%",
+          "<0.01%",
+          "over 1000x",
+          "34",
+          "indeterminate"
+        ],
+        [
+          "grna",
+          "R1",
+          "reverse complemented",
+          "81.98%",
+          "<0.01%",
+          "over 1000x",
+          "34",
+          "present"
+        ],
+        [
+          "grna",
+          "R2",
+          "as stored",
+          "81.75%",
+          "<0.01%",
+          "over 1000x",
+          "34",
+          "present"
+        ],
+        [
+          "grna",
+          "R2",
+          "reverse complemented",
+          "0.11%",
+          "<0.01%",
+          "over 1000x",
+          "35",
+          "indeterminate"
+        ]
+      ],
+      "row": [
+        [
+          "row",
+          "R1",
+          "as stored",
+          "0.98%",
+          "3.43%",
+          "0.3x",
+          "92",
+          "absent"
+        ],
+        [
+          "row",
+          "R1",
+          "reverse complemented",
+          "98.28%",
+          "3.43%",
+          "28.6x",
+          "80",
+          "present"
+        ],
+        [
+          "row",
+          "R2",
+          "as stored",
+          "96.92%",
+          "3.43%",
+          "28.2x",
+          "0",
+          "present"
+        ],
+        [
+          "row",
+          "R2",
+          "reverse complemented",
+          "0.43%",
+          "3.43%",
+          "0.1x",
+          "32",
+          "absent"
+        ]
+      ]
+    },
+    "application_functions_replaced": false
+  },
+  "tools": {
+    "tools/tutorials/capture_refresh.py": "1e334b6082026e00c44d0aec76f1333bd1d6e7f8136d17b301db3a534ea41c19",
+    "tools/tutorials/capture_barcode_search.py": "cdf00506f7bfb5406933079d317ade8dff6db5e580ff94981d8116293f77b781",
+    "tools/tutorials/capture_map_barcodes_api.py": "25bcae888d17292ca900ca7a706742be5d63e7e399f9cc7ec89ffb0ef81cdf06",
+    "tools/tutorials/map_barcodes_example.py": "777a67bc261758a03a105c9eb13a766a3d2299dbd233d9c4d6083f8c3c3468c7",
+    "tools/tutorials/map_barcodes_data.py": "1a7f414e2a2e4363f6802b40c1b016ef793c71ae8c04d1eea6543b5ccbb432cb",
+    "tools/tutorials/prepare_map_barcodes_lesson.py": "505fd4b9075899f9a799d9406a6c84b4e2385331cf900d467d6cfb4c3df56e82",
+    "tools/tutorials/lessons/12_map_barcodes.json": "1638a02926f026c65546f1216e1b0ca00573136b46c8cffa4e7380340713c886",
+    "tools/tutorials/authoring/tools/render_all_voices.py": "12297643b9b283b9db749305f4546716e2207bfd25764b736151f1217462f664"
+  },
+  "visual_review": [
+    "GUI guide and row verdicts: all four orientation/mate rows visible",
+    "Actual system terminal: neutral paths, genuine ambiguous-sequence warning, saved counts",
+    "Dark verification figure: mapped read depth, explicitly not a biological effect",
+    "Encoded row-verdict spotlight preserves all four actual row orientation verdicts"
+  ],
+  "appearance_note": "Native app dark theme and Blobs backdrop; Map module retains its genuine DNA overlay at supported minimum opacity. API uses a real dark system terminal and image viewer.",
+  "biological_validation_claimed": false,
+  "published": false,
+  "remaining": [
+    "Audible narration acceptance",
+    "Language/voice and captions acceptance",
+    "Publish only with the completed refreshed tutorial set"
+  ],
+  "superseded_media": {
+    "reason": "Three sequencing read nouns were rendered with the red vowel; current speech overrides correct them.",
+    "artifact_directory": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/map-current-v2/superseded-first-english-render",
+    "videos": [
+      {
+        "file": "12_map_barcodes_silent.mp4",
+        "sha256": "b21ec7786d1316737e1c6d54cc1e6229680fdfa58e7a8530514b2180bc4dcfc0",
+        "duration": 233.2,
+        "full_decode": "passed",
+        "width": 3840,
+        "height": 2160,
+        "fps": 30
+      },
+      {
+        "file": "af_heart_review.mp4",
+        "sha256": "6e21426e4a2b10d0f380fabde5031ff7ba034f3755a79c0fa3b4e5d5719f7195",
+        "duration": 233.2,
+        "full_decode": "passed",
+        "width": 3840,
+        "height": 2160,
+        "fps": 30
+      }
+    ],
+    "audio": {
+      "language": "en",
+      "voice": "af_heart",
+      "sha256": "a5dac7b86d8646da261a11469a676cfa78fceca4843c9968bce6e70b5ff194a7",
+      "freshness_timing_activity": "passed"
+    }
+  },
+  "videos": [
+    {
+      "file": "12_map_barcodes_silent.mp4",
+      "sha256": "d82d0d33aa367fb50379c4f82c8d0815d63338099798c3edd64be949db24ba59",
+      "duration": 233.2,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "22901eff7ad95933cda02c45fa65cb973ed2f82f1ccfc2d5f85a10fdbfa9a59d",
+      "duration": 233.2,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "0bb05169d6359ca5eb37e5b74acdba272f8f657a6ae44cbe9690c2962454566a",
+    "freshness_timing_activity": "passed",
+    "decoded_true_peak_dbfs": -2.1
+  },
+  "pronunciation_corrections": [
+    {
+      "text": "Here the guide is strongly supported as reverse complemented in read one and as stored in read two.",
+      "speech_text": "Here the guide is strongly supported as reverse complemented in [read](/\u0279\u02c8id/) one and as stored in [read](/\u0279\u02c8id/) two.",
+      "phonemes": "h\u02c8\u026a\u0279 \u00f0\u0259 \u0261\u02c8Id \u026az st\u0279\u02c8\u0254\u014bli s\u0259p\u02c8\u0254\u0279T\u1d7bd \u00e6z \u0279\u0259v\u02c8\u025c\u0279s k\u02c8\u0251mpl\u0259m\u02cc\u025bnt\u1d7bd \u026an \u0279\u02c8id w\u02c8\u028cn \u00e6nd \u00e6z st\u02c8\u0254\u0279d \u026an \u0279\u02c8id t\u02c8u."
+    },
+    {
+      "text": "Read one supports the reversed reference, while read two supports the stored orientation.",
+      "speech_text": "[Read](/\u0279\u02c8id/) one supports the reversed reference, while [read](/\u0279\u02c8id/) two supports the stored orientation.",
+      "phonemes": "\u0279\u02c8id w\u02c8\u028cn s\u0259p\u02c8\u0254\u0279ts \u00f0\u0259 \u0279\u0259v\u02c8\u025c\u0279st \u0279\u02c8\u025bf\u0259\u0279\u0259ns, w\u02ccIl \u0279\u02c8id t\u02c8u s\u0259p\u02c8\u0254\u0279ts \u00f0\u0259 st\u02c8\u0254\u0279d \u02cc\u0254\u0279i\u0259nt\u02c8A\u0283\u0259n."
+    },
+    {
+      "text": "Check your own library and read layout in the same way.",
+      "speech_text": "Check your own library and [read](/\u0279\u02c8id/) layout in the same way.",
+      "phonemes": "\u02a7\u02c8\u025bk j\u028a\u0279 \u02c8On l\u02c8Ib\u0279\u02cc\u025b\u0279i \u00e6nd \u0279\u02c8id l\u02c8A\u02ccWt \u026an \u00f0\u0259 s\u02c8Am w\u02c8A."
+    }
+  ],
+  "browser": {
+    "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/map-current-v2/browser/12_map_barcodes/en-af_heart/playback-checks.json",
+    "sha256": "db8dd4f97b13c4c2270f2bd49ef8347f9682f2ef871261234056866d6a3a303e",
+    "result": {
+      "lesson": "12_map_barcodes",
+      "scope": "en/af_heart playback and scene links only",
+      "uploaded": false,
+      "translation_or_listening_review": false,
+      "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+      "navigation_contains_staged_lesson": true,
+      "example_files": [],
+      "loaded_audio_sha256": "0bb05169d6359ca5eb37e5b74acdba272f8f657a6ae44cbe9690c2962454566a",
+      "scene_count": 15,
+      "seek_playback_clocks": {
+        "audio": 69.122051,
+        "video": 69.155221,
+        "expectedVideo": 69.12649738705319,
+        "audioDuration": 233.2,
+        "videoDuration": 233.2,
+        "mediaError": null
+      },
+      "chapter_and_transcript_links": [
+        "06_api",
+        "13_regression",
+        "47_barcode_qc"
+      ],
+      "passed": true
+    }
+  }
+}

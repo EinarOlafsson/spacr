@@ -147,9 +147,12 @@ def _overlay_candidates(merged_src):
     example count already counts, so the count and the list agree.
 
     :param merged_src: the ``merged`` folder of a plate.
-    :returns: the ``.npy`` file names in that folder, in directory order.
+    :returns: the ``.npy`` file names in that folder, in directory order,
+        without dot-files such as a macOS ``._`` sidecar.
     """
-    return [name for name in os.listdir(merged_src) if name.endswith('.npy')]
+    from .io import _listdir_visible
+
+    return [name for name in _listdir_visible(merged_src) if name.endswith('.npy')]
 
 
 def preprocess_generate_masks(settings):
@@ -223,7 +226,8 @@ def preprocess_generate_masks(settings):
                          generate_cellpose_masks_sam)
     from .io import (preprocess_img_data, _load_and_concatenate_arrays,
                      _normalized_npz_field_ids, convert_to_yokogawa,
-                     convert_separate_files_to_yokogawa)
+                     convert_separate_files_to_yokogawa, _listdir_visible,
+                     _check_archives_without_preprocessing)
     from .plot import plot_image_mask_overlay, plot_arrays
     from .utils import _pivot_counts_table, check_mask_folder, adjust_cell_masks, print_progress, save_settings, format_path_for_system, normalize_src_path, generate_image_path_map, copy_images_to_consolidated, reset_cellpose_model_reports
     from .settings import set_default_settings_preprocess_generate_masks, _set_organelle_defaults
@@ -317,21 +321,27 @@ def preprocess_generate_masks(settings):
                             try:
                                 print(f"using regex: {settings['custom_regex']}")
                                 convert_separate_files_to_yokogawa(folder=source_folder, regex=settings['custom_regex'])
-                            except Exception:
-                                try:
-                                    convert_to_yokogawa(folder=source_folder)
-                                except Exception as e:
-                                    print(f"Error: Tried to convert image files and image file name metadata with regex {settings['custom_regex']} then without regex but failed both.")
-                                    print(f'Error: {e}')
-                                    ledger.record_failure(source_folder,
-                                                          stage='convert_metadata', exc=e)
-                                    ledger.finalize()
-                                    raise_if_strict(
-                                        f"Could not apply Yokogawa naming to {source_folder} "
-                                        f"with regex {settings['custom_regex']!r} or without "
-                                        f"one; nothing downstream can run on this folder.",
-                                        exc=e, settings=settings)
-                                    return
+                            except Exception as e:
+                                refusal = (
+                                    f"Could not convert {source_folder} with custom_regex "
+                                    f"{settings['custom_regex']!r}: {type(e).__name__}: {str(e).rstrip('.')}. "
+                                    f"spaCR did not fall back to converting without the regex: "
+                                    f"that conversion gives each file the next free well in file "
+                                    f"order and ignores the wells the file names carry, so it would "
+                                    f"have relabelled the plate's wells. Correct the file or the "
+                                    f"regex and run again. Clearing custom_regex to have spaCR "
+                                    f"number the wells itself (rename_log.csv then records which "
+                                    f"file became which well) is only safe once the plate*_*.tif "
+                                    f"files this attempt already wrote are moved out of "
+                                    f"{source_folder}: that conversion reads every image in the "
+                                    f"folder, so it would convert them a second time, as further "
+                                    f"wells.")
+                                print(f'Error: {refusal}')
+                                ledger.record_failure(source_folder,
+                                                      stage='convert_metadata', exc=e)
+                                ledger.finalize()
+                                raise_if_strict(refusal, exc=e, settings=settings)
+                                return
                         else:
                             try:
                                 convert_to_yokogawa(folder=source_folder)
@@ -390,6 +400,9 @@ def preprocess_generate_masks(settings):
                     if settings['masks']:
                         mask_src = os.path.join(src, 'masks')
                         os.makedirs(mask_src, exist_ok=True)
+
+                        if not settings['preprocess']:
+                            _check_archives_without_preprocessing(src)
 
                         if (not settings['preprocess'] and
                                 settings.get('illumination_correction', False)):
@@ -511,7 +524,7 @@ def preprocess_generate_masks(settings):
                                 if settings['test_mode'] == True:
                                     merged_dir = os.path.join(src, 'merged')
                                     settings['examples_to_plot'] = len(
-                                        [f for f in os.listdir(merged_dir)
+                                        [f for f in _listdir_visible(merged_dir)
                                          if f.endswith('.npy')]
                                     ) if os.path.isdir(merged_dir) else 0
 

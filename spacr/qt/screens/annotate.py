@@ -185,7 +185,7 @@ HOST_KEY = "annotate"
 #: How long a real answer about a folder is still worth acting on.
 #:
 #: An answer is proof the mount was awake when it was taken, not that it still
-#: is -- an idle `autofs` share goes back to sleep (the maintainer's is
+#: is -- an idle `autofs` share goes back to sleep (a typical one has
 #: `timeout=600`), and a picker started in a folder that has since dozed off
 #: is the original freeze again. Two minutes is comfortably inside any
 #: plausible automount timeout and comfortably longer than opening Settings,
@@ -1440,6 +1440,55 @@ def _compute_total(s: AnnotateSettings, filter_active: bool) -> dict:
             "queue_summary": "", "note": ""}
 
 
+def _read_example_settings(path) -> Dict[str, str]:
+    """Read a settings CSV that shipped with a dataset, as ``key -> value``.
+
+    Shared by the settings form, which fills its widgets from it, and by the
+    screen's Load test data, which fills the live settings from it before
+    opening the plate.
+
+    :returns: an empty dict when the file is missing or unreadable.
+    """
+    import csv
+    from pathlib import Path
+
+    path = Path(path)
+    if not path.is_file():
+        return {}
+    try:
+        with path.open(newline="") as handle:
+            return {str(row[0]).strip(): str(row[1]).strip()
+                    for row in csv.reader(handle)
+                    if len(row) >= 2 and row[0] != "Key"}
+    except OSError:
+        LOG.debug("could not read %s", path, exc_info=True)
+        return {}
+
+
+def _plate_of_source(src: str) -> str:
+    """The plate folder a typed source names.
+
+    The screen's ``src`` is the plate folder and the database is derived from
+    it as ``measurements/measurements.db``. The published example settings
+    name the DATABASE instead, and a source given that way used to be joined
+    as it stood, so the form looked for
+    ``.../measurements.db/measurements/measurements.db`` and OK found nothing
+    to page. A path to that database is read as the plate that holds it,
+    whether it is given as ``measurements/measurements.db`` or, as the
+    shipped file spells it, as ``measurements.db`` beside the plate's folders.
+    """
+    text = str(src or "").strip()
+    if not text:
+        return ""
+    path = os.path.normpath(text)
+    if os.path.basename(path) != "measurements.db":
+        return text
+    parent = os.path.dirname(path)
+    if os.path.basename(parent) == "measurements":
+        return os.path.dirname(parent)
+    return parent
+
+
 class _SettingsDialog(QDialog):
     """Modal dialog that edits an :class:`AnnotateSettings` in place.
 
@@ -1484,7 +1533,7 @@ class _SettingsDialog(QDialog):
         self._img_size = QSpinBox()
         self._img_size.setRange(48, 800)
         self._img_size.setValue(settings.image_size[0])
-        form.addRow("Image size (px)", self._img_size)
+        form.addRow("Crop size (px)", self._img_size)
 
         from ...crops import (LOAD_IMAGES, LOAD_IMAGES_LABEL, STREAM_IMAGES,
                               STREAM_IMAGES_LABEL)
@@ -1751,7 +1800,7 @@ class _SettingsDialog(QDialog):
         install_api_tooltips(self, "annotate", {
             self._src_edit: "src",
             self._ann_col: "annotation_column",
-            self._img_size: "image_size",
+            self._img_size: "crop_size",
             self._image_type: "image_type",
             self._channels: "channels",
             self._stored_channel_order: "stored_channel_order",
@@ -1904,7 +1953,7 @@ class _SettingsDialog(QDialog):
     #: up whichever ones happened to share a name.
     _EXAMPLE_SETTING_WIDGETS = {
         "annotation_column": "_ann_col",
-        "image_size": "_img_size",
+        "crop_size": "_img_size",
         "channels": "_channels",
         "image_type": "_image_type",
         "measurement": "_measurement",
@@ -1915,22 +1964,21 @@ class _SettingsDialog(QDialog):
 
     #: Other spellings the same question has been written under.
     #:
-    #: `img_size` IS NOT A LEGACY FILE FORMAT -- it is what
-    #: `set_annotate_default_settings` writes TODAY. The factory has always
-    #: called it `img_size` (an int) and this screen has always called it
-    #: `image_size` (a width/height pair), so a settings CSV produced from
-    #: spaCR's OWN defaults set every field in this dialog except the crop
-    #: size, silently, and the user saw a form that had mostly filled itself
-    #: in and had no reason to suspect the one row that had not.
+    #: `crop_size` IS THE CURRENT NAME of what the factory used to call
+    #: `img_size`. Every settings CSV written before the rename says
+    #: `img_size`, including the example dataset's,
+    #: so the old spelling is still read here when the new one is absent.
     #:
-    #: Found by the Annotate audit. Accepting the other
-    #: spelling here rather than renaming either side: the factory's name is
-    #: in shipped settings files and in every notebook that writes one, and
-    #: this screen's name is in `AnnotateSettings.image_size`, which is a
-    #: tuple and genuinely a different type. `toxo` is accepted the same way
-    #: elsewhere in the package.
+    #: `image_size` IS NOT ACCEPTED, and that is the point of the rename.
+    #: It is the MODEL's input crop -- default 224, read by training and
+    #: inference -- while this field is how large each cell is drawn,
+    #: default 200. This screen used to read `image_size` as its own
+    #: spelling, and the example dataset's `annotate_settings.csv`, as
+    #: downloaded, carries both -- `img_size,200` and `image_size,224` -- so
+    #: the example drew its cells at the model's resolution. `AnnotateSettings.image_size` keeps its name: it is the
+    #: dataclass field this value lands in, not a settings key.
     _ALSO_SPELT = {
-        "image_size": ("img_size",),
+        "crop_size": ("img_size",),
     }
 
     def _apply_example_settings(self, path) -> int:
@@ -1941,19 +1989,8 @@ class _SettingsDialog(QDialog):
 
         :returns: how many fields were set.
         """
-        import csv
-        from pathlib import Path
-
-        path = Path(path)
-        if not path.is_file():
-            return 0
-        try:
-            with path.open(newline="") as handle:
-                rows = {str(row[0]).strip(): str(row[1]).strip()
-                        for row in csv.reader(handle)
-                        if len(row) >= 2 and row[0] != "Key"}
-        except OSError:
-            LOG.debug("could not read %s", path, exc_info=True)
+        rows = _read_example_settings(path)
+        if not rows:
             return 0
 
         applied = 0
@@ -2046,7 +2083,7 @@ class _SettingsDialog(QDialog):
     def collect(self) -> AnnotateSettings:
         """Read every editor and return the updated settings object."""
         s = self._settings
-        s.src = self._src_edit.text().strip()
+        s.src = _plate_of_source(self._src_edit.text())
         s.db_path = os.path.join(s.src, "measurements", "measurements.db")
         s.annotation_column = self._ann_col.text().strip() or "annotate"
         size = int(self._img_size.value())
@@ -2566,6 +2603,8 @@ class AnnotateScreen(QWidget):
         self._closing = False
         self._settings_dialog: Optional[_SettingsDialog] = None
         self._total_jobs = JobRunner(self, app_key="annotate count")
+        self._report_jobs = JobRunner(self, app_key="annotate report",
+                                      user_visible=False)
         self._resize_timer = QTimer(self)
         self._resize_timer.setSingleShot(True)
         self._resize_timer.setInterval(150)
@@ -3085,25 +3124,31 @@ class AnnotateScreen(QWidget):
                 [max(240, int(height * 0.62)), max(180, int(height * 0.38))])
 
     def _choose_the_test_data(self, *, chooser=None, ask=None) -> str:
-        """Ask which half of the example plate to fetch, then fetch it.
+        """Ask which half of the example plate to use, fetch it, and open it.
 
         The two routes need different halves of the plate and differ in size,
         so the choice is made in a dialog that can describe both before either
-        starts -- see :class:`TestDataChooser`. They were two buttons beside
-        the source box, naming the choice ("crops" / "streaming") with the
-        explanation hidden in a tooltip.
+        starts -- see :class:`TestDataChooser`.
 
-        Whichever route is taken, three things follow and all three matter:
-        the data arrives, the source is re-pointed at the LOCAL folder it
-        landed in, and Image source is set to the mode that route implies.
-        The second is the one that used to be missing -- the shipped settings
-        carry the paths of the machine that generated them, so applying them
-        left ``src`` pointing at a stranger's home directory.
+        Whichever route is taken, the press ends with the plate OPEN: the
+        crops on the screen, the save worker running, and the settings filled
+        in from the pack that shipped with the data. Data already on disk is
+        opened at once; a missing half is downloaded first, with the shared
+        progress dialog, and the plate is opened from the download's
+        completion callback. Nothing waits on a timer, so a download that
+        takes a minute on a busy machine ends in the same state as one that
+        takes a second.
+
+        Load needs the crops and the measurements database. Stream needs the
+        merged arrays AND that database, because the database is what lists
+        the objects and where each one sits; the database half is fetched
+        first when it is missing, then the arrays.
 
         :param chooser: replaces the dialog, for tests.
-        :param ask: replaces the downloader, for tests.
-        :returns: the source that was set, or ``""`` when nothing was chosen
-            or the download has not finished yet.
+        :param ask: replaces every downloader, for tests. Called as
+            ``ask(parent, destination, on_done)`` once per missing half.
+        :returns: the source that was opened, or ``""`` when nothing was
+            chosen or a download is still running.
         """
         dialog = chooser if chooser is not None else TestDataChooser(self)
         if hasattr(dialog, "exec"):
@@ -3112,76 +3157,131 @@ class AnnotateScreen(QWidget):
         if not route:
             return ""
 
-        from ..hf_download import example_plate_folder
+        from .. import hf_download
 
-        destination = example_plate_folder()
+        destination = hf_download.example_plate_folder()
         destination.mkdir(parents=True, exist_ok=True)
 
+        missing = []
+        if not (destination / "measurements" / "measurements.db").is_file():
+            missing.append(ask or hf_download.download_annotate_example)
         if route == "stream":
             merged = destination / "merged"
-            have_it = merged.is_dir() and any(merged.glob("*.npy"))
-        else:
-            have_it = (destination / "measurements"
-                       / "measurements.db").is_file()
+            if not (merged.is_dir() and any(merged.glob("*.npy"))):
+                missing.append(ask or hf_download.download_measure_example)
 
-        if have_it:
+        if not missing:
             return self._use_the_test_data(destination, route)
 
         was = self._btn_test_data.text()
         self._btn_test_data.setEnabled(False)
         self._btn_test_data.setText(tr("Fetching test data…"))
 
-        def _done(result, error):
-            """Restore the button whether the load worked or failed."""
-            self._btn_test_data.setEnabled(True)
-            self._btn_test_data.setText(was)
+        def _restore():
+            """Give the button back, whether the download worked or not."""
+            try:
+                self._btn_test_data.setEnabled(True)
+                self._btn_test_data.setText(was)
+            except RuntimeError:
+                pass
+
+        def _next(result=True, error=""):
+            """Start the next missing half, or open the plate after the last."""
+            if self._closing:
+                return
             if result is None:
+                _restore()
                 LOG.info("test data not downloaded: %s", error)
                 self._console.append_notice(
                     "Test data was not downloaded: {detail}\n",
                     detail=error or "cancelled")
                 return
+            if missing:
+                download = missing.pop(0)
+                download(self, destination, _next)
+                return
+            _restore()
             self._use_the_test_data(destination, route)
 
-        download = ask
-        if download is None:
-            if route == "stream":
-                from ..hf_download import download_measure_example as download
-            else:
-                from ..hf_download import download_annotate_example as download
-        download(self, destination, _done)
+        _next()
         return ""
 
     def _use_the_test_data(self, destination, route: str) -> str:
-        """Point this screen at the downloaded plate, in ``route``'s mode.
+        """Fill the settings from the plate's own pack, then open the plate.
 
-        The LOCAL destination, whatever the shipped settings said. Applied
-        after them rather than before, so a path recorded on the publisher's
-        machine cannot be the last write. Applied the other way round, the
-        source came back as ``/home/carruthers/datasets/plate1`` on a machine
-        that had never heard of that user.
+        The pack's display settings are taken -- the annotation column the
+        labels live in, the crop size, the channels, the image type -- and its
+        PATHS are not: they were written on the publisher's machine, so
+        ``src`` is always the LOCAL plate folder, set after the pack so that
+        nothing from the pack can be the last write. It is the FOLDER, not the
+        database: the settings form derives the database from the folder, and
+        a source naming the database file sent it looking for
+        ``measurements.db/measurements/measurements.db``.
+
+        Opening goes through :meth:`_open_source`, the same path as picking
+        the folder by hand, which counts and reads the crops off the GUI
+        thread.
+
+        :returns: the source that was opened, or ``""`` when the plate has
+            no database to open.
         """
         from pathlib import Path
 
+        from ...crops import LOAD_IMAGES, STREAM_IMAGES
+
         destination = Path(destination)
         database = destination / "measurements" / "measurements.db"
-        source = str(database if database.is_file() else destination)
-
-        self._settings.src = source
-        self._settings.db_path = str(database) if database.is_file() else ""
-
+        self._apply_test_data_settings(
+            _read_example_settings(destination / "settings"
+                                   / "annotate_settings.csv"))
         self._settings.crop_source = (
-            "stream_images" if route == "stream" else "load_images")
+            STREAM_IMAGES if route == "stream" else LOAD_IMAGES)
 
-        self._console.append_notice(
-            "Test data ready: {path}\n", path=source)
-        refresh = getattr(self, "_refresh_total", None)
-        if callable(refresh):
-            try:
-                refresh()
-            except Exception:                                # noqa: BLE001
-                LOG.debug("could not refresh after the test data", exc_info=True)
+        source = str(destination)
+        self._settings.src = source
+        self._settings.db_path = str(database)
+        if not database.is_file():
+            self._console.append_notice(
+                "The test data has no measurements database at {path}\n",
+                path=str(database))
+            return ""
+        try:
+            self._open_source(source)
+        except Exception as exc:                             # noqa: BLE001
+            LOG.warning("could not open the test data", exc_info=True)
+            self._console.append_notice(
+                "Could not open the test data: {detail}\n", detail=exc)
+            return ""
+        self._console.append_notice("Test data ready: {path}\n", path=source)
         return source
+
+    def _apply_test_data_settings(self, rows: Dict[str, str]) -> None:
+        """Copy the display settings a dataset shipped with onto the screen.
+
+        Field by field, and a value that does not parse leaves that field as
+        it was. ``annotation_column`` falls back to ``infected``, the column
+        the example's labels are stored in, so the published labels show even
+        when the pack does not name it.
+
+        :param rows: the pack, as :func:`_read_example_settings` returns it.
+        """
+        s = self._settings
+        s.annotation_column = (rows.get("annotation_column")
+                               or "infected").strip()
+        size = rows.get("crop_size") or rows.get("img_size")
+        try:
+            if size:
+                value = int(float(size))
+                s.image_size = (value, value)
+        except ValueError:
+            LOG.debug("example settings: crop size %r is not usable", size)
+        channels = rows.get("channels")
+        if channels:
+            s.channels = _csv_to_list(channels)
+        image_type = rows.get("image_type")
+        if image_type and image_type != "None":
+            s.image_type = image_type
+
 
     def _on_copy_console(self) -> None:
         """Copy the whole console, and say so.
@@ -3256,33 +3356,98 @@ class AnnotateScreen(QWidget):
     def _on_file_issue(self) -> None:
         """Open a pre-filled GitHub issue for what the console is holding.
 
+        THE CALL WAS WRONG AND THE BUTTON HAD NEVER FILED ANYTHING.
+        ``file_issue(self, {"screen": "annotate"}, body)`` handed the screen
+        where the traceback goes, a dict where the app id goes and the
+        console text where the settings go, so the first thing the reporter
+        did was ``sanitize_path(<AnnotateScreen>)`` and the user got
+        ``Could not file the issue: 'AnnotateScreen' object has no attribute
+        'replace'``. The ``except TypeError`` around it caught a signature
+        mismatch that Python never raised: every argument was positional and
+        the arity was right. It went unnoticed because the button was hidden
+        behind an opt-in that shipped off; `auto_file_issues` now defaults on
+        and this button is part of the default experience.
+
         The console text is read here, on the GUI thread, because reading a
         widget is the one part that must happen here. Everything after it --
         resolving a token through ``gh auth token`` and POSTing to
         api.github.com -- is what the module screens measured at up to 28
-        seconds on a bad network, so it is handed to the shared reporter rather
-        than run inline.
+        seconds on a bad network, so it goes to this screen's reporting
+        runner rather than running inline.
+
+        The preview is shown whatever the reporting mode is, because the
+        button's own tooltip promises it ("You review it before submitting")
+        and because a press is already the affirmative act that 'always'
+        exists to avoid asking for. 'never' files nothing and says so.
         """
         try:
             body = self._console.copy_all()
         except Exception:                                    # noqa: BLE001
             body = ""
+        if not str(body).strip():
+            self._console.append_notice(
+                "There is nothing in the console to report.\n")
+            return
         try:
-            from ..ai.issue_report import file_issue
+            from PySide6.QtWidgets import QDialog
+
+            from ..ai.issue_preview import IssuePreviewDialog
+            from ..ai.issue_report import build_report, submit_report
+            from ..preferences import (ISSUE_PROMPT_NEVER,
+                                       get_issue_prompt_mode,
+                                       get_share_diagnostic_logs)
         except Exception as exc:                             # noqa: BLE001
             self._console.append_notice(
                 "Issue reporting is unavailable: {detail}\n", detail=exc)
             return
         try:
-            file_issue(self, {"screen": "annotate"}, body)
-        except TypeError:
-            LOG.debug("file_issue signature mismatch", exc_info=True)
-            self._console.append_notice(
-                "Could not open the issue form; the console text is copied "
-                "instead.\n")
+            if get_issue_prompt_mode() == ISSUE_PROMPT_NEVER:
+                self._console.append_notice(
+                    "Not filing a report: issue reporting is set to 'never' "
+                    "in Preferences.\n")
+                return
+            report = build_report(
+                body, active_app="annotate",
+                include_log_tail=bool(get_share_diagnostic_logs()))
+            preview = IssuePreviewDialog(report, self, console=self._console,
+                                         traceback_text=body)
+            if preview.exec() != QDialog.Accepted:
+                self._console.append_notice(
+                    "The report was not sent.\n")
+                return
+            approved = preview.approved_report()
         except Exception as exc:                             # noqa: BLE001
             self._console.append_notice(
                 "Could not file the issue: {detail}\n", detail=exc)
+            return
+
+        def _send():
+            """Post the approved report. Off the GUI thread; never raises."""
+            try:
+                return {"url": submit_report(approved)}
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                return {"error": f"{type(exc).__name__}: {exc}"}
+
+        self._console.append_notice("Sending the approved report to GitHub…\n")
+        if not self._report_jobs.submit(_send, self._on_issue_filed):
+            self._console.append_notice(
+                "Could not file the issue: the reporter would not start.\n")
+
+    def _on_issue_filed(self, outcome: dict) -> None:
+        """Say where the console's report went, or why it did not. GUI thread.
+
+        :param outcome: ``{"url": ...}`` or ``{"error": ...}`` from the
+            worker, which returns its failure as data because an ``except``
+            around the caller can no longer see it.
+        """
+        error = (outcome or {}).get("error")
+        if error:
+            self._console.append_notice(
+                "Could not file the issue: {detail}\n", detail=error)
+            return
+        self._console.append_notice(
+            "The report was sent: {url}\n",
+            url=str((outcome or {}).get("url") or "")[:200])
 
     def _set_console_switch_text(self, expanded: bool,
                                  language: Optional[str] = None) -> None:
@@ -3577,7 +3742,14 @@ class AnnotateScreen(QWidget):
         self._load_page()
 
     def _on_open_settings(self):
-        """Open the annotation settings dialog."""
+        """Open the annotation settings dialog, and apply it on OK.
+
+        OK OPENS THE SOURCE WHENEVER NONE IS OPEN, not only when the source
+        field changed. A source can be filled in without being opened -- by
+        a remembered session, or by the test data before this was fixed --
+        and comparing old against new then found nothing changed, repainted
+        an empty screen, and OK appeared to do nothing.
+        """
         dlg = _SettingsDialog(self._settings, self)
         self._settings_dialog = dlg
         dlg.destroyed.connect(self._on_settings_dialog_destroyed)
@@ -3586,9 +3758,12 @@ class AnnotateScreen(QWidget):
                 return
             old_src = self._settings.src
             old_col = self._settings.annotation_column
+            nothing_open = self._worker is None
             self._settings = dlg.collect()
             self._rebuild_grid()
-            if (self._settings.src != old_src
+            if self._settings.src and (
+                    nothing_open
+                    or self._settings.src != old_src
                     or self._settings.annotation_column != old_col):
                 self._open_source(self._settings.src)
             else:
@@ -5337,6 +5512,7 @@ class AnnotateScreen(QWidget):
         self._pending_page_load = None
         self._flush_pending()
         self._total_jobs.shutdown()
+        self._report_jobs.shutdown()
         retrain = self._retrain_worker
         if retrain is not None:
             retrain.requestInterruption()

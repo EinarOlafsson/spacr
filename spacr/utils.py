@@ -1709,11 +1709,15 @@ def check_mask_folder(src, mask_fldr, resume=False):
 
     :param src: experiment root containing ``masks/`` and ``stack/`` subfolders.
     :param mask_fldr: subfolder name under ``masks/``.
-    :param resume: when True, count only structurally complete mask arrays.
-        Empty/truncated arrays left by an interrupted older run are re-queued.
+    :param resume: accepted for the callers that pass it. Only structurally
+        complete mask arrays are counted whether or not it is set, so an
+        empty or truncated array left by an interrupted run is re-queued.
     :returns: ``True`` when the mask folder is missing or has fewer valid
         ``.npy`` files than the stack folder.
     """
+    from .io import _listdir_visible
+    from .resume import validate_merged_field
+
     mask_folder = os.path.join(src,'masks',mask_fldr)
     stack_folder = os.path.join(src,'stack')
 
@@ -1722,15 +1726,11 @@ def check_mask_folder(src, mask_fldr, resume=False):
     
     mask_paths = [
         os.path.join(mask_folder, file)
-        for file in os.listdir(mask_folder) if file.endswith('.npy')
+        for file in _listdir_visible(mask_folder) if file.endswith('.npy')
     ]
-    if resume:
-        from .resume import validate_merged_field
-        mask_count = sum(
-            1 for path in mask_paths if validate_merged_field(path)[0])
-    else:
-        mask_count = len(mask_paths)
-    stack_count = sum(1 for file in os.listdir(stack_folder) if file.endswith('.npy'))
+    mask_count = sum(
+        1 for path in mask_paths if validate_merged_field(path)[0])
+    stack_count = sum(1 for file in _listdir_visible(stack_folder) if file.endswith('.npy'))
     
     if mask_count == stack_count:
         print(f'All masks have been generated for {mask_fldr}')
@@ -6132,8 +6132,29 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
     
     """Return the filename pattern for a microscope convention.
 
-    :param metadata_type: the convention -- ``'cellvoyager'``, ``'cq1'``,
-        ``'auto'``, or ``'custom'`` with a pattern of your own.
+    THE VOCABULARY IS A TABLE, not an if/elif chain: every convention is one
+    record in ``spacr.regex_infer._METADATA_CONVENTIONS``, carrying its
+    vendor, its instrument family, real example filenames, what each named
+    group means, where it was sourced, and whether it is confirmed or
+    provisional. Adding a microscope is adding a record; nothing here
+    changes.
+
+    THE IMPORT IS ABSOLUTE ON PURPOSE AND MUST STAY THAT WAY.
+    :func:`spacr.qt.widgets.preview_controls._get_regex_callable` lifts THIS
+    FUNCTION ALONE out of the source file with ``ast`` and executes it in an
+    empty namespace, so that a dropdown can learn a filename pattern without
+    paying the 3.2 s and ~900 MB that importing ``spacr.utils`` costs. A
+    relative ``from .regex_infer import ...`` has no package to resolve
+    against there, raises ImportError, and is swallowed by that caller's
+    ``except Exception`` -- so the previews would quietly stop grouping
+    files and nothing would say so. ``spacr.regex_infer`` imports nothing
+    outside the standard library, which is what makes this affordable.
+
+    :param metadata_type: the convention. The four spaCR has always had are
+        ``'cellvoyager'``, ``'cq1'``, ``'auto'`` and ``'custom'``; the rest
+        are in the table. Matched EXACTLY -- ``'CellVoyager'`` is a typo and
+        is refused, because silently correcting it would also silently
+        correct a name that meant something else.
     :param img_format: the file extension the pattern should end on;
         ``None`` means ``tif``.
     :param custom_regex: the pattern, for ``'custom'``.
@@ -6143,23 +6164,21 @@ def _get_regex(metadata_type, img_format, custom_regex=None):
         local variable 'regex'" -- an error about an implementation detail
         rather than about the setting that was wrong.
     """
+    from spacr.regex_infer import _METADATA_CONVENTIONS, _metadata_pattern
+
     print(f"Image_format: {img_format}")
 
     if img_format == None:
         img_format = 'tif'
-    if metadata_type == 'cellvoyager':
-        regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>..)A(?P<AID>..)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
-    elif metadata_type == 'cq1':
-        regex = f"W(?P<wellID>.*)F(?P<fieldID>.*)T(?P<timeID>.*)Z(?P<sliceID>.*)C(?P<chanID>.*).{img_format}"
-    elif metadata_type == 'auto':
-        regex = f"(?P<plateID>.*)_(?P<wellID>.*)_T(?P<timeID>.*)F(?P<fieldID>.*)L(?P<laserID>.*)C(?P<chanID>.*).tif"     
-    elif metadata_type == 'custom':
-        regex = f"({custom_regex}).{img_format}"
-    else:
+    try:
+        regex = _metadata_pattern(metadata_type, img_format, custom_regex)
+    except KeyError:
+        known = ", ".join(repr(record["key"])
+                          for record in _METADATA_CONVENTIONS)
         raise ValueError(
-            f"metadata_type={metadata_type!r} is not one of 'cellvoyager', "
-            f"'cq1', 'auto' or 'custom'. Choose one of those, or use "
-            f"'custom' with a regular expression of your own.")
+            f"metadata_type={metadata_type!r} is not one of {known}. "
+            f"Choose one of those, or use 'custom' with a regular "
+            f"expression of your own.")
 
     print(f'regex mode:{metadata_type} regex:{regex}')
     return regex
@@ -6179,6 +6198,8 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     :param random_test: sample at random rather than taking the first.
     :returns: the test folder.
     """
+    from .io import _listdir_visible
+
     if timelapse:
         test_images = 1
     
@@ -6189,7 +6210,7 @@ def _run_test_mode(src, regex, timelapse=False, test_images=10, random_test=True
     if os.path.exists(os.path.join(src, 'orig')):
         src = os.path.join(src, 'orig')
         
-    all_filenames = [filename for filename in os.listdir(src) if regular_expression.match(filename)]
+    all_filenames = [filename for filename in _listdir_visible(src) if regular_expression.match(filename)]
     print(f'Found {len(all_filenames)} files')
     images_by_set = defaultdict(list)
 
@@ -7962,6 +7983,12 @@ def measure_test_mode(settings):
     that case -- so the one folder you most want to smoke-test first was the
     one folder test_mode refused to run on.
 
+    Only visible ``.npy`` arrays are sampled, so a macOS ``._`` sidecar is never
+    measured in place of a field. The folder's ``.spacr_plane_layout.json`` is
+    copied across as well when it exists: it is what says which plane is which,
+    and a ``test/merged`` without it is read as a legacy folder, against the
+    default plane order.
+
     :param settings: settings dict; must contain ``src``, ``test_mode``, ``test_nr``.
     :returns: settings dict with ``src`` optionally redirected to the test folder.
     :raises ValueError: if there is nothing to sample -- an empty ``src``, or a
@@ -7972,7 +7999,8 @@ def measure_test_mode(settings):
     if settings['test_mode']:
         if not os.path.basename(settings['src']) == 'test':
             all_files = [f for f in os.listdir(settings['src'])
-                         if os.path.isfile(os.path.join(settings['src'], f))]
+                         if f.endswith('.npy') and not f.startswith('.')
+                         and os.path.isfile(os.path.join(settings['src'], f))]
             n_test = min(int(settings['test_nr']), len(all_files))
             if n_test < 1:
                 raise ValueError(
@@ -7993,6 +8021,11 @@ def measure_test_mode(settings):
 
             for file in random_files:
                 shutil.copy(os.path.join(settings['src'], file), os.path.join(src,file))
+
+            from .crops import MERGED_LAYOUT_SIDECAR
+            layout = os.path.join(settings['src'], MERGED_LAYOUT_SIDECAR)
+            if os.path.isfile(layout):
+                shutil.copy(layout, os.path.join(src, MERGED_LAYOUT_SIDECAR))
 
             settings['src'] = src
             print(f'Changed source folder to {src} for test mode')
@@ -8871,13 +8904,18 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
 
     :param file_name: mask file name (must exist in all folders).
     :param parasite_folder: folder of parasite masks.
-    :param cell_folder: folder of cell masks (overwritten in place).
+    :param cell_folder: folder of cell masks (overwritten in place). The
+        adjusted mask replaces the old one atomically, so a run killed
+        during the write leaves the previous whole mask, never a truncated
+        one.
     :param nuclei_folder: folder of nuclei masks.
     :param organelle_folder: optional folder of organelle masks.
     :param overlap_threshold: fractional overlap threshold used by the merger.
     :param perimeter_threshold: shared-perimeter threshold used by the merger.
     :returns: elapsed seconds.
-    :raises ValueError: if the matching cell or nuclei mask file is missing.
+    :raises ValueError: if the matching cell or nuclei mask file is missing,
+        or a mask file holds pickled objects: masks are plain arrays, and
+        nothing is unpickled.
     """
     start = time.perf_counter()
 
@@ -8888,19 +8926,21 @@ def process_mask_file_adjust_cell(file_name, parasite_folder, cell_folder, nucle
     if not (os.path.exists(cell_path) and os.path.exists(nuclei_path)):
         raise ValueError(f"Corresponding cell or nuclei mask file for {file_name} not found.")
 
-    parasite_mask = np.load(parasite_path, allow_pickle=True)
-    cell_mask = np.load(cell_path, allow_pickle=True)
-    nuclei_mask = np.load(nuclei_path, allow_pickle=True)
+    parasite_mask = np.load(parasite_path, allow_pickle=False)
+    cell_mask = np.load(cell_path, allow_pickle=False)
+    nuclei_mask = np.load(nuclei_path, allow_pickle=False)
 
     organelle_mask = None
     if organelle_folder is not None:
         organelle_path = os.path.join(organelle_folder, file_name)
         if os.path.exists(organelle_path):
-            organelle_mask = np.load(organelle_path, allow_pickle=True)
+            organelle_mask = np.load(organelle_path, allow_pickle=False)
 
     merged_cell_mask = _merge_cells_based_on_parasite_overlap(parasite_mask, cell_mask, nuclei_mask, organelle_mask, overlap_threshold, perimeter_threshold)
 
-    np.save(cell_path, merged_cell_mask)
+    from .io import _save_array_atomic
+
+    _save_array_atomic(cell_path, merged_cell_mask)
 
     end = time.perf_counter()
     return end - start
@@ -8919,15 +8959,17 @@ def adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_fol
     :returns: None.
     :raises ValueError: if the three folders contain different numbers of files.
     """
-    parasite_files = sorted([f for f in os.listdir(parasite_folder) if f.endswith('.npy')])
-    cell_files = sorted([f for f in os.listdir(cell_folder) if f.endswith('.npy')])
-    nuclei_files = sorted([f for f in os.listdir(nuclei_folder) if f.endswith('.npy')])
+    from .io import _listdir_visible
+
+    parasite_files = sorted([f for f in _listdir_visible(parasite_folder) if f.endswith('.npy')])
+    cell_files = sorted([f for f in _listdir_visible(cell_folder) if f.endswith('.npy')])
+    nuclei_files = sorted([f for f in _listdir_visible(nuclei_folder) if f.endswith('.npy')])
 
     if not (len(parasite_files) == len(cell_files) == len(nuclei_files)):
         raise ValueError("The number of files in the folders do not match.")
 
     if organelle_folder is not None and os.path.exists(organelle_folder):
-        organelle_files = sorted([f for f in os.listdir(organelle_folder) if f.endswith('.npy')])
+        organelle_files = sorted([f for f in _listdir_visible(organelle_folder) if f.endswith('.npy')])
         if len(organelle_files) != len(parasite_files):
             print(f'Warning: organelle mask count ({len(organelle_files)}) does not match other masks ({len(parasite_files)}). Organelle masks will be loaded per-file where available.')
     else:
@@ -9773,6 +9815,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     """
     import os
     import shutil
+    from .io import _listdir_visible
 
     merged = os.path.join(src, 'merged')
     stack = os.path.join(src, 'stack')
@@ -9784,7 +9827,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
         if verbose:
             print("cleanup skipped: no merged/ folder — nothing removed")
         return deleted
-    merged_files = {f for f in os.listdir(merged) if f.endswith('.npy')}
+    merged_files = {f for f in _listdir_visible(merged) if f.endswith('.npy')}
     if not merged_files:
         if verbose:
             print("cleanup skipped: merged/ is empty — keeping intermediates")
@@ -9793,7 +9836,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
     if not keep_intermediate:
         stack_files = set()
         if os.path.isdir(stack):
-            stack_files = {f for f in os.listdir(stack) if f.endswith('.npy')}
+            stack_files = {f for f in _listdir_visible(stack) if f.endswith('.npy')}
         if stack_files and not stack_files.issubset(merged_files):
             missing = len(stack_files - merged_files)
             if verbose:
@@ -9804,7 +9847,7 @@ def cleanup_pipeline_folders(src, keep_intermediate=False, keep_original=False,
                 if os.path.isdir(folder):
                     shutil.rmtree(folder, ignore_errors=True)
                     deleted.append(folder)
-            for d in os.listdir(src):
+            for d in _listdir_visible(src):
                 p = os.path.join(src, d)
                 if os.path.isdir(p) and d.isdigit():
                     shutil.rmtree(p, ignore_errors=True)
@@ -10033,8 +10076,11 @@ def generate_image_path_map(root_folder, valid_extensions=("tif", "tiff", "png",
     image_path_map = {}
 
     for dirpath, dirnames, filenames in os.walk(root_folder):
-        dirnames[:] = [name for name in dirnames if name != "consolidated"]
+        dirnames[:] = [name for name in dirnames
+                       if name != "consolidated" and not name.startswith('.')]
         for file in filenames:
+            if file.startswith('.'):
+                continue
             ext = file.lower().split('.')[-1]
             if ext in valid_extensions:
                 relative_path = os.path.relpath(dirpath, root_folder)

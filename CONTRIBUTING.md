@@ -127,6 +127,46 @@ saying so. Tooltips for settings live in `spacr.settings.tooltips`, and note
 that it is **not complete on import** — six pipelines register their own keys
 when their module is imported.
 
+## Prose that reaches a translation catalog
+
+Public docstrings, setting tooltips and UI captions are machine-translated
+into nine languages. The build rejects a block that comes back as English or
+loses its meaning. You only get that verdict after about an hour of building
+and auditing, so write catalog text in a shape the model can translate. Code
+comments and the notes under `docs/notes/` are not translated, so these rules
+do not apply to them.
+
+* **One idea per sentence.** A sentence that holds a claim, its reason and an
+  exception becomes three sentences. Dense, precise prose is the house style,
+  and the rule does not ask you to cut content. It asks you to split it.
+* **Put a verb around every identifier.** A run of bare names, such as
+  `ops_geometry, ops_objects, ops_reads, ops_barcodes`, gives the model
+  nothing to translate, and the audit reads it as untranslated English. Write
+  a sentence that says what the names are: "The storage contract has two
+  halves. In `measurements.db`, which is authoritative: …".
+* **Do not make an instruction number or a phase label the subject.** Avoid
+  forms like "372 states the contract:", "B2: run a segmenter over each
+  window" and "C4 samples phenotype channels". The label is an opaque token in
+  the place where a translator expects a name, so the model renumbers it or
+  drops it. Name the thing the label stands for, such as "The storage contract
+  is …" or "Phenotype channels are sampled …". Put the reference in the commit
+  message or the ledger file, because neither reaches a catalog. Labels mean
+  nothing to a reader of the API reference, so a public docstring is better
+  without them in any position.
+
+`python tools/check_translatable_prose.py` checks the last rule in about
+fifteen seconds, on the text the model actually receives.
+`tests/test_prose_that_reaches_a_catalog_can_be_translated.py` runs it with
+the other docstring tests. The first two rules cannot be checked from the
+English. Sentence length and identifier density were both measured, and
+neither can flag the blocks that failed without also flagging thousands of
+blocks that pass.
+
+**A green check is not a green build.** Some failures come from word combinations
+or vocabulary that a model declines in one language. Only the build finds
+those. When a block fails there, read the model's output for that language
+before you rewrite the English.
+
 ## The instruction ledger
 
 Work in this repository is tracked in an instruction ledger, not only in

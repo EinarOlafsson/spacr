@@ -73,8 +73,18 @@ def setting_keys() -> set[str]:
         if not any(getattr(t, "id", "") == "SETTING_TOOLTIPS"
                    for t in node.targets):
             continue
+        # A DOTTED KEY IS NOT A SETTING. `umap.reduction_method` is an
+        # app-qualified TOOLTIP identity: `tools/build_i18n_catalogs.py`
+        # files an app's own help for a shared key under `<app>.<key>` so
+        # translating it cannot replace the shared text, and says in as many
+        # words that these "are not setting keys". Taking them in here gave
+        # `umap.reduction_method` an API row -- the f-string suffix
+        # `_method` in `validate._describe_objects` matched its tail -- that
+        # named no symbol and rendered nothing (397). The bare key, read by
+        # `generate_image_umap`, carries the real row.
         keys |= {k.value for k in node.value.keys
-                 if isinstance(k, ast.Constant) and isinstance(k.value, str)}
+                 if isinstance(k, ast.Constant) and isinstance(k.value, str)
+                 and "." not in k.value}
     return keys
 
 
@@ -98,7 +108,7 @@ def setting_keys() -> set[str]:
 #
 # NOTHING BELOW IS A DEFECT LIST, and three of the four causes are properties
 # of WHEN and WHERE the comparison vocabulary is built rather than of the
-# table. Only ``catalog_only`` is unexplained, and it has two members.
+# table. Only ``catalog_only`` is unexplained, and it has one member.
 
 ABSENT_FROM_EXPECTED_TYPES = {
     # TYPED AFTER ALL -- but only once the module that registers the key has
@@ -142,14 +152,13 @@ ABSENT_FROM_EXPECTED_TYPES = {
     # discriminate anything" -- was measuring the EN CATALOG's tooltips,
     # which every row has by construction. The MODULE-SCOPE ``tooltips``
     # table discriminates exactly this group.
-    "tooltip_without_type": (
-        "blue_channel", "columnID", "control_sgrnas", "csv",
-        "csv_name", "cv_csv", "data_column", "data_column_cv",
-        "feature_importance", "filter_1", "folders",
-        "fraction_grna", "green_channel", "include_all",
-        "permutation_importance", "red_channel", "scores", "shap",
-        "shap_sample", "threshold", "value_col",
-    ),
+    #
+    # EMPTY SINCE 2026-09-19. All twenty-one were read by live code, so none
+    # was a stale tooltip; each was given the type its own tooltip states
+    # (``None`` admitted where the tooltip says "Default None") at the end of
+    # ``expected_types`` in spacr/settings.py. The cause stays in the
+    # vocabulary so a key that arrives in this class is named as one.
+    "tooltip_without_type": (),
     # NOT SETTINGS AT ALL. ``spacr.settings.descriptions`` holds the per-APP
     # blurbs, and the EN catalog carries them inside ``SETTING_TOOLTIPS``
     # beside the real per-setting text -- byte for byte, which is how these
@@ -158,11 +167,13 @@ ABSENT_FROM_EXPECTED_TYPES = {
     "app_key": (
         "cellpose_all", "cellpose_masks", "measure",
     ),
-    # THE GENUINE REMAINDER. Known only to the EN catalog: in no settings
-    # table even after the whole package is imported. Reasons per key are in
-    # ``CATALOG_ONLY_NOTES`` below, which is what "a reason each" meant.
+    # THE GENUINE REMAINDER. Known only to the EN catalog on a fresh import:
+    # in no settings table. Reasons per key are in ``CATALOG_ONLY_NOTES``
+    # below, which is what "a reason each" meant. ``umap.reduction_method``
+    # left on 2026-09-19 with its row: dotted catalog keys are app-qualified
+    # tooltip identities and ``setting_keys`` no longer reads them.
     "catalog_only": (
-        "barcode_qc", "umap.reduction_method",
+        "barcode_qc",
     ),
 }
 
@@ -182,33 +193,29 @@ ABSENCE_CAUSES = {
 }
 
 
-#: The unexplained two, each with its reason, so the next audit subtracts a
-#: SET with a story rather than a number.
+#: The unexplained remainder, each with its reason, so the next audit
+#: subtracts a SET with a story rather than a number.
 CATALOG_ONLY_NOTES = {
     "barcode_qc":
         "A live flag -- `spacr/sequencing.py` reads settings.get('barcode_qc')"
-        " to decide whether to run QC after mapping -- and also the APP_KEY of"
-        " spacr/sequencing_qc.py. It is typed nowhere and its tooltip is"
-        " registered nowhere this tool's vocabulary can reach, so only the"
-        " catalog knows it. Giving it a type in `expected_types` is the safer"
-        " of the two fixes: nothing then depends on which module got imported.",
-    "umap.reduction_method":
-        "A DUPLICATE that renders nothing. It is the only dotted key of all"
-        " the rows, and its row is ('spacr.validate', '', False) -- empty"
-        " symbol, so no anchor is emitted. The bare `reduction_method` is"
-        " declared, is read, and carries the correct row to"
-        " spacr.core.generate_image_umap. Its dotted siblings `umap.metric`"
-        " and `umap.n_neighbors` have no row at all, which is what a"
-        " screen-scoped key normally looks like here. Removing it is a change"
-        " to a GENERATED table and belongs with the generator's next pass.",
+        " to decide whether to run QC after mapping -- AND the APP_KEY of"
+        " spacr/sequencing_qc.py, whose blurb `register_defaults` puts in"
+        " `descriptions` under this same name once that module imports. That"
+        " is why it looks catalog-only on a fresh import. It is deliberately"
+        " NOT typed (checked 2026-09-19): `expected_types` requires a written"
+        " tooltip (tests/qt/test_tooltips.py), and the Qt `get_tooltips`"
+        " lays `tooltips` over `descriptions`, so help for the flag would"
+        " replace the Barcode QC app's own description wherever the catalog"
+        " shows it. Typing it needs the flag renamed first.",
 }
 
 
 #: Of the pinned ``catalog_only`` keys, the ones NOTHING reads out of a
 #: settings mapping. Both directions are asserted by the test, so this tuple
 #: is what tells a search that finds everything from a search that finds
-#: nothing: ``barcode_qc`` must be found, this one must not.
-CATALOG_ONLY_UNREAD = ("umap.reduction_method",)
+#: nothing: ``barcode_qc`` must be found. Empty since 2026-09-19, when its
+#: one member, ``umap.reduction_method``, left the vocabulary with its row.
+CATALOG_ONLY_UNREAD = ()
 
 
 def pinned_absences() -> dict:

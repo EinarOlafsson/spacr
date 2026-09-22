@@ -1,0 +1,566 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "ui",
+      "key": "No crops loaded",
+      "source": "No crops loaded",
+      "translation": "No se han cargado recortes",
+      "source_sha256": "5c265b356c133247701716b87665b28fcfaf8418ddc632d11c094c7c0af7c3e1"
+    },
+    {
+      "table": "ui",
+      "key": "No description is stored for this entry.",
+      "source": "No description is stored for this entry.",
+      "translation": "No se almacena ninguna descripción para esta entrada.",
+      "source_sha256": "1eaa38ae4e410e2b3e22b72140c907a0de7da50f0e33e007ea0064e989a7c3e2"
+    },
+    {
+      "table": "ui",
+      "key": "No training data attached (optional)",
+      "source": "No training data attached (optional)",
+      "translation": "Sin datos de entrenamiento adjuntos (opcional)",
+      "source_sha256": "a3a8016f98f21f8f1ff8858b0ee852a32a3e4b310aa26480a943b2fee846f204"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing called “{query}”.",
+      "source": "Nothing called “{query}”.",
+      "translation": "No se encontró nada llamado “{query}”.",
+      "source_sha256": "f60811b08688ba3184efb7fa24ee0098f41b9e64a9c57ad948f59d3b89404809"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing has been removed. Set a bound above and press Filter.",
+      "source": "Nothing has been removed. Set a bound above and press Filter.",
+      "translation": "No se ha eliminado ningún objeto. Establezca un límite arriba y pulse Filtrar.",
+      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing was left over.",
+      "source": "Nothing was left over.",
+      "translation": "No quedó ningún archivo sin asignar.",
+      "source_sha256": "33fc6a5f86dd29b72015541549e16c2e3402e45a9f4ec82f0419952f67a31dde"
+    },
+    {
+      "table": "ui",
+      "key": "Object detection",
+      "source": "Object detection",
+      "translation": "Detección de objetos",
+      "source_sha256": "9da55c68bc3e40ebc39b47819f493033adcedc40eb4ba23af0d794225860c6a8"
+    },
+    {
+      "table": "ui",
+      "key": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "source": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "translation": "La detección de objetos no encontró ningún objeto; la máscara no ha cambiado. La pestaña Probabilidad celular muestra los datos usados para la detección.",
+      "source_sha256": "e60e4cb715da884aa8d2416349ae12b445fb39576f8f719fc481d1c27581a86e"
+    },
+    {
+      "table": "ui",
+      "key": "Object:",
+      "source": "Object:",
+      "translation": "Objeto:",
+      "source_sha256": "599fda49722612926873592c9db081c7a0379dc2c828989030ceb867f8c2eb41"
+    },
+    {
+      "table": "ui",
+      "key": "Objects are brighter than background",
+      "source": "Objects are brighter than background",
+      "translation": "Los objetos son más brillantes que el fondo",
+      "source_sha256": "becac3876b3e17f23be849eb7047a6ab5e5bed2e29e32603da84c48d953675b6"
+    },
+    {
+      "table": "ui",
+      "key": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "source": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "translation": "Tras aplicar el umbral, se eliminan los objetos cuya área es inferior al área mínima definida en Operaciones de objetos.",
+      "source_sha256": "f438ff85eb02656e6b0e35ec48f1dce01252a4d61648d45f9be92d710212a049"
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "source": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "translation": "Desactivado de forma predeterminada. Mientras esté desactivado, spaCR no carga ninguna biblioteca de audio ni reproduce sonidos. Al activarlo, spaCR reproduce los sonidos seleccionados abajo por la salida de audio predeterminada del equipo.",
+      "source_sha256": "c4e2d71fb4d222774d90a667622936fc48921bea30681a9d319e9673c259d4eb"
+    },
+    {
+      "table": "ui",
+      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "translation": "Ofrece instalar la CLI de GitHub y después inicia la autenticación. Sin ella también se pueden enviar incidencias: se abren en el navegador donde ya haya iniciado sesión.",
+      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776"
+    },
+    {
+      "table": "ui",
+      "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "translation": "Activado de forma predeterminada. Al activarlo, los informes de error guardan las líneas recientes del registro en un archivo local, ocultando rutas y credenciales, e indican ese archivo en el informe. El registro nunca se publica en GitHub.",
+      "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda"
+    },
+    {
+      "table": "ui",
+      "key": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "source": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "translation": "Una placa o todas. Se estima un factor de escala por ejecución; una ejecución que incluya dos placas aplica el mismo factor a ambas.",
+      "source_sha256": "7b4dc1d17969c13994b322285122e015e6d7f0b981b5f0edffa5d90ced3c8769"
+    },
+    {
+      "table": "ui",
+      "key": "Open a field first — a histogram needs an image.",
+      "source": "Open a field first — a histogram needs an image.",
+      "translation": "Abra primero un campo; el histograma necesita una imagen.",
+      "source_sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a"
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder before running Object detection.",
+      "source": "Open a folder before running Object detection.",
+      "translation": "Abra una carpeta antes de ejecutar la detección de objetos.",
+      "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313"
+    },
+    {
+      "table": "ui",
+      "key": "Open a sample of a training dataset",
+      "source": "Open a sample of a training dataset",
+      "translation": "Abrir una muestra de un conjunto de datos de entrenamiento",
+      "source_sha256": "4224e03e2d6d635713e1934bba639c52fa932bd0726fd4b06708f6f0c1cea2e1"
+    },
+    {
+      "table": "ui",
+      "key": "Open the web page",
+      "source": "Open the web page",
+      "translation": "Abrir la página web",
+      "source_sha256": "93a40af6474d845293fcbb39ee7d8b4072c2d73773938e2b38d55355685abc7f"
+    },
+    {
+      "table": "ui",
+      "key": "Opened {name} in the browser",
+      "source": "Opened {name} in the browser",
+      "translation": "Se ha abierto {name} en el navegador",
+      "source_sha256": "08ed03ea302d598ebcfc6a231f893f0aadf952870681e45267acac9817f86630"
+    },
+    {
+      "table": "ui",
+      "key": "Opening {name}",
+      "source": "Opening {name}",
+      "translation": "Abriendo {name}",
+      "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f"
+    },
+    {
+      "table": "ui",
+      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "translation": "Abre la página de registro de GitHub en el navegador. Después, vuelva aquí para instalar la CLI de GitHub e iniciar sesión.",
+      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8"
+    },
+    {
+      "table": "ui",
+      "key": "Otsu",
+      "source": "Otsu",
+      "translation": "Método de Otsu",
+      "source_sha256": "d531f59693b2c545aaa1c737c30765e61298492ecc3a461e74d1b7e56e0a49ca"
+    },
+    {
+      "table": "ui",
+      "key": "Plate name",
+      "source": "Plate name",
+      "translation": "Nombre de la placa",
+      "source_sha256": "bf33cb086698ef8ac7881a38c9dd4c9769a27c1822cc1471247e37e88b6bdc6a"
+    },
+    {
+      "table": "ui",
+      "key": "Play a few seconds of the music bed at the volume above.",
+      "source": "Play a few seconds of the music bed at the volume above.",
+      "translation": "Reproduce unos segundos de la música de fondo al volumen indicado arriba.",
+      "source_sha256": "dd4622e2aae97cb792aadb78a1efbc4a2cee131b7538db25df47fa11bec79d79"
+    },
+    {
+      "table": "ui",
+      "key": "Play sounds",
+      "source": "Play sounds",
+      "translation": "Reproducir sonidos",
+      "source_sha256": "2e802e9479575b872eac4f4e7d3d249281a76ce758935d75eb5f511c53ccdc81"
+    },
+    {
+      "table": "ui",
+      "key": "Play this sound once at the volume above.",
+      "source": "Play this sound once at the volume above.",
+      "translation": "Reproduce este sonido una vez al volumen indicado arriba.",
+      "source_sha256": "f34bfc665d55fdd8bce9e3834d01f5ef46f30efc8bf6393071c31d81d4abad96"
+    },
+    {
+      "table": "ui",
+      "key": "Press Re-apply to sort the files with this pattern.",
+      "source": "Press Re-apply to sort the files with this pattern.",
+      "translation": "Pulse Volver a aplicar para clasificar los archivos con este patrón.",
+      "source_sha256": "41071f15485d12e4ca3f566ceebb50d6eb8a313ea10ad4b0d9615efe722f873d"
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "translation": "Contrae el contorno de cada objeto ese número de píxeles. Se retira tanto de sus vecinos como del fondo, por lo que dos objetos que estaban en contacto se separan. UN OBJETO MÁS ESTRECHO QUE EL DOBLE DE ESA DISTANCIA DESAPARECE; la línea de estado indica cuántos desaparecieron. Se deshace en un solo paso.",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966"
+    },
+    {
+      "table": "ui",
+      "key": "Re-apply to all files",
+      "source": "Re-apply to all files",
+      "translation": "Volver a aplicar a todos los archivos",
+      "source_sha256": "63db7ac4a14a69b605949ffbf3c4d96f015690e834fd5fe8018c7677c6bcf274"
+    },
+    {
+      "table": "ui",
+      "key": "Read these crops",
+      "source": "Read these crops",
+      "translation": "Leer estos recortes",
+      "source_sha256": "14c074ff048330089e58eafe3817c38b6735ccf922ee33bf7e82e15dc531b042"
+    },
+    {
+      "table": "ui",
+      "key": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "source": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "translation": "Elimina todos los objetos de este campo. Solicita confirmación y se deshace en un solo paso, por lo que basta con Ctrl+Z para corregir una pulsación accidental.",
+      "source_sha256": "f49a5d002853f15a48f50fc14c397b04c937c3da8faba2217dc7dc15ebfb0713"
+    },
+    {
+      "table": "ui",
+      "key": "Removing…",
+      "source": "Removing…",
+      "translation": "Eliminando…",
+      "source_sha256": "d4b09919ec929f15c19802296a06e97a0d0862e29e23c453d638fc0c3b87c641"
+    },
+    {
+      "table": "ui",
+      "key": "Resonance",
+      "source": "Resonance",
+      "translation": "Resonancia",
+      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073"
+    },
+    {
+      "table": "ui",
+      "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "translation": "Las filas son campos; las columnas son canales y tipos de máscara. Arrastre archivos a cualquier lugar de esta tabla o haga doble clic en una celda para buscar el archivo correspondiente.",
+      "source_sha256": "597c5956c242dc0273a9ef0560f020f45fc576ccf59331bfd5d66b93a994de51"
+    },
+    {
+      "table": "ui",
+      "key": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "source": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "translation": "Ejecute Detección de objetos para ver el mapa de probabilidad celular\ny los vectores de flujo de este campo.",
+      "source_sha256": "4789e7edc73d2c9208abf2c595125d773b8cacb9ce7a96dddb688f2af1838025"
+    },
+    {
+      "table": "ui",
+      "key": "Run failed",
+      "source": "Run failed",
+      "translation": "Falló la ejecución",
+      "source_sha256": "97fddf2d43e8dfc8e31d22f8ba3957b67b9109306346435f0172ba7439e4658a"
+    },
+    {
+      "table": "ui",
+      "key": "Run finished",
+      "source": "Run finished",
+      "translation": "Ejecución terminada",
+      "source_sha256": "22488bd91e126f2a81ef902ae2e6e767a3a5a5ccac9144fee385561a76a951c6"
+    },
+    {
+      "table": "ui",
+      "key": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "translation": "Arena sobre una placa vibrante que se acumula en las líneas inmóviles: una figura de Chladni que cambia con la música de fondo mientras suena y oscila por sí sola cuando no hay música.",
+      "source_sha256": "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR",
+      "source": "Search spaCR",
+      "translation": "Buscar spaCR",
+      "source_sha256": "dbe89695827690925d9402ac2a6549b0e379fb43090234c595c8065177df3f1f"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR…",
+      "source": "Search spaCR…",
+      "translation": "Buscar en spaCR…",
+      "source_sha256": "65f80adbe11014474289a5a0f6544862685946b3dd43f6bc796f7347dc3632f1"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "translation": "Segmenta el campo abierto con el modelo de Detección de objetos e incorpora el resultado según el ajuste de reemplazo o fusión. Rellena las pestañas Probabilidad celular y Flujos con los resultados intermedios de la ejecución.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88"
+    },
+    {
+      "table": "ui",
+      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "translation": "Segmenta el campo abierto con un modelo. Ambos umbrales comienzan en los propios valores predeterminados de Cellpose.",
+      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
+    },
+    {
+      "table": "ui",
+      "key": "Sending the approved report to GitHub…",
+      "source": "Sending the approved report to GitHub…",
+      "translation": "Enviando el informe aprobado a GitHub…",
+      "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0"
+    },
+    {
+      "table": "ui",
+      "key": "Set up the GitHub CLI",
+      "source": "Set up the GitHub CLI",
+      "translation": "Configurar la CLI de GitHub",
+      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029"
+    },
+    {
+      "table": "ui",
+      "key": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "source": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "translation": "¿Desea compartir este modelo para que otros usuarios de spaCR puedan descargarlo?\n\nSe le pedirán los valores de su ficha de evaluación. Se sube a la colección compartida de spaCR, donde queda pendiente de revisión antes de aparecer en Model Zoo. No necesita una cuenta de Hugging Face.",
+      "source_sha256": "515fe65a3a49a4ba43933c24bfba273efd4b422fb374333959c6a959663f760a"
+    },
+    {
+      "table": "ui",
+      "key": "Share this model?",
+      "source": "Share this model?",
+      "translation": "¿Compartir este modelo?",
+      "source_sha256": "0f728cdb462b2168403b56e8738acd19f3dbc0a5dd1beb9aa72f1e2604e83d9a"
+    },
+    {
+      "table": "ui",
+      "key": "Shared",
+      "source": "Shared",
+      "translation": "Compartido",
+      "source_sha256": "e3c4b39d6d5013477c98cd58236fed455f37aa7017b7168ce1980a449aaf438a"
+    },
+    {
+      "table": "ui",
+      "key": "Shortcuts",
+      "source": "Shortcuts",
+      "translation": "Accesos rápidos",
+      "source_sha256": "46e978d0c19397c7d0318f6440950c15e046f5841a0feb03c35fdc68e1dfc68a"
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "translation": "Muestra u oculta todos los ajustes como un solo grupo: pincel, varita, visualización, filtrado automático, operaciones de objetos, Otsu, detección de objetos y lupa en tiempo real. El lienzo ocupa el ancho que dejan libre.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4"
+    },
+    {
+      "table": "ui",
+      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "translation": "Muestra la imagen en negativo y detecta sobre ese mismo negativo: el campo se normaliza a 0..1 y cada píxel se convierte en 1 menos su valor, de modo que el más oscuro pasa a ser el más brillante. Así, Otsu y la lupa en tiempo real, que buscan objetos brillantes, pueden detectar objetos OSCUROS: un objeto oscuro en una imagen clara de campo claro se ve como uno fluorescente, tanto para el ojo como para el detector. LAS MÁSCARAS SE GENERAN A PARTIR DE LA IMAGEN INVERTIDA mientras esta opción está activa, y una advertencia sobre la imagen lo indica. La lectura al pasar el cursor, la categoría Filtro y la máscara guardada siguen usando los valores reales de la imagen, por lo que las mediciones no cambian. Esta opción es distinta de 'Swap object and background' en Operaciones de objetos, que invierte una MÁSCARA ya creada sin modificar la imagen.",
+      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image as it was loaded.",
+      "source": "Showing the image as it was loaded.",
+      "translation": "Se muestra la imagen tal como se cargó.",
+      "source_sha256": "01641220d68a74f77c817c175cd3447d019f1473c0de372d77e289b01fd4ddfb"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "source": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "translation": "Se muestra la imagen invertida —lo oscuro se vuelve brillante— y se detecta sobre ella. La intensidad al pasar el cursor corresponde a la imagen visible y así se indica; el filtrado, la media del objeto y el guardado siguen usando los píxeles originales.",
+      "source_sha256": "10e5f49fcc1ed61eef3d24e8663709a3993010dc4a1b1bdb29349fa917f0432f"
+    },
+    {
+      "table": "ui",
+      "key": "Shrink",
+      "source": "Shrink",
+      "translation": "Contraer",
+      "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in",
+      "source": "Sign in",
+      "translation": "Iniciar sesión",
+      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "translation": "Inicie sesión en {label} en la ventana que se ha abierto. spaCR detecta cuándo ha terminado.",
+      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f"
+    },
+    {
+      "table": "ui",
+      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "translation": "El inicio de sesión en {label} no terminó dentro de {minutes} minutos. Pulse Iniciar sesión para intentarlo de nuevo.",
+      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f"
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "translation": "Área mínima del objeto que se desea conservar, en píxeles. Eliminar objetos pequeños descarta todo lo que quede por debajo; ni la detección con Otsu ni la detección de objetos generan objetos menores. Así, un único ajuste determina qué restos se excluyen.",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4"
+    },
+    {
+      "table": "ui",
+      "key": "Sort every file this table already holds again, with the regex as it reads now.",
+      "source": "Sort every file this table already holds again, with the regex as it reads now.",
+      "translation": "Vuelve a clasificar todos los archivos de esta tabla con la expresión regular actual.",
+      "source_sha256": "1c14c552ebb9d4e45108a0ae38e1e434d7bf29732f430436ac76f7186d76fbcf"
+    },
+    {
+      "table": "ui",
+      "key": "Sound set",
+      "source": "Sound set",
+      "translation": "Conjunto de sonidos",
+      "source_sha256": "8d308657d751aeb14842b12883f9027b12142c1062a026c6519362908bebff83"
+    },
+    {
+      "table": "ui",
+      "key": "Split objects that touch",
+      "source": "Split objects that touch",
+      "translation": "Separar objetos en contacto",
+      "source_sha256": "25d4d69647265e4f5d692cab9ad3bfda5163ade1cedb54e43a7b880d1fa27a07"
+    },
+    {
+      "table": "ui",
+      "key": "Starting…",
+      "source": "Starting…",
+      "translation": "Iniciando…",
+      "source_sha256": "bbe5fc3b9ef39f994c259eaf233d625a500b5219784c82f73b50808d4f79d5dc"
+    },
+    {
+      "table": "ui",
+      "key": "Stop it and close",
+      "source": "Stop it and close",
+      "translation": "Detener y cerrar",
+      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b"
+    },
+    {
+      "table": "ui",
+      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "translation": "Se ha dejado de esperar el inicio de sesión. Pulse Iniciar sesión para volver a intentarlo o Listo si ya ha iniciado sesión.",
+      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0"
+    },
+    {
+      "table": "ui",
+      "key": "Stopping after this page…",
+      "source": "Stopping after this page…",
+      "translation": "Deteniendo después de esta página…",
+      "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438"
+    },
+    {
+      "table": "ui",
+      "key": "Stopping the installer…",
+      "source": "Stopping the installer…",
+      "translation": "Deteniendo el instalador…",
+      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906"
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "translation": "Diez campos del conjunto de datos usado para entrenar un modelo publicado, con las máscaras utilizadas en su entrenamiento. Se abren para editarlos, de modo que verá los mismos datos que recibió el modelo.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
+    },
+    {
+      "table": "ui",
+      "key": "Test on my folder",
+      "source": "Test on my folder",
+      "translation": "Probar en mi carpeta",
+      "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592"
+    },
+    {
+      "table": "ui",
+      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "translation": "La CLI de GitHub no está instalada.\n\nCon ella, spaCR envía informes desde su cuenta de GitHub sin abrir el navegador. Sin ella, los informes se siguen abriendo en el navegador.",
+      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "translation": "La lupa en tiempo real también lee estos ajustes: el modo Cellpose utiliza el modelo, ambos umbrales, el diámetro y la normalización; DINOCell utiliza la probabilidad celular. El modo Otsu lee los ajustes de la categoría Otsu.",
+      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
+    },
+    {
+      "table": "ui",
+      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "translation": "Comando que ejecuta spaCR. Cópielo si prefiere ejecutarlo usted mismo en un terminal.",
+      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3"
+    },
+    {
+      "table": "ui",
+      "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "source": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "translation": "Este valor lo determina la tabla de archivos. Se actualiza al cambiar sus canales o columnas de máscaras.",
+      "source_sha256": "5e8542d02349eb9df6700d23af00616f11ea97db0bc9d8300ec9a301c746d63b"
+    },
+    {
+      "table": "ui",
+      "key": "The files",
+      "source": "The files",
+      "translation": "Los archivos",
+      "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479"
+    },
+    {
+      "table": "ui",
+      "key": "The installer could not be run: {error}",
+      "source": "The installer could not be run: {error}",
+      "translation": "El instalador no se pudo ejecutar: {error}",
+      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
+    },
+    {
+      "table": "ui",
+      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "translation": "El instalador de {tools} sigue ejecutándose. Si cierra esta ventana ahora, se detendrá.",
+      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "translation": "El último color del cielo: rosa y magenta sobre dorado apagado, con el tono ciruela del horizonte justo antes de anochecer.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f"
+    },
+    {
+      "table": "ui",
+      "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "translation": "La documentación publicada no es accesible desde aquí, por lo que esta es la descripción almacenada con el código en esta máquina.",
+      "source_sha256": "7331a69c7b5b6932ebc5198d0d93a5bd8439856e36b319563a8b4f02ec554781"
+    },
+    {
+      "table": "ui",
+      "key": "The report was not sent.",
+      "source": "The report was not sent.",
+      "translation": "El informe no fue enviado.",
+      "source_sha256": "7fa94ad764e8476f7b31623c25805813c735a2b151500c3681730661719e074a"
+    },
+    {
+      "table": "ui",
+      "key": "The report was sent: {url}",
+      "source": "The report was sent: {url}",
+      "translation": "El informe fue enviado: {url}",
+      "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3"
+    },
+    {
+      "table": "ui",
+      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "translation": "No se pudo iniciar la autenticación desde aquí. Ejecute el comando de abajo en un terminal y pulse Listo.",
+      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
+    }
+  ]
+}

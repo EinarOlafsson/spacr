@@ -139,6 +139,8 @@ def test_closing_a_plot_screen_retires_its_parentless_menu_tree(qapp):
     """One regression screen used to leave about 650 live menu widgets."""
     before = _live_widgets()
     screen = AppScreen("regression")
+    assert screen._results_panel is not None, (
+        "the results panel, built on first use, is where the plots are")
 
     built = _live_widgets()
     assert built > before + 1000, "the real pyqtgraph-heavy screen was not built"

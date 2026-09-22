@@ -22,7 +22,7 @@ LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 #: one of them is named rather than hidden inside a coverage count.
 CHROME_CAPTIONS = (
     # Settings category headers.
-    "Intensity Handling (all objects)",
+    "Object Filtration (all objects)",
     "Plate Sources & Workflow",
     "Labels & Classes",
     "Evaluation & Results",
@@ -58,16 +58,7 @@ CHROME_CAPTIONS = (
     # Live preview compartment fields and common controls.
     "Min area (px²)",
     "Max area (px²)",
-    "Min object area",
-    "Min distance",
-    "Area multiplier",
     "Perimeter fraction",
-    "Min intensity pct",
-    "Max intensity pct",
-    "Intensity percentile",
-    "Intensity threshold",
-    "Intensity merge",
-    "Intensity split",
     "Remove border objects",
     "Signal to noise",
     "Background",
@@ -142,11 +133,11 @@ SPELLED_THE_SAME = {
 #: file exists for: the word map knows "objects" and "Workflow" but not the
 #: whole heading, so without an exact row the user gets half of each.
 DECOMPOSABLE_HEADERS = (
-    "Intensity Handling (all objects)",
+    "Object Filtration (all objects)",
+    "Image Preprocessing (per object)",
     "Plate Sources & Workflow",
     "Labels & Classes",
     "Evaluation & Results",
-    "Min object area",
     "Remove border objects",
     "Cells per montage row",
     "Annotate cells",
@@ -236,10 +227,13 @@ def test_chrome_and_related_prose_enter_the_source_inventory_once():
     assert len(subtitles) == 1
     assert auxiliary | subtitles <= canonical
 
-    # Sixty-six chrome rows plus the five constants and one subtitle are the
-    # exact gap this regression covers. The project-wide inventory ratchet
-    # independently pins the resulting canonical count and digest.
-    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 66
+    # Fifty-two chrome rows plus the five constants and one subtitle are the
+    # exact gap this regression covers. It was sixty-six until the mean-
+    # intensity filter retired "Intensity Handling (all objects)" and the
+    # live-preview rows, which the builder now reads from COMPARTMENT_FIELDS
+    # itself rather than from a frozen list. The project-wide inventory
+    # ratchet independently pins the resulting canonical count and digest.
+    assert len(builder._INDIRECT_CHROME_UI_SOURCES) == 52
     assert builder._INDIRECT_CHROME_UI_SOURCES <= set(CHROME_CAPTIONS)
     assert len(auxiliary | subtitles) == 6
 
@@ -270,8 +264,8 @@ def test_a_section_header_is_never_half_translated(language):
         f"{language} took the word-by-word fallback instead of an exact "
         f"row:\n  " + "\n  ".join(mangled)
     )
-    assert tr("Intensity Handling (all objects)", "sv") != (
-        "Intensity Handling (all Objekt)"
+    assert tr("Object Filtration (all objects)", "sv") != (
+        "Objekt Filtration (all Objekt)"
     )
 
 

@@ -197,7 +197,8 @@ def selection_from_arrays(merged_folder: str, *, object_array: str = "cell",
         If no merged arrays or nonzero object labels are available.
     """
     folder = str(merged_folder)
-    files = sorted(f for f in os.listdir(folder) if f.endswith(".npy")) \
+    files = sorted(f for f in os.listdir(folder)
+                   if f.endswith(".npy") and not f.startswith(".")) \
         if os.path.isdir(folder) else []
     if not files:
         raise FileNotFoundError(
@@ -349,19 +350,17 @@ def _stack_for(merged_folder: str, stem: str) -> Optional[str]:
     if not os.path.isdir(str(merged_folder)):
         return None
     wanted = str(stem)
-    for name in sorted(os.listdir(str(merged_folder))):
-        if not name.endswith(".npy"):
-            continue
+    names = sorted(name for name in os.listdir(str(merged_folder))
+                   if name.endswith(".npy") and not name.startswith("."))
+    for name in names:
         if os.path.splitext(name)[0] == wanted:
             return os.path.join(str(merged_folder), name)
-    for name in sorted(os.listdir(str(merged_folder))):
-        if name.endswith(".npy") and name.startswith(wanted):
+    for name in names:
+        if name.startswith(wanted):
             return os.path.join(str(merged_folder), name)
     well = _well_spelling(wanted)
     if well and well != wanted:
-        for name in sorted(os.listdir(str(merged_folder))):
-            if not name.endswith(".npy"):
-                continue
+        for name in names:
             if os.path.splitext(name)[0] == well or name.startswith(well):
                 return os.path.join(str(merged_folder), name)
     return None

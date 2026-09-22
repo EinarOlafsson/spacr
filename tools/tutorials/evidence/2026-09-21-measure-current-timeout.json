@@ -1,0 +1,46 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lesson": "08_measure",
+  "status": "recording_timeout_not_accepted",
+  "source_commit": "7046d948543ed7f0e1938ee68b1f71c245a678b1",
+  "version": "1.5.0.8",
+  "capture": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current/captures/measure_current_batch_20260921",
+  "recording_timeout_seconds": 3600,
+  "exit_code": 1,
+  "last_saved_progress_frame": {
+    "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current/captures/measure_current_batch_20260921/22_batch_progress.png",
+    "sha256": "a2d0ce195c3d27b6c9dc6820a9e45c71d02b5b2b883e2d3aba75641836057694",
+    "visible_figure_count": 42
+  },
+  "stop_dialog": {
+    "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-stop-dialog.png",
+    "sha256": "4fd1967a7c787ec50ce7ee4849544cd427bbdb86a0b6e50e9d59d021eb12b029",
+    "observed_title": "Stop Measure",
+    "selected_action": "Finish current work"
+  },
+  "pipeline_manifest": {
+    "path": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current/runs/2026-09-21_223531_61fb899a__measure/manifest.json",
+    "sha256": "06314bd0669e60d8a48cbba46c4b3dde05c41a18c24775dc240bd35a466c2d98",
+    "reported_status": "success",
+    "reported_elapsed_s": 3939.675,
+    "independent_saved_output_verification": false
+  },
+  "accepted": false,
+  "published": false,
+  "previous_processes_confirmed_gone": true,
+  "retry": {
+    "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/measure-current-v2",
+    "capture": "measure_current_batch_v2_20260921",
+    "timeout_seconds": 10800,
+    "memory_limit_gib": 32,
+    "cpu_only": true,
+    "fresh_private_download": true,
+    "preseeded_database": false
+  },
+  "notes": [
+    "The timeout branch clicked Stop, whose genuine modal confirmation kept the capture alive until explicitly choosing cooperative cleanup.",
+    "The pipeline manifest reports success; that does not establish a complete accepted recording or independent scientific output verification.",
+    "The failed capture and original run outputs are retained unchanged; the retry uses a separate empty stage."
+  ]
+}

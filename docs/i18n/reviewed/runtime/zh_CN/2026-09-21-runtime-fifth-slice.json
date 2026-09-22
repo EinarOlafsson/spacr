@@ -1,0 +1,356 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Music file",
+      "source": "Music file",
+      "translation": "音乐文件",
+      "source_sha256": "f3fe30b19b7809364629d45361514644c36b8ece3e725968271d8177287b780b"
+    },
+    {
+      "table": "ui",
+      "key": "No Hugging Face token was found, so nothing was uploaded.\n\nRun `huggingface-cli login`, or set HF_TOKEN, and press Add again. spaCR does not ship a token of its own: one that could upload could also delete, and it would be readable by anyone who installs spaCR.",
+      "source": "No Hugging Face token was found, so nothing was uploaded.\n\nRun `huggingface-cli login`, or set HF_TOKEN, and press Add again. spaCR does not ship a token of its own: one that could upload could also delete, and it would be readable by anyone who installs spaCR.",
+      "translation": "未找到 Hugging Face 令牌，因此未上传任何内容。\n\n请运行 `huggingface-cli login`，或设置 HF_TOKEN，然后再次按“添加”。spaCR 不自带令牌：能够上传的令牌也可能用于删除，而且任何安装 spaCR 的人都能读取它。",
+      "source_sha256": "76a7687e41054ea69fc51cf6916b4e9d1558585b30cb5cda5a12eabde8a1c808"
+    },
+    {
+      "table": "ui",
+      "key": "No crops",
+      "source": "No crops",
+      "translation": "没有裁剪图像",
+      "source_sha256": "0abe50cdfc1d501b56ab95435a4df058cacff9af2759c4fd31936c52900279c8"
+    },
+    {
+      "table": "ui",
+      "key": "No crops loaded",
+      "source": "No crops loaded",
+      "translation": "尚未加载裁剪图像",
+      "source_sha256": "5c265b356c133247701716b87665b28fcfaf8418ddc632d11c094c7c0af7c3e1"
+    },
+    {
+      "table": "ui",
+      "key": "No description is stored for this entry.",
+      "source": "No description is stored for this entry.",
+      "translation": "此条目未保存描述。",
+      "source_sha256": "1eaa38ae4e410e2b3e22b72140c907a0de7da50f0e33e007ea0064e989a7c3e2"
+    },
+    {
+      "table": "ui",
+      "key": "No training data attached (optional)",
+      "source": "No training data attached (optional)",
+      "translation": "未附加训练数据（可选）",
+      "source_sha256": "a3a8016f98f21f8f1ff8858b0ee852a32a3e4b310aa26480a943b2fee846f204"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing called “{query}”.",
+      "source": "Nothing called “{query}”.",
+      "translation": "未找到名为“{query}”的内容。",
+      "source_sha256": "f60811b08688ba3184efb7fa24ee0098f41b9e64a9c57ad948f59d3b89404809"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing has been removed. Set a bound above and press Filter.",
+      "source": "Nothing has been removed. Set a bound above and press Filter.",
+      "translation": "尚未移除任何内容。请在上方设置界限，然后按“筛选”。",
+      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing was left over.",
+      "source": "Nothing was left over.",
+      "translation": "没有未分配的文件。",
+      "source_sha256": "33fc6a5f86dd29b72015541549e16c2e3402e45a9f4ec82f0419952f67a31dde"
+    },
+    {
+      "table": "ui",
+      "key": "Object detection",
+      "source": "Object detection",
+      "translation": "对象检测",
+      "source_sha256": "9da55c68bc3e40ebc39b47819f493033adcedc40eb4ba23af0d794225860c6a8"
+    },
+    {
+      "table": "ui",
+      "key": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "source": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "translation": "对象检测未找到任何对象，掩膜保持不变。“细胞概率”选项卡显示了检测所依据的信息。",
+      "source_sha256": "e60e4cb715da884aa8d2416349ae12b445fb39576f8f719fc481d1c27581a86e"
+    },
+    {
+      "table": "ui",
+      "key": "Object:",
+      "source": "Object:",
+      "translation": "对象:",
+      "source_sha256": "599fda49722612926873592c9db081c7a0379dc2c828989030ceb867f8c2eb41"
+    },
+    {
+      "table": "ui",
+      "key": "Objects are brighter than background",
+      "source": "Objects are brighter than background",
+      "translation": "对象比背景更亮",
+      "source_sha256": "becac3876b3e17f23be849eb7047a6ab5e5bed2e29e32603da84c48d953675b6"
+    },
+    {
+      "table": "ui",
+      "key": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "source": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "translation": "阈值处理后，小于“对象操作”中“最小面积”的对象会被移除。",
+      "source_sha256": "f438ff85eb02656e6b0e35ec48f1dce01252a4d61648d45f9be92d710212a049"
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "source": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "translation": "默认关闭。关闭时，spaCR 不加载任何音频库，也不播放任何声音。开启后，spaCR 会通过计算机的默认音频输出播放下方已启用的声音。",
+      "source_sha256": "c4e2d71fb4d222774d90a667622936fc48921bea30681a9d319e9673c259d4eb"
+    },
+    {
+      "table": "ui",
+      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "translation": "提供 GitHub CLI 安装选项，然后帮助您登录。即使未安装，仍可提交问题：系统会在您已登录的浏览器中打开提交页面。",
+      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776"
+    },
+    {
+      "table": "ui",
+      "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "translation": "默认开启。开启时，错误报告会将近期日志行保存到本机文件中，并在报告中注明该文件。保存前会隐去路径和凭据；日志本身绝不会发布到 GitHub。",
+      "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda"
+    },
+    {
+      "table": "ui",
+      "key": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "source": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "translation": "选择一块培养板或全部培养板。每次运行估计一个缩放系数，因此一次运行包含两块培养板时，两者使用同一个系数。",
+      "source_sha256": "7b4dc1d17969c13994b322285122e015e6d7f0b981b5f0edffa5d90ced3c8769"
+    },
+    {
+      "table": "ui",
+      "key": "Open a field first — a histogram needs an image.",
+      "source": "Open a field first — a histogram needs an image.",
+      "translation": "请先打开一个视野；直方图需要图像数据。",
+      "source_sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a"
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder before running Object detection.",
+      "source": "Open a folder before running Object detection.",
+      "translation": "运行对象检测前，请先打开文件夹。",
+      "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313"
+    },
+    {
+      "table": "ui",
+      "key": "Open a sample of a training dataset",
+      "source": "Open a sample of a training dataset",
+      "translation": "打开训练数据集的样本",
+      "source_sha256": "4224e03e2d6d635713e1934bba639c52fa932bd0726fd4b06708f6f0c1cea2e1"
+    },
+    {
+      "table": "ui",
+      "key": "Open the web page",
+      "source": "Open the web page",
+      "translation": "打开网页",
+      "source_sha256": "93a40af6474d845293fcbb39ee7d8b4072c2d73773938e2b38d55355685abc7f"
+    },
+    {
+      "table": "ui",
+      "key": "Opened {name} in the browser",
+      "source": "Opened {name} in the browser",
+      "translation": "已在浏览器中打开 {name}",
+      "source_sha256": "08ed03ea302d598ebcfc6a231f893f0aadf952870681e45267acac9817f86630"
+    },
+    {
+      "table": "ui",
+      "key": "Opening {name}",
+      "source": "Opening {name}",
+      "translation": "正在打开 {name}",
+      "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f"
+    },
+    {
+      "table": "ui",
+      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "translation": "在浏览器中打开 GitHub 注册页面。注册后请返回这里，安装 GitHub CLI 并登录。",
+      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8"
+    },
+    {
+      "table": "ui",
+      "key": "Otsu",
+      "source": "Otsu",
+      "translation": "Otsu（大津法）",
+      "source_sha256": "d531f59693b2c545aaa1c737c30765e61298492ecc3a461e74d1b7e56e0a49ca"
+    },
+    {
+      "table": "ui",
+      "key": "Plate name",
+      "source": "Plate name",
+      "translation": "培养板名称",
+      "source_sha256": "bf33cb086698ef8ac7881a38c9dd4c9769a27c1822cc1471247e37e88b6bdc6a"
+    },
+    {
+      "table": "ui",
+      "key": "Play a few seconds of the music bed at the volume above.",
+      "source": "Play a few seconds of the music bed at the volume above.",
+      "translation": "以上方设置的音量播放几秒钟背景音乐。",
+      "source_sha256": "dd4622e2aae97cb792aadb78a1efbc4a2cee131b7538db25df47fa11bec79d79"
+    },
+    {
+      "table": "ui",
+      "key": "Play sounds",
+      "source": "Play sounds",
+      "translation": "播放声音",
+      "source_sha256": "2e802e9479575b872eac4f4e7d3d249281a76ce758935d75eb5f511c53ccdc81"
+    },
+    {
+      "table": "ui",
+      "key": "Play this sound once at the volume above.",
+      "source": "Play this sound once at the volume above.",
+      "translation": "以上方设置的音量播放一次此声音。",
+      "source_sha256": "f34bfc665d55fdd8bce9e3834d01f5ef46f30efc8bf6393071c31d81d4abad96"
+    },
+    {
+      "table": "ui",
+      "key": "Press Re-apply to sort the files with this pattern.",
+      "source": "Press Re-apply to sort the files with this pattern.",
+      "translation": "按“重新应用”，按此模式对文件进行分类。",
+      "source_sha256": "41071f15485d12e4ca3f566ceebb50d6eb8a313ea10ad4b0d9615efe722f873d"
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "translation": "将每个对象的边界向内收缩指定的像素数。对象在与相邻对象及背景相接处都会收缩，因此原本接触的两个对象会分开。厚度小于收缩距离两倍的对象将消失，状态行会显示消失的数量。整个操作可一次撤销。",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966"
+    },
+    {
+      "table": "ui",
+      "key": "Re-apply to all files",
+      "source": "Re-apply to all files",
+      "translation": "重新应用到所有文件",
+      "source_sha256": "63db7ac4a14a69b605949ffbf3c4d96f015690e834fd5fe8018c7677c6bcf274"
+    },
+    {
+      "table": "ui",
+      "key": "Read these crops",
+      "source": "Read these crops",
+      "translation": "读取这些裁剪图像",
+      "source_sha256": "14c074ff048330089e58eafe3817c38b6735ccf922ee33bf7e82e15dc531b042"
+    },
+    {
+      "table": "ui",
+      "key": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "source": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "translation": "移除此视野中的所有对象。操作前会要求确认，且整个操作可一次撤销，因此误按后只需按一次 Ctrl+Z 即可恢复。",
+      "source_sha256": "f49a5d002853f15a48f50fc14c397b04c937c3da8faba2217dc7dc15ebfb0713"
+    },
+    {
+      "table": "ui",
+      "key": "Removing…",
+      "source": "Removing…",
+      "translation": "正在移除…",
+      "source_sha256": "d4b09919ec929f15c19802296a06e97a0d0862e29e23c453d638fc0c3b87c641"
+    },
+    {
+      "table": "ui",
+      "key": "Resonance",
+      "source": "Resonance",
+      "translation": "共振",
+      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073"
+    },
+    {
+      "table": "ui",
+      "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "translation": "每一行代表一个视野，每一列代表一个通道或掩膜类型。可将文件拖放到表格任意位置，也可双击单元格，浏览并选择该单元格所需的文件。",
+      "source_sha256": "597c5956c242dc0273a9ef0560f020f45fc576ccf59331bfd5d66b93a994de51"
+    },
+    {
+      "table": "ui",
+      "key": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "source": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "translation": "运行对象检测，查看此视野的细胞概率图\n和流场。",
+      "source_sha256": "4789e7edc73d2c9208abf2c595125d773b8cacb9ce7a96dddb688f2af1838025"
+    },
+    {
+      "table": "ui",
+      "key": "Run failed",
+      "source": "Run failed",
+      "translation": "运行失败",
+      "source_sha256": "97fddf2d43e8dfc8e31d22f8ba3957b67b9109306346435f0172ba7439e4658a"
+    },
+    {
+      "table": "ui",
+      "key": "Run finished",
+      "source": "Run finished",
+      "translation": "运行完成",
+      "source_sha256": "22488bd91e126f2a81ef902ae2e6e767a3a5a5ccac9144fee385561a76a951c6"
+    },
+    {
+      "table": "ui",
+      "key": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "translation": "振动板上的沙粒沿静止的节点线聚集，形成 Chladni 图案。播放背景音乐时，图案随音乐变化；没有音乐时，图案自行呈现呼吸般的变化。",
+      "source_sha256": "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR",
+      "source": "Search spaCR",
+      "translation": "搜索 spaCR",
+      "source_sha256": "dbe89695827690925d9402ac2a6549b0e379fb43090234c595c8065177df3f1f"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR…",
+      "source": "Search spaCR…",
+      "translation": "搜索 spaCR…",
+      "source_sha256": "65f80adbe11014474289a5a0f6544862685946b3dd43f6bc796f7347dc3632f1"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "translation": "使用对象检测模型对当前打开的视野进行分割，并按替换或合并设置应用结果。“细胞概率”和“流场”选项卡会显示此次运行的中间结果。",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88"
+    },
+    {
+      "table": "ui",
+      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "translation": "使用模型分割当前打开的视野。两个阈值的初始值均采用 Cellpose 自身的默认值。",
+      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705"
+    },
+    {
+      "table": "ui",
+      "key": "Sending the approved report to GitHub…",
+      "source": "Sending the approved report to GitHub…",
+      "translation": "正在将已批准的报告发送到 GitHub…",
+      "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0"
+    },
+    {
+      "table": "ui",
+      "key": "Set up the GitHub CLI",
+      "source": "Set up the GitHub CLI",
+      "translation": "设置 GitHub CLI",
+      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029"
+    },
+    {
+      "table": "ui",
+      "key": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "source": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "translation": "分享此模型，让其他 spaCR 用户可以下载吗？\n\n系统会要求您填写模型评分卡中的数值。模型将上传到共享 spaCR 集合，经过审核后才会显示在模型库中。您无需 Hugging Face 帐户。",
+      "source_sha256": "515fe65a3a49a4ba43933c24bfba273efd4b422fb374333959c6a959663f760a"
+    },
+    {
+      "table": "ui",
+      "key": "Share this model?",
+      "source": "Share this model?",
+      "translation": "分享此模型？",
+      "source_sha256": "0f728cdb462b2168403b56e8738acd19f3dbc0a5dd1beb9aa72f1e2604e83d9a"
+    }
+  ]
+}

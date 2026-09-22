@@ -94,6 +94,42 @@ def _regression_backend_choices():
     return backend_choices()
 
 
+def _metadata_type_choices():
+    """Every filename convention, as ``(stored value, label)``, by vendor.
+
+    :returns: pairs whose first element is the stored ``metadata_type`` and
+        whose second is the line a plain dropdown shows -- the vendor, the
+        instrument family, and, for a convention spaCR is guessing about,
+        the word "provisional".
+
+    A user with a Zeiss, a Nikon, a Leica or a Thermo Fisher instrument used
+    to meet a dropdown offering two Yokogawas and "write your own regular
+    expression". The stored values are UNCHANGED for the four that were
+    already there, so a settings CSV written before this asks for exactly
+    the convention it always asked for.
+
+    PROVISIONAL IS ON SCREEN ON PURPOSE. Some of these patterns were read
+    off a vendor manual or off Bio-Formats' own reader source; others were
+    reconstructed from a handful of real filenames found in public datasets
+    and forum posts. A user whose instrument is in the second group should
+    know that before a run, not after a plate has been mislabelled -- and
+    the "test it on my folder" button beside the dropdown is what turns the
+    warning into an answer.
+
+    Read from :mod:`spacr.regex_infer`, which imports nothing outside the
+    standard library, so building a settings panel still costs a dict
+    lookup.
+    """
+    from .regex_infer import _metadata_convention_menu
+
+    choices = []
+    for vendor, rows in _metadata_convention_menu():
+        for key, label, status in rows:
+            suffix = "" if status == "confirmed" else "  [provisional]"
+            choices.append((key, f"{vendor} -- {label}{suffix}"))
+    return choices
+
+
 def _torchvision_model_names():
     """Return model names for the combo WITHOUT importing torchvision. If
     torchvision is already loaded (e.g. after a training run) use its full zoo;
@@ -204,7 +240,8 @@ def convert_settings_dict_for_gui(settings):
                           'regression'),
         'grna_statistic': ('combo', ['pearson', 'rank'], 'pearson'),
         'p_threshold_kind': ('combo', ['adjusted', 'raw'], 'adjusted'),
-        'metadata_type': ('combo', ['cellvoyager', 'cq1', 'auto', 'custom'], 'cellvoyager'),
+        'metadata_type': ('combo', _metadata_type_choices(), 'cellvoyager'),
+        'plaque_mode': ('combo', ['plaque', 'figure'], 'plaque'),
         'channels': ('combo', chan_list, '[0,1,2,3]'),
         'train_channels': ('combo', ["['r','g','b']", "['r','g']", "['r','b']", "['g','b']", "['r']", "['g']", "['b']"], "['r','g','b']"),
         'channel_dims': ('combo', chan_list, '[0,1,2,3]'),

@@ -9,20 +9,6 @@
       "translation": "此次运行可以使用多少机器资源：是否使用显卡，以及同时解码多少个视野。这里的设置不会改变结果，只会改变所需的代价。"
     },
     {
-      "key": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source": "How the nuclei of each stitched well are segmented. Each read is attributed to the nucleus it falls on or just beside, so the Cellpose model and the diameter here decide which objects can receive a barcode.",
-      "source_sha256": "638b26601f8977415641e7170e201bb234862ac20f9623c508361f2a539f8a66",
-      "table": "categories",
-      "translation": "每个拼接后的孔中细胞核如何分割。每条读段都归属于它所落在的或紧邻的细胞核，因此这里的 Cellpose 模型和直径决定哪些对象可以获得条形码。"
-    },
-    {
-      "key": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source": "Where the sequencing tiles are read from and where the results are written: the folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
-      "source_sha256": "2d632298c8e3c97043fb1f161a194b3c5e6fa6dc68fd7f90f91fb1ef7499749a",
-      "table": "categories",
-      "translation": "测序图块从哪里读取、结果写到哪里：在其中（包括子文件夹）搜索按放大倍数、循环、孔、通道和位点命名的图块的文件夹，以及接收 measurements.db 和每个孔一份报告的文件夹。请先设置这些；其他所有 OPS 组都假定它们是正确的。"
-    },
-    {
       "key": "ops",
       "source": "For optical pooled screening: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes.",
       "source_sha256": "539fa683cc14ffa515e0cdf74cc668b627e3ded690ce1e7c93e8d005ee2c757e",
@@ -56,13 +42,6 @@
       "source_sha256": "9b15079d7bd2a45b52a9cba5a0f258c49bdf3493038594d07548e32807514af7",
       "table": "setting_tooltips",
       "translation": "存放携带条形码的低倍率测序采集数据的文件夹。其子文件夹也会被搜索，查找命名形如 10X_c1_A1_DAPI-CY3-A594-CY5-CY7_Site-0.tif 的图块：放大倍数、循环、孔、通道和位点。找到的每个孔都会被拼接、分割和解码。默认 None。"
-    },
-    {
-      "key": "ops",
-      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ, and the phenotype images are not placed by this step.",
-      "source_sha256": "1f8582207006c8dbfbf832cdefe10bba563a95fe573a99274da4657f763dc9f6",
-      "table": "setting_tooltips",
-      "translation": "将光学混池筛选的测序采集中的每个孔从图块处理成数据表：拼接其细胞核图块，在整个孔范围内分割并编号细胞核，然后解码每个视野的读段，并为读段一致的每个细胞核分配一个条形码。数据表写入 measurements.db 。读段从图像中解码，而不是从 FASTQ 读取；表型图像不在此步骤中放置。"
     },
     {
       "key": "Show or hide the optical pooled screening page: stitch each well of the sequencing acquisition, segment its nuclei and decode their barcodes. Alpha: two wells of one real plate have been run through it so far.",

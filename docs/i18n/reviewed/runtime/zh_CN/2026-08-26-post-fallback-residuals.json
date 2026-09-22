@@ -1,6 +1,9 @@
 {
   "schema": 1,
   "language": "zh_CN",
+  "review_notes": {
+    "Toxoplasma": "WITHDRAWN 2026-09-19, instruction 364. The maintainer decided that day to retire the `Toxoplasma` setting (\"Retire both\", with `barcodes`): `annotation_source` says everything the switch did, and an old file's value is folded onto it by `spacr.settings._fold_toxoplasma`. The English this record translated is no longer shown anywhere, so the record left `records` -- the runtime loader accepts no `retired` field and refuses a record whose source is gone. It is recorded here rather than deleted in silence. The withdrawn record, verbatim: table setting_tooltips, key Toxoplasma, source_sha256 d840fb1b55ff4c0cf0636de6063915af94ebbd96b93994e2ca4bc43ae7a3229e, translation \"将内置的 Toxoplasma 注释关联到每个导出表，并据此为火山图着色。该注释包括基因名称和产物、信号肽及项目 DeepTMHMM 分析得到的跨膜结构域预测、hyperLOPIT/TAGM 区室、已发表的 CRISPR 适合度评分，以及速殖子、组织囊和 EES1-5 表达数据。各表按基因编号关联，因此 TGGT1 与 TGME49 标识符可以匹配。在结果旁写入 supplementary_topology.csv。对于非 Toxoplasma 筛选，请禁用此设置。已弃用的别名 'toxo' 仍可使用。默认值为 True。\""
+  },
   "records": [
     {
       "table": "setting_labels",
@@ -71,13 +74,6 @@
       "source_sha256": "f18c18bc38584647186a71e233ba8d0f6336e750dd810494b86c43e8da892bd3",
       "source": "Tsne max iter",
       "translation": "Tsne 最大迭代次数"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "Toxoplasma",
-      "source_sha256": "d840fb1b55ff4c0cf0636de6063915af94ebbd96b93994e2ca4bc43ae7a3229e",
-      "source": "Join the bundled Toxoplasma annotation to every exported table and color the volcano plot by it. The annotation includes gene name and product, signal peptide and transmembrane-domain predictions from the project's DeepTMHMM analysis, hyperLOPIT/TAGM compartment, published CRISPR fitness scores, and tachyzoite, tissue-cyst, and EES1-5 expression. Tables are joined by gene number so TGGT1 and TGME49 identifiers match. Writes supplementary_topology.csv beside the results. Disable this setting for non-Toxoplasma screens. The deprecated alias 'toxo' remains accepted. Default True.",
-      "translation": "将内置的 Toxoplasma 注释关联到每个导出表，并据此为火山图着色。该注释包括基因名称和产物、信号肽及项目 DeepTMHMM 分析得到的跨膜结构域预测、hyperLOPIT/TAGM 区室、已发表的 CRISPR 适合度评分，以及速殖子、组织囊和 EES1-5 表达数据。各表按基因编号关联，因此 TGGT1 与 TGME49 标识符可以匹配。在结果旁写入 supplementary_topology.csv。对于非 Toxoplasma 筛选，请禁用此设置。已弃用的别名 'toxo' 仍可使用。默认值为 True。"
     },
     {
       "table": "setting_tooltips",
@@ -204,13 +200,6 @@
       "source_sha256": "ef02792160d80d6e99c0d9a3c3fce82e109bd87eab3a6a6033a4648e6a95f287",
       "source": "Maximum number of area bins in the endodyogeny histogram. None derives the bin count from the data range and min_area_bin; an integer truncates the range so that the largest objects are pooled into the final bin. Set an integer when plates with different size ranges must share one axis. Default None.",
       "translation": "内出芽生殖直方图的最大面积分箱数。None 根据数据范围和 min_area_bin 推导分箱数；整数会截断范围，使最大的对象归入最后一个分箱。当大小范围不同的微孔板必须共用一个坐标轴时，请设置整数。默认值为 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "metadata_type",
-      "source_sha256": "2a899e331af995e1a79eaed7cf624ae8934cb36d6422e5634769a93dd6bb7e3d",
-      "source": "Filename convention used to parse raw images. 'cellvoyager' (default) and 'cq1' use built-in regular expressions, 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders.",
-      "translation": "用于解析原始图像的文件名约定。'cellvoyager'（默认）和 'cq1' 使用内置正则表达式，'custom' 使用 custom_regex，'auto' 则在解析前先将文件夹重命名为 Yokogawa 命名格式（若提供 custom_regex 则使用它，否则自动检测）。错误的约定可能误分配微孔板、孔、视野或通道标识符，并将图像放入错误的通道文件夹。"
     },
     {
       "table": "setting_tooltips",

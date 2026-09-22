@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "translation": "포인터가 활성화된 컨트롤 위에 머물면 더 조용한 뜯는 소리가 납니다. 포인터가 멈출 때까지 기다린 뒤 소리를 내고 잠시 쉬므로, 패널을 가로질러 이동할 때 소리가 연달아 나지 않습니다. 여기서 직접 켜기 전에는 꺼져 있습니다.",
+      "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca"
+    },
+    {
+      "table": "ui",
+      "key": "An install is still running",
+      "source": "An install is still running",
+      "translation": "설치가 계속 진행되고 있습니다.",
+      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8"
+    },
+    {
+      "table": "ui",
+      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "translation": "다른 설치가 아직 진행 중입니다. 완료될 때까지 기다리거나 표시 아래의 Cancel을 누르세요.",
+      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f"
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "translation": "활성화한 범위 조건을 화면의 마스크에 적용합니다. 제거된 모든 객체가 판단에 사용한 면적 및 평균 강도와 함께 아래에 표시됩니다. 한 번의 실행 취소로 되돌릴 수 있습니다.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284"
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "translation": "최대:",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf"
+    },
+    {
+      "table": "ui",
+      "key": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "translation": "이 모델을 학습시킨 데이터 폴더를 첨부합니다. 하나의 tar 파일로 묶어 체크포인트 옆에 업로드합니다. 큰 폴더는 묶고 업로드하는 데 오래 걸리며, 한도는 약 25 GB입니다.",
+      "source_sha256": "e809ad3fd8d8a417b00c30eae3e1cd7e3e030ae15d01341249b7621269ef6103"
+    },
+    {
+      "table": "ui",
+      "key": "Building the index…",
+      "source": "Building the index…",
+      "translation": "인덱스 생성 중…",
+      "source_sha256": "c2b8a7dd762f096d53c65a9ed94c5c96869156ecddd8c9f2f3318c4e42739572"
+    },
+    {
+      "table": "ui",
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "translation": "취소되었습니다. 남은 파일은 없습니다.",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d"
+    },
+    {
+      "table": "ui",
+      "key": "Channels",
+      "source": "Channels",
+      "translation": "채널",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a database or a folder first",
+      "source": "Choose a database or a folder first",
+      "translation": "먼저 데이터베이스나 폴더를 선택하세요",
+      "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of crop PNGs",
+      "source": "Choose a folder of crop PNGs",
+      "translation": "크롭 PNG가 있는 폴더 선택",
+      "source_sha256": "f1ae9bf598a7536fe83f1edbee984350599a29decf82c1224e3b4097c381eb82"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "translation": "위에서 측정 데이터베이스나 크롭 PNG가 있는 폴더를 선택한 다음 Load crops를 누르세요. 데이터베이스에서는 객체 클래스 하나, 플레이트 하나, 또는 열에서 지원하는 조건으로 범위를 좁힐 수 있습니다.",
+      "source_sha256": "3bbbcf831239864e884a879bd8b086625e2b508286de9e30c68241a71c50c492"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs first.",
+      "source": "Choose a measurements database or a folder of crop PNGs first.",
+      "translation": "먼저 측정 데이터베이스나 크롭 PNG가 있는 폴더를 선택하세요.",
+      "source_sha256": "f02e2721214ef384ce35edfb28538a2ec4eb29a6254a9f8323cf54e88c61f50c"
+    },
+    {
+      "table": "ui",
+      "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "translation": "채널 인코딩 방법을 선택한 다음 Embed를 누르세요. 표에 각 객체의 임베딩에서 처음 몇 개 차원의 값이 표시됩니다.",
+      "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b"
+    },
+    {
+      "table": "ui",
+      "key": "Choose music for the bed",
+      "source": "Choose music for the bed",
+      "translation": "배경 음악 선택",
+      "source_sha256": "45eec11b1ba9a74ff88550860b2cb2a814386796d36eed9bc6ab1225ad5ded09"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "translation": "클릭",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "translation": "임계값으로 분리한 영역에 라벨을 부여하기 전에 내부 구멍을 채웁니다. 이 설정이 없으면 가장자리보다 중앙이 어두운 핵이 고리 모양으로 검출됩니다. 돋보기의 Otsu 모드는 항상 구멍을 채웠지만 Otsu detect는 그러지 않아 같은 시야에서도 결과가 달라질 수 있었습니다. 이제 두 기능 모두 이 확인란의 설정을 사용합니다.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8"
+    },
+    {
+      "table": "ui",
+      "key": "Community uploads are not vetted",
+      "source": "Community uploads are not vetted",
+      "translation": "커뮤니티 업로드는 검증되지 않았습니다",
+      "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f"
+    },
+    {
+      "table": "ui",
+      "key": "Could not fetch {name}: {why}",
+      "source": "Could not fetch {name}: {why}",
+      "translation": "{name} 항목을 가져오지 못했습니다: {why}",
+      "source_sha256": "7623198840ea85fb5df52e279d21b6a54f8d2b451d069bef60d6fec827ea9afa"
+    },
+    {
+      "table": "ui",
+      "key": "Could not file the issue: the reporter would not start.",
+      "source": "Could not file the issue: the reporter would not start.",
+      "translation": "보고 도구를 시작할 수 없어 이슈를 등록하지 못했습니다.",
+      "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8"
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {name}.",
+      "source": "Could not open {name}.",
+      "translation": "{name}을 열 수 없습니다.",
+      "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0"
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {url}",
+      "source": "Could not open {url}",
+      "translation": "{url} 주소를 열 수 없습니다",
+      "source_sha256": "52923734f046f5f34c83f745983c0da3536ed231cb951c80ab89aa0564500f17"
+    },
+    {
+      "table": "ui",
+      "key": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "translation": "이 파일명 규칙으로 읽을 수 있는 소스 폴더의 이미지 이름 수를 세고, 읽을 수 없는 첫 번째 이름을 표시합니다. 어떤 내용도 변경하거나 저장하지 않습니다.",
+      "source_sha256": "8b9b5e482a8ef174411e0cedabdedbb082b748f9be3fdf40ae8841a9addc3b83"
+    },
+    {
+      "table": "ui",
+      "key": "Create a GitHub account",
+      "source": "Create a GitHub account",
+      "translation": "GitHub 계정 만들기",
+      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
+    },
+    {
+      "table": "ui",
+      "key": "Crops could not be loaded",
+      "source": "Crops could not be loaded",
+      "translation": "크롭을 불러오지 못했습니다",
+      "source_sha256": "43507e598078de1d2e4bb832761c216589c912922af7e77927bab4a79d48c518"
+    },
+    {
+      "table": "ui",
+      "key": "Crops from:",
+      "source": "Crops from:",
+      "translation": "크롭 출처:",
+      "source_sha256": "934c8569d887385d17ba8bf7a6ef90581317964142f35763b779de07ef08396a"
+    },
+    {
+      "table": "ui",
+      "key": "Curve",
+      "source": "Curve",
+      "translation": "곡선",
+      "source_sha256": "2a45c07314b2cd56907c7df9dfabdadd2ed17521161b53292cf146ea6c45dc85"
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "translation": "중심이 두 개인 덩어리를 두 중심 사이의 경계에서 둘로 나눕니다. 배경까지의 거리값에 워터셰드를 적용합니다. 중심이 하나인 덩어리는 그대로 유지하므로 모든 객체를 무조건 나누는 기능은 아닙니다. 끄면 서로 맞닿은 세포 한 쌍이 하나의 객체로 검출됩니다.",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751"
+    },
+    {
+      "table": "ui",
+      "key": "Deep water",
+      "source": "Deep water",
+      "translation": "깊은 물",
+      "source_sha256": "97c373b8cd487210fc0e6cf4636ded5e7cf7bc1648c96953b431e7176542e7de"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "translation": "선택한 백엔드의 환경과 그 안에 다운로드한 모든 항목을 삭제합니다. spaCR 자체 환경은 변경하지 않습니다.",
+      "source_sha256": "bd59941dd8e4a85e42ffd4fb8c08afdeba2e024163d49831539a95fadfbdd623"
+    },
+    {
+      "table": "ui",
+      "key": "Dilate",
+      "source": "Dilate",
+      "translation": "팽창",
+      "source_sha256": "2e3e332f6015c3f2a2fa376605346790d166fa3f452d817da819a1882d4ab136"
+    },
+    {
+      "table": "ui",
+      "key": "Discard",
+      "source": "Discard",
+      "translation": "버리기",
+      "source_sha256": "eb1a70e39274bb762b5d7c1adb5debeea2b05e12af28207f21a375b596853273"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed",
+      "source": "Download failed",
+      "translation": "다운로드 실패",
+      "source_sha256": "eae34ccbc4432c1358da668b091e7c952fe8be24b02dd4f8ec5ea2edef5ca1a4"
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "translation": "Plaque Analysis용 예제 시야 10개를 다운로드하고 src를 해당 위치로 설정합니다. 플라크 모델 학습에 사용한 분할된 플라크 시야와 파이프라인 입력으로 사용하는 전체 플레이트 그림 중 하나를 선택할 수 있습니다. 첫 다운로드 후에는 캐시에 저장됩니다.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}?",
+      "source": "Download {name}?",
+      "translation": "{name} 항목을 다운로드할까요?",
+      "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}{size} into {folder}?",
+      "source": "Download {name}{size} into {folder}?",
+      "translation": "{name}{size} 항목을 {folder} 폴더에 다운로드할까요?",
+      "source_sha256": "e8f0bb5d5edb9bfc4290a5d57ead97f3b746f4768e306d90f9efb4b6dbe140f0"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded {name}, but the folder would not open",
+      "source": "Downloaded {name}, but the folder would not open",
+      "translation": "{name} 항목을 다운로드했지만 폴더를 열 수 없습니다",
+      "source_sha256": "598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}",
+      "source": "Downloading {name}",
+      "translation": "{name} 다운로드 중",
+      "source_sha256": "61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name} in the background.",
+      "source": "Downloading {name} in the background.",
+      "translation": "백그라운드에서 {name} 항목을 다운로드하고 있습니다.",
+      "source_sha256": "f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b"
+    }
+  ]
+}

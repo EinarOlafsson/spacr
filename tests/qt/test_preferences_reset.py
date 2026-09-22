@@ -39,10 +39,10 @@ def private_store(monkeypatch):
 # 1. What a fresh install resolves to
 # ---------------------------------------------------------------------------
 
-def test_a_fresh_install_follows_the_system_theme(private_store, qapp):
+def test_a_fresh_install_is_dark(private_store, qapp):
     from spacr.qt import preferences
 
-    assert preferences.get_theme() == "system"
+    assert preferences.get_theme() == "dark"
 
 
 def test_a_fresh_install_animates_blobs_in_the_spacr_palette(private_store,
@@ -92,7 +92,7 @@ def test_the_reset_button_sits_left_of_cancel(private_store, qtbot):
 def test_reset_restores_the_three_the_user_named(private_store, qtbot):
     from spacr.qt import preferences
 
-    preferences.set_theme_choice("dark")
+    preferences.set_theme_choice("light")
     preferences.set_ambient_animation("aurora")
     preferences.set_ambient_palette("ocean")
 
@@ -100,7 +100,10 @@ def test_reset_restores_the_three_the_user_named(private_store, qtbot):
     dialog.findChild(QPushButton, "PreferencesReset").click()
 
     chosen = [combo.currentData() for combo in dialog.findChildren(QComboBox)]
-    assert "system" in chosen, "the theme did not go back to Follow system"
+    theme_combo = next(combo for combo in dialog.findChildren(QComboBox)
+                       if combo.findData("glass") >= 0)
+    assert theme_combo.currentData() == "dark", (
+        "the theme did not go back to Dark")
     assert "blobs" in chosen, "the animation did not go back to blobs"
     assert "spacr" in chosen, "the palette did not go back to spaCR"
     assert "aurora" not in chosen and "ocean" not in chosen

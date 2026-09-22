@@ -282,8 +282,8 @@ def test_real_google_style_helpers_render_both_parameter_contracts(tmp_path):
     assert parameters, "Google Args must render as a real parameter field list"
     text = " ".join(body.get_text(" ", strip=True).split())
     assert "filename" in text
-    assert "opened and validated" in text
-    assert "Only existence is checked" in text
+    assert "validated by its header and length" in text
+    assert "generated again" in text
 
 
 def test_source_default_expressions_survive_the_sphinx_signature_parser(built_site):

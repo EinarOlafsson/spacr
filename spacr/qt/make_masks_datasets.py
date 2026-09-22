@@ -1,0 +1,653 @@
+"""A sample of every dataset spaCR has a model for, one dialog away in Make Masks.
+
+Make Masks offers several datasets to choose from: a small sample of each dataset a
+published model was trained on, fetched from Hugging Face.
+
+The "Load test data…" example set gives Make Masks ONE dataset -- ten Toxoplasma vacuole
+fields. This is that idea for the rest of the zoo: every published model was trained on a
+dataset that is already on Hugging Face, and a user who wants to see what a model was
+taught should be able to open ten of its fields without knowing a repository name.
+
+NO NEW REPOSITORIES, AND NO ARCHIVES. The example set is a purpose-built repo with a
+single tar. The training datasets are not: they are 556 to 6,062 files of `images/` and
+`masks/`, and nobody is downloading 3,029 fields to look at ten. Each sample is fetched
+FILE BY FILE with `hf_hub_download`, which is why :data:`MASK_DATASETS` carries the two
+folder names per repo rather than assuming them -- `cross-channel-toxoplasma-from-cellmask`
+calls its masks `masks_pv`, and assuming `masks` would have given ten images and no
+labels with no error to explain it.
+
+WHICH FIELDS. A random draw in which every field of the dataset has the same chance
+-- the first N by name are the first plate
+of the first domain, which is not the dataset. SEEDED by the dataset key, so the draw is
+the same on every machine: a sample that changes between two people's machines is a
+sample nobody can talk about -- "the third field looks wrong" has to mean the same field
+for both of them. A dataset with a quota draws that way within each domain.
+
+THE LAYOUT IS MAKE MASKS' OWN: images at the top of the folder, masks in `masks/`
+beneath them, which is what `curation_queue.detect_layout` calls `nested` and the layout
+spaCR uses everywhere. So a sample opens for EDITING, with the published masks as the
+drafts -- deliberately unlike the example set, which hides its truth in
+`ground_truth_masks/` so the fields open raw. Those are two different jobs: the example
+set is "try segmenting this", and a training-dataset sample is "look at what the model
+was taught".
+
+THE WELL-DETECTOR DATASET IS NOT HERE. `toxoplasma-plaque-well-detector-dataset` has
+`images/` and `labels/`, and those labels are YOLO bounding boxes. A box is not a mask
+and Make Masks would open every field blank.
+"""
+from __future__ import annotations
+
+import hashlib
+import logging
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Callable, Dict, List, Optional, Tuple
+
+from PySide6.QtCore import QObject, Qt, Signal
+from PySide6.QtWidgets import (QDialog, QDialogButtonBox, QLabel, QListWidget,
+                               QListWidgetItem, QVBoxLayout)
+
+from .i18n import tr
+
+LOG = logging.getLogger(__name__)
+
+#: How many fields a sample holds. Ten matches the example set and there is no reason
+#: to differ; it is enough to see a domain and small enough to fetch over a hotel wifi.
+SAMPLE_SIZE = 10
+
+#: How samples are drawn, in the cache folder's name: a seeded random draw
+#: over the whole dataset, or within each domain of a quota. Samples cached
+#: under an older rule (such as first-N by name) sit under other names and
+#: are not reopened.
+SAMPLE_RULE = "random2"
+
+#: The smallest share of a sample that must show something: at least 80% of
+#: the fields drawn carry objects, at most 20% are negatives.
+FOREGROUND_SHARE = 0.8
+
+
+@dataclass(frozen=True)
+class MaskDataset:
+    """One published dataset, and how to take a sample of it.
+
+    :ivar key: the stable name this is stored and tested under.
+    :ivar title: what the picker shows.
+    :ivar repo: the Hugging Face dataset repository.
+    :ivar images: the folder inside it holding the fields.
+    :ivar masks: the folder holding their labels. NOT assumed to be "masks".
+    :ivar model: the model this dataset trained, for the line under the title.
+    :ivar note: what a reader should know before opening it.
+    :ivar apps: which modules offer this set. A dataset belongs to the module whose
+        job it illustrates, and the plaque sets belong to two -- Make Masks, where a
+        curator edits the masks, and Plaque Analysis, where the pipeline runs on them.
+    :ivar quota: how many fields to take from each domain, as ``(domain, count)``,
+        a domain being the ``<domain>__`` prefix of a file name. Empty means
+        :data:`SAMPLE_SIZE` fields from the whole set.
+    :ivar counts: where the repository says which fields have objects: a CSV
+        with an ``n_objects`` column keyed by ``stem`` or ``name``, or
+        ``labels/`` for a YOLO set, whose empty label files are the images
+        with nothing in them. Read by :func:`foreground_stems`.
+    :ivar foreground_share: the smallest share of the sample that must show
+        objects; :data:`FOREGROUND_SHARE` unless the set says otherwise.
+    :ivar pool: a CSV in ``spacr/resources/data`` whose ``filename`` column
+        lists the only fields the sample may be drawn from; empty draws from
+        the whole folder. The plaque figures use it for what the repository
+        does not record -- which figures are high resolution.
+    :ivar revision: added to the cache folder's name when this set's draw
+        changes, so a sample drawn the old way is not reopened as the new one.
+    """
+
+    key: str
+    title: str
+    repo: str
+    images: str
+    masks: str
+    model: str
+    note: str = ""
+    apps: Tuple[str, ...] = ("mask",)
+    quota: Tuple[Tuple[str, int], ...] = ()
+    counts: str = ""
+    foreground_share: float = FOREGROUND_SHARE
+    pool: str = ""
+    revision: str = ""
+
+    @property
+    def size(self) -> int:
+        """How many fields a complete sample of this dataset holds."""
+        return sum(n for _d, n in self.quota) if self.quota else SAMPLE_SIZE
+
+
+MASK_DATASETS: Tuple[MaskDataset, ...] = (
+    MaskDataset(
+        key="toxoplasma_pv",
+        title="Toxoplasma parasitophorous vacuoles",
+        repo="einarolafsson/toxoplasma-pv-segmentation-dataset",
+        images="images", masks="masks",
+        model="cpsam_v2_toxo (PV segmentation)",
+        note="556 merged fluorescence fields, curated twice in September 2026.",
+        counts="fields.csv"),
+    MaskDataset(
+        key="toxoplasma_plaque",
+        title="Toxoplasma plaque assays",
+        repo="einarolafsson/toxoplasma-plaque-dataset",
+        images="images", masks="masks",
+        model="cpsam_plaque_r5 (plaque segmentation)",
+        note="20 of the 488 curated v5 fields that trained cpsam_plaque_r5: 8 patrick, "
+             "4 bigbean, 4 malnio, 4 literature. The objects are plaques, not cells.",
+        apps=("mask", "analyze_plaques"),
+        quota=(("patrick", 8), ("bigbean", 4), ("malnio", 4), ("literature", 4)),
+        counts="manifest.csv"),
+    MaskDataset(
+        key="plaque_figures",
+        title="Plaque assay figures, whole plates",
+        repo="einarolafsson/toxoplasma-plaque-well-detector-dataset",
+        images="images/train", masks="",
+        model="yolo well detector, then cpsam_plaque",
+        note="High-resolution whole figures (longer side 1,500 px or more) from "
+             "the well detector's TRAINING split, every one with plaque wells on "
+             "it: what the Plaque Analysis pipeline takes as input -- find the "
+             "wells, read the text, then segment.",
+        apps=("analyze_plaques",),
+        counts="labels/train/",
+        foreground_share=1.0,
+        pool="plaque_figures_sample_pool.csv",
+        revision="-train-wells-hires"),
+    MaskDataset(
+        key="live_cell",
+        title="Live cells: phase contrast, brightfield and DIC",
+        repo="einarolafsson/live-cell-segmentation-dataset",
+        images="images", masks="masks",
+        model="live_cell_v1 (transmitted-light cell segmentation)",
+        note="10 of 11,007 fields from 14 public datasets, drawn across all three "
+             "modalities: 5 phase, 3 brightfield, 2 DIC.",
+        quota=(("livecell_phase", 2), ("deepsea_phase", 2), ("qpi_phase_adherent", 1),
+               ("yeaz_brightfield", 1), ("yeast_microstructures_brightfield", 1),
+               ("ctc_bf_musc_brightfield", 1), ("bbbc030_dic", 1), ("ctc_dic_hela", 1)),
+        counts="splits.csv"),
+    MaskDataset(
+        key="cell_from_hoechst",
+        title="Cross-channel: cell from Hoechst",
+        repo="einarolafsson/cross-channel-cell-from-hoechst",
+        images="images", masks="masks",
+        model="cross-channel-cell-from-hoechst",
+        note="A nuclear stain in, a whole-cell mask out.",
+        counts="fields.csv"),
+    MaskDataset(
+        key="nuclei_from_cellmask",
+        title="Cross-channel: nuclei from CellMask",
+        repo="einarolafsson/cross-channel-nuclei-from-cellmask",
+        images="images", masks="masks",
+        model="cross-channel-nuclei-from-cellmask",
+        note="A whole-cell stain in, nuclei out.",
+        counts="fields.csv"),
+    MaskDataset(
+        key="toxoplasma_from_cellmask",
+        title="Cross-channel: Toxoplasma from CellMask",
+        repo="einarolafsson/cross-channel-toxoplasma-from-cellmask",
+        images="images", masks="masks_pv",
+        model="cross-channel-toxoplasma-from-cellmask",
+        note="Its masks folder is masks_pv, not masks.",
+        counts="fields.csv"),
+)
+
+DATASETS_BY_KEY: Dict[str, MaskDataset] = {d.key: d for d in MASK_DATASETS}
+
+
+def datasets_for(app_key: str) -> Tuple[MaskDataset, ...]:
+    """The sets a given module offers.
+
+    :param app_key: the module, e.g. ``mask`` or ``analyze_plaques``.
+    :returns: its datasets, in registry order.
+    """
+    return tuple(d for d in MASK_DATASETS if app_key in d.apps)
+
+
+def examples_root() -> Path:
+    """Where spaCR keeps downloaded example data.
+
+    The same ``~/.cache/spacr/example_data`` that the example set unpacks beside, so a
+    user who clears one clears both and there is one place to look.
+
+    :returns: the folder. It is not created here.
+    """
+    return Path.home() / ".cache" / "spacr" / "example_data"
+
+
+def sample_folder(root, dataset: MaskDataset) -> Path:
+    """Where ``dataset``'s sample is cached.
+
+    :param root: the folder example data is kept in.
+    :param dataset: the dataset.
+    :returns: ``<root>/mask_datasets/<key>_<rule>``, the rule naming how the
+        sample was drawn, so a copy drawn under an older rule is never opened
+        as if it were this one.
+    """
+    return (Path(root) / "mask_datasets"
+            / f"{dataset.key}_{SAMPLE_RULE}{dataset.revision}")
+
+
+def is_present(folder, expected: int = SAMPLE_SIZE) -> bool:
+    """Whether a complete sample is already unpacked in ``folder``.
+
+    A half-downloaded sample reads as ABSENT, which is the answer that fetches the rest
+    of it rather than opening a folder with four fields in it and saying nothing.
+
+    :param folder: the sample folder.
+    :param expected: how many pairs a complete sample has.
+    :returns: whether that many image/mask pairs are there.
+    """
+    folder = Path(folder)
+    if not folder.is_dir():
+        return False
+    images = [p for p in sorted(folder.iterdir())
+              if p.is_file() and p.suffix.lower() in (".tif", ".tiff", ".png", ".jpg")]
+    masks = folder / "masks"
+    if not masks.is_dir():
+        return len(images) >= expected
+    paired = [p for p in images if (masks / f"{p.stem}.tif").is_file()
+              or (masks / p.name).is_file()]
+    return len(paired) >= expected
+
+
+def _random_pick(stems: List[str], count: int, seed: str) -> List[str]:
+    """``count`` stems drawn at random, each with the same chance, reproducibly.
+
+    Every field in the dataset has the same chance to be included. The first
+    N by name are the first plate of the first domain, which is not
+    the dataset. The draw is seeded by ``seed`` -- the dataset key and the
+    domain -- so two machines, and two openings on one, get the same sample.
+
+    :param stems: every candidate stem.
+    :param count: how many to take.
+    :param seed: what the draw is seeded with.
+    :returns: the picked stems, sorted.
+    """
+    import random
+
+    pool = sorted(stems)
+    if count >= len(pool):
+        return pool
+    digest = hashlib.sha256(seed.encode("utf-8")).hexdigest()
+    return sorted(random.Random(int(digest[:16], 16)).sample(pool, count))
+
+
+def foreground_stems(dataset: MaskDataset, *, download: Optional[Callable] = None,
+                     tree: Optional[Callable] = None) -> Optional[set]:
+    """The stems of the fields that have at least one object, or ``None``.
+
+    :param dataset: the dataset, whose :attr:`MaskDataset.counts` says where
+        to look.
+    :param download: ``fn(repo, filename) -> local path``; defaults to
+        :func:`huggingface_hub.hf_hub_download`.
+    :param tree: ``fn(repo, folder) -> [(path, size)]``; defaults to
+        :meth:`huggingface_hub.HfApi.list_repo_tree`.
+    :returns: the stems, or ``None`` when the dataset says nothing, in which
+        case every field is treated alike.
+    """
+    import csv
+
+    if not dataset.counts:
+        return None
+    if dataset.counts.endswith("/"):
+        if tree is None:
+            from huggingface_hub import HfApi
+
+            def tree(repo, folder):
+                """List ``folder`` of ``repo`` as ``[(path, size)]``, files only."""
+                return [(t.path, getattr(t, "size", 0)) for t in
+                        HfApi().list_repo_tree(repo, path_in_repo=folder,
+                                               repo_type="dataset", recursive=True)
+                        if hasattr(t, "size")]
+        return {Path(path).stem for path, size in tree(dataset.repo,
+                                                       dataset.counts.rstrip("/"))
+                if size}
+    if download is None:
+        from huggingface_hub import hf_hub_download
+
+        def download(repo, filename):
+            """Fetch ``filename`` from dataset ``repo`` and return its local path."""
+            return hf_hub_download(repo, filename, repo_type="dataset")
+    out = set()
+    with open(download(dataset.repo, dataset.counts), newline="",
+              encoding="utf-8") as handle:
+        for row in csv.DictReader(handle):
+            try:
+                n = float(row.get("n_objects") or 0)
+            except ValueError:
+                continue
+            stem = (row.get("stem") or row.get("name") or "").strip()
+            if n > 0 and stem:
+                out.add(Path(stem).stem if stem.endswith((".tif", ".png")) else stem)
+    return out
+
+
+def _mostly_foreground(stems: List[str], count: int, seed: str,
+                       foreground: Optional[set],
+                       share: float = FOREGROUND_SHARE) -> List[str]:
+    """``count`` stems at random, at least ``share`` of them with objects.
+
+    :param stems: the candidates.
+    :param count: how many to take.
+    :param seed: the draw's seed.
+    :param foreground: stems that have objects; ``None`` draws from all alike.
+    :param share: the smallest share with objects. At 1.0 no empty field is
+        taken even when too few have objects to fill the sample.
+    :returns: the picked stems, sorted.
+    """
+    import math
+
+    if foreground is None:
+        return _random_pick(stems, count, seed)
+    positive = [s for s in stems if s in foreground]
+    negative = [s for s in stems if s not in foreground]
+    want_positive = min(len(positive), math.ceil(share * count))
+    want_negative = (0 if share >= 1.0
+                     else min(len(negative), count - want_positive))
+    want_positive = min(len(positive), count - want_negative)
+    return sorted(_random_pick(positive, want_positive, seed + "/fg")
+                  + _random_pick(negative, want_negative, seed + "/bg"))
+
+
+def pool_stems(dataset: MaskDataset) -> Optional[set]:
+    """The stems a sample may be drawn from, when the dataset names a pool.
+
+    Written by ``tools/build_plaque_figure_sample_pool.py``, which measures
+    what the repository does not record.
+
+    :param dataset: the dataset.
+    :returns: the stems, or None when every field may be drawn.
+    """
+    import csv
+
+    if not dataset.pool:
+        return None
+    path = Path(__file__).resolve().parent.parent / "resources" / "data" / dataset.pool
+    with open(path, newline="", encoding="utf-8") as handle:
+        return {Path(row["filename"]).stem for row in csv.DictReader(handle)
+                if row.get("filename")}
+
+
+def choose_sample(dataset: MaskDataset, listing: List[str],
+                  size: int = SAMPLE_SIZE, *,
+                  foreground: Optional[set] = None) -> List[Tuple[str, str]]:
+    """Pick which files a sample holds, as ``(image path, mask path)`` in the repo.
+
+    A field is only taken when BOTH its image and its mask are in the listing, by stem.
+    Pairing on the stem rather than the full name is what lets a repo store
+    ``images/x.tif`` beside ``masks/x.tif`` or ``masks_pv/x.tif`` and still pair.
+
+    A DATASET WITH NO MASKS FOLDER -- ``masks=""`` -- yields images alone, with an empty
+    mask path. That is the plaque FIGURES set: the Plaque Analysis pipeline takes a
+    figure and finds the wells itself, so there is nothing to pair and demanding a pair
+    would return an empty sample and no reason why.
+
+    :param dataset: which dataset, for its two folder names.
+    :param listing: every path in the repository.
+    :param size: how many pairs to take. Ignored when the dataset has a
+        :attr:`MaskDataset.quota`, which says how many per domain instead.
+    :param foreground: from :func:`foreground_stems`: at least 80% of what is
+        drawn (per domain, with a quota) has objects, at most 20% is empty.
+    :returns: up to ``size`` pairs drawn by :func:`_random_pick`, sorted, the
+        same on every machine.
+    """
+    prefix_i = f"{dataset.images}/"
+    images = {Path(p).stem: p for p in listing if p.startswith(prefix_i)}
+    allowed = pool_stems(dataset)
+    if allowed is not None:
+        images = {stem: p for stem, p in images.items() if stem in allowed}
+    if not dataset.masks:
+        return [(images[stem], "") for stem in
+                _mostly_foreground(list(images), size, dataset.key, foreground,
+                                   dataset.foreground_share)]
+    prefix_m = f"{dataset.masks}/"
+    masks = {Path(p).stem: p for p in listing if p.startswith(prefix_m)}
+    both = sorted(set(images) & set(masks))
+    if dataset.quota:
+        picked: List[str] = []
+        for domain, count in dataset.quota:
+            picked += _mostly_foreground(
+                [s for s in both if s.startswith(f"{domain}__")], count,
+                f"{dataset.key}/{domain}", foreground, dataset.foreground_share)
+        return [(images[stem], masks[stem]) for stem in sorted(picked)]
+    return [(images[stem], masks[stem]) for stem in
+            _mostly_foreground(both, size, dataset.key, foreground,
+                               dataset.foreground_share)]
+
+
+class _SampleWorker(QObject):
+    """Fetch one sample, file by file, off the GUI thread.
+
+    The shared archive worker cannot be reused: these repositories publish no archive,
+    and streaming one tar is a different job from fetching twenty small files. What is
+    kept the same is the SIGNAL SHAPE, so the existing progress dialog drives this
+    without knowing which kind of worker it has.
+    """
+
+    progress = Signal(str, int, int)
+    info = Signal(str)
+    finished = Signal(bool, str, str, str)
+
+    def __init__(self, dataset: MaskDataset, dest: Path, parent=None) -> None:
+        """Remember what to fetch and where to put it.
+
+        :param dataset: the dataset to sample.
+        :param dest: the sample folder; masks go in its ``masks/``.
+        :param parent: the Qt parent, if any.
+        """
+        super().__init__(parent)
+        self.dataset = dataset
+        self.dest = Path(dest)
+        self._cancelled = False
+
+    def cancel(self) -> None:
+        """Ask the fetch to stop before its next field."""
+        self._cancelled = True
+
+    def run(self) -> None:
+        """Choose the sample and download its image/mask pairs into ``dest``.
+
+        Lists the repository, draws the sample with :func:`choose_sample` (favouring
+        fields with objects when :func:`foreground_stems` can say which), then fetches
+        each pair, skipping files already present. Emits ``progress`` per field and
+        ``finished(ok, folder, "", error)`` once, on success, failure or cancel.
+        """
+        try:
+            from huggingface_hub import HfApi, hf_hub_download
+        except Exception as exc:                                  # noqa: BLE001
+            self.finished.emit(False, "", "", f"huggingface_hub is missing: {exc}")
+            return
+        try:
+            listing = HfApi().list_repo_files(self.dataset.repo, repo_type="dataset")
+        except Exception as exc:                                  # noqa: BLE001
+            self.finished.emit(False, "", "", str(exc))
+            return
+        try:
+            foreground = foreground_stems(self.dataset)
+        except Exception as exc:                                  # noqa: BLE001
+            LOG.warning("could not read which fields of %s have objects (%s); "
+                        "the sample is drawn from all fields alike",
+                        self.dataset.repo, exc)
+            foreground = None
+        pairs = choose_sample(self.dataset, list(listing), foreground=foreground)
+        if not pairs:
+            self.finished.emit(
+                False, "", "",
+                f"{self.dataset.repo} has no image/mask pairs under "
+                f"{self.dataset.images}/ and {self.dataset.masks}/")
+            return
+        masks_dir = self.dest / "masks"
+        (masks_dir if self.dataset.masks else self.dest).mkdir(
+            parents=True, exist_ok=True)
+        for i, (image, mask) in enumerate(pairs, 1):
+            if self._cancelled:
+                self.finished.emit(False, "", "", "cancelled")
+                return
+            self.progress.emit(Path(image).name, i, len(pairs))
+            try:
+                wanted = [(image, self.dest / Path(image).name)]
+                if mask:
+                    wanted.append((mask, masks_dir / Path(mask).name))
+                for remote, local in wanted:
+                    if local.is_file():
+                        continue
+                    got = hf_hub_download(self.dataset.repo, remote,
+                                          repo_type="dataset")
+                    local.write_bytes(Path(got).read_bytes())
+            except Exception as exc:                              # noqa: BLE001
+                self.finished.emit(False, "", "", f"{Path(image).name}: {exc}")
+                return
+        self.finished.emit(True, str(self.dest), "", "")
+
+
+class DatasetPicker(QDialog):
+    """The dataset list: one row per dataset, with what it is.
+
+    A dialog rather than a dropdown on the toolbar, because each row needs two lines --
+    a title a user recognises and the model it trained -- and a dropdown gives one.
+    """
+
+    def __init__(self, parent=None, datasets=MASK_DATASETS) -> None:
+        """Build the dialog with one row per dataset, the first selected.
+
+        :param parent: the Qt parent.
+        :param datasets: the datasets to list.
+        """
+        super().__init__(parent)
+        self.setWindowTitle(tr("Open a sample of a training dataset"))
+        self.setMinimumWidth(520)
+        self._datasets = tuple(datasets)
+        column = QVBoxLayout(self)
+        blurb = QLabel(tr(
+            "Ten fields of the dataset a published model was trained on, with the "
+            "masks it was taught. They open for editing, so what you see is what the "
+            "model saw."), self)
+        blurb.setWordWrap(True)
+        column.addWidget(blurb)
+        self._list = QListWidget(self)
+        for dataset in self._datasets:
+            item = QListWidgetItem(f"{dataset.title}\n{dataset.model}", self._list)
+            item.setData(Qt.UserRole, dataset.key)
+            if dataset.note:
+                item.setToolTip(dataset.note)
+        self._list.setCurrentRow(0)
+        self._list.itemDoubleClicked.connect(lambda _i: self.accept())
+        column.addWidget(self._list, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Open | QDialogButtonBox.Cancel,
+                                   parent=self)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        column.addWidget(buttons)
+
+    def chosen(self) -> Optional[MaskDataset]:
+        """The dataset that is selected, or None."""
+        item = self._list.currentItem()
+        if item is None:
+            return None
+        return DATASETS_BY_KEY.get(item.data(Qt.UserRole))
+
+
+def install_dataset_button(screen, app_key: str = "mask", use=None):
+    """Build Make Masks' "Training datasets…" button, wired to ``screen``.
+
+    It sits beside the example set's "Load test data…" rather than replacing it. The two
+    answer different questions: that one gives raw fields to segment, this one gives
+    fields WITH the masks a published model was trained on.
+
+    :param screen: the Make Masks screen the sample opens in.
+    :returns: the button, for the caller to place.
+    """
+    from PySide6.QtWidgets import QPushButton
+
+    button = QPushButton(tr("Training datasets…"), screen)
+    button.setCursor(Qt.PointingHandCursor)
+    button.setToolTip(tr(
+        "Open a sample of the dataset a published model was trained on, with its "
+        "masks, and edit them here. One entry per model in the zoo. Cached after the "
+        "first download."))
+    button.clicked.connect(
+        lambda _checked=False: open_a_training_dataset(screen, app_key=app_key,
+                                                       use=use))
+    screen._btn_training_datasets = button
+    return button
+
+
+def _say(screen, text: str) -> None:
+    """Put ``text`` on the screen's status line, if it has one."""
+    label = getattr(screen, "_status_label", None)
+    if label is not None:
+        label.setText(text)
+
+
+def open_a_training_dataset(screen, *, pick=None, fetch=None, root=None,
+                            app_key: str = "mask", use=None) -> bool:
+    """Ask which dataset, fetch a sample if it is not cached, and open it.
+
+    A cached sample opens at once with no request. Otherwise the fetch runs on a worker
+    thread behind the shared progress dialog and the folder opens when it lands.
+
+    :param screen: the Make Masks screen to open in.
+    :param pick: replaces the dialog, for tests. Called as ``pick(screen)`` and returns
+        a :class:`MaskDataset` or None.
+    :param fetch: replaces the download, for tests. Called as
+        ``fetch(screen, dataset, folder, on_done)``.
+    :param root: where samples are cached; defaults to the example-data folder.
+    :param app_key: which module is asking, so the picker offers its sets.
+    :param use: what to DO with the folder, as ``use(folder) -> bool``. Make Masks
+        opens it in the editor; Plaque Analysis points its ``src`` at it instead. The
+        default calls ``screen._open_folder``, which is Make Masks' own.
+    :returns: whether a folder was opened synchronously. A download that has to run
+        returns False and opens later, which is what a caller can check.
+    """
+    dataset = (pick or (lambda s: _ask_which(s, app_key)))(screen)
+    if dataset is None:
+        return False
+    if root is None:
+        root = examples_root()
+    folder = sample_folder(root, dataset)
+    take = use or (lambda path: screen._open_folder(str(path)))
+    if is_present(folder, dataset.size):
+        _say(screen, tr("Opening {name}").format(name=dataset.title))
+        return bool(take(folder))
+
+    _say(screen, tr("Downloading {count} fields of {name}…").format(
+        count=dataset.size, name=dataset.title))
+    button = getattr(screen, "_btn_training_datasets", None)
+    if button is not None:
+        button.setEnabled(False)
+
+    def done(result, error) -> None:
+        """Re-enable the button, then open the fetched folder or report why not."""
+        if button is not None:
+            button.setEnabled(True)
+        if result is None or error:
+            _say(screen, tr("Could not fetch {name}: {why}").format(
+                name=dataset.title, why=error or tr("unknown error")))
+            LOG.warning("training dataset %s failed: %s", dataset.key, error)
+            return
+        if not take(folder):
+            _say(screen, tr("Downloaded {name}, but the folder would not open")
+                 .format(name=dataset.title))
+            return
+        _say(screen, tr("{name}: {count} fields and the masks the model was trained on")
+             .format(name=dataset.title, count=dataset.size))
+
+    (fetch or _fetch_sample)(screen, dataset, folder, done)
+    return False
+
+
+def _ask_which(screen, app_key: str = "mask") -> Optional[MaskDataset]:
+    """Show the picker and return what was chosen, or None."""
+    dialog = DatasetPicker(screen, datasets_for(app_key))
+    if dialog.exec() != QDialog.Accepted:
+        return None
+    return dialog.chosen()
+
+
+def _fetch_sample(screen, dataset: MaskDataset, folder: Path, on_done) -> None:
+    """Run :class:`_SampleWorker` behind the shared progress dialog."""
+    from .hf_download import download_toxo_mito_demo
+
+    download_toxo_mito_demo(
+        screen, Path(folder), on_done,
+        worker_factory=lambda dest: _SampleWorker(dataset, dest),
+        title=tr("Downloading {name}").format(name=dataset.title))

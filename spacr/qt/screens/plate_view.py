@@ -76,6 +76,9 @@ from ..bridge import make_thread
 from ..linked_selection import LinkedView
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
+from ..widgets.measurements_example import (
+    EXAMPLE_MEASUREMENT, install_test_data_button,
+)
 from .db_browser import resolve_db_path
 
 __all__ = [
@@ -525,6 +528,9 @@ class PlateViewScreen(LinkedView, QWidget):
         src_row.addWidget(self._btn_pick_db)
         src_row.addWidget(self._btn_pick_src)
         src_row.addWidget(self._btn_open)
+        install_test_data_button(
+            self, src_row, self._open_the_example,
+            say=lambda message: self._set_status(message, error=True))
         outer.addLayout(src_row)
 
         pick_row = QHBoxLayout()
@@ -701,6 +707,21 @@ class PlateViewScreen(LinkedView, QWidget):
         """Open whatever path is currently typed in the source box."""
         self.open_database(self._path_edit.text())
 
+    def _open_the_example(self, _folder, database) -> None:
+        """Put the example plate's database in the source box and open it.
+
+        Cell area is drawn as soon as the table's columns arrive, because the
+        column the measurement box would otherwise default to is the object
+        label -- a number, and meaningless as a colour.
+
+        :param _folder: the example plate folder; the database is what opens.
+        :param database: its ``measurements/measurements.db``.
+        """
+        self._measurement_to_render = EXAMPLE_MEASUREMENT
+        self._path_edit.setText(str(database))
+        if not self.open_database(str(database)):
+            self._measurement_to_render = ""
+
     def open_database(self, path: str) -> bool:
         """Open ``path`` read-only and list the tables it holds.
 
@@ -806,6 +827,12 @@ class PlateViewScreen(LinkedView, QWidget):
                 self._value_combo.addItems(columns)
             finally:
                 self._loading = False
+            wanted = getattr(self, "_measurement_to_render", "")
+            self._measurement_to_render = ""
+            if wanted and wanted in columns:
+                self._value_combo.setCurrentText(wanted)
+                self.render_plate()
+                return
             if columns:
                 self._set_status(
                     f"{table}: {len(columns)} numeric column(s). Pick a "

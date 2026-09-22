@@ -1,4 +1,4 @@
-|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| |Source| |Issues| |License| |Preprint| |DOI|
+|Platforms| |Python| |Qt| |Release| |Issues| |Source| |Conda| |PyPI| |Conda Downloads| |PyPI Downloads| |Docs| |Tutorials| |Preprint| |DOI| |Cite| |License| |PyPI rank|
 
 .. |Docs| image:: https://github.com/EinarOlafsson/spacr/actions/workflows/pages/pages-build-deployment/badge.svg
    :target: https://einarolafsson.github.io/spacr/
@@ -16,7 +16,7 @@
    :target: https://github.com/EinarOlafsson/spacr/actions/workflows/tests.yml
    :alt: Conjunto de pruebas
 .. |Qt| image:: https://img.shields.io/badge/GUI-Qt%20%28PySide6%29-41CD52
-   :target: https://einarolafsson.github.io/spacr/
+   :target: https://einarolafsson.github.io/spacr/api/spacr/qt/index.html#module-spacr.qt
    :alt: Interfaz Qt
 .. |Source| image:: https://img.shields.io/badge/GitHub-Source-181717?logo=github
    :target: https://github.com/EinarOlafsson/spacr
@@ -39,10 +39,31 @@
 .. |Conda| image:: https://anaconda.org/conda-forge/spacr/badges/version.svg
    :target: https://anaconda.org/conda-forge/spacr
    :alt: Versión en conda-forge
+.. |Conda Downloads| image:: https://anaconda.org/conda-forge/spacr/badges/downloads.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: Descargas de conda-forge
+.. |Release date| image:: https://anaconda.org/conda-forge/spacr/badges/latest_release_date.svg
+   :target: https://anaconda.org/conda-forge/spacr
+   :alt: Fecha de la última versión en conda-forge
+.. |PyPI Downloads| image:: https://static.pepy.tech/personalized-badge/spacr?period=total&units=INTERNATIONAL_SYSTEM&left_color=GRAY&right_color=GREEN&left_text=downloads
+   :target: https://pepy.tech/projects/spacr
+   :alt: Descargas de PyPI
+.. |Platforms| image:: https://img.shields.io/badge/Platforms-Linux%20%7C%20macOS%20%7C%20Windows-lightgrey
+   :target: https://github.com/EinarOlafsson/spacr/blob/nightly/docs/source/installers.rst
+   :alt: Linux, macOS y Windows
+.. |Cite| image:: https://img.shields.io/badge/Cite-CITATION.cff-8A2BE2
+   :target: https://github.com/EinarOlafsson/spacr/blob/main/CITATION.cff
+   :alt: Citar spaCR
+.. |PyPI rank| image:: https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fsql-clickhouse.clickhouse.com%2F%3Fuser%3Ddemo%26param_package_name%3Dspacr%26param_days%3D30%26query%3DWITH%2B%2528%2BSELECT%2Bsum%2528count%2529%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bproject%2B%253D%2B%257Bpackage_name%253AString%257D%2BAND%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B%2529%2BAS%2Bdownloads%2BSELECT%2Bdownloads%2BAS%2Bpackage_downloads%252C%2BcountIf%2528n%2B%253E%253D%2Bdownloads%2529%2BAS%2Brank%252C%2Bcount%2528%2529%2BAS%2Btotal_packages%252C%2B100.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2BAS%2Bpercentile%252C%2Bif%2528%2Btotal_packages%2B%253D%2B0%2BOR%2Bdownloads%2B%253D%2B0%252C%2B%2527no%2Bdata%2527%252C%2Bconcat%2528%2B%2527top%2B%2527%252C%2BtoString%2528ceil%25281000.0%2B%252A%2Brank%2B%252F%2BnullIf%2528total_packages%252C%2B0%2529%2529%2B%252F%2B10%2529%252C%2B%2527%2525%2527%2B%2529%2B%2529%2BAS%2Bmessage%2BFROM%2B%2528%2BSELECT%2Bproject%252C%2Bsum%2528count%2529%2BAS%2Bn%2BFROM%2Bpypi.pypi_downloads_per_day%2BWHERE%2Bdate%2B%253E%253D%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2B-%2B%257Bdays%253AUInt16%257D%2BAND%2Bdate%2B%253C%2BtoDate%2528now%2528%2527UTC%2527%2529%2529%2BGROUP%2BBY%2Bproject%2B%2529%2BFORMAT%2BJSON&query=%24.data%5B0%5D.message&label=PyPI+rank+%2830d%29&color=brightgreen&cacheSeconds=86400
+   :target: https://clickpy.clickhouse.com/dashboard/spacr
+   :alt: Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos
 
-.. image:: ../../../spacr/resources/icons/logo_spacr_readme.png
+.. image:: ../../source/_static/deck/slides/slide_01.jpg
    :alt: spaCR
    :width: 920
+   :target: https://einarolafsson.github.io/spacr/_static/deck/
+
+`← Anterior <../../source/_static/deck/pages/51.md>`_   `Siguiente → <../../source/_static/deck/pages/02.md>`_
 
 spaCR
 =====
@@ -186,10 +207,10 @@ El paquete oficial de conda-forge instala spaCR y sus dependencias de escritorio
    conda install conda-forge::spacr
    spacr
 
-Instalar desde el origen
-~~~~~~~~~~~~~~~~~~~~~~~~
+Instalación desde el código fuente
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Clonar el repositorio e instalarlo en modo editable, por lo que su copia de trabajo *es* el paquete y las ediciones instaladas tienen efecto sin reinstalar::
+Clone el repositorio e instálelo en modo editable, de modo que su copia de trabajo *sea* el paquete instalado y los cambios surtan efecto sin reinstalar::
 
     git clone https://github.com/EinarOlafsson/spacr.git
     cd spacr
@@ -198,21 +219,21 @@ Clonar el repositorio e instalarlo en modo editable, por lo que su copia de trab
     pip install -e .
     spacr
 
-La rama predeterminada es ``nightly``. Para una versión específica::
+Así se clona ``main``, la rama predeterminada, que contiene la última versión publicada. El desarrollo se hace en ``nightly``; añada ``--branch nightly`` para clonar esa rama en su lugar. Para una versión concreta::
 
     git clone --branch v1.5.0.5 https://github.com/EinarOlafsson/spacr.git
 
-Para tirar de los cambios posteriores, desde el interior del clon::
+Para incorporar cambios posteriores, ejecute desde dentro del clon::
 
     git pull
     pip install -e .
 
-La segunda línea sólo es necesaria cuando las dependencias o los puntos de entrada han cambiado; el código Python se recoge sin él. Si una orden todavía ejecuta código antiguo después de tirar, ``spacr-doctor`` informa que ``spacr`` está realmente en su ruta, que es la causa habitual.
+La segunda línea solo hace falta cuando cambian las dependencias o los puntos de entrada; el código Python se actualiza sin ella. Si un comando sigue ejecutando código antiguo después de actualizar, ``spacr-doctor`` indica qué ``spacr`` está realmente en su ruta de búsqueda, lo que suele ser la causa.
 
-Instalar desde la fuente (luz)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Instalación desde el código fuente (ligera)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Los colaboradores necesitan el historial; sólo para ejecutar spaCR, tomar uno de estos, medido 2026-09-15 por ``packaging/measure_clone_forms.sh``::
+Quien contribuye necesita el historial; para solo ejecutar spaCR, elija una de estas opciones, medidas el 2026-09-15 con ``packaging/measure_clone_forms.sh``::
 
     # One commit instead of every version: 540 MB downloaded, 69 s.
     # No history, so no git log, no git blame and no git bisect.
@@ -228,7 +249,7 @@ Los colaboradores necesitan el historial; sólo para ejecutar spaCR, tomar uno d
     curl -fsSL https://raw.githubusercontent.com/EinarOlafsson/spacr/nightly/packaging/install_from_source.sh -o install_spacr.sh
     sh install_spacr.sh --branch nightly
 
-El clon completo descarga 5,8 GB para una compra de 1186 MB. Añadir ``--filter=blob:none`` a ese clon no ahorra nada: la compra obtiene las manchas de todos modos.
+El clon completo descarga 5,8 GB para una copia de trabajo de 1186 MB. Añadir ``--filter=blob:none`` a ese clon no ahorra nada: el checkout descarga los blobs de todos modos.
 
 
 Comandos de línea de comandos
@@ -416,15 +437,9 @@ Quantitative readouts for biological assays.
 
 .. spacr-workflow-end
 
-Cada módulo spaCR envía, en el orden en que la pantalla de inicio los lista: los seis módulos de flujo de trabajo primero, luego todo lo demás. Seleccione una tesela para abrir la página API de ese módulo.
+Todos los módulos que incluye spaCR, en el orden en que los muestra la pantalla de inicio: primero los seis módulos del flujo de trabajo principal y después todos los demás. Seleccione un icono para abrir la página de la API de ese módulo.
 
-
-Make Masks
-~~~~~~~~~~
-
-Make Masks appears under **Tools** for manual correction of segmentation masks; its masthead opens the Cellpose workflows. Nine tools: **Brush**, **Erase**, **Erase object**, **Wand +**, **Wand −**, **Draw**, **Divide**, **Zoom** and **Recrop**. Draw makes one filled label from a closed outline, Divide separates a merged object along a drawn line, Recrop turns one object in a crowded field into its own field.
-
-Vea el `guía de características <../../source/features.rst>`_ para cada herramienta.
+Consulte la `guía de funciones <../../source/features.rst>`_ para conocer cada herramienta.
 
 Otros recursos
 ~~~~~~~~~~~~~~~
@@ -438,9 +453,9 @@ Otros recursos
 Idioma y traducción
 ~~~~~~~~~~~~~~~~~~~~~~
 
-La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <docs/source/localization.rst#contextual-help>`_.
+La interfaz admite diez idiomas en la navegación y las preferencias. Los controles AI y LIVE, las descripciones de los módulos y la ayuda contextual revisada también se traducen. Cambie el idioma en **spaCR → Preferencias → Idioma** sin reiniciar. Los registros, las rutas, los valores de la base de datos y las mediciones nunca se traducen; los resultados científicos permanecen en inglés canónico. Consulte la `política de ayuda contextual <../../source/localization.rst#contextual-help>`_.
 
-Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo de cada idioma. Los registros `ámbito de aplicación de la revisión <docs/i18n/REVIEW_SCOPE_2026-09-04.md>`_ qué idiomas han tenido un pase humano, cuánto del corpus que cubre, y cada término dejado en inglés por decisión.
+Los nueve catálogos no ingleses son redactados por máquina y revisados técnicamente en lugar de leer de extremo a extremo por un hablante nativo de cada idioma. Los registros `ámbito de aplicación de la revisión <../REVIEW_SCOPE_2026-09-04.md>`_ qué idiomas han tenido un pase humano, cuánto del corpus que cubre, y cada término dejado en inglés por decisión.
 
 Guía animada de ajustes
 ~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -498,10 +513,46 @@ spaCR envía un catálogo de modelos entrenados y los trae a pedido. Abra **Mode
        (Cellpose-SAM (cpsam))
      - crystal violet plaque wells; 184 wells from 3 datasets, 95 in-house and 89 literature
      - F1 0.856 in-domain; 0.806 on literature (3-fold cross-validated, SD 0.020)
+   * - ``toxoplasma_plaque_v2``
+       (Cellpose-SAM (cpsam_v2))
+     - 488 curated fields across four domains -- 298 wells cropped from published figures, 96 phone-camera wells, 67 PFA and 27 methanol-fixed whole-well microscope scans; 27,582 plaques
+     - not scored against stock; on 81 held-out fields it ties round 3 on literature (0.819 vs 0.820) and beats it by 0.166 on phone-camera wells (0.415 vs 0.249)
    * - ``toxoplasma_well_detector_v1``
        (YOLO11n)
      - whole-plate and multi-well crystal violet images; 562 images from 1 dataset, 190 of them with no well in them
-     - mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987
+     - mAP50 0.993 on its own held-out split; on the test set shared with v2 it scores mAP50 0.8838, against v2's 0.9457
+   * - ``toxoplasma_well_detector_v2``
+       (YOLO26n (ultralytics 8.4.155))
+     - plate images and literature figures; 1,070 train / 254 val / 129 test, split by PMC article so no paper is in two sets; training data at einarolafsson/toxoplasma-plaque-well-detector-dataset
+     - mAP50 0.9457 and mAP50-95 0.8341 against v1's (yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME test set; stock YOLO has no plaque-well class, so v1 is the baseline
+   * - ``toxoplasma_from_cellmask_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - Toxoplasma PV masks predicted from the HOST CELL MASK channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
+     - F1 0.606 against 0.021 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
+   * - ``toxoplasma_pv_v2``
+       (Cellpose-SAM (cpsam_v2))
+     - anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated images accumulated over five rounds
+     - F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 pairs; ~0.86 against 0.713 for stock on the 11 in-house held-out wells
+   * - ``toxoplasma_pv_v3``
+       (Cellpose-SAM (cpsam_v2))
+     - the 556 curated PV fields of round 5, split 437 train / 108 validation / 11 test; training data at einarolafsson/toxoplasma-pv-segmentation-dataset
+     - F1 0.860 against stock cpsam_v2's 0.765 on the 11 anchor wells at IoU 0.5; AJI 0.803 against 0.505
+   * - ``live_cell_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - 11,007 transmitted-light fields from 14 public datasets, split by acquisition 6,778 train / 2,030 validation / 2,199 test; training data at einarolafsson/live-cell-segmentation-dataset
+     - on the datasets stock cpsam_v2 never trained on, F1 0.960 against 0.885 at IoU 0.5; over all 2,199 test fields, 0.694 against 0.738, because stock trained on LIVECell and YeaZ and wins on LIVECell
+   * - ``nuclei_from_cellmask_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - nuclei predicted from the HOST CELL MASK channel alone; 453 well-grouped held-out fields, hosts HFF/HeLa/THP1
+     - F1 0.888 against 0.201 for stock cpsam_v2 on 453 well-grouped held-out fields, at IoU 0.5
+   * - ``cell_from_hoechst_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - the HOST CELL outline predicted from the Hoechst (nuclear) channel alone; 2,578 training fields and 451 held-out test fields, split by well so no well is on both sides
+     - F1 0.870 against stock cpsam_v2's 0.301 on 451 held-out fields at IoU 0.5 -- a delta of 0.569
+   * - ``toxoplasma_from_hoechst_v1``
+       (Cellpose-SAM (cpsam_v2))
+     - Toxoplasma PV masks predicted from the HOECHST channel alone; 2567 training and 463 held-out fields, split by well, hosts HFF/HeLa/THP1
+     - F1 0.569 against 0.002 for stock cpsam_v2 on 463 well-grouped held-out fields, at IoU 0.5
 
 .. spacr-model-zoo-end
 
@@ -637,4 +688,4 @@ Olafsson EB, *et al.* Una cribado de imagen agrupada basada en CRISPR identifica
 Agradecimientos
 ~~~~~~~~~~~~~~~
 
-spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <docs/i18n/TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.
+spaCR se basa en software científico abierto, como NumPy, pandas, scikit-image, scikit-learn, Cellpose, PyTorch y Qt. Consulte la `atribución de los modelos de traducción <../TRANSLATION_MODELS.md>`_ para conocer los modelos utilizados en la documentación multilingüe y los catálogos de la interfaz.

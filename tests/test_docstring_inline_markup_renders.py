@@ -40,17 +40,14 @@ import pytest
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 
 #: Files whose docstrings were being edited elsewhere when the sweep ran
-#: (2026-09-14), so their faults were left for that work to fix. They are
-#: named here so the count below says where its remainder lives.
-EXCLUDED_FILES = (
-    "spacr/object.py",
-    "spacr/settings.py",
-    "spacr/qt/theme.py",
-    "spacr/qt/widgets/measure_preview.py",
-    "spacr/qt/screens/app_screen.py",
-    "spacr/qt/dnd_handlers.py",
-    "spacr/qt/widgets/section.py",
-)
+#: (2026-09-14), so their faults were left for that work to fix.
+#:
+#: Empty since 2026-09-19. Six of the seven named files were already clean
+#: when it was emptied; the seventh, measure_preview.py, held the last fault,
+#: MeasurePreviewPanel._build_slot_controls writing "slots 1..``count``", a
+#: literal glued to the dots before it, which reST renders as its own
+#: backticks. It now reads "slots 1 to ``count``".
+EXCLUDED_FILES: tuple = ()
 
 #: Faults outside the excluded files that no markup-only edit can repair,
 #: with the reason. A docstring is only ever changed here in its markup.
@@ -63,8 +60,9 @@ LEFT_AS_IS: set = set()
 
 #: Measured 2026-09-14 after the sweep: 1 fault in the excluded files
 #: (measure_preview.py) and 1 then named in LEFT_AS_IS. 2 -> 1 on 2026-09-15
-#: when that one was repaired. It may fall; it may not rise.
-REMAINING_FAULTS = 1
+#: when that one was repaired, 1 -> 0 on 2026-09-19 when the measure_preview
+#: one was. It may not rise.
+REMAINING_FAULTS = 0
 
 
 @dataclass(frozen=True)

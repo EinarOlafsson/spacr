@@ -195,3 +195,116 @@ def test_the_screen_hands_over_the_console_and_traceback():
     source = Path(app_screen.__file__).read_text(encoding="utf-8")
     assert "console=self._console" in source
     assert "traceback_text=self._last_error_text" in source
+
+
+def test_missing_error_text_never_starts_a_request(qapp, told):
+    console = _Console()
+    dialog = _dialog(qapp, console)
+    dialog._traceback_text = ""
+    dialog._on_diagnose()
+    assert console.asked == []
+    assert told == [("Diagnose", "There is no error text to diagnose.")]
+    assert dialog.diagnose_btn.isEnabled()
+    assert not dialog._diagnose_timer.isActive()
+
+
+def test_failed_request_restores_the_button_without_leaving_a_timer(qapp, told):
+    console = _Console()
+    attempted = []
+
+    def fail(traceback_text, show_raw):
+        attempted.append((traceback_text, show_raw))
+        raise RuntimeError("provider unavailable")
+
+    console.open_error_flow = fail
+    dialog = _dialog(qapp, console)
+    dialog._on_diagnose()
+    assert attempted == [(TB, False)]
+    assert told == [("Diagnose", "spaCR AI could not be started.")]
+    assert dialog.diagnose_btn.isEnabled()
+    assert dialog.diagnose_btn.text() == "Diagnose"
+    assert not dialog._diagnose_timer.isActive()
+
+
+def test_a_failed_cached_lookup_still_allows_a_new_request(qapp, told):
+    console = _Console()
+    looked_up = []
+
+    def fail(traceback_text):
+        looked_up.append(traceback_text)
+        raise RuntimeError("conversation was cleared")
+
+    console.ai_explanation_of = fail
+    dialog = _dialog(qapp, console)
+    dialog._on_diagnose()
+    assert looked_up == [TB]
+    assert console.asked == [TB]
+    assert told == []
+    assert dialog._diagnose_timer.isActive()
+    assert not dialog.diagnose_btn.isEnabled()
+
+
+def test_a_polled_answer_ends_polling_and_reaches_the_approved_payload(qapp, told):
+    console = _Console()
+    dialog = _dialog(qapp, console)
+    dialog._on_diagnose()
+    assert dialog._diagnose_timer.isActive()
+    assert not dialog.diagnose_btn.isEnabled()
+    console._answer = "The input diameter is text."
+    dialog._check_for_diagnosis()
+    assert "The input diameter is text." in dialog.approved_report()["body"]
+    assert not dialog._diagnose_timer.isActive()
+    assert dialog.diagnose_btn.isEnabled()
+    assert dialog.diagnose_btn.text() == "Diagnose"
+    assert told == []
+
+
+def test_an_empty_finished_stream_gets_two_polls_to_deliver_its_answer(qapp, told):
+    console = _Console()
+    dialog = _dialog(qapp, console)
+    dialog._on_diagnose()
+    console._ai_thread = None
+    for _ in range(2):
+        dialog._check_for_diagnosis()
+        assert dialog._diagnose_timer.isActive()
+        assert told == []
+    dialog._check_for_diagnosis()
+    assert told == [("Diagnose", "spaCR AI did not return an analysis. "
+                     "The console shows what it said.")]
+    assert not dialog._diagnose_timer.isActive()
+    assert dialog.diagnose_btn.isEnabled()
+    assert dialog.approved_report()["body"] == REPORT["body"]
+
+
+def test_a_stream_that_never_finishes_times_out_at_the_deadline(qapp, told):
+    from spacr.qt.ai.issue_preview import DIAGNOSE_POLL_MS, DIAGNOSE_TIMEOUT_MS
+
+    dialog = _dialog(qapp, _Console())
+    dialog._on_diagnose()
+    dialog._diagnose_elapsed = DIAGNOSE_TIMEOUT_MS - 2 * DIAGNOSE_POLL_MS
+    dialog._check_for_diagnosis()
+    assert told == []
+    assert dialog._diagnose_timer.isActive()
+    dialog._check_for_diagnosis()
+    assert told == [("Diagnose", "spaCR AI did not answer in time.")]
+    assert not dialog._diagnose_timer.isActive()
+    assert dialog.diagnose_btn.isEnabled()
+
+
+def test_an_overlong_answer_is_bounded_and_visibly_truncated(qapp, told):
+    from spacr.qt.ai.issue_preview import AI_ANALYSIS_MAX_CHARS
+
+    dialog = _dialog(qapp, _Console(answer="x" * (AI_ANALYSIS_MAX_CHARS + 20)))
+    dialog._on_diagnose()
+    body = dialog.approved_report()["body"]
+    assert "x" * AI_ANALYSIS_MAX_CHARS + "\n\n… (truncated)" in body
+    assert "x" * (AI_ANALYSIS_MAX_CHARS + 1) not in body
+
+
+def test_an_empty_answer_does_not_add_a_section_or_move_the_cursor(qapp):
+    dialog = _dialog(qapp, _Console())
+    original_position = dialog.body_edit.textCursor().position()
+    dialog._show_diagnosis(" \n ")
+    dialog._scroll_to_diagnosis()
+    assert dialog.approved_report()["body"] == REPORT["body"]
+    assert dialog.body_edit.textCursor().position() == original_position

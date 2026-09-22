@@ -71,6 +71,31 @@ def _connect_read_only(db_path):
 
     return connect(db_path, readonly=True)
 
+
+def _has_column(db, table: str, column: str) -> bool:
+    """Whether ``table`` really has ``column``, asked before it is used.
+
+    SQLITE READS A DOUBLE-QUOTED NAME THAT IS NOT A COLUMN AS A STRING
+    LITERAL rather than failing, so ``WHERE "cell_class" > 10`` against a
+    table without that column is ``WHERE 'cell_class' > 10`` -- and a TEXT
+    value compares greater than every integer, so it is TRUE for every row.
+    :func:`pending_suggestions` therefore reported the WHOLE SCREEN as
+    waiting to be accepted before a single suggestion had been made, in the
+    Class counts dialog and in the Suggest menu, and its own docstring said
+    it returned 0. No quoting avoids this, and no error is raised to catch,
+    so the column has to be looked up.
+
+    :param db: an open connection.
+    :param table: the table to look in.
+    :param column: the column name to look for.
+    :returns: True only when the column exists.
+    """
+    try:
+        rows = db.execute(f'PRAGMA table_info("{table}")').fetchall()
+    except sqlite3.Error:
+        return False
+    return any(row[1] == column for row in rows)
+
 #: Added to a class value to mark it a suggestion rather than an answer. Ten,
 #: because the annotation column holds small integers: a suggested 1 becomes
 #: 11 and cannot collide with a real 2 or 3.
@@ -218,15 +243,18 @@ def write_suggestions(db_path: str, annotation_column: str,
                 f"Classes 1 to 9 are fine and always have been -- it is the "
                 f"VALUE that collides, not the count.")
     with _connect_read_only(db_path) as db:
-        try:
-            existing = sorted({
-                int(v[0]) for v in db.execute(
-                    f'SELECT DISTINCT "{annotation_column}" FROM '
-                    f'"{png_table}" WHERE "{annotation_column}" >= ?',
-                    (SUGGESTION_OFFSET,)).fetchall()
-                if v and v[0] is not None})
-        except sqlite3.Error:
+        if not _has_column(db, png_table, annotation_column):
             existing = []
+        else:
+            try:
+                existing = sorted({
+                    int(v[0]) for v in db.execute(
+                        f'SELECT DISTINCT "{annotation_column}" FROM '
+                        f'"{png_table}" WHERE "{annotation_column}" >= ?',
+                        (SUGGESTION_OFFSET,)).fetchall()
+                    if v and v[0] is not None})
+            except sqlite3.Error:
+                existing = []
     if existing:
         raise ValueError(
             f"{annotation_column} already holds {existing[0]}, at or above "
@@ -280,6 +308,8 @@ def resolve_suggestions(db_path: str, annotation_column: str, *,
         params = list(paths)
 
     with _connect_writable(db_path) as db:
+        if not _has_column(db, png_table, annotation_column):
+            return 0
         if keep:
             sql = (f'UPDATE "{png_table}" SET {column} = {column} - '
                    f"{SUGGESTION_OFFSET} WHERE {where}")
@@ -300,6 +330,8 @@ def pending_suggestions(db_path: str, annotation_column: str, *,
     :returns: the count, or 0 when the column does not exist.
     """
     with _connect_read_only(db_path) as db:
+        if not _has_column(db, png_table, annotation_column):
+            return 0
         try:
             row = db.execute(
                 f'SELECT COUNT(*) FROM "{png_table}" '

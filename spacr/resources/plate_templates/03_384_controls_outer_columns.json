@@ -1,0 +1,120 @@
+{
+  "title": "384-well: controls in the outer column pairs",
+  "description": "Negative controls fill columns 1-2, positive controls columns 23-24, and twenty treatments take one column each in between, sixteen wells apiece. The 384-well form of the classic screening layout, with the same edge warning.",
+  "plate_format": 384,
+  "layout": "column",
+  "edge_policy": "use",
+  "seed": 0,
+  "conditions": [
+    {
+      "name": "negative",
+      "replicates": 32,
+      "role": "negative_control"
+    },
+    {
+      "name": "treatment_01",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_02",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_03",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_04",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_05",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_06",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_07",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_08",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_09",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_10",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_11",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_12",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_13",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_14",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_15",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_16",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_17",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_18",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_19",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "treatment_20",
+      "replicates": 16,
+      "role": "treatment"
+    },
+    {
+      "name": "positive",
+      "replicates": 32,
+      "role": "positive_control"
+    }
+  ]
+}

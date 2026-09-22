@@ -1771,13 +1771,14 @@ def plot_arrays(src, figuresize=10, cmap='inferno', nr=1, normalize=True, q1=1, 
     :returns: None
     """
     from .utils import normalize_to_dtype
+    from .io import _listdir_visible
 
     paths = []
 
     if src.endswith('.npz') or src.endswith('.npy'):
         paths = [src]
     else:
-        paths = [os.path.join(src, f) for f in os.listdir(src) if f.endswith(('.npy', '.npz'))]
+        paths = [os.path.join(src, f) for f in _listdir_visible(src) if f.endswith(('.npy', '.npz'))]
         paths = random.sample(paths, min(nr, len(paths)))
 
     for path in paths:

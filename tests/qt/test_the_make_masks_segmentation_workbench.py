@@ -21,6 +21,8 @@ from pathlib import Path
 import imageio.v2 as imageio
 import numpy as np
 import pytest
+from PySide6.QtCore import QEvent
+from PySide6.QtWidgets import QApplication
 
 from spacr.curation import is_curated
 from spacr.mask_io import load_mask
@@ -52,11 +54,56 @@ def field_folder(tmp_path: Path) -> Path:
 
 @pytest.fixture
 def screen(qtbot, qt_theme_applied):
-    """A Make Masks screen whose folded windows are closed afterwards."""
+    """A Make Masks screen that is taken apart, not merely left behind.
+
+    THIS FIXTURE USED TO END AT ``close_folded()``, and the file died with
+    SIGSEGV about half the time it was run. The crash is in
+    ``QTimerInfoList::activateTimers`` -> ``QCoreApplication::notifyInternal2``
+    (gdb backtrace, 2026-09-19): a Qt timer delivering an event to a C++
+    object Python has already collected. No assertion fails; the process
+    simply dies partway through, inside ``pytest-qt``'s ``_process_events``.
+
+    Three things were missing, and all three are needed:
+
+    * ``_magnifier.close()`` -- it owns a worker thread and timers;
+    * ``close()`` and ``deleteLater()`` on the screen itself;
+    * a drained ``DeferredDelete`` queue, so the screen is actually gone
+      before the next test builds another.
+
+    MEASURED, because the failure is probabilistic and a fix that is not
+    measured is a coincidence. On 2026-09-19, building item 419 part B:
+    nightly as it stood, 0 crashes in 16 runs; nightly plus ONE spin box on
+    the settings panel, 1 in 5; plus the three controls point 6 asks for,
+    5 in 6; with this teardown and those controls, 0 in 24 (16 before the
+    rebase onto nightly and 8 after). The screen was never the problem. The
+    fixture was, and any change that put one more timer-owning widget on
+    that panel was going to collect the debt.
+
+    WHAT IS FIXED HERE IS THIS FILE, AND NOT THE SUITE. An earlier draft of
+    this docstring said this was "the ONLY Make Masks fixture in the suite"
+    that left the magnifier open. That was wrong and is corrected here:
+    TWENTY other test files build ``MakeMasksScreen`` without ever calling
+    ``_magnifier.close()`` -- ``test_make_masks_canvas.py`` (14 builds),
+    ``test_make_masks_toolbar.py`` (14), ``test_make_masks.py`` (6),
+    ``test_make_masks_v2.py`` (6) and ``test_the_make_masks_recrop.py`` (5)
+    among them. None of them has been seen to crash, and none of them was
+    investigated; why this file collected the debt and those twenty have not
+    is NOT established. So do not read this teardown as evidence that the
+    leak has been ruled out elsewhere. If another Make Masks file starts
+    dying in ``QTimerInfoList::activateTimers``, the first thing to try is
+    these four lines, and the second is to stop writing them out twenty-one
+    times.
+    """
     made = MakeMasksScreen()
     qtbot.addWidget(made)
     yield made
+    made._magnifier.close()
     made.close_folded()
+    made.close()
+    made.deleteLater()
+    QApplication.processEvents()
+    QApplication.sendPostedEvents(None, QEvent.Type.DeferredDelete)
+    QApplication.processEvents()
 
 
 # ---------------------------------------------------------------------------
@@ -499,38 +546,23 @@ def test_fold_description_falls_back_only_when_the_row_is_gone(monkeypatch):
     assert fold_description("model_zoo") == FOLD_FALLBACK["model_zoo"]
 
 
-def test_the_masthead_carries_the_module_name_and_its_api_link(screen, qtbot):
+def test_the_masthead_carries_the_module_name_and_no_sentence(screen, qtbot):
     """The strip sits on the module's own masthead, not on a bare title.
 
-    The API link is on the masthead too — inside the description's hover
-    help rather than on a dot beside it, so the row is a name, a sentence
-    and the fold strip, and nothing else.
+    Item 419: the maintainer asked for the one-line description beside the
+    name -- "Correct a mask by hand: ...", elided, with its hover help -- to
+    go, so the row is the name, the instruction under it and the fold strip.
+    No information dot comes back in its place.
     """
-    from PySide6.QtCore import QEvent
-    from PySide6.QtWidgets import QApplication
-
-    from spacr.qt.screens.settings_model import api_docs_url
-    from spacr.qt.widgets.hover_tooltip import HoverTooltip
     from spacr.qt.widgets.info_link import InfoLink
 
     assert screen._header.title_label.text() == mm.HEADER_TITLE
-    assert screen._header.description_label.text() == mm.HEADER_DESCRIPTION
+    assert screen._header.description_label is None
+    assert screen._header.api_help is None
+    assert not hasattr(mm, "HEADER_DESCRIPTION")
     assert screen._folds.parent() is screen._header
     assert not screen._header.findChildren(InfoLink), (
         "the masthead grew an information dot back")
-
-    screen.show()
-    qtbot.waitExposed(screen)
-    help_label = screen._header.api_help
-    assert help_label is not None
-    tooltip = HoverTooltip.instance()
-    QApplication.sendEvent(help_label, QEvent(QEvent.Type.Enter))
-    try:
-        assert tooltip.isVisible()
-        assert mm.HEADER_DESCRIPTION in tooltip._label.text()
-        assert tooltip.api_url() == api_docs_url(mm.APP_KEY)
-    finally:
-        QApplication.sendEvent(help_label, QEvent(QEvent.Type.Leave))
 
 
 # ---------------------------------------------------------------------------

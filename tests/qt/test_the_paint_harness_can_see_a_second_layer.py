@@ -138,3 +138,110 @@ def test_the_record_says_what_else_the_machine_was_doing(harness):
 
     if hasattr(os, "getloadavg"):
         assert "load_1m" in environment
+
+
+# ---------------------------------------------------------------------------
+# The magnifier row, added for item 407
+# ---------------------------------------------------------------------------
+#
+# Item 407's WHAT IS LEFT said the harness "was not run with the toggle on",
+# and it could not be: there was no row for it. The magnifier is the one
+# control on Make Masks that puts a segmentation model behind a moving mouse,
+# which is the thing 380 measures. The same rule applies to this row as to
+# every other one here -- test the INSTRUMENT, not the application.
+
+
+def test_the_magnifier_row_measures_both_scopes_and_both_box_sizes(harness):
+    """A row per scope, on a real screen with a real field open.
+
+    Small on purpose: what is asserted is that the instrument reports, not
+    how fast this machine is. The numbers themselves belong in a run of the
+    tool, beside the load average that moves them.
+
+    THE LARGEST BOX IS A ROW OF ITS OWN because every per-move path in the
+    box is counted over the box's pixels and item 417 let the Size box go
+    as high as the field is wide. A harness that only ever measured 128 px
+    would report a control that is fine at one setting and say nothing
+    about the same control at 2,048.
+    """
+    rows = harness.measure_magnifier(field_px=192, moves=4)
+
+    assert [row.get("scope") for row in rows] == ["region", "image",
+                                                  "region", "image"], (
+        "the harness did not measure both scopes: " + repr(rows))
+    assert rows[-2]["box_px"] == rows[-1]["box_px"] == 192 \
+        > rows[0]["box_px"], (
+        "the largest box the field allows was not measured in both "
+        "scopes: " + repr(rows))
+    for row in rows:
+        assert row["measurement"] == "magnifier"
+        assert row["mode"], "the row does not say which model ran"
+        assert row["moves"] == 4
+        assert row["slowest_move_ms"] >= row["median_move_ms"] > 0
+        assert row["first_move_ms"] > 0
+        assert "model_still_running" in row
+
+
+def test_the_magnifier_row_measures_the_box_over_a_mask_that_is_there(
+        harness):
+    """The field is opened with a mask, so the Overlap rule has work to do.
+
+    What the box draws is what a click would ADD, which is the rule
+    against the mask already painted. Over an empty mask that path does
+    not run at all, so a harness whose field has no mask file reports a
+    magnifier nobody has measured and a row of numbers that look fine.
+    """
+    rows = harness.measure_magnifier(field_px=192, moves=4)
+
+    ghosted = [row for row in rows if row.get("ghosted")]
+    assert ghosted, (
+        "no row saw the Overlap rule take anything away, so the box's own "
+        "per-move work went unmeasured: " + repr(rows))
+
+
+def test_the_magnifier_row_leaves_the_users_own_settings_alone(harness):
+    """A measurement must not edit the machine it measures.
+
+    Driving the real screen opens a folder, and opening a folder is
+    remembered: `_open_folder` ends in `prefs.push_recent_source`, which
+    writes `$HOME/.config/spacr/qt.conf`. Run by hand as the tool
+    documents itself, that put a TemporaryDirectory at the head of the
+    maintainer's recent-folder list and left `last` pointing at a path
+    that had already been deleted.
+    """
+    from spacr.qt import prefs
+
+    mine = "/a/folder/the/user/chose"
+    prefs.push_recent_source("make_masks", mine)
+    harness.measure_magnifier(field_px=192, moves=2)
+
+    assert prefs.get_last_source("make_masks") == mine, (
+        "the harness overwrote the last folder the user opened")
+    assert prefs.get_recent_sources("make_masks")[0] == mine, (
+        "the harness pushed its own temporary folder onto the recent list")
+
+
+def test_the_magnifier_row_says_what_else_the_machine_was_doing(harness):
+    """A latency is the measurement load moves most, so the load is on the
+    ROW and not only in the record's environment."""
+    import os
+
+    rows = harness.measure_magnifier(field_px=192, moves=2)
+    if hasattr(os, "getloadavg"):
+        assert all("load_1m" in row for row in rows)
+
+
+def test_a_slow_move_reads_as_dropped_frames_in_the_magnifier_row(
+        harness, monkeypatch):
+    """Calibration: the dropped-frame count follows the measurement.
+
+    A row that reported 0 whatever it measured would pass every reading of
+    this harness and mean nothing. Shrinking one frame to a tenth of a
+    millisecond must make every move above it read as dropped.
+    """
+    monkeypatch.setattr(harness, "FRAME_MS", 0.1)
+    rows = harness.measure_magnifier(field_px=192, moves=3)
+
+    assert all(row["frames_dropped_worst_move"] > 0 for row in rows), (
+        "no move read as a dropped frame at a tenth of a millisecond: "
+        + repr(rows))

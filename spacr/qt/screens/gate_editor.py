@@ -51,7 +51,7 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import pandas as pd
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QTimer
 from PySide6.QtWidgets import (
     QComboBox, QDialog, QDialogButtonBox, QFileDialog, QFormLayout,
     QHBoxLayout, QLabel, QLineEdit, QPushButton, QScrollArea, QSizePolicy,
@@ -73,6 +73,9 @@ from ..widgets.gate_settings import GateEditorSettings, GateSettingsDialog
 from ..widgets.graph_spec import GraphSpec, plottable_columns
 from ..widgets.gate_console import GateConsole
 from ..widgets.table_chip import TableChip
+from ..widgets.measurements_example import (
+    EXAMPLE_TABLE, install_test_data_button,
+)
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 from ..app_catalog import declared_app, register_declared
@@ -255,6 +258,10 @@ class GateEditorScreen(QWidget):
         load.setObjectName("PrimaryButton")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
 
         self._save_gates = QPushButton("Save gates…", self)
         self._save_gates.setToolTip(
@@ -324,8 +331,7 @@ class GateEditorScreen(QWidget):
         self._chips = QHBoxLayout()
         self._chips.setContentsMargins(0, 0, 0, 0)
         self._chips.setSpacing(SPACING["xs"])
-        self._chips.addStretch(1)
-        outer.addLayout(self._chips)
+        self._chips.addSpacing(SPACING["xs"])
 
         axes = QHBoxLayout()
         axes.setContentsMargins(0, 0, 0, 0)
@@ -353,8 +359,6 @@ class GateEditorScreen(QWidget):
         self._z.currentTextChanged.connect(self._on_z_changed)
         axes.addWidget(self._z, 1)
         self._set_z_visible(False)
-        axes.addStretch(2)
-        outer.addLayout(axes)
 
         body = QSplitter(Qt.Horizontal, self)
         body.setChildrenCollapsible(True)
@@ -366,6 +370,8 @@ class GateEditorScreen(QWidget):
         self.gates.projection_requested.connect(self._on_projection_requested)
         self.gates.spin_axis_changed.connect(self.gates.canvas.set_spin_axis)
         self._install_graph_context_menu()
+        self.gates.tool_row.insertLayout(0, axes, 3)
+        self.gates.tool_row.insertLayout(0, self._chips)
         body.addWidget(self.gates)
 
         self.console = GateConsole(self)
@@ -424,10 +430,61 @@ class GateEditorScreen(QWidget):
         body.setStretchFactor(2, 0)
         body.setSizes([700, 260, 0])
         outer.addWidget(body, 1)
+        self._body = body
+        for watched in (self.gates.body, self.side_tabs):
+            watched.installEventFilter(self)
         from ..dnd import install_for
         install_for(self, "gate_editor")
         from .settings_model import retarget_field_tooltips
         retarget_field_tooltips(self)
+
+    def eventFilter(self, watched, event) -> bool:
+        """Keep the side panel's page level with the graph as rows come and go.
+
+        :param watched: the graph's splitter or the side tabs.
+        :param event: the event.
+        :returns: False, so the event is handled as usual.
+        """
+        from PySide6.QtCore import QEvent
+
+        if event.type() in (QEvent.Move, QEvent.Resize, QEvent.Show):
+            QTimer.singleShot(0, self, self.align_side_panel)
+        return super().eventFilter(watched, event)
+
+    def align_side_panel(self) -> int:
+        """Line the Filter / Search page up with the graph and gate table.
+
+        The maintainer, 2026-09-21: every setting above the graph is ONE row,
+        the tabs of the panel on the right sit level with that row, and the
+        containers under both start at the same height. The row is the graph
+        panel's own tool row -- the table chips and the X / Y / Z pickers
+        were moved into it -- so the tabs already start level with it; what
+        differs is where each container begins below its row. The tab page
+        is moved down by that difference, measured each time, so whatever
+        the row gains (the 3D plane controls under it) the page follows.
+
+        A tab bar given a fixed height does not move the page under it --
+        QTabWidget places the page from the bar's size hint -- so the page's
+        own offset is what is set.
+
+        :returns: the offset applied to the page, in pixels.
+        """
+        tabs = getattr(self, "side_tabs", None)
+        gates = getattr(self, "gates", None)
+        if tabs is None or gates is None or not self.isVisible():
+            return 0
+        page = tabs.currentWidget()
+        if page is None:
+            return 0
+        applied = int(getattr(self, "_side_page_offset", 0))
+        graph_top = gates.body.mapTo(self, gates.body.rect().topLeft()).y()
+        page_top = page.mapTo(self, page.rect().topLeft()).y()
+        wanted = max(0, applied + graph_top - page_top)
+        if wanted != applied:
+            self._side_page_offset = wanted
+            tabs.setStyleSheet(
+                f"QTabWidget#{SIDE_TABS_NAME}::pane {{ top: {wanted}px; }}")
+        return wanted
 
     def set_frame(self, frame: pd.DataFrame, *, label: str = "") -> None:
         """Point the screen at a table to gate.

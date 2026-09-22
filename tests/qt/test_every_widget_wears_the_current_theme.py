@@ -97,6 +97,33 @@ def _resolved(label) -> str:
     return label.palette().color(QPalette.WindowText).name()
 
 
+def _unreached_by_design(window) -> dict:
+    """The two widgets of a real ``MainWindow`` that no sheet reaches, by name.
+
+    ITEM 409. ``MainWindow.stylesheet_roots`` nominates every direct child
+    of the window except the central widget, every direct child of the
+    central widget except the stack, and the stack's current page. The
+    pages that are not showing are marked and sheeted on their own
+    ``showEvent``. That leaves exactly two widgets between the window and
+    its roots. No root contains them and neither is marked: the central
+    row, ``QWidget#CentralRow``, and the page stack, a ``QStackedWidget``.
+
+    They are named by what the WINDOW calls them, by identity, never by
+    class, so another ``QStackedWidget`` somewhere else cannot shelter
+    under this exemption. ``test_the_real_window_wears_one_theme_everywhere``
+    checks three things: that these are the only widgets outside every root
+    and every deferred page, counted over the whole window and not the
+    sample; that each is what its name says; and that each is still really
+    unreached. If the design changes, the exemption fails instead of
+    quietly covering a third widget.
+
+    :param window: a built ``MainWindow``.
+    :returns: ``{name: widget}`` for the two exempt widgets.
+    """
+    return {"QWidget#CentralRow": window.centralWidget(),
+            "QStackedWidget (MainWindow._stack)": window._stack}
+
+
 @pytest.fixture
 def sheeted(qtbot):
     from spacr.qt import theme
@@ -367,12 +394,53 @@ def test_the_real_window_wears_one_theme_everywhere(sheeted, qtbot):
             node = node.parentWidget()
         return False
 
+    # TWO WIDGETS ARE UNREACHED BY DESIGN, AND THEY ARE EXEMPT BY IDENTITY
+    # (item 409). They sat at indices 6 and 9 of `hosts` against a stride
+    # of 10, so one extra chrome widget ahead of them would put one into
+    # the sample and fail the test with ['QStackedWidget'] while the theme
+    # worked. The stride stays as it is. The exemption is guarded three
+    # ways instead, so it fails when the design moves.
+    exempt = _unreached_by_design(window)
+    assert type(exempt["QWidget#CentralRow"]) is QWidget \
+        and exempt["QWidget#CentralRow"].objectName() == "CentralRow", (
+            "the central widget is no longer QWidget#CentralRow; re-derive "
+            "the exemption from MainWindow.stylesheet_roots")
+    from PySide6.QtWidgets import QStackedWidget
+    assert isinstance(exempt["QStackedWidget (MainWindow._stack)"],
+                      QStackedWidget), "MainWindow._stack is not a stack"
+
+    roots = window.stylesheet_roots()
+
+    def under_a_root(host):
+        node = host
+        while node is not None and node is not window:
+            if any(node is root for root in roots):
+                return True
+            node = node.parentWidget()
+        return False
+
+    outside = [host for host in hosts
+               if not under_a_root(host) and not deferred(host)]
+    assert sorted(map(id, outside)) == sorted(map(id, exempt.values())), (
+        f"counted over all {len(hosts)} widgets, the ones outside every "
+        f"sheet root and every deferred page are "
+        f"{[(type(w).__name__, w.objectName()) for w in outside]}, not "
+        f"exactly {sorted(exempt)}. A widget this exemption does not name "
+        f"has joined them, or one it names is now covered: fix the product "
+        f"or rewrite the exemption, never widen it")
+    still_unreached = {name: _resolved(_probe(widget)) != SECOND_HEX
+                       for name, widget in exempt.items()}
+    assert all(still_unreached.values()), (
+        f"the theme now reaches {[n for n, u in still_unreached.items() if not u]}"
+        f"; the exemption for it is stale and must be removed")
+
     missed = [type(host).__name__ for host, _label in stale
-              if not deferred(host)]
+              if not deferred(host)
+              and not any(host is widget for widget in exempt.values())]
     assert not missed, (
         f"{len(missed)} of {len(probes)} sampled widgets are neither "
         f"sheeted nor deferred: {sorted(set(missed))[:8]}")
-    assert len(stale) - len(missed) > 0, (
+    assert any(deferred(host) for host, _label in stale), (
         "nothing was deferred, so this run is not exercising the case the "
         "deferral exists for")
 

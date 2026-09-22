@@ -27,11 +27,11 @@
       "related_lessons": ["07_mask", "08_measure", "09_annotate", "41_classify", "12_map_barcodes", "13_regression"]
     },
     {
-      "visual": "02_data  (6)",
-      "narration": "Data brings together Import, Run Compare, Experiment Design, Power and Design, Dose Response, and quality control. Import is also the entry point for Import Images, Format Converter, and External Masks. Open the parent first to find those workflows.",
+      "visual": "02_data  (7)",
+      "narration": "Data brings together Import, Embeddings, Run Compare, Experiment Design, Power and Design, Dose Response, and quality control. Import is also the entry point for Import Images, Format Converter, and External Masks. Open the parent first to find those workflows.",
       "hold_after": 0.7,
-      "focus_modules": ["foreign", "run_compare", "experiment_design", "power", "dose_response", "qc_dashboard"],
-      "related_lessons": ["36_import", "35_converter", "31_external_masks"]
+      "focus_modules": ["foreign", "embeddings", "run_compare", "experiment_design", "power", "dose_response", "qc_dashboard"],
+      "related_lessons": ["36_import", "35_converter", "31_external_masks", "77_embeddings"]
     },
     {
       "visual": "03_tools  (5)",
@@ -49,7 +49,7 @@
     },
     {
       "visual": "05_classify_host",
-      "narration": "Classify is one module. Its Classifier family setting chooses image-based computer vision or machine learning from measured features. The older computer-vision and machine-learning tutorials remain focused walkthroughs of those two routes, not separate Home tiles.",
+      "narration": "Classify is one module. Its Classifier family setting chooses image-based computer vision or machine learning from measured features. The computer-vision and machine-learning tutorials provide focused walkthroughs of those two routes within Classify.",
       "hold_after": 0.7,
       "focus": [345, 540, 1160, 170],
       "related_lessons": ["41_classify", "10_classify_cv", "11_classify_ml"]
@@ -66,6 +66,16 @@
       "narration": "Core tutorials use the real datasets offered by Load test data. Downloading fills the relevant inputs and compatible settings. The generated demos under Help are a different option. In Mask, the Time and three-D switches reveal time-series and volumetric workflows; Live opens the preview.",
       "hold_after": 0.7,
       "related_lessons": ["07_mask", "17_timelapse"]
+    },
+    {
+      "visual": "08_help_search",
+      "narration": "Use the search field beside Help to find a module, a setting, a preference, or an API entry. Searching for Performance lists matching destinations. Choose a result to open its module or Preferences tab, or to view the API documentation.",
+      "hold_after": 0.7
+    },
+    {
+      "visual": "09_performance",
+      "narration": "Preferences has one Performance selector with Laptop, Extra Performance, Performance, Balanced, and Workstation in increasing resource order. Choose the profile for this computer; it changes how much spaCR keeps cached and for how long, when it clears memory and idle threads, and whether the animated backdrop runs, but not scientific settings or results.",
+      "hold_after": 0.7
     },
     {
       "visual": "07_help",

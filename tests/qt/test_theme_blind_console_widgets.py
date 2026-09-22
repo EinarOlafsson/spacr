@@ -94,12 +94,23 @@ def test_ai_toggle_off_is_legible_on_its_own_page(qtbot, as_theme,
 @pytest.mark.parametrize("theme_name", theme.THEMES)
 def test_ai_toggle_on_is_the_theme_invariant_accent(qtbot, as_theme,
                                                     theme_name):
-    """ON is deliberately the same blue everywhere — that is the signal."""
+    """ON is the same blue wherever that blue reads as text.
+
+    Since 2026-09-21 ("in dark mode text ... is bright, and the opposite
+    should be true for light mode") a theme on which the constant blue is
+    under 4.5:1 -- Light, and the lighter-panelled dark themes -- draws the
+    ON caption in :func:`spacr.qt.theme.button_accent_text` instead, which
+    is still that theme's accent blue.
+    """
     as_theme(theme_name)
     label = AiToggleLabel()
     qtbot.addWidget(label)
     label.setChecked(True)
-    assert _ink(label) == theme.CONSTANT_ROLES["button_accent"].lower()
+    palette = theme.palette_for(theme_name)
+    expected = theme.button_accent_text(palette).lower()
+    assert _ink(label) == expected
+    if theme_name == "dark":
+        assert expected == theme.CONSTANT_ROLES["button_accent"].lower()
 
 
 def test_ai_toggle_restyles_when_the_theme_changes(qtbot, monkeypatch):

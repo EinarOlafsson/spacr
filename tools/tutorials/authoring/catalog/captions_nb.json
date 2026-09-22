@@ -106,7 +106,7 @@
           "narration": "Hvert installasjonsprogram validerer den nye installasjonen før det bytter til den. En avbrutt oppdatering lar det forrige miljøet være intakt, og install.log beholdes i den private installasjonsmappen for spaCR."
         },
         {
-          "narration": "I Preferences finnes én velger for Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressursrekkefølge. Velg profilen for denne datamaskinen; den endrer hurtigbuffer, arbeidergrenser, opprydding og animasjonsdetaljer, men ikke vitenskapelige innstillinger eller resultater."
+          "narration": "Preferences har én Performance-velger med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende rekkefølge etter ressursbruk. Velg profilen for denne datamaskinen. Den endrer hvor mye spaCR beholder i hurtigbufferen og hvor lenge, når minne og inaktive tråder frigjøres, og om den animerte bakgrunnen kjører, men ikke vitenskapelige innstillinger eller resultater."
         },
         {
           "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
@@ -117,7 +117,7 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Når alle modenhetsnivåer er synlige, viser Home alle førtifire registrerte spaCR-moduler. Fanen Home grupperer dem under Core, Data, Results & QC, Explore, Assays og Design; hver kategorifane filtrerer det samme registeret."
+          "narration": "Home grupperer arbeidsflytene i spaCR under Core, Data, Tools og Assays. Hver kategorifane filtrerer modulrutene, og tilhørende verktøy finnes i sine overordnede moduler."
         },
         {
           "narration": "I venstre sidefelt er Home og de synlige Core-modulene direkte tilgjengelige. Når alle modenhetsnivåer er aktivert, er dette Core-sekvensens seks trinn. Velg en kategorioverskrift for å utvide de resterende synlige modulene."
@@ -126,7 +126,10 @@
           "narration": "Core-båndet følger arbeidsflytrekkefølgen: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Hold pekeren over en flis for å vise modulbeskrivelsen og modenhetsfargen Alpha, Beta eller Stable. I Preferences kan Alpha- eller Beta-moduler skjules fra Home og navigasjonen; Stable-moduler forblir synlige."
         },
         {
-          "narration": "I Preferences finnes én velger for Performance level med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende ressursrekkefølge. Velg profilen for denne datamaskinen; den endrer hurtigbuffer, arbeidergrenser, opprydding og animasjonsdetaljer, men ikke vitenskapelige innstillinger eller resultater."
+          "narration": "Preferences har én Performance-velger med Laptop, Extra Performance, Performance, Balanced og Workstation i stigende rekkefølge etter ressursbruk. Velg profilen for denne datamaskinen. Den endrer hvor mye spaCR beholder i hurtigbufferen og hvor lenge, når minne og inaktive tråder frigjøres, og om den animerte bakgrunnen kjører, men ikke vitenskapelige innstillinger eller resultater."
+        },
+        {
+          "narration": "Bruk søkefeltet ved siden av Help til å finne en modul, en innstilling, en programinnstilling eller en API-oppføring. Her viser søket etter Performance samsvarende mål. Velg et resultat for å åpne modulen eller fanen i Preferences, eller for å lese API-dokumentasjonen."
         },
         {
           "narration": "Velg en modulflis for å åpne innstillingsskjermen. Modulnavnet og beskrivelsen øverst bekrefter hvilken arbeidsflyt som er aktiv."

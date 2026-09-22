@@ -134,6 +134,8 @@ EXACT_LABELS = {
 CASED_TERMS = {
     "grna": "gRNA",
     "grnas": "gRNAs",
+    "sgrna": "sgRNA",
+    "sgrnas": "sgRNAs",
     "dna": "DNA",
     "rna": "RNA",
     "gpu": "GPU",

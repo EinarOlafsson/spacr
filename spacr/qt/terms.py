@@ -33,9 +33,15 @@ from typing import Dict, Tuple
 #: translation is a convenience and the English governs; that is a term
 #: of the agreement rather than a note about it, so it is IN the
 #: agreement and a profile that accepted 4.0 is asked again.
+#: 4.2 adds Section 5.6, AUTOMATIC ERROR REPORTS: automatic filing is the
+#: default, and a user agrees to it in the agreement when the mode is
+#: 'always'. Sections 5.1 and 5.5 said nothing was ever transmitted
+#: automatically and that Diagnostic Data was not published, and neither is
+#: true with 'always'. A profile that accepted 4.1 accepted neither, and is
+#: asked again.
 LOG = logging.getLogger(__name__)
 
-TERMS_VERSION = "4.1"
+TERMS_VERSION = "4.2"
 
 #: What the licence is called, and where the whole of it can be read.
 #:
@@ -154,11 +160,12 @@ TERMS: Tuple[str, ...] = (
     "Software, subject to the licence granted in Section 2.",
 
     "5. DIAGNOSTIC DATA AND HOW IT MAY BE USED",
-    "5.1 The Software does not collect or transmit Diagnostic Data "
-    "automatically. It contains no telemetry, no background upload and no "
-    "analytics. Data is transmitted only as the result of an action You "
-    "take.",
-    "5.2 Where You elect to send a bug report, and do not clear the setting "
+    "5.1 The Software contains no telemetry, no background upload and no "
+    "analytics. Apart from the automatic error reports described in "
+    "Section 5.6, Diagnostic Data is transmitted only as the result of an "
+    "action You take.",
+    "5.2 Where You elect to send a bug report, or one is filed "
+    "automatically under Section 5.6, and You do not clear the setting "
     "\u201cInclude recent logs in a report\u201d, You grant the Licensor a "
     "perpetual, worldwide, "
     "royalty-free licence to use the Diagnostic Data contained in that "
@@ -173,15 +180,40 @@ TERMS: Tuple[str, ...] = (
     "5.4 The licences in Sections 5.2 and 5.3 are non-exclusive. They do "
     "not transfer ownership, and they do not limit what You may do with the "
     "same material.",
-    "5.5 Diagnostic Data is not published. A bug report filed through the "
-    "Software opens a public issue that contains the fault description and "
-    "software versions only; any log accompanying it is written to a file "
+    "5.5 A bug report filed through the Software is PUBLISHED as an issue "
+    "on the public spaCR repository, github.com/EinarOlafsson/spacr, under "
+    "Your GitHub account. It contains the error's traceback, the settings "
+    "of the run that failed, and the versions of the Software, Python, the "
+    "operating system and principal libraries. Before it is sent, "
+    "credential-shaped values, database file names, and this computer's "
+    "login and host names are replaced with placeholders, and so are file "
+    "and folder names unless You restore them in a preview. Public issues "
+    "are world-readable, "
+    "indexed and mirrored, and cannot be reliably unpublished. The log is "
+    "never published: any log accompanying a report is written to a file "
     "on Your equipment, and the issue records the path rather than the "
     "contents. Sending that file is a separate act You take.",
-    "5.6 You are responsible for the content of anything You elect to send. "
-    "The Software redacts credential-shaped values and file paths on a best "
-    "efforts basis; it cannot identify material that is confidential for "
-    "reasons particular to Your work.",
+    "5.6 AUTOMATIC ERROR REPORTS. The setting “One-click issue "
+    "filing” has three values. With “always”, WHICH IS THE "
+    "DEFAULT, the Software files the report described in Section 5.5 "
+    "automatically when a run fails, without showing it to You first. It "
+    "files each distinct error once: where an open issue already carries "
+    "the same error, the report is added to that issue as a comment instead "
+    "of opening a new one. Automatic filing uses the GitHub command line "
+    "tool’s sign-in or a GITHUB_TOKEN on Your equipment; without one, "
+    "nothing is filed automatically. With “ask”, a report is shown "
+    "to You in an editable preview and is sent only when You press Send "
+    "report. With “never”, no report is sent. BY ACCEPTING THIS "
+    "AGREEMENT WITH THE SETTING AT “always”, YOU AGREE TO THE "
+    "AUTOMATIC FILING OF THESE REPORTS. You may change the setting at any "
+    "time under Help > Set spaCR up again…, on the page “When "
+    "something breaks”, or stop all reports by turning off “Report "
+    "errors as GitHub issues” in the AI Console’s settings.",
+    "5.7 You are responsible for the content of anything You elect to send "
+    "or allow to be sent automatically. The Software redacts "
+    "credential-shaped values and file paths on a best efforts basis; it "
+    "cannot identify material that is confidential for reasons particular "
+    "to Your work.",
 
     "6. THIRD PARTY SERVICES",
     "6.1 The Software can be configured to send a question to a third party "

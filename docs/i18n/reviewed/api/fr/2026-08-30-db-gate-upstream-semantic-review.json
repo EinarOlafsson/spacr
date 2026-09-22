@@ -735,7 +735,9 @@
       "source_sha256": "a0aac9145249f1675ee0380260d152d217a7abe140e85aad3871ec30da1c319b",
       "source": "Go home",
       "context": "Go home",
-      "translation": "Aller à l’accueil"
+      "translation": "Aller à l’accueil",
+      "retired": true,
+      "retired_reason": "Nightly 2ad085145 changed Home to Ctrl+0 and added the macOS Cmd+H Hide explanation. Historical review retained; replacement reviewed in 2026-09-21-home-shortcut.json."
     },
     {
       "label": "spacr.qt.shortcuts#3",
@@ -756,35 +758,45 @@
       "source_sha256": "c6dfcaaf584d43883a7774abc6d5ecbb96cd8f88213b02731efc16aaaa57605d",
       "source": "Show the shortcuts cheat sheet",
       "context": "Show the shortcuts cheat sheet",
-      "translation": "Afficher l’aide-mémoire des raccourcis"
+      "translation": "Afficher l’aide-mémoire des raccourcis",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#6",
       "source_sha256": "b620ad7fe4f2262ce275fd6d2c2a075e04c2ae07c755334b53a4a4bc8eb48014",
       "source": "Open Preferences",
       "context": "Open Preferences",
-      "translation": "Ouvrir les préférences"
+      "translation": "Ouvrir les préférences",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#7",
       "source_sha256": "28e0cf78e56e1645f89870c21f724927c252feb4c9893527ef3d934629d23d8d",
       "source": "Open the AI Console",
       "context": "Open the AI Console",
-      "translation": "Ouvrir la console d’IA"
+      "translation": "Ouvrir la console d’IA",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#8",
       "source_sha256": "4eab630d14a6b46693bcfdcc3b15f9d72a353322487efdeaab9c7bd8c6bddac3",
       "source": "Ctrl+End      Jump to the newest console line F11           Toggle full screen Esc           Close any open dialog / popup",
       "context": "Ctrl+End      Jump to the newest console line F11           Toggle full application view Esc           Close any open dialog / popup",
-      "translation": "Ctrl+End      Aller à la ligne la plus récente de la console F11           Activer ou désactiver le plein écran Esc           Fermer toute boîte de dialogue / fenêtre contextuelle ouverte"
+      "translation": "Ctrl+End      Aller à la ligne la plus récente de la console F11           Activer ou désactiver le plein écran Esc           Fermer toute boîte de dialogue / fenêtre contextuelle ouverte",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.qt.shortcuts#9",
       "source_sha256": "c5a8df6d934ec0ee494f57dc3cce20a2f929bf9df889377716e6ed1af2bd37ce",
       "source": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
       "context": ":func:`install` is called once from ``MainWindow.__init__``. Every binding is documented in :data:`SHORTCUTS` so the cheat-sheet dialog stays in sync with what's actually wired up.",
-      "translation": ":func:`install` est appelée une fois depuis ``MainWindow.__init__``. Chaque liaison est documentée dans :data:`SHORTCUTS` afin que la boîte de dialogue de l’aide-mémoire reste synchronisée avec ce qui est réellement connecté."
+      "translation": ":func:`install` est appelée une fois depuis ``MainWindow.__init__``. Chaque liaison est documentée dans :data:`SHORTCUTS` afin que la boîte de dialogue de l’aide-mémoire reste synchronisée avec ce qui est réellement connecté.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.shortcuts's documentation, which was rewritten by '422: a search field beside Help finds a setting, a module, a preference or an API entry, and takes you to it' (376917a89, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.settings.get_perform_regression_default_settings#0",

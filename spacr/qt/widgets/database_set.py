@@ -214,8 +214,8 @@ class DatabaseSetWidget(QWidget):
         self._plan = None
         #: THE READS LEAVE THE GUI THREAD. `_read_the_merge` stats every
         #: database and then opens each of them with sqlite, and the paths are
-        #: the user's own -- one of the maintainer's is an `autofs` mount that
-        #: had not answered a single stat after twenty seconds. Doing that
+        #: the user's own -- an `autofs` mount can fail to answer a single
+        #: stat for twenty seconds. Doing that
         #: while a settings panel is being laid out froze the application.
         #:
         #: `user_visible=False`: nothing here is a run the user started, so it

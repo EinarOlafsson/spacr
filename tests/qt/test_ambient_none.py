@@ -53,13 +53,20 @@ def _screen(qtbot, app_key="measure"):
 # The choice itself
 # ---------------------------------------------------------------------------
 
-def test_none_is_offered_alongside_the_six_animations():
+def test_none_is_offered_alongside_every_animation():
+    """The list is pinned because the ORDER is the menu's order.
+
+    ``resonance`` joined it on 2026-09-19 (instruction 427 part B) and is
+    last for the reason a new animation always will be: the stored
+    preference is a name, so inserting one in the middle would renumber
+    nothing and reorder everybody's menu for no reason.
+    """
     ambient = _ambient()
     assert ambient.NO_ANIMATION == "none"
     assert ambient.ANIMATION_CHOICES == (ambient.NO_ANIMATION,) + \
-        ("blobs", "aurora", "ripple", "drift", "bokeh", "cells")
+        ("blobs", "aurora", "ripple", "drift", "bokeh", "cells", "resonance")
     assert ambient.AMBIENT_THEMES == ("blobs", "aurora", "ripple", "drift",
-                                      "bokeh", "cells"), (
+                                      "bokeh", "cells", "resonance"), (
         "None must not join the paintable themes: make_engine, "
         "_require_theme and every engine test mean 'can be drawn' by it")
 

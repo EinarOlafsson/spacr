@@ -766,7 +766,7 @@ def test_straightness_filter_drops_tracks_and_prunes_wells():
             ("plate1", "A02", 1, 3, [0, 5, 0, 5], [0, 0, 0, 0], False),
         ]
     )
-    settings = {"straightness_filter": True, "straightness_threshold": 0.95}
+    settings = {"drop_straight_tracks": True, "straightness_threshold": 0.95}
     track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
         df, settings, "infected", None, None
     )
@@ -792,7 +792,7 @@ def test_straightness_filter_can_remove_every_track():
             ("plate1", "A02", 1, 2, [0, 1, 2], [0, 0, 0], False),
         ]
     )
-    settings = {"straightness_filter": True, "straightness_threshold": 0.5}
+    settings = {"drop_straight_tracks": True, "straightness_threshold": 0.5}
     track_df, per_well, well_df, unit = _compute_velocities_and_well_summary(
         df, settings, "infected", 1.0, 60.0
     )

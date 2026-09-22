@@ -231,14 +231,30 @@ def test_the_logo_opens_the_install_page_when_there_is_no_cli(slides,
                                                               debug_log):
     """With no ``gh`` there is nothing to log in to, so the click installs one
     instead: a control that says "not installed" and then does nothing is the
-    dead button this row was reported for."""
+    dead button this row was reported for.
+
+    CHANGED 2026-09-19, item 420: the click now asks first, offering Install
+    beside the install page ("and same for the github cli"). The page is still
+    one press away, and this drives that press."""
     opened = []
     monkeypatch.setattr(QDesktopServices, "openUrl",
                         staticmethod(lambda url: opened.append(url.toString())
                                      or True))
+    offered = {}
+
+    def press_open_the_page(box):
+        offered["buttons"] = [b.text() for b in box.buttons()]
+        offered["pressed"] = next(b for b in box.buttons()
+                                  if b.text() == "Open the page")
+        return 0
+
+    monkeypatch.setattr(QMessageBox, "exec", press_open_the_page)
+    monkeypatch.setattr(QMessageBox, "clickedButton",
+                        lambda box: offered.get("pressed"))
     slides._gh_action = "install"
     assert slides._on_github_mark() is True
     assert opened == [SetupSlides.GITHUB_CLI_PAGE]
+    assert "Copy the command" in offered["buttons"]
     monkeypatch.setattr(QDesktopServices, "openUrl", staticmethod(_boom))
     assert slides._open_in_the_browser(SetupSlides.GITHUB_CLI_PAGE) is False
     assert "could not open" in debug_log.text

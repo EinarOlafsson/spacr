@@ -198,7 +198,7 @@ def test_the_listing_spells_out_unknown_provenance_and_never_leaves_it_blank(
     root, _a, _b = local_models
     screen.scan(str(root), include_catalogue=False)
     by_name = {row[0]: row for row in screen.rows()}
-    trained_on = 6
+    trained_on = 2
 
     assert by_name["no_provenance.CP_model"][trained_on] == "unknown"
     assert by_name["no_provenance.CP_model"][trained_on] != ""
@@ -260,9 +260,9 @@ def test_a_download_installs_verified_and_replaces_the_catalogue_row(
     assert installed.sha256 == digest
     assert installed.verified is True
     assert (dest / "hela_60x.CP_model").read_bytes() == source.read_bytes()
-    assert [row[5] for row in screen.rows()] == ["verified"]
+    assert [row[3] for row in screen.rows()] == ["installed"]
     # Provenance survived the download; that is the point of the catalogue.
-    assert "HeLa, 60x, confluent monolayer" in screen.rows()[0][6]
+    assert "HeLa, 60x, confluent monolayer" in screen.rows()[0][2]
 
 
 def test_a_checksum_mismatch_is_reported_inline(screen, remote_entry, tmp_path):
@@ -322,7 +322,10 @@ def test_download_needs_exactly_one_selected_model(screen, remote_entry):
     assert screen.download_selected() is False
     assert "Select a model to download" in screen.status_text()
 
-    screen.set_entries([entry, entry])
+    import dataclasses
+    other = dataclasses.replace(entry, key=str(entry.key) + "_other",
+                                name=str(entry.name) + "_other")
+    screen.set_entries([entry, other])
     screen.select(0, 1)
     assert screen.download_selected() is False
     assert "exactly one" in screen.status_text()
@@ -737,7 +740,7 @@ def test_an_empty_folder_box_reads_the_catalogue_alone(screen):
     finally:
         zoo.catalogue = real
 
-    assert [row[0] for row in screen.rows()] == ["cpsam"]
+    assert [row[0] for row in screen.rows()] == ["bundled"]
     assert "No such folder" not in screen.status_text()
 
 

@@ -1,17 +1,32 @@
 {
-  "lesson": "09_annotate", "language": "zh-CN",
-  "english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
-  "review": {"kind": "Editorial translation checked against English and the verified real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish queued labels from database persistence through real Next/Back actions.", "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question."]},
+  "lesson": "09_annotate",
+  "language": "zh-CN",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
+  "review": {
+    "kind": "Editorial translation checked against English and the verified real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish queued labels from database persistence through real Next/Back actions.",
+      "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
+    ]
+  },
   "title": "Annotate：真实裁剪图像、已保存标签和复核工具",
   "description": "加载可下载的裁剪图像数据集，创建独立标注列，验证真正保存的标签，调整视图，并找到当前 Annotate 模块中的复核与训练工具。",
-  "objectives": ["选择合适的裁剪图像或按需读取示例，并打开实际项目文件夹。", "使用独立标注列，区分待保存与已持久化的标签，在不修改原始标注的前提下清除演示标签。", "检查类别计数与覆盖情况，在不修改图像文件的前提下改变显示颜色。", "找到嵌套的 Agreement 流程、当前训练入口、标注数据库生成器和可选的 AI 控制台。"],
-  "prerequisite": "打开 spaCR，在 Core 模块中选择 Annotate。本录像使用可下载的 Load 数据集：2,341 张已导出的 PNG 裁剪图像及其测量数据库。不需要训练模型或使用人工智能服务。正式标注前应先定义生物学类别；这里的临时标签只演示保存过程，不代表生物学判断。",
+  "objectives": [
+    "选择合适的裁剪图像或按需读取示例，并打开实际项目文件夹。",
+    "使用独立标注列，区分待保存与已持久化的标签，在不修改原始标注的前提下清除演示标签。",
+    "检查类别计数与覆盖情况，在不修改图像文件的前提下改变显示颜色。",
+    "找到嵌套的 Agreement 流程、当前训练入口、标注数据库生成器和可选的 AI 控制台。"
+  ],
+  "prerequisite": "使用 spaCR 1.5.0.8 录制。在通过不含个人信息的录制路径选择同一组示例文件之前，已独立验证自动打开功能。 打开 spaCR，在 Core 模块中选择 Annotate。本录像使用可下载的 Load 数据集：2,341 张已导出的 PNG 裁剪图像及其测量数据库。不需要训练模型或使用人工智能服务。正式标注前应先定义生物学类别；这里的临时标签只演示保存过程，不代表生物学判断。",
   "scenes": [
     "在 Core 模块中打开 Annotate。主要工作区是由测量数据库支持的裁剪图像网格。当前模块还包含覆盖检查、学习与训练控件、数据库生成，以及嵌套的 Annotator Agreement 工具。",
     "选择 Load test data，查看两个选项。Load 提供已导出的裁剪图像和数据库。示例包含两千三百四十一张裁剪图像，格式为 PNG。本录像复用此前下载的完整缓存，没有虚构图像或标签。",
-    "Stream 提供合并图像数组和数据库，可按需获取裁剪图像。应按希望读取图像的方式选择；下载其中一个，并不能证明另一个也已具备。本次演示始终使用 Load。",
-    "如果下载后网格仍提示未选择来源，请选择 Open source。指定包含 measurements 子文件夹及其数据库的培养板文件夹，而不是数据库文件本身。这是录像所示应用版本实际需要的额外步骤。",
-    "确认真实裁剪图像已显示，页码计数与预期数据集一致。每页图像数取决于窗口与图像大小。成功打开文件夹并不足够；在做出标注判断前，应先查看图像。",
+    "Stream 提供合并后的图像数组，以便按需获取裁剪图像。如果缺少测量数据库，也会一并下载。Load 提供已保存的裁剪图像及其数据库。本演示全程使用 Load；请根据您希望读取图像的方式选择相应选项。",
+    "Load test data 会自动打开下载的板。对于已有的本地板，Open source 是一种可选方式：请选择包含 measurements 及其数据库的板文件夹，而不是数据库文件本身。这里我们选择指向同一组示例文件、不含个人信息的录制路径。",
+    "确认真实裁剪图像已显示，页码计数与预期数据集一致。每页图像数取决于窗口与裁剪图像的大小。成功打开文件夹并不足够；在做出标注判断前，应先查看图像。",
     "打开 Settings，为本次演示创建独立的标注列。保留原始标签不变。正式工作前，记录每个类别的含义，并统一显示方式。接下来设置的示例标签只用于测试保存路径。",
     "左键点击第一张图像，赋予类别一。右键赋予类别二，再次选择同一类别会清除标签。类别颜色的圆环表示当前决定，额外的白色圆环表示焦点。仅仅看到圆环变化，并不能证明标签已经写入数据库。",
     "点击 Next 离开当前页。这个版本在换页时将待保存标签提交给后台保存进程。我们检查了实际数据库，确认类别一已写入。不要把尚未保存的视觉变化当作存储完成。",

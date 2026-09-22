@@ -149,7 +149,9 @@ def test_generate_cellpose_train_test(tmp_path):
 # ---------------------------------------------------------------------------
 
 def test_check_masks(tmp_path):
-    (tmp_path / "b.npy").write_bytes(b"")   # b already exists → filtered out
+    # b already exists as a whole mask → filtered out. A zero-byte b.npy
+    # would be regenerated: masks are validated before reuse (2026-09-19).
+    np.save(tmp_path / "b.npy", np.zeros((4, 4), np.uint16))
     batch = [np.zeros((4, 4)), np.ones((4, 4)), np.full((4, 4), 2)]
     names = ["a.npy", "b.npy", "c.npy"]
     fb, fn = IO._check_masks(batch, names, str(tmp_path))

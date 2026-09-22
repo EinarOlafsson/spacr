@@ -10,7 +10,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_MessageBubble.__init__](#_messagebubble__init__) (1 entry)
 - [_ProvidersDialog.__init__](#_providersdialog__init__) (1 entry)
 - [_ProvidersDialog._build_providers_tab](#_providersdialog_build_providers_tab) (1 entry)
-- [_ProvidersDialog._build_settings_tab](#_providersdialog_build_settings_tab) (6 entries)
+- [_ProvidersDialog._build_settings_tab](#_providersdialog_build_settings_tab) (7 entries)
 - [_ProvidersDialog._make_provider_row](#_providersdialog_make_provider_row) (2 entries)
 - [AIChatPanel.__init__](#aichatpanel__init__) (2 entries)
 - [AIChatPanel._build_ui](#aichatpanel_build_ui) (1 entry)
@@ -104,6 +104,14 @@ self._prompt_edit._spacr_setting_label = prompt_label
 ```
 
 Its heading, for the same reason as the speed combo above.
+
+### 2026-09-19: the report setting says what it does
+
+```python
+"<span style='color:gray;'>When a run fails, a \"File as "
+```
+
+The old description promised a "File as GitHub issue" button in an "Explain-error flow", which opened the browser. The toggle read "one-click issue filing from the error dialog". Neither describes spaCR since 807ba9e0a (2026-08-14). The button is "File as issue", in the row under the console. It opens an editable preview in spaCR, and the report goes out only when Send report is pressed, through `gh` when there is a session and through the browser otherwise. There is no error dialog. In GitHub #117 a user who had reporting switched on expected an issue to be filed automatically. The caption now says, where the setting is switched on, that nothing is sent automatically.
 
 ## _ProvidersDialog._make_provider_row
 

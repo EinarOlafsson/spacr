@@ -343,7 +343,7 @@ def test_the_dialog_warns_on_selection_not_after_saving(qtbot,
     dlg = PreferencesDialog()
     qtbot.addWidget(dlg)
     combo = dlg.findChild(QComboBox, "PerformanceLevel")
-    note = dlg.findChild(QLabel, "SpacrModeNote")
+    note = dlg.findChild(QLabel, "PerformanceLevelNote")
     keys = [combo.itemData(i) for i in range(combo.count())]
 
     combo.setCurrentIndex(keys.index("balanced"))

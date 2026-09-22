@@ -76,6 +76,11 @@ DISCLOSURE_NAME = "SettingsSearchDisclosure"
 #: page — see `_bar_qss`.
 PANE_NAME = "SettingsSearchPane"
 
+#: How long a row revealed from the Help search box stays outlined. Long
+#: enough to find with the eye after the page has settled, short enough that
+#: the form is not left permanently marked up.
+_MARK_MS = 4000
+
 #: Where the per-module Essentials/All choice is remembered.
 _QSETTINGS_ORG = "spacr"
 _QSETTINGS_APP = "qt"
@@ -196,6 +201,8 @@ class SettingsSearchBar(QWidget):
             getattr(screen, "_settings_sections", []) or [])
         self._restore_expanded: Optional[Dict[int, bool]] = None
         self._level = disclosure_for(self._app_key)
+        self._grid_section_counted: Optional[QWidget] = None
+        self._sections_kept: Optional[set] = None
 
         column = QVBoxLayout(self)
         column.setContentsMargins(0, 0, 0, 4)
@@ -272,6 +279,34 @@ class SettingsSearchBar(QWidget):
         """Switch disclosure level and remember the choice."""
         self._disclosure.setChecked(level == ALL)
 
+    def _show_all_without_remembering(self) -> None:
+        """Put every setting on the form without writing that to the store.
+
+        The user's Essentials/All choice is a choice, and arriving from
+        somewhere else is not the user making it again. Showing a row that
+        Essentials hides needs the level raised on the form; it does not
+        need that raise written to ``QSettings``, and writing it means a
+        lookup permanently moves a module out of Essentials -- on Mask, 190
+        rendered rows against a handful of essentials, so the common case.
+
+        Blocking the toggle's own signal is what separates the two: the
+        button, the level and the caption all move, and
+        :meth:`_on_disclosure_toggled` -- which is the only caller of
+        :func:`remember_disclosure` -- does not run. Clicking the button
+        still remembers, because that is the user choosing.
+
+        One direction only, deliberately: showing a hidden row is the one
+        reason to move the level behind the user's back, and there is no
+        reason to lower it behind their back at all.
+        """
+        blocked = self._disclosure.blockSignals(True)
+        try:
+            self._disclosure.setChecked(True)
+        finally:
+            self._disclosure.blockSignals(blocked)
+        self._level = ALL
+        self._refresh_disclosure_text()
+
     def modified_only(self) -> bool:
         """True when the Modified filter is on."""
         return self._modified.isChecked()
@@ -294,6 +329,124 @@ class SettingsSearchBar(QWidget):
         """Every setting key the strip can show or hide."""
         return list(self._index)
 
+    def section_of(self, key: str) -> Optional[QWidget]:
+        """The section widget holding ``key``'s row, or ``None``.
+
+        :param key: a setting key.
+        :returns: the collapsible section, or ``None`` when this module does
+            not render that setting.
+        """
+        row = self._index.get(str(key))
+        return row[0] if row else None
+
+    def reveal(self, key: str) -> bool:
+        """Show one setting with every other category shut.
+
+        WHAT A HELP-SEARCH RESULT NEEDS, and it is deliberately NOT the
+        search filter. Typing the key into the box above would hide every other
+        setting as well, so a user who arrived from the Help search and then
+        wanted to look at the neighbouring rows would first have to work out
+        what had happened to the form. Revealing instead leaves the module
+        whole and only decides which heading is open.
+
+        Nothing is rebuilt and no value is read or written: the row was
+        already on the form, and this shows its section and scrolls to it.
+        That is what makes arriving here from a search safe for a half-typed
+        value -- the same property the filter has, for the same reason.
+
+        THE DISCLOSURE LEVEL IS CHANGED ONLY IF IT HAS TO BE, AND THE CHANGE
+        IS NEVER REMEMBERED. Switching to All settings unconditionally would
+        work, and it would also rewrite this module's remembered
+        Essentials/All choice every time anybody arrived here -- a setting
+        the user chose, changed as a side effect of looking something up. So
+        the filter is cleared first and the level is raised only when the row
+        is still not on the form afterwards, which is exactly the case where
+        Essentials is what is hiding it; and the raise goes through
+        :meth:`_show_all_without_remembering`, so the form shows the row
+        while the store still holds the level the user picked. Most settings
+        are not essentials, so a lookup that persisted the raise would move
+        almost every module out of Essentials for good.
+
+        :param key: the setting to reveal.
+        :returns: True when the module renders ``key`` and it was revealed.
+        """
+        row = self._index.get(str(key))
+        if row is None:
+            return False
+        section, field = row
+        self._input.clear()
+        self._modified.setChecked(False)
+        self.apply()
+        if not _row_is_visible(section, field) and self._level != ALL:
+            self._show_all_without_remembering()
+            self.apply()
+        for other in self._sections:
+            if not hasattr(other, "set_expanded"):
+                continue
+            try:
+                other.set_expanded(other is section)
+            except Exception:
+                LOG.debug("could not collapse a section", exc_info=True)
+        self._restore_expanded = None
+        _set_row_visible(section, field, True)
+        section.setVisible(True)
+        self._revealed = str(key)
+        self._mark(field)
+        QTimer.singleShot(0, lambda: self._scroll_to(field))
+        return True
+
+    def revealed_key(self) -> str:
+        """The setting :meth:`reveal` last showed, or ``""``."""
+        return getattr(self, "_revealed", "")
+
+    def _mark(self, field: QWidget) -> None:
+        """Outline ``field`` for a few seconds so the eye finds it.
+
+        A STATIC MARK, not a flash: anything that moves has to answer to the
+        Animation preferences and to the reduced-motion equivalents, and a
+        border that simply appears and then goes away needs neither and is
+        not lost on anybody who turned motion off.
+
+        The previous stylesheet is put back rather than cleared, so a field
+        that carried one of its own -- a validation warning, say -- still
+        carries it afterwards.
+
+        :param field: the field widget to outline.
+        """
+        previous = field.styleSheet()
+        field.setProperty("spacrRevealed", True)
+        field.setStyleSheet(
+            previous + "\nQWidget { border: 1px solid palette(highlight); }")
+
+        def _unmark() -> None:
+            """Put the field back the way it was found."""
+            try:
+                field.setProperty("spacrRevealed", False)
+                field.setStyleSheet(previous)
+            except RuntimeError:
+                LOG.debug("the marked row went away before the mark did")
+
+        QTimer.singleShot(_MARK_MS, _unmark)
+
+    def _scroll_to(self, field: QWidget) -> None:
+        """Bring ``field`` into view and put the caret in it.
+
+        Deferred by one event-loop turn from :meth:`reveal`, because a
+        section that has just been expanded has no geometry yet and
+        ``ensureWidgetVisible`` on a widget with none scrolls to the top of
+        the form -- which looks exactly like the failure this is here to
+        prevent.
+
+        :param field: the field widget to show.
+        """
+        try:
+            scroll = self._screen.findChild(QScrollArea)
+            if scroll is not None:
+                scroll.ensureWidgetVisible(field, 0, 40)
+            field.setFocus(Qt.ShortcutFocusReason)
+        except RuntimeError:
+            LOG.debug("the row went away before it could be shown")
+
     def add_trailing_widget(self, widget: QWidget) -> None:
         """Add ``widget`` to the right-hand end of the control row.
 
@@ -311,12 +464,30 @@ class SettingsSearchBar(QWidget):
         read rather than recomputing it."""
         return self._count.text()
 
-    def apply(self) -> None:
+    def apply(self, reopen: bool = True) -> None:
         """Recompute which rows and sections are shown.
 
         Called on every change to the query, the Modified filter or the
         disclosure level — one path, so the three can never disagree about
-        what should be on screen.
+        what should be on screen. The screen also calls it after each pass of
+        the object rule, so a channel the user commits is judged by the same
+        filter as every other row.
+
+        The per-object table has no form rows of its own to count. Its
+        section is counted by the settings it answers for instead, so under
+        Essentials the table stays on screen while it holds the channels,
+        which the flat form no longer shows while the table is on.
+
+        A heading that holds only sub-headings has no rows of its own
+        either, so its matches are rolled up out of the headings below it
+        before any section is hidden — see
+        :meth:`_counting_the_sub_headings`.
+
+        :param reopen: while the filter narrows, open every section it
+            keeps. The screen passes ``False`` when it re-applies the filter
+            after the object rule or after laying out rows: a section the
+            user shut then stays shut, and only a section this call brings
+            back onto the form is opened.
         """
         model = self._model
         if model is None or not self._index:
@@ -324,37 +495,56 @@ class SettingsSearchBar(QWidget):
             return
 
         total = len(self._index)
-        wanted = set(self._index)
-
+        hidden: set = set()
         hidden_by_run = getattr(model, "keys_hidden_by_the_run", None)
         if callable(hidden_by_run):
             try:
-                wanted -= set(hidden_by_run())
+                hidden = set(hidden_by_run())
             except Exception:                                # noqa: BLE001
-                pass
+                hidden = set()
+        by_grid = set(getattr(model, "_hidden_by_the_grid", ()) or ())
+        lacking = getattr(model, "_hidden_by_their_object", None)
+        lacking = set(lacking) if lacking is not None else hidden - by_grid
+        grid_section, grid_keys = self._grid_section()
 
         query = self._input.text().strip()
+        matching: Optional[set] = None
         if query:
             try:
-                wanted &= set(model.keys_matching(query))
+                matching = set(model.keys_matching(query))
             except Exception:
                 LOG.debug("settings search failed for %r", query, exc_info=True)
 
+        modified: Optional[set] = None
         if self._modified.isChecked():
             try:
-                wanted &= set(model.modified_keys())
+                modified = set(model.modified_keys())
             except Exception:
                 LOG.debug("modified-only filter failed", exc_info=True)
 
         essentials: List[str] = []
+        essential_set: set = set()
         if self._level == ESSENTIALS:
             try:
-                essentials = [k for k in model.essential_keys()
-                              if k in self._index]
+                essential_set = set(model.essential_keys())
             except Exception:
                 LOG.debug("essential keys unavailable", exc_info=True)
+            essentials = [k for k in self._index if k in essential_set]
+
+        def narrowed(keys: set) -> set:
+            """``keys`` less whatever the query, Modified and level exclude."""
+            out = set(keys)
+            if matching is not None:
+                out &= matching
+            if modified is not None:
+                out &= modified
             if essentials:
-                wanted &= set(essentials)
+                out &= essential_set
+            return out
+
+        wanted = narrowed(set(self._index) - hidden)
+        in_the_grid = (narrowed(set(grid_keys) - lacking)
+                       if grid_section is not None else set())
 
         for key, (section, field) in self._index.items():
             _set_row_visible(section, field, key in wanted)
@@ -364,12 +554,98 @@ class SettingsSearchBar(QWidget):
             if key in wanted:
                 shown_per_section[id(section)] = (
                     shown_per_section.get(id(section), 0) + 1)
+        if grid_section is not None:
+            shown_per_section[id(grid_section)] = len(in_the_grid)
 
         narrowing = bool(query) or self._modified.isChecked() \
             or (self._level == ESSENTIALS and bool(essentials))
-        self._apply_section_state(shown_per_section, narrowing)
+        self._apply_section_state(
+            self._counting_the_sub_headings(shown_per_section),
+            narrowing, reopen)
         self._count.setText(
             self._compose_count(len(wanted), total, len(essentials)))
+
+    def _counting_the_sub_headings(
+            self, shown: Dict[int, int]) -> Dict[int, int]:
+        """Add what each heading's sub-headings keep to the heading's count.
+
+        A heading that owns no form rows -- ``Advanced settings``, and the
+        object families nested under it -- counts zero however many rows
+        match below it, and :meth:`_apply_section_state` hides whatever
+        counts zero while the view narrows. That took the matches off screen
+        with the umbrella: on a built Mask screen under All settings,
+        searching ``remove border objects`` reported one match and left
+        ``cell_remove_border_objects`` visible on the ``Cell`` form, while
+        ``Object Filtration (all objects)`` and ``Advanced settings`` above
+        it were both hidden, so the match the count line promised was
+        nowhere.
+
+        Counted upwards rather than down: every heading this strip decides is
+        already in ``_sections``, and its ancestors are read off the widget
+        tree, so a heading nested at any depth reaches each umbrella above it
+        without a second description of the layout to keep in step.
+
+        :param shown: how many rows each section keeps, by ``id()``.
+        :returns: a new mapping — each heading's own count plus every count
+            below it. The count line is composed from the matching keys and
+            is not affected, so a rolled-up heading adds nothing to it.
+        """
+        known = {id(section): section for section in self._sections}
+        rolled = dict(shown)
+        for section in self._sections:
+            count = shown.get(id(section), 0)
+            if not count:
+                continue
+            reached = {id(section)}
+            try:
+                node = section.parentWidget()
+            except RuntimeError:
+                continue
+            while node is not None:
+                marker = id(node)
+                if marker in known and marker not in reached:
+                    rolled[marker] = rolled.get(marker, 0) + count
+                    reached.add(marker)
+                try:
+                    node = node.parentWidget()
+                except RuntimeError:
+                    break
+        return rolled
+
+    def _grid_section(self) -> Tuple[Optional[QWidget], frozenset]:
+        """The per-object table's section and the settings it answers for.
+
+        The table can be mounted or taken down by Preferences after this
+        strip was built, so the section is looked up on every call and the
+        list of sections this strip decides is kept in step with it: a
+        section that was taken down is dropped before it can be touched.
+
+        :returns: ``(section, keys)``, or ``(None, frozenset())`` when the
+            screen shows no table.
+        """
+        screen = self._screen
+        grid = getattr(screen, "_object_grid", None)
+        binding = getattr(screen, "_object_grid_binding", None)
+        section: Optional[QWidget] = None
+        keys: frozenset = frozenset()
+        if grid is not None and binding is not None:
+            try:
+                node = grid.parentWidget()
+                while node is not None and not hasattr(node, "add_prose_row"):
+                    node = node.parentWidget()
+                section = node
+                keys = (frozenset(binding.owned_keys()) if node is not None
+                        else frozenset())
+            except RuntimeError:
+                section, keys = None, frozenset()
+        previous = self._grid_section_counted
+        if previous is not section:
+            self._sections = [s for s in self._sections if s is not previous]
+            if section is not None and not any(
+                    s is section for s in self._sections):
+                self._sections.append(section)
+            self._grid_section_counted = section
+        return section, keys
 
     def _on_query_changed(self, _text: str) -> None:
         """Re-apply the filter after the search text changed.
@@ -422,9 +698,22 @@ class SettingsSearchBar(QWidget):
         screen kept, rather than by re-deriving the layout: the screen has
         already decided which key went where, and a second opinion here would
         be a second thing to keep in sync.
+
+        A SUB-HEADING IS A ROW OF ITS PARENT'S FORM and is skipped here. A
+        nested :class:`~spacr.qt.widgets.section.Section` is added with
+        ``add_prose``, which spans the form, and PySide hands a spanning
+        widget back for the field role — so the search below it walked into
+        the sub-heading and claimed the first setting it found there for the
+        parent. Measured on Mask and on Timelapse: six keys each,
+        ``cell_min_area`` among them, recorded against a heading two levels
+        above the form that draws them, because the sections are indexed
+        deepest first and the parent's pass overwrote the right answer. The
+        row it recorded was the sub-heading itself, so hiding that "row"
+        hid the whole sub-heading and everything under it.
         """
         widgets = getattr(self._model, "_widgets", {}) or {}
         by_widget = {id(w): key for key, w in widgets.items()}
+        headings = {id(section) for section in self._sections}
         for section in self._sections:
             form = _form_of(section)
             if form is None:
@@ -432,7 +721,7 @@ class SettingsSearchBar(QWidget):
             for i in range(form.rowCount()):
                 item = form.itemAt(i, QFormLayout.FieldRole)
                 field = item.widget() if item is not None else None
-                if field is None:
+                if field is None or id(field) in headings:
                     continue
                 key = by_widget.get(id(field))
                 if key is None:
@@ -444,7 +733,7 @@ class SettingsSearchBar(QWidget):
                     self._index[key] = (section, field)
 
     def _apply_section_state(self, shown: Dict[int, int],
-                             narrowing: bool) -> None:
+                             narrowing: bool, reopen: bool = True) -> None:
         """Hide emptied sections; open the surviving ones while narrowing.
 
         A filter that leaves every section collapsed has told the user how
@@ -452,12 +741,20 @@ class SettingsSearchBar(QWidget):
         not filtering. So a narrowing view expands what it kept — and
         remembers what was open beforehand, so releasing the filter restores
         the form the user had rather than one it invented.
+
+        :param shown: how many rows each section keeps, by ``id()``.
+        :param narrowing: whether a query, Modified or Essentials narrows.
+        :param reopen: open every kept section; ``False`` opens only the
+            sections the previous call did not keep.
         """
         if narrowing and self._restore_expanded is None:
             self._restore_expanded = {
                 id(s): bool(s.is_expanded()) for s in self._sections
                 if hasattr(s, "is_expanded")
             }
+        kept_before = self._sections_kept
+        self._sections_kept = {
+            id(s) for s in self._sections if shown.get(id(s), 0) > 0}
         for section in self._sections:
             count = shown.get(id(section), 0)
             visible = count > 0
@@ -467,7 +764,8 @@ class SettingsSearchBar(QWidget):
             if not hasattr(section, "set_expanded"):
                 continue
             if narrowing:
-                if visible:
+                if visible and (reopen or kept_before is None
+                                or id(section) not in kept_before):
                     section.set_expanded(True)
             elif self._restore_expanded is not None:
                 section.set_expanded(
@@ -594,7 +892,15 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         return None
     try:
         index = parent.indexOf(scroll)
-        sizes = list(parent.sizes())
+        # THE SIZES ARE ONLY WORTH KEEPING ONCE THERE ARE SOME. A splitter
+        # that has never been laid out answers `sizes()` with pre-layout
+        # defaults, so restoring them after the insert would WRITE those
+        # defaults over the layout the first show is about to compute --
+        # this file's own WATCH list warns about reading geometry before
+        # the layout settles. Installing before the screen is shown is the
+        # point of doing it early (item 380), so the unlaid case is the
+        # common one now rather than the exception.
+        sizes = list(parent.sizes()) if scroll.isVisible() else []
         bar = SettingsSearchBar(screen)
         container = QWidget()
         container.setObjectName(PANE_NAME)
@@ -607,7 +913,7 @@ def install(screen: QWidget) -> Optional[SettingsSearchBar]:
         container.show()
         scroll.show()
         bar.show()
-        if len(sizes) == parent.count():
+        if sizes and len(sizes) == parent.count():
             parent.setSizes(sizes)
     except Exception:
         LOG.debug("could not install the settings search strip", exc_info=True)

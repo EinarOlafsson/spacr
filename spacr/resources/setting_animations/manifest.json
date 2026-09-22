@@ -1373,16 +1373,16 @@
     },
     {
       "category": "Tracking & volumetric",
-      "file": "gifs/straightness_filter.gif",
+      "file": "gifs/drop_straight_tracks.gif",
       "params": {
         "mode": "straightness"
       },
       "scene": "tracking",
       "settings": [
-        "straightness_filter",
+        "drop_straight_tracks",
         "straightness_threshold"
       ],
-      "slug": "straightness_filter",
+      "slug": "drop_straight_tracks",
       "title": "Remove overly straight tracks",
       "validation": {
         "bytes": 53688,
@@ -1393,15 +1393,15 @@
     },
     {
       "category": "Tracking & volumetric",
-      "file": "gifs/zscore_thresh.gif",
+      "file": "gifs/track_outlier_zscore.gif",
       "params": {
         "mode": "zscore"
       },
       "scene": "tracking",
       "settings": [
-        "zscore_thresh"
+        "track_outlier_zscore"
       ],
-      "slug": "zscore_thresh",
+      "slug": "track_outlier_zscore",
       "title": "Smooth per-track outliers",
       "validation": {
         "bytes": 38209,

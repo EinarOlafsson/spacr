@@ -155,6 +155,93 @@ def test_detected_wells_are_cropped_named_and_recorded(tmp_path, monkeypatch):
     }
 
 
+def test_the_plate_reaches_the_detector_and_the_crop_in_reader_order(
+    tmp_path, monkeypatch
+):
+    """The split pass hands on what the reader gave it, and converts nothing.
+
+    ``cellpose.io.imread`` is spaCR's house reader and returns RGB. Since
+    instruction 445 the BGR conversion ultralytics needs lives inside
+    :func:`spacr.plaque.detect_wells`, at its own door, so EVERY caller is
+    right rather than each caller remembering. A conversion here as well
+    would swap twice and restore the bug, and -- the reason this is asserted
+    of ``crop_well`` too -- the pixels that get SAVED must stay RGB, or every
+    well crop the user opens has red and blue exchanged.
+    """
+    from spacr import plaque
+
+    (tmp_path / "plate.tif").write_bytes(b"image")
+    image = np.zeros((10, 10, 3), dtype=np.uint8)
+    image[..., 0] = 10
+    image[..., 1] = 20
+    image[..., 2] = 30
+    seen = {}
+    monkeypatch.setattr(sm, "_resolve_well_detector", lambda _settings: "wells.pt")
+    monkeypatch.setattr(sm.cellpose.io, "imread", lambda _path: image)
+    monkeypatch.setattr(sm.cellpose.io, "imsave", lambda *_a, **_k: None)
+
+    def detect(source, _weights, confidence):
+        seen["detect"] = source
+        return [Well(0, 0, 4, 4, 0.9)]
+
+    def crop(source, well, *, pad=0):
+        seen["crop"] = source
+        return source[well.y0:well.y1, well.x0:well.x1]
+
+    monkeypatch.setattr(plaque, "detect_wells", detect)
+    monkeypatch.setattr(plaque, "crop_well", crop)
+
+    sm.split_wells({"src": str(tmp_path)})
+
+    assert seen["detect"] is image, "detect_wells is given the reader's RGB"
+    assert seen["crop"] is image, "and so is the crop that gets written out"
+
+
+def test_an_image_with_no_detected_well_still_reaches_the_analysis(
+    tmp_path, monkeypatch, caplog
+):
+    """The silent loss the warning always denied.
+
+    The dangerous case is PARTIAL detection. An image nothing is found in
+    used to be warned about and then skipped, so when some images in a folder
+    split and others did not, the others produced no crop, no row, and no
+    further mention -- while the warning said they had been "passed through
+    whole". They are now copied into the split folder whole, with no geometry,
+    so they are analysed and simply carry no physical scale.
+    """
+    from spacr import plaque
+
+    (tmp_path / "plate.tif").write_bytes(b"image")
+    (tmp_path / "blank.tif").write_bytes(b"image")
+    image = np.arange(100, dtype=np.uint16).reshape(10, 10)
+    saved = {}
+    monkeypatch.setattr(sm, "_resolve_well_detector", lambda _settings: "wells.pt")
+    monkeypatch.setattr(sm.cellpose.io, "imread", lambda _path: image)
+    monkeypatch.setattr(
+        plaque, "detect_wells",
+        lambda _image, _weights, confidence: (
+            [Well(0, 0, 4, 4, 0.9)] if not saved else []),
+    )
+    monkeypatch.setattr(plaque, "crop_well",
+                        lambda source, well, *, pad=0: source[:2, :2])
+
+    def save(path, pixels):
+        saved[Path(path).name] = np.asarray(pixels)
+
+    monkeypatch.setattr(sm.cellpose.io, "imsave", save)
+    settings = {"src": str(tmp_path)}
+
+    with caplog.at_level("WARNING"):
+        result = sm.split_wells(settings)
+
+    assert result == str(tmp_path / "wells")
+    assert set(saved) == {"blank_well01.tif", "plate.tif"}
+    assert np.array_equal(saved["plate.tif"], image), "whole, not cropped"
+    assert "plate.tif" not in settings["_well_geometry"], "and with no ruler"
+    assert sm._plaque_scale_for("plate.tif", settings) is None
+    assert "no wells detected in plate.tif" in caplog.text
+
+
 def test_a_local_plaque_checkpoint_wins(tmp_path):
     checkpoint = tmp_path / "plaque.CP_model"
     checkpoint.write_bytes(b"model")

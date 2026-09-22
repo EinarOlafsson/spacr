@@ -263,10 +263,10 @@
           "speech_text": "Chaque programme d’installation valide l’environnement de remplacement avant de changer de version. Une mise à jour interrompue laisse l’environnement précédent intact et conserve install.log dans le répertoire privé d’installation de spakeur."
         },
         {
-          "narration": "Dans Preferences, un seul sélecteur Performance level propose Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la mise en cache, les limites de processus, le nettoyage et le niveau de détail des animations, mais pas les paramètres ni les résultats scientifiques.",
+          "narration": "Preferences propose un sélecteur Performance avec Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de consommation de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la quantité de données que spaCR conserve en cache et leur durée de conservation, le moment où la mémoire et les threads inactifs sont libérés, ainsi que l’activation du fond animé, mais pas les paramètres ni les résultats scientifiques.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Dans Preferences, un seul sélecteur Performance level propose Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la mise en cache, les limites de processus, le nettoyage et le niveau de détail des animations, mais pas les paramètres ni les résultats scientifiques."
+          "speech_text": "Preferences propose un sélecteur Performance avec Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de consommation de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la quantité de données que spakeur conserve en cache et leur durée de conservation, le moment où la mémoire et les threads inactifs sont libérés, ainsi que l’activation du fond animé, mais pas les paramètres ni les résultats scientifiques."
         },
         {
           "narration": "Après l’installation, utilisez le lanceur du système d’exploitation. Aucune configuration séparée de Python ou de Conda n’est nécessaire.",
@@ -293,10 +293,10 @@
       "prerequisite": "Installez et lancez l'application de bureau spaCR.",
       "scenes": [
         {
-          "narration": "Lorsque tous les niveaux de maturité sont visibles, Home affiche les quarante-quatre modules enregistrés de spaCR. L'onglet Home les regroupe sous Core, Data, Results & QC, Explore, Assays et Design ; chaque onglet de catégorie filtre le même registre.",
+          "narration": "Home regroupe les flux de travail de spaCR sous Core, Data, Tools et Assays. Chaque onglet de catégorie filtre les tuiles des modules, et les outils associés sont accessibles dans leurs modules parents.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Lorsque tous les niveaux de maturité sont visibles, Home affiche les quarante-quatre modules enregistrés de spakeur. L'onglet Home les regroupe sous Core, Data, Results & QC, Explore, Assays et Design ; chaque onglet de catégorie filtre le même registre."
+          "speech_text": "Home regroupe les flux de travail de spakeur sous Core, Data, Tools et Assays. Chaque onglet de catégorie filtre les tuiles des modules, et les outils associés sont accessibles dans leurs modules parents."
         },
         {
           "narration": "La barre latérale gauche garde Home et les modules Core visibles directement accessibles. Lorsque tous les niveaux de maturité sont activés, il s'agit de la séquence Core en six étapes. Sélectionnez un en-tête de catégorie pour développer ses autres modules visibles.",
@@ -311,10 +311,16 @@
           "speech_text": "La bande Core suit l'ordre du flux de travail : Mask, Measure, Annotate, Classify, Map Barcodes et Regression. Survolez une tuile pour afficher la description du module et sa couleur de maturité Alpha, Beta ou Stable. Dans Preferences, vous pouvez masquer les modules Alpha ou Beta sur Home et dans la navigation ; les modules Stable restent visibles."
         },
         {
-          "narration": "Le panneau droit indique l'utilisation du GPU, de la mémoire vidéo et du disque, puis les nouveautés de la version et la légende des états des modules. Vérifiez ces valeurs avant de lancer un flux de travail gourmand en ressources.",
+          "narration": "Preferences propose un sélecteur Performance avec Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de consommation de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la quantité de données que spaCR conserve en cache et leur durée de conservation, le moment où la mémoire et les threads inactifs sont libérés, ainsi que l’activation du fond animé, mais pas les paramètres ni les résultats scientifiques.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Le panneau droit indique l'utilisation du GPU, de la mémoire vidéo et du disque, puis les nouveautés de la version et la légende des états des modules. Vérifiez ces valeurs avant de lancer un flux de travail gourmand en ressources."
+          "speech_text": "Preferences propose un sélecteur Performance avec Laptop, Extra Performance, Performance, Balanced et Workstation, par ordre croissant de consommation de ressources. Choisissez le profil adapté à cet ordinateur ; il modifie la quantité de données que spakeur conserve en cache et leur durée de conservation, le moment où la mémoire et les threads inactifs sont libérés, ainsi que l’activation du fond animé, mais pas les paramètres ni les résultats scientifiques."
+        },
+        {
+          "narration": "Utilisez le champ de recherche à côté de Help pour trouver un module, un paramètre, une préférence ou une entrée d’API. Ici, la recherche de Performance affiche les destinations correspondantes. Sélectionnez un résultat pour ouvrir son module ou son onglet dans Preferences, ou consulter la documentation de l’API.",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "Utilisez le champ de recherche à côté de Help pour trouver un module, un paramètre, une préférence ou une entrée d’API. Ici, la recherche de Performance affiche les destinations correspondantes. Sélectionnez un résultat pour ouvrir son module ou son onglet dans Preferences, ou consulter la documentation de l’API."
         },
         {
           "narration": "Sélectionnez la tuile d'un module pour ouvrir son écran de paramètres. Le nom et la description affichés en haut confirment le flux de travail actif.",

@@ -136,10 +136,8 @@ HISTOGRAM = "histogram"
 BAR = "bar"
 BOX = "box"
 VIOLIN = "violin"
-#: The two the maintainer named that had no kind (200).
-#:
-#: "I want to be able to choose between: Bar, Bar+jitter, Jitter, Box,
-#: Violin, Line (with and without spread), Scatter".
+#: The two plot kinds of the full choice -- Bar, Bar+jitter, Jitter, Box,
+#: Violin, Line (with and without spread), Scatter -- that had no kind.
 #:
 #: JITTER IS NOT SCATTER WITH NOISE ADDED. A scatter puts a point at its own
 #: x; a jitter puts every point of a CATEGORY at that category's position,

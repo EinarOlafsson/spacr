@@ -22,6 +22,7 @@ Public API::
         get_cell_variant, set_cell_variant,
         cell_background_path,
         theme_background_path,
+        get_sound_music_file, set_sound_music_file,
         get_ambient_enabled, set_ambient_enabled,
         get_ambient_animation, set_ambient_animation,
         get_ambient_theme, set_ambient_theme,
@@ -52,12 +53,19 @@ Public API::
 
 Values:
 
-* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` |
-  ``"system"`` (default ``"system"``). ``"system"`` follows the operating
-  system color scheme. ``"cell"`` uses fluorescence imagery and ``"glass"``
-  uses neutral layered materials over a built-in light field. Legacy Space
-  accessors remain for old settings, but Space is not a selectable theme.
-* ``space_seed``: int; retained for deterministic legacy Space backgrounds.
+* ``theme``: ``"dark"`` | ``"light"`` | ``"cell"`` | ``"glass"`` | one of
+  the ten night themes in :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS` |
+  ``"system"`` (default ``"dark"``). ``"system"`` follows the operating
+  system color scheme, and only once somebody has picked it: a stored
+  ``"system"`` written before dark became the default (2026-09-21) was
+  the old default, not a choice, and reads as ``"dark"``; see
+  :func:`get_theme`. ``"cell"`` uses fluorescence imagery and ``"glass"``
+  uses neutral layered materials over a built-in light field. A night
+  theme also carries a backdrop and a sound set, written by
+  :func:`apply_night_theme` when it is chosen. Space is not a selectable
+  theme. The retired ``space_variant`` and ``space_seed`` values are
+  removed from an older store the first time the theme is read; see
+  :func:`get_theme`.
 * ``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].
 * ``figure_save_mode``: ``"print"`` | ``"screen"`` | ``"transparent"``
   (default ``"print"``). Controls the page and figure-element colours used
@@ -89,6 +97,9 @@ Values:
 * ``show_alpha`` / ``show_beta``: bool, both default ``True``. Control
   whether modules and settings at that maturity are shown. Stable features
   are always visible.
+* ``sound/music_file``: str, default ``""``. A WAV of the user's own that
+  the music bed plays instead of the synthesized one, and that the
+  Resonance backdrop is driven by. See :func:`get_sound_music_file`.
 * ``ambient_enabled``: bool, default ``True``. Whether module screens
   paint the animated background at all. Turning it off is a first-class
   choice — see :func:`get_ambient_enabled`. The user-facing control is the
@@ -144,6 +155,8 @@ import logging
 
 from PySide6.QtCore import QSettings
 
+from .night_themes import NIGHT_THEME_KEYS, is_night_theme, theme_for
+
 LOG = logging.getLogger(__name__)
 
 
@@ -151,6 +164,7 @@ _ORG = "spacr"
 _APP = "qt"
 
 _KEY_THEME       = "prefs/theme"
+_KEY_THEME_FOLLOW_SYSTEM_CHOSEN = "prefs/theme_follow_system_chosen"
 _KEY_LANGUAGE    = "prefs/language"
 _KEY_FONT_SCALE  = "prefs/font_scale"
 _KEY_CB_MODE     = "prefs/color_blind_mode"
@@ -495,7 +509,12 @@ _KEY_MODE_VISUAL_STASH = "prefs/mode_visual_stash"
 #: Themes with a palette of their own — mirrors
 #: :data:`spacr.qt.theme.THEMES`, restated here so importing this module
 #: does not pull in QtGui/QtWidgets.
-PALETTE_THEMES = ("dark", "light", "cell", "glass")
+#:
+#: The ten night themes are appended from :mod:`spacr.qt.night_themes`
+#: rather than written out again, because that module is Qt-free for
+#: exactly this reason: it can be imported here without QtGui, and it
+#: cannot then drift from what :data:`spacr.qt.theme.THEMES` holds.
+PALETTE_THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
 
 #: Persisted values. An existing install has ``prefs/theme`` set to one
 #: of dark/light/system/space; those keep resolving exactly as before,
@@ -503,15 +522,19 @@ PALETTE_THEMES = ("dark", "light", "cell", "glass")
 #: with more themes) falls back to :data:`DEFAULT_THEME` rather than
 #: raising.
 VALID_THEMES = PALETTE_THEMES + ("system",)
-#: Follow the reader's OS colour scheme unless they choose otherwise. A
-#: desktop app that ignores the system setting looks broken on a light desktop.
-DEFAULT_THEME = "system"
+#: Dark on every platform until somebody chooses otherwise (maintainer,
+#: 2026-09-21: start spaCR dark by default, and the setup screen too). The
+#: operating system's own light or dark setting does not override it; only
+#: an explicit "Follow system" choice does.
+DEFAULT_THEME = "dark"
 
-#: RETIRED 2026-09-09. Kept as names only so a stored value can still be
-#: recognised and cleared; nothing reads them. See the note above
+#: RETIRED 2026-09-09. Kept as names only so `_forget_the_space_theme_keys`
+#: can remove a stored value; nothing reads them. See the note above
 #: `theme_background_path`.
 _KEY_SPACE_VARIANT = "prefs/space_variant"
 _KEY_SPACE_SEED    = "prefs/space_seed"
+#: Store files already cleared of the two keys above in this process.
+_SPACE_KEYS_CLEARED: set = set()
 _KEY_CELL_VARIANT  = "prefs/cell_variant"
 
 FONT_SCALE_MIN = 0.10
@@ -1392,21 +1415,98 @@ def set_figure_text_size(size: int) -> None:
 
 
 
+def _forget_the_space_theme_keys(store) -> None:
+    """Remove the retired Space theme's two keys from ``store``, once.
+
+    ``prefs/space_variant`` and ``prefs/space_seed`` chose between skies for
+    a theme :data:`VALID_THEMES` does not offer, and nothing has read either
+    since their accessors were retired on 2026-09-09. A store written before
+    then still holds them, so they are removed here and the file stops
+    carrying values that look live and are not.
+
+    Runs once per store file per process, and writes only when there was
+    something to remove. Skipped in safe mode, which reads nothing it was
+    given; the next ordinary start removes them. Never raises: a key that
+    cannot be removed is a stale line in the store and changes nothing.
+
+    :param store: the preference store :func:`get_theme` is reading.
+    :returns: None; ``store`` is edited in place.
+    """
+    if _SAFE_MODE or not isinstance(store, QSettings):
+        return
+    try:
+        name = str(store.fileName())
+        if name in _SPACE_KEYS_CLEARED:
+            return
+        gone = [key for key in (_KEY_SPACE_VARIANT, _KEY_SPACE_SEED)
+                if store.contains(key)]
+        for key in gone:
+            store.remove(key)
+        if gone:
+            store.sync()
+            LOG.info("removed %s from the preferences: they belonged to the "
+                     "retired Space theme and nothing reads them.",
+                     " and ".join(gone))
+        _SPACE_KEYS_CLEARED.add(name)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not remove the retired Space theme keys",
+                  exc_info=True)
+
+
+def _follow_system_was_chosen(store) -> bool:
+    """Whether a stored ``"system"`` theme was somebody's choice.
+
+    Until 2026-09-21 ``"system"`` was the default, and both the setup
+    screen and Preferences write the value their Theme control shows when
+    they are saved. So a store holding ``"system"`` without this flag was
+    most likely written by a user who never touched the control, and the
+    maintainer's rule is that such a user gets dark. :func:`set_theme`
+    sets the flag whenever ``"system"`` is chosen from now on.
+
+    :param store: the preference store being read.
+    :returns: ``True`` only when the flag is present and true.
+    """
+    return _as_bool(store.value(_KEY_THEME_FOLLOW_SYSTEM_CHOSEN, False),
+                    False)
+
+
 def get_theme() -> str:
-    """Return the saved application theme, or the default when invalid."""
-    raw = str(_settings().value(_KEY_THEME, DEFAULT_THEME))
+    """Return the saved application theme, or the default when invalid.
+
+    A stored ``"system"`` counts only when it was chosen (see
+    :func:`_follow_system_was_chosen`); otherwise it reads as
+    :data:`DEFAULT_THEME`, which is dark. An explicit Light, or any other
+    stored theme, is returned as it is.
+
+    The first read of a store also removes the retired Space theme's
+    ``space_variant`` and ``space_seed`` values from it; see
+    :func:`_forget_the_space_theme_keys`.
+    """
+    store = _settings()
+    _forget_the_space_theme_keys(store)
+    raw = str(store.value(_KEY_THEME, DEFAULT_THEME))
+    if raw == "system" and not _follow_system_was_chosen(store):
+        raw = DEFAULT_THEME
     return raw if raw in VALID_THEMES else DEFAULT_THEME
 
 
 def set_theme(theme: str) -> None:
     """Persist a supported application theme.
 
+    Choosing ``"system"`` also records that it was chosen, so
+    :func:`get_theme` honours it instead of reading it as the default.
+
     :raises ValueError: if ``theme`` is not in :data:`VALID_THEMES`.
     """
     if theme not in VALID_THEMES:
         raise ValueError(f"unknown theme {theme!r}. "
                           f"Choose from {VALID_THEMES}.")
-    _settings().setValue(_KEY_THEME, theme)
+    store = _settings()
+    store.setValue(_KEY_THEME, theme)
+    if theme == "system":
+        store.setValue(_KEY_THEME_FOLLOW_SYSTEM_CHOSEN, True)
+    else:
+        store.remove(_KEY_THEME_FOLLOW_SYSTEM_CHOSEN)
 
 
 def theme_choices() -> tuple:
@@ -1414,8 +1514,16 @@ def theme_choices() -> tuple:
 
     Image variants are represented as composite tokens in the UI while the
     persisted keys remain backward compatible.
+
+    The ten night themes come last, in
+    :data:`spacr.qt.night_themes.NIGHT_THEMES` order, so the four the
+    application has always had stay where a returning user looks for them
+    and the new family reads as one block down the bottom of the list.
+    Their tokens are their plain keys: a night theme has no variant, so
+    there is nothing to compose into the token the way Cell does.
     """
     from .imagery import CELL_VARIANTS, title_for
+    from .night_themes import NIGHT_THEMES
 
     choices = [
         ("Dark", "dark"),
@@ -1427,7 +1535,28 @@ def theme_choices() -> tuple:
         (title_for(key), f"cell:{key}")
         for key in CELL_VARIANTS
     )
+    choices.extend((theme.label, key) for key, theme in NIGHT_THEMES.items())
     return tuple(choices)
+
+
+def theme_description(token: str) -> str:
+    """Return the one-sentence explanation of a :func:`theme_choices` token.
+
+    The ten night themes each carry a sentence saying what colours,
+    backdrop and sound set come with them; that sentence is what the
+    Theme control shows as the entry's tooltip, the way the Sound set
+    control shows :attr:`spacr.qt.sound_synth.SoundTheme.description`.
+
+    :param token: a token from :func:`theme_choices`.
+    :returns: the theme's sentence, or ``""`` for the four themes that
+        predate the family and for any token without one. The caller
+        passes the result through :func:`tr` and sets no tooltip when it
+        is empty.
+    """
+    from .night_themes import NIGHT_THEMES
+
+    theme = NIGHT_THEMES.get(token)
+    return theme.description if theme is not None else ""
 
 
 def get_theme_choice() -> str:
@@ -1439,7 +1568,12 @@ def get_theme_choice() -> str:
 
 
 def set_theme_choice(choice: str) -> None:
-    """Persist one token from :func:`theme_choices`."""
+    """Persist one token from :func:`theme_choices`.
+
+    Choosing one of the ten night themes also writes that theme's
+    backdrop and its sound set — see :func:`apply_night_theme`, which is
+    where the reasoning for doing so lives.
+    """
     valid = {token for _label, token in theme_choices()}
     if choice not in valid:
         raise ValueError(
@@ -1449,6 +1583,76 @@ def set_theme_choice(choice: str) -> None:
         set_theme("cell")
     else:
         set_theme(choice)
+        if is_night_theme(choice):
+            apply_night_theme(choice)
+
+
+def apply_night_theme(name: str) -> None:
+    """Write the backdrop and the sound set a night theme comes with.
+
+    A night theme is one choice that moves three things: the colours, the
+    animation behind them and the set of sounds spaCR would play. So this
+    writes the ambient animation, the ambient palette and the sound set
+    that go with the colours.
+
+    IT DOES NOT SWITCH ANYTHING ON. The sound master stays exactly where
+    the user left it, which on a fresh install and on every install that
+    has never opened the Sound tab is off; all this decides is *which*
+    set would play if it were ever switched on. It leaves the animation
+    master alone in the same way: if the backdrop is off, the stored
+    animation is what comes back when it is switched on again, and
+    :func:`set_ambient_animation` is not used here for exactly that
+    reason -- that setter also switches the backdrop on.
+
+    IT IS A PRESET, NOT AN OVERRIDE. The three values are written once,
+    at the moment the theme is chosen, into the same keys the Animation
+    and Sound controls read and write. Nothing re-imposes them, so a user
+    who picks Nocturne and then changes the animation to Bokeh keeps
+    Bokeh.
+
+    AND IT NEVER SWITCHES THE BACKDROP BACK ON. "No animation" is stored
+    as the animation NAME (:data:`spacr.qt.widgets.ambient.NO_ANIMATION`),
+    which :func:`get_ambient_enabled` reads, so writing an animation over
+    it would hand a moving backdrop to a user who had turned motion off
+    -- through the Animation control, or through Extra Performance, which
+    turns it off the same way. :func:`backdrop_is_switched_off` is
+    therefore asked first, and when it says yes the two ambient keys are
+    left exactly as they are. The theme still changes the colours and the
+    sound set; it just does not start anything moving. What that costs is
+    small and worth saying: a user who later switches the backdrop on
+    gets the animation they had before, not the one this theme would have
+    brought, and they can pick it on the same control they just used.
+
+    :param name: one of :data:`spacr.qt.night_themes.NIGHT_THEME_KEYS`.
+    :raises KeyError: if ``name`` is not one of the ten.
+    """
+    theme = theme_for(name)
+    settings = _settings()
+    if not backdrop_is_switched_off():
+        settings.setValue(_KEY_AMBIENT_THEME, theme.ambient)
+        settings.setValue(_KEY_AMBIENT_PALETTE, theme.ambient_palette)
+    settings.setValue(_KEY_SOUND_THEME, theme.sound)
+    settings.sync()
+
+
+def backdrop_is_switched_off() -> bool:
+    """Whether the user has turned the animated backdrop off and left it.
+
+    The STORED choice, not the live answer:
+    :func:`get_ambient_enabled` also reports ``False`` for
+    ``SPACR_NO_BACKDROP``, which :mod:`spacr.qt.crash_recovery` sets for
+    one process after two failed launches. That is a suppression and not
+    a preference, and treating it as one would silently strip the
+    backdrop out of a theme the user chose during that one run.
+
+    :returns: ``True`` when the Animation control reads "None", or when
+        the separate on/off key is off.
+    """
+    if _raw_ambient_animation() == _no_animation_key():
+        return True
+    return not _as_bool(_settings().value(_KEY_AMBIENT_ENABLED,
+                                          DEFAULT_AMBIENT_ENABLED),
+                        DEFAULT_AMBIENT_ENABLED)
 
 
 def get_cell_variant() -> str:
@@ -1518,25 +1722,23 @@ def theme_background_path(theme: str, width: int = 0, height: int = 0):
 def resolve_effective_theme() -> str:
     """Return the theme to render — one of :data:`PALETTE_THEMES`.
 
-    Resolves ``"system"`` to the OS colour scheme, defaulting to dark
-    when Qt can't tell. Every other value passes through, so callers
-    that only understand light/dark should compare against ``"light"``
-    and treat everything else as dark (Space and Cell are dark themes).
+    Resolves an explicitly chosen ``"system"`` to the operating system's
+    colour scheme as Qt reports it (``QStyleHints.colorScheme``), and to
+    dark when Qt can't tell. It does not read the application palette:
+    that is spaCR's own once a theme has been applied, so it would answer
+    with whatever was applied last. Every other value passes through, so
+    callers that only understand light/dark should compare against
+    ``"light"`` and treat everything else as dark (Space and Cell are dark
+    themes).
     """
     theme = get_theme()
     if theme in PALETTE_THEMES:
         return theme
     try:
-        from PySide6.QtGui import QPalette
-        from PySide6.QtWidgets import QApplication
-        app = QApplication.instance()
-        if app is not None:
-            bg = app.palette().color(QPalette.ColorRole.Window)
-            lum = (0.299 * bg.red() + 0.587 * bg.green()
-                   + 0.114 * bg.blue())
-            return "dark" if lum < 128 else "light"
+        from .theme import system_colour_scheme
+        return system_colour_scheme() or "dark"
     except Exception:
-        pass
+        LOG.debug("could not read the system colour scheme", exc_info=True)
     return "dark"
 
 
@@ -3235,21 +3437,18 @@ DEFAULT_SETTING_ANIMATIONS = False
 #: on the two switches.
 #:
 #: NEITHER TOUCHES THE CATEGORY STRIP, which answers a different question --
-#: "what is this whole group of settings for" -- and was not part of the
-#: request.
-#: THE BOX DEFAULTS OFF, AND THAT IS NOT A JUDGEMENT ABOUT THE BOX. On
-#: 2026-09-01 the maintainer asked: "i dont need the popup box if the tooltip
-#: is shown on the bottom of the window", and that preference has been wired
-#: in ever since -- the popup appeared only on screens with no strip.
-#: Both surfaces were asked to be CHOOSABLE, which is a request
-#: for a switch, not a request to reverse the earlier answer. Defaulting the
-#: box on would hand back the popup somebody had explicitly said they did not
-#: want, and they would have to find a checkbox to undo it.
+#: "what is this whole group of settings for".
+#: THE BOX DEFAULTS OFF, AND THAT IS NOT A JUDGEMENT ABOUT THE BOX. The
+#: popup box is redundant when the tooltip is shown at the bottom of the
+#: window, so it appears by default only on screens with no strip. Both
+#: surfaces are CHOOSABLE, and the switch does not reverse that default:
+#: defaulting the box on would hand back a popup a user who reads the strip
+#: does not need, and they would have to find a checkbox to undo it.
 #:
-#: So the shipped behaviour is unchanged and the box is one click away.
+#: So the box is one click away.
 #: `tests/qt/test_setting_tooltip_footer.py::
 #: test_hovering_a_real_setting_shows_no_tooltip_box` is the guard for the
-#: 2026-09-01 request and still passes.
+#: default.
 DEFAULT_TOOLTIPS_BOX = False
 DEFAULT_TOOLTIPS_BOTTOM = True
 
@@ -3437,12 +3636,45 @@ def set_font_scale(scale: float) -> None:
 #: Three states, not two. "prompt me" and "never prompt me" leave out the
 #: user who wants a report filed and does not want to be asked, and the
 #: moment someone wants this off is the moment it has just interrupted them.
+#:
+#: 'always' files a redacted report to the public tracker as soon as a run
+#: fails, with no preview. 'ask' opens the report in a preview and sends it
+#: only on Send. 'never' files nothing.
 ISSUE_PROMPT_ASK = "ask"
 ISSUE_PROMPT_NEVER = "never"
 ISSUE_PROMPT_ALWAYS = "always"
 ISSUE_PROMPT_MODES = (ISSUE_PROMPT_ASK, ISSUE_PROMPT_NEVER,
                       ISSUE_PROMPT_ALWAYS)
 _KEY_ISSUE_PROMPT = "ai/issue_prompt"
+
+#: Written beside the mode by :func:`set_issue_prompt_mode`, so a value
+#: stored by a build that knew the three modes apart can be told from one an
+#: older build wrote on the user's behalf.
+#:
+#: IT IS NOT DECORATION, AND WITHOUT IT THE DECISION BELOW REACHED ALMOST
+#: NOBODY. `SetupSlides.accept()` and `reject()` both call
+#: `setup_screen.apply(self.answers())`, and `issue_prompt` has been one of
+#: those answers since 6c57da8d6 (2026-08-21, shipped in 1.5.0.5). So every
+#: profile that ever opened first-run setup — including one dismissed at the
+#: first slide — has `'ask'` written into it, chosen by the default of the
+#: day rather than by the user. Read as "an explicit earlier choice", the
+#: new default would have applied to brand-new profiles only, and the
+#: reporter of issue #117 would still have been on 'ask' after upgrading.
+_KEY_ISSUE_PROMPT_CHOSEN = "ai/issue_prompt_chosen"
+
+#: The default before 2026-09-19, and so the value an unmarked profile
+#: holds when nobody chose it. 'never' and 'always' are never written by
+#: accident: both took an answer, so both are kept as they stand.
+_SUPERSEDED_ISSUE_PROMPT_MODE = ISSUE_PROMPT_ASK
+
+#: The mode of a profile that has never chosen one.
+#:
+#: Automatic filing is the default, and a user agrees to it in the user
+#: agreement when the mode is 'always'. The agreement is Section 5.6 of
+#: :data:`spacr.qt.terms.TERMS`, which every profile is asked to accept
+#: again (4.1 -> 4.2) and which nothing is filed without. A stored choice is
+#: kept.
+DEFAULT_ISSUE_PROMPT_MODE = ISSUE_PROMPT_ALWAYS
 
 
 #: Whether the AI assistant is on when spaCR opens (248).
@@ -3486,17 +3718,37 @@ def set_ai_on_by_default(enabled: bool) -> None:
 def get_issue_prompt_mode() -> str:
     """How to behave when a report could be filed.
 
-    :returns: one of :data:`ISSUE_PROMPT_MODES`; ``'ask'`` by default, and
-        for any stored value that is not recognised -- a preference file
-        written by a newer build must not silence the reporter on an older
-        one.
+    :returns: one of :data:`ISSUE_PROMPT_MODES`.
+        :data:`DEFAULT_ISSUE_PROMPT_MODE` (``'always'``) when nothing is
+        stored, and also when the only thing stored is the superseded
+        default ``'ask'`` written by a build that did not mark what the user
+        had chosen (:data:`_KEY_ISSUE_PROMPT_CHOSEN`). A choice this build or
+        a later one wrote is returned as it stands, 'ask' included. A stored
+        value that is not recognised reads as ``'ask'``: it was somebody's
+        choice, even if this build cannot read it, so it must neither
+        silence the reporter nor start publishing without a preview.
     """
-    value = str(_settings().value(_KEY_ISSUE_PROMPT, ISSUE_PROMPT_ASK) or "")
-    return value if value in ISSUE_PROMPT_MODES else ISSUE_PROMPT_ASK
+    store = _settings()
+    if not store.contains(_KEY_ISSUE_PROMPT):
+        return DEFAULT_ISSUE_PROMPT_MODE
+    value = str(store.value(_KEY_ISSUE_PROMPT, ISSUE_PROMPT_ASK) or "")
+    if value not in ISSUE_PROMPT_MODES:
+        return ISSUE_PROMPT_ASK
+    if (value == _SUPERSEDED_ISSUE_PROMPT_MODE
+            and not store.contains(_KEY_ISSUE_PROMPT_CHOSEN)):
+        return DEFAULT_ISSUE_PROMPT_MODE
+    return value
 
 
 def set_issue_prompt_mode(mode: str) -> None:
-    """Persist the auto-issue behaviour.
+    """Persist the auto-issue behaviour, and that it was chosen.
+
+    The marker is what makes a later 'ask' stick: from here on, 'ask' in the
+    store is an answer somebody gave, not the default of the day written
+    into every profile that opened first-run setup. Every writer goes
+    through this function — the setup slides, the Preferences dialog, the
+    AI Console and the installer's consent page — so all four count as
+    choosing.
 
     :param mode: one of :data:`ISSUE_PROMPT_MODES`.
     :raises ValueError: for anything else. Silently storing an unknown mode
@@ -3507,7 +3759,9 @@ def set_issue_prompt_mode(mode: str) -> None:
         raise ValueError(
             f"issue prompt mode {mode!r} is not one of "
             f"{list(ISSUE_PROMPT_MODES)}.")
-    _settings().setValue(_KEY_ISSUE_PROMPT, mode)
+    store = _settings()
+    store.setValue(_KEY_ISSUE_PROMPT, mode)
+    store.setValue(_KEY_ISSUE_PROMPT_CHOSEN, True)
 
 
 
@@ -3523,6 +3777,140 @@ def scaled_px(base_px: int) -> int:
     scale doesn't collapse things to zero.
     """
     return max(1, int(round(base_px * get_font_scale())))
+
+
+#: Dynamic property carrying an icon's width at 100 %, in logical pixels.
+#:
+#: A Qt property rather than a Python attribute for two reasons: it lives on
+#: the C++ side, so it survives the wrapper being collected and rebuilt, and
+#: a plain ``QPushButton`` can carry it without anyone subclassing Qt to
+#: give it somewhere to put the number.
+_KEY_ICON_BASE_W = "spacrIconBaseWidth"
+
+#: The same for the icon's height. Two integer properties rather than one
+#: pair, because Qt stores an int natively while a tuple crosses the
+#: boundary as an opaque Python object that only PySide can read back.
+_KEY_ICON_BASE_H = "spacrIconBaseHeight"
+
+#: The method a widget may implement to re-derive its own icon geometry.
+#:
+#: Found by duck-typing, the way ``refresh_theme`` is. It exists for the
+#: widgets whose icon size is not the only thing that has to move with it --
+#: a tile whose hover animation has a resting size to return to, a square
+#: button whose frame is drawn around the mark -- and it is handed the scale
+#: so it never has to ask twice and get a different answer.
+_ICON_SCALE_HOOK = "_apply_icon_scale"
+
+#: Qt's own small-icon default, in logical pixels before the scale.
+#:
+#: A button that is given an icon and no size gets this from the style, and
+#: the style's copy of it does NOT follow the font scale -- which is how a
+#: handful of ghost buttons stayed 16 px wide while the interface around
+#: them doubled. Naming it lets those buttons be registered at the size
+#: they already draw at, so they start tracking the scale without changing
+#: what they look like at 100 %.
+_SMALL_ICON_PX = 16
+
+
+def _scaled_side(base_px: int, scale: float) -> int:
+    """Return ``base_px`` at ``scale``, by the rule :func:`scaled_px` uses.
+
+    Split out so a caller that already knows the scale -- the sweep below
+    resizes hundreds of widgets from one reading -- does not re-read the
+    setting once per widget, and so the two can never round differently.
+
+    :param base_px: the size at 100 %.
+    :param scale: the multiplier to apply.
+    :returns: the scaled size, never below 1 px.
+    """
+    return max(1, int(round(base_px * scale)))
+
+
+def _set_scaled_icon_size(widget, base_w: int, base_h=None, scale=None):
+    """Size a widget's icon from a base, and remember that base.
+
+    THE BASE IS WHAT MAKES THE GESTURE REVERSIBLE. An icon resized from
+    the size it is already wearing compounds its rounding: twenty notches
+    of ``round(px * 1.05)`` and twenty back do not return a 20 px icon to
+    20 px. Every size this sets is computed from the number stored here,
+    which is the size at 100 % and never changes, so the scale alone
+    decides the answer and the round trip is exact by construction.
+
+    Idempotent, and cheap to call again: assigning an icon size a widget
+    already has still invalidates its layout, so the assignment is skipped
+    when nothing would move.
+
+    :param widget: anything with ``setIconSize`` -- a button, a list view.
+    :param base_w: the icon's width at 100 %, in logical pixels.
+    :param base_h: its height at 100 %; square when omitted.
+    :param scale: the scale to apply; the stored preference when omitted.
+    :returns: the :class:`~PySide6.QtCore.QSize` now on the widget.
+    """
+    from PySide6.QtCore import QSize
+
+    base_w = max(1, int(base_w))
+    base_h = base_w if base_h is None else max(1, int(base_h))
+    if scale is None:
+        scale = get_font_scale()
+    widget.setProperty(_KEY_ICON_BASE_W, base_w)
+    widget.setProperty(_KEY_ICON_BASE_H, base_h)
+    size = QSize(_scaled_side(base_w, scale), _scaled_side(base_h, scale))
+    if widget.iconSize() != size:
+        widget.setIconSize(size)
+    return size
+
+
+def _rescale_icon_sizes(app=None) -> int:
+    """Re-derive every remembered icon size at the scale now in force.
+
+    WHY THIS EXISTS. An icon size is a widget PROPERTY, set once when the
+    widget is built. Nothing in a stylesheet reaches it, so a font scale
+    that grew every caption left every glyph beside those captions exactly
+    where it was: the text followed the wheel of the hold-Z zoom and the
+    marks beside it did not.
+
+    WHERE IT RUNS, AND WHY THERE. In
+    :func:`apply_preferences_to_app`, which is the one step both routes to
+    a new scale already take: the Preferences slider on its way out of the
+    dialog, and :meth:`spacr.qt.live_zoom.LiveZoomFilter.settle` when the
+    wheel goes quiet. That is the deliberate half of the gesture -- the
+    one that rebuilds the stylesheet -- so the icons catch up with the
+    spacing, in the same step, rather than stuttering alongside the text.
+
+    Widgets built AFTER a scale change need none of this: they size
+    themselves through :func:`scaled_px` and :func:`_set_scaled_icon_size`,
+    both of which read the scale at construction.
+
+    :param app: optional QApplication; falls back to the running instance.
+    :returns: how many widgets had their icon geometry re-derived.
+    """
+    from PySide6.QtCore import QSize
+    from PySide6.QtWidgets import QApplication
+
+    app = app or QApplication.instance()
+    if app is None:
+        return 0
+    scale = get_font_scale()
+    moved = 0
+    for widget in app.allWidgets():
+        try:
+            hook = getattr(widget, _ICON_SCALE_HOOK, None)
+            if callable(hook):
+                hook(scale)
+                moved += 1
+                continue
+            base_w = widget.property(_KEY_ICON_BASE_W)
+            if base_w is None:
+                continue
+            base_h = widget.property(_KEY_ICON_BASE_H) or base_w
+            size = QSize(_scaled_side(int(base_w), scale),
+                         _scaled_side(int(base_h), scale))
+            if widget.iconSize() != size:
+                widget.setIconSize(size)
+                moved += 1
+        except (RuntimeError, AttributeError, TypeError, ValueError):
+            continue
+    return moved
 
 
 
@@ -3800,22 +4188,36 @@ def get_log_file_levels() -> frozenset:
 
     VERBOSE LOGGING ADDS DEBUG, because otherwise the two settings
     contradict each other and the one the user did not touch wins.
-    With verbose on, the profile hook emits DEBUG records for calls and
-    returns. Omitting DEBUG from the file handler would incur all of that cost
-    while discarding the resulting trail.
+    With verbose on, spaCR's loggers emit DEBUG records. Omitting DEBUG from
+    the file handler would build every one of those records and then discard
+    it.
 
     Whatever verbose means, it cannot mean "do the work and write none of
     it". It is not stored into the level preference: the user's own choice
     of levels is left exactly as they set it, and DEBUG goes away again
     when they turn verbose off.
     """
-    import logging as _logging
+    return _with_verbose_debug(_chosen_log_file_levels())
 
+
+def _chosen_log_file_levels() -> frozenset:
+    """The file levels the user switched on, without verbose's DEBUG.
+
+    :returns: the stored switch set, or the defaults when none is stored.
+    """
     from ..logging_util import DEFAULT_FILE_LEVELS
-    levels = _parse_levels(_settings().value(_KEY_LOG_FILE_LEVELS, None),
-                           DEFAULT_FILE_LEVELS)
+    return frozenset(_parse_levels(
+        _settings().value(_KEY_LOG_FILE_LEVELS, None), DEFAULT_FILE_LEVELS))
+
+
+def _with_verbose_debug(levels) -> frozenset:
+    """Add DEBUG to ``levels`` while verbose logging is on.
+
+    :param levels: a set of file levels as the user chose them.
+    :returns: the levels the log files actually keep.
+    """
     if get_verbose_logging():
-        levels = frozenset(levels) | {_logging.DEBUG}
+        return frozenset(levels) | {logging.DEBUG}
     return frozenset(levels)
 
 
@@ -3839,39 +4241,52 @@ def set_log_levels(file_levels, console_levels) -> tuple:
     :returns: ``(file_levels, console_levels)`` as actually stored, which
         is not necessarily what was asked for -- a console level whose file
         level is off is dropped rather than saved and silently ignored.
+
+    ``file_levels`` is the user's own choice, and it is stored as given.
+    While verbose logging is on, the log files keep DEBUG as well, so a
+    console DEBUG switch is kept and the live handlers are given DEBUG. The
+    DEBUG that verbose adds is not written into the stored file levels.
     """
     from ..logging_util import (apply_level_policy, clamp_console_to_file,
                                 normalise_levels)
     files = normalise_levels(file_levels)
-    console = clamp_console_to_file(console_levels, files)
+    kept = _with_verbose_debug(files)
+    console = clamp_console_to_file(console_levels, kept)
     settings = _settings()
     settings.setValue(_KEY_LOG_FILE_LEVELS, _level_names(files))
     settings.setValue(_KEY_LOG_CONSOLE_LEVELS, _level_names(console))
-    apply_level_policy(files, console)
+    apply_level_policy(kept, console)
     return files, console
 
 
-#: Verbose diagnostic logging is OFF unless the user turns it on.
+#: Verbose diagnostic logging is ON unless the user turns it off.
 #:
-#: IT WAS BRIEFLY THE DEFAULT, and the measurement that reversed that is
-#: worth keeping: on this machine, offscreen, reaching a usable Home screen
-#: took 3.05 s with verbose off and 65.28 s with it on -- and the Mask
-#: module had still not finished opening when the run was cut short.
+#: It used to be off because the preference installed the interpreter-wide
+#: function tracer: offscreen, a usable Home took 3.05 s with verbose off and
+#: 65.28 s with it on. The preference no longer installs the tracer; it only
+#: raises log levels and adds no work to an ordinary call.
 #:
-#: The tracer fires on every call and every return in the process, and
-#: startup is where a Python application makes the most calls it will ever
-#: make. Excluding the paint path and halving the line length (297) took the
-#: cost from unusable to merely large; neither makes twenty times the
-#: startup acceptable as something a user did not ask for.
+#: Benchmarked with ``tools/spacr_startup_benchmark.py``'s workers,
+#: offscreen. Every one of the 45 registered modules was opened, in
+#: a cold and a warm process per arm, and the arms were run off, on, on, off:
 #:
-#: A trail that exists before the bug is genuinely worth having, which is
-#: why this was tried. Making it affordable means not tracing every call --
-#: sampling, or tracing only the module a run is in -- and until that exists
-#: the honest default is off.
-DEFAULT_VERBOSE_LOGGING = False
+#:     Home, cold       on 4.00 / 4.07 s     off 4.04 / 4.18 s    budget 5 s
+#:     Home, warm       on 2.07 / 1.95 s     off 2.01 / 1.92 s
+#:     slowest module   on 7.08-7.26 s       off 7.02-7.54 s      budget 10 s
+#:     peak RSS         on 1,165-1,177 MB    off 1,164-1,174 MB
+#:
+#: Every difference is inside the spread between two runs of the same arm.
+#: The 500 ms event-loop stall ceiling is breached by both arms alike, and
+#: verbose logging does not move it.
+#:
+#: The tracer is still there for developers, as
+#: :func:`spacr.logging_util.enable_function_trace`, and it is not cheap:
+#: with it installed, Home took 7.4 s and the next screen did not open
+#: within the benchmark's 10 s hang guard.
+DEFAULT_VERBOSE_LOGGING = True
 
-#: Process-tree accounting is cheap enough to leave on.  Unlike verbose
-#: logging it samples once a second and installs no Python profile hook.
+#: Process-tree accounting is cheap enough to leave on.  It samples once a
+#: second and installs no Python profile hook.
 PERFORMANCE_LOGGING_LEVELS = ("off", "summary", "detailed")
 DEFAULT_PERFORMANCE_LOGGING = "summary"
 
@@ -3887,8 +4302,8 @@ def get_verbose_logging() -> bool:
     was reviewed. Changing it discards a human translation, so it is left
     exactly as it was and anything new goes below.
 
-    Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is off: verbose
-    tracing costs about twenty times the startup, measured.
+    Defaults to :data:`DEFAULT_VERBOSE_LOGGING`, which is on. Opening every
+    module took the same time with it on as with it off, measured.
     """
     raw = _settings().value(_KEY_VERBOSE_LOG, DEFAULT_VERBOSE_LOGGING)
     if isinstance(raw, str):
@@ -3940,10 +4355,11 @@ DEFAULT_SHARE_DIAGNOSTIC_LOGS = True
 
 
 def get_share_diagnostic_logs() -> bool:
-    """Whether report previews may include a redacted recent-log excerpt.
+    """Whether an error report saves a redacted copy of the recent log.
 
-    This never authorises background submission. Every report still stops at
-    the editable preview and needs its own Send click.
+    The copy is written to a file on this computer and the report names
+    that file. The log is never posted to GitHub. Whether a report is sent
+    at all is :func:`get_issue_prompt_mode`.
     """
     return _as_bool(_settings().value(_KEY_SHARE_DIAGNOSTICS,
                                       DEFAULT_SHARE_DIAGNOSTIC_LOGS),
@@ -4125,7 +4541,8 @@ def apply_preferences_to_app(app=None) -> None:
     )
     if style_changed:
         set_widget_qss_context(app, theme, scale, pane_opacity)
-        apply_qpalette(app, theme=theme)
+        apply_qpalette(app, theme=theme,
+                       follow_system=get_theme() == "system")
         sheet = stylesheet(
             theme=theme, font_scale=scale, background=background,
             surface_opacity=pane_opacity, load_widget_registrars=False)
@@ -4143,6 +4560,20 @@ def apply_preferences_to_app(app=None) -> None:
     install_button_roles(app)
 
     apply_ambient_preferences(app)
+
+    try:
+        import sys as _sys
+        if (_sys.modules.get(__package__ + ".sound") is not None
+                or get_sound_enabled()):
+            from .sound import apply_sound_preferences
+            apply_sound_preferences(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not apply the sound preferences", exc_info=True)
+
+    try:
+        _rescale_icon_sizes(app)
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not re-derive the icon sizes", exc_info=True)
 
     try:
         from .widgets.console_panel import ConsolePanel
@@ -4722,6 +5153,21 @@ class PreferencesDialog:
         for _level in log_level_toggles:
             _sync_console_enabled(_level)
 
+        _debug_file_toggle = log_level_toggles[logging.DEBUG][0]
+        _debug_file_toggle.setToolTip(
+            "While verbose logging is on (Modules tab), DEBUG is always "
+            "written to the log files, so this switch stays on. Turn "
+            "verbose logging off to choose it yourself. Your own choice "
+            "is kept for when you do.")
+        _chosen_debug = [logging.DEBUG in _chosen_log_file_levels()]
+
+        def _remember_the_debug_choice(checked) -> None:
+            """Record the DEBUG file switch only while the user holds it."""
+            if _debug_file_toggle.isEnabled():
+                _chosen_debug[0] = bool(checked)
+
+        _debug_file_toggle.toggled.connect(_remember_the_debug_choice)
+
         language_combo = QComboBox()
         language_combo.setObjectName("LanguagePreference")
         for label, key in language_choices():
@@ -4741,6 +5187,10 @@ class PreferencesDialog:
         theme_combo = QComboBox()
         for label, key in theme_choices():
             theme_combo.addItem(tr(label), key)
+            blurb = theme_description(key)
+            if blurb:
+                theme_combo.setItemData(theme_combo.count() - 1, tr(blurb),
+                                        Qt.ItemDataRole.ToolTipRole)
         current = get_theme_choice()
         for i in range(theme_combo.count()):
             if theme_combo.itemData(i) == current:
@@ -5280,21 +5730,43 @@ class PreferencesDialog:
 
         verbose_check = Toggle(tr("Enable verbose logging"))
         verbose_check.setToolTip(
-            "Records every spaCR function entered and left, plus "
-            "INFO-level chatter from cellpose, torch, PIL and matplotlib, "
-            "and echoes every record into the active app's Console. It is "
-            "what makes a bug report worth reading.\n\n"
-            "IT IS EXPENSIVE, measured rather than estimated: starting "
-            "spaCR took 3 seconds with this off and 65 seconds with it on, "
-            "because startup is where the most function calls happen. Each "
-            "traced call writes about 156 bytes.\n\n"
-            "So turn it on to reproduce a specific problem, and off again "
-            "afterwards. The animated background is never traced whatever "
-            "this says: it draws sixty frames a second and tracing it wrote "
-            "megabytes a minute."
+            "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. "
+            "It also lets cellpose report which model it loaded, and it "
+            "records which buttons you pressed. That trail is what makes a "
+            "bug report worth reading.\n\n"
+            "Starting spaCR and opening its screens took no longer with "
+            "this on. This was measured on one "
+            "workstation by opening every module, once with this on and "
+            "once with it off. Home was ready in "
+            "about 4 seconds after a cold start both ways. "
+            "The slowest module opened in "
+            "about 7 seconds both ways. Pipeline runs were not timed.\n\n"
+            "The Console still shows only the levels you switch on for it "
+            "on the Logging tab. This switch "
+            "does not trace every function call. "
+            "That tracer is a separate tool for developers, and nothing "
+            "here turns it on."
         )
         verbose_check.setChecked(get_verbose_logging())
         modules.addRow(tr("Diagnostics"), verbose_check)
+
+        def _debug_follows_verbose(on) -> None:
+            """Hold the DEBUG file switch on while verbose is on.
+
+            Verbose adds DEBUG to the log files whatever the switch says,
+            so the switch shows that and cannot be changed. When verbose
+            goes off, the switch is given back with the user's own choice.
+            """
+            if on:
+                _debug_file_toggle.setEnabled(False)
+                _debug_file_toggle.setChecked(True)
+            elif not _debug_file_toggle.isEnabled():
+                _debug_file_toggle.setEnabled(True)
+                _debug_file_toggle.setChecked(_chosen_debug[0])
+            _sync_console_enabled(logging.DEBUG)
+
+        verbose_check.toggled.connect(_debug_follows_verbose)
+        _debug_follows_verbose(verbose_check.isChecked())
 
         performance_log_combo = QComboBox()
         performance_log_combo.setObjectName("PerformanceLogging")
@@ -5321,10 +5793,10 @@ class PreferencesDialog:
             tr("Include redacted log excerpts in issue previews")
         )
         share_diagnostics_check.setToolTip(
-            "Off by default. When enabled, the editable public-GitHub report "
-            "preview includes recent log lines after paths and credentials "
-            "are redacted. Nothing is submitted until you press Send on that "
-            "specific report."
+            "On by default. When on, an error report saves recent log lines, "
+            "with paths and credentials redacted, to a file on this computer "
+            "and names that file in the report. The log itself is never "
+            "posted to GitHub."
         )
         share_diagnostics_check.setChecked(get_share_diagnostic_logs())
         modules.addRow(tr("Report logs"), share_diagnostics_check)
@@ -5549,7 +6021,7 @@ class PreferencesDialog:
         performance.addRow(tr("Performance"), mode_combo)
 
         mode_note_label = QLabel()
-        mode_note_label.setObjectName("SpacrModeNote")
+        mode_note_label.setObjectName("PerformanceLevelNote")
         mode_note_label.setWordWrap(True)
         performance.addRow("", mode_note_label)
 
@@ -6029,6 +6501,55 @@ class PreferencesDialog:
         quit_button.clicked.connect(lambda: _quit_spacr(dlg))
         performance.addRow(tr("Application"), quit_button)
 
+        sound_page = None
+        if sound_is_offered():
+            from .sound_preferences import SoundPage
+            sound_page = SoundPage(_page("Sound", "PreferencesTabSound"),
+                                   dlg)
+
+        def _the_theme_brings_its_backdrop_and_its_sound(_index=0) -> None:
+            """Move the other three controls when a night theme is picked.
+
+            THE BINDING HAS TO HAPPEN HERE AND NOT ONLY IN
+            `set_theme_choice`. Save writes the Theme control and then
+            writes the Animation, palette and Sound set controls straight
+            after it, so a preset applied inside `set_theme_choice` would
+            be overwritten three lines later by whatever the untouched
+            combos still held. Moving the controls instead means the two
+            paths agree and, more to the point, that the user SEES what
+            the theme brought with it and can put any of it back before
+            pressing Save.
+
+            The four themes that are not night themes change nothing else,
+            which is why this returns early rather than reaching for a
+            default: Dark has never carried an opinion about the backdrop
+            and is not being given one now.
+
+            AND IT LEAVES THE ANIMATION ALONE WHEN THE CONTROL SAYS NONE,
+            for the reason :func:`apply_night_theme` gives: a theme must
+            not start something moving for a user who has turned motion
+            off. The Sound set still moves, because that control decides
+            WHICH sounds would play and not WHETHER any do.
+            """
+            choice = theme_combo.currentData()
+            if not is_night_theme(choice):
+                return
+            night = theme_for(choice)
+            if ambient_theme_combo.currentData() == NO_ANIMATION:
+                if sound_page is not None:
+                    sound_page.select_theme(night.sound)
+                return
+            for index in range(ambient_theme_combo.count()):
+                if ambient_theme_combo.itemData(index) == night.ambient:
+                    ambient_theme_combo.setCurrentIndex(index)
+                    break
+            _reload_ambient_palettes(night.ambient_palette)
+            if sound_page is not None:
+                sound_page.select_theme(night.sound)
+
+        theme_combo.currentIndexChanged.connect(
+            _the_theme_brings_its_backdrop_and_its_sound)
+
         outer.addWidget(tabs)
 
 
@@ -6122,6 +6643,8 @@ class PreferencesDialog:
                 db_edit_check.setChecked(get_db_browser_editable())
                 alpha_check.setChecked(get_show_alpha())
                 beta_check.setChecked(get_show_beta())
+                if sound_page is not None:
+                    sound_page.reset()
             finally:
                 _settings = original
 
@@ -6173,9 +6696,12 @@ class PreferencesDialog:
             set_verbose_logging(verbose_check.isChecked())
             set_performance_logging(performance_log_combo.currentData())
             set_share_diagnostic_logs(share_diagnostics_check.isChecked())
+            verbose_holds_debug = verbose_check.isChecked()
             set_log_levels(
                 [level for level, (file_t, _c) in log_level_toggles.items()
-                 if file_t.isChecked()],
+                 if (_chosen_debug[0]
+                     if file_t is _debug_file_toggle and verbose_holds_debug
+                     else file_t.isChecked())],
                 [level for level, (_f, console_t) in log_level_toggles.items()
                  if console_t.isChecked()],
             )
@@ -6247,6 +6773,8 @@ class PreferencesDialog:
             _save_budget_for_level(mode_combo.currentData(),
                                    idle_spin.value(), cache_spin.value(),
                                    headroom_spin.value())
+            if sound_page is not None:
+                sound_page.save()
             apply_preferences_to_app()
             _refresh_owner_window(parent)
             dlg.accept()
@@ -6777,9 +7305,16 @@ def set_rim_period(seconds) -> float:
 #: full screen of figures is not necessarily the one somebody wants behind a
 #: form they are reading; `off` keeps the card and the rim and drops only the
 #: movement.
+#:
+#: SEPARATE CHOICE, NOT A SHORTER LIST. What is curated here is which
+#: *setting* a popup follows, not which animations exist: every name in
+#: :data:`spacr.qt.widgets.ambient.AMBIENT_THEMES` is offered, alphabetically,
+#: behind `off`. An animation that appeared in one of the two menus and not
+#: the other would be a difference nobody decided on, so a new theme is added
+#: here at the same time as there.
 _KEY_POPUP_BACKDROP = "rim/popup_backdrop"
 POPUP_BACKDROPS = ("off", "aurora", "blobs", "bokeh", "cells", "drift",
-                   "ripple")
+                   "resonance", "ripple")
 #: NO MOVING BACKDROP BEHIND A SETTINGS WINDOW unless the user asks for
 #: one. The card and the rim stay either way -- 'off' drops only the
 #: movement, which is what is distracting behind a form you are reading
@@ -6898,3 +7433,223 @@ def set_news_height(px: int) -> int:
     settings.setValue(_KEY_NEWS_HEIGHT, value)
     settings.sync()
     return value
+
+
+#: Sound (427). Every key is off, or quiet, on a fresh install: a scientific
+#: tool that makes noise the first time it is opened, in a shared office or
+#: during a talk, is a tool people learn to distrust.
+_KEY_SOUND_ENABLED = "sound/enabled"
+_KEY_SOUND_VOLUME = "sound/volume"
+_KEY_SOUND_THEME = "sound/theme"
+_KEY_SOUND_EVENT = "sound/event/{}"
+_KEY_SOUND_MUSIC = "sound/music_file"
+
+#: The master switch. Nothing is imported, constructed or played while off.
+DEFAULT_SOUND_ENABLED = False
+
+#: Master volume as a fraction of the slider, 0 to 1.
+DEFAULT_SOUND_VOLUME = 0.5
+
+#: Each event's own switch, as a fresh install has it. They only matter once
+#: the master switch is on; hover and the music bed stay off even then,
+#: because each is the one a user should have to ask for by name.
+SOUND_EVENT_DEFAULTS = {
+    "click": True,
+    "hover": False,
+    "run_finished": True,
+    "run_failed": True,
+    "bed": False,
+}
+
+#: Performance levels at which the music bed rests. They are the two that
+#: switch the animated backdrop off, and a loop playing for hours is the
+#: audio equivalent of one.
+SOUND_BED_RESTS_AT = ("laptop", "extra_performance")
+
+
+def sound_is_offered() -> bool:
+    """Whether this process offers sound at all: only in spaceout mode.
+
+    Maintainer, 2026-09-21: "transfer the sound tab in preferences to only
+    be visible in spaceout mode. in normal spacr sound should be off by
+    default and there should be no sound tab in preferences." Spaceout is
+    process-local (:func:`spacr.qt.theme.enable_spaceout`, called only by
+    the ``spaceout`` launcher), so this is read live and never stored.
+
+    Does not import :mod:`spacr.qt.theme`: a process that has not imported
+    it cannot have enabled spaceout, and this is asked on paths that must
+    stay free of QtGui.
+
+    :returns: ``True`` in spaceout mode, ``False`` in ordinary spaCR.
+    """
+    import sys as _sys
+
+    theme = _sys.modules.get(__package__ + ".theme")
+    if theme is None:
+        return False
+    try:
+        return bool(theme.spaceout_enabled())
+    except Exception:                                        # noqa: BLE001
+        return False
+
+
+def get_saved_sound_enabled() -> bool:
+    """The stored master sound switch, whatever the mode.
+
+    Ordinary spaCR ignores it (see :func:`get_sound_enabled`) but never
+    erases it, so a user who switched sound on in spaceout finds it on the
+    next time spaceout starts.
+
+    :returns: the stored switch, default ``False``.
+    """
+    return _as_bool(_settings().value(_KEY_SOUND_ENABLED,
+                                      DEFAULT_SOUND_ENABLED),
+                    DEFAULT_SOUND_ENABLED)
+
+
+def get_sound_enabled() -> bool:
+    """Whether spaCR plays any sound at all. Default ``False``.
+
+    Always ``False`` outside spaceout mode (:func:`sound_is_offered`),
+    whatever is stored: ordinary spaCR has no Sound tab, so a switch the
+    user cannot see must not be able to make a noise.
+
+    :returns: the stored master switch in spaceout mode, else ``False``.
+    """
+    return sound_is_offered() and get_saved_sound_enabled()
+
+
+def set_sound_enabled(on: bool) -> None:
+    """Persist the master sound switch.
+
+    :param on: play sounds when True.
+    """
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_ENABLED, bool(on))
+    settings.sync()
+
+
+def get_sound_volume() -> float:
+    """The master volume, 0 to 1, clamped on read.
+
+    :returns: the stored fraction, or :data:`DEFAULT_SOUND_VOLUME` when the
+        store holds something that is not a number.
+    """
+    try:
+        value = float(_settings().value(_KEY_SOUND_VOLUME,
+                                        DEFAULT_SOUND_VOLUME))
+    except (TypeError, ValueError):
+        return DEFAULT_SOUND_VOLUME
+    if value != value:
+        return DEFAULT_SOUND_VOLUME
+    return min(1.0, max(0.0, value))
+
+
+def set_sound_volume(fraction: float) -> float:
+    """Persist the master volume.
+
+    :param fraction: 0 to 1; values outside are clamped.
+    :returns: the value stored.
+    """
+    try:
+        value = min(1.0, max(0.0, float(fraction)))
+    except (TypeError, ValueError):
+        value = DEFAULT_SOUND_VOLUME
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_VOLUME, value)
+    settings.sync()
+    return value
+
+
+def _sound_theme_keys() -> tuple:
+    """Every sound set that can be chosen, by key."""
+    from .sound_synth import SOUND_THEMES
+    return tuple(SOUND_THEMES)
+
+
+def get_sound_theme() -> str:
+    """Which sound set plays, validated against the sets that exist.
+
+    :returns: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`; a stored
+        key that no longer exists reads as the default set.
+    """
+    from .sound_synth import DEFAULT_THEME
+    raw = str(_settings().value(_KEY_SOUND_THEME, DEFAULT_THEME) or "")
+    return raw if raw in _sound_theme_keys() else DEFAULT_THEME
+
+
+def set_sound_theme(key: str) -> None:
+    """Persist the chosen sound set.
+
+    :param key: a key of :data:`spacr.qt.sound_synth.SOUND_THEMES`.
+    :raises ValueError: for a key no sound set has.
+    """
+    if key not in _sound_theme_keys():
+        raise ValueError(f"unknown sound set {key!r}. "
+                         f"Choose from {_sound_theme_keys()}.")
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_THEME, str(key))
+    settings.sync()
+
+
+def get_sound_event_enabled(event: str) -> bool:
+    """Whether one event's sound is switched on, apart from the master.
+
+    :param event: a key of :data:`SOUND_EVENT_DEFAULTS`.
+    :returns: the stored switch.
+    :raises KeyError: for an event spaCR has no sound for.
+    """
+    default = SOUND_EVENT_DEFAULTS[event]
+    return _as_bool(_settings().value(_KEY_SOUND_EVENT.format(event), default),
+                    default)
+
+
+def set_sound_event_enabled(event: str, on: bool) -> None:
+    """Persist one event's switch.
+
+    :param event: a key of :data:`SOUND_EVENT_DEFAULTS`.
+    :param on: play that event's sound when the master switch is on.
+    :raises KeyError: for an event spaCR has no sound for.
+    """
+    if event not in SOUND_EVENT_DEFAULTS:
+        raise KeyError(event)
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_EVENT.format(event), bool(on))
+    settings.sync()
+
+
+def get_sound_music_file() -> str:
+    """A WAV of the user's own to play as the music bed, or ``""``.
+
+    Empty -- the default -- means spaCR's own synthesized bed. The file is
+    NOT checked here: this is called on the GUI thread on every settings
+    read, and ``spacr.qt.sound`` looks for the file on its audio thread,
+    where a network home directory costs nobody a frame.
+
+    :returns: the stored path, or ``""``.
+    """
+    return str(_settings().value(_KEY_SOUND_MUSIC, "") or "").strip()
+
+
+def set_sound_music_file(path) -> str:
+    """Persist the music file the bed plays.
+
+    :param path: a path, or anything empty for spaCR's own music.
+    :returns: the value stored.
+    """
+    value = str(path or "").strip()
+    settings = _settings()
+    settings.setValue(_KEY_SOUND_MUSIC, value)
+    settings.sync()
+    return value
+
+
+def sound_bed_rests() -> bool:
+    """Whether the current performance level silences the music bed.
+
+    :returns: True at the levels named in :data:`SOUND_BED_RESTS_AT`.
+    """
+    try:
+        return get_performance_level() in SOUND_BED_RESTS_AT
+    except Exception:                                        # noqa: BLE001
+        return False

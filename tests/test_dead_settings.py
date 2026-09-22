@@ -190,6 +190,10 @@ def _live_tokens():
     # string literals; the closed runtime registry is the proof that the
     # dynamic reader covers them.
     tokens |= set(S.DYNAMIC_ORGANELLE_SETTINGS)
+    # io._normalize_img_batch reads remove_background_<slot> through an
+    # f-string, so the generated per-slot switches are read even though no
+    # literal names them (item 364, 2026-09-21).
+    tokens |= set(S.SLOT_BACKGROUND_SWITCHES)
     return tokens - _NAMES_THAT_ARE_NOT_SETTING_READS
 
 

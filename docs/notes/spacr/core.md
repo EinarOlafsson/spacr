@@ -9,7 +9,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 
 - [display](#display) (1 entry)
 - [Module level](#module-level) (4 entries)
-- [preprocess_generate_masks](#preprocess_generate_masks) (25 entries)
+- [preprocess_generate_masks](#preprocess_generate_masks) (26 entries)
 - [preprocess_generate_masks_timelapse](#preprocess_generate_masks_timelapse) (1 entry)
 - [generate_image_umap](#generate_image_umap) (31 entries)
 - [reducer_hyperparameter_search](#reducer_hyperparameter_search) (13 entries)
@@ -105,6 +105,8 @@ One of them changes segmentation: `cell_flow_threshold` is declared 1.0 and the 
 
 Both helpers are setdefault-only and idempotent, so the later call on the v1 path is unaffected.
 
+2026-09-19: the declared default is 0.4 now (428, GitHub #123), so the `0.4` fallback in `settings.get('cell_flow_threshold', 0.4)` and the declared default agree again. The fallback is still never reached, because the defaults are filled first.
+
 ### lines 298-300
 
 ```python
@@ -156,10 +158,31 @@ on_error, at the plate boundary. stop (default) lets the failure out and the run
 ### lines 377-380
 
 ```python
-print(f"Error: Tried to convert image files and image file name metadata with regex {settings['cu...
+print(f"Error: Tried to convert image files and image file name metadata without regex but failed.")
 ```
 
 Category B: no file was renamed, so every step below would operate on an empty/unrecognised folder. Historically this printed and returned None, which reads exactly like success.
+
+### line 322, 2026-09-19, the regex conversion no longer falls back
+
+```python
+except Exception as e:
+    refusal = (
+```
+
+A failure in `convert_separate_files_to_yokogawa` used to be caught with a bare `except Exception:` and answered by running `convert_to_yokogawa` on the same folder, without printing why. That conversion does not read the regex. It gives every file the next free well in file order, so the plate's own wells (B03, C07) came out as A01, A02 and so on, one channel file per well, with only `rename_log.csv` to say so. With the sidecar cause removed (item 429), any other failure still reached it: a matched `.nd2` or a damaged TIFF that `tifffile` cannot read, two slices of different shapes, a full disk. It could also run over converted files the regex conversion had already written before it stopped, and convert those again as wells of their own.
+
+There is no condition under which the fallback is provably safe. It never keeps the wells the file names carry, even when those names are not plate addresses, because the regex conversion groups a well's channels into one well and the fallback splits them. So the run now refuses: the ledger records the failure at stage `convert_metadata`, the error names the file (the converter now says which file and how many converted files it had written before it stopped), says that no fallback ran and why, and gives the two ways on: correct the file or the regex, or clear `custom_regex` so the wells are numbered deliberately.
+
+The second way carries a condition the message now states, because the refusal leaves the plate part-converted: `convert_separate_files_to_yokogawa` writes each region as it goes and raises on the bad one, so the `plate*_*.tif` files already written stay in the folder and no `rename_log.csv` records them. `convert_to_yokogawa` reads every image in the folder, so clearing the regex and re-running over that folder converts those leftovers a second time, as wells of their own -- the renumbering this change exists to prevent, arrived at by following the advice. The message therefore says to move them out of the folder first. spaCR does not delete them itself: they are the user's images under a new name, and the converter cannot tell which of them this attempt wrote from which a previous good run did. `SPACR_STRICT_ERRORS` turns the refusal into a `ConfigurationError`, as for the other conversion failure. Pinned by `tests/test_a_failed_regex_conversion_never_renumbers_wells.py`.
+
+### line 399, 2026-09-19, GitHub #124
+
+```python
+_check_archives_without_preprocessing(src)
+```
+
+With `preprocess` off, nothing below checked `masks/*.npz` before the segmenter opened them, so the #124 state (an archive a killed run cut short) still ended in `zipfile.BadZipFile` on this path after `spacr.io` learned to check them on the `preprocess` path. The check sets a damaged archive aside and stops with an error naming it, rather than normalising it again, because `preprocess` off is the user saying the normalised arrays already exist; the error says to turn `preprocess` on, which rebuilds the fields from `stack/`. It runs before the illumination resume below, whose `_normalized_npz_field_ids` opens every archive too. Reasons in `docs/notes/spacr/io.md`, "A re-run trusts nothing a killed run left".
 
 ### lines 409-411
 

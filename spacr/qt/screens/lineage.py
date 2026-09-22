@@ -41,6 +41,7 @@ from ..job_runner import JobRunner
 from ...selection import match_keys
 from ..linked_selection import DEFAULT_OPEN_KIND, LinkedView, has_object_opener
 from ..theme import SPACING, active_palette, mark_surface
+from ..widgets.measurements_example import install_test_data_button
 from ..widgets.sortable_table import install_sorting, tree_item
 from ..app_catalog import declared_app, register_declared
 
@@ -135,6 +136,9 @@ class LineageScreen(LinkedView, QWidget):
         self._reload.setObjectName("PrimaryButton")
         self._reload.clicked.connect(self.load)
         source.addWidget(self._reload)
+        install_test_data_button(
+            self, source, self._open_the_example,
+            say=lambda message: self.status.setText(message))
         outer.addLayout(source)
 
         split = QSplitter(Qt.Horizontal, self)
@@ -202,6 +206,16 @@ class LineageScreen(LinkedView, QWidget):
         if path:
             self._db.setText(path)
             self.load()
+
+    def _open_the_example(self, _folder, database) -> None:
+        """Fill the database box with the example plate's and build its tree.
+
+        :param _folder: the example plate folder.
+        :param database: its ``measurements/measurements.db``, whose nucleus
+            and pathogen rows carry the ``cell_id`` the tree is built from.
+        """
+        self._db.setText(str(database))
+        self.load()
 
     def load(self) -> None:
         """Read the object tables and build the forest, off the GUI thread."""

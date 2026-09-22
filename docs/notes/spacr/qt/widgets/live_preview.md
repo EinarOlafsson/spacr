@@ -1585,3 +1585,73 @@ def overlay_mask(image: np.ndarray, mask: np.ndarray) -> np.ndarray:
 ```
 
 Back-compat shims for callers that predate the multi-object rewrite
+
+## LiveSettingsDialog._show_every_control_on_a_row
+
+### added 2026-09-19 (431)
+
+```python
+self._show_every_control_on_a_row()
+```
+
+Reported by the maintainer on 2026-09-19: "in mask generation live settings, with per object settings on and pathogen chosen i dont have the option to choose pathogen channel in the live settings, only in the per object settings." Measured on a built Mask screen: the first open of Live settings showed a spin box beside "Pathogen channel"; every later open showed the caption over an empty field, and the same for "Organelle channel". `closeEvent` hides each borrowed control as it hands it back, which sets `WA_WState_ExplicitShowHide`, and a widget hidden that way stays hidden when the next dialog's form takes it. `__init__` re-showed only what `_managed_widgets()` named, and that list did not name those two. The per-object table was incidental: the defect is in the dialog, and the table was simply the only other place the pathogen channel could be set.
+
+Two changes. `_managed_widgets()` now names both spin boxes, and so does `_propagate_sources`, so a pathogen channel changed here with Propagate on reaches the main form without waiting for some other control to move. And this sweep shows every widget on every form row, so a control added to the dialog later cannot come back hidden with no list to forget. Rows gated on purpose (the organelle morphology rows) are gated by `QFormLayout.setRowVisible` in `refresh_visibility`, which runs after this and is unaffected.
+
+The existing check, `tests/qt/test_live_preview_channels.py::test_the_dialog_shows_a_row_for_each_channel`, read the row's CAPTION, which was there both times; it passed throughout. `tests/qt/test_live_settings_keep_every_channel_on_reopen.py` asks the spin box.
+
+## LivePreviewPanel._set_table_columns
+
+### added 2026-09-19 (431)
+
+```python
+columns = self._set_table_columns(sets)
+```
+
+GitHub issue #119 (jak18015, 1.5.0.8, macOS): "Columns for channels don't all show up reliably and images are all under a column called 'ch' and there are no individual channel columns". Three defects, each measured on a built Mask screen with the preview open and `src` set to a folder:
+
+* A file whose name the naming dialect cannot read is enumerated with channel ID `""`, and the header was `f"ch {c}"` -- a column captioned "ch ". A folder of three-channel TIFFs in any naming other than the form's therefore showed every file under that one column while the channel dropdown beside it offered Ch 0, Ch 1 and Ch 2. Such a column is now captioned "image", and when no file name carries a channel at all and the loaded image has several planes on its last axis, each plane gets its own "ch N" column.
+* The columns were the channel IDs of the SAMPLED sets. A channel that only some fields have appeared or not with the random draw -- "don't all show up reliably". They now come from `ImageSetSampler.channels`, which is the whole folder.
+* The plane-column cap is the channel spin boxes' maximum plus one (nine): the segmentation channels cannot name a plane beyond that, and a last axis longer than that is more likely a stack read the other way round than a channel axis.
+
+## LivePreviewPanel._open_cell
+
+### added 2026-09-19 (431)
+
+```python
+self._open_cell(item)
+```
+
+A plane column's cell carries the plane in `_PLANE_ROLE` beside the path in `Qt.UserRole`. The file is read only when it is not the one on screen, so moving along a row of a multi-channel file changes the plane shown and reads nothing; the plane is chosen through the same display-channel dropdown a user picks from, and `_on_display_channel_changed` redraws.
+
+## LivePreviewPanel.regroup_the_folder
+
+### added 2026-09-19 (431)
+
+```python
+lambda: enumerate_image_sets(folder, SUPPORTED_SUFFIXES,
+```
+
+The grouping is decided when a folder loads, with the `metadata_type` and `custom_regex` the Mask form held at that moment. Loading a cellvoyager folder while the form said `cq1` and then choosing `cellvoyager` left all 92 files under one column; nothing re-read the folder until another image load missed the sampler's cache. The screen now calls this 400 ms after either setting changes (`AppScreen._wire_live_preview_naming`). The enumeration reads file names only and runs through the panel's `JobRunner`, and `adopt` files it under the dialect's cache key, so `_refresh_source_selectors` finds it rather than scanning the plate again on the GUI thread.
+
+Seen and not changed: `load_source_payload` still enumerates on the worker with the DEFAULT dialect, so a folder opened under any other naming is scanned a second time on the GUI thread by `_refresh_source_selectors`. The result is right; only the cost is paid twice.
+
+## LivePreviewPanel._adopt_the_regrouping
+
+### added 2026-09-19 (431, from review)
+
+```python
+if tuple(self._regex_config()) != (meta, custom):
+```
+
+Found in review of 431. The token bumps only when the next regrouping is asked for, and the screen asks 400 ms after the naming changes. If the naming changes again and the running job finishes inside that wait, the token still matches, so the grouping read under the old naming was adopted. `_refresh_source_selectors` then read the NEW naming off the form, missed the sampler's cache and re-read the whole folder on the GUI thread, which is the cost the off-thread regroup exists to avoid. Arrow-keying through the `metadata_type` combo on a large plate does exactly that. A grouping whose naming is no longer the form's is now dropped, and the regrouping the timer asks for replaces it. Held by `test_a_regrouping_read_under_a_naming_since_changed_is_dropped`, which counts GUI-thread folder reads and fails without the check.
+
+## first_supported_image
+
+### added 2026-09-19 (431, #119)
+
+```python
+if name.startswith("."):
+```
+
+`._<name>.tif` sorts before every image under `str.casefold`, because `.` sorts before letters and digits. On a folder with macOS sidecars the preview's first file was therefore a sidecar. Measured on a synthetic cellvoyager folder with a sidecar beside each file: tifffile raised "not a TIFF file: header=b'\x00\x05\x16\x07'", no image loaded, and the table never filled. See the note on `enumerate_image_sets` in `preview_controls.md`. Held by `test_a_folder_on_an_exfat_drive_previews_its_images` and `test_the_listing_helpers_skip_macos_sidecars`.

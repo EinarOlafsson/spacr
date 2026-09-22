@@ -124,3 +124,71 @@ def test_a_three_dimensional_tile_is_refused_with_the_reason():
     with pytest.raises(ComposeError, match="one channel at a time"):
         compose_window(Window(0, 0, 10, 10), places, lambda s: stack,
                        tile_shape=(10, 10))
+
+
+def test_a_window_with_no_size_is_refused_rather_than_returning_nothing():
+    """A zero-height window would compose an empty array and report success.
+
+    B2 asks for the window the segmenter is about to read; handing it a
+    (0, N) array is a segmentation of nothing that looks like a segmentation
+    of nothing found.
+    """
+    places = {0: (0, 0)}
+    tile = np.zeros((10, 10), dtype=np.float32)
+    for window in (Window(0, 0, 0, 10), Window(0, 0, 10, 0)):
+        with pytest.raises(ComposeError, match="positive height and width"):
+            compose_window(window, places, lambda s: tile, tile_shape=(10, 10))
+
+
+def test_a_window_smaller_than_one_pixel_is_refused_at_the_tiler():
+    """The same refusal from the other end: ``windows_over`` never yields it."""
+    with pytest.raises(ComposeError, match="window size must be positive"):
+        list(windows_over((500, 500), size=0, overlap=0))
+    with pytest.raises(ComposeError, match="window size must be positive"):
+        list(windows_over((500, 500), size=-4096, overlap=0))
+
+
+def test_the_tile_shape_is_read_from_the_first_tile_when_it_is_not_given(
+    raster,
+):
+    """Callers that do not already know the tile size get it measured once.
+
+    The result is the same image as when the shape is handed in, and the
+    probe costs ONE extra read of one tile -- not a read of all 333 sites in
+    the well, which is the exact cost `compose_window` exists to avoid. That
+    bound is what is asserted, because "it also works without the shape" on
+    its own would not notice a per-tile probe.
+    """
+    truth, places, tiles, _size = raster
+    reads = []
+
+    def read(site):
+        reads.append(site)
+        return tiles[site]
+
+    window = Window(top=0, left=0, height=TILE, width=TILE)
+    given, _ = compose_window(window, places, tiles.__getitem__,
+                              tile_shape=(TILE, TILE))
+    inferred, coverage = compose_window(window, places, read, tile_shape=None)
+
+    assert np.allclose(inferred, given)
+    assert coverage.max() > 0
+    touching = len(set(reads))
+    assert len(reads) == touching + 1, "the shape is probed exactly once"
+    assert touching < len(places), "a window does not read the whole well"
+
+
+def test_the_gain_of_a_window_no_tile_reached_is_zero_not_a_nan(raster):
+    """`overlap_gain` takes the mean of the covered pixels, and there are none.
+
+    An empty mean is NaN, and a NaN gain printed beside 1.15 reads as a
+    measurement rather than as "this window is outside the raster".
+    """
+    _truth, places, tiles, size = raster
+    far_away = Window(top=size * 4, left=size * 4, height=TILE, width=TILE)
+
+    _image, coverage = compose_window(far_away, places, tiles.__getitem__,
+                                      tile_shape=(TILE, TILE))
+
+    assert coverage.max() == 0
+    assert overlap_gain(coverage) == 0.0

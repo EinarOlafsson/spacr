@@ -31,7 +31,9 @@ IT DOES NOT INVENT A FIFTH VOCABULARY. ``uninfected``, ``pathogen_count`` and
 """
 from __future__ import annotations
 
+import os
 import sqlite3
+from contextlib import closing
 from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 
 import pandas as pd
@@ -49,6 +51,12 @@ def _connect_read_only(db_path):
     of racing it.
 
     Pinned by `test_no_connection_relies_on_sqlites_five_second_default`.
+
+    THE CALLER CLOSES IT. A ``sqlite3.Connection`` used as a context manager
+    only commits; it stays open, and an open reader keeps a WAL database's
+    ``-wal`` file alive, so a copy of the ``.db`` alone taken afterwards
+    misses every change still in the log. Wrap it in
+    :func:`contextlib.closing` or close it in a ``finally``.
     """
     from .database_concurrency import connect
 
@@ -275,7 +283,7 @@ def parasites_per_cell(db_path: str) -> pd.DataFrame:
     """
     from .filters import OBJECT_COLUMN
 
-    with _connect_read_only(db_path) as db:
+    with closing(_connect_read_only(db_path)) as db:
         cells = _load(db, CELL_TABLE)
         pathogens = _load(db, PATHOGEN_TABLE)
 
@@ -390,6 +398,48 @@ def infection_report(db_path: str, *,
     return pd.DataFrame(rows)
 
 
+#: What a Measure run writes its infection report as, beside the
+#: measurements database it was computed from.
+REPORT_NAME = "infection_report.csv"
+
+
+def write_infection_report(db_path: str, *, by_field: bool = False,
+                           destination: Optional[str] = None) -> Optional[str]:
+    """Write the infection report beside the database it came from.
+
+    A MEASURE RUN EMITS THE REPORT, so anyone who has measured a plate
+    already has it. There is no button and no screen, and nothing has to be
+    asked for -- which is the point, because the runs that most need these numbers
+    are the ones that would never have thought to ask.
+
+    NOTHING IS WRITTEN WHEN THERE IS NOTHING TO SAY. A plate with no cell
+    table, or none of the columns the metrics need, gives an empty report,
+    and an empty CSV beside a database is a file that invites somebody to
+    wonder what went wrong. The answer is None instead.
+
+    Written to a dot-name in the same folder and renamed over the target,
+    so a reader never sees half a file.
+
+    :param db_path: a ``measurements.db``.
+    :param by_field: group by field as well as well.
+    :param destination: where to write it; the default is
+        :data:`REPORT_NAME` beside ``db_path``.
+    :returns: the path written, or None when the report is empty.
+    """
+    report = infection_report(db_path, by_field=by_field)
+    if report.empty:
+        return None
+    target = destination or os.path.join(os.path.dirname(os.fspath(db_path)),
+                                         REPORT_NAME)
+    folder, name = os.path.split(target)
+    if folder:
+        os.makedirs(folder, exist_ok=True)
+    temporary = os.path.join(folder, f".{name}.tmp")
+    report.to_csv(temporary, index=False)
+    os.replace(temporary, target)
+    return target
+
+
 def multiplicity_distribution(db_path: str) -> pd.DataFrame:
     """The histogram behind the means, which is what the means hide.
 
@@ -438,7 +488,7 @@ def host_contrast(db_path: str, columns: Sequence[str], *,
     if per_cell.empty:
         return pd.DataFrame()
 
-    with _connect_read_only(db_path) as db:
+    with closing(_connect_read_only(db_path)) as db:
         cells = _load(db, CELL_TABLE)
     if cells.empty:
         return pd.DataFrame()

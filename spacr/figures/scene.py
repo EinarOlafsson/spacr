@@ -717,8 +717,8 @@ def _plain_text(raw) -> Tuple[str, bool]:
 
     pyqtgraph draws Qt rich text and has no mathtext at all, so an untouched
     ``$\\sqrt{|\\mathrm{standardised\\ residual}|}$`` reaches the file as exactly
-    those characters -- measured on `scale_location`, which is the variance
-    homogeneity panel this suite was asked for by name.
+    those characters -- measured on `scale_location`, the variance
+    homogeneity panel of this suite.
 
     The vocabulary is :data:`_MATHTEXT`, ``\\sqrt`` and the sub/superscript
     runs, and NOTHING ELSE IS GUESSED: a construct outside it comes back

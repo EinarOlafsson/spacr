@@ -21,13 +21,65 @@ The user confirmed these requirements on 9 September:
   from their current hosts.
 - Commit and push coherent checkpoints regularly. Do not publish to `main` or
   replace live remote media while the refreshed set is incomplete.
-- Run substantial commands through `tools/run_memory_guarded.py --limit-gib 100`
-  and limit thread counts. Do not overlap another session's full coverage run.
-  The 100-GiB threshold is approximately 107 GB, below the maintainer's latest
-  110-GB ceiling. It watches total system usage and stops only the guarded job.
+- Current memory rule (21 September, HANDOFF §3.001): run **every Python
+  invocation** through `tools/run_capped.sh <cap>`, including small scripts.
+  A polling memory guard does not replace that hard cgroup limit. Limit
+  thread counts and do not overlap another session's full coverage run.
 - No further questions while the user is away; proceed with these choices.
 
 ## Checkpoints
+
+### Current capture pass — 21 September
+
+Items 358 and 447 share one capture pass. Both capture entry points require
+dark mode and a painted Blobs backdrop. `capture_policy.py` checks the actual
+palette, backdrop and visible Qt text before saving; review captured images
+as well. Use a neutral prepared directory, such as `/tmp/spacr-tutorials-current`.
+`capture_all_modules.py --output-root` selects an isolated output tree;
+`capture_refresh.py --stage` selects the prepared data/capture tree.
+The capture omits Home's historical News aside so earlier release numbers do
+not appear in current-version lessons. It also rejects visible Qt text naming
+another spaCR version; sampled image review is still required. Release notes
+and the normal application remain unchanged.
+
+Home now has real Help-search and Performance frames. The bounded
+`capture_refresh.py --module make_masks --mask-readouts-tour` route records
+the real CPU Otsu magnifier and FEATURES assignment and measurement from two
+genuine Measure example arrays under `example_data/plate1/merged`. It assigns
+image and mask columns through real file pickers and verifies saved cell
+identities, areas and raw intensities against the source arrays. No GPU model
+is used. `--mask-editor-tour` remains the separate full editing route.
+
+The new frames and catalog wording are work in progress, not published
+videos. GPU rendering/translation must wait for 20 consecutive observed idle
+minutes. Source-bound receipts in `evidence/` identify completed captures.
+
+Annotate's recorder opens `stage/example_data/plate1`, which must be the same
+private dataset bound onto the downloader cache. For existing exported crops,
+`prepare_annotation_capture.py --source <real-project> --destination
+<private-stage>/example_data/plate1 --visible-source
+/tmp/spacr-tutorials-current/example_data/plate1` makes a verified copy and
+relocates only `png_list.png_path`. It preserves labels, row identities and
+image bytes; SQLite's biological `rowID` column must not be mistaken for its
+internal row identifier. Bind the durable stage at the neutral visible path
+inside the recording namespace. Launch all Python through the memory guard.
+The picker uses that directory and a neutral sidebar shortcut. The preceding
+download transcript is archived privately before a fresh annotation segment;
+source-opening and label-save messages in that segment are unmodified.
+The 21 September Annotate receipt records 25 native frames and 20 staged
+scenes, including a real persisted null → class 1 → null label transition.
+
+For the Classify overview, `compose_classify_overview.py` can take `--stage`,
+`--main`, `--ml`, `--cv` and `--destination` to reuse accepted recordings from
+separate private stages. `--ml-figure` selects the recorded ML result frame;
+the current recording uses `25_ml_figure_02`, after the native figure pane
+has been expanded. The composer still requires each workflow's scientific
+acceptance, completed native CV/ML batches, matching frame hashes, and the
+five genuine nested routes in the navigation recording. It preserves the
+original images and refuses to overwrite an earlier composition. Stage
+lesson 41 against the new composition before rendering its narration and
+shared visual master. The CV and ML examples use different labels and
+subsets, so their metrics are not a family comparison.
 
 ### Map Barcodes — 13 September
 
@@ -343,3 +395,25 @@ now rejects that late worker error even after a main-pipeline success signal;
 the new test was observed red before implementing the guard. The both-level
 repeat completed without that error (434 guide and 325 gene results). This is
 a tutorial configuration change, not an application fix for guide-only runs.
+
+### Current CV capture isolation
+
+The existing-split recorder uses two loader workers. The split exporter also
+preserves the original measurements database byte for byte beside the crops,
+so the current GUI's source validation can read real metadata. The independent
+input checker verifies that copy against the unchanged original.
+
+For a private recording, bind its durable stage to a neutral path and set HOME
+only for that recorder process to `<neutral-stage>/user_state`. Create its
+`.cache/spacr/example_data` and `.spacr/runs` directories first. This keeps the
+real reproducibility journal's printed paths neutral without changing the
+user's home or editing the console transcript. Avoid a directory named `home`
+inside that visible path: the conservative path guard also matches `/home/`
+inside a longer path. All Python remains inside `tools/run_capped.sh` and the
+recording namespace must shadow the stale NAS mount.
+
+This training recording imports CPU Torch before opening the GUI, so the live
+resource monitor does not inspect a partially imported module. It makes no cold
+startup timing claim. A rejected capture saves no frame, archives its console
+privately for diagnosis and asks the real cooperative stop path to finish any
+active run before its Qt owners unwind.

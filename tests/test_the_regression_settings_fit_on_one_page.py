@@ -425,20 +425,27 @@ def test_the_run_controls_are_still_supplied_to_the_run():
 # G. the other migration in this function, restructured beside the new one
 # ---------------------------------------------------------------------------
 
-@pytest.mark.parametrize("old_value", [True, False])
+@pytest.mark.parametrize("old_value, source", [(True, "toxoplasma"),
+                                               (False, "")])
 def test_the_toxo_rename_still_migrates_now_that_the_pop_does_the_reading(
-        old_value):
+        old_value, source):
     """`toxo` -> `Toxoplasma` (instruction 133) used to read
     `settings['toxo']` behind an `in` guard, which the contract test that
     walks perform_regression's helpers reads as a key needing a default --
     and this function exists to REMOVE that key. One pop says the same thing
-    and answers it. What a run does is unchanged, which is what these check."""
+    and answers it.
+
+    Since 2026-09-19 `Toxoplasma` is retired too (364), so the old value
+    lands on `annotation_source` and neither switch survives. What a run
+    does is unchanged, which is what these check."""
     settings = defaults(toxo=old_value)
-    assert settings["Toxoplasma"] is old_value
+    assert settings["annotation_source"] == source
     assert "toxo" not in settings
+    assert "Toxoplasma" not in settings
 
 
 def test_an_explicit_new_spelling_wins_over_the_old_one():
     settings = defaults(toxo=False, Toxoplasma=True)
-    assert settings["Toxoplasma"] is True
+    assert settings["annotation_source"] == "toxoplasma"
     assert "toxo" not in settings
+    assert "Toxoplasma" not in settings

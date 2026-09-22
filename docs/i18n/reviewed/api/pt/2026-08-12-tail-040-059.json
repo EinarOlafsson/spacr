@@ -27,7 +27,9 @@
       "label": "spacr.qt.ai.issue_report#0",
       "source": "Opt-in error reporting → pre-filled GitHub issue.",
       "source_sha256": "877a6c61b362da77372a9b3e7f9462c22fcf9b55e07a1baf17a8a1e7c3ef075b",
-      "translation": "Relato de erros mediante consentimento → issue do GitHub pré-preenchida."
+      "translation": "Relato de erros mediante consentimento → issue do GitHub pré-preenchida.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.ai.issue_report's documentation, which was rewritten by \"432 after review: a path with a space was published whole, the new default reached almost nobody, and Annotate's File as issue had never filed anything\" (e173b9624, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "Kept for parity with the Tk ``AnnotateApp`` (and for callers that want a bordered image out of the workflow). The Qt grid does NOT use it: its tiles paint their borders in ``_Thumbnail.paintEvent`` so recolouring one costs a repaint instead of a rebuilt pixmap.",

@@ -702,6 +702,14 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
         return None
 
 
+#: The two moments this filter acts on, as a set of the enum members built
+#: once. The filter is on the QApplication, so the membership test is the
+#: first thing every event in the process pays for: as a tuple rebuilt per
+#: event it cost two global lookups, four attribute lookups and a tuple
+#: build for each of the 94,431 events one module open delivers.
+_GLASS_MOMENTS = frozenset({QEvent.Type.Polish, QEvent.Type.Show})
+
+
 class _GlassInstaller(QObject):
     """Applies :func:`glass` to every dialog the first time it is shown."""
 
@@ -719,8 +727,7 @@ class _GlassInstaller(QObject):
         :returns: ``False`` -- never consumed.
         """
         try:
-            if (event.type() in (QEvent.Type.Polish, QEvent.Type.Show)
-                    and wants_glass(watched)):
+            if event.type() in _GLASS_MOMENTS and wants_glass(watched):
                 glass(watched)
         except Exception:                                    # noqa: BLE001
             LOG.debug("the glass filter tripped", exc_info=True)

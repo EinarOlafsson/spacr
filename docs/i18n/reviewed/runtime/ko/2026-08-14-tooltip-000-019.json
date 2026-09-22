@@ -53,13 +53,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "cell_model_name",
-      "source_sha256": "4b7548b8506d697953ed4aabf9c66aa6133887703ca6b49bd9e592bb66639fa6",
-      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
-      "translation": "세포 분할 가중치입니다. Cellpose 4 는 기본 'cpsam' 모델을 제공합니다. 또는 Train Cellpose 에서 생성한 CPSAM 체크포인트를 pretrained_model 로 불러올 수 있습니다. 기존 이름 ('cyto', 'cyto2', 'cyto3', 'nuclei')도 계속 허용되지만, Cellpose 4 가 해당 모델을 더 이상 제공하지 않으므로 cpsam으로 해석됩니다. 추론을 변경하는 매개변수는 diameter뿐이며(30/diameter로 스케일링), model_type 과 diam_mean 은 v4.0.1+에서 사용되지 않습니다. 기본값은 'cpsam' 입니다."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "cell_plate_metadata",
       "source_sha256": "4c1957931be806def29f66cd9cf0e06ffac900653fc1c30eb0ec72da3c854c21",
       "source": "Wells occupied by each entry of cell_types, with one inner list per cell type in the same order, for example [['c2','c3'],['c4']]. Each identifier must start with 'c' (column) or 'r' (row); invalid identifiers are skipped without an exception and those wells receive no host_cells label. Because 'condition' combines the labels that are present, a typographical error changes the comparison without raising an error. Default None.",

@@ -22,6 +22,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_subhead](#_subhead) (1 entry)
 - [_headline](#_headline) (1 entry)
 - [read_digest](#read_digest) (1 entry)
+- [_iter_masks, 2026-09-19](#_iter_masks-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -252,3 +253,7 @@ stale=bool(masks_mtime and mtime and masks_mtime > mtime + 1.0),
 ```
 
 Only a mask that is genuinely newer counts. Equal mtimes are a coarse filesystem timestamp on a card written moments after the masks, which is the normal case and not a staleness.
+
+## _iter_masks, 2026-09-19
+
+A mask folder on a macOS external volume holds a `._<field>.npy` AppleDouble sidecar beside every mask, and `np.load(..., allow_pickle=False)` refuses it. Measured on the code before this fix, one good mask plus its sidecar scored as "FAIL - 1 of 2 fields failed (50%): fix the segmentation before running Measure": the sidecar counted as a field and as a failed one, so every such plate got a false FAIL. Dot-files are left out here with an inline `startswith(".")` rather than through `spacr.io._listdir_visible`, because this module is tested to import no torch and `spacr.io` imports it at module level. Reasons in `docs/notes/spacr/io.md` under `_listdir_visible`.

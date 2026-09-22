@@ -1,0 +1,337 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "a30412e01a8e5ab60709c4683301b04499042f74",
+  "version": "1.5.0.8",
+  "capture": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/annotate-auto-open-v1/captures/annotate_auto_open_20260921_v3",
+  "lesson": "09_annotate",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
+  "previous_english_sha256": "f51745cb600291406bce5f96d5de0560a999b23f9ddb6aa770ce9a22a0640b55",
+  "scene_count": 20,
+  "automatic_opening": {
+    "verified": true,
+    "initial_crop_count": 128,
+    "annotation_column": "infected",
+    "extra_source_action_required": false
+  },
+  "recording_preparation": "After proving automatic opening, the actual picker selects the identical dataset through a neutral alias before any source-path frame is saved; the separately recorded Open source action is optional.",
+  "rows": 2341,
+  "pngs_independently_rehashed": 2341,
+  "original_columns_independently_verified": true,
+  "saved_label_transitions": [
+    null,
+    1,
+    null
+  ],
+  "final_demo_column_empty": true,
+  "capture_tool_sha256": {
+    "capture_annotate.py": "dad0bc95903f26590bf1fc5fdf499846fda858d141a74ccab023a95a6eaa8c42",
+    "capture_refresh.py": "48fffd705028134de4237ae83ae93a6924ef2ca862aa5106fb042de07ab66a27"
+  },
+  "frames": {
+    "00_home": {
+      "sha256": "6206b5e0cca04623aef3331b7cd2c6c4cb4cc213a7347993eeacd909fe57fcf4",
+      "image": "00_home.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 14
+      }
+    },
+    "01_module": {
+      "sha256": "997a0b888666995182382d91046edd438ffad58bdfaff95492c5b863239c71f6",
+      "image": "01_module.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 41
+      }
+    },
+    "02_cached_load": {
+      "sha256": "8639b9e8865f070ded94966ac3c65f8c917f9c79f7aeec84147e42a34f9df854",
+      "image": "02_cached_load.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 57
+      }
+    },
+    "02_data_choice_load": {
+      "sha256": "87e0f3ee5ffee9c71836e6281ec73a4e097824be442c8b4e8868fd08ad537f56",
+      "image": "02_data_choice_load.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 71
+      }
+    },
+    "02_data_choice_stream": {
+      "sha256": "172cd5897e393e176d1fc56b26f350c0e74b1a841b27ec7e300e95118c1f79c0",
+      "image": "02_data_choice_stream.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 79
+      }
+    },
+    "04_open_source_dialog": {
+      "sha256": "df78488585503f32155deda6b67fa29384ffecb4906042e71d67f444ecf67c1d",
+      "image": "04_open_source_dialog.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 135
+      }
+    },
+    "05_loaded_crops": {
+      "sha256": "a2c9a942f8ee57ea12c10800d6e5b4bdb55cab3763da4c1d8d079b6a092f2fe4",
+      "image": "05_loaded_crops.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 143
+      }
+    },
+    "06_annotation_settings": {
+      "sha256": "42297a98aeac8aa21242da45b506042a8fb3a6e04ef9228c92875441a9aeb9b6",
+      "image": "06_annotation_settings.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 153
+      }
+    },
+    "07_new_annotation_column": {
+      "sha256": "029bb76321506516b35f4698a183f3cee8b0a745f11e5b24d91ccd455937db59",
+      "image": "07_new_annotation_column.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 161
+      }
+    },
+    "08_class_one_pending": {
+      "sha256": "7e0550fb3f169fc5848322705af54b74d34127640d4ee3cae9e7addfa701ab39",
+      "image": "08_class_one_pending.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 165
+      }
+    },
+    "08_next_page_saved": {
+      "sha256": "df1b5015057b3b28e4827885953322218e436e778fadc9bb2b03e22dd83a7976",
+      "image": "08_next_page_saved.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 215
+      }
+    },
+    "08_class_one_saved": {
+      "sha256": "81ba75b1b8a4a70ccdb112f83de0bef721880a24a15adca3fbce7e74da2131e9",
+      "image": "08_class_one_saved.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 249
+      }
+    },
+    "09_class_counts": {
+      "sha256": "cff85270925940f77c067586fc7a8234914e5f34ca59cd13c170cfa77104f90a",
+      "image": "09_class_counts.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 259
+      }
+    },
+    "09_annotation_coverage": {
+      "sha256": "377d5d4e98aa13fcc6bcad143f4f15ada9c813f21e054cb81a24fe720fe4bf42",
+      "image": "09_annotation_coverage.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 275
+      }
+    },
+    "10_class_cleared": {
+      "sha256": "d275f1a709e4a4c86f84ccfab017655a1af1c7b4d8baebe66acdc88b44a8af1b",
+      "image": "10_class_cleared.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 351
+      }
+    },
+    "11_display_colour_settings": {
+      "sha256": "ab8347096ed55387ea5e5542df97c9b4f5b60afd1bfaed5613a478e5cbfc5af8",
+      "image": "11_display_colour_settings.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 365
+      }
+    },
+    "12_cmy_view": {
+      "sha256": "e9b3e77d6e7f83f253c07446ad12c57a36a092f9a84c6903a56ba65914ef8e1f",
+      "image": "12_cmy_view.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 389
+      }
+    },
+    "13_restore_rgb_settings": {
+      "sha256": "728af576b1c9bfb7e38dc8dbe64a00ea9d91cf8588d4a74f5dea82b11269ca2f",
+      "image": "13_restore_rgb_settings.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 401
+      }
+    },
+    "14_restored_rgb": {
+      "sha256": "414a940db294931c9e2a849d1d86d1fc13ba09594f4259afe8fcb9466f15e703",
+      "image": "14_restored_rgb.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 437
+      }
+    },
+    "15_agreement_fold": {
+      "sha256": "0128f0f1ddbf12b8133ef3946c8256086b4d56124359248f265c26aa14d8a84d",
+      "image": "15_agreement_fold.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 443
+      }
+    },
+    "16_training_routes": {
+      "sha256": "c4164c01cc4f6b4dbb49dfd18556a4915d772834f25662adccad73376bb98af4",
+      "image": "16_training_routes.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 449
+      }
+    },
+    "17_generate_database_entry": {
+      "sha256": "615016c9462b7d470acf282e4eb2836179e13b859ef2af96d4db79bf7d9abeca",
+      "image": "17_generate_database_entry.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 457
+      }
+    },
+    "18_annotation_console": {
+      "sha256": "bc45300863b99268b020b450643992b2b941cfbcb9653812a8d0bb7c414f94ee",
+      "image": "18_annotation_console.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 467
+      }
+    },
+    "30_ai_unsent_question": {
+      "sha256": "29695ea7b83ee2fe9a84b38dbcb974767b7a1efc69a37288f1c194edbe716eea",
+      "image": "30_ai_unsent_question.png",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 473
+      }
+    }
+  },
+  "translations": [
+    {
+      "language": "da",
+      "review_sha256": "befc3571dae96a5a9002ba2983e639f87375becd32ec91a394dd24d1c74b6fb6",
+      "retained_scenes": 18
+    },
+    {
+      "language": "de",
+      "review_sha256": "e113213a3b7794e343599c04b625f0943b1614e727ac43e039e2bddae19497e9",
+      "retained_scenes": 18
+    },
+    {
+      "language": "es",
+      "review_sha256": "b33d737f291d40ce5bc822a39d767a2682f3e0972a9fa478ea5f6aa38939a6a3",
+      "retained_scenes": 18
+    },
+    {
+      "language": "fr",
+      "review_sha256": "5e9b8c7ae071453b9e4c745642cefe59aa5bc35ef272b8f60ab5f4c756b11e62",
+      "retained_scenes": 18
+    },
+    {
+      "language": "hi",
+      "review_sha256": "bc0f6110769709c507cf8bbf55cb1c507d0a7daedcd8fd17b7e41d16b8304b37",
+      "retained_scenes": 18
+    },
+    {
+      "language": "is",
+      "review_sha256": "e35e210c690fa33de07f4ac11fc74f8b983101499e8dee916d3a0c8e78d8c539",
+      "retained_scenes": 18
+    },
+    {
+      "language": "it",
+      "review_sha256": "dbfebe23d32db5eb201786ba0c364740dd95fa300f20c4be28cf8be2289e2a81",
+      "retained_scenes": 18
+    },
+    {
+      "language": "ja",
+      "review_sha256": "29a5171cb7d374d84be4747234242a935fedae2835dfae6d13253612fc15057f",
+      "retained_scenes": 18
+    },
+    {
+      "language": "ko",
+      "review_sha256": "f802942ecf1c8dc5e4eb79f3be7a2ac155cae41e24f9d4103434843f2b3b5f7a",
+      "retained_scenes": 18
+    },
+    {
+      "language": "nb",
+      "review_sha256": "2026e5a958e8bea2145f776bfa2a6fd8f10929bceb19e3eb3499778e665f1e60",
+      "retained_scenes": 18
+    },
+    {
+      "language": "pt-BR",
+      "review_sha256": "546f7c09ec3979845b1c94c82aa156065bdc9e46ee84827960c74e271d3086b4",
+      "retained_scenes": 18
+    },
+    {
+      "language": "sv",
+      "review_sha256": "747b5dc95ab408787579c19f0e5fa8d8669f4f644a89d2452bcdd39c76350ea7",
+      "retained_scenes": 18
+    },
+    {
+      "language": "zh-CN",
+      "review_sha256": "96e81f29506b6e1faab9b2ddd8b0f7d1b0ee72028a015bc7413d6f7afb34d5a8",
+      "retained_scenes": 18
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "New narration/master render and verification",
+    "Full voice/language/caption/player acceptance",
+    "Listening review",
+    "Complete-set publication"
+  ],
+  "validation": {
+    "capture_policy_tests": 19,
+    "capture_policy_seconds": 11.96,
+    "annotation_translation_geometry_tests": 22,
+    "annotation_translation_geometry_seconds": 1.94,
+    "all_13_source_bound_reviews_staged": true,
+    "visual_inspection": [
+      "04_open_source_dialog",
+      "02_data_choice_stream",
+      "18_annotation_console"
+    ]
+  }
+}

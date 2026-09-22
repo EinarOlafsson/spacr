@@ -68,9 +68,9 @@ class TestTheSettingIsGone:
         left in the saved preferences to confuse a later reader"."""
         from spacr.picture_settings import drop_retired
 
-        out, notes = drop_retired({"cells_per_page": 60, "img_size": 96})
+        out, notes = drop_retired({"cells_per_page": 60, "crop_size": 96})
         assert "cells_per_page" not in out
-        assert out["img_size"] == 96
+        assert out["crop_size"] == 96
         assert notes and "cells_per_page" in notes[0]
 
     def test_the_note_says_why_rather_than_only_that(self):
@@ -83,8 +83,8 @@ class TestTheSettingIsGone:
     def test_nothing_to_drop_says_nothing(self):
         from spacr.picture_settings import drop_retired
 
-        out, notes = drop_retired({"img_size": 96})
-        assert out == {"img_size": 96} and notes == []
+        out, notes = drop_retired({"crop_size": 96})
+        assert out == {"crop_size": 96} and notes == []
 
 
 class TestTheTab:

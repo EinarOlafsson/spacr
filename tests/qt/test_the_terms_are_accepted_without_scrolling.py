@@ -140,11 +140,17 @@ class TestTheTermsSayWhatTheMaintainerAsked:
     def test_they_say_the_log_is_never_published(self, terms_module):
         """The issue can be public; the log never is. The terms grant use of
         logs that are SENT, and say so rather than leaving the reader to
-        assume the tracker gets them."""
+        assume the tracker gets them.
+
+        It asserted "diagnostic data is not published" until 2026-09-19.
+        That sentence was false: the traceback and the run's settings are
+        Diagnostic Data under 1.6, and every report publishes them. Terms
+        4.2 say what is published and that the log is not."""
         said = terms_module.terms_text().lower()
 
-        assert "diagnostic data is not published" in said
+        assert "the log is never published" in said
         assert "records the path rather than the contents" in said
+        assert "diagnostic data is not published" not in said
 
     def test_they_read_as_an_agreement_rather_than_an_essay(self,
                                                             terms_module):

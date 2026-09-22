@@ -16,6 +16,7 @@ import re
 import os
 import shutil
 import sys
+import time
 from functools import partial
 from html import escape
 from typing import Callable, Optional
@@ -101,6 +102,46 @@ def _append_example_pack_report(console, report, applied: int) -> None:
 #: `organelleb_model_name`, `organellec_model_name`, ... -- the
 #: per-organelle model fields generated when a run has more than one.
 _ORGANELLE_MODEL_KEY = re.compile(r"^organelle[a-z]?_model_name$")
+
+#: Fingerprints whose automatic report is being filed right now, each with
+#: the monotonic clock reading it started at.
+#:
+#: Shared by every screen, because two screens can fail on the same crash
+#: before the first report has come back from GitHub.
+#:
+#: TIMED, BECAUSE A DROPPED RESULT NEVER CLEARS ITS ENTRY. The runner hands
+#: nothing to `on_done` when `cancel()` has bumped the generation or the
+#: worker reports not-ok, which is what a closed screen does to a report in
+#: flight. A bare set kept that fingerprint for the rest of the process, and
+#: every later failure with the same traceback -- in any screen -- said "This
+#: error is being reported already" and filed nothing.
+_REPORTS_BEING_FILED: dict = {}
+
+#: How long a report is allowed to be in flight before another failure may
+#: file it again. `gh auth token` is capped at 8 s and each API call at 20 s,
+#: so a report that has not come back inside two minutes is not coming back.
+REPORT_IN_FLIGHT_SECONDS = 120.0
+
+#: Edge of the gear beside "Copy console", in logical pixels before the
+#: interface scale. Named rather than written twice, because the size is
+#: now set once at construction and re-derived from this number whenever
+#: the scale moves -- the two have to be the same number or the gear does
+#: not come back to where it started.
+GEAR_ICON_PX = 18
+
+
+def _a_report_is_in_flight(fingerprint: str) -> bool:
+    """Whether this fingerprint is being filed right now, dropping stale ones.
+
+    :param fingerprint: the traceback fingerprint to look for.
+    :returns: ``True`` only while a report started less than
+        :data:`REPORT_IN_FLIGHT_SECONDS` ago is outstanding.
+    """
+    now = time.monotonic()
+    for key, started in list(_REPORTS_BEING_FILED.items()):
+        if now - started >= REPORT_IN_FLIGHT_SECONDS:
+            _REPORTS_BEING_FILED.pop(key, None)
+    return fingerprint in _REPORTS_BEING_FILED
 
 
 #: Object name the settings column carries, and what the block below keys
@@ -796,6 +837,12 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
     `ChannelMappingWidget.set_value` accepts the list form directly, so no
     value conversion is needed here -- only the name.
 
+    ONE SEMANTIC FOLD RUNS HERE TOO: the retired `Toxoplasma` / `toxo`
+    switch, through `spacr.settings._fold_toxoplasma`. The form has no
+    widget for the switch, so without it a file saying `Toxoplasma=False`
+    would load with the annotation field still on its default and the run
+    would annotate what the file had turned off.
+
     :param settings: a settings dict, not modified.
     :returns: a new dict with retired keys renamed.
     """
@@ -812,7 +859,9 @@ def _translate_legacy_setting_keys(settings: dict) -> dict:
         for name in ((replacement,) if isinstance(replacement, str)
                      else tuple(replacement)):
             out.setdefault(name, value)
-    return out
+    from spacr.settings import _fold_toxoplasma
+
+    return _fold_toxoplasma(out)
 
 
 def _surviving_name_of(key: str):
@@ -1182,6 +1231,12 @@ EXAMPLE_DATA_SECTIONS = {
     "classify": "Plate Sources & Workflow",
     "classify_merged": "Plate Sources & Workflow",
     "map_barcodes": "Sequencing Input",
+    "analyze_plaques": "Input & Channels",
+    "replication": "Assay Inputs",
+    "recruitment": "Data source",
+    "umap": "Input Data",
+    "invasion": "Assay Inputs",
+    "ops": "OPS input",
 }
 
 
@@ -1358,6 +1413,87 @@ def _setting_has_an_animation(key: str) -> bool:
         return False
 
 
+#: The regression results panel and everything built with it: the Runs,
+#: Results, Measurements and Cells tabs, the figure grid and its pages.
+_REGRESSION_RESULTS = "regression results"
+#: The hyperparameter search panel inside its card.
+_HYPERPARAM_PANEL = "hyperparameter panel"
+#: Mask's Cellpose live preview panel inside its card.
+_LIVE_PREVIEW = "live preview"
+#: Measure's crop preview panel inside its card.
+_MEASURE_PREVIEW = "measure preview"
+
+
+class _BuiltOnFirstUse:
+    """A screen attribute whose widgets are built the first time it is used.
+
+    Opening a module polishes every widget on its screen
+    against the whole stylesheet, so a panel nobody can see yet still costs
+    its share of the stall. The largest such panels -- Regression's results
+    tabs, the hyperparameter search -- sit in a card that starts hidden,
+    and their attributes are read from dozens of places, most of them
+    long after the screen opened.
+
+    This descriptor keeps every one of those readers working unchanged.
+    While the screen still owes the named PART, reading or assigning any of
+    its attributes builds the part first, so the caller sees exactly what an
+    eagerly-built screen would have shown it: the widget, ``None`` where the
+    eager build fell back to ``None``, or ``AttributeError`` where the eager
+    build never assigned the name.
+
+    THE VALUE IS NOT KEPT UNDER THE ATTRIBUTE'S OWN NAME. Shiboken's
+    attribute lookup reads a wrapper's instance dictionary BEFORE the
+    class's data descriptors -- the reverse of plain Python -- so a value
+    stored under ``_results_panel`` would answer every later read directly
+    and this descriptor would never be asked again. It is kept under
+    :attr:`slot` instead.
+
+    :param part: which deferred part assigns this attribute.
+    """
+
+    def __init__(self, part: str) -> None:
+        """Remember which part assigns the attribute this descriptor names."""
+        self.part = part
+        self.name = ""
+        self.slot = ""
+
+    def __set_name__(self, owner, name: str) -> None:
+        """Learn the attribute name from the class body."""
+        self.name = name
+        self.slot = f"_built_on_first_use{name}"
+
+    def __get__(self, screen, owner=None):
+        """Build the owed part, then answer as a plain attribute would."""
+        if screen is None:
+            return self
+        values = screen.__dict__
+        owed = values.get("_parts_owed")
+        if owed and self.part in owed:
+            screen._build_owed_part(self.part)
+        try:
+            return values[self.slot]
+        except KeyError:
+            raise AttributeError(self.name) from None
+
+    def __set__(self, screen, value) -> None:
+        """Build the owed part first, so an assignment lands after it."""
+        owed = screen.__dict__.get("_parts_owed")
+        if owed and self.part in owed:
+            screen._build_owed_part(self.part)
+        screen.__dict__[self.slot] = value
+
+    def __delete__(self, screen) -> None:
+        """Forget the attribute, as ``del`` on a plain one would."""
+        try:
+            del screen.__dict__[self.slot]
+        except KeyError:
+            raise AttributeError(self.name) from None
+
+    def peek(self, screen):
+        """The value held now, WITHOUT building an owed part; else ``None``."""
+        return screen.__dict__.get(self.slot)
+
+
 class AppScreen(QWidget):
     """Generic settings + runtime screen used by every non-interactive app.
 
@@ -1379,6 +1515,27 @@ class AppScreen(QWidget):
     _backdrop_applied = None
     _backdrops_ready = False
     _dna_rain = None
+
+    _results_panel = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figure_grid = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figure_detail = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _volcano_page = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _gene_split = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figure_size = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figures_stack = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _sweep_runs = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _results_split = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _results_page = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _scan_panel = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _column_run_handles = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _sweep_panel = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _cell_montage = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _results_tabs = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _figures_split = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _grid_refresh = _BuiltOnFirstUse(_REGRESSION_RESULTS)
+    _hyperparam = _BuiltOnFirstUse(_HYPERPARAM_PANEL)
+    _live_preview = _BuiltOnFirstUse(_LIVE_PREVIEW)
+    _measure_preview = _BuiltOnFirstUse(_MEASURE_PREVIEW)
 
     def __init__(self, app_key: str, parent=None):
         """Build one module page: the settings column beside the runtime panel.
@@ -1462,6 +1619,8 @@ class AppScreen(QWidget):
         outer.addWidget(body, 1)
 
         self._wire_live_preview_autoload()
+        if self.app_key == "analyze_plaques":
+            self._install_plaque_mode()
 
         self._wire_category_hints()
 
@@ -2000,6 +2159,8 @@ class AppScreen(QWidget):
         self._captioned_late = set()
         self._settings_model.rows_are_laid_out_by = \
             self._lay_out_the_rows_that_are_back
+        self._settings_model.rows_are_filtered_by = \
+            self._refilter_the_settings_search
         try:
             sections = self._settings_model.build_sections()
         except Exception as e:
@@ -2513,12 +2674,22 @@ class AppScreen(QWidget):
         a combo, where every change is already a decision. A field that has
         both fires once, because `_rebuild_the_form` compares the shape it
         would build against the one on screen and returns when they agree.
+
+        The cell's channel is followed too, although it shapes nothing: cell
+        rows are never hidden, but a cell channel brings Cell Segmentation
+        into the Essentials view, so its commit runs the same in-place pass
+        as the other object channels.
         """
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
         switches = set(self._object_switches_on_this_form())
-        for key in self._form_shaping_keys():
+        watched = dict.fromkeys(self._form_shaping_keys())
+        for key in object_switch_keys("cell"):
+            if key in (getattr(model, "_widgets", {}) or {}):
+                watched[key] = None
+                switches.add(key)
+        for key in watched:
             widget = getattr(model, "_widgets", {}).get(key)
             if widget is None:
                 continue
@@ -2722,6 +2893,16 @@ class AppScreen(QWidget):
                 self._install_annotate_example_button(section)
             elif self.app_key == "map_barcodes":
                 self._install_sequencing_example_button(section)
+            elif self.app_key == "analyze_plaques":
+                self._install_plaque_example_button(section)
+            elif self.app_key in ("replication", "recruitment", "invasion"):
+                from ..assay_examples import install_assay_example_button
+
+                install_assay_example_button(self, section)
+            elif self.app_key == "umap":
+                self._install_measurements_example_button(section)
+            elif self.app_key == "ops":
+                self._install_ops_example_button(section)
             else:
                 self._install_example_images_button(section)
         self._settings_sections.append(section)
@@ -2749,6 +2930,41 @@ class AppScreen(QWidget):
                           exc_info=True)
         self._run_has_no_object_for = answer
         return answer
+
+    def _refilter_the_settings_search(self) -> None:
+        """Apply the settings search again after the object rule has run.
+
+        The object rule shows every row its objects allow, and the search
+        strip's Essentials level, query and Modified filter then narrow that.
+        Run in the other order, a channel committed under Essentials put
+        rows the level excludes back on the form and left the new object's
+        segmentation heading off it. Re-entry is refused: applying the
+        filter can lay out a waiting row, and laying one out runs the object
+        rule again. The filter is applied without reopening sections, so a
+        section the user shut stays shut when an unrelated setting such as
+        ``metadata_type`` runs the object rule.
+        """
+        bar = getattr(self, "_settings_search", None)
+        if bar is None or getattr(self, "_refiltering_settings", False):
+            return
+        self._refiltering_settings = True
+        try:
+            bar.apply(reopen=False)
+        except RuntimeError:
+            LOG.debug("the settings search is gone", exc_info=True)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not re-apply the settings search", exc_info=True)
+        finally:
+            self._refiltering_settings = False
+
+    def _headings_the_run_lacks(self) -> set:
+        """``id()`` of each heading the object rule is holding off the form.
+
+        :returns: the headings whose every row belongs to an object or an
+            organelle slot the run does not have, as the model last decided.
+        """
+        model = getattr(self, "_settings_model", None)
+        return set(getattr(model, "_headings_of_absent_slots", None) or ())
 
     def _lay_out_the_rows_that_are_back(self, hidden) -> None:
         """Caption every waiting row the object rule no longer hides.
@@ -2917,7 +3133,7 @@ class AppScreen(QWidget):
             return
         try:
             bar._build_index()
-            bar.apply()
+            bar.apply(reopen=False)
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not re-index the settings search", exc_info=True)
 
@@ -3249,22 +3465,41 @@ class AppScreen(QWidget):
             "path yourself. "
             "API: spacr.qt.widgets.model_zoo_picker.choose_model.")
         button.clicked.connect(
-            lambda *_, f=widget: self._choose_a_model_for(f))
+            lambda *_, f=widget, k=key: self._choose_a_model_for(f, k))
         row.addWidget(button)
         holder._spacr_field = widget
         return holder
 
-    def _choose_a_model_for(self, field) -> None:
+    @staticmethod
+    def _model_kinds_for(key: str) -> tuple:
+        """Which zoo kinds this model field can actually load.
+
+        ``kinds`` is a rule rather than a parameter: the zoo also carries the
+        YOLO well detector, and offering that in a Cellpose field would offer
+        something no segmenter can load -- a choice that fails at segmentation
+        time, long after the click that caused it.
+
+        A ``*_model_name`` field gets ``cellpose3`` as well. Those are the
+        settings :func:`spacr.settings._get_object_settings` reads BY NAME
+        when ``segmentation_backend`` is ``'cellpose3'``, so cyto3, cyto2,
+        cyto, nuclei and any bioimage.io Cellpose 3 checkpoint are real
+        choices there. ``plaque_model`` and ``custom_model`` are not: those
+        screens load the checkpoint with spaCR's own Cellpose 4, in spaCR's
+        own process, and a Cellpose 3 name would fail there.
+        """
+        return (("cellpose", "cellpose3") if str(key).endswith("_model_name")
+                else ("cellpose",))
+
+    def _choose_a_model_for(self, field, key: str = "") -> None:
         """Open the picker and write the chosen path into ``field``.
 
-        ``kinds`` is restricted to Cellpose checkpoints: the zoo also carries
-        the YOLO well detector, and offering that here would offer something
-        ``CellposeModel`` cannot load -- a choice that fails at segmentation
-        time, long after the click that caused it.
+        :param field: the widget the chosen value is written into.
+        :param key: the setting the field stands for, which decides what the
+            picker offers -- see :meth:`_model_kinds_for`.
         """
         from ..widgets.model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=("cellpose",))
+        path = choose_model(self, kinds=self._model_kinds_for(key))
         if not path:
             return
         if hasattr(field, "set_value"):
@@ -3820,6 +4055,109 @@ class AppScreen(QWidget):
         self._example_images_button = button
         section.add_prose(button, at_top=True)
 
+    def _install_plaque_example_button(self, section) -> None:
+        """Add Plaque Analysis's test-data control.
+
+        The module is not in EXAMPLE_DATA_SECTIONS, so the dispatch above never
+        reaches it and this builds its button instead. It offers TWO sets, because the module has two halves and they take
+        different input: ten segmented plaque FIELDS, which is what the cpsam_plaque
+        model was trained on, and ten whole plate FIGURES, which is what the pipeline
+        actually consumes before it has found a well.
+
+        The sample machinery is the shared example-dataset one, unchanged. What differs is what happens
+        afterwards: Make Masks opens the folder in the editor, and this points ``src``
+        at it.
+        """
+        from PySide6.QtWidgets import QPushButton
+
+        from ..make_masks_datasets import install_dataset_button
+
+        button = install_dataset_button(self, app_key="analyze_plaques",
+                                        use=self.point_src_at)
+        button.setText(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download ten example fields for Plaque Analysis and point src at them. "
+            "Two sets to choose from: segmented plaque fields, which is what the "
+            "plaque model was trained on, or whole plate figures, which is what the "
+            "pipeline takes. Cached after the first download."))
+        self._plaque_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def _install_ops_example_button(self, section) -> None:
+        """Add OPS's test-data control: two fields of a published screen.
+
+        The sample is a well's last two sequencing fields with all
+        eleven cycles and the guide library, so stitch, objects and decode all
+        have something real to do. See :mod:`spacr.qt.ops_stitch_demo`.
+        """
+        from PySide6.QtWidgets import QPushButton
+
+        button = QPushButton(tr("Load test data…"))
+        button.setToolTip(tr(
+            "Download about 390 MB from a published optical pooled screen: "
+            "two sequencing fields of one well, all eleven cycles, and the "
+            "guide library. The source, output folder, library and plate are "
+            "filled in, so Run is the next action. There are no phenotype "
+            "images, so the phenotype step is skipped. Cached afterwards."))
+        button.clicked.connect(lambda: self.load_the_ops_example())
+        self._ops_example_button = button
+        section.add_prose(button, at_top=True)
+
+    def load_the_ops_example(self, *, ask=None, folder=None) -> dict:
+        """Fill the OPS settings with the test data, fetching it when needed.
+
+        :param ask: replaces the downloader, for tests.
+        :param folder: replaces the cache folder, for tests.
+        :returns: the settings that were applied; empty while a download is
+            still running or after a failure.
+        """
+        from ..ops_stitch_demo import load_the_test_data, ops_settings_for
+
+        applied: dict = {}
+
+        def use(where) -> None:
+            """Apply the sample's settings and say so in the console."""
+            values = ops_settings_for(where)
+            self.apply_settings_dict(values)
+            applied.update(values)
+            self._console.append_stdout(
+                tr("OPS test data ready: {path}", path=str(where)) + "\n")
+
+        def report(text: str, _error: bool) -> None:
+            """Put progress and failures in the console."""
+            self._console.append_stdout(text + "\n")
+
+        load_the_test_data(
+            "ops", use=use, report=report,
+            button=getattr(self, "_ops_example_button", None), parent=self,
+            ask=ask, folder=folder)
+        return applied
+
+    def point_src_at(self, folder) -> bool:
+        """Put ``folder`` in this module's ``src`` field. Returns whether it took.
+
+        The counterpart of Make Masks' ``_open_folder`` for a module screen: a module
+        does not open a folder, it runs on one. Reaches the widget the same way
+        :meth:`_put_the_measure_example_in_place` does, so the two routes cannot drift
+        on where ``src`` lives.
+
+        :param folder: the folder to run on, as a path or a string.
+        :returns: True when the screen has a ``src`` field and it took the value.
+        """
+        source = str(folder)
+        model = getattr(self, "_settings_model", None)
+        control = (model._widgets.get("src")
+                   if model is not None and hasattr(model, "_widgets")
+                   else None)
+        if control is None or not hasattr(control, "setText"):
+            return False
+        control.setText(source)
+        console = getattr(self, "_console", None)
+        if console is not None:
+            console.append_stdout(
+                tr("Source directory (src): {path}", path=source) + "\n")
+        return True
+
     def _install_measure_example_button(self, section) -> None:
         """Add the example-data control that populates Measure's ``src``."""
         from PySide6.QtWidgets import QPushButton
@@ -4010,6 +4348,35 @@ class AppScreen(QWidget):
         button.clicked.connect(lambda: self.choose_the_test_data())
         self._annotate_example_button = button
         section.add_prose(button, at_top=True)
+
+    def _install_measurements_example_button(self, section) -> None:
+        """Add the shared measurements-database example control.
+
+        For a module that reads a finished plate -- its measurements database
+        and the crops it indexes -- rather than one that makes either. The
+        Annotate example is such a plate, so this reuses its download through
+        :mod:`spacr.qt.widgets.measurements_example` and points ``src`` at
+        the plate folder, without the crops-or-arrays chooser Classify asks
+        through: a finished plate is the only half this module can read.
+        """
+        from ..widgets.measurements_example import install_test_data_button
+
+        button = install_test_data_button(
+            self, None, self._point_src_at_the_example,
+            say=lambda message: self._console.append_stdout(message + "\n"))
+        section.add_prose(button, at_top=True)
+
+    def _point_src_at_the_example(self, folder, _database) -> dict:
+        """Set ``src`` to the example plate folder and say so.
+
+        :param folder: the example plate folder.
+        :param _database: its measurements database, found from ``src``.
+        :returns: ``{"src": folder}``.
+        """
+        self.apply_settings_dict({"src": str(folder)})
+        self._console.append_stdout(
+            tr("Example data ready: {path}", path=str(folder)) + "\n")
+        return {"src": str(folder)}
 
     def choose_the_test_data(self, *, chooser=None, ask=None) -> dict:
         """Ask which half of the example plate to fetch, then fetch it.
@@ -4250,7 +4617,9 @@ class AppScreen(QWidget):
         either -- and two functions each calling ``setVisible`` on the same
         card is how a card comes back the next time Preferences is saved.
         So the dimension switches are answered here as well, and the settings
-        search hands visibility back to this method for the same reason.
+        search hands visibility back to this method for the same reason. A
+        heading the object rule holds back, because the run has none of its
+        objects, stays hidden here too.
 
         The notice below still speaks only for maturity: a category the 3D
         switch is holding back is not "hidden by Preferences", and saying so
@@ -4259,7 +4628,8 @@ class AppScreen(QWidget):
         from ..preferences import maturity_is_visible
 
         hidden_stages = set()
-        gated = self._dimension_hidden_sections()
+        gated = (self._dimension_hidden_sections()
+                 | self._headings_the_run_lacks())
         for section in self.rendered_settings_sections():
             visible = maturity_is_visible(section.maturity())
             section.setVisible(visible and id(section) not in gated)
@@ -4643,7 +5013,7 @@ class AppScreen(QWidget):
         whose ``src`` was already set.
         """
         from PySide6.QtWidgets import QLineEdit
-        if getattr(self, "_live_preview", None) is None:
+        if getattr(self, "_live_preview_card", None) is None:
             return
         src_widget = getattr(self._settings_model, "_widgets", {}).get("src")
         if not isinstance(src_widget, QLineEdit):
@@ -4654,6 +5024,59 @@ class AppScreen(QWidget):
         self._live_src_timer.timeout.connect(
             lambda w=src_widget: self._autoload_live_preview(w.text()))
         src_widget.textChanged.connect(lambda _t: self._live_src_timer.start())
+        self._wire_live_preview_naming()
+
+    def _install_plaque_mode(self) -> None:
+        """Put Plaque Assay's Plaque | Figure switch on the settings column.
+
+        Never raises: a screen without its switch still runs in the mode its
+        form says.
+        """
+        try:
+            from ..widgets.plaque_preview import install_plaque_mode
+
+            install_plaque_mode(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not install the plaque mode switch",
+                      exc_info=True)
+
+    def _wire_live_preview_naming(self) -> None:
+        """Regroup the preview's table when the file naming changes.
+
+        ``metadata_type`` and ``custom_regex`` decide how the preview groups
+        a folder's files into fields and channels. Changing either after
+        loading left the table grouped the old way, which for a folder the
+        old naming cannot read is every file under a single column. The same
+        400 ms wait as the ``src`` field, so a pattern typed a character at a
+        time is read once.
+        """
+        widgets = getattr(self._settings_model, "_widgets", {}) or {}
+        if self._part_is_owed(_LIVE_PREVIEW):
+            regroup = self._regroup_the_live_preview
+        else:
+            panel = getattr(self, "_live_preview", None)
+            regroup = getattr(panel, "regroup_the_folder", None)
+            if panel is None or not callable(regroup):
+                return
+        timer = QTimer(self)
+        timer.setSingleShot(True)
+        timer.setInterval(400)
+        timer.timeout.connect(regroup)
+        self._live_naming_timer = timer
+        for key in ("metadata_type", "custom_regex"):
+            widget = widgets.get(key)
+            if widget is None:
+                continue
+            for name in ("currentIndexChanged", "textChanged",
+                         "value_changed"):
+                signal = getattr(widget, name, None)
+                if signal is None:
+                    continue
+                try:
+                    signal.connect(lambda *_args: timer.start())
+                except Exception:                            # noqa: BLE001
+                    continue
+                break
 
     def _maybe_hide_empty_state(self, text: str) -> None:
         """Hide the empty-state card once the source field names something real.
@@ -4670,13 +5093,35 @@ class AppScreen(QWidget):
         if t and t not in placeholders:
             card.hide()
 
+    def _regroup_the_live_preview(self) -> None:
+        """Regroup a live preview that exists; nothing to do for one that does not.
+
+        A panel still waiting to be built has loaded no folder, so it has
+        nothing to regroup, and the folder it loads when it is built is read
+        with the naming the form holds then -- the same grouping a
+        regrouping now would have produced.
+        """
+        if self._part_is_owed(_LIVE_PREVIEW):
+            return
+        panel = getattr(self, "_live_preview", None)
+        regroup = getattr(panel, "regroup_the_folder", None)
+        if callable(regroup):
+            regroup()
+
     def _autoload_live_preview(self, src: str) -> None:
         """Ask the preview panel to discover/decode ``src`` asynchronously.
 
         Silent if ``src`` is empty or a placeholder. Directory traversal and
         image decoding both happen in the panel's worker so a large plate or
         slow NAS mount cannot freeze Qt.
+
+        A panel that is not built yet is not built for this: the source is
+        kept and loaded when the panel is, which is the first time the card
+        is shown -- typing a path must not cost the preview's construction.
         """
+        if self._part_is_owed(_LIVE_PREVIEW):
+            self.__dict__["_live_src_waiting"] = src
+            return
         panel = getattr(self, "_live_preview", None)
         if panel is None:
             return
@@ -4850,6 +5295,440 @@ class AppScreen(QWidget):
         return tr("Hover any setting for details and a link to its "
                   "documentation.")
 
+    def _owe_part(self, part: str,
+                  build: Callable[[], Optional[QWidget]]) -> None:
+        """Record that ``part`` is built by ``build`` on its first use.
+
+        See :class:`_BuiltOnFirstUse`, which does the building when one of
+        the part's attributes is read or assigned.
+        """
+        owed = self.__dict__.get("_parts_owed")
+        if owed is None:
+            owed = self.__dict__["_parts_owed"] = {}
+        owed[part] = build
+
+    def _if_built(self, name: str):
+        """The attribute ``name`` if it exists yet, never building a part.
+
+        For teardown: a panel that was never built has nothing to shut
+        down, and building 740 widgets to close them again is the worst
+        moment to do it.
+        """
+        for klass in type(self).__mro__:
+            slot = klass.__dict__.get(name)
+            if isinstance(slot, _BuiltOnFirstUse):
+                return slot.peek(self)
+        return getattr(self, name, None)
+
+    def _part_is_owed(self, part: str) -> bool:
+        """Whether ``part`` has been deferred and not built yet."""
+        return part in (self.__dict__.get("_parts_owed") or {})
+
+    def _build_owed_part(self, part: str) -> bool:
+        """Build ``part`` now if it is still owed.
+
+        The part is struck off BEFORE it is built, so the builder assigns
+        its attributes as plain ones instead of asking for itself again.
+        The builder returns the root of what it built, or ``None`` when it
+        fell back to building nothing. What follows keeps the ORDER an
+        eager screen had: the surface sweep its construction ran, then
+        whatever was queued with :meth:`_after_part_is_built` (Regression's
+        fold strip adding the Hits tab, which came after that sweep), then
+        the language pass and the polish, which reached the Hits tab too.
+
+        :returns: ``True`` when this call built it.
+        """
+        owed = self.__dict__.get("_parts_owed") or {}
+        build = owed.pop(part, None)
+        if build is None:
+            return False
+        from .. import timing
+
+        with timing.span("build deferred part", part):
+            root = build()
+            if root is not None:
+                self._clear_a_late_parts_surfaces(root)
+            waiting = (self.__dict__.get("_after_parts") or {}).pop(part, [])
+            for callback in waiting:
+                try:
+                    callback()
+                except Exception:                            # noqa: BLE001
+                    LOG.exception("could not finish a deferred %s", part)
+            if root is not None:
+                self._translate_a_late_part(root)
+        return True
+
+    def _after_part_is_built(self, part: str, callback) -> bool:
+        """Run ``callback`` once ``part`` is built, if it is still owed.
+
+        For code that decorates a deferred part from outside the screen --
+        Regression's fold strip adds its Hits tab to the results panel --
+        and would otherwise build the part just to decorate it.
+
+        :returns: ``True`` when the callback was queued; ``False`` when the
+            part is not owed, in which case the caller does its work now.
+        """
+        if not self._part_is_owed(part):
+            return False
+        waiting = self.__dict__.get("_after_parts")
+        if waiting is None:
+            waiting = self.__dict__["_after_parts"] = {}
+        waiting.setdefault(part, []).append(callback)
+        return True
+
+    def _results_panel_if_built(self):
+        """Regression's results panel if it exists yet, WITHOUT building it.
+
+        For a question an unbuilt panel answers the same way a fresh one
+        would -- which run is loaded, when none can be -- so asking it does
+        not cost the ~740 widgets the deferral saved.
+        """
+        return self._if_built("_results_panel")
+
+    def _when_results_are_built(self, callback) -> bool:
+        """Run ``callback`` once Regression's results panel exists.
+
+        :returns: ``True`` when it was queued behind the deferred build;
+            ``False`` when the panel is built already or never will be, and
+            the caller should go ahead now.
+        """
+        return self._after_part_is_built(_REGRESSION_RESULTS, callback)
+
+    def _clear_a_late_parts_surfaces(self, root: QWidget) -> None:
+        """Make a late part's layout containers transparent, as opening did.
+
+        The screen's construction swept its whole tree once
+        (``_clear_page_surfaces``) and took tab scroll arrows off; a part
+        built later missed both. The sweep is run from the part's PARENT
+        because it tags the descendants of what it is given, and the
+        part's own root is one of the containers it tags.
+
+        Never raises: a part that keeps its fill still works.
+        """
+        try:
+            from ..theme import (clear_container_surfaces,
+                                 take_the_scroll_arrows_off)
+
+            clear_container_surfaces(root.parentWidget() or root)
+            take_the_scroll_arrows_off(root)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not clear a late part's surfaces",
+                      exc_info=True)
+
+    def _translate_a_late_part(self, root: QWidget) -> None:
+        """Polish and translate a late part, as opening the screen did.
+
+        THE POLISH IS THE SHEET, AND IT COMES FIRST. The page already
+        carries the stylesheet, so nothing has to be applied, but an eager
+        screen had its widgets polished before the language pass reached
+        them -- laying the page out at construction asks every size hint,
+        and a size hint polishes -- and hidden tab pages polished at the
+        page's first show. ``ensurePolished`` walks the part the same way.
+        The ORDER matters beyond the look: :mod:`spacr.qt.button_roles`
+        classifies a button by its visible text when it is polished, and a
+        Swedish "Kör förhandsgranskning" is not an English "Run", so a
+        button translated first loses its Run colour.
+
+        Then the language pass and the move of field help onto captions,
+        which ``MainWindow`` ran once over the screen when it built it --
+        the help move over the whole screen, because it keeps its event
+        filter on the root it is handed and the screen's is the one every
+        other caption uses.
+
+        Never raises: a part in the wrong language still works.
+        """
+        try:
+            root.ensurePolished()
+        except RuntimeError:
+            return
+        try:
+            from ..i18n import retranslate_widget_tree
+            from .settings_model import retarget_field_tooltips
+
+            retranslate_widget_tree(root)
+            retarget_field_tooltips(self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not translate a late part", exc_info=True)
+
+    @staticmethod
+    def _regression_results_can_be_built() -> bool:
+        """Import what the regression results need, without building them.
+
+        The imports stay at the screen's open, where they always were, so
+        the widget blocks those modules register reach the page's sheet
+        exactly as before; only the construction waits. A missing module
+        answers ``False`` and the screen falls back to the figure queue,
+        which is what the eager build did when its import failed.
+        """
+        try:
+            from importlib import import_module
+
+            for name in ("..widgets.regression_results",
+                         "..widgets.figure_grid_view", "..widgets.sweep_runs",
+                         "..widgets.measurement_scan_panel",
+                         "..widgets.sweep_panel",
+                         "..widgets.cell_montage_view", "..preferences"):
+                import_module(name, __package__)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("no fast results panel", exc_info=True)
+            return False
+        return True
+
+    def _build_regression_results(self) -> Optional[QWidget]:
+        """Build Regression's results tabs and figure pages into their card.
+
+        Deferred from the screen's open to the first time the Figures card
+        is shown or any of these attributes is used -- about 740 widgets
+        that nobody can see until a run has results. See
+        :class:`_BuiltOnFirstUse`. A failure falls back to the figure
+        queue, as the eager build did.
+        """
+        try:
+            from ..widgets.regression_results import RegressionResultsPanel
+            from ..preferences import get_figure_grid_size
+            from ..widgets.figure_grid_view import (
+                MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
+
+            self._results_panel = RegressionResultsPanel(
+                self._figures_card, external_volcano=True)
+            self._results_panel.refit_requested.connect(self._on_refit)
+
+            self._figure_grid = FigureGridView(self._figures_card)
+            self._figure_grid.figure_activated.connect(
+                self._open_figure_from_grid)
+            self._figure_grid.figure_menu_requested.connect(
+                self._figure_grid_menu)
+
+            detail = QWidget(self._figures_card)
+            detail_layout = QVBoxLayout(detail)
+            detail_layout.setContentsMargins(0, 0, 0, 0)
+            detail_layout.setSpacing(4)
+            back = QPushButton("← All figures")
+            back.setFlat(True)
+            back.setToolTip("Back to the grid of every figure this run "
+                            "produced.")
+            back.clicked.connect(self._show_figure_grid)
+            row = QHBoxLayout()
+            row.addWidget(back)
+            row.addStretch(1)
+            detail_layout.addLayout(row)
+            detail_layout.addWidget(self._queue_the_results_hold, 1)
+            self._figure_detail = detail
+
+            volcano_page = QWidget(self._figures_card)
+            volcano_layout = QVBoxLayout(volcano_page)
+            volcano_layout.setContentsMargins(0, 0, 0, 0)
+            volcano_layout.setSpacing(4)
+            back_to_grid = QPushButton("← All figures")
+            back_to_grid.setFlat(True)
+            back_to_grid.clicked.connect(self._show_figure_grid)
+            volcano_row = QHBoxLayout()
+            volcano_row.addWidget(back_to_grid)
+            volcano_row.addStretch(1)
+            volcano_layout.addLayout(volcano_row)
+            gene_split = QSplitter(Qt.Vertical, volcano_page)
+            gene_split.setChildrenCollapsible(True)
+            gene_split.addWidget(self._results_panel.volcano)
+            gene_split.addWidget(self._results_panel.gene)
+            gene_split.setStretchFactor(0, 3)
+            gene_split.setStretchFactor(1, 1)
+            gene_split.setSizes([1000, 0])
+            self._gene_split = gene_split
+            volcano_layout.addWidget(gene_split, 1)
+            self._volcano_page = volcano_page
+
+            grid_page = QWidget(self._figures_card)
+            grid_layout = QVBoxLayout(grid_page)
+            grid_layout.setContentsMargins(0, 0, 0, 0)
+            grid_layout.setSpacing(4)
+            size_row = QHBoxLayout()
+            size_row.addWidget(QLabel("Figure size"))
+            self._figure_size = QSlider(Qt.Horizontal, grid_page)
+            self._figure_size.setRange(MIN_CELL_PX, MAX_CELL_PX)
+            self._figure_size.setValue(get_figure_grid_size())
+            self._figure_size.setMaximumWidth(220)
+            self._figure_size.setToolTip(
+                "How wide each figure is drawn, which is also how tall: "
+                "the tiles keep each figure's own aspect ratio. Fewer, "
+                "bigger figures per row to the right.")
+            self._figure_size.valueChanged.connect(self._on_figure_size)
+            size_row.addWidget(self._figure_size)
+            size_row.addStretch(1)
+            grid_layout.addLayout(size_row)
+            grid_layout.addWidget(self._figure_grid, 1)
+            self._figure_grid.set_target_cell_width(
+                self._figure_size.value())
+
+            self._figures_stack = QStackedWidget(self._figures_card)
+            self._figures_stack.addWidget(grid_page)
+            self._figures_stack.addWidget(detail)
+            self._figures_stack.addWidget(volcano_page)
+            self._figure_grid.pinned_activated.connect(
+                self._show_regression_graph)
+            self._figure_grid.pinned_menu_requested.connect(
+                self._pinned_menu)
+            self._figure_grid.live_tile_activated.connect(
+                self._open_live_tile)
+            self._figure_grid.live_tile_menu_requested.connect(
+                self._live_tile_menu)
+            self._results_panel.table.key_selected.connect(
+                self._on_guide_selected)
+
+            from ..widgets.sweep_runs import SweepRunsPanel
+            self._sweep_runs = SweepRunsPanel(self._figures_card)
+            self._sweep_runs.trial_activated.connect(self._show_trial)
+            self._sweep_runs.loaded_run_changed.connect(self._show_trial)
+            self._sweep_runs.loaded_run_changed.connect(
+                self._on_loaded_run_changed_refresh_tabs)
+            self._sweep_runs.runs_removed.connect(self._on_runs_removed)
+            self._sweep_runs.compare_requested.connect(
+                self.open_run_beside)
+            self._sweep_runs.workspace_restore_requested.connect(
+                self.restore_run_workspace)
+            self._sweep_runs.set_photo_provider(self.run_photograph)
+            left = QTabWidget(self._figures_card)
+            left.addTab(self._sweep_runs, "Runs")
+            self._results_split = QSplitter(Qt.Horizontal)
+            self._results_split.setChildrenCollapsible(False)
+            self._results_split.addWidget(self._results_panel)
+            self._results_page = self._results_split
+            left.addTab(self._results_split, "Results")
+            left.setTabToolTip(0, "Every run: this session's own, its "
+                                  "re-fits, and every trial the parameter "
+                                  "sweep ran. Pick one to see its results "
+                                  "and its figures.")
+            left.setTabToolTip(1, "The selected run's coefficient table, "
+                                  "its volcano and its diagnostics. "
+                                  "Picking a row in Runs re-points this "
+                                  "at that run.")
+
+            from ..widgets.measurement_scan_panel import (
+                MeasurementScanPanel)
+            self._scan_panel = MeasurementScanPanel(
+                frame_provider=self._scan_source_frame,
+                database_provider=self._attached_database_rows,
+                destination_provider=self._measurements_destination,
+                settings_provider=self._column_fit_settings,
+                parent=left)
+            self._column_run_handles = {}
+            self._scan_panel.regression.fit_started.connect(
+                self._on_column_fit_started)
+            self._scan_panel.regression.fit_finished.connect(
+                self._on_column_fit_finished)
+            from ..widgets.sweep_panel import SweepPanel
+            self._sweep_panel = SweepPanel(
+                cells_provider=self._scan_panel.databases_frame,
+                counts_provider=self._sweep_counts,
+                scores_provider=self._sweep_scores,
+                parent=left)
+            self._sweep_panel.finished.connect(self._keep_the_effects_grid)
+            self._scan_panel.add_section(self._sweep_panel,
+                                         "Gene × measurement sweep")
+            try:
+                self._scan_panel.restore_section_layout()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not restore the measurements layout",
+                          exc_info=True)
+
+            left.addTab(self._scan_panel, "Measurements")
+            left.setTabToolTip(
+                2, "Hold the model fixed and sweep the dependent "
+                   "variable. Corrected ACROSS the scan, not only within "
+                   "each measurement -- a measurement that passes alone "
+                   "and fails across the scan is the one worth knowing "
+                   "about.")
+            from ..widgets.cell_montage_view import CellMontageView
+            self._cell_montage = CellMontageView(
+                frame_provider=self._results_panel.results_frame,
+                results_provider=self._results_source_path,
+                database_provider=self._attached_database_rows,
+                parent=left)
+            cells_tab = left.addTab(self._cell_montage, "Cells")
+            left.setTabToolTip(
+                cells_tab,
+                "The cells most consistent with the selected "
+                "coefficient. This screen is POOLED: the sequencing says "
+                "what fraction of a well carried a guide, never which "
+                "cells did, so these are candidates consistent with the "
+                "effect and the caption says so.")
+            self._results_panel.table.key_selected.connect(
+                self._cell_montage.set_coefficient)
+            self._results_panel.table.keys_selected.connect(
+                self._cell_montage.set_coefficients)
+
+            left.currentChanged.connect(self._on_results_tab_changed)
+            self._results_tabs = left
+            left.setCurrentWidget(self._results_page)
+
+            split = QSplitter(Qt.Horizontal, self._figures_card)
+            split.setChildrenCollapsible(False)
+            split.addWidget(left)
+            split.addWidget(self._figures_stack)
+            split.setStretchFactor(0, 1)
+            split.setStretchFactor(1, 1)
+            left.setMinimumWidth(520)
+            self._figures_stack.setMinimumWidth(360)
+            split.setSizes([780, 620])
+            self._figures_split = split
+            self._figures_card.body_layout.addWidget(split, 1)
+
+            self._grid_refresh = QTimer(self)
+            self._grid_refresh.setSingleShot(True)
+            self._grid_refresh.setInterval(250)
+            self._grid_refresh.timeout.connect(self._refresh_figure_grid)
+        except Exception:
+            LOG.debug("no fast results panel", exc_info=True)
+            self._results_panel = None
+            self._figures_stack = None
+            self._cell_montage = None
+            self._figures_card.body_layout.addWidget(
+                self._queue_the_results_hold, 1)
+            self._figures_card.setMinimumHeight(360)
+            return None
+        return self._figures_split
+
+    def _build_hyperparam_panel(self) -> QWidget:
+        """Build the hyperparameter search panel into its card.
+
+        Deferred from the screen's open to the first time the card is
+        shown or ``_hyperparam`` is used; see :class:`_BuiltOnFirstUse`.
+        """
+        from .hyperparam import _fill_hyperparam_card
+
+        panel = _fill_hyperparam_card(self, self._hyperparam_card)
+        self._hyperparam = panel
+        panel.set_apply_callback(self._propagate_live_settings)
+        panel.set_settings_provider(
+            lambda model=self._settings_model: model.collect())
+        return panel
+
+    def _build_live_preview_panel(self) -> QWidget:
+        """Build Mask's live preview panel into its card.
+
+        Deferred from the screen's open to the first time the card is shown
+        or ``_live_preview`` is used; see :class:`_BuiltOnFirstUse`. A
+        source typed while the panel did not exist is loaded now, which is
+        where the eager screen's hidden panel had already loaded it.
+        """
+        panel = _fill_live_preview_card(self, self._live_preview_card)
+        self._live_preview = panel
+        panel.set_propagate_callback(self._propagate_live_settings)
+        waiting = self.__dict__.pop("_live_src_waiting", None)
+        if waiting is not None:
+            self._autoload_live_preview(waiting)
+        return panel
+
+    def _build_measure_preview_panel(self) -> QWidget:
+        """Build Measure's crop preview panel into its card.
+
+        Deferred from the screen's open to the first time the card is shown
+        or ``_measure_preview`` is used; see :class:`_BuiltOnFirstUse`.
+        """
+        panel = _fill_measure_preview_card(self._measure_preview_card)
+        self._measure_preview = panel
+        panel.set_propagate_callback(self._propagate_live_settings)
+        return panel
+
     def _build_runtime_panel(self) -> QWidget:
         """Build the right-hand column: figures, live preview, console and actions.
 
@@ -4862,8 +5741,16 @@ class AppScreen(QWidget):
         layout.setSpacing(SPACING["md"])
 
         from ..widgets.figure_queue import FigureQueue
-        self._figures_card = Card(title="Figures")
+        from ..widgets.card import _CardBuiltWhenShown
+        self._figures_card = (
+            _CardBuiltWhenShown if self.app_key == "regression" else Card)(
+                title="Figures")
         self._figure_queue = FigureQueue(parent=self._figures_card)
+        #: The queue the regression results page holds, kept apart from
+        #: ``_figure_queue`` because that name can be rebound before the
+        #: deferred results are built, and the page an eagerly-built screen
+        #: laid out held the queue made HERE.
+        self._queue_the_results_hold = self._figure_queue
 
         self._results_panel = None
         self._results_page = None
@@ -4874,206 +5761,16 @@ class AppScreen(QWidget):
         #: Cell-montage tab, when this screen supports regression results.
         #: Initialised before tab-change handlers can read it.
         self._cell_montage = None
-        if self.app_key == "regression":
-            try:
-                from ..widgets.regression_results import RegressionResultsPanel
-                from ..preferences import get_figure_grid_size
-                from ..widgets.figure_grid_view import (
-                    MAX_CELL_PX, MIN_CELL_PX, FigureGridView)
-
-                self._results_panel = RegressionResultsPanel(
-                    self._figures_card, external_volcano=True)
-                self._results_panel.refit_requested.connect(self._on_refit)
-
-                self._figure_grid = FigureGridView(self._figures_card)
-                self._figure_grid.figure_activated.connect(
-                    self._open_figure_from_grid)
-                self._figure_grid.figure_menu_requested.connect(
-                    self._figure_grid_menu)
-
-                detail = QWidget(self._figures_card)
-                detail_layout = QVBoxLayout(detail)
-                detail_layout.setContentsMargins(0, 0, 0, 0)
-                detail_layout.setSpacing(4)
-                back = QPushButton("← All figures")
-                back.setFlat(True)
-                back.setToolTip("Back to the grid of every figure this run "
-                                "produced.")
-                back.clicked.connect(self._show_figure_grid)
-                row = QHBoxLayout()
-                row.addWidget(back)
-                row.addStretch(1)
-                detail_layout.addLayout(row)
-                detail_layout.addWidget(self._figure_queue, 1)
-                self._figure_detail = detail
-
-                volcano_page = QWidget(self._figures_card)
-                volcano_layout = QVBoxLayout(volcano_page)
-                volcano_layout.setContentsMargins(0, 0, 0, 0)
-                volcano_layout.setSpacing(4)
-                back_to_grid = QPushButton("← All figures")
-                back_to_grid.setFlat(True)
-                back_to_grid.clicked.connect(self._show_figure_grid)
-                volcano_row = QHBoxLayout()
-                volcano_row.addWidget(back_to_grid)
-                volcano_row.addStretch(1)
-                volcano_layout.addLayout(volcano_row)
-                gene_split = QSplitter(Qt.Vertical, volcano_page)
-                gene_split.setChildrenCollapsible(True)
-                gene_split.addWidget(self._results_panel.volcano)
-                gene_split.addWidget(self._results_panel.gene)
-                gene_split.setStretchFactor(0, 3)
-                gene_split.setStretchFactor(1, 1)
-                gene_split.setSizes([1000, 0])
-                self._gene_split = gene_split
-                volcano_layout.addWidget(gene_split, 1)
-                self._volcano_page = volcano_page
-
-                grid_page = QWidget(self._figures_card)
-                grid_layout = QVBoxLayout(grid_page)
-                grid_layout.setContentsMargins(0, 0, 0, 0)
-                grid_layout.setSpacing(4)
-                size_row = QHBoxLayout()
-                size_row.addWidget(QLabel("Figure size"))
-                self._figure_size = QSlider(Qt.Horizontal, grid_page)
-                self._figure_size.setRange(MIN_CELL_PX, MAX_CELL_PX)
-                self._figure_size.setValue(get_figure_grid_size())
-                self._figure_size.setMaximumWidth(220)
-                self._figure_size.setToolTip(
-                    "How wide each figure is drawn, which is also how tall: "
-                    "the tiles keep each figure's own aspect ratio. Fewer, "
-                    "bigger figures per row to the right.")
-                self._figure_size.valueChanged.connect(self._on_figure_size)
-                size_row.addWidget(self._figure_size)
-                size_row.addStretch(1)
-                grid_layout.addLayout(size_row)
-                grid_layout.addWidget(self._figure_grid, 1)
-                self._figure_grid.set_target_cell_width(
-                    self._figure_size.value())
-
-                self._figures_stack = QStackedWidget(self._figures_card)
-                self._figures_stack.addWidget(grid_page)
-                self._figures_stack.addWidget(detail)
-                self._figures_stack.addWidget(volcano_page)
-                self._figure_grid.pinned_activated.connect(
-                    self._show_regression_graph)
-                self._figure_grid.pinned_menu_requested.connect(
-                    self._pinned_menu)
-                self._figure_grid.live_tile_activated.connect(
-                    self._open_live_tile)
-                self._figure_grid.live_tile_menu_requested.connect(
-                    self._live_tile_menu)
-                self._results_panel.table.key_selected.connect(
-                    self._on_guide_selected)
-
-                from ..widgets.sweep_runs import SweepRunsPanel
-                self._sweep_runs = SweepRunsPanel(self._figures_card)
-                self._sweep_runs.trial_activated.connect(self._show_trial)
-                self._sweep_runs.loaded_run_changed.connect(self._show_trial)
-                self._sweep_runs.loaded_run_changed.connect(
-                    self._on_loaded_run_changed_refresh_tabs)
-                self._sweep_runs.runs_removed.connect(self._on_runs_removed)
-                self._sweep_runs.compare_requested.connect(
-                    self.open_run_beside)
-                self._sweep_runs.workspace_restore_requested.connect(
-                    self.restore_run_workspace)
-                self._sweep_runs.set_photo_provider(self.run_photograph)
-                left = QTabWidget(self._figures_card)
-                left.addTab(self._sweep_runs, "Runs")
-                self._results_split = QSplitter(Qt.Horizontal)
-                self._results_split.setChildrenCollapsible(False)
-                self._results_split.addWidget(self._results_panel)
-                self._results_page = self._results_split
-                left.addTab(self._results_split, "Results")
-                left.setTabToolTip(0, "Every run: this session's own, its "
-                                      "re-fits, and every trial the parameter "
-                                      "sweep ran. Pick one to see its results "
-                                      "and its figures.")
-                left.setTabToolTip(1, "The selected run's coefficient table, "
-                                      "its volcano and its diagnostics. "
-                                      "Picking a row in Runs re-points this "
-                                      "at that run.")
-
-                from ..widgets.measurement_scan_panel import (
-                    MeasurementScanPanel)
-                self._scan_panel = MeasurementScanPanel(
-                    frame_provider=self._scan_source_frame,
-                    database_provider=self._attached_database_rows,
-                    destination_provider=self._measurements_destination,
-                    settings_provider=self._column_fit_settings,
-                    parent=left)
-                self._column_run_handles = {}
-                self._scan_panel.regression.fit_started.connect(
-                    self._on_column_fit_started)
-                self._scan_panel.regression.fit_finished.connect(
-                    self._on_column_fit_finished)
-                from ..widgets.sweep_panel import SweepPanel
-                self._sweep_panel = SweepPanel(
-                    cells_provider=self._scan_panel.databases_frame,
-                    counts_provider=self._sweep_counts,
-                    scores_provider=self._sweep_scores,
-                    parent=left)
-                self._sweep_panel.finished.connect(self._keep_the_effects_grid)
-                self._scan_panel.add_section(self._sweep_panel,
-                                             "Gene × measurement sweep")
-                try:
-                    self._scan_panel.restore_section_layout()
-                except Exception:                                # noqa: BLE001
-                    LOG.debug("could not restore the measurements layout",
-                              exc_info=True)
-
-                left.addTab(self._scan_panel, "Measurements")
-                left.setTabToolTip(
-                    2, "Hold the model fixed and sweep the dependent "
-                       "variable. Corrected ACROSS the scan, not only within "
-                       "each measurement -- a measurement that passes alone "
-                       "and fails across the scan is the one worth knowing "
-                       "about.")
-                from ..widgets.cell_montage_view import CellMontageView
-                self._cell_montage = CellMontageView(
-                    frame_provider=self._results_panel.results_frame,
-                    results_provider=self._results_source_path,
-                    database_provider=self._attached_database_rows,
-                    parent=left)
-                cells_tab = left.addTab(self._cell_montage, "Cells")
-                left.setTabToolTip(
-                    cells_tab,
-                    "The cells most consistent with the selected "
-                    "coefficient. This screen is POOLED: the sequencing says "
-                    "what fraction of a well carried a guide, never which "
-                    "cells did, so these are candidates consistent with the "
-                    "effect and the caption says so.")
-                self._results_panel.table.key_selected.connect(
-                    self._cell_montage.set_coefficient)
-                self._results_panel.table.keys_selected.connect(
-                    self._cell_montage.set_coefficients)
-
-                left.currentChanged.connect(self._on_results_tab_changed)
-                self._results_tabs = left
-                left.setCurrentWidget(self._results_page)
-
-                split = QSplitter(Qt.Horizontal, self._figures_card)
-                split.setChildrenCollapsible(False)
-                split.addWidget(left)
-                split.addWidget(self._figures_stack)
-                split.setStretchFactor(0, 1)
-                split.setStretchFactor(1, 1)
-                left.setMinimumWidth(520)
-                self._figures_stack.setMinimumWidth(360)
-                split.setSizes([780, 620])
-                self._figures_split = split
-                self._figures_card.body_layout.addWidget(split, 1)
-
-                self._grid_refresh = QTimer(self)
-                self._grid_refresh.setSingleShot(True)
-                self._grid_refresh.setInterval(250)
-                self._grid_refresh.timeout.connect(self._refresh_figure_grid)
-            except Exception:
-                LOG.debug("no fast results panel", exc_info=True)
-                self._results_panel = None
-                self._figures_stack = None
-                self._cell_montage = None
-        if self._results_panel is None:
+        if (self.app_key == "regression"
+                and self._regression_results_can_be_built()):
+            self._owe_part(_REGRESSION_RESULTS,
+                           self._build_regression_results)
+            self._figures_card.build_body_when_first_shown(
+                partial(self._build_owed_part, _REGRESSION_RESULTS))
+        results_expected = (
+            self._part_is_owed(_REGRESSION_RESULTS)
+            or self._if_built("_results_panel") is not None)
+        if not results_expected:
             self._figures_card.body_layout.addWidget(self._figure_queue, 1)
         self._figure_queue.set_propagate_callback(
             self._propagate_live_settings)
@@ -5090,7 +5787,7 @@ class AppScreen(QWidget):
             self._figures_card.body_layout.addWidget(
                 self._umap_explorer, 1)
         self._figures_card.setMinimumHeight(
-            560 if self._results_panel is not None else 360)
+            560 if results_expected else 360)
         self._figures_card.hide()
 
         from ..widgets import ConsolePanel
@@ -5123,13 +5820,22 @@ class AppScreen(QWidget):
         self._motility_preview = self._motility_preview_card = None
         self._runtime_splitter = None
 
-        if self.app_key == "mask":
+        if self.app_key in ("mask", "analyze_plaques"):
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
-            self._live_preview, self._live_preview_card = (
-                _build_live_preview_card(self))
-            self._live_preview.set_propagate_callback(
-                self._propagate_live_settings)
+            if self.app_key == "analyze_plaques":
+                from ..widgets.plaque_preview import build_plaque_preview_card
+
+                self._live_preview, self._live_preview_card = (
+                    build_plaque_preview_card(self))
+                self._live_preview.set_propagate_callback(
+                    self._propagate_live_settings)
+            else:
+                _, self._live_preview_card = _build_live_preview_card(
+                    self, panel_later=True)
+                self._owe_part(_LIVE_PREVIEW, self._build_live_preview_panel)
+                self._live_preview_card.build_body_when_first_shown(
+                    partial(self._build_owed_part, _LIVE_PREVIEW))
             splitter.addWidget(self._live_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5176,10 +5882,11 @@ class AppScreen(QWidget):
         elif self.app_key == "measure":
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
-            self._measure_preview, self._measure_preview_card = (
-                _build_measure_preview_card(self))
-            self._measure_preview.set_propagate_callback(
-                self._propagate_live_settings)
+            _, self._measure_preview_card = _build_measure_preview_card(
+                self, panel_later=True)
+            self._owe_part(_MEASURE_PREVIEW, self._build_measure_preview_panel)
+            self._measure_preview_card.build_body_when_first_shown(
+                partial(self._build_owed_part, _MEASURE_PREVIEW))
             splitter.addWidget(self._measure_preview_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5200,7 +5907,7 @@ class AppScreen(QWidget):
             splitter.setStretchFactor(0, 3)
             splitter.setStretchFactor(1, 2)
             splitter.setStretchFactor(2, 1)
-            splitter.setSizes([720, 300, 220] if self._results_panel is not None
+            splitter.setSizes([720, 300, 220] if results_expected
                               else [480, 360, 240])
             layout.addWidget(splitter, 1)
             self._remember_runtime_splitter(splitter)
@@ -5208,10 +5915,11 @@ class AppScreen(QWidget):
             from .hyperparam import build_hyperparam_card
             splitter = QSplitter(Qt.Vertical)
             splitter.setChildrenCollapsible(False)
-            self._hyperparam, self._hyperparam_card = build_hyperparam_card(self)
-            self._hyperparam.set_apply_callback(self._propagate_live_settings)
-            self._hyperparam.set_settings_provider(
-                lambda model=self._settings_model: model.collect())
+            _, self._hyperparam_card = build_hyperparam_card(
+                self, panel_later=True)
+            self._owe_part(_HYPERPARAM_PANEL, self._build_hyperparam_panel)
+            self._hyperparam_card.build_body_when_first_shown(
+                partial(self._build_owed_part, _HYPERPARAM_PANEL))
             splitter.addWidget(self._hyperparam_card)
             splitter.insertWidget(0, self._figures_card)
             splitter.addWidget(console_wrap)
@@ -5335,9 +6043,8 @@ class AppScreen(QWidget):
         self._btn_preferences = QPushButton()
         self._btn_preferences.setObjectName("GhostButton")
         self._btn_preferences.setIcon(_iconset_prefs.icon("settings"))
-        from ..preferences import scaled_px
-        self._btn_preferences.setIconSize(
-            QSize(scaled_px(18), scaled_px(18)))
+        from ..preferences import _set_scaled_icon_size
+        _set_scaled_icon_size(self._btn_preferences, GEAR_ICON_PX)
         self._btn_preferences.setCursor(Qt.PointingHandCursor)
         self._btn_preferences.setToolTip("Open Preferences (Ctrl+P).")
         self._btn_preferences.setAccessibleName("Preferences")
@@ -5356,6 +6063,8 @@ class AppScreen(QWidget):
         self._btn_file_issue = QPushButton("File as issue")
         self._btn_file_issue.setObjectName("GhostButton")
         self._btn_file_issue.setIcon(_iconset.icon("info"))
+        from ..preferences import _SMALL_ICON_PX, _set_scaled_icon_size
+        _set_scaled_icon_size(self._btn_file_issue, _SMALL_ICON_PX)
         self._btn_file_issue.setCursor(Qt.PointingHandCursor)
         self._btn_file_issue.setToolTip(
             "Open a pre-filled GitHub issue with the last traceback + "
@@ -5396,7 +6105,31 @@ class AppScreen(QWidget):
                 "_measure_preview_card",
                 "Show or hide a preview of selected measurement overlays "
                 "before processing the full dataset."),
+            "analyze_plaques": (
+                "_live_preview_card",
+                "Show or hide the plaque preview above the console. In "
+                "Plaque mode it segments one image; in Figure mode it finds "
+                "the plaque images in one figure, reads their labels and "
+                "segments them."),
         }
+        from ..widgets.preview_refresh import install_refresh_button
+
+        for panel_attr, part in (("_live_preview", _LIVE_PREVIEW),
+                                 ("_measure_preview", _MEASURE_PREVIEW),
+                                 ("_timelapse_preview", None),
+                                 ("_motility_preview", None)):
+            card = getattr(self, f"{panel_attr}_card", None)
+            if card is None:
+                continue
+            if part is not None and self._part_is_owed(part):
+                install_refresh_button(
+                    self, card, None,
+                    panel_getter=partial(getattr, self, panel_attr))
+                continue
+            panel = getattr(self, panel_attr, None)
+            if panel is not None:
+                install_refresh_button(self, card, panel)
+
         preview_control = preview_controls.get(self.app_key)
         if preview_control is not None:
             card_attr, tooltip = preview_control
@@ -5426,7 +6159,7 @@ class AppScreen(QWidget):
 
         self._gpu_switch = None
         if self.app_key == "umap" and getattr(
-                self, "_hyperparam", None) is not None:
+                self, "_hyperparam_card", None) is not None:
             self._gpu_switch = AiToggleLabel(
                 text="GPU",
                 tooltip=(
@@ -5447,7 +6180,7 @@ class AppScreen(QWidget):
             row.addWidget(self._sweep_switch)
             self._on_sweep_switch(False)
 
-        if getattr(self, "_hyperparam", None) is not None:
+        if getattr(self, "_hyperparam_card", None) is not None:
             from .hyperparam import TOGGLE_TEXT, TOGGLE_TOOLTIP
             self._hp_switch = AiToggleLabel(text=TOGGLE_TEXT,
                                             tooltip=TOGGLE_TOOLTIP)
@@ -6226,7 +6959,14 @@ class AppScreen(QWidget):
         self.remote_submit_requested.emit(self.app_key, settings)
 
     def _on_pipeline_error(self, tb: str):
-        """Capture the traceback and either show it raw or route it through AI."""
+        """Capture the traceback and either show it raw or route it through AI.
+
+        With the report action switched on, "File as issue" is revealed and
+        what happens to the report is decided here and carried out by
+        :meth:`_on_finished`, under the failure line. With issue reporting
+        set to 'always' the report is filed automatically; with 'ask' the
+        console says nothing was sent and how to send it.
+        """
         self._last_error_text = tb
 
         routed = False
@@ -6249,6 +6989,263 @@ class AppScreen(QWidget):
             enabled = False
         self._btn_file_issue.setVisible(enabled)
         self._btn_file_issue.setEnabled(enabled)
+        always = bool(enabled) and self._reporting_is_set_to_always()
+        agreed = always and self._the_terms_allow_automatic_filing()
+        self._report_files_itself = agreed
+        self._report_awaits_the_terms = always and not agreed
+        self._report_waits_for_a_click = (
+            bool(enabled) and not always
+            and self._reporting_is_not_set_to_never())
+
+    @staticmethod
+    def _the_terms_allow_automatic_filing() -> bool:
+        """Whether this profile has accepted the terms that allow it.
+
+        Automatic filing rests on Section 5.6 of the terms of use. A profile
+        can reach a failed run without accepting that version: a launch with
+        ``--no-setup`` or ``SPACR_NO_SETUP``, an offscreen server, or a user
+        who closed the terms slide. Until it accepts, nothing is filed
+        automatically.
+
+        :returns: ``False`` when the current terms have not been accepted,
+            or when that cannot be read.
+        """
+        try:
+            from ..terms import needs_agreement
+            return not needs_agreement()
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    @staticmethod
+    def _reporting_is_set_to_always() -> bool:
+        """Whether a failed run files its own report, without a preview.
+
+        :returns: ``True`` when issue reporting is 'always', which is the
+            default for a profile that never chose. ``False`` when the
+            preference cannot be read: an unreadable choice must not publish.
+        """
+        try:
+            from ..preferences import (ISSUE_PROMPT_ALWAYS,
+                                       get_issue_prompt_mode)
+            return get_issue_prompt_mode() == ISSUE_PROMPT_ALWAYS
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    @staticmethod
+    def _reporting_is_not_set_to_never() -> bool:
+        """Whether "File as issue" would open a report if it were pressed.
+
+        :returns: ``False`` when issue reporting is set to 'never' in
+            Preferences, since the button then refuses to file, and ``False``
+            when the preference cannot be read.
+        """
+        try:
+            from ..preferences import (ISSUE_PROMPT_NEVER,
+                                       get_issue_prompt_mode)
+            return get_issue_prompt_mode() != ISSUE_PROMPT_NEVER
+        except Exception:                                    # noqa: BLE001
+            return False
+
+    def _say_the_report_was_not_sent(self, failed: bool = True) -> None:
+        """Say under a failed run that no report went to GitHub, and how to send one.
+
+        Issue 117: a user with "Report errors as GitHub issues" on watched a
+        run fail and expected an issue to have been filed. None was, by
+        design: in 'ask' mode a report goes to the PUBLIC tracker only after
+        a click on that specific report. The console never
+        said so, and the button that files it had appeared in the row under
+        the console with nothing pointing to it. This line goes where the user
+        looks when a run fails, directly under "✗ Failed".
+
+        :param failed: whether the run that just ended failed. The pending
+            line is dropped either way, so a stopped run does not carry it
+            over to the next one.
+        """
+        waiting = getattr(self, "_report_waits_for_a_click", False)
+        self._report_waits_for_a_click = False
+        if not (failed and waiting):
+            return
+        self._console.append_notice(
+            "[issue] Nothing was sent to GitHub. Reports are public, so spaCR "
+            "files one only when you press File as issue and then Send "
+            "report.\n")
+
+    def _settle_the_report(self, failed: bool = True) -> None:
+        """Do what issue reporting is set to do, now that the run has ended.
+
+        With 'always' the report is filed automatically
+        (:meth:`_file_the_report_automatically`), once the profile has
+        accepted the terms that allow it. Before that, the console says
+        nothing was sent and why. With 'ask' the console says that nothing
+        was sent (:meth:`_say_the_report_was_not_sent`). Every pending
+        decision is dropped either way, so a stopped run does not carry one
+        over to the next failure.
+
+        :param failed: whether the run that just ended failed.
+        """
+        files_itself = getattr(self, "_report_files_itself", False)
+        awaits_the_terms = getattr(self, "_report_awaits_the_terms", False)
+        self._report_files_itself = False
+        self._report_awaits_the_terms = False
+        if failed and files_itself:
+            self._report_waits_for_a_click = False
+            self._file_the_report_automatically()
+            return
+        if failed and awaits_the_terms:
+            self._report_waits_for_a_click = False
+            self._console.append_notice(
+                "[issue] Nothing was sent to GitHub. Automatic filing starts "
+                "once you accept the terms of use (Help → Set spaCR up "
+                "again…). To send this report now, press File as issue.\n")
+            return
+        self._say_the_report_was_not_sent(failed=failed)
+
+    def _settings_snapshot(self) -> dict:
+        """The settings form's current values, for a report.
+
+        Read from the widgets, so it runs on the GUI thread.
+
+        :returns: ``{key: value}``, or ``{}`` when the form cannot be read.
+        """
+        snapshot: dict = {}
+        try:
+            model = getattr(self, "_settings_model", None)
+            if model is not None:
+                for k, w in getattr(model, "_widgets", {}).items():
+                    from PySide6.QtWidgets import (
+                        QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit,
+                        QSpinBox,
+                    )
+                    if isinstance(w, QCheckBox):
+                        snapshot[k] = w.isChecked()
+                    elif isinstance(w, (QSpinBox, QDoubleSpinBox)):
+                        snapshot[k] = w.value()
+                    elif isinstance(w, QComboBox):
+                        snapshot[k] = w.currentText()
+                    elif hasattr(w, "get_value"):
+                        snapshot[k] = w.get_value()
+                    elif isinstance(w, QLineEdit):
+                        snapshot[k] = w.text()
+        except Exception:                                    # noqa: BLE001
+            snapshot = {}
+        return snapshot
+
+    def _file_the_report_automatically(self) -> None:
+        """File the failed run's report without a preview ('always').
+
+        Automatic filing is the default mode. Consent is Section 5.6 of the terms of use,
+        and :meth:`_settle_the_report` calls this only for a profile that has
+        accepted them (:meth:`_the_terms_allow_automatic_filing`).
+
+        The report is the one "File as issue" would open, built by the same
+        :func:`~spacr.qt.ai.issue_report.build_report`, and it is sent with
+        the redaction the preview applies by default
+        (:func:`~spacr.qt.ai.issue_report.public_report`). spaCR AI's
+        analysis is attached only when the AI has already answered this
+        error. A provider that failed leaves no analysis
+        (``ai_explanation_of``).
+
+        One crash is filed once. A fingerprint this profile has filed before
+        is not filed again, nor is one still being filed. A fingerprint that
+        already has an open issue gets a comment on it instead of a new
+        issue (:func:`~spacr.qt.ai.issue_report.file_without_review`).
+
+        Building and posting run on the background runner. Resolving the
+        sign-in can run ``gh auth token``, and the log copy is file I/O.
+        """
+        tb = getattr(self, "_last_error_text", "") or ""
+        if not tb:
+            return
+        from ..ai import issue_report
+        from ..ai import settings as _ai_settings
+
+        fingerprint = issue_report.fingerprint_of(tb)
+        known = _ai_settings.auto_filed_url(fingerprint)
+        if known:
+            self._console.append_notice(
+                "[issue] This error was reported from this computer before, "
+                "so it was not filed again: {url}\n", url=known)
+            return
+        if _a_report_is_in_flight(fingerprint):
+            self._console.append_notice(
+                "[issue] This error is being reported already.\n")
+            return
+        try:
+            analysis = self._console.ai_explanation_of(tb)
+        except Exception:                                    # noqa: BLE001
+            analysis = ""
+        try:
+            from ..preferences import get_share_diagnostic_logs
+            keep_log = bool(get_share_diagnostic_logs())
+        except Exception:                                    # noqa: BLE001
+            keep_log = False
+        settings_snapshot = self._settings_snapshot()
+        app_key = self.app_key
+        _REPORTS_BEING_FILED[fingerprint] = time.monotonic()
+
+        def _file():
+            """Build, redact and post the report. Off the GUI thread."""
+            try:
+                report = issue_report.public_report(issue_report.build_report(
+                    tb, active_app=app_key, settings=settings_snapshot,
+                    include_log_tail=keep_log, ai_response=analysis))
+                outcome = issue_report.file_without_review(report)
+            except Exception as exc:      # noqa: BLE001 - reported, not hidden
+                outcome = {"status": issue_report.FAILED,
+                           "detail": f"{type(exc).__name__}: {exc}"}
+            outcome["fingerprint"] = fingerprint
+            return outcome
+
+        self._console.append_notice(
+            "[issue] Filing a redacted report of this error on the public "
+            "spaCR GitHub repository, because issue reporting is set to "
+            "'always'…\n")
+        if not self._jobs.submit(_file, self._on_report_filed_automatically):
+            _REPORTS_BEING_FILED.pop(fingerprint, None)
+
+    def _on_report_filed_automatically(self, outcome: dict) -> None:
+        """Say where the automatic report went, or why it did not. GUI thread.
+
+        A report that was filed, or added to an open issue, is remembered by
+        its fingerprint, so the same crash is not filed again from here. One
+        that was not sent is not remembered, so the next failure tries again.
+
+        :param outcome: what
+            :func:`~spacr.qt.ai.issue_report.file_without_review` returned,
+            with the ``fingerprint`` added.
+        """
+        from ..ai import issue_report
+        from ..ai import settings as _ai_settings
+
+        outcome = dict(outcome or {})
+        fingerprint = str(outcome.get("fingerprint", "") or "")
+        _REPORTS_BEING_FILED.pop(fingerprint, None)
+        status = outcome.get("status")
+        url = str(outcome.get("url", "") or "")
+        if status in (issue_report.FILED, issue_report.SEEN_AGAIN):
+            try:
+                _ai_settings.remember_auto_filed(fingerprint, url)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not remember the filed report",
+                          exc_info=True)
+        if status == issue_report.FILED:
+            self._console.append_notice(
+                "[issue] Filed on GitHub: {url}\n", url=url)
+        elif status == issue_report.SEEN_AGAIN:
+            self._console.append_notice(
+                "[issue] This error already has an open issue on GitHub. "
+                "This occurrence was added to it: {url}\n", url=url)
+        elif status == issue_report.SIGNED_OUT:
+            self._console.append_notice(
+                "[issue] Not filed: spaCR is not signed in to GitHub. Run "
+                "`gh auth login` in a terminal once and later errors are "
+                "filed automatically. To send this one, press File as "
+                "issue.\n")
+        else:
+            self._console.append_notice(
+                "[issue] Not filed: {detail}. Press File as issue to try "
+                "again.\n",
+                detail=str(outcome.get("detail", "") or "unknown error"))
 
     def _on_lp_switch(self, on: bool) -> None:
         """Compatibility route for callers that still name Mask's LP switch."""
@@ -6282,6 +7279,8 @@ class AppScreen(QWidget):
         if on and not getattr(self, "_preview_primed", False):
             self._preview_primed = True
             self._prime_preview()
+            if attr == "_live_preview_card":
+                self._autoload_live_preview(self._settings_src_path() or "")
         card.setVisible(on)
 
     def _prime_preview(self) -> None:
@@ -6493,27 +7492,7 @@ class AppScreen(QWidget):
                 "\nNot filing a report: issue reporting is set to 'never' in "
                 "Preferences.\n")
             return
-        settings_snapshot: dict = {}
-        try:
-            model = getattr(self, "_settings_model", None)
-            if model is not None:
-                for k, w in getattr(model, "_widgets", {}).items():
-                    from PySide6.QtWidgets import (
-                        QCheckBox, QComboBox, QDoubleSpinBox, QLineEdit,
-                        QSpinBox,
-                    )
-                    if isinstance(w, QCheckBox):
-                        settings_snapshot[k] = w.isChecked()
-                    elif isinstance(w, (QSpinBox, QDoubleSpinBox)):
-                        settings_snapshot[k] = w.value()
-                    elif isinstance(w, QComboBox):
-                        settings_snapshot[k] = w.currentText()
-                    elif hasattr(w, "get_value"):
-                        settings_snapshot[k] = w.get_value()
-                    elif isinstance(w, QLineEdit):
-                        settings_snapshot[k] = w.text()
-        except Exception:
-            settings_snapshot = {}
+        settings_snapshot = self._settings_snapshot()
         from PySide6.QtWidgets import QDialog
         from ..ai.issue_preview import IssuePreviewDialog
         from ..ai.issue_report import build_report, submit_report
@@ -6642,12 +7621,26 @@ class AppScreen(QWidget):
                 if key in current and current[key] is not None}
 
     def _propagate_live_settings(self, settings: dict) -> None:
-        """Write live-preview-tuned values into the main settings panel."""
+        """Write live-preview-tuned values into the main settings panel.
+
+        The panel speaks Mask's setting names. A module that declares a
+        translation in :data:`spacr.qt.preview_registry.PREVIEWS` -- Plaque
+        Assay segments with ``diameter`` and ``plaque_model``, not
+        ``cell_diameter`` and ``model_name`` -- gets its own names, and a
+        name it has no use for is dropped rather than written to nothing.
+        """
         model = getattr(self, "_settings_model", None)
         if model is None:
             return
+        from ..preview_registry import PREVIEWS
+
+        spec = PREVIEWS.get(str(getattr(self, "app_key", "")))
+        rename = spec.propagation if spec is not None and self.app_key != "mask" else None
         for key, value in settings.items():
-            model.set_value_for_key(key, value)
+            target = rename.get(key) if rename else key
+            if target is None:
+                continue
+            model.set_value_for_key(target, value)
 
     def _on_figure_ready(self, fig, png_path: str = "") -> None:
         """Hand a matplotlib figure to the FigureQueue. ``png_path`` is a PNG
@@ -6727,7 +7720,7 @@ class AppScreen(QWidget):
                     jobs.shutdown()
                 except RuntimeError:
                     pass
-        montage = getattr(self, "_cell_montage", None)
+        montage = self._if_built("_cell_montage")
         if montage is not None:
             try:
                 montage.shutdown()
@@ -6819,6 +7812,7 @@ class AppScreen(QWidget):
             self._console.append_notice(
                 "✓ Finished\n" if ok else
                 "✗ Failed — see traceback above\n")
+        self._settle_the_report(failed=not ok and not cancelled)
         if (ok and not cancelled and getattr(self, "_results_panel", None)
                 and not getattr(self, "_results_loaded_in_memory", False)):
             try:
@@ -8536,7 +9530,8 @@ class AppScreen(QWidget):
         target = dict(current)
         target.update(settings)
 
-        if self._bulk_apply_changes_form_shape(settings, current):
+        if (self._bulk_apply_changes_form_shape(settings, current)
+                and not getattr(self, "_built_for_this_bulk_apply", False)):
             window = self.window()
             rebuild = getattr(window, "rebuild_app_screen", None)
             if callable(rebuild):
@@ -8551,7 +9546,11 @@ class AppScreen(QWidget):
                     rebuild(self.app_key, target)
                     fresh = getattr(window, "_screens", {}).get(self.app_key)
                     if fresh is not None and fresh is not self:
-                        return fresh.apply_settings_dict(settings)
+                        fresh._built_for_this_bulk_apply = True
+                        try:
+                            return fresh.apply_settings_dict(settings)
+                        finally:
+                            fresh._built_for_this_bulk_apply = False
 
         applied = 0
         if model is not None:
@@ -8599,11 +9598,27 @@ class AppScreen(QWidget):
 
     def _bulk_apply_changes_form_shape(
             self, settings: dict, current: dict) -> bool:
-        """Whether supplied values require a differently shaped form."""
+        """Whether supplied values require a differently shaped form.
+
+        Only a switch this form carries can shape it, which is the rule
+        :meth:`_form_shaping_keys` already follows for a committed edit. A
+        switch the form neither shows nor holds is never in
+        ``model.collect()``, so it could never compare equal after a
+        rebuild either: an older recruitment file that still names
+        ``nucleus_mask_dim``, a Mask file imported on Measure, or a Measure
+        file imported on Mask would each ask for a rebuild on every screen
+        the rebuild produced.
+
+        :param settings: the mapping about to be applied.
+        :param current: what the form collects now.
+        :returns: True when the form must be rebuilt before the values go in.
+        """
         from ...organelle_types import (NUMBER_OF_ORGANELLES, organelle_count,
                                         organelle_number)
         from ..settings_diff import _values_equal
 
+        model = getattr(self, "_settings_model", None)
+        carried = set(current) | set(getattr(model, "_widgets", {}) or {})
         supports_organelles = NUMBER_OF_ORGANELLES in current
         target = dict(current)
         target.update(settings)
@@ -8618,6 +9633,8 @@ class AppScreen(QWidget):
             if role is None or role == "cell":
                 continue
             if key not in object_switch_keys(role):
+                continue
+            if key not in carried:
                 continue
             if role not in ("nucleus", "pathogen"):
                 if not supports_organelles:
@@ -8969,7 +9986,7 @@ def _hyperparam_searchable(app_key: str) -> bool:
     return searchable(app_key)
 
 
-def _build_live_preview_card(host):
+def _build_live_preview_card(host, *, panel_later: bool = False):
     """Build the ``Live preview`` card + panel pair without adding it
     to any layout.
 
@@ -8984,21 +10001,56 @@ def _build_live_preview_card(host):
     ``model_name`` while the plaque run segments with ``plaque_model``.
     """
     from ..widgets.live_preview import LivePreviewPanel
+    if panel_later:
+        from ..widgets.card import _CardBuiltWhenShown
+        card = _CardBuiltWhenShown(title="Live preview")
+        card.setMinimumHeight(300)
+        return None, card
     card = Card(title="Live preview")
+    card.setMinimumHeight(300)
     panel = LivePreviewPanel(
         card, module=str(getattr(host, "app_key", "") or ""))
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(300)
     return panel, card
 
 
-def _build_measure_preview_card(host):
+def _fill_live_preview_card(host, card):
+    """Build the live preview panel into a card from
+    :func:`_build_live_preview_card`, and return the panel.
+
+    Separate so a screen can build the card at open and the panel -- about
+    280 widgets -- the first time the card is shown. The
+    card builder still imports the panel's module, so the widget blocks it
+    registers reach the page's sheet at open as they always did.
+    """
+    from ..widgets.live_preview import LivePreviewPanel
+    panel = LivePreviewPanel(
+        card, module=str(getattr(host, "app_key", "") or ""))
+    card.body_layout.addWidget(panel)
+    return panel
+
+
+def _build_measure_preview_card(host, *, panel_later: bool = False):
     """Build the Measure ``Crop preview`` card + panel pair (not added to a
     layout). Mirrors the Mask live preview but shows object crops from a merged
     array, tuned with the crop settings the Measure run will use."""
     from ..widgets.measure_preview import MeasurePreviewPanel
+    if panel_later:
+        from ..widgets.card import _CardBuiltWhenShown
+        card = _CardBuiltWhenShown(title="Crop preview")
+        card.setMinimumHeight(300)
+        return None, card
     card = Card(title="Crop preview")
+    card.setMinimumHeight(300)
     panel = MeasurePreviewPanel(card)
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(300)
     return panel, card
+
+
+def _fill_measure_preview_card(card):
+    """Build the crop preview panel into a card from
+    :func:`_build_measure_preview_card`, and return the panel."""
+    from ..widgets.measure_preview import MeasurePreviewPanel
+    panel = MeasurePreviewPanel(card)
+    card.body_layout.addWidget(panel)
+    return panel

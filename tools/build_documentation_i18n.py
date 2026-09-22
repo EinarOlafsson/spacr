@@ -3698,15 +3698,15 @@ REVIEWED_README_RESOURCE_ALT_TEXT = {
 }
 
 REVIEWED_README_BADGE_ALT_TEXT = {
-    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "spaCR"),
-    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "spaCR"),
-    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "spaCR"),
-    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "spaCR"),
-    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "spaCR"),
-    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "spaCR"),
-    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "spaCR"),
-    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "spaCR"),
-    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "spaCR"),
+    "de": ("Dokumentation", "Interaktive Tutorials", "PyPI-Version", "Python 3.9 bis 3.14", "Testsuite", "Qt-Oberfläche", "GitHub-Quellcode", "GitHub-Issues", "BSD-3-Clause-Lizenz", "bioRxiv-Preprint", "Zenodo-DOI", "Neueste Installationsprogramme", "conda-forge-Version", "conda-forge-Downloads", "conda-forge-Datum der letzten Veröffentlichung", "PyPI-Downloads", "Linux, macOS und Windows", "spaCR zitieren", "spaCR-Rang bei PyPI-Downloads der letzten 30 vollen Tage", "spaCR"),
+    "es": ("Documentación", "Tutoriales interactivos", "Versión de PyPI", "Python 3.9 a 3.14", "Conjunto de pruebas", "Interfaz Qt", "Código fuente en GitHub", "Incidencias de GitHub", "Licencia BSD 3-Clause", "Preprint en bioRxiv", "DOI de Zenodo", "Instaladores más recientes", "Versión en conda-forge", "Descargas de conda-forge", "Fecha de la última versión en conda-forge", "Descargas de PyPI", "Linux, macOS y Windows", "Citar spaCR", "Clasificación de descargas de spaCR en PyPI durante los últimos 30 días completos", "spaCR"),
+    "fr": ("Documentation", "Tutoriels interactifs", "Version PyPI", "Python 3.9 à 3.14", "Suite de tests", "Interface Qt", "Code source GitHub", "Tickets GitHub", "Licence BSD 3-Clause", "Prépublication bioRxiv", "DOI Zenodo", "Derniers installateurs", "Version conda-forge", "Téléchargements conda-forge", "Date de la dernière version conda-forge", "Téléchargements PyPI", "Linux, macOS et Windows", "Citer spaCR", "Classement des téléchargements PyPI de spaCR sur les 30 derniers jours complets", "spaCR"),
+    "hi": ("दस्तावेज़", "इंटरैक्टिव ट्यूटोरियल", "PyPI संस्करण", "Python 3.9 से 3.14", "परीक्षण समूह", "Qt इंटरफ़ेस", "GitHub स्रोत", "GitHub समस्याएँ", "BSD 3-Clause लाइसेंस", "bioRxiv प्रीप्रिंट", "Zenodo DOI", "नवीनतम इंस्टॉलर", "conda-forge संस्करण", "conda-forge डाउनलोड", "conda-forge की नवीनतम रिलीज़ की तिथि", "PyPI डाउनलोड", "Linux, macOS और Windows", "spaCR को उद्धृत करें", "पिछले 30 पूरे दिनों में spaCR की PyPI डाउनलोड रैंकिंग", "spaCR"),
+    "is": ("Skjöl", "Gagnvirkt kennsluefni", "PyPI-útgáfa", "Python 3.9 til 3.14", "Prófunarsafn", "Qt-viðmót", "Frumkóði á GitHub", "GitHub-mál", "BSD 3-Clause-leyfi", "bioRxiv-forprentun", "Zenodo DOI", "Nýjustu uppsetningarforrit", "conda-forge-útgáfa", "conda-forge-niðurhal", "Dagsetning nýjustu útgáfu á conda-forge", "PyPI-niðurhal", "Linux, macOS og Windows", "Vitna í spaCR", "Röðun spaCR eftir PyPI-niðurhali síðustu 30 heilu dagana", "spaCR"),
+    "ko": ("문서", "대화형 튜토리얼", "PyPI 버전", "Python 3.9~3.14", "테스트 모음", "Qt 인터페이스", "GitHub 소스 코드", "GitHub 이슈", "BSD 3-Clause 라이선스", "bioRxiv 프리프린트", "Zenodo DOI", "최신 설치 프로그램", "conda-forge 버전", "conda-forge 다운로드", "conda-forge 최신 릴리스 날짜", "PyPI 다운로드", "Linux, macOS, Windows", "spaCR 인용", "최근 30일간 spaCR의 PyPI 다운로드 순위", "spaCR"),
+    "pt": ("Documentação", "Tutoriais interativos", "Versão no PyPI", "Python 3.9 a 3.14", "Suíte de testes", "Interface Qt", "Código-fonte no GitHub", "Problemas no GitHub", "Licença BSD 3-Clause", "Preprint no bioRxiv", "DOI do Zenodo", "Instaladores mais recentes", "Versão no conda-forge", "Downloads no conda-forge", "Data da versão mais recente no conda-forge", "Downloads no PyPI", "Linux, macOS e Windows", "Citar o spaCR", "Classificação de downloads do spaCR no PyPI nos últimos 30 dias completos", "spaCR"),
+    "sv": ("Dokumentation", "Interaktiva handledningar", "PyPI-version", "Python 3.9 till 3.14", "Testsvit", "Qt-gränssnitt", "Källkod på GitHub", "GitHub-ärenden", "BSD 3-Clause-licens", "bioRxiv-preprint", "Zenodo-DOI", "Senaste installationsprogrammen", "conda-forge-version", "conda-forge-nedladdningar", "Datum för senaste conda-forge-versionen", "PyPI-nedladdningar", "Linux, macOS och Windows", "Citera spaCR", "spaCR:s PyPI-nedladdningsranking de senaste 30 hela dygnen", "spaCR"),
+    "zh_CN": ("文档", "交互式教程", "PyPI 版本", "Python 3.9 至 3.14", "测试套件", "Qt 界面", "GitHub 源代码", "GitHub 问题", "BSD 3-Clause 许可证", "bioRxiv 预印本", "Zenodo DOI", "最新安装程序", "conda-forge 版本", "conda-forge 下载量", "conda-forge 最新发布日期", "PyPI 下载量", "Linux、macOS 和 Windows", "引用 spaCR", "spaCR 在过去 30 个完整日的 PyPI 下载量排名", "spaCR"),
 }
 
 # Workflow tiles keep their canonical module names so visual navigation, GUI
@@ -3717,6 +3717,8 @@ REVIEWED_README_MODULE_ALT_TEMPLATES = WORKFLOW_MODULE_ALT_TEMPLATES
 README_BADGE_SUBSTITUTIONS = (
     "Docs", "Tutorials", "PyPI", "Python", "Tests", "Qt", "Source",
     "Issues", "License", "Preprint", "DOI", "Release", "Conda",
+    "Conda Downloads", "Release date", "PyPI Downloads", "Platforms",
+    "Cite", "PyPI rank",
 )
 README_INSTALLER_SUBSTITUTIONS = (
     "InstallerWindows", "InstallerMacOS", "InstallerLinux", "InstallerLegacy",
@@ -3748,14 +3750,19 @@ def _readme_substitution_alt_text(text: str, names: Iterable[str]) -> list[str]:
 
 
 def _readme_logo_alt_text(text: str) -> str:
-    """Return the alternative text for the unlabelled README logo image."""
+    """Return the alternative text for the README's opening picture.
+
+    The spaCR logo until 2026-09-21; since then the info deck's title slide,
+    which carries the same alternative text.
+    """
     directive = re.search(
-        r"(?ms)^\.\. image:: [^\n]*logo_spacr_readme\.png\n"
+        r"(?ms)^\.\. image:: [^\n]*(?:logo_spacr_readme\.png|"
+        r"_static/deck/slides/slide_01\.jpg)\n"
         r"(?P<body>(?:   [^\n]*(?:\n|$))*)",
         text,
     )
     if directive is None:
-        raise ValueError("README is missing the spaCR logo image definition")
+        raise ValueError("README is missing its opening image definition")
     alt = re.search(r"(?m)^   :alt: (.+)$", directive.group("body"))
     if alt is None:
         raise ValueError("README spaCR logo is missing alternative text")
@@ -6696,6 +6703,8 @@ def audit(docs: Mapping[str, str], languages: Iterable[str]) -> int:
                 "<../../source/", "<docs/source/",
             ).replace(
                 ":target: ../../source/", ":target: docs/source/",
+            ).replace(
+                "<../REVIEW_SCOPE_", "<docs/i18n/REVIEW_SCOPE_",
             )
             contract_readme = re.sub(
                 r"<README\.([A-Za-z_]+)\.rst>",
@@ -6886,13 +6895,25 @@ def main() -> int:
                 " image:: spacr/resources/",
                 " image:: ../../../spacr/resources/",
             ).replace(
+                " image:: docs/source/", " image:: ../../source/",
+            ).replace(
                 "<docs/source/", "<../../source/",
             ).replace(
                 ":target: docs/source/", ":target: ../../source/",
+            ).replace(
+                "<docs/i18n/REVIEW_SCOPE_", "<../REVIEW_SCOPE_",
             )
             localized_readme = _localize_workflow_alt_text(
                 localized_readme, language,
             )
+            # Image directives retain their raw options during translation.
+            # Apply source-bound alt text as well as the reviewed prose.
+            for source_alt, targets in REVIEWED_README_EVIDENCE_BLOCKS.items():
+                if language in targets:
+                    localized_readme = localized_readme.replace(
+                        f"   :alt: {source_alt}\n",
+                        f"   :alt: {targets[language]}\n",
+                    )
             # AFTER the band headings are localized, not before: the
             # workflow pass renames four of them, and a reference has to
             # be aimed at the heading as it finally reads.

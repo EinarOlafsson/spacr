@@ -12,7 +12,8 @@ What is pinned here:
 2. the dispatch builds the backend it names, and refuses 3-D/4-D runs;
 3. the default path builds Cellpose, never a backend, and writes the same
    bytes with the key absent or set to ``'cellpose'``;
-4. a missing package raises an ImportError naming its extra, before any mask
+4. a missing package raises an ImportError naming the Model Zoo, which
+   installs it into an environment of its own (item 423), before any mask
    is written;
 5. a stub backend's labels reach the saved masks with Cellpose's shape and
    dtype, computed from the object's own channel;
@@ -57,6 +58,13 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 #: Directory holding the backend packages outside the main environment, e.g.
 #: one filled by ``pip install --no-deps --target <dir> dinocell samcell``.
 SITE_ENV = "SPACR_SEGMENTATION_BACKEND_SITE"
+
+
+@pytest.fixture(autouse=True)
+def _no_backend_environments(tmp_path, monkeypatch):
+    """Item 423: an environment under the real ``~/.spacr/backends`` would
+    route these runs out of process; every test here sees an empty one."""
+    monkeypatch.setenv(SB._ROOT_ENV, str(tmp_path / "backends"))
 
 
 def _known_labels(shape):
@@ -108,6 +116,7 @@ def stub_backends(monkeypatch):
     (None, "cellpose"), ("", "cellpose"), ("cellpose", "cellpose"),
     (" Cellpose ", "cellpose"), ("dinocell", "dinocell"),
     ("DINOCell", "dinocell"), ("samcell", "samcell"), ("SAMCell", "samcell"),
+    ("cellpose3", "cellpose3"), ("Cellpose3", "cellpose3"),
 ])
 def test_a_backend_name_is_canonicalised(value, expected):
     assert SB._backend_name(value) == expected
@@ -121,7 +130,8 @@ def test_an_unknown_backend_is_refused_and_the_choices_are_named():
 
 
 def test_cellpose_is_the_first_choice_so_it_reads_as_the_default():
-    assert SB._BACKEND_NAMES == ("cellpose", "dinocell", "samcell")
+    assert SB._BACKEND_NAMES == ("cellpose", "cellpose3", "dinocell",
+                                 "samcell")
 
 
 # ===========================================================================
@@ -172,7 +182,8 @@ def test_the_generator_passes_its_z_and_t_plans_to_the_loader(
         O.generate_cellpose_masks_sam(
             str(src), _base_settings(src, segmentation_backend="samcell"),
             "cell")
-    assert seen == {"name": "samcell", "z_plan": None, "t_plan": None}
+    assert seen == {"name": "samcell", "z_plan": None, "t_plan": None,
+                    "model_name": "cpsam", "object_type": "cell"}
 
 
 # ===========================================================================
@@ -231,12 +242,14 @@ def _hide_package(monkeypatch, name):
 
 
 @pytest.mark.parametrize("name", ["dinocell", "samcell"])
-def test_a_missing_package_names_the_extra_that_installs_it(monkeypatch, name):
+def test_a_missing_package_names_the_model_zoo_that_installs_it(monkeypatch,
+                                                                name):
     _hide_package(monkeypatch, name)
     with pytest.raises(ImportError) as exc:
         SB._load_backend(name, device="cpu")
     message = str(exc.value)
-    assert f'`pip install "spacr[{name}]"`' in message
+    assert "Install it from the Model Zoo" in message
+    assert "an environment of its own" in message
     assert "segmentation_backend='cellpose'" in message
     assert isinstance(exc.value.__cause__, ImportError)
 
@@ -248,7 +261,7 @@ def test_a_missing_package_fails_before_any_mask_is_written(tmp_path,
                         types.SimpleNamespace(CellposeModel=_no_cellpose))
     src = tmp_path / "plate" / "masks"
     _write_npz(src, (1, 24, 24, 2))
-    with pytest.raises(ImportError, match=r'spacr\[samcell\]'):
+    with pytest.raises(ImportError, match="Model Zoo"):
         O.generate_cellpose_masks_sam(
             str(src), _base_settings(src, segmentation_backend="samcell"),
             "cell")

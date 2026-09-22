@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "lesson": "10_classify_cv",
+  "english_sha256": "104932e5a39da62949d4d9ce3bde235cf5db2ab8dac208aa6973871b6d7f5106",
+  "previous_english_sha256": "5476aa94e678d9a21ae51c2d1c5f59a6831e8d1a3af0bbb83acacf04a55b8328",
+  "scene_count": 12,
+  "semantic_change": "Scene 7 now uses two loader workers. Prerequisites name version 1.5.0.8, n_jobs=2 and the helper preserving a byte-identical original measurements database.",
+  "languages": [
+    {
+      "language": "da",
+      "review_sha256": "e2f8094eabea0e6b207db0b092f6702bd926e4b1c2715a782ee959440cdaa8dd",
+      "staged_catalog_sha256": "455242708122b23a6a3949062d0cb521cd2c2fd3ea2bba70a993cba5fad1f36b",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "de",
+      "review_sha256": "9f738944b643cfae6d397b347359fe4d9cdc711cea56309fdd6747ed3f79101a",
+      "staged_catalog_sha256": "6accfb1a1acbad6824a9e0e9a4525460068cee87d7fc43cd356dedf04f6135d6",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "es",
+      "review_sha256": "08cabdb0a2750c135fc2c4e7f98d53a35de7f4bce0b0b67f6a7f5f56f0560995",
+      "staged_catalog_sha256": "6a502d0a99888c4180ad33832d633cce84fca4ff4d997d92aa9712299929202a",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "fr",
+      "review_sha256": "2a133938ee5153632457f61c28026352ffac030a490f5adb3e573e1285a132a7",
+      "staged_catalog_sha256": "797fdc7cd21e173557e9cb2a85c0e7b3f4ef4063bbe8ac9034c1766566d486fd",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "hi",
+      "review_sha256": "800c3fea713089e61ca5ac98b9bccf78668a2160cff710928a3601bcb105f123",
+      "staged_catalog_sha256": "a827693caaecddb85cc980eecd3801500b5f89edb1655c0f205531957dd6a45f",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "is",
+      "review_sha256": "9ec98765e1eb50ff6cb35c913650b7aed9279386b06fa663cd8a8404ef316cad",
+      "staged_catalog_sha256": "02b307a1b345ca265f4090b00aa8758f75517f99c71d6584fd9110031cef587c",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "it",
+      "review_sha256": "896bd7063e0feccaecd5b949a2667316d27b4f2291b41ff901e8fbcc6a604095",
+      "staged_catalog_sha256": "d1935adf29971e5a0e37c4385798e1a16fdfbf802d6abade3c83e5dfa0cb59ee",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "ja",
+      "review_sha256": "af448d9262be883de2a4e04dffbe9fd15e3214c0b5e823fb84e09a28e69c2ba1",
+      "staged_catalog_sha256": "bfd80988b66bada5fcc1c8c3b42b10ecaa1ad8285542713b8c860cf9a8ee5c4a",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "ko",
+      "review_sha256": "1183a78a574ba42d2e67cf022ddc4fde40235540b33f1e11741251e8de3bdd9b",
+      "staged_catalog_sha256": "15ad3cdac8fe94e1ebb10b3281a20b9971cbedaaed89b06f6554c018e380f2a6",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "nb",
+      "review_sha256": "59232f93ac4fa4259dba09e183572816e35bf6214afc1b98a5c0a774575d9baf",
+      "staged_catalog_sha256": "19a0f28972217a0b31b185ad6491fc3ecd140ad932f37dadd211cb99634c49e7",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "pt-BR",
+      "review_sha256": "d0291f11c5548be958b1e5b4a35b6a54e7eea6f34b9e900e5683e9cb0db7f753",
+      "staged_catalog_sha256": "fca12ad2bdd5297ada2fd6c7b4590fea00a32a073e0c8b4c795b1a10eda95a0e",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    },
+    {
+      "language": "sv",
+      "review_sha256": "c4b80ac55729f2ee0cb6bc45fd1fef52608b561b22219032f95c3d6b6d30986b",
+      "staged_catalog_sha256": "8bf335f52e24d73800aef3248b594e2003dd593f67a4cf1abb1f6cd5a893eb91",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": false
+    },
+    {
+      "language": "zh-CN",
+      "review_sha256": "1f72f069d4967d0acd3e28b94348de6fba7942b6a3f2aa33b47ef30f7e64f83f",
+      "staged_catalog_sha256": "f374fe3453c9f72b857a12a44576595c8d6653f2a68bc820d063dbcab0a9a3ce",
+      "retained_translated_scenes": 11,
+      "changed_scene_index": 6,
+      "current_speech_helpers": true
+    }
+  ],
+  "native_speaker_signoff": false,
+  "human_listening_signoff": false,
+  "published": false,
+  "remaining": [
+    "Complete and verify remaining spoken-language tracks",
+    "Caption/player and audible acceptance",
+    "Complete-set publication"
+  ]
+}

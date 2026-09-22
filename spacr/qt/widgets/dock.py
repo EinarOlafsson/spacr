@@ -444,16 +444,19 @@ class Dock(QWidget):
         """Re-ask the provider for every row's icon.
 
         A QIcon bakes its pixmap when it is built, so re-applying the
-        stylesheet does not recolour icons that already exist. Every icon
-        is set once at one size and never resized — the old dock's growing
-        and shrinking icons are what made hover relayout the column.
-        """
-        from PySide6.QtCore import QSize
+        stylesheet does not recolour icons that already exist.
 
-        from ..preferences import scaled_px
-        side = scaled_px(ICON_PX)
+        THE SIZE IS FIXED PER SCALE, NOT PER ROW STATE. The old dock grew
+        and shrank an icon on hover, which relayed out the whole column
+        under the pointer; that is what :data:`ICON_PX` being one number
+        stops. It still has to follow the interface scale, so the base is
+        recorded on each row and re-derived from there -- see
+        :func:`spacr.qt.preferences._set_scaled_icon_size` for why it is
+        never recomputed from the size the row is already wearing.
+        """
+        from ..preferences import _set_scaled_icon_size
         for row in self._rows:
-            row.setIconSize(QSize(side, side))
+            _set_scaled_icon_size(row, ICON_PX)
             if self._icon_for is None:
                 continue
             key = getattr(row, "key", None)

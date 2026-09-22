@@ -53,7 +53,7 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 
-from PySide6.QtCore import QRectF, Qt, QThread, Signal
+from PySide6.QtCore import QRectF, Qt, QThread, QTimer, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QComboBox, QDoubleSpinBox, QFileDialog, QGraphicsPixmapItem,
@@ -82,6 +82,8 @@ from ...organelle_types import (organelle_count, organelle_role,
 LOG = logging.getLogger("spacr.qt.live_preview")
 
 SUPPORTED_SUFFIXES = (".tif", ".tiff", ".png", ".jpg", ".jpeg")
+
+_PLANE_ROLE = int(Qt.UserRole) + 1
 
 #: Images drawn at once before the selection is truncated. One keeps the
 #: panel behaving as it always did until the user asks for more.
@@ -631,7 +633,9 @@ def first_supported_image(source: Path) -> Optional[Path]:
 
     Direct image files are returned unchanged. Directory traversal stops as
     soon as the first sorted match is found instead of materialising and
-    sorting every image in a potentially enormous plate.
+    sorting every image in a potentially enormous plate. Files whose names
+    start with a dot are skipped: ``._<name>.tif``, the sidecar macOS writes
+    on exFAT and network volumes, sorts before every image and holds none.
 
     :param source: image path or directory to inspect.
     :returns: the first supported image, or ``None``.
@@ -648,6 +652,8 @@ def first_supported_image(source: Path) -> Optional[Path]:
             followlinks=False):
         dirs.sort(key=str.casefold)
         for name in sorted(files, key=str.casefold):
+            if name.startswith("."):
+                continue
             if Path(name).suffix.lower() in SUPPORTED_SUFFIXES:
                 return Path(folder) / name
     if walk_errors:
@@ -1354,8 +1360,7 @@ def _offer_the_run_model(combo: QComboBox, wanted: str,
     checkpoint path with no file behind it, or anything the run's resolver
     reported absent (``here=False``). The second is on purpose. It is what
     the run is configured with, and hiding it would put the preview back to
-    showing cpsam while saying nothing, which is the silence item 333 exists
-    to end. The pass falls back and states it; see
+    showing cpsam while saying nothing. The pass falls back and states it; see
     :meth:`LivePreviewPanel._model_for_this_pass`.
 
     Anything else is a typo, and is not offered.
@@ -2163,10 +2168,67 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._localise_channel_combo()
         self._populate_set_table()
         self._refresh_mip_toggle()
+        QTimer.singleShot(0, self, self._follow_object_channel)
 
     def sample_note(self) -> str:
         """The sentence stating this preview is a sample of N of M sets."""
         return getattr(self, "_sample_note", "")
+
+    def regroup_the_folder(self) -> bool:
+        """Group the loaded folder again, by the naming the form names now.
+
+        The table is grouped when a folder is loaded, with the
+        ``metadata_type`` and ``custom_regex`` the Mask form held at that
+        moment. Loading first and choosing the naming second left every file
+        under one column until something else reloaded the folder. The
+        screen calls this when either setting changes. The folder's file
+        names are read off the GUI thread, and nothing is decoded.
+
+        :returns: ``True`` when a regrouping was started, ``False`` when no
+            image is loaded.
+        """
+        path = self._image_path
+        if path is None:
+            return False
+        folder = Path(path).parent
+        meta, custom = self._regex_config()
+        self._regroup_token = getattr(self, "_regroup_token", 0) + 1
+        token = self._regroup_token
+        self._load_jobs.submit(
+            lambda: enumerate_image_sets(folder, SUPPORTED_SUFFIXES,
+                                         meta, custom),
+            lambda found, _t=token: self._adopt_the_regrouping(
+                _t, folder, meta, custom, found))
+        return True
+
+    def _adopt_the_regrouping(self, token: int, folder: Path, meta: str,
+                              custom, found) -> None:
+        """Show a regrouping, unless a newer one or another folder won.
+
+        A grouping read under a naming the form no longer holds is dropped
+        too. The screen asks for the next one 400 ms after the naming
+        changes, and a job that finishes inside that wait would otherwise be
+        adopted, and the selectors refreshed under the new naming would then
+        read the folder again on the GUI thread.
+
+        :param token: which :meth:`regroup_the_folder` call produced it.
+        :param folder: the folder that was grouped.
+        :param meta: the naming dialect it was grouped by.
+        :param custom: the custom pattern, or ``None``.
+        :param found: ``(sets, channels)`` from
+            :func:`~spacr.qt.widgets.preview_controls.enumerate_image_sets`.
+        """
+        if token != getattr(self, "_regroup_token", 0):
+            return
+        if self._image_path is None or Path(self._image_path).parent != folder:
+            return
+        if tuple(self._regex_config()) != (meta, custom):
+            return
+        sets, channels = found
+        self._sampler.adopt(folder, sets, channels,
+                            metadata_type=meta, custom_regex=custom)
+        self._refresh_source_selectors()
+        self._announce_sample()
 
     def _regex_config(self) -> tuple:
         """The naming dialect the user configured, for grouping their files.
@@ -2204,7 +2266,8 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
 
         Built from the same sample the count field sizes, so the table is a
         readable form of what the dropdown listed rather than a second,
-        differently-populated view of the folder.
+        differently-populated view of the folder. See
+        :meth:`_set_table_columns` for which columns there are.
         """
         table = getattr(self, "_set_table", None)
         if table is None:
@@ -2221,32 +2284,97 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 chosen = None
             if chosen is not None and chosen not in sets:
                 sets = sorted(sets + [chosen], key=lambda s: s.key)
-        channels = sorted({c for s in sets for c in s.channels})
+        columns = self._set_table_columns(sets)
         table.blockSignals(True)
         try:
             table.clear()
             table.setRowCount(len(sets))
-            table.setColumnCount(len(channels) or 1)
+            table.setColumnCount(len(columns))
             table.setHorizontalHeaderLabels(
-                [f"ch {c}" for c in channels] or ["image"])
+                [caption for caption, _chan, _plane in columns])
+            self._column_channels = [
+                index if (chan or plane is not None) and caption.startswith("ch ")
+                else None
+                for index, (caption, chan, plane) in enumerate(columns)]
+            for index, (caption, chan, _plane) in enumerate(columns):
+                header_item = table.horizontalHeaderItem(index)
+                if header_item is not None and chan:
+                    header_item.setToolTip(tr(
+                        "Channel {index}; the file names call it {name}.",
+                        index=index, name=chan))
             table.setVerticalHeaderLabels([s.label for s in sets])
             for row, image_set in enumerate(sets):
-                for col, chan in enumerate(channels or [None]):
+                for col, (_caption, chan, plane) in enumerate(columns):
                     name = (image_set.channels.get(chan) if chan is not None
                             else next(iter(image_set.channels.values()), ""))
                     if not name:
                         continue
-                    planes = len(image_set.planes.get(chan) or ()) or 1
+                    key = chan if chan is not None else next(
+                        iter(image_set.channels), None)
+                    planes = len(image_set.planes.get(key) or ()) or 1
                     text = name if planes <= 1 else f"{name}  ({planes}z)"
                     item = table_item(text)
-                    item.setToolTip(str(image_set.path(chan)))
-                    item.setData(Qt.UserRole, str(image_set.path(chan)))
+                    item.setToolTip(str(image_set.path(key)))
+                    item.setData(Qt.UserRole, str(image_set.path(key)))
+                    if plane is not None:
+                        item.setData(_PLANE_ROLE, int(plane))
                     table.setItem(row, col, item)
             table.resizeColumnsToContents()
             header = table.horizontalHeader()
             header.setSectionResizeMode(QHeaderView.Stretch)
         finally:
             table.blockSignals(False)
+
+    def _set_table_columns(self, sets) -> List[Tuple[str, Optional[str],
+                                                        Optional[int]]]:
+        """The table's columns, as ``(caption, channel ID, plane)``.
+
+        Three sources of channels, in this order:
+
+        * the channel IDs the naming dialect read out of the file names,
+          taken from the WHOLE folder rather than from the sample, so a
+          channel that only some fields have keeps its column whichever
+          fields the sample drew;
+        * files the dialect could not read share one column captioned
+          "image", not "ch" -- a channel with no number was how every file
+          of a folder in another naming came to sit under one column;
+        * when no file name carries a channel at all and the loaded image
+          holds several planes on its last axis, one column per plane, so a
+          folder of multi-channel files is laid out by channel too. A cell
+          there opens its file and shows that plane, the same plane the
+          channel spin boxes in Live settings number. More planes than those
+          spin boxes can name is taken for something other than channels.
+
+        THE CAPTION IS THE CHANNEL'S INDEX, from 0 (the maintainer,
+        2026-09-21): the number the Cell / Nucleus / Pathogen channel settings
+        take, not the ID the file name carries. The pipeline stacks the
+        channels in the sorted order of their IDs (``spacr.io``), which is the
+        order the columns come in, so column N is channel N; a Yokogawa
+        ``C01`` is ``ch 0``. The file's own ID stays in the header's tooltip.
+
+        :param sets: the sampled image sets the rows show.
+        :returns: the columns, never empty.
+        """
+        found = {chan for image_set in sets for chan in image_set.channels}
+        try:
+            named = set(self._sampler.channels or ())
+        except Exception:                                    # noqa: BLE001
+            named = set()
+        named = sorted((named | found) - {""})
+        unread = "" in found
+        columns: List[Tuple[str, Optional[str], Optional[int]]] = [
+            (f"ch {index}", chan, None) for index, chan in enumerate(named)]
+        if named:
+            if unread:
+                columns.append(("image", "", None))
+            return columns
+        image = self._image
+        planes = (int(image.shape[2])
+                  if image is not None and getattr(image, "ndim", 0) == 3
+                  else 0)
+        if unread and 1 < planes <= int(self._cell_channel.maximum()) + 1:
+            return [(f"ch {plane}", "", plane) for plane in range(planes)]
+        return [("image", "" if unread else None, None)]
 
     def max_images(self) -> int:
         """How many images may be drawn at once."""
@@ -2303,9 +2431,7 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         self._table_row, self._table_col = active_row, active_col
         self._sync_table_selection()
         item = self._set_table.item(active_row, active_col)
-        path = item.data(Qt.UserRole) if item is not None else None
-        if path:
-            self.load_image(Path(path))
+        self._open_cell(item)
 
     def _sync_table_selection(self) -> None:
         """Show the selection in the table, active cell current."""
@@ -2374,7 +2500,30 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
                 self._fov_box.setCurrentIndex(index)
         finally:
             self._fov_box.blockSignals(False)
-        self.load_image(Path(path))
+        self._open_cell(item)
+
+    def _open_cell(self, item) -> None:
+        """Show the file a table cell names, at the plane it names if any.
+
+        A plane column (see :meth:`_set_table_columns`) names one plane of a
+        multi-channel file. The file is read only when it is not the one on
+        screen already, so moving along a row changes the plane shown and
+        reads nothing.
+
+        :param item: the table cell, or ``None``.
+        """
+        path = item.data(Qt.UserRole) if item is not None else None
+        if not path:
+            return
+        plane = item.data(_PLANE_ROLE)
+        if (plane is None or self._image is None
+                or str(self._image_path) != str(path)):
+            if not self.load_image(Path(path)):
+                return
+        if plane is None:
+            return
+        self._select_display_channel(int(plane))
+        self._on_display_channel_changed()
 
     def _refresh_mip_toggle(self) -> None:
         """Enable the MIP switch only where there is a stack to project.
@@ -3053,10 +3202,13 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             self._refresh_canvases)
         self._common_widgets["background"].valueChanged.connect(
             self._refresh_canvases)
-        self._cell_channel.valueChanged.connect(self._refresh_canvases)
-        self._nucleus_channel.valueChanged.connect(self._refresh_canvases)
-        self._pathogen_channel.valueChanged.connect(self._refresh_canvases)
-        self._organelle_channel.valueChanged.connect(self._refresh_canvases)
+        self._cell_channel.valueChanged.connect(self._on_object_channel_changed)
+        self._nucleus_channel.valueChanged.connect(
+            self._on_object_channel_changed)
+        self._pathogen_channel.valueChanged.connect(
+            self._on_object_channel_changed)
+        self._organelle_channel.valueChanged.connect(
+            self._on_object_channel_changed)
         self._object_box.currentIndexChanged.connect(self._refresh_canvases)
         self._object_box.currentIndexChanged.connect(
             self._on_primary_object_changed)
@@ -3064,7 +3216,6 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         for _channel_spinner in (self._cell_channel, self._nucleus_channel,
                                  self._pathogen_channel,
                                  self._organelle_channel):
-            _channel_spinner.valueChanged.connect(self._follow_object_channel)
             _channel_spinner.valueChanged.connect(
                 lambda *_: self._recompute_masks())
         self._common_widgets["signal_to_noise"].setToolTip(
@@ -3551,8 +3702,11 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         }.get(obj)
         return None if spinner is None else int(spinner.value())
 
-    def _follow_object_channel(self) -> None:
+    def _follow_object_channel(self) -> bool:
         """Show the primary object's own channel.
+
+        :returns: True when the displayed plane was moved (and repainted),
+            False when it was already right or there is no one answer.
 
         Switching the primary object used to leave the displayed plane where
         it was, so picking "cell" while a nucleus plane was up meant tuning
@@ -3570,10 +3724,12 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
         """
         ordered = self._selected_object_types()
         if len(ordered) != 1:
-            return
+            return False
         wanted = self._channel_for_object(ordered[0])
         if wanted is None:
-            return
+            return False
+        if self._follow_in_table(int(wanted)):
+            return True
         box = self._channel_box
         target = f"Ch {wanted}"
         for index in range(box.count()):
@@ -3583,14 +3739,63 @@ class LivePreviewPanel(LivePreviewContract, QWidget):
             if written != target:
                 continue
             if box.currentIndex() == index:
-                return
+                return False
             blocked = box.blockSignals(True)
             try:
                 box.setCurrentIndex(index)
             finally:
                 box.blockSignals(blocked)
             self._refresh_canvases()
-            return
+            return True
+        return False
+
+    def _follow_in_table(self, wanted: int) -> bool:
+        """Move the set table to channel ``wanted``'s column, in the same row.
+
+        The maintainer, 2026-09-21: with cell chosen and cell channel 1, a
+        table showing another channel's column switches to channel 1's --
+        staying on the same field -- so what is on screen is always what the
+        object will be segmented on.
+
+        :param wanted: the channel index.
+        :returns: whether the table moved (and opened that cell).
+        """
+        table = getattr(self, "_set_table", None)
+        channels = getattr(self, "_column_channels", None) or []
+        if table is None or wanted not in channels:
+            return False
+        column = channels.index(wanted)
+        row = getattr(self, "_table_row", 0) or 0
+        if column == getattr(self, "_table_col", None):
+            return False
+        item = table.item(row, column)
+        if item is None or not item.data(Qt.UserRole):
+            return False
+        self._selected_cells = [(row, column)]
+        self._table_row, self._table_col = row, column
+        blocked = table.blockSignals(True)
+        try:
+            table.setCurrentCell(row, column)
+        finally:
+            table.blockSignals(blocked)
+        self._open_cell(item)
+        return True
+
+    def _on_object_channel_changed(self, *_args) -> None:
+        """Move the view onto the channel the user just typed, then repaint.
+
+        The follow was wired only to a change of WHICH object is primary, so
+        setting cell channel to 2 with cell already primary repainted the
+        plane that was already on screen: the settings said channel 2 and the
+        picture stayed channel 1, and every diameter, flow and background
+        judgement from then on was made against the wrong pixels.
+
+        The follow repaints when it moves, so this repaints only when it did
+        not -- otherwise the full-size image is redrawn twice for every
+        keystroke while a number is being typed into a spinner.
+        """
+        if not self._follow_object_channel():
+            self._refresh_canvases()
 
     def _selected_object_types(self) -> Tuple[str, ...]:
         """The compartment ROLES selected, not the captions.
@@ -4338,10 +4543,12 @@ class LiveSettingsDialog(QDialog):
 
         self._propagate_sources = [
             panel._model_box, panel._object_box, panel._cell_channel,
-            panel._nucleus_channel, panel._diameter, panel._flow,
+            panel._nucleus_channel, panel._pathogen_channel,
+            panel._organelle_channel, panel._diameter, panel._flow,
             panel._prob, panel._normalise_check, panel._lo_pct, panel._hi_pct,
         ] + panel._all_compartment_widgets()
 
+        self._show_every_control_on_a_row()
         self.refresh_visibility()
 
         try:
@@ -4376,10 +4583,39 @@ class LiveSettingsDialog(QDialog):
         """
         p = self._panel
         return [p._model_box, p._object_box, p._cell_channel,
-                p._nucleus_channel, p._diameter, p._flow, p._prob,
+                p._nucleus_channel, p._pathogen_channel,
+                p._organelle_channel, p._diameter, p._flow, p._prob,
                 p._normalise_check, p._lo_pct, p._hi_pct,
                 p._outline_colour, p._outline_thickness,
                 ] + p._all_compartment_widgets()
+
+    def _show_every_control_on_a_row(self) -> int:
+        """Show every widget this dialog has put on a form row.
+
+        :meth:`closeEvent` hides each borrowed control as it hands it back,
+        and a widget hidden that way stays hidden when a layout takes it
+        again. A control that is on a row but not named by
+        :meth:`_managed_widgets` therefore came back as a caption over an
+        empty field on every open after the first. The sweep is by form
+        row, so a control added to the dialog later is shown without a
+        second list to keep in step. Rows the dialog gates on purpose are
+        hidden with ``QFormLayout.setRowVisible`` in
+        :meth:`refresh_visibility`, which this does not touch.
+
+        :returns: how many widgets were shown.
+        """
+        shown = 0
+        for form in self.findChildren(QFormLayout):
+            for row in range(form.rowCount()):
+                for role in (QFormLayout.LabelRole, QFormLayout.FieldRole,
+                             QFormLayout.SpanningRole):
+                    item = form.itemAt(row, role)
+                    widget = item.widget() if item is not None else None
+                    if widget is None or not widget.isHidden():
+                        continue
+                    widget.show()
+                    shown += 1
+        return shown
 
     def _install_api_tooltips(self) -> None:
         """Attach linked Mask API help to every setting in this popup."""

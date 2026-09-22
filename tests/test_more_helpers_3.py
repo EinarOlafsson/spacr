@@ -28,10 +28,10 @@ SETTING_HELPERS = [
     # `grna` was in this set until 2026-09-14, when instruction 364
     # retired it: this factory was its only declaration and nothing
     # under `spacr/` calls this factory, so the key was read by no
-    # pipeline. The live equivalent is `grna_csv`. `barcodes` stays --
-    # it is approved for the same retirement but HELD by a reviewed
-    # zh_CN translation pinned to its tooltip.
-    ("get_map_barcodes_default_settings", {"src", "barcodes"}),
+    # pipeline. The live equivalent is `grna_csv`. `barcodes` followed on
+    # 2026-09-19, once the maintainer decided to withdraw the reviewed
+    # zh_CN translation that had held it ("Retire both").
+    ("get_map_barcodes_default_settings", {"src", "test"}),
     ("get_train_cellpose_default_settings", {"model_name", "model_type"}),
     ("set_generate_dataset_defaults", {"src", "experiment"}),
     ("get_check_cellpose_models_default_settings", {"batch_size", "CP_prob"}),

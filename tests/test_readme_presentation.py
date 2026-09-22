@@ -207,19 +207,26 @@ def test_readme_keeps_the_feature_catalog_curated_and_points_to_detail():
         assert heading in features
 
 
-def test_make_masks_is_the_only_module_with_a_section_of_its_own():
+def test_no_module_but_make_masks_has_a_section_of_its_own():
     """Instruction 366 part 2, stated as the contract it is.
 
     Asked for on 2026-09-02: "in the readme make masks gets its own section
     but no other moduals do. the information in this section should be
     available in the api by clicking th emodual so remove this text."
 
-    Make Masks is kept because it is a MANUAL tool: Brush, Erase, Wand +,
+    Make Masks was kept because it is a MANUAL tool: Brush, Erase, Wand +,
     Wand -, Draw, Divide, Zoom, Erase object and Recrop are a vocabulary a
-    reader needs before opening the screen, and
-    `test_the_readme_names_every_make_masks_tool` requires all nine to be
-    named here. Every other module's explanation lives behind its tile,
-    which part 3 made worth arriving at.
+    reader needs before opening the screen. Every other module's
+    explanation lives behind its tile, which part 3 made worth arriving at.
+
+    THE MAKE MASKS SECTION ITSELF IS NO LONGER REQUIRED, changed 2026-09-19.
+    Asked on 2026-09-15 whether to remove it, the maintainer answered "Keep
+    it"; on 2026-09-16 he removed it himself, in 2db12a301, a commit that
+    changed nothing else. This test had required it, so it went red on
+    nightly that day. It now holds the half of the request both decisions
+    agree on -- no OTHER module gets a section -- and still checks the Make
+    Masks prose if the section comes back. The tool vocabulary is held by
+    `test_every_make_masks_tool_is_named_where_the_readme_sends_the_reader`.
 
     THE SIX-LINE "Core workflow" LIST IS NOT A SECTION and deliberately
     stays -- ruled on 2026-09-02 when 366 flagged it as the judgement call.
@@ -243,20 +250,21 @@ def test_make_masks_is_the_only_module_with_a_section_of_its_own():
     labels = {label for _key, label, _description, _section
               in generator._registry()}
     headings = set(re.findall(r"(?m)^([^\n]+)\n[-~^]{3,}$", text))
-    assert headings & labels == {"Make Masks"}, (
+    assert headings & labels <= {"Make Masks"}, (
         f"these modules have a README section of their own: "
         f"{sorted((headings & labels) - {'Make Masks'})}. 366 part 2 puts "
         f"per-module explanation behind the module's tile in the API; only "
-        f"Make Masks keeps prose here, for its tool vocabulary.")
+        f"Make Masks ever kept prose here, for its tool vocabulary.")
 
-    # AND THE PROSE UNDER IT IS ONLY ABOUT MAKE MASKS. The resource list
-    # used to sit inside this section as a bold paragraph, which made the
-    # one protected per-module section read as if the tutorials and the
-    # API reference were Make Masks' own.
-    section = text.partition("Make Masks\n~~~~~~~~~~\n")[2]
-    section = re.split(r"(?m)^[^\n]+\n[-~^]{3,}$", section)[0]
-    assert "Interactive tutorials" not in section
-    assert "Brush" in section and "Recrop" in section
+    # AND IF THE SECTION IS THERE, THE PROSE UNDER IT IS ONLY ABOUT MAKE
+    # MASKS. The resource list used to sit inside this section as a bold
+    # paragraph, which made the one protected per-module section read as if
+    # the tutorials and the API reference were Make Masks' own.
+    if "Make Masks" in headings:
+        section = text.partition("Make Masks\n~~~~~~~~~~\n")[2]
+        section = re.split(r"(?m)^[^\n]+\n[-~^]{3,}$", section)[0]
+        assert "Interactive tutorials" not in section
+        assert "Brush" in section and "Recrop" in section
 
 
 def test_readme_uses_branch_safe_documentation_links():

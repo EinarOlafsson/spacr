@@ -184,6 +184,10 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [generate_image_path_map](#generate_image_path_map) (4 entries)
 - [copy_images_to_consolidated](#copy_images_to_consolidated) (3 entries)
 - [remove_outliers_by_group](#remove_outliers_by_group) (2 entries)
+- [generate_image_path_map, 2026-09-19](#generate_image_path_map-2026-09-19) (1 entry)
+- [measure_test_mode, 2026-09-19](#measure_test_mode-2026-09-19) (1 entry)
+- [process_mask_file_adjust_cell, 2026-09-19](#process_mask_file_adjust_cell-2026-09-19) (2 entries)
+- [check_mask_folder, 2026-09-19](#check_mask_folder-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -5010,3 +5014,48 @@ keep = (df[value_col] - mean).abs() <= threshold * std
 ```
 
 A single-row group has std NaN, and NaN comparisons are False, so 'zscore' used to DELETE every singleton while 'iqr' kept it (its quartiles collapse onto the value). One row cannot be an outlier within its own group under either definition; the two methods now agree instead of disagreeing on the smallest groups.
+
+## generate_image_path_map, 2026-09-19
+
+```python
+if file.startswith('.'):
+```
+
+`consolidate=True` flattens every sub-folder of `src` into `consolidated/`, naming each copy `<sub-folders>_<file>`. On a macOS external volume (GitHub #121 and #117: exFAT, FAT and many SMB shares) every image has an AppleDouble sidecar, `._<name>`, with the same `.tif` ending. The walk took `sub/._img1.tif` for an image and named its copy `sub_._img1.tif`. The prefix moves the dot off the front, so no listing downstream could tell the copy was a sidecar any more; whether it was then read as a tiff depended on the regex. Dot-files are skipped here, before the rename can hide them, and dot-folders are pruned from the walk too: a volume root carries `.Spotlight-V100`, `.Trashes` and `.fseventsd`, none of which holds a plate. Reasons for the dot-file rule as a whole are in `docs/notes/spacr/io.md` under `_listdir_visible`.
+
+## measure_test_mode, 2026-09-19
+
+```python
+if f.endswith('.npy') and not f.startswith('.')
+```
+
+Test mode sampled every file in `merged/`, so `.spacr_plane_layout.json` and, on a macOS external volume, the `._<field>.npy` sidecar of each field (item 429) could take a field's place in `test/merged`. Test mode then measured fewer fields than `test_nr` asked for, and a sampled sidecar failed its worker. Only visible `.npy` fields are sampled now, and the "fewer than test_nr" message counts fields.
+
+```python
+if os.path.isfile(layout):
+```
+
+Sampling only `.npy` files meant the layout manifest was never copied, where before it went across on the runs where `random.sample` happened to pick it. `crops.read_merged_plane_layout` treats that manifest as the authority for the folder it sits in and returns `None` without it, which every reader takes as a legacy folder and answers with `DEFAULT_MASK_DIMS`. `measure_crop` itself is safe -- `reconcile_merged_mask_dims` runs against the real `merged/` before `measure_test_mode` -- but anything else pointed at `test/merged` (`measure.generate_object_dataset`, `crops.open_merged_field`, `align`) would read the wrong plane on a plate whose layout is not the default. The manifest is now copied beside the sampled fields whenever the source folder has one.
+
+## process_mask_file_adjust_cell, 2026-09-19
+
+```python
+cell_mask = np.load(cell_path, allow_pickle=False)
+```
+
+The four loads (pathogen, cell, nucleus, organelle) passed `allow_pickle=True` since July 2025. Every writer of these files saves `mask.astype(np.uint16)` and did then, so the flag loaded nothing a plain load would not, and it made loading a mask run whatever a pickled `.npy` in the folder named: measured, an object array whose pickle calls `os.mkdir` created its directory when `adjust_cells` read it. Item 429 decided against `allow_pickle` for the normalised archives for the same reason. Pinned by `tests/test_spacr_masks_load_without_unpickling.py`.
+
+```python
+_save_array_atomic(cell_path, merged_cell_mask)
+```
+
+`adjust_cells` rewrites `masks/cell_mask_stack/<field>.npy` over the mask Cellpose wrote. `np.save` onto that name truncated it first and then wrote, so a run killed during the write (SIGKILL, OOM, a full disk) left a short file under the final name; before `check_mask_folder` checked masks with `resume` off, the next run took it for done. The write now goes through `spacr.io._save_array_atomic`, item 430's `_replace_atomically`: the adjusted mask is written into a hidden `.partial` sibling, flushed, and renamed over the old one, so a kill leaves the previous whole mask. Measured with `np.save` made to die half-way through the write: the old code left the first half of the file under the final name (`validate_merged_field`: truncated), the new one leaves the original bytes and no sibling. Pinned by `tests/test_a_mask_is_checked_before_it_is_reused.py`.
+
+## check_mask_folder, 2026-09-19
+
+```python
+mask_count = sum(
+    1 for path in mask_paths if validate_merged_field(path)[0])
+```
+
+With `resume` off, every `.npy` in the mask folder was counted, so a mask a killed run left empty or truncated made the count equal the stack count, the log said "All masks have been generated", segmentation was skipped, and the merge died on the short file (`ValueError: Failed to read all data for array ... (file seems not fully written?)`). Item 430 had left this: only `resume` on checked. The check reads each header and compares the file's length with it (`spacr.resume.validate_merged_field`), which costs one small read per mask, so it now runs whether or not `resume` is set. `resume` is still accepted, because callers pass it. `spacr.io._check_masks` makes the same change per field and names each damaged mask in the log as it queues it again.

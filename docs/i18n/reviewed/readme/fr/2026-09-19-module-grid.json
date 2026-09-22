@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "records": [
+    {
+      "label": "module-grid-caption",
+      "source_sha256": "70ab1f64ad81d99cca0143e261249ecb75f83069acc9e49eda16898ae022c5f4",
+      "source": "Every module spaCR ships, in the order the home screen lists them: the six pipeline modules first, then everything else. Select a tile to open that module's API page.",
+      "translation": "Tous les modules fournis avec spaCR, dans l’ordre de l’écran d’accueil : d’abord les six modules du pipeline, puis tout le reste. Sélectionnez une tuile pour ouvrir la page API du module."
+    },
+    {
+      "label": "module-grid-feature-guide",
+      "source_sha256": "5be3793cb3bdce3dafb421a3b722c821a71aae50388526fb3e7131f1fa3dd8b2",
+      "source": "See the `feature guide <docs/source/features.rst>`_ for each tool.",
+      "translation": "Chaque outil est décrit dans le `guide des fonctionnalités <docs/source/features.rst>`_."
+    }
+  ]
+}

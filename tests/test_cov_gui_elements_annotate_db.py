@@ -56,9 +56,11 @@ def test_convert_settings_dict_classifies_widget_kinds():
     assert out["name"] == ("entry", None, "abc")
     assert out["nothing"] == ("entry", None, None)
     # special cases ignore the supplied value and use the canned spec
-    assert out["metadata_type"] == ("combo",
-                                    ["cellvoyager", "cq1", "auto", "custom"],
-                                    "cellvoyager")
+    kind, options, initial = out["metadata_type"]
+    assert (kind, initial) == ("combo", "cellvoyager")
+    stored = [value for value, _label in options]
+    assert {"cellvoyager", "cq1", "auto", "custom"} <= set(stored)
+    assert len(stored) == len(set(stored))
     kind, options, initial = out["channels"]
     assert kind == "combo" and initial == "[0,1,2,3]" and "[0,1]" in options
 

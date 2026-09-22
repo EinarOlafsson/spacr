@@ -1,0 +1,517 @@
+{
+  "schema": 1,
+  "language": "pt",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Could not open {name}.",
+      "source": "Could not open {name}.",
+      "translation": "Não foi possível abrir {name}.",
+      "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0"
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {url}",
+      "source": "Could not open {url}",
+      "translation": "Não foi possível abrir {url}",
+      "source_sha256": "52923734f046f5f34c83f745983c0da3536ed231cb951c80ab89aa0564500f17"
+    },
+    {
+      "table": "ui",
+      "key": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "translation": "Contar quantos nomes de imagens na pasta de origem esta convenção consegue interpretar e mostrar o primeiro que não consegue. Nada é alterado nem gravado.",
+      "source_sha256": "8b9b5e482a8ef174411e0cedabdedbb082b748f9be3fdf40ae8841a9addc3b83"
+    },
+    {
+      "table": "ui",
+      "key": "Create a GitHub account",
+      "source": "Create a GitHub account",
+      "translation": "Criar uma conta no GitHub",
+      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538"
+    },
+    {
+      "table": "ui",
+      "key": "Crops could not be loaded",
+      "source": "Crops could not be loaded",
+      "translation": "Não foi possível carregar os recortes",
+      "source_sha256": "43507e598078de1d2e4bb832761c216589c912922af7e77927bab4a79d48c518"
+    },
+    {
+      "table": "ui",
+      "key": "Crops from:",
+      "source": "Crops from:",
+      "translation": "Recortes de:",
+      "source_sha256": "934c8569d887385d17ba8bf7a6ef90581317964142f35763b779de07ef08396a"
+    },
+    {
+      "table": "ui",
+      "key": "Curve",
+      "source": "Curve",
+      "translation": "Curva",
+      "source_sha256": "2a45c07314b2cd56907c7df9dfabdadd2ed17521161b53292cf146ea6c45dc85"
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "translation": "Dividir uma região com dois centros em duas, na linha que os separa, usando watershed sobre a distância ao fundo. Uma região com apenas um centro permanece inteira; portanto, a operação não divide todos os objetos indiscriminadamente. Quando desativada, duas células que se tocam são tratadas como um único objeto.",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751"
+    },
+    {
+      "table": "ui",
+      "key": "Deep water",
+      "source": "Deep water",
+      "translation": "Águas profundas",
+      "source_sha256": "97c373b8cd487210fc0e6cf4636ded5e7cf7bc1648c96953b431e7176542e7de"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "translation": "Excluir o ambiente do mecanismo selecionado e tudo o que foi baixado nele. O ambiente do próprio spaCR não é alterado.",
+      "source_sha256": "bd59941dd8e4a85e42ffd4fb8c08afdeba2e024163d49831539a95fadfbdd623"
+    },
+    {
+      "table": "ui",
+      "key": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "source": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "translation": "Detectando objetos escuros? Ative Inverter imagem na categoria Exibição. A opção inverte tanto a imagem exibida quanto os pixels lidos por estes botões e pela lupa ao vivo. Até 2026-09-20, eram duas opções separadas, e quem revisava as máscaras podia ativar uma sem a outra.",
+      "source_sha256": "c59da152ebd7649f753caec09e43acea9340b6c6c9b0113120ca067a3ad62e2f"
+    },
+    {
+      "table": "ui",
+      "key": "Dilate",
+      "source": "Dilate",
+      "translation": "Dilatar",
+      "source_sha256": "2e3e332f6015c3f2a2fa376605346790d166fa3f452d817da819a1882d4ab136"
+    },
+    {
+      "table": "ui",
+      "key": "Discard",
+      "source": "Discard",
+      "translation": "Descartar",
+      "source_sha256": "eb1a70e39274bb762b5d7c1adb5debeea2b05e12af28207f21a375b596853273"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed",
+      "source": "Download failed",
+      "translation": "O download falhou",
+      "source_sha256": "eae34ccbc4432c1358da668b091e7c952fe8be24b02dd4f8ec5ea2edef5ca1a4"
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "translation": "Baixar dez campos de exemplo para Plaque Analysis e definir src para apontar para eles. Há dois conjuntos à escolha: campos com placas de lise segmentadas, usados para treinar o modelo, ou figuras de placas inteiras, usadas como entrada do fluxo de processamento. Os dados ficam em cache após o primeiro download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}?",
+      "source": "Download {name}?",
+      "translation": "Baixar {name}?",
+      "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}{size} into {folder}?",
+      "source": "Download {name}{size} into {folder}?",
+      "translation": "Baixar {name}{size} em {folder}?",
+      "source_sha256": "e8f0bb5d5edb9bfc4290a5d57ead97f3b746f4768e306d90f9efb4b6dbe140f0"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded {name}, but the folder would not open",
+      "source": "Downloaded {name}, but the folder would not open",
+      "translation": "{name} foi baixado, mas não foi possível abrir a pasta",
+      "source_sha256": "598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}",
+      "source": "Downloading {name}",
+      "translation": "Baixando {name}",
+      "source_sha256": "61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name} in the background.",
+      "source": "Downloading {name} in the background.",
+      "translation": "Baixando {name} em segundo plano.",
+      "source_sha256": "f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}…",
+      "source": "Downloading {name}…",
+      "translation": "Baixando {name}…",
+      "source_sha256": "6b324c87e43336f8cb3f4cc1589d188e76d98e442b768406b3fa6135a13a764c"
+    },
+    {
+      "table": "ui",
+      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "translation": "Desenhar o histograma de intensidade deste campo e marcar o limiar definido pelas configurações acima. É o mesmo limiar usado pelo botão, calculado pela mesma função. Se o marcador estiver deslocado em relação a um vale do histograma, ajuste o fator de correção.",
+      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33"
+    },
+    {
+      "table": "ui",
+      "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "translation": "Solte imagens e máscaras aqui ou escreva uma expressão regular para organizá-las. As linhas são campos; as colunas são canais e tipos de máscara.",
+      "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d"
+    },
+    {
+      "table": "ui",
+      "key": "Drop objects the image border cuts",
+      "source": "Drop objects the image border cuts",
+      "translation": "Excluir objetos cortados pela borda da imagem",
+      "source_sha256": "61c81158a6c877c40aec7f3fc2549aaff4455e5fc2a0f58f3d9b862af536fd48"
+    },
+    {
+      "table": "ui",
+      "key": "Dusk",
+      "source": "Dusk",
+      "translation": "Crepúsculo",
+      "source_sha256": "abd7160c1f46a06471bb88bd281a04bf2f32d195b618ae0fc9e095e19eb5ea6a"
+    },
+    {
+      "table": "ui",
+      "key": "Enable — report a failed run as a GitHub issue",
+      "source": "Enable — report a failed run as a GitHub issue",
+      "translation": "Ativar — relatar uma execução que falhou como um problema no GitHub",
+      "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f"
+    },
+    {
+      "table": "ui",
+      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "translation": "Cada limite fica desativado em 0. O botão Filtro aplica os limites ativados, assim como a abertura de um campo; cada objeto removido é listado abaixo.",
+      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc"
+    },
+    {
+      "table": "ui",
+      "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "translation": "Tudo aqui fica desativado até você ligar o som. Os sons são gerados por spaCR neste computador, sem gravações nem downloads, e são reproduzidos em uma thread própria. Assim, um dispositivo de áudio ausente ou ocupado resulta apenas em silêncio.",
+      "source_sha256": "8507419bf9faf24a18cf419021b9ea7e2ef42249bbb745cffb3366e6ebb40eed"
+    },
+    {
+      "table": "ui",
+      "key": "Fetching community uploads…",
+      "source": "Fetching community uploads…",
+      "translation": "Buscando envios da comunidade…",
+      "source_sha256": "2d24a0d4aa0d2b3289ff05ba3bb1ab18dc0303619352a74d1a4681c4e00b0617"
+    },
+    {
+      "table": "ui",
+      "key": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "source": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "translation": "Arquivos arrastados para cá que não corresponderam a nenhuma combinação de linha e coluna. Nada nesta lista é medido.",
+      "source_sha256": "620209c5018abf6f1b76bbce6122700442e7200e454f94e0f979b90bb875dfa3"
+    },
+    {
+      "table": "ui",
+      "key": "Fill holes inside an object",
+      "source": "Fill holes inside an object",
+      "translation": "Preencher buracos dentro de um objeto",
+      "source_sha256": "435801ce592611dccfeaa141d681ac4d0813ba9242460018f0de502a6eabb95c"
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "translation": "Calcular o limiar de Otsu separadamente em uma janela ao redor de cada pixel, em vez de uma única vez para todo o campo. Assim, um canto com iluminação mais fraca é avaliado em relação à própria região: seus objetos deixam de ser perdidos, enquanto o centro mais claro continua bem segmentado. Isso também pode detectar mais objetos em um fundo ruidoso, que podem ser removidos com a área mínima. Disponível apenas para duas classes e na detecção por Otsu.",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c"
+    },
+    {
+      "table": "ui",
+      "key": "Find the database or the crop folder",
+      "source": "Find the database or the crop folder",
+      "translation": "Localizar o banco de dados ou a pasta de recortes",
+      "source_sha256": "c50fe52a1984e63864c301091e6beb6b1759fa1ccc706e1cfa1616b0fc2af02e"
+    },
+    {
+      "table": "ui",
+      "key": "Finish signing in to {label} in the window that opened, then press Done.",
+      "source": "Finish signing in to {label} in the window that opened, then press Done.",
+      "translation": "Conclua a entrada em {label} na janela que se abriu e pressione Concluído.",
+      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe"
+    },
+    {
+      "table": "ui",
+      "key": "Five-parameter logistic (asymmetric)",
+      "source": "Five-parameter logistic (asymmetric)",
+      "translation": "Logística de cinco parâmetros (assimétrica)",
+      "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736"
+    },
+    {
+      "table": "ui",
+      "key": "Folder this model was trained on",
+      "source": "Folder this model was trained on",
+      "translation": "Pasta usada para treinar este modelo",
+      "source_sha256": "bfdffd274fbd3b8d7c7f482ef830d4ae1b2b162e854ed86764e2ee751cf883d8"
+    },
+    {
+      "table": "ui",
+      "key": "Four-parameter logistic (symmetric)",
+      "source": "Four-parameter logistic (symmetric)",
+      "translation": "Logística de quatro parâmetros (simétrica)",
+      "source_sha256": "b4158837e924edf5b918bf36797c7a7dcd820194e2f64c97cc4a8e9a75a7b4e5"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "translation": "Desfoque gaussiano, em pixels, aplicado antes de calcular o limiar e segmentar a imagem com ele. Evita que um campo ruidoso produza milhares de objetos de um único pixel. O valor 0 aplica o limiar aos dados brutos.",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146"
+    },
+    {
+      "table": "ui",
+      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "translation": "A entrada no GitHub foi interrompida antes de ser concluída. Pressione Entrar para tentar novamente.",
+      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a"
+    },
+    {
+      "table": "ui",
+      "key": "Grow / shrink:",
+      "source": "Grow / shrink:",
+      "translation": "Expandir / reduzir:",
+      "source_sha256": "6c6fc0076d7288997b218fa43d08c6fd2d8e5f77ad223c95292e901c6e54aff6"
+    },
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "translation": "Expandir cada objeto por esse número de pixels, ocupando apenas o fundo: nenhum objeto toma pixels de um vizinho, e dois objetos nunca se fundem. Assim, os identificadores e a contagem de objetos são preservados. Toda a operação pode ser desfeita em uma única etapa.",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972"
+    },
+    {
+      "table": "ui",
+      "key": "Hover",
+      "source": "Hover",
+      "translation": "Passar o cursor",
+      "source_sha256": "c76ae86ad3014c852af277f5be355d149bf02287b4a04a7911bbc1614ffec4db"
+    },
+    {
+      "table": "ui",
+      "key": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "source": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "translation": "Volume de todos os sons de spaCR, do silêncio ao máximo. A música de fundo sempre toca em volume mais baixo que os outros sons.",
+      "source_sha256": "2ff97b2808fb54bb59b72f02ad6d40fb5abac516936062d679c9383636f67cff"
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "translation": "Em quantas faixas de intensidade dividir o campo. O valor 2 corresponde à divisão original de Otsu, com um limiar entre fundo e objetos. Aumente quando houver mais de duas populações — fundo, halo de baixa intensidade e núcleos brilhantes. Em vez de um único limiar de compromisso entre as três, será usado o limite desejado, escolhido abaixo. Disponível apenas na detecção por Otsu.",
+      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48"
+    },
+    {
+      "table": "ui",
+      "key": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "source": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "translation": "Quantos canais de intensidade cada campo possui. É adicionada uma coluna por canal, e a numeração dos canais no array combinado segue a ordem das colunas.",
+      "source_sha256": "b61cea307d14ff759a572ea63d34af6b297031973807bdcdd9cd2e516d1b3a26"
+    },
+    {
+      "table": "ui",
+      "key": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "source": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "translation": "Quantos recortes correspondentes devem ser carregados. Os demais são contados e identificados, em vez de descartados sem aviso.",
+      "source_sha256": "06a81e9b743c53acb3c923748e2696911350c711e84d1c1a482cb044b6ef9e72"
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "translation": "Quantos pixels o limite de cada objeto se desloca ao pressionar Dilatar ou Reduzir. A distância é medida em linha reta: o valor 1 desloca a borda para seus quatro vizinhos, mas não para os cantos diagonais. Reduzir desfaz uma dilatação do mesmo tamanho em um objeto que tinha espaço para crescer.",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5"
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "translation": "Facilidade com que o modo Otsu aceita um objeto. Aumente para incluir objetos de sinal mais fraco ou menos certos; reduza para manter apenas os mais nítidos. O valor 0 é o limiar padrão. Os modelos usam os limiares das configurações de Detecção de objetos, por isso este controle fica desabilitado quando outro modo está selecionado.",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1"
+    },
+    {
+      "table": "ui",
+      "key": "Hugging Face login needed",
+      "source": "Hugging Face login needed",
+      "translation": "É necessário entrar no Hugging Face",
+      "source_sha256": "e793beaf0a9d9ac901eaa3c4e42300b6fcae760f1ad45d3d03f389d1c76b426c"
+    },
+    {
+      "table": "ui",
+      "key": "Install",
+      "source": "Install",
+      "translation": "Instalar",
+      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}",
+      "source": "Install runs:\n    {command}",
+      "translation": "A instalação executa:\n    {command}",
+      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "translation": "A instalação executa:\n    {command}\n\nEm seguida, começa o processo de entrada do próprio GitHub.",
+      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e"
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}",
+      "source": "Install {name}",
+      "translation": "Instalar {name}",
+      "source_sha256": "15d27e180bc64b4b3219b11337fa5e748c69724a16fc7b9918b5994ddaad2e9f"
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}?",
+      "source": "Install {name}?",
+      "translation": "Instalar {name}?",
+      "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e"
+    },
+    {
+      "table": "ui",
+      "key": "Installing {label}…",
+      "source": "Installing {label}…",
+      "translation": "Instalando {label}…",
+      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4"
+    },
+    {
+      "table": "ui",
+      "key": "Invert image",
+      "source": "Invert image",
+      "translation": "Inverter imagem",
+      "source_sha256": "4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613"
+    },
+    {
+      "table": "ui",
+      "key": "Keep",
+      "source": "Keep",
+      "translation": "Manter",
+      "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585"
+    },
+    {
+      "table": "ui",
+      "key": "Keep installing",
+      "source": "Keep installing",
+      "translation": "Continuar instalando",
+      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d"
+    },
+    {
+      "table": "ui",
+      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "translation": "Mantenha a tela aberta até a conclusão ou interrompa a instalação e instale depois em Ajuda > Configurar spaCR novamente…",
+      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f"
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "translation": "Excluir os objetos cortados pela borda do campo. Sua área e intensidade média dependem do enquadramento, e não apenas do objeto; por isso, é melhor excluí-los quando a detecção será usada para medidas. Disponível apenas na detecção por Otsu: a lupa ao vivo tem sua própria opção para a borda da caixa.",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602"
+    },
+    {
+      "table": "ui",
+      "key": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "source": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "translation": "Adicionar à lista um arquivo de modelo que você já possui e, opcionalmente, compartilhá-lo no Hugging Face para que outras pessoas possam usá-lo.",
+      "source_sha256": "08f075cd8d7c276a8437c84e93bc6e01d37ba0290019d2fe32545f515141a80a"
+    },
+    {
+      "table": "ui",
+      "key": "Load crops",
+      "source": "Load crops",
+      "translation": "Carregar recortes",
+      "source_sha256": "961195a44adea5d5ea9dcbf96604cdc656ba21f22b85e6f2a890151166ebe5c6"
+    },
+    {
+      "table": "ui",
+      "key": "Loading stopped",
+      "source": "Loading stopped",
+      "translation": "Carregamento interrompido",
+      "source_sha256": "1eea9acc4dc3681339c6553679ff9be9c15e56f587e82ec78e99e5526de799cf"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold (uneven illumination)",
+      "source": "Local threshold (uneven illumination)",
+      "translation": "Limiar local (iluminação desigual)",
+      "source_sha256": "96ed765787b60b41e78cc401115d499d7fe9c4ac591ce1644c57046880986ede"
+    },
+    {
+      "table": "ui",
+      "key": "Looking at what was dropped...",
+      "source": "Looking at what was dropped...",
+      "translation": "Inspecionando os arquivos arrastados...",
+      "source_sha256": "1b1608ebc6fa39b28be25ef5a56145ec7eb21f1f9ddb32de862991e25f601316"
+    },
+    {
+      "table": "ui",
+      "key": "Low sun",
+      "source": "Low sun",
+      "translation": "Sol no horizonte",
+      "source_sha256": "d4db8b6e7c0a115bf73963503aedbc431cfb19511f69b817062d191690fccf58"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "source": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "translation": "Lupa: segmentando esta região — seus objetos serão adicionados assim que a caixa estiver atualizada.",
+      "source_sha256": "77f7b81640137d3d4f9288f9d8a3649452c81f476e61b898c3e5a461aa6fb646"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "source": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "translation": "Lupa: não foi possível executar {mode} ({reason}); a segmentação está sendo feita pelo modo Otsu.",
+      "source_sha256": "1a2a4e5767b267247bbf197d654889cb02e0e8981c1e515574284dcef7eed774"
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "translation": "Marcar este campo para descarte e avançar para o próximo. Nada é excluído: a decisão é gravada em csv/keep_discard.csv junto às imagens, e o campo, sua máscara e seus objetos permanecem inalterados.",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b"
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "translation": "Marcar este campo para manter e avançar para o próximo. A decisão é gravada em csv/keep_discard.csv junto às imagens, com a imagem, sua máscara e o número de objetos que a máscara contém neste momento.",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9"
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "translation": "Medir as máscaras que você desenhou. Abre uma tabela em que cada linha é um campo e cada coluna é um canal ou tipo de máscara. A execução passa pelo próprio módulo Measure; portanto, as pastas e o banco de dados de medidas são os mesmos que uma execução de Measure produz.",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986"
+    },
+    {
+      "table": "ui",
+      "key": "Midnight",
+      "source": "Midnight",
+      "translation": "Meia-noite",
+      "source_sha256": "aa996cf21f0dbc617e27fac13ab13916a07944c2de10c2dbcd60b95a6023f80b"
+    },
+    {
+      "table": "ui",
+      "key": "Music bed",
+      "source": "Music bed",
+      "translation": "Música de fundo",
+      "source_sha256": "a3b649dac67ac6d7354ee7ae235ba3b4c86dc950876b264506e55dade0e51a27"
+    }
+  ]
+}

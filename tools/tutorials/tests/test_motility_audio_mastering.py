@@ -41,3 +41,18 @@ def test_fingerprint_and_encoder_use_the_same_selected_mastering_not_an_unrecord
     loops = [n for n in ast.walk(render) if isinstance(n, ast.For) and ast.unparse(n.target) == 'loudness_filter']
     assert len(loops) == 1
     assert ast.unparse(loops[0].iter) == "fingerprint_inputs['mastering']['filters']"
+
+
+def test_spanish_overview_repair_keeps_other_lessons_and_voices_unchanged():
+    ns, _ = namespace()
+    select, baseline = ns['mastering_config'], ns['MASTERING_CONFIG']
+    repair = select('41_classify', 'es', 'ef_dora')
+    assert repair['filters'][:-1] == baseline['filters']
+    assert repair['filters'][-1].endswith(',volume=-2dB')
+    assert repair['maximum_decoded_true_peak_dbfs'] == -1.0
+    for identity in [('10_classify_cv', 'es', 'ef_dora'),
+                     ('11_classify_ml', 'es', 'ef_dora'),
+                     ('41_classify', 'es', 'em_alex'),
+                     ('41_classify', 'en', 'af_heart')]:
+        assert select(*identity) == baseline
+    assert len(baseline['filters']) == 3

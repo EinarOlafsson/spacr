@@ -1115,7 +1115,14 @@ def test_mask_resume_requeues_a_truncated_array(tmp_path):
     assert pending.shape[0] == 2
 
 
-def test_mask_folder_resume_counts_only_complete_fields(tmp_path):
+def test_mask_folder_counts_only_complete_fields_with_or_without_resume(
+        tmp_path):
+    """A truncated mask is not a generated one, whether or not resume is on.
+
+    It used to count as done with resume off, so segmentation was skipped
+    and the merge read the short file (2026-09-19,
+    tests/test_a_mask_is_checked_before_it_is_reused.py).
+    """
     from spacr.io import _save_array_atomic
     from spacr.utils import check_mask_folder
 
@@ -1130,7 +1137,7 @@ def test_mask_folder_resume_counts_only_complete_fields(tmp_path):
     (masks / "field2.npy").write_bytes(b"truncated")
 
     assert check_mask_folder(
-        str(src), "cell_mask_stack", resume=False) is False
+        str(src), "cell_mask_stack", resume=False) is True
     assert check_mask_folder(
         str(src), "cell_mask_stack", resume=True) is True
 

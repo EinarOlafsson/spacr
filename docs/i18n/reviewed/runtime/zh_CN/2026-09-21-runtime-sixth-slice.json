@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Shared",
+      "source": "Shared",
+      "translation": "共享",
+      "source_sha256": "e3c4b39d6d5013477c98cd58236fed455f37aa7017b7168ce1980a449aaf438a"
+    },
+    {
+      "table": "ui",
+      "key": "Shortcuts",
+      "source": "Shortcuts",
+      "translation": "快捷键",
+      "source_sha256": "46e978d0c19397c7d0318f6440950c15e046f5841a0feb03c35fdc68e1dfc68a"
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "translation": "将设置作为一组显示或隐藏，包括画笔、魔棒、显示、自动筛选、对象操作、Otsu、对象检测和实时放大镜。隐藏后，画布会占用这些设置腾出的宽度。",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image as it was loaded.",
+      "source": "Showing the image as it was loaded.",
+      "translation": "按加载时的原样显示图像。",
+      "source_sha256": "01641220d68a74f77c817c175cd3447d019f1473c0de372d77e289b01fd4ddfb"
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "source": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "translation": "正在显示反相图像（暗变亮），并基于该图像进行检测。悬停强度读数与显示图像一致，并明确标注；筛选、对象平均值和保存仍使用原始像素。",
+      "source_sha256": "10e5f49fcc1ed61eef3d24e8663709a3993010dc4a1b1bdb29349fa917f0432f"
+    },
+    {
+      "table": "ui",
+      "key": "Shrink",
+      "source": "Shrink",
+      "translation": "收缩",
+      "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in",
+      "source": "Sign in",
+      "translation": "登录",
+      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "translation": "请在打开的窗口中登录 {label}。完成后，spaCR 会自动检测到。",
+      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f"
+    },
+    {
+      "table": "ui",
+      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "translation": "登录 {label} 未在 {minutes} 分钟内完成。请按“登录”重试。",
+      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f"
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "translation": "要保留的对象的最小面积，以像素计。“移除小对象”会移除所有小于此值的对象，Otsu 检测和对象检测也不会生成小于此值的对象。因此，只需在这一处设置碎屑的判定标准。",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4"
+    },
+    {
+      "table": "ui",
+      "key": "Sort every file this table already holds again, with the regex as it reads now.",
+      "source": "Sort every file this table already holds again, with the regex as it reads now.",
+      "translation": "使用当前正则表达式，重新对表格中已有的全部文件进行分类。",
+      "source_sha256": "1c14c552ebb9d4e45108a0ae38e1e434d7bf29732f430436ac76f7186d76fbcf"
+    },
+    {
+      "table": "ui",
+      "key": "Sound set",
+      "source": "Sound set",
+      "translation": "音效集",
+      "source_sha256": "8d308657d751aeb14842b12883f9027b12142c1062a026c6519362908bebff83"
+    },
+    {
+      "table": "ui",
+      "key": "Split objects that touch",
+      "source": "Split objects that touch",
+      "translation": "分开相互接触的对象",
+      "source_sha256": "25d4d69647265e4f5d692cab9ad3bfda5163ade1cedb54e43a7b880d1fa27a07"
+    },
+    {
+      "table": "ui",
+      "key": "Starting…",
+      "source": "Starting…",
+      "translation": "正在启动…",
+      "source_sha256": "bbe5fc3b9ef39f994c259eaf233d625a500b5219784c82f73b50808d4f79d5dc"
+    },
+    {
+      "table": "ui",
+      "key": "Stop it and close",
+      "source": "Stop it and close",
+      "translation": "停止并关闭",
+      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b"
+    },
+    {
+      "table": "ui",
+      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "translation": "已停止等待登录。按“登录”可重新开始；如果已登录，请按“完成”。",
+      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0"
+    },
+    {
+      "table": "ui",
+      "key": "Stopping after this page…",
+      "source": "Stopping after this page…",
+      "translation": "处理完本页后停止…",
+      "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438"
+    },
+    {
+      "table": "ui",
+      "key": "Stopping the installer…",
+      "source": "Stopping the installer…",
+      "translation": "正在停止安装程序…",
+      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906"
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "translation": "已发布模型的训练数据集中的十个视野，以及训练时使用的掩膜。它们以可编辑方式打开，因此您看到的就是模型训练时看到的内容。",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3"
+    },
+    {
+      "table": "ui",
+      "key": "Test on my folder",
+      "source": "Test on my folder",
+      "translation": "在我的文件夹中测试",
+      "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592"
+    },
+    {
+      "table": "ui",
+      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "translation": "尚未安装 GitHub CLI。\n\n安装后，spaCR 可使用您的 GitHub 帐户提交报告，无需打开浏览器。未安装时，报告仍会在浏览器中打开。",
+      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776"
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "translation": "实时放大镜也使用这些设置：Cellpose 模式使用模型、两个阈值、直径及归一化设置，DINOCell 使用细胞概率设置。Otsu 模式则读取 Otsu 类别中的设置。",
+      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf"
+    },
+    {
+      "table": "ui",
+      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "translation": "spaCR 执行的命令。也可复制该命令，自行在终端中运行。",
+      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3"
+    },
+    {
+      "table": "ui",
+      "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "source": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "translation": "此项由文件表决定。更改表格中的通道列或掩膜列，此项会随之更新。",
+      "source_sha256": "5e8542d02349eb9df6700d23af00616f11ea97db0bc9d8300ec9a301c746d63b"
+    },
+    {
+      "table": "ui",
+      "key": "The files",
+      "source": "The files",
+      "translation": "文件",
+      "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479"
+    },
+    {
+      "table": "ui",
+      "key": "The installer could not be run: {error}",
+      "source": "The installer could not be run: {error}",
+      "translation": "无法运行安装程序：{error}",
+      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b"
+    },
+    {
+      "table": "ui",
+      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "translation": "{tools} 的安装程序仍在运行。现在关闭此窗口会停止安装。",
+      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8"
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "translation": "天空中最后一抹色彩：暗金色之上的玫瑰色和洋红色，以及入夜前地平线呈现的梅紫色。",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f"
+    },
+    {
+      "table": "ui",
+      "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "translation": "当前无法访问已发布的文档，因此这里显示的是随本机代码保存的描述。",
+      "source_sha256": "7331a69c7b5b6932ebc5198d0d93a5bd8439856e36b319563a8b4f02ec554781"
+    },
+    {
+      "table": "ui",
+      "key": "The report was not sent.",
+      "source": "The report was not sent.",
+      "translation": "报告未发送。",
+      "source_sha256": "7fa94ad764e8476f7b31623c25805813c735a2b151500c3681730661719e074a"
+    },
+    {
+      "table": "ui",
+      "key": "The report was sent: {url}",
+      "source": "The report was sent: {url}",
+      "translation": "报告已发送：{url}",
+      "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3"
+    },
+    {
+      "table": "ui",
+      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "translation": "无法在此启动登录。请在终端中运行下方命令，然后按“完成”。",
+      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4"
+    },
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "translation": "以每个像素为中心，用于测量局部水平的正方形窗口。窗口应明显大于单个对象，但小于光照变化的尺度：过小会使大对象内部被当作自身的背景，得到空心结果；过大则又相当于对整个视野使用同一阈值。偶数会向上调整为奇数，以确保窗口有中心像素。",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37"
+    },
+    {
+      "table": "ui",
+      "key": "There is nothing in the console to report.",
+      "source": "There is nothing in the console to report.",
+      "translation": "控制台中没有可报告的内容。",
+      "source_sha256": "a4029341ca3ddf6933f74cb69172a0600b76e78964de019e2c59b9276ffa029e"
+    },
+    {
+      "table": "ui",
+      "key": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "translation": "这些模型由其他 spaCR 用户通过“添加”按钮上传。\n\n尚无人核实模型是什么、用什么数据训练，或所报告的数值是否真实。校验和只能证明文件自上传以来未发生变化，不能证明模型质量，也不能证明可以放心地让它处理您的数据。\n\n仍要显示这些模型吗？",
+      "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e"
+    },
+    {
+      "table": "ui",
+      "key": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "source": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "translation": "这些数值将成为 Hugging Face 上的模型表格。未测量的项目请留空；它们会显示为“未记录”，比猜测更合适。",
+      "source_sha256": "ac05be35f089306b44992a5b53d18488f00f7f9c4961f74a53b16a6ef4083846"
+    },
+    {
+      "table": "ui",
+      "key": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "source": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "translation": "此版本的 spaCR 无法向自身环境中安装软件包。若要添加 {name}，请使用 pip 或 conda 安装 spaCR。",
+      "source_sha256": "2fbccb1df6bda13739523c534157b51fd48dcbbb8bbc2fc4e2e97e23a3684d91"
+    },
+    {
+      "table": "ui",
+      "key": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "source": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "translation": "这是本机副本。已发布的页面可以访问，请打开该页面查看渲染后的版本。",
+      "source_sha256": "5fe4a9cfd5da36dd2a2975dba7dc52a57dcd09ad6ddec49fc9196815245673c3"
+    },
+    {
+      "table": "ui",
+      "key": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "source": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "translation": "这是随本机代码保存的描述。正在检查能否访问已发布的页面…",
+      "source_sha256": "f605135194ed5e4b3ea396566a391bf9d9d91f31ad3b7fd0fa2b57a16dcc9d68"
+    }
+  ]
+}

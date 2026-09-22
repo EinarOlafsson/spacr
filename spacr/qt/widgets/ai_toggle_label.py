@@ -25,7 +25,7 @@ from PySide6.QtCore import QEvent, QSize, Qt, Signal
 from PySide6.QtWidgets import QLabel
 
 from ..i18n import tr
-from ..theme import active_palette, font_px
+from ..theme import active_palette, button_accent_text, font_px
 
 #: The widest a toggle may force the row it sits in to be.
 #:
@@ -217,7 +217,7 @@ class AiToggleLabel(QLabel):
         just enlarged.
         """
         palette = active_palette()
-        on_color = palette["button_accent"]
+        on_color = button_accent_text(palette)
         color = on_color if self._on else palette["fg"]
         size = font_px("body")
         sheet = (

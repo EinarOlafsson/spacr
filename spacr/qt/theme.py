@@ -2,10 +2,11 @@
 
 Use :func:`active_palette` for colors shown by a live widget and
 :func:`stylesheet` for the application stylesheet. :data:`THEMES` contains
-the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, and ``"glass"``;
-the ``"system"`` preference resolves to dark or light before palette lookup.
-A legacy ``"space"`` palette can still be read from persisted settings but is
-not selectable.
+the selectable palettes ``"dark"``, ``"light"``, ``"cell"``, ``"glass"`` and
+the ten night themes of :mod:`spacr.qt.night_themes`; the ``"system"``
+preference resolves to dark or light before palette lookup. A legacy
+``"space"`` palette can still be read from persisted settings but is not
+selectable.
 
 .. warning::
 
@@ -32,13 +33,16 @@ import math
 import warnings
 import weakref
 from contextlib import contextmanager
-from functools import lru_cache
+from functools import lru_cache, partial
 from types import MappingProxyType
 from typing import Dict, List, Optional, Tuple
 
 from PySide6.QtCore import QEvent, QObject, Qt, QTimer
 from PySide6.QtGui import QColor, QPalette
 from PySide6.QtWidgets import QApplication
+
+from .night_themes import NIGHT_THEME_KEYS
+from .night_themes import palettes as night_palettes
 
 LOG = logging.getLogger(__name__)
 
@@ -53,7 +57,7 @@ DARK_PALETTE = {
     "border_soft": "#1c1e22",
     "fg":          "#ffffff",
     "fg_muted":    "#a1a6ad",
-    "fg_dim":      "#6b6f76",
+    "fg_dim":      "#858a92",
     "accent":      "#4A9EFF",
     "accent_hi":   "#66B2FF",
     "accent_lo":   "#2F80D9",
@@ -77,7 +81,7 @@ LIGHT_PALETTE = {
     "border_soft": "#e5e8ec",
     "fg":          "#0d0e10",
     "fg_muted":    "#4b5460",
-    "fg_dim":      "#68707e",
+    "fg_dim":      "#596170",
     "accent":      "#0a63c4",
     "accent_hi":   "#0851a3",
     "accent_lo":   "#063d7a",
@@ -169,7 +173,14 @@ GLASS_PALETTE = {
 #: backdrop nobody chose, and the Cell wallpapers do the same job with the
 #: lab's own images. A persisted "space" falls back to dark — see
 #: `preferences.get_theme`.
-THEMES = ("dark", "light", "cell", "glass")
+#:
+#: The ten night themes of :mod:`spacr.qt.night_themes` are appended here,
+#: which is what makes them ordinary themes: the contrast sweep, the page
+#: separation sweep, the spaceout dressing and every widget that resolves a
+#: colour through :func:`palette_for` reach them without a branch. They are
+#: flat themes, not :data:`IMAGE_THEMES`, so no scrim is solved for them and
+#: nothing is composited over a wallpaper.
+THEMES = ("dark", "light", "cell", "glass") + NIGHT_THEME_KEYS
 
 _PALETTES = {
     "dark": DARK_PALETTE,
@@ -178,6 +189,7 @@ _PALETTES = {
     "cell": CELL_PALETTE,
     "glass": GLASS_PALETTE,
 }
+_PALETTES.update(night_palettes())
 
 #: Themes whose window background is an image or depth gradient rather than
 #: a flat colour. They share one treatment — a transparent ``QWidget``
@@ -1228,6 +1240,71 @@ _INK_BANDS: Dict[str, Dict[str, Tuple[float, float]]] = {}
 #: :data:`_SOLVED_SCRIMS`, and cached for the same reason.
 _SOLVED_INK: Dict[bool, Dict[str, Dict[str, Tuple[float, float]]]] = {}
 
+#: The themes whose dressing is solved the moment the dressing goes on,
+#: rather than the first time somebody asks for that theme's palette.
+#:
+#: THIS IS WHY THE TEN NIGHT THEMES DID NOT COST THE SPACEOUT LAUNCHER HALF
+#: A SECOND. The damping solve is 60 offsets per theme and the ink-band
+#: solve another 60, so both are linear in the number of themes, and both
+#: ran over all of them at the moment ``spaceout`` started: going from four
+#: themes to fourteen took :func:`enable_spaceout` from 417-438 ms to
+#: 864-876 ms, measured, before the window appears. Only the theme the user
+#: is actually in gets dressed, so thirteen of those solves were for a
+#: palette that run would never paint.
+#:
+#: The four here are solved eagerly because they are what the process can
+#: be in without anybody choosing: dark and light are what ``"system"``
+#: resolves to, and cell and glass are the two image themes, whose scrims
+#: are solved over the drift in the same pass anyway. Everything else is
+#: solved by :func:`_dress_theme` the first time its palette is asked for,
+#: which is once and then never again.
+DRESSED_EAGERLY: Tuple[str, ...] = ("dark", "light", "cell", "glass")
+
+#: Themes solved so far under the current dressing. Reset whenever the
+#: dressing changes, because the bands and the damping are both functions
+#: of it.
+_DRESSED: set = set()
+
+
+def _dress_theme(name: str) -> None:
+    """Solve one theme's ink bands and page damping, once.
+
+    WHAT STOPS THIS RECURSING is the ``_DRESSED`` entry, and it is added
+    BEFORE the two solves rather than after. Every solver resolves palettes
+    through :func:`palette_for`, so a solve for ``name`` re-enters here for
+    ``name``; finding itself already in the set, it returns at once. Moving
+    that line below the solves would spin.
+
+    :func:`palette_for` also calls this only when ``_SOLVE_DRIFT is None``,
+    which is "no solve is running". THAT CHECK IS A SECOND BELT AND IS
+    REDUNDANT, and is recorded as such rather than left to look
+    load-bearing: removing it turns no test red, because a solve only ever
+    asks for the palette of the theme it is solving, which the set already
+    covers. It is kept because it costs one comparison and it is what keeps
+    the property true if a future solver reaches for a second theme.
+
+    The result goes into the live tables AND into the
+    :data:`_SOLVED_INK` / :data:`_SOLVED_DAMPING` caches, so taking the
+    dressing off and putting it back stays the dict copy it was and does
+    not silently lose a theme that had been solved.
+
+    :param name: a key of :data:`_PALETTES`; anything else is ignored,
+        because :func:`palette_for` falls back to dark for those and dark
+        is solved already.
+    """
+    if not _SPACEOUT or name in _DRESSED or name not in _PALETTES:
+        return
+    _DRESSED.add(name)
+    damping = _solve_page_damping((name,))
+    bands = _solve_ink_bands((name,))
+    _INK_BANDS.update(bands)
+    cached_bands = _SOLVED_INK.get(True)
+    if cached_bands is not None:
+        cached_bands.update(bands)
+    cached_damping = _SOLVED_DAMPING.get(True)
+    if cached_damping is not None:
+        cached_damping.update(damping)
+
 #: While a solve is running: the hue offset to dress at, and whether the ink
 #: treatment is applied. `palette_for` consults both, which is what lets the
 #: solvers call the ordinary public helpers — `effective_surface`,
@@ -1404,7 +1481,8 @@ def _ink_band(theme: str, role: str) -> Optional[Tuple[float, float]]:
     return (low, high) if high - low > 1e-6 else None
 
 
-def _solve_page_damping() -> Dict[str, Dict[float, float]]:
+def _solve_page_damping(names: Optional[Tuple[str, ...]] = None
+                        ) -> Dict[str, Dict[float, float]]:
     """How much colour each theme has to give up, at each drift offset, for
     its panels to stay visible on its page.
 
@@ -1412,15 +1490,25 @@ def _solve_page_damping() -> Dict[str, Dict[float, float]]:
     solving against — :func:`page_separation_failures` — is two
     measurements, one of them in CIE L*, and reading them backwards to a
     saturation would be a second implementation of the thing it has to
-    agree with. Seven candidates over sixty offsets is 130 ms once.
+    agree with. Seven candidates over sixty offsets is about 28 ms per
+    theme.
 
     The candidate under test is written straight into :data:`_PAGE_DAMPING`
     so :func:`page_separation_failures` sees it through the palette, which
     is what makes this the published rule judging the published colours
     rather than a copy of either.
+
+    :param names: the themes to solve. ``None`` solves :data:`THEMES` and
+        clears anything already there, which is the whole-dressing case;
+        naming themes leaves the rest of the table alone, which is what
+        :func:`_dress_theme` needs.
+    :returns: the solved rows for the themes asked for.
     """
-    _PAGE_DAMPING.clear()
-    for name in THEMES:
+    if names is None:
+        names = THEMES
+        _PAGE_DAMPING.clear()
+    solved: Dict[str, Dict[float, float]] = {}
+    for name in names:
         rows: Dict[float, float] = {}
         _PAGE_DAMPING[name] = rows
         for drift in _drift_grid():
@@ -1431,13 +1519,19 @@ def _solve_page_damping() -> Dict[str, Dict[float, float]]:
                         break
             if rows[drift] >= 1.0:
                 del rows[drift]
-    return {name: dict(rows) for name, rows in _PAGE_DAMPING.items()}
+        solved[name] = dict(rows)
+    return solved
 
 
-def _solve_ink_bands() -> Dict[str, Dict[str, Tuple[float, float]]]:
-    """Every ink band of every theme. Solved once per dressing."""
+def _solve_ink_bands(names: Optional[Tuple[str, ...]] = None
+                     ) -> Dict[str, Dict[str, Tuple[float, float]]]:
+    """Every ink band of the themes asked for.
+
+    :param names: the themes to solve; ``None`` means :data:`THEMES`.
+    :returns: ``{theme: {role: (low, high)}}``.
+    """
     out: Dict[str, Dict[str, Tuple[float, float]]] = {}
-    for name in THEMES:
+    for name in (THEMES if names is None else names):
         rows = {}
         for role in SPACEOUT_INK_ROLES:
             band = _ink_band(name, role)
@@ -1585,10 +1679,12 @@ def _apply_dressing() -> None:
             solved, bands, damping = _solve_scrims(), {}, {}
         else:
             _INK_BANDS.clear()
-            damping = _solve_page_damping()
+            _DRESSED.clear()
+            _DRESSED.update(DRESSED_EAGERLY)
+            damping = _solve_page_damping(DRESSED_EAGERLY)
             SCRIM_ALPHA.clear()
             SCRIM_ALPHA.update(_solve_scrims_over_drift())
-            bands = _solve_ink_bands()
+            bands = _solve_ink_bands(DRESSED_EAGERLY)
             _INK_BANDS.update(bands)
             solved = _solve_scrims_over_drift()
         _SOLVED_SCRIMS[_SPACEOUT] = solved
@@ -1647,11 +1743,54 @@ def palette_for(theme: str = "dark") -> dict:
     out = dict(base)
     out.update(CONSTANT_ROLES)
     if _SPACEOUT:
+        if _SOLVE_DRIFT is None:
+            _dress_theme(theme)
         drift = (spaceout_drift_step() if _SOLVE_DRIFT is None
                  else _SOLVE_DRIFT)
         out = spaceout_palette(out, drift, theme if _SOLVE_INK else None)
     out.update(_splash_roles(out))
     return out
+
+
+def button_accent_text(palette: Optional[dict] = None) -> str:
+    """The colour for TEXT drawn in the button accent straight on the page.
+
+    ``button_accent`` is the same blue on every theme (see
+    :data:`CONSTANT_ROLES`), and as a fill or an outline it is. As the ink
+    of an outlined button's caption it is not readable on a light page:
+    #4A9EFF on the light theme's page is about 2.2:1, and on Glass's
+    lightest panel it is 3.9:1. So the caption takes the first of a short
+    list that clears 4.5:1 on every panel the theme has: on a dark theme
+    the constant blue, then its lighter ``button_accent_hi``; on a light
+    theme the theme's darker ``accent_hi``, then ``accent_lo``. The ink
+    itself is the last resort, which clears it on any theme that passes
+    its own contrast rules.
+
+    Derived on request rather than stored as a palette role, so the spaceout
+    dressing (which re-hues every stored role) needs no entry for it.
+
+    :param palette: a palette carrying ``bg``, ``fg`` and the accent roles;
+        :func:`active_palette` when omitted.
+    :returns: a hex colour.
+    """
+    if palette is None:
+        palette = active_palette()
+    constant = palette.get("button_accent", CONSTANT_ROLES["button_accent"])
+    try:
+        light = relative_luminance(palette["bg"]) > relative_luminance(
+            palette["fg"])
+        surfaces = [palette[role] for role in PAGE_SURFACES
+                    if role in palette]
+        order = (("accent_hi", "accent_lo", "fg") if light else
+                 ("button_accent", "button_accent_hi", "fg"))
+        for role in order:
+            ink = palette.get(role)
+            if ink and all(contrast_ratio(ink, surface) >= 4.5
+                           for surface in surfaces):
+                return ink
+    except (KeyError, TypeError, ValueError):
+        return constant
+    return palette.get("fg", constant)
 
 
 def active_palette() -> dict:
@@ -2202,13 +2341,22 @@ TYPOGRAPHY = {
 }
 
 
-def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
+def apply_qpalette(app: QApplication, theme: str = "dark", *,
+                   follow_system: bool = False) -> None:
     """Apply the palette to the QApplication so native controls (menu
     bars, tooltips, dialogs) match the QSS-styled widgets.
 
+    The platform is told the theme's scheme first (see
+    :func:`hold_the_colour_scheme`), so a theme change the operating system
+    reports afterwards cannot repaint the roles set here. Disabled text is
+    the dim ink, so a disabled control reads as disabled on every theme.
+
     :param app: the running QApplication.
     :param theme: one of :data:`THEMES`; unknown values fall back to dark.
+    :param follow_system: release the scheme to the operating system
+        instead of pinning it; the explicit "Follow system" choice.
     """
+    hold_the_colour_scheme(app, None if follow_system else theme)
     P = palette_for(theme)
     p = app.palette()
     p.setColor(QPalette.Window,          QColor(P["bg"]))
@@ -2230,7 +2378,141 @@ def apply_qpalette(app: QApplication, theme: str = "dark") -> None:
     p.setColor(QPalette.Midlight,        QColor(P["border_soft"]))
     p.setColor(QPalette.Dark,            QColor(P["surface_alt"]))
     p.setColor(QPalette.Shadow,          QColor("#000000"))
+    for role in (QPalette.WindowText, QPalette.Text, QPalette.ButtonText):
+        p.setColor(QPalette.Disabled, role, QColor(P["fg_dim"]))
     app.setPalette(p)
+
+
+def scheme_of(theme: str) -> str:
+    """``"light"`` or ``"dark"``: which way ``theme`` draws its text.
+
+    Read off the palette rather than listed, so a new theme needs no entry
+    here: a theme whose page is brighter than its ink is a light theme.
+
+    :param theme: one of :data:`THEMES`.
+    :returns: ``"light"`` when the page outshines the ink, else ``"dark"``.
+    """
+    P = palette_for(theme)
+    return ("light" if relative_luminance(P["bg"])
+            > relative_luminance(P["fg"]) else "dark")
+
+
+def _colour_scheme_enum():
+    """``Qt.ColorScheme``, or ``None`` on a Qt that predates it (6.5)."""
+    return getattr(Qt, "ColorScheme", None)
+
+
+def system_colour_scheme(app=None) -> Optional[str]:
+    """What the operating system's own light/dark setting is, if Qt knows.
+
+    Any scheme spaCR asked for earlier is released first
+    (``QStyleHints.unsetColorScheme``, Qt 6.8+), so the answer is the
+    platform's -- macOS appearance, the Windows app mode, or the GTK/KDE
+    preference on Linux -- and not an echo of what spaCR requested. Only
+    the ``"system"`` theme calls this.
+
+    :param app: the running application; ``QApplication.instance()`` when
+        omitted.
+    :returns: ``"dark"``, ``"light"``, or ``None`` when Qt cannot tell
+        (the offscreen platform, a desktop with no preference, Qt < 6.5).
+    """
+    app = app or QApplication.instance()
+    scheme = _colour_scheme_enum()
+    if app is None or scheme is None:
+        return None
+    try:
+        hints = app.styleHints()
+        if hasattr(hints, "unsetColorScheme"):
+            hints.unsetColorScheme()
+        current = hints.colorScheme()
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not read the system colour scheme", exc_info=True)
+        return None
+    if current == scheme.Dark:
+        return "dark"
+    if current == scheme.Light:
+        return "light"
+    return None
+
+
+def hold_the_colour_scheme(app, theme: Optional[str]) -> bool:
+    """Tell the platform which scheme spaCR draws in, so it cannot differ.
+
+    Qt 6.8 added ``QStyleHints.setColorScheme``. Without it a Mac in light
+    appearance draws spaCR's title bar, native menus and file dialogs light
+    around a dark window, and Windows does the same with its title bar; on
+    Linux the GTK and KDE platform themes feed their own palette to the
+    style. Setting it pins those to the theme in force. ``None`` releases
+    the request, which is what the explicit "Follow system" choice wants.
+
+    A no-op returning ``False`` on a Qt older than 6.8, where the palette
+    and stylesheet (and the Fusion style :func:`use_a_style_that_honours_the_palette`
+    installs) still carry the colours.
+
+    :param app: the running application.
+    :param theme: a theme from :data:`THEMES`, or ``None`` to follow the
+        system again.
+    :returns: ``True`` when the request reached Qt.
+    """
+    scheme = _colour_scheme_enum()
+    if app is None or scheme is None:
+        return False
+    try:
+        hints = app.styleHints()
+        if not hasattr(hints, "setColorScheme"):
+            return False
+        if theme is None:
+            if hasattr(hints, "unsetColorScheme"):
+                hints.unsetColorScheme()
+            else:
+                hints.setColorScheme(scheme.Unknown)
+            return True
+        wanted = (scheme.Light if scheme_of(theme) == "light"
+                  else scheme.Dark)
+        if hints.colorScheme() != wanted:
+            hints.setColorScheme(wanted)
+        return True
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("could not hold the colour scheme", exc_info=True)
+        return False
+
+
+def use_a_style_that_honours_the_palette(app=None, environ=None) -> str:
+    """Put the application on Fusion unless somebody asked for a style.
+
+    spaCR's stylesheet is written against Fusion, which draws every control
+    from the palette. The native macOS and Windows styles draw some of them
+    -- combo boxes, spin-box buttons, scroll bars, the parts of a control no
+    rule reaches -- from the operating system's own light or dark setting,
+    which is how a dark spaCR came out with light fields on a light Mac.
+
+    Left alone when ``QT_STYLE_OVERRIDE`` is set: that is somebody choosing
+    a style on purpose. (``launch`` hands Qt only the program name, so a
+    ``-style`` argument never reaches Qt and needs no exception here.)
+
+    :param app: the application; ``QApplication.instance()`` when omitted.
+    :param environ: environment to consult; ``os.environ`` when omitted.
+    :returns: the name of the style in force afterwards, lower case.
+    """
+    import os
+
+    from PySide6.QtWidgets import QStyleFactory
+
+    app = app or QApplication.instance()
+    if app is None:
+        return ""
+    environ = os.environ if environ is None else environ
+    current = str(app.style().name() if app.style() else "").lower()
+    asked = bool(str(environ.get("QT_STYLE_OVERRIDE", "")).strip())
+    if asked or current == "fusion":
+        return current
+    fusion = QStyleFactory.create("Fusion")
+    if fusion is None:
+        return current
+    app.setStyle(fusion)
+    LOG.info("style %r replaced by Fusion so the theme's palette holds",
+             current)
+    return "fusion"
 
 
 #: Dynamic property that marks a widget as a *page surface*: something
@@ -2787,6 +3069,7 @@ WIDGET_QSS_MODULES: Tuple[str, ...] = (
     "spacr.qt.screens.gate_editor",
     "spacr.qt.screens.hit_list",
     "spacr.qt.screens.image_scatter",
+    "spacr.qt.screens.make_masks",
     "spacr.qt.screens.map_barcodes",
     "spacr.qt.screens.methods_export",
     "spacr.qt.screens.model_compare",
@@ -3009,6 +3292,13 @@ _WINDOW_SHEET_BASE_DIGEST = "_spacr_window_stylesheet_base_digest"
 #: test artefact.
 _WINDOW_OWN_SHEET = "_spacr_window_own_stylesheet"
 
+#: Set on a widget whose sheet is owed and not yet paid: its own rule was
+#: given while it was still being built, so the sheet waits for the widget's
+#: first `Polish` as a page or its first `Show`. See
+#: :func:`_the_sheet_can_wait_for_the_show`. Cleared by
+#: :func:`_sheet_one_window` the moment the sheet lands.
+_WINDOW_SHEET_WAITS = "_spacr_window_stylesheet_waits_for_its_show"
+
 #: The one filter instance, kept off the QApplication's children so it is
 #: not collected.
 _WINDOW_SHEET_FILTER = None
@@ -3134,6 +3424,63 @@ def _a_window_for_want_of_a_parent(widget) -> bool:
     )
 
 
+#: Marks a menu whose sheet has been moved from its ``Polish`` to its
+#: ``aboutToShow``, so the connection is made once however many times Qt
+#: polishes it.
+_SHEETS_AT_ABOUT_TO_SHOW = "_spacr_sheets_at_about_to_show"
+
+
+def _sheet_the_menu_behind(reference) -> None:
+    """Sheet the menu ``reference`` still points at, if it is still there."""
+    widget = reference()
+    if widget is None:
+        return
+    try:
+        for root in _roots_for(widget):
+            _sheet_one_window(root)
+    except (AttributeError, RuntimeError):
+        pass
+
+
+def _sheets_itself_before_it_shows(widget) -> bool:
+    """Move a menu's sheet from its ``Polish`` to its ``aboutToShow``.
+
+    WHY A MENU IS NOT LIKE A DIALOG. One Regression open polishes about
+    five hundred popups -- the page's plots alone bring 351 parentless
+    QMenus, pyqtgraph's ViewBoxMenu and its submenus among them -- and
+    sheeting them all at ``Polish`` cost about 825 ms of the open. Almost
+    none of them is ever shown.
+
+    ``aboutToShow`` is emitted by ``QMenu.popup`` and ``QMenu.exec``
+    BEFORE Qt measures the menu, so a menu sheeted there has the same
+    geometry it would have had sheeted at its polish, and a menu nobody
+    opens is never sheeted at all. This is preferred over letting
+    a parented popup inherit its page's sheet, which would also have
+    covered a QComboBox's popup -- a QFrame with no such signal -- but
+    would have let a page's registered blocks reach inside its menus.
+
+    ``Show`` REMAINS THE BELT TO THIS BRACE. A menu shown by ``show()``
+    rather than ``popup()`` emits no ``aboutToShow``, and is sheeted at
+    its ``Show`` like any other window, so nothing goes unsheeted.
+
+    :param widget: the window being polished.
+    :returns: True when the sheet is now that menu's own business and the
+        polish should leave it alone.
+    """
+    signal = getattr(widget, "aboutToShow", None)
+    if signal is None or not hasattr(signal, "connect"):
+        return False
+    try:
+        if widget.property(_SHEETS_AT_ABOUT_TO_SHOW):
+            return True
+        widget.setProperty(_SHEETS_AT_ABOUT_TO_SHOW, True)
+        signal.connect(
+            partial(_sheet_the_menu_behind, weakref.ref(widget)))
+    except (AttributeError, RuntimeError):
+        return False
+    return True
+
+
 class _SheetsEveryWindowThatAppears(QObject):
     """Gives a window born after a theme change the theme, not the last one.
 
@@ -3181,9 +3528,11 @@ class _SheetsEveryWindowThatAppears(QObject):
         if kind in _SHEETING_MOMENTS:
             try:
                 if watched.isWindow():
-                    if (kind == QEvent.Polish
-                            and _a_window_for_want_of_a_parent(watched)):
-                        return False
+                    if kind == QEvent.Polish:
+                        if _a_window_for_want_of_a_parent(watched):
+                            return False
+                        if _sheets_itself_before_it_shows(watched):
+                            return False
                     for root in _roots_for(watched):
                         _sheet_one_window(root)
                 elif watched.property(_SHEET_TARGET):
@@ -3264,9 +3613,72 @@ def _sheet_one_window(window) -> bool:
         window.setProperty(_WINDOW_SHEET_DIGEST, _sheet_digest(text))
         window.setProperty(_WINDOW_SHEET_BASE_LEN, len(sheet))
         window.setProperty(_WINDOW_SHEET_BASE_DIGEST, _sheet_digest(sheet))
+        if window.property(_WINDOW_SHEET_WAITS):
+            window.setProperty(_WINDOW_SHEET_WAITS, None)
     except (AttributeError, RuntimeError):
         return False
     return True
+
+
+def _the_sheet_can_wait_for_the_show(widget) -> bool:
+    """Can ``widget``'s sheet be put on at its first show instead of now?
+
+    A MODULE SCREEN WAS SHEETED FOUR TIMES BEFORE IT WAS FIRST PAINTED, and
+    each time Qt repolished every widget it had. Counted on one Regression
+    open (1,385 widgets), by wrapping ``QWidget.setStyleSheet``:
+
+        1. ``AppScreen._sync_page_palette``, still inside ``__init__``,
+           put the whole sheet on the parentless screen          668 ms
+        2. ``MainWindow._theme_screen`` appended the late blocks    829 ms
+        3. ``QStackedWidget.addWidget`` reparented a widget that
+           now carried a sheet, which Qt answers with a repolish
+           of the whole subtree (not a ``setStyleSheet``; counted
+           as 2,771 ``StyleChange`` events, the same as the others)
+        4. the page's ``Show`` put on the same text again           806 ms
+
+    Only the fourth is ever seen. The page is sheeted on its ``Show``
+    anyway -- it is a sheet target, and that is the design
+    :func:`mark_as_a_sheet_target` documents -- so the first two can be
+    written down instead of applied, and the third then costs nothing,
+    because a widget with no sheet joining a parent with no sheet is not
+    restyled by Qt at all.
+
+    THE SAME TEST AS THE ``Polish`` SKIP, for the same reason:
+    :func:`_a_window_for_want_of_a_parent` is what says a widget is still
+    being built and is neither shown nor anyone's child, so nothing can
+    render it yet. And only when a window sheet is in force -- without one
+    there is no ``Show`` that would pay the debt, so the rule is applied at
+    once exactly as before.
+
+    :param widget: the widget about to be given a sheet.
+    :returns: ``True`` to write the sheet down and apply it at the show.
+    """
+    app = QApplication.instance()
+    if app is None or getattr(app, _WINDOW_SHEET_ATTRIBUTE, None) is None:
+        return False
+    try:
+        return _a_window_for_want_of_a_parent(widget)
+    except (AttributeError, RuntimeError):
+        return False
+
+
+def _the_sheet_is_waiting(widget) -> bool:
+    """Is ``widget`` a page whose sheet has been written down and not applied?
+
+    :param widget: the root :func:`ensure_widget_qss_applied` was given.
+    :returns: ``True`` while the sheet the widget is owed has not landed
+        and nothing can see the widget, so a late block can join the debt
+        instead of costing a repolish of its own.
+    """
+    app = QApplication.instance()
+    if app is None or getattr(app, _WINDOW_SHEET_ATTRIBUTE, None) is None:
+        return False
+    try:
+        return bool(widget.property(_WINDOW_SHEET_WAITS)
+                    and widget.property(_SHEET_TARGET)
+                    and not widget.isVisible())
+    except (AttributeError, RuntimeError):
+        return False
 
 
 def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
@@ -3288,6 +3700,12 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
     preserve, which is every caller that never opted into spaCR styling and
     every test that does not apply a theme.
 
+    A WIDGET STILL BEING BUILT IS NOT SHEETED HERE. It is marked as a sheet
+    target and sheeted on its first ``Polish`` as a page or its first
+    ``Show``, which is before its first paint; see
+    :func:`_the_sheet_can_wait_for_the_show` for why, and for the three
+    repolishes of a whole module screen that saves.
+
     :param widget: the widget whose own rules are being replaced.
     :param rule: the QSS the widget owns, or ``""`` to own none.
     """
@@ -3295,6 +3713,12 @@ def set_a_sheeted_widgets_own_rule(widget, rule: str) -> None:
     try:
         widget.setProperty(_WINDOW_OWN_SHEET, rule)
         widget.setProperty(_WINDOW_SHEET_SERIAL, None)
+        if _the_sheet_can_wait_for_the_show(widget):
+            widget.setProperty(_WINDOW_SHEET_DIGEST,
+                               _sheet_digest(widget.styleSheet()))
+            widget.setProperty(_WINDOW_SHEET_WAITS, True)
+            mark_as_a_sheet_target(widget)
+            return
         if _sheet_one_window(widget):
             return
         widget.setStyleSheet(preserve_widget_qss_overlay(widget, rule))
@@ -3326,6 +3750,11 @@ def _forget_window_stylesheets(app=None) -> int:
     `HomePage inlines #000000 (dark bg)` under the light, cell and glass
     themes, in company and never alone.
 
+    A WIDGET WHOSE SHEET WAS STILL OWED is cleared of the debt here too --
+    the mark, the digest and the rule it was holding -- and its own rule is
+    put on, which is what it would have been wearing had no window sheet
+    ever existed. It is NOT counted: no sheet was ever on it to remove.
+
     :returns: the number of windows a sheet was removed from.
     """
     app = app or QApplication.instance()
@@ -3344,6 +3773,13 @@ def _forget_window_stylesheets(app=None) -> int:
         candidates = []
     for widget in candidates:
         try:
+            if widget.property(_WINDOW_SHEET_WAITS):
+                widget.setProperty(_WINDOW_SHEET_WAITS, None)
+                widget.setProperty(_WINDOW_SHEET_DIGEST, None)
+                own = str(widget.property(_WINDOW_OWN_SHEET) or "")
+                widget.setProperty(_WINDOW_OWN_SHEET, None)
+                widget.setStyleSheet(preserve_widget_qss_overlay(widget, own))
+                continue
             if widget.property(_WINDOW_SHEET_SERIAL) is None:
                 continue
             for stamp in (_WINDOW_SHEET_SERIAL, _WINDOW_SHEET_DIGEST,
@@ -3540,6 +3976,14 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
     is the exact defect this function was written for, reintroduced by the
     change that made the window the sheet's owner.
 
+    A ROOT WHOSE SHEET IS STILL OWED KEEPS THE BLOCKS AND IS NOT RESTYLED.
+    A module screen built after the theme is in force carries no sheet
+    until its first show, and :func:`_sheet_one_window` puts this suffix on
+    the end of the sheet it applies then. Applying it here as well would
+    repolish the whole screen once for the suffix and again when Qt
+    reparents it into the stack -- 829 ms and about as much again on a
+    Regression open, for a screen nobody could see yet.
+
     :returns: ``True`` only when ``root.setStyleSheet`` was called.
     """
     if root is None:
@@ -3573,6 +4017,8 @@ def ensure_widget_qss_applied(*names: str, root=None) -> bool:
         desired = base + suffix
         setattr(root, _LOCAL_WIDGET_QSS_ATTRIBUTE, suffix)
         if desired == current:
+            return False
+        if _the_sheet_is_waiting(root):
             return False
         root.setStyleSheet(desired)
     except (AttributeError, RuntimeError):
@@ -3731,9 +4177,8 @@ def stylesheet(theme: str = "dark", font_scale: float = 1.0,
     #:
     #: READ FROM :data:`MENU_BAR_ALPHA`, NOT WRITTEN AGAIN HERE. This was a
     #: second hand-written `0.94`, and it silently outranked the constant:
-    #: `MENU_BAR_ALPHA` was set to 1.0 when the maintainer looked at 0.94 on
-    #: a real screen and said "remove the transparency for the bar and it
-    #: will be perfect", `menu_bar_background()` returned `#0d0e10`
+    #: `MENU_BAR_ALPHA` was set to 1.0 to make the bar opaque on a real
+    #: screen, `menu_bar_background()` returned `#0d0e10`
     #: correctly, and the generated stylesheet went on emitting
     #: `rgba(13, 14, 16, 0.940)` because this line never asked.
     #:
@@ -4383,7 +4828,7 @@ QPushButton:disabled {{
 QPushButton#PrimaryButton,
 QPushButton[buttonActionRole="positive"] {{
     background-color: transparent;
-    color: {P["button_accent"]};
+    color: {button_accent_text(base)};
     border: 1px solid {P["button_accent"]};
     font-weight: 600;
     padding: {S["sm"]}px {S["lg"]}px;
@@ -4391,7 +4836,7 @@ QPushButton[buttonActionRole="positive"] {{
 QPushButton#PrimaryButton:hover,
 QPushButton[buttonActionRole="positive"]:hover {{
     background-color: {css_color(P["button_accent"], 0.18)};
-    color: {P["button_accent"]};
+    color: {button_accent_text(base)};
     border-color: {P["button_accent"]};
 }}
 QPushButton#PrimaryButton:pressed,
@@ -4501,6 +4946,7 @@ QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPlainTextEdit, QTextEdit {{
     padding: {S["xs"]}px {S["sm"]}px;
     selection-background-color: {P["accent"]};
     selection-color: {P["bg"]};
+    placeholder-text-color: {P["fg_dim"]};
 }}
 QPlainTextEdit#Console {{
     background-color: {CONSOLE_BG};
@@ -4525,13 +4971,10 @@ QComboBox:focus, QPlainTextEdit:focus, QTextEdit:focus {{
     border: 1px solid {P["accent"]};
 }}
 QLineEdit:disabled, QSpinBox:disabled, QDoubleSpinBox:disabled,
-QComboBox:disabled {{
+QComboBox:disabled, QPlainTextEdit:disabled, QTextEdit:disabled {{
     color: {P["fg_dim"]};
     background-color: {P["surface"]};
     border-color: {P["border_soft"]};
-}}
-QLineEdit::placeholder {{
-    color: {P["fg_dim"]};
 }}
 QSpinBox::up-button, QSpinBox::down-button,
 QDoubleSpinBox::up-button, QDoubleSpinBox::down-button {{
@@ -4899,6 +5342,41 @@ QTableCornerButton::section {{
     background-color: {P["surface_hi"]};
     border: none;
     border-radius: {R["sm"]}px;
+}}
+
+/* -----------------------------------------------------------------
+ *  Help search results (422)
+ * ----------------------------------------------------------------- */
+/* OPAQUE ON PURPOSE, and close to the only panel in the app that is.
+   Every other surface honours the page-opacity preference; this one is a
+   transient overlay that lands on top of the console, and at any alpha
+   below 1 the log's text shows through the result rows and neither is
+   readable. The field shipped with no rule here AT ALL -- the frame sets
+   autoFillBackground and WA_StyledBackground, both of which paint nothing
+   when no selector matches -- so the rows sat directly on the log with
+   the log's own words running between them.
+   The frame carries the surface and the border; the list and the note
+   inside it stay transparent so there is ONE box and not three, and the
+   rows keep the app's hover and selection colours from the view rules
+   above rather than inventing a second set. */
+QFrame#HelpSearchResults {{
+    background-color: {P["surface_hi"]};
+    border: 1px solid {P["border"]};
+    border-radius: {R["md"]}px;
+}}
+QLabel#HelpSearchNote {{
+    background-color: transparent;
+    color: {P["fg"]};
+    padding: {S["xs"]}px {S["sm"]}px;
+}}
+QListWidget#HelpSearchResultList {{
+    background-color: transparent;
+    border: none;
+}}
+QListWidget#HelpSearchResultList::item {{
+    background-color: transparent;
+    color: {P["fg"]};
+    padding: {S["xs"]}px {S["sm"]}px;
 }}
 
 /* -----------------------------------------------------------------

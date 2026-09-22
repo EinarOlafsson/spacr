@@ -1,0 +1,1910 @@
+{
+  "schema": 1,
+  "language": "sv",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "Hur en punkt blir en bas: vilken kanal som bär vilken bokstav, hur mycket ljusare än omgivningen en punkt måste vara för att räknas som en avläsning, och hur långt från en kärna en avläsning får ligga och ändå tillhöra kärnan. Detta är uppmätta egenskaper hos bildinsamlingen, inte personliga inställningar. Körningen rapporterar andelen biblioteksmatchningar, som visar om värdena är rätt."
+    },
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "Hur bildrutorna sammanfogas och hur kärnorna i varje sammanfogad brunn segmenteras: mikroskopets överlappning mellan grannrutor, segmenteringsfönstrens överlappning och modellen. Varje avläsning tilldelas kärnan som den ligger på eller strax intill. Modellen och diametern här avgör därför vilka objekt som kan få en streckkod."
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "Var bildrutorna läses och var resultaten skrivs: sekvenseringsmappen, inklusive undermappar, som genomsöks efter rutor namngivna efter förstoring, cykel, brunn, kanaler och position; fenotypmappen som placeras ovanpå; guidebiblioteket som avkodningarna matchas mot; och mappen som tar emot measurements.db och en rapport per brunn. Ange detta först. Alla andra OPS-grupper förutsätter att dessa värden är rätt."
+    },
+    {
+      "table": "ui",
+      "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849",
+      "translation": "(bool) drop_straight_tracks — ta bort de markerade spåren helt."
+    },
+    {
+      "table": "ui",
+      "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d",
+      "translation": "<b>Rapportera fel som GitHub-ärenden</b><br><span style='color:gray;'>Rapporterna skickas till det offentliga spaCR-projektet på GitHub, med sökvägar, namn och autentiseringsuppgifter maskerade. Om felrapportering är inställd på always, som är standard, skickar en misslyckad körning rapporten automatiskt en gång per fel när GitHub är inloggat nedan. Med ask visas knappen \"File as issue\" under konsolen, och rapporten skickas först när du trycker på Skicka rapport i förhandsgranskningen. Ändra detta under Hjälp → Konfigurera spaCR igen….</span>"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "translation": "En 4PL är symmetrisk kring sin mittpunkt. Verklig asymmetri förekommer, och en 4PL absorberar den genom att förskjuta EC50. En 5PL anpassar asymmetrin med ytterligare en parameter, kräver ytterligare en koncentration och visar om den extra parametern är motiverad."
+    },
+    {
+      "table": "ui",
+      "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
+      "translation": "En egen WAV-fil att spela som bakgrundsmusik i stället för spaCR:s. Lämna tomt för spaCR:s egen musik. Ingenting laddas upp eller kopieras: filen läses där den ligger, och även bakgrunden Resonance rör sig till denna musik."
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "translation": "En klar natt: indigo, violett, isblått och den bleka blåvioletta nyans som himlen behåller långt efter solnedgången."
+    },
+    {
+      "table": "ui",
+      "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395",
+      "translation": "Ett SQL-villkor för bildutsnittstabellens egna kolumner. Databasen öppnas skrivskyddad, så ingenting som skrivs här kan ändra den."
+    },
+    {
+      "table": "ui",
+      "key": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source_sha256": "98e856ee8d435fefddd711ab86c86d23e2ade0c2fcd5a3eb4de9080bfdbe8302",
+      "translation": "Med en mätdatabas kan du välja vilka objekt som ska bäddas in. En mapp med bildutsnitt använder varje PNG-fil i mappen."
+    },
+    {
+      "table": "ui",
+      "key": "A model is already downloading; wait for it to finish.",
+      "source": "A model is already downloading; wait for it to finish.",
+      "source_sha256": "465c707e736689c9df5a895cc2bea1d076cd7a2a119796a325e19a0d3efb55b0",
+      "translation": "En modell håller redan på att hämtas. Vänta tills hämtningen är klar."
+    },
+    {
+      "table": "ui",
+      "key": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source_sha256": "29b1b3c06239497242ecde6662ce724cd88573be8a2d193c54f8eaf1ba9e3b1e",
+      "translation": "Ett lågmält, loopat musikstycke i ljuduppsättningens tonart: syntmattor, ett plockat arpeggio med punkterat åttondelseko, mjuk subbas samt en diskret bastrumma på varje fjärdedel och en shaker som kommer och går i arrangemanget. Musiken är separat från övriga ljud, så du kan ha ljudåterkoppling utan musik. Den är avstängd på nivåerna Laptop och Extra Performance."
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "Ett stigande arpeggio som landar på tonartens grundton när en modulkörning lyckas, så att du märker det även när spaCR ligger i ett annat fönster."
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "En kort, lågmäld plockton i ljuduppsättningens tonart när du trycker på en knapp, omkopplare, flik, lista eller skjutreglage. Bekräftar att tryckningen registrerades, mer som en känsla än ett tydligt ljud."
+    },
+    {
+      "table": "ui",
+      "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
+      "translation": "En långsammare fallande tonföljd när en körning avbryts med ett fel, så att en lyckad och en misslyckad körning aldrig låter likadant. En körning som du stoppar själv är tyst."
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "translation": "En sol nära horisonten och det material som ljuset passerar genom: guld, bärnstensgult, blekt guld och mossgrönt."
+    },
+    {
+      "table": "ui",
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+      "translation": "En korrigeringsfaktor för tröskeln: Otsus nivå multipliceras med faktorn före användning. Över 1 är striktare, så objekt krymper och svaga objekt försvinner. Under 1 inkluderar svagare pixlar. 1 är Otsus egen nivå. Både Otsu-detektering och Live-förstoringsglasets Otsu-läge använder faktorn när ett område innehåller två tydliga populationer."
+    },
+    {
+      "table": "ui",
+      "key": "Add a model",
+      "source": "Add a model",
+      "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c",
+      "translation": "Lägg till en modell"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
+      "translation": "Lägg till fält"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "Lägger till spaCR:s DEBUG-meddelanden i loggfilerna i ~/.spacr/logs. Det låter också cellpose rapportera vilken modell som lästes in och registrerar vilka knappar du tryckte på. Denna information gör en felrapport användbar.\n\nAtt starta spaCR och öppna dess skärmar tog inte längre tid med detta på. Mätningen gjordes på en arbetsstation genom att öppna varje modul med funktionen på respektive av. Home var redo efter cirka 4 sekunder från kallstart i båda fallen. Den långsammaste modulen öppnades efter cirka 7 sekunder i båda fallen. Tiden för analyskörningar mättes inte.\n\nKonsolen visar fortfarande bara de nivåer du väljer för den på fliken Loggning. Denna omkopplare spårar inte varje funktionsanrop. Den spåraren är ett separat utvecklarverktyg och aktiveras inte här."
+    },
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf",
+      "translation": "Lägg till…"
+    },
+    {
+      "table": "ui",
+      "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca",
+      "translation": "En ännu tystare plockton när pekaren vilar på en aktiverad kontroll. Den väntar tills pekaren stannar och är sedan tyst en stund, så att rörelser över panelen aldrig blir en ström av ljud. Avstängd tills du slår på den här."
+    },
+    {
+      "table": "ui",
+      "key": "An install is still running",
+      "source": "An install is still running",
+      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
+      "translation": "En installation körs fortfarande"
+    },
+    {
+      "table": "ui",
+      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
+      "translation": "En annan installation körs fortfarande. Vänta tills den är klar, eller tryck på Avbryt under markeringarna."
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
+      "translation": "Tillämpa de aktiverade gränserna på masken som visas. Varje borttaget objekt listas nedanför, med den area och medelintensitet som bedömningen byggde på. Räknas som ett steg att ångra."
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
+      "translation": "Högst:"
+    },
+    {
+      "table": "ui",
+      "key": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source_sha256": "e809ad3fd8d8a417b00c30eae3e1cd7e3e030ae15d01341249b7621269ef6103",
+      "translation": "Bifoga mappen som modellen tränades på. Den packas till ett enda tar-arkiv och laddas upp bredvid kontrollpunkten. Stora mappar tar lång tid att packa och ladda upp; gränsen är ungefär 25 GB."
+    },
+    {
+      "table": "ui",
+      "key": "Building the index…",
+      "source": "Building the index…",
+      "source_sha256": "c2b8a7dd762f096d53c65a9ed94c5c96869156ecddd8c9f2f3318c4e42739572",
+      "translation": "Bygger indexet…"
+    },
+    {
+      "table": "ui",
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d",
+      "translation": "Avbrutet. Ingenting lämnades kvar."
+    },
+    {
+      "table": "ui",
+      "key": "Channels",
+      "source": "Channels",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+      "translation": "Kanaler"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a database or a folder first",
+      "source": "Choose a database or a folder first",
+      "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db",
+      "translation": "Välj en databas eller en mapp först"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of crop PNGs",
+      "source": "Choose a folder of crop PNGs",
+      "source_sha256": "f1ae9bf598a7536fe83f1edbee984350599a29decf82c1224e3b4097c381eb82",
+      "translation": "Välj en mapp med bildutsnitt i PNG-format"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source_sha256": "3bbbcf831239864e884a879bd8b086625e2b508286de9e30c68241a71c50c492",
+      "translation": "Välj en mätdatabas eller en mapp med bildutsnitt i PNG-format ovan och tryck sedan på Läs in bildutsnitt. En databas kan begränsas till en objektklass, en platta eller ett villkor som dess kolumner stöder."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs first.",
+      "source": "Choose a measurements database or a folder of crop PNGs first.",
+      "source_sha256": "f02e2721214ef384ce35edfb28538a2ec4eb29a6254a9f8323cf54e88c61f50c",
+      "translation": "Välj först en mätdatabas eller en mapp med bildutsnitt i PNG-format."
+    },
+    {
+      "table": "ui",
+      "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b",
+      "translation": "Välj hur kanalerna ska kodas och tryck sedan på Embed. Tabellen fylls med de första dimensionerna för varje objekt."
+    },
+    {
+      "table": "ui",
+      "key": "Choose music for the bed",
+      "source": "Choose music for the bed",
+      "source_sha256": "45eec11b1ba9a74ff88550860b2cb2a814386796d36eed9bc6ab1225ad5ded09",
+      "translation": "Välj bakgrundsmusik"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495",
+      "translation": "Klick"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8",
+      "translation": "Fyll hålen i det trösklade området innan objekten märks. En kärna som är svagare i mitten än längs kanten blir annars en ring. Förstoringsglasets Otsu-läge har alltid gjort detta, medan Otsu-detekteringen inte gjorde det. Därför kunde resultaten skilja sig för samma bildfält. Nu använder båda denna ruta."
+    },
+    {
+      "table": "ui",
+      "key": "Community uploads are not vetted",
+      "source": "Community uploads are not vetted",
+      "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+      "translation": "Uppladdningar från användare är inte granskade"
+    },
+    {
+      "table": "ui",
+      "key": "Could not fetch {name}: {why}",
+      "source": "Could not fetch {name}: {why}",
+      "source_sha256": "7623198840ea85fb5df52e279d21b6a54f8d2b451d069bef60d6fec827ea9afa",
+      "translation": "Kunde inte hämta {name}: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not file the issue: the reporter would not start.",
+      "source": "Could not file the issue: the reporter would not start.",
+      "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8",
+      "translation": "Kunde inte skapa ärendet: rapportverktyget kunde inte starta."
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {name}.",
+      "source": "Could not open {name}.",
+      "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0",
+      "translation": "Kunde inte öppna {name}."
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {url}",
+      "source": "Could not open {url}",
+      "source_sha256": "52923734f046f5f34c83f745983c0da3536ed231cb951c80ab89aa0564500f17",
+      "translation": "Kunde inte öppna {url}"
+    },
+    {
+      "table": "ui",
+      "key": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source_sha256": "8b9b5e482a8ef174411e0cedabdedbb082b748f9be3fdf40ae8841a9addc3b83",
+      "translation": "Räkna hur många bildfilnamn i källmappen konventionen kan tolka och visa det första som inte kan tolkas. Ingenting ändras eller skrivs."
+    },
+    {
+      "table": "ui",
+      "key": "Create a GitHub account",
+      "source": "Create a GitHub account",
+      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538",
+      "translation": "Skapa ett GitHub-konto"
+    },
+    {
+      "table": "ui",
+      "key": "Crops could not be loaded",
+      "source": "Crops could not be loaded",
+      "source_sha256": "43507e598078de1d2e4bb832761c216589c912922af7e77927bab4a79d48c518",
+      "translation": "Bildutsnitten kunde inte läsas in"
+    },
+    {
+      "table": "ui",
+      "key": "Crops from:",
+      "source": "Crops from:",
+      "source_sha256": "934c8569d887385d17ba8bf7a6ef90581317964142f35763b779de07ef08396a",
+      "translation": "Bildutsnitt från:"
+    },
+    {
+      "table": "ui",
+      "key": "Curve",
+      "source": "Curve",
+      "source_sha256": "2a45c07314b2cd56907c7df9dfabdadd2ed17521161b53292cf146ea6c45dc85",
+      "translation": "Kurva"
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751",
+      "translation": "Dela ett sammanhängande område med två centra vid åsen mellan dem, med watershed på avståndet till bakgrunden. Ett område med ett enda centrum lämnas helt, så funktionen delar inte alla objekt. När den är avstängd blir två celler som rör vid varandra ett enda objekt."
+    },
+    {
+      "table": "ui",
+      "key": "Deep water",
+      "source": "Deep water",
+      "source_sha256": "97c373b8cd487210fc0e6cf4636ded5e7cf7bc1648c96953b431e7176542e7de",
+      "translation": "Djupt vatten"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source_sha256": "bd59941dd8e4a85e42ffd4fb8c08afdeba2e024163d49831539a95fadfbdd623",
+      "translation": "Ta bort den valda beräkningsmotorns miljö och allt som laddats ner till den. spaCR:s egen miljö lämnas orörd."
+    },
+    {
+      "table": "ui",
+      "key": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "source": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "source_sha256": "c59da152ebd7649f753caec09e43acea9340b6c6c9b0113120ca067a3ad62e2f",
+      "translation": "Ska mörka objekt detekteras? Slå på Invert image i kategorin Display. Det inverterar både bilden du ser och pixlarna som dessa knappar och Live-förstoringsglaset använder. Fram till 2026-09-20 var detta två separata omkopplare, och den som granskade maskerna kunde ha den ena på utan den andra."
+    },
+    {
+      "table": "ui",
+      "key": "Dilate",
+      "source": "Dilate",
+      "source_sha256": "2e3e332f6015c3f2a2fa376605346790d166fa3f452d817da819a1882d4ab136",
+      "translation": "Utvidga"
+    },
+    {
+      "table": "ui",
+      "key": "Discard",
+      "source": "Discard",
+      "source_sha256": "eb1a70e39274bb762b5d7c1adb5debeea2b05e12af28207f21a375b596853273",
+      "translation": "Kassera"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed",
+      "source": "Download failed",
+      "source_sha256": "eae34ccbc4432c1358da668b091e7c952fe8be24b02dd4f8ec5ea2edef5ca1a4",
+      "translation": "Hämtningen misslyckades"
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
+      "translation": "Hämta tio exempelbildfält för Plaque Analysis och låt src peka på dem. Två datamängder finns att välja mellan: segmenterade plackfält, som plackmodellen tränades på, eller bilder av hela plattor, som analysflödet använder. Cachas efter den första hämtningen."
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}?",
+      "source": "Download {name}?",
+      "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053",
+      "translation": "Ladda ner {name}?"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}{size} into {folder}?",
+      "source": "Download {name}{size} into {folder}?",
+      "source_sha256": "e8f0bb5d5edb9bfc4290a5d57ead97f3b746f4768e306d90f9efb4b6dbe140f0",
+      "translation": "Hämta {name}{size} till {folder}?"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded {name}, but the folder would not open",
+      "source": "Downloaded {name}, but the folder would not open",
+      "source_sha256": "598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4",
+      "translation": "Hämtade {name}, men mappen kunde inte öppnas"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}",
+      "source": "Downloading {name}",
+      "source_sha256": "61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c",
+      "translation": "Hämtar {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name} in the background.",
+      "source": "Downloading {name} in the background.",
+      "source_sha256": "f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b",
+      "translation": "Hämtar {name} i bakgrunden."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}…",
+      "source": "Downloading {name}…",
+      "source_sha256": "6b324c87e43336f8cb3f4cc1589d188e76d98e442b768406b3fa6135a13a764c",
+      "translation": "Hämtar {name}…"
+    },
+    {
+      "table": "ui",
+      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+      "translation": "Rita bildfältets intensitetshistogram och markera den tröskelnivå som inställningarna ovan ger. Det är samma nivå som knappen använder, hämtad från samma funktion. Om markören ligger bredvid en dal i histogrammet är det därför korrigeringsfaktorn som ska ändras."
+    },
+    {
+      "table": "ui",
+      "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d",
+      "translation": "Släpp bilder och masker här, eller skriv ett reguljärt uttryck som sorterar dem. Rader är bildfält; kolumner är kanaler och masktyper."
+    },
+    {
+      "table": "ui",
+      "key": "Drop objects the image border cuts",
+      "source": "Drop objects the image border cuts",
+      "source_sha256": "61c81158a6c877c40aec7f3fc2549aaff4455e5fc2a0f58f3d9b862af536fd48",
+      "translation": "Ta bort objekt som skärs av bildkanten"
+    },
+    {
+      "table": "ui",
+      "key": "Dusk",
+      "source": "Dusk",
+      "source_sha256": "abd7160c1f46a06471bb88bd281a04bf2f32d195b618ae0fc9e095e19eb5ea6a",
+      "translation": "Skymning"
+    },
+    {
+      "table": "ui",
+      "key": "Enable — report a failed run as a GitHub issue",
+      "source": "Enable — report a failed run as a GitHub issue",
+      "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f",
+      "translation": "Aktivera — rapportera en misslyckad körning som ett GitHub-ärende"
+    },
+    {
+      "table": "ui",
+      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc",
+      "translation": "Varje gräns är avstängd vid 0. Filter tillämpar de gränser som är aktiverade, och samma sak sker när ett bildfält öppnas. Varje borttaget objekt listas nedanför."
+    },
+    {
+      "table": "ui",
+      "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "source_sha256": "8507419bf9faf24a18cf419021b9ea7e2ef42249bbb745cffb3366e6ebb40eed",
+      "translation": "Allt här är avstängt tills du slår på ljudet. Ljuden skapas av spaCR på den här datorn. Ingenting spelas in eller hämtas, och ljuden spelas på en egen tråd, så en saknad eller upptagen ljudenhet leder bara till tystnad."
+    },
+    {
+      "table": "ui",
+      "key": "Fetching community uploads…",
+      "source": "Fetching community uploads…",
+      "source_sha256": "2d24a0d4aa0d2b3289ff05ba3bb1ab18dc0303619352a74d1a4681c4e00b0617",
+      "translation": "Hämtar uppladdningar från gemenskapen…"
+    },
+    {
+      "table": "ui",
+      "key": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "source": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "source_sha256": "620209c5018abf6f1b76bbce6122700442e7200e454f94e0f979b90bb875dfa3",
+      "translation": "Filer som släpptes men inte matchade någon rad och kolumn. Inget här mäts."
+    },
+    {
+      "table": "ui",
+      "key": "Fill holes inside an object",
+      "source": "Fill holes inside an object",
+      "source_sha256": "435801ce592611dccfeaa141d681ac4d0813ba9242460018f0de502a6eabb95c",
+      "translation": "Fyll hål inuti ett objekt"
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
+      "translation": "Beräkna Otsus tröskelvärde separat i ett fönster runt varje pixel i stället för en gång för hela bildfältet. Ett svagt belyst hörn bedöms då utifrån sin egen omgivning, så att objekten där inte försvinner medan den ljusa mitten förblir ren. Det ger fler objekt i en brusig bakgrund; gränsen för minsta area tar bort dessa. Gäller endast två klasser och Otsu-detektering."
+    },
+    {
+      "table": "ui",
+      "key": "Find the database or the crop folder",
+      "source": "Find the database or the crop folder",
+      "source_sha256": "c50fe52a1984e63864c301091e6beb6b1759fa1ccc706e1cfa1616b0fc2af02e",
+      "translation": "Hitta databasen eller mappen med bildutsnitt"
+    },
+    {
+      "table": "ui",
+      "key": "Finish signing in to {label} in the window that opened, then press Done.",
+      "source": "Finish signing in to {label} in the window that opened, then press Done.",
+      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+      "translation": "Slutför inloggningen till {label} i fönstret som öppnades och tryck sedan på Klar."
+    },
+    {
+      "table": "ui",
+      "key": "Five-parameter logistic (asymmetric)",
+      "source": "Five-parameter logistic (asymmetric)",
+      "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736",
+      "translation": "Logistisk modell med fem parametrar (asymmetrisk)"
+    },
+    {
+      "table": "ui",
+      "key": "Folder this model was trained on",
+      "source": "Folder this model was trained on",
+      "source_sha256": "bfdffd274fbd3b8d7c7f482ef830d4ae1b2b162e854ed86764e2ee751cf883d8",
+      "translation": "Mappen som modellen tränades på"
+    },
+    {
+      "table": "ui",
+      "key": "Four-parameter logistic (symmetric)",
+      "source": "Four-parameter logistic (symmetric)",
+      "source_sha256": "b4158837e924edf5b918bf36797c7a7dcd820194e2f64c97cc4a8e9a75a7b4e5",
+      "translation": "Logistisk modell med fyra parametrar (symmetrisk)"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146",
+      "translation": "Gaussisk utjämning, i pixlar, innan tröskelvärdet beräknas och används för att dela upp bilden. Detta hindrar ett brusigt bildfält från att ge tusentals objekt som består av en enda pixel. Med 0 tillämpas tröskeln direkt på rådata."
+    },
+    {
+      "table": "ui",
+      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a",
+      "translation": "Inloggningen till GitHub avbröts innan den var klar. Tryck på Logga in för att försöka igen."
+    },
+    {
+      "table": "ui",
+      "key": "Grow / shrink:",
+      "source": "Grow / shrink:",
+      "source_sha256": "6c6fc0076d7288997b218fa43d08c6fd2d8e5f77ad223c95292e901c6e54aff6",
+      "translation": "Utvidga / krymp:"
+    },
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972",
+      "translation": "Utvidga varje objekt med så många pixlar, endast in i bakgrunden. Ett objekt tar aldrig en pixel från sin granne, och två objekt slås aldrig samman. Därför behålls både objektens ID och antalet objekt. Kan ångras i ett steg."
+    },
+    {
+      "table": "ui",
+      "key": "Hover",
+      "source": "Hover",
+      "source_sha256": "c76ae86ad3014c852af277f5be355d149bf02287b4a04a7911bbc1614ffec4db",
+      "translation": "Pekarhovring"
+    },
+    {
+      "table": "ui",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "Hur en punkt blir en bas: vilken kanal som bär vilken bokstav, hur mycket ljusare än omgivningen en punkt måste vara för att räknas som en avläsning, och hur långt från en kärna en avläsning får ligga och ändå tillhöra kärnan. Detta är uppmätta egenskaper hos bildinsamlingen, inte personliga inställningar. Körningen rapporterar andelen biblioteksmatchningar, som visar om värdena är rätt."
+    },
+    {
+      "table": "ui",
+      "key": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "source": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "source_sha256": "2ff97b2808fb54bb59b72f02ad6d40fb5abac516936062d679c9383636f67cff",
+      "translation": "Volymen för alla spaCR-ljud, från tyst till full volym. Bakgrundsmusiken spelas alltid tystare än de andra ljuden."
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+      "translation": "Antalet intensitetsklasser som bildfältet delas upp i. 2 är Otsus ursprungliga indelning, med ett tröskelvärde mellan bakgrund och objekt. Öka antalet när bildfältet innehåller fler än två populationer, till exempel bakgrund, en svag halo och ljusa kärnor. Då flyttas tröskeln från en gemensam kompromiss för alla tre till den gräns du vill använda och väljer nedan. Gäller endast Otsu-detektering."
+    },
+    {
+      "table": "ui",
+      "key": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "source": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "source_sha256": "b61cea307d14ff759a572ea63d34af6b297031973807bdcdd9cd2e516d1b3a26",
+      "translation": "Hur många intensitetskanaler varje fält har. En kolumn läggs till per kanal, och kanalnumreringen av den sammanslagna arrayen följer kolumnordningen."
+    },
+    {
+      "table": "ui",
+      "key": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "source": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "source_sha256": "06a81e9b743c53acb3c923748e2696911350c711e84d1c1a482cb044b6ef9e72",
+      "translation": "Hur många av de matchande bildutsnitten som ska läsas in. Resten räknas och anges, så inget utelämnas utan besked."
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5",
+      "translation": "Hur många pixlar ett tryck på Utvidga eller Krymp flyttar varje objekts gräns. Avståndet mäts längs en rak linje, så 1 flyttar kanten till de fyra närmaste grannpixlarna men inte till hörnen. Krymp återställer en lika stor utvidgning av ett objekt som hade utrymme att växa."
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1",
+      "translation": "Hur lätt Otsu-läget accepterar ett objekt. Höj värdet för att ta med svagare eller mer osäkra objekt, och sänk det för att bara behålla tydliga objekt. 0 ger standardtröskeln. Modellerna hämtar i stället sina tröskelvärden från inställningarna för objektdetektering, så kontrollen är inaktiverad när ett annat läge är valt."
+    },
+    {
+      "table": "ui",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "Hur bildrutorna sammanfogas och hur kärnorna i varje sammanfogad brunn segmenteras: mikroskopets överlappning mellan grannrutor, segmenteringsfönstrens överlappning och modellen. Varje avläsning tilldelas kärnan som den ligger på eller strax intill. Modellen och diametern här avgör därför vilka objekt som kan få en streckkod."
+    },
+    {
+      "table": "ui",
+      "key": "Hugging Face login needed",
+      "source": "Hugging Face login needed",
+      "source_sha256": "e793beaf0a9d9ac901eaa3c4e42300b6fcae760f1ad45d3d03f389d1c76b426c",
+      "translation": "Inloggning till Hugging Face krävs"
+    },
+    {
+      "table": "ui",
+      "key": "Install",
+      "source": "Install",
+      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
+      "translation": "Installera"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}",
+      "source": "Install runs:\n    {command}",
+      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3",
+      "translation": "Installationen kör:\n    {command}"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e",
+      "translation": "Installationen kör:\n    {command}\n\nDärefter startar inloggningen hos GitHub."
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}",
+      "source": "Install {name}",
+      "source_sha256": "15d27e180bc64b4b3219b11337fa5e748c69724a16fc7b9918b5994ddaad2e9f",
+      "translation": "Installera {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}?",
+      "source": "Install {name}?",
+      "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e",
+      "translation": "Installera {name}?"
+    },
+    {
+      "table": "ui",
+      "key": "Installing {label}…",
+      "source": "Installing {label}…",
+      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+      "translation": "Installerar {label}…"
+    },
+    {
+      "table": "ui",
+      "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+      "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+      "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535",
+      "translation": "Invertering för detektering är på: alla masker från objektdetektering, Otsu-detektering och det levande förstoringsglaset skapas från den INVERTERADE bilden. Avläsningen och kategorin Filter visar fortfarande bildens verkliga värden. 'Invert image' under Display är en separat inställning som bara ändrar visningen."
+    },
+    {
+      "table": "ui",
+      "key": "Invert image",
+      "source": "Invert image",
+      "source_sha256": "4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613",
+      "translation": "Invertera bilden"
+    },
+    {
+      "table": "ui",
+      "key": "Keep",
+      "source": "Keep",
+      "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585",
+      "translation": "Behåll"
+    },
+    {
+      "table": "ui",
+      "key": "Keep installing",
+      "source": "Keep installing",
+      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d",
+      "translation": "Fortsätt installera"
+    },
+    {
+      "table": "ui",
+      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f",
+      "translation": "Låt skärmen vara öppen tills installationen är klar, eller stoppa den och installera senare via Hjälp > Konfigurera spaCR igen…"
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602",
+      "translation": "Uteslut objekt som skärs av bildfältets kant. Deras area och medelintensitet beror på var bilden beskars, snarare än på hela objektet, så objekt som ska mätas bör inte omfatta dessa. Gäller endast Otsu-detektering: det levande förstoringsglaset har en egen inställning för objekt vid rutans kant."
+    },
+    {
+      "table": "ui",
+      "key": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "source": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "source_sha256": "08f075cd8d7c276a8437c84e93bc6e01d37ba0290019d2fe32545f515141a80a",
+      "translation": "Lista en modellfil du redan har, och dela den valfritt på Hugging Face så att andra kan använda den."
+    },
+    {
+      "table": "ui",
+      "key": "Load crops",
+      "source": "Load crops",
+      "source_sha256": "961195a44adea5d5ea9dcbf96604cdc656ba21f22b85e6f2a890151166ebe5c6",
+      "translation": "Läs in bildutsnitt"
+    },
+    {
+      "table": "ui",
+      "key": "Loading stopped",
+      "source": "Loading stopped",
+      "source_sha256": "1eea9acc4dc3681339c6553679ff9be9c15e56f587e82ec78e99e5526de799cf",
+      "translation": "Inläsningen stoppades"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold (uneven illumination)",
+      "source": "Local threshold (uneven illumination)",
+      "source_sha256": "96ed765787b60b41e78cc401115d499d7fe9c4ac591ce1644c57046880986ede",
+      "translation": "Lokalt tröskelvärde (ojämn belysning)"
+    },
+    {
+      "table": "ui",
+      "key": "Looking at what was dropped...",
+      "source": "Looking at what was dropped...",
+      "source_sha256": "1b1608ebc6fa39b28be25ef5a56145ec7eb21f1f9ddb32de862991e25f601316",
+      "translation": "Granskar det som släpptes…"
+    },
+    {
+      "table": "ui",
+      "key": "Low sun",
+      "source": "Low sun",
+      "source_sha256": "d4db8b6e7c0a115bf73963503aedbc431cfb19511f69b817062d191690fccf58",
+      "translation": "Låg sol"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "source": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "source_sha256": "77f7b81640137d3d4f9288f9d8a3649452c81f476e61b898c3e5a461aa6fb646",
+      "translation": "Förstoringsglas: segmenterar detta område. Objekten läggs till så snart rutan är uppdaterad."
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "source": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "source_sha256": "1a2a4e5767b267247bbf197d654889cb02e0e8981c1e515574284dcef7eed774",
+      "translation": "Förstoringsglas: {mode} kunde inte köras ({reason}); Otsu-läget segmenterar i stället."
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b",
+      "translation": "Markera detta bildfält för bortval och gå vidare till nästa. Inget raderas: beslutet skrivs till csv/keep_discard.csv bredvid bilderna, och bildfältet, masken och objekten lämnas oförändrade."
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9",
+      "translation": "Markera detta bildfält för att behålla det och gå vidare till nästa. Beslutet skrivs till csv/keep_discard.csv bredvid bilderna, tillsammans med bilden, masken och antalet objekt som masken innehåller just nu."
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
+      "translation": "Mät maskerna du ritade. Öppnar en tabell där varje rad är ett bildfält och varje kolumn är en kanal eller en masktyp. Körningen använder själva modulen Measure, så mapparna och mätdatabasen är desamma som vid en vanlig Measure-körning."
+    },
+    {
+      "table": "ui",
+      "key": "Midnight",
+      "source": "Midnight",
+      "source_sha256": "aa996cf21f0dbc617e27fac13ab13916a07944c2de10c2dbcd60b95a6023f80b",
+      "translation": "Midnatt"
+    },
+    {
+      "table": "ui",
+      "key": "Music bed",
+      "source": "Music bed",
+      "source_sha256": "a3b649dac67ac6d7354ee7ae235ba3b4c86dc950876b264506e55dade0e51a27",
+      "translation": "Bakgrundsmusik"
+    },
+    {
+      "table": "ui",
+      "key": "Music file",
+      "source": "Music file",
+      "source_sha256": "f3fe30b19b7809364629d45361514644c36b8ece3e725968271d8177287b780b",
+      "translation": "Musikfil"
+    },
+    {
+      "table": "ui",
+      "key": "No Hugging Face token was found, so nothing was uploaded.\n\nRun `huggingface-cli login`, or set HF_TOKEN, and press Add again. spaCR does not ship a token of its own: one that could upload could also delete, and it would be readable by anyone who installs spaCR.",
+      "source": "No Hugging Face token was found, so nothing was uploaded.\n\nRun `huggingface-cli login`, or set HF_TOKEN, and press Add again. spaCR does not ship a token of its own: one that could upload could also delete, and it would be readable by anyone who installs spaCR.",
+      "source_sha256": "76a7687e41054ea69fc51cf6916b4e9d1558585b30cb5cda5a12eabde8a1c808",
+      "translation": "Ingen Hugging Face-token hittades, så inget laddades upp.\n\nKör `huggingface-cli login` eller ange HF_TOKEN, och tryck på Lägg till igen. spaCR levereras inte med en egen token: en token som tillåter uppladdning skulle även tillåta radering och skulle kunna läsas av alla som installerar spaCR."
+    },
+    {
+      "table": "ui",
+      "key": "No crops",
+      "source": "No crops",
+      "source_sha256": "0abe50cdfc1d501b56ab95435a4df058cacff9af2759c4fd31936c52900279c8",
+      "translation": "Inga bildutsnitt"
+    },
+    {
+      "table": "ui",
+      "key": "No crops loaded",
+      "source": "No crops loaded",
+      "source_sha256": "5c265b356c133247701716b87665b28fcfaf8418ddc632d11c094c7c0af7c3e1",
+      "translation": "Inga bildutsnitt har lästs in"
+    },
+    {
+      "table": "ui",
+      "key": "No description is stored for this entry.",
+      "source": "No description is stored for this entry.",
+      "source_sha256": "1eaa38ae4e410e2b3e22b72140c907a0de7da50f0e33e007ea0064e989a7c3e2",
+      "translation": "Ingen beskrivning sparas för denna post."
+    },
+    {
+      "table": "ui",
+      "key": "No training data attached (optional)",
+      "source": "No training data attached (optional)",
+      "source_sha256": "a3a8016f98f21f8f1ff8858b0ee852a32a3e4b310aa26480a943b2fee846f204",
+      "translation": "Inga träningsdata bifogade (valfritt)"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing called “{query}”.",
+      "source": "Nothing called “{query}”.",
+      "source_sha256": "f60811b08688ba3184efb7fa24ee0098f41b9e64a9c57ad948f59d3b89404809",
+      "translation": "Inget med namnet ”{query}”."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing has been removed. Set a bound above and press Filter.",
+      "source": "Nothing has been removed. Set a bound above and press Filter.",
+      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76",
+      "translation": "Inget har tagits bort. Ställ in en gräns ovanför och tryck på Filter."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing was left over.",
+      "source": "Nothing was left over.",
+      "source_sha256": "33fc6a5f86dd29b72015541549e16c2e3402e45a9f4ec82f0419952f67a31dde",
+      "translation": "Inget blev över."
+    },
+    {
+      "table": "ui",
+      "key": "Object detection",
+      "source": "Object detection",
+      "source_sha256": "9da55c68bc3e40ebc39b47819f493033adcedc40eb4ba23af0d794225860c6a8",
+      "translation": "Objektdetektering"
+    },
+    {
+      "table": "ui",
+      "key": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "source": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "source_sha256": "e60e4cb715da884aa8d2416349ae12b445fb39576f8f719fc481d1c27581a86e",
+      "translation": "Objektdetekteringen hittade inga objekt. Masken är oförändrad. Fliken Cellsannolikhet visar underlaget för detekteringen."
+    },
+    {
+      "table": "ui",
+      "key": "Object:",
+      "source": "Object:",
+      "source_sha256": "599fda49722612926873592c9db081c7a0379dc2c828989030ceb867f8c2eb41",
+      "translation": "Objekt:"
+    },
+    {
+      "table": "ui",
+      "key": "Objects are brighter than background",
+      "source": "Objects are brighter than background",
+      "source_sha256": "becac3876b3e17f23be849eb7047a6ab5e5bed2e29e32603da84c48d953675b6",
+      "translation": "Objekt är ljusare än bakgrund"
+    },
+    {
+      "table": "ui",
+      "key": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "source": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "source_sha256": "f438ff85eb02656e6b0e35ec48f1dce01252a4d61648d45f9be92d710212a049",
+      "translation": "Objekt vars area understiger Min area under Objektoperationer tas bort efter trösklingen."
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "source": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "source_sha256": "c4e2d71fb4d222774d90a667622936fc48921bea30681a9d319e9673c259d4eb",
+      "translation": "Avstängt som standard. När ljudet är avstängt laddar spaCR inget ljudbibliotek och spelar ingenting. När det är på spelar spaCR de ljud som aktiveras nedan genom datorns förvalda ljudutgång."
+    },
+    {
+      "table": "ui",
+      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+      "translation": "Erbjuder installation av GitHub CLI och startar sedan inloggningen. Utan det går det fortfarande att skicka ett ärende: det öppnas i webbläsaren där du redan är inloggad."
+    },
+    {
+      "table": "ui",
+      "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
+      "translation": "På som standard. När detta är på sparar en felrapport de senaste loggraderna i en fil på denna dator, med sökvägar och autentiseringsuppgifter maskerade, och anger filnamnet i rapporten. Själva loggen publiceras aldrig på GitHub."
+    },
+    {
+      "table": "ui",
+      "key": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "source": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "source_sha256": "7b4dc1d17969c13994b322285122e015e6d7f0b981b5f0edffa5d90ced3c8769",
+      "translation": "En platta eller alla plattor. En skalfaktor skattas per körning, så en körning med två plattor skalar båda med samma tal."
+    },
+    {
+      "table": "ui",
+      "key": "Open a field first — a histogram needs an image.",
+      "source": "Open a field first — a histogram needs an image.",
+      "source_sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a",
+      "translation": "Öppna ett fält först — ett histogram behöver en bild."
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder before running Object detection.",
+      "source": "Open a folder before running Object detection.",
+      "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313",
+      "translation": "Öppna en mapp innan du kör objektdetektering."
+    },
+    {
+      "table": "ui",
+      "key": "Open a sample of a training dataset",
+      "source": "Open a sample of a training dataset",
+      "source_sha256": "4224e03e2d6d635713e1934bba639c52fa932bd0726fd4b06708f6f0c1cea2e1",
+      "translation": "Öppna ett urval av träningsdata"
+    },
+    {
+      "table": "ui",
+      "key": "Open the web page",
+      "source": "Open the web page",
+      "source_sha256": "93a40af6474d845293fcbb39ee7d8b4072c2d73773938e2b38d55355685abc7f",
+      "translation": "Öppna webbsidan"
+    },
+    {
+      "table": "ui",
+      "key": "Opened {name} in the browser",
+      "source": "Opened {name} in the browser",
+      "source_sha256": "08ed03ea302d598ebcfc6a231f893f0aadf952870681e45267acac9817f86630",
+      "translation": "Öppnade {name} i webbläsaren"
+    },
+    {
+      "table": "ui",
+      "key": "Opening {name}",
+      "source": "Opening {name}",
+      "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
+      "translation": "Öppnar {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+      "translation": "Öppnar registreringssidan för GitHub i webbläsaren. Kom tillbaka hit efteråt för att installera GitHub CLI och logga in."
+    },
+    {
+      "table": "ui",
+      "key": "Otsu",
+      "source": "Otsu",
+      "source_sha256": "d531f59693b2c545aaa1c737c30765e61298492ecc3a461e74d1b7e56e0a49ca",
+      "translation": "Otsus metod"
+    },
+    {
+      "table": "ui",
+      "key": "Plate name",
+      "source": "Plate name",
+      "source_sha256": "bf33cb086698ef8ac7881a38c9dd4c9769a27c1822cc1471247e37e88b6bdc6a",
+      "translation": "Plattnamn"
+    },
+    {
+      "table": "ui",
+      "key": "Play a few seconds of the music bed at the volume above.",
+      "source": "Play a few seconds of the music bed at the volume above.",
+      "source_sha256": "dd4622e2aae97cb792aadb78a1efbc4a2cee131b7538db25df47fa11bec79d79",
+      "translation": "Spela några sekunder av bakgrundsmusiken med volymen ovan."
+    },
+    {
+      "table": "ui",
+      "key": "Play sounds",
+      "source": "Play sounds",
+      "source_sha256": "2e802e9479575b872eac4f4e7d3d249281a76ce758935d75eb5f511c53ccdc81",
+      "translation": "Spela upp ljud"
+    },
+    {
+      "table": "ui",
+      "key": "Play this sound once at the volume above.",
+      "source": "Play this sound once at the volume above.",
+      "source_sha256": "f34bfc665d55fdd8bce9e3834d01f5ef46f30efc8bf6393071c31d81d4abad96",
+      "translation": "Spela upp detta ljud en gång med volymen ovan."
+    },
+    {
+      "table": "ui",
+      "key": "Press Re-apply to sort the files with this pattern.",
+      "source": "Press Re-apply to sort the files with this pattern.",
+      "source_sha256": "41071f15485d12e4ca3f566ceebb50d6eb8a313ea10ad4b0d9615efe722f873d",
+      "translation": "Tryck på Tillämpa igen för att sortera filerna med detta mönster."
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966",
+      "translation": "Flytta varje objekts gräns inåt med så många pixlar. Varje objekt krymps både från sina grannar och från bakgrunden, så två objekt som vidrörde varandra skiljs åt. ETT OBJEKT SOM ÄR TUNNARE ÄN TVÅ GÅNGER AVSTÅNDET FÖRSVINNER, och statusraden anger hur många som försvann. Kan ångras i ett steg."
+    },
+    {
+      "table": "ui",
+      "key": "Re-apply to all files",
+      "source": "Re-apply to all files",
+      "source_sha256": "63db7ac4a14a69b605949ffbf3c4d96f015690e834fd5fe8018c7677c6bcf274",
+      "translation": "Tillämpa igen på alla filer"
+    },
+    {
+      "table": "ui",
+      "key": "Read these crops",
+      "source": "Read these crops",
+      "source_sha256": "14c074ff048330089e58eafe3817c38b6735ccf922ee33bf7e82e15dc531b042",
+      "translation": "Läs dessa bildutsnitt"
+    },
+    {
+      "table": "ui",
+      "key": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "source": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "source_sha256": "f49a5d002853f15a48f50fc14c397b04c937c3da8faba2217dc7dc15ebfb0713",
+      "translation": "Ta bort alla objekt från detta bildfält. Du får först bekräfta, och åtgärden kan ångras i ett steg. Ett oavsiktligt tryck återställs alltså med Ctrl+Z."
+    },
+    {
+      "table": "ui",
+      "key": "Removing…",
+      "source": "Removing…",
+      "source_sha256": "d4b09919ec929f15c19802296a06e97a0d0862e29e23c453d638fc0c3b87c641",
+      "translation": "Tar bort…"
+    },
+    {
+      "table": "ui",
+      "key": "Resonance",
+      "source": "Resonance",
+      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
+      "translation": "Resonans"
+    },
+    {
+      "table": "ui",
+      "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "source_sha256": "597c5956c242dc0273a9ef0560f020f45fc576ccf59331bfd5d66b93a994de51",
+      "translation": "Rader är bildfält, och kolumner är kanaler och masktyper. Släpp filer var som helst i tabellen, eller dubbelklicka på en cell för att välja den fil som ska ligga där."
+    },
+    {
+      "table": "ui",
+      "key": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "source": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "source_sha256": "4789e7edc73d2c9208abf2c595125d773b8cacb9ce7a96dddb688f2af1838025",
+      "translation": "Kör objektdetektering för att se kartan över cellsannolikhet\noch flödesfältet för detta bildfält."
+    },
+    {
+      "table": "ui",
+      "key": "Run failed",
+      "source": "Run failed",
+      "source_sha256": "97fddf2d43e8dfc8e31d22f8ba3957b67b9109306346435f0172ba7439e4658a",
+      "translation": "Körningen misslyckades"
+    },
+    {
+      "table": "ui",
+      "key": "Run finished",
+      "source": "Run finished",
+      "source_sha256": "22488bd91e126f2a81ef902ae2e6e767a3a5a5ccac9144fee385561a76a951c6",
+      "translation": "Körningen slutfördes"
+    },
+    {
+      "table": "ui",
+      "key": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source_sha256": "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
+      "translation": "Sand på en vibrerande platta samlas längs linjerna som inte rör sig. En Chladnifigur förändras med bakgrundsmusiken när den spelas, och pulserar av sig själv när det är tyst."
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR",
+      "source": "Search spaCR",
+      "source_sha256": "dbe89695827690925d9402ac2a6549b0e379fb43090234c595c8065177df3f1f",
+      "translation": "Sök i spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR…",
+      "source": "Search spaCR…",
+      "source_sha256": "65f80adbe11014474289a5a0f6544862685946b3dd43f6bc796f7347dc3632f1",
+      "translation": "Sök i spaCR…"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88",
+      "translation": "Segmentera det öppna bildfältet med modellen för objektdetektering och lägg in resultatet enligt inställningen för ersättning eller sammanslagning. Fyller flikarna Cellsannolikhet och Flöden med körningens underlag."
+    },
+    {
+      "table": "ui",
+      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705",
+      "translation": "Segmenterar det öppna bildfältet med en modell. Båda tröskelvärdena börjar med standardvärdena i Cellpose."
+    },
+    {
+      "table": "ui",
+      "key": "Sending the approved report to GitHub…",
+      "source": "Sending the approved report to GitHub…",
+      "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0",
+      "translation": "Skickar den godkända rapporten till GitHub…"
+    },
+    {
+      "table": "ui",
+      "key": "Set up the GitHub CLI",
+      "source": "Set up the GitHub CLI",
+      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029",
+      "translation": "Ställ in GitHub CLI"
+    },
+    {
+      "table": "ui",
+      "key": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "source": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "source_sha256": "515fe65a3a49a4ba43933c24bfba273efd4b422fb374333959c6a959663f760a",
+      "translation": "Dela denna modell så att andra spaCR-användare kan ladda ner den?\n\nDu får ange värdena för modellens resultatkort. Modellen laddas upp till spaCR:s gemensamma samling, där den granskas innan den visas i Model Zoo. Du behöver inget Hugging Face-konto."
+    },
+    {
+      "table": "ui",
+      "key": "Share this model?",
+      "source": "Share this model?",
+      "source_sha256": "0f728cdb462b2168403b56e8738acd19f3dbc0a5dd1beb9aa72f1e2604e83d9a",
+      "translation": "Dela den här modellen?"
+    },
+    {
+      "table": "ui",
+      "key": "Shared",
+      "source": "Shared",
+      "source_sha256": "e3c4b39d6d5013477c98cd58236fed455f37aa7017b7168ce1980a449aaf438a",
+      "translation": "Delad"
+    },
+    {
+      "table": "ui",
+      "key": "Shortcuts",
+      "source": "Shortcuts",
+      "source_sha256": "46e978d0c19397c7d0318f6440950c15e046f5841a0feb03c35fdc68e1dfc68a",
+      "translation": "Kortkommandon"
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "Visa eller dölj inställningarna som en grupp: pensel, trollstav, visning, autofilter, objektoperationer, Otsu, objektdetektering och det levande förstoringsglaset. Bildytan tar över bredden som frigörs."
+    },
+    {
+      "table": "ui",
+      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+      "translation": "Visa bilden som ett negativ och detektera i samma negativ. Bildfältet normaliseras till 0..1 och varje pixel ersätts med 1 minus sitt värde, så att den mörkaste pixeln blir den ljusaste. Därmed kan Otsu och det levande förstoringsglaset, som söker ljusa objekt, hitta MÖRKA objekt. Ett mörkt objekt i en ljus genomlysningsbild framträder då som ett fluorescerande objekt, både för ögat och för detektorn. MASKERNA SKAPAS FRÅN DEN INVERTERADE BILDEN när detta är på, och en varning ovanför bilden visar det. Avläsningen vid pekaren, kategorin Filter och masken som sparas fortsätter att använda bildens verkliga värden, så inget som mäts ändras. Detta är inte 'Swap object and background' under Objektoperationer, som inverterar en färdig MASK utan att ändra bilden."
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image as it was loaded.",
+      "source": "Showing the image as it was loaded.",
+      "source_sha256": "01641220d68a74f77c817c175cd3447d019f1473c0de372d77e289b01fd4ddfb",
+      "translation": "Visar bilden så som den lästes in."
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "source": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "source_sha256": "10e5f49fcc1ed61eef3d24e8663709a3993010dc4a1b1bdb29349fa917f0432f",
+      "translation": "Visar den inverterade bilden, där mörkt blir ljust, och detekterar i den. Intensiteten vid pekaren följer visningen och anger detta. Filtrering, objektens medelvärden och sparande använder fortfarande de ursprungliga pixlarna."
+    },
+    {
+      "table": "ui",
+      "key": "Shrink",
+      "source": "Shrink",
+      "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca",
+      "translation": "Krymp"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in",
+      "source": "Sign in",
+      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+      "translation": "Logga in"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+      "translation": "Logga in till {label} i fönstret som öppnades. spaCR upptäcker när du är klar."
+    },
+    {
+      "table": "ui",
+      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+      "translation": "Inloggningen till {label} slutfördes inte inom {minutes} minuter. Tryck på Logga in för att försöka igen."
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
+      "translation": "Minsta objektarea att behålla, i pixlar. Borttagning av små objekt tar bort allt under gränsen, och varken Otsu-detektering eller objektdetektering ger objekt som är mindre. Därmed styr en enda inställning vad som räknas som skräp."
+    },
+    {
+      "table": "ui",
+      "key": "Sort every file this table already holds again, with the regex as it reads now.",
+      "source": "Sort every file this table already holds again, with the regex as it reads now.",
+      "source_sha256": "1c14c552ebb9d4e45108a0ae38e1e434d7bf29732f430436ac76f7186d76fbcf",
+      "translation": "Sortera om alla filer som redan finns i tabellen med det reguljära uttryck som visas nu."
+    },
+    {
+      "table": "ui",
+      "key": "Sound set",
+      "source": "Sound set",
+      "source_sha256": "8d308657d751aeb14842b12883f9027b12142c1062a026c6519362908bebff83",
+      "translation": "Ljuduppsättning"
+    },
+    {
+      "table": "ui",
+      "key": "Split objects that touch",
+      "source": "Split objects that touch",
+      "source_sha256": "25d4d69647265e4f5d692cab9ad3bfda5163ade1cedb54e43a7b880d1fa27a07",
+      "translation": "Dela objekt som vidrör varandra"
+    },
+    {
+      "table": "ui",
+      "key": "Starting…",
+      "source": "Starting…",
+      "source_sha256": "bbe5fc3b9ef39f994c259eaf233d625a500b5219784c82f73b50808d4f79d5dc",
+      "translation": "Startar…"
+    },
+    {
+      "table": "ui",
+      "key": "Stop it and close",
+      "source": "Stop it and close",
+      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b",
+      "translation": "Stoppa och stäng"
+    },
+    {
+      "table": "ui",
+      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+      "translation": "Slutade vänta på inloggningen. Tryck på Logga in för att börja igen, eller på Klar när du har loggat in."
+    },
+    {
+      "table": "ui",
+      "key": "Stopping after this page…",
+      "source": "Stopping after this page…",
+      "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
+      "translation": "Stoppar efter denna sida…"
+    },
+    {
+      "table": "ui",
+      "key": "Stopping the installer…",
+      "source": "Stopping the installer…",
+      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+      "translation": "Stoppar installationsprogrammet…"
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
+      "translation": "Tio bildfält från datasetet som en publicerad modell tränades på, med maskerna som användes vid träningen. De öppnas för redigering, så att du ser det som modellen såg."
+    },
+    {
+      "table": "ui",
+      "key": "Test on my folder",
+      "source": "Test on my folder",
+      "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
+      "translation": "Testa på min mapp"
+    },
+    {
+      "table": "ui",
+      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776",
+      "translation": "GitHub CLI är inte installerat.\n\nMed det kan spaCR skicka en rapport från ditt GitHub-konto utan att öppna webbläsaren. Utan det öppnas rapporterna fortfarande i webbläsaren."
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf",
+      "translation": "Det levande förstoringsglaset använder också dessa inställningar: Cellpose-läget använder modellen, båda tröskelvärdena, diametern och normaliseringen, medan DINOCell använder cellsannolikheten. Otsu-läget använder i stället kategorin Otsu."
+    },
+    {
+      "table": "ui",
+      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+      "translation": "Kommandot spaCR kör. Kopiera det för att köra det i en terminal själv istället."
+    },
+    {
+      "table": "ui",
+      "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "source": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "source_sha256": "5e8542d02349eb9df6700d23af00616f11ea97db0bc9d8300ec9a301c746d63b",
+      "translation": "Detta styrs av filtabellen. Om du ändrar tabellens kanaler eller maskkolumner uppdateras detta också."
+    },
+    {
+      "table": "ui",
+      "key": "The files",
+      "source": "The files",
+      "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
+      "translation": "Filerna"
+    },
+    {
+      "table": "ui",
+      "key": "The installer could not be run: {error}",
+      "source": "The installer could not be run: {error}",
+      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+      "translation": "Installationsprogrammet kunde inte köras: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8",
+      "translation": "Installationsprogrammet för {tools} körs fortfarande. Om du stänger denna screening nu stoppas det."
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "translation": "Himlens sista färger: rosa och magenta över dämpat guld, med den plommonlila nyans som horisonten får strax före mörkret."
+    },
+    {
+      "table": "ui",
+      "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "source_sha256": "7331a69c7b5b6932ebc5198d0d93a5bd8439856e36b319563a8b4f02ec554781",
+      "translation": "Den publicerade dokumentationen kan inte nås härifrån, så det här är beskrivningen som lagras med koden på denna maskin."
+    },
+    {
+      "table": "ui",
+      "key": "The report was not sent.",
+      "source": "The report was not sent.",
+      "source_sha256": "7fa94ad764e8476f7b31623c25805813c735a2b151500c3681730661719e074a",
+      "translation": "Rapporten skickades inte."
+    },
+    {
+      "table": "ui",
+      "key": "The report was sent: {url}",
+      "source": "The report was sent: {url}",
+      "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3",
+      "translation": "Rapporten skickades: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+      "translation": "Inloggningen kunde inte startas härifrån. Kör kommandot nedan i en terminal och tryck sedan på Klar."
+    },
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37",
+      "translation": "Det kvadratiska fönster där det lokala tröskelvärdet beräknas, centrerat på varje pixel. Gör det betydligt större än ett objekt men mindre än längdskalan för belysningens variation. Är fönstret för litet blir insidan av ett stort objekt sin egen bakgrund, så objektet blir ihåligt. Är det för stort blir resultatet åter ett tröskelvärde för hela bildfältet. Jämna tal avrundas uppåt så att kvadraten har en mittpixel."
+    },
+    {
+      "table": "ui",
+      "key": "There is nothing in the console to report.",
+      "source": "There is nothing in the console to report.",
+      "source_sha256": "a4029341ca3ddf6933f74cb69172a0600b76e78964de019e2c59b9276ffa029e",
+      "translation": "Det finns inget i konsolen att rapportera."
+    },
+    {
+      "table": "ui",
+      "key": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+      "translation": "Dessa modeller laddas upp av andra spaCR-användare via knappen Lägg till.\n\nIngen har kontrollerat vad modellerna är, vilka data de tränades på eller om de redovisade resultaten är riktiga. Kontrollsummorna visar bara att en fil inte har ändrats sedan den laddades upp. De visar varken att modellen är bra eller att det är säkert att anförtro den dina data.\n\nVisa dem ändå?"
+    },
+    {
+      "table": "ui",
+      "key": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "source": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "source_sha256": "ac05be35f089306b44992a5b53d18488f00f7f9c4961f74a53b16a6ef4083846",
+      "translation": "Dessa värden blir modellens tabell på Hugging Face. Lämna sådant som du inte har mätt tomt. Då visas ”inte registrerat”, vilket är bättre än en gissning."
+    },
+    {
+      "table": "ui",
+      "key": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "source": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "source_sha256": "2fbccb1df6bda13739523c534157b51fd48dcbbb8bbc2fc4e2e97e23a3684d91",
+      "translation": "Denna spaCR-distribution kan inte installera paket i sin egen miljö. Installera spaCR med pip eller conda för att lägga till {name}."
+    },
+    {
+      "table": "ui",
+      "key": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "source": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "source_sha256": "5fe4a9cfd5da36dd2a2975dba7dc52a57dcd09ad6ddec49fc9196815245673c3",
+      "translation": "Detta är kopian på den här maskinen. Den publicerade sidan är tillgänglig — öppna den för den återgivna versionen."
+    },
+    {
+      "table": "ui",
+      "key": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "source": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "source_sha256": "f605135194ed5e4b3ea396566a391bf9d9d91f31ad3b7fd0fa2b57a16dcc9d68",
+      "translation": "Detta är beskrivningen som lagras tillsammans med koden på denna dator. Kontrollerar om den publicerade sidan kan nås…"
+    },
+    {
+      "table": "ui",
+      "key": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "source": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "source_sha256": "7ba7fb2343daf2f4a73ceebe583fbcb1dc8c8c29e631dd2893ebbd34ae5011d3",
+      "translation": "Ingen kontrollsumma publiceras för denna modell, så spaCR kan inte skilja en ofullständig eller utbytt fil från originalet."
+    },
+    {
+      "table": "ui",
+      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+      "translation": "Tröskla bilden med Otsus tröskelvärde och märk upp objekten som återstår, med hänsyn till minsta area ovan. Allt som gäller trösklingen finns i kategorin Otsu: korrigering, utjämning, vilken sida som är objekt, hålfyllning, uppdelning av objekt som vidrör varandra och borttagning av objekt vid bildkanten."
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be",
+      "translation": "Trösklar med Otsus tröskelvärde. Styr Otsu-detektering och det levande förstoringsglasets Otsu-läge."
+    },
+    {
+      "table": "ui",
+      "key": "Train data",
+      "source": "Train data",
+      "source_sha256": "819aca1401b6fdd1995337f09735f6ceec767a167f8dab4a8e30794d06787d3e",
+      "translation": "Träningsdata"
+    },
+    {
+      "table": "ui",
+      "key": "Training datasets…",
+      "source": "Training datasets…",
+      "source_sha256": "f181135dd60e4f79636e8092ac7b869d41d0645e3435ab328e50c986a4767ecd",
+      "translation": "Träningsdataset…"
+    },
+    {
+      "table": "ui",
+      "key": "Try again",
+      "source": "Try again",
+      "source_sha256": "d8b8392e2c542950ca64867168e4ef87d4ad606882d5898f826b51c6d553988f",
+      "translation": "Försök igen"
+    },
+    {
+      "table": "ui",
+      "key": "Try anyway",
+      "source": "Try anyway",
+      "source_sha256": "c73761e35faddb8c473fef67ed5c0d9281586cf7a390c2f58dbf162798c4181c",
+      "translation": "Försök i alla fall"
+    },
+    {
+      "table": "ui",
+      "key": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "source": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777",
+      "translation": "Prova varje namnkonvention på källmappen och rangordna dem efter hur många filnamn de kan tolka. Detta visar bara ett resultat; inställningen ändras inte automatiskt."
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "translation": "Under ytan: havsgrönt, mintgrönt och den blågröna färg som återstår när alla varma färger har absorberats."
+    },
+    {
+      "table": "ui",
+      "key": "Uninstall",
+      "source": "Uninstall",
+      "source_sha256": "fe199528850a4e24c14d9ece87a07b40bdcfa5fe504c175c117b997c29259ca6",
+      "translation": "Avinstallera"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed",
+      "source": "Upload failed",
+      "source_sha256": "6efc5d27f30b20c103ca1a855bfc65cdbdf9de98c3f8ac93a3df3f319c3388bd",
+      "translation": "Uppladdning misslyckades"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed.",
+      "source": "Upload failed.",
+      "source_sha256": "3d209f4648d487b456bcd3690b347fdbab9818502d677d52ff6fa2af90d4267f",
+      "translation": "Uppladdning misslyckades."
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to Hugging Face…",
+      "source": "Uploading to Hugging Face…",
+      "source_sha256": "da3a6c5625d44c4a509c2cfd07e65a295414a60eeec3844df84f04220f380755",
+      "translation": "Laddar upp till Hugging Face…"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to the shared collection…",
+      "source": "Uploading to the shared collection…",
+      "source_sha256": "7f68a11457385bd32a50c81f55a3d1c859011816d8e179b622894492ace9f0c1",
+      "translation": "Laddar upp till den gemensamma samlingen…"
+    },
+    {
+      "table": "ui",
+      "key": "Version",
+      "source": "Version",
+      "source_sha256": "dd167905de0defcaf72de673ee44c07431770d129ccffab286bd2edfdaf62396",
+      "translation": "Versionsnummer"
+    },
+    {
+      "table": "ui",
+      "key": "Volume",
+      "source": "Volume",
+      "source_sha256": "b10fb966d72063f534774c7c6b404f4decca76ac283093ae65fef78d07c1b75e",
+      "translation": "Volym"
+    },
+    {
+      "table": "ui",
+      "key": "WAV audio (*.wav)",
+      "source": "WAV audio (*.wav)",
+      "source_sha256": "88f088754737aa543793aa81c4fd9595e221413cff7e71c653115acb267364ad",
+      "translation": "WAV-ljud (*.wav)"
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+      "translation": "Vad ett nytt objekt gör där masken redan innehåller ett objekt. Clip behåller bara de pixlar som saknar etikett, så inget befintligt objekt förlorar någon pixel. Skip utelämnar varje objekt som vidrör ett befintligt objekt. Replace låter det nya objektet ta alla pixlar som det täcker. Under Region under musen visar rutan resultatet av regeln: det som ett klick skulle lägga till visas heltäckande, och det som skulle tas bort visas genomskinligt."
+    },
+    {
+      "table": "ui",
+      "key": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "source": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "source_sha256": "019f7eb09dec26f772999346db34ca3bac3a0535e60e4f98459a9521c2876134",
+      "translation": "Namnet som bildfälten registreras under i mätdatabasen. Dessa bilder kommer inte från en platta, så ange deras faktiska ursprung i stället för en platta som aldrig kördes. Varje rad blir ett bildfält i brunn A01 om du inte ändrar brunnen nedan."
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
+      "translation": "Det som det senaste filtret tog bort, en rad per objekt: dess ID, arean och medelintensiteten som det bedömdes utifrån, samt gränsen som gjorde att det togs bort. ID-värdena är desamma som visas vid pekaren."
+    },
+    {
+      "table": "ui",
+      "key": "What the run writes appears here.",
+      "source": "What the run writes appears here.",
+      "source_sha256": "57d1a41411fd14075f9cee6de966df4d4ec327f0703009fd16b25a3008aaaf41",
+      "translation": "Körningens utskrift visas här."
+    },
+    {
+      "table": "ui",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "Var bildrutorna läses och var resultaten skrivs: sekvenseringsmappen, inklusive undermappar, som genomsöks efter rutor namngivna efter förstoring, cykel, brunn, kanaler och position; fenotypmappen som placeras ovanpå; guidebiblioteket som avkodningarna matchas mot; och mappen som tar emot measurements.db och en rapport per brunn. Ange detta först. Alla andra OPS-grupper förutsätter att dessa värden är rätt."
+    },
+    {
+      "table": "ui",
+      "key": "Where:",
+      "source": "Where:",
+      "source_sha256": "02cc020f791cdbd49b1e6761ee41577461874e05441615f9c872ccbb119d2d87",
+      "translation": "Var:"
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
+      "translation": "Vilken intensitetsklass som blir objekt, där 0 är den svagaste. Med 3 klasser väljer 2 de ljusa kärnorna och 1 den svaga halon RUNT dem, utan kärnorna inuti. Det väljer exakt den klassen, vilket är syftet med fler än två klasser. Med fler än två klasser ersätter detta 'Objekt är ljusare än bakgrund': numret anger vilken sida du menar."
+    },
+    {
+      "table": "ui",
+      "key": "Which convention fits?",
+      "source": "Which convention fits?",
+      "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802",
+      "translation": "Vilken namnkonvention passar?"
+    },
+    {
+      "table": "ui",
+      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
+      "translation": "Vilken modell som segmenterar området i rutan. Otsu trösklar området med Otsus tröskelvärde och skiljer objekt som vidrör varandra med watershed. Det kräver ingen installation, följer Min area under Objektoperationer samt tröskelkorrigeringen och övriga inställningar i kategorin Otsu, och används när en modell inte kan laddas. Cellpose använder modellen, båda tröskelvärdena, diametern och normaliseringen under Objektdetektering, och är långsam utan GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell och SAMCell visas alltid i listan men är inaktiverade tills de installeras. Om du väljer en av dem erbjuds installation i en egen miljö. Cellpose 3 använder båda tröskelvärdena och diametern under Objektdetektering, DINOCell använder cellsannolikheten och SAMCell använder sina egna tröskelvärden."
+    },
+    {
+      "table": "ui",
+      "key": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "source": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "source_sha256": "02a9d9a492e547fb229ec0108acf478b90968e389b6ecf3802d131d5fbaa9cae",
+      "translation": "Vilken objektklass som ska representeras genom inbäddning. Detta väljer etikettkolumnen i png_list och maskplanet som används för strömmade bildutsnitt. Om du begär cellkärnor från en tabell med cellutsnitt blir resultatet därför tomt, i stället för att ge celler."
+    },
+    {
+      "table": "ui",
+      "key": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "source": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "source_sha256": "9e19140221cacc1aad9e1c263c25a7ebd850dcfaa7d8465b0c50372d739f3fe7",
+      "translation": "Vilken ljuduppsättning som spelas. Den syntetiseras på denna dator första gången den behövs och sparas under ~/.spacr/sounds, så den tar inga resurser förrän den används."
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
+      "translation": "Vilka modellvikter som segmenterar detta bildfält och det levande förstoringsglasets ruta i Cellpose-läge. Listan innehåller den Cellpose-version som är installerad på datorn och alla Cellpose-modeller i Model Zoo. En modell därifrån som inte har laddats ner är inaktiverad. Om du väljer den laddas den ner och aktiveras."
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "translation": "När utförlig loggning är på under fliken Moduler skrivs DEBUG alltid till loggfilerna, så denna inställning förblir på. Stäng av utförlig loggning för att kunna välja själv. Ditt eget val sparas tills dess."
+    },
+    {
+      "table": "ui",
+      "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "147130125966f3373bbf16413f3447b8e93d5e59819f787418670ec517373fe9",
+      "translation": "Skriv de sammanslagna matriser som tabellen beskriver och mät dem med själva modulen Measure. Resultatmapparna och mätdatabasen är desamma som vid en vanlig Measure-körning."
+    },
+    {
+      "table": "ui",
+      "key": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "source": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "source_sha256": "9c750e692d93b8ba467d5254fbcd956155b88e4e42b9f4148a1df1694343c43b",
+      "translation": "Ditt eget uttryck. Det måste fånga wellID, fieldID och chanID; plateID är valfritt och faller tillbaka till mappnamnet."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filed on GitHub: {url}",
+      "source": "[issue] Filed on GitHub: {url}",
+      "source_sha256": "eaea483cca34761844d68fa512ab373aeba627605a16589e5c5c9b533551ecdd",
+      "translation": "[issue] Skickat till GitHub: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "source": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "source_sha256": "622cb693e15da21f5e23036870b1489957355512969a551538f08e9c8ad960ad",
+      "translation": "[issue] Skickar en rapport om detta fel med känsliga uppgifter maskerade till spaCR:s offentliga GitHub-projekt, eftersom felrapportering är inställd på 'always'…"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "source": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "source_sha256": "5e7ce2b69473fb0c5ace2fc4459d0aaf3bc833d0813863f74a8792bdb076ea53",
+      "translation": "[issue] Inte skickat: spaCR är inte inloggat på GitHub. Kör `gh auth login` en gång i en terminal, så rapporteras senare fel automatiskt. Tryck på File as issue för att skicka detta fel."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "source": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "source_sha256": "5af6114e6d7eec9d7d38b0257fb80c716133ee16e8f6cd9e79641fb66175d4fe",
+      "translation": "[issue] Inte skickat: {detail}. Tryck på File as issue för att försöka igen."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "source": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "source_sha256": "4a90b0bd752e2dace6815ddf2f3bef5530dc4b1eb31f53209057a7fbcdbc19e7",
+      "translation": "[issue] Inget skickades till GitHub. Automatisk rapportering börjar när du accepterar användarvillkoren (Hjälp → Konfigurera spaCR igen…). Tryck på File as issue för att skicka denna rapport nu."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "source": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "source_sha256": "e46762e8dce3893d85fca8c1feb91aa2b0adf4f9a394dbd20b1b3303f5a54fe8",
+      "translation": "[issue] Inget skickades till GitHub. Rapporter är offentliga, så spaCR skickar en rapport först när du trycker på File as issue och sedan på Skicka rapport."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "source": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "source_sha256": "c0a3b0dc3a22355ad999380079f4ff248070991ac532acf47f928b7de4808375",
+      "translation": "[issue] Detta fel har redan ett öppet ärende på GitHub. Denna förekomst lades till där: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error is being reported already.",
+      "source": "[issue] This error is being reported already.",
+      "source_sha256": "98eacfbd1ef751932ad138775f1813a8260e120cec8469650346bf6f850559f7",
+      "translation": "[issue] Detta fel håller redan på att rapporteras."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "source": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "source_sha256": "425bf7825eca02541b5497dcd8c2d87ec8ad78d79a4f49f98450f6e72e1a425b",
+      "translation": "[issue] Detta fel har tidigare rapporterats från denna dator och skickades därför inte igen: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "about {seconds} s left",
+      "source": "about {seconds} s left",
+      "source_sha256": "63d5f63ca560382ccaa157f6e5973c9c2dc5fd358ced0f5a52ba350d6e1fb2c7",
+      "translation": "ungefär {seconds} s kvar"
+    },
+    {
+      "table": "ui",
+      "key": "any condition, e.g. cell_area > 500",
+      "source": "any condition, e.g. cell_area > 500",
+      "source_sha256": "df8e48a50f45ae73df8a5a0d72cc4b4555303be6a30e29487c767fdb71bf1b26",
+      "translation": "valfritt villkor, t.ex. cell_area > 500"
+    },
+    {
+      "table": "ui",
+      "key": "every plate",
+      "source": "every plate",
+      "source_sha256": "28fa0d807b39e588c00fb47a579f124697c925c0e234b894b5beb27c1210b87b",
+      "translation": "varje platta"
+    },
+    {
+      "table": "ui",
+      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+      "translation": "npm fick inte skriva till sin globala mapp. Kör `npm config set prefix ~/.local` en gång i en terminal så att npm installerar i en mapp som du äger, och tryck sedan på Försök igen."
+    },
+    {
+      "table": "ui",
+      "key": "path to a folder of crop PNGs",
+      "source": "path to a folder of crop PNGs",
+      "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438",
+      "translation": "sökväg till en mapp med bildutsnitt i PNG-format"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db",
+      "source": "path to measurements.db",
+      "source_sha256": "fdcd8c657e3f0866f87b73ff68a03d672540fd5fe8226ceb8477417c47be6573",
+      "translation": "sökväg till measurements.db"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db, or to a *_png crop folder",
+      "source": "path to measurements.db, or to a *_png crop folder",
+      "source_sha256": "94b30260bb4812f5e3b2008e375948b67235e35bfe419a8065dc740fd41f7502",
+      "translation": "sökväg till measurements.db eller till en mapp med bildutsnitt (*_png)"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963",
+      "translation": "spaCR kan inte installera detta här automatiskt: {needs} krävs men hittades inte. Installera med:\n    {command}"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4",
+      "translation": "spaCR kan inte köra detta här automatiskt: {needs} krävs men hittades inte."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's own music",
+      "source": "spaCR's own music",
+      "source_sha256": "d6e65a15352eb413607f3d21e251559a385cc13859305c576c60880320fa784c",
+      "translation": "spaCR:s egen musik"
+    },
+    {
+      "table": "ui",
+      "key": "status",
+      "source": "status",
+      "source_sha256": "073c1634c496cdb649d1afe0a312bbb4b7e1741b271542e4a436c3b8824b1761",
+      "translation": "Status"
+    },
+    {
+      "table": "ui",
+      "key": "version",
+      "source": "version",
+      "source_sha256": "5ca4f3850ccc331aaf8a257d6086e526a3b42a63e18cb11d020847985b31d188",
+      "translation": "versionsnummer"
+    },
+    {
+      "table": "ui",
+      "key": "{key} in {where}",
+      "source": "{key} in {where}",
+      "source_sha256": "19183b73f5e72273422f93a260407c7b8cea4ab7edc9563e66637681487e675d",
+      "translation": "{key} i {where}"
+    },
+    {
+      "table": "ui",
+      "key": "{key} is not on this module's form.",
+      "source": "{key} is not on this module's form.",
+      "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e",
+      "translation": "{key} finns inte i denna moduls formulär."
+    },
+    {
+      "table": "ui",
+      "key": "{label} is installed.",
+      "source": "{label} is installed.",
+      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+      "translation": "{label} är installerad."
+    },
+    {
+      "table": "ui",
+      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35",
+      "translation": "{label} är inte installerat ännu.\n\nInstallera kör kommandot nedan på denna dator: det laddar ner och kör leverantörens eget installationsprogram och startar sedan inloggningen. spaCR får aldrig tillgång till dina autentiseringsuppgifter."
+    },
+    {
+      "table": "ui",
+      "key": "{label} is signed in and ready.",
+      "source": "{label} is signed in and ready.",
+      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+      "translation": "{label} är inloggat och klart."
+    },
+    {
+      "table": "ui",
+      "key": "{name} in {where}",
+      "source": "{name} in {where}",
+      "source_sha256": "b4ea8e92fe102b9a400ec486442cd1b091457fc7df15b36745fdbe5eaab9c699",
+      "translation": "{name} i {where}"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is downloaded and selected.",
+      "source": "{name} is downloaded and selected.",
+      "source_sha256": "1430476f1e53629eafa87f20ef888591eb7ec95e193927ac0344beb18b0c71c1",
+      "translation": "{name} har laddats ner och valts."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is installed and selected.",
+      "source": "{name} is installed and selected.",
+      "source_sha256": "cd7d7ac6f935f90eeb80f1d9bc24f2200b6647b9608002b1394086278afabe8d",
+      "translation": "{name} är installerat och valt."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "source": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "source_sha256": "128c8d38816cee6f1c8f5d6f5b3dbf727fa067613e984d02edd4fb5c92aa9257",
+      "translation": "{name} har inte laddats ner. Om du väljer modellen laddas den ner från Model Zoo och aktiveras."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not in Preferences at the moment.",
+      "source": "{name} is not in Preferences at the moment.",
+      "source_sha256": "2c8e70ee0d319354080834a828c0274746b8da6a5d1de385eac7f3138684d641",
+      "translation": "{name} är inte i Inställningar för tillfället."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "source": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "source_sha256": "7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157",
+      "translation": "{name} är inte installerat.\n\nInstallationen kör:\n    pip install \"{requirement}\"\n\ni samma miljö som spaCR körs i. Ett stort paket laddas ner, och den installerade versionen av torch kan ändras. Det kan påverka Cellpose och i värsta fall hindra spaCR från att starta. Det kan ta flera minuter; du kan fortsätta använda spaCR under tiden.\n\nInstallera nu?"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed. Choosing it offers to install it.",
+      "source": "{name} is not installed. Choosing it offers to install it.",
+      "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff",
+      "translation": "{name} är inte installerat. Om du väljer det erbjuds du att installera det."
+    }
+  ]
+}

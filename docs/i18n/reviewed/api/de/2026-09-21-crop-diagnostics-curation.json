@@ -1,0 +1,241 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "The one plate folder the three plate example sets unpack into.",
+      "label": "spacr.cli_download.example_folder#0",
+      "source": "The one plate folder the three plate example sets unpack into.",
+      "source_sha256": "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
+      "translation": "Der gemeinsame Plattenordner, in den die drei plattenbezogenen Beispieldatensätze entpackt werden."
+    },
+    {
+      "context": "One folder because the sets compose: the Measure example's ``merged/``, the Annotate example's ``data/`` and ``measurements/``, and the Mask demo's raw images are three stages of the same plate, and spaCR expects to be pointed at a plate.",
+      "label": "spacr.cli_download.example_folder#1",
+      "source": "ONE FOLDER because the sets compose: the Measure example's ``merged/``, the Annotate example's ``data/`` and ``measurements/``, and the Mask demo's raw images are three stages of the same plate, and spaCR expects to be pointed at a plate.",
+      "source_sha256": "2ee608361f34fa7f411e4290549e82102afcb58dc187ef5a6f6a9852e6ecf240",
+      "translation": "Ein gemeinsamer Ordner, weil die Datensätze zusammengehören: ``merged/`` aus dem Measure-Beispiel, ``data/`` und ``measurements/`` aus dem Annotate-Beispiel sowie die Rohbilder der Mask-Demonstration entsprechen drei Verarbeitungsstufen derselben Mikrotiterplatte. spaCR erwartet den Pfad zu einem Plattenordner."
+    },
+    {
+      "context": "The assay sets are not stages of that laboratory microplate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
+      "label": "spacr.cli_download.example_folder#2",
+      "source": "The assay sets are not stages of that plate and each unpacks into a folder of its own; see :func:`spacr.example_archives.example_set_folder`.",
+      "source_sha256": "a0bb4d82a9a85d2cf00b406af7df8ca8f6f07a3c225a8de35b45b1194d264280",
+      "translation": "Die Assay-Datensätze sind keine Verarbeitungsstufen dieser Platte und werden jeweils in einen eigenen Ordner entpackt; siehe :func:`spacr.example_archives.example_set_folder`."
+    },
+    {
+      "context": "the root everything unpacks under.",
+      "label": "spacr.cli_download.example_folder#3",
+      "source": "the root everything unpacks under.",
+      "source_sha256": "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a",
+      "translation": "das Stammverzeichnis, unter dem alle Dateien entpackt werden."
+    },
+    {
+      "context": "Silence the per extracted image region announcements on the calling thread only.",
+      "label": "spacr.crops.quiet_crop_paths#0",
+      "source": "Silence the per-crop announcements on the CALLING THREAD only.",
+      "source_sha256": "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
+      "translation": "Unterdrückt Meldungen zu einzelnen Bildausschnitten ausschließlich im aufrufenden Thread."
+    },
+    {
+      "context": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader executing at the same time -- in the app, for whichever screen is reading extracted image regions in another independent execution path, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing extracted image region there reads as a silent success until the bulk read finishes and puts the flag back.",
+      "label": "spacr.crops.quiet_crop_paths#1",
+      "source": ":data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk reader that turns it off around its own work turns it off for every other reader running at the same time -- in the app, for whichever screen is reading crops in another thread, which then loses the ``<- NOT ON DISK`` line that is the only reason the flag defaults to on. A missing crop there reads as a silent success until the bulk read finishes and puts the flag back.",
+      "source_sha256": "2d5decfb542b4e3d350d17a66e5bd4bc662e5c6124ef53672d2901eab7f90e66",
+      "translation": ":data:`PRINT_CROP_PATHS` ist ein Schalter für den gesamten Prozess. Wenn eine Komponente ihn während eines umfangreichen Lesevorgangs ausschaltet, unterdrückt sie damit auch die Meldungen aller gleichzeitig lesenden Komponenten. In der Anwendung betrifft das etwa eine Ansicht, die Bildausschnitte in einem anderen Thread liest: Dort entfällt dann die Zeile ``<- NOT ON DISK``, wegen der der Schalter überhaupt standardmäßig eingeschaltet ist. Ein fehlender Bildausschnitt erscheint dadurch ohne Fehlermeldung als erfolgreich geladen, bis der umfangreiche Lesevorgang endet und den Schalter zurücksetzt."
+    },
+    {
+      "context": "So a reader that wants quiet asks for quiet here instead: the suppression is execution-path-local, the global flag is left exactly as it was, and a concurrent reader on another independent execution path keeps its diagnostics.",
+      "label": "spacr.crops.quiet_crop_paths#2",
+      "source": "So a reader that wants quiet asks for quiet here instead: the suppression is thread-local, the global flag is left exactly as it was, and a concurrent reader on another thread keeps its diagnostics.",
+      "source_sha256": "15f432b32190fc4e729f53637ba9a4408cd55fd63e537191d256f3d92694129c",
+      "translation": "Eine Komponente, die ohne diese Meldungen lesen möchte, verwendet deshalb diesen Kontextmanager: Die Unterdrückung gilt nur für den jeweiligen Thread, der globale Schalter bleibt unverändert, und gleichzeitig in anderen Threads lesende Komponenten behalten ihre Diagnosemeldungen."
+    },
+    {
+      "context": "a context manager. Restores the previous state on the way out, including when the body raises, and nests.",
+      "label": "spacr.crops.quiet_crop_paths#3",
+      "source": "a context manager. Restores the previous state on the way out, including when the body raises, and nests.",
+      "source_sha256": "595d3451d4d0d167df8ba35b71fd030af5876b5be3b4892f62d0d7f450bc9620",
+      "translation": "ein Kontextmanager. Stellt beim Verlassen den vorherigen Zustand wieder her, auch wenn im Kontext eine Ausnahme ausgelöst wird; kann verschachtelt verwendet werden."
+    },
+    {
+      "context": "Apply an image layer manifest and reject explicit conflicting mask indices.",
+      "label": "spacr.crops.reconcile_merged_mask_dims#0",
+      "source": "Apply a plane manifest and reject explicit conflicting mask indices.",
+      "source_sha256": "057c99b79c92462cf0e94a7b6ecfdb6449ead70a7144aa49062e0039f81e577c",
+      "translation": "Wendet ein Ebenenmanifest an und weist ausdrücklich angegebene, widersprüchliche Maskenindizes zurück."
+    },
+    {
+      "context": "A manifest is authoritative for the folder it accompanies. Defaults are replaced automatically; a non-``None`` value the caller explicitly supplied must agree or the processing session stops before measuring a wrong image layer. Legacy folders without a manifest return an unchanged copy.",
+      "label": "spacr.crops.reconcile_merged_mask_dims#1",
+      "source": "A manifest is authoritative for the folder it accompanies. Defaults are replaced automatically; a non-``None`` value the caller explicitly supplied must agree or the run stops before measuring a wrong plane. Legacy folders without a manifest return an unchanged copy.",
+      "source_sha256": "51b916dde9a63bac8309e0cfef217b874842759245fa276ae7e1f50f90d4fc82",
+      "translation": "Ein Manifest ist für den zugehörigen Ordner maßgeblich. Standardwerte werden automatisch ersetzt. Ein von der aufrufenden Komponente ausdrücklich übergebener Wert ungleich ``None`` muss jedoch übereinstimmen; andernfalls stoppt der Lauf, bevor eine falsche Bildebene vermessen wird. Für ältere Ordner ohne Manifest wird eine unveränderte Kopie zurückgegeben."
+    },
+    {
+      "context": "Every organelle slot the manifest records gets its image layer, and every slot ``settings`` carries is set to the manifest's answer. A slot that neither names is left out of the copy rather than set to ``None``. The cell, nucleus and pathogen structured-data names are always set, so an image layer the manifest does not record is switched off.",
+      "label": "spacr.crops.reconcile_merged_mask_dims#2",
+      "source": "Every organelle slot the manifest records gets its plane, and every slot ``settings`` carries is set to the manifest's answer. A slot that neither names is left out of the copy rather than set to ``None``. The cell, nucleus and pathogen keys are always set, so a plane the manifest does not record is switched off.",
+      "source_sha256": "52deb80d95b0c20520dbe2a029ad6a4248144df9adf3bbcacc04982a4d45e546",
+      "translation": "Jeder im Manifest aufgeführte Organelleneintrag erhält seine zugeordnete Ebene, und jeder in ``settings`` enthaltene Eintrag wird gemäß dem Manifest gesetzt. Ein Eintrag, der weder dort noch im Manifest vorkommt, wird aus der Kopie weggelassen, statt auf ``None`` gesetzt zu werden. Die Schlüssel für Zelle, Zellkern und Pathogen werden immer gesetzt; eine im Manifest nicht aufgeführte Ebene wird daher deaktiviert."
+    },
+    {
+      "context": "Turn the per extracted image region path printing on or off, for the whole process.",
+      "label": "spacr.crops.say_crop_paths#0",
+      "source": "Turn the per-crop path printing on or off, for the whole process.",
+      "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
+      "translation": "Schaltet die Ausgabe der Pfade einzelner Bildausschnitte für den gesamten Prozess ein oder aus."
+    },
+    {
+      "context": "A bounded session of curation work over one folder.",
+      "label": "spacr.curation_queue.CurationQueue#0",
+      "source": "A bounded session of curation work over one folder.",
+      "source_sha256": "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
+      "translation": "Eine begrenzte Kurationssitzung für einen Ordner."
+    },
+    {
+      "context": "what was found, and where.",
+      "label": "spacr.curation_queue.CurationQueue#1",
+      "source": "what was found, and where.",
+      "source_sha256": "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
+      "translation": "was gefunden wurde und wo."
+    },
+    {
+      "context": "the fields to offer THIS session — unreviewed, ordered, and cut to ``limit``.",
+      "label": "spacr.curation_queue.CurationQueue#2",
+      "source": "the fields to offer THIS session — unreviewed, ordered, and cut to ``limit``.",
+      "source_sha256": "0d7015fa5eb2fa05fbc2429359754bdd958766003043bc0e550d1cf5e0478948",
+      "translation": "die in dieser Sitzung angebotenen Bildfelder: noch nicht geprüft, sortiert und auf ``limit`` begrenzt."
+    },
+    {
+      "context": "every status row read, including rows about stems that are not in this folder.",
+      "label": "spacr.curation_queue.CurationQueue#3",
+      "source": "every status row read, including rows about stems that are not in this folder.",
+      "source_sha256": "f1f7a40c9dff9b5edc90e660045e20716eab4d2e141f47b8ca23ab7f10b0dfa7",
+      "translation": "alle eingelesenen Statuszeilen, einschließlich der Zeilen zu Dateistämmen, die in diesem Ordner nicht vorkommen."
+    },
+    {
+      "context": "the ordering that was asked for.",
+      "label": "spacr.curation_queue.CurationQueue#4",
+      "source": "the ordering that was asked for.",
+      "source_sha256": "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
+      "translation": "die angeforderte Sortierung."
+    },
+    {
+      "context": "the ordering actually used, which differs from ``order`` when ``prob`` or ``easy`` fell back to ``value`` for want of probabilities.",
+      "label": "spacr.curation_queue.CurationQueue#5",
+      "source": "the ordering actually used, which differs from ``order`` when ``prob`` or ``easy`` fell back to ``value`` for want of probabilities.",
+      "source_sha256": "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
+      "translation": "die tatsächlich verwendete Sortierung. Sie unterscheidet sich von ``order``, wenn ``prob`` oder ``easy`` wegen fehlender Wahrscheinlichkeiten auf ``value`` zurückgefallen ist."
+    },
+    {
+      "context": "the cap that was applied, or ``None``.",
+      "label": "spacr.curation_queue.CurationQueue#6",
+      "source": "the cap that was applied, or ``None``.",
+      "source_sha256": "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
+      "translation": "die angewendete Obergrenze oder ``None``."
+    },
+    {
+      "context": "counts over the WHOLE folder, not over this session.",
+      "label": "spacr.curation_queue.CurationQueue#7",
+      "source": "counts over the WHOLE folder, not over this session.",
+      "source_sha256": "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce",
+      "translation": "Anzahlen für den gesamten Ordner, nicht nur für diese Sitzung."
+    },
+    {
+      "context": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the work list is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
+      "label": "spacr.curation_queue.CurationQueue#8",
+      "source": "what the curator should know before the first field -- a ``prob`` or ``easy`` order with no scores file, or with fields the scores file does not name, and a resume record that is the external tool's file beside the folder, which every save then writes to. Printed when the queue is built and shown by the editor with it, because an ordering that quietly became another one, or a save that quietly lands outside the folder that was opened, is the failure this module is most careful about.",
+      "source_sha256": "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee",
+      "translation": "Hinweise, die vor dem ersten Bildfeld bekannt sein müssen: eine Sortierung mit ``prob`` oder ``easy`` ohne Bewertungsdatei oder mit Bildfeldern, die in dieser Datei fehlen; außerdem ein Datensatz zum Fortsetzen der Arbeit, der aus der Datei des externen Werkzeugs neben dem Ordner stammt und bei jedem Speichern in diese Datei zurückgeschrieben wird. Die Hinweise werden beim Erstellen der Arbeitsliste ausgegeben und im Editor zusammen mit ihr angezeigt. Dieses Modul soll insbesondere verhindern, dass sich die Sortierung unbemerkt ändert oder Daten unbemerkt außerhalb des geöffneten Ordners gespeichert werden."
+    },
+    {
+      "context": "``sorted by <order>``, naming the order that was asked",
+      "label": "spacr.curation_queue.CurationQueue.order_phrase#0",
+      "source": "``sorted by <order>``, naming the order that was asked",
+      "source_sha256": "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
+      "translation": "``sorted by <order>``; nennt zusätzlich auch die angeforderte"
+    },
+    {
+      "context": "for too whenever it is not the one that was used.",
+      "label": "spacr.curation_queue.CurationQueue.order_phrase#1",
+      "source": "for too whenever it is not the one that was used.",
+      "source_sha256": "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7",
+      "translation": "Sortierung, falls diese von der tatsächlich verwendeten abweicht."
+    },
+    {
+      "context": "where this work list's resume record is read and written:",
+      "label": "spacr.curation_queue.QueueLayout.status_path#0",
+      "source": "where this queue's resume record is read and written:",
+      "source_sha256": "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
+      "translation": "den Lese- und Schreibpfad des Datensatzes zum Fortsetzen dieser Arbeitsliste:"
+    },
+    {
+      "context": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
+      "label": "spacr.curation_queue.QueueLayout.status_path#1",
+      "source": "``<folder>/curate_status.csv``, or the external curation tool's ``<parent>/<name>_status.csv`` beside the folder when that is the record the folder has. :func:`status_path` decides.",
+      "source_sha256": "b677be671969ec54c55905633ebd991a39cbfae8a4becae785cfe9f2ee5833e4",
+      "translation": "``<folder>/curate_status.csv`` oder die Datei ``<parent>/<name>_status.csv`` des externen Kurationswerkzeugs neben dem Ordner, wenn diese dessen vorhandener Datensatz ist. :func:`status_path` trifft die Auswahl."
+    },
+    {
+      "context": "What is left to do in a curation session.",
+      "label": "spacr.curation_queue.QueueSummary#0",
+      "source": "What is left to do in a curation session.",
+      "source_sha256": "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
+      "translation": "Was in einer Kurationssitzung noch zu erledigen ist."
+    },
+    {
+      "context": "fields in the folder.",
+      "label": "spacr.curation_queue.QueueSummary#1",
+      "source": "fields in the folder.",
+      "source_sha256": "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
+      "translation": "Bildfelder im Ordner."
+    },
+    {
+      "context": "curated.",
+      "label": "spacr.curation_queue.QueueSummary#2",
+      "source": "curated.",
+      "source_sha256": "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
+      "translation": "bereits kuratierte Bildfelder."
+    },
+    {
+      "context": "refused — cannot be curated, and must not be offered again.",
+      "label": "spacr.curation_queue.QueueSummary#3",
+      "source": "refused — cannot be curated, and must not be offered again.",
+      "source_sha256": "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
+      "translation": "abgelehnte Bildfelder: Sie können nicht kuratiert werden und dürfen nicht erneut angeboten werden."
+    },
+    {
+      "context": "split into children, which are in the work list instead.",
+      "label": "spacr.curation_queue.QueueSummary#4",
+      "source": "split into children, which are in the queue instead.",
+      "source_sha256": "da33edf76b0e258f813f937d76259eae1ed7e06caf4d9a6d49e3e5a22e470b37",
+      "translation": "in Teilbilder aufgeteilte Bildfelder; die Teilbilder stehen stattdessen in der Arbeitsliste."
+    },
+    {
+      "context": "fields with no reviewed state.",
+      "label": "spacr.curation_queue.QueueSummary#5",
+      "source": "fields with no reviewed state.",
+      "source_sha256": "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
+      "translation": "Bildfelder ohne geprüften Status."
+    },
+    {
+      "context": "status rows about stems that are not in this folder. Kept, never dropped, and reported here rather than silently: on a second machine they are usually work already done elsewhere.",
+      "label": "spacr.curation_queue.QueueSummary#6",
+      "source": "status rows about stems that are not in this folder. Kept, never dropped, and reported here rather than silently: on a second machine they are usually work already done elsewhere.",
+      "source_sha256": "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414",
+      "translation": "Statuszeilen zu Dateistämmen, die in diesem Ordner nicht vorkommen. Diese Zeilen werden immer beibehalten und hier ausdrücklich gezählt. Auf einem zweiten Rechner entsprechen sie üblicherweise bereits andernorts erledigter Arbeit."
+    }
+  ],
+  "review": {
+    "corrections": [
+      "Preserve refused-field negation, retained off-folder work and requested/effective ordering.",
+      "Restore thread-local diagnostic isolation, process-wide switch semantics and missing-crop warnings.",
+      "Correct plate-folder composition, authoritative plane indices, manifest defaults and grammatical German."
+    ],
+    "device": "cpu",
+    "draft_model": "Helsinki-NLP/opus-mt-en-de",
+    "kind": "AI-assisted technical and German-language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

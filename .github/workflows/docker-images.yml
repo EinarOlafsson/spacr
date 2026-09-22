@@ -1,0 +1,362 @@
+name: docker images
+
+# Builds the two spaCR container images, smoke-tests each one, and publishes
+# them to GHCR under the repository owner.
+#
+# NOT ON EVERY PUSH, ON PURPOSE. Each image is multi-gigabyte and the CUDA one
+# downloads a CUDA runtime base plus torch's cu124 wheels. Building that on
+# every commit would spend an hour of runner time to learn nothing: the
+# Dockerfiles change a few times a year and the thing they install is pinned by
+# setup.py, which `tests` already guards. So: a release, a tag pushed by hand,
+# and a deliberate dispatch when someone is working on the Dockerfiles.
+#
+# THE RELEASE CALLS THIS FILE. A RELEASE TAG DOES NOT START IT. `release.yml`
+# creates the tag in its last job with `git push origin "$RELEASE_TAG"`, using
+# the credentials `actions/checkout` persists -- the default GITHUB_TOKEN --
+# and GitHub starts no workflow run from an event pushed with that token. A
+# `push: tags` trigger on its own would therefore sit idle through every
+# release while the installer guide told users an image had been published.
+# So the release invokes this workflow as a job, the way it already invokes
+# `online-installers.yml`, and passes the commit and the version it is
+# releasing. The tag trigger below is kept for a tag pushed by a person with
+# their own credentials, which does start a run; a release never fires both,
+# because the release's own tag push starts nothing.
+#
+# THE MODE IS AN INPUT, NEVER `github.event_name`. Inside a called workflow
+# that context holds the CALLER's event, so a release arrives here reporting
+# `push` (of a commit to main) or `workflow_dispatch`. Reading it to decide
+# what to do is the defect that shipped in 1.5.0.5, where `online-installers`
+# gated its collect job on `github.event_name == 'workflow_call'`, skipped it
+# on every release, and tagged the release with an empty SHA.
+#
+# THE SMOKE GATE WITHHOLDS AN IMAGE; IT CANNOT STOP A RELEASE. A called run
+# builds the commit the release is about to tag, which exists only after the
+# installers job has committed -- and by then the version is immutable on
+# PyPI. A failed check therefore fails this run, loudly and on the release run
+# itself since the release calls it, and publishes nothing; the GitHub release
+# still carries the installers that did build. Gating the release notes on a
+# container build would withhold installers that nothing was wrong with.
+#
+# SMOKE TEST BEFORE PUSH, NEVER AFTER. Every image is run before it is pushed:
+# it must print the version the tag claims, it must not be running as root, and
+# it must complete one real pipeline. A published image that cannot do those
+# three things is worse than no image, because the user finds out an hour into
+# their own data.
+#
+# THE FIRST PUSH CREATES A PRIVATE PACKAGE. GHCR defaults a new package to
+# private and no workflow permission changes that. After the first successful
+# release the owner has to flip
+# https://github.com/users/<owner>/packages/container/spacr/settings to public
+# once; it stays public afterwards.
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_call:
+    inputs:
+      source_ref:
+        description: Commit to build the images from
+        required: true
+        type: string
+      release_version:
+        description: Version the release publishes; the image must contain it
+        required: true
+        type: string
+      publish:
+        description: Push the built images to GHCR
+        required: false
+        type: boolean
+        default: true
+  workflow_dispatch:
+    inputs:
+      variant:
+        description: Which images to build
+        required: true
+        type: choice
+        default: both
+        options:
+          - both
+          - cpu
+          - cuda
+      push:
+        description: Push the built images to GHCR (off builds and tests only)
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+# Queue, never cancel. A release-tag build that is killed by the next tag
+# leaves a release with no image and nothing saying why. Split by ref so two
+# tags do not serialize behind each other for no reason.
+concurrency:
+  group: spacr-docker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    outputs:
+      variants: ${{ steps.plan.outputs.variants }}
+      version: ${{ steps.plan.outputs.version }}
+      image: ${{ steps.plan.outputs.image }}
+      push: ${{ steps.plan.outputs.push }}
+      moving_tags: ${{ steps.plan.outputs.moving_tags }}
+    steps:
+      # A called run must check out the commit the caller is releasing, not
+      # `github.sha`: inside a called workflow that is the CALLER's commit,
+      # which for a release is the push to main that started it -- one commit
+      # before the version bump and several before the installers.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+
+      # The matrix is computed here rather than filtered with a job-level
+      # `if:`, because the `matrix` context is not available to one -- a job
+      # that tried to skip itself by matrix value would fail to evaluate.
+      - name: Work out the version, the image name and the variants
+        id: plan
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          RELEASE_VERSION: ${{ inputs.release_version }}
+          RELEASE_PUBLISH: ${{ inputs.publish }}
+          INPUT_VARIANT: ${{ inputs.variant }}
+          INPUT_PUSH: ${{ inputs.push }}
+          OWNER: ${{ github.repository_owner }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          # setup.py is the one place the version lives. Read it as text with
+          # no imports, so this step needs nothing installed.
+          version=$(python3 - <<'PY'
+          import pathlib, re, sys
+          text = pathlib.Path("setup.py").read_text(encoding="utf-8")
+          match = re.search(r'^VERSION = "([^"]+)"', text, re.M)
+          if not match:
+              sys.exit("setup.py no longer declares VERSION = \"...\"")
+          print(match.group(1))
+          PY
+          )
+
+          # WHICH RUN THIS IS, decided by the input and never by
+          # $EVENT_NAME: inside a called workflow that variable holds the
+          # caller's event, so a release reports `push` -- of a commit to
+          # main, whose ref name is `main` and would fail the version check
+          # below on every single release.
+          if [ -n "${RELEASE_VERSION:-}" ]; then
+            mode=release
+          elif [ "$EVENT_NAME" = "push" ]; then
+            mode=tag
+          else
+            mode=dispatch
+          fi
+
+          # A published image must be the version it claims to be. For a
+          # release that means the commit the release asked for really
+          # carries the version being released; for a hand-pushed tag it
+          # catches a tag pushed at the wrong commit. Either way the build
+          # stops rather than publishing an image labelled with a version it
+          # does not contain.
+          case "$mode" in
+            release)
+              if [ "$RELEASE_VERSION" != "$version" ]; then
+                echo "::error::the release publishes $RELEASE_VERSION but setup.py at the commit it named says $version"
+                exit 1
+              fi
+              ;;
+            tag)
+              tagged="${REF_NAME#v}"
+              if [ "$tagged" != "$version" ]; then
+                echo "::error::tag $REF_NAME names version $tagged but setup.py says $version"
+                exit 1
+              fi
+              ;;
+          esac
+
+          # GHCR rejects an upper-case repository path; the owner has one.
+          image="ghcr.io/$(printf '%s' "$OWNER" | tr '[:upper:]' '[:lower:]')/spacr"
+
+          case "${INPUT_VARIANT:-both}" in
+            cpu)  variants='["cpu"]' ;;
+            cuda) variants='["cuda"]' ;;
+            *)    variants='["cpu","cuda"]' ;;
+          esac
+
+          case "$mode" in
+            release)
+              push="${RELEASE_PUBLISH:-true}"
+              moving=true
+              ;;
+            tag)
+              push=true
+              moving=true
+              ;;
+            *)
+              push="${INPUT_PUSH:-false}"
+              # A dispatched build publishes its exact version tags if asked
+              # to, and never moves `latest` / `cpu` / `cuda`. Those belong
+              # to a release.
+              moving=false
+              ;;
+          esac
+
+          {
+            echo "version=$version"
+            echo "image=$image"
+            echo "variants=$variants"
+            echo "push=$push"
+            echo "moving_tags=$moving"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "$mode: spaCR $version -> $image (variants $variants, push $push)"
+
+  image:
+    name: ${{ matrix.variant }} image
+    needs: plan
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        variant: ${{ fromJSON(needs.plan.outputs.variants) }}
+    env:
+      IMAGE: ${{ needs.plan.outputs.image }}
+      VERSION: ${{ needs.plan.outputs.version }}
+      VARIANT: ${{ matrix.variant }}
+      MOVING_TAGS: ${{ needs.plan.outputs.moving_tags }}
+    steps:
+      # The same commit the plan job read the version out of.
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
+
+      # A hosted runner has ~21 GB free and the CUDA image needs more than
+      # that between the base, the build stage and the finished image. These
+      # four trees are ~25 GB and nothing here uses any of them.
+      - name: Make room for a multi-gigabyte image
+        run: |
+          set -euo pipefail
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc \
+                      /opt/hostedtoolcache/CodeQL || true
+          df -h /
+
+      - name: Work out this variant's tags
+        id: tags
+        run: |
+          set -euo pipefail
+          case "$VARIANT" in
+            cpu)
+              primary="$IMAGE:$VERSION"
+              fixed="$IMAGE:$VERSION $IMAGE:$VERSION-cpu"
+              moving="$IMAGE:cpu $IMAGE:latest"
+              ;;
+            cuda)
+              primary="$IMAGE:$VERSION-cuda12.4"
+              fixed="$IMAGE:$VERSION-cuda12.4"
+              moving="$IMAGE:cuda12.4 $IMAGE:cuda"
+              ;;
+            *)
+              echo "::error::unknown variant $VARIANT"; exit 1 ;;
+          esac
+          if [ "$MOVING_TAGS" = "true" ]; then
+            all="$fixed $moving"
+          else
+            all="$fixed"
+          fi
+          {
+            echo "primary=$primary"
+            echo "all=$all"
+          } >> "$GITHUB_OUTPUT"
+          echo "tags: $all"
+
+      - name: Build
+        env:
+          TAGS: ${{ steps.tags.outputs.all }}
+        run: |
+          set -euo pipefail
+          args=()
+          for tag in $TAGS; do args+=(-t "$tag"); done
+          docker build \
+            -f "packaging/docker/Dockerfile.$VARIANT" \
+            --build-arg SPACR_VERSION="$VERSION" \
+            --build-arg SPACR_REVISION="$GITHUB_SHA" \
+            "${args[@]}" \
+            .
+
+      # The three checks. Each one has failed for real in some scientific
+      # image somewhere, which is why each is asserted rather than eyeballed.
+      - name: Smoke — the image reports the version it is tagged with
+        env:
+          REF: ${{ steps.tags.outputs.primary }}
+        run: |
+          set -euo pipefail
+          printed=$(docker run --rm "$REF" spacr --version | tr -d '\r')
+          echo "image says: $printed"
+          if [ "$printed" != "$VERSION" ]; then
+            echo "::error::$REF reports $printed, but it is tagged $VERSION"
+            exit 1
+          fi
+
+      - name: Smoke — the image does not run as root
+        env:
+          REF: ${{ steps.tags.outputs.primary }}
+        run: |
+          set -euo pipefail
+          uid=$(docker run --rm "$REF" id -u | tr -d '\r')
+          echo "default UID: $uid"
+          if [ "$uid" = "0" ]; then
+            echo "::error::$REF runs as root; every output file it writes to a mounted folder would be root-owned"
+            exit 1
+          fi
+          # And a foreign UID must work too, because that is what the
+          # documentation tells a user on a shared filesystem to pass.
+          docker run --rm --user 4242:4242 "$REF" spacr --version >/dev/null
+
+      # The CUDA image is smoke-tested on a runner with no GPU, on purpose:
+      # it proves the image is a working CPU install as well, which is what
+      # every `docker run` without `--gpus` gets. A real GPU run is not
+      # something a hosted runner can do.
+      - name: Smoke — one small pipeline run
+        env:
+          REF: ${{ steps.tags.outputs.primary }}
+        run: docker run --rm "$REF" python3 /opt/spacr/smoke_pipeline.py
+
+      - name: Log in to GHCR
+        if: needs.plan.outputs.push == 'true'
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: printf '%s' "$TOKEN" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Push
+        if: needs.plan.outputs.push == 'true'
+        env:
+          TAGS: ${{ steps.tags.outputs.all }}
+        run: |
+          set -euo pipefail
+          for tag in $TAGS; do docker push "$tag"; done
+
+      - name: Summary
+        if: always()
+        env:
+          TAGS: ${{ steps.tags.outputs.all }}
+          REF: ${{ steps.tags.outputs.primary }}
+        run: |
+          {
+            echo "### spaCR $VARIANT image"
+            echo
+            echo "| field | value |"
+            echo "| --- | --- |"
+            echo "| version | \`$VERSION\` |"
+            echo "| size | \`$(docker image inspect -f '{{.Size}}' "$REF" 2>/dev/null | awk '{printf "%.2f GB", $1/1024/1024/1024}')\` |"
+            echo "| pushed | \`${{ needs.plan.outputs.push }}\` |"
+            echo
+            echo "Tags:"
+            for tag in $TAGS; do echo "- \`$tag\`"; done
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -1,0 +1,279 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "control_sgrnas",
+      "source": "Control sgRNAs",
+      "source_sha256": "901ad5d14d7f886866d801222012e3d537aaca54cf2fceea496618e06e5e534c",
+      "translation": "sgRNAs de control"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_size",
+      "source": "Crop size",
+      "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa",
+      "translation": "Tamaño del recorte"
+    },
+    {
+      "table": "setting_labels",
+      "key": "drop_straight_tracks",
+      "source": "Drop straight tracks",
+      "source_sha256": "76cda4b81b43d75683b5c0daae676cac553599c3f5f4e512828999cf05f9afbb",
+      "translation": "Eliminar trayectorias rectas"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_base_channels",
+      "source": "Ops base channels",
+      "source_sha256": "67acb65a94a536a66dac6894883c1295ef48e6e9c1d45b37f6fadcb2c58da3c8",
+      "translation": "Canales de bases de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_footprint",
+      "source": "Ops footprint",
+      "source_sha256": "c986798989127fe6c441a7b6711bbaad60a846cca0a4c0cc10590e612084e64e",
+      "translation": "Margen de asignación de lecturas de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_library",
+      "source": "Ops library",
+      "source_sha256": "6d6c47df2af4e9af42cd87cb562da3094bace42b9006fcdec56cec412f7530f8",
+      "translation": "Biblioteca de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_raster_overlap",
+      "source": "Ops raster overlap",
+      "source_sha256": "075e123047f407d4215396c2af89415d19c96fcb512e40b0e4c4279b7826d95f",
+      "translation": "Solapamiento de la cuadrícula de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_read_threshold",
+      "source": "Ops read threshold",
+      "source_sha256": "08161b4f63ba9ba0047379e46294e94a1f703f7653309b7adb8837f70fe539e3",
+      "translation": "Umbral de lectura de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_store_reads",
+      "source": "Ops store reads",
+      "source_sha256": "2407539c761d452635379f42c0e1bad4ce52a79819ca4fd613fc65c37b19565f",
+      "translation": "Guardar lecturas de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_window_overlap",
+      "source": "Ops window overlap",
+      "source_sha256": "9cdde10632ff2d79a2c9a96404deeae3de1f2431c577520aa75a49f471063104",
+      "translation": "Solapamiento de ventanas de OPS"
+    },
+    {
+      "table": "setting_labels",
+      "key": "phenotype_source",
+      "source": "Phenotype source",
+      "source_sha256": "4264d9c208a00855238fd5af02240140945329261083ed8037baeb468ce265f1",
+      "translation": "Carpeta de origen del fenotipo"
+    },
+    {
+      "table": "setting_labels",
+      "key": "track_outlier_zscore",
+      "source": "Track outlier zscore",
+      "source_sha256": "bcafca9222a7830b82c4fead97743f85b9971477f20a69e0b5bb0acf6b508001",
+      "translation": "Puntuación z de valores atípicos por trayectoria"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "FT",
+      "source": "Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "7090700222ddcbc4b3821636ae3f290efdd28d22bfda92e3cb69a06002f3da90",
+      "translation": "flow_threshold de Cellpose para los submódulos independientes de aplicación y prueba de modelos, equivalente al parámetro <object>_flow_threshold por objeto del módulo Máscaras. Se descartan las máscaras cuyos flujos recalculados difieren de la predicción de la red más que este valor; por tanto, un valor bajo elimina objetos irregulares o inverosímiles, pero también pierde objetos reales. Intervalo habitual: de 0 a 3; por encima de 3 se conserva prácticamente todo candidato. Valor predeterminado: 0.4, el mismo que en Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d",
+      "translation": "Anotación del organismo que se añade a los resultados de regresión. 'toxoplasma' utiliza las tablas incluidas de Toxoplasma gondii, que no necesitan conexión de red y son la opción predeterminada. Cualquier otro nombre de organismo o identificador taxonómico de NCBI —'human', 'Plasmodium falciparum', 'Neospora caninum', '9606'— obtiene las entradas de ese organismo de UniProt; un identificador de acceso individual, como P04637, obtiene esa entrada. El resultado se guarda en caché junto a las salidas, por lo que repetir la ejecución no requiere conexión. Si spaCR no reconoce un nombre, deja los resultados sin anotar e indica los nombres parecidos. Déjelo vacío para no añadir anotaciones. Valor predeterminado: 'toxoplasma'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "auto_file_issues",
+      "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
+      "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62",
+      "translation": "Notificar una ejecución fallida como una incidencia en el repositorio público de spaCR en GitHub. El informe incluye el rastreo de la excepción, la configuración de la ejecución y las versiones del software, con las rutas, los nombres de usuario y de equipo y las credenciales ocultos. Si la notificación de incidencias está en 'always' (valor predeterminado), se envía automáticamente una vez por error cuando se ha iniciado sesión en GitHub; con 'ask', se abre una vista previa y solo se envía al pulsar Enviar informe. Valor predeterminado: True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_flow_threshold",
+      "source": "Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "1f20d8a299a118ec408e518911237c7bdc1ff3fda5f1739c413ec1ca763b9ebe",
+      "translation": "flow_threshold de Cellpose: error máximo permitido entre los flujos recalculados de una máscara candidata y los flujos predichos por la red. Las máscaras que lo superan se descartan; reducirlo elimina células irregulares o inverosímiles, pero también pierde células reales, mientras que aumentarlo conserva más. Intervalo útil aproximado: 0-3; por encima de 3 se conserva prácticamente todo candidato. Valor predeterminado: 0.4, el mismo que en Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1",
+      "translation": "Pesos para segmentar células. Cellpose 4 proporciona el modelo estándar 'cpsam'; también puede indicar un punto de control CPSAM creado con Entrenar Cellpose, que se carga como pretrained_model. Los nombres antiguos ('cyto', 'cyto2', 'cyto3', 'nuclei') se resuelven como cpsam porque Cellpose 4 ya no incluye esos modelos, salvo si segmentation_backend es 'cellpose3', que ejecuta el modelo real de ese nombre. Solo diameter modifica la inferencia (escalado por 30/diameter); model_type y diam_mean no se utilizan en v4.0.1+. Valor predeterminado: 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "drop_straight_tracks",
+      "source": "Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.",
+      "source_sha256": "340f2cc9181003122524eb1e7699f19fbdb078789ff8a08805e9b516ef88ea2e",
+      "translation": "Aplicar el umbral de rectitud. False informa de cuántas trayectorias superan straightness_threshold sin cambiar los datos; True elimina esas trayectorias de la tabla de velocidades, del resumen por pocillo y de los gráficos. Actívelo cuando la deriva de la platina o los intercambios de identidad produzcan trayectorias inverosímilmente rectas. Valor predeterminado: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "edge_thickness",
+      "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
+      "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df",
+      "translation": "Ancho del contorno como fracción del tamaño del objeto, en lugar de un número fijo de píxeles, para mantener el ancho relativo entre distintos valores de crop_size. Los valores mayores mejoran la visibilidad de los bordes en miniaturas pequeñas, pero cubren más píxeles interiores. Valor predeterminado: 0.1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
+      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5",
+      "translation": "Convención de nombres de archivo para interpretar las imágenes originales, elegida de una lista agrupada por fabricante: Yokogawa CV7000/CV8000 ('cellvoyager', la opción predeterminada) y CQ1, PerkinElmer/Revvity Opera Phenix y Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan y EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X y Matrix Screener, y Micro-Manager. 'custom' utiliza custom_regex, y 'auto' primero renombra los archivos de la carpeta con la nomenclatura de Yokogawa (utilizando custom_regex si se proporciona o detección automática en caso contrario) antes de interpretarlos. Las convenciones marcadas como provisionales se reconstruyeron a partir de nombres de archivo reales encontrados en conjuntos de datos públicos, no a partir de la documentación del fabricante. Una convención incorrecta puede asignar mal los identificadores de placa, pocillo, campo o canal y colocar imágenes en carpetas de canales equivocadas; utilice 'Test on my folder' (Probar en mi carpeta) para comprobarlo antes de ejecutar."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_flow_threshold",
+      "source": "Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "c21542dce208ebb2b4c0511d434405fc96c9cfc6a1c835810b8e851735f16e07",
+      "translation": "flow_threshold de Cellpose para máscaras de núcleos: error máximo permitido entre los flujos recalculados de una máscara y los flujos predichos por la red. Reducirlo descarta más núcleos de forma irregular y produce menos objetos, pero más limpios; aumentarlo conserva casi todo lo que propone Cellpose. Intervalo habitual: de 0 a 3; por encima de 3 se conserva prácticamente todo candidato. Valor predeterminado: 0.4, el mismo que en Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
+      "source_sha256": "288cd1bce7442ea139575cf1cfa904c0245ad41a4289d7c61081f012535b1224",
+      "translation": "Pesos utilizados para segmentar núcleos. Los valores válidos son 'cpsam' o la ruta a un punto de control CPSAM personalizado producido con Entrenar Cellpose. 'nuclei' y 'nucleus' se resuelven como 'cpsam' porque Cellpose 4 eliminó los modelos anteriores a SAM, salvo si segmentation_backend es 'cellpose3', que ejecuta el modelo 'nuclei' real de Cellpose 3. Configure nucleus_diameter para controlar la escala; de los tres parámetros que antes distinguían los modelos, solo diameter sigue teniendo efecto (eval reescala por 30/diameter); model_type y diam_mean se omiten. Valor predeterminado: 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. Given a phenotype folder it also records where each phenotype field lands on the stitched well. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ.",
+      "source_sha256": "0088ccbc77f2ea1c7f609918336830ef4a067258728251546a50a4f8d0daca9c",
+      "translation": "Convertir las teselas de la adquisición de secuenciación de cada pocillo de un cribado óptico agrupado en tablas: unir las teselas nucleares, segmentar y numerar los núcleos de todo el pocillo y, después, decodificar las lecturas de cada campo y asignar un código de barras a cada núcleo cuyas lecturas concuerden. Si se proporciona una carpeta de fenotipos, también registra la posición de cada campo fenotípico en el mosaico del pocillo. Las tablas se escriben en measurements.db. Las lecturas se decodifican a partir de las imágenes, no de FASTQ."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_base_channels",
+      "source": "Which channels carry the four bases, in the order G, T, A, C, separated by commas. These names are matched against the channel token in each tile's file name, so a run whose base channels are named differently is read by changing this rather than by renaming files. Exactly four are required: a shorter list decodes a shorter barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+      "source_sha256": "e642706d65b469a850f000aed84c98dc5b7e7e4578c7e0e7b7780f14f0f28bf5",
+      "translation": "Canales que contienen las cuatro bases, en el orden G, T, A, C, separados por comas. Estos nombres se comparan con el identificador de canal en el nombre de archivo de cada tesela; si los canales de bases de una adquisición tienen otros nombres, cambie este ajuste en lugar de renombrar los archivos. Se requieren exactamente cuatro: una lista más corta decodifica un código de barras más corto que los de la biblioteca. Valor predeterminado: 'CY3,A594,CY5,CY7'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_footprint",
+      "source": "How far beyond a nucleus's boundary a read may lie and still be counted as that nucleus's read, in pixels. On the reference plate 10 pixels held 98 % of the detected spots and 3 held 67 %, and the wider setting assigned 28 % more objects a barcode at slightly higher purity, because the reads sit around the rim rather than inside. Too wide starts giving a read to a neighbour. Default 10.",
+      "source_sha256": "5a22332a20cb91e21c7cca30d20a5afb12b426838315e5601491dfca7643cc53",
+      "translation": "Distancia máxima, en píxeles, a la que una lectura puede encontrarse fuera del borde de un núcleo y seguir contando como lectura de ese núcleo. En la placa de referencia, 10 píxeles incluían el 98 % de los puntos detectados y 3 incluían el 67 %; el ajuste más amplio asignó un código de barras a un 28 % más de objetos, con una pureza ligeramente mayor, porque las lecturas se sitúan alrededor del borde en lugar de dentro. Un valor demasiado amplio empieza a asignar lecturas a núcleos vecinos. Valor predeterminado: 10."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "translation": "Archivo CSV de códigos de barras de guías, cuya columna de códigos se llama prefix, barcode o sequence. Si se proporciona, el código de barras determinado para cada núcleo también se compara con la guía más cercana, y la ejecución informa de cuántos puntos coinciden exactamente con la biblioteca: la cifra que indica si la decodificación funcionó. Si se deja vacío, se siguen determinando códigos de barras, pero no se puede evaluar su coincidencia. Valor predeterminado: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_raster_overlap",
+      "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
+      "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
+      "translation": "Solapamiento, en píxeles, entre teselas de secuenciación vecinas en la cuadrícula de adquisición del microscopio. Es un ajuste propio de la adquisición, no un parámetro que deba optimizarse: indica al proceso de unión dónde buscar la tesela vecina; un valor muy alejado del real pierde conexiones y deja campos sin colocar. Valor predeterminado: 213, medido en las teselas de 1,480 píxeles de la placa de referencia."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_read_threshold",
+      "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
+      "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
+      "translation": "Cuánto más brillante que su entorno debe ser un punto para contar como lectura. Reducir el valor encuentra más lecturas y más residuos, lo que se refleja en una menor tasa de coincidencia con la biblioteca, no en un error; aumentarlo pierde lecturas reales y deja núcleos con muy pocas para alcanzar un consenso. Valor predeterminado: 315, el valor utilizado en la ejecución de referencia para esta placa."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "translation": "Escribir todas las lecturas que sustentan los códigos de barras en la tabla ops_reads: una fila por lectura y ciclo, con la base determinada, su margen y las cuatro intensidades utilizadas para determinarla. Así se puede rastrear un código de barras sospechoso hasta sus píxeles. Está desactivado por defecto porque genera muchos datos: un pocillo completo de la placa de referencia ocupa unos treinta millones de filas; actívelo para uno o dos pocillos en lugar de para una placa entera. Valor predeterminado: False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_window_overlap",
+      "source": "How far the segmentation windows overlap each other, in pixels. A nucleus is only numbered once if at least one window saw all of it, so this has to exceed the largest nucleus; when it does not, the run reports the objects no window saw whole and says by how much. Raising it costs time, because more of the well is segmented twice. Default 96.",
+      "source_sha256": "1e1581eba24e7267258152e0476fc54bb84ab9ead261eebb0dada01a4bceb64e",
+      "translation": "Solapamiento, en píxeles, entre las ventanas de segmentación. Un núcleo solo se numera una vez si al menos una ventana lo contiene entero; por tanto, el solapamiento debe superar el tamaño del núcleo más grande. Si no lo supera, la ejecución informa de los objetos que ninguna ventana contuvo enteros y de cuánto faltó. Aumentarlo requiere más tiempo porque una parte mayor del pocillo se segmenta dos veces. Valor predeterminado: 96."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_flow_threshold",
+      "source": "Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "0a3f78719e3890bbd4dec0e03a665a47c180d20c6278b1c8a57c4fc193d31ff6",
+      "translation": "flow_threshold de Cellpose para máscaras de patógenos: una máscara candidata se descarta cuando sus flujos recalculados difieren de la predicción de la red más que este valor. Auméntelo para conservar más parásitos, a veces deformados; redúzcalo para conservar solo objetos limpios y bien formados. Intervalo habitual: 0.0-3.0; por encima de 3 se conserva prácticamente todo candidato. Valor predeterminado: 0.4, el mismo que en Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_model_name",
+      "source": "Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "source_sha256": "edd77ffdd67ac22d1f2475ccff81df4243b85c717c39f4265bccef8968fe45f5",
+      "translation": "Pesos utilizados para segmentar patógenos. 'cpsam' o la ruta a un punto de control propio creado con Entrenar Cellpose. Los puntos de control incluidos toxo_pv_lumen / toxo_cyto son CPnet de Cellpose-3, que CPSAM no puede cargar, por lo que se sustituyen por 'cpsam' y se informa de ello; con segmentation_backend en 'cellpose3', un nombre de modelo de Cellpose 3 o una ruta a un punto de control se ejecuta tal como se indica. La clave antigua 'pathogen_model' sigue prevaleciendo sobre esta cuando está definida. De los tres parámetros que antes distinguían los modelos, solo diameter sigue teniendo efecto (eval reescala por 30/diameter); model_type y diam_mean se registran como 'no used in v4.0.1+' y se omiten. Valor predeterminado: 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source": "The folder holding the high-magnification phenotype acquisition of the same wells. Given one, the run aligns a few of its fields to the stitched sequencing well, fits the acquisition raster to those, and records where every phenotype field lands and which sequencing tile covers it. Empty skips that step and decodes the sequencing acquisition alone. Default None.",
+      "source_sha256": "b192dcf04f65557cdc8eac339b97f06fed7b0fc80bc962f04f13cee6a03244e4",
+      "translation": "Carpeta con la adquisición fenotípica de gran aumento de los mismos pocillos. Si se proporciona, la ejecución alinea algunos de sus campos con el mosaico del pocillo de secuenciación, ajusta la cuadrícula de adquisición a esos campos y registra dónde se sitúa cada campo fenotípico y qué tesela de secuenciación lo cubre. Si se deja vacía, se omite ese paso y solo se decodifica la adquisición de secuenciación. Valor predeterminado: None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "reuse_existing_measurements",
+      "source": "If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
+      "source_sha256": "fbbf8825498bec4058509211f8e38cdc27b25ae3f2d4d2eb133f885fc70df9a0",
+      "translation": "Si measurements.db ya contiene la tabla indicada por db_table_name, cargarla en lugar de volver a extraer regionprops de merged/*.npy. Ahorra la mayor parte del tiempo de ejecución al repetir únicamente el control de calidad (QC) de infección o los gráficos, pero también omite el suavizado de trayectorias, por lo que los cambios en max_displacement o track_outlier_zscore solo tienen efecto si este ajuste es False. Valor predeterminado: True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "route_errors_through_ai",
+      "source": "Send a failing run's traceback to the AI Console automatically and request an explanation. The traceback and the settings leave your machine when this is on; leave it off if your paths or filenames are themselves sensitive. Default True.",
+      "source_sha256": "08c2d5211c74b3254e6d9a57f666baeb2c701fca240723e1b87724cc61e7d6a3",
+      "translation": "Enviar automáticamente el rastreo de la excepción de una ejecución fallida a la Consola de IA y solicitar una explicación. Cuando está activado, el rastreo y la configuración salen de su equipo; déjelo desactivado si las propias rutas o los nombres de archivo contienen información sensible. Valor predeterminado: True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+      "source_sha256": "bf311c83ef2ff4f8a92accb1b6d01d1b7cc6dea6c3f9def8597317afab04ab3e",
+      "translation": "Modelo que segmenta células, núcleos y patógenos; las máscaras de modelos distintos no son comparables. 'cellpose' (valor predeterminado) ejecuta el modelo indicado para cada objeto. 'cellpose3' ejecuta Cellpose 3 con el nombre cyto3, cyto2, cyto o nuclei del modelo de un objeto, o con la ruta a un punto de control de Cellpose 3; otros nombres se interpretan como nuclei para núcleos y cyto3 en los demás casos. 'samcell' y 'dinocell' son modelos 2-D para imágenes de células vivas y sin marcaje que solo leen el canal del objeto. Todos los motores excepto 'cellpose' se instalan desde el Catálogo de modelos en su propio entorno y rechazan ejecuciones z_stack y t_stack. Valor predeterminado: 'cellpose'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "straightness_threshold",
+      "source": "Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
+      "source_sha256": "efc1651d6361235dc8ca9d2c4ca0644038287e1e488172f06cae576bae7b125c",
+      "translation": "Umbral de rectitud, donde rectitud = desplazamiento neto / longitud total de la trayectoria (0 = vuelve al inicio, 1 = perfectamente recta). Cuando drop_straight_tracks es True, las trayectorias con este valor o uno superior se eliminan como deriva o artefactos del seguimiento; reducirlo descarta más trayectorias. El número de trayectorias siempre se registra. Valor predeterminado: 0.95."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "track_outlier_zscore",
+      "source": "Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+      "source_sha256": "3d7840b2fb1de858799460a454d088e85f6a98d04d77b01aac262bdadac5c775",
+      "translation": "Sensibilidad a valores atípicos al suavizar características escalares dentro de una trayectoria (área, área del rectángulo delimitador, diámetro equivalente, perímetro, solidez e intensidad media/máxima/mínima). El valor de un fotograma que se aleja de la media de su trayectoria más de este número de desviaciones estándar, y cuyos dos vecinos están ambos dentro de la mitad de ese umbral, se sustituye por la media de sus vecinos. Un valor menor suaviza más; no se elimina ningún dato. Valor predeterminado: 3.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "x_lim",
+      "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
+      "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7",
+      "translation": "Límites de dos elementos [min, max] para el eje del coeficiente (x) del gráfico de volcán de Toxoplasma producido por el flujo de regresión cuando annotation_source es la anotación incluida de Toxoplasma. Reduzca el intervalo para ampliar los resultados agrupados cerca de cero; amplíelo para mantener en el gráfico los genes con efectos grandes. Dejarlo en None utiliza [-0.5, 0.5], no una escala automática. Valor predeterminado: None."
+    }
+  ]
+}

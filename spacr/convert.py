@@ -1113,22 +1113,56 @@ def _describe_czi(path: str) -> Dict[str, Any]:
             'axes_assumed': '', 'reader': 'czifile'}
 
 
+def _lif_images(path: str) -> list:
+    """Every image in a LIF, through ``readlif.reader.LifFile``.
+
+    ``readlif`` has only ever exposed ``LifFile`` / ``get_iter_image`` /
+    ``get_frame``. This module used to call ``readlif.Reader(...)
+    .getIterImage()``, which no release of the package has had, so every
+    LIF failed to scan with ``AttributeError: module 'readlif' has no
+    attribute 'Reader'`` -- reported per file as unreadable, which read as a
+    damaged file rather than as spaCR never having read one.
+    """
+    _import_reader('.lif')
+    module = importlib.import_module('readlif.reader')
+    return list(module.LifFile(path).get_iter_image())
+
+
+def _lif_series(images: Sequence[Any]) -> List[Dict[str, Any]]:
+    """One entry per (image, mosaic tile) of a LIF, with its own dimensions.
+
+    PER SERIES, because one LIF routinely mixes a two-channel snapshot with a
+    one-channel z-stack, and describing every series by the first one's
+    dimensions reads planes that do not exist.
+    """
+    series: List[Dict[str, Any]] = []
+    for image_index, image in enumerate(images):
+        dims = getattr(image, 'dims', None)
+        tiles = max(int(getattr(dims, 'm', 1) or 1), 1)
+        for tile in range(tiles):
+            series.append({
+                'lif_image': image_index,
+                'lif_tile': tile,
+                'lif_name': str(getattr(image, 'name', '') or ''),
+                'shape': (int(getattr(dims, 'y', 0) or 0),
+                          int(getattr(dims, 'x', 0) or 0)),
+                'n_t': max(int(getattr(dims, 't', 1) or 1), 1),
+                'n_z': max(int(getattr(dims, 'z', 1) or 1), 1),
+                'n_c': max(int(getattr(image, 'channels', 1) or 1), 1),
+            })
+    return series
+
+
 def _describe_lif(path: str) -> Dict[str, Any]:
-    """Read a LIF's dimensions via ``readlif``."""
-    module = _import_reader('.lif')
-    reader = module.Reader(path)
-    images = list(reader.getIterImage())
-    if not images:
+    """Read a LIF's dimensions via ``readlif``, every series separately."""
+    series = _lif_series(_lif_images(path))
+    if not series:
         raise ConfigurationError(f'{path} contains no images')
-    first = images[0]
-    dims = getattr(first, 'dims', None)
-    return {'shape': (int(getattr(dims, 'y', 0) or 0),
-                      int(getattr(dims, 'x', 0) or 0)),
+    first = series[0]
+    return {'shape': first['shape'],
             'axes': 'LIF', 'dtype': '',
-            'n_t': max(int(getattr(dims, 't', 1) or 1), 1),
-            'n_z': max(int(getattr(dims, 'z', 1) or 1), 1),
-            'n_c': max(int(getattr(first, 'channels', 1) or 1), 1),
-            'n_series': len(images),
+            'n_t': first['n_t'], 'n_z': first['n_z'], 'n_c': first['n_c'],
+            'n_series': len(series), 'per_series': series,
             'axes_assumed': '', 'reader': 'readlif'}
 
 
@@ -1147,8 +1181,161 @@ def _describe(path: str, ext: str) -> Dict[str, Any]:
     raise ConfigurationError(f'{ext} is not a supported input format')
 
 
+def _convention_key(metadata_type: Optional[str],
+                    custom_regex: Optional[str]) -> Optional[str]:
+    """The filename convention :func:`scan` should parse by, or None.
+
+    ``None``, ``''`` and ``'auto'`` all mean "work it out from the folders
+    and the channel / z / t tokens", which is what the importer did before it
+    knew any convention. ``'auto'`` is Mask's word for the same idea -- rename
+    first, then parse -- so a settings file carrying it asks for exactly this.
+
+    :raises ConfigurationError: for a key the convention table does not
+        hold, and for ``'custom'`` with no pattern.
+    """
+    from . import regex_infer
+
+    key = str(metadata_type or '').strip()
+    if key in ('', 'auto'):
+        return None
+    if regex_infer._metadata_convention(key) is None:
+        raise ConfigurationError(
+            f'Unknown metadata_type {key!r}; expected one of '
+            f'{", ".join(regex_infer._metadata_convention_keys())}')
+    if key == 'custom':
+        if not str(custom_regex or '').strip():
+            raise ConfigurationError(
+                "metadata_type='custom' needs custom_regex: a pattern with "
+                "named groups wellID, fieldID and chanID.")
+        try:
+            re.compile(str(custom_regex))
+        except re.error as exc:
+            raise ConfigurationError(
+                f'custom_regex does not compile: {exc}') from exc
+    return key
+
+
+def _convention_well(key: str, token: str) -> Optional[str]:
+    """Turn one vendor's spelling of a well into ``A01``, or None.
+
+    Four conventions write the well as something other than its name: the
+    CQ1 as a 1-based index over 24 columns (the same arithmetic as
+    :func:`spacr.utils._convert_cq1_well_id`), Harmony as ``r05c01``, and the
+    Leica Matrix Screener as ``U00--V00`` with U the zero-based column and V
+    the zero-based row. The rest write a name :func:`normalise_well` already
+    reads, including IN Cell's ``E - 01``.
+
+    :param key: the convention.
+    :param token: what its ``wellID`` group captured.
+    :returns: the canonical well, or None when the token is not a well at all
+        (a Zeiss scene index, Micro-Manager's literal ``img``) -- the caller
+        then takes the well from the folder.
+    """
+    text = str(token or '').strip()
+    if not text:
+        return None
+    if key == 'cq1':
+        index = schema.parse_int_token(text, allow_prefix=False)
+        if index is None or index < 1:
+            return None
+        row, column = divmod(index - 1, 24)
+        return schema.well_id(row + 1, column + 1)
+    if key == 'opera_phenix':
+        found = re.fullmatch(r'(?i)r(\d+)c(\d+)', text)
+        if found is None:
+            return None
+        return normalise_well(schema.well_id(int(found.group(1)),
+                                             int(found.group(2))))
+    if key == 'leica_matrix_screener':
+        found = re.fullmatch(r'(?i)U(\d+)--V(\d+)', text)
+        if found is None:
+            return None
+        return normalise_well(schema.well_id(int(found.group(2)) + 1,
+                                             int(found.group(1)) + 1))
+    return normalise_well(text)
+
+
+def _parse_by_convention(name: str, key: str,
+                         custom_regex: Optional[str] = None
+                         ) -> Optional[Dict[str, Any]]:
+    """Read plate, well, field, channel, z and t out of one filename.
+
+    The pattern is the one Mask parses the same convention with
+    (:func:`spacr.regex_infer._metadata_pattern`), so a folder Mask can read
+    is a folder Import can read. What is added here is what Mask leaves to
+    the user: which numbers count from zero, and how each vendor spells a
+    well.
+
+    :param name: the bare filename.
+    :param key: the convention.
+    :param custom_regex: the user's pattern, for ``'custom'``.
+    :returns: ``None`` when the name does not follow the convention;
+        otherwise a dict with ``plate`` (or None when the name carries none),
+        ``well`` (canonical, or None), ``well_token``, ``field`` (the field
+        key), ``field_number`` (1-based int, or None when the field is not a
+        number -- a Leica ``X00--Y00``), ``channel`` (``'C<n>'`` for a
+        number, the name as written otherwise, or None), ``z`` and ``t``
+        (1-based ints, or None).
+    """
+    from . import regex_infer
+
+    groups = regex_infer._metadata_match(name, key, custom_regex)
+    if groups is None:
+        return None
+    zero_based = regex_infer._metadata_zero_based(key)
+
+    def _number(group: str) -> Optional[int]:
+        """The group as a 1-based integer, or None when it is not a number."""
+        text = str(groups.get(group) or '').strip()
+        if not text.isdigit():
+            return None
+        return int(text) + (1 if group in zero_based else 0)
+
+    field_number = _number('fieldID')
+    field_text = str(groups.get('fieldID') or '').strip()
+    channel_number = _number('chanID')
+    channel_text = str(groups.get('chanID') or '').strip()
+    if channel_number is not None:
+        channel: Optional[str] = f'C{channel_number}'
+    else:
+        channel = channel_text or None
+    well_token = str(groups.get('wellID') or '').strip()
+    return {
+        'plate': str(groups.get('plateID') or '').strip() or None,
+        'well': _convention_well(key, well_token),
+        'well_token': well_token,
+        'field': (str(field_number) if field_number is not None
+                  else field_text),
+        'field_number': field_number,
+        'channel': channel,
+        'z': _number('sliceID'),
+        't': _number('timeID'),
+    }
+
+
+def _inside_wins(meta: Dict[str, Any], described: TMapping[str, Any]
+                 ) -> Dict[str, Any]:
+    """Drop a convention's z or t token when the file itself holds that axis.
+
+    A convention names ONE plane per file. A container that holds several --
+    a CZI of every z, an ND2 of every timepoint -- has the axis inside it, and
+    :func:`plan` refuses a file whose name and whose contents both number the
+    same axis, because one of the two numberings would be silently dropped.
+    Under a convention the name was never meant to describe a container, so
+    the file's own axis is the one that is kept.
+    """
+    meta = dict(meta)
+    if int(described.get('n_z', 1) or 1) > 1:
+        meta['z_index'] = None
+    if int(described.get('n_t', 1) or 1) > 1:
+        meta['t_index'] = None
+    return meta
+
+
 def scan(src: str, layout: str = 'auto',
-         extensions: Optional[Sequence[str]] = None) -> List[SourceImage]:
+         extensions: Optional[Sequence[str]] = None,
+         metadata_type: Optional[str] = None,
+         custom_regex: Optional[str] = None) -> List[SourceImage]:
     """Walk ``src`` and describe every image it holds. Writes nothing.
 
     This is the read-only half of the converter: it opens headers, not
@@ -1175,15 +1362,29 @@ def scan(src: str, layout: str = 'auto',
     :param src: folder to scan.
     :param layout: one of :data:`LAYOUTS`.
     :param extensions: override the scanned extensions.
+    :param metadata_type: a filename convention from Mask's ``metadata_type``
+        list (``'opera_phenix'``, ``'cq1'``, ``'zeiss_zen_split_tiles'``, ...).
+        When given, plate, well, field, channel, z and t are READ FROM EACH
+        NAME by that convention's pattern, and the folders only supply what
+        the name does not carry -- the plate for a convention with no plate
+        group, the well for one whose "well" is a scene index or a literal
+        word. A file whose name does not follow the convention is reported
+        unreadable, with the reason, rather than guessed at. ``None``,
+        ``''`` and ``'auto'`` keep the folder-and-token inference.
+    :param custom_regex: the pattern for ``metadata_type='custom'``, with
+        named groups ``wellID``, ``fieldID`` and ``chanID`` (and optionally
+        ``plateID``, ``timeID``, ``sliceID``).
     :returns: one :class:`SourceImage` per file (or per series in a file).
-    :raises ConfigurationError: when ``src`` is not a directory or
-        ``layout`` is not recognised.
+    :raises ConfigurationError: when ``src`` is not a directory,
+        ``layout`` is not recognised, or ``metadata_type`` names no
+        convention.
     """
     if not src or not os.path.isdir(src):
         raise ConfigurationError(f'Source folder does not exist: {src!r}')
     if layout not in LAYOUTS:
         raise ConfigurationError(
             f'Unknown layout {layout!r}; expected one of {", ".join(LAYOUTS)}')
+    convention = _convention_key(metadata_type, custom_regex)
 
     exts = tuple(extensions) if extensions else IMAGE_EXTENSIONS
     entries = _iter_files(src, exts)
@@ -1198,11 +1399,37 @@ def scan(src: str, layout: str = 'auto',
         if extra:
             field_key = f'{extra}/{field_key}'
         rel = os.path.relpath(path, src)
+        field_number: Optional[int] = None
+        if convention is not None:
+            parsed = _parse_by_convention(parts[-1], convention, custom_regex)
+            if parsed is None:
+                sources.append(SourceImage(
+                    path=path, plate=plate_key, well=well_key,
+                    field=field_key, channel=None, z=0, t=0,
+                    meta={'ext': ext, 'layout': resolved,
+                          'source_relpath': rel, 'stem': stem,
+                          'metadata_type': convention,
+                          'error': (f'the name does not follow the '
+                                    f'{convention!r} filename convention')}))
+                continue
+            folder_well = (normalise_well(well_key)
+                           if resolved != 'flat' else None)
+            plate_key = parsed['plate'] or plate_key
+            well_key = (parsed['well'] or folder_well
+                        or parsed['well_token'] or well_key)
+            field_key = parsed['field'] or field_key
+            field_number = parsed['field_number']
+            channel_key = parsed['channel']
+            z_index = parsed['z']
+            t_index = parsed['t']
         base_meta: Dict[str, Any] = {
             'ext': ext, 'layout': resolved, 'source_relpath': rel,
             'stem': stem, 'z_index': z_index, 't_index': t_index,
             'looks_converted': bool(_YOKO_NAME.match(stem)),
         }
+        if convention is not None:
+            base_meta['metadata_type'] = convention
+            base_meta['field_number'] = field_number
 
         if not reader_available(ext):
             sources.append(SourceImage(
@@ -1222,19 +1449,30 @@ def scan(src: str, layout: str = 'auto',
             continue
 
         n_series = max(int(described.get('n_series', 1) or 1), 1)
+        if convention is not None:
+            base_meta = _inside_wins(base_meta, described)
+            if int(described['n_c']) > 1:
+                channel_key = None
+            if n_series > 1:
+                base_meta['field_number'] = None
+        per_series = list(described.get('per_series') or ())
         for series in range(n_series):
             series_field = field_key if n_series == 1 else f'{field_key}#s{series + 1}'
+            own = dict(described)
+            if series < len(per_series):
+                own.update(per_series[series])
             sources.append(SourceImage(
                 path=path,
                 plate=plate_key,
                 well=well_key,
                 field=series_field,
                 channel=channel_key,
-                z=int(described['n_z']),
-                t=int(described['n_t']),
-                n_channels=int(described['n_c']),
+                z=int(own['n_z']),
+                t=int(own['n_t']),
+                n_channels=int(own['n_c']),
                 meta=dict(base_meta, series=series, **{
-                    k: v for k, v in described.items() if k != 'n_series'})))
+                    k: v for k, v in own.items()
+                    if k not in ('n_series', 'per_series')})))
     return sources
 
 
@@ -1249,6 +1487,42 @@ def _channel_keys(source: SourceImage) -> List[str]:
     if source.channel:
         return [source.channel]
     return [f'C{i + 1}' for i in range(max(int(source.n_channels), 1))]
+
+
+def _named_field_numbers(sources: Sequence[SourceImage],
+                         fields: Sequence[str]) -> Dict[str, int]:
+    """The field numbers a filename convention stated, when they can be kept.
+
+    Folder-and-token inference numbers a well's fields 1..N in sorted order,
+    because a folder of ``fov_a`` / ``fov_b`` has no numbers to keep. A
+    convention does: ``F009`` is field 9, and renumbering it to 1 is what
+    stops an imported plate from lining up with the acquisition it came from
+    -- the field a collaborator names in an email is no longer the field on
+    screen. So the stated numbers are kept whenever every field of the well
+    has exactly one and no two fields share it; otherwise the well falls back
+    to 1..N, as before.
+
+    :param sources: the readable sources of one well.
+    :param fields: that well's field keys.
+    :returns: ``{field key: number}``, or ``{}`` when the numbers cannot be
+        kept.
+    """
+    stated: Dict[str, set] = {}
+    for source in sources:
+        stated.setdefault(source.field, set()).add(
+            source.meta.get('field_number'))
+    numbers: Dict[str, int] = {}
+    for field_key in fields:
+        values = stated.get(field_key, {None})
+        if len(values) != 1:
+            return {}
+        value = next(iter(values))
+        if not isinstance(value, int) or value < 1:
+            return {}
+        numbers[field_key] = value
+    if len(set(numbers.values())) != len(numbers):
+        return {}
+    return numbers
 
 
 def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
@@ -1266,7 +1540,9 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
       produces the ``plate1_A01_…`` the converter is specified against),
       or the sanitised folder name with ``plate_naming='name'``.
     * **well** — see :func:`assign_wells`.
-    * **field** — 1..N per well, over the distinct field keys.
+    * **field** — 1..N per well, over the distinct field keys; or, for
+      sources :func:`scan` read by a ``metadata_type``, the field numbers
+      the filenames state, when every field has one and none repeats.
     * **channel** — 1..N per plate, over the distinct channel keys, so
       ``C01`` means the same stain in every well of a plate.
 
@@ -1369,8 +1645,12 @@ def plan(sources: Sequence[SourceImage], z_handling: str = Z_KEEP,
             fields = sorted({s.field for s in readable
                              if s.plate == plate_key and s.well == well_key},
                             key=_natural_key)
+            kept = _named_field_numbers(
+                [s for s in readable
+                 if s.plate == plate_key and s.well == well_key], fields)
             for index, field_key in enumerate(fields, start=1):
-                field_map[(plate_key, well_key, field_key)] = index
+                field_map[(plate_key, well_key, field_key)] = (
+                    kept[field_key] if kept else index)
 
     for source in sorted(readable, key=lambda s: (_natural_key(s.plate),
                                                   _natural_key(s.well),
@@ -1611,15 +1891,21 @@ def _read_czi(source: SourceImage) -> np.ndarray:
 
 def _read_lif(source: SourceImage) -> np.ndarray:
     """Read every plane of the declared LIF image series as 5-D data."""
-    module = _import_reader('.lif')
     series = int(source.meta.get('series', 0) or 0)
-    images = list(module.Reader(source.path).getIterImage())
-    image = images[series]
+    images = _lif_images(source.path)
+    if 'lif_image' in source.meta:
+        image_index = int(source.meta.get('lif_image') or 0)
+        tile = int(source.meta.get('lif_tile') or 0)
+    else:
+        entry = _lif_series(images)[series]
+        image_index, tile = entry['lif_image'], entry['lif_tile']
+    image = images[image_index]
     planes = []
     for t in range(source.t):
         for z in range(source.z):
             for c in range(source.n_channels):
-                planes.append(np.asarray(image.getFrame(z=z, t=t, c=c)))
+                planes.append(np.asarray(
+                    image.get_frame(z=z, t=t, c=c, m=tile)))
     stacked = np.stack(planes)
     return stacked.reshape((source.t, source.z, source.n_channels)
                            + stacked.shape[-2:])

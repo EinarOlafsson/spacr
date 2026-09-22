@@ -1,17 +1,32 @@
 {
-  "lesson": "09_annotate", "language": "da",
-  "english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
-  "review": {"kind": "Editorial caption translation checked against English and the verified real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish queued labels from database persistence through real Next/Back actions.", "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question."]},
+  "lesson": "09_annotate",
+  "language": "da",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
+  "review": {
+    "kind": "Editorial caption translation checked against English and the verified real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish queued labels from database persistence through real Next/Back actions.",
+      "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
+    ]
+  },
   "title": "Annotate: rigtige billedudsnit, gemte mærkater og gennemgangsværktøjer",
   "description": "Indlæs det downloadbare udsnitsdatasæt, opret en separat annotationskolonne, kontrollér faktisk gemte mærkater, tilpas visningen, og find gennemgangs- og træningsværktøjerne i det aktuelle Annotate-modul.",
-  "objectives": ["Vælge det passende downloadbare eksempel med udsnit eller læsning efter behov og åbne den rigtige projektmappe.", "Bruge en separat annotationskolonne, skelne mellem ventende og gemte mærkater og rydde demonstrationsmærkaten uden at ændre oprindelige annotationer.", "Undersøge klasseantal og dækning og ændre visningsfarver uden at ændre billedfiler.", "Finde den indlejrede Agreement-arbejdsgang, de aktuelle træningsveje, annotationsdatabasegeneratoren og den valgfrie AI-konsol."],
-  "prerequisite": "Åbn spaCR, og vælg Annotate blandt Core-modulerne. Optagelsen bruger det downloadbare Load-datasæt: 2.341 eksporterede PNG-udsnit og deres måledatabase. Der kræves hverken modeltræning eller AI-tjeneste. Definér de biologiske klasser før en rigtig annotationsrunde; den midlertidige mærkat her demonstrerer lagring, ikke en biologisk vurdering.",
+  "objectives": [
+    "Vælge det passende downloadbare eksempel med udsnit eller læsning efter behov og åbne den rigtige projektmappe.",
+    "Bruge en separat annotationskolonne, skelne mellem ventende og gemte mærkater og rydde demonstrationsmærkaten uden at ændre oprindelige annotationer.",
+    "Undersøge klasseantal og dækning og ændre visningsfarver uden at ændre billedfiler.",
+    "Finde den indlejrede Agreement-arbejdsgang, de aktuelle træningsveje, annotationsdatabasegeneratoren og den valgfrie AI-konsol."
+  ],
+  "prerequisite": "Optaget med spaCR 1.5.0.8. Den automatiske åbning blev kontrolleret uafhængigt, før de samme eksempelfiler blev valgt via en neutral optagelsessti. Åbn spaCR, og vælg Annotate blandt Core-modulerne. Optagelsen bruger det downloadbare Load-datasæt: 2.341 eksporterede PNG-udsnit og deres måledatabase. Der kræves hverken modeltræning eller AI-tjeneste. Definér de biologiske klasser før en rigtig annotationsrunde; den midlertidige mærkat her demonstrerer lagring, ikke en biologisk vurdering.",
   "scenes": [
     "Åbn Annotate blandt Core-modulerne. Hovedarbejdsområdet er et gitter af billedudsnit med en måledatabase bagved. Det aktuelle modul indeholder også dækningskontrol, lærings- og træningsfunktioner, databasegenerering og det indlejrede Annotator Agreement-værktøj.",
     "Vælg Load test data, og undersøg de to muligheder. Load leverer eksporterede billedudsnit og en database. Eksemplet indeholder 2.341 PNG-udsnit. Optagelsen genbruger den fulde downloadede cache; den opfinder ikke billeder eller mærkater.",
-    "Stream leverer sammenlagte billedarrays og databasen, så udsnit kan dannes efter behov. Vælg ud fra, hvordan du vil læse billeder. Download af den ene mulighed beviser ikke, at den anden også findes. Vi bruger Load gennem hele demonstrationen.",
-    "Hvis gitteret stadig melder, at ingen kilde er valgt efter download, så vælg Open source. Vælg plademappen med undermappen measurements og dens database, ikke selve databasefilen. Det er det ekstra trin, som faktisk er nødvendigt i den viste programversion.",
-    "Kontrollér, at de rigtige udsnit vises, og at sidetælleren passer til det forventede datasæt. Antallet af billeder pr. side afhænger af vinduet og billedstørrelsen. At en mappe åbner, er ikke nok: undersøg billederne, før du træffer annotationsbeslutninger.",
+    "Stream leverer de sammenlagte billedarrays, så udsnit kan hentes efter behov. Hvis måledatabasen mangler, hentes den også. Load leverer gemte udsnit og deres database. Vi bruger Load i hele demonstrationen; vælg den rute, der passer til den måde, du vil læse billederne på.",
+    "Load test data åbner automatisk den downloadede plade. For en eksisterende lokal plade er Open source en valgfri vej: vælg plademappen med measurements og databasen, ikke selve databasefilen. Her vælger vi en neutral optagelsessti til de samme eksempelfiler.",
+    "Kontrollér, at de rigtige udsnit vises, og at sidetælleren passer til det forventede datasæt. Antallet af billeder pr. side afhænger af vinduet og størrelsen på udsnittene. At en mappe åbner, er ikke nok: undersøg billederne, før du træffer annotationsbeslutninger.",
     "Åbn Settings, og opret en separat annotationskolonne til demonstrationen. Bevar de oprindelige mærkater. Dokumentér betydningen af hver klasse, og aftal en ensartet visning før det rigtige arbejde. Eksempelmærkaten tester kun lagringsvejen.",
     "Venstreklik på det første udsnit for at tildele klasse ét. Højreklik tildeler klasse to, og samme klasse igen rydder mærkaten. Ringen i klassens farve viser den aktuelle beslutning; den ekstra hvide ring viser fokus. En ændret ring beviser ikke i sig selv, at mærkaten er nået til databasen.",
     "Tryk Next for at forlade siden. I denne version sender et sideskift de ventende mærkater til baggrundsprocessen, der gemmer dem. Vi kontrollerede den faktiske database og bekræftede, at klasse ét blev skrevet. Forveksl ikke en ugemt visuel ændring med færdig lagring.",

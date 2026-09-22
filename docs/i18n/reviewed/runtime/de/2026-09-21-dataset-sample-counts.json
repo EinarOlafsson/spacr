@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Downloading {count} fields of {name}…",
+      "source": "Downloading {count} fields of {name}…",
+      "source_sha256": "f049d8f50aba64ecca71a042b3150c5f8b29a75d87c6cc58ee9f5d44f774ca6c",
+      "translation": "{count} Bildfelder von {name} werden heruntergeladen…"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} fields and the masks the model was trained on",
+      "source": "{name}: {count} fields and the masks the model was trained on",
+      "source_sha256": "5a2f36b23fbf4728c0f77141544159d95e8d1b4d44117624c4471210d4f7b595",
+      "translation": "{name}: {count} Bildfelder und die Masken, mit denen das Modell trainiert wurde"
+    },
+    {
+      "table": "ui",
+      "key": "Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.",
+      "source": "Open a sample of the dataset a published model was trained on, with its masks, and edit them here. One entry per model in the zoo. Cached after the first download.",
+      "source_sha256": "d6dc4840d68dbc91e338844de3de52cbab3a25d6f2b91540ad2fe11e230a8586",
+      "translation": "Öffnen Sie eine Stichprobe des Datensatzes, mit dem ein veröffentlichtes Modell trainiert wurde, samt Masken, und bearbeiten Sie sie hier. Ein Eintrag pro Modell im Model Zoo. Nach dem ersten Download zwischengespeichert."
+    }
+  ]
+}

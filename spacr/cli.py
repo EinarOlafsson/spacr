@@ -1225,22 +1225,92 @@ def apply_overrides(settings: Dict[str, Any], overrides: Sequence[str],
     return settings
 
 
+def _under_todays_names(settings: Dict[str, Any],
+                        moved: Optional[List[Any]] = None) -> Dict[str, Any]:
+    """A settings file's own keys, under the names the pipelines read today.
+
+    THE FILE IS MIGRATED BEFORE IT MEETS THE DEFAULTS, and the order is the
+    whole fix. `spacr.settings` folds a renamed key onto its new name with
+    "the NEW name wins where both are present", which is right for a file
+    but wrong for a file LAYERED ON TOP OF DEFAULTS: the defaults have
+    already filled in the new name, so the file's value lost to it every
+    time. Before this ordering, a regression file saying
+    `min_cell_count,50` resolved to `min_cells_per_well = 100`, the
+    default, and the fold said "this settings file names both" about a file
+    that named one.
+
+    SO EVERY RENAME THE DOCTOR REPORTS WAS SILENTLY DROPPED ON THIS PATH --
+    ten keys and six role-family rules -- while the GUI, which translates a
+    dict before it meets a form, kept them. `spacr-run <module> --settings`
+    is the path a cluster job takes.
+
+    THE MESSAGE IS THE DOCTOR'S OWN. The pre-flight runs after this and can
+    only see the new name, so each key that moved is named here instead,
+    once, with the sentence the pre-flight would have used.
+
+    A CALLER THAT WILL PRINT A REPORT TAKES THE MESSAGES INSTEAD OF THE LOG.
+    Passing ``moved`` collects the same `Problem` objects and suppresses the
+    log line, because the migration would otherwise be announced twice on
+    ``spacr-run <module> --dry-run`` and, worse, on ``validate``: that
+    command formats its own report and never calls :func:`setup_logging`, so
+    a log line there escapes to `logging.lastResort` on stderr, unformatted
+    and outside the report the user is reading. Without ``moved``, a file
+    saying `min_cell_count,50` and `toxo,False`
+    validated with ``--module regression`` reported one warning (`barcodes`,
+    the only key with no successor) where the same file with no ``--module``
+    reported three. A caller that passes nothing keeps the log line and is
+    unchanged -- :func:`spacr.batch.resolve_job_settings` is one.
+
+    :param settings: the mapping just read from the file, edited in place.
+    :param moved: list to receive one `spacr.validate.Problem` per key that
+        moved, in which case nothing is logged. None logs, as before.
+    :returns: the same mapping, for chaining.
+    """
+    from .settings import (_fold_gradient_accumulation, _fold_renamed_settings,
+                           _fold_toxoplasma)
+    from .validate import _check_retired_keys
+
+    before = set(settings)
+    said = {problem.setting: problem for problem in
+            _check_retired_keys(settings)}
+    _fold_renamed_settings(settings)
+    _fold_toxoplasma(settings)
+    _fold_gradient_accumulation(settings)
+    for key in sorted(before - set(settings), key=str):
+        problem = said.get(key)
+        if problem is None:
+            continue
+        if moved is None:
+            LOG.warning("%s %s", problem.message, problem.fix)
+        else:
+            moved.append(problem)
+    return settings
+
+
 def resolve_settings(module: Module, settings_path: Optional[str],
-                     overrides: Sequence[str] = ()) -> Dict[str, Any]:
+                     overrides: Sequence[str] = (),
+                     moved: Optional[List[Any]] = None) -> Dict[str, Any]:
     """Build the settings dict the pipeline will actually receive.
 
     Layered lowest-to-highest: the module's own defaults, the settings file,
-    then the ``--set`` overrides.
+    then the ``--set`` overrides. The file is read under today's names first
+    -- see :func:`_under_todays_names`, without which a value the file set
+    under an old name lost to the default already sitting under the new one.
 
     :param module: module being run.
     :param settings_path: path to the settings file, or None for defaults only.
     :param overrides: ``key=value`` strings.
+    :param moved: list to receive the migration notices, passed straight to
+        :func:`_under_todays_names`; a caller that prints a pre-flight report
+        hands these to :func:`_preflight` so the keys the fold consumed are
+        still named there.
     :returns: the fully-resolved settings dict.
     :raises SettingsError: on any unreadable file, unknown key or bad value.
     """
     resolved = module_defaults(module)
     if settings_path:
-        resolved.update(load_settings_file(settings_path))
+        resolved.update(
+            _under_todays_names(load_settings_file(settings_path), moved))
     apply_overrides(resolved, overrides, module)
     return resolved
 
@@ -1448,7 +1518,8 @@ def render_module_description(module: Module) -> str:
 
 
 def _preflight(settings: Mapping[str, Any], validate_key: str,
-               printer: Callable[[str], None] = print) -> List[Any]:
+               printer: Callable[[str], None] = print,
+               moved: Sequence[Any] = ()) -> List[Any]:
     """Validate settings against the data they point at and print the report.
 
     Delegates every rule to :mod:`spacr.validate` — :func:`validate_settings`
@@ -1457,14 +1528,22 @@ def _preflight(settings: Mapping[str, Any], validate_key: str,
     trailer differs from :func:`spacr.validate.run_preflight`, which is worded
     for the in-pipeline ``dry_run=True`` setting rather than for ``--dry-run``.
 
+    ``moved`` IS WHAT THE REPORT CANNOT SEE FOR ITSELF. The settings arrive
+    already migrated -- they have to be, or a renamed value would lose to the
+    default -- so the old names the user actually wrote are gone by now, and
+    the retired-key rules find nothing to report about them. The notices
+    :func:`_under_todays_names` collected are prepended, so the report names
+    every key the file spelled the old way, whether or not it had a successor.
+
     :param settings: the resolved settings.
     :param validate_key: app key understood by :mod:`spacr.validate`.
     :param printer: where the text goes.
+    :param moved: migration notices from :func:`resolve_settings`.
     :returns: the list of ``spacr.validate.Problem`` found.
     """
     from .validate import describe_plan, format_report, validate_settings
 
-    problems = validate_settings(dict(settings), validate_key)
+    problems = list(moved) + validate_settings(dict(settings), validate_key)
     printer(format_report(problems, dict(settings), validate_key))
     printer("")
     printer(describe_plan(dict(settings), validate_key))
@@ -1544,9 +1623,11 @@ def cmd_validate(args: argparse.Namespace) -> int:
               file=sys.stderr)
         return EXIT_USAGE
 
+    moved: List[Any] = []
     try:
         if module is not None:
-            settings = resolve_settings(module, args.settings, args.set or [])
+            settings = resolve_settings(module, args.settings, args.set or [],
+                                        moved)
         else:
             settings = load_settings_file(args.settings)
             apply_overrides(settings, args.set or [], None)
@@ -1558,7 +1639,7 @@ def cmd_validate(args: argparse.Namespace) -> int:
         settings["hash_inputs"] = bool(args.hash_inputs)
 
     validate_key = module.validate_key if module is not None else ""
-    problems = _preflight(settings, validate_key)
+    problems = _preflight(settings, validate_key, moved=moved)
     errors = _error_count(problems)
     print("")
     if errors:
@@ -1582,8 +1663,10 @@ def cmd_run(args: argparse.Namespace) -> int:
         return EXIT_USAGE
 
     log = setup_logging(args.verbose)
+    moved: List[Any] = []
     try:
-        settings = resolve_settings(module, args.settings, args.set or [])
+        settings = resolve_settings(module, args.settings, args.set or [],
+                                    moved)
     except SettingsError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return EXIT_USAGE
@@ -1592,13 +1675,16 @@ def cmd_run(args: argparse.Namespace) -> int:
     log.info("settings %s (%d keys resolved)", args.settings, len(settings))
     if args.set:
         log.info("overrides %s", ", ".join(args.set))
+    if args.no_preflight and not args.dry_run:
+        for problem in moved:
+            log.warning("%s %s", problem.message, problem.fix)
 
     if args.dry_run:
         print("")
         print("Resolved settings:")
         print(render_settings(settings))
         print("")
-        problems = _preflight(settings, module.validate_key)
+        problems = _preflight(settings, module.validate_key, moved=moved)
         errors = _error_count(problems)
         print("")
         print(f"--dry-run: nothing was executed. "
@@ -1614,7 +1700,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         log.debug("resolved settings:\n%s", render_settings(settings))
 
     if not args.no_preflight:
-        problems = _preflight(settings, module.validate_key)
+        problems = _preflight(settings, module.validate_key, moved=moved)
         errors = _error_count(problems)
         if errors and not args.force:
             log.error("pre-flight found %d error%s; refusing to start.",

@@ -326,6 +326,8 @@ def test_closing_the_main_window_retires_its_app_screens_plot_menus(qapp):
 
     window = MainWindow(initial_app="regression")
     screen = window._screens["regression"]
+    assert screen._results_panel is not None, (
+        "the results panel, built on first use, is where the plots are")
     owned_menus = _pyqtgraph_menu_roots(screen)
     assert len(owned_menus) >= 10, "the regression plot menus were not built"
 

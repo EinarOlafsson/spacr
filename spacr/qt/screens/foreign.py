@@ -85,11 +85,14 @@ from ... import foreign as fgn
 from ...object_roles import organelle_label
 from ...schema import SEGMENTED_ROLES
 from ..bridge import make_thread
+from ..i18n import tr
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
 from ..widgets.sortable_table import install_sorting
 
 __all__ = [
+    "NAMING_AUTO",
+    "naming_choices",
     "ForeignScreen",
     "object_label",
     "organelle_slots_offered",
@@ -116,6 +119,35 @@ MAP_COLUMNS: Tuple[Tuple[str, str, bool], ...] = (
 #: The STORAGE spelling, which is what the backend takes and what a saved
 #: mapping carries. Never what the user is shown -- see :func:`object_label`.
 OBJECT_CHOICES: Tuple[str, ...] = tuple(SEGMENTED_ROLES)
+
+#: The naming choice that reads plate / well / field from the folders.
+NAMING_AUTO = "auto"
+
+
+def naming_choices() -> List[Tuple[str, str]]:
+    """Every filename convention Import can read, as ``(key, label)``.
+
+    The SAME list Mask's ``metadata_type`` offers, read from
+    :func:`spacr.regex_infer._metadata_convention_menu`, so a plate Mask can
+    parse is a plate Import can parse and the two lists cannot drift. Folders
+    come first because they are what Import did before it knew any
+    convention; the vendor conventions follow in Mask's vendor order, each
+    labelled with its vendor and marked when spaCR is guessing about it.
+
+    :returns: the choices, ``NAMING_AUTO`` first.
+    """
+    from ...regex_infer import _metadata_convention_menu
+
+    choices = [(NAMING_AUTO, "Folders and file tokens (auto)")]
+    for vendor, rows in _metadata_convention_menu():
+        for key, label, status in rows:
+            if key == NAMING_AUTO:
+                continue
+            text = label if vendor == "spaCR" else f"{vendor} — {label}"
+            if status == "provisional":
+                text += " (provisional)"
+            choices.append((key, text))
+    return choices
 
 
 def object_label(role: str) -> str:
@@ -366,6 +398,8 @@ class ForeignScreen(QWidget):
             "Choose their images, their mask folder(s) and their measurement "
             "table, then Preview. Nothing is written until you press Import.")
         self._update_controls()
+        from .settings_model import retarget_field_tooltips
+        retarget_field_tooltips(self)
 
 
     def _build_ui(self) -> None:
@@ -407,10 +441,41 @@ class ForeignScreen(QWidget):
         self._images_edit.textChanged.connect(self._on_input_changed)
         self._btn_pick_images = QPushButton("Choose…", self)
         self._btn_pick_images.clicked.connect(self._pick_images)
+        self._btn_test_data = QPushButton(tr("Load test data…"), self)
+        self._btn_test_data.setToolTip(tr(
+            "Download the same fields written in every microscope format and "
+            "filename convention Import reads -- Zeiss CZI, Opera Phenix, "
+            "ArrayScan, Nikon ND2 and the rest -- and fill this screen with "
+            "the one you pick, so Preview shows it read back. One download of "
+            "about 285 MB covers every variant."))
+        self._btn_test_data.clicked.connect(self._open_test_data)
         img_row.addWidget(QLabel("Images"))
         img_row.addWidget(self._images_edit, 1)
         img_row.addWidget(self._btn_pick_images)
+        img_row.addWidget(self._btn_test_data)
         outer.addLayout(img_row)
+
+        naming_row = QHBoxLayout()
+        naming_row.setSpacing(SPACING["sm"])
+        self._naming_box = QComboBox(self)
+        for key, label in naming_choices():
+            self._naming_box.addItem(label, key)
+        self._naming_box.setToolTip(tr(
+            "How the image and mask FILE NAMES say which plate, well, field "
+            "and channel each file is -- the same conventions Mask offers as "
+            "its metadata type. Folders and file tokens reads the well from "
+            "the folder instead."))
+        self._naming_box.currentIndexChanged.connect(self._on_naming_changed)
+        self._regex_edit = QLineEdit(self)
+        self._regex_edit.setPlaceholderText(tr(
+            "Custom only: a pattern with named groups wellID, fieldID and "
+            "chanID"))
+        self._regex_edit.setClearButtonEnabled(True)
+        self._regex_edit.textChanged.connect(self._on_input_changed)
+        naming_row.addWidget(QLabel(tr("Naming")))
+        naming_row.addWidget(self._naming_box, 1)
+        naming_row.addWidget(self._regex_edit, 1)
+        outer.addLayout(naming_row)
 
         mask_row = QHBoxLayout()
         mask_row.setSpacing(SPACING["sm"])
@@ -650,6 +715,54 @@ class ForeignScreen(QWidget):
             return
         self.remove_mask_folder(str(item.data(Qt.UserRole)))
 
+    def clear_mask_folders(self) -> None:
+        """Forget every mask folder, so a new set does not inherit the last."""
+        if not self._masks:
+            return
+        self._masks.clear()
+        self._refresh_mask_list()
+        self._on_input_changed()
+
+    def set_metadata_type(self, key: str) -> bool:
+        """Choose the filename convention the files are read by.
+
+        :param key: a key from :func:`naming_choices`; ``''`` means folders.
+        :returns: False, with the reason inline, for a key the list lacks.
+        """
+        index = self._naming_box.findData(str(key or NAMING_AUTO))
+        if index < 0:
+            self._set_status(tr("{key} is not a filename convention Import "
+                                "knows.", key=repr(key)), error=True)
+            return False
+        self._naming_box.setCurrentIndex(index)
+        return True
+
+    def metadata_type(self) -> str:
+        """The chosen convention's key; ``NAMING_AUTO`` for folders."""
+        return str(self._naming_box.currentData() or NAMING_AUTO)
+
+    def set_custom_regex(self, pattern: str) -> None:
+        """Set the pattern the Custom convention parses by.
+
+        :param pattern: a regular expression with named groups ``wellID``,
+            ``fieldID`` and ``chanID``; ``''`` clears it.
+        """
+        self._regex_edit.setText(str(pattern or ""))
+
+    def custom_regex(self) -> str:
+        """The pattern typed for the Custom convention."""
+        return self._regex_edit.text().strip()
+
+    def _on_naming_changed(self, *_args) -> None:
+        """A new convention invalidates the plan, and may need a pattern."""
+        self._on_input_changed()
+
+    def _open_test_data(self) -> None:
+        """Offer every test variant, then fetch and fill the chosen one."""
+        from ..import_demo import choose_import_test_data
+
+        choose_import_test_data(self)
+
     def set_measurements(self, path: str) -> None:
         """Point the screen at their measurement table."""
         self._table_edit.setText(str(path or ""))
@@ -811,11 +924,21 @@ class ForeignScreen(QWidget):
 
         scale = self.pixel_size()
         policy = self.on_conflict()
+        naming = self.metadata_type()
+        pattern = self.custom_regex()
+        if naming == "custom" and not pattern:
+            self._set_status(tr(
+                "The Custom naming needs a pattern: named groups wellID, "
+                "fieldID and chanID, e.g. (?P<wellID>[A-P]\\d{2})_s"
+                "(?P<fieldID>\\d+)_(?P<chanID>\\w+)"), error=True)
+            return False
 
         def _job():
             """Plan the foreign import. Off the GUI thread."""
             return fgn.plan_import(images, masks, table, um_per_px=scale,
-                                   on_conflict=policy)
+                                   on_conflict=policy,
+                                   metadata_type=naming,
+                                   custom_regex=pattern or None)
 
         self._set_status(f"Scanning {images} and reading the masks…")
         return self._run_job(_job, self._on_plan_ready)
@@ -1011,8 +1134,10 @@ class ForeignScreen(QWidget):
                        self._btn_preview, self._images_edit, self._mask_edit,
                        self._table_edit, self._dst_edit, self._scale_edit,
                        self._object_box, self._conflict_box, self._table,
-                       self._mask_list):
+                       self._mask_list, self._naming_box,
+                       self._btn_test_data):
             widget.setEnabled(idle)
+        self._regex_edit.setEnabled(idle and self.metadata_type() == "custom")
         has_map = self._model.rowCount() > 0
         self._btn_save_map.setEnabled(idle and has_map)
         self._btn_load_map.setEnabled(idle)

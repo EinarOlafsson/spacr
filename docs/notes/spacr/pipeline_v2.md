@@ -17,6 +17,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_read_plane](#_read_plane) (2 entries)
 - [_as_hwc](#_as_hwc) (1 entry)
 - [stream_masks_from_stack](#stream_masks_from_stack) (9 entries)
+- [FilenameMapper.discover, 2026-09-19](#filenamemapperdiscover-2026-09-19) (1 entry)
 
 ## FilenameMapper.discover
 
@@ -289,3 +290,11 @@ LOG.warning("channel_order.json at %s was not updated with "
 ```
 
 The masks are written either way, so this does not fail the stage — but channel_order.json is what every later reader uses to know which plane is a mask, and a sidecar that silently did not get the entry makes the stack self-describing and wrong.
+
+## FilenameMapper.discover, 2026-09-19
+
+```python
+and not p.name.startswith(".")
+```
+
+The v2 Mask pipeline lists the raw folder itself. On a macOS external volume (GitHub #121 and #117) every raw tiff has an AppleDouble sidecar, `._<name>.tif`. The CellVoyager pattern starts `(?P<plateID>.*)_`, so the sidecar matched as plate `._plate1`, got a field of its own, and `stream_originals_to_stack` stopped on it: `TiffFileError: not a TIFF file: header=b'\x00\x05\x16\x07'`. Measured on the code before this line. Dot-files are left out inline rather than through `spacr.io._listdir_visible` because discovery runs before anything here needs torch, and `spacr.io` imports it at module level. Reasons for the dot-file rule are in `docs/notes/spacr/io.md` under `_listdir_visible`.

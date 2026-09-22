@@ -51,6 +51,7 @@ def run(stage, destination):
     import matplotlib
     matplotlib.use('Agg')
     from matplotlib import pyplot as plt
+    plt.style.use('dark_background')
     original_counts = pd.read_csv(source / 'SRR33531217_paired/unique_combinations.csv')
     wells = original_counts.pivot_table(index='rowID', columns='columnID', values='count',
                                        aggfunc='sum', fill_value=0)
@@ -72,7 +73,8 @@ def run(stage, destination):
              'biological_validation_claimed': False,
              'artifacts': {p.name: digest(p) for p in destination.iterdir()}}
     (destination / 'run.json').write_text(json.dumps(proof, indent=2) + '\n')
-    print('GUI: 10,000 pairs; 8,611 extracted; 7,657 mapped; 4,099 count rows.')
+    print(f'GUI: {full["requested_pairs"]:,} pairs; {full["extracted_rows"]:,} extracted; '
+          f'{full["mapped_reads"]:,} mapped; {full["count_rows"]:,} count rows.')
     print("API barcode_set = ['column', 'grna']")
     print(f'API: 1,000 pairs; {len(frame)} extracted; {sum(actual.values())} mapped.')
     print('Output columns:', ', '.join(counts.columns))

@@ -70,12 +70,13 @@ class TestTheUrlShape:
 
 class TestThePromptPreference:
 
-    def test_the_default_is_to_ask(self):
-        """On a store that has never been written, the answer is `ask`.
+    def test_the_default_is_always(self):
+        """On a store that has never been written, the answer is `always`.
 
-        Read from a fresh QSettings rather than the ambient one: the qt
-        conftest sets `always` for every test so the reporter cannot open a
-        modal, and that fixture would otherwise be what this measures.
+        It was `ask` until the maintainer's decision of 2026-09-19: "Do real
+        auto-filing, and make this the default". Read from a fresh QSettings
+        rather than the ambient one: the qt conftest sets `ask` for every
+        test, and that fixture would otherwise be what this measures.
         """
         from spacr.qt import preferences as P
         assert P.get_issue_prompt_mode.__doc__  # the default is documented
@@ -83,7 +84,7 @@ class TestThePromptPreference:
         saved = settings.value("ai/issue_prompt", None)
         settings.remove("ai/issue_prompt")
         try:
-            assert P.get_issue_prompt_mode() == P.ISSUE_PROMPT_ASK
+            assert P.get_issue_prompt_mode() == P.ISSUE_PROMPT_ALWAYS
         finally:
             if saved is not None:
                 settings.setValue("ai/issue_prompt", saved)

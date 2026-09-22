@@ -1,17 +1,32 @@
 {
-  "lesson": "09_annotate", "language": "sv",
-  "english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
-  "review": {"kind": "Editorial caption translation checked against English and the verified real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish queued labels from database persistence through real Next/Back actions.", "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question."]},
+  "lesson": "09_annotate",
+  "language": "sv",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
+  "review": {
+    "kind": "Editorial caption translation checked against English and the verified real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish queued labels from database persistence through real Next/Back actions.",
+      "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
+    ]
+  },
   "title": "Annotate: riktiga bildutsnitt, sparade etiketter och granskningsverktyg",
   "description": "Läs in den nedladdningsbara uppsättningen bildutsnitt, skapa en separat annoteringskolumn, kontrollera faktiskt sparade etiketter, anpassa visningen och hitta gransknings- och träningsverktygen i dagens Annotate-modul.",
-  "objectives": ["Välja rätt nedladdningsbart exempel med bildutsnitt eller läsning vid behov och öppna den verkliga projektmappen.", "Använda en separat annoteringskolumn, skilja väntande etiketter från sparade och rensa demonstrationsetiketten utan att ändra ursprungliga annoteringar.", "Granska klassantal och täckning samt ändra visningsfärger utan att ändra bildfiler.", "Hitta det inbyggda Agreement-flödet, aktuella träningsvägar, generatorn för annoteringsdatabaser och den valfria AI-konsolen."],
-  "prerequisite": "Öppna spaCR och välj Annotate bland Core-modulerna. Inspelningen använder det nedladdningsbara Load-datasetet: 2 341 exporterade PNG-utsnitt och deras mätdatabas. Ingen modellträning eller AI-tjänst krävs. Definiera biologiska klasser före en riktig annoteringsomgång; den tillfälliga etiketten demonstrerar lagring, inte en biologisk bedömning.",
+  "objectives": [
+    "Välja rätt nedladdningsbart exempel med bildutsnitt eller läsning vid behov och öppna den verkliga projektmappen.",
+    "Använda en separat annoteringskolumn, skilja väntande etiketter från sparade och rensa demonstrationsetiketten utan att ändra ursprungliga annoteringar.",
+    "Granska klassantal och täckning samt ändra visningsfärger utan att ändra bildfiler.",
+    "Hitta det inbyggda Agreement-flödet, aktuella träningsvägar, generatorn för annoteringsdatabaser och den valfria AI-konsolen."
+  ],
+  "prerequisite": "Inspelat med spaCR 1.5.0.8. Automatisk öppning kontrollerades oberoende innan samma exempelfiler valdes via en neutral inspelningssökväg. Öppna spaCR och välj Annotate bland Core-modulerna. Inspelningen använder det nedladdningsbara Load-datasetet: 2 341 exporterade PNG-utsnitt och deras mätdatabas. Ingen modellträning eller AI-tjänst krävs. Definiera biologiska klasser före en riktig annoteringsomgång; den tillfälliga etiketten demonstrerar lagring, inte en biologisk bedömning.",
   "scenes": [
     "Öppna Annotate bland Core-modulerna. Huvudarbetsytan är ett rutnät av bildutsnitt som stöds av en mätdatabas. Dagens modul innehåller också täckningskontroll, inlärnings- och träningsfunktioner, databasgenerering och det inbyggda verktyget Annotator Agreement.",
     "Välj Load test data och granska de två alternativen. Load ger exporterade bildutsnitt och en databas. Exemplet innehåller 2 341 PNG-utsnitt. Inspelningen återanvänder hela den nedladdade cachen; den hittar inte på bilder eller etiketter.",
-    "Stream ger sammanslagna bildarrayer och databasen för att ta fram utsnitt vid behov. Välj efter hur du vill läsa bilder. Att ladda ned ett alternativ bevisar inte att det andra finns. Vi använder Load genom hela demonstrationen.",
-    "Om rutnätet fortfarande säger att ingen källa är vald efter nedladdningen väljer du Open source. Välj plattmappen med undermappen measurements och dess databas, inte själva databasfilen. Det är det extra steg som faktiskt behövs i programversionen som visas här.",
-    "Kontrollera att riktiga utsnitt visas och att sidräknaren motsvarar det förväntade datasetet. Antalet bilder per sida beror på fönstret och bildstorleken. Att en mapp öppnas räcker inte: granska bilderna innan du fattar annoteringsbeslut.",
+    "Stream ger de sammanslagna bildarrayerna så att utsnitt kan hämtas vid behov. Mätdatabasen laddas också ned om den delen saknas. Load ger sparade utsnitt och deras databas. Vi använder Load genom hela demonstrationen; välj det alternativ som passar hur du vill läsa bilderna.",
+    "Load test data öppnar den nedladdade plattan automatiskt. För en befintlig lokal platta är Open source en valfri väg: välj plattmappen som innehåller measurements och databasen, inte själva databasfilen. Här väljer vi en neutral inspelningssökväg till samma exempelfiler.",
+    "Kontrollera att riktiga utsnitt visas och att sidräknaren motsvarar det förväntade datasetet. Antalet bilder per sida beror på fönstret och utsnittens storlek. Att en mapp öppnas räcker inte: granska bilderna innan du fattar annoteringsbeslut.",
     "Öppna Settings och skapa en separat annoteringskolumn för demonstrationen. Bevara de ursprungliga etiketterna. Dokumentera varje klass betydelse och kom överens om en enhetlig visning före det riktiga arbetet. Exempeletiketten testar bara lagringsvägen.",
     "Vänsterklicka på det första utsnittet för att ange klass ett. Högerklick anger klass två, och samma klass en gång till rensar etiketten. Ringen i klassfärgen visar det aktuella beslutet; den extra vita ringen visar fokus. En ändrad ring bevisar inte i sig att etiketten har nått databasen.",
     "Tryck Next för att lämna sidan. I den här versionen skickar sidbytet väntande etiketter till bakgrundsprocessen som sparar dem. Vi kontrollerade den verkliga databasen och bekräftade att klass ett skrevs. Blanda inte ihop en osparad visuell ändring med slutförd lagring.",

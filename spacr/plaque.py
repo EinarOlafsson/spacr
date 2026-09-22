@@ -41,6 +41,8 @@ __all__ = [
     "detect_wells",
     "crop_well",
     "scale_from_well",
+    "segment_plaque_image",
+    "plaque_flow_outputs",
 ]
 
 #: Interior diameter, in millimetres, of a well in each standard plate format.
@@ -182,13 +184,64 @@ def _load_detector(weights: str):
     return YOLO(weights)
 
 
+def _to_detector_channel_order(image: np.ndarray) -> np.ndarray:
+    """One image in the channel order ultralytics reads an array in.
+
+    :param image: the caller's image. A three-channel array is taken to be
+        RGB, which is what :func:`cellpose.io.imread` -- spaCR's house reader
+        -- returns and what every other spaCR entry point passes around.
+    :returns: the same pixels with red and blue exchanged when the input is an
+        ``H x W x 3`` array; anything else unchanged, since only a
+        three-channel colour array has a channel order to get wrong.
+
+    ULTRALYTICS READS AN ARRAY AS BGR AND DOES NOT CONVERT. Given a file path
+    it decodes with OpenCV, which is BGR, and that is how every image these
+    detectors were trained on reached them; given an array it assumes the
+    caller already did the same. Handing it RGB therefore asks the detector a
+    question about an image nobody has. See
+    ``docs/notes/spacr/plaque.md`` for the measurement that settled this.
+    """
+    if not isinstance(image, np.ndarray):
+        return image
+    if image.ndim != 3 or image.shape[2] != 3:
+        return image
+    return np.ascontiguousarray(image[:, :, ::-1])
+
+
+def _host_array(value: Any) -> np.ndarray:
+    """A detector output as a numpy array, wherever it was computed.
+
+    Ultralytics returns its boxes as torch tensors on the device it ran on.
+    ``np.asarray`` of a CUDA tensor raises "can't convert cuda:0 device type
+    tensor to numpy", which is how Figure mode fails on a GPU while every
+    CPU test passes. A tensor is copied to the host
+    first.
+
+    :param value: a tensor, an array or a sequence.
+    :returns: the values as a host numpy array.
+    """
+    to_host = getattr(value, "cpu", None)
+    if callable(to_host):
+        value = to_host()
+    to_numpy = getattr(value, "numpy", None)
+    if callable(to_numpy):
+        return np.asarray(to_numpy())
+    return np.asarray(value)
+
+
 def detect_wells(image: np.ndarray, weights: str, *,
                  confidence: float = DEFAULT_CONFIDENCE,
                  imgsz: int = 640,
                  min_axis_ratio: float = 0.7) -> List[Well]:
     """Find the wells in one image.
 
-    :param image: the field, as an array the detector can read.
+    :param image: the field, as an ``H x W x 3`` array in **RGB** channel
+        order -- what :func:`cellpose.io.imread` returns for a colour image.
+        It is converted to BGR here, because that is the order ultralytics
+        reads an array in and therefore the order these detectors were
+        trained in. A greyscale or otherwise non-three-channel array is
+        passed through untouched, and so is a file path, which ultralytics
+        decodes itself.
     :param weights: path to the YOLO checkpoint.
     :param confidence: drop detections scoring below this.
     :param imgsz: inference size; 640 is what the shipped detector trained at.
@@ -200,7 +253,8 @@ def detect_wells(image: np.ndarray, weights: str, *,
     :raises ImportError: when ``ultralytics`` is not installed.
     """
     model = _load_detector(weights)
-    results = model.predict(source=image, conf=float(confidence),
+    results = model.predict(source=_to_detector_channel_order(image),
+                            conf=float(confidence),
                             imgsz=int(imgsz), verbose=False)
     wells: List[Well] = []
     for result in results:
@@ -208,8 +262,9 @@ def detect_wells(image: np.ndarray, weights: str, *,
         if boxes is None:
             continue
         for box in boxes:
-            x0, y0, x1, y1 = (float(v) for v in np.asarray(box.xyxy).ravel()[:4])
-            score = float(np.asarray(box.conf).ravel()[0]) if box.conf is not None else 1.0
+            x0, y0, x1, y1 = (float(v) for v in _host_array(box.xyxy).ravel()[:4])
+            score = (float(_host_array(box.conf).ravel()[0])
+                     if box.conf is not None else 1.0)
             well = Well(int(round(x0)), int(round(y0)),
                         int(round(x1)), int(round(y1)), score)
             if well.width <= 0 or well.height <= 0:
@@ -277,3 +332,92 @@ def scale_from_well(well: Well, *,
                        well_diameter_px=diameter_px,
                        well_diameter_mm=float(well_diameter_mm),
                        source=source)
+
+
+def _number(settings: Dict[str, Any], key: str,
+            default: Optional[float]) -> Optional[float]:
+    """A numeric setting, or ``default`` when it is empty or not a number.
+
+    :param settings: the plaque settings.
+    :param key: the setting.
+    :param default: what an empty or unreadable value means.
+    :returns: the number.
+    """
+    value = settings.get(key)
+    if value in (None, ""):
+        return default
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def plaque_flow_outputs(output: Any) -> Dict[str, Optional[np.ndarray]]:
+    """The flow picture and cell probability out of a Cellpose result.
+
+    Cellpose's ``eval`` returns ``(masks, flows, styles)``, and ``flows`` is
+    a list whose first entry is the flow field already drawn as an RGB image
+    (direction as hue, strength as brightness, the picture the Cellpose GUI
+    shows) and whose third is the cell-probability map, in logits. Either
+    can be a torch tensor on the device the model ran on, so both go through
+    :func:`_host_array`. A result that has no flows -- a stub, or a model
+    that returned only masks -- gives ``None`` for both.
+
+    :param output: what ``model.eval`` returned.
+    :returns: ``{'flow_rgb': H x W x 3 uint8 or None,
+        'cellprob': H x W float32 or None}``.
+    """
+    found: Dict[str, Optional[np.ndarray]] = {"flow_rgb": None,
+                                              "cellprob": None}
+    if not isinstance(output, (list, tuple)) or len(output) < 2:
+        return found
+    flows = output[1]
+    if not isinstance(flows, (list, tuple)):
+        flows = [flows]
+    try:
+        if len(flows) > 0 and flows[0] is not None:
+            rgb = np.squeeze(_host_array(flows[0]))
+            if rgb.ndim == 3 and rgb.shape[-1] >= 3:
+                found["flow_rgb"] = np.ascontiguousarray(
+                    np.clip(rgb[..., :3], 0, 255).astype(np.uint8))
+        if len(flows) > 2 and flows[2] is not None:
+            prob = np.squeeze(_host_array(flows[2]))
+            if prob.ndim == 2:
+                found["cellprob"] = prob.astype(np.float32)
+    except Exception:
+        LOG.debug("the Cellpose flows could not be read", exc_info=True)
+    return found
+
+
+def segment_plaque_image(model: Any, image: np.ndarray,
+                         settings: Dict[str, Any], *,
+                         return_flows: bool = False) -> Any:
+    """Segment one plaque image the way both Plaque mode's preview and run do.
+
+    The image goes to Cellpose as it is, RGB or grey, and Cellpose normalises
+    it. It is NOT sent through the run's historical loader
+    (``_load_normalized_images_and_labels`` with ``background=200``): on an
+    8-bit crop that loader saturated every pixel to 1.0 -- measured on
+    ``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found
+    no plaques while the preview, reading the image as it is, found 67. One
+    function for both is what keeps them from disagreeing again.
+
+    :param model: a Cellpose model.
+    :param image: ``H x W`` or ``H x W x 3``.
+    :param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.
+    :param return_flows: also hand back what the live preview's Flows and
+        Cell probability tabs show, from the same call.
+    :returns: the label image; with ``return_flows``, ``(labels, flows)``
+        where ``flows`` is :func:`plaque_flow_outputs`.
+    """
+    from .spacr_cellpose import cellpose_channel_axis
+
+    diameter = _number(settings, "diameter", None)
+    output = model.eval(image, channel_axis=cellpose_channel_axis(image),
+                        diameter=diameter if diameter else None,
+                        flow_threshold=_number(settings, "flow_threshold", 0.4),
+                        cellprob_threshold=_number(settings, "CP_prob", 0.0))
+    labels = _host_array(output[0])
+    if return_flows:
+        return labels, plaque_flow_outputs(output)
+    return labels

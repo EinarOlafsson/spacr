@@ -35,6 +35,7 @@ __all__ = [
     "Condition", "PlateDesign", "DesignFinding",
     "plate_shape", "is_edge", "assign_wells", "check_design",
     "to_settings_fragment", "write_design", "format_findings",
+    "PlateTemplate", "design_from_record", "plate_templates",
 ]
 
 
@@ -538,3 +539,82 @@ def write_design(design: PlateDesign, folder: Any, *,
     paths["settings"].write_text(
         json.dumps(fragment, indent=2, sort_keys=True), encoding="utf-8")
     return paths
+
+
+@dataclass(frozen=True)
+class PlateTemplate:
+    """A ready-made design, shipped with spaCR, that a user starts from.
+
+    :ivar key: the file's stem, stable across releases, e.g.
+        ``04_384_crispr_screen``. The numeric prefix fixes the menu order.
+    :ivar title: the menu entry.
+    :ivar description: what the layout is for and what its findings mean.
+    :ivar design: the design itself; loading a template replaces the form
+        with it apart from the plate name, which stays the user's.
+    """
+
+    key: str
+    title: str
+    description: str
+    design: PlateDesign
+
+
+def design_from_record(record: Dict[str, Any]) -> PlateDesign:
+    """Rebuild a :class:`PlateDesign` from the mapping ``plate_map.json`` holds.
+
+    The same keys :func:`write_design` writes, so an exported design and a
+    shipped template are read by one function. Missing keys take the
+    :class:`PlateDesign` defaults; findings and well counts in the record
+    are ignored, because they are recomputed from the design.
+
+    :param record: the mapping.
+    :returns: the design.
+    :raises ValueError: when a condition or the design is invalid, with the
+        message the dataclass gives.
+    """
+    conditions = tuple(
+        Condition(str(item["name"]), int(item.get("replicates", 3)),
+                  str(item.get("role", ROLE_TREATMENT)))
+        for item in record.get("conditions", ()))
+    return PlateDesign(
+        plate_id=str(record.get("plate_id", "plate1")),
+        plate_format=int(record.get("plate_format", 96)),
+        conditions=conditions,
+        layout=str(record.get("layout", "random")),
+        edge_policy=str(record.get("edge_policy", EDGE_USE)),
+        seed=int(record.get("seed", 0)),
+    )
+
+
+def plate_templates() -> List[PlateTemplate]:
+    """The layouts shipped in ``spacr/resources/plate_templates``, in order.
+
+    Read from package data on every call; the folder holds a handful of small
+    files and is only read when Experiment Design builds its menu. A file
+    that does not parse is skipped rather than raised: one bad template must
+    not take the others off the menu.
+
+    :returns: every template that loaded, sorted by key.
+    """
+    from importlib.resources import files
+
+    found: List[PlateTemplate] = []
+    try:
+        folder = files("spacr.resources") / "plate_templates"
+        entries = sorted(
+            (entry for entry in folder.iterdir()
+             if entry.name.endswith(".json")),
+            key=lambda entry: entry.name)
+    except (FileNotFoundError, NotADirectoryError, ModuleNotFoundError):
+        return found
+    for entry in entries:
+        try:
+            record = json.loads(entry.read_text(encoding="utf-8"))
+            found.append(PlateTemplate(
+                key=entry.name[:-len(".json")],
+                title=str(record.get("title") or entry.name),
+                description=str(record.get("description") or ""),
+                design=design_from_record(record)))
+        except (ValueError, KeyError, TypeError):
+            continue
+    return found

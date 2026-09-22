@@ -67,3 +67,23 @@ raw = _settings().value(_KEY_CONSOLE_AWARE, True)
 ```
 
 default ON
+
+## get_auto_file_issues
+
+### changed 2026-09-19 (autofile-default)
+
+```python
+DEFAULT_AUTO_FILE_ISSUES = True
+```
+
+The default went from False to True with the maintainer's decision of 2026-09-19 ("make this the default"). Without it, 'always' as the default mode would have filed nothing for anyone who never chose, because this switch gates reporting as a whole. The value is read with the default only when the key is absent, so a stored False is kept. The installer's consent page stores one when its report box is left off, and so does turning the switch off in the AI Console settings.
+
+## remember_auto_filed
+
+### added 2026-09-19
+
+```python
+_KEY_AUTO_FILED = "ai/auto_filed_reports"
+```
+
+The open-issue search on GitHub cannot be the only guard against filing the same crash twice. It sees open issues only. Its index lags a new issue by up to a minute. And it needs the network, which a repeated crash should not cost. This ledger is local: one profile never files one fingerprint twice. Only reports that reached GitHub are recorded. A report that was not sent, because the profile was signed out or the request failed, is not, so the next failure tries again.

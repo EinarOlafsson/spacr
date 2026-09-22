@@ -40,6 +40,13 @@ GUARDED = (
     # paint that does not wait on pandas, which is the largest single
     # import on that path.
     ("spacr.curation", "pandas"),
+    # spacr.settings_advisor, guarded 2026-09-15. The settings panel reaches it
+    # through the advisor dialog, and at module scope pandas cost ~200 ms on
+    # the main thread while a screen opened. Only `read_the_counts` and
+    # `read_the_response` read a table, and both import pandas themselves
+    # when the user asks for advice; the guard keeps `pd.DataFrame` in the
+    # string annotations without paying for it at import.
+    ("spacr.settings_advisor", "pandas"),
 )
 DEFERRED_WITHOUT_GUARD = (
     ("spacr.classify_classes", "pandas"),

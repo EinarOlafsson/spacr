@@ -677,7 +677,8 @@ def test_check_mask_folder_counts_only_npy(tmp_path, capsys):
 
     for i in range(3):
         (stack / f"{i}.npy").write_bytes(b"")
-        (masks / f"{i}.npy").write_bytes(b"")
+        # Masks are whole arrays: an empty mask is not counted (2026-09-19).
+        np.save(masks / f"{i}.npy", np.zeros((4, 4), np.uint16))
     # Clutter that must not be counted.
     (masks / "notes.txt").write_text("hi")
     (stack / "preview.png").write_bytes(b"")

@@ -1,0 +1,62 @@
+{
+  "schema": 1,
+  "language": "is",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Features",
+      "source": "Features",
+      "source_sha256": "5697d03daef4de9cf8db7cb11755f71358a32b4acca94909a9d449f71040d2dd",
+      "translation": "Eiginleikar"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier could not add objects: {error}",
+      "source": "Magnifier could not add objects: {error}",
+      "source_sha256": "06647e0526246c0361bce7b86f30a3c1ab39a964777baa977a2797b2434dd92d",
+      "translation": "Stækkunarglerið gat ekki bætt við hlutum: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier could not segment this region: {error}",
+      "source": "Magnifier could not segment this region: {error}",
+      "source_sha256": "f1e1f4c923e05cadb1cb2f1603fd0c6ddcb316b547c77fe39faad7b75211c89b",
+      "translation": "Stækkunarglerið gat ekki skipt þessu svæði í hluti: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "Object {label}   area {area} px   mean intensity {mean}",
+      "source": "Object {label}   area {area} px   mean intensity {mean}",
+      "source_sha256": "57e193ef5fe32bfc6222e8d743e424455c095b69e0e7713d0263a7efdf2b5eaf",
+      "translation": "Hlutur {label}   flatarmál {area} px   meðalstyrkur {mean}"
+    },
+    {
+      "table": "ui",
+      "key": "Object {label}   area {area} px   mean intensity {mean} (as loaded)",
+      "source": "Object {label}   area {area} px   mean intensity {mean} (as loaded)",
+      "source_sha256": "3559e8facdd60bfb408857431e43652e12a71eaf34421132b64e64c98000ff0d",
+      "translation": "Hlutur {label}   flatarmál {area} px   meðalstyrkur {mean} (eins og lesið inn)"
+    },
+    {
+      "table": "ui",
+      "key": "x {x}, y {y}   intensity {value}",
+      "source": "x {x}, y {y}   intensity {value}",
+      "source_sha256": "4c38729d8e354478566598b7e81877a460df4c0d5d08ff1f1bb6a8924c6fa9db",
+      "translation": "x {x}, y {y}   styrkur {value}"
+    },
+    {
+      "table": "ui",
+      "key": "x {x}, y {y}   intensity {value} (inverted)",
+      "source": "x {x}, y {y}   intensity {value} (inverted)",
+      "source_sha256": "85982e8c2288cf93177b7ad544c110441133723bce4a521810fb1c7c93e3c65b",
+      "translation": "x {x}, y {y}   styrkur {value} (viðsnúinn)"
+    },
+    {
+      "table": "ui",
+      "key": "Show histogram and level",
+      "source": "Show histogram and level",
+      "source_sha256": "8341b65d2f0c5d50c871d4b428072721d507ed458d52e6059d7e566fad67c8ee",
+      "translation": "Sýna tíðnirit og þröskuld"
+    }
+  ]
+}

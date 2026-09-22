@@ -49,6 +49,7 @@ from ... import report as rep
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.measurements_example import install_test_data_button
 
 __all__ = ["ReportScreen", "FORMATS", "FIGURE_CAP_RANGE"]
 
@@ -176,6 +177,9 @@ class ReportScreen(QWidget):
         src_row.addWidget(self._path_edit, 1)
         src_row.addWidget(self._btn_pick_src)
         src_row.addWidget(self._btn_scan)
+        install_test_data_button(
+            self, src_row, self._open_the_example,
+            say=lambda message: self._set_status(message, error=True))
         outer.addLayout(src_row)
 
         self._verdict = QLabel("", self)
@@ -259,6 +263,16 @@ class ReportScreen(QWidget):
         """Put ``path`` in the source box without scanning."""
         self._path_edit.setText(str(path or ""))
         self._update_controls()
+
+    def _open_the_example(self, folder, _database) -> None:
+        """Put the example plate folder in the source box and scan it.
+
+        :param folder: the example plate folder, which is the run folder a
+            report is built from.
+        :param _database: its measurements database; the scan finds it.
+        """
+        self.set_source(str(folder))
+        self.scan()
 
     def set_output(self, path: str) -> None:
         """Put ``path`` in the output box."""

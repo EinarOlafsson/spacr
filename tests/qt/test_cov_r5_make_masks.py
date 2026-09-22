@@ -544,7 +544,7 @@ class TestARunWhoseMasksCannotBeCombined:
 
         assert screen.run_cellpose() == 0
 
-        assert warned == [("Cellpose-SAM detect failed",
+        assert warned == [("Object detection failed",
                            "shapes do not match")]
         assert np.array_equal(screen._canvas.mask, before)
         assert screen._btn_cellpose.isEnabled()

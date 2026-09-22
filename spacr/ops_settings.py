@@ -17,14 +17,29 @@ from typing import Dict, List
 #: The default of every setting :func:`spacr.ops_engine.run_ops` reads, and
 #: of nothing else. A key the engine does not read has no place in its panel:
 #: it would be a control that changes nothing.
+#:
+#: THE FOUR MEASURED NUMBERS REPEAT A CONSTANT IN :mod:`spacr.ops_engine`,
+#: which is where each is recorded with the measurement that produced it.
+#: They are repeated rather than imported because importing the engine here
+#: would pull numpy, scipy and the whole OPS stack into every settings
+#: registration, including the GUI's; the two copies are held equal by
+#: tests/test_every_ops_setting_is_declared.py.
 OPS_DEFAULTS: Dict[str, object] = {
     "genotype_source": None,
+    "phenotype_source": None,
     "dst_root": None,
     "plate": "",
     "ops_gpu": True,
     "n_workers": 26,
     "cellpose_model": "cpsam",
     "cellpose_diameter": None,
+    "ops_library": None,
+    "ops_base_channels": "CY3,A594,CY5,CY7",
+    "ops_read_threshold": 315.0,
+    "ops_raster_overlap": 213,
+    "ops_window_overlap": 96,
+    "ops_footprint": 10.0,
+    "ops_store_reads": False,
 }
 
 #: The type each setting may hold, for :func:`spacr.settings.check_settings`.
@@ -34,11 +49,19 @@ OPS_DEFAULTS: Dict[str, object] = {
 OPS_TYPES: Dict[str, object] = {
     "dst_root": (str, type(None)),
     "genotype_source": (str, type(None)),
+    "phenotype_source": (str, type(None)),
     "plate": str,
     "cellpose_model": str,
     "cellpose_diameter": (float, int, type(None)),
     "n_workers": int,
     "ops_gpu": bool,
+    "ops_library": (str, type(None)),
+    "ops_base_channels": str,
+    "ops_read_threshold": (float, int),
+    "ops_raster_overlap": int,
+    "ops_window_overlap": int,
+    "ops_footprint": (float, int),
+    "ops_store_reads": bool,
 }
 
 #: Which panel section each setting appears under.
@@ -51,10 +74,15 @@ OPS_TYPES: Dict[str, object] = {
 #: is drawing.
 OPS_CATEGORIES: Dict[str, List[str]] = {
     "OPS input": [
-        "dst_root", "genotype_source",
+        "dst_root", "genotype_source", "phenotype_source", "ops_library",
     ],
     "OPS alignment": [
-        "cellpose_model", "cellpose_diameter",
+        "cellpose_model", "cellpose_diameter", "ops_raster_overlap",
+        "ops_window_overlap",
+    ],
+    "OPS decoding": [
+        "ops_base_channels", "ops_read_threshold", "ops_footprint",
+        "ops_store_reads",
     ],
     "OPS performance": [
         "ops_gpu", "n_workers",
@@ -95,6 +123,63 @@ OPS_TOOLTIPS: Dict[str, str] = {
         "(int) - How many parallel workers to use. More is faster until the "
         "disk becomes the limit; each worker holds its own tiles, so this "
         "multiplies memory. Default is the machine's core count.",
+    "ops_base_channels":
+        "(str) - Which channels carry the four bases, in the order G, T, A, "
+        "C, separated by commas. These names are matched against the channel "
+        "token in each tile's file name, so a run whose base channels are "
+        "named differently is read by changing this rather than by renaming "
+        "files. Exactly four are required: a shorter list decodes a shorter "
+        "barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+    "ops_footprint":
+        "(float) - How far beyond a nucleus's boundary a read may lie and "
+        "still be counted as that nucleus's read, in pixels. On the "
+        "reference plate 10 pixels held 98 % of the detected spots and 3 "
+        "held 67 %, and the wider setting assigned 28 % more objects a "
+        "barcode at slightly higher purity, because the reads sit around "
+        "the rim rather than inside. Too wide starts giving a read to a "
+        "neighbour. Default 10.",
+    "ops_library":
+        "(str or None) - A CSV of guide barcodes, with the column holding "
+        "them named prefix, barcode or sequence. Given one, each nucleus's "
+        "called barcode is also matched to its closest guide, and the run "
+        "reports how many spots match the library exactly -- the one number "
+        "that says whether the decode worked at all. Empty still calls "
+        "barcodes and simply cannot score them. Default None.",
+    "ops_raster_overlap":
+        "(int) - How far neighbouring sequencing tiles overlap on the "
+        "microscope's raster, in pixels. This is the acquisition's own "
+        "setting, not a tuning knob: it tells the stitch where to look for "
+        "a neighbour, and a value well away from the truth loses edges and "
+        "leaves fields unplaced. Default 213, measured on the reference "
+        "plate's 1,480 pixel tiles.",
+    "ops_read_threshold":
+        "(float) - How much brighter than its surroundings a spot must be "
+        "to be counted as a read. Lower finds more reads and more debris, "
+        "which shows up as a falling library-match rate rather than as an "
+        "error; higher loses real reads and leaves nuclei with too few to "
+        "vote. Default 315, the reference run's own value for this plate.",
+    "ops_store_reads":
+        "(bool) - Write every read behind the barcodes into the ops_reads "
+        "table: one row per read per cycle, with the base called, its "
+        "margin and the four intensities it was called from. This is how a "
+        "suspect barcode is traced back to its pixels. It is OFF by default "
+        "because it is large -- a full well of the reference plate is about "
+        "thirty million rows -- so turn it on for a well or two rather than "
+        "for a plate. Default False.",
+    "ops_window_overlap":
+        "(int) - How far the segmentation windows overlap each other, in "
+        "pixels. A nucleus is only numbered once if at least one window saw "
+        "all of it, so this has to exceed the largest nucleus; when it does "
+        "not, the run reports the objects no window saw whole and says by "
+        "how much. Raising it costs time, because more of the well is "
+        "segmented twice. Default 96.",
+    "phenotype_source":
+        "(str or None) - The folder holding the high-magnification "
+        "phenotype acquisition of the same wells. Given one, the run aligns "
+        "a few of its fields to the stitched sequencing well, fits the "
+        "acquisition raster to those, and records where every phenotype "
+        "field lands and which sequencing tile covers it. Empty skips that "
+        "step and decodes the sequencing acquisition alone. Default None.",
     "ops_gpu":
         "(bool) - Let this run use the graphics card where spaCR finds a "
         "usable one: the tile registration's FFTs and the Cellpose outlines "
@@ -110,9 +195,10 @@ OPS_DESCRIPTION = (
     "Take each well of an optical pooled screen's sequencing acquisition "
     "from tiles to tables: stitch its nuclear tiles, segment and number its "
     "nuclei across the whole well, then decode each field's reads and assign "
-    "a barcode to every nucleus whose reads agree. The tables are written to "
-    "measurements.db. Reads are decoded from the images, not from FASTQ, and "
-    "the phenotype images are not placed by this step."
+    "a barcode to every nucleus whose reads agree. Given a phenotype folder "
+    "it also records where each phenotype field lands on the stitched well. "
+    "The tables are written to measurements.db. Reads are decoded from the "
+    "images, not from FASTQ."
 )
 
 

@@ -202,8 +202,11 @@ class PictureSettingsDialog(QDialog):
         #: cost replaces it instead of stacking another copy on the end.
         self._cap_help: Optional[str] = None
 
+        from ...picture_settings import drop_retired
+
+        values, _notes = drop_retired(values)
         start = dict(picture_defaults())
-        start.update({k: v for k, v in (values or {}).items() if k in ALL_KEYS})
+        start.update({k: v for k, v in values.items() if k in ALL_KEYS})
 
         self._tabs = QTabWidget(self)
         self._tab_of: Dict[str, str] = {}

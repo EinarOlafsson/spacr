@@ -1,9 +1,10 @@
 """The coverage gate follows the package and cannot be weakened by omission.
 
-Since 2026-09-15 (item 288) CI gates on a per-module ratchet baseline rather
-than 100% per module; the ratchet's rules are tested in
-``tests/test_coverage_ratchet_rules.py``.  Without ``--baseline`` the tool
-still demands 100% of every module, which is what the CLI tests here use.
+Since 2026-09-19 (item 288) CI gates on a 90% FLOOR plus a per-module ratchet
+baseline, so a module's bar is ``max(90%, what it already has)``; the
+ratchet's rules are tested in ``tests/test_coverage_ratchet_rules.py``.
+Without ``--baseline`` no module has a recorded allowance and the floor is
+the whole gate, which is what the CLI tests here use.
 """
 
 from __future__ import annotations
@@ -369,7 +370,23 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     # Measured by diffing the shipped set against origin/nightly dca970671:
     # now - base is exactly those two files and base - now is empty. The
     # workflow's --expected-file-count and its pin below move with it.
-    assert len(shipped) == 572
+    # 572 -> 604 on 2026-09-21, +32/-0, measured by diffing the shipped set
+    # against 8088c1907, the commit that set 572: now - base is exactly these
+    # files, base - now is empty, and every one is installed Python --
+    #   spacr/: crop_loader, import_examples, object_classifier,
+    #     plaque_papers, timeflows_baseline, timeflows_model, timeflows_qc;
+    #   spacr/qt/: _magnifier_drag, assay_examples, help_api_index,
+    #     help_index, help_search, import_demo, make_masks_datasets,
+    #     model_install, night_themes, ops_stitch_demo,
+    #     preferences_navigation, resonance, sound, sound_preferences,
+    #     sound_synth, ai/cli_install, ai/pty_sign_in,
+    #     screens/measure_inputs;
+    #   spacr/qt/widgets/: cli_setup_panel, measure_input_table,
+    #     measurements_example, model_share, model_share_dialog,
+    #     plaque_preview, preview_refresh.
+    # The pin went stale across a week of product work rather than through
+    # anything leaving the package.
+    assert len(shipped) == 604
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -378,7 +395,7 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     assert not RESOURCE_GENERATORS & shipped
 
 
-def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
+def test_cli_passes_at_full_statement_and_branch_coverage(tmp_path):
     project = _project(tmp_path / "project")
     result, report, text = _run_cli(
         project,
@@ -391,8 +408,9 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
     )
 
     assert result.returncode == 0, result.stdout + result.stderr
-    assert report["schema"] == "spacr.module-coverage-ratchet/v3"
+    assert report["schema"] == "spacr.module-coverage-ratchet/v4"
     assert report["status"] == "pass"
+    assert report["floor_percent"] == 90
     assert report["summary"] == {
         "failed_modules": 0,
         "global_issue_count": 0,
@@ -400,9 +418,12 @@ def test_cli_passes_only_at_exact_statement_and_branch_coverage(tmp_path):
         "integrity_issue_count": 0,
         "modules_at_100_percent": 2,
         "modules_below_100_percent": 0,
+        "modules_below_floor": 0,
+        "modules_exempt_from_floor": 0,
         "modules_checked": 2,
         "shipped_modules": 2,
         "stale_baseline_entries": 0,
+        "stale_exemptions": 0,
         "unconfirmed_modules": 0,
     }
     assert report["measurement_integrity"] == {"checked": False}
@@ -462,8 +483,13 @@ def test_uncovered_line_and_branch_have_actionable_diagnostics(tmp_path):
         "uncovered statements: 4",
         "uncovered branches: 2->4",
     ]
-    assert logic["failures"][0].startswith("new module is not at 100%")
-    assert "GAP: demo/logic.py: 1 uncovered statements, 1 uncovered branches" in text
+    assert logic["failures"][0].startswith(
+        "is below the 90% floor at 66.67%"
+    )
+    assert (
+        "BELOW FLOOR: demo/logic.py: 66.67%, 1 uncovered statements, "
+        "1 uncovered branches"
+    ) in text
     assert "    uncovered statements: 4\n" in text
     assert "    uncovered branches: 2->4\n" in text
 
@@ -672,8 +698,8 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # 570 -> 572 on 2026-09-15 with spacr/qt/make_masks_demo.py (412) and
     # spacr/install_cleanup.py (416), the same +2 as `shipped`; the gate's own
     # inventory, verify_module_coverage.discover_shipped_python_files, returns
-    # 572.
-    assert "--expected-file-count 572" in combine_script
+    # 572. 572 -> 604 on 2026-09-21, the same +32 as `shipped`.
+    assert "--expected-file-count 604" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

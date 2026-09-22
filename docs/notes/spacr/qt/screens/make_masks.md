@@ -14,6 +14,398 @@
   is safe. A missing queue is a programming error; catching its AttributeError
   here would incorrectly report it as a record-write failure.
 
+## Item 419, points 1-3 (2026-09-19)
+
+- `_MaskCanvas.update_readout` / `readout_text` / `_paint_readout`: the
+  readout in the image's top-left corner. It is fixed in the corner and its
+  CONTENT follows the mouse, which is what "in the top left corner" asked
+  for; a label that followed the cursor would sit on the object being read.
+  The numbers come from `mask_engine.ObjectLookup`, which measures exactly as
+  `filter_objects` does (canonical id, pixel count, float32 mean over the
+  object's pixels in raster order), so a bound typed from the readout
+  predicts the filter. The mean is written to the two decimals the filter's
+  intensity boxes take; a bound within 0.005 of a mean whose third decimal is
+  not zero can land either side of it, because the box rounds what is typed.
+- `_MaskCanvas._object_lookup`: a refresh marks the lookup stale, and a stale
+  lookup is compared with a copy of the mask it was built from before it is
+  rebuilt. Zoom, pan and resize all refresh without changing a label, and a
+  rebuild costs tens of milliseconds on a 2048 px field (measured: 65-90 ms
+  at 2048 x 2048 with 400 objects; 15 ms at 1024 x 1024 with 200), where the
+  comparison costs about 2 ms.
+- `_MaskCanvas.mouseMoveEvent`: while a button is held the readout reports
+  only the pixel. A brush stroke changes the mask on every move, and
+  re-measuring each time would put a lookup rebuild on every mouse event of
+  the stroke. `mouseReleaseEvent` and `refresh` queue a re-read for when the
+  button is up, so an object erased under a resting mouse stops being
+  reported without the mouse moving.
+- `MakeMasksScreen._build_ui`: the settings are the splitter's FIRST pane and
+  the views the second. `SETTINGS_GAP` is the splitter handle's width, so the
+  gap the maintainer asked for is also where the pane is dragged wider.
+  `_on_toggle_settings` reads and writes index 0 accordingly.
+- `MakeMasksScreen._build_ui`: the masthead has no description. That sentence
+  was also the masthead's only route to the API page (its hover help); the
+  maintainer asked for it to go, and every setting's label still links its
+  own API entry.
+- `MakeMasksScreen._build_tool_row` / `add_toolbar_action`: the Magnifier is
+  inserted directly before Settings, and later actions are inserted before
+  the Magnifier, so the pair stays adjacent whatever is added; the stretch is
+  after Settings, which keeps the row against the left edge above the
+  settings it toggles.
+- `MakeMasksScreen._offer_backend_install`: replaced the synchronous
+  `subprocess.run` of c60d48e35, which froze the window for the whole pip run
+  ("the window will not respond while it runs"). The install is now
+  `model_install.PackageInstall`, a QProcess watched from the event loop,
+  with a busy bar and pip's latest line under Mode. The box goes back to the
+  mode it was on when a missing row is chosen, and a finished install selects
+  the new mode. Whether the package can be found is asked again after pip
+  exits 0, because pip can succeed and leave nothing importable.
+- `MakeMasksScreen._fill_zoo_models` / `_keep_model_loadable` /
+  `_on_model_activated` / `download_zoo_model`: a zoo Cellpose model not on
+  this machine was a DISABLED row, which cannot be chosen at all. It is now a
+  greyed row that stores no path; `activated` (a click) starts the download,
+  and `_keep_model_loadable` puts the box back if the keyboard or the wheel
+  lands on such a row, so `_magnifier_context()["model_name"]` never falls
+  back to cpsam behind the user's back.
+- `_cp_fetched`: `model_zoo.fetch` files a download under
+  `versioned_path(folder, entry.name)`, which strips a trailing `_v1`
+  (`foo_v1.cp_model` lands as `foo.cp_model`). `_zoo_cellpose_models` looks
+  for `folder/entry.name`, as the picker's `_local_path_on_disk` does, so a
+  zoo name ending in `_v1` never shows as downloaded after a restart. None of
+  today's zoo names end that way; the session map covers the rest of the
+  session, and the lasting fix belongs in `model_zoo` (a lookup of where an
+  entry was installed), which this item does not own.
+
+## Item 419, points 4-6 (2026-09-19)
+
+- `SHORTCUT_HINTS` / `_build_shortcut_panel` / `_build_view_pane`: the
+  shortcut list the maintainer asked for "to the right of the mak, cell
+  probability, Flows". Those three are the view TABS, so the splitter's
+  right-hand pane became the tabs and the list side by side rather than the
+  tabs alone; `_view_pane` is that pane, and the two layout tests that read
+  `indexOf(self._view_tabs) == 1` now read the pane and assert the tabs are
+  inside it. The width is fixed (`SHORTCUTS_WIDTH`) so a wider window gives
+  its pixels to the image, and the Settings toggle does NOT hide the list:
+  it is not settings, and a shortcut list that disappears exactly when the
+  screen is cleared for work is one you can only read when you do not need
+  it.
+- Every line of `SHORTCUT_HINTS` is a gesture this module implements, and
+  `tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py` drives each
+  one on the canvas rather than reading the table back. A panel of plausible
+  sentences is the failure mode here: the keys change, the panel does not,
+  and nothing is red. Writing the tests moved one line --
+  "Choose every object the drag passes" became "Add the objects it passes
+  over", because a drag across two objects with background between them
+  added only the first, and the panel must not claim more than the gesture
+  does. What a drag adds in each save mode is item 417's file to state.
+- `canonical_magnifier_mode` / `_MAGNIFIER_MODE_ALIASES`: point 5 renamed the
+  magnifier's `classical` mode to `otsu`. A mode name reaches this module
+  from a script, a test and (through `set_mode`) anything that remembered
+  one, so the old key still runs and is translated to the new one at the
+  door: `_MAGNIFIER_SEGMENTERS` is keyed on the new name only, and
+  `_segment_region`, `set_mode` and `_model_settings` all canonicalise first.
+  `mask_engine._classical_region_labels` keeps its name -- it is another
+  module's private function, with its own tests, and renaming it would have
+  been a second change dressed as this one.
+- `_RENAMED_CATEGORIES`: the folded-categories preference is a list of
+  TITLES, so renaming "Cellpose-SAM" to "Object detection" would have quietly
+  un-folded it for every user who had folded it. The stored list is read
+  through the map; what is written back is the new title, so the migration
+  happens once.
+- `_build_otsu_card` / `_otsu_settings`: the threshold correction was the
+  only Otsu setting there was and it sat at the bottom of the Cellpose-SAM
+  category, where nobody looking for Otsu would open it. It moves to a
+  category of its own with the Bright switch and four new settings, and ONE
+  reader (`_otsu_settings`) feeds both the button and, through
+  `_magnifier_context`, the magnifier.
+- THE OTSU DEFAULTS MOVE THE BUTTON, on purpose. Before this the magnifier's
+  Otsu mode smoothed by 1 px, filled holes and split a blob with two centres,
+  and Otsu detect did none of the three: the box under the mouse and the
+  button disagreed about the same field and nothing said so. The boxes start
+  where the preview has always been, so the box is a PREVIEW of the button;
+  three clicks put the plain threshold back.
+  `mask_engine._otsu_instances`'s own defaults are unchanged, so nothing that
+  calls it directly moved.
+- "PREVIEW" AND NOT "THE SAME FUNCTION", and the difference is measured,
+  because an earlier draft of this note claimed the button "now gives what
+  the box showed". Closing those three gaps does not make the two one
+  routine: `_classical_region_labels` still opens the binary image, still
+  offsets Otsu's level by the magnifier's own Sensitivity, and still falls
+  back to a noise-floor cut where a region holds no two clear populations,
+  and `_otsu_instances` does none of the three. Driven from the panel
+  defaults over twelve synthetic 96x96 fields of three to six bright discs
+  on noise (2026-09-19) the two agreed on the object COUNT twelve times out
+  of twelve and were pixel-identical in two, the other ten differing by 3 to
+  16 boundary pixels in 9,216. The box tells a curator what the button is
+  about to do; it does not promise the same array.
+- `OTSU_SMOOTHING` is a hand-written copy of the private
+  `mask_engine._CLASSICAL_SMOOTHING`, because a screen importing a private
+  name from the engine is worse than a duplicated float -- but an unpinned
+  copy is the same silent disagreement one level up, so a test holds the two
+  equal, along with `_MagnifierRequest.otsu_smoothing`'s default.
+- `_MODEL_SETTING_FIELDS`: the three new Otsu settings are APPENDED. A
+  magnifier request key is this tuple positionally after `(field, box)`, and
+  an insertion in the middle would make every cached key mean something else.
+- `_on_dilate` / `_on_shrink` / `_on_clear_mask`: point 6's three buttons.
+  Clear already existed and already confirmed; what changed is that it says
+  how many objects are about to go, which is the one fact that decides the
+  question. Shrink reports how many objects it erased, because erosion
+  deletes anything thinner than twice the step and a curator who has just
+  lost eleven objects needs to be told while Undo is still the obvious thing
+  to do. Both go through `_apply_op`, so each is one undo step and one
+  ledger entry carrying its step.
+- BOTH NUMBERS IN SHRINK'S SENTENCE ARE THE COUNT BEFORE THE EDIT, and the
+  first is deliberately the count the button was pressed on and not the
+  count that survived. The first draft reported the survivors, which made
+  ten objects with seven erased read "Shrank 3 object(s) ... 7 object(s) are
+  gone" -- an arithmetic puzzle over a field where all ten were eroded --
+  and made emptying the field read "Shrank 0 object(s)".
+## Item 407, the magnifier's last status lines (2026-09-19)
+
+- `_LiveMagnifier.click`, `_on_delivered` and `_note_fallback`: the three
+  sentences item 407 left behind now go through `tr` with NAMED values
+  rather than being built as f-strings. An f-string is assembled before
+  anything can translate it, so the region mode's two failures -- the model
+  that could not segment the region, and the model that could not load at
+  all -- reached a reader in Japanese in English. The error and the mode are
+  values in the template (`{error}`, `{mode}`, `{reason}`), which is what
+  lets a catalog reorder them: a locale that puts the reason first can, and
+  one that drops the brackets can.
+- `_magnifier_mode_label`: the fallback note names the mode the way the Mode
+  box names it. It used to print the internal key, so a user who had chosen
+  "Cellpose 3 · cyto3" was told `cellpose3:cyto3` could not run and had no
+  row to look for. The caption itself is translated, so the sentence and the
+  box agree in every language. An unknown key is handed back unchanged: a
+  mode that has lost its caption still reads as itself rather than vanishing.
+- `MakeMasksScreen._on_toggle_magnifier` and `_commit_magnifier_result`: the
+  toggle's two sentences and the "nothing to add" refusal were already
+  collected as catalog sources -- the generator reads a `setText` literal --
+  and were shown without `tr`, so the rows existed and nothing used them.
+  Wrapping them changes no source and owes no translation.
+
+## Item 435 (2026-09-20)
+
+- `_MaskCanvas.displayed_source` / `invert_display`: the complement is
+  computed at the one place the canvas paints and nowhere else, so the
+  corner readout, the object filter, both detect buttons, the live
+  magnifier's crop and the saved mask all go on reading `canvas.image`. A
+  view inversion that leaked into what is measured would be worse than the
+  defect it fixes, because a curator would be filtering on numbers that are
+  not the data; the tests drive each of those five paths with Invert on.
+- The complement is cached against the identity of `image` because
+  `refresh` runs on every point of a brush stroke, and re-subtracting a
+  megapixel field per point would be felt on the brush.
+- "Invert image" is in the DISPLAY category, beside the two contrast
+  percentiles, because that is what it is. Item 419 point 9 is a SECOND,
+  separate invert, in Object detection, which makes the detectors work on
+  inverted pixels on purpose and carries a warning saying so; the two must
+  not be confused, and putting this one where the contrast lives is what
+  keeps them apart on the panel.
+- "Invert mask" in Object operations is now "Swap object and background",
+  and it reports its own result. The thing that made it look broken is that
+  its result is invisible: one field-sized object reads as one flat wash.
+  Nothing on the panel called "Invert" flips the mask any more.
+- The Otsu category's three new controls -- `Classes`, `Foreground class`
+  and the local threshold with its `Local window` -- are the detect
+  BUTTON's only, on the precedent item 419 set with "Drop objects the image
+  border cuts". They are judgements about a whole field: a 64 px magnifier
+  box rarely holds three populations, and a window the size of the box is
+  the box's own threshold, so offering either there would be offering a
+  control that does nothing, which is the defect this item exists for.
+  `_classical_region_labels`, the magnifier's own routine, is untouched.
+- `_sync_otsu_controls` greys out what is not being read: the foreground
+  class before there is more than one band to choose from, the window while
+  the local threshold is off, and the class count while it is on. A local
+  level and a split into several bands have no joint meaning and the engine
+  refuses the pair rather than dropping one of the two quietly.
+- The minimum object area after the threshold was ALREADY THERE -- item
+  419's `Min area` in Object operations, read by `_detect_min_area` and
+  passed through to `connected_instances` -- and a second box in the Otsu
+  category could only disagree with it. The card points at it in a line
+  instead.
+- `_OtsuHistogramDialog` is modeless, because the point of a preview is to
+  change a setting and look again, and because a static modal runs its
+  event loop in C++ and hangs a headless run. It is painted rather than
+  plotted: a few hundred bars and two or three lines do not justify
+  importing a chart library onto the path that opens Make Masks.
+
+## Item 407, a field is segmented whole once a session (2026-09-19)
+
+- `_LiveMagnifier._keep_image_result` / `_cached_image_result` /
+  `_trim_image_cache`: leaving a field and coming back re-ran the whole-image
+  model on it. Measured on the RTX 3090 for item 407 that is 3.7-10.3 s a
+  field; on a CPU it is minutes, and a curator walking a plate goes back and
+  forth constantly. What is kept is the label image, under a name made of
+  the FIELD and every setting a model reads, so a run under a new
+  Sensitivity neither matches the old one nor evicts it.
+- Why the name is not the run key: a run key opens with `_field`, which
+  counts LOADS rather than fields, so the same field opened twice carries two
+  different keys and could never match itself. `set_field` gives the
+  magnifier the image file's path, and `_cache_key` swaps it in for the
+  counter. A canvas handed an array with no file behind it has no name and is
+  never kept -- nothing could tell two such arrays apart.
+- Why `memory_budget.what_to_drop` and not a size of its own: it is what
+  every other cache in the application is trimmed by, so the user's idle
+  timeout and cache ceiling reach this one too. The ceiling applied is the
+  LOWER of that preference and `_MAGNIFIER_IMAGE_CACHE_MB`, because 2 GB of
+  label images is not what a user who raised the ceiling for image caches was
+  asking for. The field on screen is held by `_image_result` as well, so a
+  trim can never take the objects out from under the box.
+- A cache hit says exactly what a finished run says -- "{n} object(s) found
+  in the whole image" -- because it is true and because it owes no new
+  translation. What the user sees instead is the busy bar not appearing.
+
+## Item 407, the box shows what a click would add (2026-09-20)
+
+- `_LiveMagnifier._overlap_preview`: the box outlined what the MODEL found,
+  and a click adds what the Overlap rule and Min area leave of it. A click
+  that added half an object, or nothing at all, said so only afterwards in
+  the status line. The pixels the rule takes away now keep a quarter of
+  their alpha, so they read as "found, not yours" beside the solid objects a
+  click commits, and the promise the box makes is the one the click keeps.
+- It is computed on the GUI thread and not on the worker because what it
+  depends on is the MASK, and the mask is the GUI thread's. The answer is
+  kept until the result, the mask or the rule changes -- identity, not a
+  hash: a mask edit replaces the array, and the magnifier owns the left
+  button while it is on, so nothing mutates the mask under the cache.
+  Nothing is computed at all under Replace, which takes nothing away, or
+  over an empty mask, which has nothing to take.
+- Only under "Region under the mouse". Under Whole image a click adds one
+  whole object, most of which can lie outside the box, and the rule's answer
+  for it cannot be read off the box's slice: Skip asks whether the object
+  touches the mask ANYWHERE, and Clip keeps the object's largest surviving
+  piece, which may be outside. A preview there needs the object's whole
+  extent, and that is left undone rather than approximated.
+- `set_overlap` does NOT refresh: the rule is applied to what was found, not
+  by the thing that finds it, so changing it asks no model and does not
+  discard the whole-image objects. It matches the Size and Zoom rows in that
+  and is why it is a setter of its own rather than part of the request key.
+
+## Item 407, the busy bar says how long (2026-09-20)
+
+- `remaining_seconds` / `_note_pace` / `MakeMasksScreen._tick_magnifier_eta`:
+  neither Otsu nor Cellpose reports steps, and tiling the field to get real
+  progress would cut objects at the seams (that decision is item 407's, from
+  2026-09-15, and stands). What CAN be known without either is what the LAST
+  run under this mode and model cost per megapixel.
+- So the first run of a session promises nothing and the bar stays
+  indeterminate. That is the honest answer, and it is also the right one: on
+  a cold model most of a first run is the load -- item 407 measured 10.3 s
+  against 3.9 s for the same field with the model cached -- so a first run
+  would over-promise by a factor of three.
+- The pace is kept against the mode and the model and NOT against the field,
+  because the whole point is to answer for a field nothing has been measured
+  on. Sensitivity and Min area are left out: they move the objects found
+  rather than the work done.
+- An estimate that runs out goes back to the indeterminate bar rather than
+  counting past zero or sitting at 99%. A bar that has stopped being able to
+  say how long should stop saying it.
+
+## Item 419, points 7-9 (2026-09-19)
+
+- `_build_tools_panel`'s filter category is called "Filter", as the
+  maintainer named it, and is in `_RENAMED_CATEGORIES` beside Cellpose-SAM
+  for the same reason: the folded-categories preference stores TITLES, so a
+  user who had folded "Auto-filter objects" away would find it open again
+  and have to fold it a second time.
+- `_filter_log` / `_set_filter_log` / `_filter_removal_line`: the removal
+  ledger point 7 asks for, one row per object. The row carries the bound's
+  own NUMBER as well as its name -- "removed by minimum area 20" -- because
+  a row naming only the bound leaves the reader hunting for the box it came
+  from. It is cleared at the START of every run, including the run that
+  found nothing and the automatic run a field load makes: the rows name
+  objects in the mask ON SCREEN, and a row left over from the last field
+  names an object that is not there. Empty shows a placeholder rather than a
+  blank red box.
+- The log is fixed at `FILTER_LOG_ROWS` rows with the rest a scroll away. A
+  box that grew with its contents would push every other category off the
+  panel the first time a bound was set too tight.
+- THE ROWS ARE DROPPED BY THE NEXT EDIT, in `_record`, which is the one
+  place every edit passes through. They promise to name objects in the mask
+  on screen and the next edit breaks that promise whatever it was: Ctrl+Z
+  puts a removed object back under the id a row still lists, and a detect in
+  replace mode rebuilds the mask around it. Undo was the cheap one to reach
+  -- one keystroke after a filter left a red row naming an object that was
+  visibly back on the canvas.
+- `_make_masks_qss` / `MAKE_MASKS_QSS_NAME`: the log's red and the Invert
+  warning's amber are REGISTERED QSS, not colours set on the widgets. A
+  colour written onto a widget at build time is the colour it keeps when the
+  theme changes under it; registered, both follow the user's theme, and the
+  test reads the resolved palette rather than the string that was asked for.
+- `_MaskCanvas._ctrl_edit_at` and the Ctrl branch of `mousePressEvent`:
+  point 8. CTRL IS TESTED FIRST, before the magnifier and before the pan, or
+  the two edits would exist only while the magnifier was off -- its press
+  handler takes every left click and its whole-image mode takes every right
+  one.
+- `_MaskCanvas._ctrl_click` exists because of what the RELEASE does. The
+  magnifier's `release()` with no stroke open IS a click, so without it a
+  Ctrl+click that split one object would commit every object in the box on
+  the way back up. It also stops a move with the button still down turning
+  the finished edit into a drag.
+- It holds the BUTTON rather than a yes/no, and the edit only starts when
+  nothing else is down (`event.buttons() == event.button()`). Two buttons
+  at once is where a click-shaped gesture goes wrong: Ctrl+left pressed
+  during a right-button sweep used to close the SWEEP's stroke and label it
+  a split, and then the sweep's own release was swallowed as the Ctrl
+  click's, leaving `_sweeping` set with no ledger entry for what had already
+  been erased. Now the second button starts nothing and ends nothing, and
+  only the button that opened the edit closes it.
+- `_MaskCanvas.status`: the canvas had no way to say anything. These two
+  gestures are the first that can decline to act for a reason worth telling
+  -- a click on background, and an object with no waist -- and a shortcut
+  that does nothing and says nothing reads as a broken shortcut.
+- `split_min_area` / `_on_min_area_changed`: the split reads the Min area
+  box, which is the same judgement about debris the detectors read. An
+  object the screen would not keep is not one the gesture cuts in two.
+- Every `QCheckBox` on this screen is the package's `Toggle` (point 9a). It
+  is a `QCheckBox` subclass, so `setChecked`/`isChecked` and every existing
+  connection are unchanged and nothing that found these controls by type
+  moved.
+- `_cp_invert` / `_detector_image` / `_LiveMagnifier.region_for`: point 9's
+  inversion is what the DETECTOR sees, not a display trick, so one function
+  on each side produces the array that is segmented. The canvas's own array
+  is never inverted in place, which is what keeps the hover readout and the
+  Filter category reporting the field's real values -- point 9's own note
+  asks for that, since a user filtering by intensity would otherwise be
+  judging inverted numbers.
+- THREE THINGS ON THIS SCREEN ARE CALLED INVERT AND THE CAPTION IS WHERE
+  THEY ARE TOLD APART. Item 435 landed two of them and the module docstring
+  named two; this is the third, and it is the only one that changes what a
+  detector reads, so it is the one that had to say so in its own name. It is
+  "Invert for detection", which is the maintainer's own phrase for it ("a
+  new boolean slider ... invert for object detection"), and it carries the
+  warning banner. "Invert image" in Display is a view and promises in its
+  tooltip that nothing measured moves; "Swap object and background" in
+  Object operations flips the LABELS. A panel with two switches both reading
+  "Invert", one of which silently redirected both detect buttons, is the
+  defect item 435 was filed about wearing different clothes.
+- The arithmetic is `mask_engine.invert_for_detection` and NOT 435's
+  `invert_intensity`, although the two differ only by which ends they
+  reflect about. The detect button thresholds ABSOLUTE intensity and
+  multiplies the level by item 417's threshold correction, so an inversion
+  that moves the field's span moves what that dial means: on a 12-bit field
+  the dtype complement makes a correction of 0.8 label the whole frame and
+  1.3 label nothing. The measurement is in `invert_for_detection`'s
+  docstring and in the note for `mask_engine`.
+- `_LiveMagnifier.inverted_field` caches the WHOLE field inverted, on the
+  array's identity, and `region_for` and `paint` both cut from that one
+  array. A region reflected about its OWN extremes is reflected differently
+  wherever the box is put, so the box would stop being a preview of the
+  button; and item 407 moved the box's paint onto `_stretch_for_box`, which
+  indexes the field by absolute coordinates and so needs a field rather than
+  a crop. One cached array answers both. A full-field pass on every hover
+  would be work on the GUI thread for an answer that cannot have changed; a
+  new field is a new array and asks again, which is how the canvas already
+  caches item 435's display complement.
+- `invert` is APPENDED to `_MODEL_SETTING_FIELDS`, like the three settings
+  point 5 added, because a request key is that tuple positionally and an
+  insertion in the middle would make every cached key mean something else.
+  It is on the request although no segmenter reads it: the same box under
+  the same settings with Invert on and off are two different questions.
+- `_invert_warning` sits between the tool row and the image and NOT in the
+  settings panel (point 9e). The Settings toggle hides that panel to give
+  the image the width, and the magnifier goes on inverting while it is
+  hidden; a warning you can only see when you are not working is not one.
+
 Prose lifted out of `spacr/qt/screens/make_masks.py` by `tools/extract_source_notes.py`.
 The module itself carries no comments now, so this file is where its reasons live; the path mirrors the source path, which is how it is found.
 

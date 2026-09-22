@@ -138,3 +138,13 @@ self._pinned = None
 ```
 
 A new cap is a new draw; the old pin has no claim on it.
+
+## enumerate_image_sets / sibling_sources
+
+### added 2026-09-19 (431, #119)
+
+```python
+if name.startswith(".") or not lowered.endswith(wanted):
+```
+
+The #119 reporter works on a Mac external drive. His #117 log, read for 429, names `stack/._test_N06_5_1.npy`, so the drive gets a `._<name>` AppleDouble sidecar beside every file macOS writes there (exFAT, FAT and many SMB shares cannot hold extended attributes natively). A sidecar keeps the image's name and ending, so `._plateA_B02_..._C01.tif` passed the suffix check here. Measured on the unfixed function with a synthetic folder of 3 fields x 3 channels plus their sidecars: under cellvoyager naming the sidecars matched with plate `._plateA` and 3 fields became 6 rows; under cq1 all 18 names went in as unreadable one-file sets. 429 made the Mask run skip every dot-file (`spacr.io._listdir_visible`). The preview now skips them too, so it lists what the run will process. `sibling_sources` skips dot-entries as well, which also keeps `.Trashes` and `.Spotlight-V100` out of the Timelapse field list when a source sits at a volume root.

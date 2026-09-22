@@ -69,7 +69,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "infection_intensity_qc_panel_path", "infection_intensity_qc_scope",
     "infection_intensity_strategy", "infection_pca_log_intensity", "infection_pca_max_cells",
     "infection_pca_method", "infection_pca_min_gt_separation", "infection_pca_min_silhouette",
-    "infection_pca_n_clusters", "infection_pca_pathogen_weight", "infection_pca_random_state",
+    "infection_pca_pathogen_weight", "infection_pca_random_state",
     "infection_pca_tsne_learning_rate_grid", "infection_pca_tsne_perplexity",
     "infection_pca_tsne_perplexity_grid", "infection_pca_tsne_search",
     "infection_pca_umap_min_dist", "infection_pca_umap_min_dist_grid",
@@ -144,7 +144,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "seg_qc_min_objects", "seg_qc_outlier_fraction", "seg_qc_outlier_mad",
     "seg_qc_plate_fail_fraction", "seg_qc_size_ratio", "seg_qc_split_ratio",
     "seg_qc_tiny_fraction", "shuffle", "signal_direction", "single_direction", "size",
-    "smooth_lines", "split_axis_lims", "src", "straightness_filter", "straightness_threshold",
+    "smooth_lines", "split_axis_lims", "src", "drop_straight_tracks", "straightness_threshold",
     "summarize_organelles_by", "tables", "target", "target_height", "target_intensity_min",
     "target_layer", "target_sequence", "target_unique_count", "target_width", "test",
     "test_images", "test_mode", "test_nr", "test_size", "test_split", "threshold_method",
@@ -156,7 +156,7 @@ KEYS_BEFORE_REGROUP = frozenset({
     "ultrack_n_workers", "um_per_pixel", "uninfected", "upscale", "upscale_factor",
     "use_bounding_box", "use_checkpoint", "use_sam_cell", "use_sam_nucleus",
     "use_sam_pathogen", "val_split", "verbose", "visualize", "volcano", "weight_decay",
-    "width_height", "x_lim", "zscore_thresh",
+    "width_height", "x_lim", "track_outlier_zscore",
 })
 
 #: Keys added to the map by the regroup. They were previously offered by a
@@ -330,15 +330,24 @@ KEYS_RETIRED = frozenset({
     # maps it to "" -- withdrawn, no replacement -- rather than pointing at a
     # key the user was probably already setting.
     #
-    # NOT `barcodes`, its sibling in the same dead factory and approved in the
-    # same breath. That one is HELD: a reviewed zh_CN translation is pinned to
-    # its tooltip in docs/i18n/reviewed/runtime/, so retiring it withdraws a
-    # reviewed record and is a translation decision, not a deletion.
-    "grna",
+    # `barcodes`, its sibling in the same dead factory and approved in the
+    # same breath, was HELD until 2026-09-19 because a reviewed zh_CN
+    # translation was pinned to its tooltip. The maintainer decided that day
+    # to withdraw the record and retire the key ("Retire both", with
+    # `Toxoplasma`, which was never in a category and so is not listed).
+    "grna", "barcodes",
 })
 
 
 KEYS_ADDED_BY_REGROUP = frozenset({
+    # 468, 2026-09-21: Plaque Assay's Plaque/Figure mode and the Figure
+    # mode's detector, text reading and review switch.
+    "plaque_mode", "figure_detector", "figure_imgsz", "figure_confidence",
+    "figure_read_text", "confirm_annotations",
+    # 426, 2026-09-21: the weights Cellpose training starts from.
+    "base_model",
+    # 468, 2026-09-21: Figure mode's text-detection knobs.
+    "text_reach_above", "text_reach_left", "text_reach_below", "text_use_above", "text_use_left", "text_use_below", "text_panel_reach", "text_min_confidence", "text_ignore", "text_order", "text_separator", "text_reread", "text_reread_scale",
     # Feature 418: absolute object-mean intensity bounds in each own channel.
     # Numbered organelle slots use the existing dynamic registry expansion.
     "cell_min_intensity", "cell_max_intensity",
@@ -386,6 +395,18 @@ KEYS_ADDED_BY_REGROUP = frozenset({
     # themselves. It is `ops_gpu` and not `gpu` because Image UMAP already
     # owns `gpu` with a different meaning.
     "ops_gpu",
+    # Eight more on 2026-09-19, and they are the module constants 372 said
+    # were "measured on this plate" being made settable. `run_ops` reads
+    # each of them and falls back to the measured value when the box is
+    # empty, so the shipped behaviour is unchanged and another acquisition
+    # no longer needs the package edited: `phenotype_source` is A4's input,
+    # `ops_library` the guide CSV that was a keyword of `run_ops` only,
+    # `ops_base_channels`, `ops_read_threshold`, `ops_raster_overlap`,
+    # `ops_window_overlap` and `ops_footprint` the five numbers, and
+    # `ops_store_reads` whether the ops_reads table is written.
+    "phenotype_source", "ops_library", "ops_base_channels",
+    "ops_read_threshold", "ops_raster_overlap", "ops_window_overlap",
+    "ops_footprint", "ops_store_reads",
     # `window_length`, the new name for `expected_end` (364, 2026-09-09).
     "window_length",
     # and `min_observations_per_hit`, the new name for `min_n`.
@@ -845,7 +866,8 @@ def test_every_added_key_is_declared():
     """
     added = set(_all_categorised_keys()) - KEYS_BEFORE_REGROUP
     undeclared = sorted(
-        added - set(KEYS_ADDED_BY_REGROUP) - set(S.DYNAMIC_ORGANELLE_SETTINGS))
+        added - set(KEYS_ADDED_BY_REGROUP) - set(S.DYNAMIC_ORGANELLE_SETTINGS)
+        - set(S.SLOT_BACKGROUND_SWITCHES))
     assert not undeclared, (
         "categories gained keys that KEYS_ADDED_BY_REGROUP does not list: "
         f"{undeclared}"

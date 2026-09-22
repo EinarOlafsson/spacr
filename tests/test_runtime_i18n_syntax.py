@@ -1,6 +1,7 @@
 """Focused syntax contracts for generated runtime localization catalogs."""
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -8,6 +9,21 @@ ROOT = Path(__file__).resolve().parents[1]
 TOOLS = ROOT / "tools"
 if str(TOOLS) not in sys.path:
     sys.path.insert(0, str(TOOLS))
+
+
+def _new_download_sources(language: str, reviewed: dict[str, str]) -> set[str]:
+    """Account for the Import and synthetic Invasion review records separately."""
+    sources: set[str] = set()
+    for filename, expected in (("import-examples", 9), ("synthetic-invasion", 2)):
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                               f"2026-09-21-{filename}.json").read_text())
+        added = {record["source"] for record in document["records"]}
+        assert len(document["records"]) == len(added) == expected
+        assert added <= reviewed.keys()
+        assert not added & sources
+        sources.update(added)
+    assert len(sources) == 11
+    return sources
 
 
 def test_swedish_example_abbreviation_is_not_a_dotted_identifier() -> None:
@@ -32,6 +48,37 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     )
 
     reviewed = reviewed_runtime_translations("sv")
+    # +269 distinct UI/category sources, with three OPS descriptions shared
+    # between both tables (272 records). Preserve every earlier count below.
+    ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-runtime-ui-refresh.json").read_text())
+    ui_sources = {record["source"] for record in ui_refresh["records"]}
+    assert len(ui_refresh["records"]) == 272
+    assert len(ui_sources) == 269
+    assert ui_sources <= reviewed.keys()
+    all_reviewed = reviewed
+    examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                            "2026-09-21-assay-and-plate-examples.json").read_text())
+    example_sources = {record["source"] for record in examples["records"]}
+    assert len(example_sources) == 7
+    assert example_sources <= all_reviewed.keys()
+    assert not example_sources & ui_sources
+    previews = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                            "2026-09-21-preview-refresh.json").read_text())
+    preview_sources = {record["source"] for record in previews["records"]}
+    assert len(preview_sources) == 5
+    assert preview_sources <= all_reviewed.keys()
+    assert not preview_sources & example_sources
+    normalized = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-normalized-detection.json").read_text())
+    normalized_sources = {record["source"] for record in normalized["records"]}
+    assert len(normalized_sources) == 5
+    assert normalized_sources <= all_reviewed.keys()
+    assert not normalized_sources & (example_sources | preview_sources)
+    download_sources = _new_download_sources("sv", all_reviewed)
+    older_all_sources = all_reviewed.keys() - download_sources
+    reviewed = {source: value for source, value in all_reviewed.items()
+                if source not in ui_sources | example_sources | preview_sources | normalized_sources | download_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -135,8 +182,64 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 299 -> 302: three distinct Dose-Response report sources gain reviewed
     # wording (pooled EC50, selectivity index, combination-model excess).
     # None had a reviewed record before; removing these three returns 299.
-    assert len(reviewed) == 302
-    for source, translated in reviewed.items():
+    #
+    # 302 -> 319 on 2026-09-20, and the number had not been checkable since
+    # 2026-09-15. From that date the loader raised on the first stale record
+    # it met, so every count below was pinned against a tree whose records
+    # could not be loaded at all, and three commits then added records nobody
+    # could count. Item 446's pass fixed the loader's input rather than the
+    # loader: 144 records over nine languages pinned an English string that
+    # no longer exists -- 15 sources renamed or rewritten out of spaCR by
+    # 417, 419, 423 and 435 (Classical, Otsu threshold correction, the two
+    # pip-install lines 423 replaced with the Model Zoo, the magnifier's Mode
+    # and Model tooltips, two OPS category captions) and 5 whose English was
+    # edited under an unchanged key. Retiring a record whose source is gone
+    # is what 417 (f6c511cc3) and 418 (c0b2c5227) already did.
+    #
+    # THE SWEDISH ARITHMETIC, in raw records: 303 at the pin, +27 for 418
+    # (c0b2c5227), +7 for the settings packs (a64a93e47), 364 (8619dcb9c)
+    # edited without adding, = 337; this pass removes 16, leaving 321.
+    # The assertion counts DISTINCT sources, and 2 of those raw records
+    # repeat a source another record already carries, so 319.
+    # +8/-0 on 2026-09-21: current Make Masks readouts. Subtracting
+    # this file's distinct sources restores the previously verified count.
+    readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                           "2026-09-21-make-masks-readouts.json").read_text())
+    added_sources = {record["source"] for record in readouts["records"]}
+    assert len(added_sources) == 8
+    assert added_sources <= reviewed.keys()
+    background = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-organelle-background.json").read_text())
+    background_sources = {record["source"] for record in background["records"]}
+    assert len(background_sources) == 8
+    assert not added_sources & background_sources
+    assert background_sources <= reviewed.keys()
+    samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                           "2026-09-21-dataset-sample-counts.json").read_text())
+    sample_sources = {record["source"] for record in samples["records"]}
+    assert len(sample_sources) == 3
+    assert sample_sources <= reviewed.keys()
+    assert not sample_sources & (added_sources | background_sources)
+    scientific = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
+                              "2026-09-21-scientific-settings.json").read_text())
+    scientific_sources = {record["source"] for record in scientific["records"]}
+    assert len(scientific_sources) == 39
+    assert scientific_sources <= reviewed.keys()
+    assert not scientific_sources & (added_sources | background_sources)
+    assert not sample_sources & scientific_sources
+    older_sources = reviewed.keys() - scientific_sources - sample_sources
+    assert len(older_sources - added_sources - background_sources) == 319
+    # +8/-0: four source-bound background labels and four scientific tooltips.
+    assert len(older_sources - background_sources) == 327
+    assert len(older_sources) == 335
+    assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
+    assert len(reviewed) == 377  # +3 variable-count dataset captions.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 646
+    assert len(older_all_sources - preview_sources - normalized_sources) == 653
+    assert len(older_all_sources - normalized_sources) == 658
+    assert len(older_all_sources) == 663
+    assert len(all_reviewed) == 674  # +9 Import and +2 synthetic Invasion.
+    for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
             source,
@@ -154,7 +257,58 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         reviewed_runtime_translations,
     )
 
-    reviewed = reviewed_runtime_translations("fr")
+    all_reviewed = reviewed_runtime_translations("fr")
+    refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                          "2026-09-21-runtime-first-slice.json").read_text())
+    refresh_sources = {record["source"] for record in refresh["records"]}
+    assert len(refresh["records"]) == len(refresh_sources) == 80
+    assert refresh_sources <= all_reviewed.keys()
+    second = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                         "2026-09-21-runtime-second-slice.json").read_text())
+    second_sources = {record["source"] for record in second["records"]}
+    assert len(second["records"]) == len(second_sources) == 74
+    assert second_sources <= all_reviewed.keys()
+    assert not refresh_sources & second_sources
+    refresh_sources |= second_sources
+    for filename, expected in (("third", 75), ("fourth", 79)):
+        document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                               f"2026-09-21-runtime-{filename}-slice.json").read_text())
+        added = {record["source"] for record in document["records"]}
+        assert len(document["records"]) == len(added) == expected
+        assert added <= all_reviewed.keys()
+        assert not added & refresh_sources
+        refresh_sources |= added
+    assert len(refresh_sources) == 308
+    actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                          "2026-09-21-action-labels.json").read_text())
+    action_sources = {record["source"] for record in actions["records"]}
+    assert len(actions["records"]) == len(action_sources) == 5
+    assert action_sources <= all_reviewed.keys()
+    assert not action_sources & refresh_sources
+    refresh_sources |= action_sources
+    examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                            "2026-09-21-assay-and-plate-examples.json").read_text())
+    example_sources = {record["source"] for record in examples["records"]}
+    assert len(example_sources) == 7
+    assert example_sources <= all_reviewed.keys()
+    previews = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                            "2026-09-21-preview-refresh.json").read_text())
+    preview_sources = {record["source"] for record in previews["records"]}
+    assert len(preview_sources) == 5
+    assert preview_sources <= all_reviewed.keys()
+    assert not preview_sources & example_sources
+    normalized = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                              "2026-09-21-normalized-detection.json").read_text())
+    normalized_sources = {record["source"] for record in normalized["records"]}
+    assert len(normalized_sources) == 5
+    assert normalized_sources <= all_reviewed.keys()
+    assert not normalized_sources & (example_sources | preview_sources)
+    download_sources = _new_download_sources("fr", all_reviewed)
+    assert not refresh_sources & (download_sources | example_sources |
+                                  preview_sources | normalized_sources)
+    older_all_sources = all_reviewed.keys() - download_sources - refresh_sources
+    reviewed = {source: value for source, value in all_reviewed.items()
+                if source not in example_sources | preview_sources | normalized_sources | download_sources | refresh_sources}
     sources = canonical_sources()
     current_values = set(sources["setting_labels"].values())
     current_values.update(sources["setting_tooltips"].values())
@@ -264,8 +418,46 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     # 256 = 259 - 3, and 256 + 18 = 274. No unrelated pin was moved.
     # 274 -> 277: the same three report sources gain reviewed French wording;
     # no source/key changes or retired records. Subtracting them returns 274.
-    assert len(reviewed) == 277
-    for source, translated in reviewed.items():
+    #
+    # 277 -> 310 on 2026-09-20, for the reason written at length in the
+    # Swedish note above: the loader had been raising since 2026-09-15, so
+    # neither count could be checked while three commits added records.
+    #
+    # THE FRENCH ARITHMETIC, in raw records: 280 at the pin, +42 for 418
+    # (c0b2c5227), +7 for the settings packs (a64a93e47), = 329; this pass
+    # removes 15 whose pinned English no longer exists, leaving 314. The
+    # assertion counts DISTINCT sources, and 4 of those raw records repeat a
+    # source another record already carries, so 310.
+    # +8/-0 on 2026-09-21: current Make Masks readouts. Subtracting
+    # this file's distinct sources restores the previously verified count.
+    readouts = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                           "2026-09-21-make-masks-readouts.json").read_text())
+    added_sources = {record["source"] for record in readouts["records"]}
+    assert len(added_sources) == 8
+    assert added_sources <= reviewed.keys()
+    background = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                              "2026-09-21-organelle-background.json").read_text())
+    background_sources = {record["source"] for record in background["records"]}
+    assert len(background_sources) == 8
+    assert not added_sources & background_sources
+    assert background_sources <= reviewed.keys()
+    samples = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
+                           "2026-09-21-dataset-sample-counts.json").read_text())
+    sample_sources = {record["source"] for record in samples["records"]}
+    assert len(sample_sources) == 3
+    assert sample_sources <= reviewed.keys()
+    assert not sample_sources & (added_sources | background_sources)
+    assert len(reviewed.keys() - added_sources - background_sources - sample_sources) == 310
+    # +8/-0: four source-bound background labels and four scientific tooltips.
+    assert len(reviewed.keys() - background_sources - sample_sources) == 318
+    assert len(reviewed.keys() - sample_sources) == 326
+    assert len(reviewed) == 329  # +3 variable-count dataset captions.
+    assert len(older_all_sources - preview_sources - normalized_sources) == 336
+    assert len(older_all_sources - normalized_sources) == 341
+    assert len(older_all_sources) == 346
+    assert len(all_reviewed.keys() - refresh_sources) == 357
+    assert len(all_reviewed) == 670  # +308 reviewed sources and five action labels.
+    for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
             source,

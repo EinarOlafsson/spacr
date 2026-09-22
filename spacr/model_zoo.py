@@ -154,6 +154,8 @@ from typing import (
 
 import numpy as np
 
+from ._segmentation_backends import _SPECS as _BACKEND_SPECS
+
 LOG = logging.getLogger(__name__)
 
 __all__ = [
@@ -168,6 +170,11 @@ __all__ = [
     "CLASSIFIER_SUFFIXES",
     "CELLPOSE_SUFFIXES",
     "ChecksumMismatch",
+    "ZOO_SOURCES",
+    "DEFAULT_ZOO_SOURCES",
+    "source_of",
+    "group_by_source",
+    "entries_from_sources",
     "DEFAULT_N_FIELDS",
     "DEFAULT_SCAN_DEPTH",
     "DownloadCancelled",
@@ -222,7 +229,15 @@ UNKNOWN = "unknown"
 #: tuple and raises on anything else, so an entry naming a kind that is not
 #: here fails at construction rather than being quietly filed as a Cellpose
 #: model and handed to CellposeModel later.
-KINDS = ("cellpose", "classifier", "detector", "encoder")
+#:
+#: ``cellpose3`` is a model that runs through the Cellpose 3 backend -- its
+#: cyto3, cyto2, cyto and nuclei models, and Cellpose-format checkpoints from
+#: bioimage.io. It is a kind of its own because spaCR's Cellpose 4 loads such
+#: a checkpoint without complaint and then segments nonsense with it.
+KINDS = ("cellpose", "classifier", "detector", "encoder", "backend",
+         "cellpose3")
+#: "backend" is not a checkpoint: it is a segmentation PACKAGE the zoo
+#: lists so a user learns it exists and can install it from inside spaCR.
 
 #: ``encoder`` is 386's kind: a self-supervised backbone that produces an
 #: EMBEDDING rather than a mask or a label. It belongs in the zoo for the
@@ -313,6 +328,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "182d8cf6b32c7b9ef2917c85870d188486e5e119f05e9c5c1f07652f6859f2d0",
+        "metrics": {'n_train': '229', 'train_objects': 'not recorded', 'n_test': '11 wells', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8640', 'aji': '0.8090', 'dice': 'not recorded', 'stock_f1': '0.7130', 'stock_aji': '0.4260', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '100 / 100'},
         "display_name": "Toxoplasma PV v1",
         "architecture": "Cellpose-SAM (cpsam_v2)",
         # ROUND 2, CORRECTED 2026-09-15 (item 370). Until then this row
@@ -353,6 +369,7 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "eeecd2d6cd5cbb4dddee71564d5f460d26bb07ac125e0b494b7502fea4292d5d",
+        "metrics": {'n_train': '184 wells', 'train_objects': 'not recorded', 'n_test': 'per fold', 'test_objects': 'not recorded', 'cv': '3-fold', 'f1': '0.8560 in-domain / 0.8060 literature', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
         "display_name": "Toxoplasma Plaque v1",
         "architecture": "Cellpose-SAM (cpsam)",
         "dataset": "crystal violet plaque wells; 184 wells from 3 datasets, "
@@ -370,6 +387,64 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
             "round 3 trades precision (0.939 down to 0.858) for recall "
             "(0.631 up to 0.811) on the literature set, which is the right "
             "direction for a counting assay",
+            "PREFER THIS ONE FOR MICROSCOPE-ONLY WORK. On the round-5 test "
+            "split it scores 0.836 on PFA-fixed wells against round 5's 0.808, "
+            "at precision 0.93 against 0.81. For mixed sources, or any phone-"
+            "camera image, use toxoplasma_plaque_v2, which round 3 cannot "
+            "handle at all (0.249 there)",
+        ),
+    },
+    {
+        "key": "toxoplasma_plaque_v2",
+        "name": "cpsam_plaque_r5",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-plaque-segmentation-cpsam-r5",
+        "repo_type": "model",
+        # THE WEIGHT IS UNDER weights/ IN THIS REPO, unlike the older plaque and PV
+        # repos which put it at the root, so the URL is given rather than built from
+        # `name`: hf_uri(repo_id, "cpsam_plaque_r5") would 404 on a repo that has it
+        # one directory down, and a 404 here reads as "the model is gone".
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-plaque-segmentation-cpsam-r5/resolve/main/"
+               "weights/cpsam_plaque_r5?download=true",
+        "sha256":
+            "0927023a745ac6a19bae0ec72c89b7b864a4ff8d047a41f3f1e9767e1a4d0600",
+        "metrics": {'n_train': '332 fields, 4 domains', 'train_objects': '18532', 'n_test': '81 fields', 'test_objects': '4294', 'cv': 'no (grouped train/valid/test)', 'f1': '0.819 literature / 0.876 bigbean / 0.808 patrick / 0.415 malnio', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': 'not measured; scored against round 3 (0.820 literature) and round 4 (0.819)', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': '0.1822', 'val_loss': '0.2069', 'best_epoch': '100 / 100'},
+        "display_name": "Toxoplasma Plaque v2 (round 5)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "488 curated fields across four domains -- 298 wells cropped "
+                   "from published figures, 96 phone-camera wells, 67 PFA and 27 "
+                   "methanol-fixed whole-well microscope scans; 27,582 plaques",
+        "versus_stock": "not scored against stock; on 81 held-out fields it ties "
+                        "round 3 on literature (0.819 vs 0.820) and beats it by "
+                        "0.166 on phone-camera wells (0.415 vs 0.249)",
+        "trained_on": (
+            "Toxoplasma plaque assays stained with crystal violet, from three "
+            "microscopes and from published figures. Round 5: 332 training fields "
+            "grouped by figure and by plate so none straddles the split, 100 "
+            "epochs, base cpsam_v2, empty wells kept as negatives"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "COMPLEMENTS toxoplasma_plaque_v1 rather than replacing it: prefer v1 "
+            "(round 3) for microscope-only work, where it scores 0.836 against "
+            "this model's 0.808 on PFA-fixed wells and is far more precise; "
+            "prefer this one for mixed or unknown sources",
+            "the only plaque model trained on phone-camera wells -- F1 0.415 "
+            "against round 3's 0.249, though recall there is 0.296, so it still "
+            "misses most plaques on phone images and is not yet a counting tool",
+            "it did NOT clear the promotion bar of 0.02 literature F1 fixed before "
+            "the run (it came in at -0.001), so round 3 remains production",
+            "balanced precision/recall (0.81/0.83) where round 3 is lopsided "
+            "(0.93/0.73): round 3's low recall systematically UNDERCOUNTS, which "
+            "matters more than F1 for a counting assay",
+            "hallucinates 2 objects across 6 blank-lawn wells where round 3 "
+            "hallucinates 19",
+            "first plaque model on cpsam_v2; rounds 1-4 used cpsam v1, so base and "
+            "data changed together and the gap to round 3 is not attributable to "
+            "the extra curation alone",
+            "training data: https://huggingface.co/datasets/einarolafsson/"
+            "toxoplasma-plaque-dataset",
         ),
     },
     {
@@ -381,30 +456,329 @@ BUNDLED_REMOTE_MODELS: Tuple[Dict[str, Any], ...] = (
         "uri": None,
         "sha256":
             "b826058754fb5d4df36c3a7283aac049015cbb044b5ef096c55d19f37172a50c",
+        "metrics": {'n_train': '562 images', 'train_objects': 'not recorded', 'n_test': 'held-out split', 'test_objects': 'not recorded', 'cv': 'no', 'f1': 'mAP50 0.9930 on v3\'s own split; 0.8838 on the shared test set', 'aji': 'mAP50-95 0.8860 own split; 0.7630 shared', 'dice': 'P/R 0.9870 own split; P 0.8613 / R 0.9085 shared', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '150 / 150'},
         "display_name": "Toxoplasma Plaque Well Detector v1",
         "architecture": "YOLO11n",
         "dataset": "whole-plate and multi-well crystal violet images; 562 "
                    "images from 1 dataset, 190 of them with no well in them",
-        "versus_stock": "mAP50 0.993, mAP50-95 0.886, precision and recall "
-                        "both 0.987",
+        "versus_stock": "mAP50 0.993 on its own held-out split; on the test "
+                        "set shared with v2 it scores mAP50 0.8838, against "
+                        "v2's 0.9457",
         "trained_on": (
             "whole-plate and multi-well Toxoplasma plaque-assay images; "
             "yolo11n base, 150 epochs, batch 16, imgsz 640"
         ),
         "trained_by": "einarolafsson",
         "notes": (
-            "mAP50 0.993, mAP50-95 0.886, precision and recall both 0.987",
+            "the 0.993 is measured on v3's OWN split, which is easier than "
+            "the set v2 is measured on; on that shared set this model scores "
+            "mAP50 0.8838 against v2's 0.9457, so v2 is the better detector",
+            "kept because the published plaque corpus was measured with these "
+            "weights, so results in the paper trace back to this row",
             "locates WELLS, not plaques; it is the front half of a two-stage "
             "pipeline with toxoplasma_plaque_v1, and the well it finds also "
             "gives the diameter that makes areas comparable across "
             "microscopes",
         ),
     },
+    {
+        "key": "toxoplasma_well_detector_v2",
+        "name": "yolo_welldetect_v4.pt",
+        "kind": "detector",
+        "repo_id": "einarolafsson/toxoplasma-plaque-well-detector-yolo26",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-plaque-well-detector-yolo26/resolve/main/"
+               "weights/best.pt",
+        "remote_name": "best.pt",
+        "sha256":
+            "f2a1e1110f09b2a1d5ef5545adaba7c57f1158669d0bfc50d8fabe9f86da30c7",
+        "metrics": {'n_train': '1,070 images', 'train_objects': '2,455 boxes', 'n_test': '129 images, 84 of them with no well', 'test_objects': '297 boxes', 'cv': 'no', 'f1': 'mAP50 0.9457 (shared test set)', 'aji': 'mAP50-95 0.8341', 'dice': 'P 0.8912 / R 0.9440', 'stock_f1': 'v1 scores 0.8838 on this set', 'stock_aji': 'v1 scores 0.7630', 'stock_dice': 'v1 P 0.8613 / R 0.9085', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '28'},
+        "display_name": "Toxoplasma Plaque Well Detector v2",
+        "architecture": "YOLO26n (ultralytics 8.4.155)",
+        "dataset": "plate images and literature figures; 1,070 train / 254 "
+                   "val / 129 test, split by PMC article so no paper is in two "
+                   "sets; training data at einarolafsson/"
+                   "toxoplasma-plaque-well-detector-dataset",
+        "versus_stock": "mAP50 0.9457 and mAP50-95 0.8341 against v1's "
+                        "(yolo_welldetect_v3.pt) 0.8838 and 0.7630 on the SAME "
+                        "test set; stock YOLO has no plaque-well class, so v1 "
+                        "is the baseline",
+        "trained_on": (
+            "whole-plate and multi-well Toxoplasma plaque-assay images plus 939 "
+            "newly reviewed PMC figures, accepted boxes and confirmed negatives "
+            "alike; yolo26n base, best validation mAP50-95 at epoch 28"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "on the shared test set it beats v1 (the v3 weights) on every "
+            "measure, and cuts false boxes on no-well figures from 152 to 49",
+            "84 of the 129 test images contain no well at all, which is what "
+            "the false-box count is measured on",
+            "locates WELLS, not plaques; the front half of a two-stage pipeline "
+            "with the plaque segmentation model",
+            "the repository publishes this weight as weights/best.pt; spaCR "
+            "saves it under the name above so two detectors cannot both land "
+            "as best.pt",
+        ),
+    },
+    {
+        "key": "toxoplasma_from_cellmask_v1",
+        "name": "toxoplasma_from_cellmask_pv",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-from-cellmask-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "481dfccc1a68cc594aafcb71088efc25b5f5c6a6240e52902c0089759b3149ab",
+        "metrics": {'n_train': '2567', 'train_objects': 'not recorded', 'n_test': '463', 'test_objects': '6116', 'cv': 'no', 'f1': '0.6058', 'aji': '0.4939', 'dice': '0.6096', 'stock_f1': '0.0215', 'stock_aji': '0.0080', 'stock_dice': '0.0201', 'train_loss': '0.0075', 'val_loss': '0.0100', 'best_epoch': '100 / 100'},
+        "display_name": "Toxoplasma from Cell Mask (cross-channel)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "Toxoplasma PV masks predicted from the HOST CELL MASK channel "
+                   "alone; 2567 training and 463 held-out fields, split by well, "
+                   "hosts HFF/HeLa/THP1",
+        "versus_stock": "F1 0.606 against 0.021 for stock cpsam_v2 on 463 "
+                        "well-grouped held-out fields, at IoU 0.5",
+        "trained_on": (
+            "cross-channel: given the host cell image, predicts where the "
+            "Toxoplasma parasitophorous vacuoles are, with no parasite stain. "
+            "100 epochs, base cpsam_v2, AdamW lr 1e-5, targets are "
+            "PV-regenerated masks"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.606, AJI 0.494, Dice 0.610 at IoU 0.5 against stock cpsam_v2's "
+            "0.021/0.008/0.020 -- stock cannot do this task at all",
+            "per host: HeLa 0.711, HFF 0.557, THP1 0.465; THP1 is the weak case",
+            "the held-out split selects the checkpoint, so it is validation data "
+            "rather than an independent test set",
+            "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
+            "area rather than precise morphometry",
+        ),
+    },
+    {
+        "key": "toxoplasma_pv_v2",
+        "name": "cpsam_v2_toxo_r5",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r5",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "17c689e3b117745561e20a885c2a2a998ed360fa97cac8c0446316ae5905c10f",
+        "metrics": {'n_train': '556', 'train_objects': 'not recorded', 'n_test': '619 pairs', 'test_objects': 'not recorded', 'cv': '5-fold', 'f1': '0.8170 ± 0.036', 'aji': '0.7144 ± 0.107', 'dice': '0.8024 ± 0.118', 'stock_f1': '0.7130', 'stock_aji': '0.4260', 'stock_dice': 'not recorded', 'train_loss': '0.0476', 'val_loss': 'not recorded', 'best_epoch': '100 / 100'},
+        "display_name": "Toxoplasma PV v2 (round 5)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "anti-Toxoplasma-biotin and DsRed PV lumen; 556 curated "
+                   "images accumulated over five rounds",
+        "versus_stock": "F1 0.817 +/- 0.036 by 5-fold cross-validation over 619 "
+                        "pairs; ~0.86 against 0.713 for stock on the 11 in-house "
+                        "held-out wells",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
+            "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV "
+            "lumen (RH and ME49). Round 5: 556 images, 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "supersedes toxoplasma_pv_v1 (round 2, 229 images): more than twice "
+            "the training data and cross-validated rather than single-split",
+            "5-fold CV over 619 pairs: F1 0.817 (SD 0.036), AJI 0.714, Dice 0.802",
+            "per-dataset variance is real -- F1 ranges ~0.74 to ~0.93 by screen",
+            "accuracy falls above IoU 0.8 -- suited to counting and area rather "
+            "than precise morphometry",
+        ),
+    },
+    {
+        "key": "toxoplasma_pv_v3",
+        "name": "cpsam_v2_toxo_r6",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-pv-segmentation-cpsam-r6",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "toxoplasma-pv-segmentation-cpsam-r6/resolve/main/"
+               "weights/cpsam_v2_toxo_r6",
+        "sha256":
+            "146ef269979b1d1ab45c11039b0ab164f68001adaa8f73f1f8f18be6fcfd060e",
+        "metrics": {'n_train': '437 fields', 'train_objects': '15,550', 'n_test': '11 anchor wells', 'test_objects': '683', 'cv': '5-fold, grouped by source', 'f1': '0.8602', 'aji': '0.8026', 'dice': '0.9059', 'stock_f1': '0.7648', 'stock_aji': '0.5050', 'stock_dice': '0.6431', 'train_loss': 'not recorded', 'val_loss': '0.0864', 'best_epoch': '20 / 100'},
+        "display_name": "Toxoplasma PV v3 (round 6)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "the 556 curated PV fields of round 5, split 437 train / "
+                   "108 validation / 11 test; training data at "
+                   "einarolafsson/toxoplasma-pv-segmentation-dataset",
+        "versus_stock": "F1 0.860 against stock cpsam_v2's 0.765 on the 11 "
+                        "anchor wells at IoU 0.5; AJI 0.803 against 0.505",
+        "trained_on": (
+            "Toxoplasma tachyzoite parasitophorous vacuoles stained with goat "
+            "anti-Toxoplasma-biotin, and tachyzoites expressing DsRed in the PV "
+            "lumen (RH and ME49). Round 6 retrains round 5's data with cellpose "
+            "4.2.1.1, 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "NEWEST IS NOT BEST HERE: round 6 does not beat round 2 on the "
+            "anchor wells -- 0.8602 against 0.8648 -- and the PV project still "
+            "promotes round 5",
+            "it is the first PV round whose checkpoint was chosen on a held-out "
+            "validation set (108 fields) instead of on the test wells",
+            "5-fold cross-validation, grouped by source: F1 0.8168 +/- 0.028, "
+            "AJI 0.7516, Dice 0.8424",
+            "the 11 anchor wells have been held out since round 1, so they are "
+            "the only fields no PV round has ever trained on",
+        ),
+    },
+    {
+        "key": "live_cell_v1",
+        "name": "live_cell_v1",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/live-cell-segmentation-cpsam",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "live-cell-segmentation-cpsam/resolve/main/"
+               "weights/live_cell_v1",
+        "sha256":
+            "7ade69377093fe81830ddc7c52ba8618bef1fefe7d1243c01b9c1beed7fcb090",
+        "metrics": {'n_train': '6,778 fields, 14 datasets', 'train_objects': 'not recorded', 'n_test': '2,199 fields', 'test_objects': 'not recorded', 'cv': 'no (acquisition-grouped train/valid/test)', 'f1': '0.694 all / 0.960 on datasets stock never saw', 'aji': 'not recorded', 'dice': 'not recorded', 'stock_f1': '0.738 all / 0.885 on datasets stock never saw', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '37 (stopped by the maintainer)'},
+        "display_name": "Live cell v1 (phase, brightfield, DIC)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "11,007 transmitted-light fields from 14 public datasets, "
+                   "split by acquisition 6,778 train / 2,030 validation / "
+                   "2,199 test; training data at "
+                   "einarolafsson/live-cell-segmentation-dataset",
+        "versus_stock": "on the datasets stock cpsam_v2 never trained on, F1 "
+                        "0.960 against 0.885 at IoU 0.5; over all 2,199 test "
+                        "fields, 0.694 against 0.738, because stock trained "
+                        "on LIVECell and YeaZ and wins on LIVECell",
+        "trained_on": (
+            "unstained cells in phase contrast, brightfield and DIC: "
+            "LIVECell, DeepSea, YeaZ, yeast microstructures, five Cell "
+            "Tracking Challenge sets, BBBC009, BBBC030, QPI and Revvity. "
+            "Base cpsam_v2, cellpose 4.2.1.1, lr 1e-5, batch 4; stopped at "
+            "epoch 37 of 100"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "TWO STOCK COMPARISONS, NOT ONE: stock cpsam_v2 trained on LIVECell "
+            "and YeaZ, so its score there is partly memorisation. On the "
+            "datasets it never saw (DeepSea, the CTC sets, BBBC009, BBBC030, "
+            "QPI, Revvity, yeast microstructures) this model scores F1 0.960 "
+            "against 0.885",
+            "it does NOT replace stock on LIVECell-style Incucyte phase: "
+            "0.671 against 0.724 there, and it missed its own pre-registered "
+            "promotion bar",
+            "by modality at IoU 0.5: brightfield 0.964 (stock 0.912), DIC "
+            "+0.026 over stock, phase 0.689 (stock 0.735)",
+            "F1 0.865 on a train sample, 0.696 on validation and 0.694 on "
+            "test; no per-epoch loss was recorded",
+        ),
+    },
+    {
+        "key": "nuclei_from_cellmask_v1",
+        "name": "nuclei_from_cellmask_best",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/cross-channel-nuclei-from-cellmask-cpsam",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "cross-channel-nuclei-from-cellmask-cpsam/resolve/main/"
+               "weights/nuclei_from_cellmask_best",
+        "sha256":
+            "2675553a46e97a7bc4bd2bfe3e954954194fe71ca4e94261e752a02bf0b6eb47",
+        "metrics": {'n_train': 'not recorded', 'train_objects': 'not recorded', 'n_test': '453', 'test_objects': 'not recorded', 'cv': 'no', 'f1': '0.8881', 'aji': '0.7916', 'dice': '0.8774', 'stock_f1': 'not recorded', 'stock_aji': 'not recorded', 'stock_dice': 'not recorded', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': 'not recorded'},
+        "display_name": "Cross-channel nuclei-from-cellmask",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "nuclei predicted from the HOST CELL MASK channel alone; "
+                   "453 well-grouped held-out fields, hosts HFF/HeLa/THP1",
+        "versus_stock": "F1 0.888 against 0.201 for stock cpsam_v2 on "
+                        "453 well-grouped held-out fields, at IoU 0.5",
+        "trained_on": (
+            "cross-channel: given the cell image, predicts where the nuclei "
+            "are, with no nuclear stain -- which frees the DAPI/Hoechst "
+            "channel for another marker. 100 epochs, base cpsam_v2"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.888, AJI 0.792, Dice 0.877 at IoU 0.5 against stock "
+            "cpsam_v2's 0.201/0.286/0.449",
+            "per host: HFF 0.932, HeLa 0.860, THP1 0.861",
+            "the held-out split selects the checkpoint, so it is validation "
+            "data rather than an independent test set",
+            "predicts nuclei from cell morphology -- expect degraded accuracy "
+            "on unusual or highly confluent morphologies",
+        ),
+    },
+    {
+        "key": "cell_from_hoechst_v1",
+        "name": "cell_from_hoechst_best",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/cross-channel-cell-from-hoechst-cpsam",
+        "repo_type": "model",
+        "uri": "https://huggingface.co/einarolafsson/"
+               "cross-channel-cell-from-hoechst-cpsam/resolve/main/"
+               "weights/cell_from_hoechst_best",
+        "sha256":
+            "d1992433b4f2f291f73738830bb953198165fdc10719e54dae9b8c2bd430e0eb",
+        "size_bytes": 1218647799,
+        "metrics": {'n_train': '2,578 fields', 'train_objects': '237,957', 'n_test': '451 fields', 'test_objects': '45,098', 'cv': 'no, split by well', 'f1': '0.8697', 'aji': '0.7991', 'dice': '0.8948', 'stock_f1': '0.3012', 'stock_aji': '0.3506', 'stock_dice': '0.5235', 'train_loss': 'not recorded', 'val_loss': 'not recorded', 'best_epoch': '70 / 100'},
+        "display_name": "Cross-channel cell-from-hoechst",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "the HOST CELL outline predicted from the Hoechst (nuclear) "
+                   "channel alone; 2,578 training fields and 451 held-out test "
+                   "fields, split by well so no well is on both sides",
+        "versus_stock": "F1 0.870 against stock cpsam_v2's 0.301 on 451 "
+                        "held-out fields at IoU 0.5 -- a delta of 0.569",
+        "trained_on": (
+            "Hoechst-stained nuclei paired with curated host-cell masks; "
+            "fine-tuned from stock cpsam_v2, 100 epochs, best epoch 70"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "the counterpart of nuclei_from_cellmask_v1: that one predicts "
+            "nuclei from the cell mask, this one predicts the cell from the "
+            "nucleus",
+            "precision 0.944 against recall 0.806 -- it misses cells rather "
+            "than inventing them, which is the safer direction for counting",
+            "quote the DELTA over stock (0.569), not the ratio: stock's mAP of "
+            "0.0575 is a near-zero denominator that makes any ratio look huge",
+        ),
+    },
+    {
+        "key": "toxoplasma_from_hoechst_v1",
+        "name": "toxoplasma_from_hoechst_pv",
+        "kind": "cellpose",
+        "repo_id": "einarolafsson/toxoplasma-from-hoechst-cpsam",
+        "repo_type": "model",
+        "uri": None,
+        "sha256":
+            "8dc05ebced3550d1a418c13d24d319e0482c742988df29a525520026cb2f0d96",
+        "display_name": "Toxoplasma from Hoechst (cross-channel)",
+        "architecture": "Cellpose-SAM (cpsam_v2)",
+        "dataset": "Toxoplasma PV masks predicted from the HOECHST channel alone; "
+                   "2567 training and 463 held-out fields, split by well, "
+                   "hosts HFF/HeLa/THP1",
+        "versus_stock": "F1 0.569 against 0.002 for stock cpsam_v2 on "
+                        "463 well-grouped held-out fields, at IoU 0.5",
+        "trained_on": (
+            "cross-channel: given the Hoechst/nuclear image, predicts where the "
+            "Toxoplasma parasitophorous vacuoles are, with no parasite stain. "
+            "100 epochs, base cpsam_v2, AdamW lr 1e-05, targets are "
+            "PV-regenerated masks"
+        ),
+        "trained_by": "einarolafsson",
+        "notes": (
+            "F1 0.569, AJI 0.421, Dice 0.546 at IoU 0.5 against "
+            "stock cpsam_v2's 0.002/0.006/0.016",
+            "the Hoechst route is harder than the cell-mask route -- compare "
+            "toxoplasma_from_cellmask_v1",
+            "the held-out split selects the checkpoint, so it is validation data "
+            "rather than an independent test set",
+            "accuracy falls above IoU 0.8 -- suited to counting, occupancy and "
+            "area rather than precise morphometry",
+        ),
+    },
 )
 
 #: Models that are no longer OFFERED, by filename.
 #:
-#: Retired 2026-08-31 at the maintainer's instruction. ``toxo_plaque_cyto``
+#: ``toxo_plaque_cyto`` is retired: it
 #: recalls 0.631 on the literature set -- it misses about a third of the
 #: plaques -- against 0.811 for ``toxoplasma_plaque_v1``, and it published no
 #: checksum, so its row in the picker had a Download button that could never
@@ -506,6 +880,9 @@ class ModelEntry:
         not verified, and says so.
     :param settings_path: where the provenance came from, for the reader who
         wants to go and look at it.
+    :param licence: the licence the model or package is published under, as
+        its publisher states it (an SPDX identifier where there is one), or
+        ``''`` when none is recorded.
     """
 
     key: str
@@ -523,6 +900,7 @@ class ModelEntry:
     notes: Tuple[str, ...] = ()
     verified: bool = False
     settings_path: str = ""
+    licence: str = ""
 
     def __post_init__(self):
         """Fill in the provenance fields and validate the kind.
@@ -636,6 +1014,27 @@ class ModelEntry:
                         f"{'s' if len(self.notes) > 1 else ''}")
         return " · ".join(bits)
 
+    @property
+    def model_card_url(self) -> str:
+        """The Hugging Face page for this model, derived from its download uri.
+
+        A checksum and a metrics table are not enough on their own: the reader
+        wants the page that says what the model was trained on and shows its
+        training curves. Derived rather than declared, so every Hugging Face
+        entry has one without a per-entry field to forget.
+        """
+        uri = str(self.uri or "")
+        marker = "huggingface.co/"
+        if marker not in uri:
+            return ""
+        rest = uri.split(marker, 1)[1]
+        parts = [p for p in rest.split("/") if p]
+        if len(parts) >= 2 and parts[0] == "datasets":
+            parts = parts[1:]
+        if len(parts) < 2:
+            return ""
+        return f"https://huggingface.co/{parts[0]}/{parts[1]}"
+
     def describe(self) -> str:
         """The multi-line provenance card shown next to a selected model."""
         lines = [
@@ -649,6 +1048,11 @@ class ModelEntry:
                      f"({self.checksum_state})")
         lines.append(f"  trained on {self.trained_on}")
         lines.append(f"  trained by {self.trained_by}")
+        if self.licence:
+            lines.append(f"  licence    {self.licence}")
+        card = self.model_card_url
+        if card:
+            lines.append(f"  model card {card}")
         if self.settings_path:
             lines.append(f"  provenance {self.settings_path}")
         for name, value in sorted(self.metrics.items()):
@@ -1323,6 +1727,7 @@ def _entry_from_mapping(data: Mapping[str, Any],
         trained_by=data.get("trained_by") or UNKNOWN,
         metrics=dict(data.get("metrics") or {}),
         notes=notes,
+        licence=str(data.get("licence") or data.get("license") or ""),
     )
 
 
@@ -1593,6 +1998,518 @@ def load_catalogue_file(path: Any) -> List[ModelEntry]:
     return out
 
 
+#: What each Cellpose stock model is, for the zoo listing. Cellpose publishes
+#: names, not descriptions, and a row reading only "cpdino" tells nobody
+#: whether it applies to their images.
+STOCK_CELLPOSE_NOTES = {
+    "cpsam": ("Cellpose-SAM v1, the original SAM-based generalist. Superseded "
+              "by cpsam_v2 but kept for reproducing older runs."),
+    "cpsam_v2": ("Cellpose-SAM v2, the current Cellpose generalist and the "
+                 "base every spaCR fine-tune here starts from."),
+    "cpdino": "Cellpose-DINO, a DINO-backbone generalist.",
+    "cpdino-vitb": "Cellpose-DINO with the larger ViT-B backbone.",
+}
+
+
+def stock_cellpose_entries() -> List["ModelEntry"]:
+    """Every model the installed Cellpose can fetch for itself.
+
+    These are not spaCR's files and carry no checksum of ours: Cellpose
+    downloads and verifies them, and the name IS the path -- passing "cpsam"
+    to Cellpose resolves it. They are listed so that the zoo answers "what can
+    I segment with" rather than "what has Einar trained", which is the
+    question a new user actually has.
+    """
+    # Deliberately does NOT import cellpose: importing this module must stay
+    # free of torch and cellpose (there is a test for it, and the GUI lists
+    # models long before anything segments). If cellpose is already loaded its
+    # own list is authoritative; otherwise the names above are the fallback.
+    import sys
+
+    loaded = sys.modules.get("cellpose.models")
+    names = list(getattr(loaded, "MODEL_NAMES", ()) or ()) if loaded else []
+    names = names or list(STOCK_CELLPOSE_NOTES)
+    home = Path.home() / ".cellpose" / "models"
+    out = []
+    for name in names:
+        local = home / name
+        out.append(ModelEntry(
+            key=_key_for(Path(name)), name=name,
+            path=str(local) if local.is_file() else name,
+            kind="cellpose", source="stock", uri="", sha256="",
+            size_bytes=local.stat().st_size if local.is_file() else 0,
+            trained_on=STOCK_CELLPOSE_NOTES.get(
+                name, "Cellpose stock model; see the Cellpose documentation."),
+            trained_by="Cellpose"))
+    return out
+
+
+#: bioimage.io's published collection.
+BIOIMAGEIO_COLLECTION = ("https://hypha.aicell.io/bioimage-io/artifacts/"
+                         "bioimage.io/children?limit=1000&pagination=false")
+
+#: What spaCR's Cellpose can actually load. The test is COMPATIBILITY, not the
+#: word "cellpose": spaCR runs Cellpose 4, so the SAM and DINO backbones load
+#: and cyto3 and earlier do not -- they carry the same "cellpose" tag, load,
+#: and then produce nonsense. The older collection.json does not list these
+#: models at all, which is why reading it found nothing.
+BIOIMAGEIO_COMPATIBLE = ("cellpose sam", "cpsam", "cellposedino",
+                         "cellpose dino", "cpdino")
+
+#: How long a fetched collection is trusted before it is fetched again.
+BIOIMAGEIO_CACHE_HOURS = 24
+
+
+def _looks_like_cellpose_sam(manifest: Mapping[str, Any]) -> bool:
+    """Whether a bioimage.io manifest is loadable by the Cellpose spaCR runs.
+
+    STRICTLY. spaCR loads these as drop-in replacements, and only the Cellpose
+    4 backbones work that way: a cyto3 or a ResNet model carries the same
+    "cellpose" tag, loads, and then produces nonsense.
+    """
+    if str(manifest.get("type") or "") != "model":
+        return False
+    parts = [str(manifest.get("name") or ""), str(manifest.get("description") or "")]
+    parts += [str(t) for t in (manifest.get("tags") or ())]
+    text = " ".join(parts).lower().replace("-", " ").replace("_", " ")
+    return any(key in text for key in BIOIMAGEIO_COMPATIBLE)
+
+
+def bioimageio_entries(timeout: float = 5.0,
+                       url: Optional[str] = None,
+                       allow_network: bool = False) -> List["ModelEntry"]:
+    """Cellpose models published on bioimage.io, or an empty list.
+
+    Two kinds of row. A Cellpose-SAM or Cellpose-DINO model, which spaCR's
+    own Cellpose 4 loads, is a ``cellpose`` row pointing at its bioimage.io
+    page. A Cellpose 3-format checkpoint is a ``cellpose3`` row that
+    downloads the weights file itself, checked against the SHA-256 the
+    manifest publishes, for the Cellpose 3 backend to run.
+
+    Best effort and never raises: no network, a slow mirror or a changed
+    schema all mean "no extra rows", never a zoo that fails to open. The
+    response is cached so opening the dialog repeatedly is not repeatedly a
+    network call.
+    """
+    import json as _json
+    import time as _time
+    import urllib.request
+
+    cache = Path.home() / ".spacr" / "bioimageio_children.json"
+    payload = None
+    try:
+        fresh = (cache.is_file() and
+                 _time.time() - cache.stat().st_mtime
+                 < BIOIMAGEIO_CACHE_HOURS * 3600)
+        if fresh:
+            payload = _json.loads(cache.read_text())
+    except Exception:                                        # noqa: BLE001
+        payload = None
+    if payload is None and not allow_network:
+        # Cache only. catalogue() must not touch the network -- it is called on
+        # offline paths and from the GUI thread -- so the fetch happens in the
+        # background warm-up and this reads what that left behind.
+        return []
+    if payload is None:
+        try:
+            with urllib.request.urlopen(url or BIOIMAGEIO_COLLECTION,
+                                        timeout=timeout) as response:
+                payload = _json.loads(response.read().decode("utf-8"))
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(_json.dumps(payload))
+        except Exception:                                    # noqa: BLE001
+            return []
+
+    items = payload if isinstance(payload, list) else payload.get("items", [])
+    out = []
+    for item in items:
+        if not isinstance(item, Mapping):
+            continue
+        manifest = item.get("manifest") or {}
+        if not isinstance(manifest, Mapping):
+            continue
+        cellpose3 = _cellpose3_weights(manifest)
+        if cellpose3 is None and not _looks_like_cellpose_sam(manifest):
+            continue
+        alias = str(item.get("alias") or "")
+        if not alias:
+            continue
+        # Named after the model, not its bioimage.io alias: a row reading
+        # "idealistic-eagle" tells the reader nothing.
+        title = str(manifest.get("name") or alias)
+        slug = re.sub(r"[^a-z0-9]+", "_", title.lower()).strip("_") or alias
+        authors = ", ".join(
+            str(a.get("name")) for a in (manifest.get("authors") or ())
+            if isinstance(a, Mapping))
+        if cellpose3 is not None:
+            out.append(_cellpose3_download_entry(
+                alias, slug, title, manifest, authors, *cellpose3))
+            continue
+        out.append(ModelEntry(
+            key=slug, name=alias, path="", kind="cellpose",
+            source="bioimage.io",
+            uri=f"https://bioimage.io/#/artifacts/{alias}",
+            sha256="", size_bytes=0,
+            trained_on=f"{title} — {manifest.get('description') or ''}"[:300],
+            trained_by=authors or "bioimage.io"))
+    return out
+
+
+#: The architectures a Cellpose 3-format bioimage.io model names.
+#: ``CellPoseWrapper`` wraps a Cellpose 3 checkpoint and ``CPnetBioImageIO``
+#: is Cellpose's own export of one; either way the ``pytorch_state_dict``
+#: weights ARE the checkpoint, which Cellpose 3's ``CellposeModel`` loads.
+_BIOIMAGEIO_CELLPOSE3_ARCHITECTURES = ("CellPoseWrapper", "CPnetBioImageIO")
+
+#: Where bioimage.io serves an artifact's files.
+_BIOIMAGEIO_FILES = ("https://hypha.aicell.io/bioimage-io/artifacts/{alias}/"
+                     "files/{name}")
+
+#: What a Cellpose 3-format row says about how to use it.
+_CELLPOSE3_USE = (
+    "runs through the Cellpose 3 backend: install that from this list, set "
+    "segmentation_backend to cellpose3, and put this model's path in the "
+    "object's model setting")
+
+
+def _cellpose3_weights(manifest: Mapping[str, Any]) -> Optional[Tuple[str, str]]:
+    """The Cellpose 3 checkpoint a bioimage.io manifest publishes.
+
+    Only the two architectures in :data:`_BIOIMAGEIO_CELLPOSE3_ARCHITECTURES`
+    count -- the word "cellpose" in a tag does not, and a Cellpose-SAM model
+    is the Cellpose 4 kind, listed as such.
+
+    :returns: ``(source, sha256)`` of the weights file, or None.
+    """
+    if str(manifest.get("type") or "") != "model":
+        return None
+    if _looks_like_cellpose_sam(manifest):
+        return None
+    weights = manifest.get("weights")
+    state = weights.get("pytorch_state_dict") if isinstance(weights, Mapping) else None
+    if not isinstance(state, Mapping):
+        return None
+    architecture = state.get("architecture")
+    called = (str(architecture.get("callable") or "")
+              if isinstance(architecture, Mapping) else "")
+    source = str(state.get("source") or "").strip()
+    if called not in _BIOIMAGEIO_CELLPOSE3_ARCHITECTURES or not source:
+        return None
+    return source, str(state.get("sha256") or "").strip().lower()
+
+
+def _cellpose3_download_entry(alias: str, slug: str, title: str,
+                              manifest: Mapping[str, Any], authors: str,
+                              source: str, sha256: str) -> "ModelEntry":
+    """A bioimage.io Cellpose 3 checkpoint as a row that downloads it.
+
+    The weights file is fetched from bioimage.io itself and checked against
+    the SHA-256 its manifest publishes, like any other zoo download, and the
+    licence the uploader chose travels with the row.
+    """
+    if source.startswith(("http://", "https://")):
+        uri = source
+    else:
+        uri = _BIOIMAGEIO_FILES.format(alias=alias, name=source)
+    suffix = Path(source).suffix if Path(source).suffix in (".pth", ".pt") else ".pth"
+    return ModelEntry(
+        key=f"bioimageio_{slug}", name=f"{slug}{suffix}", path="",
+        kind="cellpose3", source="bioimage.io", uri=uri, sha256=sha256,
+        trained_on=f"{title} — {manifest.get('description') or ''}"[:300],
+        trained_by=authors or "bioimage.io",
+        licence=str(manifest.get("license") or ""),
+        notes=(f"bioimage.io model {alias}; {_CELLPOSE3_USE}",))
+
+
+#: What each Cellpose 3 model is, for its zoo row.
+_CELLPOSE3_NOTES = {
+    "cyto3": "Cellpose 3's generalist whole-cell model.",
+    "cyto2": "Cellpose 2's whole-cell model.",
+    "cyto": "The original Cellpose whole-cell model.",
+    "nuclei": "Cellpose's nucleus model.",
+}
+
+
+def _cellpose3_model_entries() -> List["ModelEntry"]:
+    """The Cellpose 3 backend's own models, listed whether or not it is here.
+
+    The name IS the path, as for the Cellpose 4 stock models: ``cyto3`` in
+    an object's model setting, with segmentation_backend set to cellpose3,
+    is what runs it. Until the backend is installed the row has no path and
+    says what it needs.
+    """
+    from ._segmentation_backends import _CELLPOSE3, _SPECS, _backend_state
+
+    spec = _SPECS[_CELLPOSE3]
+    ready = _backend_state(_CELLPOSE3).ready
+    out = []
+    for model in spec.models:
+        out.append(ModelEntry(
+            key=f"cellpose3_{model}", name=model, kind="cellpose3",
+            source="stock", path=model if ready else "",
+            uri=f"backend:{_CELLPOSE3}", sha256="", size_bytes=0,
+            trained_on=(f"{_CELLPOSE3_NOTES.get(model, '')} Runs through the "
+                        f"Cellpose 3 backend.").strip(),
+            trained_by="Cellpose", licence=spec.licence,
+            notes=() if ready else (
+                "needs the Cellpose 3 backend, which installs from this "
+                "list into an environment of its own",)))
+    return out
+
+
+def _backend_for(entry: Any) -> str:
+    """The optional segmentation backend a zoo row needs, or ``''``.
+
+    A backend row names itself in its ``backend:<name>`` uri; every
+    ``cellpose3`` model needs the Cellpose 3 backend.
+    """
+    uri = str(getattr(entry, "uri", "") or "")
+    if uri.startswith("backend:"):
+        return uri.split(":", 1)[1]
+    if getattr(entry, "kind", "") == "cellpose3":
+        return "cellpose3"
+    return ""
+
+
+#: ``name -> (label, install uri, import name, what it is)`` for every
+#: optional segmentation backend. These are PACKAGES, not checkpoints: the zoo
+#: lists them so a user learns they exist, and each installs into an
+#: environment of its own, never into spaCR's.
+INSTALLABLE_BACKENDS = {
+    _name: (_spec.label, f"backend:{_name}", _spec.module, _spec.blurb)
+    for _name, _spec in _BACKEND_SPECS.items() if _spec.segments
+}
+
+
+def installable_backend_entries() -> List["ModelEntry"]:
+    """Every optional segmentation backend, in whatever state it is here.
+
+    A backend absent from the zoo teaches nobody that it exists, so each one
+    is listed, and its ``source`` says where it stands -- ``installed``,
+    ``installable``, ``installing`` or ``not installable here`` -- with the
+    reason as its first note and its licence on the row. Installing one
+    builds it an environment of its own under ``~/.spacr/backends`` and
+    leaves spaCR's own environment alone.
+    """
+    from ._segmentation_backends import _backend_state
+
+    out = []
+    for name, spec in _BACKEND_SPECS.items():
+        state = _backend_state(name)
+        out.append(ModelEntry(
+            key=f"{name}_v1", name=spec.label,
+            path=state.env if state.ready and not state.in_process else "",
+            kind="backend", source=state.state, uri=f"backend:{name}",
+            sha256="", size_bytes=0, trained_on=spec.blurb,
+            trained_by=spec.label, licence=spec.licence,
+            notes=tuple(note for note in (f"{state.state}: {state.reason}",
+                                          spec.licence_note, spec.published)
+                        if note)))
+    return out
+
+
+#: Where spaCR's Add button puts community submissions.
+COMMUNITY_REPO = "einarolafsson/user-models"
+
+#: Submissions live under this prefix until somebody promotes them.
+COMMUNITY_PREFIX = "staging/"
+
+#: The one-line warning that must travel with every community row.
+COMMUNITY_WARNING = (
+    "Community upload — NOT vetted. Anyone can submit through spaCR's Add "
+    "button; nobody has checked what this file is, what it was trained on, or "
+    "whether its reported scores are real.")
+
+
+def community_entries(allow_network: bool = False,
+                      repo: str = COMMUNITY_REPO) -> List["ModelEntry"]:
+    """Unvetted models uploaded by spaCR users, or an empty list.
+
+    These are shown only when the user asks for them, because an unreviewed
+    checkpoint sitting beside a measured one invites the reader to treat them
+    alike. Every row carries :data:`COMMUNITY_WARNING`, and the checksum comes
+    from the uploader's own submission record -- it proves the file has not
+    changed since it was uploaded, NOT that it is any good.
+
+    Cache-first for the same reason as the bioimage.io listing: catalogue()
+    must not reach the network.
+    """
+    import json as _json
+    import time as _time
+
+    cache = Path.home() / ".spacr" / "community_models.json"
+    records = None
+    try:
+        # allow_network means the user just asked to see these, so the cache is
+        # skipped: a cached empty list from before the first submission would
+        # otherwise hide it for hours, which is exactly how this was found.
+        if (not allow_network and cache.is_file()
+                and _time.time() - cache.stat().st_mtime < 6 * 3600):
+            records = _json.loads(cache.read_text())
+    except Exception:                                        # noqa: BLE001
+        records = None
+    if records is None and not allow_network:
+        return []
+    if records is None:
+        try:
+            from huggingface_hub import HfApi, hf_hub_download
+
+            api = HfApi()
+            files = [f for f in api.list_repo_files(repo)
+                     if f.startswith(COMMUNITY_PREFIX)]
+            folders = sorted({f.split("/")[1] for f in files if "/" in f[8:]})
+            records = []
+            for folder in folders:
+                meta = {}
+                sub = f"{COMMUNITY_PREFIX}{folder}/submission.json"
+                if sub in files:
+                    try:
+                        meta = _json.loads(Path(hf_hub_download(repo, sub)).read_text())
+                    except Exception:                        # noqa: BLE001
+                        meta = {}
+                # The checkpoint, not the README beside it: match on the
+                # extensions a model actually has, or a folder with a README
+                # listed first offers the README as the download.
+                inside = [f for f in files
+                          if f.startswith(f"{COMMUNITY_PREFIX}{folder}/")]
+                weights = [f for f in inside
+                           if f.endswith((".pth", ".pt", ".safetensors",
+                                          ".CP_model"))]
+                if not weights:
+                    continue
+                records.append(dict(folder=folder, path=weights[0], meta=meta))
+            cache.parent.mkdir(parents=True, exist_ok=True)
+            cache.write_text(_json.dumps(records))
+        except Exception:                                    # noqa: BLE001
+            return []
+
+    out = []
+    for record in records:
+        meta = record.get("meta") or {}
+        folder = str(record.get("folder") or "")
+        remote_path = str(record.get("path") or "")
+        title = str(meta.get("name") or folder)
+        out.append(ModelEntry(
+            key=f"community_{folder}".replace("-", "_"),
+            name=remote_path.rsplit("/", 1)[-1], path="",
+            kind=str(meta.get("kind") or "cellpose"), source="community",
+            uri=(f"https://huggingface.co/{repo}/resolve/main/{remote_path}"),
+            sha256=str(meta.get("sha256") or ""),
+            size_bytes=int(meta.get("size_bytes") or 0),
+            trained_on=f"{title} — {meta.get('trained_on') or 'not stated'}. "
+                       + COMMUNITY_WARNING,
+            trained_by=str(meta.get("contact") or "a spaCR user")))
+    return out
+
+
+#: The five places a zoo row can come from, in the order they are offered.
+#:
+#: WHY FIVE HEADINGS RATHER THAN ONE LIST AND A BOOLEAN. The zoo used to be a
+#: single list with "show unvetted community uploads" beside it. Ten models
+#: trained here, four stock Cellpose-SAM backbones, bioimage.io's collection,
+#: the Cellpose 3 backend's own four and a shared catalogue is more than a
+#: list can carry, and a boolean that means "also show these" cannot fold away
+#: the four groups a reader is not looking at.
+#:
+#: These names are IDENTIFIERS as well
+#: as captions: :func:`source_of` returns one of them, and the picker
+#: remembers which are on by this spelling. Renaming one is a migration.
+ZOO_SOURCES: Tuple[str, ...] = (
+    "cellposeSAM", "spaCR", "spaCR community", "bioimage.io", "cellpose3")
+
+#: The headings a user who has never touched them sees turned on.
+#:
+#: The stock weights and the models trained here: the two a new user can act
+#: on immediately. The other three are opt-in -- community uploads because
+#: nobody has vetted them, bioimage.io and cellpose3 because they are long
+#: lists of other people's models that would bury the ten this project ships.
+DEFAULT_ZOO_SOURCES: Tuple[str, ...] = ("cellposeSAM", "spaCR")
+
+#: ``ModelEntry.source`` values that mean "spaCR's own catalogue".
+#:
+#: ``remote`` is :data:`BUNDLED_REMOTE_MODELS` and any JSON catalogue named by
+#: :data:`CATALOGUE_ENV_VAR`; ``bundled`` is what shipped in the package;
+#: ``local`` is a checkpoint found on this machine or listed through the Add
+#: button. All three are models this project offers, so all three are spaCR.
+_SPACR_OWN_SOURCES = ("remote", "bundled", "local")
+
+#: ``ModelEntry.source`` values that mean an unvetted upload.
+#:
+#: ``shared`` comes from :func:`shared_catalogue`, ``community`` from
+#: :func:`community_entries`; the two are different transports for the same
+#: thing, which is a file somebody uploaded that nobody has checked.
+_COMMUNITY_SOURCES = ("shared", "community")
+
+
+def source_of(entry: Any) -> str:
+    """Which of :data:`ZOO_SOURCES` this row belongs under.
+
+    Decided FROM THE ROW, never from a list of names kept somewhere else: a
+    hand-written list goes stale the first time a model is added, and the
+    failure it produces is a model that is in the catalogue and under no
+    heading, which is a model nobody can see.
+
+    The order of the tests is the rule, and it matters in one place: a
+    Cellpose 3 checkpoint published on bioimage.io is a bioimage.io row, not
+    a Cellpose 3 one. ``cellpose3`` means the backend's OWN models -- cyto,
+    cyto2, cyto3, nuclei -- and the backend package that runs them.
+
+    A row that matches nothing is filed under ``spaCR`` AND SAID OUT LOUD. It
+    is the fallback rather than a sixth heading because a model under the
+    wrong heading is a nuisance and a model under no heading is a bug the
+    user experiences as a missing model.
+
+    :param entry: any zoo row -- a :class:`ModelEntry`, or anything with
+        ``kind``, ``source`` and ``uri``.
+    :returns: one of :data:`ZOO_SOURCES`.
+    """
+    source = str(getattr(entry, "source", "") or "")
+    kind = str(getattr(entry, "kind", "") or "")
+    uri = str(getattr(entry, "uri", "") or "")
+    if source in _COMMUNITY_SOURCES:
+        return "spaCR community"
+    if source == "bioimage.io" or "bioimage" in uri.lower():
+        return "bioimage.io"
+    if kind == "cellpose3" or _backend_for(entry) == "cellpose3":
+        return "cellpose3"
+    if kind == "cellpose" and source == "stock":
+        return "cellposeSAM"
+    if kind == "backend" or source in _SPACR_OWN_SOURCES:
+        return "spaCR"
+    LOG.warning(
+        "model zoo: %r (kind=%r, source=%r) matches no source heading; "
+        "listing it under spaCR so it stays visible",
+        getattr(entry, "name", "") or getattr(entry, "key", ""), kind, source)
+    return "spaCR"
+
+
+def group_by_source(entries: Iterable[Any]) -> Dict[str, List[Any]]:
+    """Split a listing into :data:`ZOO_SOURCES`, keeping each source's order.
+
+    Every heading is present even when it has no rows, so a caller drawing
+    the strip does not have to know which of the five happened to be empty
+    this time.
+
+    :param entries: the rows to split.
+    :returns: heading -> rows, in :data:`ZOO_SOURCES` order.
+    """
+    out: Dict[str, List[Any]] = {name: [] for name in ZOO_SOURCES}
+    for entry in entries:
+        out[source_of(entry)].append(entry)
+    return out
+
+
+def entries_from_sources(entries: Iterable[Any],
+                         sources: Iterable[str]) -> List[Any]:
+    """The rows belonging to the headings that are on, in the given order.
+
+    :param entries: the rows to filter.
+    :param sources: the headings currently on.
+    """
+    wanted = set(sources)
+    return [entry for entry in entries if source_of(entry) in wanted]
+
+
 def catalogue(include_bundled: bool = True, remote: bool = True,
               catalogue_path: Any = None,
               include_plugins: bool = True,
@@ -1630,6 +2547,11 @@ def catalogue(include_bundled: bool = True, remote: bool = True,
         if root.is_dir():
             entries.extend(discover_local(root, max_depth=2))
 
+    entries.extend(stock_cellpose_entries())
+    entries.extend(installable_backend_entries())
+    entries.extend(_cellpose3_model_entries())
+    if remote:
+        entries.extend(bioimageio_entries())
     if remote:
         have = {(e.key, e.name) for e in entries}
         for record in BUNDLED_REMOTE_MODELS:
@@ -2300,7 +3222,8 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
             progress(message, done, total_steps)
 
     _tick(f"Segmenting {len(fields)} field(s) with {entry.name}…", 0)
-    run = segment_fn if segment_fn is not None else mc.segment_with_cellpose
+    run = segment_fn if segment_fn is not None else _default_segmenter(
+        [entry], mc)
     started = time.perf_counter()
     produced = list(run(fields, config))
     seconds = time.perf_counter() - started
@@ -2339,6 +3262,50 @@ def benchmark(entry: ModelEntry, images: Optional[Sequence[Any]] = None,
         images=fields if keep_images else [],
         object_type=object_type,
     )
+
+
+def _cellpose3_segment(model: str, images: Sequence[Any],
+                       config: Any) -> List[np.ndarray]:
+    """Segment ``images`` with a Cellpose 3 model, in the Cellpose 3 backend.
+
+    spaCR's Cellpose 4 loads a Cellpose 3 checkpoint without complaint and
+    then segments nonsense with it, so a ``cellpose3`` row is never handed
+    to it: the benchmark and the A/B comparison run it where Mask generation
+    does, in the Cellpose 3 environment, with the config's eval settings.
+
+    :param model: a Cellpose 3 model name or checkpoint path.
+    :param images: the fields.
+    :param config: the :class:`spacr.model_compare.ModelConfig` for the side.
+    :returns: one integer label image per field.
+    :raises ImportError: when the Cellpose 3 backend is not installed.
+    """
+    from ._segmentation_backends import _load_backend
+
+    backend = _load_backend("cellpose3", model_name=model)
+    masks, _flows, _styles = backend.eval(
+        [np.asarray(image, dtype=np.float32) for image in images],
+        **config.eval_kwargs())
+    return [np.asarray(mask).astype(np.int32) for mask in masks]
+
+
+def _default_segmenter(entries: Sequence[ModelEntry], mc: Any) -> Callable:
+    """``fn(images, config) -> masks`` that runs each entry where it belongs.
+
+    A ``cellpose3`` entry goes to the Cellpose 3 backend, told apart by the
+    model its config names; everything else to spaCR's own Cellpose,
+    exactly as before.
+    """
+    cellpose3 = {str(e.path or e.name) for e in entries
+                 if e.kind == "cellpose3"}
+
+    def _segment(images, config):
+        """Segment ``images`` with the backend the config's model belongs to."""
+        model = str(getattr(config, "model", "") or "")
+        if model in cellpose3:
+            return _cellpose3_segment(model, images, config)
+        return mc.segment_with_cellpose(images, config)
+
+    return _segment
 
 
 def _fieldset_label(names: Sequence[str], source: Any) -> str:
@@ -2386,6 +3353,7 @@ def compare_entries(entry_a: ModelEntry, entry_b: ModelEntry,
     for entry in (entry_a, entry_b):
         if entry.path:
             inspect_checkpoint(entry.path)
+    kwargs.setdefault("segment_fn", _default_segmenter([entry_a, entry_b], mc))
     return mc.compare_models(
         images,
         config_for(entry_a, settings_a),
@@ -2501,6 +3469,58 @@ _ZOO_COLUMNS = (
     ("trained on", lambda e: _shorten(e.trained_on, 46)),
     ("trained by", lambda e: _shorten(e.trained_by, 22)),
 )
+
+
+SCORECARD_ROWS = (
+    ("train", "n_train"), ("train obj.", "train_objects"),
+    ("test", "n_test"), ("test obj.", "test_objects"), ("CV", "cv"),
+    ("F1 @ IoU 0.5", "f1"), ("AJI", "aji"), ("Dice", "dice"),
+    ("final train loss", "train_loss"), ("final val loss", "val_loss"),
+    ("best epoch", "best_epoch"),
+)
+
+
+def scorecard_html(entry) -> str:
+    """The model's scorecard as an HTML table, for a tooltip.
+
+    A paragraph of prose is what a tooltip used to show, and a reader
+    comparing two models had to parse two paragraphs to find two numbers.
+    The same table the model card prints answers that at a glance. Falls back
+    to the prose when an entry publishes no metrics, because an empty table is
+    worse than a sentence.
+
+    Metrics that hold none of the scorecard's keys -- a free-form note, a
+    training loss under a name of its own -- are not a scorecard either, and
+    return nothing too: a table of eleven "not recorded" rows would replace a
+    two-line note that said something.
+
+    :param entry: a catalogue entry, or anything with ``metrics`` and a name.
+    :returns: the HTML table, or ``""`` when there is no scorecard to show.
+    """
+    metrics = dict(getattr(entry, "metrics", None) or {})
+    if not any(key in metrics for _label, key in SCORECARD_ROWS):
+        return ""
+    name = (getattr(entry, "display_name", "") or getattr(entry, "name", "")
+            or getattr(entry, "key", ""))
+    def cell(value):
+        """A scorecard value as shown, or "not recorded" when blank."""
+        return value if str(value).strip() else "not recorded"
+    rows = []
+    for label, key in SCORECARD_ROWS:
+        stock = metrics.get(f"stock_{key}", "") if key in ("f1", "aji", "dice") else ""
+        rows.append(
+            f"<tr><td>{label}</td>"
+            f"<td align='right'><b>{cell(metrics.get(key, ''))}</b></td>"
+            f"<td align='right'>{cell(stock) if stock or key in ('f1','aji','dice') else ''}</td></tr>")
+    trained = getattr(entry, "trained_on", "") or ""
+    card = getattr(entry, "model_card_url", "")
+    return (f"<p><b>{name}</b></p>"
+            "<table cellspacing='0' cellpadding='3'>"
+            "<tr><th align='left'></th><th align='right'>this model</th>"
+            "<th align='right'>stock</th></tr>"
+            + "".join(rows) + "</table>"
+            + (f"<p>{trained[:200]}</p>" if trained else "")
+            + (f"<p>{card}</p>" if card else ""))
 
 
 def format_zoo(entries: Sequence[ModelEntry]) -> str:

@@ -41,6 +41,7 @@ def test_map_candidate_has_actual_data_complete_media_and_native_caption_evidenc
 
 
 def test_map_is_available_in_every_catalog_and_other_media_was_preserved():
+    manifest = read(ROOT / 'release_candidate/release-manifest.json')
     for path in (ROOT / 'release_candidate/web/catalog').glob('*.json'):
         records = [r for r in read(path)['lessons'] if r['id'] == '12_map_barcodes']
         assert len(records) == 1
@@ -52,4 +53,17 @@ def test_map_is_available_in_every_catalog_and_other_media_was_preserved():
         assert links == {'06_api', '13_regression', '47_barcode_qc'}
     preservation = read(ROOT / 'evidence/2026-09-13_map_barcodes_preservation.json')
     assert preservation['passed'] is True and preservation['catalogs_checked'] == 14
-    assert preservation['retained_media_files'] == 75 * 103
+    assert preservation['map_media_files'] == 103
+    assert preservation['refreshed_lessons'] == ['07_mask', '13_regression']
+    assert '12_map_barcodes' not in preservation['refreshed_lessons']
+    manifest_media = [record['path'] for record in manifest['files']
+                      if record['path'].startswith(('media_host/', 'web/production/'))]
+    changed_media = [path for path in preservation['changed_files']
+                     if path.startswith(('media_host/', 'web/production/'))]
+    assert len(manifest_media) == 7828 and len(changed_media) == 105
+    assert preservation['retained_media_files'] == 7723
+    assert preservation['retained_media_files'] + len(changed_media) == len(manifest_media)
+    owners = {path.split('/')[1] if path.startswith('media_host/') else path.split('/')[2]
+              for path in changed_media}
+    assert owners == {'07_mask', '13_regression'}
+    assert not [path for path in changed_media if '12_map_barcodes' in path]

@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review": "AI-assisted translation and technical review; no native-speaker signoff claimed",
+  "records": [
+    {
+      "label": "deck-heading",
+      "source": "spaCR in slides",
+      "source_sha256": "ac15b019777eaf5866326f12193192b563cbc89bec8e41dc35ef3997e6e8b020",
+      "translation": "स्लाइडों में spaCR"
+    },
+    {
+      "label": "deck-cover-alt",
+      "source": "spaCR in slides: every module and the trained models, in 51 slides",
+      "source_sha256": "26ea26ff2abdb52d3969438975a9f78bffa83ce957eacf833a058b7f7da11618",
+      "translation": "स्लाइडों में spaCR: 51 स्लाइडों में सभी मॉड्यूल और प्रशिक्षित मॉडल"
+    },
+    {
+      "label": "deck-introduction",
+      "source": "A tour of every module and the trained models in 51 slides. Flip through them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_ (arrow keys or swipe), or page through the `PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.",
+      "source_sha256": "c5557bc01ec18214de7c628f36f886f401e5659df943c05e705192c44697dc8f",
+      "translation": "51 स्लाइडों में सभी मॉड्यूल और प्रशिक्षित मॉडलों का परिचय। `स्लाइड व्यूअर <https://einarolafsson.github.io/spacr/_static/deck/>`_ में तीर कुंजियों से या स्वाइप करके स्लाइडें देखें, या `GitHub पर PDF <docs/source/_static/deck/spacr_deck.pdf>`_ के पन्ने पलटें।"
+    },
+    {
+      "label": "deck-viewer-link",
+      "source": "slide viewer",
+      "source_sha256": "ed132c00e92e9c52d2b3c7008caf530fb5407d5a711e552935d8ec77627771a0",
+      "translation": "स्लाइड व्यूअर"
+    },
+    {
+      "label": "deck-pdf-link",
+      "source": "PDF on GitHub",
+      "source_sha256": "cc5ca0faf03c62177997c8e2a425e6d22f247b7c293fd56ab7850df2de622a3c",
+      "translation": "GitHub पर PDF"
+    }
+  ]
+}

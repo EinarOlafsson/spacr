@@ -306,6 +306,27 @@ def _restore_app_registry():
 
 
 @pytest.fixture(autouse=True)
+def _sandbox_backend_environments(monkeypatch, tmp_path):
+    """Keep every Qt test away from the real ``~/.spacr/backends`` and off
+    the network (item 423).
+
+    The Model Zoo, the Model Zoo button and Make Masks' Mode box all ask
+    where each segmentation backend stands, and an environment the developer
+    really installed would turn a stub test into an out-of-process run. The
+    zoo also checks, on a background thread, whether pip's index answers --
+    no test here reaches pypi.org, so that check answers "reachable" unless a
+    test says otherwise.
+    """
+    monkeypatch.setenv("SPACR_BACKENDS_DIR",
+                       str(tmp_path / "backend-environments"))
+    from spacr import _segmentation_backends
+
+    monkeypatch.setattr(_segmentation_backends, "_probe_network",
+                        lambda *args, **kwargs: "")
+    monkeypatch.setattr(_segmentation_backends, "_PROBED", {})
+
+
+@pytest.fixture(autouse=True)
 def _sandbox_remote_execution_state(monkeypatch, tmp_path):
     """Keep Qt screen smoke tests out of the operator's persistent state.
 
@@ -748,16 +769,17 @@ def _skip_first_launch_tour():
 
 @pytest.fixture(autouse=True)
 def _issue_prompt_does_not_block():
-    """File issues without a prompt, unless a test says otherwise.
+    """Every Qt test starts with issue reporting set to 'ask'.
 
-    `_on_file_issue` asks before filing, and a QMessageBox in a headless run
-    has nobody to answer it -- which is the hang that cost this suite its
-    entire run once already (instruction 47). Rather than leave that trap
-    for the next test that touches the reporter, the default here is
-    `always`: the prompt is skipped, and the tests that exercise the FILING
-    path get to exercise it.
+    This used to set `always`, because `always` skipped a QMessageBox that
+    `_on_file_issue` showed before filing, and a modal in a headless run
+    has nobody to answer it (instruction 47). That box went in 807ba9e0a.
+    Since 2026-09-19 `always` is the shipped default and FILES A REPORT
+    AUTOMATICALLY whenever a run fails, so a test that fails a run under it
+    would build a report, write a log copy under the real home folder and
+    start a filing job. `ask` files nothing without a click.
 
-    A test about the prompt itself sets the mode it wants; this restores
+    A test about automatic filing sets `always` itself; this restores
     whatever was there afterwards, so it cannot leak either way.
     """
     try:
@@ -767,7 +789,7 @@ def _issue_prompt_does_not_block():
         return
     try:
         original = preferences.get_issue_prompt_mode()
-        preferences.set_issue_prompt_mode(preferences.ISSUE_PROMPT_ALWAYS)
+        preferences.set_issue_prompt_mode(preferences.ISSUE_PROMPT_ASK)
     except Exception:
         yield
         return

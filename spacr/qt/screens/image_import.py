@@ -100,9 +100,8 @@ __all__ = [
 ]
 
 #: What to do with a field that arrives as several tiles, as
-#: ``(label, value)``. STITCHING IS FIRST AND IS THE DEFAULT, decided by the
-#: maintainer on 2026-09-02: "tiles be stitched at import with the option to
-#: not stitch but stitch by default." The other two are the answers that
+#: ``(label, value)``. STITCHING IS FIRST AND IS THE DEFAULT: tiles are
+#: stitched at import unless the user opts out. The other two are the answers that
 #: existed before there was a stitcher, and each loses something a user
 #: should have to choose: keeping tiles as fields discards the fact that they
 #: are one field, and skipping them discards the images.

@@ -461,7 +461,9 @@
       "label": "spacr.qt.make_masks_demo#1",
       "source": "Ledger item 412. The maintainer asked for ten images of the Toxoplasma PV training set on Hugging Face as \"a small test dataset for make masks\", and \"a button for loading this dataset which automatically triggers opening the first image with make masks\".",
       "source_sha256": "8c89ddde44409766fcf87b2dd7b794cc41565c81e2d3ecf8a7148f19b85e614e",
-      "translation": "Élément 412 du registre des tâches. Le mainteneur a demandé dix images du jeu d’entraînement PV de Toxoplasma sur Hugging Face comme « un petit jeu de données de test pour make masks », et « un bouton pour charger ce jeu de données qui déclenche automatiquement l’ouverture de la première image avec make masks »."
+      "translation": "Élément 412 du registre des tâches. Le mainteneur a demandé dix images du jeu d’entraînement PV de Toxoplasma sur Hugging Face comme « un petit jeu de données de test pour make masks », et « un bouton pour charger ce jeu de données qui déclenche automatiquement l’ouverture de la première image avec make masks ».",
+      "retired": true,
+      "retired_reason": "The 2026-09-21 nightly documentation rewrite replaced the historical item-412 request with the current dataset behavior. Original review retained; current replacement reviewed in 2026-09-21-make-masks-demo.json."
     },
     {
       "context": "What is published. :data:`MAKE_MASKS_EXAMPLE_REPO` holds ten of the lab's own acquisitions -- no figure harvested from a paper, no held-out microscope field of view -- at the top level, their curated label masks under ``ground_truth_masks/``, a ``manifest.csv`` carrying each image's row from the in-house manifest, and one archive of all of it. The images open UNSEGMENTED: Make Masks reads drafts from ``masks/``, never from ``ground_truth_masks/``, so the editor starts on raw microscope fields of view and the truth sits beside them.",
@@ -678,7 +680,9 @@
       "label": "spacr.qt.preferences#9",
       "source": "``font_scale``: float, 1.0 = 100 % (the default). Clamped to [0.10, 2.0].",
       "source_sha256": "67e2eba58f8bc035a69d08714935640c9cff8e6eddb6da5ff95cdb313e6c0f03",
-      "translation": "``font_scale``: float, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0]."
+      "translation": "``font_scale``: float, 1.0 = 100 % (valeur par défaut). Borné à [0.10, 2.0].",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.preferences's documentation, which was rewritten by \"427 part C after review: five sound sets claimed a superlative the numbers deny, and no widget ever showed a theme's description\" (bbd05e2f3, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "It follows the form. Once a search has been asked for, changing any setting the search reads -- the sequencing folder, a reference table, the barcode set or the anchor -- starts it again after the form has been still for a moment, the way the Mask live preview follows its settings. Settings the search does not read never start one. Apply is the exception to everything live about this panel: the form changes only when it is pressed, so a value somebody typed is never replaced by a measurement that arrived while they were typing.",

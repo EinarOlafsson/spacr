@@ -45,6 +45,7 @@ the duplicated layer is not measuring paint, whatever number it prints.
 See `tests/qt/test_the_paint_harness_can_see_a_second_layer.py`.
 
     python tools/perf_paint.py --seconds 3 --out docs/perf_baseline.json
+    python tools/perf_paint.py --only backdrop --animation resonance
 
 A LOADED MACHINE MAKES EVERY NUMBER HERE SMALLER, so the JSON records the
 load average and the platform beside the measurements. A baseline taken
@@ -54,10 +55,12 @@ while the test suite is running is a fact about that, not about spaCR.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import json
 import os
 import platform
 import sys
+import tempfile
 import time
 from pathlib import Path
 from typing import Dict, List, Optional
@@ -88,6 +91,44 @@ def _load() -> Dict[str, float]:
     return {"load_1m": one, "load_5m": five, "load_15m": fifteen}
 
 
+@contextlib.contextmanager
+def _settings_elsewhere():
+    """Point QSettings at a throwaway folder for the block, then back.
+
+    A MEASUREMENT MUST NOT EDIT THE MACHINE IT MEASURES. Driving a real
+    screen drives everything a real screen does, and Make Masks remembers
+    the folder it was opened on: `MakeMasksScreen._open_folder` ends in
+    `prefs.push_recent_source`, which writes `$HOME/.config/spacr/qt.conf`.
+    Run as the tool documents itself -- `python tools/perf_paint.py` --
+    that put the harness's own TemporaryDirectory at the head of the
+    maintainer's recent-folder list, and replaced his last source with a
+    path that had been deleted by the time he read it.
+
+    `QSettings.setPath` is used rather than HOME, because it works on a
+    process that has already built a QSettings and because it is
+    reversible: the location each format was on is probed first and put
+    back afterwards, so a harness called from a test session leaves that
+    session's own sandbox exactly where it found it. Nesting is safe for
+    the same reason.
+    """
+    from PySide6.QtCore import QSettings
+
+    formats = (QSettings.Format.NativeFormat, QSettings.Format.IniFormat)
+    scope = QSettings.Scope.UserScope
+    before = {}
+    for fmt in formats:
+        name = QSettings(fmt, scope, "spacr", "qt").fileName()
+        before[fmt] = str(Path(name).parent.parent)
+    with tempfile.TemporaryDirectory(prefix="spacr-perf-settings-") as folder:
+        for fmt in formats:
+            QSettings.setPath(fmt, scope, folder)
+        try:
+            yield Path(folder)
+        finally:
+            for fmt in formats:
+                QSettings.setPath(fmt, scope, before[fmt])
+
+
 def _environment() -> dict:
     """Where this ran. A profile from one machine is a fact about it."""
     return {
@@ -101,11 +142,20 @@ def _environment() -> dict:
 
 
 def measure_backdrop(seconds: float = 3.0,
-                     themes: Optional[List[str]] = None) -> List[dict]:
+                     themes: Optional[List[str]] = None,
+                     animation: Optional[str] = None) -> List[dict]:
     """Paints per second for the ambient backdrop, per theme and size.
 
     :param seconds: how long to run the event loop for each combination.
     :param themes: theme names; None measures every theme spaCR offers.
+    :param animation: which ambient ANIMATION to paint -- a name from
+        ``spacr.qt.widgets.ambient.AMBIENT_THEMES``. None paints the
+        shipped default, which is what every row before 2026-09-19 is.
+        THE TWO WORDS "THEME" MEAN DIFFERENT THINGS IN THIS FUNCTION and
+        always have: ``themes`` is the COLOUR theme (dark, light, cell,
+        glass) and this is the animation behind it. The row carries both,
+        so a baseline taken with one animation can never be read as a
+        measurement of another.
     :returns: one row per (theme, size).
     """
     from PySide6.QtCore import QEventLoop, QTimer
@@ -135,7 +185,8 @@ def measure_backdrop(seconds: float = 3.0,
         except Exception:                                    # noqa: BLE001
             pass
         for label, (width, height) in SIZES.items():
-            widget = ambient.AmbientWidget()
+            widget = (ambient.AmbientWidget() if animation is None
+                      else ambient.AmbientWidget(theme=animation))
             widget.resize(width, height)
             widget.show()
             app.processEvents()
@@ -150,6 +201,7 @@ def measure_backdrop(seconds: float = 3.0,
             rows.append({
                 "measurement": "backdrop",
                 "theme": name,
+                "animation": animation or ambient.DEFAULT_THEME,
                 "size": label,
                 "pixels": width * height,
                 "seconds": round(elapsed, 3),
@@ -359,6 +411,159 @@ def measure_interaction(app_key: str = "mask") -> List[dict]:
     return rows
 
 
+def measure_magnifier(field_px: int = 1024, moves: int = 40) -> List[dict]:
+    """Input latency on Make Masks with the live magnifier on, per scope.
+
+    ITEM 407 ASKED FOR THIS ROW AND IT DID NOT EXIST. 407's own note says
+    the harness "was not run with the toggle on", and the toggle is the one
+    thing on that screen that puts a segmentation model behind a moving
+    mouse. Its tests already prove the model never runs on the GUI thread;
+    what they do not say is what a mouse MOVE costs while it is running,
+    which is the number 380 is about.
+
+    WHOLE IMAGE IS THE HARDER CASE AND IT IS THE POINT. The region mode
+    hands the worker a small crop; Whole image runs the model once over the
+    entire field and the box then draws a slice of those objects on every
+    move, with a busy bar ticking beside it. Both are measured, and the
+    slowest single move is what is reported -- an average hides exactly the
+    hitch a user feels.
+
+    The Otsu mode is used because it needs nothing installed, so this row
+    means the same thing on every machine. A model on a GPU is faster and a
+    Cellpose model on a CPU is far slower; neither changes what a MOVE
+    costs, because neither runs on this thread.
+
+    THE FIELD IS OPENED WITH A MASK ALREADY PAINTED ON IT, and the largest
+    box item 417 allows is measured beside the default one. Both are here
+    because of what they hide when they are missing. The box draws what a
+    click would ADD, which means the Overlap rule against the mask that is
+    already there: over an empty mask that work does not exist, so a
+    harness whose field has no mask file cannot see it at all. And the
+    Size box's top is the field's own longer side, so "the box" is not one
+    size -- the cost of every per-move path in it is the box's area, and a
+    reading taken only at 128 px says nothing about the same control at
+    2,048. Half of each object is painted in already, so the rule keeps
+    some of what the model finds and drops the rest, which is the case
+    that costs. The largest box is measured in BOTH scopes: Whole image
+    draws its slice of the field's objects on every move, and at that size
+    the slice is most of the field.
+
+    :param field_px: the side of the synthetic field, in pixels.
+    :param moves: how many mouse moves to time per measurement.
+    :returns: one row per (scope, box size) measured.
+    """
+    import imageio.v2 as imageio
+    import numpy as np
+    from PySide6.QtCore import QEvent, QPointF, Qt
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QApplication
+
+    from spacr.qt.screens.make_masks import MakeMasksScreen
+
+    app = QApplication.instance() or QApplication([])
+    rows: List[dict] = []
+    with _settings_elsewhere(), \
+            tempfile.TemporaryDirectory(prefix="spacr-perf-magnifier-") as folder:
+        yy, xx = np.mgrid[0:field_px, 0:field_px]
+        field = np.full((field_px, field_px), 1000.0)
+        painted = np.zeros((field_px, field_px), np.uint16)
+        ident = 0
+        for cy in range(40, field_px, 80):
+            for cx in range(40, field_px, 80):
+                field[(yy - cy) ** 2 + (xx - cx) ** 2 <= 400] += 3000
+                ident += 1
+                painted[max(0, cy - 20):cy + 20, max(0, cx - 20):cx] = ident
+        imageio.imwrite(Path(folder) / "field.tif",
+                        np.clip(field, 0, 65535).astype(np.uint16))
+        masks = Path(folder) / "masks"
+        masks.mkdir()
+        imageio.imwrite(masks / "field.tif", painted)
+
+        screen = MakeMasksScreen()
+        screen.resize(1600, 1000)
+        screen.show()
+        if not screen._open_folder(folder):
+            _shut_down(screen, app)
+            return [{"measurement": "magnifier",
+                     "error": "the folder would not open"}]
+        screen._canvas.resize(1200, 900)
+        screen._canvas.refresh()
+        _drain_until_quiet(app)
+
+        default_px = int(screen._magnifier.size)
+        largest_px = int(screen._magnifier.size_range()[1])
+        for scope, box_px in (("region", default_px), ("image", default_px),
+                              ("region", largest_px),
+                              ("image", largest_px)):
+            box = screen._mag_scope
+            box.setCurrentIndex(box.findData(scope))
+            screen._mag_size.setValue(box_px)
+            started = time.perf_counter()
+            screen._btn_magnifier.setChecked(True)
+            app.processEvents()
+            switch_ms = (time.perf_counter() - started) * 1000
+
+            taken = []
+            for step in range(max(1, moves)):
+                where = QPointF(200.0 + step * 12.0, 200.0 + step * 9.0)
+                event = QMouseEvent(QEvent.Type.MouseMove, where, where,
+                                    Qt.NoButton, Qt.NoButton, Qt.NoModifier)
+                at = time.perf_counter()
+                screen._canvas.mouseMoveEvent(event)
+                screen._canvas.repaint()
+                app.processEvents()
+                taken.append((time.perf_counter() - at) * 1000)
+            busy = bool(screen._magnifier._busy)
+            # AFTER THE TIMING AND BEFORE THE ROW IS WRITTEN. Whether the
+            # rule had anything to say is a fact about this field and this
+            # box, not about whether the last move's result happened to
+            # have landed by the time the loop ended; `busy` above is read
+            # first, because that one IS about the moves.
+            _drain_until_quiet(app, rounds=100)
+            shown = screen._magnifier._shown
+            ghosted = bool(shown is not None and shown.ghost is not None)
+            screen._btn_magnifier.setChecked(False)
+            app.processEvents()
+            # THE FIRST MOVE IS REPORTED APART FROM THE REST, for the reason
+            # `timed` gives above: the first thing timed after a widget is
+            # built pays for the build. Here it also pays for the first
+            # import of the segmentation stack on the worker.
+            rest = taken[1:] or taken
+            slowest = max(rest)
+            rows.append({
+                "measurement": "magnifier",
+                "scope": scope,
+                "field_px": field_px,
+                "box_px": box_px,
+                "overlap": screen._magnifier.overlap,
+                # WHETHER THE RULE HAD ANYTHING TO SAY. The box draws what a
+                # click would add, so over an empty mask there is no ghost
+                # and the per-move path measured here is not the one a
+                # curator over a half-painted field walks. A row reading
+                # False on a field that was opened with a mask means that
+                # path went unmeasured, not that it is free.
+                "ghosted": ghosted,
+                "mode": screen._magnifier.mode,
+                "moves": len(taken),
+                "switch_on_ms": round(switch_ms, 2),
+                "first_move_ms": round(taken[0], 2),
+                "slowest_move_ms": round(slowest, 2),
+                "median_move_ms": round(
+                    sorted(taken)[len(taken) // 2], 2),
+                "frames_dropped_worst_move": max(0, int(slowest // FRAME_MS)),
+                "model_still_running": busy,
+                # ON THE ROW AND NOT ONLY IN THE RECORD'S ENVIRONMENT. This
+                # is a LATENCY, and latency is the measurement on this
+                # machine that load moves most: the same branch measured
+                # 4.8 ms and 15.2 ms a median move at load 5 and load 25.
+                # A reader comparing two rows has to be able to see that
+                # without going back to the file they came from.
+                **_load(),
+            })
+        _shut_down(screen, app)
+    return rows
+
+
 def _shut_down(screen, app) -> None:
     """Close a measured screen without taking the process with it.
 
@@ -388,19 +593,34 @@ def main(argv: Optional[List[str]] = None) -> int:
                         help="how long each backdrop measurement runs")
     parser.add_argument("--screen", default="mask",
                         help="which module screen to measure on")
-    parser.add_argument("--only", choices=("backdrop", "theme", "interaction"),
-                        help="run one measurement instead of all three")
+    parser.add_argument("--only",
+                        choices=("backdrop", "theme", "interaction",
+                                 "magnifier"),
+                        help="run one measurement instead of all four")
+    parser.add_argument("--field-px", type=int, default=1024,
+                        help="the side of the field the magnifier is "
+                             "measured on")
+    parser.add_argument("--animation",
+                        help="which ambient animation the backdrop paints; "
+                             "the shipped default when not given")
     parser.add_argument("--out", type=Path,
                         help="write the record here as JSON")
     args = parser.parse_args(argv)
 
     rows: List[dict] = []
-    if args.only in (None, "backdrop"):
-        rows.extend(measure_backdrop(args.seconds))
-    if args.only in (None, "theme"):
-        rows.extend(measure_theme_change(args.screen))
-    if args.only in (None, "interaction"):
-        rows.extend(measure_interaction(args.screen))
+    # EVERY MEASUREMENT, not only the one that was caught writing: each of
+    # these drives a real screen, and a real screen is allowed to remember
+    # things. See `_settings_elsewhere`.
+    with _settings_elsewhere():
+        if args.only in (None, "backdrop"):
+            rows.extend(measure_backdrop(args.seconds,
+                                         animation=args.animation))
+        if args.only in (None, "theme"):
+            rows.extend(measure_theme_change(args.screen))
+        if args.only in (None, "interaction"):
+            rows.extend(measure_interaction(args.screen))
+        if args.only in (None, "magnifier"):
+            rows.extend(measure_magnifier(args.field_px))
 
     record = {
         "schema": SCHEMA,

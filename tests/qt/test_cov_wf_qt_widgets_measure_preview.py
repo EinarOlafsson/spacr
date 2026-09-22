@@ -321,4 +321,4 @@ def test_a_control_with_no_signal_does_not_stop_the_wiring_pass(panel):
     panel._max_crops.setValue(7)
     assert len(seen) > before, "a spinbox after the mute control was not wired"
     assert seen[-1]["plot"] is False          # the mute control still read
-    assert seen[-1]["png_size"] == [224, 224]
+    assert seen[-1]["png_size"] == 224  # Square size uses the scalar form.

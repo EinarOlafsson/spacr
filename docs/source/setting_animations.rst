@@ -802,27 +802,27 @@ Project volumes for tracking
 
 **Settings:** ``t_project_for_tracking``
 
-.. _setting-animation-straightness-filter:
+.. _setting-animation-drop-straight-tracks:
 
 Remove overly straight tracks
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/straightness_filter.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/drop_straight_tracks.gif
    :alt: Remove overly straight tracks setting animation
    :width: 300px
 
-**Settings:** ``straightness_filter``, ``straightness_threshold``
+**Settings:** ``drop_straight_tracks``, ``straightness_threshold``
 
-.. _setting-animation-zscore-thresh:
+.. _setting-animation-track-outlier-zscore:
 
 Smooth per-track outliers
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. image:: ../../spacr/resources/setting_animations/gifs/zscore_thresh.gif
+.. image:: ../../spacr/resources/setting_animations/gifs/track_outlier_zscore.gif
    :alt: Smooth per-track outliers setting animation
    :width: 300px
 
-**Settings:** ``zscore_thresh``
+**Settings:** ``track_outlier_zscore``
 
 .. _setting-animation-ultrack-division-weight:
 

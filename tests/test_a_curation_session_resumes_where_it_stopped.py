@@ -42,6 +42,7 @@ import pytest
 
 from spacr.curation_queue import (
     DEFAULT_ORDER,
+    DRAFTS_FILENAME,
     IMAGE_EXTS,
     LAYOUT_NESTED,
     LAYOUT_SEG,
@@ -644,3 +645,307 @@ def test_the_queue_module_carries_no_qt_and_no_numpy_into_the_process():
 
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "loaded=easy heavy="
+
+
+# ---------------------------------------------------------------------------
+# The external tool's files beside the folder, and scores that are missing
+# ---------------------------------------------------------------------------
+#
+# Added 2026-09-19 with the editor learning the sibling and seg layouts. The
+# external curation tool keeps a queue's progress and scores BESIDE the
+# folder, as <parent>/<name>_status.csv and <parent>/<name>_scores.csv, and
+# the seg sets it curated have no record inside. Measured that day on
+# round3_queue: 373 done and 29 skip beside it, nothing inside -- so a session
+# that looked only inside would have offered all 402 again.
+
+def _beside(folder: Path, suffix: str, text: str) -> Path:
+    """Write the external tool's ``<parent>/<name><suffix>``."""
+    path = folder.parent / f"{folder.name}{suffix}"
+    path.write_text(text, encoding="utf-8")
+    return path
+
+
+def test_a_folder_with_only_the_external_record_resumes_from_it(tmp_path,
+                                                                capsys):
+    """The external tool's done and skip hold, and a save goes back there."""
+    folder = _seg_layout(tmp_path, {"aaa": 2, "bbb": 3, "ccc": 1})
+    beside = _beside(folder, "_status.csv",
+                     "stem,state,n_objects,updated\n"
+                     "aaa,done,2,2026-08-24T10:07:45\n"
+                     "bbb,skip,,2026-08-24T10:09:50\n")
+
+    queue = build_queue(folder, order="name", cache_counts=False)
+
+    assert _stems(queue.items) == ["ccc"]
+    assert (queue.summary.done, queue.summary.skip) == (1, 1)
+    assert queue.layout.status_path == beside
+    assert str(beside) in capsys.readouterr().out, "the adoption was silent"
+    assert any(str(beside) in notice and "written back" in notice
+               for notice in queue.notices), (
+        "the editor is never told that its saves go to a file outside the "
+        "folder it opened")
+
+    mark_state(folder, "ccc", "done", n_objects=1)
+
+    assert not (folder / STATUS_FILENAME).exists(), (
+        "a second record was started inside the folder")
+    written = beside.read_text(encoding="utf-8")
+    assert "aaa,done" in written and "bbb,skip" in written
+    assert "ccc,done" in written
+
+
+def test_the_folders_own_record_wins_over_the_one_beside_it(tmp_path):
+    """Once a folder has its own record, the external one is not read."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 1})
+    write_status(folder, {"aaa": StatusRow("aaa", "done", 1, "2026-09-19")})
+    _beside(folder, "_status.csv",
+            "stem,state,n_objects,updated\nbbb,done,1,2026-09-01\n")
+
+    queue = build_queue(folder, order="name", cache_counts=False)
+
+    assert _stems(queue.items) == ["bbb"]
+    assert queue.layout.status_path == folder / STATUS_FILENAME
+
+
+def test_a_file_beside_the_folder_that_is_no_status_record_is_ignored(tmp_path):
+    """Only a ``stem``/``state`` header makes a sibling CSV a resume record."""
+    folder = _nested_layout(tmp_path, {"aaa": 1})
+    _beside(folder, "_status.csv", "well,colour\nA1,red\n")
+
+    queue = build_queue(folder, order="name", cache_counts=False)
+
+    assert _stems(queue.items) == ["aaa"]
+    assert queue.layout.status_path == folder / STATUS_FILENAME
+
+
+def test_the_external_scores_file_orders_prob_and_is_named(tmp_path, capsys):
+    """``plaque_prob`` beside the folder is what the plaque project writes."""
+    folder = _seg_layout(tmp_path, {"aaa": 2, "bbb": 3})
+    beside = _beside(folder, "_scores.csv",
+                     "stem,plaque_prob\naaa,0.2\nbbb,0.9\n")
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert queue.effective_order == "prob"
+    assert _stems(queue.items) == ["bbb", "aaa"]
+    assert f"probabilities from {beside}" in capsys.readouterr().out
+    assert queue.notices == ()
+
+
+def test_a_csv_beside_the_folder_with_no_probability_is_passed_over(tmp_path,
+                                                                   capsys):
+    """Not a scores file, so not a reason to stop: the fallback says so."""
+    folder = _seg_layout(tmp_path, {"aaa": 2})
+    _beside(folder, "_scores.csv", "stem,area\naaa,5\n")
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert queue.effective_order == "value"
+    assert "instead of prob" in capsys.readouterr().out
+
+
+def test_no_scores_names_both_places_it_looked_and_is_kept_on_the_queue(
+        tmp_path, capsys):
+    """The absence is explicit: where it looked, and what the file needs."""
+    folder = _nested_layout(tmp_path, {"aaa": (2, 10), "bbb": (5, 36)})
+
+    queue = build_queue(folder, order="easy", cache_counts=False)
+
+    printed = capsys.readouterr().out
+    assert str(folder / SCORES_FILENAME) in printed
+    assert str(tmp_path / "nested_scores.csv") in printed
+    assert "plaque_prob" in printed, "the notice does not say what columns"
+    assert len(queue.notices) == 1
+    assert queue.notices[0] in printed
+    assert "instead of easy" in queue.notices[0]
+    assert queue.order_phrase == "sorted by value (asked for easy)"
+
+
+def test_fields_the_scores_file_does_not_name_are_counted_aloud(tmp_path,
+                                                                capsys):
+    """A partial scores file used to rank the rest last without a word."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 1, "ccc": 1})
+    _scores(folder, {"bbb": 0.5})
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    printed = capsys.readouterr().out
+    assert queue.effective_order == "prob"
+    assert _stems(queue.items)[0] == "bbb"
+    assert "2 of 3 field(s) have no probability" in printed
+    assert len(queue.notices) == 1 and "2 of 3" in queue.notices[0]
+
+
+def test_the_easy_notice_describes_the_order_easy_actually_uses(tmp_path,
+                                                                capsys):
+    """An unscored draft still beats a scored empty one under ``easy``.
+
+    The notice used to say every order "ranks them below every scored
+    field", which is ``prob``'s rule. ``easy`` sorts populated drafts first
+    whatever their probability, so an unscored populated field is offered
+    BEFORE a scored empty one, and the sentence must not claim otherwise.
+    """
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 0, "ccc": 1})
+    _scores(folder, {"bbb": 0.9, "ccc": 0.1})
+
+    queue = build_queue(folder, order="easy", cache_counts=False)
+
+    assert queue.effective_order == "easy"
+    assert _stems(queue.items) == ["ccc", "aaa", "bbb"]
+    notice, = queue.notices
+    assert "1 of 3 field(s) have no probability" in notice
+    assert "populated drafts before empty ones" in notice
+    assert "within each group" in notice
+    assert notice in capsys.readouterr().out
+
+
+def test_the_prob_notice_says_unscored_fields_come_last(tmp_path):
+    """Under ``prob`` the unscored ARE below every scored field."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 0})
+    _scores(folder, {"bbb": 0.01})
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert _stems(queue.items) == ["bbb", "aaa"]
+    notice, = queue.notices
+    assert notice.endswith("prob order ranks them below every scored field")
+
+
+def test_a_fully_scored_queue_carries_no_notice(tmp_path, capsys):
+    """The notices have to mean something, so a clean queue has none."""
+    folder = _nested_layout(tmp_path, {"aaa": 1, "bbb": 1})
+    _scores(folder, {"aaa": 0.1, "bbb": 0.5})
+
+    queue = build_queue(folder, order="prob", cache_counts=False)
+
+    assert queue.notices == ()
+    assert "!" not in capsys.readouterr().out
+
+
+# -- the draft-count cache, which is an optimisation and must behave like one
+
+
+def _counts(folder, **kwargs):
+    """``load_draft_counts`` over everything the folder holds."""
+    from spacr.curation_queue import load_draft_counts
+
+    return load_draft_counts(folder, discover_items(folder), **kwargs)
+
+
+def test_the_second_launch_reads_the_cache_instead_of_the_drafts(tmp_path):
+    """The whole reason the cache exists: three hundred TIFFs at every launch.
+
+    The drafts are DELETED between the two calls, so a second read of the
+    masks could not possibly return the same numbers -- which is the only
+    way to show the cache was used rather than merely written.
+    """
+    folder = _nested_layout(tmp_path, {"aaa": 2, "bbb": 5})
+
+    first = _counts(folder)
+    assert first == {"aaa": 2, "bbb": 5}
+    assert (folder / DRAFTS_FILENAME).is_file()
+
+    for draft in (folder / "masks").glob("*.tif"):
+        draft.write_bytes(b"this is not a TIFF and never was")
+
+    assert _counts(folder) == {"aaa": 2, "bbb": 5}
+
+
+def test_a_field_added_after_the_cache_was_written_is_counted_and_added(
+    tmp_path,
+):
+    """Only the missing stems are read, and the cache grows to hold them."""
+    folder = _nested_layout(tmp_path, {"aaa": 2})
+    _counts(folder)
+
+    _write_draft(folder / "masks" / "bbb.tif", 4)
+    save_mask(folder / "bbb.tif", _labels(0, shape=(8, 8)))
+
+    assert _counts(folder) == {"aaa": 2, "bbb": 4}
+    rows = (folder / DRAFTS_FILENAME).read_text(encoding="utf-8")
+    assert "aaa,2" in rows and "bbb,4" in rows
+
+
+@pytest.mark.parametrize(
+    ("damage", "why"),
+    [
+        (b"\x00\x01 not a csv \xff\xfe", "not valid UTF-8 at all"),
+        (b"stem,n_objects\naaa,2\nbbb,\xc3", "truncated mid-write by a crash"),
+        (b'stem,n_objects\n"unclosed\n', "malformed CSV"),
+    ],
+)
+def test_a_damaged_cache_is_recounted_rather_than_believed(
+    tmp_path, damage, why,
+):
+    """Counts drive ORDERING only, so a bad cache mis-sorts and nothing more.
+
+    It must not take the session down -- a launch that raises over an
+    optimisation has cost the curator their whole session -- and it must not
+    be trusted either: the drafts are on disk and are the truth.
+
+    The middle case is the one that bit: ``curate_drafts.csv`` cut off
+    mid-character is not valid UTF-8, and ``UnicodeDecodeError`` is not an
+    ``OSError`` or a ``csv.Error``, so it came straight out of
+    ``build_queue``.
+    """
+    folder = _nested_layout(tmp_path, {"aaa": 2, "bbb": 5})
+    (folder / DRAFTS_FILENAME).write_bytes(damage)
+
+    assert _counts(folder, write_cache=False) == {"aaa": 2, "bbb": 5}, why
+
+
+def test_cache_rows_that_are_not_counts_are_dropped_not_guessed(tmp_path):
+    """A row with no stem, or a count that is not a number, is ignored."""
+    folder = _nested_layout(tmp_path, {"aaa": 2, "bbb": 5})
+    (folder / DRAFTS_FILENAME).write_text(
+        "stem,n_objects\n"
+        ",7\n"
+        "aaa,not a number\n"
+        "bbb,99\n",
+        encoding="utf-8",
+    )
+
+    counts = _counts(folder, write_cache=False)
+
+    assert counts["aaa"] == 2, "an unreadable count is recounted from the draft"
+    assert counts["bbb"] == 99, "a usable cached count is still used"
+
+
+def test_a_read_only_folder_still_opens_and_says_the_cache_was_not_written(
+    tmp_path,
+):
+    """A queue on a read-only share is a queue you can still curate.
+
+    Failing to write an optimisation must not fail the session, and the
+    curator has to be told rather than left wondering why every launch is
+    slow.
+    """
+    folder = _nested_layout(tmp_path, {"aaa": 2})
+    said = []
+
+    def refuse_to_write(path, mode="r", *args, **kwargs):
+        if "w" in mode and str(path).endswith(DRAFTS_FILENAME):
+            raise OSError(30, "Read-only file system")
+        return _real_open(path, mode, *args, **kwargs)
+
+    import builtins
+
+    _real_open = builtins.open
+    original = builtins.open
+    builtins.open = refuse_to_write
+    try:
+        counts = _counts(folder, announce=said.append)
+    finally:
+        builtins.open = original
+
+    assert counts == {"aaa": 2}
+    assert not (folder / DRAFTS_FILENAME).exists()
+    assert any("cache not written" in line for line in said), said
+
+
+def test_write_cache_false_leaves_no_file_behind(tmp_path):
+    """`build_queue(cache_counts=False)` must not write into the folder."""
+    folder = _nested_layout(tmp_path, {"aaa": 2})
+
+    assert _counts(folder, write_cache=False) == {"aaa": 2}
+    assert not (folder / DRAFTS_FILENAME).exists()

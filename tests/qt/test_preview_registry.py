@@ -67,9 +67,12 @@ def test_the_four_shipped_previews_are_declared():
 
 
 def test_the_two_new_ones_are_attached_through_the_seam():
-    for key in ("cellpose_masks", "analyze_plaques"):
-        assert key in PREVIEWS
-        assert not PREVIEWS[key].owned_by_screen
+    """Cellpose Masks still is. Plaque Assay moved onto Mask's path on
+    2026-09-21 (item 452 reopened): the registry put its switch in the
+    search bar and never fed it src, so AppScreen builds it now."""
+    assert "cellpose_masks" in PREVIEWS
+    assert not PREVIEWS["cellpose_masks"].owned_by_screen
+    assert PREVIEWS["analyze_plaques"].owned_by_screen
 
 
 def test_declaring_the_same_module_twice_is_refused():
@@ -89,19 +92,35 @@ def test_declaring_the_same_module_twice_is_refused():
 # ---------------------------------------------------------------------------
 
 def test_a_declared_module_gains_a_preview_card(window, qtbot):
+    """Since item 452 the card lives in the runtime SPLITTER, not loose in the panel.
+
+    It used to be parented to ``_runtime_wrap``, directly above the Run row -- which
+    put it under the console, because the splitter holding the console is added to that
+    same panel first. The card now goes inside the splitter so it can be resized
+    against the console, which is where Mask's has always been.
+    """
     screen = _screen(window, qtbot, "cellpose_masks")
     host = getattr(screen, "_registry_preview", None)
     assert host is not None, "the declared preview was never attached"
-    assert host.card.parentWidget() is screen._runtime_wrap
+    assert screen._runtime_splitter.indexOf(host.card) >= 0
 
 
-def test_the_card_sits_above_the_run_row(window, qtbot):
-    """Above the actions row is the last thing the eye crosses on the way to
-    Run; a panel the user has to go and find is a panel nobody opens."""
+def test_the_card_sits_above_the_run_row_and_above_the_console(window, qtbot):
+    """Above the actions row is the last thing the eye crosses on the way to Run; a
+    panel the user has to go and find is a panel nobody opens. Since 452 it must also
+    be above the CONSOLE, which is the half that was wrong.
+
+    Asserting the splitter's index rather than the panel's matters: with the card no
+    longer a direct child of the panel, ``layout.indexOf(card)`` returns -1, and -1 is
+    less than any real index -- so the old assertion would have gone on passing while
+    the card sat at the bottom of the screen.
+    """
     screen = _screen(window, qtbot, "cellpose_masks")
     layout = screen._runtime_wrap.layout()
+    splitter = screen._runtime_splitter
     host = screen._registry_preview
-    assert layout.indexOf(host.card) < layout.indexOf(screen._actions_row)
+    assert layout.indexOf(splitter) < layout.indexOf(screen._actions_row)
+    assert 0 <= splitter.indexOf(host.card) < splitter.indexOf(screen._console_wrap)
 
 
 def test_the_card_starts_hidden_behind_a_toggle(window, qtbot):
@@ -179,7 +198,7 @@ def test_a_module_with_no_declaration_is_left_alone(window, qtbot):
 
 
 def test_installing_twice_attaches_one_card(window, qtbot):
-    screen = _screen(window, qtbot, "analyze_plaques")
+    screen = _screen(window, qtbot, "cellpose_masks")
     host = screen._registry_preview
     assert install(screen) is host
     from spacr.qt.widgets.card import Card
@@ -270,7 +289,7 @@ def test_the_reused_panel_still_owns_a_bounded_sampler(window, qtbot):
     from spacr.qt.widgets.preview_controls import (
         DEFAULT_MAX_SETS, ImageSetSampler,
     )
-    screen = _screen(window, qtbot, "analyze_plaques")
+    screen = _screen(window, qtbot, "cellpose_masks")
     sampler = screen._registry_preview.panel._sampler
     assert isinstance(sampler, ImageSetSampler)
     assert sampler.sample() == []

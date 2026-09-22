@@ -1,0 +1,204 @@
+{
+  "language": "de",
+  "records": [
+    {
+      "context": "A set of extracted image regions that cannot be loaded, and why.",
+      "label": "spacr.crop_loader.CropLoadError#0",
+      "source": "A set of crops that cannot be loaded, and why.",
+      "source_sha256": "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
+      "translation": "Eine Menge von Bildausschnitten, die sich nicht laden lassen, und der Grund dafür."
+    },
+    {
+      "context": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
+      "label": "spacr.crop_loader.CropLoadError#1",
+      "source": "Carries a sentence fit for a status bar: every raise in this module names the path, the class or the predicate that produced it, because the caller is a screen and its only way to explain a failure is to repeat this text.",
+      "source_sha256": "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778",
+      "translation": "Enthält einen für die Statusleiste geeigneten Satz: Jede in diesem Modul ausgelöste Ausnahme nennt den auslösenden Pfad, die Klasse oder das Auswahlkriterium. Die aufrufende Komponente ist eine Ansicht der Benutzeroberfläche und kann den Fehler nur durch Wiedergabe dieses Textes erklären."
+    },
+    {
+      "context": "Default ``selected`` to the rows, for a plan built without a join.",
+      "label": "spacr.crop_loader.CropPlan.__post_init__#0",
+      "source": "Default ``selected`` to the rows, for a plan built without a join.",
+      "source_sha256": "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+      "translation": "Setzt ``selected`` standardmäßig auf die Zeilenanzahl, wenn der Plan ohne Join erstellt wurde."
+    },
+    {
+      "context": "A plan whose rows came straight out of the selection -- the folder route, and anything a test or a script builds by hand -- selected exactly what it carries, and should not have to say so.",
+      "label": "spacr.crop_loader.CropPlan.__post_init__#1",
+      "source": "A plan whose rows came straight out of the selection -- the folder route, and anything a test or a script builds by hand -- selected exactly what it carries, and should not have to say so.",
+      "source_sha256": "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c",
+      "translation": "Wenn die Zeilen eines Plans direkt aus der Auswahl stammen — beim Laden aus einem Ordner oder bei einem manuell in einem Test oder Skript erstellten Plan —, entspricht die Auswahl genau den enthaltenen Zeilen. Diese Anzahl muss daher nicht zusätzlich angegeben werden."
+    },
+    {
+      "context": "Whether the limit kept extracted image regions out of this plan.",
+      "label": "spacr.crop_loader.CropPlan.capped#0",
+      "source": "Whether the limit kept crops out of this plan.",
+      "source_sha256": "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
+      "translation": "Gibt an, ob die Obergrenze Bildausschnitte aus diesem Plan ausgeschlossen hat."
+    },
+    {
+      "context": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- executing backwards.",
+      "label": "spacr.crop_loader.CropPlan.capped#1",
+      "source": "Against :attr:`selected`, never against :attr:`count`: a merged-route load that lost rows to the join has ``matched > count`` with no limit anywhere near it, and reporting that as a cap is this module's own promise -- that a cap is part of the answer -- running backwards.",
+      "source_sha256": "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140",
+      "translation": "Der Vergleich erfolgt mit :attr:`selected`, niemals mit :attr:`count`: Wenn beim Laden über zusammengeführte Daten Zeilen durch den Join verloren gehen, gilt ``matched > count``, auch ohne jede Obergrenze. Dies als Begrenzung auszugeben, würde dem Versprechen dieses Moduls widersprechen, den Einfluss der Obergrenze korrekt anzugeben."
+    },
+    {
+      "context": "One line a status bar can show the moment planning returns.",
+      "label": "spacr.crop_loader.CropPlan.describe#0",
+      "source": "One line a status bar can show the moment planning returns.",
+      "source_sha256": "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+      "translation": "Eine Zeile für die Statusleiste, sobald die Planung abgeschlossen ist."
+    },
+    {
+      "context": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole laboratory microplate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
+      "label": "spacr.crop_loader.CropPlan.describe#1",
+      "source": "Says what was taken out of what, so a capped load reads as a deliberate subset rather than as the whole plate -- and names a dropped row as a dropped row, in its own clause, so the two never arrive as one number.",
+      "source_sha256": "187ec99c4bdf7a02d259ccd36b18da370ed11edde57bd937ac27918e91d49b07",
+      "translation": "Gibt an, welche Teilmenge aus welcher Gesamtmenge ausgewählt wurde. Eine begrenzte Ladung erscheint dadurch als bewusst gewählte Teilmenge statt als vollständige Mikrotiterplatte. Verworfene Zeilen werden in einem eigenen Satzteil genannt, damit beide Zahlen unterscheidbar bleiben."
+    },
+    {
+      "context": "How many selected rows could not be turned into an extracted image region at all.",
+      "label": "spacr.crop_loader.CropPlan.dropped#0",
+      "source": "How many selected rows could not be turned into a crop at all.",
+      "source_sha256": "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
+      "translation": "Wie viele ausgewählte Zeilen sich überhaupt nicht in einen Bildausschnitt umwandeln ließen."
+    },
+    {
+      "context": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
+      "label": "spacr.crop_loader.CropPlan.dropped#1",
+      "source": "Nonzero only on the merged route, and a complete answer rather than a capped one: the rows are gone because they cannot be cut, so there is nothing a larger limit would add.",
+      "source_sha256": "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0",
+      "translation": "Nur beim Laden über zusammengeführte Daten kann dieser Wert von null abweichen. Er beschreibt den vollständigen Verlust, keine Begrenzung: Die Zeilen entfallen, weil sich daraus keine Bildausschnitte ausschneiden lassen. Eine höhere Obergrenze würde daran nichts ändern."
+    },
+    {
+      "context": "``(start, stop)`` for each page, covering every row exactly once.",
+      "label": "spacr.crop_loader.CropPlan.pages#0",
+      "source": "``(start, stop)`` for each page, covering every row exactly once.",
+      "source_sha256": "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+      "translation": "``(start, stop)`` für jede Seite, sodass jede Zeile genau einmal erfasst wird."
+    },
+    {
+      "context": "extracted image regions per page; ``0`` takes the query's own.",
+      "label": "spacr.crop_loader.CropPlan.pages#1",
+      "source": "crops per page; ``0`` takes the query's own.",
+      "source_sha256": "09b9cca425e30be907c8a04079133a410a3c83c1e993ff77a898c86f12987194",
+      "translation": "Bildausschnitte pro Seite; ``0`` übernimmt die Seitengröße der Abfrage."
+    },
+    {
+      "context": "One line naming everything this query asked for.",
+      "label": "spacr.crop_loader.CropQuery.describe#0",
+      "source": "One line naming everything this query asked for.",
+      "source_sha256": "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+      "translation": "Eine Zeile, die sämtliche Auswahlkriterien dieser Abfrage nennt."
+    },
+    {
+      "context": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
+      "label": "spacr.crop_loader.CropQuery.describe#1",
+      "source": "Used in the status bar and in every refusal, so a user reading \"no crops\" can see the question that produced it without reopening the panel.",
+      "source_sha256": "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413",
+      "translation": "Wird in der Statusleiste und bei jeder Ablehnung verwendet. Wer die Meldung \"no crops\" liest, sieht dadurch auch die auslösende Abfrage, ohne den Bereich erneut öffnen zu müssen."
+    },
+    {
+      "context": "Which object classes this database actually has extracted image regions for.",
+      "label": "spacr.crop_loader.object_classes#0",
+      "source": "Which object classes this database actually has crops for.",
+      "source_sha256": "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
+      "translation": "Für welche Objektklassen diese Datenbank tatsächlich Bildausschnitte enthält."
+    },
+    {
+      "context": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
+      "label": "spacr.crop_loader.object_classes#1",
+      "source": "A class is offered only when its id column is present AND holds at least one value, because a ``png_list`` written for cells carries an empty ``nucleus_id`` column on some schemas and offering it would put a choice in the panel that can only ever return nothing.",
+      "source_sha256": "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+      "translation": "Eine Klasse wird nur angeboten, wenn ihre ID-Spalte vorhanden ist UND mindestens einen Wert enthält. Eine für Zellen geschriebene ``png_list`` enthält in manchen Schemata eine leere ``nucleus_id``-Spalte. Diese Klasse anzubieten würde eine Auswahl erzeugen, die immer leer bleibt."
+    },
+    {
+      "context": "the ``measurements.db``.",
+      "label": "spacr.crop_loader.object_classes#2",
+      "source": "the ``measurements.db``.",
+      "source_sha256": "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+      "translation": "die ``measurements.db``."
+    },
+    {
+      "context": "the extracted-image-region table; ``'png_list'``.",
+      "label": "spacr.crop_loader.object_classes#3",
+      "source": "the crop table; ``'png_list'``.",
+      "source_sha256": "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+      "translation": "die Tabelle mit den Bildausschnitten; ``'png_list'``."
+    },
+    {
+      "context": "class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS` order. Empty when the database has no extracted-image-region table.",
+      "label": "spacr.crop_loader.object_classes#4",
+      "source": "class names in :data:`spacr.png_list.PNG_LIST_ID_COLUMNS` order. Empty when the database has no crop table.",
+      "source_sha256": "686737cd5a6b1f8a8f953b25d2d1c0b33fe1ed09ff815c55392323aab1ad5665",
+      "translation": "Klassennamen in der Reihenfolge von :data:`spacr.png_list.PNG_LIST_ID_COLUMNS`. Leer, wenn die Datenbank keine Tabelle mit Bildausschnitten enthält."
+    },
+    {
+      "context": "Answer ``query`` without reading a pixel.",
+      "label": "spacr.crop_loader.plan_crops#0",
+      "source": "Answer ``query`` without reading a pixel.",
+      "source_sha256": "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+      "translation": "Beantwortet ``query``, ohne Pixeldaten zu lesen."
+    },
+    {
+      "context": "what to select.",
+      "label": "spacr.crop_loader.plan_crops#1",
+      "source": "what to select.",
+      "source_sha256": "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+      "translation": "die Auswahlkriterien."
+    },
+    {
+      "context": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
+      "label": "spacr.crop_loader.plan_crops#2",
+      "source": "a :class:`CropPlan`. Check :attr:`CropPlan.is_empty` before loading -- an empty plan is an answer, not a failure, and it carries the sentence explaining itself.",
+      "source_sha256": "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+      "translation": "ein :class:`CropPlan`. Vor dem Laden :attr:`CropPlan.is_empty` prüfen — ein leerer Plan ist ein Ergebnis, kein Fehler, und enthält den erklärenden Satz."
+    },
+    {
+      "context": "an unknown source, or a path that is not there.",
+      "label": "spacr.crop_loader.plan_crops#3",
+      "source": "an unknown source, or a path that is not there.",
+      "source_sha256": "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92",
+      "translation": "eine unbekannte Quelle oder ein nicht vorhandener Pfad."
+    },
+    {
+      "context": "Choose extracted image regions out of a folder of ``*.png``, reading no pixels.",
+      "label": "spacr.crop_loader.plan_from_folder#0",
+      "source": "Choose crops out of a folder of ``*.png``, reading no pixels.",
+      "source_sha256": "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
+      "translation": "Wählt Bildausschnitte aus einem Ordner mit ``*.png`` aus, ohne Pixeldaten zu lesen."
+    },
+    {
+      "context": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
+      "label": "spacr.crop_loader.plan_from_folder#1",
+      "source": "what to select. Only ``path`` and ``limit`` apply: a folder records no class and no plate, and saying so in :attr:`CropPlan.source_label` is better than filtering on a filename convention that no run guarantees.",
+      "source_sha256": "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+      "translation": "die Auswahlkriterien. Nur ``path`` und ``limit`` werden berücksichtigt: Ein Ordner enthält keine Angaben zur Klasse oder Mikrotiterplatte. Dies in :attr:`CropPlan.source_label` anzugeben ist besser, als nach einer Dateinamenskonvention zu filtern, die kein Lauf garantiert."
+    },
+    {
+      "context": "a :class:`CropPlan`, possibly an empty one carrying :attr:`CropPlan.empty_reason`.",
+      "label": "spacr.crop_loader.plan_from_folder#2",
+      "source": "a :class:`CropPlan`, possibly an empty one carrying :attr:`CropPlan.empty_reason`.",
+      "source_sha256": "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+      "translation": "ein :class:`CropPlan`, gegebenenfalls ein leerer Plan mit :attr:`CropPlan.empty_reason`."
+    },
+    {
+      "context": "no folder was chosen, or it is not a directory.",
+      "label": "spacr.crop_loader.plan_from_folder#3",
+      "source": "no folder was chosen, or it is not a directory.",
+      "source_sha256": "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3",
+      "translation": "Es wurde kein Ordner ausgewählt, oder der Pfad bezeichnet kein Verzeichnis."
+    }
+  ],
+  "review": {
+    "corrections": [
+      "GUI screen, crop/limit/join semantics, grammatical prose, query page-size default, preserved RST roles and identifiers."
+    ],
+    "device": "cpu",
+    "draft_model": "Helsinki-NLP/opus-mt-en-de",
+    "kind": "AI-assisted technical and German-language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

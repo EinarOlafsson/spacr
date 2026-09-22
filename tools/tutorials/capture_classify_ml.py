@@ -18,9 +18,8 @@ def bounded_settings():
                     'column_c2': {'column': 'columnID', 'value': 'c2'}},
         'model_type_ml': 'random_forest', 'channel_of_interest': 1,
         'n_estimators': 16, 'n_jobs': 2, 'n_repeats': 1, 'top_features': 10,
-        # Match the merged form's shared test_split=0.1. Its current
-        # normalization overrides the ML-specific test_size value; record
-        # the actual 10% request, never narrate the discarded 50% value.
+        # Explicit bounded-example request. The ML dispatcher respects
+        # test_size; actual whole-well holdout counts are checked below.
         'test_size': 0.1, 'cv_group_by': 'well', 'cross_validation': False,
         'prune_features': False, 'batch_correction': 'none', 'plot': True,
     }

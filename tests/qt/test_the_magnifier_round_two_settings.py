@@ -6,7 +6,7 @@ maximum of 512 "should be able to be as high as the image is high/wide";
 the settings categories fold "like in the core applications"; with Cellpose
 on, "all the cellpose models in the model zoo" and "the model zoo button";
 the flow and cell-probability thresholds, and Otsu's threshold correction,
-set in the EXISTING Cellpose-SAM category, are what the magnifier's detection
+set in the Object detection category, are what the magnifier's detection
 uses; and "other computer vision models like a live YOLO or DINOCell".
 
 The canvas geometry and the coded-field stub are item 407's, imported from
@@ -14,6 +14,7 @@ its test module, so a pixel here means what it means there.
 """
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
 
 import imageio.v2 as imageio
@@ -173,8 +174,9 @@ def test_a_shift_wheel_step_is_proportional_and_at_least_a_pixel(
 # 2. Every settings category folds like a core application's
 # ---------------------------------------------------------------------------
 
-CATEGORIES = ("Brush", "Magic wand", "Display", "Auto-filter objects",
-              "Object operations", "Cellpose-SAM", "Live magnifier")
+CATEGORIES = ("Brush", "Magic wand", "Display", "Filter",
+              "Object operations", "Otsu", "Object detection",
+              "Live magnifier")
 
 
 def _categories(made):
@@ -202,10 +204,12 @@ def test_every_category_is_the_core_applications_folding_section(
             "no unfoldable card is left on the panel")
         owners = {
             "Brush": made._brush_slider, "Magic wand": made._wand_pct,
-            "Display": made._norm_hi, "Auto-filter objects":
-                made._filter_min_area,
+            "Display": made._norm_hi,
+            "Filter": made._filter_min_area,
             "Object operations": made._btn_otsu,
-            "Cellpose-SAM": made._cp_flow, "Live magnifier": made._mag_size,
+            "Otsu": made._otsu_correction,
+            "Object detection": made._cp_flow,
+            "Live magnifier": made._mag_size,
         }
         for title, section in categories.items():
             assert type(section) is Section
@@ -322,8 +326,14 @@ def test_the_model_list_is_cpsam_and_every_cellpose_model_in_the_zoo(
         assert ("lab_cells_v2", a_zoo["local"], True) in rows
         assert ("toxoplasma_plaque_v1", a_zoo["downloaded"], True) in rows, (
             "a zoo model downloaded into the picker's folder is selectable")
-        assert ("toxoplasma_pv_v1 (not downloaded)", None, False) in rows, (
-            "one not downloaded is listed, greyed out, with no path to load")
+        assert ("toxoplasma_pv_v1 (not downloaded)", None, True) in rows, (
+            "one not downloaded is listed, with no path to load, and can be "
+            "chosen -- choosing it downloads it (item 419 point 3)")
+        pending = made._cp_model.findText("toxoplasma_pv_v1 (not downloaded)")
+        assert made._cp_model.itemData(pending, Qt.ForegroundRole) is not None, (
+            "and it is greyed")
+        assert made._cp_model.itemData(
+            pending, mm._ZOO_PENDING_ROLE).key == "toxoplasma_pv_v1"
         assert not any("yolo" in text or "well_detector" in text
                        for text, _data, _on in rows), (
             "the zoo's YOLO detector is not a Cellpose model")
@@ -405,7 +415,7 @@ def test_a_zoo_that_cannot_be_read_leaves_the_installed_cellpose(
 
 
 # ---------------------------------------------------------------------------
-# 4 and 9. The Cellpose-SAM category is what the magnifier's detection uses
+# 4 and 9. The Object detection category is what the magnifier's detection uses
 # ---------------------------------------------------------------------------
 
 class _Spy:
@@ -448,7 +458,7 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
         qtbot, screen, monkeypatch, tmp_path):
     """One source of truth: the category's boxes reach the model call as set.
 
-    The box, the whole-image run and Cellpose-SAM detect are spied on in
+    The box, the whole-image run and Object detection are spied on in
     turn, and all three are handed the same numbers.
     """
     from spacr.qt.widgets import model_zoo_picker
@@ -476,7 +486,7 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
 
     _cellpose_on(screen)
     assert not screen._mag_sensitivity.isEnabled(), (
-        "Sensitivity is the classical mode's, so it is greyed out")
+        "Sensitivity is the Otsu mode's, so it is greyed out")
     screen._btn_magnifier.setChecked(True)
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
@@ -506,18 +516,29 @@ def test_the_cellpose_sam_values_are_exactly_what_the_detection_is_passed(
     image, used, kwargs = spy.calls[-1]
     assert used is model
     assert kwargs == dict(wanted, flow_threshold=1.2), (
-        "Cellpose-SAM detect is handed the very same values")
+        "Object detection is handed the very same values")
     np.testing.assert_array_equal(image, screen._canvas.image)
 
 
-def test_the_thresholds_live_in_the_cellpose_sam_category(screen):
+def test_the_thresholds_live_in_the_object_detection_category(screen):
+    """Item 419 point 5 renamed this category and moved Otsu's settings out.
+
+    The Cellpose controls stay where 417 put them; the threshold correction
+    went to the Otsu category of its own, with the five settings item 419
+    added, because it is not a Cellpose setting and never was.
+    """
     categories = dict(screen._settings_categories)
-    cellpose = categories["Cellpose-SAM"]
+    cellpose = categories["Object detection"]
     for control in (screen._cp_model, screen._cp_model_zoo_btn,
                     screen._cp_flow, screen._cp_cellprob,
-                    screen._cp_diameter, screen._cp_normalize,
-                    screen._otsu_correction):
+                    screen._cp_diameter, screen._cp_normalize):
         assert cellpose.isAncestorOf(control)
+    otsu = categories["Otsu"]
+    for control in (screen._otsu_correction, screen._otsu_smoothing,
+                    screen._otsu_bright, screen._otsu_fill_holes,
+                    screen._otsu_split, screen._otsu_exclude_border):
+        assert otsu.isAncestorOf(control)
+    assert not cellpose.isAncestorOf(screen._otsu_correction)
     assert screen._cp_flow.value() == pytest.approx(mm.FLOW_THRESHOLD)
     assert screen._cp_cellprob.value() == pytest.approx(mm.CELLPROB_THRESHOLD)
     # Cellpose's own GUI offers -6..6 and 0..3; both fit inside these.
@@ -552,7 +573,7 @@ def test_a_ledger_entry_names_the_settings_the_objects_were_found_with(
 def soft_blobs(n: int = IMG_N) -> np.ndarray:
     """Three disks with a 5 px ramp at the rim, so the cut sets their size.
 
-    Plateau disks, not Gaussian blobs, because the classical mode only cuts
+    Plateau disks, not Gaussian blobs, because the Otsu mode only cuts
     at Otsu's level where a region is two clear populations. Measured before
     this was written: Gaussian blobs (sigma 5) fall short of that, are cut at
     the noise floor, and no correction moves them; these disks score 0.868
@@ -569,7 +590,7 @@ def soft_blobs(n: int = IMG_N) -> np.ndarray:
     return np.clip(img, 0, 65535).astype(np.uint16)
 
 
-def test_the_correction_moves_the_classical_cut_and_1_is_otsu_itself():
+def test_the_correction_moves_the_otsu_cut_and_1_is_otsu_itself():
     from spacr.qt import mask_engine as engine
 
     field = soft_blobs()
@@ -647,11 +668,11 @@ def test_the_correction_set_in_the_category_changes_the_otsu_detect_mask(
 
 def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
         qtbot, blob_screen):
-    """The real classical mode, no stub: the box's objects shrink."""
+    """The real Otsu mode, no stub: the box's objects shrink."""
     made = blob_screen
     magnifier = made._magnifier
     made._btn_magnifier.setChecked(True)
-    assert magnifier.mode == "classical"
+    assert magnifier.mode == "otsu"
     hover(made, 16, 16)
     wait_for_result(qtbot, made)
     at_one = int((magnifier._shown.labels > 0).sum())
@@ -667,8 +688,14 @@ def test_the_correction_set_in_the_category_changes_the_magnifiers_objects(
 
 
 # ---------------------------------------------------------------------------
-# 10. DINOCell and SAMCell as magnifier detectors
+# 10. Cellpose 3, DINOCell and SAMCell as magnifier detectors
 # ---------------------------------------------------------------------------
+
+#: Every backend mode, in the order the Mode box lists them (item 423 added
+#: the four Cellpose 3 models ahead of DINOCell and SAMCell).
+_BACKEND_MODES = ["cellpose3:cyto3", "cellpose3:cyto2", "cellpose3:cyto",
+                  "cellpose3:nuclei", "dinocell", "samcell"]
+
 
 def _modes(made):
     return [made._mag_mode.itemData(i) for i in range(made._mag_mode.count())]
@@ -676,15 +703,17 @@ def _modes(made):
 
 def test_dinocell_and_samcell_are_offered_where_installed(
         qtbot, qt_theme_applied, monkeypatch):
-    present = {"cellpose", "dinocell", "samcell"}
     monkeypatch.setattr(mm, "find_spec",
-                        lambda name: object() if name in present else None)
+                        lambda name: object() if name == "cellpose" else None)
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: True)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose", "dinocell", "samcell"]
-        assert [made._mag_mode.itemText(i) for i in range(4)][2:] == [
-            "DINOCell", "SAMCell"]
+        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
+        assert [made._mag_mode.itemText(i) for i in range(8)][2:] == [
+            "Cellpose 3 · cyto3", "Cellpose 3 · cyto2", "Cellpose 3 · cyto",
+            "Cellpose 3 · nuclei", "DINOCell", "SAMCell"]
+        assert made._mag_uninstalled == set()
         assert all(note.isHidden()
                    for note in made._mag_install_notes.values())
         made._mag_mode.setCurrentIndex(made._mag_mode.findData("samcell"))
@@ -695,24 +724,215 @@ def test_dinocell_and_samcell_are_offered_where_installed(
         made.close_folded()
 
 
-def test_where_not_installed_the_panel_says_how_to_install_them(
+def test_where_not_installed_the_modes_are_greyed_and_offer_to_install(
         qtbot, qt_theme_applied, monkeypatch):
+    """A model absent from the box teaches nobody that it exists.
+
+    So both are always listed, greyed when their package is missing, and
+    choosing one offers the install. Cancelling must leave the magnifier where
+    it was -- a curious click cannot point it at a model that cannot load.
+    """
+    from PySide6.QtCore import Qt
+
     monkeypatch.setattr(mm, "find_spec",
                         lambda name: object() if name == "cellpose" else None)
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: False)
     made = mm.MakeMasksScreen()
     qtbot.addWidget(made)
     try:
-        assert _modes(made) == ["classical", "cellpose"]
-        notes = made._mag_install_notes
-        assert not notes["dinocell"].isHidden()
-        assert not notes["samcell"].isHidden()
-        assert 'pip install "spacr[dinocell]"' in notes["dinocell"].text()
-        assert 'pip install "spacr[samcell]"' in notes["samcell"].text()
-        magnifier_category = dict(made._settings_categories)["Live magnifier"]
-        assert magnifier_category.isAncestorOf(notes["dinocell"])
+        assert _modes(made) == ["otsu", "cellpose", *_BACKEND_MODES]
+        assert made._mag_uninstalled == set(_BACKEND_MODES)
+        for mode in _BACKEND_MODES:
+            index = made._mag_mode.findData(mode)
+            assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
+            assert "not installed" in made._mag_mode.itemData(
+                index, Qt.ToolTipRole)
+
+        offered = []
+        monkeypatch.setattr(type(made), "_offer_backend_install",
+                            lambda self, mode: offered.append(mode) or False)
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("otsu"))
+        made._on_magnifier_mode_activated(made._mag_mode.findData("samcell"))
+        assert offered == ["samcell"], "choosing a missing model did not offer it"
+        assert made._mag_mode.currentData() == "otsu", (
+            "cancelling the install left the box on a model that cannot load")
     finally:
         made._magnifier.close()
         made.close_folded()
+
+
+def test_installing_cellpose3_from_the_mode_box_lights_all_four_models(
+        qtbot, qt_theme_applied, monkeypatch):
+    """Item 423: the install goes through the Model Zoo's own dialog -- off
+    the GUI thread, into an environment of its own -- and one install makes
+    every Cellpose 3 model usable, not only the one that was chosen."""
+    from PySide6.QtCore import Qt
+
+    from spacr.qt.widgets import model_zoo_picker
+
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: False)
+    answers = iter([False, True])
+    asked = []
+    monkeypatch.setattr(model_zoo_picker, "install_backend",
+                        lambda parent, name: asked.append(name)
+                        or next(answers))
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert made._offer_backend_install("cellpose3:cyto2") is False
+        assert made._mag_uninstalled == set(_BACKEND_MODES)
+        assert made._offer_backend_install("cellpose3:cyto2") is True
+        assert asked == ["cellpose3", "cellpose3"]
+        assert made._mag_uninstalled == {"dinocell", "samcell"}
+        for mode in _BACKEND_MODES[:4]:
+            index = made._mag_mode.findData(mode)
+            assert made._mag_mode.itemData(index, Qt.ForegroundRole) is None
+        index = made._mag_mode.findData("samcell")
+        assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_a_cellpose3_mode_loads_its_own_model_once(monkeypatch):
+    from spacr import _segmentation_backends as backends
+
+    built = []
+    monkeypatch.setattr(backends, "_load_backend",
+                        lambda name, **kw: built.append((name, kw)) or object())
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    first = mm._backend_model("cellpose3:nuclei")
+    assert mm._backend_model("cellpose3:nuclei") is first
+    mm._backend_model("dinocell")
+    assert built == [("cellpose3", {"model_name": "nuclei"}),
+                     ("dinocell", {"model_name": None})]
+
+
+def test_a_cached_model_whose_environment_was_deleted_is_not_reused(
+        tmp_path, monkeypatch):
+    """Uninstall Cellpose 3 from the Model Zoo with Make Masks still open.
+
+    The mode box's cache held the model for the life of the process, so the
+    next hover asked it to segment, it started ``<env>/bin/python``, and the
+    magnifier reported a missing FILE rather than a missing backend. The
+    folder the model was built from is remembered and checked instead.
+    """
+    from spacr import _segmentation_backends as backends
+
+    env = tmp_path / "backend-environments" / "cellpose3"
+    python = Path(backends._env_python(str(env)))
+    python.parent.mkdir(parents=True)
+    python.write_text("")
+    backends._write_marker(str(env), {"backend": "cellpose3"})
+
+    built = []
+    monkeypatch.setattr(backends, "_load_backend",
+                        lambda name, **kw: built.append(name) or object())
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    monkeypatch.setattr(mm, "_BACKEND_MODEL_ENVS", {})
+
+    first = mm._backend_model("cellpose3:cyto3")
+    assert mm._BACKEND_MODEL_ENVS["cellpose3:cyto3"] == str(env)
+    assert mm._backend_model("cellpose3:cyto3") is first, "rebuilt for nothing"
+
+    shutil.rmtree(str(env))
+    second = mm._backend_model("cellpose3:cyto3")
+    assert second is not first, "a deleted environment's model was reused"
+    assert built == ["cellpose3", "cellpose3"]
+
+
+def test_a_model_built_without_an_environment_of_its_own_is_kept(monkeypatch):
+    """A stand-in, or a backend an older spaCR put in spaCR's own
+    environment, was never a folder to lose -- and must not be dropped."""
+    from spacr import _segmentation_backends as backends
+
+    monkeypatch.setattr(backends, "_load_backend", lambda name, **kw: object())
+    monkeypatch.setattr(mm, "_BACKEND_MODELS", {})
+    monkeypatch.setattr(mm, "_BACKEND_MODEL_ENVS", {})
+
+    first = mm._backend_model("samcell")
+    assert mm._BACKEND_MODEL_ENVS["samcell"] == ""
+    assert mm._backend_model("samcell") is first
+
+
+def test_the_mode_box_re_reads_the_backends_when_a_mode_is_chosen(
+        qtbot, qt_theme_applied, monkeypatch):
+    """The box used to learn this once, when the screen was built.
+
+    Uninstalling Cellpose 3 from the Model Zoo with Make Masks open left its
+    four modes un-greyed and out of ``_mag_uninstalled``, so choosing one
+    offered no install and went to a backend that was gone. Installing one
+    from the Model Zoo screen left the reverse: four greyed modes and an
+    install dialog that returned at once.
+    """
+    from PySide6.QtCore import Qt
+
+    here = {"ready": True}
+    monkeypatch.setattr(mm, "_backend_ready", lambda mode: here["ready"])
+    made = mm.MakeMasksScreen()
+    qtbot.addWidget(made)
+    try:
+        assert made._mag_uninstalled == set()
+
+        here["ready"] = False
+        offered = []
+        monkeypatch.setattr(type(made), "_offer_backend_install",
+                            lambda self, mode: offered.append(mode) or False)
+        made._mag_mode.setCurrentIndex(made._mag_mode.findData("otsu"))
+        made._on_magnifier_mode_activated(
+            made._mag_mode.findData("cellpose3:cyto3"))
+
+        assert offered == ["cellpose3:cyto3"], (
+            "a backend uninstalled while this screen was open was still used")
+        assert made._mag_uninstalled == set(_BACKEND_MODES)
+        index = made._mag_mode.findData("cellpose3:cyto3")
+        assert made._mag_mode.itemData(index, Qt.ForegroundRole) is not None
+        assert made._mag_mode.currentData() == "otsu"
+
+        from spacr.qt.widgets import model_zoo_picker
+
+        monkeypatch.undo()
+        monkeypatch.setattr(mm, "_backend_ready", lambda mode: here["ready"])
+        monkeypatch.setattr(model_zoo_picker, "install_backend",
+                            lambda parent, name: offered.append(name) or True)
+        made._mag_mode.setCurrentIndex(index)
+        made._on_magnifier_mode_activated(index)
+        assert offered == ["cellpose3:cyto3", "cellpose3"]
+        assert made._mag_mode.currentData() == "cellpose3:cyto3", (
+            "an install that succeeded did not select the row")
+        assert made._mag_uninstalled == {"dinocell", "samcell"}, (
+            "one environment carries all four Cellpose 3 models")
+
+        here["ready"] = True
+        made._on_magnifier_mode_activated(index)
+        assert len(offered) == 2, (
+            "an install was offered for a backend that is already here")
+        assert made._mag_uninstalled == set()
+        assert made._mag_mode.itemData(index, Qt.ForegroundRole) is None
+    finally:
+        made._magnifier.close()
+        made.close_folded()
+
+
+def test_a_mode_is_ready_when_its_backend_environment_is(tmp_path,
+                                                        monkeypatch):
+    from spacr import _segmentation_backends as backends
+
+    assert not mm._backend_ready("cellpose3:cyto3")
+    env = tmp_path / "backend-environments" / "cellpose3"
+    python = Path(backends._env_python(str(env)))
+    python.parent.mkdir(parents=True)
+    python.write_text("")
+    backends._write_marker(str(env), {"backend": "cellpose3"})
+    assert mm._backend_ready("cellpose3:cyto")
+
+    def _broken(name):
+        raise OSError("the home folder went away")
+
+    monkeypatch.setattr(backends, "_backend_state", _broken)
+    assert not mm._backend_ready("samcell")
+    assert mm._model_env("samcell") == "", (
+        "a backend whose state cannot be read has no folder to watch")
 
 
 def _stub_backend_class(backends):
@@ -772,7 +992,7 @@ def test_a_backend_segments_the_box_through_the_real_backend_seam(
     model = mm._BACKEND_MODELS[mode]
     dtype, shape, cellprob = model.seen[0]
     assert dtype == np.uint8 and shape == (32, 32)
-    assert cellprob == -1.5, "the Cellpose-SAM cell probability reaches it"
+    assert cellprob == -1.5, "the Object detection cell probability reaches it"
 
     click(screen, 31, 30)
     expected = np.zeros((IMG_N, IMG_N), bool)
@@ -782,10 +1002,9 @@ def test_a_backend_segments_the_box_through_the_real_backend_seam(
     assert screen._log.edits[-1].detail["mode"] == mode
 
 
-@pytest.mark.parametrize("mode, extra", [("dinocell", "spacr[dinocell]"),
-                                         ("samcell", "spacr[samcell]")])
+@pytest.mark.parametrize("mode", ["dinocell", "samcell"])
 def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
-        qtbot, screen, monkeypatch, mode, extra):
+        qtbot, screen, monkeypatch, mode):
     import sys
 
     monkeypatch.setitem(sys.modules, mode, None)
@@ -794,9 +1013,10 @@ def test_a_backend_that_is_not_installed_falls_back_and_says_how_to_install(
     screen._btn_magnifier.setChecked(True)
     hover(screen, 30, 30)
     wait_for_result(qtbot, screen)
-    assert screen._magnifier._shown.mode == "classical"
+    assert screen._magnifier._shown.mode == "otsu"
     status = screen._status_label.text()
-    assert f"{mode} could not run" in status
-    assert f'pip install "{extra}"' in status
+    assert f"{mm._magnifier_mode_label(mode)} could not run" in status, (
+        "item 407: the note names the mode the way the Mode box does")
+    assert "Install it from the Model Zoo" in status
     assert mode not in mm._BACKEND_MODELS, "a failed build is not kept"
-    assert screen._magnifier.build_request().mode == "classical"
+    assert screen._magnifier.build_request().mode == "otsu"

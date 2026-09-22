@@ -16,9 +16,10 @@ what the CLI changed about this screen:
 * a folder opened the ordinary way, from the file dialog, is not a queue:
   it grows no status file and behaves exactly as it did before.
 
-The layouts the editor cannot edit in place are refused here as well as in
-the CLI, so the refusal holds for anything that reaches the screen another
-way.
+All three layouts open here since 2026-09-19; what the screen does with a
+sibling set and a ``_seg.npy`` set is
+``test_the_editor_edits_every_queue_layout_in_place.py``. A layout this
+screen does not know is still refused.
 """
 from __future__ import annotations
 
@@ -46,19 +47,6 @@ def nested(tmp_path: Path) -> Path:
     labels[2:8, 2:8] = 1
     labels[12:18, 12:18] = 2
     imageio.imwrite(folder / "masks" / "f_01.tif", labels)
-    return folder
-
-
-@pytest.fixture
-def sibling(tmp_path: Path) -> Path:
-    """``images/`` beside ``masks/`` — read as a queue, not editable in place."""
-    folder = tmp_path / "sibling"
-    (folder / "images").mkdir(parents=True)
-    (folder / "masks").mkdir(parents=True)
-    rng = np.random.default_rng(6)
-    for index in range(2):
-        imageio.imwrite(folder / "images" / f"s_{index}.tif",
-                        rng.integers(0, 4000, (24, 24), dtype=np.uint16))
     return folder
 
 
@@ -102,9 +90,12 @@ def test_the_editor_offers_the_session_rather_than_the_folder(screen, nested):
     assert "1 skip" in screen._status_label.text()
 
 
-def test_a_layout_the_editor_cannot_edit_in_place_is_refused(screen, sibling):
-    """Opening it on ``images/`` would read and write ``images/masks``."""
-    queue = build_queue(sibling, order="name")
+def test_a_layout_the_screen_does_not_know_is_refused(screen, nested):
+    """A fourth kind of queue must not be opened as though it were nested."""
+    from dataclasses import replace
+
+    queue = build_queue(nested, order="name")
+    queue = replace(queue, layout=replace(queue.layout, kind="stacks"))
 
     assert screen.open_queue(queue) is False
     assert screen._folder == ""

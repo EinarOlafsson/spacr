@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Custom only: a pattern with named groups wellID, fieldID and chanID",
+      "source": "Custom only: a pattern with named groups wellID, fieldID and chanID",
+      "source_sha256": "be58ceda2d19b35b78d5d432878c920345948c09a7bf3b87f68052a8825b8290",
+      "translation": "사용자 지정에만 적용: wellID, fieldID, chanID라는 이름의 그룹을 포함한 패턴"
+    },
+    {
+      "table": "ui",
+      "key": "Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.",
+      "source": "Download the same fields written in every microscope format and filename convention Import reads -- Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 and the rest -- and fill this screen with the one you pick, so Preview shows it read back. One download of about 285 MB covers every variant.",
+      "source_sha256": "c0fb09831ae60641e74f2dcfd3af9b4864f28582f348bc6ecfaddfc57979db4a",
+      "translation": "Import가 읽을 수 있는 모든 현미경 형식과 파일명 규칙으로 저장한 동일한 시야를 다운로드합니다. Zeiss CZI, Opera Phenix, ArrayScan, Nikon ND2 등이 포함됩니다. 선택한 형식으로 이 화면을 채워 미리보기에서 읽기 결과를 확인할 수 있습니다. 약 285 MB를 한 번 다운로드하면 모든 변형이 포함됩니다."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the Import test data",
+      "source": "Downloading the Import test data",
+      "source_sha256": "b4da3ac6e0efb77b66a04c88050257e9a3f20e4f11a3f0b50082b374ff0d3882",
+      "translation": "Import 테스트 데이터를 다운로드하는 중"
+    },
+    {
+      "table": "ui",
+      "key": "How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.",
+      "source": "How the image and mask FILE NAMES say which plate, well, field and channel each file is -- the same conventions Mask offers as its metadata type. Folders and file tokens reads the well from the folder instead.",
+      "source_sha256": "e84edeabe123015401cafe40db9d8976136f3e06b156028b176cfc646a633e9d",
+      "translation": "이미지와 마스크의 파일명이 각 파일의 플레이트, 웰, 시야, 채널을 나타내는 방식입니다. Mask의 메타데이터 유형과 동일한 규칙을 사용합니다. 폴더 및 파일명 구성 요소 옵션은 웰 정보를 폴더에서 읽습니다."
+    },
+    {
+      "table": "ui",
+      "key": "Load Import test data",
+      "source": "Load Import test data",
+      "source_sha256": "942169ecc1791806733b6c439d71c14fd700bdccd2c15a3b77c6f59d4377876a",
+      "translation": "Import 테스트 데이터 불러오기"
+    },
+    {
+      "table": "ui",
+      "key": "Naming",
+      "source": "Naming",
+      "source_sha256": "a64cb3fcdcf665a2b8d0b69efb112112ca59b2ab29d43e408b382892912efe4a",
+      "translation": "파일명 규칙"
+    },
+    {
+      "table": "ui",
+      "key": "Opened the Format Converter on {path}",
+      "source": "Opened the Format Converter on {path}",
+      "source_sha256": "1ba6bdb5c9e32e21927be2d9c88cdcf157ad661d5cb6493d2a43328a79444ca7",
+      "translation": "{path}에서 Format Converter를 열었습니다"
+    },
+    {
+      "table": "ui",
+      "key": "The Format Converter could not be opened.",
+      "source": "The Format Converter could not be opened.",
+      "source_sha256": "19cf1ad6db47ffe954813ae87bbc79a01988ec6600bef0b439548210f670e81b",
+      "translation": "Format Converter를 열 수 없습니다."
+    },
+    {
+      "table": "ui",
+      "key": "{key} is not a filename convention Import knows.",
+      "source": "{key} is not a filename convention Import knows.",
+      "source_sha256": "eb923b9554cb5e3b3c06789e8da869cbcb2eb482aa7be144e5d8da978bf4a3b1",
+      "translation": "{key}은(는) Import가 인식하는 파일명 규칙이 아닙니다."
+    }
+  ]
+}

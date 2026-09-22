@@ -205,53 +205,57 @@ def _spin(canvas, start, end):
 def test_the_upright_lock_turns_the_volume_without_tipping_the_horizon(
         canvas, volume):
     """"say click the y axis, then i should be able to spin on the x axis."
-    Locked to the upright, a sideways drag is a change of azimuth only, so the
-    horizon stays level and every view stays readable."""
+    Locked to Z, a drag is a change of azimuth only, so the horizon stays
+    level. The front follows the pointer, as when the volume is grabbed."""
     canvas.set_spin_axis("z")
 
     assert _spin(canvas, (10.0, 20.0), (30.0, 90.0)) is True
-    assert volume.azim == pytest.approx(50.0)      # 40 + 20 * 0.5
+    assert volume.azim == pytest.approx(30.0)      # 40 - 20 * 0.5
     assert volume.elev == pytest.approx(15.0)      # the vertical drag is ignored
-    assert canvas._view_angles == pytest.approx((15.0, 50.0))
+    assert canvas._view_angles[:2] == pytest.approx((15.0, 30.0))
 
 
-def test_locking_to_a_horizontal_axis_tips_the_volume_instead_of_turning_it(
-        canvas, volume):
+def test_locking_to_a_horizontal_axis_turns_about_that_axis(canvas, volume):
+    """Locked to X, the X axis stays where it is on screen and the other two
+    turn about it."""
+    from spacr.qt.widgets.volume_view import view_axes
+
     canvas.set_spin_axis("x")
-
+    before = view_axes(volume.elev, volume.azim, 0.0)
     _spin(canvas, (10.0, 20.0), (90.0, 60.0))
-    assert volume.elev == pytest.approx(35.0)      # 15 + 40 * 0.5
-    assert volume.azim == pytest.approx(40.0)      # unturned
+    after = view_axes(volume.elev, volume.azim, canvas._view_angles[2])
+    x = np.array([1.0, 0.0, 0.0])
+    assert float(x @ after[0]) == pytest.approx(float(x @ before[0]), abs=1e-6)
+    assert float(x @ after[1]) == pytest.approx(float(x @ before[1]), abs=1e-6)
+    assert (volume.elev, volume.azim) != pytest.approx((15.0, 40.0))
 
 
-def test_the_tip_stops_at_straight_down_instead_of_rolling_over(canvas,
-                                                                volume):
-    """Past 90 degrees the volume is upside down and nothing on it can be
-    read, which is the state the axis lock exists to keep the user out of."""
-    volume.elev = 80.0
-    canvas.set_spin_axis("y")
-
+def test_the_free_spin_goes_over_the_top_instead_of_stopping(canvas, volume):
+    """The old lock clamped the elevation at 90 degrees, which is what made
+    whole orientations unreachable. Free, a long upward drag keeps turning."""
+    canvas.set_spin_axis("")
     _spin(canvas, (0.0, 0.0), (0.0, 400.0))
-    assert volume.elev == pytest.approx(90.0)
+    from spacr.qt.widgets.volume_view import view_axes
+    _u, _v, w = view_axes(*canvas._view_angles)
+    assert np.isfinite(w).all()
+    assert canvas._view_angles != pytest.approx((90.0, 40.0, 0.0))
 
 
 def test_unlocking_the_spin_lets_one_drag_do_both(canvas, volume):
     canvas.set_spin_axis("")
 
     _spin(canvas, (10.0, 20.0), (30.0, 60.0))
-    assert volume.azim == pytest.approx(50.0)
-    assert volume.elev == pytest.approx(35.0)
+    assert volume.azim != pytest.approx(40.0)
+    assert volume.elev != pytest.approx(15.0)
 
 
-def test_an_axis_nobody_can_spin_about_falls_back_to_the_upright(canvas,
-                                                                 volume):
-    """Not to free rotation: free rotation reaches angles from which nothing
-    can be read, which is what the lock replaced."""
+def test_an_axis_nobody_can_spin_about_falls_back_to_free(canvas, volume):
     canvas.set_spin_axis("diagonal")
+    assert canvas._spin_axis == ""
 
     _spin(canvas, (10.0, 20.0), (30.0, 60.0))
-    assert volume.azim == pytest.approx(50.0)
-    assert volume.elev == pytest.approx(15.0)
+    assert volume.azim != pytest.approx(40.0)
+    assert volume.elev != pytest.approx(15.0)
 
 
 def test_each_step_of_a_spin_measures_from_the_last_one(canvas, volume):
@@ -263,7 +267,7 @@ def test_each_step_of_a_spin_measures_from_the_last_one(canvas, volume):
     canvas._volume_motion(_Event(20.0, 0.0))
     assert canvas._spin_from == (20.0, 0.0)
     canvas._volume_motion(_Event(40.0, 0.0))
-    assert volume.azim == pytest.approx(60.0)      # 40 + 10 + 10, not 40 + 30
+    assert volume.azim == pytest.approx(20.0)      # 40 - 10 - 10, not 40 - 30
 
 
 def test_moving_the_mouse_with_no_button_down_does_not_turn_the_volume(

@@ -255,14 +255,28 @@ class TestTheLocalizedReadmes:
 
 
 class TestTheProseMatchesTheScreens:
-    def test_the_readme_names_every_make_masks_tool(self):
+    def test_every_make_masks_tool_is_named_where_the_readme_sends_the_reader(
+            self):
+        """The nine tools are named on the page the README points at.
+
+        This required the names in README.rst itself until the maintainer
+        removed the README's Make Masks section on 2026-09-16 (2db12a301).
+        What is left there is "See the feature guide for each tool", so the
+        vocabulary is required where that link lands, and the link is
+        required to stay.
+        """
         from spacr.qt.screens.make_masks import tool_row_entries
 
-        text = README.read_text(encoding="utf-8")
+        readme = README.read_text(encoding="utf-8")
+        assert re.search(
+            r"`[^`<]+<docs/source/features\.rst>`_ for each tool", readme), (
+            "the README no longer sends the reader to the feature guide for "
+            "the Make Masks tools")
+        guide = re.sub(r"\s+", " ", FEATURES.read_text(encoding="utf-8"))
         for _mode, label, _icon in tool_row_entries():
-            assert label in text, (
-                f"Make Masks offers a {label!r} tool that the README does "
-                "not name")
+            assert label in guide or label in readme, (
+                f"Make Masks offers a {label!r} tool that neither the README "
+                "nor the feature guide it links names")
 
     def test_the_feature_guide_names_every_fold_host(self):
         text = FEATURES.read_text(encoding="utf-8")

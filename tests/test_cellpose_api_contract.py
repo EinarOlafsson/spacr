@@ -243,10 +243,24 @@ PARTIAL_SIGNATURE_RATCHET = {
     # channel_axis explicitly, so it cannot accept an axis cellpose would
     # refuse.
     ("qt/test_the_make_masks_cellpose_detect.py", "Variadic"): 1,
+    # TWO CELLPOSE 3 DOUBLES, which cannot declare the installed signature
+    # because they do not stand in for the installed cellpose. They are
+    # Cellpose 3's CellposeModel inside its own backend environment, driven
+    # through spacr._segmentation_backends._Cellpose3Adapter, which reads the
+    # model's signature to decide what it can take. _FakeCellposeModel's
+    # short parameter list is the fixture for "a setting this Cellpose
+    # cannot take is named"; _AnythingGoesModel's **kwargs is the fixture for
+    # "a Cellpose that takes anything is given everything". Writing the
+    # Cellpose 4 list into either would delete the case under test. The
+    # variadic one names channel_axis, so it cannot hide the axis.
+    ("test_cellpose_3_and_sam_take_different_settings.py",
+     "_FakeCellposeModel"): 1,
+    ("test_cellpose_3_and_sam_take_different_settings.py",
+     "_AnythingGoesModel"): 1,
 }
 
 #: Total partial ``eval`` methods above, not keys.
-PARTIAL_SIGNATURE_CEILING = 11
+PARTIAL_SIGNATURE_CEILING = 13
 
 
 def _eval_doubles():

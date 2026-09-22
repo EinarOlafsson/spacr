@@ -208,7 +208,18 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
     synchronously at the end of the panel build rather than on a zero-delay
     timer, which is what left a freshly built panel showing every gated row
     to anyone who looked before the event loop turned.
+
+    AT "ALL SETTINGS": since 8d7426b59 (GitHub #120) the settings search
+    re-applies its level after the object rule, so under Essentials a
+    committed nucleus channel brings back only the Nucleus Segmentation
+    category, and the preprocessing and filtration rows the level excludes
+    stay off the form. That half is held by
+    ``test_a_channel_brings_its_segmentation_settings.py``; this test counts
+    every nucleus row the object rule gates, which only "All settings" shows.
     """
+    from spacr.qt.settings_search import forget_disclosure, remember_disclosure
+
+    remember_disclosure("mask", "all")
     win = app_module.MainWindow()
     win.show()
     win._on_nav_selected("mask")
@@ -247,6 +258,7 @@ def test_a_committed_channel_brings_its_settings_back(qapp):
         assert shown == ["nucleus_channel"], shown
     finally:
         win.close()
+        forget_disclosure("mask")
 
 
 def test_a_raised_count_brings_the_organelle_rows_and_categories(qapp):

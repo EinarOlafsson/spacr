@@ -27,8 +27,7 @@ settings, renamed 2, dropped 3 this version no longer has" is a sentence a
 user can act on. Thirty-nine settings applied silently, three of which do
 nothing, is not.
 
-WHY IT READ NOTHING AT ALL UNTIL 2026-09-14, which is the correction item
-317 needed. This module was written as the safe successor to a reader that
+WHY IT ONCE READ NOTHING AT ALL. This module was written as the safe successor to a reader that
 merged blind, and then could not replace it, because three things it did
 not do are three things the published pack needs:
 

@@ -263,10 +263,10 @@
           "speech_text": "Cada instalador valida o ambiente substituto antes de trocar de versão. Se uma atualização for interrompida, o ambiente anterior permanecerá intacto, e o arquivo install.log continuará no diretório privado de instalação do espáquer."
         },
         {
-          "narration": "Em Preferences há um único seletor Performance level com Laptop, Extra Performance, Performance, Balanced e Workstation, em ordem crescente de recursos. Escolha o perfil adequado para este computador; ele altera cache, limites de processos, limpeza e detalhes das animações, mas não as configurações nem os resultados científicos.",
+          "narration": "Preferences tem um seletor Performance com Laptop, Extra Performance, Performance, Balanced e Workstation em ordem crescente de uso de recursos. Escolha o perfil para este computador; ele altera quanto o spaCR mantém em cache e por quanto tempo, quando libera memória e threads inativas e se o fundo animado é executado, mas não as configurações nem os resultados científicos.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Em Preferences há um único seletor Performance level com Laptop, Extra Performance, Performance, Balanced e Workstation, em ordem crescente de recursos. Escolha o perfil adequado para este computador; ele altera cache, limites de processos, limpeza e detalhes das animações, mas não as configurações nem os resultados científicos."
+          "speech_text": "Preferences tem um seletor Performance com Laptop, Extra Performance, Performance, Balanced e Workstation em ordem crescente de uso de recursos. Escolha o perfil para este computador; ele altera quanto o espáquer mantém em cache e por quanto tempo, quando libera memória e threads inativas e se o fundo animado é executado, mas não as configurações nem os resultados científicos."
         },
         {
           "narration": "Após a instalação, use o inicializador do sistema operacional. Não é necessário configurar o Python nem o Conda separadamente.",
@@ -293,10 +293,10 @@
       "prerequisite": "Instale e inicie a aplicação de desktop spaCR.",
       "scenes": [
         {
-          "narration": "Quando todos os níveis de maturidade estão visíveis, Home mostra todos os quarenta e quatro módulos registrados do spaCR. A aba Home os agrupa em Core, Data, Results & QC, Explore, Assays e Design; cada aba de categoria filtra o mesmo registro.",
+          "narration": "Home agrupa os fluxos de trabalho do spaCR em Core, Data, Tools e Assays. Cada aba de categoria filtra os blocos dos módulos, e as ferramentas relacionadas estão disponíveis dentro de seus módulos principais.",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "Quando todos os níveis de maturidade estão visíveis, Home mostra todos os quarenta e quatro módulos registrados do espáquer. A aba Home os agrupa em Core, Data, Results & QC, Explore, Assays e Design; cada aba de categoria filtra o mesmo registro."
+          "speech_text": "Home agrupa os fluxos de trabalho do espáquer em Core, Data, Tools e Assays. Cada aba de categoria filtra os blocos dos módulos, e as ferramentas relacionadas estão disponíveis dentro de seus módulos principais."
         },
         {
           "narration": "A barra lateral esquerda mantém Home e os módulos visíveis de Core diretamente acessíveis. Com todos os níveis de maturidade habilitados, esta é a sequência de seis etapas de Core. Selecione o cabeçalho de uma categoria para expandir os demais módulos visíveis.",
@@ -311,10 +311,16 @@
           "speech_text": "A faixa Core segue a ordem do fluxo de trabalho: Mask, Measure, Annotate, Classify, Map Barcodes e Regression. Passe o ponteiro sobre um bloco para exibir a descrição do módulo e sua cor de maturidade Alpha, Beta ou Stable. Em Preferences, é possível ocultar módulos Alpha ou Beta de Home e da navegação; os módulos Stable permanecem visíveis."
         },
         {
-          "narration": "Em Preferences há um único seletor Performance level com Laptop, Extra Performance, Performance, Balanced e Workstation, em ordem crescente de recursos. Escolha o perfil adequado para este computador; ele altera cache, limites de processos, limpeza e detalhes das animações, mas não as configurações nem os resultados científicos.",
+          "narration": "Preferences tem um seletor Performance com Laptop, Extra Performance, Performance, Balanced e Workstation em ordem crescente de uso de recursos. Escolha o perfil para este computador; ele altera quanto o spaCR mantém em cache e por quanto tempo, quando libera memória e threads inativas e se o fundo animado é executado, mas não as configurações nem os resultados científicos.",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Em Preferences há um único seletor Performance level com Laptop, Extra Performance, Performance, Balanced e Workstation, em ordem crescente de recursos. Escolha o perfil adequado para este computador; ele altera cache, limites de processos, limpeza e detalhes das animações, mas não as configurações nem os resultados científicos."
+          "speech_text": "Preferences tem um seletor Performance com Laptop, Extra Performance, Performance, Balanced e Workstation em ordem crescente de uso de recursos. Escolha o perfil para este computador; ele altera quanto o espáquer mantém em cache e por quanto tempo, quando libera memória e threads inativas e se o fundo animado é executado, mas não as configurações nem os resultados científicos."
+        },
+        {
+          "narration": "Use o campo de busca ao lado de Help para encontrar um módulo, uma configuração, uma preferência ou uma entrada de API. Aqui, a busca por Performance lista os destinos correspondentes. Selecione um resultado para abrir seu módulo ou sua aba de Preferences, ou para consultar a documentação da API.",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "Use o campo de busca ao lado de Help para encontrar um módulo, uma configuração, uma preferência ou uma entrada de API. Aqui, a busca por Performance lista os destinos correspondentes. Selecione um resultado para abrir seu módulo ou sua aba de Preferences, ou para consultar a documentação da API."
         },
         {
           "narration": "Selecione o bloco de um módulo para abrir a tela de configurações. O nome e a descrição do módulo, na parte superior, confirmam qual fluxo de trabalho está ativo.",

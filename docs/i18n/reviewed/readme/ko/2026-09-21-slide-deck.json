@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "language": "ko",
+  "review": "AI-assisted translation and technical review; no native-speaker signoff claimed",
+  "records": [
+    {
+      "label": "deck-heading",
+      "source": "spaCR in slides",
+      "source_sha256": "ac15b019777eaf5866326f12193192b563cbc89bec8e41dc35ef3997e6e8b020",
+      "translation": "슬라이드로 보는 spaCR"
+    },
+    {
+      "label": "deck-cover-alt",
+      "source": "spaCR in slides: every module and the trained models, in 51 slides",
+      "source_sha256": "26ea26ff2abdb52d3969438975a9f78bffa83ce957eacf833a058b7f7da11618",
+      "translation": "슬라이드로 보는 spaCR: 51장으로 소개하는 모든 모듈과 학습된 모델"
+    },
+    {
+      "label": "deck-introduction",
+      "source": "A tour of every module and the trained models in 51 slides. Flip through them in the `slide viewer <https://einarolafsson.github.io/spacr/_static/deck/>`_ (arrow keys or swipe), or page through the `PDF on GitHub <docs/source/_static/deck/spacr_deck.pdf>`_.",
+      "source_sha256": "c5557bc01ec18214de7c628f36f886f401e5659df943c05e705192c44697dc8f",
+      "translation": "51장의 슬라이드로 모든 모듈과 학습된 모델을 소개합니다. `슬라이드 뷰어 <https://einarolafsson.github.io/spacr/_static/deck/>`_ 에서 화살표 키나 스와이프로 넘겨 보거나, `GitHub의 PDF <docs/source/_static/deck/spacr_deck.pdf>`_ 를 읽어 보세요."
+    },
+    {
+      "label": "deck-viewer-link",
+      "source": "slide viewer",
+      "source_sha256": "ed132c00e92e9c52d2b3c7008caf530fb5407d5a711e552935d8ec77627771a0",
+      "translation": "슬라이드 뷰어"
+    },
+    {
+      "label": "deck-pdf-link",
+      "source": "PDF on GitHub",
+      "source_sha256": "cc5ca0faf03c62177997c8e2a425e6d22f247b7c293fd56ab7850df2de622a3c",
+      "translation": "GitHub의 PDF"
+    }
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "Cómo un punto se convierte en una base: qué canal contiene cada letra, cuánto más brillante que su entorno debe ser un punto para contar como lectura y a qué distancia de un núcleo puede estar una lectura para seguir atribuyéndose a él. Son propiedades medidas de la adquisición, no preferencias; la ejecución informa de la tasa de coincidencia con la biblioteca, que indica si son correctas."
+    },
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "Cómo se unen las teselas y se segmentan los núcleos de cada pocillo reconstruido: el solapamiento que dejó el microscopio entre teselas vecinas, el solapamiento entre ventanas de segmentación y el modelo. Cada lectura se atribuye al núcleo sobre el que cae o que está justo al lado; por ello, el modelo y el diámetro elegidos aquí determinan qué objetos pueden recibir un código de barras."
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "De dónde se leen las teselas y dónde se escriben los resultados: la carpeta de secuenciación en la que se buscan, incluidas sus subcarpetas, teselas nombradas por aumento, ciclo, pocillo, canales y sitio; la carpeta de fenotipos que se superpone; la biblioteca de guías con la que se comparan las bases determinadas; y la carpeta que recibe measurements.db y un informe por pocillo. Configure primero estos ajustes; todos los demás grupos de OPS suponen que son correctos."
+    },
+    {
+      "table": "ui",
+      "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849",
+      "translation": "(bool) drop_straight_tracks — eliminar por completo las trayectorias marcadas."
+    },
+    {
+      "table": "ui",
+      "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d",
+      "translation": "<b>Notificar errores como incidencias en GitHub</b><br><span style='color:gray;'>Los informes se envían al repositorio público de spaCR en GitHub, con las rutas, los nombres y las credenciales ocultos. Si la notificación de incidencias está en always, el valor predeterminado, una ejecución fallida envía su informe automáticamente una vez por error, cuando se ha iniciado sesión en GitHub abajo. Con ask, aparece el botón \"File as issue\" (Registrar como incidencia) debajo de la consola y el informe solo se envía al pulsar Enviar informe en la vista previa. Puede cambiarlo en Ayuda → Configurar spaCR de nuevo….</span>"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "translation": "Una curva 4PL es simétrica respecto a su punto medio. La asimetría real existe, y el modelo 4PL la absorbe desplazando el EC50; el modelo 5PL la ajusta con un parámetro adicional, necesita una concentración más e indica si ese parámetro aporta una mejora suficiente."
+    },
+    {
+      "table": "ui",
+      "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
+      "translation": "Archivo WAV propio para usar como música de fondo en lugar de la música de spaCR. Déjelo vacío para usar la música de spaCR. No se sube ni se copia nada: el archivo se lee desde su ubicación y también marca el movimiento del fondo Resonancia."
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "translation": "Una noche despejada: índigo, violeta, azul hielo y el azul lavanda pálido que el cielo conserva mucho después de ponerse el sol."
+    },
+    {
+      "table": "ui",
+      "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395",
+      "translation": "Condición en SQL sobre las columnas de la propia tabla de recortes. La base de datos se abre en modo de solo lectura, por lo que nada de lo que escriba aquí puede modificarla."
+    },
+    {
+      "table": "ui",
+      "key": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source_sha256": "98e856ee8d435fefddd711ab86c86d23e2ade0c2fcd5a3eb4de9080bfdbe8302",
+      "translation": "Una base de datos de mediciones permite elegir qué objetos convertir en representaciones vectoriales. Una carpeta de recortes utiliza todos los PNG que contiene."
+    },
+    {
+      "table": "ui",
+      "key": "A model is already downloading; wait for it to finish.",
+      "source": "A model is already downloading; wait for it to finish.",
+      "source_sha256": "465c707e736689c9df5a895cc2bea1d076cd7a2a119796a325e19a0d3efb55b0",
+      "translation": "Un modelo ya se está descargando; espere a que termine."
+    },
+    {
+      "table": "ui",
+      "key": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source_sha256": "29b1b3c06239497242ecde6662ce724cd88573be8a2d193c54f8eaf1ba9e3b1e",
+      "translation": "Una pieza suave que se repite en la tonalidad del conjunto de sonidos: capas de sintetizador sostenidas, un arpegio de cuerda pulsada con eco de corchea con puntillo, un subgrave suave y un bombo discreto en cada tiempo y un shaker que entran y salen según el arreglo. Es independiente de los demás sonidos, para poder recibir avisos sin música. Se silencia en los niveles Portátil y Rendimiento extra."
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "Un arpegio ascendente que resuelve en la tónica cuando la ejecución de un módulo termina correctamente, para avisarle cuando spaCR está en otra ventana."
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "Una nota de cuerda pulsada, breve y suave, en la tonalidad del conjunto de sonidos al pulsar un botón, un interruptor, una pestaña, una lista o un deslizador: confirma que se registró la pulsación, de forma más perceptible que audible."
+    },
+    {
+      "table": "ui",
+      "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
+      "translation": "Una secuencia musical descendente más lenta cuando una ejecución se detiene por un error, para que una ejecución completada y una fallida nunca suenen igual. Si detiene la ejecución usted mismo, no se emite ningún sonido."
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "translation": "El sol cerca del horizonte y la materia que atraviesa su luz: dorado, ámbar, oro pálido y verde musgo."
+    },
+    {
+      "table": "ui",
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+      "translation": "Factor de corrección del umbral: el nivel de Otsu se multiplica por este valor antes de utilizarlo. Por encima de 1 es más estricto: los objetos se reducen y los tenues desaparecen; por debajo de 1 incluye píxeles más oscuros; 1 conserva el nivel original de Otsu. Lo utilizan tanto la detección con Otsu como el modo Otsu de la lupa en vivo cuando una región contiene dos poblaciones claramente diferenciadas."
+    },
+    {
+      "table": "ui",
+      "key": "Add a model",
+      "source": "Add a model",
+      "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c",
+      "translation": "Añadir un modelo"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
+      "translation": "Añadir campo"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "Añade los mensajes DEBUG de spaCR a los archivos de registro en ~/.spacr/logs. También permite que cellpose indique qué modelo ha cargado y registra qué botones ha pulsado. Ese historial aporta la información necesaria para investigar un informe de error.\n\nActivar esta opción no aumentó el tiempo de inicio de spaCR ni el de apertura de sus pantallas. Se midió en una estación de trabajo abriendo cada módulo una vez con la opción activada y otra con ella desactivada. Inicio estuvo listo en unos 4 segundos tras un arranque en frío en ambos casos. El módulo más lento se abrió en unos 7 segundos en ambos casos. No se cronometraron las ejecuciones de los flujos de trabajo.\n\nLa Consola sigue mostrando únicamente los niveles que active en la pestaña Registro. Este interruptor no rastrea todas las llamadas a funciones. Ese rastreador es una herramienta independiente para desarrolladores y nada de lo que se configura aquí lo activa."
+    },
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf",
+      "translation": "Añadir…"
+    },
+    {
+      "table": "ui",
+      "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca",
+      "translation": "Una nota de cuerda pulsada aún más suave cuando el puntero se posa sobre un control habilitado. Espera a que el puntero se detenga y después guarda silencio durante un momento, para que recorrer un panel nunca produzca un flujo continuo de sonidos. Está desactivada hasta que la active aquí."
+    },
+    {
+      "table": "ui",
+      "key": "An install is still running",
+      "source": "An install is still running",
+      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
+      "translation": "Una instalación todavía se está ejecutando"
+    },
+    {
+      "table": "ui",
+      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
+      "translation": "Otra instalación todavía está en ejecución. Espere a que termine, o presione Cancelar bajo las marcas."
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
+      "translation": "Aplicar los límites activados a la máscara que se muestra. Cada objeto eliminado aparece en una lista debajo, junto con el área y la intensidad media utilizadas para evaluarlo. Se puede revertir con un solo paso de deshacer."
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
+      "translation": "A lo sumo:"
+    },
+    {
+      "table": "ui",
+      "key": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source_sha256": "e809ad3fd8d8a417b00c30eae3e1cd7e3e030ae15d01341249b7621269ef6103",
+      "translation": "Adjuntar la carpeta con la que se entrenó este modelo. Se empaqueta en un único archivo tar y se sube junto al punto de control. Las carpetas grandes tardan mucho en empaquetarse y subirse; el límite es de unos 25 GB."
+    },
+    {
+      "table": "ui",
+      "key": "Building the index…",
+      "source": "Building the index…",
+      "source_sha256": "c2b8a7dd762f096d53c65a9ed94c5c96869156ecddd8c9f2f3318c4e42739572",
+      "translation": "Creando el índice…"
+    },
+    {
+      "table": "ui",
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d",
+      "translation": "Cancelado. No quedó ningún archivo residual."
+    },
+    {
+      "table": "ui",
+      "key": "Channels",
+      "source": "Channels",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+      "translation": "Canales"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a database or a folder first",
+      "source": "Choose a database or a folder first",
+      "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db",
+      "translation": "Elija primero una base de datos o una carpeta"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of crop PNGs",
+      "source": "Choose a folder of crop PNGs",
+      "source_sha256": "f1ae9bf598a7536fe83f1edbee984350599a29decf82c1224e3b4097c381eb82",
+      "translation": "Elija una carpeta de recortes PNG"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source_sha256": "3bbbcf831239864e884a879bd8b086625e2b508286de9e30c68241a71c50c492",
+      "translation": "Elija arriba una base de datos de mediciones o una carpeta de recortes PNG y pulse Cargar recortes. Puede filtrar la base de datos por una clase de objeto, una placa o cualquier condición admitida por sus columnas."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs first.",
+      "source": "Choose a measurements database or a folder of crop PNGs first.",
+      "source_sha256": "f02e2721214ef384ce35edfb28538a2ec4eb29a6254a9f8323cf54e88c61f50c",
+      "translation": "Elija primero una base de datos de mediciones o una carpeta de recortes PNG."
+    },
+    {
+      "table": "ui",
+      "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b",
+      "translation": "Elija cómo se codifican los canales y pulse Vectorizar. La tabla se rellena con las primeras dimensiones de cada objeto."
+    },
+    {
+      "table": "ui",
+      "key": "Choose music for the bed",
+      "source": "Choose music for the bed",
+      "source_sha256": "45eec11b1ba9a74ff88550860b2cb2a814386796d36eed9bc6ab1225ad5ded09",
+      "translation": "Elegir música de fondo"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495",
+      "translation": "Clic"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8",
+      "translation": "Rellenar los huecos dentro de la región umbralizada antes de etiquetarla. Sin esta opción, un núcleo más oscuro en el centro que en el borde aparece como un anillo. El modo Otsu de la lupa siempre lo hacía, pero la detección con Otsu no, por lo que podían discrepar sobre el mismo campo; ahora ambos utilizan esta casilla."
+    },
+    {
+      "table": "ui",
+      "key": "Community uploads are not vetted",
+      "source": "Community uploads are not vetted",
+      "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+      "translation": "Los archivos subidos por la comunidad no se verifican"
+    },
+    {
+      "table": "ui",
+      "key": "Could not fetch {name}: {why}",
+      "source": "Could not fetch {name}: {why}",
+      "source_sha256": "7623198840ea85fb5df52e279d21b6a54f8d2b451d069bef60d6fec827ea9afa",
+      "translation": "No se pudo obtener {name}: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not file the issue: the reporter would not start.",
+      "source": "Could not file the issue: the reporter would not start.",
+      "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8",
+      "translation": "No se pudo crear la incidencia: el proceso de envío de informes no pudo iniciarse."
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {name}.",
+      "source": "Could not open {name}.",
+      "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0",
+      "translation": "No se pudo abrir {name}."
+    }
+  ]
+}

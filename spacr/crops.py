@@ -76,8 +76,10 @@ import re
 import sqlite3
 import sys
 import tempfile
+import threading
 import time
 from collections import OrderedDict
+from contextlib import contextmanager
 from dataclasses import dataclass, replace
 from dataclasses import field as _dc_field
 from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union, cast
@@ -261,6 +263,12 @@ def reconcile_merged_mask_dims(
     replaced automatically; a non-``None`` value the caller explicitly
     supplied must agree or the run stops before measuring a wrong plane.
     Legacy folders without a manifest return an unchanged copy.
+
+    Every organelle slot the manifest records gets its plane, and every
+    slot ``settings`` carries is set to the manifest's answer. A slot that
+    neither names is left out of the copy rather than set to ``None``.
+    The cell, nucleus and pathogen keys are always set, so a plane the
+    manifest does not record is switched off.
     """
     out = dict(settings)
     layout = read_merged_plane_layout(merged_folder)
@@ -272,6 +280,9 @@ def reconcile_merged_mask_dims(
         key = f'{role}_mask_dim'
         requested = settings.get(key)
         expected = dims.get(role)
+        if (expected is None and key not in settings
+                and role in ORGANELLE_ROLES):
+            continue
         if key in explicit and requested is not None:
             try:
                 requested_dim = int(requested)
@@ -3017,10 +3028,42 @@ PRINT_CROP_PATHS = True
 _ANNOUNCED_CROPS: set = set()
 
 
+#: Per-thread suppression of the announcements, set by
+#: :func:`quiet_crop_paths` and read by :func:`_say_which_crop`.
+_QUIET_CROP_PATHS = threading.local()
+
+
 def say_crop_paths(on: bool = True) -> None:
-    """Turn the per-crop path printing on or off."""
+    """Turn the per-crop path printing on or off, for the whole process."""
     global PRINT_CROP_PATHS
     PRINT_CROP_PATHS = bool(on)
+
+
+@contextmanager
+def quiet_crop_paths():
+    """Silence the per-crop announcements on the CALLING THREAD only.
+
+    :data:`PRINT_CROP_PATHS` is one switch for the whole process, so a bulk
+    reader that turns it off around its own work turns it off for every
+    other reader running at the same time -- in the app, for whichever
+    screen is reading crops in another thread, which then loses the
+    ``<- NOT ON DISK`` line that is the only reason the flag defaults to on.
+    A missing crop there reads as a silent success until the bulk read
+    finishes and puts the flag back.
+
+    So a reader that wants quiet asks for quiet here instead: the
+    suppression is thread-local, the global flag is left exactly as it was,
+    and a concurrent reader on another thread keeps its diagnostics.
+
+    :returns: a context manager. Restores the previous state on the way out,
+        including when the body raises, and nests.
+    """
+    was = getattr(_QUIET_CROP_PATHS, "on", False)
+    _QUIET_CROP_PATHS.on = True
+    try:
+        yield
+    finally:
+        _QUIET_CROP_PATHS.on = was
 
 
 def forget_announced_crops() -> None:
@@ -3030,6 +3073,8 @@ def forget_announced_crops() -> None:
 
 def _say_which_crop(path: str) -> None:
     """Print the crop being opened, once per path."""
+    if getattr(_QUIET_CROP_PATHS, "on", False):
+        return
     if not PRINT_CROP_PATHS or not path:
         return
     text = str(path)
@@ -3470,8 +3515,7 @@ def resolve_crop_source(
     merged_settings = dict(saved)
     for key in ("png_dims", "png_size", "normalize", "normalize_by", "crop_mode",
                 "use_bounding_box", "dialate_pngs", "dialate_png_ratios",
-                "cell_mask_dim", "nucleus_mask_dim", "pathogen_mask_dim",
-                "organelle_mask_dim"):
+                *(f"{role}_mask_dim" for role in SEGMENTED_ROLES)):
         if key in settings:
             merged_settings[key] = settings[key]
     spec = crop_spec_from_settings(merged_settings, object_type=object_type)

@@ -28,9 +28,24 @@ def _row_needing_download(picker):
     is on disk for everyone. Selecting by INDEX made three tests assert the
     not-downloaded behaviour against a downloaded model, and they failed --
     correctly. Select by state instead.
+
+    By TABLE ROW, which is a model family, and never a segmentation backend
+    (item 423): this used to walk ``picker._entries`` and hand back an entry
+    index as a row number, which named the right row only while no family
+    had two versions -- the day the Cellpose 3 backend row arrived, it named
+    a backend, whose Download installs rather than downloads.
+
+    AND NEVER A HIDDEN ROW (item 440). The source headings fold four of the
+    five origins away, and ``selectRow`` on a folded row selects nothing --
+    which read as "the picker lost its selection" in six tests at once. The
+    first downloadable row is now the first one a user could actually click,
+    which is what these tests were always asking for.
     """
-    for row, entry in enumerate(picker._entries):
-        if picker._local_path(entry) is None:
+    for row, (stem, pairs) in enumerate(picker._groups):
+        entry = pairs[picker._chosen[stem]][1]
+        if picker.table.isRowHidden(row):
+            continue
+        if entry.kind != "backend" and picker._local_path(entry) is None:
             return row
     pytest.skip("every offered model is already present")
 
@@ -58,7 +73,15 @@ def test_only_cellpose_models_are_offered_when_that_is_asked_for(picker):
     """A pathogen-model field offering a detector would be offering something
     that cannot be loaded."""
     assert picker._entries, "nothing to check"
-    assert {e.kind for e in picker._entries} == {"cellpose"}
+    # Installable backends are listed too -- a backend nobody can see is a
+    # backend nobody installs -- but they are packages, not checkpoints, so
+    # Use stays refused for them and Download installs instead.
+    assert {e.kind for e in picker._entries} <= {"cellpose", "backend"}
+    assert "cellpose" in {e.kind for e in picker._entries}
+    for entry in picker._entries:
+        if entry.kind == "backend":
+            assert picker._local_path(entry) is None, (
+                "a backend must never look like a usable checkpoint path")
 
 
 def test_use_is_refused_until_the_file_is_actually_on_disk(picker):
@@ -188,35 +211,50 @@ def test_the_download_folder_is_shown_before_anything_is_fetched(picker,
 
 
 def _unverified_row(picker):
-    """A row that publishes no checksum AND is not already on disk.
+    """A row whose chosen version publishes no checksum and is not on disk.
 
     Both halves matter. An entry already present takes the "Ready" branch and
-    never reaches the checksum warning -- which is right, there is nothing to
-    download -- so a test that ignored that would assert the warning against a
-    row that correctly does not show it.
-    """
-    for row, entry in enumerate(picker._entries):
-        if not getattr(entry, "sha256", "") and picker._local_path(entry) is None:
-            return row
-    # SYNTHETIC, not skipped. The only unverifiable entry was the retired
-    # toxo_plaque_cyto, so after the retirement these three tests skipped --
-    # and a skipped test is a guard that has quietly stopped guarding. The
-    # confirmation path is still live for any future entry published without a
-    # hash, which is exactly when it will matter and exactly when nobody will
-    # remember it exists. So the case is constructed rather than found.
-    from copy import copy
+    never reaches the checksum warning.
 
-    donor = copy(picker._entries[0])
-    object.__setattr__(donor, "sha256", "")
-    object.__setattr__(donor, "path", "")
-    object.__setattr__(donor, "name", "a_model_with_no_checksum.CP_model")
-    picker._entries.append(donor)
-    picker.table.setRowCount(len(picker._entries))
-    from PySide6.QtWidgets import QTableWidgetItem
-    for column, text in enumerate((donor.name, donor.kind, "", "not downloaded")):
-        picker.table.setItem(len(picker._entries) - 1, column,
-                             QTableWidgetItem(str(text)))
-    return len(picker._entries) - 1
+    A row is a model FAMILY now, so an unverifiable entry may be a version the
+    row is not showing: search every version and switch the row's combo box to
+    it. And if the catalogue publishes a checksum for everything -- which is
+    the goal, and is true today -- list one that does not, rather than letting
+    this test pass or fail on what the catalogue happens to hold.
+
+    A folded-away row is skipped, for the reason given in
+    :func:`_row_needing_download`.
+    """
+    for row, (_stem, pairs) in enumerate(picker._groups):
+        if picker.table.isRowHidden(row):
+            continue
+        for index, (_label, entry) in enumerate(pairs):
+            # Backends publish no checksum either, but they are packages
+            # installed with pip, not downloads -- a different button and a
+            # different warning.
+            if getattr(entry, "kind", "") == "backend":
+                continue
+            if getattr(entry, "sha256", ""):
+                continue
+            if picker._local_path(entry) is not None:
+                continue
+            combo = picker.table.cellWidget(row, 4)
+            if combo is not None:
+                combo.setCurrentIndex(index)
+            return row
+
+    from spacr import model_zoo as zoo
+
+    unverified = zoo.ModelEntry(
+        key="unchecksummed_v1", name="unchecksummed.CP_model", path="",
+        kind="cellpose", source="catalogue",
+        uri="https://example.invalid/unchecksummed.CP_model",
+        sha256="", size_bytes=1024)
+    picker._rebuild(list(picker._entries) + [unverified])
+    for row, (stem, _pairs) in enumerate(picker._groups):
+        if stem == "unchecksummed":
+            return row
+    raise AssertionError("could not list a model that publishes no checksum")
 
 
 def test_an_unverifiable_model_says_so_before_the_click(picker):
@@ -318,3 +356,38 @@ def test_the_stock_row_survives_an_unreachable_catalogue(picker, monkeypatch):
     picker.refresh()
 
     assert any(getattr(e, "source", "") == "stock" for e in picker._entries)
+
+
+def test_a_sorted_table_hands_back_the_model_on_the_row_picked(picker):
+    """Reported 2026-09-21: after a sort, picking live_cell downloaded v4.
+
+    The row was looked up by its place in the unsorted list, so a header
+    click made every pick (and every version box) answer for another model.
+    """
+    from PySide6.QtCore import Qt
+
+    picker.table.sortItems(0, Qt.DescendingOrder)
+    for row in range(picker.table.rowCount()):
+        if picker.table.isRowHidden(row):
+            continue
+        shown = picker.table.item(row, 0).text()
+        picker.table.selectRow(row)
+        entry = picker.selected_entry()
+        group = picker._group_of_row(row)
+        assert picker._groups[group][0] == shown
+        assert entry is picker._groups[group][1][picker._chosen[shown]][1]
+
+
+def test_a_version_box_changes_its_own_row_after_a_sort(picker):
+    from PySide6.QtCore import Qt
+
+    picker.table.sortItems(0, Qt.DescendingOrder)
+    for group, (stem, pairs) in enumerate(picker._groups):
+        if len(pairs) > 1:
+            break
+    else:
+        pytest.skip("no model family with two versions in this catalogue")
+    picker._version_picked(group, len(pairs) - 1)
+    row = picker._row_of_group(group)
+    assert picker.table.item(row, 0).text() == stem
+    assert picker._chosen[stem] == len(pairs) - 1

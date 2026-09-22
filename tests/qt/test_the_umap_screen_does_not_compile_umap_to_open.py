@@ -38,6 +38,8 @@ def umap_screen(qtbot):
 
     screen = AppScreen("umap")
     qtbot.addWidget(screen)
+    assert screen._hyperparam is not None, (
+        "the search panel, built on first use, carries the metric control")
     return screen
 
 

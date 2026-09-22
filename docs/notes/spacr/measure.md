@@ -42,7 +42,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [save_and_add_image_to_grid](#save_and_add_image_to_grid) (3 entries)
 - [img_list_to_grid](#img_list_to_grid) (5 entries)
 - [_per_crop_mode](#_per_crop_mode) (1 entry)
-- [_measure_crop_core](#_measure_crop_core) (42 entries)
+- [_measure_crop_core](#_measure_crop_core) (43 entries)
 - [_record_organelle_caveats](#_record_organelle_caveats) (1 entry)
 - [measure_crop](#measure_crop) (23 entries)
 - [measure_crop.job_callback](#measure_cropjob_callback) (2 entries)
@@ -52,6 +52,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_crop_full_scale](#_crop_full_scale) (1 entry)
 - [generate_object_dataset](#generate_object_dataset) (2 entries)
 - [crop_objects_from_array](#crop_objects_from_array) (3 entries)
+- [measure_crop, 2026-09-19](#measure_crop-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -1241,6 +1242,14 @@ channel_arrays=channel_arrays)))
 
 THE INTENSITY IMAGES, for the distance families that need them: local maxima and the intensity-centre offset. Optional, so a caller that only wants geometry passes nothing and pays for nothing.
 
+### lines 3043-3044
+
+```python
+if frame.empty:
+```
+
+A parent mask with no objects left in this field -- every cell under `cell_min_size`, say -- makes `_summarize_organelles_per_parent` return a frame with NO COLUMNS, not a frame with no rows. One enabled slot passes that frame straight to `_merge_and_save_to_database`, which writes nothing for an empty frame. Two or more slots merged those frames on `label`, which an empty frame does not have, so the field raised `KeyError: 'label'` and was reported as failed (measured 2026-09-19 through External Masks with the default 8000 px cell filter; item 76). Skipping the empty frames makes two slots behave as one does. The frames are all empty or none are: every slot is summarised over the same parent labels.
+
 ### lines 3593-3596
 
 ```python
@@ -1768,3 +1777,13 @@ crop = _crop_to_uint8(crop)
 ```
 
 Declared 8-bit boundary: a QImage/RGB888 wants uint8. Narrow by rescaling (_crop_to_uint8), then assemble -- so a raw 16-bit field previews dark rather than solid white.
+
+## measure_crop, 2026-09-19
+
+```python
+files = [f for f in _listdir_visible(settings['src']) if f.endswith('.npy')]
+```
+
+On a macOS external volume (exFAT, FAT, many SMB shares) every file spaCR writes gets an AppleDouble sidecar, `._<name>`, with the same ending (GitHub #117 and #121, item 429). `measure_crop` listed `merged/` bare, so the sidecar of each field was pre-scanned for the plate-wide intensity scale (a WARNING), handed to a worker, refused by numpy as "pickled (object) data", and the run ended with "spaCR RUN INCOMPLETE - measure_crop, failed: 1 (50.0%)" and its artifacts marked partial, on a plate whose every field had been measured. The listing now goes through `spacr.io._listdir_visible`, like the Mask path's. The Measure resume lists the same folder (`docs/notes/spacr/resume.md`) and Measure's test mode samples it (`docs/notes/spacr/utils.md`, `measure_test_mode`). Pinned by `tests/test_measure_takes_no_macos_sidecar_for_a_field.py`.
+
+`generate_cellpose_train_set` lists each `masks/` folder the same way: `cv2.imread` returns None for a sidecar, which was recorded as an unreadable mask and made the training-set run partial.

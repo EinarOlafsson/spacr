@@ -250,3 +250,95 @@ def test_matching_cells_gives_the_same_pairs_either_way():
     target = source[:200] + rng.normal(0, 0.5, (200, 2))
     assert np.array_equal(match_cells(source, target, gpu=False),
                           match_cells(source, target, gpu=True))
+
+
+# -- what the machine offers, decided without the machine -------------------
+#
+# The probes run on whatever card the test host has, so CI checks one half and
+# a CUDA box the other. These replace them, so both answers are checked
+# everywhere. The AGREEMENT tests above still need the real hardware and are
+# still skipped without it: a skip says "not asked", a pass would say
+# "checked" about a path that never ran.
+
+
+def test_without_torch_installed_there_is_no_torch_backend(harness_accel,
+                                                           monkeypatch):
+    """torch is an optional dependency and OPS runs without it.
+
+    `_torch` answers None rather than raising, so `accelerated_backends`
+    simply does not offer it and every primitive lands on numpy.
+    """
+    import builtins
+
+    real_import = builtins.__import__
+
+    def refuse(name, *args, **kwargs):
+        if name == "torch":
+            raise ImportError("No module named 'torch'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", refuse)
+
+    assert harness_accel._torch(gpu=True) is None
+    assert harness_accel._torch(gpu=False) is None
+
+
+@pytest.mark.parametrize(
+    "call",
+    [
+        lambda accel: accel.maximum_filter(np.zeros((4, 4)), 3,
+                                           backend="torch"),
+        lambda accel: accel.matmul(np.eye(3, dtype=np.float32),
+                                   np.eye(3, dtype=np.float32),
+                                   backend="torch"),
+        lambda accel: accel.nearest_neighbours(
+            np.zeros((2, 2), dtype=np.float32),
+            np.ones((2, 2), dtype=np.float32), backend="torch"),
+    ],
+    ids=["maximum_filter", "matmul", "nearest_neighbours"],
+)
+def test_a_named_backend_that_is_not_installed_says_so(harness_accel,
+                                                       monkeypatch, call):
+    """Asking for a backend by name and silently getting another is worse
+    than an error: the answer would be right and the measurement a lie about
+    which code produced it. All three primitives, because a card that is not
+    there is not there for any of them."""
+    monkeypatch.setattr(harness_accel, "_torch", lambda gpu=True: None)
+
+    with pytest.raises(RuntimeError, match="torch is not installed"):
+        call(harness_accel)
+
+
+def test_a_cupy_that_imports_without_a_device_is_not_a_backend(harness_accel,
+                                                               monkeypatch):
+    """cupy installs happily on a host whose driver is missing or too old.
+
+    Importing it is not the question; whether it can see a device is, and
+    `getDeviceCount` is what raises when it cannot. Offering the backend on
+    the strength of the import would send every field to a kernel that
+    throws on its first array.
+    """
+    import sys
+    import types
+
+    def _cupy_module(device_count):
+        module = types.ModuleType("cupy")
+        module.cuda = types.SimpleNamespace(runtime=types.SimpleNamespace(
+            getDeviceCount=device_count))
+        return module
+
+    def _no_driver():
+        raise RuntimeError("CUDARuntimeError: cudaErrorInsufficientDriver")
+
+    monkeypatch.setitem(sys.modules, "cupy", _cupy_module(_no_driver))
+    assert harness_accel._cupy(gpu=True) is None
+    assert "cupy" not in harness_accel.accelerated_backends(gpu=True)
+
+    working = _cupy_module(lambda: 1)
+    monkeypatch.setitem(sys.modules, "cupy", working)
+    assert harness_accel._cupy(gpu=True) is working
+    assert "cupy" in harness_accel.accelerated_backends(gpu=True)
+
+    assert harness_accel._cupy(gpu=False) is None, (
+        "gpu=False refuses it however many devices the host has"
+    )

@@ -467,11 +467,13 @@ class MontageLoad:
 def _thumb_px_of(picture) -> int:
     """How big to draw each cell, from the picture settings.
 
-    `img_size` is the annotator's name for it, so a user who has set the
-    crop size in one panel finds the same number here.
+    `crop_size` is the annotator's name for it, so a user who has set the
+    crop size in one panel finds the same number here. It was `img_size`
+    until 2026-09-19; a blob that still says so is migrated by
+    :func:`spacr.picture_settings.drop_retired` where it is read.
     """
     try:
-        value = int((picture or {}).get("img_size") or 0)
+        value = int((picture or {}).get("crop_size") or 0)
     except (TypeError, ValueError):
         return 0
     return max(24, min(value, 512)) if value else 0
@@ -2401,6 +2403,11 @@ class CellMontageView(QWidget):
         applied = False
         picture = state.get("picture_settings")
         if isinstance(picture, dict):
+            from ...picture_settings import drop_retired
+
+            picture, notes = drop_retired(picture)
+            for note in notes:
+                LOG.info("saved picture settings: %s", note)
             self._picture_settings = dict(picture)
             self._write_back(self._picture_settings)
             applied = True
@@ -2725,7 +2732,7 @@ class CellMontageView(QWidget):
         """
         picture = self.picture_settings()
         cut = {k: picture.get(k) for k in
-               ("crop_source", "image_type", "img_size", "channels",
+               ("crop_source", "image_type", "crop_size", "channels",
                 "crop_shape", "object_array", "coordinate_columns")}
         return (
             str(self._name), str(self._level), repr(sorted(cut.items())),

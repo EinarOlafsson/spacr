@@ -277,6 +277,8 @@ class AlignScreen(QWidget):
         src_row.addWidget(QLabel("Tiles", self))
         src_row.addWidget(self._src_edit, 1)
         src_row.addWidget(self._btn_pick_src)
+        from ..ops_stitch_demo import install_align_button
+        src_row.addWidget(install_align_button(self))
         outer.addLayout(src_row)
 
         grid_row = QHBoxLayout()
@@ -500,7 +502,7 @@ class AlignScreen(QWidget):
                        self._conf_box, self._radius_box, self._blend_combo,
                        self._budget_box, self._dst_edit, self._db_edit,
                        self._overwrite_box, self._btn_pick_src,
-                       self._btn_pick_dst):
+                       self._btn_pick_dst, self._btn_test_data):
             widget.setEnabled(ready)
 
 

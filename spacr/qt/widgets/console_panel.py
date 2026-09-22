@@ -983,6 +983,11 @@ class ConsolePanel(QWidget):
         #: identical one is not drawn again. See begin_topic.
         self._current_topic_label: Optional[str] = None
         self._working_dots: Optional[_WorkingDots] = None
+        #: The "spaCR AI" heading opened when a reply was asked for, and the
+        #: empty block under it, until the first chunk arrives. See
+        #: :meth:`_take_down_the_waiting_heading`.
+        self._pending_ai_topic: Optional[_TopicBar] = None
+        self._pending_ai_block: Optional[_StdoutBlock] = None
         #: The traceback the AI is currently explaining, and its answer once
         #: the stream finishes. Read by the bug reporter -- see
         #: :meth:`ai_explanation_of`.
@@ -1323,7 +1328,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         return "  —  ".join(parts)
 
     def begin_topic(self, label: str, accent: Optional[str] = None,
-                    trailing: Optional[QWidget] = None) -> None:
+                    trailing: Optional[QWidget] = None
+                    ) -> Optional["_TopicBar"]:
         """Insert a divider bar labeled `label` (e.g. 'spaCR output — …').
 
         A BAR IS NOT REDRAWN WHEN IT WOULD SAY THE SAME THING. Three bands now
@@ -1346,15 +1352,26 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         TEXT below the bar -- amber for a warning, blue for output -- so a
         warning still reads differently without a second identical heading
         above it.
+
+        :param label: the heading text.
+        :param accent: colour for the heading, or ``None`` for the theme's.
+        :param trailing: a widget pinned to the right of the heading, such as
+            a working indicator.
+        :returns: the bar that was drawn, or ``None`` when the one already
+            showing says the same thing and was kept. The caller needs the
+            widget to be able to take an empty heading down again -- see
+            :meth:`_take_down_the_waiting_heading`.
         """
         if label and label == getattr(self, "_current_topic_label", None):
             self._last_entry_kind = ""
             self._current_stdout = None
-            return
-        self._insert_entry(_TopicBar(label, accent=accent, trailing=trailing))
+            return None
+        bar = _TopicBar(label, accent=accent, trailing=trailing)
+        self._insert_entry(bar)
         self._current_topic_label = label
         self._last_entry_kind = ""
         self._current_stdout = None
+        return bar
 
     def append_stdout(self, text: str) -> None:
         """Append pipeline output as blue text under a 'spaCR output' banner.
@@ -1682,6 +1699,8 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._last_entry_kind = ""
         self._current_stdout = None
         self._current_topic_label = None
+        self._pending_ai_topic = None
+        self._pending_ai_block = None
         self._ai_messages.clear()
         self._console_sent_lengths.clear()
 
@@ -1759,11 +1778,12 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         self._append_user(text + f"\n\n[{status}]")
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
-        self.begin_topic(tr("spaCR AI"), accent=ai_color,
-                         trailing=self._working_dots)
+        self._pending_ai_topic = self.begin_topic(
+            tr("spaCR AI"), accent=ai_color, trailing=self._working_dots)
         self._working_dots.start()
         self._current_stdout = _StdoutBlock(text_color=ai_color)
         self._insert_entry(self._current_stdout)
+        self._pending_ai_block = self._current_stdout
         self._last_entry_kind = "ai"
         self._start_stream(system=ai_settings.get_system_prompt())
 
@@ -1950,20 +1970,90 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         """
         pass
 
+    def _take_down_the_waiting_heading(self) -> Optional[QWidget]:
+        """Remove the "spaCR AI" heading opened before the reply, if it is empty.
+
+        A reply's heading is drawn when the question is asked, so the working
+        dots have somewhere to sit while the provider thinks. Anything written
+        in the meantime opens a heading of its own underneath it -- a failing
+        run writes its manifest, "run closed" and "✗ Failed" under
+        "spaCR output" -- and the reply then arrives below THAT and opens a
+        second "spaCR AI" heading. GitHub #117's console is the result, and
+        read top to bottom the empty first heading is the part that says the
+        AI was never asked.
+
+        So the heading MOVES rather than repeating: the empty one is taken
+        down, and its working indicator is handed back to be pinned to the
+        heading that replaces it, which keeps the indicator running from the
+        moment the question was asked. A reply that is not interrupted keeps
+        the heading it started under and nothing here runs.
+
+        :returns: the working indicator, detached and still running, to pass
+            as the replacement heading's ``trailing``; or ``None`` when there
+            was no empty heading to take down, or nothing was pinned to it.
+        """
+        bar = self._pending_ai_topic
+        block = self._pending_ai_block
+        self._pending_ai_topic = None
+        self._pending_ai_block = None
+        if bar is None:
+            return None
+        try:
+            label = bar.text()
+            if block is not None and block.toPlainText().strip():
+                return None
+        except RuntimeError:
+            return None
+        dots = self._working_dots
+        if dots is not None:
+            dots.setParent(self)
+        for widget in (block, bar):
+            if widget is None:
+                continue
+            try:
+                self._entries.removeWidget(widget)
+                widget.setParent(None)
+                widget.deleteLater()
+            except RuntimeError:
+                pass
+        if self._current_stdout is block:
+            self._current_stdout = None
+        if self._current_topic_label == label:
+            self._current_topic_label = None
+            self._last_entry_kind = ""
+        return dots
+
     def _on_chunk(self, chunk: str) -> None:
         """Append one streamed chunk to the AI reply block.
 
         The block is recreated if it went away -- the error flow writes through
         its own path and can clear it mid-stream.
 
+        A RECREATED BLOCK TAKES THE "spaCR AI" HEADING WITH IT. When a run
+        fails, the error flow opens the heading and its reply block at once,
+        and the run then writes its closing lines -- the manifest, "run
+        closed", "✗ Failed" -- under "spaCR output" before the provider's
+        first line arrives. Without a heading of its own the whole reply sat
+        under "spaCR output", in the AI's colour, and the "spaCR AI" heading
+        above it stayed empty: issue 117's console, which read as "the AI was
+        never asked". Drawing a second heading fixed the colour and left the
+        empty one, so the empty one is now taken down and its working
+        indicator moves to the heading the reply really starts under -- see
+        :meth:`_take_down_the_waiting_heading`.
+
         :param chunk: the text just received.
         """
         self._ai_buf.append(chunk)
         if self._current_stdout is None or self._last_entry_kind != "ai":
             ai_color = ai_color_for_provider(self._current_provider_name)
+            dots = self._take_down_the_waiting_heading()
+            self.begin_topic(tr("spaCR AI"), accent=ai_color, trailing=dots)
             self._current_stdout = _StdoutBlock(text_color=ai_color)
             self._insert_entry(self._current_stdout)
             self._last_entry_kind = "ai"
+        else:
+            self._pending_ai_topic = None
+            self._pending_ai_block = None
         self._current_stdout.append(chunk)
         self._scroll_to_bottom()
 
@@ -1983,6 +2073,7 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
         if self._working_dots is not None:
             self._working_dots.stop()
             self._working_dots = None
+        self._take_down_the_waiting_heading()
         thread, worker = self._ai_thread, self._ai_worker
         self._ai_thread = None
         self._ai_worker = None
@@ -2056,10 +2147,11 @@ QSplitter#ConsoleSplit::handle:vertical:hover {{
             ))
         ai_color = ai_color_for_provider(self._current_provider_name)
         self._working_dots = _WorkingDots(color=ai_color)
-        self.begin_topic(tr("spaCR AI"), accent=ai_color,
-                         trailing=self._working_dots)
+        self._pending_ai_topic = self.begin_topic(
+            tr("spaCR AI"), accent=ai_color, trailing=self._working_dots)
         self._working_dots.start()
         self._current_stdout = _StdoutBlock(text_color=ai_color)
         self._insert_entry(self._current_stdout)
+        self._pending_ai_block = self._current_stdout
         self._last_entry_kind = "ai"
         self._start_stream(system=error_explainer_prompt())

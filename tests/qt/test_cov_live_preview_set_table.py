@@ -99,7 +99,7 @@ def test_the_table_is_a_row_per_field_and_a_column_per_channel(panel):
     assert table.rowCount() == 3
     assert table.columnCount() == 3
     assert [table.horizontalHeaderItem(c).text() for c in range(3)] == \
-        ["ch 01", "ch 02", "ch 03"]
+        ["ch 0", "ch 1", "ch 2"]
     # Every cell names the file behind it, so a click never has to guess.
     for row in range(3):
         for col in range(3):

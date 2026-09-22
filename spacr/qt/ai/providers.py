@@ -20,19 +20,286 @@ Conversation context is carried by concatenating the full message
 history into each prompt (simplest approach that works uniformly
 across all three CLIs). For subscription users token count is not a
 concern.
+
+How each CLI is installed is data, not prose: :data:`INSTALL_METHODS` holds
+one row per way of installing it on each operating system, and both the
+``install_hint`` a screen shows and the command
+:mod:`spacr.qt.ai.cli_install` runs are read from those rows. The GitHub CLI
+is described the same way by :class:`GitHubCli`, which shares the
+:class:`CommandLineTool` interface without being a chat provider.
 """
 from __future__ import annotations
 
 import sys as _sys
 
 import os
+import shlex
 import shutil
 import subprocess
 from abc import ABC, abstractmethod
-from typing import Dict, Iterator, List, Optional
+from typing import Dict, Iterator, List, NamedTuple, Optional, Tuple
 
 
-class ChatProvider(ABC):
+class InstallMethod(NamedTuple):
+    """One way of installing a command-line tool on one operating system.
+
+    :ivar needs: executables that must already be on ``PATH`` for this way to
+        work, such as ``("npm",)``.
+    :ivar command: the command as a user would type it.
+    :ivar runner: how :mod:`spacr.qt.ai.cli_install` starts it: ``"exec"``
+        runs the command's first word as a program with the rest as its
+        arguments, ``"shell"`` hands the command to ``bash -o pipefail -c``
+        (for a pipe such as ``curl ... | bash``), and ``"cmd"`` runs it as
+        ``cmd /c "<command>"`` on Windows.
+    """
+
+    needs: Tuple[str, ...]
+    command: str
+    runner: str = "exec"
+
+    @property
+    def shown(self) -> str:
+        """The command as it is shown on screen and copied.
+
+        :returns: ``cmd /c "<command>"`` for the ``"cmd"`` runner, because
+            that line runs whole in both Windows shells; otherwise the
+            command itself.
+        """
+        if self.runner == "cmd":
+            return f'cmd /c "{self.command}"'
+        return self.command
+
+
+_CLAUDE_POSIX = (
+    InstallMethod(("curl", "bash"),
+                  "curl -fsSL https://claude.ai/install.sh | bash", "shell"),
+)
+_CLAUDE_WINDOWS = (
+    InstallMethod(("curl",),
+                  "curl -fsSL https://claude.ai/install.cmd -o install.cmd"
+                  " && install.cmd && del install.cmd", "cmd"),
+)
+_CODEX_NPM = InstallMethod(("npm",), "npm install -g @openai/codex")
+_GEMINI_NPM = InstallMethod(("npm",), "npm install -g @google/gemini-cli")
+
+
+def quote_path(path: str, platform: str) -> str:
+    """A path as it is typed in a command on ``platform``.
+
+    :param path: the path.
+    :param platform: a ``sys.platform`` value.
+    :returns: on Windows the path in double quotes when it holds a space,
+        else unchanged; elsewhere quoted for a POSIX shell.
+    """
+    path = str(path)
+    if str(platform).startswith("win"):
+        return f'"{path}"' if any(ch.isspace() for ch in path) else path
+    return shlex.quote(path)
+
+
+def gh_conda_row(prefix: str, platform: str) -> InstallMethod:
+    """The row that installs the GitHub CLI with conda.
+
+    :param prefix: spaCR's own environment, ``sys.prefix``.
+    :param platform: a ``sys.platform`` value, for quoting ``prefix``.
+    :returns: when ``prefix`` is a conda environment, a command that names
+        it with ``--prefix`` and adds ``gh`` with ``--freeze-installed``,
+        so the command on screen says which environment changes and conda
+        does not update the packages spaCR runs on; otherwise conda's plain
+        command, which installs into whichever environment conda treats as
+        active.
+    """
+    if os.path.isdir(os.path.join(str(prefix), "conda-meta")):
+        return InstallMethod(
+            ("conda",),
+            f"conda install --yes --prefix {quote_path(prefix, platform)}"
+            f" --freeze-installed gh --channel conda-forge")
+    return InstallMethod(("conda",),
+                         "conda install --yes gh --channel conda-forge")
+
+
+_GH_CONDA = gh_conda_row(_sys.prefix, _sys.platform)
+_GH_POSIX = (InstallMethod(("brew",), "brew install gh"), _GH_CONDA)
+_CODEX_POSIX = (_CODEX_NPM, InstallMethod(("brew",), "brew install codex"))
+_GEMINI_POSIX = (_GEMINI_NPM,
+                 InstallMethod(("brew",), "brew install gemini-cli"))
+
+#: Every way spaCR knows to install each tool, per operating system, in the
+#: order they are tried: the first row whose ``needs`` are all on ``PATH`` is
+#: the one that runs.
+#:
+#: Keyed by tool name, then by ``"linux"``, ``"darwin"`` or ``"win32"`` (see
+#: :func:`platform_family`). Claude's rows are Anthropic's documented native
+#: installers; the npm and Homebrew rows are the vendors' package
+#: names; the GitHub CLI rows are from cli.github.com. The rows for
+#: :data:`UNVERIFIED_PLATFORMS` have not been run on those systems.
+INSTALL_METHODS: Dict[str, Dict[str, Tuple[InstallMethod, ...]]] = {
+    "claude": {"linux": _CLAUDE_POSIX, "darwin": _CLAUDE_POSIX,
+               "win32": _CLAUDE_WINDOWS},
+    "codex": {"linux": _CODEX_POSIX, "darwin": _CODEX_POSIX,
+              "win32": (_CODEX_NPM,)},
+    "gemini": {"linux": _GEMINI_POSIX, "darwin": _GEMINI_POSIX,
+               "win32": (_GEMINI_NPM,)},
+    "gh": {"linux": _GH_POSIX, "darwin": _GH_POSIX,
+           "win32": (InstallMethod(("winget",),
+                                   "winget install --id GitHub.cli --exact"
+                                   " --accept-source-agreements"
+                                   " --accept-package-agreements"),
+                     _GH_CONDA)},
+}
+
+#: Operating systems whose :data:`INSTALL_METHODS` rows were copied from the
+#: vendors' documentation and have not been run on that system.
+UNVERIFIED_PLATFORMS: Tuple[str, ...] = ("darwin", "win32")
+
+
+def platform_family(platform: str) -> str:
+    """Name the operating system :data:`INSTALL_METHODS` is keyed by.
+
+    :param platform: a ``sys.platform`` value.
+    :returns: ``"win32"`` for any Windows value, ``"darwin"`` for macOS, and
+        ``"linux"`` for everything else.
+    """
+    platform = str(platform)
+    if platform.startswith("win"):
+        return "win32"
+    if platform == "darwin":
+        return "darwin"
+    return "linux"
+
+
+def install_methods_for(name: str, platform: str) -> Tuple[InstallMethod, ...]:
+    """The ways of installing tool ``name`` on ``platform``, in order.
+
+    :param name: a key of :data:`INSTALL_METHODS`, such as ``"claude"``.
+    :param platform: a ``sys.platform`` value.
+    :returns: the rows, or ``()`` for a tool spaCR cannot install.
+    """
+    return INSTALL_METHODS.get(str(name), {}).get(platform_family(platform),
+                                                  ())
+
+
+def install_hint_for(name: str, platform: str) -> str:
+    """The one-line install hint for tool ``name`` on ``platform``.
+
+    Built from the same rows the Install button runs, so the two cannot
+    drift apart. On macOS and Linux the alternatives are joined by three
+    spaces and then ``# or``, which a POSIX shell reads as a comment; on
+    Windows only the first row is shown, because ``cmd`` has no such
+    comment and would hand the words after ``#`` to the installer as
+    arguments.
+
+    :param name: a key of :data:`INSTALL_METHODS`.
+    :param platform: a ``sys.platform`` value.
+    :returns: the hint, or ``""`` when the tool has no rows.
+    """
+    methods = install_methods_for(name, platform)
+    if platform_family(platform) == "win32":
+        methods = methods[:1]
+    return "   # or ".join(method.shown for method in methods)
+
+
+def _run_quietly(argv: List[str], timeout: float) -> int:
+    """Run ``argv`` with no input and every output discarded.
+
+    :param argv: the command line.
+    :param timeout: seconds to wait before giving up.
+    :returns: the exit status.
+    :raises OSError: when the program cannot be started.
+    :raises subprocess.TimeoutExpired: when it runs past ``timeout``.
+    """
+    return subprocess.run(argv, stdin=subprocess.DEVNULL,
+                          stdout=subprocess.DEVNULL,
+                          stderr=subprocess.DEVNULL,
+                          timeout=timeout).returncode
+
+
+class CommandLineTool:
+    """A vendor command-line tool spaCR can find, install and sign in to.
+
+    The AI providers and the GitHub CLI share this, so "is it there?" and
+    "is it signed in?" are asked one way for all four.
+
+    :ivar name: short id, and the key of :data:`INSTALL_METHODS`.
+    :ivar label: human-readable label shown in the UI.
+    :ivar cli_name: executable expected on ``PATH``.
+    :ivar install_methods: the ways of installing it on this system, tried
+        in order.
+    :ivar install_hint: the one-line hint built from ``install_methods``.
+    :ivar login_command: the command a user runs to sign in.
+    :ivar status_command: a command that exits 0 when the tool is signed in,
+        or ``()`` when the tool has none.
+    """
+
+    name: str = ""
+    label: str = ""
+    cli_name: str = ""
+    install_methods: Tuple[InstallMethod, ...] = ()
+    install_hint: str = ""
+    login_command: str = ""
+    status_command: Tuple[str, ...] = ()
+
+    #: Seconds a status command may take before it counts as signed out.
+    STATUS_TIMEOUT_S = 20
+
+    def is_installed(self) -> bool:
+        """Return True when the tool's executable is on ``PATH``."""
+        return shutil.which(self.cli_name) is not None
+
+    def check_signed_in(self) -> Optional[bool]:
+        """Ask the tool itself whether it is signed in.
+
+        Runs ``status_command`` with its output discarded -- for the GitHub
+        CLI that output is the token -- so call it off the GUI thread.
+
+        :returns: ``True`` when the command exits 0, ``False`` when it exits
+            otherwise, cannot be started or runs past
+            :attr:`STATUS_TIMEOUT_S`, and ``None`` when the tool has no
+            status command to ask.
+        """
+        if not self.status_command:
+            return None
+        argv = list(self.status_command)
+        argv[0] = shutil.which(argv[0]) or argv[0]
+        try:
+            return _run_quietly(argv, self.STATUS_TIMEOUT_S) == 0
+        except (OSError, subprocess.SubprocessError):
+            return False
+
+
+class GitHubCli(CommandLineTool):
+    """The GitHub CLI, ``gh``: installed and signed in like a provider.
+
+    spaCR reads a token from it (:mod:`spacr.qt.ai.github_auth`) to file an
+    issue without a browser round-trip. Signing in is ``gh auth login``;
+    ``gh auth token`` exits 0 exactly when there is a token to read.
+    """
+
+    name = "gh"
+    label = "GitHub CLI"
+    cli_name = "gh"
+    install_methods = install_methods_for("gh", _sys.platform)
+    install_hint = install_hint_for("gh", _sys.platform)
+    login_command = "gh auth login"
+    status_command = ("gh", "auth", "token")
+
+    def is_logged_in(self) -> bool:
+        """Return True when ``gh auth token`` has a token to give.
+
+        Runs a process, so call it off the GUI thread.
+        """
+        return self.is_installed() and self.check_signed_in() is True
+
+
+_GITHUB_CLI = GitHubCli()
+
+
+def github_cli() -> GitHubCli:
+    """The GitHub CLI, described the way the AI providers are."""
+    return _GITHUB_CLI
+
+
+class ChatProvider(CommandLineTool, ABC):
     """Abstract base for AI chat providers that shell out to a vendor CLI.
 
     Subclasses set the ``name``/``label``/``cli_name``/``install_hint``/
@@ -41,14 +308,10 @@ class ChatProvider(ABC):
     :ivar name: short id ("claude" / "codex" / "gemini").
     :ivar label: human-readable label shown in the UI.
     :ivar cli_name: executable expected on ``PATH``.
-    :ivar install_hint: shell one-liner suggested for installation.
+    :ivar install_hint: shell one-liner suggested for installation, built
+        from ``install_methods``.
     :ivar login_command: shell one-liner the user runs to authenticate.
     """
-    name: str = ""
-    label: str = ""
-    cli_name: str = ""
-    install_hint: str = ""
-    login_command: str = ""
 
     def __init__(self):
         """Create the provider with no child process running.
@@ -58,10 +321,6 @@ class ChatProvider(ABC):
         indefinitely and the worker thread never exits.
         """
         self._current_proc: Optional[subprocess.Popen] = None
-
-    def is_installed(self) -> bool:
-        """Return True when the provider's CLI executable is on ``PATH``."""
-        return shutil.which(self.cli_name) is not None
 
     def is_logged_in(self) -> bool:
         """Best-effort — override per provider if a cheap check exists.
@@ -90,6 +349,7 @@ class ChatProvider(ABC):
         proc = self._current_proc
         if proc is None:
             return
+        _mark_stopped_by_spacr(proc)
         try:
             proc.terminate()
             try:
@@ -115,6 +375,62 @@ _NOISE_LINE_PREFIXES = (
     "Permission allow rule",
     "Permission ask rule",
 )
+
+
+#: How many of a failed CLI's last output lines :class:`ProviderFailed` quotes.
+_FAILURE_TAIL_LINES = 3
+
+#: The longest quotation of a failed CLI's output, in characters.
+_FAILURE_TAIL_CHARS = 400
+
+
+class ProviderFailed(RuntimeError):
+    """A provider CLI exited with a non-zero status, so what it printed is an
+    error message and not an answer.
+
+    The three vendor CLIs report a failure the way any command-line tool does:
+    a line on stdout or stderr, then a non-zero exit. A signed-out ``claude``
+    prints ``Not logged in · Please run /login`` and exits 1. In GitHub #117
+    an expired one printed ``Failed to authenticate: OAuth session expired
+    and could not be refreshed``. Streamed as if it were a reply, that line
+    was shown as spaCR AI's answer to a crash, and it was filed into GitHub
+    issues as "spaCR AI's analysis of this error".
+
+    :param cli: the executable that failed, for the message.
+    :param exit_status: its exit status.
+    :param output_tail: the last lines it printed, already stripped.
+    :param login_command: the command that signs in to this provider, or
+        ``""`` when the caller did not say which provider this was.
+    :ivar exit_status: the exit status, for a caller that needs the number.
+    :ivar output_tail: the quoted output, for a caller that needs the text.
+    """
+
+    def __init__(self, cli: str, exit_status: int, output_tail: str,
+                 login_command: str = ""):
+        """Build the message a user reads after ``[AI error]``."""
+        self.exit_status = exit_status
+        self.output_tail = output_tail
+        said = f": {output_tail}" if output_tail else " and printed nothing"
+        message = f"{cli} stopped with exit status {exit_status}{said}"
+        if login_command:
+            message += (
+                f". If it says you are signed out, sign in again by running "
+                f"`{login_command}` in a terminal, then ask again")
+        super().__init__(message)
+
+
+def _failure_tail(lines: List[str]) -> str:
+    """Join the last non-blank lines a CLI printed into one short quotation.
+
+    :param lines: the lines, in the order they were printed.
+    :returns: at most :data:`_FAILURE_TAIL_LINES` lines joined by a space and
+        cut to :data:`_FAILURE_TAIL_CHARS`, or ``""`` when every line was blank.
+    """
+    kept = [line.strip() for line in lines if line.strip()]
+    text = " ".join(kept[-_FAILURE_TAIL_LINES:])
+    if len(text) > _FAILURE_TAIL_CHARS:
+        text = text[:_FAILURE_TAIL_CHARS - 1].rstrip() + "…"
+    return text
 
 
 #: Every provider subprocess currently being read, newest last.
@@ -146,8 +462,35 @@ def _process_has_exited(proc: subprocess.Popen) -> bool:
         return False
 
 
+def _mark_stopped_by_spacr(proc: subprocess.Popen) -> None:
+    """Record on ``proc`` that spaCR itself asked it to stop.
+
+    A child ended by Cancel, by quitting, or by the reader's own cleanup exits
+    with a status that is not zero -- a negative signal number on POSIX, and
+    ``1`` on Windows, where ``terminate`` is ``TerminateProcess(handle, 1)``.
+    That status is spaCR's doing, not the CLI reporting a failure, and
+    :func:`_stream_process` must not quote it back as one.
+
+    :param proc: the child about to be signalled.
+    """
+    try:
+        proc._spacr_stopped_it = True
+    except Exception:                                      # noqa: BLE001
+        pass
+
+
+def _was_stopped_by_spacr(proc: subprocess.Popen) -> bool:
+    """Whether :func:`_mark_stopped_by_spacr` was called on ``proc``.
+
+    :param proc: the child.
+    :returns: ``True`` only for a child spaCR signalled.
+    """
+    return getattr(proc, "_spacr_stopped_it", False) is True
+
+
 def _kill_and_reap(proc: subprocess.Popen) -> bool:
     """Kill ``proc``, then bounded-wait to reap it; report confirmed exit."""
+    _mark_stopped_by_spacr(proc)
     try:
         proc.kill()
     except Exception:                                      # noqa: BLE001
@@ -170,6 +513,7 @@ def _terminate_and_reap(
     """
     if not known_running and _process_has_exited(proc):
         return False, True
+    _mark_stopped_by_spacr(proc)
     try:
         proc.terminate()
     except Exception:                                      # noqa: BLE001
@@ -218,6 +562,24 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
     When ``provider`` is supplied, its process reference is registered so
     :meth:`ChatProvider.cancel_stream` can terminate a blocked read. This also
     prevents the worker thread from outliving its Python owner during exit.
+
+    A CLI that ends with a non-zero exit status failed, and what it printed
+    was its error message. Every line has already been yielded by then, so
+    the failure is raised after the last one, as :class:`ProviderFailed`. A
+    child spaCR stopped itself -- Cancel, quitting, or this function's own
+    cleanup after a child that would not exit -- is not a failure, whatever
+    status it ends with.
+
+    :param argv: the command line to run.
+    :param stdin_text: text written to the child's stdin, or ``None`` for no
+        stdin pipe.
+    :param env_extra: variables layered over a copy of ``os.environ``.
+    :param provider: the provider this stream belongs to, or ``None``.
+    :returns: an iterator over the child's output lines, noise dropped.
+    :raises RuntimeError: when ``argv[0]`` cannot be run at all.
+    :raises ProviderFailed: when the child exits on its own with a non-zero
+        status; the message quotes its last lines and, with ``provider``,
+        names the command that signs in again.
     """
     env = os.environ.copy()
     if env_extra:
@@ -241,6 +603,8 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
         provider._current_proc = proc
     _LIVE_STREAMS.append(proc)
 
+    printed: List[str] = []
+    exit_status = None
     try:
         if stdin_text is not None and proc.stdin is not None:
             try:
@@ -252,6 +616,9 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
         for line in proc.stdout:
             if any(line.startswith(prefix) for prefix in _NOISE_LINE_PREFIXES):
                 continue
+            if line.strip():
+                printed.append(line)
+                del printed[:-_FAILURE_TAIL_LINES]
             yield line
     finally:
         try:
@@ -260,7 +627,7 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             pass
         finished = False
         try:
-            proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
+            exit_status = proc.wait(timeout=_PROCESS_EXIT_TIMEOUT)
             finished = True
         except Exception:                                  # noqa: BLE001
             _requested, finished = _terminate_and_reap(
@@ -269,6 +636,13 @@ def _stream_process(argv: List[str], stdin_text: Optional[str] = None,
             provider._current_proc = None
         if finished:
             _discard_stream(proc)
+
+    if (isinstance(exit_status, int) and exit_status != 0
+            and not _was_stopped_by_spacr(proc)):
+        raise ProviderFailed(
+            os.path.basename(str(argv[0])) if argv else "the AI CLI",
+            exit_status, _failure_tail(printed),
+            login_command=getattr(provider, "login_command", "") or "")
 
 
 def _format_conversation(messages: List[Dict], system: str = "") -> str:
@@ -300,13 +674,10 @@ class ClaudeCliProvider(ChatProvider):
     name = "claude"
     label = "Claude (via Claude Code)"
     cli_name = "claude"
-    install_hint = (
-        'cmd /c "curl -fsSL https://claude.ai/install.cmd -o install.cmd'
-        ' && install.cmd && del install.cmd"'
-        if _sys.platform.startswith("win")
-        else "curl -fsSL https://claude.ai/install.sh | bash"
-    )
-    login_command = "claude setup-token"
+    install_methods = install_methods_for("claude", _sys.platform)
+    install_hint = install_hint_for("claude", _sys.platform)
+    login_command = "claude auth login"
+    status_command = ("claude", "auth", "status")
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
@@ -338,10 +709,10 @@ class CodexCliProvider(ChatProvider):
     name = "codex"
     label = "ChatGPT (via Codex CLI)"
     cli_name = "codex"
-    install_hint = (
-        "npm install -g @openai/codex   # or brew install codex"
-    )
+    install_methods = install_methods_for("codex", _sys.platform)
+    install_hint = install_hint_for("codex", _sys.platform)
     login_command = "codex login"
+    status_command = ("codex", "login", "status")
 
     def stream_chat(self, messages: List[Dict], system: str = "",
                      model: Optional[str] = None) -> Iterator[str]:
@@ -370,9 +741,8 @@ class GeminiCliProvider(ChatProvider):
     name = "gemini"
     label = "Gemini (via Gemini CLI)"
     cli_name = "gemini"
-    install_hint = (
-        "npm install -g @google/gemini-cli   # or brew install gemini-cli"
-    )
+    install_methods = install_methods_for("gemini", _sys.platform)
+    install_hint = install_hint_for("gemini", _sys.platform)
     login_command = "gemini"
 
     def stream_chat(self, messages: List[Dict], system: str = "",

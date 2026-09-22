@@ -172,9 +172,17 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     kwargs.pop("device", None)
     if gpu is not None:
         kwargs["gpu"] = bool(gpu)
-    return cp_models.CellposeModel(
-        pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
-        device=None, **kwargs)
+    try:
+        return cp_models.CellposeModel(
+            pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
+            device=None, **kwargs)
+    except ValueError as exc:
+        from spacr.submodules import explain_cellpose3
+
+        explained = explain_cellpose3(exc, model_name)
+        if explained is exc:
+            raise
+        raise explained from exc
 
 
 class LivePreviewContract:

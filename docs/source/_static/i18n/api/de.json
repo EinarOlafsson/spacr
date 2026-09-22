@@ -11114,15 +11114,17 @@
     },
     "spacr.cli_download.example_folder": {
       "source_blocks_sha256": [
-        "99a395b3befd1ef294de9bacee4af97b4412ec28a7b85123d70cf69faa9d27a3",
+        "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
         "2ee608361f34fa7f411e4290549e82102afcb58dc187ef5a6f6a9852e6ecf240",
+        "a0bb4d82a9a85d2cf00b406af7df8ca8f6f07a3c225a8de35b45b1194d264280",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a"
       ],
-      "source_sha256": "e3c3105e09e4ceb1691dd5639845aa73f9327b71fa498fbf933d2a1489929a7d",
-      "text": "Die eine Platte Ordner alle drei Beispiel setzt auspacken in.\n\nEin Ordner, weil die Sets komponieren: die Messbeispiele ``merged/``, das Annotate-Beispiel ``data/`` und ``measurements/``, und die Rohbilder der Maskendemo sind drei Stufen derselben Platte, und spaCR erwartet, auf eine Platte gerichtet zu werden.\n\n:param dest: die Wurzel, unter der alles auspackt.",
+      "source_sha256": "0eac9ff2635cac8d8ea6b9c3c3bb2f1c57d98735d202e97de066f5b2357c140c",
+      "text": "Der gemeinsame Plattenordner, in den die drei plattenbezogenen Beispieldatensätze entpackt werden.\n\nEin gemeinsamer Ordner, weil die Datensätze zusammengehören: ``merged/`` aus dem Measure-Beispiel, ``data/`` und ``measurements/`` aus dem Annotate-Beispiel sowie die Rohbilder der Mask-Demonstration entsprechen drei Verarbeitungsstufen derselben Mikrotiterplatte. spaCR erwartet den Pfad zu einem Plattenordner.\n\nDie Assay-Datensätze sind keine Verarbeitungsstufen dieser Platte und werden jeweils in einen eigenen Ordner entpackt; siehe :func:`spacr.example_archives.example_set_folder`.\n\n:param dest: das Stammverzeichnis, unter dem alle Dateien entpackt werden.",
       "translation_source_blocks_sha256": [
-        "99a395b3befd1ef294de9bacee4af97b4412ec28a7b85123d70cf69faa9d27a3",
+        "354ba7e0ced3cba236accddc4c99e877c5d1b29d77582195eaf7e4954136358b",
         "6d2d33f57883e279c2bfe452b08775766059f7dfc49c4b62166136bd5ab208ba",
+        "c7df1cae55232f167fbb7f459767e16b2035dee30a030da52f81739897f586c1",
         "422c0161da742fd19048e8939e2cd0fb6669e0a316b0d6870ced084930bca39a"
       ]
     },
@@ -13756,6 +13758,140 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad"
       ]
     },
+    "spacr.crop_loader.CropLoadError": {
+      "source_blocks_sha256": [
+        "7ab67d66deb5395cb67e537c55c3092a0363eaf24b3d1e7194e4a7d5cc0e3983",
+        "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778"
+      ],
+      "source_sha256": "e55aec1d89589129fcc58b20b3bbc05aaac9670eafafbcd08d74545ae5ad3122",
+      "text": "Eine Menge von Bildausschnitten, die sich nicht laden lassen, und der Grund dafür.\n\nEnthält einen für die Statusleiste geeigneten Satz: Jede in diesem Modul ausgelöste Ausnahme nennt den auslösenden Pfad, die Klasse oder das Auswahlkriterium. Die aufrufende Komponente ist eine Ansicht der Benutzeroberfläche und kann den Fehler nur durch Wiedergabe dieses Textes erklären.",
+      "translation_source_blocks_sha256": [
+        "d7b66e38e52600ff5f5ae5dbdf6b64556996fd1174fa4080c47441896740085e",
+        "f7b4c2071a26338b8ee758854e421df34ffcc3e8e3ed686122c0c0d61e11f778"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.__post_init__": {
+      "source_blocks_sha256": [
+        "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+        "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c"
+      ],
+      "source_sha256": "21366ae082684840e44a326cbd4c6f90a3a35f43333bacbaebca1ff3eb3fabf4",
+      "text": "Setzt ``selected`` standardmäßig auf die Zeilenanzahl, wenn der Plan ohne Join erstellt wurde.\n\nWenn die Zeilen eines Plans direkt aus der Auswahl stammen — beim Laden aus einem Ordner oder bei einem manuell in einem Test oder Skript erstellten Plan —, entspricht die Auswahl genau den enthaltenen Zeilen. Diese Anzahl muss daher nicht zusätzlich angegeben werden.",
+      "translation_source_blocks_sha256": [
+        "a12505a72ae193f2e9c3c153d01c45b132fcc61b2bcff8df328564bbbb9b41c6",
+        "fe8e620fc3ec9656810451bd8419f30ae4969a5dad955c55080f4ae777be9b3c"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.capped": {
+      "source_blocks_sha256": [
+        "8e737266d37b1d457ea661ef3f3b55a80ffaef0ead2163cdc415e276a2de77a3",
+        "09b5e05963b68f89371a6eeea3bddf3fc36519172c78ac20650c24398acfb140"
+      ],
+      "source_sha256": "d4e164a9f0bb338266b82b4f5feea739f38348c7bdb7f1a354695b17b1fffe12",
+      "text": "Gibt an, ob die Obergrenze Bildausschnitte aus diesem Plan ausgeschlossen hat.\n\nDer Vergleich erfolgt mit :attr:`selected`, niemals mit :attr:`count`: Wenn beim Laden über zusammengeführte Daten Zeilen durch den Join verloren gehen, gilt ``matched > count``, auch ohne jede Obergrenze. Dies als Begrenzung auszugeben, würde dem Versprechen dieses Moduls widersprechen, den Einfluss der Obergrenze korrekt anzugeben.",
+      "translation_source_blocks_sha256": [
+        "053cc35952f1ba97c8f26e307cba116c64e8595c7101295c0139ead343c81e93",
+        "2e5db422010af735b41d2c02de31eba776450f1fdd7aa95cc49b40139a9d1fb9"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.describe": {
+      "source_blocks_sha256": [
+        "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+        "187ec99c4bdf7a02d259ccd36b18da370ed11edde57bd937ac27918e91d49b07"
+      ],
+      "source_sha256": "c91f576dd55f45416cc81ab4c1df4263fb4a44cee511ca3422d1b947a67a2efd",
+      "text": "Eine Zeile für die Statusleiste, sobald die Planung abgeschlossen ist.\n\nGibt an, welche Teilmenge aus welcher Gesamtmenge ausgewählt wurde. Eine begrenzte Ladung erscheint dadurch als bewusst gewählte Teilmenge statt als vollständige Mikrotiterplatte. Verworfene Zeilen werden in einem eigenen Satzteil genannt, damit beide Zahlen unterscheidbar bleiben.",
+      "translation_source_blocks_sha256": [
+        "64ea59b6a17ee4e08c31be3ff7854ec686635d78f91872f661c3665dd10a486a",
+        "bc1f93835c377a4f85bc252771896bcd56630418fbc440b58dce560186f35ec5"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.dropped": {
+      "source_blocks_sha256": [
+        "d13f25d4fc33c9203e4f7d7148f1ddf40bada6e44ee4f163f1f760da5fc4f3f8",
+        "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0"
+      ],
+      "source_sha256": "349a49360554e1dba552be0ec98ce811ab3f1e54bf79670710734892d6e1f0d9",
+      "text": "Wie viele ausgewählte Zeilen sich überhaupt nicht in einen Bildausschnitt umwandeln ließen.\n\nNur beim Laden über zusammengeführte Daten kann dieser Wert von null abweichen. Er beschreibt den vollständigen Verlust, keine Begrenzung: Die Zeilen entfallen, weil sich daraus keine Bildausschnitte ausschneiden lassen. Eine höhere Obergrenze würde daran nichts ändern.",
+      "translation_source_blocks_sha256": [
+        "1baf638aa364a4599f7443f9a150ea91264ae894b5cf09d23b9a1d32b0591a47",
+        "0789aba28ec84bf8f908b0d810214b1da90dbba2101109d2bdbaba71472506a0"
+      ]
+    },
+    "spacr.crop_loader.CropPlan.pages": {
+      "source_blocks_sha256": [
+        "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+        "09b9cca425e30be907c8a04079133a410a3c83c1e993ff77a898c86f12987194"
+      ],
+      "source_sha256": "23a22f432dd6ab60adf3e9b7bffcc68bd2bdc870bf7d044d0cbe61e3bc8c2c34",
+      "text": "``(start, stop)`` für jede Seite, sodass jede Zeile genau einmal erfasst wird.\n\n:param page_size: Bildausschnitte pro Seite; ``0`` übernimmt die Seitengröße der Abfrage.",
+      "translation_source_blocks_sha256": [
+        "f3d6e7fd861e38a70bfb255a440e76d2ec078d097cf1814ba434ed329984a1db",
+        "5ff28a1d2544828d9cffd2b25c0da9d73da172f206689d503ddc8c5870553de7"
+      ]
+    },
+    "spacr.crop_loader.CropQuery.describe": {
+      "source_blocks_sha256": [
+        "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+        "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413"
+      ],
+      "source_sha256": "4ab462987ba16cb86433e1a32a32f7cf6ff93aac6b9e4c519fc1234cb3a132c1",
+      "text": "Eine Zeile, die sämtliche Auswahlkriterien dieser Abfrage nennt.\n\nWird in der Statusleiste und bei jeder Ablehnung verwendet. Wer die Meldung \"no crops\" liest, sieht dadurch auch die auslösende Abfrage, ohne den Bereich erneut öffnen zu müssen.",
+      "translation_source_blocks_sha256": [
+        "4bddb9333c1743095e77fc9da04335fa974c21b790d6a6f79d1ad1c6d46d0780",
+        "185b1e2bcbaaeea2e8c5c6736d191d6fde53c5741966a6b94c5df89ad1fa4413"
+      ]
+    },
+    "spacr.crop_loader.object_classes": {
+      "source_blocks_sha256": [
+        "e7155a44166f94540889ed55468eada039382cd5d9d83e7e056e11970336e90c",
+        "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+        "686737cd5a6b1f8a8f953b25d2d1c0b33fe1ed09ff815c55392323aab1ad5665"
+      ],
+      "source_sha256": "6096dc61d403242abb14b632615fcd4f959ed095df06d13fb10cf5a8d4ebb8f0",
+      "text": "Für welche Objektklassen diese Datenbank tatsächlich Bildausschnitte enthält.\n\nEine Klasse wird nur angeboten, wenn ihre ID-Spalte vorhanden ist UND mindestens einen Wert enthält. Eine für Zellen geschriebene ``png_list`` enthält in manchen Schemata eine leere ``nucleus_id``-Spalte. Diese Klasse anzubieten würde eine Auswahl erzeugen, die immer leer bleibt.\n\n:param db_path: die ``measurements.db``.\n:param table: die Tabelle mit den Bildausschnitten; ``'png_list'``.\n:returns: Klassennamen in der Reihenfolge von :data:`spacr.png_list.PNG_LIST_ID_COLUMNS`. Leer, wenn die Datenbank keine Tabelle mit Bildausschnitten enthält.",
+      "translation_source_blocks_sha256": [
+        "5ad5e6833614cd1d85f7df7e35fc94b462609beddd11c15cef04bf6a81b1f200",
+        "d93cdcaa6d1a917bb9a1223dfe5ee870266c36a8d358082f51d556eaf0034020",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "a13a13f58b6ba664d543d8c71e7eacba9e6343edc0a89f2c1a14710274570726",
+        "67804cbb52a2bd7fd828af4246c3277561d865459eb3373cbcc591eceb60c6f3"
+      ]
+    },
+    "spacr.crop_loader.plan_crops": {
+      "source_blocks_sha256": [
+        "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+        "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+        "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+        "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92"
+      ],
+      "source_sha256": "48fb91733a2cdbb536c46eab60e11831892225cdf396808b3e2610f07dc033d9",
+      "text": "Beantwortet ``query``, ohne Pixeldaten zu lesen.\n\n:param query: die Auswahlkriterien.\n:returns: ein :class:`CropPlan`. Vor dem Laden :attr:`CropPlan.is_empty` prüfen — ein leerer Plan ist ein Ergebnis, kein Fehler, und enthält den erklärenden Satz.\n:raises CropLoadError: eine unbekannte Quelle oder ein nicht vorhandener Pfad.",
+      "translation_source_blocks_sha256": [
+        "d01e91dc8ffa2eb0cb12a1a7db3f797de1ca82355b48cc43fee63b5df73b1191",
+        "e10afc171ccd4b6a99f6ef473975336d77e96c9c1145a527be4208bf23637226",
+        "1394f1af24d09a4e77503600c821321fee105809e032bc83d667e41e0eb8251e",
+        "b4b9bfc5694f92f5864f2207447a673d827daead8d3973c5834b3c8f01a16d92"
+      ]
+    },
+    "spacr.crop_loader.plan_from_folder": {
+      "source_blocks_sha256": [
+        "c69672ecdbfb1157dc0da98e66a7b34a156c9bf7309a9556cbe0fb26558a467e",
+        "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+        "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+        "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3"
+      ],
+      "source_sha256": "951a4ed4fb7ad1dbb722e02e2387e64f5e939f27d26b33d5508523297d7dbdf5",
+      "text": "Wählt Bildausschnitte aus einem Ordner mit ``*.png`` aus, ohne Pixeldaten zu lesen.\n\n:param query: die Auswahlkriterien. Nur ``path`` und ``limit`` werden berücksichtigt: Ein Ordner enthält keine Angaben zur Klasse oder Mikrotiterplatte. Dies in :attr:`CropPlan.source_label` anzugeben ist besser, als nach einer Dateinamenskonvention zu filtern, die kein Lauf garantiert.\n:returns: ein :class:`CropPlan`, gegebenenfalls ein leerer Plan mit :attr:`CropPlan.empty_reason`.\n:raises CropLoadError: Es wurde kein Ordner ausgewählt, oder der Pfad bezeichnet kein Verzeichnis.",
+      "translation_source_blocks_sha256": [
+        "d2f79d973a84b8aba948fc4f0e5d03f65e4df1672389e5d3e4409e4bbf904518",
+        "46d6502567fd73dd3c51c1f5e1439cfef8d5279a35f91413eddf5ddc7fd6f476",
+        "23fda222011167b529de1eacf25bade8196f0b39b67a214506f38cc772af509d",
+        "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3"
+      ]
+    },
     "spacr.crop_source": {
       "source_blocks_sha256": [
         "3dd5265b38e484f226d1712550f4ccf2e193fb31dd1504b2342bc38f64248e13",
@@ -15196,6 +15332,22 @@
         "74992f0e4cb14155959177341f523ef74330025b2bde6d9f2f7d4ed0e709dc04"
       ]
     },
+    "spacr.crops.quiet_crop_paths": {
+      "source_blocks_sha256": [
+        "7c28ef4f9c5cbdd75cbba7b6148883504b0cd0093da213bb96a93fa014f83455",
+        "2d5decfb542b4e3d350d17a66e5bd4bc662e5c6124ef53672d2901eab7f90e66",
+        "15f432b32190fc4e729f53637ba9a4408cd55fd63e537191d256f3d92694129c",
+        "595d3451d4d0d167df8ba35b71fd030af5876b5be3b4892f62d0d7f450bc9620"
+      ],
+      "source_sha256": "af1b8a4f56d4064cb4ebcf6c7c1614d738c2ce1e46be303cb9e0f77a7eb22ecf",
+      "text": "Unterdrückt Meldungen zu einzelnen Bildausschnitten ausschließlich im aufrufenden Thread.\n\n:data:`PRINT_CROP_PATHS` ist ein Schalter für den gesamten Prozess. Wenn eine Komponente ihn während eines umfangreichen Lesevorgangs ausschaltet, unterdrückt sie damit auch die Meldungen aller gleichzeitig lesenden Komponenten. In der Anwendung betrifft das etwa eine Ansicht, die Bildausschnitte in einem anderen Thread liest: Dort entfällt dann die Zeile ``<- NOT ON DISK``, wegen der der Schalter überhaupt standardmäßig eingeschaltet ist. Ein fehlender Bildausschnitt erscheint dadurch ohne Fehlermeldung als erfolgreich geladen, bis der umfangreiche Lesevorgang endet und den Schalter zurücksetzt.\n\nEine Komponente, die ohne diese Meldungen lesen möchte, verwendet deshalb diesen Kontextmanager: Die Unterdrückung gilt nur für den jeweiligen Thread, der globale Schalter bleibt unverändert, und gleichzeitig in anderen Threads lesende Komponenten behalten ihre Diagnosemeldungen.\n\n:returns: ein Kontextmanager. Stellt beim Verlassen den vorherigen Zustand wieder her, auch wenn im Kontext eine Ausnahme ausgelöst wird; kann verschachtelt verwendet werden.",
+      "translation_source_blocks_sha256": [
+        "eea9204210893e2b0982c0fb0ff5222dae3676bdc93c31d8b58dc5c9d67da656",
+        "fa4c1d2bfc7d528c7cc409281f3cbd286cc8a493e5529f9a93ec3034ed3c1043",
+        "6c240ac8feac89fe9533114ad4787dd2932cf33883f1b252fd6792a4ef7be31c",
+        "595d3451d4d0d167df8ba35b71fd030af5876b5be3b4892f62d0d7f450bc9620"
+      ]
+    },
     "spacr.crops.read_crop_folder_marker": {
       "source_blocks_sha256": [
         "a64076e5f473f6db17d0b50202d7ace88587ea62b2156f3cdc683cfded853ca6",
@@ -15319,13 +15471,15 @@
     "spacr.crops.reconcile_merged_mask_dims": {
       "source_blocks_sha256": [
         "057c99b79c92462cf0e94a7b6ecfdb6449ead70a7144aa49062e0039f81e577c",
-        "51b916dde9a63bac8309e0cfef217b874842759245fa276ae7e1f50f90d4fc82"
+        "51b916dde9a63bac8309e0cfef217b874842759245fa276ae7e1f50f90d4fc82",
+        "52deb80d95b0c20520dbe2a029ad6a4248144df9adf3bbcacc04982a4d45e546"
       ],
-      "source_sha256": "ceeef59ad45681484ad7fe0ee82f0b0c1397bc1c7ec56705bc58493a45341642",
-      "text": "Wenden Sie eine Bildebene manifest an und weisen Sie explizite kollidierende Maskenindizes zurück.\n\nEin Manifest ist maßgeblich für den Ordner, den es begleitet. Voreinstellungen werden automatisch ersetzt; ein nicht-``None`` Wert, den der Anrufer explizit angegeben hat, muss zustimmen oder die Verarbeitungssitzung stoppt, bevor eine falsche Bildebene gemessen wird. Legacy-Ordner ohne Manifest geben eine unveränderte Kopie zurück.",
+      "source_sha256": "eeb973a7a5e6e2e847f49ed1cb2f4008a9e4066030e8349c3b3a7e48cedb218a",
+      "text": "Wendet ein Ebenenmanifest an und weist ausdrücklich angegebene, widersprüchliche Maskenindizes zurück.\n\nEin Manifest ist für den zugehörigen Ordner maßgeblich. Standardwerte werden automatisch ersetzt. Ein von der aufrufenden Komponente ausdrücklich übergebener Wert ungleich ``None`` muss jedoch übereinstimmen; andernfalls stoppt der Lauf, bevor eine falsche Bildebene vermessen wird. Für ältere Ordner ohne Manifest wird eine unveränderte Kopie zurückgegeben.\n\nJeder im Manifest aufgeführte Organelleneintrag erhält seine zugeordnete Ebene, und jeder in ``settings`` enthaltene Eintrag wird gemäß dem Manifest gesetzt. Ein Eintrag, der weder dort noch im Manifest vorkommt, wird aus der Kopie weggelassen, statt auf ``None`` gesetzt zu werden. Die Schlüssel für Zelle, Zellkern und Pathogen werden immer gesetzt; eine im Manifest nicht aufgeführte Ebene wird daher deaktiviert.",
       "translation_source_blocks_sha256": [
         "f73a125b9e91536d1747faedc2ea8975da1aa849fd74e126fe4160353891928b",
-        "544393e2473a0607ce37ba46c3bd4d0f780119858123418f04acc96f12fc65c5"
+        "544393e2473a0607ce37ba46c3bd4d0f780119858123418f04acc96f12fc65c5",
+        "ade40ea4f7bd721f3a02f9eb8fd7d582081b406a0c2495988a2bb58c97f2ba18"
       ]
     },
     "spacr.crops.resolve_crop_source": {
@@ -15378,12 +15532,12 @@
     },
     "spacr.crops.say_crop_paths": {
       "source_blocks_sha256": [
-        "4b1a59e997210bc484ecfcdf5be07a1fe5bf6fd9a5e8ce314ea88f114a941f53"
+        "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b"
       ],
-      "source_sha256": "4b1a59e997210bc484ecfcdf5be07a1fe5bf6fd9a5e8ce314ea88f114a941f53",
-      "text": "Schalten Sie den pro extrahierten Bildregionspfaddruck ein oder aus.",
+      "source_sha256": "1b17bf3ea8c9b0ca6b6fa79ca23f79b6892f1897c127f5a6d0089362b2a66b8b",
+      "text": "Schaltet die Ausgabe der Pfade einzelner Bildausschnitte für den gesamten Prozess ein oder aus.",
       "translation_source_blocks_sha256": [
-        "0cba54b63fbdae70889b804005a93edea3f64f614277674459cf9aaf2b51aba4"
+        "8ca0f74da95fd2dab2b82c6773b43ed50e9f592e64b7d01b83f71747640990c1"
       ]
     },
     "spacr.crops.stamp_crop_folder": {
@@ -16181,10 +16335,11 @@
         "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
         "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
-        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce",
+        "115cf3e21dd39328e311520f468ada15037517f4f69902310b9fe4d0adc92dee"
       ],
-      "source_sha256": "4e0c3cd3f10f0e465113c0bf338e7183f37744b3b14afdd2f880caad985b95fa",
-      "text": "Eine gebundene Sitzung der Kuration arbeitet über einen Ordner.\n\n:ivar layout: was gefunden wurde und wo.\n:ivar items: die Felder, die diese Sitzung anbieten sollen — unüberprüft, bestellt und auf ``limit`` gekürzt.\n:ivar status: jede Statuszeile gelesen, einschließlich Zeilen über Stängel, die sich nicht in diesem Ordner befinden.\n:ivar order: die Bestellung, die verlangt wurde.\n:ivar effective_order: die tatsächlich verwendete Bestellung, die sich von ``order`` unterscheidet, wenn ``prob`` oder ``easy`` aus Mangel an Wahrscheinlichkeiten auf ``value`` zurückfiel.\n:ivar limit: die aufgetragene Kappe oder ``None``.\n:ivar summary: zählt über den WHOLE-Ordner, nicht über diese Sitzung.",
+      "source_sha256": "0ae7d7a56c700b68b91ffa3ddc156f3aa9558629cc9fd56e40aa198d61c039dc",
+      "text": "Eine begrenzte Kurationssitzung für einen Ordner.\n\n:ivar layout: was gefunden wurde und wo.\n:ivar items: die in dieser Sitzung angebotenen Bildfelder: noch nicht geprüft, sortiert und auf ``limit`` begrenzt.\n:ivar status: alle eingelesenen Statuszeilen, einschließlich der Zeilen zu Dateistämmen, die in diesem Ordner nicht vorkommen.\n:ivar order: die angeforderte Sortierung.\n:ivar effective_order: die tatsächlich verwendete Sortierung. Sie unterscheidet sich von ``order``, wenn ``prob`` oder ``easy`` wegen fehlender Wahrscheinlichkeiten auf ``value`` zurückgefallen ist.\n:ivar limit: die angewendete Obergrenze oder ``None``.\n:ivar summary: Anzahlen für den gesamten Ordner, nicht nur für diese Sitzung.\n:ivar notices: Hinweise, die vor dem ersten Bildfeld bekannt sein müssen: eine Sortierung mit ``prob`` oder ``easy`` ohne Bewertungsdatei oder mit Bildfeldern, die in dieser Datei fehlen; außerdem ein Datensatz zum Fortsetzen der Arbeit, der aus der Datei des externen Werkzeugs neben dem Ordner stammt und bei jedem Speichern in diese Datei zurückgeschrieben wird. Die Hinweise werden beim Erstellen der Arbeitsliste ausgegeben und im Editor zusammen mit ihr angezeigt. Dieses Modul soll insbesondere verhindern, dass sich die Sortierung unbemerkt ändert oder Daten unbemerkt außerhalb des geöffneten Ordners gespeichert werden.",
       "translation_source_blocks_sha256": [
         "6de6562e33da3a5a6c9405e681328eedc1bb5863a7942f0e81a09949730773d7",
         "d7a6fbccff58184ffb0d14afa9bb42d8a8ec6c3f9e691edffb95876fc18e2903",
@@ -16193,7 +16348,8 @@
         "fe1650817fac7be5a60dda67acb16d23f81af35c1119cd3dd575c934e109e507",
         "c6a2eac95d7e52c6f6139886e5993e5ca9000dca4a487edfbc2d5dee6f548ed1",
         "8b079a7524401570d7ca9e98bac96cbad0613abd6aeb6f065f0d5eb626b0d58f",
-        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce"
+        "ed42cd2aa6ae2a4e2f856ef56e95dfe8f76a6cf24563de942a5db75eefd159ce",
+        "55f1bc33c9de52603e1a05b703cd35b475f4af20a3775dbba683a8a9d25f80e8"
       ]
     },
     "spacr.curation_queue.CurationQueue.all_items": {
@@ -16224,6 +16380,18 @@
       "text": ":returns: den Ordner der Arbeitsliste.",
       "translation_source_blocks_sha256": [
         "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f"
+      ]
+    },
+    "spacr.curation_queue.CurationQueue.order_phrase": {
+      "source_blocks_sha256": [
+        "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
+        "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7"
+      ],
+      "source_sha256": "8d01505e1e88e9fdae7ba3127f10025588dd6c378301ed4de85c4da1af8e9c04",
+      "text": ":returns: ``sorted by <order>``; nennt zusätzlich auch die angeforderte\nSortierung, falls diese von der tatsächlich verwendeten abweicht.",
+      "translation_source_blocks_sha256": [
+        "0bd1fb6521e921fda11849ace65b0be12cebe09756ff58d3dcd93915c68c8fff",
+        "bb4161cd1b22e754fc9625f6c5b76a85be681bb37f4c96536fc61226c692e5d7"
       ]
     },
     "spacr.curation_queue.CurationQueueError": {
@@ -16322,17 +16490,19 @@
     },
     "spacr.curation_queue.QueueLayout.status_path": {
       "source_blocks_sha256": [
-        "3f0f53f44e5d01e6408c9f24021119fc8f05bc425c402d49ea8b53d36c9c5923"
+        "5b998d4fb7e730a4cc7d2b17d77bd623be35e1f175ca5755270066ab3aa2e0fd",
+        "b677be671969ec54c55905633ebd991a39cbfae8a4becae785cfe9f2ee5833e4"
       ],
-      "source_sha256": "0ded3dcd9808ba064f0d32c545d37e7669f1a22be3a7180709c5af4c2b5dcf38",
-      "text": ":returns: Der Pfad dieser Arbeitsliste ist ``curate_status.csv``.",
+      "source_sha256": "68c90846e6d6d3d82b8a0eed5a40a2385e65b9601c8fa91f0dd0705e26e11323",
+      "text": ":returns: den Lese- und Schreibpfad des Datensatzes zum Fortsetzen dieser Arbeitsliste:\n``<folder>/curate_status.csv`` oder die Datei ``<parent>/<name>_status.csv`` des externen Kurationswerkzeugs neben dem Ordner, wenn diese dessen vorhandener Datensatz ist. :func:`status_path` trifft die Auswahl.",
       "translation_source_blocks_sha256": [
-        "a0a91b654669aac808b4ecea9906522ef39377953ac15563a653f1678dbd8d05"
+        "93eaddea2f069554bc33e11d510d06b8a21afb86ef520d0e195d8d991a27a47e",
+        "b677be671969ec54c55905633ebd991a39cbfae8a4becae785cfe9f2ee5833e4"
       ]
     },
     "spacr.curation_queue.QueueSummary": {
       "source_blocks_sha256": [
-        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
         "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
         "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
         "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",
@@ -16340,10 +16510,10 @@
         "e8afaecea4ffc5d11913e96816725ff56806be5723e4489189bdc656579e051f",
         "2378a787d3f94701ea33c20e200e573a4891969c220330378b7b15417bfbc414"
       ],
-      "source_sha256": "ccb6ef2fd498d15ada5ab38b597183047fd212c34b7ad734c77a456c1e7b92f8",
-      "text": "Was bleibt zu tun, in den Begriffen Buch Punkt 396 fragt nach.\n\n:ivar total: Felder im Ordner.\n:ivar done: kuratiert.\n:ivar skip: — kuratiert werden kann und nicht wieder angeboten werden darf.\n:ivar recropped: aufgeteilt in Kinder, die stattdessen in der Arbeitsliste stehen.\n:ivar remaining: Felder ohne überprüften Zustand.\n:ivar unknown: Statuszeilen über Stängel, die sich nicht in diesem Ordner befinden. Behalten, nie fallen gelassen und hier eher als still gemeldet: Auf einer zweiten Maschine werden sie meist schon anderswo gearbeitet.",
+      "source_sha256": "845350a1a62fea90826c6c232dc6e617c83768baa0340dbb9727c8c0da71cf16",
+      "text": "Was in einer Kurationssitzung noch zu erledigen ist.\n\n:ivar total: Bildfelder im Ordner.\n:ivar done: bereits kuratierte Bildfelder.\n:ivar skip: abgelehnte Bildfelder: Sie können nicht kuratiert werden und dürfen nicht erneut angeboten werden.\n:ivar recropped: in Teilbilder aufgeteilte Bildfelder; die Teilbilder stehen stattdessen in der Arbeitsliste.\n:ivar remaining: Bildfelder ohne geprüften Status.\n:ivar unknown: Statuszeilen zu Dateistämmen, die in diesem Ordner nicht vorkommen. Diese Zeilen werden immer beibehalten und hier ausdrücklich gezählt. Auf einem zweiten Rechner entsprechen sie üblicherweise bereits andernorts erledigter Arbeit.",
       "translation_source_blocks_sha256": [
-        "17b2462737cf8f542af2aa8b5a871344bf4729a7a5097a0b239325a2c08bc673",
+        "5881e9a16c16af52f601701196ec3693966840fa16a98bc76bdec042927454ac",
         "6b2458ccdd21ac117a922fb942cc7c19c709460986bd8cd88212b4673272aae5",
         "cfbcbcd51e9ebb5f0f88fbed09c4966606de80bd756edd787fbf72f9176e93ad",
         "5ff75061a80b8611b5b93930624f5933db84f336d6286ae9656c863acfc3f8e7",

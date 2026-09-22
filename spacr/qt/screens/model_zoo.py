@@ -65,6 +65,7 @@ Design notes:
 from __future__ import annotations
 
 import os
+import re
 from typing import Any, Callable, Dict, List, Optional
 
 import numpy as np
@@ -73,6 +74,7 @@ from PySide6.QtCore import Qt, Signal
 from PySide6.QtGui import QImage, QPixmap
 from PySide6.QtWidgets import (
     QAbstractItemView,
+    QComboBox,
     QFileDialog,
     QGroupBox,
     QHBoxLayout,
@@ -121,8 +123,82 @@ COLOUR_OBJECT = (46, 196, 182)
 #: Where a downloaded model goes unless the user says otherwise.
 DEFAULT_DOWNLOAD_DIR = os.path.join(os.path.expanduser("~"), ".spacr", "models")
 
-_ZOO_HEADERS = ("model", "kind", "source", "v", "size", "checksum",
-                "trained on", "trained by")
+_ZOO_HEADERS = ("model", "kind", "trained on", "status", "version")
+
+
+def _stem_version(entry) -> tuple:
+    """Split a zoo key into the model family and its version label.
+
+    ``toxoplasma_pv_v2`` -> ``("toxoplasma_pv", "v2")``; a key with no version
+    suffix falls back to the entry's own version number, so the bundled
+    ``cpsam`` at version 2 still reads ``v2``.
+    """
+    key = str(getattr(entry, "key", "") or getattr(entry, "name", ""))
+    m = re.search(r"_v(\d+)$", key)
+    if m:
+        return key[:m.start()], f"v{m.group(1)}"
+    return key, f"v{getattr(entry, 'version', '') or 1}"
+
+
+def _status_of(entry) -> str:
+    """One word for whether this version is usable right now.
+
+    A segmentation backend says its own state -- installed, installable,
+    installing or not installable here -- and a Cellpose 3 model of the
+    backend's own says whether that backend is here to run it.
+    """
+    kind = str(getattr(entry, "kind", ""))
+    if kind == "backend":
+        return str(getattr(entry, "source", ""))
+    path = str(getattr(entry, "path", "") or "")
+    if kind == "cellpose3" and str(getattr(entry, "source", "")) == "stock":
+        return "usable" if path else "needs the Cellpose 3 backend"
+    if path and os.path.isfile(path):
+        state = "installed"
+    elif str(getattr(entry, "source", "")) == "bundled":
+        state = "bundled"
+    else:
+        state = "available"
+    if str(getattr(entry, "checksum_state", "")) == "none":
+        state += " (unverified)"
+    return state
+
+
+def group_entries(entries) -> list:
+    """Collapse a listing to one row per model family, newest version first.
+
+    The zoo used to show one row per checkpoint, so a model with three
+    versions pushed two unrelated models off the screen. Grouping makes the
+    row a MODEL and the version a choice within it.
+    """
+    groups: dict = {}
+    for entry in entries:
+        stem, label = _stem_version(entry)
+        groups.setdefault(stem, []).append((label, entry))
+    out = []
+    for stem, pairs in groups.items():
+        pairs.sort(key=lambda pl: _version_sort_key(pl[0]), reverse=True)
+        # One entry per version label. The same model can arrive twice -- the
+        # picker guarantees a stock row AND the catalogue lists the stock
+        # models -- and a version box offering "v2, v2" is a bug the user sees.
+        # First wins, which is the caller's preferred copy.
+        seen, unique = set(), []
+        for label, entry in pairs:
+            if label in seen:
+                continue
+            seen.add(label)
+            unique.append((label, entry))
+        out.append((stem, unique))
+    # Insertion order, not alphabetical: the caller's order is meaningful --
+    # the picker puts the stock model first, and a listing that reordered it
+    # would move the row the user reaches for most.
+    return out
+
+
+def _version_sort_key(label: str):
+    """The first integer in ``label``, or 0, so versions sort numerically."""
+    m = re.search(r"(\d+)", str(label))
+    return int(m.group(1)) if m else 0
 
 _BENCH_HEADERS = ("field", "objects", "seg_qc", "flags")
 
@@ -245,6 +321,19 @@ def compose_labels(image: Optional[np.ndarray], mask: Any,
 
 
 def _tooltip_for(entry) -> str:
+    """The scorecard table when the entry publishes one, else the prose.
+
+    Hovering used to give a paragraph, so comparing two models meant reading
+    two paragraphs to find two numbers. This is the same table the model card
+    prints, so the GUI and Hugging Face say the same thing in the same shape.
+    """
+    table = zoo.scorecard_html(entry)
+    if table:
+        return table
+    return _tooltip_prose(entry)
+
+
+def _tooltip_prose(entry) -> str:
     """`describe()`, led by the few numbers that decide a choice.
 
     The tooltip is the scorecard's smallest surface, so it leads with the
@@ -311,6 +400,8 @@ class ModelZooScreen(QWidget):
         super().__init__(parent)
         self._threaded = bool(threaded)
         self._entries: List[zoo.ModelEntry] = []
+        self._groups: List[tuple] = []
+        self._chosen: dict = {}
         self._result: Optional[zoo.BenchmarkResult] = None
         self._images: List[np.ndarray] = []
         self._field_names: List[str] = []
@@ -378,6 +469,12 @@ class ModelZooScreen(QWidget):
         scan_row.addWidget(self._btn_scan)
         outer.addLayout(scan_row)
 
+        from ..widgets.model_zoo_picker import SourceStrip, community_guard
+
+        self.sources = SourceStrip(self, guard=community_guard(self))
+        self.sources.changed.connect(self._sources_changed)
+        outer.addWidget(self.sources)
+
         self._table = QTableWidget(0, len(_ZOO_HEADERS), self)
         install_sorting(self._table)
         self._table.setObjectName(TABLE_NAME)
@@ -391,6 +488,9 @@ class ModelZooScreen(QWidget):
         self._table.setSelectionBehavior(QAbstractItemView.SelectRows)
         self._table.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
+        # A click on an uninstalled backend offers to install it, the same as
+        # the Make Masks Mode box and the Model Zoo button.
+        self._table.itemClicked.connect(self._row_clicked)
         outer.addWidget(self._table, 1)
 
         self._detail = QPlainTextEdit(self)
@@ -419,11 +519,17 @@ class ModelZooScreen(QWidget):
         self._btn_download.clicked.connect(self.download_selected)
         self._btn_cancel = QPushButton("Cancel", download)
         self._btn_cancel.clicked.connect(self.cancel_download)
+        self._btn_uninstall = QPushButton("Uninstall", download)
+        self._btn_uninstall.setToolTip(
+            "Delete the selected backend's environment and everything "
+            "downloaded into it. spaCR's own environment is not touched.")
+        self._btn_uninstall.clicked.connect(self.uninstall_selected)
         row.addWidget(QLabel("to", download))
         row.addWidget(self._dest_edit, 1)
         row.addWidget(self._btn_pick_dest)
         row.addWidget(self._btn_download)
         row.addWidget(self._btn_cancel)
+        row.addWidget(self._btn_uninstall)
         dl.addLayout(row)
 
         self._allow_unverified = Toggle(
@@ -534,43 +640,184 @@ class ModelZooScreen(QWidget):
         return list(self._entries)
 
     def set_entries(self, entries) -> None:
-        """Replace the listing (used by the scan, and directly by tests)."""
+        """Replace the listing (used by the scan, and directly by tests).
+
+        One row per model family. The version column is a combo box, so a
+        model with several versions is one row the user opens rather than
+        several rows they have to tell apart by suffix.
+        """
         self._entries = list(entries)
+        self._groups = group_entries(self._entries)
+        self._chosen = {stem: 0 for stem, _ in self._groups}
         table = self._table
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
         table.blockSignals(True)
-        table.setRowCount(len(self._entries))
-        for r, entry in enumerate(self._entries):
-            cells = (
-                entry.name,
-                entry.kind,
-                entry.source,
-                entry.version,
-                zoo._human_bytes(entry.size_bytes),
-                entry.checksum_state,
-                entry.trained_on,
-                entry.trained_by,
-            )
-            for c, text in enumerate(cells):
-                item = _cell(str(text),
-                             key=entry.size_bytes if c == 4 else None)
-                if c == 0:
-                    item.setData(Qt.UserRole, r)
-                if c == 6 and not entry.provenance_known:
-                    item.setForeground(_brush(active_palette()["warning"]))
-                if c == 5 and entry.checksum_state == "none":
-                    item.setForeground(_brush(active_palette()["warning"]))
-                item.setToolTip(_tooltip_for(entry))
-                table.setItem(r, c, item)
+        table.setRowCount(0)
+        table.setRowCount(len(self._groups))
+        for r, (stem, pairs) in enumerate(self._groups):
+            combo = QComboBox(table)
+            combo.addItems([label for label, _ in pairs])
+            combo.setCurrentIndex(0)
+            combo.currentIndexChanged.connect(
+                lambda idx, group=r: self._version_picked(group, idx))
+            table.setCellWidget(r, 4, combo)
+            self._fill_row(r, at=r)
         table.blockSignals(False)
+        table.setSortingEnabled(sorting)
+        self._apply_source_filter()
         table.resizeColumnsToContents()
         self.models_listed.emit(len(self._entries))
         self._update_controls()
 
+    def _apply_source_filter(self) -> None:
+        """Hide the rows whose source heading is folded away.
+
+        Hidden rather than dropped from :attr:`_entries`: the row identity
+        stamped in :meth:`_fill_row` indexes :attr:`_groups`, and
+        :meth:`selected_entries` reads it, so folding a heading must not
+        renumber anything. ``models_listed`` still counts everything listed
+        -- it answers "what does this machine know about", which folding a
+        heading does not change.
+        """
+        strip = getattr(self, "sources", None)
+        if strip is None:
+            return
+        enabled = set(strip.enabled())
+        for group, (stem, pairs) in enumerate(self._groups):
+            entry = pairs[self._chosen[stem]][1]
+            row = self._row_of_group(group)
+            if row is not None:
+                self._table.setRowHidden(
+                    row, zoo.source_of(entry) not in enabled)
+
+    def _sources_changed(self) -> None:
+        """A heading was clicked: re-fold the table, and re-list if the
+        shared catalogue was just asked for.
+
+        Only "spaCR community" needs a re-list: the other four headings'
+        rows are already in the listing, folded away. The community rows are
+        fetched exactly when somebody asks for them, so a user who never
+        turns that heading on never makes that request.
+        """
+        if self.sources.is_on("spaCR community"):
+            self.scan(include_catalogue=True)
+            return
+        self._apply_source_filter()
+        self._update_controls()
+
+    def _row_of_group(self, group: int) -> Optional[int]:
+        """The table row showing model family ``group`` now, or None.
+
+        THE TABLE SORTS, and a sort moves rows but not :attr:`_groups`.
+        Filling the table with sorting on lets each written cell re-sort it,
+        so the next cell lands on another family's row; and a version pick
+        that rewrote the row at the family's UNSORTED position would change
+        another model's versions. Every write finds its row through the
+        identity stamped on the first cell.
+
+        :param group: an index into :attr:`_groups`.
+        :returns: the row.
+        """
+        for row in range(self._table.rowCount()):
+            item = self._table.item(row, 0)
+            if item is not None and item.data(Qt.UserRole) == group:
+                return row
+        return None
+
+    def _fill_row(self, group: int, at: Optional[int] = None) -> None:
+        """Write the non-version cells for the version currently chosen.
+
+        :param group: an index into :attr:`_groups`.
+        :param at: the table row, when known (the first fill, unsorted).
+        """
+        row = self._row_of_group(group) if at is None else at
+        if row is None:
+            return
+        stem, pairs = self._groups[group]
+        entry = pairs[self._chosen[stem]][1]
+        table = self._table
+        sorting = table.isSortingEnabled()
+        table.setSortingEnabled(False)
+        cells = (stem, entry.kind, entry.trained_on, _status_of(entry))
+        for c, text in enumerate(cells):
+            item = _cell(str(text))
+            if c == 0:
+                item.setData(Qt.UserRole, group)
+            if c == 2 and not entry.provenance_known:
+                item.setForeground(_brush(active_palette()["warning"]))
+            if c == 3 and "unverified" in str(text):
+                item.setForeground(_brush(active_palette()["warning"]))
+            item.setToolTip(_tooltip_for(entry))
+            table.setItem(row, c, item)
+        table.setSortingEnabled(sorting)
+
+    def _version_picked(self, group: int, index: int) -> None:
+        """The user chose a version: that family now means a different model.
+
+        :param group: the family, an index into :attr:`_groups`.
+        :param index: the version's place in its box.
+        """
+        if not (0 <= group < len(self._groups)):
+            return
+        stem, pairs = self._groups[group]
+        self._chosen[stem] = max(0, min(int(index), len(pairs) - 1))
+        self._fill_row(group)
+        self._update_controls()
+
+    def chosen_entry(self, row: int):
+        """The entry a row currently stands for, honouring its version pick."""
+        stem, pairs = self._groups[row]
+        return pairs[self._chosen[stem]][1]
+
+    def _row_clicked(self, _item) -> None:
+        """Offer to install an uninstalled backend the user clicked, or the
+        backend a Cellpose 3 model needs."""
+        from ..widgets.model_zoo_picker import _needs_install
+
+        chosen = self.selected_entries()
+        if len(chosen) == 1 and _needs_install(chosen[0]):
+            self._install_backend_for(chosen[0])
+
+    def _install_backend_for(self, entry) -> bool:
+        """Install the backend ``entry`` needs, then list again.
+
+        :returns: whether it is ready afterwards.
+        """
+        from ..widgets.model_zoo_picker import install_backend_package
+
+        ready = install_backend_package(self, entry)
+        self.scan("", include_catalogue=True)
+        return ready
+
+    def uninstall_selected(self) -> bool:
+        """Remove the selected backend's environment, after asking.
+
+        :returns: whether it was removed.
+        """
+        from ... import model_zoo
+        from ..widgets.model_zoo_picker import _removable, uninstall_backend
+
+        chosen = self.selected_entries()
+        if len(chosen) != 1 or not _removable(chosen[0]):
+            return False
+        removed = uninstall_backend(self, model_zoo._backend_for(chosen[0]))
+        if removed:
+            self.scan("", include_catalogue=True)
+            self._set_status(f"{chosen[0].name} was uninstalled.")
+        return removed
+
     def rows(self) -> List[List[str]]:
         """The listing as plain strings."""
-        return [[(self._table.item(r, c).text() if self._table.item(r, c)
-                  else "")
-                 for c in range(self._table.columnCount())]
+        def text(r, c):
+            """The text shown in cell ``(r, c)``, from its item or its combo box."""
+            item = self._table.item(r, c)
+            if item is not None:
+                return item.text()
+            widget = self._table.cellWidget(r, c)
+            return widget.currentText() if isinstance(widget, QComboBox) else ""
+
+        return [[text(r, c) for c in range(self._table.columnCount())]
                 for r in range(self._table.rowCount())]
 
     def scan(self, folder: Optional[str] = None,
@@ -594,9 +841,15 @@ class ModelZooScreen(QWidget):
             self._update_controls()
             return False
 
+        strip = getattr(self, "sources", None)
+        community = bool(strip is not None
+                         and strip.is_on("spaCR community"))
+
         def _job() -> List[zoo.ModelEntry]:
             """Find every model, catalogue plus local. Off the GUI thread."""
             found = list(zoo.catalogue()) if include_catalogue else []
+            if community:
+                found += list(zoo.community_entries(allow_network=True))
             have = {e.path for e in found if e.path}
             if target:
                 for entry in zoo.discover_local(target):
@@ -660,8 +913,8 @@ class ModelZooScreen(QWidget):
             index = None if item is None else item.data(Qt.UserRole)
             if index is None:
                 index = row
-            if 0 <= int(index) < len(self._entries):
-                out.append(self._entries[int(index)])
+            if 0 <= int(index) < len(self._groups):
+                out.append(self.chosen_entry(int(index)))
         return out
 
     def select(self, *rows: int) -> None:
@@ -722,6 +975,10 @@ class ModelZooScreen(QWidget):
                 else "Select a model to download.", error=True)
             return False
         entry = chosen[0]
+        from ..widgets.model_zoo_picker import _needs_install
+
+        if _needs_install(entry) or entry.kind == "backend":
+            return self._install_backend_for(entry)
         if entry.exists:
             self._set_status(
                 f"{entry.name} is already here: {entry.path}", error=True)
@@ -1241,8 +1498,16 @@ class ModelZooScreen(QWidget):
         self._btn_pick_dest.setEnabled(not busy)
         self._btn_pick_fields.setEnabled(not busy)
         self._fields_box.setEnabled(not busy)
+        from ..widgets.model_zoo_picker import _needs_install, _removable
+
+        installs = one and _needs_install(chosen[0])
+        self._btn_download.setText("Install" if installs else "Download")
         self._btn_download.setEnabled(
-            not busy and one and bool(chosen[0].uri) and not chosen[0].exists)
+            not busy and one and (installs or (
+                bool(chosen[0].uri) and not chosen[0].exists
+                and chosen[0].kind != "backend")))
+        self._btn_uninstall.setEnabled(
+            not busy and one and _removable(chosen[0]))
         self._btn_cancel.setEnabled(busy)
         self._btn_test.setEnabled(
             not busy and one and bool(self._images) and chosen[0].exists)

@@ -757,6 +757,6 @@ def test_test_cellpose_model_writes_settings_snapshot(tmp_path, cp_stub, monkeyp
     values = dict(zip(*pd.read_csv(snapshot)[["Key", "Value"]].values.T))
     assert values["model_path"] == "cp.CP_model"
     # defaults filled in by get_default_test_cellpose_model_settings
-    assert values["FT"] == "100"
+    assert values["FT"] == "0.4"
     assert values["normalize"] == "True"
     assert settings["CP_probability"] == 0

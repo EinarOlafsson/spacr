@@ -42,8 +42,8 @@ MAX_HEADROOM_MB: int = 131072
 #: What each performance level suggests, as
 #: ``level -> (idle minutes, cache MB, headroom MB)``.
 #:
-#: THE TOOLTIPS QUOTE THESE, because the maintainer asked for "system
-#: configuration recomendations for each level" and a number without the
+#: THE TOOLTIPS QUOTE THESE, because each level carries a system
+#: configuration recommendation and a number without the
 #: machine it suits is not a recommendation. They are suggestions and not
 #: overrides: a user who sets a value keeps it.
 RECOMMENDED = {

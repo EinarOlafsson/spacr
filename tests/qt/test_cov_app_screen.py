@@ -225,9 +225,13 @@ class TestWidgetConstruction:
         assert widgets["batch_size"].value() == int(defaults["batch_size"])
         assert isinstance(widgets["plot"], QCheckBox)
         assert widgets["plot"].isChecked() == bool(defaults["plot"])
-        assert isinstance(widgets["metadata_type"], QComboBox)
-        assert widgets["metadata_type"].currentText() == str(
-            defaults["metadata_type"])
+        from spacr.qt.screens.settings_model import _MetadataTypeField
+
+        naming = widgets["metadata_type"]
+        assert isinstance(naming, _MetadataTypeField)
+        assert isinstance(naming.combo, QComboBox)
+        assert naming.get_value() == defaults["metadata_type"]
+        assert naming.combo.currentData() == defaults["metadata_type"]
         assert isinstance(widgets["seg_qc_count_ratio"], QDoubleSpinBox)
         assert widgets["seg_qc_count_ratio"].value() == pytest.approx(
             float(defaults["seg_qc_count_ratio"]))
@@ -582,11 +586,15 @@ class TestRoundTrip:
         assert w_float.value() == pytest.approx(0.5)
 
         # A combo given an option it does not have keeps its selection.
-        combo = scr._settings_model._widgets["metadata_type"]
-        combo.setCurrentIndex(0)
-        keep = combo.currentText()
+        naming = scr._settings_model._widgets["metadata_type"]
+        combo = naming.combo
+        keep = combo.currentData()
+        assert keep is not None  # An actual format, not a vendor heading.
         scr._apply_value(combo, "no_such_option")
-        assert combo.currentText() == keep
+        assert combo.currentData() == keep
+        # The containing field also rejects an unknown stored format.
+        scr._apply_value(naming, "no_such_option")
+        assert naming.get_value() == keep
 
         # A line edit given None clears rather than writing the text "None".
         edit = scr._settings_model._widgets["src"]

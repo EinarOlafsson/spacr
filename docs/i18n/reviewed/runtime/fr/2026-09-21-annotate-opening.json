@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "fr",
+  "review": "AI-assisted editorial and technical translation review; no native-speaker signoff claimed",
+  "records": [
+    {
+      "table": "ui",
+      "key": "The test data has no measurements database at {path}",
+      "source": "The test data has no measurements database at {path}",
+      "source_sha256": "29f3f723cc898ad80f9e621893ac00e997c34526da95b0468f8a06c7816be9a9",
+      "translation": "Les données de test ne contiennent pas de base de données de mesures à cet emplacement : {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not open the test data: {detail}",
+      "source": "Could not open the test data: {detail}",
+      "source_sha256": "47a6db8232411cf26f3e500cf94f568975d1b5ceeefcf865dfe4a771edd40286",
+      "translation": "Impossible d’ouvrir les données de test : {detail}"
+    }
+  ]
+}

@@ -1,0 +1,171 @@
+# spaCR on CUDA 12.4. The image for a GPU workstation, a cluster node or a
+# cloud instance with an NVIDIA card.
+#
+#   docker build -f packaging/docker/Dockerfile.cuda -t spacr:cuda .
+#   docker run --rm --gpus all spacr:cuda spacr-doctor
+#
+# THE HOST DRIVER IS NOT IN THE IMAGE AND CANNOT BE. CUDA 12.4 needs an NVIDIA
+# driver of 550 or newer on the HOST, plus the NVIDIA Container Toolkit so
+# `--gpus all` has something to pass through. That is the one requirement a
+# container cannot remove, and it is why the CPU image exists beside this one.
+#
+# WHY AN OFFICIAL CUDA BASE RATHER THAN python:slim PLUS CUDA WHEELS. The
+# nvidia/cuda runtime images are what the NVIDIA Container Toolkit is built
+# against: they declare NVIDIA_VISIBLE_DEVICES and NVIDIA_DRIVER_CAPABILITIES,
+# so the runtime injects the host driver's libraries in the places CUDA looks
+# for them. A bare python image with pip-installed CUDA wheels resolves at
+# build time and then depends on a driver contract nothing in the image
+# states. torch's own cu124 wheels are still installed on top -- they carry
+# the cuBLAS and cuDNN builds torch was compiled against, which is a different
+# thing from the runtime the toolkit needs -- and that duplication is
+# deliberate. Do not "optimize" it away without a measurement.
+#
+# WHY deadsnakes FOR PYTHON. Ubuntu 22.04 is the newest LTS nvidia/cuda 12.4.1
+# publishes, and it ships Python 3.10. spaCR runs on 3.10, but the CPU image
+# and the desktop installers are all 3.12, and two interpreters across two
+# tags of one release is a support cost with no benefit. PYTHON_VERSION is a
+# build argument: set it to 3.10 to drop the PPA and use the distribution's
+# own interpreter if that trade ever stops being worth it.
+#
+# Models are mounted on /models and data is mounted; neither is ever baked in,
+# and no BuildKit-only directive is used so that the legacy builder can build
+# this too. See Dockerfile.cpu: the reasoning for both is identical.
+
+ARG CUDA_IMAGE=nvidia/cuda:12.4.1-cudnn-runtime-ubuntu22.04
+ARG PYTHON_VERSION=3.12
+
+# ---------------------------------------------------------------------------
+# Build
+# ---------------------------------------------------------------------------
+FROM ${CUDA_IMAGE} AS build
+
+ARG PYTHON_VERSION
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PIP_ROOT_USER_ACTION=ignore \
+    PYTHONDONTWRITEBYTECODE=1
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        gnupg \
+        software-properties-common \
+ && add-apt-repository -y ppa:deadsnakes/ppa \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+        build-essential \
+        "python${PYTHON_VERSION}" \
+        "python${PYTHON_VERSION}-dev" \
+        "python${PYTHON_VERSION}-venv" \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV VIRTUAL_ENV=/opt/spacr/venv
+RUN "python${PYTHON_VERSION}" -m venv "$VIRTUAL_ENV"
+ENV PATH="$VIRTUAL_ENV/bin:$PATH"
+
+# torch FIRST, from PyTorch's cu124 index, for the same reason the CPU image
+# installs it from the cpu index: whichever index answers first decides which
+# build of torch the whole environment gets, and leaving that to the default
+# index leaves it to chance.
+ARG TORCH_INDEX_URL=https://download.pytorch.org/whl/cu124
+ARG TORCH_SPEC="torch>=2.0,<3.0"
+ARG TORCHVISION_SPEC="torchvision>=0.15,<1.0"
+RUN python -m pip install --no-cache-dir --upgrade pip setuptools wheel \
+ && python -m pip install --no-cache-dir --index-url "${TORCH_INDEX_URL}" \
+        "${TORCH_SPEC}" "${TORCHVISION_SPEC}"
+
+WORKDIR /src
+COPY . /src
+RUN python -m pip install --no-cache-dir .
+
+# THE BYTECODE STAYS, and deleting it was the first thing tried here. pip
+# compiles on install, and those .pyc files are the only ones this image will
+# ever have: /opt/spacr/venv is root-owned and the process runs as `spacr`, so
+# a container that starts without them recompiles what it imports on EVERY
+# run and can never cache the result. spacr/cli.py promises that `spacr-run
+# --list` answers instantly on a login node; stripping a few hundred MB would
+# have bought image size with exactly that promise.
+
+# ---------------------------------------------------------------------------
+# Runtime
+# ---------------------------------------------------------------------------
+FROM ${CUDA_IMAGE} AS runtime
+
+ARG PYTHON_VERSION
+ARG SPACR_UID=1000
+ARG SPACR_GID=1000
+ARG SPACR_VERSION=unknown
+ARG SPACR_REVISION=unknown
+
+LABEL org.opencontainers.image.title="spaCR (CUDA 12.4)" \
+      org.opencontainers.image.description="Spatial phenotype analysis of CRISPR screens — CLI and pipelines, CUDA 12.4, host driver 550+" \
+      org.opencontainers.image.source="https://github.com/EinarOlafsson/spacr" \
+      org.opencontainers.image.documentation="https://einarolafsson.github.io/spacr/installer_guide.html" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.version="${SPACR_VERSION}" \
+      org.opencontainers.image.revision="${SPACR_REVISION}"
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    PYTHONUNBUFFERED=1
+
+# The interpreter the copied environment symlinks to, plus the same OpenMP and
+# Qt runtime set the CPU image carries. No compiler and no -dev packages.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        gnupg \
+        software-properties-common \
+ && add-apt-repository -y ppa:deadsnakes/ppa \
+ && apt-get update \
+ && apt-get install -y --no-install-recommends \
+        "python${PYTHON_VERSION}" \
+        libgomp1 \
+        libglib2.0-0 \
+        tini \
+        libgl1 \
+        libegl1 \
+        libdbus-1-3 \
+        libfontconfig1 \
+        libfreetype6 \
+        libice6 \
+        libsm6 \
+        libx11-xcb1 \
+        libxcb1 \
+        libxcb-cursor0 \
+        libxcb-icccm4 \
+        libxcb-image0 \
+        libxcb-keysyms1 \
+        libxcb-randr0 \
+        libxcb-render-util0 \
+        libxcb-shape0 \
+        libxcb-shm0 \
+        libxcb-sync1 \
+        libxcb-xfixes0 \
+        libxcb-xinerama0 \
+        libxkbcommon0 \
+        libxkbcommon-x11-0 \
+ && apt-get purge -y --auto-remove software-properties-common gnupg \
+ && rm -rf /var/lib/apt/lists/*
+
+RUN groupadd --gid "${SPACR_GID}" spacr \
+ && useradd --uid "${SPACR_UID}" --gid "${SPACR_GID}" \
+            --create-home --shell /bin/bash spacr \
+ && mkdir -p /data /models /work \
+ && chown -R spacr:spacr /data /models /work /home/spacr \
+ && chmod 1777 /data /models /work
+
+COPY --from=build /opt/spacr/venv /opt/spacr/venv
+COPY packaging/docker/entrypoint.sh /opt/spacr/entrypoint.sh
+COPY packaging/docker/smoke_pipeline.py /opt/spacr/smoke_pipeline.py
+RUN chmod 0755 /opt/spacr/entrypoint.sh
+
+ENV VIRTUAL_ENV=/opt/spacr/venv \
+    PATH="/opt/spacr/venv/bin:${PATH}" \
+    MPLBACKEND=Agg \
+    SPACR_CONTAINER=cuda
+
+USER spacr
+WORKDIR /work
+
+ENTRYPOINT ["/usr/bin/tini", "--", "/opt/spacr/entrypoint.sh"]
+CMD ["spacr-run", "--list"]

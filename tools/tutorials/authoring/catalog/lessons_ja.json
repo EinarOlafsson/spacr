@@ -263,10 +263,10 @@
           "speech_text": "各インストーラーはバージョンを切り替える前に置き換え先を検証します。更新が中断されても以前の環境は維持され、install.log は スペーカー 専用インストールディレクトリに残ります。"
         },
         {
-          "narration": "Preferences には Performance level セレクターが 1 つあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation が並びます。このコンピューターに適したプロファイルを選択してください。キャッシュ、ワーカー数の上限、クリーンアップ、アニメーションの詳細度は変わりますが、科学的な設定や結果は変わりません。",
+          "narration": "Preferences には Performance セレクターがあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation を選べます。このコンピューターに合うプロファイルを選んでください。spaCR がキャッシュする量と保持時間、メモリと待機中のスレッドを解放するタイミング、背景アニメーションを動かすかどうかが変わりますが、科学的な解析設定や結果は変わりません。",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Preferences には Performance level セレクターが 1 つあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation が並びます。このコンピューターに適したプロファイルを選択してください。キャッシュ、ワーカー数の上限、クリーンアップ、アニメーションの詳細度は変わりますが、科学的な設定や結果は変わりません。"
+          "speech_text": "Preferences には Performance セレクターがあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation を選べます。このコンピューターに合うプロファイルを選んでください。スペーカー がキャッシュする量と保持時間、メモリと待機中のスレッドを解放するタイミング、背景アニメーションを動かすかどうかが変わりますが、科学的な解析設定や結果は変わりません。"
         },
         {
           "narration": "インストール後はオペレーティングシステムのランチャーを使用します。別途 Python や Conda を設定する必要はありません。",
@@ -293,10 +293,10 @@
       "prerequisite": "spaCR デスクトップアプリケーションをインストールして起動します.",
       "scenes": [
         {
-          "narration": "すべての成熟度レベルを表示すると、Home には登録済みの spaCR モジュール 44 個がすべて表示されます。Home タブでは Core、Data、Results & QC、Explore、Assays、Design にグループ化され、各カテゴリタブは同じ登録一覧を絞り込みます。",
+          "narration": "Home は spaCR のワークフローを Core、Data、Tools、Assays に分類します。各カテゴリのタブでモジュールのタイルを絞り込み、関連ツールはそれぞれの親モジュール内から利用できます。",
           "visual": "overview",
           "hold_after": 0.7,
-          "speech_text": "すべての成熟度レベルを表示すると、ホーム には登録済みの スペーカー モジュール 44 個がすべて表示されます。ホーム タブでは Core、Data、Results & QC、Explore、Assays、Design にグループ化され、各カテゴリタブは同じ登録一覧を絞り込みます。"
+          "speech_text": "ホーム は スペーカー のワークフローを Core、Data、Tools、Assays に分類します。各カテゴリのタブでモジュールのタイルを絞り込み、関連ツールはそれぞれの親モジュール内から利用できます。"
         },
         {
           "narration": "左側のサイドバーからは Home と、表示対象になっている Core モジュールへ直接移動できます。すべての成熟度レベルを有効にすると、6 段階の Core シーケンスが表示されます。カテゴリ見出しを選択すると、そのカテゴリの残りの表示対象モジュールが展開されます。",
@@ -311,10 +311,16 @@
           "speech_text": "Core の帯は Mask、Measure、Annotate、Classify、Map Barcodes、Regression のワークフロー順です。タイルにポインターを合わせると、モジュールの説明と アルファ、ベータ、ステーブル の成熟度を示す色が表示されます。Preferences では アルファ または ベータ モジュールを ホーム とナビゲーションから非表示にできますが、ステーブル モジュールは常に表示されます。"
         },
         {
-          "narration": "Preferences には Performance level セレクターが 1 つあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation が並びます。このコンピューターに適したプロファイルを選択してください。キャッシュ、ワーカー数の上限、クリーンアップ、アニメーションの詳細度は変わりますが、科学的な設定や結果は変わりません。",
+          "narration": "Preferences には Performance セレクターがあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation を選べます。このコンピューターに合うプロファイルを選んでください。spaCR がキャッシュする量と保持時間、メモリと待機中のスレッドを解放するタイミング、背景アニメーションを動かすかどうかが変わりますが、科学的な解析設定や結果は変わりません。",
           "visual": "performance",
           "hold_after": 0.7,
-          "speech_text": "Preferences には Performance level セレクターが 1 つあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation が並びます。このコンピューターに適したプロファイルを選択してください。キャッシュ、ワーカー数の上限、クリーンアップ、アニメーションの詳細度は変わりますが、科学的な設定や結果は変わりません。"
+          "speech_text": "Preferences には Performance セレクターがあり、リソース使用量の少ない順に Laptop、Extra Performance、Performance、Balanced、Workstation を選べます。このコンピューターに合うプロファイルを選んでください。スペーカー がキャッシュする量と保持時間、メモリと待機中のスレッドを解放するタイミング、背景アニメーションを動かすかどうかが変わりますが、科学的な解析設定や結果は変わりません。"
+        },
+        {
+          "narration": "Help の隣にある検索欄で、モジュール、設定、環境設定、API 項目を検索できます。ここでは Performance を検索して一致する移動先を表示しています。結果を選ぶと、対応するモジュールや Preferences のタブを開くか、API ドキュメントを表示できます。",
+          "visual": "search",
+          "hold_after": 0.7,
+          "speech_text": "Help の隣にある検索欄で、モジュール、設定、環境設定、API 項目を検索できます。ここでは Performance を検索して一致する移動先を表示しています。結果を選ぶと、対応するモジュールや Preferences のタブを開くか、API ドキュメントを表示できます。"
         },
         {
           "narration": "モジュールのタイルを選択して、設定画面を開きます。画面上部のモジュール名と説明で、現在のワークフローを確認できます。",

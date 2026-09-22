@@ -26,7 +26,7 @@ from .crops import (DEFAULT_PERCENTILES, DEFAULT_PNG_CHANNEL_MAPPING,
 #: the same thing whichever route produced it.
 BOTH_MODES: Tuple[str, ...] = (
     "crop_shape",
-    "img_size",
+    "crop_size",
     "normalize_channels",
     "percentiles",
     "outline",
@@ -152,7 +152,7 @@ CATEGORY_SPEC: Tuple[Tuple[str, Tuple[str, ...]], ...] = (
                 "crop_shape")),
     ("Channels", ("channels", "red_channel", "green_channel",
                   "blue_channel")),
-    ("Picture", ("img_size", "object_size", "normalize_channels",
+    ("Picture", ("crop_size", "object_size", "normalize_channels",
                  "percentiles")),
     ("Outline", ("outline", "outline_threshold_factor", "outline_sigma",
                  "edge_thickness", "edge_transparency", "edge_image")),
@@ -306,7 +306,7 @@ def bounding_box_only(settings) -> bool:
 #: renderer rather than the crop spec. They are not in this table because a
 #: mapping that pretended to apply them would be worse than an absent one.
 CUT_SETTINGS: Dict[str, str] = {
-    "img_size": "png_size",
+    "crop_size": "png_size",
     "channels": "png_dims",
 }
 
@@ -831,6 +831,12 @@ def drop_retired(picture) -> tuple:
     returned rather than printed, so the caller decides whether this is
     worth a line -- it is worth one the first time and noise every time
     after.
+
+    A RENAMED key is moved rather than dropped: ``img_size`` became
+    ``crop_size`` on 2026-09-19, and a saved run that chose a size keeps it.
+    The rename is read from :func:`spacr.settings.surviving_setting_name`,
+    the resolver the settings files use, and only onto a key this panel
+    offers. The new name wins when a blob carries both.
     """
     out = dict(picture or {})
     notes = []
@@ -838,4 +844,24 @@ def drop_retired(picture) -> tuple:
         if key in out:
             out.pop(key)
             notes.append(f"{key}: {why}")
+    offered = set(ALL_KEYS)
+    try:
+        from .settings import surviving_setting_name
+    except Exception:                                        # noqa: BLE001
+        return out, notes
+    for key in [k for k in out if isinstance(k, str) and k not in offered]:
+        try:
+            survivors = surviving_setting_name(key)
+        except Exception:                                    # noqa: BLE001
+            survivors = ()
+        if len(survivors) != 1 or survivors[0] not in offered:
+            continue
+        new = survivors[0]
+        value = out.pop(key)
+        if new in out:
+            notes.append(f"{key}: renamed to {new}, which this blob also "
+                         f"sets, so {key}={value!r} was not used")
+            continue
+        out[new] = value
+        notes.append(f"{key}: renamed to {new}, and {value!r} moved across")
     return out, notes

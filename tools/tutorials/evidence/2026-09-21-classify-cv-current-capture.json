@@ -1,0 +1,500 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "status": "native_capture_and_english_review_master_verified_not_published",
+  "artifact_root": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-cv-current-v4",
+  "capture": "classify_cv_current_20260921_v4",
+  "provenance": {
+    "commit": "a40d2d4ae4b69b824bc6fa4f5ceb4b5bf1e629cc",
+    "version": "1.5.0.8",
+    "module": "classify_merged",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-classify-cv/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "frame_count": 27,
+  "frames": {
+    "00_home": {
+      "image": "00_home.png",
+      "sha256": "754d64de75e5e00c18d34366f42bbd6560c06cf2ad4a02b110364acf985e1a3a",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 26
+      }
+    },
+    "01_module": {
+      "image": "01_module.png",
+      "sha256": "9d5c748d5430365668b83c28399215fd6e6edcc04598dc653e54714333d5e22f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 62
+      }
+    },
+    "18_source_folder_choice": {
+      "image": "18_source_folder_choice.png",
+      "sha256": "379f8930ff5390afb4fcb68f141035ce9fb365107e60f6ea4a58fadcffc2ef3b",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 89
+      }
+    },
+    "18_source_folder_selected": {
+      "image": "18_source_folder_selected.png",
+      "sha256": "008a10d6c4c1eba8ffcce78063b04a5ce9b0463c0d55bbfb7c1c05f9d9325cfa",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 100
+      }
+    },
+    "19_setting_src": {
+      "image": "19_setting_src.png",
+      "sha256": "3cac3f643df9cef653526cfc52eb9698ab511149b53187b69f1fb083f0442bda",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 125
+      }
+    },
+    "19_setting_generate_training_dataset": {
+      "image": "19_setting_generate_training_dataset.png",
+      "sha256": "d8f88dd71c0149d5fb2287bf5aa1e8581481470b6f75ae72d141605ee281daff",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 144
+      }
+    },
+    "19_setting_val_split": {
+      "image": "19_setting_val_split.png",
+      "sha256": "702acf342ea83b7c4e5b605f6b34b3fea207738aca96c3baedd62439b45dc0a1",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 163
+      }
+    },
+    "19_setting_train_channels": {
+      "image": "19_setting_train_channels.png",
+      "sha256": "d2493aad7a42ce6006eb0d566a8a1b5bf5fe6a8d64543ff0d77daa485adf61c2",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 183
+      }
+    },
+    "19_setting_classifier_family": {
+      "image": "19_setting_classifier_family.png",
+      "sha256": "616690c272336c39ce74fb4b80d7bdac2c827b0421b35f6777998a7ff6cf7372",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 203
+      }
+    },
+    "19_setting_dataset_mode": {
+      "image": "19_setting_dataset_mode.png",
+      "sha256": "b318c53d785e8e650c59752dafe8e62973358e15de7d05cfeef4195f4cb2a3da",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 223
+      }
+    },
+    "19_setting_classes": {
+      "image": "19_setting_classes.png",
+      "sha256": "a7a56b7833b53e2b701d2a597ce41ae377c67623366cf69ce1d3393359805c03",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 243
+      }
+    },
+    "19_setting_image_source": {
+      "image": "19_setting_image_source.png",
+      "sha256": "3113116bc81139a791037b7d3202c0fe183ae02de9d1bd3c6e3b40ffac0b0253",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 260
+      }
+    },
+    "19_setting_model_type": {
+      "image": "19_setting_model_type.png",
+      "sha256": "ab3c6791fb82e439ac32d5ce1d2eb8c999bc8921852e59c80212f282cfac450a",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 281
+      }
+    },
+    "19_setting_epochs": {
+      "image": "19_setting_epochs.png",
+      "sha256": "0052db3e8ca8fcb2c750e376f7e9f94478969744888f367a58598e8a7f323196",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 303
+      }
+    },
+    "19_setting_batch_size": {
+      "image": "19_setting_batch_size.png",
+      "sha256": "c8995c9fc73d27a290c799e2f272277e12ed1bc02587e924e3a265b177fc566c",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 323
+      }
+    },
+    "19_setting_image_size": {
+      "image": "19_setting_image_size.png",
+      "sha256": "4d844c34e556551d1b1fbe4f4815821449058c0a22df72068a64719821237659",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 342
+      }
+    },
+    "19_setting_n_jobs": {
+      "image": "19_setting_n_jobs.png",
+      "sha256": "dacd64834b4ce965026fc103d78033d5634b7cd27a083bfff6a1126fddb31349",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 362
+      }
+    },
+    "19_setting_init_weights": {
+      "image": "19_setting_init_weights.png",
+      "sha256": "7a9c821761ff667160e0323cff07b2fc8276e26583de3ebb25e2d1ce69486ff7",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 381
+      }
+    },
+    "19_setting_cv_group_by": {
+      "image": "19_setting_cv_group_by.png",
+      "sha256": "64799d284c98cfa5499acc14ddd871082125af2b78cc42f25f535497d1e119a9",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 398
+      }
+    },
+    "19_setting_test": {
+      "image": "19_setting_test.png",
+      "sha256": "858398506740f2e088736a3f6fa982ed721009224b59ee6ed12ec807e900070b",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 419
+      }
+    },
+    "19_setting_plot": {
+      "image": "19_setting_plot.png",
+      "sha256": "67e1da68ab1974f4ee14d7d9fcac9cb2806b48001f9862e933098bd16b6a1838",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 440
+      }
+    },
+    "19_setting_apply_model_to_dataset": {
+      "image": "19_setting_apply_model_to_dataset.png",
+      "sha256": "3f2bfcda9a5b09be89c54498e262eaada122d6be11ac66997b2a6d07feac0a4c",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 461
+      }
+    },
+    "20_batch_settings": {
+      "image": "20_batch_settings.png",
+      "sha256": "d55c7e2785dab810b21d819b337fd38897b56261ce33acad4ef233dcce30dfbd",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 484
+      }
+    },
+    "21_batch_running": {
+      "image": "21_batch_running.png",
+      "sha256": "4dd7840e4bc7cf2befc060c81495a0e9e48cbd1c011effb4164deed4fe8298c6",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 497
+      }
+    },
+    "23_batch_finished": {
+      "image": "23_batch_finished.png",
+      "sha256": "8177e409c1e972a29d5843a52859ecb942c5dad6a919312146d0632f72d68949",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 704
+      }
+    },
+    "24_batch_figure": {
+      "image": "24_batch_figure.png",
+      "sha256": "c45104c445c3cae473fb384d71078132017cfbf85ccab2ca66739ca2da14610e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 712
+      }
+    },
+    "30_ai_unsent_question": {
+      "image": "30_ai_unsent_question.png",
+      "sha256": "d6602d5fa1dc6b223f237b6b864e4748c0101c1c0d44ee2e3cca1da1a8f66423",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 722
+      }
+    }
+  },
+  "native_training_completed": true,
+  "gpu_used": false,
+  "loader_workers": 2,
+  "torch_imported_before_recording": true,
+  "isolated_home": "/tmp/spacr-classify-cv/user_state",
+  "source_metadata_copy_sha256": "d6a83da4672dab3653bebc4c12af6ba6937dce39d15649c049fcde3df56b6bb3",
+  "source_database_sha256": "d6a83da4672dab3653bebc4c12af6ba6937dce39d15649c049fcde3df56b6bb3",
+  "original_pixels_and_labels_preserved": true,
+  "model": "resnet18",
+  "epochs": 1,
+  "biological_validation": false,
+  "population_prevalence_preserved": false,
+  "inputs": {
+    "accepted": true,
+    "source_database_sha256": "d6a83da4672dab3653bebc4c12af6ba6937dce39d15649c049fcde3df56b6bb3",
+    "objects_checked": 64,
+    "sample_counts": {
+      "train": 32,
+      "test": 32
+    },
+    "actual_wells": {
+      "train": [
+        [
+          "plate1",
+          "r12",
+          "c1"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c2"
+        ]
+      ],
+      "test": [
+        [
+          "plate1",
+          "r12",
+          "c2"
+        ],
+        [
+          "plate1",
+          "r5",
+          "c1"
+        ]
+      ]
+    },
+    "overlapping_database_wells": [],
+    "all_image_bytes_unchanged": true,
+    "labels_preserved_from_example": true,
+    "filename_parser_fixed": false
+  },
+  "native_audits": {
+    "train_test_leakage_audit.json": {
+      "critical_levels": [],
+      "examples": {
+        "augmentation_family": [],
+        "content_sha256": [],
+        "exact": [],
+        "field": [],
+        "object": [],
+        "plate": [
+          "plate1"
+        ],
+        "well": []
+      },
+      "group_by": "well",
+      "hash_errors": [],
+      "overlap_counts": {
+        "augmentation_family": 0,
+        "content_sha256": 0,
+        "exact": 0,
+        "field": 0,
+        "object": 0,
+        "plate": 1,
+        "well": 0
+      },
+      "passed": true,
+      "split_name": "train_vs_test",
+      "train_samples": 32,
+      "unverifiable_counts": {},
+      "validation_samples": 32,
+      "warnings": []
+    },
+    "train_validation_leakage_audit.json": {
+      "critical_levels": [],
+      "examples": {
+        "augmentation_family": [],
+        "content_sha256": [],
+        "exact": [],
+        "field": [],
+        "object": [],
+        "plate": [
+          "plate1"
+        ],
+        "well": []
+      },
+      "group_by": "well",
+      "hash_errors": [],
+      "overlap_counts": {
+        "augmentation_family": 0,
+        "content_sha256": 0,
+        "exact": 0,
+        "field": 0,
+        "object": 0,
+        "plate": 1,
+        "well": 0
+      },
+      "passed": true,
+      "split_name": "train_vs_validation",
+      "train_samples": 16,
+      "unverifiable_counts": {},
+      "validation_samples": 16,
+      "warnings": []
+    }
+  },
+  "independent_test_metrics": {
+    "predictions_checked": 32,
+    "confusion_matrix": [
+      [
+        16,
+        0
+      ],
+      [
+        16,
+        0
+      ]
+    ],
+    "accuracy": 0.5,
+    "f1_macro": 0.3333333333333333,
+    "majority_accuracy": 0.5,
+    "all_metrics_validated": false,
+    "probabilities_calibrated": false
+  },
+  "batch_acceptance": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 1,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "visual_review": [
+    "18_source_folder_choice",
+    "24_batch_figure",
+    "30_ai_unsent_question"
+  ],
+  "ai_prompt_submitted": false,
+  "tools": {
+    "tools/tutorials/capture_refresh.py": "556d3851349b7f6e083fe4d6b53e77e9dcc84d6d7559d80a29e18a38bea68240",
+    "tools/tutorials/capture_classify_existing.py": "5324892c4d898c170e7ff270c13242ea72c3a85b28ad2d76d6839ef942614885",
+    "tools/tutorials/prepare_classify_split.py": "3df127df30308d428b44f41f2008708b371836628ead263864b7dbbd0f6eb558",
+    "tools/tutorials/classify_split_evidence.py": "90d39ed6b1e4e26f2ea4e38625da87c5bef67f76dc48afd7d9b23a555808ba4f"
+  },
+  "remaining": [
+    "Audible narration acceptance",
+    "Full language/voice and caption acceptance",
+    "Publish only with the complete accepted refreshed tutorial set"
+  ],
+  "composition": {
+    "directory": "classify_canonical_verified_current",
+    "scene_count": 12,
+    "terminal_frame_count": 3,
+    "terminal_source": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/classify-preparation-current/captures/classify_canonical_preparation",
+    "preparation_repeated_after_training_capture": true,
+    "prepared_input_proofs_equal": true,
+    "model_rerun_for_composition": false,
+    "pixels_rewritten": false,
+    "preparation_and_cv_dataset_are_separate_identical_exports": true,
+    "scientific_acceptance_sha256": "8f99683f8af2c3b23f75d92ea4140012d2e0a3efddbf1615db4eb08dedb530f1",
+    "lesson_sha256": "61280ad53af9c4fac4fc4c3d91e1aee30988d61ba87f981e9a7866dc61412fc6"
+  },
+  "videos": [
+    {
+      "file": "10_classify_cv_silent.mp4",
+      "sha256": "0b94a05b34deb2b8dfc598a52f0fbd7b1e57191b529fb8a7f52665a0b25313e2",
+      "duration": 254.666667,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    },
+    {
+      "file": "af_heart_review.mp4",
+      "sha256": "b23c83034da3ced51b6378e7c746124f17e7b79a7f609ada933a6348aae619ed",
+      "duration": 254.7,
+      "full_decode": "passed",
+      "width": 3840,
+      "height": 2160,
+      "fps": 30
+    }
+  ],
+  "audio": {
+    "language": "en",
+    "voice": "af_heart",
+    "sha256": "cb267b86e4e84ea8225ba3e4df97fd4cfa050c9eae6905c6223308f96575d464",
+    "freshness_timing_activity": "passed"
+  },
+  "browser": {
+    "lesson": "10_classify_cv",
+    "scope": "en/af_heart playback and scene links only",
+    "uploaded": false,
+    "translation_or_listening_review": false,
+    "repository_player_sha256": "09649f0789a6c18d5a7b1b012d7d5b14222b64f626442b65920ab78881bf86e6",
+    "navigation_contains_staged_lesson": true,
+    "host_app_key": "classify_merged",
+    "example_files": [
+      {
+        "name": "Classify_existing_split_example.zip",
+        "sha256": "13c3214485da16403a4539d9cb32beea12980cb12bb89a2166efe56ee6b41fb7"
+      }
+    ],
+    "loaded_audio_sha256": "cb267b86e4e84ea8225ba3e4df97fd4cfa050c9eae6905c6223308f96575d464",
+    "scene_count": 12,
+    "seek_playback_clocks": {
+      "audio": 107.357994,
+      "video": 107.397411,
+      "expectedVideo": 107.3608046327888,
+      "audioDuration": 254.7,
+      "videoDuration": 254.666667,
+      "mediaError": null
+    },
+    "chapter_and_transcript_links": [
+      "06_api",
+      "08_measure",
+      "09_annotate",
+      "11_classify_ml",
+      "16_activation",
+      "28_training_runs",
+      "39_classifier_evaluation",
+      "41_classify",
+      "65_feature_explorer"
+    ],
+    "passed": true,
+    "evidence_sha256": "ad4c5726ef6965d9008b9ec62984365e76f6a3b48b7a6d45c4f91233f02451cb"
+  },
+  "encoded_visual_review": [
+    "first-scene poster: classifier family focus, dark theme and Blobs"
+  ]
+}

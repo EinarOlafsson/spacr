@@ -93,7 +93,7 @@ from typing import Dict, Iterable, List, Optional, Sequence, Tuple
 from PySide6.QtCore import Qt
 from PySide6.QtWidgets import QComboBox, QPushButton, QSpinBox
 
-from ..theme import active_palette, font_px
+from ..theme import active_palette, button_accent_text, font_px
 
 LOG = logging.getLogger("spacr.qt.preview_controls")
 
@@ -147,7 +147,7 @@ def _flat_qss(selector: str) -> str:
         f"  border-radius: 0px;"
         f"}}"
         f"{selector}#{FLAT_CONTROL_NAME}:hover {{"
-        f"  color: {palette['button_accent']};"
+        f"  color: {button_accent_text(palette)};"
         f"}}"
         f"{selector}#{FLAT_CONTROL_NAME}:focus {{"
         f"  border: none;"
@@ -361,6 +361,10 @@ def sibling_sources(path, suffixes: Sequence[str],
                     directories: bool = False) -> List[Path]:
     """List every comparable source sitting beside ``path``.
 
+    Names that start with a dot are left out, as a Mask run leaves them out:
+    on exFAT, FAT and many network shares macOS writes a ``._<name>`` sidecar
+    beside every file, with the same ending and no image in it.
+
     :param path: the currently-loaded file (or folder).
     :param suffixes: lower-case suffixes that count as a source.
     :param directories: when True, list sibling *folders* instead of files —
@@ -377,6 +381,8 @@ def sibling_sources(path, suffixes: Sequence[str],
         return [target] if target.exists() else []
     out: List[Path] = []
     for entry in entries:
+        if entry.name.startswith("."):
+            continue
         if directories:
             if entry.is_dir():
                 out.append(entry)
@@ -503,10 +509,21 @@ def _get_regex_callable():
     exists to remove.
 
     So: use the real function when the module happens to be loaded already,
-    and otherwise compile *that one function* out of the source file. It has no
-    module-level dependencies — only f-strings and ``print`` — so it executes
-    standalone, and it is still the same single definition: edit ``_get_regex``
-    and the previews follow it.
+    and otherwise compile *that one function* out of the source file. It
+    reaches nothing in ``spacr.utils`` — the convention table it reads lives
+    in :mod:`spacr.regex_infer`, which imports nothing outside the standard
+    library and which ``_get_regex`` imports **absolutely**, inside its own
+    body, precisely so that it still resolves here. Measured on this tree:
+    the lifted function answers in 9 ms at 47 MB of RSS and
+    ``spacr.utils`` stays out of ``sys.modules``.
+
+    WHAT WOULD BREAK THIS, so that the next person editing ``_get_regex``
+    knows: a module-level name (a constant, a compiled pattern, a dataclass)
+    or a RELATIVE import. Neither exists in the namespace this ``exec``
+    builds; both raise, both are swallowed by :func:`_acquisition_regex`'s
+    ``except Exception``, and the preview then silently stops grouping a
+    folder it used to group. It is still the same single definition: edit
+    ``_get_regex`` and the previews follow it.
 
     :returns: the callable, or ``None`` if it could not be obtained.
     """
@@ -565,7 +582,9 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
     :func:`~spacr.utils._get_regex`. Names the regex understands are grouped by
     ``(plateID, wellID, fieldID)``; names it does not become one set each, so
     an ad-hoc folder of ``a.tif``/``b.tif`` still lists exactly as it always
-    did.
+    did. Names that start with a dot are skipped, as a run skips them: the
+    ``._<name>`` sidecars macOS writes on exFAT and network volumes end in
+    ``.tif`` too and hold no image.
 
     :param directory: folder to enumerate.
     :param suffixes: lower-case suffixes that count as a source.
@@ -591,7 +610,7 @@ def enumerate_image_sets(directory, suffixes: Sequence[str],
             for entry in entries:
                 name = entry.name
                 lowered = name.lower()
-                if not lowered.endswith(wanted):
+                if name.startswith(".") or not lowered.endswith(wanted):
                     continue
                 try:
                     if not entry.is_file():

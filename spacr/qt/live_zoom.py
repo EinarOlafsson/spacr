@@ -40,6 +40,18 @@ rebuilt, and that is the 587 ms number. The choice made:
 "Text live, spacing on release." Text follows the wheel; the spacing around
 it catches up in one step when the wheel stops or Z comes up. It is a
 deliberate compromise, not an oversight, and it is why the settle exists.
+
+AND THE ICONS DID NOT MOVE AT ALL, which was NOT part of that compromise.
+The spacing caught up at the settle; the icons never caught up, because an
+icon size is neither a stylesheet value nor a ``scaled_px`` call that
+anything re-ran -- it is a widget PROPERTY written once when the widget was
+built, so a scale that grew every caption left every glyph beside those
+captions exactly where it was. The settle now re-derives them, through
+:func:`spacr.qt.preferences._rescale_icon_sizes`, inside the same
+``apply_preferences_to_app`` step that rebuilds the sheet: 5.5 ms for the
+2,122 widgets of a window with two modules open, against the 395-877 ms
+that step costs when the scale really changes. Nothing was added to the
+live half.
 """
 from __future__ import annotations
 
@@ -366,6 +378,15 @@ class LiveZoomFilter(QObject):
         chosen over a gesture that stutters. Called when the wheel has been
         still for :data:`_SETTLE_MS`, when Z comes up, and when the window
         loses focus with Z still down.
+
+        THE ICONS CATCH UP HERE TOO, and here only. They ride inside
+        ``apply_preferences_to_app`` rather than being resized per notch,
+        because the condition on this gesture was that it be fast without
+        lag and the live half is the half that has to answer for it. The
+        sweep is 5.5 ms on 2,122 widgets, so it COULD have gone in the live
+        half -- it is here because the icons would then have grown inside
+        spacing that had not, which is the mismatch that made the icons
+        look wrong in the first place.
 
         The QSettings write happens here too, for the same reason: twenty
         writes a second to a settings file is not free.

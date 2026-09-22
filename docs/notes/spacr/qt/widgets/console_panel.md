@@ -46,7 +46,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [ConsolePanel._prune_retired](#consolepanel_prune_retired) (1 entry)
 - [ConsolePanel.shutdown](#consolepanelshutdown) (2 entries)
 - [ConsolePanel._on_stage](#consolepanel_on_stage) (1 entry)
-- [ConsolePanel._on_chunk](#consolepanel_on_chunk) (1 entry)
+- [ConsolePanel._on_chunk](#consolepanel_on_chunk) (2 entries)
 - [ConsolePanel._on_stream_finished](#consolepanel_on_stream_finished) (5 entries)
 - [ConsolePanel.ai_explanation_of](#consolepanelai_explanation_of) (2 entries)
 - [ConsolePanel.open_error_flow](#consolepanelopen_error_flow) (3 entries)
@@ -843,6 +843,14 @@ if self._current_stdout is None or self._last_entry_kind != "ai":
 
 Stream into the provider-coloured AI block created in _send_to_ai. Guard in case it was cleared (open_error_flow uses its own path).
 
+### 2026-09-19
+
+```python
+self.begin_topic(tr("spaCR AI"), accent=ai_color)
+```
+
+A recreated reply block opens its own "spaCR AI" heading. When a run fails, the error flow draws the heading and an empty reply block straight away. The run then writes its closing lines -- workspace, macro, "run closed [failed]", "✗ Failed" -- under "spaCR output", and those arrive before the provider's first line. The reply block was then recreated with no heading, so the reply sat under "spaCR output" in the AI's colour and the "spaCR AI" heading above stayed empty. That is the console GitHub #117 pasted, and it read as "the AI was never asked". `begin_topic` does not repeat a heading that is already the current one, so an uninterrupted reply still has exactly one.
+
 ## ConsolePanel._on_stream_finished
 
 ### lines 2250-2254
@@ -928,3 +936,29 @@ ai_color = ai_color_for_provider(self._current_provider_name)
 ```
 
 AI reply with provider colour + cycling working dots.
+
+## ConsolePanel._take_down_the_waiting_heading
+
+### added 2026-09-19 (432)
+
+```python
+dots.setParent(self)
+```
+
+THE HEADING MOVES; IT IS NOT REPEATED. The 2026-09-19 entry under `_on_chunk` above gave the late reply a heading of its own, which fixed the colour and the reading -- and left the FIRST heading, drawn when the question was asked, empty above the run's closing lines. That empty "spaCR AI" is the part of GitHub #117's console that reads as "the AI was never asked", so fixing half of it fixed the half nobody had complained about. 432's trailing note recorded it as partial and left it; this is the rest.
+
+The empty heading is taken down at the moment the reply opens its own, and the working dots go with it rather than being dropped or duplicated: they say the provider is still thinking, and it is. `setParent(self)` before the old bar is deleted is what keeps them -- a child of a widget being deleted is deleted with it, and `setParent` hides the widget rather than promoting it to a window, so nothing flashes on screen between the two bars. The new bar's layout takes it and shows it again.
+
+EMPTY IS CHECKED, NOT ASSUMED. The block under the heading is read with `toPlainText()`: a reply that was never interrupted keeps the heading it started under, and nothing here runs for it. `_current_topic_label` is cleared when it named the bar just removed, or `begin_topic` would decline to draw the replacement on the grounds that it says the same thing.
+
+Also called from `_on_stream_finished`, for a provider that fails before printing anything: there is no reply to move the heading to, so the empty one is simply taken down and the "[AI error]" line stands on its own. The placement of that line, under "spaCR output" through `append_notice`, predates 432 and is unchanged.
+
+Held by `test_the_interrupted_reply_leaves_no_empty_heading_above`, `test_the_working_indicator_moves_with_the_heading` and `test_a_reply_that_never_comes_leaves_no_empty_heading`, and by the end-to-end `test_the_ai_failure_is_reported_with_the_way_to_sign_in`, which now counts the headings in the whole #117 console.
+
+## ConsolePanel.begin_topic, 2026-09-19 (432)
+
+```python
+return bar
+```
+
+The bar is handed back so an empty heading can be taken down again later. It returns `None` when the heading already showing says the same thing and was kept, which is the same answer to "did this call draw anything?".

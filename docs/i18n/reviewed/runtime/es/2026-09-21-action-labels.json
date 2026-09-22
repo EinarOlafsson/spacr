@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "language": "es",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Embed",
+      "source": "Embed",
+      "source_sha256": "7512561d2f685534f3a839981a09f87a955c3f853397da88fd2a99bad04f3e7a",
+      "translation": "Vectorizar"
+    },
+    {
+      "table": "ui",
+      "key": "Filter",
+      "source": "Filter",
+      "source_sha256": "638e249f4a15ebb84957da130701d138a6e06d88dceeaa2e6dcd91db70cc1381",
+      "translation": "Filtrar"
+    },
+    {
+      "table": "ui",
+      "key": "Cell probability",
+      "source": "Cell probability",
+      "source_sha256": "51fb70326b24ffb0f861fb590d152e736c8e999df776087efe53c5a83dfd1162",
+      "translation": "Probabilidad celular"
+    }
+  ]
+}

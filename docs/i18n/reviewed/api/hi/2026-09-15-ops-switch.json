@@ -125,63 +125,81 @@
       "label": "spacr.ops_engine#1",
       "source": "One call takes each well from its tile files to three tables in ``measurements.db``: ``ops_geometry``, where each nuclear tile sits in the well frame; ``ops_objects``, one row per nucleus, segmented on the composed nuclear map and numbered once for the well; and ``ops_barcodes``, one row per nucleus whose attributed reads agree.",
       "source_sha256": "535c080030d66fcb37a603f2a292f89847bac5a3d4841885e33cd81e88292423",
-      "translation": "एक कॉल हर वेल को उसकी टाइल फ़ाइलों से ``measurements.db`` की तीन तालिकाओं तक ले जाती है: ``ops_geometry``, जिसमें हर न्यूक्लियर टाइल वेल फ़्रेम में कहाँ है; ``ops_objects``, हर नाभिक की एक पंक्ति, जोड़े गए न्यूक्लियर मानचित्र पर विभाजित और वेल के लिए एक बार क्रमांकित; और ``ops_barcodes``, हर उस नाभिक की एक पंक्ति जिसके सौंपे गए रीड्स सहमत हैं।"
+      "translation": "एक कॉल हर वेल को उसकी टाइल फ़ाइलों से ``measurements.db`` की तीन तालिकाओं तक ले जाती है: ``ops_geometry``, जिसमें हर न्यूक्लियर टाइल वेल फ़्रेम में कहाँ है; ``ops_objects``, हर नाभिक की एक पंक्ति, जोड़े गए न्यूक्लियर मानचित्र पर विभाजित और वेल के लिए एक बार क्रमांकित; और ``ops_barcodes``, हर उस नाभिक की एक पंक्ति जिसके सौंपे गए रीड्स सहमत हैं।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "A file that cannot be read costs one cycle of the microscope field of view it belongs to and is listed in the report; it does not cost the microplate sample position. The phenotype acquisition is not placed by this step.",
       "label": "spacr.ops_engine#2",
       "source": "A file that cannot be read costs one cycle of the field it belongs to and is listed in the report; it does not cost the well. The phenotype acquisition is not placed by this step.",
       "source_sha256": "6be7ecf5195e1eda77601bb7ceb380b4e8358e6806b953cd3e15622150eaed73",
-      "translation": "जो फ़ाइल पढ़ी नहीं जा सकती वह अपने फ़ील्ड का एक चक्र खोती है और रिपोर्ट में सूचीबद्ध होती है; वह पूरे वेल को नहीं खोती। फ़ीनोटाइप अधिग्रहण इस चरण से नहीं रखा जाता।"
+      "translation": "जो फ़ाइल पढ़ी नहीं जा सकती वह अपने फ़ील्ड का एक चक्र खोती है और रिपोर्ट में सूचीबद्ध होती है; वह पूरे वेल को नहीं खोती। फ़ीनोटाइप अधिग्रहण इस चरण से नहीं रखा जाता।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "Stitch, segment and decode the microplate sample positions of one sequencing acquisition.",
       "label": "spacr.ops_engine.run_ops#0",
       "source": "Stitch, segment and decode the wells of one sequencing acquisition.",
       "source_sha256": "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
-      "translation": "एक सीक्वेंसिंग अधिग्रहण के वेल्स को जोड़ता, विभाजित करता और डिकोड करता है।"
+      "translation": "एक सीक्वेंसिंग अधिग्रहण के वेल्स को जोड़ता, विभाजित करता और डिकोड करता है।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing microscope image fields, searched recursively; ``dst_root``, where ``measurements.db`` and the per-microplate sample position reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many microscope fields of view decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
       "label": "spacr.ops_engine.run_ops#1",
       "source": "the OPS settings. Read here: ``genotype_source``, the folder of sequencing tiles, searched recursively; ``dst_root``, where ``measurements.db`` and the per-well reports go, the source folder when empty; ``plate``, the source folder's name when empty; ``ops_gpu``; ``n_workers``, how many fields decode at once; ``cellpose_model`` and ``cellpose_diameter``.",
       "source_sha256": "be332b65d795a5ca048ee1704afb6f3bb10999929be6043c47f271867e8f22ea",
-      "translation": "OPS सेटिंग्स। यहाँ पढ़ी जाती हैं: ``genotype_source``, सीक्वेंसिंग टाइलों का फ़ोल्डर, जिसे पुनरावर्ती रूप से खोजा जाता है; ``dst_root``, जहाँ ``measurements.db`` और हर वेल की रिपोर्टें जाती हैं, खाली होने पर स्रोत फ़ोल्डर; ``plate``, खाली होने पर स्रोत फ़ोल्डर का नाम; ``ops_gpu``; ``n_workers``, एक साथ कितने फ़ील्ड डिकोड हों; ``cellpose_model`` और ``cellpose_diameter``।"
+      "translation": "OPS सेटिंग्स। यहाँ पढ़ी जाती हैं: ``genotype_source``, सीक्वेंसिंग टाइलों का फ़ोल्डर, जिसे पुनरावर्ती रूप से खोजा जाता है; ``dst_root``, जहाँ ``measurements.db`` और हर वेल की रिपोर्टें जाती हैं, खाली होने पर स्रोत फ़ोल्डर; ``plate``, खाली होने पर स्रोत फ़ोल्डर का नाम; ``ops_gpu``; ``n_workers``, एक साथ कितने फ़ील्ड डिकोड हों; ``cellpose_model`` और ``cellpose_diameter``।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "which microplate sample positions to run; every microplate sample position found when None.",
       "label": "spacr.ops_engine.run_ops#2",
       "source": "which wells to run; every well found when None.",
       "source_sha256": "002d60e5120b01c51726f8f7f7331abf3295655a33e0fb30a9e9eb08cbcafd64",
-      "translation": "कौन से वेल चलाने हैं; None होने पर मिला हर वेल।"
+      "translation": "कौन से वेल चलाने हैं; None होने पर मिला हर वेल।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a microplate sample position can be stitched once and decoded again.",
       "label": "spacr.ops_engine.run_ops#3",
       "source": "any of ``\"stitch\"``, ``\"objects\"`` and ``\"decode\"``, run in that order. A phase left out reads what it needs from the database, so a well can be stitched once and decoded again.",
       "source_sha256": "672cc2b00ec29205ca6471d77698beca165ebd6ba09165dc4373604820e64d40",
-      "translation": "``\"stitch\"``, ``\"objects\"`` और ``\"decode\"`` में से कोई भी, उसी क्रम में चलाए गए। छोड़ा गया चरण अपनी ज़रूरत की चीज़ डेटाबेस से पढ़ता है, इसलिए एक वेल एक बार जोड़ा और फिर से डिकोड किया जा सकता है।"
+      "translation": "``\"stitch\"``, ``\"objects\"`` और ``\"decode\"`` में से कोई भी, उसी क्रम में चलाए गए। छोड़ा गया चरण अपनी ज़रूरत की चीज़ डेटाबेस से पढ़ता है, इसलिए एक वेल एक बार जोड़ा और फिर से डिकोड किया जा सकता है।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
       "label": "spacr.ops_engine.run_ops#4",
       "source": "the guide barcodes, as a sequence or the path of a CSV with a ``prefix``, ``barcode`` or ``sequence`` column. When given, each barcode is also mapped to its closest guide.",
       "source_sha256": "7cbe96189207e90b50cc5718dddbd288685f28d68df1d5d95fe2430ceac59984",
-      "translation": "गाइड बारकोड, एक अनुक्रम के रूप में या ``prefix``, ``barcode`` या ``sequence`` कॉलम वाली CSV के पथ के रूप में। दिए जाने पर हर बारकोड को उसके निकटतम गाइड से भी जोड़ा जाता है।"
+      "translation": "गाइड बारकोड, एक अनुक्रम के रूप में या ``prefix``, ``barcode`` या ``sequence`` कॉलम वाली CSV के पथ के रूप में। दिए जाने पर हर बारकोड को उसके निकटतम गाइड से भी जोड़ा जाता है।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
       "label": "spacr.ops_engine.run_ops#5",
       "source": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
       "source_sha256": "7346c57efdb70d52d466be513690b764520831f3be1dc4dcb12db239aefc4b6e",
-      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``."
+      "translation": "``{\"db\": path, \"wells\": {well: {phase: report}}}``.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "when the source holds no microscope image fields this can name, an unknown phase or well is asked for, or a phase's input is missing.",
       "label": "spacr.ops_engine.run_ops#6",
       "source": "when the source holds no tiles this can name, an unknown phase or well is asked for, or a phase's input is missing.",
       "source_sha256": "529b4696ea7cdc83298c069d52efbff3b36afd3466f50192d4eaf6672ed76b4c",
-      "translation": "जब स्रोत में ऐसी कोई टाइल न हो जिसे यह पहचान सके, कोई अज्ञात चरण या वेल माँगा जाए, या किसी चरण का इनपुट गायब हो।"
+      "translation": "जब स्रोत में ऐसी कोई टाइल न हो जिसे यह पहचान सके, कोई अज्ञात चरण या वेल माँगा जाए, या किसी चरण का इनपुट गायब हो।",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.ops_engine.run_ops's documentation, which was rewritten by '372 after review: the pattern added so the phenotype names would parse read the sequencing half as well, and the channel was being indexed on the z axis' (a05b057af, 2026-09-19). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "half a microscope image field's side, in grid units. A site is kept when its whole microscope image field lies inside the circle: at ``(dx, dy)`` from the centre, when ``(|dx| + half_tile)**2 + (|dy| + half_tile)**2 <= radius**2``. Zero keeps every site whose centre is inside, which is the rule every layout followed before this microscope field of view existed.",

@@ -722,7 +722,23 @@ def test_real_default_claims_have_no_unrecorded_drift():
     # Mask resolves this factory in APPS: 667 - 20 + 8 = 655 comparisons.
     # Keep the exact census and pin the arriving pairs so another claim
     # cannot disappear unnoticed behind an unrelated new one.
-    assert comparisons == 655
+    # 655 -> 673 on 2026-09-21, +19/-1, DIFFED against c0b2c5227 (the commit
+    # that pinned 655) rather than inferred. Arriving: nineteen Plaque Assay
+    # Figure-mode settings from item 468, each with a parseable "Default X."
+    # -- plaque_mode, figure_detector, figure_imgsz, figure_confidence,
+    # figure_read_text, confirm_annotations and the thirteen text_* reading
+    # controls. Leaving: ("regression", "Toxoplasma"), retired by item 364,
+    # so no app resolves it and its claim is compared against nothing.
+    assert comparisons == 673
+    assert ("regression", "Toxoplasma") not in compared_pairs
+    for key in ("plaque_mode", "figure_detector", "figure_imgsz",
+                "figure_confidence", "figure_read_text",
+                "confirm_annotations", "text_ignore", "text_min_confidence",
+                "text_order", "text_panel_reach", "text_reach_above",
+                "text_reach_below", "text_reach_left", "text_reread",
+                "text_reread_scale", "text_separator", "text_use_above",
+                "text_use_below", "text_use_left"):
+        assert ("analyze_plaques", key) in compared_pairs
     for role in ("cell", "nucleus", "pathogen", "organelle"):
         for suffix in ("min_intensity", "max_intensity"):
             assert ("mask", f"{role}_{suffix}") in compared_pairs

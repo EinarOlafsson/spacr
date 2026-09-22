@@ -1,17 +1,32 @@
 {
-  "lesson": "09_annotate", "language": "ja",
-  "english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
-  "review": {"kind": "Editorial translation checked against English and the verified real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish queued labels from database persistence through real Next/Back actions.", "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question."]},
+  "lesson": "09_annotate",
+  "language": "ja",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
+  "review": {
+    "kind": "Editorial translation checked against English and the verified real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish queued labels from database persistence through real Next/Back actions.",
+      "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
+    ]
+  },
   "title": "Annotate：実際の切り出し画像、保存したラベル、確認ツール",
   "description": "ダウンロードできる切り出し画像を読み込み、独立した注釈列を作成し、実際に保存されたラベルを確認します。表示を調整し、現在の Annotate 内にある確認・学習ツールを探します。",
-  "objectives": ["切り出し画像または必要時に画像を読み出すサンプルを選び、実際のプロジェクトフォルダーを開く。", "独立した注釈列を使い、保存待ちと保存済みのラベルを区別し、元の注釈を変更せずにデモ用ラベルを消す。", "クラス別件数とカバレッジを確認し、画像ファイルを変更せずに表示色を変える。", "統合された Agreement、現在の学習メニュー、注釈データベース生成、任意のエーアイコンソールを見つける。"],
-  "prerequisite": "spaCR を開き、Core モジュールから Annotate を選びます。録画では、書き出し済みの PNG 画像2,341枚と測定データベースを含む、ダウンロード可能な Load データを使います。モデル学習やエーアイサービスは不要です。実際の注釈作業では、先に生物学的なクラスの定義を決めてください。ここでの一時ラベルは保存の実演であり、生物学的な判定ではありません。",
+  "objectives": [
+    "切り出し画像または必要時に画像を読み出すサンプルを選び、実際のプロジェクトフォルダーを開く。",
+    "独立した注釈列を使い、保存待ちと保存済みのラベルを区別し、元の注釈を変更せずにデモ用ラベルを消す。",
+    "クラス別件数とカバレッジを確認し、画像ファイルを変更せずに表示色を変える。",
+    "統合された Agreement、現在の学習メニュー、注釈データベース生成、任意のエーアイコンソールを見つける。"
+  ],
+  "prerequisite": "spaCR 1.5.0.8 で録画しました。同じサンプルファイルを録画用の個人情報を含まないパスから選ぶ前に、自動で開く動作を独立に検証しました。 spaCR を開き、Core モジュールから Annotate を選びます。録画では、書き出し済みの PNG 画像2,341枚と測定データベースを含む、ダウンロード可能な Load データを使います。モデル学習やエーアイサービスは不要です。実際の注釈作業では、先に生物学的なクラスの定義を決めてください。ここでの一時ラベルは保存の実演であり、生物学的な判定ではありません。",
   "scenes": [
     "Core モジュールから Annotate を開きます。主な作業領域は、測定データベースに対応した切り出し画像のグリッドです。現在のモジュールには、カバレッジ確認、学習操作、データベース生成、統合された Annotator Agreement もあります。",
     "Load test data を選び、２つの選択肢を確認します。Load は書き出し済みの切り出し画像とデータベースを提供します。サンプルには2,341枚のピーエヌジー画像があります。この録画はダウンロード済みの完全なキャッシュを再利用しており、画像やラベルを作り上げてはいません。",
-    "Stream は、必要に応じて画像を切り出すための結合画像配列とデータベースを提供します。画像をどう読みたいかに合わせて選んでください。一方をダウンロードしても、他方が揃ったことにはなりません。このデモでは終始 Load を使います。",
-    "ダウンロード後もソース未選択と表示される場合は、Open source を選びます。measurements サブフォルダーとデータベースを含むプレートフォルダーを指定し、データベースファイルそのものは選びません。ここで示すアプリの版では、この追加操作が実際に必要です。",
-    "実際の切り出し画像が表示され、ページ件数が想定したデータセットと一致することを確認します。１ページの画像数はウィンドウと画像サイズによって変わります。フォルダーが開くだけでは十分ではありません。注釈を判断する前に画像を見てください。",
+    "Stream は、必要に応じて切り出し画像を取得するための結合画像配列を提供します。測定データベースがなければ、それもダウンロードします。Load は保存済みの切り出し画像とそのデータベースを提供します。この実演では一貫して Load を使います。画像をどのように読み込むかに合わせて選択してください。",
+    "Load test data はダウンロードしたプレートを自動で開きます。既存のローカルプレートを開くには、任意の方法として Open source を使えます。データベースファイル自体ではなく、measurements とそのデータベースを含むプレートフォルダーを選択します。ここでは同じサンプルファイルを指す、録画用の個人情報を含まないパスを選びます。",
+    "実際の切り出し画像が表示され、ページ件数が想定したデータセットと一致することを確認します。１ページの画像数はウィンドウと切り出し画像のサイズによって変わります。フォルダーが開くだけでは十分ではありません。注釈を判断する前に画像を見てください。",
     "Settings を開き、デモ専用の注釈列を作ります。元のラベルは変更しません。実作業の前に各クラスの意味を記録し、表示条件を揃えましょう。これから付けるラベルは、保存経路を試すためだけの例です。",
     "最初の画像を左クリックしてクラス１を付けます。右クリックはクラス２で、同じクラスをもう一度選ぶと消えます。クラス色の輪は現在の判断を示し、外側の白い輪はフォーカスを示します。輪の変化だけでは、データベースへの保存を証明できません。",
     "Next で次のページへ進みます。この版では、ページを変えると待機中のラベルがバックグラウンドの保存処理へ送られます。実際のデータベースを確認し、クラス１が書き込まれたことを確かめました。未保存の見た目の変化を、保存完了と混同しないでください。",

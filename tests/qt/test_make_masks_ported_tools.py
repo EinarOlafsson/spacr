@@ -706,9 +706,18 @@ def test_merge_widens_the_dtype_rather_than_wrapping_labels():
 
 def test_a_failed_detection_is_reported_not_raised(screen, monkeypatch,
                                                     headless):
+    """The stub goes on the function the button calls.
+
+    It used to go on ``otsu_instances``, which the button reached only
+    through ``_otsu_instances``'s shortcut for an uncorrected threshold with
+    nothing else asked for. Item 419 put four more Otsu settings on the
+    panel and two of them start on, so that shortcut is no longer taken and
+    the stub was never reached -- an implementation detail standing in for
+    the subject. ``_otsu_instances`` IS what ``Otsu detect`` calls.
+    """
     def boom(*_a, **_k):
         raise RuntimeError("no threshold here")
-    monkeypatch.setattr(engine, "otsu_instances", boom)
+    monkeypatch.setattr(engine, "_otsu_instances", boom)
     before = screen._canvas.mask.copy()
     screen._btn_otsu.click()
     assert (screen._canvas.mask == before).all()

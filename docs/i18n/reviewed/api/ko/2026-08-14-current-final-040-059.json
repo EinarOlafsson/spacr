@@ -70,7 +70,9 @@
       "source_sha256": "c506d395a36465c8892c47e4a0b8f47d6254ff0d1b5da1156e2c0dc0083cd2e6",
       "source": "R² on a sigmoid is nearly useless. Any monotone curve through a well-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
       "context": "R² on a sigmoid is nearly useless. Any monotone curve through a microplate sample position-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
-      "translation": "시그모이드의 R²는 거의 쓸모가 없습니다. 충분히 표본화된 용량-반응을 지나는 단조 곡선은 거의 모두 0.95를 넘습니다. 총제곱합이 두 평탄부의 차이에 지배되고 *어떤* S자 곡선도 이를 포착하기 때문입니다. :meth:`DoseResponseResult.caveats`는 매번 수치 옆에서 이 사실을 설명합니다."
+      "translation": "시그모이드의 R²는 거의 쓸모가 없습니다. 충분히 표본화된 용량-반응을 지나는 단조 곡선은 거의 모두 0.95를 넘습니다. 총제곱합이 두 평탄부의 차이에 지배되고 *어떤* S자 곡선도 이를 포착하기 때문입니다. :meth:`DoseResponseResult.caveats`는 매번 수치 옆에서 이 사실을 설명합니다.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.widgets.dose_response's documentation, which was rewritten by \"387: the 5PL's profile interval was too narrow because its inner minimisation stopped one sweep short\" (82d9b5f6f, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "label": "spacr.convert.assign_wells#3",

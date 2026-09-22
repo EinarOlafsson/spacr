@@ -673,7 +673,8 @@ def generate_cellpose_masks_sam(src, settings, object_type):
                         prepare_batch_for_segmentation, _get_cellpose_channels,
                         _resolve_cellpose_pretrained)
     from .io import (_check_masks, _create_database, _get_avg_object_size,
-                     _save_array_atomic, _save_object_counts_to_database)
+                     _listdir_visible, _save_array_atomic,
+                     _save_object_counts_to_database)
     from .timelapse import (_npz_to_movie, _btrack_track_cells, _trackpy_track_cells,
                             _trackastra_track_cells, _ultrack_track_cells)
     from .plot import plot_cellpose4_output
@@ -770,8 +771,10 @@ def generate_cellpose_masks_sam(src, settings, object_type):
             **accelerator.cellpose_kwargs(),
         )
     else:
-        model = _load_backend(segmentation_backend, z_plan=z_plan, t_plan=t_plan)
-    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]
+        model = _load_backend(segmentation_backend, z_plan=z_plan,
+                              t_plan=t_plan, model_name=model_name,
+                              object_type=object_type)
+    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
@@ -1101,7 +1104,8 @@ def generate_cellpose_masks(src, settings, object_type):
     """
     from .utils import _masks_to_masks_stack, _filter_cp_masks, _get_cellpose_channels, _choose_model, all_elements_match, prepare_batch_for_segmentation
     from .io import (_check_masks, _create_database, _get_avg_object_size,
-                     _save_array_atomic, _save_object_counts_to_database)
+                     _listdir_visible, _save_array_atomic,
+                     _save_object_counts_to_database)
     from .timelapse import _npz_to_movie, _btrack_track_cells, _trackpy_track_cells
     from .plot import plot_cellpose4_output
     from .settings import set_default_settings_preprocess_generate_masks, _get_object_settings
@@ -1177,7 +1181,7 @@ def generate_cellpose_masks(src, settings, object_type):
     model = _choose_model(model_name, device, object_type=object_type, restore_type=None, object_settings=object_settings)
 
     
-    paths = [os.path.join(src, file) for file in os.listdir(src) if file.endswith('.npz')]    
+    paths = [os.path.join(src, file) for file in _listdir_visible(src) if file.endswith('.npz')]    
     
     count_loc = os.path.dirname(src)+'/measurements/measurements.db'
     os.makedirs(os.path.dirname(src)+'/measurements', exist_ok=True)
@@ -1406,7 +1410,8 @@ def generate_organelle_masks_sam(src, settings, object_type):
     """
 
     from .io import (_check_masks, _create_database, _get_avg_object_size,
-                     _save_array_atomic, _save_object_counts_to_database)
+                     _listdir_visible, _save_array_atomic,
+                     _save_object_counts_to_database)
     from .settings import _set_organelle_defaults
     from .object_roles import organelle_settings_view
     from.plot import plot_organelle_output
@@ -1456,7 +1461,7 @@ def generate_organelle_masks_sam(src, settings, object_type):
         df['setting_value'] = df['setting_value'].apply(str)
         display(df)
 
-    paths = [os.path.join(src, f) for f in os.listdir(src) if f.endswith('.npz')]
+    paths = [os.path.join(src, f) for f in _listdir_visible(src) if f.endswith('.npz')]
     if not paths:
         print(f'No .npz files found in {src}')
         return

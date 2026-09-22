@@ -123,13 +123,12 @@ class ImportWorkbench(QWidget):
         self.setAcceptDrops(True)
         #: The worker that walks what was dropped. A DROP IS A PATH THE USER
         #: CHOSE, and a plate lives on the microscope's share: `images_under`
-        #: stats it and then walks the whole tree. Measured on the
-        #: maintainer's machine 2026-09-04, ONE `os.path.exists` under an
-        #: `autofs` mount whose share was asleep had not returned after twenty
-        #: seconds -- and a walk is thousands of those, on the thread that
+        #: stats it and then walks the whole tree. ONE `os.path.exists` under
+        #: an `autofs` mount whose share is asleep can take more than twenty
+        #: seconds to return -- and a walk is thousands of those, on the thread that
         #: paints. Inline, the drop froze the application with no traceback,
-        #: because a stalled event loop is not a crash; it was reported as
-        #: hover flicker and glimpses of other screens.
+        #: because a stalled event loop is not a crash; it shows as hover
+        #: flicker and glimpses of other screens.
         #:
         #: `user_visible=False`: the user dropped a folder, they did not
         #: start a run, so this must never claim a run banner on Home. Safe

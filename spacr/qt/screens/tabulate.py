@@ -61,6 +61,9 @@ from ..theme import SPACING
 from ..widgets.data_filter_panel import DataFilterPanel
 from ..widgets.graph_builder import GraphBuilderPanel
 from ..widgets.pivot_builder import PivotPanel
+from ..widgets.measurements_example import (
+    EXAMPLE_TABLE, install_test_data_button,
+)
 from .graph_builder import read_table, table_names
 from .app_screen import ModuleHeader
 from ..app_catalog import declared_app, register_declared
@@ -143,6 +146,10 @@ class TabulateScreen(QWidget):
         load.setToolTip("A measurements.db, or a CSV of measurements")
         load.clicked.connect(self.choose_table)
         head.addWidget(load)
+        install_test_data_button(
+            self, head, lambda _folder, db: self.load_path(
+                str(db), table=EXAMPLE_TABLE),
+            say=self._source.setText)
         outer.addLayout(head)
 
         body = QSplitter(Qt.Horizontal, self)

@@ -72,6 +72,15 @@ FACTORIES = {
     "organelle_min_area": "set_default_settings_preprocess_generate_masks",
     "organelle_max_area": "set_default_settings_preprocess_generate_masks",
     "reduction_method": "set_default_umap_image_settings",
+    # 2026-09-19, instruction 364: `img_size` became `crop_size` at the
+    # maintainer's decision. The Annotate and Cells-tab picture defaults
+    # come from this factory, and it folds before it fills them.
+    "crop_size": "set_annotate_default_settings",
+    # 2026-09-21, instruction 364: both motility renames. This factory had
+    # no fold until they landed, so an old file's value was overwritten by
+    # the default before anything could move it.
+    "drop_straight_tracks": "get_automated_motility_assay_default_settings",
+    "track_outlier_zscore": "get_automated_motility_assay_default_settings",
 }
 
 

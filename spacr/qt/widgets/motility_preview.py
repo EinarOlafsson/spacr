@@ -797,7 +797,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
         self._straightness_filter = Toggle(
             "Drop over-straight tracks", self)
         self._straightness_filter.setToolTip(
-            "(bool) straightness_filter — remove the flagged tracks entirely.")
+            "(bool) drop_straight_tracks — remove the flagged tracks entirely.")
 
         self._pixels_per_um = QDoubleSpinBox(self)
         self._pixels_per_um.setRange(0.0, 1000.0)
@@ -1149,7 +1149,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
             "tracked_object": self._tracked_object.currentText(),
             "max_displacement": float(self._max_disp.value()),
             "straightness_threshold": float(self._straightness.value()),
-            "straightness_filter": bool(self._straightness_filter.isChecked()),
+            "drop_straight_tracks": bool(self._straightness_filter.isChecked()),
             "channels": list(range(int(self._n_channels.value()))),
         }
         if cal.pixels_per_um is not None:
@@ -1180,7 +1180,7 @@ class MotilityPreviewPanel(LivePreviewContract, QWidget):
                 self._straightness.setValue(
                     float(settings["straightness_threshold"]))
             self._straightness_filter.setChecked(
-                bool(settings.get("straightness_filter", False)))
+                bool(settings.get("drop_straight_tracks", False)))
             chans = settings.get("channels")
             if isinstance(chans, (list, tuple)) and chans:
                 self._n_channels.setValue(len(chans))

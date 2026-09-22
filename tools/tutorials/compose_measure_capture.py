@@ -5,6 +5,7 @@ scenes remain preserved but cannot enter this composition. Both captures use
 the same byte-identical published arrays; the batch is not rerun or fabricated.
 """
 from copy import deepcopy
+import argparse
 import hashlib
 import os
 from pathlib import Path
@@ -23,28 +24,32 @@ BATCH_FRAMES = ('20_batch_settings', '26_measure_console_complete',
                 '24_batch_figure', '30_ai_unsent_question')
 
 
-def compose(stage=DEFAULT_STAGE):
+def compose(stage=DEFAULT_STAGE, *, preview=None, batch=None, project=None,
+            preview_project=None, receipt_path=None, destination=None,
+            recorded_project=None):
     stage = Path(stage).resolve()
-    preview = stage / 'measure_controls/captures/measure_visible_controls_v2'
-    batch = stage / 'captures/measure_readable_native'
-    destination = stage / 'captures/measure_usable_preview_verified_batch'
+    preview = Path(preview or stage / 'measure_controls/captures/measure_visible_controls_v2').resolve()
+    batch = Path(batch or stage / 'captures/measure_readable_native').resolve()
+    destination = Path(destination or stage / 'captures/measure_usable_preview_verified_batch').resolve()
+    project = Path(project or stage / 'measure_production/example_data/plate1').resolve()
+    preview_project = Path(preview_project or stage / 'measure_controls/example_data/plate1').resolve()
     if destination.exists():
         raise FileExistsError('Preserve the existing accepted composition')
     hashes = {}
     proof = _read(preview / 'scientific_acceptance.json', hashes)
     check_controls(proof)
-    receipt = _read(REPO / 'tools/tutorials/evidence/2026-09-11_measure_readable_native_checks.json', hashes)
+    receipt = _read(Path(receipt_path or REPO / 'tools/tutorials/evidence/2026-09-11_measure_readable_native_checks.json'), hashes)
     if not receipt['batch_acceptance']['accepted']:
         raise ValueError('The native batch must have completed successfully')
-    project = stage / 'measure_production/example_data/plate1'
-    output = inspect_project(project, batch)
+    output = inspect_project(project, batch, recorded_project=recorded_project,
+                             preview_capture=preview if recorded_project is not None else None)
     if output != receipt['independent_output_checks']:
         raise ValueError('The previously checked batch outputs changed')
     for published, digest in proof['source_hashes'].items():
         stem = Path(published).stem
         if output['source_file_sha256'].get(stem) != digest:
             raise ValueError('The new preview does not use the same original batch array')
-        _same_hash(stage / 'measure_controls/example_data/plate1/merged' / Path(published).name,
+        _same_hash(preview_project / 'merged' / Path(published).name,
                    digest, hashes)
     for row in receipt['saved_pdf_files']:
         _same_hash(project / row['path'], row['sha256'], hashes)
@@ -79,4 +84,10 @@ def compose(stage=DEFAULT_STAGE):
 
 
 if __name__ == '__main__':
-    compose()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    for name in ('preview', 'batch', 'project', 'preview-project', 'receipt-path',
+                 'destination', 'recorded-project'):
+        parser.add_argument('--' + name, type=Path)
+    args = parser.parse_args()
+    compose(**vars(args))

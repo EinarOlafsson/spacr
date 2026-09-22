@@ -89,6 +89,46 @@ def ui_text(source: str, language: str) -> Optional[str]:
     return _localized_value(module, "UI", text, text)
 
 
+def _numbered_background_value(
+    key: str, source: str, language: str, table_name: str,
+) -> Optional[str]:
+    """Reuse slot two only for an exact current numbered-switch source."""
+    prefix = "remove_background_"
+    if not str(key).startswith(prefix):
+        return None
+    from spacr.organelle_types import (
+        CATALOGUED_ORGANELLE_SLOTS, organelle_number, organelle_role_of,
+    )
+
+    tail = str(key).removeprefix(prefix)
+    role = organelle_role_of(tail)
+    if role != tail:
+        return None
+    number = organelle_number(role)
+    if number <= CATALOGUED_ORGANELLE_SLOTS:
+        return None
+    # Slot two's prose explicitly names its channel; the primary prose does
+    # not carry a number, so appending a number to it would be ambiguous.
+    template_key = "remove_background_organelleb"
+    canonical = getattr(_english(), table_name, {})
+    template_source = canonical.get(template_key)
+    if not isinstance(template_source, str):
+        return None
+    expected = template_source.replace("organelleb", role).replace(
+        "organelle 2 channel", f"organelle {number} channel")
+    if expected != str(source):
+        return None
+    module = _module(language)
+    if module is None:
+        return None
+    localized = _localized_value(module, table_name, template_key,
+                                 template_source)
+    if localized is None:
+        return None
+    return re.sub(r"(?<!\d)2(?!\d)", str(number),
+                  localized.replace("organelleb_", f"{role}_"))
+
+
 def setting_label(
     key: str,
     source: str,
@@ -101,6 +141,10 @@ def setting_label(
     if canonical.get(lookup) != str(source):
         lookup = str(key)
     if canonical.get(lookup) != str(source):
+        numbered = _numbered_background_value(key, source, language,
+                                              "SETTING_LABELS")
+        if numbered is not None:
+            return numbered
         default_limit = 4
         try:
             from spacr.organelle_types import (
@@ -167,6 +211,10 @@ def setting_tooltip(
     if canonical.get(lookup) != str(source):
         lookup = str(key)
     if canonical.get(lookup) != str(source):
+        numbered = _numbered_background_value(key, source, language,
+                                              "SETTING_TOOLTIPS")
+        if numbered is not None:
+            return numbered
         default_limit = 4
         try:
             from spacr.organelle_types import (

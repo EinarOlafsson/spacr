@@ -1,0 +1,19 @@
+# Modules the 90% coverage floor cannot apply to, and why.
+#
+# Item 288, maintainer decision 2026-09-19: "the goal is 90% for all modules,
+# and if the module would benefit from more than 90% coverage, implement that,
+# but only in cases where coverage is useful."  A module whose remaining
+# uncovered code cannot run on CI at all -- a GPU-only kernel, a branch only
+# Windows or macOS takes -- can never reach the floor by writing tests, so it
+# says so here instead of pretending.
+#
+# One module per line, as "<repository-relative path>: <why>".  The reason is
+# required; tools/verify_module_coverage.py refuses a line without one.
+#
+# AN EXEMPTION LIFTS THE FLOOR AND NOTHING ELSE.  The ratchet still fails if an
+# exempted module loses a single covered statement or branch, and the gate
+# prints EXEMPTION SPENT when a module here has come to clear the floor on its
+# own.  Do NOT reach for `# pragma: no cover` instead: this repository spent an
+# item removing those, and the ratchet counts every one that comes back.
+#
+spacr/ops_accel.py: three CuPy kernels -- the cupy branch of maximum_filter, of matmul and of nearest_neighbours -- are 20 of its 147 statements and run only on CUDA, so 88% is this module's ceiling on any machine without a card, CI included. Every other line is covered (2026-09-19: 77.83% -> 83.74%, with the torch probes, the named-backend refusals and a cupy that imports without a driver all tested). A cupy faked out of numpy would execute those 20 lines and check nothing, which is what tests/test_the_ops_primitives_agree_on_every_backend.py already refuses to do: it SKIPS the cupy agreement case rather than passing it, because a skip says "not asked" where a pass would say "checked" about a path that never ran.

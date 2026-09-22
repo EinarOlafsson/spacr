@@ -23,7 +23,24 @@ from spacr.qt.i18n import retranslate_widget_tree, tr
 from spacr.qt.screens.app_screen import AppScreen
 
 
-PREVIEW_APP = "analyze_plaques"
+def _late_preview_app() -> str:
+    """The module whose preview the registry still attaches after the pass.
+
+    Plaque analysis was the first such module and the one this was measured
+    on; its preview is now built by ``AppScreen`` itself (``owned_by_screen``)
+    and so meets the screen's own pass. The late path is still used by every
+    preview the registry attaches, so the test follows that path rather
+    than a module name.
+    """
+    from spacr.qt import preview_registry
+
+    late = sorted(key for key, spec in preview_registry.PREVIEWS.items()
+                  if not spec.owned_by_screen)
+    assert late, "no module attaches its preview late any more"
+    return late[0]
+
+
+PREVIEW_APP = _late_preview_app()
 
 
 @pytest.fixture()

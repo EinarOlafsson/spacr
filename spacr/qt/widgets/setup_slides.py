@@ -59,8 +59,12 @@ SLIDES: Tuple[Tuple[str, str, Tuple[str, ...]], ...] = (
      "nothing is sent anywhere you have not already logged in to.",
      ("ai_provider", "ai_default")),
     ("When something breaks",
-     "What may leave this machine, and under whose name. Nothing is ever "
-     "sent without you seeing it first and pressing send yourself.",
+     "What may leave this machine, and under whose name. With issue filing "
+     "set to always, the default, a failed run files a redacted report on "
+     "the public spaCR GitHub repository automatically, once per error, "
+     "under the GitHub account signed in below. With ask, you see each "
+     "report first and it is sent only when you press Send. With never, "
+     "nothing is sent.",
      ("issue_prompt", "share_logs")),
     ("Terms of use",
      "Review the terms of use and scroll to the end to enable acceptance. "
@@ -235,9 +239,32 @@ GPU_TABLE_ROWS = (
     ("UMAP / t-SNE / cluster", "UMAP", "Machine learning"),
 )
 
-#: The colours the verdict is drawn in.
+#: The colours the verdict is drawn in on a dark theme.
 GPU_YES_INK = "#3FB950"
 GPU_NO_INK = "#F85149"
+
+
+def verdict_ink(ok: bool) -> str:
+    """The colour a GPU verdict is drawn in on the theme in force.
+
+    :data:`GPU_YES_INK` and :data:`GPU_NO_INK` are the dark theme's green
+    and red, and on a light page that green is under 2.5:1. A light theme
+    draws the verdict in its own ``success`` and ``error`` instead, which
+    its contrast rules hold readable.
+
+    :param ok: whether the verdict is good news.
+    :returns: a hex colour.
+    """
+    try:
+        from ..theme import active_palette, relative_luminance
+
+        palette = active_palette()
+        if relative_luminance(palette["bg"]) > relative_luminance(
+                palette["fg"]):
+            return palette["success"] if ok else palette["error"]
+    except Exception:                                        # noqa: BLE001
+        LOG.debug("no palette for the GPU verdict", exc_info=True)
+    return GPU_YES_INK if ok else GPU_NO_INK
 
 #: What to say when the card is there and torch cannot use it.
 #:
@@ -616,18 +643,36 @@ class SetupSlides(QDialog):
 
         Filing an issue works WITHOUT it, through the browser, which is why
         this is a row on a slide and not a gate in front of one.
+
+        Beside the mark, for a user with no GitHub account at all, a button
+        opens GitHub's sign-up page; under it, a
+        :class:`~spacr.qt.widgets.cli_setup_panel.CliSetupPanel` shows an
+        install of the GitHub CLI while it runs.
         """
         holder = QWidget()
         holder.setProperty("spacrProviderStrip", True)
-        row = QHBoxLayout(holder)
+        column = QVBoxLayout(holder)
+        column.setContentsMargins(0, 0, 0, 0)
+        column.setSpacing(4)
+        row = QHBoxLayout()
         row.setContentsMargins(0, 0, 0, 0)
         row.setSpacing(10)
+        column.addLayout(row)
 
+        from .cli_setup_panel import CliSetupPanel
         from .provider_marks import ProviderMark
 
         self._gh_mark = ProviderMark("github", "GitHub", False, holder)
         self._gh_mark.chosen.connect(lambda *_a: self._on_github_mark())
         row.addWidget(self._gh_mark)
+
+        self._gh_signup = QPushButton("Create a GitHub account")
+        self._gh_signup.setToolTip(
+            "Opens GitHub's sign-up page in your browser. Come back here "
+            "afterwards to install the GitHub CLI and sign in.")
+        self._gh_signup.clicked.connect(
+            lambda *_a: self._open_in_the_browser(self.GITHUB_SIGNUP_PAGE))
+        row.addWidget(self._gh_signup)
         row.addStretch(1)
 
         self._gh_status = QLabel("")
@@ -635,18 +680,132 @@ class SetupSlides(QDialog):
         self._gh_status.setWordWrap(True)
         row.addWidget(self._gh_status)
 
+        self._gh_setup = CliSetupPanel(
+            holder, open_page=lambda url: self._open_in_the_browser(url))
+        self._gh_setup.changed.connect(lambda: self._refresh_github())
+        column.addWidget(self._gh_setup)
+
         self._refresh_github()
         return holder
 
     def _on_github_mark(self) -> bool:
-        """What clicking the logo does, which `_sign_in_to_github` decides.
+        """What clicking the logo does.
 
         Signed out or signed in, it is `gh auth login` -- signing in again
         is how you switch account or replace an expired token. With no
-        `gh` on PATH there is nothing to log into, and that method opens
-        the page that installs one.
+        `gh` on PATH there is nothing to log into, so it offers to install
+        one: :meth:`_offer_github_install` -- unless an install is already
+        running under the row, whose progress and Cancel are on screen.
         """
+        if self._gh_action == "install":
+            panel = self._live_panel("_gh_setup")
+            if panel is not None and panel.is_busy():
+                return False
+            return self._offer_github_install()
         return self._sign_in_to_github()
+
+    #: GitHub's page for making an account, opened by the button beside the
+    #: GitHub mark. Making the account happens there, in the browser.
+    GITHUB_SIGNUP_PAGE = "https://github.com/signup"
+
+    def _offer_github_install(self) -> bool:
+        """Say what installing the GitHub CLI would run, and run it if asked.
+
+        NOTHING RUNS UNTIL INSTALL IS PRESSED, and the command is in the
+        prompt before it is. When no install method can run here -- no
+        Homebrew and no conda on Linux, say -- the prompt says which program
+        is missing and offers the install page and the command instead.
+
+        :returns: whether something was started, opened or copied.
+        """
+        from PySide6.QtWidgets import QApplication, QMessageBox
+
+        from ..ai import cli_install
+        from ..ai.providers import github_cli
+
+        tool = github_cli()
+        plan = cli_install.plan_install(tool)
+        panel = self._live_panel("_gh_setup")
+        automatic = plan.automatic and panel is not None
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Information)
+        box.setWindowTitle(_say("Set up the GitHub CLI"))
+        box.setText(_say(
+            "The GitHub CLI is not installed.\n\nWith it, spaCR files a "
+            "report under your GitHub account without opening the browser. "
+            "Without it, reports still open in your browser."))
+        if automatic:
+            box.setInformativeText(_say(
+                "Install runs:\n    {command}\n\nThen GitHub's own sign-in "
+                "starts.", command=plan.command))
+        elif plan.automatic:
+            box.setInformativeText(f"Install with:\n    {plan.command}")
+        else:
+            box.setInformativeText(_say(
+                "spaCR cannot install it here by itself: it needs {needs}, "
+                "and none was found. Install with:\n    {command}",
+                needs=plan.needs, command=plan.command))
+        act_install = (box.addButton(_say("Install"),
+                                     QMessageBox.ButtonRole.AcceptRole)
+                       if automatic else None)
+        act_open = box.addButton(
+            "Open the page",
+            QMessageBox.ButtonRole.ActionRole if automatic
+            else QMessageBox.ButtonRole.AcceptRole)
+        act_copy = box.addButton("Copy the command",
+                                 QMessageBox.ButtonRole.ActionRole)
+        box.addButton("Later", QMessageBox.ButtonRole.RejectRole)
+        box.exec()
+
+        clicked = box.clickedButton()
+        if act_install is not None and clicked is act_install:
+            return panel.install(
+                tool, after_install=self._sign_in_after_github_install,
+                page=self.GITHUB_CLI_PAGE)
+        if clicked is act_open:
+            return self._open_in_the_browser(self.GITHUB_CLI_PAGE)
+        if clicked is act_copy:
+            try:
+                QApplication.clipboard().setText(plan.command)
+            except Exception:                                # noqa: BLE001
+                LOG.debug("could not copy the command", exc_info=True)
+            return True
+        return False
+
+    def _sign_in_after_github_install(self) -> bool:
+        """Go straight from a finished GitHub CLI install to its sign-in.
+
+        The row has already been re-read by then: the panel says
+        ``changed`` before it calls this, and that re-read is what turns
+        the mark's next action from install to sign-in.
+
+        :returns: whether `gh auth login` started.
+        """
+        from ..ai.providers import github_cli
+
+        panel = self._live_panel("_gh_setup")
+        if panel is None:
+            self._refresh_github()
+            return self._sign_in_to_github()
+        return panel.sign_in(github_cli(), self._sign_in_to_github)
+
+    def _github_sign_in_ended(self, exit_code: int = 0, *_rest) -> None:
+        """Re-read the row when `gh auth login` exits, and say if it failed.
+
+        :param exit_code: `gh`'s exit status; not zero when the sign-in was
+            cancelled, expired or refused.
+        """
+        self._refresh_github()
+        if not exit_code or not self._still_on_screen():
+            return
+        from .cli_setup_panel import SIGNING_IN
+
+        panel = getattr(self, "_gh_setup", None)
+        if (panel is not None and _still_a_widget(panel)
+                and panel.state == SIGNING_IN):
+            panel.sign_in_failed(_say(
+                "GitHub's sign-in ended before it was finished. Press Sign "
+                "in to try again."))
 
     def _still_on_screen(self) -> bool:
         """Whether this dialog's widgets are still real C++ objects.
@@ -676,6 +835,14 @@ class SetupSlides(QDialog):
         its `finished` signal lands here whenever that happens. If the
         setup screen has been closed by then, its child widgets are
         deleted C++ objects and touching one raises.
+
+        Whether `gh` is there is asked through
+        :meth:`spacr.qt.ai.providers.GitHubCli.is_installed`, the question
+        the install panel asks. Whether a token is reachable is
+        :func:`spacr.qt.ai.github_auth.auth_source`, which also knows
+        ``GITHUB_TOKEN`` and a stored token; it runs `gh auth token` here,
+        on the GUI thread, and is asked
+        once each time the row's state may have changed.
         """
         if not self._still_on_screen():
             return
@@ -686,9 +853,12 @@ class SetupSlides(QDialog):
         except Exception:                                    # noqa: BLE001
             LOG.debug("GitHub auth is not readable here", exc_info=True)
             source = None
-        import shutil
+        from ..ai.providers import github_cli
 
         mark = getattr(self, "_gh_mark", None)
+        signup = getattr(self, "_gh_signup", None)
+        if signup is not None and _still_a_widget(signup):
+            signup.setVisible(not source)
         if source:
             if mark is not None:
                 self._light_the_github_mark(mark, mark.READY)
@@ -703,14 +873,14 @@ class SetupSlides(QDialog):
             self._gh_action = "login"
             return
 
-        if shutil.which("gh") is None:
+        if not github_cli().is_installed():
             if mark is not None:
                 self._light_the_github_mark(mark, mark.NOT_INSTALLED)
                 mark.setToolTip(
-                    "Opens the GitHub CLI's install page. With `gh` "
-                    "installed, clicking this signs you in. Without it, "
-                    "filing an issue still works -- it opens in whichever "
-                    "browser you are already signed in to.")
+                    "Offers to install the GitHub CLI and then signs you "
+                    "in. Without it, filing an issue still works -- it "
+                    "opens in whichever browser you are already signed in "
+                    "to.")
             self._gh_status.setText(_say(
                 "the GitHub CLI is not installed — reports open in your "
                 "browser"))
@@ -741,9 +911,10 @@ class SetupSlides(QDialog):
             mark.available = available
             mark.update()
 
-    #: Where the GitHub CLI is installed from. Opened when `gh` is absent,
-    #: because "install this" is a thing a button can do and "the CLI is not
-    #: installed" beside a dead button is not.
+    #: Where the GitHub CLI's own install instructions are. Offered beside
+    #: Install when `gh` is absent, and instead of it when no install method
+    #: can run here, because "the CLI is not installed" beside a dead button
+    #: tells the user what is wrong and gives them nothing to do about it.
     GITHUB_CLI_PAGE = "https://cli.github.com/"
 
     #: What the button does next: 'login' or 'install'. Set by
@@ -796,11 +967,15 @@ class SetupSlides(QDialog):
         process.setProcessChannelMode(QProcess.MergedChannels)
         process.readyReadStandardOutput.connect(
             lambda: self._read_github_output(process))
-        process.finished.connect(lambda *_a: self._refresh_github())
+        process.finished.connect(
+            lambda code=0, *_a: self._github_sign_in_ended(code))
         self.destroyed.connect(lambda *_a: _let_go_of(process))
         try:
-            process.start("gh", ["auth", "login", "--web",
-                                 "--hostname", "github.com"])
+            import shutil
+
+            process.start(shutil.which("gh") or "gh",
+                          ["auth", "login", "--web",
+                           "--hostname", "github.com"])
             started = process.waitForStarted(3000)
         except Exception:                                    # noqa: BLE001
             LOG.debug("gh auth login would not start", exc_info=True)
@@ -1177,7 +1352,13 @@ class SetupSlides(QDialog):
         the one question where the user already knows the answer and only
         has to point at it. The marks are drawn, not shipped: see
         :mod:`spacr.qt.widgets.provider_marks`.
+
+        Under the marks, a
+        :class:`~spacr.qt.widgets.cli_setup_panel.CliSetupPanel` shows an
+        install or a sign-in while it runs, and re-colours the marks when
+        it ends.
         """
+        from .cli_setup_panel import CliSetupPanel
         from .provider_marks import ProviderMark
 
         holder = QWidget()
@@ -1200,15 +1381,17 @@ class SetupSlides(QDialog):
             ready = state == ProviderMark.READY
             mark = ProviderMark(code, label, ready, holder, status=state)
             mark.set_chosen(holder._chosen == code)
-            mark.setToolTip(
-                f"Use {label}. You are signed in." if ready else
-                f"Use {label}. Choosing it starts the sign-in; spaCR drives "
-                f"the vendor's own CLI and never sees the credential.")
+            mark.setToolTip(self._mark_tip(label, state))
             mark.chosen.connect(
                 lambda picked, h=holder: self._choose_provider(h, picked))
             row.addWidget(mark)
             holder._buttons[code] = mark
         row.addStretch(1)
+        self._ai_setup = CliSetupPanel(
+            holder, open_page=lambda url: self._open_in_the_browser(url))
+        self._ai_setup.changed.connect(
+            lambda h=holder: self._refresh_provider_marks(h))
+        column.addWidget(self._ai_setup)
         return holder
 
     @staticmethod
@@ -1371,30 +1554,56 @@ class SetupSlides(QDialog):
         set up is the moment to say what it needs and offer to start it, so
         this is a dialog with the command in it and buttons that act.
 
-        Every button works on every operating system: opening a page goes
-        through QDesktopServices, and the terminal launcher knows macOS,
-        Windows and the usual Linux emulators.
+        INSTALL RUNS THE COMMAND IN THE PROMPT, and nothing runs until it is
+        pressed. Instead of handing the user a curl link, spaCR runs the
+        download and the install itself: the command shown is the provider's own install row for this operating
+        system (:data:`spacr.qt.ai.providers.INSTALL_METHODS`), the install
+        runs off the GUI thread in the panel under the marks, and the
+        sign-in follows it. When no row can run here -- no npm and no
+        Homebrew for GPT, say -- the prompt names what is missing and keeps
+        the page and the command.
+
+        Every other button works on every operating system: opening a page
+        goes through QDesktopServices, and the terminal launcher knows
+        macOS, Windows and the usual Linux emulators.
 
         :returns: a short line for the row's note, or "".
         """
         from PySide6.QtWidgets import QMessageBox
 
+        from ..ai import cli_install
+
         installed = provider.is_installed()
         page = self.PROVIDER_PAGES.get(str(code), "")
         hint = str(getattr(provider, "install_hint", "") or "")
         login = str(getattr(provider, "login_command", "") or "")
+        plan = None if installed else cli_install.plan_install(provider)
+        can_install = (plan is not None and plan.automatic
+                       and self._live_panel("_ai_setup") is not None)
 
         box = QMessageBox(self)
         box.setIcon(QMessageBox.Icon.Information)
         box.setWindowTitle(f"Set up {provider.label}")
-        if not installed:
+        if can_install:
+            box.setText(_say(
+                "{label} is not installed yet.\n\nInstall runs the command "
+                "below on this computer: it downloads the vendor's own "
+                "installer and runs it, then starts the sign-in. spaCR never "
+                "sees your credentials.", label=provider.label))
+            box.setInformativeText(_say("Install runs:\n    {command}",
+                                        command=plan.command))
+        elif not installed:
             box.setText(
                 f"{provider.label} is not installed yet.\n\n"
                 f"spaCR drives the vendor's own command-line tool, so "
                 f"installing `{provider.cli_name}` is all that is needed — "
                 f"spaCR never sees your credentials.")
-            box.setInformativeText(f"Install with:\n    {hint}"
-                                   if hint else "")
+            informative = f"Install with:\n    {hint}" if hint else ""
+            if plan is not None and not plan.automatic and plan.needs:
+                informative += "\n\n" + _say(
+                    "spaCR cannot run this itself here: it needs {needs}, "
+                    "and none was found.", needs=plan.needs)
+            box.setInformativeText(informative)
         else:
             box.setText(
                 f"{provider.label} is installed but not signed in.\n\n"
@@ -1403,8 +1612,13 @@ class SetupSlides(QDialog):
             box.setInformativeText(f"Sign in with:\n    {login}"
                                    if login else "")
 
-        act_open = (box.addButton("Open the page",
-                                  QMessageBox.ButtonRole.AcceptRole)
+        act_install = (box.addButton(_say("Install"),
+                                     QMessageBox.ButtonRole.AcceptRole)
+                       if can_install else None)
+        act_open = (box.addButton(
+                        "Open the page",
+                        QMessageBox.ButtonRole.ActionRole if can_install
+                        else QMessageBox.ButtonRole.AcceptRole)
                     if (page and not installed) else None)
         act_run = (box.addButton("Sign in now",
                                  QMessageBox.ButtonRole.AcceptRole)
@@ -1415,15 +1629,24 @@ class SetupSlides(QDialog):
         box.exec()
 
         clicked = box.clickedButton()
+        if act_install is not None and clicked is act_install:
+            if self._install_provider(provider, code):
+                return ""
+            panel = self._live_panel("_ai_setup")
+            if panel is not None and panel.is_busy():
+                return _say("Another install is still running. Wait for it "
+                            "to finish, or press Cancel under the marks.")
+            return f"{provider.label} is not set up yet."
         if act_open is not None and clicked is act_open:
             self._open_in_the_browser(page)
             return f"{provider.label}: its install page is open in your browser."
         if act_run is not None and clicked is act_run:
-            if self._run_in_a_terminal(login):
+            if self._sign_in_to_provider(provider, login):
                 return f"Signing in to {provider.label} in a terminal…"
             return f"Run `{login}` to sign in to {provider.label}."
         if clicked is act_copy:
-            command = hint if not installed else login
+            command = login if installed else (
+                plan.command if can_install else hint)
             try:
                 from PySide6.QtWidgets import QApplication
 
@@ -1434,6 +1657,146 @@ class SetupSlides(QDialog):
         return (f"{provider.label} is not set up yet."
                 if not installed else
                 f"{provider.label} is installed but not signed in.")
+
+    def _live_panel(self, name: str):
+        """The install panel called ``name``, if it still exists.
+
+        :param name: ``"_ai_setup"`` or ``"_gh_setup"``.
+        :returns: the panel, or ``None`` when it was never built or its C++
+            object has gone.
+        """
+        panel = getattr(self, name, None)
+        if panel is None or not _still_a_widget(panel):
+            return None
+        return panel
+
+    def _install_provider(self, provider, code: str) -> bool:
+        """Run ``provider``'s installer in the panel, then its sign-in.
+
+        :param provider: the provider the user chose.
+        :param code: this screen's name for it, for its install page.
+        :returns: whether the installer started.
+        """
+        import functools
+
+        panel = self._live_panel("_ai_setup")
+        if panel is None:
+            return False
+        login = str(getattr(provider, "login_command", "") or "")
+        return panel.install(
+            provider, page=self.PROVIDER_PAGES.get(str(code), ""),
+            after_install=functools.partial(self._sign_in_to_provider,
+                                             provider, login))
+
+    def _sign_in_to_provider(self, provider, login: str) -> bool:
+        """Start ``login`` in a terminal and have the panel watch it.
+
+        The vendors' sign-ins are conversations -- a code to copy, a browser
+        to confirm in -- so they run in a terminal, and the panel asks the
+        provider's status command every few seconds until it says yes.
+
+        :param provider: the provider to sign in to.
+        :param login: its sign-in command.
+        :returns: whether a terminal was opened.
+        """
+        panel = self._live_panel("_ai_setup")
+        if panel is None:
+            return bool(self._sign_in_here_or_in_a_terminal(provider, login))
+        return panel.sign_in(
+            provider,
+            lambda: self._sign_in_here_or_in_a_terminal(provider, login))
+
+    def _sign_in_here_or_in_a_terminal(self, provider, login: str) -> bool:
+        """Hold the sign-in inside spaCR, or hand it to a terminal.
+
+        The goal is that no terminal is used. On Linux and macOS the sign-in
+        runs on a pseudo-terminal in a small spaCR window
+        (:class:`spacr.qt.ai.pty_sign_in.SignInDialog`), which opens the
+        sign-in page and passes any code back; the panel's status polling
+        notices the sign-in as before. Windows, which has no pseudo-terminal
+        in the standard library, still opens a terminal.
+
+        :param provider: the provider being signed in to.
+        :param login: its sign-in command.
+        :returns: whether the sign-in was started.
+        """
+        from ..ai.pty_sign_in import SignInDialog, pty_available
+
+        argv = str(login).split()
+        if not argv or not pty_available():
+            return bool(self._run_in_a_terminal(login))
+        try:
+            dialog = SignInDialog(str(getattr(provider, "label", "") or argv[0]),
+                                  argv, self)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("could not sign in inside spaCR", exc_info=True)
+            return bool(self._run_in_a_terminal(login))
+        self._sign_in_dialog = dialog
+        dialog.show()
+        return True
+
+    def _stop_the_installs(self) -> None:
+        """Stop any installer or sign-in watch the panels are running.
+
+        Called on the way out: an installer left running behind a closed
+        screen is one nobody can cancel any more.
+        """
+        for name in ("_ai_setup", "_gh_setup"):
+            panel = self._live_panel(name)
+            if panel is None:
+                continue
+            try:
+                panel.shutdown()
+            except Exception:                                # noqa: BLE001
+                LOG.debug("an install panel would not stop", exc_info=True)
+
+    def _running_installs(self) -> List[str]:
+        """The tools whose installer is running under this screen's rows.
+
+        :returns: their names as the user reads them, such as
+            ``["Claude"]``; empty when nothing is being installed.
+        """
+        names: List[str] = []
+        for name in ("_ai_setup", "_gh_setup"):
+            panel = self._live_panel(name)
+            if panel is not None and panel.is_busy():
+                names.append(panel.tool_label())
+        return names
+
+    def _may_close(self) -> bool:
+        """Whether the screen may close, asking first if an install runs.
+
+        Closing the screen stops a running installer, and the Install button
+        lives on this screen, so a silent stop would throw the install away
+        with nothing on screen to say so. When an installer is running the
+        user chooses: Keep installing (the default, and what Escape does)
+        leaves the screen open; Stop it and close lets it close.
+
+        :returns: ``True`` when nothing is being installed or the user chose
+            to stop it; ``False`` when the screen should stay open.
+        """
+        running = self._running_installs()
+        if not running:
+            return True
+        from PySide6.QtWidgets import QMessageBox
+
+        box = QMessageBox(self)
+        box.setIcon(QMessageBox.Icon.Warning)
+        box.setWindowTitle(_say("An install is still running"))
+        box.setText(_say(
+            "The installer for {tools} is still running. Closing this screen "
+            "now stops it.", tools=", ".join(running)))
+        box.setInformativeText(_say(
+            "Keep the screen open until it finishes, or stop it and install "
+            "later from Help > Set spaCR up again…"))
+        keep = box.addButton(_say("Keep installing"),
+                             QMessageBox.ButtonRole.RejectRole)
+        stop = box.addButton(_say("Stop it and close"),
+                             QMessageBox.ButtonRole.DestructiveRole)
+        box.setDefaultButton(keep)
+        box.setEscapeButton(keep)
+        box.exec()
+        return box.clickedButton() is stop
 
     def _choose_provider(self, holder, code: str) -> None:
         """Select a provider AND start its login if it needs one."""
@@ -1460,9 +1823,26 @@ class SetupSlides(QDialog):
                 mark.status = state
                 mark.available = signed_in
                 mark.update()
-            mark.setToolTip(
-                f"Use {label}. You are signed in." if signed_in else
-                f"Use {label}. Choosing it starts the sign-in; spaCR drives "
+            mark.setToolTip(self._mark_tip(label, state))
+
+    @staticmethod
+    def _mark_tip(label: str, state: str) -> str:
+        """What hovering a provider's mark says, for the state it is in.
+
+        :param label: the provider's name, such as ``"Claude"``.
+        :param state: the mark's state, from :meth:`provider_status`.
+        :returns: the tooltip. A provider that is not installed says that
+            choosing it offers the install, because that is what it does.
+        """
+        from .provider_marks import ProviderMark
+
+        if state == ProviderMark.READY:
+            return f"Use {label}. You are signed in."
+        if state == ProviderMark.NOT_INSTALLED:
+            return (f"Use {label}. Choosing it offers to install it and then "
+                    f"starts the sign-in; spaCR drives the vendor's own CLI "
+                    f"and never sees the credential.")
+        return (f"Use {label}. Choosing it starts the sign-in; spaCR drives "
                 f"the vendor's own CLI and never sees the credential.")
 
 
@@ -1615,7 +1995,7 @@ class SetupSlides(QDialog):
             line = (f'{_say("GPU")}: '
                     f'<span style="color:{{ink}};">'
                     f'{_say("none detected")}</span>')
-        ink = GPU_YES_INK if usable else GPU_NO_INK
+        ink = verdict_ink(usable)
         html = [f'<div>{_say(GPU_REQUIREMENT)}</div>',
                 f'<div style="font-weight:600;">{line.format(ink=ink)}</div>']
         if hint:
@@ -1685,7 +2065,7 @@ class SetupSlides(QDialog):
                     continue
                 if library.startswith("Cellpose"):
                     library = SetupSlides._cellpose_label()
-                ink = GPU_YES_INK if accelerated else GPU_NO_INK
+                ink = verdict_ink(bool(accelerated))
                 where = _say("GPU") if accelerated else _say("CPU")
                 cells.append(
                     f'<tr>'
@@ -1956,10 +2336,15 @@ class SetupSlides(QDialog):
         """Close the slides and record that they have been seen.
 
         RECORDED, so first-run guidance does not greet a returning user as a
-        new one.
+        new one. While an installer is running the user is asked first
+        (:meth:`_may_close`): keeping it running leaves the screen open, and
+        stopping it closes the screen as before.
         """
         from ..setup_screen import apply, current_version, mark_answered
 
+        if not self._may_close():
+            return
+        self._stop_the_installs()
         trouble = apply(self.answers())
         if trouble:
             LOG.warning("some setup answers were refused: %s",
@@ -1978,9 +2363,15 @@ class SetupSlides(QDialog):
         THE TERMS ARE THE EXCEPTION, and they are not marked. A dismissal is
         a choice of defaults; it is not an acceptance of a licence, so
         nothing is recorded and `open_setup_if_needed` asks again.
+
+        While an installer is running the user is asked first, as
+        :meth:`accept` asks; keeping it running leaves the screen open.
         """
         from ..setup_screen import apply, current_version, mark_answered
 
+        if not self._may_close():
+            return
+        self._stop_the_installs()
         apply(self.answers())
         self._record_the_agreement()
         mark_answered(current_version())

@@ -75,11 +75,12 @@ def test_every_spelling_of_the_intercept_is_found(spelling):
 
 
 def test_a_crop_size_that_is_not_a_number_leaves_the_thumbnail_at_default():
-    """`img_size` is hand-editable in the picture settings; zero means 'use
-    the default', which is what an unreadable value has to become."""
-    assert cmv._thumb_px_of({"img_size": "large"}) == 0
-    assert cmv._thumb_px_of({"img_size": 96}) == 96
-    assert cmv._thumb_px_of({"img_size": 4096}) == 512
+    """`crop_size` is hand-editable in the picture settings; zero means 'use
+    the default', which is what an unreadable value has to become. It was
+    `img_size` until 2026-09-19 (364)."""
+    assert cmv._thumb_px_of({"crop_size": "large"}) == 0
+    assert cmv._thumb_px_of({"crop_size": 96}) == 96
+    assert cmv._thumb_px_of({"crop_size": 4096}) == 512
 
 
 def test_the_candidate_border_has_a_colour_without_the_annotation_palette(
@@ -316,11 +317,11 @@ def test_accepting_the_picture_settings_writes_them_back_to_the_controls(
     monkeypatch.setattr(psd.PictureSettingsDialog, "exec",
                         lambda self: QDialog.Accepted)
     monkeypatch.setattr(psd.PictureSettingsDialog, "values",
-                        lambda self: {"channels": [0, 1], "img_size": 128})
+                        lambda self: {"channels": [0, 1], "crop_size": 128})
     view._force_picking("rank")
 
     assert view.edit_picture_settings() is True
-    assert view._picture_settings["img_size"] == 128
+    assert view._picture_settings["crop_size"] == 128
     assert view._channels.text() == "0, 1"
     assert view._picking_override == ""
 

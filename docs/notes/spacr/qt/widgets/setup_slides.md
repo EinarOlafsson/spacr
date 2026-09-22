@@ -905,3 +905,27 @@ if not should_open() and not needs_agreement():
 ```
 
 UNACCEPTED TERMS ARE THEIR OWN REASON TO ASK. Dismissing the screen marks the questions answered -- they all have defaults -- but a licence is not answered by a default, so terms that were never accepted, or accepted at an older version, bring the screen back.
+
+## The Install button and the GitHub account button, 2026-09-19 (item 420)
+
+```python
+act_install = (box.addButton(_say("Install"),
+```
+
+"in the startup spacr when the use clicks an AI provider there should be an aditional button, install which automatically downloads and installs the chosen ai provider and asks the user for the needed information and sets up the AI provider" and "same for the github cli, add that to and a button that links to generating a github account" (maintainer, 2026-09-16).
+
+The prompt that already opened for a provider that is not set up gets Install, and the GitHub mark with no `gh` now opens the same kind of prompt instead of going straight to cli.github.com. NOTHING RUNS UNTIL INSTALL IS PRESSED, and the prompt shows the exact command first. The install runs in the `CliSetupPanel` under the marks (or under the GitHub row); when it finishes, the provider's sign-in starts -- in a terminal for the AI CLIs, in spaCR's own `gh auth login` flow for GitHub -- and the panel asks the tool's status command every 3 s until it says yes. When no install row can run here, the prompt names the missing program and keeps the page and the command.
+
+`_github_sign_in_ended` replaces the bare refresh on `gh`'s `finished`: a non-zero exit while the panel is waiting is a sign-in that was cancelled or expired, and the panel says so instead of waiting out its ten minutes.
+
+"Create a GitHub account" opens https://github.com/signup and is hidden once a token is found.
+
+## Closing the screen while an install runs, 2026-09-19 (review of item 420)
+
+```python
+if not self._may_close():
+```
+
+A SILENT STOP THREW THE INSTALL AWAY. Review measured it offscreen with a stand-in `npm` that sleeps: Install on the assistant slide, Next to the end, Start spaCR -- the dialog closed, the stand-in logged SIGTERM, the panel still read "installing", and `mark_answered` recorded the screen as done, so it never came back with its Install button. `accept` and `reject` now ask first when a panel is busy. Keep installing is the default and what Escape does, and it leaves the screen open; Stop it and close stops the installer, shows it as cancelled, and closes as before. The window's close button goes through `reject`, and QDialog ignores the close event when `reject` leaves the dialog visible.
+
+`_sign_in_after_github_install` no longer re-reads the row itself. The panel emits `changed` just before it calls that method, and the row's connection to `changed` is the re-read, so the old call was a second `gh auth token` on the GUI thread for nothing. The row asks whether `gh` is there through `GitHubCli.is_installed`, the question the install panel asks; whether a token is reachable stays with `github_auth.auth_source`, because that also knows `GITHUB_TOKEN` and a stored token, which `gh` does not.

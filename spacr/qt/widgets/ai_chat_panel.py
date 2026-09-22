@@ -212,17 +212,22 @@ class _ProvidersDialog(QDialog):
 
         auto_label = QLabel(
             "<b>Report errors as GitHub issues</b><br>"
-            "<span style='color:gray;'>Adds a \"File as GitHub issue\" "
-            "button to the Explain-error flow. Clicking it opens your "
-            "browser at a pre-filled issue on the spaCR repo — you "
-            "review the payload and hit Submit yourself.</span>"
+            "<span style='color:gray;'>Reports go to the public spaCR "
+            "repository on GitHub, with paths, names and credentials "
+            "redacted. With issue reporting set to always, the default, a "
+            "failed run files its report automatically, once per error, "
+            "when GitHub is signed in below. With ask, a \"File as issue\" "
+            "button appears under the console and the report is sent only "
+            "when you press Send report in its preview. Change it under "
+            "Help → Set spaCR up again….</span>"
         )
         auto_label.setTextFormat(Qt.RichText)
+        auto_label.setWordWrap(True)
         col.addWidget(auto_label)
 
         from .toggle import Toggle
         self._auto_issue_chk = Toggle(
-            "Enable — one-click issue filing from the error dialog"
+            "Enable — report a failed run as a GitHub issue"
         )
         self._auto_issue_chk.setChecked(ai_settings.get_auto_file_issues())
         self._auto_issue_chk.stateChanged.connect(self._on_auto_issue_changed)
@@ -319,7 +324,7 @@ class _ProvidersDialog(QDialog):
             ai_settings.set_response_speed(value)
 
     def _on_auto_issue_changed(self, _state: int) -> None:
-        """Store whether a failure may file an issue without asking."""
+        """Store whether a failed run is reported as a GitHub issue."""
         ai_settings.set_auto_file_issues(self._auto_issue_chk.isChecked())
 
     def _refresh_github_status(self) -> None:
@@ -519,6 +524,8 @@ class AIChatPanel(QWidget):
         self._btn_clear = QPushButton("Clear")
         self._btn_clear.setObjectName("GhostButton")
         self._btn_clear.setIcon(iconset.icon("clear"))
+        from ..preferences import _SMALL_ICON_PX, _set_scaled_icon_size
+        _set_scaled_icon_size(self._btn_clear, _SMALL_ICON_PX)
         self._btn_clear.setCursor(Qt.PointingHandCursor)
         self._btn_clear.clicked.connect(self.clear_chat)
         toolbar.addWidget(self._btn_clear)

@@ -209,6 +209,16 @@ def test_an_empty_usage_sample_paints_nothing(screen):
 
 class TestForcingARestart:
 
+    @pytest.fixture(autouse=True)
+    def _own_restart_record(self, tmp_path, monkeypatch):
+        """Keep the restart record these tests write out of the shared HOME.
+
+        A real ``force_restart`` saves ``{"module": "regression"}`` before it
+        launches; left in ``~/.spacr`` it is taken by the next MainWindow the
+        same worker builds, which then opens on Regression instead of Home.
+        """
+        monkeypatch.setenv("SPACR_HOME", str(tmp_path / "spacr_home"))
+
     def test_settings_that_cannot_be_collected_do_not_stop_the_restart(
             self, screen, monkeypatch):
         """The reason for restarting is that the screen is already stuck.

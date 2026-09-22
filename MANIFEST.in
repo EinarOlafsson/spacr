@@ -15,6 +15,9 @@ include spacr/resources/layout_policy.json
 # strip. Built by tools/build_tutorial_index.py from the docs
 # build's lesson catalog.
 include spacr/resources/tutorial_index.json
+# Experiment Design's ready-made plate layouts (460): four small JSON
+# files, read by spacr.qt.widgets.plate_layout.plate_templates.
+recursive-include spacr/resources/plate_templates *.json
 recursive-include packaging/linux *.desktop *.png
 include packaging/spacr.spec
 recursive-include spacr/resources/setting_animations *.gif *.json

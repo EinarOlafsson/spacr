@@ -38,7 +38,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent
 _CHILD_ENV = "SPACR_CONFTEST_ORDERING_CHILD"
 
 _FIRST = ("tests/qt/test_ambient_none.py"
-          "::test_none_is_offered_alongside_the_six_animations")
+          "::test_none_is_offered_alongside_every_animation")
 _MIDDLE = "tests/test_conftest_fixture_visibility.py"
 _LAST = ("tests/qt/test_ambient_none.py"
          "::test_none_has_a_label_and_a_note_that_states_the_cost")

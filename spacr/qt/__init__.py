@@ -59,9 +59,15 @@ _VERSION_FLAGS = frozenset({"-v", "-version", "--version"})
 #:
 #: IF THIS LINE COMES BACK, something is calling `event.child()` during
 #: `ChildAdded` and holding it again. Find that, do not filter this.
+#:
+#: The FFmpeg line is Qt Multimedia introducing itself, once, the first time
+#: the audio thread of :mod:`spacr.qt.sound` builds a sound effect -- which
+#: only happens after the user has switched sound on. It names a library
+#: version and asks nothing of anybody.
 _QT_NOISE = re.compile(
     r"OpenType support missing for|"
-    r"This plugin does not support (propagateSizeHints|raise)"
+    r"This plugin does not support (propagateSizeHints|raise)|"
+    r"Using Qt multimedia with FFmpeg version"
 )
 
 #: The inotify line, which is somebody else's problem and says so badly.

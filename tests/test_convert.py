@@ -740,29 +740,46 @@ def test_a_czi_is_read_through_czifile(tmp_path, monkeypatch):
     assert int(value[0, 0]) == 100 * 1 + 10 * 1 + 3
 
 
-def test_a_lif_is_read_through_readlif(tmp_path, monkeypatch):
-    class FakeDims:
-        x, y, z, t = 6, 6, 2, 1
+def _install_fake_readlif(monkeypatch, file_class):
+    """Stand in for readlif with ONLY the names readlif 0.6.5 has.
 
+    ``readlif.reader.LifFile`` / ``get_iter_image`` / ``get_frame``. The old
+    double offered ``readlif.Reader`` and ``getIterImage`` -- names no
+    release of readlif has -- and so kept a converter green that could not
+    open a single real LIF.
+    """
+    package = types.ModuleType("readlif")
+    reader = types.ModuleType("readlif.reader")
+    reader.LifFile = file_class
+    package.reader = reader
+    monkeypatch.setitem(sys.modules, "readlif", package)
+    monkeypatch.setitem(sys.modules, "readlif.reader", reader)
+
+
+from collections import namedtuple  # noqa: E402
+
+_LifDims = namedtuple("Dims", "x y z t m")
+
+
+def test_a_lif_is_read_through_readlif(tmp_path, monkeypatch):
     class FakeImage:
         def __init__(self, index):
             self.index = index
-            self.dims = FakeDims()
+            self.dims = _LifDims(x=6, y=6, z=2, t=1, m=1)
             self.channels = 2
+            self.name = f"Series{index + 1:03d}"
 
-        def getFrame(self, z=0, t=0, c=0):
+        def get_frame(self, z=0, t=0, c=0, m=0):
             return np.full((6, 6), 100 * self.index + 10 * z + c, np.uint16)
 
-    class FakeReader:
+    class FakeLifFile:
         def __init__(self, path):
             self._images = [FakeImage(0), FakeImage(1), FakeImage(2)]
 
-        def getIterImage(self):
+        def get_iter_image(self, img_n=0):
             return iter(self._images)
 
-    module = types.ModuleType("readlif")
-    module.Reader = FakeReader
-    monkeypatch.setitem(sys.modules, "readlif", module)
+    _install_fake_readlif(monkeypatch, FakeLifFile)
 
     root = tmp_path / "src"
     root.mkdir()
@@ -1141,16 +1158,14 @@ def test_describe_and_read_refuse_an_unsupported_extension():
 
 
 def test_a_lif_with_no_images_is_reported_not_indexed(tmp_path, monkeypatch):
-    class EmptyReader:
+    class EmptyLifFile:
         def __init__(self, path):
             pass
 
-        def getIterImage(self):
+        def get_iter_image(self, img_n=0):
             return iter([])
 
-    module = types.ModuleType("readlif")
-    module.Reader = EmptyReader
-    monkeypatch.setitem(sys.modules, "readlif", module)
+    _install_fake_readlif(monkeypatch, EmptyLifFile)
 
     root = tmp_path / "src"
     root.mkdir()

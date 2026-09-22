@@ -1,14 +1,10 @@
 {
   "schema": 1,
   "language": "zh_CN",
+  "review_notes": {
+    "barcodes": "WITHDRAWN 2026-09-19, instruction 364. The maintainer decided that day to retire the `barcodes` setting (\"Retire both\", with `Toxoplasma`): it was declared only by `get_map_barcodes_default_settings`, which no pipeline calls, so its value never reached a run. The English this record translated is no longer shown anywhere, so the record left `records` -- the runtime loader accepts no `retired` field and refuses a record whose source is gone. It is recorded here rather than deleted in silence. The withdrawn record, verbatim: table setting_tooltips, key barcodes, source_sha256 4c3125b0f047a36722c65324a73341a7ceadd869f97ffbd9d0fe80610e96b1b4, translation \"旧版条形码映射辅助函数所用的筛选实验/微孔板条形码 CSV 路径。当前代码没有读取此键：定义它的唯一位置 get_map_barcodes_default_settings 从未被任何流水线调用，因此设置它不会产生效果。generate_barecode_mapping 当前使用的对应设置是 row_csv、column_csv 和 grna_csv。\""
+  },
   "records": [
-    {
-      "table": "setting_tooltips",
-      "key": "barcodes",
-      "source_sha256": "4c3125b0f047a36722c65324a73341a7ceadd869f97ffbd9d0fe80610e96b1b4",
-      "source": "Path to a CSV of screen/plate barcodes for the legacy barcode-mapping helper. Nothing in the current code reads this key: get_map_barcodes_default_settings, the only place it is defined, is never called by any pipeline, so setting it has no effect. The live equivalents consumed by generate_barecode_mapping are row_csv, column_csv and grna_csv.",
-      "translation": "旧版条形码映射辅助函数所用的筛选实验/微孔板条形码 CSV 路径。当前代码没有读取此键：定义它的唯一位置 get_map_barcodes_default_settings 从未被任何流水线调用，因此设置它不会产生效果。generate_barecode_mapping 当前使用的对应设置是 row_csv、column_csv 和 grna_csv。"
-    },
     {
       "table": "setting_tooltips",
       "key": "batch_size",
@@ -36,13 +32,6 @@
       "source_sha256": "769a0540082bbfe051b2d93347b5604bb643a007e56f7d9d94b35db290a5021e",
       "source": "One list of well identifiers per entry in cells, specifying the plate locations of each host cell line, for example [['c1','c2'],['c3']]. Identifiers must start with 'r' for a row or 'c' for a column; other values are ignored and the corresponding wells remain unannotated. None labels every row with the first entry of cells. No default is set: annotate_filter_vision accesses settings['cell_loc'] directly, so the key must be present in the dictionary and explicitly set to None when location mapping is not required.",
       "translation": "cells 中每个条目对应一个微孔标识符列表，用于指定各宿主细胞系在微孔板上的位置，例如 [['c1','c2'],['c3']]。标识符必须以表示行的 'r' 或表示列的 'c' 开头；其他值会被忽略，对应微孔保持未注释状态。None 会使用 cells 的第一个条目标记每一行。此项没有默认值：annotate_filter_vision 会直接访问 settings['cell_loc']，因此字典中必须包含该键；不需要位置映射时必须将其显式设置为 None。"
-    },
-    {
-      "table": "setting_tooltips",
-      "key": "cell_model_name",
-      "source_sha256": "4b7548b8506d697953ed4aabf9c66aa6133887703ca6b49bd9e592bb66639fa6",
-      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') remain accepted but resolve to cpsam because Cellpose 4 no longer ships those models. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
-      "translation": "细胞分割权重。Cellpose 4 提供标准 'cpsam' 模型；也可以提供由 Train Cellpose 创建并作为 pretrained_model 加载的 CPSAM 检查点。仍接受旧名称（'cyto'、'cyto2'、'cyto3'、'nuclei'），但这些名称会解析为 cpsam，因为 Cellpose 4 不再随附这些模型。只有 diameter 会改变推理（按 30/diameter 缩放）；model_type 和 diam_mean 在 v4.0.1+ 中不使用。默认值为 'cpsam'。"
     },
     {
       "table": "setting_tooltips",

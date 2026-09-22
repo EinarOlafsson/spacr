@@ -1,17 +1,32 @@
 {
-  "lesson": "09_annotate", "language": "pt-BR",
-  "english_sha256": "094b28100dda75349d64f31fbbe3a56645ce0b5966e588bb45cf55abe0e1c8b8",
-  "review": {"kind": "Editorial translation checked against English and the verified real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish queued labels from database persistence through real Next/Back actions.", "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question."]},
+  "lesson": "09_annotate",
+  "language": "pt-BR",
+  "english_sha256": "c73efd98bb115b1023e4fc8c0313e850b8fbaf65be0575bbe0d9a82197f34445",
+  "review": {
+    "kind": "Editorial translation checked against English and the verified real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish queued labels from database persistence through real Next/Back actions.",
+      "Preserve the demonstration-only class, untouched original data, display-only colours, current nested routes and unsent AI question.",
+      "2026-09-21: bind the verified current recording and distinguish crop size from model input resolution in scene 5; the other 19 English narrations and translated scenes are retained unchanged.",
+      "2026-09-21: verified automatic example opening; Stream also obtains the measurements database when absent. Open source is optional, with the same example files selected through a neutral recording path. Eighteen narration scenes retained unchanged. AI-assisted editorial/technical review; no native-speaker or listening signoff."
+    ]
+  },
   "title": "Annotate: recortes reais, rótulos salvos e ferramentas de revisão",
   "description": "Carregue o conjunto de recortes disponível para download, crie uma coluna de anotação separada, confira rótulos realmente salvos, ajuste a visualização e encontre as ferramentas de revisão e treinamento do módulo Annotate atual.",
-  "objectives": ["Escolher o exemplo de recortes ou de leitura sob demanda e abrir a pasta real do projeto.", "Usar uma coluna de anotação separada, distinguir rótulos pendentes dos persistidos e apagar o rótulo demonstrativo sem alterar as anotações originais.", "Examinar contagens por classe e cobertura e mudar as cores da visualização sem modificar os arquivos de imagem.", "Localizar o fluxo integrado Agreement, as opções atuais de treinamento, o gerador de banco de anotações e o console AI opcional."],
-  "prerequisite": "Abra o spaCR e escolha Annotate entre os módulos Core. Esta gravação usa o conjunto Load disponível para download: 2.341 recortes PNG exportados e seu banco de medições. Não exige treinamento de modelos nem serviço de inteligência artificial. Defina as classes biológicas antes de uma anotação real; o rótulo temporário demonstra o salvamento, não um julgamento biológico.",
+  "objectives": [
+    "Escolher o exemplo de recortes ou de leitura sob demanda e abrir a pasta real do projeto.",
+    "Usar uma coluna de anotação separada, distinguir rótulos pendentes dos persistidos e apagar o rótulo demonstrativo sem alterar as anotações originais.",
+    "Examinar contagens por classe e cobertura e mudar as cores da visualização sem modificar os arquivos de imagem.",
+    "Localizar o fluxo integrado Agreement, as opções atuais de treinamento, o gerador de banco de anotações e o console AI opcional."
+  ],
+  "prerequisite": "Gravado com spaCR 1.5.0.8. A abertura automática foi verificada de forma independente antes de selecionar os mesmos arquivos de exemplo por um caminho neutro para a gravação. Abra o spaCR e escolha Annotate entre os módulos Core. Esta gravação usa o conjunto Load disponível para download: 2.341 recortes PNG exportados e seu banco de medições. Não exige treinamento de modelos nem serviço de inteligência artificial. Defina as classes biológicas antes de uma anotação real; o rótulo temporário demonstra o salvamento, não um julgamento biológico.",
   "scenes": [
     "Abra Annotate entre os módulos Core. Seu espaço principal é uma grade de recortes ligada a um banco de medições. O módulo atual também inclui verificações de cobertura, controles de aprendizado e treinamento, geração de bancos de dados e a ferramenta integrada Annotator Agreement.",
     "Escolha Load test data e examine as duas opções. Load fornece recortes exportados e um banco de dados. O exemplo contém dois mil trezentos e quarenta e um recortes PNG. Esta gravação reutiliza o cache completo já baixado; não inventa imagens nem rótulos.",
-    "Stream fornece matrizes de imagens combinadas e o banco de dados para obter recortes sob demanda. Escolha de acordo com a forma como deseja ler as imagens; baixar uma opção não comprova que a outra esteja disponível. Usamos Load durante toda a demonstração.",
-    "Se a grade ainda disser que nenhuma origem foi selecionada após o download, escolha Open source. Selecione a pasta da placa que contém a subpasta measurements e seu banco, não o arquivo de banco de dados. Essa é a etapa adicional realmente necessária na versão do aplicativo mostrada aqui.",
-    "Confirme que os recortes reais aparecem e que o contador de páginas corresponde ao conjunto esperado. O número de imagens por página depende da janela e do tamanho da imagem. Abrir uma pasta com sucesso não basta: examine as imagens antes de tomar decisões de anotação.",
+    "Stream fornece as matrizes de imagens mescladas para obter recortes sob demanda. Também baixa o banco de dados de medições se essa parte estiver faltando. Load fornece recortes salvos e seu banco de dados. Usamos Load durante toda esta demonstração; escolha o caminho adequado à maneira como deseja ler as imagens.",
+    "Load test data abre automaticamente a placa baixada. Para uma placa local existente, Open source é um caminho opcional: selecione a pasta da placa que contém measurements e seu banco de dados, não o arquivo do banco de dados. Aqui escolhemos um caminho neutro para a gravação que aponta para os mesmos arquivos de exemplo.",
+    "Confirme que os recortes reais aparecem e que o contador de páginas corresponde ao conjunto esperado. O número de imagens por página depende da janela e do tamanho dos recortes. Abrir uma pasta com sucesso não basta: examine as imagens antes de tomar decisões de anotação.",
     "Abra Settings e crie uma coluna de anotação separada para esta demonstração. Preserve os rótulos originais. Antes do trabalho real, documente o significado de cada classe e combine uma visualização consistente; o rótulo de exemplo que vamos atribuir apenas testa o salvamento.",
     "Clique com o botão esquerdo no primeiro recorte para atribuir a classe um. O botão direito atribui a classe dois, e repetir a mesma classe a apaga. O anel colorido mostra a decisão atual; o anel branco adicional indica o foco. Uma mudança no anel, sozinha, não prova que o rótulo chegou ao banco de dados.",
     "Pressione Next para sair da página. Nesta versão, mudar de página envia os rótulos pendentes ao processo de salvamento em segundo plano. Consultamos o banco real e confirmamos que a classe um foi gravada. Não confunda uma alteração visual não salva com armazenamento concluído.",

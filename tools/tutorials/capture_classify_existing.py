@@ -5,7 +5,7 @@ from stage_lesson import DEFAULT_STAGE
 
 def choose_existing_folder(app, screen, source, capture, settle):
     """Use the genuine source-picker action, including its empty-state update."""
-    from PySide6.QtCore import Qt, QTimer
+    from PySide6.QtCore import Qt, QTimer, QUrl
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QFileDialog, QLineEdit, QDialogButtonBox, QAbstractButton
     previous = app.testAttribute(Qt.AA_DontUseNativeDialogs)
@@ -21,6 +21,11 @@ def choose_existing_folder(app, screen, source, capture, settle):
             return
         dialog = dialogs[0]
         try:
+            # The real picker can remember a personal folder and account-name
+            # bookmarks. Keep this recording's visible navigation neutral.
+            dialog.setDirectory(str(source.parent.resolve()))
+            dialog.setSidebarUrls([QUrl.fromLocalFile(str(source.parent.resolve()))])
+            settle()
             line = dialog.findChild(QLineEdit, 'fileNameEdit')
             if line is None or not line.isVisible():
                 raise RuntimeError('The actual directory entry is unavailable')

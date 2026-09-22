@@ -271,7 +271,7 @@ def test_the_home_and_preferences_keys_actually_reach_their_action(
     qtbot.wait(20)
 
     fired = []
-    wanted = {"Ctrl+H": Qt.Key_H, "Ctrl+P": Qt.Key_P}
+    wanted = {"Ctrl+0": Qt.Key_0, "Ctrl+P": Qt.Key_P}
     seen = {}
     for action in win.findChildren(QAction):
         name = action.shortcut().toString()

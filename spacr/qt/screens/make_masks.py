@@ -51,10 +51,46 @@ map, and flow field. The intermediate outputs support evaluation of
 Editor modes are assembled from :func:`tool_row_entries` and
 :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts
 non-mode actions into the same toolbar. The settings panel carries the
-operations that are not gestures -- object filling and relabeling, inversion,
-size filtering and Otsu detection, with undo and redo over all of them --
-alongside the brush, wand and display controls, and can be hidden to return
-its width to the canvas.
+operations that are not gestures -- object filling and relabeling, swapping
+object and background, size filtering and Otsu detection, with undo and redo
+over all of them -- alongside the brush, wand and display controls, and can
+be hidden to return its width to the canvas.
+
+THREE THINGS ARE CALLED INVERT AND NO TWO OF THEM ARE THE SAME. Only the
+second changes what a detector reads, and the
+captions are what tell them apart on the panel.
+
+**Invert image**, in the Display category, is THE inversion. It draws the
+field as its own negative and hands the detectors that same negative: both
+detect buttons and the live magnifier segment
+:meth:`MakeMasksScreen._detector_image`, so a threshold written for bright
+objects takes dark ones, and a banner above the image says so for as long as
+it is on. The corner readout, the object filter and the saved mask go on
+reading the pixels that were loaded, so nothing measured moves.
+
+IT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only "Invert
+image" drew a negative and left detection untouched; "Invert for detection"
+inverted what the detectors read and drew nothing. A curator could hold
+either without the other, and the first one's status line had to contradict
+the second one's banner. They are one switch because the reason for the
+switch is one intention: inverting a field of dark objects so that Otsu and
+the magnifier can detect them. ``_cp_invert`` is now the same widget object as
+``_invert_display`` under its old name, so the two cannot come apart.
+
+**Swap object and background**, in Object operations, is the old "Invert
+mask" under the name that describes it -- it flips the LABEL image, which on
+an ordinary field leaves one object covering the frame. It is not
+a picture invert and is deliberately not called one.
+
+THE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises
+the field to 0..1 on its own range and takes ``1 - v``, and the
+normalisation is not incidental: the Otsu correction is a
+MULTIPLIER on an absolute level, so normalising first is what makes one
+correction value mean the same thing on the next image.
+:func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and
+:func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the
+field's range) are what this screen used before and are kept for other
+callers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.
 
 Additional segmentation tools are opened from the masthead in
 :data:`FOLD_ORDER` through
@@ -71,8 +107,10 @@ tables rather than generating masks.
 from __future__ import annotations
 
 import logging
+import math
 import os
 import threading
+import time
 from collections import deque
 from functools import partial
 from importlib.util import find_spec
@@ -86,10 +124,12 @@ from PySide6.QtCore import (
     QRect,
     QRectF,
     QThread,
+    QTimer,
     Qt,
     Signal,
 )
 from PySide6.QtGui import (
+    QBrush,
     QColor,
     QCursor,
     QImage,
@@ -101,8 +141,8 @@ from PySide6.QtGui import (
 )
 from PySide6.QtWidgets import (
     QApplication,
-    QCheckBox,
     QComboBox,
+    QDialog,
     QDialogButtonBox,
     QDoubleSpinBox,
     QFileDialog,
@@ -132,10 +172,13 @@ from .. import mask_engine as engine
 from .. import prefs
 from .. import wand_rescue
 from ..hidpi import follow_device_ratio, logical_size, scaled_for
-from ..theme import SPACING, active_palette, mark_surface
-from ..widgets import Divider, EmptyState
+from ..theme import (SPACING, active_palette, block_surface,
+                     ensure_widget_qss_applied, mark_surface,
+                     register_widget_qss)
+from ..widgets import Card, Divider, EmptyState
 from ..widgets.fold_strip import FoldStrip
 from ..widgets.section import Section
+from ..widgets.toggle import Toggle
 from .app_screen import ModuleHeader
 
 LOG = logging.getLogger("spacr.qt.make_masks")
@@ -143,11 +186,11 @@ LOG = logging.getLogger("spacr.qt.make_masks")
 #: The registry key this screen answers to.
 APP_KEY = "make_masks"
 
-#: The masthead, matching the registry row so the page and the tile that
-#: opens it say the same thing.
+#: The masthead's name, matching the registry row so the page and the tile
+#: that opens it say the same thing. The masthead carries no one-line
+#: description beside it, so the name, the instruction under it and the
+#: fold strip are the whole row.
 HEADER_TITLE = "Make Masks"
-HEADER_DESCRIPTION = (
-    "Correct a mask by hand: brush, flood fill, relabel, fill, remove small")
 HEADER_INSTRUCTION = (
     "Open a folder of images, correct each mask, and save it back.")
 
@@ -344,16 +387,170 @@ PERCENTILE_DECIMALS = 6
 #: that never dragged the splitter.
 SETTINGS_WIDTH = 380
 
+#: Pixels between the settings, on the left, and the image: the splitter's
+#: handle, so the gap is also where the settings are dragged wider.
+SETTINGS_GAP = 12
+
+def thin_hover_line_sheet() -> str:
+    """The splitter-handle style for the gap beside the settings.
+
+    The gap is :data:`SETTINGS_GAP` wide on purpose, so it is easy to grab,
+    and the theme's hover rule painted all of it blue: a twelve-pixel bar.
+    Hovered, only a two-pixel line down its middle turns the accent colour,
+    through a gradient with hard stops; the rest stays the gap it was.
+
+    :returns: a stylesheet for the settings/image splitter.
+    """
+    accent = active_palette().get("accent", "#4c8dff")
+    lo, hi = 0.5 - 1.0 / SETTINGS_GAP, 0.5 + 1.0 / SETTINGS_GAP
+    return (
+        "QSplitter::handle:horizontal:hover { background: qlineargradient("
+        "x1:0, y1:0, x2:1, y2:0, "
+        f"stop:0 transparent, stop:{lo:.4f} transparent, "
+        f"stop:{lo + 0.0001:.4f} {accent}, stop:{hi:.4f} {accent}, "
+        f"stop:{hi + 0.0001:.4f} transparent, stop:1 transparent); }}")
+
+
+#: Width of the shortcut list beside the views, in pixels. FIXED, so every
+#: pixel a wider window gives the right-hand pane goes to the image; the list
+#: is a dozen short lines and does not want the room. Wide enough that the
+#: longest keys -- ``Magnifier, whole image: right`` -- wrap onto two lines
+#: and no line of prose breaks after one word, which is what a narrower
+#: column was doing when this was measured on a rendered screen.
+SHORTCUTS_WIDTH = 230
+
 #: Where the settings panel's folded categories are remembered, as the titles
 #: folded away -- :func:`spacr.qt.preferences.get_section_layout` keyed by
 #: this name.
 _SETTINGS_LAYOUT_KEY = "make_masks/settings"
 
+#: Settings categories this panel has renamed, old title to new. The stored
+#: layout is a list of TITLES, so a user who folded the old one away would
+#: find it open again after a rename and would have to fold it a second time;
+#: reading the stored list through this keeps their arrangement.
+#: Cellpose-SAM is now Object detection, and Auto-filter objects is now the
+#: Filter category.
+_RENAMED_CATEGORIES = {"Cellpose-SAM": "Object detection",
+                       "Auto-filter objects": "Filter"}
+
+#: The two inks this screen cannot take from the shipped stylesheet: the
+#: Filter category's removal ledger, which is RED because it lists what was
+#: deleted, and the Invert warning, which is a warning and not prose.
+#: Registered rather than written inline, so both follow the user's theme --
+#: a colour set on the widget at build time is the colour it keeps when the
+#: theme changes under it.
+MAKE_MASKS_QSS_NAME = "MakeMasksInk"
+
+#: The Filter category's removal ledger, by object name.
+FILTER_LOG_NAME = "MakeMasksFilterLog"
+
+#: The banner that says the detectors are reading an inverted image.
+INVERT_WARNING_NAME = "MakeMasksInvertWarning"
+
+#: What that banner says. It reminds the curator that masks are generated
+#: from the inverted image, and it is NOT INSIDE THE SETTINGS PANEL: the Settings toggle hides that
+#: panel to give the image the width, and the magnifier goes on inverting
+#: while it is hidden. It sits between the tool row and the image, where
+#: nothing can fold it away.
+INVERT_WARNING_TEXT = (
+    "Invert for detection is on: every mask — Object detection, Otsu detect "
+    "and the Live magnifier — is being generated from the INVERTED image. "
+    "The readout and the Filter category still report the image's real "
+    "values, and 'Invert image' in Display is a separate switch that "
+    "changes only the picture.")
+
+#: How many removal rows the Filter category's ledger shows before it
+#: scrolls. The ledger has one row per removed object, and a
+#: filter tightened too far removes hundreds; a box that grew with them
+#: would push every other category off the panel, so it is a fixed six rows
+#: with the rest a scroll away.
+FILTER_LOG_ROWS = 6
+
+#: Gaussian sigma the Otsu mode smooths with before it cuts, and what the
+#: Otsu category's Smoothing box starts at. It is
+#: :data:`spacr.qt.mask_engine._CLASSICAL_SMOOTHING` -- the value the
+#: magnifier's threshold mode has always used -- written here so the panel
+#: can start on it without importing a private name.
+OTSU_SMOOTHING = 1.0
+
+#: Where the local-threshold window starts, in pixels. Comfortably
+#: larger than a cell at the magnifications this screen is used at and far
+#: smaller than the scale illumination falls off over, which is the band a
+#: local threshold has to sit in to be worth switching on. It is odd because
+#: the window is centred on the pixel it judges.
+OTSU_LOCAL_WINDOW = 51
+
+#: How many bars the Otsu histogram preview draws. 256 is what a reader can
+#: tell apart at the width the dialog opens at, and enough that a 16-bit
+#: field's two populations are two humps rather than one.
+OTSU_HISTOGRAM_BINS = 256
+
+#: The shortcut list beside the Mask / Cell probability / Flows
+#: views, as ``(keys, what it does)``. ONE TERSE LINE EACH: the panel is read at a glance between strokes, and a paragraph
+#: there would be read once and then never again. Every line is a gesture
+#: this module actually implements -- :data:`PAN_MODIFIERS`,
+#: :meth:`_MaskCanvas.wheelEvent`, :meth:`_MaskCanvas.mousePressEvent` and
+#: :meth:`MakeMasksScreen._install_shortcuts` are where they live -- so the
+#: panel is checked against the code by
+#: ``tests/qt/test_make_masks_shortcuts_otsu_and_object_edits.py`` rather
+#: than believed.
+SHORTCUT_HINTS = (
+    ("Shift or Alt + drag", "Pan, from any tool"),
+    ("Wheel", "Zoom about the cursor"),
+    ("Right button", "Sweep away the objects it passes"),
+    ("Ctrl + left click", "Split the object at its waist"),
+    ("Ctrl + right click", "Remove the object under the cursor"),
+    ("Left / Right arrows", "Previous / next field"),
+    ("Ctrl+Z / Ctrl+Y", "Undo / redo"),
+    ("Ctrl+S", "Save the mask"),
+    ("Esc", "Reset the zoom"),
+    ("B E W D V Z R", "Brush, erase, wand, draw, divide, zoom, recrop"),
+    ("M", "Live magnifier"),
+    ("Magnifier: wheel", "Box zoom"),
+    ("Magnifier: Shift + wheel", "Box size"),
+    ("Magnifier: drag", "Add the objects it passes over"),
+    ("Magnifier, whole image: right", "Remove the object under it"),
+)
+
+
+def _make_masks_qss(palette, opacity) -> str:
+    """This screen's two coloured inks, for one palette.
+
+    Registered through :func:`spacr.qt.theme.register_widget_qss`, so the
+    colours follow the user's theme without a line in ``theme.py`` and
+    without either widget holding a colour of its own.
+
+    The removal ledger is a text box and takes ``surface_alt`` under its red
+    rows, the fill every other boxed control on this panel stands on, put
+    through the page opacity the same way. The warning is a label over the
+    page and stays transparent: a filled strip across the top of the image
+    would be a second surface stacked on the one behind it.
+
+    :param palette: the theme palette, surfaces already rendered through the
+        page opacity.
+    :param opacity: the user's page-opacity preference, passed through.
+    """
+    return f"""
+QPlainTextEdit#{FILTER_LOG_NAME} {{
+    color: {palette['error']};
+    background: {block_surface('surface_alt', palette.get('theme'), opacity)};
+    border: 1px solid {palette['border_soft']};
+}}
+QLabel#{INVERT_WARNING_NAME} {{
+    color: {palette['warning']};
+    background: transparent;
+}}
+"""
+
+
+register_widget_qss(MAKE_MASKS_QSS_NAME, _make_masks_qss, replace=True)
+
 
 class _MaskLoadWorker(QThread):
     """Decode one image/mask pair without blocking Qt's main thread."""
 
-    def __init__(self, folder: str, filename: str, token: int, parent=None):
+    def __init__(self, folder: str, filename: str, token: int, parent=None,
+                 layout: Optional[dict] = None):
         """Load one image and its mask off the GUI thread.
 
         :param folder: the folder holding the pair.
@@ -363,6 +560,9 @@ class _MaskLoadWorker(QThread):
             navigated away from is discarded rather than drawn over the
             image now on screen.
         :param parent: parent object.
+        :param layout: extra keywords for
+            :func:`spacr.qt.mask_engine.load_image_and_mask` -- the sibling
+            layout's ``masks_dir`` -- or ``None`` for the nested layout.
 
         The result and the original exception are both kept as attributes
         rather than raised, because a thread that raises loses the traceback
@@ -372,6 +572,7 @@ class _MaskLoadWorker(QThread):
         self.folder = folder
         self.filename = filename
         self.token = token
+        self.layout = dict(layout or {})
         self.result = None
         self.error: Optional[Exception] = None
 
@@ -379,7 +580,7 @@ class _MaskLoadWorker(QThread):
         """Load the pair, retaining either the result or original exception."""
         try:
             self.result = engine.load_image_and_mask(
-                self.folder, self.filename
+                self.folder, self.filename, **self.layout
             )
         except Exception as exc:
             self.error = exc
@@ -413,6 +614,13 @@ class _MaskCanvas(QLabel):
     stroke_started = Signal()
     stroke_finished = Signal()
     zoom_changed = Signal(bool)
+    #: Something the user did needs a sentence on the status line. Emitted
+    #: by the Ctrl+click edits, which are the canvas's
+    #: only gestures that can decline to do anything for a reason worth
+    #: telling: a click on background, and an object with no waist to cut.
+    #: A gesture that did nothing and said nothing reads as a broken
+    #: shortcut.
+    status = Signal(str)
     #: A recrop box was dragged, in FULL-image pixels: (x0, y0, x1, y1).
     #: The canvas neither writes it nor judges it — the box may be too
     #: small, or a re-draw of one already cut — because what it becomes is
@@ -422,12 +630,34 @@ class _MaskCanvas(QLabel):
     def __init__(self, parent: Optional[QWidget] = None):
         """Build an empty canvas: no image, no mask, no stroke in progress."""
         super().__init__(parent)
+        #: What the corner readout says about the pixel under the mouse, or
+        #: None while the mouse is off the image.
+        self.readout: Optional[engine.PixelReadout] = None
+        self._lookup: Optional[engine.ObjectLookup] = None
+        self._lookup_mask: Optional[np.ndarray] = None
+        self._lookup_image: Optional[np.ndarray] = None
+        self._lookup_dirty = True
+        self._readout_pos: Optional[QPointF] = None
+        self._readout_queued = False
         self.image: Optional[np.ndarray] = None
         self.mask: Optional[np.ndarray] = None
         self.mode: str = MODE_NONE
         self.brush_radius: int = 10
         self.norm_lo: float = 1.0
         self.norm_hi: float = 99.9
+        #: Draw the photographic complement of the image. A VIEW
+        #: setting beside the two percentiles, not an edit: :attr:`image`
+        #: keeps the pixels that were read off disk, so the readout, the
+        #: filter, every detector and the save all see the original numbers
+        #: whether this is on or off.
+        self.invert_display: bool = False
+        self._inverted: Optional[np.ndarray] = None
+        self._inverted_of: Optional[np.ndarray] = None
+        #: Give the detectors the field as it is DRAWN -- stretched between
+        #: the two display percentiles -- rather than as it was loaded.
+        #: Off by default, which keeps the stretch a view setting.
+        self.detect_on_normalized: bool = False
+        self._detection_cache: Optional[tuple] = None
         self.wand_tolerance: float = 1000.0
         self.wand_relative: bool = True
         self.wand_tol_pct: float = 5.0
@@ -447,6 +677,27 @@ class _MaskCanvas(QLabel):
         self.wand_gradient_margin: int = 8
         self.wand_gradient_erode: int = 3
         self.wand_salvage_over_cap: bool = True
+        #: The smallest object the screen is willing to keep, in pixels, as
+        #: the Min area box holds it. Ctrl + left click reads it for its
+        #: seed spacing (:func:`mask_engine.split_object_at`), so the size
+        #: that decides what is debris also decides what is too small to be
+        #: two things. Set by the screen; 0 leaves the engine's own floor.
+        self.split_min_area: int = 0
+        #: The BUTTON now down that was pressed with Ctrl, or None. It makes
+        #: that press one of the Ctrl+click edits and NOT the start of a drag:
+        #: without it the release reaches the magnifier, whose own release
+        #: with no stroke open IS a click -- so a Ctrl+click that split one
+        #: object would commit every object in the box on the way back up.
+        #: It is the button and not a flag so that a SECOND button pressed
+        #: while the edit is open can have its own release consumed without
+        #: ending the edit early.
+        self._ctrl_click = None
+        #: Buttons whose PRESS this canvas declined to act on, and whose
+        #: release must therefore be declined too. A release that falls
+        #: through reaches the generic stroke end at the foot of
+        #: :meth:`_MaskCanvas.mouseReleaseEvent`, which would close whatever
+        #: OTHER gesture is open and label it a paint.
+        self._swallowed: set = set()
         self.zoom_speed: float = 1.15
         follow_device_ratio(self, self.refresh)
 
@@ -501,6 +752,9 @@ class _MaskCanvas(QLabel):
         self.mask = mask
         self._gesture_points = []
         self.recrop_boxes = []
+        self._inverted = self._inverted_of = None
+        self._lookup = self._lookup_mask = self._lookup_image = None
+        self.readout = None
         if self.magnifier is not None:
             self.magnifier.forget()
         self.reset_zoom(silent=True)
@@ -532,11 +786,70 @@ class _MaskCanvas(QLabel):
             self.zoom_changed.emit(False)
         self.refresh()
 
+    def displayed_source(self) -> Optional[np.ndarray]:
+        """The intensities this canvas DRAWS, before the contrast stretch.
+
+        :attr:`image` unless :attr:`invert_display` is on, in which case the
+        photographic complement of it (:func:`spacr.qt.mask_engine.
+        invert_intensity`). The complement is computed here and
+        nowhere else, so everything that measures, detects, filters or saves
+        goes on reading :attr:`image` and cannot silently be handed inverted
+        pixels. A curator can leave Invert on all day and the numbers on
+        disk are the numbers the microscope wrote.
+
+        The complement is kept until the image itself changes, because a
+        refresh runs on every stroke point and re-subtracting a megapixel
+        field per point would be felt on the brush.
+
+        :returns: the array to stretch and draw, or None with no image.
+        """
+        if self.image is None:
+            return None
+        if not self.invert_display:
+            return self.image
+        if self._inverted is None or self._inverted_of is not self.image:
+            self._inverted = engine.invert_normalized(self.image)
+            self._inverted_of = self.image
+        return self._inverted
+
+    def detection_source(self) -> Optional[np.ndarray]:
+        """The intensities the detectors read.
+
+        :meth:`displayed_source` -- the loaded field, or its inversion with
+        Invert on -- and, with :attr:`detect_on_normalized` on, that array
+        stretched between :attr:`norm_lo` and :attr:`norm_hi` exactly as
+        :meth:`refresh` stretches it for drawing, so Otsu, Cellpose and the
+        magnifier segment the picture the curator is looking at.
+
+        Cached against the array and the two percentiles: the magnifier asks
+        on every mouse move, and a percentile pass over a megapixel field
+        per move would be felt.
+
+        :returns: the array, or None with no image.
+        """
+        base = self.displayed_source()
+        if base is None or not self.detect_on_normalized:
+            return base
+        key = (base, float(self.norm_lo), float(self.norm_hi))
+        cached = self._detection_cache
+        if cached is not None and cached[0] is base and cached[1:3] == key[1:]:
+            return cached[3]
+        out = engine.normalize_for_detection(base, self.norm_lo, self.norm_hi)
+        self._detection_cache = (base, key[1], key[2], out)
+        return out
+
     def refresh(self) -> None:
-        """Recompose image + mask overlay and repaint the canvas pixmap."""
+        """Recompose image + mask overlay and repaint the canvas pixmap.
+
+        Every edit ends in a refresh, so the corner readout is re-read after
+        one: an object just erased must stop being reported under the mouse.
+        """
+        self._lookup_dirty = True
+        self._schedule_readout()
         if self.image is None or self.mask is None:
             return
-        img = engine.normalize_uint16(self.image, self.norm_lo, self.norm_hi)
+        img = engine.normalize_uint16(self.displayed_source(),
+                                      self.norm_lo, self.norm_hi)
         x0, y0, x1, y1 = self._viewport_bounds()
         sub_img = img[y0:y1, x0:x1]
         sub_mask = self.mask[y0:y1, x0:x1]
@@ -763,6 +1076,11 @@ class _MaskCanvas(QLabel):
         super().paintEvent(event)
         self._paint_recrop_boxes()
         self._paint_magnifier()
+        self._paint_drag()
+        self._paint_readout()
+
+    def _paint_drag(self) -> None:
+        """Draw the outline, cut or rectangle being dragged, if there is one."""
         if self.mode in (MODE_DRAW, MODE_DIVIDE):
             self._paint_gesture()
             return
@@ -777,6 +1095,195 @@ class _MaskCanvas(QLabel):
         painter.setPen(pen)
         rect = QRect(self._zoom_drag_start, self._zoom_drag_end).normalized()
         painter.drawRect(rect)
+        painter.end()
+
+    def _object_lookup(self) -> Optional[engine.ObjectLookup]:
+        """The objects of the mask on screen, rebuilt only when it changed.
+
+        A refresh marks the lookup stale, and a stale one is compared with a
+        copy of the mask it was built from before it is rebuilt: a zoom or a
+        pan refreshes without changing a label, and rebuilding for those
+        would cost a 2048 px field tens of milliseconds per wheel notch.
+
+        :returns: the lookup, or ``None`` with no field open.
+        """
+        if self.mask is None or self.image is None:
+            return None
+        lookup = self._lookup
+        if lookup is not None and self._lookup_image is self.image and (
+                not self._lookup_dirty
+                or (self._lookup_mask.shape == self.mask.shape
+                    and np.array_equal(self._lookup_mask, self.mask))):
+            self._lookup_dirty = False
+            return lookup
+        try:
+            lookup = engine.ObjectLookup(self.mask, self.image)
+        except Exception:                                    # noqa: BLE001
+            LOG.debug("the readout could not measure the mask", exc_info=True)
+            return None
+        self._lookup = lookup
+        self._lookup_mask = np.array(self.mask, copy=True)
+        self._lookup_image = self.image
+        self._lookup_dirty = False
+        return lookup
+
+    def update_readout(self, pos=None, *, measure: bool = True):
+        """Point the corner readout at the widget position ``pos``.
+
+        :param pos: where the mouse is, in widget coordinates, or ``None``
+            when it has left the canvas.
+        :param measure: also report the object under the pixel. False while
+            a button is held, because a brush stroke changes the mask on every
+            move and the object is re-read when the stroke ends.
+        :returns: the readout now shown, or ``None``.
+        """
+        self._readout_pos = None if pos is None else QPointF(pos)
+        readout = None
+        spot = (None if pos is None or self.image is None
+                else self._canvas_to_image(pos.x(), pos.y()))
+        if spot is not None:
+            source = self.detection_source()
+            lookup = self._object_lookup() if measure else None
+            if lookup is not None:
+                readout = lookup.at(*spot)
+                if readout is not None and (self.invert_display
+                                            or self.detect_on_normalized):
+                    readout = readout._replace(
+                        intensity=self._value_at(source, spot))
+            else:
+                readout = engine.PixelReadout(
+                    spot[0], spot[1], self._value_at(source, spot))
+        if readout != self.readout:
+            before = self.readout_rect()
+            self.readout = readout
+            for rect in (before, self.readout_rect()):
+                if rect is not None:
+                    self.update(rect.adjusted(-2, -2, 2, 2))
+        return readout
+
+    @staticmethod
+    def _value_at(source, spot) -> float:
+        """The intensity at ``spot`` of whichever array is handed in.
+
+        Reading :attr:`image` always would leave the number under the mouse
+        unchanged while the picture showed the negative with Invert on --
+        and the readout is the instrument a curator checks the inversion
+        WITH, so a readout that does not move makes Invert look broken.
+
+        It now reads what is DRAWN, so the number agrees with the picture.
+        What is saved and what the Filter measures still read the loaded
+        pixels, which is why the caption says which of the two a number is.
+
+        :param source: the array actually on screen.
+        :param spot: ``(x, y)`` in image pixels.
+        :returns: the value, averaged over channels for a colour field.
+        """
+        value = np.asarray(source[spot[1], spot[0]], dtype=np.float32)
+        return float(value.mean())
+
+    def _schedule_readout(self) -> None:
+        """Re-read the readout once the current event has been handled.
+
+        The canvas is the timer's context object, so a canvas deleted before
+        the timer fires cancels it rather than being called after it has gone.
+        """
+        if self._readout_pos is None or self._readout_queued:
+            return
+        self._readout_queued = True
+        QTimer.singleShot(0, self, self._reread_readout)
+
+    def _reread_readout(self) -> None:
+        """Measure the pixel the mouse is resting on again, after an edit."""
+        self._readout_queued = False
+        if self._readout_pos is None or QApplication.mouseButtons() \
+                != Qt.NoButton:
+            return
+        self.update_readout(self._readout_pos)
+
+    def readout_text(self) -> str:
+        """The corner readout as it is painted, or ``""`` when there is none.
+
+        The first line is the pixel -- its position and raw intensity -- and
+        the second, over an object, is that object's id, area and mean
+        intensity, in the units and to the decimals the filter's own boxes
+        use, so a value read here can be typed there.
+        """
+        from ..i18n import tr
+
+        readout = self.readout
+        if readout is None:
+            return ""
+        if self.detect_on_normalized:
+            lines = [tr("x {x}, y {y}   intensity {value} (normalized, as detected)",
+                        x=readout.x, y=readout.y,
+                        value=_readout_number(readout.intensity))]
+        elif self.invert_display:
+            lines = [tr("x {x}, y {y}   intensity {value} (inverted)",
+                        x=readout.x, y=readout.y,
+                        value=_readout_number(readout.intensity))]
+        else:
+            lines = [tr("x {x}, y {y}   intensity {value}", x=readout.x,
+                        y=readout.y,
+                        value=_readout_number(readout.intensity))]
+        if readout.label:
+            if self.invert_display or self.detect_on_normalized:
+                lines.append(tr(
+                    "Object {label}   area {area} px   mean intensity "
+                    "{mean} (as loaded)",
+                    label=readout.label, area=readout.area,
+                    mean=_readout_number(readout.mean_intensity, decimals=2)))
+            else:
+                lines.append(tr(
+                    "Object {label}   area {area} px   mean intensity {mean}",
+                    label=readout.label, area=readout.area,
+                    mean=_readout_number(readout.mean_intensity, decimals=2)))
+        return "\n".join(lines)
+
+    def readout_rect(self) -> Optional[QRect]:
+        """Where the readout is painted: the top-left corner of the image.
+
+        :returns: the box in widget coordinates, or ``None`` when there is
+            nothing to show.
+        """
+        text = self.readout_text()
+        rendered = self.pixmap()
+        if not text or rendered is None or rendered.isNull():
+            return None
+        shown = logical_size(rendered)
+        left = max(0, (self.width() - shown.width()) // 2)
+        top = max(0, (self.height() - shown.height()) // 2)
+        margin = SPACING["xs"]
+        metrics = self.fontMetrics()
+        bounds = metrics.boundingRect(QRect(0, 0, 10_000, 10_000),
+                                      int(Qt.AlignLeft | Qt.AlignTop), text)
+        return QRect(left + margin, top + margin,
+                     bounds.width() + 2 * SPACING["sm"],
+                     bounds.height() + 2 * SPACING["xs"])
+
+    def _paint_readout(self) -> None:
+        """Paint the readout in the image's top-left corner, over everything.
+
+        On a translucent plate of the page colour, so it reads over a bright
+        field and a dark one alike.
+        """
+        rect = self.readout_rect()
+        if rect is None:
+            return
+        palette = active_palette()
+        plate = QColor(palette["bg"])
+        plate.setAlpha(215)
+        painter = QPainter(self)
+        try:
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(plate)
+            painter.drawRoundedRect(QRectF(rect), 4, 4)
+            painter.setPen(QPen(QColor(palette["fg"])))
+            painter.drawText(
+                rect.adjusted(SPACING["sm"], SPACING["xs"], 0, 0),
+                int(Qt.AlignLeft | Qt.AlignTop), self.readout_text())
+        finally:
+            painter.end()
 
     def _paint_magnifier(self) -> None:
         """Draw the live magnifier's box, when there is one to draw."""
@@ -899,18 +1406,127 @@ class _MaskCanvas(QLabel):
         self.refresh()
         return True
 
+    def _ctrl_edit_at(self, pt, *, split: bool) -> bool:
+        """Split or remove the object under ``pt``.
+
+        Ctrl + left click splits the hovered object; Ctrl + right click
+        removes it.
+
+        BOTH ARE ONE STROKE, so each is one undo step and one ledger entry,
+        like every other edit on this canvas. The stroke is opened only once
+        something is actually going to change: a Ctrl+click on background,
+        or on an object with no waist to cut, leaves no empty undo step to
+        step back through and says why on the status line instead.
+
+        :param pt: the image pixel clicked, or None when the click was off
+            the image.
+        :param split: True for the left button's split, False for the right
+            button's removal.
+        :returns: whether the mask changed.
+        """
+        if pt is None or self.mask is None:
+            return False
+        x, y = pt
+        height, width = self.mask.shape[:2]
+        if not (0 <= y < height and 0 <= x < width):
+            return False
+        target = int(self.mask[y, x])
+        if target <= 0:
+            self.status.emit(
+                "Ctrl+click acts on an object — there is none under the "
+                "cursor.")
+            return False
+        if not split:
+            self._emit_stroke_start()
+            self.mask = engine.erase_object_at(self.mask, x, y)
+            self.refresh()
+            self._emit_stroke_end(kind="delete", target=target,
+                                   gesture="ctrl_click")
+            self.status.emit(
+                f"Removed object {target} — Ctrl+Z to undo")
+            return True
+        out, new_ids = engine.split_object_at(
+            self.mask, x, y, min_area=int(self.split_min_area))
+        if not new_ids:
+            self.status.emit(
+                f"Object {target} has one centre, so there is no waist to "
+                "split it at. The Divide tool cuts along a line you draw.")
+            return False
+        self._emit_stroke_start()
+        self.mask = out
+        self.refresh()
+        self._emit_stroke_end(kind="split", target=target,
+                               gesture="ctrl_click", into=list(new_ids),
+                               n_objects=len(new_ids) + 1)
+        made = ", ".join(str(new) for new in new_ids)
+        self.status.emit(
+            f"Split object {target} into {len(new_ids) + 1} — new id(s) "
+            f"{made}. Ctrl+Z to undo")
+        return True
+
     def mousePressEvent(self, event):
         """Dispatch a click to the current tool (brush/erase/wand/zoom/…).
 
-        Two gestures are checked before the tool, because they work from
-        *any* tool: the right button sweep-deletes, and Shift/Alt + left
-        pans. Both are things you want mid-edit without putting the brush
-        down and picking it up again. With the magnifier on in whole-image
-        scope the right button removes the one object under it instead of
-        sweeping.
+        Three gestures are checked before the tool, because they work from
+        *any* tool: Ctrl + left splits and Ctrl + right removes the object
+        under the cursor, the right button sweep-deletes,
+        and Shift/Alt + left pans. All of them are things you want mid-edit
+        without putting the brush down and picking it up again. With the
+        magnifier on in whole-image scope the right button removes the one
+        object under it instead of sweeping.
+
+        CTRL IS TESTED FIRST, before the magnifier and before the pan, or
+        the two edits would exist only while the magnifier was off: its own
+        press handler takes every left click, and its whole-image mode takes
+        every right one.
+
+        A CTRL EDIT OWNS THE MOUSE, and only starts when it can: the whole
+        branch is behind ``event.buttons() == event.button()``, so it runs
+        only when nothing else is already down. Pressing Ctrl+left in the
+        middle of a right-button sweep would otherwise end the SWEEP's
+        stroke and label it a split, and the sweep's own release would then
+        be swallowed as this gesture's -- leaving the sweep open with no
+        ledger entry.
+
+        SUCH A PRESS IS SWALLOWED RATHER THAN HANDED ON. Falling through is
+        not the safe default it looks like: the rest of this handler would
+        read a Ctrl+left as an ordinary left press and open a PAINT stroke,
+        so a chord meant to split an object would paint over one instead.
+        Ctrl with another button already down does nothing at all, and so
+        does a second button pressed while a Ctrl edit is open -- whose
+        release is then consumed without ending that edit.
+
+        ITS RELEASE IS SWALLOWED WITH IT, through :attr:`_swallowed`. A
+        release that falls through reaches the generic stroke end at the
+        foot of :meth:`mouseReleaseEvent`, which closes whatever stroke is
+        open -- the SWEEP's -- and labels it a paint, which is the whole
+        damage this guard exists to stop.
+
+        :attr:`_ctrl_click` is still rewritten by every press that arrives
+        alone, so a release that never came -- a grab lost to a dialog --
+        cannot leave it standing and swallow the next drag.
         """
         if self.mask is None:
             return super().mousePressEvent(event)
+
+        if event.buttons() == event.button():
+            self._swallowed.clear()
+            self._ctrl_click = (
+                event.button()
+                if (event.modifiers() & Qt.ControlModifier
+                    and event.button() in (Qt.LeftButton, Qt.RightButton))
+                else None)
+            if self._ctrl_click is not None:
+                self._ctrl_edit_at(
+                    self._canvas_to_image(event.position().x(),
+                                           event.position().y()),
+                    split=event.button() == Qt.LeftButton)
+                self.update()
+                return
+        elif (self._ctrl_click is not None
+              or event.modifiers() & Qt.ControlModifier):
+            self._swallowed.add(event.button())
+            return
 
         if (event.button() == Qt.RightButton and self.magnifier is not None
                 and self.magnifier.enabled
@@ -991,8 +1607,17 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def mouseMoveEvent(self, event):
-        """Extend a sweep, a pan, a brush/erase stroke, or a zoom drag."""
+        """Move the readout; extend a sweep, a pan, a stroke or a zoom drag.
+
+        A move while a Ctrl+click is still down moves the readout and
+        nothing else: that click was one edit and is finished, so dragging
+        away from it must not turn into a magnifier stroke or a sweep.
+        """
         if self.mask is None:
+            return
+        self.update_readout(event.position(),
+                            measure=event.buttons() == Qt.NoButton)
+        if self._ctrl_click is not None:
             return
         if self._sweeping and event.buttons() & Qt.RightButton:
             self._sweep_delete_at(
@@ -1044,7 +1669,28 @@ class _MaskCanvas(QLabel):
             self.refresh()
 
     def mouseReleaseEvent(self, event):
-        """Close a sweep or pan, commit a zoom rect, or finalize a stroke."""
+        """Close a sweep or pan, commit a zoom rect, or finalize a stroke.
+
+        The readout is re-measured once the release has been handled, since a
+        held button kept it to the pixel while the mask was changing.
+
+        A Ctrl+click is over the moment it was pressed, so its release is
+        consumed here rather than handed on — see :attr:`_ctrl_click`. Any
+        release arriving while one is open is consumed, but only the button
+        that OPENED it closes it: a second button pressed meanwhile started
+        nothing, so its release must end nothing. A button whose press was
+        declined outright (:attr:`_swallowed`) is dropped for the same
+        reason, before the generic stroke end below can close somebody
+        else's stroke with it.
+        """
+        self._schedule_readout()
+        if self._ctrl_click is not None:
+            if event.button() == self._ctrl_click:
+                self._ctrl_click = None
+            return
+        if event.button() in self._swallowed:
+            self._swallowed.discard(event.button())
+            return
         if event.button() == Qt.RightButton and self._sweeping:
             self._sweeping = False
             labels, self._sweep_labels = self._sweep_labels, []
@@ -1154,7 +1800,8 @@ class _MaskCanvas(QLabel):
         self.refresh()
 
     def leaveEvent(self, event):
-        """Put the magnifier's box away when the mouse leaves the canvas."""
+        """Put the magnifier's box and the readout away as the mouse leaves."""
+        self.update_readout(None)
         if self.magnifier is not None and self.magnifier.enabled:
             self.magnifier.hover(None)
             self.update()
@@ -1186,9 +1833,28 @@ RECROP_TOOLTIP = (
 #: are empty for a reason and the reason is worth a sentence: a blank
 #: black pane reads as a broken view.
 FLOW_RESTING_TEXT = (
-    "Run Cellpose-SAM to see the cell-probability map\n"
+    "Run Object detection to see the cell-probability map\n"
     "and the flow field for this field."
 )
+
+
+def _readout_number(value, decimals: int = 0) -> str:
+    """A number as the corner readout writes it.
+
+    A whole number, which every pixel of an integer image is, is written
+    without a decimal point; anything else to ``decimals`` places, which for
+    a mean is the two the filter's intensity boxes take.
+
+    :param value: the number, or ``None``.
+    :param decimals: places for a number that is not whole.
+    :returns: the text.
+    """
+    if value is None:
+        return ""
+    value = float(value)
+    if value.is_integer():
+        return str(int(value))
+    return f"{value:.{max(1, int(decimals))}f}"
 
 
 def stretch_to_uint8(array: np.ndarray,
@@ -1290,22 +1956,37 @@ def cellpose_intermediates(flows) -> tuple:
 #: The item-data role marking a Model box row that came from the model zoo.
 _ZOO_ROLE = int(Qt.UserRole) + 17
 
+#: Item-data role holding the zoo entry of a Model row that is listed but not
+#: downloaded. Such a row stores no path, so it can never be what a detect
+#: run loads; choosing it starts the download instead.
+_ZOO_PENDING_ROLE = int(Qt.UserRole) + 18
+
 
 def _zoo_cellpose_models() -> List[tuple]:
-    """``(key, path or None)`` for every Cellpose model the model zoo lists.
+    """``(key, path or None, entry)`` for every Cellpose model in the zoo.
 
     ``path`` is where the model is on this machine -- the entry's own path,
     or its file in the folder the Model zoo picker downloads into -- and None
-    for one not downloaded. Read without waiting on the network (the
+    for one not downloaded. ``entry`` is the zoo's own record, which is what
+    a download starts from. Read without waiting on the network (the
     community rows come from the zoo's cache), and never raises: a zoo that
     cannot be read leaves the Model box with the Cellpose installed here.
+
+    OFFERS WHAT THE ZOO OFFERS, AND NOTHING ELSE. The source headings the
+    Model zoo picker carries are a preference, not a property of
+    one dialog: a user who folded bioimage.io away in the picker has said
+    they do not want those models, and a Mode box that listed them anyway
+    would be the one place that ignored them. So the same persisted headings
+    filter this list.
     """
     try:
         from ... import model_zoo
-        from ..widgets.model_zoo_picker import remembered_model_dir
+        from ..widgets.model_zoo_picker import (remembered_model_dir,
+                                                remembered_sources)
 
         entries = model_zoo.catalogue(remote=True, block=False)
         folder = remembered_model_dir()
+        sources = set(remembered_sources())
     except Exception:                                        # noqa: BLE001
         LOG.debug("the model zoo could not be read", exc_info=True)
         return []
@@ -1313,11 +1994,13 @@ def _zoo_cellpose_models() -> List[tuple]:
     for entry in entries:
         if getattr(entry, "kind", "") != "cellpose":
             continue
+        if model_zoo.source_of(entry) not in sources:
+            continue
         path = str(getattr(entry, "path", "") or "")
         if not (path and os.path.isfile(path)):
             candidate = os.path.join(folder, str(entry.name))
             path = candidate if os.path.isfile(candidate) else ""
-        found.append((str(entry.key or entry.name), path or None))
+        found.append((str(entry.key or entry.name), path or None, entry))
     return found
 
 
@@ -1330,7 +2013,18 @@ def load_cellpose_model(model_name: str):
     substituting stock weights for a checkpoint that is not there. Going
     around it with a second, simpler call would give this screen a
     different answer from the run it is meant to be correcting.
+
+    ON A CPU THE WEIGHTS ARE LOADED IN FLOAT32. Cellpose-SAM loads them in
+    bfloat16 by default, and a processor without native bfloat16
+    arithmetic runs every tile through a slow emulation of it: measured on
+    an AMD Ryzen 9 5950X, one 256 px tile took 162-197 s in bfloat16 and
+    31-46 s in float32, alternating, under the same load. A whole field is a hundred such tiles, so this is
+    the difference between most of an hour and most of a day. On a GPU
+    nothing changes: :func:`spacr.accelerator.cellpose_kwargs` decides
+    there, as it does for the pipeline.
     """
+    import inspect
+
     import torch
     from cellpose import models as cp_models
 
@@ -1339,8 +2033,16 @@ def load_cellpose_model(model_name: str):
     pretrained = _resolve_cellpose_pretrained(model_name)
     from ...accelerator import cellpose_kwargs
 
-    return cp_models.CellposeModel(pretrained_model=pretrained,
-                                    **cellpose_kwargs())
+    kwargs = cellpose_kwargs()
+    if not kwargs.get("gpu"):
+        try:
+            accepts = "use_bfloat16" in inspect.signature(
+                cp_models.CellposeModel).parameters
+        except (TypeError, ValueError):
+            accepts = False
+        if accepts:
+            kwargs["use_bfloat16"] = False
+    return cp_models.CellposeModel(pretrained_model=pretrained, **kwargs)
 
 
 def cellpose_detect(image: np.ndarray, model, *,
@@ -1408,8 +2110,8 @@ def cellpose_detect(image: np.ndarray, model, *,
 #: of 0 is each model's own default cut.
 _MAGNIFIER_SIZE = 128
 #: The size's range BEFORE A FIELD IS OPEN. Once one is, the top of the range
-#: is that field's own longer side (item 417: "this number should be able to
-#: be as high as the image is high/wide") -- see :func:`_magnifier_size_range`.
+#: is that field's own longer side, so the magnifier can cover the whole
+#: field -- see :func:`_magnifier_size_range`.
 _MAGNIFIER_SIZE_RANGE = (32, 512)
 _MAGNIFIER_ZOOM = 2.0
 _MAGNIFIER_ZOOM_RANGE = (1.0, 8.0)
@@ -1421,6 +2123,18 @@ _MAGNIFIER_SENSITIVITY_RANGE = (-6.0, 6.0)
 #: once on the whole field in the background, and the box then reads those
 #: objects instead of asking the model again.
 _MAGNIFIER_SCOPES = ("region", "image")
+
+#: The Overlap rule a fresh panel is on, and what the magnifier assumes
+#: until the screen's Overlap box says otherwise.
+_MAGNIFIER_OVERLAP_DEFAULT = "clip"
+
+#: Megabytes of whole-image objects the magnifier may keep for fields it has
+#: left, so coming back to one does not segment it again -- minutes, on a CPU.
+#: A label image is int32, so this is sixteen 2048 px fields or four 4096 px
+#: ones. It is a CEILING and not an allowance: the user's own cache ceiling
+#: (:func:`spacr.qt.preferences.get_cache_ceiling_mb`) wins when it is lower,
+#: and the idle timeout beside it releases what nobody has come back to.
+_MAGNIFIER_IMAGE_CACHE_MB = 256
 
 #: Serialises every use of a Cellpose model between the magnifier's worker
 #: thread and the screen's own detect button, which share the loaded models.
@@ -1471,21 +2185,196 @@ class _MagnifierRequest(NamedTuple):
     exclude_border: bool = True
     #: ``region`` for the box under the mouse, ``image`` for the whole field.
     scope: str = "region"
-    #: The Cellpose-SAM settings' flow threshold, cell-probability threshold
-    #: and normalization, which the models read (item 417).
+    #: The Object detection settings' flow threshold, cell-probability
+    #: threshold and normalization, which the models read.
     flow_threshold: float = FLOW_THRESHOLD
     cellprob_threshold: float = CELLPROB_THRESHOLD
     normalize: bool = True
-    #: What Otsu's level is multiplied by in the classical mode.
+    #: What Otsu's level is multiplied by in the Otsu mode.
     otsu_correction: float = 1.0
+    #: Gaussian sigma the Otsu mode smooths the region with before it cuts.
+    otsu_smoothing: float = OTSU_SMOOTHING
+    #: Whether the Otsu mode closes the holes inside what it thresholded.
+    otsu_fill_holes: bool = True
+    #: Whether the Otsu mode cuts a blob with two centres into two objects.
+    otsu_split: bool = True
+    #: Whether :attr:`crop` was inverted before it was copied in. It is
+    #: carried on the request, though nothing downstream
+    #: reads it, because it is part of what makes two requests the same
+    #: request: the same box under the same settings with Invert on and off
+    #: are two different questions with two different answers.
+    invert: bool = False
+    #: The Overlap rule the box is to draw its promise in, and the mask it
+    #: is to be read against: the pixels the mask already owns inside
+    #: ``box``, and a number that changes whenever the canvas is handed a
+    #: different mask. NOT PART OF ``key``, because neither changes what the
+    #: model is asked -- a rule and a mask edit change what the ANSWER
+    #: means, which is why the worker is given both and
+    #: :meth:`_LiveMagnifier.refresh` compares them beside the key.
+    overlap: str = "replace"
+    occupied: Optional[np.ndarray] = None
+    mask_token: int = 0
+    #: A whole-image run's :class:`_RunTicket`: how far the model has got
+    #: and whether the run is still wanted. None for a region, which is
+    #: small enough to finish. Not part of ``key``, for the same reason.
+    ticket: Any = None
+
+
+class _RunCancelled(Exception):
+    """A whole-image run was stopped, between two of the model's tiles."""
+
+
+class _RunTicket:
+    """How far one whole-image run has got, and whether it is still wanted.
+
+    A MODEL CALL COULD NOT BE STOPPED, and on a CPU that was the difference
+    between a tool and a trap. Cellpose-SAM on a CPU takes most of an hour
+    for one 2,000 px field, and Cancel could only throw the answer
+    away once it arrived: the model went on holding the processor, and the
+    shared model lock with it, for the rest of those minutes. Cellpose runs
+    a field as a series of 256 px tiles, one network call each, so the run
+    CAN be asked between two of them -- this is what it is asked.
+
+    Shared between the GUI thread, which reads the progress and cancels,
+    and the worker, which counts and checks; every field is one assignment
+    or one Event, so neither side takes a lock.
+
+    :param total: how many tiles the run is expected to take, when known.
+    """
+
+    def __init__(self, total: int = 0):
+        """A ticket for a run that has not started a tile yet."""
+        self._stop = threading.Event()
+        #: Tiles the model has STARTED, and how many it will run in all
+        #: (0 while unknown).
+        self.done = 0
+        self.total = int(total)
+        #: ``time.monotonic()`` when the first and the latest tile started.
+        self.first_at: Optional[float] = None
+        self.last_at: Optional[float] = None
+
+    def cancel(self) -> None:
+        """Ask the run to stop at its next tile."""
+        self._stop.set()
+
+    def cancelled(self) -> bool:
+        """Whether the run has been asked to stop."""
+        return self._stop.is_set()
+
+    def check(self) -> None:
+        """Raise :class:`_RunCancelled` if the run has been asked to stop."""
+        if self._stop.is_set():
+            raise _RunCancelled()
+
+    def step(self, tiles: int = 1) -> None:
+        """Count ``tiles`` starting now, unless the run is to stop instead.
+
+        :raises _RunCancelled: when :meth:`cancel` was called.
+        """
+        self.check()
+        now = time.monotonic()
+        if self.first_at is None:
+            self.first_at = now
+        self.last_at = now
+        self.done += max(1, int(tiles))
+
+    def remaining_seconds(self) -> Optional[float]:
+        """How long the tiles still to run will take, from this run's pace.
+
+        MEASURED ON THIS RUN, so the first run of a session has an estimate
+        too -- the one run that most needs one, on a CPU, and the one the
+        per-megapixel pace (:meth:`_LiveMagnifier.remaining_seconds`) has to
+        stay silent through. The pace is the time between the first tile
+        and the latest one, so the model's load, which comes before the
+        first, is not counted as tile time.
+
+        :returns: seconds, or None before two tiles have started, when the
+            total is unknown, or once the last tile is under way -- what
+            follows it, turning the network's output into objects, is not
+            made of tiles and is not guessed at.
+        """
+        done, total = self.done, self.total
+        first, last = self.first_at, self.last_at
+        if total <= 0 or done < 2 or first is None or last is None \
+                or done >= total:
+            return None
+        pace = (last - first) / (done - 1)
+        left = pace * (total - done + 1) - (time.monotonic() - last)
+        return max(0.0, left)
+
+
+def _cellpose_tile_count(shape, diameter: int = 0, bsize: int = 256,
+                         tile_overlap: float = 0.1) -> int:
+    """How many network calls Cellpose makes for one field of ``shape``.
+
+    ``cellpose.core.run_net``'s own arithmetic, for one 2-D image: the
+    field is rescaled by ``30 / diameter`` when a diameter is set, padded
+    by ``cellpose.transforms.get_pad_yx``, and cut into overlapping tiles of
+    ``bsize``. Cellpose-SAM's ``bsize`` is 256 and cannot be changed. Used
+    only to say how far a run has got; a Cellpose that tiles differently
+    makes the bar wrong and nothing else, and the bar never claims more than
+    it has counted (:meth:`_RunTicket.remaining_seconds`).
+
+    :param shape: the field's ``(height, width, ...)``.
+    :param diameter: the Object detection diameter; 0 for none.
+    :returns: the number of tiles, at least 1.
+    """
+    height, width = int(shape[0]), int(shape[1])
+    if diameter and int(diameter) > 0:
+        rescale = 30.0 / float(diameter)
+        height, width = int(height * rescale), int(width * rescale)
+    try:
+        from cellpose.transforms import get_pad_yx
+
+        ypad1, ypad2, xpad1, xpad2 = get_pad_yx(
+            height, width, min_size=(bsize, bsize))
+    except Exception:                                       # noqa: BLE001
+        ypad1 = ypad2 = xpad1 = xpad2 = 0
+    padded_y = height + ypad1 + ypad2
+    padded_x = width + xpad1 + xpad2
+    ny = 1 if padded_y <= bsize else int(
+        math.ceil((1.0 + 2 * tile_overlap) * padded_y / bsize))
+    nx = 1 if padded_x <= bsize else int(
+        math.ceil((1.0 + 2 * tile_overlap) * padded_x / bsize))
+    return max(1, ny * nx)
+
+
+def _counting_tiles(model, ticket):
+    """Count ``model``'s network calls on ``ticket``, and stop on a cancel.
+
+    A forward PRE-hook on the model's network: it runs before each tile, so
+    a cancelled run stops before spending another tile on an answer nobody
+    wants, and the exception it raises leaves ``eval`` the way any error
+    would -- the model lock is released by its own ``with``.
+
+    :returns: the hook's handle, to ``remove()`` afterwards, or None when
+        there is no ticket or the model has no torch network to hook -- a
+        stand-in, or a backend that runs out of process.
+    """
+    net = getattr(model, "net", None)
+    register = getattr(net, "register_forward_pre_hook", None)
+    if ticket is None or not callable(register):
+        return None
+
+    def before_a_tile(_module, inputs):
+        """Count this call's tiles, or stop the run here."""
+        batch = inputs[0] if inputs else None
+        ticket.step(int(getattr(batch, "shape", (1,))[0] or 1))
+
+    return register(before_a_tile)
 
 
 #: Everything a model reads, in the order :meth:`_LiveMagnifier._model_settings`
 #: gives it and a request key carries it after ``(field, box)``. The mode is
-#: first, which is what a key's ``[2]`` is read as.
+#: first, which is what a key's ``[2]`` is read as. ADDING ONE GOES AT THE
+#: END, beside the same name in :meth:`_LiveMagnifier._model_settings`: a
+#: request key is this tuple positionally, and an insertion in the middle
+#: would make every key already cached mean something else.
 _MODEL_SETTING_FIELDS = ("mode", "sensitivity", "bright", "min_area",
                          "model_name", "diameter", "flow_threshold",
-                         "cellprob_threshold", "normalize", "otsu_correction")
+                         "cellprob_threshold", "normalize", "otsu_correction",
+                         "otsu_smoothing", "otsu_fill_holes", "otsu_split",
+                         "invert")
 
 
 class _MagnifierResult(NamedTuple):
@@ -1496,9 +2385,17 @@ class _MagnifierResult(NamedTuple):
     the box edge cut (:func:`spacr.qt.mask_engine._drop_cut_objects`). A
     whole-image request's crop is the whole field, so nothing in it is cut.
     ``mode`` is the mode that actually ran and ``note`` says why when that is
-    not the one asked for; ``overlay`` is the RGBA picture of the outlines,
-    or None for a whole-image result, whose box draws its own slice of it;
+    not the one asked for; ``overlay`` is the RGBA picture of the outlines
+    -- for a whole-image result, of the whole field, which the box slices
+    rather than outlining its part of the field again on every move;
     ``count`` is how many objects ``labels`` holds.
+
+    ``ghost`` is ``overlay`` again with the pixels the request's Overlap
+    rule would NOT add faded to a quarter of their alpha -- what the box
+    draws, when the rule takes something away. It is built beside the
+    outlines on the worker thread and is None when there is nothing to fade:
+    under Replace, over an empty mask, or when the rule keeps everything.
+    See :func:`_ghosted_overlay`.
     """
 
     request: _MagnifierRequest
@@ -1507,81 +2404,188 @@ class _MagnifierResult(NamedTuple):
     note: str
     overlay: Optional[np.ndarray]
     count: int = 0
+    ghost: Optional[np.ndarray] = None
+    #: A whole-image result's ``scipy.ndimage.find_objects`` of ``labels``:
+    #: every object's bounding box, from one pass on the worker. What the
+    #: Overlap rule's promise for one object is computed over, since the
+    #: rule's answer for an object depends on all of it and not on the
+    #: part the box shows. See :func:`_object_window`.
+    extents: Optional[tuple] = None
+
+    def nbytes(self) -> int:
+        """What this result holds in memory: its labels and its pictures."""
+        return int(sum(np.asarray(part).nbytes
+                       for part in (self.labels, self.overlay, self.ghost)
+                       if part is not None))
 
 
-def _classical_segmenter(request: _MagnifierRequest, load_model=None):
+def _otsu_segmenter(request: _MagnifierRequest, load_model=None):
     """Threshold and watershed the region; needs nothing installed.
 
-    Reads the Otsu threshold correction set under Cellpose-SAM, and the
-    magnifier's own sensitivity.
+    Reads the Otsu category's settings -- the threshold correction, the
+    smoothing, whether holes are filled and whether a blob with two centres
+    is cut in two -- and the magnifier's own sensitivity. This mode was
+    once called ``classical``; the old name still reaches it, through
+    :func:`canonical_magnifier_mode`.
     """
     return engine._classical_region_labels(
         request.crop, sensitivity=request.sensitivity,
         bright=request.bright, min_area=request.min_area,
-        correction=request.otsu_correction)
+        correction=request.otsu_correction,
+        smoothing=request.otsu_smoothing,
+        fill_holes=request.otsu_fill_holes,
+        split_touching=request.otsu_split)
 
 
 def _cellpose_segmenter(request: _MagnifierRequest, load_model=None):
-    """Segment the region with the Cellpose-SAM settings the screen has.
+    """Segment the region with the Object detection settings the screen has.
 
-    ONE SOURCE OF TRUTH (item 417): the model, the flow threshold, the
+    ONE SOURCE OF TRUTH: the model, the flow threshold, the
     cell-probability threshold, the diameter and the normalization are the
-    Cellpose-SAM category's, exactly as Cellpose-SAM detect passes them, so
+    Object detection category's, exactly as the detect button passes them, so
     the box and the button cannot disagree about what Cellpose was asked. The
-    magnifier's own sensitivity is the classical mode's and is not read here.
+    magnifier's own sensitivity is the Otsu mode's and is not read here.
+
+    A WHOLE-IMAGE RUN COUNTS ITS TILES AND CAN BE STOPPED between two of
+    them, through the request's :class:`_RunTicket`: on a CPU that run is
+    minutes long, and a Cancel that could only discard the answer left the
+    processor and the model lock taken until it arrived.
     """
     loader = load_model or load_cellpose_model
+    ticket = request.ticket
+    if ticket is not None:
+        ticket.check()
+        ticket.total = _cellpose_tile_count(request.crop.shape,
+                                            int(request.diameter))
     with _CELLPOSE_LOCK:
+        if ticket is not None:
+            ticket.check()
         model = loader(request.model_name)
-        labels, _cellprob, _flow = cellpose_detect(
-            request.crop, model,
-            diameter=int(request.diameter),
-            normalize=bool(request.normalize),
-            flow_threshold=float(request.flow_threshold),
-            cellprob_threshold=float(request.cellprob_threshold),
-            min_size=int(request.min_area),
-        )
+        hook = _counting_tiles(model, ticket)
+        try:
+            labels, _cellprob, _flow = cellpose_detect(
+                request.crop, model,
+                diameter=int(request.diameter),
+                normalize=bool(request.normalize),
+                flow_threshold=float(request.flow_threshold),
+                cellprob_threshold=float(request.cellprob_threshold),
+                min_size=int(request.min_area),
+            )
+        finally:
+            if hook is not None:
+                hook.remove()
+    if ticket is not None:
+        ticket.check()
     return labels
 
 
 #: The optional models the magnifier runs through
-#: :mod:`spacr._segmentation_backends` (items 404 and 405): ``mode -> the
-#: package that must be installed``. The Mode box offers each only where its
-#: package is found, and says how to install the ones that are not.
-_MAGNIFIER_BACKENDS = {"dinocell": "dinocell", "samcell": "samcell"}
+#: :mod:`spacr._segmentation_backends`: ``mode -> (backend, the label the
+#: Mode box shows)``. A Cellpose 3 mode names its model after the colon.
+#: Each is always listed, greyed until its backend is installed, and
+#: choosing a greyed one offers the install -- into an environment of its
+#: own rather than into spaCR's, so a backend's dependencies cannot break
+#: spaCR's.
+_MAGNIFIER_BACKENDS = {
+    "cellpose3:cyto3": ("cellpose3", "Cellpose 3 · cyto3"),
+    "cellpose3:cyto2": ("cellpose3", "Cellpose 3 · cyto2"),
+    "cellpose3:cyto": ("cellpose3", "Cellpose 3 · cyto"),
+    "cellpose3:nuclei": ("cellpose3", "Cellpose 3 · nuclei"),
+    "dinocell": ("dinocell", "DINOCell"),
+    "samcell": ("samcell", "SAMCell"),
+}
 
 #: Loaded DINOCell and SAMCell models, by backend name, for the life of the
 #: process. Building one loads a ViT checkpoint, and the box asks on every
 #: move; a backend that fails to build is not kept, so it is tried again.
 _BACKEND_MODELS: dict = {}
 
+#: ``mode -> the environment folder the cached model was built against``, for
+#: the modes whose backend really had one. See :func:`_backend_model`.
+_BACKEND_MODEL_ENVS: dict = {}
+
+
+def _state_ready(backend: str) -> bool:
+    """Whether ``backend``'s environment is here and can segment now.
+
+    File checks only -- no import, no subprocess -- so the Mode box can ask
+    while it is built and a cached model can be checked before it is used.
+    """
+    from ... import _segmentation_backends
+
+    try:
+        return _segmentation_backends._backend_state(backend).ready
+    except (OSError, ValueError):
+        return False
+
 
 def _backend_model(name: str):
-    """The DINOCell or SAMCell model called ``name``, built once.
+    """The backend model a magnifier mode names, built once.
 
     Built by :func:`spacr._segmentation_backends._load_backend`, the same
-    loader the mask pipeline's ``segmentation_backend`` setting uses.
+    loader the mask pipeline's ``segmentation_backend`` setting uses. A
+    ``cellpose3:<model>`` mode loads that Cellpose 3 model.
 
-    :raises ImportError: naming the pip extra, when the package is missing.
+    A CACHED MODEL IS CHECKED AGAINST THE FOLDER IT WAS BUILT FROM.
+    Uninstalling the backend from the Model Zoo while Make Masks is open left
+    this dictionary holding a model whose environment had been deleted;
+    asking it to segment then tried to start a Python that is no longer
+    there, and the magnifier reported a missing file instead of a missing
+    backend. The folder, and not the backend's state, because a model built
+    without one -- a stand-in, or a backend that lives in spaCR's own
+    environment -- was never on disk to lose.
+
+    :raises ImportError: naming the Model Zoo, when the backend is missing.
     """
     with _CELLPOSE_LOCK:
-        model = _BACKEND_MODELS.get(name)
-        if model is None:
-            from ... import _segmentation_backends
+        from ... import _segmentation_backends
 
-            model = _segmentation_backends._load_backend(name)
+        backend, _colon, model_name = str(name).partition(":")
+        model = _BACKEND_MODELS.get(name)
+        env = _BACKEND_MODEL_ENVS.get(name)
+        if model is not None and env and not os.path.isdir(env):
+            _BACKEND_MODELS.pop(name, None)
+            _BACKEND_MODEL_ENVS.pop(name, None)
+            model = None
+        if model is None:
+            model = _segmentation_backends._load_backend(
+                backend, model_name=model_name or None)
             _BACKEND_MODELS[name] = model
+            _BACKEND_MODEL_ENVS[name] = _model_env(backend)
         return model
 
 
+def _model_env(backend: str) -> str:
+    """The folder a model of ``backend`` was just built from, or ``''``.
+
+    Empty for a backend that is not installed in one of its own -- a
+    stand-in, or one an older spaCR put in spaCR's own environment -- which
+    is a model :func:`_backend_model` must not go on to drop.
+    """
+    from ... import _segmentation_backends
+
+    try:
+        state = _segmentation_backends._backend_state(backend)
+    except (OSError, ValueError):
+        return ""
+    return state.env if state.ready and not state.in_process else ""
+
+
+def _backend_ready(mode: str) -> bool:
+    """Whether the backend a magnifier mode needs can segment now."""
+    return _state_ready(_MAGNIFIER_BACKENDS[mode][0])
+
+
 def _backend_segmenter(request: _MagnifierRequest, load_model=None):
-    """Segment the region with DINOCell or SAMCell (item 417, part 10).
+    """Segment the region with Cellpose 3, DINOCell or SAMCell.
 
     A backend answers ``CellposeModel.eval``'s own call, so the region goes
-    through :func:`cellpose_detect` with the Cellpose-SAM settings exactly as
-    Cellpose's does: DINOCell reads the cell-probability threshold (through
-    the logistic function, so 0 is its own 0.5) and SAMCell uses its own
-    thresholds. ``load_model`` is the CELLPOSE loader and is not used: a
+    through :func:`cellpose_detect` with the Object detection settings as
+    Cellpose's does: Cellpose 3 reads both thresholds and the diameter (0
+    lets its size model estimate it), DINOCell reads the cell-probability
+    threshold (through the logistic function, so 0 is its own 0.5) and
+    SAMCell uses its own thresholds. Each runs in its own environment, out
+    of process. ``load_model`` is the CELLPOSE loader and is not used: a
     backend name handed to it would load stock cpsam without a word.
     """
     with _CELLPOSE_LOCK:
@@ -1600,20 +2604,85 @@ def _backend_segmenter(request: _MagnifierRequest, load_model=None):
 #: ``mode -> segmenter``, in the order the Mode box offers them. A segmenter
 #: takes ``(request, load_model)`` and returns labels shaped like
 #: ``request.crop``. ADDING A MODEL IS ONE FUNCTION AND ONE LINE HERE, and
-#: :func:`_segment_region` gives it the classical fallback for nothing.
+#: :func:`_segment_region` gives it the Otsu fallback for nothing.
 _MAGNIFIER_SEGMENTERS = {
-    "classical": _classical_segmenter,
+    "otsu": _otsu_segmenter,
     "cellpose": _cellpose_segmenter,
-    "dinocell": _backend_segmenter,
-    "samcell": _backend_segmenter,
+    **{mode: _backend_segmenter for mode in _MAGNIFIER_BACKENDS},
 }
+
+#: Mode names this screen used to carry, and what they are called now. The
+#: magnifier's threshold mode was once called ``classical`` and is now
+#: ``otsu``; a mode name reaches this module from
+#: a saved session, a script or a test, so the old one still arrives and is
+#: translated rather than refused.
+_MAGNIFIER_MODE_ALIASES = {"classical": "otsu"}
+
+
+def canonical_magnifier_mode(mode) -> str:
+    """The name a magnifier mode goes under today.
+
+    :param mode: a mode name, possibly one this screen has renamed.
+    :returns: the current name; an unknown mode is handed back unchanged, so
+        :func:`_segment_region` can still say it does not know it.
+    """
+    name = str(mode or "otsu")
+    return _MAGNIFIER_MODE_ALIASES.get(name, name)
+
+
+#: The two modes the Mode box builds itself, as ``mode -> its caption``.
+#: The rest are named by :data:`_MAGNIFIER_BACKENDS`.
+_MAGNIFIER_MODE_LABELS = {"otsu": "Otsu", "cellpose": "Cellpose"}
+
+
+def _magnifier_mode_label(mode: str) -> str:
+    """The caption the Mode box shows for ``mode``, translated.
+
+    A status line that names a mode has to name it the way the box the user
+    picked it from does. A mode under its old name is named under the new
+    one, through :func:`canonical_magnifier_mode`; an unknown mode is handed
+    back unchanged rather than hidden, so a key that has lost its caption
+    still reads as itself.
+
+    :param mode: a key of :data:`_MAGNIFIER_SEGMENTERS`, or one this screen
+        has renamed.
+    :returns: the caption, in the current language.
+    """
+    from ..i18n import tr
+
+    key = canonical_magnifier_mode(mode)
+    name = _MAGNIFIER_MODE_LABELS.get(key)
+    if name is None:
+        backend = _MAGNIFIER_BACKENDS.get(key)
+        name = backend[1] if backend is not None else str(mode)
+    return tr(name)
+
+
+def _updating_caption(name: str) -> str:
+    """The magnifier's "Updating <model>…" mark, in the current language.
+
+    A language whose catalog has no row for the named form yet keeps its
+    reviewed "Updating…" and names the model after it, rather than showing
+    English words in a translated window.
+
+    :param name: what is running, from :meth:`running_name`.
+    :returns: the caption.
+    """
+    from ..i18n import current_language, tr
+
+    template = "Updating {name}…"
+    translated = tr("Updating {name}…", name=name)
+    if (current_language() or "en").startswith("en") or \
+            translated != template.format(name=name):
+        return translated
+    return f"{tr('Updating…')} {name}"
 
 
 def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
-    """Run the request's mode, falling back to classical when it cannot run.
+    """Run the request's mode, falling back to Otsu when it cannot run.
 
     The fallback is why the magnifier never simply does nothing: a model
-    whose import or weights fail answers with the classical mode's objects
+    whose import or weights fail answers with the Otsu mode's objects
     and a note saying why, rather than with an empty box.
 
     :param request: the region and its settings.
@@ -1622,18 +2691,23 @@ def _segment_region(request: _MagnifierRequest, load_model=None) -> tuple:
     :returns: ``(labels, mode_used, note)``; ``note`` is empty unless the mode
         asked for could not run.
     """
-    segmenter = _MAGNIFIER_SEGMENTERS.get(request.mode)
+    if request.ticket is not None:
+        request.ticket.check()
+    mode = canonical_magnifier_mode(request.mode)
+    segmenter = _MAGNIFIER_SEGMENTERS.get(mode)
     note = ""
     if segmenter is None:
         note = f"no magnifier mode is called {request.mode!r}"
-    elif segmenter is not _classical_segmenter:
+    elif segmenter is not _otsu_segmenter:
         try:
-            return segmenter(request, load_model), request.mode, ""
+            return segmenter(request, load_model), mode, ""
+        except _RunCancelled:
+            raise
         except Exception as exc:                            # noqa: BLE001
-            LOG.warning("magnifier mode %s could not run; using classical",
+            LOG.warning("magnifier mode %s could not run; using Otsu",
                         request.mode, exc_info=True)
             note = f"{type(exc).__name__}: {exc}"
-    return _classical_segmenter(request, load_model), "classical", note
+    return _otsu_segmenter(request, load_model), "otsu", note
 
 
 def _candidate_overlay(labels: np.ndarray, colour) -> np.ndarray:
@@ -1651,6 +2725,250 @@ def _candidate_overlay(labels: np.ndarray, colour) -> np.ndarray:
     return rgba
 
 
+#: How many pixels of a box the contrast stretch may look at. The stretch
+#: is two percentiles, and a percentile over four megapixels is most of what
+#: a move at the largest box used to cost; over a grid of at most this many
+#: of them the two levels are the same to a fraction of a step, and the box
+#: goes on being stretched over the WHOLE region it covers rather than over
+#: whichever corner of it is on screen.
+_STRETCH_SAMPLES = 262144
+
+
+def _stretch_for_box(image: np.ndarray, box, part,
+                     lower_pct: float, upper_pct: float) -> np.ndarray:
+    """``part`` of ``box``, contrast-stretched over all of ``box``'s levels.
+
+    :func:`spacr.qt.mask_engine.normalize_uint16` reads the levels from the
+    pixels it is handed and rescales the same pixels; the box needs the two
+    halves of that separated, because what it must stretch over is the
+    region it magnifies and what it must PAY FOR is the part of that region
+    a user can see. At the default box the two are one thing and this
+    returns exactly what that function would (``part`` is the whole box and
+    the sample is every pixel of it); at the largest box allowed,
+    with most of the lens off the canvas, it is the difference between a
+    move a user feels and one nobody can.
+
+    :param image: the field.
+    :param box: ``(x0, y0, x1, y1)`` the box magnifies, in image pixels.
+    :param part: ``(x0, y0, x1, y1)`` of it to return, inside ``box``.
+    :param lower_pct: the percentile that becomes black.
+    :param upper_pct: the percentile that becomes white.
+    """
+    x0, y0, x1, y1 = (int(v) for v in box)
+    whole = image[y0:y1, x0:x1]
+    if not whole.size:
+        return np.ascontiguousarray(whole)
+    low, high = _box_levels(image, box, lower_pct, upper_pct)
+    vx0, vy0, vx1, vy1 = (int(v) for v in part)
+    crop = np.ascontiguousarray(image[vy0:vy1, vx0:vx1])
+    out = (np.clip(crop, low, high).astype(np.float64) - low) / (high - low)
+    return (out * float(np.iinfo(crop.dtype).max)).astype(crop.dtype)
+
+
+def _box_levels(image: np.ndarray, box, lower_pct: float,
+                upper_pct: float) -> tuple:
+    """The two levels the box is stretched between: ``(black, white)``.
+
+    Read from the WHOLE region the box magnifies, over a grid of at most
+    :data:`_STRETCH_SAMPLES` of its pixels -- every pixel, at a box the
+    window holds. :func:`_stretch_for_box` and :func:`_box_picture` both
+    read them here, so the two cannot stretch one box two ways.
+
+    :param image: the field.
+    :param box: ``(x0, y0, x1, y1)`` in image pixels; not empty.
+    :param lower_pct: the percentile that becomes black.
+    :param upper_pct: the percentile that becomes white.
+    """
+    x0, y0, x1, y1 = (int(v) for v in box)
+    whole = image[y0:y1, x0:x1]
+    step = max(1, int(math.sqrt(whole.size / _STRETCH_SAMPLES)))
+    sample = whole[::step, ::step]
+    low, high = np.percentile(sample, [lower_pct, upper_pct])
+    if high <= low:
+        high = low + 1
+    return low, high
+
+
+#: ``(dtype, black, white) -> the pixel each value is drawn as``, for the
+#: last levels the box was drawn at. One entry: the levels change when the
+#: box moves over a different region, and a table for levels nobody is
+#: looking at any more is 256 KB held for nothing.
+_BOX_GREY_TABLE: dict = {}
+
+
+def _rgb32(rgb: np.ndarray) -> np.ndarray:
+    """``(h, w, 3)`` uint8 as ``(h, w)`` ``0xFFRRGGBB`` -- Qt's own RGB32."""
+    rgb = np.asarray(rgb, dtype=np.uint32)
+    return (np.uint32(0xFF000000) | (rgb[..., 0] << 16)
+            | (rgb[..., 1] << 8) | rgb[..., 2]).astype(np.uint32)
+
+
+def _box_grey_table(dtype, low, high) -> Optional[np.ndarray]:
+    """Every value of ``dtype`` as the grey pixel the box draws it as, or None.
+
+    The box's picture is two passes that read ONE value each --
+    :func:`_stretch_for_box` rescales a pixel between the levels,
+    :func:`spacr.qt.mask_engine.overlay_mask` turns the result into 8 bits
+    -- so the pair is a function of the pixel's value and the levels alone,
+    and for a 16-bit field it is a table of 65,536 entries. Built by
+    running those same two formulas over every value, which is what makes a
+    look-up in it byte-identical to the two passes rather than close to
+    them; `test_the_fast_box_picture_is_the_slow_one_to_the_byte` holds
+    it to that.
+
+    :param dtype: the field's dtype.
+    :param low: the black level, from :func:`_box_levels`.
+    :param high: the white level.
+    :returns: a ``0xFFgggggg`` uint32 table indexed by value, or None for a
+        dtype it cannot index -- a float field, a signed one, or one wider
+        than 16 bits -- which then takes the two passes.
+    """
+    dtype = np.dtype(dtype)
+    if dtype.kind != "u" or dtype.itemsize > 2:
+        return None
+    key = (dtype.str, float(low), float(high))
+    table = _BOX_GREY_TABLE.get(key)
+    if table is None:
+        values = np.arange(np.iinfo(dtype).max + 1, dtype=dtype)
+        out = (np.clip(values, low, high).astype(np.float64) - low) \
+            / (high - low)
+        stretched = (out * float(np.iinfo(dtype).max)).astype(dtype)
+        grey = (stretched.astype(np.float32) / 256.0).clip(0, 255) \
+            .astype(np.uint32)
+        table = (np.uint32(0xFF000000) | (grey << 16) | (grey << 8)
+                 | grey).astype(np.uint32)
+        _BOX_GREY_TABLE.clear()
+        _BOX_GREY_TABLE[key] = table
+    return table
+
+
+def _box_picture(image: np.ndarray, box, part, mask_part: np.ndarray,
+                 lower_pct: float, upper_pct: float,
+                 step: int = 1) -> np.ndarray:
+    """What the box draws of ``part``: stretched, in grey, with the mask over it.
+
+    EXACTLY ``overlay_mask(_stretch_for_box(...), mask, alpha=0.5)``, and
+    made to cost a frame at the largest box the Size box allows. That box
+    is as wide as the field and most of it is on the canvas: 1.4 Mpx per
+    move on a 2,048 px field, and the two passes spent 41.5 ms of float
+    arithmetic over 4.2 M channel values on it, per move, on the GUI thread
+    -- three frames, measured by ``tools/perf_paint.py --only magnifier``.
+
+    THE DESIGN DECISION: NOTHING IS CACHED BETWEEN MOVES. The picture could
+    have been built once per field, mask and levels and blitted from, but
+    the levels move with the box and the mask moves with every edit, so
+    that cache misses exactly when the user is working -- and its miss is
+    the whole field, a 150 ms frame of its own. Instead every move is made
+    cheap, and there is no first move that pays for the rest:
+
+    * the stretch and the 8-bit conversion become one look-up in a table
+      built for the levels (:func:`_box_grey_table`), straight into Qt's
+      native 32-bit pixel, so the picture is never converted again on its
+      way to the screen, as a 24-bit one is on every draw;
+    * the blend, which at ``alpha`` 0.5 is the floor of the mean of grey
+      and colour, is the carry-free byte average ``(a & b) + ((a ^ b) >> 1)``
+      over whole pixels, and only where the mask has an object.
+
+    Nothing is approximated --
+    `test_the_fast_box_picture_is_the_slow_one_to_the_byte`.
+
+    ``step`` thins the picture when the lens shows more image pixels than
+    the screen has device pixels for them (a zoom below one device pixel per
+    image pixel): drawing unsmoothed, Qt would drop those pixels anyway, so
+    they are not made. At every zoom that magnifies, it is 1 and nothing is
+    dropped -- the box stays exactly as sharp as it was.
+
+    :param image: the field the box magnifies.
+    :param box: ``(x0, y0, x1, y1)`` the box covers; the levels come from it.
+    :param part: ``(x0, y0, x1, y1)`` of it to draw, inside ``box``.
+    :param mask_part: the mask's labels over ``part``.
+    :param lower_pct: the percentile that becomes black.
+    :param upper_pct: the percentile that becomes white.
+    :param step: take every ``step``-th pixel of ``part`` each way.
+    :returns: a C-contiguous ``(h, w)`` uint32 picture, ``0xFFRRGGBB``.
+    """
+    step = max(1, int(step))
+    vx0, vy0, vx1, vy1 = (int(v) for v in part)
+    crop = image[vy0:vy1:step, vx0:vx1:step]
+    labels = np.asarray(mask_part)[::step, ::step]
+    low, high = _box_levels(image, box, lower_pct, upper_pct)
+    table = _box_grey_table(image.dtype, low, high)
+    if table is None:
+        stretched = _stretch_for_box(image, box, part, lower_pct, upper_pct)
+        return np.ascontiguousarray(_rgb32(engine.overlay_mask(
+            stretched[::step, ::step], labels, alpha=0.5)))
+    out = table[crop]
+    flat = np.ascontiguousarray(labels).reshape(-1)
+    inside = np.flatnonzero(flat != 0)
+    if inside.size:
+        top = int(flat.max())
+        rng = np.random.default_rng(0)
+        colours = rng.integers(30, 255, size=(top + 1, 3), dtype=np.uint8)
+        colours[0] = [0, 0, 0]
+        paint = _rgb32(colours)
+        pixels = out.reshape(-1)
+        grey = pixels[inside]
+        colour = paint[flat[inside]]
+        pixels[inside] = (grey & colour) + (
+            ((grey ^ colour) >> 1) & np.uint32(0x7F7F7F))
+    return out
+
+
+def _canonical_overlap_rule(rule) -> str:
+    """The Overlap rule ``rule`` names, or ``replace`` when it names none.
+
+    A rule reaches the worker inside a request, and a request outlives the
+    box it was built for: a name the engine does not know must leave the
+    box drawing the model's own outlines rather than raise on a thread
+    whose exception the user would meet as an empty box.
+    """
+    name = str(rule or "")
+    return name if name in engine._MAGNIFIER_OVERLAP_RULES else "replace"
+
+
+def _ghosted_overlay(labels: np.ndarray, overlay: np.ndarray,
+                     request: _MagnifierRequest) -> Optional[np.ndarray]:
+    """``overlay`` with what the Overlap rule would NOT add ghosted.
+
+    The box used to outline what the MODEL found, which is not what a click
+    adds: the Overlap rule and Min area stand between the two, and a click
+    that added half an object, or nothing, had said nothing first. The
+    pixels the rule takes away keep a quarter of their alpha, so they read
+    as "found, not yours" beside the solid objects a click would commit.
+
+    RUN HERE, ON THE WORKER, AND NOT WHERE THE BOX IS DRAWN. The first
+    version of this was a paintEvent's work, and the rule is counted over
+    the box's pixels: on the largest box allowed -- the field's own
+    longer side -- that measured 125.5 ms per delivered result on the GUI
+    thread, nine frames of the interactive frame budget, for a picture the worker
+    could have brought with it. What it needs from the GUI thread is the
+    mask, and the mask is copied into the request beside the crop
+    (:meth:`_LiveMagnifier.build_request`), which is how everything else a
+    model reads gets here.
+
+    :param labels: the objects found, in crop coordinates.
+    :param overlay: their outlines as RGBA, from :func:`_candidate_overlay`.
+    :param request: the request, for its rule, its mask crop and Min area.
+    :returns: the picture, or None when the rule takes nothing away --
+        under Replace, over an empty mask, or when everything survives.
+    """
+    occupied = request.occupied
+    rule = _canonical_overlap_rule(request.overlap)
+    if occupied is None or overlay is None or rule == "replace":
+        return None
+    occupied = np.asarray(occupied) > 0
+    if occupied.shape != np.asarray(labels).shape or not occupied.any():
+        return None
+    kept = engine._surviving_region_objects(
+        labels, occupied, overlap=rule, min_area=int(request.min_area))
+    lost = (np.asarray(labels) > 0) & (kept == 0)
+    if not lost.any():
+        return None
+    rgba = np.array(overlay, copy=True)
+    rgba[lost, 3] = rgba[lost, 3] // 4
+    return rgba
+
+
 def _rgba_qimage(rgba: np.ndarray) -> QImage:
     """An owned QImage of an ``(H, W, 4)`` uint8 array."""
     data = np.ascontiguousarray(rgba, dtype=np.uint8)
@@ -1664,6 +2982,46 @@ def _object_count(labels: np.ndarray) -> int:
     return int(np.count_nonzero(np.unique(np.asarray(labels))))
 
 
+def _object_extents(labels: np.ndarray) -> tuple:
+    """Every object's bounding box in ``labels``, in one pass.
+
+    ``scipy.ndimage.find_objects``: entry ``id - 1`` is ``(rows, cols)`` as
+    slices, or None for an id with no pixels.
+    """
+    from scipy import ndimage
+
+    lab = np.asarray(labels)
+    if not lab.size or int(lab.max()) <= 0:
+        return ()
+    return tuple(ndimage.find_objects(lab.astype(np.int32, copy=False)))
+
+
+def _object_window(result: _MagnifierResult, label: int) -> Optional[tuple]:
+    """``(x0, y0, x1, y1)`` around object ``label`` of a whole-image result.
+
+    Read from :attr:`_MagnifierResult.extents` when the worker counted
+    them, which is every whole-image result it builds; otherwise found by a
+    pass over the whole field, which is what this used to cost per click.
+
+    :returns: the window, exclusive ends, or None when no pixel has the id.
+    """
+    label = int(label)
+    extents = result.extents
+    if extents is not None and 0 < label <= len(extents):
+        found = extents[label - 1]
+        if found is None:
+            return None
+        rows, cols = found
+        return (int(cols.start), int(rows.start),
+                int(cols.stop), int(rows.stop))
+    body = np.asarray(result.labels) == label
+    rows = np.flatnonzero(body.any(axis=1))
+    cols = np.flatnonzero(body.any(axis=0))
+    if not rows.size:
+        return None
+    return (int(cols[0]), int(rows[0]), int(cols[-1]) + 1, int(rows[-1]) + 1)
+
+
 def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     """One object of a whole-image result, as a result of its own.
 
@@ -1675,15 +3033,12 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
     :param result: a whole-image result.
     :param label: an id present in ``result.labels``.
     """
-    body = np.asarray(result.labels) == int(label)
-    rows = np.flatnonzero(body.any(axis=1))
-    cols = np.flatnonzero(body.any(axis=0))
-    y0, y1 = int(rows[0]), int(rows[-1]) + 1
-    x0, x1 = int(cols[0]), int(cols[-1]) + 1
-    labels = np.where(body[y0:y1, x0:x1], int(label), 0).astype(np.int32)
+    x0, y0, x1, y1 = _object_window(result, label)
+    body = np.asarray(result.labels)[y0:y1, x0:x1] == int(label)
+    labels = np.where(body, int(label), 0).astype(np.int32)
     request = result.request._replace(box=(x0, y0, x1, y1))
     return result._replace(request=request, labels=labels, overlay=None,
-                           count=1)
+                           count=1, ghost=None, extents=None)
 
 
 class _NewestRequestWorker:
@@ -1890,7 +3245,7 @@ class _LiveMagnifier(QObject):
     remove_requested = Signal(int, int)
     #: A whole-image run started (True) or ended (False).
     busy_changed = Signal(bool)
-    #: A press-and-drag's objects (item 417) as ``(outcome, final)``: shown
+    #: A press-and-drag's objects as ``(outcome, final)``: shown
     #: while the button is down, committed once when ``final``.
     drag_ready = Signal(object)
 
@@ -1902,7 +3257,7 @@ class _LiveMagnifier(QObject):
         self._emit_safely = emit_safely
         self.canvas = canvas
         self.enabled = False
-        self.mode = "classical"
+        self.mode = "otsu"
         self.size = _MAGNIFIER_SIZE
         self.zoom = _MAGNIFIER_ZOOM
         self.sensitivity = _MAGNIFIER_SENSITIVITY
@@ -1930,8 +3285,50 @@ class _LiveMagnifier(QObject):
         self._image_result: Optional[_MagnifierResult] = None
         #: The key of a run cancelled or failed, not started again by itself.
         self._image_halted: Optional[tuple] = None
-        #: ``(result, (box, object under the mouse), picture)`` last drawn.
+        #: ``(result, (box, object under the mouse, rule, mask), picture,
+        #: its pixels)`` last drawn; the pixels are what the picture reads.
         self._image_view: Optional[tuple] = None
+        #: ``(result, (object, rule, mask), what the rule takes)`` -- see
+        #: :meth:`_image_promise`.
+        self._image_promised: Optional[tuple] = None
+        #: What a click would add where the mask already has objects; the
+        #: Overlap rule the screen's box is on. See :func:`_ghosted_overlay`.
+        self.overlap = _MAGNIFIER_OVERLAP_DEFAULT
+        #: The mask the canvas was last seen holding, and how many different
+        #: ones it has held. See :meth:`mask_generation`.
+        self._mask_seen = None
+        self._mask_token = 0
+        #: Whether a request for a ghost gone stale is already on its way,
+        #: so a stream of repaints asks once rather than once each.
+        self._asking = False
+        #: :meth:`_stamp` of the request the box is waiting on, or None.
+        self._requested_stamp: Optional[tuple] = None
+        #: When the whole-image run on its way was handed to its worker, and
+        #: how long it is expected to take -- None when nothing says.
+        self._image_started: Optional[float] = None
+        self._image_estimate: Optional[float] = None
+        #: The :class:`_RunTicket` of the whole-image run on its way, which
+        #: counts its tiles and is how that run is stopped.
+        self._image_ticket: Optional[_RunTicket] = None
+        #: ``(mode, model) -> seconds per megapixel`` from the last run
+        #: that finished under it and was worth believing. See
+        #: :meth:`_note_pace`, which says which runs those are, and
+        #: ``_image_paced`` beside it, which is every pair measured at all.
+        self._image_pace: dict = {}
+        self._image_paced: set = set()
+        #: Which field is on screen, as the screen names it -- the path of
+        #: the image file. It identifies a field across a trip to another
+        #: one and back, which the generation counter above cannot: that
+        #: counts loads, so the same field twice is two numbers.
+        self._field_name: str = ""
+        #: ``(field name, settings) -> result`` for fields segmented whole
+        #: already, and ``-> when it was last used`` beside it. See
+        #: :meth:`_keep_image_result`.
+        self._image_cache: dict = {}
+        self._image_cache_used: dict = {}
+        #: ``(the field's array, that field inverted)`` -- see
+        #: :meth:`inverted_field`.
+        self._inverted_field: Optional[tuple] = None
         self._busy = False
         self._worker = _NewestRequestWorker(self._run, self._hand_over)
         self._image_worker = _NewestRequestWorker(
@@ -1957,8 +3354,14 @@ class _LiveMagnifier(QObject):
         self.canvas.update()
 
     def set_mode(self, mode: str) -> None:
-        """Choose the model, and forget which models failed to run."""
-        self.mode = str(mode or "classical")
+        """Choose the model, and forget which models failed to run.
+
+        A mode this screen has renamed arrives under either name and is
+        stored under the current one (:func:`canonical_magnifier_mode`), so
+        a session or a script written under an old mode name still selects
+        a mode that exists.
+        """
+        self.mode = canonical_magnifier_mode(mode)
         self._unavailable.clear()
         self.refresh()
         self.canvas.update()
@@ -1980,6 +3383,29 @@ class _LiveMagnifier(QObject):
         self._image_view = None
         if scope == "region":
             self._stop_image()
+        self.refresh()
+        self.canvas.update()
+
+    def set_overlap(self, rule: str) -> None:
+        """Choose what a new object does where the mask already has one.
+
+        The MODEL IS NOT ASKED AGAIN, and the whole-image objects are not
+        discarded: the rule is applied to what was found, not by the thing
+        that finds it. Only the box's promise of what a click would add is
+        built afresh -- and it is built where the objects are, on the
+        worker, which is why this asks for the region again rather than
+        clearing a picture. The rule is not part of a request key, so the
+        worker answers from the model's last answer for that box.
+
+        :param rule: one of
+            :data:`spacr.qt.mask_engine._MAGNIFIER_OVERLAP_RULES`; anything
+            else leaves the rule where it is, because the box is about to
+            draw a promise in its name.
+        """
+        name = str(rule or "")
+        if name not in engine._MAGNIFIER_OVERLAP_RULES:
+            return
+        self.overlap = name
         self.refresh()
         self.canvas.update()
 
@@ -2041,8 +3467,24 @@ class _LiveMagnifier(QObject):
         self.refresh()
         self.canvas.update()
 
+    def set_field(self, name: str) -> None:
+        """Name the field about to be loaded, so its objects can be found again.
+
+        Called by the screen BEFORE the pair reaches the canvas, because the
+        canvas calls :meth:`forget` on the way in and the new name is what
+        the next whole-image run is kept under.
+
+        :param name: the image file's path; "" for a canvas handed an array
+            with no file behind it, which is then never cached.
+        """
+        self._field_name = str(name or "")
+
     def forget(self) -> None:
         """Drop everything tied to the field on screen; another is loading.
+
+        The whole-image objects are KEPT, in the cache rather than on the
+        magnifier: coming back to this field offers them again instead of
+        segmenting it a second time. See :meth:`_keep_image_result`.
 
         The canvas calls this with the new field already in place, which is
         what lets the size's range follow the field that has just opened.
@@ -2052,6 +3494,7 @@ class _LiveMagnifier(QObject):
         self._shown_image = None
         self._waiting.clear()
         self._requested_key = None
+        self._requested_stamp = None
         self._stop_image()
         self._image_result = None
         self._image_view = None
@@ -2059,14 +3502,28 @@ class _LiveMagnifier(QObject):
         self._sync_size_range()
 
     def close(self) -> bool:
-        """Stop both workers, waiting briefly for a model call in flight."""
+        """Stop both workers, waiting briefly for a model call in flight.
+
+        The kept whole-image objects go with them: the screen is closing,
+        and a label image per field is the largest thing this object holds.
+        """
+        if self._image_ticket is not None:
+            self._image_ticket.cancel()
         region = self._worker.close()
         image = self._image_worker.close()
+        self._image_cache.clear()
+        self._image_cache_used.clear()
         return region and image
 
 
     def updating(self) -> bool:
-        """Whether the objects on screen are not yet for the region asked for.
+        """Whether what the box draws is not yet what it was last asked for.
+
+        The region asked for, and also the promise made about it: a rule
+        change and an edit to the mask under the box both leave the ghost
+        drawn against something that is no longer true, and the frame says
+        so in the way it already says it -- dashed, with "Updating…" --
+        until the worker answers again.
 
         In whole-image scope: whether the objects for the field and the
         settings now are not found yet.
@@ -2076,7 +3533,8 @@ class _LiveMagnifier(QObject):
             return (result is None
                     or result.request.key != self._image_key_now())
         return (self._shown is None
-                or self._shown.request.key != self._requested_key)
+                or self._stamp(self._shown.request) != self._requested_stamp
+                or self._ghost_is_stale())
 
     def hover(self, pos) -> None:
         """Follow the mouse to widget point ``pos``; None puts the box away."""
@@ -2105,7 +3563,9 @@ class _LiveMagnifier(QObject):
         if request is None:
             return
         self._requested_key = request.key
-        if self._shown is not None and self._shown.request.key == request.key:
+        self._requested_stamp = self._stamp(request)
+        if (self._shown is not None
+                and self._stamp(self._shown.request) == self._requested_stamp):
             return
         self._worker.submit(request)
 
@@ -2113,28 +3573,51 @@ class _LiveMagnifier(QObject):
         """Everything a model reads, in :data:`_MODEL_SETTING_FIELDS` order.
 
         As it would read it now: the screen's own settings through
-        ``context``, and classical in place of a mode that has already failed
+        ``context``, and Otsu in place of a mode that has already failed
         to load. Every setting is here whichever mode is chosen, because a
-        model that cannot run hands the request to the classical mode, which
+        model that cannot run hands the request to the Otsu mode, which
         must then find its own settings in it.
         """
         context = {"model_name": "cpsam", "diameter": 0, "bright": True,
                    "min_area": 0, "flow_threshold": FLOW_THRESHOLD,
                    "cellprob_threshold": CELLPROB_THRESHOLD,
-                   "normalize": True, "otsu_correction": 1.0}
+                   "normalize": True, "otsu_correction": 1.0,
+                   "otsu_smoothing": OTSU_SMOOTHING,
+                   "otsu_fill_holes": True, "otsu_split": True,
+                   "invert": False}
         if self._context is not None:
             context.update(self._context())
         model_name = str(context["model_name"])
-        mode = self.mode
+        mode = canonical_magnifier_mode(self.mode)
         if (mode, model_name) in self._unavailable:
-            mode = "classical"
+            mode = "otsu"
         return (mode, round(float(self.sensitivity), 4),
                 bool(context["bright"]), int(context["min_area"]),
                 model_name, int(context["diameter"]),
                 round(float(context["flow_threshold"]), 4),
                 round(float(context["cellprob_threshold"]), 4),
                 bool(context["normalize"]),
-                round(float(context["otsu_correction"]), 4))
+                round(float(context["otsu_correction"]), 4),
+                round(float(context["otsu_smoothing"]), 4),
+                bool(context["otsu_fill_holes"]),
+                bool(context["otsu_split"]),
+                bool(context["invert"]))
+
+    def running_name(self) -> str:
+        """What the box is running, as the Updating mark names it.
+
+        The Cellpose model by its own name (``cpsam``,
+        ``toxoplasma_plaque_v1``), since that is what the user chose and what
+        the wait depends on; any other mode by the caption its Mode box shows
+        (``Otsu``, ``DINOCell``). A mode that could not load is named as the
+        Otsu it fell back to, because that is what is running.
+
+        :returns: the name, in the current language where it is a caption.
+        """
+        settings = self._model_settings()
+        if settings[0] == "cellpose":
+            return str(settings[4])
+        return _magnifier_mode_label(settings[0])
 
     @staticmethod
     def _accent() -> tuple:
@@ -2142,27 +3625,140 @@ class _LiveMagnifier(QObject):
         accent = QColor(active_palette()["accent"])
         return (accent.red(), accent.green(), accent.blue())
 
-    def build_request(self) -> Optional[_MagnifierRequest]:
-        """The request for the region under the mouse now, or None."""
+    def mask_generation(self) -> int:
+        """How many different masks the canvas has been handed, counted here.
+
+        The canvas REBINDS its mask for every edit rather than writing into
+        the one it has, so identity is what "the mask changed" means, and a
+        counter over it is what a request can carry to the worker and a
+        result can be compared against when it comes back. Reading it is
+        the only place the change is noticed, which is why the box's own
+        paint asks (:meth:`paint`).
+        """
+        mask = self.canvas.mask
+        if mask is not self._mask_seen:
+            self._mask_seen = mask
+            self._mask_token += 1
+        return self._mask_token
+
+    def inverting(self) -> bool:
+        """Whether Invert is on, as the screen's panel holds it now.
+
+        Asked by :meth:`paint`, which runs outside the request path and so
+        cannot read the answer off a request: the box shows the inverted
+        image while Invert is on, and the box repaints on moves that
+        never build a request at all.
+        """
+        if self._context is None:
+            return False
+        return bool(self._context().get("invert", False))
+
+    def inverted_field(self) -> np.ndarray:
+        """The WHOLE open field reflected about its own range, cached.
+
+        The inversion is what the DETECTOR sees, so the
+        box and the detect button have to invert the same way -- and a
+        region reflected about ITS OWN extremes is reflected differently
+        wherever the box is put. Inverting the whole field once and cutting
+        from that is what keeps the box a preview of the button, and it is
+        ONE array that both the painted picture and the request's crop come
+        off, so the two cannot disagree about which way up the field was.
+
+        Computed once per field and not once per mouse move, keyed on the
+        array's identity: a full-field pass on every hover is work on the
+        GUI thread for an answer that cannot have changed, and another field
+        is another array and asks again. The canvas caches its
+        display complement against its own image the same way.
+        """
+        image = self.canvas.image
+        cached = self._inverted_field
+        if cached is not None and cached[0] is image:
+            return cached[1]
+        out = engine.invert_normalized(image)
+        self._inverted_field = (image, out)
+        return out
+
+    def detector_field(self) -> np.ndarray:
+        """The field the box magnifies: inverted, or the canvas's own."""
+        if self.canvas.detect_on_normalized:
+            return self.canvas.detection_source()
+        if not self.inverting():
+            return self.canvas.image
+        return self.inverted_field()
+
+    def region_for(self, box, *, invert: bool) -> np.ndarray:
+        """A copy of ``box`` of the open field, inverted if Invert is on.
+
+        The one place the box's pixels are taken, so what the model is given
+        and what the box paints cannot disagree about whether they were
+        inverted.
+
+        The inverted case is a slice of :meth:`inverted_field`, which uses
+        :func:`mask_engine.invert_for_detection` and NOT
+        :func:`mask_engine.invert_intensity`: the crop is about to be
+        thresholded, and the second moves the field's span in a way the
+        Otsu threshold correction cannot survive. The first function's
+        docstring carries the measurement.
+
+        :param box: ``(x0, y0, x1, y1)`` in image pixels.
+        :param invert: whether Invert for detection is on.
+        """
+        x0, y0, x1, y1 = box
+        if self.canvas.detect_on_normalized:
+            source = self.canvas.detection_source()
+        else:
+            source = self.inverted_field() if invert else self.canvas.image
+        return np.array(source[y0:y1, x0:x1], copy=True)
+
+    def build_request(self, *, ghost: bool = True
+                      ) -> Optional[_MagnifierRequest]:
+        """The request for the region under the mouse now, or None.
+
+        :param ghost: whether the worker is to draw what the Overlap rule
+            would leave as well as what the model found. False for a drag's
+            frames, which are never drawn as a box: the mask crop would be
+            copied and the rule counted over it for a picture nobody sees.
+        """
         canvas = self.canvas
         image = canvas.image
         if (not self.enabled or self._cursor is None or image is None
                 or canvas.mask is None):
             return None
         settings = self._model_settings()
+        values = dict(zip(_MODEL_SETTING_FIELDS, settings))
         box = engine._magnifier_box(image.shape, self._cursor[0],
                                     self._cursor[1], self.size)
         x0, y0, x1, y1 = box
         exclude = bool(self.exclude_border)
+        rule = _canonical_overlap_rule(self.overlap)
+        occupied = None
+        token = 0
+        if ghost and rule != "replace":
+            token = self.mask_generation()
+            occupied = np.asarray(canvas.mask)[y0:y1, x0:x1] > 0
         return _MagnifierRequest(
             key=(self._field, box) + settings + (exclude,),
-            crop=np.array(image[y0:y1, x0:x1], copy=True),
+            crop=self.region_for(box, invert=values["invert"]),
             box=box,
             shape=tuple(int(v) for v in image.shape[:2]),
             colour=self._accent(),
             exclude_border=exclude,
-            **dict(zip(_MODEL_SETTING_FIELDS, settings)),
+            overlap=rule if ghost else "replace",
+            occupied=occupied,
+            mask_token=token,
+            **values,
         )
+
+    @staticmethod
+    def _stamp(request: _MagnifierRequest) -> tuple:
+        """What makes a result the one the box wants NOW.
+
+        The request key says which region the model was asked about; the
+        rule and the mask say what its answer means. A click while the mask
+        under the box has changed must not be answered from a picture drawn
+        against the mask before it.
+        """
+        return (request.key, request.overlap, request.mask_token)
 
     def click(self) -> bool:
         """Commit the objects for the region under the mouse.
@@ -2170,23 +3766,34 @@ class _LiveMagnifier(QObject):
         In whole-image scope, commit only the object under the mouse; see
         :meth:`_pick`.
 
+        THE RESULT ON SCREEN IS MATCHED BY ITS KEY AND NOT BY :meth:`_stamp`.
+        What a click commits is the model's objects; the Overlap rule is
+        applied to them as they go in, by the screen, from the Overlap box as
+        it reads at that moment. A box whose ghost is one mask edit behind is
+        still drawn from the right objects, and making the click wait for a
+        picture would delay the edit itself for the sake of a promise about
+        it.
+
         :returns: False when there is no region to commit -- the magnifier is
             off, the mouse is off the image, or no field is open.
         """
+        from ..i18n import tr
+
         if self.scope == "image":
             return self._pick()
         request = self.build_request()
         if request is None:
             return False
         self._requested_key = request.key
+        self._requested_stamp = self._stamp(request)
         if self._shown is not None and self._shown.request.key == request.key:
             self.commit_ready.emit(self._shown)
             return True
         self._waiting.add(request.key)
         self._worker.submit(request, pin=True)
-        self.status.emit(
+        self.status.emit(tr(
             "Magnifier: segmenting this region — its objects are added as "
-            "soon as the box is up to date.")
+            "soon as the box is up to date."))
         return True
 
     def remove(self) -> bool:
@@ -2236,9 +3843,90 @@ class _LiveMagnifier(QObject):
             return None
         return (self._field, "image") + self._model_settings()
 
+    def _cache_key(self, key: Optional[tuple]) -> Optional[tuple]:
+        """The cache's name for a run key: the FIELD and what a model reads.
+
+        A run key opens with the generation counter, which counts loads
+        rather than fields, so the same field opened twice carries two
+        different keys and would never match itself.
+
+        :param key: a key from :meth:`_image_key_now`.
+        :returns: None when no field is named, so nothing is kept for a
+            canvas that was handed an array without one.
+        """
+        if key is None or not self._field_name:
+            return None
+        return (self._field_name,) + tuple(key[2:])
+
+    def _keep_image_result(self, result) -> None:
+        """Keep a finished whole-image answer for when the field comes back.
+
+        A field this session has already segmented whole is minutes of
+        Cellpose on a CPU; leaving it and coming back paid that again. What
+        is kept is the label image, which is what a click reads, and it is
+        valid for exactly the settings it was found under: the key carries
+        them, so a run under a new Sensitivity neither matches nor evicts
+        the old one.
+        """
+        key = self._cache_key(result.request.key)
+        if key is None:
+            return
+        self._image_cache[key] = result
+        self._image_cache_used[key] = time.time()
+        self._trim_image_cache()
+
+    def _cached_image_result(self, key: tuple):
+        """The kept answer for run ``key``, with its key moved to this load.
+
+        :returns: a result whose request carries ``key``, so everything that
+            compares the two goes on doing it, or None.
+        """
+        name = self._cache_key(key)
+        if name is None:
+            return None
+        result = self._image_cache.get(name)
+        if result is None:
+            return None
+        self._image_cache_used[name] = time.time()
+        return result._replace(request=result.request._replace(key=key))
+
+    def _trim_image_cache(self) -> None:
+        """Drop what the memory budget says must go, least recently used first.
+
+        The policy is :func:`spacr.qt.memory_budget.what_to_drop`, which is
+        what every other cache in the application is trimmed by: the user's
+        own idle timeout releases a field nobody has gone back to, and the
+        lower of the user's cache ceiling and
+        :data:`_MAGNIFIER_IMAGE_CACHE_MB` bounds the rest. The field on
+        screen is held by :attr:`_image_result` as well, so a trim can never
+        take the objects out from under the box.
+        """
+        from ..memory_budget import what_to_drop
+
+        ceiling = _MAGNIFIER_IMAGE_CACHE_MB
+        try:
+            from ..preferences import get_cache_ceiling_mb
+
+            ceiling = min(ceiling, int(get_cache_ceiling_mb()))
+        except Exception:                                    # noqa: BLE001
+            pass
+        names = list(self._image_cache)
+        entries = [(index,
+                    self._image_cache[name].nbytes() / 1e6,
+                    self._image_cache_used.get(name, 0.0))
+                   for index, name in enumerate(names)]
+        for dropped in what_to_drop(entries, time.time(), ceiling_mb=ceiling):
+            name = names[int(dropped)]
+            self._image_cache.pop(name, None)
+            self._image_cache_used.pop(name, None)
+
     def _refresh_image(self) -> None:
         """Start a whole-image run, unless one for the settings now is found,
-        on its way, or was cancelled."""
+        on its way, or was cancelled.
+
+        A field segmented whole earlier in the session, under the settings
+        now, is taken from the cache instead of being segmented again.
+        """
         from ..i18n import tr
 
         if not self.enabled:
@@ -2250,6 +3938,17 @@ class _LiveMagnifier(QObject):
         if result is not None and result.request.key == key:
             return
         if key in (self._image_key, self._image_halted):
+            return
+        kept = self._cached_image_result(key)
+        if kept is not None:
+            self._stop_image()
+            self._image_result = kept
+            self._image_view = None
+            self.status.emit(tr(
+                "Magnifier: {n} object(s) found in the whole image. Click one "
+                "to add it; right-click an object in the mask to remove it.",
+                n=kept.count))
+            self.canvas.update()
             return
         replaced = result is not None or self._image_key is not None
         self._image_result = None
@@ -2264,21 +3963,133 @@ class _LiveMagnifier(QObject):
         self.canvas.update()
 
     def _start_image(self, key: tuple) -> None:
-        """Hand a copy of the whole field to the image worker under ``key``."""
+        """Hand a copy of the whole field to the image worker under ``key``.
+
+        Inverted first when Invert is on, like every other request: the
+        whole field IS the region here, so it is the same call.
+        """
         image = self.canvas.image
         height, width = (int(v) for v in image.shape[:2])
+        values = dict(zip(_MODEL_SETTING_FIELDS, key[2:]))
+        if self._image_ticket is not None:
+            self._image_ticket.cancel()
+        self._image_ticket = _RunTicket()
         self._image_key = key
         self._image_halted = None
+        self._image_started = time.monotonic()
+        pace = self._image_pace.get(self._pace_key(key))
+        self._image_estimate = (None if pace is None
+                                else pace * height * width / 1e6)
         self._image_worker.submit(_MagnifierRequest(
-            key=key, crop=np.array(image, copy=True),
+            key=key,
+            crop=self.region_for((0, 0, width, height),
+                                  invert=values["invert"]),
             box=(0, 0, width, height), shape=(height, width),
             colour=self._accent(), exclude_border=False, scope="image",
-            **dict(zip(_MODEL_SETTING_FIELDS, key[2:]))))
+            ticket=self._image_ticket, **values))
         self._set_busy(True)
 
+    @staticmethod
+    def _pace_key(key: tuple) -> tuple:
+        """What a run's duration is worth remembering against: mode and model.
+
+        Not the field and not its size: the whole point is to answer for a
+        field nothing has been measured on, and seconds per megapixel is what
+        carries across. Sensitivity and Min area are left out because they
+        move the objects found rather than the work done.
+        """
+        return (key[2], key[6])
+
+    def remaining_seconds(self) -> Optional[float]:
+        """How long the whole-image run on its way still has, or None.
+
+        A GUESS FROM A MEASUREMENT, and only ever from one: the seconds per
+        megapixel the last run under this mode and model took, times this
+        field's megapixels -- see :meth:`_note_pace` for which run that is
+        allowed to be. Before there is such a measurement the answer is
+        None and the bar stays indeterminate, which is the honest answer.
+
+        None once the estimate is spent, too, so a bar that has run out goes
+        back to saying only that something is happening.
+
+        :returns: seconds, never below zero, or None.
+        """
+        if (not self._busy or self._image_started is None
+                or self._image_estimate is None):
+            return None
+        left = self._image_estimate - (time.monotonic() - self._image_started)
+        return left if left > 0 else None
+
+    def image_progress(self) -> Optional[tuple]:
+        """``(tiles started, tiles in all, seconds left or None)``, or None.
+
+        What the whole-image run on its way has itself counted, which a
+        model that tiles -- Cellpose -- does from its first tile
+        (:class:`_RunTicket`). None for a run that counts nothing (Otsu, a
+        backend out of process), for which :meth:`remaining_seconds` is the
+        only estimate there is.
+        """
+        ticket = self._image_ticket
+        if not self._busy or ticket is None or ticket.total <= 0 \
+                or ticket.done <= 0:
+            return None
+        return (min(ticket.done, ticket.total), ticket.total,
+                ticket.remaining_seconds())
+
+    def estimated_seconds(self) -> Optional[float]:
+        """The whole run's estimate, or None when nothing was estimated.
+
+        What :meth:`remaining_seconds` is counting down FROM, which a bar
+        needs as well as the remainder to show a fraction. Public for the
+        same reason the remainder is: the screen draws the bar, and a
+        screen reaching into this object for the other half of one answer
+        was reaching past the answer it had just been given.
+        """
+        return self._image_estimate
+
+    def _note_pace(self, key: tuple, pixels: int, seconds: float) -> None:
+        """Remember what this mode and model cost per megapixel, last time.
+
+        A RUN THAT LOADED ITS MODEL IS NOT WHAT THE NEXT RUN COSTS. The
+        same field measures 10.3 s cold and 3.9 s warm on the
+        same Cellpose model: most of a first run is the load, and a bar
+        that counted down from it would promise two and a half times the
+        time the run it is drawn over actually takes, then finish while it
+        still said seven seconds left. A mode that loads a model therefore
+        spends its first measurement of a session learning that the model
+        is now in memory -- the bar stays indeterminate through the second
+        run, and counts down from the third. The Otsu mode loads nothing,
+        so its first run is its pace and its second run counts down.
+
+        :param key: the whole-image request key the run answered.
+        :param pixels: how many pixels were segmented.
+        :param seconds: how long it took, from handing it over to its
+            result arriving.
+        """
+        if pixels <= 0 or seconds <= 0:
+            return
+        pace_key = self._pace_key(key)
+        first = pace_key not in self._image_paced
+        self._image_paced.add(pace_key)
+        if first and canonical_magnifier_mode(pace_key[0]) != "otsu":
+            return
+        self._image_pace[pace_key] = seconds / (pixels / 1e6)
+
     def _stop_image(self) -> None:
-        """Forget the whole-image run on its way, dropping it if not started."""
+        """Forget the whole-image run on its way, and stop it.
+
+        One not started yet is dropped; one running is asked to stop at the
+        model's next tile (:class:`_RunTicket`), which frees the processor
+        and the model lock within one tile rather than at the end of the
+        run. A model that does not tile finishes, and its answer is thrown
+        away when it arrives, as before.
+        """
+        if self._image_ticket is not None:
+            self._image_ticket.cancel()
+            self._image_ticket = None
         self._image_key = None
+        self._image_started = None
+        self._image_estimate = None
         self._image_worker.drop_waiting()
         self._set_busy(False)
 
@@ -2333,7 +4144,7 @@ class _LiveMagnifier(QObject):
 
 
     def _init_stroke(self) -> None:
-        """Hold no press, and add every object in the box as item 407 did."""
+        """Hold no press, and start in the mode that adds every object in the box."""
         from PySide6.QtCore import QTimer
 
         from .._magnifier_drag import _PREVIEW_MS
@@ -2358,7 +4169,7 @@ class _LiveMagnifier(QObject):
         """Start a stroke under the mouse: what a left press does while on.
 
         Nothing is added on the press. A release that has not moved is a
-        click -- :meth:`click`, as item 407 built it -- except that with only
+        click -- :meth:`click` -- except that with only
         objects touching the mouse it adds just the object under the cursor.
         A press that pulls is a drag; what a drag adds is
         :mod:`spacr.qt._magnifier_drag`'s to say. Under Whole image a drag
@@ -2459,7 +4270,7 @@ class _LiveMagnifier(QObject):
         pinned on the region worker, so later moves cannot supersede it.
         """
         cursor, self._cursor = self._cursor, centre
-        request = self.build_request()
+        request = self.build_request(ghost=False)
         self._cursor = cursor
         self._stroke.expect(request.key)
         shown = self._shown
@@ -2516,8 +4327,10 @@ class _LiveMagnifier(QObject):
         """
         if request.scope == "image":
             labels, used, note = self._segment_now(request)
-            return _MagnifierResult(request, labels, used, note, None,
-                                    _object_count(labels))
+            return _MagnifierResult(
+                request, labels, used, note,
+                _candidate_overlay(labels, request.colour),
+                _object_count(labels), extents=_object_extents(labels))
         model_key = request.key[:-1]
         cached = self._raw
         if cached is not None and cached[0] == model_key:
@@ -2528,9 +4341,10 @@ class _LiveMagnifier(QObject):
         if request.exclude_border:
             labels = engine._drop_cut_objects(labels, request.box,
                                               request.shape)
-        return _MagnifierResult(request, labels, used, note,
-                                _candidate_overlay(labels, request.colour),
-                                _object_count(labels))
+        overlay = _candidate_overlay(labels, request.colour)
+        return _MagnifierResult(request, labels, used, note, overlay,
+                                _object_count(labels),
+                                _ghosted_overlay(labels, overlay, request))
 
     def _segment_now(self, request: _MagnifierRequest) -> tuple:
         """Ask the model: ``(int32 labels shaped like the crop, mode, note)``."""
@@ -2551,7 +4365,15 @@ class _LiveMagnifier(QObject):
         self._emit_safely(self._delivered, (request, result, error))
 
     def _on_delivered(self, payload) -> None:
-        """Show a finished result, and commit it if a click was waiting."""
+        """Show a finished result, and commit it if a click was waiting.
+
+        The picture the box draws is the result's ghost when it has one,
+        which is the whole picture and not a layer over the outlines: it IS
+        the outlines, with what the Overlap rule would not add faded. One
+        QImage is built per result either way.
+        """
+        from ..i18n import tr
+
         request, result, error = payload
         if request.key[0] != self._field:
             return
@@ -2562,32 +4384,40 @@ class _LiveMagnifier(QObject):
             self._waiting.discard(request.key)
             LOG.warning("magnifier could not segment %s: %s",
                         request.box, error)
-            self.status.emit(
-                f"Magnifier could not segment this region: {error}")
+            self.status.emit(tr(
+                "Magnifier could not segment this region: {error}",
+                error=error))
             return
         self._note_fallback(request, result)
         self._shown = result
-        self._shown_image = _rgba_qimage(result.overlay)
+        self._shown_image = _rgba_qimage(
+            result.overlay if result.ghost is None else result.ghost)
         if request.key in self._waiting:
             self._waiting.discard(request.key)
             self.commit_ready.emit(result)
         self.canvas.update()
 
     def _note_fallback(self, request, result) -> bool:
-        """Say, once per model, that it could not run and classical stood in.
+        """Say, once per model, that it could not run and Otsu stood in.
+
+        The mode is named the way the Mode box names it, not by its internal
+        key: a sentence about ``cellpose3:cyto3`` sends the reader looking for
+        a row that says "Cellpose 3 · cyto3".
 
         :returns: True when this call said it.
         """
+        from ..i18n import tr
+
         if result.mode == request.mode:
             return False
         marker = (request.mode, request.model_name)
         if marker in self._unavailable:
             return False
         self._unavailable[marker] = result.note
-        self.status.emit(
-            f"Magnifier: {request.mode} could not run "
-            f"({result.note}); the classical mode is segmenting "
-            f"instead.")
+        self.status.emit(tr(
+            "Magnifier: {mode} could not run ({reason}); the Otsu mode is "
+            "segmenting instead.",
+            mode=_magnifier_mode_label(request.mode), reason=result.note))
         return True
 
     def _on_image_delivered(self, request, result, error) -> None:
@@ -2596,8 +4426,18 @@ class _LiveMagnifier(QObject):
 
         if request.key != self._image_key:
             return
+        started, self._image_started = self._image_started, None
         self._image_key = None
+        self._image_estimate = None
+        if request.ticket is self._image_ticket:
+            self._image_ticket = None
         self._set_busy(False)
+        if isinstance(error, _RunCancelled):
+            return
+        if error is None and started is not None:
+            height, width = (int(v) for v in request.shape[:2])
+            self._note_pace(request.key, height * width,
+                            time.monotonic() - started)
         if error is not None:
             self._image_halted = request.key
             LOG.warning("magnifier could not segment the whole image: %s",
@@ -2614,6 +4454,7 @@ class _LiveMagnifier(QObject):
             stored = stored._replace(key=key)
         self._image_result = result._replace(request=stored)
         self._image_view = None
+        self._keep_image_result(self._image_result)
         if not noted:
             self.status.emit(tr(
                 "Magnifier: {n} object(s) found in the whole image. Click one "
@@ -2657,12 +4498,26 @@ class _LiveMagnifier(QObject):
         box an enhanced view rather than a bigger copy of the canvas. The
         last completed result is drawn where ITS region lies, so a result
         that is behind the mouse is offset rather than wrong, and the frame
-        turns dashed with an "Updating…" mark until the result for this
+        turns dashed with an "Updating <model>…" mark until the result for this
         region arrives -- the box never blanks while it waits.
 
         In whole-image scope the box draws its slice of the whole-image
         objects instead, with the object a click would add filled more
-        strongly, and the frame is dashed while a run is on its way.
+        strongly and what the Overlap rule would take from it ghosted, and
+        the frame is dashed while a run is on its way.
+
+        NOTHING IS COMPUTED FROM PIXELS HERE beyond the magnified region
+        itself: the picture the box draws over it was built on the worker,
+        ghosted and all (:func:`_ghosted_overlay`). What this does notice
+        is a mask it has not been drawn against -- the canvas rebinds its
+        mask for every edit -- and it asks for the region again rather than
+        redrawing a promise made about a mask that is gone.
+
+        WITH INVERT ON THE BOX SHOWS THE INVERTED REGION,
+        off the same :meth:`inverted_field` the
+        request's crop is cut from, so what the user is looking at inside
+        the box is what the model was given. The canvas under it is
+        untouched.
         """
         geometry = self.lens_geometry()
         if geometry is None:
@@ -2670,25 +4525,36 @@ class _LiveMagnifier(QObject):
         box, lens, scale = geometry
         x0, y0, x1, y1 = box
         canvas = self.canvas
-        stretched = engine.normalize_uint16(
-            np.ascontiguousarray(canvas.image[y0:y1, x0:x1]),
-            canvas.norm_lo, canvas.norm_hi)
-        rgb = np.ascontiguousarray(engine.overlay_mask(
-            stretched, canvas.mask[y0:y1, x0:x1], alpha=0.5))
+        part, area = self._visible_part(box, lens, scale)
+        if part is None:
+            return
+        vx0, vy0, vx1, vy1 = part
+        step = self._picture_step(scale)
+        rgb = _box_picture(self.detector_field(), box, part,
+                           canvas.mask[vy0:vy1, vx0:vx1],
+                           canvas.norm_lo, canvas.norm_hi, step)
         height, width = rgb.shape[:2]
-        picture = QImage(rgb.data, width, height, 3 * width,
-                         QImage.Format_RGB888)
+        picture = QImage(rgb.data, width, height, 4 * width,
+                         QImage.Format_RGB32)
+        if step > 1:
+            area = QRectF(area.left(), area.top(), width * step * scale,
+                          height * step * scale)
         palette = active_palette()
         painter.save()
         painter.setRenderHint(QPainter.SmoothPixmapTransform, False)
         painter.setClipRect(lens)
-        painter.drawImage(lens, picture)
+        painter.drawImage(area, picture)
         if self.scope == "image":
-            view = self._image_slice(box)
+            self.mask_generation()
+            view = self._image_slice(part)
             if view is not None:
-                painter.drawImage(lens, view)
+                painter.drawImage(area, view)
             updating = self._image_key is not None
         else:
+            self.mask_generation()
+            if self._ghost_is_stale() and not self._asking:
+                self._asking = True
+                QTimer.singleShot(0, self, self._ask_again)
             shown = self._shown
             if shown is not None and self._shown_image is not None:
                 sx0, sy0, sx1, sy1 = shown.request.box
@@ -2709,7 +4575,7 @@ class _LiveMagnifier(QObject):
         if updating:
             from ..i18n import tr
 
-            caption = tr("Updating…")
+            caption = _updating_caption(self.running_name())
             metrics = painter.fontMetrics()
             badge = QRectF(lens.left() + 4, lens.top() + 4,
                            metrics.horizontalAdvance(caption) + 10,
@@ -2721,11 +4587,96 @@ class _LiveMagnifier(QObject):
             painter.drawText(badge, Qt.AlignCenter, caption)
         painter.restore()
 
+    def _picture_step(self, scale: float) -> int:
+        """How many image pixels one pixel of the box's picture stands for.
+
+        One whenever the lens magnifies -- a device pixel or more per image
+        pixel -- which is every zoom at which the box is used to look
+        closely. Below that, Qt drawing the picture unsmoothed would keep
+        one image pixel in every ``1 / (scale x device ratio)`` anyway, so
+        :func:`_box_picture` does not make the others.
+
+        :param scale: widget pixels per image pixel inside the lens.
+        """
+        ratio_of = getattr(self.canvas, "devicePixelRatioF", None)
+        ratio = float(ratio_of()) if callable(ratio_of) else 1.0
+        device = float(scale) * (ratio or 1.0)
+        if device <= 0 or device >= 1.0:
+            return 1
+        return max(1, int(1.0 / device))
+
+    def _visible_part(self, box, lens, scale):
+        """The part of ``box`` that is on the canvas, and where it is drawn.
+
+        THE BOX IS NOT BOUNDED BY THE WINDOW. Its side is the Size box's
+        value in image pixels and may be as large as the field's own
+        longer side, and the lens then draws it ``zoom`` times larger
+        again: on a 2,048 px field most of the lens is off the widget, and
+        every pixel of it was being stretched, coloured and handed to Qt on
+        the GUI thread for every move. Measured by the responsiveness
+        harness at 2,048 px: a median move of 183.9 ms, 23 frames dropped.
+
+        :param box: ``(x0, y0, x1, y1)`` in image pixels.
+        :param lens: where the whole box would be drawn.
+        :param scale: widget pixels per image pixel inside the lens.
+        :returns: ``(part, rect)``, or ``(None, None)`` when none of the
+            box is on the canvas.
+        """
+        x0, y0, x1, y1 = (int(v) for v in box)
+        area = lens.intersected(QRectF(self.canvas.rect()))
+        if area.isEmpty() or scale <= 0:
+            return None, None
+        left = max(x0, x0 + int(math.floor((area.left() - lens.left()) / scale)))
+        top = max(y0, y0 + int(math.floor((area.top() - lens.top()) / scale)))
+        right = min(x1, x0 + int(math.ceil((area.right() - lens.left()) / scale)))
+        bottom = min(y1, y0 + int(math.ceil((area.bottom() - lens.top()) / scale)))
+        if right <= left or bottom <= top:
+            return None, None
+        rect = QRectF(lens.left() + (left - x0) * scale,
+                      lens.top() + (top - y0) * scale,
+                      (right - left) * scale, (bottom - top) * scale)
+        return (left, top, right, bottom), rect
+
+    def _ghost_is_stale(self) -> bool:
+        """Whether the box promises against a mask the canvas no longer has.
+
+        Asks nothing of the canvas: it compares what the shown result was
+        built against with the number :meth:`mask_generation` has reached,
+        and it is :meth:`paint` that brings that number up to date -- which
+        is where a mask edit is first seen, every edit rebinding the mask
+        and repainting, and no single place on the screen owning all of
+        them. Under Replace nothing is ghosted, so nothing goes stale.
+        """
+        shown = self._shown
+        return (shown is not None and shown.request.overlap != "replace"
+                and shown.request.mask_token != self._mask_token)
+
+    def _ask_again(self) -> None:
+        """Ask for the region under the mouse and redraw when it lands."""
+        self._asking = False
+        if self.enabled:
+            self.refresh()
+            self.canvas.update()
+
     def _image_slice(self, box) -> Optional[QImage]:
         """The whole-image objects inside ``box``, outlined, as a picture.
 
-        The object under the mouse is filled more strongly than the rest. The
-        picture is kept until the box, that object or the objects themselves
+        ``box`` is the part of the lens that is on the canvas
+        (:meth:`_visible_part`) and not necessarily the whole region the box
+        magnifies, for the reason given there: what is off the widget costs
+        the same to build and shows nobody anything.
+
+        The outlines are CUT FROM THE WORKER'S PICTURE of the whole field
+        (:attr:`_MagnifierResult.overlay`), not drawn again here: at the
+        largest box, outlining the part of the field on the canvas was a
+        boundary pass over a megapixel and more per move.
+
+        The object under the mouse -- the one a click would add -- is filled
+        more strongly than the rest, and THE OVERLAP RULE'S ANSWER FOR IT IS
+        DRAWN THE WAY THE REGION MODE DRAWS ITS OWN: what a click would add
+        is solid, what the rule would take away keeps a quarter of its
+        alpha. See :meth:`_image_promise`. The picture is kept until the
+        box, that object, the rule, the mask or the objects themselves
         change, so repainting without moving recomputes nothing -- and
         nothing here calls a model.
         """
@@ -2734,19 +4685,88 @@ class _LiveMagnifier(QObject):
             return None
         x0, y0, x1, y1 = (int(v) for v in box)
         cx, cy = self._cursor
-        under = int(result.labels[cy, cx])
-        where = ((x0, y0, x1, y1), under)
+        labels = result.labels
+        under = int(labels[cy, cx])
+        rule = _canonical_overlap_rule(self.overlap)
+        where = ((x0, y0, x1, y1), under, rule,
+                 self._mask_token if rule != "replace" else 0)
         cached = self._image_view
         if cached is not None and cached[0] is result and cached[1] == where:
             return cached[2]
-        crop = result.labels[y0:y1, x0:x1]
-        rgba = _candidate_overlay(crop, result.request.colour)
-        if under > 0:
-            focus = (crop == under) & (rgba[..., 3] < 140)
-            rgba[focus, 3] = 140
-        picture = _rgba_qimage(rgba)
-        self._image_view = (result, where, picture)
+        if result.overlay is not None:
+            rgba = np.array(result.overlay[y0:y1, x0:x1], copy=True)
+        else:
+            rgba = _candidate_overlay(labels[y0:y1, x0:x1],
+                                      result.request.colour)
+        window = _object_window(result, under) if under > 0 else None
+        if window is not None:
+            wx0, wy0, wx1, wy1 = window
+            ix0, iy0 = max(x0, wx0), max(y0, wy0)
+            ix1, iy1 = min(x1, wx1), min(y1, wy1)
+            if ix1 > ix0 and iy1 > iy0:
+                body = labels[iy0:iy1, ix0:ix1] == under
+                alpha = rgba[iy0 - y0:iy1 - y0, ix0 - x0:ix1 - x0, 3]
+                alpha[body & (alpha < 140)] = 140
+                lost = self._image_promise(result, under)
+                if lost is not None:
+                    gone = lost[iy0 - wy0:iy1 - wy0, ix0 - wx0:ix1 - wx0]
+                    alpha[gone] = alpha[gone] // 4
+        rgba = np.ascontiguousarray(rgba)
+        height, width = rgba.shape[:2]
+        picture = QImage(rgba.data, width, height, 4 * width,
+                         QImage.Format_RGBA8888)
+        self._image_view = (result, where, picture, rgba)
         return picture
+
+    def _image_promise(self, result: _MagnifierResult,
+                       label: int) -> Optional[np.ndarray]:
+        """What the Overlap rule would take from whole-image object ``label``.
+
+        A whole-image click adds ONE WHOLE OBJECT, and most of it can lie
+        outside the box, so the rule's answer cannot be read off the box's
+        slice: Skip asks whether the object touches the mask ANYWHERE, and
+        Clip keeps its largest surviving piece, which may be off the box.
+        The answer is therefore computed over the object's own bounding box
+        (:func:`_object_window`, from the worker's one ``find_objects``
+        pass), against the mask there, by
+        :func:`spacr.qt.mask_engine._surviving_region_objects` -- the same
+        function, over the same window, that the click's paste runs
+        (:func:`_single_object`, then
+        :func:`spacr.qt.mask_engine._paste_region_objects`), so the promise
+        and the edit cannot disagree.
+
+        Its cost is the object's bounding box, once per object, rule and
+        mask: kept in :attr:`_image_promised`.
+
+        :param result: the whole-image result on screen.
+        :param label: the object under the mouse.
+        :returns: a bool array over the object's window, True where a click
+            would NOT add the pixel, or None when the rule takes nothing --
+            under Replace, over an empty window, or when all of it survives.
+        """
+        rule = _canonical_overlap_rule(self.overlap)
+        mask = self.canvas.mask
+        if rule == "replace" or mask is None \
+                or tuple(mask.shape[:2]) != tuple(result.labels.shape[:2]):
+            return None
+        key = (label, rule, self._mask_token)
+        cached = self._image_promised
+        if cached is not None and cached[0] is result and cached[1] == key:
+            return cached[2]
+        lost = None
+        window = _object_window(result, label)
+        if window is not None:
+            x0, y0, x1, y1 = window
+            occupied = np.asarray(mask)[y0:y1, x0:x1] > 0
+            if occupied.any():
+                single = _single_object(result, label).labels
+                kept = engine._surviving_region_objects(
+                    single, occupied, overlap=rule,
+                    min_area=int(result.request.min_area))
+                gone = (single > 0) & (kept == 0)
+                lost = gone if gone.any() else None
+        self._image_promised = (result, key, lost)
+        return lost
 
 
 class _FlowPane(QLabel):
@@ -2811,6 +4831,122 @@ class _FlowPane(QLabel):
         """Refit the picture whenever the tab changes size."""
         super().resizeEvent(event)
         self._rescale()
+
+
+class _OtsuHistogramPlot(QWidget):
+    """The field's intensity histogram with the chosen level drawn on it.
+
+    A preview of the histogram with the chosen level marked, so a curator
+    can see where the cut falls. It is painted rather than plotted: the whole figure is a few
+    hundred bars and two or three vertical lines, and a chart library on this
+    screen would mean importing one on the path that opens Make Masks.
+
+    THE MARKER IS NOT COMPUTED HERE. It is handed in, already read from
+    :func:`spacr.qt.mask_engine._otsu_levels` -- the same function the detect
+    button's cut comes from -- because a preview that found its own level
+    would be a second opinion and could be right while the button was wrong.
+
+    :param counts: bar heights, as :func:`numpy.histogram` returns them.
+    :param edges: bin edges, one longer than ``counts``.
+    :param levels: the intensities the field is cut at.
+    :param parent: parent widget; ownership only.
+    """
+
+    def __init__(self, counts, edges, levels, parent=None):
+        """Keep the figure and set a size a reader can tell two humps apart in."""
+        super().__init__(parent)
+        self.counts = np.asarray(counts, dtype=np.float64)
+        self.edges = np.asarray(edges, dtype=np.float64)
+        self.levels = [float(level) for level in levels]
+        self.setMinimumSize(420, 220)
+
+    def level_x(self, level: float) -> float:
+        """Where ``level`` falls across the plot, in widget pixels.
+
+        The same mapping the bars are drawn with, so a test can ask the
+        picture where it put the marker instead of trusting that it did.
+
+        :param level: an intensity.
+        :returns: the x coordinate, clamped to the plot's own width.
+        """
+        low = float(self.edges[0])
+        high = float(self.edges[-1])
+        width = max(1, self.width())
+        if high <= low:
+            return 0.0
+        fraction = (float(level) - low) / (high - low)
+        return max(0.0, min(1.0, fraction)) * width
+
+    def paintEvent(self, event):
+        """Draw the bars, then a line at every level, then the axis ends."""
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        palette = active_palette()
+        painter.fillRect(self.rect(), QColor(palette["bg"]))
+        height = max(1, self.height())
+        width = max(1, self.width())
+        tallest = float(self.counts.max()) if self.counts.size else 0.0
+        if tallest > 0.0:
+            bar_colour = QColor(palette.get("fg", "#c8c8c8"))
+            bar_colour.setAlpha(160)
+            painter.setPen(Qt.NoPen)
+            painter.setBrush(QBrush(bar_colour))
+            step = width / float(self.counts.size)
+            for index, value in enumerate(self.counts):
+                tall = int(round(height * float(value) / tallest))
+                if tall <= 0:
+                    continue
+                painter.drawRect(QRect(int(index * step), height - tall,
+                                       max(1, int(step)), tall))
+        pen = QPen(QColor(palette["accent"]))
+        pen.setWidth(2)
+        painter.setPen(pen)
+        for level in self.levels:
+            x = int(round(self.level_x(level)))
+            painter.drawLine(x, 0, x, height)
+        painter.end()
+
+
+class _OtsuHistogramDialog(QDialog):
+    """A window holding :class:`_OtsuHistogramPlot` and what it is showing.
+
+    Modeless on purpose: the point of the preview is to change a setting and
+    look again, and a modal window would make that a close, a change and a
+    reopen each time. It is also what keeps it testable -- a static modal
+    runs its event loop in C++ and hangs a headless run.
+
+    :param counts: histogram bar heights.
+    :param edges: histogram bin edges.
+    :param levels: the intensities the field is cut at.
+    :param description: how the cut was taken, for the caption.
+    :param local: whether the local threshold is on, which means the levels
+        drawn are the whole-field ones and the real cut varies per window.
+    :param parent: parent widget.
+    """
+
+    def __init__(self, counts, edges, levels, description: str,
+                 local: bool = False, parent=None):
+        """Build the plot, the caption above it and the Close button."""
+        super().__init__(parent)
+        self.setWindowTitle("Otsu histogram")
+        layout = QVBoxLayout(self)
+        layout.setSpacing(SPACING["sm"])
+        marked = ", ".join(f"{level:.4g}" for level in levels) or "none"
+        self.caption = QLabel(
+            f"Level: {marked}  ({description}). "
+            + ("The local threshold is on, so this is the whole-field level "
+               "for reference and the cut actually varies window by window."
+               if local else
+               "This is the level the detect button cuts at.")
+        )
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+        self.plot = _OtsuHistogramPlot(counts, edges, levels, self)
+        layout.addWidget(self.plot, 1)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        buttons.rejected.connect(self.close)
+        layout.addWidget(buttons)
+        self.resize(520, 340)
 
 
 def fold_description(key: str) -> tuple:
@@ -3197,6 +5333,18 @@ class MakeMasksScreen(QWidget):
         #: :meth:`open_queue`; what makes a save reach
         #: ``curate_status.csv``.
         self._queue = None
+        #: The masks folder of a sibling-layout session, which is beside the
+        #: images rather than beneath them; ``None`` means ``<folder>/masks``.
+        #: Set with the folder by :meth:`_open_folder`, so no field of one
+        #: set is ever read or saved against another set's masks.
+        self._masks_dir: Optional[str] = None
+        #: What a terminal-built session had to say when it opened, still
+        #: waiting for its first field to land. A field large enough to load
+        #: off the GUI thread arrives after :meth:`open_queue` has returned,
+        #: and its status line would otherwise replace the notice before
+        #: anybody could read it. Emptied once shown, and by any other
+        #: folder being opened.
+        self._session_notice: str = ""
         self._current_index: int = 0
         self._history = engine.MaskHistory(capacity=25)
         #: The ledger for the field on screen, seeded from any sidecar
@@ -3225,6 +5373,7 @@ class MakeMasksScreen(QWidget):
         #: the generic settings form and carries no registry key to be
         #: looked up by.
         self._fold_page_title = HEADER_TITLE
+        ensure_widget_qss_applied(MAKE_MASKS_QSS_NAME, root=self)
         self._build_ui()
         self._install_shortcuts()
         self._sync_button_states()
@@ -3242,7 +5391,7 @@ class MakeMasksScreen(QWidget):
     def _take_any_terminal_queue(self) -> bool:
         """Open the queue ``spacr-make-masks`` handed over, if there is one.
 
-        The terminal half of ledger item 396 ends here. ``spacr-make-masks``
+        The terminal entry point hands over here. ``spacr-make-masks``
         reads the folder, builds the session and leaves it in
         :mod:`spacr.cli_make_masks`; the first screen built in that process
         takes it. The import is of a CLI module that pulls argparse and
@@ -3267,34 +5416,82 @@ class MakeMasksScreen(QWidget):
 
         The session decides WHICH fields and in WHAT ORDER -- reviewed ones
         already dropped, ``--limit`` already applied -- and this screen shows
-        them. Only the nested layout is opened: this editor reads a draft
-        from ``<folder>/masks/<stem>.tif`` and saves back to the same place,
-        so a sibling or ``_seg.npy`` set would be read and written somewhere
-        other than where its masks are. ``spacr-make-masks`` refuses those
-        before Qt is imported; this is the second half of the same refusal,
-        for anything that reaches the screen another way.
+        them. All three layouts are edited where they lie:
+
+        * ``nested`` opens the queue folder, masks in ``<folder>/masks``;
+        * ``sibling`` opens ``<folder>/images`` and reads and saves the
+          masks in ``<folder>/masks`` beside it, never ``images/masks``;
+        * ``seg`` opens the queue folder with the ``_seg.npy`` bundles as
+          its fields, each saved back into itself.
+
+        What the session had to say -- a ``prob`` or ``easy`` order that
+        fell back for want of scores, fields the scores do not name, a
+        resume record beside the folder rather than in it -- is put on
+        screen with it, not only in the terminal that started it. It stays
+        on the status line after the first field loads, including a field
+        large enough to load in the background, which lands after this
+        returns.
 
         :param queue: a :class:`spacr.curation_queue.CurationQueue`.
         :returns: whether the editor is now on that session.
         """
-        from ...curation_queue import LAYOUT_NESTED
+        from ...curation_queue import LAYOUT_NESTED, LAYOUT_SEG, LAYOUT_SIBLING
 
-        if getattr(queue.layout, "kind", None) != LAYOUT_NESTED:
-            LOG.warning("Make Masks edits the nested layout; %s is %s",
-                        queue.folder, getattr(queue.layout, "kind", "unknown"))
+        layout = queue.layout
+        kind = getattr(layout, "kind", None)
+        masks_dir: Optional[str] = None
+        if kind == LAYOUT_SEG:
+            folder = str(layout.folder)
+            files = [item.bundle.name for item in queue.items
+                     if item.bundle is not None]
+        elif kind in (LAYOUT_NESTED, LAYOUT_SIBLING):
+            folder = str(layout.images_dir)
+            files = [item.image.name for item in queue.items
+                     if item.image is not None]
+            if kind == LAYOUT_SIBLING:
+                masks_dir = str(layout.masks_dir)
+        else:
+            LOG.warning("Make Masks cannot edit the %s layout of %s",
+                        kind, queue.folder)
             return False
-        files = [item.image.name for item in queue.items
-                 if item.image is not None]
         if not files:
             LOG.info("%s has nothing left to curate", queue.folder)
             return False
-        if not self._open_folder(str(queue.folder), files=files):
+        if not self._open_folder(folder, files=files, masks_dir=masks_dir):
             return False
         self._queue = queue
+        notices = tuple(getattr(queue, "notices", ()) or ())
         self._src_label.setText(
-            f"{queue.folder}  --  {len(files)} to curate this session")
-        self._status_label.setText(queue.describe())
+            f"{queue.folder}  --  {len(files)} to curate this session, "
+            f"{queue.order_phrase}")
+        self._session_notice = "  ".join((queue.describe(),) + notices)
+        self._show_session_notice(keep=self._loading)
         return True
+
+    def _show_session_notice(self, *, keep: bool = False) -> None:
+        """Put the session's opening notice after what the status line says.
+
+        :param keep: hold the notice for the field still loading in the
+            background, so it is shown again when that field lands.
+        """
+        notice = self._session_notice
+        if not notice:
+            return
+        if not keep:
+            self._session_notice = ""
+        current = self._status_label.text()
+        self._status_label.setText(f"{current}  {notice}" if current
+                                   else notice)
+
+    def _layout_kwargs(self) -> dict:
+        """What every mask read and write passes for this folder's layout.
+
+        Empty for the nested layout, so those calls are exactly what they
+        were before a sibling set could be opened.
+
+        :returns: ``{"masks_dir": ...}`` for a sibling session, else ``{}``.
+        """
+        return {"masks_dir": self._masks_dir} if self._masks_dir else {}
 
     def _note_curated(self, filename: str,
                       n_objects: Optional[int] = None) -> None:
@@ -3313,7 +5510,7 @@ class MakeMasksScreen(QWidget):
             return
         from ...curation_queue import mark_state
 
-        stem = os.path.splitext(filename)[0]
+        stem = engine.field_stem(filename)
         folder = self._queue.folder
         try:
             mark_state(folder, stem, "done", n_objects=n_objects)
@@ -3330,7 +5527,6 @@ class MakeMasksScreen(QWidget):
 
         self._header = ModuleHeader(
             HEADER_TITLE,
-            description=HEADER_DESCRIPTION,
             instruction=HEADER_INSTRUCTION,
             app_key=APP_KEY,
         )
@@ -3347,6 +5543,12 @@ class MakeMasksScreen(QWidget):
 
         self._tool_row = self._build_tool_row()
         outer.addWidget(self._tool_row)
+
+        self._invert_warning = QLabel(INVERT_WARNING_TEXT)
+        self._invert_warning.setObjectName(INVERT_WARNING_NAME)
+        self._invert_warning.setWordWrap(True)
+        self._invert_warning.hide()
+        outer.addWidget(self._invert_warning)
 
         self._body_stack = QStackedWidget()
 
@@ -3366,6 +5568,8 @@ class MakeMasksScreen(QWidget):
 
         self._body_splitter = QSplitter(Qt.Horizontal)
         self._body_splitter.setChildrenCollapsible(False)
+        self._body_splitter.setHandleWidth(SETTINGS_GAP)
+        self._body_splitter.setStyleSheet(thin_hover_line_sheet())
         self._canvas = _MaskCanvas()
         self._canvas.stroke_started.connect(self._on_stroke_started)
         self._canvas.stroke_finished.connect(self._on_stroke_finished)
@@ -3380,9 +5584,15 @@ class MakeMasksScreen(QWidget):
         self._magnifier.drag_ready.connect(self._apply_magnifier_drag)
         #: The mask a magnifier drag pastes onto, and the last one it showed.
         self._drag_base = self._drag_shown = None
+        #: The Otsu histogram preview while it is open, kept so pressing
+        #: the button twice reuses one window rather than stacking them and
+        #: so the screen can take it down with itself.
+        self._otsu_histogram_dialog: Optional[QDialog] = None
         self._magnifier.status.connect(
             lambda text: self._status_label.setText(text))
-        self._body_splitter.addWidget(self._build_view_tabs())
+        self._canvas.status.connect(
+            lambda text: self._status_label.setText(text))
+        self._view_tabs = self._build_view_tabs()
 
         self._settings_scroll = QScrollArea()
         self._settings_scroll.setWidgetResizable(True)
@@ -3394,13 +5604,20 @@ class MakeMasksScreen(QWidget):
                         self._cp_cellprob.valueChanged,
                         self._cp_normalize.toggled,
                         self._otsu_correction.valueChanged,
+                        self._otsu_smoothing.valueChanged,
+                        self._otsu_fill_holes.toggled,
+                        self._otsu_split.toggled,
                         self._otsu_bright.toggled,
+                        self._cp_invert.toggled,
                         self._min_area.valueChanged):
             changed.connect(self._on_magnifier_context_changed)
+        self._min_area.valueChanged.connect(self._on_min_area_changed)
+        self._on_min_area_changed(self._min_area.value())
         self._body_splitter.addWidget(self._settings_scroll)
-        self._body_splitter.setStretchFactor(0, 3)
-        self._body_splitter.setStretchFactor(1, 1)
-        self._body_splitter.setSizes([900, SETTINGS_WIDTH])
+        self._body_splitter.addWidget(self._build_view_pane())
+        self._body_splitter.setStretchFactor(0, 1)
+        self._body_splitter.setStretchFactor(1, 3)
+        self._body_splitter.setSizes([SETTINGS_WIDTH, 900])
         self._body_stack.addWidget(self._body_splitter)
         self._body_stack.setCurrentWidget(self._empty_state)
         self._body_stack.currentChanged.connect(self._sync_tool_row_visibility)
@@ -3420,6 +5637,8 @@ class MakeMasksScreen(QWidget):
         nav_row.addWidget(self._btn_open)
         from ..make_masks_demo import install_test_data_button
         nav_row.addWidget(install_test_data_button(self))
+        from ..make_masks_datasets import install_dataset_button
+        nav_row.addWidget(install_dataset_button(self))
 
         self._btn_prev = QPushButton("Prev image")
         self._btn_prev.setIcon(iconset.icon("prev"))
@@ -3433,6 +5652,30 @@ class MakeMasksScreen(QWidget):
         self._btn_next.setCursor(Qt.PointingHandCursor)
         self._btn_next.clicked.connect(self._on_next)
         nav_row.addWidget(self._btn_next)
+
+        self._btn_discard = QPushButton("Discard")
+        self._btn_discard.setIcon(iconset.icon("trash"))
+        self._btn_discard.setCheckable(True)
+        self._btn_discard.setCursor(Qt.PointingHandCursor)
+        self._btn_discard.setToolTip(
+            "Mark this field as one to discard and move to the next. "
+            "Nothing is deleted: the verdict goes to csv/keep_discard.csv "
+            "beside the images, and the field, its mask and its objects "
+            "stay as they are.")
+        self._btn_discard.clicked.connect(lambda: self._on_curate(False))
+        nav_row.addWidget(self._btn_discard)
+
+        self._btn_keep = QPushButton("Keep")
+        self._btn_keep.setIcon(iconset.icon("check"))
+        self._btn_keep.setCheckable(True)
+        self._btn_keep.setCursor(Qt.PointingHandCursor)
+        self._btn_keep.setToolTip(
+            "Mark this field as one to keep and move to the next. The "
+            "verdict is written to csv/keep_discard.csv beside the images, "
+            "with the image, its mask and the number of objects the mask "
+            "holds right now.")
+        self._btn_keep.clicked.connect(lambda: self._on_curate(True))
+        nav_row.addWidget(self._btn_keep)
 
         self._btn_save = QPushButton("Save mask")
         self._btn_save.setObjectName("PrimaryButton")
@@ -3637,7 +5880,14 @@ class MakeMasksScreen(QWidget):
         about the wrong copy.
         """
         filename = self._image_files[self._current_index]
-        mask_path = engine.mask_save_path(self._folder, filename)
+        if engine.is_seg_bundle(filename):
+            self._status_label.setText(
+                f"{filename} holds its image and mask inside one Cellpose "
+                f"bundle; this module opens image and mask files, so it was "
+                f"not pointed at it.")
+            return {}
+        mask_path = engine.mask_save_path(self._folder, filename,
+                                          **self._layout_kwargs())
         seeded = {"mask": mask_path}
         screen._mask_edit.setText(mask_path)
         if key == "napari_bridge":
@@ -3667,12 +5917,26 @@ class MakeMasksScreen(QWidget):
         whatever that tab holds — the checkpoint the Train tab produced if
         there is one, and the stock model otherwise.
 
-        :returns: whether a run was started. A folder that is not open, and a
-            confirmation that is declined, both answer ``False``.
+        The Apply half writes one mask per image into ``<src>/masks``, which
+        is the nested layout's masks folder and nobody else's: in a sibling
+        session it would be ``images/masks``, beside the set's real masks
+        rather than in them, and a folder of ``_seg.npy`` bundles has no
+        images for it to read. Both are refused, in the status line.
+
+        :returns: whether a run was started. A folder that is not open, a
+            session whose masks are not in ``<folder>/masks``, and a
+            confirmation that is declined, all answer ``False``.
         """
         if not self._folder or not self._image_files:
             self._status_label.setText(
                 "Open a folder of images before masking it.")
+            return False
+        if self._masks_dir or any(engine.is_seg_bundle(name)
+                                  for name in self._image_files):
+            self._status_label.setText(
+                f"Mask the whole folder writes its masks into "
+                f"{os.path.join(self._folder, 'masks')}, and this set keeps "
+                f"its masks somewhere else, so it was not started.")
             return False
         count = len(self._image_files)
         if not self._confirm(
@@ -3750,6 +6014,9 @@ class MakeMasksScreen(QWidget):
             screen.close()
         for panel in list(self._fold_dialogs.values()):
             panel.close()
+        if self._otsu_histogram_dialog is not None:
+            self._otsu_histogram_dialog.close()
+            self._otsu_histogram_dialog = None
 
     def _build_tool_row(self) -> QWidget:
         """The one row that holds every tool, along the top of the screen.
@@ -3765,9 +6032,11 @@ class MakeMasksScreen(QWidget):
         method. Actions that are not modes come in through
         :meth:`add_toolbar_action` and land in the same row.
 
-        The row ends with the settings toggle, which is checkable because
-        it reports a state rather than firing an action: it stays lit for
-        as long as the settings are on screen.
+        The row ends with the Magnifier and, directly right of it, the
+        settings toggle, which is checkable because it reports a state
+        rather than firing an action: it stays lit for as long as the
+        settings are on screen. A stretch after the toggle keeps the row
+        against the left edge, above the settings it hides.
         """
         bar = QWidget()
         bar.setObjectName("MakeMasksToolRow")
@@ -3819,7 +6088,17 @@ class MakeMasksScreen(QWidget):
         self._btn_redo.clicked.connect(self._on_redo)
         row.addWidget(self._btn_redo)
 
-        row.addStretch(1)
+        self._btn_features = QPushButton("Features")
+        self._btn_features.setIcon(iconset.icon("run"))
+        self._btn_features.setMinimumHeight(32)
+        self._btn_features.setCursor(Qt.PointingHandCursor)
+        self._btn_features.setToolTip(
+            "Measure the masks you drew. Opens a table where each row is a "
+            "field and each column is a channel or a mask type; the run "
+            "goes through the Measure module itself, so the folders and the "
+            "measurements database are the ones a Measure run produces.")
+        self._btn_features.clicked.connect(self._on_open_features)
+        row.addWidget(self._btn_features)
 
         self._btn_settings = QPushButton("Settings")
         self._btn_settings.setIcon(iconset.icon("settings"))
@@ -3827,12 +6106,14 @@ class MakeMasksScreen(QWidget):
         self._btn_settings.setMinimumHeight(32)
         self._btn_settings.setCursor(Qt.PointingHandCursor)
         self._btn_settings.setToolTip(
-            "Show or hide the settings — brush, wand, display, auto-filter "
-            "and object operations, as one group. The canvas takes the "
-            "width they give up.")
+            "Show or hide the settings — brush, wand, display, auto-filter, "
+            "object operations, Otsu, object detection and the live "
+            "magnifier, as one group. The canvas takes the width they give "
+            "up.")
         self._btn_settings.setChecked(True)
         self._btn_settings.toggled.connect(self._on_toggle_settings)
         row.addWidget(self._btn_settings)
+        row.addStretch(1)
 
         scroller = QScrollArea()
         scroller.setObjectName("MakeMasksToolScroll")
@@ -3847,17 +6128,152 @@ class MakeMasksScreen(QWidget):
         scroller.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
         return scroller
 
+    def _on_open_features(self, _checked: bool = False):
+        """Open the measurement-input window on the folder being drawn in.
+
+        The whole of this screen's part in measuring: the window, the
+        table and the run live in
+        :mod:`spacr.qt.screens.measure_inputs`, so Make Masks holds a button
+        and a folder and nothing else about measuring.
+
+        :param _checked: Qt's toggled flag, unused.
+        :returns: the window, so a test can drive it.
+        """
+        from .measure_inputs import open_measure_inputs
+
+        return open_measure_inputs(self, folder=self._folder or None)
+
+    def _curation_paths(self):
+        """The field being judged and the mask it is judged with.
+
+        :returns: ``(image path, mask path)``, or ``(None, None)`` when no
+            field is open.
+        """
+        if not self._folder or not self._image_files:
+            return None, None
+        try:
+            filename = self._image_files[self._current_index]
+        except (IndexError, TypeError):
+            return None, None
+        image_path = os.path.join(self._folder, filename)
+        mask_path = engine.mask_save_path(self._folder, filename,
+                                          **self._layout_kwargs())
+        return image_path, mask_path
+
+    def _on_curate(self, keep: bool):
+        """Record a keep or discard verdict for the field on screen.
+
+        THE COUNT IS READ NOW, not when the field was loaded, so a field
+        curated after hand editing records the objects the user was looking
+        at when they pressed the button.
+
+        :param keep: True for Keep, False for Discard.
+        :returns: the CSV's path, or None when there was nothing to record.
+        """
+        image_path, mask_path = self._curation_paths()
+        if image_path is None:
+            self._show_curation_verdict(None)
+            return None
+        try:
+            written = engine.record_curation(
+                self._folder, image_path, mask_path, self._objects_now(),
+                keep)
+        except OSError as exc:
+            LOG.warning("Could not record the curation verdict: %s", exc)
+            self._warn("Verdict not recorded",
+                       f"{os.path.basename(image_path)} could not be marked: "
+                       f"{exc}")
+            self._show_curation_verdict(
+                engine.curation_verdict(self._folder, image_path))
+            return None
+        self._show_curation_verdict(keep)
+        self._advance_after_verdict(keep, os.path.basename(image_path))
+        return written
+
+    def _advance_after_verdict(self, keep: bool, judged: str) -> bool:
+        """Move to the next field, and say what the verdict was on the way.
+
+        Pressing Keep or Discard moves to the next image. Curation is a walk,
+        and a verdict is the thing that ends a field -- a curator who has to
+        press Keep and then Next presses twice per field for a thousand
+        fields.
+
+        :meth:`_on_next` is called rather than the index being moved here,
+        so there is ONE definition of what next means -- it retires a recrop
+        first, and it stops at the end of the folder instead of wrapping.
+
+        THE MESSAGE IS BUILT HERE AND NOT IN A HELPER THAT APPENDS TO THE
+        STATUS LINE. Loading the next field rewrites that line, so a verdict
+        appended before the move is gone a moment later, and one appended
+        after the move reads as a verdict on the field that just opened --
+        which is the opposite of what happened. The name of the field that
+        was judged is therefore carried in and spelled out.
+
+        :param keep: True for Keep, False for Discard.
+        :param judged: the basename of the field the verdict was about.
+        :returns: whether the screen moved to another field.
+        """
+        said = "kept" if keep else "discarded — nothing was deleted"
+        was = self._current_index
+        self._on_next()
+        moved = self._current_index != was
+        if moved:
+            now = os.path.basename(self._image_files[self._current_index])
+            self._status_label.setText(f"{judged} {said}  —  now on {now}")
+        elif (self._image_files
+                and self._current_index >= len(self._image_files) - 1):
+            self._status_label.setText(
+                f"{judged} {said}  —  that was the last field in this folder")
+        else:
+            self._status_label.setText(f"{judged} {said}")
+        return moved
+
+    def _show_curation_verdict(self, verdict):
+        """Put the field's current verdict on the two buttons.
+
+        A field already marked shows it rather than looking unpressed,
+        which is the difference between a record and a button that does
+        something invisible.
+
+        :param verdict: True, False, or None for no verdict.
+        """
+        for button, state in ((getattr(self, "_btn_keep", None),
+                               verdict is True),
+                              (getattr(self, "_btn_discard", None),
+                               verdict is False)):
+            if button is None:
+                continue
+            blocked = button.blockSignals(True)
+            button.setChecked(bool(state))
+            button.blockSignals(blocked)
+
+    def _refresh_curation_buttons(self):
+        """Show the verdict of whichever field is open now."""
+        image_path, _mask_path = self._curation_paths()
+        if image_path is None:
+            self._show_curation_verdict(None)
+            return
+        try:
+            self._show_curation_verdict(
+                engine.curation_verdict(self._folder, image_path))
+        except OSError:
+            self._show_curation_verdict(None)
+
     def add_toolbar_action(self, button: QPushButton) -> QPushButton:
         """Insert a non-mode action into the editor toolbar.
 
-        The button is placed with the other actions, immediately before the
-        stretch that keeps the Settings toggle aligned to the far edge.
+        The button is placed with the other actions, before the Magnifier and
+        the settings toggle, so that pair stays together at the end of the
+        row whatever is added after them.
 
         :param button: Action button to insert.
         :returns: The same button.
         """
         row = self._tool_row_layout
-        row.insertWidget(max(row.indexOf(self._btn_settings) - 1, 0), button)
+        anchor = getattr(self, "_btn_magnifier", None)
+        if anchor is None or row.indexOf(anchor) < 0:
+            anchor = self._btn_settings
+        row.insertWidget(row.indexOf(anchor), button)
         return button
 
     def _sync_tool_row_visibility(self, *_args) -> None:
@@ -3882,18 +6298,19 @@ class MakeMasksScreen(QWidget):
         rather than leaving a gap where the panel was. The width the
         panel had is remembered while it is away, so a second press puts
         it back where the user last dragged it instead of at the default.
+        The settings are the splitter's first pane, left of the image.
         """
         splitter = self._body_splitter
         if not shown:
             sizes = splitter.sizes()
-            if len(sizes) > 1 and sizes[1] > 0:
-                self._settings_width = sizes[1]
+            if len(sizes) > 1 and sizes[0] > 0:
+                self._settings_width = sizes[0]
         self._settings_scroll.setVisible(shown)
         if shown:
             sizes = splitter.sizes()
             total = sum(sizes) or (900 + SETTINGS_WIDTH)
             side = max(min(self._settings_width, total - 1), 1)
-            splitter.setSizes([total - side, side])
+            splitter.setSizes([side, total - side])
 
     def _build_tools_panel(self) -> QWidget:
         """Build the tool column: mode, brush, wand and mask operations.
@@ -3912,7 +6329,8 @@ class MakeMasksScreen(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not read the folded categories", exc_info=True)
             folded = None
-        self._folded_categories = {str(t) for t in (folded or ())}
+        self._folded_categories = {
+            _RENAMED_CATEGORIES.get(str(t), str(t)) for t in (folded or ())}
 
         brush_card = self._settings_category("Brush")
         brush_form = QFormLayout()
@@ -3938,7 +6356,7 @@ class MakeMasksScreen(QWidget):
 
         wand_card = self._settings_category("Magic wand")
         wand_form = QFormLayout()
-        self._wand_relative = QCheckBox("Tolerance is % of image range")
+        self._wand_relative = Toggle("Tolerance is % of image range")
         self._wand_relative.setChecked(True)
         self._wand_relative.setToolTip(
             "On: the tolerance below is a percentage of THIS image's own "
@@ -3986,7 +6404,7 @@ class MakeMasksScreen(QWidget):
         )
         self._wand_max.valueChanged.connect(self._on_wand_max_changed)
         wand_form.addRow("Max pixels", self._wand_max)
-        self._wand_salvage = QCheckBox("Keep the nearest pixels at the cap")
+        self._wand_salvage = Toggle("Keep the nearest pixels at the cap")
         self._wand_salvage.setChecked(True)
         self._wand_salvage.setToolTip(
             "On: a flood over the budget is trimmed back to the pixels "
@@ -4067,7 +6485,7 @@ class MakeMasksScreen(QWidget):
             "onto the nearest intensity gradient."
         )
         edge_form = QFormLayout(edge)
-        self._wand_intensity_border = QCheckBox("Re-flood below the escape")
+        self._wand_intensity_border = Toggle("Re-flood below the escape")
         self._wand_intensity_border.setChecked(True)
         self._wand_intensity_border.setToolTip(
             "When a leak is found, search for the highest tolerance whose "
@@ -4091,7 +6509,7 @@ class MakeMasksScreen(QWidget):
         self._wand_intensity_steps.valueChanged.connect(
             self._on_wand_intensity_steps_changed)
         edge_form.addRow("Search steps", self._wand_intensity_steps)
-        self._wand_gradient_taper = QCheckBox("Taper onto the gradient")
+        self._wand_gradient_taper = Toggle("Taper onto the gradient")
         self._wand_gradient_taper.setChecked(True)
         self._wand_gradient_taper.setToolTip(
             "Let the provisional edge move onto the nearest real intensity "
@@ -4168,6 +6586,17 @@ class MakeMasksScreen(QWidget):
         self._norm_hi.valueChanged.connect(self._on_normalize_changed)
         norm_form.addRow("Lower %", self._norm_lo)
         norm_form.addRow("Upper %", self._norm_hi)
+        self._detect_normalized = Toggle("Detect on the normalized image")
+        self._detect_normalized.setChecked(False)
+        self._detect_normalized.setToolTip(
+            "Off: Otsu, Cellpose and the magnifier read the image as it was "
+            "loaded (inverted if Invert is on), and Lower % / Upper % only "
+            "change how it is drawn. On: they read it stretched between Lower "
+            "% and Upper %, exactly as drawn, and the intensity in the "
+            "top-left corner shows that stretched value. What is saved is "
+            "never changed.")
+        self._detect_normalized.toggled.connect(self._on_detect_normalized)
+        norm_form.addRow(self._detect_normalized)
         self._zoom_speed = QDoubleSpinBox()
         self._zoom_speed.setDecimals(2)
         self._zoom_speed.setRange(1.01, 3.0)
@@ -4181,11 +6610,33 @@ class MakeMasksScreen(QWidget):
         self._zoom_speed.valueChanged.connect(self._on_zoom_speed_changed)
         norm_form.addRow("Zoom per notch", self._zoom_speed)
         norm_card.body_layout.addLayout(norm_form)
+
+        self._invert_display = Toggle("Invert image")
+        self._invert_display.setToolTip(
+            "Show the picture as a negative and detect on that same "
+            "negative: the field is normalized to 0..1 and each pixel "
+            "becomes 1 minus itself, so its darkest pixel is its brightest. "
+            "That is what lets Otsu and the Live magnifier, which look for "
+            "bright objects, take DARK ones — a dark object on a pale "
+            "brightfield reads the way a fluorescent one does, to the eye "
+            "and to the detector alike. THE MASKS ARE MADE FROM THE "
+            "INVERTED IMAGE while this is on, and a warning stays above the "
+            "image saying so. The hover readout, the Filter category and "
+            "the mask you save go on reading the image's real values, so "
+            "nothing you measure changes. This is not 'Swap object and "
+            "background' in Object operations, which flips a finished MASK "
+            "and does nothing to the picture."
+        )
+        self._invert_display.toggled.connect(self._on_invert_display)
+        self._invert_display.toggled.connect(self._on_invert_toggled)
+        norm_card.body_layout.addWidget(self._invert_display)
         col.addWidget(norm_card)
 
         filter_card = self._settings_category(
-            "Auto-filter objects",
-            "Applied when a field loads. 0 switches a bound off.",
+            "Filter",
+            "Every bound is off at 0. Filter applies the ones that are on, "
+            "and so does opening a field; each object removed is listed "
+            "below.",
         )
         filter_form = QFormLayout()
         self._filter_min_area = QSpinBox()
@@ -4216,21 +6667,49 @@ class MakeMasksScreen(QWidget):
         filter_form.addRow("Min mean intensity", self._filter_min_int)
         filter_form.addRow("Max mean intensity", self._filter_max_int)
         filter_card.body_layout.addLayout(filter_form)
-        self._btn_filter = QPushButton("Apply filter now")
+        self._btn_filter = QPushButton("Filter")
         self._btn_filter.setCursor(Qt.PointingHandCursor)
+        self._btn_filter.setToolTip(
+            "Apply the bounds that are on to the mask on screen. Every "
+            "object it removes is listed below it, with the area and the "
+            "mean intensity it was judged on. One undo step.")
         self._btn_filter.clicked.connect(self._on_apply_filter)
         filter_card.body_layout.addWidget(self._btn_filter)
+        self._filter_log = QPlainTextEdit()
+        self._filter_log.setObjectName(FILTER_LOG_NAME)
+        self._filter_log.setReadOnly(True)
+        self._filter_log.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self._filter_log.setFixedHeight(
+            self._filter_log.fontMetrics().lineSpacing() * FILTER_LOG_ROWS + 12)
+        self._filter_log.setToolTip(
+            "What the last filter removed, one row per object: its id, the "
+            "area and mean intensity it was judged on, and the bound that "
+            "removed it. The ids are the ones the hover readout shows.")
+        self._set_filter_log([])
+        filter_card.body_layout.addWidget(self._filter_log)
         col.addWidget(filter_card)
 
         obj_card = self._settings_category("Object operations")
         ops_col = QVBoxLayout()
         ops_col.setSpacing(SPACING["xs"])
-        for label, cb in (
-            ("Fill holes", self._on_fill_holes),
-            ("Relabel", self._on_relabel),
-            ("Invert mask", self._on_invert),
+        for label, cb, hint in (
+            ("Fill holes", self._on_fill_holes,
+             "Close every enclosed hole inside an object, so a nucleus "
+             "outlined as a ring becomes a filled disc."),
+            ("Relabel", self._on_relabel,
+             "Renumber the objects 1, 2, 3… with no gaps. The picture does "
+             "not change; the ids underneath it do."),
+            ("Swap object and background", self._on_invert,
+             "Turn every labelled pixel into background and every "
+             "background pixel into an object. On an ordinary field that "
+             "gives ONE object covering the whole frame with holes where "
+             "your objects were — useful only when you have outlined the "
+             "space between the cells and wanted the cells. This is not the "
+             "picture invert: that is 'Invert image', in the Display "
+             "category, and it leaves the mask alone."),
         ):
             btn = QPushButton(label)
+            btn.setToolTip(hint)
             btn.clicked.connect(cb)
             ops_col.addWidget(btn)
         remove_row = QHBoxLayout()
@@ -4240,9 +6719,9 @@ class MakeMasksScreen(QWidget):
         self._min_area.setValue(100)
         self._min_area.setToolTip(
             "Smallest object worth keeping, in pixels. Removing small "
-            "objects drops everything under it, and neither Otsu nor "
-            "Cellpose-SAM will produce an object below it, so one judgement "
-            "about debris is made in one box."
+            "objects drops everything under it, and neither Otsu detect nor "
+            "Object detection will produce an object below it, so one "
+            "judgement about debris is made in one box."
         )
         remove_row.addWidget(QLabel("Min area:"))
         remove_row.addWidget(self._min_area, 1)
@@ -4251,22 +6730,53 @@ class MakeMasksScreen(QWidget):
         remove_row.addWidget(remove_btn)
         remove_wrap = QWidget(); remove_wrap.setLayout(remove_row)
         ops_col.addWidget(remove_wrap)
+        size_row = QHBoxLayout()
+        size_row.setSpacing(SPACING["sm"])
+        self._grow_step = QSpinBox()
+        self._grow_step.setRange(1, 50)
+        self._grow_step.setValue(1)
+        self._grow_step.setSuffix(" px")
+        self._grow_step.setToolTip(
+            "How many pixels one press of Dilate or Shrink moves every "
+            "object's boundary. The distance is the straight-line one, so 1 "
+            "moves the edge onto its four neighbours and not its corners, "
+            "and a Shrink undoes a Dilate of the same size on an object that "
+            "had room to grow.")
+        size_row.addWidget(QLabel("Grow / shrink:"))
+        size_row.addWidget(self._grow_step, 1)
+        self._btn_dilate = QPushButton("Dilate")
+        self._btn_dilate.setCursor(Qt.PointingHandCursor)
+        self._btn_dilate.setToolTip(
+            "Grow every object by that many pixels, into background only: an "
+            "object never takes a pixel from its neighbour and two objects "
+            "never become one, so the ids and the object count are the ones "
+            "you had. One undo step.")
+        self._btn_dilate.clicked.connect(self._on_dilate)
+        size_row.addWidget(self._btn_dilate)
+        self._btn_shrink = QPushButton("Shrink")
+        self._btn_shrink.setCursor(Qt.PointingHandCursor)
+        self._btn_shrink.setToolTip(
+            "Pull every object's boundary in by that many pixels. Each "
+            "object is pulled back from its neighbours as well as from the "
+            "background, so a pair that was touching comes apart. AN OBJECT "
+            "THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line "
+            "says how many did. One undo step.")
+        self._btn_shrink.clicked.connect(self._on_shrink)
+        size_row.addWidget(self._btn_shrink)
+        size_wrap = QWidget(); size_wrap.setLayout(size_row)
+        ops_col.addWidget(size_wrap)
         detect_row = QHBoxLayout()
         detect_row.setSpacing(SPACING["sm"])
         self._btn_otsu = QPushButton("Otsu detect")
         self._btn_otsu.setCursor(Qt.PointingHandCursor)
         self._btn_otsu.setToolTip(
-            "Threshold the image at Otsu's level, multiplied by the Otsu "
-            "threshold correction under Cellpose-SAM, and label what is left, "
-            "honouring the minimum area above.")
+            "Threshold the image at Otsu's level and label what is left, "
+            "honouring the minimum area above. Everything about the "
+            "threshold — the correction, the smoothing, which side is the "
+            "object, filling holes, splitting a pair that touches and "
+            "dropping what the frame cut — is the Otsu category.")
         self._btn_otsu.clicked.connect(self._on_detect_otsu)
         detect_row.addWidget(self._btn_otsu)
-        self._otsu_bright = QCheckBox("Bright")
-        self._otsu_bright.setChecked(True)
-        self._otsu_bright.setToolTip(
-            "On: objects are brighter than background, as in fluorescence. "
-            "Off: take the dark side instead, for brightfield or stain.")
-        detect_row.addWidget(self._otsu_bright)
         self._combine_mode = QComboBox()
         for _mode in ("replace", "merge"):
             self._combine_mode.addItem(_mode, _mode)
@@ -4278,14 +6788,19 @@ class MakeMasksScreen(QWidget):
         detect_row.addWidget(self._combine_mode, 1)
         detect_wrap = QWidget(); detect_wrap.setLayout(detect_row)
         ops_col.addWidget(detect_wrap)
-        clear_btn = QPushButton("Clear mask")
-        clear_btn.setObjectName("DangerButton")
-        clear_btn.clicked.connect(self._on_clear_mask)
-        ops_col.addWidget(clear_btn)
+        self._btn_clear = QPushButton("Clear")
+        self._btn_clear.setObjectName("DangerButton")
+        self._btn_clear.setCursor(Qt.PointingHandCursor)
+        self._btn_clear.setToolTip(
+            "Remove every object from this field. It asks first, and it is "
+            "one undo step, so a press by accident costs one Ctrl+Z.")
+        self._btn_clear.clicked.connect(self._on_clear_mask)
+        ops_col.addWidget(self._btn_clear)
         obj_ops_wrap = QWidget(); obj_ops_wrap.setLayout(ops_col)
         obj_card.body_layout.addWidget(obj_ops_wrap)
         col.addWidget(obj_card)
 
+        col.addWidget(self._build_otsu_card())
         col.addWidget(self._build_cellpose_card())
         col.addWidget(self._build_magnifier_card())
 
@@ -4361,10 +6876,39 @@ class MakeMasksScreen(QWidget):
         QShortcut(QKeySequence("V"), self, lambda: self._set_mode(MODE_DIVIDE))
         QShortcut(QKeySequence("Z"), self, lambda: self._set_mode(MODE_ZOOM))
         QShortcut(QKeySequence("R"), self, lambda: self._set_mode(MODE_RECROP))
+        QShortcut(QKeySequence("M"), self, self._toggle_magnifier_key)
         QShortcut(QKeySequence("Escape"), self, self._on_reset_zoom)
         QShortcut(QKeySequence("Ctrl+Z"), self, self._on_undo)
         QShortcut(QKeySequence("Ctrl+Y"), self, self._on_redo)
         QShortcut(QKeySequence("Ctrl+Shift+Z"), self, self._on_redo)
+
+    def _toggle_magnifier_key(self) -> bool:
+        """Turn the live magnifier on or off from the keyboard: the M key.
+
+        THE SAME TOGGLE AS THE TOOL-ROW BUTTON, pressed rather than
+        imitated: ``toggle()`` on :attr:`_btn_magnifier` sends the button's
+        own ``toggled`` signal, so the status line, the box and the button's
+        checked look go through :meth:`_on_toggle_magnifier` exactly as a
+        click on it does, and the two can never disagree about whether the
+        magnifier is on. A button that is disabled or hidden is not pressed
+        by its key either.
+
+        WHY M. Every other letter this screen binds names its tool (B brush,
+        E erase, W wand, D draw, V divide, Z zoom, R recrop), and M is the
+        first free letter of "magnifier". It is bare, like theirs, so it
+        carries no Ctrl and therefore no Command on macOS, where Cmd+M
+        minimises the window. :data:`spacr.qt.shortcuts.SCREEN_SHORTCUTS`
+        lists it with this screen as its scope, under the card's own caption
+        "Live magnifier", which the generated catalog already translates.
+
+        :returns: whether the magnifier changed state.
+        """
+        button = getattr(self, "_btn_magnifier", None)
+        if button is None or not button.isEnabled() \
+                or not button.isVisibleTo(self):
+            return False
+        button.toggle()
+        return True
 
     def _set_mode(self, mode: str):
         """Switch the canvas between draw, erase and wand.
@@ -4395,6 +6939,64 @@ class MakeMasksScreen(QWidget):
         self._canvas.norm_lo = float(self._norm_lo.value())
         self._canvas.norm_hi = float(self._norm_hi.value())
         self._canvas.refresh()
+        if self._canvas.detect_on_normalized:
+            self._on_magnifier_context_changed()
+
+    def _on_detect_normalized(self, on: bool) -> None:
+        """Hand the detectors the stretched field, or the loaded one.
+
+        :param on: whether detection reads the normalized image.
+        """
+        self._canvas.detect_on_normalized = bool(on)
+        self._canvas.refresh()
+        self._on_magnifier_context_changed()
+        self._status_label.setText(
+            "Detection reads the image as drawn (normalized)." if on else
+            "Detection reads the image as loaded.")
+
+    def _on_invert_display(self, on: bool) -> None:
+        """Draw the image as its own negative, or stop.
+
+        There is ONE of these. The screen used to carry two inversions that
+        a user could hold in disagreeing states: this one, which drew a
+        negative and left detection unaffected, and "Invert for detection",
+        which inverted what the detectors read and drew nothing. The reason
+        to invert is the reason they are merged -- inverting a field of dark
+        objects so that Otsu and the magnifier can find them is one
+        intention, and a curator who inverts the picture to see dark objects
+        means the detector to see them too.
+
+        So this switch now drives both, through
+        :func:`spacr.qt.mask_engine.invert_normalized`, and
+        ``_cp_invert`` is this same widget under its old name rather than a
+        second one that can disagree with it.
+
+        WHAT STILL READS THE LOADED PIXELS, and the status line says it:
+        the Filter category and the mask that is saved. THE HOVER READOUT
+        NO LONGER DOES: it once reported the loaded value
+        while the picture showed the negative, and since the readout is the
+        instrument a curator checks an inversion WITH, that read as the
+        switch doing nothing. The pixel intensity now follows the picture
+        and says "(inverted)"; the object mean still follows the Filter,
+        and says "(as loaded)" so the two cannot be confused.
+        Detection no longer does, which is the point of the switch, and the
+        warning banner above the image says that for as long as it is on.
+
+        :param on: the switch's new state.
+        """
+        self._canvas.invert_display = bool(on)
+        self._canvas.refresh()
+        if self._canvas.image is None:
+            return
+        if not on:
+            self._status_label.setText("Showing the image as it was loaded.")
+        else:
+            self._status_label.setText(
+                "Showing the image inverted — dark is bright — and "
+                "detecting on it. The hover intensity follows the picture "
+                "and says so; filtering, the object mean and saving still "
+                "use the original pixels."
+            )
 
     def _on_wand_tolerance_changed(self, v: float):
         """Set how far the wand will grow in intensity.
@@ -4580,8 +7182,23 @@ class MakeMasksScreen(QWidget):
         entries for clicks that landed on background is a ledger nobody
         reads, and ``is_curated`` would then answer True for every mask
         anyone ever opened the editor on.
+
+        IT IS ALSO WHERE THE FILTER'S REMOVAL ROWS ARE DROPPED, because it
+        is the one place every edit passes through. Those rows promise to
+        name objects in the mask ON SCREEN (:meth:`_set_filter_log`), and
+        the promise is broken by the next edit whatever it was: Ctrl+Z puts
+        a removed object back under the id the row still lists, and a detect
+        in replace mode rebuilds the mask around it. Any recorded edit that
+        is not the filter's own therefore empties the box, and the user
+        presses Filter again to ask the question again.
+
+        :param kind: what happened, as the curation ledger names it.
         """
-        if self._log is None or int(n_changed) <= 0:
+        if int(n_changed) <= 0:
+            return None
+        if kind != "filter":
+            self._set_filter_log([])
+        if self._log is None:
             return None
         return self._log.append(kind, target, n_changed=int(n_changed),
                                  **detail)
@@ -4618,6 +7235,47 @@ class MakeMasksScreen(QWidget):
             "max_intensity": float(self._filter_max_int.value()),
         }
 
+    def _filter_removal_line(self, removal, bounds: dict) -> str:
+        """One removed object as the Filter category's ledger prints it.
+
+        The line reads like "object 22 with area x and intensity y was
+        removed by minimum intensity", with the bound's own number in it: a row saying only which bound removed
+        an object leaves the reader looking for the box it came from.
+
+        The id is :func:`mask_engine.canonical_labels`' id, which is the id
+        the hover readout showed for the same object, so a user who read an
+        object's numbers off the corner of the image can find it here.
+
+        :param removal: a :class:`mask_engine.FilterRemoval`.
+        :param bounds: the bounds the run used, as :meth:`_filter_bounds`
+            gives them.
+        """
+        names = {"min_area": "minimum area",
+                  "max_area": "maximum area",
+                  "min_intensity": "minimum intensity",
+                  "max_intensity": "maximum intensity"}
+        reasons = []
+        for bound in removal.bounds:
+            value = bounds.get(bound, 0)
+            shown = (f"{int(value)}" if bound.endswith("area")
+                     else f"{float(value):.2f}")
+            reasons.append(f"{names[bound]} {shown}")
+        return (f"Object {removal.label} with area {removal.area} px and "
+                f"intensity {removal.mean_intensity:.2f} was removed by "
+                + " and ".join(reasons))
+
+    def _set_filter_log(self, lines) -> None:
+        """Show ``lines`` in the Filter category's removal ledger.
+
+        Empty puts the box back to its placeholder rather than to a blank
+        red field: the rows name objects in the mask ON SCREEN, so carrying
+        the last field's rows into the next field would name objects that
+        are not there.
+        """
+        self._filter_log.setPlainText("\n".join(str(line) for line in lines))
+        self._filter_log.setPlaceholderText(
+            "Nothing has been removed. Set a bound above and press Filter.")
+
     def apply_object_filter(self, *, on_load: bool = False) -> int:
         """Drop objects outside the size/intensity bounds; return how many.
 
@@ -4631,25 +7289,36 @@ class MakeMasksScreen(QWidget):
         it removed, so an automatic edit is as traceable and as reversible
         as a click.
 
+        Every removal is also written into the Filter category's ledger, one
+        red row each. The rows are cleared at the START of
+        every run, including the run that found nothing and the one that had
+        no field: they describe the mask on screen, and a row left over from
+        the last field names an object that is not there.
+
         :param on_load: True when this is the automatic run. It only changes
             what the status line says and what the ledger entry records; a
             filter that removed nothing stays quiet on load rather than
             reporting a non-event over the name of the field just opened.
         """
+        self._set_filter_log([])
         if self._canvas.mask is None or self._canvas.image is None:
             return 0
-        out, dropped = engine.filter_objects(
-            self._canvas.mask, self._canvas.image, **self._filter_bounds())
-        if not dropped:
+        bounds = self._filter_bounds()
+        out, removals = engine.filter_report(
+            self._canvas.mask, self._canvas.image, **bounds)
+        if not removals:
             if not on_load:
                 self._status_label.setText(
                     "Size/intensity filter: nothing outside the bounds.")
             return 0
+        dropped = [removal.label for removal in removals]
         changed = int(np.count_nonzero(self._canvas.mask != out))
         self._canvas.mask = out
         self._canvas.refresh()
+        self._set_filter_log(
+            self._filter_removal_line(removal, bounds) for removal in removals)
         self._record("filter", dropped, changed, n_objects=len(dropped),
-                      automatic=bool(on_load), **self._filter_bounds())
+                      automatic=bool(on_load), **bounds)
         self._history.push(out)
         self._refresh_history_buttons()
         self._status_label.setText(
@@ -4663,17 +7332,24 @@ class MakeMasksScreen(QWidget):
         self.apply_object_filter(on_load=False)
 
     def _on_detect_otsu(self):
-        """Threshold the image and fold the result in per replace/merge."""
+        """Threshold the image and fold the result in per replace/merge.
+
+        With Invert on it thresholds the INVERTED field
+        (:meth:`_detector_image`), which is what lets it take dark objects:
+        Bright and Invert together are the dark side of the dark side, and
+        the ledger records which way up the image was.
+        """
         if self._canvas.image is None or self._canvas.mask is None:
             return
         mode = self._combine_mode.currentData()
-        correction = float(self._otsu_correction.value())
+        otsu = self._otsu_settings()
+        correction = otsu["correction"]
         try:
             detected = engine._otsu_instances(
-                self._canvas.image,
+                self._detector_image(),
                 bright=self._otsu_bright.isChecked(),
                 min_area=int(self._min_area.value()),
-                correction=correction,
+                **otsu,
             )
         except Exception as exc:
             self._warn("Otsu detect failed", str(exc))
@@ -4694,15 +7370,79 @@ class MakeMasksScreen(QWidget):
         self._canvas.mask = out
         self._canvas.refresh()
         self._record("detect", mode, changed, method="otsu", n_objects=found,
+                      invert=bool(self._cp_invert.isChecked()),
                       bright=bool(self._otsu_bright.isChecked()),
                       min_area=int(self._min_area.value()),
-                      otsu_correction=correction)
+                      otsu_correction=correction,
+                      otsu_smoothing=otsu["smoothing"],
+                      otsu_fill_holes=otsu["fill_holes"],
+                      otsu_split=otsu["split_touching"],
+                      otsu_exclude_border=otsu["exclude_border"],
+                      otsu_classes=otsu["classes"],
+                      otsu_foreground_class=otsu["foreground_class"],
+                      otsu_local=otsu["local"],
+                      otsu_window=otsu["window"])
         self._history.push(out)
         self._refresh_history_buttons()
-        side = "bright" if self._otsu_bright.isChecked() else "dark"
+        inverted = (" of the INVERTED image"
+                    if self._cp_invert.isChecked() else "")
         self._status_label.setText(
-            f"Otsu ({side}) found {found} object(s) — {mode}d into the mask"
+            f"Otsu ({self._otsu_description()}){inverted} found {found} "
+            f"object(s) — {mode}d into the mask"
         )
+
+    def _otsu_description(self) -> str:
+        """How the threshold was taken, for a status line and the preview.
+
+        Local and multi-class Otsu are two ways of cutting that are not
+        "bright" or "dark",
+        and a line that went on saying one of those two would be describing
+        a run that had not happened.
+        """
+        if self._otsu_local.isChecked():
+            side = "bright" if self._otsu_bright.isChecked() else "dark"
+            return f"local {int(self._otsu_window.value())} px, {side}"
+        classes = int(self._otsu_classes.value())
+        if classes > 2:
+            return (f"{classes} classes, class "
+                    f"{int(self._otsu_foreground.value())}")
+        return "bright" if self._otsu_bright.isChecked() else "dark"
+
+    def _on_show_otsu_histogram(self) -> None:
+        """Open this field's histogram with the level it is cut at marked.
+
+        The preview's marked level matches the threshold actually used only
+        if the two come from one place, so the marker is
+        :func:`spacr.qt.mask_engine._otsu_levels` -- the same call the detect
+        button's threshold is made from, with the same correction, the same
+        smoothing and the same class count.
+        """
+        image = self._canvas.image
+        if image is None:
+            self._status_label.setText(
+                "Open a field first — a histogram needs an image.")
+            return
+        otsu = self._otsu_settings()
+        try:
+            counts, edges = engine._otsu_histogram(
+                image, smoothing=otsu["smoothing"],
+                bins=OTSU_HISTOGRAM_BINS)
+            levels = engine._otsu_levels(
+                image, bright=bool(self._otsu_bright.isChecked()),
+                correction=otsu["correction"], smoothing=otsu["smoothing"],
+                classes=otsu["classes"])
+        except Exception as exc:
+            self._warn("Otsu histogram failed", str(exc))
+            return
+        previous = self._otsu_histogram_dialog
+        if previous is not None:
+            previous.close()
+            previous.deleteLater()
+        dialog = _OtsuHistogramDialog(
+            counts, edges, levels, self._otsu_description(),
+            local=otsu["local"], parent=self)
+        self._otsu_histogram_dialog = dialog
+        dialog.show()
 
 
     def _build_view_tabs(self) -> QTabWidget:
@@ -4730,6 +7470,79 @@ class MakeMasksScreen(QWidget):
         self._view_tabs = tabs
         return tabs
 
+    def _build_view_pane(self) -> QWidget:
+        """The views, with the shortcut list down their right side.
+
+        The shortcuts sit to the right of the Mask, Cell probability and
+        Flows views -- the three view tabs -- so the pane the
+        splitter holds is the tabs and the list side by side, and the list
+        travels with the views when the settings are hidden and the image
+        takes their width.
+
+        THE LIST IS NOT SETTINGS, so the Settings toggle does not take it
+        away: a shortcut list that disappears the moment the screen is
+        cleared for work is a list you can only read when you do not need
+        it. It is given a fixed width instead, so the image keeps every
+        pixel the window grows by.
+        """
+        pane = QWidget()
+        pane.setObjectName("MakeMasksViewPane")
+        row = QHBoxLayout(pane)
+        row.setContentsMargins(0, 0, 0, 0)
+        row.setSpacing(SPACING["md"])
+        row.addWidget(self._view_tabs, 1)
+        self._shortcut_panel = self._build_shortcut_panel()
+        row.addWidget(self._shortcut_panel)
+        #: The splitter's right-hand child: the views and the shortcut list.
+        self._view_pane = pane
+        return pane
+
+    def _build_shortcut_panel(self) -> QWidget:
+        """The gestures, one terse line each.
+
+        Every row comes from :data:`SHORTCUT_HINTS`, so the list and the
+        gestures cannot drift apart without the table being edited, and a
+        test reads the same table off the built widget.
+
+        Read between strokes rather than studied, which is why nothing here
+        is a sentence. The keys sit on their own line ABOVE what they do,
+        rather than in a column beside it: measured on a rendered screen, a
+        two-column list 230 px wide broke every line of prose after one word.
+
+        IT IS A CARD, with the card's own title and subtitle labels. A bare
+        QLabel with an object name the theme does not style takes its colour
+        from the palette instead of the stylesheet, and this panel was
+        drawing its keys in near-black on the dark canvas -- invisible, and
+        visible as such only in a rendered grab.
+        """
+        panel = Card("Shortcuts")
+        panel.setObjectName("Card")
+        panel.setFixedWidth(SHORTCUTS_WIDTH)
+        panel.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        body = panel.body_layout
+        body.setSpacing(SPACING["xs"])
+        #: ``keys -> (key label, what it does label)``, so a test can ask the
+        #: built panel what it is telling the user rather than re-reading the
+        #: table it was built from.
+        self._shortcut_rows = {}
+        for index, (keys, does) in enumerate(SHORTCUT_HINTS):
+            if index:
+                body.addSpacing(SPACING["xs"])
+            key_label = QLabel(keys, panel)
+            key_label.setObjectName("CardSubtitle")
+            key_label.setWordWrap(True)
+            font = key_label.font()
+            font.setBold(True)
+            key_label.setFont(font)
+            does_label = QLabel(does, panel)
+            does_label.setObjectName("Muted")
+            does_label.setWordWrap(True)
+            body.addWidget(key_label)
+            body.addWidget(does_label)
+            self._shortcut_rows[keys] = (key_label, does_label)
+        body.addStretch(1)
+        return panel
+
     def _reset_flow_panes(self) -> None:
         """Empty both intermediates and put the view back on the mask.
 
@@ -4743,7 +7556,11 @@ class MakeMasksScreen(QWidget):
         self._view_tabs.setCurrentIndex(0)
 
     def _build_cellpose_card(self) -> Section:
-        """The Cellpose-SAM settings, and the detect button they drive.
+        """The Object detection settings, and the detect button they drive.
+
+        Called Object detection rather than "Cellpose-SAM", because what
+        belongs in it is every model that finds objects and not one of them.
+        The Otsu settings have a category of their own.
 
         The settings are ON THE PANEL rather than assumed. Both
         thresholds start at Cellpose's own defaults —
@@ -4763,21 +7580,34 @@ class MakeMasksScreen(QWidget):
         self._cp_loaded: dict = {}
 
         card = self._settings_category(
-            "Cellpose-SAM",
-            "Segments the open field. Both thresholds start at "
-            "Cellpose's own defaults.",
+            "Object detection",
+            "Segments the open field with a model. Both thresholds start "
+            "at Cellpose's own defaults.",
         )
         form = QFormLayout()
 
         self._cp_model = QComboBox()
         for name in cellpose_model_choices():
             self._cp_model.addItem(name, name)
+        #: The zoo download running now, if one is.
+        self._cp_download = None
+        #: ``zoo key -> path`` of the models downloaded from this box this
+        #: session. The zoo files a download under the first free versioned
+        #: name, which is not always the entry's own name -- a name ending in
+        #: ``_v1`` lands without it -- so the path the download reported is
+        #: what says the model is here.
+        self._cp_fetched: dict = {}
+        self._cp_last_model = 0
         self._fill_zoo_models()
+        self._cp_last_model = self._cp_model.currentIndex()
+        self._cp_model.currentIndexChanged.connect(self._keep_model_loadable)
+        self._cp_model.activated.connect(self._on_model_activated)
         self._cp_model.setToolTip(
             "Which weights segment this field, and the Live magnifier's box "
             "in Cellpose mode. The list is the Cellpose installed on this "
             "machine and every Cellpose model in the model zoo; a zoo model "
-            "not downloaded yet is greyed out until Model zoo… fetches it.")
+            "not downloaded yet is greyed out, and choosing it downloads it "
+            "and selects it.")
         model_row = QWidget()
         model_row_layout = QHBoxLayout(model_row)
         model_row_layout.setContentsMargins(0, 0, 0, 0)
@@ -4792,6 +7622,10 @@ class MakeMasksScreen(QWidget):
             lambda _checked=False: self._choose_cellpose_model_from_zoo())
         model_row_layout.addWidget(self._cp_model_zoo_btn)
         form.addRow("Model", model_row)
+        self._cp_download_bar = QProgressBar()
+        self._cp_download_bar.setTextVisible(True)
+        self._cp_download_bar.hide()
+        form.addRow(self._cp_download_bar)
 
         self._cp_cellprob = QDoubleSpinBox()
         self._cp_cellprob.setDecimals(2)
@@ -4830,7 +7664,7 @@ class MakeMasksScreen(QWidget):
 
         card.body_layout.addLayout(form)
 
-        self._cp_normalize = QCheckBox("Normalize each field")
+        self._cp_normalize = Toggle("Normalize each field")
         self._cp_normalize.setChecked(True)
         self._cp_normalize.setToolTip(
             "Percentile-normalize the field before segmenting it, which is "
@@ -4838,7 +7672,87 @@ class MakeMasksScreen(QWidget):
             "normalized upstream, where doing it twice changes the result.")
         card.body_layout.addWidget(self._cp_normalize)
 
-        otsu_form = QFormLayout()
+        self._cp_invert = self._invert_display
+
+        inverts = QLabel(
+            "Detecting dark objects? Turn on Invert image, in the Display "
+            "category. It inverts the picture you see AND the pixels these "
+            "buttons and the Live magnifier read, because those were two "
+            "switches until 2026-09-20 and a curator could have either one "
+            "without the other.")
+        inverts.setObjectName("CardSubtitle")
+        inverts.setWordWrap(True)
+        card.body_layout.addWidget(inverts)
+
+        drives = QLabel(
+            "The Live magnifier reads these settings too: Cellpose mode uses "
+            "the model, both thresholds, the diameter and the normalization, "
+            "and DINOCell the cell probability. The Otsu mode reads the Otsu "
+            "category instead.")
+        drives.setObjectName("CardSubtitle")
+        drives.setWordWrap(True)
+        card.body_layout.addWidget(drives)
+
+        self._btn_cellpose = QPushButton("Object detection")
+        self._btn_cellpose.setIcon(iconset.icon("run"))
+        self._btn_cellpose.setCursor(Qt.PointingHandCursor)
+        self._btn_cellpose.setToolTip(
+            "Segment the open field with the Object detection model and "
+            "fold the result "
+            "in as the replace/merge setting says. Fills the Cell "
+            "probability and Flows tabs with what the run was thinking.")
+        self._btn_cellpose.clicked.connect(self._on_detect_cellpose)
+        self.add_toolbar_action(self._btn_cellpose)
+        return card
+
+    def _build_otsu_card(self) -> Section:
+        """The Otsu settings, driving both the button and the magnifier.
+
+        The threshold correction once sat at the bottom of the Cellpose-SAM
+        category, where a user looking for the Otsu settings had no reason
+        to open it. It lives here with the Bright switch, which was a bare
+        tick-box beside the detect button, and four more settings.
+
+        ALL SIX DRIVE BOTH PLACES OTSU RUNS -- the Otsu detect button on the
+        whole field, and the Live magnifier's Otsu mode on the box under the
+        mouse -- so the box under the mouse is a close preview of what the
+        button will do rather than a second opinion. The one exception is
+        Exclude at the image border, which the magnifier answers with its
+        own "Exclude objects touching the box border"; applying both to a
+        box would drop everything the box cut twice over.
+
+        THE DEFAULTS ARE THE MAGNIFIER'S, AND THAT MOVES THE BUTTON. Before
+        this category the two disagreed in three ways and nothing on the
+        screen said so: the magnifier smoothed the region, filled the holes
+        and cut a blob with two centres in two, and Otsu detect thresholded
+        and labelled and did none of it. A user who set the correction by
+        watching the box and then pressed the button got a different mask.
+        The three boxes start where the preview has always been; three
+        clicks put the plain threshold back, which is what
+        :func:`spacr.qt.mask_engine._otsu_instances` still does when it is
+        asked for nothing.
+
+        "PREVIEW", NOT "THE SAME FUNCTION", AND THE DIFFERENCE IS MEASURED.
+        Closing those three gaps does not make the two one routine.
+        :func:`spacr.qt.mask_engine._classical_region_labels` still opens the
+        binary image, still offsets Otsu's level by the magnifier's own
+        Sensitivity, and still falls back to a noise-floor cut where a region
+        holds no two clear populations;
+        :func:`spacr.qt.mask_engine._otsu_instances` does none of the three.
+        Driven from these defaults over twelve synthetic 96x96 fields of
+        three to six bright discs on noise, the two agreed on
+        the object COUNT in twelve of twelve and were pixel-identical in two
+        of twelve, the other ten differing by 3 to 16 boundary pixels out of
+        9,216. So the box tells a curator what the button is about to do; it
+        does not promise the same array.
+        """
+        card = self._settings_category(
+            "Otsu",
+            "Thresholds at Otsu's level. Drives Otsu detect and the Live "
+            "magnifier's Otsu mode.",
+        )
+        form = QFormLayout()
+
         self._otsu_correction = QDoubleSpinBox()
         self._otsu_correction.setDecimals(2)
         self._otsu_correction.setRange(0.1, 5.0)
@@ -4849,30 +7763,184 @@ class MakeMasksScreen(QWidget):
             "before it is used. Above 1 is stricter, so objects shrink and "
             "faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's "
             "own level. Otsu detect uses it, and so does the Live magnifier's "
-            "Classical mode wherever a region holds two clear populations.")
-        otsu_form.addRow(QLabel("Otsu threshold correction"),
-                         self._otsu_correction)
-        card.body_layout.addLayout(otsu_form)
+            "Otsu mode wherever a region holds two clear populations.")
+        form.addRow("Threshold correction", self._otsu_correction)
 
-        drives = QLabel(
-            "The Live magnifier reads these settings too: Cellpose mode uses "
-            "the model, both thresholds, the diameter and the normalization, "
-            "DINOCell the cell probability, and Classical mode the Otsu "
-            "threshold correction.")
-        drives.setObjectName("CardSubtitle")
-        drives.setWordWrap(True)
-        card.body_layout.addWidget(drives)
+        self._otsu_smoothing = QDoubleSpinBox()
+        self._otsu_smoothing.setDecimals(1)
+        self._otsu_smoothing.setRange(0.0, 10.0)
+        self._otsu_smoothing.setSingleStep(0.5)
+        self._otsu_smoothing.setValue(OTSU_SMOOTHING)
+        self._otsu_smoothing.setToolTip(
+            "Gaussian blur, in pixels, before the level is found and before "
+            "the image is cut at it. It is what stops a noisy field coming "
+            "back as a thousand single-pixel objects. 0 thresholds the raw "
+            "data.")
+        form.addRow("Smoothing (sigma)", self._otsu_smoothing)
+        card.body_layout.addLayout(form)
 
-        self._btn_cellpose = QPushButton("Cellpose-SAM detect")
-        self._btn_cellpose.setIcon(iconset.icon("run"))
-        self._btn_cellpose.setCursor(Qt.PointingHandCursor)
-        self._btn_cellpose.setToolTip(
-            "Segment the open field with Cellpose-SAM and fold the result "
-            "in as the replace/merge setting says. Fills the Cell "
-            "probability and Flows tabs with what the run was thinking.")
-        self._btn_cellpose.clicked.connect(self._on_detect_cellpose)
-        self.add_toolbar_action(self._btn_cellpose)
+        self._otsu_bright = Toggle("Objects are brighter than background")
+        self._otsu_bright.setChecked(True)
+        self._otsu_bright.setToolTip(
+            "On: objects are brighter than background, as in fluorescence. "
+            "Off: take the dark side instead, for brightfield or stain.")
+        card.body_layout.addWidget(self._otsu_bright)
+
+        self._otsu_fill_holes = Toggle("Fill holes inside an object")
+        self._otsu_fill_holes.setChecked(True)
+        self._otsu_fill_holes.setToolTip(
+            "Close the holes inside what was thresholded, before it is "
+            "labelled. A nucleus dimmer in the middle than at its rim comes "
+            "back as a ring without this. The magnifier's Otsu mode has "
+            "always done it and Otsu detect did not, which is why the two "
+            "could disagree about the same field; now they both read this "
+            "box.")
+        card.body_layout.addWidget(self._otsu_fill_holes)
+
+        self._otsu_split = Toggle("Split objects that touch")
+        self._otsu_split.setChecked(True)
+        self._otsu_split.setToolTip(
+            "Cut a blob with two centres in two, at the ridge between them "
+            "(a watershed on the distance to the background). A blob with "
+            "one centre is left whole, so this is not a splitter that cuts "
+            "everything. Off, a pair of touching cells arrives as one "
+            "object.")
+        card.body_layout.addWidget(self._otsu_split)
+
+        self._otsu_exclude_border = Toggle(
+            "Drop objects the image border cuts")
+        self._otsu_exclude_border.setChecked(False)
+        self._otsu_exclude_border.setToolTip(
+            "Leave out the objects the edge of the field runs through. Their "
+            "area and their mean intensity are properties of where the frame "
+            "fell rather than of the object, so a detection meant to be "
+            "measured is better without them. Otsu detect only: the Live "
+            "magnifier has its own box-border switch.")
+        card.body_layout.addWidget(self._otsu_exclude_border)
+
+        more = QFormLayout()
+        self._otsu_classes = QSpinBox()
+        self._otsu_classes.setRange(2, 6)
+        self._otsu_classes.setValue(2)
+        self._otsu_classes.setToolTip(
+            "How many brightness bands to cut the field into. 2 is Otsu's "
+            "own split, one level between background and objects. Raise it "
+            "where a field holds more than two populations — background, a "
+            "dim halo and bright nuclei — and the cut moves off the one "
+            "compromise level between all three onto the boundary you "
+            "actually want, chosen below. Otsu detect only.")
+        more.addRow("Classes", self._otsu_classes)
+
+        self._otsu_foreground = QSpinBox()
+        self._otsu_foreground.setRange(0, 5)
+        self._otsu_foreground.setValue(1)
+        self._otsu_foreground.setToolTip(
+            "Which band becomes the objects, counting 0 for the dimmest. "
+            "With 3 classes, 2 takes the bright nuclei and 1 takes the dim "
+            "halo AROUND them without the nuclei inside it — exactly that "
+            "band, which is what more than two classes is for. With more "
+            "than two classes this replaces 'Objects are brighter than "
+            "background': the number says which side you mean.")
+        more.addRow("Foreground class", self._otsu_foreground)
+
+        self._otsu_window = QSpinBox()
+        self._otsu_window.setRange(3, 999)
+        self._otsu_window.setSingleStep(2)
+        self._otsu_window.setValue(OTSU_LOCAL_WINDOW)
+        self._otsu_window.setSuffix(" px")
+        self._otsu_window.setToolTip(
+            "The square the local level is measured in, centred on each "
+            "pixel. Make it comfortably bigger than one object and smaller "
+            "than the illumination's own scale: too small and the inside of "
+            "a large object becomes its own background, so it comes back "
+            "hollow; too large and it is the whole-field threshold again. "
+            "Even numbers are rounded up, so the square has a centre.")
+        more.addRow("Local window", self._otsu_window)
+        card.body_layout.addLayout(more)
+
+        self._otsu_local = Toggle("Local threshold (uneven illumination)")
+        self._otsu_local.setChecked(False)
+        self._otsu_local.setToolTip(
+            "Find Otsu's level separately in a window around every pixel "
+            "instead of once for the whole field. A corner that the lamp "
+            "falls away from is then judged against its own corner, so the "
+            "objects in it stop being lost while the bright middle stays "
+            "clean. It costs more objects on a noisy background, which the "
+            "minimum area is there to take back. Two classes only, and Otsu "
+            "detect only.")
+        self._otsu_local.toggled.connect(self._sync_otsu_controls)
+        self._otsu_classes.valueChanged.connect(self._sync_otsu_controls)
+        card.body_layout.addWidget(self._otsu_local)
+
+        min_area_note = QLabel(
+            "Objects under the Min area in Object operations are dropped "
+            "after the threshold."
+        )
+        min_area_note.setWordWrap(True)
+        card.body_layout.addWidget(min_area_note)
+
+        self._btn_otsu_hist = QPushButton("Show histogram and level")
+        self._btn_otsu_hist.setCursor(Qt.PointingHandCursor)
+        self._btn_otsu_hist.setToolTip(
+            "Draw this field's intensity histogram with the level the "
+            "settings above cut it at marked on it. It is the same level "
+            "the button uses, read from the same function, so a valley the "
+            "marker is sitting to one side of is the correction to change.")
+        self._btn_otsu_hist.clicked.connect(self._on_show_otsu_histogram)
+        card.body_layout.addWidget(self._btn_otsu_hist)
+        self._sync_otsu_controls()
         return card
+
+    def _sync_otsu_controls(self, *_args) -> None:
+        """Leave enabled only the Otsu boxes that are answering anything.
+
+        A control that is being read and a control that is being ignored
+        look identical, and a curator cannot tell which is which. So:
+        the foreground class is a choice only once there is more than one
+        band to choose from, the local window only matters while the local
+        threshold is on, and the two cannot both be on -- a level per window
+        and a split into several bands have no joint meaning, and the engine
+        refuses the pair rather than quietly dropping one.
+        """
+        classes = int(self._otsu_classes.value())
+        local = bool(self._otsu_local.isChecked())
+        self._otsu_classes.setEnabled(not local)
+        self._otsu_foreground.setEnabled(not local and classes > 2)
+        self._otsu_foreground.setRange(0, max(1, classes - 1))
+        if classes > 2 and self._otsu_foreground.value() > classes - 1:
+            self._otsu_foreground.setValue(classes - 1)
+        self._otsu_window.setEnabled(local)
+        self._otsu_bright.setEnabled(local or classes == 2)
+
+    def _otsu_settings(self) -> dict:
+        """What the Otsu category says, as :func:`_otsu_instances` keywords.
+
+        One reader for the button and the magnifier, so a setting added to
+        the category reaches both by being read here once.
+
+        THE CLASS COUNT, FOREGROUND CLASS AND LOCAL WINDOW ARE THE BUTTON'S
+        ONLY, and the tooltips say so, on the precedent "Drop objects the
+        image border cuts" already set.
+        Multi-level Otsu and a local window are judgements about a WHOLE
+        FIELD: the histogram of a 64 px box rarely holds three populations,
+        and a window the size of the box is the box's own threshold, so
+        offering either to the magnifier would be offering a control that
+        does nothing there.
+        :func:`spacr.qt.mask_engine._classical_region_labels`, which is the
+        magnifier's own routine, is untouched by them.
+        """
+        local = bool(self._otsu_local.isChecked())
+        return {
+            "correction": float(self._otsu_correction.value()),
+            "smoothing": float(self._otsu_smoothing.value()),
+            "fill_holes": bool(self._otsu_fill_holes.isChecked()),
+            "split_touching": bool(self._otsu_split.isChecked()),
+            "exclude_border": bool(self._otsu_exclude_border.isChecked()),
+            "classes": 2 if local else int(self._otsu_classes.value()),
+            "foreground_class": int(self._otsu_foreground.value()),
+            "local": local,
+            "window": int(self._otsu_window.value()),
+        }
 
     def _detect_min_area(self) -> int:
         """Smallest object a detection may keep, in pixels.
@@ -4912,13 +7980,16 @@ class MakeMasksScreen(QWidget):
 
         A model on this machine is listed by its zoo key and carries its path,
         which is what :func:`load_cellpose_model` loads. One that is not
-        downloaded is listed greyed out, with no path: a combo box is not
-        where a gigabyte download should start, and Model zoo… is. Called
-        again after the picker closes, the zoo rows are rebuilt -- so a model
-        just downloaded becomes selectable -- and the model chosen stays
-        chosen, without a change signal when it did not change.
+        downloaded is listed greyed, carrying no path and its zoo entry under
+        :data:`_ZOO_PENDING_ROLE`: choosing it downloads it
+        (:meth:`_on_model_activated`) rather than selecting it, so the box
+        never rests on a model there is nothing to load for. Called again
+        after the picker closes or a download ends, the zoo rows are rebuilt
+        -- so a model just downloaded becomes selectable -- and the model
+        chosen stays chosen, without a change signal when it did not change.
         """
         from ..i18n import tr
+        from ..model_install import UNINSTALLED_GREY
 
         combo = self._cp_model
         chosen = combo.currentData()
@@ -4927,7 +7998,10 @@ class MakeMasksScreen(QWidget):
             for index in reversed(range(combo.count())):
                 if combo.itemData(index, _ZOO_ROLE):
                     combo.removeItem(index)
-            for key, path in _zoo_cellpose_models():
+            for key, path, entry in _zoo_cellpose_models():
+                fetched = self._cp_fetched.get(key)
+                if not path and fetched and os.path.isfile(fetched):
+                    path = fetched
                 if path and combo.findData(path) >= 0:
                     continue
                 if path:
@@ -4935,14 +8009,131 @@ class MakeMasksScreen(QWidget):
                     combo.setItemData(combo.count() - 1, path, Qt.ToolTipRole)
                 else:
                     combo.addItem(tr("{name} (not downloaded)", name=key))
-                    combo.model().item(combo.count() - 1).setEnabled(False)
+                    row = combo.count() - 1
+                    combo.setItemData(row, entry, _ZOO_PENDING_ROLE)
+                    combo.setItemData(row, QBrush(UNINSTALLED_GREY),
+                                      Qt.ForegroundRole)
+                    combo.setItemData(row, tr(
+                        "{name} is not downloaded. Choosing it downloads it "
+                        "from the model zoo and selects it.", name=key),
+                        Qt.ToolTipRole)
                 combo.setItemData(combo.count() - 1, True, _ZOO_ROLE)
             index = combo.findData(chosen) if chosen is not None else -1
             combo.setCurrentIndex(max(index, 0))
         finally:
             combo.blockSignals(False)
+        self._cp_last_model = combo.currentIndex()
         if combo.currentData() != chosen:
             combo.currentIndexChanged.emit(combo.currentIndex())
+
+    def _keep_model_loadable(self, index: int) -> None:
+        """Never let the Model box rest on a model that is not downloaded.
+
+        A click is handled by :meth:`_on_model_activated`; this catches the
+        other ways a row becomes current -- the keyboard, the wheel -- and
+        puts the box back on the last model that can be loaded.
+        """
+        combo = self._cp_model
+        if index >= 0 and combo.itemData(index, _ZOO_PENDING_ROLE) is not None:
+            back = self._cp_last_model
+            if back == index or not 0 <= back < combo.count():
+                back = 0
+            combo.setCurrentIndex(back)
+            return
+        self._cp_last_model = index
+
+    def _on_model_activated(self, index: int) -> None:
+        """A person chose a Model row: download it if it is not here yet."""
+        entry = self._cp_model.itemData(index, _ZOO_PENDING_ROLE)
+        if entry is not None:
+            self.download_zoo_model(entry)
+
+    def download_zoo_model(self, entry) -> bool:
+        """Ask, then download a zoo Cellpose model and select it when it lands.
+
+        The download goes through :func:`spacr.model_zoo.install` on a worker
+        thread (:class:`spacr.qt.model_install.CheckpointDownload`), into the
+        folder the Model zoo picker uses, so either route finds the file the
+        other fetched. The bar under the Model row shows the bytes as they
+        arrive, and the screen stays usable. A model that publishes no
+        checksum is downloaded only after the user has been told spaCR
+        cannot then check it.
+
+        :param entry: the zoo's record of the model.
+        :returns: True when a download was started.
+        """
+        from ..i18n import tr
+        from ..model_install import CheckpointDownload, human_bytes
+        from ..widgets.model_zoo_picker import remembered_model_dir
+
+        name = str(getattr(entry, "key", "") or getattr(entry, "name", ""))
+        running = self._cp_download
+        if running is not None and running.is_running():
+            self._status_label.setText(tr(
+                "A model is already downloading; wait for it to finish."))
+            return False
+        folder = remembered_model_dir()
+        size = human_bytes(getattr(entry, "size_bytes", 0))
+        unverified = not str(getattr(entry, "sha256", "") or "")
+        text = tr("Download {name}{size} into {folder}?", name=name,
+                  size=f" ({size})" if size else "", folder=folder)
+        if unverified:
+            text += "\n\n" + tr(
+                "This model publishes no checksum, so spaCR cannot tell a "
+                "truncated or substituted file from the real one.")
+        if not self._confirm(tr("Download {name}?", name=name), text):
+            return False
+        try:
+            os.makedirs(folder, exist_ok=True)
+        except OSError as exc:
+            self._warn(tr("Download failed"), str(exc))
+            return False
+        job = CheckpointDownload(entry, folder, unverified=unverified)
+        self._cp_download = job
+        job.progressed.connect(self._on_model_download_progress)
+        job.finished.connect(self._on_model_downloaded)
+        self._cp_download_bar.setRange(0, 0)
+        self._cp_download_bar.setFormat(tr("Downloading {name}…", name=name))
+        self._cp_download_bar.show()
+        self._status_label.setText(tr(
+            "Downloading {name} in the background.", name=name))
+        return job.start()
+
+    def _on_model_download_progress(self, done: int, total: int) -> None:
+        """Move the download bar; a server that sent no size keeps it busy."""
+        bar = self._cp_download_bar
+        if total > 0:
+            bar.setRange(0, 1000)
+            bar.setValue(int(1000 * min(done, total) / total))
+
+    def _on_model_downloaded(self, worked: bool, message: str) -> None:
+        """Select the model just downloaded, or say why it did not arrive."""
+        from ..i18n import tr
+
+        job, self._cp_download = self._cp_download, None
+        self._cp_download_bar.hide()
+        name = str(getattr(getattr(job, "entry", None), "key", "") or "")
+        if not worked:
+            if message != "cancelled":
+                self._warn(tr("Download failed"), message)
+            return
+        if name:
+            self._cp_fetched[name] = message
+        self._fill_zoo_models()
+        combo = self._cp_model
+        target = os.path.realpath(message)
+        index = next((row for row in range(combo.count())
+                      if isinstance(combo.itemData(row), str)
+                      and os.path.realpath(combo.itemData(row)) == target),
+                     -1)
+        if index < 0:
+            combo.addItem(name or os.path.basename(message) or message,
+                          message)
+            index = combo.count() - 1
+            combo.setItemData(index, message, Qt.ToolTipRole)
+        combo.setCurrentIndex(index)
+        self._status_label.setText(tr(
+            "{name} is downloaded and selected.", name=name or message))
 
     def _choose_cellpose_model_from_zoo(self) -> Optional[str]:
         """Open the model zoo on its Cellpose models and select what is picked.
@@ -4982,7 +8173,7 @@ class MakeMasksScreen(QWidget):
             self._flow_pane.show_rgb(flow)
 
     def run_cellpose(self) -> int:
-        """Segment the open field with Cellpose-SAM; return objects found.
+        """Segment the open field with the chosen model; objects found.
 
         The two panes are filled BEFORE the mask is touched, and they are
         filled even when the run found nothing at all. A run that returns
@@ -4994,23 +8185,28 @@ class MakeMasksScreen(QWidget):
         answers in about a second on one field, and moving it to a thread
         would mean a second worker on a screen that already drains one on
         close; the button is disabled and the cursor says wait instead.
+
+        With Invert on the model is given the INVERTED field
+        (:meth:`_detector_image`), and the status
+        line and the ledger entry both say so.
         """
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(
-                "Open a folder before running Cellpose-SAM.")
+                "Open a folder before running Object detection.")
             return 0
 
         model_name = self._cp_model.currentData() or "cpsam"
         app = QApplication.instance()
         self._btn_cellpose.setEnabled(False)
-        self._status_label.setText(f"Cellpose-SAM ({model_name}) running…")
+        self._status_label.setText(
+            f"Object detection ({model_name}) running…")
         if app is not None:
             app.setOverrideCursor(Qt.WaitCursor)
             app.processEvents()
         try:
             with _CELLPOSE_LOCK:
                 labels, cellprob, flow = cellpose_detect(
-                    self._canvas.image,
+                    self._detector_image(),
                     self._cellpose_model(model_name),
                     diameter=int(self._cp_diameter.value()),
                     normalize=bool(self._cp_normalize.isChecked()),
@@ -5019,8 +8215,8 @@ class MakeMasksScreen(QWidget):
                     min_size=self._detect_min_area(),
                 )
         except Exception as exc:
-            LOG.exception("Cellpose-SAM detect failed")
-            self._warn("Cellpose-SAM detect failed", str(exc))
+            LOG.exception("Object detection failed")
+            self._warn("Object detection failed", str(exc))
             return 0
         finally:
             if app is not None:
@@ -5033,7 +8229,8 @@ class MakeMasksScreen(QWidget):
         found = int(labels.max()) if labels.size else 0
         if not found:
             self._status_label.setText(
-                "Cellpose-SAM found no objects — the mask is unchanged. The "
+                "Object detection found no objects — the mask is "
+                "unchanged. The "
                 "Cell probability tab shows what it had to work with.")
             return 0
 
@@ -5041,42 +8238,46 @@ class MakeMasksScreen(QWidget):
         try:
             out = engine.combine_masks(self._canvas.mask, labels, mode)
         except Exception as exc:
-            self._warn("Cellpose-SAM detect failed", str(exc))
+            self._warn("Object detection failed", str(exc))
             return 0
         changed = self._pixels_changed(out)
         self._canvas.mask = out
         self._canvas.refresh()
         self._record("detect", mode, changed, method="cellpose",
                       model=model_name, n_objects=found,
+                      invert=bool(self._cp_invert.isChecked()),
                       cellprob_threshold=float(self._cp_cellprob.value()),
                       flow_threshold=float(self._cp_flow.value()),
                       diameter=int(self._cp_diameter.value()),
                       min_size=self._detect_min_area())
         self._history.push(out)
         self._refresh_history_buttons()
+        inverted = (" from the INVERTED image"
+                    if self._cp_invert.isChecked() else "")
         self._status_label.setText(
-            f"Cellpose-SAM ({model_name}) found {found} object(s) — "
-            f"{mode}d into the mask. See the Cell probability and Flows tabs."
+            f"Object detection ({model_name}){inverted} found {found} "
+            f"object(s) — {mode}d into the mask. See the Cell probability "
+            "and Flows tabs."
         )
         return found
 
     def _on_detect_cellpose(self):
-        """Toolbar handler for the Cellpose-SAM detect button."""
+        """Toolbar handler for the Object detection button."""
         self.run_cellpose()
 
     def _build_magnifier_card(self) -> Section:
         """The live magnifier's settings, and the toggle that turns it on.
 
-        The toggle goes in the tool row beside Cellpose-SAM detect, because it
+        The toggle goes in the tool row beside Object detection, because it
         has to stay reachable with the settings hidden; the four settings the
         request named -- mode, size, zoom, sensitivity -- and the overlap rule
         go here, with what is segmented (the region under the mouse or the
         whole image once), whether objects cut by the box are offered, and
         the progress and Cancel of a whole-image run. Cellpose mode reads its
-        model, thresholds, diameter and normalization from the Cellpose-SAM
-        category, and classical mode reads Bright and Min area from Object
-        operations and the Otsu threshold correction from Cellpose-SAM, so
-        each of those judgements is still made in one box (item 417). No
+        model, thresholds, diameter and normalization from the Object
+        detection category, and Otsu mode reads Min area from Object
+        operations and everything else from the Otsu category, so
+        each of those judgements is still made in one box. No
         value here persists between sessions, like every other setting on this
         panel; only which categories are folded does.
         """
@@ -5090,50 +8291,50 @@ class MakeMasksScreen(QWidget):
         form = QFormLayout()
 
         def installed(package: str) -> bool:
+            """Whether ``package`` can be imported here, without importing it.
+
+            Asks :func:`importlib.util.find_spec`, so a heavy package such
+            as Cellpose is located but not loaded. A spec lookup that raises
+            counts as not installed.
+
+            :param package: the top-level import name.
+            :returns: True when the package is importable.
+            """
             try:
                 return find_spec(package) is not None
             except (ImportError, ValueError):
                 return False
 
         self._mag_mode = QComboBox()
-        self._mag_mode.addItem("Classical", "classical")
+        self._mag_mode.addItem("Otsu", "otsu")
         if installed("cellpose"):
             self._mag_mode.addItem("Cellpose", "cellpose")
-        if installed(_MAGNIFIER_BACKENDS["dinocell"]):
-            self._mag_mode.addItem("DINOCell", "dinocell")
-        if installed(_MAGNIFIER_BACKENDS["samcell"]):
-            self._mag_mode.addItem("SAMCell", "samcell")
+        self._mag_uninstalled = set()
+        for mode, (_backend, label) in _MAGNIFIER_BACKENDS.items():
+            self._mag_mode.addItem(label, mode)
+        self._resync_magnifier_modes()
         self._mag_mode.setToolTip(
-            "Which model segments the region in the box. Classical thresholds "
+            "Which model segments the region in the box. Otsu thresholds "
             "the region at Otsu's level and splits touching objects with a "
-            "watershed; it needs nothing installed, follows the Bright switch "
-            "and the Min area box under Object operations and the Otsu "
-            "threshold correction under Cellpose-SAM, and runs whenever a "
+            "watershed; it needs nothing installed, follows the Min area box "
+            "under Object operations and the "
+            "threshold correction and the rest of the Otsu category, and "
+            "runs whenever a "
             "model cannot be loaded. Cellpose uses the model, both thresholds, "
-            "the diameter and the normalization set under Cellpose-SAM, and "
-            "is slow without a GPU. DINOCell and SAMCell are offered once "
-            "installed; DINOCell reads the cell probability set under "
-            "Cellpose-SAM, and SAMCell uses its own thresholds.")
-        self._mag_mode.currentIndexChanged.connect(
-            lambda _index: self._on_magnifier_mode(
-                self._mag_mode.currentData()))
+            "the diameter and the normalization set under Object detection, "
+            "and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, "
+            "nuclei), DINOCell and SAMCell are always listed and greyed "
+            "until installed, and choosing one offers to install it into an "
+            "environment of its own; Cellpose 3 reads both thresholds and "
+            "the diameter set under Object detection, DINOCell reads the "
+            "cell probability, and SAMCell uses its own thresholds.")
+        self._mag_mode.currentIndexChanged.connect(self._on_mode_row_changed)
+        self._mag_mode.activated.connect(self._on_magnifier_mode_activated)
         form.addRow("Mode", self._mag_mode)
 
-        #: ``mode -> the sentence saying how to install it``, shown only for a
-        #: backend that is not installed, so a missing model is explained on
-        #: the panel rather than simply absent from the Mode box.
-        self._mag_install_notes = {
-            "dinocell": QLabel('DINOCell appears in Mode once installed: '
-                               'pip install "spacr[dinocell]"'),
-            "samcell": QLabel('SAMCell appears in Mode once installed: '
-                              'pip install "spacr[samcell]"'),
-        }
-        for mode, note in self._mag_install_notes.items():
-            note.setObjectName("CardSubtitle")
-            note.setWordWrap(True)
-            note.setTextInteractionFlags(Qt.TextSelectableByMouse)
-            note.setVisible(self._mag_mode.findData(mode) < 0)
-            form.addRow(note)
+        #: Kept empty: the install sentence used to live on the panel, and
+        #: now the greyed Mode row offers the install itself.
+        self._mag_install_notes = {}
 
         self._mag_scope = QComboBox()
         self._mag_scope.addItem("Region under the mouse", "region")
@@ -5166,7 +8367,7 @@ class MakeMasksScreen(QWidget):
         magnifier.size_range_changed.connect(self._mag_size.setRange)
         form.addRow("Size (px)", self._mag_size)
 
-        self._mag_exclude_border = QCheckBox(
+        self._mag_exclude_border = Toggle(
             "Exclude objects touching the box border")
         self._mag_exclude_border.setChecked(True)
         self._mag_exclude_border.setToolTip(
@@ -5200,15 +8401,16 @@ class MakeMasksScreen(QWidget):
         self._mag_sensitivity.setSingleStep(0.25)
         self._mag_sensitivity.setValue(_MAGNIFIER_SENSITIVITY)
         self._mag_sensitivity.setToolTip(
-            "How readily the Classical mode accepts an object. Raise it to "
+            "How readily the Otsu mode accepts an object. Raise it to "
             "take in dimmer or less certain objects, lower it to keep only "
             "clear ones; 0 is the default cut. The models read their "
-            "thresholds from the Cellpose-SAM settings instead, so this is "
+            "thresholds from the Object detection settings instead, so this "
+            "is "
             "greyed out while another mode is chosen.")
         self._mag_sensitivity.valueChanged.connect(magnifier.set_sensitivity)
         form.addRow("Sensitivity", self._mag_sensitivity)
         self._mag_sensitivity.setEnabled(
-            self._mag_mode.currentData() == "classical")
+            self._mag_mode.currentData() == "otsu")
 
         self._mag_overlap = QComboBox()
         self._mag_overlap.addItem("Clip", "clip")
@@ -5219,7 +8421,12 @@ class MakeMasksScreen(QWidget):
             "Clip keeps only its unlabelled pixels, so no existing object "
             "loses a pixel. Skip leaves out any object that touches an "
             "existing one. Replace lets the new object take every pixel it "
-            "covers.")
+            "covers. Under Region under the mouse the box shows what the "
+            "rule leaves: what a click would add is drawn solid, and what it "
+            "would take away is ghosted.")
+        self._mag_overlap.currentIndexChanged.connect(
+            lambda _index: magnifier.set_overlap(
+                self._mag_overlap.currentData()))
         form.addRow("Overlap", self._mag_overlap)
         card.body_layout.addLayout(form)
 
@@ -5228,6 +8435,11 @@ class MakeMasksScreen(QWidget):
         self._mag_progress.setRange(0, 0)
         self._mag_progress.setTextVisible(False)
         self._mag_progress.hide()
+        #: Moves the bar's estimate while a whole-image run is on its way.
+        #: Half a second, because the number it writes is whole seconds.
+        self._mag_eta_timer = QTimer(self)
+        self._mag_eta_timer.setInterval(500)
+        self._mag_eta_timer.timeout.connect(self._tick_magnifier_eta)
         self._mag_cancel = QPushButton("Cancel")
         self._mag_cancel.hide()
         self._mag_cancel.clicked.connect(
@@ -5249,11 +8461,12 @@ class MakeMasksScreen(QWidget):
             "clicked — one undo step per click. While it is on, the mouse "
             "wheel changes the box's zoom rather than the view's.")
         self._btn_magnifier.toggled.connect(self._on_toggle_magnifier)
-        self.add_toolbar_action(self._btn_magnifier)
+        row = self._tool_row_layout
+        row.insertWidget(row.indexOf(self._btn_settings), self._btn_magnifier)
         return card
 
     def _build_magnifier_save_mode(self, form: QFormLayout) -> None:
-        """Item 417, part 6: which objects a click or a drag adds.
+        """Which objects a click or a drag adds.
 
         A method of its own with one call from the Live magnifier card, so the
         card can be rearranged without rewriting this row. The choice is read
@@ -5279,9 +8492,9 @@ class MakeMasksScreen(QWidget):
     def _magnifier_context(self) -> dict:
         """The settings the magnifier's models read from elsewhere on the panel.
 
-        The Cellpose-SAM category's own controls, read the moment a request
-        is built: the detect button reads the same boxes, so there is one set
-        of Cellpose settings on the panel and not one per tool.
+        The Object detection and Otsu categories' own controls, read the
+        moment a request is built: the detect buttons read the same boxes, so
+        there is one set of settings on the panel and not one per tool.
         """
         return {
             "model_name": self._cp_model.currentData() or "cpsam",
@@ -5290,14 +8503,141 @@ class MakeMasksScreen(QWidget):
             "cellprob_threshold": float(self._cp_cellprob.value()),
             "normalize": bool(self._cp_normalize.isChecked()),
             "otsu_correction": float(self._otsu_correction.value()),
+            "otsu_smoothing": float(self._otsu_smoothing.value()),
+            "otsu_fill_holes": bool(self._otsu_fill_holes.isChecked()),
+            "otsu_split": bool(self._otsu_split.isChecked()),
             "bright": bool(self._otsu_bright.isChecked()),
             "min_area": self._detect_min_area(),
+            "invert": bool(self._cp_invert.isChecked()),
         }
 
     def _on_magnifier_mode(self, mode) -> None:
-        """Choose the magnifier's model; Sensitivity is the classical mode's."""
-        self._mag_sensitivity.setEnabled(mode == "classical")
-        self._magnifier.set_mode(mode)
+        """Choose the magnifier's model; Sensitivity is the Otsu mode's."""
+        name = canonical_magnifier_mode(mode)
+        self._mag_sensitivity.setEnabled(name == "otsu")
+        self._magnifier.set_mode(name)
+
+    def _on_mode_row_changed(self, _index: int) -> None:
+        """The Mode box's row changed: hand the mode on, if it can run.
+
+        A row whose package is missing never reaches the magnifier: the box
+        is put back on the mode the magnifier is running, and
+        :meth:`_on_magnifier_mode_activated`, which fires next for a click,
+        offers the install. Handing the mode over for the moment between the
+        two would start a model load that can only fail.
+        """
+        mode = self._mag_mode.currentData()
+        if mode in getattr(self, "_mag_uninstalled", ()):
+            running = self._mag_mode.findData(
+                canonical_magnifier_mode(
+                    getattr(self._magnifier, "mode", None)))
+            self._mag_mode.setCurrentIndex(
+                running if running >= 0
+                else self._mag_mode.findData("otsu"))
+            return
+        self._on_magnifier_mode(mode)
+
+    def _grey_uninstalled_modes(self) -> None:
+        """Grey the Mode rows whose package is missing, and only those.
+
+        A model absent from the box teaches nobody it exists; a greyed row
+        that offers to install itself does. Greying is a colour and a
+        tooltip, not a disabled row, because a disabled row cannot be
+        chosen and choosing it is how the install is asked for.
+        """
+        from ..i18n import tr
+        from ..model_install import UNINSTALLED_GREY
+
+        box = self._mag_mode
+        for index in range(box.count()):
+            mode = box.itemData(index)
+            if mode in self._mag_uninstalled:
+                box.setItemData(index, QBrush(UNINSTALLED_GREY),
+                                Qt.ForegroundRole)
+                box.setItemData(index, tr(
+                    "{name} is not installed. Choosing it offers to install "
+                    "it.", name=box.itemText(index)), Qt.ToolTipRole)
+            elif mode in _MAGNIFIER_BACKENDS:
+                box.setItemData(index, None, Qt.ForegroundRole)
+                box.setItemData(index, None, Qt.ToolTipRole)
+
+    def _on_magnifier_mode_activated(self, index: int) -> None:
+        """A person chose this mode: offer the install if it is missing.
+
+        The offer hangs off ``activated``, which fires only when a person
+        picks a row -- not when code calls ``setCurrentIndex`` -- so no
+        question opens while settings are being restored. The box goes back
+        to the mode it was on at once, because a model that is not installed
+        cannot segment anything; a finished install selects it.
+        """
+        mode = self._mag_mode.itemData(index)
+        self._resync_magnifier_modes()
+        if mode not in getattr(self, "_mag_uninstalled", ()):
+            return
+        previous = self._mag_mode.findData(
+            canonical_magnifier_mode(getattr(self._magnifier, "mode", None)))
+        if previous < 0 or previous == index:
+            previous = self._mag_mode.findData("otsu")
+        self._mag_mode.setCurrentIndex(max(previous, 0))
+        self._offer_backend_install(mode)
+
+    def _resync_magnifier_modes(self) -> None:
+        """Re-read where each backend stands and redraw the Mode box.
+
+        THE BOX USED TO LEARN THIS ONCE, WHEN THE SCREEN WAS BUILT. Uninstall
+        Cellpose 3 from the Model Zoo with Make Masks still open and its four
+        modes stayed un-greyed and out of ``_mag_uninstalled``, so choosing
+        one offered no install and went straight to a backend that was no
+        longer there. Installing one from the Model Zoo screen left the
+        reverse: four greyed modes and an install dialog that returned at
+        once.
+
+        File checks only (:func:`_state_ready`), so it is cheap enough to run
+        on every choice, which is the moment it has to be right. The drawing
+        is :meth:`_grey_uninstalled_modes`, so there is one
+        description of what a greyed row looks like and it stays translated.
+        """
+        for mode in _MAGNIFIER_BACKENDS:
+            if _backend_ready(mode):
+                self._mag_uninstalled.discard(mode)
+            else:
+                self._mag_uninstalled.add(mode)
+        self._grey_uninstalled_modes()
+
+    def _offer_backend_install(self, mode) -> bool:
+        """Install the backend ``mode`` needs, into an environment of its own.
+
+        A greyed row installs its backend when it is chosen, and each
+        backend gets an isolated environment of its own, so this goes
+        through the Model Zoo's own install dialog: off the GUI thread, with
+        progress and Cancel, into ~/.spacr/backends/<name>, and spaCR's own
+        environment is never touched. It is used instead of
+        :class:`spacr.qt.model_install.PackageInstall`, which ran
+        `pip install "spacr[<backend>]"` against the environment spaCR is
+        running in; that module is unchanged and still serves the Mask
+        settings' backend dropdown.
+
+        Every mode of that backend -- all four Cellpose 3 models at once --
+        stops being greyed when it lands, and the row that was chosen is
+        selected, as the earlier in-process install also did at its end.
+
+        :param mode: a key of :data:`_MAGNIFIER_BACKENDS`.
+        :returns: True when the backend can segment afterwards.
+        """
+        from ..i18n import tr
+        from ..widgets import model_zoo_picker
+
+        backend, label = _MAGNIFIER_BACKENDS[mode]
+        if not model_zoo_picker.install_backend(self, backend):
+            return False
+        for other, (needs, _label) in _MAGNIFIER_BACKENDS.items():
+            if needs == backend:
+                self._mag_uninstalled.discard(other)
+        self._grey_uninstalled_modes()
+        self._mag_mode.setCurrentIndex(self._mag_mode.findData(mode))
+        self._status_label.setText(tr(
+            "{name} is installed and selected.", name=label))
+        return True
 
     def _on_magnifier_scope(self, scope) -> None:
         """Segment the region under the mouse or the whole image.
@@ -5310,8 +8650,108 @@ class MakeMasksScreen(QWidget):
 
     def _on_magnifier_busy(self, busy: bool) -> None:
         """Show the whole-image run's progress and Cancel while it runs."""
-        self._mag_progress.setVisible(bool(busy))
-        self._mag_cancel.setVisible(bool(busy))
+        busy = bool(busy)
+        self._mag_progress.setVisible(busy)
+        self._mag_cancel.setVisible(busy)
+        if busy:
+            self._mag_eta_timer.start()
+            self._tick_magnifier_eta()
+        else:
+            self._mag_eta_timer.stop()
+            self._show_indeterminate_magnifier_bar()
+
+    def _show_indeterminate_magnifier_bar(self) -> None:
+        """Say only that something is happening, which is what a bar with no
+        measurement behind it can honestly say."""
+        self._mag_progress.setTextVisible(False)
+        self._mag_progress.setFormat("")
+        self._mag_progress.setRange(0, 0)
+
+    def _tick_magnifier_eta(self) -> None:
+        """Put the time the whole-image run still has on the busy bar.
+
+        Only when there is a MEASUREMENT behind it -- the last run under this
+        mode and model, per megapixel. Before there is one, and once an
+        estimate has run out, the bar goes back to indeterminate rather than
+        counting down past zero or sitting at 99%.
+
+        A RUN THAT COUNTS ITS OWN TILES SAYS HOW FAR IT HAS GOT instead
+        (:meth:`_LiveMagnifier.image_progress`): Cellpose on a whole field,
+        which is the run that takes minutes on a CPU. The bar then fills by
+        tiles, from the first run of the session on, and the time left is
+        this run's own pace; after the last tile, while the network's
+        output is turned into objects, it holds its place and says no time,
+        because that step is not made of tiles and is not guessed at.
+        """
+        from ..i18n import tr
+
+        counted = self._magnifier.image_progress()
+        if counted is not None:
+            done, total, tiles_left = counted
+            self._mag_progress.setRange(0, int(total))
+            self._mag_progress.setValue(max(0, int(done) - 1))
+            if tiles_left is None:
+                self._mag_progress.setFormat("%p%")
+            else:
+                self._mag_progress.setFormat(tr(
+                    "about {seconds} s left", seconds=int(tiles_left) + 1))
+            self._mag_progress.setTextVisible(True)
+            return
+        left = self._magnifier.remaining_seconds()
+        estimate = self._magnifier.estimated_seconds()
+        if left is None or not estimate:
+            self._show_indeterminate_magnifier_bar()
+            return
+        done = max(0.0, min(0.99, 1.0 - left / float(estimate)))
+        self._mag_progress.setRange(0, 1000)
+        self._mag_progress.setValue(int(done * 1000))
+        self._mag_progress.setFormat(
+            tr("about {seconds} s left", seconds=int(left) + 1))
+        self._mag_progress.setTextVisible(True)
+
+    def _on_invert_toggled(self, on: bool) -> None:
+        """Show or hide the Invert warning.
+
+        The magnifier is told separately, by the same signal reaching
+        :meth:`_on_magnifier_context_changed`, which throws away objects
+        found from the image the other way up.
+        """
+        self._invert_warning.setVisible(bool(on))
+
+    def _detector_image(self) -> Optional[np.ndarray]:
+        """The field as the detectors must read it: inverted when Invert is on.
+
+        The inversion is not a display trick, so the one
+        thing the detect buttons segment comes from here rather than from
+        the canvas directly, and Otsu detect and Object detection cannot end
+        up disagreeing about which way up the image was.
+
+        The canvas's own array is never changed: the hover readout and the
+        Filter category read that one and go on reporting the field's real
+        values -- a user filtering by
+        intensity would otherwise be judging inverted numbers.
+
+        :func:`mask_engine.invert_for_detection`, NOT
+        :func:`mask_engine.invert_intensity` -- the dtype complement, which
+        would leave the Otsu threshold correction
+        pointing at intensities the field does not contain. The measurement
+        is in the first function's docstring.
+        """
+        image = self._canvas.image
+        if image is not None and self._canvas.detect_on_normalized:
+            return self._canvas.detection_source()
+        if image is None or not self._cp_invert.isChecked():
+            return image
+        return engine.invert_normalized(image)
+
+    def _on_min_area_changed(self, value) -> None:
+        """Hand Min area to the canvas, for Ctrl + left click's seed spacing.
+
+        The same judgement about debris as the detectors read
+        (:meth:`_detect_min_area`), so an object the screen would not keep
+        is not one the split gesture cuts in two either.
+        """
+        self._canvas.split_min_area = int(value)
 
     def _on_magnifier_context_changed(self, *_args) -> None:
         """A setting a magnifier model reads changed elsewhere on the panel.
@@ -5335,12 +8775,12 @@ class MakeMasksScreen(QWidget):
                 "right-click removes the mask object under it; the mouse "
                 "wheel changes its zoom."))
         elif on:
-            self._status_label.setText(
+            self._status_label.setText(tr(
                 "Magnifier on: a click adds the objects outlined in the box; "
-                "the mouse wheel changes its zoom.")
+                "the mouse wheel changes its zoom."))
         else:
-            self._status_label.setText(
-                "Magnifier off. The objects it added stay in the mask.")
+            self._status_label.setText(tr(
+                "Magnifier off. The objects it added stay in the mask."))
         self._magnifier.set_enabled(on)
         if on and self._canvas.underMouse():
             where = self._canvas.mapFromGlobal(QCursor.pos())
@@ -5373,8 +8813,8 @@ class MakeMasksScreen(QWidget):
                 mask, result.labels, request.box[:2], overlap=overlap,
                 min_area=self._detect_min_area())
         except ValueError as exc:
-            self._status_label.setText(
-                f"Magnifier could not add objects: {exc}")
+            self._status_label.setText(tr(
+                "Magnifier could not add objects: {error}", error=exc))
             return []
         if not added and request.scope == "image":
             self._status_label.setText(tr(
@@ -5382,9 +8822,9 @@ class MakeMasksScreen(QWidget):
                 "leaves nothing of the object under the click."))
             return []
         if not added:
-            self._status_label.setText(
+            self._status_label.setText(tr(
                 "Magnifier: nothing to add — the box outlines no object, or "
-                "every object it outlines overlaps one already in the mask.")
+                "every object it outlines overlaps one already in the mask."))
             return []
         changed = self._pixels_changed(out)
         self._canvas.mask = out
@@ -5528,7 +8968,8 @@ class MakeMasksScreen(QWidget):
         self._open_folder(d)
 
     def _open_folder(self, folder: str,
-                     files: Optional[List[str]] = None) -> bool:
+                     files: Optional[List[str]] = None,
+                     masks_dir: Optional[str] = None) -> bool:
         """List the folder's images and load the first.
 
         :param folder: the folder to open.
@@ -5538,6 +8979,9 @@ class MakeMasksScreen(QWidget):
             means. A session built by ``spacr-make-masks`` passes its own
             list, because the queue has already dropped what is reviewed and
             sorted what is left.
+        :param masks_dir: the masks folder when it is not ``<folder>/masks``
+            -- a sibling session's. Set BEFORE the first field loads, so the
+            first draft shown is the set's own.
         :returns: whether a folder was opened. ``False`` means there was
             nothing in it to edit, which the user has been told about.
         """
@@ -5546,6 +8990,8 @@ class MakeMasksScreen(QWidget):
             self._warn("No images", f"Found no image files in: {folder}")
             return False
         self._queue = None
+        self._session_notice = ""
+        self._masks_dir = masks_dir
         self._folder = folder
         self._image_files = files
         self._current_index = 0
@@ -5604,7 +9050,8 @@ class MakeMasksScreen(QWidget):
         self._loading = True
         self._status_label.setText(f"Loading {filename}…")
         self._sync_button_states()
-        worker = _MaskLoadWorker(folder, filename, token, self)
+        worker = _MaskLoadWorker(folder, filename, token, self,
+                                 layout=self._layout_kwargs())
         self._load_worker = worker
         worker.finished.connect(self._on_background_load_finished)
         worker.start()
@@ -5642,10 +9089,15 @@ class MakeMasksScreen(QWidget):
 
         Any folded module still open goes with it: each one is a window of
         its own, and several of them own worker threads and viewers that must
-        be told to stop rather than be collected out from under Qt.
+        be told to stop rather than be collected out from under Qt. A model
+        download is cancelled; a backend install is left to finish, because
+        ``pip`` stopped half way can leave the environment broken.
         """
         from ..bridge import drain_thread
 
+        download, self._cp_download = self._cp_download, None
+        if download is not None:
+            download.cancel()
         self._magnifier.close()
         self.close_folded()
         self._pending_load = None
@@ -5662,7 +9114,8 @@ class MakeMasksScreen(QWidget):
     def _load_pair(self, folder: str, filename: str, token: int) -> None:
         """Decode and apply a small pair synchronously."""
         try:
-            image, mask = engine.load_image_and_mask(folder, filename)
+            image, mask = engine.load_image_and_mask(
+                folder, filename, **self._layout_kwargs())
         except Exception as exc:
             self._handle_load_failure(exc)
             return
@@ -5687,9 +9140,16 @@ class MakeMasksScreen(QWidget):
         image: np.ndarray,
         mask: np.ndarray,
     ) -> None:
-        """Install a decoded pair if it still represents the selected field."""
+        """Install a decoded pair if it still represents the selected field.
+
+        The magnifier is told which field this is BEFORE the pair reaches the
+        canvas: the canvas makes it forget the last one on the way in, and
+        the name is what its whole-image objects are kept under, so coming
+        back to this field offers them rather than segmenting it again.
+        """
         if token != self._load_token:
             return
+        self._magnifier.set_field(os.path.join(self._folder or "", filename))
         self._canvas.set_image_and_mask(image, mask)
         self._recrop_children = []
         self._reset_flow_panes()
@@ -5703,6 +9163,8 @@ class MakeMasksScreen(QWidget):
             f"({self._current_index + 1}/{len(self._image_files)})"
         )
         self.apply_object_filter(on_load=True)
+        self._refresh_curation_buttons()
+        self._show_session_notice()
         self._magnifier.refresh()
 
     def _open_ledger(self, filename: str) -> CurationLog:
@@ -5715,7 +9177,8 @@ class MakeMasksScreen(QWidget):
         names a source keeps it: the tool that made each edit is recorded on
         the edit, not on the file.
         """
-        artifact = engine.mask_save_path(self._folder, filename)
+        artifact = engine.mask_save_path(self._folder, filename,
+                                         **self._layout_kwargs())
         try:
             log = CurationLog.read_beside(artifact)
         except Exception as exc:
@@ -5755,12 +9218,12 @@ class MakeMasksScreen(QWidget):
         try:
             written = engine.write_recrop(
                 self._folder, filename, self._canvas.image,
-                self._canvas.mask, box)
+                self._canvas.mask, box, **self._layout_kwargs())
         except Exception as exc:
             self._warn("Recrop failed", str(exc))
             return None
 
-        name = os.path.splitext(written.name)[0]
+        name = engine.field_stem(written.name)
         self._canvas.recrop_boxes.append((*box, name))
         self._canvas.update()
         self._image_files.insert(
@@ -5796,13 +9259,14 @@ class MakeMasksScreen(QWidget):
         if self._canvas.mask is not None:
             try:
                 engine.save_mask(self._folder, filename, self._canvas.mask,
-                                  log=self._log)
+                                  log=self._log, **self._layout_kwargs())
             except Exception as exc:
                 LOG.warning("Could not save %s before retiring it: %s",
                             filename, exc)
         try:
             engine.retire_recropped_original(
-                self._folder, filename, children=children, boxes=boxes)
+                self._folder, filename, children=children, boxes=boxes,
+                **self._layout_kwargs())
         except Exception as exc:
             self._warn("Recrop failed", str(exc))
             return False
@@ -5855,6 +9319,7 @@ class MakeMasksScreen(QWidget):
                 self._image_files[self._current_index],
                 self._canvas.mask,
                 log=self._log,
+                **self._layout_kwargs(),
             )
         except Exception as e:
             self._warn("Save failed", str(e))
@@ -5894,8 +9359,24 @@ class MakeMasksScreen(QWidget):
         self._apply_op(engine.relabel_objects, "relabel")
 
     def _on_invert(self):
-        """Swap object and background."""
+        """Swap object and background in the MASK, and say what that gave.
+
+        Not the picture invert -- that is :meth:`_on_invert_display`, which
+        is what a curator expecting Invert to change the image wants.
+        This one is kept under the name that describes it, and it now
+        reports its own result, because the thing that made it look broken
+        is that its result is invisible: a field whose background is one
+        connected region comes back as a single object covering the frame,
+        which the overlay draws as one flat wash.
+        """
+        if self._canvas.mask is None:
+            return
         self._apply_op(engine.invert_mask, "invert")
+        found = self._objects_now()
+        self._status_label.setText(
+            f"Swapped object and background — {found} object(s) now, and "
+            f"what was an object is background. Ctrl+Z to undo."
+        )
 
     def _on_remove_small(self):
         """Delete objects below the minimum area."""
@@ -5903,11 +9384,75 @@ class MakeMasksScreen(QWidget):
         self._apply_op(lambda m: engine.remove_small_objects(m, area),
                         "remove_small", min_area=area)
 
-    def _on_clear_mask(self):
-        """Throw the whole mask away, after confirming."""
+    def _objects_now(self) -> int:
+        """How many objects the open mask holds, by distinct id.
+
+        Not ``mask.max()``: a mask that has had objects deleted out of the
+        middle of it has ids with gaps, and the largest id is then a count
+        of what has ever been there rather than of what is there.
+        :func:`_object_count` is the same count, and is what the magnifier
+        reports its own results with.
+        """
+        field = self._canvas.mask
+        if field is None or not np.asarray(field).size:
+            return 0
+        return _object_count(field)
+
+    def _on_dilate(self):
+        """Grow every object by the step, into background only."""
         if self._canvas.mask is None:
             return
-        if not self._confirm("Clear mask", "Zero out the current mask?"):
+        step = int(self._grow_step.value())
+        before = self._objects_now()
+        self._apply_op(lambda m: engine.dilate_objects(m, step),
+                       "dilate", step=step)
+        self._status_label.setText(
+            f"Dilated {before} object(s) by {step} px — no object took a "
+            f"pixel from another.")
+
+    def _on_shrink(self):
+        """Pull every object in by the step, and say what that cost.
+
+        THE COUNT IS THE POINT OF THE MESSAGE. Erosion deletes anything
+        thinner than twice the step, and a curator who has just lost eleven
+        objects to a step of 3 needs to be told so while the undo is still
+        the obvious thing to do.
+
+        BOTH NUMBERS ARE COUNTED BEFORE THE EDIT, and the first of them is
+        deliberately the count the button was PRESSED on rather than the
+        count that survived. Reporting the survivors read as an arithmetic
+        puzzle -- ten objects, seven erased, "Shrank 3 object(s) ... 7
+        object(s) are gone" -- and erasing every object reported "Shrank 0
+        object(s)" over a field that had just been emptied. Every object
+        was eroded; some of them did not survive it, which is the second
+        clause.
+        """
+        if self._canvas.mask is None:
+            return
+        step = int(self._grow_step.value())
+        before = self._objects_now()
+        self._apply_op(lambda m: engine.shrink_objects(m, step),
+                       "shrink", step=step)
+        gone = max(0, before - self._objects_now())
+        lost = (f" — {gone} of them were thinner than {2 * step} px and "
+                f"are gone; Undo brings them back" if gone else "")
+        self._status_label.setText(
+            f"Shrank {before} object(s) by {step} px{lost}.")
+
+    def _on_clear_mask(self):
+        """Throw the whole mask away, after confirming.
+
+        The confirmation says how many objects are about to go: "Zero out
+        the current mask?" alone did not, and the count is the one fact that
+        decides the question.
+        """
+        if self._canvas.mask is None:
+            return
+        count = self._objects_now()
+        if not self._confirm(
+                "Clear mask",
+                f"Remove all {count} object(s) from this field? The field "
+                f"itself is untouched, and Undo brings the objects back."):
             return
         self.clear_mask()
 
@@ -5949,6 +9494,8 @@ class MakeMasksScreen(QWidget):
         has_files = bool(self._image_files)
         editable = has_files and not self._loading
         for b in (self._btn_prev, self._btn_next, self._btn_save,
+                   self._btn_discard, self._btn_keep,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
+                   self._btn_dilate, self._btn_shrink, self._btn_clear,
                    *self._mode_buttons.values()):
             b.setEnabled(editable)

@@ -91,6 +91,7 @@ from .cli import (
     EXIT_USAGE,
     INTERACTIVE_ONLY,
     SettingsError,
+    _under_todays_names,
     apply_overrides,
     load_settings_file,
     module_defaults,
@@ -771,9 +772,9 @@ def resolve_job_settings(job: Job) -> Dict[str, Any]:
     """Build the settings dict this job's module will actually receive.
 
     Layered exactly as ``spacr-run`` layers them — module defaults, then the
-    settings file (or the inline dict), then the ``--set`` overrides — using
-    :mod:`spacr.cli`'s own loader and coercion so a value the CLI accepts is a
-    value the queue accepts.
+    settings file (or the inline dict) read under today's setting names, then
+    the ``--set`` overrides — using :mod:`spacr.cli`'s own loader, migration
+    and coercion so a value the CLI accepts is a value the queue accepts.
 
     :param job: the job.
     :returns: the resolved settings.
@@ -785,9 +786,9 @@ def resolve_job_settings(job: Job) -> Dict[str, Any]:
         raise SettingsError(f'unknown module {job.module!r}.')
     resolved = module_defaults(module)
     if isinstance(job.settings, Mapping):
-        resolved.update(dict(job.settings))
+        resolved.update(_under_todays_names(dict(job.settings)))
     elif isinstance(job.settings, str) and job.settings.strip():
-        resolved.update(load_settings_file(job.settings))
+        resolved.update(_under_todays_names(load_settings_file(job.settings)))
     apply_overrides(resolved, job.override_args, module)
     return resolved
 

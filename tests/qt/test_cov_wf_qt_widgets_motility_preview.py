@@ -157,7 +157,7 @@ def test_the_propagate_toggle_pushes_only_when_on_and_only_when_wired(panel):
     assert first["tracked_object"] == "cell"
     assert first["max_displacement"] == 50.0
     assert first["straightness_threshold"] == 0.95
-    assert first["straightness_filter"] is False
+    assert first["drop_straight_tracks"] is False
     assert first["channels"] == [0, 1, 2, 3]
     # An unset calibration is left out entirely rather than pushed as zero.
     assert "pixels_per_um" not in first
@@ -202,7 +202,7 @@ def test_a_filter_that_drops_nothing_leaves_the_whole_point_table_plotted(
         panel, monkeypatch):
     """Bent tracks survive the drift filter, points and all.
 
-    ``straightness_filter`` exists to remove stage drift -- tracks so
+    ``drop_straight_tracks`` exists to remove stage drift -- tracks so
     straight they cannot be a crawling cell. When the threshold catches
     nothing, the cached point table must be passed to the plot untouched: the
     pruning pass builds a per-row mask from the dropped track ids, and running

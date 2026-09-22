@@ -14,7 +14,9 @@
       "source_sha256": "c4e971cb2b0ac583c516450ca67cafc74ea834e52089d0fcfad78376b845eb84",
       "source": "Segment the open field with Cellpose-SAM; return objects found.",
       "context": "Segment the open microscope field of view with Cellpose-SAM; return objects found.",
-      "translation": "열려 있는 현미경 시야를 Cellpose-SAM 으로 분할하고 발견된 객체를 반환합니다."
+      "translation": "열려 있는 현미경 시야를 Cellpose-SAM 으로 분할하고 발견된 객체를 반환합니다.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose's documentation, which was rewritten by \"419 part C after review: the third Invert gets its own name and its own arithmetic, and a Ctrl+click stops ending somebody else's stroke\" (7c2094e37, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     }
   ]
 }

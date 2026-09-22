@@ -324,5 +324,5 @@ class TestTheRemainingDecisions:
         source = inspect.getsource(io.convert_to_yokogawa)
         assert "file_to_well" not in source
         assert "well = _get_next_well(used_wells)" in source
-        assert source.index("for file in sorted(os.listdir(folder)):") < \
+        assert source.index("for file in sorted(_listdir_visible(folder)):") < \
             source.index("well = _get_next_well(used_wells)")

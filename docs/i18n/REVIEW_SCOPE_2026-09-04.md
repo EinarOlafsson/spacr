@@ -5,6 +5,18 @@ that report, **this is an evidence report and not a certificate that every
 sentence was read by a fluent speaker.** The semantic-review evidence is
 defect-driven and much smaller than the shipped corpus.
 
+**Current checkpoint — 2026-09-21:** mechanical coverage is incomplete.
+German, Spanish, French and Swedish passed their full runtime audits at the
+46d11afaf application-source boundary. Integrating the newer Plaque/Figure
+work increased the live inventory to 6,232 runtime entries; all nine current
+catalogs now have explicit debt. The API inventory has 629 added, two removed
+and 121 changed sources relative to its English manifest, across 11,166 live
+symbols. The current table below is regenerated from source-bound
+records; the dated completion statements that follow describe historical
+trees. New review records are AI-assisted technical review, not native-speaker
+approval. API block counts divided by symbol counts are not percentages of
+fully reviewed API pages.
+
 **Mechanical source coverage IS complete, as of 2026-09-10.** It was not on
 2026-09-06, and this paragraph carried that gap until now: the runtime
 catalogs held 5,105 of 5,226 entries in every locale -- 121 sources missing
@@ -43,7 +55,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 5,773 runtime entries and 10,539 public API docstrings. As before,
+remembered one: 6,235 runtime entries and 11,166 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -51,17 +63,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 5,773 | Remainder | Reviewed API blocks | Of 10,539 | Remainder |
+| Language | Reviewed runtime records | Of 6,235 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 335 | 5.80% | 5,438 | 727 | 6.90% | 9,812 |
-| German | 297 | 5.14% | 5,476 | 707 | 6.71% | 9,832 |
-| Spanish | 299 | 5.18% | 5,474 | 587 | 5.57% | 9,952 |
-| Simplified Chinese | 616 | 10.67% | 5,157 | 869 | 8.25% | 9,670 |
-| Portuguese | 309 | 5.35% | 5,464 | 817 | 7.75% | 9,722 |
-| Hindi | 399 | 6.91% | 5,374 | 764 | 7.25% | 9,775 |
-| Korean | 520 | 9.01% | 5,253 | 842 | 7.99% | 9,697 |
-| Icelandic | 467 | 8.09% | 5,306 | 1,341 | 12.72% | 9,198 |
-| French | 325 | 5.63% | 5,448 | 750 | 7.12% | 9,789 |
+| Swedish | 677 | 10.86% | 5,558 | 710 | 6.36% | 10,456 |
+| German | 640 | 10.26% | 5,595 | 750 | 6.72% | 10,416 |
+| Spanish | 645 | 10.34% | 5,590 | 570 | 5.10% | 10,596 |
+| Simplified Chinese | 987 | 15.83% | 5,248 | 853 | 7.64% | 10,313 |
+| Portuguese | 653 | 10.47% | 5,582 | 798 | 7.15% | 10,368 |
+| Hindi | 433 | 6.94% | 5,802 | 747 | 6.69% | 10,419 |
+| Korean | 651 | 10.44% | 5,584 | 820 | 7.34% | 10,346 |
+| Icelandic | 501 | 8.04% | 5,734 | 1,316 | 11.79% | 9,850 |
+| French | 673 | 10.79% | 5,562 | 734 | 6.57% | 10,432 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven
@@ -407,4 +419,18 @@ renamed others, and the records for settings that no longer exist went with
 them. The evidence was not lost; the things it was evidence ABOUT were
 withdrawn.
 
-Reviewed totals today: sv 328, de 290, es 292, zh_CN 609, pt 302, hi 392, ko 513, is 460, fr 318 -- 3,504 runtime records across nine locales.
+Reviewed totals today: sv 319, de 282, es 284, zh_CN 596, pt 294, hi 383, ko 502, is 451, fr 310 -- 3,421 runtime records across nine locales.
+
+REGENERATED 2026-09-20, and the totals fell rather than rose. 144 runtime
+records over nine locales were retired because the English they were
+reviewed against no longer exists in spaCR: 15 sources renamed or
+rewritten out by items 417, 419, 423 and 435, and 5 whose wording changed
+under an unchanged key. On the API side 165 records over 13 rewritten
+docstrings were marked `retired` with a reason each, which keeps the
+reviewer and the translation as evidence while no longer comparing them
+against a docstring that does not contain that sentence. The runtime side
+has no such flag -- its loader accepts five fields and nothing else -- so
+there the records were removed, which is what items 417 (f6c511cc3) and
+418 (c0b2c5227) did in the same situation. Both denominators also moved:
+runtime 5,773 to 5,993 and API 10,539 to 10,931, as the work of the last
+fortnight added strings and docstrings.

@@ -99,7 +99,9 @@
       "label": "spacr.qt.widgets.dose_response#26",
       "source": "R² on a sigmoid is nearly useless. Any monotone curve through a well-sampled dose–response scores above 0.95, because the total sum of squares is dominated by the difference between the two plateaus and *any* S-shaped line captures that. :meth:`DoseResponseResult.caveats` says so next to the number, every time.",
       "source_sha256": "c506d395a36465c8892c47e4a0b8f47d6254ff0d1b5da1156e2c0dc0083cd2e6",
-      "translation": "R² á sigmoid er næstum gagnslaus. Hvaða einsleita kúrfu sem er í gegnum sýnatökustað örplatna sem er stöðluð eftir skammtasvörun fær yfir 0,95, því heildarsumma ferhyrninga er ráðandi af muninum milli tveggja flata og *hvert* S-laga lína fangar það. :meth:`DoseResponseResult.caveats` segir það við hlið tölunnar, í hvert skipti."
+      "translation": "R² á sigmoid er næstum gagnslaus. Hvaða einsleita kúrfu sem er í gegnum sýnatökustað örplatna sem er stöðluð eftir skammtasvörun fær yfir 0,95, því heildarsumma ferhyrninga er ráðandi af muninum milli tveggja flata og *hvert* S-laga lína fangar það. :meth:`DoseResponseResult.caveats` segir það við hlið tölunnar, í hvert skipti.",
+      "retired": "2026-09-20",
+      "retired_reason": "2026-09-20: the English block this was reviewed against is no longer in spacr.qt.widgets.dose_response's documentation, which was rewritten by \"387: the 5PL's profile interval was too narrow because its inner minimisation stopped one sweep short\" (82d9b5f6f, 2026-09-20). The translation is kept as evidence, with its reviewer and locale, and is simply no longer compared against a docstring that no longer contains that sentence."
     },
     {
       "context": "the NGFF (UDUNITS-2) name, stored verbatim and *not* checked here — ``unit=\"furlong\"`` builds, and only raises once a spacing is made from it, which for :func:`write_ome_zarr` is after the chunks are already on disk. ``None`` (the default) and ``\"\"`` both mean pixels and write an axis carrying no ``unit`` key.",

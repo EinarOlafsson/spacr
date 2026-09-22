@@ -16,7 +16,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [generate_classify_demo](#generate_classify_demo) (3 entries)
 - [generate_timelapse_demo](#generate_timelapse_demo) (1 entry)
 - [_channel_settings](#_channel_settings) (1 entry)
-- [demo_settings](#demo_settings) (20 entries)
+- [demo_settings](#demo_settings) (21 entries)
 - [_phred_run](#_phred_run) (1 entry)
 - [_fastq_header](#_fastq_header) (1 entry)
 
@@ -237,6 +237,23 @@ The demo draws cells at _RADIUS_CELL and nuclei at _RADIUS_NUCLEUS; Cellpose 4 r
 ```
 
 The camera offset the images are actually drawn on. All three object channels, not just the cell: `*_background` is multiplied by `*_signal_to_noise` to set the normalisation ceiling, and a demo that declares the right offset for one channel and the 100 default for the other two normalises them differently for no reason.
+
+### 2026-09-19, `cell_flow_threshold`
+
+```python
+"cell_flow_threshold": 0.4,
+```
+
+It was 1.0 from the first commit of this generator (4307d6299, 2026-07-21), and 1.0 was not a choice made for the synthetic data. It was the shipped default of that day. The same dict copied `cell_background` 100, signal-to-noise 10 and `cell_CP_prob` 0, which were all defaults then too. So the demo follows the shipped default, which is 0.4 since 428 (GitHub #123). Nucleus and pathogen are not set here and take the same default.
+
+WHAT THAT COSTS THE DEMO: NOTHING, measured 2026-09-19 through spaCR's own Mask pipeline. `generate_mask_demo` (default `fields=2`, four fields), its settings CSV loaded the way the Demos menu loads it, then `preprocess_generate_masks`, on the GPU; the `gen_mask_settings.csv` each run wrote confirms the thresholds it used. Labels counted in the merged stacks, per field, as cell / nucleus / pathogen / organelle:
+
+    flow thresholds 0.4 / 0.4 / 0.4 (since 428)      16/16/17/64  16/16/20/64  16/16/18/64  16/16/16/64
+    flow thresholds 1.0 / 100 / 100 (before 428)     16/16/17/64  16/16/20/64  16/16/18/64  16/16/16/64
+
+Every drawn cell and nucleus is kept in every field at 0.4, and the counts are identical to the old settings field by field. `tests/test_demo_pipelines.py::test_mask_demo_segments_every_object_it_drew` asserts the 16/16 and passes at 0.4.
+
+A NUMBER THAT DOES NOT DESCRIBE THE DEMO, recorded so it is not taken for the demo's cost again. Calling stock `cpsam` directly on the demo's raw channel images (diameters 40 / 16 / 10, `cellprob_threshold` 0) does lose objects at 0.4: 4 of 16 cells in one field and a pathogen in three, where 1.0 and 100 keep them. That call skips spaCR's preprocessing and normalisation, so it is not what the demo runs, and it was briefly mistaken for the demo's cost while 428 was being built. On the Mask pipeline there is no reason to set 1.0 here to keep the drawn objects.
 
 ### lines 981-983
 

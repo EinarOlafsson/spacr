@@ -60,13 +60,6 @@
     },
     {
       "table": "setting_tooltips",
-      "key": "nucleus_model_name",
-      "source_sha256": "70cf4a95ef90f38aee935140af72d779023104d59efc856fe476ed09abe29415",
-      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. The legacy values 'nuclei' and 'nucleus' are accepted for compatibility and mapped to 'cpsam' because Cellpose 4 removed the pre-SAM models. Configure nucleus_diameter to control scale; of the three parameters that previously distinguished models, only diameter remains operational (eval rescales by 30/diameter), while model_type and diam_mean are logged as 'not used in v4.0.1+' and omitted. Default 'cpsam'.",
-      "translation": "핵 분할에 사용하는 가중치입니다. 유효한 값은 'cpsam' 또는 Train Cellpose 에서 생성한 사용자 정의 CPSAM 체크포인트의 경로입니다. Cellpose 4 에서 SAM 이전 모델이 제거되었으므로 호환성을 위해 레거시 값 'nuclei' 와 'nucleus' 를 허용하고 'cpsam' 으로 매핑합니다. 크기는 nucleus_diameter 로 조정하십시오. 이전에 모델을 구분하던 세 매개변수 중 diameter 만 작동하고 eval 은 30/diameter 로 크기를 조정하며, model_type 과 diam_mean 은 'not used in v4.0.1+' 로 기록된 후 생략됩니다. 기본값 'cpsam'."
-    },
-    {
-      "table": "setting_tooltips",
       "key": "object_type",
       "source_sha256": "efc14c0a37d69f0ef2e93c27ffab573493431d8e936e37130e820e1789d296b3",
       "source": "Mask used to define an object when the pointing game scores an attribution map: 'cell', 'nucleus', 'pathogen' or 'cytoplasm'. The metric checks only whether the map's maximum-valued pixel lies inside that mask. It has low computational cost but does not evaluate the rest of the map, so a method can score 1.0 while assigning spurious attribution elsewhere. Default 'cell'.",

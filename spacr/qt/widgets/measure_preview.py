@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
-from PySide6.QtCore import QRectF, Qt, Signal
+from PySide6.QtCore import QRectF, Qt, QTimer, Signal
 from PySide6.QtGui import QImage, QPainter, QPainterPath, QPixmap
 from PySide6.QtWidgets import (
     QComboBox,
@@ -612,10 +612,15 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             for name in self._object_names()
         }
         self._crop_mode_checks["cell"].setChecked(True)
-        self._crop_width = self._spin(16, 2048, 224, parent=self)
-        self._crop_height = self._spin(16, 2048, 224, parent=self)
-        self._lock_aspect = Toggle(parent=self)
-        self._lock_aspect.setChecked(True)
+        self._crop_size = self._spin(16, 2048, 224, parent=self)
+        self._crop_width = self._crop_size
+        self._crop_height = self._crop_size
+        self._non_square_png_size = None
+        #: Waits out the digits of a typed crop size before re-cutting.
+        self._crop_size_timer = QTimer(self)
+        self._crop_size_timer.setSingleShot(True)
+        self._crop_size_timer.setInterval(250)
+        self._crop_size_timer.timeout.connect(self.refresh)
         self._png_dims = ChannelMappingWidget(_default_png_mapping(), self)
         self._use_bbox = Toggle(parent=self)
         self._buffer = self._spin(0, 200, 10, parent=self)
@@ -663,7 +668,6 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         )
 
         self._mask_dim = self._mask_dims["cell"]
-        self._crop_size = self._crop_width
         self._min_area = self._min_sizes["cell"]
         self._channels = self._png_dims
 
@@ -780,7 +784,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             *self._mask_dims.values(), self._cytoplasm, self._plot,
             self._test_mode, self._timelapse, self._save_png,
             self._save_arrays, *self._crop_mode_checks.values(),
-            self._crop_width, self._crop_height, self._lock_aspect,
+            self._crop_size,
             self._png_dims, self._use_bbox, self._buffer, self._normalise,
             self._lo_pct, self._hi_pct, self._normalize_by, self._dilate,
             self._dilate_ratio, *self._min_sizes.values(), self._uninfected,
@@ -839,7 +843,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
     def _connect_controls(self) -> None:
         """Wire each control to the refresh it should trigger."""
         self._object_box.currentTextChanged.connect(self._on_object_changed)
-        self._crop_width.valueChanged.connect(self._sync_crop_height)
+        self._crop_size.valueChanged.connect(self._on_crop_size_changed)
         self._normalise.toggled.connect(self._refresh_control_gates)
         self._dilate.toggled.connect(self._refresh_control_gates)
         self._use_bbox.toggled.connect(self._refresh_control_gates)
@@ -882,7 +886,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._crop_settings_dialog = None
 
     def _build_slot_controls(self, count) -> None:
-        """Bring the controls for organelle slots 1..``count`` into existence.
+        """Bring the controls for organelle slots 1 to ``count`` into existence.
 
         THE SLOTS ARE BUILT HERE AND NOWHERE ELSE, which is what keeps
         opening Measure from constructing 2,117 controls for a run that
@@ -973,10 +977,64 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
         self._dilate_ratio.setEnabled(self._dilate.isChecked())
         self._buffer.setEnabled(self._use_bbox.isChecked())
 
-    def _sync_crop_height(self, value: int) -> None:
-        """Keep the crop height in step with the width when they are locked."""
-        if self._lock_aspect.isChecked() and self._crop_height.value() != value:
-            self._crop_height.setValue(value)
+    def _png_size_pair(self) -> tuple:
+        """The crop size as ``(width, height)``, for the cropper.
+
+        One number on screen, because width and height were always the same
+        setting: ``crop_size`` maps onto ``png_size`` in
+        :mod:`spacr.picture_settings`, and a scalar ``png_size`` already means
+        a square crop in :mod:`spacr.crops`. A settings file that carries a
+        non-square pair keeps it, and that pair is what the preview cuts to.
+
+        :returns: ``(width, height)``.
+        """
+        if self._non_square_png_size:
+            return (int(self._non_square_png_size[0]),
+                    int(self._non_square_png_size[1]))
+        side = int(self._crop_size.value())
+        return (side, side)
+
+    def _apply_png_size(self, value) -> None:
+        """Take ``png_size`` from a settings file, square or not.
+
+        :param value: a number, or a ``[width, height]`` pair.
+
+        A pair whose sides differ is not squared behind the user's back: it is
+        remembered, the width is shown in the box, and the status line says so
+        once, because silently changing the shape of somebody's saved crops is
+        worse than an explanation.
+        """
+        self._non_square_png_size = None
+        try:
+            if isinstance(value, (list, tuple)):
+                width, height = int(value[0]), int(value[1])
+                if width != height:
+                    self._non_square_png_size = (width, height)
+                    self._status.setText(
+                        f"This settings file crops {width}x{height}. The box "
+                        f"shows the width; change it to make crops square.")
+            else:
+                width = int(value)
+        except (TypeError, ValueError, IndexError):
+            return
+        # Loading a saved rectangle is not a user edit that requests a
+        # square. Keep its geometry while setting the displayed width.
+        from PySide6.QtCore import QSignalBlocker
+
+        with QSignalBlocker(self._crop_size):
+            self._crop_size.setValue(width)
+        self._crop_size_timer.start()
+
+    def _on_crop_size_changed(self, _value: int) -> None:
+        """Re-crop at the new size, once the typing has stopped.
+
+        The crop size reaches the crops themselves, so it has
+        to trigger the same refresh the other crop controls do. It is
+        debounced because a spinner passes through 1, 12 and 128 on the way to
+        1280, and each of those would otherwise re-cut every object.
+        """
+        self._non_square_png_size = None
+        self._crop_size_timer.start()
 
     def _on_object_changed(self, name: str) -> None:
         """Re-preview for a different object type."""
@@ -1258,9 +1316,9 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             "save_png": self._save_png.isChecked(),
             "save_arrays": self._save_arrays.isChecked(),
             "crop_mode": self._selected_crop_modes(),
-            "png_size": [
-                int(self._crop_width.value()), int(self._crop_height.value())
-            ],
+            "png_size": (list(self._non_square_png_size)
+                         if self._non_square_png_size
+                         else int(self._crop_size.value())),
             "png_channel_mapping": self._png_channel_mapping(),
             "use_bounding_box": self._use_bbox.isChecked(),
             "normalize": normalize,
@@ -1379,9 +1437,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             modes = {str(m) for m in settings["crop_mode"]}
             for name, widget in self._crop_mode_checks.items():
                 widget.setChecked(name in modes)
-        _set(lambda v: (self._crop_width.setValue(v[0]),
-                        self._crop_height.setValue(v[1])), "png_size",
-             lambda v: (int(v[0]), int(v[1])))
+        _set(self._apply_png_size, "png_size", lambda v: v)
         _set(self._dilate_ratio.setValue, "dialate_png_ratios",
              lambda v: float(list(v)[0]))
         _set(self._normalize_by.setCurrentText, "normalize_by", str)
@@ -1556,6 +1612,7 @@ class MeasurePreviewPanel(LivePreviewContract, QWidget):
             ),
             buffer=int(self._buffer.value()),
             limit=int(self._max_crops.value()),
+            size=self._png_size_pair(),
         )
         data = self._data
         params = self._category_params()
@@ -1880,9 +1937,7 @@ class CropSettingsDialog(QDialog):
             mode_layout.addWidget(widget)
             self._mode_rows.add(name)
         crops_form.addRow(mode_group)
-        crops_form.addRow("Crop width", panel._crop_width)
-        crops_form.addRow("Crop height", panel._crop_height)
-        crops_form.addRow("Match crop height to width", panel._lock_aspect)
+        crops_form.addRow("Crop size", panel._crop_size)
         crops_form.addRow("RGB channel order", panel._png_dims)
         crops_form.addRow("Use bounding box", panel._use_bbox)
         crops_form.addRow("Bounding-box padding", panel._buffer)
@@ -1953,9 +2008,7 @@ class CropSettingsDialog(QDialog):
             panel._timelapse: "timelapse",
             panel._save_png: "save_png",
             panel._save_arrays: "save_arrays",
-            panel._crop_width: "png_size",
-            panel._crop_height: "png_size",
-            panel._lock_aspect: "lock_aspect_ratio",
+            panel._crop_size: "png_size",
             panel._png_dims: "png_channel_mapping",
             panel._use_bbox: "use_bounding_box",
             panel._buffer: "bounding_box_padding",

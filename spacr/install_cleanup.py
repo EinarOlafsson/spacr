@@ -32,6 +32,7 @@ from __future__ import annotations
 
 import argparse
 import glob
+import hashlib
 import json
 import os
 import plistlib
@@ -1608,21 +1609,87 @@ def _wait_for_exit(pid: int, timeout: float = _WAIT_SECONDS, *,
     return False
 
 
+#: The checksums every release publishes beside its assets, as a file name.
+#: `release.yml` has uploaded it since 1.5.0.5; a release without one is
+#: handled rather than refused, because an older release must still be
+#: installable.
+_SUMS_NAME = "SHA256SUMS.txt"
+
+
+def _published_digest(url: str) -> Optional[str]:
+    """The sha256 this release publishes for the asset at ``url``.
+
+    WHAT THIS IS AND IS NOT. The sums file comes from the same server as
+    the installer, so it is not a defence against a compromised release --
+    an attacker who can replace one can replace the other. It catches what
+    actually happens: a truncated or corrupted download, a proxy serving
+    something stale, an asset that is not the one the plan named. That is
+    worth having before a file is made executable and run.
+
+    :param url: the installer's download address.
+    :returns: the expected hex digest, or None when the release publishes
+        no sums file or names no line for this asset.
+    """
+    import urllib.request
+
+    base, _, name = url.rpartition("/")
+    request = urllib.request.Request(f"{base}/{_SUMS_NAME}",
+                                     headers={"User-Agent": "spacr-updater"})
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            published = response.read().decode("utf-8", "replace")
+    except Exception:                                        # noqa: BLE001
+        return None
+    for line in published.splitlines():
+        parts = line.split()
+        if len(parts) >= 2 and os.path.basename(parts[-1]) == name:
+            return parts[0].strip().lower()
+    return None
+
+
 def _download(url: str, path: str) -> None:
-    """Download a release asset over HTTPS.
+    """Download a release asset over HTTPS and check what arrived.
+
+    THE FILE IS ABOUT TO BE MADE EXECUTABLE AND RUN, so what arrived is
+    checked against the digest the release publishes before that happens.
+    A mismatch deletes the file and raises, and the caller treats that as a
+    failed fetch -- which means nothing is removed and no installer runs,
+    because `_run_plan` fetches before it deletes anything.
+
+    Hashed while it is written rather than read back afterwards: the file
+    is up to 40 MB and there is no reason to read it twice.
 
     :param url: the asset's address on GitHub.
     :param path: where to write it.
+    :raises OSError: when the download is empty or does not match the
+        digest the release publishes for it.
     """
     if not url.startswith(_RELEASE_DOWNLOAD + "/"):
         raise ValueError(f"refusing to download from {url}")
     import urllib.request
     request = urllib.request.Request(url, headers={"User-Agent": "spacr-updater"})
+    digest = hashlib.sha256()
     with urllib.request.urlopen(request, timeout=120) as response, \
             open(path, "wb") as handle:
-        shutil.copyfileobj(response, handle)
+        while True:
+            chunk = response.read(1 << 20)
+            if not chunk:
+                break
+            handle.write(chunk)
+            digest.update(chunk)
     if os.path.getsize(path) == 0:
         raise OSError(f"{url} was empty")
+    expected = _published_digest(url)
+    if expected and digest.hexdigest() != expected:
+        try:
+            os.remove(path)
+        except OSError:
+            pass
+        raise OSError(
+            f"{os.path.basename(path)} does not match the checksum this "
+            f"release publishes for it: expected {expected}, got "
+            f"{digest.hexdigest()}. Nothing was installed and nothing was "
+            f"removed.")
     os.chmod(path, 0o755)
 
 

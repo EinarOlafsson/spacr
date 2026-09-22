@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "language": "zh_CN",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Could not fetch the paper: {why}",
+      "source": "Could not fetch the paper: {why}",
+      "source_sha256": "3a8ed6df4d0e4efa97fef51c668f2ccda52dfc2b7066a9220009aca5c3367741",
+      "translation": "无法获取论文：{why}"
+    },
+    {
+      "table": "ui",
+      "key": "Done: {total} plaques in the {n} well(s) segmented so far.",
+      "source": "Done: {total} plaques in the {n} well(s) segmented so far.",
+      "source_sha256": "6ad5d6491eb5ceab60002eef5ce746b44f212661e971a0e13c97f548c30d72d1",
+      "translation": "完成：目前共发现 {total} 个空斑，已分割 {n} 个孔。"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed: {why}",
+      "source": "Download failed: {why}",
+      "source_sha256": "86f52a0646e4add31adfea3f3e338e51e36aa440ea5ae6a54cd009fbec66ae70",
+      "translation": "下载失败：{why}"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}",
+      "source": "Download {name}",
+      "source_sha256": "c807156b8e24f0a378cd22e57f3bddcd25555680645c9f0636d3b59d5e4563c3",
+      "translation": "下载 {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded to {path}. Press Run preview.",
+      "source": "Downloaded to {path}. Press Run preview.",
+      "source_sha256": "46de57c483b30e9b16982e42468b8f43b48230098aeb1de8907114b602615f18",
+      "translation": "已下载到 {path}。请按“运行预览”。"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading the test data into {path}",
+      "source": "Downloading the test data into {path}",
+      "source_sha256": "8bbe6ddb553030350d19fd5708b1ad508e7693c81dfbbcd3cb8d66e143a01f45",
+      "translation": "正在将测试数据下载到 {path}"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {done} of {total}…",
+      "source": "Downloading {done} of {total}…",
+      "source_sha256": "c00e4b14fdbb2d741ab51c1e8f693f14beae1093ae66497da034428780fad00e",
+      "translation": "正在下载，已完成 {done}，共 {total}…"
+    },
+    {
+      "table": "ui",
+      "key": "Fetching {ref} into {path}…",
+      "source": "Fetching {ref} into {path}…",
+      "source_sha256": "c187bf877c6fb1f0853ac443e875a35c9c8e524d21c1a6ff38d79d61ef38fed3",
+      "translation": "正在将 {ref} 获取到 {path}…"
+    },
+    {
+      "table": "ui",
+      "key": "Figure mode needs {names}. Press Install to put them in an environment of their own, so spaCR's own packages are not changed. Plaque mode works without them.",
+      "source": "Figure mode needs {names}. Press Install to put them in an environment of their own, so spaCR's own packages are not changed. Plaque mode works without them.",
+      "source_sha256": "c5892f9456ffb22ffd1cdfecb63def855a0253537d10f5ebb3997f42f34188c0",
+      "translation": "图版模式需要 {names}。按“安装”将其安装到独立环境，以免更改 spaCR 自身的软件包。空斑模式无需这些组件即可运行。"
+    },
+    {
+      "table": "ui",
+      "key": "Finding plaques in well {n} ({k} of {total})…",
+      "source": "Finding plaques in well {n} ({k} of {total})…",
+      "source_sha256": "886a7fbaddb1adf3a87a6682f8cdd5704ee241c61785311ead004f16c4318b81",
+      "translation": "正在查找孔 {n} 中的空斑（第 {k} 个，共 {total} 个）…"
+    },
+    {
+      "table": "ui",
+      "key": "Legend saved to {path}; conditions proposed again.",
+      "source": "Legend saved to {path}; conditions proposed again.",
+      "source_sha256": "45b6d593a2ab88a487925e158e7d9b827567e447edeb2e6f1c35f5e82e9f5d99",
+      "translation": "图注已保存到 {path}，已重新提出条件建议。"
+    },
+    {
+      "table": "ui",
+      "key": "Loading preview from {path}…",
+      "source": "Loading preview from {path}…",
+      "source_sha256": "58e81fac77039aa6251fca9a783a1e7ad61dc1ff6f71088c6b26e937dab7b89c",
+      "translation": "正在从 {path} 加载预览…"
+    },
+    {
+      "table": "ui",
+      "key": "No images found in {path}.",
+      "source": "No images found in {path}.",
+      "source_sha256": "1c0b3eff0826e1f44dd9ab9d498e4c1eedcaedf2d4dc5ae1d80fc08342e86c20",
+      "translation": "在 {path} 中未找到图像。"
+    },
+    {
+      "table": "ui",
+      "key": "OPS test data ready: {path}",
+      "source": "OPS test data ready: {path}",
+      "source_sha256": "5534a6a78f7653cad2cf123115266ae4afe0fbf2502a704783722e6983a7e2b8",
+      "translation": "OPS 测试数据已就绪：{path}"
+    },
+    {
+      "table": "ui",
+      "key": "Panel {letters} was read in {name}, but no legend is known for this figure. Paste the figure legend, or annotate by hand.",
+      "source": "Panel {letters} was read in {name}, but no legend is known for this figure. Paste the figure legend, or annotate by hand.",
+      "source_sha256": "1137981fa023bfda81567633fd2eee30bba3778c7b79e1ad7ba6d97592ac0fd0",
+      "translation": "面板 {letters} 已在 {name} 中识别到，但尚无此图版的图注。请粘贴图注或手动标注。"
+    },
+    {
+      "table": "ui",
+      "key": "Plaques ({n})",
+      "source": "Plaques ({n})",
+      "source_sha256": "aa0216b1cb6a66fb1f16a428af9b6f1ce67fe589834431b61390a79685d238f5",
+      "translation": "空斑（{n}）"
+    },
+    {
+      "table": "ui",
+      "key": "Saved {n} annotations ({ok} OK) to {path}.",
+      "source": "Saved {n} annotations ({ok} OK) to {path}.",
+      "source_sha256": "f579f7714c2864bb27b2e84cbe84f9d6940eeec3d619d9d452a86b8ff0fc1dba",
+      "translation": "已将 {n} 条标注（{ok} 条通过）保存到 {path}。"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in to {name}",
+      "source": "Sign in to {name}",
+      "source_sha256": "47e7f20bbed4fe5f0fb08f5bdc8c397fd2fba3246d869a97a16e1953e175794e",
+      "translation": "登录 {name}"
+    },
+    {
+      "table": "ui",
+      "key": "Test data ready: nine tiles in {path}. Press Plan.",
+      "source": "Test data ready: nine tiles in {path}. Press Plan.",
+      "source_sha256": "a4f58ee4b2fbd6349bb803ac9cc9f6b052d8ae25c50cc58fa5a9775138fb4554",
+      "translation": "测试数据已就绪：{path} 中有九个图块。请按“规划”。"
+    },
+    {
+      "table": "ui",
+      "key": "The detector {key} is not on this machine yet. Download it here, or the run downloads it.",
+      "source": "The detector {key} is not on this machine yet. Download it here, or the run downloads it.",
+      "source_sha256": "b397bc50064e6f7d581025ad2296f1d7223d2788ff3c534fd67caa1a2fc0844c",
+      "translation": "本机尚无检测器 {key}。可在此下载，也可在运行时自动下载。"
+    },
+    {
+      "table": "ui",
+      "key": "The sign-in ended without success (exit code {code}). What it said is above.",
+      "source": "The sign-in ended without success (exit code {code}). What it said is above.",
+      "source_sha256": "14731e3cf29c4710986edea6da0aedf0c94b46250c70cb046805daf57584c7cc",
+      "translation": "登录未成功结束（退出码 {code}）。其输出信息见上方。"
+    },
+    {
+      "table": "ui",
+      "key": "Well {n}",
+      "source": "Well {n}",
+      "source_sha256": "b15985103e329626691525f8274ee1e15ee6c1ffbb123bbe1b20773db2294ce4",
+      "translation": "孔 {n}"
+    },
+    {
+      "table": "ui",
+      "key": "Wrote {n} settings into the form.",
+      "source": "Wrote {n} settings into the form.",
+      "source_sha256": "b887ba556b36836fe5ed155461ee73278cbd3c10d01f0eb7b56cda3fbaee4369",
+      "translation": "已将 {n} 项设置写入表单。"
+    },
+    {
+      "table": "ui",
+      "key": "panel {p}",
+      "source": "panel {p}",
+      "source_sha256": "1310203403e5b686482e2459530d6c5d9c207a1dddde680958c2474331f52caf",
+      "translation": "面板 {p}"
+    },
+    {
+      "table": "ui",
+      "key": "{count} plaques, mean area {area:.0f} px",
+      "source": "{count} plaques, mean area {area:.0f} px",
+      "source_sha256": "ee9823ecfbf3716288a38cd3ca4fe79255546be135c3fa163bb5710e4d3a6ac7",
+      "translation": "{count} 个空斑，平均面积 {area:.0f} px"
+    },
+    {
+      "table": "ui",
+      "key": "{key} is neither a checkpoint file nor a model zoo detector.",
+      "source": "{key} is neither a checkpoint file nor a model zoo detector.",
+      "source_sha256": "55a725deab4c0302de9dda221eb0c1941dfee214986010ec957b17f50808e769",
+      "translation": "{key} 既不是检查点文件，也不是模型库中的检测器。"
+    },
+    {
+      "table": "ui",
+      "key": "{model} is not on this machine: {reason}",
+      "source": "{model} is not on this machine: {reason}",
+      "source_sha256": "c9e481fa074648930c5d1ce628d2fd7b5a660d345dd0c7b79e22ef35fcd39403",
+      "translation": "本机没有 {model}：{reason}"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is signing in. Its sign-in page opens in your browser; if it asks for a code, paste it below and press Send.",
+      "source": "{name} is signing in. Its sign-in page opens in your browser; if it asks for a code, paste it below and press Send.",
+      "source_sha256": "eec7cd5e9ce0a95f2ff8476419bbd1696b2a3cb95ddaa632bb09ea01e9f27fbe",
+      "translation": "{name} 正在登录。其登录页面会在浏览器中打开；如需验证码，请粘贴到下方并按“发送”。"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: press Run preview.",
+      "source": "{name}: press Run preview.",
+      "source_sha256": "5c031824d2b46b1360a54451ba6ee0455e994e7ab2a7ed209451a502bada2f08",
+      "translation": "{name}：请按“运行预览”。"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {count} plaques, mean area {area:.0f} px.",
+      "source": "{name}: {count} plaques, mean area {area:.0f} px.",
+      "source_sha256": "9ebecc62d81786164136917d7d4b83bf4a9ec3afd7ae19825085f4f83a55702e",
+      "translation": "{name}：{count} 个空斑，平均面积 {area:.0f} px。"
+    },
+    {
+      "table": "ui",
+      "key": "{name}: {regions} plaque wells found, {words} words read. Click a well, then Plaque preview, or Find plaques in all wells.",
+      "source": "{name}: {regions} plaque wells found, {words} words read. Click a well, then Plaque preview, or Find plaques in all wells.",
+      "source_sha256": "0e5ba4788c5ee974d65446c37e546da1c7766b39403c467f52766f351968e839",
+      "translation": "{name}：找到 {regions} 个空斑孔，识别了 {words} 个词。请点击一个孔，再选择“空斑预览”，或选择“查找所有孔中的空斑”。"
+    },
+    {
+      "table": "ui",
+      "key": "{n} images in {path}, unchanged.",
+      "source": "{n} images in {path}, unchanged.",
+      "source_sha256": "8701dfc4dcc887462942f42ebe2ba2a141ab3230ec1add2620a11ed15c4319ce",
+      "translation": "{n} 张图像位于 {path}，均保持不变。"
+    },
+    {
+      "table": "ui",
+      "key": "{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.",
+      "source": "{paper}: {n} figures, {m} with legends (licence {licence}), in {path}.",
+      "source_sha256": "870a50738e7def3643fb71bd772bc2274d4d9dd902212e61f8a17e5f561a2d0c",
+      "translation": "{paper}：{n} 个图版，其中 {m} 个有图注（许可协议 {licence}），位于 {path}。"
+    }
+  ]
+}

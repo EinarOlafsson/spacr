@@ -103,9 +103,9 @@ def _isolated_prefs(tmp_path, monkeypatch):
 
 
 class TestVerboseLoggerPref:
-    def test_defaults_off(self, _isolated_prefs):
+    def test_defaults_on(self, _isolated_prefs):
         from spacr.qt.preferences import get_verbose_logging
-        assert get_verbose_logging() is False
+        assert get_verbose_logging() is True
 
     def test_set_and_get_true(self, _isolated_prefs):
         from spacr.qt.preferences import (

@@ -83,7 +83,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [AppScreen._on_run](#appscreen_on_run) (14 entries)
 - [AppScreen._announce_the_fit](#appscreen_announce_the_fit) (2 entries)
 - [AppScreen._on_copy_console](#appscreen_on_copy_console) (1 entry)
-- [AppScreen._on_pipeline_error](#appscreen_on_pipeline_error) (2 entries)
+- [AppScreen._on_pipeline_error](#appscreen_on_pipeline_error) (3 entries)
 - [AppScreen._on_lp_switch](#appscreen_on_lp_switch) (2 entries)
 - [AppScreen._on_hyperparam_switch](#appscreen_on_hyperparam_switch) (1 entry)
 - [AppScreen._on_sweep_switch](#appscreen_on_sweep_switch) (1 entry)
@@ -122,8 +122,9 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [AppScreen._force_stop](#appscreen_force_stop) (1 entry)
 - [AppScreen._on_import_settings](#appscreen_on_import_settings) (1 entry)
 - [AppScreen._load_settings_csv](#appscreen_load_settings_csv) (1 entry)
-- [AppScreen.apply_settings_dict](#appscreenapply_settings_dict) (2 entries)
+- [AppScreen.apply_settings_dict](#appscreenapply_settings_dict) (3 entries)
 - [AppScreen._refresh_after_bulk_apply](#appscreen_refresh_after_bulk_apply) (1 entry)
+- [AppScreen._bulk_apply_changes_form_shape](#appscreen_bulk_apply_changes_form_shape) (1 entry)
 - [AppScreen._sync_folded_switches](#appscreen_sync_folded_switches) (1 entry)
 - [AppScreen._migrate_control_wells](#appscreen_migrate_control_wells) (2 entries)
 - [AppScreen._apply_each_setting](#appscreen_apply_each_setting) (1 entry)
@@ -3190,6 +3191,18 @@ try:
 
 File-as-issue button becomes visible only when the user has opted in via AI Settings — otherwise it stays hidden so the actions row doesn't grow noise for people who don't use it.
 
+### 2026-09-19: the failure says the report was not sent
+
+```python
+self._report_waits_for_a_click = bool(
+```
+
+GitHub #117: with "Report errors as GitHub issues" on, a user watched a Mask run fail and expected an issue to have been filed, and none was. That is deliberate. Until 807ba9e0a (2026-08-14, instruction 45) this method did file on its own: it called `_on_file_issue` as soon as the crash arrived. The consent work removed that, because the destination is the PUBLIC tracker, and a report now goes out only after the user presses Send in the editable preview. What was missing was any word of this in the console. The only sign was the "File as issue" button appearing in the row under it.
+
+So `_on_finished` now writes one line directly under "✗ Failed": `[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.` It is written once per failure, only when the button is on offer, and not when reporting is set to 'never', since the button then refuses to file. A run that was stopped drops the pending line, so it cannot turn up under the next failure.
+
+Left as found and recorded in features/new/432: `ISSUE_PROMPT_ALWAYS` is still one of the first-run "One-click issue filing" choices, and since 807ba9e0a nothing reads it. 'always' and 'ask' behave the same. Whether 'always' should open the preview by itself when a run fails, or be removed, is the maintainer's call.
+
 ## AppScreen._on_lp_switch
 
 ### lines 7973-7975
@@ -3982,6 +3995,14 @@ if model is not None:
 
 ONE WIDGET AT A TIME MEANS A HALF-APPLIED PANEL in between, and a rule that reads other settings must not act on it. See `_show_the_value_it_will_have`.
 
+### added 2026-09-19 (364)
+
+```python
+fresh._built_for_this_bulk_apply = True
+```
+
+ONE REBUILD PER IMPORT, whatever the shape check says. The replacement screen is built from the merged values (`rebuild_app_screen(self.app_key, target)`), so rebuilding it again for the same file would build the same screen. Before this guard the recursion ended only when the fresh screen agreed with the file, and for a switch the form does not carry it never could: an old recruitment CSV with `nucleus_mask_dim` or `pathogen_mask_dim`, a Mask file on Measure, or a Measure file on Mask rebuilt the screen without end. Measured through a real `MainWindow` with Import settings and the rebuild capped at six: all four cases hit the cap in 1.5-4.9 s and ended in "Import failed"; the review of this unit let one run uncapped and killed it at 400 s. The flag is cleared in `finally`, so a later import on the same screen can still rebuild it. See the note on `_bulk_apply_changes_form_shape` for the cause, and `tests/qt/test_an_import_rebuilds_the_screen_at_most_once.py`.
+
 ## AppScreen._refresh_after_bulk_apply
 
 ### lines 10656-10658
@@ -4087,3 +4108,77 @@ if _nvidia_smi_available():
 ```
 
 GPUtil shells out to nvidia-smi.  Calling it when the executable does not exist is both pointless and, after hundreds of short-lived worker threads in a Qt process, has crashed in CPython's subprocess boundary (CI run 31869225004).  The cheap executable check keeps CPU-only hosts entirely outside that native boundary.  A real NVIDIA host still uses GPUtil's established parsing and reports the same values as before.
+
+## AppScreen._refilter_the_settings_search
+
+### added 2026-09-19 (431)
+
+```python
+self._settings_model.rows_are_filtered_by = \
+```
+
+The object rule and the settings search both decide rows, and the search has to have the last word: it is the narrower of the two. See the note on `SettingsWidgets.refresh_object_visibility`. Re-entry is refused because applying the search can lay out a waiting row, and laying one out runs the object rule, which would call this again.
+
+## AppScreen._watch_the_settings_that_decide_the_form
+
+### added 2026-09-19 (431)
+
+```python
+for key in object_switch_keys("cell"):
+```
+
+`cell_channel` is not a form-shaping key -- cell rows are never hidden -- so nothing watched it, and typing a cell channel under Essentials changed nothing on the form. It is watched now with the same in-place pass as the other object channels, and kept out of `_object_switches_on_this_form`, which `tests/qt/test_a_channel_number_reveals_rather_than_reloads.py` holds to be a subset of the shaping keys.
+
+## AppScreen._wire_live_preview_naming
+
+### added 2026-09-19 (431)
+
+```python
+timer.timeout.connect(panel.regroup_the_folder)
+```
+
+For GitHub issue #119: see the note on `LivePreviewPanel.regroup_the_folder`. Wired to `textChanged` behind a 400 ms single shot rather than to `editingFinished`, so a settings file applied programmatically regroups too, and a pattern typed a character at a time is read once.
+
+## AppScreen._bulk_apply_changes_form_shape
+
+### added 2026-09-19 (364)
+
+```python
+if key not in carried:
+```
+
+A switch the form neither shows nor holds cannot shape it. `_form_shaping_keys` already followed that rule for a typed edit ("A missing switch cannot shape this panel"); the bulk path looked at the file instead and took every `nucleus_*` / `pathogen_*` channel or mask-plane key in it as a switch. Instruction 364 took the three `*_mask_dim` keys off the Recruitment form on 2026-09-03 (79edbf12f), and every recruitment file saved before then carries `nucleus_mask_dim=5` and `pathogen_mask_dim=6`, so importing one compared 5 with a `current.get()` of None, asked for a rebuild, and asked again on the rebuilt screen. `cell_mask_dim` escaped only because the cell object is never a switch. The same held for any file from a module whose switches are spelt the other way: Measure has no `*_channel`, Mask has no `*_mask_dim`.
+
+## AppScreen._file_the_report_automatically
+
+### added 2026-09-19 (autofile-default, follow-up to 432)
+
+```python
+if fingerprint in _REPORTS_BEING_FILED:
+```
+
+Filing happens in `_on_finished`, through `_settle_the_report`, not in `_on_pipeline_error`. The console then reads "✗ Failed", then "[issue] Filing ...", then where it went, which is where 432 put the "Nothing was sent" line for 'ask'. The AI has usually not answered by then. Its analysis is attached only if it already has, and `ai_explanation_of` returns nothing for a provider that failed (432). Filing does not wait for the AI.
+
+`_REPORTS_BEING_FILED` is module-level because two screens can fail on one crash before the first report has come back from GitHub. The ledger in `ai.settings` is written only when GitHub answers.
+
+The report is built on the background runner, not on the GUI thread. `build_report` copies the log tail to a file, and `file_without_review` can run `gh auth token`. Only the form snapshot and the AI analysis are read on the GUI thread, because they are widget state.
+
+## AppScreen._the_terms_allow_automatic_filing
+
+### added 2026-09-19 (autofile-default)
+
+```python
+return not needs_agreement()
+```
+
+The maintainer tied automatic filing to the agreement: "add the user agreeing to this in the user agreement, if set to always". 'always' is the default, and the default applies to profiles that have never seen the agreement. A launch with `--no-setup` or `SPACR_NO_SETUP`, or under the offscreen platform (`setup_screen.skipped_on_purpose`), never shows the slides. A user can close the terms slide without accepting ("spaCR will present the terms again at the next startup"). A profile that accepted 4.1 accepted terms saying nothing is sent automatically. None of these has agreed, so none files automatically: the console says nothing was sent, and that filing starts once the terms are accepted. "File as issue" still works for them, through the preview.
+
+### changed 2026-09-19, after review (a report that never comes back)
+
+```python
+_REPORTS_BEING_FILED: dict = {}
+```
+
+The in-flight record was a set, and only `_on_report_filed_automatically` took anything out of it. `JobRunner` drops a result -- never calls `on_done` -- when `cancel()` has bumped the generation or the worker reports not-ok, which is what closing a screen does to a report in flight. The fingerprint then stayed in a module-level set for the rest of the process, and every later failure with that traceback, in any screen, printed "[issue] This error is being reported already" and filed nothing. The `submit() == False` fallback covered only a submit the runner refused outright.
+
+It now records when each report started and treats anything older than `REPORT_IN_FLIGHT_SECONDS` as gone. Two minutes: `gh auth token` is capped at 8 s and each API call at 20 s, so a report that has not come back inside that is not coming back, and the cost of being wrong is one duplicate search that finds the open issue and comments on it.

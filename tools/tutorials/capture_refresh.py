@@ -18,6 +18,7 @@ import time
 from pathlib import Path
 
 from capture_acceptance import assess_pipeline
+from capture_policy import configure_appearance, exclude_release_history, verify_appearance, verify_visible_paths
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
@@ -33,7 +34,10 @@ def write_json(path: Path, value) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--module', default='home')
-    parser.add_argument('--stage', type=Path, default=DEFAULT_STAGE)
+    parser.add_argument('--stage', type=Path,
+                        default=Path(tempfile.gettempdir()) / 'spacr-tutorials-current')
+    parser.add_argument('--theme', choices=('dark',), default='dark')
+    parser.add_argument('--backdrop', choices=('blobs',), default='blobs')
     parser.add_argument('--download', action='store_true')
     parser.add_argument('--preview', action='store_true')
     parser.add_argument('--preview-variants', action='store_true')
@@ -43,6 +47,7 @@ def main() -> int:
     parser.add_argument('--settings-tour', action='store_true', help='Show bounded analysis choices through real settings searches')
     parser.add_argument('--annotation-tour', action='store_true', help='Record actual crop labelling and view changes in a new example column')
     parser.add_argument('--mask-editor-tour', action='store_true', help='Record actual reversible mask-editing gestures on private real-data copies')
+    parser.add_argument('--mask-readouts-tour', action='store_true', help='Record the CPU Otsu magnifier and FEATURES window on real data')
     parser.add_argument('--editor-detect', action='store_true', help='Also run actual Cellpose once on the small recropped example')
     parser.add_argument('--font-scale', type=float, default=1.5, help='Use the actual app font preference for the recording')
     parser.add_argument('--capture-name', help='Preserve earlier accepted frames in a separate capture directory')
@@ -61,6 +66,7 @@ def main() -> int:
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
+    parser.add_argument('--barcode-reference-source', type=Path, help='Existing validated plain/reverse-complement reference pairs to copy into the private barcode recording')
     parser.add_argument('--model-compare-api-introduction', action='store_true', help='Record only the real Model Compare route and field loading before a separately verified mask-comparison API example')
     parser.add_argument('--measure-full-example', action='store_true', help='Measure the sixteen downloaded fields in normal mode, not redirected test mode')
     parser.add_argument('--measure-preview-controls', action='store_true', help='Record only visible Measure field/channel controls, restoring saved-crop normalization before exit')
@@ -115,6 +121,8 @@ def main() -> int:
         parser.error('--annotation-tour requires --module annotate')
     if args.mask_editor_tour and args.module != 'make_masks':
         parser.error('--mask-editor-tour requires --module make_masks')
+    if args.mask_readouts_tour and (args.module != 'make_masks' or args.mask_editor_tour or args.editor_detect):
+        parser.error('--mask-readouts-tour requires --module make_masks and excludes the editor/detection tour')
     if args.editor_detect and not args.mask_editor_tour:
         parser.error('--editor-detect requires --mask-editor-tour')
     if args.capture_name and (Path(args.capture_name).name != args.capture_name or args.capture_name in {'.', '..'}):
@@ -199,7 +207,7 @@ def main() -> int:
         'QT_QPA_PLATFORM': args.platform, 'QT_SCALE_FACTOR': '1',
         'QT_AUTO_SCREEN_SCALE_FACTOR': '0', 'QT_FONT_DPI': '96',
         'SPACR_LANGUAGE': 'en', 'XDG_CONFIG_HOME': str(stage / 'config' /
-            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation') else args.module)),
+            ((args.capture_name or args.module) if args.module in ('project_browser', 'lineage', 'image_scatter', 'motility', 'classifier_evaluation', 'annotate') else args.module)),
         # XDG_CONFIG_HOME moves QSettings only. Chaining pins (a module's
         # remembered `src`) live in XDG STATE storage, and without this a
         # "fresh" Mask recording opened on whatever path a test last pinned
@@ -227,21 +235,34 @@ def main() -> int:
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtGui import QPainter
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QApplication, QAbstractButton, QDialog, QLabel, QMenu, QMessageBox, QTabWidget
+    from PySide6.QtWidgets import (
+        QAbstractButton,
+        QApplication,
+        QDialog,
+        QLabel,
+        QMenu,
+        QMessageBox,
+        QTabWidget,
+    )
     from shiboken6 import isValid
+
     import spacr
     import spacr.qt
     spacr.qt.register_self_registering_modules()
     from spacr.qt import app as gui
     from spacr.qt.first_run import mark_tour_seen
+    from spacr.qt.preferences import apply_preferences_to_app, set_font_scale, set_preload_policy
     from spacr.qt.walkthrough import mark_seen
-    from spacr.qt.preferences import (apply_preferences_to_app, set_preload_policy,
-                                      set_theme, set_font_scale)
     from spacr.qt.widgets.fold_strip import folded_modules
 
     # A private Xvfb recording cannot capture a portal/GTK dialog in another
     # desktop process. Use Qt's genuine file dialog, with identical operations.
     QApplication.setAttribute(Qt.ApplicationAttribute.AA_DontUseNativeDialogs)
+    if args.classifier_existing_split:
+        # This records a training workflow, not cold startup. Finish Torch's
+        # CPU import before the live resource monitor can inspect a partially
+        # imported module and emit a traceback with local installation paths.
+        import torch  # noqa: F401
     app = QApplication.instance() or QApplication([])
     mark_tour_seen()
     for key, *_ in gui.APPS:
@@ -249,7 +270,7 @@ def main() -> int:
     for key in folded_modules():
         mark_seen(key)
     set_preload_policy('on_demand')
-    set_theme('dark')
+    configure_appearance(args.theme, args.backdrop)
     set_font_scale(args.font_scale)
     if args.module in ('regression', 'queue', 'train_cellpose'):
         from spacr.qt.preferences import set_figure_format
@@ -259,6 +280,7 @@ def main() -> int:
     window.apply_dock_mode('locked')
     window.resize(3840, 2160)
     window.show()
+    exclude_release_history(window)
     captures = stage / 'captures' / (args.capture_name or args.module)
     captures.mkdir(parents=True, exist_ok=True)
     write_json(captures / 'provenance.json', {'module': args.module,
@@ -276,6 +298,27 @@ def main() -> int:
         return capture_rect(widget, window)
 
     def capture(name, *, desktop=False):
+        appearance = verify_appearance(window)
+        try:
+            verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
+        except RuntimeError:
+            # Private diagnostics only: never save a rejected frame. A guard
+            # can fire during a real run, so drain that run before unwinding
+            # the owning Qt objects (otherwise Qt aborts the whole process).
+            current_screen = window._screens.get(args.module)
+            console = getattr(current_screen, '_console', None)
+            if console is not None:
+                write_json(captures / (name + '_rejected_console.json'),
+                           [text for _, _, text in console._pipeline_console_blocks()])
+            running = getattr(current_screen, '_worker_thread_is_running', lambda: False)
+            if running():
+                # Cleanup is not a recorded interaction. Ask the production
+                # cooperative cancellation path directly: the visible Stop
+                # button opens a modal choice, which has no operator here.
+                current_screen._request_cooperative_stop()
+                while running():
+                    settle(.1)
+            raise
         pixmap = app.primaryScreen().grabWindow(0) if desktop else window.grab()
         if (pixmap.width(), pixmap.height()) != (3840, 2160):
             raise RuntimeError(f'Unexpected capture size {pixmap.size()}')
@@ -301,11 +344,12 @@ def main() -> int:
                                 'nav_key': widget.property('navKey'),
                                 'module_key': widget.property('moduleAppKey')})
         frames[name] = {'image': path.name,
+                        'appearance': appearance,
                         'capture_surface': 'private_desktop' if desktop else 'application_window',
                         'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                         'buttons': buttons,
                         'dialogs': [{'title': d.windowTitle(), 'rect': rect(d),
-                                     'labels': [l.text() for l in d.findChildren(QLabel)]}
+                                     'labels': [label.text() for label in d.findChildren(QLabel)]}
                                     for d in dialogs]}
         write_json(captures / 'frames.json', frames)
         print(f'captured {args.module}/{name}', flush=True)
@@ -348,6 +392,9 @@ def main() -> int:
         settle()
         capture('07_help')
         help_menu.hide()
+        from capture_home import record_help_search, record_performance
+        record_help_search(app, window, capture, settle)
+        record_performance(window, capture, settle)
     if args.module == 'db_browser':
         # The retained Database narration is still accurate. Capture its
         # current Help route and real controls without pre-opening it through
@@ -564,10 +611,11 @@ def main() -> int:
             from capture_plaque import record_plaque
             record_plaque(app, window, screen, stage, captures, capture,
                           settle, write_json, args.timeout, use_zoo_model=args.plaque_zoo_model)
-        if args.mask_editor_tour:
+        if args.mask_editor_tour or args.mask_readouts_tour:
             from capture_make_masks import record_editor
             record_editor(app, window, screen, stage, captures, capture,
-                          settle, write_json, args.timeout, detect=args.editor_detect)
+                          settle, write_json, args.timeout, detect=args.editor_detect,
+                          readouts_only=args.mask_readouts_tour)
         if args.module == 'import_images':
             from capture_image_import import record_import
             screen = record_import(app, window, screen, stage, captures,
@@ -654,6 +702,7 @@ def main() -> int:
             buttons = visible_test_data_buttons()
             if not buttons and args.module == 'classify_merged':
                 from copy import deepcopy
+
                 from capture_settings import require_unchanged_settings
                 before_disclosure = deepcopy(screen._settings_model.collect())
                 bar = screen._settings_search
@@ -723,10 +772,24 @@ def main() -> int:
             screen = window._screens[args.module]
             if not screen.isVisible():
                 raise RuntimeError('The current module screen is not visible after loading data')
-            capture('03_data_ready')
+            if not (args.module == 'annotate' and args.annotation_tour):
+                capture('03_data_ready')
+            # Annotate's automatic opening displays the real account cache
+            # path. Its tour verifies that opening independently, then shows
+            # the optional source picker at a neutral alias before capturing
+            # the loaded grid. No frame with a personal path is saved.
             if hasattr(screen, '_settings_model'):
                 settings = screen._settings_model.collect()
                 write_json(captures / 'settings.json', settings)
+            if args.module == 'classify_merged' and args.classifier_family == 'ml' and args.run:
+                # Confirm the downloaded project through the real source
+                # picker. Loading example settings currently leaves the
+                # empty-source card visible; this records the user action
+                # that updates it, without changing application behavior.
+                from capture_classify_existing import choose_existing_folder
+                source = settings['src']
+                source = Path(source[0] if isinstance(source, list) else source)
+                choose_existing_folder(app, screen, source, capture, settle)
             if args.module == 'mask':
                 images = list((stage / 'example_data/plate1').glob('*.tif'))
                 if not images:
@@ -736,7 +799,8 @@ def main() -> int:
                     'bytes': sum(p.stat().st_size for p in images)})
         if args.barcode_search_tour:
             from capture_barcode_search import record_search
-            record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout)
+            record_search(app, screen, stage, captures, capture, settle, write_json, args.timeout,
+                          reference_source=args.barcode_reference_source)
         if args.measure_preview_controls:
             from capture_measure_controls import record_controls
             record_controls(app, window, screen, captures, capture, settle,
@@ -1122,7 +1186,7 @@ def main() -> int:
                 presets['classify_merged'].pop('gradient_accumulation', None)
                 presets['classify_merged'].update(
                     src=[str(args.classifier_existing_split.resolve())],
-                    generate_training_dataset=False, n_jobs=0, val_split=0.5,
+                    generate_training_dataset=False, n_jobs=2, val_split=0.5,
                     test_split=0.5, train_channels=['r', 'g', 'b'])
             if args.module == 'recruitment':
                 from recruitment_data import prepare_subset
@@ -1235,6 +1299,15 @@ def main() -> int:
                 queue.show_index(queue.count() - 1)
                 settle()
                 capture('24_batch_figure')
+            if args.module == 'classify_merged' and args.classifier_family == 'ml':
+                # Make room for the complete native charts through the same
+                # splitter a user can drag. Let each live canvas settle after
+                # navigation; never crop or rebuild a chart for the video.
+                screen._runtime_splitter.setSizes([1200, 450])
+                for index in range(queue.count()):
+                    queue.show_index(index)
+                    settle(2)
+                    capture(f'25_ml_figure_{index:02d}')
             if args.module == 'measure':
                 from capture_settings import require_unchanged_settings
                 before_tour = screen._settings_model.collect()
@@ -1361,8 +1434,8 @@ def main() -> int:
                 if not proof['accepted']:
                     raise RuntimeError('; '.join(proof['reasons']))
             if args.module == 'recruitment':
-                from recruitment_evidence import inspect_results
                 from recruitment_data import _sha256
+                from recruitment_evidence import inspect_results
                 originals = [(Path(manifest['source_database']), manifest['source_database_sha256'])]
                 originals += [(Path(row['source']), row['sha256']) for row in manifest['arrays']]
                 unchanged = {str(path): _sha256(path) == digest for path, digest in originals}

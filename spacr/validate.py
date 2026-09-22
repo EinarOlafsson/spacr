@@ -189,6 +189,41 @@ METADATA_REGEXES: Dict[str, str] = {
 }
 
 
+def _add_the_rest_of_the_convention_table() -> None:
+    """Put every other microscope convention into :data:`METADATA_REGEXES`.
+
+    The three above are spelled out because they are PINNED -- they mirror
+    ``spacr.utils._get_regex``'s original arms character for character and
+    are not allowed to drift. Everything else lives in
+    ``spacr.regex_infer._METADATA_CONVENTIONS`` and is copied here so that
+    this module does not become a second, staler list of what spaCR can
+    parse.
+
+    WITHOUT THIS THE WARNING LIES. ``_candidate_patterns`` tries the chosen
+    ``metadata_type`` first and then sweeps the rest; a key it has never
+    heard of makes ``raw_channels`` None, and the run advice then tells a
+    user whose Opera Phenix plate parses perfectly that none of their files
+    match and that they should pick 'cellvoyager', 'cq1' or 'auto'.
+
+    ``spacr.regex_infer`` imports nothing outside the standard library, so
+    this keeps the promise in this module's own header that it stays
+    dependency-light.
+    """
+    from .regex_infer import (_METADATA_CONVENTIONS,
+                              _metadata_pattern_any_extension)
+
+    extensions = tuple(suffix.lstrip(".") for suffix in IMAGE_EXTENSIONS)
+    for record in _METADATA_CONVENTIONS:
+        key = record["key"]
+        if key in METADATA_REGEXES or key == "custom":
+            continue
+        METADATA_REGEXES[key] = _metadata_pattern_any_extension(
+            key, extensions)
+
+
+_add_the_rest_of_the_convention_table()
+
+
 def _normalize_app(app_key: Any) -> str:
     """Canonicalize a caller-supplied app key; unknown keys pass through.
 
@@ -325,11 +360,22 @@ class _Inventory:
 
 
 def _listdir(path: Optional[str]) -> List[str]:
-    """``os.listdir`` that returns [] instead of raising on a bad path."""
+    """``os.listdir`` without dot-files, returning [] instead of raising on a bad path.
+
+    Names that start with a dot are left out: a macOS ``._<name>``
+    AppleDouble sidecar keeps the ``.npy`` or ``.tif`` ending of the file it
+    shadows and is not an image or an array, so counting it doubles every
+    count the preflight prints, and a sorted listing puts it before the real
+    fields :func:`_peek_planes` samples.
+
+    :param path: the folder to list, or a falsy value.
+    :returns: the visible entry names in :func:`os.listdir` order, or an
+        empty list when ``path`` is falsy or cannot be listed.
+    """
     if not path:
         return []
     try:
-        return os.listdir(path)
+        return [name for name in os.listdir(path) if not name.startswith('.')]
     except OSError:
         return []
 
@@ -675,7 +721,7 @@ def _check_src(settings: Dict[str, Any], app: str, inventories: Sequence[_Invent
                     WARNING, "metadata_type",
                     f"{inv.raw_files} image files found in {inv.src}, but none match the "
                     f"'{settings.get('metadata_type', 'cellvoyager')}' filename pattern.",
-                    "Set metadata_type to match your microscope ('cellvoyager', 'cq1', 'auto'), or supply custom_regex with wellID/fieldID/chanID groups."))
+                    "Set metadata_type to match your microscope — the dropdown now groups the built-in conventions by vendor, and 'Test on my folder' beside it reports how many of these files each one parses. Failing that, supply custom_regex with wellID/fieldID/chanID groups."))
 
         if app in DB_APPS and not inv.db_exists:
             problems.append(Problem(
@@ -1009,20 +1055,15 @@ RETIRED_SETTINGS: Dict[str, Union[str, Tuple[str, ...]]] = {
     "highlight": "",
     "guide_permutation_plot": "",
     "corrected_manders": "",
-    # `grna` was declared only by `get_map_barcodes_default_settings`, which
-    # nothing under `spacr/` calls, and its own tooltip said so. The live
-    # equivalent is `grna_csv`, read by `generate_barecode_mapping`. Retired
-    # 2026-09-14 under 364, approved by the maintainer 2026-09-09.
     "grna": "",
+    "barcodes": "",
+    "Toxoplasma": "annotation_source",
+    "toxo": "annotation_source",
+    "img_size": "crop_size",
+    "infection_pca_n_clusters": "",
+    "straightness_filter": "drop_straight_tracks",
+    "zscore_thresh": "track_outlier_zscore",
 }
-#: NOT HERE, YET: `barcodes`, `grna`'s sibling in the same dead factory and
-#: approved for the same retirement on the same day. It is HELD because a
-#: REVIEWED translation is pinned to its tooltip --
-#: `docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json`, record
-#: ("setting_tooltips", "barcodes") -- so withdrawing it retires a reviewed
-#: record rather than only a dead key. `grna` has no reviewed record in any
-#: of the nine locales, which is why it could go alone.
-#:
 #: NOT HERE: a setting withdrawn from ONE panel while `spacr.settings` still
 #: declares it. `log_x`, `log_y`, `x_lim`, `y_lims` and `png_type` left the
 #: regression panel and are read elsewhere, so naming one here would warn a
@@ -1060,6 +1101,17 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
                 continue
             replacement = (survivors[0] if len(survivors) == 1
                            else tuple(survivors))
+        from .settings import SEMANTIC_FOLD_MEANINGS
+
+        meaning = SEMANTIC_FOLD_MEANINGS.get(key)
+        if meaning and replacement:
+            problems.append(Problem(
+                WARNING, key,
+                f"'{key}' was folded into '{replacement}'.",
+                f"Set '{replacement}' instead. spaCR still reads the old "
+                f"value -- {meaning} -- so a file that has not been updated "
+                f"still behaves as it did."))
+            continue
         if isinstance(replacement, (tuple, list)):
             names = ", ".join(f"'{one}'" for one in replacement)
             problems.append(Problem(
@@ -1073,8 +1125,9 @@ def _check_retired_keys(settings: Dict[str, Any]) -> List[Problem]:
             problems.append(Problem(
                 WARNING, key,
                 f"'{key}' was renamed to '{replacement}'.",
-                f"Rename '{key}' to '{replacement}' — as it stands the "
-                f"value is ignored and the default is used."))
+                f"Rename '{key}' to '{replacement}'. spaCR still moves the "
+                f"value across when it reads this file, but the new name is "
+                f"the one to write."))
         else:
             problems.append(Problem(
                 WARNING, key,
@@ -1147,6 +1200,54 @@ def _numeric(value: Any) -> Optional[float]:
     return None
 
 
+_FLOW_THRESHOLD_DEFAULT = 0.4
+
+
+def _flow_threshold_problems(key: str, value: Any, number: float) -> List[Problem]:
+    """Warn when a Cellpose flow threshold leaves the filter doing nothing.
+
+    Cellpose discards a mask whose flow error -- the mean squared difference
+    between the flows recomputed from the mask and the flows the network
+    predicted, both of about unit length -- is above the threshold. Above 3
+    that rejects practically nothing, and at 0 or below Cellpose skips the
+    check, so either way every mask Cellpose proposes is kept. Values above
+    3 and below 0 are reported. Exactly 0 is not: it is Cellpose's own
+    switch for turning the check off ("turn off QC step with
+    flow_threshold=0 if too slow"), so it is taken as meant. The shipped
+    default of 0.4 is never reported, and the 100 that spaCR 1.5.0.5 to
+    1.5.0.8 shipped still is.
+
+    :param key: the setting name.
+    :param value: the value as the settings hold it.
+    :param number: ``value`` as a float.
+    :returns: one warning when the value is above 3 or below 0, else
+        nothing.
+    """
+    if number > 3:
+        return [Problem(
+            WARNING, key,
+            f"{key}={value} turns Cellpose's flow-error filter off: above 3 "
+            "it rejects practically nothing, so every mask Cellpose proposes "
+            "is kept, however misshapen.",
+            f"spaCR and Cellpose both default to {_FLOW_THRESHOLD_DEFAULT}. "
+            "spaCR 1.5.0.5 to 1.5.0.8, and some older releases, shipped 100, "
+            "so a settings file saved by one of them still carries it. Set "
+            f"{key} to {_FLOW_THRESHOLD_DEFAULT} to drop misshapen masks again "
+            "(values above 0 and up to 3 filter, and lower keeps fewer, "
+            "cleaner objects), or keep it above 3 only if you want every "
+            "candidate.")]
+    if number < 0:
+        return [Problem(
+            WARNING, key,
+            f"{key}={value} is below 0, and Cellpose skips its flow-error "
+            "filter for any value of 0 or less, so every mask Cellpose "
+            "proposes is kept.",
+            f"spaCR and Cellpose both default to {_FLOW_THRESHOLD_DEFAULT}. "
+            f"Set {key} above 0 and at most 3 to filter misshapen masks; "
+            "lower keeps fewer, cleaner objects.")]
+    return []
+
+
 def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
     """Diameters, percentiles, thresholds and batch sizes are in usable ranges."""
     problems: List[Problem] = []
@@ -1190,10 +1291,7 @@ def _check_numeric_sanity(settings: Dict[str, Any]) -> List[Problem]:
                     "Lower it toward -6 to grow masks and keep faint objects; raise it toward 6 to shrink them."))
 
         if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flow_threshold")):
-            if not 0 <= number <= 3:
-                problems.append(Problem(
-                    WARNING, key, f"{key}={value} is outside the useful 0 to 3 flow-threshold range.",
-                    "Cellpose's own default is 0.4; spaCR ships 1.0. Values above 3 disable the filter entirely."))
+            problems.extend(_flow_threshold_problems(key, value, number))
 
         if number is not None and key in ("val_split", "test_split", "dropout_rate",
                                           "organelle_unet_threshold", "score_threshold"):

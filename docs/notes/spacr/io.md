@@ -85,9 +85,12 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [training_dataset_from_annotation](#training_dataset_from_annotation) (7 entries)
 - [training_dataset_from_annotation_metadata](#training_dataset_from_annotation_metadata) (7 entries)
 - [generate_dataset_from_lists](#generate_dataset_from_lists) (9 entries)
-- [convert_separate_files_to_yokogawa](#convert_separate_files_to_yokogawa) (10 entries)
+- [convert_separate_files_to_yokogawa](#convert_separate_files_to_yokogawa) (11 entries)
 - [convert_to_yokogawa](#convert_to_yokogawa) (22 entries)
 - [prepare_cellpose_dataset](#prepare_cellpose_dataset) (3 entries)
+- [_listdir_visible](#_listdir_visible) (2 entries)
+- [_load_array_any, 2026-09-19](#_load_array_any-2026-09-19) (1 entry)
+- [_check_masks, 2026-09-19](#_check_masks-2026-09-19) (1 entry)
 
 ## Module level
 
@@ -881,13 +884,25 @@ background = settings.get('background', 100)
 
 Default normalisation params for any channel that isn't one of the recognised object channels (e.g. an organelle channel, or an intensity-only channel measured but not segmented). Without these defaults a channel matching NONE of the object types below raised UnboundLocalError: 'background'.
 
-### lines 1763-1764
+### the organelle-slot loop
 
 ```python
-if settings.get('organelle_channel') is not None and channel == settings['organelle_channel']:
+for role, role_channel in organelle_slot_channels:
 ```
 
-Organelle channel — use organelle-specific settings when present, otherwise the generic defaults above.
+Every organelle slot the run enables takes its own `<slot>_background`, `<slot>_signal_to_noise` and `remove_background_<slot>` when present, otherwise the generic defaults above. This used to be one branch for `organelle_channel` alone.
+
+2026-09-19, items 364 and 76. The maintainer was asked whether this branch should become a loop over every slot and answered "Yes, all slots". Measured before the change, with raw TIFFs through `preprocess_generate_masks`: `organelleb_background=400` and `organelleb_signal_to_noise=3` printed `Processing channel 3: background=100, signal_threshold=1000`, the generic pair. After it the same run prints `background=400, signal_threshold=1200`.
+
+With the shipped defaults, a channel only one object names is normalised exactly as before, because every slot's defaults (100 and 10) are the generic fallbacks. A channel two objects name is not: the loop runs after the nucleus, cell and pathogen branches, so a slot sharing the pathogen's channel now takes the slot's 100 and 10 where the channel used to take the pathogen's. Measured on the worktree, `pathogen_channel=2` at 200 and 20 with `organelleb_channel=2` at the factory values: before, `background=200, signal_threshold=4000`; after, `background=100, signal_threshold=1000`. That is the decision the maintainer made, and the order the first slot has always had (its branch was last too), but the first pass of this change recorded it as "with the shipped defaults no channel is normalised differently", which was wrong. Corrected here and in item 364 on review.
+
+The three are read one by one, so a slot wins each value it carries and leaves the rest as the channel already had them. On a shared channel that shows: with `remove_background_pathogen` on and no `remove_background_<slot>` declared past the first slot, the channel keeps the pathogen's switch while taking the slot's floor and anchor. `tests/test_every_organelle_slot_is_preprocessed_and_measured.py` pins that; the first pass of this note expected the slot to take the channel whole.
+
+A value of `None` counts as one the slot does not carry, rather than as the slot's answer. The first pass read `settings.get(f'{role}_background', background)`, so a key present and empty beat the fallback: with `organelleb_channel` set and `organelleb_background` empty the run died on `TypeError: unsupported operand type(s) for *: 'NoneType' and 'NoneType'` where the same settings ran before. The first slot carried that hazard on origin/nightly as well (`organelle_background=None` raised there); reading all three through an `is not None` test closes both. `0` is a floor a user can mean, so the test is against `None` and not against falsehood.
+
+The slots and their channels are read once per call, before the channel loop, because `enabled_organelle_roles` walks all 702 slots.
+
+`remove_background_<slot>` is declared for the first slot only (`remove_background_organelle`, in the Mask factory's generic block). Slots 2 onward have a declared floor and anchor but no declared switch, so from the interface their channel keeps the generic `remove_background` (False), as it did before. The loop reads the switch under the name the first slot uses, so a settings file that writes `remove_background_organelleb` is honoured. Declaring it for every slot is a new setting per slot, with a type, a tooltip, a category and a translation each. That needs the maintainer to accept the name, and is recorded in item 364.
 
 ### line 1777  _(unsure)_
 
@@ -2891,6 +2906,18 @@ original_files = ";".join(f[0] for f in file_list)
 
 Log original filenames involved in MIP or single file rename
 
+### 2026-09-19, a failure names its file
+
+```python
+except Exception as exc:
+    raise ValueError(
+        f"{original_files} matched the regex but could not be "
+```
+
+The Mask run used to catch any failure here and convert the folder again without the regex, which numbers the wells in file order and so relabels them (see `docs/notes/spacr/core.md`, "the regex conversion no longer falls back"). It now stops, and the error has to be enough for the user to act on. A bare `tifffile` error does not say which file it read (`TiffFileError: not a TIFF file b'...'`), so the failure is raised again as a `ValueError` that names the source file or files of the region, the converted name it was writing, the original error, and how many converted files the folder already holds from this call. `rename_log.csv` is still written only when every region converted, so a folder that holds some converted files and no fresh log is one this error described.
+
+The `fieldID`, `timeID`, `chanID` and `sliceID` groups are checked as whole numbers while the folder is listed, before any file is written. A `fieldID` the regex read as `s1` used to fail at the `F{int(fieldID):03d}` of the first region that carried it, after the regions before it had been written.
+
 ## convert_to_yokogawa
 
 ### lines 8370-8377
@@ -3096,3 +3123,110 @@ augmented_sampled = [
 ```
 
 Add "no augmentation" tag to original files
+
+## _listdir_visible
+
+### 2026-09-19, GitHub #121 and #117
+
+```python
+return [name for name in os.listdir(folder) if not name.startswith('.')]
+```
+
+A Mask run on an Apple M4, plate on `/Volumes/jk-ummi`, died in `generate_cellpose_masks_sam` with numpy's "This file contains pickled (object) data". Nothing spaCR writes into `masks/` is pickled: the normalised archive holds `data` (float32) and `filenames` (a `<U` array), and it loads with `allow_pickle=False`. The #117 log names the file that failed one stage earlier, `stack/._test_N06_5_1.npy`. It is an AppleDouble sidecar. macOS writes `._<name>` beside a file that carries extended attributes when the volume cannot store them natively (exFAT, FAT, many SMB shares). The sidecar keeps the ending of the file it shadows, so every `os.listdir(...) if name.endswith('.npz')` took it for data. `np.load` reads any file that is neither `.npy` magic nor a zip as a pickle, which is why the message says "pickled".
+
+Not `allow_pickle=True`: measured, it turns the ValueError into `UnpicklingError: Failed to interpret file ... as a pickle`, and it would let a file dropped into the folder run code at load. Not convert-on-read either: the files spaCR wrote in 1.5.0.8 were never object arrays and load unchanged. The fix is at the listing.
+
+It surfaced there because the platform is the one that makes sidecars and the Mask path re-lists its own output folders four times (`stack/`, `masks/`, each `*_mask_stack/`, `merged/`). The raw-image listing in `_rename_and_organize_image_files` already skipped dot-files; nothing after it did. `concatenate_and_normalize` met the sidecar first, but its per-item ledger only logged it ("RUN INCOMPLETE - 1 of 2 items failed"). `generate_cellpose_masks_sam` has no ledger around its load, so it raised. The first commit touched 37 listing sites in 20 functions in `io.py`, `object.py`, `core.py`, `utils.py` and `plot.py`, and `tests/test_a_stack_file_spacr_wrote_is_one_it_can_read.py` fails if one of those functions calls `os.listdir` directly again. It did not reach every listing on the Mask path; the entry below names the ones review found after it. `seg_qc._iter_masks` and `illumination._merged_files` (reached when segmentation illumination correction is on) filter inline, because `seg_qc` is tested to import no torch and this module imports it at load.
+
+Every dot-file is left out, not just `._`: the atomic writers here name their temporaries `.spacr_tmp_*.npy` and `.spacr_npz_*.npz`, and a run killed mid-write leaves one behind with a data ending. Since item 430 (GitHub #118/#124, same day) the temporaries end in `.partial` instead, so a new run no longer leaves one with a data ending; folders written by earlier versions can still hold them. Order is `os.listdir` order, unchanged, so batching and the seeded shuffle see the same sequence they did before.
+
+### 2026-09-19, after review: the listings the first commit missed
+
+```python
+for file in sorted(_listdir_visible(folder)):
+```
+
+Review found three more Mask-path listings that still read sidecars, and a fourth turned up checking the v2 path. All are selectable from the Mask settings:
+
+- `metadata_type='auto'`: `preprocess_generate_masks` calls `convert_separate_files_to_yokogawa` when a custom regex is set, and `convert_to_yokogawa` when it is not or when the regex conversion raises. Both listed the raw folder with bare `os.listdir`. With a regex that starts `(?P<plateID>.*)_`, `._exp1_B03_s1_w1.tif` matched, `tifffile` raised on it, and `core` fell back to the regex-less conversion without saying why. That conversion gives each file the next free well, and in sorted order the sidecars come first. Measured with one channel per well: B03 and C07 came out as `plate1_A03` and `plate1_A04`, after "RUN INCOMPLETE - 2 of 4". With four channels per well each file got a well of its own, and the run stopped with `IndexError: index 3 is out of bounds for axis 3 with size 1`. Without a regex, one image and its sidecar gave "RUN INCOMPLETE 1 of 2", the image became `plate1_A02`, and `rename_log.run_status.json` was stamped partial. Both loops now use this helper.
+- `consolidate=True`: `spacr.utils.generate_image_path_map` walked with `os.walk`. See `docs/notes/spacr/utils.md`.
+- `pipeline_style='v2'`: `spacr.pipeline_v2.FilenameMapper.discover` and `spacr._v1_v2_bridge.v2_mask_source`. See those modules' notes.
+- The preflight: `spacr.validate._listdir`. See `docs/notes/spacr/validate.md`.
+
+The last three filter inline rather than through this helper, because `spacr.io` imports torch at module level: `validate` is tested to import no torch, and `_v1_v2_bridge` and `FilenameMapper.discover` run without it today.
+
+STILL BARE, and not on the Mask path: `measure.py` lists `merged/` for Measure, and so does `resume.completed_fields_in_merged` when it is called without `fields` (Measure's resume plan). On such a drive Measure reports a spurious "RUN INCOMPLETE ... 1 of 2 failed" for the sidecar. `stream_dataset` (training data) lists `merged/` bare too. They are recorded in `features/new/429_a_stack_file_spacr_wrote_is_one_it_can_read.txt`.
+
+## A re-run trusts nothing a killed run left (2026-09-19, GitHub #118 and #124)
+
+Added with ledger item 430. These are the reasons behind `_replace_atomically`, `_set_aside_damaged_stacks`, `_inspect_normalized_archive`, `_resume_normalized_archives`, `_rebuild_stacks_from_raw`, `_sample_stacks_for_test_mode` and `_no_stacks_error`, and behind the changes to `_rename_and_organize_image_files` and `preprocess_img_data`.
+
+### Why every stack and archive goes through `_replace_atomically`
+
+`np.save(path)` and `np.savez_compressed(path)` open the final name and write into it, so a run killed part-way leaves a file that starts right and ends early. #124 was one of these: `masks/stack_4_norm.npz` was cut short, and the next run reused it and died with `zipfile.BadZipFile`. The only writer that was already atomic was the illumination path. Measured with a real SIGKILL on origin/nightly (`test_a_run_killed_while_writing_an_archive_leaves_no_archive`): the kill left the partial write under the final name, `masks/stack_0_norm.npz`. With the change, `masks/` holds only a `.partial` sibling, and no `*.npz`.
+
+The sibling's name ends in `.partial`, not `.npy` or `.npz`. The old helpers used `suffix='.npy'` and `suffix='.npz'`, and every consumer lists fields with `name.endswith('.npy')` / `'.npz'`, so a sibling left by a SIGKILL (no `except` runs) would have been read as a field. The prefixes `.spacr_tmp_` and `.spacr_npz_` are kept because tests find leftovers by them.
+
+The sibling has to be written through an open handle. Given a path, `numpy.savez` appends `.npz` to a name that does not end in it.
+
+### Why damaged files are renamed rather than deleted
+
+`<name>.damaged` drops out of every listing that selects `.npy` or `.npz`, so nothing downstream reads it, and the user can still see exactly which files were bad. The run's log names each one with its reason, and `cleanup_pipeline_folders` removes them with the rest of `stack/` and `masks/`.
+
+### Why the checks are cheap
+
+A stack file is judged by its header and its length (`spacr.resume.validate_merged_field`): a file shorter than its declared shape needs was cut short. That is one small read per field, where `np.load` would read the whole array. An archive is judged by opening its zip directory, which `numpy.savez_compressed` writes last and a truncated file therefore lacks, by checking that each member's recorded extent fits in the file, by reading the header of `data.npy`, and by reading `filenames.npy`. Pixel data is never inflated. `ZipFile.testzip()` would check every CRC, but it inflates every member, gigabytes per archive on a real plate.
+
+`#124`'s reporter suggested `np.load(mmap_mode='r')` on each `stack/*.npy`. The header-and-length check fails on the same files and reads less. The memory map is still used when the header check cannot size the dtype.
+
+### Why the missing fields are normalised into NEW archives
+
+A damaged archive cannot say which fields it held, but the whole archives can. Every field of `stack/` that no whole archive lists is normalised again, into `stack_<n>_norm.npz` numbered after the highest number already used, damaged ones included. Numbering them after the old ones means no whole archive is overwritten. Normalisation is per batch, and the batch was chosen at random (`randomize`) in the first place, so a new batch of the missing fields is as valid as any other batch. The masks already made from the whole archives stay: `_check_masks` skips any field that already has a mask.
+
+No archive is added to a set whose `data` holds a different number of channels than the current settings select. That happens when the channels were changed between the runs, and the segmenter indexes every archive by the same channel positions. The log says so and names the way out: move `masks/` aside and run again.
+
+Two sets are rebuilt whole instead. An illumination-corrected set is published and recorded as one set (`_publish_v1_normalized_archives`). A timelapse archive is named after its group, so writing part of a group again would replace the archive that holds the rest.
+
+### Why `orig/` is read, and when `stack/` is not filled in
+
+`_rename_and_organize_image_files` moves the raw images into `orig/` once the stacks are written. So on a second run the plate folder holds no images, and when `stack/` was gone (the end-of-run cleanup removes it once `merged/` is complete) the organiser found nothing. #118's message then read spaCR's own `orig/` and `stack/` as plates. Measured on origin/nightly: `test_a_rerun_on_a_finished_plate_builds_its_stacks_again_from_orig` fails with `... sub-folders (merged, orig, stack) — if those are plates, point src at one of them`.
+
+Fields are identified by stem, and some folders were written under another scheme: before `_escaped_field_stem`, or by `_merge_channels`, whose non-timelapse stems end in `_`. If none of the stems in `stack/` is one these raw images make, nothing is added. Filling in would put every field of the plate in `stack/` twice.
+
+### Why nothing is moved or deleted when no field was read
+
+On origin/nightly, with `save_original_images` off, images that matched no filename pattern were deleted after zero stacks were written (`test_a_pattern_that_matches_nothing_leaves_the_images_alone` found the folder holding only an empty `stack/`). With it on, they were moved into `orig/` beside an empty `stack/`, the state #118's message then misread. Now a deletion removes only an image whose field has a stack, and a run that read no field creates, moves and deletes nothing.
+
+### Why test mode no longer takes the existing `masks/` shortcut, and samples `stack/`
+
+Test mode writes into `test/`. Taking the plate's own `masks/` shortcut meant a test-mode run segmented the whole plate. #118 ran with `test_mode=True, test_images=1` on a plate whose raw images were gone (`save_original_images` off deletes them once `stack/` is written). Test mode copies raw images, found none, and ran the organiser on an empty `test/`. That created `test/orig` and `test/stack`, and the error named them. On origin/nightly `test_issue_118_test_mode_on_a_plate_whose_raw_images_are_gone` reproduces #118's exact message. Now a sample of the plate's whole `stack/*.npy` is copied into `test/stack/`, with the seed `_run_test_mode` uses.
+
+### 2026-09-19, after review: the paths the first version did not reach
+
+Review measured four of them, each with a probe:
+
+- **`preprocess` off.** `spacr.core.preprocess_generate_masks` handed `masks/*.npz` to the segmenter unchecked, so the #124 state still ended in `BadZipFile` there. `_check_archives_without_preprocessing` now runs the same archive check (`_check_normalized_archives`, shared with `_resume_normalized_archives`). It does not normalise anything, because `preprocess` off means the user says the normalised arrays exist: it sets the damaged archive aside and raises, naming it, and says what turning `preprocess` on will rebuild it from (`stack/`, the raw images, or nothing, with the way out for each).
+- **Channel folders.** `_merge_channels` merged only into an empty `stack/`, the defect the organiser had, so a channel-folder plate killed while stacking kept the part it had written, and a stack set aside as damaged was never merged again although the channel folders held its images. It now merges only the fields `stack/` lacks (`_merge_file` already skipped existing files), with the organiser's guard against a `stack/` named under another scheme. `preprocess_img_data` calls it whenever channel folders exist, and so does the `masks/` shortcut.
+- **A damaged stack nothing can rebuild.** With the raw images gone (`save_original_images` off) the field was dropped with one log line, where the base code at least recorded a `load_npy` failure in `concatenate_and_normalize`'s ledger. `_report_unrebuilt_stacks` records each such field as a failure, so the run ends on `RUN INCOMPLETE`. It works from the `<name>.damaged` files on disk rather than from this run's list, so a second run says it again instead of finishing quietly short. The same reasoning makes an archive an earlier run set aside count in `_resume_normalized_archives`: with no `stack/` to rebuild it from, the error is raised again on the next run, and the message says how to go on without those fields (move the `.damaged` file out).
+- **Unreadable images.** Images whose names matched but that no reader opened were still moved into `orig/`, because the move keyed on "a field was attempted"; the error then called the folder already processed. The move now keys on "a field of these images has a stack".
+
+Also from review:
+
+- **Rebased onto item 429.** Every listing these helpers added goes through `_listdir_visible`, or a macOS `._` sidecar in `stack/` or `masks/` is checked, reported and renamed as a damaged file, and one in `masks/` beside an absent `stack/` raised the "nothing to rebuild from" error. `_sweep_partial_writes` alone keeps `os.listdir`, because the files it removes are dot-files.
+- **`open(temporary, 'xb')`, not `tempfile.mkstemp`.** `mkstemp` creates the file 0600, where `numpy.save` onto the final name gave the umask's mode (0664 here); on a shared cluster file system that keeps `stack/` and `masks/` from the rest of the group. An exclusive `open` gets the umask's mode. It also goes through `builtins.open`, which is what 429's emulated macOS volume hooks to make its sidecars; with `mkstemp` that test stopped exercising #117.
+
+## _load_array_any, 2026-09-19
+
+```python
+return np.load(path, allow_pickle=False)
+```
+
+`_load_array_any` reads every non-reference mask into `merged/`. It passed `allow_pickle=True` since October 2024, when every mask writer already saved `mask.astype(np.uint16)`, so the flag loaded nothing a plain load would not and let a pickled `.npy` in a mask folder run code when the merge read it. See `docs/notes/spacr/utils.md`, `process_mask_file_adjust_cell, 2026-09-19`.
+
+## _check_masks, 2026-09-19
+
+```python
+ok, reason = validate_merged_field(path)
+```
+
+`_check_masks` used to skip any mask file that existed unless `resume` was on, so a mask a killed run left truncated was reused and merged. It now validates every existing mask by header and length, prints `<path> is damaged (<reason>); generating it again.`, and returns it for segmenting; the new mask replaces it through `_save_array_atomic`. `resume` is still accepted. See `docs/notes/spacr/utils.md`, `check_mask_folder, 2026-09-19`, for the folder-level count that decides whether segmentation runs at all.

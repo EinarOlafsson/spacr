@@ -113,7 +113,11 @@ def test_a_new_tool_is_enabled_with_the_rest_when_a_folder_opens(
 
 
 def test_an_action_button_joins_the_same_row(qtbot, qt_theme_applied):
-    """A non-mode button lands in the one row, left of the settings toggle."""
+    """A non-mode button lands in the one row, left of the settings toggle.
+
+    Item 419 put the toggle directly right of the Magnifier, so the pair ends
+    the row's buttons and only the stretch that holds them left comes after.
+    """
     screen = MakeMasksScreen()
     qtbot.addWidget(screen)
     button = QPushButton("Cellpose-SAM detect")
@@ -122,9 +126,12 @@ def test_an_action_button_joins_the_same_row(qtbot, qt_theme_applied):
     row = screen._tool_row_layout
     where = row.indexOf(button)
     assert where >= 0, "the action did not land in the tool row"
-    assert where < row.indexOf(screen._btn_settings), (
-        "the action pushed past the settings toggle, which stays at the end")
-    assert row.indexOf(screen._btn_settings) == row.count() - 1
+    assert where < row.indexOf(screen._btn_magnifier), (
+        "the action came between the Magnifier and the settings toggle")
+    assert row.indexOf(screen._btn_settings) == \
+        row.indexOf(screen._btn_magnifier) + 1
+    assert row.indexOf(screen._btn_settings) == row.count() - 2
+    assert row.itemAt(row.count() - 1).spacerItem() is not None
 
 
 def test_the_row_cannot_force_the_window_wide(qtbot, qt_theme_applied):
@@ -219,19 +226,19 @@ def test_the_canvas_takes_the_space_the_settings_give_up(
     qtbot.waitUntil(lambda: screen._canvas.width() > 1)
 
     wide_open = screen._body_splitter.sizes()
-    assert wide_open[1] > 0
+    assert wide_open[0] > 0, "the settings are the left pane (item 419)"
     before = screen._canvas.width()
 
     screen._btn_settings.setChecked(False)
     qtbot.waitUntil(lambda: screen._canvas.width() > before)
-    assert screen._body_splitter.sizes()[1] == 0
-    assert screen._canvas.width() >= before + wide_open[1] - 8, (
+    assert screen._body_splitter.sizes()[0] == 0
+    assert screen._canvas.width() >= before + wide_open[0] - 8, (
         "the canvas did not grow into the space the settings vacated")
 
     screen._btn_settings.setChecked(True)
-    qtbot.waitUntil(lambda: screen._body_splitter.sizes()[1] > 0)
+    qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
     # back to the width it had, not to some default
-    assert abs(screen._body_splitter.sizes()[1] - wide_open[1]) <= 8
+    assert abs(screen._body_splitter.sizes()[0] - wide_open[0]) <= 8
 
 
 def test_a_dragged_settings_width_survives_a_hide(
@@ -246,15 +253,15 @@ def test_a_dragged_settings_width_survives_a_hide(
     qtbot.waitUntil(lambda: screen._canvas.width() > 1)
 
     total = sum(screen._body_splitter.sizes())
-    screen._body_splitter.setSizes([total - 250, 250])
-    qtbot.waitUntil(lambda: abs(screen._body_splitter.sizes()[1] - 250) <= 8)
+    screen._body_splitter.setSizes([250, total - 250])
+    qtbot.waitUntil(lambda: abs(screen._body_splitter.sizes()[0] - 250) <= 8)
 
     screen._btn_settings.setChecked(False)
-    qtbot.waitUntil(lambda: screen._body_splitter.sizes()[1] == 0)
+    qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] == 0)
     screen._btn_settings.setChecked(True)
-    qtbot.waitUntil(lambda: screen._body_splitter.sizes()[1] > 0)
-    assert abs(screen._body_splitter.sizes()[1] - 250) <= 8, (
-        f"came back at {screen._body_splitter.sizes()[1]}px, "
+    qtbot.waitUntil(lambda: screen._body_splitter.sizes()[0] > 0)
+    assert abs(screen._body_splitter.sizes()[0] - 250) <= 8, (
+        f"came back at {screen._body_splitter.sizes()[0]}px, "
         f"not the 250px it was dragged to")
 
 

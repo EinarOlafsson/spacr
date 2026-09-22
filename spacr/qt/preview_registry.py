@@ -57,19 +57,26 @@ class PreviewSpec:
     :ivar propagation: rename map applied to whatever the panel hands back
         through ``set_propagate_callback``, so a panel written for one
         module's setting names can serve another's.
-    :ivar owned_by_screen: True for the four ``AppScreen`` already builds.
+    :ivar owned_by_screen: True for the ones ``AppScreen`` already builds.
         They are declared here so this registry is the single answer to
         "which modules have a preview", and skipped at install time so they
         do not get a second card.
+    :ivar fill: ``"module:function"`` taking ``(host, card)`` and building
+        the panel into the card, returning it. Given, a preview ATTACHED
+        through this registry builds only its card at install --
+        ``builder`` is called with ``panel_later=True`` -- and the panel the
+        first time the card is shown or the panel is asked for, so a hidden
+        preview costs a module's open nothing.
     """
     builder: str
     title: str = "Live preview"
     tooltip: str = ""
     propagation: Dict[str, str] = field(default_factory=dict)
     owned_by_screen: bool = False
+    fill: str = ""
 
 
-#: app key -> its preview. The four marked ``owned_by_screen`` are built by
+#: app key -> its preview. The ones marked ``owned_by_screen`` are built by
 #: ``AppScreen`` itself; the rest are attached by :func:`install`.
 PREVIEWS: Dict[str, PreviewSpec] = {
     "mask": PreviewSpec(
@@ -81,6 +88,8 @@ PREVIEWS: Dict[str, PreviewSpec] = {
     "timelapse": PreviewSpec(
         builder="spacr.qt.widgets.timelapse_preview:"
                 "build_timelapse_preview_card",
+        fill="spacr.qt.widgets.timelapse_preview:"
+             "_fill_timelapse_preview_card",
         title="Track preview", owned_by_screen=True),
     "motility": PreviewSpec(
         builder="spacr.qt.widgets.motility_preview:"
@@ -101,7 +110,8 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             "normalize": "normalize",
         }),
     "analyze_plaques": PreviewSpec(
-        builder="spacr.qt.screens.app_screen:_build_live_preview_card",
+        builder="spacr.qt.widgets.plaque_preview:build_plaque_preview_card",
+        owned_by_screen=True,
         tooltip="Check the plaque diameter and thresholds on one sampled "
                 "field before running the assay.",
         propagation={
@@ -112,6 +122,29 @@ PREVIEWS: Dict[str, PreviewSpec] = {
             # `model_name`; the panel writes it only for a checkpoint the
             # user picked (333).
             "plaque_model": "plaque_model",
+            "diameter": "diameter",
+            "flow_threshold": "flow_threshold",
+            "CP_prob": "CP_prob",
+            "plaque_mode": "plaque_mode",
+            "figure_detector": "figure_detector",
+            "figure_imgsz": "figure_imgsz",
+            "figure_confidence": "figure_confidence",
+            "figure_read_text": "figure_read_text",
+            "confirm_annotations": "confirm_annotations",
+            "text_reach_above": "text_reach_above",
+            "text_reach_left": "text_reach_left",
+            "text_reach_below": "text_reach_below",
+            "text_use_above": "text_use_above",
+            "text_use_left": "text_use_left",
+            "text_use_below": "text_use_below",
+            "text_panel_reach": "text_panel_reach",
+            "text_min_confidence": "text_min_confidence",
+            "text_ignore": "text_ignore",
+            "text_order": "text_order",
+            "text_separator": "text_separator",
+            "text_reread": "text_reread",
+            "text_reread_scale": "text_reread_scale",
+            "src": "src",
         }),
 }
 
@@ -174,15 +207,19 @@ class _PreviewHost(QObject):
     through its own button.
     """
 
-    def __init__(self, screen: QWidget, spec: PreviewSpec, panel, card):
+    def __init__(self, screen: QWidget, spec: PreviewSpec, panel, card,
+                 fill: Optional[Callable[[Any, Any], Any]] = None):
         """Bind one preview to the screen that shows it.
 
         :param screen: the module screen the preview belongs to, and this
             object's Qt parent.
         :param spec: what the preview is and how to build it.
-        :param panel: the preview widget itself.
+        :param panel: the preview widget itself, or ``None`` when ``fill``
+            builds it later.
         :param card: the container the panel sits in, shown and hidden by
             :meth:`on_toggled`.
+        :param fill: builds the panel into ``card`` the first time the card
+            is shown or :attr:`panel` is read; see :attr:`PreviewSpec.fill`.
 
         Nothing is built here. The panel is PRIMED on first show, so a screen
         with a preview costs nothing until the user opens it.
@@ -190,9 +227,52 @@ class _PreviewHost(QObject):
         super().__init__(screen)
         self._screen = screen
         self._spec = spec
-        self.panel = panel
+        self._panel = panel
+        self._fill = fill
         self.card = card
         self._primed = False
+        if fill is not None:
+            build_later = getattr(card, "build_body_when_first_shown", None)
+            if callable(build_later):
+                build_later(self._build_panel)
+        else:
+            self._connect_panel()
+
+    @property
+    def panel(self):
+        """The preview widget, built first if it is still waiting."""
+        if self._fill is not None:
+            self._build_panel()
+        return self._panel
+
+    @panel.setter
+    def panel(self, value) -> None:
+        """Replace the preview widget; a panel still waiting is not built."""
+        self._fill = None
+        self._panel = value
+
+    def panel_is_built(self) -> bool:
+        """Whether the panel exists yet. For tests and diagnostics."""
+        return self._fill is None
+
+    def _connect_panel(self) -> None:
+        """Route the panel's propagated settings to the form."""
+        register_cb = getattr(self._panel, "set_propagate_callback", None)
+        if callable(register_cb):
+            register_cb(self.on_propagate)
+
+    def _build_panel(self) -> None:
+        """Build the panel into its card, once, as install used to.
+
+        It is then translated and polished; see
+        :func:`_dress_a_late_panel`.
+        """
+        fill, self._fill = self._fill, None
+        if fill is None:
+            return
+        self._panel = fill(self._screen, self.card)
+        self._connect_panel()
+        _dress_a_late_panel(self._screen, self._panel)
 
     def on_toggled(self, on: bool) -> None:
         """Show or hide the preview card."""
@@ -303,21 +383,29 @@ def _attach(screen: QWidget, app_key: str,
     build = _resolve(spec.builder)
     if build is None:
         return None
+    fill = _resolve(spec.fill) if spec.fill else None
     try:
-        panel, card = build(screen)
+        if fill is not None:
+            panel, card = build(screen, panel_later=True)
+        else:
+            panel, card = build(screen)
     except Exception:
         LOG.debug("preview builder failed for %r", app_key, exc_info=True)
         return None
-    if not _insert_above_actions(screen, card):
+    if not _insert_above_console(screen, card):
         card.setParent(None)
         card.deleteLater()
         return None
     card.setVisible(False)
 
-    host = _PreviewHost(screen, spec, panel, card)
-    register_cb = getattr(panel, "set_propagate_callback", None)
-    if callable(register_cb):
-        register_cb(host.on_propagate)
+    from .widgets.preview_refresh import install_refresh_button
+
+    host = _PreviewHost(screen, spec, panel, card, fill)
+    if fill is None:
+        install_refresh_button(screen, card, panel)
+    else:
+        install_refresh_button(screen, card, None,
+                               panel_getter=lambda: host.panel)
 
     toggle = QToolButton()
     toggle.setObjectName("SettingsPreviewToggle")
@@ -336,6 +424,70 @@ def _attach(screen: QWidget, app_key: str,
         toggle.setParent(screen)
         _insert_above_actions(screen, toggle)
     return host
+
+
+def _dress_a_late_panel(screen: QWidget, panel: QWidget) -> None:
+    """Translate and polish a preview panel built after its screen opened.
+
+    Through the screen's own hook, the one
+    :class:`~spacr.qt.screens.app_screen.AppScreen` runs over its deferred
+    parts; a screen without it gets nothing. The layout-container sweep
+    that hook's sibling runs is deliberately NOT run: a card attached here
+    always arrived after the screen's sweep, so its containers were never
+    made transparent at install either. The language pass is new -- a
+    card inserted into the runtime splitter was never reached by the
+    screen's late-caption watcher, so an attached preview opened in English
+    on a translated screen.
+
+    Never raises.
+    """
+    hook = getattr(screen, "_translate_a_late_part", None)
+    if callable(hook):
+        try:
+            hook(panel)
+        except Exception:
+            LOG.debug("could not translate the preview panel", exc_info=True)
+
+
+def _insert_above_console(screen: QWidget, widget: QWidget) -> bool:
+
+    """Put a preview card in the runtime splitter, directly ABOVE the console.
+
+    WHY IT WOULD OTHERWISE BE UNDER IT. Every preview card went through
+    :func:`_insert_above_actions`, which puts a widget in the runtime panel just above
+    the Run row -- and the figures/console splitter is added to that same panel BEFORE
+    the actions row. So "above the Run button" is below the console, and the preview
+    landed under the log it was supposed to be read beside.
+
+    Mask never showed the bug and that is why it went unnoticed: its screen builds the
+    live preview into the splitter itself, between the figures and the console, and
+    never calls this path. The modules that get their preview from the registry --
+    Plaque Assay and Cellpose Masks -- got the Run-row placement instead, so the same
+    card sat in two different places depending on which screen mounted it.
+
+    The splitter is the right home rather than a different index in the panel: a card
+    above the console INSIDE it can be resized against the console, which is the whole
+    reason Mask's is there.
+
+    :param screen: the module screen.
+    :param widget: the card to insert.
+    :returns: whether it went into the splitter. False means the caller should fall
+        back, and :func:`_insert_above_actions` is still that fallback -- a screen with
+        no splitter, or one whose console is not in it, is better off with the preview
+        above the Run row than with no preview at all.
+    """
+    splitter = getattr(screen, "_runtime_splitter", None)
+    console = getattr(screen, "_console_wrap", None)
+    if splitter is None or console is None:
+        return _insert_above_actions(screen, widget)
+    try:
+        index = splitter.indexOf(console)
+    except (AttributeError, RuntimeError):
+        return _insert_above_actions(screen, widget)
+    if index < 0:
+        return _insert_above_actions(screen, widget)
+    splitter.insertWidget(index, widget)
+    return True
 
 
 def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:

@@ -18,6 +18,13 @@ def inspect_inputs(dataset):
     database = Path(manifest['source_database'])
     if hashlib.sha256(database.read_bytes()).hexdigest() != manifest['source_database_sha256']:
         raise ValueError('Source database changed')
+    if 'copied_database' in manifest:
+        copied_database = dataset / 'measurements' / 'measurements.db'
+        if (str(copied_database) != manifest['copied_database']
+                or manifest['copied_database_sha256'] != manifest['source_database_sha256']
+                or hashlib.sha256(copied_database.read_bytes()).hexdigest()
+                != manifest['source_database_sha256']):
+            raise ValueError('The copied measurements metadata changed')
     with sqlite3.connect(database.as_uri() + '?mode=ro', uri=True) as con:
         rows = con.execute('SELECT prcfo,plateID,rowID,columnID,infected FROM png_list').fetchall()
     identities = {r[0]: (tuple(r[1:4]), r[4]) for r in rows}

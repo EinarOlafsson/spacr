@@ -815,6 +815,19 @@ class ObjectSettingsGrid(QWidget):
         except Exception:                                    # noqa: BLE001
             LOG.debug("could not open the model zoo", exc_info=True)
 
+    #: Kinds the per-object Model cell offers.
+    #:
+    #: ``cellpose3`` is in the list because this cell writes
+    #: ``cell_model_name`` / ``nucleus_model_name`` / ``pathogen_model_name``,
+    #: and those are exactly the settings
+    #: :func:`spacr.settings._get_object_settings` reads when
+    #: ``segmentation_backend`` is ``'cellpose3'`` -- so cyto3, cyto2, cyto,
+    #: nuclei and any bioimage.io Cellpose 3 checkpoint belong here. Without
+    #: it the four stock Cellpose 3 models were listed nowhere a button opens
+    #: and had to be typed by hand. The Cellpose 4 preview boxes keep
+    #: ``("cellpose",)``: they load the checkpoint in spaCR's own process.
+    MODEL_KINDS = ("cellpose", "cellpose3")
+
     def choose_model_for(self, obj: str) -> bool:
         """Open the model zoo for one object and store what it returns.
 
@@ -824,7 +837,7 @@ class ObjectSettingsGrid(QWidget):
         """
         from .model_zoo_picker import choose_model
 
-        path = choose_model(self, kinds=("cellpose",))
+        path = choose_model(self, kinds=self.MODEL_KINDS)
         if not path:
             return False
         return self.set_value(MODEL_QUESTION, obj, path)

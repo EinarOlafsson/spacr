@@ -782,14 +782,25 @@ def _indirect_registry_captions() -> set[str]:
 
 
 def _shortcut_caption_fields() -> set[str]:
-    """Return shortcut copy while deliberately excluding key identifiers."""
+    """Return shortcut copy while deliberately excluding key identifiers.
+
+    Copy the GENERATED catalog already owns is left to it. A shortcut named
+    after the control it works -- M, "Live magnifier", the Make Masks
+    card's own title -- has one caption with one reviewed owner already,
+    and counting it here as well would demand a second, exact ``_ROWS`` row
+    that `test_compact_and_generated_caption_owners_are_disjoint` then
+    refuses: the two tests together made such a shortcut impossible to
+    add. That it is translated in every language is asserted by
+    `test_every_shortcut_caption_has_exactly_one_translated_owner`.
+    """
+    from spacr.qt.i18n_catalogs import en
     from spacr.qt.shortcuts import SCREEN_SHORTCUTS, SHORTCUTS
 
     return {
         value.strip()
         for spec in (*SHORTCUTS, *SCREEN_SHORTCUTS)
         for value in (spec.label, spec.category, spec.scope)
-        if value.strip()
+        if value.strip() and value.strip() not in en.UI_SOURCES
     }
 
 
@@ -913,6 +924,35 @@ def test_compact_and_generated_caption_owners_are_disjoint():
         "compact captions must not acquire a second generated owner:\n  "
         + "\n  ".join(repr(value) for value in duplicated)
     )
+
+
+def test_every_shortcut_caption_has_exactly_one_translated_owner():
+    """Each label, category and scope on the shortcut map is translated.
+
+    By the compact layer's exact row -- which
+    `test_compact_user_facing_caption_surface_has_exact_rows_and_is_pinned`
+    requires -- or by the generated catalog when the caption is one it
+    already owns (see :func:`_shortcut_caption_fields`). This test is the
+    second case: a real row in every language, not the English fallback,
+    so leaving a shortcut to the generated layer cannot become a way of
+    leaving it untranslated.
+    """
+    from spacr.qt.i18n import _ROWS, VALID_LANGUAGE_CODES, has_translation
+    from spacr.qt.i18n_catalogs import en
+    from spacr.qt.shortcuts import SCREEN_SHORTCUTS, SHORTCUTS
+
+    copy = {
+        value.strip()
+        for spec in (*SHORTCUTS, *SCREEN_SHORTCUTS)
+        for value in (spec.label, spec.category, spec.scope)
+        if value.strip()
+    }
+    left_to_the_generated_layer = copy - _shortcut_caption_fields()
+    assert "Live magnifier" in left_to_the_generated_layer
+    for caption in sorted(left_to_the_generated_layer):
+        assert caption in en.UI_SOURCES and caption not in _ROWS, caption
+        for language in VALID_LANGUAGE_CODES[1:]:
+            assert has_translation(caption, language), (caption, language)
 
 
 def test_shortcut_copy_enters_the_compact_ratchet_but_keys_do_not():

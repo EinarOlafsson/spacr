@@ -144,7 +144,7 @@ def test_the_hashing_flag_reaches_the_settings_the_preflight_checks(
     """A flag that only takes effect at run time would validate a lie."""
     seen = []
     monkeypatch.setattr(cli, "_preflight",
-                        lambda settings, key: seen.append(dict(settings)) or [])
+                        lambda settings, key, **_: seen.append(dict(settings)) or [])
 
     rc = cli.main(["validate", "--settings", _clean_settings(tmp_path), flag])
 
@@ -157,7 +157,7 @@ def test_without_the_flag_the_settings_file_still_decides(tmp_path,
     """Neither flag given means the file's own answer stands."""
     seen = []
     monkeypatch.setattr(cli, "_preflight",
-                        lambda settings, key: seen.append(dict(settings)) or [])
+                        lambda settings, key, **_: seen.append(dict(settings)) or [])
 
     rc = cli.main(["validate", "--settings", _clean_settings(tmp_path)])
 

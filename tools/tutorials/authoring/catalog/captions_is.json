@@ -106,7 +106,7 @@
           "narration": "Hvert uppsetningarforrit staðfestir nýju uppsetninguna áður en skipt er yfir í hana. Ef uppfærsla rofnar helst fyrra umhverfið óbreytt og install.log varðveitist í einkarekinni spaCR-uppsetningarmöppu."
         },
         {
-          "narration": "Í Preferences er einn valkostur fyrir Performance level með Laptop, Extra Performance, Performance, Balanced og Workstation í vaxandi röð auðlindanotkunar. Veldu snið fyrir þessa tölvu; það breytir skyndiminni, vinnsluþráðum, hreinsun og smáatriðum hreyfimynda, en ekki vísindalegum stillingum eða niðurstöðum."
+          "narration": "Í Preferences er einn Performance-valreitur með Laptop, Extra Performance, Performance, Balanced og Workstation í röð eftir vaxandi auðlindanotkun. Veldu sniðið fyrir þessa tölvu. Það breytir því hversu mikið spaCR geymir í skyndiminni og hversu lengi, hvenær minni og óvirkum þráðum er sleppt og hvort bakgrunnshreyfingin er virk, en ekki vísindalegum stillingum eða niðurstöðum."
         },
         {
           "narration": "After installation, use the operating system launcher. No separate Python or Conda setup is required."
@@ -117,7 +117,7 @@
       "id": "05_home",
       "scenes": [
         {
-          "narration": "Þegar öll þroskastig eru sýnileg birtir Home allar fjörutíu og fjórar skráðar spaCR-einingar. Home-flipinn flokkar þær undir Core, Data, Results & QC, Explore, Assays og Design; hver flokkaflipi síar sömu skrá."
+          "narration": "Home flokkar verkferla spaCR undir Core, Data, Tools og Assays. Hver flokksflipi síar einingareitina og tengd verkfæri eru aðgengileg innan viðkomandi yfirskipaðra eininga."
         },
         {
           "narration": "Í vinstri hliðarstikunni eru Home og sýnilegu Core-einingarnar beint aðgengilegar. Þegar öll þroskastig eru virk er þetta sex þrepa Core-röðin. Veldu flokkafyrirsögn til að opna þær sýnilegu einingar sem eftir eru."
@@ -126,7 +126,10 @@
           "narration": "Core-bandið fylgir verkflæðisröðinni: Mask, Measure, Annotate, Classify, Map Barcodes og Regression. Haltu bendlinum yfir einingareit til að sjá lýsingu einingarinnar og þroskalit hennar, Alpha, Beta eða Stable. Í Preferences má fela Alpha- eða Beta-einingar á Home og í yfirlitsstikunni; Stable-einingar eru áfram sýnilegar."
         },
         {
-          "narration": "Í Preferences er einn valkostur fyrir Performance level með Laptop, Extra Performance, Performance, Balanced og Workstation í vaxandi röð auðlindanotkunar. Veldu snið fyrir þessa tölvu; það breytir skyndiminni, vinnsluþráðum, hreinsun og smáatriðum hreyfimynda, en ekki vísindalegum stillingum eða niðurstöðum."
+          "narration": "Í Preferences er einn Performance-valreitur með Laptop, Extra Performance, Performance, Balanced og Workstation í röð eftir vaxandi auðlindanotkun. Veldu sniðið fyrir þessa tölvu. Það breytir því hversu mikið spaCR geymir í skyndiminni og hversu lengi, hvenær minni og óvirkum þráðum er sleppt og hvort bakgrunnshreyfingin er virk, en ekki vísindalegum stillingum eða niðurstöðum."
+        },
+        {
+          "narration": "Notaðu leitarreitinn við hlið Help til að finna einingu, stillingu, kjörstillingu eða API-færslu. Hér birtir leit að Performance viðeigandi áfangastaði. Veldu niðurstöðu til að opna eininguna eða flipann í Preferences eða skoða API-skjölin."
         },
         {
           "narration": "Veldu einingareit til að opna stillingaskjáinn. Heiti og lýsing einingarinnar efst staðfesta hvaða verkflæði er virkt."

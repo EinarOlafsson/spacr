@@ -178,16 +178,16 @@ def test_pyproject_declares_requires_python():
     assert spec.strip(), "requires-python is empty"
 
 
-def test_requires_python_admits_39_through_315_except_3141():
+def test_requires_python_admits_39_through_314_except_3141():
     """The supported range is evidence-bounded, in both directions.
 
     Floor 3.9: this is a supported interpreter in real use. Its resolver
     selects torch 2.8 and the last compatible PySide6, numba, llvmlite,
     pingouin and IPython lines; a blocking CI cell exercises that branch.
 
-    Ceiling <3.16: every admitted minor has a CI cell. The 3.15 cell is
-    deliberately experimental until PySide6 raises its own <3.15 ceiling;
-    all earlier minor cells are blocking. Native dependencies without CPython
+    Ceiling <3.15: every admitted minor has a blocking CI cell. 3.15 had an
+    experimental forward cell until 2026-09-21, when the maintainer dropped it
+    from the matrix; PySide6 still declares its own <3.15 ceiling. Native dependencies without CPython
     3.14 wheels are optional and lazily loaded. Python 3.14.1 is excluded
     because torchvision excludes that exact patch release in its own package
     metadata.
@@ -208,8 +208,8 @@ def test_requires_python_admits_39_through_315_except_3141():
     from packaging.version import Version
 
     spec = SpecifierSet(_requires_python())
-    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]
-    unsupported = ["3.7", "3.8", "3.14.1", "3.16"]
+    supported = ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    unsupported = ["3.7", "3.8", "3.14.1", "3.15", "3.16"]
 
     for v in supported:
         version = Version(v if v.count(".") == 2 else v + ".0")
@@ -363,15 +363,24 @@ def test_the_terms_version_is_bumped_whenever_the_agreement_changes():
     governs -- rather than a note about it, so it is in the document and 4.0
     profiles are asked again too.
 
+    4.2 is Section 5.6, AUTOMATIC ERROR REPORTS, added on 2026-09-19 when
+    issue reporting set to 'always' began filing reports without a preview
+    and 'always' became the default. 5.1 and 5.5 had said nothing was sent
+    automatically and that Diagnostic Data was not published, so 4.1
+    profiles are asked again.
+
     Pinned rather than asserted-nonempty so a bump is deliberate: whoever
     changes the agreement updates this line in the same commit and says which
     clause moved.
     """
     from spacr.qt import terms
 
-    assert terms.TERMS_VERSION == "4.1"
+    assert terms.TERMS_VERSION == "4.2"
     assert any(clause.startswith("11.4 LANGUAGE.") for clause in terms.TERMS), (
         "4.1 is defined by the governing-language clause; it is missing")
+    assert any(clause.startswith("5.6 AUTOMATIC ERROR REPORTS.")
+               for clause in terms.TERMS), (
+        "4.2 is defined by the automatic-report clause; it is missing")
 
 
 # ---------------------------------------------------------------------------
@@ -725,12 +734,37 @@ def test_attribution_extra_is_not_in_all():
 
 
 def test_the_torchcam_python_313_limit_is_written_down():
-    """The attribution extra's upstream NumPy ceiling remains documented."""
-    src = SETUP_PY.read_text(encoding="utf-8")
-    assert "numpy<2.0.0" in src, (
-        "setup.py no longer documents torchcam's spurious NumPy pin. If the "
-        "upstream limitation is gone, widen the extra with resolver evidence; "
-        "do not silently delete the reason it remains outside `all`."
+    """The attribution extra's upstream NumPy ceiling remains documented.
+
+    IT MOVED, AND THE TEST MOVED WITH IT. This read `setup.py` until
+    2026-09-20, because that is where the reason was written -- in a
+    comment. Item 400 took every comment out of `setup.py` and put the
+    reasons in `docs/notes/setup.md`, so the string this looked for left
+    with them and compat-matrix went red on a reason that had not been
+    deleted at all.
+
+    What this test is FOR is unchanged: the reason torchcam sits outside
+    the core list and outside `all` must be findable by whoever next
+    wonders why. `test_attribution_extra_is_not_in_all` above holds the
+    behaviour; this holds the explanation. Where the explanation lives is
+    item 400's business, not this test's.
+    """
+    notes = REPO_ROOT / "docs" / "notes" / "setup.md"
+    assert notes.is_file(), (
+        f"{notes} is gone. Item 400 moved setup.py's reasons there; if they "
+        "have moved again, point this test at wherever they went rather "
+        "than dropping the check."
+    )
+    written = notes.read_text(encoding="utf-8")
+    assert "numpy<2.0.0" in written, (
+        "nothing documents torchcam's spurious NumPy pin any more. If the "
+        "upstream limitation is gone, widen the extra with resolver "
+        "evidence; do not silently delete the reason it remains outside "
+        "`all`."
+    )
+    assert "torchcam" in written, (
+        "docs/notes/setup.md names the pin but not what it is about, so a "
+        "reader who greps for torchcam will not find the reason."
     )
 
 
@@ -803,9 +837,8 @@ def test_ci_installs_core_only_on_every_python_and_runs_the_fractal_extra():
     """
     workflow = (WORKFLOWS / "compat-matrix.yml").read_text(encoding="utf-8")
 
-    assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]' in workflow
-    assert "continue-on-error: ${{ matrix.python-version == '3.15' }}" in workflow
-    assert "allow-prereleases: ${{ matrix.python-version == '3.15' }}" in workflow
+    assert 'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]' in workflow
+    assert "matrix.python-version == '3.15'" not in workflow
     assert "Install the core graph and import spaCR" in workflow
     assert "--extra-index-url https://download.pytorch.org/whl/cpu ." in workflow
     install_step = workflow.split(

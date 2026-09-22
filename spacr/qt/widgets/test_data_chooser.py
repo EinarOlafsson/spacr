@@ -14,6 +14,7 @@ from PySide6.QtCore import QEvent, QRect, Qt
 from PySide6.QtGui import QFontMetrics
 from PySide6.QtWidgets import (
     QDialog,
+    QGridLayout,
     QHBoxLayout,
     QLabel,
     QPushButton,
@@ -54,7 +55,9 @@ class TestDataChooser(QDialog):
          "so a set can be streamed as the page is drawn rather than read off "
          "disk.\n\nNeeds no exported crops. Unpacks into the same plate "
          "folder as Load, so pressing both leaves a complete plate and either "
-         "route then works. Image source is set to STREAM IMAGES."),
+         "route then works. Streaming reads where each cell sits from the "
+         "measurements database, so the Load half is fetched too when it is "
+         "not on disk yet. Image source is set to STREAM IMAGES."),
     )
 
     #: What the description pane says before anything is hovered.
@@ -73,6 +76,11 @@ class TestDataChooser(QDialog):
     #: Reported as the load-test-data window in Annotate opening far too tall; make it be as small as possible while still
     #: fitting the text".
     DIALOG_WIDTH = 460
+
+    #: Buttons per row, or 0 for one row. A chooser with two routes wants
+    #: them side by side; Import's has two dozen, and a single row of those
+    #: is wider than the screen.
+    COLUMNS = 0
 
     def __init__(self, parent=None):
         """Build the test-data chooser.
@@ -95,9 +103,9 @@ class TestDataChooser(QDialog):
 
         layout = QVBoxLayout(self)
 
-        buttons = QHBoxLayout()
+        buttons = QGridLayout() if self.COLUMNS > 0 else QHBoxLayout()
         self._buttons = {}
-        for key, label, description in self.ROUTES:
+        for position, (key, label, description) in enumerate(self.ROUTES):
             button = QPushButton(tr(label), self)
             button.setCursor(Qt.PointingHandCursor)
             button.setProperty("routeKey", key)
@@ -105,7 +113,11 @@ class TestDataChooser(QDialog):
             button.installEventFilter(self)
             button.clicked.connect(
                 lambda checked=False, k=key: self._choose(k))
-            buttons.addWidget(button)
+            if self.COLUMNS > 0:
+                buttons.addWidget(button, position // self.COLUMNS,
+                                  position % self.COLUMNS)
+            else:
+                buttons.addWidget(button)
             self._buttons[key] = button
         layout.addLayout(buttons)
 

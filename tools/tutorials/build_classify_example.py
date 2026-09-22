@@ -8,9 +8,9 @@ from stage_lesson import REPO, read
 
 def build():
     root = Path(__file__).resolve().parent
-    receipt = read(root / 'evidence/2026-09-11_classify_canonical_recording_checks.json')
+    receipt = read(root / 'evidence/2026-09-21-classify-cv-current-capture.json')
     helper = root / 'prepare_classify_split.py'
-    if hashlib.sha256(helper.read_bytes()).hexdigest() != receipt['preparation_helper_sha256']:
+    if hashlib.sha256(helper.read_bytes()).hexdigest() != receipt['tools']['tools/tutorials/prepare_classify_split.py']:
         raise ValueError('The downloadable helper must be the exact recorded source')
     target = REPO / 'docs/source/_extra/tutorials/examples/Classify_existing_split_example.zip'
     contents = {'prepare_classify_split.py': helper.read_bytes(),
@@ -18,7 +18,7 @@ def build():
     target.parent.mkdir(parents=True, exist_ok=True)
     with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         for name, content in contents.items():
-            info = zipfile.ZipInfo(name, date_time=(2026, 9, 11, 0, 0, 0))
+            info = zipfile.ZipInfo(name, date_time=(2026, 9, 21, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             archive.writestr(info, content)
     with zipfile.ZipFile(target) as archive:

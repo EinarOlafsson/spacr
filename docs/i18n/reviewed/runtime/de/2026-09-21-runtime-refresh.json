@@ -1,0 +1,2183 @@
+{
+  "schema": 1,
+  "language": "de",
+  "records": [
+    {
+      "table": "setting_labels",
+      "key": "control_sgrnas",
+      "source": "Control sgRNAs",
+      "source_sha256": "901ad5d14d7f886866d801222012e3d537aaca54cf2fceea496618e06e5e534c",
+      "translation": "Kontroll-sgRNAs"
+    },
+    {
+      "table": "setting_labels",
+      "key": "crop_size",
+      "source": "Crop size",
+      "source_sha256": "b4d2334985812a15fdfbe331d8abca0330ae4bb5424623b3c20fa72111ad85fa",
+      "translation": "Zuschnittgröße"
+    },
+    {
+      "table": "setting_labels",
+      "key": "drop_straight_tracks",
+      "source": "Drop straight tracks",
+      "source_sha256": "76cda4b81b43d75683b5c0daae676cac553599c3f5f4e512828999cf05f9afbb",
+      "translation": "Gerade Trajektorien entfernen"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_base_channels",
+      "source": "Ops base channels",
+      "source_sha256": "67acb65a94a536a66dac6894883c1295ef48e6e9c1d45b37f6fadcb2c58da3c8",
+      "translation": "Ops-Basenkanäle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_footprint",
+      "source": "Ops footprint",
+      "source_sha256": "c986798989127fe6c441a7b6711bbaad60a846cca0a4c0cc10590e612084e64e",
+      "translation": "Ops-Zuordnungsradius"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_library",
+      "source": "Ops library",
+      "source_sha256": "6d6c47df2af4e9af42cd87cb562da3094bace42b9006fcdec56cec412f7530f8",
+      "translation": "Ops-Bibliothek"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_raster_overlap",
+      "source": "Ops raster overlap",
+      "source_sha256": "075e123047f407d4215396c2af89415d19c96fcb512e40b0e4c4279b7826d95f",
+      "translation": "Ops-Rasterüberlappung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_read_threshold",
+      "source": "Ops read threshold",
+      "source_sha256": "08161b4f63ba9ba0047379e46294e94a1f703f7653309b7adb8837f70fe539e3",
+      "translation": "Ops-Schwellenwert für Reads"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_store_reads",
+      "source": "Ops store reads",
+      "source_sha256": "2407539c761d452635379f42c0e1bad4ce52a79819ca4fd613fc65c37b19565f",
+      "translation": "Ops-Reads speichern"
+    },
+    {
+      "table": "setting_labels",
+      "key": "ops_window_overlap",
+      "source": "Ops window overlap",
+      "source_sha256": "9cdde10632ff2d79a2c9a96404deeae3de1f2431c577520aa75a49f471063104",
+      "translation": "Ops-Fensterüberlappung"
+    },
+    {
+      "table": "setting_labels",
+      "key": "phenotype_source",
+      "source": "Phenotype source",
+      "source_sha256": "4264d9c208a00855238fd5af02240140945329261083ed8037baeb468ce265f1",
+      "translation": "Phänotyp-Quelle"
+    },
+    {
+      "table": "setting_labels",
+      "key": "track_outlier_zscore",
+      "source": "Track outlier zscore",
+      "source_sha256": "bcafca9222a7830b82c4fead97743f85b9971477f20a69e0b5bb0acf6b508001",
+      "translation": "zscore für Trajektorienausreißer"
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "FT",
+      "source": "Cellpose flow_threshold for the standalone apply/test-model submodules, the counterpart of the Mask module's per-object <object>_flow_threshold. Masks whose recomputed flows disagree with the network's prediction by more than this are discarded, so a low value strips ragged or implausible objects and also loses real ones. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "7090700222ddcbc4b3821636ae3f290efdd28d22bfda92e3cb69a06002f3da90",
+      "translation": "Cellpose flow_threshold für die eigenständigen Untermodule zum Anwenden/Testen von Modellen; entspricht dem objektspezifischen <object>_flow_threshold im Mask-Modul. Masken werden verworfen, wenn ihre neu berechneten Flussfelder um mehr als diesen Wert von der Netzwerkvorhersage abweichen. Ein niedriger Wert entfernt daher unregelmäßige oder unplausible Objekte, kann aber auch echte Objekte ausschließen. Typischer Bereich 0 bis 3; oberhalb von 3 bleibt praktisch jeder Kandidat erhalten. Standard 0.4, der Standardwert von Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "annotation_source",
+      "source": "Which organism's annotation to join onto the regression results. 'toxoplasma' uses the bundled Toxoplasma gondii tables, which need no network and are the default. Any other organism name or NCBI taxon id -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- pulls that organism's entries from UniProt, and a single accession such as P04637 retrieves that entry. The result is cached beside the outputs, so a rerun needs no network. A name spaCR does not recognise leaves the results unannotated and says which names were close. Leave it empty for no annotation. Default 'toxoplasma'.",
+      "source_sha256": "024ffd069a9bdfb4a205884820e728ba3fa5f1e648d2190206bba1612bc3b71d",
+      "translation": "Legt fest, mit den Annotationen welchen Organismus die Regressionsergebnisse verknüpft werden. 'toxoplasma' verwendet standardmäßig die mitgelieferten Tabellen für Toxoplasma gondii und benötigt kein Netzwerk. Jeder andere Organismusname oder jede NCBI-Taxon-ID -- 'human', 'Plasmodium falciparum', 'Neospora caninum', '9606' -- ruft die Einträge dieses Organismus aus UniProt ab; eine einzelne Zugangskennung wie P04637 ruft genau diesen Eintrag ab. Das Ergebnis wird neben den Ausgaben zwischengespeichert, sodass ein erneuter Lauf kein Netzwerk benötigt. Erkennt spaCR einen Namen nicht, bleiben die Ergebnisse ohne Annotation, und ähnliche Namen werden angezeigt. Für keine Annotation leer lassen. Standard 'toxoplasma'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "auto_file_issues",
+      "source": "Report a failed run as an issue on the public spaCR GitHub repository. The report carries the traceback, the run's settings and software versions, with paths, login and host names and credentials redacted. With issue reporting set to 'always' (the default) it is filed automatically, once per error, when GitHub is signed in; with 'ask' it opens in a preview and is sent only when you press Send report. Default True.",
+      "source_sha256": "81f3e1069f2d4fca78134055eecae661ba4987a6981209ec568a6273d22e7b62",
+      "translation": "Meldet einen fehlgeschlagenen Lauf als Issue im öffentlichen spaCR-Repository auf GitHub. Der Bericht enthält den Traceback, die Einstellungen des Laufs und Softwareversionen; Pfade, Anmelde- und Hostnamen sowie Zugangsdaten werden unkenntlich gemacht. Bei der Einstellung 'always' (Standard) wird er automatisch einmal pro Fehler erstellt, sofern eine Anmeldung bei GitHub besteht. Bei 'ask' erscheint eine Vorschau, und der Bericht wird erst gesendet, wenn Sie auf Bericht senden klicken. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_flow_threshold",
+      "source": "Cellpose flow_threshold: the maximum allowed error between a candidate mask's recomputed flows and the network's predicted flows. Masks above it are discarded, so lowering it strips ragged or implausible cells but also loses real ones; raising it keeps more. Usable range about 0-3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "1f20d8a299a118ec408e518911237c7bdc1ff3fda5f1739c413ec1ca763b9ebe",
+      "translation": "Cellpose flow_threshold: maximal zulässiger Fehler zwischen den neu berechneten Flussfeldern einer Kandidatenmaske und den vom Netzwerk vorhergesagten Flussfeldern. Masken oberhalb dieses Werts werden verworfen. Ein niedrigerer Wert entfernt unregelmäßige oder unplausible Zellen, kann aber auch echte Zellen ausschließen; ein höherer Wert behält mehr bei. Nutzbarer Bereich etwa 0-3; oberhalb von 3 bleibt praktisch jeder Kandidat erhalten. Standard 0.4, der Standardwert von Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "cell_model_name",
+      "source": "Cell-segmentation weights. Cellpose 4 provides the stock 'cpsam' model; alternatively, provide a CPSAM checkpoint created by Train Cellpose, loaded as pretrained_model. Legacy names ('cyto', 'cyto2', 'cyto3', 'nuclei') resolve to cpsam because Cellpose 4 no longer ships those models -- unless segmentation_backend is 'cellpose3', which runs the real model of that name. Only diameter changes inference (scaling by 30/diameter); model_type and diam_mean are not used in v4.0.1+. Default 'cpsam'.",
+      "source_sha256": "ca2c41869c0a306c1a082baac7bc96fae36d989f8634f836f1ef0067914b71a1",
+      "translation": "Modellgewichte für die Zellsegmentierung. Cellpose 4 bietet das Standardmodell 'cpsam'; alternativ können Sie einen mit Train Cellpose erstellten CPSAM-Checkpoint angeben, der als pretrained_model geladen wird. Ältere Namen ('cyto', 'cyto2', 'cyto3', 'nuclei') werden auf cpsam abgebildet, weil Cellpose 4 diese Modelle nicht mehr mitliefert -- außer segmentation_backend ist 'cellpose3'; dann wird das tatsächliche Modell dieses Namens ausgeführt. Nur diameter verändert die Inferenz (Skalierung mit 30/diameter); model_type und diam_mean werden ab v4.0.1+ nicht verwendet. Standard 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "drop_straight_tracks",
+      "source": "Apply the straightness threshold. False reports how many tracks exceed straightness_threshold without changing the data; True removes those tracks from the velocity table, per-well summary and plots. Enable it when stage drift or identity swaps produce implausibly straight trajectories. Default False.",
+      "source_sha256": "340f2cc9181003122524eb1e7699f19fbdb078789ff8a08805e9b516ef88ea2e",
+      "translation": "Wendet den Schwellenwert für Geradlinigkeit an. False meldet, wie viele Trajektorien straightness_threshold überschreiten, ohne die Daten zu ändern. True entfernt diese Trajektorien aus der Geschwindigkeitstabelle, der Zusammenfassung je Well und den Diagrammen. Aktivieren, wenn Drift des Mikroskoptisches oder vertauschte Objektidentitäten unplausibel gerade Trajektorien erzeugen. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "edge_thickness",
+      "source": "Outline width as a fraction of object size rather than a fixed pixel count, preserving relative width across crop_size values. Larger values improve boundary visibility in small thumbnails but cover more interior pixels. Default 0.1.",
+      "source_sha256": "b8ef2b9774656969074866d969912defad3ac35caf56f8af06e88b1dfe7c79df",
+      "translation": "Umrissbreite als Anteil der Objektgröße statt als feste Pixelzahl, damit die relative Breite über verschiedene crop_size-Werte erhalten bleibt. Größere Werte machen Grenzen in kleinen Vorschaubildern deutlicher, verdecken aber mehr Pixel im Objektinneren. Standard 0.1."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "metadata_type",
+      "source": "Filename convention used to parse raw images, chosen from a list grouped by vendor: Yokogawa CV7000/CV8000 ('cellvoyager', the default) and CQ1, PerkinElmer/Revvity Opera Phenix and Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan and EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X and Matrix Screener, and Micro-Manager. 'custom' uses custom_regex, and 'auto' first renames the folder to Yokogawa naming (using custom_regex when supplied, otherwise automatic detection) before parsing. Conventions marked provisional were reconstructed from real filenames found in public datasets rather than read off vendor documentation. An incorrect convention can misassign plate, well, field, or channel identifiers and place images in incorrect channel folders, so use 'Test on my folder' to check before running.",
+      "source_sha256": "07b7074915a227ebf3c38082bdd38b1470ab103ad51e9c300a1cea235d100ca5",
+      "translation": "Dateinamenkonvention zum Einlesen der Rohbilder, ausgewählt aus einer nach Herstellern gruppierten Liste: Yokogawa CV7000/CV8000 ('cellvoyager', Standard) und CQ1, PerkinElmer/Revvity Opera Phenix und Operetta, Molecular Devices ImageXpress, Thermo Fisher ArrayScan und EVOS, GE/Cytiva IN Cell Analyzer, Olympus/Evident ScanR, Agilent/BioTek Cytation, Zeiss ZEN, Nikon NIS-Elements, Leica LAS X und Matrix Screener sowie Micro-Manager. 'custom' verwendet custom_regex. 'auto' benennt die Dateien im Ordner vor dem Einlesen zunächst nach der Yokogawa-Konvention um (mit custom_regex, falls angegeben, sonst durch automatische Erkennung). Als vorläufig markierte Konventionen wurden aus tatsächlichen Dateinamen öffentlicher Datensätze rekonstruiert, nicht der Herstellerdokumentation entnommen. Eine falsche Konvention kann Platten-, Well-, Feld- oder Kanalkennungen falsch zuordnen und Bilder in falsche Kanalordner legen. Prüfen Sie die Auswahl deshalb vor dem Lauf mit 'Test on my folder'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_flow_threshold",
+      "source": "Cellpose flow_threshold for nucleus masks: the maximum allowed error between a mask's recomputed flows and the network's predicted flows. Lowering it discards more irregularly shaped nuclei, giving fewer but cleaner objects; raising it keeps nearly everything Cellpose proposes. Typical range 0 to 3; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "c21542dce208ebb2b4c0511d434405fc96c9cfc6a1c835810b8e851735f16e07",
+      "translation": "Cellpose flow_threshold für Kernmasken: maximal zulässiger Fehler zwischen den neu berechneten Flussfeldern einer Maske und den vom Netzwerk vorhergesagten Flussfeldern. Ein niedrigerer Wert verwirft mehr unregelmäßig geformte Kerne und liefert weniger, aber sauberer abgegrenzte Objekte. Ein höherer Wert behält fast alle Vorschläge von Cellpose bei. Typischer Bereich 0 bis 3; oberhalb von 3 bleibt praktisch jeder Kandidat erhalten. Standard 0.4, der Standardwert von Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "nucleus_model_name",
+      "source": "Weights used to segment nuclei. Valid values are 'cpsam' or a path to a custom CPSAM checkpoint produced by Train Cellpose. 'nuclei' and 'nucleus' map to 'cpsam' because Cellpose 4 removed the pre-SAM models -- unless segmentation_backend is 'cellpose3', which runs the real Cellpose 3 'nuclei'. Configure nucleus_diameter to control scale; of the three parameters that once distinguished models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are dropped. Default 'cpsam'.",
+      "source_sha256": "288cd1bce7442ea139575cf1cfa904c0245ad41a4289d7c61081f012535b1224",
+      "translation": "Modellgewichte für die Kernsegmentierung. Gültig sind 'cpsam' oder ein Pfad zu einem eigenen, mit Train Cellpose erstellten CPSAM-Checkpoint. 'nuclei' und 'nucleus' werden auf 'cpsam' abgebildet, weil Cellpose 4 die Modelle vor SAM entfernt hat -- außer segmentation_backend ist 'cellpose3'; dann wird das tatsächliche Cellpose-3-Modell 'nuclei' ausgeführt. nucleus_diameter steuert die Skalierung. Von den drei Parametern, die früher Modelle unterschieden, wirkt nur noch diameter (eval skaliert mit 30/diameter); model_type und diam_mean entfallen. Standard 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops",
+      "source": "Take each well of an optical pooled screen's sequencing acquisition from tiles to tables: stitch its nuclear tiles, segment and number its nuclei across the whole well, then decode each field's reads and assign a barcode to every nucleus whose reads agree. Given a phenotype folder it also records where each phenotype field lands on the stitched well. The tables are written to measurements.db. Reads are decoded from the images, not from FASTQ.",
+      "source_sha256": "0088ccbc77f2ea1c7f609918336830ef4a067258728251546a50a4f8d0daca9c",
+      "translation": "Verarbeitet jedes Well der Sequenzierungsaufnahme eines optischen gepoolten Screens von Bildkacheln bis zu Tabellen: Die Kernkacheln werden zusammengefügt, die Kerne im gesamten Well segmentiert und nummeriert. Anschließend werden die Reads jedes Felds dekodiert und jedem Kern, dessen Reads übereinstimmen, ein Barcode zugeordnet. Ist ein Phänotyp-Ordner angegeben, wird außerdem erfasst, wo jedes Phänotyp-Feld auf dem zusammengesetzten Well liegt. Die Tabellen werden in measurements.db geschrieben. Reads werden aus Bildern dekodiert, nicht aus FASTQ."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_base_channels",
+      "source": "Which channels carry the four bases, in the order G, T, A, C, separated by commas. These names are matched against the channel token in each tile's file name, so a run whose base channels are named differently is read by changing this rather than by renaming files. Exactly four are required: a shorter list decodes a shorter barcode than the library holds. Default 'CY3,A594,CY5,CY7'.",
+      "source_sha256": "e642706d65b469a850f000aed84c98dc5b7e7e4578c7e0e7b7780f14f0f28bf5",
+      "translation": "Kanäle für die vier Basen in der Reihenfolge G, T, A, C, durch Kommas getrennt. Diese Namen werden mit der Kanalkennung im Dateinamen jeder Kachel abgeglichen. Anders benannte Basenkanäle lassen sich daher durch Ändern dieser Einstellung einlesen, ohne Dateien umzubenennen. Genau vier Kanäle sind erforderlich: Eine kürzere Liste dekodiert einen kürzeren Barcode als in der Bibliothek hinterlegt. Standard 'CY3,A594,CY5,CY7'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_footprint",
+      "source": "How far beyond a nucleus's boundary a read may lie and still be counted as that nucleus's read, in pixels. On the reference plate 10 pixels held 98 % of the detected spots and 3 held 67 %, and the wider setting assigned 28 % more objects a barcode at slightly higher purity, because the reads sit around the rim rather than inside. Too wide starts giving a read to a neighbour. Default 10.",
+      "source_sha256": "5a22332a20cb91e21c7cca30d20a5afb12b426838315e5601491dfca7643cc53",
+      "translation": "Abstand in Pixeln, den ein Read außerhalb einer Kerngrenze liegen darf, um noch diesem Kern zugeordnet zu werden. Auf der Referenzplatte erfassten 10 Pixel 98 % der detektierten Spots und 3 Pixel 67 %. Die größere Entfernung ordnete 28 % mehr Objekten einen Barcode zu, bei etwas höherer Reinheit, weil die Reads um den Rand statt im Inneren liegen. Ein zu großer Wert ordnet Reads einem Nachbarkern zu. Standard 10."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_library",
+      "source": "A CSV of guide barcodes, with the column holding them named prefix, barcode or sequence. Given one, each nucleus's called barcode is also matched to its closest guide, and the run reports how many spots match the library exactly -- the one number that says whether the decode worked at all. Empty still calls barcodes and simply cannot score them. Default None.",
+      "source_sha256": "461bde1a24fa4937d0d73107d4a6d4dbc90cbef0abce249c4a3c8fbae5021eb9",
+      "translation": "CSV mit Guide-Barcodes in einer Spalte namens prefix, barcode oder sequence. Wenn angegeben, wird der bestimmte Barcode jedes Kerns zusätzlich mit dem ähnlichsten Guide abgeglichen. Der Lauf meldet, wie viele Spots exakt zur Bibliothek passen -- die zentrale Kennzahl dafür, ob die Dekodierung überhaupt funktioniert hat. Ohne Datei werden weiterhin Barcodes bestimmt, aber nicht bewertet. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_raster_overlap",
+      "source": "How far neighbouring sequencing tiles overlap on the microscope's raster, in pixels. This is the acquisition's own setting, not a tuning knob: it tells the stitch where to look for a neighbour, and a value well away from the truth loses edges and leaves fields unplaced. Default 213, measured on the reference plate's 1,480 pixel tiles.",
+      "source_sha256": "efc00c4ec356bc533da237d8283f341d9ea7ba9e2a34e0335f1093ea43a15cab",
+      "translation": "Überlappung benachbarter Sequenzierungskacheln im Aufnahmeraster des Mikroskops, in Pixeln. Dies ist eine Eigenschaft der Aufnahme, kein Optimierungsparameter: Sie legt fest, wo beim Zusammenfügen nach Nachbarn gesucht wird. Ein stark abweichender Wert verliert Kanten und lässt Felder ohne Platzierung. Standard 213, gemessen an den 1,480 Pixel großen Kacheln der Referenzplatte."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_read_threshold",
+      "source": "How much brighter than its surroundings a spot must be to be counted as a read. Lower finds more reads and more debris, which shows up as a falling library-match rate rather than as an error; higher loses real reads and leaves nuclei with too few to vote. Default 315, the reference run's own value for this plate.",
+      "source_sha256": "845a85fe5f9c58556530f2d7e3638f73ecbf7ea0a4d5de86cc63611e66660320",
+      "translation": "Gibt an, wie viel heller ein Spot als seine Umgebung sein muss, um als Read zu zählen. Ein niedrigerer Wert findet mehr Reads und mehr Störsignale; dies zeigt sich durch eine sinkende Übereinstimmung mit der Bibliothek, nicht durch eine Fehlermeldung. Ein höherer Wert verliert echte Reads und lässt zu wenige für eine Mehrheitsentscheidung je Kern übrig. Standard 315, der Wert des Referenzlaufs für diese Platte."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_store_reads",
+      "source": "Write every read behind the barcodes into the ops_reads table: one row per read per cycle, with the base called, its margin and the four intensities it was called from. This is how a suspect barcode is traced back to its pixels. It is OFF by default because it is large -- a full well of the reference plate is about thirty million rows -- so turn it on for a well or two rather than for a plate. Default False.",
+      "source_sha256": "c3b25dddcf457a9476d361fd03d10570d5bf1fd3a738e5e54e55e40e8196d07a",
+      "translation": "Schreibt alle Reads hinter den Barcodes in die Tabelle ops_reads: eine Zeile je Read und Zyklus mit der bestimmten Base, ihrem Abstand zur nächstbesten Entscheidung und den vier zugrunde liegenden Intensitäten. So lässt sich ein fraglicher Barcode bis zu seinen Pixeln zurückverfolgen. Standardmäßig OFF, weil die Tabelle groß ist -- ein vollständiges Well der Referenzplatte umfasst etwa dreißig Millionen Zeilen. Daher für ein oder zwei Wells statt für eine ganze Platte aktivieren. Standard False."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "ops_window_overlap",
+      "source": "How far the segmentation windows overlap each other, in pixels. A nucleus is only numbered once if at least one window saw all of it, so this has to exceed the largest nucleus; when it does not, the run reports the objects no window saw whole and says by how much. Raising it costs time, because more of the well is segmented twice. Default 96.",
+      "source_sha256": "1e1581eba24e7267258152e0476fc54bb84ab9ead261eebb0dada01a4bceb64e",
+      "translation": "Überlappung der Segmentierungsfenster in Pixeln. Ein Kern wird nur dann einmal nummeriert, wenn mindestens ein Fenster ihn vollständig erfasst hat; die Überlappung muss deshalb größer als der größte Kern sein. Andernfalls meldet der Lauf, welche Objekte kein Fenster vollständig erfasst hat und um wie viel sie darüber hinausreichen. Ein höherer Wert kostet Zeit, weil mehr Bereiche des Wells zweimal segmentiert werden. Standard 96."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_flow_threshold",
+      "source": "Cellpose flow_threshold for pathogen masks: a candidate mask is discarded when its recomputed flows disagree with the network prediction by more than this. Raise it to keep more, sometimes misshapen, parasites; lower it to keep only clean, well-formed objects. Typical range 0.0-3.0; above 3 practically every candidate is kept. Default 0.4, Cellpose's own default.",
+      "source_sha256": "0a3f78719e3890bbd4dec0e03a665a47c180d20c6278b1c8a57c4fc193d31ff6",
+      "translation": "Cellpose flow_threshold für Pathogenmasken: Eine Kandidatenmaske wird verworfen, wenn ihre neu berechneten Flussfelder um mehr als diesen Wert von der Netzwerkvorhersage abweichen. Erhöhen, um mehr, teils unregelmäßig geformte Parasiten zu behalten; verringern, um nur sauber abgegrenzte, gut geformte Objekte zu behalten. Typischer Bereich 0.0-3.0; oberhalb von 3 bleibt praktisch jeder Kandidat erhalten. Standard 0.4, der Standardwert von Cellpose."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "pathogen_model_name",
+      "source": "Which weights segment pathogens. 'cpsam' or a path to your own Train Cellpose checkpoint. The bundled toxo_pv_lumen / toxo_cyto checkpoints are Cellpose-3 CPnet, which CPSAM cannot load, so they map to 'cpsam' and are reported; with segmentation_backend 'cellpose3' a Cellpose 3 name or checkpoint path runs as written. The older 'pathogen_model' key still overrides this one when set. Of the three parameters that used to distinguish models only diameter still acts (eval rescales by 30/diameter); model_type and diam_mean are logged 'not used in v4.0.1+' and dropped. Default 'cpsam'.",
+      "source_sha256": "edd77ffdd67ac22d1f2475ccff81df4243b85c717c39f4265bccef8968fe45f5",
+      "translation": "Modellgewichte für die Pathogensegmentierung: 'cpsam' oder ein Pfad zu einem eigenen Train Cellpose-Checkpoint. Die mitgelieferten Checkpoints toxo_pv_lumen / toxo_cyto verwenden Cellpose-3 CPnet, das CPSAM nicht laden kann. Sie werden daher mit einer Meldung auf 'cpsam' abgebildet. Bei segmentation_backend 'cellpose3' wird ein Cellpose-3-Name oder Checkpoint-Pfad wie angegeben ausgeführt. Der ältere Schlüssel 'pathogen_model' überschreibt diesen weiterhin, wenn er gesetzt ist. Von den drei Parametern, die früher Modelle unterschieden, wirkt nur noch diameter (eval skaliert mit 30/diameter); model_type und diam_mean werden als 'not used in v4.0.1+' protokolliert und nicht verwendet. Standard 'cpsam'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "phenotype_source",
+      "source": "The folder holding the high-magnification phenotype acquisition of the same wells. Given one, the run aligns a few of its fields to the stitched sequencing well, fits the acquisition raster to those, and records where every phenotype field lands and which sequencing tile covers it. Empty skips that step and decodes the sequencing acquisition alone. Default None.",
+      "source_sha256": "b192dcf04f65557cdc8eac339b97f06fed7b0fc80bc962f04f13cee6a03244e4",
+      "translation": "Ordner mit den Phänotyp-Aufnahmen derselben Wells bei hoher Vergrößerung. Wenn angegeben, richtet der Lauf einige Felder auf dem zusammengesetzten Sequenzierungs-Well aus, passt daran das Aufnahmeraster an und erfasst die Position jedes Phänotyp-Felds sowie die zugehörige Sequenzierungskachel. Ohne Ordner wird dieser Schritt übersprungen und nur die Sequenzierungsaufnahme dekodiert. Standard None."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "reuse_existing_measurements",
+      "source": "If measurements.db already holds the table named by db_table_name, load it instead of re-extracting regionprops from merged/*.npy. Saves most of the runtime when re-running only the infection QC or the plots, but it also skips track smoothing, so changes to max_displacement or track_outlier_zscore only take effect with this set to False. Default True.",
+      "source_sha256": "fbbf8825498bec4058509211f8e38cdc27b25ae3f2d4d2eb133f885fc70df9a0",
+      "translation": "Wenn measurements.db bereits die durch db_table_name bezeichnete Tabelle enthält, wird diese geladen, statt regionprops erneut aus merged/*.npy zu extrahieren. Das spart den Großteil der Laufzeit, wenn nur die Infektions-QC oder Diagramme erneut erzeugt werden. Dabei wird jedoch auch die Trajektorienglättung übersprungen; Änderungen an max_displacement oder track_outlier_zscore wirken deshalb nur bei False. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "route_errors_through_ai",
+      "source": "Send a failing run's traceback to the AI Console automatically and request an explanation. The traceback and the settings leave your machine when this is on; leave it off if your paths or filenames are themselves sensitive. Default True.",
+      "source_sha256": "08c2d5211c74b3254e6d9a57f666baeb2c701fca240723e1b87724cc61e7d6a3",
+      "translation": "Sendet den Traceback eines fehlgeschlagenen Laufs automatisch an die AI Console und fordert eine Erklärung an. Bei aktivierter Option verlassen der Traceback und die Einstellungen Ihren Rechner. Lassen Sie sie ausgeschaltet, wenn bereits Ihre Pfade oder Dateinamen vertrauliche Informationen enthalten. Standard True."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "segmentation_backend",
+      "source": "Which model segments cells, nuclei and pathogens; masks from different models are not comparable. 'cellpose' (default) runs each object's model name. 'cellpose3' runs Cellpose 3 with an object's cyto3, cyto2, cyto or nuclei model name, or a Cellpose 3 checkpoint's path; other names mean nuclei for nuclei and cyto3 otherwise. 'samcell' and 'dinocell' are 2-D models for live-cell and label-free images that read only the object's channel. Every backend but 'cellpose' installs from the Model Zoo into its own environment and refuses z_stack and t_stack runs. Default 'cellpose'.",
+      "source_sha256": "bf311c83ef2ff4f8a92accb1b6d01d1b7cc6dea6c3f9def8597317afab04ab3e",
+      "translation": "Modell für die Segmentierung von Zellen, Kernen und Pathogenen; Masken verschiedener Modelle sind nicht vergleichbar. 'cellpose' (Standard) verwendet den Modellnamen jedes Objekts. 'cellpose3' führt Cellpose 3 mit dem objektspezifischen Modellnamen cyto3, cyto2, cyto oder nuclei oder mit dem Pfad zu einem Cellpose-3-Checkpoint aus; andere Namen bedeuten nuclei für Kerne und sonst cyto3. 'samcell' und 'dinocell' sind 2-D-Modelle für Lebendzell- und markierungsfreie Bilder, die nur den Kanal des jeweiligen Objekts lesen. Jedes Backend außer 'cellpose' wird aus dem Model Zoo in einer eigenen Umgebung installiert und lehnt z_stack- und t_stack-Läufe ab. Standard 'cellpose'."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "straightness_threshold",
+      "source": "Straightness cut-off, where straightness = net displacement / total path length (0 = returns to start, 1 = perfectly straight). When drop_straight_tracks is True, tracks at or above this value are dropped as drift or tracking artifacts, so lowering it discards more tracks. The count is always logged. Default 0.95.",
+      "source_sha256": "efc1651d6361235dc8ca9d2c4ca0644038287e1e488172f06cae576bae7b125c",
+      "translation": "Grenzwert für Geradlinigkeit: Geradlinigkeit = direkte Verschiebung / gesamte Weglänge (0 = Rückkehr zum Ausgangspunkt, 1 = vollständig gerade). Wenn drop_straight_tracks True ist, werden Trajektorien ab diesem Wert als Drift- oder Tracking-Artefakte entfernt. Ein niedrigerer Wert entfernt daher mehr Trajektorien. Die Anzahl wird immer protokolliert. Standard 0.95."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "track_outlier_zscore",
+      "source": "Outlier sensitivity when smoothing scalar features within a track (area, bbox area, equivalent diameter, perimeter, solidity, mean/max/min intensity). A frame more than this many standard deviations from its own track mean, whose two neighbours are both within half that, is replaced by their average. Lower smooths more; nothing is deleted. Default 3.0.",
+      "source_sha256": "3d7840b2fb1de858799460a454d088e85f6a98d04d77b01aac262bdadac5c775",
+      "translation": "Ausreißerempfindlichkeit beim Glätten skalarer Merkmale innerhalb einer Trajektorie (Fläche, bbox-Fläche, äquivalenter Durchmesser, Umfang, Solidity, mittlere/maximale/minimale Intensität). Weicht der Wert eines Frames um mehr als diese Anzahl von Standardabweichungen vom Mittelwert seiner Trajektorie ab und liegen beide Nachbarwerte innerhalb der halben Grenze, wird er durch deren Mittelwert ersetzt. Ein niedrigerer Wert glättet stärker; es wird nichts gelöscht. Standard 3.0."
+    },
+    {
+      "table": "setting_tooltips",
+      "key": "x_lim",
+      "source": "Two-element [min, max] limits on the coefficient (x) axis of the Toxoplasma volcano plot produced by the regression pipeline when annotation_source is the bundled Toxoplasma annotation. Narrow it to zoom in on hits clustered near zero, widen it to keep large-effect genes on the plot. Leaving it None falls back to [-0.5, 0.5], not auto-scaling. Default None.",
+      "source_sha256": "17054c5d930e7a7d9bd171989d2afd07262ab9ae882fc59aa180dc1f37b9e8c7",
+      "translation": "Zwei Grenzen [min, max] für die Koeffizientenachse (x) des Toxoplasma-Volcano-Plots der Regressionspipeline, wenn annotation_source die mitgelieferte Toxoplasma-Annotation verwendet. Enger wählen, um Treffer nahe null zu vergrößern, weiter wählen, um Gene mit großen Effekten im Diagramm zu behalten. None verwendet [-0.5, 0.5], keine automatische Skalierung. Standard None."
+    },
+    {
+      "table": "categories",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "Wie aus einem Spot eine Base wird: welcher Kanal für welchen Buchstaben steht, wie viel heller als seine Umgebung ein Spot sein muss, um als Read zu zählen, und wie weit ein Read von einem Kern entfernt liegen darf, um noch zu ihm zu gehören. Dies sind gemessene Eigenschaften der Aufnahme, keine persönlichen Präferenzen. Der Lauf meldet die Übereinstimmungsrate mit der Bibliothek, anhand derer sich die Werte beurteilen lassen."
+    },
+    {
+      "table": "categories",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "Wie Kacheln zusammengefügt und die Kerne jedes zusammengesetzten Wells segmentiert werden: die bei der Aufnahme entstandene Überlappung benachbarter Kacheln, die Überlappung der Segmentierungsfenster und das Modell. Jeder Read wird dem Kern zugeordnet, auf oder unmittelbar neben dem er liegt. Modell und Durchmesser bestimmen daher, welchen Objekten ein Barcode zugeordnet werden kann."
+    },
+    {
+      "table": "categories",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "Woher die Kacheln stammen und wohin die Ergebnisse geschrieben werden: der Sequenzierungsordner, der einschließlich Unterordnern nach Kacheln mit Vergrößerung, Zyklus, Well, Kanälen und Position im Namen durchsucht wird; der darauf ausgerichtete Phänotyp-Ordner; die Guide-Bibliothek zum Abgleich der bestimmten Basen; und der Zielordner für measurements.db und einen Bericht je Well. Diese Angaben zuerst festlegen; alle anderen OPS-Gruppen setzen voraus, dass sie stimmen."
+    },
+    {
+      "table": "ui",
+      "key": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source": "(bool) drop_straight_tracks — remove the flagged tracks entirely.",
+      "source_sha256": "70d1c9e40eb03ab4d871396a2cd04ca8271a9760a5b99bba4462bbec510dc849",
+      "translation": "(bool) drop_straight_tracks — markierte Trajektorien vollständig entfernen."
+    },
+    {
+      "table": "ui",
+      "key": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source": "<b>Report errors as GitHub issues</b><br><span style='color:gray;'>Reports go to the public spaCR repository on GitHub, with paths, names and credentials redacted. With issue reporting set to always, the default, a failed run files its report automatically, once per error, when GitHub is signed in below. With ask, a \"File as issue\" button appears under the console and the report is sent only when you press Send report in its preview. Change it under Help → Set spaCR up again….</span>",
+      "source_sha256": "7cf776500750ac57e73826933dc3154fa5653c46bd16de67b5232f25acce771d",
+      "translation": "<b>Fehler als GitHub-Issues melden</b><br><span style='color:gray;'>Berichte gehen an das öffentliche spaCR-Repository auf GitHub; Pfade, Namen und Zugangsdaten werden unkenntlich gemacht. Bei always (Standard) erstellt ein fehlgeschlagener Lauf seinen Bericht automatisch einmal pro Fehler, sofern unten eine Anmeldung bei GitHub besteht. Bei ask erscheint unter der Konsole die Schaltfläche \"File as issue\". Der Bericht wird erst gesendet, wenn Sie in der Vorschau auf Bericht senden klicken. Ändern unter Hilfe → spaCR erneut einrichten….</span>"
+    },
+    {
+      "table": "ui",
+      "key": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source": "A 4PL is symmetric about its midpoint. Real asymmetry exists, and a 4PL absorbs it into a displaced EC50; the 5PL fits it with one more parameter, needs one more concentration, and says whether that parameter earned itself.",
+      "source_sha256": "4d7192d83aa02875e9b3da260ee17ada79169367fb2aa21d71eb8bdb5ec48de5",
+      "translation": "Ein 4PL-Modell ist um seinen Mittelpunkt symmetrisch. Reale Asymmetrie wird beim 4PL durch einen verschobenen EC50 aufgefangen. Das 5PL-Modell passt sie mit einem zusätzlichen Parameter an, benötigt eine weitere Konzentration und zeigt, ob dieser Parameter gerechtfertigt ist."
+    },
+    {
+      "table": "ui",
+      "key": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source": "A WAV file of your own for the music bed to play instead of spaCR's. Leave it empty for spaCR's own music. Nothing is uploaded or copied: the file is read from where it is, and it is also what the Resonance background moves to.",
+      "source_sha256": "409ccd14cab7061619ad0897908425a817a24b787cdcc62a419ec6f442738e9e",
+      "translation": "Eine eigene WAV-Datei als Hintergrundmusik anstelle der Musik von spaCR. Für die spaCR-Musik leer lassen. Es wird nichts hochgeladen oder kopiert: Die Datei wird an ihrem Speicherort gelesen; auch die Bewegung des Resonance-Hintergrunds richtet sich nach ihr."
+    },
+    {
+      "table": "ui",
+      "key": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source": "A clear night: indigo, violet, ice blue and the pale periwinkle a sky keeps long after the sun has gone.",
+      "source_sha256": "76f9b791dc6fdf81403247e35f5a0d4fb07ef24a9e6d4779296f00e32a2b1bc1",
+      "translation": "Eine klare Nacht: Indigo, Violett, Eisblau und das blasse Immergrünblau, das der Himmel lange nach Sonnenuntergang behält."
+    },
+    {
+      "table": "ui",
+      "key": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source": "A condition over the crop table's own columns, in SQL. The database is opened read-only, so nothing typed here can change it.",
+      "source_sha256": "90f0b574a337287e7e0b06cf4b836b4675c328cbccd8307a2136f489b4fea395",
+      "translation": "Eine SQL-Bedingung über die Spalten der Zuschnitttabelle. Die Datenbank wird schreibgeschützt geöffnet; keine Eingabe hier kann sie verändern."
+    },
+    {
+      "table": "ui",
+      "key": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source": "A measurements database lets you choose which objects to embed. A crop folder takes every PNG in it.",
+      "source_sha256": "98e856ee8d435fefddd711ab86c86d23e2ade0c2fcd5a3eb4de9080bfdbe8302",
+      "translation": "Bei einer Messdatenbank können Sie die einzubettenden Objekte auswählen. Bei einem Zuschnittordner werden alle PNG-Dateien darin verwendet."
+    },
+    {
+      "table": "ui",
+      "key": "A model is already downloading; wait for it to finish.",
+      "source": "A model is already downloading; wait for it to finish.",
+      "source_sha256": "465c707e736689c9df5a895cc2bea1d076cd7a2a119796a325e19a0d3efb55b0",
+      "translation": "Ein Modell wird bereits heruntergeladen; warten Sie, bis es fertig ist."
+    },
+    {
+      "table": "ui",
+      "key": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source": "A quiet looping piece in the sound set's key: pads, a plucked arpeggio with a dotted-eighth echo, a soft sub, and a quiet four-on-the-floor kick and shaker that come and go with the arrangement. Separate from the other sounds, so you can have feedback without music. It rests at the Laptop and Extra Performance levels.",
+      "source_sha256": "29b1b3c06239497242ecde6662ce724cd88573be8a2d193c54f8eaf1ba9e3b1e",
+      "translation": "Ein ruhiges Stück in Endlosschleife in der Tonart des Klangsets: Flächenklänge, ein gezupftes Arpeggio mit punktiertem Achtel-Echo, ein weicher Subbass sowie leise Bassdrum-Schläge auf jeder Zählzeit und ein Shaker, die je nach Arrangement einsetzen und aussetzen. Unabhängig von den übrigen Klängen, sodass Rückmeldungen auch ohne Musik möglich sind. Bei den Stufen Laptop und Extra Performance pausiert es."
+    },
+    {
+      "table": "ui",
+      "key": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source": "A rising arpeggio that resolves onto the key's home note when a module's run finishes successfully, for when spaCR is in another window.",
+      "source_sha256": "9d5e8b86f0948bf876e0a322735d9adba8ea4bb26d84d5e104029405857c5c3e",
+      "translation": "Ein aufsteigendes Arpeggio, das sich bei erfolgreichem Abschluss eines Modullaufs auf den Grundton auflöst -- hörbar auch dann, wenn spaCR in einem anderen Fenster ist."
+    },
+    {
+      "table": "ui",
+      "key": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source": "A short, quiet pluck in the sound set's key when you press a button, a switch, a tab, a list or a slider: confirmation that the press registered, felt more than heard.",
+      "source_sha256": "f5f93e87b09171a91aeab7783f9ff68ea96dc86f95bc05c5298f23310281d7da",
+      "translation": "Ein kurzer, leiser Zupfton in der Tonart des Klangsets beim Betätigen einer Schaltfläche, eines Schalters, einer Registerkarte, Liste oder eines Schiebereglers. Er bestätigt dezent, dass die Eingabe angekommen ist."
+    },
+    {
+      "table": "ui",
+      "key": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source": "A slower falling figure when a run stops with an error, so a finished run and a failed one never sound alike. A run you stop yourself is silent.",
+      "source_sha256": "d6fdc332aaf3afe4d1c94ddbe3b37e5012a2a4b9cd623efeae9acdd6cf94f972",
+      "translation": "Eine langsamere absteigende Tonfolge, wenn ein Lauf mit einem Fehler endet. So klingen erfolgreiche und fehlgeschlagene Läufe unterschiedlich. Wenn Sie einen Lauf selbst stoppen, bleibt er stumm."
+    },
+    {
+      "table": "ui",
+      "key": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source": "A sun close to the horizon and the matter it shines through: gold, amber, pale gold and moss.",
+      "source_sha256": "e1c260e64d1db89801b85b5c7f46f697032a54d4b73f94cf1b7804fab762c851",
+      "translation": "Eine Sonne nahe am Horizont und die Materie, durch die sie scheint: Gold, Bernstein, helles Gold und Moos."
+    },
+    {
+      "table": "ui",
+      "key": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source": "A threshold correction factor: Otsu's level is multiplied by it before it is used. Above 1 is stricter, so objects shrink and faint ones drop out; below 1 takes in dimmer pixels; 1 is Otsu's own level. Otsu detect uses it, and so does the Live magnifier's Otsu mode wherever a region holds two clear populations.",
+      "source_sha256": "a75e58030452cf7ea1c8e57d91c32095953eb291a144c5bb0eb8faaecaeb454e",
+      "translation": "Korrekturfaktor für den Schwellenwert: Der Otsu-Schwellenwert wird vor der Anwendung damit multipliziert. Oberhalb von 1 ist er strenger: Objekte schrumpfen, schwache verschwinden. Unterhalb von 1 werden dunklere Pixel einbezogen; 1 entspricht dem ursprünglichen Otsu-Schwellenwert. Sowohl die Otsu-Erkennung als auch der Otsu-Modus der Live-Lupe verwenden ihn, wenn ein Bereich zwei klar getrennte Populationen enthält."
+    },
+    {
+      "table": "ui",
+      "key": "Add a model",
+      "source": "Add a model",
+      "source_sha256": "3690c70b279379c2863922cdfd253d0f3984595f11608aee323dd35c6199403c",
+      "translation": "Ein Modell hinzufügen"
+    },
+    {
+      "table": "ui",
+      "key": "Add field",
+      "source": "Add field",
+      "source_sha256": "5f42d901b61b789b536cb6b4e4772af4b0a3c43f278f03905ef11172b8be4566",
+      "translation": "Feld hinzufügen"
+    },
+    {
+      "table": "ui",
+      "key": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source": "Adds spaCR's DEBUG messages to the log files in ~/.spacr/logs. It also lets cellpose report which model it loaded, and it records which buttons you pressed. That trail is what makes a bug report worth reading.\n\nStarting spaCR and opening its screens took no longer with this on. This was measured on one workstation by opening every module, once with this on and once with it off. Home was ready in about 4 seconds after a cold start both ways. The slowest module opened in about 7 seconds both ways. Pipeline runs were not timed.\n\nThe Console still shows only the levels you switch on for it on the Logging tab. This switch does not trace every function call. That tracer is a separate tool for developers, and nothing here turns it on.",
+      "source_sha256": "a9c61c2ec98d07c1b3afc30d0f0711f0a539d000525b18cbe7cee717d1adb978",
+      "translation": "Ergänzt die Protokolldateien in ~/.spacr/logs um DEBUG-Meldungen von spaCR. Außerdem meldet cellpose, welches Modell geladen wurde, und betätigte Schaltflächen werden protokolliert. Diese Informationen machen einen Fehlerbericht aussagekräftig.\n\nIn der Messung dauerte das Starten von spaCR und das Öffnen seiner Ansichten mit dieser Option nicht länger. Auf einer Workstation wurde jedes Modul einmal mit und einmal ohne die Option geöffnet. Home war nach einem Kaltstart in beiden Fällen nach etwa 4 Sekunden bereit. Das langsamste Modul öffnete sich jeweils nach etwa 7 Sekunden. Laufzeiten der Pipelines wurden nicht gemessen.\n\nDie Konsole zeigt weiterhin nur die auf der Registerkarte Protokollierung aktivierten Meldungsstufen. Dieser Schalter zeichnet nicht jeden Funktionsaufruf auf. Das dafür vorgesehene Entwicklerwerkzeug wird hier nicht eingeschaltet."
+    },
+    {
+      "table": "ui",
+      "key": "Add…",
+      "source": "Add…",
+      "source_sha256": "aa2dcdf5626fe2934e19e0dd7c90f901d8a9901774e9eaefedb28c2c50696eaf",
+      "translation": "Hinzufügen..."
+    },
+    {
+      "table": "ui",
+      "key": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source": "An even quieter pluck when the pointer rests on an enabled control. It waits for the pointer to settle and then stays silent for a moment, so moving across a panel never turns into a stream of sounds. Off until you switch it on here.",
+      "source_sha256": "c06245eda459e385d3e5bb8ce5d6ec58e9ea0851afac9f5ff7fd6e0452a49bca",
+      "translation": "Ein noch leiserer Zupfton, wenn der Mauszeiger auf einem bedienbaren Steuerelement ruht. Er wartet, bis der Zeiger stillsteht, und bleibt danach kurz stumm, damit das Überfahren eines Bedienfelds keine ununterbrochene Tonfolge erzeugt. Zunächst ausgeschaltet; hier aktivierbar."
+    },
+    {
+      "table": "ui",
+      "key": "An install is still running",
+      "source": "An install is still running",
+      "source_sha256": "314c9673ccc5ea4d71f515c115120d992787b2e074688c05c83cfa01e40ea7b8",
+      "translation": "Eine Installation läuft noch"
+    },
+    {
+      "table": "ui",
+      "key": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source": "Another install is still running. Wait for it to finish, or press Cancel under the marks.",
+      "source_sha256": "95a29507a27e24705c0b49bd2b9ba1deb35cb848910233a9725b671dac44024f",
+      "translation": "Eine weitere Installation läuft noch. Warten Sie, bis sie fertig ist, oder drücken Sie Abbrechen unter den Markierungen."
+    },
+    {
+      "table": "ui",
+      "key": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source": "Apply the bounds that are on to the mask on screen. Every object it removes is listed below it, with the area and the mean intensity it was judged on. One undo step.",
+      "source_sha256": "a725dedcce698f3bb9740b9ecc491e4d539da188b4af1a8bf748c8f4196d5284",
+      "translation": "Wendet die aktivierten Grenzen auf die angezeigte Maske an. Jedes entfernte Objekt wird darunter mit seiner Fläche und der mittleren Intensität aufgeführt, auf deren Grundlage es beurteilt wurde. Als ein Schritt rückgängig zu machen."
+    },
+    {
+      "table": "ui",
+      "key": "At most:",
+      "source": "At most:",
+      "source_sha256": "fc6f449cccdd25442b5986fb6da1047fe7f003506c4ad2c1547124c4d89b09bf",
+      "translation": "Höchstens:"
+    },
+    {
+      "table": "ui",
+      "key": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source": "Attach the folder this model was trained on. It is packed into a single tar and uploaded beside the checkpoint. Large folders take a long time to pack and upload; the limit is about 25 GB.",
+      "source_sha256": "e809ad3fd8d8a417b00c30eae3e1cd7e3e030ae15d01341249b7621269ef6103",
+      "translation": "Fügen Sie den Ordner an, mit dem dieses Modell trainiert wurde. Er wird in ein einzelnes tar-Archiv gepackt und neben dem Checkpoint hochgeladen. Große Ordner benötigen viel Zeit zum Packen und Hochladen; die Grenze liegt bei etwa 25 GB."
+    },
+    {
+      "table": "ui",
+      "key": "Building the index…",
+      "source": "Building the index…",
+      "source_sha256": "c2b8a7dd762f096d53c65a9ed94c5c96869156ecddd8c9f2f3318c4e42739572",
+      "translation": "Index wird aufgebaut…"
+    },
+    {
+      "table": "ui",
+      "key": "Cancelled. Nothing was left behind.",
+      "source": "Cancelled. Nothing was left behind.",
+      "source_sha256": "9fe073c22b3b717d7911e0f51daa0df2d3ddb4b26608142d693709e17cfd4f6d",
+      "translation": "Abgebrochen. Es wurden keine Dateien zurückgelassen."
+    },
+    {
+      "table": "ui",
+      "key": "Channels",
+      "source": "Channels",
+      "source_sha256": "4c8906cf76f5740ab8792aef9f0033fe21a92045e90b357816064e9f6860a03e",
+      "translation": "Kanäle"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a database or a folder first",
+      "source": "Choose a database or a folder first",
+      "source_sha256": "93b8c12e3407e84e12e75c9cc082189bd912b10d42a7f47ae886dc9dc74572db",
+      "translation": "Wählen Sie zuerst eine Datenbank oder einen Ordner"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a folder of crop PNGs",
+      "source": "Choose a folder of crop PNGs",
+      "source_sha256": "f1ae9bf598a7536fe83f1edbee984350599a29decf82c1224e3b4097c381eb82",
+      "translation": "Ordner mit Zuschnitten im PNG-Format auswählen"
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source": "Choose a measurements database or a folder of crop PNGs above, then press Load crops. A database can be narrowed to one object class, one plate, or any condition its columns support.",
+      "source_sha256": "3bbbcf831239864e884a879bd8b086625e2b508286de9e30c68241a71c50c492",
+      "translation": "Wählen Sie oben eine Messdatenbank oder einen Ordner mit Zuschnitten im PNG-Format und klicken Sie dann auf Zuschnitte laden. Eine Datenbank lässt sich auf eine Objektklasse, eine Platte oder eine beliebige von ihren Spalten unterstützte Bedingung einschränken."
+    },
+    {
+      "table": "ui",
+      "key": "Choose a measurements database or a folder of crop PNGs first.",
+      "source": "Choose a measurements database or a folder of crop PNGs first.",
+      "source_sha256": "f02e2721214ef384ce35edfb28538a2ec4eb29a6254a9f8323cf54e88c61f50c",
+      "translation": "Wählen Sie zuerst eine Messdatenbank oder einen Ordner mit Zuschnitten im PNG-Format."
+    },
+    {
+      "table": "ui",
+      "key": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source": "Choose how the channels are encoded, then press Embed. The table fills with the first few dimensions of each object.",
+      "source_sha256": "5d40a6862e785095a345068c677573a367820e0eca968e565252268e08f0b95b",
+      "translation": "Wählen Sie die Kodierung der Kanäle und klicken Sie dann auf Einbetten. Die Tabelle zeigt die ersten Dimensionen der Einbettung jedes Objekts."
+    },
+    {
+      "table": "ui",
+      "key": "Choose music for the bed",
+      "source": "Choose music for the bed",
+      "source_sha256": "45eec11b1ba9a74ff88550860b2cb2a814386796d36eed9bc6ab1225ad5ded09",
+      "translation": "Hintergrundmusik auswählen"
+    },
+    {
+      "table": "ui",
+      "key": "Click",
+      "source": "Click",
+      "source_sha256": "95ba4ed9329f4a2591e3bd89366e38cca9b26aeab3e72106ae60ad6757e05495",
+      "translation": "Klicken"
+    },
+    {
+      "table": "ui",
+      "key": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source": "Close the holes inside what was thresholded, before it is labelled. A nucleus dimmer in the middle than at its rim comes back as a ring without this. The magnifier's Otsu mode has always done it and Otsu detect did not, which is why the two could disagree about the same field; now they both read this box.",
+      "source_sha256": "1c89218373726deff926f380f38c646fbd4b2ac963d3e2e931c37e7116f2c4d8",
+      "translation": "Füllt vor der Objektmarkierung Löcher innerhalb der durch den Schwellenwert erkannten Flächen. Ohne diese Option erscheint ein Kern, der in der Mitte dunkler als am Rand ist, als Ring. Der Otsu-Modus der Lupe hat dies bereits getan, die Otsu-Erkennung bisher nicht. Deshalb konnten beide beim selben Feld voneinander abweichen; jetzt lesen beide diese Einstellung."
+    },
+    {
+      "table": "ui",
+      "key": "Community uploads are not vetted",
+      "source": "Community uploads are not vetted",
+      "source_sha256": "67a0ecda991aaaf11c939959c10e4cde3374bbeae2c5a876687426048693ea4f",
+      "translation": "Gemeinschafts-Uploads werden nicht überprüft"
+    },
+    {
+      "table": "ui",
+      "key": "Could not fetch {name}: {why}",
+      "source": "Could not fetch {name}: {why}",
+      "source_sha256": "7623198840ea85fb5df52e279d21b6a54f8d2b451d069bef60d6fec827ea9afa",
+      "translation": "{name} kann nicht abgerufen werden: {why}"
+    },
+    {
+      "table": "ui",
+      "key": "Could not file the issue: the reporter would not start.",
+      "source": "Could not file the issue: the reporter would not start.",
+      "source_sha256": "e54604ec98141625a7feda0e83c78510c1d68bc0f13918f1ac898e1d10a093f8",
+      "translation": "Das Issue konnte nicht erstellt werden: Die Berichtsfunktion ließ sich nicht starten."
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {name}.",
+      "source": "Could not open {name}.",
+      "source_sha256": "124ec382038c4507c36811608ed6ce91b3c093c7e9660a0bec673cb45be589e0",
+      "translation": "{name} kann nicht geöffnet werden."
+    },
+    {
+      "table": "ui",
+      "key": "Could not open {url}",
+      "source": "Could not open {url}",
+      "source_sha256": "52923734f046f5f34c83f745983c0da3536ed231cb951c80ab89aa0564500f17",
+      "translation": "{url} kann nicht geöffnet werden"
+    },
+    {
+      "table": "ui",
+      "key": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source": "Count how many image names in the source folder this convention can read, and show the first one it cannot. Nothing is changed and nothing is written.",
+      "source_sha256": "8b9b5e482a8ef174411e0cedabdedbb082b748f9be3fdf40ae8841a9addc3b83",
+      "translation": "Zählt, wie viele Bilddateinamen im Quellordner diese Konvention lesen kann, und zeigt den ersten nicht lesbaren Namen. Es wird nichts geändert oder geschrieben."
+    },
+    {
+      "table": "ui",
+      "key": "Create a GitHub account",
+      "source": "Create a GitHub account",
+      "source_sha256": "a6ce3ccb9ace1da1308aff967c71a5c4a28b29cb74f1809477ef3a3720c88538",
+      "translation": "Erstellen eines GitHub-Kontos"
+    },
+    {
+      "table": "ui",
+      "key": "Crops could not be loaded",
+      "source": "Crops could not be loaded",
+      "source_sha256": "43507e598078de1d2e4bb832761c216589c912922af7e77927bab4a79d48c518",
+      "translation": "Zuschnitte konnten nicht geladen werden"
+    },
+    {
+      "table": "ui",
+      "key": "Crops from:",
+      "source": "Crops from:",
+      "source_sha256": "934c8569d887385d17ba8bf7a6ef90581317964142f35763b779de07ef08396a",
+      "translation": "Bildausschnitte von:"
+    },
+    {
+      "table": "ui",
+      "key": "Curve",
+      "source": "Curve",
+      "source_sha256": "2a45c07314b2cd56907c7df9dfabdadd2ed17521161b53292cf146ea6c45dc85",
+      "translation": "Kurve"
+    },
+    {
+      "table": "ui",
+      "key": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source": "Cut a blob with two centres in two, at the ridge between them (a watershed on the distance to the background). A blob with one centre is left whole, so this is not a splitter that cuts everything. Off, a pair of touching cells arrives as one object.",
+      "source_sha256": "180427b158630a0f66f9c6bf57267625afcd704e9a88dd391b1d270e11e99751",
+      "translation": "Teilt eine zusammenhängende Fläche mit zwei Zentren am dazwischenliegenden Grat in zwei Teile (Wasserscheidentransformation auf dem Abstand zum Hintergrund). Eine Fläche mit nur einem Zentrum bleibt ganz; es wird also nicht jedes Objekt geteilt. Ohne diese Option erscheinen zwei sich berührende Zellen als ein Objekt."
+    },
+    {
+      "table": "ui",
+      "key": "Deep water",
+      "source": "Deep water",
+      "source_sha256": "97c373b8cd487210fc0e6cf4636ded5e7cf7bc1648c96953b431e7176542e7de",
+      "translation": "Tiefwasser"
+    },
+    {
+      "table": "ui",
+      "key": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source": "Delete the selected backend's environment and everything downloaded into it. spaCR's own environment is not touched.",
+      "source_sha256": "bd59941dd8e4a85e42ffd4fb8c08afdeba2e024163d49831539a95fadfbdd623",
+      "translation": "Löscht die Umgebung des ausgewählten Backends und alle darin heruntergeladenen Dateien. Die eigene Umgebung von spaCR bleibt unverändert."
+    },
+    {
+      "table": "ui",
+      "key": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "source": "Detecting dark objects? Turn on Invert image, in the Display category. It inverts the picture you see AND the pixels these buttons and the Live magnifier read, because those were two switches until 2026-09-20 and a curator could have either one without the other.",
+      "source_sha256": "c59da152ebd7649f753caec09e43acea9340b6c6c9b0113120ca067a3ad62e2f",
+      "translation": "Dunkle Objekte erkennen: Aktivieren Sie Bild invertieren in der Kategorie Anzeige. Dies invertiert sowohl das angezeigte Bild ALS AUCH die Pixel, die diese Schaltflächen und die Live-Lupe lesen. Bis 2026-09-20 waren dies zwei Schalter, die bei der Kuration unabhängig voneinander aktiviert sein konnten."
+    },
+    {
+      "table": "ui",
+      "key": "Dilate",
+      "source": "Dilate",
+      "source_sha256": "2e3e332f6015c3f2a2fa376605346790d166fa3f452d817da819a1882d4ab136",
+      "translation": "Dilatieren"
+    },
+    {
+      "table": "ui",
+      "key": "Discard",
+      "source": "Discard",
+      "source_sha256": "eb1a70e39274bb762b5d7c1adb5debeea2b05e12af28207f21a375b596853273",
+      "translation": "Verwerfen"
+    },
+    {
+      "table": "ui",
+      "key": "Download failed",
+      "source": "Download failed",
+      "source_sha256": "eae34ccbc4432c1358da668b091e7c952fe8be24b02dd4f8ec5ea2edef5ca1a4",
+      "translation": "Download fehlgeschlagen"
+    },
+    {
+      "table": "ui",
+      "key": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source": "Download ten example fields for Plaque Analysis and point src at them. Two sets to choose from: segmented plaque fields, which is what the plaque model was trained on, or whole plate figures, which is what the pipeline takes. Cached after the first download.",
+      "source_sha256": "2712c235708a6e6d3cf1479fc35c5ce9de07d44520620a1e2a6a21cee9dddffa",
+      "translation": "Lädt zehn Beispielfelder für die Plaque-Analyse herunter und setzt src auf deren Speicherort. Zwei Datensätze stehen zur Wahl: segmentierte Plaque-Felder, mit denen das Plaque-Modell trainiert wurde, oder Abbildungen ganzer Platten, die als Eingabe für die Pipeline dienen. Nach dem ersten Download werden sie zwischengespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}?",
+      "source": "Download {name}?",
+      "source_sha256": "c370b702fb8e700e08a90f0956ad28ed6e9377764ceb2f49fa57259263284053",
+      "translation": "{name} herunterladen?"
+    },
+    {
+      "table": "ui",
+      "key": "Download {name}{size} into {folder}?",
+      "source": "Download {name}{size} into {folder}?",
+      "source_sha256": "e8f0bb5d5edb9bfc4290a5d57ead97f3b746f4768e306d90f9efb4b6dbe140f0",
+      "translation": "{name}{size} nach {folder} herunterladen?"
+    },
+    {
+      "table": "ui",
+      "key": "Downloaded {name}, but the folder would not open",
+      "source": "Downloaded {name}, but the folder would not open",
+      "source_sha256": "598ac162ac0964c8845609cf7f6df59b0a9b65f733df071ae0677d37971c62d4",
+      "translation": "{name} wurde heruntergeladen, aber der Ordner ließ sich nicht öffnen"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}",
+      "source": "Downloading {name}",
+      "source_sha256": "61f08eb6906a8a2434514c490d265fbe4379db72ee97758d9c98b48ce1ff6d9c",
+      "translation": "{name} wird heruntergeladen"
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name} in the background.",
+      "source": "Downloading {name} in the background.",
+      "source_sha256": "f6383ed68981272d67380030504f5357e825989846f4bf576801f8153e10e70b",
+      "translation": "{name} wird im Hintergrund heruntergeladen."
+    },
+    {
+      "table": "ui",
+      "key": "Downloading {name}…",
+      "source": "Downloading {name}…",
+      "source_sha256": "6b324c87e43336f8cb3f4cc1589d188e76d98e442b768406b3fa6135a13a764c",
+      "translation": "{name} wird heruntergeladen…"
+    },
+    {
+      "table": "ui",
+      "key": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "source": "Draw this field's intensity histogram with the level the settings above cut it at marked on it. It is the same level the button uses, read from the same function, so a valley the marker is sitting to one side of is the correction to change.",
+      "source_sha256": "7b5ec249520b550013537fd5c92f2dde06533002a1a8e76df782f7a89263be33",
+      "translation": "Zeigt das Intensitätshistogramm dieses Felds und markiert den Schwellenwert aus den obigen Einstellungen. Die Schaltfläche verwendet denselben Wert aus derselben Funktion. Liegt die Markierung neben einem Histogrammtal, lässt sich ihre Position mit dem Korrekturfaktor anpassen."
+    },
+    {
+      "table": "ui",
+      "key": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source": "Drop images and masks here, or write one regex that sorts them. Rows are fields; columns are channels and mask types.",
+      "source_sha256": "f8e1bfc43840a5b05a7eb84b443deb1786667361d79646146e116b794ee6b25d",
+      "translation": "Bilder und Masken hier ablegen oder mit einem regulären Ausdruck zuordnen. Zeilen sind Felder, Spalten sind Kanäle und Maskentypen."
+    },
+    {
+      "table": "ui",
+      "key": "Drop objects the image border cuts",
+      "source": "Drop objects the image border cuts",
+      "source_sha256": "61c81158a6c877c40aec7f3fc2549aaff4455e5fc2a0f58f3d9b862af536fd48",
+      "translation": "Vom Bildrand angeschnittene Objekte entfernen"
+    },
+    {
+      "table": "ui",
+      "key": "Dusk",
+      "source": "Dusk",
+      "source_sha256": "abd7160c1f46a06471bb88bd281a04bf2f32d195b618ae0fc9e095e19eb5ea6a",
+      "translation": "Dämmerung"
+    },
+    {
+      "table": "ui",
+      "key": "Enable — report a failed run as a GitHub issue",
+      "source": "Enable — report a failed run as a GitHub issue",
+      "source_sha256": "7a55f8aeb46b362d821a98fd5c90f9397c8924d144a4caba6aa603e6f55d6e8f",
+      "translation": "Aktivieren — fehlgeschlagene Läufe als GitHub-Issues melden"
+    },
+    {
+      "table": "ui",
+      "key": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "source": "Every bound is off at 0. Filter applies the ones that are on, and so does opening a field; each object removed is listed below.",
+      "source_sha256": "a84e067a92c40588addf5df3512657c1f0650f4d237393f7d45f5564958415dc",
+      "translation": "Jede Grenze ist bei 0 ausgeschaltet. Filter wendet die aktivierten Grenzen an, ebenso das Öffnen eines Felds. Jedes entfernte Objekt wird unten aufgeführt."
+    },
+    {
+      "table": "ui",
+      "key": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "source": "Everything here is off until you switch sound on. The sounds are made by spaCR on this computer, nothing is recorded or downloaded, and they play on a thread of their own, so a missing or busy audio device only ever means silence.",
+      "source_sha256": "8507419bf9faf24a18cf419021b9ea7e2ef42249bbb745cffb3366e6ebb40eed",
+      "translation": "Alles hier bleibt ausgeschaltet, bis Sie den Ton aktivieren. spaCR erzeugt die Klänge auf diesem Rechner; es wird nichts aufgenommen oder heruntergeladen. Die Wiedergabe läuft in einem eigenen Thread. Ein fehlendes oder belegtes Audiogerät führt daher lediglich zu Stille."
+    },
+    {
+      "table": "ui",
+      "key": "Fetching community uploads…",
+      "source": "Fetching community uploads…",
+      "source_sha256": "2d24a0d4aa0d2b3289ff05ba3bb1ab18dc0303619352a74d1a4681c4e00b0617",
+      "translation": "Community-Uploads werden abgerufen…"
+    },
+    {
+      "table": "ui",
+      "key": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "source": "Files that were dropped but matched no row and column. Nothing here is measured.",
+      "source_sha256": "620209c5018abf6f1b76bbce6122700442e7200e454f94e0f979b90bb875dfa3",
+      "translation": "Abgelegte Dateien, die keiner Zeile und Spalte zugeordnet werden konnten. Keine dieser Dateien wird gemessen."
+    },
+    {
+      "table": "ui",
+      "key": "Fill holes inside an object",
+      "source": "Fill holes inside an object",
+      "source_sha256": "435801ce592611dccfeaa141d681ac4d0813ba9242460018f0de502a6eabb95c",
+      "translation": "Löcher in einem Objekt füllen"
+    },
+    {
+      "table": "ui",
+      "key": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source": "Find Otsu's level separately in a window around every pixel instead of once for the whole field. A corner that the lamp falls away from is then judged against its own corner, so the objects in it stop being lost while the bright middle stays clean. It costs more objects on a noisy background, which the minimum area is there to take back. Two classes only, and Otsu detect only.",
+      "source_sha256": "9218380cb65dd2ad8abafc8f384414757bcaf6ca3761fc3c2c8d440b511e515c",
+      "translation": "Bestimmt den Otsu-Schwellenwert getrennt in einem Fenster um jedes Pixel statt einmal für das gesamte Feld. Eine schwächer beleuchtete Ecke wird dadurch anhand ihrer lokalen Umgebung beurteilt: Ihre Objekte gehen nicht mehr verloren, während der helle mittlere Bereich sauber bleibt. Auf verrauschtem Hintergrund können zusätzliche Objekte entstehen, die sich über die Mindestfläche wieder entfernen lassen. Nur für zwei Klassen und nur bei der Otsu-Erkennung."
+    },
+    {
+      "table": "ui",
+      "key": "Find the database or the crop folder",
+      "source": "Find the database or the crop folder",
+      "source_sha256": "c50fe52a1984e63864c301091e6beb6b1759fa1ccc706e1cfa1616b0fc2af02e",
+      "translation": "Datenbank oder Zuschnittordner suchen"
+    },
+    {
+      "table": "ui",
+      "key": "Finish signing in to {label} in the window that opened, then press Done.",
+      "source": "Finish signing in to {label} in the window that opened, then press Done.",
+      "source_sha256": "eecb98b2dd4576250672cbceba3e1622303d8f87555486c985a3df474e8349fe",
+      "translation": "Schließen Sie die Anmeldung bei {label} im geöffneten Fenster ab und klicken Sie dann auf Fertig."
+    },
+    {
+      "table": "ui",
+      "key": "Five-parameter logistic (asymmetric)",
+      "source": "Five-parameter logistic (asymmetric)",
+      "source_sha256": "15e33d5ee0e9a910ce568e333c3abbecc9db89cb2b39b847e027c54b0ccac736",
+      "translation": "Logistische Funktion mit fünf Parametern (asymmetrisch)"
+    },
+    {
+      "table": "ui",
+      "key": "Folder this model was trained on",
+      "source": "Folder this model was trained on",
+      "source_sha256": "bfdffd274fbd3b8d7c7f482ef830d4ae1b2b162e854ed86764e2ee751cf883d8",
+      "translation": "Ordner, mit dem dieses Modell trainiert wurde"
+    },
+    {
+      "table": "ui",
+      "key": "Four-parameter logistic (symmetric)",
+      "source": "Four-parameter logistic (symmetric)",
+      "source_sha256": "b4158837e924edf5b918bf36797c7a7dcd820194e2f64c97cc4a8e9a75a7b4e5",
+      "translation": "Logistische Funktion mit vier Parametern (symmetrisch)"
+    },
+    {
+      "table": "ui",
+      "key": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source": "Gaussian blur, in pixels, before the level is found and before the image is cut at it. It is what stops a noisy field coming back as a thousand single-pixel objects. 0 thresholds the raw data.",
+      "source_sha256": "55e963398b7bbe2395db2da2b8f388bbad2690b471bc210edfee13d1fdc5d146",
+      "translation": "Gaußsche Glättung in Pixeln vor der Bestimmung und Anwendung des Schwellenwerts. Sie verhindert, dass ein verrauschtes Feld als tausend einzelne Pixelobjekte erkannt wird. Bei 0 wird der Schwellenwert direkt auf die Rohdaten angewendet."
+    },
+    {
+      "table": "ui",
+      "key": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "source": "GitHub's sign-in ended before it was finished. Press Sign in to try again.",
+      "source_sha256": "901d757c233bb10cc32d397d6fc28b0dc14b5608dc2b8a29ff494acc9e437e6a",
+      "translation": "Die GitHub-Anmeldung wurde vorzeitig beendet. Klicken Sie auf Anmelden, um es erneut zu versuchen."
+    },
+    {
+      "table": "ui",
+      "key": "Grow / shrink:",
+      "source": "Grow / shrink:",
+      "source_sha256": "6c6fc0076d7288997b218fa43d08c6fd2d8e5f77ad223c95292e901c6e54aff6",
+      "translation": "Vergrößern / verkleinern:"
+    },
+    {
+      "table": "ui",
+      "key": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source": "Grow every object by that many pixels, into background only: an object never takes a pixel from its neighbour and two objects never become one, so the ids and the object count are the ones you had. One undo step.",
+      "source_sha256": "d4c6e71c714114287ccb5efa66a68b3f7b3625b9cdc280058c17f681f8bf3972",
+      "translation": "Vergrößert jedes Objekt um diese Anzahl Pixel, ausschließlich in den Hintergrund hinein. Kein Objekt übernimmt Pixel eines Nachbarn, und zwei Objekte verschmelzen nicht. Kennungen und Objektanzahl bleiben daher erhalten. Als ein Schritt rückgängig zu machen."
+    },
+    {
+      "table": "ui",
+      "key": "Hover",
+      "source": "Hover",
+      "source_sha256": "c76ae86ad3014c852af277f5be355d149bf02287b4a04a7911bbc1614ffec4db",
+      "translation": "Mauszeiger darüber"
+    },
+    {
+      "table": "ui",
+      "key": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source": "How a spot becomes a base: which channel carries which letter, how much brighter than its surroundings a spot must be to count as a read at all, and how far from a nucleus a read may lie and still be that nucleus's. These are measured properties of the acquisition rather than preferences, and the run reports the library match rate that says whether they are right.",
+      "source_sha256": "cef9eb0daf781fd6f735a71840ff58fc33d42156ba057a561badb5d3b16275ca",
+      "translation": "Wie aus einem Spot eine Base wird: welcher Kanal für welchen Buchstaben steht, wie viel heller als seine Umgebung ein Spot sein muss, um als Read zu zählen, und wie weit ein Read von einem Kern entfernt liegen darf, um noch zu ihm zu gehören. Dies sind gemessene Eigenschaften der Aufnahme, keine persönlichen Präferenzen. Der Lauf meldet die Übereinstimmungsrate mit der Bibliothek, anhand derer sich die Werte beurteilen lassen."
+    },
+    {
+      "table": "ui",
+      "key": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "source": "How loud every spaCR sound is, from silent to full. The music bed always plays quieter than the other sounds.",
+      "source_sha256": "2ff97b2808fb54bb59b72f02ad6d40fb5abac516936062d679c9383636f67cff",
+      "translation": "Lautstärke aller spaCR-Klänge, von stumm bis zur vollen Lautstärke. Die Hintergrundmusik bleibt stets leiser als die anderen Klänge."
+    },
+    {
+      "table": "ui",
+      "key": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "source": "How many brightness bands to cut the field into. 2 is Otsu's own split, one level between background and objects. Raise it where a field holds more than two populations — background, a dim halo and bright nuclei — and the cut moves off the one compromise level between all three onto the boundary you actually want, chosen below. Otsu detect only.",
+      "source_sha256": "930cf911c5d5409e3384477338313d80e1772ed1799ceaa56ee1b587b74e6a48",
+      "translation": "Anzahl der Helligkeitsklassen, in die das Feld aufgeteilt wird. 2 entspricht der ursprünglichen Otsu-Aufteilung mit einem Schwellenwert zwischen Hintergrund und Objekten. Erhöhen, wenn das Feld mehr als zwei Populationen enthält -- etwa Hintergrund, einen schwachen Halo und helle Kerne. Statt eines einzigen Kompromisswerts zwischen allen dreien wird dann die unten gewählte, tatsächlich gewünschte Grenze verwendet. Nur für die Otsu-Erkennung."
+    },
+    {
+      "table": "ui",
+      "key": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "source": "How many intensity channels each field has. One column is added per channel, and the channel numbering of the merged array follows the column order.",
+      "source_sha256": "b61cea307d14ff759a572ea63d34af6b297031973807bdcdd9cd2e516d1b3a26",
+      "translation": "Wie viele Intensitätskanäle jedes Feld hat. Eine Spalte wird pro Kanal hinzugefügt, und die Kanalnummerierung des zusammengeführten Arrays folgt der Spaltenreihenfolge."
+    },
+    {
+      "table": "ui",
+      "key": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "source": "How many of the matching crops to load. The rest are counted and named, not silently dropped.",
+      "source_sha256": "06a81e9b743c53acb3c923748e2696911350c711e84d1c1a482cb044b6ef9e72",
+      "translation": "Anzahl der passenden Zuschnitte, die geladen werden sollen. Die übrigen werden gezählt und benannt, nicht stillschweigend ausgelassen."
+    },
+    {
+      "table": "ui",
+      "key": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source": "How many pixels one press of Dilate or Shrink moves every object's boundary. The distance is the straight-line one, so 1 moves the edge onto its four neighbours and not its corners, and a Shrink undoes a Dilate of the same size on an object that had room to grow.",
+      "source_sha256": "e86293a80627104a887bc8d9c5c1e8a024433653021eeab45ed02626d03f70d5",
+      "translation": "Pixelzahl, um die ein Klick auf Dilatieren oder Verkleinern die Grenze jedes Objekts verschiebt. Es gilt der direkte Abstand: 1 erweitert den Rand auf seine vier direkten Nachbarn, nicht auf die diagonalen Nachbarn. Verkleinern macht eine gleich große Dilatation rückgängig, sofern das Objekt Platz zum Wachsen hatte."
+    },
+    {
+      "table": "ui",
+      "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
+      "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1",
+      "translation": "Wie leicht der Otsu-Modus ein Objekt akzeptiert. Erhöhen, um dunklere oder weniger eindeutige Objekte einzubeziehen; verringern, um nur deutliche Objekte zu behalten. 0 entspricht der Standardgrenze. Andere Modelle lesen ihre Schwellenwerte aus den Einstellungen zur Objekterkennung; deshalb ist dieses Feld bei einem anderen Modus ausgegraut."
+    },
+    {
+      "table": "ui",
+      "key": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source": "How the tiles are put together and how the nuclei of each stitched well are segmented: the overlap the microscope left between neighbouring tiles, the overlap the segmentation windows share, and the model. Each read is attributed to the nucleus it falls on or just beside, so the model and the diameter here decide which objects can receive a barcode.",
+      "source_sha256": "4931de802d69dc7ff10fb8b3f2d905552bae4347644fff9315c15c17b14b44d5",
+      "translation": "Wie Kacheln zusammengefügt und die Kerne jedes zusammengesetzten Wells segmentiert werden: die bei der Aufnahme entstandene Überlappung benachbarter Kacheln, die Überlappung der Segmentierungsfenster und das Modell. Jeder Read wird dem Kern zugeordnet, auf oder unmittelbar neben dem er liegt. Modell und Durchmesser bestimmen daher, welchen Objekten ein Barcode zugeordnet werden kann."
+    },
+    {
+      "table": "ui",
+      "key": "Hugging Face login needed",
+      "source": "Hugging Face login needed",
+      "source_sha256": "e793beaf0a9d9ac901eaa3c4e42300b6fcae760f1ad45d3d03f389d1c76b426c",
+      "translation": "Hugging Face Anmeldung erforderlich"
+    },
+    {
+      "table": "ui",
+      "key": "Install",
+      "source": "Install",
+      "source_sha256": "569ca49f4aaf7846e952c1d4aeca72febd0b79fa1c4f9db08fd3127551218572",
+      "translation": "Installieren"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}",
+      "source": "Install runs:\n    {command}",
+      "source_sha256": "6d8b5ca3c0064ca2e3ad2b27b656ed809eb18cc311545404760286e28cb7ade3",
+      "translation": "Die Installation führt Folgendes aus:\n    {command}"
+    },
+    {
+      "table": "ui",
+      "key": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "source": "Install runs:\n    {command}\n\nThen GitHub's own sign-in starts.",
+      "source_sha256": "fa7e1854defad9fb6c3967104f7293ecf4850f390b49c2ba55136484637ac22e",
+      "translation": "Die Installation führt Folgendes aus:\n    {command}\n\nAnschließend startet die Anmeldung von GitHub."
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}",
+      "source": "Install {name}",
+      "source_sha256": "15d27e180bc64b4b3219b11337fa5e748c69724a16fc7b9918b5994ddaad2e9f",
+      "translation": "{name} installieren"
+    },
+    {
+      "table": "ui",
+      "key": "Install {name}?",
+      "source": "Install {name}?",
+      "source_sha256": "4344f77671756f5afbcaad8b9059c69b18baab56372d3355ea4c24a495d9060e",
+      "translation": "{name} installieren?"
+    },
+    {
+      "table": "ui",
+      "key": "Installing {label}…",
+      "source": "Installing {label}…",
+      "source_sha256": "a7a453fe3013e5f0d4d61aec261226d80aeac78e0ed6124f6514f51e65c1c3d4",
+      "translation": "{label} wird installiert..."
+    },
+    {
+      "table": "ui",
+      "key": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+      "source": "Invert for detection is on: every mask — Object detection, Otsu detect and the Live magnifier — is being generated from the INVERTED image. The readout and the Filter category still report the image's real values, and 'Invert image' in Display is a separate switch that changes only the picture.",
+      "source_sha256": "159eec6f40ab897b27453ee1bd765bca80f566769e2698227b5c97c4dc6b4535",
+      "translation": "Invertieren für die Erkennung ist aktiviert: Alle Masken -- Objekterkennung, Otsu-Erkennung und Live-Lupe -- werden aus dem INVERTIERTEN Bild erzeugt. Die Werteanzeige und die Kategorie Filter melden weiterhin die tatsächlichen Bildwerte. 'Invert image' (Bild invertieren) unter Anzeige ist ein separater Schalter, der nur die Darstellung verändert."
+    },
+    {
+      "table": "ui",
+      "key": "Invert image",
+      "source": "Invert image",
+      "source_sha256": "4792f59bfd4c4c67d7f54b3590489c0639a512a4e5ed9c70a56ad3861cc3c613",
+      "translation": "Bild invertieren"
+    },
+    {
+      "table": "ui",
+      "key": "Keep",
+      "source": "Keep",
+      "source_sha256": "183f00f483d3844e875d26eac74c676054383aef38ed5a8e4d1505ef21008585",
+      "translation": "Behalten"
+    },
+    {
+      "table": "ui",
+      "key": "Keep installing",
+      "source": "Keep installing",
+      "source_sha256": "4f6f0dad95d8f7a3c3e22def2900bdbcba480e34da28114877aae6cba0b79c7d",
+      "translation": "Installation fortsetzen"
+    },
+    {
+      "table": "ui",
+      "key": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "source": "Keep the screen open until it finishes, or stop it and install later from Help > Set spaCR up again…",
+      "source_sha256": "66756402c8ebea2e3d38897d2df455b480a2499312a3e082a2d770824329343f",
+      "translation": "Lassen Sie diese Ansicht bis zum Abschluss geöffnet oder stoppen Sie den Vorgang und installieren Sie später über Hilfe > spaCR erneut einrichten…"
+    },
+    {
+      "table": "ui",
+      "key": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source": "Leave out the objects the edge of the field runs through. Their area and their mean intensity are properties of where the frame fell rather than of the object, so a detection meant to be measured is better without them. Otsu detect only: the Live magnifier has its own box-border switch.",
+      "source_sha256": "aabf4d882633732a8b22b34eb47d7d3de167120d8582a3c325f06639c65ed602",
+      "translation": "Lässt Objekte aus, die vom Feldrand angeschnitten werden. Ihre Fläche und mittlere Intensität hängen von der Bildbegrenzung statt allein vom Objekt ab. Für anschließende Messungen ist eine Erkennung ohne solche Objekte daher besser geeignet. Nur für die Otsu-Erkennung; die Live-Lupe hat einen eigenen Schalter für ihren Rahmenrand."
+    },
+    {
+      "table": "ui",
+      "key": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "source": "List a model file you already have, and optionally share it on Hugging Face so others can use it.",
+      "source_sha256": "08f075cd8d7c276a8437c84e93bc6e01d37ba0290019d2fe32545f515141a80a",
+      "translation": "Nehmen Sie eine bereits vorhandene Modelldatei in die Liste auf und teilen Sie sie optional auf Hugging Face, damit andere sie nutzen können."
+    },
+    {
+      "table": "ui",
+      "key": "Load crops",
+      "source": "Load crops",
+      "source_sha256": "961195a44adea5d5ea9dcbf96604cdc656ba21f22b85e6f2a890151166ebe5c6",
+      "translation": "Zuschnitte laden"
+    },
+    {
+      "table": "ui",
+      "key": "Loading stopped",
+      "source": "Loading stopped",
+      "source_sha256": "1eea9acc4dc3681339c6553679ff9be9c15e56f587e82ec78e99e5526de799cf",
+      "translation": "Laden gestoppt"
+    },
+    {
+      "table": "ui",
+      "key": "Local threshold (uneven illumination)",
+      "source": "Local threshold (uneven illumination)",
+      "source_sha256": "96ed765787b60b41e78cc401115d499d7fe9c4ac591ce1644c57046880986ede",
+      "translation": "Lokaler Schwellenwert (ungleichmäßige Beleuchtung)"
+    },
+    {
+      "table": "ui",
+      "key": "Looking at what was dropped...",
+      "source": "Looking at what was dropped...",
+      "source_sha256": "1b1608ebc6fa39b28be25ef5a56145ec7eb21f1f9ddb32de862991e25f601316",
+      "translation": "Abgelegte Dateien werden geprüft..."
+    },
+    {
+      "table": "ui",
+      "key": "Low sun",
+      "source": "Low sun",
+      "source_sha256": "d4db8b6e7c0a115bf73963503aedbc431cfb19511f69b817062d191690fccf58",
+      "translation": "Tief stehende Sonne"
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "source": "Magnifier: segmenting this region — its objects are added as soon as the box is up to date.",
+      "source_sha256": "77f7b81640137d3d4f9288f9d8a3649452c81f476e61b898c3e5a461aa6fb646",
+      "translation": "Lupe: Dieser Bereich wird segmentiert — seine Objekte werden hinzugefügt, sobald die Vorschau aktuell ist."
+    },
+    {
+      "table": "ui",
+      "key": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "source": "Magnifier: {mode} could not run ({reason}); the Otsu mode is segmenting instead.",
+      "source_sha256": "1a2a4e5767b267247bbf197d654889cb02e0e8981c1e515574284dcef7eed774",
+      "translation": "Lupe: {mode} konnte nicht ausgeführt werden ({reason}); stattdessen segmentiert der Otsu-Modus."
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source": "Mark this field as one to discard and move to the next. Nothing is deleted: the verdict goes to csv/keep_discard.csv beside the images, and the field, its mask and its objects stay as they are.",
+      "source_sha256": "064a05f5f4ad79bb3fe2961ef617a89b65540fc2f9badbbf6973947921f38a3b",
+      "translation": "Markiert dieses Feld zum Verwerfen und wechselt zum nächsten. Es wird nichts gelöscht: Die Entscheidung wird in csv/keep_discard.csv neben den Bildern gespeichert. Feld, Maske und Objekte bleiben unverändert."
+    },
+    {
+      "table": "ui",
+      "key": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source": "Mark this field as one to keep and move to the next. The verdict is written to csv/keep_discard.csv beside the images, with the image, its mask and the number of objects the mask holds right now.",
+      "source_sha256": "f7ed40ddc6b75ef9ea8367bce9aafc45384b2b020d004e2d2a2c6e442ba5eea9",
+      "translation": "Markiert dieses Feld zum Behalten und wechselt zum nächsten. Die Entscheidung wird mit dem Bild, seiner Maske und der aktuellen Objektanzahl der Maske in csv/keep_discard.csv neben den Bildern gespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source": "Measure the masks you drew. Opens a table where each row is a field and each column is a channel or a mask type; the run goes through the Measure module itself, so the folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "86d3eb9598ad455ef91762b1c2f06387310120a4c2b4fec1362d90ddd3c40986",
+      "translation": "Misst die von Ihnen gezeichneten Masken. Öffnet eine Tabelle mit einem Feld je Zeile und einem Kanal oder Maskentyp je Spalte. Der Lauf erfolgt über das Measure-Modul selbst und erzeugt daher dessen übliche Ordner und Messdatenbank."
+    },
+    {
+      "table": "ui",
+      "key": "Midnight",
+      "source": "Midnight",
+      "source_sha256": "aa996cf21f0dbc617e27fac13ab13916a07944c2de10c2dbcd60b95a6023f80b",
+      "translation": "Mitternacht"
+    },
+    {
+      "table": "ui",
+      "key": "Music bed",
+      "source": "Music bed",
+      "source_sha256": "a3b649dac67ac6d7354ee7ae235ba3b4c86dc950876b264506e55dade0e51a27",
+      "translation": "Hintergrundmusik"
+    },
+    {
+      "table": "ui",
+      "key": "Music file",
+      "source": "Music file",
+      "source_sha256": "f3fe30b19b7809364629d45361514644c36b8ece3e725968271d8177287b780b",
+      "translation": "Musikdatei"
+    },
+    {
+      "table": "ui",
+      "key": "No Hugging Face token was found, so nothing was uploaded.\n\nRun `huggingface-cli login`, or set HF_TOKEN, and press Add again. spaCR does not ship a token of its own: one that could upload could also delete, and it would be readable by anyone who installs spaCR.",
+      "source": "No Hugging Face token was found, so nothing was uploaded.\n\nRun `huggingface-cli login`, or set HF_TOKEN, and press Add again. spaCR does not ship a token of its own: one that could upload could also delete, and it would be readable by anyone who installs spaCR.",
+      "source_sha256": "76a7687e41054ea69fc51cf6916b4e9d1558585b30cb5cda5a12eabde8a1c808",
+      "translation": "Es wurde kein Hugging Face-Token gefunden; daher wurde nichts hochgeladen.\n\nFühren Sie `huggingface-cli login` aus oder setzen Sie HF_TOKEN und klicken Sie erneut auf Hinzufügen. spaCR liefert kein eigenes Token mit: Ein Token mit Upload-Rechten könnte auch löschen und wäre für alle lesbar, die spaCR installieren."
+    },
+    {
+      "table": "ui",
+      "key": "No crops",
+      "source": "No crops",
+      "source_sha256": "0abe50cdfc1d501b56ab95435a4df058cacff9af2759c4fd31936c52900279c8",
+      "translation": "Keine Zuschnitte"
+    },
+    {
+      "table": "ui",
+      "key": "No crops loaded",
+      "source": "No crops loaded",
+      "source_sha256": "5c265b356c133247701716b87665b28fcfaf8418ddc632d11c094c7c0af7c3e1",
+      "translation": "Keine Zuschnitte geladen"
+    },
+    {
+      "table": "ui",
+      "key": "No description is stored for this entry.",
+      "source": "No description is stored for this entry.",
+      "source_sha256": "1eaa38ae4e410e2b3e22b72140c907a0de7da50f0e33e007ea0064e989a7c3e2",
+      "translation": "Für diesen Eintrag ist keine Beschreibung gespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "No training data attached (optional)",
+      "source": "No training data attached (optional)",
+      "source_sha256": "a3a8016f98f21f8f1ff8858b0ee852a32a3e4b310aa26480a943b2fee846f204",
+      "translation": "Keine Trainingsdaten angehängt (optional)"
+    },
+    {
+      "table": "ui",
+      "key": "Nothing called “{query}”.",
+      "source": "Nothing called “{query}”.",
+      "source_sha256": "f60811b08688ba3184efb7fa24ee0098f41b9e64a9c57ad948f59d3b89404809",
+      "translation": "Kein Eintrag namens „{query}“."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing has been removed. Set a bound above and press Filter.",
+      "source": "Nothing has been removed. Set a bound above and press Filter.",
+      "source_sha256": "c8e2c4f9b9f1c314c574cb6e754ff4d6a8050a8339fad29fe20c7278cd36fc76",
+      "translation": "Es wurde nichts entfernt. Setzen Sie oben eine Grenze und klicken Sie auf Filter."
+    },
+    {
+      "table": "ui",
+      "key": "Nothing was left over.",
+      "source": "Nothing was left over.",
+      "source_sha256": "33fc6a5f86dd29b72015541549e16c2e3402e45a9f4ec82f0419952f67a31dde",
+      "translation": "Nichts blieb übrig."
+    },
+    {
+      "table": "ui",
+      "key": "Object detection",
+      "source": "Object detection",
+      "source_sha256": "9da55c68bc3e40ebc39b47819f493033adcedc40eb4ba23af0d794225860c6a8",
+      "translation": "Objekterkennung"
+    },
+    {
+      "table": "ui",
+      "key": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "source": "Object detection found no objects — the mask is unchanged. The Cell probability tab shows what it had to work with.",
+      "source_sha256": "e60e4cb715da884aa8d2416349ae12b445fb39576f8f719fc481d1c27581a86e",
+      "translation": "Objekterkennung fand keine Objekte — die Maske ist unverändert. Die Registerkarte Zellwahrscheinlichkeit zeigt, womit sie arbeiten musste."
+    },
+    {
+      "table": "ui",
+      "key": "Object:",
+      "source": "Object:",
+      "source_sha256": "599fda49722612926873592c9db081c7a0379dc2c828989030ceb867f8c2eb41",
+      "translation": "Objekt:"
+    },
+    {
+      "table": "ui",
+      "key": "Objects are brighter than background",
+      "source": "Objects are brighter than background",
+      "source_sha256": "becac3876b3e17f23be849eb7047a6ab5e5bed2e29e32603da84c48d953675b6",
+      "translation": "Objekte sind heller als Hintergrund"
+    },
+    {
+      "table": "ui",
+      "key": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "source": "Objects under the Min area in Object operations are dropped after the threshold.",
+      "source_sha256": "f438ff85eb02656e6b0e35ec48f1dce01252a4d61648d45f9be92d710212a049",
+      "translation": "Objekte unterhalb der Mindestfläche in Objektoperationen werden nach der Schwellenwertsegmentierung entfernt."
+    },
+    {
+      "table": "ui",
+      "key": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "source": "Off by default. While it is off spaCR loads no audio library and plays nothing at all. On, spaCR plays the sounds switched on below through your computer's default audio output.",
+      "source_sha256": "c4e2d71fb4d222774d90a667622936fc48921bea30681a9d319e9673c259d4eb",
+      "translation": "Standardmäßig ausgeschaltet. Solange die Option aus ist, lädt spaCR keine Audiobibliothek und spielt nichts ab. Bei aktivierter Option gibt spaCR die unten eingeschalteten Klänge über die Standard-Audioausgabe Ihres Rechners wieder."
+    },
+    {
+      "table": "ui",
+      "key": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "source": "Offers to install the GitHub CLI and then signs you in. Without it, filing an issue still works -- it opens in whichever browser you are already signed in to.",
+      "source_sha256": "dd935b5d7fe48a39493b59e044ff62e36a0ca816576d970d263c3b7ea601d776",
+      "translation": "Bietet die Installation der GitHub CLI an und meldet Sie anschließend an. Auch ohne sie lassen sich Issues erstellen -- sie öffnen sich im Browser, in dem Sie bereits angemeldet sind."
+    },
+    {
+      "table": "ui",
+      "key": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "source": "On by default. When on, an error report saves recent log lines, with paths and credentials redacted, to a file on this computer and names that file in the report. The log itself is never posted to GitHub.",
+      "source_sha256": "9b74032817cc3d8694c522542143e5ecff9dfdf100e6dba15c5b3ed2e83cedda",
+      "translation": "Standardmäßig eingeschaltet. Ein Fehlerbericht speichert dann aktuelle Protokollzeilen mit unkenntlich gemachten Pfaden und Zugangsdaten in einer Datei auf diesem Rechner und nennt diese Datei im Bericht. Das Protokoll selbst wird niemals auf GitHub veröffentlicht."
+    },
+    {
+      "table": "ui",
+      "key": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "source": "One plate, or all of them. A scale is estimated per run, so a run over two plates scales both by one number.",
+      "source_sha256": "7b4dc1d17969c13994b322285122e015e6d7f0b981b5f0edffa5d90ced3c8769",
+      "translation": "Eine Platte oder alle Platten. Pro Lauf wird ein Skalierungsfaktor geschätzt; ein Lauf über zwei Platten skaliert daher beide mit demselben Wert."
+    },
+    {
+      "table": "ui",
+      "key": "Open a field first — a histogram needs an image.",
+      "source": "Open a field first — a histogram needs an image.",
+      "source_sha256": "a75f9d350125f68126ae12a2a4a880840a156ed8d7b2ef87bc0ac41d684e6f9a",
+      "translation": "Öffnen Sie zuerst ein Feld — ein Histogramm benötigt ein Bild."
+    },
+    {
+      "table": "ui",
+      "key": "Open a folder before running Object detection.",
+      "source": "Open a folder before running Object detection.",
+      "source_sha256": "673eed3fa69ad4188b1df6fca076ad90e86dfa5b0b2b7b1687f6b69a121ff313",
+      "translation": "Öffnen Sie einen Ordner, bevor Sie Objekterkennung ausführen."
+    },
+    {
+      "table": "ui",
+      "key": "Open a sample of a training dataset",
+      "source": "Open a sample of a training dataset",
+      "source_sha256": "4224e03e2d6d635713e1934bba639c52fa932bd0726fd4b06708f6f0c1cea2e1",
+      "translation": "Stichprobe eines Trainingsdatensatzes öffnen"
+    },
+    {
+      "table": "ui",
+      "key": "Open the web page",
+      "source": "Open the web page",
+      "source_sha256": "93a40af6474d845293fcbb39ee7d8b4072c2d73773938e2b38d55355685abc7f",
+      "translation": "Öffnen Sie die Webseite"
+    },
+    {
+      "table": "ui",
+      "key": "Opened {name} in the browser",
+      "source": "Opened {name} in the browser",
+      "source_sha256": "08ed03ea302d598ebcfc6a231f893f0aadf952870681e45267acac9817f86630",
+      "translation": "{name} im Browser geöffnet"
+    },
+    {
+      "table": "ui",
+      "key": "Opening {name}",
+      "source": "Opening {name}",
+      "source_sha256": "4b3b966cb45c6b0e7e73f3f68a0ccb9ba62c05de684832e86095d30bba5c2c5f",
+      "translation": "{name} wird geöffnet"
+    },
+    {
+      "table": "ui",
+      "key": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "source": "Opens GitHub's sign-up page in your browser. Come back here afterwards to install the GitHub CLI and sign in.",
+      "source_sha256": "6f5e747dba4dc3d4cc0a05b17936533f61b4bd23cedd56267396af17fe22d9f8",
+      "translation": "Öffnet die Registrierungsseite von GitHub im Browser. Kehren Sie anschließend hierher zurück, um die GitHub CLI zu installieren und sich anzumelden."
+    },
+    {
+      "table": "ui",
+      "key": "Otsu",
+      "source": "Otsu",
+      "source_sha256": "d531f59693b2c545aaa1c737c30765e61298492ecc3a461e74d1b7e56e0a49ca",
+      "translation": "Otsu-Verfahren"
+    },
+    {
+      "table": "ui",
+      "key": "Plate name",
+      "source": "Plate name",
+      "source_sha256": "bf33cb086698ef8ac7881a38c9dd4c9769a27c1822cc1471247e37e88b6bdc6a",
+      "translation": "Plattenname"
+    },
+    {
+      "table": "ui",
+      "key": "Play a few seconds of the music bed at the volume above.",
+      "source": "Play a few seconds of the music bed at the volume above.",
+      "source_sha256": "dd4622e2aae97cb792aadb78a1efbc4a2cee131b7538db25df47fa11bec79d79",
+      "translation": "Spielt einige Sekunden der Hintergrundmusik mit der oben eingestellten Lautstärke ab."
+    },
+    {
+      "table": "ui",
+      "key": "Play sounds",
+      "source": "Play sounds",
+      "source_sha256": "2e802e9479575b872eac4f4e7d3d249281a76ce758935d75eb5f511c53ccdc81",
+      "translation": "Klänge abspielen"
+    },
+    {
+      "table": "ui",
+      "key": "Play this sound once at the volume above.",
+      "source": "Play this sound once at the volume above.",
+      "source_sha256": "f34bfc665d55fdd8bce9e3834d01f5ef46f30efc8bf6393071c31d81d4abad96",
+      "translation": "Spielt diesen Klang einmal mit der oben eingestellten Lautstärke ab."
+    },
+    {
+      "table": "ui",
+      "key": "Press Re-apply to sort the files with this pattern.",
+      "source": "Press Re-apply to sort the files with this pattern.",
+      "source_sha256": "41071f15485d12e4ca3f566ceebb50d6eb8a313ea10ad4b0d9615efe722f873d",
+      "translation": "Klicken Sie auf Erneut anwenden, um die Dateien mit diesem Muster zuzuordnen."
+    },
+    {
+      "table": "ui",
+      "key": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source": "Pull every object's boundary in by that many pixels. Each object is pulled back from its neighbours as well as from the background, so a pair that was touching comes apart. AN OBJECT THINNER THAN TWICE THE DISTANCE DISAPPEARS, and the status line says how many did. One undo step.",
+      "source_sha256": "e3ca51e52e4f6f465cc0c6ce41986ec19803f01b02a5b045f28f0f334ab85966",
+      "translation": "Verschiebt die Grenze jedes Objekts um diese Anzahl Pixel nach innen. Jedes Objekt zieht sich sowohl von seinen Nachbarn als auch vom Hintergrund zurück, sodass sich berührende Objekte getrennt werden. EIN OBJEKT, DAS SCHMALER ALS DER DOPPELTE ABSTAND IST, VERSCHWINDET. Die Statuszeile zeigt die Anzahl. Als ein Schritt rückgängig zu machen."
+    },
+    {
+      "table": "ui",
+      "key": "Re-apply to all files",
+      "source": "Re-apply to all files",
+      "source_sha256": "63db7ac4a14a69b605949ffbf3c4d96f015690e834fd5fe8018c7677c6bcf274",
+      "translation": "Erneut auf alle Dateien anwenden"
+    },
+    {
+      "table": "ui",
+      "key": "Read these crops",
+      "source": "Read these crops",
+      "source_sha256": "14c074ff048330089e58eafe3817c38b6735ccf922ee33bf7e82e15dc531b042",
+      "translation": "Diese Zuschnitte einlesen"
+    },
+    {
+      "table": "ui",
+      "key": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "source": "Remove every object from this field. It asks first, and it is one undo step, so a press by accident costs one Ctrl+Z.",
+      "source_sha256": "f49a5d002853f15a48f50fc14c397b04c937c3da8faba2217dc7dc15ebfb0713",
+      "translation": "Entfernt alle Objekte aus diesem Feld. Fragt zunächst nach und bildet einen einzigen Rückgängig-Schritt; ein versehentlicher Klick lässt sich daher mit einmal Ctrl+Z zurücknehmen."
+    },
+    {
+      "table": "ui",
+      "key": "Removing…",
+      "source": "Removing…",
+      "source_sha256": "d4b09919ec929f15c19802296a06e97a0d0862e29e23c453d638fc0c3b87c641",
+      "translation": "Wird entfernt…"
+    },
+    {
+      "table": "ui",
+      "key": "Resonance",
+      "source": "Resonance",
+      "source_sha256": "1a5d3460cc2051d30e062c5cc91f2d4c900f816c9520f1253e76d239182bc073",
+      "translation": "Resonanz"
+    },
+    {
+      "table": "ui",
+      "key": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "source": "Rows are fields, columns are channels and mask types. Drop files anywhere on this table, or double-click a cell to browse for the one file it wants.",
+      "source_sha256": "597c5956c242dc0273a9ef0560f020f45fc576ccf59331bfd5d66b93a994de51",
+      "translation": "Zeilen sind Felder, Spalten sind Kanäle und Maskentypen. Dateien an beliebiger Stelle auf dieser Tabelle ablegen oder eine Zelle doppelt anklicken, um die zugehörige Datei auszuwählen."
+    },
+    {
+      "table": "ui",
+      "key": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "source": "Run Object detection to see the cell-probability map\nand the flow field for this field.",
+      "source_sha256": "4789e7edc73d2c9208abf2c595125d773b8cacb9ce7a96dddb688f2af1838025",
+      "translation": "Führen Sie die Objekterkennung aus, um die Zellwahrscheinlichkeitskarte\nund das Flussfeld für dieses Bildfeld zu sehen."
+    },
+    {
+      "table": "ui",
+      "key": "Run failed",
+      "source": "Run failed",
+      "source_sha256": "97fddf2d43e8dfc8e31d22f8ba3957b67b9109306346435f0172ba7439e4658a",
+      "translation": "Lauf fehlgeschlagen"
+    },
+    {
+      "table": "ui",
+      "key": "Run finished",
+      "source": "Run finished",
+      "source_sha256": "22488bd91e126f2a81ef902ae2e6e767a3a5a5ccac9144fee385561a76a951c6",
+      "translation": "Lauf abgeschlossen"
+    },
+    {
+      "table": "ui",
+      "key": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source": "Sand on a vibrating plate, gathering along the lines that do not move — a Chladni figure that changes with the music bed when one is playing, and breathes on its own when nothing is.",
+      "source_sha256": "87207bbab69e5a41953bdd89ebdac39d93f4c990e26a5b7ca8a0a715c58bbcf1",
+      "translation": "Sand auf einer schwingenden Platte sammelt sich entlang der unbewegten Linien -- eine Chladni-Figur, die sich bei laufender Hintergrundmusik mit ihr verändert und sich ohne Musik in einem eigenen ruhigen Rhythmus bewegt."
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR",
+      "source": "Search spaCR",
+      "source_sha256": "dbe89695827690925d9402ac2a6549b0e379fb43090234c595c8065177df3f1f",
+      "translation": "spaCR durchsuchen"
+    },
+    {
+      "table": "ui",
+      "key": "Search spaCR…",
+      "source": "Search spaCR…",
+      "source_sha256": "65f80adbe11014474289a5a0f6544862685946b3dd43f6bc796f7347dc3632f1",
+      "translation": "spaCR durchsuchen…"
+    },
+    {
+      "table": "ui",
+      "key": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source": "Segment the open field with the Object detection model and fold the result in as the replace/merge setting says. Fills the Cell probability and Flows tabs with what the run was thinking.",
+      "source_sha256": "0755fe4a30ce8e9803c8fa5aa479865a6776752afc876a0416c8ca315150ae88",
+      "translation": "Segmentiert das geöffnete Feld mit dem Modell zur Objekterkennung und übernimmt das Ergebnis gemäß der Einstellung Ersetzen/Zusammenführen. Die Registerkarten Zellwahrscheinlichkeit und Flussfelder zeigen die Zwischenergebnisse des Laufs."
+    },
+    {
+      "table": "ui",
+      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705",
+      "translation": "Segmentiert das geöffnete Feld mit einem Modell. Beide Schwellenwerte beginnen bei den Standardwerten von Cellpose."
+    },
+    {
+      "table": "ui",
+      "key": "Sending the approved report to GitHub…",
+      "source": "Sending the approved report to GitHub…",
+      "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0",
+      "translation": "Der freigegebene Bericht wird an GitHub gesendet…"
+    },
+    {
+      "table": "ui",
+      "key": "Set up the GitHub CLI",
+      "source": "Set up the GitHub CLI",
+      "source_sha256": "be41b2e9e9d6eb7c1fde89f68e220ae37fb74aaf44ec832a4d95ae1c8b50a029",
+      "translation": "GitHub CLI einrichten"
+    },
+    {
+      "table": "ui",
+      "key": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "source": "Share this model so other spaCR users can download it?\n\nYou will be asked for the numbers that go in its scorecard. It is uploaded to the shared spaCR collection, where it is held for review before it appears in the Model Zoo -- you do not need a Hugging Face account.",
+      "source_sha256": "515fe65a3a49a4ba43933c24bfba273efd4b422fb374333959c6a959663f760a",
+      "translation": "Dieses Modell teilen, damit andere spaCR-Nutzer es herunterladen können?\n\nSie werden nach den Kennzahlen für seine Scorecard gefragt. Es wird in die gemeinsame spaCR-Sammlung hochgeladen und vor der Anzeige im Model Zoo zur Prüfung zurückgehalten. Ein Hugging Face-Konto ist nicht erforderlich."
+    },
+    {
+      "table": "ui",
+      "key": "Share this model?",
+      "source": "Share this model?",
+      "source_sha256": "0f728cdb462b2168403b56e8738acd19f3dbc0a5dd1beb9aa72f1e2604e83d9a",
+      "translation": "Dieses Modell teilen?"
+    },
+    {
+      "table": "ui",
+      "key": "Shared",
+      "source": "Shared",
+      "source_sha256": "e3c4b39d6d5013477c98cd58236fed455f37aa7017b7168ce1980a449aaf438a",
+      "translation": "Geteilt"
+    },
+    {
+      "table": "ui",
+      "key": "Shortcuts",
+      "source": "Shortcuts",
+      "source_sha256": "46e978d0c19397c7d0318f6440950c15e046f5841a0feb03c35fdc68e1dfc68a",
+      "translation": "Kurzbefehle"
+    },
+    {
+      "table": "ui",
+      "key": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source": "Show or hide the settings — brush, wand, display, auto-filter, object operations, Otsu, object detection and the live magnifier, as one group. The canvas takes the width they give up.",
+      "source_sha256": "dbabdc7febc500744ec183d083bf98d31f6b3035fd3dc60ff132ebe9bdec1fe4",
+      "translation": "Zeigt oder verbirgt alle Einstellungen gemeinsam: Pinsel, Zauberstab, Anzeige, automatischer Filter, Objektoperationen, Otsu, Objekterkennung und Live-Lupe. Die Bildfläche übernimmt den frei werdenden Platz."
+    },
+    {
+      "table": "ui",
+      "key": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source": "Show the picture as a negative and detect on that same negative: the field is normalized to 0..1 and each pixel becomes 1 minus itself, so its darkest pixel is its brightest. That is what lets Otsu and the Live magnifier, which look for bright objects, take DARK ones — a dark object on a pale brightfield reads the way a fluorescent one does, to the eye and to the detector alike. THE MASKS ARE MADE FROM THE INVERTED IMAGE while this is on, and a warning stays above the image saying so. The hover readout, the Filter category and the mask you save go on reading the image's real values, so nothing you measure changes. This is not 'Swap object and background' in Object operations, which flips a finished MASK and does nothing to the picture.",
+      "source_sha256": "d71fbae27cb6a2958c1a5ab5e73fa5f140525522c63333c78a2186bae8264789",
+      "translation": "Zeigt das Bild als Negativ und führt die Erkennung auf demselben Negativ aus: Das Feld wird auf 0..1 normalisiert und jeder Pixelwert durch 1 minus seinen Wert ersetzt. Das dunkelste Pixel wird dadurch zum hellsten. So können Otsu und die Live-Lupe, die nach hellen Objekten suchen, DUNKLE Objekte erkennen: Ein dunkles Objekt in einem hellen Durchlichtbild erscheint für Auge und Detektor wie ein fluoreszierendes Objekt. BEI AKTIVIERTER OPTION WERDEN MASKEN AUS DEM INVERTIERTEN BILD ERZEUGT; darauf weist eine dauerhafte Warnung über dem Bild hin. Mauszeiger-Werteanzeige, Filterkategorie und gespeicherte Maske verwenden weiterhin die tatsächlichen Bildwerte, sodass sich Messwerte nicht ändern. Dies ist nicht 'Swap object and background' (Objekt und Hintergrund vertauschen) in Objektoperationen: Dort wird eine fertige MASKE umgekehrt, ohne die Bilddarstellung zu ändern."
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image as it was loaded.",
+      "source": "Showing the image as it was loaded.",
+      "source_sha256": "01641220d68a74f77c817c175cd3447d019f1473c0de372d77e289b01fd4ddfb",
+      "translation": "Zeigt das Bild, wie es geladen wurde."
+    },
+    {
+      "table": "ui",
+      "key": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "source": "Showing the image inverted — dark is bright — and detecting on it. The hover intensity follows the picture and says so; filtering, the object mean and saving still use the original pixels.",
+      "source_sha256": "10e5f49fcc1ed61eef3d24e8663709a3993010dc4a1b1bdb29349fa917f0432f",
+      "translation": "Das Bild wird invertiert angezeigt — dunkel wird hell — und für die Erkennung verwendet. Die Intensität am Mauszeiger folgt der Darstellung und ist entsprechend gekennzeichnet; Filterung, Objektmittelwert und Speichern verwenden weiterhin die Originalpixel."
+    },
+    {
+      "table": "ui",
+      "key": "Shrink",
+      "source": "Shrink",
+      "source_sha256": "33435b9713584d37a9f446dba53b65844bbaaa56ca2a581b010dc272074bb1ca",
+      "translation": "Verkleinern"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in",
+      "source": "Sign in",
+      "source_sha256": "bfd402b2f6f3812529b55596136d3a11c51616317e3b1cd999928e2d4eae7d3f",
+      "translation": "Anmelden"
+    },
+    {
+      "table": "ui",
+      "key": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "source": "Sign in to {label} in the window that opened. spaCR notices when you are done.",
+      "source_sha256": "ef897d0ef358f9b184a513da4ab465debe812d22ce608282b06b5bfe3e6d609f",
+      "translation": "Melden Sie sich bei {label} im geöffneten Fenster an. spaCR bemerkt, wenn Sie fertig sind."
+    },
+    {
+      "table": "ui",
+      "key": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "source": "Signing in to {label} did not finish within {minutes} minutes. Press Sign in to try again.",
+      "source_sha256": "deec05063963965c40890d0b21b74cace845bb7fa0e561af9e3d1ebc65589d7f",
+      "translation": "Die Anmeldung bei {label} wurde nicht innerhalb von {minutes} Minuten abgeschlossen. Klicken Sie auf Anmelden, um es erneut zu versuchen."
+    },
+    {
+      "table": "ui",
+      "key": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source": "Smallest object worth keeping, in pixels. Removing small objects drops everything under it, and neither Otsu detect nor Object detection will produce an object below it, so one judgement about debris is made in one box.",
+      "source_sha256": "149849acca7368282ad4b79559b42336aba111022b4df5d83808c2f85905bdf4",
+      "translation": "Kleinste beizubehaltende Objektfläche in Pixeln. Das Entfernen kleiner Objekte verwirft alle Objekte darunter. Weder Otsu-Erkennung noch Objekterkennung erzeugen kleinere Objekte, sodass die Entscheidung über Störpartikel nur in einem Feld getroffen wird."
+    },
+    {
+      "table": "ui",
+      "key": "Sort every file this table already holds again, with the regex as it reads now.",
+      "source": "Sort every file this table already holds again, with the regex as it reads now.",
+      "source_sha256": "1c14c552ebb9d4e45108a0ae38e1e434d7bf29732f430436ac76f7186d76fbcf",
+      "translation": "Ordnet alle bereits in dieser Tabelle enthaltenen Dateien erneut mit dem aktuell eingetragenen regulären Ausdruck zu."
+    },
+    {
+      "table": "ui",
+      "key": "Sound set",
+      "source": "Sound set",
+      "source_sha256": "8d308657d751aeb14842b12883f9027b12142c1062a026c6519362908bebff83",
+      "translation": "Klangset"
+    },
+    {
+      "table": "ui",
+      "key": "Split objects that touch",
+      "source": "Split objects that touch",
+      "source_sha256": "25d4d69647265e4f5d692cab9ad3bfda5163ade1cedb54e43a7b880d1fa27a07",
+      "translation": "Sich berührende Objekte trennen"
+    },
+    {
+      "table": "ui",
+      "key": "Starting…",
+      "source": "Starting…",
+      "source_sha256": "bbe5fc3b9ef39f994c259eaf233d625a500b5219784c82f73b50808d4f79d5dc",
+      "translation": "Wird gestartet…"
+    },
+    {
+      "table": "ui",
+      "key": "Stop it and close",
+      "source": "Stop it and close",
+      "source_sha256": "4d5d164d8b689ea44b5ee6491f10c78573084c61bf9f6dde5c1269b2fbe4209b",
+      "translation": "Stoppen und schließen"
+    },
+    {
+      "table": "ui",
+      "key": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "source": "Stopped waiting for the sign-in. Press Sign in to start it again, or Done once you have signed in.",
+      "source_sha256": "f7441f3a2c785aa2262308bdb4f92fa2c9106ceba32fb21639f2ccc895747bc0",
+      "translation": "Das Warten auf die Anmeldung wurde beendet. Klicken Sie auf Anmelden, um erneut zu beginnen, oder nach erfolgter Anmeldung auf Fertig."
+    },
+    {
+      "table": "ui",
+      "key": "Stopping after this page…",
+      "source": "Stopping after this page…",
+      "source_sha256": "6ac19a1be499d0e73f3ee89b45c2f84300ce884b76f4e53691272fa54b94f438",
+      "translation": "Wird nach dieser Seite gestoppt…"
+    },
+    {
+      "table": "ui",
+      "key": "Stopping the installer…",
+      "source": "Stopping the installer…",
+      "source_sha256": "42958a5514188bdb1e8613d56d63acba59a710857f2735e7cb28781d5fac0906",
+      "translation": "Installationsprogramm wird gestoppt…"
+    },
+    {
+      "table": "ui",
+      "key": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source": "Ten fields of the dataset a published model was trained on, with the masks it was taught. They open for editing, so what you see is what the model saw.",
+      "source_sha256": "61fb84ed081b8c8413729fdc89c1b447cd521bcb0e21ade11b035450df3efaa3",
+      "translation": "Zehn Felder des Datensatzes, mit dem ein veröffentlichtes Modell trainiert wurde, samt den verwendeten Trainingsmasken. Sie werden zur Bearbeitung geöffnet; Sie sehen also dieselben Eingaben wie das Modell."
+    },
+    {
+      "table": "ui",
+      "key": "Test on my folder",
+      "source": "Test on my folder",
+      "source_sha256": "db188c0321042df271b0156ba35b7ee5f1d76cb7b69b904710e36cdcb76f8592",
+      "translation": "An meinem Ordner testen"
+    },
+    {
+      "table": "ui",
+      "key": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "source": "The GitHub CLI is not installed.\n\nWith it, spaCR files a report under your GitHub account without opening the browser. Without it, reports still open in your browser.",
+      "source_sha256": "252e31bc85e4bd0da5351ee1cbe0507aed2b3727b9718f8b343b902619e88776",
+      "translation": "Die GitHub CLI ist nicht installiert.\n\nMit ihr erstellt spaCR einen Bericht unter Ihrem GitHub-Konto, ohne den Browser zu öffnen. Ohne sie öffnen sich Berichte weiterhin im Browser."
+    },
+    {
+      "table": "ui",
+      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf",
+      "translation": "Die Live-Lupe liest diese Einstellungen ebenfalls: Der Cellpose-Modus verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung; DINOCell verwendet die Zellwahrscheinlichkeit. Der Otsu-Modus liest stattdessen die Otsu-Kategorie."
+    },
+    {
+      "table": "ui",
+      "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
+      "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
+      "translation": "Der von spaCR ausgeführte Befehl. Kopieren Sie ihn, um ihn stattdessen selbst in einem Terminal auszuführen."
+    },
+    {
+      "table": "ui",
+      "key": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "source": "The file table decides this. Change the table's channels or mask columns and this follows.",
+      "source_sha256": "5e8542d02349eb9df6700d23af00616f11ea97db0bc9d8300ec9a301c746d63b",
+      "translation": "Dies wird durch die Dateitabelle bestimmt. Änderungen an ihren Kanal- oder Maskenspalten werden hier übernommen."
+    },
+    {
+      "table": "ui",
+      "key": "The files",
+      "source": "The files",
+      "source_sha256": "ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479",
+      "translation": "Die Dateien"
+    },
+    {
+      "table": "ui",
+      "key": "The installer could not be run: {error}",
+      "source": "The installer could not be run: {error}",
+      "source_sha256": "cfa215aae696efbba710060862248ae41321382ccc90709ea2beeb8fabd5cc0b",
+      "translation": "Der Installer konnte nicht ausgeführt werden: {error}"
+    },
+    {
+      "table": "ui",
+      "key": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "source": "The installer for {tools} is still running. Closing this screen now stops it.",
+      "source_sha256": "d930372c7454ce2bd555a2d336fe82827bc574231b9b695c7742659c9dcf43e8",
+      "translation": "Das Installationsprogramm für {tools} läuft noch. Wenn Sie diese Ansicht jetzt schließen, wird es gestoppt."
+    },
+    {
+      "table": "ui",
+      "key": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source": "The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.",
+      "source_sha256": "6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f",
+      "translation": "Die letzten Farben am Himmel -- Rosa und Magenta über mattem Gold, dazu das Pflaumenviolett des Horizonts kurz vor Einbruch der Dunkelheit."
+    },
+    {
+      "table": "ui",
+      "key": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "source": "The published documentation is not reachable from here, so this is the description stored with the code on this machine.",
+      "source_sha256": "7331a69c7b5b6932ebc5198d0d93a5bd8439856e36b319563a8b4f02ec554781",
+      "translation": "Die veröffentlichte Dokumentation ist von hier aus nicht erreichbar, also ist dies die Beschreibung, die mit dem Code auf dieser Maschine gespeichert ist."
+    },
+    {
+      "table": "ui",
+      "key": "The report was not sent.",
+      "source": "The report was not sent.",
+      "source_sha256": "7fa94ad764e8476f7b31623c25805813c735a2b151500c3681730661719e074a",
+      "translation": "Der Bericht wurde nicht übermittelt."
+    },
+    {
+      "table": "ui",
+      "key": "The report was sent: {url}",
+      "source": "The report was sent: {url}",
+      "source_sha256": "28486dcd296765e6c94d34aefaea9f44e8ba7cb3ee33cff56d3ed3b40c3610f3",
+      "translation": "Der Bericht wurde gesendet: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "source": "The sign-in could not be started from here. Run the command below in a terminal, then press Done.",
+      "source_sha256": "a50a50796b80fc1e05551f491f493a6f95e6ab470343a88d0fabac5e9f2c42d4",
+      "translation": "Das Anmelden konnte von hier aus nicht gestartet werden. Führen Sie den Befehl unten in einem Terminal aus und drücken Sie dann Fertig."
+    },
+    {
+      "table": "ui",
+      "key": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source": "The square the local level is measured in, centred on each pixel. Make it comfortably bigger than one object and smaller than the illumination's own scale: too small and the inside of a large object becomes its own background, so it comes back hollow; too large and it is the whole-field threshold again. Even numbers are rounded up, so the square has a centre.",
+      "source_sha256": "67d860b3dc2930be66a900268f3c9586fdb7a0d265d55a548142edba5600db37",
+      "translation": "Quadratisches Fenster zur Bestimmung des lokalen Schwellenwerts, zentriert auf jedem Pixel. Es sollte deutlich größer als ein Objekt, aber kleiner als die räumliche Ausdehnung der Beleuchtungsänderung sein. Ist es zu klein, wird das Innere eines großen Objekts als eigener Hintergrund betrachtet und das Objekt erscheint hohl. Ist es zu groß, entspricht es wieder einem Schwellenwert für das gesamte Feld. Gerade Zahlen werden aufgerundet, damit das Quadrat einen Mittelpunkt hat."
+    },
+    {
+      "table": "ui",
+      "key": "There is nothing in the console to report.",
+      "source": "There is nothing in the console to report.",
+      "source_sha256": "a4029341ca3ddf6933f74cb69172a0600b76e78964de019e2c59b9276ffa029e",
+      "translation": "Die Konsole enthält nichts, was gemeldet werden könnte."
+    },
+    {
+      "table": "ui",
+      "key": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "source": "These models are uploaded by other spaCR users through the Add button.\n\nNobody has checked what they are, what they were trained on, or whether the numbers they report are real. Their checksums prove only that a file has not changed since it was uploaded -- not that it is any good, and not that it is safe to trust with your data.\n\nShow them anyway?",
+      "source_sha256": "4a1eb91a4cecfa05b452313069cf077f61208d44aaf6e4459343964b7399800e",
+      "translation": "Diese Modelle wurden von anderen spaCR-Nutzern über die Schaltfläche Hinzufügen hochgeladen.\n\nNiemand hat geprüft, um welche Modelle es sich handelt, womit sie trainiert wurden oder ob ihre angegebenen Kennzahlen stimmen. Die Prüfsummen belegen nur, dass sich eine Datei seit dem Upload nicht verändert hat -- nicht ihre Qualität oder die Sicherheit bei der Verwendung mit Ihren Daten.\n\nTrotzdem anzeigen?"
+    },
+    {
+      "table": "ui",
+      "key": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "source": "These numbers become the model's table on Hugging Face. Leave anything you did not measure blank — it will read “not recorded”, which is better than a guess.",
+      "source_sha256": "ac05be35f089306b44992a5b53d18488f00f7f9c4961f74a53b16a6ef4083846",
+      "translation": "Diese Kennzahlen erscheinen in der Tabelle des Modells auf Hugging Face. Lassen Sie nicht gemessene Werte leer; sie werden als „nicht erfasst“ angezeigt, was besser ist als eine Schätzung."
+    },
+    {
+      "table": "ui",
+      "key": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "source": "This build of spaCR cannot install packages into itself. Install spaCR with pip or conda to add {name}.",
+      "source_sha256": "2fbccb1df6bda13739523c534157b51fd48dcbbb8bbc2fc4e2e97e23a3684d91",
+      "translation": "Dieser Build von spaCR kann Pakete nicht in sich selbst installieren. Installieren Sie spaCR mit pip oder conda, um {name} hinzuzufügen."
+    },
+    {
+      "table": "ui",
+      "key": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "source": "This is the copy on this machine. The published page is reachable — open it for the rendered version.",
+      "source_sha256": "5fe4a9cfd5da36dd2a2975dba7dc52a57dcd09ad6ddec49fc9196815245673c3",
+      "translation": "Dies ist die Kopie auf dieser Maschine. Die veröffentlichte Seite ist erreichbar – öffnen Sie sie für die gerenderte Version."
+    },
+    {
+      "table": "ui",
+      "key": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "source": "This is the description stored with the code on this machine. Checking whether the published page is reachable…",
+      "source_sha256": "f605135194ed5e4b3ea396566a391bf9d9d91f31ad3b7fd0fa2b57a16dcc9d68",
+      "translation": "Dies ist die Beschreibung, die mit dem Code auf dieser Maschine gespeichert ist. Prüfen, ob die veröffentlichte Seite erreichbar ist..."
+    },
+    {
+      "table": "ui",
+      "key": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "source": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
+      "source_sha256": "7ba7fb2343daf2f4a73ceebe583fbcb1dc8c8c29e631dd2893ebbd34ae5011d3",
+      "translation": "Dieses Modell veröffentlicht keine Prüfsumme, so dass spaCR eine abgeschnittene oder ersetzte Datei nicht von der realen Datei unterscheiden kann."
+    },
+    {
+      "table": "ui",
+      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+      "translation": "Segmentiert das Bild mit dem Otsu-Schwellenwert und markiert die verbleibenden Objekte unter Berücksichtigung der oben festgelegten Mindestfläche. Alle Schwellenwerteinstellungen befinden sich in der Otsu-Kategorie: Korrektur, Glättung, helle oder dunkle Objekte, Füllen von Löchern, Trennen sich berührender Objekte und Entfernen angeschnittener Objekte."
+    },
+    {
+      "table": "ui",
+      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be",
+      "translation": "Segmentiert mit dem Otsu-Schwellenwert. Steuert die Otsu-Erkennung und den Otsu-Modus der Live-Lupe."
+    },
+    {
+      "table": "ui",
+      "key": "Train data",
+      "source": "Train data",
+      "source_sha256": "819aca1401b6fdd1995337f09735f6ceec767a167f8dab4a8e30794d06787d3e",
+      "translation": "Trainingsdaten"
+    },
+    {
+      "table": "ui",
+      "key": "Training datasets…",
+      "source": "Training datasets…",
+      "source_sha256": "f181135dd60e4f79636e8092ac7b869d41d0645e3435ab328e50c986a4767ecd",
+      "translation": "Trainingsdatensätze..."
+    },
+    {
+      "table": "ui",
+      "key": "Try again",
+      "source": "Try again",
+      "source_sha256": "d8b8392e2c542950ca64867168e4ef87d4ad606882d5898f826b51c6d553988f",
+      "translation": "Erneut versuchen"
+    },
+    {
+      "table": "ui",
+      "key": "Try anyway",
+      "source": "Try anyway",
+      "source_sha256": "c73761e35faddb8c473fef67ed5c0d9281586cf7a390c2f58dbf162798c4181c",
+      "translation": "Trotzdem versuchen"
+    },
+    {
+      "table": "ui",
+      "key": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "source": "Try every convention over the source folder and rank them by how many names each one reads. This only reports — the setting is not changed for you.",
+      "source_sha256": "e861f27d849f8976847bce8d02e7623253a92ac39dd6242f794c9a8c4be9f777",
+      "translation": "Testet jede Konvention am Quellordner und ordnet sie nach der Anzahl lesbarer Namen. Dies liefert nur einen Bericht; Ihre Einstellung wird nicht automatisch geändert."
+    },
+    {
+      "table": "ui",
+      "key": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source": "Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.",
+      "source_sha256": "db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9",
+      "translation": "Unter der Oberfläche: Seegrün, Mint und das Petrol, das als letzte Farbe bleibt, wenn alle warmen Farbtöne absorbiert wurden."
+    },
+    {
+      "table": "ui",
+      "key": "Uninstall",
+      "source": "Uninstall",
+      "source_sha256": "fe199528850a4e24c14d9ece87a07b40bdcfa5fe504c175c117b997c29259ca6",
+      "translation": "Deinstallieren"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed",
+      "source": "Upload failed",
+      "source_sha256": "6efc5d27f30b20c103ca1a855bfc65cdbdf9de98c3f8ac93a3df3f319c3388bd",
+      "translation": "Hochladen fehlgeschlagen"
+    },
+    {
+      "table": "ui",
+      "key": "Upload failed.",
+      "source": "Upload failed.",
+      "source_sha256": "3d209f4648d487b456bcd3690b347fdbab9818502d677d52ff6fa2af90d4267f",
+      "translation": "Upload fehlgeschlagen."
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to Hugging Face…",
+      "source": "Uploading to Hugging Face…",
+      "source_sha256": "da3a6c5625d44c4a509c2cfd07e65a295414a60eeec3844df84f04220f380755",
+      "translation": "Wird auf Hugging Face hochgeladen…"
+    },
+    {
+      "table": "ui",
+      "key": "Uploading to the shared collection…",
+      "source": "Uploading to the shared collection…",
+      "source_sha256": "7f68a11457385bd32a50c81f55a3d1c859011816d8e179b622894492ace9f0c1",
+      "translation": "Wird in die gemeinsame Sammlung hochgeladen…"
+    },
+    {
+      "table": "ui",
+      "key": "Version",
+      "source": "Version",
+      "source_sha256": "dd167905de0defcaf72de673ee44c07431770d129ccffab286bd2edfdaf62396",
+      "translation": "Versionsstand"
+    },
+    {
+      "table": "ui",
+      "key": "Volume",
+      "source": "Volume",
+      "source_sha256": "b10fb966d72063f534774c7c6b404f4decca76ac283093ae65fef78d07c1b75e",
+      "translation": "Lautstärke"
+    },
+    {
+      "table": "ui",
+      "key": "WAV audio (*.wav)",
+      "source": "WAV audio (*.wav)",
+      "source_sha256": "88f088754737aa543793aa81c4fd9595e221413cff7e71c653115acb267364ad",
+      "translation": "WAV-Audio (*.wav)"
+    },
+    {
+      "table": "ui",
+      "key": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source": "What a new object does where the mask already has an object. Clip keeps only its unlabelled pixels, so no existing object loses a pixel. Skip leaves out any object that touches an existing one. Replace lets the new object take every pixel it covers. Under Region under the mouse the box shows what the rule leaves: what a click would add is drawn solid, and what it would take away is ghosted.",
+      "source_sha256": "682cf7017c6296385171eb74b984b4cb438a3f5ad8bcb470e4ad3f3898bd11eb",
+      "translation": "Verhalten eines neuen Objekts an Stellen, an denen die Maske bereits ein Objekt enthält. Clip übernimmt nur seine unmarkierten Pixel, sodass vorhandene Objekte keine Pixel verlieren. Skip lässt jedes Objekt aus, das ein vorhandenes berührt. Replace lässt das neue Objekt alle von ihm bedeckten Pixel übernehmen. Unter Bereich unter dem Mauszeiger zeigt die Vorschau das Ergebnis dieser Regel: Was ein Klick hinzufügen würde, erscheint deckend; was er entfernen würde, erscheint transparent."
+    },
+    {
+      "table": "ui",
+      "key": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "source": "What the fields are filed under in the measurements database. These images did not come from a plate, so this names where they did come from rather than claiming a plate that was never run. Every row becomes one field of well A01 unless you change its well below.",
+      "source_sha256": "019f7eb09dec26f772999346db34ca3bac3a0535e60e4f98459a9521c2876134",
+      "translation": "Name, unter dem die Felder in der Messdatenbank abgelegt werden. Diese Bilder stammen nicht von einer Platte; der Name beschreibt daher ihre tatsächliche Herkunft, statt eine nie aufgenommene Platte vorzutäuschen. Jede Zeile wird zu einem Feld des Wells A01, sofern Sie unten kein anderes Well festlegen."
+    },
+    {
+      "table": "ui",
+      "key": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source": "What the last filter removed, one row per object: its id, the area and mean intensity it was judged on, and the bound that removed it. The ids are the ones the hover readout shows.",
+      "source_sha256": "5ab02ba4a4ecdd20bb4b81d638d2a7551284dbcb51f7477f178c23c2ec0c2cd2",
+      "translation": "Vom letzten Filter entfernte Objekte, eine Zeile je Objekt: Kennung, zugrunde liegende Fläche und mittlere Intensität sowie die ausschließende Grenze. Die Kennungen entsprechen denen der Werteanzeige am Mauszeiger."
+    },
+    {
+      "table": "ui",
+      "key": "What the run writes appears here.",
+      "source": "What the run writes appears here.",
+      "source_sha256": "57d1a41411fd14075f9cee6de966df4d4ec327f0703009fd16b25a3008aaaf41",
+      "translation": "Was der Lauf schreibt, erscheint hier."
+    },
+    {
+      "table": "ui",
+      "key": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source": "Where the tiles are read from and where the results are written: the sequencing folder searched, subfolders included, for tiles named by magnification, cycle, well, channels and site, the phenotype folder placed on top of it, the guide library the calls are matched against, and the folder that receives measurements.db and a report for each well. Set these first; every other OPS group assumes they are right.",
+      "source_sha256": "765f03ea98c3e74fcb666770c5447c54eba88a8b0346c2bb601e2ff186fcced2",
+      "translation": "Woher die Kacheln stammen und wohin die Ergebnisse geschrieben werden: der Sequenzierungsordner, der einschließlich Unterordnern nach Kacheln mit Vergrößerung, Zyklus, Well, Kanälen und Position im Namen durchsucht wird; der darauf ausgerichtete Phänotyp-Ordner; die Guide-Bibliothek zum Abgleich der bestimmten Basen; und der Zielordner für measurements.db und einen Bericht je Well. Diese Angaben zuerst festlegen; alle anderen OPS-Gruppen setzen voraus, dass sie stimmen."
+    },
+    {
+      "table": "ui",
+      "key": "Where:",
+      "source": "Where:",
+      "source_sha256": "02cc020f791cdbd49b1e6761ee41577461874e05441615f9c872ccbb119d2d87",
+      "translation": "Bedingung:"
+    },
+    {
+      "table": "ui",
+      "key": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source": "Which band becomes the objects, counting 0 for the dimmest. With 3 classes, 2 takes the bright nuclei and 1 takes the dim halo AROUND them without the nuclei inside it — exactly that band, which is what more than two classes is for. With more than two classes this replaces 'Objects are brighter than background': the number says which side you mean.",
+      "source_sha256": "49a4ae5af524ee498eb9839d78b85d7ddad8fa079d73dd06a100e8b3c68ba173",
+      "translation": "Helligkeitsklasse, die als Objekt gilt; 0 bezeichnet die dunkelste. Bei 3 Klassen wählt 2 die hellen Kerne, während 1 den schwachen Halo UM sie auswählt, ohne die darin liegenden Kerne -- genau diese eine Klasse. Dafür sind mehr als zwei Klassen gedacht. Bei mehr als zwei Klassen ersetzt dies 'Objekte sind heller als Hintergrund': Die Zahl bestimmt die gewünschte Seite."
+    },
+    {
+      "table": "ui",
+      "key": "Which convention fits?",
+      "source": "Which convention fits?",
+      "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802",
+      "translation": "Welche Konvention passt?"
+    },
+    {
+      "table": "ui",
+      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+      "source_sha256": "10bc7358717812a822774907a0b7af7ea131ad61cd7499d37f70da507506ab26",
+      "translation": "Modell zur Segmentierung des Bereichs im Lupenfenster. Otsu verwendet den Otsu-Schwellenwert und trennt sich berührende Objekte mit einer Wasserscheidentransformation. Es benötigt keine zusätzliche Installation, berücksichtigt die Mindestfläche unter Objektoperationen sowie Korrekturfaktor und weitere Einstellungen der Otsu-Kategorie und springt ein, wenn ein Modell nicht geladen werden kann. Cellpose verwendet Modell, beide Schwellenwerte, Durchmesser und Normalisierung aus Objekterkennung und ist ohne GPU langsam. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell und SAMCell sind immer aufgeführt, aber bis zur Installation ausgegraut. Ihre Auswahl bietet die Installation in einer eigenen Umgebung an. Cellpose 3 liest beide Schwellenwerte und den Durchmesser aus Objekterkennung, DINOCell die Zellwahrscheinlichkeit; SAMCell verwendet eigene Schwellenwerte."
+    },
+    {
+      "table": "ui",
+      "key": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "source": "Which object class to embed. It picks the label column in png_list and the mask plane a streamed crop is cut by, so asking for nuclei out of a cell crop table returns nothing rather than returning cells.",
+      "source_sha256": "02a9d9a492e547fb229ec0108acf478b90968e389b6ecf3802d131d5fbaa9cae",
+      "translation": "Einzubettende Objektklasse. Sie bestimmt die Label-Spalte in png_list und die Maskenebene für das Ausschneiden gestreamter Zuschnitte. Wer Kerne aus einer Tabelle mit Zellzuschnitten anfordert, erhält daher keine Ergebnisse statt fälschlich Zellen."
+    },
+    {
+      "table": "ui",
+      "key": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "source": "Which set of sounds plays. A set is synthesized on this computer the first time it is needed and kept under ~/.spacr/sounds, so it costs nothing until it is used.",
+      "source_sha256": "9e19140221cacc1aad9e1c263c25a7ebd850dcfaa7d8465b0c50372d739f3fe7",
+      "translation": "Auswahl des Klangsets. Ein Set wird auf diesem Rechner bei der ersten Verwendung synthetisiert und unter ~/.spacr/sounds gespeichert. Vor seiner Nutzung entsteht daher kein Aufwand."
+    },
+    {
+      "table": "ui",
+      "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
+      "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
+      "translation": "Modellgewichte für die Segmentierung dieses Felds und des Lupenfensters im Cellpose-Modus. Die Liste umfasst die auf diesem Rechner installierte Cellpose-Version sowie alle Cellpose-Modelle im Model Zoo. Noch nicht heruntergeladene Modelle sind ausgegraut; ihre Auswahl lädt sie herunter und aktiviert sie."
+    },
+    {
+      "table": "ui",
+      "key": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source": "While verbose logging is on (Modules tab), DEBUG is always written to the log files, so this switch stays on. Turn verbose logging off to choose it yourself. Your own choice is kept for when you do.",
+      "source_sha256": "1b0b75acfa5ce75f29a4e2bedf0fa6f08e303fb515ce599a799058a308421fd2",
+      "translation": "Bei ausführlicher Protokollierung (Registerkarte Module) wird DEBUG immer in die Protokolldateien geschrieben; dieser Schalter bleibt deshalb eingeschaltet. Deaktivieren Sie die ausführliche Protokollierung, um selbst zu wählen. Ihre eigene Auswahl bleibt dafür gespeichert."
+    },
+    {
+      "table": "ui",
+      "key": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "source": "Write the merged arrays this table describes and measure them with the Measure module itself. The output folders and the measurements database are the ones a Measure run produces.",
+      "source_sha256": "147130125966f3373bbf16413f3447b8e93d5e59819f787418670ec517373fe9",
+      "translation": "Schreibt die von dieser Tabelle beschriebenen zusammengeführten Arrays und misst sie mit dem Measure-Modul selbst. Ausgabeordner und Messdatenbank entsprechen denen eines Measure-Laufs."
+    },
+    {
+      "table": "ui",
+      "key": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "source": "Your own expression. It must capture wellID, fieldID and chanID; plateID is optional and falls back to the folder name.",
+      "source_sha256": "9c750e692d93b8ba467d5254fbcd956155b88e4e42b9f4148a1df1694343c43b",
+      "translation": "Ihr eigener regulärer Ausdruck. Er muss wellID, fieldID und chanID erfassen. plateID ist optional; fehlt es, wird der Ordnername verwendet."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filed on GitHub: {url}",
+      "source": "[issue] Filed on GitHub: {url}",
+      "source_sha256": "eaea483cca34761844d68fa512ab373aeba627605a16589e5c5c9b533551ecdd",
+      "translation": "[issue] Auf GitHub erstellt: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "source": "[issue] Filing a redacted report of this error on the public spaCR GitHub repository, because issue reporting is set to 'always'…",
+      "source_sha256": "622cb693e15da21f5e23036870b1489957355512969a551538f08e9c8ad960ad",
+      "translation": "[issue] Ein Bericht zu diesem Fehler mit unkenntlich gemachten vertraulichen Angaben wird im öffentlichen spaCR-Repository auf GitHub erstellt, da die Meldung von Issues auf 'always' eingestellt ist…"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "source": "[issue] Not filed: spaCR is not signed in to GitHub. Run `gh auth login` in a terminal once and later errors are filed automatically. To send this one, press File as issue.",
+      "source_sha256": "5e7ce2b69473fb0c5ace2fc4459d0aaf3bc833d0813863f74a8792bdb076ea53",
+      "translation": "[issue] Nicht erstellt: spaCR ist nicht bei GitHub angemeldet. Führen Sie einmal `gh auth login` in einem Terminal aus; spätere Fehler werden dann automatisch gemeldet. Klicken Sie auf Als Issue melden, um diesen Fehler zu senden."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "source": "[issue] Not filed: {detail}. Press File as issue to try again.",
+      "source_sha256": "5af6114e6d7eec9d7d38b0257fb80c716133ee16e8f6cd9e79641fb66175d4fe",
+      "translation": "[issue] Nicht erstellt: {detail}. Klicken Sie auf Als Issue melden, um es erneut zu versuchen."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "source": "[issue] Nothing was sent to GitHub. Automatic filing starts once you accept the terms of use (Help → Set spaCR up again…). To send this report now, press File as issue.",
+      "source_sha256": "4a90b0bd752e2dace6815ddf2f3bef5530dc4b1eb31f53209057a7fbcdbc19e7",
+      "translation": "[issue] Es wurde nichts an GitHub gesendet. Automatische Meldungen beginnen erst nach Zustimmung zu den Nutzungsbedingungen (Hilfe → spaCR erneut einrichten…). Klicken Sie auf Als Issue melden, um diesen Bericht jetzt zu senden."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "source": "[issue] Nothing was sent to GitHub. Reports are public, so spaCR files one only when you press File as issue and then Send report.",
+      "source_sha256": "e46762e8dce3893d85fca8c1feb91aa2b0adf4f9a394dbd20b1b3303f5a54fe8",
+      "translation": "[issue] Es wurde nichts an GitHub gesendet. Berichte sind öffentlich; spaCR erstellt sie deshalb erst nach einem Klick auf Als Issue melden und anschließend auf Bericht senden."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "source": "[issue] This error already has an open issue on GitHub. This occurrence was added to it: {url}",
+      "source_sha256": "c0a3b0dc3a22355ad999380079f4ff248070991ac532acf47f928b7de4808375",
+      "translation": "[issue] Für diesen Fehler besteht bereits ein offenes Issue auf GitHub. Dieses Auftreten wurde dort ergänzt: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error is being reported already.",
+      "source": "[issue] This error is being reported already.",
+      "source_sha256": "98eacfbd1ef751932ad138775f1813a8260e120cec8469650346bf6f850559f7",
+      "translation": "[issue] Dieser Fehler wird bereits gemeldet."
+    },
+    {
+      "table": "ui",
+      "key": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "source": "[issue] This error was reported from this computer before, so it was not filed again: {url}",
+      "source_sha256": "425bf7825eca02541b5497dcd8c2d87ec8ad78d79a4f49f98450f6e72e1a425b",
+      "translation": "[issue] Dieser Fehler wurde bereits von diesem Rechner gemeldet und daher nicht erneut eingereicht: {url}"
+    },
+    {
+      "table": "ui",
+      "key": "about {seconds} s left",
+      "source": "about {seconds} s left",
+      "source_sha256": "63d5f63ca560382ccaa157f6e5973c9c2dc5fd358ced0f5a52ba350d6e1fb2c7",
+      "translation": "noch etwa {seconds} s"
+    },
+    {
+      "table": "ui",
+      "key": "any condition, e.g. cell_area > 500",
+      "source": "any condition, e.g. cell_area > 500",
+      "source_sha256": "df8e48a50f45ae73df8a5a0d72cc4b4555303be6a30e29487c767fdb71bf1b26",
+      "translation": "Jede Bedingung, z.B. cell_area > 500"
+    },
+    {
+      "table": "ui",
+      "key": "every plate",
+      "source": "every plate",
+      "source_sha256": "28fa0d807b39e588c00fb47a579f124697c925c0e234b894b5beb27c1210b87b",
+      "translation": "jede Platte"
+    },
+    {
+      "table": "ui",
+      "key": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "source": "npm was not allowed to write to its global folder. Run `npm config set prefix ~/.local` once in a terminal so npm installs into a folder you own, then press Try again.",
+      "source_sha256": "85d9fea65dffdf058adbdc703a373506ad275a50a9a8f025c270d557e41d20f2",
+      "translation": "npm durfte nicht in seinen globalen Ordner schreiben. Führen Sie einmal `npm config set prefix ~/.local` in einem Terminal aus, damit npm in einen Ordner in Ihrem Besitz installiert. Klicken Sie dann auf Erneut versuchen."
+    },
+    {
+      "table": "ui",
+      "key": "path to a folder of crop PNGs",
+      "source": "path to a folder of crop PNGs",
+      "source_sha256": "a45722613ad34bf3e323512783a11c859e726853d78b33c34b870ad0de109438",
+      "translation": "Pfad zu einem Ordner mit Zuschnitten im PNG-Format"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db",
+      "source": "path to measurements.db",
+      "source_sha256": "fdcd8c657e3f0866f87b73ff68a03d672540fd5fe8226ceb8477417c47be6573",
+      "translation": "Pfad zu measurements.db"
+    },
+    {
+      "table": "ui",
+      "key": "path to measurements.db, or to a *_png crop folder",
+      "source": "path to measurements.db, or to a *_png crop folder",
+      "source_sha256": "94b30260bb4812f5e3b2008e375948b67235e35bfe419a8065dc740fd41f7502",
+      "translation": "Pfad zu measurements.db oder zu einem *_png-Zuschnittordner"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "source": "spaCR cannot install it here by itself: it needs {needs}, and none was found. Install with:\n    {command}",
+      "source_sha256": "3b5042557f44ae71aa02b7dadd97b7f84b4de97213962e9a5155d06fc626e963",
+      "translation": "spaCR kann dies hier nicht selbst installieren: {needs} wird benötigt, wurde aber nicht gefunden. Installieren mit:\n    {command}"
+    },
+    {
+      "table": "ui",
+      "key": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "source": "spaCR cannot run this itself here: it needs {needs}, and none was found.",
+      "source_sha256": "2ec736538bcd9b4020dcde7db7a6b096c302dac71b920dabd85b34c8b8563eb4",
+      "translation": "spaCR kann dies hier nicht selbst ausführen: {needs} wird benötigt, wurde aber nicht gefunden."
+    },
+    {
+      "table": "ui",
+      "key": "spaCR's own music",
+      "source": "spaCR's own music",
+      "source_sha256": "d6e65a15352eb413607f3d21e251559a385cc13859305c576c60880320fa784c",
+      "translation": "Eigene Musik von spaCR"
+    },
+    {
+      "table": "ui",
+      "key": "status",
+      "source": "status",
+      "source_sha256": "073c1634c496cdb649d1afe0a312bbb4b7e1741b271542e4a436c3b8824b1761",
+      "translation": "Status"
+    },
+    {
+      "table": "ui",
+      "key": "version",
+      "source": "version",
+      "source_sha256": "5ca4f3850ccc331aaf8a257d6086e526a3b42a63e18cb11d020847985b31d188",
+      "translation": "Versionsstand"
+    },
+    {
+      "table": "ui",
+      "key": "{key} in {where}",
+      "source": "{key} in {where}",
+      "source_sha256": "19183b73f5e72273422f93a260407c7b8cea4ab7edc9563e66637681487e675d",
+      "translation": "{key} unter {where}"
+    },
+    {
+      "table": "ui",
+      "key": "{key} is not on this module's form.",
+      "source": "{key} is not on this module's form.",
+      "source_sha256": "92bac7852c5d93147ce7805e0e9c68df652f59d7d7f06552657b1bc13d5ee47e",
+      "translation": "{key} ist im Formular dieses Moduls nicht vorhanden."
+    },
+    {
+      "table": "ui",
+      "key": "{label} is installed.",
+      "source": "{label} is installed.",
+      "source_sha256": "a8cc7870f3913195a9b2c8eac714a872b44fb7153faa34aebbfe1dd221e6f93e",
+      "translation": "{label} ist installiert."
+    },
+    {
+      "table": "ui",
+      "key": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "source": "{label} is not installed yet.\n\nInstall runs the command below on this computer: it downloads the vendor's own installer and runs it, then starts the sign-in. spaCR never sees your credentials.",
+      "source_sha256": "dbb376ca82127ffe8116e82d7e8cbce3b7f2a3c6b8b939d3e5f77f87029dfc35",
+      "translation": "{label} ist noch nicht installiert.\n\nInstallieren führt den folgenden Befehl auf diesem Rechner aus: Das Installationsprogramm des Anbieters wird heruntergeladen und gestartet; anschließend beginnt die Anmeldung. spaCR erhält niemals Ihre Zugangsdaten."
+    },
+    {
+      "table": "ui",
+      "key": "{label} is signed in and ready.",
+      "source": "{label} is signed in and ready.",
+      "source_sha256": "bb5fc33dbf7cd3f9ab2ba87cf48e7575a1a6c18bae01c505d0eac9a54028cfce",
+      "translation": "{label} ist angemeldet und bereit."
+    },
+    {
+      "table": "ui",
+      "key": "{name} in {where}",
+      "source": "{name} in {where}",
+      "source_sha256": "b4ea8e92fe102b9a400ec486442cd1b091457fc7df15b36745fdbe5eaab9c699",
+      "translation": "{name} unter {where}"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is downloaded and selected.",
+      "source": "{name} is downloaded and selected.",
+      "source_sha256": "1430476f1e53629eafa87f20ef888591eb7ec95e193927ac0344beb18b0c71c1",
+      "translation": "{name} ist heruntergeladen und ausgewählt."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is installed and selected.",
+      "source": "{name} is installed and selected.",
+      "source_sha256": "cd7d7ac6f935f90eeb80f1d9bc24f2200b6647b9608002b1394086278afabe8d",
+      "translation": "{name} ist installiert und ausgewählt."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "source": "{name} is not downloaded. Choosing it downloads it from the model zoo and selects it.",
+      "source_sha256": "128c8d38816cee6f1c8f5d6f5b3dbf727fa067613e984d02edd4fb5c92aa9257",
+      "translation": "{name} ist noch nicht heruntergeladen. Durch Auswählen wird es aus dem Model Zoo heruntergeladen und aktiviert."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not in Preferences at the moment.",
+      "source": "{name} is not in Preferences at the moment.",
+      "source_sha256": "2c8e70ee0d319354080834a828c0274746b8da6a5d1de385eac7f3138684d641",
+      "translation": "{name} ist derzeit nicht in den Einstellungen vorhanden."
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "source": "{name} is not installed.\n\nInstalling it runs:\n    pip install \"{requirement}\"\n\ninto the environment spaCR is running in. It downloads a large package and may change the installed version of torch, which can affect Cellpose and, in the worst case, stop spaCR starting. It can take several minutes; spaCR stays usable while it runs.\n\nInstall it now?",
+      "source_sha256": "7a648c32da2e3d719a1afcf5cdd34635b61bad3d2e7b34c2372125d16aa1b157",
+      "translation": "{name} ist nicht installiert.\n\nDie Installation führt\n    pip install \"{requirement}\"\n\nin der Umgebung aus, in der spaCR läuft. Dabei wird ein großes Paket heruntergeladen. Die installierte Version von torch kann sich ändern, was Cellpose beeinträchtigen und im schlimmsten Fall den Start von spaCR verhindern kann. Dies kann mehrere Minuten dauern; spaCR bleibt währenddessen bedienbar.\n\nJetzt installieren?"
+    },
+    {
+      "table": "ui",
+      "key": "{name} is not installed. Choosing it offers to install it.",
+      "source": "{name} is not installed. Choosing it offers to install it.",
+      "source_sha256": "1b0786588ae0a302cc64c9652254cf86735042e24ccb768ee4e60493978177ff",
+      "translation": "{name} ist nicht installiert. Durch Auswählen wird seine Installation angeboten."
+    }
+  ]
+}

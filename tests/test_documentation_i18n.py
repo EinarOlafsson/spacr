@@ -2032,9 +2032,13 @@ def test_post_merge_readme_gap_ledger_is_source_bound_and_truthful():
     #
     # Decided by the maintainer on 2026-09-02, offered against archiving them
     # to a second file and against deleting them outright.
+    #
+    # 11/5 -> 12/4 on 2026-09-19: the "Make Masks" heading record, retired
+    # the same way after the maintainer took that section out of README.rst
+    # in 2db12a301 on 2026-09-16.
     retired = [r for r in records if r.get("retired")]
     live = [r for r in records if not r.get("retired")]
-    assert len(retired) == 11 and len(live) == 5
+    assert len(retired) == 12 and len(live) == 4
     assert all(r.get("retired_reason") for r in retired), (
         "a retired record must say WHY, or the next reader cannot tell a "
         "deliberate retirement from a record that was quietly broken")
@@ -3783,6 +3787,36 @@ def test_portuguese_context_repairs_only_unambiguous_semantic_families():
         assert _syntax_preserved(source, repaired), (source, repaired)
 
 
+def test_portuguese_installer_screen_is_a_window_not_a_scientific_screen(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    # Exercise candidate normalization before any reviewed override exists.
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = "The installer for {tools} is still running. Closing this screen now stops it."
+    target = "O instalador de {tools} ainda está em execução. Fechar esta tela agora interrompe a instalação."
+    assert builder._contextualize(target, "pt", source) == target
+    scientific = "Uma triagem CRISPR relata hits."
+    assert builder._contextualize(scientific, "pt", "A CRISPR screen reports hits.") == scientific
+
+
+def test_chinese_file_table_cell_keeps_its_gui_sense(monkeypatch):
+    import build_i18n_catalogs as builder
+
+    monkeypatch.setattr(builder, "_reviewed_translation", lambda *_: None)
+    source = (
+        "Rows are fields, columns are channels and mask types. Drop files anywhere "
+        "on this table, or double-click a cell to browse for the one file it wants."
+    )
+    target = "每行代表一个视野，每列代表一个通道或掩膜类型。双击单元格以选择文件。"
+    assert builder._contextualize(target, "zh_CN", source) == target
+    assert builder._contextualize(
+        "选择要显示的单元格。", "zh_CN", "Select which cells to show.",
+    ) == "选择要显示的细胞。"
+    assert builder._contextualize(
+        "检测电池。", "zh_CN", "Detect cells.",
+    ) == "检测细胞。"
+
+
 def test_reviewed_readmes_do_not_reintroduce_known_context_errors():
     readme_root = ROOT / "docs" / "i18n" / "readme"
     french = (readme_root / "README.fr.rst").read_text(encoding="utf-8")
@@ -3850,12 +3884,21 @@ def test_localized_readmes_keep_the_badge_row_structurally_intact():
     # `|Preprint|` joined the row on 2026-09-02, next to the Zenodo DOI: one
     # is the paper, the other the software archive. The preprint had been
     # reachable only as a databank button further down the page.
-    expected = (
-        "|Docs| |Tutorials| |PyPI| |Conda| |Python| |Tests| |Qt| "
-        "|Source| |Issues| |License| |Preprint| |DOI|"
-    )
+    #
+    # READ FROM README.rst, NOT RESTATED, since 2026-09-19. The row was
+    # written out here, so the maintainer's 2026-09-16 badge edits -- six
+    # new badges, |Tests| off the row, |Qt| retargeted -- could go into the
+    # English README and leave all nine translations behind them without
+    # this test noticing: it was still comparing the nine against each
+    # other. The row a reader sees is the English one, so that is what the
+    # nine are held to.
+    expected = (ROOT / "README.rst").read_text(
+        encoding="utf-8").splitlines()[0]
+    assert expected.startswith("|Platforms|") and expected.endswith(
+        "|PyPI rank|"), expected
     for path in (ROOT / "docs" / "i18n" / "readme").glob("README.*.rst"):
-        assert path.read_text(encoding="utf-8").splitlines()[0] == expected
+        assert path.read_text(encoding="utf-8").splitlines()[0] == expected, (
+            path.name)
 
 
 def test_localized_readme_images_have_reviewed_accessible_text():
@@ -3863,17 +3906,20 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         README_BADGE_SUBSTITUTIONS,
         README_INSTALLER_SUBSTITUTIONS,
         README_RESOURCE_SUBSTITUTIONS,
+        REVIEWED_README_EVIDENCE_BLOCKS,
         REVIEWED_README_MODULE_ALT_TEMPLATES,
         _readme_logo_alt_text,
         _readme_substitution_alt_text,
     )
 
     canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
-    # 14 since the bioRxiv preprint badge joined the row: 13 badge alts plus
-    # the logo's.
+    # 20 since the maintainer's 2026-09-16 badge edits: 19 badge alts plus
+    # the logo's. It was 14 -- 13 plus the logo -- from the bioRxiv preprint
+    # badge until conda-forge downloads and release date, PyPI downloads and
+    # rank, Platforms and Cite arrived together.
     assert len(_readme_substitution_alt_text(
         canonical, README_BADGE_SUBSTITUTIONS,
-    )) + int(bool(_readme_logo_alt_text(canonical))) == 14
+    )) + int(bool(_readme_logo_alt_text(canonical))) == 20
     assert len(_readme_substitution_alt_text(
         canonical, README_INSTALLER_SUBSTITUTIONS,
     )) == 4
@@ -3909,14 +3955,24 @@ def test_localized_readme_images_have_reviewed_accessible_text():
         )[2].partition(".. spacr-workflow-end")[0]
         workflow_alt = re.findall(r"(?m)^   :alt: (.+)$", workflow)
         assert len(workflow_alt) == 22
-        # Fourteen badges, 22 linked Home applications, four installer/archive
-        # icons and five resource icons. The badge count rose by one on
-        # 2026-09-02 when the bioRxiv preprint joined the row; the
-        # application count fell from 44 to 21 with instruction 318 and was
-        # never brought down here. 21 -> 22 on 2026-09-11 with `embeddings`,
-        # which takes the total from 44 to 45 -- the two 44s are unrelated
-        # and meeting at the same number was a coincidence.
-        assert len(alt_text) == 45
+        # Twenty badges (19 plus the logo), 22 linked Home applications,
+        # four installer/archive icons and five resource icons. The badge
+        # count rose by one on 2026-09-02 when the bioRxiv preprint joined
+        # the row and by six on 2026-09-16; the application count fell from
+        # 44 to 21 with instruction 318 and was never brought down here.
+        # 21 -> 22 on 2026-09-11 with `embeddings`.
+        #
+        # COUNTED FROM README.rst SINCE 2026-09-19, not written out: 45 was
+        # correct for three days after the maintainer added six badges to
+        # the English README, because it described the nine and the nine
+        # had been left behind. Every image in the English README owes the
+        # nine an alt text, so the English README is the count.
+        # 2026-09-21: the info deck's title slide REPLACED the logo at the
+        # top, keeping its alternative text, so the count is the prior 51.
+        assert len(alt_text) == len(
+            re.findall(r"(?m)^   :alt: (.+)$", canonical)) == 51
+        assert ".. image:: ../../source/_static/deck/slides/slide_01.jpg" in text
+        assert "logo_spacr_readme.png" not in text
         assert all(
             module in alt
             for module, alt in zip(
@@ -4091,6 +4147,33 @@ def test_reviewed_readme_headings_match_the_canonical_source_and_locales():
                 ROOT / "docs" / "i18n" / "readme" / f"README.{language}.rst"
             ).read_text(encoding="utf-8")
             assert heading in localized, (source, language, heading)
+
+
+def test_localized_readmes_have_as_many_sections_as_the_english_one():
+    """A section the English README drops has to leave the nine as well.
+
+    The maintainer removed the Make Masks section from README.rst on
+    2026-09-16 (2db12a301). All nine translations kept it, in English, for
+    three days, and the only test that went red did so by counting ``**``
+    markers -- a symptom, reported as unbalanced markup.
+
+    Counting headings names the fault itself. It is also the precondition
+    ``readme_i18n.localize_internal_references`` depends on: it pairs
+    headings by position and silently leaves every reference unlocalized
+    when the counts differ.
+    """
+    from readme_i18n import _HEADING
+
+    canonical = (ROOT / "README.rst").read_text(encoding="utf-8")
+    expected = [m.group("title") for m in _HEADING.finditer(canonical)]
+    for path in sorted((ROOT / "docs" / "i18n" / "readme").glob(
+            "README.*.rst")):
+        titles = [m.group("title") for m in _HEADING.finditer(
+            path.read_text(encoding="utf-8"))]
+        assert len(titles) == len(expected), (
+            f"{path.name} has {len(titles)} sections and README.rst "
+            f"{len(expected)}; English titles still in it: "
+            f"{sorted(set(titles) & set(expected) - {'spaCR'})}")
 
 
 def test_localized_readmes_keep_reviewed_semantic_and_typographic_fixes():

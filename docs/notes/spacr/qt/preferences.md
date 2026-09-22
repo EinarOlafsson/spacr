@@ -394,6 +394,8 @@ if theme == "cell":
 
 NO `space` BRANCH. "space" is not in VALID_THEMES -- `set_theme` refuses it and `theme_choices` offers no `space:` token -- so a branch for it could not be reached by any route through this module, and coverage counted three items nothing could execute. The Space ARTWORK still exists and `spaceout` still draws it; what is gone is the theme by that name, which is why the variant accessors below stay.
 
+_Corrected 2026-09-19:_ the variant accessors did not stay. They were retired on 2026-09-09 (61c896555, instruction 364), because `spaceout`'s "space" pattern is `widgets/fractal_space.py` and reads neither key. What was left behind was the two stored values: the key names were kept "so a stored value can still be recognised and cleared", and nothing cleared them. `_forget_the_space_theme_keys`, called from `get_theme`, now removes `prefs/space_variant` and `prefs/space_seed` from a store the first time the theme is read. It writes only when a key was there and skips safe mode, which reads nothing it was given.
+
 ## set_theme_choice
 
 ### lines 1549-1550  _(unsure)_
@@ -1154,7 +1156,20 @@ Colour-blind mode
 verbose_check = Toggle(tr("Enable verbose logging"))
 ```
 
-Verbose logging — one toggle, wired at Save time. When on, spaCR + third-party libs (cellpose, torch, PIL, matplotlib) dial their loggers to DEBUG/INFO and every record echoes into the active ConsolePanel. Aimed at bug reports.
+Verbose logging — one toggle, wired at Save time. When on, spaCR's loggers go to DEBUG and `cellpose` to INFO, and the log files keep DEBUG. torch, PIL and matplotlib are left alone. The console still shows only the levels switched on for it on the Logging tab. Aimed at bug reports. Corrected 2026-09-19: this note used to say every record echoes into the ConsolePanel and that torch, PIL and matplotlib are dialled up, and the code does neither.
+
+THE DEBUG FILE SWITCH FOLLOWS THIS TOGGLE (2026-09-19, item 294). While verbose is ticked, the Logging tab's DEBUG "Log file" switch is held on and disabled, because verbose writes DEBUG whatever it says. Save stores the user's own DEBUG choice, remembered from before verbose held it, and never the held value. Unticking verbose hands the switch back with that choice.
+
+Before this, the tab was built from `get_log_file_levels()`, which adds DEBUG while verbose is on, and Save wrote every switch back through `set_log_levels`. With verbose on by default, that meant:
+
+    fresh store, open Preferences, untick verbose, Save
+    stored log_file_levels   "DEBUG,INFO,WARNING,ERROR,CRITICAL"
+    get_verbose_logging()    False
+    spacr, spacr.io          still DEBUG
+
+So the switch could not be turned off from its own default, and every Save made with verbose on wrote DEBUG into the user's stored levels, where it could no longer be told apart from a DEBUG the user chose. `get_log_file_levels`' docstring had promised both that DEBUG is not stored and that it "goes away again when they turn verbose off".
+
+`set_log_levels` clamps the console against the levels the files actually keep, verbose's DEBUG included, and applies those to the live handlers. Without that, a console DEBUG switch ticked while verbose is on would be dropped at Save, because the stored file levels no longer carry DEBUG.
 
 ### lines 5637-5640
 
@@ -1687,3 +1702,48 @@ continue
 Help that will not move is a blemish, never a reason for
 
 Preferences not to open.
+
+## get_issue_prompt_mode
+
+### changed 2026-09-19, after review (whose 'ask' is it?)
+
+```python
+_KEY_ISSUE_PROMPT_CHOSEN = "ai/issue_prompt_chosen"
+```
+
+"'always' is the default for anyone who has not chosen" was true only of a profile with nothing stored, and almost no installed profile is in that state. `SetupSlides.accept()` AND `reject()` both call `setup_screen.apply(self.answers())`, and `issue_prompt` has been one of those answers since 6c57da8d6 (2026-08-21, shipped in 1.5.0.5 through 1.5.0.8). So every user who so much as opened first-run setup -- including one who dismissed it at the first slide -- has `'ask'` written into their profile by the default of the day, and reading that back as "an explicit earlier choice" left the maintainer's decision reaching new profiles only. The reporter of issue #117 was on 1.5.0.8 and would still have filed nothing after upgrading.
+
+So `set_issue_prompt_mode` now writes a marker beside the value, and a stored `'ask'` WITHOUT that marker reads as the current default. `'never'` and `'always'` are returned as they stand whether marked or not: the superseded default was `'ask'`, so neither of those was ever written on a user's behalf. Every writer -- the setup slides, the Preferences dialog, the AI Console and the installer's consent page -- goes through the setter, so from here on an 'ask' in the store is an answer somebody gave.
+
+Nothing is filed on the strength of this alone. The terms go from 4.1 to 4.2 in the same change, so the profile is asked again, `AppScreen._the_terms_allow_automatic_filing` files nothing until 4.2 is accepted, and the slide that carries the setting is on the page the user accepts them from -- showing 'always', with the switch to change it, before any run can fail.
+
+## 2026-09-19 — `sound/music_file` (item 427, part B)
+
+A WAV of the user's own for the music bed to play instead of the
+synthesized one, and, because there is only ever one thing playing, the
+thing the Resonance backdrop is driven by too. Empty by default.
+
+`get_sound_music_file` deliberately does NOT check that the file is there.
+It is read on the GUI thread on every settings read, and a `stat` on a
+network home directory is exactly the stall `spacr/qt/path_probe.py`
+exists for. `spacr.qt.sound` looks for the file on its audio thread, and a
+chosen file that has gone falls through to spaCR's own bed rather than to
+silence.
+
+## 2026-09-19 — Resonance is in both animation menus (item 427, part B)
+
+`POPUP_BACKDROPS` is a second list of animations, for the backdrop behind
+a settings window, and part B extended `AMBIENT_THEMES` without it. Found
+on review before it landed; left that way, Resonance would have existed
+in one of the program's two animation menus and not the other for a
+reason nobody had chosen.
+
+The decision is that the curated thing about this setting is that it is
+its OWN setting — what belongs behind a form you are reading is not
+necessarily what belongs behind a screen of figures — and not that it
+offers fewer animations. So the list is `off` plus every name in
+`AMBIENT_THEMES`, alphabetically, and
+`test_every_animation_is_offered_here_too` asserts that equality so the
+next theme cannot be added to one menu alone. The combo builds its label
+with `tr(key.capitalize())`, so this adds no caption the Resonance theme
+did not already owe.

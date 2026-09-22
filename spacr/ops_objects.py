@@ -52,6 +52,7 @@ __all__ = [
     "ObjectsError",
     "WindowObject", "PlateObject",
     "objects_in_window", "segment_windows", "sew", "number", "objects_frame",
+    "unseen_records",
     "DEFAULT_CENTROID_TOLERANCE", "DEFAULT_AREA_RATIO",
 ]
 
@@ -104,8 +105,13 @@ class WindowObject:
     :param area: the mask's pixel count as this window saw it. Smaller than
         the truth whenever ``clipped`` is set, which is what makes it usable
         as the tie-break between two observations of one nucleus.
-    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels,
-        bottom/right exclusive.
+    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every
+        one of them INCLUSIVE -- ``bottom`` and ``right`` are the last row
+        and column the mask occupies, so its height is ``bottom - top + 1``.
+        This docstring said exclusive until 2026-09-19 and the code has
+        always been inclusive (`_label_extents` reduces with
+        ``np.maximum``), which cost anyone measuring an extent from it one
+        pixel in each direction.
     """
 
     window: Window
@@ -132,8 +138,8 @@ class PlateObject:
     :param centroid_y: row of the centroid, same frame.
     :param area: pixel count of the mask that was kept, which is the
         UNCLIPPED observation wherever one exists.
-    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels,
-        bottom/right exclusive.
+    :param bbox: ``(top, left, bottom, right)`` in well-frame pixels, every
+        one of them inclusive, as :class:`WindowObject` carries them.
     :param window: the window whose observation was kept, as ``(row, col)``.
         Recorded so a suspect object can be traced back to the pixels it was
         segmented from.
@@ -914,6 +920,54 @@ def _unseen_report(unseen: Sequence[Sequence[WindowObject]]) -> Tuple[str, str]:
                f"window saw whole; the largest extends {height} x {width} px "
                f"near ({centre_x:.0f}, {centre_y:.0f})")
     return " ".join(parts), warning
+
+
+def unseen_records(groups: Sequence[Sequence[WindowObject]]
+                   ) -> Tuple[Dict[str, object], ...]:
+    """One record per group no window saw whole, for a run report.
+
+    WHY THIS IS NOT THE REFUSAL MESSAGE. :func:`_unseen_report` names the
+    LARGEST group and the remedy, which is what an operator reading one line
+    needs. It is also all that survived well A1's run: 54 groups were dropped
+    and the report kept one box and a count, so the question the run raised --
+    are these Cellpose fragments with no counterpart, or clips whose complete
+    observation the join missed? -- could not be answered afterwards without
+    segmenting the well again. These records are the cheap half of that
+    answer, written while the observations are still in memory.
+
+    The other half is :func:`spacr.ops_engine.run_ops`'s, which compares each
+    box against the objects that WERE numbered: a refusal with a numbered
+    object over it is a join that missed, and one with empty well frame
+    around it is a fragment.
+
+    :param groups: from :func:`sew` -- every group, not only the refused
+        ones; the ones with a complete observation are skipped here.
+    :returns: one dict per refused group, in the order the groups came,
+        each carrying the group's box in well-frame pixels, its centre, how
+        many observations it holds and from how many windows, the largest
+        window side it spans (0 when it spans none), and the summed and
+        largest clipped areas.
+    """
+    out: List[Dict[str, object]] = []
+    for group in groups:
+        if not len(group) or any(not one.clipped for one in group):
+            continue
+        top = min(one.bbox[0] for one in group)
+        left = min(one.bbox[1] for one in group)
+        bottom = max(one.bbox[2] for one in group)
+        right = max(one.bbox[3] for one in group)
+        areas = [int(one.area) for one in group]
+        out.append({
+            "top": int(top), "left": int(left),
+            "bottom": int(bottom), "right": int(right),
+            "height": int(bottom - top + 1), "width": int(right - left + 1),
+            "centre_y": (top + bottom) / 2.0, "centre_x": (left + right) / 2.0,
+            "observations": len(group),
+            "windows": len({one.window.offset() for one in group}),
+            "spanned_side": max(_spanned_side(one) for one in group),
+            "area_total": sum(areas), "area_max": max(areas),
+        })
+    return tuple(out)
 
 
 def number(groups: Sequence[Sequence[WindowObject]], *,

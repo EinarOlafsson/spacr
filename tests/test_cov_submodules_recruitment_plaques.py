@@ -537,10 +537,16 @@ def plaque_env(monkeypatch):
     import spacr.utils as SU
     import spacr.spacr_cellpose as SCP
 
+    import spacr.submodules as SUB
+
     download = _Recorder(result="/nowhere")
     finetune = _Recorder()
     monkeypatch.setattr(SU, "download_models", download)
     monkeypatch.setattr(SCP, "identify_masks_finetune", finetune)
+    # The default plaque model is a 1.2 GB zoo checkpoint since 2026-09-21;
+    # resolving it for real would download it.
+    monkeypatch.setattr(SUB, "_resolve_plaque_model",
+                        lambda settings, fetch=True: "/models/plaque.CP_model")
     return {"download": download, "finetune": finetune}
 
 
@@ -562,10 +568,8 @@ def test_analyze_plaques_masks_false_reads_existing_masks(tmp_path, plaque_env):
     assert analyze_plaques(settings) is None
 
     assert plaque_env["finetune"].calls == [], "masks=False must not segment"
-    assert len(plaque_env["download"].calls) == 1
     assert settings["dst"] == str(masks)
-    assert settings["custom_model"].endswith(
-        "toxo_plaque_cyto_e25000_X1120_Y1120.CP_model")
+    assert settings["custom_model"] == "/models/plaque.CP_model"
 
     db = masks / "plaques_analysis.db"
     assert db.exists()
@@ -594,29 +598,31 @@ def test_analyze_plaques_masks_false_reads_existing_masks(tmp_path, plaque_env):
 def test_analyze_plaques_masks_true_runs_segmentation_first(tmp_path,
                                                             plaque_env,
                                                             monkeypatch):
-    """``masks=True`` calls identify_masks_finetune with the resolved settings
-    and then analyses whatever it produced in ``<src>/masks``."""
-    import spacr.spacr_cellpose as SCP
+    """``masks=True`` segments ``src`` into ``<src>/masks`` with the resolved
+    plaque model, then analyses what it wrote (item 468: through
+    :func:`spacr.submodules._segment_plaque_folder`)."""
+    import spacr.submodules as SUB
     from spacr.submodules import analyze_plaques
 
     src = tmp_path / "plaques"
     src.mkdir()
     seen = {}
 
-    def fake_finetune(settings):
-        seen.update(settings)
+    def fake_segment(settings, model_path):
+        seen.update(settings, model_path=model_path)
         dst = Path(settings["dst"])
         dst.mkdir(parents=True, exist_ok=True)
         _write_label_tif(dst / "seg.tif", blobs=((15, 15, 3), (45, 45, 3),
                                                  (15, 45, 3)))
+        return 1
 
-    monkeypatch.setattr(SCP, "identify_masks_finetune", fake_finetune)
+    monkeypatch.setattr(SUB, "_segment_plaque_folder", fake_segment)
 
     analyze_plaques({"src": str(src), "masks": True})
 
     assert seen["dst"] == str(src / "masks")
     assert seen["diameter"] == 30          # get_analyze_plaque_settings default
-    assert seen["custom_model"].endswith(".CP_model")
+    assert seen["model_path"] == seen["custom_model"]
 
     with sqlite3.connect(src / "masks" / "plaques_analysis.db") as con:
         stats = pd.read_sql("SELECT * FROM stats", con)

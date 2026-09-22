@@ -17,6 +17,7 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_check_types](#_check_types) (2 entries)
 - [_check_retired_keys](#_check_retired_keys) (3 entries)
 - [_check_unknown_keys](#_check_unknown_keys) (4 entries)
+- [_flow_threshold_problems](#_flow_threshold_problems) (1 entry)
 - [_check_numeric_sanity](#_check_numeric_sanity) (4 entries)
 - [_check_required_paths](#_check_required_paths) (5 entries)
 - [_check_app_specific](#_check_app_specific) (6 entries)
@@ -24,6 +25,9 @@ Entries are grouped by the function or class they sat in and carry the line they
 - [_array_footprint](#_array_footprint) (1 entry)
 - [describe_resources](#describe_resources) (6 entries)
 - [run_preflight](#run_preflight) (1 entry)
+- [_listdir, 2026-09-19](#_listdir-2026-09-19) (1 entry)
+- [RETIRED_SETTINGS, 2026-09-19](#retired_settings-2026-09-19) (4 entries)
+- [_check_retired_keys, 2026-09-19](#_check_retired_keys-2026-09-19) (2 entries)
 
 ## Module level
 
@@ -473,6 +477,24 @@ NEVER SUGGEST A NAME FROM A DIFFERENT OBJECT ROLE, because role is exactly the a
 
 IT IS WORSE THAN SILENCE WHEN IT IS WRONG. Before the organelle preprocessing settings were declared (364), a user who worked out `remove_background_organelle` was told "did you mean 'remove_background_cell'?" -- and following that changes a DIFFERENT CHANNEL's preprocessing, quietly, on a run that then looks fine. A wrong suggestion gets FOLLOWED; silence at least gets investigated. 391 suppressed one instance of this; this is the rule behind it.
 
+## _flow_threshold_problems
+
+### 2026-09-19, GitHub #123 and the flow-threshold half of #117
+
+```python
+_FLOW_THRESHOLD_DEFAULT = 0.4
+```
+
+WHAT WAS WRONG. spaCR 1.5.0.5 to 1.5.0.8 shipped 100 for `nucleus_flow_threshold`, `cell_flow_threshold` and `pathogen_flow_threshold` (and for `FT` in the apply/test-model submodules). This check then warned about spaCR's own default on every Mask run, and its fix line read "Cellpose's own default is 0.4; spaCR ships 1.0". spaCR had not shipped 1.0 since commit df753075e on 2026-09-02. The reporter of #123 took the 1.0 from that line and reported it as Cellpose's default.
+
+WHAT CHANGED. The maintainer chose 0.4, Cellpose's own default, on 2026-09-19. It is the strictest of the options he was offered: it drops the most irregular objects, parasites included, and changes default results the most. So the shipped default never reaches this check now. 100 still does, because a settings file saved by 1.5.0.5 to 1.5.0.8 carries it and filling in defaults never overwrites a value a file holds. That file is the reason the warning is worded as it is. It names both defaults, says where a 100 comes from, and gives the value to type. It still lets a user keep 100 on purpose.
+
+Measured through `spacr-run validate --module mask` on a settings file holding only `src` and `cell_channel`: before, three warnings (`nucleus_`, `cell_`, `pathogen_flow_threshold=100`); after, none. With the three set to 100 in the file, all three are kept at 100 and warned about with the new text.
+
+The message is split at 0 and at 3 rather than worded once for both ends. The two ends are different mistakes: 100 comes from an old file, and a negative number is typed by hand.
+
+EXACTLY 0 IS NOT REPORTED, on purpose (review of 428, 2026-09-19). Cellpose 4.2.1.1 treats 0 like a negative value -- `dynamics.compute_masks` runs the check only when `flow_threshold > 0` -- but 0 is also the value Cellpose's own log tells a user to type to switch the check off ("turn off QC step with flow_threshold=0 if too slow"), so a 0 is taken as meant. What had to change was the wording: the first version of both fix lines called 0 part of the filtering range ("0 to 3 is the useful range", "between 0 and 3"). Both now say values above 0 and up to 3 filter, which is what Cellpose does.
+
 ## _check_numeric_sanity
 
 ### lines 1338-1340
@@ -506,6 +528,8 @@ if number is not None and (key.endswith("_flow_threshold") or key in ("FT", "flo
 ```
 
 flow_threshold: 0 keeps only perfect masks, above ~3 keeps everything.
+
+2026-09-19: half of this was wrong, and the check now lives in `_flow_threshold_problems`. Above about 3 does keep everything. 0 does NOT keep only perfect masks: Cellpose 4 (4.2.1.1, `dynamics.compute_masks`) runs the flow check only when `flow_threshold > 0`, so 0 or below skips the check and keeps everything too. Its own log line says so: "turn off QC step with flow_threshold=0 if too slow".
 
 ## _check_required_paths
 
@@ -686,3 +710,51 @@ try:
 ```
 
 The resource card is best-effort: it stats the disk and asks torch about the GPU, and neither is worth failing a dry run over. A pre-flight that raises has denied the user the report it exists to give them.
+
+## _listdir, 2026-09-19
+
+```python
+return [name for name in os.listdir(path) if not name.startswith('.')]
+```
+
+Every preflight listing goes through this one function: the raw images, `stack/`, `merged/`, the size estimate and the intensity plan. On a macOS external volume (GitHub #121 and #117) each of those files has an AppleDouble sidecar, `._<name>`, with the same ending. So every count the preflight printed was doubled. Worse, `_peek_planes` samples the first three `.npy` names in sorted order, and a dot sorts before every letter and digit. With three fields and their sidecars in `stack/`, the three it tried were the sidecars. Measured on the code before this line: no plane count and a file count of 6 for 3 fields, so the preflight fell back to guessing channels from the raw file names. `validate` is tested to import no torch, so it filters here rather than through `spacr.io._listdir_visible`. Reasons for the dot-file rule are in `docs/notes/spacr/io.md` under `_listdir_visible`.
+
+## RETIRED_SETTINGS, 2026-09-19
+
+```python
+"grna": "",
+```
+
+`grna` was declared only by `get_map_barcodes_default_settings`, which nothing under `spacr/` calls, and its own tooltip said so. The live equivalent is `grna_csv`, read by `generate_barecode_mapping`. Retired 2026-09-14 under 364, approved by the maintainer 2026-09-09. This reason sat as a `#` comment inside the dict until 2026-09-19, when the entries below joined it and the comment moved here.
+
+```python
+"barcodes": "",
+```
+
+`grna`'s sibling in the same dead factory, approved for retirement on the same day and HELD from 2026-09-14 to 2026-09-19, because a human-reviewed zh_CN translation was pinned to its tooltip. The maintainer decided on 2026-09-19: "Retire both" (with `Toxoplasma`). The reviewed record was withdrawn and recorded as withdrawn in its own file, `docs/i18n/reviewed/runtime/zh_CN/2026-08-14-tail-000-020.json`, under `review_notes`. No replacement is named, because `grna_csv`, `row_csv` and `column_csv` were always the keys that worked, and pointing at one would imply `barcodes` had been doing something.
+
+```python
+"Toxoplasma": "annotation_source",
+```
+
+FOLDED, NOT RENAMED, which is why `Toxoplasma` and `toxo` are in `spacr.settings.SEMANTIC_FOLDS` and not in `RENAMED_SETTINGS`. A plain move would put `True` in a field that expects an organism name. `settings._fold_toxoplasma` does the migration: a name already in `annotation_source` wins, and otherwise true means `'toxoplasma'` and false means no annotation. Retired 2026-09-19 at the maintainer's decision; its reviewed zh_CN tooltip record was withdrawn and recorded in `docs/i18n/reviewed/runtime/zh_CN/2026-08-26-post-fallback-residuals.json`. `toxo` points straight at `annotation_source` rather than at `Toxoplasma`, because a replacement that is itself retired sends the reader to a second dead end.
+
+```python
+"img_size": "crop_size",
+```
+
+RENAMED 2026-09-19 at the maintainer's decision ("crop_size"). NOT `image_size`, which was the name first proposed: `image_size` is already a live setting and means the MODEL's input crop, default 224, read by training and inference. `img_size` is how many pixels each cell is DRAWN at, default 200, on the Annotate screen and the Cells tab. Folding one into the other would have put the model's tooltip on a display control. `settings.RENAMED_SETTINGS` carries the same pair, so the run moves an old file's value across.
+
+## _check_retired_keys, 2026-09-19
+
+```python
+meaning = SEMANTIC_FOLD_MEANINGS.get(key)
+```
+
+A SEMANTIC FOLD GETS ITS OWN SENTENCE. It used to be reported as a rename, "as it stands the value is ignored and the default is used", which was false twice over: the old value is read, and it does not move under the new name unchanged. `gradient_accumulation` had carried that sentence since 2026-09-09. The message now names the replacement and says what the old value still means, from `settings.SEMANTIC_FOLD_MEANINGS`.
+
+```python
+f"Rename '{key}' to '{replacement}'. spaCR still moves the "
+```
+
+THE RENAME ADVICE USED TO SAY THE VALUE WAS IGNORED, which stopped being true with 15fa72737 (2026-09-12). Since then `tests/test_the_two_settings_tables_agree.py` has asserted that every rename the doctor reports is performed by `_fold_renamed_settings`, and every factory in `spacr/settings.py` that fills a renamed key calls it first -- seven of them, checked by an AST walk on 2026-09-19. Kept in step on 2026-09-19, when `img_size` became the first rename whose old value had always worked.
