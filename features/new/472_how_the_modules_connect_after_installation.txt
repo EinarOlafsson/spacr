@@ -133,3 +133,10 @@ DONE WHEN
   * A Home tile click always visibly does something, and a new user can start
     a sample project of their kind from Home.
   * Issue #130 is answered with links to the tutorials and the Home entry.
+
+2026-09-22 — CODEX: IMPLEMENTATION STARTED
+The shared resource path is spacr/resources/module_workflows.json. Source
+inspection is reconciling the live module/fold/preview registries and actual
+artifact readers/writers before prose generation. Pathway IDs and ownership
+are announced in the coordination channel. No tutorial, translation or Home
+completion is claimed yet.
