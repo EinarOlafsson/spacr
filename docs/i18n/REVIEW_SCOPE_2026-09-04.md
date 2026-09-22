@@ -66,7 +66,7 @@ table derives them from the same source the builders read.
 | Language | Reviewed runtime records | Of 6,232 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
 | Swedish | 674 | 10.82% | 5,558 | 710 | 6.36% | 10,456 |
-| German | 637 | 10.22% | 5,595 | 718 | 6.43% | 10,448 |
+| German | 637 | 10.22% | 5,595 | 750 | 6.72% | 10,416 |
 | Spanish | 642 | 10.30% | 5,590 | 570 | 5.10% | 10,596 |
 | Simplified Chinese | 984 | 15.79% | 5,248 | 853 | 7.64% | 10,313 |
 | Portuguese | 650 | 10.43% | 5,582 | 798 | 7.15% | 10,368 |

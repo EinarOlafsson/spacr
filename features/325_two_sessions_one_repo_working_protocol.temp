@@ -9377,3 +9377,18 @@ Measure review master completed before rebase: native4K30,both full decodes,
 pass; desktop/mobile screenshots inspected and hashes added to the receipt.
 Remaining23English tracks now render CPU-only. Adding this verified receipt
 and358/447updates before publishing the combined checkpoint.
+
+2026-09-21 — CODEX: NEXT COVERAGE / GERMAN REVIEW BATCH
+727c9a730 is pushed to nightly with all preceding receipts and feature notes.
+Taking tests/qt/test_live_zoom_endings.py for the remaining live-zoom gap;
+no production edits or shared preference writes. Reviewing eight private
+German API candidates about crop diagnostics and curation, including a draft
+that reversed the meaning of refused fields. Corrections remain source-bound.
+Live-zoom selection passes38tests in22.16s with97.85% coverage after correcting
+test ownership of deliberately deleted child widgets; no app or baseline edit.
+German eight-entry review is accepted with32source-bound blocks; independent
+regeneration, review-contract and refreshed report checks precede the push.
+Eight German entries independently regenerate without model decoding; three
+review-contract tests pass67.19s and four final report checks pass354.47s.
+GermanAPI10434/11166fresh,750distinctreviewedblocks;otherlocalesunchanged.
+Feature index/whitespace pass. Committing and pushing the combined checkpoint.

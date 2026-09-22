@@ -4329,3 +4329,16 @@ existing real-screen wiring tests:32pass in30.44s,6GiB cap,oneCPUthread,noGPU.
 Source-bound receipt:features/data/288_preview_refresh_2026-09-21.json.
 Production source and baseline remain unchanged. This is the eighth original
 floor module improved by targeted checks, not a fresh full-suite verdict.
+
+2026-09-21 — CODEX: LIVE ZOOM REACHES97.85% IN TARGETED CHECKS
+Live zoom improves from88.84% in the fixed full run to97.85% combined
+statement/branch coverage (172/173statements,56/60branches). The new tests
+exercise point-sized font round trips, deleted widgets and status bars,
+unavailable application/window state, failed global restyling and failed
+window refresh, while retaining real-font restoration assertions. The existing
+Qt gesture tests run alongside them:38pass in22.16s under6GiB/oneCPUthread.
+The initial new fixture registered deliberately deleted children for a second
+cleanup; corrected parent ownership before the fully passing rerun. No app
+change or baseline edit. Receipt:features/data/288_live_zoom_2026-09-21.json.
+Nine original floor modules now pass targeted selections; the full-suite
+ratchet and failures remain open pending a fresh complete source-matched run.

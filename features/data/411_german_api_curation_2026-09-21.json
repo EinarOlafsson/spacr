@@ -1,0 +1,33 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "language": "de",
+  "symbols": [
+    "spacr.cli_download.example_folder",
+    "spacr.crops.quiet_crop_paths",
+    "spacr.crops.reconcile_merged_mask_dims",
+    "spacr.crops.say_crop_paths",
+    "spacr.curation_queue.CurationQueue",
+    "spacr.curation_queue.CurationQueue.order_phrase",
+    "spacr.curation_queue.QueueLayout.status_path",
+    "spacr.curation_queue.QueueSummary"
+  ],
+  "source_commit": "e7972eafe497e1c9a6f321b2d76a775972a5f311",
+  "accepted_symbols": 8,
+  "exact_source_review_records": 32,
+  "draft_model": "Helsinki-NLP/opus-mt-en-de",
+  "device": "cpu",
+  "threads": 2,
+  "memory_cap": "6G",
+  "secondary_model_used": false,
+  "raw_draft_sha256": "76fb462c594e4b6626e2987ec1ed74c04fbfa13adceca3ad285831c506b6648d",
+  "review_file": "docs/i18n/reviewed/api/de/2026-09-21-crop-diagnostics-curation.json",
+  "review_sha256": "91737a721c4e8d07671826b104e7122a1bf681d66c0f75af128c6f7b6a364cb8",
+  "all_reviewed_targets_regenerate_verbatim_without_model": true,
+  "all_source_and_context_hashes_current": true,
+  "raw_model_output_published": false,
+  "native_speaker_signoff": false,
+  "english_manifest_updated": false,
+  "extractor_debt_baseline_changed": false,
+  "full_catalog_audit_passed": false
+}

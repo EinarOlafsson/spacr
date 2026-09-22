@@ -1870,3 +1870,12 @@ pass. Refreshed the coverage report for the new README bytes. This does not
 close the remaining API/runtime catalog debt or claim a green docs workflow.
 Four final report consistency tests pass (266.24s); this checks the reported
 remaining debt and current README bytes, not completion of that debt.
+
+2026-09-21 — CODEX DOCS: EIGHT CORRECTED GERMAN API ENTRIES
+Added source-bound German reviews for eight crop-diagnostic/curation/example
+folder API entries (32blocks), correcting reversed negation and thread/state
+semantics in private CPU drafts. Catalog and review reports are being checked
+against current source. Full docs/catalog completion remains open.
+Independent regeneration passes for all eight; three review-contract tests
+and four final report consistency tests pass. German freshness10434/11166;
+eight other API locales10416/11166. No green workflow/completion claim.
