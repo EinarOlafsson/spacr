@@ -1494,3 +1494,23 @@ the fix and pass after it, including the missing-dependency fallback.
 Evidence: features/data/284_regression_imports_2026-09-22.json; private probe,
 profiles and complete benchmark artifacts under the recorded workspace path.
 First results use still pays imports/construction; no all-platform acceptance.
+
+2026-09-22 — UMAP'S HIDDEN EXPLORER WAITS FOR ITS FIRST PAYLOAD
+Opening UMAP no longer builds the hidden image explorer and its matplotlib
+canvas. The existing deferred-part lifecycle builds it on the first embedding
+payload or direct access. Switching Interactive before results, ordinary
+figures without embeddings, and closing the screen leave it unbuilt. Once
+created, the same explorer retains its payload across mode changes and later
+results, applies the current language, and reads/writes current display settings.
+
+Six alternating fresh-process Home -> UMAP probes at base be6c6e7a8 versus
+this change: medians1626.90 ->1263.79ms (22.3% reduction). The screen builds
+318 widgets instead of364; the explorer module stays unloaded. Both arms
+used the same private settings, bundled fonts and byte-compiled source;
+only app_screen differed. This is an offscreen diagnostic on this machine,
+not cross-platform acceptance. First payload/direct access still pays the
+construction cost, and the500ms open/stall target remains unmet.
+Evidence: features/data/284_umap_explorer_2026-09-22.json. Item284 remains OPEN.
+Validation: 115 focused tests passed again after restoring the change over
+integrated d63dd13d5; fatal-error Ruff passes. Three new regression cases
+exercise no-payload teardown, first-payload reuse, and late language/settings.

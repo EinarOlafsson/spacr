@@ -1423,6 +1423,7 @@ _HYPERPARAM_PANEL = "hyperparameter panel"
 _LIVE_PREVIEW = "live preview"
 #: Measure's crop preview panel inside its card.
 _MEASURE_PREVIEW = "measure preview"
+_UMAP_EXPLORER = "UMAP explorer"
 
 
 def _run_to_the_end(steps):
@@ -1714,6 +1715,7 @@ class AppScreen(QWidget):
     _hyperparam = _BuiltOnFirstUse(_HYPERPARAM_PANEL)
     _live_preview = _BuiltOnFirstUse(_LIVE_PREVIEW)
     _measure_preview = _BuiltOnFirstUse(_MEASURE_PREVIEW)
+    _umap_explorer = _BuiltOnFirstUse(_UMAP_EXPLORER)
 
     def __init__(self, app_key: str, parent=None):
         """Build one module page: the settings column beside the runtime panel.
@@ -6518,15 +6520,7 @@ class AppScreen(QWidget):
         self._umap_explorer = None
         self._umap_payload_ready = False
         if self.app_key == "umap":
-            from ..widgets import ImageUmapExplorer
-            self._umap_explorer = ImageUmapExplorer(
-                parent=self._figures_card)
-            self._umap_explorer.hide()
-            self._umap_explorer.set_propagate_callback(
-                self._propagate_live_settings)
-            self._umap_explorer._settings_getter = self._umap_display_defaults
-            self._figures_card.body_layout.addWidget(
-                self._umap_explorer, 1)
+            self._owe_part(_UMAP_EXPLORER, self._build_umap_explorer)
         self._figures_card.setMinimumHeight(
             560 if results_expected else 360)
         self._figures_card.hide()
@@ -6960,7 +6954,7 @@ class AppScreen(QWidget):
             self._on_hyperparam_switch(False)
 
         self._interactive_switch = None
-        if self.app_key == "umap" and self._umap_explorer is not None:
+        if self.app_key == "umap":
             self._interactive_switch = AiToggleLabel(
                 text="Interactive",
                 tooltip=(
@@ -8328,6 +8322,23 @@ class AppScreen(QWidget):
         except Exception:
             LOG.debug("could not announce interactive mode", exc_info=True)
 
+    def _build_umap_explorer(self) -> QWidget:
+        """Build the explorer on its first payload or direct access.
+
+        The common deferred-part lifecycle applies the current style and
+        language. Switching between result modes reuses this panel and its
+        payload rather than constructing another explorer.
+        """
+        from ..widgets import ImageUmapExplorer
+
+        explorer = ImageUmapExplorer(parent=self._figures_card)
+        explorer.hide()
+        explorer.set_propagate_callback(self._propagate_live_settings)
+        explorer._settings_getter = self._umap_display_defaults
+        self._figures_card.body_layout.addWidget(explorer, 1)
+        self._umap_explorer = explorer
+        return explorer
+
     def _on_interactive_switch(self, on: bool) -> None:
         """Switch UMAP results between the static figure and explorer.
 
@@ -8335,7 +8346,7 @@ class AppScreen(QWidget):
         console/figure layout stays put until a UMAP payload arrives, then
         :meth:`_on_figure_ready` opens the explorer automatically.
         """
-        explorer = getattr(self, "_umap_explorer", None)
+        explorer = self._if_built("_umap_explorer")
         queue = getattr(self, "_figure_queue", None)
         if explorer is None or queue is None:
             return
@@ -8607,7 +8618,9 @@ class AppScreen(QWidget):
         can adopt it (cheap) instead of re-rendering on the GUI thread — that's
         what keeps the UI responsive while many figures stream in."""
         payload = getattr(fig, "_spacr_umap_payload", None)
-        explorer = getattr(self, "_umap_explorer", None)
+        explorer = (self._umap_explorer
+                    if payload is not None and self.app_key == "umap"
+                    else self._if_built("_umap_explorer"))
         if payload is not None and explorer is not None:
             explorer.set_payload(payload)
             self._umap_payload_ready = True
@@ -8705,7 +8718,7 @@ class AppScreen(QWidget):
                 fq.clear()
             except Exception:
                 pass
-        explorer = getattr(self, "_umap_explorer", None)
+        explorer = self._if_built("_umap_explorer")
         if explorer is not None:
             try:
                 explorer.close()

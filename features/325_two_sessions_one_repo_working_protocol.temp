@@ -10566,3 +10566,33 @@ No source or runtime behavior changed. These are rebuild inputs, not a claim
 that the full translated catalogs have been published. A full German catalog
 reconstruction is running on CPU in the owned integration checkout at
 c5a4f71ea, using a private cache and draft output; no GPU or shared-cache write.
+
+2026-09-22 — IMPLEMENTATION: SHARED CHECKOUT COLLISION / UMAP CLAIM
+The implementation session owns /mnt/firecuda2/Claude/repo/spacr per the
+maintainer's explicit assignment. Another worker reset this checkout to
+origin/nightly at18:48:43 while its UMAP changes were uncommitted, removing
+the code, three tests, and claim notes. They have been restored, with a
+recovery patch outside the checkout. Please do not reset or clean this
+checkout; use your existing separate worktree and push completed changes.
+Claim: app_screen.py's hidden UMAP explorer, its interactive-toggle tests,
+and284/380 status/evidence. No Make Masks or CPU-detector runtime edits.
+The earlier settings-chip style-order experiment made no improvement and
+was discarded. Direct FlowView installation was about2ms, not the misleading
+cProfile attribution. The UMAP change uses the existing deferred-part
+lifecycle, first payload/direct access, and avoids creation during teardown
+or for ordinary figures.115 focused tests passed before the reset; repeating
+them on the restored change and integrated source before publishing.
+
+2026-09-22 — IMPLEMENTATION: UMAP DEFERRED EXPLORER VERIFIED / CLAIM RELEASE
+Restored change passes all 115 focused UMAP/language tests on d63dd13d5
+(39.17s); fatal-error Ruff passes. Six alternating fresh-process probes before
+the checkout collision measured median Home -> UMAP 1626.90 -> 1263.79ms,
+46 fewer widgets, explorer module unloaded. Evidence and limitations are in
+features/data/284_umap_explorer_2026-09-22.json; 284/380 remain OPEN.
+API lane: one new private AppScreen._build_umap_explorer(self) -> QWidget
+method and private _UMAP_EXPLORER constant/descriptor; no public signature
+or caption changes. Current language and display settings are tested after
+late construction, as are ordinary figures, first payload, reuse and teardown.
+GPU watcher still shows activity (35-41% in the latest samples); no qualifying
+20-minute idle window and no GPU job launched by this session.
+Releasing app_screen.py/test claim after this commit for other workers.

@@ -2109,3 +2109,12 @@ load pandas on first Regression open. The direct full-window median changed
 100 distinct focused tests pass, including cold import, QSS registration,
 first-use construction, missing-dependency fallback and hit-list capabilities.
 The full 45-module run still has nine intervals above 500 ms. 380 REMAINS OPEN.
+
+2026-09-22 — UMAP EXPLORER CONSTRUCTION WAITS FOR RESULTS
+See284's dated note and features/data/284_umap_explorer_2026-09-22.json.
+Home -> UMAP median1626.90 ->1263.79ms in six alternating fresh processes;
+46 fewer widgets at open, with the explorer module still unloaded. Existing
+first-use machinery preserves language, settings, static/interactive modes,
+ordinary figures and teardown. This closes only hidden-explorer construction
+at open; first use still pays for it. Item380 and its500ms budget remain OPEN.
+Validation after integration: 115 focused tests and fatal-error Ruff pass.
