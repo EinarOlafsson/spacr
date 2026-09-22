@@ -339,7 +339,10 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     rendered once from its .pptx, which lives outside the repository, so the
     version line is drawn onto the kept picture instead
     (``tools/build_readme_deck.py``). Nothing happens in a tree without the
-    deck.
+    deck, when the deck already shows ``version`` (a rerun, or CI's own bump
+    step after the maintainer bumped), or where Pillow is not installed --
+    the release job's version step installs only packaging tools, and a
+    picture must never be what stops a release.
 
     :param root: the repository root.
     :param version: the release being bumped to.
@@ -347,10 +350,27 @@ def restamp_info_deck(root: Path, version: str) -> str | None:
     """
     import importlib.util
 
+    import json
+
     tool = root / "tools" / "build_readme_deck.py"
     deck = root / "docs" / "source" / "_static" / "deck"
     if not tool.is_file() or not (deck / "slides.json").is_file():
         return None
+    try:
+        shown = json.loads((deck / "slides.json").read_text(
+            encoding="utf-8")).get("version")
+    except (OSError, ValueError):
+        shown = None
+    if shown == version:
+        return None
+    try:
+        import PIL
+    except ImportError:
+        print(f"info deck: Pillow is not installed here, so its title slide "
+              f"still reads {shown}; run python tools/build_readme_deck.py "
+              f"--stamp where it is.")
+        return None
+    del PIL
     spec = importlib.util.spec_from_file_location("build_readme_deck", tool)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
