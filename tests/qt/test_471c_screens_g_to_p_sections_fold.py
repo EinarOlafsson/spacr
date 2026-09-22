@@ -239,3 +239,167 @@ def test_outlier_results_and_scan_column_fold_and_drag(qapp, qtbot):
     screen._body.moveSplitter(screen._body.sizes()[0] - 40, 1)
     _pump()
     assert cs.get_pane_extents(f"{APP_KEY}::body").get("Scan", 0) > 0
+
+
+# ---------------------------------------------------------------------------
+# Model Compare and Model Explanation
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_model_compare_tables_and_previews_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.model_compare import (FOLD_KEY, ModelCompareScreen)
+
+    screen = ModelCompareScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen, 1400, 1000)
+    for section in (screen.param_section, screen.rows_section,
+                    screen.preview_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+
+    preview = screen._preview_split
+    assert [p.name for p in preview.panes()] == ["Model A", "Model B"]
+    preview.moveSplitter(400, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{FOLD_KEY}::preview").get("Model A", 0) > 0
+
+
+@pytest.mark.qt
+def test_the_explanation_and_investigate_result_tabs_fold(qapp, qtbot):
+    from spacr.qt.screens.model_explanation import (ExplainCvPanel,
+                                                    InvestigateHitPanel)
+
+    for panel_class, tabs_name in ((ExplainCvPanel, "results"),
+                                   (InvestigateHitPanel, "tabs")):
+        panel = panel_class()
+        qtbot.addWidget(panel)
+        _show(panel, 900, 700)
+        section = panel.results_section
+        assert section.body is getattr(panel, tabs_name)
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+
+
+# ---------------------------------------------------------------------------
+# Map Barcodes
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_the_barcode_search_findings_reads_and_proposal_fold(qapp, qtbot):
+    from spacr.qt.screens import map_barcodes as mb
+
+    panel = mb.BarcodeSearchPanel(None, threaded=False)
+    qtbot.addWidget(panel)
+    _show(panel, 700, 700)
+    try:
+        for section in (panel.findings_section, panel.reads_section,
+                        panel.notes_section):
+            _click(section.heading)
+            _pump()
+            _assert_heading_at_bottom(section)
+            section.set_folded(False)
+            _pump()
+        panel.split.moveSplitter(320, 1)
+        _pump()
+        assert cs.get_pane_extents(f"{mb.HOST_KEY}::search").get(
+            "Findings", 0) >= 260
+    finally:
+        panel.shutdown()
+
+
+@pytest.mark.qt
+def test_folding_the_search_card_frees_its_room_and_never_shows_it(qapp,
+                                                                   qtbot):
+    """The card is shown only by its toggle; folding must not show it."""
+    from spacr.qt.screens import map_barcodes as mb
+
+    panel, card = mb.build_barcode_search_card(None, threaded=False)
+    qtbot.addWidget(card)
+    card.setVisible(False)
+    try:
+        assert card.minimumHeight() == mb.SEARCH_CARD_MIN_HEIGHT
+        card.folder.set_shut(True)
+        assert card.minimumHeight() == 0
+        assert card.isHidden(), "folding showed a card its owner hid"
+        card.folder.set_shut(False)
+        assert card.minimumHeight() == mb.SEARCH_CARD_MIN_HEIGHT
+        assert card.isHidden()
+    finally:
+        panel.shutdown()
+
+
+# ---------------------------------------------------------------------------
+# Parameter Sweep and Hyperparameter search
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_sweep_trials_results_and_figures_fold_and_the_settings_collapse(
+        qapp, qtbot):
+    from spacr.qt.screens.parameter_sweep import APP_KEY, _make_screen
+
+    screen = _make_screen()
+    qtbot.addWidget(screen)
+    _show(screen, 1200, 900)
+    for section in (screen.trials_section, screen.results_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+
+    body = screen._body
+    assert body.pane("Sweep settings").mode == cs.EDGE
+    body.toggle_pane("Sweep settings")
+    _pump()
+    assert body.sizes()[0] == 0
+    body.toggle_pane("Sweep settings")
+    _pump()
+    assert body.sizes()[0] > 0
+    body.moveSplitter(520, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{APP_KEY}::body").get(
+        "Sweep settings", 0) >= 460
+
+
+@pytest.mark.qt
+def test_the_sweeps_figure_queue_stays_hidden_through_the_folds(qapp, qtbot):
+    """A panel its owner hid is never shown by the fold machinery."""
+    from spacr.qt.screens.parameter_sweep import _make_screen
+
+    screen = _make_screen()
+    qtbot.addWidget(screen)
+    _show(screen, 1200, 900)
+    section = screen.figures_section
+    assert screen.figures.isHidden() and section.isHidden()
+    section.set_folded(True)
+    section.set_folded(False)
+    _pump()
+    assert screen.figures.isHidden(), "the fold showed the figure queue"
+    assert section.isHidden()
+
+    screen.figures.show()
+    _pump()
+    assert not section.isHidden(), "the section did not follow its body"
+
+
+@pytest.mark.qt
+def test_the_hyperparam_trials_and_preview_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.hyperparam import HyperparamPanel
+
+    panel = HyperparamPanel("umap")
+    qtbot.addWidget(panel)
+    _show(panel, 1200, 800)
+    for section in (panel._trials_section, panel._preview_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    panel._split.moveSplitter(500, 1)
+    _pump()
+    assert cs.get_pane_extents("umap::hyperparam").get("Trials", 0) >= 440

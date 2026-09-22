@@ -23,12 +23,13 @@ from typing import Callable, Dict, Optional, Sequence, Tuple
 from PySide6.QtCore import QObject, Qt, QTimer, Signal
 from PySide6.QtWidgets import (QAbstractItemView, QHBoxLayout, QHeaderView,
                                QFrame, QLabel, QPushButton, QScrollArea,
-                               QSizePolicy, QSplitter, QTabBar, QTableWidget,
+                               QSizePolicy, QTabBar, QTableWidget,
                                QTabWidget, QToolButton,
                                QVBoxLayout, QWidget)
 
 from ..i18n import tr
 from ..theme import install_close_marks
+from ..widgets.collapsible_splitter import CollapsibleSplitter, fold_card
 from ..widgets.sortable_table import install_sorting, table_item
 from ..widgets.fold_strip import FoldStrip
 
@@ -1740,15 +1741,18 @@ class BarcodeSearchPanel(QWidget):
             "{ background: transparent; }")
         notes.setMinimumHeight(70)
 
-        split = QSplitter(Qt.Vertical, self)
-        split.setChildrenCollapsible(False)
-        split.addWidget(self.findings)
-        split.addWidget(self.reads)
-        split.addWidget(notes)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 3)
-        split.setStretchFactor(2, 1)
-        split.setSizes([230, 190, 110])
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key=f"{HOST_KEY}::search")
+        self.split = split
+        self.findings_section = split.add_section(
+            self.findings, "Findings", persist_key=f"{HOST_KEY}/Findings",
+            stretch=3, extent=230)
+        self.reads_section = split.add_section(
+            self.reads, "Reads", persist_key=f"{HOST_KEY}/Reads",
+            stretch=3, extent=190)
+        self.notes_section = split.add_section(
+            notes, "Proposal", persist_key=f"{HOST_KEY}/Proposal",
+            stretch=1, extent=110)
         layout.addWidget(split, 1)
 
     def _button(self, caption: str, hint: str) -> QPushButton:
@@ -2417,8 +2421,30 @@ def build_barcode_search_card(screen, **kwargs):
     card.setObjectName(SEARCH_CARD_NAME)
     panel = BarcodeSearchPanel(screen, card, **kwargs)
     card.body_layout.addWidget(panel)
-    card.setMinimumHeight(560)
+    card.setMinimumHeight(SEARCH_CARD_MIN_HEIGHT)
+    folder = fold_card(card, "Find barcodes",
+                       persist_key=f"{HOST_KEY}/Find barcodes")
+    if folder is not None:
+        folder.add_listener(partial(_card_floor, card))
+        _card_floor(card, folder.shut)
     return panel, card
+
+
+#: The search card's height while open: the findings, the reads and the
+#: proposal each need room to be read.
+SEARCH_CARD_MIN_HEIGHT = 560
+
+
+def _card_floor(card, shut: bool, _by_user: bool = True) -> None:
+    """Drop the search card's height floor while it is folded to its title.
+
+    Folding the card (item 471) hides its body; a card that kept its open
+    floor would still hold that room, so the fold would free nothing.
+
+    :param card: the search card.
+    :param shut: whether it is folded.
+    """
+    card.setMinimumHeight(0 if shut else SEARCH_CARD_MIN_HEIGHT)
 
 
 def _insert_above_actions(screen: QWidget, widget: QWidget) -> bool:
