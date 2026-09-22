@@ -2052,3 +2052,16 @@ checks now pass in12.67s. Real MP4/AVI container readback remains exercised;
 the two-channel check now decodes actual red/green pixels rather than inspecting
 source-code indentation. The4-D expectation is an explicit-refusal test. No
 tracking algorithm, CI threshold or coverage baseline changed. Full CI is open.
+
+2026-09-22 — IMPLEMENTATION: TRAINING TESTS CONTROL THE STOCK CACHE
+Two frozen-run failures asserted pretrained_model == 'cpsam' even when the
+existing resolver correctly returned ~/.cellpose/models/cpsam. The recording-
+model tests now provide their own stock catalogue and never inspect or fetch
+the user's real weights. Checkpoint naming is exercised both without a cached
+stock file and with one; the batch-training test verifies the exact cached
+path reaches Cellpose. Existing base-model resolver checks are retained.
+All25 tests across the naming, train/test plumbing and base-model files pass
+in7.09s with CUDA hidden and no real training/download. Model classes and
+train_seg remain recording doubles; production resolver behavior is unchanged.
+The corrections remove environment-dependent assertions rather than accepting
+an arbitrary path or weakening checkpoint identity. Full CI remains open.

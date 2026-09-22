@@ -10372,3 +10372,18 @@ red/green decoding. The old4-D writer test now checks explicit refusal.
 No tracking behavior, thresholds, tutorials or catalog files changed.
 API lane: spacr.timelapse._npz_to_movie's docstring now states the frame/type/
 conversion/error contract. No new callable or caption was added. Full CI open.
+
+2026-09-22 — IMPLEMENTATION:43 CACHED TRAINING-BASE TEST CLAIM
+Two frozen-run failures expected the literal cpsam name even when the resolver
+correctly returned cached stock weights. Claiming the two recording-model test
+files only: test_cellpose4_submodules.py and
+ test_cov_submodules_cellpose_train_test.py. Supplying controlled stock catalog
+entries (cached and absent) and checking the exact resolved path; no production
+resolver change, real weight loading, GPU training or download.
+
+2026-09-22 — IMPLEMENTATION: CACHED TRAINING-BASE TESTS VERIFIED
+The two stale literal-cpsam assertions now exercise controlled stock catalogue
+entries. Tests prove cached and absent-stock naming plus exact resolved-path
+forwarding;25 focused naming/plumbing/base-model tests pass with CUDA hidden.
+No real weights, download, training, production code or API prose changed.
+Movie export repair already pushed as90236a6ff; full CI/coverage remain open.

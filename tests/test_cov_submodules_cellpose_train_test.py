@@ -51,14 +51,24 @@ def _close_figures():
 
 
 @pytest.fixture
-def cp_stub(monkeypatch):
+def cp_stub(monkeypatch, tmp_path):
     """Replace the two cellpose seams with recording fakes.
 
     ``rec['preds']`` is the queue of predicted masks handed back by
     ``model.eval`` in dataset order; tests fill it before calling the
     function under test.
     """
+    from types import SimpleNamespace
+    from spacr import model_zoo
+
+    cached = tmp_path / "cached-cpsam"
+    cached.write_bytes(b"recording model; never loaded")
+    entry = SimpleNamespace(key="cpsam", path=str(cached), uri="")
+    monkeypatch.setattr(model_zoo, "catalogue", lambda remote=True: [entry])
+    monkeypatch.setattr(model_zoo, "fetch",
+                        lambda *a, **k: pytest.fail("stock weights must not be fetched"))
     rec = {
+        "training_base": str(cached),
         "models": [],
         "eval_calls": [],
         "eval_configured": [],
@@ -216,7 +226,7 @@ def test_train_cellpose_builds_batch_and_calls_train_seg(tmp_path, cp_stub):
     # -- the model was built for the SAM checkpoint on the GPU path
     assert len(cp_stub["models"]) == 1
     assert cp_stub["models"][0].gpu is True
-    assert cp_stub["models"][0].pretrained_model == "cpsam"
+    assert cp_stub["models"][0].pretrained_model == cp_stub["training_base"]
 
     # -- train_seg got the resolved settings
     assert len(cp_stub["train_calls"]) == 1
