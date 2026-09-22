@@ -2,27 +2,22 @@
 A LIVE MAGNIFIER IN MAKE MASKS THAT SEGMENTS WHAT IS UNDER THE MOUSE
 ================================================================================
 
-Status:    BUILT, ~97%, corrected 2026-09-20. On nightly and inside v1.5.0.8:
-           4811b649b (the magnifier, 2026-09-14) and 1078ca51f (the border
-           option and the whole-image mode, 2026-09-15). The two notes below
-           that say "not pushed, not merged" describe the branches before they
-           landed. `_MAGNIFIER_SEGMENTERS` (spacr/qt/screens/make_masks.py)
-           offers otsu, cellpose, four Cellpose 3 models, dinocell and
-           samcell. The maintainer's second round is
-           new/417_the_magnifier_round_two.txt, DONE. Six of the seven things
-           WHAT IS LEFT named are now done -- see the two 2026-09-20 notes at
-           the foot, the first for a six-second GUI freeze they turned up and
-           fixed, the second for the review of that pass: the box's promise
-           moved off the GUI thread, the harness stopped writing to the
-           user's own settings, and the box measured at the size item 417
-           lets a user set it to. STILL OPEN, and why this is not in
-           features/new: a keyboard shortcut for the toggle (blocked on nine
-           hand-written compact catalog rows, recipe in the note), the
-           Overlap preview under Whole image, whole-image Cellpose measured
-           on a CPU, and a move at the largest box, which is 53.4 ms and
-           should be one frame.
-           (Was: BUILT, ~90%, corrected 2026-09-19; before that FUTURE, filed
-           2026-09-15, "Not started".)
+Status:    DONE, 2026-09-21. Every point this item asked for, every
+           DONE WHEN criterion under HOW TO KNOW IT WORKED, and the four
+           things the 2026-09-20 notes left open are built and measured --
+           see the 2026-09-21 note at the foot: the M key, the Overlap
+           preview under Whole image, whole-image Cellpose on a CPU (float32
+           weights, tile-by-tile progress, a Cancel that stops the model),
+           and the box's picture at the largest sizes. On nightly and inside
+           v1.5.0.8 before that: 4811b649b (the magnifier, 2026-09-14) and
+           1078ca51f (the border option and the whole-image mode,
+           2026-09-15). `_MAGNIFIER_SEGMENTERS`
+           (spacr/qt/screens/make_masks.py) offers otsu, cellpose, four
+           Cellpose 3 models, dinocell and samcell. The maintainer's second
+           round is new/417_the_magnifier_round_two.txt, DONE.
+           (Was: BUILT, ~97%, corrected 2026-09-20; BUILT, ~90%, corrected
+           2026-09-19; before that FUTURE, filed 2026-09-15, "Not
+           started".)
 Requested: 2026-09-15, by the maintainer, in these words: "if the user flips
            this on, then a box appears with the region around the mouse
            slightly magnified, and in this region the square enhanced region
@@ -682,3 +677,196 @@ passed (3 new), the comment guard 41 passed. STILL OPEN, unchanged: the
 toggle's keyboard shortcut, the Overlap preview under Whole image, and
 whole-image Cellpose on a CPU -- plus, new and measured, the box's picture at
 the largest sizes (5 above). ~97%, still features/future.
+
+--------------------------------------------------------------------------------
+2026-09-21 — THE LAST FOUR: A KEY, A PROMISE, A RUN THAT STOPS, A PICTURE
+              THAT KEEPS UP
+--------------------------------------------------------------------------------
+
+Decided: the four STILL OPEN at the end of the second 2026-09-20 note, each
+done and measured. Branch magnifier-407-0921, cut from nightly bfb2c7d99.
+Every number below was taken on this machine (AMD Ryzen 9 5950X, 32
+threads, the RTX 3090 not used: CPU only, offscreen) while other sessions
+held it at a load average of 48-103. The load is written beside each
+number because it moves every one of them.
+
+1. THE TOGGLE'S KEY IS M. Bare, on the Make Masks screen only, like B E W D
+   V Z R: it is the first free letter of "magnifier", it clashes with
+   nothing in SHORTCUTS or SCREEN_SHORTCUTS, and it carries no Ctrl, so it
+   carries no Command on macOS, where Cmd+M minimises the window.
+   `MakeMasksScreen._toggle_magnifier_key` presses the tool-row button
+   itself (`toggle()`), so the status line, the box and the button's look go
+   through the button's own handler; a disabled button is not pressed by its
+   key. It is on the shortcut map (SCREEN_SHORTCUTS, scope "the Make Masks
+   screen") and on the screen's own shortcut panel.
+   THE CATALOG GATE, AND WHY IT COST NO TRANSLATION. The 2026-09-20 note
+   recorded a recipe of nine hand-written `_row` values and two moved pins,
+   because every shortcut label entered the compact caption layer and the
+   compact layer refuses a caption the generated layer also owns. The label
+   is "Live magnifier" -- the card's own title, already a generated source
+   with a reviewed row in all nine languages. `_shortcut_caption_fields`
+   (tests/qt/test_i18n_caption_ratchet.py) now leaves copy the generated
+   catalog already owns to that catalog, and the new
+   `test_every_shortcut_caption_has_exactly_one_translated_owner` holds
+   such copy to a real row in every language, so leaving a label to the
+   generated layer cannot become a way of leaving it untranslated. Measured,
+   before and after: the compact surface is 236 captions with digest
+   3e23d765..., the generated UI inventory 3,955 with digest 69d5a08f...,
+   both identical to the base; the Make Masks panel's exact-catalog-row test
+   reports the same 49 lines of missing rows on the base and on the branch.
+   NO NEW i18n DEBT from this note -- no caption was added or reworded.
+
+2. THE OVERLAP PREVIEW UNDER WHOLE IMAGE. The object under the mouse -- the
+   one a click adds -- is drawn solid where the rule keeps it and ghosted to
+   a quarter of its alpha where the rule takes it away, the region mode's
+   vocabulary. `_LiveMagnifier._image_promise` computes the rule over the
+   OBJECT'S OWN BOUNDING BOX, not the box's slice, with
+   `mask_engine._surviving_region_objects` -- the function, over the same
+   window, that the click's paste runs -- so Skip sees a touch 50 px off
+   the box and Clip knows its largest piece lies outside it. The bounding
+   boxes are one `scipy.ndimage.find_objects` pass on the worker
+   (`_MagnifierResult.extents`, which `_single_object` now reads too,
+   instead of a whole-field comparison per click). The promise is kept per
+   (object, rule, mask) and redrawn when any of them changes; no model is
+   asked. The whole field's outlines are built once on the worker
+   (`_MagnifierResult.overlay`) and sliced per move rather than outlined
+   again, so the memory budget now counts a kept result's labels AND its
+   picture (`_MagnifierResult.nbytes`).
+   The Overlap tooltip still says the box shows the rule "under Region
+   under the mouse". It is incomplete rather than false, and rewording it
+   would orphan nine reviewed rows; left for the consolidated pass.
+
+3. WHOLE-IMAGE CELLPOSE ON A CPU, MEASURED, THEN MADE USABLE.
+   Measured first, cpsam 4.2.1.1 through this screen's own
+   `load_cellpose_model` and `cellpose_detect`, field plate1_A02_12
+   (1994 x 1994, channel 0), torch at 16 threads:
+     one 256 px tile, bfloat16 weights (the default)  162-197 s   load 64-100
+     one 256 px tile, float32 weights                  31-46 s    load 87-100
+       (alternating, same process, same load)
+     the whole field, float32, before this change could stop it:
+       100 tiles, median 26.8 s a tile, 3,106 s in all (51.8 min), of which
+       365 s after the last tile started -- that tile and the flow dynamics
+       over 4 Mpx; 91 objects; load 86
+     the same field in bfloat16, extrapolated from the tile: about 4.5 h.
+   The Ryzen has no native bfloat16 arithmetic, and Cellpose-SAM loads its
+   weights in bfloat16 by default. What changed:
+   a. FLOAT32 ON A CPU. `load_cellpose_model` -- this screen's loader, used
+      by the magnifier and the Object detection button -- passes
+      use_bfloat16=False when `cellpose_kwargs()` says the device is not a
+      GPU. On a GPU nothing changes. The pipeline's own CPU runs still load
+      bfloat16: that is `spacr.accelerator.cellpose_kwargs`, shared by eleven
+      call sites, and changing what every CPU mask run computes is the
+      maintainer's decision, not this item's. It is the same measurement.
+   b. PROGRESS FROM THE FIRST TILE. A whole-image request carries a
+      `_RunTicket`; `_counting_tiles` puts a forward pre-hook on the model's
+      network for the length of the call, counting tiles against
+      `_cellpose_tile_count`, which is `cellpose.core.run_net`'s own
+      arithmetic and is tested against run_net itself (six shapes and
+      diameters, one of them this field: 100). The busy bar fills by tiles
+      and says "about N s left" from THIS run's pace, so the first run of a
+      session -- the one the per-megapixel ETA had to stay silent through --
+      has an estimate from its second tile. After the last tile it says
+      only a percentage: the dynamics are not tiles and are not guessed.
+   c. A CANCEL THAT STOPS THE MODEL. The same hook raises `_RunCancelled`
+      before the next tile once the ticket is cancelled; `_segment_region`
+      lets it through instead of falling back to Otsu, and the delivery is
+      dropped without a word. Cancel, leaving Whole image, a field change,
+      a setting change that starts a new run, and closing the screen all
+      cancel the run on its way. Before, the model went on holding the
+      processor and the shared model lock to the end of the run.
+      End to end on this CPU, real cpsam, a 600 x 600 crop of the same
+      field: 9 tiles predicted and counted, float32, "about 304 s left" on
+      the bar at tile 2 (72.5 s in), Cancel stopped the run 37.1 s later --
+      the tile already in flight -- and the hook was off the network.
+   d. NOT DONE, ON PURPOSE: spaCR-side tiling, which cuts objects at the
+      seams (the 2026-09-15 decision stands, and Cellpose already tiles --
+      it is those tiles the bar counts), and an automatic downscale, which
+      changes the answer. The Object detection diameter is the downscale
+      that exists: 60 rescales by one half and the same field is 25 tiles
+      instead of 100 (`_cellpose_tile_count`, tested against run_net).
+   A CPU whole-image Cellpose run is still most of an hour on this machine
+   under this load; it is now an hour that says how long it has left and
+   stops when asked, instead of four and a half that did neither.
+
+4. THE BOX'S PICTURE AT THE LARGEST SIZES, THE DESIGN DECISION. The
+   2026-09-20 note named a cache: build the picture once per (box, mask,
+   levels) and blit sub-rectangles. Not taken: the box is NOT constant at
+   the largest size -- a side of 2,048 on a 2,048 px field still starts at
+   cursor - 1,024, so it moves with the mouse, and the levels are read from
+   it -- and the mask changes with every edit, so that cache would miss on
+   exactly the moves a user is working through, each miss a whole-field
+   render. Instead every move is made cheap and nothing is cached between
+   moves: `_box_picture` turns the stretch and the 8-bit conversion into one
+   look-up in a 65,536-entry table built per levels (`_box_grey_table`),
+   straight into Qt's native RGB32 pixel, and does the alpha-0.5 blend as a
+   carry-free integer byte average only where the mask has an object.
+   BYTE-IDENTICAL to the two float passes it replaces
+   (`test_the_fast_box_picture_is_the_slow_one_to_the_byte`, uint16 and
+   uint8, three seeds, three pairs of levels, 700 labels; and end to end
+   through paint). It stays exactly as sharp: nearest-neighbour, one picture
+   pixel per image pixel at every zoom that magnifies; only below one device
+   pixel per image pixel is the picture thinned, to what Qt would have drawn
+   anyway (`_picture_step`). Micro-benchmark, 1,400 x 1,050 part of a
+   2,048 px field with 600 objects, load 88: 225-270 ms for the two passes,
+   21-41 ms for `_box_picture`.
+   THE HARNESS, `tools/perf_paint.py --only magnifier --field-px 2048`,
+   which now also measures the largest box under Whole image. Three runs of
+   the base (bfb2c7d99) and three of the branch, alternating, 40 moves each:
+
+     row                 base median / worst       branch median / worst
+     region  128 px      35.2-78.6 / 77.6-160.8    23.0-33.2 / 47.6-99.9
+     image   128 px      15.7-29.5 / 46.5-69.0     14.8-23.1 / 45.4-61.1
+     region 2048 px     379.2-500.2 / 716.6-1509   62.1-97.7 / 168.8-389.2
+     image  2048 px     362.1-412.1 / 723.1-877.2  53.2-78.4 / 142.9-171.7
+       load 59-69 (base), 48-60 (branch); every row ghosted=True
+
+   Five to eight times faster at the largest box, in both scopes. On the
+   branch the largest box costs 2.0-3.3x the default box in the same run;
+   the default box measured 3.9 ms median on a quiet machine on 2026-09-20,
+   which puts the largest at about 8-13 ms -- inside one frame. THAT IS AN
+   INFERENCE, NOT A READING: this machine was never quiet today, and the
+   absolute numbers above are the load's as much as the code's. The
+   remaining per-move cost at 2,048 px, profiled: `_box_picture` about half
+   of the repaint, then Qt's own drawing (3-7 ms per image, measured
+   separately), the canvas's own paint, and the region worker's 2,048 px
+   Otsu competing for the processor.
+
+WHAT IS LEFT, NONE OF IT BLOCKING THIS ITEM
+  * A quiet-machine run of the harness row above, to replace the inference.
+  * The Overlap tooltip's wording (point 2), for the consolidated i18n pass.
+  * Whether the pipeline should load cpsam in float32 on a CPU too (3a).
+  * The Object detection button still runs Cellpose on the GUI thread, and
+    on a CPU it therefore freezes the screen for the length of a run. That
+    is the button's, not the magnifier's, and it is older than this item.
+
+DONE WHEN, AGAINST HOW TO KNOW IT WORKED:
+  * responsiveness with the toggle on -- measured by the 380 harness in both
+    scopes and at both box sizes; the largest box is five to eight times
+    faster than it was, and inside a frame by inference (see 4);
+  * a click commits exactly the objects drawn, border-clipped boxes
+    included -- the 2026-09-14 tests, and now the whole-image promise,
+    pixel for pixel, for every rule;
+  * committed objects survive toggling off, saving and reopening -- tested
+    since 2026-09-14;
+  * with every model removed the Otsu mode still works -- tested since
+    2026-09-14.
+  DONE.
+
+EVIDENCE
+  * tests/qt/test_the_magnifier_finishes_what_407_left_open.py: 35 tests --
+    the key (5), the whole-image promise (7, including one per rule that the
+    promise is what the click adds), tile counting against run_net (6),
+    cancel and progress with a counted stand-in network (6), and the
+    picture's byte-identity, thinning and end-to-end paint (11).
+  * The 41 files named for make_masks, magnifier, mask_engine, the paint
+    harness, hotkeys or shortcuts, serial, offscreen: 991 passed, 2 skipped,
+    1 failed -- `test_every_help_string_on_the_panel_has_an_exact_catalog_row`,
+    red on the base with the identical 49-line list.
+  * tests/qt/test_i18n_caption_ratchet.py: three tests red on the base are
+    red on the branch for the same captions (other items' debt); the new
+    owner test passes.
+  * Screenshots, offscreen, a 1024 px crop of plate1_A02_12 with half of
+    every other object already painted, Clip: the region box at 224 px and
+    at the largest size (1,024), and the whole-image box at 160 px and at
+    the largest size, the hovered object solid where a click adds it and
+    ghosted over the half the mask already owns.
