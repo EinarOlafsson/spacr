@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "lesson": "13_regression",
+  "stage": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/regression-current-v2",
+  "capture": "captures/regression_current_20260922_v2",
+  "provenance": {
+    "commit": "8936a1c946c17986edd9709b52fa01896e09f2b4",
+    "version": "1.5.0.9",
+    "module": "regression",
+    "download_requested": true,
+    "dataset_cache": "/tmp/spacr-regression/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "process_exit_code": 0,
+  "source_and_paths_unmodified": true,
+  "neutral_account": {
+    "uid": 65534,
+    "name": "tutorial",
+    "home": "/tmp/spacr-regression/profile",
+    "host_account_unchanged": true,
+    "application_monkeypatched": false,
+    "wrapper_sha256": "dbb1de7cfc91a14978381d8a3732e8ebfefbc74b67115572708e48ee8176fb3a"
+  },
+  "acceptance": {
+    "accepted": true,
+    "reasons": [],
+    "figure_count": 5,
+    "worker_finished": true,
+    "worker_ok": true
+  },
+  "result_rows": {
+    "grna": 434,
+    "gene": 325
+  },
+  "results_sha256": "b39d05d2cb013f83871b899143ad76ef25bbc0594cdd96394d4315cbef812fff",
+  "numeric_checks": [
+    "All759 empirical p-values equal (exceedances+1)/200",
+    "BH adjustment independently recomputed within each reported family",
+    "All effect coefficients finite"
+  ],
+  "settings_tour_sha256": "28eb37853e92b20c478c03735a364084c48f4d9c522a2e82bc615c00918c216e",
+  "results_tour": {
+    "settings_unchanged": true,
+    "tabs": [
+      {
+        "title": "Runs",
+        "selected_index": 0
+      },
+      {
+        "title": "Results",
+        "selected_index": 1
+      },
+      {
+        "title": "Measurements",
+        "selected_index": 2
+      },
+      {
+        "title": "Cells",
+        "selected_index": 3
+      }
+    ],
+    "detail_tabs": [
+      {
+        "surface": "p-values",
+        "displayed_label": "p-values (guides)"
+      },
+      {
+        "surface": "Q-Q",
+        "displayed_label": "Q-Q (guides)"
+      },
+      {
+        "surface": "Coefficients",
+        "displayed_label": "Coefficients (guides)"
+      }
+    ],
+    "new_analysis_requested": false,
+    "measurement_database_attached": false
+  },
+  "frames_sha256": "46cbdaeb8e6560c694e340d55f629d70d9a144b2e0e3827db1581e622f84e074",
+  "visually_inspected": [
+    "23_batch_finished",
+    "25_result_results"
+  ],
+  "limitations": [
+    "Nonfatal exchangeability-report TypeError remains in the private DEBUG log; no validation of permutation assumptions is claimed.",
+    "No attached measurement database or cell montage.",
+    "Narrated master, translations, voice matrix, browser/captions/listening and complete-set publication remain."
+  ],
+  "published": false
+}

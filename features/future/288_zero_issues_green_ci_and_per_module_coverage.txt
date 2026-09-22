@@ -4476,3 +4476,15 @@ original floor module with a clean targeted repair. The FEATURES table's
 separate known defect, remaining floors and full-run ratchet stay open.
 Integrated 741c073bd/7e7d29316 before further work; the picker source is unchanged.
 Regression panel input-validation coverage is running as the next repair.
+
+2026-09-22 — CODEX: REGRESSION FIGURE PACKAGES ABOVE THE TARGET
+regression_panels now reaches94.77% combined coverage (516/533 statements,
+154/174 branches). All133 tests pass in1480.46s;225 warnings include headless
+canvas, numerical-fixture and dependency deprecation warnings. New cases prove
+invalid manifests, missing/unreadable files, incompatible source identity and
+nonfinite scientific data cannot leave partial output. A real file-backed
+artifact round trip preserves values and declared identity. The long run was
+actively rendering real QC figures, confirmed by its stack; it was not restarted.
+Receipt:features/data/288_regression_panels_2026-09-22.json. No production or
+baseline change. Nineteen original floor modules have clean targeted repairs;
+five remain below target, plus the separate FEATURES defect and full ratchet.

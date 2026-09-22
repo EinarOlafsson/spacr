@@ -739,3 +739,10 @@ catalogs, with prior reviewed records retained as retired history. New nightly
 settings-layout documentation remains in explicit debt: 11194 live symbols,
 657 added/2 removed/128 changed versus the unchanged English manifest.
 368's translation tail remains open on 411; no docstring-completion claim.
+
+2026-09-22 — CODEX TRANSLATION CHECKPOINT
+Nineteen German example-import, tracing and FEATURES API documents now have
+current source-bound reviews (66blocks,two reused). Independent model-free
+regeneration reproduces every accepted entry; four live-report tests pass.
+411 remains open for the remaining catalog debt; no change to English manifest
+or docstring debt pins. Receipt:411_german_api_import_fields_2026-09-22.json.

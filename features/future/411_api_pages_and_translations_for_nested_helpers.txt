@@ -1383,3 +1383,16 @@ nine-language conjunction checks are running before the progress push.
 Final validation: all44 live-report and nine-language conjunction tests pass
 in282.00s. Feature index and whitespace checks pass. No full-catalog or native
 approval claim; remaining source debt stays visible in the updated reports.
+
+2026-09-22 — CODEX: NINETEEN MORE GERMAN API DOCUMENTS REVIEWED
+Accepted66 source-bound blocks (two reused) for shared example archives,
+Import variants, function tracing and FEATURES field models. Corrected hover
+help, incomplete-download behavior, microscopy/plate identities, channel-token
+persistence, tracing versus verbose logging and API credentials. All19 regenerate
+verbatim from current reviews with model decoding forbidden; receipt:
+features/data/411_german_api_import_fields_2026-09-22.json. Reports refreshed;
+4 live-report tests pass241.23s. No native-speaker or complete-catalog claim.
+Tutorial translation: Regression now has all13 reviews bound to its fresh
+1.5.0.9 capture; one scene explicitly discloses the exchangeability diagnostic
+failure and20 narration scenes remain unchanged. Independent staging/source,
+caption, geometry/link and pronunciation-helper checks pass. Narration is CPU-only.

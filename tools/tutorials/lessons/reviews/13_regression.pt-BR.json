@@ -1,11 +1,25 @@
 {
-  "lesson": "13_regression", "language": "pt-BR",
-  "english_sha256": "c91b68b7d5d0301ae26baa8c25760fb20698848bcf272ebdbc37ea62c815848f",
-  "review": {"kind": "Editorial translation checked against English and the accepted real-data recording", "native_speaker_signoff": false, "corrections": ["Distinguish 759 stored results from the displayed 434-guide family.", "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes."]},
+  "lesson": "13_regression",
+  "language": "pt-BR",
+  "english_sha256": "5fb8d9e354ee1b31670904373b1929f1f376e795b89890d870d444665d7f65e1",
+  "review": {
+    "kind": "Editorial translation checked against English and the accepted real-data recording",
+    "native_speaker_signoff": false,
+    "corrections": [
+      "Distinguish 759 stored results from the displayed 434-guide family.",
+      "Retain demonstration limits, absent measurement data, unsent AI question and all nested-tool routes.",
+      "2026-09-22: current 1.5.0.9 capture; disclose failed exchangeability report without claiming validation of permutation assumptions. Other twenty narration scenes retained."
+    ]
+  },
   "title": "Regression: um exemplo real, das tabelas pareadas aos resultados",
   "description": "Carregue a triagem de exemplo disponível para download, configure uma análise limitada por permutação de guias, examine o console e as figuras reais e encontre as ferramentas especializadas agora integradas ao Regression.",
-  "objectives": ["Carregar quatro pares de tabelas de escores e contagens pelo controle visível de dados de teste e escolher uma pasta de saída separada.", "Distinguir método de inferência, nível dos resultados e unidade de análise, reproduzindo o exemplo sem recomendar sua quantidade de permutações para uma análise final.", "Examinar resultados, figuras e limitações diagnósticas reais, distinguindo inspeção interativa de uma prévia que recalcula a análise.", "Localizar as ferramentas integradas ao Regression, a assistência opcional por IA e a função Python atual."],
-  "prerequisite": "Abra o spaCR e escolha Regression nos módulos Core. O exemplo baixa ou reutiliza arquivos de escores e contagens em cache. A análise gravada não exige banco de medições, recortes de imagens, serviço externo de anotação nem assinatura de IA. A execução curta por permutação demonstra o fluxo de trabalho, não descobertas biológicas definitivas.",
+  "objectives": [
+    "Carregar quatro pares de tabelas de escores e contagens pelo controle visível de dados de teste e escolher uma pasta de saída separada.",
+    "Distinguir método de inferência, nível dos resultados e unidade de análise, reproduzindo o exemplo sem recomendar sua quantidade de permutações para uma análise final.",
+    "Examinar resultados, figuras e limitações diagnósticas reais, distinguindo inspeção interativa de uma prévia que recalcula a análise.",
+    "Localizar as ferramentas integradas ao Regression, a assistência opcional por IA e a função Python atual."
+  ],
+  "prerequisite": "Gravado no spaCR 1.5.0.9. Abra o spaCR e escolha Regression nos módulos Core. O exemplo baixa ou reutiliza arquivos de escores e contagens em cache. A análise gravada não exige banco de medições, recortes de imagens, serviço externo de anotação nem assinatura de IA. A execução curta por permutação demonstra o fluxo de trabalho, não descobertas biológicas definitivas.",
   "scenes": [
     "Abra Regression nos módulos Core. Ele relaciona escores fenotípicos à abundância de guias e apresenta associações conforme o método de inferência escolhido. As ferramentas no topo agora pertencem a este módulo; não são blocos separados na tela Home.",
     "Em Input Tables, escolha Load test data. O aplicativo baixa a triagem de exemplo ou reutiliza arquivos verificados em cache; esta gravação usa o cache. O console informa quatro tabelas de escores e quatro de contagens, pareadas por placa.",
@@ -19,7 +33,7 @@
     "O campo Regression backend não é um interruptor universal de aceleração. Ele se aplica aos estimadores ajustados compatíveis; alterá-lo não transforma esta demonstração por permutação em regressão na GPU. Outros módulos do spaCR têm suas próprias escolhas de dispositivo: acompanhe os controles e o console da operação realmente executada.",
     "Escolha none como fonte de anotação neste exemplo independente. Os resultados estatísticos não exigem consulta externa de anotações gênicas. Na sua triagem, use anotações adequadas ao organismo e ao sistema de identificadores, sem presumir que todo rótulo de guia poderá ser identificado.",
     "Limpe a busca, confira a pasta de saída e pressione Run. Acompanhe o console real enquanto ele alinha as entradas, aplica os filtros selecionados e calcula os resultados. Regression produz figuras diagnósticas diretamente; esta gravação não exige ativar um interruptor Plot separado.",
-    "O exemplo concluído produziu quatrocentos e trinta e quatro resultados de guias e trezentos e vinte e cinco de genes, com cinco figuras. Finished indica que o software terminou; não certifica o delineamento experimental nem estabelece descobertas biológicas. Leia os avisos diagnósticos além da linha de conclusão.",
+    "O exemplo concluído produziu quatrocentos e trinta e quatro resultados de guias e trezentos e vinte e cinco de genes, com cinco figuras. Finished indica que o software terminou; não certifica o delineamento experimental nem estabelece descobertas biológicas. Leia os avisos diagnósticos além da linha de conclusão. O relatório de intercambiabilidade falhou nesta execução; por isso, os pressupostos do teste de permutação ainda precisam de uma avaliação independente.",
     "Runs identifica a análise salva e Results mostra a execução selecionada. Confirme a pasta e as configurações ao comparar execuções. Mudar um valor no formulário não recalcula o resultado exibido: execute a análise novamente quando quiser testar uma nova escolha.",
     "Results contém a tabela de coeficientes e visualizações interativas ao lado das figuras geradas. A execução contém setecentas e cinquenta e nove linhas nos dois níveis; esta visualização seleciona os quatrocentos e trinta e quatro resultados de guias. Use Level para escolher a família de testes. Inspecionar resultados salvos interativamente não repete a inferência.",
     "Abra a visualização p-values para examinar a distribuição dos resultados. Interprete-a junto com a família de testes selecionada, a resolução das permutações e os diagnósticos, não como prova automática de um efeito. O tutorial Diagnostics explica detalhadamente os painéis salvos de delineamento e inferência.",

@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "8936a1c946c17986edd9709b52fa01896e09f2b4",
+  "scope": "Targeted branch and statement coverage; not a whole-suite verdict.",
+  "source_path": "spacr/regression_panels.py",
+  "source_sha256": "91fc172fb21f6c04ea4cb2f212e5841ab32d9b18af1bacc714ed6b5d4542e905",
+  "coverage_json_sha256": "475ddf96966db9b122f2437b3fe2dbf5e14b9860f331245b18a36947f7440cea",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 516,
+    "num_statements": 533,
+    "percent_covered": 94.76661951909476,
+    "percent_covered_display": "94.77",
+    "missing_lines": 17,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.81050656660413,
+    "percent_statements_covered_display": "96.81",
+    "num_branches": 174,
+    "num_partial_branches": 18,
+    "covered_branches": 154,
+    "missing_branches": 20,
+    "percent_branches_covered": 88.50574712643679,
+    "percent_branches_covered_display": "88.51"
+  },
+  "missing_lines": [
+    833,
+    836,
+    839,
+    845,
+    848,
+    973,
+    996,
+    1021,
+    1023,
+    1028,
+    1084,
+    1112,
+    1163,
+    1177,
+    1220,
+    1221,
+    1222
+  ],
+  "missing_branches": [
+    [
+      832,
+      833
+    ],
+    [
+      835,
+      836
+    ],
+    [
+      838,
+      839
+    ],
+    [
+      844,
+      845
+    ],
+    [
+      846,
+      850
+    ],
+    [
+      847,
+      848
+    ],
+    [
+      941,
+      948
+    ],
+    [
+      972,
+      973
+    ],
+    [
+      995,
+      996
+    ],
+    [
+      1006,
+      1005
+    ],
+    [
+      1020,
+      1021
+    ],
+    [
+      1022,
+      1023
+    ],
+    [
+      1027,
+      1028
+    ],
+    [
+      1083,
+      1084
+    ],
+    [
+      1111,
+      1112
+    ],
+    [
+      1162,
+      1163
+    ],
+    [
+      1176,
+      1177
+    ],
+    [
+      1219,
+      1220
+    ],
+    [
+      1221,
+      1215
+    ],
+    [
+      1221,
+      1222
+    ]
+  ],
+  "validation": {
+    "passed": 133,
+    "skipped": 0,
+    "warnings": 225,
+    "seconds": 1480.46,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/test_regression_panel_packages.py",
+      "tests/test_the_assay_figures_are_house_style.py",
+      "tests/test_cov_ml_perform_regression.py"
+    ],
+    "log_sha256": "56ea2abfaa23a16d20f635b76e6ba066f4b4740748e7affc97a4bbcc8a0f393b",
+    "test_sha256": {
+      "tests/test_regression_panel_packages.py": "00742fd1e316c8c24ac19313691e7eff94111ac5026f3adc5106e4172f79d99a",
+      "tests/test_the_assay_figures_are_house_style.py": "7e913efdc79c53ee4e3351c874e53a692e3efdf765aa6d16ee510591a2216d93",
+      "tests/test_cov_ml_perform_regression.py": "336a278b8b8a665eb5bc0a70875875244b73fae98fd8097ff5010a5a855bb711"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "The selection emits 225 warnings, including noninteractive canvas, numerical fixture and dependency deprecation warnings. All tests pass; this does not establish a whole-suite result."
+  ]
+}

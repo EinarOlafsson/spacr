@@ -424,3 +424,14 @@ no pixels were redacted, and the privacy guard remains unchanged. Preparation
 and CPU analysis evidence are retained privately; this recapture is not done.
 358/447 remain one capture pass per accepted lesson, with final version/visual,
 audible pronunciation, caption/player acceptance and complete-set publication open.
+
+2026-09-22 — CODEX: REGRESSION PATH ISSUE RESOLVED IN THE CAPTURE SANDBOX
+A neutral account inside the private recording namespace makes the actual run
+journal path safe to show. No application mock, pixel redaction or relaxed path
+guard. Fresh1.5.0.9 dark/Blobs capture passes; saved434guide/325gene results and
+five figures independently checked. Current lesson and13 translations disclose
+the nonfatal exchangeability-report failure. Twenty narration scenes retained;
+first English narration is rendering. See matching2026-09-22Regression capture
+and translation receipts. Audible/visual master/full-matrix/player acceptance
+and complete-set publication remain open. Map narration resumes after a confirmed
+143exit; the22 completed tracks are retained, not blindly regenerated.

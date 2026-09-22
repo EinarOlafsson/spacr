@@ -13,15 +13,16 @@
     "Inspect real results, figures and diagnostic limitations; distinguish interactive inspection from a live analysis preview.",
     "Locate Regression's nested tools, optional AI assistance and current Python entry point."
   ],
-  "prerequisite": "Open spaCR and choose Regression from the Core modules. The example downloads or reuses cached score/count files. No measurement database, image crops, external annotation service or AI subscription is required for the recorded analysis. The short permutation run demonstrates the workflow, not definitive biological discovery.",
+  "prerequisite": "Recorded in spaCR 1.5.0.9. Open spaCR and choose Regression from the Core modules. The example downloads or reuses cached score/count files. No measurement database, image crops, external annotation service or AI subscription is required for the recorded analysis. The short permutation run demonstrates the workflow, not definitive biological discovery.",
   "scenes": [
     {
       "visual": "01_module",
       "narration": "Open Regression from the Core modules. It connects phenotype scores with guide abundance, then reports associations using the inference method you choose. The tools across the top now belong inside this module; they are not separate Home tiles.",
-      "focus_buttons": "FoldButton", "hold_after": 0.7
+      "focus_buttons": "FoldButton",
+      "hold_after": 0.7
     },
     {
-      "visual": "02_cached_load",
+      "visual": "02_download",
       "narration": "In Input Tables, choose Load test data. The application downloads the example screen or reuses verified cached files; this recording uses the cache. The console reports four score tables and four count tables, paired by plate.",
       "hold_after": 0.7
     },
@@ -77,14 +78,16 @@
     },
     {
       "visual": "23_batch_finished",
-      "narration": "The completed example produced four hundred and thirty-four guide results and three hundred and twenty-five gene results, with five figures. Finished means the software completed; it does not certify the experimental design or establish biological discoveries. Read the diagnostic warnings as well as the completion line.",
+      "narration": "The completed example produced four hundred and thirty-four guide results and three hundred and twenty-five gene results, with five figures. Finished means the software completed; it does not certify the experimental design or establish biological discoveries. Read the diagnostic warnings as well as the completion line. The exchangeability report failed in this run; the permutation assumptions therefore still need independent assessment.",
       "hold_after": 0.7
     },
     {
       "visual": "25_result_runs",
       "narration": "Runs identifies the saved analysis; Results displays the selected run. Confirm the folder and settings when comparing runs. Changing a form value does not recompute the result you are looking at: run the analysis again when you intend to test a new choice.",
       "hold_after": 0.7,
-      "related_lessons": ["73_parameter_sweep"]
+      "related_lessons": [
+        "73_parameter_sweep"
+      ]
     },
     {
       "visual": "25_result_results",
@@ -95,25 +98,39 @@
       "visual": "26_detail_p_values",
       "narration": "Open the p-values view to inspect the result distribution. Interpret it together with the selected testing family, permutation resolution and diagnostics, not as automatic evidence of an effect. The separate Diagnostics tutorial explains the saved design and inference panels in detail.",
       "hold_after": 0.7,
-      "related_lessons": ["75_regression_diagnostics"]
+      "related_lessons": [
+        "75_regression_diagnostics"
+      ]
     },
     {
       "visual": "25_result_measurements",
       "narration": "Measurements provides the controls for examining additional measurement responses. This example has no measurement database attached, and opening the tab does not create one or perform a measurement sweep. Supply the required measured data before using those tools on your own experiment.",
       "hold_after": 0.7,
-      "related_lessons": ["08_measure"]
+      "related_lessons": [
+        "08_measure"
+      ]
     },
     {
       "visual": "25_result_cells",
       "narration": "Cells can connect selected results with underlying objects when suitable measurement data and images are available. Here the database column is empty, so there is no cell montage to show. Do not confuse an unavailable object view with a failed score-and-count analysis.",
       "hold_after": 0.7,
-      "related_lessons": ["71_investigate_hit"]
+      "related_lessons": [
+        "71_investigate_hit"
+      ]
     },
     {
       "visual": "26_detail_coefficients",
       "narration": "The nested tools are Volcano Explorer, Hit List, Methods and Results, Investigate Hit, Prediction Profiler, and Diagnostics. Hover over their icons to identify them. Their linked tutorials cover each workflow; for example, a prediction profiler needs suitable fitted-model output, which this permutation run does not provide.",
-      "focus_buttons": "FoldButton", "hold_after": 0.7,
-      "related_lessons": ["72_volcano_explorer", "48_hit_list", "49_methods_results", "71_investigate_hit", "53_prediction_profiler", "75_regression_diagnostics"]
+      "focus_buttons": "FoldButton",
+      "hold_after": 0.7,
+      "related_lessons": [
+        "72_volcano_explorer",
+        "48_hit_list",
+        "49_methods_results",
+        "71_investigate_hit",
+        "53_prediction_profiler",
+        "75_regression_diagnostics"
+      ]
     },
     {
       "visual": "30_ai_unsent_question",
@@ -124,7 +141,10 @@
       "visual": "26_detail_coefficients",
       "narration": "For scripted work, use the perform_regression function in the spaCR machine-learning module with the corresponding settings, and consult its current API documentation. Keep the input tables, saved settings, outputs and diagnostic interpretation together. Use Parameter Sweep deliberately for comparisons, and keep exploratory choices separate from final analysis decisions.",
       "hold_after": 0.7,
-      "related_lessons": ["06_api", "73_parameter_sweep"]
+      "related_lessons": [
+        "06_api",
+        "73_parameter_sweep"
+      ]
     }
   ]
 }

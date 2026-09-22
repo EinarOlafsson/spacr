@@ -2428,3 +2428,27 @@ run-journal directory. No rejected screenshot is saved; no recording accepted.
 Receipt:2026-09-22-regression-capture-path-rejection.json. The diagnostic log also
 has a nonfatal exchangeability-report TypeError; scientific acceptance remains
 open. Resolve the journal display path before recapturing; do not weaken privacy.
+
+2026-09-22 — CODEX: CURRENT REGRESSION CAPTURE AND THIRTEEN REVIEWS
+Resolved the path refusal using a neutral Linux account inside the recording's
+private user/mount namespace. Host account files and application code are
+unchanged; normal home lookup finds the staged profile. The actual journal now
+prints a neutral path. Reusable CPU-only wrapper:run_neutral_capture.sh; shell
+syntax and real help-command smoke checks pass, no HOME variable repurposed.
+Current1.5.0.9 dark/Blobs capture completes26frames, nine settings searches and
+all Runs/Results/Measurements/Cells plus p-values/Q-Q/Coefficients surfaces.
+Independent saved-output checks confirm434guide/325gene rows, all759 empirical
+P values and separate BH families, finite effects, five GUI figure hashes and
+unchanged settings. Finished/results frames visually inspected. No database or
+cell montage claim. Evidence:2026-09-22-regression-current-capture.json.
+The private DEBUG log still records a nonfatal exchangeability-report TypeError.
+The lesson now states that limitation and requires independent assessment of
+permutation assumptions. All13 reviews updated for that scene and1.5.0.9,
+20narration scenes retained; fresh-download frame replaces the old cached-load
+frame. Independent source/staging/caption/geometry/link/pronunciation checks
+pass; evidence:2026-09-22-regression-current-translations.json. First English
+narration renders on CPU. Narrated master/full voices/player/listening and
+complete-set publication remain open. Map's original renderer ended143 after
+22tracks; resumable render73065 preserves completed tracks and finishes the rest.
+Final capture-policy, staging, translation-promotion and acceptance tests:
+63pass10.92s. Feature index and whitespace checks pass before the progress push.

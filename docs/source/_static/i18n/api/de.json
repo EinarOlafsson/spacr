@@ -20658,28 +20658,46 @@
       "source_blocks_sha256": [
         "9646738cee9945bfd32ff9693fac0538cac036fff04ecee571ffa02c21c3b86d",
         "f0327f68d496ee33de1391cb7e13ba0ae1dba36c0952c9783147115d8c1ba0b8",
-        "f313b64a4f16fa3e1f45c9e0e51f1a4b8d9b4224c6d484525256774b4cd5d22c"
+        "f313b64a4f16fa3e1f45c9e0e51f1a4b8d9b4224c6d484525256774b4cd5d22c",
+        "c83131edf11aa53c1454339f198d00210aec884c47404843352309bdeed50535"
       ],
-      "source_sha256": "a896333e6cf2a1fe15fbff553c4d22f40cb2650cf421ce96b34cf6e40d94e860",
-      "text": "Der ONE-Ordner jeder Beispieldatensatz entpackt sich in.\n\n``~/.cache/spacr/example_data/plate1`` -- ein echtes spaCR Plattenverzeichnis, das je nachdem, welcher ``merged/``, ``data/``,``measurements/`` und ``settings/`` heruntergeladen wurde.\n\nEin Ordner, weil die Sätze zusammen verwendet werden. `data/` ist die extrahierten Bildregionen und `measurements/measurements.db` ist, was sie indiziert; das Herunterladen in separaten Bäumen bedeutete, dass die zwei Hälften einer Platte nicht auf einmal geöffnet werden konnten, und der Benutzer musste wissen, welcher Download was gesetzt hatte. Jedes Archivmitglied ist relativ zu diesem Ordner, so dass die drei entpackt in es Seite an Seite und komponieren in eine Platte, die Messen, Kommentieren und Klassifizieren kann auf alle gezeigt werden.",
+      "source_sha256": "f5e7e7c5cebe4ecbe50779556381b5f2f6bd53c6acd5c8ed58d7df5b8261200b",
+      "text": "Der gemeinsame Ordner, in den alle Beispieldatensätze entpackt werden.\n\n``~/.cache/spacr/example_data/plate1`` -- ein echtes spaCR-Plattenverzeichnis mit den bereits heruntergeladenen Unterordnern ``merged/``, ``data/``, ``measurements/`` und ``settings/``.\n\nEin gemeinsamer Ordner ist nötig, weil die Datensätze zusammen verwendet werden. `data/` enthält die Bildausschnitte; `measurements/measurements.db` verzeichnet sie. Beim Herunterladen in getrennte Verzeichnisbäume ließen sich die beiden Teile derselben Mikrotiterplatte nicht gemeinsam öffnen, und die Nutzer mussten wissen, welcher Download welche Dateien wohin geschrieben hatte. Die Einträge jedes Archivs sind relativ zu diesem Ordner angegeben. So werden die drei Archive nebeneinander darin entpackt und ergeben eine Platte, die Measure, Annotate und Classify gemeinsam verwenden können.\n\nDie Assay-Beispiele sind keine Verarbeitungsstufen dieser Mikrotiterplatte und erhalten jeweils einen eigenen Ordner daneben; siehe :func:`example_set_folder`.",
       "translation_source_blocks_sha256": [
         "9646738cee9945bfd32ff9693fac0538cac036fff04ecee571ffa02c21c3b86d",
         "f0327f68d496ee33de1391cb7e13ba0ae1dba36c0952c9783147115d8c1ba0b8",
-        "554266a939d594ab2663ef71be45ea2f8e9b7b42d990d18d29b17a0aef341969"
+        "554266a939d594ab2663ef71be45ea2f8e9b7b42d990d18d29b17a0aef341969",
+        "a4dbc3a1970c189db9490ecd3d18aaf19a4a72022578c9a870521e0eec6b42cf"
       ]
     },
     "spacr.example_archives.example_set": {
       "source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "8e2c6e9f482af709eb318583f9103cb6ce1772cc1006a6165f07048dd4c0e282",
+        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
       ],
-      "source_sha256": "403cb016ee545ee1e6215edb7d490b607fcc726e152b1956daa23aa33845f87a",
-      "text": "Das Set namens ``key``.\n\n:param key: ``mask``, ``measure`` or ``annotate``.\n:raises KeyError: Ein Typo, der ``None`` zurückgegeben hat, würde nichts herunterladen und Erfolg melden, was das einzige Ergebnis ist, das ein Download-Befehl niemals erzeugen darf.",
+      "source_sha256": "835bc56de2bfedaa226ad998ebba8587e0b2fdfdf6922c3e45a6d00e0e9ecb75",
+      "text": "Der Datensatz mit dem Namen ``key``.\n\n:param key: ``import``, ``mask``, ``measure``, ``annotate``, ``replication``, ``recruitment`` oder ``invasion``.\n:raises KeyError: mit den tatsächlich verfügbaren Schlüsseln. Würde ein Tippfehler lediglich ``None`` zurückgeben, würde nichts heruntergeladen und trotzdem Erfolg gemeldet. Genau das darf ein Download-Befehl niemals tun.",
       "translation_source_blocks_sha256": [
         "9b817d342370e86329a2a891f157a9f18cad48f9a876a3f4c87456bad83b3642",
-        "8e2c6e9f482af709eb318583f9103cb6ce1772cc1006a6165f07048dd4c0e282",
+        "be33fe2656c33b094657208f4d575972dc9f35cd4a5443d2f3412eb3aa08f5fb",
         "ae00dadff9e663648710320cde572b0ed7b50614812a0d6a627bb5dd5550de68"
+      ]
+    },
+    "spacr.example_archives.example_set_folder": {
+      "source_blocks_sha256": [
+        "70e988c3adc6dd11e0e2f3d35a36b16273dd21e3b7450a9db93cd707a7477c58",
+        "12fb45e3866852f8638dcbf540d63931741d2a17268087735c41e47933cbf218",
+        "3a458a252220826bea4c4ac3e522688ff201248d0f304650d12b93e91eac3eef",
+        "ff1b6b38baf10d0bfbde7e2e02e4b72f59e78de426583603cb88bcb449c22922"
+      ],
+      "source_sha256": "ac12b7be857be75662e99035d6cf7781865da833ea2b2c16d2bc78cc9533e40b",
+      "text": "Der Zielordner des Datensatzes ``key`` neben dem gemeinsamen Plattenordner.\n\n:param key: ein Schlüssel aus :data:`EXAMPLE_SETS`.\n:returns: ``~/.cache/spacr/example_data/<folder>``. Der Ordner wird hier nicht angelegt.\n:raises KeyError: wie bei :func:`example_set`.",
+      "translation_source_blocks_sha256": [
+        "70e988c3adc6dd11e0e2f3d35a36b16273dd21e3b7450a9db93cd707a7477c58",
+        "12fb45e3866852f8638dcbf540d63931741d2a17268087735c41e47933cbf218",
+        "3a458a252220826bea4c4ac3e522688ff201248d0f304650d12b93e91eac3eef",
+        "ff1b6b38baf10d0bfbde7e2e02e4b72f59e78de426583603cb88bcb449c22922"
       ]
     },
     "spacr.example_archives.expand_measure_arrays": {
@@ -33098,6 +33116,116 @@
         "2b6136bc1c64e2a128c7d32cd6903c2831bfe32f3c60b09acbb50a96a8d24e13"
       ]
     },
+    "spacr.import_examples.ImportVariant": {
+      "source_blocks_sha256": [
+        "7972398ddedee853c6432b1b8e40944da506d742292390e4ef0a9283340a2caa",
+        "1fb18899628a8ef23dfb01a8461c6ee50e64dfde6ab1b7a89d62027718eee41f",
+        "cb57c4f5cfbf88bfd70d3907cd8590f3e197514ee5f21e416d949e88ea72d2c6",
+        "fc0c904f6ea9a9968cb3a2cad8c5b6415fc038064220ecc8fc57850f30dc584a",
+        "4ca859e35081d932e0662d315fc00140999177805dac13af71b3b9bba483c875",
+        "9e4353c4a0f0bcd12b63a634e31e1d2aed784e2572af1441344eac99cd049957",
+        "4c91431cb9d4eba6feec5a7e2d0ca7bc8bafa8abdb08ec3d84b8cd1b8f5c3fbc",
+        "6813327199c220d8f59d650f0a774cf7eecaeb4a67ee4c15f46ac53a21b9400a",
+        "411f8b2d00eae352041dc3d6643a04f9fd816955cbb06f1155cf329a5da40e46"
+      ],
+      "source_sha256": "7161d5d3f82d09fb575885a3d5c2d654fbf66cd19ddd899770bae76e07813b58",
+      "text": "Eine Speicherform derselben Bildfelder und die zugehörige Einlesemethode von Import.\n\n:param key: der Ordner unter ``variants/`` und der Routenschlüssel des Auswahldialogs.\n:param label: der Schaltflächentext.\n:param route: ``'import'`` für die Import-Ansicht selbst (Bilder, Masken und eine Messtabelle), ``'convert'`` für den Format Converter (nur Bilder).\n:param metadata_type: die Konvention zum Auswerten der Dateinamen oder ``'auto'`` für Ordner und Namenstoken.\n:param custom_regex: das Muster für ``metadata_type='custom'``.\n:param file_format: das Format der Bilddateien, in Worten beschrieben.\n:param example: ein Bildpfad dieser Variante, relativ zu ihrem Ordner ``plate1``. Damit zeigt der Auswahldialog die Namensstruktur bereits vor dem Herunterladen.\n:param note: zusätzliche Hinweise zu dieser Variante.",
+      "translation_source_blocks_sha256": [
+        "7972398ddedee853c6432b1b8e40944da506d742292390e4ef0a9283340a2caa",
+        "1fb18899628a8ef23dfb01a8461c6ee50e64dfde6ab1b7a89d62027718eee41f",
+        "cb57c4f5cfbf88bfd70d3907cd8590f3e197514ee5f21e416d949e88ea72d2c6",
+        "45fa426d95a1a2702636e0d5dfff83d4aa41273146610181f898bf01ca7ec57e",
+        "4ca859e35081d932e0662d315fc00140999177805dac13af71b3b9bba483c875",
+        "9e4353c4a0f0bcd12b63a634e31e1d2aed784e2572af1441344eac99cd049957",
+        "4c91431cb9d4eba6feec5a7e2d0ca7bc8bafa8abdb08ec3d84b8cd1b8f5c3fbc",
+        "6813327199c220d8f59d650f0a774cf7eecaeb4a67ee4c15f46ac53a21b9400a",
+        "411f8b2d00eae352041dc3d6643a04f9fd816955cbb06f1155cf329a5da40e46"
+      ]
+    },
+    "spacr.import_examples.ImportVariant.description": {
+      "source_blocks_sha256": [
+        "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641"
+      ],
+      "source_sha256": "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641",
+      "text": "Der Absatz, den der Auswahldialog beim Darüberfahren mit der Maus anzeigt.",
+      "translation_source_blocks_sha256": [
+        "d2526ef09055115aec7ba9aec1e2a694b95f6beeae8526e9e5921e8978fa5641"
+      ]
+    },
+    "spacr.import_examples.import_example_folder": {
+      "source_blocks_sha256": [
+        "015dc808999863f748a5ea8823bc795749f39bfc1f9825059bc9f3424287c0ea",
+        "b8068ec4e1d91ebb95a0da8f8146ef4104cef54ae6c9f74594a93638dac75473",
+        "77c7435604a4540c3e50e9e18d3c24f4a088ef9fa264c8eb9bf3533f9d825a69"
+      ],
+      "source_sha256": "0c8a63c34e8d1a59f07173f0dd78843cd5e0c2cf73cf1b79abb1740265f80737",
+      "text": "Der Speicherort des entpackten Datensatzes.\n\n:param plate_folder: der gemeinsame Beispielplattenordner, in den das Archiv entpackt wird; ohne Angabe wird :func:`spacr.example_archives.example_plate_folder` verwendet.\n:returns: ``<plate folder>/import_example``. Der Ordner wird hier nicht angelegt.",
+      "translation_source_blocks_sha256": [
+        "015dc808999863f748a5ea8823bc795749f39bfc1f9825059bc9f3424287c0ea",
+        "b8068ec4e1d91ebb95a0da8f8146ef4104cef54ae6c9f74594a93638dac75473",
+        "77c7435604a4540c3e50e9e18d3c24f4a088ef9fa264c8eb9bf3533f9d825a69"
+      ]
+    },
+    "spacr.import_examples.import_variant": {
+      "source_blocks_sha256": [
+        "fd9459f1344e12bce28579a051d3058a67e90ff90ed3ef3c7dc60b5dc3d83c5b",
+        "eafc0f01e4afece086eb512cbd64884ae3f6f508f821f38d5163d29453df5018",
+        "f6cf36cba5863961b98bf52e767773c5561b1bc2fad4b919d57da489243a76a1"
+      ],
+      "source_sha256": "deef94da53ea0225588c667373b4e594a20985316a4c086d55a933dc6b12cddc",
+      "text": "Die Variante mit dem Namen ``key``.\n\n:param key: ein Schlüssel aus :data:`IMPORT_VARIANTS`.\n:raises KeyError: mit den tatsächlich verfügbaren Schlüsseln.",
+      "translation_source_blocks_sha256": [
+        "fd9459f1344e12bce28579a051d3058a67e90ff90ed3ef3c7dc60b5dc3d83c5b",
+        "eafc0f01e4afece086eb512cbd64884ae3f6f508f821f38d5163d29453df5018",
+        "f6cf36cba5863961b98bf52e767773c5561b1bc2fad4b919d57da489243a76a1"
+      ]
+    },
+    "spacr.import_examples.is_present": {
+      "source_blocks_sha256": [
+        "0a6e1300997ba56c78cda480ff7d67e1122e9842d3128b2b9270868a82b46612",
+        "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+        "8119b0a2dd82b55cd6e8f63596bb4a0a14494c788a3f013bb3e9efbb0c9b4b3b",
+        "53aa5915d0a3b623a973f0c39bd2f7706ea02be2aaa5f554c061a6cf3b1b6560"
+      ],
+      "source_sha256": "cb7a0a3303ca89cebf76dd4e7747ba2e10e934c80d4709400e65d7432ab17b05",
+      "text": "Ob eine vollständige Kopie des Datensatzes oder einer einzelnen Variante vorliegt.\n\n:param root: der entpackte Ordner ``import_example``.\n:param key: eine Variante; ohne Angabe werden alle Varianten geprüft.\n:returns: ``True`` nur dann, wenn das Manifest vorhanden ist und jede darin für die betreffende Variante beziehungsweise die betreffenden Varianten aufgeführte Datei auf dem Datenträger liegt. Ein nur teilweise entpackter Datensatz gilt als fehlend und wird deshalb erneut heruntergeladen.",
+      "translation_source_blocks_sha256": [
+        "0a6e1300997ba56c78cda480ff7d67e1122e9842d3128b2b9270868a82b46612",
+        "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+        "8119b0a2dd82b55cd6e8f63596bb4a0a14494c788a3f013bb3e9efbb0c9b4b3b",
+        "53aa5915d0a3b623a973f0c39bd2f7706ea02be2aaa5f554c061a6cf3b1b6560"
+      ]
+    },
+    "spacr.import_examples.manifest_rows": {
+      "source_blocks_sha256": [
+        "7b8b1b0605c93dcd593965f7294364fa99c9943d1b1f730503b16ad09e851048",
+        "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+        "60261846398d8ae5fc98af20e6ad423f6ba76470a660133123c9ea4e168555f6"
+      ],
+      "source_sha256": "f352e621ef8b6f8dc9432e9226c99eff2b3903a12b69c47c490b11a75ea541a0",
+      "text": "Alle Zeilen der Datei ``manifest.csv`` des Datensatzes.\n\n:param root: der entpackte Ordner ``import_example``.\n:returns: die Zeilen oder ``[]``, wenn kein lesbares Manifest vorliegt.",
+      "translation_source_blocks_sha256": [
+        "7b8b1b0605c93dcd593965f7294364fa99c9943d1b1f730503b16ad09e851048",
+        "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+        "60261846398d8ae5fc98af20e6ad423f6ba76470a660133123c9ea4e168555f6"
+      ]
+    },
+    "spacr.import_examples.variant_inputs": {
+      "source_blocks_sha256": [
+        "68b5521934d083c8ff341c2539c629882dc413307c7d78ff55220674c35f6540",
+        "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+        "b5a1938e8f2a2e387c414a0180327a16196a3b46bf19fda63f03380dadb30d09",
+        "abd2213f1467c5d6aa9418bdd61f5f970a552a64263d36a78f0dea983630c6de"
+      ],
+      "source_sha256": "d419c0789831363579ae17c63a9a8b4b2c8c1e7243ccdb8ccfea12111c5c643f",
+      "text": "Die Werte, die der Auswahldialog für eine Variante einträgt.\n\n:param root: der entpackte Ordner ``import_example``.\n:param key: die Variante.\n:returns: ``images`` (der Ordner ``plate1``), ``masks`` (``{object: folder}`` für die Import-Route, leer für den Konverter), ``measurements`` (die Tabelle oder ``''``), ``metadata_type`` und ``custom_regex``.",
+      "translation_source_blocks_sha256": [
+        "68b5521934d083c8ff341c2539c629882dc413307c7d78ff55220674c35f6540",
+        "bb58d8234130fa06615ebfff14e88cf387a952b0b64eb260207ac75ea7a552bc",
+        "b5a1938e8f2a2e387c414a0180327a16196a3b46bf19fda63f03380dadb30d09",
+        "abd2213f1467c5d6aa9418bdd61f5f970a552a64263d36a78f0dea983630c6de"
+      ]
+    },
     "spacr.import_plan": {
       "source_blocks_sha256": [
         "baf889d1cb389a4e03f164c09f0f1e9f82b10b3d35f124fe6ae3fcf526a73d4c",
@@ -38746,14 +38874,14 @@
       "source_blocks_sha256": [
         "e387dfbb4cbc4de30cd81a7374c8241a97004315bc3b65229ff9cfaec4972ff4",
         "3b7fdaed4b932de593cccddbe72b2b9175119d89905f8a7e2532de3145c9bc4b",
-        "bae527281a42020a73b779e2b62bc7ae449c936d883e28989e1804067807ee4d"
+        "6e879b390946643068fc47b60d7173c79b6b342c5d3b0aa4ae8e2bce6ed2026c"
       ],
-      "source_sha256": "3fe7637a337c0c93aaa48a6cd3eeee68a4a05218e3971055f11c1d8b4e025b18",
-      "text": "Jede spaCR Python Funktion und Methode auf DEBUG-Ebene nachverfolgen.\n\nDer Haken ist für den Anruf-Thread installiert, alle Zukunft Python Fäden und — auf Python 3.12+—besteht schon. Ruft außerhalb der spaCR Paket ignoriert werden. Wiederholte Anrufe sind idempotent.\n\nDies ist absichtlich verbal und hat messbare Overheads, so dass die GUI es nur ermöglicht, während *Verbose Protokolling* eingeschaltet ist. Normalbetrieb hat keinen Profilhaken installiert.",
+      "source_sha256": "acfdd9ae277510846508214d68aeaa2bf502db7673aa5df1288522b3cbfa0991",
+      "text": "Protokolliert Aufrufe jeder spaCR-Python-Funktion und -Methode auf der Stufe DEBUG.\n\nDer Hook wird für den aufrufenden Thread, alle zukünftigen Python-Threads und unter Python 3.12+ auch für bereits vorhandene Threads eingerichtet. Aufrufe außerhalb des spaCR-Pakets werden ignoriert. Wiederholte Aufrufe sind idempotent.\n\nDiese Aufrufprotokollierung ist absichtlich ausführlich und verursacht messbaren Mehraufwand. Mit installiertem Hook benötigte die Home-Ansicht 7.4 s, bis sie bedienbar war, ohne ihn 4.0-4.2 s. Weder die GUI noch die Einstellung *Verbose logging* installiert diesen Hook. Im normalen Betrieb ist kein Profiling-Hook eingerichtet.",
       "translation_source_blocks_sha256": [
         "e387dfbb4cbc4de30cd81a7374c8241a97004315bc3b65229ff9cfaec4972ff4",
         "3b7fdaed4b932de593cccddbe72b2b9175119d89905f8a7e2532de3145c9bc4b",
-        "bae527281a42020a73b779e2b62bc7ae449c936d883e28989e1804067807ee4d"
+        "39f7a2ace3c368e27098a1aeedb22e24400dc214a27b78120aae490db6922dcd"
       ]
     },
     "spacr.logging_util.enable_timing": {
@@ -38771,13 +38899,13 @@
     "spacr.logging_util.function_trace_enabled": {
       "source_blocks_sha256": [
         "2881c61d02416f9c16941c932112052b2c554c458e5f9dbd621eff275a1fb2f9",
-        "af7baf13a3239412957ceee6154b4929b827031406c09c647fa17dceb76a6fc1"
+        "f1d47f968517b35b2303bb2dff82d08901f40c8129dbc5c4a6ad1345fec5dbc5"
       ],
-      "source_sha256": "cb66ed4fdb379e867492766bd768d9ba54acf96b7947365868b607be5413fd8e",
-      "text": "Gibt zurück, ob spaCR Funktionslevel-DEBUG-Nachverfolgung aktiv ist.\n\nDer Trace wird von :func:`enable_function_trace`, :func:`disable_function_trace` und der *Verbose logging* des GUI gesteuert. Er zeichnet niemals Argumente oder Rückgabewerte auf, die das Kopieren großer Arrays vermeiden und API strukturierte Datennamen oder Dateisystem-Metadaten aus dem Diagnoseprotokoll heraushalten.",
+      "source_sha256": "02471fff7005d7b364d47ab8849bf0472e22b24a45d091e47f491bb5addad7b5",
+      "text": "Gibt an, ob die DEBUG-Aufrufprotokollierung für spaCR-Funktionen aktiv ist.\n\nSie wird durch :func:`enable_function_trace` und :func:`disable_function_trace` gesteuert. Die GUI-Einstellung *Verbose logging* richtet sie nicht ein. Argumente und Rückgabewerte werden niemals aufgezeichnet. Das vermeidet Kopien großer Arrays und hält API-Schlüssel sowie Dateisystem-Metadaten aus dem Diagnoseprotokoll heraus.",
       "translation_source_blocks_sha256": [
         "2881c61d02416f9c16941c932112052b2c554c458e5f9dbd621eff275a1fb2f9",
-        "1e35ffe04b58c77412a31d3b7a691efb39e8b5e022508c7cf49e511092580944"
+        "20d3705aba2c631fdb887e56281f0e8422f768252b5b0e2791fdabfb6b4a69e1"
       ]
     },
     "spacr.logging_util.get_logger": {
@@ -39460,6 +39588,108 @@
         "7c97a2dbb86cf72cd63a312bbf32fb7694c4309205ce1d5c65b4d074ff7b4e54",
         "33c89f064db3108d85342e8d03104307be548bf9d91a72f8c8d3d8295f3147c4",
         "3e6628ee2c90defccd89407aafa7536638ed771b1cab30d59a9dad0ef94fb058"
+      ]
+    },
+    "spacr.measure.FieldRow": {
+      "source_blocks_sha256": [
+        "e285ea0c0282f8eb3646bf127889deef5ef335deabe941283b6d9f8c470464bd",
+        "29c2da29f60a19b7b6f272893f6cdd6559c6f8ee9953d8715500b17786a61b29",
+        "8e652a624a52dff6670b30962280568ca048b83850e0766ea8fdd3a2b5d959be",
+        "4e7561d7ea8c79b3eea2c96caa7d051b7a54adade5bb389d06fb921842ec0504",
+        "76540453cab1d4dc6de41d0a5f3c86a9e2f25b2d99a880a7052fd1de05197942",
+        "902fd16410a6da53745bc084242158c23b90ee8b2084c283644c9e2fc0cc8fbe",
+        "05f6d02f40532009ba9db62ec41b3981bf13faab90ea6d6fe500bf3d5ef3563a"
+      ],
+      "source_sha256": "5fe45f3df5975de405c5ca2f3bb4a573a71f701868c77dfcfb79202b2dd5712b",
+      "text": "Eine Zeile der FEATURES-Tabelle: ein Bildfeld und die zugehörigen Dateien.\n\nAus jeder Zeile entsteht genau eine Datei ``merged/<stem>.npy``. Damit entspricht sie auch genau einem Bildfeld in der Messdatenbank.\n\n:ivar label: die aus den Dateinamen abgeleitete Bezeichnung in der ersten Tabellenspalte. Sie ist nicht die Datenbankkennung; diese ergibt sich aus :attr:`well` und :attr:`field`.\n:ivar channels: ``channel index -> source path``. Die Indizes sind die ab null gezählten Positionen auf der Kanalachse des zusammengeführten Arrays.\n:ivar masks: ``role -> source path`` für die Maskenrollen dieser Zeile. Dieselbe Maskendatei kann in mehreren Zeilen vorkommen, damit eine gezeichnete Maske für mehrere Aufnahmen ausgewertet werden kann.\n:ivar well: die Kennung des Wells der Mikrotiterplatte, dem dieses Bildfeld zugeordnet ist. Handgezeichnete Bildfelder stammen nicht von einer Mikrotiterplatte und teilen deshalb standardmäßig ein Well. Die Tabelle zeigt dies an, statt für jede Zeile ein anderes Well zu erfinden.\n:ivar field: die innerhalb dieses Wells je Zeile eindeutige Bildfeldnummer.",
+      "translation_source_blocks_sha256": [
+        "e285ea0c0282f8eb3646bf127889deef5ef335deabe941283b6d9f8c470464bd",
+        "29c2da29f60a19b7b6f272893f6cdd6559c6f8ee9953d8715500b17786a61b29",
+        "8e652a624a52dff6670b30962280568ca048b83850e0766ea8fdd3a2b5d959be",
+        "730b98714e2f79a0053a28d2b645094f3ed6ccbcccbf4f4eeb32f34f13d31cb2",
+        "76540453cab1d4dc6de41d0a5f3c86a9e2f25b2d99a880a7052fd1de05197942",
+        "e5176090acb749d346121848b38f3b93bc49ebc09a180bee049a173b912bf03a",
+        "90c5642d47220e788b3b8091ffd3939102aff24a7e14a0782dbcdfcd03e5b664"
+      ]
+    },
+    "spacr.measure.FieldRow.stem": {
+      "source_blocks_sha256": [
+        "c0e4518cf1b75d9b85222cadd1533ec884bdb4e593a00fc4d67a7647f2ae2774",
+        "ef2f7113495648da6adc2ac78b33aa1404926b611e8135c3be898530f5af643a",
+        "462be973d4b54d626584decdeeabe1fcd6c5dadb104e19977ed06795af1d48de"
+      ],
+      "source_sha256": "371886bb762aa3dac97ff49b35592d3f7957edbb06980c53398300b1ca2edf9c",
+      "text": "Der Name ``plate_well_field``, unter dem diese Zeile gespeichert und gemessen wird.\n\n:param plate: der Plattenname der gesamten Tabelle.\n:returns: der Dateistamm, aus dem :func:`spacr.schema.parse_field_stem` die Mikrotiterplatte, Zeile, Spalte und das Bildfeld wiederherstellt, die gemeinsam den Datenbankschlüssel bilden.",
+      "translation_source_blocks_sha256": [
+        "c0e4518cf1b75d9b85222cadd1533ec884bdb4e593a00fc4d67a7647f2ae2774",
+        "ef2f7113495648da6adc2ac78b33aa1404926b611e8135c3be898530f5af643a",
+        "3392b6be6fe8d0c2c9ddc44225bf71cda897429dfc1e5b1b0183086efb07531f"
+      ]
+    },
+    "spacr.measure.FieldTable": {
+      "source_blocks_sha256": [
+        "bebdf9806bbffab3f1d3d341aa9ce60377bae00865ffc8d5e5dc003a2db03a23",
+        "487250a6291c65e15d37eaa5cd6671a4187329e09b0b0eafc60c94e0875ca806",
+        "179443f0cc450ea6a75363357fc21eb52e8bfbd3516cc2595132d9dbf0b5eb92",
+        "403a03f62afb9df522313eec5d0a3e7d9add18ee2ff54ec6d2fa0d936073de4b",
+        "1f68cbb044f6340f5c7a1defde3fc6913a9f3e56cff09e3c5d21ee43cd47a903",
+        "2b9b65b31f11a9963a97ddc9cc1d54d95e9c7660dfcd103983559d4c465727b7",
+        "d76f12e476201e1f72a80dc7d2809f3a23b6070801726d77dd0444005ed196d4"
+      ],
+      "source_sha256": "15fa498eee7b6b5f5a54bb6b5c3b01e0d443a201d1c97db5b2ffd5e95d61e21e",
+      "text": "Zeilen entsprechen Bildfeldern, Spalten den Kanälen und Maskentypen.\n\nDieses Datenmodell wird im FEATURES-Fenster bearbeitet und ist die einzige benötigte Eingabe für :func:`measure_from_field_table`. Es ist bewusst unabhängig von Qt: Das Fenster und die Tests ohne Fenster arbeiten mit demselben Modell.\n\n:ivar rows: eine :class:`FieldRow` pro Bildfeld in Tabellenreihenfolge.\n:ivar n_channels: die Anzahl der Kanalspalten der Tabelle.\n:ivar roles: die vorhandenen Maskenspalten in der Reihenfolge von :data:`spacr.crops.MASK_PLANE_ORDER`. In derselben Reihenfolge werden die Bildebenen gestapelt, sodass die Zuordnungen nicht auseinanderlaufen können.\n:ivar plate: der Plattenname, mit dem der Dateistamm jeder Zeile beginnt. Er bezeichnet die Herkunft der Dateien, statt eine Mikrotiterplatte zu behaupten, die nie verwendet wurde.\n:ivar channel_tokens: die Zuordnung der Kanal-Namenstoken zu den Kanalspalten nach Position: ``channel_tokens[i]`` ist das Token, für das die Spalte ``i`` steht. Die Tabelle merkt sich diese Zuordnung über einzelne Ablegevorgänge hinaus. Die Zuordnung von ``C1``/``C2`` zu den Spalten 0 und 1 ergibt sich aus einer Menge von Token, während die Tabelle Bildfeld für Bildfeld gefüllt wird. Ohne gespeicherte Zuordnung würde der zweite Ablegevorgang seine Dateien neu einordnen und ``C2`` in Spalte 0 neben ``C1`` aus dem ersten Vorgang setzen. Eine leere Zuordnung bedeutet, dass noch keine Spalte einem bestimmten Token entspricht: Alle Zellen wurden über die Dateiauswahl und nicht über den regulären Ausdruck gefüllt.",
+      "translation_source_blocks_sha256": [
+        "2e589c9c6c55061993d18b88485482af909faf517ba4701d7fb750b069a2c72d",
+        "487250a6291c65e15d37eaa5cd6671a4187329e09b0b0eafc60c94e0875ca806",
+        "179443f0cc450ea6a75363357fc21eb52e8bfbd3516cc2595132d9dbf0b5eb92",
+        "403a03f62afb9df522313eec5d0a3e7d9add18ee2ff54ec6d2fa0d936073de4b",
+        "73248f355f7c454a5f81527e2483e6d3893f9b98f3e5b8350a3f7a3ed2ad2f1d",
+        "8735e5c8a9ab3527acefc7586d7c78a71b207d60d8df948f877be6661e6bacab",
+        "05bc879af22c9e92e83308d0bf3d9833b3d79495a020a9608c0de131469c7fa2"
+      ]
+    },
+    "spacr.measure.FieldTable.is_ready": {
+      "source_blocks_sha256": [
+        "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286"
+      ],
+      "source_sha256": "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286",
+      "text": "Ob die Tabelle vollständig genug für eine Messung ist.",
+      "translation_source_blocks_sha256": [
+        "c62d5fb81a7249be5129d285320f7a6be3473ffa3fb2d4367d76f35e946ee286"
+      ]
+    },
+    "spacr.measure.FieldTable.mask_dims": {
+      "source_blocks_sha256": [
+        "9ab904d3ed09e0d7d69333300e1afccf7c1aaa7fe0c2d9df1c28043ec4dfdedc",
+        "15c8035da0ab9b6deb5f350de97bb02f9e5516b3982d37509bef17a777978b36"
+      ],
+      "source_sha256": "a3e3beadc80efaec7c051cf2a1b5dc01568ba0b962a79a8c6a09e56cf161d3b4",
+      "text": "``role -> plane index`` im zusammengeführten Array, das diese Tabelle schreiben würde.\n\nDie Masken folgen ohne Lücke auf die Kanäle. Nur diese Anordnung wird von :func:`spacr.crops.read_merged_plane_layout` akzeptiert: Die Funktion berechnet die Indizes aus der Kanalanzahl und der Reihenfolge erneut und weist ein davon abweichendes Manifest zurück.",
+      "translation_source_blocks_sha256": [
+        "9ab904d3ed09e0d7d69333300e1afccf7c1aaa7fe0c2d9df1c28043ec4dfdedc",
+        "f0b49cc6fdd0c514fedf09981ea3a96adfbc2b8667126a76c84c1abf71a0fbe8"
+      ]
+    },
+    "spacr.measure.FieldTable.ordered_roles": {
+      "source_blocks_sha256": [
+        "3c826d54a96d95f9ac10c06b4d36888f36c8d5ee8c94e2312444bc020d00fad6"
+      ],
+      "source_sha256": "3c826d54a96d95f9ac10c06b4d36888f36c8d5ee8c94e2312444bc020d00fad6",
+      "text": "Die Maskenspalten in der Reihenfolge der zusammengeführten Bildebenen, ohne Duplikate.",
+      "translation_source_blocks_sha256": [
+        "2ea7fe34ecb12de2dc4c86d1aaf852438f6d2369287158c4193304dedad20578"
+      ]
+    },
+    "spacr.measure.FieldTable.problems": {
+      "source_blocks_sha256": [
+        "abcfa7d1ae77a459290b322065ec54214a60077cfbd0dd12fa6a1419dc3ebd80",
+        "27a3cddda3e8d3bd59d62cfa995c0077c59008558e449474cf0ebbe9e9ce4515"
+      ],
+      "source_sha256": "e3bdd19d6236e944c897dee979803e4285b864e1d8297bc949c7a21b4ae0361f",
+      "text": "Alle Gründe, die eine Messung dieser Tabelle verhindern würden, als Sätze.\n\nEine leere Liste bedeutet, dass :func:`measure_from_field_table` ausgeführt werden kann. Das Fenster zeigt die Gründe laufend an, damit die Nutzer nicht erst durch einen abgewiesenen Ausführungsversuch davon erfahren.",
+      "translation_source_blocks_sha256": [
+        "abcfa7d1ae77a459290b322065ec54214a60077cfbd0dd12fa6a1419dc3ebd80",
+        "27a3cddda3e8d3bd59d62cfa995c0077c59008558e449474cf0ebbe9e9ce4515"
       ]
     },
     "spacr.measure.ManagerStartError": {

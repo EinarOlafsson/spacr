@@ -1955,3 +1955,9 @@ and this is not a claim that the docs lane or GitHub tests are green. Final
 live-report/conjunction tests are running; 43's other lanes remain with Claude.
 Final local validation:44 live-report/conjunction tests pass282.00s. Feature
 index and whitespace checks pass; the full docs/catalog lane remains open.
+
+2026-09-22 — CODEX DOCS LANE ONLY
+Nineteen additional German API entries accepted and independently regenerated
+without model decoding. Current reports refreshed;4 live-report tests pass
+241.23s. Full catalog debt and GitHub tests remain open. No English-manifest or
+extractor-debt baseline change; other43 lanes untouched.

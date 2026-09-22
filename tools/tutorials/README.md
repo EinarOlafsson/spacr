@@ -372,6 +372,16 @@ pronunciation rule changed, and no second dictionary download was required.
 
 ### Regression and Diagnostics recording
 
+For CPU recordings that show the run journal, use
+`bash tools/tutorials/run_neutral_capture.sh <private-stage> <python-executable>
+--module regression --download --run --settings-tour --ai-controls`.
+The wrapper gives the unchanged application a neutral Linux account inside a
+private user/mount namespace. Its normal home lookup resolves to the staged
+profile, so journal paths can appear honestly in the console without exposing
+the maintainer's account. The host account database is unchanged. The wrapper
+caps memory, uses two CPU threads, hides the stale NAS mount and keeps the
+existing appearance/path acceptance checks. It is intentionally CPU-only.
+
 `capture_refresh.py --module regression --download --run --ai-controls
 --platform xcb` downloads the four actual example score/count pairs. A fresh
 output root is mandatory: the default form can contain an unrelated saved

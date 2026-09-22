@@ -9612,3 +9612,24 @@ Final translation/report validation:44pass282.00s; feature index and whitespace
 pass. Pushing completed picker/API/audio evidence now. Regression panel test
 process1724064 remains actively computing (one core,about1.9GiB); its new tests
 are deliberately excluded from this commit until a terminal result exists.
+
+2026-09-22 — CODEX: 8936a1c94 PUSH VERIFIED / REGRESSION AND GERMAN PROGRESS
+Regression-panel coverage completes133pass/225warnings in1480.46s,94.77%.
+Nineteen original floor repairs now clean; no baseline or production changes.
+German API:+19documents/66reviewed blocks(two reused), independently regenerated
+with model decoding forbidden. Four refreshed-report tests pass241.23s.
+Regression path blocker resolved without touching bridge/run_journal: a neutral
+Linux account exists only in the capture namespace, with a staged profile and
+private passwd binding. Reusable CPU wrapper added; syntax/help smoke pass.
+Current1.5.0.9 capture finishes; independent759-row empirical P/BH checks and
+five GUI figure hashes pass, settings unchanged. All13caption reviews now match;
+one diagnostic-limitation sentence added,20scenes retained. Narrator74922 runs.
+For the production owner: ml.py _report_exchangeability still logs a nonfatal
+TypeError (outcomes[outcome_column] is not1-D). The lesson discloses this rather
+than claiming permutation assumptions were validated. No production fix made.
+Map narrator9332 ended143 after22tracks; replacement73065 resumes missing work.
+No GPU jobs started; background CPU allocation stays within16threads.
+Final capture/staging checks run before pushing this batch.
+Final63 capture/staging/promotion checks pass10.92s. Feature index/whitespace
+pass; nightly remains8936a1c94. Publishing this completed batch with19German
+API entries (10453fresh), regression-panel coverage and current capture/reviews.
