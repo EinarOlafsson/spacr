@@ -220,9 +220,11 @@ class GateEditorSettings:
     z_axis: str = ""
     #: Voxels per axis in the 3D workspace.
     voxel_bins: int = 64
-    #: Snap the camera to the nearest axis when a spin ends, so a 3D gate is
-    #: always finally read from a square-on view.
-    snap_to_axis: bool = True
+    #: Snap the camera to the nearest axis when a spin ends. Off by default:
+    #: on, every spin ended square-on with one measurement lying flat along
+    #: the bottom, which read as the volume refusing to stay where it was
+    #: turned to.
+    snap_to_axis: bool = False
     spin_speed: float = 1.0
 
     def replaced(self, **changes) -> "GateEditorSettings":
@@ -804,8 +806,8 @@ class GateSettingsDialog(QDialog):
         self._snap = Toggle("Snap to the nearest axis when a spin ends", page)
         self._snap.setChecked(self._settings.snap_to_axis)
         self._snap.setToolTip(
-            "So a 3D gate is always finally read square-on. A volume stopped "
-            "at an arbitrary angle cannot be read off at all.")
+            "Off by default, so the volume stays wherever a spin leaves it. "
+            "On, every spin ends square-on to the nearest face.")
         self._snap.toggled.connect(lambda v: self._change(snap_to_axis=bool(v)))
         form.addRow("", self._snap)
 
@@ -817,20 +819,6 @@ class GateSettingsDialog(QDialog):
             lambda v: self._change(spin_speed=float(v)))
         form.addRow("Spin speed", self._spin)
 
-        pending = QLabel(
-            "The 3D volume is not built yet, so these four settings are "
-            "saved but do not change what is drawn. 2D and xD gating are "
-            "unaffected.", page)
-        pending.setObjectName("GateSettingsPending")
-        pending.setWordWrap(True)
-        form.addRow("", pending)
-        for widget, label in ((self._voxels, "Voxels"),
-                              (self._snap, "Snap to axis"),
-                              (self._spin, "Spin speed")):
-            widget.setToolTip(
-                (widget.toolTip() + "\n\n" if widget.toolTip() else "")
-                + "Not yet active: the 3D volume view is not available. "
-                  "This value is saved for future 3D volume support.")
 
         self._rules_button = QPushButton("Aggregation rules…", page)
         self._rules_button.setToolTip(

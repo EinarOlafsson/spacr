@@ -63,6 +63,8 @@ from .gate_spec import (
     CylinderGate, PrismGate,
 )
 from .toggle import Toggle
+from .volume_view import rotate_about_world, trackball, view_axes
+from ..i18n import tr
 from .sortable_table import install_sorting, tree_item
 
 LOG = logging.getLogger("spacr.qt.gate_editor")
@@ -82,6 +84,27 @@ def _project(ax, point):
         matrix = ax.get_proj()
     x, y, _z = proj3d.proj_transform(point[0], point[1], point[2], matrix)
     return (x, y)
+
+
+def _set_view(ax, elevation: float, azimuth: float, roll: float = 0.0) -> None:
+    """Point a 3D axes' camera, roll included where the axes takes one."""
+    try:
+        ax.view_init(elev=float(elevation), azim=float(azimuth),
+                     roll=float(roll))
+    except TypeError:
+        ax.view_init(elev=float(elevation), azim=float(azimuth))
+
+
+def _is_right_button(event) -> bool:
+    """Whether a mouse event came from the right button.
+
+    A right-button drag always turns the volume, so the view can be adjusted
+    in the middle of drawing without switching back to Spin.
+    """
+    try:
+        return int(getattr(event, "button", 1) or 1) == 3
+    except (TypeError, ValueError):
+        return False
 
 
 def fit_to_text(widget, *, padding: int = 16, lines: int = 1) -> None:
@@ -321,11 +344,16 @@ class GateCanvas(GraphCanvas):
         self._z_column = ""
         #: How far the volume is zoomed in. 1.0 is the data's own extent.
         self._volume_zoom = 1.0
-        #: (elevation, azimuth) once the user has turned it, else None.
+        #: (elevation, azimuth, roll) once the user has turned it, else None.
         self._view_angles = None
-        #: Which axis the volume spins about: "x", "y", "z" or "" for free.
-        self._spin_axis = "z"
+        #: Which axis the volume spins about: "x", "y", "z", or "" for a free
+        #: trackball. Free by default: locked to "z" a drag could only ever
+        #: turn the volume about one axis.
+        self._spin_axis = ""
         self._spin_from = None
+        #: What the press that is being released started: "spin", "draw" or
+        #: None. A snap belongs to the end of a spin, never to a drawing.
+        self._last_gesture: Optional[str] = None
         #: Where a draw-in-the-volume drag started, or None.
         self._volume_drag = None
         #: A 3D shape is two gestures: first its footprint on the selected
@@ -664,7 +692,7 @@ class GateCanvas(GraphCanvas):
         except Exception:
             LOG.debug("could not take over 3d rotation", exc_info=True)
         if self._view_angles is not None:
-            ax.view_init(elev=self._view_angles[0], azim=self._view_angles[1])
+            _set_view(ax, *self._view_angles)
         if self._volume_zoom != 1.0:
             self._apply_volume_zoom(ax)
 
@@ -931,6 +959,8 @@ class GateCanvas(GraphCanvas):
             return
         if self._view_angles is None:
             return
+        if self._last_gesture == "draw":
+            return
         try:
             self.snap_to_nearest_axis()
         except Exception:
@@ -991,8 +1021,8 @@ class GateCanvas(GraphCanvas):
         azimuth = min((0.0, 90.0, 180.0, 270.0, 360.0),
                       key=lambda a: abs(a - (float(axes.azim) % 360)))
         azimuth = azimuth % 360
-        axes.view_init(elev=elevation, azim=azimuth)
-        self._view_angles = (elevation, azimuth)
+        _set_view(axes, elevation, azimuth, 0.0)
+        self._view_angles = (elevation, azimuth, 0.0)
         self._canvas.draw_idle()
         return (elevation, azimuth)
 
@@ -1435,15 +1465,16 @@ class GateCanvas(GraphCanvas):
         return hit
 
     def set_spin_axis(self, axis: str) -> None:
-        """Constrain subsequent volume rotation to the selected axis.
+        """Constrain subsequent volume rotation to one data axis, or free it.
 
-        ``"z"`` changes azimuth, ``"x"`` and ``"y"`` change elevation, and
-        ``""`` permits both. Unsupported values fall back to ``"z"``. Axis
-        locking prevents a drag from changing both viewing angles at once.
+        ``"x"``, ``"y"`` and ``"z"`` turn the volume about that measurement's
+        own axis, which stays put on screen. ``""`` is the default: a
+        trackball that turns about both screen axes at once, so every
+        orientation is reachable. Anything else falls back to free.
 
         :param axis: ``"x"``, ``"y"``, ``"z"``, or ``""`` for free rotation.
         """
-        self._spin_axis = axis if axis in ("x", "y", "z", "") else "z"
+        self._spin_axis = axis if axis in ("x", "y", "z") else ""
 
     def _in_volume(self) -> bool:
         """Whether the volume is what is currently drawn."""
@@ -1463,7 +1494,9 @@ class GateCanvas(GraphCanvas):
             return False
         if event.inaxes is None:
             return True
-        if self.drag_mode() == "draw":
+        drawing = self.drag_mode() == "draw" and not _is_right_button(event)
+        self._last_gesture = "draw" if drawing else "spin"
+        if drawing:
             if self.volume_shape() == "polygon":
                 return False
             if self._pending_volume_gate is not None:
@@ -1511,18 +1544,43 @@ class GateCanvas(GraphCanvas):
         dx, dy = x - self._spin_from[0], y - self._spin_from[1]
         self._spin_from = (x, y)
 
-        elevation, azimuth = float(ax.elev), float(ax.azim)
-        if self._spin_axis == "z":
-            azimuth += dx * 0.5
-        elif self._spin_axis in ("x", "y"):
-            elevation = max(-90.0, min(90.0, elevation + dy * 0.5))
-        else:
-            azimuth += dx * 0.5
-            elevation = max(-90.0, min(90.0, elevation + dy * 0.5))
-        ax.view_init(elev=elevation, azim=azimuth)
-        self._view_angles = (elevation, azimuth)
+        self._view_angles = self._turned(ax, dx, dy)
+        _set_view(ax, *self._view_angles)
         self._canvas.draw_idle()
         return True
+
+    #: Degrees the volume turns per pixel of drag, before `spin_speed`.
+    DEGREES_PER_PIXEL = 0.5
+
+    def _turned(self, ax, dx: float, dy: float) -> Tuple[float, float, float]:
+        """The camera angles after a drag of ``(dx, dy)`` pixels.
+
+        Free (the default) is a trackball: the volume turns about the screen's
+        vertical for a sideways drag and about its horizontal for an upward
+        one, the front following the pointer, with no pole to stop at and no
+        clamp. Locked to a data axis, the drag turns the volume about that
+        axis only, measured across the axis as it lies on screen so the
+        gesture reads the same whichever way the axis points.
+        """
+        speed = float(getattr(self._settings, "spin_speed", 1.0) or 1.0)
+        step = self.DEGREES_PER_PIXEL * speed
+        elevation = float(getattr(ax, "elev", 0.0) or 0.0)
+        azimuth = float(getattr(ax, "azim", 0.0) or 0.0)
+        roll = float(getattr(ax, "roll", 0.0) or 0.0)
+        axis = self._spin_axis
+        if axis not in ("x", "y", "z"):
+            return trackball(elevation, azimuth, roll, dx * step, dy * step)
+        u, v, _w = view_axes(elevation, azimuth, roll)
+        direction = np.zeros(3)
+        direction[{"x": 0, "y": 1, "z": 2}[axis]] = 1.0
+        across = np.array([float(direction @ u), float(direction @ v)])
+        length = float(np.hypot(*across))
+        if length < 0.2:
+            amount = dx
+        else:
+            amount = (dx * across[1] - dy * across[0]) / length
+        return rotate_about_world(elevation, azimuth, roll, axis,
+                                  amount * step)
 
     def _volume_release(self, event) -> bool:
         """Finish a 3-D gate's drag.
@@ -1905,6 +1963,7 @@ class GateCanvas(GraphCanvas):
         :param event: the matplotlib press event.
         """
         if (self._in_volume() and self.drag_mode() == "draw"
+                and not _is_right_button(event)
                 and self.volume_shape() == "polygon"):
             placed = self.screen_to_volume(event)
             if placed is None:
@@ -2085,6 +2144,7 @@ class GateCanvas(GraphCanvas):
         self._zoom = None
         self._volume_zoom = 1.0
         self._view_angles = None
+        self._spin_from = None
         self.render_now()
 
     #: Kept as the old name: `reset_zoom` was the 2D-only version.
@@ -2949,14 +3009,19 @@ class GateEditorPanel(QWidget):
         self._spin_buttons: Dict[str, QPushButton] = {}
         spin_group = QButtonGroup(self)
         spin_group.setExclusive(True)
-        for axis in ("x", "y", "z"):
-            button = QPushButton(axis.upper(), self)
+        for axis in ("", "x", "y", "z"):
+            button = QPushButton(axis.upper() or tr("Free"), self)
             button.setCheckable(True)
-            button.setChecked(axis == "z")
-            button.setToolTip(
-                f"Spin about {axis.upper()}. Locked to one axis, a drag is "
-                f"one rotation and every view stays readable; free rotation "
-                f"reaches angles nothing can be read from.")
+            button.setChecked(axis == "")
+            if axis:
+                button.setToolTip(tr(
+                    "Spin about {axis} only: a drag turns the volume about "
+                    "that measurement's axis and leaves it where it is on "
+                    "screen.", axis=axis.upper()))
+            else:
+                button.setToolTip(tr(
+                    "Turn the volume freely: drag sideways and up and down "
+                    "at once, and it stays wherever you let go."))
             button.clicked.connect(
                 lambda _checked=False, a=axis: self.spin_axis_changed.emit(a))
             fit_to_text(button, padding=14)

@@ -378,18 +378,24 @@ def test_spinning_about_z_leaves_the_horizon_level(screen):
         "a z-locked spin changed the elevation, so it is not locked")
 
 
-def test_spinning_about_x_leaves_the_azimuth_alone(screen):
+def test_spinning_about_x_keeps_the_x_axis_where_it_is(screen):
+    from spacr.qt.widgets.volume_view import view_axes
+
     canvas = _volume(screen)
     canvas.set_tool("")
     ax = canvas.axes_at(0, 0)
     canvas.set_spin_axis("x")
-    azimuth = float(ax.azim)
+    before = view_axes(ax.elev, ax.azim, ax.roll)
+    angles = (float(ax.elev), float(ax.azim))
 
     canvas._on_press(_Mouse(ax, 100, 100))
     canvas._on_motion(_Mouse(ax, 160, 140))
     canvas._on_release(_Mouse(ax, 160, 140))
 
-    assert float(ax.azim) == pytest.approx(azimuth)
+    after = view_axes(ax.elev, ax.azim, ax.roll)
+    assert after[0][0] == pytest.approx(before[0][0], abs=1e-6)
+    assert after[1][0] == pytest.approx(before[1][0], abs=1e-6)
+    assert (float(ax.elev), float(ax.azim)) != pytest.approx(angles)
 
 
 def test_the_wheel_zooms_the_volume(screen):

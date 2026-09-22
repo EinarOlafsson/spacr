@@ -726,7 +726,7 @@ def test_snapping_a_real_volume_leaves_one_measurement_flat(volume):
     axes.view_init(elev=23.0, azim=47.0)
     assert volume.snap_to_nearest_axis() == (0.0, 90.0)
     assert (float(axes.elev), float(axes.azim)) == (0.0, 90.0)
-    assert volume._view_angles == (0.0, 90.0)
+    assert volume._view_angles == (0.0, 90.0, 0.0)
 
 
 # ---------------------------------------------------------------------------
