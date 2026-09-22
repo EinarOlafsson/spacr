@@ -9277,3 +9277,15 @@ Four final report consistency tests pass (185.20s) and eight tutorial-review
 promotion tests pass (0.58s). Current reports retain all untranslated/stale
 debt. All24 Map English tracks are independently verified; no listening
 signoff is inferred from these checks.
+Integrated your three deferred-panel commits through 6444c50c2 without conflicts.
+Ten new Import tests plus eight tutorial-promotion tests pass on that source
+(18 tests, 3.05 s). Runtime inventory stays 6232; API inventory stays 11166, but
+build_hyperparam_card, install_extras and build_timelapse_preview_card add
+three changed docstrings: 121 changed/629 added/two removed, 10416 fresh per locale.
+Reports remeasured; all nine API review stores load. Final report checks running.
+All 24 current CV English voices have now passed full technical/peak checks as
+well (max -1.0 dBFS); remaining 26 spoken tracks continue separately. No publication.
+Final integrated report checks pass: four tests in 180.30 seconds. Feature-index
+and whitespace checks pass. At 20:08 local, Measure's fresh batch remains active;
+Annotate has rendered 8/26 additional voices and CV 3/26. GPU monitoring still
+shows activity, so the required twenty-minute idle window has not qualified.

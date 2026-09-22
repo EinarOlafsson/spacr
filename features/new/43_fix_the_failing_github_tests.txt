@@ -1845,3 +1845,8 @@ pass; the inversion warning stays deferred and full catalog debt stays open.
 Current coverage and review-scope reports are regenerated and being checked.
 Final report verification passes: four tests in 185.20 s. Full docs/catalog
 completion remains open for the explicitly listed translation debt.
+Integrated deferred-panel changes add three stale public API docstrings per
+locale: reports now record 10416/11166 fresh rows and 121 changed sources.
+Runtime counts stay unchanged. The new source is explicitly included in debt.
+Four integrated report consistency tests pass in 180.30 seconds. This checks
+the accuracy of the debt reports; the full translation audit remains red.

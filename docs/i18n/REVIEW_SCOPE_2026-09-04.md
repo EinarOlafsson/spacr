@@ -10,7 +10,7 @@ German, Spanish, French and Swedish passed their full runtime audits at the
 46d11afaf application-source boundary. Integrating the newer Plaque/Figure
 work increased the live inventory to 6,232 runtime entries; all nine current
 catalogs now have explicit debt. The API inventory has 629 added, two removed
-and 118 changed sources relative to its English manifest, across 11,166 live
+and 121 changed sources relative to its English manifest, across 11,166 live
 symbols. The current table below is regenerated from source-bound
 records; the dated completion statements that follow describe historical
 trees. New review records are AI-assisted technical review, not native-speaker

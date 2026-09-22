@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "date": "2026-09-21",
-  "source_commit": "d1967b0bca293303c296238c1f57577e9f8679b4",
+  "source_commit": "d966189d0b9945e7b6876bbd5967ca010a58f539",
   "current_public_symbols": 11166,
   "catalog_symbols": 10539,
   "added": [
@@ -714,6 +714,7 @@
     "spacr.qt.screens.embeddings.EmbeddingsScreen",
     "spacr.qt.screens.embeddings.EmbeddingsScreen.closeEvent",
     "spacr.qt.screens.embeddings.EmbeddingsScreen.is_busy",
+    "spacr.qt.screens.hyperparam.build_hyperparam_card",
     "spacr.qt.screens.make_masks",
     "spacr.qt.screens.make_masks.MakeMasksScreen.add_toolbar_action",
     "spacr.qt.screens.make_masks.MakeMasksScreen.apply_object_filter",
@@ -722,6 +723,7 @@
     "spacr.qt.screens.make_masks.MakeMasksScreen.open_queue",
     "spacr.qt.screens.make_masks.MakeMasksScreen.run_cellpose",
     "spacr.qt.screens.model_zoo.ModelZooScreen.set_entries",
+    "spacr.qt.screens.regression.install_extras",
     "spacr.qt.screens.settings_model.SettingsWidgets.essential_keys",
     "spacr.qt.screens.settings_model.SettingsWidgets.refresh_object_visibility",
     "spacr.qt.settings_pack",
@@ -748,6 +750,7 @@
     "spacr.qt.widgets.preview_controls.sibling_sources",
     "spacr.qt.widgets.setup_slides.SetupSlides.accept",
     "spacr.qt.widgets.setup_slides.SetupSlides.reject",
+    "spacr.qt.widgets.timelapse_preview.build_timelapse_preview_card",
     "spacr.resource_log",
     "spacr.resume",
     "spacr.resume.completed_fields_in_merged",

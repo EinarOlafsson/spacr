@@ -1153,3 +1153,11 @@ before pushing. API debt remains unchanged at 629 added/two removed/118 changed.
 Final consistency tests pass: four report checks in 185.20 s. The current
 CV tutorial's thirteen staged translation/caption reviews also pass independent
 source/geometry/speech checks; eight promotion tests pass in 0.58 s.
+After integrating 6444c50c2's deferred-panel implementation, runtime inventory
+remains 6232 and API inventory 11166. Three edited public helper docstrings
+raise API changed-source debt from 118 to 121; each language now has
+10416/11166 fresh API rows. The added/removed counts remain 629/two. Reports
+are remeasured on d966189d0 and the final integrated consistency check runs
+before publication of this checkpoint. All nine reviewed API stores load.
+Final integrated consistency verification: four tests pass in 180.30 seconds;
+feature-index and whitespace checks also pass. Full catalog acceptance stays open.

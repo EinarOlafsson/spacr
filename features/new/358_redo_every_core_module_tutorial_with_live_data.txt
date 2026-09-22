@@ -2258,3 +2258,7 @@ A new empty private measure-current-v2 stage repeats the real download and
 full 16-field/Plot run with a 10800-second limit, 32-GiB cap and one worker.
 No old database/output was seeded and no application behavior was changed.
 Full language/caption/player/listening acceptance and publication remain open.
+Current CV English rendering has also finished: all 24 tracks pass full
+technical verification and independent decoded peak measurement, highest
+-1.0 dBFS. Receipt: 2026-09-21-classify-cv-english-voices.json. Its remaining
+26 spoken-language tracks continue separately; no listening signoff inferred.
