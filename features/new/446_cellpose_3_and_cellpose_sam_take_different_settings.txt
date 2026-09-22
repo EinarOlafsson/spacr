@@ -170,3 +170,31 @@ flow controls, OPS decoding, Otsu and mask filtering. Review details and exact
 remaining scope are in docs/i18n/2026-09-21-runtime-portuguese-recovery.md and
 future/411. This is partial nine-language progress; no non-translation
 implementation or acceptance decision in this item was changed.
+
+2026-09-22 -- THE REAL RUN IS DONE
+--------------------------------------------------------------------------------
+
+The Cellpose 3 backend was installed with spaCR's own installer
+(`_install_backend('cellpose3')`, 123 s, into the sandbox root
+/mnt/wd4tb/spacr_testdata/backends_sandbox) and item 412's ten Toxoplasma PV
+fields were segmented on the GPU, after 20 idle minutes, through spaCR's own
+path: `prepare_batch_for_segmentation`, then `_load_backend('cellpose3', ...)`
+and `eval(..., normalize=False, diameter=0)` exactly as mask generation calls
+it. The adapter printed that it translated normalize=False to True. Scored
+against the set's ground truth, F1 at IoU 0.5 (Hungarian), data in
+features/data/446_real_cellpose3_run_2026-09-22.json:
+
+    arm                                   mean F1   objects found / true
+    cellpose3 cyto2, through spaCR          0.549          927 / 910
+    Cellpose-SAM stock, spaCR defaults      0.491          461 / 910
+    cellpose3 cyto3, through spaCR          0.404         1207 / 910
+
+So the seam works end to end on real data and real weights: Cellpose 3 runs
+out of process, the settings translation happens, and the masks are sensible
+-- cyto2 beats stock Cellpose-SAM on this set. What this run does NOT show is
+the size of the normalization fix itself: the adapter always translates, so
+there is no untranslated arm from spaCR's path; the fix rests on the
+arithmetic argument above and its tests. None of these stock models is the
+PV model (cpsam_v2_toxo), which is the one to use for PVs.
+
+STATUS: DONE.
