@@ -127,13 +127,12 @@ def test_ci_exercises_minimum_and_newest_dependency_profiles():
     assert 'python-version: "3.12"' in workflow
     compat = COMPAT_WORKFLOW.read_text(encoding="utf-8")
     assert (
-        'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14", "3.15"]'
+        'python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]'
         in compat
     )
     assert 'label: "Linux x86-64 / py3.14"' in compat
     assert 'python-version: "3.14"' in compat
-    assert "matrix.python-version == '3.15'" in compat
-    assert "allow-prereleases:" in compat
+    assert "'3.15'" not in compat, "3.15 was dropped from the matrix on 2026-09-21"
     assert "minimum-dependencies:" in workflow
     assert "-c .github/constraints/minimum-py39.txt" in workflow
     assert "python -m pip check" in workflow
