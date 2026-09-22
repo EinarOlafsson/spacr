@@ -120,3 +120,33 @@ def test_the_published_deck_carries_the_current_version():
     assert manifest["version"] == deck.current_version(), (
         "run python tools/build_readme_deck.py --stamp "
         "(packaging/release.py does it on every bump)")
+
+
+def test_a_bump_never_fails_on_the_deck(tmp_path, monkeypatch):
+    """2026-09-22: the dispatched release's version step has no Pillow, and
+    the restamp stopped the release. It must skip, not fail."""
+    import builtins
+    import shutil
+    import sys
+
+    sys.path.insert(0, str(ROOT / "packaging"))
+    try:
+        import release
+    finally:
+        sys.path.pop(0)
+    root = tmp_path / "repo"
+    (root / "tools").mkdir(parents=True)
+    shutil.copy(ROOT / "tools" / "build_readme_deck.py", root / "tools")
+    deck_dir = root / "docs" / "source" / "_static" / "deck"
+    deck_dir.mkdir(parents=True)
+    (deck_dir / "slides.json").write_text(json.dumps({"version": "1.0.0.0"}))
+    assert release.restamp_info_deck(root, "1.0.0.0") is None
+    real_import = builtins.__import__
+
+    def no_pil(name, *args, **kwargs):
+        if name == "PIL" or name.startswith("PIL."):
+            raise ImportError("no PIL")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", no_pil)
+    assert release.restamp_info_deck(root, "2.0.0.0") is None
