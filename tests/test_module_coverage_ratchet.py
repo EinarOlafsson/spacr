@@ -386,7 +386,11 @@ def test_current_packaging_denominator_is_532_not_asset_generators():
     #     plaque_preview, preview_refresh.
     # The pin went stale across a week of product work rather than through
     # anything leaving the package.
-    assert len(shipped) == 604
+    # 604 -> 605 on 2026-09-22, +1/-0 versus e9dcdaae9: the Gate Editor's
+    # spacr/qt/widgets/volume_view.py arrived in f6e92893b. It is installed
+    # Python and must be included in the coverage denominator.
+    assert "spacr/qt/widgets/volume_view.py" in shipped
+    assert len(shipped) == 605
     # `tools/` is not shipped, so `run_ops_a2.py` and `perf_paint.py` do
     # not move this count -- recorded because both were added on
     # 2026-09-09 and the next reader will wonder why 553 is not the
@@ -699,7 +703,8 @@ def test_coverage_workflow_is_sharded_artifact_safe_and_blocking():
     # spacr/install_cleanup.py (416), the same +2 as `shipped`; the gate's own
     # inventory, verify_module_coverage.discover_shipped_python_files, returns
     # 572. 572 -> 604 on 2026-09-21, the same +32 as `shipped`.
-    assert "--expected-file-count 604" in combine_script
+    # 604 -> 605: the installed Gate Editor volume view (f6e92893b).
+    assert "--expected-file-count 605" in combine_script
     assert "--baseline tools/coverage_baseline.json" in combine_script
     assert "module-coverage-ratchet.json" in combine_script
     assert "module-coverage-ratchet.txt" in combine_script

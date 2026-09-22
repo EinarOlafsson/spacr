@@ -60,6 +60,21 @@ def home_in_tmp(tmp_path, monkeypatch):
     return fake_home
 
 
+@pytest.fixture(autouse=True)
+def finish_window_jobs(request, qtbot):
+    """Let real preview/usage jobs retire before the next tutorial test."""
+    yield
+    if "main_window" in request.fixturenames:
+        from spacr.qt.job_runner import JobRunner
+
+        window = request.getfixturevalue("main_window")
+        qtbot.waitUntil(
+            lambda: all(runner.active_jobs() == 0
+                        for runner in window.findChildren(JobRunner)),
+            timeout=10000,
+        )
+
+
 class _Probe:
     """A Director bound to a window but with the render pipeline unused —
     we only want its real target/highlight resolution logic."""
@@ -329,7 +344,7 @@ def test_deferred_targets_are_dead_before_their_step_and_live_after(
 
 
 def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
-                                                tmp_path, qt_theme_applied):
+                                                tmp_path, qt_theme_applied, qtbot):
     """Regression: _find_button matched on prefix only, and the Mask
     screen's child order puts "Run preview" ahead of "Run" — so the step
     narrating the actual run highlighted the preview button."""
@@ -340,6 +355,10 @@ def test_run_step_targets_run_not_run_preview(main_window, home_in_tmp,
     _drive(main_window, steps, probe, qt_theme_applied)
 
     screen = main_window._screens["mask"]
+    # Live preview is built when its card first appears. Show it through
+    # the real visibility path before checking the ambiguous button names.
+    screen._on_preview_switch(True)
+    qtbot.waitUntil(lambda: _find_button(screen, "Run preview") is not None)
     # The ambiguity is real on this screen…
     labels = {b.text().strip() for b in screen.findChildren(
         __import__("PySide6.QtWidgets", fromlist=["QPushButton"]).QPushButton)}

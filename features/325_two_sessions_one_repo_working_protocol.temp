@@ -9756,3 +9756,31 @@ GPU monitor 19013 reached 1204 idle seconds, but prelaunch recheck shows 40%
 utilization. No GPU job started; fresh monitor 19946 must qualify again.
 CPU allocation currently 10 (coverage 2, API 2, Make Masks 2+2, batch 17 recheck 2).
 Nightly fetched at 680438073; other-session commits will be preserved before push.
+
+2026-09-22 — CODEX: COVERAGE DENOMINATOR CLAIM
+Full-run failure shows 605 installed modules versus CI's 604 pin. The extra
+module is spacr/qt/widgets/volume_view.py, added by f6e92893b after the prior
+32-module reconciliation. I am updating only .github/workflows/tests.yml's
+expected-file-count and the two matching coverage-test pins, after measuring
+the set difference. Other workflow behavior and coverage thresholds stay put.
+
+2026-09-22 — CODEX: 87a7de6e3 PUSH VERIFIED / DOWNLOAD REVIEWS
+Nightly confirms 87a7de6e3, preserving the six other-session commits through
+680438073. Runtime review now fills 96 missing rows, corrects Run preview in
+hi/ko/is, and validates 117 records through real tr() (12 Chinese reused).
+Four current-report tests pass 148.47s. Updated 411 and 43 docs only.
+Batch 17 recheck 44529 passes 898 tests in 247.45s. CI denominator measured
++volume_view.py/-nothing against e9dcdaae9; 605 and matching tests now agree.
+Tutorial/coverage selection passes 146; font-fallback checks pass 3. Tutorial
+worker-lifecycle refinement is still running before committing that test.
+CZI finding for the owning session: 54 round-trip fixture errors and two chooser
+failures first came from missing optional pylibCZIrw. Private pylibCZIrw6.1.0
+plus validators removes all 54 fixture errors: 86 pass, two genuine CZI cases
+still fail because installed czifile2026.8.16's CziFile has no shape attribute.
+No import production code changed. Logs: codex-artifacts-20260921/logs/
+current-import-examples-with-czi-v2.log. This is separate from translation debt.
+Tutorial lifecycle check 1914 finishes 0: 73 pass in 75.74s, no lingering runner
+report. Retained Qt widget warning remains explicitly recorded. Full coverage
+has reached 80/96, with 25 failed batches and no lost files in completed records.
+Latest fetched nightly 8d206445e contains two item 470 commits; preserving them
+before this checkpoint push. No GPU work or complete-set publication.

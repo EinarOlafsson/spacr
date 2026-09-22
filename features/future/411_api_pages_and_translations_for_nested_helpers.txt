@@ -1441,3 +1441,16 @@ geometry, links, existing unrelated catalogs and pronunciation helpers verify;
 54 staging/translation/acceptance checks pass3.22s. Receipt:
 tools/tutorials/evidence/2026-09-22-make-masks-current-translations.json.
 No native-speaker/listening or media-publication claim; API catalog debt unchanged.
+
+2026-09-22 — CODEX: DOWNLOAD STATUS IN ALL NINE RUNTIME LANGUAGES
+Twelve formatted download/error/sign-in/annotation messages and the Run preview
+button now have 117 source-bound review records across all nine languages;
+12 Chinese records reuse existing reviews. Filled 96 missing catalog rows and
+corrected three misleading Run preview labels (Hindi, Korean and Icelandic).
+Each translated instruction names its actual translated button. Independent
+checks exercise all 117 through real tr() interpolation, verify source hashes
+and gates, and prove unrelated catalog rows unchanged. Receipt:
+features/data/411_runtime_download_status_2026-09-22.json. Four refreshed-report
+tests pass in 148.47s. Live inventory: 6298 runtime sources, 11195 API symbols;
+API debt remains 658 added, 2 removed, 128 changed against the English manifest.
+No full-catalog, native-speaker or debt-baseline completion claim.

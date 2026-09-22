@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "87a7de6e3e2733b8d5951182be725327fb2dc119",
+  "review_kind": "AI-assisted linguistic and technical review",
+  "native_speaker_signoff": false,
+  "languages": [
+    {
+      "language": "sv",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/sv/2026-09-22-download-status.json",
+      "review_sha256": "bfc8dcdef7222228950d1d83f1102ea3734cefec91a5d0a2a5b4c4dea2c056b9",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "de",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/de/2026-09-22-download-status.json",
+      "review_sha256": "29a78742a499d2bd58d57cc52bdeff0025ec7d8951422205c8a85f4d664fcbb4",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "es",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/es/2026-09-22-download-status.json",
+      "review_sha256": "31d47e51f3ebbc1e0856d5d2f2ae6bef4aa120e0a057713b136d6d7c9a785998",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "zh_CN",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-download-status.json",
+      "review_sha256": "ba53e41e754abbb52aa5a328259e5c17312a73e28e7f2af0b9a00e97e78d828b",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "pt",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/pt/2026-09-22-download-status.json",
+      "review_sha256": "197754a26effb46c7c5d3e7ba77429bb534e013deb51ea464fc9c88041087d44",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "hi",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/hi/2026-09-22-download-status.json",
+      "review_sha256": "caacc67607657727c06103c68e2f0ca4b03052e79fe2d63ab8e7b25450adffcc",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "ko",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/ko/2026-09-22-download-status.json",
+      "review_sha256": "fe2d8c2d7bfd76e2d0edfc9edade1b92e41f3a54532b74c1c7d6fc4d3b51179d",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "is",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/is/2026-09-22-download-status.json",
+      "review_sha256": "78d4c017f42a19996905197dc1faa37f5e214e557e80f27f1ca3420d1835b6ed",
+      "tr_interpolation_checks": 13
+    },
+    {
+      "language": "fr",
+      "records": 13,
+      "review_file": "docs/i18n/reviewed/runtime/fr/2026-09-22-download-status.json",
+      "review_sha256": "4682d0f4b70675018a4a6c1c5a701156ba28eb3ef2a366bd840e74438ce6b566",
+      "tr_interpolation_checks": 13
+    }
+  ],
+  "source_bound_records": 117,
+  "new_reviewed_records": 105,
+  "reused_existing_chinese_records": 12,
+  "missing_catalog_rows_filled": 96,
+  "existing_catalog_rows_corrected": 3,
+  "run_preview_button_and_instruction_consistent": true,
+  "unrelated_catalog_rows_unchanged": true,
+  "full_catalog_audit_passed": false
+}

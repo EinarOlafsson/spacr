@@ -1985,3 +1985,13 @@ and independently regenerated without model inference. Current reports show
 10487/11194 German API entries fresh. Report tests run before the progress push;
 full catalog debt and CI verdict remain open. Other43 lanes unchanged.
 Final local report checks:4 passed in223.43s; no full-docs/CI completion claim.
+
+2026-09-22 — CODEX DOCS LANE ONLY: RUNTIME DOWNLOAD/STATUS REVIEW
+Filled 96 missing runtime rows across eight languages; Chinese reuses its
+existing twelve reviews. All nine Run preview button/instruction pairs are
+consistent, including three corrected button labels. All 117 source-bound
+records pass real runtime interpolation and validation. Fresh reports and four
+report tests pass (148.47s). Receipt:411_runtime_download_status_2026-09-22.json.
+The catalog audit remains open on other missing/stale rows and API debt;
+658 added, 2 removed, 128 changed API sources are explicitly recorded against
+11195 live symbols. Other item 43 lanes untouched.

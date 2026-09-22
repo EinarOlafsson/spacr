@@ -2528,3 +2528,10 @@ desktop/mobile screenshots were inspected. Combined-capture receipt updated.
 Make Masks English and other-language matrices are rendering on CPU. Listening,
 remaining caption acceptance, Core Mask GPU capture and complete-set publication
 remain open. No technical verification is treated as listening approval.
+
+2026-09-22 — CODEX: LIVE PREVIEW TUTORIAL CONTRACT UPDATED
+The real Mask tutorial test opens the deferred Live panel before checking that
+Run and Run preview resolve to distinct buttons. Tutorial tests also wait for
+real window-owned preview/usage jobs to retire. All 73 script tests pass in
+75.74s without a lingering JobRunner report; retained Qt widgets still appear
+in the harness shutdown report. Capture/publication status is unchanged.

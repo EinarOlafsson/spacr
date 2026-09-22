@@ -4555,3 +4555,19 @@ assertions remain. All 39 module cases pass in 19.76s. Its complete 32-file coho
 recheck is running separately. No production change or baseline tightening.
 The frozen full run has completed 78/96 batches with 24 failed batches so far;
 remaining failures need triage. These passes are not a full-suite/ratchet verdict.
+
+2026-09-22 — CODEX: SECOND COHORT PASSES / INSTALLED DENOMINATOR
+Batch 17's entire cohort passes: 898 tests, 59 existing fork warnings, 247.45s.
+Measured installed-module delta against e9dcdaae9: exactly one addition,
+spacr/qt/widgets/volume_view.py from f6e92893b; no removals. CI's required count
+and both coverage-test pins move from 604 to 605. Thresholds and baseline do
+not change. Tutorial/coverage-contract selection passes 146 tests in 74.82s.
+The tutorial button test now opens the deferred Live panel before checking
+Run versus Run preview. Its remaining worker lifecycle report is being checked.
+Contact-sheet fallback test now explicitly makes the bundled font unavailable;
+Pillow could otherwise find it in system font directories. All three tests pass.
+The full frozen run still continues; no combined gate or ratchet verdict yet.
+Final tutorial lifecycle check: all 73 tests pass in 75.74s, with no lingering
+JobRunner report. The harness still reports retained Qt widgets at shutdown;
+no application cleanup claim is made. Source/log evidence:
+features/data/288_current_cohort_rechecks_2026-09-22.json.

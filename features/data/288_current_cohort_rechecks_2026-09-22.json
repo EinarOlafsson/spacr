@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "frozen_full_run_source": "3b10d1aad65a0f6528dedecc66e7ee798d30e419",
+  "working_base_commit": "87a7de6e3e2733b8d5951182be725327fb2dc119",
+  "checks": [
+    {
+      "log": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/logs/current-coverage-batch009-recheck.log",
+      "sha256": "94c64e711ffbb429b8ccbabd2e339c5ebc1c96b895124426b9ed37e731e0bb00",
+      "passed": 1333
+    },
+    {
+      "log": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/logs/current-coverage-batch017-recheck.log",
+      "sha256": "47c4fc941b2ca76156be1034d572dfa7b03da84f51f13cb8410f5b98cd974ac1",
+      "passed": 898
+    },
+    {
+      "log": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/logs/current-built-view-sorting-checks.log",
+      "sha256": "57cfdf3fba73f939261ac9c551c74b6b0c10f5d781f10b466ddeb929d20e8dbc",
+      "passed": 39
+    },
+    {
+      "log": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/logs/current-tutorial-and-denominator-checks-v2.log",
+      "sha256": "7534dd85d8a7c7392528ced5610b5e3bd01adb7fa45e7fd491287bea41c7d152",
+      "passed": 146
+    },
+    {
+      "log": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/logs/current-render-font-checks.log",
+      "sha256": "0bdf34b77f79a4964ab5c71c6d8656b7bb85927860db710b57cdf8a0e042e850",
+      "passed": 3
+    },
+    {
+      "log": "/mnt/firecuda2/Claude/repo/codex-artifacts-20260921/logs/current-tutorial-lifecycle-checks.log",
+      "sha256": "327b07bc6f8a1d8d27c6c55e17ed188c3e2c28c58b2c3952016c63e40ef5fa68",
+      "passed": 73
+    }
+  ],
+  "installed_count": {
+    "previous": 604,
+    "current": 605,
+    "comparison_commit": "e9dcdaae967f22f732b80c16d4fdacfab5a9856c",
+    "added": [
+      "spacr/qt/widgets/volume_view.py"
+    ],
+    "removed": []
+  },
+  "baseline_changed": false,
+  "full_suite_passed": false,
+  "full_run_still_in_progress": true,
+  "remaining": [
+    "Remaining full-run failures",
+    "Combined coverage floor and per-module ratchet"
+  ],
+  "tutorial_worker_leak_report": false,
+  "tutorial_retained_widget_warning": true
+}
