@@ -1326,3 +1326,15 @@ All drafts remain private/unreviewed; native approval is not claimed.
 Final four report checks pass273.41s against the integrated source; feature
 index and whitespace checks pass. Fixed draft queue reuses622 matching German
 documents after current technical checks; other pending drafts are regenerated.
+
+2026-09-22 — CODEX: VIEW-BASED GATE TOOLTIP REVIEWED IN NINE LOCALES
+The 803d59a9e tooltip replacement left three obsolete reviewed runtime records
+in hi/is/ko. Replaced them with current nine-language reviews; complete old
+records are preserved in features/data/411_view_gate_tooltip_2026-09-22.json.
+All nine full review stores and actual tr() outputs pass. Spanish/Icelandic/
+Chinese terminology corrected before acceptance. Portuguese exposed cleanup
+rewriting 'through' inside the actual Rectangle through view control label;
+source-conditioned literal protection fixes it without changing ordinary prose
+cleanup or requiring English in translated labels. Two regression tests pass
+in 1.56s. No Gate geometry change or native-speaker approval. Current-source
+report regeneration follows integration of newly fetched 85a6d4c40.

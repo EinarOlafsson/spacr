@@ -4785,6 +4785,14 @@ def _contextualize(value: str, language: str, source: str = "") -> str:
     corrected = _CONTEXT_HARD_PROTECT_RE.sub(
         hide_context_literal, corrected,
     )
+    # This Gate Editor mode is an unquoted control label in its tooltip.
+    # Preserve it when repeated verbatim: the Portuguese prose cleanup for
+    # "through" otherwise changes the name of the control the user must find.
+    # This does not require translations to keep the label in English.
+    if "Rectangle through view" in str(source):
+        corrected = re.sub(
+            r"\bRectangle through view\b", hide_context_literal, corrected,
+        )
     # Known multilingual-model control-token leaks. These sequences recur as
     # sentence fillers across unrelated sources and carry no target meaning.
     # Remove them only outside protected API/RST literals and, where a token

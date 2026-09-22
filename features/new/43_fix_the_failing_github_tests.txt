@@ -1931,3 +1931,10 @@ runtime captions are also exposed as orphans. No baseline or debt pin raised.
 Final source-bound report checks run against this integrated boundary.
 All four pass273.41s. Feature index/whitespace checks pass. Overall catalog
 and full docs-workflow acceptance remain open on the explicitly named debt.
+
+2026-09-22 — CODEX DOCS: STALE GATE TOOLTIP REVIEWS REPLACED
+Three source-stale reviewed records from the plane-only Gate tooltip are
+preserved in an evidence receipt and replaced by current nine-locale reviews.
+All nine runtime review stores load and actual tooltip translations match.
+Literal label cleanup has two passing regression tests. Full docs CI is not
+claimed green; API/runtime source debt and current report refresh remain open.

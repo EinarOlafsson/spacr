@@ -4436,3 +4436,18 @@ deprecation warnings are retained in the evidence. Receipt:
 features/data/288_features_settings_2026-09-22.json. Sixteen original floor
 modules now pass targeted selections. No production/baseline change; complete
 source-matched coverage and the no-regression ratchet remain outstanding.
+
+2026-09-22 — CODEX: FEATURES TABLE RECOVERY AND EXPLICIT EDIT DEFECT
+The sixteen earlier floor repairs still match current source after integration;
+features/data/288_current_floor_repairs_2026-09-22.json records those hashes.
+The FEATURES input table now reaches 95.07% targeted combined coverage:
+328/340 statements and 77/86 branches, with 33 passing tests and one strict
+expected RuntimeError failure in 56.34s. Sorted browse/remove, cancellation,
+invalid destinations, shape changes, scan fallback, bad regex, remote drops
+and real folder expansion are checked. No production table or baseline change.
+Receipt: features/data/288_features_table_2026-09-22.json.
+This is a seventeenth original module measured above the floor, not a
+seventeenth fully passing repair: real Well editing exposes a deleted active
+SortableTableItem during setData. The regression remains strict xfail and the
+application owner is notified in 325. Four existing fork warnings remain.
+The full-suite/ratchet verdict is still open; no baseline was tightened.

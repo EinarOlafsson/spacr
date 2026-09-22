@@ -1,0 +1,85 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "803d59a9e",
+  "old_source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+  "current_source": "What a drag in Draw mode makes. Lasso and Rectangle through view work at any angle: turn the volume until the population stands apart, draw around it, and the gate keeps every object whose position on that view falls inside the outline. Box, oval, circle and polygon are drawn on the chosen plane and given a depth with a second drag. A right-button drag always turns the volume.",
+  "retired_records": [
+    {
+      "language": "hi",
+      "path": "docs/i18n/reviewed/runtime/hi/2026-08-26-post-fallback-residuals.json",
+      "record": {
+        "table": "ui",
+        "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+        "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
+        "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+        "translation": "चयनित तल पर खींचने से बनने वाली आकृति। गेट बनाते समय प्रत्येक आकृति को तल की अपनी धुरी के साथ विस्तारित किया जाता है; इसलिए खींची गई आकृति समतल रहती है और गेट त्रिविमीय ठोस बनता है।"
+      },
+      "reason": "English tooltip replaced by view-based 3D lasso instructions in803d59a9e; runtime loader has no retired-record flag."
+    },
+    {
+      "language": "is",
+      "path": "docs/i18n/reviewed/runtime/is/2026-08-26-post-fallback-residuals.json",
+      "record": {
+        "table": "ui",
+        "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+        "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
+        "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+        "translation": "Lögun sem er teiknuð með drætti á valda fletinum. Þegar gate er búið til er hvert þessara forma framlengt eftir ási fletsins; teikningin helst því flöt en gate verður þrívítt."
+      },
+      "reason": "English tooltip replaced by view-based 3D lasso instructions in803d59a9e; runtime loader has no retired-record flag."
+    },
+    {
+      "language": "ko",
+      "path": "docs/i18n/reviewed/runtime/ko/2026-08-26-post-fallback-residuals.json",
+      "record": {
+        "table": "ui",
+        "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+        "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
+        "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
+        "translation": "선택한 평면에서 드래그할 때 그릴 도형입니다. gate를 생성할 때 각 도형은 해당 평면의 축을 따라 확장되므로 그리기 동작은 평면에 유지되고 gate는 입체가 됩니다."
+      },
+      "reason": "English tooltip replaced by view-based 3D lasso instructions in803d59a9e; runtime loader has no retired-record flag."
+    }
+  ],
+  "languages": [
+    {
+      "language": "de",
+      "review_sha256": "78dd3acca51f5c7b5ce784138d1422487ef5d2183bb339987bda1c86b2e81973"
+    },
+    {
+      "language": "es",
+      "review_sha256": "af8a9dd78b7783f2323131b486f2725ec36561a7385043a66fa6a60dee0b57c9"
+    },
+    {
+      "language": "fr",
+      "review_sha256": "b7b19fbeb5b924ec0ba2a8e004038a5dcafb73b71b47759d93eeb0ad7aeb6bdf"
+    },
+    {
+      "language": "hi",
+      "review_sha256": "cdb949278c48372d446fcb881c5c8919f249d632da6eafd688516d2f3081c13d"
+    },
+    {
+      "language": "is",
+      "review_sha256": "a0098140ba96326dead74d4a44978a11b8fd43b612e0e6608cf65fe69a1273a0"
+    },
+    {
+      "language": "ko",
+      "review_sha256": "b63cdd485045cf8c6d4eb3b04f00c7aa2df65ed575af7e5d294db917a38f009b"
+    },
+    {
+      "language": "pt",
+      "review_sha256": "67cf45a85b878aaf1f58098eadd98d4a47d4895ff01e0d3e5b7c818cf66bbb96"
+    },
+    {
+      "language": "sv",
+      "review_sha256": "b4890bc55b95a832083c029cbba61cfce4ca63c2612c951b1449dac21b1d8ee9"
+    },
+    {
+      "language": "zh_CN",
+      "review_sha256": "d22d9ca63c81a79e817e62e58deeffd4f75ae09af5e1f0ba7069e1274814e5c5"
+    }
+  ],
+  "native_speaker_signoff": false,
+  "note": "Nine translated tooltips replace an obsolete plane-only explanation; three removed reviewed records are preserved here. Context cleanup preserves the actual Rectangle through view UI label. No Gate geometry behavior changed."
+}

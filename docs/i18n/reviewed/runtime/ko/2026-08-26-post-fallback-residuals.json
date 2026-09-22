@@ -162,13 +162,6 @@
       "source_sha256": "a51dc627fa198511c47bd0fef31399262aef4c10214ded284a553cce38f59252",
       "source": "This run saved no workspace — it was run with 'Saved runs carry: Nothing', or before spaCR recorded one. Preferences ▸ Performance ▸ Saved runs carry.",
       "translation": "이 실행은 'Saved runs carry: Nothing' 으로 실행되었거나 spaCR 이 workspace를 기록하기 전에 수행되어 저장된 workspace가 없습니다. Preferences ▸ Performance ▸ Saved runs carry."
-    },
-    {
-      "table": "ui",
-      "key": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
-      "source_sha256": "61f06f3dbe5b3fb0309860b74fb55cdf953c4f5e0a04041e8f3b98eed21e9047",
-      "source": "What a drag on the chosen plane draws. Every one of these is extended along the plane's own axis when the gate is made, so the drawing gesture stays flat and the gate is solid.",
-      "translation": "선택한 평면에서 드래그할 때 그릴 도형입니다. gate를 생성할 때 각 도형은 해당 평면의 축을 따라 확장되므로 그리기 동작은 평면에 유지되고 gate는 입체가 됩니다."
     }
   ]
 }

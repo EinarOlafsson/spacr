@@ -1,0 +1,135 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "b7c3c5c3616265f8d0998d511f64df58e0dfdbb2",
+  "scope": "Current source hashes match targeted coverage receipts; this is not a new full-suite measurement.",
+  "original_below_floor": 25,
+  "current_source_matching_repairs": 16,
+  "repairs": [
+    {
+      "path": "spacr/accelerator.py",
+      "original_percent": 81.6711590296496,
+      "targeted_percent": 97.03504043126685,
+      "current_source_sha256": "dc62ecf53db77565f81cc0e155aaaec61925f6a0af0d8501a7ea81f99557d303",
+      "source_receipt": "features/data/288_accelerator_probes_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/column_aligned_row.py",
+      "original_percent": 85.0,
+      "targeted_percent": 92.77777777777777,
+      "current_source_sha256": "6dfb5497408aba17135f3169ee1ce76e9200fa464e0f5eba2601ef4c351acdb8",
+      "source_receipt": "features/data/288_column_alignment_2026-09-21.json"
+    },
+    {
+      "path": "spacr/crop_loader.py",
+      "original_percent": 87.16904276985743,
+      "targeted_percent": 91.44602851323829,
+      "current_source_sha256": "23d9d18b9ec76592fea49ef3b174c58d3c7b3a0bfc1eaa46b9fbd472b636094f",
+      "source_receipt": "features/data/288_crop_loader_2026-09-21.json"
+    },
+    {
+      "path": "spacr/embeddings.py",
+      "original_percent": 78.67867867867868,
+      "targeted_percent": 97.29729729729729,
+      "current_source_sha256": "92d70daecc93e05b6eedd3f919e69bc9074672c5ec66fbdd403fab44c2f5d7b8",
+      "source_receipt": "features/data/288_embedding_contracts_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/screens/measure_inputs.py",
+      "original_percent": 77.35191637630662,
+      "targeted_percent": 95.88607594936708,
+      "current_source_sha256": "18270d1530344aace5abb266f1d7acb598962854441f4b72189ed8b8457b00d5",
+      "source_receipt": "features/data/288_features_settings_2026-09-22.json"
+    },
+    {
+      "path": "spacr/qt/import_demo.py",
+      "original_percent": 72.29729729729729,
+      "targeted_percent": 100.0,
+      "current_source_sha256": "ea700fdabb32273ca9331fc43be188e5f8405473883ff49374c6010dd50e3334",
+      "source_receipt": "features/data/288_import_demo_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/live_zoom.py",
+      "original_percent": 88.8412017167382,
+      "targeted_percent": 97.85407725321889,
+      "current_source_sha256": "64cca166270215be5332edf5dbd3663df534bb3f0a3f361b889b64bdb8daa4eb",
+      "source_receipt": "features/data/288_live_zoom_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/measurements_example.py",
+      "original_percent": 80.21978021978022,
+      "targeted_percent": 100.0,
+      "current_source_sha256": "513753fa21f5d340019fed8b7e480e845eb601dbfa086c035ff2d963fb7f02ab",
+      "source_receipt": "features/data/288_measurements_example_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/model_install.py",
+      "original_percent": 83.82838283828383,
+      "targeted_percent": 92.73927392739274,
+      "current_source_sha256": "861834283b7dc57a1d8a27ca1d4d3cffd6a50c8b0b7ce8623aadca98e4df518a",
+      "source_receipt": "features/data/288_model_install_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/model_share.py",
+      "original_percent": 11.18421052631579,
+      "targeted_percent": 98.6842105263158,
+      "current_source_sha256": "a4c6bb7e983c1ed20c893bea8fd65276553f49c65d823ef6b165f6dff24769d9",
+      "source_receipt": "features/data/288_model_sharing_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/model_share_dialog.py",
+      "original_percent": 18.367346938775512,
+      "targeted_percent": 100.0,
+      "current_source_sha256": "eaa612e7dd6da3e260068535adca633b4e2773f451ea5e7b707a8882f7242557",
+      "source_receipt": "features/data/288_model_sharing_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/object_grid_binding.py",
+      "original_percent": 89.6969696969697,
+      "targeted_percent": 96.36363636363636,
+      "current_source_sha256": "f5399ba79879ceee7729ecd8b71c8951830f71f04f904e325c2049e8c2ae0152",
+      "source_receipt": "features/data/288_object_grid_binding_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/preview_refresh.py",
+      "original_percent": 80.0,
+      "targeted_percent": 100.0,
+      "current_source_sha256": "fc550949423c3e86a7b236721032bb3971879c5a83f83f2e4a17c3c27ff61d4a",
+      "source_receipt": "features/data/288_preview_refresh_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/screens/run_history.py",
+      "original_percent": 87.26114649681529,
+      "targeted_percent": 97.66454352441613,
+      "current_source_sha256": "0db2f5774a1f78dc826a6a90bc6cb49479ae3a15122aff1b587649de56ddb7fb",
+      "source_receipt": "features/data/288_run_history_deletion_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/widgets/sra_picker.py",
+      "original_percent": 73.62637362637362,
+      "targeted_percent": 100.0,
+      "current_source_sha256": "edea52736a19742b4304b2612a8a6f158e4086915a6ac7090e4fcdd83a4faad1",
+      "source_receipt": "features/data/288_sra_picker_2026-09-21.json"
+    },
+    {
+      "path": "spacr/qt/make_masks_datasets.py",
+      "original_percent": 56.03448275862069,
+      "targeted_percent": 98.7012987012987,
+      "current_source_sha256": "d007b457f47fd394ed6c4e377312449eea5463f6054e8c54525c13eceaf61823",
+      "source_receipt": "features/data/288_training_datasets_2026-09-21.json"
+    }
+  ],
+  "remaining_original_modules": [
+    "spacr/ops_accel.py",
+    "spacr/plaque_papers.py",
+    "spacr/qt/screens/image_import.py",
+    "spacr/qt/screens/map_barcodes.py",
+    "spacr/qt/sound.py",
+    "spacr/qt/widgets/measure_input_table.py",
+    "spacr/qt/widgets/model_zoo_picker.py",
+    "spacr/qt/widgets/object_settings_grid.py",
+    "spacr/regression_panels.py"
+  ],
+  "stale_receipts": [],
+  "baseline_updated": false
+}

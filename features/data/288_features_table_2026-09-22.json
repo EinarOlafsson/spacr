@@ -1,0 +1,103 @@
+{
+  "schema": 1,
+  "date": "2026-09-22",
+  "source_commit": "b7c3c5c36",
+  "scope": "Targeted branch and statement coverage with one explicitly recorded application defect; not a whole-suite or all-tests-passing verdict.",
+  "source_path": "spacr/qt/widgets/measure_input_table.py",
+  "source_sha256": "2feb4a10256032174fcbb87a7d2135c0215f75815a4ae01677024d071941b992",
+  "coverage_json_sha256": "af8713f2f502fb674edc776dee9188918ce761d72d922fea2f284733a94457db",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 328,
+    "num_statements": 340,
+    "percent_covered": 95.07042253521126,
+    "percent_covered_display": "95.07",
+    "missing_lines": 12,
+    "excluded_lines": 0,
+    "percent_statements_covered": 96.47058823529412,
+    "percent_statements_covered_display": "96.47",
+    "num_branches": 86,
+    "num_partial_branches": 7,
+    "covered_branches": 77,
+    "missing_branches": 9,
+    "percent_branches_covered": 89.53488372093024,
+    "percent_branches_covered_display": "89.53"
+  },
+  "missing_lines": [
+    234,
+    298,
+    314,
+    315,
+    554,
+    557,
+    558,
+    559,
+    560,
+    561,
+    563,
+    579
+  ],
+  "missing_branches": [
+    [
+      297,
+      298
+    ],
+    [
+      349,
+      348
+    ],
+    [
+      392,
+      394
+    ],
+    [
+      473,
+      478
+    ],
+    [
+      553,
+      554
+    ],
+    [
+      555,
+      557
+    ],
+    [
+      557,
+      558
+    ],
+    [
+      557,
+      563
+    ],
+    [
+      576,
+      579
+    ]
+  ],
+  "validation": {
+    "passed": 33,
+    "xfailed": 1,
+    "warnings": 4,
+    "seconds": 56.34,
+    "cap": "6G",
+    "cpu_threads": 1,
+    "gpu_used": false,
+    "files": [
+      "tests/qt/test_features_table_editing_and_recovery.py",
+      "tests/qt/test_features_button_opens_the_measure_table.py"
+    ],
+    "log_sha256": "3d74ff8d8134347103ef9957bc142f2011c643897999365c6d1b6e187e76054a",
+    "test_sha256": {
+      "tests/qt/test_features_table_editing_and_recovery.py": "3ea4ba89a65692b26af2a8672526d9f59a700a2425a3962a41eafaa3178230a0",
+      "tests/qt/test_features_button_opens_the_measure_table.py": "0932d8fb59445b0d5e343e5dcdfb2bbe729e3a2660cbaf9572accc4121e4238d"
+    }
+  },
+  "baseline_updated": false,
+  "production_changed": false,
+  "limitations": [
+    "Editing a Well cell deletes the active SortableTableItem during setData; strict RuntimeError xfail retained and reported to application owner in 325.",
+    "Four existing multiprocessing fork deprecation warnings."
+  ]
+}
