@@ -79,6 +79,7 @@ from PySide6.QtCore import QEvent, QObject, QPoint, Qt, QTimer, Signal
 from PySide6.QtGui import QColor, QPainter, QPolygon
 from PySide6.QtWidgets import (QSizePolicy, QSpacerItem, QSplitter,
                                QSplitterHandle, QWidget)
+from shiboken6 import isValid
 
 from ..i18n import tr
 
@@ -111,14 +112,7 @@ _EXTENTS_PREFIX = "layout/panes"
 
 def _alive(widget) -> bool:
     """Whether ``widget`` still has its C++ half."""
-    if widget is None:
-        return False
-    try:
-        from shiboken6 import isValid
-
-        return bool(isValid(widget))
-    except Exception:                                        # noqa: BLE001
-        return True
+    return widget is not None and bool(isValid(widget))
 
 
 def _settings():
@@ -611,9 +605,7 @@ class CollapsibleSplitter(QSplitter):
         self.pane_toggled.emit(pane.name, bool(collapsed), bool(by_user))
 
     def _collapsed_extent(self, pane: Pane) -> int:
-        """How much room a collapsed pane needs: its heading, or nothing."""
-        if pane.mode == EDGE:
-            return 0
+        """How much room a collapsed HEADER pane needs: its heading."""
         widget = pane.widget
         layout = widget.layout()
         if layout is not None:
@@ -663,13 +655,8 @@ class CollapsibleSplitter(QSplitter):
         self.setHandleWidth(EDGE_GRIP_PX if wide else GRIP_PX)
         for i in range(self.count()):
             handle = self.handle(i)
-            if isinstance(handle, _PaneHandle):
-                handle.retranslate_dynamic_content()
-                if handle.edge_pane() is not None:
-                    handle.setCursor(Qt.SplitHCursor
-                                     if self.orientation() == Qt.Horizontal
-                                     else Qt.SplitVCursor)
-                handle.update()
+            handle.retranslate_dynamic_content()
+            handle.update()
 
     def insertWidget(self, index: int, widget: QWidget) -> None:  # noqa: N802
         """Insert as Qt does, and let a wrapping container inherit a pane.
@@ -941,8 +928,6 @@ class CollapsibleSplitter(QSplitter):
         """
         sizes = self.sizes()
         for i, size in enumerate(sizes):
-            if i >= self.count():
-                break
             widget = self.widget(i)
             pane = self._pane_of(widget)
             if pane is None or widget.isHidden():
