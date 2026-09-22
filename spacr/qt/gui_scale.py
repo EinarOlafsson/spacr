@@ -414,6 +414,7 @@ def _install_layout_setters() -> None:
                                    QSpacerItem)
 
     def margins_setter(original):
+        """The wrapper that records a layout's margins and scales them."""
         def setContentsMargins(self, *args):          # noqa: N802
             """Record the margins at 100 % and apply them at the GUI scale."""
             base = _margin_args(args)
@@ -427,6 +428,7 @@ def _install_layout_setters() -> None:
         return setContentsMargins
 
     def margins_getter(original):
+        """The wrapper that answers a layout's margins at 100 %."""
         def contentsMargins(self):                     # noqa: N802
             """The margins in 100 % units."""
             actual = original(self)
@@ -440,7 +442,9 @@ def _install_layout_setters() -> None:
     _patch_everywhere(QLayout, "contentsMargins", margins_getter)
 
     def spacing_setter(key):
+        """The factory for one spacing setter, by its record key."""
         def make(original):
+            """The wrapper that records a spacing and scales it."""
             def setter(self, value):
                 """Record the spacing at 100 % and apply it at the GUI scale."""
                 factor = 1.0 if _layout_exempt(self) else _SCALE
@@ -452,7 +456,9 @@ def _install_layout_setters() -> None:
         return make
 
     def spacing_getter(key):
+        """The factory for one spacing getter, by its record key."""
         def make(original):
+            """The wrapper that answers a spacing at 100 %."""
             def getter(self):
                 """The spacing in 100 % units."""
                 actual = original(self)
@@ -519,6 +525,7 @@ def _install_icon_setters() -> None:
     from PySide6.QtWidgets import QWidget
 
     def setter(original):
+        """The wrapper that records an icon size and scales it."""
         def setIconSize(self, size):                   # noqa: N802
             """Record the icon size at 100 % and apply it at the GUI scale."""
             base = _size_args((size,))
@@ -537,6 +544,7 @@ def _install_icon_setters() -> None:
         return setIconSize
 
     def getter(original):
+        """The wrapper that answers an icon size at 100 %."""
         def iconSize(self):                            # noqa: N802
             """The icon size in 100 % units."""
             actual = original(self)
