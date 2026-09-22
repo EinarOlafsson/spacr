@@ -1308,3 +1308,21 @@ source/timing/decode/activity/peak checks; no listening or publication claim.
 All four integrated report checks pass359.29s; feature index and whitespace
 checks pass. Fresh runtime counts: de/es/sv/fr6073,zh_CN6107,pt6071,ko5864,
 hi/is5762 out of6294. API freshness remains10434 German/10416 other locales.
+
+2026-09-22 — CODEX: LATEST MAGNIFIER/GATE SOURCE INTEGRATED
+Integrated04ed8acfe/afa9fcd80/d3f299fe8/f6e92893b before pushing. Current
+inventory is6296 runtime sources and11173 public API symbols. Relative to the
+English API manifest:636added,2removed,123changed, all explicitly enumerated
+in features/data/411_api_debt_after_gate_2026-09-21.json. No manifest/debt pin
+was raised. Fresh runtime counts de/es/sv/fr6071,zh_CN6105,pt6069,ko5862,
+hi/is5760; API freshness10432 German/10414 other locales. Two runtime orphans
+in most locales,44in hi/is/ko; these newly retired captions remain named debt.
+The old CPU draft process finished its German batches, then stopped when its
+old in-memory extractor encountered newly added review files. Saved drafts
+are intact. Resumed on a new fixed checkout at21a100b55, carrying only exact
+unchanged source/hash drafts that pass current technical checks. Seven added
+and16changed public documents differ from the earlier private draft snapshot.
+All drafts remain private/unreviewed; native approval is not claimed.
+Final four report checks pass273.41s against the integrated source; feature
+index and whitespace checks pass. Fixed draft queue reuses622 matching German
+documents after current technical checks; other pending drafts are regenerated.

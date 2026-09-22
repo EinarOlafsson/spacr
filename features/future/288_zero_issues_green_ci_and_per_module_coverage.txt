@@ -4422,3 +4422,17 @@ brings the five-file selection to70 passes in16.11s,6GiB/one CPU thread.
 Receipt:features/data/288_accelerator_probes_2026-09-21.json. Fifteen original
 below-floor modules now pass targeted selections. Production and baseline
 remain unchanged; the complete source-matched suite/ratchet is still required.
+
+2026-09-22 — CODEX: FEATURES SETTINGS/RECOVERY REACH95.89%
+measure_inputs reaches95.89% combined coverage (250/256 statements,53/60
+branches), from77.35% in the fixed run. Real Qt controls verify boolean,
+numeric/auto, choice-data/text and empty-text settings; malformed values keep
+the previous value. Screen checks verify one broken control does not discard
+other settings, derived values survive a failed form read, absent settings
+sections leave the window usable, and empty/missing-database results restore
+controls and report the outcome. Together with the existing real-file/drop/
+measurement tests:33pass56.42s,6GiB/one CPU thread,noGPU. Four existing fork
+deprecation warnings are retained in the evidence. Receipt:
+features/data/288_features_settings_2026-09-22.json. Sixteen original floor
+modules now pass targeted selections. No production/baseline change; complete
+source-matched coverage and the no-regression ratchet remain outstanding.

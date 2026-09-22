@@ -7,16 +7,17 @@ defect-driven and much smaller than the shipped corpus.
 
 **Current checkpoint — 2026-09-21:** mechanical coverage is incomplete.
 German, Spanish, French and Swedish passed their full runtime audits at the
-46d11afaf application-source boundary. Integrating the newer Plaque/Figure
-work and explicitly inventoried chooser prose increased the live inventory
-to 6,294 runtime entries; all nine current
-catalogs now have explicit debt. The API inventory has 629 added, two removed
-and 121 changed sources relative to its English manifest, across 11,166 live
-symbols. The current table below is regenerated from source-bound
-records; the dated completion statements that follow describe historical
-trees. New review records are AI-assisted technical review, not native-speaker
-approval. API block counts divided by symbol counts are not percentages of
-fully reviewed API pages.
+46d11afaf application-source boundary. Subsequent application changes and
+explicitly inventoried chooser prose bring the live inventory to 6,296
+runtime entries; all nine current catalogs have explicit debt. The API
+inventory has 636 added, 2 removed and 123 changed sources relative to its
+English manifest, across 11,173 live symbols. Exact outstanding source
+IDs are in features/data/411_api_debt_after_gate_2026-09-21.json; no English
+manifest or debt pin was raised. The current table is regenerated from
+source-bound records; the dated completion statements below describe
+historical trees. New review records are AI-assisted technical review, not
+native-speaker approval. API block counts divided by symbol counts are not
+percentages of fully reviewed API pages.
 
 **Mechanical source coverage IS complete, as of 2026-09-10.** It was not on
 2026-09-06, and this paragraph carried that gap until now: the runtime
@@ -56,7 +57,7 @@ Every mechanical gate now passes. `tests/qt/test_external_i18n_catalogs.py` is
 
 Source-bound records under `docs/i18n/reviewed/runtime/<locale>/` and
 `docs/i18n/reviewed/api/<locale>/`, against the LIVE denominators rather than a
-remembered one: 6,294 runtime entries and 11,166 public API docstrings. As before,
+remembered one: 6,296 runtime entries and 11,173 public API docstrings. As before,
 repeated source strings mean this is not a unique-string percentage, and the
 proportion is small by design: the evidence is defect-driven.
 
@@ -64,17 +65,17 @@ Both denominators move whenever a string or a docstring is added, so these
 numbers are regenerated rather than transcribed; the test that guards this
 table derives them from the same source the builders read.
 
-| Language | Reviewed runtime records | Of 6,294 | Remainder | Reviewed API blocks | Of 11,166 | Remainder |
+| Language | Reviewed runtime records | Of 6,296 | Remainder | Reviewed API blocks | Of 11,173 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
-| Swedish | 687 | 10.92% | 5,607 | 710 | 6.36% | 10,456 |
-| German | 650 | 10.33% | 5,644 | 750 | 6.72% | 10,416 |
-| Spanish | 655 | 10.41% | 5,639 | 570 | 5.10% | 10,596 |
-| Simplified Chinese | 997 | 15.84% | 5,297 | 853 | 7.64% | 10,313 |
-| Portuguese | 663 | 10.53% | 5,631 | 798 | 7.15% | 10,368 |
-| Hindi | 443 | 7.04% | 5,851 | 747 | 6.69% | 10,419 |
-| Korean | 661 | 10.50% | 5,633 | 820 | 7.34% | 10,346 |
-| Icelandic | 511 | 8.12% | 5,783 | 1,316 | 11.79% | 9,850 |
-| French | 683 | 10.85% | 5,611 | 734 | 6.57% | 10,432 |
+| Swedish | 687 | 10.91% | 5,609 | 710 | 6.35% | 10,463 |
+| German | 650 | 10.32% | 5,646 | 750 | 6.71% | 10,423 |
+| Spanish | 655 | 10.40% | 5,641 | 570 | 5.10% | 10,603 |
+| Simplified Chinese | 997 | 15.84% | 5,299 | 853 | 7.63% | 10,320 |
+| Portuguese | 663 | 10.53% | 5,633 | 798 | 7.14% | 10,375 |
+| Hindi | 443 | 7.04% | 5,853 | 747 | 6.69% | 10,426 |
+| Korean | 661 | 10.50% | 5,635 | 820 | 7.34% | 10,353 |
+| Icelandic | 511 | 8.12% | 5,785 | 1,316 | 11.78% | 9,857 |
+| French | 683 | 10.85% | 5,613 | 734 | 6.57% | 10,439 |
 
 *Re-measured 2026-09-16 for 317 using the actual live source extractors and
 reviewed-record loaders. Runtime sources increase 5,767 -> 5,773 (seven

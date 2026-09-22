@@ -1921,3 +1921,13 @@ draft snapshot. Reports are regenerated for the integrated source. Broader
 runtime/API debt remains; no English debt pin or baseline is raised.
 All four integrated report consistency tests pass359.29s; the six plaque/unit
 checks pass10.16s. This verifies the checkpoint, not a green full docs workflow.
+
+2026-09-22 — CODEX DOCS: LATEST CONCURRENT SOURCE INVENTORY
+Integrated the magnifier/Gate Editor commits throughf6e92893b. Reports now
+measure6296 runtime sources and11173 public API symbols. Explicit API debt
+is636added,2removed,123changed relative to the unchanged English manifest;
+the exact IDs are in411_api_debt_after_gate_2026-09-21.json. New removed
+runtime captions are also exposed as orphans. No baseline or debt pin raised.
+Final source-bound report checks run against this integrated boundary.
+All four pass273.41s. Feature index/whitespace checks pass. Overall catalog
+and full docs-workflow acceptance remain open on the explicitly named debt.
