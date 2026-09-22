@@ -82,7 +82,6 @@ low library-exact rate (0.666 against ~0.72) explained if the data allows.
   TWO QUESTIONS FOR THE MAINTAINER in the item: whether Mask's own
   preprocessing should grow the same chain, and U-Net is offered but
   unscored (no checkpoint in the example data).
-  in Make Masks plus a pre-detection chain (contrast, background, denoise,
 * **474** (future): one page per organism — Toxoplasma, Plasmodium, Candida —
   each with a description, links and eight tiles, "Coming soon" on the unbuilt
   ones. The proposed module lists are in the item for the maintainer to confirm.
