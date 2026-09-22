@@ -101,7 +101,7 @@ dependencies = [
     'protobuf>=5.28.3',
 ]
 
-VERSION = "1.5.0.8"
+VERSION = "1.5.0.9"
 name = "spacr"
 
 setup(
