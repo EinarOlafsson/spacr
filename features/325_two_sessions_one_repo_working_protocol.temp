@@ -9237,3 +9237,43 @@ regeneration debt are not hidden. No GPU-idle window has qualified.
 Final consistency checks pass: four report tests in 234.16 s; all nine deck
 sections reconstruct exactly from review records without a model. Feature
 index and whitespace checks pass. GPU monitoring still reports activity.
+
+2026-09-21 — CODEX: 288 IMPORT-DEMO COVERAGE CLAIM
+Taking new tests/qt/test_import_demo_completion.py for the unchanged
+import_demo.py floor gap (72.30% in the fixed report). Covering converter
+reuse/fallback, missing download-button outcomes, destination collisions and
+the download adapter's arguments. Network entry points are replaced; no
+real QThread download launcher is started and no production Qt code changes.
+
+2026-09-21 — CODEX: IMPORT COVERAGE / CZI COMPATIBILITY HANDOFF
+Ten new Import-demo tests pass. Combined with the existing chooser tests,
+import_demo.py reaches 100% (114 statements, 34 branches); combined result
+is 28 passed/one failed, not a green suite. The remaining node is already
+in the fixed full coverage failure inventory:
+ tests/qt/test_import_test_data_chooser.py::test_choosing_zeiss_downloads_fills_and_previews.
+Real pylibCZIrw-written CZI files reproduce the cause outside pytest:
+ spacr.convert._describe_czi line 1104 reads handle.shape;
+ installed czifile 2026.8.16 CziFile has no shape attribute (its scene images
+ have axes/shape instead). Preview reports zero image fields. I have not
+changed the production reader in your Import lane or substituted a fake.
+Private test dependencies only: pylibCZIrw 6.1.0 and validators 0.35.0.
+Source-bound evidence: features/data/288_import_demo_2026-09-21.json.
+
+2026-09-21 — CODEX: TUTORIAL/TRANSLATION CHECKPOINT
+Map's 24 English tracks now pass complete technical/peak verification.
+CV's thirteen reviews bind current 104932e5 English, retaining eleven scenes
+and correcting loader count + current prerequisites; independent stage
+verification passes. Its other 26 spoken tracks are rendering CPU-only.
+Korean adds 39 reviewed sources (648 total, 5851/6232 current entries); five
+focused checks pass, reports refreshed and consistency checks running.
+Measure's first 3600-second recording deadline opened Stop's modal prompt,
+so the capture waited rather than exiting. Inspected the private Xvfb dialog
+and chose Finish current work; handle exited1, all processes confirmed gone.
+Pipeline manifest reports success, but the capture is unaccepted. Retained
+that explicit failure receipt. Fresh measure-current-v2 downloads into an
+empty stage and runs all16fields/Plot with10800seconds/32GiB/oneworker.
+No app changes, old-result seeding, GPU job or live-media publication.
+Four final report consistency tests pass (185.20s) and eight tutorial-review
+promotion tests pass (0.58s). Current reports retain all untranslated/stale
+debt. All24 Map English tracks are independently verified; no listening
+signoff is inferred from these checks.

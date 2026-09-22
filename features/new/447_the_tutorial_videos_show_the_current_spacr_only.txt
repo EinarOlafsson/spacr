@@ -300,3 +300,13 @@ Annotate's thirteen current-source translation/caption reviews are now
 staged with crop-size wording matching the fresh recording. The remaining
 spoken-language audio is starting on CPU using current repository
 pronunciation helpers; final media/listening acceptance remains open.
+
+2026-09-21 — CODEX: current Map Barcodes has all 24 English voices technically
+verified, including independent decoded true peaks. Current CV has thirteen
+source-bound language/caption reviews, with two-loader-worker narration and
+current setup metadata; its remaining 26 spoken tracks are rendering on CPU.
+The first Measure full-batch recording timed out; its preserved failure
+receipt distinguishes pipeline-reported success from capture acceptance.
+A fresh dark/Blobs native 4K recording repeats the complete example in an
+empty private stage with a longer limit. No live tutorial publication or
+native-speaker/listening approval is claimed by these technical checkpoints.

@@ -1139,3 +1139,17 @@ consistency checks are running before this checkpoint is pushed.
 Final report consistency: four tests pass in 234.16 s. Independent regeneration
 checks reproduce all nine deck sections from the reviewed blocks without a
 translation model. The feature index and whitespace checks also pass.
+
+2026-09-21 — CODEX: KOREAN FOURTH REVIEW BATCH
+Reviewed 39 further distinct sources (32 corrected, seven retained), reaching
+648 source-bound Korean reviews and 5851/6232 current runtime catalog entries.
+The contradictory inversion warning at saved-draft row 90 remains deferred;
+it was not promoted as reviewed. Changes restore crop/embedding meanings,
+segmentation hole filling and watershed splitting, upload verification status,
+file download questions and required format fields. Five focused checks pass
+(91.57 s). Full audit still names missing/format/orphan debt; 42 orphan keys
+remain. Coverage/review/API reports are regenerated; consistency tests run
+before pushing. API debt remains unchanged at 629 added/two removed/118 changed.
+Final consistency tests pass: four report checks in 185.20 s. The current
+CV tutorial's thirteen staged translation/caption reviews also pass independent
+source/geometry/speech checks; eight promotion tests pass in 0.58 s.

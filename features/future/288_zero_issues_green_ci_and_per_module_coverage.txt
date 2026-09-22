@@ -4270,3 +4270,19 @@ an OSError during temporary archive cleanup. Evidence is recorded in
 features/data/288_model_sharing_2026-09-21.json with source hashes.
 This is a targeted gain, not a new whole-library verdict; the full fixed
 report is retained unchanged and the baseline has not been tightened.
+
+2026-09-21 — CODEX: IMPORT-DEMO REACHES 100%, EXISTING CZI FAILURE PRESERVED
+Ten new tests cover converter reuse/wrapped pages/standalone fallback,
+destination collisions, download adapter arguments and outcomes when a screen
+has no download button. All ten pass independently (2.65 s). With the existing
+chooser tests, import_demo.py now covers all 114 statements and 34 branches.
+The combined selection is NOT green: 28 passed, one existing failure remains
+in test_choosing_zeiss_downloads_fills_and_previews. This node is also in the
+fixed full-run failure inventory. After installing real pylibCZIrw 6.1.0 and
+validators privately (shared environment unchanged), the saved real CZI
+reproduces AttributeError in spacr.convert._describe_czi: installed czifile
+2026.8.16 exposes scenes, but CziFile has no shape attribute. The Import
+preview consequently has zero image fields. No application change or fake
+reader was used to hide this. Details handed to the other session in 325.
+Evidence: features/data/288_import_demo_2026-09-21.json. No baseline change
+or whole-suite pass is claimed; production reader compatibility remains open.

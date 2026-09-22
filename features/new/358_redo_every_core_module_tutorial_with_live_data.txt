@@ -2237,3 +2237,24 @@ Independent staging verification confirms all thirteen current Annotate
 reviews, scene geometry/links and exact current speech inputs. Receipt:
 tools/tutorials/evidence/2026-09-21-annotate-current-translations.json.
 Eight promotion tests pass; the CPU multilingual render is live.
+
+2026-09-21 — CODEX: MAP ENGLISH MATRIX, CURRENT CV TRANSLATIONS, MEASURE RETRY
+All 24 current Map Barcodes English tracks pass full AAC decode, exact source
+and synthesis-input freshness, sentence timing/activity and independent true
+peak checks (highest -1.0 dBFS). Receipt: 2026-09-21-map-barcodes-english-voices.json.
+All thirteen CV translation/caption reviews now bind current English 104932e5:
+scene 7 says two loader workers; prerequisites state 1.5.0.8, n_jobs=2 and a
+byte-identical original measurements database copy. Eleven other narrated
+scenes are retained unchanged. Independent staging checks verify review and
+catalog identity, current geometry/links and speech inputs. Receipt:
+2026-09-21-classify-cv-current-translations.json. Its remaining 26 spoken
+tracks are rendering on CPU under a 6-GiB cap; English render remains separate.
+The first fresh Measure batch recording hit its 3600-second limit and opened
+Stop's native confirmation dialog. After inspecting it, Finish current work
+was selected; the capture exited 1. Its pipeline manifest reports success,
+which is not an accepted recording or independent output verification. All
+failed-capture evidence is retained (2026-09-21-measure-current-timeout.json).
+A new empty private measure-current-v2 stage repeats the real download and
+full 16-field/Plot run with a 10800-second limit, 32-GiB cap and one worker.
+No old database/output was seeded and no application behavior was changed.
+Full language/caption/player/listening acceptance and publication remain open.

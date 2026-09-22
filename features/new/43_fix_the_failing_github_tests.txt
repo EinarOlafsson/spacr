@@ -1837,3 +1837,11 @@ Korean's next twenty-source review batch passes five focused gates; current
 coverage is 5812/6232 with 42 orphans. Full catalog/docs debt remains open.
 All four regenerated-report consistency tests pass (234.16 s); independent
 review-only reconstruction reproduces each of the nine deck sections.
+
+2026-09-21 — CODEX DOCS LANE: the next Korean batch adds 39 source-bound
+reviews (32 corrections/seven retained), reaching 648 reviewed sources and
+5851/6232 current entries. Five focused syntax/source/context/semantic checks
+pass; the inversion warning stays deferred and full catalog debt stays open.
+Current coverage and review-scope reports are regenerated and being checked.
+Final report verification passes: four tests in 185.20 s. Full docs/catalog
+completion remains open for the explicitly listed translation debt.
