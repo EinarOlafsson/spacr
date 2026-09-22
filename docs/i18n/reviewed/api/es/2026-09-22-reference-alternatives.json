@@ -1,0 +1,18 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "context": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "label": "spacr.ml.generate_ml_scores#8",
+      "source": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "source_sha256": "ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6",
+      "translation": "``location_column`` — ``'columnID'`` o ``'rowID'``."
+    }
+  ],
+  "review": {
+    "correction": "Translate the alternative conjunction; preserve both parameter values and the parameter name verbatim.",
+    "kind": "AI-assisted technical and language review",
+    "native_speaker_signoff": false
+  },
+  "schema": 1
+}

@@ -413,3 +413,14 @@ technical audio checks, joining its previously checked English selection.
 Receipts:2026-09-22-measure-current-translations.json and
 2026-09-22-classify-ml-current-other-voices.json. Full audible/caption/player,
 latest-release appearance/version acceptance and joint publication remain open.
+
+2026-09-22 — CODEX: VERIFIED AUDIO, REGRESSION PRIVACY GUARD HELD
+Current Overview now has 50 technically verified voice tracks; Measure's 24
+English tracks pass independently in the actual narration environment.
+See the matching 2026-09-22 tutorial evidence receipts; no listening approval
+or publication. Regression's fresh dark/Blobs 1.5.0.9 capture was refused when
+the run journal exposed the maintainer home path. Rejected frame was not saved,
+no pixels were redacted, and the privacy guard remains unchanged. Preparation
+and CPU analysis evidence are retained privately; this recapture is not done.
+358/447 remain one capture pass per accepted lesson, with final version/visual,
+audible pronunciation, caption/player acceptance and complete-set publication open.

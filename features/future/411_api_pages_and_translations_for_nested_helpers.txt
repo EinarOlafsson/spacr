@@ -1362,3 +1362,24 @@ promotion tests pass0.74s. NewCPU narrator14953 renders26remaining tracks.
 Classify ML's26other-language tracks also completed independent technical
 verification. Neither result claims native-speaker/listening approval or
 publication. Runtime/API catalog debt is unchanged by this tutorial batch.
+
+2026-09-22 — CODEX: QUEUE/SETTINGS GERMAN REVIEW AND NINE-LANGUAGE ALTERNATIVES
+Seven German API documents now have 37 source-bound reviewed blocks (four
+reused). Corrected probability scores, continuation status, settings precedence,
+nonfatal cache errors and missing-versus-unusable-file behavior. Independent
+regeneration with model decoding forbidden reproduces all seven catalog entries.
+Receipt: features/data/411_german_api_queue_2026-09-22.json. No native signoff.
+Found a prose-detector defect: unquoted 'or' between protected literals was
+classified as code and German 'oder' was rejected. The detector now recognizes
+that conjunction. Nine older reviews retained the same English 'or'; originals
+are retired with reasons and preserved, replacements translate the conjunction
+while keeping both identifiers exact. All nine full API review stores load.
+Integrated the deferred-settings changes from nightly. Live report: 6298
+runtime entries, 11194 API symbols; German 10434 fresh API documents, each other
+locale 10409. English-manifest debt remains explicit: 657 added, 2 removed,
+128 changed. Exact inventory:411_api_debt_after_deferred_sections_2026-09-22.json.
+English manifest and extractor debt pins unchanged. Final live-report and
+nine-language conjunction checks are running before the progress push.
+Final validation: all44 live-report and nine-language conjunction tests pass
+in282.00s. Feature index and whitespace checks pass. No full-catalog or native
+approval claim; remaining source debt stays visible in the updated reports.

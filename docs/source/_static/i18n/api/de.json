@@ -6519,16 +6519,16 @@
     "spacr.batch.resolve_job_settings": {
       "source_blocks_sha256": [
         "361a98216d45fcbc50039d94033a3100d16902ce6d2007e6d925fcaa6cf75497",
-        "7911d8b785aefe2636d6f70e4ad0e1d85e1184ee64780aff9404cc5cc62ac597",
+        "999932b87419b7d4b83512692055d60b43babd06daeb01c1d4d01b2bff1f883c",
         "ab32a6bee3394a11f5ace1044fecdf2c1fd3d64d54a8570582677d9d7c142d1e",
         "858085d79fd71ac0d56dc841fe6fb302a0e61cd3e0f3c5a03c2c8081ac351a49",
         "ffe212d5105b491343d6967369a83ac636db634992df6e260b3b72842cfe86ef"
       ],
-      "source_sha256": "e4136727c7cc41792dae7b1e36a6a1de58e007a3bb3a7839f38972b74000025d",
-      "text": "Erstellen Sie die Einstellungen Schlüssel-Wert-Mapping dieses Jobs Modul wird tatsächlich empfangen.\n\nEbeneriert genau so wie ``spacr-run``-Schichten — Modul-Standards, dann die Settings-Datei (oder die Inline-Schlüsselwert-Mapping), dann die ``--set`` überschreibt — Mit dem eigenen Loader und Zwang von :mod:`spacr.cli` ist ein Wert, den CLI akzeptiert, ein Wert der Arbeitsliste.\n\n:param job: Der Job.\n:returns: die aufgelösten Einstellungen.\n:raises SettingsError: bei einem unbekannten Modul, einer nicht lesbaren Einstellungsdatei, einem unbekannten Namen für strukturierte Daten überschreiben oder einem unzuverlässigen Wert überschreiben.",
+      "source_sha256": "2c51841097457c59f857277f3b50b6bfa718640988cec783c8c781344df7e4ef",
+      "text": "Erstellt das Einstellungswörterbuch, das das Modul dieses Auftrags tatsächlich erhält.\n\nDie Ebenen entsprechen genau denen von ``spacr-run``: zuerst die Modulvorgaben, dann die Einstellungsdatei oder das direkt übergebene Wörterbuch mit den heutigen Einstellungsnamen und schließlich die Überschreibungen durch ``--set``. Verwendet werden der Lader, die Migration und die Typumwandlung aus :mod:`spacr.cli`, damit die Auftragswarteschlange dieselben Werte akzeptiert wie die CLI.\n\n:param job: der Auftrag.\n:returns: die aufgelösten Einstellungen.\n:raises SettingsError: bei einem unbekannten Modul, einer unlesbaren Einstellungsdatei, einem unbekannten Überschreibungsschlüssel oder einem Überschreibungswert, dessen Typ nicht umgewandelt werden kann.",
       "translation_source_blocks_sha256": [
         "ec67ec8bc4494a37ec21f97f1cf90d37a0861a81a4ae126d63e3cd53deb353e1",
-        "df5f25f5fbaccc671f0cb5b00fab8933e521726ffb290782d13e969349bf97da",
+        "9e04a5d4bd13acb6c6cabd2b9f7a4efe36a25877c07228d0ae15d8a7c5591bec",
         "ab32a6bee3394a11f5ace1044fecdf2c1fd3d64d54a8570582677d9d7c142d1e",
         "858085d79fd71ac0d56dc841fe6fb302a0e61cd3e0f3c5a03c2c8081ac351a49",
         "781b72374d838af7b3fb801363c10dbe3a4a9e5d6ba8d50f203cd9e32f0c433d"
@@ -10883,21 +10883,23 @@
     "spacr.cli.resolve_settings": {
       "source_blocks_sha256": [
         "239f2f5b46b63e213eaa07698a39944f3bdfd995e398dc130e8e0680cc91bd87",
-        "5a4c36da916a75477f2397d530369a97e45abfdc04b6ddf70528adea40c191ad",
+        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
         "c998f8049bcc807beabebb18310e626c88529dc5ac089a2d3a5ce5fa2785155c",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
+        "71cd8a699d1f3109ac9f4f9da2a60e25c20d1190a4f8238e0ac01a0e9cd97806",
         "2cc6a76c58a49d195847a74804f935ee41c29975c1c3418beefdc05931028e87",
         "6e3e14af2ace89206379e9a90bddf7fe57a7ee2d5b07cf2af8e1d11c09eb14ca"
       ],
-      "source_sha256": "a1e33a96d640175e121e340e2247251ce5b888f28f39e06ac5f96a2f968cc032",
-      "text": "Erstellen Sie die Einstellungen Schlüssel-Wert-Mapping der Workflow tatsächlich erhalten.\n\nSchichtend, niedrig bis hoch: die eigenen Voreinstellungen des Moduls, die Einstellungsdatei, dann die ``--set``-Überschreibungen.\n\n:param module: Modul ausgeführt wird.\n:param settings_path: Pfad zur Einstellungsdatei oder None nur für Standardeinstellungen.\n:param overrides: ``key=value`` Zeichenketten.\n:returns: die vollständig aufgelösten Einstellungen des Schlüsselwert-Mappings.\n:raises SettingsError: auf jede unlesbare Datei, unbekannten strukturierten Datennamen oder schlechten Wert.",
+      "source_sha256": "9e2196d8e572d992e38ca6c1c0d298e3c1234ec5b065f96af433a09db0b79752",
+      "text": "Erstellt das Einstellungswörterbuch, das die Verarbeitung tatsächlich erhält.\n\nDie Ebenen werden in aufsteigender Priorität angewendet: die eigenen Vorgaben des Moduls, die Einstellungsdatei und dann die Überschreibungen durch ``--set``. Zuerst wird die Datei unter den heutigen Namen eingelesen; siehe :func:`_under_todays_names`. Ohne diesen Schritt würde ein unter einem alten Namen gespeicherter Wert von der bereits unter dem neuen Namen vorhandenen Vorgabe verdrängt.\n\n:param module: das ausgeführte Modul.\n:param settings_path: Pfad zur Einstellungsdatei oder None, wenn nur Vorgaben verwendet werden sollen.\n:param overrides: Zeichenketten der Form ``key=value``.\n:param moved: Liste für Migrationshinweise, die direkt an :func:`_under_todays_names` weitergegeben wird. Ein Aufrufer, der vor der Ausführung einen Prüfbericht ausgibt, übergibt diese Hinweise an :func:`_preflight`, damit die bei der Zusammenführung übernommenen Schlüssel dort weiterhin genannt werden.\n:returns: das vollständig aufgelöste Einstellungswörterbuch.\n:raises SettingsError: bei einer unlesbaren Datei, einem unbekannten Schlüssel oder einem ungültigen Wert.",
       "translation_source_blocks_sha256": [
         "8076192ee74ce246b7983663b9b77d070f520fe0b92deea92bc61602923740e1",
-        "5a4c36da916a75477f2397d530369a97e45abfdc04b6ddf70528adea40c191ad",
+        "544d7d39e2caa11078dd2225c6f107753f19fd80696d1ddfee9a3881142bf5bb",
         "e295dfa1dfcf50f522ed7ae884473dd79d2b83ccf13269ef8cf7250d759bf8cd",
         "83a0dde19c2df3d6a549e84f2759160d659b9ac9f9298c478dd0a8f2feb523ab",
         "9f78f389e2a78d4a0ebbeea3e68a37d6820eedd8d2471506b62b3e14f678eda1",
+        "71cd8a699d1f3109ac9f4f9da2a60e25c20d1190a4f8238e0ac01a0e9cd97806",
         "f24bdda54f3dd1d3ea4fbe0c2bb3e213c335adb16db5ff1ff8997994c25b3c92",
         "6e93fab54c5259307705dc85f81e4baa30a5be09bec7b4155ae00d5447979c5f"
       ]
@@ -16680,6 +16682,22 @@
         "50d72f6e0d68c4aa38fa6f0b824dd1325f2825e0ee80b42185e8d558f49c500e"
       ]
     },
+    "spacr.curation_queue.external_record": {
+      "source_blocks_sha256": [
+        "c0858e11ed71fae1d06a94c23670a4b31b4a40c4121f8040b387a513123bfab8",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "afd2263f9e1e9a04c1c98815c19ae8d7901cd249a445e0e5db9a3d0b935824c3",
+        "308b928276a7a6d63062888e47e191bad6e4dfec90b33c9e021d179db9ad141e"
+      ],
+      "source_sha256": "9c5eac7f34ff7fa500c1fde938b9cb772690bc9e03bc1d35b0fe6be6a15b332b",
+      "text": "Der Speicherort einer Warteschlangendatei des externen Kurationswerkzeugs.\n\n:param folder: der Ordner der Arbeitsliste.\n:param suffix: :data:`EXTERNAL_STATUS_SUFFIX` oder :data:`EXTERNAL_SCORES_SUFFIX`.\n:returns: ``<parent>/<name><suffix>``, neben dem Warteschlangenordner statt darin. Zuerst wird der Ordnerpfad ohne Datenträgerzugriff in einen absoluten Pfad umgewandelt, damit auch ``.`` einen Namen erhält, der vor das Suffix gesetzt werden kann.",
+      "translation_source_blocks_sha256": [
+        "64906ec5d0b253693108cbc73d6f3a14b487d741e603d714acfdd05929b9a46c",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "afd2263f9e1e9a04c1c98815c19ae8d7901cd249a445e0e5db9a3d0b935824c3",
+        "3f7adb8c074c0ac37b8060459b64220fbaa9fef72c9826e4be3c3d26d3df4f18"
+      ]
+    },
     "spacr.curation_queue.is_reviewed": {
       "source_blocks_sha256": [
         "61f7f0a46c76447835c2b5233d51499ffacd1656287aa6bfefdc4427bf370286",
@@ -16696,17 +16714,19 @@
       "source_blocks_sha256": [
         "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
         "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "5e7c3c18e4fd57b77cf6e15871d910e92d2bacb4d505f20aef6160123cb43765",
         "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
         "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
         "65597ad02f41874555b7fc2f460e612dae991973078bc46d5b88cd0664fb86b0",
         "bb21c19763a09394e3dca3d4d61ca817b991cc6100dcfbdfa24efea3729ec43d",
         "bf17bb1c4effb28cd91f2f9bc8a056c7bba72100c4f88307aa24a4f96599b158"
       ],
-      "source_sha256": "1e13ebc7fce0ef9b4c4832f46ac2b7aa9c6ad843ffb9beb09ecc293bd310c6f1",
-      "text": "Draft-Objekt zählt für ``items``, zwischengespeichert in ``curate_drafts.csv``.\n\nDas Lesen von dreihundert Entwürfen bei jedem Start ist langsam, also werden Zählungen nach Stamm zwischengespeichert und nur Stämme, die aus dem Cache fehlen, werden gelesen. Zählungen fahren nur ORDERING: ein abgestreifter man mis-sortiert ein Feld, es verliert nie die Arbeit.\n\n:param folder: den Ordner der Arbeitsliste.\n:param items: die zu zählenden Felder.\n:param write_cache: ob der Cache zurückgeschrieben werden soll. Ein Fehler beim Schreiben wird angekündigt, nie als Fehler gemeldet — ein Ordner mit Lesezugriff muss noch geöffnet werden.\n:param announce: wo Fortschritt geht; Defaults auf :func:`print`.\n:returns: ``{stem: n_objects}`` für jedes angegebene Element.",
+      "source_sha256": "3a6f8dd683344451b3fab1b781f8d75302304df4f600eebf522805290e25a7b2",
+      "text": "Objektanzahlen der Entwürfe für ``items``, zwischengespeichert in ``curate_drafts.csv``.\n\nDreihundert Entwürfe bei jedem Start einzulesen ist langsam. Deshalb werden die Anzahlen nach Dateistamm zwischengespeichert und nur die Entwürfe eingelesen, deren Dateistamm im Cache fehlt. Die Anzahlen bestimmen ausschließlich die Reihenfolge: Ein veralteter Wert kann ein Bildfeld falsch einsortieren, aber niemals bereits geleistete Arbeit verlieren lassen.\n\nEin unlesbarer Cache führt deshalb zu einer Neuzählung und löst keine Ausnahme aus. Eine Datei, deren Schreiben durch einen Absturz unterbrochen wurde, kann ungültiges UTF-8 enthalten. Würde dieser Fehler weitergegeben, würde eine bloße Optimierung die gesamte Sitzung beenden, obwohl die Entwürfe auf dem Datenträger liegen und maßgeblich sind.\n\n:param folder: der Ordner der Arbeitsliste.\n:param items: die Bildfelder, deren Objekte gezählt werden sollen.\n:param write_cache: ob der Cache zurückgeschrieben werden soll. Ein Schreibfehler wird gemeldet, löst aber keine Ausnahme aus; auch ein schreibgeschützter Ordner muss sich öffnen lassen.\n:param announce: Empfänger der Fortschrittsmeldungen; standardmäßig :func:`print`.\n:returns: ``{stem: n_objects}`` für jedes übergebene Element.",
       "translation_source_blocks_sha256": [
         "65ba509f169163d4d52fe4cfb5e02c1e2722243e08e075605aea5884101661d0",
         "39b3b15ed26e4961ab5316829a989ec8199cf939091a7deac637f55a700a021c",
+        "3a93e43d2115185fc668be129bec6ee939e5789aaa6b0733162e808bcbef2565",
         "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
         "b79ae936490d2760893c928aaa2c895c458f8eed367ab210f4fe85fda4de7c31",
         "014239bb03bc76df3aecf670715a66b54e045d7dbc57ae1df8052aa85b42b5dc",
@@ -16716,18 +16736,18 @@
     },
     "spacr.curation_queue.load_probabilities": {
       "source_blocks_sha256": [
-        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "d4c352596b7be35ec0f4dd33b20839402b1cfcf47496b983c9d875ace2b58cc6",
         "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
-        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
-        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+        "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
+        "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028"
       ],
-      "source_sha256": "a91c47cb80761fab032899f5a8f8469aae77953b6d51aba9203f05f92744ad2f",
-      "text": "Lies ``curate_scores.csv``, wenn es einen gibt.\n\n:param folder: den Ordner der Arbeitsliste.\n:returns: ``{stem: probability}``, und ``{}`` wenn die Datei nicht vorhanden ist – das ist es, was ``prob`` und ``easy`` lautlich zurückfällt.\n:raises CurationQueueError: wenn die Datei vorhanden ist, aber keine Stammspalte oder keine anerkannte Wahrscheinlichkeitsspalte hat. Eine Scoredatei, die existiert und nicht verwendet werden kann, ist ein Fehler, für den es sich lohnt zu stoppen; eine fehlende Datei ist ein gewöhnlicher Zustand.",
+      "source_sha256": "1e2621c399b3deaa79f247ab020ae6b3fd0473880513a77a63080fd4fa6e3cc7",
+      "text": "Liest die Datei mit den Wahrscheinlichkeitswerten der Arbeitsliste, sofern sie vorhanden ist.\n\n:param folder: der Ordner der Arbeitsliste.\n:returns: ``{stem: probability}`` oder ``{}``, wenn keine Datei mit Wahrscheinlichkeitswerten vorhanden ist (siehe :func:`scores_path`). In diesem Fall wechseln ``prob`` und ``easy`` mit einer ausdrücklichen Meldung auf ihre Ersatzreihenfolge.\n:raises CurationQueueError: wenn ``curate_scores.csv`` vorhanden ist, aber keine Dateistammspalte oder keine erkannte Wahrscheinlichkeitsspalte enthält. Eine vorhandene, aber unbrauchbare Datei ist ein Fehler, der die Verarbeitung anhalten soll; eine fehlende Datei ist ein normaler Zustand.",
       "translation_source_blocks_sha256": [
-        "ba1cb9b1b11b449a33926001fda24cfe64c608076d888fd71a33c36674f546f3",
+        "a397a660f6ea8d95f5f87bf722d92c029c1c067f923d0b8ccb2f2ce1aa23a7d7",
         "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
-        "ea55c37fb16531cbf2b399974a99c82896ebd425bf538f10f08aefa3e89011f8",
-        "e73dc3eb33b37b7f2f46b461ebf24f2e5e892cfe06f5a126825e64471ab0ad87"
+        "9d9b86d24499b2a7c6559417a1af6ae7966cfe69cd9932ac8f1c14bfe9f3b9d2",
+        "e676006d686e08d3ef2f4ece65c95eac2152ea0a14bcbde2631a1da95dac3028"
       ]
     },
     "spacr.curation_queue.mark_state": {
@@ -16888,16 +16908,36 @@
         "a11a8dd17e2f2aa36ce60171f2af6c0be04b38602288649247a5319c96818bb0"
       ]
     },
+    "spacr.curation_queue.scores_path": {
+      "source_blocks_sha256": [
+        "bd72668396ebaa479cdebfb9ad69a2c150c52f5b0d790f2595cef4fb1b459312",
+        "20ef1f8bb91368c0ca4075a90fd17021aa4b14afdb330e05ff49c96ab81e0b34",
+        "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
+        "de78a6fa2c90c41c1c3272eccd7a1a02fe075e7982c24b8d5853d4f351350163"
+      ],
+      "source_sha256": "46560ff45422f23f0481619c6f67df87c569f6ac5e1ca2a69f661019391ca55d",
+      "text": "Der Speicherort, aus dem die Wahrscheinlichkeiten dieser Arbeitsliste gelesen werden, sofern vorhanden.\n\nZuerst wird ``<folder>/curate_scores.csv`` verwendet. Fehlt diese Datei, wird ``<parent>/<name>_scores.csv`` des externen Kurationswerkzeugs verwendet, wenn ihre Kopfzeile eine Spalte ``stem`` und eine Wahrscheinlichkeitsspalte enthält. So werden die Wahrscheinlichkeitswerte des Plaque-Projekts gespeichert. Eine Datei neben dem Ordner, die nicht wie eine Datei mit solchen Werten aufgebaut ist, wird übersprungen und darf die Sitzung nicht beenden.\n\n:param folder: der Ordner der Arbeitsliste.\n:returns: die Datei mit den Wahrscheinlichkeitswerten oder ``None``, wenn keine vorhanden ist.",
+      "translation_source_blocks_sha256": [
+        "186d8065ff1d9cfc01d25629ba62bf27d2f97ebf70ae344864f6c76658c2b62c",
+        "20ef1f8bb91368c0ca4075a90fd17021aa4b14afdb330e05ff49c96ab81e0b34",
+        "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
+        "de78a6fa2c90c41c1c3272eccd7a1a02fe075e7982c24b8d5853d4f351350163"
+      ]
+    },
     "spacr.curation_queue.status_path": {
       "source_blocks_sha256": [
+        "d8d6d0dbca7c39bb59107144c0af0943ab2c9bcd7592745aa8a2f697b6ec36e1",
+        "b3dd21bf4e574c0b58ff302f7e0ac5fa07a53c23f66a0a7f8b17e08b35c3c45c",
         "fe42fed2ffc59de504c7516f810e4434c0e08be692a24b5a7504586872674927",
-        "2a86f2932eea2e21e8fb3e101cbe26e6ae7e334bed4925ec17a8800109fb9179"
+        "f91d80771d725a919870b912560eb9e40aa05dfb852af6af9cd26f1b5909acd9"
       ],
-      "source_sha256": "13d3efb3c86cebc69e873382fdd4fba16f310b17e0c1026293e51941db3f2c4d",
-      "text": ":param folder: den Ordner der Arbeitsliste.\n\n:returns: ``<folder>/curate_status.csv``, innerhalb des Arbeitslistenordners, so dass er mit den Bildern reist, wenn der Satz zwischen Maschinen synchronisiert wird.",
+      "source_sha256": "566ab1837eb4ee3ea7cba77611876318fba5a7fad5f3cbe906884ae3dbc41f98",
+      "text": "Der Speicherort, aus dem der Fortsetzungsstatus dieser Arbeitsliste gelesen und in den er zurückgeschrieben wird.\n\nNormalerweise ist dies ``<folder>/curate_status.csv`` innerhalb des Warteschlangenordners, damit der Status zusammen mit den Bildern zwischen Rechnern synchronisiert wird. Eine Ausnahme gilt, wenn diese Datei im Ordner fehlt und daneben die Statusdatei des externen Kurationswerkzeugs, ``<parent>/<name>_status.csv``, mit den Spalten ``stem`` und ``state`` liegt. Dann ist diese Datei maßgeblich und wird an ihrem vorhandenen Ort gelesen und zurückgeschrieben. Die mit diesem Werkzeug kuratierten Datensätze bewahren ihren Fortschritt dort auf und haben keine entsprechende Datei im Ordner. Eine zweite Datei anzulegen würde bereits abgeschlossene oder übersprungene Bildfelder wieder als unbearbeitet öffnen, während das andere Werkzeug weiterhin die erste Datei liest.\n\n:param folder: der Ordner der Arbeitsliste.\n:returns: der Pfad der Datei mit dem Fortsetzungsstatus; die Datei muss noch nicht vorhanden sein.",
       "translation_source_blocks_sha256": [
+        "110c8c2ddf69dc9fca2cd6bc7b1c5034f8c9f945b91af507b27897c9a3cc5dbc",
+        "91bca0a785972769d6441b29ee20bbed6e0090967561207b97b7e24ee2c2c31b",
         "a700bf75e29dfeaf08273b7f5b8367ff0143236345c75544d3bbeef84aeafe8f",
-        "34fc749e093308e4387c094711566edbcbe945f66b07e189cb6e2c8c38abc45d"
+        "f91d80771d725a919870b912560eb9e40aa05dfb852af6af9cd26f1b5909acd9"
       ]
     },
     "spacr.curation_queue.summarize": {
@@ -41718,7 +41758,7 @@
         "b5db5f640b266ebd5a8e7480f63f5bff4db4be47ed071cfc86ab558eb87e704d"
       ],
       "source_sha256": "14f78345f1b8f4bb4e4569568248751fa676cefbd91d97b4228ccb1cdc9cb1d6",
-      "text": "Trainiert einen klassischen ML-Klassifikator (XGBoost / logistic / RF) anhand objektbezogener Merkmale und bewertet jede Mikroplatten-Probenposition eines Screenings.\n\nLiest die ``measurements.db``, die von :func:`spacr.measure.measure_crop` erzeugt wurde, führt die Merkmaltabellen für Zellen, Kerne, Pathogene und Zytoplasma zusammen, verwendet die als ``positive_control`` / ``negative_control`` markierten Mikroplatten-Probenpositionen (oder eine Annotationsspalte) als Trainingslabels, delegiert die Modellanpassung an :func:`ml_analysis` und schreibt objektbezogene Vorhersagen, Permutations- und Merkmalswichtigkeitstabellen sowie eine Mikroplatten-Heatmap in ``results/`` neben der Quelldatenbank.\n\n:param settings: Einstellungs-Dictionary, kanonisiert mit :func:`spacr.settings.set_default_analyze_screen`. Wichtige Einträge:\n\n    - ``src`` (str oder Liste) — Ordner mit ``measurements/measurements.db``.\n    - ``channel_of_interest`` — nullbasierter Kanal für das Merkmal des Rekrutierungsverhältnisses; steuert außerdem die Tabellenauswahl.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — IDs von Mikroplatten-Probenpositionen (z. B. ``'c2'`` / ``'c1'``), die als Trainingslabels dienen.\n    - ``annotation_column`` — überschreibt die Kontrollzuweisungen mit einer Annotationsspalte auf PNG-Ebene.\n    - ``location_column`` — ``'columnID'`` or ``'rowID'``.\n    - ``heatmap_feature`` — auf der Mikroplatten-Heatmap dargestelltes Merkmal.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Die zweielementige Liste ``[output, plate_heatmap]``, wobei ``output`` die zehnteilige Ergebnisliste von :func:`ml_analysis` und ``plate_heatmap`` die ``matplotlib``-Abbildung der Mikroplatten-Heatmap ist. Die CSV-Dateien und Abbildungen werden als Nebeneffekt nach ``results/`` geschrieben; ihre Pfade werden nicht zurückgegeben.\n:raises ValueError: wenn ``annotation_column`` gesetzt ist, die Tabelle ``png_list`` jedoch nicht über ``prcfo`` bzw. diese Spalte verfügt, ihre Objekt-IDs nicht mit den Messdaten verknüpft werden können, sie weniger als zwei beobachtete Klassen enthält oder ``heatmap_feature`` nicht zu den trainierten Merkmalen gehört.\n\nBeispiel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSiehe auch: :func:`ml_analysis` — die zugrunde liegende Routine zum Anpassen und Auswerten. :func:`perform_regression` — Regression mit gemischten Effekten für ML-Scores je Mikroplatten-Probenposition.",
+      "text": "Trainiert einen klassischen ML-Klassifikator (XGBoost / logistic / RF) anhand objektbezogener Merkmale und bewertet jede Mikroplatten-Probenposition eines Screenings.\n\nLiest die ``measurements.db``, die von :func:`spacr.measure.measure_crop` erzeugt wurde, führt die Merkmaltabellen für Zellen, Kerne, Pathogene und Zytoplasma zusammen, verwendet die als ``positive_control`` / ``negative_control`` markierten Mikroplatten-Probenpositionen (oder eine Annotationsspalte) als Trainingslabels, delegiert die Modellanpassung an :func:`ml_analysis` und schreibt objektbezogene Vorhersagen, Permutations- und Merkmalswichtigkeitstabellen sowie eine Mikroplatten-Heatmap in ``results/`` neben der Quelldatenbank.\n\n:param settings: Einstellungs-Dictionary, kanonisiert mit :func:`spacr.settings.set_default_analyze_screen`. Wichtige Einträge:\n\n    - ``src`` (str oder Liste) — Ordner mit ``measurements/measurements.db``.\n    - ``channel_of_interest`` — nullbasierter Kanal für das Merkmal des Rekrutierungsverhältnisses; steuert außerdem die Tabellenauswahl.\n    - ``model_type_ml`` — ``'xgboost'``, ``'logistic_regression'``, ``'random_forest'``.\n    - ``positive_control`` / ``negative_control`` — IDs von Mikroplatten-Probenpositionen (z. B. ``'c2'`` / ``'c1'``), die als Trainingslabels dienen.\n    - ``annotation_column`` — überschreibt die Kontrollzuweisungen mit einer Annotationsspalte auf PNG-Ebene.\n    - ``location_column`` — ``'columnID'`` oder ``'rowID'``.\n    - ``heatmap_feature`` — auf der Mikroplatten-Heatmap dargestelltes Merkmal.\n    - ``exclude``, ``n_repeats``, ``top_features``, ``test_size``, ``reg_alpha``, ``reg_lambda``, ``learning_rate``, ``n_estimators``, ``n_jobs``.\n    - ``remove_low_variance_features``, ``remove_highly_correlated_features``, ``prune_features``, ``cross_validation``, ``verbose``.\n\n:returns: Die zweielementige Liste ``[output, plate_heatmap]``, wobei ``output`` die zehnteilige Ergebnisliste von :func:`ml_analysis` und ``plate_heatmap`` die ``matplotlib``-Abbildung der Mikroplatten-Heatmap ist. Die CSV-Dateien und Abbildungen werden als Nebeneffekt nach ``results/`` geschrieben; ihre Pfade werden nicht zurückgegeben.\n:raises ValueError: wenn ``annotation_column`` gesetzt ist, die Tabelle ``png_list`` jedoch nicht über ``prcfo`` bzw. diese Spalte verfügt, ihre Objekt-IDs nicht mit den Messdaten verknüpft werden können, sie weniger als zwei beobachtete Klassen enthält oder ``heatmap_feature`` nicht zu den trainierten Merkmalen gehört.\n\nBeispiel:\n    .. code-block:: python\n\n        from spacr.ml import generate_ml_scores\n        settings = {\n            'src': '/data/plate01',\n            'channel_of_interest': 3,\n            'positive_control_id': 'c2', 'negative_control_id': 'c1',\n            'model_type_ml': 'xgboost', 'heatmap_feature': 'recruitment',\n        }\n        generate_ml_scores(settings)\n\nSiehe auch: :func:`ml_analysis` — die zugrunde liegende Routine zum Anpassen und Auswerten. :func:`perform_regression` — Regression mit gemischten Effekten für ML-Scores je Mikroplatten-Probenposition.",
       "translation_source_blocks_sha256": [
         "e429b104d4ae77032f1745bcf118af49079d226faede3b3469ccf24c75f5c179",
         "71645345a26111c0f1c6f910aed107b2d70f03e3a582a1de79266d18583a53c1",

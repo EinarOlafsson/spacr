@@ -10,9 +10,9 @@ German, Spanish, French and Swedish passed their full runtime audits at the
 46d11afaf application-source boundary. Subsequent application changes and
 explicitly inventoried chooser prose bring the live inventory to 6,298
 runtime entries; all nine current catalogs have explicit debt. The API
-inventory has 657 added, 2 removed and 127 changed sources relative to its
+inventory has 657 added, 2 removed and 128 changed sources relative to its
 English manifest, across 11,194 live symbols. Exact outstanding source
-IDs are in features/data/411_api_debt_after_view_lasso_2026-09-22.json; no English
+IDs are in features/data/411_api_debt_after_deferred_sections_2026-09-22.json; no English
 manifest or debt pin was raised. The current table is regenerated from
 source-bound records; the dated completion statements below describe
 historical trees. New review records are AI-assisted technical review, not
@@ -68,7 +68,7 @@ table derives them from the same source the builders read.
 | Language | Reviewed runtime records | Of 6,298 | Remainder | Reviewed API blocks | Of 11,194 | Remainder |
 |---|---:|---:|---:|---:|---:|---:|
 | Swedish | 688 | 10.92% | 5,610 | 710 | 6.34% | 10,484 |
-| German | 651 | 10.34% | 5,647 | 750 | 6.70% | 10,444 |
+| German | 651 | 10.34% | 5,647 | 783 | 6.99% | 10,411 |
 | Spanish | 656 | 10.42% | 5,642 | 570 | 5.09% | 10,624 |
 | Simplified Chinese | 998 | 15.85% | 5,300 | 853 | 7.62% | 10,341 |
 | Portuguese | 664 | 10.54% | 5,634 | 798 | 7.13% | 10,396 |

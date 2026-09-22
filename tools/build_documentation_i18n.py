@@ -4965,10 +4965,10 @@ def _api_block_requires_translation(source: str) -> bool:
     # enter this function because ``translatable_blocks`` keeps them literal.
     return bool(
         re.search(r"[A-Za-z]{3,}", residual)
-        # The preview contract exposes bare yes/no cells. ``no`` is a complete
-        # visible answer even though it is only two letters; quoted/code forms
+        # Bare ``no`` answers and ``or`` between API references are visible
+        # prose even though they have only two letters. Quoted/code forms
         # have already been removed by the protection pass above.
-        or re.search(r"(?<![A-Za-z])no(?![A-Za-z])", residual, re.IGNORECASE)
+        or re.search(r"(?<![A-Za-z])(?:no|or)(?![A-Za-z])", residual, re.IGNORECASE)
     )
 
 

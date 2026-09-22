@@ -1944,3 +1944,14 @@ the unchanged English manifest. All nine review stores load; full docs debt
 remains open. Live-report regression checks run before pushing.
 Final integrated report/label selection passes6/6 in299.11s. This establishes
 report consistency and the label fix, not a green full docs workflow.
+
+2026-09-22 — CODEX DOCS LANE ONLY
+Seven German API documents accepted with source-bound reviews and independent
+model-free regeneration. Corrected the short 'or' prose detector and one
+reviewed/catalog block in every locale; historical reviews retained as retired.
+All nine API review stores load. Reports refreshed after 7e7d29316: German
+10434/11194 fresh API symbols; others 10409/11194. Full catalog debt remains,
+and this is not a claim that the docs lane or GitHub tests are green. Final
+live-report/conjunction tests are running; 43's other lanes remain with Claude.
+Final local validation:44 live-report/conjunction tests pass282.00s. Feature
+index and whitespace checks pass; the full docs/catalog lane remains open.

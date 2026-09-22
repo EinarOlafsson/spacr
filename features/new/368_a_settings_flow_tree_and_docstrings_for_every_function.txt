@@ -730,3 +730,12 @@ are saved in features/data/411_api_debt_2026-09-21.json; API catalogs and the
 extractor debt baseline are unchanged. Runtime progress is separate: de/sv/es
 pass their full audits and all eleven new download captions are reviewed in
 all nine locales. This does not claim translated API completion.
+
+2026-09-22 — CODEX TRANSLATION CHECKPOINT
+411 accepted seven current German API documents for settings resolution and
+curation files (37 reviewed blocks); independent regeneration needs no model.
+The short conjunction between API literals is now translated in all nine
+catalogs, with prior reviewed records retained as retired history. New nightly
+settings-layout documentation remains in explicit debt: 11194 live symbols,
+657 added/2 removed/128 changed versus the unchanged English manifest.
+368's translation tail remains open on 411; no docstring-completion claim.

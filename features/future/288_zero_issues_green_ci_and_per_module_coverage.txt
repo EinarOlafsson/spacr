@@ -4463,3 +4463,16 @@ Receipt:features/data/288_object_settings_grid_2026-09-22.json. No production
 change or baseline adjustment. Seventeen original floor modules have passing
 targeted repairs; FEATURES table separately measures above90 with its explicitly
 recorded editing defect. Whole-suite coverage and the ratchet remain open.
+
+2026-09-22 — CODEX: MODEL PICKER ABOVE THE TARGET
+The current model_zoo_picker reaches 92.65% statement/branch coverage:
+797/850 statements and 174/198 branches; 124 tests pass in 72.33s.
+New cases cover cancelled/unreadable local files, usable local models when
+sharing is declined, central/fallback sharing outcomes and worker endings.
+Uploads, token lookup and network probes are explicitly faked; worker run()
+executes on the test thread. No production change or baseline tightening.
+Receipt: features/data/288_model_picker_2026-09-22.json. This is the eighteenth
+original floor module with a clean targeted repair. The FEATURES table's
+separate known defect, remaining floors and full-run ratchet stay open.
+Integrated 741c073bd/7e7d29316 before further work; the picker source is unchanged.
+Regression panel input-validation coverage is running as the next repair.

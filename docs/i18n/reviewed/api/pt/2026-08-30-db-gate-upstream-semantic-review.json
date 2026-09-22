@@ -462,7 +462,9 @@
       "source_sha256": "ff6d95d3dcfbaab265aae863ebbc3b2c960830aae94685accd7aba8d945926a6",
       "source": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
       "context": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
-      "translation": "``location_column`` — ``'columnID'`` or ``'rowID'``."
+      "translation": "``location_column`` — ``'columnID'`` or ``'rowID'``.",
+      "retired": true,
+      "retired_reason": "2026-09-22: the prose detector incorrectly exempted the unquoted conjunction or. Corrected source-bound review in 2026-09-22-reference-alternatives.json; original target retained here."
     },
     {
       "label": "spacr.ml.generate_ml_scores#9",

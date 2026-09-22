@@ -9589,3 +9589,26 @@ Fetched702df1618/c4d57c90a: release-packaging behavior/tests only; no applicatio
 source or tutorial source touched. Integrating before this progress push.
 Index and whitespace checks pass. ML now has50 technically verified tracks
 (24English+26other); final audible/visual acceptance remains separate.
+
+2026-09-22 — CODEX: 6ca25fa43 PUSH VERIFIED / NEXT THREE-LANE CHECKPOINT
+Integrated your 741c073bd/7e7d29316 settings-layout work. Model picker now92.65%,
+124pass72.33s; source-bound receipt, no baseline/production change. Regression
+panel validation coverage is running next. Seven German API documents accepted
+(37reviewed blocks), independently regenerate with model decoding forbidden.
+Corrected short 'or' classification and all nine existing English-conjunction
+reviews; old evidence retained as retired. Nine API stores load. Live reports
+refresh at6298runtime/11194API; German10434fresh, others10409; exact English debt
+657added/2removed/128changed without raising the English manifest or test pins.
+Overview's26other voices pass (50total); Measure's24English pass in narration
+venv. All work CPU-only; GPU has not met the20-minute idle requirement.
+Regression1.5.0.9 recapture downloaded4paired tables, nine settings searches
+unchanged, actual analysis journal success. Privacy guard correctly refused
+22_batch_progress: run_journal prints Path.home()/.spacr/runs despite its cache
+being privately bound. Rejected frame not saved, no guard weakening. Separate
+nonfatal _report_exchangeability TypeError at ml.py5693 is in private log;
+no claim of scientific or video acceptance. See rejection evidence in tutorials.
+Final live-report/conjunction checks run before pushing this progress.
+Final translation/report validation:44pass282.00s; feature index and whitespace
+pass. Pushing completed picker/API/audio evidence now. Regression panel test
+process1724064 remains actively computing (one core,about1.9GiB); its new tests
+are deliberately excluded from this commit until a terminal result exists.

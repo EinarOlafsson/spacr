@@ -2411,3 +2411,20 @@ finished0: all26 pass current-source freshness, timing, activity, full decode
 and decoded true-peak threshold<=-1dBFS; file hashes unchanged. Receipt:
 2026-09-22-classify-ml-current-other-voices.json. Listening, captions/player,
 latest-release visual acceptance and complete-set publication remain open.
+
+2026-09-22 — CODEX: OVERVIEW VOICES AND MEASURE ENGLISH VERIFIED
+Classify Overview's 26 other-language tracks pass independent freshness,
+timing, activity, full decode and peak checks, completing 50 technical tracks
+with the earlier English set. Measure's 24 English tracks now pass those same
+checks. The first Measure verification used the app Python environment and
+correctly rejected mismatched tool/model identities; using the actual narration
+environment passes without changing media or fingerprints. Receipts:
+2026-09-22-classify-overview-current-other-voices.json and
+2026-09-22-measure-english-voices.json. Listening/publication remain open.
+Fresh Regression capture on 1.5.0.9 downloads four real paired tables and checks
+nine settings searches without changing settings. Its analysis journal reports
+success, but the guard refuses a progress frame containing the maintainer's
+run-journal directory. No rejected screenshot is saved; no recording accepted.
+Receipt:2026-09-22-regression-capture-path-rejection.json. The diagnostic log also
+has a nonfatal exchangeability-report TypeError; scientific acceptance remains
+open. Resolve the journal display path before recapturing; do not weaken privacy.
