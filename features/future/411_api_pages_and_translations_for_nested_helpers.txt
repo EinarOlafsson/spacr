@@ -1184,3 +1184,13 @@ Final report consistency checks pass: four tests in 201.04 seconds. All ten
 accepted German API entries regenerate verbatim without loading a model.
 The first private draft batch has 25 entries, only 18 of which pass technical
 checks; neither number is accepted translation coverage pending review.
+
+2026-09-21 — CODEX: ML TUTORIAL LANGUAGE REVIEWS CURRENT
+Thirteen ML tutorial translation/caption reviews now bind the verified current
+eleven-scene source, including source confirmation, conditional download and
+the respected test_size setting. Eight narration scenes retain their measured
+results and limitations; independent source/stage/speech/geometry checks pass.
+Eight promotion tests pass. The remaining spoken tracks render on CPU.
+Runtime/API accepted counts are unchanged by this tutorial-only checkpoint.
+The private CPU API queue continues; machine drafts remain outside catalogs
+until individually reviewed. No GPU-idle window has qualified.

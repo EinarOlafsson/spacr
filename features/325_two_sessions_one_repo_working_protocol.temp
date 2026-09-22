@@ -9327,3 +9327,30 @@ slide REPLACES the logo at the top (same alt text "spaCR"), followed by a
 line "`← Back <.../pages/51.md>`_  `Next → <.../pages/02.md>`_". The nine
 carry the same links with arrows only ("←", "→"); please add "Back"/"Next"
 in each language. _readme_logo_alt_text now accepts either opening image.
+
+2026-09-21 — CODEX: MEASUREMENTS-EXAMPLE COVERAGE / ML TRANSLATIONS
+Taking tests/qt/test_measurements_example_completion.py for the shared
+measurements-example loader's 80.22% floor gap: real button wiring, cached
+handover, asynchronous endings, missing controls and failed reporters. The
+network launcher is replaced and no real download thread will be started.
+Also updating ML's thirteen tutorial reviews to its verified eleven-scene
+recording, including the explicit source-confirmation step and current split
+setting behavior. Existing scientific limitations and measured counts stay.
+The example-loader selection passes all31tests with100% statements/branches.
+Also taking tests/qt/test_sra_picker_completion.py for its73.63% gap: worker.run()
+on the test thread plus a QObject signal stand-in for dialog wiring, no real
+QThread start or network. This covers cancellation, partial downloads and retry.
+The SRA selection passes20tests with100% statements/branches. Measure v2 has
+finished normally and independent checks pass:16/16fields,5409pixel-derived
+values,601RGBcrops,48PDFs and48GUIfigures. The current stale-results warning
+remains visible despite identical collected settings; no app fix or safe
+handoff claim. Updated English removes unverified older-build claims.
+Overview Spanish ef_dora renderer ended1 after measured AAC peak -0.9dBFS.
+Adding the existing fingerprinted two-decibel fallback only for that track;
+the -1dBFS gate stays intact. Other live renderers' profiles are unchanged.
+Measure current preview+verified batch are composed and English13scenes staged;
+af_heart/video/browser verification now runs. ML's thirteen current reviews
+pass independent source/retained-scenes/geometry/speech checks and8promotion
+tests. Its remaining26voices run separately.37measurement/mastering tests
+pass, including the scoped Spanish overview repair; actual rerender acceptance
+is still pending. Full tutorial publication/listening and catalog gates stay open.

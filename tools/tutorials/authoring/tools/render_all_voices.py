@@ -370,6 +370,11 @@ def mastering_config(lesson_id: str, language: str, voice: str) -> dict:
         # -0.8 dBFS after all three normal encodes. Same voice, same repair
         # as Map above; the -1 dBFS gate still decides acceptance.
         result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
+    if (lesson_id, language, voice) == ("41_classify", "es", "ef_dora"):
+        # The 2026-09-21 overview reached -0.9 dBFS after all normal AAC
+        # encodes. Fingerprint extra headroom for this measured track only;
+        # the decoded -1 dBFS acceptance gate still decides the result.
+        result["filters"].append(LOUDNESS_FILTERS[-1] + ",volume=-2dB")
     return result
 
 

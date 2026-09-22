@@ -2276,3 +2276,33 @@ Eight review-promotion tests pass (0.49 s). Receipt:
 tools/tutorials/evidence/2026-09-21-classify-overview-current-translations.json.
 The remaining 26 spoken tracks are rendering CPU-only with two threads and
 a 6 GiB cap. No live publication or native/listening signoff is implied.
+
+2026-09-21 — CODEX: CURRENT ML TRANSLATIONS AND VERIFIED MEASURE BATCH
+ML's thirteen reviews now bind the eleven-scene recording. The new third
+scene explicitly confirms the loaded project with Choose source data; the
+opening names current Classify and the download is conditional. Prerequisites
+use 1.5.0.8 and test_size=0.1 directly, removing the repaired normalization
+workaround. Eight retained narration scenes preserve measured results,
+actual held-out wells and scientific limitations. Independent staged/source,
+speech/geometry and numeric-setting checks pass; eight promotion tests pass.
+Receipt: 2026-09-21-classify-ml-current-translations.json. Remaining 26 voices
+are rendering on CPU; native/listening and full player acceptance remain open.
+
+The fresh Measure v2 capture finished normally. Independent read-only checks
+verify 16/16 successful fields, 601 cell records/RGB224 crops, 622 nuclei, 373 pathogen
+objects and 5409 pixel-derived area/intensity values, including the five
+source-supported label merges. Source arrays match the preserved published
+manifest. All 48 PDFs and 48 GUI figures verify, and collected settings are identical
+before/after. The native dark/Blobs 4K frames contain neutral paths and an unsent
+AI draft. The stale-results warning remains visible; these output checks do
+not certify that warning or automatic handoff. No app behavior was changed.
+Receipt: 2026-09-21-measure-current-batch.json. Verified current preview and
+batch footage are composed into 13 scenes, English updated and staged, and the
+af_heart review master is rendering. Older 47/48 queue and unverified prior-build
+dialog/test-mode claims were removed. Full media/language/listening acceptance
+and complete-set publication remain open. 37 measurement/mastering tests pass.
+
+Overview Spanish ef_dora stopped after its decoded AAC peak reached -0.9 dBFS.
+Added the established fingerprinted two-decibel fallback only for that track;
+the -1 dBFS release limit is unchanged. The confirmed-terminal job has restarted;
+no successful repaired-track claim is made until its actual output passes.

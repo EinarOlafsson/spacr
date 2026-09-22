@@ -4303,3 +4303,18 @@ Receipts: features/data/288_column_alignment_2026-09-21.json and
 features/data/288_model_install_2026-09-21.json. Both runs include branch
 coverage and use a 6 GiB cap. Production code and the baseline are unchanged;
 the full current suite and ratchet still need to pass before item closure.
+
+2026-09-21 — CODEX: SHARED EXAMPLE LOADER AND SRA PICKER BOTH AT 100%
+measurements_example.py rises from 80.22% to 100%: all 73 statements and 18 branches,
+31 passing tests. New tests exercise actual button wiring, cached SQLite
+handover, synchronous/asynchronous completion, absent controls, callback
+errors and a failed status reporter. No download launcher reaches a thread.
+sra_picker.py rises from 73.63% to 100%: all 158 statements and 24 branches,
+20 passing tests. Worker.run() executes on the test thread; a QObject signal
+stand-in verifies dialog progress/retry/success/reject behavior. Completed
+files survive later failures, cancellation stops the next fetch, and the
+picker preserves selection for retry. No network or real QThread start.
+Source-bound receipts: features/data/288_measurements_example_2026-09-21.json
+and features/data/288_sra_picker_2026-09-21.json. Both runs use 6 GiB/one CPU thread.
+No production implementation or coverage baseline changed. Full-suite and
+ratchet acceptance remain open; these are two additional targeted floor gains.

@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "date": "2026-09-21",
+  "source_commit": "912cb1b5df937af9f2def211dfe7bcfb912d353d",
+  "scope": "targeted branch and statement coverage; not a full-suite verdict",
+  "source_path": "spacr/qt/widgets/sra_picker.py",
+  "source_sha256": "edea52736a19742b4304b2612a8a6f158e4086915a6ac7090e4fcdd83a4faad1",
+  "coverage_json_sha256": "7cc6d4bbca1d239d822ed2d6253f3dd6f81153b94d8d78fed884f3e6ca90f194",
+  "coverage_version": "7.15.4",
+  "branch_coverage": true,
+  "summary": {
+    "covered_lines": 158,
+    "num_statements": 158,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 24,
+    "num_partial_branches": 0,
+    "covered_branches": 24,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "missing_lines": [],
+  "missing_branches": [],
+  "selection": [
+    "tests/qt/test_sra_picker_completion.py",
+    "tests/qt/test_map_barcodes_fetches_published_reads.py"
+  ],
+  "passed": 20,
+  "failed": 0,
+  "elapsed_seconds": 19.14,
+  "memory_cap": "6G",
+  "cpu_threads": 1,
+  "gpu_used": false,
+  "production_source_changed": false,
+  "baseline_changed": false
+}

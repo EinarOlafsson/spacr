@@ -323,3 +323,20 @@ Independent staged-source/geometry/speech checks pass for all thirteen locales;
 eight promotion tests pass. Remaining spoken narration is rendering on CPU.
 Evidence: 2026-09-21-classify-overview-current-translations.json. Full media,
 audible acceptance and complete-set publication remain open with 358.
+
+2026-09-21 — CODEX: ML LANGUAGE REFRESH AND CURRENT MEASURE EVIDENCE
+ML's thirteen translations now match the eleven-scene current recording,
+including source confirmation and the respected test_size setting, with older
+merged-application wording removed. Eight scientific-results narration scenes
+are retained and independently checked. Remaining spoken tracks are rendering.
+Measure's fresh dark/Blobs native 4K capture and independent outputs now pass:
+16 fields, 601 crops, 5409 pixel-derived values, 48 saved/48 GUI figures, unchanged source
+arrays and collected settings. The visible stale-results warning is retained
+and not represented as repaired. English's 13 scenes are updated and staged;
+its review master is rendering. No maintainer paths appear in the inspected
+current frames, no AI request was sent, and no media is published.
+One overview Spanish track needs measured codec headroom; its scoped fallback
+keeps the release threshold unchanged and the rerender must still pass it.
+Evidence: current ML translation and current Measure batch receipts under
+tools/tutorials/evidence. Complete-set, language/caption and audible acceptance
+remain open with 358. 37 measurement/mastering tests pass; 8 promotion tests pass.
