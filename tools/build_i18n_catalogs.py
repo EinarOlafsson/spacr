@@ -166,6 +166,7 @@ _TEXT_METHODS = {
     "setPlaceholderText", "setAccessibleName", "setAccessibleDescription",
     "setInformativeText", "setDetailedText", "append_notice",
     "set_translatable_text", "tr",
+    "addRow", "insertRow",
     # A ONE-LINE WRAPPER HIDES ITS TEMPLATES FROM THIS EXTRACTOR ENTIRELY.
     # `map_barcodes._set_status(text, **values)` forwards to
     # `set_translatable_text(self.status, text, **values)`, so the literal sits
@@ -3325,6 +3326,14 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
     if name == "addTab" and len(node.args) >= 2:
         yield node.args[1]
         return
+    if name in {"addRow", "insertRow"}:
+        position = 1 if name == "insertRow" else 0
+        if len(node.args) > position:
+            yield node.args[position]
+        for keyword in node.keywords:
+            if keyword.arg == "labelText":
+                yield keyword.value
+        return
     if name == "addItem":
         # QComboBox.addItem(text, data) or addItem(icon, text, data).
         for arg in node.args[:2]:
@@ -3572,6 +3581,7 @@ def _indirect_runtime_ui_sources() -> set[str]:
         PREFERENCE_TIPS,
     )
     from spacr.qt.preview_registry import PREVIEWS
+    from spacr.qt import cpu_modes, organelle_modes
     from spacr.qt.screens.annotate import AnnotateScreen
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
@@ -3643,6 +3653,11 @@ def _indirect_runtime_ui_sources() -> set[str]:
     from spacr.import_examples import IMPORT_VARIANTS
 
     found: set[str] = set(PREFERENCE_TIPS)
+    for detector_modes in (cpu_modes, organelle_modes):
+        found.update(detector_modes.MODE_LABELS.values())
+        found.update(detector_modes.guidance(mode)
+                     for mode in detector_modes.MODE_LABELS)
+    found.update(cpu_modes.GUIDANCE.values())
     workflow_path = ROOT / "spacr" / "resources" / "module_workflows.json"
     workflow = json.loads(workflow_path.read_text(encoding="utf-8"))
     for route in workflow["pathways"].values():

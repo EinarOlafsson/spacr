@@ -74,13 +74,6 @@
     },
     {
       "table": "ui",
-      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
-      "translation": "이미지에 Otsu 임계값을 적용하고 위의 최소 면적을 지키면서 남은 영역에 레이블을 지정합니다. 임계값 보정, 평활화, 객체로 취급할 쪽, 구멍 채우기, 맞닿은 객체 분리, 프레임에 잘린 객체 제외는 모두 Otsu 범주에서 설정합니다."
-    },
-    {
-      "table": "ui",
       "key": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
       "source": "Which weights segment this field, and the Live magnifier's box in Cellpose mode. The list is the Cellpose installed on this machine and every Cellpose model in the model zoo; a zoo model not downloaded yet is greyed out, and choosing it downloads it and selects it.",
       "source_sha256": "406caca240941dc57c44e01ae800757398c20452c7f30462615747a69c7d81ce",
@@ -144,13 +137,6 @@
     },
     {
       "table": "ui",
-      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
-      "translation": "상자 안 영역을 분할하는 모델입니다. Otsu는 영역에 Otsu 임계값을 적용하고 워터셰드로 맞닿은 객체를 분리합니다. 별도 설치가 필요 없으며 객체 작업의 최소 면적과 임계값 보정을 비롯한 Otsu 범주의 설정을 따릅니다. 모델을 불러올 수 없을 때도 Otsu가 실행됩니다. 적응형 임계값(Adaptive threshold), LoG blobs, DoG blobs, 능선 필터(Ridge filter), 히스테리시스(Hysteresis), U-Net은 세포소기관 검출 자체의 방법입니다. 분할 작업과 같은 코드를 실행하고 검출 방법 범주의 설정을 읽으며, 각 행의 툴팁에서 해당 방법에 적합한 용도를 설명합니다. Cellpose는 객체 검출에 설정된 모델, 두 임계값, 지름, 정규화를 사용하며 GPU가 없으면 느립니다. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell, SAMCell은 항상 목록에 있지만 설치 전에는 회색으로 표시됩니다. 선택하면 별도 환경에 설치하는 옵션이 나옵니다. Cellpose 3은 객체 검출의 두 임계값과 지름을, DINOCell은 세포 확률을 사용하고 SAMCell은 자체 임계값을 사용합니다."
-    },
-    {
-      "table": "ui",
       "key": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
       "source": "How readily the Otsu mode accepts an object. Raise it to take in dimmer or less certain objects, lower it to keep only clear ones; 0 is the default cut. The models read their thresholds from the Object detection settings instead, so this is greyed out while another mode is chosen.",
       "source_sha256": "2d25dab4d79aae7eeb41d4fbd9d8cd6302343a50a6b55fa84fe526565b1b3ec1",
@@ -193,6 +179,28 @@
       },
       "superseded_on": "2026-09-22",
       "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+        "translation": "이미지에 Otsu 임계값을 적용하고 위의 최소 면적을 지키면서 남은 영역에 레이블을 지정합니다. 임계값 보정, 평활화, 객체로 취급할 쪽, 구멍 채우기, 맞닿은 객체 분리, 프레임에 잘린 객체 제외는 모두 Otsu 범주에서 설정합니다."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "상자 안 영역을 분할하는 모델입니다. Otsu는 영역에 Otsu 임계값을 적용하고 워터셰드로 맞닿은 객체를 분리합니다. 별도 설치가 필요 없으며 객체 작업의 최소 면적과 임계값 보정을 비롯한 Otsu 범주의 설정을 따릅니다. 모델을 불러올 수 없을 때도 Otsu가 실행됩니다. 적응형 임계값(Adaptive threshold), LoG blobs, DoG blobs, 능선 필터(Ridge filter), 히스테리시스(Hysteresis), U-Net은 세포소기관 검출 자체의 방법입니다. 분할 작업과 같은 코드를 실행하고 검출 방법 범주의 설정을 읽으며, 각 행의 툴팁에서 해당 방법에 적합한 용도를 설명합니다. Cellpose는 객체 검출에 설정된 모델, 두 임계값, 지름, 정규화를 사용하며 GPU가 없으면 느립니다. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell, SAMCell은 항상 목록에 있지만 설치 전에는 회색으로 표시됩니다. 선택하면 별도 환경에 설치하는 옵션이 나옵니다. Cellpose 3은 객체 검출의 두 임계값과 지름을, DINOCell은 세포 확률을 사용하고 SAMCell은 자체 임계값을 사용합니다."
+      }
     }
   ]
 }

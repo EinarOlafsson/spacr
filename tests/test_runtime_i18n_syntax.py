@@ -60,6 +60,14 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     assert not overlay_sources & sources
     sources.update(overlay_sources)
     assert len(sources) == (161 if language == "sv" else 160)
+    panel = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                        "2026-09-22-detection-panel.json").read_text())
+    panel_sources = {record["source"] for record in panel["records"]}
+    assert len(panel["records"]) == len(panel_sources) == 6
+    assert panel_sources <= reviewed.keys()
+    assert not panel_sources & sources
+    sources.update(panel_sources)
+    assert len(sources) == (167 if language == "sv" else 166)
     return sources
 
 
@@ -96,12 +104,13 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
 
     reviewed = reviewed_runtime_translations("sv")
     # +269 distinct UI/category sources, with three OPS descriptions shared
-    # between both tables (272 records). Preserve every earlier count below.
+    # between both tables (272 records). The detection-panel consolidation
+    # retired five source captions, preserving their records in the archive.
     ui_refresh = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
                               "2026-09-21-runtime-ui-refresh.json").read_text())
     ui_sources = {record["source"] for record in ui_refresh["records"]}
-    assert len(ui_refresh["records"]) == 272
-    assert len(ui_sources) == 269
+    assert len(ui_refresh["records"]) == 267
+    assert len(ui_sources) == 264
     assert ui_sources <= reviewed.keys()
     all_reviewed = reviewed
     examples = json.loads((ROOT / "docs/i18n/reviewed/runtime/sv/"
@@ -285,12 +294,13 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_sources) == 335
     assert len(reviewed.keys() - sample_sources) == 374  # +39 scientific sources.
     assert len(reviewed) == 377  # +3 variable-count dataset captions.
-    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 646
-    assert len(older_all_sources - preview_sources - normalized_sources) == 653
-    assert len(older_all_sources - normalized_sources) == 658
-    assert len(older_all_sources) == 663
-    assert len(all_reviewed.keys() - subsequent_sources) == 674
-    assert len(all_reviewed) == 835  # 824 plus eleven distinct plaque captions.
+    # The new panel cohort also reuses the earlier whole-field model tooltip.
+    assert len(older_all_sources - example_sources - preview_sources - normalized_sources) == 640
+    assert len(older_all_sources - preview_sources - normalized_sources) == 647
+    assert len(older_all_sources - normalized_sources) == 652
+    assert len(older_all_sources) == 657
+    assert len(all_reviewed.keys() - subsequent_sources) == 668
+    assert len(all_reviewed) == 835  # Five retired captions, five new sources.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -325,7 +335,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert second_sources <= all_reviewed.keys()
     assert not refresh_sources & second_sources
     refresh_sources |= second_sources
-    for filename, expected in (("third", 75), ("fourth", 79)):
+    # Two third-slice and three fourth-slice captions left with the old panel.
+    for filename, expected in (("third", 73), ("fourth", 76)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                                f"2026-09-21-runtime-{filename}-slice.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -333,7 +344,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
         assert added <= all_reviewed.keys()
         assert not added & refresh_sources
         refresh_sources |= added
-    assert len(refresh_sources) == 308
+    assert len(refresh_sources) == 303
     actions = json.loads((ROOT / "docs/i18n/reviewed/runtime/fr/"
                           "2026-09-21-action-labels.json").read_text())
     action_sources = {record["source"] for record in actions["records"]}
@@ -512,8 +523,8 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 341
     assert len(older_all_sources) == 346
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 357
-    assert len(all_reviewed.keys() - subsequent_sources) == 670
-    assert len(all_reviewed) == 830  # 819 plus eleven distinct plaque captions.
+    assert len(all_reviewed.keys() - subsequent_sources) == 664
+    assert len(all_reviewed) == 830  # Five retired captions, five new sources.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

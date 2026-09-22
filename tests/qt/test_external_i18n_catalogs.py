@@ -320,6 +320,37 @@ def test_settings_model_explainers_enter_the_runtime_source_inventory():
     assert settings_model.INFORMATION_LIMIT_NOTE in sources
 
 
+def test_form_labels_and_detector_help_enter_the_runtime_source_inventory():
+    """Form-layout labels and registry-fed method help are visible captions."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    from spacr.qt import cpu_modes, organelle_modes
+    from spacr.qt.i18n import _ROWS
+
+    known = set(builder.extract_static_ui_sources()) | set(_ROWS)
+    assert "Method" in known
+    for modes in (cpu_modes, organelle_modes):
+        assert set(modes.MODE_LABELS.values()) <= known
+        assert {modes.guidance(mode) for mode in modes.MODE_LABELS} <= known
+    assert set(cpu_modes.GUIDANCE.values()) <= known
+    for call, expected in (
+        ('form.addRow("Visible field label", widget)', ["Visible field label"]),
+        ('form.insertRow(2, "Inserted field label", widget)', ["Inserted field label"]),
+        ('form.addRow(labelText="Named field label", field=widget)', ["Named field label"]),
+        ('form.insertRow(row=2, labelText="Named insertion", field=widget)', ["Named insertion"]),
+        ('form.addRow(widget)', []),
+        ('form.insertRow(2, widget)', []),
+    ):
+        node = ast.parse(call).body[0].value
+        captured = [value for argument in builder._candidate_arguments(
+            node, builder._call_name(node))
+            for value in builder._literal_strings(argument, {})]
+        assert captured == expected
+
+
 def test_every_set_translatable_text_call_has_static_catalog_sources():
     """Dynamic chrome may not hide an English template behind a variable."""
     tools_dir = str(ROOT / "tools")

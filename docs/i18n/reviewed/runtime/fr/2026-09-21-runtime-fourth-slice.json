@@ -116,20 +116,6 @@
     },
     {
       "table": "ui",
-      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "translation": "Seuiller l'image au seuil d'Otsu et étiqueter les régions restantes en respectant l'aire minimale ci-dessus. Tous les réglages du seuillage se trouvent dans la catégorie Otsu : correction, lissage, côté du seuil correspondant aux objets, comblement des trous, séparation des objets qui se touchent et exclusion de ceux coupés par le cadre.",
-      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8"
-    },
-    {
-      "table": "ui",
-      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
-      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
-      "translation": "Seuillage au seuil d'Otsu. Ces réglages pilotent la détection Otsu et le mode Otsu de la loupe en direct.",
-      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be"
-    },
-    {
-      "table": "ui",
       "key": "Train data",
       "source": "Train data",
       "translation": "Données d'entraînement",
@@ -274,13 +260,6 @@
       "source": "Which convention fits?",
       "translation": "Quelle convention convient ?",
       "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802"
-    },
-    {
-      "table": "ui",
-      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
-      "translation": "Modèle segmentant la région dans la zone. Otsu seuille la région au seuil d'Otsu et sépare les objets qui se touchent par ligne de partage des eaux ; il ne nécessite aucune installation, respecte l'aire minimale définie dans Opérations sur les objets, la correction du seuil et les autres paramètres de la catégorie Otsu, et s'exécute lorsqu'un modèle ne peut pas être chargé. Le seuillage adaptatif (Adaptive threshold), LoG blobs, DoG blobs, le filtre de crêtes (Ridge filter), l’hystérésis (Hysteresis) et U-Net sont les méthodes propres à la détection d’organites. Elles utilisent le même code qu’une exécution de segmentation et lisent la catégorie Méthodes de détection ; l’infobulle de chaque ligne précise à quoi la méthode convient. Cellpose utilise le modèle, les deux seuils, le diamètre et la normalisation définis dans Détection d'objets, et est lent sans GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell et SAMCell restent toujours dans la liste, grisés tant qu'ils ne sont pas installés. Les choisir propose de les installer dans leur propre environnement. Cellpose 3 utilise les deux seuils et le diamètre de Détection d'objets, DINOCell utilise la probabilité cellulaire et SAMCell utilise ses propres seuils."
     },
     {
       "table": "ui",
@@ -567,6 +546,39 @@
       },
       "superseded_on": "2026-09-22",
       "reason": "Item 473 added organelle detection methods to the magnifier tooltip. The current record includes the translated addition; this preserves the previous source and target."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "translation": "Seuiller l'image au seuil d'Otsu et étiqueter les régions restantes en respectant l'aire minimale ci-dessus. Tous les réglages du seuillage se trouvent dans la catégorie Otsu : correction, lissage, côté du seuil correspondant aux objets, comblement des trous, séparation des objets qui se touchent et exclusion de ceux coupés par le cadre.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8"
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+        "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+        "translation": "Seuillage au seuil d'Otsu. Ces réglages pilotent la détection Otsu et le mode Otsu de la loupe en direct.",
+        "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be"
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "Modèle segmentant la région dans la zone. Otsu seuille la région au seuil d'Otsu et sépare les objets qui se touchent par ligne de partage des eaux ; il ne nécessite aucune installation, respecte l'aire minimale définie dans Opérations sur les objets, la correction du seuil et les autres paramètres de la catégorie Otsu, et s'exécute lorsqu'un modèle ne peut pas être chargé. Le seuillage adaptatif (Adaptive threshold), LoG blobs, DoG blobs, le filtre de crêtes (Ridge filter), l’hystérésis (Hysteresis) et U-Net sont les méthodes propres à la détection d’organites. Elles utilisent le même code qu’une exécution de segmentation et lisent la catégorie Méthodes de détection ; l’infobulle de chaque ligne précise à quoi la méthode convient. Cellpose utilise le modèle, les deux seuils, le diamètre et la normalisation définis dans Détection d'objets, et est lent sans GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell et SAMCell restent toujours dans la liste, grisés tant qu'ils ne sont pas installés. Les choisir propose de les installer dans leur propre environnement. Cellpose 3 utilise les deux seuils et le diamètre de Détection d'objets, DINOCell utilise la probabilité cellulaire et SAMCell utilise ses propres seuils."
+      }
     }
   ]
 }

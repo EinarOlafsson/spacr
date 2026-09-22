@@ -5950,6 +5950,11 @@ UI = {
     'Read the text around each well': 'हर कूप के आस-पास का पाठ पढ़ें',
     'Plaque preview': 'प्लाक पूर्वावलोकन',
     'Plaque model': 'प्लाक मॉडल',
+    'Detection method': 'पहचान विधि',
+    'Method': 'विधि',
+    'What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.': 'वस्तुओं को खोजने की विधि और उसके द्वारा उपयोग की जाने वाली सेटिंग। यह पहचान बटनों और लाइव आवर्धक, दोनों को नियंत्रित करती है।',
+    "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.": 'लाइव आवर्धक भी इन सेटिंग का उपयोग करता है: Cellpose मोड मॉडल, दोनों सीमा मानों, व्यास और सामान्यीकरण का उपयोग करता है, जबकि DINOCell कोशिका की प्रायिकता का उपयोग करता है। ऊपर कोई दूसरी विधि चुनने पर यहाँ उसकी सेटिंग दिखाई जाती हैं।',
+    "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.": 'वस्तुओं को खोजने वाला एल्गोरिदम पहचान बटनों और लाइव आवर्धक, दोनों के लिए है। Otsu और उसके नीचे दिए सीमा-आधारित एल्गोरिदम दृश्य क्षेत्र को एक स्तर पर विभाजित करते हैं और उन्हें कुछ स्थापित करने की आवश्यकता नहीं होती। अधिकतम बिंदु और प्रसार विधि प्रत्येक चमकीले केंद्र से एक वस्तु बढ़ाती है, जिससे एक-दूसरे को छूती दो वस्तुएँ अलग होती हैं। कोशिकांग विधियाँ कोशिकांग पहचान के समान कोड का उपयोग करती हैं। Cellpose और बैकएंड मॉडल हैं। कोई पंक्ति चुनने से इस श्रेणी में दिखाई जाने वाली सेटिंग बदल जाती हैं; उस पंक्ति का टूलटिप बताता है कि विधि किन स्थितियों के लिए उपयुक्त है।',
 }
 
 MODULE_SUMMARIES = {
@@ -12024,4 +12029,9 @@ SOURCE_HASHES = {
     ('UI', 'Read the text around each well'): '77cadd4d9a771c84ae440df6ba24c257042b8befcbd6cc59fb6a6797e5147726',
     ('UI', 'Plaque preview'): '2d47d01057846ccdf104381e2c4ebd51231372641d9a85880d25582c79568181',
     ('UI', 'Plaque model'): '448b50814371110210fba6100e1cf139a7675aeca72747487a6a98f274b35348',
+    ('UI', 'Detection method'): '387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858',
+    ('UI', 'Method'): '52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce',
+    ('UI', 'What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.'): '0ae7e6ba12cd1c6ea2256fff604320bab483fccda5888c76a826b481e8f831b9',
+    ('UI', "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead."): '1a647d07653a25d8a80c82004d9b6df1cafb925cad3ac77924b9d49b87b12237',
+    ('UI', "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits."): 'ea95731b1b53d915a2a7b82ef71b3d45bf4ff895a2081c2d166de23bb8ccf5b3',
 }

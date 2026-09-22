@@ -1138,13 +1138,6 @@
     },
     {
       "table": "ui",
-      "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
-      "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705",
-      "translation": "Segmenterar det öppna bildfältet med en modell. Båda tröskelvärdena börjar med standardvärdena i Cellpose."
-    },
-    {
-      "table": "ui",
       "key": "Sending the approved report to GitHub…",
       "source": "Sending the approved report to GitHub…",
       "source_sha256": "ea72812a8e6c27c02289c93888cee5e2b65f3d1bf3ae1cfaac310a4fe1abdae0",
@@ -1327,13 +1320,6 @@
     },
     {
       "table": "ui",
-      "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
-      "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf",
-      "translation": "Det levande förstoringsglaset använder också dessa inställningar: Cellpose-läget använder modellen, båda tröskelvärdena, diametern och normaliseringen, medan DINOCell använder cellsannolikheten. Otsu-läget använder i stället kategorin Otsu."
-    },
-    {
-      "table": "ui",
       "key": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source": "The command spaCR runs. Copy it to run it in a terminal yourself instead.",
       "source_sha256": "4bbf3ad8e30bbbc39c55d1b49ad3ebbd59692284ee35fd06abeecb76e4f7bcc3",
@@ -1457,20 +1443,6 @@
       "source": "This model publishes no checksum, so spaCR cannot tell a truncated or substituted file from the real one.",
       "source_sha256": "7ba7fb2343daf2f4a73ceebe583fbcb1dc8c8c29e631dd2893ebbd34ae5011d3",
       "translation": "Ingen kontrollsumma publiceras för denna modell, så spaCR kan inte skilja en ofullständig eller utbytt fil från originalet."
-    },
-    {
-      "table": "ui",
-      "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
-      "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
-      "translation": "Tröskla bilden med Otsus tröskelvärde och märk upp objekten som återstår, med hänsyn till minsta area ovan. Allt som gäller trösklingen finns i kategorin Otsu: korrigering, utjämning, vilken sida som är objekt, hålfyllning, uppdelning av objekt som vidrör varandra och borttagning av objekt vid bildkanten."
-    },
-    {
-      "table": "ui",
-      "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
-      "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
-      "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be",
-      "translation": "Trösklar med Otsus tröskelvärde. Styr Otsu-detektering och det levande förstoringsglasets Otsu-läge."
     },
     {
       "table": "ui",
@@ -1625,13 +1597,6 @@
       "source": "Which convention fits?",
       "source_sha256": "9ce2eee8d32ceaa9d267061d0779fb07d3b8900226279c0310ac6b4df0c6a802",
       "translation": "Vilken namnkonvention passar?"
-    },
-    {
-      "table": "ui",
-      "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
-      "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
-      "translation": "Vilken modell som segmenterar området i rutan. Otsu trösklar området med Otsus tröskelvärde och skiljer objekt som vidrör varandra med watershed. Det kräver ingen installation, följer Min area under Objektoperationer samt tröskelkorrigeringen och övriga inställningar i kategorin Otsu, och används när en modell inte kan laddas. Adaptiv tröskling (Adaptive threshold), LoG blobs, DoG blobs, åsfilter (Ridge filter), hysteres (Hysteresis) och U-Net är organelldetekteringens egna metoder. De kör samma kod som en segmenteringskörning och läser inställningarna i kategorin Detekteringsmetoder; radens verktygstips beskriver vad varje metod passar för. Cellpose använder modellen, båda tröskelvärdena, diametern och normaliseringen under Objektdetektering, och är långsam utan GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell och SAMCell visas alltid i listan men är inaktiverade tills de installeras. Om du väljer en av dem erbjuds installation i en egen miljö. Cellpose 3 använder båda tröskelvärdena och diametern under Objektdetektering, DINOCell använder cellsannolikheten och SAMCell använder sina egna tröskelvärden."
     },
     {
       "table": "ui",
@@ -1940,6 +1905,61 @@
       },
       "superseded_on": "2026-09-22",
       "reason": "Item 435 corrected inversion help: hover pixels follow inversion, object means and Filter use original loaded values. Current source and target replace this preserved historical record."
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source": "Segments the open field with a model. Both thresholds start at Cellpose's own defaults.",
+        "source_sha256": "31b15d9aa227fe30e2fbee6596912ef8717776cdf961a944515a4dbd42aa6705",
+        "translation": "Segmenterar det öppna bildfältet med en modell. Båda tröskelvärdena börjar med standardvärdena i Cellpose."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source": "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. The Otsu mode reads the Otsu category instead.",
+        "source_sha256": "7fbbed165e4c9c6696c23f3a75d6a5e09fa5ff9311c721c4920f4b106ea6fcbf",
+        "translation": "Det levande förstoringsglaset använder också dessa inställningar: Cellpose-läget använder modellen, båda tröskelvärdena, diametern och normaliseringen, medan DINOCell använder cellsannolikheten. Otsu-läget använder i stället kategorin Otsu."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source": "Threshold the image at Otsu's level and label what is left, honouring the minimum area above. Everything about the threshold — the correction, the smoothing, which side is the object, filling holes, splitting a pair that touches and dropping what the frame cut — is the Otsu category.",
+        "source_sha256": "0f7099607d6e697545ee16e8dc5d4a1d972006a4c8a89c8c2d021588bff6e4f8",
+        "translation": "Tröskla bilden med Otsus tröskelvärde och märk upp objekten som återstår, med hänsyn till minsta area ovan. Allt som gäller trösklingen finns i kategorin Otsu: korrigering, utjämning, vilken sida som är objekt, hålfyllning, uppdelning av objekt som vidrör varandra och borttagning av objekt vid bildkanten."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+        "source": "Thresholds at Otsu's level. Drives Otsu detect and the Live magnifier's Otsu mode.",
+        "source_sha256": "cd89feae21ae9c31900292209cea84345035fd63694fc50e25b24b682edbb6be",
+        "translation": "Trösklar med Otsus tröskelvärde. Styr Otsu-detektering och det levande förstoringsglasets Otsu-läge."
+      }
+    },
+    {
+      "date": "2026-09-22",
+      "reason": "Item 473 consolidated detection settings and replaced or removed this exact UI caption. The current panel captions are reviewed in 2026-09-22-detection-panel.json.",
+      "record": {
+        "table": "ui",
+        "key": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source": "Which model segments the region in the box. Otsu thresholds the region at Otsu's level and splits touching objects with a watershed; it needs nothing installed, follows the Min area box under Object operations and the threshold correction and the rest of the Otsu category, and runs whenever a model cannot be loaded. Adaptive threshold, LoG blobs, DoG blobs, Ridge filter, Hysteresis and U-Net are organelle detection's own methods, running through the same code as a mask run and reading the Detection methods category; the row's tooltip says what each suits. Cellpose uses the model, both thresholds, the diameter and the normalization set under Object detection, and is slow without a GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell and SAMCell are always listed and greyed until installed, and choosing one offers to install it into an environment of its own; Cellpose 3 reads both thresholds and the diameter set under Object detection, DINOCell reads the cell probability, and SAMCell uses its own thresholds.",
+        "source_sha256": "952744b94d224835c55a3633f4772ab581730165f45301a1475a07db2c54eb5c",
+        "translation": "Vilken modell som segmenterar området i rutan. Otsu trösklar området med Otsus tröskelvärde och skiljer objekt som vidrör varandra med watershed. Det kräver ingen installation, följer Min area under Objektoperationer samt tröskelkorrigeringen och övriga inställningar i kategorin Otsu, och används när en modell inte kan laddas. Adaptiv tröskling (Adaptive threshold), LoG blobs, DoG blobs, åsfilter (Ridge filter), hysteres (Hysteresis) och U-Net är organelldetekteringens egna metoder. De kör samma kod som en segmenteringskörning och läser inställningarna i kategorin Detekteringsmetoder; radens verktygstips beskriver vad varje metod passar för. Cellpose använder modellen, båda tröskelvärdena, diametern och normaliseringen under Objektdetektering, och är långsam utan GPU. Cellpose 3 (cyto3, cyto2, cyto, nuclei), DINOCell och SAMCell visas alltid i listan men är inaktiverade tills de installeras. Om du väljer en av dem erbjuds installation i en egen miljö. Cellpose 3 använder båda tröskelvärdena och diametern under Objektdetektering, DINOCell använder cellsannolikheten och SAMCell använder sina egna tröskelvärden."
+      }
     }
   ]
 }

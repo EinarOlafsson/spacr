@@ -6171,6 +6171,11 @@ UI = {
     'Read the text around each well': 'Ler o texto ao redor de cada poço',
     'Plaque preview': 'Prévia das placas de lise',
     'Plaque model': 'Modelo de placas de lise',
+    'Detection method': 'Método de detecção',
+    'Method': 'Método',
+    'What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.': 'O método que encontra os objetos e as configurações que utiliza. Controla tanto os botões de detecção quanto a lupa ao vivo.',
+    "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead.": 'A lupa ao vivo também utiliza estas configurações: o modo Cellpose usa o modelo, os dois limiares, o diâmetro e a normalização, enquanto DINOCell usa a probabilidade de célula. Ao escolher outro método acima, suas configurações são exibidas aqui.',
+    "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits.": 'O algoritmo que encontra os objetos vale tanto para os botões de detecção quanto para a lupa ao vivo. Otsu e os algoritmos de limiar abaixo dele dividem o campo em um nível e não exigem instalação. O método de máximos com propagação faz um objeto crescer a partir de cada centro brilhante, separando dois objetos que se tocam. Os métodos para organelas usam o mesmo código da detecção de organelas. Cellpose e os mecanismos de processamento são modelos. A escolha de uma linha muda as configurações exibidas nesta categoria; a dica dessa linha informa os casos adequados.',
 }
 
 MODULE_SUMMARIES = {
@@ -12466,4 +12471,9 @@ SOURCE_HASHES = {
     ('UI', 'Read the text around each well'): '77cadd4d9a771c84ae440df6ba24c257042b8befcbd6cc59fb6a6797e5147726',
     ('UI', 'Plaque preview'): '2d47d01057846ccdf104381e2c4ebd51231372641d9a85880d25582c79568181',
     ('UI', 'Plaque model'): '448b50814371110210fba6100e1cf139a7675aeca72747487a6a98f274b35348',
+    ('UI', 'Detection method'): '387d0bbbdb7c27141233c0533693cb6f8073e9b75cf7319ca211334bb0209858',
+    ('UI', 'Method'): '52a0f9b65b278850b53aad23136b5d574299e8fb92311304346d19736b7e9cce',
+    ('UI', 'What finds the objects, and the settings that method reads. Drives the detect buttons and the Live magnifier alike.'): '0ae7e6ba12cd1c6ea2256fff604320bab483fccda5888c76a826b481e8f831b9',
+    ('UI', "The Live magnifier reads these settings too: Cellpose mode uses the model, both thresholds, the diameter and the normalization, and DINOCell the cell probability. Choosing another method above shows that method's settings here instead."): '1a647d07653a25d8a80c82004d9b6df1cafb925cad3ac77924b9d49b87b12237',
+    ('UI', "Which algorithm finds the objects, for the detect buttons and for the Live magnifier alike. Otsu and the threshold algorithms under it cut the field at one level and need nothing installed; Maxima + propagate grows an object out of each bright centre, which is how two touching objects come apart; the organelle methods are the ones organelle detection runs, through the same code; Cellpose and the backends are models. Choosing a row changes which settings this category shows, and the row's own tooltip says what it suits."): 'ea95731b1b53d915a2a7b82ef71b3d45bf4ff895a2081c2d166de23bb8ccf5b3',
 }

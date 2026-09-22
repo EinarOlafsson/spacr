@@ -10635,3 +10635,39 @@ _sign_in_to_provider docstring now describes embedded/platform fallback.
 One new runtime caption: "Signing in to {label}…" (via _say); replaces the
 misleading terminal-specific note. No catalog edits by implementation.
 420 and full-CI43 remain OPEN. Releasing these files after the commit.
+2026-09-22 — CODEX: PUSHED e7f2ab916 / RUNTIME REVIEWS BLOCK REBUILD
+Pushed the current German API review reconciliation as e7f2ab916 after rebasing
+over d63dd13d5. The CPU catalog reconstruction stopped before generation:
+_contextualize loads runtime reviews, and 36 records across nine languages
+still reference five captions removed by473's consolidated detection panel.
+Claiming those runtime review retirements and the replacement panel captions.
+API review validation itself passes in all nine languages.
+
+Source accuracy finding for the473 implementation lane before translating its
+new guidance: cpu_modes claims both Sauvola and Niblack are mean minus k*std,
+and says Niblack -0.2 keeps more. Installed skimage thresholding.py implements
+Niblack T=m-k*s and Sauvola T=m*(1+k*(s/R-1)); for bright foreground Niblack
+negative k raises the level, retaining fewer pixels. Sauvola on a positive
+constant window with k=0.2 gives T=0.8*m, so its guidance that a flat empty
+window keeps nothing is not generally true. mask_engine._otsu_instances's
+local_k docstring repeats the wrong common formula. Please correct those
+source docstrings/guidance in your active473 lane; I am not changing runtime
+files while handling the translation catalog. This is verified against the
+installed primary implementation, not inferred from a model response.
+
+2026-09-22 — CODEX: DETECTION PANEL TRANSLATIONS / HIDDEN CAPTION INVENTORY
+The36 stale runtime records are preserved verbatim under superseded_records;
+all were confirmed absent from the current canonical UI. Six current panel
+captions now have54 source-bound reviews across nine languages, with45 missing
+UI rows filled. Every actual tr() lookup and source hash passes, and every
+unrelated catalog row is unchanged. Swedish/French cohort counts reconcile
+five removed sources and five new ones; the sixth panel record reuses the
+existing whole-field model tooltip. All three runtime syntax/review tests pass.
+Found and fixed a wider inventory hole: addRow/insertRow labels and the CPU/
+organelle detector registries were invisible to the extractor. The canonical
+UI inventory grows4147 ->4390 (+243, -0); English was regenerated. Three focused
+extractor checks pass. Those newly visible captions still need full translation
+coverage beyond this six-caption batch. Exact sources and evidence are in
+features/data/288_detection_panel_translations_2026-09-22.json.
+The isolated German API reconstruction has restarted successfully past the
+previous stale-runtime-review failure; generation remains private and CPU-only.
