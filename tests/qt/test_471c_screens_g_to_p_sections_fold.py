@@ -140,3 +140,102 @@ def test_a_dragged_gate_table_width_is_remembered(gate_screen, qtbot):
 # ---------------------------------------------------------------------------
 # Graph Builder
 # ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_graph_builder_columns_graph_and_filter_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.graph_builder import APP_KEY, GraphBuilderScreen
+
+    screen = GraphBuilderScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen)
+    builder = screen.builder
+    assert builder.shelf_section.body.objectName() == "GraphShelf"
+    assert builder.canvas_section.body is builder.canvas
+
+    for section in (builder.shelf_section, builder.canvas_section,
+                    screen.filters_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+
+    split = builder.splitter
+    split.moveSplitter(420, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{APP_KEY}::graph").get("Columns", 0) >= 380
+
+
+@pytest.mark.qt
+def test_a_second_graph_builder_host_remembers_nothing(qapp, qtbot):
+    from spacr.qt.widgets.graph_builder import GraphBuilderPanel
+
+    panel = GraphBuilderPanel()
+    qtbot.addWidget(panel)
+    assert panel.splitter._persist_key == ""
+    assert panel.shelf_section.folder is not None
+
+
+# ---------------------------------------------------------------------------
+# PCA
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_pca_features_scree_scores_and_filter_fold(qapp, qtbot):
+    from spacr.qt.screens.pca import PCAScreen
+
+    screen = PCAScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen)
+    pca = screen.pca
+    assert pca.scree_section.body is pca.scree
+    for section in (pca.scree_section, pca.shelf_section,
+                    pca.scores_section, screen.filters_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    assert pca.scree.isVisible()
+
+
+@pytest.mark.qt
+def test_a_dragged_pca_split_reopens_at_its_width(qapp, qtbot):
+    from spacr.qt.screens.pca import PCAScreen
+    from spacr.qt.widgets.pca_view import FOLD_KEY
+
+    screen = PCAScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen)
+    screen.pca.splitter.moveSplitter(460, 1)
+    _pump()
+    dragged = cs.get_pane_extents(f"{FOLD_KEY}::panel").get("Features", 0)
+    assert dragged >= 420
+
+    again = PCAScreen(threaded=False)
+    qtbot.addWidget(again)
+    _show(again)
+    assert abs(again.pca.splitter.sizes()[0] - dragged) <= 8
+
+
+# ---------------------------------------------------------------------------
+# Outliers
+# ---------------------------------------------------------------------------
+
+@pytest.mark.qt
+def test_outlier_results_and_scan_column_fold_and_drag(qapp, qtbot):
+    from spacr.qt.screens.outliers import APP_KEY, OutliersScreen
+
+    screen = OutliersScreen(threaded=False)
+    qtbot.addWidget(screen)
+    _show(screen)
+    assert screen.results_section.body is screen.tabs
+    for section in (screen.results_section, screen.controls_section):
+        _click(section.heading)
+        _pump()
+        _assert_heading_at_bottom(section)
+        section.set_folded(False)
+        _pump()
+    screen._body.moveSplitter(screen._body.sizes()[0] - 40, 1)
+    _pump()
+    assert cs.get_pane_extents(f"{APP_KEY}::body").get("Scan", 0) > 0
