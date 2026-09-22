@@ -9392,3 +9392,19 @@ Eight German entries independently regenerate without model decoding; three
 review-contract tests pass67.19s and four final report checks pass354.47s.
 GermanAPI10434/11166fresh,750distinctreviewedblocks;otherlocalesunchanged.
 Feature index/whitespace pass. Committing and pushing the combined checkpoint.
+
+2026-09-21 — CODEX: CURRENT MAP BARCODE LANGUAGE REVIEWS
+482e701c9 is pushed. Taking the13-language Map Barcodes review bundle for its
+current15-scene recording: add guide/row orientation evidence, remove older
+reference-table comparisons, and describe the three ambiguous guide sequences.
+Actual8611/7657/4099results and all scientific/GUI/API limits remain intact.
+No production app edits. Existing audio jobs stay running; GPU remains busy.
+All13Mapreviews now stage against the15-scene source and independently verify;
+9promotion/bundle tests pass0.78s. The remaining26voices render CPU-only.
+Taking tests/test_embedding_input_and_provenance.py for the78.68% embedding
+coverage gap: bounded CPU tensor adapter and local-cache/error contracts,
+no model download or GPU use. Production app source stays with its owner.
+Embedding selection passes49tests/1explicit pretrained-backbone deselection
+in16.22s;97.30% module coverage. Real CPU tensors and local cached bytes tested,
+no weights download/GPU/app source change. Receipt and288updated. Map13reviews
+and9tests passed; preparing this combined verified checkpoint for nightly.

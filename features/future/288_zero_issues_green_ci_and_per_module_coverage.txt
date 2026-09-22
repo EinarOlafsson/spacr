@@ -4342,3 +4342,17 @@ cleanup; corrected parent ownership before the fully passing rerun. No app
 change or baseline edit. Receipt:features/data/288_live_zoom_2026-09-21.json.
 Nine original floor modules now pass targeted selections; the full-suite
 ratchet and failures remain open pending a fresh complete source-matched run.
+
+2026-09-21 — CODEX: EMBEDDING CONTRACTS REACH97.30%
+The embedding module improves from78.68% in the fixed full run to97.30%
+combined coverage (238/243statements,86/90branches). New tests exercise
+invalid/short storage reads, channel selection, projected zero-padding,
+variable encoder widths, real torch CPU tensor batching/eval/no_grad behavior,
+and actual local weight-byte hashing with absent/failed cache cases. The timm
+model factory is substituted for a tiny real torch module; no weights download
+or GPU. Combined with existing numerical/channel and batch-invariance tests:
+49pass,1explicitly deselected downloadable pretrained-backbone integration
+test,16.22s,6GiB/oneCPUthread. No model-quality or pretrained-weight validation
+claim. Receipt:features/data/288_embedding_contracts_2026-09-21.json.
+Production/baseline unchanged. Ten original floor modules now pass targeted
+selections; full source-matched suite and no-regression ratchet remain open.

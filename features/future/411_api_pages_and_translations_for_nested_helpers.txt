@@ -1225,3 +1225,11 @@ tests pass (354.47s). German freshness is now10434/11166, with750distinct
 reviewed API blocks; other eight API locales remain10416/11166. Source-bound
 receipt:features/data/411_german_api_curation_2026-09-21.json. Feature index
 and whitespace checks pass. Full catalog debt and native approval remain open.
+
+2026-09-21 — CODEX: MAP TUTORIAL THIRTEEN-LANGUAGE REVIEWS CURRENT
+Map Barcodes' review bundle now binds15current scenes, adds guide/row
+orientation evidence, and names1.5.0.8 with the three ambiguous guide sequences.
+Twelve retained narration scenes preserve measured counts and scientific
+limitations. All13source/stage/speech/geometry checks and9promotion/bundle
+tests pass. Remaining26spoken tracks render CPU-only. Runtime/API catalog
+counts are unchanged; native/listening approval and publication remain open.

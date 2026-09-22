@@ -348,3 +348,11 @@ Both MP4s fully decode, af_heart audio passes freshness/activity/timing and
 in the real player. Desktop/mobile screenshots inspected. Evidence updated:
 2026-09-21-measure-current-batch.json. RemainingEnglish voices are rendering;
 full language/caption/listening and joint publication requirements remain.
+
+2026-09-21 — CODEX: MAP CURRENT LANGUAGE MATRIX STAGED
+The13Map Barcodes reviews now match the current15-scene native capture,
+including guide/row orientation evidence and current ambiguous-reference
+limits. Removed historical reference-table comparisons and updated version
+metadata to1.5.0.8. All13independent stage/source checks and9promotion/bundle
+tests pass. Remaining26spoken tracks are rendering CPU-only; full media,
+caption/listening/player acceptance and complete-set publication remain open.

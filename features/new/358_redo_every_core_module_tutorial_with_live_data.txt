@@ -2316,3 +2316,15 @@ screenshots inspected and hashed in the batch evidence; no listening or full
 language-matrix acceptance claimed. The remaining23English voices now render
 onCPU, preserving the verified af_heart. Translations/captions and complete-set
 publication remain open. The visible stale-output warning remains disclosed.
+
+2026-09-21 — CODEX: MAP BARCODE REVIEWS MATCH THE CURRENT15SCENES
+All13language/caption reviews now bind the verified current Map Barcodes
+recording. Added guide and row orientation evidence: reverse-complement
+support in read1 and stored orientation in read2, with low-rate alternatives
+remaining indeterminate. Prerequisites name1.5.0.8 and the three ambiguous
+guide sequences whose reads stay unassigned. Removed older-reference-table
+comparisons. Twelve unchanged narration scenes preserve actual8611windows,
+7657mappedreads,4099countrows, sample-specific limitations and GUI/API boundaries.
+All13staged/source/speech/geometry checks pass, plus9bundle/promotion tests
+(0.78s). Receipt:2026-09-21-map-current-translations.json. The remaining26
+spoken tracks render CPU-only; no listening/native approval or publication.

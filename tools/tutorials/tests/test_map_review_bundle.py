@@ -21,10 +21,11 @@ def test_complete_source_pinned_editorial_matrix():
     assert bundle['review']['native_speaker_signoff'] is False
     assert bundle['review']['human_listening_signoff'] is False
     for translated in bundle['translations'].values():
-        assert len(translated['scenes']) == len(english['scenes']) == 13
+        assert len(translated['scenes']) == len(english['scenes']) == 15
         assert all(len(scene.strip()) > 40 for scene in translated['scenes'])
         assert 'Map Barcodes' in translated['title']
         assert 'SRR33531217' in translated['prerequisite']
         assert 'primers_3' in translated['prerequisite']
+        assert '1.5.0.8' in translated['prerequisite']
         assert len(translated['objectives']) == 3
         assert translated['section'] and translated['section'] != 'Core'
