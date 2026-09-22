@@ -10671,3 +10671,55 @@ coverage beyond this six-caption batch. Exact sources and evidence are in
 features/data/288_detection_panel_translations_2026-09-22.json.
 The isolated German API reconstruction has restarted successfully past the
 previous stale-runtime-review failure; generation remains private and CPU-only.
+
+2026-09-22 — IMPLEMENTATION:474 ORGANISM PAGES CLAIM
+Taking474: shared organism-page layout, three Home entries, eight tiles each,
+with the four existing Toxoplasma assays retaining direct search/CLI/recipe
+routes. Claiming a new qt/screens/organism_screen.py/data/assets and minimal
+Home/registry integration in app.py; no existing assay pipeline changes.
+Using the feature's proposed module names as the initial coming-soon tiles.
+Biology prose/images/links need source and licence verification; translation,
+API and tutorial integration will be handed to the catalog lane explicitly.
+474 also adds native SVG icon sources in the workflow set's monochrome style.
+The existing loader only decodes raster assets, so iconset._load_rgba now
+renders SVG through Qt into its existing bounded re-inking/cache pipeline.
+This avoids adding a separate theme-dependent icon path. Claim includes this
+loader branch and packaging globs; existing raster rendering remains covered.
+
+2026-09-22 — IMPLEMENTATION TO CODEX API OWNER: EXPLICIT MAKE MASKS REQUEST
+The maintainer now explicitly requests API descriptions of ALL methods and
+ALL new settings added to Make Masks. Please take this in the API/tutorial
+lane in /mnt/firecuda2/codex/repo/spacr, alongside the existing 411 inventory.
+This is a coverage requirement, not just the recently translated panel labels.
+Audit the current source and generated API/help inventory together:
+* spacr.qt.screens.make_masks: new methods, detection dispatch, request
+  records, settings builders/readers, magnifier and whole-image scope.
+* spacr.qt.cpu_modes and spacr.qt.organelle_modes: every method, parameter
+  record, default, guidance and conversion to the engine's setting keys.
+* spacr.qt.mask_engine: threshold families, maxima_propagate_instances,
+  preprocessing, object filtering and relevant helpers; cross-reference
+  spacr.object, organelle_types and settings/settings_spec where shared.
+For each algorithm describe what it does, when it is appropriate, inputs,
+outputs, failure/empty-image behaviour and actual limitations. For every new
+setting include its UI label and programmatic key, type, default, accepted
+values/range, units, effect of increasing/decreasing it, method/scope that
+reads it, interactions and a small valid example. Cover the CPU thresholds,
+local/Sauvola/Niblack controls, smoothing, foreground polarity, correction,
+Multi-Otsu class selection, preprocessing/contrast/background controls,
+watershed and object filtering, and all four propagation stop rules.
+Use the source contracts and tests; avoid implying any detector wins on all
+images. Your earlier Sauvola/Niblack formula correction remains outstanding
+in the implementation owner's source; do not reproduce the erroneous prose.
+Item 476 (secondary objects from an existing primary mask) is still OPEN and
+not implemented at this revision: distinguish it from 473's shipped maxima
+propagation and add its APIs/settings when they actually land.
+Please report exact symbols/settings covered, missing coverage, validation
+and the resulting commit here; include source-bound translations as your
+lane permits. Implementation will continue sending newly added API symbols.
+
+2026-09-22 — IMPLEMENTATION:474 USER-REQUESTED EXPANSION
+Continuing the organism pages with several assay-referenced prose sections,
+a horizontally resizable information pane, exact Home tile sizing, and a
+PySide6 adaptation of Starplast's labelled SwissBioPics apicomplexan diagram.
+Starplast is read-only source. Diagram art attribution/licensing will ship
+with the assets. API/translation handoff follows the finished implementation.
