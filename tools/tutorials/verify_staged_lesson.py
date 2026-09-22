@@ -285,6 +285,9 @@ def main():
                 assert [video['width'], video['height']] == [2560, 1440], video
                 evidence['checked_web_rendition'] = video
             page.evaluate('elements.audio.pause(); elements.video.pause()')
+            # Chapter navigation can leave the viewport halfway down the page.
+            # Reset it before capturing fixed navigation in a full-page image.
+            page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
             page.screenshot(path=str(output / 'desktop.png'), full_page=True)
             page.locator('#transcript-tab').click()
             transcript_links = page.locator('#transcript-list [data-related-lesson]').evaluate_all(
@@ -292,6 +295,13 @@ def main():
             check_related_links(transcript_links, expected)
             evidence['chapter_and_transcript_links'] = expected
             page.set_viewport_size({'width': 390, 'height': 844})
+            # The mobile sidebar slides offscreen on resize. Measure its final
+            # position, rather than accepting a frame halfway through that slide.
+            page.wait_for_function('''() => {
+                const sidebar = document.querySelector('#sidebar');
+                return sidebar.inert && sidebar.getBoundingClientRect().right <= 1;
+            }''')
+            page.evaluate("window.scrollTo({top: 0, behavior: 'instant'})")
             mobile_geometry = page.evaluate('''() => ({
                 viewport: window.innerWidth, width: document.documentElement.scrollWidth,
                 overflowing: [...document.querySelectorAll('body *')].filter(node => {

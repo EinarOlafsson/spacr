@@ -443,3 +443,11 @@ English matrix. Receipt:2026-09-22-map-current-other-voices.json. Listening,
 full visual/caption acceptance and complete-set publication remain open.
 Regression's fresh1.5.0.9 caption sources drive CPU narration in both selections;
 no GPU has been used and no media has been published from this checkpoint.
+
+2026-09-22 — CODEX: REGRESSION1.5.0.9 REVIEW MASTER VERIFIED
+Current dark/Blobs native4K/30fps silent and English review masters fully decode;
+source-bound audio and actual browser seek/playback/link checks pass. Desktop
+and mobile screenshots were inspected after fixing the verifier's premature
+capture during the sidebar closing animation. The player itself is unchanged.
+Receipt:2026-09-22-regression-current-capture.json. Remaining voice/caption and
+listening acceptance are explicit; no complete-set publication claim.

@@ -2462,3 +2462,15 @@ Receipt:tools/tutorials/evidence/2026-09-22-map-current-other-voices.json.
 No listening approval or complete-set publication is implied. Regression's
 current English and non-English CPU narration continue; final visual/caption/
 audible acceptance and the GPU-dependent Masks recapture remain open.
+
+2026-09-22 — CODEX: CURRENT REGRESSION MASTER AND PLAYER VERIFIED
+Both native3840x2160/30fps masters fully decode. Current en/af_heart narration
+passes freshness/timing/activity and decoded true-peak checks. Actual Chromium
+playback, chapter seeking,21scenes and all related-lesson links pass. Desktop
+and390px-mobile screenshots inspected after the navigation layout settles.
+The verifier now returns to the page top and waits for the mobile sidebar's
+closing transition before capturing; the prior transient screenshots are kept
+privately. No player/application changes. Capture receipt updated:
+tools/tutorials/evidence/2026-09-22-regression-current-capture.json.
+The exchangeability diagnostic limitation remains explicit. Full voice/caption
+and listening acceptance plus complete-set publication remain open.

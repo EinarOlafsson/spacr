@@ -9656,3 +9656,13 @@ tracks including priorEnglish. Updated358/447 and the source-bound receipt.
 This checkpoint is ready to push: sound/Image Import coverage,13German API
 documents, current reports and Map50-track evidence. Regression master70932
 continues full native4K decode verification; not included until complete.
+
+2026-09-22 — CODEX: 419794868 PUSH VERIFIED / REGRESSION MASTER
+Nightly push and ls-remote confirm419794868. Regression master70932 completes0:
+both native4K/30fps masters fully decode and current audio verifies. Browser
+playback/seek/21scenes/links pass. Screenshot inspection caught the verifier
+capturing during mobile sidebar transition; it now scrolls to top and waits
+for the sidebar to be offscreen. Recheck66652 passes, both new screenshots
+inspected. No production/player change. Updated358/447 and capture receipt.
+Map Barcodes search-failure tests are running with the existing fold/search
+selection; no coverage claim until the result. GPU work remains unstarted.
