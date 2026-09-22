@@ -115,6 +115,9 @@ _DINOCELL = "dinocell"
 _SAMCELL = "samcell"
 _PAPERS = "papers"
 
+#: DeepCell's SpotNet, for fluorescent spots rather than cells.
+_SPOTNET = "spotnet"
+
 #: Every value ``segmentation_backend`` accepts, the default first.
 _BACKEND_NAMES = (_CELLPOSE, _CELLPOSE3, _DINOCELL, _SAMCELL)
 
@@ -331,6 +334,36 @@ _SPECS = {
             "0319532): LIVECell test set SEG 0.652, DET 0.893, OP_CSB 0.772, "
             "against Cellpose 0.589 / 0.779 / 0.684. spaCR has not scored "
             "this backend on its own data.")),
+    _SPOTNET: _BackendSpec(
+        name=_SPOTNET, label="SpotNet (DeepCell)", module="deepcell_spots",
+        probe=("deepcell_spots", "deepcell_spots.applications", "tensorflow"),
+        distribution="deepcell-spots",
+        requirements=("deepcell-spots==0.4.2",),
+        torch=(), python=((3, 7), (3, 10)),
+        licence="Modified Apache-2.0, NON-COMMERCIAL ACADEMIC USE ONLY",
+        licence_note=(
+            "DeepCell's models and training data are licensed for "
+            "non-commercial academic use only (a modified Apache licence), "
+            "which is NOT the licence spaCR itself carries. Its weights are "
+            "not public either: they are fetched from users.deepcell.org "
+            "with a free account's access token, which spaCR reads from "
+            "DEEPCELL_ACCESS_TOKEN. Read the licence before using SpotNet "
+            "for anything commercial."),
+        homepage="https://github.com/vanvalenlab/deepcell-spots",
+        size_gb=3.0, segments=False,
+        blurb=(
+            "SpotNet finds fluorescent SPOTS -- single molecules, FISH "
+            "puncta, sequencing-by-synthesis signals -- and returns their "
+            "coordinates, not masks. It is TensorFlow, so it installs into "
+            "an environment of its own; deepcell-spots 0.4.2 needs Python "
+            "3.7 to 3.10, so a spaCR running a newer Python cannot build "
+            "it. The weights need a free DeepCell token."),
+        published=(
+            "Published results: Laubscher et al., 'Accurate single-molecule "
+            "spot detection for image-based spatial transcriptomics with "
+            "weakly supervised deep learning', Cell Systems 2024 "
+            "(doi:10.1016/j.cels.2023.12.008). spaCR has not scored it on "
+            "its own data.")),
     _PAPERS: _BackendSpec(
         name=_PAPERS, label="Plaque figure reader", module="ultralytics",
         probe=("ultralytics", "rapidocr_onnxruntime"),
@@ -421,10 +454,15 @@ class _BackendState:
 def _spec(name):
     """The spec for an optional backend.
 
+    A backend that does not segment -- the plaque figure reader, SpotNet --
+    is not a ``segmentation_backend`` value, so it is found by its own name
+    before the segmentation names are checked.
+
     :raises ValueError: for Cellpose 4 or a name spaCR has no backend for.
     """
-    if str(name).strip().lower() == _PAPERS:
-        return _SPECS[_PAPERS]
+    asked = str(name).strip().lower()
+    if asked in _SPECS and not _SPECS[asked].segments:
+        return _SPECS[asked]
     backend = _backend_name(name)
     if backend not in _SPECS:
         raise ValueError(
@@ -2259,6 +2297,30 @@ def _worker_detect(request, adapters):
     return {"boxes": boxes}
 
 
+def _worker_detect_spots(request, adapters):
+    """Find fluorescent spots in one image with SpotNet.
+
+    :param request: ``image`` (a ``.npy`` path, ``H x W`` or ``H x W x 1``)
+        and ``threshold`` (SpotNet's detection threshold, 0 to 1).
+    :param adapters: the worker's cache; the application loads once.
+    :returns: ``{"spots": [[y, x], ...]}`` in image pixels.
+    """
+    import numpy as np
+
+    if "spotnet" not in adapters:
+        from deepcell_spots.applications import SpotDetection
+
+        adapters["spotnet"] = SpotDetection()
+    image = np.load(str(request["image"]), allow_pickle=False)
+    if image.ndim == 2:
+        image = image[..., None]
+    batch = image[None].astype("float32")
+    threshold = float(request.get("threshold", 0.95))
+    found = adapters["spotnet"].predict(batch, threshold=threshold)
+    spots = np.asarray(found[0] if isinstance(found, (list, tuple)) else found)
+    return {"spots": [[float(y), float(x)] for y, x in np.atleast_2d(spots)]}
+
+
 def _worker_read_text(request, adapters):
     """Read the words in one image with RapidOCR.
 
@@ -2333,6 +2395,8 @@ def _handle(name, request, adapters):
             body = _worker_segment(name, request, adapters)
         elif op == "detect":
             body = _worker_detect(request, adapters)
+        elif op == "detect_spots":
+            body = _worker_detect_spots(request, adapters)
         elif op == "read_text":
             body = _worker_read_text(request, adapters)
         elif op == "read_pdf":

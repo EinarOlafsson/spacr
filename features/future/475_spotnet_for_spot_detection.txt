@@ -1,0 +1,55 @@
+================================================================================
+SPOTNET IN THE MODEL ZOO, AND WHERE SPACR COULD USE IT
+================================================================================
+
+Status:    FILED 2026-09-22. The zoo row and the backend are BUILT (nightly);
+           using SpotNet inside a module is not.
+Requested: 2026-09-22, by the maintainer: "as an additional model in the model
+           zoo please add spotnet
+           https://deepcell.readthedocs.io/en/master/data-gallery/spotnet.html"
+
+WHAT IS BUILT
+--------------------------------------------------------------------------------
+
+SpotNet (DeepCell, Laubscher et al., Cell Systems 2024) finds fluorescent
+SPOTS -- single molecules, FISH puncta, sequencing-by-synthesis signals -- and
+returns coordinates, not masks. It is listed in the Model Zoo as the backend
+`spotnet`, installing into an environment of its own like the others, with a
+worker operation `detect_spots` that returns `[[y, x], ...]`.
+
+THREE THINGS THE ROW HAS TO SAY, and does:
+
+  * ITS LICENCE IS NOT SPACR'S. DeepCell's models and training data are a
+    modified Apache licence, NON-COMMERCIAL ACADEMIC USE ONLY.
+  * ITS WEIGHTS NEED AN ACCOUNT. They come from users.deepcell.org with a free
+    token, read from DEEPCELL_ACCESS_TOKEN.
+  * IT NEEDS AN OLDER PYTHON. deepcell-spots 0.4.2 declares >=3.7,<3.11, so a
+    spaCR on Python 3.11 or newer cannot build the environment and the row
+    says "not installable here" with that reason. (spaCR's own developer
+    machine runs 3.12, so this backend is UNTESTED end to end here: the spec,
+    the row and the refusal are tested; a real install and a real detection
+    are not.)
+
+WHAT IS NOT BUILT, AND WHERE IT WOULD GO
+--------------------------------------------------------------------------------
+
+  * OPS SPOT DETECTION. spaCR's optical pooled screening already finds
+    sequencing spots per cycle (spacr/ops_engine.py); SpotNet could be an
+    alternative detector there, chosen by a setting, with the cycle's spots
+    coming back as coordinates. That is where it would earn its place, and it
+    needs a measurement against spaCR's own detector on a real well before
+    anyone should prefer it.
+  * FISH / SMFISH COUNTING as a measurement: spots per cell from a channel,
+    written beside the other per-object measurements.
+  * A PYTHON THAT CAN INSTALL IT. Either spaCR finds an older interpreter for
+    that one environment (the installer already looks for one and says so), or
+    the backend waits for deepcell-spots to admit a newer Python.
+
+DONE WHEN
+--------------------------------------------------------------------------------
+
+  * A real install on a Python 3.10 machine, a real detection on a real
+    image, and the result compared with spaCR's own spot detection on the
+    same field.
+  * If it wins, a setting that chooses it in OPS, and its licence stated
+    where a user selects it.
