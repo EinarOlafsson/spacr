@@ -48,7 +48,6 @@ from PySide6.QtWidgets import (
     QProgressBar,
     QPushButton,
     QSpinBox,
-    QSplitter,
     QTableWidget,
     QVBoxLayout,
     QWidget,
@@ -59,6 +58,7 @@ from ...cli import MODULES
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 from ..widgets.sortable_table import install_sorting, table_item
 
 __all__ = ["BatchScreen", "COLUMNS", "ON_ERROR_LABELS", "STATUS_COLOURS"]
@@ -286,9 +286,10 @@ class BatchScreen(QWidget):
         self._progress.setFormat("%v / %m jobs")
         outer.addWidget(self._progress)
 
-        split = QSplitter(Qt.Vertical, self)
+        split = CollapsibleSplitter(Qt.Vertical, self,
+                                    persist_key="batch::body")
 
-        self._table = QTableWidget(self)
+        self._table = QTableWidget()
         install_sorting(self._table)
         self._table.setColumnCount(len(COLUMNS))
         self._table.setHorizontalHeaderLabels(list(COLUMNS))
@@ -300,29 +301,26 @@ class BatchScreen(QWidget):
         self._table.horizontalHeader().setSectionResizeMode(
             COLUMNS.index("Label"), QHeaderView.Stretch)
         self._table.itemSelectionChanged.connect(self._on_selection_changed)
-        split.addWidget(self._table)
+        split.add_section(self._table, "Job queue",
+                          persist_key="batch/Job queue", stretch=3)
 
-        panes = QWidget(self)
-        pane_layout = QVBoxLayout(panes)
-        pane_layout.setContentsMargins(0, 0, 0, 0)
-        pane_layout.setSpacing(SPACING["xs"])
-        self._problems_view = QPlainTextEdit(panes)
+        self._problems_view = QPlainTextEdit()
         self._problems_view.setReadOnly(True)
         self._problems_view.setPlaceholderText(
             "Validation problems appear here — all of them at once, so the queue "
             "can be fixed in one pass.")
-        self._problems_view.setMaximumHeight(140)
-        pane_layout.addWidget(self._problems_view)
-        self._log_view = QPlainTextEdit(panes)
+        split.add_section(self._problems_view, "Validation problems",
+                          persist_key="batch/Validation problems", stretch=0,
+                          extent=140)
+        self._log_view = QPlainTextEdit()
         self._log_view.setReadOnly(True)
         self._log_view.setPlaceholderText(
             "Select a job to read its own log. Every job writes its own file — a "
             "single interleaved log from an overnight run is unreadable.")
-        pane_layout.addWidget(self._log_view, 1)
-        split.addWidget(panes)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 2)
+        split.add_section(self._log_view, "Job log",
+                          persist_key="batch/Job log", stretch=2)
         outer.addWidget(split, 1)
+        self._body_splitter = split
 
         self._status = QLabel("", self)
         self._status.setObjectName("Muted")

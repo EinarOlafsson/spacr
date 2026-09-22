@@ -42,7 +42,6 @@ from PySide6.QtWidgets import (
     QPushButton,
     QSizePolicy,
     QSpinBox,
-    QSplitter,
     QVBoxLayout,
     QWidget,
 )
@@ -52,6 +51,7 @@ from ... import align as align_mod
 from ..bridge import make_thread
 from ..theme import SPACING, active_palette, make_transparent, paint_panel
 from ..widgets import Divider
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 
 __all__ = [
     "AlignScreen",
@@ -379,12 +379,14 @@ class AlignScreen(QWidget):
         qual_row.addWidget(self._btn_plan)
         outer.addLayout(qual_row)
 
-        split = QSplitter(Qt.Horizontal, self)
-        self._layout_view = TileLayoutWidget(self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="align::body")
+        self._layout_view = TileLayoutWidget()
         self._layout_view.tile_clicked.connect(self._on_tile_clicked)
-        split.addWidget(self._layout_view)
+        split.add_section(self._layout_view, "Tile layout",
+                          persist_key="align/Tile layout", stretch=3)
 
-        right = QWidget(self)
+        right = QWidget()
         right_layout = QVBoxLayout(right)
         right_layout.setContentsMargins(0, 0, 0, 0)
         right_layout.setSpacing(SPACING["xs"])
@@ -399,10 +401,10 @@ class AlignScreen(QWidget):
         self._tile_label.setObjectName("Muted")
         self._tile_label.setWordWrap(True)
         right_layout.addWidget(self._tile_label)
-        split.addWidget(right)
-        split.setStretchFactor(0, 3)
-        split.setStretchFactor(1, 2)
+        split.add_section(right, "Plan report",
+                          persist_key="align/Plan report", stretch=2)
         outer.addWidget(split, 1)
+        self._body_splitter = split
 
         out_row = QHBoxLayout()
         out_row.setSpacing(SPACING["sm"])

@@ -20,13 +20,14 @@ from typing import Optional
 
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (QFileDialog, QHBoxLayout, QLabel, QLineEdit,
-                               QPushButton, QSplitter, QTabWidget,
+                               QPushButton, QTabWidget,
                                QVBoxLayout, QWidget)
 
 from ...curation import is_curated
 from ..curation_tool import BrushPanel, TrackCurationPanel
 from ..layer_viewer import LayerViewer
 from ..theme import SPACING, active_palette
+from ..widgets.collapsible_splitter import CollapsibleSplitter
 
 LOG = logging.getLogger(__name__)
 
@@ -111,9 +112,11 @@ class CurateScreen(QWidget):
         tracks_row.addWidget(self._open_tracks)
         outer.addLayout(tracks_row)
 
-        split = QSplitter(Qt.Horizontal, self)
+        split = CollapsibleSplitter(Qt.Horizontal, self,
+                                    persist_key="curate::body")
         self.viewer = LayerViewer(parent=self)
-        split.addWidget(self.viewer)
+        split.add_section(self.viewer, "Image",
+                          persist_key="curate/Image", stretch=1, extent=680)
 
         self.tabs = QTabWidget(self)
         self.brush_host = QWidget(self.tabs)
@@ -128,11 +131,11 @@ class CurateScreen(QWidget):
 
         self.tracks = TrackCurationPanel(self.tabs)
         self.tabs.addTab(self.tracks, "Tracks")
-        split.addWidget(self.tabs)
-        split.setStretchFactor(0, 1)
-        split.setStretchFactor(1, 0)
-        split.setSizes([680, 320])
+        split.add_section(self.tabs, "Curation tools",
+                          persist_key="curate/Curation tools", stretch=0,
+                          extent=320)
         outer.addWidget(split, 1)
+        self._body_splitter = split
 
         self.status = QLabel("", self)
         self.status.setObjectName("Muted")

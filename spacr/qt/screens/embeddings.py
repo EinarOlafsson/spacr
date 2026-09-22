@@ -93,6 +93,7 @@ from ...crop_loader import (CROP_SOURCE_DATABASE, CROP_SOURCES,
 from ..app_catalog import declared_app
 from ..job_runner import JobRunner
 from ..theme import SPACING
+from ..widgets.collapsible_splitter import FoldSection
 from ..widgets.sortable_table import install_sorting, table_item
 from .app_screen import ModuleHeader
 
@@ -384,7 +385,10 @@ class EmbeddingsScreen(QWidget):
         self._pages.addWidget(self._state)
         self._pages.addWidget(self._table)
         self._pages.setCurrentWidget(self._state)
-        outer.addWidget(self._pages, 1)
+        self._pages_section = FoldSection(
+            self._pages, "Crop preview",
+            persist_key="embeddings/Crop preview")
+        outer.addWidget(self._pages_section, 1)
 
         self._caveat = QLabel(DIMENSION_CAVEAT, self)
         self._caveat.setObjectName("EmbeddingsCaveatLabel")
