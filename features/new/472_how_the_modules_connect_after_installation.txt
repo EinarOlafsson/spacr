@@ -140,3 +140,23 @@ inspection is reconciling the live module/fold/preview registries and actual
 artifact readers/writers before prose generation. Pathway IDs and ownership
 are announced in the coordination channel. No tutorial, translation or Home
 completion is claimed yet.
+
+2026-09-22 — CLAUDE: PART 5 IS BUILT
+  a. A module that cannot open now SAYS SO. `MainWindow._on_nav_selected`
+     let a build failure escape into the Qt slot, where Qt printed it to a
+     terminal the user does not have and carried on -- the reporter's "I can
+     click them and nothing seems to happen". It is caught, the module and
+     the missing package are named in a dialog and the status bar, and no
+     half-built screen is kept (tests/qt/test_a_tile_that_cannot_open_says_so.py).
+  b. "START A SAMPLE PROJECT…" is the first thing in Home's side column. It
+     asks which kind of experiment the person has, opens that pathway's first
+     module and loads that module's own example data
+     (spacr/qt/widgets/sample_project.py, tests/qt/test_home_starts_a_sample_project.py).
+     THE PATHWAYS COME FROM CODEX'S MAP, spacr/resources/module_workflows.json
+     (announced in the channel, part 0), read as {"pathways": [{id, title,
+     summary, modules}]}; until that file lands, three fallback pathways are
+     used -- the pooled screen, high-content imaging, and training a
+     segmentation model. When the map lands the dialog follows it with no
+     further change, so the dialog and the tutorials cannot drift.
+     STILL OWED on part 5: the walkthrough for the chosen pathway one click
+     away, which needs Codex's walkthroughs to exist.

@@ -4497,6 +4497,7 @@ class MainWindow(QMainWindow):
         """Instantiate the Home page and add it to the stack."""
         self._startup = make_home_page()
         self._startup.tile_clicked.connect(self._on_nav_selected)
+        self._startup.sample_project_requested.connect(self._start_a_sample_project)
         self._startup.update_check_requested.connect(self._check_for_updates)
         try:
             self._startup._btn_all_apps.clicked.connect(self.toggle_app_drawer)
@@ -4754,6 +4755,24 @@ class MainWindow(QMainWindow):
                 except Exception:                            # noqa: BLE001
                     LOG.debug("could not restore %s workspace", key,
                               exc_info=True)
+
+    def _start_a_sample_project(self) -> str:
+        """Ask which kind of experiment, then open it with example data.
+
+        GitHub #130: "I would like to open a sample project that is similar
+        to a project I may have and see the platform in action." Home lists
+        every module and says nothing about where to begin; this begins.
+
+        :returns: the module key opened, or ``""`` when nothing was chosen.
+        """
+        from .widgets.sample_project import offer_a_sample_project
+
+        def open_it(key):
+            """Navigate to ``key`` and hand back the screen that was built."""
+            self._on_nav_selected(key)
+            return self._screens.get(key)
+
+        return offer_a_sample_project(self, open_it)
 
     def _say_a_module_would_not_open(self, key, exc) -> str:
         """Tell the person a module did not open, and what stopped it.
