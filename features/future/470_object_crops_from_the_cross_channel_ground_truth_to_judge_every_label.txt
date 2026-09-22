@@ -179,3 +179,26 @@ PROGRESS 2026-09-21
      measurements.db, so the crops open in Annotate.
 
   Next: the full crop run over every plate, then the maintainer's annotation.
+
+--------------------------------------------------------------------------------
+2026-09-22 -- EVERY CROP IS CUT, AND EVERY LABEL HAS ONE
+--------------------------------------------------------------------------------
+
+The full run finished over all 12 experiment-plates. Checked per plate and
+per object type: the labels in the stacks' mask planes, the PNG crops on
+disk, and the rows in each measurements.db's png_list agree exactly, on every
+plate:
+
+    object      labels    crops (PNG)   png_list rows
+    PV          37,753        37,753          37,753
+    cell       283,055       283,055         283,055
+    nucleus    264,503       264,503         264,503
+    total      585,311       585,311         585,311
+
+Crops are under /mnt/wd4tb/af3/projects/cross_channel_models/
+ground_truth_crops/<type>/<plate>/, each plate's database opening in Annotate
+(point Annotate's source at <type>/<plate>). Next: the maintainer's real /
+not-real annotation -- 585k crops is more than anyone labels by hand, so the
+practical route is a sample per type and dataset, then a first classifier
+from it, then review of what it calls not real (the DONE WHEN already allows
+"or the chosen sample").
