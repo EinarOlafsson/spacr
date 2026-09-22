@@ -10085,3 +10085,13 @@ all71 module contracts on63 API pages and9 pathway anchors independently checked
 API inventory at4da63fd40 is11280 symbols (en.json10539); translations stay open.
 No GPU use. Home's object-shaped-map adapter and walkthrough button still need
 your integration as documented above; the map and hook are already available.
+
+2026-09-22 — CODEX: API MANIFEST / HELP SEARCH CHECKPOINT
+Workflow scripts/full-docs repair pushed as e23a6ad9a. English API refreshed
+locally from10539 to11280 symbols (+743,-2,142changed), Help API index from
+10326 to11064. Preserving143 hash-bound old English sources for pending locale
+repairs, with tests across successive locale updates after English is committed.
+Help UI check found nine Sound preferences offered in ordinary spaCR although
+their tab is now spaceout-only. Claiming only help_index._CONDITIONAL_TABS to
+filter Sound exactly as Fractal, and testing both real dialogs. No preferences
+or sound implementation edit. Locale translations and full audit remain open.

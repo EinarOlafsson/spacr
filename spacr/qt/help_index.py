@@ -604,7 +604,10 @@ def api_entries() -> List[HelpEntry]:
 #: have landed is a lie. The same staleness applies to the module rows, which
 #: are filtered through ``app_is_visible`` at build time and so do not follow
 #: a change to the maturity preference until the next launch.
-_CONDITIONAL_TABS = {"PreferencesTabFractal": "spaceout_enabled"}
+_CONDITIONAL_TABS = {
+    "PreferencesTabFractal": "spaceout_enabled",
+    "PreferencesTabSound": "spaceout_enabled",
+}
 
 
 def _tab_exists(object_name: str) -> bool:

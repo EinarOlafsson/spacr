@@ -252,8 +252,10 @@ def test_the_named_tab_is_the_one_that_comes_up(qtbot, window):
     assert widget.property("spacrRevealed") is True
 
 
-def test_every_offered_preference_is_a_row_the_dialog_really_has(qtbot,
-                                                                 window):
+@pytest.mark.parametrize("spaceout", [False, True])
+def test_every_offered_preference_is_a_row_the_dialog_really_has(
+    qtbot, window, monkeypatch, spaceout,
+):
     """The drift guard: a generated list still has to match what is built.
 
     This is the check the instruction's central worry asks for -- "a map that
@@ -262,20 +264,21 @@ def test_every_offered_preference_is_a_row_the_dialog_really_has(qtbot,
     list.
 
     The index is what the field OFFERS, which is not quite the generated
-    table: the Fractal page exists only while the fractal backdrop is on, so
-    its rows are offered only then. The generator turned the backdrop on to
+    table: the Fractal and Sound pages exist only in spaceout mode, so
+    their rows are offered only then. The generator turned the backdrop on to
     see them; this asks the same question this process can answer.
     """
     from spacr.qt import preferences_navigation as navigation
     from spacr.qt.help_index import preference_entries
     from spacr.qt.preferences import PreferencesDialog
-    from spacr.qt.theme import spaceout_enabled
+    from spacr.qt import theme
+
+    monkeypatch.setattr(theme, "_SPACEOUT", spaceout)
 
     offered = preference_entries()
     assert len(offered) > 100
-    if not spaceout_enabled():
-        assert not any(e.payload["tab"] == "PreferencesTabFractal"
-                       for e in offered)
+    for name in ("PreferencesTabFractal", "PreferencesTabSound"):
+        assert any(e.payload["tab"] == name for e in offered) is spaceout
 
     dialog = PreferencesDialog(window)
     qtbot.addWidget(dialog)

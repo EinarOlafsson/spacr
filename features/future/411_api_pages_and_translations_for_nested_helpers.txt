@@ -1512,3 +1512,24 @@ symbols versus10539 in en.json,743 added/2 removed/142 changed. Full translation
 audit remains red. A private model-free recovery plan only proves old hashes;
 its translations are not promoted without a semantic read. Some existing German
 resume prose still says Lebenslauf, so passing syntax gates is not acceptance.
+
+2026-09-22 — CODEX: ENGLISH API AND HELP INDEX REFRESHED
+English API now11280 symbols:10539 +743 added -2 removed;142 existing source
+hashes changed. Help has11064 public API entries:10326 +738 net. Independent
+source/text/block-hash/index-summary checks pass; full delta lists are in
+features/data/411_api_manifest_refresh_2026-09-22.json.143 old English records
+are retained by hash in docs/i18n/api_source_history.json while untranslated
+locales still reference them. Source-only, ordinary and repair builds preserve
+that evidence; a locale finishing removes only history no other locale needs.
+This source archive is not a translation review or permission to reuse bad text.
+13 focused history checks pass, then all12 ordinary-build history tests pass.
+The previously stale English-manifest nested-helper assertion now passes too.
+Help regeneration exposed9 Sound preference results whose tab is spaceout-only;
+filtering that conditional tab fixes the actual dead links. All48 Help UI tests
+pass, including the complete real preference dialog in both modes. No translated
+API text changed in this slice. Latest runtime audit still reports467 issues,
+including216 missing UI rows per main locale and20 new setting labels/tooltips;
+this is actual remaining work, not a successful full audit.
+Both API symbol-count pins move10539->11280 with the receipt's +743/-2 set
+difference. Their full locale/hash/browser assertions remain unchanged and red
+until those translations are complete; moving the live count grants no exemption.

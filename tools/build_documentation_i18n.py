@@ -6033,13 +6033,72 @@ def _committed_english_api_symbols() -> dict[str, object]:
     return symbols if isinstance(symbols, dict) else {}
 
 
+def _archived_english_api_records() -> dict[str, object]:
+    """Read hash-addressed English sources retained across manifest commits.
+
+    These are source records, not translation reviews. Historical targets
+    still have to pass all source, layout, context and language checks.
+    """
+    path = Path(ROOT) / "docs/i18n/api_source_history.json"
+    if not path.exists():
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if payload.get("schema") != 1 or not isinstance(payload.get("sources"), dict):
+        raise ValueError(f"Invalid API source history: {path}")
+    records = payload["sources"]
+    for digest, record in records.items():
+        if not isinstance(record, dict) or not isinstance(record.get("text"), str):
+            raise ValueError(f"Invalid API source history record: {digest}")
+        source = record["text"]
+        if (digest != _source_hash(source)
+                or record.get("source_sha256") != digest
+                or record.get("source_blocks_sha256") != _source_block_hashes(source)):
+            raise ValueError(f"API source history hash mismatch: {digest}")
+    return records
+
+
+def _write_english_api_manifest(docs: Mapping[str, str]) -> None:
+    """Advance English without losing the sources of unfinished locales.
+
+    HEAD ceases to be a useful fallback as soon as a source-only refresh is
+    committed. Retain only old English records still referenced by a locale
+    and absent from the new manifest. Archive before publishing the manifest;
+    never infer an old source from the current paragraph positions.
+    """
+    manifest = _english_manifest(docs)
+    current_hashes = {record["source_sha256"] for record in manifest["symbols"].values()}
+    needed = set()
+    for language in MODEL_SPECS:
+        path = API_DIR / f"{language}.json"
+        if path.exists():
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            needed.update(record.get("source_sha256") for record in payload["symbols"].values())
+    needed.difference_update(current_hashes)
+    archived = _archived_english_api_records()
+    old_path = API_DIR / "en.json"
+    if old_path.exists():
+        old_records = json.loads(old_path.read_text(encoding="utf-8"))["symbols"]
+        for record in old_records.values():
+            digest = record.get("source_sha256")
+            if digest in needed and digest == _source_hash(record["text"]):
+                archived[digest] = {
+                    field: record[field]
+                    for field in ("source_sha256", "source_blocks_sha256", "text")
+                }
+    retained = {digest: archived[digest] for digest in sorted(needed & archived.keys())}
+    history_path = Path(ROOT) / "docs/i18n/api_source_history.json"
+    if retained or history_path.exists():
+        _write_json(history_path, {"schema": 1, "sources": retained})
+    _write_json(old_path, manifest)
+
+
 def _proven_api_history(
     docs: Mapping[str, str], language: str,
 ) -> tuple[dict[str, object], dict[str, dict[str, str]], int, int]:
     """Read existing targets and prove historical blocks separately per symbol.
 
-    Ordinary builds and repairs use the same working-manifest/HEAD selection
-    and the same source, layout, context and target gates. The returned block
+    Ordinary builds and repairs try the working manifest, HEAD, then archived
+    sources with the same source, layout, context and target gates. The returned block
     mappings are not flattened by English source: different symbols may have
     different valid committed translations of an identical paragraph.
 
@@ -6062,6 +6121,7 @@ def _proven_api_history(
         old_english_symbols = {}
     historical_by_key: dict[str, dict[str, str]] = {}
     committed_english_symbols: dict[str, object] | None = None
+    archived_english_records: dict[str, object] | None = None
     history_from_head = 0
     history_unproven = 0
 
@@ -6088,7 +6148,13 @@ def _proven_api_history(
                 english_record = committed_record
                 history_from_head += 1
             else:
-                history_unproven += 1
+                if archived_english_records is None:
+                    archived_english_records = _archived_english_api_records()
+                archived_record = archived_english_records.get(translated_hash, {})
+                if archived_record:
+                    english_record = archived_record
+                else:
+                    history_unproven += 1
         historical_by_key[key] = _historical_api_block_translations(
             english_record,
             record,
@@ -6795,7 +6861,7 @@ def main() -> int:
 
     if args.sources_only:
         if not args.rebuild_readme:
-            _write_json(API_DIR / "en.json", _english_manifest(docs))
+            _write_english_api_manifest(docs)
             print(f"wrote English API manifest: symbols={len(docs)}")
         return 0
     if args.repair_api_blocks:
@@ -6806,7 +6872,7 @@ def main() -> int:
                 docs, language, args.model_root, args
             )
             write_language(docs, language, translated)
-        _write_json(API_DIR / "en.json", _english_manifest(docs))
+        _write_english_api_manifest(docs)
         print(f"wrote English API manifest: symbols={len(docs)}")
         return audit(docs, args.languages)
 
@@ -6990,7 +7056,7 @@ def main() -> int:
         return 0
     # Every locale needs the previous English to prove unchanged paragraphs.
     # Publish the new manifest only after all locale writes have succeeded.
-    _write_json(API_DIR / "en.json", _english_manifest(docs))
+    _write_english_api_manifest(docs)
     print(f"wrote English API manifest: symbols={len(docs)}")
     return audit(docs, args.languages)
 

@@ -180,7 +180,11 @@ TOOLS = ROOT / "tools"
 # keys dropped is 10,523, the previous value. Their blocks carry reviewed
 # records in all nine locales
 # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 10_539
+# 10,539 -> 11,280 on 2026-09-22: +743 / -2, measured against e23a6ad9a.
+# Exact added/removed keys: features/data/411_api_manifest_refresh_2026-09-22.json.
+# English is refreshed; the locale inventory and source-hash assertions below
+# remain strict and still report the unfinished translated catalog rebuild.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_280
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

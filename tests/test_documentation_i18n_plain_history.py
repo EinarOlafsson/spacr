@@ -172,6 +172,53 @@ def _seed_one_changed_symbol(build, *, languages=("pt",)):
     return key, old_manifest
 
 
+def test_source_refresh_retains_proven_paragraphs_after_commit(plain_build):
+    build = plain_build
+    key, _ = _seed_one_changed_symbol(build, languages=("pt", "de"))
+    build.builder._write_english_api_manifest(build.docs)
+    build.head_records = build.english_manifest()["symbols"]
+    archive = build.builder._archived_english_api_records()
+    assert set(archive) == {build.builder._source_hash(OLD_SOURCE)}
+
+    assert build.run(("pt",)) == 0
+    assert build.texts("pt")[key] == f"{PT_NEW}\n\n{PT_SHARED}"
+    assert build.decode_calls[0]["blocks"] == [build.context(NEW_BLOCK)]
+    assert build.builder._archived_english_api_records() == archive
+
+    assert build.run(("de",)) == 0
+    assert build.texts("de")[key] == (
+        "Gibt den Verarbeitungsstatus zurück.\n\nBehält das gespeicherte Bild.")
+    assert build.decode_calls[1]["blocks"] == [build.context(NEW_BLOCK)]
+    assert build.builder._archived_english_api_records() == {}
+
+
+def test_archived_source_rejects_mismatched_translation_layout(plain_build):
+    build = plain_build
+    key, _ = _seed_one_changed_symbol(build)
+    build.builder._write_english_api_manifest(build.docs)
+    build.head_records = build.english_manifest()["symbols"]
+    path = build.api_dir / "pt.json"
+    payload = json.loads(path.read_text())
+    payload["symbols"][key]["source_blocks_sha256"] = ["not-the-source-blocks"]
+    path.write_text(json.dumps(payload))
+    _, history, _, _ = build.builder._proven_api_history(build.docs, "pt")
+    assert history[key] == {}
+
+
+def test_corrupt_source_archive_fails_before_overwriting_manifest(plain_build):
+    build = plain_build
+    _seed_one_changed_symbol(build)
+    build.builder._write_english_api_manifest(build.docs)
+    path = build.builder.ROOT / "docs/i18n/api_source_history.json"
+    archive = json.loads(path.read_text())
+    next(iter(archive["sources"].values()))["text"] = "Wrong source."
+    path.write_text(json.dumps(archive))
+    before = (build.api_dir / "en.json").read_bytes()
+    with pytest.raises(ValueError, match="hash mismatch"):
+        build.builder._write_english_api_manifest({"spacr.changed": "Changed."})
+    assert (build.api_dir / "en.json").read_bytes() == before
+
+
 @pytest.mark.parametrize("history_location", ["working_manifest", "head_fallback"])
 def test_plain_api_build_preserves_each_symbols_untouched_paragraph(
     plain_build, history_location,

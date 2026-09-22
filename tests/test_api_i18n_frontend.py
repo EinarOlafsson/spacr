@@ -99,7 +99,11 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # keys dropped is 10,523, the previous value. Their blocks carry reviewed
 # records in all nine locales
 # (docs/i18n/reviewed/api/<lang>/2026-09-15-api-pass-412-416-413.json).
-REAL_SYMBOL_COUNT = 10_539
+# 10,539 -> 11,280 on 2026-09-22: +743 / -2 against e23a6ad9a; exact keys
+# are in features/data/411_api_manifest_refresh_2026-09-22.json. English is
+# current. The complete-catalog browser gate still checks every locale; this
+# pin change does not exempt its missing or stale translations.
+REAL_SYMBOL_COUNT = 11_280
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
@@ -567,7 +571,7 @@ setTimeout(() => {
 
 
 def test_every_complete_real_catalog_renders_through_the_browser_selector():
-    """Render the complete 10,243-symbol union for every real locale."""
+    """Render the complete pinned symbol union for every real locale."""
     assert CHROME, (
         "Chrome/Chromium is required for the exhaustive API-catalog gate; "
         "this required-CI assertion must not be skipped"
