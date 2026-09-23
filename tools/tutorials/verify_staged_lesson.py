@@ -28,6 +28,18 @@ def check_related_links(actual, expected):
         raise ValueError(f'Related lesson links differ: {actual!r} != {expected!r}')
 
 
+def find_host_lesson(lessons, navigation, host_key):
+    """Allow an absent parent lesson only when navigation records that gap."""
+    hosts = [item for item in lessons
+             if item.get('app_key') == host_key and not item.get('host_app_key')]
+    if len(hosts) == 1:
+        return hosts[0]
+    missing = {item['app_key'] for item in navigation['missing_tutorials']}
+    if hosts or host_key not in missing:
+        raise ValueError(f'Unexpected parent tutorial coverage for {host_key}')
+    return None
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     web_lesson = None
 
@@ -202,8 +214,15 @@ def main():
             if host_key:
                 assert page.locator('#lesson-content').get_attribute('data-app-key') == host_key
                 assert page.locator(f'#curriculum [data-host="{host_key}"] [data-lesson="{args.lesson}"]').count() == 1
-                host = next(item for item in english['lessons'] if item.get('app_key') == host_key)
-                assert host['title'] in page.locator('#lesson-route').inner_text()
+                host = find_host_lesson(english['lessons'], navigation, host_key)
+                if host is not None:
+                    assert host['title'] in page.locator('#lesson-route').inner_text()
+                else:
+                    expected_title = navigation['routes'][args.lesson]['host_title']
+                    heading = page.locator(f'#curriculum [data-host="{host_key}"] .module-group-heading')
+                    assert heading.inner_text() == expected_title
+                    assert page.locator('#lesson-route').is_hidden()
+                evidence['host_has_tutorial'] = host is not None
                 evidence['host_app_key'] = host_key
             page.wait_for_function('elements.video.readyState >= 2 && elements.audio.readyState >= 2', timeout=60000)
             page.select_option('#language-select', args.language)
