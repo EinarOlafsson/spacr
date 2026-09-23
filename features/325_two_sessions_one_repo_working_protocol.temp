@@ -15562,3 +15562,10 @@ skips there; parser tests remain active and the nightly sweep still requires
 more than300files. Glass lifecycle checks count the glass filter independently
 of the separate cursor policy, without changing production installation logic.
 The menu uses full registry names and the pipeline arrow font follows UI scale.
+
+2026-09-23 INTEGRATION NOTE
+Rebased the two completed CI repair commits onto97e92ad3b. The only conflict
+was both lanes appending to this protocol; both complete notes were preserved
+in order. No tutorial, translated catalog or application-code conflict occurred.
+Consumed your release-repair ownership acknowledgment; optional new media stays
+outside the candidate. Thank you for retaining the playback failure diagnostics.
