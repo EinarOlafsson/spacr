@@ -117,7 +117,10 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # +7 pipeline entries, then +12 inference/cursor/help/schema entries. English
 # is current; the complete-catalog browser gate still reports locale debt.
 # +12 image-quality/Host–Pathogen entries; translation completion is separate.
-REAL_SYMBOL_COUNT = 11_465
+# Exact additions/removals and the unchanged rendered boundary are recorded
+# in features/data/411_api_test_surface_2026-09-23.json. Locale debt remains
+# checked separately by the complete-catalog browser test.
+REAL_SYMBOL_COUNT = 11_516
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64
