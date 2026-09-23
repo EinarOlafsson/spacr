@@ -42,7 +42,7 @@ from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
 
 import numpy as np
-from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, Qt, Signal
+from PySide6.QtCore import QPoint, QPointF, QRectF, QSize, Qt, Signal, QTimer
 from PySide6.QtGui import (QActionGroup, QColor, QFont, QImage, QPainter,
                            QPen, QPixmap)
 from PySide6.QtWidgets import (
@@ -154,7 +154,8 @@ BOX_SELECTED = QColor(0, 200, 255)
 
 TABLE_COLUMNS = ("#", "Panel", "Label text", "Legend passage", "Condition",
                  "Source", "Plaques", "Mean area", "OK", "Well diameter (px)",
-                 "Pixels per µm", "Formation time (hours)")
+                 "Pixels per µm", "Formation time (hours)",
+                 "Estimated pixels per µm", "Estimated time (hours)", "Estimate basis")
 CONDITION_COLUMN = 4
 SOURCE_COLUMN = 5
 PLAQUES_COLUMN = 6
@@ -168,13 +169,15 @@ PLAQUE_COLUMNS = ("Well", "Panel", "Condition", "Plaque", "Area (px)",
                   "Vs panel median", "Vs well median", "Perimeter (px)",
                   "Equivalent diameter (px)", "Eccentricity", "Solidity",
                   "Centroid y", "Centroid x", "Area (mm²)", "Scale",
-                  "Well diameter (px)", "Pixels per µm", "Formation time (hours)")
+                  "Well diameter (px)", "Pixels per µm", "Formation time (hours)",
+                  "Estimated pixels per µm", "Estimated time (hours)", "Estimate basis")
 
 PLAQUE_KEYS = ("well", "panel", "condition", "plaque_id", "area_px",
                "area_vs_panel_median", "area_vs_well_median",
                "perimeter_px", "equivalent_diameter_px", "eccentricity",
                "solidity", "centroid_y", "centroid_x", "area_mm2", "scale",
-               "well_diameter_px", "pixels_per_um", "formation_hours")
+               "well_diameter_px", "pixels_per_um", "formation_hours",
+               "estimated_pixels_per_um", "estimated_formation_hours", "estimation_source")
 
 #: The colour of a Source cell whose label and legend disagree.
 CONFLICT_COLOUR = QColor(230, 90, 60)
@@ -2278,10 +2281,20 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "the source folder. The Figure-mode run reads it."))
         self._save_btn.clicked.connect(self.save_annotations)
         save_row.addWidget(self._save_btn)
+        self._growth_btn = QPushButton(tr("Estimate scale / time (experimental)"))
+        self._growth_btn.setCheckable(True)
+        self._growth_btn.setToolTip(tr("Suggest missing values from the largest 25% of plaques. Assumes RH/HFF control growth; existing measurements are retained. API: spacr.plaque_growth.estimate_page"))
+        self._growth_btn.toggled.connect(self._on_growth_toggled)
+        save_row.addWidget(self._growth_btn)
         save_row.addStretch(1)
         self._save_row = QWidget(self)
         self._save_row.setLayout(save_row)
         outer.addWidget(self._save_row)
+        self._growth_note = QLabel(tr("Published RH/HFF reference: 7 days, largest-quarter diameter 894 µm; about 40 hours error across three held-out experiments. Linear growth is assumed, not validated across times. Without a ruler or entered time, the reference duration is assumed. Change the reference in Experimental Growth Estimates settings. Suggestions are saved separately from measurements. <a href='https://doi.org/10.1371/journal.pbio.3002110'>Reference data</a>"))
+        self._growth_note.setOpenExternalLinks(True)
+        self._growth_note.setWordWrap(True)
+        self._growth_note.hide()
+        outer.addWidget(self._growth_note)
 
     def _stow_free_widgets(self) -> int:
         """Put every child that is in no layout into the holder that never shows.
@@ -2501,6 +2514,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_note.setVisible(figure and bool(self._paper_note.text()))
         self._all_btn.setVisible(figure)
         self._save_row.setVisible(figure)
+        self._growth_note.setVisible(figure and self._growth_btn.isChecked())
         self._confirm_note.setVisible(figure and self._confirm.isChecked())
         if not figure:
             self._legend_box.hide()
@@ -2638,6 +2652,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         """
         self._settings = dict(settings or {})
         s = self._settings
+        self._growth_btn.setChecked(bool(s.get("plaque_estimate_growth", False)))
         if MODE_KEY in s:
             self.set_mode(s.get(MODE_KEY))
         if s.get("src") and not self._src:
@@ -2775,6 +2790,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             "figure_confidence": float(self._confidence.value()),
             "figure_read_text": self._read_text.isChecked(),
             "confirm_annotations": self._confirm.isChecked(),
+            "plaque_estimate_growth": self._growth_btn.isChecked(),
         })
         out.update(self.text_values())
         return out
@@ -2795,7 +2811,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             out["plaque_model"] = s["plaque_model"]
         if self.mode() == FIGURE_MODE:
             for key in ("figure_imgsz", "figure_confidence",
-                        "figure_read_text", "confirm_annotations") + TEXT_KEYS:
+                        "figure_read_text", "confirm_annotations", "plaque_estimate_growth") + TEXT_KEYS:
                 out[key] = s[key]
             if s["figure_detector"] != self._seeded_detector:
                 out["figure_detector"] = s["figure_detector"]
@@ -3215,6 +3231,34 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             self._scales.append(base if value is None else _Scale(
                 value * 1000, source, f"{value:g} px/µm", base.magnification))
 
+    def _on_growth_toggled(self, enabled: bool) -> None:
+        """Expose optional estimates without changing entered calibration."""
+        self._growth_note.setVisible(enabled and self.mode() == FIGURE_MODE)
+        self._fill_table()
+        self._fill_plaque_table()
+
+    def _growth_values(self) -> Dict[int, Any]:
+        """Estimate from current measured values; never feed estimates back in."""
+        from ...plaque_growth import estimates_from_settings
+        from ...plaque_papers import calibration_values
+
+        if not self._growth_btn.isChecked():
+            return {}
+        settings = self.current_settings()
+        wells = []
+        for index, well in self._wells.items():
+            if index >= len(self._annotations):
+                continue
+            scale = self._scales[index] if index < len(self._scales) else None
+            wells.append(dict(well=index, areas_px=[r["area_px"] for r in well["rows"]],
+                              **calibration_values(self._annotations[index], scale,
+                                                   settings.get("plaque_formation_hours"))))
+        try:
+            return estimates_from_settings(wells, {**settings, "plaque_estimate_growth": True})
+        except ValueError as exc:
+            self.set_preview_status(str(exc))
+            return {}
+
     def _redraw_boxes(self) -> None:
         """Draw the figure with each box coloured by its OK tick."""
         result = self._figure
@@ -3238,6 +3282,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._table.blockSignals(True)
         self._table.setSortingEnabled(False)
         self._table.setRowCount(len(self._annotations))
+        growth = self._growth_values()
         for row, a in enumerate(self._annotations):
             well = self._wells.get(row)
             source = f"{a.source} / {a.strength}"
@@ -3256,6 +3301,13 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                 if column == SOURCE_COLUMN and a.conflict:
                     item.setForeground(CONFLICT_COLOUR)
                     item.setToolTip(_conflict_note(a))
+                self._table.setItem(row, column, item)
+            for column, key in enumerate(("estimated_pixels_per_um", "estimated_formation_hours", "estimation_source"), 12):
+                value = growth.get(row, {}).get(key)
+                item = table_item("" if value is None else f"{value:.6g}" if isinstance(value, float) else str(value))
+                item.setData(Qt.UserRole, row)
+                item.setFlags(item.flags() & ~Qt.ItemIsEditable)
+                item.setToolTip(tr("Experimental suggestion; measured values are retained. See the reference and assumptions below."))
                 self._table.setItem(row, column, item)
             ok = table_item("")
             ok.setData(Qt.UserRole, row)
@@ -3521,6 +3573,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         medians = {k: float(np.median(v)) if v else 0.0
                    for k, v in by_panel.items()}
         scales = self._scales
+        growth = self._growth_values()
         out = []
         for index in sorted(self._wells):
             a = annotation(index)
@@ -3536,6 +3589,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                             **row,
                             "area_mm2": row["area_px"] / ppm ** 2 if ppm else None,
                             "scale": _scale_note(scale)})
+                out[-1].update(growth.get(index, {}))
                 if a is not None:
                     from ...plaque_papers import calibration_values
                     out[-1].update(calibration_values(
@@ -3594,6 +3648,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             item.setText("" if value is None else f"{value:.8g}")
             self._table.blockSignals(False)
             self._fill_plaque_table()
+            if self._growth_btn.isChecked():
+                QTimer.singleShot(0, self._fill_table)
         elif item.column() == CONDITION_COLUMN:
             text = item.text().strip()
             if text and text != a.condition:
@@ -3613,6 +3669,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
         name = Path(result["path"]).name
         rows = []
+        growth = self._growth_values()
         for row in range(self._table.rowCount()):
             condition = self._table.item(self._view_row(row), CONDITION_COLUMN)
             text = condition.text().strip() if condition is not None else ""
@@ -3627,6 +3684,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
                                 resolved_formation_hours=values["formation_hours"],
                                 formation_time_source=values["formation_time_source"],
                                 scale_source=getattr(scale, "source", "unknown"))
+                rows[-1].update(growth.get(row, {}))
             else:
                 rows.append({"file": name, "region": row + 1,
                              "condition": text, "approved": self._row_ok(row)})

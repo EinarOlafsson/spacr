@@ -1973,6 +1973,8 @@ TABLES: Dict[str, Tuple[Tuple[str, str], ...]] = {
 _CALIBRATION_COLUMNS = (
     ('well_diameter_px', 'REAL'), ('well_diameter_method', 'TEXT'),
     ('pixels_per_um', 'REAL'), ('formation_hours', 'REAL'), ('formation_time_source', 'TEXT'),
+    ('estimated_pixels_per_um', 'REAL'), ('estimated_formation_hours', 'REAL'),
+    ('estimation_source', 'TEXT'), ('growth_estimate_provenance', 'TEXT'),
 )
 for _table in ('regions', 'figure_annotations'):
     TABLES[_table] += _CALIBRATION_COLUMNS
@@ -2635,6 +2637,11 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
         areas = [row["area_px"] for _i, a, rows, *_ in measured if a.panel == panel
                  for row in rows]
         medians[panel] = float(np.median(areas)) if areas else 0.0
+    from .plaque_growth import estimates_from_settings
+    growth = estimates_from_settings([
+        dict(well=i, areas_px=[r['area_px'] for r in rows],
+             **calibration_values(a, scale, kw.get('formation_hours')))
+        for i, a, rows, _path, scale in measured], kw.get('growth_settings') or {})
     for index, a, rows, crop_path, scale in measured:
         r = a.region
         cursor = _insert(connection, "regions", {
@@ -2656,11 +2663,18 @@ def _measure_figure(connection: sqlite3.Connection, paper: Paper,
             "region_index": index, "detector": kw["detector_id"],
             "segmenter": kw["segmenter_id"], "imgsz": json.dumps(list(kw["imgsz"])),
             **calibration_values(a, scale, kw.get("formation_hours")),
-            "run_id": run_id})
+            **growth.get(index, {}), "run_id": run_id})
         region_id = int(cursor.lastrowid)
         _insert(connection, "figure_annotations", _annotation_row(
             figure, paper, index, a, scale, measured=True, region_id=region_id,
             run_id=run_id, formation_hours=kw.get("formation_hours")))
+        if index in growth:
+            values = growth[index]
+            connection.execute(
+                "UPDATE figure_annotations SET estimated_pixels_per_um=?, estimated_formation_hours=?, "
+                "estimation_source=?, growth_estimate_provenance=? WHERE region_id=?",
+                (values['estimated_pixels_per_um'], values['estimated_formation_hours'],
+                 values['estimation_source'], values['growth_estimate_provenance'], region_id))
         median = medians.get(a.panel) or 0.0
         connection.executemany(
             "INSERT INTO plaques (region_id, label, area_px, area_mm2, "
@@ -2697,7 +2711,8 @@ ANNOTATION_COLUMNS = ("file", "region", "condition", "approved", "panel",
                       "conflict", "conflict_reason", "well_diameter_px",
                       "well_diameter_method", "pixels_per_um", "formation_hours",
                       "resolved_pixels_per_um", "resolved_formation_hours",
-                      "scale_source", "formation_time_source")
+                      "scale_source", "formation_time_source", "estimated_pixels_per_um",
+                      "estimated_formation_hours", "estimation_source", "growth_estimate_provenance")
 
 
 def read_legends(path: Any) -> Dict[str, str]:
@@ -2948,7 +2963,7 @@ def measure_figure_folder(
         src: Any, dst: Any = None, *, detector: str = DEFAULT_DETECTOR,
         segmenter: str = DEFAULT_SEGMENTER, imgsz: Sequence[int] = DEFAULT_IMGSZ,
         confidence: float = 0.25, confirm_each: bool = False,
-        plate_format: Optional[str] = None, pixels_per_um=None, formation_hours=None, legends: Any = None,
+        plate_format: Optional[str] = None, pixels_per_um=None, formation_hours=None, growth_settings=None, legends: Any = None,
         annotations: Any = None, read_text: Optional[Callable] = None,
         detect: Optional[Callable] = None, segment: Optional[Callable] = None,
         text_options: Optional[TextOptions] = None) -> Dict[str, Any]:
@@ -2976,6 +2991,8 @@ def measure_figure_folder(
         annotations override this value, then automatic rulers are considered.
     :param formation_hours: optional nonnegative elapsed time in hours;
         per-well manual times take precedence. Stored as metadata, not inferred.
+    :param growth_settings: optional experimental growth settings consumed by
+        :func:`spacr.plaque_growth.estimates_from_settings`; disabled by default.
     :param legends: CSV of legends, see :func:`read_legends`.
     :param annotations: CSV of reviews, see :func:`read_annotation_overrides`.
     :param read_text: ``fn(path) -> [Word]``.
@@ -3027,6 +3044,7 @@ def measure_figure_folder(
                         segmenter_id=segmenter_id, imgsz=imgsz,
                         confidence=confidence, confirm_each=True,
                         plate_format=plate_format, pixels_per_um=pixels_per_um, formation_hours=formation_hours,
+                        growth_settings=growth_settings,
                         ask_legend=lambda *_a: None, review=review,
                         read_text=read_text or read_words, detect=detect,
                         segment=segment, summary=summary,

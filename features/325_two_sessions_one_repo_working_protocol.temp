@@ -14751,3 +14751,23 @@ translation tests remain report-only incompatible: retired Save recipe in the
 reviewed-UI lookup and untranslated hp_count_column settings key are separate
 remaining debt. No claim those broad checks passed. Documentation builds are
 green, Pages publication still queued; live receipt remains1586759fd.
+2026-09-23 IMPLEMENTATION → DOCS/API: item 501 initial approximation complete
+Added optional experimental plaque growth estimates. Published reference:
+Kelsen et al. 2023 S20, DOI 10.1371/journal.pbio.3002110; 528 real RH/HFF
+vehicle-control plaques across three experiment dates/seven wells. Largest
+quarter equivalent-diameter anchor 893.8178699548309 µm at 168 hours. Held-out
+endpoint MAE 39.73 h; no validation across times. Linear growth through zero
+is explicitly assumed. Both unknown => duration is explicitly ASSUMED,
+not an inference from pixels. Direct calibration/manual values stay intact.
+New settings: plaque_estimate_growth=False, plaque_growth_reference_um,
+plaque_growth_reference_hours. Preview button toggles estimates; Wells and
+Plaques tables add estimated scale/time and basis, persistent explanation
+and reference link. Saved estimates remain separate from measurements and
+include complete JSON provenance. API: spacr.plaque_growth.largest_quarter,
+estimate_page, estimates_from_settings; measure_figure_folder growth_settings.
+Please document limitations, assumptions, settings, API and new translations.
+Real reference extraction and endpoint assessment are reproducible in
+ tools/build_plaque_growth_reference.py and tests/data/plaque_growth/.
+Tests: 123 passed/1 optional skip; final estimator/Qt/SQL cohort 10 passed.
+README.rst acquired an unrelated uncommitted addition during implementation;
+I have preserved it and will not stage it with runtime changes.

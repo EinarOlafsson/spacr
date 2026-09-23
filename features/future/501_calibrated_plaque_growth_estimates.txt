@@ -1,0 +1,54 @@
+501 — EXPERIMENTAL PLAQUE GROWTH TIME AND SCALE ESTIMATES
+========================================================
+Status: initial approximation implemented and evaluated 2026-09-23.
+Future validation: a matched multi-time growth curve remains to be collected;
+this implementation makes no temporal-validation claim.
+
+User authorized independently choosing reference data and an initial
+approximation, with later correction. No dataset question is pending.
+
+Optional Estimate scale / time (experimental) in Figure preview and settings
+plaque_estimate_growth (False), plaque_growth_reference_um (893.8178699548309),
+plaque_growth_reference_hours (168). The reference values are editable.
+Public API spacr.plaque_growth.largest_quarter, estimate_page and
+estimates_from_settings. Figure-folder run accepts growth_settings.
+
+Reference: Kelsen et al. 2023, PLOS Biology 21(5): e3002110, S20 Data, CC BY.
+https://doi.org/10.1371/journal.pbio.3002110
+Downloaded workbook SHA256:
+045e59bf3f8f15def1008ab8037a7623cfc6dfdbdd02309527944c8d6d67d36e
+Extracted 528 RH/HFF vehicle-control plaques from three independent dates,
+seven wells. Excludes mutants and treated wells. Physical conversion comes
+from the workbook's paired pixel/physical summary, 0.000233 mm² per pixel².
+Largest-quarter median equivalent diameters by experiment: 609.93, 909.19,
+893.82 µm. Reference is median across experiments, not all pooled plaques.
+
+Reproduce extraction: tools/build_plaque_growth_reference.py <S20.xlsx>.
+tests/data/plaque_growth/control_areas.csv retains extracted observations;
+reference.json records selection, source, units and experiment holdouts.
+Leave-one-experiment-out predictions for known 168-hour formation time:
+113.66, 203.15, 197.69 hours. MAE 39.73 hours, range 29.69–54.34 hours.
+These are endpoint repeatability checks, not validation across times.
+
+Algorithm: use median equivalent diameter of largest ceil(N/4) instances;
+minimum four plaques. Convert each measured well to physical area before
+pooling across a page. If known times conflict, use each calibrated well
+separately. When time is known, estimate scale from that well's pixel sizes.
+When scale is known, estimate time using assumed linear diameter growth
+through zero. If neither is known, explicitly assume reference duration;
+never imply pixels alone identify both time and scale. This assumption can
+confound effects of treatment, genotype, host, lag and merged plaques.
+
+Manual and direct-ruler values remain unchanged. Suggested values have
+estimated_ prefixes, source strings and complete JSON provenance in review
+CSV, regions/figure_annotations SQL, and crop analysis tables. Physical
+plaque-area columns are not silently populated using growth suggestions.
+Croppped input images are assessed independently because their page identity
+and common formation time are not known. Preview suggestions update after
+segmentation or manual edits; saving review preserves them as suggestions,
+not manual overrides. Use these settings propagates the opt-in toggle.
+
+Validation: 123 regression tests passed, one optional pdfplumber skip.
+Final estimator + Qt controls + real-data receipt + complete folder/SQL
+persistence cohort: 10 passed. No GPU or synthetic biological training used;
+small generated images in software tests exercise I/O and calibration only.

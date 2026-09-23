@@ -1593,6 +1593,19 @@ def analyze_plaques(settings):
                     'centroid_y': float(region.centroid[0]),
                     'centroid_x': float(region.centroid[1])})
     
+    from .plaque_growth import estimates_from_settings
+    growth = {}
+    if settings.get('plaque_estimate_growth', False):
+        areas_by_file = {}
+        for row in per_plaque:
+            areas_by_file.setdefault(row['file'], []).append(row['area_px'])
+        for row in per_image:
+            well = dict(well=row['file'], areas_px=areas_by_file.get(row['file'], []),
+                        pixels_per_um=row['pixels_per_um'], formation_hours=row['formation_hours'])
+            growth.update(estimates_from_settings([well], settings))
+    for table in (summary_data, stats_data, details_data, per_image, per_plaque):
+        for row in table:
+            row.update(growth.get(row['file'], {}))
     summary_df = pd.DataFrame(summary_data)
     details_df = pd.DataFrame(details_data)
     stats_df = pd.DataFrame(stats_data)
@@ -1699,7 +1712,8 @@ def _analyze_plaque_figures(settings, model_path):
         confirm_each=bool(settings.get('confirm_annotations', False)),
         plate_format=settings.get('plate_format'),
         pixels_per_um=settings.get("plaque_pixels_per_um"),
-        formation_hours=settings.get("plaque_formation_hours"), read_text=read_text,
+        formation_hours=settings.get("plaque_formation_hours"),
+        growth_settings=settings, read_text=read_text,
         text_options=plaque_papers.text_options_from_settings(settings))
     print(f"Figure mode: {summary['figures']} figure(s), {summary['regions']} "
           f"plaque image(s), {summary['plaques']} plaque(s) -> "

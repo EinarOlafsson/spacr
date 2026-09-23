@@ -102,7 +102,7 @@ FUTURE FEATURES
   493  PARALLEL MULTI-GPU MASK BATCHES
        493_parallel_multi_gpu_mask_batches.txt
 
-  501  VALIDATE PLAQUE GROWTH TIME AND SCALE ESTIMATES
+  501  EXPERIMENTAL PLAQUE GROWTH TIME AND SCALE ESTIMATES
        501_calibrated_plaque_growth_estimates.txt
 
 --------------------------------------------------------------------------------
