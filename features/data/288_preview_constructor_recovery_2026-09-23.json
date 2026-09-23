@@ -1,0 +1,85 @@
+{
+  "feature": 288,
+  "related_feature": 407,
+  "date": "2026-09-23",
+  "base_commit": "f2fc90a910e17eb2a3bae2ddb8b4004bd109c6d3",
+  "module": "spacr/qt/widgets/preview_contract.py",
+  "source_sha256": "a22bf14e547de5e585354368af180b46758eeb7a31c10d2ffefcb8e82c80c809",
+  "reproduction": "5 failed, 7 passed in 6.39s after correcting the test fixture to retain the real Cellpose package",
+  "final_tests": [
+    "122 passed in 40.45s: constructor, shared live preview, plaque run modes, accelerator resolver/failure contracts",
+    "22 passed in 67.40s: display primaries, missing buttons, localized dynamic status messages"
+  ],
+  "distinct_checks": 144,
+  "coverage": {
+    "covered_lines": 115,
+    "num_statements": 115,
+    "percent_covered": 100.0,
+    "percent_covered_display": "100.00",
+    "missing_lines": 0,
+    "excluded_lines": 0,
+    "percent_statements_covered": 100.0,
+    "percent_statements_covered_display": "100.00",
+    "num_branches": 28,
+    "num_partial_branches": 0,
+    "covered_branches": 28,
+    "missing_branches": 0,
+    "percent_branches_covered": 100.0,
+    "percent_branches_covered_display": "100.00"
+  },
+  "baseline": {
+    "excluded_lines": 0,
+    "pragma_no_cover": 0,
+    "since": "2026-09-15T11:54:08Z",
+    "uncovered_branches": 0,
+    "uncovered_statements": 0
+  },
+  "real_constructor": {
+    "scope": "Real installed Cellpose constructor and existing stock checkpoint, no inference or GPU",
+    "checkpoint": "/home/olafsson/.cellpose/models/cpsam",
+    "checkpoint_sha256": "e1440429eb384f95afe32bcba6510f90d518eaedc917ede549bed6804004abe2",
+    "checkpoint_unchanged": true,
+    "torch_version": "2.6.0+cu124",
+    "cellpose_version": "4.2.1.1",
+    "cases": [
+      {
+        "case": "explicit_cpu",
+        "device": "cpu",
+        "floating_parameter_dtypes": [
+          "torch.float32"
+        ],
+        "seconds": 9.179824927006848
+      },
+      {
+        "case": "accelerator_failure",
+        "device": "cpu",
+        "floating_parameter_dtypes": [
+          "torch.float32"
+        ],
+        "seconds": 3.1001392570033204
+      }
+    ],
+    "peak_rss_kib": 3234792,
+    "network_blocked": true
+  },
+  "changes": [
+    "After applying an explicit device choice or accelerator fallback, CPU previews always set use_bfloat16=False",
+    "Generic previews report a CP3 checkpoint incompatibility without recommending a plaque-specific model",
+    "Unrelated ValueError identity and the original CP3 causal chain remain intact"
+  ],
+  "translation_handoff": "{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.",
+  "execution": "8 GiB/no swap, Qt offscreen, CUDA hidden, two BLAS/OpenMP threads, private HOME/config; real constructor network blocked",
+  "validation": {
+    "fatal_ruff": "passed",
+    "diff_check": "passed",
+    "module_ratchet": "115/115 statements and 28/28 branches; matches unchanged zero-missing baseline"
+  },
+  "limitations": [
+    "No GPU inference, speed benchmark or output equivalence claim",
+    "Real constructor uses existing CP4 checkpoint; incompatible-checkpoint exceptions are injected contract cases",
+    "First test attempt incorrectly replaced the whole Cellpose package and caused two fixture ImportErrors; corrected before authoritative reproduction",
+    "Coverage is focused on this module, not a whole-tree CI pass",
+    "New translated source handed to documentation lane; full catalog acceptance remains with that lane"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/preview-constructor"
+}

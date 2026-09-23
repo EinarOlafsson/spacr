@@ -172,17 +172,22 @@ def preview_cellpose_model(model_name: Any, gpu: Optional[bool] = None):
     kwargs.pop("device", None)
     if gpu is not None:
         kwargs["gpu"] = bool(gpu)
+    if not kwargs["gpu"]:
+        kwargs["use_bfloat16"] = False
     try:
         return cp_models.CellposeModel(
             pretrained_model=_resolve_cellpose_pretrained(str(model_name)),
             device=None, **kwargs)
     except ValueError as exc:
-        from spacr.submodules import explain_cellpose3
+        from spacr.submodules import Cellpose3Checkpoint, explain_cellpose3
 
         explained = explain_cellpose3(exc, model_name)
         if explained is exc:
             raise
-        raise explained from exc
+        raise Cellpose3Checkpoint(tr(
+            "{model} is a Cellpose 3 checkpoint and cannot be loaded by "
+            "Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview.",
+            model=model_name)) from exc
 
 
 class LivePreviewContract:

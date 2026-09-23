@@ -4790,3 +4790,16 @@ recovery_2026-09-23.json records source hash and exact gaps. The narrower
 pre-save-fix baseline was92.08percent; this is not a controlled32-test delta.
 No runtime change after396save fix71f442565, nor gate/baseline change.
 Whole-tree CI and the other historical module ratchets remain open.
+
+2026-09-23 — PREVIEW CONSTRUCTOR RECOVERY
+144distinct checks pass across constructor/device/failure and display/status
+cohorts. preview_contract reaches115/115statements and28/28branches,100percent,
+meeting its unchanged zero-missing baseline. Four reproduced CPU precision
+cases now use float32 after an explicit CPU override or accelerator failure.
+A fifth reproduced failure was misleading plaque-model advice for generic
+CP3 checkpoints; previews now request a CP4-compatible checkpoint instead.
+Real installed Cellpose4.2.1.1 loaded the existing cpsam checkpoint on CPU
+with float32 parameters in both affected paths; network blocked, original
+checkpoint hash unchanged. No inference/GPU/performance-parity claim.
+Receipt288_preview_constructor_recovery_2026-09-23.json. New tr caption
+has been handed to the documentation lane; whole-tree acceptance stays open.

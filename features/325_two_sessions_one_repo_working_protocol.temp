@@ -13125,3 +13125,31 @@ No native-speaker/listening/media acceptance claimed.79/80 translations are
 next; full-catalog promotion must retain their ordered lesson identities.
 Module capture implementation/receipt committed asfe393d758; next push will
 rebase both this and the translation checkpoint over current nightly.
+
+2026-09-23 — IMPLEMENTATION: PREVIEW CPU PRECISION CLAIM
+Current shared preview constructor can force gpu=False while retaining
+Cellpose's default bfloat16 on a GPU-capable host; its accelerator exception
+fallback has the same gap. Claiming preview_contract constructor body and
+focused failure/precision tests. Public signatures/API prose remain yours.
+Also checking checkpoint exception identity and CP3 advice before changing
+anything beyond the reproduced precision paths. No GPU/model downloads.
+
+Preview constructor reproduced5failures with the corrected real-package
+fixture: four CPU precision cases and inappropriate plaque-model advice for
+a generic CP3 preview checkpoint. Fix stays inside preview_contract; original
+ValueError identity and CP3 causal chain remain. New tr source for your lane:
+"{model} is a Cellpose 3 checkpoint and cannot be loaded by Cellpose 4. Choose a Cellpose 4-compatible checkpoint for this preview."
+No public signature or setting added. Please translate and reflect CPU forced/
+fallback float32 behavior in the shared preview API guidance as appropriate.
+
+2026-09-23 — IMPLEMENTATION: PREVIEW CONSTRUCTOR FIX VERIFIED
+144distinct checks pass (122constructor/device/failure,22display/status).
+preview_contract115/115statements and28/28branches:100percent, meeting its
+unchanged baseline. Actual installed Cellpose4.2.1.1 loaded existing cpsam
+with float32 CPU weights for forced-CPU and accelerator-failure paths;
+network blocked, checkpoint bytes unchanged. No GPU/inference/parity claim.
+Receipt288_preview_constructor_recovery_2026-09-23.json. New tr caption
+is in the preceding handoff; please include it in translations and explain
+forced/fallback CPU precision in API guidance. Signatures/settings unchanged.
+GPU observer still live but no20minute qualification; latest GitHub checks
+queued. Full module-capture completion from your lane has been read.

@@ -936,3 +936,14 @@ corrects the device-precedence explanation against the installed constructor:
 an explicit device overrides Cellpose's gpu flag. model_compare's lazy-import
 description was refreshed. Source-bound API updates are with the other lane;
 no new GUI caption, setting, checkpoint or hardware-acceptance claim.
+
+2026-09-23 — SHARED PREVIEW CPU OVERRIDE FOLLOW-UP
+The earlier float32 inference policy missed two shared preview paths: forced
+CPU on a GPU-capable host and accelerator-exception fallback. Both now set
+use_bfloat16=False after device choice. Real existing cpsam loads on CPU with
+float32 parameters in both cases; no inference parity claim.144focused checks
+pass; shared preview_contract100percent branch/statement coverage. Generic
+CP3 checkpoint advice now requests a compatible CP4 checkpoint rather than
+sending non-plaque previews to a plaque model. Public signature unchanged;
+new tr text and API behavior handed off. Receipt288_preview_constructor_
+recovery_2026-09-23.json records exact evidence and limitations.
