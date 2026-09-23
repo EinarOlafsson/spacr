@@ -31,3 +31,17 @@ only the preprocessing steps used; detector morphology/splitting are not
 claimed as manual Wand operations.126 focused checks pass;71 enhancement/
 method checks pass after provenance additions. Original pixels stay intact.
 Receipt for477–482: features/data/477_482_mask_editor_tools_2026-09-22.json.
+
+2026-09-23 — COMPARE RESPONSIVENESS AND NORMALIZATION FOLLOW-UP
+Compare previously called the enhancement chain synchronously on Qt's event
+thread. It now opens immediately and processes a captured image/settings
+snapshot on a serial worker. Cancel closes the comparison and suppresses its
+result without waiting for a native filter already executing. A newer request
+replaces pending work; closing the screen suppresses delivery. Late successes
+and failures cannot overwrite a different field/settings comparison.
+Compare also now applies whole-field detection normalization before cropping;
+it previously named that step in the caption without actually performing it.
+73 focused checks passed, covering timer responsiveness during blocked work,
+cancel, obsolete success/error, newest-request replacement, real enhancement
+output, linked zoom, source preservation and normalization equivalence.
+This is readiness work for489/490, not their implementation.

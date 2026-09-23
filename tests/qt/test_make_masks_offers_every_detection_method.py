@@ -455,11 +455,12 @@ def test_the_chain_is_described_in_the_words_a_caption_uses():
 
 
 def test_the_compare_window_shows_the_raw_and_the_enhanced_side_by_side(
-        screen):
+        qtbot, screen):
     """One click, two pictures, and the list of what ran between them."""
     screen._enh_clahe.setChecked(True)
     screen._on_compare_enhanced()
     dialog = screen._compare_dialog
+    qtbot.waitUntil(lambda: screen._comparison_request is None)
     try:
         assert dialog is not None and dialog.isVisible()
         assert "CLAHE" in dialog.caption.text()
@@ -471,10 +472,11 @@ def test_the_compare_window_shows_the_raw_and_the_enhanced_side_by_side(
         dialog.close()
 
 
-def test_the_compare_window_says_so_when_nothing_is_switched_on(screen):
+def test_the_compare_window_says_so_when_nothing_is_switched_on(qtbot, screen):
     """An empty chain is reported rather than shown as two same pictures."""
     screen._on_compare_enhanced()
     dialog = screen._compare_dialog
+    qtbot.waitUntil(lambda: screen._comparison_request is None)
     try:
         assert "No enhancement step" in dialog.caption.text()
     finally:
@@ -649,6 +651,7 @@ def test_the_compare_window_is_a_window_to_look_in(qtbot, screen):
     screen._enh_clahe.setChecked(True)
     screen._on_compare_enhanced()
     dialog = screen._compare_dialog
+    qtbot.waitUntil(lambda: screen._comparison_request is None)
     qtbot.addWidget(dialog)
     try:
         assert dialog.width() >= 1000 and dialog.height() >= 600
@@ -678,6 +681,7 @@ def test_zooming_one_picture_zooms_the_other(qtbot, screen):
     """Raw and enhanced stay in register, however the zoom is driven."""
     screen._on_compare_enhanced()
     dialog = screen._compare_dialog
+    qtbot.waitUntil(lambda: screen._comparison_request is None)
     qtbot.addWidget(dialog)
     dialog.show()
     try:

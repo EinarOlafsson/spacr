@@ -624,6 +624,32 @@ class _EnhanceRequest(NamedTuple):
     chain: Any
 
 
+class _CompareRequest(NamedTuple):
+    """An immutable comparison snapshot with cooperative result cancellation."""
+
+    key: tuple
+    image: np.ndarray
+    box: tuple
+    chain: Any
+    normalized: bool
+    percentiles: tuple
+    cancelled: Any
+
+
+def _compare_picture_for(request):
+    """Prepare the detector's input on a worker, stretching before cropping."""
+    if request.cancelled.is_set():
+        return None
+    base = request.image
+    if request.normalized:
+        base = engine.normalize_for_detection(base, *request.percentiles)
+    if request.cancelled.is_set():
+        return None
+    x0, y0, x1, y1 = request.box
+    result = detect_chain.prepare(base[y0:y1, x0:x1], request.chain)
+    return None if request.cancelled.is_set() else result
+
+
 def _enhanced_picture_for(request: _EnhanceRequest) -> Optional[np.ndarray]:
     """The enhanced field as a drawable picture. ON THE WORKER THREAD.
 
@@ -6090,12 +6116,13 @@ class _ComparePreview(QDialog):
     change a step and look again.
 
     :param raw: the region as loaded (or inverted, as it is drawn).
-    :param enhanced: the same region after the chain.
+    :param enhanced: the same region after the chain, or None while its
+        worker runs. Cancel closes a pending comparison without blocking.
     :param steps: the steps that ran, in words.
     :param parent: parent widget.
     """
 
-    def __init__(self, raw: np.ndarray, enhanced: np.ndarray,
+    def __init__(self, raw: np.ndarray, enhanced: Optional[np.ndarray],
                  steps: str, parent=None):
         """Build the two linked views, the caption over them and the tools."""
         from ..i18n import tr
@@ -6120,7 +6147,8 @@ class _ComparePreview(QDialog):
             column.addWidget(heading)
             view = ZoomableImageView(self)
             view.setMinimumSize(200, 200)
-            view.set_pixmap(_grey_pixmap(array, 1.0, 99.9))
+            if array is not None:
+                view.set_pixmap(_grey_pixmap(array, 1.0, 99.9))
             view.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
             self.views.append(view)
             column.addWidget(view, 1)
@@ -6138,15 +6166,23 @@ class _ComparePreview(QDialog):
                                 (tr("Zoom in"), lambda: self.zoom(1.4)),
                                 (tr("Fit"), self.fit)):
             button = QPushButton(caption)
-            button.setCursor(Qt.PointingHandCursor)
             button.clicked.connect(action)
             tools.addWidget(button)
         layout.addLayout(tools)
 
-        buttons = QDialogButtonBox(QDialogButtonBox.Close)
-        buttons.rejected.connect(self.close)
-        layout.addWidget(buttons)
+        self._buttons = QDialogButtonBox(
+            QDialogButtonBox.Cancel if enhanced is None else QDialogButtonBox.Close)
+        self._buttons.rejected.connect(self.close)
+        layout.addWidget(self._buttons)
         self.resize(*_remembered_compare_size())
+
+    def _show_result(self, enhanced, caption):
+        """Adopt a finished comparison, or explain why it was discarded."""
+        if enhanced is not None:
+            self.views[1].set_pixmap(_grey_pixmap(enhanced, 1.0, 99.9))
+            self.fit()
+        self.caption.setText(caption)
+        self._buttons.setStandardButtons(QDialogButtonBox.Close)
 
     def zoom(self, factor: float) -> None:
         """Zoom both pictures by ``factor``; the link does the second one."""
@@ -6566,6 +6602,7 @@ class MakeMasksScreen(QWidget):
 
     _histogram_delivered = Signal(object)
     _detection_delivered = Signal(object)
+    _comparison_delivered = Signal(object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
@@ -6610,6 +6647,10 @@ class MakeMasksScreen(QWidget):
         self._detection_worker = None
         self._detection_request = None
         self._detection_delivered.connect(self._take_detection)
+        self._comparison_worker = None
+        self._comparison_request = None
+        self._comparison_serial = 0
+        self._comparison_delivered.connect(self._take_comparison)
         #: Folded module key -> the module's own screen, built the first time
         #: its button is pressed and kept afterwards so a second press finds
         #: the paths, models and results the first one left.
@@ -10288,7 +10329,10 @@ class MakeMasksScreen(QWidget):
             "Preview the configured enhancements beside the unenhanced image, "
             "for the magnifier's box when it has one and for the whole "
             "field otherwise, so every step of the chain can be judged by "
-            "looking at what it did."))
+            "looking at what it did. Processing runs in the background. "
+            "Cancel closes the comparison; a running filter finishes without "
+            "displaying its result. Whole-field normalization is applied "
+            "before cropping, as it is for detection."))
         self._btn_compare.clicked.connect(self._on_compare_enhanced)
         actions.addWidget(self._btn_compare)
         self._btn_apply = QPushButton(tr("Apply"))
@@ -10399,7 +10443,8 @@ class MakeMasksScreen(QWidget):
 
         The magnifier's box when there is one, because that is the region a
         curator is judging and the region every step ran on live; the whole
-        field otherwise.
+        field otherwise. A worker prepares a captured snapshot; closing the
+        dialog discards it, and changed fields/settings reject late results.
         """
         from ..i18n import tr
 
@@ -10408,16 +10453,71 @@ class MakeMasksScreen(QWidget):
             return
         chain = self._enhancement_chain()
         box = self._magnifier.compare_box()
-        raw = np.array(self._canvas.displayed_source()
-                       [box[1]:box[3], box[0]:box[2]], copy=True)
-        enhanced = detect_chain.prepare(raw, chain)
-        steps = " → ".join(tr(name) for name in detect_chain.step_names(
-            chain,
-            percentile_stretch=bool(self._canvas.detect_on_normalized)))
+        self._cancel_comparison()
+        old_dialog = getattr(self, '_compare_dialog', None)
+        if old_dialog is not None:
+            old_dialog.close()
+        self._comparison_serial += 1
+        request = _CompareRequest(
+            key=(self._comparison_serial, self._comparison_context()),
+            image=np.array(self._canvas.displayed_source(), copy=True),
+            box=tuple(box), chain=chain,
+            normalized=bool(self._canvas.detect_on_normalized),
+            percentiles=(float(self._canvas.norm_lo), float(self._canvas.norm_hi)),
+            cancelled=threading.Event())
+        self._comparison_request = request
         self._compare_dialog = _ComparePreview(
-            raw, enhanced,
-            steps or tr("No enhancement step is switched on."), self)
+            request.image[box[1]:box[3], box[0]:box[2]], None,
+            tr("Preparing enhanced image… Cancel closes this comparison; a running filter finishes in the background."), self)
+        self._compare_dialog.finished.connect(self._cancel_comparison)
         self._compare_dialog.show()
+        if self._comparison_worker is None:
+            self._comparison_worker = _NewestRequestWorker(
+                _compare_picture_for, self._comparison_done, name='spacr-compare')
+        self._comparison_worker.submit(request)
+
+    def _comparison_context(self):
+        """Settings and field identity whose comparison remains meaningful."""
+        canvas = self._canvas
+        return (self._load_token, id(canvas.image), bool(canvas.invert_display),
+                bool(canvas.detect_on_normalized), float(canvas.norm_lo),
+                float(canvas.norm_hi), self._enhancement_chain())
+
+    def _cancel_comparison(self, *_args):
+        """Discard a comparison without waiting for an active native filter."""
+        request, self._comparison_request = self._comparison_request, None
+        if request is not None:
+            request.cancelled.set()
+        if self._comparison_worker is not None:
+            self._comparison_worker.drop_waiting()
+
+    def _comparison_done(self, request, result, error):
+        """Marshal a worker completion back to the owning Qt screen."""
+        try:
+            self._comparison_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_comparison(self, payload):
+        """Only show results from the still-open, unchanged comparison."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._comparison_request or request.cancelled.is_set():
+            return
+        self._comparison_request = None
+        if request.key[1] != self._comparison_context():
+            self._compare_dialog._show_result(None, tr(
+                "The image or enhancement settings changed. Choose Compare again."))
+            return
+        if error is not None:
+            self._compare_dialog._show_result(None, tr(
+                "Image enhancement failed: {error}", error=str(error)))
+            return
+        steps = " → ".join(tr(name) for name in detect_chain.step_names(
+            request.chain, percentile_stretch=request.normalized))
+        self._compare_dialog._show_result(
+            result, steps or tr("No enhancement step is switched on."))
 
     def _sync_otsu_controls(self, *_args) -> None:
         """Leave enabled only the threshold boxes that answer anything.
@@ -11739,6 +11839,9 @@ class MakeMasksScreen(QWidget):
         self._magnifier.close()
         self._primary_selector.shutdown()
         self._canvas.close_enhancer()
+        self._cancel_comparison()
+        if self._comparison_worker is not None:
+            self._comparison_worker.close(timeout=0)
         self.close_folded()
         self._pending_load = None
         worker, self._load_worker = self._load_worker, None
