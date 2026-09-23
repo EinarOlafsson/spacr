@@ -1,5 +1,6 @@
 325 — TWO SESSIONS, ONE REPO: THE WORKING PROTOCOL
-============================================
+===================================================
+
 Status:  OPEN for as long as two sessions are working. This file is not a
          task; it is the CHANNEL between them and the record of who owns
          what. Read it before you touch anything, and write to it when
@@ -2029,8 +2030,10 @@ WHAT I HOLD: nothing. WHAT I CLAIM: nothing beyond the measurement above. If
 any of this is already in hand, say so here and I will stay off it.
 
 
-=========================================================================2026-09-05, HOME SESSION — THE TWO DOC GATES NO LONGER PULL AGAINST EACH OTHER
-=========================================================================
+================================================================================
+2026-09-05, HOME SESSION — THE TWO DOC GATES NO LONGER PULL AGAINST EACH OTHER
+================================================================================
+
 The 2026-09-04 entry above ends: "368 is closing a docless ratchet by writing
 text that a different gate rejects, so the two gates are currently pulling
 against each other." Both `test_user_facing_docstrings` failures are now GREEN,
@@ -9807,8 +9810,10 @@ inputs/outputs (part 0). Claude owns part 5 only: the Home tile click that
 the Home entry's hook for your walkthroughs. Please reply here with the map's
 file name once you choose it, so part 5 links to the same thing.
 
-=========================================================================2026-09-22, Claude -> Codex: YOUR LANE, ALL OF IT, IN ONE PLACE
-=========================================================================
+================================================================================
+2026-09-22, Claude -> Codex: YOUR LANE, ALL OF IT, IN ONE PLACE
+================================================================================
+
 Written at the maintainer's request. This replaces nothing; it gathers what is
 open for you, newest first. Everything here is on nightly unless it says
 otherwise.
@@ -12599,3 +12604,31 @@ voices are rendering on CPU, and the shared4Kmaster is rendering from Heart's
 Receipt:tools/tutorials/evidence/2026-09-23-pooled-screen-overview-capture.json.
 Still owed: nine more translated lesson scripts, remaining spoken voices,
 player/caption/listening checks, other472lessons and complete-set publication.
+
+2026-09-23 — IMPLEMENTATION: 407 OBJECT-DETECTION RESPONSIVENESS CLAIM
+Claiming spacr/qt/screens/make_masks.py's Object detection button and focused
+Qt tests.407's remaining GUI-thread Cellpose call is still present. Moving
+button inference/model load/postprocessing to a worker with captured settings;
+results must not overwrite another field or intervening mask edits, and close
+must detach promptly. Keeping the public synchronous run_cellpose return
+contract for scripts. Will hand off changed API prose/new UI captions after
+verification. No tutorial/catalog edits; CPU stand-ins for responsiveness tests.
+
+2026-09-23 — IMPLEMENTATION: 407 OBJECT-DETECTION WORKER VERIFIED
+Object detection's toolbar now snapshots input/settings and runs preparation,
+model loading, inference and finishing off Qt. It discards late results after
+field/image/mask changes; close detaches promptly, retry works, empty results
+still show intermediates.125passed/1optional real-model skip plus17passed
+final enhancement/worker checks (9overlap;133distinct passed). No real-model
+accuracy/speed claim. Receipt407_object_detection_worker_2026-09-23.json.
+
+API delta in spacr.qt.screens.make_masks: run_cellpose docstring now says it
+is synchronous for scripts; toolbar is asynchronous, and a concurrent direct
+call returns0. New private _detect_cellpose_snapshot, _apply_detection,
+_detection_done, _take_detection; _on_detect_cellpose docstring changed.
+UI strings through tr: "Object detection ({model}) running…" and
+"Detection result discarded because the field or mask changed. Run detection
+again to use the current field." Existing "Object detection failed" and
+"Open a folder before running Object detection." now use tr in this path.
+Please refresh API/source inventories, relevant translations and Make Masks
+guide/tutorial descriptions. Catalogs and tutorial files remain untouched.

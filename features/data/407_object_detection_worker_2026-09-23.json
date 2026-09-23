@@ -1,0 +1,50 @@
+{
+  "feature": 407,
+  "date": "2026-09-23",
+  "base_commit": "cdcc41d91",
+  "scope": "Qt Object detection responsiveness and result ownership; controlled model stand-ins, real Qt/NumPy/preparation/postprocessing/ledger paths.",
+  "changes": [
+    "Toolbar model loading, input preparation, inference and enhancement finishing moved off Qt.",
+    "Captured parameters and ledger provenance; existing Cellpose cache and lock shared.",
+    "Late results rejected after field token, image identity/content or mask content changes.",
+    "Close detaches promptly; native inference is not forcibly interrupted.",
+    "Public synchronous run_cellpose contract retained; returns zero if toolbar detection already pending."
+  ],
+  "validation": {
+    "main_batch": "125 passed, 1 skipped in 44.22s",
+    "final_snapshot_and_enhancement_batch": "17 passed in 15.52s",
+    "overlap": 9,
+    "distinct_passed": 133,
+    "skip": "Optional real Cellpose E2E not enabled.",
+    "fatal_ruff": "passed",
+    "git_diff_check": "passed",
+    "memory_limit_gib": 8,
+    "cuda_visible_devices": "",
+    "qt_platform": "offscreen",
+    "cases": [
+      "Real Qt timer ticks while held inference runs on another thread.",
+      "Background model loading and image enhancement.",
+      "Single active toolbar request; direct call does not start another.",
+      "Navigation, mask edits, image replacement and in-place image changes reject results.",
+      "Inversion, percentile normalization and applied gamma match ordinary detector image, captured settings and ledger despite changed controls.",
+      "Close without waiting; late result suppressed.",
+      "Failure leaves mask untouched and permits retry.",
+      "Empty masks retain informative probability map."
+    ]
+  },
+  "limitations": [
+    "No pretrained model inference speed or accuracy claim.",
+    "Existing direct programmatic run_cellpose remains synchronous.",
+    "Already executing native model call finishes in the background after close.",
+    "Source-bound API and translations handed to the separate documentation lane."
+  ],
+  "source_sha256": {
+    "spacr/qt/screens/make_masks.py": "fd47f5453317a070ec3421eb075f1ed988a9b5a963c4ec178c259763a3798a01",
+    "tests/qt/test_object_detection_keeps_qt_responsive.py": "ba6cb2a5e6a4ab8f3288770612be48f3950d131771c85e1bea119e9e83d63235",
+    "tests/qt/test_cov_r5_make_masks.py": "5738d6c549603c013ee69ccdfa4b69baffbdf169edcc2259422247a9928769a5"
+  },
+  "logs": [
+    "/mnt/firecuda2/Claude/implementation-20260922/detection-responsive-tests-final.log",
+    "/mnt/firecuda2/Claude/implementation-20260922/detection-responsive-enhancement-tests.log"
+  ]
+}

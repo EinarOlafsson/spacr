@@ -3610,6 +3610,23 @@ def _single_object(result: _MagnifierResult, label: int) -> _MagnifierResult:
                            count=1, ghost=None, extents=None)
 
 
+def _detect_cellpose_snapshot(request, models):
+    """Prepare and segment a captured field without reading any Qt object."""
+    image = request['image']
+    if request['invert']:
+        image = engine.invert_normalized(image)
+    if request['percentiles'] is not None:
+        image = engine.normalize_for_detection(image, *request['percentiles'])
+    image = detect_chain.prepare(image, request['chain'])
+    with _CELLPOSE_LOCK:
+        name = request['model']
+        if name not in models:
+            models[name] = load_cellpose_model(name)
+        labels, cellprob, flow = cellpose_detect(image, models[name], **request['parameters'])
+    labels = detect_chain.finish(labels, request['chain'], intensity=image)
+    return labels, cellprob, flow
+
+
 class _NewestRequestWorker:
     """Runs requests one at a time on a background thread, newest first.
 
@@ -6548,6 +6565,7 @@ class MakeMasksScreen(QWidget):
     """
 
     _histogram_delivered = Signal(object)
+    _detection_delivered = Signal(object)
 
     def __init__(self, parent: Optional[QWidget] = None):
         """Build the editor, its canvas and its tool panel.
@@ -6589,6 +6607,9 @@ class MakeMasksScreen(QWidget):
         self._load_worker: Optional[_MaskLoadWorker] = None
         self._pending_load = None
         self._loading = False
+        self._detection_worker = None
+        self._detection_request = None
+        self._detection_delivered.connect(self._take_detection)
         #: Folded module key -> the module's own screen, built the first time
         #: its button is pressed and kept afterwards so a second press finds
         #: the paths, models and results the first one left.
@@ -7255,6 +7276,11 @@ class MakeMasksScreen(QWidget):
         if self._histogram_worker is not None:
             self._histogram_worker.close(timeout=0)
             self._histogram_worker = None
+        if self._detection_worker is not None:
+            self._detection_worker.close(timeout=0)
+            self._detection_worker = None
+            self._detection_request = None
+            self._btn_cellpose.setEnabled(True)
 
     def _build_tool_row(self) -> QWidget:
         """The one row that holds every tool, along the top of the screen.
@@ -10692,15 +10718,18 @@ class MakeMasksScreen(QWidget):
         see: it says whether the network found nothing, or found plenty
         and the threshold threw it away.
 
-        The run blocks this screen while it is going. Cellpose on a GPU
-        answers in about a second on one field, and moving it to a thread
-        would mean a second worker on a screen that already drains one on
-        close; the button is disabled and the cursor says wait instead.
+        This programmatic method is synchronous and returns the object
+        count. The toolbar uses a background worker instead, taking a
+        snapshot and discarding results after field changes or mask edits.
+        If toolbar detection is already running, this method returns zero
+        without starting a second run.
 
         With Invert on the model is given the INVERTED field
         (:meth:`_detector_image`), and the status
         line and the ledger entry both say so.
         """
+        if self._detection_request is not None:
+            return 0
         if self._canvas.image is None or self._canvas.mask is None:
             self._status_label.setText(
                 "Open a folder before running Object detection.")
@@ -10734,11 +10763,21 @@ class MakeMasksScreen(QWidget):
                 app.restoreOverrideCursor()
             self._btn_cellpose.setEnabled(True)
 
-        self._show_intermediates(cellprob, flow)
-        self._sync_model_choices()
-
         labels = detect_chain.finish(labels, self._detect_chain(),
                                      intensity=self._detector_image())
+        details = dict(model=model_name, invert=bool(self._cp_invert.isChecked()),
+                       cellprob_threshold=float(self._cp_cellprob.value()),
+                       flow_threshold=float(self._cp_flow.value()),
+                       diameter=int(self._cp_diameter.value()),
+                       min_size=self._detect_min_area(), **self._chain_provenance())
+        return self._apply_detection((labels, cellprob, flow),
+                                     self._combine_mode.currentData(), details)
+
+    def _apply_detection(self, result, mode, details) -> int:
+        """Commit one accepted result and its captured provenance on Qt's thread."""
+        labels, cellprob, flow = result
+        self._show_intermediates(cellprob, flow)
+        self._sync_model_choices()
         found = int(labels.max()) if labels.size else 0
         if not found:
             self._status_label.setText(
@@ -10747,7 +10786,6 @@ class MakeMasksScreen(QWidget):
                 "Cell probability tab shows what it had to work with.")
             return 0
 
-        mode = self._combine_mode.currentData()
         try:
             out = engine.combine_masks(self._canvas.mask, labels, mode)
         except Exception as exc:
@@ -10757,17 +10795,12 @@ class MakeMasksScreen(QWidget):
         self._canvas.mask = out
         self._canvas.refresh()
         self._record("detect", mode, changed, method="cellpose",
-                      model=model_name, n_objects=found,
-                      invert=bool(self._cp_invert.isChecked()),
-                      cellprob_threshold=float(self._cp_cellprob.value()),
-                      flow_threshold=float(self._cp_flow.value()),
-                      diameter=int(self._cp_diameter.value()),
-                      min_size=self._detect_min_area(),
-                      **self._chain_provenance())
+                      n_objects=found, **details)
         self._history.push(out)
         self._refresh_history_buttons()
         inverted = (" from the INVERTED image"
-                    if self._cp_invert.isChecked() else "")
+                    if details['invert'] else "")
+        model_name = details['model']
         self._status_label.setText(
             f"Object detection ({model_name}){inverted} found {found} "
             f"object(s) — {mode}d into the mask. See the Cell probability "
@@ -10776,8 +10809,72 @@ class MakeMasksScreen(QWidget):
         return found
 
     def _on_detect_cellpose(self):
-        """Toolbar handler for the Object detection button."""
-        self.run_cellpose()
+        """Capture the field/settings and start detection without blocking Qt."""
+        from ..i18n import tr
+
+        if self._detection_request is not None:
+            return
+        if self._canvas.image is None or self._canvas.mask is None:
+            self._status_label.setText(tr("Open a folder before running Object detection."))
+            return
+        parameters = dict(diameter=int(self._cp_diameter.value()),
+                          normalize=bool(self._cp_normalize.isChecked()),
+                          flow_threshold=float(self._cp_flow.value()),
+                          cellprob_threshold=float(self._cp_cellprob.value()),
+                          min_size=self._detect_min_area())
+        model = self._cp_model.currentData() or 'cpsam'
+        request = dict(image=np.array(self._canvas.image, copy=True),
+                       image_reference=self._canvas.image, token=self._load_token,
+                       mask=np.array(self._canvas.mask, copy=True), model=model,
+                       parameters=parameters, chain=self._detect_chain(),
+                       invert=bool(self._cp_invert.isChecked()),
+                       percentiles=(float(self._canvas.norm_lo), float(self._canvas.norm_hi))
+                       if self._canvas.detect_on_normalized else None,
+                       mode=self._combine_mode.currentData(),
+                       details=dict(model=model, invert=bool(self._cp_invert.isChecked()),
+                                    **{key: value for key, value in parameters.items() if key != 'normalize'},
+                                    **self._chain_provenance()))
+        self._detection_request = request
+        self._btn_cellpose.setEnabled(False)
+        self._status_label.setText(tr("Object detection ({model}) running…", model=model))
+        if self._detection_worker is None:
+            self._detection_worker = _NewestRequestWorker(
+                partial(_detect_cellpose_snapshot, models=self._cp_loaded),
+                self._detection_done, name='spacr-object-detection')
+        self._detection_worker.submit(request)
+
+    def _detection_done(self, request, result, error) -> None:
+        """Send completion to Qt while tolerating a screen already destroyed."""
+        try:
+            self._detection_delivered.emit((request, result, error))
+        except RuntimeError:
+            pass
+
+    def _take_detection(self, payload) -> None:
+        """Reject stale field/mask results before changing any editor state."""
+        from ..i18n import tr
+
+        request, result, error = payload
+        if request is not self._detection_request:
+            return
+        self._detection_request = None
+        self._btn_cellpose.setEnabled(True)
+        if (request['token'] != self._load_token
+                or request['image_reference'] is not self._canvas.image
+                or not np.array_equal(request['image'], self._canvas.image, equal_nan=True)
+                or not np.array_equal(request['mask'], self._canvas.mask)):
+            self._status_label.setText(tr(
+                "Detection result discarded because the field or mask changed. Run detection again to use the current field."))
+            return
+        if error is not None:
+            self._status_label.setText(tr("Object detection failed"))
+            self._warn(tr("Object detection failed"), str(error))
+            return
+        try:
+            self._apply_detection(result, request['mode'], request['details'])
+        except Exception as exc:
+            LOG.exception("Object detection result could not be applied")
+            self._warn(tr("Object detection failed"), str(exc))
 
     def _build_magnifier_card(self) -> Section:
         """The live magnifier's settings, and the toggle that turns it on.

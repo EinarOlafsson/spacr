@@ -870,3 +870,36 @@ EVIDENCE
     at the largest size (1,024), and the whole-image box at 160 px and at
     the largest size, the hovered object solid where a click adds it and
     ghosted over the half the mask already owns.
+
+2026-09-23 — OBJECT DETECTION NO LONGER FREEZES THE GUI
+The remaining synchronous toolbar call named above is removed. Clicking
+Object detection captures the field, mask, chosen model, thresholds, diameter,
+normalization, inversion, enhancement chain and combine mode. A background
+worker performs image preparation, model loading, inference and enhancement
+postprocessing. It shares the existing model cache/Cellpose lock with the
+magnifier; no second toolbar detection is queued while one is active.
+
+Qt applies a result only if the field token, image identity/content and mask
+content still match the snapshot. Navigation, replacement images and in-place
+image/mask edits discard the late result without filling stale intermediate
+panes or overwriting edits. Setting changes during inference do not alter the
+captured request or its saved provenance. Closing detaches immediately and
+suppresses delivery; an already running native model call finishes on its
+worker, rather than being forcibly interrupted. Errors restore the button
+and permit retry; zero-object results still show the probability map.
+
+The public run_cellpose method keeps its synchronous object-count contract
+for scripts; it returns zero without launching another run if toolbar work
+is active. Its API prose now distinguishes these paths. New private helpers
+and translated status strings are handed to the documentation lane.
+
+Validation:125passed/1optional real-Cellpose test skipped across detection,
+inversion/filtering, magnifier settings and coverage cases;17passed in the
+final responsiveness/enhancement batch (9overlap,133distinct passed total).
+Real Qt timers run while a held worker owns the detector; tests cover close,
+navigation/edits, retry, unchanged mask on error, settings/chain provenance,
+and CPU enhancement/model-loading thread identity. Models are controlled
+stand-ins: this verifies responsiveness and result ownership, not model
+accuracy or a new inference-speed claim. An existing headless-app test mock
+is now scoped to its call so widget teardown still sees the real Qt app.
+Receipt: data/407_object_detection_worker_2026-09-23.json.
