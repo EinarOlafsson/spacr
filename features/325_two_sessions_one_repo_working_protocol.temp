@@ -11475,3 +11475,20 @@ remaining untracked path is the pre-existing tutorial authoring/project
 symlink directory, left untouched. Lock-source inventory is being measured
 separately for the next caption/API reconciliation; no implementation files
 are claimed for that catalog work.477/478 remain the implementation lane.
+
+2026-09-22 — IMPLEMENTATION:478 INTERACTIVE LEVELS / API HANDOFF
+New Levels button beside Lower % / Upper % opens _LevelsDialog with worker-
+built _levels_histogram and draggable _LevelsPlot. Black/White cutoff inputs
+map absolute intensity to existing percentiles by interpolation in sorted
+full-field values. No new persistent settings. Reset uses0/100; this clips
+and stretches intensities, not binary label thresholding. Detect on the
+normalized image is synchronized both ways and controls whether detectors
+read the stretch before any active enhancement. Raw measurements/masks stay
+unchanged. Histogram is before enhancement and includes inversion; changing
+field/inversion closes it. Closed dialogs ignore late results/release arrays.
+MakeMasksScreen adds _on_levels/_close_levels/_set_levels. New tr strings
+cover Levels, black/white cutoffs, Reset levels, histogram calculation/error,
+constant-field explanation and the display/detection instructions. No catalogs
+edited.52 tests pass;4 repeated after themed-layout fix; rendering reviewed.
+Magnifier lock is now pushed9733f50f7 after preserving your API log updates.
+477 ruler remains claimed here in make_masks.py and widgets/live_preview.py.

@@ -5541,6 +5541,200 @@ class _OtsuHistogramPlot(QWidget):
         painter.end()
 
 
+class _LevelsPlot(_OtsuHistogramPlot):
+    """Drag the nearest black/white marker along the intensity histogram."""
+
+    cutoff_changed = Signal(int, float)
+
+    def mousePressEvent(self, event):
+        """Choose the nearest cutoff; right and middle clicks do nothing."""
+        if event.button() != Qt.LeftButton or len(self.levels) != 2:
+            return
+        self._drag_cutoff = min(range(2), key=lambda i:
+                                abs(self.level_x(self.levels[i]) - event.position().x()))
+        self._move_cutoff(event.position().x())
+
+    def mouseMoveEvent(self, event):
+        """Move a held cutoff without recomputing the histogram."""
+        if event.buttons() & Qt.LeftButton and hasattr(self, '_drag_cutoff'):
+            self._move_cutoff(event.position().x())
+
+    def mouseReleaseEvent(self, event):
+        """Finish a cutoff drag at the released position."""
+        if event.button() == Qt.LeftButton and hasattr(self, '_drag_cutoff'):
+            self._move_cutoff(event.position().x())
+            del self._drag_cutoff
+
+    def _move_cutoff(self, x):
+        """Convert widget x into an intensity on the histogram's axis."""
+        fraction = max(0.0, min(1.0, x / max(1, self.width() - 1)))
+        value = float(self.edges[0] + fraction * (self.edges[-1] - self.edges[0]))
+        self.cutoff_changed.emit(self._drag_cutoff, value)
+
+
+def _levels_histogram(image):
+    """Sort finite field intensities and count bins off the GUI thread.
+
+    The sorted values provide exact percentile positions for dragged levels;
+    no downsampling or histogram-bin approximation changes the chosen cut.
+    """
+    values = np.sort(image[np.isfinite(image)], axis=None)
+    if not values.size:
+        from ..i18n import tr
+
+        raise ValueError(tr('The image has no finite intensities.'))
+    counts, edges = np.histogram(values, bins=256)
+    return counts, edges, values
+
+
+class _LevelsDialog(QDialog):
+    """Edit black/white percentile cutoffs by histogram or intensity value.
+
+    The histogram describes the full displayed source before enhancement,
+    including inversion when enabled. It is computed on a worker. Changes
+    emit percentiles used by the existing display/detection normalization;
+    source pixels and masks are never edited. Closing releases the sorted
+    field; a late worker result cannot reopen the dialog.
+    """
+
+    levels_changed = Signal(float, float)
+    _delivered = Signal(object)
+
+    def __init__(self, image, percentiles, parent=None):
+        super().__init__(parent)
+        from ..i18n import tr
+
+        self.setWindowTitle(tr('Levels'))
+        self.closed = False
+        self.ready = False
+        self.values = None
+        self.percentiles = tuple(percentiles)
+        layout = QVBoxLayout(self)
+        self.caption = QLabel(tr('Calculating image histogram…'))
+        self.caption.setWordWrap(True)
+        layout.addWidget(self.caption)
+        self.plot = _LevelsPlot(np.zeros(2), np.arange(3), [], self)
+        self.plot.setMinimumHeight(100)
+        self.plot.setEnabled(False)
+        layout.addWidget(self.plot, 1)
+        form = QFormLayout()
+        self.black, self.white = QDoubleSpinBox(), QDoubleSpinBox()
+        for index, control in enumerate((self.black, self.white)):
+            control.setDecimals(6)
+            control.setEnabled(False)
+            control.valueChanged.connect(lambda value, i=index: self._choose(i, value))
+        form.addRow(tr('Black cutoff'), self.black)
+        form.addRow(tr('White cutoff'), self.white)
+        layout.addLayout(form)
+        self.plot.cutoff_changed.connect(self._choose)
+        self.detect = Toggle(tr('Detect on the normalized image'))
+        layout.addWidget(self.detect)
+        note = QLabel(tr('Drag a marker or enter an intensity. Values below the black '
+                         'cutoff become black; values above the white cutoff become white. '
+                         'The range between them is stretched. Enable detection here to '
+                         'use these levels before any applied enhancement. Original image '
+                         'values and existing masks are preserved.'))
+        note.setWordWrap(True)
+        layout.addWidget(note)
+        buttons = QDialogButtonBox(QDialogButtonBox.Close)
+        self.reset = buttons.addButton(tr('Reset levels'), QDialogButtonBox.ResetRole)
+        self.reset.setEnabled(False)
+        self.reset.clicked.connect(lambda: self._publish(0.0, 100.0))
+        buttons.rejected.connect(self.close)
+        layout.addWidget(buttons)
+        self._delivered.connect(self._take, Qt.QueuedConnection)
+        self._worker = _NewestRequestWorker(_levels_histogram, self._deliver,
+                                             name='spacr-levels-histogram')
+        self._worker.submit(image)
+        self.resize(560, 520)
+
+    def _deliver(self, request, result, error):
+        """Carry computation back to Qt, tolerating destruction while busy."""
+        try:
+            self._delivered.emit((result, error))
+        except RuntimeError:
+            pass
+
+    def _take(self, payload):
+        """Install a completed histogram only while this editor is open."""
+        from ..i18n import tr
+
+        if self.closed:
+            return
+        result, error = payload
+        if error is not None:
+            self.caption.setText(tr('Could not calculate levels: {error}', error=str(error)))
+            return
+        counts, edges, self.values = result
+        self.ready = True
+        self.plot.counts, self.plot.edges = counts, edges
+        varying = self.values[0] < self.values[-1]
+        for control in (self.black, self.white):
+            blocked = control.blockSignals(True)
+            control.setRange(float(self.values[0]), float(self.values[-1]))
+            control.blockSignals(blocked)
+            control.setEnabled(bool(varying))
+        self.plot.setEnabled(bool(varying))
+        self.reset.setEnabled(True)
+        self.set_percentiles(*self.percentiles)
+        if not varying:
+            self.caption.setText(tr('This image has one intensity; there is no range to stretch.'))
+
+    def set_percentiles(self, low, high):
+        """Follow changes from the screen without emitting another edit."""
+        from ..i18n import tr
+
+        self.percentiles = (float(low), float(high))
+        if self.values is None:
+            return
+        positions = np.asarray(self.percentiles) * (len(self.values) - 1) / 100.0
+        left = np.floor(positions).astype(int)
+        right = np.ceil(positions).astype(int)
+        levels = (self.values[left].astype(float) * (1 - positions + left)
+                  + self.values[right].astype(float) * (positions - left))
+        self.plot.levels = list(levels)
+        self.plot.update()
+        for control, value in zip((self.black, self.white), levels):
+            blocked = control.blockSignals(True)
+            control.setValue(float(value))
+            control.blockSignals(blocked)
+        self.caption.setText(tr('Full-field intensity histogram · black {low:.4g}, white {high:.4g}',
+                                low=float(levels[0]), high=float(levels[1])))
+
+    def _choose(self, index, value):
+        """Map an absolute intensity to its interpolated percentile rank."""
+        if self.values is None or self.values[-1] <= self.values[0]:
+            return
+        values = self.values
+        upper = int(np.searchsorted(values, value, side='left'))
+        if upper == 0:
+            percentile = 0.0
+        elif upper >= values.size:
+            percentile = 100.0
+        else:
+            a, b = float(values[upper - 1]), float(values[upper])
+            fraction = (float(value) - a) / (b - a) if b > a else 0.0
+            percentile = (upper - 1 + fraction) * 100.0 / (values.size - 1)
+        low, high = self.percentiles
+        if index == 0:
+            low = min(percentile, high - 0.000001)
+        else:
+            high = max(percentile, low + 0.000001)
+        self._publish(max(0.0, low), min(100.0, high))
+
+    def _publish(self, low, high):
+        """Apply an ordered pair of percentiles to the screen and markers."""
+        self.set_percentiles(low, high)
+        self.levels_changed.emit(float(low), float(high))
+
+    def closeEvent(self, event):
+        """Discard pending work and release the field held for this histogram."""
+        self.closed = True
+        self.values = None
+        self._worker.close(timeout=0)
+        super().closeEvent(event)
+
+
 class _OtsuHistogramDialog(QDialog):
     """A window holding :class:`_OtsuHistogramPlot` and what it is showing.
 
@@ -6479,6 +6673,7 @@ class MakeMasksScreen(QWidget):
         #: the button twice reuses one window rather than stacking them and
         #: so the screen can take it down with itself.
         self._otsu_histogram_dialog: Optional[QDialog] = None
+        self._levels_dialog = None
         self._histogram_worker = None
         self._histogram_delivered.connect(self._take_histogram)
         self._magnifier.status.connect(
@@ -6911,6 +7106,7 @@ class MakeMasksScreen(QWidget):
         if self._otsu_histogram_dialog is not None:
             self._otsu_histogram_dialog.close()
             self._otsu_histogram_dialog = None
+        self._close_levels()
         if self._histogram_worker is not None:
             self._histogram_worker.close(timeout=0)
             self._histogram_worker = None
@@ -7484,6 +7680,11 @@ class MakeMasksScreen(QWidget):
         self._norm_hi.valueChanged.connect(self._on_normalize_changed)
         norm_form.addRow("Lower %", self._norm_lo)
         norm_form.addRow("Upper %", self._norm_hi)
+        self._btn_levels = QPushButton(tr("Levels…"))
+        self._btn_levels.setToolTip(tr(
+            "Set black and white cutoffs by dragging on the image histogram."))
+        self._btn_levels.clicked.connect(self._on_levels)
+        norm_form.addRow(self._btn_levels)
         self._detect_normalized = Toggle("Detect on the normalized image")
         self._detect_normalized.setChecked(False)
         self._detect_normalized.setToolTip(
@@ -7826,17 +8027,51 @@ class MakeMasksScreen(QWidget):
         self._canvas.brush_radius = int(v)
         self._brush_size_label.setText(f"{v} px")
 
+    def _close_levels(self):
+        """Close the levels editor before its field or inversion changes."""
+        dialog = self._levels_dialog
+        if dialog is not None:
+            dialog.close()
+            dialog.deleteLater()
+            self._levels_dialog = None
+
+    def _on_levels(self):
+        """Open an interactive histogram for the current normalization levels."""
+        image = self._canvas.displayed_source()
+        if image is None:
+            return
+        if self._levels_dialog is not None and not self._levels_dialog.closed:
+            self._levels_dialog.raise_()
+            self._levels_dialog.activateWindow()
+            return
+        self._close_levels()
+        dialog = _LevelsDialog(image, (self._norm_lo.value(), self._norm_hi.value()), self)
+        self._levels_dialog = dialog
+        dialog.detect.setChecked(self._detect_normalized.isChecked())
+        dialog.detect.toggled.connect(self._detect_normalized.setChecked)
+        dialog.levels_changed.connect(self._set_levels)
+        dialog.show()
+
+    def _set_levels(self, low, high):
+        """Apply both histogram percentiles together, refreshing only once."""
+        for control, value in ((self._norm_lo, low), (self._norm_hi, high)):
+            blocked = control.blockSignals(True)
+            control.setValue(value)
+            control.blockSignals(blocked)
+        self._on_normalize_changed(0)
+
     def _on_normalize_changed(self, _v: float):
         """Re-stretch the displayed intensity range.
 
-        DISPLAY ONLY. The mask is drawn against what the user can see, but the
-        pixels underneath are untouched -- a normalisation that changed the
-        data would make every mask depend on the contrast it was drawn at.
+        The loaded pixels and existing masks are untouched. Detection also
+        uses the stretch when Detect on the normalized image is enabled.
 
         :param _v: the changed value; both ends are re-read from the widgets.
         """
         self._canvas.norm_lo = float(self._norm_lo.value())
         self._canvas.norm_hi = float(self._norm_hi.value())
+        if self._levels_dialog is not None and not self._levels_dialog.closed:
+            self._levels_dialog.set_percentiles(self._canvas.norm_lo, self._canvas.norm_hi)
         self._canvas.refresh()
         if self._canvas.detect_on_normalized:
             self._on_magnifier_context_changed()
@@ -7847,6 +8082,10 @@ class MakeMasksScreen(QWidget):
         :param on: whether detection reads the normalized image.
         """
         self._canvas.detect_on_normalized = bool(on)
+        if self._levels_dialog is not None and not self._levels_dialog.closed:
+            blocked = self._levels_dialog.detect.blockSignals(True)
+            self._levels_dialog.detect.setChecked(bool(on))
+            self._levels_dialog.detect.blockSignals(blocked)
         self._canvas.refresh()
         self._on_magnifier_context_changed()
         self._status_label.setText(
@@ -7883,6 +8122,7 @@ class MakeMasksScreen(QWidget):
 
         :param on: the switch's new state.
         """
+        self._close_levels()
         self._canvas.invert_display = bool(on)
         self._canvas.refresh()
         if self._canvas.image is None:
@@ -11101,6 +11341,7 @@ class MakeMasksScreen(QWidget):
         if token != self._load_token:
             return
         self._magnifier.set_field(os.path.join(self._folder or "", filename))
+        self._close_levels()
         self._canvas.set_image_and_mask(image, mask)
         self._recrop_children = []
         self._reset_flow_panes()
@@ -11448,5 +11689,6 @@ class MakeMasksScreen(QWidget):
                    self._btn_discard, self._btn_keep,
                    self._btn_filter, self._btn_otsu, self._btn_magnifier,
                    self._btn_dilate, self._btn_shrink, self._btn_clear,
+                   self._btn_levels,
                    *self._mode_buttons.values()):
             b.setEnabled(editable)
