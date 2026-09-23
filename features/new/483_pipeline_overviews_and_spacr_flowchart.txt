@@ -45,3 +45,15 @@ reuse, background pixel alpha204/255, existing nine-locale route titles and
 summaries, and real OPS example routing. Dark/light renders inspected in
 /mnt/firecuda2/Claude/implementation-20260922/pipeline-overviews/.
 Final test count and documentation handoff recorded in the shared protocol.
+
+Follow-up, same day
+The maintainer requested API links and structured input/output columns.
+Node explanations now link the mapped API module using Help's localized URL
+builder. Edge explanations link BOTH endpoint APIs. Links open in a browser.
+The network uses12dependency columns instead of a uniform grid: all49solid
+handoffs point left-to-right; Map Barcodes shares Classify's column on a
+separate row before Regression. Main pipeline nodes take the first row in
+their columns. Independent sources sit near their consuming branch, terminal
+consumers spread over later columns, and other modules use their artifact
+types for placement. No node overlaps.35focused UI/routing/menu tests pass,
+including column order, branch convergence and localized API URLs.

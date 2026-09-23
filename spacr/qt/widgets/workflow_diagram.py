@@ -81,10 +81,23 @@ def _artifact_names(data, keys):
     return [tr(data.get("artifacts", {}).get(key, {}).get("title", key)) for key in keys]
 
 
+def _api_link(data, key):
+    """Link a mapped module to the same localized API route used by Help."""
+    from ..help_search import api_url
+
+    module = data['modules'][key]
+    symbol = module.get('api_module')
+    if not symbol:
+        return ''
+    caption = tr("{module} API", module=tr(module['name']))
+    return f'<a href="{escape(api_url(symbol), quote=True)}">{escape(caption)}</a>'
+
+
 def node_description(data, key):
     """Return escaped, translated HTML describing a module and its data ports."""
     module = data["modules"][key]
-    parts = [f'<b>{escape(tr(module["name"]))}</b>', escape(tr(module.get("guidance", "")))]
+    parts = [f'<b>{escape(tr(module["name"]))}</b>', _api_link(data, key),
+             escape(tr(module.get("guidance", "")))]
     for role, title in (("inputs", tr("Inputs")), ("outputs", tr("Outputs"))):
         entries = []
         for artifact in module.get(role, ()):
@@ -105,21 +118,27 @@ def edge_description(data, edge):
     else:
         explanation = tr("Pathway prerequisite. Follow the pathway instructions; no direct file handoff is declared for this pair.")
     artifacts = [data["artifacts"].get(key, {"title": key}) for key in edge["artifacts"]]
-    return (f'<b>{escape(source)} → {escape(target)}</b><br><br>{escape(explanation)}' +
+    return (f'<b>{escape(source)} → {escape(target)}</b><br>' +
+            _api_link(data, edge['from']) + ' · ' + _api_link(data, edge['to']) +
+            f'<br><br>{escape(explanation)}' +
             ''.join('<br><br><b>' + escape(tr(item["title"])) + '</b><br>' +
                     escape(tr(item.get("location", ""))) for item in artifacts))
 
 
-def _positions(keys, edges):
-    """Lay out documented dependencies by depth; place remaining nodes below.
+def _positions(keys, edges, data=None, *, compact=False):
+    """Lay out documented dependencies in columns ordered by data flow.
 
-    Cycles are kept in a bounded final layer, so malformed or cyclic maps
-    cannot make layout loop forever. Compatibility edges do not impose rank.
+    Independent sources move beside the latest branch they feed, unless
+    that would delay an earlier dependency chain. Terminal consumers spread
+    across later columns. Modules without documented handoffs are placed by
+    their input/output types. Cycles remain bounded rather than looping.
     """
     parents = {key: set() for key in keys}
+    children = {key: set() for key in keys}
     for edge in edges:
         if edge["kind"] != "compatible":
             parents[edge["to"]].add(edge["from"])
+            children[edge["from"]].add(edge["to"])
     ranked, pending = {}, list(keys)
     while pending:
         ready = [key for key in pending if parents[key] <= ranked.keys()]
@@ -130,18 +149,51 @@ def _positions(keys, edges):
         for key in ready:
             ranked[key] = max((ranked[p] + 1 for p in parents[key]), default=0)
             pending.remove(key)
-    columns = defaultdict(list)
     linked = {edge[k] for edge in edges if edge["kind"] != "compatible" for k in ("from", "to")}
     for key in keys:
-        if key in linked:
+        if parents[key] or not children[key]:
+            continue
+        reachable, waiting = set(), list(children[key])
+        while waiting:
+            child = waiting.pop()
+            for descendant in children[child] - reachable:
+                reachable.add(descendant)
+                waiting.append(descendant)
+        if not children[key] & reachable:
+            ranked[key] = max(ranked[child] for child in children[key]) - 1
+    for key in sorted(keys, key=lambda k: ranked[k]):
+        if parents[key]:
+            ranked[key] = max(ranked[key], max(ranked[parent] + 1 for parent in parents[key]))
+    columns = defaultdict(list)
+    core = [step['module'] for step in (data or {}).get('pathways', {}).get('pooled_screen', {}).get('steps', ())]
+    ordered = sorted(keys, key=lambda key: (key not in core, not bool(parents[key]), keys.index(key)))
+    maximum = max(ranked.values(), default=0)
+    for key in ordered:
+        if key in linked and (children[key] or key in core or not compact):
             columns[ranked[key]].append(key)
-    positions = {key: QPointF(depth * 325, row * 225)
-                 for depth, group in columns.items() for row, key in enumerate(group)}
-    bottom = max((point.y() + 260 for point in positions.values()), default=0)
-    remaining = [key for key in keys if key not in positions]
-    for index, key in enumerate(remaining):
-        positions[key] = QPointF((index % 5) * 325, bottom + (index // 5) * 225)
-    return positions
+    for key in ordered:
+        if key in linked and not children[key] and key not in core and compact:
+            depth = min(range(ranked[key], maximum + 1),
+                        key=lambda d: len(columns[d]) + .3 * (d - ranked[key]))
+            ranked[key] = depth
+            columns[depth].append(key)
+    modules = (data or {}).get('modules', {})
+    for key in ordered:
+        if key in linked:
+            continue
+        inputs = set(modules.get(key, {}).get('inputs', ()))
+        outputs = set(modules.get(key, {}).get('outputs', ()))
+        producers = [ranked[k] for k in linked if inputs & set(modules.get(k, {}).get('outputs', ()))]
+        consumers = [ranked[k] for k in linked if outputs & set(modules.get(k, {}).get('inputs', ()))]
+        first = min(maximum, min(producers) + 1) if producers else 0
+        last = max(first, min(consumers) - 1) if consumers else maximum
+        suggested = min(range(first, last + 1),
+                        key=lambda d: len(columns[d]) + .2 * (d - first))
+        ranked[key] = suggested
+        columns[suggested].append(key)
+    row_height = 125 if compact else 225
+    return {key: QPointF(depth * 325, row * row_height)
+            for depth, group in sorted(columns.items()) for row, key in enumerate(group)}
 
 
 class _Node(QGraphicsItem):
@@ -301,10 +353,7 @@ class WorkflowView(QGraphicsView):
         self.setDragMode(QGraphicsView.ScrollHandDrag)
         self.setTransformationAnchor(QGraphicsView.AnchorUnderMouse)
         self.nodes, self.edges = {}, []
-        positions = _positions(self.keys, self.links)
-        if compact:
-            positions = {key: QPointF((i % 9) * 310, (i // 9) * 125)
-                         for i, key in enumerate(self.keys)}
+        positions = _positions(self.keys, self.links, data, compact=compact)
         for key in self.keys:
             node = _Node(self, key)
             node.setPos(positions[key])
@@ -409,6 +458,7 @@ def details_box(parent=None):
     box = QTextBrowser(parent)
     box.setObjectName("WorkflowDetails")
     box.setFixedHeight(font_px("body") * 10)
+    box.setOpenExternalLinks(True)
     box.setStyleSheet("QTextBrowser { background: transparent; border: none; }")
     box.setHtml(escape(tr("Hover or select a module or connection to read its inputs, outputs and explanation here.")))
     return box

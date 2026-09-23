@@ -11804,3 +11804,24 @@ QSS font size that the source scanner mistakes for runtime styling. No scanner
 exemptions added and no ratchet relaxed.29font/GUI-scale tests pass, including
 Keep/Revert/timeout behavior. API lane: refresh these two source bindings in
 your normal pass; no new strings or behavioral translation changes.
+
+2026-09-22 — IMPLEMENTATION: 483 FOLLOW-UP CLAIM
+Maintainer likes the graph and requests API links in node/edge explanations
+and structured input/output columns instead of a grid. Reclaiming only
+widgets/workflow_diagram.py and its tests: arrange documented dependencies
+left-to-right, align Map Barcodes with Classify before Regression, and link
+both endpoint APIs in edge explanations. No workflow-map/catalog edits.
+
+2026-09-22 — IMPLEMENTATION: 483 STRUCTURED COLUMNS / API LINKS COMPLETE
+Follow-up implemented in workflow_diagram.py. Node explanations contain the
+mapped module API link; edges contain BOTH endpoint API links. They use
+help_search.api_url, including current-language query parameters, and the
+bottom QTextBrowser enables external links. New UI source: {module} API.
+The full network is now12dependency columns, not a rectangular grid. All49
+documented edges point left-to-right. Map Barcodes is in Classify's column
+on a different row, converging on Regression. Core modules lead their columns;
+source/terminal positioning and artifact-informed placement reduce crossings.
+35focused Qt tests pass, including actual hover, existing OPS routes, node
+nonoverlap, every documented edge's direction and French API URLs. No map or
+catalog edits. Please include this final behavior in483API/tutorial/translation
+work, refreshing workflow_diagram source bindings. Claims release on push.

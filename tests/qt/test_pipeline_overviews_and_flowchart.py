@@ -120,3 +120,38 @@ def test_diagram_surface_uses_eighty_percent_alpha_and_keeps_text_opaque(qtbot):
     pixel = dialog.grab().toImage().pixelColor(100, 50)
     assert pixel.alpha() == pytest.approx(204, abs=1)
     assert dialog.windowOpacity() == 1
+
+
+def test_columns_follow_documented_inputs_and_converge_barcodes_with_classify(qtbot):
+    dialog = wd.SpacrFlowchartDialog()
+    qtbot.addWidget(dialog)
+    nodes = dialog.view.nodes
+    core = ['mask', 'measure', 'annotate', 'classify_merged', 'regression']
+    positions = [nodes[key].pos().x() for key in core]
+    assert positions == sorted(set(positions))
+    assert nodes['map_barcodes'].pos().x() == nodes['classify_merged'].pos().x()
+    assert nodes['map_barcodes'].pos().y() != nodes['classify_merged'].pos().y()
+    for edge in dialog.view.links:
+        if edge['kind'] == 'documented':
+            assert nodes[edge['from']].pos().x() < nodes[edge['to']].pos().x()
+    rectangles = [node.sceneBoundingRect() for node in nodes.values()]
+    for i, rectangle in enumerate(rectangles):
+        assert all(not rectangle.intersects(other) for other in rectangles[i + 1:])
+
+
+def test_node_and_edge_explanations_link_their_localized_api_pages(qtbot, monkeypatch):
+    from spacr.qt import i18n
+    from spacr.qt.help_search import api_url
+    monkeypatch.setenv(i18n.ENV_LANGUAGE, 'fr')
+    dialog = wd.SpacrFlowchartDialog()
+    qtbot.addWidget(dialog)
+    dialog.view.describe_node('mask')
+    assert api_url('spacr.core') in dialog.details.toHtml()
+    edge = next(e for e in dialog.view.edges
+                if e.edge['from'] == 'mask' and e.edge['to'] == 'measure')
+    dialog.view.describe_edge(edge)
+    html = dialog.details.toHtml()
+    assert api_url('spacr.core') in html
+    assert api_url('spacr.measure') in html
+    assert '?lang=fr' in html
+    assert dialog.details.openExternalLinks()
