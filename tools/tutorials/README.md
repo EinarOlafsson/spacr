@@ -181,17 +181,36 @@ each ready English video/audio pair, seeking, and ready/unavailable transitions.
 catalogs, route metadata, browser evidence and all media hashes under
 `tools/tutorials/release_candidate/`. The maintainer subsequently requested all
 remaining work pushed: `--include-web-media` includes web videos, posters, fonts
-and examples. Narration and 4K media remain in the private candidate/original
-workspace pending separate media-host upload approval; they are not in Git.
+and examples. Narration and 4K media live on the media host rather than in Git.
+The maintainer's 23 September request authorizes publication of ready work on
+nightly, with main following its own branch updates.
 
 The candidate is an **offline preview**: its narration and 4K roots are relative
 to its sibling `media_host/`. Do not copy that index directly into live docs or
-run the legacy publisher against the old authoring catalogs. Release requires a
-separately approved deployment with final hosted roots and live-byte verification.
+run the legacy publisher against the old authoring catalogs. Publication still
+requires final hosted roots and verification of the actual served bytes.
 On 15 September 2026 the maintainer approved it for `release-candidate-8738b_pd`:
 `publish_release_candidate.py` uploaded `media_host/` to a new media revision,
 read every byte back, and wrote the Pages tree pinned to that commit (see
-`release_candidate/README.md`). Pages deploys with the merge to `main`.
+`release_candidate/README.md`). Pushes to `nightly` publish the nightly preview;
+pushes to `main` publish the main site through the documentation workflow.
+
+To add ready lessons without waiting for every translation and voice, use
+`build_appended_candidate.py --stage STAGE --baseline VERIFIED_CANDIDATE
+--lesson ID` (repeat `--lesson` in contiguous number order). Run this through
+`tools/run_capped.sh` with a private `HOME` and `XDG_CONFIG_HOME`.
+The baseline must match the published lesson catalogs and immutable media
+revision and carry complete readback evidence. Existing lesson objects and
+media stay intact. Every offered new audio track is decoded and checked
+against its current script; missing or stale translations use English and
+are listed in the candidate's `translation-compatibility.json`. Existing
+uncovered module routes remain recorded rather than blocking unrelated lessons.
+
+The resulting candidate still needs `verify_release_candidate.py` and
+`check_placeholder_mutations.py`, followed by the normal immutable upload,
+readback and Pages-tree steps in `publish_release_candidate.py`. A partially
+populated voice or translation matrix does not count as complete tutorial
+authoring: keep its missing work tracked after publication.
 
 1. Preserve and reconcile authoring/published sources; measure the live registry.
 2. Capture the current Home/navigation and rebuild each runtime Core lesson using

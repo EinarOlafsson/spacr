@@ -1,0 +1,117 @@
+"""New tutorials can ship available media without disturbing published lessons."""
+from copy import deepcopy
+import hashlib
+import json
+import sys
+from pathlib import Path
+
+import pytest
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from build_appended_candidate import (append_catalogs, append_javascript_catalog,
+                                     require_baseline_receipt, require_no_new_route_gaps)
+from audit_staged_catalogs import CATALOGS
+
+
+@pytest.fixture
+def sources():
+    old = dict(id='01_existing', number=1, status='coming_soon', scenes=[{'narration': 'Existing'}])
+    published = {name: {'lessons': [deepcopy(old)]} for name in CATALOGS}
+    new = dict(id='02_new', number=2, title='Title', description='Description',
+               objectives=['Objective'], prerequisite='Prerequisite', scenes=[{'narration': 'Current text'}])
+    voices = {'02_new': {'en': ['af_heart']}}
+    return published, new, voices
+
+
+def test_missing_translations_do_not_block_but_remain_registered(sources):
+    published, new, voices = sources
+    before = deepcopy(published)
+    result, compatibility = append_catalogs(published, [new], voices, {})
+    assert published == before
+    assert len(compatibility) == 13
+    assert all(row['status'] == 'english_fallback' and row['reason'] for row in compatibility)
+    for name in CATALOGS:
+        assert result[name]['lessons'][:-1] == before[name]['lessons']
+        assert result[name]['lessons'][-1]['scenes'] == new['scenes']
+        assert result[name]['lessons'][-1]['narration_voices'] == voices[new['id']]
+
+
+def test_source_bound_review_wins_and_stale_review_falls_back(sources):
+    published, new, voices = sources
+    review = dict(lesson=new['id'], language='de', title='Titel', description='Beschreibung',
+                  objectives=['Ziel'], prerequisite='Voraussetzung', scenes=['Aktueller Text'],
+                  english_sha256=hashlib.sha256(json.dumps(new, sort_keys=True, ensure_ascii=False).encode()).hexdigest())
+    result, records = append_catalogs(published, [new], voices, {(new['id'], 'de'): review})
+    assert result['captions_de.json']['lessons'][-1]['scenes'][0]['narration'] == 'Aktueller Text'
+    assert next(row for row in records if row['language'] == 'de')['status'] == 'source_bound_review'
+    review['english_sha256'] = '0' * 64
+    result, records = append_catalogs(published, [new], voices, {(new['id'], 'de'): review})
+    assert result['captions_de.json']['lessons'][-1]['scenes'] == new['scenes']
+    assert next(row for row in records if row['language'] == 'de')['status'] == 'english_fallback'
+
+
+@pytest.mark.parametrize('change', ['duplicate', 'gap', 'replacement', 'no_english', 'held', 'unsafe'])
+def test_reject_invalid_appends_without_altering_baseline(sources, change):
+    published, new, voices = sources
+    before = deepcopy(published)
+    lessons = [new]
+    if change == 'duplicate':
+        lessons.append(new)
+    elif change == 'gap':
+        new['number'] = 3
+    elif change == 'replacement':
+        new['id'] = '01_existing'
+    elif change == 'no_english':
+        voices[new['id']] = {'es': ['ef_dora']}
+    elif change == 'held':
+        new['status'] = 'coming_soon'
+    elif change == 'unsafe':
+        new['id'] = '../02_new'
+    with pytest.raises(ValueError):
+        append_catalogs(published, lessons, voices, {})
+    assert published == before
+
+
+def test_javascript_preserves_its_own_historical_objects(sources):
+    published, new, voices = sources
+    english, _ = append_catalogs(published, [new], voices, {})
+    javascript = deepcopy(published['lessons_en.json'])
+    javascript['lessons'][0]['extra_historical_field'] = 'Preserve independently'
+    before = deepcopy(javascript)
+    result = append_javascript_catalog(javascript, english['lessons_en.json'], 1)
+    assert javascript == before
+    assert result['lessons'][:-1] == before['lessons']
+    assert result['lessons'][-1]['silent'] == '02_new/video/02_new_silent.mp4'
+
+
+@pytest.mark.parametrize('fault', [None, 'partial_download', 'wrong_commit', 'mutable_root', 'wrong_manifest', 'missing_file'])
+def test_baseline_requires_complete_immutable_readback(fault):
+    manifest = {'files': [{'path': 'media_host/01_example/audio/en/af_heart.m4a'}]}
+    commit = 'a' * 40
+    receipt = dict(manifest_sha256='hash', commit=commit, tag='published', media_files=1,
+        media_root='https://huggingface.co/datasets/einarolafsson/spacr-tutorials/resolve/' + commit,
+        readback=dict(commit=commit, passed=True, files_expected=1, metadata_matched=1,
+                      downloaded_sha256_matched=1, metadata_failures=[], download_failures=[]))
+    if fault == 'partial_download':
+        receipt['readback']['downloaded_sha256_matched'] = 0
+    elif fault == 'wrong_commit':
+        receipt['readback']['commit'] = 'b' * 40
+    elif fault == 'mutable_root':
+        receipt['media_root'] = receipt['media_root'].replace(commit, 'main')
+    elif fault == 'wrong_manifest':
+        receipt['manifest_sha256'] = 'other'
+    elif fault == 'missing_file':
+        manifest['files'].append({'path': 'media_host/01_example/audio/en/af_heart.json'})
+    if fault is None:
+        require_baseline_receipt(manifest, receipt, 'hash')
+    else:
+        with pytest.raises(ValueError):
+            require_baseline_receipt(manifest, receipt, 'hash')
+
+
+def test_preexisting_route_debt_is_not_a_gate_but_lost_routes_fail():
+    before = {'missing_tutorials': [{'app_key': 'new_module'}]}
+    require_no_new_route_gaps(before, deepcopy(before))
+    require_no_new_route_gaps(before, {'missing_tutorials': []})
+    with pytest.raises(ValueError):
+        require_no_new_route_gaps(before, {'missing_tutorials': [{'app_key': 'previously_covered'}]})
