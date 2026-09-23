@@ -19,6 +19,39 @@ The workbench shows:
   and raw/calibrated class probabilities; and
 * an explicit leakage report for every outer and inner split.
 
+Crop decoding and existing models
+--------------------------------
+
+Image classifiers must see the same channel order and intensity conversion
+during training and prediction. New training runs use
+``declared_uint8_v1`` and save it in the checkpoint's
+``preprocessing.crop_loading_policy`` record. Folder and tar inputs use the
+same decoder: crop formats 1 and 3 already have declared channel order;
+format 2 has its channels reversed. EXIF orientation is applied before
+decoding.
+
+For unsigned 16-bit crops, decoding keeps the high byte instead of clipping
+every value above 255. For example, intensities
+``[0, 256, 1024, 32768, 65535]`` become ``[0, 1, 4, 128, 255]``.
+This converts the classifier input to eight bits; it does not preserve the
+full precision of the original scientific image or modify that source file.
+
+Existing checkpoints without a decoding record keep ``stored_pil_v1``, the
+historical PIL RGB conversion and stored channel order. spaCR reports this
+fallback when loading the model. This policy can clip high-bit-depth crops,
+but changing it for an already trained model would change its inputs.
+Retrain and evaluate a new model to adopt the new decoding policy.
+Resuming or fine-tuning retains the checkpoint's policy. Training and
+validation policies must agree, and fusion or teacher models with conflicting
+policies cannot be combined.
+
+When constructing loaders through the API, pass the checkpoint policy to
+``crop_loading_policy`` in :func:`spacr.io.generate_loaders` or
+:func:`spacr.io.generate_cv_loaders`. Use
+:func:`spacr.classification_pixels.checkpoint_policy` to read that contract;
+:func:`spacr.classification_pixels.read_classification_image` and
+:func:`spacr.crops.decode_crop_image` document the decoding operations.
+
 Grouped and nested cross-validation
 -----------------------------------
 

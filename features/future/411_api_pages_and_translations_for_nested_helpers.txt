@@ -1948,3 +1948,23 @@ fallbacks, and828523970-byte combined budget pass. English now11452 symbols;
 the exact source/callable deltas and named test counts are in
 features/data/411_documentation_channels_2026-09-23.json. Deployment is pending,
 not yet claimed; private tutorials and translation completion remain open.
+
+2026-09-23 — NIGHTLY AND MAIN CHANNELS LIVE
+Run35894401432 succeeded. Live commit receipts match nightly67c6a6d8d and
+main79d71a92f. Chromium verifies both API fallbacks and actual tutorial video
+playback; nightly workflow/image-quality/host-pathogen/recruitment guides load.
+The public installer-page audit now passes against GitHub's published assets.
+Receipt: data/411_live_documentation_channels_2026-09-23.json. The first live
+artifact is824223495 bytes with154 shared media files. Private new workflow
+recordings remain excluded; no full translation or narration completion claim.
+
+2026-09-23 — CLASSIFICATION DECODER API / RELEASE SNAPSHOT
+English manifest refreshed to11460 symbols over a33bb315e; Help index updated.
+Classifier guide explains declared_uint8_v1, historical stored_pil_v1, high-byte
+conversion, channel formats, checkpoint compatibility and retraining. Six new
+public callable rows/five changed loader signatures have exact subtraction
+proof in data/411_classification_api_2026-09-23.json. Added missing parameter
+prose to the new decoder helpers and closed four preexisting omissions in
+image_quality.ensure_no_retained_measurements and SampleProjectDialog.eventFilter.
+Five callable/prose checks and the English manifest check pass. The remaining
+2292 required-parameter omissions stay visible; no relaxed documentation gate.

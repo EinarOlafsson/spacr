@@ -5828,6 +5828,78 @@
       "source_sha256": "c8108f6c6b58d7cb4eba1baad06f2a6b0c6a8f76a1d9ef7bff8dd71914c13eea",
       "text": "Return supported values in a deterministic JSON-compatible form.\n\nPaths, sets, tuples, NumPy scalars and other scalar-like objects are\nnormalised without importing NumPy.  Unknown objects fall back to their\nstring representation; workflow signatures should still prefer explicit\nprimitives for scientifically meaningful settings.\n\n:param value: object to normalise.\n:returns: JSON-compatible value with mapping keys sorted as strings.\n:raises ValueError: if distinct mapping keys normalize to the same string."
     },
+    "spacr.classification_pixels": {
+      "source_blocks_sha256": [
+        "ab115c417e9882b335d552bb8f4fa093adac4394c949baddc89fc3a4998e49a0"
+      ],
+      "source_sha256": "ab115c417e9882b335d552bb8f4fa093adac4394c949baddc89fc3a4998e49a0",
+      "text": "Versioned crop decoding shared by classification and its checkpoints."
+    },
+    "spacr.classification_pixels.checkpoint_policy": {
+      "source_blocks_sha256": [
+        "75fe18af7c62cd58d511ca9a8a3bdbda1ab85fc63eead54beb56029a8fb6dc31",
+        "3230fbed4539ac046de007c40b3874e949326bdc24e911ac656c9e3da13d5b30",
+        "df1aa5a4181a9ede060e6b0989670ce21469b088163b1dc42bb14ddef0e922f4",
+        "4be7d2d2d326a55746284818ec77c429ed23a454177a12516b312f0f2c853444"
+      ],
+      "source_sha256": "51405e4e95d9d89a3a5a281203e231811d54a72bc0006a8f8f043b83636d799e",
+      "text": "Read a checkpoint's decoder contract, preserving historical untagged models.\n\n:param metadata: artifact mapping returned by ``load_model_artifact``.\n:param announce: explain the legacy fallback when the contract is absent.\n:returns: validated policy name. Missing metadata selects stored PIL RGB."
+    },
+    "spacr.classification_pixels.initialization_policy": {
+      "source_blocks_sha256": [
+        "c7e6662b822a559be42fbf656d4c7ae6b9adc2624cb2f7eb812008d4e9b5780a",
+        "84b8ee08a46447f815520e16c8c6f891b883cb74828ce70946e62697b232992b",
+        "4b0d52b29107e67246a5edca6a067d6f4aab8527afc75f869c1b965267e217a6"
+      ],
+      "source_sha256": "4b426f487a9fd80b104b8a5fe8f707d83185aca7e3291334e95363f026062bd6",
+      "text": "Select decoding before training loaders are built for a resumed model.\n\n:param path: trusted checkpoint path, or None for a new training run.\n:returns: saved policy, legacy fallback, or declared uint8 for new training."
+    },
+    "spacr.classification_pixels.loader_policy": {
+      "source_blocks_sha256": [
+        "f4571abe74609797f08bf62b1b2d26845523463fe74f34051f00010cb5fc3f0e",
+        "b3144eed7596862d955314e1fc234e0119da5e47ed4012a648295e17028dd4fb",
+        "351d9dcb17f0c53484faf331d7fe202bfea2ee09ba373007320a3477f021ace2",
+        "2c5554da99859d710ffb4f8287aac97479d64699aaf576d015be3135321c99cd",
+        "0cf1095fea7650caacdc0471b3d755628396ef240d8aad19cb3a2ccb18432129"
+      ],
+      "source_sha256": "3faee6f39ada3aac284352b1d7793f8a8d7cf65adf53f57ea2c090d6146eed23",
+      "text": "Find the decoding record through loaders, subsets and combined datasets.\n\nUnknown external tensor datasets return None. Mixed recorded policies are\nrefused because a single checkpoint cannot describe both transformations.\n\n:param loader: loader or dataset exposing ``crop_loading_policy``,\n    ``dataset`` or ``datasets``.\n:returns: a validated policy name, or None if no policy is recorded.\n:raises ValueError: a policy is unsupported or combined datasets disagree,\n    including a mixture of recorded and unknown policies."
+    },
+    "spacr.classification_pixels.read_classification_image": {
+      "source_blocks_sha256": [
+        "926fb74b286104118b7b7afcfe9822cf8f383ef927864d10c7a74ebfe458f949",
+        "e315827a7cc3e2331e4e68302655197f0832eb895b262e889b981b6bfdfa688a",
+        "a8302986a376f53b2286c833d69a39b75fde400f2457a9ec3364a761491dda3d",
+        "5a842941ed7a38a532b09c4f35ce0d907419c895f8c9f7a41ab21b80e5d903b6",
+        "3c2d2c8d9b7b8c13e0d18fa4e7924f00d2784adeabbd895c402245d4f93a5f08",
+        "6878842e32c6cec352d6f366407b35acf92dc07170e42cbc70dc40888292779c"
+      ],
+      "source_sha256": "01de66d3a77e971ed1f0a9551bc2374fdbd72590b79c2f5d31322675e8436fbc",
+      "text": "Decode a path or archive stream using the model's recorded policy.\n\n:param source: image path or seekable binary stream, as accepted by PIL.\n:param policy: declared uint8 decoding or historical stored PIL RGB.\n:param fmt: source format; None resolves the path's per-file crop marker.\n    Archive callers must supply a format (1 when unmarked).\n:param legacy_orient: retain the labelled loader's historical EXIF handling.\n:returns: independently owned PIL RGB image with its file handle closed."
+    },
+    "spacr.classification_pixels.training_preprocessing": {
+      "source_blocks_sha256": [
+        "617eda864840c1bb28357110ae9689a690db38c32d6f950a2a109b1b3e1026d2",
+        "887945c504d799e74dcb63e5dacb11df3e57d100d63d5e090d3f219cbb03bca6",
+        "0de7901faf01f6c167df1dd5b8e55feaf6d65ac34668f5d87a3f84befa7ba170",
+        "df14b9563159c7d0cc3c838087fb1edbdd3f2c055e94e2ce0d3f1c9ff4b5d6b8",
+        "9b2299bc70a30933730ee728f869c4d913e56ac74acfee57e5ee4f96702d2e1d",
+        "297eacc0d81800d96cd1965ce8c685502f9d0e4f74135c8636d0c90b7b3b24e6",
+        "8ff01b64ead0a7afad46b4cffcba1ad31bbad0e0f37bf529baaea8fe1696c6d4"
+      ],
+      "source_sha256": "e8438477c4e601ea217837c905ccbcb7f23824b069a82901688f6eff94a7810a",
+      "text": "Record actual loader decoding and reject checkpoint or validation conflicts.\n\n:param train_loader: training loader or dataset whose decoding is inspected.\n:param validation_loader: validation loader or dataset checked for agreement.\n:param preprocessing: optional preprocessing mapping copied into the result;\n    an explicit policy must agree with a recorded training policy.\n:param checkpoint: optional loaded checkpoint metadata checked against the\n    selected policy; an untagged checkpoint uses the historical policy.\n:returns: a new preprocessing dictionary, including the policy when known.\n    Unknown external datasets are not assigned a decoder automatically.\n:raises ValueError: a supplied policy is unsupported or the recorded\n    training, validation, preprocessing or checkpoint policies conflict."
+    },
+    "spacr.classification_pixels.validate_policy": {
+      "source_blocks_sha256": [
+        "f190abb55fe18a070a0e84f0a5bc3957c630a87ddfdf1007a30478e3d67e1735",
+        "86ddbf36e7bc1c9984ce1543d14af4c2e51c17674d9e082a03fd248fb2cc674e",
+        "ea4047035bf68b9089f92c6a19880f06c4b8ba24b67863d068a1bc7b7eca1e34",
+        "8c2f032750adb5cdf203b02ca07392c7cc4c8b55f866120d6c94d245a7d87f25"
+      ],
+      "source_sha256": "2f8b2b55bc7bd852e241d6cd2133fd4aa27139ae475f3400a130d521dddb7c50",
+      "text": "Accept only implemented crop decoding policies; never guess a new one.\n\n:param policy: ``declared_uint8_v1`` or ``stored_pil_v1``.\n:returns: the unchanged, validated policy name.\n:raises ValueError: the supplied policy is not implemented."
+    },
     "spacr.classifier_evaluation": {
       "source_blocks_sha256": [
         "450cb61e126a27a43a1bb42e0f8a6694987f4696d5bfef8e57eb850e1ac2dba2",
@@ -9387,6 +9459,19 @@
       "source_sha256": "3582b0a1d16ec3857179a816eb3ff1e23585a55a1706c797101377fc7b60e915",
       "text": "Build a :class:`CropSpec` from a ``measure_crop`` settings dict.\n\nUses ``png_dims``, ``png_size``, ``normalize``, ``normalize_by``,\n``use_bounding_box``, ``dialate_pngs``, ``dialate_png_ratios``, ``crop_mode``\nand the ``*_mask_dim`` keys -- i.e. everything that shaped the PNG folder.\n\n:param settings: The ``measure_crop`` settings. A scalar ``png_size``\n    defines a square crop. Object-specific values in nested ``png_size``,\n    ``dialate_pngs``, and ``dialate_png_ratios`` are selected by the\n    object's position in ``crop_mode`` and fall back to the first entry\n    when that object is absent. Channels are resolved from\n    ``png_channel_mapping``, or legacy ``png_dims``, through\n    :func:`channels_from_settings` and stored in colour order. Text forms\n    such as ``\"[2, 98]\"``, ``\"2,98\"``, and ``\"[1 99]\"`` are parsed as\n    percentile windows; a non-text sequence with a length other than two\n    disables normalization.\n:param merged_path: the ``merged/<fov>.npy`` to record on the spec. The\n    default ``\"\"`` builds a *template* spec, which is what\n    :class:`MergedCropSource` wants: it fills the path (and label) in per\n    row.\n:param object_type: which mask plane to crop by; ``None`` takes the first\n    entry of ``settings['crop_mode']``. ``'cytoplasm'`` forces\n    ``dilate=False`` whatever the settings say, because\n    ``_measure_crop_core`` hard-disables dilation for it.\n:param label: the object's ``object_label``. The default ``0`` is\n    background, so it is only meaningful on a template spec -- cutting\n    with it raises :class:`LabelMissing`."
     },
+    "spacr.crops.decode_crop_image": {
+      "source_blocks_sha256": [
+        "0c36361a423694c6142eca8d2ab7cabb8d9c21744114fa5edd0ef3bfadbce785",
+        "8c32e2916963d1e090c944f3c7555f8a14dae95ad3ac1df3eb435c4e6babe153",
+        "c208acfce05efdf0e5f2e018f54e4910430a6ac78b5df1f22c2803250f1f0979",
+        "8607cc6fed89823bf8377ca63b148268f0941b58b12201abdc8f6d7b43c9ddbb",
+        "b81e211a1c15e7a7df043eed618e160623f42065ea7b9c5e714acd3120b348b1",
+        "a5f2939c63a3d7698b3561d069e96508b41e48e3626f5880de49f9142f958be3",
+        "a3e25cb6b0ac652705f409502f14478966b600bd50f2b47d2b5007c3155f2468"
+      ],
+      "source_sha256": "a9ca9d97f1026f73bf87e9a41b330e5278b2d19c6cbc68de33c7a046e7aa2580",
+      "text": "Decode a PIL crop without clipping its high-bit-depth intensities.\n\n:param image: open PIL image; owned and closed by the caller.\n:param fmt: source crop format, including an archive member's marker.\n:param as_format: requested channel ordering, normally declared format 3.\n:param orient: apply EXIF orientation before decoding, for classification.\n:returns: contiguous, independently owned HWC RGB uint8 array.\n:raises CropError: either format is unsupported."
+    },
     "spacr.crops.display_order_indices": {
       "source_blocks_sha256": [
         "78bfd8b1e3df45f870cd025ad683a08881c2826aacf2f977dacef4bb66c55efa",
@@ -9669,14 +9754,14 @@
         "7197f05c68d9fedb8ef9581c1c61fa353d0fbb2d37855d175cb60bed5266614b",
         "8e23246380cc000b8b8cdf0f7b354f65fd36e308fcd5b76d1051021ca3a2ca52",
         "3d24461ab4d97f0e5034d0a7f530db7eb22b7cbbfbb385175f9e75a4da09982a",
-        "4db7ae6544f849d935c652d43f58a41d485ff1bb5a9f3c208de4c320c292b6cf",
+        "fc52f4b592f1add8dd9dd33257d5c51300d8493bb2d31cb54dbc9e024a474db9",
         "32c1856b2260c6a5141fefad0ed04dc06359bde145cb1b9e04b4004b20781142",
         "73d0237ce056254674905d70d73a2aa53e74643d3b78ed1f880584c5f68c8095",
         "62ed3c1cd556fde2c59e2f2f32c7bdf00c813144495bcc3a41d0e45604533c4d",
         "ace81cbd01481fbf307dd95c3fe627e3edf271989f067a62764b12e761a4c652"
       ],
-      "source_sha256": "b79a81a9cd667e17b25b6248bf7933557e38c8a76b8cd9b7c17176d42fc70272",
-      "text": "Read a crop PNG and return it in the corrected order, as 8-bit RGB.\n\nThe one function every consumer of a crop folder should go through. It\nresolves the file's format (see :func:`crop_format_for_png`), reverses the\nchannel axis when the file's ordering differs from the one asked for --\nwhich today means format 2 only, since formats 1 and 3 are both already in\ndeclared order -- and narrows to 8 bit with :func:`narrow_to_uint8`, so a\nlegacy dataset and a new one come back identical and the caller never has\nto know which it opened.\n\nThe result equals ``png_view(extract_crop(...))`` for the same object,\nunder either format. That equality is the contract, and\n``tests/test_crops.py`` asserts it.\n\n:param path: the crop PNG.\n:param fmt: what the file on disk is, when you know better than the\n    marker does. ``None`` resolves it.\n:param as_format: what ordering you want *back*. The default is the\n    corrected one. Pass :data:`CROP_FORMAT_LEGACY_BGR` to get what a\n    classifier trained on legacy crops expects, out of a folder in either\n    format -- explicitly, by name, rather than by accident.\n:param db_path: optional ``measurements.db`` consulted when the folder has\n    no sidecar.\n:returns: ``(H, W, 3)`` uint8 RGB array.\n:raises MergedFileMissing: the file does not exist.\n:raises CropError: ``as_format`` is not a known format."
+      "source_sha256": "ce30eb77089106eb6710a21cec535ac0b39610553af455c82978878a5e570356",
+      "text": "Read a crop PNG and return it in the corrected order, as 8-bit RGB.\n\nThe one function every consumer of a crop folder should go through. It\nresolves the file's format (see :func:`crop_format_for_png`), reverses the\nchannel axis when the file's ordering differs from the one asked for --\nwhich today means format 2 only, since formats 1 and 3 are both already in\ndeclared order -- and narrows to 8 bit with :func:`narrow_to_uint8`, so a\nlegacy dataset and a new one come back identical and the caller never has\nto know which it opened.\n\nThe result equals ``png_view(extract_crop(...))`` for the same object,\nunder either format. That equality is the contract, and\n``tests/test_crops.py`` asserts it.\n\n:param path: the crop PNG.\n:param fmt: what the file on disk is, when you know better than the\n    marker does. ``None`` resolves it.\n:param as_format: what ordering you want *back*. The default is the\n    declared one. Formats 1 and 3 share this order; format 2 requests the\n    intermediate reversed order. Classification also needs its recorded\n    intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.\n:param db_path: optional ``measurements.db`` consulted when the folder has\n    no sidecar.\n:returns: ``(H, W, 3)`` uint8 RGB array.\n:raises MergedFileMissing: the file does not exist.\n:raises CropError: ``as_format`` is not a known format."
     },
     "spacr.crops.read_db_crop_format": {
       "source_blocks_sha256": [
@@ -20613,10 +20698,14 @@
     "spacr.image_quality.ensure_no_retained_measurements": {
       "source_blocks_sha256": [
         "e6c5a284897d6c07a2c89c72f978aacc9950ea98f11c686a1245d3e57e02d076",
-        "2bb5543270c6dee3ce015b7713d8acc8e2d7429f18a95c2a9e7c99d9d9110575"
+        "2bb5543270c6dee3ce015b7713d8acc8e2d7429f18a95c2a9e7c99d9d9110575",
+        "7b38266f365c6f3711dc1db9cd34b7c0f63617f9a2097e77141087b8fb1e7f86",
+        "127de35f65cb9cb1f419d5eb4e0a8b13f87a5d29c3867427e1ecea07bb96e6b1",
+        "2ed410f3edb310bf23bbd12a47ae6f3a0736c07394cd02aa8d6591e0cf18b76b",
+        "67040430ebcfdd3fdb4ffc73fd4a221d9627f9e97a2101adb94a6df6cf7275cf"
       ],
-      "source_sha256": "4b252e3f3a20185b9bf1cd3d8f84ddc2a68f4e5c3d131688d643a4dc029cf1b3",
-      "text": "Refuse exclusions that would leave previously measured fields in reports.\n\nExisting results are never deleted. Re-screening an analyzed project needs\na fresh project if excluded fields already have measurement rows."
+      "source_sha256": "6b73d8707bd95f625ee42035139c5c8ff675e30a7a62788efef99ab934fa8af0",
+      "text": "Refuse exclusions that would leave previously measured fields in reports.\n\nExisting results are never deleted. Re-screening an analyzed project needs\na fresh project if excluded fields already have measurement rows.\n\n:param root: project folder containing measurements/measurements.db.\n:param rejected: rejected field filenames, also matched without extensions.\n:returns: None if no existing measurement row matches a rejected field.\n:raises ValueError: a table's file_name column contains a rejected identity."
     },
     "spacr.image_quality.excluded_fields": {
       "source_blocks_sha256": [
@@ -21524,10 +21613,11 @@
         "3cd6f9f7b12cf5514618ecb6c8ab5e392e5e1084068b48aa1cce863cf90bb810",
         "b0aff3ec5ebcb3dfe7ca839de62dcd2db63f47c8eeea9ca925ca2a3ea81da702",
         "8db424f776f20c4836077608bd7bcbe751e5e77673d0596c2fdfb4a6507350d9",
+        "3c1e35f1a5ab04a8a5f31c69a9d13fddaaf4656bdf0e652b01166b8aeeb138ab",
         "cb3e46e55c867432537041e1687a63cc3b685c1d1ae961c76066de16b88bbad1"
       ],
-      "source_sha256": "b4bb61c2f324bec79daf6275d1ea1576300f3f8f3d40ba4ad50056fb0c71d4ac",
-      "text": "Flat directory of unlabelled images returned alongside their file paths.\n\n:param data_dir: Directory containing image files.\n:param transform: Optional callable applied to each PIL image. If\n    ``None``, images are converted with ``ToTensor``.\n:param shuffle: If True, shuffle filename list at construction.\n    Default ``True``.\n:param load_to_memory: If True, decode all images once and hold them\n    in RAM. Default ``False``.\nEnumerate files in ``data_dir`` and optionally preload them."
+      "source_sha256": "50fae5e75f5dc6c9f9fe43b7bab7b63f6680cc1c34a329decffda5a802105af8",
+      "text": "Flat directory of unlabelled images returned alongside their file paths.\n\n:param data_dir: Directory containing image files.\n:param transform: Optional callable applied to each PIL image. If\n    ``None``, images are converted with ``ToTensor``.\n:param shuffle: If True, shuffle filename list at construction.\n    Default ``True``.\n:param load_to_memory: If True, decode all images once and hold them\n    in RAM. Default ``False``.\n:param crop_loading_policy: ``declared_uint8_v1`` uses shared crop decoding;\n    ``stored_pil_v1`` preserves untagged historical checkpoints.\nEnumerate files in ``data_dir`` and optionally preload them."
     },
     "spacr.io.NoClassDataset.__getitem__": {
       "source_blocks_sha256": [
@@ -21565,13 +21655,14 @@
       "source_blocks_sha256": [
         "2eab193619e55ba0f8c5c0259d097dd73bcb50b94afc0346c27cb04e3fa26b38",
         "7b3f2b93286eb1f83145b218281b83228a7c5243431cb2a377647033d23262c3",
-        "2c7a1d3b1c10b82b417d93a676d07a63e482744401107ecc620a006eb23b080d",
+        "2fb27c654099afae19ca8d0416c9240a9bab71622ab28c980f21bc438374637e",
         "b2ff74e8345ba2c66b335fed980d3ace6d18bd55ec4721b8699de3aa3daef653",
         "cbd5d23bf0a11588cc8a3112f7e798dbdda1d85b545e84575829ff86a05f14c6",
+        "00dd12874d48429ce668c7fab905b677bc027b14b846eb5b2d2c2fb8e07ecb06",
         "68115cc955a8760de16693cd41a71151913a5b7578ef4bd2df8a63a18bc94cfe"
       ],
-      "source_sha256": "36f9cdde48a2faf9475fdb44337e587a5527a376609b84c2d478fd49efb2616d",
-      "text": "Image dataset backed by a tar archive, decoded on demand.\n\nA tar written by :func:`generate_dataset` from on-demand crops carries a\n``.spacr_crop_format.json`` member -- the same marker\n:mod:`spacr.crops` writes into a crop folder, travelling with the bytes it\ndescribes. It is **not** an image, so it is excluded from the sample list\nand surfaced as :attr:`crop_format` instead; an archive without one\nreports None, which is every tar written before this existed.\n\nThe pixels are handed over exactly as they are stored. A legacy archive is\nNOT silently un-reversed here: a model's weights are tied to the channel\norder it was trained on, so correcting the order at inference time would\nquietly invalidate every model trained before the fix. :attr:`crop_format`\nis what lets a caller notice.\n\n:param tar_path: Path to the tar archive.\n:param transform: Optional callable applied to each PIL image.\nEnumerate archive members without extracting."
+      "source_sha256": "160c19b3ab3ef7ba104e72b13ba0f53700da2ae147f4cec12a7e53223bedac00",
+      "text": "Image dataset backed by a tar archive, decoded on demand.\n\nA tar written by :func:`generate_dataset` from on-demand crops carries a\n``.spacr_crop_format.json`` member -- the same marker\n:mod:`spacr.crops` writes into a crop folder, travelling with the bytes it\ndescribes. It is **not** an image, so it is excluded from the sample list\nand surfaced as :attr:`crop_format` instead; an archive without one\nreports None, which is every tar written before this existed.\n\nNew datasets default to declared channel order and uint8 narrowing through\nthe shared crop decoder. Inference must pass the model's recorded policy;\nuntagged older checkpoints use ``stored_pil_v1`` to preserve their pixels.\n\n:param tar_path: Path to the tar archive.\n:param transform: Optional callable applied to each PIL image.\n:param crop_loading_policy: ``declared_uint8_v1`` (default), or\n    ``stored_pil_v1`` for historical model inputs.\nEnumerate archive members without extracting."
     },
     "spacr.io.TarImageDataset.__getitem__": {
       "source_blocks_sha256": [
@@ -21804,17 +21895,18 @@
         "58beaa4534b3807e0f116caabca037b5c124e36f15c70cde349ba75dcfabcedb",
         "060a13fc2606684006727a9ca6660562cc403dfae2ee0b91c1831cb30f39558c",
         "2dcadc83dd58d2c3d27381e655619395aae7399f632e6b5230f4b10eb9e24ea4",
+        "8b43c9604e7ffe3693012e51a8fa36a44b595b7f2296da1c83601d3b54b362bf",
         "4528b2093a66cbdc5a32d43208b90fb7c78da3e37692f2ef39f33cdbba64b6a6",
         "c154a72e6c5a24504c1e953b5375ddf2ca770f08b03748ecec3d86ae825038ce"
       ],
-      "source_sha256": "f79b13749afbbfcfb7bbda2c2a6855cefe10931b4c5d407942ac45ddbc952d24",
-      "text": "Build one ``(train_loader, val_loader)`` pair per cross-validation fold.\n\nThe dataset under ``src/<mode>`` is read once and then re-split k ways, so\nevery crop is used for validation exactly once. Folds are class-stratified\nand, by default, grouped by well so that crops from the same well stay on\none side of the split. Class balancing is applied to the fold's train\nloader only.\n\n:param src: dataset root containing ``train``/``test`` subfolders.\n:param n_splits: number of folds, must be >= 2.\n:param mode: which split to fold — normally ``'train'``.\n:param image_size: square resize target in pixels.\n:param batch_size: loader batch size.\n:param classes: ordered class names matching the subfolder names.\n:param n_jobs: DataLoader worker count.\n:param pin_memory: if True, pin batches to page-locked memory.\n:param normalize: if True, apply per-channel normalisation.\n:param channels: subset of RGB channels to keep.\n:param augment: if True, 8-fold augment each fold's train split.\n:param verbose: log configuration to stdout.\n:param group_by: fold grouping level, one of ``CV_GROUP_LEVELS``.\n:param class_balance: one of ``CLASS_BALANCE_MODES``, train loaders only.\n:param seed: seed for the deterministic fold assignment.\n:returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of\n    ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,\n    ``warnings``, ``imbalance`` and ``groups``.\n:raises ValueError: if ``n_splits`` < 2 or a setting value is unknown."
+      "source_sha256": "bafe8a483d76bd74d391ae6cdc9572e48435a7ace13511a81e5653e99e1c53d1",
+      "text": "Build one ``(train_loader, val_loader)`` pair per cross-validation fold.\n\nThe dataset under ``src/<mode>`` is read once and then re-split k ways, so\nevery crop is used for validation exactly once. Folds are class-stratified\nand, by default, grouped by well so that crops from the same well stay on\none side of the split. Class balancing is applied to the fold's train\nloader only.\n\n:param src: dataset root containing ``train``/``test`` subfolders.\n:param n_splits: number of folds, must be >= 2.\n:param mode: which split to fold — normally ``'train'``.\n:param image_size: square resize target in pixels.\n:param batch_size: loader batch size.\n:param classes: ordered class names matching the subfolder names.\n:param n_jobs: DataLoader worker count.\n:param pin_memory: if True, pin batches to page-locked memory.\n:param normalize: if True, apply per-channel normalisation.\n:param channels: subset of RGB channels to keep.\n:param augment: if True, 8-fold augment each fold's train split.\n:param verbose: log configuration to stdout.\n:param group_by: fold grouping level, one of ``CV_GROUP_LEVELS``.\n:param class_balance: one of ``CLASS_BALANCE_MODES``, train loaders only.\n:param seed: seed for the deterministic fold assignment.\n:param crop_loading_policy: crop decoding policy recorded on each loader;\n    defaults to declared channel order and high-byte uint8 narrowing.\n:returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of\n    ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,\n    ``warnings``, ``imbalance`` and ``groups``.\n:raises ValueError: if ``n_splits`` < 2 or a setting value is unknown."
     },
     "spacr.io.generate_dataset": {
       "source_blocks_sha256": [
         "7f74883049e4aa1c431dd26281a8ab77985ab3239fcbe93b3419f19681a15554",
         "8e9e41ecb517db9dd98177e786bb4956de023c4ee8cd704faad633d08935ece6",
-        "545ef729caea6c9d9f8444455517500deb1c0c5fb0095a194c8c0170d2fd8f8e",
+        "3f234ba95717918c0bce94ecb8c447417f1028ab17a4ee9cddaa150b1c3a11ab",
         "b56f351b7541303d725349dbd0e272707598636be60ba080a1fea22636786e27",
         "99a1bcb0f405762548c3dd7aed1277d7f38d67ab6459fe5c8a191ba41c4dcc7c",
         "8910b4add656caa331ead69084c17cfb726e7e9a0a0d00a4ddae76cb3b34f000",
@@ -21826,14 +21918,14 @@
         "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
         "7db01117c10308411a1dc319acba0ade73770ab7120aa3c654c9b4038d977d9b"
       ],
-      "source_sha256": "301dd3c1ad60035268b21bfa69ca5feca685ea1b914b85660db0cb4c55e50765",
-      "text": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.\n\nSelects PNG paths (via the ``png_list`` table plus optional\n``file_metadata`` filter) from each source's measurements database,\noptionally random-subsamples, then bundles the images in parallel\ninto a dated tar under the first source's ``datasets/`` folder.\nUse this to produce the ``tar_path`` consumed by\n:func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.\n\n``crop_source`` chooses where the images come from. ``'png'`` (and\n``'auto'`` wherever a crop folder exists) is the behaviour above,\nunchanged: the files are byte-copied into the tar. ``'merged'`` (and\n``'auto'`` on a project with no crop folder) cuts every crop out of\n``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be\nbuilt with no PNG folder on disk at all, and is rebuilt at the *current*\ncrop settings rather than whatever the folder was generated with. The\nmembers are named exactly as the PNG folder would have named them, so\neverything that parses a crop file name downstream -- fold grouping,\n``prcfo``, the prediction merge -- keeps working either way.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_generate_dataset_defaults`. Key\n    entries:\n\n    - ``src`` (str or list of str) — folder(s) containing\n      ``measurements/measurements.db`` and the PNG crops.\n    - ``file_metadata`` — filter/join key applied against\n      ``png_list``.\n    - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs\n      (random subsample); omit for all.\n    - ``experiment`` — string suffix used in the tar filename.\n    - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.\n\n:returns: Absolute path to the created ``…/datasets/<date>_<\n    experiment>.tar``.\n:raises RuntimeError: if ``src`` is not a string / list of strings,\n    no images are selected, no image could be written, or the\n    destination folder cannot be resolved.\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import generate_dataset\n        tar_path = generate_dataset({\n            'src': ['/data/plate01', '/data/plate02'],\n            'experiment': 'screen_v1',\n            'sample': 100000,\n        })\n\nSee Also:\n    :func:`training_dataset_from_annotation` — build a labeled\n    ``train/`` / ``test/`` tree instead of a flat tar.\n    :func:`spacr.deep_spacr.deep_spacr` — consumes the tar via\n    ``apply_model_to_tar``."
+      "source_sha256": "5534fde2d4d1c33dbb0f2e4e1db028926652b5b81256b408de7d31114f8bcae3",
+      "text": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.\n\nSelects PNG paths (via the ``png_list`` table plus optional\n``file_metadata`` filter) from each source's measurements database,\noptionally random-subsamples, then bundles the images in parallel\ninto a dated tar under the first source's ``datasets/`` folder.\nUse this to produce the ``tar_path`` consumed by\n:func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.\n\n``crop_source`` chooses where the images come from. ``'png'`` (and\n``'auto'`` wherever a crop folder exists) is the behaviour above,\nunchanged for uniform source formats: files are byte-copied into the tar\nwith their format marker. Mixed formats are decoded into declared uint8\ncopies in the archive only. ``'merged'`` (and\n``'auto'`` on a project with no crop folder) cuts every crop out of\n``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be\nbuilt with no PNG folder on disk at all, and is rebuilt at the *current*\ncrop settings rather than whatever the folder was generated with. The\nmembers are named exactly as the PNG folder would have named them, so\neverything that parses a crop file name downstream -- fold grouping,\n``prcfo``, the prediction merge -- keeps working either way.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_generate_dataset_defaults`. Key\n    entries:\n\n    - ``src`` (str or list of str) — folder(s) containing\n      ``measurements/measurements.db`` and the PNG crops.\n    - ``file_metadata`` — filter/join key applied against\n      ``png_list``.\n    - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs\n      (random subsample); omit for all.\n    - ``experiment`` — string suffix used in the tar filename.\n    - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.\n\n:returns: Absolute path to the created ``…/datasets/<date>_<\n    experiment>.tar``.\n:raises RuntimeError: if ``src`` is not a string / list of strings,\n    no images are selected, no image could be written, or the\n    destination folder cannot be resolved.\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import generate_dataset\n        tar_path = generate_dataset({\n            'src': ['/data/plate01', '/data/plate02'],\n            'experiment': 'screen_v1',\n            'sample': 100000,\n        })\n\nSee Also:\n    :func:`training_dataset_from_annotation` — build a labeled\n    ``train/`` / ``test/`` tree instead of a flat tar.\n    :func:`spacr.deep_spacr.deep_spacr` — consumes the tar via\n    ``apply_model_to_tar``."
     },
     "spacr.io.generate_dataset_from_lists": {
       "source_blocks_sha256": [
         "8f62a81ec9f721c936331f3d6dfb0265906e839f3688d0a04fc5f4414f3cb728",
         "cc91941b12d1b538feb0b2854dc50fb5e613a3f2959b31bd788072d29514d8c9",
-        "823624158ae90975677e4d6ae6f2c0388beceb71e8d347f0e2a0b43d3d237dda",
+        "1d8d5d0d92012b36545e2f46f956605ce5bf4da82ae5215ea9f9e054536ec7a7",
         "396bc51630493e54294d8dd5ee3e7af4e0fd1911caea3218e3bb04e5694b93c3",
         "fefe3791154b1e1f6696a968c9f07378d00ec979853bae0af758bc562ef0fc0b",
         "9258df81e50521b4780fee5d12f060c9cf661fd6d9a89489b45078b992c30c74",
@@ -21844,8 +21936,8 @@
         "2d0298ba1561f564c7e84b71733ab129a64d9db777de8215e68abc5a9f2d482b",
         "c015ef185dd629cc42bef884a8223a6b9a93211f13b7544cf3b0c049a16d015b"
       ],
-      "source_sha256": "c7be4123367fcbd854369513aaa3814a2414e2000c6943859b99517e63e60892",
-      "text": "Put the crops listed per class into ``dst/train/<class>`` and ``dst/test/<class>``.\n\nAn entry may be a **path**, which is copied byte for byte exactly as\nbefore, or a :class:`LazyCropPNG`, which is cut out of ``merged/*.npy``\nthrough :mod:`spacr.crops` and written as a current-format (RGB) crop PNG.\nThe two are interchangeable, so a training set can be built with no crop\nfolder on disk at all.\n\nEach destination class folder is stamped with the crop-format sidecar\n*before* it is filled: with the current format when the crops were cut\nhere, with the source folder's format when they were copied out of one,\nand not at all (loudly) when one class mixes the two. Leaving a folder of\ncrops unmarked is what makes it legacy by default, which is the one\noutcome that silently reverses the channels a model is trained on.\n\n:param dst: Output root; ``train`` and ``test`` subfolders are created.\n:param class_data: Sequence of per-class lists of paths and/or\n    :class:`LazyCropPNG` handles.\n:param classes: Class names paired positionally with ``class_data``.\n:param test_split: Fraction of each class routed to ``test/``.\n    Default ``0.1``.\n:param db_path: optional ``measurements.db`` consulted for the crop format\n    of a source folder that carries no sidecar.\n:param random_seed: Reproducible global train/test split seed.\n:param group_by: acquisition identity kept intact across the permanent\n    train/test boundary. Default ``well``. ``cell`` is the leakiest\n    per-object choice; legacy ``none`` aliases it.\n:returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.\n:raises ValueError: if ``len(class_data) != len(classes)``."
+      "source_sha256": "209fc1e1bc43e8a2246dbfd827961c39f821f2bdb806c70904b25c8cb7c76062",
+      "text": "Put the crops listed per class into ``dst/train/<class>`` and ``dst/test/<class>``.\n\nAn entry may be a **path**, which is copied byte for byte exactly as\nbefore, or a :class:`LazyCropPNG`, which is cut out of ``merged/*.npy``\nthrough :mod:`spacr.crops` and written as a current-format (RGB) crop PNG.\nThe two are interchangeable, so a training set can be built with no crop\nfolder on disk at all.\n\nEach destination class folder is stamped before it is filled. Uniform\nsource formats keep their original bytes and marker. Mixed source formats\nare decoded into declared uint8 crops in the destination only, so no\ngenerated folder silently loses its channel-order record.\n\n:param dst: Output root; ``train`` and ``test`` subfolders are created.\n:param class_data: Sequence of per-class lists of paths and/or\n    :class:`LazyCropPNG` handles.\n:param classes: Class names paired positionally with ``class_data``.\n:param test_split: Fraction of each class routed to ``test/``.\n    Default ``0.1``.\n:param db_path: optional ``measurements.db`` consulted for the crop format\n    of a source folder that carries no sidecar.\n:param random_seed: Reproducible global train/test split seed.\n:param group_by: acquisition identity kept intact across the permanent\n    train/test boundary. Default ``well``. ``cell`` is the leakiest\n    per-object choice; legacy ``none`` aliases it.\n:returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.\n:raises ValueError: if ``len(class_data) != len(classes)``."
     },
     "spacr.io.generate_loaders": {
       "source_blocks_sha256": [
@@ -21866,11 +21958,12 @@
         "82043779464984f79f4b19a88a1aa0eec70b01cd23a230a1593379d1b940d692",
         "b8abae911a94a03f90ed4adcf65770a638f979063cdb07c8648530f620954b4e",
         "701744df846ea919530ed9618cb06742debf93a8f55366625eecde73bbd689dd",
+        "8b43c9604e7ffe3693012e51a8fa36a44b595b7f2296da1c83601d3b54b362bf",
         "91f80c7c38f7798460af99f54d99f71ce4744bf1d773c67d8a4f40e99fc88a54",
         "705a679e208f6e7777035a74f4ea3675d2a2fa63e1cd21232dd873162377c337"
       ],
-      "source_sha256": "4cdc070e89b8b4465f39e4ee1c50d283629bbf3d9a04b8885d5df9eada7dd80a",
-      "text": "Build ``spacrDataLoader`` objects for training, validation, or testing.\n\nReads class subfolders under ``src/<mode>``, applies the requested\ntransforms (channel selection, optional normalisation, optional\naugmentation) and returns loaders sized to ``batch_size``.\n\n:param src: Root folder containing ``train``/``test`` subfolders.\n:param mode: Which split to load — ``'train'`` or ``'test'``.\n:param image_size: Square resize target in pixels. Default ``224``.\n:param batch_size: Loader batch size. Default ``32``.\n:param classes: Ordered class names. Default ``['nc', 'pc']``.\n:param n_jobs: DataLoader worker count. ``None`` (the default) means 0\n    workers, i.e. batches are read in the calling process.\n:param validation_split: Fraction of the train split to hold out.\n:param pin_memory: If True, pin batches to page-locked memory.\n:param normalize: If True, apply per-channel normalisation.\n:param channels: Subset of RGB channels to keep, e.g. ``['r', 'g']``.\n:param augment: If True, apply the training augmentation pipeline.\n:param verbose: If True, log configuration to stdout.\n:param class_balance: One of ``CLASS_BALANCE_MODES``. ``'none'`` (default)\n    leaves sampling untouched; the sampler modes attach a\n    ``WeightedRandomSampler`` to the TRAIN loader only. The skew is\n    reported either way.\n:param seed: Reproducible train/validation split and loader order.\n:param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition\n    identity entirely on one side of the ordinary validation holdout.\n    ``none`` retains the legacy per-object random split.\n:returns: For ``mode='train'``, a tuple of loaders and a plot handle;\n    for ``mode='test'``, the test loader (plus optional metadata).\n:raises ValueError: if ``class_balance`` is not a recognised mode."
+      "source_sha256": "98586d807feaa24095e19767bb4e4f4bba5e9ed622343047a248f04b03a82b42",
+      "text": "Build ``spacrDataLoader`` objects for training, validation, or testing.\n\nReads class subfolders under ``src/<mode>``, applies the requested\ntransforms (channel selection, optional normalisation, optional\naugmentation) and returns loaders sized to ``batch_size``.\n\n:param src: Root folder containing ``train``/``test`` subfolders.\n:param mode: Which split to load — ``'train'`` or ``'test'``.\n:param image_size: Square resize target in pixels. Default ``224``.\n:param batch_size: Loader batch size. Default ``32``.\n:param classes: Ordered class names. Default ``['nc', 'pc']``.\n:param n_jobs: DataLoader worker count. ``None`` (the default) means 0\n    workers, i.e. batches are read in the calling process.\n:param validation_split: Fraction of the train split to hold out.\n:param pin_memory: If True, pin batches to page-locked memory.\n:param normalize: If True, apply per-channel normalisation.\n:param channels: Subset of RGB channels to keep, e.g. ``['r', 'g']``.\n:param augment: If True, apply the training augmentation pipeline.\n:param verbose: If True, log configuration to stdout.\n:param class_balance: One of ``CLASS_BALANCE_MODES``. ``'none'`` (default)\n    leaves sampling untouched; the sampler modes attach a\n    ``WeightedRandomSampler`` to the TRAIN loader only. The skew is\n    reported either way.\n:param seed: Reproducible train/validation split and loader order.\n:param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition\n    identity entirely on one side of the ordinary validation holdout.\n    ``none`` retains the legacy per-object random split.\n:param crop_loading_policy: crop decoding policy recorded on each loader;\n    defaults to declared channel order and high-byte uint8 narrowing.\n:returns: For ``mode='train'``, a tuple of loaders and a plot handle;\n    for ``mode='test'``, the test loader (plus optional metadata).\n:raises ValueError: if ``class_balance`` is not a recognised mode."
     },
     "spacr.io.generate_training_dataset": {
       "source_blocks_sha256": [
@@ -21956,7 +22049,7 @@
       "source_blocks_sha256": [
         "b1b3544c92ee2582f2428764cd618f5ded6e357948d38d03913b62476df0d6ae",
         "e7a348cd6d2703cdd5a8677e48324399c67345fae8e312b6411bdc63ce4fc738",
-        "710162b374ee33a147cb4933861d35d50132a69d88dbc1e021d2d3038cdcd08b",
+        "7703a2d979025a51900c0f083dd850b1a8de482b62e069a0ec749294679307c8",
         "82433cc533723cc1bc339c779bf55b7088c965694bf63c105fa1182f6f98a86d",
         "a58377beaef115091c14f983e44db5a5fc8a568478464490151c56a854704e79",
         "83b657b486b7382d5dd9a62a38f71f25610c6a2b1aed05b17ba0bee99d3e7178",
@@ -21964,8 +22057,8 @@
         "219bab475dca62cd2a3519deb881b2f5417a95f6c6816e2d3be9d379c97040f1",
         "cbe548b48caf8508f94c6f3e5e461e379e9787eb762fa20aaf31828ac81197f3"
       ],
-      "source_sha256": "2374abbd5dc30a98b4dac56f91e60efd1307e59589f785177f72088ece4ec79e",
-      "text": "Stamp a folder spaCR has just filled with crop PNGs.\n\nCalled *before* the folder is filled, exactly as\n:func:`spacr.crops.stamp_crop_folder` is on the measure path, so an\ninterrupted run leaves a marked folder holding fewer crops rather than an\nunmarked folder of corrected ones -- the one state that is silently\nmisread.\n\n``fmt=None`` inherits the format from ``source_folder``. That is what\nkeeps a byte-for-byte copy honestly labelled: copying legacy crops into a\ntraining folder produces legacy crops, and marking that folder as current\nwould reverse every channel name attached to the model trained on it.\n\n:param folder: the folder about to be filled.\n:param fmt: the format to record; None inherits from ``source_folder``.\n:param source_folder: the folder the crops are being copied from.\n:param db_path: ``measurements.db`` consulted when ``source_folder``\n    carries no sidecar.\n:param extra: extra keys recorded in the sidecar.\n:returns: the sidecar path, or None when it could not be written."
+      "source_sha256": "a5f7d8bb617efb19ed4dc1bb89044dbd26c6d413e54eb023559af9d1729b9b23",
+      "text": "Stamp a folder spaCR has just filled with crop PNGs.\n\nCalled *before* the folder is filled, exactly as\n:func:`spacr.crops.stamp_crop_folder` is on the measure path, so an\ninterrupted run leaves a marked folder holding fewer crops rather than an\nunmarked folder of corrected ones -- the one state that is silently\nmisread.\n\n``fmt=None`` inherits the format from ``source_folder``. Byte-for-byte\ncopies retain their source format: formats 1 and 3 use declared order,\nwhile format 2 needs channel reversal when read by a declared-order model.\n\n:param folder: the folder about to be filled.\n:param fmt: the format to record; None inherits from ``source_folder``.\n:param source_folder: the folder the crops are being copied from.\n:param db_path: ``measurements.db`` consulted when ``source_folder``\n    carries no sidecar.\n:param extra: extra keys recorded in the sidecar.\n:returns: the sidecar path, or None when it could not be written."
     },
     "spacr.io.migrate_unescaped_plate_names": {
       "source_blocks_sha256": [
@@ -22188,11 +22281,12 @@
         "4ed4076612c74c1df6e1759d8a09ff4ea4bffa27e8f1fb33a81bc246a2b00d06",
         "8d8f963fb281ec7022f7d36f62764bbb2390ddc890f3e71306bf4b2de2838f56",
         "93c387d099bb19e55bdc72c59f48d29fa8f84e2312ec48916563e5c56f006477",
+        "3c1e35f1a5ab04a8a5f31c69a9d13fddaaf4656bdf0e652b01166b8aeeb138ab",
         "ae71b43b331cbc5c22db559ccbc56398b5190ec1d3a293567cacf32532fc9237",
         "31b88d2691208999dfa4373803db6ff06ccce95bf440422cc22f0eb79392a83e"
       ],
-      "source_sha256": "6506ee0f317ae94803d9e249d758832dcb4a6569ca726919fcc20a17b2771eea",
-      "text": "Image classification dataset that reads class subfolders under ``data_dir``.\n\n:param data_dir: Root directory containing one subdirectory per class.\n:param loader_classes: Ordered list of class names — the index in\n    this list becomes the integer label.\n:param transform: Optional callable applied to each PIL image.\n:param shuffle: If True, shuffle files+labels at construction.\n:param pin_memory: If True, eagerly load every image into RAM via a\n    multiprocessing pool.\n:param specific_files: Optional explicit list of image paths. If\n    supplied together with ``specific_labels``, directory scanning\n    is skipped.\n:param specific_labels: Labels paired with ``specific_files``.\n:raises ValueError: If no non-hidden image files are found for any\n    requested class.\nBuild the filename/label lists and optionally preload images."
+      "source_sha256": "b32f83c323457c6780b786e1c52573f694398324916194e415f9c98463fbe298",
+      "text": "Image classification dataset that reads class subfolders under ``data_dir``.\n\n:param data_dir: Root directory containing one subdirectory per class.\n:param loader_classes: Ordered list of class names — the index in\n    this list becomes the integer label.\n:param transform: Optional callable applied to each PIL image.\n:param shuffle: If True, shuffle files+labels at construction.\n:param pin_memory: If True, eagerly load every image into RAM via a\n    multiprocessing pool.\n:param specific_files: Optional explicit list of image paths. If\n    supplied together with ``specific_labels``, directory scanning\n    is skipped.\n:param specific_labels: Labels paired with ``specific_files``.\n:param crop_loading_policy: ``declared_uint8_v1`` uses shared crop decoding;\n    ``stored_pil_v1`` preserves untagged historical checkpoints.\n:raises ValueError: If no non-hidden image files are found for any\n    requested class.\nBuild the filename/label lists and optionally preload images."
     },
     "spacr.io.spacrDataset.__getitem__": {
       "source_blocks_sha256": [
@@ -91425,10 +91519,13 @@
     },
     "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter": {
       "source_blocks_sha256": [
-        "7cb45b222bf25d74002211c51bf4ae8f467743cec4802f0a8ab0a0b111e3ba46"
+        "7cb45b222bf25d74002211c51bf4ae8f467743cec4802f0a8ab0a0b111e3ba46",
+        "8ce97f87f55dbbc58367f90ded7e94e3146776b39e944b8cd8ed39aa366d008c",
+        "1f57c4375bc4576860767a6dc1c44fd79f5190f15550023c861b03b4daea7fb2",
+        "71c0e559e5e3b2a8bbe208bd2cf6e4c19fed2cbd4eaac788130fd6b42cb148a3"
       ],
-      "source_sha256": "7cb45b222bf25d74002211c51bf4ae8f467743cec4802f0a8ab0a0b111e3ba46",
-      "text": "Select a pipeline from any part of its row, preserving pan and clicks."
+      "source_sha256": "a9e63b3f86ab0cd3b1def97fce586e65ebeae09d310cb3f9c48c854c0af3d106",
+      "text": "Select a pipeline from any part of its row, preserving pan and clicks.\n\n:param watched: widget whose optional pipelineRow property identifies a row.\n:param event: Qt event; only a left-button press changes the selection.\n:returns: the base event filter's result, preserving normal event handling."
     },
     "spacr.qt.widgets.sample_project.SampleProjectDialog.selected": {
       "source_blocks_sha256": [

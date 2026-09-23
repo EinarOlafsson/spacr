@@ -239,6 +239,11 @@ def ensure_no_retained_measurements(root, rejected):
 
     Existing results are never deleted. Re-screening an analyzed project needs
     a fresh project if excluded fields already have measurement rows.
+
+    :param root: project folder containing measurements/measurements.db.
+    :param rejected: rejected field filenames, also matched without extensions.
+    :returns: None if no existing measurement row matches a rejected field.
+    :raises ValueError: a table's file_name column contains a rejected identity.
     """
     import sqlite3
 

@@ -210,6 +210,21 @@
       "source_sha256": "228711ede71e37d861d570dcc0264943e8223bf066c6802b30bcae05a1ddb037",
       "text": "Segment host-cell plaques with a bundled Cellpose model and summarize per-image counts and areas.\n\nDownloads (if needed) the bundled ``toxo_plaque_cyto_e25000`` model,\nruns Cellpose over every ``.tif`` under ``src``, then computes\nper-image plaque count + mean/stddev area and writes a\n``plaques_analysis.db`` (tables: ``summary``, ``stats``,\n``details``) alongside the masks.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.get_analyze_plaque_settings`. Key entries:\n\n    - ``src`` — folder containing plaque images.\n    - ``masks`` — if truthy, run segmentation before analysis; if\n      falsy, expect masks already in ``<src>/masks``.\n    - Standard Cellpose knobs (``diameter``, ``flow_threshold``,\n      ``cellprob_threshold``, ``resample``, etc.) forwarded to\n      :func:`spacr.spacr_cellpose.identify_masks_finetune`.\n\n:returns: None. Writes ``<src>/masks/plaques_analysis.db``.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_plaques\n        analyze_plaques({'src': '/data/plaque_assay', 'masks': True})\n\nSee Also:\n    :func:`analyze_recruitment` — intensity-ratio phenotype\n    instead of plaque counts."
     },
+    "2374abbd5dc30a98b4dac56f91e60efd1307e59589f785177f72088ece4ec79e": {
+      "source_blocks_sha256": [
+        "b1b3544c92ee2582f2428764cd618f5ded6e357948d38d03913b62476df0d6ae",
+        "e7a348cd6d2703cdd5a8677e48324399c67345fae8e312b6411bdc63ce4fc738",
+        "710162b374ee33a147cb4933861d35d50132a69d88dbc1e021d2d3038cdcd08b",
+        "82433cc533723cc1bc339c779bf55b7088c965694bf63c105fa1182f6f98a86d",
+        "a58377beaef115091c14f983e44db5a5fc8a568478464490151c56a854704e79",
+        "83b657b486b7382d5dd9a62a38f71f25610c6a2b1aed05b17ba0bee99d3e7178",
+        "aa91fae2bcf219a3644d3c095d8f37acbf24e77b8fcf5aec266ba237dee47b34",
+        "219bab475dca62cd2a3519deb881b2f5417a95f6c6816e2d3be9d379c97040f1",
+        "cbe548b48caf8508f94c6f3e5e461e379e9787eb762fa20aaf31828ac81197f3"
+      ],
+      "source_sha256": "2374abbd5dc30a98b4dac56f91e60efd1307e59589f785177f72088ece4ec79e",
+      "text": "Stamp a folder spaCR has just filled with crop PNGs.\n\nCalled *before* the folder is filled, exactly as\n:func:`spacr.crops.stamp_crop_folder` is on the measure path, so an\ninterrupted run leaves a marked folder holding fewer crops rather than an\nunmarked folder of corrected ones -- the one state that is silently\nmisread.\n\n``fmt=None`` inherits the format from ``source_folder``. That is what\nkeeps a byte-for-byte copy honestly labelled: copying legacy crops into a\ntraining folder produces legacy crops, and marking that folder as current\nwould reverse every channel name attached to the model trained on it.\n\n:param folder: the folder about to be filled.\n:param fmt: the format to record; None inherits from ``source_folder``.\n:param source_folder: the folder the crops are being copied from.\n:param db_path: ``measurements.db`` consulted when ``source_folder``\n    carries no sidecar.\n:param extra: extra keys recorded in the sidecar.\n:returns: the sidecar path, or None when it could not be written."
+    },
     "24064a39a8b807385ba0120425af80492d095eb8126ae941a12dfb5a77abec66": {
       "source_blocks_sha256": [
         "a67e09e2c14b073899fd69460f954e507eb0f9fb187a892a47aff4c59e69212f",
@@ -290,6 +305,25 @@
       "source_sha256": "2f6e6f3b625232cf7fe515f965921fb67fd2735605dcfd25e16b34f1613846fe",
       "text": "Replace ``widget``'s own QSS without losing the sheet it carries.\n\nFOR A WIDGET THAT IS A SHEET ROOT. Before per-screen sheeting, a module\nscreen's own stylesheet held only its own rules and the APPLICATION\ncarried the theme, so `setStyleSheet` on the screen was a safe, local\nthing to do. Now the screen may be carrying all ~73 KB of the window\nsheet, and a plain `setStyleSheet` throws the theme away.\n\nMeasured before this existed: wiping a shown page's sheet the way\n`AppScreen._sync_page_palette` does left a probe under it resolving to\n`#000000` on the dark theme, and it stayed that way until the next\ntheme change -- the digest check repairs a wipe at the widget's next\npolish, and a page already on show does not get one.\n\nFalls back to a plain assignment when there is no window sheet to\npreserve, which is every caller that never opted into spaCR styling and\nevery test that does not apply a theme.\n\n:param widget: the widget whose own rules are being replaced.\n:param rule: the QSS the widget owns, or ``\"\"`` to own none."
     },
+    "301dd3c1ad60035268b21bfa69ca5feca685ea1b914b85660db0cb4c55e50765": {
+      "source_blocks_sha256": [
+        "7f74883049e4aa1c431dd26281a8ab77985ab3239fcbe93b3419f19681a15554",
+        "8e9e41ecb517db9dd98177e786bb4956de023c4ee8cd704faad633d08935ece6",
+        "545ef729caea6c9d9f8444455517500deb1c0c5fb0095a194c8c0170d2fd8f8e",
+        "b56f351b7541303d725349dbd0e272707598636be60ba080a1fea22636786e27",
+        "99a1bcb0f405762548c3dd7aed1277d7f38d67ab6459fe5c8a191ba41c4dcc7c",
+        "8910b4add656caa331ead69084c17cfb726e7e9a0a0d00a4ddae76cb3b34f000",
+        "795d1f814ec98f2e2eab50733ed535be3dc16cfbebb624ba37731d8c18713d19",
+        "a230869dca881c0d8ea88b3c2383bae1820d67611938aa1e9bf57ffc2b5b297b",
+        "b2e6764059eb27d3154e30b1fbbcf7d3b1abaef4e4e973fe79422f6e5ea8c2cf",
+        "45923f5d1fd91c832fdbbf89fddb4910cb05248ee9d1146068d8c546bddfdc93",
+        "2aa0af3ed3fd1fb34dcc4bf3eac5afc61ccfbe0af006df5c2e6de2320ad3fd8b",
+        "872887e563e75957ffc20b021332504f2ddd0a8f3964cb93070863bfaf13cdad",
+        "7db01117c10308411a1dc319acba0ade73770ab7120aa3c654c9b4038d977d9b"
+      ],
+      "source_sha256": "301dd3c1ad60035268b21bfa69ca5feca685ea1b914b85660db0cb4c55e50765",
+      "text": "Pack per-object PNGs referenced by one or more ``measurements.db`` files into a single tar for inference or upload.\n\nSelects PNG paths (via the ``png_list`` table plus optional\n``file_metadata`` filter) from each source's measurements database,\noptionally random-subsamples, then bundles the images in parallel\ninto a dated tar under the first source's ``datasets/`` folder.\nUse this to produce the ``tar_path`` consumed by\n:func:`spacr.deep_spacr.deep_spacr` / ``apply_model_to_tar``.\n\n``crop_source`` chooses where the images come from. ``'png'`` (and\n``'auto'`` wherever a crop folder exists) is the behaviour above,\nunchanged: the files are byte-copied into the tar. ``'merged'`` (and\n``'auto'`` on a project with no crop folder) cuts every crop out of\n``merged/*.npy`` through :mod:`spacr.crops` instead, so the tar can be\nbuilt with no PNG folder on disk at all, and is rebuilt at the *current*\ncrop settings rather than whatever the folder was generated with. The\nmembers are named exactly as the PNG folder would have named them, so\neverything that parses a crop file name downstream -- fold grouping,\n``prcfo``, the prediction merge -- keeps working either way.\n\n:param settings: Settings dict, canonicalized via\n    :func:`spacr.settings.set_generate_dataset_defaults`. Key\n    entries:\n\n    - ``src`` (str or list of str) — folder(s) containing\n      ``measurements/measurements.db`` and the PNG crops.\n    - ``file_metadata`` — filter/join key applied against\n      ``png_list``.\n    - ``sample`` — ``int`` or ``[int]`` cap on selected PNGs\n      (random subsample); omit for all.\n    - ``experiment`` — string suffix used in the tar filename.\n    - ``crop_source`` — ``'auto'`` | ``'png'`` | ``'merged'``.\n\n:returns: Absolute path to the created ``…/datasets/<date>_<\n    experiment>.tar``.\n:raises RuntimeError: if ``src`` is not a string / list of strings,\n    no images are selected, no image could be written, or the\n    destination folder cannot be resolved.\n\nExample:\n    .. code-block:: python\n\n        from spacr.io import generate_dataset\n        tar_path = generate_dataset({\n            'src': ['/data/plate01', '/data/plate02'],\n            'experiment': 'screen_v1',\n            'sample': 100000,\n        })\n\nSee Also:\n    :func:`training_dataset_from_annotation` — build a labeled\n    ``train/`` / ``test/`` tree instead of a flat tar.\n    :func:`spacr.deep_spacr.deep_spacr` — consumes the tar via\n    ``apply_model_to_tar``."
+    },
     "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316": {
       "source_blocks_sha256": [
         "311942b12864cd4518b9cef55cc280ecb649e79d649fe766463ebda3248ad316"
@@ -357,6 +391,18 @@
       ],
       "source_sha256": "3559e6ef26b4b3a291e9c669e0c65f84a64e9f6b0cf7016f30c308edbb6990f2",
       "text": "Replication assay: count parasites per vacuole and compare the distributions.\n\n*Toxoplasma gondii* replicates by endodyogeny, two daughters forming inside\na mother, so a parasitophorous vacuole holds 1, 2, 4, 8 or 16 parasites —\na power of two. The readout of a replication assay is therefore the\n**distribution** of parasites-per-vacuole across a well, not a mean: a mean\nof 3.2 cannot distinguish \"everything at 3-ish\", which is biologically\nimpossible, from a healthy mix of 2s and 4s. A drug that slows replication\nmoves mass from the 8 and 4 buckets down into 2 and 1, and only the\ndistribution shows that.\n\n**The counting unit is the vacuole.** Not the parasite, and emphatically\nnot the host cell — one host cell routinely carries several vacuoles, so\ngrouping on ``cell_id`` reports their combined count as a single vacuole\nand produces a plausible but meaningless number. See\n:func:`_assign_vacuole_ids` for how the vacuole is derived and what each\n``vacuole_key`` costs you.\n\nRosettes of 3, 5, 6 or 7 are counted into an explicit ``non_power_of_two``\nbucket that is always reported and never folded into a neighbouring bucket.\nThat bucket is the assay's own quality control: a well where 30% of\nvacuoles are off the power-of-two ladder has a segmentation problem, and\nits replication number should not be trusted.\n\nStatistics: the two-condition comparison is a Mann-Whitney U test on the\ndoubling index ``log2(n_parasites)``, with a chi-squared omnibus test\nalongside it. :func:`_replication_compare_conditions` explains why, and why\na t-test on the raw counts is the wrong instrument.\n\n:param settings: dict of replication settings; see\n    ``set_analyze_replication_defaults``. Key entries:\n\n    - ``src`` — plate directory (or list of them) holding\n      ``measurements/measurements.db``.\n    - ``parasite_table`` / ``compartment`` — table and column prefix\n      holding one row per segmented parasite. Default ``'pathogen'``.\n    - ``vacuole_key`` — how parasite rows are grouped into vacuoles\n      (``'auto'``, ``'spatial'``, ``'cell_id'``, ``'object'``, or a column\n      name).\n    - ``vacuole_link_distance`` / ``vacuole_link_factor`` — the spatial\n      clustering threshold, or the multiplier used to derive it.\n    - ``min_parasite_area`` / ``max_parasite_area`` — debris and\n      merged-clump filters applied before counting.\n    - ``max_parasites_per_vacuole`` — largest named power-of-two bucket.\n    - ``non_power_of_two_warn`` — QC flag threshold.\n    - ``cell_types`` / ``pathogen_types`` / ``treatments`` and their\n      ``*_plate_metadata`` well maps, plus ``group_column`` and ``level``.\n    - ``save`` — write the CSVs and figures under\n      ``<src>/results/analyze_replication``.\n\n:returns: dict with ``vacuoles`` (per-vacuole counts), ``wells`` (per-well\n    distribution), ``summary`` (per-condition distribution),\n    ``comparisons`` (pairwise ordered tests), ``chi_squared`` /\n    ``chi_squared_pairwise`` (omnibus proportion tests), ``figures`` and\n    ``vacuole_key`` (the grouping actually used).\n:raises ValueError: when the parasite table holds no usable rows.\n\nExample:\n    .. code-block:: python\n\n        from spacr.submodules import analyze_replication\n        out = analyze_replication({\n            'src': '/data/plate1',\n            'pathogen_types': ['dmso', 'pyrimethamine'],\n            'pathogen_plate_metadata': [['c1'], ['c2']],\n        })\n        print(out['summary'][['condition', 'frac_1', 'frac_2', 'frac_4',\n                              'frac_8', 'frac_non_power_of_two']])\n\nSee Also:\n    :func:`analyze_endodyogeny` — the size-proxy version, for fused\n    rosettes that cannot be resolved into single parasites."
+    },
+    "36f9cdde48a2faf9475fdb44337e587a5527a376609b84c2d478fd49efb2616d": {
+      "source_blocks_sha256": [
+        "2eab193619e55ba0f8c5c0259d097dd73bcb50b94afc0346c27cb04e3fa26b38",
+        "7b3f2b93286eb1f83145b218281b83228a7c5243431cb2a377647033d23262c3",
+        "2c7a1d3b1c10b82b417d93a676d07a63e482744401107ecc620a006eb23b080d",
+        "b2ff74e8345ba2c66b335fed980d3ace6d18bd55ec4721b8699de3aa3daef653",
+        "cbd5d23bf0a11588cc8a3112f7e798dbdda1d85b545e84575829ff86a05f14c6",
+        "68115cc955a8760de16693cd41a71151913a5b7578ef4bd2df8a63a18bc94cfe"
+      ],
+      "source_sha256": "36f9cdde48a2faf9475fdb44337e587a5527a376609b84c2d478fd49efb2616d",
+      "text": "Image dataset backed by a tar archive, decoded on demand.\n\nA tar written by :func:`generate_dataset` from on-demand crops carries a\n``.spacr_crop_format.json`` member -- the same marker\n:mod:`spacr.crops` writes into a crop folder, travelling with the bytes it\ndescribes. It is **not** an image, so it is excluded from the sample list\nand surfaced as :attr:`crop_format` instead; an archive without one\nreports None, which is every tar written before this existed.\n\nThe pixels are handed over exactly as they are stored. A legacy archive is\nNOT silently un-reversed here: a model's weights are tied to the channel\norder it was trained on, so correcting the order at inference time would\nquietly invalidate every model trained before the fix. :attr:`crop_format`\nis what lets a caller notice.\n\n:param tar_path: Path to the tar archive.\n:param transform: Optional callable applied to each PIL image.\nEnumerate archive members without extracting."
     },
     "36fffc47f5ebe1b9dcbd7e9e8d3039492175d2a1a689e8b86516474e4d39e44e": {
       "source_blocks_sha256": [
@@ -599,6 +645,31 @@
       "source_sha256": "4bd08b65bb151a7a6c94c8a68f8da15fcb3aeb9d67590c4af5773d43dacb1a7b",
       "text": "Refresh semantic setting help beneath ``root`` in ``language``.\n\nCanonical English prose is retained in ``apiTooltipDescriptionSource``;\nonly the presentation HTML/plain accessibility chrome is regenerated.\nField widgets marked ``metadata`` stay quiet because their visible label\nowns hover help. API-dot destinations carry the selected documentation\nlanguage while retaining the same module page."
     },
+    "4cdc070e89b8b4465f39e4ee1c50d283629bbf3d9a04b8885d5df9eada7dd80a": {
+      "source_blocks_sha256": [
+        "e1073e25d08673232c53b2af21c423568a14a8b7e5ec204ce85cc9465ff55dc1",
+        "87d9d355b7c965ff7d001c426c53711cee600bf679fc39379f59ffbd0d081dc7",
+        "22553cf9279243c557e5b508365eb21c31872f6041b69f6b18f05197eeaa493d",
+        "6633fe04a60ed87a0b998c756d31782734370dbac6a452fd388c96dc4012e1f7",
+        "c7ac166434dd6c7c5620ab5ca1a19138ded1e97eac512b33120fb4ed762912ac",
+        "db5b20e4604c76ba25a1edb2d8fa021aba51e5e708f720417cd2e9e6b74186b2",
+        "02acc2427b0113c99f13fd535ed40647544aac379b7a81aa66fb4c40aa058961",
+        "0d03be81d6be9ff2d993360a50c7c8647fe6c93908bfa877bc023b842cc4353d",
+        "2e39a499266d14cd82051efa836896fd267da479f1af26658c89853c298e4df1",
+        "4bb13bfa29cff25e70d5e2829d32fff315d7b11f83db87d61f1e0348c2ad7ab1",
+        "fb21a2e9cb9fa6b6f7beb470276d8c5abb366847ba0ac0125463297e9a3ed0c9",
+        "bf889acf80d5e7c451f40db7efab937d2591b6ec2a163d43e23e77ec7da613fc",
+        "c41fd08886d65bfaa40d7284c553dad05b3907fc9895329870183d06d2b9bde9",
+        "2dc48172631f2b7f940bd59b672a815cf992d561aab65a5841d7c2fed3f7eb1f",
+        "82043779464984f79f4b19a88a1aa0eec70b01cd23a230a1593379d1b940d692",
+        "b8abae911a94a03f90ed4adcf65770a638f979063cdb07c8648530f620954b4e",
+        "701744df846ea919530ed9618cb06742debf93a8f55366625eecde73bbd689dd",
+        "91f80c7c38f7798460af99f54d99f71ce4744bf1d773c67d8a4f40e99fc88a54",
+        "705a679e208f6e7777035a74f4ea3675d2a2fa63e1cd21232dd873162377c337"
+      ],
+      "source_sha256": "4cdc070e89b8b4465f39e4ee1c50d283629bbf3d9a04b8885d5df9eada7dd80a",
+      "text": "Build ``spacrDataLoader`` objects for training, validation, or testing.\n\nReads class subfolders under ``src/<mode>``, applies the requested\ntransforms (channel selection, optional normalisation, optional\naugmentation) and returns loaders sized to ``batch_size``.\n\n:param src: Root folder containing ``train``/``test`` subfolders.\n:param mode: Which split to load — ``'train'`` or ``'test'``.\n:param image_size: Square resize target in pixels. Default ``224``.\n:param batch_size: Loader batch size. Default ``32``.\n:param classes: Ordered class names. Default ``['nc', 'pc']``.\n:param n_jobs: DataLoader worker count. ``None`` (the default) means 0\n    workers, i.e. batches are read in the calling process.\n:param validation_split: Fraction of the train split to hold out.\n:param pin_memory: If True, pin batches to page-locked memory.\n:param normalize: If True, apply per-channel normalisation.\n:param channels: Subset of RGB channels to keep, e.g. ``['r', 'g']``.\n:param augment: If True, apply the training augmentation pipeline.\n:param verbose: If True, log configuration to stdout.\n:param class_balance: One of ``CLASS_BALANCE_MODES``. ``'none'`` (default)\n    leaves sampling untouched; the sampler modes attach a\n    ``WeightedRandomSampler`` to the TRAIN loader only. The skew is\n    reported either way.\n:param seed: Reproducible train/validation split and loader order.\n:param group_by: ``field``, ``well`` or ``plate`` keeps that acquisition\n    identity entirely on one side of the ordinary validation holdout.\n    ``none`` retains the legacy per-object random split.\n:returns: For ``mode='train'``, a tuple of loaders and a plot handle;\n    for ``mode='test'``, the test loader (plus optional metadata).\n:raises ValueError: if ``class_balance`` is not a recognised mode."
+    },
     "4d219dbdda7a474768bdb41ea2da0142822f4a764b702c150ee129ebc2e53901": {
       "source_blocks_sha256": [
         "32db21e6177bed66b6c6b741978b341aae338fab2e969357ddfb3cdb73f72f33",
@@ -804,6 +875,22 @@
       ],
       "source_sha256": "64faeadf2968149c3fe8b4e33003df383a1c3308a2450dd083d6da1c1ab65a9a",
       "text": "Return the next unused ``<field>__rNN`` filename.\n\nNames are checked against the image queue, mask directory, and recrop\narchive to prevent overwriting output from an earlier editing session."
+    },
+    "6506ee0f317ae94803d9e249d758832dcb4a6569ca726919fcc20a17b2771eea": {
+      "source_blocks_sha256": [
+        "0bbae8bcd53678df47ea98904fa0cdc9d46287848c0f2f70614948df5f1c4763",
+        "81b6c19c79c1e4a839cff89eddae3d219552601882e7deb6665d01726f5ea8c0",
+        "2f20b96a5bbf17eb7aecbba2675502d8855152d4f60ca00d691c79d460582a9c",
+        "cbd5d23bf0a11588cc8a3112f7e798dbdda1d85b545e84575829ff86a05f14c6",
+        "f5ae7edb1c6efeb38d0e05aee4e4371a57f50b0a19cd0037fa3cc62522cbcf81",
+        "4ed4076612c74c1df6e1759d8a09ff4ea4bffa27e8f1fb33a81bc246a2b00d06",
+        "8d8f963fb281ec7022f7d36f62764bbb2390ddc890f3e71306bf4b2de2838f56",
+        "93c387d099bb19e55bdc72c59f48d29fa8f84e2312ec48916563e5c56f006477",
+        "ae71b43b331cbc5c22db559ccbc56398b5190ec1d3a293567cacf32532fc9237",
+        "31b88d2691208999dfa4373803db6ff06ccce95bf440422cc22f0eb79392a83e"
+      ],
+      "source_sha256": "6506ee0f317ae94803d9e249d758832dcb4a6569ca726919fcc20a17b2771eea",
+      "text": "Image classification dataset that reads class subfolders under ``data_dir``.\n\n:param data_dir: Root directory containing one subdirectory per class.\n:param loader_classes: Ordered list of class names — the index in\n    this list becomes the integer label.\n:param transform: Optional callable applied to each PIL image.\n:param shuffle: If True, shuffle files+labels at construction.\n:param pin_memory: If True, eagerly load every image into RAM via a\n    multiprocessing pool.\n:param specific_files: Optional explicit list of image paths. If\n    supplied together with ``specific_labels``, directory scanning\n    is skipped.\n:param specific_labels: Labels paired with ``specific_files``.\n:raises ValueError: If no non-hidden image files are found for any\n    requested class.\nBuild the filename/label lists and optionally preload images."
     },
     "682b1b8683b05d98a6f5c19d7e81513f0a2e5a837892fb5a00447186377cc371": {
       "source_blocks_sha256": [
@@ -1343,6 +1430,34 @@
       "source_sha256": "b2d5d59baf95b872d44bcfd4916b31ba6d615f5e69e90f7f31f47d9570fb7aee",
       "text": "Find the wells in one image.\n\n:param image: the field, as an array the detector can read.\n:param weights: path to the YOLO checkpoint.\n:param confidence: drop detections scoring below this.\n:param imgsz: inference size; 640 is what the shipped detector trained at.\n:param min_axis_ratio: reject boxes less square than this. See\n    :attr:`Well.axis_ratio` -- a non-square box makes the diameter, and\n    therefore every area in that well, wrong.\n:returns: the wells, ordered top-to-bottom then left-to-right, which is\n    reading order and therefore the order a plate map is written in.\n:raises ImportError: when ``ultralytics`` is not installed."
     },
+    "b4bb61c2f324bec79daf6275d1ea1576300f3f8f3d40ba4ad50056fb0c71d4ac": {
+      "source_blocks_sha256": [
+        "8c5c211236e48aa49eef8af143f42f3ffab9537a5d2d7a787a2d3ee53aa60ee2",
+        "3ba950438a5f793acd308e2d0e07e8161fd23063a188a81a2bdcdf28fc7fb3b7",
+        "3cd6f9f7b12cf5514618ecb6c8ab5e392e5e1084068b48aa1cce863cf90bb810",
+        "b0aff3ec5ebcb3dfe7ca839de62dcd2db63f47c8eeea9ca925ca2a3ea81da702",
+        "8db424f776f20c4836077608bd7bcbe751e5e77673d0596c2fdfb4a6507350d9",
+        "cb3e46e55c867432537041e1687a63cc3b685c1d1ae961c76066de16b88bbad1"
+      ],
+      "source_sha256": "b4bb61c2f324bec79daf6275d1ea1576300f3f8f3d40ba4ad50056fb0c71d4ac",
+      "text": "Flat directory of unlabelled images returned alongside their file paths.\n\n:param data_dir: Directory containing image files.\n:param transform: Optional callable applied to each PIL image. If\n    ``None``, images are converted with ``ToTensor``.\n:param shuffle: If True, shuffle filename list at construction.\n    Default ``True``.\n:param load_to_memory: If True, decode all images once and hold them\n    in RAM. Default ``False``.\nEnumerate files in ``data_dir`` and optionally preload them."
+    },
+    "b79a81a9cd667e17b25b6248bf7933557e38c8a76b8cd9b7c17176d42fc70272": {
+      "source_blocks_sha256": [
+        "b14925e3ffaecb79189a0f24debfd35be8a9ae6197f4b082dc61efcb36a9ae6f",
+        "03edb6c7af115960fb417f0ee80b69f6c8cf936193d7edf37d58924a144637a6",
+        "7197f05c68d9fedb8ef9581c1c61fa353d0fbb2d37855d175cb60bed5266614b",
+        "8e23246380cc000b8b8cdf0f7b354f65fd36e308fcd5b76d1051021ca3a2ca52",
+        "3d24461ab4d97f0e5034d0a7f530db7eb22b7cbbfbb385175f9e75a4da09982a",
+        "4db7ae6544f849d935c652d43f58a41d485ff1bb5a9f3c208de4c320c292b6cf",
+        "32c1856b2260c6a5141fefad0ed04dc06359bde145cb1b9e04b4004b20781142",
+        "73d0237ce056254674905d70d73a2aa53e74643d3b78ed1f880584c5f68c8095",
+        "62ed3c1cd556fde2c59e2f2f32c7bdf00c813144495bcc3a41d0e45604533c4d",
+        "ace81cbd01481fbf307dd95c3fe627e3edf271989f067a62764b12e761a4c652"
+      ],
+      "source_sha256": "b79a81a9cd667e17b25b6248bf7933557e38c8a76b8cd9b7c17176d42fc70272",
+      "text": "Read a crop PNG and return it in the corrected order, as 8-bit RGB.\n\nThe one function every consumer of a crop folder should go through. It\nresolves the file's format (see :func:`crop_format_for_png`), reverses the\nchannel axis when the file's ordering differs from the one asked for --\nwhich today means format 2 only, since formats 1 and 3 are both already in\ndeclared order -- and narrows to 8 bit with :func:`narrow_to_uint8`, so a\nlegacy dataset and a new one come back identical and the caller never has\nto know which it opened.\n\nThe result equals ``png_view(extract_crop(...))`` for the same object,\nunder either format. That equality is the contract, and\n``tests/test_crops.py`` asserts it.\n\n:param path: the crop PNG.\n:param fmt: what the file on disk is, when you know better than the\n    marker does. ``None`` resolves it.\n:param as_format: what ordering you want *back*. The default is the\n    corrected one. Pass :data:`CROP_FORMAT_LEGACY_BGR` to get what a\n    classifier trained on legacy crops expects, out of a folder in either\n    format -- explicitly, by name, rather than by accident.\n:param db_path: optional ``measurements.db`` consulted when the folder has\n    no sidecar.\n:returns: ``(H, W, 3)`` uint8 RGB array.\n:raises MergedFileMissing: the file does not exist.\n:raises CropError: ``as_format`` is not a known format."
+    },
     "b7cf061017eaa6ad6f1dfc5851a7493ca7e1a8ea82a27293ced136739703d7db": {
       "source_blocks_sha256": [
         "65671846274c99ba8a6ca51289f5148585a4753ceacfa5cefba40425e9eaffa1",
@@ -1576,6 +1691,24 @@
       ],
       "source_sha256": "c6366f9776110eeb9fd92140575e11d963964a0aecb5bcf5d35018dad33dacbe",
       "text": "Load one triple of parasite/cell/nuclei masks, merge cells in place, and return the elapsed time.\n\n:param file_name: mask file name (must exist in all folders).\n:param parasite_folder: folder of parasite masks.\n:param cell_folder: folder of cell masks (overwritten in place).\n:param nuclei_folder: folder of nuclei masks.\n:param organelle_folder: optional folder of organelle masks.\n:param overlap_threshold: fractional overlap threshold used by the merger.\n:param perimeter_threshold: shared-perimeter threshold used by the merger.\n:returns: elapsed seconds.\n:raises ValueError: if the matching cell or nuclei mask file is missing."
+    },
+    "c7be4123367fcbd854369513aaa3814a2414e2000c6943859b99517e63e60892": {
+      "source_blocks_sha256": [
+        "8f62a81ec9f721c936331f3d6dfb0265906e839f3688d0a04fc5f4414f3cb728",
+        "cc91941b12d1b538feb0b2854dc50fb5e613a3f2959b31bd788072d29514d8c9",
+        "823624158ae90975677e4d6ae6f2c0388beceb71e8d347f0e2a0b43d3d237dda",
+        "396bc51630493e54294d8dd5ee3e7af4e0fd1911caea3218e3bb04e5694b93c3",
+        "fefe3791154b1e1f6696a968c9f07378d00ec979853bae0af758bc562ef0fc0b",
+        "9258df81e50521b4780fee5d12f060c9cf661fd6d9a89489b45078b992c30c74",
+        "b3de5389a1fbdf8fe418625d774ac57fe2acc73441c104724b9a8198758e1646",
+        "53d3cd501e2a186ca8486b1d50d176073e08ee0e65fb3f1ceb1914772f3aab31",
+        "9006283732613363bb0970064b82616410c1b5f0e896e9c9e2c81b7e9cfbed5d",
+        "6efe7b9dbcd1a3fc7ea60978ff3242a27c637dfc75db0a3808c136b668caf6a2",
+        "2d0298ba1561f564c7e84b71733ab129a64d9db777de8215e68abc5a9f2d482b",
+        "c015ef185dd629cc42bef884a8223a6b9a93211f13b7544cf3b0c049a16d015b"
+      ],
+      "source_sha256": "c7be4123367fcbd854369513aaa3814a2414e2000c6943859b99517e63e60892",
+      "text": "Put the crops listed per class into ``dst/train/<class>`` and ``dst/test/<class>``.\n\nAn entry may be a **path**, which is copied byte for byte exactly as\nbefore, or a :class:`LazyCropPNG`, which is cut out of ``merged/*.npy``\nthrough :mod:`spacr.crops` and written as a current-format (RGB) crop PNG.\nThe two are interchangeable, so a training set can be built with no crop\nfolder on disk at all.\n\nEach destination class folder is stamped with the crop-format sidecar\n*before* it is filled: with the current format when the crops were cut\nhere, with the source folder's format when they were copied out of one,\nand not at all (loudly) when one class mixes the two. Leaving a folder of\ncrops unmarked is what makes it legacy by default, which is the one\noutcome that silently reverses the channels a model is trained on.\n\n:param dst: Output root; ``train`` and ``test`` subfolders are created.\n:param class_data: Sequence of per-class lists of paths and/or\n    :class:`LazyCropPNG` handles.\n:param classes: Class names paired positionally with ``class_data``.\n:param test_split: Fraction of each class routed to ``test/``.\n    Default ``0.1``.\n:param db_path: optional ``measurements.db`` consulted for the crop format\n    of a source folder that carries no sidecar.\n:param random_seed: Reproducible global train/test split seed.\n:param group_by: acquisition identity kept intact across the permanent\n    train/test boundary. Default ``well``. ``cell`` is the leakiest\n    per-object choice; legacy ``none`` aliases it.\n:returns: ``(train_dir, test_dir)`` tuple of the top-level split paths.\n:raises ValueError: if ``len(class_data) != len(classes)``."
     },
     "c918517b40f110e9d9d8227fded63790231a0e2ed73dbadb08f3079922202561": {
       "source_blocks_sha256": [
@@ -2076,6 +2209,31 @@
       ],
       "source_sha256": "f760023a948960d4e2bfff1902353bca6b576d17e39530b982be28a25bb1394d",
       "text": "Fill holes inside True regions; returns a relabeled mask."
+    },
+    "f79b13749afbbfcfb7bbda2c2a6855cefe10931b4c5d407942ac45ddbc952d24": {
+      "source_blocks_sha256": [
+        "8c823e30517198b08c702b06325a8be061cf84be3d51eef3b78bc903a365d251",
+        "50f75fdaee5b86d73cf6e0b23927e4ae47124379bd6795e670e1070bafc16aad",
+        "dc8c2dd5459fd9ad32bd8896d18c8f8e0f690497779720e0351dfe93b85c3235",
+        "3f9503a518977d23b393db0bcc92f11ae58d9e7848ac12e5d6a9045a09347ce9",
+        "016ae4c8d8fb5f40cb7a4d67b7cab3672b5a254b43f1fbc2bc51a7d4c8e8a473",
+        "66e32c9a3b4f4b01c37c891623c014e8a50f21fb5fa10c936523839d9efb848f",
+        "475e4374eb2cdcaae259f82c0862eda0a3b34e1e4baca089e6c05d36f93c0c91",
+        "abff5e266e5269a8055934372bf7da7bad5b2ef66f51660f09528453de68fdb1",
+        "ee42c52d53f621e3afd0ee7e5626d01fa5021f1cdbef084d0f91878a18a7802b",
+        "3b481ce50d4a824f70fe03cddad48bc7869a7cd4fd11492aea09013aab02ccf1",
+        "2f6473dca62438fd47ddd438f8a6be59ce7d453655da477396756a636e8a4372",
+        "0da423bd36c8f5a7db2953067b97d8058701519dbbfb0a39867ba25848728f8c",
+        "0d01ec1cc4e5eb1e24dee42e20496a58c7e8ea61dc66de2e235b707f80cfc78b",
+        "461aa413f7a761b6259d165aa88b4db4b4d4983076e5074800d718d162694a64",
+        "58beaa4534b3807e0f116caabca037b5c124e36f15c70cde349ba75dcfabcedb",
+        "060a13fc2606684006727a9ca6660562cc403dfae2ee0b91c1831cb30f39558c",
+        "2dcadc83dd58d2c3d27381e655619395aae7399f632e6b5230f4b10eb9e24ea4",
+        "4528b2093a66cbdc5a32d43208b90fb7c78da3e37692f2ef39f33cdbba64b6a6",
+        "c154a72e6c5a24504c1e953b5375ddf2ca770f08b03748ecec3d86ae825038ce"
+      ],
+      "source_sha256": "f79b13749afbbfcfb7bbda2c2a6855cefe10931b4c5d407942ac45ddbc952d24",
+      "text": "Build one ``(train_loader, val_loader)`` pair per cross-validation fold.\n\nThe dataset under ``src/<mode>`` is read once and then re-split k ways, so\nevery crop is used for validation exactly once. Folds are class-stratified\nand, by default, grouped by well so that crops from the same well stay on\none side of the split. Class balancing is applied to the fold's train\nloader only.\n\n:param src: dataset root containing ``train``/``test`` subfolders.\n:param n_splits: number of folds, must be >= 2.\n:param mode: which split to fold — normally ``'train'``.\n:param image_size: square resize target in pixels.\n:param batch_size: loader batch size.\n:param classes: ordered class names matching the subfolder names.\n:param n_jobs: DataLoader worker count.\n:param pin_memory: if True, pin batches to page-locked memory.\n:param normalize: if True, apply per-channel normalisation.\n:param channels: subset of RGB channels to keep.\n:param augment: if True, 8-fold augment each fold's train split.\n:param verbose: log configuration to stdout.\n:param group_by: fold grouping level, one of ``CV_GROUP_LEVELS``.\n:param class_balance: one of ``CLASS_BALANCE_MODES``, train loaders only.\n:param seed: seed for the deterministic fold assignment.\n:returns: ``(fold_loaders, info)`` where ``fold_loaders`` is a list of\n    ``(train_loader, val_loader)`` and ``info`` holds ``fold_table``,\n    ``warnings``, ``imbalance`` and ``groups``.\n:raises ValueError: if ``n_splits`` < 2 or a setting value is unknown."
     },
     "fbd82f3661c1a1a2619771243665ccdb04b95bfddfb5f210c4089d2b3992c74f": {
       "source_blocks_sha256": [

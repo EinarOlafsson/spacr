@@ -14299,3 +14299,25 @@ CSV/README/manifest included. Fresh runnable private copy:
 dictionary coercion fixed for hp_marker_thresholds; invalid mapping is explained.
 New captions/tooltips/progress in assay_examples use tr(). Please include the
 sample and exact synthetic limitations in Host–Pathogen tutorials/API/translations.
+
+2026-09-23 — CODEX: BOTH PUBLICATION CHANNELS LIVE / RELEASE DOCS SNAPSHOT
+Pushed67c6a6d8d deployed successfully in docs run35894401432. Actual public
+receipts show main79d71a92f at /spacr/ and nightly67c6a6d8d at /spacr/nightly/.
+Real Chromium checks API English fallback, guide pages and tutorial playback
+on both. Root installers.html now passes packaging/release.py audit-published
+against GitHub release assets; issue129's public-site blocker is cleared.
+Evidence: features/data/411_live_documentation_channels_2026-09-23.json.
+
+Taking your a33bb315e decoder API into the reviewed release snapshot: English
+11460 symbols, refreshed Help index and classifier_evaluation guide explaining
+declared_uint8_v1/stored_pil_v1, uint16 high-byte conversion, formats1/2/3 and
+checkpoint compatibility. Docstring-only additions in classification_pixels.py,
+image_quality.py and sample_project.py; no runtime behavior changes. Exact
+callable subtraction receipt retained; five prose/inventory tests plus English
+manifest test pass. Four existing parameter omissions repaired,2292 remain.
+
+The public player contains the committed77 routes/76 available lessons. Four
+new workflow recordings78–81 are still private.81 now has all50 tracks fully
+decoded with current synthesis fingerprints; fresh neutral-path4K capture is
+under validation. No need to hold1.5.1.0 for these private assets or the complete
+translation matrix. Main promotion/version/release still belongs to your lane.

@@ -1,0 +1,107 @@
+{
+  "base_commit": "67c6a6d8d5042e2ea59fe86b955bed970381476f",
+  "source_commit": "a33bb315e84d34bd1cc4beb8da8c2ae20d89c5aa",
+  "before": {
+    "callables": 9472,
+    "categories": {
+      "function": 4218,
+      "dataclass_constructor": 503,
+      "constructor": 437,
+      "method": 4090,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9467,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9479,
+    "variant_counts": {
+      "1": 9465,
+      "2": 7
+    },
+    "parameters": 18808,
+    "required_parameters": 9690,
+    "digest": "b99098adaf2c7c9eb723c5e027e7828bc30974dd772425c8f8d3b788113e4924"
+  },
+  "after": {
+    "callables": 9478,
+    "categories": {
+      "function": 4224,
+      "dataclass_constructor": 503,
+      "constructor": 437,
+      "method": 4090,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 19
+    },
+    "exposures": {
+      "autoapi": 9473,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "variants": 9485,
+    "variant_counts": {
+      "1": 9471,
+      "2": 7
+    },
+    "parameters": 18826,
+    "required_parameters": 9697,
+    "digest": "d8b7654d4092c6b4023e3985a640aaa65c3b48875d981c972d2372b8a47c381b"
+  },
+  "subtraction_verified": true,
+  "api_before": 11452,
+  "api_after": 11460,
+  "api_added": [
+    "spacr.classification_pixels",
+    "spacr.classification_pixels.checkpoint_policy",
+    "spacr.classification_pixels.initialization_policy",
+    "spacr.classification_pixels.loader_policy",
+    "spacr.classification_pixels.read_classification_image",
+    "spacr.classification_pixels.training_preprocessing",
+    "spacr.classification_pixels.validate_policy",
+    "spacr.crops.decode_crop_image"
+  ],
+  "api_removed": [],
+  "added_rows": {
+    "spacr.classification_pixels.checkpoint_policy": "spacr.classification_pixels.checkpoint_policy\u0000function\u0000autoapi\u0000announce,metadata\u0000metadata\u0000announce,metadata\u00000\u00001\u00000\u00000",
+    "spacr.classification_pixels.initialization_policy": "spacr.classification_pixels.initialization_policy\u0000function\u0000autoapi\u0000path\u0000path\u0000path\u00000\u00001\u00000\u00000",
+    "spacr.classification_pixels.loader_policy": "spacr.classification_pixels.loader_policy\u0000function\u0000autoapi\u0000loader\u0000loader\u0000loader\u00000\u00001\u00000\u00000",
+    "spacr.classification_pixels.read_classification_image": "spacr.classification_pixels.read_classification_image\u0000function\u0000autoapi\u0000fmt,legacy_orient,policy,source\u0000source\u0000fmt,legacy_orient,policy,source\u00000\u00001\u00000\u00000",
+    "spacr.classification_pixels.training_preprocessing": "spacr.classification_pixels.training_preprocessing\u0000function\u0000autoapi\u0000checkpoint,preprocessing,train_loader,validation_loader\u0000train_loader,validation_loader\u0000checkpoint,preprocessing,train_loader,validation_loader\u00000\u00001\u00000\u00000",
+    "spacr.classification_pixels.validate_policy": "spacr.classification_pixels.validate_policy\u0000function\u0000autoapi\u0000policy\u0000policy\u0000policy\u00000\u00001\u00000\u00000"
+  },
+  "changed_rows": {
+    "spacr.io.NoClassDataset": {
+      "before": "spacr.io.NoClassDataset\u0000constructor\u0000autoapi\u0000data_dir,load_to_memory,shuffle,transform\u0000data_dir\u0000data_dir,load_to_memory,shuffle,transform\u00000\u00001\u00000\u00001",
+      "after": "spacr.io.NoClassDataset\u0000constructor\u0000autoapi\u0000crop_loading_policy,data_dir,load_to_memory,shuffle,transform\u0000data_dir\u0000crop_loading_policy,data_dir,load_to_memory,shuffle,transform\u00000\u00001\u00000\u00001"
+    },
+    "spacr.io.TarImageDataset": {
+      "before": "spacr.io.TarImageDataset\u0000constructor\u0000autoapi\u0000tar_path,transform\u0000tar_path\u0000tar_path,transform\u00000\u00001\u00000\u00001",
+      "after": "spacr.io.TarImageDataset\u0000constructor\u0000autoapi\u0000crop_loading_policy,tar_path,transform\u0000tar_path\u0000crop_loading_policy,tar_path,transform\u00000\u00001\u00000\u00001"
+    },
+    "spacr.io.generate_cv_loaders": {
+      "before": "spacr.io.generate_cv_loaders\u0000function\u0000autoapi\u0000augment,batch_size,channels,class_balance,classes,group_by,image_size,mode,n_jobs,n_splits,normalize,pin_memory,seed,src,verbose\u0000n_splits,src\u0000augment,batch_size,channels,class_balance,classes,group_by,image_size,mode,n_jobs,n_splits,normalize,pin_memory,seed,src,verbose\u00000\u00001\u00000\u00000",
+      "after": "spacr.io.generate_cv_loaders\u0000function\u0000autoapi\u0000augment,batch_size,channels,class_balance,classes,crop_loading_policy,group_by,image_size,mode,n_jobs,n_splits,normalize,pin_memory,seed,src,verbose\u0000n_splits,src\u0000augment,batch_size,channels,class_balance,classes,crop_loading_policy,group_by,image_size,mode,n_jobs,n_splits,normalize,pin_memory,seed,src,verbose\u00000\u00001\u00000\u00000"
+    },
+    "spacr.io.generate_loaders": {
+      "before": "spacr.io.generate_loaders\u0000function\u0000autoapi\u0000augment,batch_size,channels,class_balance,classes,group_by,image_size,mode,n_jobs,normalize,pin_memory,seed,src,validation_split,verbose\u0000src\u0000augment,batch_size,channels,class_balance,classes,group_by,image_size,mode,n_jobs,normalize,pin_memory,seed,src,validation_split,verbose\u00000\u00001\u00000\u00000",
+      "after": "spacr.io.generate_loaders\u0000function\u0000autoapi\u0000augment,batch_size,channels,class_balance,classes,crop_loading_policy,group_by,image_size,mode,n_jobs,normalize,pin_memory,seed,src,validation_split,verbose\u0000src\u0000augment,batch_size,channels,class_balance,classes,crop_loading_policy,group_by,image_size,mode,n_jobs,normalize,pin_memory,seed,src,validation_split,verbose\u00000\u00001\u00000\u00000"
+    },
+    "spacr.io.spacrDataset": {
+      "before": "spacr.io.spacrDataset\u0000constructor\u0000autoapi\u0000data_dir,loader_classes,pin_memory,shuffle,specific_files,specific_labels,transform\u0000data_dir,loader_classes\u0000data_dir,loader_classes,pin_memory,shuffle,specific_files,specific_labels,transform\u00000\u00001\u00000\u00001",
+      "after": "spacr.io.spacrDataset\u0000constructor\u0000autoapi\u0000crop_loading_policy,data_dir,loader_classes,pin_memory,shuffle,specific_files,specific_labels,transform\u0000data_dir,loader_classes\u0000crop_loading_policy,data_dir,loader_classes,pin_memory,shuffle,specific_files,specific_labels,transform\u00000\u00001\u00000\u00001"
+    }
+  },
+  "required_parameter_omissions_added": [],
+  "required_parameter_omissions_removed": [
+    "spacr.image_quality.ensure_no_retained_measurements:rejected",
+    "spacr.image_quality.ensure_no_retained_measurements:root",
+    "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter:event",
+    "spacr.qt.widgets.sample_project.SampleProjectDialog.eventFilter:watched"
+  ],
+  "required_parameter_omissions_count": 2292,
+  "recent_module_omissions": []
+}

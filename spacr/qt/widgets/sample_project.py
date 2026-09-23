@@ -252,7 +252,12 @@ class SampleProjectDialog(DiagramDialog):
         layout.addWidget(buttons)
 
     def eventFilter(self, watched, event):
-        """Select a pipeline from any part of its row, preserving pan and clicks."""
+        """Select a pipeline from any part of its row, preserving pan and clicks.
+
+        :param watched: widget whose optional pipelineRow property identifies a row.
+        :param event: Qt event; only a left-button press changes the selection.
+        :returns: the base event filter's result, preserving normal event handling.
+        """
         if event.type() == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
             row = watched.property('pipelineRow')
             if row is not None:

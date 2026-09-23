@@ -11,7 +11,12 @@ STORED_PIL = "stored_pil_v1"
 
 
 def validate_policy(policy):
-    """Accept only implemented crop decoding policies; never guess a new one."""
+    """Accept only implemented crop decoding policies; never guess a new one.
+
+    :param policy: ``declared_uint8_v1`` or ``stored_pil_v1``.
+    :returns: the unchanged, validated policy name.
+    :raises ValueError: the supplied policy is not implemented.
+    """
     if policy not in (DECLARED_UINT8, STORED_PIL):
         raise ValueError(f"Unsupported classification crop loading policy: {policy!r}")
     return policy
@@ -88,6 +93,12 @@ def loader_policy(loader):
 
     Unknown external tensor datasets return None. Mixed recorded policies are
     refused because a single checkpoint cannot describe both transformations.
+
+    :param loader: loader or dataset exposing ``crop_loading_policy``,
+        ``dataset`` or ``datasets``.
+    :returns: a validated policy name, or None if no policy is recorded.
+    :raises ValueError: a policy is unsupported or combined datasets disagree,
+        including a mixture of recorded and unknown policies.
     """
     policy = getattr(loader, "crop_loading_policy", None)
     if policy is not None:
@@ -104,7 +115,19 @@ def loader_policy(loader):
 
 def training_preprocessing(train_loader, validation_loader, preprocessing=None,
                            checkpoint=None):
-    """Record actual loader decoding and reject checkpoint or validation conflicts."""
+    """Record actual loader decoding and reject checkpoint or validation conflicts.
+
+    :param train_loader: training loader or dataset whose decoding is inspected.
+    :param validation_loader: validation loader or dataset checked for agreement.
+    :param preprocessing: optional preprocessing mapping copied into the result;
+        an explicit policy must agree with a recorded training policy.
+    :param checkpoint: optional loaded checkpoint metadata checked against the
+        selected policy; an untagged checkpoint uses the historical policy.
+    :returns: a new preprocessing dictionary, including the policy when known.
+        Unknown external datasets are not assigned a decoder automatically.
+    :raises ValueError: a supplied policy is unsupported or the recorded
+        training, validation, preprocessing or checkpoint policies conflict.
+    """
     result = dict(preprocessing or {})
     policy = loader_policy(train_loader)
     requested = result.get("crop_loading_policy")
