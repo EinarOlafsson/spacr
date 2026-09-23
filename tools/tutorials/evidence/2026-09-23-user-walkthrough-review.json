@@ -741,7 +741,7 @@
     },
     {
       "lesson": "26_invasion",
-      "english_sha256": "ce2be4f99afdf38aa229d35d4d5396f4aebf33c4ddcd6704b505ffddcd09f55c",
+      "english_sha256": "946de3dc3a012e6831b897a8782420e16e0fd7aef98ee18a82a856b14b51716f",
       "scene_count": 13,
       "source_revised": true,
       "manual_review": "source rewrite; media publication pending",
@@ -766,7 +766,7 @@
     },
     {
       "lesson": "27_replication",
-      "english_sha256": "45b101093ba74630251c50c4adbc047223d548cc0a316ffcd38333c2bd777b01",
+      "english_sha256": "e4257839cdf2d430b2a210d7bf830e3e4e2acfeac712cabccc5c868f9af4d7d6",
       "scene_count": 12,
       "source_revised": true,
       "manual_review": "source rewrite; media publication pending",

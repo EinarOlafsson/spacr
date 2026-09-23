@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "01_module",
-      "narration": "From Home, open Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
+      "narration": "From Home, open Toxoplasma, then choose Replication Assay. Start with a measurement database containing parasite rows and their vacuole assignments. The linked synthetic example lets you practise the settings and read the resulting count distributions.",
       "focus": [
         346,
         50,

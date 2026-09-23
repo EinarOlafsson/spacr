@@ -3,11 +3,16 @@
   "date": "2026-09-23",
   "synthetic": true,
   "source_database_sha256": "06e69382639ce037a0a5db657ef38107a67ca8a9bca73fa4cd7265eed8bd4d69",
-  "archive_sha256": "9db5c2462211f53d35379876c5b638d844c1243a701506ec084f83686c5d7f8a",
-  "archive_bytes": 35005,
+  "archive_sha256": "03e4e725e60bd1dbeaddc3f68e97f90e57001dce9b671d0716c32ce8b5402fe7",
+  "archive_bytes": 35013,
   "parasite_rows": 1992,
   "vacuoles": 480,
   "wells": 12,
   "database_bytes_unchanged": true,
-  "settings_source_replaced_with_portable_placeholder": true
+  "settings_source_replaced_with_portable_placeholder": true,
+  "route": [
+    "Home",
+    "Toxoplasma",
+    "Replication Assay"
+  ]
 }

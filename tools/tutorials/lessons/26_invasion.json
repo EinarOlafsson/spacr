@@ -16,7 +16,7 @@
   "scenes": [
     {
       "visual": "01_module",
-      "narration": "From Home, open Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
+      "narration": "From Home, open Toxoplasma, then choose Invasion Assay. Start with a measurement database containing parasite intensities for the outside and total stains. Use the linked synthetic sample to practise channel mapping, threshold selection and result inspection.",
       "focus": [
         346,
         50,
