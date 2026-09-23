@@ -33,6 +33,7 @@ import logging
 from typing import Optional
 
 from PySide6.QtCore import QEvent, QObject, QRect, Qt
+from PySide6.QtGui import QColor, QMouseEvent, QPainter, QPen
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
                                QAbstractSpinBox, QAbstractSlider, QGraphicsView, QPlainTextEdit, QApplication,
                                QComboBox, QDialog, QSplitterHandle, QTabBar,
@@ -246,6 +247,8 @@ RESIZE_BAND = 6
 def _edges_at(widget, point):
     """Which window edges ``point`` is on, as Qt edge flags (0 for none)."""
     edges = Qt.Edge(0)
+    if widget.isMaximized() or widget.isFullScreen() or not widget.rect().contains(point):
+        return edges
     if point.x() <= RESIZE_BAND:
         edges |= Qt.Edge.LeftEdge
     elif point.x() >= widget.width() - RESIZE_BAND:
@@ -254,6 +257,10 @@ def _edges_at(widget, point):
         edges |= Qt.Edge.TopEdge
     elif point.y() >= widget.height() - RESIZE_BAND:
         edges |= Qt.Edge.BottomEdge
+    if widget.minimumWidth() >= widget.maximumWidth():
+        edges &= ~(Qt.LeftEdge | Qt.RightEdge)
+    if widget.minimumHeight() >= widget.maximumHeight():
+        edges &= ~(Qt.TopEdge | Qt.BottomEdge)
     return edges
 
 
@@ -275,10 +282,43 @@ def _cursor_for(edges):
 
 
 def _blue_resize_cursor(edges):
-    """Keep the normal arrow silhouette and indicate a resize region in blue."""
+    """Compatibility helper: resizing uses the unchanged native OS arrow."""
     from .cursor_policy import arrow_cursor
 
-    return arrow_cursor(True)
+    return arrow_cursor()
+
+
+class _ResizeEdgeHint(QWidget):
+    """Paint a one-pixel blue line on the edges available for dragging."""
+
+    def __init__(self, window):
+        super().__init__(window)
+        self.edges = Qt.Edge(0)
+        self.setAttribute(Qt.WA_TransparentForMouseEvents)
+        self.setAttribute(Qt.WA_NoSystemBackground)
+        self.setFocusPolicy(Qt.NoFocus)
+        self.hide()
+
+    def show_edges(self, edges):
+        self.edges = edges
+        self.setGeometry(self.parentWidget().rect())
+        self.setVisible(bool(edges))
+        if edges:
+            self.raise_()
+            self.update()
+
+    def paintEvent(self, event):
+        painter = QPainter(self)
+        painter.setPen(QPen(QColor('#168cff'), 1))
+        left, top, right, bottom = 1, 1, self.width() - 2, self.height() - 2
+        for edge, line in (
+            (Qt.LeftEdge, (left, 8, left, bottom - 7)),
+            (Qt.RightEdge, (right, 8, right, bottom - 7)),
+            (Qt.TopEdge, (8, top, right - 7, top)),
+            (Qt.BottomEdge, (8, bottom, right - 7, bottom)),
+        ):
+            if self.edges & edge:
+                painter.drawLine(*line)
 
 
 def _owns_mouse_gesture(widget, window):
@@ -318,11 +358,14 @@ class _ResizeByEdge(QObject):
         super().__init__(window)
         self._window = window
         self._grab = None
+        self._hint = _ResizeEdgeHint(window)
         window.setMouseTracking(True)
+        for child in window.findChildren(QWidget):
+            child.setMouseTracking(True)
         window.installEventFilter(self)
 
     def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        """Resize from a corner or edge and show the shared blue arrow.
+        """Resize from a corner or edge and highlight that edge in blue.
 
         :param watched: the window receiving the pointer event.
         :param event: mouse press, move, release or leave event.
@@ -335,6 +378,11 @@ class _ResizeByEdge(QObject):
             return False
         try:
             kind = event.type()
+            if kind == QEvent.Resize:
+                self._hint.setGeometry(window.rect())
+            if kind in (QEvent.Hide, QEvent.WindowDeactivate, QEvent.WindowStateChange):
+                self._grab = None
+                self._hint.show_edges(Qt.Edge(0))
             if kind == QEvent.Type.MouseMove and self._grab is not None:
                 if not event.buttons() & Qt.LeftButton:
                     self._grab = None
@@ -358,13 +406,10 @@ class _ResizeByEdge(QObject):
                 return True
             if kind == QEvent.Type.MouseButtonRelease:
                 self._grab = None
+                self._hint.show_edges(_edges_at(window, event.position().toPoint()))
             if kind == QEvent.Type.MouseMove and not event.buttons():
                 edges = _edges_at(window, event.position().toPoint())
-                shape = _cursor_for(edges)
-                if shape is None:
-                    window.unsetCursor()
-                else:
-                    window.setCursor(_blue_resize_cursor(edges))
+                self._hint.show_edges(edges)
                 return False
             if (kind == QEvent.Type.MouseButtonPress
                     and event.button() == Qt.MouseButton.LeftButton):
@@ -374,6 +419,7 @@ class _ResizeByEdge(QObject):
                 handle = window.windowHandle()
                 if handle is None:
                     return False
+                self._hint.show_edges(edges)
                 if QApplication.platformName().lower().startswith("wayland"):
                     handle.startSystemResize(edges)
                 else:
@@ -381,7 +427,8 @@ class _ResizeByEdge(QObject):
                     window.setCursor(_blue_resize_cursor(edges))
                 return True
             if kind == QEvent.Type.Leave:
-                window.unsetCursor()
+                if self._grab is None:
+                    self._hint.show_edges(Qt.Edge(0))
         except Exception:                                    # noqa: BLE001
             LOG.debug("the resize filter tripped", exc_info=True)
         return False
@@ -785,8 +832,18 @@ class _GlassInstaller(QObject):
         :returns: ``False`` -- never consumed.
         """
         try:
+            if event.type() in _GLASS_MOMENTS and isinstance(watched, QWidget):
+                if getattr(watched.window(), '_spacr_resizer', None) is not None:
+                    watched.setMouseTracking(True)
             if event.type() in _DRAG_MOMENTS and isinstance(watched, QWidget):
                 window = watched.window()
+                resizer = getattr(window, '_spacr_resizer', None)
+                if resizer is not None and watched is not window:
+                    point = window.mapFromGlobal(event.globalPosition().toPoint())
+                    mapped = QMouseEvent(event.type(), point.toPointF(), event.globalPosition(),
+                                         event.button(), event.buttons(), event.modifiers())
+                    if resizer.eventFilter(window, mapped):
+                        return True
                 drag = getattr(window, "_spacr_background_drag", None)
                 if drag is not None and watched is not window:
                     return drag.eventFilter(watched, event)

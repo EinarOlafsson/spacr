@@ -1,4 +1,4 @@
-"""Interactive contexts change cursor color without changing its silhouette."""
+"""Native OS arrow remains unchanged; resizing is signalled on the surface."""
 import pytest
 pytest.importorskip('PySide6')
 from PySide6.QtCore import QEvent, Qt
@@ -10,27 +10,22 @@ pytestmark = pytest.mark.qt
 
 @pytest.mark.parametrize('shape', [Qt.SizeHorCursor, Qt.SizeFDiagCursor, Qt.PointingHandCursor,
                                   Qt.WhatsThisCursor, Qt.IBeamCursor, Qt.ClosedHandCursor])
-def test_interactive_shapes_are_the_same_blue_arrow(qapp, qtbot, shape):
+def test_interactive_shapes_are_the_native_os_arrow(qapp, qtbot, shape):
     cp.install_cursor_policy(qapp)
     widget = QWidget()
     qtbot.addWidget(widget)
     widget.setCursor(shape)
-    assert widget.cursor().pixmap().cacheKey() == cp.arrow_cursor(True).pixmap().cacheKey()
+    assert widget.cursor().shape() == Qt.ArrowCursor
+    assert widget.cursor().pixmap().isNull()
     widget.unsetCursor()
-    assert widget.cursor().pixmap().cacheKey() == cp.arrow_cursor(False).pixmap().cacheKey()
+    assert widget.cursor().shape() == Qt.ArrowCursor
 
 
-@pytest.mark.parametrize('light', [False, True])
-def test_idle_and_blue_have_identical_geometry_and_theme_outline(qapp, monkeypatch, light):
-    monkeypatch.setattr(cp, 'active_palette', lambda: {'fg': '#111111' if light else '#eeeeee'})
-    active, idle = (cp.arrow_cursor(flag).pixmap().toImage() for flag in (True, False))
-    assert active.size() == idle.size()
-    assert all(active.pixelColor(x,y).alpha() == idle.pixelColor(x,y).alpha()
-               for x in range(active.width()) for y in range(active.height()))
-    colour = active.pixelColor(8, 14)
-    assert colour.blue() > 220 and colour.red() < 60 and colour.alpha() == 255
-    rim = active.pixelColor(4, 14)
-    assert rim.lightness() < 100 if light else rim.lightness() > 180
+@pytest.mark.parametrize('active', [False, True])
+def test_arrow_uses_no_custom_artwork(qapp, active):
+    cursor = cp.arrow_cursor(active)
+    assert cursor.shape() == Qt.ArrowCursor
+    assert cursor.pixmap().isNull()
 
 
 def test_corner_resize_uses_press_origin_and_respects_minimum(qapp, qtbot):
@@ -55,4 +50,40 @@ def test_corner_resize_uses_press_origin_and_respects_minimum(qapp, qtbot):
         assert window.width() == max(250, start.width() - dx)
         assert window.height() == max(180, start.height() - dy)
         assert window.geometry().bottomRight() == start.bottomRight()
-    assert window.cursor().pixmap().cacheKey() == cp.arrow_cursor(True).pixmap().cacheKey()
+    assert window.cursor().shape() == Qt.ArrowCursor
+    assert filter_._hint.edges == Qt.LeftEdge | Qt.TopEdge
+
+
+def test_main_window_edge_hint_over_child_and_fixed_size(qapp, qtbot):
+    from PySide6.QtCore import QPoint, QPointF
+    from PySide6.QtGui import QMouseEvent
+    from PySide6.QtWidgets import QMainWindow, QLabel
+    from spacr.qt.widgets import glass
+    glass.install_glass_everywhere(qapp)
+    window = QMainWindow()
+    qtbot.addWidget(window)
+    child = QLabel('Main window contents')
+    window.setCentralWidget(child)
+    window.resize(400, 300)
+    glass.let_the_user_resize(window)
+    window.show()
+    qtbot.waitExposed(window)
+    resizer = window._spacr_resizer
+    for point, expected in ((QPoint(399, 100), Qt.RightEdge),
+                            (QPoint(399, 299), Qt.RightEdge | Qt.BottomEdge),
+                            (QPoint(200, 100), Qt.Edge(0))):
+        position = child.mapFrom(window, point)
+        event = QMouseEvent(QEvent.MouseMove, QPointF(position),
+                            QPointF(window.mapToGlobal(point)), Qt.NoButton,
+                            Qt.NoButton, Qt.NoModifier)
+        qapp.sendEvent(child, event)
+        assert resizer._hint.edges == expected
+        assert resizer._hint.isVisible() == bool(expected)
+        assert window.cursor().shape() == Qt.ArrowCursor
+        if expected:
+            image = resizer._hint.grab().toImage()
+            pixel = image.pixelColor(398, 100)
+            assert pixel.name() == '#168cff'
+            assert image.pixelColor(397, 100).alpha() == 0
+    window.setFixedSize(window.size())
+    assert not glass._edges_at(window, QPoint(399, 299))

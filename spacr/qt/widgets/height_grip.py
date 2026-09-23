@@ -31,9 +31,8 @@ from ..theme import active_palette, make_transparent
 class HeightGrip(QWidget):
     """A thin bar that drags the widget above it taller or shorter.
 
-    Drawn as three short lines rather than a plain strip because a strip that
-    happens to be draggable is a strip nobody drags. It brightens under the
-    pointer and takes focus for the same reason.
+    A thin line turns blue under the pointer or keyboard focus. The larger
+    transparent grab area keeps it easy to drag without a thick divider.
 
     :param target: the widget whose fixed height this drags.
     :param minimum: floor in px at 100 % font scale.
@@ -186,19 +185,12 @@ class HeightGrip(QWidget):
         return height
 
     def paintEvent(self, event):                # noqa: N802 - Qt naming
-        """Three short lines, centred, brighter under the pointer or focus."""
+        """One thin line, blue under the pointer, during dragging or focus."""
         P = active_palette()
         painter = QPainter(self)
-        colour = QColor(P["fg"])
-        lit = self._hovered or self.hasFocus()
-        colour.setAlphaF(0.34 if lit else 0.16)
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(colour)
-        width = max(12, self.width() // 6)
-        left = (self.width() - width) // 2
-        mid = self.height() // 2
-        for offset in (-3, 0, 3):
-            painter.drawRect(left, mid + offset, width, 1)
+        lit = self._hovered or self.hasFocus() or self._from_y is not None
+        colour = QColor('#168cff' if lit else P['border_soft'])
+        painter.fillRect(0, self.height() // 2, self.width(), 1, colour)
 
     def enterEvent(self, event):                # noqa: N802 - Qt naming
         """Light the grip as the pointer arrives.

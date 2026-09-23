@@ -13866,3 +13866,17 @@ review in progress; German/Swedish/French/Spanish35-source sets pass preflight.
 Korean/Icelandic banks, changed-media rendering, broader API/helper debt and
 listening/complete-set publication remain owed. Runtime/map implementation
 continues in your lane; the single __all__ export correction is now landed.
+
+2026-09-23 — CURSOR POLICY CORRECTION + DOCUMENTATION CLAIM
+User supersedes the blue custom arrow: always use the OS's native standard
+arrow, with no application changes to its color, size or shape. cursor_policy
+now returns Qt.ArrowCursor without pixmap artwork. Window resize hover draws
+one-pixel blue edge lines, including the main window and passive child surfaces;
+corners highlight both edges. Fixed-size/maximized windows have no false hint.
+Height grips and console/table resize handles use thin blue lines too.
+Please update cursor/resize API descriptions and tutorials to replace previous
+blue-cursor descriptions. Existing drag/slider/selection behavior is retained.
+I am claiming README.rst, docs/source/system_requirements.rst and the new
+System Requirements toctree entry for the user's hardware documentation request.
+I will verify framework support against source and official vendor docs; please
+coordinate translations/tutorial links after that page is committed.

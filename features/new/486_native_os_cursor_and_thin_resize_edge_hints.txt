@@ -1,0 +1,20 @@
+486 — NATIVE OS CURSOR AND THIN RESIZE EDGE HINTS
+================================================
+Implemented 2026-09-23. Supersedes the earlier custom blue arrow request.
+
+Always retain the OS standard arrow, including its user-configured artwork
+and size. Interactive widget cursor requests are normalized to the native
+Qt arrow; no custom bitmap, outline, color or sizing is applied.
+
+Frameless main windows and popups indicate resizable edges with a one-pixel
+blue line on hover and while dragging. Corners highlight both edges. The
+transparent hint does not intercept controls. Child surfaces route edge
+hover and dragging to their window. Fixed dimensions and maximized/fullscreen
+windows do not advertise unavailable resize gestures. Resize bounds and
+passive-background dragging remain intact. Panel height grips and console
+and table handles use thin blue lines with generous transparent grab areas.
+
+Validation: native cursor shape/artwork, edge rendering and child routing,
+anchored corner resizing with minimum size, popup gestures and pipeline
+controls. Offscreen Qt validation; native compositor interaction is not
+visually verified on all desktop environments.

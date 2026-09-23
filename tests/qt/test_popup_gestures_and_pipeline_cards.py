@@ -50,12 +50,10 @@ def test_passive_child_drag_moves_popup_but_slider_owns_its_gesture(qtbot):
 
 
 @pytest.mark.parametrize('edges', [Qt.LeftEdge, Qt.TopEdge, Qt.LeftEdge | Qt.TopEdge, Qt.RightEdge | Qt.TopEdge])
-def test_resize_pointer_contains_blue_pixels_and_center_hotspot(qapp, edges):
+def test_resize_pointer_is_the_native_os_arrow(qapp, edges):
     cursor = glass._blue_resize_cursor(edges)
-    pixels = cursor.pixmap().toImage()
-    assert cursor.hotSpot() == QPoint(4, 3)
-    assert any((lambda c: c.alpha() > 100 and c.blue() > 220 and c.red() < 60)(pixels.pixelColor(x, y))
-               for x in range(pixels.width()) for y in range(pixels.height()))
+    assert cursor.shape() == Qt.ArrowCursor
+    assert cursor.pixmap().isNull()
 
 
 def test_sloped_edges_meet_arrow_base_at_center_without_entering_head(qtbot):

@@ -153,22 +153,24 @@ def test_each_edge_says_which_way_it_will_move(dialog, point, shape):
     assert glass._cursor_for(glass._edges_at(dialog, QPoint(*point))) == shape
 
 
-def test_hovering_an_edge_changes_the_pointer_and_leaving_puts_it_back(
+def test_hovering_an_edge_shows_a_line_and_leaving_hides_it(
         dialog):
     """A resize you cannot see is one nobody finds."""
     assert glass.let_the_user_resize(dialog) is True
     watcher = dialog._spacr_resizer
 
     watcher.eventFilter(dialog, _move((1, 120)))
-    assert dialog.cursor().shape() == Qt.CursorShape.BitmapCursor
-    assert not dialog.cursor().pixmap().isNull()
+    assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor
+    assert watcher._hint.edges == Qt.LeftEdge
 
     watcher.eventFilter(dialog, _move((160, 120)))
+    assert not watcher._hint.edges
     assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor or (
         dialog.cursor().pixmap().cacheKey() == arrow_cursor(False).pixmap().cacheKey())
 
     watcher.eventFilter(dialog, _move((1, 120)))
     watcher.eventFilter(dialog, QEvent(QEvent.Type.Leave))
+    assert not watcher._hint.edges
     assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor or (
         dialog.cursor().pixmap().cacheKey() == arrow_cursor(False).pixmap().cacheKey())
 
