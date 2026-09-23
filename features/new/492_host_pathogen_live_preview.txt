@@ -1,6 +1,6 @@
 492 — HOST–PATHOGEN LIVE PREVIEW
 ================================
-Status: IMPLEMENTED,2026-09-23;50focused checks and offscreen visual review pass.
+Status: IMPLEMENTED,2026-09-23;56focused checks and offscreen visual review pass.
 Requested2026-09-23. Implementation lane owns runtime;
 API/translations/tutorials belong to the separate Codex checkout.
 
@@ -35,3 +35,11 @@ Display image is bounded to1024pixels on its longest axis; measurement values
 are never recomputed from display contrast/downsampling. GUI selection keeps
 the current image zoom. Synthetic examplev2adds the standard plane manifest.
 No real biological accuracy or native macOS/Windows acceptance claimed.
+
+Final recovery checks include absent projects, incomplete field identities,
+invalid limits, malformed images, fractional labels, mask-as-intensity errors,
+display/overlay controls and missing images with selectable measured results.
+56checks pass with branch coverage: backend95.50%, Qt panel93.90% (both clear
+the90%module floor). Local PySide6 native initialization segfaulted when first
+imported under the tracer; preimporting only external QtCore/QtGui/QtWidgets
+before pytest enabled measurement. No spaCR module was preimported or excluded.

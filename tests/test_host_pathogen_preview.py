@@ -116,3 +116,53 @@ def test_field_with_vacuoles_but_no_hosts_is_still_available(sample):
     assert len(result['results']['cells']) == 0
     assert len(result['results']['vacuoles']) == 7
     assert result['results']['vacuoles'].channel_0_state.eq('unknown').all()
+
+
+def test_invalid_limits_missing_sources_and_incomplete_identity_fail_clearly(sample, tmp_path):
+    folder, config = sample
+    database = folder / 'measurements' / 'measurements.db'
+    fields, _ = preview_fields(dict(config, src=str(database)))
+    with pytest.raises(ValueError, match='field limit'):
+        preview_fields(config, limit=0)
+    with pytest.raises(ValueError, match='object limit'):
+        preview_field(config, fields[0], row_limit=0)
+    with pytest.raises(FileNotFoundError, match='Measurements database'):
+        preview_fields(dict(config, src=str(tmp_path / 'missing')))
+    with pytest.raises(ValueError, match='nonempty measurement table'):
+        preview_fields(dict(config, hp_vacuole_table=''))
+    with sqlite3.connect(database) as connection:
+        connection.execute('ALTER TABLE pathogen RENAME COLUMN fieldID TO missing_field')
+    with pytest.raises(ValueError, match='lacks plate/well/field'):
+        preview_fields(config)
+    with pytest.raises(ValueError, match='lacks field/time'):
+        preview_field(config, fields[0])
+    with sqlite3.connect(database) as connection:
+        connection.execute('ALTER TABLE cell RENAME COLUMN fieldID TO missing_field')
+    with pytest.raises(ValueError, match='Host measurements lack'):
+        preview_fields(config)
+
+
+@pytest.mark.parametrize('damage, explanation', [
+    ('flat', 'H × W × planes'),
+    ('fractional_mask', 'integer labels'),
+    ('mask_as_image', 'intensity channel'),
+])
+def test_bad_image_content_keeps_analysis_available(sample, damage, explanation):
+    _, config = sample
+    fields, _ = preview_fields(config)
+    original = preview_field(config, fields[0])
+    image_channel = 0
+    if damage == 'mask_as_image':
+        image_channel = 4
+    else:
+        data = np.load(original['path']).astype(float)
+        if damage == 'flat':
+            data = data[:, :, 0]
+        else:
+            data[0, 0, 6] = .5
+        np.save(original['path'], data)
+    result = preview_field(config, fields[0], image_channel=image_channel)
+    assert result['image'] is None
+    assert explanation in result['image_note']
+    assert len(result['results']['cells']) == 6
+    assert len(result['results']['vacuoles']) == 7

@@ -110,3 +110,52 @@ def test_visible_preview_updates_after_form_changes(qtbot, config):
     qtbot.waitUntil(lambda: panel._result is not None and
                     panel._result['results']['vacuoles'].channel_0_state.iloc[0] == 'positive', timeout=3000)
     panel.shutdown()
+
+
+def test_missing_source_and_database_errors_recover_on_load(qtbot, config, tmp_path):
+    panel = HostPathogenPreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    panel._image_clicked()
+    assert not panel.run_preview()
+    assert 'source' in panel.preview_status()
+    panel.apply_settings(dict(config, src=str(tmp_path / 'absent')))
+    assert panel.run_preview()
+    assert 'Preview failed' in panel.preview_status()
+    assert panel._result is None and panel._run_btn.isEnabled()
+    assert panel.load_source_async(config['src'])
+    assert panel._table.rowCount() == 7
+    panel.close()
+    assert not panel._settings_timer.isActive()
+
+
+def test_display_controls_and_missing_images_leave_table_usable(qtbot, config):
+    from pathlib import Path
+
+    panel = HostPathogenPreviewPanel(threaded=False)
+    qtbot.addWidget(panel)
+    panel.apply_settings(config)
+    panel.run_preview()
+    panel._overlays['host'].setChecked(False)
+    panel._hover_pixel(-1, -1)
+    panel._image_clicked()
+    assert panel._selected == 1
+    panel._hover_pixel(0, 0)
+    panel._image_clicked()
+    assert panel._selected == 1
+    panel._channel.setValue(1)
+    assert panel._result is None and 'Display plane changed' in panel.preview_status()
+    panel._planes['vacuole'].setValue(-1)
+    panel.run_preview()
+    assert 'vacuole' not in panel._result['masks']
+    panel._image_clicked()
+    panel._table.selectRow(4)
+    assert 'unknown' in panel._details.text()
+    for image in (Path(config['src']) / 'merged').glob('*.npy'):
+        image.unlink()
+    panel.run_preview()
+    assert panel._result['image'] is None
+    assert panel._table.rowCount() == 7
+    assert 'No matching merged image' in panel.preview_status()
+    panel._table.selectRow(3)
+    assert 'parasites 8' in panel._details.text()
+    panel.shutdown()
