@@ -2,22 +2,22 @@
   "id": "11_classify_ml",
   "number": 11,
   "slug": "classify_ml",
-  "title": "Classify: tabular machine learning",
+  "title": "Classify: learn from measured features",
   "series": 1,
   "app_key": "ml_analyze",
   "host_app_key": "classify_merged",
   "section": "Core",
-  "description": "Use Classify with downloadable measured cells, explicit metadata labels, a bounded random forest, real console output and saved predictions.",
+  "description": "Load measurements, define classes, train a tabular classifier and inspect object scores and plate summaries.",
   "objectives": [
-    "Choose the tabular family and load the measured example through the native data chooser.",
-    "Define plate-column classes and distinguish the requested split from actual held-out wells.",
-    "Inspect plots, missing scores and model outputs without treating demonstration accuracy as biological validation."
+    "Select the tabular family and a measured project.",
+    "Define classes and choose feature channels, model size and held-out wells.",
+    "Find model outputs, object predictions and summary figures."
   ],
-  "prerequisite": "This recording uses spaCR 1.5.0.8. Use Load test data in Classify and choose Load, not Stream. The example has 2,341 cell/crop identities across four wells. The recorded ML join retains 2,153 objects and excludes 188 lacking nucleus rows. Classes are columnID=c1 (zero) and c2 (one), not independently verified phenotypes. The native run uses random_forest, channel_of_interest=1, n_estimators=16, n_jobs=2, n_repeats=1, top_features=10, batch_correction=none, prune_features=False, cross_validation=False and plot=True. Set test_size=0.1 for this bounded example; the current ML dispatcher respects that setting. Confirm the loaded project using Choose source data before running. Actual holdout: two of four wells, 1,035 of 2,153 objects, with no database well overlap. Feature filtering precedes splitting and permutation importance uses training data; these are not independently validated feature discoveries. Nine saved metric values and all 2,153 database predictions were independently checked. Held-out accuracy is 0.6202898551 versus majority-class accuracy 0.5632850242. API: spacr.classify.classify dispatches to spacr.ml.generate_ml_scores; outputs are under results/random_forest/channel_1. Database predictions holds the binary class and ml_pred the class-one probability. Only three real GUI figures are claimed; no SHAP, calibrated probability, causal effect or biological validation claim. No AI request was submitted.",
+  "prerequisite": "Use Load test data in Classify and choose Load, then confirm the downloaded plate folder with Choose source data. For your own project, run Measure first. The example uses columnID values c1 and c2 as two classes; use labels appropriate to your experiment when working with your own data.",
   "scenes": [
     {
       "visual": "19_setting_classifier_family",
-      "narration": "Open Classify from Home and choose Tabular Machine Learning as the classifier family. It learns from saved per-object measurements. Computer-vision settings can remain visible but greyed out because they belong to the other family.",
+      "narration": "From Home, open Classify and choose Tabular Machine Learning. This family uses the object measurements saved by Measure. It produces a fitted model and a score for each object with the required measurements.",
       "focus": [
         350,
         190,
@@ -32,7 +32,7 @@
     },
     {
       "visual": "02_data_choice_load",
-      "narration": "Click Load test data and choose Load. This loads the measured example, downloading it if needed, and prepares its paths; Stream is a different route. For your own project, complete Measure first and select its project folder. Do not assume an arbitrary image folder already contains the required measurement database.",
+      "narration": "Click Load test data and choose Load. Wait for the measured example to download. For your own data, select the project folder created by Measure, including its measurements database.",
       "focus": [
         1663,
         914,
@@ -47,7 +47,7 @@
     },
     {
       "visual": "18_source_folder_choice",
-      "narration": "Confirm the downloaded project with Choose source data. Select the plate folder that contains the measurements directory. In this recording, confirming that folder clears the empty-source prompt left after loading the example. Your source must contain measured objects before the tabular model can run.",
+      "narration": "Use Choose source data to confirm the downloaded plate folder. Select the folder containing measurements. This gives the classifier access to the object tables and the metadata used to define classes.",
       "focus": [
         1439,
         390,
@@ -58,7 +58,7 @@
     },
     {
       "visual": "19_setting_classes",
-      "narration": "Use the metadata basis and define two Classes from column I D: c1 and c2. Here those are plate-column labels used to teach the workflow, not independently verified healthy and affected cells. Annotation-based training instead needs genuine labels from Annotate. Never turn missing annotations into invented ground truth.",
+      "narration": "Choose metadata as the class basis and define two Classes using column I D values c1 and c2. These labels distinguish the two plate columns in the example. To train from your own cell annotations, choose the annotation basis and the label column you created in Annotate.",
       "focus": [
         350,
         190,
@@ -69,7 +69,7 @@
     },
     {
       "visual": "19_setting_channel_of_interest",
-      "narration": "Channel of interest selects the measurement features. We use channel one without assigning it an unverified biological meaning. Check your acquisition and measurement settings before choosing a channel in your own data. Selecting a feature channel here does not re-segment images or measure them again.",
+      "narration": "Set Channel of interest to one for the example. This controls which channel-specific measurement features enter the model. For your own experiment, select the channel that contains the signal relevant to your classes.",
       "focus": [
         350,
         190,
@@ -80,7 +80,7 @@
     },
     {
       "visual": "19_setting_n_estimators",
-      "narration": "Choose Random Forest and sixteen estimators for this small demonstration, with two worker jobs. This is not an optimized model recommendation. We leave supervised feature pruning and cross-validation off. Cross-validation being off does not remove the separate held-out test split used by this run.",
+      "narration": "Choose Random Forest, sixteen estimators and two worker jobs. Estimators controls the number of trees. More trees increase fitting work. Leave feature pruning and cross-validation off for this first pass; you can compare those choices after you have a working baseline.",
       "focus": [
         350,
         190,
@@ -91,7 +91,7 @@
     },
     {
       "visual": "19_setting_test_size",
-      "narration": "Set test size to one tenth and keep grouping by well. A requested fraction is not an exact object count: this four-well example holds out two whole wells, about forty-eight percent of its retained objects. Both classes appear on each side, and no actual well appears in both training and test.",
+      "narration": "Set Test size to one tenth and keep grouping by well. spaCR holds out complete wells, so the final fraction of objects can differ from the requested fraction. Read the resolved split in the console and make sure it suits your experiment.",
       "focus": [
         350,
         190,
@@ -102,7 +102,7 @@
     },
     {
       "visual": "19_setting_plot",
-      "narration": "Turn Plot on, clear the search and press Run. The console records the resolved settings, filtering, split and model report. Keep that record with the results. A finished badge does not establish that your labels, validation design or biological interpretation were appropriate.",
+      "narration": "Enable Plot, clear the search and press Run. The console shows feature filtering, the training and test split, model fitting and the saved output paths. Wait for the run to finish before comparing its scores.",
       "focus": [
         350,
         190,
@@ -113,7 +113,7 @@
     },
     {
       "visual": "23_batch_finished",
-      "narration": "This run scores two thousand one hundred fifty-three objects. One hundred eighty-eight lack matching nucleus data and remain unscored, not negative. The saved test accuracy is about sixty-two percent, versus fifty-six percent for the majority class. Four wells on one plate do not establish generalization to a new experiment.",
+      "narration": "Find the results under results, random_forest, channel underscore one. The database stores the predicted class in predictions and the class-one probability in ml_pred. Objects missing required measurements can remain unscored; inspect missing values when exporting a summary.",
       "focus": [
         2090,
         950,
@@ -124,28 +124,12 @@
     },
     {
       "visual": "25_ml_figure_02",
-      "narration": "Three figures are available: permutation importance, tree feature importance and this plate heatmap. With Predictions and mean grouping, the heatmap averages binary predicted classes, not their probabilities. Importance is not causality; the permutation calculation uses training data. Inspect the saved tables before drawing conclusions from a colourful plot.",
+      "narration": "Browse the feature-importance figures and plate heatmap. With Predictions and mean grouping, a well value is the average of its binary predicted classes. Use the saved object scores for detailed review, and compare held-out performance before applying the classifier to another experiment.",
       "focus": [
         2090,
         190,
         1720,
         1200
-      ],
-      "hold_after": 0.7
-    },
-    {
-      "visual": "30_ai_unsent_question",
-      "narration": "The AI toggle enables provider-assisted questions about the workflow. This is an unsent draft, not a generated answer. Keep results with their settings and verify any advice. Nested tools have their own input requirements: the Explain tutorial uses computer-vision scores, not these ML outputs. AI does not replace checking labels and split identities.",
-      "focus": [
-        2090,
-        1410,
-        1720,
-        620
-      ],
-      "related_lessons": [
-        "70_explain_cv",
-        "28_training_runs",
-        "06_api"
       ],
       "hold_after": 0.7
     }
