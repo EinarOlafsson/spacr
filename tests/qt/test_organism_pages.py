@@ -10,6 +10,7 @@ from PySide6.QtWidgets import QLabel, QMainWindow, QSizePolicy, QStackedWidget
 
 from spacr.qt import app
 from spacr.qt.command_palette import CommandPalette
+from spacr.qt.iconset import SHARED_ICON_ASSETS
 from spacr.qt.organisms import ORGANISMS
 from spacr.qt.screens.organism_screen import OrganismScreen, _IMAGES
 from spacr.qt.preferences import scaled_px
@@ -25,7 +26,7 @@ def test_home_offers_three_organisms_and_keeps_all_assay_registry_keys():
         "toxoplasma", "plasmodium", "candida"]
     assert set(ASSAYS) <= {row[0] for row in app.APPS}
     assert not set(ASSAYS) & {row[0] for row in app.tiled_apps()}
-    assert app._ICON_OVERRIDES["toxoplasma"] == "replication.png"
+    assert SHARED_ICON_ASSETS["toxoplasma"] == "replication.png"
 
 
 @pytest.mark.parametrize("key", ORGANISMS)

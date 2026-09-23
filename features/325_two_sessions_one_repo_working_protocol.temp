@@ -11957,3 +11957,45 @@ no retired modules, no threshold/exclusion/baseline changes. Full CI remains
 failed at the old revision; no new dispatch started while catalog/API fixes
 are still in progress. GPU idle observer third.service remains active; latest
 utilization6percent, no qualifying20-minute interval, no GPU job launched.
+2026-09-22 — CODEX: ORGANISM PAGE TRANSLATION PASS
+Previous turn pushed controls/ruler/Wand batches throughc9fc2e26a; this was
+concrete progress. Continuing the137 organism titles, module summaries,
+scientific introductions and SVG compartment descriptions. Refreshing their
+source inventory first; preserving proposal/Coming soon distinctions and
+compartment-name versus experimental-localization limits in all nine locales.
+Catalog/review files and visible translation checks remain this lane. No
+organism implementation, SVG geometry, GPU/NAS or installer work claimed.
+
+2026-09-22 — CODEX: ORGANISM CAPTION CHECK / ONE STALE TEST ASSERTION
+103 sources have927 candidate translations;34 long introductions/SVG
+paragraphs remain. During the named organism checks, the existing
+ test_home_offers_three_organisms_and_keeps_all_assay_registry_keys still
+indexes app._ICON_OVERRIDES['toxoplasma'], retired by1980a74fb. Updating only
+that assertion/import in tests/qt/test_organism_pages.py to retain the same
+replication.png requirement against SHARED_ICON_ASSETS. No icon/runtime
+implementation changes claimed. New nine-language visible-caption tests
+also cover unchanged module routes and SL identifiers.
+
+2026-09-22 — CODEX: ORGANISM CAPTIONS TRANSLATED AND VERIFIED
+103 of137 scoped sources now have927 translations across all nine locales:
+module titles/readout tooltips, section headings, compartment names,
+numbered hyperLOPIT classes, selection controls and diagram caveats. Eight
+complete domain-vocabulary rows preserve natural same-spelling translations.
+Shortened the localized clear-selection button after French rendering exposed
+clipping; its text now fits in all nine languages at the tested1100px layout.
+
+65 focused checks pass, including27 real localized organism screens, fixed
+assay routes, inert Coming soon tiles, SL identifiers, shared-location
+warnings, compartment selection/clearing and full localized tooltips.
+All nine runtime review loaders pass;927 lookups match and unrelated rows
+are unchanged. English inventory remains4715 UI/11365 API, both manifests
+current. French/Candida, Hindi/Toxoplasma and Korean/Plasmodium QMainWindow
+renders with bundled Open Sans were inspected. Existing long tile names
+elide with full tooltips. Fixed the one obsolete icon-map assertion noted
+above; no organism/diagram implementation changes. Receipt:
+features/data/288_organism_caption_translations_2026-09-22.json.
+
+34 long organism introductions, pathway narratives and SVG descriptions
+remain explicitly listed in that receipt. This is not whole-page linguistic
+acceptance. Broader API/helper/reference and tutorial-media work remains.
+No installation, GPU/NAS work or native-speaker sign-off claimed.

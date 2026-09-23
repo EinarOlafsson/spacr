@@ -5,7 +5,7 @@ button caption or a dense scientific introduction without application
 context.  Several grammatically valid translations consequently used
 the wrong sense: a microplate *well* became an interjection, a scientific
 *figure* became a number, an image *crop* became agriculture, and a parameter
-*sweep* became cleaning.  This module is the small human-reviewed vocabulary
+*sweep* became cleaning.  This module is the small reviewed vocabulary
 layer for those high-risk captions.
 
 The catalog builder consumes :data:`REVIEWED_UI_TRANSLATIONS` before any
@@ -48,6 +48,40 @@ def _row(
 
 
 REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
+    # Organism vocabulary reviewed in its compartment/module context. Some
+    # natural target nouns equal English; each has a complete locale row.
+    'Cytosol': _row(
+        'Cytosol', 'Zytosol', 'Citosol',
+        '细胞质基质', 'Citosol', 'कोशिकाद्रव्य द्रव',
+        '세포질액', 'Frymivökvi', 'Cytosol'),
+    'Filamentation': _row(
+        'Filamentbildning', 'Filamentbildung', 'Filamentación',
+        '丝状生长', 'Filamentação', 'तंतु निर्माण',
+        '사상체 형성', 'Þráðmyndun', 'Filamentation'),
+    'Golgi': _row(
+        'Golgi', 'Golgi', 'Golgi',
+        '高尔基体', 'Golgi', 'गॉल्जी',
+        '골지체', 'Golgi', 'Golgi'),
+    'Rhoptries': _row(
+        'Roptrier', 'Rhoptrien', 'Roptrias',
+        '棒状体', 'Roptrias', 'रॉप्ट्री',
+        '롭트리', 'Roptríur', 'Rhoptries'),
+    'Vacuole': _row(
+        'Vakuol', 'Vakuole', 'Vacuola',
+        '液泡', 'Vacúolo', 'रिक्तिका',
+        '액포', 'Safabóla', 'Vacuole'),
+    'cytosol': _row(
+        'cytosol', 'Zytosol', 'citosol',
+        '细胞质基质', 'citosol', 'कोशिकाद्रव्य द्रव',
+        '세포질액', 'frymivökvi', 'cytosol'),
+    'rhoptries 1': _row(
+        'roptrier 1', 'Rhoptrien 1', 'roptrias 1',
+        '棒状体 1', 'roptrias 1', 'रॉप्ट्री 1',
+        '롭트리 1', 'roptríur 1', 'rhoptries 1'),
+    'rhoptries 2': _row(
+        'roptrier 2', 'Rhoptrien 2', 'roptrias 2',
+        '棒状体 2', 'roptrias 2', 'रॉप्ट्री 2',
+        '롭트리 2', 'roptríur 2', 'rhoptries 2'),
     "Biofilm": _row(
         "Biofilm", "Biofilm", "Biopelícula", "生物膜", "Biofilme",
         "जैवफ़िल्म", "바이오필름", "Örveruþekja", "Biofilm"),
