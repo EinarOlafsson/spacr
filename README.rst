@@ -181,7 +181,9 @@ On macOS, open the ``.pkg``. The current beta is not notarized; if Gatekeeper
 blocks it, choose **System Settings → Privacy & Security → Open Anyway**.
 
 See the `installer guide <docs/source/installer_guide.rst>`_ for update, uninstall,
-offline and troubleshooting instructions.
+offline and troubleshooting instructions, and `system requirements
+<docs/source/system_requirements.rst>`_ for workstation and server recommendations
+and the GPU compatibility tables.
 
 PyPI installation
 ~~~~~~~~~~~~~~~~~

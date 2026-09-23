@@ -126,6 +126,7 @@ Contents
    :maxdepth: 2
 
    installer_guide
+   system_requirements
    workflows
    installers
    features
