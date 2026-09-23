@@ -26,6 +26,10 @@ mkdir -p -- "$capture_stage"
 capture_stage=$(realpath -- "$capture_stage")
 capture_python=$(realpath --no-symlinks -- "$capture_python")
 capture_mount=/tmp/spacr-tutorials
+capture_network=()
+if [[ ${SPACR_TUTORIAL_OFFLINE:-0} == 1 ]]; then
+    capture_network=(--unshare-net)
+fi
 mkdir -p -- "$capture_stage/profile/.cache/spacr/example_data" \
     "$capture_stage/profile/.spacr/runs"
 
@@ -39,7 +43,7 @@ awk -F: -v home_path="$capture_mount/profile" '
 ' /etc/passwd > "$capture_stage/passwd"
 
 exec "$capture_repo/tools/run_capped.sh" "${SPACR_TUTORIAL_MEMORY_CAP:-6G}" \
-    bwrap --unshare-user --uid 65534 --gid 65534 \
+    bwrap --unshare-user --uid 65534 --gid 65534 "${capture_network[@]}" \
     --bind / / --dev-bind /dev /dev --proc /proc --tmpfs /nas_mnt \
     --ro-bind "$capture_repo" /tmp/spacr-code --chdir /tmp/spacr-code \
     --bind "$capture_stage" "$capture_mount" \

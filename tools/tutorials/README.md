@@ -79,6 +79,13 @@ from Help search. It does not execute that Python workflow. The recorder clears
 Barcode QC's nonexistent default input through its Clear button, widens the
 Power and Dose-Response panes, sizes table cells, and folds OPS Actions for the
 navigation-only view. All eleven scenes remain bound to the shared map.
+Use ``--workflow-lesson 80_image_analysis_pathways`` for the eighteen-scene
+image-analysis route. The four assays open through their actual Toxoplasma
+tiles; the Gate Editor filter pane is widened through its splitter. Set
+``SPACR_TUTORIAL_OFFLINE=1`` on the neutral capture wrapper to isolate the
+recording's network. Both Python-only entries then open the real local Help
+reference consistently, with displayed text checked against the current
+source. No API workflow executes during this navigation capture.
 The staged-player verifier's ``--sentence-cues`` option checks every native
 English caption at its recorded speech midpoint in a separate evidence folder.
 

@@ -331,3 +331,16 @@ Other module lessons provide the worked data examples. Lessons 79/80 still
 need recordings, and 81 still needs staging, translations and full media.
 Receipt: tools/tutorials/evidence/2026-09-23-sequencing-workflow-capture.json.
 No full tutorial-set or publication acceptance is claimed.
+
+2026-09-23 — CODEX: THIRD WORKFLOW CAPTURE
+Lesson80 now has18 current native4K scenes:14 actual GUI routes and two
+source-checked local API references. The four assay routes use the Toxoplasma
+organism's real tiles. Network isolation makes the real local Help fallback
+consistent across both API entries. Visual inspection caught clipped Gate
+Editor controls; dragging the actual splitter makes Filter/Columns readable.
+49 named capture-policy, CLI and workflow-map checks pass; shell syntax passes.
+Receipt: tools/tutorials/evidence/2026-09-23-image-workflow-capture.json.
+No analysis/download was requested. Lesson79 still needs capture, and80/81
+need translations and media. All50 lesson78 tracks now pass technical audio
+checks, with per-voice browser checks continuing. No listening or full-set
+publication acceptance is claimed.

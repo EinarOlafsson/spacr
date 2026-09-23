@@ -1,0 +1,482 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "lesson": "80_image_analysis_pathways",
+  "capture_stage": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw",
+  "capture_provenance": {
+    "commit": "d31667cc9db473c56873d303c1c8abc76654bddc",
+    "version": "1.5.0.9",
+    "module": "workflow_overview",
+    "download_requested": false,
+    "dataset_cache": "/tmp/spacr-tutorials/example_data",
+    "app_source_modified": false,
+    "cache_isolated_with_bind_mount": true,
+    "completed_capture": true
+  },
+  "navigation": {
+    "accepted": true,
+    "scope": "Real Home/fold navigation and indexed API search; data handoffs explained by the shared map",
+    "lesson": "80_image_analysis_pathways",
+    "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "lesson_sha256": "1ae6003a76313c38fc9cffb52cc1f5f75fb51c2e0638d8e795a58f0ef89ff9f7",
+    "visuals": [
+      "home",
+      "module_mask",
+      "module_make_masks",
+      "module_measure",
+      "module_annotate",
+      "module_classify_merged",
+      "module_umap",
+      "module_gate_editor",
+      "module_align",
+      "module_analyze_plaques",
+      "module_recruitment",
+      "module_invasion",
+      "module_replication",
+      "module_qc_dashboard",
+      "module_embeddings",
+      "module_endodyogeny",
+      "module_cellpose_masks",
+      "home_summary"
+    ],
+    "routes": [
+      {
+        "module": "mask",
+        "home_host": "mask",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "make_masks",
+        "home_host": "make_masks",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "MakeMasksScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "measure",
+        "home_host": "measure",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "annotate",
+        "home_host": "annotate",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AnnotateScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "classify_merged",
+        "home_host": "classify_merged",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "umap",
+        "home_host": "umap",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "gate_editor",
+        "home_host": "gate_editor",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "GateEditorScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "align",
+        "home_host": "align",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "AlignScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "analyze_plaques",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "recruitment",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "invasion",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "replication",
+        "home_host": "toxoplasma",
+        "parent": "toxoplasma",
+        "tile_text": "",
+        "screen_class": "AppScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "qc_dashboard",
+        "home_host": "qc_dashboard",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "QCDashboardScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "embeddings",
+        "home_host": "embeddings",
+        "parent": null,
+        "tile_text": "",
+        "screen_class": "EmbeddingsScreen",
+        "home_tile_clicked": true,
+        "screen_visible": true,
+        "default_count_path_cleared": false,
+        "actions_folded_for_navigation_only": false
+      },
+      {
+        "module": "endodyogeny",
+        "api_symbol": "spacr.submodules.analyze_endodyogeny",
+        "search_query": "analyze_endodyogeny",
+        "real_help_result_visible": true,
+        "api_executed": false,
+        "local_docstring_displayed": true,
+        "displayed_docstring_sha256": "492250938423d5ad424d42a1fe9230f1cd7c7f1e4f242271237e7f2ef6fd7d90",
+        "home_tile_clicked": false
+      },
+      {
+        "module": "cellpose_masks",
+        "api_symbol": "spacr.spacr_cellpose.identify_masks_finetune",
+        "search_query": "identify_masks_finetune",
+        "real_help_result_visible": true,
+        "api_executed": false,
+        "local_docstring_displayed": true,
+        "displayed_docstring_sha256": "8ba12b47ca6eeb9613d09e6584aa597d6f61d1ae50c258054bbc305cab979400",
+        "home_tile_clicked": false
+      }
+    ],
+    "analysis_requested": false,
+    "download_requested": false,
+    "worked_experiment_completed": false,
+    "narration_or_media_accepted": false
+  },
+  "scene_count": 18,
+  "frames": {
+    "00_home": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/00_home.png",
+      "sha256": "0a1eba30db9365dac8ad19c4a604899c5fbc07bc0c8c2000ea05fbd87d2fc637",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 26
+      }
+    },
+    "home": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/home.png",
+      "sha256": "0a1eba30db9365dac8ad19c4a604899c5fbc07bc0c8c2000ea05fbd87d2fc637",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 27
+      }
+    },
+    "module_mask": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_mask.png",
+      "sha256": "8aa528b2d5fce793851948b9f5917655499d75c6bba3762035abac187a03f796",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 93
+      }
+    },
+    "module_make_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_make_masks.png",
+      "sha256": "72c686685bd690de715778086ec290400e480f0d70a52fc8f2d312e955982bb9",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 230
+      }
+    },
+    "module_measure": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_measure.png",
+      "sha256": "bc38427c9526ac646395feb52728f2243eb0fdb10c403f360f5c8d311e5362a7",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 248
+      }
+    },
+    "module_annotate": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_annotate.png",
+      "sha256": "c30a327fcf73c2de6bcde5212ec56cabc934c47e1909a23e65b681b4a2a5259c",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 370
+      }
+    },
+    "module_classify_merged": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_classify_merged.png",
+      "sha256": "5d69d9cf8131ddb2ba6a13b1066e6b2ab5dc081e29482b94b0f7da70994136ab",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 392
+      }
+    },
+    "module_umap": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_umap.png",
+      "sha256": "7b17f2fbbf8ca3deeabe300672f29847ae59b47596680fe17f871e8d676396ce",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 458
+      }
+    },
+    "module_gate_editor": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_gate_editor.png",
+      "sha256": "513c7d547eff189a9e5743432d04991c7abb97c7992b194b433cbaa83d6e22a2",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 560
+      }
+    },
+    "module_align": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_align.png",
+      "sha256": "989db3ce67a8a72623d1395503add7a431fb1be3d927b278fd04bfb46f8bcec5",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 636
+      }
+    },
+    "organism_route_analyze_plaques": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/organism_route_analyze_plaques.png",
+      "sha256": "71d30cecfc7a4c25e83eef2fa71042c88c795ab939a2f709b0a0abd9b374d52e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 706
+      }
+    },
+    "module_analyze_plaques": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_analyze_plaques.png",
+      "sha256": "22b9f16258cfe666c8e3f84a1dd2068e1214a7ad27c3741c46ebd289bc6158ff",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 689
+      }
+    },
+    "organism_route_recruitment": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/organism_route_recruitment.png",
+      "sha256": "4dca9a07f1d57821ab862e714b4d84d4854f1fd2d8c98c20985d57eae0fea9eb",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 852
+      }
+    },
+    "module_recruitment": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_recruitment.png",
+      "sha256": "e5515f2741fdb62a64376167dfbf8912a257ba4547d59cd0188ebebab44091e8",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 785
+      }
+    },
+    "organism_route_invasion": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/organism_route_invasion.png",
+      "sha256": "8131df9904a7d5b6c6b0e6dc7ff7129b0e23419160b8ee259d6d1daed213b70e",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1006
+      }
+    },
+    "module_invasion": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_invasion.png",
+      "sha256": "a903586ec5b3d652f89e8b5344f2ac62dab0efc4c3da822fe66c999df51f2405",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 883
+      }
+    },
+    "organism_route_replication": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/organism_route_replication.png",
+      "sha256": "897f2da7dc10c4a9575888ef78ba32d8e4e63afa86de51f1106626ed9d7039c4",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1156
+      }
+    },
+    "module_replication": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_replication.png",
+      "sha256": "1121bc3d52d481d5b04fcd892e55fc6dc6407b1fd819b587153f405fe9471037",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 982
+      }
+    },
+    "module_qc_dashboard": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_qc_dashboard.png",
+      "sha256": "b423dd15ef2a8775ff78c3eb7a6fc21339f7bb6afd1558bb11fccbfda3e44193",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1113
+      }
+    },
+    "module_embeddings": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_embeddings.png",
+      "sha256": "7fd18565a5cee7ebd4d0f86478741ac20707885bac76dab12fbac4584c1466f7",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1192
+      }
+    },
+    "api_search_endodyogeny": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/api_search_endodyogeny.png",
+      "sha256": "b43f9dc9a1f1d830d2363fd5ae2c6ef07d9e56a524ae6686eceb8cadae56cc8b",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1156
+      }
+    },
+    "module_endodyogeny": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_endodyogeny.png",
+      "sha256": "0b4dbfa87a157de9888af3ffc51bd46cf37fc459be2ee8fa9704c66a7d64979f",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1167
+      }
+    },
+    "api_search_cellpose_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/api_search_cellpose_masks.png",
+      "sha256": "548a2f4591d48792cb6107bbc1cce231834889a7587c3e0c82f90f807db80915",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1187
+      }
+    },
+    "module_cellpose_masks": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/module_cellpose_masks.png",
+      "sha256": "087d9da837a44c83408a9c365915c6ae32995f5c12c1348684e431dd12714659",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1198
+      }
+    },
+    "home_summary": {
+      "path": "/mnt/firecuda2/codex/workflow-image-capture.6M0bfw/captures/image-pathways-navigation/home_summary.png",
+      "sha256": "c07713456df3f17d205be8482a01948158cef0d6a2c8781693975c90eb5fcc44",
+      "appearance": {
+        "theme": "dark",
+        "backdrop": "blobs",
+        "painted_frames": 1208
+      }
+    }
+  },
+  "source_sha256": {
+    "tools/tutorials/capture_workflow_overview.py": "fc6a3615d551b9ac27c2fecf1bc3bb9fe4564de99d8fb38f5954e06c1e9da8a4",
+    "tools/tutorials/capture_refresh.py": "3700c9b85a4ab79a76a4053d3177bff01f212a06724540c3a59c9d0ff8d1aea4",
+    "tools/tutorials/run_neutral_capture.sh": "efa1f4f5866d7f94cc532d68de360048251ce0bb168d936b4d2d5e00daf120a6",
+    "spacr/resources/module_workflows.json": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+    "tools/tutorials/lessons/80_image_analysis_pathways.json": "1ae6003a76313c38fc9cffb52cc1f5f75fb51c2e0638d8e795a58f0ef89ff9f7",
+    "spacr/submodules.py": "c7ef67d2c537cf556b5ff356c362474f73c255274b2e2879da40ad55c6203391",
+    "spacr/spacr_cellpose.py": "d463c9469d1138a4da8f67899cb0d74f538a21f1fc476c946ce7e8e38509bffc"
+  },
+  "presentation": [
+    "Actual Home/category tiles, including four real assay tiles on the Toxoplasma organism page",
+    "Actual splitter drags widen the core settings and Gate Editor filter/formula pane",
+    "Both Python-only workflows open the genuine source-checked local API reference from Help search",
+    "SPACR_TUTORIAL_OFFLINE=1 isolates the capture network with bwrap --unshare-net; local references are the real offline fallback"
+  ],
+  "visual_review": "Reviewed the distinct image-analysis screens and organism route in contact sheets, and inspected the final widened Gate Editor separately. Empty input views are navigation examples, not completed analyses.",
+  "tests": {
+    "named_checks": 49,
+    "log_sha256": "bdda381e802f71dbe481372e0d5161b0fcba2c541ac3ca7e6646408b0e9f79c1",
+    "shell_syntax": "passed"
+  },
+  "analysis_requested": false,
+  "download_requested": false,
+  "narration_or_media_accepted": false,
+  "published": false,
+  "remaining": [
+    "Stage after preceding lesson identities",
+    "Thirteen translated scripts and fifty voices",
+    "Shared video, full caption/player/media checks",
+    "Complete-set publication"
+  ]
+}

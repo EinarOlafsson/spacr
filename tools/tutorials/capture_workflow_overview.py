@@ -20,7 +20,8 @@ def record_overview(app, window, captures, capture, settle, write_json,
 
     root = Path(__file__).resolve().parents[2]
     map_path = root / 'spacr/resources/module_workflows.json'
-    if lesson_id not in ('78_spacr_screens', '81_sequencing_pathways'):
+    if lesson_id not in ('78_spacr_screens', '80_image_analysis_pathways',
+                         '81_sequencing_pathways'):
         raise ValueError('This recorder has not validated that workflow lesson')
     lesson_path = root / 'tools/tutorials/lessons' / (lesson_id + '.json')
     data = json.loads(map_path.read_text())
@@ -134,7 +135,18 @@ def record_overview(app, window, captures, capture, settle, write_json,
         if screen is None or not screen.isVisible():
             raise ValueError(f'The native Home tile did not open {host_key}')
         if module['parent']:
-            if key == 'ops':
+            if module['parent'] == 'toxoplasma':
+                assay_tiles = [button for button in screen.findChildren(QAbstractButton)
+                               if button.property('organismModuleKey') == key]
+                if len(assay_tiles) != 1:
+                    raise ValueError('No unique organism assay tile for ' + key)
+                screen._module_scroll.ensureWidgetVisible(assay_tiles[0])
+                settle(.4)
+                capture('organism_route_' + key)
+                click(assay_tiles[0])
+                settle(1)
+                screen = window._screens.get(key)
+            elif key == 'ops':
                 from spacr.qt.screens.mask import ops_page
 
                 switch = screen._ops_switch
@@ -222,6 +234,17 @@ def record_overview(app, window, captures, capture, settle, write_json,
                 if table.isVisible():
                     table.resizeColumnsToContents()
             settle(.4)
+        if key == 'gate_editor':
+            splitter = screen._body
+            handle = splitter.handle(1)
+            start = handle.rect().center()
+            delta = splitter.sizes()[1] - 850
+            QTest.mousePress(handle, Qt.LeftButton, pos=start)
+            QTest.mouseMove(handle, start + QPoint(delta, 0), delay=100)
+            QTest.mouseRelease(handle, Qt.LeftButton, pos=handle.rect().center())
+            settle(.6)
+            if screen.side_tabs.width() < 800:
+                raise ValueError('The Gate Editor filter pane did not widen')
         capture('module_' + key)
         routes.append({'module': key, 'home_host': host_key, 'parent': module['parent'],
                        'tile_text': tile.text(),
