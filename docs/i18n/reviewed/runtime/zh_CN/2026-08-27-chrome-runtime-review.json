@@ -80,13 +80,6 @@
       "translation": "选择包含 `measurements/measurements.db` 的文件夹。左键单击图像以分配类别 1，右键单击以分配类别 2，再次单击可清除标注 — 也可以仅使用键盘：按 1–9 进行标注并跳转到下一个图像裁剪。标注将在后台保存。"
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "端到端真实数据集（掩膜 → 测量 → 标注）…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

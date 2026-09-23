@@ -1,0 +1,559 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "scope": "Preserve translations for removed source keys outside the active review set; current source keys and changed-source records are retained.",
+  "retired_records": [
+    {
+      "file": "docs/i18n/reviewed/runtime/de/2026-08-27-chrome-runtime-review.json",
+      "language": "de",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "Realer End-to-End-Datensatz (Masken → Messen → Annotieren)…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/de/2026-09-16-example-settings-pack.json",
+      "language": "de",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "translation": "Demo-Datensatz mit seinen Einstellungen geladen. Wählen Sie Live Preview, um ein Sichtfeld anzuzeigen, oder Run, um die Platte zu verarbeiten."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/de/2026-09-16-example-settings-pack.json",
+      "language": "de",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "translation": "Demo-Datensatz ohne Einstellungspaket geladen; die Standardwerte werden verwendet. Wählen Sie Live Preview, um ein Sichtfeld anzuzeigen, oder Run, um die Platte zu verarbeiten."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/de/2026-09-22-starplast-installation-size.json",
+      "language": "de",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast ist eine Alpha-Anwendung zur Erkundung der Toxoplasma-Wissenskarte. Funktionen und Ergebnisse können sich ändern. Die Anwendung öffnet sich in einem separaten Fenster.\n\nDies ist eine umfangreiche Installation: Bei einer überprüften Installation unter Linux x86_64 wurden etwa 4 GB heruntergeladen und nach der Installation etwa 7 GB belegt, einschließlich CUDA-Abhängigkeiten. Der Bedarf hängt von Version und Plattform ab. Halten Sie mindestens 12 GB freien Speicherplatz bereit. Downloads können mehrere Minuten dauern.\n\nStarplast erhält eine eigene Umgebung unter {path}; die Pakete von spaCR werden nicht verändert. Der Quellcode steht unter der MIT-Lizenz. Wählen Sie einen lokalen Git-Checkout, wenn kein Zugriff auf das Repository möglich ist; lokale Installationen verwenden eingecheckte Dateien und lassen den Checkout unverändert."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/de/2026-09-23-flowchart-chrome.json",
+      "language": "de",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "Durchgezogene Pfeile: dokumentierte Übergaben. Gestrichelte Pfeile: passende Datentypen, deren Kompatibilität geprüft werden muss. Ziehen zum Verschieben; Ctrl+Mausrad zum Zoomen."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/es/2026-08-27-chrome-runtime-review.json",
+      "language": "es",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "Conjunto de datos real de extremo a extremo (Máscaras → Medición → Anotación)…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/es/2026-09-16-example-settings-pack.json",
+      "language": "es",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "translation": "Conjunto de datos de demostración cargado con sus ajustes. Pulse Live Preview para ver un campo de visión, o Run para procesar la placa.",
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/es/2026-09-16-example-settings-pack.json",
+      "language": "es",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "translation": "Conjunto de datos de demostración cargado sin un paquete de ajustes; se usan los valores predeterminados. Pulse Live Preview para ver un campo de visión, o Run para procesar la placa.",
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/es/2026-09-22-starplast-installation-size.json",
+      "language": "es",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast es una aplicación en fase alfa para explorar el mapa de conocimiento de Toxoplasma. Las funciones y los resultados pueden cambiar. Se abre en una ventana independiente.\n\nEsta instalación es grande: en una instalación verificada de Linux x86_64 se descargaron unos 4 GB y se ocuparon unos 7 GB tras la instalación, incluidas las dependencias de CUDA. Los requisitos varían según la versión y la plataforma. Reserve al menos 12 GB de espacio libre en disco. Las descargas pueden tardar varios minutos.\n\nStarplast dispone de su propio entorno en {path}; los paquetes de spaCR no se modifican. El código fuente tiene licencia MIT. Elija una copia de trabajo local de Git si no puede acceder al repositorio; las instalaciones locales utilizan archivos confirmados y dejan intacta la copia de trabajo."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/es/2026-09-23-flowchart-chrome.json",
+      "language": "es",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "Flechas continuas: transferencias documentadas. Flechas discontinuas: tipos de datos coincidentes que requieren comprobar compatibilidad. Arrastre para desplazar; Ctrl+rueda para ajustar el zoom."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/fr/2026-08-27-chrome-runtime-review.json",
+      "language": "fr",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "Jeu de données réel de bout en bout (Masques → Mesure → Annotation)…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/fr/2026-09-16-example-settings-pack.json",
+      "language": "fr",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "translation": "Jeu de données de démonstration chargé avec ses paramètres. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/fr/2026-09-16-example-settings-pack.json",
+      "language": "fr",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "translation": "Jeu de données de démonstration chargé sans jeu de paramètres ; les valeurs par défaut sont utilisées. Cliquez sur Live Preview pour afficher un champ de vue, ou sur Run pour traiter la plaque.",
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/fr/2026-09-22-starplast-installation-size.json",
+      "language": "fr",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast est une application en version alpha permettant d’explorer la carte des connaissances sur Toxoplasma. Les fonctionnalités et les résultats peuvent changer. Elle s’ouvre dans une fenêtre distincte.\n\nCette installation est volumineuse : une installation vérifiée sous Linux x86_64 a téléchargé environ 4 GB et occupé environ 7 GB après installation, dépendances CUDA comprises. Les besoins varient selon la version et la plateforme. Prévoyez au moins 12 GB d’espace disque libre. Les téléchargements peuvent prendre plusieurs minutes.\n\nStarplast dispose de son propre environnement à l’emplacement {path} ; les paquets de spaCR ne sont pas modifiés. Le code source est sous licence MIT. Choisissez une copie de travail Git locale si le dépôt est inaccessible ; les installations locales utilisent les fichiers validés dans Git et laissent la copie de travail intacte."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/fr/2026-09-23-flowchart-chrome.json",
+      "language": "fr",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "Flèches pleines : transferts documentés. Flèches en pointillés : types de données correspondants, dont la compatibilité doit être vérifiée. Faites glisser pour déplacer la vue ; Ctrl+molette pour zoomer."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/hi/2026-08-27-chrome-runtime-review.json",
+      "language": "hi",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "आरंभ से अंत तक (मास्क → मापन → एनोटेशन) वास्तविक डेटासेट…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/hi/2026-09-16-example-settings-pack.json",
+      "language": "hi",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "translation": "डेमो डेटासेट उसकी सेटिंग्स सहित लोड हो गया है। एक दृश्य-क्षेत्र देखने के लिए Live Preview दबाएँ, या पूरी प्लेट को संसाधित करने के लिए Run दबाएँ।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/hi/2026-09-16-example-settings-pack.json",
+      "language": "hi",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "translation": "डेमो डेटासेट सेटिंग्स पैक के बिना लोड हुआ है; डिफ़ॉल्ट सेटिंग्स का उपयोग किया जा रहा है। एक दृश्य-क्षेत्र देखने के लिए Live Preview दबाएँ, या पूरी प्लेट को संसाधित करने के लिए Run दबाएँ।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/hi/2026-09-22-starplast-installation-size.json",
+      "language": "hi",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast, Toxoplasma ज्ञान मानचित्र का अन्वेषण करने के लिए एक अल्फ़ा चरण का एप्लिकेशन है। सुविधाएँ और परिणाम बदल सकते हैं। यह एक अलग विंडो में खुलता है।\n\nयह एक बड़ा इंस्टॉलेशन है: जाँचे गए Linux x86_64 इंस्टॉलेशन में लगभग 4 GB डाउनलोड हुआ और इंस्टॉलेशन के बाद CUDA निर्भरताओं सहित लगभग 7 GB स्थान लगा। आवश्यकताएँ संस्करण और प्लेटफ़ॉर्म के अनुसार बदलती हैं। डिस्क पर कम से कम 12 GB खाली स्थान रखें। डाउनलोड में कई मिनट लग सकते हैं।\n\nStarplast को {path} पर अपना अलग वातावरण मिलता है; spaCR के पैकेज नहीं बदलते। स्रोत कोड MIT लाइसेंस के अंतर्गत है। यदि रिपॉज़िटरी तक पहुँच उपलब्ध न हो, तो स्थानीय Git वर्किंग कॉपी चुनें; स्थानीय इंस्टॉलेशन कमिट की गई फ़ाइलों का उपयोग करते हैं और वर्किंग कॉपी को अपरिवर्तित छोड़ते हैं।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/hi/2026-09-23-flowchart-chrome.json",
+      "language": "hi",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "ठोस तीर: दस्तावेज़ित हस्तांतरण। बिंदीदार तीर: मेल खाते डेटा प्रकार, जिनकी संगतता जाँचना ज़रूरी है। खिसकाने के लिए ड्रैग करें; ज़ूम के लिए Ctrl+व्हील का उपयोग करें।"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/is/2026-08-27-chrome-runtime-review.json",
+      "language": "is",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "Raungagnasafn frá upphafi til enda (Grímur → Mæling → Merking)…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/is/2026-09-16-example-settings-pack.json",
+      "language": "is",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "translation": "Dæmigagnasafnið var hlaðið inn ásamt stillingum þess. Veldu Live Preview til að sjá eitt sjónsvið eða Run til að vinna úr plötunni."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/is/2026-09-16-example-settings-pack.json",
+      "language": "is",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "translation": "Dæmigagnasafnið var hlaðið inn án stillingapakka; sjálfgefnar stillingar eru notaðar. Veldu Live Preview til að sjá eitt sjónsvið eða Run til að vinna úr plötunni."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/is/2026-09-22-starplast-installation-size.json",
+      "language": "is",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast er forrit á alfastigi til að kanna þekkingarkort Toxoplasma. Eiginleikar og niðurstöður geta breyst. Það opnast í sérstökum glugga.\n\nÞetta er stór uppsetning: við prófaða uppsetningu á Linux x86_64 var um 4 GB hlaðið niður og um 7 GB notað eftir uppsetningu, að CUDA-háðum pökkum meðtöldum. Kröfur eru breytilegar eftir útgáfu og stýrikerfi. Hafðu að minnsta kosti 12 GB af lausu diskplássi. Niðurhal getur tekið nokkrar mínútur.\n\nStarplast fær eigið umhverfi á {path}; pökkum spaCR er ekki breytt. Frumkóðinn er með MIT-leyfi. Veldu staðbundið Git-vinnueintak ef aðgangur að kóðasafninu er ekki tiltækur; staðbundnar uppsetningar nota skrár sem hafa verið skráðar með commit og skilja vinnueintakið eftir óbreytt."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/is/2026-09-23-flowchart-chrome.json",
+      "language": "is",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "Heilar örvar: skráðir afhendingarpunktar. Strikaðar örvar: samsvarandi gagnategundir sem þarf að athuga hvort séu samhæfar. Dragðu til að færa sýnina; Ctrl+músarhjól til að breyta aðdrætti."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/ko/2026-08-27-chrome-runtime-review.json",
+      "language": "ko",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "엔드투엔드(마스크 → 측정 → 어노테이션) 실제 데이터 세트…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/ko/2026-09-16-example-settings-pack.json",
+      "language": "ko",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "translation": "데모 데이터셋을 해당 설정과 함께 불러왔습니다. 한 시야를 보려면 Live Preview 버튼을, 플레이트를 처리하려면 Run 버튼을 누르세요."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/ko/2026-09-16-example-settings-pack.json",
+      "language": "ko",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "translation": "데모 데이터셋을 설정 팩 없이 불러왔으므로 기본 설정을 사용합니다. 한 시야를 보려면 Live Preview 버튼을, 플레이트를 처리하려면 Run 버튼을 누르세요."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/ko/2026-09-22-starplast-installation-size.json",
+      "language": "ko",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast는 Toxoplasma 지식 지도를 탐색하는 알파 단계 애플리케이션입니다. 기능과 결과는 바뀔 수 있습니다. 별도의 창에서 열립니다.\n\n이 설치에는 많은 공간이 필요합니다. 검증된 Linux x86_64 설치에서는 약 4 GB를 다운로드했고, CUDA 의존성을 포함하여 설치 후 약 7 GB를 사용했습니다. 요구 사항은 버전과 플랫폼에 따라 다릅니다. 디스크 여유 공간을 최소 12 GB 확보하세요. 다운로드에 몇 분이 걸릴 수 있습니다.\n\nStarplast는 {path}에 자체 환경을 만들며 spaCR의 패키지는 변경되지 않습니다. 소스 코드는 MIT 라이선스로 제공됩니다. 저장소에 접근할 수 없다면 로컬 Git 작업 사본을 선택하세요. 로컬 설치는 커밋된 파일을 사용하며 작업 사본을 변경하지 않습니다."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/ko/2026-09-23-flowchart-chrome.json",
+      "language": "ko",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "실선 화살표는 문서화된 전달을 나타냅니다. 점선 화살표는 일치하는 데이터 유형을 나타내며 호환성 확인이 필요합니다. 드래그하여 이동하고 Ctrl+휠로 확대 또는 축소하세요."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/pt/2026-08-27-chrome-runtime-review.json",
+      "language": "pt",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "Conjunto de dados real de ponta a ponta (Máscaras → Medição → Anotação)…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/pt/2026-09-16-example-settings-pack.json",
+      "language": "pt",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "translation": "Conjunto de dados de demonstração carregado com suas configurações. Pressione Live Preview para ver um campo de visão ou Run para processar a placa.",
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/pt/2026-09-16-example-settings-pack.json",
+      "language": "pt",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "translation": "Conjunto de dados de demonstração carregado sem um pacote de configurações; os valores padrão estão sendo usados. Pressione Live Preview para ver um campo de visão ou Run para processar a placa.",
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/pt/2026-09-22-starplast-installation-size.json",
+      "language": "pt",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast é um aplicativo em versão alfa para explorar o mapa de conhecimento de Toxoplasma. Os recursos e resultados podem mudar. Ele abre em uma janela separada.\n\nEsta é uma instalação grande: uma instalação verificada no Linux x86_64 baixou cerca de 4 GB e ocupou cerca de 7 GB após a instalação, incluindo dependências do CUDA. Os requisitos variam conforme a versão e a plataforma. Reserve pelo menos 12 GB de espaço livre em disco. Os downloads podem levar vários minutos.\n\nStarplast tem seu próprio ambiente em {path}; os pacotes do spaCR não são alterados. O código-fonte tem licença MIT. Escolha uma cópia de trabalho local do Git se o acesso ao repositório não estiver disponível; as instalações locais usam arquivos registrados em commits e deixam a cópia de trabalho intacta."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/pt/2026-09-23-flowchart-chrome.json",
+      "language": "pt",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "Setas contínuas: transferências documentadas. Setas tracejadas: tipos de dados correspondentes que exigem verificação de compatibilidade. Arraste para mover a vista; Ctrl+roda para ajustar o zoom."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-08-27-chrome-runtime-review.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "Verklig datauppsättning från början till slut (Masker → Mätning → Annotering)…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-08-27-chrome-runtime-review.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end demo",
+        "source_sha256": "c0c2495a8ff1c22537c1a759b62586ac1e3d6dbddf07b12e1568910af25b4b2c",
+        "source": "End-to-end demo",
+        "translation": "Demonstration från början till slut"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-09-16-example-settings-pack.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "translation": "Demodata har lästs in med sina inställningar. Välj Live Preview för att se ett synfält eller Run för att bearbeta plattan."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-09-16-example-settings-pack.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "translation": "Demodata har lästs in utan något inställningspaket; standardvärden används. Välj Live Preview för att se ett synfält eller Run för att bearbeta plattan."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-09-22-starplast-installation-size.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast är en alfaapplikation för att utforska kunskapskartan för Toxoplasma. Funktioner och resultat kan ändras. Den öppnas i ett separat fönster.\n\nDet här är en stor installation: en kontrollerad installation på Linux x86_64 laddade ned cirka 4 GB och använde cirka 7 GB efter installationen, inklusive CUDA-beroenden. Kraven varierar med version och plattform. Se till att minst 12 GB ledigt diskutrymme finns. Nedladdningar kan ta flera minuter.\n\nStarplast får en egen miljö på {path}; spaCR:s paket ändras inte. Källkoden har MIT-licens. Välj en lokal Git-arbetskopia om arkivet inte är tillgängligt; lokala installationer använder incheckade filer och lämnar arbetskopian orörd."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/sv/2026-09-23-flowchart-chrome.json",
+      "language": "sv",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "Heldragna pilar: dokumenterade överlämningar. Streckade pilar: matchande datatyper som kräver kompatibilitetskontroll. Dra för att panorera; Ctrl+mushjul för att zooma."
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-08-27-chrome-runtime-review.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
+        "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
+        "translation": "端到端真实数据集（掩膜 → 测量 → 标注）…"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-16-example-settings-pack.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "04f44846e8c8964bc509dd005a396dcb5330f8c69aefddbbdd902cb4a1484675",
+        "source": "Demo dataset loaded with its settings. Press Live Preview to see one field, or Run to process the plate.",
+        "translation": "演示数据集及其设置已加载。点击 Live Preview 查看一个显微视野，或点击 Run 处理整块孔板。"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-16-example-settings-pack.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "table": "ui",
+        "key": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "source_sha256": "86f5b2a53eb15fb386be1baa64d47b357e439adb21c1c89b09df0291aeb5c064",
+        "source": "Demo dataset loaded without a settings pack; using defaults. Press Live Preview to see one field, or Run to process the plate.",
+        "translation": "演示数据集已加载，但没有设置包；使用默认设置。点击 Live Preview 查看一个显微视野，或点击 Run 处理整块孔板。"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-22-starplast-installation-size.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
+        "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
+        "table": "ui",
+        "translation": "Starplast 是一款用于探索 Toxoplasma 知识图谱的 alpha 阶段应用程序。功能和结果可能会发生变化。它会在单独的窗口中打开。\n\n此安装所需空间较大：一次经过验证的 Linux x86_64 安装下载了约 4 GB 数据，安装后占用约 7 GB，其中包括 CUDA 依赖项。需求因版本和平台而异。请预留至少 12 GB 可用磁盘空间。下载可能需要几分钟。\n\nStarplast 会在 {path} 拥有自己的环境；spaCR 的软件包不会被更改。源代码采用 MIT 许可证。如果无法访问仓库，请选择本地 Git 工作副本；本地安装使用已提交的文件，且不会改动工作副本。"
+      }
+    },
+    {
+      "file": "docs/i18n/reviewed/runtime/zh_CN/2026-09-23-flowchart-chrome.json",
+      "language": "zh_CN",
+      "reason": "Source key is absent from the current runtime inventory",
+      "record": {
+        "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
+        "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
+        "table": "ui",
+        "translation": "实线箭头：已记录的交接。虚线箭头：数据类型匹配，但仍需检查兼容性。拖动可平移；Ctrl+滚轮可缩放。"
+      }
+    }
+  ]
+}

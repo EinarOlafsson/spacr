@@ -3201,7 +3201,7 @@ UI = {
     'Fine-grained control over the beta motility pipeline — which features are selected and the filter windows applied to tracks. Only worth opening once the basic assay runs and the tracks look wrong in a specific way.': '베타 모틸리티 파이프 라인에 대한 섬세한 제어 - 어떤 기능이 선택되고 필터 창이 트랙에 적용됩니다. 기본 테이프가 실행되고 트랙이 특정 방식으로 잘못 보이는 경우에만 열어야합니다.',
     'Fine-tune a Cellpose model on your own labelled fields, then segment a folder of images with it or with a stock model': '자신의 표시된 필드에 Cellpose 모델을 정리한 다음 그것과 함께 이미지 폴더 또는 주식 모델을 분류합니다.',
     'First graph — {shape}': '첫 번째 차트 - {shape}',
-    'Fit': '적합한',
+    'Fit': '화면에 맞추기',
     'Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.': '지금까지 만들어진 라벨에 모델을 맞추고, 각 식물을 그와 함께 점수합니다., 다시 불확실성의 을 다. — 이 스크린을 떠나지 않는다. 잘 꺼내, 그래서 정확성은 하나의 시야를 표시하는 유물이 아닙니다. 각 라운드는 모델 카드를 작성합니다.',
     'Fit and draw a trend line through the points.': '포인트를 통해 트렌드 라인을 맞추고 끌어내십시오.',
     "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.": '지금까지 만들어진 라벨에 적합하고 당신이 아직 응답하지 않은 모든 식물에 모델의 제안 된 라벨을 쓰십시오 - 가장 신뢰할 수있는 첫 번째, 단단하지 않고 단단한, 그리고 당신이 이미 결정하지 않은 곳에만.',
@@ -6604,6 +6604,8 @@ UI = {
     'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': '액포 전체와 숙주의 기준 구획을 측정하고, 감염 비율의 분모에 비감염 숙주 세포를 포함하세요. 마커 채널과 대조군으로 보정한 비율 임계값을 선택하세요. 필요한 경우 명시적인 액포 연결 정보나 측정된 개체 수 열을 이용해 개별적으로 분할된 기생충을 계수하세요. 액포, 숙주 및 웰 표, 마커의 결합 상태, 증식 분포와 연결 대상을 찾지 못한 기생충 정보를 검토하세요. 알 수 없는 측정값은 알 수 없는 상태로 유지합니다.',
     'Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.': '명시적인 액포 식별자를 사용해 기생충을 계수하고 조건별 분포를 비교하세요. 숙주 식별자만으로는 액포를 정의할 수 없습니다.',
     'Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.': '필수인 두 색상 차등 염색 측정값과 염색 기준선 대조군을 사용해 부착과 침입을 구분하세요.',
+    'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': '{key} 키를 누른 채 마우스 휠을 돌려 확대하거나 축소하세요. 빈 공간을 드래그하여 화면을 이동하세요. 화면에 맞추기를 누르면 전체 지도가 표시됩니다.',
+    'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': '실선 화살표: 문서에 설명된 데이터 전달. 점선 화살표: 데이터 유형이 일치하지만 호환성 확인이 필요한 연결.',
 }
 
 MODULE_SUMMARIES = {
@@ -13332,4 +13334,6 @@ SOURCE_HASHES = {
     ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
     ('UI', 'Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.'): 'b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315',
     ('UI', 'Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.'): '240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815',
+    ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
+    ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
 }

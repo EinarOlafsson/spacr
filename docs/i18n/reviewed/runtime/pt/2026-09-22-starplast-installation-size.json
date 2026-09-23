@@ -1,14 +1,6 @@
 {
   "language": "pt",
-  "records": [
-    {
-      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
-      "table": "ui",
-      "translation": "Starplast é um aplicativo em versão alfa para explorar o mapa de conhecimento de Toxoplasma. Os recursos e resultados podem mudar. Ele abre em uma janela separada.\n\nEsta é uma instalação grande: uma instalação verificada no Linux x86_64 baixou cerca de 4 GB e ocupou cerca de 7 GB após a instalação, incluindo dependências do CUDA. Os requisitos variam conforme a versão e a plataforma. Reserve pelo menos 12 GB de espaço livre em disco. Os downloads podem levar vários minutos.\n\nStarplast tem seu próprio ambiente em {path}; os pacotes do spaCR não são alterados. O código-fonte tem licença MIT. Escolha uma cópia de trabalho local do Git se o acesso ao repositório não estiver disponível; as instalações locais usam arquivos registrados em commits e deixam a cópia de trabalho intacta."
-    }
-  ],
+  "records": [],
   "review_kind": "AI-assisted linguistic review against the measured Linux installation and current installer; no native-speaker sign-off",
   "schema": 1
 }

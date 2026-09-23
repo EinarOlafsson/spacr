@@ -3184,7 +3184,7 @@ UI = {
     'Fine-grained control over the beta motility pipeline — which features are selected and the filter windows applied to tracks. Only worth opening once the basic assay runs and the tracks look wrong in a specific way.': '对 beta 动态流程的精细控制 - 哪些功能被选中,并将过滤器窗应用到轨道上。 只有当基本测试运行时才值得打开,轨道看起来在某种程度上是错误的。',
     'Fine-tune a Cellpose model on your own labelled fields, then segment a folder of images with it or with a stock model': '将 Cellpose 模型在您自己的标签字段上,然后将图像文件夹与其或库存模型分组成。',
     'First graph — {shape}': '第一张图 — {shape}',
-    'Fit': '合适',
+    'Fit': '适应窗口',
     'Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.': '按到目前为止制作的标签上的模型,用它分数每个图像裁剪,并重新排序不确定性 - 没有离开这个界面。 把它放在好处,所以准确性不是标记一个视野的对象。 每个轮子都写着一个模型卡。',
     'Fit and draw a trend line through the points.': '适合并通过点绘制趋势线。',
     "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.": '到目前为止制作的标签上适合增强的树木,并写下模型的提议标签到你还没有回答的每个图像裁剪 - 最有信心的首先,粘贴而不是坚固的,只有在你已经没有决定的地方。',
@@ -6933,6 +6933,8 @@ UI = {
     'Test-time augmentation': '推理时数据增强',
     'Follow the pathway instructions for this connection.': '请按照工作流程中针对此连接的说明操作。',
     'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': '测量完整空泡和宿主参考区室，并将未感染的宿主细胞保留在感染比例的分母中。选择标记通道和通过对照校准的比值阈值。可选择依据明确的空泡关联或已有的实测计数列，对单独分割的寄生虫进行计数。检查空泡、宿主和孔的表格、联合标记状态、复制分布以及未匹配的寄生虫关联；未知测量值仍保留为未知。',
+    'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': '按住 {key} 并滚动鼠标滚轮可缩放。拖动空白区域可平移视图。点击“适应窗口”可显示整个图。',
+    'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': '实线箭头：已说明的数据传递。虚线箭头：数据类型匹配，但仍需检查兼容性。',
 }
 
 MODULE_SUMMARIES = {
@@ -13989,4 +13991,6 @@ SOURCE_HASHES = {
     ('UI', 'Test-time augmentation'): '80ca70fbdb3bd16c2431ef449da30ab812973bc74df97d473df074ec22a71af9',
     ('UI', 'Follow the pathway instructions for this connection.'): 'ebc6c5d59a4e0fd79309f3e8c92efdf92f22467dc03565f1d1c498ee212b6ba1',
     ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
+    ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
+    ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
 }

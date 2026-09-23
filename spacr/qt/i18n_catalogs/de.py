@@ -3252,7 +3252,7 @@ UI = {
     'Fine-tune a Cellpose model on your own labelled fields, then segment a folder of images with it or with a stock model': 'Feinabstimmung eines Cellpose-Modells auf Ihre eigenen gekennzeichneten Felder, dann Segment ein Ordner von Bildern mit ihm oder mit einem Stock-Modell',
     'Finish signing in to {label} in the window that opened, then press Done.': 'Schließen Sie die Anmeldung bei {label} im geöffneten Fenster ab und klicken Sie dann auf Fertig.',
     'First graph — {shape}': 'Erste Grafik — {shape}',
-    'Fit': 'Passend',
+    'Fit': 'Einpassen',
     'Fit a model on the labels made so far, score every crop with it, and re-rank the uncertainty queue — without leaving this screen. Held out by well, so the accuracy is not an artefact of labelling one field of view. Each round writes a model card.': 'Passen Sie ein Modell auf die Etiketten bisher gemacht, punkten Sie jede Bildausschnitt mit ihm, und re-Rank die Unsicherheit Warteschlange - ohne diesen Bildschirm. Durch gut, so dass die Genauigkeit ist kein Artefakt der Kennzeichnung eines Feldes der Ansicht. Jede Runde schreibt eine Modellkarte.',
     'Fit and draw a trend line through the points.': 'Passen und ziehen Sie eine Trendlinie durch die Punkte.',
     "Fit boosted trees on the labels made so far and write the model's proposed label onto every crop you have not answered yet — most confident first, dashed rather than solid, and only where you have not already decided. Then keep them all, throw them all away, or answer the ones it got wrong one at a time.": 'Passen Sie aufgefrischte Bäume auf die Etiketten so weit gemacht und schreiben Sie das Modell vorgeschlagenen Etikett auf jede Bildausschnitt, die Sie noch nicht beantwortet haben — sehr zuversichtlich zuerst, gestrichelt statt solide, und nur, wo Sie nicht bereits entschieden haben. Dann halten Sie sie alle, werfen sie alle weg, oder beantworten Sie die, die es falsch eins nach dem anderen.',
@@ -6913,6 +6913,8 @@ UI = {
     'Test-time augmentation': 'Augmentierung zur Inferenzzeit',
     'Follow the pathway instructions for this connection.': 'Für diese Verbindung die Anweisungen des Analysewegs befolgen.',
     'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': 'Messen Sie ganze Vakuolen und Referenzkompartimente der Wirtszellen und behalten Sie nicht infizierte Wirtszellen im Nenner des Infektionsanteils bei. Wählen Sie Markerkanäle und anhand von Kontrollen kalibrierte Schwellenwerte für die Quotienten. Zählen Sie optional einzeln segmentierte Parasiten anhand expliziter Vakuolenzuordnungen oder einer Spalte mit gemessenen Anzahlen. Prüfen Sie Tabellen für Vakuolen, Wirtszellen und Wells, gemeinsame Markerzustände, Replikationsverteilungen und nicht zugeordnete Parasitenverknüpfungen; unbekannte Messwerte bleiben unbekannt.',
+    'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': 'Halten Sie {key} gedrückt und drehen Sie das Mausrad zum Zoomen. Ziehen Sie eine freie Fläche, um die Ansicht zu verschieben. Einpassen zeigt die gesamte Übersicht.',
+    'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': 'Durchgezogene Pfeile: dokumentierte Datenübergaben. Gestrichelte Pfeile: passende Datentypen, deren Kompatibilität geprüft werden muss.',
 }
 
 MODULE_SUMMARIES = {
@@ -13950,4 +13952,6 @@ SOURCE_HASHES = {
     ('UI', 'Test-time augmentation'): '80ca70fbdb3bd16c2431ef449da30ab812973bc74df97d473df074ec22a71af9',
     ('UI', 'Follow the pathway instructions for this connection.'): 'ebc6c5d59a4e0fd79309f3e8c92efdf92f22467dc03565f1d1c498ee212b6ba1',
     ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
+    ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
+    ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
 }

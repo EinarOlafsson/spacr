@@ -1,14 +1,6 @@
 {
   "language": "is",
-  "records": [
-    {
-      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
-      "table": "ui",
-      "translation": "Starplast er forrit á alfastigi til að kanna þekkingarkort Toxoplasma. Eiginleikar og niðurstöður geta breyst. Það opnast í sérstökum glugga.\n\nÞetta er stór uppsetning: við prófaða uppsetningu á Linux x86_64 var um 4 GB hlaðið niður og um 7 GB notað eftir uppsetningu, að CUDA-háðum pökkum meðtöldum. Kröfur eru breytilegar eftir útgáfu og stýrikerfi. Hafðu að minnsta kosti 12 GB af lausu diskplássi. Niðurhal getur tekið nokkrar mínútur.\n\nStarplast fær eigið umhverfi á {path}; pökkum spaCR er ekki breytt. Frumkóðinn er með MIT-leyfi. Veldu staðbundið Git-vinnueintak ef aðgangur að kóðasafninu er ekki tiltækur; staðbundnar uppsetningar nota skrár sem hafa verið skráðar með commit og skilja vinnueintakið eftir óbreytt."
-    }
-  ],
+  "records": [],
   "review_kind": "AI-assisted linguistic review against the measured Linux installation and current installer; no native-speaker sign-off",
   "schema": 1
 }

@@ -80,13 +80,6 @@
       "translation": "Selecione uma pasta que contenha `measurements/measurements.db`. Clique com o botão esquerdo em uma imagem para atribuir a classe 1, com o botão direito para a classe 2 e clique novamente para remover o rótulo — ou use apenas o teclado: as teclas 1–9 atribuem um rótulo e avançam para o próximo recorte. As anotações são salvas em segundo plano."
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "Conjunto de dados real de ponta a ponta (Máscaras → Medição → Anotação)…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

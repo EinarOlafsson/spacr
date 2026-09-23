@@ -6913,6 +6913,8 @@ UI = {
     'Test-time augmentation': 'Aumento de datos durante la inferencia',
     'Follow the pathway instructions for this connection.': 'Siga las instrucciones del flujo de trabajo para esta conexión.',
     'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.': 'Mida vacuolas completas y compartimentos de referencia de las células hospedadoras, conservando las células hospedadoras no infectadas en el denominador de la fracción infectada. Seleccione los canales de los marcadores y los umbrales de cociente calibrados con controles. Opcionalmente, cuente los parásitos segmentados individualmente a partir de vínculos explícitos con vacuolas o de una columna de recuentos medidos. Revise las tablas de vacuolas, células hospedadoras y pocillos, los estados conjuntos de los marcadores, las distribuciones de replicación y los vínculos de parásitos sin correspondencia; las mediciones desconocidas permanecen desconocidas.',
+    'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.': 'Mantén pulsada {key} y gira la rueda del ratón para ampliar o reducir. Arrastra un espacio vacío para desplazarte. Ajustar muestra el mapa completo.',
+    'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.': 'Flechas continuas: transferencias de datos documentadas. Flechas discontinuas: tipos de datos coincidentes que requieren comprobar la compatibilidad.',
 }
 
 MODULE_SUMMARIES = {
@@ -13950,4 +13952,6 @@ SOURCE_HASHES = {
     ('UI', 'Test-time augmentation'): '80ca70fbdb3bd16c2431ef449da30ab812973bc74df97d473df074ec22a71af9',
     ('UI', 'Follow the pathway instructions for this connection.'): 'ebc6c5d59a4e0fd79309f3e8c92efdf92f22467dc03565f1d1c498ee212b6ba1',
     ('UI', 'Measure whole vacuoles and host reference compartments, keeping uninfected host cells for the infection denominator. Select marker channels and control-calibrated ratio thresholds. Optionally count individually segmented parasites from explicit vacuole links or a measured count column. Review vacuole, host and well tables, joint marker states, replication distributions and unmatched parasite links; unknown measurements remain unknown.'): '30530bdc6a91b4c6ad3aa0b6eae2435f89a5797e133df0d70605e83ddb3578f8',
+    ('UI', 'Hold {key} and scroll the mouse wheel to zoom. Drag empty space to move around. Fit shows the whole map.'): '29403ced3c55ab7ffec8ead03152e03493f0fccaa1bfe4e98a2486ab024846b2',
+    ('UI', 'Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks.'): 'a91aaeb1f8f020a1bfb14e133fba44e4ef2a75b9b62af9b7673fdc7ac9a0ad42',
 }

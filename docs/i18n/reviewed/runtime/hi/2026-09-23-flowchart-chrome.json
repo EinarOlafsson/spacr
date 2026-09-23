@@ -79,13 +79,6 @@
       "translation": "मेल खाते डेटा प्रकार दिखाएँ"
     },
     {
-      "key": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
-      "source": "Solid arrows: documented handoffs. Dashed arrows: matching data types, requiring compatibility checks. Drag to pan; Ctrl+wheel to zoom.",
-      "source_sha256": "c2e402a476088448d404cf4f622635ef3d99640ec6c79323850117377dcc8731",
-      "table": "ui",
-      "translation": "ठोस तीर: दस्तावेज़ित हस्तांतरण। बिंदीदार तीर: मेल खाते डेटा प्रकार, जिनकी संगतता जाँचना ज़रूरी है। खिसकाने के लिए ड्रैग करें; ज़ूम के लिए Ctrl+व्हील का उपयोग करें।"
-    },
-    {
       "key": "Start example",
       "source": "Start example",
       "source_sha256": "cfe29fdc4c304dc79190f8684c32d34cbad0ff3c91e9279bbf0b6d0d392ca7b3",

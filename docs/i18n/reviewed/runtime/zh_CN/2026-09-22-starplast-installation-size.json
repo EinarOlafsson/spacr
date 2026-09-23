@@ -1,14 +1,6 @@
 {
   "language": "zh_CN",
-  "records": [
-    {
-      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
-      "table": "ui",
-      "translation": "Starplast 是一款用于探索 Toxoplasma 知识图谱的 alpha 阶段应用程序。功能和结果可能会发生变化。它会在单独的窗口中打开。\n\n此安装所需空间较大：一次经过验证的 Linux x86_64 安装下载了约 4 GB 数据，安装后占用约 7 GB，其中包括 CUDA 依赖项。需求因版本和平台而异。请预留至少 12 GB 可用磁盘空间。下载可能需要几分钟。\n\nStarplast 会在 {path} 拥有自己的环境；spaCR 的软件包不会被更改。源代码采用 MIT 许可证。如果无法访问仓库，请选择本地 Git 工作副本；本地安装使用已提交的文件，且不会改动工作副本。"
-    }
-  ],
+  "records": [],
   "review_kind": "AI-assisted linguistic review against the measured Linux installation and current installer; no native-speaker sign-off",
   "schema": 1
 }

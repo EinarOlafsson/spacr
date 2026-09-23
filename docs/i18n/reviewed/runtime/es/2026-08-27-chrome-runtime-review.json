@@ -80,13 +80,6 @@
       "translation": "Seleccione una carpeta que contenga `measurements/measurements.db`. Haga clic izquierdo en una imagen para asignar la clase 1, clic derecho para la clase 2 y vuelva a hacer clic para borrar la asignación — o use solo el teclado: las teclas 1–9 asignan una etiqueta y avanzan al recorte siguiente. Las anotaciones se guardan en segundo plano."
     },
     {
-      "table": "ui",
-      "key": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "source_sha256": "bb5acf072d70d98e5da930bdc1c34f9c98a63ddf117d95a02843e4215d7f8374",
-      "source": "End-to-end (Mask → Measure → Annotate) real dataset…",
-      "translation": "Conjunto de datos real de extremo a extremo (Máscaras → Medición → Anotación)…"
-    },
-    {
       "table": "setting_tooltips",
       "key": "intercept",
       "source_sha256": "47da00158b207d206c7ad799fce123e7cf4659bc0952f1c8ef874ab13e02378f",

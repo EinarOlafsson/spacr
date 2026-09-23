@@ -1,14 +1,6 @@
 {
   "language": "sv",
-  "records": [
-    {
-      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
-      "table": "ui",
-      "translation": "Starplast är en alfaapplikation för att utforska kunskapskartan för Toxoplasma. Funktioner och resultat kan ändras. Den öppnas i ett separat fönster.\n\nDet här är en stor installation: en kontrollerad installation på Linux x86_64 laddade ned cirka 4 GB och använde cirka 7 GB efter installationen, inklusive CUDA-beroenden. Kraven varierar med version och plattform. Se till att minst 12 GB ledigt diskutrymme finns. Nedladdningar kan ta flera minuter.\n\nStarplast får en egen miljö på {path}; spaCR:s paket ändras inte. Källkoden har MIT-licens. Välj en lokal Git-arbetskopia om arkivet inte är tillgängligt; lokala installationer använder incheckade filer och lämnar arbetskopian orörd."
-    }
-  ],
+  "records": [],
   "review_kind": "AI-assisted linguistic review against the measured Linux installation and current installer; no native-speaker sign-off",
   "schema": 1
 }

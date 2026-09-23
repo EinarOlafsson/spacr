@@ -1,14 +1,6 @@
 {
   "language": "hi",
-  "records": [
-    {
-      "key": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source": "Starplast is an alpha application for exploring the Toxoplasma knowledge map. Features and results may change. It opens in a separate window.\n\nThis is a large installation: a checked Linux x86_64 installation downloaded about 4 GB and used about 7 GB after installation, including CUDA dependencies. Requirements vary with the version and platform. Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\nStarplast gets its own environment at {path}; spaCR's packages are not changed. The source is MIT licensed. Choose a local Git checkout if repository access is unavailable; local installs use committed files and leave the checkout untouched.",
-      "source_sha256": "c174b52fc93bdadc951dd3a6fd1e10e1d558ad9c81386f9a82ff07457729e534",
-      "table": "ui",
-      "translation": "Starplast, Toxoplasma ज्ञान मानचित्र का अन्वेषण करने के लिए एक अल्फ़ा चरण का एप्लिकेशन है। सुविधाएँ और परिणाम बदल सकते हैं। यह एक अलग विंडो में खुलता है।\n\nयह एक बड़ा इंस्टॉलेशन है: जाँचे गए Linux x86_64 इंस्टॉलेशन में लगभग 4 GB डाउनलोड हुआ और इंस्टॉलेशन के बाद CUDA निर्भरताओं सहित लगभग 7 GB स्थान लगा। आवश्यकताएँ संस्करण और प्लेटफ़ॉर्म के अनुसार बदलती हैं। डिस्क पर कम से कम 12 GB खाली स्थान रखें। डाउनलोड में कई मिनट लग सकते हैं।\n\nStarplast को {path} पर अपना अलग वातावरण मिलता है; spaCR के पैकेज नहीं बदलते। स्रोत कोड MIT लाइसेंस के अंतर्गत है। यदि रिपॉज़िटरी तक पहुँच उपलब्ध न हो, तो स्थानीय Git वर्किंग कॉपी चुनें; स्थानीय इंस्टॉलेशन कमिट की गई फ़ाइलों का उपयोग करते हैं और वर्किंग कॉपी को अपरिवर्तित छोड़ते हैं।"
-    }
-  ],
+  "records": [],
   "review_kind": "AI-assisted linguistic review against the measured Linux installation and current installer; no native-speaker sign-off",
   "schema": 1
 }
