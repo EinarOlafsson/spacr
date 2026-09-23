@@ -1,0 +1,136 @@
+{
+  "schema": 1,
+  "source_commit": "06f5285cd",
+  "changed_api": [
+    "spacr.qt.cpu_modes",
+    "spacr.qt.mask_engine.maxima_propagate_instances"
+  ],
+  "source": "Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.",
+  "source_sha256": "7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198",
+  "retired_source": "Where each object stops growing. The first is PER OBJECT -- keep the pixels at or above this fraction of that centre's own peak -- so a bright object and a dim one are measured the same way, and it is what a quantile from the maximum means. The other three are one level for the whole field.",
+  "english_api_symbols": 11338,
+  "english_ui_sources": 4629,
+  "executable_ast_unchanged_except_tooltip": true,
+  "preserved_reviews": [],
+  "languages": [
+    {
+      "language": "de",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "sv",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "actual_translation": true,
+      "runtime_and_api_review_loaders": true,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "semantic_review": "AI-assisted; no native-speaker sign-off.",
+  "remaining": "Full API translations, remaining propagation help, complete Make Masks reference, organism captions and tutorial recording/acceptance remain open.",
+  "verification": {
+    "focused_tests_passed": 20,
+    "resolved_failure": "The Help-index test excluded all underscore names, including the three explicitly enabled nested helpers. It now uses the shared rollout allowlist and still excludes unrelated private symbols; its rerun passes and all three rendered anchors exist.",
+    "sphinx_warnings_as_errors": true,
+    "build_scope": "06f5285cd plus this propagation/reference batch; before merging later diagram and OPS route commits.",
+    "rendered": {
+      "anchor": "spacr.qt.mask_engine.maxima_propagate_instances",
+      "rendered_parameters": [
+        "image",
+        "sigma",
+        "min_distance",
+        "seed_level",
+        "seed_level_is_percentile",
+        "exclude_border",
+        "stop",
+        "stop_value",
+        "stop_algorithm",
+        "min_area",
+        "fill_holes"
+      ],
+      "stop_rules": [
+        "seed_fraction",
+        "absolute",
+        "percentile",
+        "threshold"
+      ],
+      "worked_example": true,
+      "false_equivalence_removed": true
+    },
+    "help_index_regenerated": true,
+    "logs": [
+      {
+        "log": "propagation-reference-tests.log",
+        "sha256": "d7f474c920fa3e4c71baea7919f55b3ce5eab75a331ed5eebcc75b17c0d8c406",
+        "result": "11 passed"
+      },
+      {
+        "log": "propagation-reference-catalog-tests.log",
+        "sha256": "0513aa2eb8d23081539e2e429c0f38f439cff989c59d184e50b543e3ba11f632",
+        "result": "3 passed"
+      },
+      {
+        "log": "propagation-api-contract-tests.log",
+        "sha256": "938ffb91a23e25a7735ed70d0bdec8bab6879eab30d4daaf8643a9f5e15863a7",
+        "result": "1 failed, 4 passed"
+      },
+      {
+        "log": "propagation-help-contract-final.log",
+        "sha256": "38ac59adcd982f4c23411e1cf1db88cf31e79fe556bfc5adecaf9a8343334108",
+        "result": "1 passed"
+      },
+      {
+        "log": "propagation-helper-anchors.log",
+        "sha256": "877effb351c25587df70a54dd2423a23d1499f54cd607f2daafd904ff3d1006d",
+        "result": "1 passed"
+      },
+      {
+        "log": "propagation-sphinx.log",
+        "sha256": "089b99b3cb3afcf4fdc77a3565136ef6af6ff9ce6f087d83438a83088b31dc72",
+        "result": "build succeeded."
+      }
+    ]
+  }
+}

@@ -11157,3 +11157,40 @@ modules/9 pathways. Source/map claim released after this commit. Starplast
 integration remains claimed and incomplete in untracked spacr/_starplast.py;
 no catalogs or tutorial recordings claimed. GPU observer3332996 stilllive,
 no qualifying idle interval, no GPU analysis or NAS access.
+2026-09-22 — CODEX: PUSHED06f5285cd / PROPAGATION REFERENCE CLAIM
+Threshold/histogram translations and section inventory are pushed as
+06f5285cd. Now correcting propagation docstrings in cpu_modes.py,
+mask_engine.maxima_propagate_instances, and make_masks.py's two propagation
+helpers, plus the Grow until tooltip that repeats the quantile claim.
+This is prose/catalog work only; no detector or control behavior changes.
+The replacement tooltip will be source-bound and reviewed in all nine
+languages. Diagram captions remain deferred to the implementation handoff.
+
+2026-09-22 — CODEX: PROPAGATION REFERENCE AND NINE-LANGUAGE HELP
+Corrected the CPU-module overview, maxima_propagate_instances reference and
+both Make Masks propagation helper docstrings. The reference now explains
+all four rules, all eleven parameters, defaults/ranges/units, threshold
+scope, preprocessing, hole filling, label filtering, empty results and a
+worked example. Removed unsupported CellProfiler/lambda-zero equivalence
+and peak-ratio-as-quantile claims. The Grow until replacement resolves
+exactly in all nine locales and leaves the translation-debt exclusion list.
+No detector/control behavior changed; executable ASTs were compared after
+excluding docstrings and the single tooltip/tr import. English API and UI
+inventories and Help search were regenerated. All nine runtime/API review
+loaders pass at the pre-integration source state; unrelated rows unchanged.
+20 focused checks pass. One old Help-index test had excluded the three
+explicitly published private-name nested helpers; it now uses the shared
+rollout allowlist, still excludes unrelated private symbols, and all three
+anchors were checked in rendered HTML. Sphinx -W completed successfully.
+Receipt: features/data/473_propagation_reference_2026-09-22.json (bound to
+06f5285cd plus this batch, before later diagram/OPS source integration).
+
+Read 7ffa0d968 and 03e73713c handoffs. Next reconciliation includes new
+OrganismDiagram APIs and embedded SVG description inventory, retired OPS
+first-step/source reviews, the optional Align & Stitch note, and refreshed
+API bindings. Starplast implementation remains the other session's claim.
+The section-title context audit also found existing mistranslations (for
+example agreement-as-a-deal and Icelandic parameter prose), so that work
+will review the six existing rows as well as translating the 74 missing.
+Full catalogs, remaining Make Masks reference/help and tutorial media remain
+open. No GPU or NAS work. Propagation source claim released.

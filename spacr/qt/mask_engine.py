@@ -2379,67 +2379,95 @@ def maxima_propagate_instances(
         exclude_border: bool = False, stop: str = "seed_fraction",
         stop_value: float = 0.4, stop_algorithm: str = "otsu",
         min_area: int = 0, fill_holes: bool = True) -> PropagateResult:
-    """Find bright centres and grow an object out of each one.
+    """Segment bright objects with local maxima and an intensity watershed.
 
-    CellProfiler's IdentifyPrimaryObjects with Propagate, as four steps a
-    person can see and set separately:
+    Convert the field to float32, optionally blur it, and find centres with
+    :func:`skimage.feature.peak_local_max`. Use those centres as markers for
+    :func:`skimage.segmentation.watershed` on the negative blurred image.
+    Distinct centres can split touching objects; noise can create extra
+    centres, while smoothing or large centre spacing can remove real ones.
+    No existing primary-object mask is accepted. This implementation has
+    no CellProfiler propagation cost or distance/intensity weighting.
 
-    1. BLUR, so that one object has one centre. A raw fluorescence object
-       has a dozen local maxima in its own noise; a Gaussian of about the
-       object's own radius leaves it with one.
-    2. FIND THE MAXIMA (:func:`skimage.feature.peak_local_max`), no closer
-       together than ``min_distance`` and no dimmer than ``seed_level``.
-       One seed is one object, so this step alone decides how many objects
-       there will be, which is why :class:`PropagateResult` carries the
-       count.
-    3. GROW each seed outward over the blurred intensity, by a seeded
-       watershed on ``-image`` -- downhill from each peak, meeting its
-       neighbours at the ridge between them, which is what makes two
-       touching objects come apart at their waist instead of at a
-       threshold.
-    4. STOP by one of :data:`PROPAGATE_STOPS`.
+    The four stop rules operate on the blurred values:
 
-    THE STOP RULE IS THE INTERESTING CHOICE. ``seed_fraction`` is
-    per-object -- each object keeps the pixels at or above ``stop_value``
-    times ITS OWN peak -- which is what "a quantile threshold from that
-    maximum" means, and it is the only rule under which a bright object and
-    a dim one are measured the same way. The other three are one level for
-    the whole field: an absolute intensity, a percentile of it, or whatever
-    one of :data:`GLOBAL_THRESHOLDS` makes of it.
+    * ``seed_fraction`` first partitions the entire image by watershed,
+      then retains pixels at or above ``stop_value`` times their basin's
+      seed intensity. This is an intensity ratio, not a quantile. Adding a
+      background offset changes the relative cut; equal measurements of
+      bright and dim objects are not guaranteed. Trimming can leave
+      disconnected pieces with the same label.
+    * ``absolute`` restricts the watershed to pixels at or above
+      ``stop_value``, in the input's intensity units.
+    * ``percentile`` uses that percentile of all blurred input pixels as
+      the common threshold. Changing the crop can change this level.
+    * ``threshold`` obtains the common level from ``stop_algorithm`` and
+      ignores ``stop_value``.
 
-    CELLPROFILER'S LAMBDA IS NOT OFFERED. Propagate there walks a cost
-    that mixes intensity difference with distance, weighted by a lambda;
-    :func:`skimage.segmentation.watershed` has no such parameter, and a
-    re-implementation of that cost would be a second segmentation engine to
-    keep. What is here is the lambda-zero end of it -- pure intensity --
-    which is the setting CellProfiler's own documentation recommends for
-    objects with a visible edge.
+    Fill holes per label if requested, then discard labels smaller than
+    ``min_area`` and renumber survivors. Hole filling can restore pixels
+    below the selected intensity cut. The seed count is recorded before
+    these operations and can exceed the number of surviving objects.
 
-    BRIGHT CENTRES ONLY, and deliberately: the whole idea is a peak to grow
-    away from. Make Masks' Invert switch is how a field of dark objects is
-    given to this, and it inverts the field for every detector alike.
+    Input preparation is the caller's responsibility: this function does
+    not normalize intensities, subtract background, or invert dark objects.
+    Use finite 2-D values; NaNs and infinities are not sanitized. Make Masks
+    supplies the processed field or crop after its selected enhancements.
+    Absolute levels and peak ratios therefore depend on that preparation.
 
-    :param image: the 2-D field or region, already through the enhancement
-        chain if one is on.
-    :param sigma: Gaussian blur before the maxima are found, in pixels. 0
-        finds maxima in the raw noise.
-    :param min_distance: the smallest gap between two seeds, in pixels.
-        About one object radius is the usual answer.
-    :param seed_level: how bright a maximum must be to count as a seed.
-    :param seed_level_is_percentile: read ``seed_level`` as a percentile of
-        the blurred image (the default, so one setting suits any exposure)
-        rather than as an absolute intensity.
-    :param exclude_border: drop maxima within ``min_distance`` of the edge.
-    :param stop: a key of :data:`PROPAGATE_STOPS`.
-    :param stop_value: the fraction, intensity or percentile that rule
-        reads. Not read by ``threshold``.
-    :param stop_algorithm: which of :data:`GLOBAL_THRESHOLDS` provides the
-        floor under the ``threshold`` rule.
-    :param min_area: objects smaller than this are dropped, and the rest
-        renumbered. Touching objects are NOT merged by this.
-    :param fill_holes: close the holes inside each grown object.
-    :returns: a :class:`PropagateResult`.
-    :raises ValueError: for an unknown stop rule or an empty image.
+    :param image: nonempty 2-D intensity array, converted to float32 without
+        range rescaling. Output coordinates and shape match this array.
+    :param sigma: Gaussian standard deviation in pixels; default 2.0.
+        Positive values smooth both seed finding and growth; zero disables
+        blur. Increasing it can suppress noise peaks or merge real peaks.
+        Make Masks offers 0 to 50; the direct API also skips negative values.
+    :param min_distance: centre separation in pixels; default 10. Passed
+        to peak finding as ``max(1, int(min_distance))``, using its default
+        Chebyshev distance. Increasing it suppresses nearby candidate seeds;
+        reducing it can split an object into several detections. Make Masks
+        offers 1 to 500.
+    :param seed_level: default 90.0. Candidate maxima must exceed this
+        intensity, or the intensity at this percentile when
+        ``seed_level_is_percentile`` is true. Percentiles must be between
+        0 and 100. Increasing the floor excludes dimmer candidate centres;
+        it does not directly set the final object boundary.
+    :param seed_level_is_percentile: default true. Compute the seed floor
+        from all blurred input pixels; false uses an absolute intensity.
+        A crop and a whole field can yield different percentile floors.
+    :param exclude_border: default false. If true, exclude candidate centres
+        within the effective ``min_distance`` of the input edge. This does
+        not remove every object whose grown boundary touches the edge.
+    :param stop: default ``"seed_fraction"``; one of
+        :data:`PROPAGATE_STOPS`, with the behavior described above.
+    :param stop_value: default 0.4. For ``seed_fraction``, use a ratio from
+        0 to 1 with nonnegative intensities; increasing it removes dimmer
+        basin pixels before hole filling. For ``absolute``, use an intensity;
+        for ``percentile``, use 0 to 100. Higher common thresholds shrink
+        the eligible mask. Ignored for ``threshold``. The API does not clip
+        ratios or absolute values; the GUI number box alone does not enforce
+        rule-specific limits.
+    :param stop_algorithm: default ``"otsu"``; a key of
+        :data:`GLOBAL_THRESHOLDS`, read only for ``stop="threshold"``.
+        The threshold is estimated from the blurred field or crop.
+    :param min_area: default 0, disabling size removal. Labels with fewer
+        than ``int(min_area)`` pixels after hole filling are discarded.
+        Increasing it removes small labels without merging touching ones.
+    :param fill_holes: default true. Fill enclosed background pixels per
+        label before size filtering. False preserves those holes.
+    :returns: :class:`PropagateResult` containing an int32 label array
+        (0 is background, surviving labels are 1 through N), the original
+        seed count, and the common stop level. The level is None for
+        ``seed_fraction`` or when no seeds were found. A constant image or
+        an overly high seed floor can return all-zero labels and zero seeds;
+        an empty stop mask or size filtering can remove every seeded object.
+    :raises ValueError: for an unknown stop rule, an empty or non-2-D image,
+        an out-of-range percentile when evaluated, or an unknown global
+        threshold algorithm when that rule is evaluated.
+
+    For example, ``maxima_propagate_instances(image, sigma=2,
+    min_distance=10, seed_level=90, stop="seed_fraction", stop_value=0.4,
+    min_area=20)`` retains each basin above 40 percent of its seed intensity
+    before filling holes and removing labels smaller than 20 pixels.
     """
     from skimage.feature import peak_local_max
     from skimage.segmentation import watershed

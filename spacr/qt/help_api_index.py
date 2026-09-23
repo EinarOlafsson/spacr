@@ -4288,7 +4288,7 @@ API_ENTRIES = (
     ('spacr.qt.mask_engine.magic_wand', 'BFS flood-fill from (seed_x, seed_y) filling pixels whose intensity is within `tolerance` (L2 distance) of the seed. Writes 255 (add) or 0…'),
     ('spacr.qt.mask_engine.mask_save_path', "Where this field's mask is written -- and where its ledger sits."),
     ('spacr.qt.mask_engine.masks_folder', 'Where the masks of the images in ``folder`` are kept.'),
-    ('spacr.qt.mask_engine.maxima_propagate_instances', 'Find bright centres and grow an object out of each one.'),
+    ('spacr.qt.mask_engine.maxima_propagate_instances', 'Segment bright objects with local maxima and an intensity watershed.'),
     ('spacr.qt.mask_engine.next_label', 'The id to give the next object drawn on ``mask``: one past its top.'),
     ('spacr.qt.mask_engine.normalize_for_detection', '``image`` stretched between two percentiles, as Make Masks draws it.'),
     ('spacr.qt.mask_engine.normalize_uint16', "Return image clipped + rescaled to its dtype's full range."),

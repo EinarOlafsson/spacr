@@ -6245,6 +6245,7 @@ UI = {
     'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.': 'Instantâneo do campo inteiro e das configurações no momento da abertura. Abra o histograma novamente depois de alterar a imagem ou as configurações.',
     'Threshold histogram failed: {error}': 'Falha no histograma de limiares: {error}',
     '{method} histogram': 'Histograma: {method}',
+    'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.': 'Fração do pico: recorta cada região da segmentação por bacias no valor correspondente à fração escolhida da intensidade da sua semente. É uma razão de intensidades, não um percentil; os desvios do nível de fundo afetam o resultado. As outras três regras restringem a segmentação com um único limiar para o campo ou a região processados. Em seguida, são preenchidos os buracos e aplicado o filtro de área mínima.',
 }
 
 MODULE_SUMMARIES = {
@@ -12614,4 +12615,5 @@ SOURCE_HASHES = {
     ('UI', 'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.'): 'd0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3',
     ('UI', 'Threshold histogram failed: {error}'): '9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89',
     ('UI', '{method} histogram'): 'cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e',
+    ('UI', 'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.'): '7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198',
 }

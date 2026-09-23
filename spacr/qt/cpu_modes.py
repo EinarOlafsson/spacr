@@ -18,12 +18,14 @@ is the code Otsu already went through. Choosing Li instead of Otsu changes
 where one number comes from and nothing else, which is exactly what it
 should change.
 
-MAXIMA + PROPAGATE IS THE ONE THAT IS NOT A THRESHOLD. It is
-CellProfiler's Propagate: blur, find the bright centres, grow an object
-out of each one until a stop rule is met. It exists because a threshold
-cannot separate two objects that touch and share a border above the level,
-however good the level is -- and two touching vacuoles with bright centres
-are most of what a curator is correcting by hand.
+Maxima + propagate finds bright centres in a blurred image and uses them
+as markers for a watershed on inverted intensity. A per-seed intensity
+cut then trims each basin, or a common intensity mask limits the watershed.
+This can separate touching objects when they have distinct detected centres;
+it does not implement CellProfiler's distance/intensity propagation cost.
+The seed count is measured before hole filling and area filtering, so it
+can exceed the number of surviving labels. See
+:func:`spacr.qt.mask_engine.maxima_propagate_instances` for all four rules.
 
 WHAT IS NOT HERE, AND WHY. Local MEAN and local GAUSSIAN thresholding are
 not offered again: they are the Adaptive threshold mode, which runs the

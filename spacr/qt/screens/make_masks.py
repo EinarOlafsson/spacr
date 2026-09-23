@@ -2878,7 +2878,7 @@ def _threshold_segmenter(request: _MagnifierRequest, load_model=None):
 def _propagate_segmenter(request: _MagnifierRequest, load_model=None):
     """Grow one object out of each bright centre of the region.
 
-    CellProfiler's Propagate; see
+    Seeded watershed on inverted intensity; see
     :func:`spacr.qt.mask_engine.maxima_propagate_instances`. How many
     centres were found is carried back on the request's ticket-free path
     through :data:`_LAST_PROPAGATE_SEEDS`, because it is the number a
@@ -9150,14 +9150,16 @@ class MakeMasksScreen(QWidget):
         return "threshold"
 
     def _build_propagate_card(self) -> _MethodGroup:
-        """The settings of Maxima + propagate, CellProfiler's Propagate.
+        """The settings of Maxima + propagate, an intensity watershed.
 
         Four steps with a setting each, in the order they run: blur, find
         the maxima, grow, stop. The engine is
         :func:`spacr.qt.mask_engine.maxima_propagate_instances`, whose
-        docstring carries the argument for each of them and says why
-        CellProfiler's lambda is not offered.
+        docstring describes the four stop rules, parameter units and
+        defaults, and the difference between seed and surviving-label counts.
         """
+        from ..i18n import tr
+
         card = _MethodGroup()
         form = self._propagate_form = QFormLayout()
         self._propagate_widgets: dict = {}
@@ -9228,11 +9230,12 @@ class MakeMasksScreen(QWidget):
         stop.addItem("Percentile of the image", "percentile")
         stop.addItem("A threshold algorithm's level", "threshold")
         row("propagate_stop", "Grow until", stop,
-            "Where each object stops growing. The first is PER OBJECT -- "
-            "keep the pixels at or above this fraction of that centre's "
-            "own peak -- so a bright object and a dim one are measured the "
-            "same way, and it is what a quantile from the maximum means. "
-            "The other three are one level for the whole field.")
+            tr("Fraction of peak: trim each watershed basin at the chosen "
+               "fraction of its seed intensity. This is an intensity ratio, "
+               "not a percentile; background offsets affect the result. "
+               "The other three rules restrict the watershed with one "
+               "threshold for the processed field or region. Hole filling "
+               "and minimum-area filtering run afterward."))
         stop.currentIndexChanged.connect(self._sync_propagate_controls)
 
         stop_value = QDoubleSpinBox()

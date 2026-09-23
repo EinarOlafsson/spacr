@@ -6121,6 +6121,7 @@ UI = {
     'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.': '열 때의 전체 시야와 설정을 저장한 스냅샷입니다. 이미지나 설정을 변경한 후에는 히스토그램을 다시 여세요.',
     'Threshold histogram failed: {error}': '임곗값 히스토그램 실패: {error}',
     '{method} histogram': '{method} 히스토그램',
+    'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.': '최댓값의 비율: 각 워터셰드 영역을 해당 시드 강도의 선택한 비율을 기준으로 잘라냅니다. 이는 강도의 비율이며 백분위수가 아닙니다. 배경 오프셋은 결과에 영향을 줍니다. 나머지 세 규칙은 처리된 시야 또는 영역에 공통 임곗값을 적용하여 워터셰드 분할을 제한합니다. 이후 구멍 채우기와 최소 면적 필터링을 수행합니다.',
 }
 
 MODULE_SUMMARIES = {
@@ -12366,4 +12367,5 @@ SOURCE_HASHES = {
     ('UI', 'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.'): 'd0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3',
     ('UI', 'Threshold histogram failed: {error}'): '9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89',
     ('UI', '{method} histogram'): 'cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e',
+    ('UI', 'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.'): '7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198',
 }

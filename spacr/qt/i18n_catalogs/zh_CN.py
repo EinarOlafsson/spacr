@@ -6264,6 +6264,7 @@ UI = {
     'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.': '打开时整个视野及设置的快照。更改图像或设置后，请重新打开直方图。',
     'Threshold histogram failed: {error}': '阈值直方图失败：{error}',
     '{method} histogram': '{method}直方图',
+    'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.': '峰值比例：按所选的种子点强度比例裁剪每个分水岭区域。这是强度比值，而非百分位数；背景偏移会影响结果。其余三种规则使用适用于已处理视野或区域的统一阈值来限制分水岭分割。之后再填充孔洞并按最小面积筛选。',
 }
 
 MODULE_SUMMARIES = {
@@ -12651,4 +12652,5 @@ SOURCE_HASHES = {
     ('UI', 'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.'): 'd0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3',
     ('UI', 'Threshold histogram failed: {error}'): '9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89',
     ('UI', '{method} histogram'): 'cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e',
+    ('UI', 'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.'): '7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198',
 }

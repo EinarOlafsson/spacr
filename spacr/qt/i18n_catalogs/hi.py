@@ -6045,6 +6045,7 @@ UI = {
     'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.': 'खोलते समय पूरे दृश्य क्षेत्र और सेटिंग का स्नैपशॉट। छवि या सेटिंग बदलने के बाद हिस्टोग्राम फिर खोलें।',
     'Threshold histogram failed: {error}': 'सीमा हिस्टोग्राम विफल: {error}',
     '{method} histogram': '{method} हिस्टोग्राम',
+    'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.': 'शिखर का अनुपात: हर वॉटरशेड क्षेत्र को उसके बीज की तीव्रता के चुने हुए अनुपात पर काटें। यह तीव्रताओं का अनुपात है, प्रतिशतक नहीं; पृष्ठभूमि स्तर में बदलाव परिणाम को प्रभावित करते हैं। अन्य तीन नियम संसाधित दृश्य क्षेत्र या क्षेत्रांश के लिए एक ही सीमा मान से वॉटरशेड विभाजन को सीमित करते हैं। इसके बाद छिद्र भरे जाते हैं और न्यूनतम क्षेत्रफल के आधार पर फ़िल्टर किया जाता है।',
 }
 
 MODULE_SUMMARIES = {
@@ -12214,4 +12215,5 @@ SOURCE_HASHES = {
     ('UI', 'Snapshot of the full field and settings when opened. Open the histogram again after changing the image or settings.'): 'd0d5b1917866b36deea6152dfcb7aec90503d1917945027d60ed673ab7416cd3',
     ('UI', 'Threshold histogram failed: {error}'): '9dbaaff8124a123e50141508224e1b467a2f452bfa8e346867f3cf25d97fdd89',
     ('UI', '{method} histogram'): 'cbc95d99e177bb9d8f94bded1df7a4638f534bd0b2afc4f3efe6339206f5bf6e',
+    ('UI', 'Fraction of peak: trim each watershed basin at the chosen fraction of its seed intensity. This is an intensity ratio, not a percentile; background offsets affect the result. The other three rules restrict the watershed with one threshold for the processed field or region. Hole filling and minimum-area filtering run afterward.'): '7146a5068bf8456b00bcf20e0d53c45ae064e44a8bc5e32f1ab8e8ebb5f22198',
 }

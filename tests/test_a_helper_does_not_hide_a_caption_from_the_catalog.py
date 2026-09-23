@@ -220,10 +220,15 @@ def test_make_masks_parameter_rows_expose_help_but_not_setting_keys(builder):
         keys.add(ast.literal_eval(call.args[0]))
         arguments = list(builder._helper_caption_arguments(call, "screens/make_masks.py", "row"))
         assert arguments == [call.args[1], call.args[3]]
-        reached.update(ast.literal_eval(arg) for arg in arguments)
+        for arg in arguments:
+            if isinstance(arg, ast.Call):
+                assert _call_name(arg) == "tr" and len(arg.args) == 1
+                arg = arg.args[0]
+            reached.add(ast.literal_eval(arg))
     assert not keys & reached
     assert "Offset" in reached and "Blur first" in reached
     assert any(text.startswith("Subtracted from the Gaussian-weighted local mean") for text in reached)
+    assert reached - {""} <= set(builder.extract_static_ui_sources())
 
 
 def test_section_titles_are_extracted_without_persistence_keys(builder):
