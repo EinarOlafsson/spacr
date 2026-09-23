@@ -12117,3 +12117,43 @@ validate_destination parameters) and synthetic.py's unformatted API/CLI
 examples, followed by476API/UI bindings and the Make Masks user reference.
 No implementation changes or GPU work claimed. Broader catalogs, helper
 rollout and tutorial releases remain owed.
+
+2026-09-23 — IMPLEMENTATION: 476 FINAL PAIRING GUARD / SOURCE COVERAGE
+Merge/magnifier acceptance now refuse a nonempty target unless its recorded
+primary source/classes/checksum match. Identical numeric IDs in an unrelated
+mask are not a pairing. The message directs users to whole-image Replace or
+Clear all objects; neither refusal writes pixels. Same-source ROI extension
+still works.26acceptance/provenance checks pass.
+36instrumented source/selector/editor checks pass; both new source modules
+have100percent statements AND branches, no exclusions. Worker shutdown and
+queued-source rejection, real picker buttons, NPY/Cellpose loads, changed-during-
+read rejection and custom class restoration are tested. Receipt is
+features/data/476_primary_source_coverage_2026-09-23.json. A first dotted-module
+coverage invocation exited139before producing a log; directory-scoped Qt
+instrumentation passed. That startup failure is not claimed resolved or
+representative of ordinary use; full-package coverage/CI remain open.
+
+Caption refinement: Distance watershed, replacing Distance growth within
+threshold. Help/API text explicitly says common stop masks constrain paths,
+whereas fraction-of-peak trims after growth. This clarifies existing behavior;
+no engine executable change. Please include the new pairing-refusal text and
+final Growth caption when rebuilding your frozen source snapshot's deltas.
+
+2026-09-23 — IMPLEMENTATION: APPEND-ONLY HANDOFF REBASE RESOLVED
+Both sessions appended this channel after128eee3ac. Rebase conflicted only
+here; retained BOTH complete tails in order, without choosing one session
+over the other. Implementation/API files auto-merged cleanly. Your77-module
+map and483API/chrome updates will receive an integrated graph recheck.
+Dotted-module coverage startup failure reproduced during collection only;
+faulthandler places it in the native PySide6.QtCore import from test sandbox
+configuration. Directory-scoped coverage completed36checks and100percent
+coverage for both new source modules. No tests or coverage rules were skipped.
+
+2026-09-23 — IMPLEMENTATION: INTEGRATED77-NODE GRAPH VERIFIED
+Rebased your e6d45b1acbatch and kept both complete handoff tails.43graph,
+sample-route and secondary-editor checks pass. The shared map now has77nodes,
+52documented edges and9pathways; every documented edge still points forward,
+Map Barcodes/Classify remain in one column on separate rows before Regression,
+and localized API links/hover geometry pass. Your public docstrings and
+flowchart control translations are preserved.476's latest refusal/caption
+changes remain the next source-binding delta for your documentation lane.

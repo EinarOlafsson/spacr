@@ -89,6 +89,35 @@ def test_changed_source_has_a_new_request_identity(tmp_path):
                                     {'secondary_class': 'NUCLEUS'}])
 def test_invalid_shape_and_roles_are_refused(tmp_path, options):
     source, image, output, labels = _files(tmp_path)
+    options = dict(options)
     shape = options.pop('shape', labels.shape)
     with pytest.raises(ValueError):
         read_primary_source(source.parent, image, shape, output, **options)
+
+
+@pytest.mark.parametrize('bundle', [False, True])
+def test_numpy_sources_preserve_exact_ids_and_crop_bounds(tmp_path, bundle):
+    source, image, output, labels = _files(tmp_path)
+    path = source.with_name('field_seg.npy') if bundle else source.with_suffix('.npy')
+    payload = {'img': np.zeros_like(labels), 'masks': labels, 'flows': []} if bundle else labels
+    np.save(path, payload, allow_pickle=bundle)
+    snapshot = read_primary_source(path, image, labels.shape, output, bound_image=image)
+    np.testing.assert_array_equal(snapshot.labels, labels)
+    with pytest.raises(ValueError, match='outside'):
+        snapshot.crop((-1, 0, 5, 5))
+
+
+def test_source_changed_during_decode_is_refused(tmp_path, monkeypatch):
+    from spacr.qt import mask_engine
+
+    source, image, output, labels = _files(tmp_path)
+    original = mask_engine.imageio.imread
+    def changed(path):
+        decoded = original(path)
+        with source.open('ab') as handle:
+            handle.write(b'changed-during-read')
+        return decoded
+    monkeypatch.setattr(mask_engine.imageio, 'imread', changed)
+    with pytest.raises(ValueError, match='changed while'):
+        read_primary_source(source, image, labels.shape, output, bound_image=image)
+    assert not output.exists()

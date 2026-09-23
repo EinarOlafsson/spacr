@@ -127,8 +127,7 @@ def test_changed_primary_rejects_old_result_without_falling_back_to_otsu(screen,
 def test_roi_acceptance_extends_same_id_and_preserves_disconnected_parts(screen, rule):
     request = screen._magnifier.build_request()
     result = screen._magnifier._run(request)
-    screen._canvas.mask = screen._canvas.mask.astype(np.uint16)
-    screen._canvas.mask[42:54, 42:54] = 900
+    assert screen._commit_magnifier_result(result._replace(labels=request.primary_labels)) == [900]
     screen._mag_overlap.setCurrentIndex(screen._mag_overlap.findData(rule))
     assert screen._commit_magnifier_result(result) == [900]
     assert screen._canvas.mask[20, 20] == 900
@@ -196,3 +195,31 @@ def test_hole_fill_and_small_object_cleanup_keep_sparse_and_disconnected_ids(scr
     assert set(np.unique(screen._canvas.mask)) == {0, 900}
     screen._on_relabel()
     assert set(np.unique(screen._canvas.mask)) == {0, 900}
+
+
+def test_unrelated_existing_mask_cannot_silently_share_a_primary_id(screen):
+    screen._canvas.mask = screen._canvas.mask.astype(np.uint16)
+    screen._canvas.mask[5:10, 5:10] = 900
+    before = screen._canvas.mask.copy()
+    result = screen._magnifier._run(screen._magnifier.build_request())
+    assert screen._commit_magnifier_result(result) == []
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    assert 'not paired' in screen._status_label.text()
+    screen._combine_mode.setCurrentIndex(screen._combine_mode.findData('merge'))
+    screen._on_detect_otsu()
+    assert 'not paired' in screen.warnings[-1][1]
+    np.testing.assert_array_equal(screen._canvas.mask, before)
+    screen._combine_mode.setCurrentIndex(screen._combine_mode.findData('replace'))
+    screen._on_detect_otsu()
+    assert screen._canvas.mask[7, 7] == 0
+    assert screen._canvas.mask[48, 48] == 900
+
+
+def test_new_primary_snapshot_cannot_merge_into_an_old_pairing(screen, qtbot):
+    screen._on_detect_otsu()
+    before = screen._canvas.mask.copy()
+    screen._primary_selector.primary_class.setEditText('different primary')
+    qtbot.waitUntil(lambda: screen._primary_selector.snapshot is not None)
+    result = screen._magnifier._run(screen._magnifier.build_request())
+    assert screen._commit_magnifier_result(result) == []
+    np.testing.assert_array_equal(screen._canvas.mask, before)

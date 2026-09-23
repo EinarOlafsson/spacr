@@ -2510,9 +2510,10 @@ def secondary_object_instances(
 
     Every positive primary label is a marker, including all its pixels.
     Intensity growth follows the negative, optionally Gaussian-smoothed image.
-    Distance growth floods a flat surface from the primary pixels, constrained
-    by the chosen threshold mask. It follows four-connected paths around
-    excluded pixels, not unrestricted Euclidean nearest-primary assignment.
+    Distance growth floods a flat surface from the primary pixels. Common
+    stop thresholds constrain four-connected paths around excluded pixels;
+    seed_fraction trims after growth. This is not unrestricted Euclidean
+    nearest-primary assignment.
     Neither mode is CellProfiler's distance/intensity Propagation algorithm.
 
     The four rules in :data:`PROPAGATE_STOPS` use processed intensities.
@@ -2547,7 +2548,8 @@ def secondary_object_instances(
     :param fill_holes: fill enclosed background pixels per label before
         filtering. Does not overwrite another primary's labelled pixels.
     :param growth: ``intensity`` (default) uses negative image intensity;
-        ``distance`` floods a flat surface through the permitted foreground.
+        ``distance`` floods a flat surface. Common stop rules constrain paths;
+        the primary-relative fraction trims after growth.
         Both retain the same stop rules and exact primary IDs. Distance can
         help when bright structures attract an intensity basin across cells.
     :returns: :class:`SecondaryResult`, including ID relationship diagnostics.

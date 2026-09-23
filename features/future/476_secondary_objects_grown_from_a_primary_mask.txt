@@ -200,3 +200,21 @@ for a favourable result. Raw data remains outside the repository.
 132focused engine, GUI, request/provenance, threshold and evaluator checks pass.
 All240seeded-random Maxima + propagate comparisons still match the old engine
 bit-for-bit. API, translation and tutorial details are in the shared handoff.
+
+PAIRING COLLISION GUARD AND LOADER COVERAGE, 2026-09-23
+A nonempty existing mask must already carry the same source/class/checksum
+association before secondary merge or magnifier acceptance. Equal numeric IDs
+alone do not prove two masks share identities. Unrelated masks or a newly
+changed primary source require explicit whole-image Replace or Clear all
+objects; old pixels remain untouched on refusal. Same-source partial masks
+still extend normally.26focused acceptance/provenance checks pass.
+
+36instrumented source/selector/editor checks pass; secondary_masks.py and
+primary_mask_selector.py each cover100percent of statements and branches,
+with no exclusions. File/folder acceptance/cancellation, shutdown during a
+blocked load, discarded queued sources, custom classes, NPY/Cellpose sources,
+invalid crops and files changing during reads are covered. Receipt:
+features/data/476_primary_source_coverage_2026-09-23.json.
+The Growth caption is Distance watershed. Its help explicitly distinguishes
+common stop masks, which constrain paths, from primary-peak fractions, which
+trim after growth. API semantics remain unchanged.

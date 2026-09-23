@@ -57,3 +57,13 @@ their columns. Independent sources sit near their consuming branch, terminal
 consumers spread over later columns, and other modules use their artifact
 types for placement. No node overlaps.35focused UI/routing/menu tests pass,
 including column order, branch convergence and localized API URLs.
+
+INTEGRATED DOCUMENTATION MAP, 2026-09-23
+The documentation lane's expanded shared map now has77modules,52documented
+handoffs and9pathways. All documented arrows still point left-to-right;
+Mask -> Measure -> Annotate -> Classify -> Regression remains ordered, and
+Map Barcodes still occupies Classify's column on a separate row. Localized
+module and endpoint API links, stable hover geometry and node nonoverlap pass
+against the integrated map.43combined graph, sample-route and secondary-editor
+checks pass after rebase. Flowchart API descriptions and control translations
+from the other lane are retained; broader catalog/tutorial work remains open.

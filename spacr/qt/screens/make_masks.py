@@ -8525,6 +8525,18 @@ class MakeMasksScreen(QWidget):
         if hasattr(self, '_magnifier'):
             self._magnifier.refresh()
 
+    def _require_secondary_merge(self, source):
+        """Refuse numeric ID collisions with an unrelated nonempty target mask."""
+        from ..i18n import tr
+
+        if self._canvas.mask is None or not self._canvas.mask.any():
+            return
+        record = getattr(self, '_paired_source', None) or {}
+        expected = source.provenance()
+        if not getattr(self._canvas, 'preserve_ids', False) or expected != {
+                key: record.get(key) for key in expected}:
+            raise ValueError(tr('The existing mask is not paired with this primary source. Use whole-image Replace or Clear all objects before accepting secondary objects.'))
+
     def _refresh_secondary_report(self):
         """Show explicit missing, orphaned and incompletely enclosing IDs."""
         from ..i18n import tr
@@ -8807,6 +8819,8 @@ class MakeMasksScreen(QWidget):
         try:
             if method == cpu_modes.SECONDARY:
                 source = self._require_primary_source()
+                if mode != 'replace':
+                    self._require_secondary_merge(source)
                 out = (engine.canonical_labels(detected, preserve_ids=True) if mode == 'replace'
                        else engine._paste_region_objects(self._canvas.mask, detected, (0, 0),
                                                          overlap='clip', preserve_ids=True)[0])
@@ -9773,9 +9787,9 @@ class MakeMasksScreen(QWidget):
         if secondary:
             growth = QComboBox()
             growth.addItem(tr('Intensity watershed'), 'intensity')
-            growth.addItem(tr('Distance growth within threshold'), 'distance')
+            growth.addItem(tr('Distance watershed'), 'distance')
             row('secondary_growth', tr('Growth'), growth,
-                tr('Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.'))
+                tr('Intensity follows bright structures. Distance spreads from primary pixels. Common thresholds constrain the paths; fraction-of-peak trims after growth. Neither is CellProfiler Propagation.'))
 
         sigma = QDoubleSpinBox()
         sigma.setDecimals(2)
@@ -11309,6 +11323,7 @@ class MakeMasksScreen(QWidget):
                 source = self._require_primary_source()
                 if source.identity != request.primary_token:
                     raise ValueError(tr('The primary mask changed. Wait for a new preview before accepting objects.'))
+                self._require_secondary_merge(source)
             except ValueError as exc:
                 self._status_label.setText(str(exc))
                 return []
