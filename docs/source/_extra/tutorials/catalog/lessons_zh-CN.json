@@ -957,66 +957,61 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate：真实裁剪图像、已保存标签和复核工具",
+      "title": "Annotate: label objects and save your annotations",
       "series": 1,
       "app_key": "annotate",
-      "section": "核心模块",
-      "description": "加载可下载的裁剪图像数据集，创建独立标注列，验证真正保存的标签，调整视图，并找到当前 Annotate 模块中的复核与训练工具。",
+      "section": "Core",
+      "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
       "objectives": [
-        "选择合适的裁剪图像或按需读取示例，并打开实际项目文件夹。",
-        "使用独立标注列，区分待保存与已持久化的标签，在不修改原始标注的前提下清除演示标签。",
-        "检查类别计数与覆盖情况，在不修改图像文件的前提下改变显示颜色。",
-        "找到嵌套的 Agreement 流程、当前训练入口、标注数据库生成器和可选的 AI 控制台。"
+        "Load saved crops or stream crops from merged images.",
+        "Choose an annotation column, assign and clear labels, and save your changes.",
+        "Adjust channel colours and review class counts and coverage.",
+        "Find Agreement and the image and feature training routes."
       ],
-      "prerequisite": "打开 spaCR，在 Core 模块中选择 Annotate。本录像使用可下载的 Load 数据集：2,341 张已导出的 PNG 裁剪图像及其测量数据库。不需要训练模型或使用人工智能服务。正式标注前应先定义生物学类别；这里的临时标签只演示保存过程，不代表生物学判断。",
+      "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "在 Core 模块中打开 Annotate。主要工作区是由测量数据库支持的裁剪图像网格。当前模块还包含覆盖检查、学习与训练控件、数据库生成，以及嵌套的 Annotator Agreement 工具。",
-          "hold_after": 0.7,
-          "speech_text": "在 Core 模块中打开 Annotate。主要工作区是由测量数据库支持的裁剪图像网格。当前模块还包含覆盖检查、学习与训练控件、数据库生成，以及嵌套的 Annotator Agreement 工具。"
+          "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "选择 Load test data，查看两个选项。Load 提供已导出的裁剪图像和数据库。示例包含两千三百四十一张裁剪图像，格式为 PNG。本录像复用此前下载的完整缓存，没有虚构图像或标签。",
-          "hold_after": 0.7,
-          "speech_text": "选择 Load test data，查看两个选项。Load 提供已导出的裁剪图像和数据库。示例包含两千三百四十一张裁剪图像，格式为 PNG。本录像复用此前下载的完整缓存，没有虚构图像或标签。"
+          "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_stream",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Stream 提供合并图像数组和数据库，可按需获取裁剪图像。应按希望读取图像的方式选择；下载其中一个，并不能证明另一个也已具备。本次演示始终使用 Load。",
-          "hold_after": 0.7,
-          "speech_text": "Stream 提供合并图像数组和数据库，可按需获取裁剪图像。应按希望读取图像的方式选择；下载其中一个，并不能证明另一个也已具备。本次演示始终使用 Load。"
+          "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_open_source_dialog",
           "focus": [
-            1577,
+            1393,
             810,
             1300,
             950
           ],
-          "narration": "如果下载后网格仍提示未选择来源，请选择 Open source。指定包含 measurements 子文件夹及其数据库的培养板文件夹，而不是数据库文件本身。这是录像所示应用版本实际需要的额外步骤。",
-          "hold_after": 0.7,
-          "speech_text": "如果下载后网格仍提示未选择来源，请选择 Open source。指定包含 measurements 子文件夹及其数据库的培养板文件夹，而不是数据库文件本身。这是录像所示应用版本实际需要的额外步骤。"
+          "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_loaded_crops",
-          "narration": "确认真实裁剪图像已显示，页码计数与预期数据集一致。每页图像数取决于窗口与图像大小。成功打开文件夹并不足够；在做出标注判断前，应先查看图像。",
-          "hold_after": 0.7,
-          "speech_text": "确认真实裁剪图像已显示，页码计数与预期数据集一致。每页图像数取决于窗口与图像大小。成功打开文件夹并不足够；在做出标注判断前，应先查看图像。"
+          "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_annotation_settings",
@@ -1026,27 +1021,23 @@
             748,
             1462
           ],
-          "narration": "打开 Settings，为本次演示创建独立的标注列。保留原始标签不变。正式工作前，记录每个类别的含义，并统一显示方式。接下来设置的示例标签只用于测试保存路径。",
-          "hold_after": 0.7,
-          "speech_text": "打开 Settings，为本次演示创建独立的标注列。保留原始标签不变。正式工作前，记录每个类别的含义，并统一显示方式。接下来设置的示例标签只用于测试保存路径。"
+          "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_class_one_pending",
-          "narration": "左键点击第一张图像，赋予类别一。右键赋予类别二，再次选择同一类别会清除标签。类别颜色的圆环表示当前决定，额外的白色圆环表示焦点。仅仅看到圆环变化，并不能证明标签已经写入数据库。",
-          "hold_after": 0.7,
-          "speech_text": "左键点击第一张图像，赋予类别一。右键赋予类别二，再次选择同一类别会清除标签。类别颜色的圆环表示当前决定，额外的白色圆环表示焦点。仅仅看到圆环变化，并不能证明标签已经写入数据库。"
+          "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_next_page_saved",
-          "narration": "点击 Next 离开当前页。这个版本在换页时将待保存标签提交给后台保存进程。我们检查了实际数据库，确认类别一已写入。不要把尚未保存的视觉变化当作存储完成。",
-          "hold_after": 0.7,
-          "speech_text": "点击 Next 离开当前页。这个版本在换页时将待保存标签提交给后台保存进程。我们检查了实际数据库，确认类别一已写入。不要把尚未保存的视觉变化当作存储完成。"
+          "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_class_one_saved",
-          "narration": "点击 Back，检查同一张图像。已保存的类别会从数据库重新加载。屏幕上的键盘说明列出了类别键一到九、零键清除、导航、撤销，以及 Enter 进入下一批。使用快捷键时，请留意当前焦点图像。",
-          "hold_after": 0.7,
-          "speech_text": "点击 Back，检查同一张图像。已保存的类别会从数据库重新加载。屏幕上的键盘说明列出了类别键一到九、零键清除、导航、撤销，以及 Enter 进入下一批。使用快捷键时，请留意当前焦点图像。"
+          "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_class_counts",
@@ -1056,9 +1047,8 @@
             285,
             136
           ],
-          "narration": "Class counts 现在报告类别一中有一个已保存示例。计数有助于发现类别不平衡，但一个演示标签不构成训练集，也不能说明生物学准确性。请区分机器建议与已经复核的答案。",
-          "hold_after": 0.7,
-          "speech_text": "Class counts 现在报告类别一中有一个已保存示例。计数有助于发现类别不平衡，但一个演示标签不构成训练集，也不能说明生物学准确性。请区分机器建议与已经复核的答案。"
+          "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_annotation_coverage",
@@ -1068,15 +1058,13 @@
             920,
             620
           ],
-          "narration": "Coverage 检查标注来自哪里，而不仅是有多少。训练前，应查看报告中各组的代表情况。即使软件正确记录了一张图像的标签，也不能据此说明覆盖具有代表性。",
-          "hold_after": 0.7,
-          "speech_text": "Coverage 检查标注来自哪里，而不仅是有多少。训练前，应查看报告中各组的代表情况。即使软件正确记录了一张图像的标签，也不能据此说明覆盖具有代表性。"
+          "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_class_cleared",
-          "narration": "再次点击同一类别，然后用 Next 和 Back 保存并重新加载空状态。演示列再次为空。只读检查确认了从空值到一、再回到空值的变化；所有原始标注列及下载的图像文件均未改变。",
-          "hold_after": 0.7,
-          "speech_text": "再次点击同一类别，然后用 Next 和 Back 保存并重新加载空状态。演示列再次为空。只读检查确认了从空值到一、再回到空值的变化；所有原始标注列及下载的图像文件均未改变。"
+          "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_display_colour_settings",
@@ -1086,72 +1074,69 @@
             748,
             1462
           ],
-          "narration": "Settings 也控制显示。Channel colours 改变显示配色，Display order 改变各颜色位置使用哪个源通道。这些设置并不是要求重写文件中的通道顺序。这里先选择 CMY，然后恢复 RGB。",
-          "hold_after": 0.7,
-          "speech_text": "Settings 也控制显示。Channel colours 改变显示配色，Display order 改变各颜色位置使用哪个源通道。这些设置并不是要求重写文件中的通道顺序。这里先选择 CMY，然后恢复 RGB。"
+          "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_cmy_view",
-          "narration": "应用显示设置后，真实裁剪图像立即改变颜色。恢复 RGB 会恢复完全相同的显示像素，源文件保持不变。标注应采用一致且容易解释的视图。改变配色不是新的分割或测量，也不是出现另一种表型的证据。",
-          "hold_after": 0.7,
-          "speech_text": "应用显示设置后，真实裁剪图像立即改变颜色。恢复 RGB 会恢复完全相同的显示像素，源文件保持不变。标注应采用一致且容易解释的视图。改变配色不是新的分割或测量，也不是出现另一种表型的证据。"
+          "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_agreement_fold",
-          "narration": "Annotator Agreement 现位于 Annotate 标题栏右侧。将鼠标悬停在图标上即可识别。用于比较标注列和调查分歧的原有专门教程会保留，并在这里链接，而不是作为 Home 上的另一个独立模块教程重新制作。",
+          "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7,
           "related_lessons": [
             "23_agreement"
-          ],
-          "speech_text": "Annotator Agreement 现位于 Annotate 标题栏右侧。将鼠标悬停在图标上即可识别。用于比较标注列和调查分歧的原有专门教程会保留，并在这里链接，而不是作为 主页 上的另一个独立模块教程重新制作。"
+          ]
         },
         {
           "visual": "16_training_routes",
           "focus": [
-            1836,
+            1832,
             204,
             416,
             80
           ],
-          "narration": "Train 现在打开含两个入口的菜单：利用神经图像分类器从图像训练，或者利用提升树从测量特征训练。请参阅 Classify 内链接的计算机视觉和机器学习教程。这里仅展示入口，没有使用这个空的演示列启动训练。",
+          "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "speech_text": "Train 现在打开含两个入口的菜单：利用神经图像分类器从图像训练，或者利用提升树从测量特征训练。请参阅 Classify 内链接的计算机视觉和机器学习教程。这里仅展示入口，没有使用这个空的演示列启动训练。"
+          ]
         },
         {
           "visual": "14_restored_rgb",
-          "narration": "拥有合适标签后，Retrain、Suggest 和 Rounds 可支持复核循环。模型提出的类别不会自动变成人工答案。在依赖模型前，应检查覆盖情况及其在留出数据上的表现。本演示没有运行这些操作，也没有为它们编造成功结果。",
-          "hold_after": 0.7,
-          "speech_text": "拥有合适标签后，Retrain、Suggest 和 Rounds 可支持复核循环。模型提出的类别不会自动变成人工答案。在依赖模型前，应检查覆盖情况及其在留出数据上的表现。本演示没有运行这些操作，也没有为它们编造成功结果。"
+          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_generate_database_entry",
-          "narration": "Generate annotation database 已集成在这里，可从合适的源数据生成用于标注的裁剪图像集。下载的 Load 示例已包含数据库和图像，因此不再生成另一套。脚本生成使用 annotation_dataset 模块中的 generate_annotation_dataset；所需输入请查阅当前接口文档。",
+          "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
-          ],
-          "speech_text": "Generate annotation database 已集成在这里，可从合适的源数据生成用于标注的裁剪图像集。下载的 Load 示例已包含数据库和图像，因此不再生成另一套。脚本生成使用 annotation_dataset 模块中的 generate_annotation_dataset；所需输入请查阅当前接口文档。"
+          ]
         },
         {
           "visual": "18_annotation_console",
-          "narration": "需要查看真实的来源、标签和状态消息时，可打开 Console，查看后隐藏它，把空间还给图像网格。本次 Annotate 演示的输出是数据库中的标签，而不是通过 Plot 开关生成的分析图。这里应检查的是显示的裁剪图像及保存状态。",
-          "hold_after": 0.7,
-          "speech_text": "需要查看真实的来源、标签和状态消息时，可打开 Console，查看后隐藏它，把空间还给图像网格。本次 Annotate 演示的输出是数据库中的标签，而不是通过 Plot 开关生成的分析图。这里应检查的是显示的裁剪图像及保存状态。"
+          "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
+          "hold_after": 0.7
         },
         {
           "visual": "30_ai_unsent_question",
-          "narration": "AI 通过 Preferences 中配置的服务商启用可选辅助。它与训练分类器或接受预测标签是不同的功能。这里是一条未发送的示例问题，没有联系任何服务，也没有虚构回答。类别定义、已保存标签和复核决定都应以数据为依据。",
-          "hold_after": 0.7,
-          "speech_text": "AI 通过 Preferences 中配置的服务商启用可选辅助。它与训练分类器或接受预测标签是不同的功能。这里是一条未发送的示例问题，没有联系任何服务，也没有虚构回答。类别定义、已保存标签和复核决定都应以数据为依据。"
+          "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "10_classify_cv",
@@ -6124,22 +6109,21 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "Classify：主模块及其嵌套工具",
+      "title": "Classify: choose a model and explore its results",
       "series": 4,
       "app_key": "classify_merged",
-      "section": "核心模块",
-      "description": "选择基于图像或测量值的分类，使用可下载示例，检查真实结果，并找到Classify内的五个嵌套工具。",
+      "section": "Core",
+      "description": "Choose image or feature classification, load example data, inspect prediction results and open the related tools inside Classify.",
       "objectives": [
-        "从统一的Home模块选择分类方式。",
-        "结合明确限制学习真实数据的CV与表格分类教程。",
-        "找到Classify内的Classifier Evaluation、Explain CV、Activation、Training Runs和Feature Explorer。",
-        "保存证据，区分AI辅助与已验证的分析。"
+        "Choose Computer Vision for images or Tabular Machine Learning for measurements.",
+        "Start with test data and follow the matching training walkthrough.",
+        "Inspect predictions and open evaluation, feature and training tools."
       ],
-      "prerequisite": "录制版本为spaCR 1.5.0.6。本概览属于主模块区；专门流程与嵌套工具教程位于子模块区的Classify类别。本课复用已核查的真实CV和ML录制，不重新训练模型。两例使用不同标签和子集，不是直接性能对比。表格示例：Load test data → Load，已测量细胞，columnID=c1/c2类别，随机森林，Plot开启，2153个对象有评分，188个因缺少核数据未评分；测试孔独立但同板。CV示例：明确准备64张未修改的已注释裁剪图，以数据库标准身份命名，Generate training dataset关闭，ResNet18一轮，训练16/验证16/测试32，同板孔位互不重叠，准确率0.5等于多数类基线。旧文件名解析器未修复。可复现设置、保存路径与限制请参阅专门课程。嵌套路径：classifier_evaluation、explain_cv、activation、train_compare、feature_explorer。Explain CV用测量特征拟合已有CV预测，不证明因果。Activation可视化图像模型响应。不发送AI请求，不新增模型质量或生物学有效性主张，不直接比较两种方式。API：spacr.classify.classify根据classifier_family分发到spacr.deep_spacr.train_test_model或spacr.ml.generate_ml_scores。",
+      "prerequisite": "Open Classify from Home. Use Load test data for an example project. For your own project, prepare object crops or measured features and class labels from annotations or experimental metadata.",
       "scenes": [
         {
           "visual": "main_00_home",
-          "narration": "Classify是Home上的主模块之一。从这里打开，再在模块内选择分类方式。教程播放器使用相同结构：本概览属于主模块区，专门流程与嵌套工具则归入子模块区的Classify类别。",
+          "narration": "Open Classify from Home. Start by choosing the classifier family. The image and tabular lessons linked here each walk through a complete example.",
           "focus_modules": [
             "classify_merged"
           ],
@@ -6148,47 +6132,43 @@
             "10_classify_cv",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Classify是主页上的主模块之一。从这里打开，再在模块内选择分类方式。教程播放器使用相同结构：本概览属于主模块区，专门流程与嵌套工具则归入子模块区的Classify类别。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_02_family_choices",
-          "narration": "Computer Vision使用对象图像，Tabular Machine Learning使用已保存的测量值。请根据输入和科学问题选择，而不是哪个名称听起来更强大。切换方式不会重新分割图像。链接中的Mask和Measure课程介绍各自的实时图像与裁剪控制。",
+          "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
           "related_lessons": [
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Computer Vision使用对象图像，Tabular Machine Learning使用已保存的测量值。请根据输入和科学问题选择，而不是哪个名称听起来更强大。切换方式不会重新分割图像。链接中的Mask和Measure课程介绍各自的实时图像与裁剪控制。"
+          "hold_after": 0.7
         },
         {
           "visual": "ml_02_data_choice_load",
-          "narration": "表格示例中，点击Load test data，选择Load而不是Stream。将下载项目与测量数据库一起保存。处理自己的图像时先完成测量。详细表格教程录制了真实下载、标签选择、设置和完成的随机森林运行。",
+          "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "表格示例中，点击Load test data，选择Load而不是Stream。将下载项目与测量数据库一起保存。处理自己的图像时先完成测量。详细表格教程录制了真实下载、标签选择、设置和完成的随机森林运行。"
+          "hold_after": 0.7
         },
         {
-          "visual": "ml_24_batch_figure",
-          "narration": "这是那次真实运行的图和控制台，Plot已开启。教学标签是板的列号，不是独立验证的表型。缺少必需核数据的对象保持未评分，不等于阴性。检查保存预测与留出的孔位；彩色图本身不能证明对另一实验的泛化。",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
           "related_lessons": [
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "这是那次真实运行的图和控制台，Plot已开启。教学标签是板的列号，不是独立验证的表型。缺少必需核数据的对象保持未评分，不等于阴性。检查保存预测与留出的孔位；彩色图本身不能证明对另一实验的泛化。"
+          "hold_after": 0.7
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "独立的计算机视觉课程使用明确的文件名准备变通方案，以及六十四张未修改的下载裁剪图。单轮训练模型仅达到多数类基线。这两个例子使用不同标签和子集，不要把准确率当作直接性能比较。准备自己的划分前请先学习链接课程。",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
           "focus": [
             2090,
             180,
@@ -6198,12 +6178,11 @@
           "related_lessons": [
             "10_classify_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "独立的计算机视觉课程使用明确的文件名准备变通方案，以及六十四张未修改的下载裁剪图。单轮训练模型仅达到多数类基线。这两个例子使用不同标签和子集，不要把准确率当作直接性能比较。准备自己的划分前请先学习链接课程。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
-          "narration": "右上角图标打开嵌套工具，不是Home上的独立入口块。悬停可识别名称。Classifier Evaluation用于检查已保存的评估文件包，包括预测和泄漏信息。专门课程说明所需文件，以及为什么显示出的指标仍需要合理的验证设计。",
+          "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
             2690,
             65,
@@ -6213,12 +6192,11 @@
           "related_lessons": [
             "39_classifier_evaluation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "右上角图标打开嵌套工具，不是主页上的独立入口块。悬停可识别名称。Classifier Evaluation用于检查已保存的评估文件包，包括预测和泄漏信息。专门课程说明所需文件，以及为什么显示出的指标仍需要合理的验证设计。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_explain_cv_tooltip",
-          "narration": "Explain CV用测量特征来建模已有的计算机视觉预测。它是独立的解释模型，不是原图像网络，也不是因果解释。其教程展示正确的预测输入与可用结果。不要假定表格分类器输出也满足该输入要求。",
+          "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
             2480,
             65,
@@ -6228,12 +6206,11 @@
           "related_lessons": [
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Explain CV用测量特征来建模已有的计算机视觉预测。它是独立的解释模型，不是原图像网络，也不是因果解释。其教程展示正确的预测输入与可用结果。不要假定表格分类器输出也满足该输入要求。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_activation_tooltip",
-          "narration": "Activation打开图像模型解释流程。请匹配检查点、图像通道和预处理。链接教程展示真实保存的显著性图，并说明使用外部查看器的变通方案。高亮区域不能证明生物学机制，也不能证明分类器表现良好。",
+          "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
             2930,
             65,
@@ -6243,12 +6220,11 @@
           "related_lessons": [
             "16_activation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Activation打开图像模型解释流程。请匹配检查点、图像通道和预处理。链接教程展示真实保存的显著性图，并说明使用外部查看器的变通方案。高亮区域不能证明生物学机制，也不能证明分类器表现良好。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_train_compare_tooltip",
-          "narration": "Training Runs比较保存的训练历史与设置。把两条曲线放在一起并不会产生独立证据。将运行保存在各自独立目录，比较相容的指标和数据划分。专门教程介绍具体控件，本主模块概览不再重复。",
+          "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
             2600,
             65,
@@ -6258,36 +6234,38 @@
           "related_lessons": [
             "28_training_runs"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Training Runs比较保存的训练历史与设置。把两条曲线放在一起并不会产生独立证据。将运行保存在各自独立目录，比较相容的指标和数据划分。专门教程介绍具体控件，本主模块概览不再重复。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_06_feature_explorer_nested",
-          "narration": "Feature Explorer从最后一个图标打开。它可以在分类器训练前，针对选定比较为测量特征排序。其课程使用真实下载测量值并演示实时筛选。筛选后再次核对选定的比较；特征排名既不是因果关系，也不是已训练的图像模型。",
+          "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
           "related_lessons": [
             "65_feature_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Feature Explorer从最后一个图标打开。它可以在分类器训练前，针对选定比较为测量特征排序。其课程使用真实下载测量值并演示实时筛选。筛选后再次核对选定的比较；特征排名既不是因果关系，也不是已训练的图像模型。"
+          "hold_after": 0.7
         },
         {
-          "visual": "cv_30_ai_unsent_question",
-          "narration": "控制台还提供可选的spaCR AI辅助。这里的问题未发送，不演示服务方回答或分析结果。保存模型输出、设置和划分证据，并据此核查建议。Python中，classify根据分类方式将任务交给图像或表格实现。",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
             2090,
-            950,
+            190,
             1720,
-            1130
+            1200
           ],
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "控制台还提供可选的斯佩克尔 AI辅助。这里的问题未发送，不演示服务方回答或分析结果。保存模型输出、设置和划分证据，并据此核查建议。Python中，classify根据分类方式将任务交给图像或表格实现。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "42_curate",

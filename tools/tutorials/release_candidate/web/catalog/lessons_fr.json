@@ -957,66 +957,61 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate : vrais recadrages, étiquettes enregistrées et outils de révision",
+      "title": "Annotate: label objects and save your annotations",
       "series": 1,
       "app_key": "annotate",
-      "section": "Modules principaux",
-      "description": "Chargez le jeu de recadrages téléchargeable, créez une colonne d'annotation distincte, vérifiez les étiquettes réellement enregistrées, ajustez l'affichage et trouvez les outils de révision et d'entraînement du module Annotate actuel.",
+      "section": "Core",
+      "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
       "objectives": [
-        "Choisir l'exemple téléchargeable de recadrages ou de lecture à la demande et ouvrir son véritable dossier de projet.",
-        "Utiliser une colonne d'annotation distincte, différencier les étiquettes en attente des étiquettes persistées et effacer l'étiquette de démonstration sans modifier les annotations d'origine.",
-        "Examiner les effectifs par classe et la couverture, puis changer les couleurs d'affichage sans modifier les fichiers image.",
-        "Repérer le parcours intégré Agreement, les options actuelles d'entraînement, le générateur de base d'annotation et la console AI facultative."
+        "Load saved crops or stream crops from merged images.",
+        "Choose an annotation column, assign and clear labels, and save your changes.",
+        "Adjust channel colours and review class counts and coverage.",
+        "Find Agreement and the image and feature training routes."
       ],
-      "prerequisite": "Ouvrez spaCR et choisissez Annotate parmi les modules Core. Cet enregistrement utilise le jeu téléchargeable Load : 2 341 recadrages PNG exportés et leur base de mesures. Aucun entraînement de modèle ni service d'intelligence artificielle n'est nécessaire. Définissez les classes biologiques avant une véritable annotation ; l'étiquette temporaire démontre l'enregistrement, pas un jugement biologique.",
+      "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Ouvrez Annotate parmi les modules Core. Son espace principal est une grille de recadrages reliée à une base de mesures. Le module actuel comprend aussi les contrôles de couverture, l'apprentissage et l'entraînement, la génération de bases de données et l'outil intégré Annotator Agreement.",
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Annotate parmi les modules Core. Son espace principal est une grille de recadrages reliée à une base de mesures. Le module actuel comprend aussi les contrôles de couverture, l'apprentissage et l'entraînement, la génération de bases de données et l'outil intégré Annotator Agreement."
+          "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Choisissez Load test data, puis examinez les deux options. Load fournit des recadrages exportés et une base de données. L'exemple contient deux mille trois cent quarante et un recadrages PNG. Cet enregistrement réutilise le cache téléchargé complet ; il n'invente ni images ni étiquettes.",
-          "hold_after": 0.7,
-          "speech_text": "Choisissez Load test data, puis examinez les deux options. Load fournit des recadrages exportés et une base de données. L'exemple contient deux mille trois cent quarante et un recadrages PNG. Cet enregistrement réutilise le cache téléchargé complet ; il n'invente ni images ni étiquettes."
+          "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_stream",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Stream fournit les tableaux d'images fusionnées et la base de données pour obtenir les recadrages à la demande. Choisissez selon la façon dont vous souhaitez lire les images ; télécharger une option ne prouve pas que l'autre est présente. Nous utilisons Load pendant toute la démonstration.",
-          "hold_after": 0.7,
-          "speech_text": "Stream fournit les tableaux d'images fusionnées et la base de données pour obtenir les recadrages à la demande. Choisissez selon la façon dont vous souhaitez lire les images ; télécharger une option ne prouve pas que l'autre est présente. Nous utilisons Load pendant toute la démonstration."
+          "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_open_source_dialog",
           "focus": [
-            1577,
+            1393,
             810,
             1300,
             950
           ],
-          "narration": "Si la grille indique encore qu'aucune source n'est sélectionnée après le téléchargement, choisissez Open source. Sélectionnez le dossier de la plaque contenant le sous-dossier measurements et sa base, pas le fichier de base lui-même. C'est l'étape supplémentaire réellement nécessaire dans la version montrée ici.",
-          "hold_after": 0.7,
-          "speech_text": "Si la grille indique encore qu'aucune source n'est sélectionnée après le téléchargement, choisissez Open source. Sélectionnez le dossier de la plaque contenant le sous-dossier measurements et sa base, pas le fichier de base lui-même. C'est l'étape supplémentaire réellement nécessaire dans la version montrée ici."
+          "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_loaded_crops",
-          "narration": "Vérifiez que les vrais recadrages apparaissent et que le compteur de pages correspond au jeu attendu. Le nombre d'images par page dépend de la fenêtre et de la taille d'image. Ouvrir un dossier ne suffit pas : examinez les images avant de décider des annotations.",
-          "hold_after": 0.7,
-          "speech_text": "Vérifiez que les vrais recadrages apparaissent et que le compteur de pages correspond au jeu attendu. Le nombre d'images par page dépend de la fenêtre et de la taille d'image. Ouvrir un dossier ne suffit pas : examinez les images avant de décider des annotations."
+          "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_annotation_settings",
@@ -1026,27 +1021,23 @@
             748,
             1462
           ],
-          "narration": "Ouvrez Settings et créez une colonne d'annotation distincte pour cette démonstration. Préservez les étiquettes d'origine. Avant un travail réel, documentez la signification de chaque classe et convenez d'un affichage cohérent ; l'étiquette d'exemple sert uniquement à tester l'enregistrement.",
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Settings et créez une colonne d'annotation distincte pour cette démonstration. Préservez les étiquettes d'origine. Avant un travail réel, documentez la signification de chaque classe et convenez d'un affichage cohérent ; l'étiquette d'exemple sert uniquement à tester l'enregistrement."
+          "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_class_one_pending",
-          "narration": "Cliquez avec le bouton gauche sur le premier recadrage pour attribuer la classe un. Le bouton droit attribue la classe deux, et répéter la même classe l'efface. L'anneau de couleur indique la décision actuelle ; l'anneau blanc supplémentaire signale le focus. Un anneau modifié ne prouve pas, à lui seul, que l'étiquette est enregistrée dans la base.",
-          "hold_after": 0.7,
-          "speech_text": "Cliquez avec le bouton gauche sur le premier recadrage pour attribuer la classe un. Le bouton droit attribue la classe deux, et répéter la même classe l'efface. L'anneau de couleur indique la décision actuelle ; l'anneau blanc supplémentaire signale le focus. Un anneau modifié ne prouve pas, à lui seul, que l'étiquette est enregistrée dans la base."
+          "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_next_page_saved",
-          "narration": "Appuyez sur Next pour quitter la page. Dans cette version, changer de page transmet les étiquettes en attente au processus d'enregistrement en arrière-plan. Nous avons vérifié dans la base réelle que la classe un avait été écrite. Ne confondez pas une modification visuelle non enregistrée avec un stockage terminé.",
-          "hold_after": 0.7,
-          "speech_text": "Appuyez sur Next pour quitter la page. Dans cette version, changer de page transmet les étiquettes en attente au processus d'enregistrement en arrière-plan. Nous avons vérifié dans la base réelle que la classe un avait été écrite. Ne confondez pas une modification visuelle non enregistrée avec un stockage terminé."
+          "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_class_one_saved",
-          "narration": "Appuyez sur Back et vérifiez le même recadrage. Sa classe enregistrée est rechargée depuis la base. Pour le clavier, la légende visible présente les classes de un à neuf, zéro pour effacer, la navigation, l'annulation et Enter pour le lot suivant. Gardez le recadrage actif en vue lorsque vous utilisez les raccourcis.",
-          "hold_after": 0.7,
-          "speech_text": "Appuyez sur Back et vérifiez le même recadrage. Sa classe enregistrée est rechargée depuis la base. Pour le clavier, la légende visible présente les classes de un à neuf, zéro pour effacer, la navigation, l'annulation et Enter pour le lot suivant. Gardez le recadrage actif en vue lorsque vous utilisez les raccourcis."
+          "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_class_counts",
@@ -1056,9 +1047,8 @@
             285,
             136
           ],
-          "narration": "Class counts indique maintenant un exemple enregistré dans la classe un. Les effectifs révèlent les déséquilibres, mais une seule étiquette de démonstration ne constitue pas un jeu d'entraînement et ne dit rien de l'exactitude biologique. Distinguez les suggestions de la machine des réponses vérifiées.",
-          "hold_after": 0.7,
-          "speech_text": "Class counts indique maintenant un exemple enregistré dans la classe un. Les effectifs révèlent les déséquilibres, mais une seule étiquette de démonstration ne constitue pas un jeu d'entraînement et ne dit rien de l'exactitude biologique. Distinguez les suggestions de la machine des réponses vérifiées."
+          "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_annotation_coverage",
@@ -1068,15 +1058,13 @@
             920,
             620
           ],
-          "narration": "Coverage demande d'où viennent les annotations, pas seulement combien il y en a. Examinez la représentation des groupes affichés dans le rapport avant l'entraînement. Un seul recadrage annoté ne démontre pas une couverture représentative, même si le logiciel l'enregistre correctement.",
-          "hold_after": 0.7,
-          "speech_text": "Coverage demande d'où viennent les annotations, pas seulement combien il y en a. Examinez la représentation des groupes affichés dans le rapport avant l'entraînement. Un seul recadrage annoté ne démontre pas une couverture représentative, même si le logiciel l'enregistre correctement."
+          "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_class_cleared",
-          "narration": "Cliquez de nouveau sur la même classe, puis utilisez Next et Back pour enregistrer et recharger l'état vide. La colonne de démonstration est à nouveau vide. Des vérifications en lecture seule ont confirmé les transitions de vide à un, puis à vide, sans changer les colonnes d'origine ni les fichiers PNG téléchargés.",
-          "hold_after": 0.7,
-          "speech_text": "Cliquez de nouveau sur la même classe, puis utilisez Next et Back pour enregistrer et recharger l'état vide. La colonne de démonstration est à nouveau vide. Des vérifications en lecture seule ont confirmé les transitions de vide à un, puis à vide, sans changer les colonnes d'origine ni les fichiers PNG téléchargés."
+          "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_display_colour_settings",
@@ -1086,72 +1074,69 @@
             748,
             1462
           ],
-          "narration": "Settings règle aussi l'affichage. Channel colours change la palette ; Display order change le canal source occupant chaque position de couleur. Ces réglages ne demandent pas de réécrire l'ordre des canaux dans un fichier. Ici, nous choisissons CMY, puis revenons à RGB.",
-          "hold_after": 0.7,
-          "speech_text": "Settings règle aussi l'affichage. Channel colours change la palette ; Display order change le canal source occupant chaque position de couleur. Ces réglages ne demandent pas de réécrire l'ordre des canaux dans un fichier. Ici, nous choisissons CMY, puis revenons à RGB."
+          "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_cmy_view",
-          "narration": "Les vrais recadrages changent de couleur dès l'application des réglages d'affichage. Rétablir RGB restaure exactement les pixels affichés, sans modifier les fichiers source. Annotez avec une vue cohérente et interprétable. Changer la palette n'est ni une nouvelle segmentation, ni une mesure, ni une preuve d'un autre phénotype.",
-          "hold_after": 0.7,
-          "speech_text": "Les vrais recadrages changent de couleur dès l'application des réglages d'affichage. Rétablir RGB restaure exactement les pixels affichés, sans modifier les fichiers source. Annotez avec une vue cohérente et interprétable. Changer la palette n'est ni une nouvelle segmentation, ni une mesure, ni une preuve d'un autre phénotype."
+          "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_agreement_fold",
-          "narration": "Annotator Agreement se trouve désormais à droite de l'en-tête d'Annotate. Survolez l'icône pour l'identifier. Le tutoriel spécialisé sur la comparaison des colonnes et l'étude des désaccords est conservé ; nous le lions ici plutôt que de le refaire comme une leçon de module indépendant sur Home.",
+          "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7,
           "related_lessons": [
             "23_agreement"
-          ],
-          "speech_text": "Annotator Agreement se trouve désormais à droite de l'en-tête d'Annotate. Survolez l'icône pour l'identifier. Le tutoriel spécialisé sur la comparaison des colonnes et l'étude des désaccords est conservé ; nous le lions ici plutôt que de le refaire comme une leçon de module indépendant sur Home."
+          ]
         },
         {
           "visual": "16_training_routes",
           "focus": [
-            1836,
+            1832,
             204,
             416,
             80
           ],
-          "narration": "Train ouvre maintenant un menu à deux options : les images, avec un classifieur neuronal d'images, ou les caractéristiques mesurées, avec des arbres boostés. Suivez les leçons liées de vision par ordinateur et d'apprentissage automatique dans Classify. Nous montrons uniquement les parcours ; aucun entraînement n'a été lancé avec cette colonne vide.",
+          "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "speech_text": "Train ouvre maintenant un menu à deux options : les images, avec un classifieur neuronal d'images, ou les caractéristiques mesurées, avec des arbres boostés. Suivez les leçons liées de vision par ordinateur et d'apprentissage automatique dans Classify. Nous montrons uniquement les parcours ; aucun entraînement n'a été lancé avec cette colonne vide."
+          ]
         },
         {
           "visual": "14_restored_rgb",
-          "narration": "Retrain, Suggest et Rounds accompagnent un cycle de révision lorsque des étiquettes adaptées existent. Une classe proposée par un modèle n'est pas automatiquement une réponse humaine. Examinez sa couverture et ses performances sur des données réservées avant de vous y fier. Aucune de ces opérations n'a été exécutée ni présentée avec un résultat réussi inventé dans cette démonstration.",
-          "hold_after": 0.7,
-          "speech_text": "Retrain, Suggest et Rounds accompagnent un cycle de révision lorsque des étiquettes adaptées existent. Une classe proposée par un modèle n'est pas automatiquement une réponse humaine. Examinez sa couverture et ses performances sur des données réservées avant de vous y fier. Aucune de ces opérations n'a été exécutée ni présentée avec un résultat réussi inventé dans cette démonstration."
+          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_generate_database_entry",
-          "narration": "Generate annotation database est disponible ici pour créer un jeu de recadrages d'annotation à partir de sources appropriées. L'exemple Load possède déjà sa base et ses recadrages : nous ne générons donc pas un autre jeu. En script, utilisez generate_annotation_dataset du module annotation_dataset ; consultez l'API actuelle pour les entrées requises.",
+          "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
-          ],
-          "speech_text": "Generate annotation database est disponible ici pour créer un jeu de recadrages d'annotation à partir de sources appropriées. L'exemple Load possède déjà sa base et ses recadrages : nous ne générons donc pas un autre jeu. En script, utilisez generate_annotation_dataset du module annotation_dataset ; consultez l'API actuelle pour les entrées requises."
+          ]
         },
         {
           "visual": "18_annotation_console",
-          "narration": "Ouvrez Console pour lire les vrais messages sur la source, les étiquettes et l'état, puis masquez-la pour rendre l'espace à la grille. Le résultat démontré dans Annotate est une étiquette en base, pas une figure d'analyse activée avec Plot. Les recadrages visibles et les vérifications de l'état enregistré sont les sorties à examiner ici.",
-          "hold_after": 0.7,
-          "speech_text": "Ouvrez Console pour lire les vrais messages sur la source, les étiquettes et l'état, puis masquez-la pour rendre l'espace à la grille. Le résultat démontré dans Annotate est une étiquette en base, pas une figure d'analyse activée avec Plot. Les recadrages visibles et les vérifications de l'état enregistré sont les sorties à examiner ici."
+          "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
+          "hold_after": 0.7
         },
         {
           "visual": "30_ai_unsent_question",
-          "narration": "AI active une aide facultative via le fournisseur configuré dans Preferences. Cette aide est distincte de l'entraînement d'un classifieur ou de l'acceptation d'étiquettes prédites. Il s'agit d'une question d'exemple non envoyée : aucun service n'a été contacté et aucune réponse n'a été inventée. Fondez vos classes, vos étiquettes enregistrées et vos décisions de révision sur les données.",
-          "hold_after": 0.7,
-          "speech_text": "AI active une aide facultative via le fournisseur configuré dans Preferences. Cette aide est distincte de l'entraînement d'un classifieur ou de l'acceptation d'étiquettes prédites. Il s'agit d'une question d'exemple non envoyée : aucun service n'a été contacté et aucune réponse n'a été inventée. Fondez vos classes, vos étiquettes enregistrées et vos décisions de révision sur les données."
+          "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "10_classify_cv",
@@ -6124,22 +6109,21 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "Classify : le module principal et ses outils imbriqués",
+      "title": "Classify: choose a model and explore its results",
       "series": 4,
       "app_key": "classify_merged",
-      "section": "Modules principaux",
-      "description": "Choisissez la classification d’images ou de mesures, utilisez les exemples téléchargeables, examinez de vrais résultats et trouvez les cinq outils intégrés à Classify.",
+      "section": "Core",
+      "description": "Choose image or feature classification, load example data, inspect prediction results and open the related tools inside Classify.",
       "objectives": [
-        "Choisir la famille dans le module unifié de Home.",
-        "Utiliser les leçons CV et tabulaires sur données réelles avec leurs limites explicites.",
-        "Trouver Classifier Evaluation, Explain CV, Activation, Training Runs et Feature Explorer dans Classify.",
-        "Conserver les preuves enregistrées et distinguer assistance AI et analyse vérifiée."
+        "Choose Computer Vision for images or Tabular Machine Learning for measurements.",
+        "Start with test data and follow the matching training walkthrough.",
+        "Inspect predictions and open evaluation, feature and training tools."
       ],
-      "prerequisite": "Enregistré sous spaCR 1.5.0.6. Cette vue d’ensemble figure parmi les modules principaux ; les leçons spécialisées et imbriquées sont regroupées sous Classify dans les sous-modules. Elle réutilise des enregistrements CV et ML réels déjà vérifiés, sans réentraînement. Étiquettes et sous-ensembles DIFFÉRENTS : ce n’est PAS une comparaison directe. Exemple tabulaire : Load test data → Load, cellules mesurées, classes columnID=c1/c2, forêt aléatoire, Plot actif, 2153 objets évalués et 188 non évalués faute de données nucléaires ; puits de test distincts sur une même plaque. Exemple CV : préparation explicite de 64 images annotées intactes avec noms canoniques de la base, Generate training dataset désactivé, ResNet18 une époque, 16 entraînement/16 validation/32 test, puits distincts sur une plaque, exactitude 0.5 égale à la référence majoritaire. Le parseur des anciens noms n’est pas corrigé. Les leçons spécialisées donnent réglages, chemins et limites. Routes : classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV ajuste des mesures aux prédictions CV existantes ; aucune preuve causale. Activation visualise les réponses du modèle d’images. Aucune requête AI, nouvelle affirmation de qualité, validation biologique ou comparaison directe des familles. API : spacr.classify.classify → spacr.deep_spacr.train_test_model ou spacr.ml.generate_ml_scores selon classifier_family.",
+      "prerequisite": "Open Classify from Home. Use Load test data for an example project. For your own project, prepare object crops or measured features and class labels from annotations or experimental metadata.",
       "scenes": [
         {
           "visual": "main_00_home",
-          "narration": "Classify est un des modules principaux de Home. Ouvrez-le ici, puis choisissez la famille de classification à l’intérieur. Le lecteur de tutoriels suit la même organisation : cette présentation appartient aux modules principaux ; les procédures spécialisées et outils imbriqués sont regroupés sous Classify dans la section des sous-modules.",
+          "narration": "Open Classify from Home. Start by choosing the classifier family. The image and tabular lessons linked here each walk through a complete example.",
           "focus_modules": [
             "classify_merged"
           ],
@@ -6148,47 +6132,43 @@
             "10_classify_cv",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Classify est un des modules principaux de Home. Ouvrez-le ici, puis choisissez la famille de classification à l’intérieur. Le lecteur de tutoriels suit la même organisation : cette présentation appartient aux modules principaux ; les procédures spécialisées et outils imbriqués sont regroupés sous Classify dans la section des sous-modules."
+          "hold_after": 0.7
         },
         {
           "visual": "main_02_family_choices",
-          "narration": "Computer Vision utilise les images d’objets ; Tabular Machine Learning emploie les mesures enregistrées. Choisissez selon vos données et votre question scientifique, pas selon le nom qui paraît le plus puissant. Changer de famille ne relance pas la segmentation. Les leçons Mask et Measure décrivent leurs propres contrôles d’images et de recadrages en direct.",
+          "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
           "related_lessons": [
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Computer Vision utilise les images d’objets ; Tabular Machine Learning emploie les mesures enregistrées. Choisissez selon vos données et votre question scientifique, pas selon le nom qui paraît le plus puissant. Changer de famille ne relance pas la segmentation. Les leçons Mask et Measure décrivent leurs propres contrôles d’images et de recadrages en direct."
+          "hold_after": 0.7
         },
         {
           "visual": "ml_02_data_choice_load",
-          "narration": "Pour l’exemple tabulaire, cliquez sur Load test data et choisissez Load, pas Stream. Gardez ensemble le projet téléchargé et sa base de mesures. Pour vos propres images, terminez d’abord les mesures. La leçon tabulaire détaillée montre le téléchargement réel, les étiquettes, les réglages et l’exécution complète de la forêt aléatoire.",
+          "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Pour l’exemple tabulaire, cliquez sur Load test data et choisissez Load, pas Stream. Gardez ensemble le projet téléchargé et sa base de mesures. Pour vos propres images, terminez d’abord les mesures. La leçon tabulaire détaillée montre le téléchargement réel, les étiquettes, les réglages et l’exécution complète de la forêt aléatoire."
+          "hold_after": 0.7
         },
         {
-          "visual": "ml_24_batch_figure",
-          "narration": "Voici les figures et la console de cette exécution réelle, avec Plot actif. Les étiquettes pédagogiques sont les colonnes de plaque, pas des phénotypes validés indépendamment. Les objets sans données nucléaires requises restent non évalués, pas négatifs. Examinez prédictions et puits réservés ; une jolie figure ne démontre pas la généralisation à une autre expérience.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
           "related_lessons": [
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Voici les figures et la console de cette exécution réelle, avec Plot actif. Les étiquettes pédagogiques sont les colonnes de plaque, pas des phénotypes validés indépendamment. Les objets sans données nucléaires requises restent non évalués, pas négatifs. Examinez prédictions et puits réservés ; une jolie figure ne démontre pas la généralisation à une autre expérience."
+          "hold_after": 0.7
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "La leçon de vision par ordinateur utilise un contournement explicite pour préparer les noms et soixante-quatre images téléchargées intactes. Son modèle d’une époque atteint seulement la référence majoritaire. Les deux exemples ont des étiquettes et sous-ensembles différents : ne comparez pas leurs exactitudes comme un benchmark. Suivez la leçon avant votre propre partition.",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
           "focus": [
             2090,
             180,
@@ -6198,12 +6178,11 @@
           "related_lessons": [
             "10_classify_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "La leçon de vision par ordinateur utilise un contournement explicite pour préparer les noms et soixante-quatre images téléchargées intactes. Son modèle d’une époque atteint seulement la référence majoritaire. Les deux exemples ont des étiquettes et sous-ensembles différents : ne comparez pas leurs exactitudes comme un benchmark. Suivez la leçon avant votre propre partition."
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
-          "narration": "Les icônes en haut à droite ouvrent des outils imbriqués, pas des tuiles distinctes sur Home. Survolez-les pour les identifier. Classifier Evaluation inspecte un ensemble d’évaluation enregistré, avec prédictions et informations de fuite. Sa leçon décrit les fichiers requis et pourquoi une métrique affichée exige encore une validation bien conçue.",
+          "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
             2690,
             65,
@@ -6213,12 +6192,11 @@
           "related_lessons": [
             "39_classifier_evaluation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Les icônes en haut à droite ouvrent des outils imbriqués, pas des tuiles distinctes sur Home. Survolez-les pour les identifier. Classifier Evaluation inspecte un ensemble d’évaluation enregistré, avec prédictions et informations de fuite. Sa leçon décrit les fichiers requis et pourquoi une métrique affichée exige encore une validation bien conçue."
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_explain_cv_tooltip",
-          "narration": "Explain CV utilise des mesures pour modéliser les prédictions existantes de vision par ordinateur. C’est un modèle explicatif distinct, ni le réseau d’images original ni une explication causale. Son tutoriel montre les bonnes prédictions d’entrée et les résultats disponibles. Ne supposez pas que les sorties du classifieur tabulaire satisfont ce contrat.",
+          "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
             2480,
             65,
@@ -6228,12 +6206,11 @@
           "related_lessons": [
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Explain CV utilise des mesures pour modéliser les prédictions existantes de vision par ordinateur. C’est un modèle explicatif distinct, ni le réseau d’images original ni une explication causale. Son tutoriel montre les bonnes prédictions d’entrée et les résultats disponibles. Ne supposez pas que les sorties du classifieur tabulaire satisfont ce contrat."
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_activation_tooltip",
-          "narration": "Activation ouvre l’interprétation du modèle d’images. Utilisez le bon point de contrôle, les bons canaux et le bon prétraitement. La leçon liée montre de vraies cartes de saillance enregistrées et explique son recours à un visualiseur externe. Une région mise en évidence ne prouve ni mécanisme biologique ni bonne performance du classifieur.",
+          "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
             2930,
             65,
@@ -6243,12 +6220,11 @@
           "related_lessons": [
             "16_activation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Activation ouvre l’interprétation du modèle d’images. Utilisez le bon point de contrôle, les bons canaux et le bon prétraitement. La leçon liée montre de vraies cartes de saillance enregistrées et explique son recours à un visualiseur externe. Une région mise en évidence ne prouve ni mécanisme biologique ni bonne performance du classifieur."
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_train_compare_tooltip",
-          "narration": "Training Runs compare historiques d’entraînement et réglages enregistrés. Juxtaposer deux courbes ne crée pas de preuve indépendante. Gardez les exécutions dans des dossiers distincts préservés et comparez des métriques et partitions compatibles. Le tutoriel dédié explique les contrôles sans les répéter dans cette présentation du module principal.",
+          "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
             2600,
             65,
@@ -6258,36 +6234,38 @@
           "related_lessons": [
             "28_training_runs"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Training Runs compare historiques d’entraînement et réglages enregistrés. Juxtaposer deux courbes ne crée pas de preuve indépendante. Gardez les exécutions dans des dossiers distincts préservés et comparez des métriques et partitions compatibles. Le tutoriel dédié explique les contrôles sans les répéter dans cette présentation du module principal."
+          "hold_after": 0.7
         },
         {
           "visual": "main_06_feature_explorer_nested",
-          "narration": "Feature Explorer s’ouvre depuis la dernière icône. Il classe des caractéristiques mesurées pour une comparaison choisie avant même l’entraînement d’un classifieur. Sa leçon utilise de vraies mesures téléchargées et des filtres en direct. Vérifiez à nouveau la comparaison après filtrage : un classement n’est ni causalité ni modèle d’images entraîné.",
+          "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
           "related_lessons": [
             "65_feature_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Feature Explorer s’ouvre depuis la dernière icône. Il classe des caractéristiques mesurées pour une comparaison choisie avant même l’entraînement d’un classifieur. Sa leçon utilise de vraies mesures téléchargées et des filtres en direct. Vérifiez à nouveau la comparaison après filtrage : un classement n’est ni causalité ni modèle d’images entraîné."
+          "hold_after": 0.7
         },
         {
-          "visual": "cv_30_ai_unsent_question",
-          "narration": "La console propose aussi l’assistance facultative de spaCR AI. Ici, la question n’est pas envoyée : aucune réponse de fournisseur ou analyse n’est démontrée. Conservez sorties, réglages et preuves de partition, puis vérifiez les conseils. En Python, classify oriente vers l’implémentation image ou tabulaire selon la famille choisie.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
             2090,
-            950,
+            190,
             1720,
-            1130
+            1200
           ],
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "La console propose aussi l’assistance facultative de spakeur AI. Ici, la question n’est pas envoyée : aucune réponse de fournisseur ou analyse n’est démontrée. Conservez sorties, réglages et preuves de partition, puis vérifiez les conseils. En Python, classify oriente vers l’implémentation image ou tabulaire selon la famille choisie."
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "42_curate",

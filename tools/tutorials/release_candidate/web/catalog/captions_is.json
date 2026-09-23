@@ -853,60 +853,60 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate: raunverulegir myndútskurðir, vistuð merki og yfirferðartól",
+      "title": "Annotate: label objects and save your annotations",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Hlaðið inn niðurhalanlega myndútskurðasafninu, búið til sérstakan merkingardálk, sannreynið vistuð merki, stillið birtinguna og finnið yfirferðar- og þjálfunartólin í núverandi Annotate-einingu.",
+      "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
       "objectives": [
-        "Velja viðeigandi niðurhalanlegt dæmi með myndútskurðum eða lestri eftir þörfum og opna raunverulegu verkefnismöppuna.",
-        "Nota sérstakan merkingardálk, aðgreina merki sem bíða vistunar frá vistuðum merkjum og eyða sýnimerkinu án þess að breyta upprunalegum merkingum.",
-        "Skoða fjölda eftir flokkum og þekju og breyta birtingarlitum án þess að breyta myndskrám.",
-        "Finna innfellda Agreement-verkferlið, núverandi þjálfunarleiðir, gerð merkingagagnagrunns og valfrjálsa AI-stjórnborðið."
+        "Load saved crops or stream crops from merged images.",
+        "Choose an annotation column, assign and clear labels, and save your changes.",
+        "Adjust channel colours and review class counts and coverage.",
+        "Find Agreement and the image and feature training routes."
       ],
-      "prerequisite": "Opnið spaCR og veljið Annotate meðal Core-eininganna. Upptakan notar niðurhalanlega Load-gagnasafnið: 2.341 útfluttan PNG-myndútskurð og mæligagnagrunn þeirra. Hvorki þarf að þjálfa líkan né nota gervigreindarþjónustu. Skilgreinið líffræðilega flokka áður en raunveruleg merking hefst; tímabundna merkið hér sýnir vistun, ekki líffræðilegt mat.",
+      "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Opnið Annotate meðal Core-eininganna. Aðalvinnusvæðið er myndútskurðanet tengt mæligagnagrunni. Núverandi eining hefur einnig þekjuathuganir, náms- og þjálfunarstjórntæki, gagnagrunnsgerð og innfellda tólið Annotator Agreement.",
+          "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
           "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Veljið Load test data og skoðið báða kostina. Load veitir útflutta myndútskurði og gagnagrunn. Dæmið inniheldur 2.341 PNG-myndútskurð. Upptakan endurnýtir fullbúið niðurhalað skyndiminni; hún býr ekki til ímyndaðar myndir eða merki.",
+          "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_stream",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Stream veitir sameinuð myndfylki og gagnagrunninn til að sækja útskurði eftir þörfum. Veljið eftir því hvernig lesa á myndirnar. Niðurhal annars kostsins sannar ekki að hinn sé tiltækur. Við notum Load í gegnum allt sýnidæmið.",
+          "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
           "hold_after": 0.7
         },
         {
           "visual": "04_open_source_dialog",
           "focus": [
-            1577,
+            1393,
             810,
             1300,
             950
           ],
-          "narration": "Ef myndanetið segir enn að engin uppspretta sé valin eftir niðurhal, veljið Open source. Veljið plötumöppuna sem inniheldur undirmöppuna measurements og gagnagrunninn, ekki gagnagrunnsskrána sjálfa. Þetta er raunverulega viðbótarskrefið sem útgáfan í upptökunni þarf.",
+          "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
           "hold_after": 0.7
         },
         {
           "visual": "05_loaded_crops",
-          "narration": "Staðfestið að raunverulegir myndútskurðir birtist og síðutalning passi við vænt gagnasafn. Fjöldi mynda á síðu fer eftir glugga og myndstærð. Það eitt að opna möppu nægir ekki: skoðið myndirnar áður en merkingarákvarðanir eru teknar.",
+          "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
           "hold_after": 0.7
         },
         {
@@ -917,22 +917,22 @@
             748,
             1462
           ],
-          "narration": "Opnið Settings og búið til sérstakan merkingardálk fyrir sýnidæmið. Haldið upprunalegu merkjunum óbreyttum. Skráið merkingu hvers flokks og ákveðið samræmda birtingu áður en raunveruleg vinna hefst. Sýnimerkið prófar eingöngu vistunarferlið.",
+          "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
           "hold_after": 0.7
         },
         {
           "visual": "08_class_one_pending",
-          "narration": "Vinstrismellið á fyrsta myndútskurðinn til að úthluta flokki eitt. Hægrismellur úthlutar flokki tvö og sami flokkur aftur hreinsar merkið. Hringurinn í flokkslitnum sýnir núverandi ákvörðun; aukalegi hvíti hringurinn sýnir fókus. Breyttur hringur sannar ekki einn og sér að merkið hafi náð í gagnagrunninn.",
+          "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
           "hold_after": 0.7
         },
         {
           "visual": "08_next_page_saved",
-          "narration": "Ýtið á Next til að yfirgefa síðuna. Í þessari útgáfu sendir síðuskipti merki sem bíða vistunar til vistunarvinnslunnar í bakgrunni. Við skoðuðum raunverulega gagnagrunninn og staðfestum að flokkur eitt hefði verið skrifaður. Ruglið ekki saman óvistaðri sýnilegri breytingu og lokinni vistun.",
+          "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
           "hold_after": 0.7
         },
         {
           "visual": "08_class_one_saved",
-          "narration": "Ýtið á Back og skoðið sama myndútskurð. Vistaði flokkurinn er lesinn aftur úr gagnagrunninum. Sýnilega lyklaborðsleiðbeiningin sýnir flokka einn til níu, núll til að hreinsa, færslu, afturköllun og Enter fyrir næstu lotu. Hafið myndútskurðinn í fókus sýnilegan þegar flýtileiðir eru notaðar.",
+          "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
           "hold_after": 0.7
         },
         {
@@ -943,7 +943,7 @@
             285,
             136
           ],
-          "narration": "Class counts sýnir nú eitt vistað dæmi í flokki eitt. Talning hjálpar að finna ójafnvægi, en eitt sýnimerki er ekki þjálfunargagnasafn og segir ekkert um líffræðilegt réttmæti. Aðgreinið tillögur vélarinnar frá yfirförnum svörum.",
+          "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
           "hold_after": 0.7
         },
         {
@@ -954,12 +954,12 @@
             920,
             620
           ],
-          "narration": "Coverage spyr hvaðan merkingarnar komu, ekki aðeins hversu margar þær eru. Skoðið hvernig hóparnir í skýrslunni eiga fulltrúa áður en þjálfun hefst. Einn merktur myndútskurður staðfestir ekki dæmigerða þekju, þótt forritið skrái hann rétt.",
+          "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
           "hold_after": 0.7
         },
         {
           "visual": "10_class_cleared",
-          "narration": "Smellið aftur á sama flokk og notið Next og Back til að vista og endurhlaða tómu stöðuna. Sýnidálkurinn er aftur auður. Skrifvarðar athuganir staðfestu breytinguna úr auðu í einn og aftur í autt, á meðan upprunalegu merkingardálkarnir og niðurhalaðar PNG-skrár breyttust ekki.",
+          "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
           "hold_after": 0.7
         },
         {
@@ -970,17 +970,17 @@
             748,
             1462
           ],
-          "narration": "Settings stjórnar einnig birtingunni. Channel colours breytir litavali; Display order breytir því hvaða upprunarás birtist í hverju litasæti. Þetta eru ekki fyrirmæli um að endurskrifa röð rása í skrá. Hér veljum við CMY og förum síðan aftur í RGB.",
+          "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
           "hold_after": 0.7
         },
         {
           "visual": "12_cmy_view",
-          "narration": "Raunverulegu myndútskurðirnir skipta um lit þegar birtingarstillingarnar eru notaðar. Aftur í RGB endurheimtir nákvæmlega sömu sýndu mynddíla, en frumskrárnar breytast ekki. Notið samræmda og skiljanlega sýn við merkingu. Litabreyting er hvorki ný myndskipting, mæling né sönnun fyrir annarri svipgerð.",
+          "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
           "hold_after": 0.7
         },
         {
           "visual": "15_agreement_fold",
-          "narration": "Annotator Agreement er nú hægra megin í haus Annotate. Haldið bendlinum yfir tákninu til að þekkja það. Fyrri sérkennslustund um samanburð merkingardálka og skoðun á ósamræmi helst. Hún er tengd hér í stað þess að vera endurgerð sem kennsla á enn eina sjálfstæða Home-einingu.",
+          "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7,
           "related_lessons": [
@@ -990,12 +990,12 @@
         {
           "visual": "16_training_routes",
           "focus": [
-            1836,
+            1832,
             204,
             416,
             80
           ],
-          "narration": "Train opnar nú valmynd með tveimur leiðum: myndirnar með taugakerfismyndflokkara eða mældu eiginleikana með styrktum ákvörðunartrjám. Fylgið tengdu kennslunni um tölvusjón og vélanám innan Classify. Hér sýnum við aðeins leiðirnar; engin þjálfun hófst með þessum auða sýnidálki.",
+          "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -1005,12 +1005,12 @@
         },
         {
           "visual": "14_restored_rgb",
-          "narration": "Retrain, Suggest og Rounds styðja yfirferðarlotu þegar viðeigandi merki eru til. Flokkur sem líkan leggur til verður ekki sjálfkrafa að mannlegu svari. Skoðið þekju og frammistöðu á gögnum sem voru tekin frá áður en líkaninu er treyst. Engin þessara aðgerða var keyrð eða sýnd með tilbúinni árangursniðurstöðu hér.",
+          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
           "hold_after": 0.7
         },
         {
           "visual": "17_generate_database_entry",
-          "narration": "Generate annotation database er nú hér til að búa til myndútskurðasafn til merkingar úr viðeigandi frumgögnum. Load-dæmið hefur þegar gagnagrunn og útskurði, svo við búum ekki til annað safn. Í skriftum er generate_annotation_dataset í annotation_dataset-einingunni notað; skoðið núverandi API-skjöl fyrir nauðsynlegt inntak.",
+          "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1019,15 +1019,20 @@
         },
         {
           "visual": "18_annotation_console",
-          "narration": "Opnið Console fyrir raunveruleg skilaboð um uppsprettu, merki og stöðu og felið það síðan til að gefa myndanetinu rými aftur. Úttak Annotate í sýnidæminu er merki í gagnagrunni, ekki greiningarmyndrit virkjað með Plot. Hér á að skoða myndútskurðina og vistaða stöðu.",
+          "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
           "hold_after": 0.7
         },
         {
           "visual": "30_ai_unsent_question",
-          "narration": "AI virkjar valfrjálsa hjálp frá þjónustuaðilanum í Preferences. Það er aðskilið frá þjálfun flokkara eða samþykki spáðra merkja. Þetta er ósend dæmispurning: Engin þjónusta var tengd og ekkert svar búið til. Byggið skilgreiningar flokka, vistuð merki og yfirferðarákvarðanir á gögnunum.",
+          "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "10_classify_cv",
@@ -5514,22 +5519,21 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "Classify: aðaleiningin og undireiningar hennar",
+      "title": "Classify: choose a model and explore its results",
       "series": 4,
       "app_key": "classify_merged",
       "section": "Core",
-      "description": "Veldu flokkun út frá myndum eða mælingum, notaðu niðurhalanleg dæmi, skoðaðu raunverulegar niðurstöður og finndu verkfærin fimm í Classify.",
+      "description": "Choose image or feature classification, load example data, inspect prediction results and open the related tools inside Classify.",
       "objectives": [
-        "Velja flokkarafjölskyldu í sameinaðri einingu á Home.",
-        "Nota CV- og töflugagnakennsluna með raunverulegum gögnum og skýrum takmörkunum.",
-        "Finna Classifier Evaluation, Explain CV, Activation, Training Runs og Feature Explorer undir Classify.",
-        "Varðveita vistuð gögn og greina AI-aðstoð frá sannreyndri greiningu."
+        "Choose Computer Vision for images or Tabular Machine Learning for measurements.",
+        "Start with test data and follow the matching training walkthrough.",
+        "Inspect predictions and open evaluation, feature and training tools."
       ],
-      "prerequisite": "Upptaka með spaCR 1.5.0.6. Yfirlitið er undir aðaleiningum; sérhæfðar kennslustundir og undireiningar eru undir Classify í undireiningahlutanum. Raunverulegar CV-/ML-upptökur sem voru áður yfirfarnar eru endurnýttar án nýrrar þjálfunar. Mismunandi merki og hlutmengi: EKKI beinn árangurssamanburður. Töflugagnadæmi: Load test data → Load, mældar frumur, flokkar columnID=c1/c2, slembiskógur, Plot virkt, 2153 hlutir metnir og 188 ómetnir vegna skorts á kjarnagögnum; aðskildir prófunarbrunnar á sömu plötu. CV-dæmi: skýr undirbúningur 64 óbreyttra merktra myndútsniða með stöðluðum gagnagrunnsnöfnum, Generate training dataset óvirkt, ResNet18 ein umferð, 16 þjálfun/16 staðfesting/32 prófun, aðskildir brunnar sömu plötu, hlutfall réttra spáa 0.5 jafnt meirihlutaviðmiði. Þáttun eldri skráarheita er ekki lagfærð. Sjá sérkennsluna fyrir stillingar, slóðir og takmarkanir. Leiðir: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV notar mælda eiginleika til að herma eftir fyrirliggjandi CV-spám; það sannar ekki orsakasamband. Activation sýnir viðbrögð myndlíkans. Engin AI-beiðni, ný gæðafull­yrðing, líffræðileg staðfesting eða beinn samanburður fjölskyldna. API: spacr.classify.classify → spacr.deep_spacr.train_test_model eða spacr.ml.generate_ml_scores eftir classifier_family.",
+      "prerequisite": "Open Classify from Home. Use Load test data for an example project. For your own project, prepare object crops or measured features and class labels from annotations or experimental metadata.",
       "scenes": [
         {
           "visual": "main_00_home",
-          "narration": "Classify er ein af aðaleiningunum á Home. Opnaðu hana hér og veldu síðan flokkarafjölskyldu innan einingarinnar. Kennsluspilarinn fylgir sömu uppbyggingu: þetta yfirlit er undir aðaleiningum en sérhæfð verkferli og undirverkfæri eru flokkuð undir Classify í undireiningahlutanum.",
+          "narration": "Open Classify from Home. Start by choosing the classifier family. The image and tabular lessons linked here each walk through a complete example.",
           "focus_modules": [
             "classify_merged"
           ],
@@ -5542,7 +5546,7 @@
         },
         {
           "visual": "main_02_family_choices",
-          "narration": "Computer Vision notar myndir af hlutum; Tabular Machine Learning notar vistaðar mælingar. Veldu út frá inntakinu og vísindalegu spurningunni, ekki því nafni sem hljómar öflugast. Fjölskylduskipti endurtaka ekki myndskiptingu. Tengdar Mask- og Measure-kennslustundir fjalla um eigin rauntímastýringar fyrir myndir og útsnið.",
+          "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
           "related_lessons": [
             "07_mask",
             "08_measure"
@@ -5551,7 +5555,7 @@
         },
         {
           "visual": "ml_02_data_choice_load",
-          "narration": "Fyrir töflugagnadæmið skaltu smella á Load test data og velja Load, ekki Stream. Haltu niðurhalaða verkefninu og mæligagnagrunninum saman. Ljúktu mælingum fyrst fyrir eigin myndir. Í ítarlegu töflugagnakennslunni eru raunverulegt niðurhal, merkjaval, stillingar og lokin slembiskógskeyrsla sýnd.",
+          "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
@@ -5559,13 +5563,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "ml_24_batch_figure",
-          "narration": "Hér eru raunveruleg myndrit og stjórnborð þeirrar keyrslu með Plot virkt. Kennslumerkin eru dálkar plötunnar, ekki sjálfstætt staðfestar svipgerðir. Hlutir án nauðsynlegra kjarnagagna haldast ómetnir, ekki neikvæðir. Skoðaðu vistaðar spár og frátekna brunna; litrík myndrit sýna ekki ein og sér alhæfingu á aðra tilraun.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -5574,7 +5578,7 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "Sérstaka tölvusjónarkennslan notar skýra hjáleið við undirbúning skráarheita og sextíu og fjögur óbreytt myndútsnið úr niðurhali. Líkan einnar umferðar nær aðeins meirihlutaviðmiðinu. Dæmin nota ólík merki og hlutmengi; ekki bera rétt svör þeirra saman sem beint frammistöðupróf. Fylgdu kennslunni áður en eigin skipting er undirbúin.",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
           "focus": [
             2090,
             180,
@@ -5588,7 +5592,7 @@
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
-          "narration": "Táknin efst til hægri opna undirverkfæri, ekki sérstakar Home-flísar. Haltu bendlinum yfir þeim til að sjá heitin. Classifier Evaluation skoðar vistaðan matsgagnapakka með spám og lekaupplýsingum. Kennslan útskýrir nauðsynlegar skrár og hvers vegna sýndur mælikvarði þarf enn vandaða sannprófunaráætlun.",
+          "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
             2690,
             65,
@@ -5602,7 +5606,7 @@
         },
         {
           "visual": "main_05_explain_cv_tooltip",
-          "narration": "Explain CV notar mælda eiginleika til að líkja eftir fyrirliggjandi tölvusjónarspám. Það er sérstakt skýringarlíkan, ekki upprunalega myndnetið eða orsakaútskýring. Kennslan sýnir rétt spáinntak og tiltækar niðurstöður. Ekki gera ráð fyrir að úttak töflugagnaflokkara uppfylli sömu inntaksskilyrði.",
+          "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
             2480,
             65,
@@ -5616,7 +5620,7 @@
         },
         {
           "visual": "main_05_activation_tooltip",
-          "narration": "Activation opnar túlkun myndlíkans. Notaðu samsvarandi varðveislupunkt, myndrásir og forvinnslu. Tengda kennslan sýnir raunveruleg vistuð mikilvægiskort og útskýrir hjáleiðina með ytri myndskoðara. Upplýst myndsvæði sannar hvorki líffræðilegt ferli né góðan flokkara.",
+          "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
             2930,
             65,
@@ -5630,7 +5634,7 @@
         },
         {
           "visual": "main_05_train_compare_tooltip",
-          "narration": "Training Runs ber saman vistaða þjálfunarferla og stillingar. Tveir ferlar hlið við hlið skapa ekki sjálfstæðar sannanir. Varðveittu keyrslur í aðskildum möppum og berðu saman samrýmanlega mælikvarða og gagnaskiptingar. Sérkennslan útskýrir stjórntækin án þess að endurtaka þau í þessu aðaleiningayfirliti.",
+          "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
             2600,
             65,
@@ -5644,20 +5648,20 @@
         },
         {
           "visual": "main_06_feature_explorer_nested",
-          "narration": "Feature Explorer opnast með síðasta tákninu. Það getur raðað mældum eiginleikum fyrir valinn samanburð áður en flokkari er þjálfaður. Kennslan notar raunverulegar niðurhalaðar mælingar og rauntímasíur. Athugaðu samanburðinn aftur eftir síun: röðun er hvorki orsakasamband né þjálfað myndlíkan.",
+          "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
           "related_lessons": [
             "65_feature_explorer"
           ],
           "hold_after": 0.7
         },
         {
-          "visual": "cv_30_ai_unsent_question",
-          "narration": "Stjórnborðið býður líka valfrjálsa spaCR AI-aðstoð. Hér er spurningin ósend; ekkert svar þjónustuveitu eða greiningarniðurstaða er sýnd. Varðveittu líkanúttak, stillingar og gögn um skiptingu og sannreyndu ráð gegn þeim. Í Python vísar classify til mynd- eða töflugagnakóðans eftir valinni fjölskyldu.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
             2090,
-            950,
+            190,
             1720,
-            1130
+            1200
           ],
           "related_lessons": [
             "06_api",
@@ -5666,7 +5670,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "42_curate",

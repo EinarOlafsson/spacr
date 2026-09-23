@@ -853,60 +853,60 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate: 실제 잘라낸 이미지, 저장된 라벨, 검토 도구",
+      "title": "Annotate: label objects and save your annotations",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "다운로드할 수 있는 잘라낸 이미지 데이터를 불러오고 별도 주석 열을 만듭니다. 실제 저장된 라벨을 검증하고 표시를 조정하며 현재 Annotate 모듈의 검토·학습 도구를 찾습니다.",
+      "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
       "objectives": [
-        "잘라낸 이미지 또는 필요할 때 이미지를 읽는 다운로드 예제를 선택하고 실제 프로젝트 폴더를 엽니다.",
-        "별도 주석 열을 사용하고 저장 대기 라벨과 저장된 라벨을 구분하며 원래 주석을 변경하지 않고 데모 라벨을 지웁니다.",
-        "클래스별 개수와 커버리지를 확인하고 이미지 파일을 바꾸지 않은 채 표시 색상을 변경합니다.",
-        "통합된 Agreement 작업 흐름, 현재 학습 경로, 주석 데이터베이스 생성기, 선택적인 AI 콘솔을 찾습니다."
+        "Load saved crops or stream crops from merged images.",
+        "Choose an annotation column, assign and clear labels, and save your changes.",
+        "Adjust channel colours and review class counts and coverage.",
+        "Find Agreement and the image and feature training routes."
       ],
-      "prerequisite": "spaCR를 열고 Core 모듈에서 Annotate를 선택하세요. 녹화에서는 내보낸 PNG 이미지 2,341개와 측정 데이터베이스가 포함된 다운로드용 Load 데이터를 사용합니다. 모델 학습이나 AI 서비스는 필요하지 않습니다. 실제 주석 작업 전에 생물학적 클래스 정의를 정하세요. 여기의 임시 라벨은 저장을 시연하며 생물학적 판단이 아닙니다.",
+      "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Core 모듈에서 Annotate를 엽니다. 주 작업 영역은 측정 데이터베이스와 연결된 잘라낸 이미지 격자입니다. 현재 모듈에는 커버리지 확인, 학습 컨트롤, 데이터베이스 생성, 통합된 Annotator Agreement 도구도 있습니다.",
+          "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
           "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Load test data를 선택하고 두 경로를 확인합니다. Load는 내보낸 잘라낸 이미지와 데이터베이스를 제공합니다. 예제에는 PNG 이미지 2,341개가 있습니다. 녹화에서는 완전히 다운로드된 캐시를 재사용하며 이미지나 라벨을 만들어 내지 않습니다.",
+          "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_stream",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Stream은 필요할 때 이미지를 잘라 읽을 수 있도록 병합 이미지 배열과 데이터베이스를 제공합니다. 이미지를 읽으려는 방식에 맞게 선택하세요. 한 경로를 다운로드했다고 다른 경로까지 갖춘 것은 아닙니다. 이 데모에서는 계속 Load를 사용합니다.",
+          "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
           "hold_after": 0.7
         },
         {
           "visual": "04_open_source_dialog",
           "focus": [
-            1577,
+            1393,
             810,
             1300,
             950
           ],
-          "narration": "다운로드 후에도 격자가 소스 미선택으로 표시되면 Open source를 선택합니다. measurements 하위 폴더와 데이터베이스를 포함하는 플레이트 폴더를 고르며 데이터베이스 파일 자체를 고르지는 않습니다. 여기서 보이는 앱 버전에는 이 추가 단계가 실제로 필요합니다.",
+          "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
           "hold_after": 0.7
         },
         {
           "visual": "05_loaded_crops",
-          "narration": "실제 잘라낸 이미지가 표시되고 페이지 개수가 예상 데이터셋과 맞는지 확인합니다. 페이지당 이미지 수는 창과 이미지 크기에 따라 달라집니다. 폴더가 열리는 것만으로는 충분하지 않습니다. 주석을 판단하기 전에 이미지를 확인하세요.",
+          "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
           "hold_after": 0.7
         },
         {
@@ -917,22 +917,22 @@
             748,
             1462
           ],
-          "narration": "Settings를 열어 데모 전용 주석 열을 만듭니다. 원래 라벨은 그대로 둡니다. 실제 작업 전에는 각 클래스의 의미를 기록하고 표시 조건을 통일하세요. 이제 지정할 예시 라벨은 저장 경로를 시험하기 위한 것입니다.",
+          "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
           "hold_after": 0.7
         },
         {
           "visual": "08_class_one_pending",
-          "narration": "첫 이미지를 왼쪽 클릭해 클래스 1을 지정합니다. 오른쪽 클릭은 클래스 2이며 같은 클래스를 다시 선택하면 지워집니다. 클래스 색상의 테두리는 현재 판단을, 추가 흰색 테두리는 포커스를 나타냅니다. 테두리가 바뀌었다는 사실만으로 라벨이 데이터베이스에 저장되었다고 볼 수는 없습니다.",
+          "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
           "hold_after": 0.7
         },
         {
           "visual": "08_next_page_saved",
-          "narration": "Next를 눌러 페이지를 이동합니다. 이 버전에서는 페이지를 바꿀 때 대기 중인 라벨을 백그라운드 저장 작업으로 보냅니다. 실제 데이터베이스를 조회해 클래스 1이 기록된 것을 확인했습니다. 저장되지 않은 화면 변화를 저장 완료와 혼동하지 마세요.",
+          "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
           "hold_after": 0.7
         },
         {
           "visual": "08_class_one_saved",
-          "narration": "Back을 눌러 같은 이미지를 확인합니다. 저장된 클래스가 데이터베이스에서 다시 불러와집니다. 화면의 키보드 안내에는 클래스 1부터 9, 지우기 0, 이동, 실행 취소, 다음 배치를 위한 Enter가 있습니다. 단축키를 사용할 때 포커스된 이미지를 시야에 두세요.",
+          "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
           "hold_after": 0.7
         },
         {
@@ -943,7 +943,7 @@
             285,
             136
           ],
-          "narration": "Class counts는 이제 클래스 1에 저장된 예시가 한 개 있다고 표시합니다. 개수는 불균형을 찾는 데 도움이 되지만 데모 라벨 하나는 학습 데이터셋이 아니며 생물학적 정확성도 알려 주지 않습니다. 기계의 제안과 검토한 답을 구분하세요.",
+          "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
           "hold_after": 0.7
         },
         {
@@ -954,12 +954,12 @@
             920,
             620
           ],
-          "narration": "Coverage는 주석의 개수뿐 아니라 어디에서 왔는지 확인합니다. 학습 전에 보고서의 각 그룹이 얼마나 포함되어 있는지 살펴보세요. 소프트웨어가 올바르게 기록했더라도 이미지 하나의 라벨만으로 대표성 있는 커버리지를 입증할 수는 없습니다.",
+          "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
           "hold_after": 0.7
         },
         {
           "visual": "10_class_cleared",
-          "narration": "같은 클래스를 다시 클릭하고 Next와 Back으로 빈 상태를 저장한 뒤 다시 불러옵니다. 데모 열은 다시 비었습니다. 읽기 전용 확인으로 빈 값에서 1, 다시 빈 값으로 바뀐 것을 검증했으며 원래 주석 열과 다운로드한 PNG 파일은 모두 변하지 않았습니다.",
+          "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
           "hold_after": 0.7
         },
         {
@@ -970,17 +970,17 @@
             748,
             1462
           ],
-          "narration": "Settings는 표시도 제어합니다. Channel colours는 표시 팔레트를 바꾸고 Display order는 각 색상 위치에 어느 원본 채널을 놓을지 바꿉니다. 파일의 채널 순서를 다시 쓰라는 명령이 아닙니다. 여기서는 CMY를 선택한 뒤 RGB로 돌아갑니다.",
+          "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
           "hold_after": 0.7
         },
         {
           "visual": "12_cmy_view",
-          "narration": "표시 설정을 적용하면 실제 잘라낸 이미지의 색상이 바뀝니다. RGB를 복원하면 같은 표시 픽셀이 돌아오며 원본 파일은 그대로입니다. 주석에는 일관되고 해석하기 쉬운 표시를 쓰세요. 팔레트 변경은 새로운 분할이나 측정이 아니며 다른 표현형의 증거도 아닙니다.",
+          "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
           "hold_after": 0.7
         },
         {
           "visual": "15_agreement_fold",
-          "narration": "Annotator Agreement는 이제 Annotate 머리글 오른쪽에 있습니다. 아이콘 위에 포인터를 올려 확인하세요. 주석 열을 비교하고 불일치를 조사하는 기존 전문 튜토리얼은 유지합니다. 별도의 Home 모듈 수업으로 다시 만들지 않고 여기에서 연결합니다.",
+          "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7,
           "related_lessons": [
@@ -990,12 +990,12 @@
         {
           "visual": "16_training_routes",
           "focus": [
-            1836,
+            1832,
             204,
             416,
             80
           ],
-          "narration": "Train은 이제 두 경로가 있는 메뉴를 엽니다. 신경망 이미지 분류기로 이미지에서 학습하거나 부스팅 트리로 측정 특징에서 학습할 수 있습니다. Classify 안에 연결된 컴퓨터 비전과 머신러닝 수업을 참고하세요. 여기서는 경로만 보여 주며 이 빈 데모 열로 학습을 시작하지 않았습니다.",
+          "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -1005,12 +1005,12 @@
         },
         {
           "visual": "14_restored_rgb",
-          "narration": "적절한 라벨이 있으면 Retrain, Suggest, Rounds가 검토 주기를 지원합니다. 모델이 제안한 클래스가 자동으로 사람의 답이 되는 것은 아닙니다. 의존하기 전에 커버리지와 따로 보류한 데이터에서의 성능을 확인하세요. 이 데모에서는 해당 작업을 실행하거나 성공 결과를 지어내지 않았습니다.",
+          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
           "hold_after": 0.7
         },
         {
           "visual": "17_generate_database_entry",
-          "narration": "Generate annotation database가 이곳에 추가되어 적절한 원본 데이터로 주석용 잘라낸 이미지 세트를 만들 수 있습니다. 다운로드한 Load 예제에는 데이터베이스와 이미지가 이미 있어 새 세트를 만들지 않습니다. 스크립트에서는 annotation_dataset 모듈의 generate_annotation_dataset을 사용합니다. 필요한 입력은 현재 API 문서를 확인하세요.",
+          "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1019,15 +1019,20 @@
         },
         {
           "visual": "18_annotation_console",
-          "narration": "실제 소스, 라벨, 상태 메시지가 필요할 때 Console을 열고 확인 후 숨겨 격자 공간을 되돌립니다. 여기서 보여 준 Annotate 출력은 데이터베이스 라벨이지 Plot으로 켠 분석 그림이 아닙니다. 확인할 출력은 보이는 이미지와 저장 상태입니다.",
+          "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
           "hold_after": 0.7
         },
         {
           "visual": "30_ai_unsent_question",
-          "narration": "AI는 Preferences에서 설정한 제공자를 통해 선택적인 도움을 켭니다. 이는 분류기 학습이나 예측 라벨 수락과 별개입니다. 이 질문 예시는 보내지 않았습니다. 서비스에 접속하지 않았고 답변도 지어내지 않았습니다. 클래스 정의, 저장된 라벨, 검토 결정은 데이터에 근거하세요.",
+          "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "10_classify_cv",
@@ -5514,22 +5519,21 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "Classify: 주 모듈과 중첩 도구",
+      "title": "Classify: choose a model and explore its results",
       "series": 4,
       "app_key": "classify_merged",
       "section": "Core",
-      "description": "이미지 또는 측정값 기반 분류를 선택하고 다운로드 예제의 실제 결과와 Classify에 통합된 다섯 도구를 확인합니다.",
+      "description": "Choose image or feature classification, load example data, inspect prediction results and open the related tools inside Classify.",
       "objectives": [
-        "통합된 Home 모듈에서 분류 계열 선택하기.",
-        "실제 데이터 CV 및 표 형식 수업을 명시된 한계와 함께 활용하기.",
-        "Classify의 Classifier Evaluation, Explain CV, Activation, Training Runs, Feature Explorer 찾기.",
-        "저장된 근거를 보존하고 AI 지원과 검증된 분석 구분하기."
+        "Choose Computer Vision for images or Tabular Machine Learning for measurements.",
+        "Start with test data and follow the matching training walkthrough.",
+        "Inspect predictions and open evaluation, feature and training tools."
       ],
-      "prerequisite": "spaCR 1.5.0.6 녹화입니다. 본 개요는 주 모듈 구역에 있으며 전문 및 중첩 수업은 하위 모듈 구역의 Classify 아래에 있습니다. 기존에 검증한 실제 CV/ML 녹화를 재사용하며 다시 학습하지 않습니다. 라벨과 부분집합이 다르므로 직접적인 성능 비교가 아닙니다. 표 형식 예제: Load test data → Load, 측정 세포, columnID=c1/c2 클래스, 랜덤 포레스트, Plot 켬, 2153개 객체 평가, 핵 데이터가 없는 188개는 미평가. 테스트 웰은 분리되지만 같은 플레이트입니다. CV 예제: 주석이 있는 원본 그대로의 이미지 64개를 정규 데이터베이스 이름으로 명시적으로 준비, Generate training dataset 끔, ResNet18 한 에포크, 학습16/검증16/테스트32, 같은 플레이트의 서로 다른 웰, 정확도0.5는 다수 클래스 기준과 같습니다. 기존 파일명 파서는 수정되지 않았습니다. 재현 설정, 경로, 한계는 각 전문 수업을 참조하세요. 중첩 경로: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV는 측정 특성으로 기존 CV 예측을 모델링하며 인과성을 증명하지 않습니다. Activation은 이미지 모델 반응을 시각화합니다. AI 요청, 새로운 모델 품질 주장, 생물학적 검증, 계열 간 직접 비교는 없습니다. API: classifier_family에 따라 spacr.classify.classify에서 spacr.deep_spacr.train_test_model 또는 spacr.ml.generate_ml_scores로 전달합니다.",
+      "prerequisite": "Open Classify from Home. Use Load test data for an example project. For your own project, prepare object crops or measured features and class labels from annotations or experimental metadata.",
       "scenes": [
         {
           "visual": "main_00_home",
-          "narration": "Classify는 Home의 주 모듈 중 하나입니다. 여기서 연 다음 모듈 안에서 분류 계열을 선택합니다. 튜토리얼 플레이어도 같은 구조입니다. 이 개요는 주 모듈에 속하고 전문 절차와 중첩 도구는 하위 모듈 구역의 Classify 아래에 모여 있습니다.",
+          "narration": "Open Classify from Home. Start by choosing the classifier family. The image and tabular lessons linked here each walk through a complete example.",
           "focus_modules": [
             "classify_merged"
           ],
@@ -5542,7 +5546,7 @@
         },
         {
           "visual": "main_02_family_choices",
-          "narration": "Computer Vision은 객체 이미지를 사용하고 Tabular Machine Learning은 저장 측정값을 사용합니다. 더 강력하게 들리는 이름이 아니라 입력과 과학적 질문에 따라 선택하세요. 계열을 바꿔도 분할을 다시 수행하지 않습니다. 연결된 Mask와 Measure 수업은 각각의 실시간 이미지 및 자르기 제어를 다룹니다.",
+          "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
           "related_lessons": [
             "07_mask",
             "08_measure"
@@ -5551,7 +5555,7 @@
         },
         {
           "visual": "ml_02_data_choice_load",
-          "narration": "표 형식 예제에서는 Load test data를 누르고 Stream 대신 Load를 선택하세요. 다운로드 프로젝트와 측정 데이터베이스를 함께 보관하세요. 자신의 이미지는 먼저 측정을 완료해야 합니다. 자세한 표 형식 수업에는 실제 다운로드, 라벨 선택, 설정과 완료된 랜덤 포레스트 실행이 녹화되어 있습니다.",
+          "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
@@ -5559,13 +5563,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "ml_24_batch_figure",
-          "narration": "이는 Plot을 켠 실제 실행의 그림과 콘솔입니다. 교육용 라벨은 플레이트 열이며 독립 검증된 표현형이 아닙니다. 필수 핵 데이터가 없는 객체는 미평가로 남으며 음성이 아닙니다. 저장 예측과 보류 웰을 확인하세요. 다채로운 그림만으로 다른 실험에 대한 일반화를 입증할 수 없습니다.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -5574,7 +5578,7 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "별도의 컴퓨터 비전 수업은 명시적인 파일명 준비 우회 방법과 변경되지 않은 다운로드 이미지 예순네 개를 사용합니다. 한 에포크 모델은 다수 클래스 기준에만 도달합니다. 두 예제는 라벨과 부분집합이 다르므로 정확도를 직접 비교하는 벤치마크로 삼지 마세요. 자신의 분할을 준비하기 전에 해당 수업을 보세요.",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
           "focus": [
             2090,
             180,
@@ -5588,7 +5592,7 @@
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
-          "narration": "오른쪽 위 아이콘은 중첩 도구를 열며 별도의 Home 타일이 아닙니다. 마우스를 올려 이름을 확인하세요. Classifier Evaluation은 예측과 누출 정보를 포함한 저장 평가 묶음을 검사합니다. 전용 수업은 필수 파일과, 표시된 지표에도 타당한 검증 설계가 필요한 이유를 설명합니다.",
+          "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
             2690,
             65,
@@ -5602,7 +5606,7 @@
         },
         {
           "visual": "main_05_explain_cv_tooltip",
-          "narration": "Explain CV는 측정 특성으로 기존 컴퓨터 비전 예측을 모델링합니다. 별도의 설명 모델이며 원래 이미지 네트워크나 인과적 설명이 아닙니다. 튜토리얼은 올바른 예측 입력과 가능한 결과를 보여 줍니다. 표 형식 분류기 출력도 같은 입력 조건을 만족한다고 가정하지 마세요.",
+          "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
             2480,
             65,
@@ -5616,7 +5620,7 @@
         },
         {
           "visual": "main_05_activation_tooltip",
-          "narration": "Activation은 이미지 모델 해석 절차를 엽니다. 해당 체크포인트, 이미지 채널과 전처리를 사용하세요. 연결 수업은 실제 저장된 현저성 지도와 외부 뷰어 우회 방법을 설명합니다. 강조된 이미지 영역이 생물학적 기전이나 성능 좋은 분류기를 증명하지는 않습니다.",
+          "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
             2930,
             65,
@@ -5630,7 +5634,7 @@
         },
         {
           "visual": "main_05_train_compare_tooltip",
-          "narration": "Training Runs는 저장된 학습 이력과 설정을 비교합니다. 두 곡선을 나란히 놓는 것만으로 독립 근거가 생기지 않습니다. 실행을 별도의 보존된 디렉터리에 두고 호환되는 지표와 데이터 분할을 비교하세요. 구체적 조작은 전용 튜토리얼에서 다루므로 이 주 모듈 개요에서는 반복하지 않습니다.",
+          "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
             2600,
             65,
@@ -5644,20 +5648,20 @@
         },
         {
           "visual": "main_06_feature_explorer_nested",
-          "narration": "Feature Explorer는 마지막 아이콘에서 열립니다. 분류기를 학습하기 전에도 선택한 비교에 따라 측정 특성의 순위를 매길 수 있습니다. 전용 수업은 실제 다운로드 측정값과 실시간 필터를 보여 줍니다. 필터 후 선택한 비교를 다시 확인하세요. 순위는 인과성도, 학습된 이미지 모델도 아닙니다.",
+          "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
           "related_lessons": [
             "65_feature_explorer"
           ],
           "hold_after": 0.7
         },
         {
-          "visual": "cv_30_ai_unsent_question",
-          "narration": "콘솔은 선택적인 spaCR AI 지원도 제공합니다. 여기서는 질문을 보내지 않아 제공업체 답변이나 분석 결과를 시연하지 않습니다. 모델 출력, 설정과 분할 근거를 보관하고 조언을 대조하세요. Python에서 classify는 선택한 계열에 따라 이미지 또는 표 형식 구현으로 전달합니다.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
             2090,
-            950,
+            190,
             1720,
-            1130
+            1200
           ],
           "related_lessons": [
             "06_api",
@@ -5666,7 +5670,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "42_curate",

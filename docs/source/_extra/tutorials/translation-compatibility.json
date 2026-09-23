@@ -2,82 +2,160 @@
   "policy": "report-only; English fallback",
   "entries": [
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "09_annotate",
       "language": "es",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "es",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "fr",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "fr",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "hi",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "hi",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "it",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "it",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "ja",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "ja",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "pt-BR",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "pt-BR",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "zh-CN",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "zh-CN",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "da",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "da",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "de",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "de",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "is",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "is",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "ko",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "ko",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "nb",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     },
     {
-      "lesson": "78_spacr_screens",
+      "lesson": "41_classify",
+      "language": "nb",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "09_annotate",
       "language": "sv",
-      "status": "source_bound_review",
-      "reason": null
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
+    },
+    {
+      "lesson": "41_classify",
+      "language": "sv",
+      "status": "english_fallback",
+      "reason": "English changed after the translation review"
     }
   ]
 }

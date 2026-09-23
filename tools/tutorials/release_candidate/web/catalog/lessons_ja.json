@@ -957,66 +957,61 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate：実際の切り出し画像、保存したラベル、確認ツール",
+      "title": "Annotate: label objects and save your annotations",
       "series": 1,
       "app_key": "annotate",
-      "section": "主要モジュール",
-      "description": "ダウンロードできる切り出し画像を読み込み、独立した注釈列を作成し、実際に保存されたラベルを確認します。表示を調整し、現在の Annotate 内にある確認・学習ツールを探します。",
+      "section": "Core",
+      "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
       "objectives": [
-        "切り出し画像または必要時に画像を読み出すサンプルを選び、実際のプロジェクトフォルダーを開く。",
-        "独立した注釈列を使い、保存待ちと保存済みのラベルを区別し、元の注釈を変更せずにデモ用ラベルを消す。",
-        "クラス別件数とカバレッジを確認し、画像ファイルを変更せずに表示色を変える。",
-        "統合された Agreement、現在の学習メニュー、注釈データベース生成、任意のエーアイコンソールを見つける。"
+        "Load saved crops or stream crops from merged images.",
+        "Choose an annotation column, assign and clear labels, and save your changes.",
+        "Adjust channel colours and review class counts and coverage.",
+        "Find Agreement and the image and feature training routes."
       ],
-      "prerequisite": "spaCR を開き、Core モジュールから Annotate を選びます。録画では、書き出し済みの PNG 画像2,341枚と測定データベースを含む、ダウンロード可能な Load データを使います。モデル学習やエーアイサービスは不要です。実際の注釈作業では、先に生物学的なクラスの定義を決めてください。ここでの一時ラベルは保存の実演であり、生物学的な判定ではありません。",
+      "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Core モジュールから Annotate を開きます。主な作業領域は、測定データベースに対応した切り出し画像のグリッドです。現在のモジュールには、カバレッジ確認、学習操作、データベース生成、統合された Annotator Agreement もあります。",
-          "hold_after": 0.7,
-          "speech_text": "Core モジュールから Annotate を開きます。主な作業領域は、測定データベースに対応した切り出し画像のグリッドです。現在のモジュールには、カバレッジ確認、学習操作、データベース生成、統合された Annotator Agreement もあります。"
+          "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Load test data を選び、２つの選択肢を確認します。Load は書き出し済みの切り出し画像とデータベースを提供します。サンプルには2,341枚のピーエヌジー画像があります。この録画はダウンロード済みの完全なキャッシュを再利用しており、画像やラベルを作り上げてはいません。",
-          "hold_after": 0.7,
-          "speech_text": "Load test data を選び、２つの選択肢を確認します。Load は書き出し済みの切り出し画像とデータベースを提供します。サンプルには2,341枚のピーエヌジー画像があります。この録画はダウンロード済みの完全なキャッシュを再利用しており、画像やラベルを作り上げてはいません。"
+          "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
+          "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_stream",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Stream は、必要に応じて画像を切り出すための結合画像配列とデータベースを提供します。画像をどう読みたいかに合わせて選んでください。一方をダウンロードしても、他方が揃ったことにはなりません。このデモでは終始 Load を使います。",
-          "hold_after": 0.7,
-          "speech_text": "Stream は、必要に応じて画像を切り出すための結合画像配列とデータベースを提供します。画像をどう読みたいかに合わせて選んでください。一方をダウンロードしても、他方が揃ったことにはなりません。このデモでは終始 Load を使います。"
+          "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
+          "hold_after": 0.7
         },
         {
           "visual": "04_open_source_dialog",
           "focus": [
-            1577,
+            1393,
             810,
             1300,
             950
           ],
-          "narration": "ダウンロード後もソース未選択と表示される場合は、Open source を選びます。measurements サブフォルダーとデータベースを含むプレートフォルダーを指定し、データベースファイルそのものは選びません。ここで示すアプリの版では、この追加操作が実際に必要です。",
-          "hold_after": 0.7,
-          "speech_text": "ダウンロード後もソース未選択と表示される場合は、Open source を選びます。measurements サブフォルダーとデータベースを含むプレートフォルダーを指定し、データベースファイルそのものは選びません。ここで示すアプリの版では、この追加操作が実際に必要です。"
+          "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
+          "hold_after": 0.7
         },
         {
           "visual": "05_loaded_crops",
-          "narration": "実際の切り出し画像が表示され、ページ件数が想定したデータセットと一致することを確認します。１ページの画像数はウィンドウと画像サイズによって変わります。フォルダーが開くだけでは十分ではありません。注釈を判断する前に画像を見てください。",
-          "hold_after": 0.7,
-          "speech_text": "実際の切り出し画像が表示され、ページ件数が想定したデータセットと一致することを確認します。１ページの画像数はウィンドウと画像サイズによって変わります。フォルダーが開くだけでは十分ではありません。注釈を判断する前に画像を見てください。"
+          "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
+          "hold_after": 0.7
         },
         {
           "visual": "06_annotation_settings",
@@ -1026,27 +1021,23 @@
             748,
             1462
           ],
-          "narration": "Settings を開き、デモ専用の注釈列を作ります。元のラベルは変更しません。実作業の前に各クラスの意味を記録し、表示条件を揃えましょう。これから付けるラベルは、保存経路を試すためだけの例です。",
-          "hold_after": 0.7,
-          "speech_text": "Settings を開き、デモ専用の注釈列を作ります。元のラベルは変更しません。実作業の前に各クラスの意味を記録し、表示条件を揃えましょう。これから付けるラベルは、保存経路を試すためだけの例です。"
+          "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_class_one_pending",
-          "narration": "最初の画像を左クリックしてクラス１を付けます。右クリックはクラス２で、同じクラスをもう一度選ぶと消えます。クラス色の輪は現在の判断を示し、外側の白い輪はフォーカスを示します。輪の変化だけでは、データベースへの保存を証明できません。",
-          "hold_after": 0.7,
-          "speech_text": "最初の画像を左クリックしてクラス１を付けます。右クリックはクラス２で、同じクラスをもう一度選ぶと消えます。クラス色の輪は現在の判断を示し、外側の白い輪はフォーカスを示します。輪の変化だけでは、データベースへの保存を証明できません。"
+          "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_next_page_saved",
-          "narration": "Next で次のページへ進みます。この版では、ページを変えると待機中のラベルがバックグラウンドの保存処理へ送られます。実際のデータベースを確認し、クラス１が書き込まれたことを確かめました。未保存の見た目の変化を、保存完了と混同しないでください。",
-          "hold_after": 0.7,
-          "speech_text": "Next で次のページへ進みます。この版では、ページを変えると待機中のラベルがバックグラウンドの保存処理へ送られます。実際のデータベースを確認し、クラス１が書き込まれたことを確かめました。未保存の見た目の変化を、保存完了と混同しないでください。"
+          "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
+          "hold_after": 0.7
         },
         {
           "visual": "08_class_one_saved",
-          "narration": "Back で戻り、同じ画像を確認します。保存されたクラスがデータベースから再び読み込まれます。画面のキーボード説明には、１から９のクラス、０で消去、移動、取り消し、Enter で次のバッチが示されています。ショートカットを使う際は、フォーカス中の画像を見失わないようにしましょう。",
-          "hold_after": 0.7,
-          "speech_text": "Back で戻り、同じ画像を確認します。保存されたクラスがデータベースから再び読み込まれます。画面のキーボード説明には、１から９のクラス、０で消去、移動、取り消し、Enter で次のバッチが示されています。ショートカットを使う際は、フォーカス中の画像を見失わないようにしましょう。"
+          "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_class_counts",
@@ -1056,9 +1047,8 @@
             285,
             136
           ],
-          "narration": "Class counts は、クラス１に保存済みの例が１件あると表示します。件数は偏りを見つける助けになりますが、デモ用のラベル１件は学習用データではなく、生物学的な正確さも示しません。機械の提案と確認済みの回答を区別してください。",
-          "hold_after": 0.7,
-          "speech_text": "Class counts は、クラス１に保存済みの例が１件あると表示します。件数は偏りを見つける助けになりますが、デモ用のラベル１件は学習用データではなく、生物学的な正確さも示しません。機械の提案と確認済みの回答を区別してください。"
+          "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
+          "hold_after": 0.7
         },
         {
           "visual": "09_annotation_coverage",
@@ -1068,15 +1058,13 @@
             920,
             620
           ],
-          "narration": "Coverage は注釈の総数だけでなく、どこから得られたかを確認します。学習前に、レポートに示される各グループがどれだけ含まれるかを調べてください。ソフトウェアが正しく記録しても、画像１枚の注釈だけでは代表性のあるカバレッジになりません。",
-          "hold_after": 0.7,
-          "speech_text": "Coverage は注釈の総数だけでなく、どこから得られたかを確認します。学習前に、レポートに示される各グループがどれだけ含まれるかを調べてください。ソフトウェアが正しく記録しても、画像１枚の注釈だけでは代表性のあるカバレッジになりません。"
+          "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
+          "hold_after": 0.7
         },
         {
           "visual": "10_class_cleared",
-          "narration": "同じクラスをもう一度クリックし、Next と Back で空の状態を保存して読み直します。デモ列は再び空です。読み取り専用の確認で、空から１、そして空への遷移を確かめました。元の注釈列とダウンロードしたピーエヌジーファイルはすべて変わっていません。",
-          "hold_after": 0.7,
-          "speech_text": "同じクラスをもう一度クリックし、Next と Back で空の状態を保存して読み直します。デモ列は再び空です。読み取り専用の確認で、空から１、そして空への遷移を確かめました。元の注釈列とダウンロードしたピーエヌジーファイルはすべて変わっていません。"
+          "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
+          "hold_after": 0.7
         },
         {
           "visual": "11_display_colour_settings",
@@ -1086,72 +1074,69 @@
             748,
             1462
           ],
-          "narration": "Settings は表示も制御します。Channel colours は表示の配色を変え、Display order は各色の位置にどの元チャンネルを割り当てるかを変えます。ファイル内のチャンネル順を書き換える指示ではありません。ここではシーエムワイを選び、その後アールジービーに戻します。",
-          "hold_after": 0.7,
-          "speech_text": "Settings は表示も制御します。Channel colours は表示の配色を変え、Display order は各色の位置にどの元チャンネルを割り当てるかを変えます。ファイル内のチャンネル順を書き換える指示ではありません。ここではシーエムワイを選び、その後アールジービーに戻します。"
+          "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
+          "hold_after": 0.7
         },
         {
           "visual": "12_cmy_view",
-          "narration": "表示設定を適用すると、実際の切り出し画像の色が変わります。アールジービーに戻すと同じ表示ピクセルが復元され、元のファイルは変わりません。注釈には一貫した解釈しやすい表示を使ってください。配色変更は新しい分割や測定ではなく、別の表現型の証拠でもありません。",
-          "hold_after": 0.7,
-          "speech_text": "表示設定を適用すると、実際の切り出し画像の色が変わります。アールジービーに戻すと同じ表示ピクセルが復元され、元のファイルは変わりません。注釈には一貫した解釈しやすい表示を使ってください。配色変更は新しい分割や測定ではなく、別の表現型の証拠でもありません。"
+          "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
+          "hold_after": 0.7
         },
         {
           "visual": "15_agreement_fold",
-          "narration": "Annotator Agreement は、Annotate のヘッダー右端に移りました。アイコンにポインターを合わせて確認します。注釈列の比較と不一致の調査を説明する既存の専門チュートリアルは残し、ここからリンクしています。Home の別モジュールとして作り直してはいません。",
+          "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7,
           "related_lessons": [
             "23_agreement"
-          ],
-          "speech_text": "Annotator Agreement は、Annotate のヘッダー右端に移りました。アイコンにポインターを合わせて確認します。注釈列の比較と不一致の調査を説明する既存の専門チュートリアルは残し、ここからリンクしています。ホーム の別モジュールとして作り直してはいません。"
+          ]
         },
         {
           "visual": "16_training_routes",
           "focus": [
-            1836,
+            1832,
             204,
             416,
             80
           ],
-          "narration": "Train は２つの選択肢を持つメニューになりました。ニューラル画像分類器で画像から学ぶか、ブースティングした木で測定特徴量から学ぶかを選びます。Classify 内のコンピュータービジョンと機械学習のリンク先を参照してください。ここでは入口だけを示し、空のデモ列で学習は始めていません。",
+          "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
             "10_classify_cv",
             "11_classify_ml"
-          ],
-          "speech_text": "Train は２つの選択肢を持つメニューになりました。ニューラル画像分類器で画像から学ぶか、ブースティングした木で測定特徴量から学ぶかを選びます。Classify 内のコンピュータービジョンと機械学習のリンク先を参照してください。ここでは入口だけを示し、空のデモ列で学習は始めていません。"
+          ]
         },
         {
           "visual": "14_restored_rgb",
-          "narration": "適切なラベルが揃うと、Retrain、Suggest、Rounds が見直しのサイクルを支えます。モデルの提案クラスが自動的に人の回答になるわけではありません。頼る前にカバレッジと学習に使わなかったデータでの性能を確認しましょう。このデモでこれらの処理を実行したり、成功結果を作り上げたりはしていません。",
-          "hold_after": 0.7,
-          "speech_text": "適切なラベルが揃うと、Retrain、Suggest、Rounds が見直しのサイクルを支えます。モデルの提案クラスが自動的に人の回答になるわけではありません。頼る前にカバレッジと学習に使わなかったデータでの性能を確認しましょう。このデモでこれらの処理を実行したり、成功結果を作り上げたりはしていません。"
+          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
+          "hold_after": 0.7
         },
         {
           "visual": "17_generate_database_entry",
-          "narration": "Generate annotation database がここに追加され、適切な元データから注釈用の切り出し画像セットを作れます。Load のサンプルには既にデータベースと画像があるため、別のセットは生成しません。スクリプトでは annotation_dataset モジュールの generate_annotation_dataset を使います。必要な入力は現在のエーピーアイ文書で確認してください。",
+          "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
             "08_measure"
-          ],
-          "speech_text": "Generate annotation database がここに追加され、適切な元データから注釈用の切り出し画像セットを作れます。Load のサンプルには既にデータベースと画像があるため、別のセットは生成しません。スクリプトでは annotation_dataset モジュールの generate_annotation_dataset を使います。必要な入力は現在のエーピーアイ文書で確認してください。"
+          ]
         },
         {
           "visual": "18_annotation_console",
-          "narration": "ソース、ラベル、状態の実際のメッセージが必要なら Console を開き、見終わったら閉じてグリッドのスペースを戻します。今回の Annotate の出力はデータベースのラベルであり、Plot を有効にした解析図ではありません。ここで確認する出力は、表示された画像と保存状態です。",
-          "hold_after": 0.7,
-          "speech_text": "ソース、ラベル、状態の実際のメッセージが必要なら Console を開き、見終わったら閉じてグリッドのスペースを戻します。今回の Annotate の出力はデータベースのラベルであり、Plot を有効にした解析図ではありません。ここで確認する出力は、表示された画像と保存状態です。"
+          "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
+          "hold_after": 0.7
         },
         {
           "visual": "30_ai_unsent_question",
-          "narration": "AI は、Preferences で設定したプロバイダーによる任意の支援を有効にします。分類器の学習や予測ラベルの受け入れとは別です。これは送信していない質問例で、サービスには接続せず回答も作成していません。クラス定義、保存ラベル、見直しの判断はデータに基づいて行いましょう。",
-          "hold_after": 0.7,
-          "speech_text": "AI は、Preferences で設定したプロバイダーによる任意の支援を有効にします。分類器の学習や予測ラベルの受け入れとは別です。これは送信していない質問例で、サービスには接続せず回答も作成していません。クラス定義、保存ラベル、見直しの判断はデータに基づいて行いましょう。"
+          "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "10_classify_cv",
@@ -6124,22 +6109,21 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "Classify：メインモジュールと入れ子のツール",
+      "title": "Classify: choose a model and explore its results",
       "series": 4,
       "app_key": "classify_merged",
-      "section": "主要モジュール",
-      "description": "画像または測定値による分類を選び、ダウンロード例と実際の結果を確認して、Classify内の五つのツールを見つけます。",
+      "section": "Core",
+      "description": "Choose image or feature classification, load example data, inspect prediction results and open the related tools inside Classify.",
       "objectives": [
-        "統合されたHomeのモジュールから分類方式を選ぶ。",
-        "実データを使う画像分類・表形式分類のレッスンを、明示された制約とともに利用する。",
-        "Classify内のClassifier Evaluation、Explain CV、Activation、Training Runs、Feature Explorerを見つける。",
-        "保存済みの根拠を保管し、AI支援と検証済み分析を区別する。"
+        "Choose Computer Vision for images or Tabular Machine Learning for measurements.",
+        "Start with test data and follow the matching training walkthrough.",
+        "Inspect predictions and open evaluation, feature and training tools."
       ],
-      "prerequisite": "録画はspaCR 1.5.0.6です。この概要はメインモジュール欄にあり、専門レッスンと入れ子のツールはサブモジュール欄のClassifyにまとめられています。検証済みの実際のCV・ML録画を再利用し、再学習は行いません。ラベルと部分集合が異なり、直接比較のベンチマークではありません。表形式例：Load test data → Load、測定済み細胞、columnID=c1/c2のクラス、ランダムフォレスト、Plotオン、2153個にスコア、核データ不足の188個は未評価。同一プレートの別ウェルをテストに使用。CV例：注釈付きの未変更画像64枚をデータベースの正規名で明示的に準備し、Generate training datasetオフ、ResNet18を1エポック、学習16・検証16・テスト32。同じプレート内のウェルは分離。正解率0.5は多数派基準と同じです。旧ファイル名パーサーは未修正です。再現設定、保存先、制約は各専門レッスンを参照してください。入れ子の経路：classifier_evaluation、explain_cv、activation、train_compare、feature_explorer。Explain CVは既存CV予測を測定特徴でモデル化し、因果性を証明しません。Activationは画像モデルの応答を可視化します。AI送信、新たなモデル品質の主張、生物学的検証、方式間の直接比較はありません。API：classifier_familyに応じてspacr.classify.classifyからspacr.deep_spacr.train_test_modelまたはspacr.ml.generate_ml_scoresへ振り分けます。",
+      "prerequisite": "Open Classify from Home. Use Load test data for an example project. For your own project, prepare object crops or measured features and class labels from annotations or experimental metadata.",
       "scenes": [
         {
           "visual": "main_00_home",
-          "narration": "ClassifyはHomeにあるメインモジュールの一つです。ここから開き、内部で分類方式を選びます。チュートリアルのプレーヤーも同じ構成です。この概要はメインモジュール欄にあり、専門的な手順と入れ子のツールはサブモジュール欄のClassifyにまとめられています。",
+          "narration": "Open Classify from Home. Start by choosing the classifier family. The image and tabular lessons linked here each walk through a complete example.",
           "focus_modules": [
             "classify_merged"
           ],
@@ -6148,47 +6132,43 @@
             "10_classify_cv",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Classifyはホームにあるメインモジュールの一つです。ここから開き、内部で分類方式を選びます。チュートリアルのプレーヤーも同じ構成です。この概要はメインモジュール欄にあり、専門的な手順と入れ子のツールはサブモジュール欄のClassifyにまとめられています。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_02_family_choices",
-          "narration": "Computer Visionはオブジェクト画像を、Tabular Machine Learningは保存済み測定値を使います。強力そうな名前ではなく、入力と科学的な問いに合わせて選びます。方式を切り替えてもセグメンテーションはやり直しません。画像や切り出しのライブ操作は、リンク先のMaskとMeasureで扱います。",
+          "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
           "related_lessons": [
             "07_mask",
             "08_measure"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Computer Visionはオブジェクト画像を、Tabular Machine Learningは保存済み測定値を使います。強力そうな名前ではなく、入力と科学的な問いに合わせて選びます。方式を切り替えてもセグメンテーションはやり直しません。画像や切り出しのライブ操作は、リンク先のMaskとMeasureで扱います。"
+          "hold_after": 0.7
         },
         {
           "visual": "ml_02_data_choice_load",
-          "narration": "表形式の例ではLoad test dataを押し、StreamではなくLoadを選びます。ダウンロードしたプロジェクトと測定データベースを一緒に保存してください。自分の画像では測定を先に完了します。詳しい表形式レッスンには実際のダウンロード、ラベル、設定、ランダムフォレストの完了した実行が記録されています。",
+          "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
           ],
-          "hold_after": 0.7,
-          "speech_text": "表形式の例ではLoad test dataを押し、StreamではなくLoadを選びます。ダウンロードしたプロジェクトと測定データベースを一緒に保存してください。自分の画像では測定を先に完了します。詳しい表形式レッスンには実際のダウンロード、ラベル、設定、ランダムフォレストの完了した実行が記録されています。"
+          "hold_after": 0.7
         },
         {
-          "visual": "ml_24_batch_figure",
-          "narration": "これはPlotを有効にした実際の実行の図とコンソールです。教材のラベルはプレートの列であり、独立に検証された表現型ではありません。必要な核データがないオブジェクトは未評価のままで、陰性ではありません。保存予測と保留したウェルを確認してください。色鮮やかな図だけでは別実験への汎化を示せません。",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
           "related_lessons": [
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "これはPlotを有効にした実際の実行の図とコンソールです。教材のラベルはプレートの列であり、独立に検証された表現型ではありません。必要な核データがないオブジェクトは未評価のままで、陰性ではありません。保存予測と保留したウェルを確認してください。色鮮やかな図だけでは別実験への汎化を示せません。"
+          "hold_after": 0.7
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "別の画像分類レッスンでは、明示的なファイル名準備の回避策と、未変更のダウンロード画像六十四枚を使います。一エポックのモデルは多数派基準にしか達しません。この二例はラベルも部分集合も違うため、正解率を方式比較のベンチマークにしないでください。分割を準備する前にリンク先を確認しましょう。",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
           "focus": [
             2090,
             180,
@@ -6198,12 +6178,11 @@
           "related_lessons": [
             "10_classify_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "別の画像分類レッスンでは、明示的なファイル名準備の回避策と、未変更のダウンロード画像六十四枚を使います。一エポックのモデルは多数派基準にしか達しません。この二例はラベルも部分集合も違うため、正解率を方式比較のベンチマークにしないでください。分割を準備する前にリンク先を確認しましょう。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
-          "narration": "右上のアイコンは入れ子のツールを開き、Homeの独立タイルではありません。ポインターを重ねると名前が分かります。Classifier Evaluationは予測や漏洩情報を含む保存評価一式を調べます。専用レッスンで必要ファイルと、表示指標にも適切な検証設計が必要な理由を説明します。",
+          "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
             2690,
             65,
@@ -6213,12 +6192,11 @@
           "related_lessons": [
             "39_classifier_evaluation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "右上のアイコンは入れ子のツールを開き、ホームの独立タイルではありません。ポインターを重ねると名前が分かります。Classifier Evaluationは予測や漏洩情報を含む保存評価一式を調べます。専用レッスンで必要ファイルと、表示指標にも適切な検証設計が必要な理由を説明します。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_explain_cv_tooltip",
-          "narration": "Explain CVは測定特徴を使い、既存の画像分類予測をモデル化します。別の説明用モデルであり、元の画像ネットワークでも因果的説明でもありません。専用レッスンは正しい予測入力と結果を示します。表形式分類器の出力がその入力要件を満たすとは限りません。",
+          "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
             2480,
             65,
@@ -6228,12 +6206,11 @@
           "related_lessons": [
             "70_explain_cv"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Explain CVは測定特徴を使い、既存の画像分類予測をモデル化します。別の説明用モデルであり、元の画像ネットワークでも因果的説明でもありません。専用レッスンは正しい予測入力と結果を示します。表形式分類器の出力がその入力要件を満たすとは限りません。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_activation_tooltip",
-          "narration": "Activationは画像モデルの解釈手順を開きます。対応するチェックポイント、チャネル、前処理を使ってください。リンク先では本当に保存された顕著性マップと外部ビューアーによる回避策を示します。画像領域が強調されても、生物学的機序や高性能な分類器を証明するわけではありません。",
+          "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
             2930,
             65,
@@ -6243,12 +6220,11 @@
           "related_lessons": [
             "16_activation"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Activationは画像モデルの解釈手順を開きます。対応するチェックポイント、チャネル、前処理を使ってください。リンク先では本当に保存された顕著性マップと外部ビューアーによる回避策を示します。画像領域が強調されても、生物学的機序や高性能な分類器を証明するわけではありません。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_05_train_compare_tooltip",
-          "narration": "Training Runsは保存された学習履歴と設定を比較します。二つの曲線を並べるだけで独立の証拠が生まれるわけではありません。実行は別々の保存フォルダーに保ち、互換性のある指標と分割を比較します。操作は専用レッスンを参照し、このメイン概要では重複させません。",
+          "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
             2600,
             65,
@@ -6258,36 +6234,38 @@
           "related_lessons": [
             "28_training_runs"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Training Runsは保存された学習履歴と設定を比較します。二つの曲線を並べるだけで独立の証拠が生まれるわけではありません。実行は別々の保存フォルダーに保ち、互換性のある指標と分割を比較します。操作は専用レッスンを参照し、このメイン概要では重複させません。"
+          "hold_after": 0.7
         },
         {
           "visual": "main_06_feature_explorer_nested",
-          "narration": "Feature Explorerは最後のアイコンから開きます。分類器を学習する前にも、選んだ比較について測定特徴を順位付けできます。専用レッスンは実際のダウンロード測定値とライブフィルターを使います。絞り込み後は比較対象を再確認してください。順位付けは因果性でも学習済み画像モデルでもありません。",
+          "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
           "related_lessons": [
             "65_feature_explorer"
           ],
-          "hold_after": 0.7,
-          "speech_text": "Feature Explorerは最後のアイコンから開きます。分類器を学習する前にも、選んだ比較について測定特徴を順位付けできます。専用レッスンは実際のダウンロード測定値とライブフィルターを使います。絞り込み後は比較対象を再確認してください。順位付けは因果性でも学習済み画像モデルでもありません。"
+          "hold_after": 0.7
         },
         {
-          "visual": "cv_30_ai_unsent_question",
-          "narration": "コンソールには任意のspaCR AI支援もあります。ここでは質問は未送信で、プロバイダーの回答や分析結果は示しません。モデル出力、設定、分割の根拠を保管し、助言と照合してください。Pythonでは選んだ分類方式に応じて、classifyが画像または表形式の実装へ処理を渡します。",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
             2090,
-            950,
+            190,
             1720,
-            1130
+            1200
           ],
           "related_lessons": [
             "06_api",
             "10_classify_cv",
             "11_classify_ml"
           ],
-          "hold_after": 0.7,
-          "speech_text": "コンソールには任意のスペーカー AI支援もあります。ここでは質問は未送信で、プロバイダーの回答や分析結果は示しません。モデル出力、設定、分割の根拠を保管し、助言と照合してください。Pythonでは選んだ分類方式に応じて、classifyが画像または表形式の実装へ処理を渡します。"
+          "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "42_curate",

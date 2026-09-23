@@ -853,60 +853,60 @@
       "id": "09_annotate",
       "number": 9,
       "slug": "annotate",
-      "title": "Annotate: ekte bildeutsnitt, lagrede etiketter og gjennomgangsverktøy",
+      "title": "Annotate: label objects and save your annotations",
       "series": 1,
       "app_key": "annotate",
       "section": "Core",
-      "description": "Last inn det nedlastbare utsnittsdatasettet, opprett en egen annotasjonskolonne, kontroller faktisk lagrede etiketter, tilpass visningen og finn verktøyene for gjennomgang og trening i dagens Annotate-modul.",
+      "description": "Load example crops, choose an annotation column, label objects, adjust the view and prepare your labels for classification.",
       "objectives": [
-        "Velge riktig nedlastbart eksempel med utsnitt eller lesing etter behov og åpne den faktiske prosjektmappen.",
-        "Bruke en egen annotasjonskolonne, skille ventende fra lagrede etiketter og fjerne demonstrasjonsetiketten uten å endre opprinnelige annotasjoner.",
-        "Undersøke antall per klasse og dekning og endre visningsfarger uten å endre bildefiler.",
-        "Finne den innebygde Agreement-arbeidsflyten, dagens treningsvalg, generatoren for annotasjonsdatabaser og den valgfrie AI-konsollen."
+        "Load saved crops or stream crops from merged images.",
+        "Choose an annotation column, assign and clear labels, and save your changes.",
+        "Adjust channel colours and review class counts and coverage.",
+        "Find Agreement and the image and feature training routes."
       ],
-      "prerequisite": "Åpne spaCR og velg Annotate blant Core-modulene. Opptaket bruker det nedlastbare Load-datasettet: 2 341 eksporterte PNG-utsnitt og måledatabasen deres. Det kreves verken modelltrening eller KI-tjeneste. Definer biologiske klasser før en ekte annotasjonsrunde; den midlertidige etiketten demonstrerer lagring, ikke en biologisk vurdering.",
+      "prerequisite": "Open Annotate from Home. Use Load test data and choose Load for the example crops and measurements database. For your own project, use the folder containing its measurements database and crops or merged images.",
       "scenes": [
         {
           "visual": "01_module",
-          "narration": "Åpne Annotate blant Core-modulene. Hovedområdet er et rutenett av bildeutsnitt støttet av en måledatabase. Dagens modul har også dekningskontroll, lærings- og treningsfunksjoner, databasegenerering og det innebygde verktøyet Annotator Agreement.",
+          "narration": "Open Annotate from Home. The grid shows individual objects from your project. You will label these objects and save the labels in the measurements database.",
           "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_load",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Velg Load test data og undersøk de to alternativene. Load leverer eksporterte bildeutsnitt og en database. Eksemplet inneholder 2 341 PNG-utsnitt. Opptaket bruker den fullstendige nedlastede hurtigbufferen på nytt; det finner ikke på bilder eller etiketter.",
+          "narration": "Click Load test data and choose Load. This downloads the example image crops and their measurements database, then opens them in Annotate.",
           "hold_after": 0.7
         },
         {
           "visual": "02_data_choice_stream",
           "focus": [
             1680,
-            914,
+            896,
             460,
-            393
+            477
           ],
-          "narration": "Stream leverer sammenslåtte bildearrayer og databasen for å hente utsnitt ved behov. Velg etter hvordan du vil lese bilder. Nedlasting av det ene alternativet beviser ikke at det andre finnes. Vi bruker Load gjennom hele demonstrasjonen.",
+          "narration": "Choose Stream when you want to read crops directly from merged images. Choose Load for already exported crops. We will use Load for this walkthrough.",
           "hold_after": 0.7
         },
         {
           "visual": "04_open_source_dialog",
           "focus": [
-            1577,
+            1393,
             810,
             1300,
             950
           ],
-          "narration": "Hvis rutenettet fremdeles sier at ingen kilde er valgt etter nedlastingen, velger du Open source. Velg platemappen med undermappen measurements og databasen, ikke selve databasefilen. Dette ekstra trinnet er faktisk nødvendig i programversjonen som vises her.",
+          "narration": "To open your own data, click Open source and select the plate folder containing measurements and the image data. The grid then loads the objects from that project.",
           "hold_after": 0.7
         },
         {
           "visual": "05_loaded_crops",
-          "narration": "Kontroller at ekte utsnitt vises, og at sidetelleren passer med forventet datasett. Antall bilder per side avhenger av vinduet og bildestørrelsen. Det holder ikke at en mappe åpnes: undersøk bildene før du tar annotasjonsbeslutninger.",
+          "narration": "Inspect the crop grid. Use the page controls to browse the objects. Adjust the crop size if you need a closer view or want more objects on each page.",
           "hold_after": 0.7
         },
         {
@@ -917,22 +917,22 @@
             748,
             1462
           ],
-          "narration": "Åpne Settings og opprett en egen annotasjonskolonne for demonstrasjonen. Bevar de opprinnelige etikettene. Dokumenter hva hver klasse betyr, og avtal en konsekvent visning før virkelig arbeid. Eksempeletiketten vi skal sette, tester bare lagringsveien.",
+          "narration": "Open Settings and choose an annotation column. Create a new column to keep this labelling task separate from existing annotations. Decide what each class represents before you start.",
           "hold_after": 0.7
         },
         {
           "visual": "08_class_one_pending",
-          "narration": "Venstreklikk på det første utsnittet for å sette klasse én. Høyreklikk setter klasse to, og samme klasse en gang til fjerner etiketten. Ringen i klassefargen viser gjeldende beslutning; den ekstra hvite ringen viser fokus. En endret ring beviser ikke i seg selv at etiketten er kommet til databasen.",
+          "narration": "Left-click a crop to assign class one. Right-click assigns class two. Click the same class again to clear it. The coloured ring shows the label, and the white ring marks the focused crop.",
           "hold_after": 0.7
         },
         {
           "visual": "08_next_page_saved",
-          "narration": "Trykk Next for å forlate siden. I denne versjonen sender et sideskifte de ventende etikettene til lagringsprosessen i bakgrunnen. Vi undersøkte den faktiske databasen og bekreftet at klasse én var skrevet. Ikke forveksle en ulagret visuell endring med ferdig lagring.",
+          "narration": "Press Next to move to the next page and submit your labels for saving. Wait for saving to finish before closing the application.",
           "hold_after": 0.7
         },
         {
           "visual": "08_class_one_saved",
-          "narration": "Trykk Back og kontroller samme utsnitt. Den lagrede klassen leses inn igjen fra databasen. Tastaturforklaringen viser klasseknappene én til ni, null for å fjerne, navigasjon, angre og Enter for neste parti. Hold utsnittet med fokus synlig når du bruker snarveier.",
+          "narration": "Press Back to return to the previous page and check your labels. You can also use keys one to nine to assign classes and zero to clear a label. The on-screen legend lists the navigation and undo shortcuts.",
           "hold_after": 0.7
         },
         {
@@ -943,7 +943,7 @@
             285,
             136
           ],
-          "narration": "Class counts viser nå ett lagret eksempel i klasse én. Antall hjelper med å oppdage ubalanse, men én demonstrasjonsetikett er ikke et treningsdatasett og sier ingenting om biologisk riktighet. Skill maskinforslag fra gjennomgåtte svar.",
+          "narration": "Open Class counts to see how many objects you have labelled in each class. Use this to find classes that need more examples.",
           "hold_after": 0.7
         },
         {
@@ -954,12 +954,12 @@
             920,
             620
           ],
-          "narration": "Coverage spør hvor annotasjonene kom fra, ikke bare hvor mange som finnes. Undersøk representasjonen av gruppene i rapporten før trening. Ett merket utsnitt kan ikke fastslå representativ dekning, selv om programmet registrerer det riktig.",
+          "narration": "Open Coverage to see how your annotations are distributed across the project. Include examples from the conditions and image groups you want the classifier to recognize.",
           "hold_after": 0.7
         },
         {
           "visual": "10_class_cleared",
-          "narration": "Klikk på samme klasse igjen og bruk Next og Back til å lagre og laste inn den tomme tilstanden. Demonstrasjonskolonnen er tom igjen. Skrivebeskyttede kontroller bekreftet overgangen fra tom til én og tilbake til tom, mens alle opprinnelige annotasjonskolonner og nedlastede PNG-filer forble uendret.",
+          "narration": "To clear a label, click the same class again. Move to the next page to save the change, then return to check the cleared crop.",
           "hold_after": 0.7
         },
         {
@@ -970,17 +970,17 @@
             748,
             1462
           ],
-          "narration": "Settings styrer også visningen. Channel colours endrer paletten; Display order endrer hvilken kildekanal som vises i hver fargeposisjon. Det er ikke instruksjoner om å skrive om kanalrekkefølgen i en fil. Her velger vi CMY og går deretter tilbake til RGB.",
+          "narration": "In Settings, Channel colours selects the display palette. Display order assigns source channels to the colour slots. Choose a view that makes your classes easy to distinguish.",
           "hold_after": 0.7
         },
         {
           "visual": "12_cmy_view",
-          "narration": "De ekte utsnittene endrer farge når visningsinnstillingene brukes. Tilbake til RGB gjenoppretter nøyaktig de samme viste pikslene, mens kildefilene er uendret. Bruk en konsekvent og forståelig visning for annotasjon. Et palettbytte er verken ny segmentering, måling eller bevis på en annen fenotype.",
+          "narration": "Here is the CMY palette. You can return to RGB through the same settings. Keep the view consistent while comparing and labelling objects.",
           "hold_after": 0.7
         },
         {
           "visual": "15_agreement_fold",
-          "narration": "Annotator Agreement ligger nå til høyre i Annotates overskrift. Hold pekeren over ikonet for å identifisere det. Den eksisterende spesialveiledningen for sammenligning av annotasjonskolonner og undersøkelse av uenighet beholdes. Den er lenket her, ikke spilt inn på nytt som enda en selvstendig Home-modul.",
+          "narration": "Open Annotator Agreement from the icon at the top right to compare annotation columns. Use it to find objects where reviewers assigned different labels.",
           "focus_buttons": "FoldButton",
           "hold_after": 0.7,
           "related_lessons": [
@@ -990,12 +990,12 @@
         {
           "visual": "16_training_routes",
           "focus": [
-            1836,
+            1832,
             204,
             416,
             80
           ],
-          "narration": "Train åpner nå en meny med to veier: bildene med en nevral bildeklassifikator, eller de målte egenskapene med boostede trær. Følg de lenkede veiledningene om datasyn og maskinlæring i Classify. Vi viser bare veiene; ingen trening ble startet med denne tomme demonstrasjonskolonnen.",
+          "narration": "When your labels are ready, open Train. Choose images for an image classifier or measured features for a tabular classifier. The linked Classify lessons explain the training settings.",
           "hold_after": 0.7,
           "related_lessons": [
             "41_classify",
@@ -1005,12 +1005,12 @@
         },
         {
           "visual": "14_restored_rgb",
-          "narration": "Retrain, Suggest og Rounds støtter en gjennomgangssyklus når passende etiketter finnes. En klasse foreslått av modellen er ikke automatisk et menneskelig svar. Undersøk dekning og ytelse på tilbakeholdte data før du stoler på den. Ingen av disse operasjonene ble kjørt eller vist med et oppdiktet vellykket resultat her.",
+          "narration": "Suggest can propose labels for you to review. Retrain updates the model after you add labels, and Rounds helps you follow that review cycle. Check suggested labels before accepting them.",
           "hold_after": 0.7
         },
         {
           "visual": "17_generate_database_entry",
-          "narration": "Generate annotation database er nå tilgjengelig her for å lage et annotasjonssett med utsnitt fra egnede kildedata. Load-eksemplet har allerede database og utsnitt, så vi lager ikke et nytt sett. I skript brukes generate_annotation_dataset fra modulen annotation_dataset; se gjeldende API for nødvendige inndata.",
+          "narration": "Generate annotation database creates a crop set from suitable source data. Use it when preparing a new annotation project; the downloaded example already includes the crops and database needed here.",
           "hold_after": 0.7,
           "related_lessons": [
             "06_api",
@@ -1019,15 +1019,20 @@
         },
         {
           "visual": "18_annotation_console",
-          "narration": "Åpne Console for de faktiske kilde-, etikett- og statusmeldingene, og skjul den etterpå for å gi plassen tilbake til rutenettet. Det demonstrerte resultatet fra Annotate er en databaseetikett, ikke en analysefigur aktivert med Plot. Her skal du undersøke utsnittene og den lagrede tilstanden.",
+          "narration": "Open Console to check source-loading and save messages. Your annotation column is stored in the project database and can be selected when you prepare training data in Classify.",
           "hold_after": 0.7
         },
         {
           "visual": "30_ai_unsent_question",
-          "narration": "AI aktiverer valgfri hjelp fra leverandøren konfigurert i Preferences. Det er atskilt fra å trene en klassifikator eller godta predikerte etiketter. Dette er et usendt eksempelspørsmål: Ingen tjeneste ble kontaktet, og ingen svar ble oppdiktet. Baser klassedefinisjoner, lagrede etiketter og gjennomgangsbeslutninger på dataene.",
+          "narration": "For help with a setting, open spaCR AI in Console after configuring a provider in Preferences. When you have finished labelling, continue to Classify with your project and chosen annotation column.",
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "10_classify_cv",
@@ -5514,22 +5519,21 @@
       "id": "41_classify",
       "number": 41,
       "slug": "classify",
-      "title": "Classify: hovedmodulen og de innebygde underverktøyene",
+      "title": "Classify: choose a model and explore its results",
       "series": 4,
       "app_key": "classify_merged",
       "section": "Core",
-      "description": "Velg bilde- eller målingsbasert klassifisering, bruk nedlastbare eksempler, se virkelige resultater og finn de fem verktøyene i Classify.",
+      "description": "Choose image or feature classification, load example data, inspect prediction results and open the related tools inside Classify.",
       "objectives": [
-        "Velg klassifikatorfamilien i den samlede Home-modulen.",
-        "Bruk CV- og tabellveiledningene med ekte data og tydelige begrensninger.",
-        "Finn Classifier Evaluation, Explain CV, Activation, Training Runs og Feature Explorer under Classify.",
-        "Bevar lagrede bevis og skill AI-hjelp fra kontrollert analyse."
+        "Choose Computer Vision for images or Tabular Machine Learning for measurements.",
+        "Start with test data and follow the matching training walkthrough.",
+        "Inspect predictions and open evaluation, feature and training tools."
       ],
-      "prerequisite": "Opptak med spaCR 1.5.0.6. Oversikten er under hovedmoduler; spesialiserte og innebygde veiledninger ligger under Classify i undermoduler. Ekte, tidligere kontrollerte CV-/ML-opptak gjenbrukes uten ny trening. FORSKJELLIGE etiketter og delmengder: IKKE en direkte sammenligning. Tabelleksempel: Load test data → Load, målte celler, klasser columnID=c1/c2, random forest, Plot på, 2153 vurderte objekter og 188 uten skår fordi kjernedata mangler; egne testbrønner på samme plate. CV-eksempel: eksplisitt klargjøring av 64 uendrede annoterte utsnitt med kanoniske databasenavn, Generate training dataset av, ResNet18 én epoke, 16 trening/16 validering/32 test, adskilte brønner på én plate, nøyaktighet 0.5 lik flertallsreferansen. Tolkeren for gamle filnavn er ikke rettet. Se fagveiledningene for innstillinger, stier og begrensninger. Ruter: classifier_evaluation, explain_cv, activation, train_compare, feature_explorer. Explain CV tilpasser målte egenskaper til eksisterende CV-prediksjoner, ikke bevis for årsak. Activation viser bildemodellens respons. Ingen AI-forespørsel, ny kvalitetspåstand, biologisk validering eller direkte familiesammenligning. API: spacr.classify.classify → spacr.deep_spacr.train_test_model eller spacr.ml.generate_ml_scores etter classifier_family.",
+      "prerequisite": "Open Classify from Home. Use Load test data for an example project. For your own project, prepare object crops or measured features and class labels from annotations or experimental metadata.",
       "scenes": [
         {
           "visual": "main_00_home",
-          "narration": "Classify er en av hovedmodulene på Home. Åpne den her, og velg deretter klassifikatorfamilien inne i modulen. Veiledningsspilleren følger samme struktur: denne oversikten tilhører hovedmoduler, mens spesialiserte arbeidsflyter og underverktøy er gruppert under Classify i delen for undermoduler.",
+          "narration": "Open Classify from Home. Start by choosing the classifier family. The image and tabular lessons linked here each walk through a complete example.",
           "focus_modules": [
             "classify_merged"
           ],
@@ -5542,7 +5546,7 @@
         },
         {
           "visual": "main_02_family_choices",
-          "narration": "Computer Vision bruker objektbilder; Tabular Machine Learning bruker lagrede målinger. Velg etter inndata og vitenskapelig spørsmål, ikke navnet som høres kraftigst ut. Familieskifte gjentar ikke segmenteringen. De tilknyttede Mask- og Measure-veiledningene dekker sine egne sanntidskontroller for bilder og utsnitt.",
+          "narration": "Choose Computer Vision to learn from object images. Choose Tabular Machine Learning to learn from measured feature columns. Measure provides these inputs, and Annotate lets you add object labels.",
           "related_lessons": [
             "07_mask",
             "08_measure"
@@ -5551,7 +5555,7 @@
         },
         {
           "visual": "ml_02_data_choice_load",
-          "narration": "Klikk Load test data for tabelleksemplet og velg Load, ikke Stream. Hold det nedlastede prosjektet og måledatabasen samlet. For egne bilder må målingene først være fullført. Den detaljerte tabellveiledningen viser den ekte nedlastingen, etiketter, innstillinger og en fullført random-forest-kjøring.",
+          "narration": "For the tabular example, click Load test data and choose Load. Select your class labels and feature settings, then follow the tabular lesson to train the model and save predictions.",
           "related_lessons": [
             "11_classify_ml",
             "09_annotate"
@@ -5559,13 +5563,13 @@
           "hold_after": 0.7
         },
         {
-          "visual": "ml_24_batch_figure",
-          "narration": "Dette er den virkelige kjøringens figurer og konsoll, med Plot på. Undervisningsetikettene er platekolonner, ikke uavhengig validerte fenotyper. Objekter uten nødvendige kjernedata forblir uten skår, ikke negative. Se lagrede prediksjoner og tilbakeholdte brønner; fargerike figurer alene viser ikke generalisering til et annet forsøk.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "After the tabular run, inspect the prediction heatmap and saved object scores. Objects with missing required measurements may remain unscored. Check the evaluation results to decide whether to revise your labels, features or model settings.",
           "focus": [
-            2140,
-            240,
-            1670,
-            1270
+            2090,
+            190,
+            1720,
+            1200
           ],
           "related_lessons": [
             "11_classify_ml"
@@ -5574,7 +5578,7 @@
         },
         {
           "visual": "cv_24_batch_figure",
-          "narration": "Den separate datasynsveiledningen bruker en eksplisitt løsning for filnavn og sekstifire uendrede nedlastede utsnitt. Modellen med én epoke når bare flertallsreferansen. Eksemplene bruker ulike etiketter og delmengder: ikke sammenlign nøyaktighetene som en direkte ytelsestest. Følg veiledningen før egen oppdeling.",
+          "narration": "For image classification, follow the Computer Vision lesson to prepare labelled crops, choose a model, and set the training, validation and test splits. After training, inspect the evaluation figures and saved predictions.",
           "focus": [
             2090,
             180,
@@ -5588,7 +5592,7 @@
         },
         {
           "visual": "main_05_classifier_evaluation_tooltip",
-          "narration": "Ikonene øverst til høyre åpner underverktøy, ikke egne Home-fliser. Hold pekeren over for å identifisere dem. Classifier Evaluation undersøker en lagret evalueringspakke med prediksjoner og lekkasjeinformasjon. Veiledningen forklarer nødvendige filer og hvorfor et vist måltall fortsatt trenger et solid valideringsdesign.",
+          "narration": "Open Classifier Evaluation from the top-right tools. Select a saved evaluation bundle to inspect predictions, metrics and the data split.",
           "focus": [
             2690,
             65,
@@ -5602,7 +5606,7 @@
         },
         {
           "visual": "main_05_explain_cv_tooltip",
-          "narration": "Explain CV bruker målte egenskaper til å modellere eksisterende datasynsprediksjoner. Det er en separat forklaringsmodell, ikke det opprinnelige bildenettverket eller en årsaksforklaring. Veiledningen viser riktig prediksjonsinngang og resultater. Ikke anta at utdata fra den tabulære klassifikatoren oppfyller samme inngangskrav.",
+          "narration": "Open Explain CV to relate an image classifier’s predictions to measured features. Supply the image prediction results and the corresponding measurements, then inspect which features explain the scores.",
           "focus": [
             2480,
             65,
@@ -5616,7 +5620,7 @@
         },
         {
           "visual": "main_05_activation_tooltip",
-          "narration": "Activation åpner tolkning av bildemodellen. Bruk tilhørende sjekkpunkt, bildekanaler og forbehandling. Veiledningen viser ekte lagrede salienskart og forklarer løsningen med en ekstern bildeviser. Et fremhevet område beviser verken biologisk mekanisme eller en god klassifikator.",
+          "narration": "Open Activation to view which image regions influence model responses. Select the trained checkpoint and use the same image channels and preprocessing as during training.",
           "focus": [
             2930,
             65,
@@ -5630,7 +5634,7 @@
         },
         {
           "visual": "main_05_train_compare_tooltip",
-          "narration": "Training Runs sammenligner lagrede treningshistorikker og innstillinger. To kurver ved siden av hverandre skaper ikke uavhengige bevis. Bevar kjøringer i atskilte mapper og sammenlign kompatible måltall og dataoppdelinger. Den egne veiledningen dekker kontrollene uten å gjenta dem i denne hovedmoduloversikten.",
+          "narration": "Open Training Runs to compare saved training histories. Select runs with compatible metrics and data splits, then inspect their learning curves and settings.",
           "focus": [
             2600,
             65,
@@ -5644,20 +5648,20 @@
         },
         {
           "visual": "main_06_feature_explorer_nested",
-          "narration": "Feature Explorer åpnes fra det siste ikonet. Det kan rangere målte egenskaper for en valgt sammenligning før en klassifikator trenes. Veiledningen bruker ekte nedlastede målinger og sanntidsfiltre. Sjekk sammenligningen igjen etter filtrering: en rangering er verken årsakssammenheng eller en trent bildemodell.",
+          "narration": "Open Feature Explorer to compare measured features between selected groups. Choose the groups and filters, then inspect the feature ranking and plots.",
           "related_lessons": [
             "65_feature_explorer"
           ],
           "hold_after": 0.7
         },
         {
-          "visual": "cv_30_ai_unsent_question",
-          "narration": "Konsollen tilbyr også valgfri spaCR AI-hjelp. Her er spørsmålet usendt; ingen leverandørrespons eller analyse vises. Bevar modellutdata, innstillinger og dokumentasjon av oppdelingen, og kontroller råd mot dem. I Python videresender classify til bilde- eller tabellimplementeringen etter valgt familie.",
+          "visual": "ml_25_ml_figure_02",
+          "narration": "Keep your trained model, predictions and evaluation results in the run folder. You can use object scores in Regression together with matching guide counts. The linked module lessons show the next steps.",
           "focus": [
             2090,
-            950,
+            190,
             1720,
-            1130
+            1200
           ],
           "related_lessons": [
             "06_api",
@@ -5666,7 +5670,12 @@
           ],
           "hold_after": 0.7
         }
-      ]
+      ],
+      "narration_voices": {
+        "en": [
+          "af_heart"
+        ]
+      }
     },
     {
       "id": "42_curate",
