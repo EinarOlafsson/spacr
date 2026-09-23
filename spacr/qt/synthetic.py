@@ -42,7 +42,8 @@ output on any machine. That is not decoration. Two people comparing
 previous seeding (``hash((well, field, time, chan))``) was salted by
 PYTHONHASHSEED, so it changed on every interpreter start.
 
-Public API:
+Public API::
+
     generate_mask_demo(dst, ...) -> DemoLayout
     generate_measure_demo(dst, ...) -> DemoLayout
     generate_crop_demo(dst, ...) -> DemoLayout
@@ -52,7 +53,8 @@ Public API:
     save_settings_csv(dst, settings) -> Path
     demo_settings(app_key, src, channels=None) -> Dict[str, Any]
 
-CLI:
+CLI::
+
     python -m spacr.qt.synthetic mask /tmp/demo
     python -m spacr.qt.synthetic all  /tmp/demo
 """

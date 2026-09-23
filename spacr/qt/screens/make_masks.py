@@ -9786,6 +9786,8 @@ class MakeMasksScreen(QWidget):
 
         if secondary:
             growth = QComboBox()
+            growth.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)
+            growth.setMinimumContentsLength(14)
             growth.addItem(tr('Intensity watershed'), 'intensity')
             growth.addItem(tr('Distance watershed'), 'distance')
             row('secondary_growth', tr('Growth'), growth,

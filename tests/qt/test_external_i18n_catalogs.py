@@ -438,6 +438,45 @@ def test_empty_flowchart_caption_translates_without_changing_python_none():
         assert not builder._syntax_preserved_or_reviewed("``None``", translated, language)
 
 
+def test_translated_combo_captions_do_not_extract_storage_keys():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    import ast
+
+    for expression, caption in (
+        ('box.addItem(tr("Intensity watershed"), "intensity")', "Intensity watershed"),
+        ('box.addItem(tr("Distance growth within threshold"), "distance")',
+         "Distance growth within threshold"),
+        ('box.addItem(icon, "Caption", "stored value")', "Caption"),
+        ('box.addItem("Caption", "stored value")', "Caption"),
+    ):
+        tree = ast.parse(expression)
+        observed = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Call) and builder._call_name(node) in {"addItem", "tr"}:
+                for argument in builder._candidate_arguments(node, builder._call_name(node)):
+                    observed.update(builder._literal_strings(argument, {}))
+        assert observed == {caption}
+
+
+def test_secondary_relationship_template_preserves_all_runtime_fields():
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    source = "{name}: {count} ({ids})"
+    assert not builder._has_prose_outside_protected_literals(source)
+    for language in LANGUAGES:
+        assert not builder._translation_rejection_reasons(source, source, language, force=True)
+        assert not builder._syntax_preserved(source, "{name}: {count}")
+        assert builder._translation_rejection_reasons(
+            source, "{name}: {count}", language, force=True)
+
+
 def test_every_set_translatable_text_call_has_static_catalog_sources():
     """Dynamic chrome may not hide an English template behind a variable."""
     tools_dir = str(ROOT / "tools")

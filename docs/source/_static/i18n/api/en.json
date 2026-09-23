@@ -40234,10 +40234,11 @@
         "8adb561d6c68f95a6fd11ee8adfeaca27f902dbc7af473aaa0adc80242ec0933",
         "d286e31d307a43bef4d7b3ee6749f6b264e4f57734b27e9774291a65030dcef1",
         "0585c2133c1a07f2f6964ff752c0d00cb07438abd78bdd7057134391c5e6323d",
-        "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12"
+        "151e17a76d129c7e118173c4c6cb3f54bb474926ff447c477c8b79f44aa41b12",
+        "5b5c5ca8e52733f3975c7f6cc08badd55d59cddf47663ba3148844b4c7035f26"
       ],
-      "source_sha256": "23dab0c67f78e3c36ac43b755daf0c8d34b5682a3f476008708bf168ce0d5d22",
-      "text": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule."
+      "source_sha256": "ad8b29a7c6f328c67c0d82ea9a483e03388efcf5b613fd82042f08de2c51f9c9",
+      "text": "Everything the CPU modes read, as one hashable value.\n\nOne tuple for the same reason :class:`spacr.qt.organelle_modes.MethodParams`\nis one: it rides on the magnifier's request key, and a\nmode that falls back to another must still find its own settings in it.\n\n:param local_k: dimensionless local contrast weight; default 0.2 for\n    both modes. Niblack uses ``T = m - k*s``: increasing k lowers the\n    threshold, admitting more bright pixels and fewer dark pixels.\n    Sauvola uses ``T = m*(1 + k*(s/R - 1))``. The engine passes floats\n    without range rescaling, giving scikit-image's default ``R = 1``.\n    Its response to k depends on the local mean m and deviation s;\n    positive k does not guarantee rejection of a flat background.\n:param propagate_sigma: the Gaussian blur before the maxima are found,\n    in pixels. SEPARATE FROM THE IMAGE ENHANCEMENT CHAIN'S DENOISE,\n    which has already run by the time a detector sees the image: this\n    one exists because the blur that makes one object have one centre\n    is usually far stronger than the blur anyone wants the object's\n    EDGE measured through, and the propagation measures the edge on the\n    same blurred image. Leave the chain's denoise off unless the field\n    is genuinely noisy, or the two blurs compound.\n:param propagate_min_distance: the smallest gap between two seeds, in\n    pixels; about one object radius.\n:param propagate_seed_level: how bright a maximum must be to be a seed.\n:param propagate_seed_percentile: read the seed level as a percentile\n    of the blurred image rather than as an absolute intensity.\n:param propagate_exclude_border: drop seeds near the edge.\n:param propagate_stop: a key of\n    :data:`spacr.qt.mask_engine.PROPAGATE_STOPS`.\n:param propagate_stop_value: the fraction, intensity or percentile the\n    stop rule reads.\n:param propagate_stop_algorithm: which global threshold provides the\n    floor under the ``threshold`` stop rule.\n:param secondary_growth: ``intensity`` or ``distance`` watershed for\n    secondary objects; maxima detection ignores this setting."
     },
     "spacr.qt.cpu_modes.engine_algorithm": {
       "source_blocks_sha256": [
@@ -40285,6 +40286,19 @@
       ],
       "source_sha256": "16e636ab50cdc07d8b866a270069436fa743cbaab345795004d1a7174e681e2c",
       "text": "The parameters this mode actually read, for a mask's ledger entry.\n\n:param mode: the selected detector mode key.\n:param params: the CPU-mode settings carried by the detection request.\n:returns: ``{field: value}``, JSON-safe; empty for a mode that reads\n    none of them -- a global threshold reads only the Otsu category's\n    own settings, which the entry already carries."
+    },
+    "spacr.qt.cpu_modes.secondary": {
+      "source_blocks_sha256": [
+        "adf87bec82eb800815c74984292dd5c552a3ac211577ad9a39c60503023cc55b",
+        "cd0598712b7a59cef3707bb458d34bfdd600512138f6785ac1d9d0a3eda5b7f2",
+        "9bc51a9c87b18cdfe22306abc1cbeeda418792f885edf8a3885d24a6118b8de0",
+        "42085411df62ac35d7960ac43bee3bb21f574110b4f3754abb537ab82560233e",
+        "9f65d5fff853d9cb210465f8f8da2ea9859f5aa6a844f3e2b00bff22f7b23c69",
+        "bce8408f365f1e0bf8cd5c2c7ad2db5dce5cb6c5c5877d1abeea1329e71d9cc9",
+        "d46db1254a5f003d3c13cf38329f2107ea0e01c8f3ea691a68b87ca9bbb376d0"
+      ],
+      "source_sha256": "7e043824ee43144717c9ad2d28bd246de40eb8604dd5ee46283f56aa5533312f",
+      "text": "Grow secondary labels from the existing primary-mask identities.\n\n:param image: prepared 2-D field or magnifier crop.\n:param primary: matching integer primary labels; no seeds are detected.\n:param params: shared growth settings; centre-finding settings are ignored.\n:param min_area: minimum grown area, including the primary footprint.\n:param fill_holes: fill holes per label before the area filter.\n:returns: mask_engine.SecondaryResult with exact IDs and relationship diagnostics."
     },
     "spacr.qt.cpu_modes.threshold_modes": {
       "source_blocks_sha256": [
@@ -45491,10 +45505,11 @@
         "8f33f9f73374aa05eb746bc682fd0cf04fd0eacb2248db78d0377056b9194e9e",
         "ad235aa8df6f2b77e6407c3a48702f529c9eb81475dd6c3518e8ef00e76de599",
         "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
-        "09785a86fe1dfe16da5919fd506ae73baf61ebda872c64f58f992cfe8cb18f57"
+        "09785a86fe1dfe16da5919fd506ae73baf61ebda872c64f58f992cfe8cb18f57",
+        "f41ae3063b1e830b799158da1bbfd76df22ce2fe86f79e7cc15f1b5a72063a81"
       ],
-      "source_sha256": "af4d36927847b24703311e218c6aede28d6b50820b2283a286a769a9d1bd6163",
-      "text": "The objects of one mask, measured as :func:`filter_objects` measures them.\n\nBuilt once for a mask state and then asked about one pixel at a time, so\na readout that follows the mouse costs a bounding box per question rather\nthan the whole field. The id is the one :func:`canonical_labels` gives,\nthe area is that id's pixel count, and the mean is taken on the raw image\nin ``float32`` over the object's pixels in raster order, which is the\narithmetic :func:`skimage.measure.regionprops` performs for the filter.\nSo an intensity bound set to the mean shown keeps the object, and a bound\njust past it removes it.\n\n:param mask: the label image.\n:param image: the raw image under it, with the mask's height and width.\nNumber the objects and index their bounding boxes.\n\n:param mask: the label image.\n:param image: the raw image under it."
+      "source_sha256": "cffad7470287a445448a2e4ec15a3dd9d4512ea2d41f25ec071daa1151192205",
+      "text": "The objects of one mask, measured as :func:`filter_objects` measures them.\n\nBuilt once for a mask state and then asked about one pixel at a time, so\na readout that follows the mouse costs a bounding box per question rather\nthan the whole field. The id is the one :func:`canonical_labels` gives,\nthe area is that id's pixel count, and the mean is taken on the raw image\nin ``float32`` over the object's pixels in raster order, which is the\narithmetic :func:`skimage.measure.regionprops` performs for the filter.\nSo an intensity bound set to the mean shown keeps the object, and a bound\njust past it removes it.\n\n:param mask: the label image.\n:param image: the raw image under it, with the mask's height and width.\nNumber the objects and index their bounding boxes.\n\n:param mask: the label image.\n:param image: the raw image under it.\n:param preserve_ids: index exact IDs without binary interpretation\n    or splitting disconnected pieces; agrees with exact-ID filtering."
     },
     "spacr.qt.mask_engine.ObjectLookup.at": {
       "source_blocks_sha256": [
@@ -45733,10 +45748,12 @@
     },
     "spacr.qt.mask_engine.fill_holes": {
       "source_blocks_sha256": [
-        "f760023a948960d4e2bfff1902353bca6b576d17e39530b982be28a25bb1394d"
+        "dcf5c9a6c3d42cdacfee0cf82dda4ea5201589046095d5c8e204d476eb3d7c05",
+        "e0372b62229e25015964f0bc7a2127543cd4bca044d7d539a65d029e229bc863",
+        "324f21972dfe3d00de9f3ff423ffb008c798db9581c13651442e1e4e1b323309"
       ],
-      "source_sha256": "f760023a948960d4e2bfff1902353bca6b576d17e39530b982be28a25bb1394d",
-      "text": "Fill holes inside True regions; returns a relabeled mask."
+      "source_sha256": "67783294a94f5bad162b8c5798a29fbc226781a725f988d52f01d090e3b7d78f",
+      "text": "Fill enclosed background pixels, optionally retaining primary identities.\n\n:param mask: label image to fill.\n:param preserve_ids: fill per object without merging or renumbering labels.\n    Requires exact uint16-compatible IDs; default retains binary relabeling."
     },
     "spacr.qt.mask_engine.fill_polygon": {
       "source_blocks_sha256": [
@@ -45755,19 +45772,21 @@
         "e781fdf2ca8b6c3fe565e83efde9c3bfe88a4357103d2e085e952bf4b7e04eb7",
         "eb731a89a247661b8e72705e9e3e2fcd92180cf4bc1b9007c3ab071fba787601",
         "b16abc5253fc51c61a52d174ad2acd7499bcc41368edae4648017ab1b9ba3f16",
-        "d3516dde1beebbf4a460f6f26f8a0b9978f8823429a3a39e1c43961999d62979"
+        "d3516dde1beebbf4a460f6f26f8a0b9978f8823429a3a39e1c43961999d62979",
+        "eab577b260db095a8ff31b38e3506c6de379b4f0e3a24cf8bb18c778e503738c"
       ],
-      "source_sha256": "5e6892ecb143bdf29cf5735a0f52ab9730becfce974cd9a43d9b28acf30eb212",
-      "text": "Drop objects outside the size/intensity bounds. Each bound is off at 0.\n\nArea is the object's pixel count; intensity is its MEAN value on the\n*raw* image, not on the contrast-stretched display -- the display\npercentiles are a viewing choice and a filter that moved when you\nchanged them would not be reproducible.\n\nZero means \"no bound on this side\" rather than \"reject everything\",\nwhich is what makes all four bounds independently optional: a minimum\narea of 0 would exclude nothing anyway, so the value is free to carry\nthe off switch.\n\n:returns: ``(mask, dropped)`` -- a new mask with the failing objects\n    zeroed and the sorted ids that were dropped. The ids are what the\n    curation ledger records, so an automatic filter is as traceable as a\n    click. Nothing to do returns the original array untouched and an\n    empty list.\n\n:func:`filter_report` is this function keeping what it measured; a\ncaller that has to tell the user WHY an object went wants that one."
+      "source_sha256": "b93d913432af79e210750e590ddbc3f4283d1c825ab5d2c710536cca402178cf",
+      "text": "Drop objects outside the size/intensity bounds. Each bound is off at 0.\n\nArea is the object's pixel count; intensity is its MEAN value on the\n*raw* image, not on the contrast-stretched display -- the display\npercentiles are a viewing choice and a filter that moved when you\nchanged them would not be reproducible.\n\nZero means \"no bound on this side\" rather than \"reject everything\",\nwhich is what makes all four bounds independently optional: a minimum\narea of 0 would exclude nothing anyway, so the value is free to carry\nthe off switch.\n\n:returns: ``(mask, dropped)`` -- a new mask with the failing objects\n    zeroed and the sorted ids that were dropped. The ids are what the\n    curation ledger records, so an automatic filter is as traceable as a\n    click. Nothing to do returns the original array untouched and an\n    empty list.\n\n:func:`filter_report` is this function keeping what it measured; a\ncaller that has to tell the user WHY an object went wants that one.\n\n:param preserve_ids: retain primary/secondary identities when measuring\n    and removing labels; disconnected pieces sharing an ID count together."
     },
     "spacr.qt.mask_engine.filter_report": {
       "source_blocks_sha256": [
         "aec40b3c276363e13cb1a05c26aacfedbc98a02f0dec7cd9a02395f6a86e1932",
         "2898268718b43523303ee90d84222862957649635b6c249f0cfef979208c7310",
-        "615635ec8895b75af3f659fdd9bb23fcaf5ceccdc5730fd6774010ba2247f335"
+        "615635ec8895b75af3f659fdd9bb23fcaf5ceccdc5730fd6774010ba2247f335",
+        "9f2dbe9cd509ab62b1e874f75099da7dc3b99cc77cac0b919576dca78328ba73"
       ],
-      "source_sha256": "c5a11bd91b5cff0b239dc08c1100629e3c982944faa7c27a0d54cbaa3fde9114",
-      "text": "Filter as :func:`filter_objects` does, measuring what it removed.\n\nThe same pass and the same arithmetic -- this is what\n:func:`filter_objects` now runs -- with each dropped object's area, mean\nand failed bounds kept instead of thrown away. Nothing else measures\nthem a second time, so the ledger the screen prints cannot disagree with\nthe mask it printed it about.\n\n:returns: ``(mask, removals)``, the removals sorted by id. Nothing to do\n    returns the original array untouched and an empty list."
+      "source_sha256": "2611138241aee382879f1b96f2d978165ba6a6ace5d466880f0f8fa3867a66d6",
+      "text": "Filter as :func:`filter_objects` does, measuring what it removed.\n\nThe same pass and the same arithmetic -- this is what\n:func:`filter_objects` now runs -- with each dropped object's area, mean\nand failed bounds kept instead of thrown away. Nothing else measures\nthem a second time, so the ledger the screen prints cannot disagree with\nthe mask it printed it about.\n\n:returns: ``(mask, removals)``, the removals sorted by id. Nothing to do\n    returns the original array untouched and an empty list.\n:param preserve_ids: measure all pixels bearing an ID as one object,\n    including lone or disconnected primary/secondary labels."
     },
     "spacr.qt.mask_engine.invert_for_detection": {
       "source_blocks_sha256": [
@@ -46166,8 +46185,8 @@
     },
     "spacr.qt.mask_engine.secondary_object_instances": {
       "source_blocks_sha256": [
-        "ed44d6c3a93dd5bce969deb8fcd9c8327f97d84246f4fa594816ba212709aa4e",
-        "79917964034a2fc816388a5c5b5909546db231b6c79d631bd406d4d5ec3cb4dd",
+        "3170bdb4c52eaf2bc6d1ee9c7e677a201002e93870844c75ef852d55a2142241",
+        "61afa83b73b8913da347b72473732d542b19ed75201f8962750672b7239dc042",
         "19d5ca2454ed0cbbc92a2df588de29ae1417f8654160f613bfac0fa50a1e4880",
         "c41f991374b50ce6c5daa4400a56120b28de055012135f2fc1d46578571cb5ac",
         "1d9f0243902d1877e96434a1f379698f9fe395d9ca11600cef797d24c93f825e",
@@ -46178,11 +46197,12 @@
         "76235a3210b833aa86172c5dcd565b50d459416b856b9a71f5c2d7eea3a3f6ce",
         "04a750409c1f7ff3d2facc6c9e350deedfe04aecb75ca72b4c8f0af4a0daa637",
         "9f3dfd0f5b46bfe0c0a27ffdb5868ae83414cd35e9b32f450430f341b3986941",
+        "9786a71f9fdc98153bec3ddf07aad5c7beddeec32a4d251439695c7d734afdcb",
         "ae9007960a26c15cd0a16109b40762ec050e56d1e510d58ba06778eb4b459a43",
         "b816949f8ccf52296c0fb687f0f3c46fbca702e0c8074591d0a0b38e8aa307c1"
       ],
-      "source_sha256": "f7fe42d2c6ec06a91de111d1ea6765529ce1e9c7051db3934f158d14f0546c81",
-      "text": "Grow secondary objects from labelled primaries using intensity watershed.\n\nEvery positive primary label is a marker, including all its pixels.\nGrowth follows the negative, optionally Gaussian-smoothed intensity.\nThis is an intensity watershed, not CellProfiler's shortest-path\nPropagation algorithm or a distance/intensity regularization model.\n\nThe four rules in :data:`PROPAGATE_STOPS` use processed intensities.\n``absolute``, ``percentile`` and ``threshold`` restrict growth with a\ncommon foreground mask. ``seed_fraction`` trims each watershed basin\nat a fraction of the brightest processed pixel inside its primary.\nThat ratio is not a quantile and depends on background offset. With a\ndark nucleus in a cytoplasmic channel, use a common threshold instead\nof a nucleus-relative peak ratio.\n\nPrimary pixels are always included before minimum-area filtering, even\nbelow the threshold. Hole filling can also restore below-threshold\npixels. Filtering can remove a whole secondary together with its seed;\nthe missing ID is reported. Remaining labels retain their primary IDs\nexactly, without splitting or renumbering disconnected components.\nSparse IDs use compact internal markers, never arrays sized by max ID.\n\n:param image: finite nonempty 2-D intensities, converted to float32.\n    The caller supplies normalization, background correction or inversion.\n:param primary: same-shape nonnegative integer primary labels; 0 means\n    background. The returned labels retain this dtype and these IDs.\n:param sigma: finite nonnegative Gaussian sigma in pixels; 0 disables\n    smoothing. Smoothing affects growth and threshold estimation.\n:param stop: one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.\n:param stop_value: intensity for ``absolute``, percentile in [0,100] for\n    ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored\n    by ``threshold``. Fractions require nonnegative processed intensities.\n:param stop_algorithm: global threshold algorithm, default ``\"otsu\"``;\n    read only for ``threshold``. The full supplied image determines it.\n:param min_area: minimum secondary area after hole filling; 0 disables\n    filtering. The whole primary footprint counts toward the area.\n:param fill_holes: fill enclosed background pixels per label before\n    filtering. Does not overwrite another primary's labelled pixels.\n:returns: :class:`SecondaryResult`, including ID relationship diagnostics.\n    Empty primary masks yield an empty result and no common stop level.\n:raises ValueError: invalid images, labels, shape, sigma, stop rule,\n    rule-specific stop value or negative minimum area."
+      "source_sha256": "23564aa57fe274a0a6368bd4934258eb2f60f47288a1846e91e85ff2c017d80e",
+      "text": "Grow secondary objects from labelled primaries with a seeded watershed.\n\nEvery positive primary label is a marker, including all its pixels.\nIntensity growth follows the negative, optionally Gaussian-smoothed image.\nDistance growth floods a flat surface from the primary pixels, constrained\nby the chosen threshold mask. It follows four-connected paths around\nexcluded pixels, not unrestricted Euclidean nearest-primary assignment.\nNeither mode is CellProfiler's distance/intensity Propagation algorithm.\n\nThe four rules in :data:`PROPAGATE_STOPS` use processed intensities.\n``absolute``, ``percentile`` and ``threshold`` restrict growth with a\ncommon foreground mask. ``seed_fraction`` trims each watershed basin\nat a fraction of the brightest processed pixel inside its primary.\nThat ratio is not a quantile and depends on background offset. With a\ndark nucleus in a cytoplasmic channel, use a common threshold instead\nof a nucleus-relative peak ratio.\n\nPrimary pixels are always included before minimum-area filtering, even\nbelow the threshold. Hole filling can also restore below-threshold\npixels. Filtering can remove a whole secondary together with its seed;\nthe missing ID is reported. Remaining labels retain their primary IDs\nexactly, without splitting or renumbering disconnected components.\nSparse IDs use compact internal markers, never arrays sized by max ID.\n\n:param image: finite nonempty 2-D intensities, converted to float32.\n    The caller supplies normalization, background correction or inversion.\n:param primary: same-shape nonnegative integer primary labels; 0 means\n    background. The returned labels retain this dtype and these IDs.\n:param sigma: finite nonnegative Gaussian sigma in pixels; 0 disables\n    smoothing. Smoothing affects growth and threshold estimation.\n:param stop: one of :data:`PROPAGATE_STOPS`, default ``\"threshold\"``.\n:param stop_value: intensity for ``absolute``, percentile in [0,100] for\n    ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored\n    by ``threshold``. Fractions require nonnegative processed intensities.\n:param stop_algorithm: global threshold algorithm, default ``\"otsu\"``;\n    read only for ``threshold``. The full supplied image determines it.\n:param min_area: minimum secondary area after hole filling; 0 disables\n    filtering. The whole primary footprint counts toward the area.\n:param fill_holes: fill enclosed background pixels per label before\n    filtering. Does not overwrite another primary's labelled pixels.\n:param growth: ``intensity`` (default) uses negative image intensity;\n    ``distance`` floods a flat surface through the permitted foreground.\n    Both retain the same stop rules and exact primary IDs. Distance can\n    help when bright structures attract an intensity basin across cells.\n:returns: :class:`SecondaryResult`, including ID relationship diagnostics.\n    Empty primary masks yield an empty result and no common stop level.\n:raises ValueError: invalid images, labels, shape, sigma, stop rule,\n    rule-specific stop value or negative minimum area."
     },
     "spacr.qt.mask_engine.seg_outlines": {
       "source_blocks_sha256": [
@@ -61820,6 +61840,77 @@
       "source_sha256": "89d6b22f5b0dccb51ab7cc656682d798fa8c83341fddef54031af0a6484c1ab2",
       "text": "Open the backdrop full screen on the parent's screen.\n\n:returns: the window, or None when it could not be opened."
     },
+    "spacr.qt.secondary_masks": {
+      "source_blocks_sha256": [
+        "9ad5db4a17e7171ea4241b72527948b2a35df0ca7fcdd8ae75ba10bf9442e671",
+        "a506ba90d2ad07901d1245fd2402cb7a5039c3596466d08b4edf82d28802b824"
+      ],
+      "source_sha256": "5a825a1944dda6fc0aa11cd0d10f5b32efc9b97f61cc5149555fa6e9ec1050b0",
+      "text": "Pair a read-only primary mask with one editable secondary-mask field.\n\nFolder sources match the image's stem. Explicit files are bound to one image\nso moving through a queue cannot accidentally reuse yesterday's nuclei on a\nsame-sized new field. The immutable snapshot records class names and the\nsource checksum; neither loading nor validation writes a primary mask."
+    },
+    "spacr.qt.secondary_masks.PrimaryMaskSource": {
+      "source_blocks_sha256": [
+        "8dddc592375886a56c868e915a71225aace1b864a5ee8c6b6b82d0b47d7955da",
+        "582017a07f05da52061659ef478b1eb68dde6673993bdc9c0f75c6e4e81ce69c",
+        "1f45b085dd204ba8e7821114aef25297438f42ee56868d78f7d36fb5f8f0cfe2",
+        "eac44c506be7687fc66eb632fad327ee21992b96bb98e0765c9b12248ec98649",
+        "8ce7d6eca232caacef3173948d05adca298ca2218cbb8477c94cc25f83a10dc4",
+        "7bf4c9d63a975eede710f5542f0f5adf6420754f94491ca9a410ab873af7681b",
+        "9fc02241f56ebf9550a815e313b2dc20af21cfb6c4193976e28c561f2fcc91df"
+      ],
+      "source_sha256": "ab14287c7cdda71d54965e1d92b5674d1cd4f34779c0adbfda158f2dcf27c941",
+      "text": "A validated primary mask and the field and object classes it belongs to.\n\n:param path: resolved source-mask path.\n:param image_path: resolved image path identifying this field.\n:param primary_class: primary object class, for example ``nucleus``.\n:param secondary_class: distinct output object class, for example ``cell``.\n:param sha256: checksum of the source file actually read.\n:param labels: owned, read-only uint16 primary labels matching the image."
+    },
+    "spacr.qt.secondary_masks.PrimaryMaskSource.crop": {
+      "source_blocks_sha256": [
+        "0bdfd8f1669372a2147b7f0c0da1bb7dafb66118f4203303b1fde9a611e23bbf",
+        "f08b6880604b5334d248ca18a8f1ea8bb993ac20fc03735be5d6c1c44da784fb",
+        "d77ea86ac68313a9dcd9e5d8089d257bd2fe5517d7a11a564593aab01db55405",
+        "9d7d83b37d547827a1079cce3ddbb4c127c68526c2c3b95b571629a160e3a338"
+      ],
+      "source_sha256": "2c6fbe86b3a6371bddae91eeb3fd2a16844e4452697e2aa6a367cc5bf7b8127a",
+      "text": "Copy primary labels inside a rectangle for a worker request.\n\n:param box: ``(x0,y0,x1,y1)`` pixel bounds, with exclusive upper bounds.\n:returns: independent label array preserving the source object IDs.\n:raises ValueError: the rectangle is empty or extends outside the image."
+    },
+    "spacr.qt.secondary_masks.PrimaryMaskSource.identity": {
+      "source_blocks_sha256": [
+        "9fcffdd55fa67ca842c84e956c598437f238db275b1ccf4b36c6094788143255"
+      ],
+      "source_sha256": "9fcffdd55fa67ca842c84e956c598437f238db275b1ccf4b36c6094788143255",
+      "text": "Hashable field/source/class token for asynchronous request keys."
+    },
+    "spacr.qt.secondary_masks.PrimaryMaskSource.provenance": {
+      "source_blocks_sha256": [
+        "3db33f6c2c3dc24af266213322b4c6b4037713d73314ef47f6caaa9af281c753"
+      ],
+      "source_sha256": "3db33f6c2c3dc24af266213322b4c6b4037713d73314ef47f6caaa9af281c753",
+      "text": "Return JSON-safe source identity for the mask's curation ledger."
+    },
+    "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination": {
+      "source_blocks_sha256": [
+        "de33f453e5429defd3781bd68e731a6fe5a856e3bb6398b4949f6733d6f62542",
+        "9525845618e8016e4e95687d93eda0b093f596a2ee8fd08759b33957def8a548",
+        "f315809757f3a47542d4ad4f047a7e208ad76b9ec100b56a2f35307843a76750"
+      ],
+      "source_sha256": "470401c116ed6d6b4706084f4f5ac13284b5774a3e517eb2085fc97e216fc05f",
+      "text": "Refuse any output that would overwrite the primary, including aliases.\n\n:param path: proposed secondary-mask destination, as a string or path.\n:raises ValueError: the destination is the primary file, a symbolic\n    link to it or an existing hard link to it."
+    },
+    "spacr.qt.secondary_masks.read_primary_source": {
+      "source_blocks_sha256": [
+        "386f1b94dbe36dce1a42e4c721aabaa5e8b0319320929f289a19857b2b958bca",
+        "5e3769be7f753877e597081531682a4ed71a6798714187165b26aac5979577df",
+        "0319e3749b4ce4932b3579d4f99816940ee277fa9b061353f5c8d5f7c6725cf9",
+        "4ffdb352a47fbbe989e5f7911ec136d0f3159c7380d29170a0636d51fb0ad6e4",
+        "80b4ffa2f2da47585dbb11d971016275502ddd83a5278514c7aeccb943333ae9",
+        "6acb9a3eae352088cc833aae3cf31c72247294a94cb2dcc29735eaa42e45ae4e",
+        "441404d01f611d5646eb8039c0e08981680040c8f3696e932b8fef176e261b2c",
+        "6eee3686a40a5e932af86ece0dc6fe5c1a3775941e3dd6b32791c3f165f30814",
+        "29eacc981c2ca3efd10f91822e624ced1bcd9925b1526c9afedaa55281e962e1",
+        "425728857598b6d661f63167bad04770729e28d841dce31f9441edfadf13fb5f",
+        "98a1a3094d4543a44cc1d6f685b59fe2ba5fa4f3a69739e5e575dec73d821239"
+      ],
+      "source_sha256": "8d5a4109faa3eb9a15e30e957bb353684a26c2c8264382fb960ea4bd12f09aab",
+      "text": "Load a field's primary labels without modifying either mask file.\n\n:param source: one TIFF/PNG/NPY/Cellpose bundle or a folder containing\n    a matching ``<image stem>`` mask. Multiple matching files are refused.\n:param image_path: image currently being edited; field identity is its path.\n:param shape: expected ``(height,width)`` of the primary mask.\n:param output_path: destination of the editable secondary mask. Must not\n    alias the primary through a path, symbolic link or hard link.\n:param primary_class: nonempty name of the source object class.\n:param secondary_class: distinct nonempty name of the output class.\n:param bound_image: field for which an explicit file was chosen. Required\n    for file sources; ignored for folders that resolve each field by name.\n:returns: immutable :class:`PrimaryMaskSource` with read-only uint16 labels.\n:raises ValueError: ambiguous/missing pairing, incompatible classes, shape,\n    labels, field binding, output alias or a source changed during reading.\n:raises OSError: an input cannot be read."
+    },
     "spacr.qt.settings_diff": {
       "source_blocks_sha256": [
         "dcaf40307ad841c21f1f4da2904a84a5cf2185368769e1934ac413da4379e951",
@@ -63453,11 +63544,11 @@
         "5d5bb1b8fc3436d1b95aab205dc3fb16aa58e947c0143a2c7829dc23f530f9a4",
         "320ccab98da3358b63ad31a79a98865e07a265cb6c9abb4afcccfc863abcba5c",
         "7bea82d3c34c7e0b9e0aebdce377f7e05191ecffd376cb16720d6b2d48ab435e",
-        "a1b0b118e72f9ab34aedf8a8f00d1da31f02e6843e02de8f5ff7568f6c62ea2c",
-        "9024a52317a3d2bd473ae0810cc67f5cbc6bfe3a897e0034506f4ebe605e5930"
+        "ab3aa426f807fab7722fd09ef55336e9a91e96bdec78613e9db4d95dfdb00665",
+        "e759793341ff3757eaa76e814db0170ec13b6b0a988a742d9a81240c505f48ec"
       ],
-      "source_sha256": "770d6354abaecdf1e514733c07494503e502ae6cb7cd69661e120cf2182790f8",
-      "text": "Synthetic datasets + saved settings for exercising every pipeline app.\n\nThe goal: give a developer (or a bug reporter) a one-line way to\ngenerate a demo folder that flows cleanly through every spacr\npipeline — mask, measure, crop, classify, timelapse, map_barcodes —\nplus a matching settings CSV that plugs into the \"Import settings…\"\nbutton on each app screen.\n\nEverything is reverse-engineered from what the pipelines actually\nconsume:\n\n* Filenames match the cellvoyager regex in\n  `spacr.utils._get_regex('.tif', 'cellvoyager')`::\n\n      <plateID>_<wellID>_T<timeID>F<fieldID>L<laserID>A<AID>Z<sliceID>C<chanID>.tif\n\n* Channels are laid out in the order every mask default expects::\n\n      C0 = nucleus, C1 = cell, C2 = pathogen, C3 = organelle\n\n* Images are 16-bit uint16. Every channel of a field is drawn from\n  *one shared cell layout*, so the nucleus really is inside the cell\n  and the pathogen really is inside the same cell — the relationships\n  measure_crop goes looking for when it links objects.\n* Measure/crop demos ship the `merged/*.npy` stacks measure_crop\n  actually reads (image planes first, then the label-mask planes),\n  not a stand-in.\n* Settings CSVs are written in the two-column ``Key,Value`` format, the\n  first of the header pairs `spacr.qt.screens.app_screen.AppScreen\n  ._load_settings_csv` tries, so the \"Import settings…\" button restores\n  every value into the form. Reading one straight from Python means\n  naming the columns —\n  ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` —\n  because `spacr.utils.load_settings` *defaults* to the other spelling\n  (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db`\n  writes) and raises rather than guessing.\n\nEvery generator is *reproducible*: identical inputs give byte-identical\noutput on any machine. That is not decoration. Two people comparing\n\"the demo fails here\" have to be looking at the same pixels, and the\nprevious seeding (``hash((well, field, time, chan))``) was salted by\nPYTHONHASHSEED, so it changed on every interpreter start.\n\nPublic API:\n    generate_mask_demo(dst, ...) -> DemoLayout\n    generate_measure_demo(dst, ...) -> DemoLayout\n    generate_crop_demo(dst, ...) -> DemoLayout\n    generate_classify_demo(dst, ...) -> DemoLayout\n    generate_timelapse_demo(dst, ...) -> DemoLayout\n    generate_map_barcodes_demo(dst, ...) -> DemoLayout\n    save_settings_csv(dst, settings) -> Path\n    demo_settings(app_key, src, channels=None) -> Dict[str, Any]\n\nCLI:\n    python -m spacr.qt.synthetic mask /tmp/demo\n    python -m spacr.qt.synthetic all  /tmp/demo"
+      "source_sha256": "bb62b49296ed8fbcf6978232dba4cadf744164ae76163471f8689d56f1ef9b92",
+      "text": "Synthetic datasets + saved settings for exercising every pipeline app.\n\nThe goal: give a developer (or a bug reporter) a one-line way to\ngenerate a demo folder that flows cleanly through every spacr\npipeline — mask, measure, crop, classify, timelapse, map_barcodes —\nplus a matching settings CSV that plugs into the \"Import settings…\"\nbutton on each app screen.\n\nEverything is reverse-engineered from what the pipelines actually\nconsume:\n\n* Filenames match the cellvoyager regex in\n  `spacr.utils._get_regex('.tif', 'cellvoyager')`::\n\n      <plateID>_<wellID>_T<timeID>F<fieldID>L<laserID>A<AID>Z<sliceID>C<chanID>.tif\n\n* Channels are laid out in the order every mask default expects::\n\n      C0 = nucleus, C1 = cell, C2 = pathogen, C3 = organelle\n\n* Images are 16-bit uint16. Every channel of a field is drawn from\n  *one shared cell layout*, so the nucleus really is inside the cell\n  and the pathogen really is inside the same cell — the relationships\n  measure_crop goes looking for when it links objects.\n* Measure/crop demos ship the `merged/*.npy` stacks measure_crop\n  actually reads (image planes first, then the label-mask planes),\n  not a stand-in.\n* Settings CSVs are written in the two-column ``Key,Value`` format, the\n  first of the header pairs `spacr.qt.screens.app_screen.AppScreen\n  ._load_settings_csv` tries, so the \"Import settings…\" button restores\n  every value into the form. Reading one straight from Python means\n  naming the columns —\n  ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` —\n  because `spacr.utils.load_settings` *defaults* to the other spelling\n  (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db`\n  writes) and raises rather than guessing.\n\nEvery generator is *reproducible*: identical inputs give byte-identical\noutput on any machine. That is not decoration. Two people comparing\n\"the demo fails here\" have to be looking at the same pixels, and the\nprevious seeding (``hash((well, field, time, chan))``) was salted by\nPYTHONHASHSEED, so it changed on every interpreter start.\n\nPublic API::\n\n    generate_mask_demo(dst, ...) -> DemoLayout\n    generate_measure_demo(dst, ...) -> DemoLayout\n    generate_crop_demo(dst, ...) -> DemoLayout\n    generate_classify_demo(dst, ...) -> DemoLayout\n    generate_timelapse_demo(dst, ...) -> DemoLayout\n    generate_map_barcodes_demo(dst, ...) -> DemoLayout\n    save_settings_csv(dst, settings) -> Path\n    demo_settings(app_key, src, channels=None) -> Dict[str, Any]\n\nCLI::\n\n    python -m spacr.qt.synthetic mask /tmp/demo\n    python -m spacr.qt.synthetic all  /tmp/demo"
     },
     "spacr.qt.synthetic.DemoLayout": {
       "source_blocks_sha256": [
@@ -89861,6 +89952,64 @@
       ],
       "source_sha256": "b854227e4ed38c8cb429d7acdccd34a1f6579929d14a038e95a756e17e096aa3",
       "text": "Remember ``scale`` for the preview called ``name``.\n\n:param name: the preview's key, e.g. ``\"mask\"``.\n:param scale: the factor, 1.0 = 100 %; clamped to 10-200 %."
+    },
+    "spacr.qt.widgets.primary_mask_selector": {
+      "source_blocks_sha256": [
+        "015f38f73e6f265ef20c1d9b500d0fe9373d89daacfdc93283f9662516b8c80b",
+        "b29242a8b78556afeaac5c2b9948d0e0a202c703e2b5ae50eb03f13bca495d03"
+      ],
+      "source_sha256": "963ba29cc32e95ebb1f14cbe5117e76398602b540656717e172b993f8ac0ebad",
+      "text": "Choose a primary object class and mask source for secondary segmentation.\n\nPrimary masks load on a worker, with one queued replacement at most. A field\nor source change invalidates the old snapshot immediately; late results never\nbecome the source for another image. This widget reads masks and never saves."
+    },
+    "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector": {
+      "source_blocks_sha256": [
+        "68892986eb9ede54501d849e470cbc02599030f378f7ee0d4da3ddefeea0ed7e",
+        "1078364934339678a05ba2396e0c5d9f47877910ed85b08e6e43bfe2223f33cf",
+        "faffe02c7429ffb7958e65afc9e7587ea107097215d4ed425c32255b5ebcaca6",
+        "959b97045adb172f1f32f18df854fb4f084fee68e2fe3ac48c0f7daa0be30af1",
+        "545ceeb12f906a0a2ddc49435193529dc06bd4c6a650d4a9cfe7d5f2efb1cc27"
+      ],
+      "source_sha256": "e0653aa0aa9766e719bd1d8fce7a5e594fdc0020083db89e57d7f3feb0939575",
+      "text": "Primary/secondary class selectors and an asynchronous primary-mask picker.\n\n:param parent: owning detection settings group.\n:ivar snapshot: validated PrimaryMaskSource, or None while loading/invalid.\n:ivar changed: emitted when the snapshot is invalidated or replaced.\nBuild class, file/folder and reload controls without reading a file."
+    },
+    "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.bind_field": {
+      "source_blocks_sha256": [
+        "0170cfa9f51ca48ba1ce19cc1ad8528a0553485bbad0f37cc4f1cf05e2088398",
+        "e14ad7c5c96cdd566afe85c5a830e0a33faf63c20fed20e9289c7fcc7fff6c63",
+        "0bca9d9fa815a93aeef452716f017dd2b5d58c2a4525c485b16c228ab687715b",
+        "a7b1ac0e001c2e1c9c16d6bdf0c4e16cb017e9eb65e02d39aecc092d77c84484"
+      ],
+      "source_sha256": "6f78baad3dfabf20cc2975a7714c5f6af93907b612248c50b4c61cb6fdb75941",
+      "text": "Invalidate the previous field and resolve this image's primary mask.\n\n:param image_path: source image identifying the current queue entry.\n:param shape: image height and width.\n:param output_path: editable mask path, checked against source aliases."
+    },
+    "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.clear_field": {
+      "source_blocks_sha256": [
+        "e611feb6092950779b6394e792b8e1ad418dbb5dccc75de6bf93fc57a476afa7"
+      ],
+      "source_sha256": "e611feb6092950779b6394e792b8e1ad418dbb5dccc75de6bf93fc57a476afa7",
+      "text": "Drop a stale source when the image cannot be loaded or is closed."
+    },
+    "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.reload": {
+      "source_blocks_sha256": [
+        "10c74e2ab26d7551df5b1b5332f93d767738a4854872726e50c6588af512e44b"
+      ],
+      "source_sha256": "10c74e2ab26d7551df5b1b5332f93d767738a4854872726e50c6588af512e44b",
+      "text": "Invalidate first, then queue at most one replacement source read."
+    },
+    "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.restore_source": {
+      "source_blocks_sha256": [
+        "dd9388e143a23a17cc4f7661709b228957e464007dc2ea1ee21922a9fad4219b",
+        "c183ecba9b9d83107c4450517cc490289ebcdb495a65642848b017bbf839abc1"
+      ],
+      "source_sha256": "463d533090c754cbbbc8e824f7d4b23358a42ac838bf4387134add1a76ef093a",
+      "text": "Restore a saved primary-source ledger record for the current image.\n\n:param record: mapping from PrimaryMaskSource.provenance. Its original\n    image binding is retained; a wrong-field record is refused on read."
+    },
+    "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.shutdown": {
+      "source_blocks_sha256": [
+        "924ae1a626b258efd545996ce5b6f868514c595bcd8718ae615597ef9e8cb4d8"
+      ],
+      "source_sha256": "924ae1a626b258efd545996ce5b6f868514c595bcd8718ae615597ef9e8cb4d8",
+      "text": "Drain the active source worker before the owning screen is destroyed."
     },
     "spacr.qt.widgets.provider_marks": {
       "source_blocks_sha256": [

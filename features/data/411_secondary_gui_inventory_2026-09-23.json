@@ -1,0 +1,384 @@
+{
+  "api_count": 11402,
+  "executable_ast_unchanged": true,
+  "full_catalog_acceptance": false,
+  "help_index_current": true,
+  "languages": [
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "de",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "es",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "fr",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "hi",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "is",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "ko",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "pt",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "sv",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    },
+    {
+      "full_api_review_loader": true,
+      "full_runtime_review_loader": true,
+      "language": "zh_CN",
+      "reviewed_runtime_sources": 37,
+      "unrelated_runtime_rows_unchanged": true
+    }
+  ],
+  "schema": 1,
+  "source_commit": "e6d45b1acfb25d7c18a9e50cc65bfcdeaf81b7d9",
+  "source_files": {
+    "spacr/qt/cpu_modes.py": "9270d6c26ed366e259a1d83bd6eb9e2c30570c5318bc719ea69fc25458630e7e",
+    "spacr/qt/mask_engine.py": "5089c215873cd14a44c253c15d6db4e390d83c33e4bc282abcf16c3ea48269c6",
+    "spacr/qt/screens/make_masks.py": "50c49a16b27514b623357196e98f8066fb63b27e8205a0d27365466b63482af2",
+    "spacr/qt/secondary_masks.py": "1c010d6fe40f7ea314730a1841261893dab3d599796b3a1dced73520f9519511",
+    "spacr/qt/synthetic.py": "f784fd7d76affc3e07fd894f0ad1da7239932a45a16d31ece56da109f8dc8769",
+    "spacr/qt/widgets/primary_mask_selector.py": "89763417f0075acc67692d260232500f6de8738060c23773db9ded3d8b9729ba"
+  },
+  "ui_count": 4975,
+  "inventory": {
+    "added_callables": [
+      "spacr.qt.cpu_modes.secondary",
+      "spacr.qt.secondary_masks.PrimaryMaskSource",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.crop",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.provenance",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination",
+      "spacr.qt.secondary_masks.read_primary_source",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.bind_field",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.clear_field",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.reload",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.restore_source",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.shutdown"
+    ],
+    "removed_callables": [],
+    "changed_callables": {
+      "spacr.qt.mask_engine.fill_holes": {
+        "before": "spacr.qt.mask_engine.fill_holes\u0000function\u0000autoapi\u0000mask\u0000mask\u0000mask\u00000\u00001\u00000\u00000",
+        "after": "spacr.qt.mask_engine.fill_holes\u0000function\u0000autoapi\u0000mask,preserve_ids\u0000mask\u0000mask,preserve_ids\u00000\u00001\u00000\u00000"
+      },
+      "spacr.qt.mask_engine.filter_objects": {
+        "before": "spacr.qt.mask_engine.filter_objects\u0000function\u0000autoapi\u0000image,mask,max_area,max_intensity,min_area,min_intensity\u0000image,mask\u0000image,mask,max_area,max_intensity,min_area,min_intensity\u00000\u00001\u00000\u00000",
+        "after": "spacr.qt.mask_engine.filter_objects\u0000function\u0000autoapi\u0000image,mask,max_area,max_intensity,min_area,min_intensity,preserve_ids\u0000image,mask\u0000image,mask,max_area,max_intensity,min_area,min_intensity,preserve_ids\u00000\u00001\u00000\u00000"
+      },
+      "spacr.qt.cpu_modes.CpuParams": {
+        "before": "spacr.qt.cpu_modes.CpuParams\u0000namedtuple_constructor\u0000autoapi\u0000local_k,propagate_exclude_border,propagate_min_distance,propagate_seed_level,propagate_seed_percentile,propagate_sigma,propagate_stop,propagate_stop_algorithm,propagate_stop_value\u0000\u0000local_k,propagate_exclude_border,propagate_min_distance,propagate_seed_level,propagate_seed_percentile,propagate_sigma,propagate_stop,propagate_stop_algorithm,propagate_stop_value\u00000\u00001\u00000\u00000",
+        "after": "spacr.qt.cpu_modes.CpuParams\u0000namedtuple_constructor\u0000autoapi\u0000local_k,propagate_exclude_border,propagate_min_distance,propagate_seed_level,propagate_seed_percentile,propagate_sigma,propagate_stop,propagate_stop_algorithm,propagate_stop_value,secondary_growth\u0000\u0000local_k,propagate_exclude_border,propagate_min_distance,propagate_seed_level,propagate_seed_percentile,propagate_sigma,propagate_stop,propagate_stop_algorithm,propagate_stop_value,secondary_growth\u00000\u00001\u00000\u00000"
+      },
+      "spacr.qt.mask_engine.ObjectLookup": {
+        "before": "spacr.qt.mask_engine.ObjectLookup\u0000constructor\u0000autoapi\u0000image,mask\u0000image,mask\u0000image,mask\u00000\u00001\u00000\u00001",
+        "after": "spacr.qt.mask_engine.ObjectLookup\u0000constructor\u0000autoapi\u0000image,mask,preserve_ids\u0000image,mask\u0000image,mask,preserve_ids\u00000\u00001\u00000\u00001"
+      },
+      "spacr.qt.mask_engine.secondary_object_instances": {
+        "before": "spacr.qt.mask_engine.secondary_object_instances\u0000function\u0000autoapi\u0000fill_holes,image,min_area,primary,sigma,stop,stop_algorithm,stop_value\u0000image,primary\u0000fill_holes,image,min_area,primary,sigma,stop,stop_algorithm,stop_value\u00000\u00001\u00000\u00000",
+        "after": "spacr.qt.mask_engine.secondary_object_instances\u0000function\u0000autoapi\u0000fill_holes,growth,image,min_area,primary,sigma,stop,stop_algorithm,stop_value\u0000image,primary\u0000fill_holes,growth,image,min_area,primary,sigma,stop,stop_algorithm,stop_value\u00000\u00001\u00000\u00000"
+      },
+      "spacr.qt.mask_engine.filter_report": {
+        "before": "spacr.qt.mask_engine.filter_report\u0000function\u0000autoapi\u0000image,mask,max_area,max_intensity,min_area,min_intensity\u0000image,mask\u0000image,mask,max_area,max_intensity,min_area,min_intensity\u00000\u00001\u00000\u00000",
+        "after": "spacr.qt.mask_engine.filter_report\u0000function\u0000autoapi\u0000image,mask,max_area,max_intensity,min_area,min_intensity,preserve_ids\u0000image,mask\u0000image,mask,max_area,max_intensity,min_area,min_intensity,preserve_ids\u00000\u00001\u00000\u00000"
+      }
+    },
+    "baseline_signature_digest": "52f55683395e8202e80ebcb400169905e5cbba2a3dcda59df9e3dc034c859d2c",
+    "current_signature_digest": "921b52b3342abdf0422ebcc39dd87b2ededf0af8627df533fbe128c6e04d3a57",
+    "exact_baseline_rows_restored": true,
+    "added_api": [
+      "spacr.qt.cpu_modes.secondary",
+      "spacr.qt.secondary_masks",
+      "spacr.qt.secondary_masks.PrimaryMaskSource",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.crop",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.identity",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.provenance",
+      "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination",
+      "spacr.qt.secondary_masks.read_primary_source",
+      "spacr.qt.widgets.primary_mask_selector",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.bind_field",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.clear_field",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.reload",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.restore_source",
+      "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.shutdown"
+    ],
+    "removed_api": [],
+    "changed_api": [
+      "spacr.qt.cpu_modes.CpuParams",
+      "spacr.qt.mask_engine.ObjectLookup",
+      "spacr.qt.mask_engine.fill_holes",
+      "spacr.qt.mask_engine.filter_objects",
+      "spacr.qt.mask_engine.filter_report",
+      "spacr.qt.mask_engine.secondary_object_instances",
+      "spacr.qt.synthetic"
+    ],
+    "added_omissions": [],
+    "removed_omissions": [
+      "spacr.qt.mask_engine.fill_holes:mask"
+    ],
+    "added_ui": [
+      "Choose a primary mask from a different file than the editable output mask.",
+      "Choose primary mask",
+      "Choose primary-mask folder",
+      "Distance growth within threshold",
+      "Fill holes inside secondary objects",
+      "Folder…",
+      "Fraction of the primary object's peak",
+      "Gaussian smoothing before growth, in pixels. Primary labels are kept unchanged; no centres are detected.",
+      "Grow secondary objects from a separate labelled primary mask, keeping each primary object's ID. Choose a global threshold when nuclei are dark in the cell channel. Primary masks are read-only; missing, orphaned and incomplete relationships are reported. Click to accept objects; dragging does not merge primary identities. Post-detection morphology and splitting are bypassed to retain IDs. Try distance growth when bright structures pull intensity growth across cells.",
+      "Growth",
+      "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
+      "Intensity watershed",
+      "Load a primary mask before growing secondary objects.",
+      "Load a primary mask to inspect object relationships.",
+      "Load a valid primary mask before growing secondary objects.",
+      "Loading primary mask…",
+      "Masks (*.tif *.tiff *.png *.npy)",
+      "Matched",
+      "Missing secondary",
+      "No primary",
+      "Not expanded",
+      "Paired secondary objects retain primary IDs; consecutive relabeling would break that association.",
+      "Primary and secondary masks must be saved to different files.",
+      "Primary mask unavailable: {error}",
+      "Primary masks",
+      "Primary not enclosed",
+      "Primary object class",
+      "Primary-mask file or folder",
+      "Primary/secondary relationships will appear after detection.",
+      "Recrop requires a matching crop of both primary and secondary masks. Save this paired field before creating a separate crop.",
+      "Secondary object class",
+      "Secondary objects from primary masks",
+      "The primary mask belongs to a different field. Reload it for this image.",
+      "The primary mask changed. Wait for a new preview before accepting objects.",
+      "{name}: {count} ({ids})",
+      "{n} primary objects ready."
+    ],
+    "removed_ui": [
+      "command",
+      "fixed",
+      "print",
+      "screen",
+      "transparent"
+    ],
+    "before": {
+      "signature_digest": "52f55683395e8202e80ebcb400169905e5cbba2a3dcda59df9e3dc034c859d2c",
+      "callables": 9429,
+      "categories": {
+        "function": 4190,
+        "dataclass_constructor": 502,
+        "constructor": 435,
+        "method": 4078,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9424,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9436,
+      "variant_counts": {
+        "1": 9422,
+        "2": 7
+      },
+      "constructor_prose": 434,
+      "constructor_with_prose": 434,
+      "parameters": 18702,
+      "required_parameters": 9629,
+      "api_count": 11387,
+      "prefilter_api_count": 11611
+    },
+    "after": {
+      "signature_digest": "921b52b3342abdf0422ebcc39dd87b2ededf0af8627df533fbe128c6e04d3a57",
+      "callables": 9441,
+      "categories": {
+        "function": 4192,
+        "dataclass_constructor": 503,
+        "constructor": 436,
+        "method": 4086,
+        "exception_constructor": 147,
+        "inherited_or_default_constructor": 58,
+        "namedtuple_constructor": 19
+      },
+      "exposures": {
+        "autoapi": 9436,
+        "compatibility": 3,
+        "cli_only": 2
+      },
+      "variants": 9448,
+      "variant_counts": {
+        "1": 9434,
+        "2": 7
+      },
+      "constructor_prose": 435,
+      "constructor_with_prose": 435,
+      "parameters": 18734,
+      "required_parameters": 9648,
+      "api_count": 11402,
+      "prefilter_api_count": 11626
+    },
+    "baseline_omission_digest": "7c5788d09c657ff43a40a4e35040d70f7bccb6ddb271a858e33ebef2ad5fd64f",
+    "current_omission_digest": "3316acae3821bc391b01ffd2315b850c7d3de1ba7a57398abb85ba1ca62c8bd9"
+  },
+  "runtime_rows": 333,
+  "runtime_translated_prose_rows": 324,
+  "runtime_placeholder_only_rows": 9,
+  "existing_button_template_now_translated": "{method} detect",
+  "removed_noncaption_combo_data": [
+    "command",
+    "distance",
+    "fixed",
+    "intensity",
+    "print",
+    "screen",
+    "transparent"
+  ],
+  "german_api_review": {
+    "records": 419,
+    "unique_sources": 315,
+    "short_passages_reviewed": 300,
+    "hard_tail_occurrences_reviewed": 17,
+    "published_locale_catalog_reconstruction": false,
+    "review_method": "AI-assisted source/target and owning API-context review; no native-speaker sign-off."
+  },
+  "validation": {
+    "sphinx_warnings_as_errors": true,
+    "api_contract_checks": 142,
+    "localized_and_pairing_checks": 37,
+    "latest_nine_language_layout_and_segmentation_checks": 9,
+    "extractor_and_placeholder_checks": 2,
+    "new_api_anchors": [
+      {
+        "symbol": "spacr.qt.cpu_modes.secondary",
+        "page": "api/spacr/qt/cpu_modes/index.html",
+        "anchor": "spacr.qt.cpu_modes.secondary"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "module-spacr.qt.secondary_masks"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks.PrimaryMaskSource",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "spacr.qt.secondary_masks.PrimaryMaskSource"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks.PrimaryMaskSource.crop",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "spacr.qt.secondary_masks.PrimaryMaskSource.crop"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks.PrimaryMaskSource.identity",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "spacr.qt.secondary_masks.PrimaryMaskSource.identity"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks.PrimaryMaskSource.provenance",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "spacr.qt.secondary_masks.PrimaryMaskSource.provenance"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "spacr.qt.secondary_masks.PrimaryMaskSource.validate_destination"
+      },
+      {
+        "symbol": "spacr.qt.secondary_masks.read_primary_source",
+        "page": "api/spacr/qt/secondary_masks/index.html",
+        "anchor": "spacr.qt.secondary_masks.read_primary_source"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "module-spacr.qt.widgets.primary_mask_selector"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.bind_field",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.bind_field"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.clear_field",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.clear_field"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.reload",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.reload"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.restore_source",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.restore_source"
+      },
+      {
+        "symbol": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.shutdown",
+        "page": "api/spacr/qt/widgets/primary_mask_selector/index.html",
+        "anchor": "spacr.qt.widgets.primary_mask_selector.PrimaryMaskSelector.shutdown"
+      }
+    ],
+    "synthetic_api_and_cli_render_as_code": true,
+    "served_english_manifest_current": true,
+    "secondary_controls_fit_tested_viewport": true,
+    "whole_settings_pane_horizontal_overflow": "Older Object operations layouts can still exceed the tested viewport by 2–25 px in Spanish/Portuguese; no whole-pane zero-overflow claim."
+  },
+  "german_and_hindi_renders_inspected": true,
+  "log_sha256": {
+    "secondary-gui-publication-verification.log": "7e7edc1e823eadef6cf833bcc840ce439c1d8e34560b67254915fc3ba349dbb7",
+    "secondary-gui-api-contract-tests.log": "0fd699d32f8ddf019f069a5ce1fae58fc3925b4be28a3fbf9bf82235827626dd",
+    "secondary-gui-localized-tests.log": "6290d500fac8424c649ef930a4848cc1d53e0c1418ba59be6b7ddbaa219bd87b",
+    "secondary-gui-layout-tests.log": "2d4303beba8a22fadc269aa3451dff9cd16abb22f9df794166d6349db6efd4c8",
+    "secondary-extraction-format-tests.log": "12ebd56af50dd556b0d34d363cf2e41ae73267599ef4ae15344a291ecf6ee3ac",
+    "secondary-gui-sphinx-final.log": "70c878d488da2941fb0a69d00f1dc3bebbb70c785504895e95cd3e5b45e37595",
+    "german-reviewed-reconstruction-01-final.log": "aac5d7de35a063b0c41e5455937cb88995c76c8d71ce45987c57f70584b59764"
+  },
+  "remaining": "Full API/runtime catalogs still require reconstruction, review and strict browser/audit acceptance. This slice refreshes the English API inventory, not the new secondary APIs in all locale catalogs. Nested-helper rollout, full Make Masks reference and tutorial release/listening work remain open."
+}

@@ -300,6 +300,9 @@ _IDENTITY_TEXT = {
     "{source}: {ppm} px/mm",
     # Ruler readouts contain only formatted measurements and unit symbols.
     "{length:.2f} px", "· {length:.2f} {unit}",
+    # The relationship name is already translated before formatting; the
+    # remaining fields are a count and object IDs, with no English prose.
+    "{name}: {count} ({ids})",
 }
 
 _KNOWN_CONTAMINATION_MARKERS = (
@@ -3351,6 +3354,13 @@ def _candidate_arguments(node: ast.Call, name: str) -> Iterable[ast.AST]:
         return
     if name == "addItem":
         # QComboBox.addItem(text, data) or addItem(icon, text, data).
+        # A translated caption already occupies the text position. Its
+        # literal source is collected from the nested tr() call; the next
+        # string is userData, even when it looks like an English word.
+        if (node.args and isinstance(node.args[0], ast.Call)
+                and _call_name(node.args[0]) == "tr"):
+            yield node.args[0]
+            return
         for arg in node.args[:2]:
             if _literal(arg) is not None:
                 yield arg

@@ -1678,3 +1678,29 @@ reviews remain preserved. Full nine-language review loaders pass. Sphinx-W,
 still fail missing/stale rows; no gate waived. A fixed private source snapshot
 is now undergoing sequential CPU reconstruction. The later476GUI/distance
 handoff awaits integration. See411_flowchart_secondary_inventory_2026-09-23.json.
+
+2026-09-23 — CODEX: FINAL 476 SOURCE INVENTORY AND LOCALIZED CONTROLS
+English now has 11,402 API entries and 4,975 runtime sources. The final 476
+handoff adds 15 API entries and 12 callables; six existing callable rows gain
+optional keywords. Exact subtraction restores the previous signature digest.
+Documented crop/destination arguments add no omissions; fill_holes closes one
+existing omission, lowering the threshold from 2,293 to 2,292. Synthetic API
+signatures and CLI examples now render as literal code, preserving type names.
+
+Secondary controls have 333 source-bound runtime records: 324 prose/template
+translations and nine copies of a placeholder-only relationship template.
+The extractor now distinguishes translated combo captions from storage keys.
+The Growth picker uses a bounded size policy; its controls fit the tested
+viewport in all nine languages. Older Object operations layouts can still
+require horizontal scrolling. German/Hindi renders were inspected.
+
+All nine API/runtime review loaders pass. Validation: 142 API contract tests,
+37 locale/pairing checks, nine final locale/layout/segmentation checks, two
+extraction/placeholder checks, Sphinx -W, 15 new anchors and a current served
+English manifest. The German reconstruction review store adds 419 records,
+covering 300 short source passages plus 17 hard-tail occurrences. These are
+review records, not a published full German catalog. Full reconstruction,
+linguistic review, browser/audit acceptance, nested helpers, complete reference
+and tutorial release work remain open. Receipt: data/411_secondary_gui_
+inventory_2026-09-23.json. The private CPU queue has completed German and
+Swedish drafts and is processing Spanish, with no GPU use.

@@ -12310,3 +12310,50 @@ Will scope TORCH_HOME and HF_HOME to SAMCell's environment and remove the
 inherited HF overrides already handled for DINOCell. Validate actual library
 cache resolution, not merely the variables. No catalog/Model Zoo plumbing
 edits; your installer-language claim remains yours. No GPU job starts here.
+2026-09-23 — CODEX: 476 INVENTORY / COMBO DATA EXTRACTION
+Current476GUI adds15API entries/12callables and changes six signature rows.
+Subtracting exact rows restores the483digest. Newly documented crop/destination
+parameters add no omissions; upstream fill_holes closes one,2293->2292.
+Source inventory also exposed addItem(tr(caption), data) treating the second
+argument as prose: 'intensity'/'distance' are storage keys, not captions.
+Claiming that narrow extractor correction and its caption-versus-data tests;
+translated captions remain inventoried via their tr() calls. No UI behavior
+or method keys changed. German first review batch contains161records from
+100short passages and17hard-tail occurrences; full review loader passes.
+
+2026-09-23 — CODEX: LOCALIZED GROWTH PICKER WIDTH CLAIM
+Offscreen German/Hindi renders expose horizontal scrolling in the settings
+panel: the new Growth combo sizes itself to its longest translated caption,
+where the existing Method combo already uses a bounded contents length.
+Claiming only the Growth combo's size policy/contents length in make_masks.py
+and a nine-language layout assertion. No detector, source, ID or save behavior
+changes. This is separate from the docstring-only AST comparisons for
+secondary_masks.py/synthetic.py.324new UI rows and142API contract checks pass;
+all nine full review loaders pass after explicitly retaining the placeholder-
+only relationship template. Full catalog/browser acceptance remains open.
+
+2026-09-23 — CODEX: FINAL 476 DOCS/CAPTIONS VERIFIED
+English inventory: 11,402 API entries / 4,975 UI sources. Exact +15 API and
++12 callable subtraction, six optional-keyword rows; required omissions drop
+2,293 -> 2,292 because fill_holes now documents mask. Added crop/destination
+parameter prose and literal formatting for synthetic API/CLI examples;
+secondary_masks.py/synthetic.py executable ASTs unchanged. Help index refreshed.
+
+333 source-bound secondary UI records across nine languages, including the
+existing detector-button template. The relationship template has no prose;
+its translated name, count and ID placeholders stay intact. Removed seven
+noncaption combo-data strings from extraction (five previously cataloged).
+Growth combo width is bounded like Method; localized secondary controls fit.
+The broader settings pane can still scroll by 2–25 px from older Object
+operations layouts, so no whole-pane zero-overflow claim. Shortened three
+mode captions and three hole-fill captions without changing meaning.
+
+142 API contract checks, 37 locale/pairing checks, nine final layout/identity
+checks and two extractor/placeholder checks pass. Sphinx -W passes; new API
+anchors and literal examples are checked by the receipt. All nine full review
+loaders pass. German reconstruction review now has 419 records (300 short
+passages plus 17 hard-tail occurrences); full catalog publication remains
+pending. Private CPU drafts: German finished in 374 s with 18 unresolved;
+Swedish finished in 1,338 s with 17 unresolved; Spanish is running. Those are
+drafts, not linguistic acceptance. No GPU/NAS work or native-speaker sign-off.
+Receipt: features/data/411_secondary_gui_inventory_2026-09-23.json.

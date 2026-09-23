@@ -815,6 +815,23 @@
       "source_sha256": "7562d6e311d7a03f5e1d6673b9090808f5c1503e1283fcbe1573a137c5275686",
       "text": "``(bottom, top, log10_ec50, hill)`` — the vector the model takes."
     },
+    "770d6354abaecdf1e514733c07494503e502ae6cb7cd69661e120cf2182790f8": {
+      "source_blocks_sha256": [
+        "9764bda1f35ed66475e4da3227fb76ed33c57a7cab60c455e15163f09c4325b3",
+        "6053f4a5b1b0fbcf3cb13e3df589396aba01d500810fd36bce836e9f13c3d4f8",
+        "bbfa2b66d6dee6c1adc4899a3ce24304bb7eeee0e00aff02f95eb7a6daff20b9",
+        "0e00c135ebdcabdb78052efcbde3ee137004d3ffb21d3727d92a9ef2f0ce196e",
+        "5f51a5543c531ab4621fac35a4dfe424c66aa15b4cdfbe45e41251b9d7e9b327",
+        "325a061067930825ae6a75c1b99863492a592516d0f3b6fd26a27c0e70839a5e",
+        "5d5bb1b8fc3436d1b95aab205dc3fb16aa58e947c0143a2c7829dc23f530f9a4",
+        "320ccab98da3358b63ad31a79a98865e07a265cb6c9abb4afcccfc863abcba5c",
+        "7bea82d3c34c7e0b9e0aebdce377f7e05191ecffd376cb16720d6b2d48ab435e",
+        "a1b0b118e72f9ab34aedf8a8f00d1da31f02e6843e02de8f5ff7568f6c62ea2c",
+        "9024a52317a3d2bd473ae0810cc67f5cbc6bfe3a897e0034506f4ebe605e5930"
+      ],
+      "source_sha256": "770d6354abaecdf1e514733c07494503e502ae6cb7cd69661e120cf2182790f8",
+      "text": "Synthetic datasets + saved settings for exercising every pipeline app.\n\nThe goal: give a developer (or a bug reporter) a one-line way to\ngenerate a demo folder that flows cleanly through every spacr\npipeline — mask, measure, crop, classify, timelapse, map_barcodes —\nplus a matching settings CSV that plugs into the \"Import settings…\"\nbutton on each app screen.\n\nEverything is reverse-engineered from what the pipelines actually\nconsume:\n\n* Filenames match the cellvoyager regex in\n  `spacr.utils._get_regex('.tif', 'cellvoyager')`::\n\n      <plateID>_<wellID>_T<timeID>F<fieldID>L<laserID>A<AID>Z<sliceID>C<chanID>.tif\n\n* Channels are laid out in the order every mask default expects::\n\n      C0 = nucleus, C1 = cell, C2 = pathogen, C3 = organelle\n\n* Images are 16-bit uint16. Every channel of a field is drawn from\n  *one shared cell layout*, so the nucleus really is inside the cell\n  and the pathogen really is inside the same cell — the relationships\n  measure_crop goes looking for when it links objects.\n* Measure/crop demos ship the `merged/*.npy` stacks measure_crop\n  actually reads (image planes first, then the label-mask planes),\n  not a stand-in.\n* Settings CSVs are written in the two-column ``Key,Value`` format, the\n  first of the header pairs `spacr.qt.screens.app_screen.AppScreen\n  ._load_settings_csv` tries, so the \"Import settings…\" button restores\n  every value into the form. Reading one straight from Python means\n  naming the columns —\n  ``load_settings(path, setting_key=\"Key\", setting_value=\"Value\")`` —\n  because `spacr.utils.load_settings` *defaults* to the other spelling\n  (``setting_key``/``setting_value``, what `spacr.io.save_settings_to_db`\n  writes) and raises rather than guessing.\n\nEvery generator is *reproducible*: identical inputs give byte-identical\noutput on any machine. That is not decoration. Two people comparing\n\"the demo fails here\" have to be looking at the same pixels, and the\nprevious seeding (``hash((well, field, time, chan))``) was salted by\nPYTHONHASHSEED, so it changed on every interpreter start.\n\nPublic API:\n    generate_mask_demo(dst, ...) -> DemoLayout\n    generate_measure_demo(dst, ...) -> DemoLayout\n    generate_crop_demo(dst, ...) -> DemoLayout\n    generate_classify_demo(dst, ...) -> DemoLayout\n    generate_timelapse_demo(dst, ...) -> DemoLayout\n    generate_map_barcodes_demo(dst, ...) -> DemoLayout\n    save_settings_csv(dst, settings) -> Path\n    demo_settings(app_key, src, channels=None) -> Dict[str, Any]\n\nCLI:\n    python -m spacr.qt.synthetic mask /tmp/demo\n    python -m spacr.qt.synthetic all  /tmp/demo"
+    },
     "78d31cfab8a3560a2ec253e9150b0208780e99079d0da558785057c191a38298": {
       "source_blocks_sha256": [
         "b6de2d98e2491675060c6affcd60f2543c09286e41d9339f1ea1d88aef75616d",
@@ -1804,6 +1821,13 @@
       ],
       "source_sha256": "f750dc5a6a41a6d7834de71fd3fa9f2f90f70fdaf86e4deecfb0b57cb75140dc",
       "text": "End-to-end merged-npy pipeline for cell/pathogen motility and infection QC.\n\nReads ``merged/*.npy`` frames, builds per-cell measurements, cleans and\npersists them to SQLite, computes per-track velocities, generates\nintensity + motility QC panels (mask-based and, optionally, XGBoost /\nhistogram / PCA / UMAP / t-SNE adjusted labels), and writes a\nwell-level motility summary.\n\n:param settings: dict of assay settings; see\n    ``get_automated_motility_assay_default_settings`` for keys\n    including ``src``, ``db_table_name``, ``n_jobs``,\n    ``max_displacement``, ``zscore_thresh``, ``infection_intensity_qc``,\n    ``infection_intensity_strategy``, ``infection_intensity_mode``,\n    ``infection_xgb_drop_ambiguous``, ``infection_xgb_ambiguous_low``,\n    ``infection_xgb_ambiguous_high``, ``infection_xgb_proba_column``,\n    ``infection_hist_percentile``, ``make_mask_panel``,\n    ``make_adjusted_panel``, ``motility_xlim``, ``motility_ylim``,\n    ``motility_origin_xlim``, ``motility_origin_ylim``, and\n    ``reuse_existing_measurements``.\n:returns: the per-cell measurements DataFrame carrying the final\n    (QC-adjusted) labels. Measurements and summary tables are also written\n    to ``measurements/measurements.db`` and the QC panels saved under\n    ``src``.\n:raises ValueError: when ``settings['db_table_name']`` names a spaCR-owned\n    table; see :func:`_validate_db_table_name`."
+    },
+    "f760023a948960d4e2bfff1902353bca6b576d17e39530b982be28a25bb1394d": {
+      "source_blocks_sha256": [
+        "f760023a948960d4e2bfff1902353bca6b576d17e39530b982be28a25bb1394d"
+      ],
+      "source_sha256": "f760023a948960d4e2bfff1902353bca6b576d17e39530b982be28a25bb1394d",
+      "text": "Fill holes inside True regions; returns a relabeled mask."
     },
     "fbd82f3661c1a1a2619771243665ccdb04b95bfddfb5f210c4089d2b3992c74f": {
       "source_blocks_sha256": [

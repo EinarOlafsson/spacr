@@ -53,7 +53,12 @@ class PrimaryMaskSource:
                 self.secondary_class, self.sha256)
 
     def crop(self, box):
-        """Copy primary labels inside ``(x0,y0,x1,y1)`` for a worker request."""
+        """Copy primary labels inside a rectangle for a worker request.
+
+        :param box: ``(x0,y0,x1,y1)`` pixel bounds, with exclusive upper bounds.
+        :returns: independent label array preserving the source object IDs.
+        :raises ValueError: the rectangle is empty or extends outside the image.
+        """
         x0, y0, x1, y1 = (int(value) for value in box)
         height, width = self.labels.shape
         if not (0 <= x0 < x1 <= width and 0 <= y0 < y1 <= height):
@@ -61,7 +66,12 @@ class PrimaryMaskSource:
         return self.labels[y0:y1, x0:x1].copy()
 
     def validate_destination(self, path):
-        """Refuse any output that would overwrite the primary, including aliases."""
+        """Refuse any output that would overwrite the primary, including aliases.
+
+        :param path: proposed secondary-mask destination, as a string or path.
+        :raises ValueError: the destination is the primary file, a symbolic
+            link to it or an existing hard link to it.
+        """
         if _same_file(self.path, os.fspath(path)):
             raise ValueError('Primary and secondary masks must be saved to different files.')
 
