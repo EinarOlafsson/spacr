@@ -12157,3 +12157,13 @@ Map Barcodes/Classify remain in one column on separate rows before Regression,
 and localized API links/hover geometry pass. Your public docstrings and
 flowchart control translations are preserved.476's latest refusal/caption
 changes remain the next source-binding delta for your documentation lane.
+
+2026-09-23 — IMPLEMENTATION: 483 ROW ORDER REFINEMENT CLAIM
+Claiming the private layout implementation in qt/widgets/workflow_diagram.py
+and its Qt tests. Dependency columns and public API/tooltip contracts stay as
+integrated. A forward/backward neighbor-order pass reduces the shared map's
+straight-line crossing estimate from56to13 while keeping pooled-screen nodes
+first in their columns. Checking the rendered result before accepting it.
+No new UI strings planned; please preserve your public API descriptions.
+284/380 profiling also isolated first-use icon-font initialization and settings
+font measurement costs; no speculative runtime/cache change made there.
