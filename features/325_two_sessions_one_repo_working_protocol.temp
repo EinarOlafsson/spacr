@@ -13433,3 +13433,21 @@ theme cohort310pass, so CI native crash still unresolved. Packaging cohort
 versus50pass/2fail before. No threshold or test gate relaxed. New publication
 receipt carries package/download provenance and limits. Latest docs run
 35844861535 also failed; no claim that docs/full CI have passed.
+
+2026-09-23 — IMPLEMENTATION: 288 NATIVE CRASH REPRODUCER AND TEST OWNERSHIP
+Reproduced the exact Annotate warm-up SIGSEGV twice using private Qt6.11.2
+and GC thresholds100,5,5. GDB traces destruction of a visible dialog during
+cycle collection while constructing its replacement. The warm-up discarded
+its strong reference; qtbot only keeps weakrefs. Fixed the test to own,
+close and delete each warm-up before the next construction. Size assertions
+and production code unchanged. Stressed278dialog +89theme/console checks
+pass. The subsequent CI run had passed this test before cancellation, so
+an ordinary isolated pass was insufficient evidence and remains so.
+No API, settings, caption or tutorial changes. Separate console assertion
+has not reproduced locally; full CI remains open. Receipt288_dialog_warmup_
+ownership_2026-09-23.json carries the native traces' hashes and limitations.
+Planning one full manual CI run after push so this evidence survives normal
+push cancellations; known catalog inventory failure remains your lane and
+must not be mistaken for a green full-suite claim.
+Final compatibility cohort:367pass on local Qt6.10.0,65.73s, one existing
+pynvml warning. The same367 distinct checks pass under stressed Qt6.11.2.

@@ -4868,3 +4868,38 @@ The packaging cohort exposed current mirror/CITATION drift after1.5.0.9:
 50pass/2fail before,91pass/3existing skips across four relevant files after
 verified metadata corrections (see59/304). The three skips concern entry
 points the mirror does not declare. Full CI remains open, not green.
+
+2026-09-23 — ANNOTATE WARM-UP CRASH REPRODUCED AND OWNERSHIP CORRECTED
+The native dialog crash above now has a local reproducer. Private PySide6 /
+Qt6.11.2 and filelock3.32.3 match the failing CI versions; Python3.12.4,
+offscreen,8GiB/no-swap. The ordinary278-test dialog sweep passes, as does
+that same test in the subsequent cancelled CI run35844861880. Frequency
+therefore matters: a private pytest plugin setting GC thresholds100,5,5
+reproduces SIGSEGV at the exact Annotate warm-up in both the full sweep and
+the narrowed opening-size sweep. GDB shows QCursor::pos/QScreen::handle,
+the offscreen platform, QDialog destruction and Python cycle collection.
+The debugger wrapper's exit0 on the first run is NOT a test pass; the
+inferior received SIGSEGV. The second wrapper exits1 because a follow-up
+variable query used the wrong stack frame, after capturing the same crash.
+
+The warm-up used _size(_open(qtbot, build())) and kept no strong reference
+to the visible dialog. qtbot's registry contains weak references. A cyclic
+window could thus be collected while the next constructor was running.
+The test now owns each warm-up explicitly, closes it in finally, requests
+its deletion and delivers that dialog's DeferredDelete before building the
+next one. It does not register those explicitly owned temporary windows
+with qtbot as well. All natural-size comparisons, convergence conditions
+and other assertions are unchanged. No application code, dependency pin,
+coverage threshold, test count or global GC policy changed.
+
+With the same stress plugin,278 dialog tests pass in51.85s and89 related
+theme/console tests pass in17.64s. The ordinary console cohort also passes
+57tests in13.90s; its separate cancelled-CI assertion is not reproduced and
+no runtime fix is claimed for it. Receipt288_dialog_warmup_ownership_
+2026-09-23.json records both failed reproductions, source/log hashes and
+validation limits. Full remote CI remains owed; this is a correction of a
+specific test ownership error, not a claim that every native Qt fault is
+resolved.
+Older local Qt6.10.0 compatibility check: all three files together pass367
+checks in65.73s, one existing pynvml warning. The same367 distinct checks
+also pass under stressed Qt6.11.2 across the two cohorts above.
