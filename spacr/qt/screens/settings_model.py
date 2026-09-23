@@ -2369,6 +2369,35 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
         "How the model is fitted: epochs, learning rate, schedule, and which "
         "loss. Open it when training is unstable, stalls, or ignores the "
         "smaller class.",
+    "TEST-TIME AUGMENTATION":
+        "Optional rotations and reflections during phenotype prediction. "
+        "Combine predictions by averaging or voting, retain the original "
+        "prediction, and flag disagreement for review. All augmentation "
+        "switches are off by default; agreement measures orientation "
+        "stability, not calibrated confidence or biological accuracy.",
+    "IMAGE QUALITY":
+        "Screen raw fields before segmentation using channel-specific focus, "
+        "saturation and nonfinite-pixel criteria. Choose report-only review "
+        "or explicit saved exclusions; calibrate thresholds for the acquisition. "
+        "Screening is off by default and never excludes images for low object counts.",
+    "MARKER RECRUITMENT":
+        "Compare each vacuole's marker intensity with its host reference "
+        "compartment and classify joint marker states using explicit ratio "
+        "thresholds. Calibrate thresholds with assay controls; missing or "
+        "invalid references remain unknown.",
+    "PARASITE COUNTS":
+        "Choose an individual-parasite table with explicit parent-vacuole "
+        "links, or a measured count column on each vacuole. Do not supply "
+        "both. Without count inputs, replication remains unmeasured rather "
+        "than being inferred from recruitment or host identity.",
+    "REPLICATION METHOD":
+        "Choose direct parasite counts or the legacy host-aggregated area "
+        "proxy. The whole-vacuole deep-learning classifier is coming soon "
+        "and cannot run until a trained model is available.",
+    "SIZE PROXY (LEGACY)":
+        "Configure area bins and scale for the legacy replication estimate. "
+        "It combines pathogen area within a host and is neither a direct "
+        "parasite count nor a measured three-dimensional volume.",
     "CLASSIFIER":
         "Which family of classifier runs — a computer-vision network trained "
         "on the object images, or a tabular model trained on the measurements "

@@ -24,3 +24,17 @@ def test_one_organelle_filter_and_compact_scope_preserve_concrete_lookup(qtbot):
     assert button is not None and button.property('buttonActionRole') == 'negative'
     assert dialog.property('spacrNoGlass')
     assert dialog.windowOpacity() == 1
+
+
+@pytest.mark.parametrize('theme', ['dark', 'light', 'blobs'])
+@pytest.mark.parametrize('opacity', [.4, .8])
+def test_dictionary_styles_keep_the_prepared_theme_surface(theme, opacity, caplog, monkeypatch):
+    from spacr.qt import theme as styles
+    from spacr.qt.widgets.feature_dictionary import OBJECT_NAME, _panel_qss
+    monkeypatch.setitem(styles._WIDGET_QSS, OBJECT_NAME, _panel_qss)
+    palette = styles._widget_qss_palette(theme, 1., opacity)
+    block = _panel_qss(palette, opacity)
+    assert f"background: {palette['surface_alt']}" in block
+    sheet = styles.stylesheet(theme, surface_opacity=opacity)
+    assert f'QWidget#{OBJECT_NAME} QTextBrowser#FeatureDictionaryDetail' in sheet
+    assert 'FeatureDictionary failed to render' not in caplog.text

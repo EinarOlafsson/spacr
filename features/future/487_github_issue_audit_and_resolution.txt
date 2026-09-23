@@ -12,10 +12,10 @@ because a related feature exists. Distinguish nightly fixes from released builds
 133 — CLOSED after revalidating pointer-anchored zoom from d8fa55897.
 128 — CLOSED after five real settings-dialog visibility/scrolling checks passed;
       existing fix7f04a5790 keeps OK/Cancel outside the scrolling form.
-125 — Tour clipping: implemented and tested, exclude highlight from shade instead of
+125 — CLOSED after fix44c59b714 and regression/visual checks; exclude highlight from shade instead of
       clearing the window backing store; highlight menu-bar action geometry;
       responsive card bounded to visible screen, scroll long explanations.
-126 — Annotate navigation clipping: implemented and tested; actions wrap at full size.
+126 — CLOSED after fix44c59b714; actions wrap at full size, four layout cases pass.
 127 — Seven separate requests: terminology; automatic reopen after update;
       functional in-app update; pixel diameter measurement; preview prominence;
       adaptable laptop layout; plaque cropping freeze. Audit each separately.
@@ -38,3 +38,6 @@ claim. Raw downloaded discussions remain outside the repo in task scratch.
 GUI verification:160 related checks pass. Nine localized pathway checks expose
 missing translations of a previously added import action; handed to docs lane,
 not weakened or falsely counted as passes. Offscreen visual review completed.
+
+2026-09-23: four initial open issues now closed with commit links and validation
+evidence (#125/#126/#128/#133). Five remain open (#127/#129/#130/#131/#132).

@@ -564,9 +564,7 @@ def make_screen(host=None) -> QWidget:
 
 def _panel_qss(palette: dict, opacity) -> str:
     """QSS block for the panel, rendered against the live theme palette."""
-    from ..theme import css_color
-
-    surface = css_color(palette["surface_alt"], .6)
+    surface = palette["surface_alt"]
     return f"""
 QWidget#{OBJECT_NAME} {{ background: transparent; }}
 QWidget#{OBJECT_NAME} QLabel#FeatureDictionaryBlurb,
