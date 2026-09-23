@@ -2,7 +2,7 @@
 ======================================
 Status: IN PROGRESS. All103issue bodies and discussions in the2026-09-23snapshot
 have been read; verified fixes and remaining acceptance are recorded below.
-Current open issues:127,130,131. LATEST MAINTAINER EXCEPTION: pending U-M Apple
+Current open issues:127,131. LATEST MAINTAINER EXCEPTION: pending U-M Apple
 Developer access must NOT block1.5.1.0.131stays open as an external follow-up;
 the release can proceed after the remaining practical checks pass. No issue
 is closed without evidence. Pull requests are excluded from this audit.
@@ -346,3 +346,15 @@ execution of the C launcher with spaces/Unicode/literal shell metacharacters.
 Workflow YAML, cleanup/receipt contract and shell syntax pass. These are Linux
 orchestration/launcher checks, not native Apple signing acceptance. Native
 installer workflow verification follows after push; no signed-build claim yet.
+
+2026-09-23 — ISSUE130 CLOSED AFTER PUBLIC ONBOARDING READBACK
+The live nightly lesson catalog at publication6efebef9c matches release candidate
+e498dbecc byte for byte. Twelve practical/Home/pathway routes expose their full
+scene descriptions; all24public poster/video endpoints returned the expected
+media types. This supplements the docs owner's pinned-media/playback receipts
+and earlier63real-click/layout checks; it is not a fresh full-video decode.
+Public links and explicit candidate/not-yet-published status were posted in
+issuecomment5804538583, then130was closed. Original unspecified-platform tile
+failure was not independently reproduced. Receipt:
+features/data/487_onboarding_public_readback_2026-09-23.json.
+127remains open for final acceptance;131remains the nonblocking U-M follow-up.

@@ -91,3 +91,23 @@ Items2–5 are largely implemented on nightly with recorded focused evidence;
 release-level revalidation is pending. Item1 is in progress with reproduced
 16-bit clipping and format2 mismatch. Items6–8 remain open. No version bump,
 main push, package upload or complete-release claim has been made.
+
+2026-09-23 — FROZEN CANDIDATE, ARTIFACTS AND ONBOARDING VERIFIED
+Candidate branch release-candidate-1510 at e498dbecc is version1.5.1.0 and retains
+main-only release assets. Main and PyPI are still1.5.0.9; no publication yet.
+Required test JSON records now survive main promotion in tests/data/release_contracts.
+The frozen candidate passes138focused fixture/Qt/packaging/updater checks, with
+two expected pre-publication DOI/sdist skips. Real wheel and sdist both pass
+strict Twine rendering checks; all50README image URLs are absolute, all five
+required JSON fixtures are in the sdist, and development instructions are absent.
+Installing the wheel into a private environment verifies its actual version,
+package location and functioning Make Masks linked-help screen. Receipt:
+features/data/491_release_candidate_artifacts_2026-09-23.json.
+Full candidate CI35932234009is running. Compatibility35931156957checks the same
+runtime/dependency snapshot before the fixture/doc-only merges; completed Linux
+cells pass, native Windows/macOS cells still running at this note. Earlier native
+installer runs35930460120(Linux/Windows) and35930844907(macOS) passed. U-M access
+is explicitly excluded from the release gate, and131stays open. Conditional
+signing/notarization machinery is now implemented, but no actual Apple Developer
+signature/notarization acceptance is claimed. Public onboarding readback resolves
+130with comment5804538583.127final acceptance and full CI remain before main.

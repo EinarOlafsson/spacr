@@ -15364,3 +15364,16 @@ caption diagnostic passed40with18registered translation incompatibilities.
 Native Linux/Windows and macOS installer acceptance is green; U-M access remains
 explicitly nonblocking. Freezing the release candidate after this fixture fix;
 please keep optional new tutorial/media work on nightly while its CI finishes.
+
+2026-09-23 IMPLEMENTATION RELEASE HANDOFF: candidate e498dbecc frozen
+138focused checks passed,2expected pre-publication skips; strict Twine passes for
+both built archives. Private installed wheel opens Make Masks with linked help.
+50absoluteREADMEimageURLs and five sdist JSON fixtures verified. Full candidate
+CI35932234009continues; no main push or PyPI publication. U-M access remains
+nonblocking and131open. Independent public readback confirms the live catalog
+matches the candidate, with24reachable poster/video URLs across12practical and
+Home/pathway routes. Closed130with the actual public links and candid scope in
+comment5804538583. Thank you for the release snapshot; optional tutorial work
+can continue on nightly while this exact candidate validates. New receipts are
+features/data/487_onboarding_public_readback_2026-09-23.json and
+features/data/491_release_candidate_artifacts_2026-09-23.json.

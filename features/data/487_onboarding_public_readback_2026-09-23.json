@@ -1,0 +1,243 @@
+{
+  "publication": {
+    "schema": 1,
+    "branch": "nightly",
+    "commit": "6efebef9c81d3db53d27f16b148a3d4ddc2cbe5d",
+    "translation_policy": "report-only; incompatible locales fall back to English"
+  },
+  "catalog_matches_candidate": true,
+  "catalog_sha256": "cae783893b9f208cc7f1a111e6264610bccdd823e5f04b5c6aa9c9dfffcb74ff",
+  "routes": [
+    {
+      "id": "05_home",
+      "title": "Home screen and navigation",
+      "scenes": 11
+    },
+    {
+      "id": "07_mask",
+      "title": "Mask: segment images and inspect the results",
+      "scenes": 12
+    },
+    {
+      "id": "08_measure",
+      "title": "Measure: extract object features and crops",
+      "scenes": 11
+    },
+    {
+      "id": "10_classify_cv",
+      "title": "Classify: train an image classifier",
+      "scenes": 11
+    },
+    {
+      "id": "11_classify_ml",
+      "title": "Classify: learn from measured features",
+      "scenes": 10
+    },
+    {
+      "id": "12_map_barcodes",
+      "title": "Map Barcodes: from sequencing reads to counts",
+      "scenes": 12
+    },
+    {
+      "id": "13_regression",
+      "title": "Regression: from paired tables to results",
+      "scenes": 15
+    },
+    {
+      "id": "15_image_umap",
+      "title": "Image UMAP: explore measurements with image crops",
+      "scenes": 15
+    },
+    {
+      "id": "18_motility",
+      "title": "Motility assay",
+      "scenes": 11
+    },
+    {
+      "id": "79_module_inputs_outputs",
+      "title": "Module inputs and outputs",
+      "scenes": 80
+    },
+    {
+      "id": "80_image_analysis_pathways",
+      "title": "Image analysis modules and how they relate",
+      "scenes": 19
+    },
+    {
+      "id": "81_sequencing_pathways",
+      "title": "Sequencing modules and how they relate",
+      "scenes": 11
+    }
+  ],
+  "media_headers": [
+    {
+      "lesson": "05_home",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/0493f78df27c34835bf61b9929e225d2c0351c0e04d7f7c09470b3168726a651.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "05_home",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/77e0999a7e59f0b722ae90cedf529b03f5b339ac2879d7b310bc851a1abcfb2e.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "07_mask",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/f7c4c23eba955da86b08af29680b61f907a62ba81c19bfc0c5369a94dd9a9c6b.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "07_mask",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/f9433c6ddbf51b9cbc12e78dc3e95a00a9ea04b17cf72ff22b745faabcf2ed78.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "08_measure",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/3a0cc83764fc2a91ed893e8cadd14cf65ffae28f26633eb68a0ec3c70c2b74e9.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "08_measure",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/25ecf028bc8e1c59050e31f6b5462d317b5830be8fc2989effec72175c704724.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/134866b967af954e2c8b0218ca0215aba537fd773a2455f1a7b0534ca98412fb.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "10_classify_cv",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/e78ff363d9ae4c14a6b3ee6027e77dd9364e78c435268b6f3be8a448fb41d4af.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/6110179b0974159f07d58e1ac32f2106d203346986d6015d7a73d69d4c704422.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "11_classify_ml",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/09209fa3d0f4b1f4ced6826bcf08ea098098ca2b9008840f6d42a4df61125550.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/87d3e809e34be6ddeb014f0a7afe6fb69bb56deb20095244c89b1103bc2bd251.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "12_map_barcodes",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/1b030ae413ab00f965f801b8a4334c20cc9121c178548b0b4fb89a1028ff54a4.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "13_regression",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/b9030c045009c02a0a1fb5fe3d4ce88f7a6df357009e8c94574879388889f4d3.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "13_regression",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/aaf7732cb2664c80948996f026ae3dc708e43e52ff55c4df4d879263024ae43a.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "15_image_umap",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/b441f1f6d3f4bf5587fa7fece0471da3500528271413f981781ef9c27e418cbc.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "15_image_umap",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/673aa2d15cf2e9f90777d9035771fcbbef7b937805f48f589d84314c6062313a.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "18_motility",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/80a59cfaee5e25929cce39a0f8f8f8c9a7ff7e5b35f782fbb7f2cc9c8ad2e7d5.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "18_motility",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/b6a7c09501d903b89145580b9de7f38787701e486a0c9a8b85e91cdf01a16cbf.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/f20437c01e84c479099b4313c3e04197175766b0ead5bbf8eaf3c1c6c756885a.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "79_module_inputs_outputs",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/b3c542c0788112e5beefb1db8ce07e5801892f87cb4c89c7167e17e5add66292.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/968f59648be480f1a553b0272ecb93d3a74dcdde1c58cab567f5cb981f3f0070.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "80_image_analysis_pathways",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/813746b4a705af570c4de99e7bf61967346c520c0329da5049673f3fd4a574e6.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "kind": "poster",
+      "url": "https://einarolafsson.github.io/spacr/_media/f19ed7c8e2cb3673f5d6479887d623ff75d473236ae6b96498813de3abf8a88e.jpg",
+      "status": 200,
+      "content_type": "image/jpeg"
+    },
+    {
+      "lesson": "81_sequencing_pathways",
+      "kind": "silent",
+      "url": "https://einarolafsson.github.io/spacr/_media/056601ddb97a1ee0878cd73b8c217b7a14a95a235a64330f74837a6239918ec8.mp4",
+      "status": 200,
+      "content_type": "video/mp4"
+    }
+  ],
+  "scope": "Live catalog byte equality and public media HEAD/type checks; media contents and playback covered by documentation owner receipts, not revalidated here"
+}
