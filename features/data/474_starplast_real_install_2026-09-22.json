@@ -1,0 +1,22 @@
+{
+  "date": "2026-09-22",
+  "feature": 474,
+  "source_commit": "53703bafdf0604576a05b589400051a6b09e62ea",
+  "version": "0.41.0",
+  "environment": "/mnt/firecuda2/Claude/implementation-20260922/starplast-validation/apps/starplast",
+  "install_seconds": 479.79836383799557,
+  "downloaded_MB_approx": 3981.2,
+  "installed_file_bytes": 7133811862,
+  "validation": {
+    "package_imports_and_required_data": "passed",
+    "installed_entry_point": "starplast.app.main() with bounded QApplication event loop",
+    "gui": "Xvfb, software OpenGL, CUDA_VISIBLE_DEVICES empty, private HOME/config/state, 8GB memory cap",
+    "window": "starplast — Toxoplasma gondii knowledge map",
+    "loaded_nodes": 8140,
+    "clean_exit": true,
+    "screenshot": "/mnt/firecuda2/Claude/implementation-20260922/starplast-validation/starplast-real-window.png",
+    "logs": "/mnt/firecuda2/Claude/implementation-20260922/starplast-validation/"
+  },
+  "limitations": ["No CUDA analysis", "No full Starplast analysis-tool acceptance", "Other operating systems not tested"],
+  "translation_handoff": "Installer explanation replaces the 2GB estimate with measured approximate 4GB download/7GB installation, version/platform qualification; 12GB free space remains."
+}

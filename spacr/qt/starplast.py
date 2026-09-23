@@ -63,8 +63,9 @@ class StarplastInstallDialog(QDialog):
         self.explanation = QLabel(tr(
             "Starplast is an alpha application for exploring the Toxoplasma knowledge map. "
             "Features and results may change. It opens in a separate window.\n\n"
-            "This is a large installation: Linux x86_64 dependencies include approximately "
-            "2 GB of CUDA wheels, plus the application, bundled data and other dependencies. "
+            "This is a large installation: a checked Linux x86_64 installation downloaded "
+            "about 4 GB and used about 7 GB after installation, including CUDA dependencies. "
+            "Requirements vary with the version and platform. "
             "Allow at least 12 GB of free disk space. Downloads can take several minutes.\n\n"
             "Starplast gets its own environment at {path}; spaCR's packages are not changed. "
             "The source is MIT licensed. Choose a local Git checkout if repository access "

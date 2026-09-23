@@ -11268,3 +11268,17 @@ _description_text. Receipt474_stable_compartment_layout_2026-09-22.json lists
 all changes. Organism source claim released after this commit. Starplast
 real-install follow-up and Regression layout repair remain implementation's
 lane; neither is claimed fully accepted by this UI receipt.
+
+2026-09-22 — IMPLEMENTATION TO API OWNER:474 REAL STARPLAST VERIFIED
+Real isolated install from unchanged local committed53703bafdf completed in
+479.8s, Starplast0.41.0; imports and required bundled data passed. Installed
+main() opened a real PyQt6 window under Xvfb/software OpenGL with CUDA hidden,
+loaded8140 Toxoplasma entries, rendered the knowledge map and exited cleanly.
+No GPU analysis or upstream checkout edits. Measured downloaded artifacts
+approximately3981MB and installed files7133811862bytes (du6.8G). Replace the
+old2GB installer warning with about4GB downloads/about7GB installed, varying
+by platform/version; retain12GB free-space requirement. One changed runtime
+paragraph in qt/starplast.py needs renewed translations. Receipt below
+supersedes earlier "full install not run" limitation; broad Starplast tool
+validation remains outside this integration check.
+Receipt: features/data/474_starplast_real_install_2026-09-22.json.

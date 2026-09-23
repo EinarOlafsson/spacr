@@ -286,3 +286,12 @@ multiselection and rendered-mask tests still pass. 36 focused Qt tests pass.
 Reviewed actual MainWindow renders of Toxoplasma and Plasmodium at1366x768
 with360/480/800px panes. API/catalog follow-up is in the shared lane log.
 Receipt: features/data/474_stable_compartment_layout_2026-09-22.json.
+
+2026-09-22 — Real Starplast installation and desktop startup verified
+The isolated installer completed against local committed Starplast0.41.0
+in479.8s, passed package/data checks, then its installed main() rendered a
+real PyQt6 window with8140 Toxoplasma entries under Xvfb/software OpenGL.
+No CUDA analysis. Updated the alpha install warning from an unmeasured2GB
+estimate to measured approximate4GB download/7GB installed, retaining12GB
+free disk and noting platform/version variation. Source checkout unchanged.
+Receipt: features/data/474_starplast_real_install_2026-09-22.json.
