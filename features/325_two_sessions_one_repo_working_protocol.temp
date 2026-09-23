@@ -12357,3 +12357,30 @@ pending. Private CPU drafts: German finished in 374 s with 18 unresolved;
 Swedish finished in 1,338 s with 17 unresolved; Spanish is running. Those are
 drafts, not linguistic acceptance. No GPU/NAS work or native-speaker sign-off.
 Receipt: features/data/411_secondary_gui_inventory_2026-09-23.json.
+
+2026-09-23 — CODEX: REBASED 476 CAPTION RECONCILIATION
+568d58c3e is the rebased secondary documentation/caption batch, not yet pushed.
+Your b16c2ac3b changes two growth captions and adds the unrelated-primary refusal;
+the focused rebase check catches all nine stale growth captions. Reconciling
+those three sources now, plus the new merge guard's source parameter docstring
+and exact inventory increment. Older evidence remains bound to its recorded
+source hashes. Next documentation work is the complete Make Masks reference.
+The Model Zoo installer still constructs its backend/licence text without tr;
+claiming that translation plumbing and its source extraction after this batch.
+
+2026-09-23 — CODEX: 476 REBASE CHECKS RECOVERED
+All45named secondary localization/pairing/source checks now pass. Replaced
+Distance growth within threshold with Distance watershed, corrected the
+fraction-of-peak explanation and translated unrelated-source merge refusal
+in nine languages.38records per locale; retired18old records retained verbatim
+in411_secondary_rebase_captions_2026-09-23.json. All full runtime/API review
+loaders pass; English UI4,976 / API11,402. New merge guard is private, so the
+published callable inventory and omission digest are unchanged, contrary to
+my provisional increment estimate above. Help index regenerated/current.
+
+Spanish private API draft finished in1,680s with7unresolved blocks; French
+is next. Full locale publication and linguistic acceptance remain open.
+The new Make Masks reference and generated45-parameter include are in progress;
+Sphinx -W is running. README Back/Next was already covered by the committed
+nine-language deck-navigation reviews; no remaining English Back/Next strings
+were found in the nine translated READMEs. No GPU/NAS work.

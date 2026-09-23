@@ -66,7 +66,7 @@ def test_secondary_controls_and_relationships_are_localized(
         growth = screen._secondary_widgets['secondary_growth']
         assert [(growth.itemText(i), growth.itemData(i)) for i in range(growth.count())] == [
             (targets['Intensity watershed'], 'intensity'),
-            (targets['Distance growth within threshold'], 'distance')]
+            (targets['Distance watershed'], 'distance')]
         growth.setCurrentIndex(growth.findData('distance'))
         screen._secondary_widgets['propagate_sigma'].setValue(0)
         stop = screen._secondary_widgets['propagate_stop']

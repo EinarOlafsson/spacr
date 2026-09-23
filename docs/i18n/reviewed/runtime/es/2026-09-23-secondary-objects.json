@@ -23,13 +23,6 @@
       "translation": "Elegir carpeta de máscaras primarias"
     },
     {
-      "key": "Distance growth within threshold",
-      "source": "Distance growth within threshold",
-      "source_sha256": "d3f433c630802507f99c97024389511d668aeb870b5291c8e1512140c25fec41",
-      "table": "ui",
-      "translation": "Crecimiento por distancia dentro del umbral"
-    },
-    {
       "key": "Fill holes inside secondary objects",
       "source": "Fill holes inside secondary objects",
       "source_sha256": "b534d3ab180ddd396a55be1bf926fc1590d3346e250fa1434ea398a6b90d5577",
@@ -70,13 +63,6 @@
       "source_sha256": "66b06e996553a4e70d0f3a5a50c6b6877d23fb448cad524fef307399ebe36d5e",
       "table": "ui",
       "translation": "Crecimiento"
-    },
-    {
-      "key": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
-      "source": "Intensity follows bright structures. Distance spreads from primary pixels through the allowed foreground; it can help separate cells with uneven internal brightness. Neither is CellProfiler Propagation.",
-      "source_sha256": "d23b86d462ff7930fe9de6e09c0146bee4249927ae218f36348630471084408e",
-      "table": "ui",
-      "translation": "La intensidad sigue estructuras brillantes. La distancia se extiende desde los píxeles primarios por el primer plano permitido y puede ayudar a separar células con brillo interno desigual. Ninguna es CellProfiler Propagation."
     },
     {
       "key": "Intensity watershed",
@@ -259,6 +245,27 @@
       "source_sha256": "97af354027153914d71c8b0f1ffcda451058a0af766b07bcb4cfb9438dc7f818",
       "table": "ui",
       "translation": "Detectar: {method}"
+    },
+    {
+      "key": "Distance watershed",
+      "source": "Distance watershed",
+      "source_sha256": "5ae40105fea410b3e9cf741d45c34f339561d8746110ad791ee8ea770b4663a6",
+      "table": "ui",
+      "translation": "Watershed por distancia"
+    },
+    {
+      "key": "Intensity follows bright structures. Distance spreads from primary pixels. Common thresholds constrain the paths; fraction-of-peak trims after growth. Neither is CellProfiler Propagation.",
+      "source": "Intensity follows bright structures. Distance spreads from primary pixels. Common thresholds constrain the paths; fraction-of-peak trims after growth. Neither is CellProfiler Propagation.",
+      "source_sha256": "e500f65f9224e759b66b861a8ea2811d1de5cc33c896d62129a676609a52008d",
+      "table": "ui",
+      "translation": "La intensidad sigue las estructuras brillantes. La distancia se propaga desde los píxeles primarios. Los umbrales comunes limitan las rutas; la fracción del máximo recorta el resultado después del crecimiento. Ninguno de los métodos es CellProfiler Propagation."
+    },
+    {
+      "key": "The existing mask is not paired with this primary source. Use whole-image Replace or Clear all objects before accepting secondary objects.",
+      "source": "The existing mask is not paired with this primary source. Use whole-image Replace or Clear all objects before accepting secondary objects.",
+      "source_sha256": "b6fdc0b453e06d814171520650fab5bd74cc20f88012af97cdfcafb63a8eb3e1",
+      "table": "ui",
+      "translation": "La máscara existente no está emparejada con esta fuente primaria. Use Reemplazar en toda la imagen o Borrar todos los objetos antes de aceptar objetos secundarios."
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review of source pairing, read-only primary masks, identity preservation, growth methods and diagnostics. The count/ID template contains only placeholders and punctuation and remains identical. No native-speaker sign-off.",

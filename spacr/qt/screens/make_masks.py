@@ -8526,7 +8526,12 @@ class MakeMasksScreen(QWidget):
             self._magnifier.refresh()
 
     def _require_secondary_merge(self, source):
-        """Refuse numeric ID collisions with an unrelated nonempty target mask."""
+        """Refuse numeric ID collisions with an unrelated nonempty target mask.
+
+        :param source: the validated primary-mask snapshot for this detection.
+        :raises ValueError: when the existing output belongs to another source
+            or was not created with primary IDs preserved.
+        """
         from ..i18n import tr
 
         if self._canvas.mask is None or not self._canvas.mask.any():
