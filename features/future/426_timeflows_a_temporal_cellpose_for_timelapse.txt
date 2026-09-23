@@ -435,3 +435,44 @@ This is a sampler correction, not a newly trained model. The v1 checkpoint
 and its source data are unchanged; its metadata does not record sampling
 weights, so do not claim that v1 used the repaired balancing. Retraining and
 the full held-out evaluation remain required before any promotion.
+
+2026-09-23 — REPRODUCIBLE STRATIFIED EVALUATOR AND CONTROLS
+tools/evaluate_timeflows.py now evaluates explicit CTC GT or ST full masks
+with TRA markers. It never treats markers alone as full segmentations, and
+excludes ambiguous, unmarked or duplicate marker/object assignments. Source
+objects whose successor has an excluded full mask are censored rather than
+scored as disappearances. Input hashes and these exclusions are recorded.
+
+Pairs are selected evenly by frame index before pixel reads and streamed
+one at a time. The checkpoint sidecar must name its training movies; resolved
+path overlap/aliases are rejected. This is a path-level check, not a content
+comparison against all training images. Checkpoint/code/software hashes and
+versions accompany per-source outcomes and object-weighted summaries for
+motion, density and their cross-tabulation. Empty strata report null rather
+than perfect accuracy. Incorrect links for sources with no successor and
+abstentions on sources with a successor are counted separately.
+
+Controls: IoU, zero motion, exact target vectors, a random time head on the
+checkpoint encoder, and the trained model given a copy of the first frame.
+The random head is restored after each control. Numeric-label scrambling
+does NOT establish learned motion by itself: positions and overlap still
+supply a strong prior. scramble_test's public docstring now says that;
+an untrained head's score is measured, not forced to a chance expectation.
+
+25focused tests pass, including pair/annotation gaps, aliases, unchanged
+inputs, failed-run summary withholding, sparse IDs, motion/density counts,
+censoring, false successor links and random-head restoration. A real initial
+checkpoint run exposed a bfloat16/float32 constructor mismatch; casting the
+whole encoder fixes it and both dtypes are covered by the regression.
+
+Whole-frame CPU evaluation is now running: Fluo-N2DH-SIM+ sequence01,
+three evenly spaced pairs each at gaps1,12,24. This is SYNTHETIC, not real
+microscopy. Annotation-only QC found ordinary frame spacing easy and some
+one-diameter moves only at wider gaps; that QC chose the schedule before any
+checkpoint scores. Session27511/PID3803647, output directory:
+/mnt/firecuda2/Claude/implementation-20260922/timeflows-426/sim-v1-evaluation-2
+No completed model score or improvement is claimed. Follow the existing
+handle; summary.json appears only after all nine pairs finish. The contract
+and candidate-QC receipt is426_stratified_evaluator_contract_2026-09-23.json.
+The evaluator measures linking GIVEN supplied masks. End-to-end segmentation
+and whole-movie tracking acceptance remain separate requirements.

@@ -12477,3 +12477,19 @@ record hashes and report motion/density strata plus zero-motion, random-head
 and copied-frame controls. Scrambling IDs alone does not prove learned motion;
 will correct that sentence in scramble_test's public docstring and hand off
 the source change. No tracking default or published-model recommendation.
+
+2026-09-23 — IMPLEMENTATION: 426 EVALUATOR IMPLEMENTED / CPU RUN LIVE
+tools/evaluate_timeflows.py and25focused tests now cover explicit full-mask
+sources, holdout path checks, streamed selection, input hashes, motion/density
+strata, false-successor/abstention counts and five controls. The public
+spacr.timeflows_model.scramble_test docstring changes ONE paragraph: shuffled
+IDs remove a numeric shortcut, not positional information, so score alone
+does not prove learned motion. Please refresh that API source binding; no
+signature, parameter, UI caption or settings change. New evaluator is a tool.
+Whole-frame v1 CPU run27511/PID3803647 is active under8GiB/two threads, no GPU.
+Synthetic Fluo-N2DH-SIM+01, gaps1/12/24, three pairs each. Exact inputs and
+candidate-QC scope:426_stratified_evaluator_contract_2026-09-23.json. The first
+attempt terminated on a loader dtype mismatch; fixed and covered for float32
+and bfloat16. No summary/score claimed before the current nine pairs finish.
+Asked the maintainer how the20-minute idle rule treats desktop-only GPU
+activity; current strict0% observer remains active pending clarification.

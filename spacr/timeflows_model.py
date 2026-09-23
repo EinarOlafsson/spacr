@@ -616,10 +616,11 @@ def scramble_test(labels_t: np.ndarray, labels_t1: np.ndarray,
                   seed: int = 0) -> Dict[str, float]:
     """Shuffle frame ``t+1``'s labels and ask whether the model finds them.
 
-    With the next frame's ids scrambled, the only way to
-    recover which object is which is to have learned motion. The share of
-    objects linked to their true successor is the score; the plain IoU
-    stitcher on the same pair is the reference the model has to beat.
+    Scrambling removes the numeric-ID shortcut, but object positions and
+    overlap remain informative. A good score alone does not prove learned
+    motion. The share of objects linked to their true successor is the
+    score; the plain IoU stitcher on the same pair is the reference the
+    model has to beat.
 
     :param labels_t: frame ``t``, track ids.
     :param labels_t1: frame ``t+1``, the same track ids.
