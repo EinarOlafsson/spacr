@@ -13485,3 +13485,14 @@ old/new decoders on identical predictions, dense arrays cached. Outputs under
 Do not restart from a quiet log; inspect the live handle. Whole-movie/lineage,
 real-data accuracy and corrected training remain open. Manual full CI run
 35847313443 is still live and must survive subsequent pushes.
+
+2026-09-23 — IMPLEMENTATION: CLAIM 426 TRAINING-LOOP VALIDATION
+Step6 still runs only after training. Taking optional held-out validation in
+train_timeflows and its CLI: shared stratified scoring, per-epoch sampled
+update checks, initial-head/copied-frame/IoU/zero/oracle controls, explicit
+holdout checks and saved validation reports. This changes the trainer's
+signature and adds arguments; I will document new parameters only and leave
+your existing prose edits intact. Please account for the incoming API surface
+when finishing the trainer/CTC catalogs. No tutorials/catalogs are edited here.
+The live assignment comparison keeps its imported235ef07ea code and inputs;
+this work must not restart it or claim new trained-model performance.
