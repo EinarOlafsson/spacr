@@ -105884,15 +105884,16 @@
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
         "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
         "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
-      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\nSlice-mask filenames are ignored and duplicate frame numbers are rejected.\nA source whose next-frame marker lacks an unambiguous full mask is\ncensored for that pair, rather than labelled as a disappearance.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:returns: the pairs, in time order.\n:raises ValueError: sequence/limit, duplicate frame identities or annotation\n    arrays are invalid."
+      "source_sha256": "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611",
+      "text": "Consecutive-frame training pairs from one Cell Tracking Challenge movie.\n\nFrames from ``<movie>/<seq>/t*.tif``, full masks from the silver\nsegmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the\ntracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif``\n(:func:`track_masks_from_ctc`). A frame missing any of the three is\nskipped, and a pair is only formed from two consecutive frame numbers.\nSlice-mask filenames are ignored and duplicate frame numbers are rejected.\nWith ``segmentation='GT'``, full masks are read from ``<seq>_GT/SEG``.\nA source whose next-frame marker lacks an unambiguous full mask is\ncensored for that pair, rather than labelled as a disappearance.\n\n:param movie: the movie folder (e.g. ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` or ``'02'``.\n:param max_pairs: at most this many pairs, spaced evenly through the\n    movie and chosen before any file is read. Set this limit to bound\n    the frames loaded from long movies; loading entire collections can\n    require tens of gigabytes of memory.\n:param segmentation: ``'ST'`` for silver masks (the training default), or\n    ``'GT'`` for supplied ground-truth full masks during validation.\n:returns: the pairs, in time order.\n:raises ValueError: sequence/limit, duplicate frame identities or annotation\n    arrays are invalid."
     },
     "spacr.timeflows_model.ctc_pairs.indexed": {
       "source_blocks_sha256": [
@@ -105927,6 +105928,13 @@
       ],
       "source_sha256": "994f78084c04e50ce1adbf65dbccb9f392e66710f6a22a833751ad684eef2c2a",
       "text": "``python -m spacr.timeflows_model --movies DIR [DIR ...] --out FILE``.\n\nTrains the time head on Cell Tracking Challenge movies (both sequences of\neach), starting from ``--base`` (a Cellpose checkpoint or ``cpsam``), and\nsaves the head and, after the full stage, the whole network.\n\n:param argv: arguments; ``sys.argv[1:]`` when None.\n:returns: the exit status."
+    },
+    "spacr.timeflows_model.main.record_validation": {
+      "source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ],
+      "source_sha256": "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5",
+      "text": "Flush each check immediately; completion is recorded only after saving."
     },
     "spacr.timeflows_model.object_centroids": {
       "source_blocks_sha256": [
@@ -106047,11 +106055,21 @@
         "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
         "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
         "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
         "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
         "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
       ],
-      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
-      "text": "Train the time head, then the whole network, on track-labelled pairs.\n\nA two-stage curriculum: the backbone's segmentation is already\npaid for, so it is frozen while the new head learns, then everything is\ntrained at a low learning rate. Every pair is augmented identically on\nboth frames before its targets are computed.\n\nA training crop keeps supervision only for complete source masks and,\nwhen present in the full target frame, complete successor masks. A\nsuccessor outside the tile is not a disappearance. Absences in the\nsupplied full-frame labels remain supervised; this does not validate\nthose annotations. Unusable crops are retried up to 32 times per step.\nCensoring prevents incorrect targets at crop boundaries but removes some\nfast-motion examples; it does not establish full-motion accuracy.\n\n:param net: from :func:`TimeflowsNet`.\n:param pairs: the training pairs.\n:param head_steps: steps with the backbone frozen.\n:param full_steps: steps with everything trainable.\n:param lr_head: learning rate for the head stage.\n:param lr_full: learning rate for the full stage.\n:param weights: sampling weight per pair (:func:`pair_sampling_weights`);\n    uniform when None.\n:param seed: the random seed.\n:param device: ``'cpu'`` or ``'cuda'``.\n:param log: ``fn(line)`` for progress.\n:returns: the loss at every step.\n:raises ValueError: no usable supervision remains after 32 sampled crops\n    for a step; inspect the full masks and motion relative to the tile."
+      "source_sha256": "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6",
+      "text": "Train the time head, then the whole network, on track-labelled pairs.\n\nA two-stage curriculum: the backbone's segmentation is already\npaid for, so it is frozen while the new head learns, then everything is\ntrained at a low learning rate. Every pair is augmented identically on\nboth frames before its targets are computed.\n\nA training crop keeps supervision only for complete source masks and,\nwhen present in the full target frame, complete successor masks. A\nsuccessor outside the tile is not a disappearance. Absences in the\nsupplied full-frame labels remain supervised; this does not validate\nthose annotations. Unusable crops are retried up to 32 times per step.\nCensoring prevents incorrect targets at crop boundaries but removes some\nfast-motion examples; it does not establish full-motion accuracy.\n\n:param net: from :func:`TimeflowsNet`.\n:param pairs: the training pairs.\n:param head_steps: steps with the backbone frozen.\n:param full_steps: steps with everything trainable.\n:param lr_head: learning rate for the head stage.\n:param lr_full: learning rate for the full stage.\n:param weights: sampling weight per pair (:func:`pair_sampling_weights`);\n    uniform when None.\n:param seed: the random seed.\n:param device: ``'cpu'`` or ``'cuda'``.\n:param log: ``fn(line)`` for progress.\n:param validation_pairs: optional held-out full-frame pairs. Exact input\n    overlap with training is rejected before any optimizer update.\n:param validation_every: updates between held-out checks; defaults to one\n    epoch of ``len(pairs)`` sampled updates. Initial and stage-end checks\n    are always included. Must be positive when supplied.\n:param on_validation: callback receiving each stratified validation report,\n    including the stage, update count and current training loss. Optional\n    validation never changes the returned loss-list contract.\n:returns: the loss at every step.\n:raises ValueError: no usable supervision remains after 32 sampled crops\n    for a step; inspect the full masks and motion relative to the tile."
+    },
+    "spacr.timeflows_model.train_timeflows.report_validation": {
+      "source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ],
+      "source_sha256": "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3",
+      "text": "Report one held-out check while preserving the training state."
     },
     "spacr.timeflows_model.train_timeflows.run": {
       "source_blocks_sha256": [
@@ -106203,6 +106221,82 @@
       ],
       "source_sha256": "251b6d1cd6fa1459f81b6fe9ada5b5586035ff3c0f49095162c758e6b742a9d9",
       "text": "List every label that disappears and comes back, and judge each one.\n\nA recycled id -- the same number given to an unrelated object after the\nfirst one left -- is the defect the whole plan is exposed to, and it looks\nexactly like a tracking gap from one frame. What separates them is\ndistance: a real object that was missed for a frame is found again near\nwhere it was, and usually still overlapping its own mask. So each gap is\nreported with the distance covered per missing frame, the overlap between\nthe mask before the gap and the mask after it, and the distance a\ncontinuous object in the same data covers in one frame.\n\n:param masks: label stack, ``(T, Y, X)`` or a sequence of 2-D frames.\n:param frames_table: the table :func:`label_frames` returns, when it has\n    already been measured. Measured here when ``None``.\n:param max_displacement: distance per missing frame, in pixels, above\n    which a gap is called reuse. ``None`` measures it from the data as\n    :data:`REUSE_DISPLACEMENT_FACTOR` times the 95th percentile of the\n    continuous per-frame displacement, falling back to the median object\n    diameter when nothing in the stack survives a frame.\n:returns: ``DataFrame`` with one row per gap: ``label``, ``gap_start``,\n    ``gap_end``, ``gap_frames``, ``displacement``,\n    ``displacement_per_frame``, ``iou_across_gap``, ``allowed`` and\n    ``verdict`` (``'gap'`` or ``'reuse-suspected'``)."
+    },
+    "spacr.timeflows_validation": {
+      "source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ],
+      "source_sha256": "a80b2b02caacd7445544e2e50d33ce9e8d60d75a4fc48b3997130f2e7f8b9e71",
+      "text": "Shared supplied-mask linking scores and held-out checks for Timeflows training.\n\nThese measurements condition on the provided segmentation and track labels.\nThey do not measure end-to-end segmentation or whole-movie tracking accuracy."
+    },
+    "spacr.timeflows_validation.check_pair_holdout": {
+      "source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ],
+      "source_sha256": "ace9ea46bc7f3fe5a25f999b242f6a02dbd9fceb859e2115a9967398c8752618",
+      "text": "Reject validation frames identical to any normalized training input.\n\nBoth endpoints participate. Channel filling, channel truncation and\nfloat32 conversion follow the model's own input adapter. This detects\nidentical inputs across paths or dtypes, not near-duplicates or different\nframes of the same biological movie; the CLI separately rejects shared\nmovie paths. Return the validation input fingerprints for provenance.\n\n:param training_pairs: pairs whose input frames participate in training.\n:param validation_pairs: nonempty held-out pairs with both input endpoints.\n:returns: two normalized-input SHA-256 fingerprints per validation pair.\n:raises ValueError: validation is empty or an input also occurs in training."
+    },
+    "spacr.timeflows_validation.score_pair": {
+      "source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e5d18e910494ef6e5fea2f8bfc035aca3701d61548e1c20790737fd6bdb7af48",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ],
+      "source_sha256": "58049ad9083df64e2ba6dd9e5a8c94a52b27a3c39d730caca8edca5dab02cc59",
+      "text": "Score source objects after excluding explicitly unknown successors.\n\nShared track identities define the true links before target identities\nare shuffled. An absent target identity means no successor unless the\nsource is in ``unknown_successors``; missing annotations are not detected\nautomatically. An IoU control is added to the supplied prediction arms.\n\n:param labels_t: source masks with positive track identities and zero background.\n:param labels_t1: target masks using the same track identities.\n:param predictions: named prediction dictionaries accepted by\n    :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` is reserved.\n:param seed: seed for shuffling target identities.\n:param unknown_successors: source identities omitted from every score.\n:returns: per-object truth, predictions, correctness and motion/density strata."
+    },
+    "spacr.timeflows_validation.scramble": {
+      "source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ],
+      "source_sha256": "a02cecb481b946016a854203843c45e8f9af602a6a72bd1ac32eff8cd7025818",
+      "text": "Relabel target objects without changing their shapes or positions.\n\n:param labels: target label array, with zero reserved for background.\n:param seed: random seed for permuting the nonzero identities.\n:returns: the relabelled array and original-to-shuffled identity mapping."
+    },
+    "spacr.timeflows_validation.summarise": {
+      "source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ],
+      "source_sha256": "15b886b22ab832957c8d0eb59b23c486ef245d976c570f72804195ec077c12e1",
+      "text": "Aggregate object-weighted results with explicit missing-data denominators.\n\n:param rows: per-object records from :func:`score_pair`.\n:returns: overall, motion, density and joint-stratum summaries. Successor\n    accuracy is ``None`` where no true successors are available; false\n    links and abstentions are counts with their population sizes retained."
+    },
+    "spacr.timeflows_validation.temporal_assignment_policy": {
+      "source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ],
+      "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
+      "text": "Describe the default decoder used by both validation entry points."
+    },
+    "spacr.timeflows_validation.validate_timeflows": {
+      "source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
+      ],
+      "source_sha256": "7761284c52d1cf433407c0b9fe0881b3a2a61fcade93f8da300e39a129b43d13",
+      "text": "Score held-out pairs and controls without changing training state.\n\n``pairs`` contain normalized frames and full track-label masks. Call\n:func:`check_pair_holdout` before training to verify exact input separation.\nThe result includes per-object rows and displacement/density strata for\nthe current model, IoU, zero-motion and oracle controls, plus a copied-frame\ncheck. Optional ``initial_head`` is a complete snapshot of the head/up\nparameters and buffers from training start. It is called ``initial_head``\nbecause a resumed model's initial head is not necessarily untrained.\n\nModule training/evaluation modes, current head weights and CPU/selected\nCUDA random states are restored even if scoring raises. No optimizer is\ntouched. The returned scores concern supplied masks, not segmentation\nperformance, lineage or whole-movie tracking.\n\n:param net: Timeflows network evaluated in its current state.\n:param pairs: nonempty full-frame pairs with matching track identities.\n:param device: device used for inference and random-state preservation.\n:param seed: starting seed for target-identity shuffles, incremented per pair.\n:param initial_head: optional complete head/up parameter and buffer snapshot.\n:returns: per-object rows, stratified summaries, copied-frame controls and\n    temporal assignment metadata.\n:raises ValueError: pairs are empty or the initial-head keys or shapes differ."
     },
     "spacr.timelapse": {
       "source_blocks_sha256": [

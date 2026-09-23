@@ -1854,3 +1854,21 @@ original contents. Runtime AST is unchanged. The English manifest remains
 not clear the existing whole-catalog freshness debt or browser rejection.
 Receipt: data/411_timeflows_matching_and_chrome_2026-09-23.json. Incoming
 held-out training arguments require another refresh after their merge.
+
+2026-09-23 — CODEX: HELD-OUT VALIDATION API AND TRANSLATIONS
+Documented the supplied-mask validation API, trainer options, ST/GT mask
+selection, exact input separation and the initial-head/current-encoder caveat.
+Nine added API entries bring the public inventory to 11,418; twelve nested
+helpers now have enabled rendered entries. The nine locale catalogs contain
+558 source-bound review records for this update, including 369 newly authored
+translation blocks. Fifty-four superseded records retain their original text
+and retirement reasons. The English manifest and Help index are synchronized.
+Strict Sphinx build, 60 guide links, nine new anchors and 19 rendered helper
+browser checks pass. Inventory/Help testing passed 46 checks and exposed one
+additional callable pin; its corrected exact-delta check then passed. Four
+signature/parameter/manifest checks pass. Subtracting the six new functions
+and four new arguments reproduces the previous callable inventory and digest.
+Runtime AST is unchanged. Full review loaders pass in all nine locales.
+Receipt data/411_timeflows_validation_2026-09-23.json records the evidence and
+remaining whole-catalog freshness debt. The full-catalog browser gate remains
+enabled; this scoped checkpoint does not claim full API or CI acceptance.

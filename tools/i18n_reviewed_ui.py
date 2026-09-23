@@ -340,17 +340,6 @@ REVIEWED_UI_TRANSLATIONS: Final[dict[str, dict[str, str]]] = {
         "plata",
         "plaque",
     ),
-    "Plates": _row(
-        "Plattor",
-        "Platten",
-        "Placas",
-        "板",
-        "Placas",
-        "प्लेट",
-        "플레이트",
-        "Plötur",
-        "Plaques",
-    ),
     "Plate:": _row(
         "Platta:",
         "Platte:",

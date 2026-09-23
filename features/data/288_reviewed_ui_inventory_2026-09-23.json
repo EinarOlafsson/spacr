@@ -1,0 +1,51 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "scope": "Reconcile the reviewed UI vocabulary with ten already reviewed additions and a retired caption; retain the exact source/content pins and live-surface test.",
+  "baseline_commit": "01a1cc3c4",
+  "baseline_count": 87,
+  "current_count": 96,
+  "added": [
+    "Biofilm",
+    "Cytosol",
+    "Filamentation",
+    "Golgi",
+    "None declared",
+    "Rhoptries",
+    "Vacuole",
+    "cytosol",
+    "rhoptries 1",
+    "rhoptries 2"
+  ],
+  "removed": [
+    "Plates"
+  ],
+  "retired_translation_records": {
+    "Plates": {
+      "sv": "Plattor",
+      "de": "Platten",
+      "es": "Placas",
+      "zh_CN": "板",
+      "pt": "Placas",
+      "hi": "प्लेट",
+      "ko": "플레이트",
+      "is": "Plötur",
+      "fr": "Plaques"
+    }
+  },
+  "surviving_translation_values_unchanged": true,
+  "subtraction_restores_baseline": 87,
+  "validation": {
+    "before": "2 failed, 1 passed",
+    "after": "3 passed",
+    "logs": {
+      "reviewed-ui-inventory-before.log": "13beb5ef8ef65916083b0e361336caabf7637a55acef201abb679f85fa4ca04f",
+      "reviewed-ui-inventory-after.log": "0de6dcaef1a2ed88fe5a1df4c402e09acf9a680583e0defa79048549a5fa6241"
+    }
+  },
+  "files": {
+    "tools/i18n_reviewed_ui.py": "60558c776b986a6069a191b3cd89f58eb903e72761f7c7631836a9f7e050842a",
+    "tests/test_i18n_reviewed_ui.py": "80198b019e2c2caaa1006a89a34dc9d38eaa2ecf3ee5090bb11f34cdf25a9806"
+  },
+  "full_ci_passed": false
+}

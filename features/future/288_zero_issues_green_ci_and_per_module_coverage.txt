@@ -4994,3 +4994,21 @@ remain enabled: three new help strings lack catalog rows, and two previously
 translated enhancement captions remain in the pending list. Exact strings
 sent to the docs lane. Receipt288_secondary_help_and_search_alpha_2026-09-23.
 FullCI and translated-help acceptance remain open.
+
+2026-09-23 — CODEX: VOCABULARY, SCIENTIFIC IDENTITIES AND PLAYER CACHE
+Reproduced two reviewed-vocabulary failures. Relative to the exact87-row
+baseline01a1cc3c4, ten already-reviewed organism/flowchart captions were added;
+all surviving original translations are unchanged. Removed the inactive
+"Plates" caption and retained its nine translations in the receipt. The
+active vocabulary is96 (+10/-1), with exact source/content pins and explicit
+subtraction back to87. All three named tests pass, without a surface exemption.
+The shipped player already uses20260923-unicode-captions fromee43d8530; its
+old cache-key assertion reproduced a failure. Updated the exact pin and
+explicitly forbid the old key. The media-budget and caption cohort passes32.
+The untranslated-entry failure also reproduced: Candida spp. and Plasmodium
+spp. are already exact scientific identities in the production builder and
+runtime captions. Added their explicit declarations; all six translation
+correctness tests pass. Runtime/player behavior is unchanged. Receipts:
+data/288_reviewed_ui_inventory_2026-09-23.json and
+ data/288_player_cache_and_species_identity_2026-09-23.json.
+Other manual-CI failures remain open; this does not claim full CI success.

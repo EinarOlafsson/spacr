@@ -458,3 +458,43 @@ All three French ff_siwis tracks now pass full technical audio checks and
 actual Chromium playback, caption, seek and lesson-link checks. Their receipt
 records exact audio hashes and decoded peaks; it does not claim listening,
 native-speaker or screenshot acceptance. Complete-set publication remains held.
+
+2026-09-23 — CODEX: HINDI WORKFLOW TEXT AND ITALIAN MEDIA CHECKS
+Hindi adds 238 shared phrases, 97 generated lesson scenes and 215 matching
+GUI map captions. Existing reviewed terminology is retained; 209 GUI sources
+become current. All four staged scripts preserve source/map hashes, scene
+structure, links and spoken-form rules. Live tr and the full runtime review
+loader pass. Hindi GUI freshness reaches4442/5017 (88.5percent); workflow
+scene coverage reaches1120/1508 (74.3percent). Twenty-four generator/promotion
+checks pass. Korean/Icelandic/Danish/Norwegian banks remain. Hindi narration
+is rendering CPU-only. Its receipt explicitly leaves incoming API debt open.
+All six Italian tracks for lessons79/80/81 pass full audio decoding, source
+freshness, timing/activity/peak checks and actual Chromium playback, captions,
+seeking and lesson links. Exact hashes and limitations are recorded in
+2026-09-23-workflow-italian-media.json. No listening/native-speaker or complete
+publication acceptance is claimed; the complete-set release hold remains.
+
+2026-09-23 — CODEX: NORWEGIAN WORKFLOW CAPTIONS
+Norwegian Bokmal adds238source-bound phrases and97generated lesson scenes.
+All four staged scripts preserve the current map/source hashes and scene
+links; unrelated lessons remain unchanged. All three new caption routes pass
+actual Chromium playback/seek/text/link checks with the English Heart track.
+Workflow translation coverage is1217/1508 (80.7percent). Twenty-four generator
+and promotion checks pass. Korean, Icelandic and Danish phrase banks remain;
+Danish is in private drafting. Norwegian is caption-only, with no GUI locale
+or narration claim. Native-speaker and complete-set publication acceptance
+remain open. Receipt2026-09-23-nb-workflow-phrases.json covers the text checks.
+
+2026-09-23 — CODEX: DANISH TEXT AND SPANISH/PORTUGUESE PLAYBACK
+Danish adds 238 source-bound phrases and 97 generated scenes. All four staged
+scripts preserve the checkpoint's map/source hashes and scene structure;
+three Danish caption routes pass actual Chromium playback with English Heart.
+Eleven shared banks bring translation coverage to 1314/1508 (87.1 percent).
+Twenty-four generator/promotion checks pass. Korean and Icelandic banks remain.
+Spanish and Portuguese each have nine completed tracks with full audio checks
+and matching browser playback/caption/seek/link checks; separate media receipts
+record their exact hashes. No listening/native-speaker acceptance is claimed.
+This evidence is bound to map 76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984.
+Incoming implementation c94a48cd7 expands pathway inputs and annotation routes;
+its new map/API/GUI sources require a subsequent documentation and tutorial
+refresh. These checkpoint percentages do not imply acceptance of that update.

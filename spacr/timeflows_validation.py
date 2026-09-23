@@ -28,7 +28,12 @@ def temporal_assignment_policy():
 
 
 def scramble(labels, seed):
-    """Relabel target objects without changing their shapes or positions."""
+    """Relabel target objects without changing their shapes or positions.
+
+    :param labels: target label array, with zero reserved for background.
+    :param seed: random seed for permuting the nonzero identities.
+    :returns: the relabelled array and original-to-shuffled identity mapping.
+    """
     ids = np.unique(labels)
     ids = ids[ids != 0]
     mapping = dict(zip(ids.tolist(), np.random.default_rng(seed).permutation(ids).tolist()))
@@ -39,7 +44,21 @@ def scramble(labels, seed):
 
 
 def score_pair(labels_t, labels_t1, predictions, seed=0, unknown_successors=()):
-    """Score sources with known outcomes; incomplete next-frame masks are censored."""
+    """Score source objects after excluding explicitly unknown successors.
+
+    Shared track identities define the true links before target identities
+    are shuffled. An absent target identity means no successor unless the
+    source is in ``unknown_successors``; missing annotations are not detected
+    automatically. An IoU control is added to the supplied prediction arms.
+
+    :param labels_t: source masks with positive track identities and zero background.
+    :param labels_t1: target masks using the same track identities.
+    :param predictions: named prediction dictionaries accepted by
+        :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` is reserved.
+    :param seed: seed for shuffling target identities.
+    :param unknown_successors: source identities omitted from every score.
+    :returns: per-object truth, predictions, correctness and motion/density strata.
+    """
     scrambled, mapping = scramble(labels_t1, seed)
     here, there = tm.object_centroids(labels_t), tm.object_centroids(labels_t1)
     links = {name: tm.link_by_timeflows(labels_t, scrambled, prediction)
@@ -68,7 +87,13 @@ def score_pair(labels_t, labels_t1, predictions, seed=0, unknown_successors=()):
 
 
 def summarise(rows):
-    """Aggregate object-weighted results with explicit missing-data denominators."""
+    """Aggregate object-weighted results with explicit missing-data denominators.
+
+    :param rows: per-object records from :func:`score_pair`.
+    :returns: overall, motion, density and joint-stratum summaries. Successor
+        accuracy is ``None`` where no true successors are available; false
+        links and abstentions are counts with their population sizes retained.
+    """
     arms = sorted({arm for row in rows for arm in row['correct']})
 
     def group(selected):
@@ -109,6 +134,11 @@ def check_pair_holdout(training_pairs, validation_pairs):
     identical inputs across paths or dtypes, not near-duplicates or different
     frames of the same biological movie; the CLI separately rejects shared
     movie paths. Return the validation input fingerprints for provenance.
+
+    :param training_pairs: pairs whose input frames participate in training.
+    :param validation_pairs: nonempty held-out pairs with both input endpoints.
+    :returns: two normalized-input SHA-256 fingerprints per validation pair.
+    :raises ValueError: validation is empty or an input also occurs in training.
     """
     if not validation_pairs:
         raise ValueError('Validation requires at least one held-out pair')
@@ -138,6 +168,15 @@ def validate_timeflows(net, pairs, *, device='cpu', seed=0, initial_head=None):
     CUDA random states are restored even if scoring raises. No optimizer is
     touched. The returned scores concern supplied masks, not segmentation
     performance, lineage or whole-movie tracking.
+
+    :param net: Timeflows network evaluated in its current state.
+    :param pairs: nonempty full-frame pairs with matching track identities.
+    :param device: device used for inference and random-state preservation.
+    :param seed: starting seed for target-identity shuffles, incremented per pair.
+    :param initial_head: optional complete head/up parameter and buffer snapshot.
+    :returns: per-object rows, stratified summaries, copied-frame controls and
+        temporal assignment metadata.
+    :raises ValueError: pairs are empty or the initial-head keys or shapes differ.
     """
     if not pairs:
         raise ValueError('Validation requires at least one held-out pair')

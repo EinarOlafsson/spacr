@@ -154929,21 +154929,23 @@
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
         "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
         "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
-      "text": "Pares de entrenamiento de fotogramas consecutivos de una secuencia de Cell Tracking Challenge.\n\nFotogramas de ``<movie>/<seq>/t*.tif`` y máscaras completas de la segmentación silver ``<movie>/<seq>_ST/SEG/man_seg*.tif``, reetiquetadas según los marcadores de seguimiento ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Se omite cualquier fotograma al que le falte una de las tres entradas, y solo se forman pares de números de fotograma consecutivos. Se ignoran los nombres de máscaras de cortes y se rechazan los números de fotograma duplicados. Si el marcador del siguiente fotograma de un objeto de origen carece de una máscara completa inequívoca, se excluye ese objeto de la supervisión de ese par, en lugar de etiquetarlo como desaparición.\n\n:param movie: La carpeta de la secuencia (p. ej., ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` o ``'02'``.\n:param max_pairs: Como máximo esta cantidad de pares, distribuidos uniformemente por la secuencia y elegidos antes de leer cualquier archivo. Establecer este límite acota los fotogramas cargados de secuencias largas; cargar colecciones completas puede requerir decenas de gigabytes de memoria.\n:returns: Los pares, en orden temporal.\n:raises ValueError: la secuencia o el límite, las identidades duplicadas de fotogramas o las matrices de anotaciones no son válidos.",
+      "source_sha256": "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611",
+      "text": "Pares de entrenamiento de fotogramas consecutivos de una secuencia de Cell Tracking Challenge.\n\nFotogramas de ``<movie>/<seq>/t*.tif``, máscaras completas de la segmentación silver ``<movie>/<seq>_ST/SEG/man_seg*.tif`` reetiquetadas mediante los marcadores de seguimiento ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). Se omite un fotograma si falta cualquiera de las tres entradas y solo se forma un par con dos números de fotograma consecutivos. Se ignoran los nombres de archivo de máscaras de cortes y se rechazan los números de fotograma duplicados. Con ``segmentation='GT'``, las máscaras completas se leen de ``<seq>_GT/SEG``. Un origen cuyo marcador del siguiente fotograma no tiene una máscara completa inequívoca se excluye de ese par, en lugar de etiquetarse como desaparición.\n\n:param movie: La carpeta de la secuencia (p. ej., ``.../ctc_dic_hela_timelapse``).\n:param sequence: ``'01'`` o ``'02'``.\n:param max_pairs: Como máximo esta cantidad de pares, distribuidos uniformemente por la secuencia y elegidos antes de leer cualquier archivo. Establecer este límite acota los fotogramas cargados de secuencias largas; cargar colecciones completas puede requerir decenas de gigabytes de memoria.\n:param segmentation: ``'ST'`` para máscaras silver (predeterminado de entrenamiento), o ``'GT'`` para máscaras completas de referencia proporcionadas durante la validación.\n:returns: Los pares, en orden temporal.\n:raises ValueError: la secuencia o el límite, las identidades duplicadas de fotogramas o las matrices de anotaciones no son válidos.",
       "translation_source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
         "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
         "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ]
@@ -154986,6 +154988,16 @@
         "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
         "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
         "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
+    "spacr.timeflows_model.main.record_validation": {
+      "source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ],
+      "source_sha256": "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5",
+      "text": "Vaciar el búfer de cada comprobación inmediatamente; la finalización se registra solo después de guardar.",
+      "translation_source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
       ]
     },
     "spacr.timeflows_model.predict_pair.starts": {
@@ -155033,11 +155045,14 @@
         "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
         "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
         "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
         "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
         "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
       ],
-      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
-      "text": "Entrena primero la cabeza temporal y después toda la red con pares etiquetados por trayectoria.\n\nEntrenamiento en dos etapas: la segmentación de la red base ya está aprendida, por lo que se congela mientras aprende la nueva cabeza y después se entrena todo con una tasa de aprendizaje baja. Ambos fotogramas de cada par reciben los mismos aumentos de datos antes de calcular sus objetivos.\n\nUn recorte de entrenamiento conserva supervisión solo para máscaras de origen completas y, cuando están presentes en el fotograma de destino completo, máscaras completas de sucesores. Un sucesor fuera del bloque recortado no es una desaparición. Las ausencias en las etiquetas de fotogramas completos proporcionadas siguen supervisándose; esto no valida esas anotaciones. Se vuelve a intentar el muestreo de recortes inutilizables hasta 32 veces por paso. La exclusión evita objetivos incorrectos en los bordes del recorte, pero elimina algunos ejemplos de movimiento rápido; no demuestra exactitud en todo el intervalo de movimientos.\n\n:param net: de :func:`TimeflowsNet`.\n:param pairs: los pares de entrenamiento.\n:param head_steps: pasos con la red base congelada.\n:param full_steps: pasos con todos los parámetros entrenables.\n:param lr_head: tasa de aprendizaje de la etapa de la cabeza.\n:param lr_full: tasa de aprendizaje de la etapa completa.\n:param weights: peso de muestreo por par (:func:`pair_sampling_weights`); uniforme si es None.\n:param seed: la semilla aleatoria.\n:param device: ``'cpu'`` o ``'cuda'``.\n:param log: ``fn(line)`` para informar del progreso.\n:returns: la pérdida en cada paso.\n:raises ValueError: no queda supervisión utilizable tras muestrear 32 recortes para un paso; inspeccione las máscaras completas y el movimiento en relación con el bloque.",
+      "source_sha256": "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6",
+      "text": "Entrena primero la cabeza temporal y después toda la red con pares etiquetados por trayectoria.\n\nEntrenamiento en dos etapas: la segmentación de la red base ya está aprendida, por lo que se congela mientras aprende la nueva cabeza y después se entrena todo con una tasa de aprendizaje baja. Ambos fotogramas de cada par reciben los mismos aumentos de datos antes de calcular sus objetivos.\n\nUn recorte de entrenamiento conserva supervisión solo para máscaras de origen completas y, cuando están presentes en el fotograma de destino completo, máscaras completas de sucesores. Un sucesor fuera del bloque recortado no es una desaparición. Las ausencias en las etiquetas de fotogramas completos proporcionadas siguen supervisándose; esto no valida esas anotaciones. Se vuelve a intentar el muestreo de recortes inutilizables hasta 32 veces por paso. La exclusión evita objetivos incorrectos en los bordes del recorte, pero elimina algunos ejemplos de movimiento rápido; no demuestra exactitud en todo el intervalo de movimientos.\n\n:param net: de :func:`TimeflowsNet`.\n:param pairs: los pares de entrenamiento.\n:param head_steps: pasos con la red base congelada.\n:param full_steps: pasos con todos los parámetros entrenables.\n:param lr_head: tasa de aprendizaje de la etapa de la cabeza.\n:param lr_full: tasa de aprendizaje de la etapa completa.\n:param weights: peso de muestreo por par (:func:`pair_sampling_weights`); uniforme si es None.\n:param seed: la semilla aleatoria.\n:param device: ``'cpu'`` o ``'cuda'``.\n:param log: ``fn(line)`` para informar del progreso.\n:param validation_pairs: Pares reservados opcionales de fotogramas completos. El solapamiento exacto de entradas con el entrenamiento se rechaza antes de cualquier actualización del optimizador.\n:param validation_every: Actualizaciones entre comprobaciones con datos reservados; por defecto, una época de ``len(pairs)`` actualizaciones muestreadas. Siempre se incluyen comprobaciones iniciales y al final de cada etapa. Debe ser positivo si se proporciona.\n:param on_validation: Función de retorno que recibe cada informe de validación estratificado, incluida la etapa, el número de actualizaciones y la pérdida actual de entrenamiento. La validación opcional nunca cambia el contrato de la lista de pérdidas devuelta.\n:returns: la pérdida en cada paso.\n:raises ValueError: no queda supervisión utilizable tras muestrear 32 recortes para un paso; inspeccione las máscaras completas y el movimiento en relación con el bloque.",
       "translation_source_blocks_sha256": [
         "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
         "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
@@ -155052,8 +155067,21 @@
         "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
         "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
         "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
         "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
         "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.report_validation": {
+      "source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ],
+      "source_sha256": "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3",
+      "text": "Informar de una comprobación con datos reservados conservando el estado de entrenamiento.",
+      "translation_source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
       ]
     },
     "spacr.timeflows_model.train_timeflows.run": {
@@ -155064,6 +155092,130 @@
       "text": "Entrena ``params`` durante ``steps`` pasos, con la red base congelada o entrenable.",
       "translation_source_blocks_sha256": [
         "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ]
+    },
+    "spacr.timeflows_validation": {
+      "source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ],
+      "source_sha256": "a80b2b02caacd7445544e2e50d33ce9e8d60d75a4fc48b3997130f2e7f8b9e71",
+      "text": "Puntuaciones compartidas de enlace con máscaras proporcionadas y comprobaciones con datos reservados para entrenar Timeflows.\n\nEstas mediciones están condicionadas a la segmentación y las etiquetas de seguimiento proporcionadas. No miden la exactitud de la segmentación completa ni del seguimiento de películas enteras.",
+      "translation_source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ]
+    },
+    "spacr.timeflows_validation.check_pair_holdout": {
+      "source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ],
+      "source_sha256": "ace9ea46bc7f3fe5a25f999b242f6a02dbd9fceb859e2115a9967398c8752618",
+      "text": "Rechazar fotogramas de validación idénticos a cualquier entrada de entrenamiento normalizada.\n\nParticipan ambos extremos. El relleno y truncamiento de canales y la conversión a float32 siguen el adaptador de entrada del modelo. Esto detecta entradas idénticas entre rutas o tipos de datos, pero no duplicados aproximados ni distintos fotogramas de la misma película biológica; la CLI rechaza por separado las rutas de película compartidas. Devuelve las huellas de las entradas de validación para documentar su procedencia.\n\n:param training_pairs: Pares cuyos fotogramas de entrada participan en el entrenamiento.\n:param validation_pairs: Pares reservados no vacíos con ambos extremos de entrada.\n:returns: Dos huellas SHA-256 de entradas normalizadas por par de validación.\n:raises ValueError: La validación está vacía o una entrada también aparece en el entrenamiento.",
+      "translation_source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ]
+    },
+    "spacr.timeflows_validation.score_pair": {
+      "source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e5d18e910494ef6e5fea2f8bfc035aca3701d61548e1c20790737fd6bdb7af48",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ],
+      "source_sha256": "58049ad9083df64e2ba6dd9e5a8c94a52b27a3c39d730caca8edca5dab02cc59",
+      "text": "Evaluar los objetos de origen tras excluir sucesores explícitamente desconocidos.\n\nLas identidades de seguimiento compartidas definen los enlaces verdaderos antes de barajar las identidades de destino. Una identidad de destino ausente significa que no hay sucesor, salvo que el origen esté en ``unknown_successors``; las anotaciones ausentes no se detectan automáticamente. Se añade un control IoU a las variantes de predicción proporcionadas.\n\n:param labels_t: Máscaras de origen con identidades de seguimiento positivas y fondo cero.\n:param labels_t1: Máscaras de destino con las mismas identidades de seguimiento.\n:param predictions: Diccionarios de predicción con nombre aceptados por :func:`spacr.timeflows_model.link_by_timeflows`; ``iou`` está reservado.\n:param seed: Semilla para barajar las identidades de destino.\n:param unknown_successors: Identidades de origen omitidas en todas las puntuaciones.\n:returns: Referencia, predicciones, corrección y estratos de movimiento y densidad por objeto.",
+      "translation_source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e2e301feea6a1e076c48a2a29ab175df87b3e3bf06212cb3e496ea0a1d5e6724",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ]
+    },
+    "spacr.timeflows_validation.scramble": {
+      "source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ],
+      "source_sha256": "a02cecb481b946016a854203843c45e8f9af602a6a72bd1ac32eff8cd7025818",
+      "text": "Reetiquetar los objetos de destino sin cambiar sus formas ni posiciones.\n\n:param labels: Matriz de etiquetas de destino, con cero reservado para el fondo.\n:param seed: Semilla aleatoria para permutar las identidades distintas de cero.\n:returns: La matriz reetiquetada y la correspondencia de identidades originales a barajadas.",
+      "translation_source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ]
+    },
+    "spacr.timeflows_validation.summarise": {
+      "source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ],
+      "source_sha256": "15b886b22ab832957c8d0eb59b23c486ef245d976c570f72804195ec077c12e1",
+      "text": "Agregar resultados ponderados por objeto con denominadores explícitos para los datos ausentes.\n\n:param rows: Registros por objeto de :func:`score_pair`.\n:returns: Resúmenes globales, por movimiento, densidad y estratos conjuntos. La exactitud de sucesores es ``None`` cuando no hay sucesores verdaderos; los enlaces falsos y las abstenciones son recuentos que conservan sus tamaños de población.",
+      "translation_source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ]
+    },
+    "spacr.timeflows_validation.temporal_assignment_policy": {
+      "source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ],
+      "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
+      "text": "Describir el decodificador predeterminado usado por ambos puntos de entrada de validación.",
+      "translation_source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ]
+    },
+    "spacr.timeflows_validation.validate_timeflows": {
+      "source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
+      ],
+      "source_sha256": "7761284c52d1cf433407c0b9fe0881b3a2a61fcade93f8da300e39a129b43d13",
+      "text": "Evaluar pares reservados y controles sin cambiar el estado de entrenamiento.\n\n``pairs`` contiene fotogramas normalizados y máscaras completas con etiquetas de seguimiento. Llame a :func:`check_pair_holdout` antes de entrenar para verificar la separación exacta de las entradas. El resultado incluye filas por objeto y estratos de desplazamiento y densidad para el modelo actual, controles IoU, de movimiento cero y oráculo, más una comprobación con un fotograma copiado. El ``initial_head`` opcional es una instantánea completa de los parámetros y búferes head/up al inicio del entrenamiento. Se llama ``initial_head`` porque la cabeza inicial de un modelo reanudado no tiene por qué estar sin entrenar.\n\nLos modos de entrenamiento y evaluación de los módulos, los pesos actuales de la cabeza y los estados aleatorios de CPU y CUDA seleccionada se restauran incluso si la evaluación lanza una excepción. No se modifica ningún optimizador. Las puntuaciones devueltas se refieren a las máscaras proporcionadas, no al rendimiento de segmentación, al linaje ni al seguimiento de películas enteras.\n\n:param net: Red Timeflows evaluada en su estado actual.\n:param pairs: Pares de fotogramas completos no vacíos con identidades de seguimiento coincidentes.\n:param device: Dispositivo usado para la inferencia y la conservación del estado aleatorio.\n:param seed: Semilla inicial para barajar las identidades de destino, incrementada por par.\n:param initial_head: Instantánea completa opcional de parámetros y búferes head/up.\n:returns: Filas por objeto, resúmenes estratificados, controles de fotograma copiado y metadatos de asignación temporal.\n:raises ValueError: Los pares están vacíos o difieren las claves o formas de la cabeza inicial.",
+      "translation_source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
       ]
     },
     "spacr.timelapse": {

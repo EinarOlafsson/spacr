@@ -11,6 +11,8 @@
     {
       "context": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
       "label": "spacr.timeflows_model.ctc_pairs#1",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
       "source": "Frames from ``<movie>/<seq>/t*.tif``, full masks from the silver segmentation ``<movie>/<seq>_ST/SEG/man_seg*.tif`` relabelled by the tracking markers ``<movie>/<seq>_GT/TRA/man_track*.tif`` (:func:`track_masks_from_ctc`). A frame missing any of the three is skipped, and a pair is only formed from two consecutive frame numbers. Slice-mask filenames are ignored and duplicate frame numbers are rejected. A source whose next-frame marker lacks an unambiguous full mask is censored for that pair, rather than labelled as a disappearance.",
       "source_sha256": "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
       "translation": "फ़्रेम ``<movie>/<seq>/t*.tif`` से और पूर्ण मास्क silver विभाजन ``<movie>/<seq>_ST/SEG/man_seg*.tif`` से लिए जाते हैं; ट्रैकिंग मार्करों ``<movie>/<seq>_GT/TRA/man_track*.tif`` के अनुसार उन्हें फिर से लेबल किया जाता है (:func:`track_masks_from_ctc`)। तीनों में से कोई इनपुट गायब होने पर फ़्रेम छोड़ दिया जाता है, और केवल लगातार फ़्रेम संख्याओं से जोड़ा बनता है। स्लाइस-मास्क के फ़ाइल नाम अनदेखे किए जाते हैं और दोहराई गई फ़्रेम संख्याएँ अस्वीकार होती हैं। यदि किसी स्रोत वस्तु के अगले फ़्रेम के मार्कर का स्पष्ट पूर्ण मास्क नहीं है, तो उस जोड़े के लिए वस्तु को पर्यवेक्षण से हटाया जाता है, गायब होने का लेबल नहीं दिया जाता।"
@@ -39,6 +41,8 @@
     {
       "context": "the pairs, in time order.",
       "label": "spacr.timeflows_model.ctc_pairs#5",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
       "source": "the pairs, in time order.",
       "source_sha256": "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
       "translation": "जोड़े, समय के क्रम में।"
@@ -46,6 +50,8 @@
     {
       "context": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
       "label": "spacr.timeflows_model.ctc_pairs#6",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
       "source": "sequence/limit, duplicate frame identities or annotation arrays are invalid.",
       "source_sha256": "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df",
       "translation": "सीक्वेंस या सीमा, दोहराई गई फ़्रेम पहचानें या एनोटेशन ऐरे अमान्य हैं।"
@@ -186,6 +192,8 @@
     {
       "context": "the loss at every step.",
       "label": "spacr.timeflows_model.train_timeflows#13",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
       "source": "the loss at every step.",
       "source_sha256": "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
       "translation": "हर चरण का लॉस।"
@@ -193,6 +201,8 @@
     {
       "context": "no usable supervision remains after 32 sampled extracted image regions for a step; inspect the full masks and motion relative to the tile.",
       "label": "spacr.timeflows_model.train_timeflows#14",
+      "retired": true,
+      "retired_reason": "2026-09-23: held-out validation and the CTC segmentation choice changed the source or block position; original review retained and superseded by 2026-09-23-timeflows-validation.json.",
       "source": "no usable supervision remains after 32 sampled crops for a step; inspect the full masks and motion relative to the tile.",
       "source_sha256": "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885",
       "translation": "एक चरण के लिए 32 क्रॉप चुनने के बाद भी उपयोगी पर्यवेक्षण नहीं बचा; पूर्ण मास्क और टाइल के सापेक्ष गति की जाँच करें।"

@@ -480,7 +480,7 @@ def test_enabled_helpers_exist_in_the_full_built_site():
 @pytest.mark.parametrize("catalog_scope", ["full_catalog", "helper_slice"])
 @pytest.mark.parametrize("module, count, hidden", [
     ("spacr.object", 3, ("_cellpose_z_segment_fn",)),
-    ("spacr.timeflows_model", 7, ("_ctc_track_masks", "_training_window")),
+    ("spacr.timeflows_model", 9, ("_ctc_track_masks", "_training_window")),
 ])
 def test_enabled_helpers_use_their_own_real_catalog_entries_in_the_browser(
     language, catalog_scope, module, count, hidden,

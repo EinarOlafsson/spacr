@@ -37,6 +37,11 @@ The nested :func:`spacr.timeflows_model.ctc_pairs.indexed` helper has its own
 API entry for the frame-number mapping. The private top-level assignment
 helper remains an implementation detail of the public reader.
 
+Choose ``segmentation='ST'`` for the default silver masks, or ``'GT'`` for
+full masks in ``<movie>/<seq>_GT/SEG``. Both choices use tracking markers from
+``<movie>/<seq>_GT/TRA`` and retain the strict assignment and censoring rules.
+The validation CLI defaults to GT masks; training still defaults to ST masks.
+
 Understand crop boundaries
 ---------------------------
 
@@ -86,6 +91,51 @@ Keep the evaluator's ``temporal_assignment`` policy and thresholds with its
 results. Scores obtained with the previous decoder describe that decoder;
 they do not establish the accuracy of the corrected assignment. Compare both
 decoders on identical predictions before attributing a difference to matching.
+
+Validate during training on separate inputs
+-------------------------------------------
+
+Pass ``validation_pairs`` to :func:`spacr.timeflows_model.train_timeflows` to
+run a check before training, at the requested update interval and at each
+nonempty training stage's end. ``validation_every`` defaults to ``len(pairs)``
+sampled updates, which is a sampled epoch rather than a visit to every pair.
+``on_validation`` receives the report, stage, update counts and current loss;
+the function still returns its list of training losses.
+
+:func:`spacr.timeflows_validation.check_pair_holdout` compares both frames of
+every pair after the model's float32/channel adaptation. It rejects exact
+training/validation input overlap even across paths or input dtypes. It does
+not detect near-duplicates or establish biological independence. Keep whole
+movies and biological replicates separate; the CLI also rejects shared movie
+paths, including aliases that resolve to the same path.
+
+:func:`spacr.timeflows_validation.validate_timeflows` evaluates the current
+head, IoU, zero-motion and oracle controls and a copied-frame check. Training
+also supplies an initial-head snapshot. On resume, this snapshot may already
+be trained; it runs with the current encoder, so it is not an untouched
+initial-network baseline. Training modes, current head weights and random
+states are restored after evaluation, including when scoring raises.
+
+:func:`spacr.timeflows_validation.score_pair` preserves per-object outcomes
+and displacement/density strata. It shuffles target identities with
+:func:`spacr.timeflows_validation.scramble` so matching cannot exploit equal
+numeric labels. Explicit ``unknown_successors`` are excluded; without that
+exclusion, an absent target label is treated as a disappearance. Supply
+correct, complete track labels rather than interpreting missing masks as
+biological death. :func:`spacr.timeflows_validation.summarise` aggregates
+object-weighted results and retains the relevant denominators. These scores
+measure linking given supplied masks, not segmentation, lineage or full-movie
+tracking accuracy.
+
+The training CLI accepts ``--validation-movies``,
+``--validation-segmentation`` (default ``GT``), ``--validation-max-pairs``
+(default three per sequence; zero means all), and ``--validation-every``.
+Start with bounded pair counts because full frames remain in memory. Its
+``<checkpoint>.validation.jsonl`` records configuration and flushed reports
+and uses exclusive creation to protect an existing log. Completion is written
+only after the checkpoint and metadata have been saved. Retain input
+fingerprints, scoring-code hashes and the policy from
+:func:`spacr.timeflows_validation.temporal_assignment_policy` with the results.
 
 Keep checkpoint provenance with the results
 --------------------------------------------

@@ -191,7 +191,8 @@ TOOLS = ROOT / "tools"
 # +27 Starplast/ruler/diagram entries, then +22 flowchart/secondary entries.
 # Source subtraction is recorded in the two dated 411 API receipts.
 # +7 Timeflows nested helpers, with all nine catalogs updated for those keys.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_409
+# +9 held-out validation module/functions/reporting helpers in all locales.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_418
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

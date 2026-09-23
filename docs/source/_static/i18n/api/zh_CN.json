@@ -154930,21 +154930,23 @@
     "spacr.timeflows_model.ctc_pairs": {
       "source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
         "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
         "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ],
-      "source_sha256": "34c75857b47d51f5ccbf837c4fdf343fa9f9c337a565cbace10d9fdfc15fb321",
-      "text": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。\n\n图像帧来自 ``<movie>/<seq>/t*.tif``；完整掩膜来自 silver 分割标注 ``<movie>/<seq>_ST/SEG/man_seg*.tif``，并按跟踪标记 ``<movie>/<seq>_GT/TRA/man_track*.tif`` 重新标注（:func:`track_masks_from_ctc`）。缺少任意一种输入的帧会被跳过，只有帧号连续的两帧才组成一对。切片掩膜文件名被忽略，重复帧号被拒绝。如果源对象在下一帧中的标记没有无歧义的完整掩膜，则该对象会从此帧对的监督中排除，而不会被标注为消失。\n\n:param movie: 序列文件夹（例如 ``.../ctc_dic_hela_timelapse``）。\n:param sequence: ``'01'`` 或 ``'02'``。\n:param max_pairs: 最多返回此数量的帧对，沿序列均匀分布，并在读取任何文件前选定。设置该限制可约束从长序列加载的帧数；加载整个集合可能需要数十 GB 内存。\n:returns: 按时间顺序排列的帧对。\n:raises ValueError: 序列或数量限制、重复帧标识或标注数组无效。",
+      "source_sha256": "e40b1179f60223130c4c33f5d5d2c0dfc8142e20885bff735cd71fee675a5611",
+      "text": "来自一段 Cell Tracking Challenge 序列的连续帧训练对。\n\n帧来自 ``<movie>/<seq>/t*.tif``，完整掩膜来自银标准分割 ``<movie>/<seq>_ST/SEG/man_seg*.tif``，并依据跟踪标记 ``<movie>/<seq>_GT/TRA/man_track*.tif`` 重新赋予标签（:func:`track_masks_from_ctc`）。缺少三项输入中任何一项的帧会被跳过，只有帧号连续的两帧才组成一对。忽略切片掩膜文件名，并拒绝重复帧号。使用 ``segmentation='GT'`` 时，从 ``<seq>_GT/SEG`` 读取完整掩膜。若某个源对象在下一帧的标记没有对应的无歧义完整掩膜，则在该帧对中将其排除，而不是标记为消失。\n\n:param movie: 序列文件夹（例如 ``.../ctc_dic_hela_timelapse``）。\n:param sequence: ``'01'`` 或 ``'02'``。\n:param max_pairs: 最多返回此数量的帧对，沿序列均匀分布，并在读取任何文件前选定。设置该限制可约束从长序列加载的帧数；加载整个集合可能需要数十 GB 内存。\n:param segmentation: ``'ST'`` 表示银标准掩膜（训练默认值），``'GT'`` 表示验证时提供的完整真值掩膜。\n:returns: 按时间顺序排列的帧对。\n:raises ValueError: 序列或数量限制、重复帧标识或标注数组无效。",
       "translation_source_blocks_sha256": [
         "494d36016b3d7ef5d3f3dd675893348f3a2c81b619589f55e86348d5dc148362",
-        "f115f4b7e99469d08168901e63c349ba87e19b3dce534cd34c4d7a71688d898e",
+        "7463f4307f0c0baf281c2ca2f69a2701a19880df0427502cd24a220a0bd597ee",
         "1cf97a0775aeb58c36e49d4249778ffde29676e2eee6a5b5708b6e763456c1f5",
         "fce937d1926c304ef9b8463fff494d3ebc3ac16626287204bdd713c0bbbbc902",
         "d7d8c56b9d161d3a59cd32306ed413dc601b72863d4f1e6f862100eb0da9d149",
+        "ff92043552ef1cb349985d540fb51c81f1bd1974ff4601e4eaa64dd29ab205c0",
         "5c047cd938fe23e42ee0713b190df830c08f32cb07c436201302e214399e8077",
         "8763b0e404612870f383e92be6520e68916c5a5bbe9318e84db351c743c657df"
       ]
@@ -154987,6 +154989,16 @@
         "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
         "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
         "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
+    "spacr.timeflows_model.main.record_validation": {
+      "source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
+      ],
+      "source_sha256": "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5",
+      "text": "立即刷新每次检查的缓冲区；仅在保存后记录完成状态。",
+      "translation_source_blocks_sha256": [
+        "7ed34ff73417023e53d2247f6c25afa8472ce04247be6a847d600b9b577653f5"
       ]
     },
     "spacr.timeflows_model.predict_pair.starts": {
@@ -155034,11 +155046,14 @@
         "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
         "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
         "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
         "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
         "57c634be56099e5c2afc1a500b64109919447a602d7feb930a069eb820222885"
       ],
-      "source_sha256": "70e7e4aac5c33425ecbf73dbdbc7eafec1862b68ed04ae132c36ae3fe7da46a3",
-      "text": "在带轨迹标签的帧对上先训练时间预测头，再训练整个网络。\n\n训练分为两个阶段：主干网络已学会分割，因此在新预测头学习时冻结主干，随后以较低学习率训练整个网络。每对中的两帧先进行相同的数据增强，再计算目标。\n\n训练裁剪仅保留完整源掩膜的监督；如果后继对象存在于完整目标帧中，其掩膜也必须完整。后继对象位于图块之外不代表消失。提供的完整帧标签中的缺失仍作为监督；这并不验证标注是否正确。每步最多重新尝试 32 次不可用裁剪。这种排除可避免裁剪边界造成错误目标，但也会去掉一些快速运动示例；它不能证明在全部运动范围内的准确性。\n\n:param net: 由 :func:`TimeflowsNet` 创建。\n:param pairs: 训练帧对。\n:param head_steps: 冻结主干网络的训练步数。\n:param full_steps: 所有参数均可训练的步数。\n:param lr_head: 预测头训练阶段的学习率。\n:param lr_full: 完整网络训练阶段的学习率。\n:param weights: 每个帧对的采样权重（:func:`pair_sampling_weights`）；为 None 时均匀采样。\n:param seed: 随机种子。\n:param device: ``'cpu'`` 或 ``'cuda'``。\n:param log: 用于报告进度的 ``fn(line)``。\n:returns: 每步的损失值。\n:raises ValueError: 某一步采样 32 个裁剪后仍无可用监督；请检查完整掩膜以及相对于图块的运动。",
+      "source_sha256": "dff35ca64af93eb70488dcdcadf52b0f3b095d107b3e1174a0922c875c1b4fe6",
+      "text": "在带轨迹标签的帧对上先训练时间预测头，再训练整个网络。\n\n训练分为两个阶段：主干网络已学会分割，因此在新预测头学习时冻结主干，随后以较低学习率训练整个网络。每对中的两帧先进行相同的数据增强，再计算目标。\n\n训练裁剪仅保留完整源掩膜的监督；如果后继对象存在于完整目标帧中，其掩膜也必须完整。后继对象位于图块之外不代表消失。提供的完整帧标签中的缺失仍作为监督；这并不验证标注是否正确。每步最多重新尝试 32 次不可用裁剪。这种排除可避免裁剪边界造成错误目标，但也会去掉一些快速运动示例；它不能证明在全部运动范围内的准确性。\n\n:param net: 由 :func:`TimeflowsNet` 创建。\n:param pairs: 训练帧对。\n:param head_steps: 冻结主干网络的训练步数。\n:param full_steps: 所有参数均可训练的步数。\n:param lr_head: 预测头训练阶段的学习率。\n:param lr_full: 完整网络训练阶段的学习率。\n:param weights: 每个帧对的采样权重（:func:`pair_sampling_weights`）；为 None 时均匀采样。\n:param seed: 随机种子。\n:param device: ``'cpu'`` 或 ``'cuda'``。\n:param log: 用于报告进度的 ``fn(line)``。\n:param validation_pairs: 可选的留出完整帧对。在优化器进行任何更新之前，拒绝与训练输入完全重合的数据。\n:param validation_every: 两次留出检查之间的更新次数；默认是一个采样轮次，即 ``len(pairs)`` 次采样更新。始终包括初始检查和阶段结束检查。提供该值时必须为正数。\n:param on_validation: 接收每份分层验证报告的回调，包括阶段、更新次数和当前训练损失。可选验证始终保持返回损失列表的契约不变。\n:returns: 每步的损失值。\n:raises ValueError: 某一步采样 32 个裁剪后仍无可用监督；请检查完整掩膜以及相对于图块的运动。",
       "translation_source_blocks_sha256": [
         "c7185482d229c244e602c11071fc9e7059aa308bb757ddcd43a9843297f6a43b",
         "ba5aab5c300a7f6de7a6fc5846e2dc4436fbe786702314a32d75fba8fe1b7b31",
@@ -155053,8 +155068,21 @@
         "07eb4b74f60dd1b81fe3a34b1d60e706c85752c453e14aa9e923a46cffd10b54",
         "7a5ed1dbf4aac043b793039f570d39bc941ce5f769b8c36f9efa1d91f4235cdf",
         "7576b327bb0046d5a1d10b67890f6cb5c21300c22b9678af3933c74c183eabb3",
+        "309d529ca633f731f43dd64c8ca677fc9a3da1bdf10086197824449540a807e0",
+        "cbb74781eb4733e025fdbd1f83d6ca4f08bdbe76daed5d2eb9b8b0aa261323cd",
+        "850b78e931dcae681c3eb87dc799270690406eb82f8c8dc248fa9fa60701d62a",
         "192558bc4d150fcac52ebff875936dc90312d5705ad388ecbd91f57787746c28",
         "b850ac05bb115510a1f7c2cd63bc57ab3df04bf37b4a0aae681950c1d1595494"
+      ]
+    },
+    "spacr.timeflows_model.train_timeflows.report_validation": {
+      "source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
+      ],
+      "source_sha256": "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3",
+      "text": "在保留训练状态的同时报告一次留出数据检查。",
+      "translation_source_blocks_sha256": [
+        "43cd2b07044fcc30ef4f0ff6254178e4782af7b11493415623567bc3cd03e0a3"
       ]
     },
     "spacr.timeflows_model.train_timeflows.run": {
@@ -155065,6 +155093,130 @@
       "text": "训练 ``params`` 共 ``steps`` 步，主干网络可冻结或参与训练。",
       "translation_source_blocks_sha256": [
         "d52d685cde916694afe0d0637987504dfa4945f9edfdd32a00071b132a26db8c"
+      ]
+    },
+    "spacr.timeflows_validation": {
+      "source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ],
+      "source_sha256": "a80b2b02caacd7445544e2e50d33ce9e8d60d75a4fc48b3997130f2e7f8b9e71",
+      "text": "用于 Timeflows 训练的共享评分与留出检查，评分基于给定掩膜的对象关联。\n\n这些测量以给定的分割结果和轨迹标签为条件，不衡量端到端分割精度或整段视频的跟踪精度。",
+      "translation_source_blocks_sha256": [
+        "6ef67308af0b271d838b74070bda21b87c1019f35f78ec15590878136f325674",
+        "612d46a5a7854e19f289a3efe6b3003f0d956d7384068460406a02fb2335bb0b"
+      ]
+    },
+    "spacr.timeflows_validation.check_pair_holdout": {
+      "source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ],
+      "source_sha256": "ace9ea46bc7f3fe5a25f999b242f6a02dbd9fceb859e2115a9967398c8752618",
+      "text": "拒绝与任意归一化训练输入完全相同的验证帧。\n\n两个端点均参与检查。通道填充、通道截断和 float32 转换遵循模型自身的输入适配器。这能发现路径或数据类型不同但内容相同的输入，不能识别近似重复内容或同一生物学视频的不同帧；CLI 会另外拒绝共用的视频路径。返回验证输入的指纹以记录来源。\n\n:param training_pairs: 输入帧参与训练的帧对。\n:param validation_pairs: 非空的留出帧对，包含两个输入端点。\n:returns: 每个验证帧对的两个归一化输入 SHA-256 指纹。\n:raises ValueError: 验证数据为空，或某个输入也出现在训练数据中。",
+      "translation_source_blocks_sha256": [
+        "7728ad76b9e804f5970e553d9c368232585d92ff1301533bcd7781c33776edb0",
+        "4573753a9b5b6ef172feaeecc53325eb56f2c519ab89563b80b084a7b17fa528",
+        "7fb71907e5c99445916eda68f5cd23ed6657cb98d3dc8dec9f7d2359b4166b52",
+        "c775d57aafc9a4ee38c923d904b6b4891c6e102333351bc9d867b54cbd13b3cf",
+        "b14b508e5f62bc7f530050d43afc68517eac6b1fdda91bca8a38c3b3a62dc5a3",
+        "efa3a6a0fb24118f8d610af1c9cced716b650c1fff3b08d186c7bfae33e0bf17"
+      ]
+    },
+    "spacr.timeflows_validation.score_pair": {
+      "source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e5d18e910494ef6e5fea2f8bfc035aca3701d61548e1c20790737fd6bdb7af48",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ],
+      "source_sha256": "58049ad9083df64e2ba6dd9e5a8c94a52b27a3c39d730caca8edca5dab02cc59",
+      "text": "排除明确标为后继未知的源对象后，对源对象评分。\n\n在随机置换目标身份前，共享轨迹身份定义真实关联。目标身份缺失表示没有后继，除非源身份位于 ``unknown_successors`` 中；不会自动检测缺失标注。会在给定的预测方案中加入 IoU 对照。\n\n:param labels_t: 轨迹身份为正数、背景为零的源掩膜。\n:param labels_t1: 使用相同轨迹身份的目标掩膜。\n:param predictions: 带名称的预测字典，可由 :func:`spacr.timeflows_model.link_by_timeflows` 接受；``iou`` 为保留名称。\n:param seed: 随机置换目标身份的种子。\n:param unknown_successors: 从所有评分中排除的源身份。\n:returns: 每个对象的真值、预测、正确性以及运动和密度分层。",
+      "translation_source_blocks_sha256": [
+        "92218e4f3280a2dbb64174ced14c8c8187a6fc5eb13070a4b331fcf0330c436b",
+        "1e434c6455344a13c5a892ebf07e9812aff5164fb090dc99d000a079a05a934e",
+        "b55a85d7f741d1cf253024a5ab4bcf34ee049607a009e8330a4c99abaf4fb426",
+        "ab4566ed3baca90089b3f3d21b3f49ead8dfe0fe44906de6066e77f3f10807b4",
+        "e2e301feea6a1e076c48a2a29ab175df87b3e3bf06212cb3e496ea0a1d5e6724",
+        "0aa105cd412dc3062bdcdec42e1cb6ac62f33c21d81c2d1090046b74371c3e6b",
+        "a8be40334c5d1f511a7f176eb2e6df4f8516626452d3583e8beb5982960aea5d",
+        "49c7f93646019eedc14f8f68e3023e617b89fa4f12c079789b7291d0e3637278"
+      ]
+    },
+    "spacr.timeflows_validation.scramble": {
+      "source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ],
+      "source_sha256": "a02cecb481b946016a854203843c45e8f9af602a6a72bd1ac32eff8cd7025818",
+      "text": "重新标记目标对象，不改变其形状或位置。\n\n:param labels: 目标标签数组，其中零保留给背景。\n:param seed: 置换非零身份的随机种子。\n:returns: 重新标记后的数组，以及原始身份到置换后身份的映射。",
+      "translation_source_blocks_sha256": [
+        "08a8e79157f3b860eccf04ce60e2bd105b0234d2980b7353a91208a9982caee5",
+        "ddd70275c1d7a677aa1d358664fd29d5b0bd68972bfcf648320bc7e069e30423",
+        "84476a85d45429a59a7f1a4b3bfb3d1c3df115dc53740721774099f03b205387",
+        "8987e5610ce61bcb224fe726cffd0575f79fc3e906050e052b5f43711f9d65fd"
+      ]
+    },
+    "spacr.timeflows_validation.summarise": {
+      "source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ],
+      "source_sha256": "15b886b22ab832957c8d0eb59b23c486ef245d976c570f72804195ec077c12e1",
+      "text": "汇总按对象加权的结果，并明确给出缺失数据情况下的分母。\n\n:param rows: 来自 :func:`score_pair` 的逐对象记录。\n:returns: 总体、运动、密度及联合分层的汇总。没有真实后继可用时，后继关联准确率为 ``None``；错误关联和放弃关联以计数表示，同时保留相应总体大小。",
+      "translation_source_blocks_sha256": [
+        "f047904ede6ca3d992b89b405f2ecdf6069bbf20a631465b2527fd52bebb7262",
+        "6c7b531345a7989dfa35fa411aaeccb1128d7fcf3286ef4c1a1126aaa2556311",
+        "bdf6a35c86e84527816db640e4a5e070e542b2739b774c6135589ddc193c4248"
+      ]
+    },
+    "spacr.timeflows_validation.temporal_assignment_policy": {
+      "source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ],
+      "source_sha256": "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7",
+      "text": "描述两个验证入口共用的默认解码器。",
+      "translation_source_blocks_sha256": [
+        "9d2190df9cd404a202b4a11e44298ea58c9df3debf05ee02adbff890d5247dc7"
+      ]
+    },
+    "spacr.timeflows_validation.validate_timeflows": {
+      "source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
+      ],
+      "source_sha256": "7761284c52d1cf433407c0b9fe0881b3a2a61fcade93f8da300e39a129b43d13",
+      "text": "在不改变训练状态的情况下，对留出帧对和对照评分。\n\n``pairs`` 包含归一化帧和带轨迹标签的完整掩膜。训练前调用 :func:`check_pair_holdout`，检查输入是否完全分离。结果包括当前模型、IoU、零运动和理想真值对照的逐对象记录与位移及密度分层，并包含复制帧检查。可选的 ``initial_head`` 是训练开始时 head/up 参数和缓冲区的完整快照。其名称为 ``initial_head``，因为恢复训练的模型，其初始预测头不一定未经训练。\n\n即使评分抛出异常，也会恢复模块的训练或评估模式、当前预测头权重、CPU 及所选 CUDA 设备的随机状态。不修改任何优化器。返回的评分针对给定掩膜，而非分割性能、谱系或整段视频跟踪。\n\n:param net: 以当前状态进行评估的 Timeflows 网络。\n:param pairs: 具有对应轨迹身份的非空完整帧对。\n:param device: 用于推理和保存随机状态的设备。\n:param seed: 目标身份随机置换的起始种子，每个帧对递增一次。\n:param initial_head: 可选的 head/up 参数和缓冲区完整快照。\n:returns: 逐对象记录、分层汇总、复制帧对照以及时间关联分配的元数据。\n:raises ValueError: 帧对为空，或初始预测头的键或形状不匹配。",
+      "translation_source_blocks_sha256": [
+        "47cceddd8bbc88d5e45bf615c52714d3875146f7ee73d999f3f44e8ee7425779",
+        "f773fef02745836092a643abe54935a82b9a8acb109e55fdb56b0931304df080",
+        "30dc9f07cf2b9645e0dd69682f849e7be88681e463bbdce88bbd21c88b131909",
+        "f2783979dcde6ec018b3ffb94d506f62b36d8c82efd2fbf3ce24addc6409c366",
+        "80e8c94c59896c1571f2c58e069fb559127c0ae6d849c7532c257783c5fad829",
+        "478db8e5182bffd747913fb40cf4b5842bfa0434b35eb71257d4b7aa0991b936",
+        "e07a2404789eec6a181422a34d0ede552aee1394060852a1ad894f6f340900e2",
+        "7c0fdbb2c16c70e0175fefaf1f604f66a6e05d4f361c28a89932a5f5187a7554",
+        "8150fd8e4ce577d0dff8df4160ffdf68d05e6d4d87ba63fcd3fb5657fb240e7f",
+        "a402674aa80b39b44fda40768c0a52ca6e809cc65bb419ae641d559de7c5c9d8"
       ]
     },
     "spacr.timelapse": {
