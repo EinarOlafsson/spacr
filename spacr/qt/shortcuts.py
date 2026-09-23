@@ -84,7 +84,7 @@ SHORTCUTS: List[ShortcutSpec] = [
     ShortcutSpec("Ctrl+End",     "Jump to the newest console line",
                  "Console"),
     ShortcutSpec("Ctrl+F",       "Search this module's settings", "Actions"),
-    ShortcutSpec("Ctrl+Shift+R", "Settings recipes",       "Actions"),
+    ShortcutSpec("Ctrl+Shift+R", "Settings templates",     "Actions"),
     ShortcutSpec("Ctrl+T",       "Pause or resume the background",
                  "Background"),
     ShortcutSpec("Ctrl+R",       "Restart the background", "Background"),

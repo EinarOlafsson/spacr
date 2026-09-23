@@ -14164,3 +14164,16 @@ tools/run_capped.sh 4G python packaging/release.py audit-published --site https:
 The live check is intentionally not weakened while the website lags. Issue129
 remains open. Issue132 closed after pushed9a4afbcce/247 checks; other remaining
 open issues127/130/131. Please refresh API prose for new release helpers as needed.
+
+2026-09-23 — ISSUE127 SETTINGS TEMPLATES / ENHANCEMENT BACKLOG
+User-facing Recipes renamed Templates in settings strip, Help menu, shortcut
+reference and complete save/import/apply/delete dialog. All new text throughtr.
+Historical Recipe API/JSON key/storage paths preserved;80 behavior/UI tests
+pass. Please translate the new sources in recipes.py/shortcuts.py and update
+API/tutorial terminology to Settings templates. This addresses one of seven
+requests in127; remaining updater/layout/plaque items still under audit.
+Explicit deep image enhancement and measured/calculated PSF requests are now
+tracked as future489/490 with integration/provenance/validation requirements;
+neither is marked implemented. Received your0c0d7370d English-publication
+checkpoint and merged it, preserving both channel blocks. Installer sync is
+pushedc8edfc61d;129 public-site audit still fails for the documented lag.

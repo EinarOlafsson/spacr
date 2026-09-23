@@ -70,3 +70,12 @@ and an obsolete0.7 current marker. Earlier0.8 site estimate was its docs-build
 label, not the archive's current installer. Docs owner notified; no deployment
 claimed and129 remains open. Five of nine initial issues closed, four remain:
 127/129/130/131. Historical reading through digest line345; audit incomplete.
+
+2026-09-23 — ISSUE127 TERMINOLOGY ITEM COMPLETE
+The settings-strip button now says Templates; its Help menu action, shortcut
+reference, dialog title, explanations, file filters and error messages say
+Settings templates/template consistently. Existing Recipe API identifiers,
+spacr_recipe JSON version, storage paths and saved user files stay compatible.
+New user-visible strings use tr(); documentation session owns translation/API
+refresh.80 existing recipe persistence/dialog checks pass with the renamed
+captions. The other six issue127 items remain under audit; issue stays open.

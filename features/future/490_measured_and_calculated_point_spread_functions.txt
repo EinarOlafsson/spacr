@@ -1,0 +1,21 @@
+490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
+=================================================
+Status: NOT IMPLEMENTED. Explicit user request; record added2026-09-23.
+
+Let users modify images using a measured PSF or a calculated approximate PSF,
+first in Make Masks enhancement, then in Mask generation and Measure after
+validating behavior. Clearly distinguish convolution from deconvolution and
+explain the assumptions of an approximate kernel; do not silently infer optical
+parameters or present a Gaussian approximation as a measured microscope PSF.
+
+Acceptance: load calibrated measured kernels and validate dimensions, sampling,
+finite nonnegative values and positive normalization; calculate a documented
+kernel from explicit parameters; preserve source data, image dimensions and
+channel identity; define boundary behavior and dtype/intensity handling.
+Operations opt-in/off by default, cancellable off the GUI thread, integrated
+with Compare/Apply, and persisted in provenance including kernel identity and
+all restoration settings. Measure must record whether quantitative features
+use source or processed intensities. Validate synthetic known-convolution
+behavior and representative microscopy data before offering downstream use.
+API descriptions/tooltips/animations and translated tutorials belong in the
+shared documentation handoff. No claim of biological recovery from appearance.
