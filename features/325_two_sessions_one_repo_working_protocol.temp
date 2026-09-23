@@ -11712,3 +11712,35 @@ route inventories, API extractor counts and reviewed OPS source bindings;
 private raw logs are ci-followup/job-<id>.log. Dispatch35807838039 still has
 Fast/Minimum dependencies running. GPU observer3480688 remains live andbusy;
 no20-minute idle qualification, no OPS analysis launch. Claims release on push.
+
+2026-09-22 — IMPLEMENTATION: 476 SECONDARY OBJECTS CLAIM
+Previous turn made progress:ca34b9dde pushed; tutorial/API updates preserved.
+Claiming mask_engine.py shared marker growth and primary/secondary identity
+reports, then cpu_modes/Make Masks integration. Feature476 stays open until
+both scopes, source/class selection, save/ledger/queue behavior and paired
+nucleus/cell ground-truth measurement are verified. Engine milestone comes
+first; new APIs and semantic limits will be handed off before catalog work.
+Official CellProfiler docs distinguish Watershed-Image from Propagation;
+existing spaCR growth is intensity watershed, not lambda-zero equivalence.
+
+2026-09-22 — IMPLEMENTATION: LIVE BUTTON AND SEARCH OPACITY CLAIM
+User follow-up takes priority over476: restore Plaque Assay's inaccessible
+Live switch and set the Help search dropdown background to80percent opacity.
+Claiming app_screen.py, theme.py and focused Qt checks. The switch currently
+hides its own parent card when off. Keep it accessible beside Actions when
+closed, on the preview when open, without eagerly building lazy previews.
+No API/tutorial/catalog edits;476engine work remains in progress separately.
+
+2026-09-22 — IMPLEMENTATION: LIVE BUTTON AND SEARCH OPACITY VALIDATED
+Live is reachable beside the Actions heading even while Actions is folded;
+it moves to the open preview and returns when closed. The shared fix covers
+Plaque Assay, Mask, Measure, Timelapse and Motility while preserving lazy
+construction and first-open settings seeding.117focused Qt tests pass,
+including real repeated clicks on all five modules and both plaque modes.
+Help search results use fixed80percent background opacity with fully opaque
+text, independent of page opacity. Checked nine dark/light/space x page-alpha
+combinations and rendered all three themes. No new strings or settings.
+API lane: _on_preview_switch docstring now describes accessible placement;
+theme.stylesheet source binding also changes. Please refresh affected source
+bindings in your normal pass. No catalogs/tutorials touched here. Claims on
+app_screen.py/theme.py release with push;476engine claim remains active.

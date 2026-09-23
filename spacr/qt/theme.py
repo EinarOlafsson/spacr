@@ -5367,20 +5367,11 @@ QTableCornerButton::section {{
 /* -----------------------------------------------------------------
  *  Help search results (422)
  * ----------------------------------------------------------------- */
-/* OPAQUE ON PURPOSE, and close to the only panel in the app that is.
-   Every other surface honours the page-opacity preference; this one is a
-   transient overlay that lands on top of the console, and at any alpha
-   below 1 the log's text shows through the result rows and neither is
-   readable. The field shipped with no rule here AT ALL -- the frame sets
-   autoFillBackground and WA_StyledBackground, both of which paint nothing
-   when no selector matches -- so the rows sat directly on the log with
-   the log's own words running between them.
-   The frame carries the surface and the border; the list and the note
-   inside it stay transparent so there is ONE box and not three, and the
-   rows keep the app's hover and selection colours from the view rules
-   above rather than inventing a second set. */
+/* The search overlay uses a fixed 80% background independently of page
+   opacity. Its text stays fully opaque; the list and note remain transparent
+   so only the enclosing frame paints the background. */
 QFrame#HelpSearchResults {{
-    background-color: {P["surface_hi"]};
+    background-color: {css_color(base["surface_hi"], 0.8)};
     border: 1px solid {P["border"]};
     border-radius: {R["md"]}px;
 }}

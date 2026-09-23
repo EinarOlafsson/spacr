@@ -13,8 +13,10 @@ pytest.importorskip("PySide6")
 pytestmark = pytest.mark.qt
 
 
-@pytest.mark.parametrize("key", ["mask", "measure"])
+@pytest.mark.parametrize("key", ["mask", "measure", "analyze_plaques",
+                                 "timelapse", "motility"])
 def test_the_switch_is_on_the_card_not_in_the_run_row(qtbot, key):
+    from PySide6.QtCore import Qt
     from spacr.qt.app import MainWindow
 
     from .test_all_module_smoke import _FactoryHost
@@ -27,8 +29,20 @@ def test_the_switch_is_on_the_card_not_in_the_run_row(qtbot, key):
     card = getattr(screen, getattr(screen, "_preview_card_attr"), None)
     assert card is not None
     assert switch.text().strip() == "Live"
-    parents, node = [], switch
-    while node is not None:
-        parents.append(node)
-        node = node.parent()
-    assert card in parents, "the switch travels with the preview card"
+    screen.resize(1366, 768)
+    screen.show()
+    qtbot.waitExposed(screen)
+    screen._actions_folder.set_shut(True, by_user=False)
+    for _ in range(2):
+        assert not switch.isChecked()
+        assert card.isHidden()
+        assert switch.isVisible(), "a closed preview must leave Live reachable"
+        assert not screen._actions_body.isAncestorOf(switch)
+        qtbot.mouseClick(switch, Qt.LeftButton)
+        qtbot.waitUntil(card.isVisible)
+        assert switch.isChecked()
+        assert switch.isVisible()
+        assert card.isAncestorOf(switch), "Live travels with the open preview"
+        qtbot.mouseClick(switch, Qt.LeftButton)
+        qtbot.waitUntil(card.isHidden)
+    assert switch.isVisible(), "Live must still be available after closing"

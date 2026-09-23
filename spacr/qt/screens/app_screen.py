@@ -6731,7 +6731,10 @@ class AppScreen(QWidget):
         actions_heading = QLabel("Actions")
         actions_heading.setObjectName("CardTitle")
         self._actions_heading = actions_heading
-        section_col.addWidget(actions_heading)
+        self._actions_heading_row = QHBoxLayout()
+        self._actions_heading_row.addWidget(actions_heading)
+        self._actions_heading_row.addStretch(1)
+        section_col.addLayout(self._actions_heading_row)
         actions_body = QWidget(section)
         self._actions_body = actions_body
         body_col = QVBoxLayout(actions_body)
@@ -6896,12 +6899,6 @@ class AppScreen(QWidget):
                     text="Live", tooltip=tooltip)
                 self._preview_switch.toggled.connect(
                     self._on_preview_switch)
-                # ON THE PREVIEW CARD, not in the Run row (the maintainer,
-                # 2026-09-22). A preview takes the whole height and folds the
-                # Actions section under it (item 471), which put the switch
-                # that turns the preview OFF behind the thing it controls.
-                # Beside Refresh and the preview's own scale slider, it is
-                # always where the preview is.
                 card = getattr(self, card_attr, None)
                 placed = False
                 if hasattr(card, "add_title_action"):
@@ -8216,7 +8213,11 @@ class AppScreen(QWidget):
         card.setVisible(on)
 
     def _on_preview_switch(self, on: bool) -> None:
-        """Show or hide this module's runtime preview card.
+        """Show or hide the preview while keeping its Live switch reachable.
+
+        When closed, the switch sits beside the Actions heading, outside its
+        folding body. When open, it rides on the preview card. Hidden lazy
+        previews therefore remain unbuilt until the user opens them.
 
         Opening it also seeds the panel from the form, once. Before that,
         this screen wired only the push direction — ``set_propagate_callback``
@@ -8237,6 +8238,21 @@ class AppScreen(QWidget):
         card = getattr(self, attr, None) if attr else None
         if card is None:
             return
+        switch = getattr(self, "_preview_switch", None)
+        heading_row = getattr(self, "_actions_heading_row", None)
+        if switch is not None and heading_row is not None:
+            if on and hasattr(card, "add_title_action"):
+                heading_row.removeWidget(switch)
+                card.add_title_action(switch)
+            else:
+                title_row = getattr(card, "_title_row", None)
+                if title_row is not None:
+                    title_row.removeWidget(switch)
+                heading_row.addWidget(switch)
+            blocked = switch.blockSignals(True)
+            switch.setChecked(on)
+            switch.blockSignals(blocked)
+            switch.show()
         if on and not getattr(self, "_preview_primed", False):
             self._preview_primed = True
             self._prime_preview()
