@@ -154958,6 +154958,36 @@
         "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
       ]
     },
+    "spacr.timeflows_model.link_by_timeflows": {
+      "source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ],
+      "source_sha256": "4fb3cb63a37bc6d1b66e917c301e28d6dc57f1930b00f794016f42e79233db7f",
+      "text": "Vilket objekt i ``t+1`` varje objekt i ``t`` motsvarar enligt modellen.\n\nVarje objekts pixlar röstar genom de predikterade vektorerna på dess nästa centrum. Deras medelprediktioner tilldelas gemensamt till objektcentrum i ``t+1`` med den ungerska metoden. Objekt under ``min_successor`` eller utan en tillåten tilldelning förblir olänkade. Avstånd mäts i källobjektets diametrar, med en minsta diameter på en pixel.\n\nAvståndsgränsen tillämpas före tilldelningen. Tillåtna avstånd skalas till högst ett; ett alternativ utan matchning kostar strax över ett. En avståndsgräns på noll tillåter endast exakta centrummatchningar, med kostnaden noll. Därmed kan en omöjlig kant inte tränga undan en giltig länk. Målet minimerar avstånd plus kostnader för uteblivna matchningar; det maximerar inte antalet länkar.\n\nTröskelvärden måste vara ändliga, med ``min_successor`` i ``[0, 1]`` och ``max_distance`` icke-negativt. Om någon av bildrutorna saknar objekt är resultatet tomt utan att prediktionerna granskas. Annars måste prediktionernas former motsvara källbildrutan, förgrundsvektorerna vara ändliga och förgrundens sannolikheter för en efterföljare ligga i ``[0, 1]``. Bakgrundsvärden ignoreras. Beräknade objektcentrum måste också vara ändliga.\n\n:param labels_t: Objekten i bildruta ``t``, med valfria ID:n.\n:param labels_t1: Objekten i bildruta ``t+1``, med valfria ID:n.\n:param prediction: Från :func:`predict_pair`.\n:param min_successor: Den sannolikhet för en efterföljare som ett objekt behöver.\n:param max_distance: Det längsta länkavståndet, i objektets diametrar.\n:returns: ``{id in t: id in t+1}``.\n:raises ValueError: Ogiltiga tröskelvärden, prediktionsformer, förgrundsvärden eller beräknade objektcentrum.",
+      "translation_source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "0b85dff8c2dab34212bbb914f99fbf4ca35518edce022f2ffcad6689b33b8c7b",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
     "spacr.timeflows_model.predict_pair.starts": {
       "source_blocks_sha256": [
         "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"

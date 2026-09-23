@@ -105904,16 +105904,19 @@
     "spacr.timeflows_model.link_by_timeflows": {
       "source_blocks_sha256": [
         "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
-        "7e8b8f4fa85f528e4409e83ecc10117d27f7da4027981046f3f223857f909d49",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
         "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
         "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
         "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
         "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
         "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
-        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3"
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
       ],
-      "source_sha256": "50db58227918981d91e34cc1f8029908ed359f1a75b4a96ac81c6562e196b84b",
-      "text": "Which object in ``t+1`` each object in ``t`` becomes, from the model.\n\nEach object's pixels vote, through the predicted vectors, for where its\ncentre will be; the vote's mean is matched to the nearest object centre in\n``t+1`` with the Hungarian method. An object the model gives no successor,\nor whose best match is further than ``max_distance`` of its own diameter,\nis left unlinked.\n\n:param labels_t: frame ``t``'s objects, any ids.\n:param labels_t1: frame ``t+1``'s objects, any ids.\n:param prediction: from :func:`predict_pair`.\n:param min_successor: the successor probability an object needs.\n:param max_distance: the furthest link, in the object's diameters.\n:returns: ``{id in t: id in t+1}``."
+      "source_sha256": "4fb3cb63a37bc6d1b66e917c301e28d6dc57f1930b00f794016f42e79233db7f",
+      "text": "Which object in ``t+1`` each object in ``t`` becomes, from the model.\n\nEach object's pixels vote, through the predicted vectors, for its next\ncentre. Their mean predictions are assigned jointly to object centres in\n``t+1`` with the Hungarian method. Objects below ``min_successor`` or with\nno allowed assignment remain unlinked. Distances are measured in source\nobject diameters, with a minimum diameter of one pixel.\n\nThe distance gate is applied before assignment. Allowed distances are\nscaled to at most one; an unmatched choice costs just above one. A zero\ndistance limit permits only exact centre matches, with zero cost. Thus an\nimpossible edge cannot displace a valid link. The objective minimizes\ndistance plus unmatched costs; it does not maximize the number of links.\n\nThresholds must be finite, with ``min_successor`` in ``[0, 1]`` and\n``max_distance`` non-negative. If either frame has no objects, the result\nis empty without inspecting predictions. Otherwise prediction shapes must\nmatch the source frame, foreground vectors must be finite and foreground\nsuccessor probabilities must lie in ``[0, 1]``. Background values are\nignored. Derived object centres must also be finite.\n\n:param labels_t: frame ``t``'s objects, any ids.\n:param labels_t1: frame ``t+1``'s objects, any ids.\n:param prediction: from :func:`predict_pair`.\n:param min_successor: the successor probability an object needs.\n:param max_distance: the furthest link, in the object's diameters.\n:returns: ``{id in t: id in t+1}``.\n:raises ValueError: invalid thresholds, prediction shapes, foreground\n    values or derived object centres."
     },
     "spacr.timeflows_model.main": {
       "source_blocks_sha256": [

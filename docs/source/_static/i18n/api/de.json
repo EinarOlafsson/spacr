@@ -155900,6 +155900,36 @@
         "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
       ]
     },
+    "spacr.timeflows_model.link_by_timeflows": {
+      "source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ],
+      "source_sha256": "4fb3cb63a37bc6d1b66e917c301e28d6dc57f1930b00f794016f42e79233db7f",
+      "text": "Welchem Objekt in ``t+1`` jedes Objekt in ``t`` laut Modell entspricht.\n\nDie Pixel jedes Objekts stimmen über die vorhergesagten Vektoren für sein nächstes Zentrum ab. Ihre gemittelten Vorhersagen werden mit der ungarischen Methode gemeinsam den Objektzentren in ``t+1`` zugeordnet. Objekte unter ``min_successor`` oder ohne zulässige Zuordnung bleiben unverknüpft. Abstände werden in Durchmessern des Quellobjekts gemessen, wobei der Mindestdurchmesser ein Pixel beträgt.\n\nDie Abstandsgrenze wird vor der Zuordnung angewendet. Zulässige Abstände werden auf höchstens eins skaliert; eine fehlende Zuordnung kostet etwas mehr als eins. Bei einer Abstandsgrenze von null sind nur exakte Übereinstimmungen der Zentren mit Kosten von null zulässig. Eine unmögliche Kante kann daher keine gültige Verknüpfung verdrängen. Das Ziel minimiert die Summe aus Abständen und Kosten fehlender Zuordnungen; es maximiert nicht die Anzahl der Verknüpfungen.\n\nSchwellenwerte müssen endlich sein, wobei ``min_successor`` in ``[0, 1]`` liegt und ``max_distance`` nicht negativ ist. Enthält eines der Bilder keine Objekte, ist das Ergebnis leer, ohne dass die Vorhersagen geprüft werden. Andernfalls müssen die Vorhersageformen zum Quellbild passen, Vordergrundvektoren endlich sein und Nachfolgerwahrscheinlichkeiten im Vordergrund in ``[0, 1]`` liegen. Hintergrundwerte werden ignoriert. Abgeleitete Objektzentren müssen ebenfalls endlich sein.\n\n:param labels_t: die Objekte in Bild ``t`` mit beliebigen IDs.\n:param labels_t1: Die Objekte im Bild ``t+1``, mit beliebigen IDs.\n:param prediction: aus :func:`predict_pair`.\n:param min_successor: Die Nachfolgerwahrscheinlichkeit, die ein Objekt benötigt.\n:param max_distance: Die größte Verknüpfungsdistanz in Durchmessern des Objekts.\n:returns: ``{id in t: id in t+1}``.\n:raises ValueError: Ungültige Schwellenwerte, Vorhersageformen, Vordergrundwerte oder abgeleitete Objektzentren.",
+      "translation_source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "0b85dff8c2dab34212bbb914f99fbf4ca35518edce022f2ffcad6689b33b8c7b",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
     "spacr.timeflows_model.predict_pair.starts": {
       "source_blocks_sha256": [
         "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"

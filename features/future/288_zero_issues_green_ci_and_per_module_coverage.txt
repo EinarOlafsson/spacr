@@ -4921,3 +4921,12 @@ Native tooltip-recorder/GUI-scale teardown crashes have not reproduced in
 an ordinary local76-test cohort (75pass,1known missing-lesson failure).
 That is not a fix claim; GC stress investigation continues. Remaining CI,
 coverage, catalog and performance acceptance stays open.
+
+2026-09-23 — CODEX: CHROME CAPTION INVENTORY REGRESSION
+Reproduced the 53-versus-52 chrome source count failure. The exact addition
+is "Swap object and background", introduced by ae084b7d3 and already present
+in all nine translated catalogs. Added it to the independent expected-caption
+list and pinned the new count, with subtraction restoring the prior count.
+The full named chrome test file passes 67 checks; no runtime or translation
+gate was relaxed. Receipt: data/411_timeflows_matching_and_chrome_2026-09-23.json.
+The existing manual full CI run remains authoritative and is not duplicated.

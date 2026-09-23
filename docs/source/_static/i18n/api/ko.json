@@ -154958,6 +154958,36 @@
         "3a50c8aec9b2e55033df1fb9a0c74a1158a319092caabf048e3997134c1a03ea"
       ]
     },
+    "spacr.timeflows_model.link_by_timeflows": {
+      "source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "e20906224643f1e878ca5e8d03effa4f7b1933ed0762c759b0d6d88b70caf846",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ],
+      "source_sha256": "4fb3cb63a37bc6d1b66e917c301e28d6dc57f1930b00f794016f42e79233db7f",
+      "text": "모델에 따라 ``t+1``의 어느 객체가 ``t``의 각 객체에 해당하는지 결정합니다.\n\n각 객체의 픽셀은 예측 벡터를 통해 다음 중심 위치에 투표합니다. 이 평균 예측 위치를 헝가리안 방법으로 ``t+1``의 객체 중심에 공동으로 할당합니다. ``min_successor`` 미만이거나 허용된 할당이 없는 객체는 연결되지 않은 상태로 남습니다. 거리는 원본 객체의 지름 단위로 측정하며, 최소 지름은 한 픽셀입니다.\n\n할당 전에 거리 제한을 적용합니다. 허용된 거리는 최대 일이 되도록 조정되며, 미매칭 선택의 비용은 일보다 약간 큽니다. 거리 제한이 영이면 중심이 정확히 일치하는 매칭만 허용하고 비용은 영입니다. 따라서 불가능한 간선이 유효한 연결을 밀어낼 수 없습니다. 목적 함수는 거리와 미매칭 비용의 합을 최소화하며, 연결 수를 최대화하지 않습니다.\n\n임계값은 유한해야 하며, ``min_successor``는 ``[0, 1]`` 범위에 있고 ``max_distance``는 음수가 아니어야 합니다. 어느 한 프레임에 객체가 없으면 예측을 확인하지 않고 빈 결과를 반환합니다. 그렇지 않으면 예측 배열의 형태가 원본 프레임과 일치해야 하고, 전경 벡터는 유한해야 하며, 전경의 후속 객체 확률은 ``[0, 1]`` 범위에 있어야 합니다. 배경 값은 무시합니다. 계산된 객체 중심도 유한해야 합니다.\n\n:param labels_t: 프레임 ``t``의 객체이며, ID는 임의로 지정할 수 있습니다.\n:param labels_t1: 프레임 ``t+1``의 객체이며, ID는 임의로 지정할 수 있습니다.\n:param prediction: :func:`predict_pair`의 결과입니다.\n:param min_successor: 객체에 필요한 후속 객체 확률입니다.\n:param max_distance: 객체 지름 단위의 최대 연결 거리입니다.\n:returns: ``{id in t: id in t+1}``.\n:raises ValueError: 잘못된 임계값, 예측 배열 형태, 전경 값 또는 계산된 객체 중심입니다.",
+      "translation_source_blocks_sha256": [
+        "364a65fcc87c189f7515696b7fb183783ceb39b08138dc284b1c0888a76531f7",
+        "39e738b179ec0354229f9d0fb99853bde31c8b9090a3dcd4f680d5e937262bf0",
+        "0b85dff8c2dab34212bbb914f99fbf4ca35518edce022f2ffcad6689b33b8c7b",
+        "8ddd147793a2648b542f91d19930c88e1ede4187c1c73b23d1a7bc2594822e5f",
+        "73624ab6475d4c3fba9f84de80758455a26e78da34abc5ef98f77d1af3c54b07",
+        "026da76b150060f1021a2177f0f51df0da942394800e6f0301e3bc203876634c",
+        "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
+        "f00d9887a05cd05dd9538fb2f0d645f3a6751797e9b7d7adafbe8e026b728f7f",
+        "dfda9a0f2cd00eab20473544f4bde54997d7e00986825c3dbe621d303c559519",
+        "33b9232c599570345197571a0d5c414a983977b66d9e98ee265a7880a163ecb3",
+        "b9db3aa4a07c8afb68122e0f980838bc9f4d68a9aef248a8ff5cef60515432c1"
+      ]
+    },
     "spacr.timeflows_model.predict_pair.starts": {
       "source_blocks_sha256": [
         "59907b279d989568fdbe15a9a9ae75cc640ccd01a217c4ae2f44741da0e4e213"

@@ -63,6 +63,30 @@ The stage loop is documented separately as
 :func:`spacr.timeflows_model.train_timeflows.run`. Shared image augmentations
 are applied through :func:`spacr.timeflows_model.augment_pair.apply`.
 
+Interpret links and unmatched objects
+--------------------------------------
+
+:func:`spacr.timeflows_model.link_by_timeflows` first removes candidate links
+outside the configured distance limit, then solves the assignment with
+explicit unmatched choices. A rejected edge cannot occupy a target and
+displace a valid link. The objective minimizes distance plus unmatched costs;
+it does not maximize the number of links. Distances use source-object
+diameters, with a one-pixel minimum diameter. A zero limit allows only exact
+predicted-centre matches.
+
+Both thresholds must be finite. ``min_successor`` must lie in ``[0, 1]`` and
+``max_distance`` must be non-negative. When both frames contain objects, the
+prediction arrays must match the source frame. Foreground vectors and derived
+centres must be finite, and foreground successor probabilities must lie in
+``[0, 1]``. Invalid values raise ``ValueError``; background predictions are
+ignored. An empty object set in either frame returns no links without reading
+the prediction arrays.
+
+Keep the evaluator's ``temporal_assignment`` policy and thresholds with its
+results. Scores obtained with the previous decoder describe that decoder;
+they do not establish the accuracy of the corrected assignment. Compare both
+decoders on identical predictions before attributing a difference to matching.
+
 Keep checkpoint provenance with the results
 --------------------------------------------
 

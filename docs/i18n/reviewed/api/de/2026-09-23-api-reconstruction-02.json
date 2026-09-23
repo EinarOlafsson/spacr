@@ -337,6 +337,8 @@
     {
       "context": "from :func:`predict_pair`.",
       "label": "spacr.timeflows_model.link_by_timeflows#4",
+      "retired": true,
+      "retired_reason": "2026-09-23: gated temporal assignment and prediction validation changed the source or block position; original review retained, with current evidence in 2026-09-23-timeflows-matching.json.",
       "source": "from :func:`predict_pair`.",
       "source_sha256": "cda2115462249e74adea64b0e7a8fca6912b8e5ef369d43d4178023c06e135a0",
       "translation": "aus :func:`predict_pair`."

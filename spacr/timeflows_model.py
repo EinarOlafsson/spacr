@@ -703,18 +703,24 @@ def link_by_timeflows(labels_t: np.ndarray, labels_t1: np.ndarray,
                       max_distance: float = 1.0) -> Dict[int, int]:
     """Which object in ``t+1`` each object in ``t`` becomes, from the model.
 
-    Each object's pixels vote, through the predicted vectors, for where its
-    centre will be; the vote's mean is matched to the nearest object centre in
-    ``t+1`` with the Hungarian method. An object the model gives no successor,
-    or whose best match is further than ``max_distance`` of its own diameter,
-    is left unlinked.
+    Each object's pixels vote, through the predicted vectors, for its next
+    centre. Their mean predictions are assigned jointly to object centres in
+    ``t+1`` with the Hungarian method. Objects below ``min_successor`` or with
+    no allowed assignment remain unlinked. Distances are measured in source
+    object diameters, with a minimum diameter of one pixel.
 
-    The distance gate is applied before assignment. Leaving an object
-    unmatched costs the distance limit (with an inclusive boundary), so an
+    The distance gate is applied before assignment. Allowed distances are
+    scaled to at most one; an unmatched choice costs just above one. A zero
+    distance limit permits only exact centre matches, with zero cost. Thus an
     impossible edge cannot displace a valid link. The objective minimizes
     distance plus unmatched costs; it does not maximize the number of links.
-    Non-finite or out-of-range foreground predictions raise ``ValueError``;
-    background predictions do not participate.
+
+    Thresholds must be finite, with ``min_successor`` in ``[0, 1]`` and
+    ``max_distance`` non-negative. If either frame has no objects, the result
+    is empty without inspecting predictions. Otherwise prediction shapes must
+    match the source frame, foreground vectors must be finite and foreground
+    successor probabilities must lie in ``[0, 1]``. Background values are
+    ignored. Derived object centres must also be finite.
 
     :param labels_t: frame ``t``'s objects, any ids.
     :param labels_t1: frame ``t+1``'s objects, any ids.
@@ -722,6 +728,8 @@ def link_by_timeflows(labels_t: np.ndarray, labels_t1: np.ndarray,
     :param min_successor: the successor probability an object needs.
     :param max_distance: the furthest link, in the object's diameters.
     :returns: ``{id in t: id in t+1}``.
+    :raises ValueError: invalid thresholds, prediction shapes, foreground
+        values or derived object centres.
     """
     from scipy.optimize import linear_sum_assignment
 

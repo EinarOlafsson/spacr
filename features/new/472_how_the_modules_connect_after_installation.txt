@@ -446,3 +446,15 @@ other three still need that full matrix. English, French, Spanish, Portuguese,
 Chinese and Italian remaining voice tracks are rendering on the CPU in the
 private staging directory. None of these receipts claims native-speaker,
 listening or complete-set publication acceptance. The release hold remains.
+
+2026-09-23 — CODEX: JAPANESE WORKFLOW TEXT AND FRENCH PLAYBACK
+Japanese adds 238 source-bound phrases and 97 generated lesson scenes. All
+four staged scripts retain source/map hashes, links, scene structure and
+spoken-form rules; unrelated lessons are unchanged. Workflow scene coverage
+is now 1023/1508 (67.8 percent). The generator/promotion cohort passes 24
+checks. Japanese narration is rendering CPU-only. Hindi, Korean, Icelandic,
+Danish and Norwegian shared phrase banks remain.
+All three French ff_siwis tracks now pass full technical audio checks and
+actual Chromium playback, caption, seek and lesson-link checks. Their receipt
+records exact audio hashes and decoded peaks; it does not claim listening,
+native-speaker or screenshot acceptance. Complete-set publication remains held.

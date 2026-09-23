@@ -1842,3 +1842,15 @@ guides instead of rewriting them as guide RNA; molecular-guide repair still
 works. Seventeen literal/context checks pass. Language-specific receipts are
 under tools/tutorials/evidence/. Native-speaker and full-catalog acceptance
 remain open.
+
+2026-09-23 — CODEX: GATED MATCHING API FOLLOW-UP
+Documented the existing Timeflows joint assignment, unmatched costs, zero
+distance limit and prediction validation, including the empty-frame branch.
+One symbol contributes eleven source-bound blocks in each of nine locales;
+99 translations are current and three superseded German records retain their
+original contents. Runtime AST is unchanged. The English manifest remains
+11,409 symbols; the GUI inventory remains 5,017 sources. Strict Sphinx build,
+52 internal documentation links and all full review loaders pass. This does
+not clear the existing whole-catalog freshness debt or browser rejection.
+Receipt: data/411_timeflows_matching_and_chrome_2026-09-23.json. Incoming
+held-out training arguments require another refresh after their merge.

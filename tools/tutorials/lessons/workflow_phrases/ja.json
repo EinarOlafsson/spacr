@@ -1,0 +1,1201 @@
+{
+  "schema": 1,
+  "language": "ja",
+  "workflow_map_sha256": "76b4473ba6a9e05ced1f897984b6868843f12ecb5268f7209a2888c31fa86984",
+  "review": {
+    "kind": "AI-assisted source/target editorial review of workflow-map phrases; reused by GUI and generated tutorial narration",
+    "native_speaker_signoff": false
+  },
+  "records": [
+    {
+      "source": "A chosen annotation column in measurements/measurements.db, table png_list; labels belong to object identities.",
+      "source_sha256": "d15a1f463dbd341e4426d502b19a34f5319d8bd5928b5344098edc6dcc06dfb0",
+      "translation": "measurements/measurements.db の png_list テーブルで選択した注釈列。ラベルはオブジェクトの識別情報に対応します。"
+    },
+    {
+      "source": "Acquire and measure the experiment first, preserving dose/condition identities.",
+      "source_sha256": "0f323891c020796daca4869bf6e5ac0698a80e6005ed1a0577fe7c124622897c",
+      "translation": "まず実験データを取得して測定し、用量と条件の識別情報を保持します。"
+    },
+    {
+      "source": "Aggregate the selected measurement by well and inspect plate patterns and controls.",
+      "source_sha256": "80c34a382ee7c88b39fd8785dbe0561813d318b5ebcf49c587119249fb1f4bc7",
+      "translation": "選択した測定値をウェルごとに集計し、プレート上の分布と対照を確認します。"
+    },
+    {
+      "source": "Align & Stitch destination: composed image and the tile-coordinate/layout records needed to interpret it.",
+      "source_sha256": "eed85941623ad9242e81659667fcfcf7e6fb97f5fc561b34fdad55df20ad92fc",
+      "translation": "Align & Stitch の出力先：合成画像と、その解釈に必要なタイル座標および配置の記録。"
+    },
+    {
+      "source": "Aligned mosaic and coordinates",
+      "source_sha256": "0d29787d6b1264601aa4efb723c9171f134f221a3cc918ff8c71680e07d15958",
+      "translation": "位置合わせ済みモザイクと座標"
+    },
+    {
+      "source": "Also provide the matching crops and channel preprocessing.",
+      "source_sha256": "5d14f534937d88a8a816046b5b06ec106abb7f34c8957aecb6f28e07eb986510",
+      "translation": "対応する切り出し画像とチャネルの前処理も提供します。"
+    },
+    {
+      "source": "An exported .h5ad file containing measured features and object metadata.",
+      "source_sha256": "eb1617e946b752baaf07a5fa75c860776425f0660848a412d57eb7d5439c8097",
+      "translation": "測定した特徴量とオブジェクトのメタデータを含む、エクスポートされた .h5ad ファイル。"
+    },
+    {
+      "source": "Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.",
+      "source_sha256": "c838f473fa96e1a4d0dfd289edffec8b35a72f2681cada7ed544fd0f102f20d6",
+      "translation": "設定したプラークモデルで、プラーク画像または既存のマスクを解析します。この経路は Measure を経由する必要がありません。専用のプラーク例を参照してください。"
+    },
+    {
+      "source": "AnnData export",
+      "source_sha256": "066b1d6b22084d949705798a344a8e390d79626c517e95e28d1159b36376cf09",
+      "translation": "AnnData のエクスポート"
+    },
+    {
+      "source": "Apply compatible gates, then review candidate labels.",
+      "source_sha256": "313dcd7499b29d9ab4f1e85a9a12a0700c2235ad0e42e8c45faaf93c6fc939ca",
+      "translation": "互換性のあるゲートを適用し、候補ラベルを確認します。"
+    },
+    {
+      "source": "Apply the matching image classifier and preprocessing to inspect saliency/model-response maps.",
+      "source_sha256": "616ed7d84583d1cb7edea0e7c6e356a336ea0312b3b0b4fbe0f20674a50cefaf",
+      "translation": "対応する画像分類器と前処理を適用し、顕著性マップやモデル応答マップを確認します。"
+    },
+    {
+      "source": "Apply the selected segmentation model to the open image folder through Make Masks; inspect saved labels before measuring them.",
+      "source_sha256": "687dd2e9735ffb85adf10d1c7821cef3f201afb6d64a495b0dfc1d9be9ce0809",
+      "translation": "Make Masks を通じて、選択したセグメンテーションモデルを開いている画像フォルダに適用します。測定前に保存したラベルを確認します。"
+    },
+    {
+      "source": "Area-derived size-proxy results",
+      "source_sha256": "a468ba4a9766242ed6a5bcb0193f2daeba05179cb38a81a3abc941f3a2ad1d82",
+      "translation": "面積から求めたサイズ代替指標の結果"
+    },
+    {
+      "source": "Assay results",
+      "source_sha256": "fc8bb4d3390130205fe7317376fb9dd9c3aa31869f9b78ff78d59f66d2d9b6e5",
+      "translation": "アッセイ結果"
+    },
+    {
+      "source": "Assay-specific result tables and figures in the configured destination, preserving well and condition identities.",
+      "source_sha256": "965e5013440f3ad50e24620facf0624e2bd30ec2b73cf95cb4515ac9d1720ed9",
+      "translation": "設定した出力先に保存される、アッセイ固有の結果テーブルと図。ウェルと条件の識別情報を保持します。"
+    },
+    {
+      "source": "Assign corresponding images and existing integer label masks, then create and measure a spaCR project without rerunning segmentation.",
+      "source_sha256": "67c18edf78c03e939326aefe323cec616df1aa343f338419df84ced18677623c",
+      "translation": "対応する画像と既存の整数ラベルマスクを指定し、セグメンテーションを再実行せずに spaCR プロジェクトを作成して測定します。"
+    },
+    {
+      "source": "Begin on Home by deciding whether you have raw images, existing masks or measured objects. Mask creates segmentation outputs; Make Masks curates individual fields; Measure turns compatible images and labels into object measurements and optional crops. From there, the scientific question determines whether to classify, explore a projection, define a gate or run an assay. Align tiled images before the analysis that needs a common coordinate system. The routes here are alternatives and branches, not a requirement to run every module.",
+      "source_sha256": "9c4cbe85f04c11d0ea187d2b5b3c42dea84e185362ba1e7f613c33ab9250f1f0",
+      "translation": "Home で、手元にあるのが生画像、既存のマスク、測定済みオブジェクトのどれかを判断するところから始めます。Mask はセグメンテーション結果を生成し、Make Masks は個々の視野を修正します。Measure は互換性のある画像とラベルからオブジェクトの測定値を生成し、必要に応じて切り出し画像も作成します。その後は、科学的な問いに応じて、分類、投影の探索、ゲートの定義、アッセイの実行を選びます。共通の座標系が必要な解析の前には、タイル画像の位置を合わせます。ここで示す経路は選択肢や分岐であり、すべてのモジュールを実行する必要はありません。"
+    },
+    {
+      "source": "Browse selected tables and export rows; table inspection does not rerun image analysis.",
+      "source_sha256": "ae9c5095f336105e9fbd9f5fbffb6e0bb0b6d8c74654859bb1ec9948b395204c",
+      "translation": "選択したテーブルを閲覧し、行をエクスポートします。テーブルの確認では画像解析は再実行されません。"
+    },
+    {
+      "source": "Bundled organism reference",
+      "source_sha256": "6940b46228c61534e7131106a42e7a7c143ecf4206038f5ed3d31b18552b2fb0",
+      "translation": "同梱の生物リファレンス"
+    },
+    {
+      "source": "Carry tile coordinates and original sequencing cycles into OPS; a flattened mosaic alone is insufficient.",
+      "source_sha256": "8c3b2bc30d04bcc6d3c08a62c5d761ad0cbe2ae7075f1a84d4b7d1b61d630439",
+      "translation": "タイル座標と元のシーケンシングサイクル情報を OPS に渡します。平坦化したモザイクだけでは不十分です。"
+    },
+    {
+      "source": "Check mapping and coverage before guide filtering.",
+      "source_sha256": "8f0003ef9a4bff7fd9ec78f06910d83d5cd54dba893fb6d715164d8fb80a7e0f",
+      "translation": "ガイドをフィルタリングする前に、マッピングとカバレッジを確認します。"
+    },
+    {
+      "source": "Choose Computer Vision for crops or streamed object images, or Tabular Machine Learning for measured feature columns. The two families consume different inputs.",
+      "source_sha256": "dfd0615694b07d1b38c715a9faf27f675d184a1abb8ecaaf55907a64653b2f4f",
+      "translation": "切り出し画像やストリーミングで読み込むオブジェクト画像には Computer Vision を、測定した特徴量の列には Tabular Machine Learning を選びます。この二つの系統では入力が異なります。"
+    },
+    {
+      "source": "Choose a module by the data you have and the result you need. Home shows the main modules; related tools can open inside a parent. This chapter-by-chapter reference covers every current route. Inputs and outputs can be conditional: an image classifier and a feature classifier need different data, and a viewer does not automatically save everything it displays. The notes for each module explain those differences. Keep the original files and use the recorded object, plate and well identities when passing results between modules.",
+      "source_sha256": "a693610b147192dc9770877bf5d20f45491c2fbe326c4496469f2318ef6e49fc",
+      "translation": "手元のデータと必要な結果に応じてモジュールを選びます。Home には主要モジュールが表示され、関連ツールは親モジュール内から開けます。このリファレンスでは、現在のすべての経路を章ごとに説明します。入力と出力は条件によって異なる場合があります。画像分類器と特徴量分類器は異なるデータを必要とし、ビューアーが表示内容をすべて自動保存するわけではありません。各モジュールの説明でこれらの違いを示します。元のファイルを保持し、モジュール間で結果を渡すときには、記録されたオブジェクト、プレート、ウェルの識別情報を使用してください。"
+    },
+    {
+      "source": "Choose a starting module from the data you already have.",
+      "source_sha256": "9fcef3d204529b4bcdac2d96089f0ddfdeb8308de16add81e67097473e8a9e0b",
+      "translation": "すでにあるデータに応じて、開始するモジュールを選びます。"
+    },
+    {
+      "source": "Choose an image-analysis route through segmentation, measurement, annotation, classification, projections, gates, image registration, quality control and assays.",
+      "source_sha256": "a4923474c959d4abf02e4bf3e6d4603a9b671771e7f8d0c56fa9b32223e57584",
+      "translation": "セグメンテーション、測定、注釈、分類、投影、ゲート、画像位置合わせ、品質管理、アッセイを通る画像解析経路を選びます。"
+    },
+    {
+      "source": "Choose explicit variables, groups and filters.",
+      "source_sha256": "3f346a1d8a8fc510ad9eefe78481e54db311742cb68caa3d0eaa38ea53505af2",
+      "translation": "変数、グループ、フィルターを明示的に選びます。"
+    },
+    {
+      "source": "Choose feature columns and inspect representative crops.",
+      "source_sha256": "22bcabd0b57471c6762a75c4ddf999a1619320d8e32a20ec6bd4f94d3e8fa2f1",
+      "translation": "特徴量の列を選び、代表的な切り出し画像を確認します。"
+    },
+    {
+      "source": "Choose grouping variables and measurement columns, then inspect pivot tables and groupwise sample sizes.",
+      "source_sha256": "f6c34d8205ce135fb2481706b5cc4beeb9cb39d5bcb7de202c6aa50274bd12a4",
+      "translation": "グループ化の変数と測定列を選び、ピボットテーブルとグループごとのサンプル数を確認します。"
+    },
+    {
+      "source": "Choose independent annotation columns for the same objects.",
+      "source_sha256": "cd79b318e185370c7e0f596616c08b46b9b6ada79e3dddb0e40ef52e399f4a28",
+      "translation": "同じオブジェクトに対する独立した注釈列を選びます。"
+    },
+    {
+      "source": "Choose the image or tabular family to match your input.",
+      "source_sha256": "ceb54e5452ef1c9acadfccb5dd22ce2b6781d2eb432446886ad5e7cdf57e35a5",
+      "translation": "入力に合う画像系または表形式データ系を選びます。"
+    },
+    {
+      "source": "Choose variables, groups and plotting settings from the loaded table, then export the figure with its analysis context.",
+      "source_sha256": "29413490e3eaa63db5861f8b248a5a53bbafa8b28c784195c322ca1597ed9ced",
+      "translation": "読み込んだテーブルから変数、グループ、作図設定を選び、解析の背景情報とともに図をエクスポートします。"
+    },
+    {
+      "source": "Classifier evaluation bundle",
+      "source_sha256": "89adad7599d0938534d8d4406f3b4cfa8c6bc70d9664d88c81e4bbfe818fd3a5",
+      "translation": "分類器の評価結果一式"
+    },
+    {
+      "source": "Combine measured objects with matching tracks.",
+      "source_sha256": "9814ec4bb65f1bbc792c24c8ddf12b71822c9e49252bdb0a60d77bed63851c5d",
+      "translation": "測定済みオブジェクトを対応する軌跡と組み合わせます。"
+    },
+    {
+      "source": "Compare compatible saved result sets and their settings.",
+      "source_sha256": "bfceea3a2459b0f73caaca76beadd1d4b3b1aa069ae336974fa5170d55b99e5a",
+      "translation": "互換性のある保存済み結果セットと、その設定を比較します。"
+    },
+    {
+      "source": "Compare compatible saved settings, counts and hit lists without treating changed input data as a controlled model comparison.",
+      "source_sha256": "694456ee4f476e0a484dee77cb01c2482717f65c64115b614d7b1ae8bb4a9981",
+      "translation": "互換性のある保存済み設定、カウント、ヒットリストを比較します。入力データが変わった比較を、条件を統制したモデル比較として扱わないでください。"
+    },
+    {
+      "source": "Compare designated controls across plates and inspect drift; the definition of a control comes from the experiment.",
+      "source_sha256": "f5c09dfef9795ff76303326bed04aae85be1983d26dff5474bbc8eb8d73cc2f6",
+      "translation": "プレート間で指定した対照を比較し、ドリフトを確認します。対照の定義は実験に基づきます。"
+    },
+    {
+      "source": "Compare groups in small-multiple plots with explicit shared or independent axes.",
+      "source_sha256": "5696e4b8e59ff2424fa5e83649b69a765bbc3cc0f5f5881bef5744475888bbf8",
+      "translation": "軸を共有するか独立させるかを明示した、小分けの複数グラフでグループを比較します。"
+    },
+    {
+      "source": "Compare independent annotation columns and inspect discordant objects; agreement is separate from classification accuracy.",
+      "source_sha256": "9bd4e6188a58340c22515e30d1c9cc8744fe271fa4fdefcfaa0b9cb0a5cba84e",
+      "translation": "独立した注釈列を比較し、不一致のオブジェクトを確認します。一致度と分類精度は別のものです。"
+    },
+    {
+      "source": "Compare model masks on identical fields. Without independent reference labels, agreement does not measure segmentation accuracy.",
+      "source_sha256": "240313d6c6c0cd9baf7ffde5b0e1fd23807099980c7dbdd70f54cc8d30847617",
+      "translation": "同じ視野でモデルのマスクを比較します。独立した参照ラベルがなければ、一致度はセグメンテーション精度を測るものではありません。"
+    },
+    {
+      "source": "Compare saved training histories, metrics and settings from compatible model runs.",
+      "source_sha256": "648125cd6c6c041fb5612df6dae629b30dfa25720e1c143668b9cf0256eb886f",
+      "translation": "互換性のあるモデル実行で保存した学習履歴、指標、設定を比較します。"
+    },
+    {
+      "source": "Comparison tables and figures from compatible saved runs or masks; agreement is not ground-truth accuracy.",
+      "source_sha256": "43464fdacefc288e0354f2982955822f2e7a4bc7b9dd2b0200a9e1d71f7fb5aa",
+      "translation": "互換性のある保存済み実行やマスクから作成した比較テーブルと図。一致度は正解ラベルに対する精度ではありません。"
+    },
+    {
+      "source": "Convert supported microscope formats to a configured TIFF layout while preserving source mappings. Conversion does not generate object measurements.",
+      "source_sha256": "ff8703beb2e105461ec44b322f82f73a76842e4ba4e9ac58cb0ddedc483801b2",
+      "translation": "対応する顕微鏡ファイル形式を、元データとの対応関係を保持しながら設定済みの TIFF 配置に変換します。変換ではオブジェクトの測定値は生成されません。"
+    },
+    {
+      "source": "Correct labels and track assignments while retaining a record of the edits.",
+      "source_sha256": "e1b49e03ad6cc63788f37b0d1269f1eacec5b175d89cfe80bd4e7393bf95d2d0",
+      "translation": "編集記録を残しながら、ラベルと軌跡の割り当てを修正します。"
+    },
+    {
+      "source": "Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.",
+      "source_sha256": "b57de04dadae3fef67d4258c76fc74a71c5b5d5817c77f364d9f5084ced9a315",
+      "translation": "明示的な液胞の識別情報を使って寄生体を数え、条件間の分布を比較します。宿主の識別情報だけでは液胞を定義できません。"
+    },
+    {
+      "source": "Curate image/mask pairs for segmentation training, or use FEATURES to assign images and masks and invoke measurement. Saving a mask does not train a classifier.",
+      "source_sha256": "6b280f37f6408974d163e2f64b1d927f90df5040f44e2ee5f826b9bc4980eae0",
+      "translation": "セグメンテーション学習用の画像とマスクのペアを整えるか、FEATURES で画像とマスクを指定して測定を呼び出します。マスクを保存しても分類器は学習されません。"
+    },
+    {
+      "source": "Curated training fields",
+      "source_sha256": "4a9e103549efe90cfb11969a371b9d5d7008407b163f92f8bb95245a6d7c683f",
+      "translation": "確認・修正済みの学習視野"
+    },
+    {
+      "source": "Define the class comparison and inspect filtering.",
+      "source_sha256": "7fa9a001232f6d1ea07ecc963e11b123f8518f46eb02030948f841e51e9e0f00",
+      "translation": "比較するクラスを定義し、フィルタリングを確認します。"
+    },
+    {
+      "source": "Define threshold or polygon gates on actual feature/coordinate columns, then apply the saved gate to compatible objects.",
+      "source_sha256": "ec9b4663f32b012a6e731ed27a43fdf6871faf968a33d9d9c49c810fb2bac988",
+      "translation": "実際の特徴量列や座標列に閾値ゲートまたは多角形ゲートを定義し、保存したゲートを互換性のあるオブジェクトに適用します。"
+    },
+    {
+      "source": "Direct Cellpose TIFF masks",
+      "source_sha256": "0a9d2574b41101da424810b89ad53c2956fbc0bb9c9a1e7abfca9618b40d171c",
+      "translation": "直接生成する Cellpose TIFF マスク"
+    },
+    {
+      "source": "Draft methods/results text from recorded settings and results; review every claim before publication.",
+      "source_sha256": "47e35d8dced8ab5228a2151d8312488e2a27982d5ea2c0878ea0f14b2b82c956",
+      "translation": "記録された設定と結果から方法・結果の文章を下書きし、公開前にすべての主張を確認します。"
+    },
+    {
+      "source": "Each src project root/measurements/measurements.db; tables defaults to cell, nucleus, pathogen and cytoplasm, with png_list added for merging. The compartment setting selects the area column; default pathogen_area is summed per host cell.",
+      "source_sha256": "58cd7ba9f7a8e3c6f1636d22351c3b4700ff9ab75536f79422228dd04c1d0ccd",
+      "translation": "各 src プロジェクトのルートにある measurements/measurements.db。tables の既定値は cell、nucleus、pathogen、cytoplasm で、結合用に png_list が追加されます。compartment 設定で面積列を選択し、既定では pathogen_area を宿主細胞ごとに合計します。"
+    },
+    {
+      "source": "Enable the nested time-series route before generating linked labels.",
+      "source_sha256": "4a59d8325e489697c01c88d856ccace60f6b442bcda13f547714b0b04d186f6e",
+      "translation": "関連付けたラベルを生成する前に、内包された時系列の経路を有効にします。"
+    },
+    {
+      "source": "Encode object images with a chosen model and channel policy. Retain object identities and encoder provenance when supplying the features to downstream exploration.",
+      "source_sha256": "35b235cb5077c11915611d198ac94633ce4cad1fb31dfa642db6be0fd3dfa99d",
+      "translation": "選択したモデルとチャネル方針でオブジェクト画像をエンコードします。後続の探索に特徴量を渡すときは、オブジェクトの識別情報とエンコーダーの来歴を保持します。"
+    },
+    {
+      "source": "Enter conditions, controls, replicates and plate constraints, then export the experimental layout before acquisition.",
+      "source_sha256": "6da28684ab563ec60c570b753fbec2796a13824106ce6d342f7453ac340c41a2",
+      "translation": "条件、対照、反復、プレートの制約を入力し、取得前に実験配置をエクスポートします。"
+    },
+    {
+      "source": "Estimate and apply flat-field correction at configured stages. Keep corrected display values distinct from raw measurements and record the applied policy.",
+      "source_sha256": "55fe876cb0804a390ac56a7666124f4b040f4c05a6e930938cc92b938103e7d6",
+      "translation": "設定した段階でフラットフィールド補正を推定して適用します。補正した表示値と生の測定値を区別し、適用した方針を記録します。"
+    },
+    {
+      "source": "Estimate sampling needs from chosen effect sizes and variability; pilot measurements are optional evidence for assumptions.",
+      "source_sha256": "d320e6611dd6b5e4eeb0b569def06ac3abc7d9a6cbc45a75b9caf38ec2d56fec",
+      "translation": "選択した効果量と変動性から必要なサンプリングを推定します。予備測定は仮定の根拠として任意で利用できます。"
+    },
+    {
+      "source": "Experimental layout",
+      "source_sha256": "4495360c84bf3a9c0f96204f44cdbee2e5fb8a374344333599e517506e67165d",
+      "translation": "実験配置"
+    },
+    {
+      "source": "Export an AnnData .h5ad file with object metadata and measured features for downstream single-cell analysis.",
+      "source_sha256": "5fa7a4af9b51b166edee374f83f221ab3e7a1814c09945f1f66cbae7083a16bf",
+      "translation": "オブジェクトのメタデータと測定した特徴量を含む AnnData .h5ad ファイルを、後続の単一細胞解析用にエクスポートします。"
+    },
+    {
+      "source": "Export compatible feature and metadata columns.",
+      "source_sha256": "b5a153c5432fbc4af6601d85ac9b74b093e55033080d0788b4829f5716776ab9",
+      "translation": "互換性のある特徴量列とメタデータ列をエクスポートします。"
+    },
+    {
+      "source": "Exported HTML/PDF or methods/results documents derived from recorded analysis outputs.",
+      "source_sha256": "3adcf7fe9dc8b715851177b45d1ef712e8a3b1a91fe7c5742b883b69db5e2df7",
+      "translation": "記録された解析出力からエクスポートした HTML/PDF または方法・結果の文書。"
+    },
+    {
+      "source": "Exported plate/condition/control/replicate map. Keep its plate and well identifiers consistent with the acquired data.",
+      "source_sha256": "8d84303fc9ff554db33bd92aa40b0d4ba48d7cb09c515fcc9c594d759222dad0",
+      "translation": "エクスポートしたプレート、条件、対照、反復の配置図。プレートとウェルの識別子を取得データと一致させてください。"
+    },
+    {
+      "source": "External measurements",
+      "source_sha256": "1e57812b00ec460a0105424f1334a436bf16986e8b351aa8b9f0c6300d12f395",
+      "translation": "外部の測定データ"
+    },
+    {
+      "source": "Feature definitions",
+      "source_sha256": "d882e6676fe04b762b74cfec4b00485c159d65b3b4b527f5c32bc7051fdbec5a",
+      "translation": "特徴量の定義"
+    },
+    {
+      "source": "Figures and table exports",
+      "source_sha256": "a5e3bd64da49f1608a160930815379f373e78f14ed22d25de921441545cafce6",
+      "translation": "図とテーブルのエクスポート"
+    },
+    {
+      "source": "Filter and rank saved hits with their effects, FDR and guide agreement.",
+      "source_sha256": "2118bd261715a7ba1349929e075dcb76d1f0dbcd2b2e6a42615454b4558520ea",
+      "translation": "保存したヒットを、効果、FDR、ガイド間の一致度に基づいてフィルタリングし、順位付けします。"
+    },
+    {
+      "source": "Find every current module's input data, saved outputs, upstream producers and downstream consumers, including tools nested inside a Home module.",
+      "source_sha256": "e10410e4b302304d58343d87bf0d434988e50616ecb85616422d40cd39d524e3",
+      "translation": "Home モジュール内のツールも含め、現在の各モジュールの入力データ、保存する出力、上流の生成元、下流の利用先を確認します。"
+    },
+    {
+      "source": "Find {name} in the application's Help or tools menus.",
+      "source_sha256": "a6595866f9a2e96b94713734a202fadabaec0e8639f7e30e0041ee33751204c0",
+      "translation": "アプリケーションの Help またはツールのメニューで {name} を探します。"
+    },
+    {
+      "source": "Fit a measured-feature surrogate to existing computer-vision scores, preserving identity joins. A surrogate explanation is not causality.",
+      "source_sha256": "d17d8fb71e7b0be7bf66776d0a32400b03bca80145816a8d884fff1b4a4084e1",
+      "translation": "識別情報による結合を保持しながら、既存のコンピュータービジョンスコアに対する代理モデルを測定した特徴量から適合させます。代理モデルによる説明は因果関係を示すものではありません。"
+    },
+    {
+      "source": "Fitted feature classifier",
+      "source_sha256": "ae5c6b88bbe91c81fc42917c699fdefdafa71d514b4f74ea3f90de7dc9f7a412",
+      "translation": "学習済み特徴量分類器"
+    },
+    {
+      "source": "Follow the linked module lessons and API contracts for the next step.",
+      "source_sha256": "74a732280e08f5f2c642416fbf0a2159c203154cf0fedcc33098976357956ed1",
+      "translation": "次の手順では、リンクされたモジュールのレッスンと API の入出力仕様を参照します。"
+    },
+    {
+      "source": "For high-content analysis, follow Mask into Measure and then choose the method that answers your question. For segmentation training, curate image-mask pairs in Make Masks before Train Cellpose and test the saved model in Mask. Existing compatible masks or measurements let you enter later. Preserve channel identities, units, object keys and the settings used to create each result; follow the dedicated walkthrough for the route you choose.",
+      "source_sha256": "15a39ca0c40f625132a9f4eee919512f5d6e637dc19ff81b62b2127daaabd94b",
+      "translation": "ハイコンテント解析では Mask から Measure に進み、その後で問いに答える手法を選びます。セグメンテーション学習では、Train Cellpose の前に Make Masks で画像とマスクのペアを整え、保存したモデルを Mask で試します。互換性のある既存のマスクや測定データがあれば、後の段階から始められます。チャネルの識別情報、単位、オブジェクトキー、各結果の作成に使った設定を保持し、選んだ経路の専用ウォークスルーを参照してください。"
+    },
+    {
+      "source": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "source_sha256": "c6990de9aec7ce45253154d30b40db01c6be3a46df913a675d953dc274e1d8df",
+      "translation": "GUI 上だけの区画の強調表示と、利用可能なアッセイへの移動。測定値やファイルは生成されません。"
+    },
+    {
+      "source": "Guide counts per well",
+      "source_sha256": "f7b958b00e50fede5a94fa94fe1a6e3c20b7a83f68109a5fb1d9ccd5e52611b5",
+      "translation": "ウェルごとのガイドカウント"
+    },
+    {
+      "source": "Held-out predictions, labels, split metadata and calibration/leakage metrics for a saved classifier run.",
+      "source_sha256": "50777d615176b80fcc0735b3aae29a30eb723e80744831d7b1efc17977f90f8c",
+      "translation": "保存した分類器実行のホールドアウト予測、ラベル、データ分割のメタデータ、および校正・データ漏洩の指標。"
+    },
+    {
+      "source": "Host-cell-aggregated compartment areas",
+      "source_sha256": "5a487c40b30f9a7400430db1151f472c33fae1596532d7ede4a3157a0fcd8799",
+      "translation": "宿主細胞ごとに集計した区画面積"
+    },
+    {
+      "source": "Identify what each module reads and writes.",
+      "source_sha256": "d4390d52c2bb7feff6b80ece398baf65fb2e194394fc43b04fd665d58604ee58",
+      "translation": "各モジュールが何を読み書きするかを把握します。"
+    },
+    {
+      "source": "Image UMAP/PCA coordinate tables, selected clusters and figures for the loaded measurement data.",
+      "source_sha256": "211fe97e842fc48332c5363c42a044748dc4d3d14928cef145b0a7d91f8d899c",
+      "translation": "読み込んだ測定データに対する Image UMAP/PCA の座標テーブル、選択したクラスター、図。"
+    },
+    {
+      "source": "Image analysis modules and how they relate",
+      "source_sha256": "37bcd8931505ea92a95a37e93e3453a2cee20377fdb0150e263c8d9914614ecc",
+      "translation": "画像解析モジュールとその関係"
+    },
+    {
+      "source": "Image attribution maps",
+      "source_sha256": "820b5ba1904f8e20f1fae62121254a218e940f5758de1cecaaf4f32439792549",
+      "translation": "画像の寄与度マップ"
+    },
+    {
+      "source": "Image embeddings",
+      "source_sha256": "8968dba6df8303b1bcebd0b699a1258a25142f967d26120ad181c9931faacdf3",
+      "translation": "画像の埋め込み表現"
+    },
+    {
+      "source": "Images and label masks",
+      "source_sha256": "ebb7b02d7ccf14f31eeeb38f3ae7e8867e9bb7c7e058279cc2a4723d21b6f7d6",
+      "translation": "画像とラベルマスク"
+    },
+    {
+      "source": "Import external measurements with explicit object/column mappings, or choose Import Images, Format Converter or External Masks. Imported measurements are not a fresh Measure run.",
+      "source_sha256": "b002c7f8c5c22765aab96c2c04e1a115d69afb8879a6f852c03f3ac0f137b466",
+      "translation": "オブジェクトと列の対応を明示して外部の測定データをインポートするか、Import Images、Format Converter、External Masks を選びます。測定データのインポートは Measure の新規実行ではありません。"
+    },
+    {
+      "source": "Imported tables require explicit column and object-identity mappings.",
+      "source_sha256": "71aea881bbcc62966b4e24cc7699a30f68cef9cf39007ff98d83b722cfdc1242",
+      "translation": "インポートするテーブルには、列とオブジェクト識別情報の明示的な対応付けが必要です。"
+    },
+    {
+      "source": "Input data",
+      "source_sha256": "9a732b7b43a6af29dbc6f80a6dfbf9707713323aa0729700aabf5f519078c1e3",
+      "translation": "入力データ"
+    },
+    {
+      "source": "Inspect actual tables before exporting.",
+      "source_sha256": "9f7168593c7e6c0adf66726c8de006dd1e92b22386138be9c85898ff0376cb6e",
+      "translation": "エクスポート前に実際のテーブルを確認します。"
+    },
+    {
+      "source": "Inspect aligned image, label and point/ROI layers for the selected field.",
+      "source_sha256": "3093d844ab489bc1671e9f7e96b42f9159a5693512a489bd026fc3ec528a1e93",
+      "translation": "選択した視野について、位置合わせされた画像、ラベル、点または ROI のレイヤーを確認します。"
+    },
+    {
+      "source": "Inspect held-out predictions, calibration and split/leakage evidence for the matching classifier.",
+      "source_sha256": "afe94717349638a4f56c60cbedebb413850da21777d1e0b3f53f5aa4ec8c709b",
+      "translation": "対応する分類器のホールドアウト予測、校正、データ分割および漏洩に関する根拠を確認します。"
+    },
+    {
+      "source": "Inspect how a fitted model responds as an input feature changes; predictions do not establish causal effects.",
+      "source_sha256": "8bf5fa9f5425217931d7fa714ff2fac5d06e04ee132f60330d8f40fcb1b813ce",
+      "translation": "入力特徴量を変えたときに学習済みモデルがどう応答するかを確認します。予測は因果効果を示すものではありません。"
+    },
+    {
+      "source": "Inspect mapping depth, coverage, collisions and positional effects before guide-count filtering.",
+      "source_sha256": "eb6b47369f6d0f2d1e0d32c998fbf80f295fa8e111177eabd41d295bb28cdc80",
+      "translation": "ガイドカウントをフィルタリングする前に、マッピング深度、カバレッジ、衝突、位置効果を確認します。"
+    },
+    {
+      "source": "Inspect model provenance and download/install compatible checkpoints or backends. A listed backend is not itself a checkpoint file.",
+      "source_sha256": "e693bf805fa2a43e1785953123c5516b7b48144ee0e89744bbc32a78edd0d9b6",
+      "translation": "モデルの来歴を確認し、互換性のあるチェックポイントやバックエンドをダウンロードまたはインストールします。一覧のバックエンド自体がチェックポイントファイルなのではありません。"
+    },
+    {
+      "source": "Inspect principal components and feature loadings for the selected measured objects.",
+      "source_sha256": "2489bd7523d955bc91300db41ab120bde64a0938f9f0d8b7bab32fc3bd94eace",
+      "translation": "選択した測定済みオブジェクトの主成分と特徴量の負荷量を確認します。"
+    },
+    {
+      "source": "Inspect project files and disk usage. Removing derived artifacts invalidates downstream uses of those files; original images must remain recoverable.",
+      "source_sha256": "f10dacc01fe54e82409cb9ad39fbfd81e2b1554e16275bbda1272c30ce4a6aa3",
+      "translation": "プロジェクトのファイルとディスク使用量を確認します。派生成果物を削除すると、そのファイルを使う下流の処理は成立しなくなります。元の画像は復元できる状態に保つ必要があります。"
+    },
+    {
+      "source": "Inspect ranked hits and guide agreement.",
+      "source_sha256": "4a3764a775c3feb7134130a3e1bbf5b1433664ac9fca66a6808eb7b74d2acc9a",
+      "translation": "順位付けされたヒットとガイド間の一致度を確認します。"
+    },
+    {
+      "source": "Inspect recorded cell/nucleus/pathogen/organelle containment links; this is object containment, not time-series lineage inference.",
+      "source_sha256": "654721a34b66ca794c84748e3d38fb286b79e854f98f9a954e37097f2087b4cd",
+      "translation": "記録された細胞、核、病原体、オルガネラの包含関係を確認します。これはオブジェクトの包含関係であり、時系列の系譜推定ではありません。"
+    },
+    {
+      "source": "Inspect saved effects and adjusted significance.",
+      "source_sha256": "5c93baa88ff14b133e94ac4cff181688e099f74dfd313c6656e63e56cab93711",
+      "translation": "保存された効果と補正済みの有意性を確認します。"
+    },
+    {
+      "source": "Inspect saved run status, settings, outputs and logs; a completed run does not establish biological validity.",
+      "source_sha256": "f76ede70324bf6b59ba96bbcebc8a1c9a6befe6f2e6bf2d0d2c698a4af9f7dc3",
+      "translation": "保存された実行状態、設定、出力、ログを確認します。実行の完了は生物学的な妥当性を示すものではありません。"
+    },
+    {
+      "source": "Inspect stored segmentation, unit, leakage and plate-effect checks. Open its nested viewers for detailed inspection.",
+      "source_sha256": "9cd1301eb44caabf898e98fb379cd9f8985b7f545fa1f8ca965d70bcbc12d4c9",
+      "translation": "保存されたセグメンテーション、単位、データ漏洩、プレート効果のチェックを確認します。詳細は内包されたビューアーを開いて確認します。"
+    },
+    {
+      "source": "Inspect the diagnostic panels saved by the chosen regression run; distinguish missing diagnostics from passed assumptions.",
+      "source_sha256": "b8c66e9971ea673831a25b24cb99ec59b943fe00047d0d4837de3c23f5526f9d",
+      "translation": "選択した回帰実行が保存した診断パネルを確認します。診断がないことと、仮定のチェックに合格したことを区別してください。"
+    },
+    {
+      "source": "Inspect tile geometry, overlap and channel mapping, then save the mosaic with coordinate records. OPS also needs the original cycle/site identities.",
+      "source_sha256": "3cbf9dbe362cbcf1a7a87afa72fd928327a45b20c76376f0c868b81a328e11a5",
+      "translation": "タイルの形状、重なり、チャネルの対応付けを確認し、座標記録とともにモザイクを保存します。OPS には元のサイクルと撮像位置の識別情報も必要です。"
+    },
+    {
+      "source": "Inspect track speed and infection-related measurements with an explicit frame interval and pixel calibration.",
+      "source_sha256": "85200bfcb32c2776ee13219bc3335669351ce175abb6d4d41b3694476c89d66c",
+      "translation": "明示的なフレーム間隔とピクセル校正を用いて、軌跡の速度と感染関連の測定値を確認します。"
+    },
+    {
+      "source": "Install spaCR and open Home. This lesson explains navigation and data handoffs; the linked module lessons provide the worked data examples. Inputs and outputs include conditional alternatives, as explained for each module.",
+      "source_sha256": "a2cf660fff78f9f379e98284afcfaaf0448279d1e9f4f923030aed07a04dd36c",
+      "translation": "spaCR をインストールし、Home を開きます。このレッスンでは操作の流れとデータの受け渡しを説明します。具体的なデータ例は、リンク先の各モジュールのレッスンを参照してください。入力と出力には条件付きの選択肢があり、各モジュールで説明します。"
+    },
+    {
+      "source": "Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.",
+      "source_sha256": "469fd48b96e0591fe63f4d154b076c3e362f30332752c4dcf5e3cca06b9064d5",
+      "translation": "インストール済みの生物の説明と SwissBioPics の細胞図。プロジェクトの入力は不要です。"
+    },
+    {
+      "source": "Join compatible phenotype and object data for the chosen hit.",
+      "source_sha256": "466c619c86e3c239704201a67118a42e95cee2ff69b1ad9b5190a1145f27e4a6",
+      "translation": "選択したヒットについて、互換性のある表現型データとオブジェクトデータを結合します。"
+    },
+    {
+      "source": "Join the measured response to explicit doses and controls.",
+      "source_sha256": "9ff398804fdf613057ad8d22390c3dd6946e5b85b6cdc5462a3f3d26544950f7",
+      "translation": "測定した応答を、明示的な用量と対照に結合します。"
+    },
+    {
+      "source": "Join/aggregate decoded objects to phenotype and guide inputs explicitly before Regression; this is not a direct CSV handoff.",
+      "source_sha256": "2cf55dddd04e6bd139cd78bae20f8eec30284db12edc978374d0b7550d2e9288",
+      "translation": "Regression の前に、デコード済みオブジェクトを表現型とガイドの入力に明示的に結合または集計します。これは CSV をそのまま渡す処理ではありません。"
+    },
+    {
+      "source": "Keep labelled training and evaluation groups separate.",
+      "source_sha256": "610a65cab0a0cfca2b75a8d04f0e636d16235e102a3d1c5274ecea4e03ee68e0",
+      "translation": "ラベル付きの学習グループと評価グループを分離します。"
+    },
+    {
+      "source": "Keep the newly measured project and crop index together.",
+      "source_sha256": "e538adf6094a34c8897dcc2636cf51f7a3eb23dfdd1d7f52cf6f08e8c209dbe7",
+      "translation": "新しく測定したプロジェクトと切り出し画像のインデックスを一緒に保持します。"
+    },
+    {
+      "source": "Label masks",
+      "source_sha256": "5d66fbdb415e821f5d70c41a484fba9e55da24b457bdabccfa087dd721d17af4",
+      "translation": "ラベルマスク"
+    },
+    {
+      "source": "Label representative objects in png_list before supervised training. Use separate annotations for different questions and keep training and evaluation groups independent.",
+      "source_sha256": "744bfa8bdd0ada1b412b86797c66d08943409b06b61b6d3ba802230c92942961",
+      "translation": "教師あり学習の前に、png_list で代表的なオブジェクトにラベルを付けます。異なる問いには別々の注釈を使い、学習グループと評価グループを独立させます。"
+    },
+    {
+      "source": "Link a regression hit to candidate objects and quantitative well-level evidence. This does not independently validate the hit.",
+      "source_sha256": "01b84c8634b8ebbfbf456e257050b0c5b27254d651f251bd76ad5f7a118ee367",
+      "translation": "回帰のヒットを候補オブジェクトとウェル単位の定量的な根拠に結び付けます。これだけでヒットが独立に検証されるわけではありません。"
+    },
+    {
+      "source": "Linked time-series objects",
+      "source_sha256": "d760b33a036232638376d31469211cc5d0ec7087afa3736c170570d737140ec0",
+      "translation": "関連付けられた時系列オブジェクト"
+    },
+    {
+      "source": "Locate projects and inspect their stage, last run, disk use and stale outputs.",
+      "source_sha256": "72b2138959b12b714abf0e0030f0b5701a39fa4738280a491f9add07e6a66095",
+      "translation": "プロジェクトを探し、その段階、最後の実行、ディスク使用量、古くなった出力を確認します。"
+    },
+    {
+      "source": "Look up feature definitions and units before choosing measurement columns.",
+      "source_sha256": "478c14113b0d8f447c0a0455ad7ded1ff9d2697cad0d61355c5b89893d015193",
+      "translation": "測定列を選ぶ前に、特徴量の定義と単位を調べます。"
+    },
+    {
+      "source": "Map Barcodes run folder: unique_combinations.csv and annotated_reads.h5. Well identity requires the corresponding barcode references.",
+      "source_sha256": "3418591d4d0ff5ecc2735f22380f261d5719ff86f4cce31095360bfc4b06fea4",
+      "translation": "Map Barcodes の実行フォルダ：unique_combinations.csv と annotated_reads.h5。ウェルの識別には、対応するバーコードの参照データが必要です。"
+    },
+    {
+      "source": "Match plate and well identifiers across phenotype and guide-count inputs, select the response and controls, and inspect diagnostics before interpreting hits. Direct measured responses are also supported.",
+      "source_sha256": "54820bf3f12a9ed291255be48a9135ae659c6febc492cd9a5ff326b0175dc659",
+      "translation": "表現型とガイドカウントの入力間でプレートおよびウェルの識別子を一致させ、応答と対照を選び、ヒットを解釈する前に診断を確認します。実測応答の直接入力にも対応しています。"
+    },
+    {
+      "source": "Measure reads images and label planes together. Enable crop saving if you need PNG files; keep the database and source project together for streamed crops.",
+      "source_sha256": "31136664c0081bf6af83614363227ee715ee89961ee9943b2eaa39cf13347700",
+      "translation": "Measure は画像とラベル平面を一緒に読み込みます。PNG ファイルが必要なら切り出し画像の保存を有効にします。ストリーミングで切り出す場合は、データベースと元のプロジェクトを一緒に保持します。"
+    },
+    {
+      "source": "Measured objects",
+      "source_sha256": "47bed203a03dc19c327879fc135a90976acbd8a9445faab1492cd008bc2f6f50",
+      "translation": "測定済みオブジェクト"
+    },
+    {
+      "source": "Microscope images",
+      "source_sha256": "2ab0c48936cc24b96141ed13cb8d77cc02f1294dfb74620cfd3b21892ba60c4f",
+      "translation": "顕微鏡画像"
+    },
+    {
+      "source": "Module inputs and outputs",
+      "source_sha256": "e192f98241a10816e70a97d747b7fd46feda4e7cabda312565f954bc0a0356e1",
+      "translation": "モジュールの入力と出力"
+    },
+    {
+      "source": "OPS destination measurements.db: per-well geometry, phenotype alignment, nuclei and barcode tables; optional per-cycle reads.",
+      "source_sha256": "de4dc4ec3f6034c63a881c623f865dc4020f7b2a27d17f5fd1dc7163856eeab9",
+      "translation": "OPS の出力先にある measurements.db：ウェルごとの形状、表現型の位置合わせ、核、バーコードのテーブル。サイクルごとのリードは任意です。"
+    },
+    {
+      "source": "Object classification scores",
+      "source_sha256": "113eac994c0aaea308adfccdf945411f535406d38b73f2a734d9709233f39764",
+      "translation": "オブジェクトの分類スコア"
+    },
+    {
+      "source": "Object counts",
+      "source_sha256": "27a19633bad5df509ad9f6856a9ffd4375867600c485d0b2cebb62e792e57133",
+      "translation": "オブジェクト数"
+    },
+    {
+      "source": "Object crops",
+      "source_sha256": "8f444fe8cfbf8625f329b773419175b13c6a4208057fc8d086af4d479c1c6efd",
+      "translation": "オブジェクトの切り出し画像"
+    },
+    {
+      "source": "Object-indexed encoder features, with channel policy and encoder provenance. The encoding API returns features; persistence is caller-dependent.",
+      "source_sha256": "285dfcb60567d8ab9611db90834fa6f90fde4de8086a7711e1bf64abed8795ff",
+      "translation": "オブジェクトで索引付けしたエンコーダー特徴量。チャネル方針とエンコーダーの来歴を伴います。エンコード API は特徴量を返し、永続保存するかどうかは呼び出し側によります。"
+    },
+    {
+      "source": "Open Cellpose Workbench inside Make Masks and train from verified image/mask pairs. Evaluate on separate fields before selecting the checkpoint in Mask.",
+      "source_sha256": "e9b4f0e3bcc3cf2791f210cc78121e60d4e4f63441441f4f8bb4f62480c8c386",
+      "translation": "Make Masks 内で Cellpose Workbench を開き、確認済みの画像とマスクのペアで学習します。Mask でチェックポイントを選ぶ前に、別の視野で評価します。"
+    },
+    {
+      "source": "Open Timelapse within Mask to segment and link objects across ordered frames; inspect links before downstream motility analysis.",
+      "source_sha256": "9e186427eeeae53324a86200df796448a0fa3468ef460e7b8f1c42edb2d1865c",
+      "translation": "Mask 内で Timelapse を開き、順序付きフレーム間でオブジェクトをセグメンテーションして関連付けます。後続の運動性解析の前にリンクを確認します。"
+    },
+    {
+      "source": "Open a saved regression result and inspect effect sizes, adjusted significance and individual hit records.",
+      "source_sha256": "fa875ab85dfa1b048df6ebb3342d0ca7162864be60ca6eca78028a50debcea9c",
+      "translation": "保存した回帰結果を開き、効果量、補正済みの有意性、個々のヒットの記録を確認します。"
+    },
+    {
+      "source": "Open the diagnostics actually written by this run.",
+      "source_sha256": "2447417b10859c54b1edc1f2c510f7a654f628856a8b3dbcc472ce9529d5ce76",
+      "translation": "この実行で実際に書き出された診断を開きます。"
+    },
+    {
+      "source": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "cd8eee037d1e7fed958031b6299335dd1ca2e1221f50b40832d82823c29ede0b",
+      "translation": "Home から生物ガイドを開き、計画中の真菌イメージングのワークフローを読み、一般的な出芽酵母の図を確認します。八つのアッセイタイルはすべて近日公開と表示され、解析を開始したり結果を生成したりするものではありません。"
+    },
+    {
+      "source": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.",
+      "source_sha256": "fdf37e2f33144063efb776d8e46b0e51b008a137e6cc66b73b070cb968bfa964",
+      "translation": "Home から生物ガイドを開き、計画中のマラリアイメージングのワークフローを読み、共通のアピコンプレックス門の図を確認します。八つのアッセイタイルはすべて近日公開と表示され、解析を開始したり結果を生成したりするものではありません。"
+    },
+    {
+      "source": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.",
+      "source_sha256": "7fd1ca38483ff7f42e51bed6c20ac2428ad7369c113eeb92b5fd0e031230e0d2",
+      "translation": "Home から生物ガイドを開いて区画図を確認し、Plaque Assay、Recruitment、Invasion Assay、Replication Assay のいずれかを選びます。近日公開と表示された四つのタイルは提案中の機能を説明するもので、実行できません。ガイド自体はプロジェクトを解析せず、測定テーブルも生成しません。"
+    },
+    {
+      "source": "Open {host} from Home, then choose {name}.",
+      "source_sha256": "551cd3bac1835524db37ebbb33db51be60fbc1f092dbf68556ebf1f4d9920709",
+      "translation": "Home から {host} を開き、{name} を選びます。"
+    },
+    {
+      "source": "Open {host} through Help search, then choose {name}.",
+      "source_sha256": "cb10d8215264f4a4bb7d6bbc74158f9755f375f83cd43db64019702f31348940",
+      "translation": "Help の検索から {host} を開き、{name} を選びます。"
+    },
+    {
+      "source": "Open {name} from Home.",
+      "source_sha256": "01b546ab01479158850c53d91ff0fd9e9db579e577872ddeb83fb71fa0639596",
+      "translation": "Home から {name} を開きます。"
+    },
+    {
+      "source": "Optical barcode assignments",
+      "source_sha256": "3e14114439033aded7cf84ed3d8252090b7155adc8441b35a0ebacd3f23e8f45",
+      "translation": "光学バーコードの割り当て"
+    },
+    {
+      "source": "Organism guide and assay selection",
+      "source_sha256": "593a064f126fd11d4c60c2a72497c936daca4fa3d0008ec87a8c2b4a3d992197",
+      "translation": "生物ガイドとアッセイの選択"
+    },
+    {
+      "source": "Output data",
+      "source_sha256": "b5ec78cdcd8ce51cec45924c8160f1bab9a5b85b02fe3c514b0dae10a145a57f",
+      "translation": "出力データ"
+    },
+    {
+      "source": "Package recorded results, settings and QC into a shareable report without silently rerunning the analysis.",
+      "source_sha256": "8ef18b465ab0917966596ed137974077f7c52493a02cdcb45b9a46ec5e46f3e3",
+      "translation": "記録された結果、設定、QC を共有可能なレポートにまとめます。解析を暗黙に再実行することはありません。"
+    },
+    {
+      "source": "Pair guide counts with phenotype scores using consistent plate/well keys.",
+      "source_sha256": "20664e0c8d9066c2f2d0d45276ac352e32bc87a15be06e2a2e892b3f7678da65",
+      "translation": "一貫したプレートとウェルのキーを使い、ガイドカウントを表現型スコアと対応付けます。"
+    },
+    {
+      "source": "Pass the trained checkpoint as custom_model with the matching image channels and preprocessing.",
+      "source_sha256": "d4259004a55ccf450d716693b1f7dac26e2f2061fb978865903367698bbe0be3",
+      "translation": "学習済みチェックポイントを custom_model として渡し、画像チャネルと前処理を一致させます。"
+    },
+    {
+      "source": "Plot selected measurement columns with object-crop inspection.",
+      "source_sha256": "8f37a50e559b84de232a8d35656d11e93e3f61ab39888765d6f42b7f1a5ac298",
+      "translation": "選択した測定列を作図し、オブジェクトの切り出し画像を確認します。"
+    },
+    {
+      "source": "Pooled-screen simulation assumptions",
+      "source_sha256": "00d2e615348ea4e3cb8f0ea57248680a3e1c4cd2f2d608921130f914c67300b9",
+      "translation": "プール型スクリーニングのシミュレーション仮定"
+    },
+    {
+      "source": "Project measured features or supplied encoder features and inspect representative crops. A cluster is a candidate grouping, not a validated phenotype.",
+      "source_sha256": "2a167861c12fc1d109d9d25121efaafcdfb9a9abb580df30e00e4819f84f8ced",
+      "translation": "測定した特徴量または提供されたエンコーダー特徴量を投影し、代表的な切り出し画像を確認します。クラスターは候補となるグループ分けであり、検証済みの表現型ではありません。"
+    },
+    {
+      "source": "Project run records, settings, output paths, artifact provenance, status and logs.",
+      "source_sha256": "a04ac68f0d4b5ee392e4d35b944fa7161c727104c9c53a691055179934457f61",
+      "translation": "プロジェクトの実行記録、設定、出力パス、成果物の来歴、状態、ログ。"
+    },
+    {
+      "source": "Projection and clusters",
+      "source_sha256": "2b4b3aaffaacd0783be3517827545a48abb1046a47bef3c25c0a4beaf5059b4f",
+      "translation": "投影とクラスター"
+    },
+    {
+      "source": "Provide the saved label TIFFs and their original images to External Masks, assign object roles and create the merged project before Measure.",
+      "source_sha256": "5aec914042c999cb6eb678d21744ef5523a518727e87339b764dc7fbe5960762",
+      "translation": "保存したラベル TIFF と元の画像を External Masks に渡し、オブジェクトの役割を指定して、Measure の前に統合プロジェクトを作成します。"
+    },
+    {
+      "source": "Python settings dictionary: iterable sweep values for screen size, occupancy, classifier accuracy and sequencing assumptions, plus replicates, src, name, variable, plot and max_workers. generate_parameters expands their Cartesian product; begin with a small sweep and an explicit worker bound.",
+      "source_sha256": "7886c297bee9f5c55819fd0904042879e9a800e192c5670e2676ce91fac2d62a",
+      "translation": "Python の設定辞書：スクリーニング規模、占有率、分類精度、シーケンシングの仮定を変化させる反復可能な値、および replicates、src、name、variable、plot、max_workers。generate_parameters がそれらの直積を展開します。小規模な探索と明示的なワーカー数の上限から始めてください。"
+    },
+    {
+      "source": "Quality-control results",
+      "source_sha256": "339a0f1b5ee2197817649446001853d9407629b01fdf97e527f79be154a02a49",
+      "translation": "品質管理の結果"
+    },
+    {
+      "source": "Rank measured features for a chosen class comparison; review filtering and class definitions before interpreting the ranking.",
+      "source_sha256": "6d6e5e416c309f86247b2c8615055657920d5f905a77aab84a943e4e8ed3fc27",
+      "translation": "選んだクラス比較について測定した特徴量を順位付けします。順位を解釈する前に、フィルタリングとクラスの定義を確認します。"
+    },
+    {
+      "source": "Re-measure only when needed; External Masks can already perform measurement.",
+      "source_sha256": "609cfb8952ac5d5c9785f409f81cbee8ae53f7ba2caec695e861b63e548b70e9",
+      "translation": "必要な場合だけ再測定します。External Masks でも測定を実行できます。"
+    },
+    {
+      "source": "Read measured compartment areas, annotate conditions and bin area ** 1.5 into log2 size doublings. Defaults aggregate pathogen area per host cell, not per vacuole: multiple vacuoles in one cell are combined. This is an area-derived size proxy, not measured volume or a parasite count. Use Replication Assay with explicit vacuole identity for parasites-per-vacuole counts. Configure compartment, area filters, calibration, conditions and grouping before calling the API; saving is optional.",
+      "source_sha256": "688de4937a6708239783748ae71f0eb724d5b74111f890d0e2788ecf6800f837",
+      "translation": "測定した区画面積を読み込み、条件を注釈し、area ** 1.5 を log2 のサイズ倍増区間に分けます。既定では病原体面積を液胞ごとではなく宿主細胞ごとに集計するため、一つの細胞内にある複数の液胞は合算されます。これは面積から求めたサイズの代替指標であり、測定体積や寄生体数ではありません。液胞当たりの寄生体数には、明示的な液胞識別情報とともに Replication Assay を使用します。API を呼び出す前に compartment、面積フィルター、校正、条件、グループ化を設定してください。保存は任意です。"
+    },
+    {
+      "source": "Read recorded artifact dependencies and stale/missing status. The graph describes provenance and does not regenerate missing artifacts.",
+      "source_sha256": "7f64cda8e5ed01d72bfe4b9cb167c5ec9e11ea757761f0446275c0e6bb28d2c7",
+      "translation": "記録された成果物の依存関係と、古いまたは欠落した状態を読み込みます。グラフは来歴を示すもので、欠落した成果物を再生成しません。"
+    },
+    {
+      "source": "Regression results and hits",
+      "source_sha256": "bb72859b86ebddcecf52ce1d12c741c2bad08b9fa585ab2459d4d2ff9bfed158",
+      "translation": "回帰結果とヒット"
+    },
+    {
+      "source": "Relevant columns depend on the selected route: {columns}.",
+      "source_sha256": "34b2d6f432bbfa039f6e1d4061440c45fcaad18288021c585d0b49be90ccb087",
+      "translation": "関連する列は選択した経路によって異なります：{columns}。"
+    },
+    {
+      "source": "Relevant tables depend on the selected route: {tables}.",
+      "source_sha256": "c0826aaca892eec713e9e4880698ba585019bb470a4cdfad0edf4564a72b66d0",
+      "translation": "関連するテーブルは選択した経路によって異なります：{tables}。"
+    },
+    {
+      "source": "Require explicit parasite-to-vacuole identities.",
+      "source_sha256": "cd46ef6645b6037759f807bcfcde8657d63ff3ab247d0e4967759b1fa6783e84",
+      "translation": "寄生体から液胞への明示的な識別対応が必要です。"
+    },
+    {
+      "source": "Require the intended compartment intensities and identities.",
+      "source_sha256": "c4679d0263754b570fc8c5472c32e7185876dcb096fc4be186cf28860ee7e2e5",
+      "translation": "対象区画の強度と識別情報が必要です。"
+    },
+    {
+      "source": "Require two-colour stain measurements and appropriate baseline controls.",
+      "source_sha256": "2dbfb2abec909e52724c2e17330ced9df59b3618a82aa7ab5a7034eecc05881b",
+      "translation": "二色染色の測定値と適切なベースライン対照が必要です。"
+    },
+    {
+      "source": "Retain encoder and channel-policy provenance.",
+      "source_sha256": "8b0b0f9935ced0554f6dccb35fad06786eea0175c353cccb7319d6c202ae0986",
+      "translation": "エンコーダーとチャネル方針の来歴を保持します。"
+    },
+    {
+      "source": "Return to the chapter matching your next data product rather than repeating work you already completed. A count table is not a measured feature table, a projection is not a trained classifier, and a comparison is not a new experiment. The linked API pages carry the same file, table and column contracts, and the specialist lessons demonstrate the individual controls.",
+      "source_sha256": "cd8e3b45f7bde0feeb7e1d9b282fd4392f83dfc73a0108518c9927c48c4f18cc",
+      "translation": "完了済みの作業を繰り返さず、次のデータ成果物に対応する章へ戻ります。カウントテーブルは測定特徴量のテーブルではなく、投影は学習済み分類器ではなく、比較は新しい実験ではありません。リンク先の API ページには同じファイル、テーブル、列の仕様があり、専門のレッスンでは個々の操作を示します。"
+    },
+    {
+      "source": "Returned data and chi_squared DataFrames; save=True also writes data.csv, chi_squared_results.csv, chi_squared_pairwise_results.csv and a figure under the first project root/results/analyze_endodyogeny/.",
+      "source_sha256": "93295eb258fa9ffe5027738a1bde2bd68b50768d18ce4955cc17a595a61f1d17",
+      "translation": "返される data と chi_squared の DataFrames。save=True の場合は、最初のプロジェクトのルートにある results/analyze_endodyogeny/ の下に data.csv、chi_squared_results.csv、chi_squared_pairwise_results.csv と図も書き出します。"
+    },
+    {
+      "source": "Reusable gates",
+      "source_sha256": "65793911f3ae1216bb5461c4bc937c8201498b3c9db21a01677681033208254e",
+      "translation": "再利用可能なゲート"
+    },
+    {
+      "source": "Review available checks and missing evidence.",
+      "source_sha256": "f7a99271ed3715003c48d350f37209623b8854e83b4151ed08180909f716355c",
+      "translation": "利用可能なチェックと不足している根拠を確認します。"
+    },
+    {
+      "source": "Review exported prose and every traced result.",
+      "source_sha256": "61abde1bb83664efef7b3b1b76178bfa133ad7b1aa601885ca4fa35c128d7d15",
+      "translation": "エクスポートした文章と、追跡可能な各結果を確認します。"
+    },
+    {
+      "source": "Review field identities, image channels and optional external masks before writing a separate project. Image-only imports still need segmentation before measurement.",
+      "source_sha256": "27f2d313aee8120e7c482b34e457ce69de7254faa9552021e1856b62f9d41aad",
+      "translation": "別のプロジェクトに書き込む前に、視野の識別情報、画像チャネル、任意の外部マスクを確認します。画像だけをインポートした場合、測定前にセグメンテーションが必要です。"
+    },
+    {
+      "source": "Review robust object/well outlier scores and the selected exclusion rule before carrying filtered data into analysis.",
+      "source_sha256": "aa2b056edaf7cf50e1cbe293910c25e45f59a1a89b0f8a723aa6ab83a637cd8d",
+      "translation": "フィルタリング後のデータを解析に使う前に、オブジェクトとウェルの頑健な外れ値スコア、および選択した除外ルールを確認します。"
+    },
+    {
+      "source": "Run a stock or custom Cellpose model on TIFF fields through the Python API. Despite its historical identify_masks_finetune name, this function performs inference, not training. Review normalization, channels, resizing and model parameters; masks are written only when save is enabled. Import compatible image/mask pairs through External Masks before Measure, or curate the pairs before training. This call does not build a Measure-ready merged project.",
+      "source_sha256": "c4bd82a1c8aa3b0a8d63c064ca0f9a82f5605673c75f90d98a00c71c0ed19646",
+      "translation": "Python API を通じて、TIFF 視野に標準またはカスタムの Cellpose モデルを実行します。従来の名前は identify_masks_finetune ですが、この関数が行うのは学習ではなく推論です。正規化、チャネル、サイズ変更、モデルのパラメーターを確認してください。マスクが書き出されるのは save が有効な場合だけです。Measure の前に External Masks を通じて互換性のある画像とマスクのペアをインポートするか、学習前にペアを確認・修正します。この呼び出しは、Measure ですぐに使える統合プロジェクトを作成しません。"
+    },
+    {
+      "source": "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed.",
+      "source_sha256": "84b781cc8fb2cd4df0c08e9fee3b4983b75605c6a6722f7253a783d838848c23",
+      "translation": "明示的に選択した回帰設定を実行し、その診断を比較します。入力データと評価する問いを固定します。"
+    },
+    {
+      "source": "Run history and artifacts",
+      "source_sha256": "62e734428c549a00f5b32a06510ed0f76e77568a87bb7f97f58bce6a26716ff4",
+      "translation": "実行履歴と成果物"
+    },
+    {
+      "source": "Run queue",
+      "source_sha256": "073afaf0ff8ea43730125542215e47279b3d6d407506a2af7c62629ac9ff78c2",
+      "translation": "実行キュー"
+    },
+    {
+      "source": "Run the chosen pipeline across plates. Outputs are those of each queued module; retain each plate and its settings separately.",
+      "source_sha256": "dcca464e6947ecaf6148f3655f0fb920bd208d2493de370bbde26f6f9137f025",
+      "translation": "選択したパイプラインを複数のプレートに実行します。出力はキュー内の各モジュールのものであり、各プレートとその設定を別々に保持します。"
+    },
+    {
+      "source": "Run/model comparison",
+      "source_sha256": "9f3402b266d47a5b95982d90e782d5a9ef612426b235ed30548db1542f1dd73b",
+      "translation": "実行とモデルの比較"
+    },
+    {
+      "source": "Save or stream crops with stable object identities.",
+      "source_sha256": "9d2aa7c76cc7845e15485b8ae6535fcdaf16a0f105e55bc2bc0ef6c27cb1fd6b",
+      "translation": "オブジェクトの識別情報を安定して保持しながら、切り出し画像を保存またはストリーミングで読み込みます。"
+    },
+    {
+      "source": "Saved Cellpose-compatible checkpoint or a compatible installed backend selected with its own configuration.",
+      "source_sha256": "dbb4e52b9ecc8172367656d188eaf6139295f106803d3be9c58d17313937b53a",
+      "translation": "保存された Cellpose 互換のチェックポイント、または固有の設定で選択した互換性のあるインストール済みバックエンド。"
+    },
+    {
+      "source": "Saved classifier checkpoint, model settings and matching channel/preprocessing configuration.",
+      "source_sha256": "662164a39d3f173304280c2ce24cb3e4d3823dac61e7447e44a9de1a018b6e25",
+      "translation": "保存された分類器のチェックポイント、モデル設定、対応するチャネルと前処理の設定。"
+    },
+    {
+      "source": "Saved model-response/saliency images for the matching classifier and input preprocessing.",
+      "source_sha256": "892315e07670f5468be340f149e65735943c12e0e621b9985fc1a966eff118a2",
+      "translation": "対応する分類器と入力前処理について保存された、モデル応答または顕著性の画像。"
+    },
+    {
+      "source": "Saved module/plate/settings job definitions and dependency order.",
+      "source_sha256": "a895c2a8bf7504b9565e7f1b4558b652aabde3076ed3ee4f13387d13ca2e0e40",
+      "translation": "保存されたモジュール、プレート、設定のジョブ定義と依存順序。"
+    },
+    {
+      "source": "Saved planning tables or figures based on explicitly chosen effect sizes, variability and sampling assumptions.",
+      "source_sha256": "ee03d7abfb310a809d87dc74641d955da2273f9429c1fbd9bf86b97b8e0f7d63",
+      "translation": "明示的に選んだ効果量、変動性、サンプリングの仮定に基づく、保存済みの計画テーブルまたは図。"
+    },
+    {
+      "source": "Saved score CSVs and, when merged, measurements/measurements.db, table png_list.",
+      "source_sha256": "c6d92932393861ee5acf119bd5b4799ee37b82e034439028e1b78d83b2e21ca9",
+      "translation": "保存されたスコア CSV と、結合した場合の measurements/measurements.db 内の png_list テーブル。"
+    },
+    {
+      "source": "Saved threshold/polygon gate definitions or a selected object set; apply a gate to the same feature definitions.",
+      "source_sha256": "62b20b663e7a23796bd7f77862f393881c84b8c60002083a635b10e485bb68f9",
+      "translation": "保存された閾値ゲートまたは多角形ゲートの定義、あるいは選択したオブジェクト集合。ゲートは同じ特徴量定義に適用します。"
+    },
+    {
+      "source": "Screen design and power estimates",
+      "source_sha256": "18e39157b758ed37e31203b0d149f92903ea6add1e7b9b5bed24d1439706585e",
+      "translation": "スクリーニング設計と検出力の推定"
+    },
+    {
+      "source": "Segmentation checkpoint",
+      "source_sha256": "21642c4db7e679be21044305075672f0b337ac24510999ee61600daa4d1ed2c3",
+      "translation": "セグメンテーションのチェックポイント"
+    },
+    {
+      "source": "Select CV predictions and the matching measured objects.",
+      "source_sha256": "6ee8a7cca7e74c41a5c49c929c4e82ac81a65cf4f1b2a0a20641da6824f3fa58",
+      "translation": "CV の予測と対応する測定済みオブジェクトを選びます。"
+    },
+    {
+      "source": "Select channels and models, inspect a preview, then run Mask. Measure consumes the merged arrays; the counts database is not yet a feature table.",
+      "source_sha256": "c279a49ea9a53c428e8a4db0e4740f6bdfd25ea34fccbf92f32e0ec3603582d5",
+      "translation": "チャネルとモデルを選び、プレビューを確認してから Mask を実行します。Measure が使うのは統合配列です。カウントデータベースは、まだ特徴量テーブルではありません。"
+    },
+    {
+      "source": "Select the intended CV or ML score column and preserve plate/well identity.",
+      "source_sha256": "3169a21d98fc6556bb837be858fc357341cbab46a02077c6b03629995f97f236",
+      "translation": "目的の CV または ML スコア列を選び、プレートとウェルの識別情報を保持します。"
+    },
+    {
+      "source": "Select the saved compatible checkpoint in Mask.",
+      "source_sha256": "e728ebc34eecea176cd1c0292a03c313fea3f405905ac93b531880cb8c41397e",
+      "translation": "Mask で保存済みの互換性のあるチェックポイントを選びます。"
+    },
+    {
+      "source": "Selected run results folder: coefficient/result CSVs, hit tables, settings and diagnostic figures.",
+      "source_sha256": "49c83a20b0aa1ccbb981fece12420a351e03c61184bdb16c229f0bcfd7a98f2a",
+      "translation": "選択した実行の結果フォルダ：係数や結果の CSV、ヒットテーブル、設定、診断図。"
+    },
+    {
+      "source": "Send the matching image/labels to napari and import the revised labels back with field identity preserved.",
+      "source_sha256": "154189afc6a259171833ab0877a3a87c5ad013d526397f7fe7612973732ab9e4",
+      "translation": "対応する画像とラベルを napari に送り、視野の識別情報を保持したまま修正したラベルを再インポートします。"
+    },
+    {
+      "source": "Separate image and integer-mask files with matching field identities; preserve original images and labels.",
+      "source_sha256": "8c1c362fe4c1aa54902b533e68bf6f519e6d521a9311dc14227766a57bb90688",
+      "translation": "視野の識別情報が一致する、別々の画像ファイルと整数マスクファイル。元の画像とラベルを保持します。"
+    },
+    {
+      "source": "Sequencing reads",
+      "source_sha256": "076754f411bf41c1236b2db473218aae7895d2bcc2df5ae3c85f01bc0b21f7cd",
+      "translation": "シーケンシングリード"
+    },
+    {
+      "source": "Shareable reports",
+      "source_sha256": "ab0b63322d9b5d4f5c73fe820914e87533533363c5c6833f1917feee704f72fe",
+      "translation": "共有可能なレポート"
+    },
+    {
+      "source": "Single-end or paired FASTQ files, with the matching barcode reference tables.",
+      "source_sha256": "0386f78d235909cfa5ae06c876ef6f91690c42f21c189eca9f20144eecc1f80a",
+      "translation": "シングルエンドまたはペアの FASTQ ファイルと、それに対応するバーコード参照テーブル。"
+    },
+    {
+      "source": "Source image folder; original files, supported vendor files or imported TIFFs.",
+      "source_sha256": "fa481657a34770a41f4a4b81f3d58d7649d44128d4728030f6044cfa67d6af1b",
+      "translation": "元画像のフォルダ。元のファイル、対応するメーカー形式のファイル、またはインポートした TIFF。"
+    },
+    {
+      "source": "Stored project checks and QC reports; a missing check is not a passing result.",
+      "source_sha256": "2e80ccd973941d555efb5b932b3ced7e60da7471cc7214ba07494baf3d85d387",
+      "translation": "保存されたプロジェクトのチェックと QC レポート。チェックがないことは合格を意味しません。"
+    },
+    {
+      "source": "Submit a configured run to a remote execution target and inspect its status and logs. Retrieve the actual module artifacts before downstream analysis.",
+      "source_sha256": "a78f47685fc5865fe2dd1cb58581c2020d1d47e2e0f0830db6d4e432da7fd164",
+      "translation": "設定済みの実行をリモートの実行先へ送信し、その状態とログを確認します。後続の解析の前に、実際のモジュール成果物を取得します。"
+    },
+    {
+      "source": "Supply dose and response columns, controls and units before curve fitting; this route does not require sequencing.",
+      "source_sha256": "655820b760232c1ea9c727bfc79fac9ce5687fd0e80096da483d5571bc17e23e",
+      "translation": "曲線を適合させる前に、用量列、応答列、対照、単位を提供します。この経路にはシーケンシングは不要です。"
+    },
+    {
+      "source": "Supply frame interval and pixel calibration.",
+      "source_sha256": "2293a08135e16e72e954972084b7744919a1c5f3335d781da515db0eb733c9b3",
+      "translation": "フレーム間隔とピクセル校正を提供します。"
+    },
+    {
+      "source": "Supply the encoder feature table with matching object IDs; do not assume every GUI route automatically persists it.",
+      "source_sha256": "2f6896eed25bb6e8254da9ee7a0920c6144c929afe3bc2d6180bf73f3721ef92",
+      "translation": "一致するオブジェクト ID を持つエンコーダー特徴量テーブルを提供します。すべての GUI 経路で自動的に永続保存されるとは限りません。"
+    },
+    {
+      "source": "Supply the matching coordinate/feature columns when defining a selection.",
+      "source_sha256": "6de47ffaa553bf88af78940b9c462f484adff0610d0a9c86304e69879511cd22",
+      "translation": "選択範囲を定義するときは、対応する座標列または特徴量列を提供します。"
+    },
+    {
+      "source": "Supply the measured project roots and required object/png_list tables. Verify host-cell aggregation and area units before interpreting size bins; the Mask counts database alone is insufficient.",
+      "source_sha256": "438a93721fc9965017beb890f83eb7b3112b5ede58858135be4357f6f73d6d6f",
+      "translation": "測定済みプロジェクトのルートと、必要なオブジェクトおよび png_list のテーブルを提供します。サイズ区間を解釈する前に、宿主細胞単位の集計と面積の単位を確認してください。Mask のカウントデータベースだけでは不十分です。"
+    },
+    {
+      "source": "Supply the references that encode your experiment. Inspect mapped counts and barcode QC before pairing well-level guide counts with phenotype scores.",
+      "source_sha256": "b4b500f9af732b5efc49612c1feb0f0fc51b2f9695acd6bd259d06701940f2c6",
+      "translation": "実験情報を符号化した参照データを提供します。ウェル単位のガイドカウントを表現型スコアと対応付ける前に、マッピング済みカウントとバーコード QC を確認します。"
+    },
+    {
+      "source": "Synthetic screen simulation summaries",
+      "source_sha256": "e2f0aeca8e3826947bf207465854e15a660284fbd27584872caec7fbbcef4c3d",
+      "translation": "合成スクリーニングシミュレーションの要約"
+    },
+    {
+      "source": "TIFF fields for direct Cellpose inference",
+      "source_sha256": "5d2dcbbd028a2ee607b29f8af0ea8f329e53610bd3034e647127d8eed3443850",
+      "translation": "Cellpose で直接推論するための TIFF 視野"
+    },
+    {
+      "source": "The fitted tabular classifier and its recorded feature list, training settings and validation results.",
+      "source_sha256": "a197512a268caafe8fc317d2098c3393bb748a9509a7d547cd3ef5d68c5bfb1c",
+      "translation": "学習済みの表形式データ分類器と、記録された特徴量リスト、学習設定、検証結果。"
+    },
+    {
+      "source": "The installed feature dictionary; definitions describe existing measurements and do not compute them.",
+      "source_sha256": "bce8377488dfae31f017c8b9417cc2479a48287b1d9aadc6af8e4d3c4f63b91c",
+      "translation": "インストール済みの特徴量辞書。定義は既存の測定値を説明するもので、それらを計算するものではありません。"
+    },
+    {
+      "source": "The output location chosen by the tool; exports describe the selected data and filters.",
+      "source_sha256": "3985f989fd85cde2b0a359d542fdca8b7f5a38bb3683a39339d8888e7ea1eb1e",
+      "translation": "ツールが選んだ出力先。エクスポート内容は選択したデータとフィルターを表します。"
+    },
+    {
+      "source": "Third-party measurement CSV/database tables and their image, mask and object-identity mappings.",
+      "source_sha256": "ed6a75b4a1c0e58a894154b4c26f9f413e82dc148a261997e69fbf32599d21a9",
+      "translation": "サードパーティーの測定 CSV またはデータベースのテーブルと、その画像、マスク、オブジェクト識別情報の対応付け。"
+    },
+    {
+      "source": "Top-level, lowercase .tif files in src; existing same-name files in src/masks are skipped. Supply the configured channels and a compatible stock model_name or custom_model checkpoint.",
+      "source_sha256": "d6981d9420937bef89ab5478f331a69354baaeeadfe6c65615a221a7d9d350b2",
+      "translation": "src の最上位にある、小文字の拡張子 .tif のファイル。src/masks に同名ファイルがすでにある場合はスキップされます。設定したチャネルと、互換性のある標準の model_name または custom_model チェックポイントを提供します。"
+    },
+    {
+      "source": "Tracked labels and frame/object associations from the time-series project, with frame interval and units.",
+      "source_sha256": "37bd92b56d8713b33c122df7d0dbf826ae1a418b2433f9c6348aeff300710032",
+      "translation": "時系列プロジェクトから得た追跡ラベルとフレーム・オブジェクトの対応関係。フレーム間隔と単位を伴います。"
+    },
+    {
+      "source": "Train a feature-based classifier from measured objects and labels. Inspect missing-feature exclusions and grouped held-out performance before using scores.",
+      "source_sha256": "1473eae34799bd98c10c5efffa9efe29b06b5d7b7e6a56e12024b0cc166eab8e",
+      "translation": "測定済みオブジェクトとラベルから、特徴量に基づく分類器を学習します。スコアを使う前に、特徴量の欠損による除外と、グループ単位のホールドアウト性能を確認します。"
+    },
+    {
+      "source": "Train an image classifier from labelled object crops, archives or supported streamed crops. Match channels and preprocessing when applying its checkpoint.",
+      "source_sha256": "157870287274791f6edcd76f6239ee8da9024726d7faea807be50694c3fb0371",
+      "translation": "ラベル付きのオブジェクト切り出し画像、アーカイブ、または対応するストリーミング切り出し画像から画像分類器を学習します。チェックポイントを適用するときは、チャネルと前処理を一致させます。"
+    },
+    {
+      "source": "Trained image classifier",
+      "source_sha256": "a28ac6fb17ccacf0e126e23d93a39ea353319947ac2215e8726699ca182ce8e2",
+      "translation": "学習済み画像分類器"
+    },
+    {
+      "source": "Training annotations",
+      "source_sha256": "af9479c34be49807c4cdc654eb60fd95b71bacd4a4f9c611d246ceb3fa55cf9b",
+      "translation": "学習用の注釈"
+    },
+    {
+      "source": "Use FEATURES to pair images and masks and write a measured project; standalone masks are not merged arrays.",
+      "source_sha256": "1dcfc668277f3ad92f63af925cd1b0e11f7d50018061dfc730a409c59d3de3d9",
+      "translation": "FEATURES で画像とマスクを対応付け、測定済みプロジェクトを書き出します。単独のマスクは統合配列ではありません。"
+    },
+    {
+      "source": "Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.",
+      "source_sha256": "37a5defe6fe790bc6edd314bf62dc3c5b454174fe25f3dc4542e76c26fb25d73",
+      "translation": "区画の強度測定値と、対応する宿主・病原体の識別情報を使って、動員比を計算します。"
+    },
+    {
+      "source": "Use imported image planes and identities; image-only imports still need segmentation.",
+      "source_sha256": "758477637b64fbd09f3708ee401272535f117650e825088aed95df4925e637d7",
+      "translation": "インポートした画像平面と識別情報を使用します。画像だけのインポートでは、なおセグメンテーションが必要です。"
+    },
+    {
+      "source": "Use independently checked image/mask pairs.",
+      "source_sha256": "2f8e1a168f30c74b5a6d8e4e992160c37bd92d719504c229c168a957b48d4964",
+      "translation": "独立に確認した画像とマスクのペアを使用します。"
+    },
+    {
+      "source": "Use plaque masks with matching source images; cell masks are not automatically plaque labels.",
+      "source_sha256": "d187ff0654b7898c787f957f79ee85752f15f2ce9890325944b3e2c5cc363f92",
+      "translation": "対応する元画像とともにプラークマスクを使います。細胞マスクが自動的にプラークラベルになるわけではありません。"
+    },
+    {
+      "source": "Use sequencing-cycle images and phenotype alignment to decode barcodes per nucleus. Aggregate/join the decoded identities to compatible phenotype inputs before Regression; the OPS database is not a drop-in FASTQ count CSV.",
+      "source_sha256": "0eb5f6bb9207a04f8b001a466fe3cb70551ca61d6ebfb4702f12e4f11bda482e",
+      "translation": "シーケンシングサイクルの画像と表現型の位置合わせを使い、核ごとにバーコードをデコードします。Regression の前に、デコードした識別情報を互換性のある表現型入力に集計または結合します。OPS データベースは FASTQ カウント CSV の直接の代替ではありません。"
+    },
+    {
+      "source": "Use the Python sweep API to explore stated screen-design assumptions. It expands combinations, runs simulations in a process pool and writes synthetic summary statistics; it returns None. Set a small explicit max_workers value and a bounded parameter grid before running. The output does not replace measurements or barcode counts for experimental Regression. Use the findings as planning evidence, with their assumptions recorded. Review the synthetic summaries when choosing planning assumptions; transfer those assumptions manually into Power / Design or Experiment Design. Neither tool imports this simulation database, and neither exports the simulation settings grid.",
+      "source_sha256": "4546ed51870a60e41bcc003e0306fea487f7a6bdd322366eacfdcf11e3dcaf16",
+      "translation": "Python のパラメーター探索 API を使い、明示したスクリーニング設計の仮定を調べます。組み合わせを展開し、プロセスプールでシミュレーションを実行して、合成の要約統計量を書き出します。戻り値は None です。実行前に、明示的で小さい max_workers の値と、範囲を限定したパラメーターグリッドを設定してください。出力は、実験の Regression に必要な測定値やバーコードカウントの代わりにはなりません。仮定を記録したうえで、結果を計画の根拠として使います。計画上の仮定を選ぶときに合成の要約を確認し、それらの仮定を Power / Design または Experiment Design に手動で転記します。どちらのツールもこのシミュレーションデータベースをインポートせず、シミュレーション設定のグリッドもエクスポートしません。"
+    },
+    {
+      "source": "Use the actual measured feature definitions and units.",
+      "source_sha256": "24b57dd68ed527779c36fabc6773c67269591681de7ba0d1a43361e1f0c55ff7",
+      "translation": "実際に測定した特徴量の定義と単位を使用します。"
+    },
+    {
+      "source": "Use the converted layout and preserve source identity mappings.",
+      "source_sha256": "83abb6351062dd3f2d76d8cafc9881379225d38c3c5dee6621b86b6d79c56cd5",
+      "translation": "変換後の配置を使い、元データの識別対応を保持します。"
+    },
+    {
+      "source": "Use the experimental layout to define sampling assumptions, then revise the design.",
+      "source_sha256": "a99aba00513138a13d7bd5c7dfce282948ea89fdaa83da640031eea3b60d1faa",
+      "translation": "実験配置からサンプリングの仮定を定義し、その後で設計を見直します。"
+    },
+    {
+      "source": "Use the matching held-out predictions and split metadata.",
+      "source_sha256": "f54d26c6f55e27fc9e4bfa8aa68751237c19bcfb4789430b0c398fdfa26da239",
+      "translation": "対応するホールドアウト予測とデータ分割のメタデータを使用します。"
+    },
+    {
+      "source": "Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.",
+      "source_sha256": "240aa7980a0a0e0226a326e055651e9e69d1234b4afaaa4047c073bc44ad2815",
+      "translation": "必要な二色の鑑別染色の測定値と染色のベースライン対照を使い、付着と侵入を区別します。"
+    },
+    {
+      "source": "Use the same project and the correct image/mask channel indices.",
+      "source_sha256": "a13443df7b3ac941065d58a50ac84111df75ac2f088812325d7a5611061621b2",
+      "translation": "同じプロジェクトと、正しい画像およびマスクのチャネルインデックスを使用します。"
+    },
+    {
+      "source": "Use the time-series project with stable frame/object identities.",
+      "source_sha256": "7f51c91c57e8c6bcfbc6eb8b314770891a24fd6027910ff8fae48c728b8ef191",
+      "translation": "フレームとオブジェクトの識別情報が安定した時系列プロジェクトを使用します。"
+    },
+    {
+      "source": "Use {name} from Python through {api}. This API-only workflow has no Home tile or menu entry.",
+      "source_sha256": "092fd7bd3c6ec42a192044b5f9228818bfe5ac1f1591b41983b2f52bf09b46b2",
+      "translation": "Python から {api} を通じて {name} を使用します。この API 専用ワークフローには、Home のタイルやメニュー項目はありません。"
+    },
+    {
+      "source": "Validate and execute module jobs in dependency order. Each job writes its own module outputs and log.",
+      "source_sha256": "0300e5287d7ced093423753607dfa50fb9c3fc6effc5c503aa208e3f62b180b8",
+      "translation": "依存順序に従ってモジュールのジョブを検証し、実行します。各ジョブは自身のモジュールの出力とログを書き出します。"
+    },
+    {
+      "source": "When save=True, src/masks/<image-name>.tif contains integer labels. The call returns None and does not produce merged arrays or measurements.db.",
+      "source_sha256": "ee0bd77b1f809745ceee1d1f39be5c9817cf6bd81f217c5d1a2a057e01f15bb4",
+      "translation": "save=True の場合、src/masks/<image-name>.tif に整数ラベルが格納されます。呼び出しは None を返し、統合配列や measurements.db は生成しません。"
+    },
+    {
+      "source": "Workflows",
+      "source_sha256": "e2073645cb0dbbddb2464dacc4ed2a03923b8e4a4b680245c36c69763766fb40",
+      "translation": "ワークフロー"
+    },
+    {
+      "source": "data/**/*_png when save_png is enabled; png_list indexes saved crops. Supported workflows can instead stream crops from merged arrays and masks.",
+      "source_sha256": "bd53efc1885c16bab0fcdfbad7b76154c439ce7dc30dbe9773432a3039dcb59b",
+      "translation": "save_png が有効な場合は data/**/*_png に保存され、png_list が保存済みの切り出し画像を索引付けします。対応するワークフローでは、代わりに統合配列とマスクから切り出し画像をストリーミングで読み込めます。"
+    },
+    {
+      "source": "masks/ when retained, or explicitly saved image/mask pairs. Intermediate masks may be removed by cleanup.",
+      "source_sha256": "5bd7480a631cb9830f42aa8f650373d1750b0475863c9bada0b58c26ae52ba17",
+      "translation": "保持した場合の masks/、または明示的に保存した画像とマスクのペア。中間マスクはクリーンアップで削除される場合があります。"
+    },
+    {
+      "source": "measurements/measurements.db; Mask counts alone are not per-object feature measurements.",
+      "source_sha256": "ff6f35a646686f728ba4a6db279103047a3eccaadc76ba9bf8f12be03772832d",
+      "translation": "measurements/measurements.db。Mask のカウントだけでは、オブジェクトごとの特徴量測定にはなりません。"
+    },
+    {
+      "source": "measurements/measurements.db; object tables depend on the enabled cell, nucleus, pathogen and organelle masks.",
+      "source_sha256": "5c642be9ad3e3f8cbc8fbac46351f33eecc6313cdb7527491571ec72e0eee4e5",
+      "translation": "measurements/measurements.db。オブジェクトのテーブルは、有効にした細胞、核、病原体、オルガネラのマスクによって異なります。"
+    },
+    {
+      "source": "merged/*.npy in the project; channels and integer label planes share each field array.",
+      "source_sha256": "dd31724bc9249a234a1d470a40044ced540a2f1a45f87f971fa0130c34fd22e8",
+      "translation": "プロジェクト内の merged/*.npy。チャネルと整数ラベル平面は、各視野の配列を共有します。"
+    },
+    {
+      "source": "src/<YYMMDD>/<name>/simulations.db; the sweep appends summary rows to simulations and optionally writes plots. These are synthetic performance estimates, not measured experimental hits.",
+      "source_sha256": "db0a1e1d8ef683fbf20b279fdabd4ef67a734bf9bae416adf802cda983646d4c",
+      "translation": "src/<YYMMDD>/<name>/simulations.db。パラメーター探索は simulations に要約行を追加し、任意でグラフを書き出します。これらは合成の性能推定値であり、測定された実験ヒットではありません。"
+    },
+    {
+      "source": "{producer} to {consumer}: {handoff}",
+      "source_sha256": "97d0b42875008bb316115955e50cdab70e16c39e2b46388613eb56e5f0654a9f",
+      "translation": "{producer} から {consumer} へ：{handoff}"
+    }
+  ]
+}
