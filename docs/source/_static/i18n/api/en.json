@@ -19301,6 +19301,36 @@
       "source_sha256": "e93795f8e87a952dc38d3d18c500cb83f466bb14d8bd9744dbde4651498226a4",
       "text": "Build the sample from the command line without requiring Qt or network.\n\n:param argv: optional argument list; None reads the process arguments.\n:returns: zero after printing the generated or reused project directory."
     },
+    "spacr.host_pathogen_preview": {
+      "source_blocks_sha256": [
+        "35839ade4f889bdbc7bbf2beca638031ed257730440da7ad448391c8a6d1c2ea"
+      ],
+      "source_sha256": "35839ade4f889bdbc7bbf2beca638031ed257730440da7ad448391c8a6d1c2ea",
+      "text": "Read-only, bounded field previews using the Host–Pathogen analysis engine."
+    },
+    "spacr.host_pathogen_preview.preview_field": {
+      "source_blocks_sha256": [
+        "06c02f18687c9930962966640ebc2f21205e62e3397b5eeca60b46626f4dca1d",
+        "6ec7ceeddc0c82f2dbe619736dac3e111de222e4e3e96b7897a0d372bee4a22b",
+        "c05e0a97b4c24b18069e91af2a89bcd54e5cfc37360a14d75baedf68cec1e3b6",
+        "3955f99bee8b348661d91b4e3040e9ab7134236de8194432a9880818d79b6ccb",
+        "6071bd3526f135ff9bf724f9a910657893359338991323dc6bb703bf8362928d",
+        "ae1470288551b8677b0fac88ed5a937fec174a69a344e6f607b0aeffff0585e3",
+        "687d3a2ee72faa5cbd06591935c5f9d35f8fd028c181250c55205f0a35548521"
+      ],
+      "source_sha256": "413aebf81ff1408ff8a6a398932383588e9deb4ce3cae218e407f0426bd922ba",
+      "text": "Analyze one measured field without modifying source or result files.\n\n:param settings: current Host–Pathogen settings, shared with the full run.\n:param field: one record returned by :func:`preview_fields`.\n:param planes: optional explicit host/vacuole/parasite mask plane indices.\n    Missing entries use a valid merged-plane manifest; absent metadata never\n    silently chooses mask planes. A negative index disables that overlay.\n:param image_channel: intensity plane shown as grayscale, display-only.\n:param row_limit: refuse fields exceeding this many rows in any input table.\n:returns: real analysis tables, display image/masks and explicit image notes.\n    Infection denominators cover this field only, including uninfected hosts."
+    },
+    "spacr.host_pathogen_preview.preview_fields": {
+      "source_blocks_sha256": [
+        "1e5a9fdec3e4e81602a488c0278ae4d9849efaea47c3163df20169496de733a4",
+        "c9e4b8d3b7cf6d160073ed2ca6bfac40d534e33f4bfdaff7de0ef48fb3a264b4",
+        "de40eb57c8e5a44f28a74746c159acbd43fca6202c167745cb184f07cd0800f7",
+        "56b3ae9dcbbb1024b1f9bc3b419a9a219567b7629858cca28eeab22999ea05c7"
+      ],
+      "source_sha256": "d95f406847573409ec4dea5239dfbf44de161b3a4633122adcb14f1b320dee91",
+      "text": "List at most ``limit`` measured fields, in stable source/identity order.\n\n:param settings: Host–Pathogen settings; src is a project, database or list.\n:param limit: positive maximum number of fields offered by the preview.\n:returns: field records and a boolean saying whether additional fields exist.\n    Database connections are read-only; no migration or analysis is written."
+    },
     "spacr.hyperparam": {
       "source_blocks_sha256": [
         "0a2d94ed7d9f2ea17729bfe0e8560f829d52fc52cc6056256cd8293105899072",
@@ -68003,6 +68033,14 @@
       "source_sha256": "1387f8171458d7cc0a541fb528646733919c79db0b9cb6ca7f7a7fde35c85bf5",
       "text": "Queue one montage for each selected coefficient.\n\nLoads are chained in selection order because montage construction is\nasynchronous. Completed well tabs remain available, enabling comparison\nacross coefficients while preserving each montage's guide-specific crop\nranking.\n\nReturns\n-------\nint\n    Number of selected coefficients queued for loading."
     },
+    "spacr.qt.widgets.cell_montage_view.CellMontageView.cancel_loading": {
+      "source_blocks_sha256": [
+        "435887725b2c66014cd2ef4f053a4b7fc4b591be1613df6acaf2181c49e560c6",
+        "219f2273a6d119c16e0bd9475214957870c73fe98c8d7b31b961350913ecfac1"
+      ],
+      "source_sha256": "3badb462ea33b6931627fc674b2786405435b2bff1c451a6e8ca03df3c5be11e",
+      "text": "Cancel the active montage and queued selections without blocking.\n\n:returns: whether there was a current montage request to cancel.\n    An existing database or filesystem read may finish before exit;\n    no later stage or stale result is shown."
+    },
     "spacr.qt.widgets.cell_montage_view.CellMontageView.caption_text": {
       "source_blocks_sha256": [
         "164624d4ae1e1a8d5efc07be7da7f9d1578b4b437abf9ae4041b972093b8f1e6"
@@ -68393,10 +68431,12 @@
         "c0b5218de48a20ef87e3033932869b691b19e630e6b1f878924944ab6845d6ee",
         "53791ec4287e51b47a9a55a4c7e9c50caf4403701be0df140ed842c41092af7d",
         "c01be5bd77207a15310bff2932e9d0dbe230019d0d5839f0db69d298a455e5bd",
+        "04c5609c3a751322b7f26b57428e44c0fea4538347033832f75865cf6052c728",
+        "1a7d999b76786696bbd4b62a5649b26eb80fbec5444b48e5b79de5b91e098c1b",
         "8b0924996e03a76e4678f993aa937de9ee16f4b7f64a15fe5a001925f2f9c89f"
       ],
-      "source_sha256": "262feb306fa6704e0d186e570e7c65d70f7beaa21068b4b4b703d84918a2b6ae",
-      "text": "Select the objects behind one coefficient and cut their crops.\n\n**Runs on a worker thread and touches no widget.** Every failure comes\nback as :attr:`MontageLoad.error` rather than as an exception, because the\ncaller is a tab that must stay on screen and say why.\n\n:param request: what to draw.\n:returns: the plans, the crops, and which source drew them."
+      "source_sha256": "956ccf1fc0bd883cf47cf83e0ecf638e43c9bbed32469b3c326ef569b63e7e9c",
+      "text": "Select the objects behind one coefficient and cut their crops.\n\n**Runs on a worker thread and touches no widget.** Every failure comes\nback as :attr:`MontageLoad.error` rather than as an exception, because the\ncaller is a tab that must stay on screen and say why.\n\n:param request: what to draw.\n:param progress: optional callback receiving stage text on the calling\n    thread. A GUI caller must relay it through a queued Qt signal.\n:param cancelled: optional zero-argument predicate checked between reads\n    and processing stages. An operation already in progress may finish.\n:returns: the plans, the crops, and which source drew them."
     },
     "spacr.qt.widgets.cell_montage_view.montage_figure": {
       "source_blocks_sha256": [
@@ -82985,6 +83025,70 @@
       ],
       "source_sha256": "24061775e812a8e995876096dc6513a615764c9bbcd203a89e6d61fa119c0e86",
       "text": "The palette for the theme that is on screen *right now*.\n\nNot ``theme.PALETTE``: that module-level dict is the dark palette and\nnothing ever updates it, so a widget that inlines colours from it\nrenders dark on every theme. On the light theme that produced black\npanels with black text in the right-hand column — unreadable, and\ninvisible to any test that only checks widget structure.\n\nHome is rebuilt from scratch on a theme change\n(``MainWindow._rebuild_startup_page``), so resolving once per widget\nconstruction is enough."
+    },
+    "spacr.qt.widgets.host_pathogen_preview": {
+      "source_blocks_sha256": [
+        "82d804164b60f77f6f9ed3360ccd4579f2a5253561a7ab7b68ec4b37f1722eb3"
+      ],
+      "source_sha256": "82d804164b60f77f6f9ed3360ccd4579f2a5253561a7ab7b68ec4b37f1722eb3",
+      "text": "Interactive per-vacuole results beside the measured field's image."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel": {
+      "source_blocks_sha256": [
+        "66b9bece301b6467b210b65c4cf32585fb0bba7107799b469059f93e723006be",
+        "882048685d02daaab0b28a0ef42c75ebd93cc7808390fc1c6380da56af627132"
+      ],
+      "source_sha256": "371d3760ea4e9d8ecad9b69d7934f76d4d5263df5ec0d02139ef098d85ba6a16",
+      "text": "Preview current Host–Pathogen settings on one field without saving.\n\nImage and table selection share vacuole labels. Unknown marker states are\nretained; displayed infection fractions use this field's measured hosts.\nBuild controls without reading images, databases or the settings form."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.apply_settings": {
+      "source_blocks_sha256": [
+        "ed6c0ed53222557b79ae3275d8d6c306df5c3f3e56ce948931544da9a9eba652"
+      ],
+      "source_sha256": "ed6c0ed53222557b79ae3275d8d6c306df5c3f3e56ce948931544da9a9eba652",
+      "text": "Replace preview settings; stale results are discarded on a change."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.load_source_async": {
+      "source_blocks_sha256": [
+        "c8e2e4367fff023db26cf6addb6778105e57bd1b1bf20e6ddd39199e15eba77e"
+      ],
+      "source_sha256": "c8e2e4367fff023db26cf6addb6778105e57bd1b1bf20e6ddd39199e15eba77e",
+      "text": "Refresh the field list and preview from the current form and source."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.preview_running": {
+      "source_blocks_sha256": [
+        "d92ca1a00a953cad6f0af17d0b2a97f1e4ff665a8f6249cf4482f5adaeb91386"
+      ],
+      "source_sha256": "d92ca1a00a953cad6f0af17d0b2a97f1e4ff665a8f6249cf4482f5adaeb91386",
+      "text": "Whether the preview runner still owns work whose result is current."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.run_preview": {
+      "source_blocks_sha256": [
+        "846854a868477f23ea7b008ae451d547c19179c26171431d16ad2acca2b14c7d"
+      ],
+      "source_sha256": "846854a868477f23ea7b008ae451d547c19179c26171431d16ad2acca2b14c7d",
+      "text": "Read a bounded field and calculate the same ratios/counts as Run."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.HostPathogenPreviewPanel.shutdown": {
+      "source_blocks_sha256": [
+        "52fb917b54bfabaa4f843a6923053c21edf041b50ba1a81d48a66a8dadd84c3a"
+      ],
+      "source_sha256": "52fb917b54bfabaa4f843a6923053c21edf041b50ba1a81d48a66a8dadd84c3a",
+      "text": "Retire background reads before the preview's widgets disappear."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.build_host_pathogen_preview_card": {
+      "source_blocks_sha256": [
+        "7dc7af7f44f2cd9f228a690b927bb830731a417803d835c172b78372a294e1c4"
+      ],
+      "source_sha256": "7dc7af7f44f2cd9f228a690b927bb830731a417803d835c172b78372a294e1c4",
+      "text": "Declare a lazily built preview using the shared Live toggle/card."
+    },
+    "spacr.qt.widgets.host_pathogen_preview.fill_host_pathogen_preview_card": {
+      "source_blocks_sha256": [
+        "f8b138c8c42e0dba22c6694d72d78ae1e4b43df754a8ddfa84bd40e324e763c8"
+      ],
+      "source_sha256": "f8b138c8c42e0dba22c6694d72d78ae1e4b43df754a8ddfa84bd40e324e763c8",
+      "text": "Connect the preview to the form so Run preview uses current settings."
     },
     "spacr.qt.widgets.hover_tooltip": {
       "source_blocks_sha256": [

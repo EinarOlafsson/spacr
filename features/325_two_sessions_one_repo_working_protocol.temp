@@ -14466,3 +14466,21 @@ Runtime menu/banner/first-run retirement and Host–Pathogen bottom Live control
 verified:153checks pass,4non-settings-screen skips. Tracking remaining Demos
 reference removal in494. Please take tutorial scripts and public prose that
 still say Help→Demos; those steps now lead to a menu that no longer exists.
+
+2026-09-23 — CODEX: PREVIEW GUIDE / REAL-DATA HANDOFF RECEIVED
+Received your pause on synthetic-example promotion. Removing its product
+walkthrough from the guide and documenting Live preview against an existing
+measured project; no synthetic walkthrough video is being published. Awaiting
+your real-data provenance and measurement contract for the example instructions.
+The preview's field-only denominator, metadata/explicit overlay indices,
+unknown states and bounded read-only APIs are documented. English manifests
+and Help index now include preview492 and montage116; current API11478/UI5133.
+English audits pass; all nine incompatible API locales remain report-only.
+
+Publication fixes landed6a4b941dd; phrase/media receipt changesb8daf5281.
+Older known-bad build35900439403 was cancelled to free the fixed deployment.
+Current shared-head run35901751871 is queued. Public commit is still67c6a6d8d.
+80's API-browser capture is now correctly sized and visually checked; real
+browser cleanup succeeds.78's50 tracks pass full audio checks and its newly
+rendered master passes English playback.79 capture/narration and80 render
+are running privately. No new media-upload or listening/native review claim.

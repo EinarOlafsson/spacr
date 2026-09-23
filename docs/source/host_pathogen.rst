@@ -5,39 +5,34 @@ From **Home → Assays → Toxoplasma**, open **Host–Pathogen Analysis**.
 This alpha module combines vacuole-level marker recruitment with host and well
 summaries. Existing :doc:`Recruitment <recruitment>` remains available.
 
-Try the synthetic test project
-------------------------------
+Inspect one field before running
+--------------------------------
 
-#. Open **Home → Assays → Toxoplasma → Host–Pathogen Analysis**.
-#. Select **Load test data…**. spaCR generates an offline example and loads
-   its prepared settings. No download, trained model or GPU is needed.
-#. Select **Run**, then compare ``results/host_pathogen`` with the project's
-   independently specified ``expected`` CSV files.
+After selecting a measured project in **Source**, enable **Live preview**.
+The preview uses the current form settings and the same analysis
+functions as a full run. Select **Run preview** for the initial calculation.
+While the panel remains visible, later settings changes refresh that preview.
+Use **Refresh** to reload the field choices and **Cancel** to cancel a pending
+preview. Preview reads the measurements database without writing result files.
 
-The example contains four drawn fields across two wells, with 24 host cells,
-28 whole vacuoles and 88 individual parasites. Whole vacuoles use the
-``pathogen`` table; individual parasites use ``organelle`` with explicit
-``pathogen_id`` links. The marker channels are 0 and 1, both with illustrative
-ratio thresholds of 2. These thresholds are not calibrated biological cutoffs.
+Its host counts and infection fractions describe the selected field only.
+They are not whole-well denominators. Fields containing vacuoles without
+measured host cells remain available. Missing or zero reference intensities
+produce unknown marker states; an unknown state must not be read as negative.
 
-Each well should report 12 hosts, 10 infected hosts, two multiply infected
-hosts, 14 vacuoles, 12 host-linked vacuoles and two orphan parasites. The
-infection fraction is 10/12. Zero or missing host-reference intensities
-produce unknown marker states; unknown does not mean negative. Extracellular
-vacuoles contribute to vacuole summaries without increasing the number of
-infected hosts.
+Overlay plane selection defaults to **Auto**, using the recorded
+``.spacr_plane_layout.json`` metadata. Select explicit host, vacuole and
+parasite plane indices when metadata is absent,
+or use ``-1`` to hide an overlay. Changing the displayed intensity channel
+does not change the analysis marker settings. If an image cannot be loaded,
+the measured results remain available in the table.
 
-This is generated test data, not acquired microscopy or evidence of model
-accuracy. The project includes the drawn TIFF images and masks, previews,
-measurement tables, settings and expected results. Its prepared measurements
-let you exercise this module directly; an ordinary image project still needs
-the Mask and Measure preparation described below.
-
-For a separate example folder, run
-``python -m spacr.host_pathogen_example --out /path/to/new/project``.
-:func:`spacr.host_pathogen_example.build_example` documents generation and
-reuse: a complete cached example is retained unchanged, and an unrelated
-nonempty destination is refused.
+For scripted previews, :func:`spacr.host_pathogen_preview.preview_fields`
+offers at most 50 fields by default and reports whether more exist.
+:func:`spacr.host_pathogen_preview.preview_field` analyzes one selected field,
+refusing input tables with more than 100,000 rows for that field by default.
+These bounds keep the preview limited; use the full analysis for project-wide
+reports.
 
 Prepare the counting units
 --------------------------

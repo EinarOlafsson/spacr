@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 def record_overview(app, window, captures, capture, settle, write_json,
-                    lesson_id='78_spacr_screens'):
+                    lesson_id='78_spacr_screens', *, browser=None):
     from PySide6.QtCore import QPoint, Qt, QTimer
     from PySide6.QtTest import QTest
     from PySide6.QtWidgets import QAbstractButton, QDialog, QTableView, QTextBrowser
@@ -93,7 +93,7 @@ def record_overview(app, window, captures, capture, settle, write_json,
         module = data['modules'][key]
         scene_captured = False
         if module.get('api_entry'):
-            from spacr.qt.help_search import field_of
+            from spacr.qt.help_search import api_url, field_of
 
             field = field_of(window)
             if field is None or not field.isVisible():
@@ -116,17 +116,34 @@ def record_overview(app, window, captures, capture, settle, write_json,
             QTest.keyClick(field, Qt.Key_Return)
             deadline = time.monotonic() + 15
             dialog = None
-            while dialog is None:
+            page = None
+            while dialog is None and page is None:
                 dialogs = [widget for widget in app.topLevelWidgets()
                            if isinstance(widget, QDialog) and widget.isVisible()
                            and widget.objectName() == 'HelpSearchApiEntry'
                            and widget.windowTitle() == symbol]
                 if len(dialogs) == 1:
                     dialog = dialogs[0]
+                elif browser is not None and (page := browser.find(api_url(symbol))) is not None:
+                    break
                 elif time.monotonic() >= deadline:
                     raise ValueError('The genuine API result did not open its local reference')
                 else:
                     settle(.1)
+            if page is not None:
+                external = browser.prepare_frame(page, symbol)
+                settle(1)
+                capture('module_' + key, desktop=True)
+                routes.append({'module': key, 'api_symbol': symbol, 'search_query': query,
+                               'real_help_result_visible': True, 'api_executed': False,
+                               'local_docstring_displayed': False, 'browser_reference': external,
+                               'home_tile_clicked': False})
+                browser.close()
+                window.raise_()
+                window.activateWindow()
+                settle(.5)
+                field.clear()
+                continue
             body = dialog.findChild(QTextBrowser)
             from spacr.qt.help_search import local_docstring
 

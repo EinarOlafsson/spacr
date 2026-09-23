@@ -245,6 +245,16 @@
       "source_sha256": "24e944d6e38d148c565d2f0451e37c900ef02a49b0baf975a79fb65997c41357",
       "text": "One module's preview declaration.\n\n:ivar builder: ``\"module:function\"`` returning ``(panel, card)``, the\n    shape every existing ``build_*_preview_card`` already has. Named\n    rather than imported so declaring a preview costs no import at\n    launch — a preview panel drags in the imaging stack.\n:ivar title: the toggle's label.\n:ivar tooltip: what the toggle promises.\n:ivar propagation: rename map applied to whatever the panel hands back\n    through ``set_propagate_callback``, so a panel written for one\n    module's setting names can serve another's.\n:ivar owned_by_screen: True for the four ``AppScreen`` already builds.\n    They are declared here so this registry is the single answer to\n    \"which modules have a preview\", and skipped at install time so they\n    do not get a second card."
     },
+    "262feb306fa6704e0d186e570e7c65d70f7beaa21068b4b4b703d84918a2b6ae": {
+      "source_blocks_sha256": [
+        "c0b5218de48a20ef87e3033932869b691b19e630e6b1f878924944ab6845d6ee",
+        "53791ec4287e51b47a9a55a4c7e9c50caf4403701be0df140ed842c41092af7d",
+        "c01be5bd77207a15310bff2932e9d0dbe230019d0d5839f0db69d298a455e5bd",
+        "8b0924996e03a76e4678f993aa937de9ee16f4b7f64a15fe5a001925f2f9c89f"
+      ],
+      "source_sha256": "262feb306fa6704e0d186e570e7c65d70f7beaa21068b4b4b703d84918a2b6ae",
+      "text": "Select the objects behind one coefficient and cut their crops.\n\n**Runs on a worker thread and touches no widget.** Every failure comes\nback as :attr:`MontageLoad.error` rather than as an exception, because the\ncaller is a tab that must stay on screen and say why.\n\n:param request: what to draw.\n:returns: the plans, the crops, and which source drew them."
+    },
     "27f801065f6bfce391fde9cdbed5b72d128123122e29932c8965cb7a8f268373": {
       "source_blocks_sha256": [
         "8c2ab9fed6c956dcc2e09ac2bea6ab11f8c25a1aed0e642b7a0773cdde8e2b27",
