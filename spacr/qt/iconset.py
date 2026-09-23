@@ -200,7 +200,7 @@ def veil_color(theme: str) -> str:
 
 
 def _load_rgba(path: str):
-    """Load a PNG as an (h, w, 4) float array, or ``None`` if unreadable.
+    """Decode PNG or SVG artwork to a bounded RGBA array, or None.
 
     Downscaled to :data:`MAX_WORK_SIZE` first. Some bundled assets are
     enormous for icon artwork — ``logo_spacr.png`` is 3334x3334, which
@@ -594,6 +594,9 @@ def bundled_icon_paths() -> Tuple[str, ...]:
 #: reproduce the CV model's decisions from measured features, so a tree of
 #: nodes is what this screen builds, not a metaphor for it.
 SHARED_ICON_ASSETS = {
+    "toxoplasma": "replication.png",
+    "plasmodium": "organism_plasmodium.svg",
+    "candida": "organism_candida.svg",
     "investigate_hit": "hit_list.png",
     "classify_merged": "classify.png",
     "explain_cv": "ml_analyze.png",

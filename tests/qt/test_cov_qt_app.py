@@ -258,6 +258,7 @@ def _tiles(page: HomePage) -> dict:
 #: how finished it is lives in :data:`EXPECTED_STAGES` below and is
 #: drawn as the tile's hover colour rather than as a place.
 EXPECTED_SECTIONS = {
+    "toxoplasma": "Assays", "plasmodium": "Assays", "candida": "Assays",
     # REWRITTEN 2026-08-31, when Home was cut from seven categories to
     # four. The user wrote out the tiles they wanted, in the order they
     # wanted them, and this ledger is the record of where every app
@@ -333,6 +334,7 @@ EXPECTED_SECTIONS = {
 #: Absent from ``APP_STAGE`` means stable, so the two are checked
 #: against each other rather than against a copy of the same dict.
 EXPECTED_STAGES = {
+    "toxoplasma": "alpha", "plasmodium": "alpha", "candida": "alpha",
     # New module, so alpha: the two pipelines it dispatches to are trusted,
     # the merged screen has not been run on real data.
     "classify_merged": "alpha",
@@ -405,7 +407,7 @@ def test_every_app_is_filed_under_the_section_it_belongs_to():
 def test_every_app_carries_the_maturity_it_was_given():
     """The other axis, one entry at a time.
 
-    Twenty-nine alpha, four beta, six stable. The alpha column is the
+    Thirty-two alpha, four beta, six stable. The alpha column is the
     one that keeps growing and the beta and stable columns have not
     moved in a long time, which is the true shape of this project: an
     app arrives "built and reachable, not yet trusted end to end", and
@@ -462,7 +464,7 @@ def test_every_app_carries_the_maturity_it_was_given():
     # registers them now. Each has declared stage='alpha' in `app_catalog`
     # since it was written; the column grew by three tiles, not by three
     # demotions.
-    assert counts == {"alpha": 29, "beta": 4, "stable": 6}
+    assert counts == {"alpha": 32, "beta": 4, "stable": 6}
 
 
 def test_no_section_is_used_that_was_never_declared():
@@ -635,7 +637,8 @@ def test_sidebar_emits_the_key_of_the_row_that_was_clicked(
     bar = Sidebar()
     qtbot.addWidget(bar)
     by_key = {b.property("navKey"): b for b in bar.findChildren(QPushButton)}
-    for key in ("__home__", "mask", "invasion"):
+    assert "invasion" not in by_key, "Invasion is reached through Toxoplasma"
+    for key in ("__home__", "mask", "toxoplasma"):
         with qtbot.waitSignal(bar.nav_selected, timeout=1000) as blocker:
             by_key[key].click()
         assert blocker.args == [key]
@@ -1057,6 +1060,8 @@ def test_home_returns_to_the_startup_page(win):
 
 def test_build_screen_returns_the_dedicated_class_where_there_is_one(win):
     expected = {
+        "toxoplasma": "OrganismScreen", "plasmodium": "OrganismScreen",
+        "candida": "OrganismScreen",
         "annotate":      "AnnotateScreen",
         "make_masks":    "MakeMasksScreen",
         "queue":         "QueueScreen",
@@ -1093,7 +1098,7 @@ def test_every_other_key_builds_a_generic_app_screen(win):
     seeing, and the old shape could not fail on that at all.
     """
     from spacr.qt.screens.app_screen import AppScreen
-    dedicated = {"annotate", "make_masks", "queue", "db_browser", "agreement",
+    dedicated = {"toxoplasma", "plasmodium", "candida", "annotate", "make_masks", "queue", "db_browser", "agreement",
                  "plate_view", "model_compare", "align", "convert", "foreign",
                  "batch", "distributed_jobs", "model_zoo", "report", "train_compare",
                  "classifier_evaluation", "run_history",

@@ -11532,3 +11532,31 @@ verification and semantic limits retained. Consolidated receipt:
 features/data/477_482_mask_editor_tools_2026-09-22.json. Runtime source claims
 released after this commit; tutorial/API prose, translations and recording
 remain your lane. Broad feature goal and older CI failures remain open.
+
+2026-09-22 — IMPLEMENTATION:43 CI ORGANISM INTEGRATION CLAIM
+Previous goal turn completed477–482 and pushed9ad033f84 (concrete progress).
+Following live CI35807838039, exact6006a0608: claiming organism registry/icon/
+drop declarations and their stale contract tests; then Home generator layout
+follow-up. Failed-job logs are private under implementation-20260922/ci-followup/
+job-<id>.log. Translation failures include obsolete Plates reviewed UI source,
+settings-source inventory, chrome-source count, OPS source bindings, registry
+Latin-name lookups, broader missing entries and coverage report; several are
+already superseded by your newer commits. Please own their current-source
+reconciliation. I will not change catalogs or translation tests in this batch.
+GPU observer3480688 is live; recent utilization40%, idle qualification0.
+
+2026-09-22 — IMPLEMENTATION:43 ORGANISM INTEGRATION VALIDATED
+Moved organism built-in rows beside Assays to match register_app's established
+section ordering. Moved their Home-only icon overrides to SHARED_ICON_ASSETS
+so bare resolver and Home agree. NO_DROP_TARGET now explains why the three
+organism launch pages hand image/table input to their chosen assay instead.
+Updated explicit section/alpha/dedicated-screen/visible-navigation contracts
+for the three organism doors; did not remove the underlying assays.
+300 focused checks pass,6 existing conditional skips.40 DPI checks pass;
+the SVG decode's QSize.defaultSize().scaled is geometry, not a low-DPI
+pixmap. New decode check requires visible256px SVG masters.79 final icon/
+layout checks pass. The bare QObject in the crowded-drop latency test now
+shuts its scanner down after timing; all5 pass without the runner report.
+Only private _load_rgba docstring changed (PNG or SVG); no new public methods,
+settings or runtime strings/catalog edits. Icons/drop/app claims release on
+commit; Home review-generator layouts remain my next claim.

@@ -2128,3 +2128,21 @@ coverage. Their production behavior and thresholds were left unchanged.
 Full CI remains OPEN; these focused checks do not establish suite acceptance.
 Validation for the repair: 155 distinct setup/sign-in checks pass across the
 focused runs; final terminal lifecycle suite9/9 and fatal-error Ruff pass.
+
+2026-09-22 — ORGANISM REGISTRY, ICONS AND DROP CONTRACTS
+Live workflow_dispatch35807838039 at6006a0608 exposed organism integration
+omissions. Built-in rows now follow the registry's existing section ordering.
+Organism icon aliases live in iconset.SHARED_ICON_ASSETS, so bare callers,
+Home and sidebar use the same artwork. Landing pages explicitly declare that
+input drops belong to their chosen assay module. Registry/alpha/dedicated-
+class/visible-navigation contracts now pin the three requested organism doors;
+individual assays remain registered and reachable within them.
+
+300 focused tests pass with6 pre-existing conditional skips in25.79s. The
+QSize SVG-master geometry is distinguished from pixmap resampling in the DPI
+audit;40 image-density checks pass, including decoded256px SVG masters. Final
+icon/layout subset79/79 passes. One latency test's bare QObject stand-in left
+its drop scanner running; it now shuts down after the unchanged timed
+assertion, and all5 latency cases pass with no runner report. No CI threshold,
+coverage baseline or rendering tolerance was relaxed. Home review-generator
+clipping, Qt crash cases and broader CI/coverage acceptance remain open.

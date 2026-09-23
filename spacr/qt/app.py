@@ -1040,9 +1040,6 @@ def _call_screen_factory(factory, key: str, host=None):
 
 
 _BUILTIN_APPS = [
-    ("toxoplasma", "Toxoplasma", "Image-analysis assays for Toxoplasma gondii", SECTION_ASSAYS),
-    ("plasmodium", "Plasmodium spp.", "Image-analysis modules for malaria parasites", SECTION_ASSAYS),
-    ("candida", "Candida spp.", "Image-analysis modules for Candida species", SECTION_ASSAYS),
     ("mask",           "Mask",           "Generate segmentation masks for cells, nuclei, pathogens and organelles from microscopy images using Cellpose and supported alternatives", SECTION_CORE),
     ("measure",        "Measure",        "Quantify per-object intensity and morphology features",       SECTION_CORE),
     ("annotate",       "Annotate",       "Assign annotations to single-object images and store them in the project database",  SECTION_CORE),
@@ -1063,6 +1060,9 @@ _BUILTIN_APPS = [
     ("make_masks",     "Make Masks",     "Edit segmentation masks with brush, flood-fill, relabel, fill and small-object removal tools",  SECTION_TOOLS),
     ("plate_view",     "Plate Viewer",   "Visualize measurements as plate heatmaps and detect edge effects",  SECTION_TOOLS),
     ("umap",           "Image UMAP",     "Visualize UMAP embeddings with image glyphs",                  SECTION_TOOLS),
+    ("toxoplasma", "Toxoplasma", "Image-analysis assays for Toxoplasma gondii", SECTION_ASSAYS),
+    ("plasmodium", "Plasmodium spp.", "Image-analysis modules for malaria parasites", SECTION_ASSAYS),
+    ("candida", "Candida spp.", "Image-analysis modules for Candida species", SECTION_ASSAYS),
     ("analyze_plaques", "Plaque Assay",  "Quantify plaque assay measurements",                          SECTION_ASSAYS),
     ("recruitment",    "Recruitment",    "Quantify molecular recruitment measurements",                 SECTION_ASSAYS),
     ("invasion",       "Invasion Assay", "Quantify attached and invaded parasites using two-colour differential staining and calculate invasion efficiency per well", SECTION_ASSAYS),
@@ -1699,9 +1699,6 @@ def demo_label_for_app(app_key: str) -> Optional[str]:
 
 _ICON_OVERRIDES = {
     "train_cellpose":  "cellpose_masks.png",
-    "toxoplasma": "replication.png",
-    "plasmodium": "organism_plasmodium.svg",
-    "candida": "organism_candida.svg",
 }
 
 _FORCE_GLYPH: set = set()

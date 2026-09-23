@@ -865,11 +865,17 @@ def test_a_drop_on_a_crowded_project_still_costs_a_millisecond(
     event = _drop(widget, [crowded_project])
     elapsed = time.perf_counter() - start
 
-    assert event.isAccepted()
-    assert elapsed < DISPATCH_BUDGET_S, (
-        f"the drop event on {key} took {elapsed * 1000:.0f} ms to return "
-        f"(budget {DISPATCH_BUDGET_S * 1000:.0f} ms); something in the "
-        "resolution is walking the tree on the GUI thread")
+    try:
+        assert event.isAccepted()
+        assert elapsed < DISPATCH_BUDGET_S, (
+            f"the drop event on {key} took {elapsed * 1000:.0f} ms to return "
+            f"(budget {DISPATCH_BUDGET_S * 1000:.0f} ms); something in the "
+            "resolution is walking the tree on the GUI thread")
+    finally:
+        scanner = getattr(screen, '_dnd_scanner', None)
+        if scanner is not None:
+            scanner.shutdown()
+        assert dh.active_scan_jobs(screen) == 0
 
 
 def test_resolving_a_crowded_project_never_walks_its_crops(crowded_project,
