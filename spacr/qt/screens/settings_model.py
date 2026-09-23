@@ -936,6 +936,14 @@ _TRAIN_CELLPOSE_TOOLTIPS = {
 }
 
 _APP_TOOLTIP_OVERRIDES = {
+    "measure": {
+        "psf_source": "gaussian constructs an explicitly sampled Gaussian approximation from the supplied FWHM and image sampling. measured captures a calibrated TIFF or NPY kernel. The same kernel applies independently to every selected measurement intensity channel, so its calibration must suit all selected channels. Neither choice estimates microscope optics.",
+        "psf_operation": "With processed measurement intensities selected, convolve adds calibrated blur and deconvolve performs Richardson–Lucy restoration. Select original to keep normal Measure intensities without PSF processing. Stored images and exported crops are unchanged; the database records the intensity source and full PSF provenance. Configure a kernel appropriate to every selected intensity channel.",
+        "psf_path": "Measured PSF TIFF or NPY kernel, with odd spatial dimensions and finite nonnegative values. Use YX for a 2D field or ZYX for a volume. The center pixel is the optical origin; sampling must match the image. Captured once per run and sent to each worker, with exact kernel/file identity recorded.",
+        "psf_image_sampling_um": "Explicit image sampling in micrometers: [Y, X] for 2D or [Z, Y, X] for a volume. All values must be positive and finite. A volume's sampling must agree with Measure's voxel calibration or anisotropy. No physical sampling is guessed.",
+        "psf_kernel_sampling_um": "Measured kernel sampling in micrometers, in the same YX or ZYX order as the image. Must match image sampling exactly within numerical tolerance; no implicit resampling. Unused for a Gaussian approximation.",
+        "psf_fwhm_um": "Gaussian full width at half maximum in micrometers: [Y, X] or [Z, Y, X]. This is an explicit approximation, not an inferred microscope PSF. All widths must be positive and finite.",
+    },
     "train_cellpose": _TRAIN_CELLPOSE_TOOLTIPS,
     "regression": _REGRESSION_TOOLTIP_OVERRIDES,
     "umap": _UMAP_TOOLTIP_OVERRIDES,
@@ -1133,6 +1141,7 @@ _APP_CATEGORY_SPECS: Dict[str, Tuple[Tuple[str, Tuple[str, ...]], ...]] = {
             "illumination_per_plate", "illumination_max_fields",
             "illumination_qc", "illumination_on_missing",
         )),
+        ("Point Spread Function", ("@Point Spread Function",)),
         ("Measurement Features", (
             "save_measurements", "calculate_correlation",
             "spatial_measurements",
@@ -3063,6 +3072,9 @@ CATEGORY_TOOLTIPS: Dict[str, str] = {
 #: Per-module overrides for headings that mean different things per module.
 #: Missing entries fall through to :data:`CATEGORY_TOOLTIPS`.
 CATEGORY_TOOLTIPS_BY_APP: Dict[str, Dict[str, str]] = {
+    "measure": {
+        "POINT SPREAD FUNCTION": "Choose normal Measure intensities or calibrated PSF-processed intensities for quantitative features. PSF processing follows standard rescaling and registered preprocessing hooks. Source files and exported crops retain their existing pixels; database provenance records the choice and exact kernel. A changed kernel cannot be mixed with existing measurements.",
+    },
     "train_cellpose": {
         "TRAINING DATA": "Pair microscopy images with integer object-label masks, and optionally supply a separate validation set.",
         "STARTING POINT": "Fine-tune stock Cellpose-SAM or an existing checkpoint; name the new trained model separately.",
@@ -3711,7 +3723,9 @@ def api_docs_url(
         return plugin_app.docs_url
     anchor = ""
     chosen_by_hand = True
-    if key.startswith("psf_"):
+    if app_key == "measure" and key.startswith("psf_"):
+        module, anchor = "psf_measurement", "spacr.psf_measurement.prepare_measurement_psf"
+    elif key.startswith("psf_"):
         module, anchor = "psf_pipeline", "spacr.psf_pipeline.prepare_psf"
     elif app_key == "make_masks" and key.startswith("make_masks_psf_"):
         module, anchor = "point_spread", "spacr.point_spread.apply_psf"

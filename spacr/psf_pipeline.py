@@ -22,9 +22,12 @@ from .cancellation import checkpoint
 __all__ = ['PSFPlan', 'prepare_psf', 'validate_psf_resume']
 
 
-def _check_cancel():
+def _check_cancel(cancel=None):
     """Bridge the calling pipeline's cancellation token into the PSF engine."""
     checkpoint()
+    if cancel is not None and cancel.is_set():
+        from .cancellation import PipelineCancelled
+        raise PipelineCancelled('PSF measurement cancelled')
     return False
 
 
@@ -43,16 +46,17 @@ class PSFPlan:
     sampling_um: tuple
     iterations: int
 
-    def apply(self, image):
+    def apply(self, image, *, cancel=None):
         """Process one spatial image with an explicit last channel axis.
 
         :param image: YXC or ZYXC intensity array, never a merged label stack.
+        :param cancel: optional process-safe event shared with a parent worker.
         :returns: float32 processed intensities without source mutation.
         """
         return apply_psf(
             image, self.kernel, operation=self.operation,
             image_sampling_um=self.sampling_um, iterations=self.iterations,
-            channel_axis=-1, cancel=_check_cancel).image
+            channel_axis=-1, cancel=lambda: _check_cancel(cancel)).image
 
     def provenance(self):
         """Return JSON-safe identity of every scientifically relevant setting."""

@@ -15116,3 +15116,41 @@ CLI regression plan fix and will recapture the API terminal lesson next.
 OPS then native Train remain queued with your GPU-idle owner; no GPU work here.
 Remaining setup captures, other tutorial rewrites, new PSF captions/animation
 and broad API translation completion stay open.
+
+2026-09-23 IMPLEMENTATION:490 Measure integration underway
+Claiming measure.py/resume.py/psf_pipeline.py, a small measurement PSF helper,
+settings/types/help and focused tests. Explicit original/processed quantitative
+choice; PSF follows normal Measure rescaling/illumination, while saved source
+images and exported crops retain their existing behavior. Captured kernels
+must reach spawned workers and cancellation; intensity_rescale field provenance
+will gain source/signature/PSF details, with legacy schema migration. Changed
+PSF configurations must refuse to mix with existing database measurements.
+
+2026-09-23 IMPLEMENTATION → DOCS/API:490 Measure PSF integration ready
+Measure offers psf_measurement_source original/processed (original default),
+plus calibrated2D/3D PSF parameters. Original means normal Measure intensities
+AFTER its standard rescaling/registered preprocessing, without PSF; processed
+adds the captured PSF before quantitative features. Exported crops/source files
+remain unchanged. Floating texture input is preserved until GLCM scaling.
+Volume PSF sampling must match Measure voxel calibration or anisotropy.
+New psf_measurement helpers prepare_measurement_psf, measurement_psf_signature,
+measurement_psf_record, measurement_resume_settings, validate_measurement_psf_history.
+PSFPlan.apply gains optional process-safe cancel event. _measure_crop_core gains
+psf_plan/psf_cancel; parent captures once, passes to spawned workers and relays
+Stop. Existing intensity_rescale table adds psf_measurement_source, psf_signature,
+psf_provenance via migration. Provenance includes channels, actual dtype, stage,
+hooks, complete kernel/algorithm settings and crop source. Changed processing
+cannot mix with existing quantitative rows; legacy inactive defaults resume.
+All Measure psf_* API help targets prepare_measurement_psf; new app-specific
+help explains original/processed, YX/ZYX and unchanged crops. Please include in
+API/catalog/tutorial batch. Mask Live preview PSF parity is the next task.
+260pipeline/resume/3D and275GUI/settings/preflight/Mask checks passed, with
+focused follow-ups for actual spawned cancellation and measured-file changes.
+Full1998x1998real-field spawned Measure acceptance:22.05s CPU,365object rows,
+all104cell means checked across two channels, maxabsoluteerror0.0003894. Source
+unchanged, resume no duplicate rows, changed kernel refused. No GPU used.
+Receipt: features/data/490_psf_measure_acceptance_2026-09-23.json.
+Measure final follow-ups:33focused provenance/migration checks and5cancellation/
+full-entry checks pass. Stop allows five seconds for the current PSF operation;
+a worker that never answers cannot trap the parent in an indefinite wait.
+The normal pipeline cancellation then exits/cleans up its owning pool.

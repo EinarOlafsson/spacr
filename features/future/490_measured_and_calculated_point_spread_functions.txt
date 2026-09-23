@@ -1,7 +1,7 @@
 490 — MEASURED AND CALCULATED POINT SPREAD FUNCTIONS
 =================================================
-Status: IN PROGRESS. Numerical engine, Make Masks and Mask validated2026-09-23;
-Measure integration, optical acceptance and documentation remain.
+Status: IN PROGRESS. Engine, Make Masks, Mask and Measure validated2026-09-23;
+Mask Live preview parity, optical acceptance and documentation remain.
 
 Let users modify images using a measured PSF or a calculated approximate PSF,
 first in Make Masks enhancement, then in Mask generation and Measure after
@@ -115,3 +115,48 @@ geometry, not measured microscope optics; no accuracy/recovery claim.
 Receipt: features/data/490_psf_mask_pipeline_acceptance_2026-09-23.json.
 Remaining: Measure intensity-source selection and durable quantitative provenance;
 measured optical PSF/application acceptance; docs/translations/tutorial animation.
+
+2026-09-23 — QUANTITATIVE MEASURE PSF INTEGRATION VERIFIED
+Measure now has the same calibrated PSF parameters plus psf_measurement_source:
+original (default) retains normal Measure intensities, including its standard
+rescaling and registered preprocessing hooks; processed applies the captured
+PSF after those stages before quantitative features. Original ignores stored
+PSF parameters. Source files, mask labels and exported crops keep their existing
+pixels. Fractional processed values remain float, including before GLCM texture
+scaling; they are not truncated to integers.2D YX and3D ZYX kernels are supported;
+a volume's PSF sampling must agree with Measure voxel calibration/anisotropy.
+
+The immutable captured plan reaches spawned workers, rather than reopening a
+possibly changed kernel file for every field. Stop is relayed through a process-
+safe event while the parent awaits the field; cancellation escapes as cancelled,
+not as an ordinary failed field. The existing intensity_rescale table gains
+psf_measurement_source, psf_signature and psf_provenance through safe migration.
+Every new field records channel order, actual input/output dtype, hooks/stage,
+kernel/file identity, calibration, algorithm/RL settings and crop intensity source.
+Existing base rescaling provenance remains separate and intact.
+
+Changed kernels (including changed bytes at the same measured path), processed
+versus original choices and algorithm settings cannot mix with existing
+quantitative rows, even if resume is off. A project holding only crops can
+start its first quantitative run. Resume compares captured active identity;
+dormant new defaults do not block legacy original-intensity projects.
+
+260pipeline/hook/resume/3D checks and275settings/GUI/preflight/Mask/numerical
+checks passed. Focused follow-up checks cover process-safe cancellation, measured
+file replacement, preprocessing order, legacy table migration and crop-only
+projects. Actual spawned Measure run on the public1998x1998field completed in
+22.05s CPU:104cells,120nuclei,37vacuoles and104cytoplasm rows. All104cell means
+across channels0and2 matched independent processed-pixel means (maximum absolute
+error0.0003894 intensity units). Original source and project copy unchanged;
+resume0.37s added no rows, changed kernel refused. No GPU used.1um/px and2um
+Gaussian FWHM remain declared verification geometry, not microscope calibration.
+Receipt: features/data/490_psf_measure_acceptance_2026-09-23.json.
+
+Remaining: ensure Mask Live preview honors PSF settings with its own cancellation
+and provenance; measured optical PSF/application acceptance; documentation,
+translations and the matching PSF tutorial/animation. Measure crop preview is
+intentionally still a preview of unchanged exported source crops.
+Final Measure follow-ups:33provenance/migration checks pass;5targeted cancellation/
+full-entry checks pass, including an actual spawned worker stopped during RL.
+An unresponsive worker gets a five-second cooperative grace period before the
+parent exits through normal pipeline cancellation and cleans up the pool.

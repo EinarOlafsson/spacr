@@ -961,6 +961,17 @@ def set_default_plot_merge_settings():
     settings.setdefault('verbose', True)
     return settings
 
+def _set_psf_defaults(settings):
+    """Populate dormant calibrated PSF settings without loading imaging code."""
+    settings.setdefault('psf_operation', 'none')
+    settings.setdefault('psf_source', 'gaussian')
+    settings.setdefault('psf_path', None)
+    settings.setdefault('psf_image_sampling_um', None)
+    settings.setdefault('psf_kernel_sampling_um', None)
+    settings.setdefault('psf_fwhm_um', None)
+    settings.setdefault('psf_iterations', 20)
+
+
 def set_default_settings_preprocess_generate_masks(settings=None):
     """Populate default settings for the preprocess/generate-masks pipeline.
 
@@ -974,13 +985,7 @@ def set_default_settings_preprocess_generate_masks(settings=None):
         settings = {}
     _fold_renamed_settings(settings)
     settings.setdefault('pipeline_style', 'v1')
-    settings.setdefault('psf_operation', 'none')
-    settings.setdefault('psf_source', 'gaussian')
-    settings.setdefault('psf_path', None)
-    settings.setdefault('psf_image_sampling_um', None)
-    settings.setdefault('psf_kernel_sampling_um', None)
-    settings.setdefault('psf_fwhm_um', None)
-    settings.setdefault('psf_iterations', 20)
+    _set_psf_defaults(settings)
     from .image_quality import DEFAULTS as image_quality_defaults
     for key, value in image_quality_defaults.items():
         settings.setdefault(key, value.copy() if isinstance(value, (dict, list)) else value)
@@ -1595,6 +1600,8 @@ def get_measure_crop_settings(settings=None):
     if settings is None:
         settings = {}
     _fold_renamed_settings(settings)
+    _set_psf_defaults(settings)
+    settings.setdefault('psf_measurement_source', 'original')
     _requested_organelle_count = organelle_count(settings)
     import ast as _ast
     for _k, _v in list(settings.items()):
@@ -3026,6 +3033,7 @@ descriptions = {
 
 
 expected_types = {
+    "psf_measurement_source": str,
     "psf_operation": str, "psf_source": str,
     "psf_path": (str, type(None)),
     "psf_image_sampling_um": (list, type(None)),
@@ -3910,6 +3918,7 @@ def _outlier_criteria():
 
 
 tooltips = {
+    'psf_measurement_source': "(str) - original (default) measures normal Measure intensities, including its standard rescaling and registered illumination/preprocessing hooks, without PSF processing. Stored PSF parameters are ignored with this choice. processed applies the calibrated PSF after those stages before quantitative features; select convolve or deconvolve. Source files and exported crops keep their original behavior. The intensity_rescale database table records the choice, kernel identity, calibration and algorithm. Incompatible existing measurements require a separate project/output database.",
     'psf_operation': "(str) - Optional point-spread processing of every selected segmentation intensity channel after illumination and before normalization. none is off (default); convolve simulates optical blur; deconvolve uses Richardson–Lucy. Source images and measurement intensities stay original. Changing this setting rebuilds Mask inputs when preprocessing is on; preprocessing off requires an exact completed match. This operates on 2D projected fields, not a 3D optical reconstruction.",
     'psf_source': "(str) - gaussian constructs a sampled Gaussian approximation from explicit FWHM and image pixel spacing; it does not estimate microscope optics. measured loads a calibrated TIFF or NPY kernel. A single kernel is applied independently to each selected segmentation channel; use only where its calibration is appropriate for every selected channel.",
     'psf_path': "(str or None) - Measured 2D PSF TIFF/NPY. Spatial dimensions must be odd; values finite, nonnegative and nonzero. The center pixel is the optical origin. The kernel is normalized to sum to one and captured once per processing run. Its contents and file identity enter psf/segmentation_application.json.",
@@ -4918,7 +4927,7 @@ categories = {
         "hp_marker_thresholds", "hp_parasite_table", "hp_parasite_parent",
         "hp_count_column"],
 
-    "Point Spread Function": ["psf_operation", "psf_source", "psf_path",
+    "Point Spread Function": ["psf_measurement_source", "psf_operation", "psf_source", "psf_path",
                               "psf_image_sampling_um", "psf_kernel_sampling_um",
                               "psf_fwhm_um", "psf_iterations"],
 

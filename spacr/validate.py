@@ -974,6 +974,7 @@ def _check_types(settings: Dict[str, Any], app: str = "") -> List[Problem]:
 
 
 _APP_EXTRA_KEYS: Dict[str, frozenset] = {
+    "measure": frozenset({"_psf_measurement_signature"}),
     "foreign": frozenset({
         "images", "masks", "measurements", "dst", "layout", "z_handling",
         "plate_naming", "measurement_table", "measurement_object", "image_key",
@@ -1465,6 +1466,15 @@ def _check_required_paths(settings: Dict[str, Any], app: str) -> List[Problem]:
 def _check_app_specific(settings: Dict[str, Any], app: str) -> List[Problem]:
     """Cross-setting rules the pipeline entry points enforce at runtime."""
     problems: List[Problem] = []
+
+    if app == 'measure':
+        from .psf_measurement import prepare_measurement_psf
+        try:
+            prepare_measurement_psf(settings)
+        except (ValueError, OSError) as exc:
+            problems.append(Problem(
+                ERROR, 'psf_measurement_source', str(exc),
+                'Choose original intensities or configure a calibrated PSF for processed measurements.'))
 
     if app in ('mask', 'timelapse') and settings.get('psf_operation', 'none') != 'none':
         from .psf_pipeline import prepare_psf
