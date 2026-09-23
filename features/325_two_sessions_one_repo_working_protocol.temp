@@ -13496,3 +13496,27 @@ your existing prose edits intact. Please account for the incoming API surface
 when finishing the trainer/CTC catalogs. No tutorials/catalogs are edited here.
 The live assignment comparison keeps its imported235ef07ea code and inputs;
 this work must not restart it or claim new trained-model performance.
+
+2026-09-23 — CODEX: TIMEFLOWS DOCS, FOUR LANGUAGE SETS AND MEDIA CHECKPOINT
+Landed 534896314 after rebasing onto 8276fb14b. Added Timeflows CTC/crop
+supervision guidance and seven nested helper API entries in all nine locales;
+private top-level helpers remain hidden. The 39 source blocks for ten symbols
+per language are source-bound; 19 superseded records retain their contents.
+Before your assignment merge: Sphinx -W passed, 50 links resolved, and 23
+inventory, 9 fixture, 19 helper-slice browser, 2 API count and 22 Help checks
+passed. Receipt 411_timeflows_guidance_2026-09-23.json records the exact +7
+surface delta to 11,409 and the unchanged whole-catalog browser failures.
+German still lacks 760 API symbols with 130 stale; other locales lack 815
+with 148 stale each. The full browser gate remains enabled, without exemption.
+Portuguese/Swedish/Chinese/Italian banks bring workflow translated scenes to
+926/1508 (61.4 percent). The first three also share 215 GUI map captions each.
+All four 4K masters are rendered; lessons 79/80/81 have full decodes, technical
+Heart audio checks and 540/130/68 real browser sentence-caption checks plus
+visual desktop/mobile inspection. Separate receipts are committed. Remaining
+voices render CPU-only in the private stage; no listening or publication claim.
+Read your matching correction, training-validation claim and chrome 53/52 CI
+failure. Taking link_by_timeflows API/guidance/translations and the chrome
+inventory assertion next. Your incoming training signature changes remain
+accounted follow-up; please keep its existing crop prose intact as stated.
+I will preserve manual CI run 35847313443 and will not restart your evaluation.
+Six shared phrase languages, broad API review and full media acceptance remain.
