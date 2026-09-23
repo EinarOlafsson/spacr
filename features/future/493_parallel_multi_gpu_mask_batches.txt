@@ -1,0 +1,35 @@
+493 — PARALLEL MULTI-GPU MASK BATCHES
+====================================
+Status: PLANNED future feature, requested2026-09-23. Not implemented.
+Scope: Cluster Distribution and Mask Generation. Filed for later work;
+this request does not add a prerequisite to the1.5.1.0release plan.
+
+Let the user select several compatible GPUs and process image batches on
+them in parallel. Prepare the temporary NPZ batches first, then dispatch
+each NPZ to one GPU, or partition the NPZ paths into per-GPU lists that
+independent workers process concurrently. Each batch belongs to exactly
+one worker; preserve field identities and the existing mask/output layout.
+
+1. Prepare inputs once using the current preprocessing/normalization path.
+   Generate a manifest of the temporary NPZ files and their source fields
+   before dispatch. Avoid repeating preparation separately on every GPU.
+2. Discover eligible devices and let the user choose participating GPUs.
+   Expose the same option in Mask Generation when multiple compatible
+   GPUs are detected. Otherwise keep it greyed out with an explanation.
+   In Cluster Distribution, use the devices actually allocated to the job.
+3. Run separate workers bound to their assigned GPU, with one loaded model
+   per worker. Support a batch queue or disjoint per-GPU NPZ lists so that
+   multiple devices segment concurrently without duplicate output writes.
+4. Show per-GPU progress and overall completed/failed batch counts. Make
+   cancellation, failures and resume preserve completed outputs and report
+   unfinished work. Delete temporary inputs only after their outputs have
+   been committed successfully, respecting existing retention settings.
+5. Validate on a real multi-GPU system: simultaneous execution on selected
+   devices, every input processed exactly once, results consistent with the
+   equivalent single-GPU path, restart after interruption, mixed device
+   memory limits, and no accidental use of unselected devices. Verify the
+   disabled control on zero/single-compatible-GPU systems as well.
+
+Implementation owns the scheduler, device binding and runtime controls.
+The separate documentation lane owns resulting API descriptions, settings
+help, tutorials and translations once the runtime contract is implemented.
