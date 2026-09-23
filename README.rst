@@ -135,10 +135,10 @@ Hardware support
 
 
 Install spaCR
--------------
+~~~~~~~~~~~~~
 
 Desktop application
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 The installers bundle their own Python. Conda is not required.
 
@@ -186,7 +186,7 @@ offline and troubleshooting instructions, and `system requirements
 and the GPU compatibility tables.
 
 PyPI installation
-~~~~~~~~~~~~~~~~~
+-----------------
 
 For the PyPI release, install spaCR with pip inside a Conda environment.
 Python 3.12 has the widest choice of optional scientific packages:
@@ -219,7 +219,7 @@ Optional integrations are installed separately, for example
 compatibility table.
 
 Conda-forge installation
-~~~~~~~~~~~~~~~~~~~~~~~~
+------------------------
 
 The official conda-forge package installs spaCR and its desktop dependencies
 into the active environment:
@@ -232,7 +232,7 @@ into the active environment:
    spacr
 
 Install from source
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Clone the repository and install it in editable mode, so your working copy
 *is* the installed package and edits take effect without reinstalling::
@@ -261,7 +261,7 @@ pulling, ``spacr-doctor`` reports which ``spacr`` is actually on your path,
 which is the usual cause.
 
 Install from source (light)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------
 
 Contributors need the history; to only run spaCR, take one of these,
 measured 2026-09-15 by ``packaging/measure_clone_forms.sh``::
@@ -518,7 +518,7 @@ tooltip. Browse the `setting animation gallery
 <https://einarolafsson.github.io/spacr/api/spacr/setting_animations/index.html>`_.
 
 Data
-----
+~~~~
 
 Reference datasets
 ~~~~~~~~~~~~~~~~~~
@@ -752,7 +752,7 @@ to a bug report.
 
 
 Contributing and support
-------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Submit bug reports and focused feature requests through
 `GitHub Issues <https://github.com/EinarOlafsson/spacr/issues>`_.
