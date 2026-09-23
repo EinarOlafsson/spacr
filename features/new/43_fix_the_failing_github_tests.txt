@@ -2209,3 +2209,13 @@ coverage baseline, exclusion or other workflow behavior changed.
 26focused worker/coverage-inventory checks pass. This is a repaired contract,
 not a claim of green CI or full coverage. Evidence: private ci-followup/
 final-run-current-triage.log and worker-denominator-inventories.log.
+
+2026-09-23 — CURRENT SHIPPING INVENTORY RECONCILED
+Measured634installed Python modules,26added/0removed since608at97c7307ab.
+The622pin predates twelve subsequent runtime modules:classification_pixels,
+host_pathogen,host_pathogen_example,host_pathogen_preview,image_quality,
+inference_augmentation,qt/widgets/{cursor_policy,cursor_zoom,host_pathogen_preview,
+make_masks_help,pipeline_details},timeflows_validation. CI's expected-file-count
+and the exact inventory tests now include all634. No coverage floor, baseline,
+exclusion or missing-row policy changed. This is not a green-CI claim.
+All10module-coverage inventory/ratchet tests pass (1.58s).
