@@ -660,3 +660,36 @@ def test_display_falls_back_to_a_noop_without_ipython(monkeypatch):
     assert mod.display is not core.display
     assert mod.display("anything", key=1) is None
     assert callable(mod.preprocess_generate_masks)
+
+
+def test_adjusted_cell_masks_are_rescored_before_merge(run_dir, stubs, monkeypatch):
+    from spacr import core, object as objects, io, utils, seg_qc
+
+    def generate(src, settings, role):
+        folder = os.path.join(src, role + '_mask_stack')
+        os.makedirs(folder, exist_ok=True)
+        mask = np.zeros((40, 40), np.uint16)
+        mask[5:10, 5:10] = 1
+        np.save(os.path.join(folder, 'plate1_A01_1.npy'), mask)
+        objects._run_seg_qc(src, settings, role)
+
+    def adjust(parasites, cells, nuclei, organelle, **kwargs):
+        path = os.path.join(cells, 'plate1_A01_1.npy')
+        mask = np.load(path)
+        mask[20:25, 20:25] = 2
+        np.save(path, mask)
+
+    merged = []
+    def merge(*args, **kwargs):
+        digest = seg_qc.read_digest(str(run_dir))
+        cell = next(c for c in digest.scorecards if c.object_type == 'cell')
+        assert not cell.stale
+        assert cell.field_qcs[0].n_objects == 2
+        merged.append(True)
+
+    monkeypatch.setattr(objects, 'generate_cellpose_masks_sam', generate)
+    monkeypatch.setattr(utils, 'adjust_cell_masks', adjust)
+    monkeypatch.setattr(io, '_load_and_concatenate_arrays', merge)
+    core.preprocess_generate_masks(_mask_settings(
+        run_dir, adjust_cells=True, pathogen_channel=2, seg_qc='report'))
+    assert merged == [True]

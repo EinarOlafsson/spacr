@@ -288,7 +288,7 @@ def test_a_failing_plate_is_named_with_its_rows_and_its_likely_cause(
     assert "rows E-H" in text
     assert "rows A-D" in text
     assert "4.0x" in text
-    assert "illumination" in text
+    assert "experimental layout and controls" in text
     # Every field passed on its own; saying so is what stops the user
     # hunting through per-field cards for a field that is not there.
     assert "no single field was flagged" in text
@@ -331,7 +331,9 @@ def test_a_card_older_than_its_masks_is_shown_as_out_of_date(banner, clean_proje
     assert banner.digest.stale is True
     text = _texts(banner)
     assert "out of date" in text
-    assert "describes the previous masks" in text
+    assert "old cards are excluded from current findings" in text
+    assert not banner.digest.findings
+    assert banner.digest.n_fields == 0
     assert banner._btn_score.text() == "Score the masks now"
 
 
@@ -358,7 +360,8 @@ def test_show_all_findings_expands_and_collapses(banner, stepped_project):
     banner._on_toggle_findings()
     expanded = _texts(banner)
     assert len(expanded) > len(collapsed)
-    assert "rarely biology" in expanded, "the detail is what expanding is for"
+    assert "cannot establish the cause" in expanded, "the expanded detail must explain uncertainty"
+    assert "illumination" in expanded
     banner._on_toggle_findings()
     assert _texts(banner) == collapsed
 

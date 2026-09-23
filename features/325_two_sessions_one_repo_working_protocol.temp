@@ -14092,3 +14092,15 @@ image URLs verified HTTP200/image Content-Type on public nightly. Using main
 would still break the three organism tiles. GitHub source README unchanged;
 no catalogs or tutorial files touched. Next package upload carries the fix;
 existing PyPI release page remains unchanged until that release.
+
+2026-09-23 — ISSUE132 QC REPORTING / API CONTRACT UPDATE
+247 focused CPU/offscreen checks pass. Mask orchestration refreshes cell QC
+following adjust_cell_masks. QCDigest.n_fields/failing_fields/findings now use
+only current readable cards; scorecards still retain historical rows explicitly
+marked stale for inspection. Partial stale/error coverage prevents an overall
+clean pass. Threshold calculations and severities unchanged. QC guidance and
+module docstrings now describe hypotheses rather than asserting illumination,
+fragmentation, merged cells or failed biology from geometry/counts alone.
+Please refresh seg_qc API explanations/tutorial narration and this new Qt source:
+'The {names} masks need fresh QC; their old cards are excluded from current findings.'
+No catalogs edited. Real cluster dataset has not been validated.

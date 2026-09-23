@@ -807,13 +807,12 @@ class SegQCBanner(_JobMixin, QFrame):
         self._headline.setText(digest.headline)
         sub = digest.subhead
         if digest.stale:
+            from .i18n import tr
             names = ", ".join(
                 card.object_type for card in digest.scorecards if card.stale)
-            sub += (
-                f" These masks have been written again since the {names} card "
-                f"was scored, so what follows describes the previous masks. "
-                f"Score them again to be sure."
-            )
+            sub += " " + tr(
+                "The {names} masks need fresh QC; their old cards are excluded from current findings.",
+                names=names)
         self._sub.setText(sub)
         self._sub.setVisible(bool(sub))
 

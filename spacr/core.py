@@ -507,6 +507,8 @@ def preprocess_generate_masks(settings):
 
                                     print(f'Adjusting cell masks with nuclei and pathogen masks')
                                     adjust_cell_masks(parasite_folder, cell_folder, nuclei_folder, organelle_folder, overlap_threshold=5, perimeter_threshold=30, n_jobs=settings['n_jobs'])
+                                    from .object import _run_seg_qc
+                                    _run_seg_qc(mask_src, settings, 'cell')
                                     stop = time.time()
                                     adjust_time = (stop-start)/60
                                     print(f'Cell mask adjustment: {adjust_time} min.')

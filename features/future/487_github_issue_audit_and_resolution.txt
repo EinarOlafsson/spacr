@@ -41,3 +41,15 @@ not weakened or falsely counted as passes. Offscreen visual review completed.
 
 2026-09-23: four initial open issues now closed with commit links and validation
 evidence (#125/#126/#128/#133). Five remain open (#127/#129/#130/#131/#132).
+
+2026-09-23 — ISSUE132 REPORTING FIX VERIFIED
+Cell-mask adjustment now refreshes its QC card before merged arrays are made.
+Stale/unreadable cards no longer contribute current field counts or findings;
+incomplete readable coverage cannot produce a clean pass. Thresholds/severity
+policy are unchanged. Explanations distinguish review heuristics from confirmed
+causes, allow treatment/infection/layout differences, qualify illumination
+correction, and restrict diameter advice to models that actually use it.
+247 focused scoring, orchestration and offscreen GUI tests passed. The real
+cluster images/settings were not supplied, so biological mask quality is not
+claimed to be validated. These changes resolve the misleading/stale reporting
+shown in132; they are nightly changes, not a newly published installer.
