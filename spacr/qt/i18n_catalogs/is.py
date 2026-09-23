@@ -6204,6 +6204,8 @@ UI = {
     'Ruler': 'Reglustika',
     '{length:.2f} px': '{length:.2f} px',
     '· {length:.2f} {unit}': '· {length:.2f} {unit}',
+    'Image enhancement failed: {error}': 'Myndbæting mistókst: {error}',
+    'Image enhancement is updating. Try the Wand again when it finishes.': 'Verið er að uppfæra myndbætinguna. Prófaðu sprotann aftur þegar því er lokið.',
 }
 
 MODULE_SUMMARIES = {
@@ -12532,4 +12534,6 @@ SOURCE_HASHES = {
     ('UI', 'Ruler'): 'b2eb0fa2b0167b6c922f813e543404905366dfcc3a0692060c25411785b27729',
     ('UI', '{length:.2f} px'): 'a96bfca8d50a9947a0427808badcaeb4986a958e8664c2e4f0bff736c696ac4b',
     ('UI', '· {length:.2f} {unit}'): 'ea0f47fdf65a125cb4298c95652853eedd07e56b20f5c9dc4c31f9d5e1e0fe9d',
+    ('UI', 'Image enhancement failed: {error}'): '43fae524db45a47a402dab1fcd3ba37178514f6a500187129375f8e4ef83ce26',
+    ('UI', 'Image enhancement is updating. Try the Wand again when it finishes.'): 'c024f8a9f04fb5e699ca21bcd1704dd4d495ee0f67815d171ef64844b5c8e7ea',
 }

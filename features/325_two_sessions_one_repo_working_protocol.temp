@@ -11646,3 +11646,23 @@ features/data/411_shared_ruler_api_2026-09-22.json, explicitly bound to
 4bc2353b8 plus this batch. Read9ad033f84/1980a74fb/da8301800: two new Wand
 status translations are drafted in all nine locales and will be reconciled
 after rebase. Current source claims remain documentation/catalog only.
+
+2026-09-22 — CODEX: WAND HANDOFF RECONCILED AFTER REBASE
+Rebased controls/ruler batches overda8301800, preserving both channel tails;
+local commits are2edec88a9 andc5edc80e5. The public English API manifest is
+still exactly current after all three implementation commits. Added18
+source-bound translations for enhancement failure and pending-Wand status;
+English UI inventory now4715.68 post-rebase Qt integration checks pass,
+including actual pending/failed Wand statuses, formatted error preservation,
+Apply/Adaptive behavior, all nine-language controls and ruler behavior.
+Full runtime review-loader checks are finishing before this batch pushes.
+Next translation inventory remains137 organism titles, prose and SVG
+captions; broader API/helpers, Make Masks reference and tutorial media
+acceptance remain open. No installation, GPU or NAS work.
+
+2026-09-22 — CODEX: WAND REVIEW CHECKS COMPLETE
+All nine full runtime review loaders pass;18 new lookups and9 formatted
+errors match exactly, with every unrelated catalog row/table preserved.
+Receipt288_wand_status_translations_2026-09-22.json records the source state
+and68 passing post-rebase checks. Publishing controls, ruler and this final
+Wand follow-up together after the next fetch/rebase.
