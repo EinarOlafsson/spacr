@@ -6196,7 +6196,7 @@ API_ENTRIES = (
     ('spacr.qt.shortcuts.ShortcutOverlay.eventFilter', "Track the window's size so the overlay stays full-bleed."),
     ('spacr.qt.shortcuts.ShortcutOverlay.keyPressEvent', 'Any key closes it — that is the whole interaction.'),
     ('spacr.qt.shortcuts.ShortcutOverlay.mousePressEvent', 'A click anywhere closes it too.'),
-    ('spacr.qt.shortcuts.ShortcutOverlay.paintEvent', 'Dim whatever is behind the card.'),
+    ('spacr.qt.shortcuts.ShortcutOverlay.paintEvent', 'Leave the main window visible around the translucent shortcut card.'),
     ('spacr.qt.shortcuts.ShortcutOverlay.resizeEvent', 'Keep the card centred when the window resizes.'),
     ('spacr.qt.shortcuts.ShortcutSpec', 'One shortcut declaration.'),
     ('spacr.qt.shortcuts.discover', 'Every shortcut LIVE on ``window``, whether declared or not.'),
