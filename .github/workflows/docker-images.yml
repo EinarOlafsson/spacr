@@ -283,10 +283,11 @@ jobs:
           set -euo pipefail
           args=()
           for tag in $TAGS; do args+=(-t "$tag"); done
+          source_revision=$(git rev-parse HEAD)
           docker build \
             -f "packaging/docker/Dockerfile.$VARIANT" \
             --build-arg SPACR_VERSION="$VERSION" \
-            --build-arg SPACR_REVISION="$GITHUB_SHA" \
+            --build-arg SPACR_REVISION="$source_revision" \
             "${args[@]}" \
             .
 
@@ -301,6 +302,12 @@ jobs:
           echo "image says: $printed"
           if [ "$printed" != "$VERSION" ]; then
             echo "::error::$REF reports $printed, but it is tagged $VERSION"
+            exit 1
+          fi
+          source_revision=$(git rev-parse HEAD)
+          image_revision=$(docker image inspect --format '{{ index .Config.Labels "org.opencontainers.image.revision" }}' "$REF")
+          if [ "$image_revision" != "$source_revision" ]; then
+            echo "::error::$REF records revision $image_revision, but was built from $source_revision"
             exit 1
           fi
 

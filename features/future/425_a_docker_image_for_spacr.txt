@@ -433,3 +433,13 @@ Receipt:features/data/425_cuda_image_cpu_smoke_2026-09-23.json. Retained
 local tag:spacr:cuda-425-3bcac5fd6. This supersedes the earlier never-built
 CUDA-image statement. GPU execution, the workflow run, a tagged publication
 and public GHCR visibility remain unproven. No image has been pushed.
+
+2026-09-23 — RELEASE-CALL REVISION LABEL MATCHES THE CHECKOUT
+The workflow correctly selected inputs.source_ref but passed GITHUB_SHA to
+the image's revision label. For a called release workflow that is the caller's
+older commit. Build now reads git rev-parse HEAD, and the version smoke also
+asserts the image label equals that checkout before either publication step.
+Two executed shell checks use different caller/checkout revisions and prove
+the correct label is passed and a stale label fails the smoke gate. All29
+container checks and containerized actionlint pass. Dispatching both image
+variants with push=false next; this does not publish a release or an image.
