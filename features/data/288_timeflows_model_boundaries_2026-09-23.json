@@ -1,0 +1,75 @@
+{
+  "feature": 288,
+  "related_feature": 426,
+  "date": "2026-09-23",
+  "base_commit": "3f29a4205943b7bc7873ea3437c26fb99145c33e",
+  "source_sha256": "dbc80a62c236f1160940a9cea4018e94267726d93b455822f162ace93d194aba",
+  "baseline": "114 passed; corrected module-scoped coverage source",
+  "final": "136 passed in15.45s;22 new boundary cases",
+  "execution": "8GiB/no swap; CPU with CUDA hidden; two BLAS/OpenMP threads; isolated HOME/config",
+  "module": "spacr/timeflows_model.py",
+  "before": {
+    "covered_lines": 314,
+    "num_statements": 344,
+    "percent_covered": 87.32394366197182,
+    "percent_covered_display": "87.32",
+    "missing_lines": 30,
+    "excluded_lines": 0,
+    "percent_statements_covered": 91.27906976744185,
+    "percent_statements_covered_display": "91.28",
+    "num_branches": 82,
+    "num_partial_branches": 16,
+    "covered_branches": 58,
+    "missing_branches": 24,
+    "percent_branches_covered": 70.73170731707317,
+    "percent_branches_covered_display": "70.73"
+  },
+  "after": {
+    "covered_lines": 343,
+    "num_statements": 344,
+    "percent_covered": 99.29577464788733,
+    "percent_covered_display": "99.30",
+    "missing_lines": 1,
+    "excluded_lines": 0,
+    "percent_statements_covered": 99.70930232558139,
+    "percent_statements_covered_display": "99.71",
+    "num_branches": 82,
+    "num_partial_branches": 2,
+    "covered_branches": 80,
+    "missing_branches": 2,
+    "percent_branches_covered": 97.5609756097561,
+    "percent_branches_covered_display": "97.56"
+  },
+  "remaining_lines": [
+    782
+  ],
+  "remaining_branches": [
+    [
+      367,
+      369
+    ],
+    [
+      781,
+      782
+    ]
+  ],
+  "checks": [
+    "SAM-shaped miniature encoder shares weights and gradients for one/three channels, with/without position embeddings",
+    "Wrapped encoder is registered in state_dict and follows dtype conversion",
+    "One/two/three/four-channel noncontiguous arrays preserve channel order and source pixels",
+    "Full small/irregular frames retain all pixels across overlapping tiles and final border tiles",
+    "Actual short head/full training freezes then unfreezes encoder and reports progress",
+    "Background without supervision has finite zero loss and zero gradients",
+    "Empty source/target, absent successor and distant target abstain from links",
+    "No truth skips scramble inference rather than claiming perfect accuracy",
+    "Real TIFF pair selection bounds reads before loading; missing sequence/gaps/irrelevant files are handled",
+    "CLI with no usable pairs exits before model creation/download/output"
+  ],
+  "limitations": [
+    "Tiny CPU encoders are contract fixtures, not pretrained accuracy evidence",
+    "The independent nine-pair whole-frame evaluation is still running",
+    "No runtime source, public API, catalogs, coverage gate, baseline or exemption changed",
+    "Initial invocation used a file path as coverage source and collected no data; discarded and rerun with correct dotted module source"
+  ],
+  "private_evidence": "/mnt/firecuda2/Claude/implementation-20260922/timeflows-coverage"
+}

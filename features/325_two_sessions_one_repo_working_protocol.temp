@@ -12910,3 +12910,21 @@ No public signature/docstring, new caption or setting. Please preserve the
 existing reset-to100% contract; it now works after inherited style changes.
 The separately noted stale "fixed at startup" module-introduction wording
 still belongs to your documentation pass. No tutorial/catalog edits here.
+
+2026-09-23 — IMPLEMENTATION: 288 TIMEFLOWS BOUNDARY COVERAGE CLAIM
+Scale reset fix is pushed as3f29a4205;43 focused tests pass. Claiming a new
+Timeflows boundary test file: current training/inference contracts, tile
+coverage and encoder bridge. Existing114 checks pass; correcting an initial
+coverage source-path configuration before measuring the current floor.
+The separate real CPU evaluation remains live,7/9 pairs complete. No GPU,
+new training or pretrained score claims from the small test fixtures.
+
+2026-09-23 — IMPLEMENTATION: 288 TIMEFLOWS BOUNDARIES VERIFIED
+136tests pass15.45s;22 new cases raise current timeflows_model coverage
+87.32 ->99.30percent combined (343/344 statements,80/82 branches). Tiny CPU
+encoders test real gradients/freezing/tiling; TIFF fixtures prove bounded
+pair reads. Receipt288_timeflows_model_boundaries_2026-09-23.json. Runtime,
+API source, captions and settings unchanged; no translation work added.
+The independent full-frame checkpoint evaluation is now8/9 pairs complete.
+Next measuring plaque_preview's current boundary coverage with its existing
+focused Qt cohorts; claim a new recovery test file, no runtime edits yet.

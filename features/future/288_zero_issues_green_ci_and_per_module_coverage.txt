@@ -4736,3 +4736,15 @@ UMAP cases caught it. Explicit QWidget geometry/repaint calls fix that and the
 final43tests all pass. Parent rules and values remain intact; no extra sheet
 is retained at100percent. Receipt288_scale_recovery_2026-09-23.json.
 No new UI/API/settings or cross-platform/full-CI/performance acceptance claim.
+
+2026-09-23 — TIMEFLOWS MODEL BOUNDARIES:87.32 ->99.30PERCENT
+Current114-test baseline plus22 new boundary cases:136pass15.45s under8GiB
+with swap disabled, CPU only. The unchanged timeflows_model module now has
+343/344 statements and80/82 branches covered,99.30percent combined. Actual
+miniature encoder gradients, tile borders/overlap, training freeze/unfreeze,
+no-supervision loss and no-successor abstention are checked. Real TIFF pair
+selection proves bounded endpoint reads and gap handling; empty training
+stops before any model creation or output. No coverage gates or baselines
+changed. Receipt288_timeflows_model_boundaries_2026-09-23.json records exact
+source hash and remaining lines/branches. These are contract fixtures, not
+pretrained accuracy results or the unfinished end-to-end426 acceptance.
