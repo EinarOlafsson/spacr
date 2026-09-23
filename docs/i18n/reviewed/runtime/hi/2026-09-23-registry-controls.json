@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "language": "hi",
+  "review_kind": "AI-assisted source-context review of settings templates and measured host/vacuole/parasite preview controls. No native-speaker sign-off.",
+  "records": [
+    {
+      "table": "ui",
+      "key": "Settings templates",
+      "source": "Settings templates",
+      "source_sha256": "a4e050b2b7b7c8ec40984249fc0c763a3de11ca3e112171423e514323dc4c3a8",
+      "translation": "सेटिंग टेम्पलेट"
+    },
+    {
+      "table": "ui",
+      "key": "Inspect one measured field, its host/vacuole/parasite masks and recruitment results.",
+      "source": "Inspect one measured field, its host/vacuole/parasite masks and recruitment results.",
+      "source_sha256": "15cc5c98727eff0a53bdca1651ee828c72ef6f124042c6cb0724aee1beda4edf",
+      "translation": "एक मापे गए इमेज फ़ील्ड, उसके मेज़बान कोशिका, रिक्तिका और परजीवी मास्क तथा भर्ती विश्लेषण के परिणामों का निरीक्षण करें।"
+    }
+  ]
+}
