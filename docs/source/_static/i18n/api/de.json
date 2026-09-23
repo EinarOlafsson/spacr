@@ -14038,6 +14038,22 @@
         "de6e6a1912cee21e2fa6a73bf3f9308020a409ce4f9f0f2c4ea48d1959dc4cd3"
       ]
     },
+    "spacr.crop_loader.plates": {
+      "source_blocks_sha256": [
+        "1e903f865a91ef21f1e1f5c89e057b3cd2feef07c0ca52e6b87415d4aa37416e",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "0f0ba0c1c3d7407963e0cf78a3b0d4477de70924487935d6cd8d01bd26cfbef2",
+        "1d3d2b4ee16c630697b2c277204f7ea8ab39e1dbf7bdb24780522e92d571ec49"
+      ],
+      "source_sha256": "010f091f659ece43cf0e98ca3e96fa64d20116b7809305c31b9b3e8e69417e67",
+      "text": "Alle in der Bildausschnitttabelle genannten Platten, sortiert.\n\n:param db_path: die ``measurements.db``.\n:param table: die Tabelle mit den Bildausschnitten; ``'png_list'``.\n:returns: Plattenkennungen als Zeichenfolgen. Leer, wenn die Tabelle keine ``plateID``-Spalte hat. So können ältere Datenbanken ohne Plattenkennungen ohne Fehler gelesen werden.",
+      "translation_source_blocks_sha256": [
+        "654902d689a954031403c9f11a33e38d5da0e3db8694b5f8c4a6077d2b7ca622",
+        "041ca665c5c4adffe4357cd8d73fe5b64e19b4c480a17ba3ab41beceb83d3535",
+        "a13a13f58b6ba664d543d8c71e7eacba9e6343edc0a89f2c1a14710274570726",
+        "0b6d1d4509db89a34b1df8422a42451a4d1b9cb3a7f7bde2a72286b618de54fa"
+      ]
+    },
     "spacr.crop_source": {
       "source_blocks_sha256": [
         "3dd5265b38e484f226d1712550f4ccf2e193fb31dd1504b2342bc38f64248e13",
@@ -39848,6 +39864,22 @@
         "d453715bd3b75e9f2ce7ef9ed78bc91d797c1d6488c02bf6749988ff9d296405"
       ]
     },
+    "spacr.measure.TableAssignment": {
+      "source_blocks_sha256": [
+        "37ebbf8a0d8809790b764fea3afb32e65f6f247c57104b4ff1ded7c07f15d945",
+        "ce9bb1f07474b336d65737ae574ced27dd4a8a40cb831b28858989e23791241f",
+        "7316d3595465a6fbac9a79c59c9f01bbcafc4a81add23b736df0cf1e11817f9f",
+        "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873"
+      ],
+      "source_sha256": "239fae2b9a9232e842da7fa968e2c445e3a729820888a0559589ce5de1edc0d2",
+      "text": "Ergebnis der Zuordnung abgelegter Dateien anhand eines regulären Ausdrucks.\n\n:ivar table: die Tabelle, der die Dateien zugeordnet wurden.\n:ivar assigned: ``(path, row label, column caption)`` für jede zugeordnete Datei, in der Reihenfolge der übergebenen Pfade.\n:ivar unassigned: ``(path, reason)`` für jede nicht zugeordnete Datei. Das Fenster zeigt diese Einträge an, damit beim Ablegen in der Tabelle keine Datei unbemerkt verschwindet.",
+      "translation_source_blocks_sha256": [
+        "37ebbf8a0d8809790b764fea3afb32e65f6f247c57104b4ff1ded7c07f15d945",
+        "ce9bb1f07474b336d65737ae574ced27dd4a8a40cb831b28858989e23791241f",
+        "7316d3595465a6fbac9a79c59c9f01bbcafc4a81add23b736df0cf1e11817f9f",
+        "2e7363f3b99e34404e5d4e2375645499c71c0045645a252fd7d738a584775873"
+      ]
+    },
     "spacr.measure.assign_paths_by_regex": {
       "source_blocks_sha256": [
         "1618a688ed9aa10d1e98bfd558e6bf73701cfbfa12c9842c50374204c0a5db05",
@@ -46714,6 +46746,36 @@
         "69452963e088240688b5ef033db261ac98e81f2187b919b9eef4500fbda4cf88"
       ]
     },
+    "spacr.object_classifier.ParasiteCountHead": {
+      "source_blocks_sha256": [
+        "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
+        "a9811efa3218389a542df438bde224e4aa170536982cbc236f6d9fcc40ec429d",
+        "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
+      ],
+      "source_sha256": "8366578bef186f62c70621b11bea7b58e2d89e535c6f32c41f4109f583b566f5",
+      "text": "Passt einen Regressor zur Anzahlvorhersage an die Vorhersageschnittstelle für Objektklassifikationsköpfe an.\n\n:param regressor: Modell mit ``predict(crops)``, das pro Bildausschnitt eine endliche, nichtnegative Anzahl in der Form ``(N,)`` oder ``(N, 1)`` zurückgibt. Der Aufrufer wählt die Färbung dieses Modells in ``classify_objects`` über dessen Argument ``channels`` aus; getrennte Modelle können dieselben Objektkennungen verwenden.\n\nDie Anzahlen behalten ihre Regressionswerte. Die angezeigten Klassen werden mit :func:`bin_parasite_count` bestimmt; ein Regressor liefert keine Klassenwahrscheinlichkeit.",
+      "translation_source_blocks_sha256": [
+        "18dec89fbac94cedd150ec043003a7565c9a250696b6fedde4c303e3e3a7130f",
+        "8de5969f3f11ac0d07dc8b80d50d9f5a8c8c2e9e7fb6d442b8c28eb9218066b3",
+        "b72b22a39e3796005e573d089e527a5ddbe7645bdfaf3c60b2111632e3885528"
+      ]
+    },
+    "spacr.object_classifier.ParasiteCountHead.predict": {
+      "source_blocks_sha256": [
+        "15fac29b7ff3d2147d0bc5b2f38a82850bef65f9d2da23a6ebd336639115d3e4",
+        "cb7de26fdc328bc9c54b8f5c3729d7988410d3d3132181233cd0cc0220ead1ec",
+        "4ad3e812878a50fd6dcc9e80d2d2a65d15e97b18ec44b3b2ba69c068f62e9b07",
+        "8718d2158b5b298da83cb7b2f7f8f446e5caddfe80b49a52e717bcfa01421fb5"
+      ],
+      "source_sha256": "323c84d84a962259d58bf2915b1cf111d47b3816050fb6e7abd77bff9565371f",
+      "text": "Gibt ungerundete Anzahlen und Anzeigeklassen für einen Stapel Bildausschnitte zurück.\n\n:param crops: Bildausschnitte mit ausgewählten Kanälen in der Reihenfolge der Objekte.\n:returns: pro Bildausschnitt eine Anzahl, eine Anzeigeklasse und keine Wahrscheinlichkeit.\n:raises ValueError: die Vorhersagen haben die falsche Form oder enthalten ungültige Anzahlen.",
+      "translation_source_blocks_sha256": [
+        "a83c59340b14d8e6a471713fe4cde3012c2d3c141b6846d23d54892389fe15ec",
+        "09360a6f2cf1067b1e713f1aae330b6c7c6d1e353ba4c373ab14fb63986e65e5",
+        "d43f59b42e0e6ef973bd88ce71526c0dd3a93da9b0c6483ff3239158c0ea0e9c",
+        "8718d2158b5b298da83cb7b2f7f8f446e5caddfe80b49a52e717bcfa01421fb5"
+      ]
+    },
     "spacr.object_classifier.bin_parasite_count": {
       "source_blocks_sha256": [
         "b67193680ddf0fb8b375b8589771505571f6b96aefe945fef84bb373faa1476b",
@@ -46784,16 +46846,18 @@
         "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
         "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
         "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
-        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb"
+        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb",
+        "66f07fb9777f4334c03c941cfe80b72e994a48e8301c51fb7356d9af8e955d67"
       ],
-      "source_sha256": "378bb2e93c8866158ac97f69421efaa89a6f94932ab71138d602b7850ff36485",
-      "text": "Führt jedes Paar zu einem Objekt zusammen und behält die kleinere Kennung bei.\n\nDie kleinere Kennung bleibt erhalten, damit das Ergebnis unabhängig von der Reihenfolge der Paare ist. So behält das Objekt die bereits in Messwerten und Objektspuren verwendete Kennung, sofern diese die kleinere ist.\n\n:param mask: das Bild der Objektkennungen.\n:param pairs: Kennungspaare, wie sie :func:`split_candidates` zurückgibt.\n:returns: eine NEUE Maske; die übergebene Maske bleibt unverändert.",
+      "source_sha256": "b7be6ce34934925f723270930cbc5e3b589b19ed3d970992e2ebebcc6cfdb7c8",
+      "text": "Führt jedes Paar zu einem Objekt zusammen und behält die kleinere Kennung bei.\n\nDie kleinere Kennung bleibt erhalten, damit das Ergebnis unabhängig von der Reihenfolge der Paare ist. So behält das Objekt die bereits in Messwerten und Objektspuren verwendete Kennung, sofern diese die kleinere ist.\n\n:param mask: das Bild der Objektkennungen.\n:param pairs: Kennungspaare, wie sie :func:`split_candidates` zurückgibt.\n:returns: eine NEUE Maske; die übergebene Maske bleibt unverändert.\n:raises ValueError: ein Paar enthält den Hintergrund, eine nicht vorhandene Kennung oder einen nicht ganzzahligen Wert.",
       "translation_source_blocks_sha256": [
         "20095d42677841be47bf66a5b1ffd93ed26ed794bedd763517ea6b36170b5458",
         "4b1214a3a8bc4ad0cffbd28c4d3198fb11d0ede10950ef072848f1655516df66",
         "20eb0cd16f67d10335819cb775ea459ce48320cfd0c3157f5ab0516b4070d8a8",
         "808a55b9eb0a4fb02bdbfa99ace068b4c55e7302e72ebf9130d5b46c735401bf",
-        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb"
+        "43a0925c8621b313e63bde56a3d9ea4a3c2c8bc4954725416c7c079e5cc89fbb",
+        "66f07fb9777f4334c03c941cfe80b72e994a48e8301c51fb7356d9af8e955d67"
       ]
     },
     "spacr.object_classifier.remove_labels": {
@@ -51780,6 +51844,36 @@
         "36dd2c7d71a8c7c25544e63505aa6901a4433ef8f66486187f7ab8ddf085a895"
       ]
     },
+    "spacr.organelle_types.method_guidance": {
+      "source_blocks_sha256": [
+        "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
+        "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+        "5c5851cde60e02f4922dbd97e6444fdfcc0fad59b7d7628f9b247d71041a1be4"
+      ],
+      "source_sha256": "75612edbf498e24f308446e89804098c302dfef96ea0e60b495ca1a370b3f499",
+      "text": "Beschreibt in einem Satz für ein Auswahlfeld, wofür ``method`` geeignet ist.\n\n:param method: ein Wert für ``organelle_method``.\n:returns: ein englischer Satz mit den Formen, für die die Methode zulässig ist, oder dem Hinweis, dass sie keiner Morphologie zugeordnet ist. Der Satz ist nicht übersetzt; aufrufender Code übergibt ihn vor der Anzeige an ``tr``.",
+      "translation_source_blocks_sha256": [
+        "c13be42b12e99f0eb8ee15608c1585c5ef06bc748871d3c0094f7d1a35be6622",
+        "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+        "5c5851cde60e02f4922dbd97e6444fdfcc0fad59b7d7628f9b247d71041a1be4"
+      ]
+    },
+    "spacr.organelle_types.morphologies_for_method": {
+      "source_blocks_sha256": [
+        "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
+        "4d19ec217ae5b94f6be4c57d2b9357673165b5d11419a2aa97e824e2c72042cf",
+        "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+        "5b8ae676ad4999461bc716d6b375db20ffeaa5f2f0a4b84633d4afefb6be3392"
+      ],
+      "source_sha256": "f2d96e3677719633a56f6b4fb180b0721be0edca4f61f62a67a68ca75ae0e5c7",
+      "text": "Die Formen, für die ``method`` als Detektor zulässig ist.\n\nWird aus :data:`LEGAL_METHODS` gelesen, damit das Ergebnis mit der Validierung übereinstimmt.\n\n:param method: ein Wert für ``organelle_method``.\n:returns: die Morphologienamen in der Reihenfolge von :data:`LEGAL_METHODS`; leer, wenn die Methode für keine Morphologie zulässig ist.",
+      "translation_source_blocks_sha256": [
+        "627c16b2454560ff11ba25c55097abc29f278aa4dbe53df916d4713dc28568e4",
+        "4d19ec217ae5b94f6be4c57d2b9357673165b5d11419a2aa97e824e2c72042cf",
+        "148a8b0a96078d42d9c7388d4b164bd528d72713faf5985c716f8f93651b689d",
+        "5b8ae676ad4999461bc716d6b375db20ffeaa5f2f0a4b84633d4afefb6be3392"
+      ]
+    },
     "spacr.organelle_types.organelle_count": {
       "source_blocks_sha256": [
         "2b3e36fd8e9ac8466ba48ca68c08314a350b22e6609498ac070e6b4efdc12e40",
@@ -53494,6 +53588,22 @@
         "a9f74f118cf5018becf0af2400f4d8242f87788fc112b408ccc13fc8845d476d"
       ]
     },
+    "spacr.plaque.plaque_flow_outputs": {
+      "source_blocks_sha256": [
+        "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
+        "63d07741c51f4e84d99b8470ca25486536fe64c8950fbad7f6f0d4ec5d0a533c",
+        "05e76fd90d82aa3e6e48ed7d8edb8327972f7fcf6113ca223115f34271c77fa5",
+        "ecc5e739f57f213875eb32d4207b0672aceb38f29726bd3bc5509007e81a3eff"
+      ],
+      "source_sha256": "c23a7e34aaab1a9cf73b881dace6b7c36ea7e39cfce0f1a2ee45c2bf5d9e0635",
+      "text": "Flussdarstellung und Zellwahrscheinlichkeit aus einem Cellpose-Ergebnis.\n\nDie Funktion ``eval`` von Cellpose gibt ``(masks, flows, styles)`` zurück. Der erste Eintrag der Liste ``flows`` ist das bereits als RGB-Bild dargestellte Flussfeld: Die Richtung bestimmt den Farbton, die Stärke die Helligkeit, wie in der Cellpose-GUI. Der dritte Eintrag enthält die Zellwahrscheinlichkeitskarte als Logits. Beide können torch-Tensoren auf dem Gerät der Modellausführung sein und werden deshalb durch :func:`_host_array` überführt. Enthält das Ergebnis keine Flussdaten, etwa bei einem Platzhalter oder einem Modell mit reiner Maskenausgabe, wird für beide ``None`` zurückgegeben.\n\n:param output: der Rückgabewert von ``model.eval``.\n:returns: ``{'flow_rgb': H x W x 3 uint8 or None, 'cellprob': H x W float32 or None}``.",
+      "translation_source_blocks_sha256": [
+        "ff678a377be07ae2f7566549283c82a6a28a699b59a0691a5b1a26c54721abb7",
+        "b59a467056335c37d4956c042dbfe8e39a5622fce46ca232dbbad632a5ec8f27",
+        "05e76fd90d82aa3e6e48ed7d8edb8327972f7fcf6113ca223115f34271c77fa5",
+        "ecc5e739f57f213875eb32d4207b0672aceb38f29726bd3bc5509007e81a3eff"
+      ]
+    },
     "spacr.plaque.scale_from_well": {
       "source_blocks_sha256": [
         "a878daaa278cc7531ce48b1e6e7b86b1dc6f7d6c6e8fcfce02d5f420db388991",
@@ -53514,6 +53624,64 @@
         "8f7651ae9371c6b3abff53961e9021d104b38961f92798e52fe1010592c06de4",
         "09737856649a3bccf522d6b1d6c73cdaddba824a7e4035d4cbd1f0b6b9560fcc",
         "f11b9549830393dd475bc7cc832a59a754732d4ec99a074257eaca10d221454a"
+      ]
+    },
+    "spacr.plaque_papers.Figure": {
+      "source_blocks_sha256": [
+        "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
+        "53b3c302590046b7acfc95e6094367b339503435db07ad39698fd5f2028f91d5",
+        "bb5f638ca223f0088076aef31fad2541c433b0ed173a6db00c95f68f8ef0dd91",
+        "6a451c0ecd1c1eb27e68f112dfe7d862b61367afb21f3488c34fc0359645af54",
+        "597ef002571a104ae92b967616b4546f10f48a3397e781b5444f8608d2dff299",
+        "af2c67bf5eee01646ef430fed2dd715219069381a95273ac49008fce79bf75db"
+      ],
+      "source_sha256": "4f4adf4b8310221b9c30d5ec804af9278e84ab64328e8587f476d219a38fd4b3",
+      "text": "Ein Abbildungsbild mit seiner Legende.\n\n:param path: die Bilddatei auf dem Datenträger.\n:param label: die Bezeichnung der Abbildung in der Publikation, z. B. ``'Fig 7'``.\n:param caption: die Legende oder ``''``, wenn keine gefunden wurde.\n:param legend_source: die Herkunft von ``caption``: ``'europepmc'``, ``'pdf'``, ``'pasted'`` oder ``'none'``.\n:param words: bereits erkannter Text mit Koordinaten, etwa aus der Textebene einer PDF-Datei; OCR füllt diese Angaben, wenn sie leer sind.",
+      "translation_source_blocks_sha256": [
+        "46df1702d839ea5180e42581393928c72fab4c6c449c735679cc5fefdb885d20",
+        "53b3c302590046b7acfc95e6094367b339503435db07ad39698fd5f2028f91d5",
+        "bb5f638ca223f0088076aef31fad2541c433b0ed173a6db00c95f68f8ef0dd91",
+        "6a451c0ecd1c1eb27e68f112dfe7d862b61367afb21f3488c34fc0359645af54",
+        "597ef002571a104ae92b967616b4546f10f48a3397e781b5444f8608d2dff299",
+        "af2c67bf5eee01646ef430fed2dd715219069381a95273ac49008fce79bf75db"
+      ]
+    },
+    "spacr.plaque_papers.Paper": {
+      "source_blocks_sha256": [
+        "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
+        "d9680d7d6554e0b48add134e850003d8b4353575ea8fe10a0332f170305c0821",
+        "159303052998bcac8e17198cfc4370a9fdbd12d6b59dba6f325d2ccad0e039bb",
+        "83661438683c3d5f8fe8dc15707aea6c258e830719349b443d50c5731e831081"
+      ],
+      "source_sha256": "03b92dd53ed10d0a4b2b0773bdb9a02416fecbf6273b6b360ad12d77ee7260aa",
+      "text": "Eine Publikation, unabhängig von ihrer Benennung.\n\n:param key: die Kennung, unter der die Zeilen gespeichert werden: die DOI, falls vorhanden, sonst die PMC-Kennung, andernfalls der sha256-Wert der PDF-Datei.\n:param source: ``'europepmc'``, ``'pdf'`` oder ``'folder'``.\n:param doi_from: die Quelle der DOI: ``'europepmc'``, ``'pdf metadata'`` oder ``'pdf text'``; None, wenn keine DOI vorliegt.",
+      "translation_source_blocks_sha256": [
+        "5a31af2c34a279716caf974b8258911efcae74325db1cfc2c6b2822354363358",
+        "d9680d7d6554e0b48add134e850003d8b4353575ea8fe10a0332f170305c0821",
+        "159303052998bcac8e17198cfc4370a9fdbd12d6b59dba6f325d2ccad0e039bb",
+        "83661438683c3d5f8fe8dc15707aea6c258e830719349b443d50c5731e831081"
+      ]
+    },
+    "spacr.plaque_papers.Region": {
+      "source_blocks_sha256": [
+        "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
+        "72178127496d5a8a09d0cf90f98863d4802d09d1e4718351881c132f5b0d41be",
+        "e16bf7a23c94fa67be85b60af4d6bafd1a6eeb36209f95fa8ef12fa4c8b11bc2",
+        "f1fb5703b6e8a54dd4b54d82a880651956df78e34500859c763d0de58cf91783",
+        "3e82b27f69232f1079e770b9b3a71233a17447fc545ca518a3e91f20567ecf44",
+        "ce6d803403f59f80abcd005a058a3f24206ea876de6cdae3ef7c43a9e2691c17",
+        "2493e0c61a525cd736844815718f5a0bc48a275d2c86f7fb3ddb99b9ffdb3791"
+      ],
+      "source_sha256": "8ec223b092d24e157518162f5840a8ad7ac6155990e127e8140b9fb127f12753",
+      "text": "Ein vom Detektor innerhalb einer Abbildung gefundenes Plaque-Bild.\n\n:param x0: linker Rand des Begrenzungsrahmens, in Pixeln der Abbildung.\n:param y0: Oberkante des Begrenzungsrahmens.\n:param x1: rechte Kante des Begrenzungsrahmens.\n:param y1: untere Kante des Begrenzungsrahmens.\n:param confidence: Der Konfidenzwert des Detektors, von 0 bis 1.\n:param sizes: alle Inferenzbildgrößen, bei denen die Region gefunden wurde, damit der Lauf ihre Abhängigkeit von der Bildgröße dokumentiert.",
+      "translation_source_blocks_sha256": [
+        "243679733e359e7556f205cfd74ac8b24df31356d914596bd2ab7beea269fe9a",
+        "72178127496d5a8a09d0cf90f98863d4802d09d1e4718351881c132f5b0d41be",
+        "e16bf7a23c94fa67be85b60af4d6bafd1a6eeb36209f95fa8ef12fa4c8b11bc2",
+        "f1fb5703b6e8a54dd4b54d82a880651956df78e34500859c763d0de58cf91783",
+        "3e82b27f69232f1079e770b9b3a71233a17447fc545ca518a3e91f20567ecf44",
+        "ce6d803403f59f80abcd005a058a3f24206ea876de6cdae3ef7c43a9e2691c17",
+        "e1d599441b3086df8fdb243bbaab9611d1db76d417b7c979794a004b05853768"
       ]
     },
     "spacr.plaque_papers.Region.axis_ratio": {
@@ -53544,6 +53712,28 @@
       "text": "Breite des Begrenzungsrahmens in Pixeln.",
       "translation_source_blocks_sha256": [
         "a7a1ca3cb0b6ba099e1177c6aff2828ec844bd78ed3611f554fa031c1f736bd8"
+      ]
+    },
+    "spacr.plaque_papers.Word": {
+      "source_blocks_sha256": [
+        "7c992c5f9307ed699a42d4e402661477a0c898337735d5735669ee0047f0f0da",
+        "f2fa03feb72740337cd7de81198cbde1b5eeef317d6117ba6ebc24252bf46e95",
+        "dbd2da076d222a1939a3abd1ea21563c3508dbe383c4bbc07df15c384c14f2c1",
+        "1d7ee675c87c9aa3ecb53b35b401c4b0d8b307895ae378c044f6a7a0b93d2933",
+        "744bb8eddce6a3da76be02ba7bab8edd6f97dff5c1c2ca9c0883bc9a78446552",
+        "67bc68526f07a76f5899f624f9a525fcd318fd8a9b0b73f633cef4526d30d687",
+        "0ad1e3ab589103bae54a810372431eb98f855c1760919ed0fbbda052201699e7"
+      ],
+      "source_sha256": "40aa9aa45306e2a838eef6457d1a086e91d4f6ad28c42c9f03bfa7918462b945",
+      "text": "Ein Textstück in einer Abbildung mit seiner Position in Bildpixeln.\n\n:param text: der gelesene Text.\n:param x0: linke Kante seines Begrenzungsrahmens.\n:param y0: Oberkante seines Begrenzungsrahmens.\n:param x1: rechte Kante seines Begrenzungsrahmens.\n:param y1: untere Kante seines Begrenzungsrahmens.\n:param confidence: Konfidenzwert der Texterkennung von 0 bis 1.",
+      "translation_source_blocks_sha256": [
+        "7c992c5f9307ed699a42d4e402661477a0c898337735d5735669ee0047f0f0da",
+        "f2fa03feb72740337cd7de81198cbde1b5eeef317d6117ba6ebc24252bf46e95",
+        "dbd2da076d222a1939a3abd1ea21563c3508dbe383c4bbc07df15c384c14f2c1",
+        "1d7ee675c87c9aa3ecb53b35b401c4b0d8b307895ae378c044f6a7a0b93d2933",
+        "744bb8eddce6a3da76be02ba7bab8edd6f97dff5c1c2ca9c0883bc9a78446552",
+        "67bc68526f07a76f5899f624f9a525fcd318fd8a9b0b73f633cef4526d30d687",
+        "0ad1e3ab589103bae54a810372431eb98f855c1760919ed0fbbda052201699e7"
       ]
     },
     "spacr.plaque_papers.Word.cx": {
