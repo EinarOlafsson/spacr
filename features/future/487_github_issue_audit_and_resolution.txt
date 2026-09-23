@@ -100,3 +100,33 @@ close cycle reached the replacement-launch boundary only after loopLevel()==0;
 replacement process creation was intercepted to avoid opening another GUI.
 Native macOS/Windows installer replacement/relaunch remains to be validated.
 Issue127 remains open for those paths, layout/measurement audit and plaque freeze.
+
+2026-09-23 — HISTORICAL73 REPRODUCED AND CORRECTED
+Read all44 synthetic boom issues (28–70 and75): identical Error:boom traceback;
+current process/session write guards validated. Read72/73/76/77/78 discussions;
+37 existing guard/channel/backbone/best-checkpoint/F1 checks passed. The72
+native resize stress evidence is historical, not a new native test here.
+
+73 was reopened after reproducing direct-PIL uint16 clipping and format2
+channel mismatch in both labelled/unlabelled loaders. New classification
+datasets share crops.decode_crop_image: high-byte uint8 narrowing, declared
+order and EXIF orientation. Checkpoints record crop_loading_policy; untagged
+models explicitly retain historical stored-PIL inputs. Folder/tar inference,
+held-out evaluation, activation maps and attribution search read that policy.
+Resume/fine-tuning inherit it before loaders are built; direct training rejects
+known loader/checkpoint conflicts. Fusion/distillation preserve the record and
+reject conflicting source policies. No automatic reinterpretation of old weights.
+
+Generated training folders and uniform PNG archives now carry format markers.
+Mixed formats become declared uint8 destination copies, leaving sources intact.
+Per-file migration state is respected. Root-only historical training markers
+remain readable. No claim to infer the origin of already-unmarked format2 data.
+Real image/checkpoint tests cover uint16,1/2/3formats,preloading,EXIF,tar folder
+markers,migration state,actual saved-model predictions and one-epoch training
+plus resumed second epoch. Focused regression evidence recorded with the commit.
+No biological classification accuracy or GPU/native-platform validation claimed.
+
+131: read maintainer's ticket-submitted comment; repository secret list is empty
+and environments are github-pages/pypi. Build still signs app ad-hoc and only
+optionally signs pkg, with no notarization. Institutional ticket status beyond
+that comment is unknown. Remains open and outside1.5.1.0 until credentials exist.

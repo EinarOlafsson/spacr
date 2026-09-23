@@ -139,7 +139,8 @@ def _pin_activation_loader_to_cpu(monkeypatch):
     from spacr import accelerator
 
     monkeypatch.setattr(accelerator, "torch_device", lambda: torch.device("cpu"))
-    monkeypatch.setattr(torch, "load", lambda *_args, **_kwargs: _Model())
+    monkeypatch.setattr('spacr.torch_artifacts.load_model_artifact',
+                        lambda *_args, **_kwargs: (_Model(), {}))
     return torch
 
 

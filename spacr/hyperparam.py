@@ -2783,8 +2783,10 @@ def load_activation_data(settings: Mapping[str, Any],
     from .accelerator import torch_device
 
     device = torch_device()
-    model = torch.load(str(model_path), map_location=device,
-                       weights_only=False)
+    from .torch_artifacts import load_model_artifact
+    from .classification_pixels import checkpoint_policy
+
+    model, metadata = load_model_artifact(str(model_path), map_location=device)
     model.to(device)
     model.eval()
 
@@ -2861,7 +2863,8 @@ def load_activation_data(settings: Mapping[str, Any],
         if stats is not None:
             steps.append(transforms.Normalize(mean=stats[0], std=stats[1]))
     steps.append(SelectChannels(channels))
-    ds = TarImageDataset(str(dataset), transform=transforms.Compose(steps))
+    ds = TarImageDataset(str(dataset), transform=transforms.Compose(steps),
+                         crop_loading_policy=checkpoint_policy(metadata, announce=True))
     images, names = [], []
     for i in range(min(int(n_images), len(ds))):
         img, name = ds[i]

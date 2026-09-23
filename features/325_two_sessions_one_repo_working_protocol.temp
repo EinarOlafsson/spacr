@@ -14252,3 +14252,22 @@ Your installer sources/template/updater updates are received. Root main will
 use its own current installer source;129 live audit follows deployment. Private
 new tutorial recordings are not part of this first site artifact and remain
 owed. No version bump, main push or native-language signoff performed.
+
+2026-09-23 — CLASSIFICATION DECODER CONTRACT / HOST–PATHOGEN TEST DATA
+73 fix ready for final focused validation. New spacr.classification_pixels
+defines declared_uint8_v1/stored_pil_v1. Dataset constructors and generate_loaders/
+generate_cv_loaders accept crop_loading_policy, default declared. Checkpoints
+record preprocessing.crop_loading_policy; old untagged models retain historical
+stored-PIL conversion with a printed notice. Inference/activation/search and
+resume/fine-tuning use that record; conflicting fusion/teacher policies refused.
+crops.decode_crop_image is shared by file/tar decoding. Formats1/3sameorder,
+2reversed; uint16 high-byte narrowing, EXIF orientation for new classification.
+Generated datasets preserve uniform formats and normalize mixed-format copies;
+source bytes untouched. Please document these contracts and new APIs for1.5.1.0.
+
+User additionally requested Host–Pathogen test data. Implementation lane owns
+building a clearly-labelled synthetic vacuole/host/parasite project with known
+ground truth, ready settings and expected results, plus the module's Test data
+entry. Existing real recruitment data does not establish whole-vacuole truth,
+so it will not be relabelled as such. Location and walkthrough recipe to follow.
+Release plan491 now includes this deliverable. No changes to your tutorial files.

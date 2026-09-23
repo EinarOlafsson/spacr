@@ -23,6 +23,7 @@ from torchvision import transforms
 from torch.utils.data import DataLoader, Subset
 
 from .errors import RunLedger
+from .classification_pixels import checkpoint_policy, initialization_policy, training_preprocessing
 from .plot import save_figure
 from .runctx import resolve_seed, seed_everything, seed_worker, torch_generator
 from .torch_artifacts import (
@@ -372,12 +373,13 @@ def apply_model(src, model_path, image_size=224, batch_size=64, normalize=True,
             transforms.ToTensor(),
             transforms.CenterCrop(size=(image_size, image_size))])
     
-    model, _ = _load_inference_model(model_path, device)
+    model, metadata = _load_inference_model(model_path, device)
 
     print(model)
     
     dataset = NoClassDataset(data_dir=src, transform=transform, shuffle=False,
-                             load_to_memory=False)
+                             load_to_memory=False,
+                             crop_loading_policy=checkpoint_policy(metadata, announce=True))
     print(f'Loading dataset in {src} with {len(dataset)} images')
     if not len(dataset):
         raise ValueError(
@@ -497,18 +499,19 @@ def apply_model_to_tar(settings=None):
         print(f"Loading model from {model_path}")
         print(f"Loading dataset from {tar_path}")
 
-    model, _ = _load_inference_model(settings['model_path'], device)
+    model, metadata = _load_inference_model(settings['model_path'], device)
 
-    dataset = TarImageDataset(tar_path, transform=transform)
+    dataset = TarImageDataset(tar_path, transform=transform,
+                              crop_loading_policy=checkpoint_policy(metadata, announce=True))
     if getattr(dataset, 'crop_format', None) is not None:
         from .crops import CROP_FORMAT_RGB
-        order = 'rgb' if dataset.crop_format == CROP_FORMAT_RGB else 'bgr (legacy)'
-        print(f"Tar crop format {dataset.crop_format} ({order}); images are "
-              f"scored in the order they are stored.")
+        order = 'intermediate reversed order' if dataset.crop_format == CROP_FORMAT_RGB else 'declared order'
+        print(f"Tar crop format {dataset.crop_format} ({order}); decoder "
+              f"policy: {dataset.crop_loading_policy}.")
     elif settings.get('verbose'):
-        print("Tar carries no crop-format marker, so its channel order is "
-              "whatever wrote it (crops written before spacr 341f446 are "
-              "BGR). Rebuild it with spacr.io.generate_dataset for one.")
+        print("Tar has no root crop-format marker. Per-folder markers are "
+              "resolved individually; unmarked crops are assumed format 1 "
+              f"(declared order). Decoder policy: {dataset.crop_loading_policy}.")
     data_loader = DataLoader(
         dataset,
         batch_size=settings['batch_size'],
@@ -1161,6 +1164,8 @@ def _cross_validate_model(settings, num_classes):
             "resume_checkpoint cannot be shared across cross-validation folds; "
             "resume an individual fold directly or start a fresh k-fold run.")
 
+    crop_loading_policy = initialization_policy(settings.get('custom_model_path'))
+
     fold_loaders, info = generate_cv_loaders(
         src,
         n_splits=k,
@@ -1177,6 +1182,7 @@ def _cross_validate_model(settings, num_classes):
         group_by=settings.get('cv_group_by', 'well'),
         class_balance=settings.get('class_balance', 'none'),
         seed=settings.get('random_seed', 42),
+        crop_loading_policy=crop_loading_policy,
     )
     cv_partition_audit = audit_cv_folds(
         dataset_filenames(info['dataset']),
@@ -1250,6 +1256,7 @@ def _cross_validate_model(settings, num_classes):
                 'early_stopping_patience', 0),
             custom_model_path=settings.get('custom_model_path') or None,
             preprocessing={
+                'crop_loading_policy': crop_loading_policy,
                 'image_size': settings.get('image_size', 224),
                 'normalize': settings.get('normalize', True),
                 'channels': settings.get('train_channels'),
@@ -1685,6 +1692,8 @@ def train_test_model(settings):
         cv_result_loc = _cross_validate_model(settings, num_classes)
 
     elif settings['train']:
+        crop_loading_policy = initialization_policy(
+            settings.get('resume_checkpoint') or settings.get('custom_model_path'))
         train, val, _ = generate_loaders(
             src,
             mode='train',
@@ -1701,6 +1710,7 @@ def train_test_model(settings):
             class_balance=class_balance,
             seed=settings.get('random_seed', 42),
             group_by=settings.get('cv_group_by', 'well'),
+            crop_loading_policy=crop_loading_policy,
         )
 
         train_objects = _loader_object_count(train)
@@ -1774,6 +1784,7 @@ def train_test_model(settings):
             custom_model_path=settings.get('custom_model_path') or None,
             resume_checkpoint=settings.get('resume_checkpoint') or None,
             preprocessing={
+                'crop_loading_policy': crop_loading_policy,
                 'image_size': settings.get('image_size', 224),
                 'normalize': settings.get('normalize', True),
                 'channels': settings.get('train_channels'),
@@ -1797,6 +1808,15 @@ def train_test_model(settings):
 
     if settings['test']:
         _flowview_advance("evaluation")
+        if model_path and os.path.isfile(model_path):
+            print(f'Loading selected checkpoint for testing: {model_path}')
+            model, metadata = _load_inference_model(model_path, torch.device('cpu'))
+        elif model is None:
+            model_path = pick_best_model(src + '/model')
+            print(f'Best model: {model_path}')
+            model, metadata = _load_inference_model(model_path, torch.device('cpu'))
+        else:
+            metadata = {'preprocessing': {'crop_loading_policy': crop_loading_policy}}
         test, _, _ = generate_loaders(
             src,
             mode='test',
@@ -1809,16 +1829,9 @@ def train_test_model(settings):
             normalize=settings['normalize'],
             channels=settings['train_channels'],
             augment=False,
-            verbose=settings['verbose']
+            verbose=settings['verbose'],
+            crop_loading_policy=checkpoint_policy(metadata, announce=True),
         )
-
-        if model_path and os.path.isfile(model_path):
-            print(f'Loading selected checkpoint for testing: {model_path}')
-            model, _ = _load_inference_model(model_path, torch.device('cpu'))
-        elif model is None:
-            model_path = pick_best_model(src + '/model')
-            print(f'Best model: {model_path}')
-            model, _ = _load_inference_model(model_path, torch.device('cpu'))
 
         model_fldr = dst
         time_now = datetime.date.today().strftime('%y%m%d')
@@ -2579,6 +2592,7 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
                          height=image_size, width=image_size)
 
     resume_payload = None
+    loaded_payload = None
     if initialization_path:
         if not os.path.isfile(initialization_path):
             raise FileNotFoundError(
@@ -2601,6 +2615,10 @@ def train_model(src,dst, model_type, train_loaders, epochs=100, learning_rate=0.
             print(f"Resuming training state from {resume_checkpoint}")
         else:
             print(f"Fine-tuning model weights from {custom_model_path}")
+
+    preprocessing = training_preprocessing(
+        train_loaders, val_loaders, preprocessing, checkpoint=loaded_payload)
+    training_preprocessing(train_loaders, test_loaders, preprocessing)
 
     print(f'Loading Model to {device}...')
     model.to(device)
@@ -3004,7 +3022,7 @@ def generate_activation_map(settings):
         print(f"Dataset not found at {settings['dataset']}")
         return
 
-    model, _ = _load_inference_model(settings['model_path'], device)
+    model, metadata = _load_inference_model(settings['model_path'], device)
     model.to(device)
     model.eval()
 
@@ -3021,7 +3039,8 @@ def generate_activation_map(settings):
         os.makedirs(batch_grid_fldr, exist_ok=True)
         print(f"Batch grid maps will be saved in: {batch_grid_fldr}")
     
-    dataset = TarImageDataset(settings['dataset'], transform=transform)
+    dataset = TarImageDataset(settings['dataset'], transform=transform,
+                              crop_loading_policy=checkpoint_policy(metadata, announce=True))
     data_loader = DataLoader(dataset, batch_size=settings['batch_size'], shuffle=settings['shuffle'], num_workers=n_jobs, pin_memory=True,
                              generator=torch_generator(stream='activation_maps'),
                              worker_init_fn=seed_worker if n_jobs else None)
@@ -3760,18 +3779,27 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
     student_save_path = base + '_KD.pth'
 
     teachers = []
+    teacher_policies = set()
+    student_preprocessing = training_preprocessing(data_loader, None)
     print("Loading teacher models:")
     for path in teacher_paths:
         print(f"  Loading teacher: {path}")
         try:
-            teacher, _ = load_model_artifact(path, map_location=device)
+            teacher, metadata = load_model_artifact(path, map_location=device)
         except ValueError as exc:
             raise ValueError(
                 f"Unsupported checkpoint type at {path}: {exc}") from exc
+        teacher_policies.add(checkpoint_policy(metadata))
+        student_preprocessing = training_preprocessing(
+            data_loader, None, student_preprocessing, checkpoint=metadata)
         teacher.to(device).eval()
         for parameter in teacher.parameters():
             parameter.requires_grad_(False)
         teachers.append(teacher)
+
+    if len(teacher_policies) != 1:
+        raise ValueError("Teacher models must share a crop loading policy.")
+    student_preprocessing.setdefault('crop_loading_policy', teacher_policies.pop())
 
     teacher_classes = {
         int(getattr(teacher, 'num_classes',
@@ -3855,6 +3883,7 @@ def model_knowledge_transfer(teacher_paths, student_save_path, data_loader, devi
         student_model, student_save_path,
         optimizer=optimizer, epoch=epochs,
         metrics={'distillation_loss': float(avg_loss)},
+        preprocessing=student_preprocessing,
         artifact_role='knowledge_distillation')
     print(f"Knowledge-distilled student saved to: {student_save_path}")
 
@@ -3902,16 +3931,21 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
             "legacy state dict, or TorchModel instance.") from exc
     fused_model = fused_model.to(device)
     state_dicts = [fused_model.state_dict()]
+    fusion_preprocessing = dict(first_metadata.get('preprocessing') or {})
+    fusion_policy = checkpoint_policy(first_metadata)
+    fusion_preprocessing['crop_loading_policy'] = fusion_policy
 
     for path in model_paths[1:]:
         print(f"Loading model from: {path}")
         try:
-            loaded, _ = load_model_artifact(path, map_location=device)
+            loaded, metadata = load_model_artifact(path, map_location=device)
         except (ValueError, RuntimeError) as exc:
             raise ValueError(
                 f"Unsupported checkpoint format in {path}; it must be a "
                 "spaCR artifact, dict or TorchModel with an identical "
                 "architecture.") from exc
+        if checkpoint_policy(metadata) != fusion_policy:
+            raise ValueError("Fused models must share a crop loading policy.")
         state_dicts.append(loaded.state_dict())
 
     fused_sd = fused_model.state_dict()
@@ -3960,6 +3994,7 @@ def model_fusion(model_paths,save_path,device='cpu',model_name='maxvit_t',pretra
         fused_model, save_path,
         metrics={'aggregator': str(aggregator),
                  'source_models': len(model_paths)},
+        preprocessing=fusion_preprocessing,
         artifact_role='model_fusion')
     print(f"Fused model (aggregator='{aggregator}') saved to: {save_path}")
 

@@ -67,8 +67,6 @@ the writer helpers, so it must not import ``spacr`` back.
 
 from __future__ import annotations
 
-from .schema import object_type_summary
-
 import ast
 import datetime
 import hashlib
@@ -505,6 +503,8 @@ class CropSpec:
         if self.bbox is not None:
             object.__setattr__(self, "bbox", tuple(int(v) for v in self.bbox))
         if self.object_type not in OBJECT_TYPES:
+            from .schema import object_type_summary
+
             raise CropError(
                 f"unknown object_type {self.object_type!r}; expected one of "
                 f"{object_type_summary(OBJECT_TYPES)}")
@@ -2051,6 +2051,38 @@ def crop_format_for_png(png_path: str, db_path: Optional[str] = None,
 
 
 
+def decode_crop_image(image, fmt: int = CROP_FORMAT_LEGACY_BGR,
+                      as_format: int = CROP_FORMAT_CURRENT, *,
+                      orient: bool = False) -> np.ndarray:
+    """Decode a PIL crop without clipping its high-bit-depth intensities.
+
+    :param image: open PIL image; owned and closed by the caller.
+    :param fmt: source crop format, including an archive member's marker.
+    :param as_format: requested channel ordering, normally declared format 3.
+    :param orient: apply EXIF orientation before decoding, for classification.
+    :returns: contiguous, independently owned HWC RGB uint8 array.
+    :raises CropError: either format is unsupported.
+    """
+    from PIL import ImageOps
+
+    if _coerce_format(fmt) is None or _coerce_format(as_format) is None:
+        raise CropError(f"unknown crop format {fmt!r} or {as_format!r}")
+    if orient:
+        image = ImageOps.exif_transpose(image)
+    mode = image.mode
+    if mode in ("RGB", "L") or mode.startswith("I") or mode == "F":
+        arr = np.array(image)
+    else:
+        arr = np.array(image.convert("RGB"))
+    arr = narrow_to_uint8(arr)
+    if arr.ndim == 2:
+        arr = np.repeat(arr[:, :, None], 3, axis=2)
+    if (_FORMAT_IS_DECLARED_ORDER[int(fmt)]
+            is not _FORMAT_IS_DECLARED_ORDER[int(as_format)]):
+        arr = arr[:, :, ::-1]
+    return np.ascontiguousarray(arr)
+
+
 def read_crop_png(path: str, fmt: Optional[int] = None,
                   db_path: Optional[str] = None,
                   as_format: int = CROP_FORMAT_CURRENT) -> np.ndarray:
@@ -2072,9 +2104,9 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
     :param fmt: what the file on disk is, when you know better than the
         marker does. ``None`` resolves it.
     :param as_format: what ordering you want *back*. The default is the
-        corrected one. Pass :data:`CROP_FORMAT_LEGACY_BGR` to get what a
-        classifier trained on legacy crops expects, out of a folder in either
-        format -- explicitly, by name, rather than by accident.
+        declared one. Formats 1 and 3 share this order; format 2 requests the
+        intermediate reversed order. Classification also needs its recorded
+        intensity-decoding policy, handled by :mod:`spacr.classification_pixels`.
     :param db_path: optional ``measurements.db`` consulted when the folder has
         no sidecar.
     :returns: ``(H, W, 3)`` uint8 RGB array.
@@ -2091,18 +2123,7 @@ def read_crop_png(path: str, fmt: Optional[int] = None,
     if fmt is None:
         fmt = crop_format_for_png(path, db_path)
     with Image.open(path) as img:
-        mode = img.mode
-        if mode in ("RGB", "L") or mode.startswith("I") or mode == "F":
-            arr = np.array(img)
-        else:
-            arr = np.array(img.convert("RGB"))
-    arr = narrow_to_uint8(arr)
-    if arr.ndim == 2:
-        arr = np.repeat(arr[:, :, None], 3, axis=2)
-    if (_FORMAT_IS_DECLARED_ORDER.get(int(fmt), True)
-            is not _FORMAT_IS_DECLARED_ORDER.get(int(as_format), True)):
-        arr = arr[:, :, ::-1]
-    return np.ascontiguousarray(arr)
+        return decode_crop_image(img, fmt=fmt, as_format=as_format)
 
 
 

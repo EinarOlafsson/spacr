@@ -72,7 +72,7 @@ def test_apply_model_to_tar_reports_crop_format(tmp_path, monkeypatch, capsys):
         crop_format = "rgb-v1"
 
         def __init__(self, *_a, **_k):
-            pass
+            self.crop_loading_policy = _k['crop_loading_policy']
 
         def __len__(self):
             return 0
@@ -93,7 +93,7 @@ def test_apply_model_to_tar_reports_crop_format(tmp_path, monkeypatch, capsys):
     frame = ds.apply_model_to_tar(settings)
 
     assert frame.empty
-    assert "Tar crop format rgb-v1 (rgb)" in capsys.readouterr().out
+    assert "Tar crop format rgb-v1 (intermediate reversed order)" in capsys.readouterr().out
 
 
 def test_multiclass_metric_failure_is_reported(monkeypatch, caplog):
