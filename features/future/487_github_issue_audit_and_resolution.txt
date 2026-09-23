@@ -1,9 +1,11 @@
 487 — GITHUB ISSUE AUDIT AND RESOLUTION
 ======================================
-Status: IN PROGRESS. User explicitly requested all issues and discussions be
-read, resolved and then commented on and closed. Snapshot2026-09-23:103 issues,
-9 open. Pull requests excluded. Historical closure is not proof of current
-correctness; check relevant code, tests and any unresolved trailing comments.
+Status: IN PROGRESS. All103issue bodies and discussions in the2026-09-23snapshot
+have been read; verified fixes and remaining acceptance are recorded below.
+Current open issues:127,130,131. LATEST MAINTAINER EXCEPTION: pending U-M Apple
+Developer access must NOT block1.5.1.0.131stays open as an external follow-up;
+the release can proceed after the remaining practical checks pass. No issue
+is closed without evidence. Pull requests are excluded from this audit.
 
 Runtime lane owns issue updates. Coordinate #130 with the documentation lane
 in325; it owns API/tutorial/translation delivery. Never close an issue merely
@@ -319,3 +321,28 @@ The CLI module description now teaches paired_data as the current contract.
 112validation/paired-plan checks and40CLI describe/dry-run checks pass. Actual
 CLI dry-run creates no output directory and imports neither ml nor torch.
 This fixes the documented plan; it does not claim a regression fit occurred.
+
+2026-09-23 — ISSUE131 BUILD PATH PREPARED; ACCESS NOT A RELEASE BLOCKER
+Maintainer explicitly clarified: U-M access must not block1.5.1.0.131stays open
+for institutional access and native signed/notarized acceptance. The release
+plan now records that exception rather than treating the pending ticket as a
+reason to withhold the update.
+
+Online macOS builds now use a native arm64/x86_64 launcher, with four-part
+spaCR versions encoded into ordered three-part Apple bundle build identifiers.
+Optional CI credentials import both Developer ID certificates into a disposable
+keychain, preserve the previous search list, store the notary profile and clean
+up even after failure. Signing requires a complete configuration; required or
+partial configuration cannot fall back silently to unsigned. Signed packages
+replace staged input only after secure signing, Apple's Accepted response,
+stapling, ticket validation and Gatekeeper installer assessment. A separate
+receipt records package SHA256 and submission ID. No credentials produces an
+explicit unsigned-development receipt and warning. Current public installers
+are not represented as newly signed or notarized.
+
+121focused packaging/installer checks pass, including failure injection at each
+Apple-tool stage, credential redaction/cleanup and actual host compilation and
+execution of the C launcher with spaces/Unicode/literal shell metacharacters.
+Workflow YAML, cleanup/receipt contract and shell syntax pass. These are Linux
+orchestration/launcher checks, not native Apple signing acceptance. Native
+installer workflow verification follows after push; no signed-build claim yet.

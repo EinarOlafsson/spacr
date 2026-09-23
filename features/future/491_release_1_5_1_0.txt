@@ -6,7 +6,10 @@ This milestone narrows the next release, not the overall implementation goal.
 Priority update2026-09-23: the maintainer explicitly requires item487 completed
 BEFORE the1.5.1.0 update. Audit every issue and its discussion, resolve verified
 defects, and comment/close only with evidence. Unresolved external dependencies
-must be reported; they are not permission to mark487 complete or promote main.
+must be reported. LATEST MAINTAINER EXCEPTION: U-M Apple Developer access must
+NOT block1.5.1.0. Keep131open and accurately describe unsigned installers until
+access and native signed/notarized acceptance exist; this external follow-up is
+excluded from the1.5.1.0issue gate. All other practical release checks remain.
 The implementation lane owns the merge/version/release; docs lane retains its
 own checkout and API/translations/tutorial delivery. No duplicate release job.
 
@@ -60,7 +63,8 @@ Ordered scope and acceptance gates
    per the established repository convention. Run targeted scientific, Qt,
    packaging and startup checks against the exact candidate. Inspect required
    CI results; fix failures caused by this release without weakening gates.
-   Complete487 before proceeding to the version bump and main push.
+   Finish487's remaining release checks before the version bump and main push,
+   with131excluded by the maintainer's explicit U-M access exception.
 8. Promotion/publication — use packaging/release.py to bump setup.py,
    spacr/_version.py and CITATION.cff together to1.5.1.0. Commit and push main
    with the maintainer-authorized non-forced merge. This triggers release.yml
@@ -73,8 +77,9 @@ Explicitly deferred from1.5.1.0
 -------------------------------
 489 deep network image enhancement;490 measured/calculated PSF processing;
 unvalidated new model-zoo engines/Timeflows research capabilities; complete
-multilingual tutorial narration matrix. The earlier deferral of the historical
-issue audit and macOS signing issue131 is superseded by the priority update above.
+multilingual tutorial narration matrix. The historical issue audit remains
+required. The maintainer subsequently confirmed that131's pending U-M access
+must not hold this release; it remains an open follow-up.
 Signing is not represented as completed: last maintainer report says the
 institutional ticket was submitted, repository signing secrets are absent,
 and the current build uses ad-hoc app signing with no notarization step.

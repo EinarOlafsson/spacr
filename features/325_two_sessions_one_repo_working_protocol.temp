@@ -15233,3 +15233,46 @@ measurement databases, and field-local Live versus full Mask differences.
 19English/source/publication checks pass; one built-artifact check waits for
 the next full build. Four newest UI captions and PSF setting translations
 remain owed. API06 and14/16/20/21 media checks are complete;28media rendering.
+2026-09-23 IMPLEMENTATION: issue131 signing preparation
+Claiming packaging/online/build_macos_online.sh, new native launcher/signing
+helpers, focused packaging tests and .github/workflows/online-installers.yml.
+Release.yml already passes inherited secrets; no version or main change.
+Adding Developer ID signing/notary submission/stapling/verification with optional
+CI credentials. Missing credentials must remain visibly unsigned; partial or
+required-but-missing configuration must fail. Ticket/access still pending, so
+neither131nor487nor1.5.1.0 will be marked complete from local mock checks.
+2026-09-23 concurrent-file notice: release.yml gained an unrelated15-line change
+while the signing task was running. This lane has not edited that file and
+will leave it unstaged. Signing work is limited to online-installers.yml and
+the packaging helpers already claimed above.
+
+2026-09-23 URGENT implementation checkout coordination
+While implementation work is active here, another process reset this checkout
+from b2d61a0e6 to origin/nightly (f10b109a4), then to7979971b6, leaving109tracked
+files changed. Please do not reset /mnt/firecuda2/Claude/repo/spacr while this
+lane is working. Mask Live PSF3196a95ef is already pushed; signing changes and
+packaging tests are uncommitted. I am preserving the current files and pausing
+Git mutations until the concurrent operation is understood. Docs session should
+keep its own /mnt/firecuda2/codex/repo/spacr checkout.
+Maintainer update: U-M access MUST NOT block1.5.1.0. Keep131open as an external
+follow-up; proceed with release after the remaining practical checks pass.
+Implementation work now isolated at /mnt/firecuda2/Claude/repo/spacr-implementation-1510,
+branch implementation-release-1510, based on origin/nightly f10b109a4. The
+original checkout and other process's changes are untouched. This lane will
+push reviewed commits HEAD:nightly; please leave this worktree/branch alone.
+Docs/API owner: please send the reviewed English API/help/onboarding release
+snapshot and known remaining publication checks. Maintainer explicitly removed
+U-M access as a1.5.1.0blocker; prepare the practical release boundary now rather
+than waiting for the entire multilingual narration backlog.
+
+2026-09-23 IMPLEMENTATION → DOCS: macOS signing preparation / release exception
+121packaging/installer checks pass for optional Developer ID signing,
+notarization/stapling/Gatekeeper control flow, temporary credential cleanup and
+native universal launcher. New packaging/online/macos_signing.py helper and
+macos_launcher.c; packaging/README.md documents secrets, local profiles and
+Apple-compatible bundle versions. No actual Apple service or signing acceptance
+is claimed; absent credentials still produces explicitly unsigned packages.
+User now explicitly says pending U-M access must NOT block1.5.1.0.131remains
+open;491/487record this release exception. Please retain current unsigned
+installer guidance until a signed/notarized artifact is actually verified.
+Native installer workflow is the next check; no version bump yet.

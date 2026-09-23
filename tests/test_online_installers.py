@@ -510,15 +510,20 @@ def test_unix_installer_uses_external_localized_messages():
 
 def test_macos_builder_creates_application_and_pkg_with_uninstall_helper():
     source = _text(ONLINE / "build_macos_online.sh")
+    signing = _text(ONLINE / "macos_signing.py")
+    launcher = _text(ONLINE / "macos_launcher.c")
     assert "/Applications/spaCR.app" in source
     assert "pkgbuild" in source
-    assert "codesign" in source
+    assert '"$SIGNING_HELPER" sign-app "$APP"' in source
+    assert "codesign" in signing
     assert "iconutil -c icns" in source
     assert "CFBundleIconFile" in source
     assert "uninstall-spacr.sh" in source
-    assert "PRODUCTSIGN_IDENTITY" in source
+    assert "PRODUCTSIGN_IDENTITY" in signing
     assert "install-for-user.sh" in source
-    assert "osascript" in source
+    assert "osascript" in launcher
+    assert "execv(python, args)" in launcher
+    assert "-arch arm64 -arch x86_64" in source
     assert '$HOME/Library/Application Support/spaCR' in source
     assert "--no-command-launcher" in source
     postinstall = source[source.index('cat > "$SCRIPTS/postinstall"'):]
@@ -628,7 +633,8 @@ def test_release_workflow_builds_all_platforms_with_node24_actions():
         assert f"Install and import the checked-out {platform} application" in (
             workflow
         )
-    assert workflow.count("timeout-minutes: 30") == 3
+    assert workflow.count("timeout-minutes: 30") == 2
+    assert workflow.count("timeout-minutes: 50") == 1
     assert workflow.count("assert torch.version.cuda is None") == 2
     assert "assert torch.backends.mps.is_available()" in workflow
     assert workflow.count("smoke_installed.py") == 3
