@@ -11825,3 +11825,34 @@ source/terminal positioning and artifact-informed placement reduce crossings.
 nonoverlap, every documented edge's direction and French API URLs. No map or
 catalog edits. Please include this final behavior in483API/tutorial/translation
 work, refreshing workflow_diagram source bindings. Claims release on push.
+
+2026-09-22 — IMPLEMENTATION: 476 ENGINE AND IDENTITY SAVE MILESTONE
+Engine milestone complete; full476remains IN PROGRESS, not implemented.
+New public APIs in spacr.qt.mask_engine: PrimarySecondaryReport,
+SecondaryResult, primary_secondary_report(primary,secondary),
+secondary_object_instances(image,primary,*,sigma=2,stop='threshold',
+stop_value=.4,stop_algorithm='otsu',min_area=0,fill_holes=True).
+Growth retains exact primary IDs (including sparse uint64) via compact
+internal markers. Reports shared/missing/orphan/incomplete/unexpanded IDs.
+Negative-intensity watershed, explicitly NOT CellProfiler Propagation.
+473/476notes corrected accordingly against the official CellProfiler manual.
+
+API signatures canonical_labels/save_mask/save_seg_bundle add keyword-only
+preserve_ids=False. True retains lone/disconnected IDs exactly and rejects
+invalid labels or IDs above65535 without overwriting saved masks. Default
+behavior remains unchanged. Please document this semantic distinction: the
+engine can retain uint64 IDs, but the editor's TIFF/bundle save format is
+uint16. No new UI settings exposed yet; their selection/provenance will follow.
+
+127focused engine/persistence/CPU-settings tests pass;240seeded randomized
+old/new maxima comparisons match labels/count/level bit-for-bit. Exact-ID
+TIFF and Cellpose-bundle round trips and refusal-to-overwrite checks pass.
+Remaining476: source/class selection, both detection scopes, accepted ROI
+IDs, queue/save/ledger and edit/filter/lookup identity, paired-data evaluation.
+
+CI35807838039still has Fast and Minimum-dependencies jobs live; no restart.
+The two-hour GPU observer ended with no qualifying idle interval and its
+transient unit disappeared. A fresh observer is confirmed active:
+spacr-implementation-gpu-idle-20260922-third.service,PID3624148. Idle streak
+starts from zero; no GPU analysis launched. Latest structured483checks8/8pass
+on final pushed source7ee792a24, in addition to the35routing/menu batch.

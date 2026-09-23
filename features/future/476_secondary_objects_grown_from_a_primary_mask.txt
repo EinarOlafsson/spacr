@@ -2,7 +2,9 @@
 SECONDARY OBJECTS GROWN FROM A PRIMARY MASK (CELLS FROM NUCLEI)
 ================================================================================
 
-Status:    OPEN, filed 2026-09-22. Not started. NOT BLOCKING.
+Status:    IN PROGRESS, filed 2026-09-22. Engine and exact-ID save mode
+           validated; GUI, queue/ledger integration and paired-data evaluation
+           remain open. NOT BLOCKING.
 Owner:     spacr/qt/mask_engine.py (the propagation), spacr/qt/cpu_modes.py
            and the Make Masks Detection method category.
 Requested: 2026-09-22, by the maintainer, in these words:
@@ -78,11 +80,34 @@ So the work is:
 WHAT TO BE CAREFUL WITH
 --------------------------------------------------------------------------------
 
-* CellProfiler's Propagate walks a cost that mixes intensity difference
-  with distance, weighted by a lambda. spaCR's propagation is the
-  lambda-zero end of that -- pure intensity -- because
-  ``skimage.segmentation.watershed`` has no such parameter. If the
-  secondary case needs the distance term (it is the case where it matters
-  most: a cell boundary is often where the intensity says nothing), that
-  cost has to be implemented, and it would be spaCR's own segmentation
-  code rather than a call into scikit-image. Decide that deliberately.
+* CellProfiler's Propagation uses a shortest-path cost mixing local image
+  differences and distance. spaCR's negative-intensity watershed is a
+  different algorithm, not an equivalent lambda-zero implementation.
+  The CellProfiler manual lists Watershed - Image separately from Propagation:
+  https://cellprofiler-manual.s3.amazonaws.com/CPmanual/IdentifySecondaryObjects.html
+  The baseline here is deliberately intensity watershed. Whether a separate
+  distance/intensity growth mode is needed remains a paired-data evaluation
+  question, not a claim of CellProfiler equivalence.
+
+ENGINE MILESTONE, 2026-09-22
+--------------------------------------------------------------------------------
+secondary_object_instances takes a primary mask and retains its exact IDs,
+including sparse uint64 IDs, by using compact internal markers. It includes
+the primary footprint before size filtering and reports missing, orphaned,
+incompletely enclosed and unexpanded IDs through primary_secondary_report.
+All four stop rules share the existing maxima detector's growth helper.
+240 seeded-random old/new comparisons preserve labels, seed counts and
+threshold levels exactly for the existing maxima detector.
+
+canonical_labels, save_mask and save_seg_bundle now offer explicit keyword
+preserve_ids=True. A lone cell900 or separated pieces of cell900 are saved
+as900, not interpreted as binary or split into new IDs. TIFF and Cellpose
+bundle save/reload checks verify this. Invalid/oversized IDs are refused
+without overwriting the previous mask; the GUI storage format remains uint16.
+Default editing/save behavior remains unchanged.
+
+127 focused engine, persistence and CPU-settings tests pass. No GUI selector
+is claimed yet. Remaining work: primary source/class selection per field,
+ROI requests and accepted-label identity, save/queue/ledger provenance,
+editing/filter/lookup operations that otherwise reassign IDs, and measurement
+on paired nucleus/cell reference data with its annotation quality stated.

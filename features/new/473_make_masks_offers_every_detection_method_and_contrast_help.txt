@@ -408,20 +408,23 @@ operation. Sauvola and Niblack ARE added, because their level is a
 window's mean minus a multiple of its standard deviation, which neither
 of those computes.
 
-MAXIMA + PROPAGATE is CellProfiler's Propagate, and is the maintainer's
+MAXIMA + PROPAGATE implements the maintainer's
 four numbered steps with a setting each: blur (its own sigma, separate
 from the chain's denoise and the tooltip says why), find the local maxima
 (minimum spacing, a seed level that is a percentile by default or an
 absolute intensity, optionally excluding the border), grow by a seeded
 watershed on the blurred intensity, and stop by one of four rules -- a
-fraction of THIS seed's own peak (the default, and what "a quantile
-threshold from that maximum" means), an absolute intensity, a percentile
+fraction of THIS seed's own peak (the default; an intensity ratio, not a
+quantile), an absolute intensity, a percentile
 of the image, or one of the global thresholds' levels. It says how many
 centres it found, on the status line, because that is the number the
 settings are tuned against. CellProfiler's LAMBDA is not offered:
 ``skimage.segmentation.watershed`` has no distance/intensity mixing
 parameter and writing that cost would be a second segmentation engine to
-keep; what is here is its lambda-zero end, pure intensity.
+keep. This is intensity watershed, not CellProfiler's Propagation or its
+lambda-zero case. The correction is supported by the distinct methods in
+the IdentifySecondaryObjects manual:
+https://cellprofiler-manual.s3.amazonaws.com/CPmanual/IdentifySecondaryObjects.html
 
 MEASURED: F1 AT IoU 0.5, ALL TEN FIELDS
 --------------------------------------------------------------------------------

@@ -427,7 +427,7 @@ def _write_bundle(path: str, payload: Dict) -> None:
     os.replace(temporary, path)
 
 
-def save_seg_bundle(path: str, mask: np.ndarray) -> str:
+def save_seg_bundle(path: str, mask: np.ndarray, *, preserve_ids: bool = False) -> str:
     """Write edited labels back into the bundle they came from.
 
     Every key the bundle already had is kept -- ``img``, ``flows``,
@@ -442,11 +442,13 @@ def save_seg_bundle(path: str, mask: np.ndarray) -> str:
 
     :param path: the ``_seg.npy`` bundle.
     :param mask: the edited labels.
+    :param preserve_ids: keep every supplied label exactly, including a lone
+        ID or disconnected pieces with the same ID. Labels must fit uint16.
     :returns: ``path``.
     :raises ValueError: when ``path`` is not a bundle.
     """
     payload = read_seg_bundle(path)
-    labels = canonical_labels(mask)
+    labels = canonical_labels(mask, preserve_ids=preserve_ids)
     payload["masks"] = labels
     outlines = payload.get("outlines")
     if outlines is not None and np.shape(outlines) == labels.shape:
@@ -603,7 +605,7 @@ def record_curation(folder: str, image_path: str, mask_path: str,
     return destination
 
 
-def canonical_labels(mask: np.ndarray) -> np.ndarray:
+def canonical_labels(mask: np.ndarray, *, preserve_ids: bool = False) -> np.ndarray:
     """Return ``mask`` as uint16 labels, keeping every id it already had.
 
     The old behaviour here was ``label(mask > 0)``, which renumbers the
@@ -630,11 +632,21 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
     enough to run while the mouse moves: on a 2048 x 2048 field of 400
     objects it went from about 3.5 s to tens of milliseconds.
 
-    :param mask: a label image; any integer or boolean dtype.
+    :param mask: a label image; any integer or boolean dtype in default mode.
+    :param preserve_ids: disable binary interpretation and component splitting.
+        Use for primary/secondary relationships: a lone cell 900 remains 900,
+        and separated pieces with the same primary ID remain one label.
+        Requires a nonempty 2-D nonnegative integer array, not a boolean mask.
     :returns: the labels as ``uint16``.
-    :raises ValueError: when an id does not fit in ``uint16``.
+    :raises ValueError: when an id does not fit in ``uint16``, or exact-ID
+        mode receives invalid labels. Oversized IDs are never truncated.
     """
     m = np.asarray(mask)
+    if preserve_ids:
+        m = _primary_label_image(m, "Mask")
+        if int(m.max()) > np.iinfo(np.uint16).max:
+            raise ValueError("Exact mask IDs must fit in uint16; labels were not renumbered.")
+        return m.astype(np.uint16, copy=True)
     boxes = None
     top = int(m.max()) if m.size and np.issubdtype(m.dtype, np.integer) \
         else None
@@ -680,7 +692,7 @@ def canonical_labels(mask: np.ndarray) -> np.ndarray:
 
 def save_mask(folder: str, filename: str, mask: np.ndarray,
               log: Optional[CurationLog] = None,
-              masks_dir: Optional[str] = None) -> str:
+              masks_dir: Optional[str] = None, *, preserve_ids: bool = False) -> str:
     """Write the mask to ``<folder>/masks/<stem>.tif`` and return that path.
 
     Object ids are preserved -- see :func:`canonical_labels` for what that
@@ -706,14 +718,18 @@ def save_mask(folder: str, filename: str, mask: np.ndarray,
         painted nothing has not curated anything, and a ledger that exists
         for every mask ever opened answers no question.
     :param masks_dir: where the masks are, when not in ``<folder>/masks``.
+    :param preserve_ids: retain exact primary/secondary IDs without interpreting
+        single-valued masks as binary or splitting disconnected pieces. The
+        explicit mode validates nonnegative 2-D integer labels and refuses
+        IDs above 65535 before writing; it never silently renumbers them.
     :returns: the path written.
     """
     save_path = mask_save_path(folder, filename, masks_dir)
     if is_seg_bundle(filename):
-        save_seg_bundle(save_path, mask)
+        save_seg_bundle(save_path, mask, preserve_ids=preserve_ids)
     else:
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        write_tiff(save_path, canonical_labels(mask))
+        write_tiff(save_path, canonical_labels(mask, preserve_ids=preserve_ids))
     if log is not None and len(log):
         if not log.artifact:
             log.artifact = save_path
@@ -2373,6 +2389,172 @@ class PropagateResult(NamedTuple):
     level: Optional[float]
 
 
+class PrimarySecondaryReport(NamedTuple):
+    """Label relationships between a primary mask and a secondary mask.
+
+    All fields contain sorted tuples of Python integer IDs; 0 is excluded.
+    ``matched_ids`` occur in both masks. ``missing_secondary_ids`` occur
+    only in the primary mask, and ``orphan_secondary_ids`` only in the
+    secondary mask. ``incomplete_primary_ids`` are matched IDs whose
+    secondary does not contain every pixel of its primary. Matched IDs
+    without any secondary pixels outside their own primary are listed in
+    ``unexpanded_primary_ids``; these can indicate a threshold that stopped
+    growth immediately. A match alone does not prove correct cell boundaries.
+    """
+
+    primary_ids: Tuple[int, ...]
+    secondary_ids: Tuple[int, ...]
+    matched_ids: Tuple[int, ...]
+    missing_secondary_ids: Tuple[int, ...]
+    orphan_secondary_ids: Tuple[int, ...]
+    incomplete_primary_ids: Tuple[int, ...]
+    unexpanded_primary_ids: Tuple[int, ...]
+
+
+class SecondaryResult(NamedTuple):
+    """Secondary labels, their primary relationships and the common stop level.
+
+    ``labels`` has the primary mask's dtype, shape and retained object IDs.
+    ``relationships`` includes primaries removed by minimum-area filtering.
+    ``level`` is None for the per-primary peak-ratio rule or an empty primary
+    mask; otherwise it is the common threshold in processed intensity units.
+    """
+
+    labels: np.ndarray
+    relationships: PrimarySecondaryReport
+    level: Optional[float]
+
+
+def _primary_label_image(labels: np.ndarray, name: str) -> np.ndarray:
+    """Validate a nonempty 2-D, nonnegative integer label image without casting."""
+    values = np.asarray(labels)
+    if values.ndim != 2 or not values.size:
+        raise ValueError(f"{name} must be a nonempty 2-D label image.")
+    if values.dtype.kind not in "iu" or np.any(values < 0):
+        raise ValueError(f"{name} must contain nonnegative integer labels.")
+    return values
+
+
+def primary_secondary_report(primary: np.ndarray,
+                             secondary: np.ndarray) -> PrimarySecondaryReport:
+    """Report shared, missing, orphaned and incompletely enclosed object IDs.
+
+    :param primary: nonempty 2-D nonnegative integer primary labels.
+    :param secondary: secondary labels of the same shape. Sparse and uint64
+        IDs are compared exactly, including values above signed int64.
+    :returns: :class:`PrimarySecondaryReport`; no array is modified. An ID
+        match means the IDs agree, not that spatial overlap was used to
+        infer or repair a parent assignment.
+    :raises ValueError: mismatched shapes or invalid label arrays.
+    """
+    first = _primary_label_image(primary, "Primary mask")
+    second = _primary_label_image(secondary, "Secondary mask")
+    if first.shape != second.shape:
+        raise ValueError("Primary and secondary masks must have the same shape.")
+    primary_ids = {int(value) for value in np.unique(first) if value}
+    secondary_ids = {int(value) for value in np.unique(second) if value}
+    matched = primary_ids & secondary_ids
+    at_primary = first > 0
+    primary_values = first[at_primary].astype(np.uint64)
+    secondary_values = second[at_primary].astype(np.uint64)
+    incomplete = {int(value) for value in np.unique(
+        primary_values[primary_values != secondary_values])} & matched
+    at_secondary = second > 0
+    secondary_values = second[at_secondary].astype(np.uint64)
+    primary_values = first[at_secondary].astype(np.uint64)
+    expanded = {int(value) for value in np.unique(
+        secondary_values[primary_values != secondary_values])}
+    return PrimarySecondaryReport(
+        tuple(sorted(primary_ids)), tuple(sorted(secondary_ids)),
+        tuple(sorted(matched)), tuple(sorted(primary_ids - secondary_ids)),
+        tuple(sorted(secondary_ids - primary_ids)), tuple(sorted(incomplete)),
+        tuple(sorted(matched - expanded)))
+
+
+def secondary_object_instances(
+        image: np.ndarray, primary: np.ndarray, *, sigma: float = 2.0,
+        stop: str = "threshold", stop_value: float = 0.4,
+        stop_algorithm: str = "otsu", min_area: int = 0,
+        fill_holes: bool = True) -> SecondaryResult:
+    """Grow secondary objects from labelled primaries using intensity watershed.
+
+    Every positive primary label is a marker, including all its pixels.
+    Growth follows the negative, optionally Gaussian-smoothed intensity.
+    This is an intensity watershed, not CellProfiler's shortest-path
+    Propagation algorithm or a distance/intensity regularization model.
+
+    The four rules in :data:`PROPAGATE_STOPS` use processed intensities.
+    ``absolute``, ``percentile`` and ``threshold`` restrict growth with a
+    common foreground mask. ``seed_fraction`` trims each watershed basin
+    at a fraction of the brightest processed pixel inside its primary.
+    That ratio is not a quantile and depends on background offset. With a
+    dark nucleus in a cytoplasmic channel, use a common threshold instead
+    of a nucleus-relative peak ratio.
+
+    Primary pixels are always included before minimum-area filtering, even
+    below the threshold. Hole filling can also restore below-threshold
+    pixels. Filtering can remove a whole secondary together with its seed;
+    the missing ID is reported. Remaining labels retain their primary IDs
+    exactly, without splitting or renumbering disconnected components.
+    Sparse IDs use compact internal markers, never arrays sized by max ID.
+
+    :param image: finite nonempty 2-D intensities, converted to float32.
+        The caller supplies normalization, background correction or inversion.
+    :param primary: same-shape nonnegative integer primary labels; 0 means
+        background. The returned labels retain this dtype and these IDs.
+    :param sigma: finite nonnegative Gaussian sigma in pixels; 0 disables
+        smoothing. Smoothing affects growth and threshold estimation.
+    :param stop: one of :data:`PROPAGATE_STOPS`, default ``"threshold"``.
+    :param stop_value: intensity for ``absolute``, percentile in [0,100] for
+        ``percentile``, or a fraction in [0,1] for ``seed_fraction``. Ignored
+        by ``threshold``. Fractions require nonnegative processed intensities.
+    :param stop_algorithm: global threshold algorithm, default ``"otsu"``;
+        read only for ``threshold``. The full supplied image determines it.
+    :param min_area: minimum secondary area after hole filling; 0 disables
+        filtering. The whole primary footprint counts toward the area.
+    :param fill_holes: fill enclosed background pixels per label before
+        filtering. Does not overwrite another primary's labelled pixels.
+    :returns: :class:`SecondaryResult`, including ID relationship diagnostics.
+        Empty primary masks yield an empty result and no common stop level.
+    :raises ValueError: invalid images, labels, shape, sigma, stop rule,
+        rule-specific stop value or negative minimum area.
+    """
+    markers = _primary_label_image(primary, "Primary mask")
+    values = np.asarray(image, dtype=np.float32)
+    if values.shape != markers.shape or not np.isfinite(values).all():
+        raise ValueError("Image must be finite and match the primary mask's shape.")
+    sigma = float(sigma)
+    if not np.isfinite(sigma) or sigma < 0:
+        raise ValueError("Gaussian sigma must be finite and nonnegative.")
+    if str(stop) not in PROPAGATE_STOPS:
+        raise ValueError(f"Unknown propagation stop rule: {stop!r}.")
+    minimum = float(min_area)
+    if not np.isfinite(minimum) or minimum < 0:
+        raise ValueError("Minimum area must be finite and nonnegative.")
+    if stop != "threshold":
+        value = float(stop_value)
+        if not np.isfinite(value):
+            raise ValueError("Stop value must be finite.")
+        if stop == "percentile" and not 0 <= value <= 100:
+            raise ValueError("Stop percentile must be between 0 and 100.")
+        if stop == "seed_fraction" and (not 0 <= value <= 1 or values.min() < 0):
+            raise ValueError("Seed fraction needs a value in [0,1] and nonnegative intensities.")
+    ids = np.unique(markers)
+    ids = ids[ids > 0]
+    dense = np.zeros(markers.shape, dtype=np.int32)
+    foreground = markers > 0
+    dense[foreground] = np.searchsorted(ids, markers[foreground]) + 1
+    blurred = _ndimage().gaussian_filter(values, sigma) if sigma > 0 else values
+    grown = _grow_markers(
+        blurred, dense, stop=stop, stop_value=stop_value,
+        stop_algorithm=stop_algorithm, min_area=int(minimum),
+        fill_holes=fill_holes, keep_markers=True, relabel=False)
+    lookup = np.concatenate((np.zeros(1, dtype=markers.dtype), ids))
+    labels = lookup[grown.labels]
+    return SecondaryResult(labels, primary_secondary_report(markers, labels),
+                           grown.level)
+
+
 def maxima_propagate_instances(
         image: np.ndarray, *, sigma: float = 2.0, min_distance: int = 10,
         seed_level: float = 90.0, seed_level_is_percentile: bool = True,
@@ -2470,7 +2652,6 @@ def maxima_propagate_instances(
     before filling holes and removing labels smaller than 20 pixels.
     """
     from skimage.feature import peak_local_max
-    from skimage.segmentation import watershed
 
     if str(stop) not in PROPAGATE_STOPS:
         raise ValueError(
@@ -2494,11 +2675,27 @@ def maxima_propagate_instances(
     markers = np.zeros(values.shape, dtype=np.int32)
     markers[tuple(coordinates.T)] = np.arange(1, len(coordinates) + 1)
 
+    return _grow_markers(
+        blurred, markers, stop=stop, stop_value=stop_value,
+        stop_algorithm=stop_algorithm, min_area=min_area, fill_holes=fill_holes)
+
+
+def _grow_markers(blurred, markers, *, stop, stop_value, stop_algorithm,
+                  min_area, fill_holes, keep_markers=False,
+                  relabel=True) -> PropagateResult:
+    """Grow compact markers with shared stop, fill and size-filter semantics."""
+    from skimage.segmentation import watershed
+
+    seeds = int(markers.max())
+    empty = np.zeros(markers.shape, dtype=np.int32)
+    if not seeds:
+        return PropagateResult(empty, 0, None)
+
     level: Optional[float] = None
     if stop == "seed_fraction":
         grown = watershed(-blurred, markers)
-        peaks = np.zeros(len(coordinates) + 1, dtype=np.float32)
-        peaks[1:] = blurred[tuple(coordinates.T)]
+        peaks = np.zeros(seeds + 1, dtype=np.float32)
+        peaks[1:] = _ndimage().maximum(blurred, markers, np.arange(1, seeds + 1))
         keep = blurred >= peaks[grown] * float(stop_value)
         labels = np.where(keep, grown, 0).astype(np.int32)
     else:
@@ -2509,15 +2706,19 @@ def maxima_propagate_instances(
         else:
             level = _global_level(blurred, stop_algorithm)
         mask = blurred >= level
+        if keep_markers:
+            mask |= markers > 0
         if not mask.any():
-            return PropagateResult(empty, int(len(coordinates)), level)
+            return PropagateResult(empty, seeds, level)
         labels = np.asarray(watershed(-blurred, markers, mask=mask),
                             dtype=np.int32)
 
+    if keep_markers:
+        labels[markers > 0] = markers[markers > 0]
     if fill_holes:
         labels = _fill_label_holes(labels)
-    return PropagateResult(_drop_small_labels(labels, min_area),
-                           int(len(coordinates)), level)
+    return PropagateResult(_drop_small_labels(labels, min_area, relabel=relabel),
+                           seeds, level)
 
 
 def _fill_label_holes(labels: np.ndarray) -> np.ndarray:
@@ -2539,10 +2740,14 @@ def _fill_label_holes(labels: np.ndarray) -> np.ndarray:
     return out
 
 
-def _drop_small_labels(labels: np.ndarray, min_area: int) -> np.ndarray:
+def _drop_small_labels(labels: np.ndarray, min_area: int, *,
+                       relabel: bool = True) -> np.ndarray:
     """Remove objects under ``min_area`` and renumber the rest from 1.
 
-    Renumbering by remapping and NOT by re-labelling the foreground: two
+    Set ``relabel=False`` to retain marker IDs after dropping small labels.
+    Inputs use compact integer labels; sparse external IDs must be mapped
+    before calling this helper. Renumbering by remapping and NOT by
+    re-labelling the foreground: two
     objects that touch are two objects, and connected-components would make
     them one again.
     """
@@ -2552,6 +2757,8 @@ def _drop_small_labels(labels: np.ndarray, min_area: int) -> np.ndarray:
         small = counts < int(min_area)
         small[0] = True
         out = np.where(small[out], 0, out)
+    if not relabel:
+        return out
     present = np.unique(out)
     present = present[present > 0]
     remap = np.zeros(int(out.max()) + 1, dtype=np.int32)
