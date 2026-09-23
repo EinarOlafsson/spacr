@@ -94,16 +94,17 @@ Every tile links to the API page used by that application's in-product help.
 Installation
 ------------
 
-The GUI lives behind the ``qt`` extra, so the desktop install must ask for
-it — plain ``pip install spacr`` gives you the pipelines but no PySide6, and
-``spacr`` will tell you so rather than launch.
+Install spaCR and launch the desktop application. The ``qt`` extra remains
+supported for desktop installations; current packages also include PySide6
+among their base dependencies.
 
 .. code-block:: bash
 
    python -m pip install "spacr[qt]"
    spacr                    # launch the Qt GUI
 
-Headless (cluster, server, CI) — no Qt, no display:
+For a terminal workflow on a cluster or server, use ``spacr-run`` without
+opening the desktop application:
 
 .. code-block:: bash
 
@@ -114,9 +115,11 @@ Headless (cluster, server, CI) — no Qt, no display:
 Learn spaCR
 -----------
 
-The `interactive tutorial library <tutorials/>`_ contains |lesson-count| narrated,
-step-by-step lessons covering every module, with 50 voices across eight
-languages. It is also reachable from the GUI:
+Start with installation, continue to Home and the pipeline overviews, then
+follow the module walkthrough for your task in the
+`interactive tutorial library <tutorials/>`_. Each lesson lists its available
+narration voices and captions. New English lessons can appear while their
+translations are being prepared. Open the library from the GUI through
 **Help → Tutorial (web)**.
 
 
@@ -132,6 +135,7 @@ Contents
    installers
    features
    make_masks
+   cellpose_training
    recruitment
    image_quality
    host_pathogen
