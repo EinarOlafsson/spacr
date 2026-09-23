@@ -13451,3 +13451,12 @@ push cancellations; known catalog inventory failure remains your lane and
 must not be mistaken for a green full-suite claim.
 Final compatibility cohort:367pass on local Qt6.10.0,65.73s, one existing
 pynvml warning. The same367 distinct checks pass under stressed Qt6.11.2.
+
+288 ownership fix pushed as e4620812b. Full manual tests run35847313443 is
+confirmed queued at that exact source revision (2026-09-23 10:11 UTC):
+https://github.com/EinarOlafsson/spacr/actions/runs/35847313443
+This workflow_dispatch run survives subsequent pushes. Please preserve it;
+it is the next authoritative whole-suite result, with known catalog issues
+still expected until your follow-up lands. No duplicate dispatch is needed.
+The third GPU idle observer is live (PID4120296, two-hour bounded window),
+with no qualifying20-minute idle interval and no GPU job launched.
