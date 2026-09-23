@@ -33559,6 +33559,46 @@
       "source_sha256": "0d63f8d86b858f09d598dc6341295badef137301c77805bf4803da096228f53d",
       "text": "Segment one plaque image the way both Plaque mode's preview and run do.\n\nThe image goes to Cellpose as it is, RGB or grey, and Cellpose normalises\nit. It is NOT sent through the run's historical loader\n(``_load_normalized_images_and_labels`` with ``background=200``): on an\n8-bit crop that loader saturated every pixel to 1.0 -- measured on\n``malnio__2.tif``, min = max = 1.0 in every channel -- so the run found\nno plaques while the preview, reading the image as it is, found 67. One\nfunction for both is what keeps them from disagreeing again.\n\n:param model: a Cellpose model.\n:param image: ``H x W`` or ``H x W x 3``.\n:param settings: ``diameter``, ``flow_threshold`` and ``CP_prob``.\n:param return_flows: also hand back what the live preview's Flows and\n    Cell probability tabs show, from the same call.\n:returns: the label image; with ``return_flows``, ``(labels, flows)``\n    where ``flows`` is :func:`plaque_flow_outputs`."
     },
+    "spacr.plaque_growth": {
+      "source_blocks_sha256": [
+        "04721d324e41d5f042490dc25892e3b168d5d610c311a5bead38d6ef59cfe36d",
+        "a7a18d6d4170e73768cc23a3bb51adb80d3cef3fe60e21159e6185bfaa80ff2e",
+        "8065d949ae8c812f5a92c59757a09a06bd8d1477c25259cca1f2418399a42178"
+      ],
+      "source_sha256": "9cedff6edc4a4c9c0d44fc006f97e85792831cedf0888b9c76e60b164b656dbd",
+      "text": "Experimental plaque growth approximations with explicit provenance.\n\nThe anchor is the median, across three independent RH/HFF vehicle-control\nexperiments, of the median equivalent diameter of the largest quarter of\nplaques. Kelsen et al. (2023), PLOS Biology 21(5): e3002110, S20 Data, CC BY.\nhttps://doi.org/10.1371/journal.pbio.3002110\n\n528 measured plaques support a seven-day size anchor, not a temporal growth\ncurve. Linear diameter growth through zero is an assumption. Leave-one-\nexperiment-out endpoint time error averages 39.73 hours (range 29.69–54.34).\nThe reproducible extraction and assessment live in tools/build_plaque_growth_reference.py."
+    },
+    "spacr.plaque_growth.estimate_page": {
+      "source_blocks_sha256": [
+        "d06db38d8cc9c72ad953fbddefc9d1616b72a2e6b7387a428d125e6f9181b6c1",
+        "45d5a3e612cea87d1040994ac6a410ef62d1b9ea3f479412453f23e627f018e2",
+        "21a76fc929b5c95548bf51fb23784c2ca1f2c74be7a8d98aa1fe031172263ded",
+        "383f06411f07c985b1565a6c0fbb304b9a58963ff3edd57291906022fc6746c8",
+        "dcfeb6e2c32efb1d978f41916cce391a12e6c6d1b04ef0ebfc5052c8c008d3cb",
+        "8bc2e910c2f9254f352e0a9980b10fea3438497e070a0adf2db92773b49fb782"
+      ],
+      "source_sha256": "932d4b1245cd0f51111f553604d5c601b45d604c52bea6ad2b955d2afdb40366",
+      "text": "Suggest missing scale/time using an explicitly assumed growth relation.\n\n:param wells: mappings with unique ``well`` identifiers, ``areas_px`` and\n    optional measured ``pixels_per_um`` and ``formation_hours``. A scale\n    must be positive; time may be zero. Do not pass earlier estimates as\n    measured input. Different resolutions are converted before pooling.\n:param reference_diameter_um: largest-quarter reference diameter in µm.\n:param reference_hours: its positive elapsed time in hours.\n:returns: report with per-well ``estimated_*`` values, sources, counts,\n    observed page descriptor and assumptions. Measured inputs are never\n    overwritten. With neither scale nor time, reference duration is an\n    explicitly labelled assumption; pixel scale follows from that choice.\n\nThe whole-page descriptor assumes a common formation time. Conflicting\nknown times disable page pooling; each calibrated well is then evaluated\nseparately. Unknown-scale wells use their own pixel descriptor. Physical\nmeasurements are never computed from these suggestions automatically."
+    },
+    "spacr.plaque_growth.estimates_from_settings": {
+      "source_blocks_sha256": [
+        "9f499b1eab475128b832d020e0c203b7961e6ec203bc3bf368446419039206a2",
+        "41e0b7dd6937a5dbdf7c9ba9f9bf4e4e0e8df3fe682a15713a226517fc06caa7",
+        "1cfc49f9ef9d524a385589e1153334ec987ad5aac87e4c5f87f2f6e2211c20ed",
+        "4c59723e47ea4b5d5a3cf690f5125c32c54791ddaecc8da618ec2c29ec54cc6c"
+      ],
+      "source_sha256": "3964b930e9f33b58f363077ecebbf3ef7e0786305d7e023fc5ae69bd4470d291",
+      "text": "Return per-well suggestions and complete JSON provenance when enabled.\n\n:param wells: :func:`estimate_page` input mappings.\n:param settings: ``plaque_estimate_growth`` (default False), optional\n    ``plaque_growth_reference_um`` and ``plaque_growth_reference_hours``.\n:returns: mapping by well identifier. Empty when estimation is disabled."
+    },
+    "spacr.plaque_growth.largest_quarter": {
+      "source_blocks_sha256": [
+        "2400ae0c5a25da75770e394c915fddf157beb306386e8c7902de190e6ecfa2fe",
+        "3531c6699e6839fdafc3f7eed59bbb343e1f613e66a350952d8a0769d04de343",
+        "2be294bab2b2bc97b184ac29f58b19e86d6ae1da8b39890144069a3b48a7eacb"
+      ],
+      "source_sha256": "1fc1b95155cdeb580d3f4fd65794cf718f456842e8c500d8f4e4454421b6b574",
+      "text": "Median equivalent diameter of the largest ceil(N/4) positive areas.\n\n:param areas: finite positive plaque areas, all in the same squared unit.\n:returns: diameter, total count and selected count; diameter is None for\n    fewer than four plaques. Invalid/nonpositive areas raise ValueError."
+    },
     "spacr.plaque_papers": {
       "source_blocks_sha256": [
         "cae956d93d5c0fd843478c1d5102da1bc0af01d5a94e011196dbe50cb4cb8ca3",
@@ -33900,6 +33940,7 @@
         "f3956d80f95f0eb79ff24b79a64c508e25f35c62b79d3ba8f8e1620aaae3aa7b",
         "95398ad65892f83e81ebad3893fe68968986b819e60a858705c812b40d2ed442",
         "961ae50522bd05c8227fb902ae208b43613224e5ad74ca67f174b275813460d2",
+        "fc7b0f28682859bfe3616ceca9a983a57c27f8aaa26f0182bcba43bb300593f7",
         "406fe6668faa828388394ef97c042059a5693c4057bd15012eeef123c516503b",
         "662993d664205db434d608584dd29424b1104e26e57f67b37b9b52f85a4d3a02",
         "e780155eb7f1f44451c1dd5ef1ef39693288bbf185aa9830600738c09356e8f7",
@@ -33908,8 +33949,8 @@
         "7764fd6fdd17a2bcdb40bd226151f20a05d70fdf74234ae4cd39dda65e391c05",
         "09cf42d612d5b47499c032128788dc725afe8035690b7bcec29dad43b9b77437"
       ],
-      "source_sha256": "e3051dc9c2c8599dc98d80eb9dc5c8eee5788dafb0b5f01b7050596aa69538c1",
-      "text": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.\n\nNothing here stops to ask. Legends come from ``legends`` (default\n``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``,\nthe paper from ``<src>/paper.json``, and a person's edits and approvals\nfrom ``annotations`` (default ``<src>/figure_annotations.csv``), which the\nFigure preview writes. With ``confirm_each`` on, only approved images are\nmeasured and the rest are counted as waiting. A figure measured again\nreplaces its earlier rows; the same image under a second name is\nmeasured once and recorded as a duplicate -- the copy with a legend is\nthe one measured, since figures with legends are taken first.\n\n:param src: the folder of figure images.\n:param dst: output folder; default ``<src>/plaque_figures``.\n:param detector: zoo key or checkpoint for the plaque-image detector.\n:param segmenter: zoo key or checkpoint for the plaque segmenter.\n:param imgsz: detector inference sizes.\n:param confidence: minimum detector score.\n:param confirm_each: measure only images a person approved.\n:param plate_format: plate format for whole-well images.\n:param pixels_per_um: optional positive manual pixel scale; per-well\n    annotations override this value, then automatic rulers are considered.\n:param formation_hours: optional nonnegative elapsed time in hours;\n    per-well manual times take precedence. Stored as metadata, not inferred.\n:param legends: CSV of legends, see :func:`read_legends`.\n:param annotations: CSV of reviews, see :func:`read_annotation_overrides`.\n:param read_text: ``fn(path) -> [Word]``.\n:param detect: passed to :func:`find_plaque_regions`.\n:param segment: ``fn(crop) -> labels``.\n:param text_options: how the text is read (:class:`TextOptions`).\n:returns: the summary, with ``awaiting_approval`` added."
+      "source_sha256": "46cf721fd3d56f98783de0a6a4efdd0a8e99ef3be51eff8c4b33e0df7f633840",
+      "text": "Figure mode of Plaque Assay: find, read, annotate and measure a folder.\n\nNothing here stops to ask. Legends come from ``legends`` (default\n``<src>/legends.csv``), a PDF's text layer from ``<src>/text_layer.json``,\nthe paper from ``<src>/paper.json``, and a person's edits and approvals\nfrom ``annotations`` (default ``<src>/figure_annotations.csv``), which the\nFigure preview writes. With ``confirm_each`` on, only approved images are\nmeasured and the rest are counted as waiting. A figure measured again\nreplaces its earlier rows; the same image under a second name is\nmeasured once and recorded as a duplicate -- the copy with a legend is\nthe one measured, since figures with legends are taken first.\n\n:param src: the folder of figure images.\n:param dst: output folder; default ``<src>/plaque_figures``.\n:param detector: zoo key or checkpoint for the plaque-image detector.\n:param segmenter: zoo key or checkpoint for the plaque segmenter.\n:param imgsz: detector inference sizes.\n:param confidence: minimum detector score.\n:param confirm_each: measure only images a person approved.\n:param plate_format: plate format for whole-well images.\n:param pixels_per_um: optional positive manual pixel scale; per-well\n    annotations override this value, then automatic rulers are considered.\n:param formation_hours: optional nonnegative elapsed time in hours;\n    per-well manual times take precedence. Stored as metadata, not inferred.\n:param growth_settings: optional experimental growth settings consumed by\n    :func:`spacr.plaque_growth.estimates_from_settings`; disabled by default.\n:param legends: CSV of legends, see :func:`read_legends`.\n:param annotations: CSV of reviews, see :func:`read_annotation_overrides`.\n:param read_text: ``fn(path) -> [Word]``.\n:param detect: passed to :func:`find_plaque_regions`.\n:param segment: ``fn(crop) -> labels``.\n:param text_options: how the text is read (:class:`TextOptions`).\n:returns: the summary, with ``awaiting_approval`` added."
     },
     "spacr.plaque_papers.measure_plaques_from_papers": {
       "source_blocks_sha256": [
@@ -88831,10 +88872,10 @@
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.save_annotations": {
       "source_blocks_sha256": [
         "adac79a50f4d35290bfdbfa91c1d8bc3dc1e797192dd40bcf6dd0c57432a7151",
-        "130ca31bc70b238722b487b0b4a5c64b2b76bab80b48d0a0b0db2685b6468716"
+        "e7dd7869d618d37f7511f2b8a62b0cb813c9e2252b8fa6ea6e30a8fbda740d8e"
       ],
-      "source_sha256": "721921a3ac94e236b34bf14d44875c7da95f2ab4218e7db8bf3efbba352325d5",
-      "text": "Write the review to ``figure_annotations.csv``, keeping other figures'.\n\n:returns: the file written, or None when there is nothing to save."
+      "source_sha256": "4dc51f8f318fe091e400765dca53fcab8067a0821e4e21b8d525bb5f5ac44caf",
+      "text": "Write the review to ``figure_annotations.csv``, keeping other figures'.\n\n:returns: destination of the queued write, or None when not started.\n    Completion or failure is reported in the preview status."
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.select_well": {
       "source_blocks_sha256": [
@@ -89146,6 +89187,18 @@
       ],
       "source_sha256": "5514f6725713e5e65d140996c82ffa04ccd90101c01718997ce338edb76dccd2",
       "text": "One row per plaque, with the per-plaque values the run writes.\n\nThe columns of the run's ``per_plaque`` table\n(:func:`spacr.submodules.analyze_plaques`), with the ratio taken to the\nmedian plaque in this well. The ratio to the panel median needs every\nwell of the panel and is added by the caller.\n\n:param labels: a label image, 0 = background.\n:returns: dicts with ``plaque_id``, ``area_px``, ``area_vs_well_median``,\n    ``perimeter_px``, ``equivalent_diameter_px``, ``eccentricity``,\n    ``solidity``, ``centroid_y`` and ``centroid_x``."
+    },
+    "spacr.qt.widgets.plaque_preview.prepare_figure_review": {
+      "source_blocks_sha256": [
+        "2a2a404d3f61367aa759a1620cd96fce2b6359331b28d211ffc8859fca335d7d",
+        "7be65225cc8da23233c93d2cf619b58ad759c841741aea2a5e397f406025f03b",
+        "c26a93c8443e2b9fe9e9b1303415d6a6ebacb5acac08d0ffc69fc762c88c8abe",
+        "c90193e9fced2c4f54e038815e775e17f0d6348f0533ce0e2fa0a9fa4ace566c",
+        "33cd4a7e7a2fc33fad19aaf6f9f798e41acad2452bc9628c7473f2f5a2f214e5",
+        "16463d76e23d2335ac7a96ff850ad6dce891a9b92386c5aaa414896a29316179"
+      ],
+      "source_sha256": "39acd37d545585230021ef945415cb1e0a495938a4e89896b66e542b2edc99ab",
+      "text": "Read review sidecars and infer rulers on a worker, without Qt access.\n\n:param result: detected figure including image, regions, words and path.\n:param settings: snapshot of preview settings.\n:param caption: supplied legend; None reads legends.csv beside the image.\n:param previous: optional snapshot of current annotations, preserving\n    manual calibration, condition edits and approval during reannotation.\n:returns: result copy with review_caption, annotations and automatic_scales."
     },
     "spacr.qt.widgets.plaque_preview.region_at": {
       "source_blocks_sha256": [
@@ -91757,6 +91810,15 @@
       ],
       "source_sha256": "4cc475866913b6545dc0655aadd248533aad235141b2be330d6fb47cd4394835",
       "text": "The pathway highlighted now, or None."
+    },
+    "spacr.qt.widgets.sample_project.fallback_workflow_map": {
+      "source_blocks_sha256": [
+        "548e6f0cc6ed1bda4c2d0f2506703c3c82c96cd4551f3e9dcb8fa1c44953d00f",
+        "f0ba4c277e12b519f0278c6b993d2e08bf87bd9d0bb30d8b79e75aaede1eb4b1",
+        "42a1de560aaa1dac5dbaf8ba92155713b4adc4b9700d148998227f7a828a16c3"
+      ],
+      "source_sha256": "1104ab4e705a7bb035b0298b76d63b9d67509d1401e2eba3cb45bb274a824b55",
+      "text": "Describe fallback modules using their runtime input/output declarations.\n\n:param keys: modules needed by a fallback pathway.\n:returns: display map with port descriptions, locations and API references.\n    GUI-only editing modules use their documented source/mask/database\n    contracts. This performs no filesystem scan of user data."
     },
     "spacr.qt.widgets.sample_project.offer_a_sample_project": {
       "source_blocks_sha256": [

@@ -1,0 +1,22 @@
+{
+  "schema": 1,
+  "date": "2026-09-23",
+  "baseline_commit": "b4fb78791780cc272a8d3545eb4bfd1ef24df01d",
+  "previous_count": 11485,
+  "current_count": 11491,
+  "added": [
+    "spacr.plaque_growth",
+    "spacr.plaque_growth.estimate_page",
+    "spacr.plaque_growth.estimates_from_settings",
+    "spacr.plaque_growth.largest_quarter",
+    "spacr.qt.widgets.plaque_preview.prepare_figure_review",
+    "spacr.qt.widgets.sample_project.fallback_workflow_map"
+  ],
+  "removed": [],
+  "changed": [
+    "spacr.plaque_papers.measure_figure_folder",
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.save_annotations"
+  ],
+  "localized_api_rebuilt": false,
+  "translation_policy": "report-only; incompatible entries use English"
+}
