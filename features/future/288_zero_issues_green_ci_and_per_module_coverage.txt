@@ -4903,3 +4903,21 @@ resolved.
 Older local Qt6.10.0 compatibility check: all three files together pass367
 checks in65.73s, one existing pynvml warning. The same367 distinct checks
 also pass under stressed Qt6.11.2 across the two cohorts above.
+
+2026-09-23 — FOUR CI FAILURES RECONCILED WITH LATER UI REQUIREMENTS
+Manual run35847313443 at e4620812b finished red. Reproduced4fail/150pass on
+Qt6.11.2: two dimension-order cases, opaque-theme assertions and the MakeMasks
+Cellpose constructor stub. The dimension checks now preserve3D thenTime in
+the action row and verify Live beside the reachable Actions heading, per
+471's later request. Live is still an AiToggleLabel; its placement changed.
+The theme check allows exactly the requested80percent search-popup surface
+and asserts its selector, retaining the other opaque-surface guarantees.
+The constructor stub accepts use_bfloat16 and verifiesFalse onCPU.
+
+No runtime behavior changed. The updated cohort has188pass/1existingwarning
+in119.10s, including preview-card migration/refresh, Cellpose precision and
+pipeline/flowchart tests. Receipt288_current_ui_contracts_2026-09-23.json.
+Native tooltip-recorder/GUI-scale teardown crashes have not reproduced in
+an ordinary local76-test cohort (75pass,1known missing-lesson failure).
+That is not a fix claim; GC stress investigation continues. Remaining CI,
+coverage, catalog and performance acceptance stays open.

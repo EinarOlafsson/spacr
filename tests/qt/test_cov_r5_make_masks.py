@@ -335,9 +335,10 @@ class TestLoadingTheModelThroughSpacrsOwnResolver:
         built = {}
 
         class _Model:
-            def __init__(self, gpu=False, pretrained_model=None, device=None):
+            def __init__(self, gpu=False, pretrained_model=None, device=None,
+                         use_bfloat16=True):
                 built.update(gpu=gpu, pretrained_model=pretrained_model,
-                             device=device)
+                             device=device, use_bfloat16=use_bfloat16)
 
         monkeypatch.setattr(utils, "_resolve_cellpose_pretrained",
                             lambda name: f"resolved::{name}")
@@ -350,6 +351,8 @@ class TestLoadingTheModelThroughSpacrsOwnResolver:
         import torch
         assert built["gpu"] is torch.cuda.is_available()
         assert built["device"].type in ("cuda", "cpu")
+        if not built["gpu"]:
+            assert built["use_bfloat16"] is False
 
 
 # ---------------------------------------------------------------------------

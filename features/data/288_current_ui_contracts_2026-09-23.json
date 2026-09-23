@@ -1,0 +1,36 @@
+{
+  "feature": 288,
+  "date": "2026-09-23",
+  "scope": "Three old test contracts contradicted later implemented requirements; no runtime change.",
+  "contracts": [
+    "3D then Time remain in action-row order, with Live reachable beside the folded Actions heading per471; preview-card migration still tested.",
+    "Help search explicitly permits the requested surface_hi background at80percent and asserts the exact selector; opaque base surfaces still pinned.",
+    "MakeMasks constructor stub accepts use_bfloat16 and verifiesFalse onCPU; installed Cellpose contract tested separately."
+  ],
+  "before": {
+    "failed": 4,
+    "passed": 150,
+    "seconds": 88.72
+  },
+  "after": {
+    "passed": 188,
+    "warnings": 1,
+    "seconds": 119.1,
+    "qt_version": "6.11.2",
+    "scope": "Full three changed files plus Live lifecycle/refresh, inference precision and pipeline flowchart tests"
+  },
+  "source_sha256": {
+    "tests/qt/test_3d_and_time_say_which_dimension_the_plate_has.py": "f70e2914948326285e059bcb493204fb1090d08d5f5980121fdcaf9848235c24",
+    "tests/qt/test_photo_themes.py": "cd19fa479cf5bbeec9ec74a3f90b6a6b9d176e4813e5a0497547631c0ae9afcf",
+    "tests/qt/test_cov_r5_make_masks.py": "e8e4ba0695fd5324e81085608a5b1c49fd7141da37ed402e98f934ecbd427aac"
+  },
+  "logs_sha256": {
+    "manual-contracts-before.log": "df1844950d18fd78f8a4d10c412f6ac01eb8c546570f088ed0a9a242fad81daa",
+    "manual-contracts-after.log": "8952489f01d692801872063a825d501c062cdbd90416aa7f297c87f720335d62"
+  },
+  "limits": [
+    "No full green CI claim.",
+    "Native Qt teardown crashes, glyph-alpha portability and regression render budget remain under investigation.",
+    "Documentation/catalog failures belong to the other lane."
+  ]
+}

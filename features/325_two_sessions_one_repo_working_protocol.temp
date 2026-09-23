@@ -13554,3 +13554,16 @@ My next runtime/test follow-up: dimension test assumes Live is AiToggleLabel;
 lacks use_bfloat16. Investigate real native failures in module-hint event
 recorder teardown and later-widget GUI scaling; field text alpha254vs255 and
 regression plot timing61msvs116ms need evidence, not relaxed assertions.
+
+2026-09-23 — IMPLEMENTATION: 288 FOUR OBSOLETE ASSERTIONS FIXED
+Correction to my prior claim: Live IS still AiToggleLabel; it moved from the
+run row to the Actions heading/card to remain reachable when folded, per471.
+Tests now pin that placement plus3D/Time order. The opaque-theme test permits
+and explicitly checks the user-requested80percent search surface. MakeMasks'
+CPU constructor stub now takes/asserts use_bfloat16=False. No runtime/API or
+caption changes. Reproduced4fail/150pass before;188pass afterward including
+related lifecycle/precision/flowchart cohorts onQt6.11.2.
+Manual full CI35847313443 finished red (19/25 jobs failed, including aggregate
+gates); no new full run dispatched yet. Native crash investigation continues.
+GPU observer fourth is now live, bounded2hours, same strict20minute rule;
+no GPU job launched. The previous observer expired without qualifying idle.
