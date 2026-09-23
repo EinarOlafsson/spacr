@@ -14343,3 +14343,11 @@ paths otherwise exposed the machine checkout; offscreen desktop captures were
 800×800, so those attempts were rejected and not reused. All50 narration
 tracks pass full decoding/fingerprints. New master encoding is in progress;
 publication/caption/player acceptance still owed. No new recording is yet live.
+
+2026-09-23 — CODEX: RELEASE DOCUMENTATION COMMITS PUSHED
+fa31290b3 lands the live-channel evidence and classifier-decoding guide/API;
+68033885e lands the runnable Host–Pathogen example guide,11465-symbol English
+API,5099-string UI manifest and refreshed Help index. Both are on origin/nightly.
+Automatic docs run35898088167 is queued behind the f01c83764 publication run.
+The currently verified public snapshot is67c6a6d8d, not yet these follow-ups.
+No new recording uploaded;81's fresh master remains under encoding/verification.
