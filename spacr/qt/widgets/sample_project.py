@@ -11,6 +11,7 @@ if the bundled map is missing.
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 import logging
 from pathlib import Path
 from typing import Callable, Dict, List, Optional
@@ -24,7 +25,8 @@ from PySide6.QtWidgets import (
 
 from ..i18n import tr
 from ..theme import active_palette, font_px
-from .workflow_diagram import DiagramDialog, WorkflowView, details_box, workflow_map
+from .workflow_diagram import DiagramDialog, WorkflowView, diagram_splitter, workflow_map
+from .pipeline_details import PipelineDetails
 
 __all__ = ["MAP_FILE", "pathways", "SampleProjectDialog", "start_example"]
 
@@ -73,6 +75,8 @@ def pathways(map_file: Optional[Path] = None) -> List[Dict]:
             return [
                 {"id": key, "title": route["title"],
                  "summary": route["steps"][0]["action"],
+                 "description": route.get("description", route["steps"][0]["action"]),
+                 "inputs": route.get("inputs", []),
                  "modules": [step["module"] for step in route["steps"]],
                  "module_names": [modules[step["module"]]["name"]
                                   for step in route["steps"]],
@@ -89,6 +93,35 @@ def pathways(map_file: Optional[Path] = None) -> List[Dict]:
     except (OSError, ValueError, AttributeError, TypeError, KeyError):
         LOG.debug("no usable workflow map at %s", path, exc_info=True)
     return [dict(entry) for entry in FALLBACK]
+
+
+def pathway_graph(entry, data, steps):
+    """Add external inputs to a display copy without changing runnable steps.
+
+    :param entry: pathway metadata with optional external input records.
+    :param data: shared module/artifact map, left unchanged.
+    :param steps: runnable module dependencies, left unchanged.
+    :returns: display map, node keys and dependencies including input nodes.
+    """
+    display = dict(data, modules=dict(data["modules"]),
+                   connections=list(data.get("connections", [])))
+    steps = deepcopy(steps)
+    keys = list(entry["modules"])
+    for source in entry.get("inputs", []):
+        key = "input:" + source["id"]
+        keys.append(key)
+        display["modules"][key] = {"name": source["title"], "inputs": [],
+                                   "outputs": source["artifacts"],
+                                   "guidance": source["description"]}
+        steps.append({"module": key, "after": []})
+        for target in source["targets"]:
+            if target not in entry["modules"]:
+                continue
+            next(step for step in steps if step["module"] == target).setdefault("after", []).append(key)
+            display["connections"].append({"from": key, "to": target,
+                                           "artifacts": source["artifacts"],
+                                           "handoff": source["description"]})
+    return display, keys, steps
 
 
 def start_example(screen) -> str:
@@ -144,7 +177,7 @@ class SampleProjectDialog(DiagramDialog):
         super().__init__(parent)
         self.setObjectName("SampleProjectDialog")
         self.setWindowTitle(tr("Pipeline overviews"))
-        self.resize(1180, 820)
+        self.resize(1280, 1000)
         self._entries = list(entries if entries is not None else pathways())
         layout = QVBoxLayout(self)
         intro = QLabel(tr(
@@ -182,24 +215,28 @@ class SampleProjectDialog(DiagramDialog):
             if steps is None:
                 steps = [{"module": key, "after": entry["modules"][i-1:i] if i else []}
                          for i, key in enumerate(entry["modules"])]
-            diagram = WorkflowView(data, entry["modules"], steps, row)
+            data, keys, steps = pathway_graph(entry, data, steps)
+            diagram = WorkflowView(data, keys, steps, row, compact=True)
             diagram.activated.connect(lambda i=index: self.list.setCurrentRow(i))
-            diagram.explanation.connect(self._describe_graph_item)
+            diagram.selection_changed.connect(self._describe_graph_item)
             row_layout.addWidget(diagram, 1)
             self.diagrams.append(diagram)
             item.setSizeHint(QSize(900, 360))
             self.list.setItemWidget(item, row)
         self.list.setCurrentRow(0)
-        layout.addWidget(self.list, 1)
+        self.splitter = diagram_splitter(self)
+        self.splitter.addWidget(self.list)
+        layout.addWidget(self.splitter, 1)
         self.summary = QLabel("", self)
         self.summary.setWordWrap(True)
         self.summary.setFixedHeight(font_px("body") * 3)
-        layout.addWidget(self.summary)
+        self.summary.hide()
         self.steps = QLabel("", self)
         self.steps.setWordWrap(True)
         self.steps.hide()
-        self.details = details_box(self)
-        layout.addWidget(self.details)
+        self.details = PipelineDetails(self)
+        self.splitter.addWidget(self.details)
+        self.splitter.setSizes([380, 520])
         self.list.currentRowChanged.connect(self._say_the_steps)
         self._say_the_steps(0)
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel,
@@ -211,13 +248,15 @@ class SampleProjectDialog(DiagramDialog):
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)
 
-    def _describe_graph_item(self, text):
-        """Show a node or arrow explanation without changing row geometry."""
-        self.details.setHtml(text)
+    def _describe_graph_item(self, identifier):
+        """Outline the matching persistent card without changing row geometry."""
+        self.details.select_element(identifier)
 
     def _say_the_steps(self, row: int) -> None:
         """Name the modules the selected pathway goes through, in order."""
         entry = self.selected()
+        if entry and 0 <= row < len(self.diagrams):
+            self.details.set_pipeline(entry, self.diagrams[row])
         self.summary.setText(tr(entry.get("summary", "")) if entry else "")
         names = ([tr(name) for name in entry["module_names"]]
                  if entry and entry.get("module_names")

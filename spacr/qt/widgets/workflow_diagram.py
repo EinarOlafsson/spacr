@@ -17,7 +17,7 @@ from PySide6.QtGui import QColor, QFont, QFontMetrics, QPainter, QPainterPath, Q
 from PySide6.QtWidgets import (
     QCheckBox, QComboBox, QDialog, QDialogButtonBox, QFrame, QGraphicsItem,
     QGraphicsPathItem, QGraphicsScene, QGraphicsView, QHBoxLayout,
-    QLabel, QPushButton, QTextBrowser, QVBoxLayout,
+    QLabel, QPushButton, QTextBrowser, QVBoxLayout, QSplitter,
 )
 
 from ..i18n import tr
@@ -104,7 +104,7 @@ def node_description(data, key):
     :returns: escaped, translated HTML for the fixed details panel.
     """
     module = data["modules"][key]
-    parts = [f'<b>{escape(tr(module["name"]))}</b>', _api_link(data, key),
+    parts = [f'<b>{escape(tr(module["name"]))}</b>',
              escape(tr(module.get("guidance", "")))]
     for role, title in (("inputs", tr("Inputs")), ("outputs", tr("Outputs"))):
         entries = []
@@ -113,6 +113,7 @@ def node_description(data, key):
             entries.append(escape(tr(info.get("title", artifact))) + ": " +
                            escape(tr(info.get("location", ""))))
         parts.append(f'<b>{escape(title)}</b><br>' + '<br>'.join(entries))
+    parts.append(_api_link(data, key))
     return '<br><br>'.join(parts)
 
 
@@ -182,7 +183,7 @@ def _positions(keys, edges, data=None, *, compact=False):
         if parents[key]:
             ranked[key] = max(ranked[key], max(ranked[parent] + 1 for parent in parents[key]))
     columns = defaultdict(list)
-    core = [step['module'] for step in (data or {}).get('pathways', {}).get('pooled_screen', {}).get('steps', ())]
+    core = [key for key in ('mask', 'measure', 'annotate', 'classify_merged', 'regression') if key in keys]
     ordered = sorted(keys, key=lambda key: (key not in core, not bool(parents[key]), keys.index(key)))
     maximum = max(ranked.values(), default=0)
     for key in ordered:
@@ -208,6 +209,13 @@ def _positions(keys, edges, data=None, *, compact=False):
                         key=lambda d: len(columns[d]) + .2 * (d - first))
         ranked[key] = suggested
         columns[suggested].append(key)
+    for key in sorted(keys, key=lambda k: ranked[k], reverse=True):
+        if key not in core and children[key]:
+            latest = min(ranked[child] for child in children[key]) - 1
+            if latest > ranked[key]:
+                columns[ranked[key]].remove(key)
+                ranked[key] = latest
+                columns[latest].append(key)
     rows = {key: row for group in columns.values() for row, key in enumerate(group)}
     for _ in range(2):
         for neighbors, reverse in ((parents, False), (children, True)):
@@ -251,7 +259,7 @@ class _Node(QGraphicsItem):
         painter.setPen(QPen(QColor(palette["accent"] if self.highlighted else palette["border"]), 1.5))
         painter.drawRoundedRect(self.boundingRect().adjusted(1, 1, -1, -1), 16, 16)
         font = QFont()
-        font.setPixelSize(font_px(24 if self.view.compact else 17, scale=1))
+        font.setPixelSize(font_px((19 if self.key.startswith("input:") else 24) if self.view.compact else 17, scale=1))
         font.setBold(True)
         painter.setFont(font)
         painter.setPen(QColor(palette["fg"]))
@@ -302,12 +310,16 @@ class _Edge(QGraphicsPathItem):
     """Directed connection with a wider invisible hit target for hovering."""
 
     def __init__(self, view, edge, start, end):
+        base = end - QPointF(12, 0)
+        shoulder = base - QPointF(14, 0)
         path = QPainterPath(start)
-        bend = max(40, abs(end.x() - start.x()) / 2)
-        path.cubicTo(start + QPointF(bend, 0), end - QPointF(bend, 0), end)
+        bend = max(24, abs(shoulder.x() - start.x()) / 2)
+        path.cubicTo(start + QPointF(bend, 0), shoulder - QPointF(bend, 0), shoulder)
+        path.lineTo(base)
         super().__init__(path)
         self.view, self.edge = view, edge
         self.end = end
+        self.arrowhead = QPolygonF([end, base + QPointF(0, -6), base + QPointF(0, 6)])
         self.highlighted = False
         self.setAcceptHoverEvents(True)
         self.setCursor(Qt.PointingHandCursor)
@@ -318,7 +330,9 @@ class _Edge(QGraphicsPathItem):
         """Make thin arrows selectable without requiring pixel-perfect aim."""
         stroker = QPainterPathStroker()
         stroker.setWidth(12)
-        return stroker.createStroke(self.path())
+        target = stroker.createStroke(self.path())
+        target.addPolygon(self.arrowhead)
+        return target
 
     def boundingRect(self):
         """Include both the arrowhead and the wider hover target."""
@@ -330,6 +344,7 @@ class _Edge(QGraphicsPathItem):
         colour = QColor(palette["accent"] if self.highlighted else palette["fg_muted"])
         colour.setAlphaF(1 if self.highlighted else (.55 if self.edge["kind"] == "documented" else .18))
         pen = QPen(colour, 2.2 if self.highlighted else 1)
+        pen.setCapStyle(Qt.FlatCap)
         if self.edge["kind"] != "documented":
             pen.setStyle(Qt.DashLine)
         painter.setPen(pen)
@@ -337,7 +352,7 @@ class _Edge(QGraphicsPathItem):
         painter.drawPath(self.path())
         painter.setBrush(colour)
         painter.setPen(Qt.NoPen)
-        painter.drawPolygon(QPolygonF([self.end, self.end + QPointF(-10, -5), self.end + QPointF(-10, 5)]))
+        painter.drawPolygon(self.arrowhead)
 
     def hoverEnterEvent(self, event):
         """Explain the connection in the fixed details panel."""
@@ -364,6 +379,7 @@ class WorkflowView(QGraphicsView):
 
     explanation = Signal(str)
     activated = Signal()
+    selection_changed = Signal(str)
 
     def __init__(self, data, keys=None, steps=None, parent=None, *, compact=False):
         """Build nodes and directed connections once; hover changes only ink."""
@@ -475,8 +491,9 @@ class WorkflowView(QGraphicsView):
         :returns: None; emits explanation HTML and the activated signal.
         """
         self._highlight({key})
-        self.explanation.emit(node_description(self.data, key))
         self.activated.emit()
+        self.explanation.emit(node_description(self.data, key))
+        self.selection_changed.emit(key)
         if center:
             self._auto_fit = False
             self.resetTransform()
@@ -491,8 +508,9 @@ class WorkflowView(QGraphicsView):
         :returns: None; emits explanation HTML and the activated signal.
         """
         self._highlight({edge.edge['from'], edge.edge['to']}, edge)
-        self.explanation.emit(edge_description(self.data, edge.edge))
         self.activated.emit()
+        self.explanation.emit(edge_description(self.data, edge.edge))
+        self.selection_changed.emit(edge.edge["from"] + "→" + edge.edge["to"])
         if center:
             self._auto_fit = False
             self.fitInView(edge.boundingRect().united(self.nodes[edge.edge['from']].sceneBoundingRect()).united(
@@ -508,6 +526,11 @@ class DiagramDialog(QDialog):
     def __init__(self, parent=None):
         """Keep the background translucent without reducing text opacity."""
         super().__init__(parent)
+        self.setProperty("spacrNoGlass", True)
+        from .glass import make_frameless, install_glass_everywhere
+
+        install_glass_everywhere()
+        make_frameless(self)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setStyleSheet("QDialog { background: transparent; }")
 
@@ -528,19 +551,36 @@ class DiagramDialog(QDialog):
 
 
 def details_box(parent=None):
-    """Build a fixed-height, scrollable explanation area shared by diagrams.
+    """Build a resizable, scrollable explanation area shared by diagrams.
 
     :param parent: owning widget; defaults to None.
     :returns: QTextBrowser with external API links enabled and introductory
-        text. Its height is ten times the current body-font pixel size.
+        text. Its minimum height is six body-font lines; the splitter sets its height.
     """
     box = QTextBrowser(parent)
     box.setObjectName("WorkflowDetails")
-    box.setFixedHeight(font_px("body") * 10)
+    box.setMinimumHeight(font_px("body") * 6)
     box.setOpenExternalLinks(True)
-    box.setStyleSheet("QTextBrowser { background: transparent; border: none; }")
+    palette = active_palette()
+    colour = QColor(palette["surface_hi"])
+    box.setStyleSheet(f"QTextBrowser {{ background: rgba({colour.red()}, {colour.green()}, {colour.blue()}, 150); "
+                     f"border: 1px solid {palette['border']}; border-radius: 12px; padding: 12px; "
+                     f"font-size: {font_px('body') + 2}px; }}")
     box.setHtml(escape(tr("Hover or select a module or connection to read its inputs, outputs and explanation here.")))
     return box
+
+
+def diagram_splitter(parent=None):
+    """Build a vertical pane divider with a thin blue, draggable handle.
+
+    :param parent: owning dialog or container.
+    :returns: non-collapsing QSplitter; callers add the diagram and details.
+    """
+    splitter = QSplitter(Qt.Vertical, parent)
+    splitter.setChildrenCollapsible(False)
+    splitter.setHandleWidth(1)
+    splitter.setStyleSheet("QSplitter::handle:vertical { background: #168cff; }")
+    return splitter
 
 
 class SpacrFlowchartDialog(DiagramDialog):
@@ -589,10 +629,13 @@ class SpacrFlowchartDialog(DiagramDialog):
         self.compatible.toggled.connect(self._show_compatible)
         layout.addWidget(self.compatible)
         self._show_compatible(False)
-        layout.addWidget(self.view, 1)
+        self.splitter = diagram_splitter(self)
+        self.splitter.addWidget(self.view)
+        layout.addWidget(self.splitter, 1)
         self.details = details_box(self)
         self.view.explanation.connect(self.details.setHtml)
-        layout.addWidget(self.details)
+        self.splitter.addWidget(self.details)
+        self.splitter.setSizes([460, 240])
         buttons = QDialogButtonBox(QDialogButtonBox.Close)
         buttons.rejected.connect(self.reject)
         layout.addWidget(buttons)

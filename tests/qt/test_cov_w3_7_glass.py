@@ -159,7 +159,8 @@ def test_hovering_an_edge_changes_the_pointer_and_leaving_puts_it_back(
     watcher = dialog._spacr_resizer
 
     watcher.eventFilter(dialog, _move((1, 120)))
-    assert dialog.cursor().shape() == Qt.CursorShape.SizeHorCursor
+    assert dialog.cursor().shape() == Qt.CursorShape.BitmapCursor
+    assert not dialog.cursor().pixmap().isNull()
 
     watcher.eventFilter(dialog, _move((160, 120)))
     assert dialog.cursor().shape() == Qt.CursorShape.ArrowCursor
@@ -243,7 +244,7 @@ def test_dragging_the_background_moves_the_window(dialog):
 
     dragger.eventFilter(dialog, _press((160, 120), glob=(500, 500)))
     assert dragger._grab is not None
-    dragger.eventFilter(dialog, _move((160, 120), glob=(540, 530)))
+    dragger.eventFilter(dialog, _move((160, 120), glob=(540, 530), buttons=Qt.LeftButton))
     assert dialog.pos().x() == 140
     assert dialog.pos().y() == 130
 
@@ -268,7 +269,7 @@ def test_a_drag_that_goes_wrong_forgets_the_grab(dialog, monkeypatch):
     monkeypatch.setattr(type(dialog), "move",
                         lambda self, point: (_ for _ in ()).throw(
                             RuntimeError("no window manager")))
-    dragger.eventFilter(dialog, _move((160, 120), glob=(600, 600)))
+    dragger.eventFilter(dialog, _move((160, 120), glob=(600, 600), buttons=Qt.LeftButton))
     assert dragger._grab is None
 
 

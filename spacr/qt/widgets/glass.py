@@ -32,9 +32,11 @@ from __future__ import annotations
 import logging
 from typing import Optional
 
-from PySide6.QtCore import QEvent, QObject, Qt
+from PySide6.QtCore import QEvent, QObject, QPointF, Qt
+from PySide6.QtGui import QColor, QCursor, QPainter, QPen, QPixmap
 from PySide6.QtWidgets import (QAbstractButton, QAbstractItemView,
-                               QAbstractSpinBox, QComboBox, QDialog,
+                               QAbstractSpinBox, QAbstractSlider, QGraphicsView, QPlainTextEdit, QApplication,
+                               QComboBox, QDialog, QSplitterHandle, QTabBar,
                                QDialogButtonBox, QLineEdit, QPushButton,
                                QTextEdit, QWidget)
 
@@ -273,6 +275,49 @@ def _cursor_for(edges):
     return None
 
 
+_RESIZE_CURSORS = {}
+
+
+def _blue_resize_cursor(edges):
+    """Return a blue directional resize pointer with a central hotspot."""
+    shape = _cursor_for(edges)
+    if shape not in _RESIZE_CURSORS:
+        pixmap = QPixmap(32, 32)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
+        painter.setRenderHint(QPainter.Antialiasing)
+        painter.translate(16, 16)
+        painter.rotate({Qt.SizeHorCursor: 0, Qt.SizeVerCursor: 90,
+                        Qt.SizeFDiagCursor: 45, Qt.SizeBDiagCursor: -45}[shape])
+        segments = [(-11, 0, 11, 0), (-11, 0, -6, -5),
+                    (-11, 0, -6, 5), (11, 0, 6, -5), (11, 0, 6, 5)]
+        for colour, width in ((QColor("white"), 4), (QColor("#168cff"), 2)):
+            painter.setPen(QPen(colour, width, Qt.SolidLine, Qt.RoundCap))
+            for x1, y1, x2, y2 in segments:
+                painter.drawLine(QPointF(x1, y1), QPointF(x2, y2))
+        painter.end()
+        _RESIZE_CURSORS[shape] = QCursor(pixmap, 16, 16)
+    return _RESIZE_CURSORS[shape]
+
+
+def _owns_mouse_gesture(widget, window):
+    """Keep controls, selectable text and viewport gestures with their owner."""
+    controls = (QAbstractButton, QAbstractSlider, QAbstractSpinBox,
+                QComboBox, QLineEdit, QTextEdit, QPlainTextEdit, QAbstractItemView,
+                QGraphicsView, QSplitterHandle, QTabBar)
+    while widget is not None and widget is not window:
+        if isinstance(widget, controls):
+            return True
+        if hasattr(widget, "textInteractionFlags") and widget.textInteractionFlags() & Qt.TextSelectableByMouse:
+            return True
+        if getattr(widget, "hasSelectedText", lambda: False)():
+            return True
+        if widget.property("spacrOwnsMouseGesture"):
+            return True
+        widget = widget.parentWidget()
+    return False
+
+
 class _ResizeByEdge(QObject):
     """Let a frameless window be resized by dragging its edges.
 
@@ -325,7 +370,7 @@ class _ResizeByEdge(QObject):
                 if shape is None:
                     window.unsetCursor()
                 else:
-                    window.setCursor(shape)
+                    window.setCursor(_blue_resize_cursor(edges))
                 return False
             if (kind == QEvent.Type.MouseButtonPress
                     and event.button() == Qt.MouseButton.LeftButton):
@@ -383,30 +428,41 @@ class _DragByBackground(QObject):
         self._grab = None
         dialog.installEventFilter(self)
 
-    def eventFilter(self, watched, event):      # noqa: N802 - Qt naming
-        """Move the frameless dialog when its background is dragged.
-
-        :param watched: the dialog.
-        :param event: the event.
-        :returns: ``True`` only for the press that starts a move.
-        """
+    def eventFilter(self, watched, event):
+        """Drag passive child surfaces while preserving each control's gestures."""
         dialog = getattr(self, "_dialog", None)
-        if dialog is None or watched is not dialog:
+        if dialog is None or not isinstance(watched, QWidget):
             return False
         try:
             kind = event.type()
-            if kind == QEvent.Type.MouseButtonPress and \
-                    event.button() == Qt.LeftButton:
-                where = event.position().toPoint()
-                if dialog.childAt(where) is None:
-                    self._grab = (event.globalPosition().toPoint()
-                                  - dialog.frameGeometry().topLeft())
-            elif kind == QEvent.Type.MouseMove and self._grab is not None:
-                dialog.move(event.globalPosition().toPoint() - self._grab)
-            elif kind == QEvent.Type.MouseButtonRelease:
+            if watched.window() is not dialog:
+                return False
+            if kind == QEvent.MouseButtonPress and event.button() == Qt.LeftButton:
+                point = event.globalPosition().toPoint()
+                local = event.position().toPoint()
+                target = watched.childAt(local) or watched
+                if _edges_at(dialog, watched.mapTo(dialog, local)) or _owns_mouse_gesture(target, dialog):
+                    self._grab = None
+                    return False
+                self._grab = (point, dialog.pos())
+                return False
+            if kind == QEvent.MouseMove and self._grab is not None:
+                if not event.buttons() & Qt.LeftButton:
+                    self._grab = None
+                    return False
+                origin, position = self._grab
+                delta = event.globalPosition().toPoint() - origin
+                if delta.manhattanLength() < QApplication.startDragDistance():
+                    return False
+                handle = dialog.windowHandle()
+                if handle is not None and handle.startSystemMove():
+                    self._grab = None
+                else:
+                    dialog.move(position + delta)
+                return True
+            if kind in (QEvent.MouseButtonRelease, QEvent.Hide, QEvent.WindowDeactivate):
                 self._grab = None
-        except Exception:                                    # noqa: BLE001
-            LOG.debug("a drag went wrong", exc_info=True)
+        except RuntimeError:
             self._grab = None
         return False
 
@@ -465,7 +521,8 @@ def make_frameless(dialog: QDialog) -> bool:
                               | Qt.FramelessWindowHint)
         dialog.setProperty(DETACHED, True)
         _paint_nothing_behind_the_card(dialog)
-        _DragByBackground(dialog)
+        if getattr(dialog, "_spacr_background_drag", None) is None:
+            dialog._spacr_background_drag = _DragByBackground(dialog)
         let_the_user_resize(dialog)
         if was_showing and dialog.isHidden():
             dialog.show()
@@ -707,6 +764,8 @@ def _install_the_backdrop(dialog: QDialog) -> Optional[QWidget]:
 #: first thing every event in the process pays for: as a tuple rebuilt per
 #: event it cost two global lookups, four attribute lookups and a tuple
 #: build for each of the 94,431 events one module open delivers.
+_DRAG_MOMENTS = frozenset({QEvent.MouseButtonPress, QEvent.MouseMove, QEvent.MouseButtonRelease})
+
 _GLASS_MOMENTS = frozenset({QEvent.Type.Polish, QEvent.Type.Show})
 
 
@@ -727,6 +786,11 @@ class _GlassInstaller(QObject):
         :returns: ``False`` -- never consumed.
         """
         try:
+            if event.type() in _DRAG_MOMENTS and isinstance(watched, QWidget):
+                window = watched.window()
+                drag = getattr(window, "_spacr_background_drag", None)
+                if drag is not None and watched is not window:
+                    return drag.eventFilter(watched, event)
             if event.type() in _GLASS_MOMENTS and wants_glass(watched):
                 glass(watched)
         except Exception:                                    # noqa: BLE001

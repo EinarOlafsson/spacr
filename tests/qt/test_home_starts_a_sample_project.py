@@ -312,7 +312,6 @@ def test_unavailable_pipeline_destination_does_not_load_data_or_offer_walkthroug
     opened, loaded = [], []
 
     def accept_first(dialog):
-        qtbot.addWidget(dialog)
         dialog.accept()
         return dialog.result()
 

@@ -89,3 +89,32 @@ Validation:53flowchart, sample-project and shared workflow-map checks pass;
 fatal-error Ruff and whitespace checks pass. Row-order regression cases
 exercise crossed independent branches in both modes and repeatability; the
 integrated graph also asserts the main pipeline's common top row.
+
+POPUP AND PIPELINE DETAIL FOLLOW-UP, 2026-09-23
+Implemented the maintainer's expanded request. Popup background dragging now
+includes passive labels and containers inside scroll areas; sliders, editors,
+selection views, diagram panning and divider handles retain their gestures.
+Resize edges/corners show blue directional pointers. Diagram windows paint
+one rounded80percent surface instead of stacking the global glass card.
+Arrow shafts stop at the center of the triangle base, with a horizontal final
+segment and flat caps. Independent branches align near their consumers.
+
+The lower Pipeline overviews pane now retains the selected pipeline title,
+description, every module/input card and every connection card. Module cards
+end with localized API links. Selection changes a blue perimeter without
+rebuilding cards, changing geometry or scrolling. Cards fill the available
+width; a one-pixel blue splitter with Qt's expanded grab area adjusts height.
+Default window1280x1000, diagram/details approximately380/520pixels; long
+pipelines retain scrolling because all explanations remain available.
+
+Nine pathways now declare external inputs. Added existing-image/mask Import
+routes, Gate Editor/Image UMAP annotation alternatives, single/paired FASTQ
+inputs, and independent recruitment/invasion/replication/plaque assay branches.
+Display-only input nodes never replace a sample project's first runnable step.
+
+118focused Qtchecks pass,9translation checks excluded from that follow-up run
+because the new assay title is awaiting the documentation lane's catalogs.
+Those9checks were run first and failed on the new title, not waived. Shared
+workflow schema and live routes validate. Pooled and parasite renders were
+inspected at1280x1000. Native compositor movement remains desktop-dependent;
+offscreen tests cover fallback dragging, slider ownership and blue pointers.

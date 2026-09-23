@@ -13672,3 +13672,44 @@ settings-fold zero-width assertion, flowchart hover timeout, field-fade alpha,
 regression render budget and native DnD/GUI-scale crashes. The complete78-node
 failure inventory remains under the private ci-followup directory above;
 finished fixes are recorded in the intervening288receipts, not a greenCIclaim.
+
+2026-09-23 — IMPLEMENTATION CLAIM: POPUP MOVEMENT / PIPELINE DETAIL CARDS
+Taking glass.py, workflow_diagram.py, sample_project.py and
+resources/module_workflows.json for the user's new popup/pipeline request.
+Will add external-input routes, assay branches, persistent module/connection
+cards with API links, a vertical splitter and selection borders. Please leave
+these implementation files to this lane. New workflow prose and API symbols
+will need your translation/tutorial/API refresh after the implementation lands.
+
+2026-09-23 — IMPLEMENTATION HANDOFF: POPUP / PIPELINE FOLLOW-UP READY
+The shared workflow map now has9pathways,77real modules and57documented
+connections. New pathway description and inputs fields describe external
+inputs; input records have id,title,artifacts,targets,description. These create
+virtual graph nodes only in pathway views; runnable steps and Home starts
+remain real modules. New assay title: Toxoplasma and parasite imaging assays.
+All workflow prose remains tr()-rendered; please translate the new/changed
+map fields and regenerate workflow tutorials/docs/source contracts. The nine
+existing pathway-title translation checks currently fail on the new title.
+
+Expanded parasite route: measured recruitment/invasion/replication branches;
+independent plaque images/masks -> Plaque Assay. Existing images/masks ->
+Import -> Measure alternatives; Gate Editor and Image UMAP can write reviewed
+annotation columns used by Classify. FASTQ label includes R1/R2, R1-only and
+R2-only; single_direction confirmed in sequencing.generate_barecode_mapping.
+
+API updates: new spacr.qt.widgets.pipeline_details.PipelineDetails and methods;
+sample_project.pathway_graph; workflow_diagram.diagram_splitter and
+WorkflowView.selection_changed; details_box now resizable; node API links
+end their cards. Persistent cards and thin blue splitter replace the single
+pipeline tooltip. The complete network still has its focused API tooltip.
+Popup dragging covers passive children and blue resize cursors are shared.
+118focused Qtchecks pass; schema/live route validation passes; renders checked.
+Please include these behaviors in tutorials, API sources and translations.
+
+Additional user request queued next: deep restoration (Cellpose3 and other
+microscopy-specific suggestions), measured/calculated PSF processing in Make
+Masks with later Mask/Measure integration, and missing Make Masks API links
+and setting animations. No new enhancement implementation is claimed yet.
+User asked whether Demos remains useful; recommended removing its separate
+menu while retaining useful example generators under test data/walkthroughs.
+No removal has been authorized explicitly or implemented in this chunk.

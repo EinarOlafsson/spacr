@@ -23,7 +23,8 @@ def test_pipeline_rows_are_graphs_and_keep_the_independent_sequencing_branch(qtb
     assert ('classify_merged', 'map_barcodes') not in pairs
     assert ('classify_merged', 'regression') in pairs
     assert ('map_barcodes', 'regression') in pairs
-    assert set(graph.nodes) == set(dialog._entries[index]['modules'])
+    assert set(graph.nodes) == set(dialog._entries[index]['modules']) | {
+        'input:images', 'input:external_masks', 'input:fastq'}
     for key in graph.nodes:
         prose = wd.node_description(graph.data, key)
         assert 'Inputs' in prose and 'Outputs' in prose
