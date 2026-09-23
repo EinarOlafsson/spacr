@@ -59,6 +59,19 @@ The new frames and catalog wording are work in progress, not published
 videos. GPU rendering/translation must wait for 20 consecutive observed idle
 minutes. Source-bound receipts in `evidence/` identify completed captures.
 
+The pooled-screen overview (lesson 78) uses
+`capture_refresh.py --module workflow_overview --workflow-overview` with the
+neutral capture wrapper. It opens all six modules through actual Home tiles,
+returns through Home, and records eight scenes matching the shared workflow
+map. It starts no analysis or download; the linked module lessons contain
+the worked experiments. The recorder expands Settings through its real
+splitter and sizes the Regression table columns for readable inputs.
+The capture policy hides Map Barcodes' decorative DNA layer so the shared
+Blobs backdrop remains visible, records this presentation change, and rejects
+any frame that still shows DNA rain. Application defaults and analysis are
+unchanged. These recordings and their translations remain private until the
+complete media and language checks pass.
+
 Annotate's recorder opens `stage/example_data/plate1`, which must be the same
 private dataset bound onto the downloader cache. For existing exported crops,
 `prepare_annotation_capture.py --source <real-project> --destination

@@ -18,7 +18,7 @@ import time
 from pathlib import Path
 
 from capture_acceptance import assess_pipeline
-from capture_policy import configure_appearance, exclude_release_history, verify_appearance, verify_visible_paths
+from capture_policy import configure_appearance, exclude_release_history, exclude_special_backdrops, verify_appearance, verify_visible_paths
 
 REPO = Path(__file__).resolve().parents[2]
 WORKSPACE = Path('/mnt/firecuda2/Claude/toxoplasma_projects/tutorials')
@@ -64,6 +64,7 @@ def main() -> int:
     parser.add_argument('--classifier-family', choices=('cv', 'ml'), default='cv', help='Choose the real merged Classify workflow')
     parser.add_argument('--classifier-existing-split', type=Path, help='Reuse the explicitly prepared, metadata-verified tutorial split; never rebuild it from legacy filenames')
     parser.add_argument('--classify-overview', action='store_true', help='Record only native family choices and nested Classify navigation; never start a model')
+    parser.add_argument('--workflow-overview', action='store_true', help='Record the pooled-screen lesson through actual Home tiles; no analysis or download')
     parser.add_argument('--model-zoo-inventory', action='store_true', help='Record actual Model Zoo inventory/provenance only; no download, training or benchmark')
     parser.add_argument('--barcode-search-tour', action='store_true', help='Record the real barcode search, explicit Apply and a verified mapped-count run')
     parser.add_argument('--barcode-reference-source', type=Path, help='Existing validated plain/reverse-complement reference pairs to copy into the private barcode recording')
@@ -79,6 +80,8 @@ def main() -> int:
     parser.add_argument('--sweep-from', type=Path, help='Replay this verified private two-trial sweep without refitting')
     parser.add_argument('--timeout', type=float, default=600)
     args = parser.parse_args()
+    if args.workflow_overview and (args.module != 'workflow_overview' or args.run or args.download or args.preview):
+        parser.error('--workflow-overview requires workflow_overview without run/download/preview')
     if args.barcode_search_tour and (args.module != 'map_barcodes' or not args.download or not args.run):
         parser.error('--barcode-search-tour requires map_barcodes with --download and --run')
     if args.model_compare_api_introduction and (args.module != 'model_compare' or args.run or args.download or args.preview):
@@ -298,6 +301,9 @@ def main() -> int:
         return capture_rect(widget, window)
 
     def capture(name, *, desktop=False):
+        hidden_backdrops = exclude_special_backdrops(window)
+        if hidden_backdrops:
+            settle(.2)
         appearance = verify_appearance(window)
         try:
             verify_visible_paths([w for w in app.topLevelWidgets() if w.isVisible()], stage)
@@ -345,6 +351,7 @@ def main() -> int:
                                 'module_key': widget.property('moduleAppKey')})
         frames[name] = {'image': path.name,
                         'appearance': appearance,
+                        'hidden_decorative_backdrops': hidden_backdrops,
                         'capture_surface': 'private_desktop' if desktop else 'application_window',
                         'sha256': hashlib.sha256(path.read_bytes()).hexdigest(),
                         'buttons': buttons,
@@ -395,7 +402,10 @@ def main() -> int:
         from capture_home import record_help_search, record_performance
         record_help_search(app, window, capture, settle)
         record_performance(window, capture, settle)
-    if args.module == 'db_browser':
+    if args.workflow_overview:
+        from capture_workflow_overview import record_overview
+        record_overview(app, window, captures, capture, settle, write_json)
+    elif args.module == 'db_browser':
         # The retained Database narration is still accurate. Capture its
         # current Help route and real controls without pre-opening it through
         # the private navigation slot or regenerating any voice track.
