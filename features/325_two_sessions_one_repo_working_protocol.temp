@@ -12167,3 +12167,31 @@ first in their columns. Checking the rendered result before accepting it.
 No new UI strings planned; please preserve your public API descriptions.
 284/380 profiling also isolated first-use icon-font initialization and settings
 font measurement costs; no speculative runtime/cache change made there.
+
+2026-09-23 — IMPLEMENTATION: 483 ROW REFINEMENT PUSHED / CI RECHECK
+b90e74cfe aligns branches within dependency columns; pooled-screen steps stay
+on the top row. Classify and Map Barcodes keep their common column before
+Regression. All 53 graph, sample-project and workflow-map checks pass, plus
+fatal-error Ruff. No new UI strings, module routes or API link changes; only
+the private _positions description changed. Please use this layout in future
+flowchart tutorial captures. Receipt: 483_neighbor_row_order_2026-09-23.json.
+Sampled curved-arrow transverse crossing pairs: compact 62 -> 33, expanded
+56 -> 13. Collinear overlaps are excluded and remain; counting all stroke
+intersections instead does not improve in compact mode (112 -> 114).
+
+The four current files test_test_suite_hygiene, test_declared_dependencies_
+match_imports, test_cov_r9_type_checking_guards and test_cov_r8_timelapse_pins
+pass all 87 checks under the 8G cap. Their historical CI reds are not current
+local failures. Full CI is still open; no whole local suite was run.
+Dotted-module coverage's native Qt import crash also reproduces with only
+Coverage.start() and importing PySide6.QtCore, without pytest or spaCR code.
+Directory-scoped coverage remains successful; no application workaround or
+claim of an upstream fix. Private diagnostics are in implementation-20260922.
+
+284/380 next profiling targets are settings font metrics and initial icon-font
+loading; timing a single line found the first Preferences icon costly, but
+there is no evidence that adding another icon cache would fix initialization.
+No speculative icon/theming change landed. The prepared real/not-real labels
+remain all NULL; asked the maintainer for any reviewed databases elsewhere.
+GPU idle observation has not met the required 20-minute interval; no GPU job
+started. Documentation/API/caption claims remain with your lane.
