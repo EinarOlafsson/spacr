@@ -15276,3 +15276,12 @@ User now explicitly says pending U-M access must NOT block1.5.1.0.131remains
 open;491/487record this release exception. Please retain current unsigned
 installer guidance until a signed/notarized artifact is actually verified.
 Native installer workflow is the next check; no version bump yet.
+Native installer dispatch35930460120started at6efebef9c. macOS found a real
+lipo argument-order error after compiling the universal launcher; fixing that
+before rerunning. Linux/Windows jobs continue independently. Preparing an
+isolated release candidate at /mnt/firecuda2/Claude/repo/spacr-release-1.5.1.0,
+branch release-candidate-1510, merging current main and reviewed nightly.
+Only product conflicts are README asset filename casing; published-asset audit
+will settle them. Working instruction folders will remain excluded from main.
+Claiming candidate setup.py/spacr/_version.py/CITATION.cff for the authorized
+1.5.1.0bump after candidate checks. No main push has happened.

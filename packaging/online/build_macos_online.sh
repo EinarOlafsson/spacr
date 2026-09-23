@@ -49,7 +49,7 @@ cp packaging/online/generated/installer_messages.sh \
 xcrun clang -Wall -Wextra -Werror -O2 -arch arm64 -arch x86_64 \
     -mmacosx-version-min=11.0 packaging/online/macos_launcher.c \
     -o "$APP/Contents/MacOS/spaCR"
-lipo -verify_arch arm64 x86_64 "$APP/Contents/MacOS/spaCR"
+lipo "$APP/Contents/MacOS/spaCR" -verify_arch arm64 x86_64
 chmod 755 "$APP/Contents/MacOS/spaCR"
 
 cat > "$APP/Contents/Info.plist" <<EOF
