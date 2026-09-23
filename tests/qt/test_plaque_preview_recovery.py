@@ -60,6 +60,7 @@ def test_inflight_segmentation_cannot_replace_a_new_selection(qtbot, monkeypatch
         qtbot.waitUntil(lambda: not widget._load_jobs.is_busy(), timeout=3000)
         release.set()
         qtbot.waitUntil(lambda: widget._jobs.active_jobs() == 0, timeout=3000)
+        qtbot.waitUntil(widget._run_btn.isEnabled, timeout=3000)
         assert ready == [], "the old selection's result must be discarded"
         assert widget._plaque_result is None and widget._figure is None
         assert widget._run_btn.isEnabled() and not widget._cancel_btn.isEnabled()

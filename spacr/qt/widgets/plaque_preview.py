@@ -37,6 +37,7 @@ import logging
 import os
 import threading
 from dataclasses import dataclass
+from functools import wraps
 from importlib.util import find_spec
 from pathlib import Path
 from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -767,6 +768,16 @@ def write_legend(path: Any, stem: str, legend: str) -> Path:
 
 _MODELS: Dict[str, Any] = {}
 _MODELS_LOCK = threading.Lock()
+_INFERENCE_LOCK = threading.Lock()
+
+
+def _serialized_inference(work):
+    """Keep cached model construction and evaluation exclusive across panels."""
+    @wraps(work)
+    def run(*args, **kwargs):
+        with _INFERENCE_LOCK:
+            return work(*args, **kwargs)
+    return run
 
 
 def _cellpose_model(path: str):
@@ -802,6 +813,7 @@ def _match_shape(labels: np.ndarray, shape: Tuple[int, int]) -> np.ndarray:
                   anti_aliasing=False).astype(labels.dtype)
 
 
+@_serialized_inference
 def plaque_pass(path: Any, settings: Dict[str, Any], *,
                 segment: Optional[Callable[[Path], np.ndarray]] = None
                 ) -> Dict[str, Any]:
@@ -856,6 +868,7 @@ def plaque_pass(path: Any, settings: Dict[str, Any], *,
             "areas": areas, "note": note}
 
 
+@_serialized_inference
 def figure_pass(path: Any, settings: Dict[str, Any], *,
                 detect: Optional[Callable] = None,
                 read_text: Optional[Callable] = None,
@@ -1124,6 +1137,7 @@ def plaque_rows(labels: np.ndarray) -> List[Dict[str, Any]]:
     return rows
 
 
+@_serialized_inference
 def segment_well(image: np.ndarray, region: Any, settings: Dict[str, Any], *,
                  segment: Optional[Callable[[np.ndarray], np.ndarray]] = None
                  ) -> Dict[str, Any]:
@@ -1991,6 +2005,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._batch: List[int] = []
         self._batch_total = 0
         self._batch_segment: Optional[Callable] = None
+        self._batch_settings = {}
         self._overlay_style: OverlayStyle = _SESSION["style"]
         self._fixed_colours: Dict[str, Tuple[int, int, int]] = {
             "outline": OUTLINE_COLOUR, "fill": OUTLINE_COLOUR}
@@ -2013,6 +2028,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._paper_jobs = JobRunner(self, threaded=threaded,
                                      app_key="plaque paper")
         self._paper_jobs.job_failed.connect(self._on_paper_failed)
+        self._retirement_timer = QTimer(self)
+        self._retirement_timer.setInterval(100)
+        self._retirement_timer.timeout.connect(self._sync_inference_controls)
         self._build()
         self._stow_free_widgets()
         self.set_mode(PLAQUE_MODE)
@@ -2137,6 +2155,9 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         self._run_btn.clicked.connect(self.run_preview)
         self._cancel_btn = QPushButton(tr(PREVIEW_CANCEL_TEXT))
         self._cancel_btn.setEnabled(False)
+        self._cancel_btn.setToolTip(tr(
+            "Discard this preview. A model call already running finishes in "
+            "the background before another preview can start."))
         self._cancel_btn.clicked.connect(self.cancel_preview)
         self._use_btn = QPushButton(tr("Use these settings"))
         self._use_btn.setToolTip(tr("Write the values tuned here into the "
@@ -2882,6 +2903,8 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def _preview_blocked_reason(self) -> str:
         """Why a pass cannot start, or ``''``."""
+        if not self._jobs.is_busy() and self._jobs.active_jobs():
+            return tr("The previous preview is still finishing. Run preview will be available when it exits.")
         if self.current_path() is None:
             return tr(self.PREVIEW_SOURCE_HINT)
         if self.mode() == FIGURE_MODE:
@@ -2891,16 +2914,34 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         return ""
 
     def preview_running(self) -> bool:
-        """Whether a pass is in flight."""
-        return self._jobs.is_busy()
+        """Whether a pass still owns a worker, including after Cancel."""
+        return self._jobs.is_busy() or self._jobs.active_jobs() > 0
+
+    def set_preview_busy(self, busy: bool) -> None:
+        """Keep rerun controls disabled until cancelled inference has exited."""
+        busy = bool(busy or self.preview_running())
+        LivePreviewContract.set_preview_busy(self, busy)
+        for name in ('_well_btn', '_all_btn'):
+            button = getattr(self, name, None)
+            if button is not None:
+                button.setEnabled(not busy)
+        if busy:
+            self._retirement_timer.start()
+        else:
+            self._retirement_timer.stop()
+
+    def _sync_inference_controls(self) -> None:
+        """Re-enable inference only after the cancelled QThread retires."""
+        self.set_preview_busy(self.preview_running())
 
     def _extra_work_in_flight(self) -> bool:
         """Whether a pass is in flight, for :meth:`cancel_preview`."""
-        return self._jobs.is_busy()
+        return self.preview_running()
 
     def _cancel_extra_work(self) -> None:
         """Drop the pass in flight, and any wells still queued."""
         self._batch = []
+        self._batch_settings = {}
         self._jobs.cancel()
         self._review_token += 1
         self._review_jobs.cancel()
@@ -3563,13 +3604,14 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
         :param segment: replaces the plaque model (tests).
         :returns: True when the first was started.
         """
-        if self._jobs.is_busy():
+        if self.preview_running():
             self.set_preview_status(tr("Preview already running."))
             return False
         self._run_token += 1
         self._batch = list(indices)
         self._batch_total = len(indices)
         self._batch_segment = segment
+        self._batch_settings = self.current_settings()
         self.set_preview_busy(True)
         self._next_well(self._run_token)
         return True
@@ -3592,10 +3634,10 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
             k=position, total=self._batch_total))
         image = self._figure["image"]
         region = self._figure["regions"][index]
-        settings = self.current_settings()
+        settings = dict(self._batch_settings)
         segment = self._batch_segment
         self._jobs.submit(
-            lambda: segment_well(image, region, settings, segment=segment),
+            lambda: _preview_call(lambda: segment_well(image, region, settings, segment=segment)),
             lambda result, t=token, i=index: self._on_well(t, i, result))
 
     def _on_well(self, token: int, index: int, result: Dict[str, Any]) -> None:
@@ -3914,6 +3956,7 @@ class PlaquePreviewPanel(QWidget, LivePreviewContract):
 
     def shutdown(self) -> None:
         """Leave no worker thread behind."""
+        self._retirement_timer.stop()
         for runner in (self._jobs, self._load_jobs, self._paper_jobs, self._review_jobs, self._save_jobs):
             runner.shutdown()
 

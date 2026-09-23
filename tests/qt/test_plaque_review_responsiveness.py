@@ -72,8 +72,10 @@ def test_slow_old_legend_read_keeps_window_responsive_and_cannot_replace_new_ima
         qtbot.waitUntil(lambda: len(ticks) >= 3, timeout=1000)
         panel._step(1)
         qtbot.waitUntil(lambda: not panel._load_jobs.is_busy(), timeout=3000)
+        assert not panel._run_btn.isEnabled()
         release.set()
-        qtbot.waitUntil(lambda: not panel._jobs.is_busy(), timeout=3000)
+        qtbot.waitUntil(lambda: not panel.preview_running(), timeout=3000)
+        qtbot.waitUntil(panel._run_btn.isEnabled, timeout=3000)
         assert panel.current_path().name == 'b.png' and panel._figure is None
         assert panel._run_btn.isEnabled()
     finally:

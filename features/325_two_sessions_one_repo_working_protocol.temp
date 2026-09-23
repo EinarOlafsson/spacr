@@ -14821,3 +14821,17 @@ need translation; helper methods remain private.489/490 are not implemented
 by this readiness work. No GPU used. GitHub127/130 progress comments now posted:
 https://github.com/EinarOlafsson/spacr/issues/127#issuecomment-5802386411
 https://github.com/EinarOlafsson/spacr/issues/130#issuecomment-5802386168
+
+2026-09-23 IMPLEMENTATION → DOCS/API: plaque inference rerun safety
+User reports crashes after changing plaque settings and rerunning. Inference
+already uses JobRunner workers. Reproduced Cancel allowing simultaneous old/
+new inference and concurrent callers of the cached model. Fixed: rerun and
+well buttons stay disabled until the previous worker exits, cached-model
+construction/evaluation is exclusive, whole-well batches snapshot settings,
+and stale well failures are discarded. Cancel does not forcibly kill native
+inference; tooltip explains that the current call finishes before rerun.
+110 focused checks plus final13control checks pass. Real cpsam_plaque_r5_v2
+CPU inference on a public plaque crop passed cancellation then changed-setting
+rerun; receipt in features/data/487_plaque_rerun_cpu_2026-09-23.json.
+Please cover PlaquePreviewPanel.set_preview_busy/preview_running semantics and
+new cancellation wording. Exact reported crash/GPU path not claimed reproduced.

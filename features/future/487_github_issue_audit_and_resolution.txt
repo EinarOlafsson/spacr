@@ -252,3 +252,30 @@ barcode mapping runs independently and converges on regression.
 63 focused Linux/offscreen Qt checks passed. Public onboarding delivery and
 native-platform acceptance remain distinct outstanding evidence; do not close
 127/130 based solely on this cohort.131 institutional signing access pending.
+
+2026-09-23 — NEW USER REPORT: PLAQUE RERUN AFTER SETTINGS CHANGE CRASHES
+Requested: "running the plaquew model after changing the settings has atendency
+to crahs spacr. cant model inference be run on a different thread?"
+Inference already runs through JobRunner, but cancel clears its pending/busy
+state before native inference exits, permitting another run against the shared
+cached model. Investigating rerun serialization, settings snapshots and thread
+lifetime. Current logs contain no matching recent fatal traceback, so do not
+claim the exact crash reproduced. User asked whether Live preview or main Run.
+
+2026-09-23 — PLAQUE INFERENCE RERUN DEFECT REPRODUCED AND FIXED
+Two regression checks failed before the fix: Cancel plus changed settings
+started a second inference while the first still ran, and two callers entered
+the cached-model path concurrently (maximum concurrent calls=2). Both now pass.
+Plaque rerun/well controls stay disabled until the previous QThread retires;
+model construction/evaluation is serialized across plaque previews. Wells in
+one batch use settings captured at batch start. Well errors now pass through
+the same generation gate as successes, so an abandoned failure cannot replace
+a new selection's status. Existing worker inference remains off the GUI thread.
+110 focused checks passed; final control/message cohort13passed.
+
+Real local cpsam_plaque_r5_v2 checkpoint on a published WT plaque crop also
+passed: CPU,128x128, flow threshold0.4 cancelled then0.2 rerun, two worker-thread
+inferences, no stale result, final15labels.823Qt timer ticks over17.28s, maximum
+timer gap0.339s. Receipt: features/data/487_plaque_rerun_cpu_2026-09-23.json.
+This validates rerun/thread lifecycle, not segmentation accuracy or the exact
+reported native/GPU crash. No GPU used; issue127 remains open.
