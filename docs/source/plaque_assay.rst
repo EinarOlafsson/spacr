@@ -74,6 +74,28 @@ same grid. Conflicting peer bars leave that crop in pixels with a conflict
 note. Whole-well calibration is a later fallback when the plate format is
 known; stated magnification alone does not calibrate a rescaled figure.
 
+Optional scale and time estimates
+----------------------------------
+
+In Figure mode, enter any known **Pixels per µm** and formation time for
+each well first. Choose **Estimate scale / time (experimental)** to show
+suggestions in the **Estimated pixels per µm**, **Estimated time (hours)**
+and **Estimate basis** columns. Review the basis alongside each suggestion.
+The option is off by default and keeps suggestions separate from entered
+calibration and measured results.
+
+The calculation uses the largest quarter of plaques and assumes linear
+diameter growth. Its default reference is an RH/HFF control diameter of
+about 894 µm at seven days. This reference does not establish a growth curve
+across times or conditions. When both scale and time are unknown, the
+reference duration is assumed; it is not a separately measured time.
+Conflicting known times prevent pooling wells into one page estimate.
+
+Use **Experimental Growth Estimates** settings to choose a reference
+diameter and its corresponding duration for your experiment. Keep the
+reference and assumptions with exported suggestions. See
+:func:`spacr.plaque_growth.estimate_page` for the input and output fields.
+
 Changing selections while a preview runs
 ----------------------------------------
 
@@ -81,7 +103,14 @@ Changing the source, selected image or mode abandons the previous preview.
 Its late result cannot replace the newly selected view. An empty source folder
 clears the prior mask, object views and figure tables. Start a new preview for
 the intended selection after it loads. Cancellation discards the old result;
-it does not imply that an underlying model call stopped immediately.
+the current model call finishes before **Run preview** and the well controls
+become available again. Wait for those controls before rerunning with changed
+settings.
+
+After choosing **Save annotations**, wait for the saved confirmation in the
+preview status before starting the batch analysis. Saving happens in the
+background so the image remains responsive; a queued save is not yet a
+completed write.
 
 Python preview contracts
 -------------------------
@@ -101,6 +130,9 @@ analysis database.
        flow outputs.
    * - :func:`spacr.qt.widgets.plaque_preview.detect_figure`
      - Find figure regions and read text without segmenting plaques.
+   * - :func:`spacr.qt.widgets.plaque_preview.prepare_figure_review`
+     - Read saved review information and propose ruler calibration for the
+       detected figure while preserving supplied manual edits.
    * - :func:`spacr.qt.widgets.plaque_preview.segment_well`
      - Segment a selected well crop with the plaque settings.
    * - :func:`spacr.qt.widgets.plaque_preview.figure_pass`
@@ -112,3 +144,9 @@ With the default segmenter, ``plaque_pass``, ``segment_well`` and
 configured ``diameter``, ``flow_threshold``, ``CP_prob`` and channel-axis
 policy. A custom ``segment`` callback supplies its own segmentation behavior.
 Keep those settings explicit when comparing Python results with the GUI.
+
+For GUI integrations, ``PlaquePreviewPanel.preview_running()`` remains true
+while a cancelled worker is finishing. ``set_preview_busy(False)`` therefore
+keeps rerun controls disabled until that worker exits. ``save_annotations()``
+returns the queued destination; observe the preview status for completion or
+failure before consuming the file.

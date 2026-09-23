@@ -243,6 +243,13 @@ Disabled steps leave their input unchanged. Background estimation radius
 should exceed the structures you want to retain. Denoising and the separate
 Maxima/secondary blur can compound, so check both settings.
 
+Compare opens with a pending result while enhancement runs. Wait for the
+right-hand image before judging the effect. Normalization uses the whole
+field before extracting the displayed crop. If you change the field or
+settings, open a new comparison for that selection. **Cancel** closes the
+comparison; an enhancement already running finishes in the background and
+its abandoned result is discarded.
+
 Post-detection opening/closing and splitting modify label shapes. These
 steps are bypassed for paired secondary objects to retain primary IDs.
 Make Masks enhancement is configured separately from the batch Mask

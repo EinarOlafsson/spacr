@@ -199,7 +199,8 @@ TOOLS = ROOT / "tools"
 # Exact added/removed sets: features/data/411_starplast_demos_api_2026-09-23.json.
 # Training and plaque calibration delta: 411_training_calibration_api_2026-09-23.json.
 # Growth, asynchronous review and fallback delta: 411_growth_and_async_api_2026-09-23.json.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_491
+# Cancelled worker ownership: 411_cancelled_preview_api_2026-09-23.json.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_492
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

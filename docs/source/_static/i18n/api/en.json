@@ -88837,10 +88837,10 @@
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.preview_running": {
       "source_blocks_sha256": [
-        "0deef10d0baf3b9ee34a4aba2616689ff7f626b0470bf662d3dcbce6c5f26b80"
+        "52c6ba5940a051e36cd0575087352c4bb2be54791b81a8fbcbd7e67b7d09c47d"
       ],
-      "source_sha256": "0deef10d0baf3b9ee34a4aba2616689ff7f626b0470bf662d3dcbce6c5f26b80",
-      "text": "Whether a pass is in flight."
+      "source_sha256": "52c6ba5940a051e36cd0575087352c4bb2be54791b81a8fbcbd7e67b7d09c47d",
+      "text": "Whether a pass still owns a worker, including after Cancel."
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.preview_selected_well": {
       "source_blocks_sha256": [
@@ -88909,6 +88909,13 @@
       ],
       "source_sha256": "df31331a7461e81c05e6c17331d533e8a84199f922224c4a8d38d35797299b86",
       "text": "Draw the plaques another way, from what is already segmented.\n\nThe style is kept for the rest of the session: a panel built later\nstarts from it.\n\n:param style: the new :class:`OverlayStyle`."
+    },
+    "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_preview_busy": {
+      "source_blocks_sha256": [
+        "24abecb6595f86a9bd6ba59676669d4c565637d0f4ceb6bdc395579fcaf29c70"
+      ],
+      "source_sha256": "24abecb6595f86a9bd6ba59676669d4c565637d0f4ceb6bdc395579fcaf29c70",
+      "text": "Keep rerun controls disabled until cancelled inference has exited."
     },
     "spacr.qt.widgets.plaque_preview.PlaquePreviewPanel.set_propagate_callback": {
       "source_blocks_sha256": [
