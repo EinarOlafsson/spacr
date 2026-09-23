@@ -4706,3 +4706,16 @@ no invented foreground. Appended coverage on unchanged source reaches91.28
 percent (193/210statements,79/88branches).74distinct tests across two cohorts;
 no runtime, API, UI, baseline or threshold changes. Receipt:
 288_empty_detection_cleanup_2026-09-23.json. Full CI/ratchet remains open.
+
+2026-09-23 — IMPLEMENTATION: OPS/STITCH EXAMPLE RECOVERY AT100PERCENT
+23checks pass86.24s; the two explicit live-download checks skip with network
+disabled. ops_stitch_demo reaches100percent statements/branches (100/100,16/16).
+New cases cover malformed manifests, pending/cancelled/incomplete transfers,
+unknown failures, successful retry and default downloader routing/cache reuse.
+Settings remain unchanged until complete data arrives; buttons recover.
+Existing real local archives also pass: nine stitch tiles all plan, no nominal/
+unplaced tiles; OPS indexes two sites across eleven cycles and20,445library
+prefixes. Archives are local ext4, not NAS, with hashes in the receipt.
+No full OPS run, model inference, GPU or current public-download claim.
+Receipt288_ops_stitch_example_recovery_2026-09-23.json. No runtime/API/text,
+coverage gate or baseline change; full CI/ratchet remains open.

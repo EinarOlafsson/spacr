@@ -12832,3 +12832,22 @@ signatures and UI text unchanged. No recorder/tutorial/catalog edits here.
 Rebase over28db90600 conflicted only in this channel. Preserved BOTH complete
 tails, including your407documentation/caption verification and472capture notes.
 Runtime/table tests auto-applied cleanly; no tutorial/catalog content changed.
+
+2026-09-23 — IMPLEMENTATION: 288 OPS/STITCH EXAMPLE RECOVERY CLAIM
+Claiming tests/qt/test_ops_and_stitch_test_data.py for pending/cancelled/
+incomplete transfer recovery, default downloader routing and invalid manifests.
+The historical full CI has ops_stitch_demo below90percent. Will retain real
+local archive unpack/plan checks in the bounded cohort; live downloads disabled.
+Staged archives resolve to local ext4 /mnt/wd4tb, not NAS. No runtime/API/text
+or tutorial/catalog edits planned, and no model inference/GPU job will run.
+
+2026-09-23 — IMPLEMENTATION: 288 OPS/STITCH RECOVERY VERIFIED
+23checks pass86.24s; two live-network checks intentionally skip. Current
+ops_stitch_demo is100percent statement/branch covered. Pending/cancelled/
+incomplete transfers preserve settings, restore buttons and allow real local
+archive retry; corrupt manifests cannot yield cache hits. Default worker and
+progress-dialog routing/cache reuse pass. Existing real staged archives also
+pass unpack/plan/index checks: nine placed stitch tiles, two OPS sites across
+11cycles and20,445library prefixes. Receipt288_ops_stitch_example_recovery_
+2026-09-23.json includes archive hashes. No model inference, full OPS run,
+network, GPU, runtime/API/text or coverage-gate changes. No docs action needed.

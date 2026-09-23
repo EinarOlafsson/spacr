@@ -272,6 +272,83 @@ def test_a_download_that_cannot_start_is_reported_not_raised(align_screen,
     assert "read-only cache" in align_screen.status_text()
 
 
+@pytest.mark.parametrize("contents", [b"\xff\xfe", b"path,bytes\n,10\n",
+                                       b"unrecognised\nimage.tif\n"])
+def test_unreadable_or_unnamed_manifest_rows_never_count_as_a_cached_sample(tmp_path, contents):
+    (tmp_path / demo.MANIFEST_NAME).write_bytes(contents)
+    (tmp_path / "image.tif").write_bytes(b"present")
+    assert demo.listed_files(tmp_path) == []
+    assert not demo.is_present(tmp_path)
+
+
+@pytest.mark.parametrize("outcome", ["cancelled", "unknown", "incomplete"])
+def test_pending_download_preserves_settings_and_failure_allows_retry(align_screen, tmp_path, outcome):
+    before = align_screen.settings()
+    folder = tmp_path / "cache"
+    pending = []
+
+    def delayed(parent, dest, done):
+        assert parent is align_screen
+        assert dest == folder
+        pending.append(done)
+
+    assert not demo.load_align_test_data(align_screen, ask=delayed, folder=folder)
+    assert align_screen.settings() == before
+    assert not align_screen._btn_test_data.isEnabled()
+    assert align_screen._btn_test_data.text() == "Fetching test data…"
+    if outcome == "cancelled":
+        pending.pop()(None, demo.CANCELLED)
+        assert "cancelled" in align_screen.status_text()
+        assert not align_screen.last_error
+    elif outcome == "unknown":
+        pending.pop()(None, "")
+        assert "unknown error" in align_screen.status_text()
+        assert align_screen.last_error
+    else:
+        pending.pop()(DownloadResult(dataset_path=folder, settings_path=folder / "settings"), "")
+        assert "incomplete" in align_screen.status_text()
+        assert align_screen.last_error
+    assert align_screen.settings() == before
+    assert align_screen._btn_test_data.isEnabled()
+    assert align_screen._btn_test_data.text() == "Load test data…"
+    retry = _FakeDownload(_synthetic_archive(tmp_path, "stitch"))
+    assert not demo.load_align_test_data(align_screen, ask=retry, folder=folder)
+    assert retry.calls == 1
+    assert demo.is_present(folder)
+    assert align_screen.settings()["src"] == str(folder / "tiles")
+    assert "Press Plan" in align_screen.status_text()
+    assert not align_screen.last_error
+
+
+@pytest.mark.parametrize("which", ["ops", "stitch"])
+def test_default_downloader_uses_the_matching_worker_and_shared_progress_dialog(monkeypatch, tmp_path, which):
+    pending, reports, used = [], [], []
+    folder = tmp_path / which
+    parent = object()
+    monkeypatch.setattr(demo, "example_set_folder", lambda key: tmp_path / key)
+
+    def progress_dialog(owner, dest, done, *, worker_factory, title):
+        assert owner is parent
+        assert dest == folder
+        assert worker_factory is demo._WORKERS[which]
+        assert title == ("Downloading the OPS test data" if which == "ops"
+                         else "Downloading the Align & Stitch test data")
+        pending.append(done)
+
+    monkeypatch.setattr(demo, "download_toxo_mito_demo", progress_dialog)
+    report = lambda message, error: reports.append((message, error))
+    assert not demo.load_the_test_data(which, use=used.append, report=report, parent=parent)
+    assert used == []
+    assert len(reports) == 1 and reports[0][1] is False
+    folder.mkdir()
+    _write_sample(folder, which)
+    pending.pop()(DownloadResult(dataset_path=folder, settings_path=folder / "settings"), "")
+    assert used == [folder]
+    assert demo.load_the_test_data(which, use=used.append, report=report, parent=parent)
+    assert used == [folder, folder]
+    assert pending == [], "a complete cache must not open another download"
+
+
 @pytest.fixture
 def ops_screen(qtbot):
     from spacr.qt.screens.app_screen import AppScreen
