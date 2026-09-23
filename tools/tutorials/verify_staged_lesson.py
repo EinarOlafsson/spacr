@@ -102,11 +102,15 @@ def main():
     parser.add_argument('--language', default='en')
     parser.add_argument('--voice', default='af_heart')
     parser.add_argument('--caption-language', help='Independently test a staged caption language with this voice')
+    parser.add_argument('--sentence-cues', action='store_true',
+                        help='Check every native English caption at its recorded speech midpoint')
     parser.add_argument('--retained-media', action='store_true',
                         help='Require unchanged original catalogs and media, with no staged override')
     parser.add_argument('--web-rendition', action='store_true',
                         help='Check the verified private 1440p copy, preserving original browser reports')
     args = parser.parse_args()
+    if args.sentence_cues and (args.language != 'en' or args.caption_language):
+        parser.error('--sentence-cues requires English narration and its native captions')
     DEFAULT_STAGE = args.stage.resolve()
     WORKSPACE = DEFAULT_STAGE.parent
     retained = None
@@ -146,6 +150,8 @@ def main():
     tag = f'{args.language}-{args.voice}'
     if args.caption_language:
         tag += f'-captions-{args.caption_language}'
+    if args.sentence_cues:
+        tag += '-sentence-cues'
     output = DEFAULT_STAGE / ('browser-web' if args.web_rendition else 'browser') / args.lesson / tag
     output.mkdir(parents=True, exist_ok=True)
     errors = []
@@ -239,6 +245,11 @@ def main():
                             'audio' / args.language / f'{args.voice}.m4a').read_bytes()).hexdigest()
             assert audio_hash == expected_hash, (audio_hash, expected_hash)
             evidence['loaded_audio_sha256'] = audio_hash
+            if args.language != 'en' and not args.caption_language:
+                translated_lesson = next(item for item in localized['lessons'] if item['id'] == args.lesson)
+                texts = page.evaluate('chapterData.map(chapter => chapter.text)')
+                assert texts == [scene['narration'] for scene in translated_lesson['scenes']], texts
+                evidence['narration_language_scenes_match_staging'] = True
             if caption_lesson is not None:
                 page.locator('#caption-settings-button').click()
                 page.select_option('#caption-language-select', args.caption_language)
@@ -294,6 +305,10 @@ def main():
                 '(nodes) => nodes.map(n => n.dataset.relatedLesson)')
             check_related_links(transcript_links, expected)
             evidence['chapter_and_transcript_links'] = expected
+            if args.sentence_cues:
+                from verify_release_candidate import check_sentence_cues
+
+                evidence['sentence_cue_checks'] = check_sentence_cues(page)
             page.set_viewport_size({'width': 390, 'height': 844})
             # The mobile sidebar slides offscreen on resize. Measure its final
             # position, rather than accepting a frame halfway through that slide.

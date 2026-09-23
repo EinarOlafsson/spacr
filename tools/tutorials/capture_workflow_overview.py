@@ -1,4 +1,4 @@
-"""Record the pooled-screen map lesson through actual Home module controls.
+"""Record workflow-map lessons through actual Home and folded-module controls.
 
 This is a navigation and data-handoff lesson. Worked experiments belong to
 the linked module lessons; this recording starts no analysis or download.
@@ -7,26 +7,28 @@ from __future__ import annotations
 
 import hashlib
 import json
+import time
 from pathlib import Path
 
 
-def record_overview(app, window, captures, capture, settle, write_json):
+def record_overview(app, window, captures, capture, settle, write_json,
+                    lesson_id='78_spacr_screens'):
     from PySide6.QtCore import QPoint, Qt
     from PySide6.QtTest import QTest
-    from PySide6.QtWidgets import QAbstractButton, QTableView
+    from PySide6.QtWidgets import QAbstractButton, QDialog, QTableView, QTextBrowser
+    from spacr.qt.widgets.fold_strip import FoldButton
 
     root = Path(__file__).resolve().parents[2]
     map_path = root / 'spacr/resources/module_workflows.json'
-    lesson_path = root / 'tools/tutorials/lessons/78_spacr_screens.json'
+    if lesson_id not in ('78_spacr_screens', '81_sequencing_pathways'):
+        raise ValueError('This recorder has not validated that workflow lesson')
+    lesson_path = root / 'tools/tutorials/lessons' / (lesson_id + '.json')
     data = json.loads(map_path.read_text())
     lesson = json.loads(lesson_path.read_text())
     keys = data['tutorials'][lesson['id']]['modules']
     expected = ['home', *('module_' + key for key in keys), 'home_summary']
     if [scene['visual'] for scene in lesson['scenes']] != expected:
-        raise ValueError('The pooled-screen lesson and workflow map disagree')
-    if any(data['modules'][key]['home'] != key or data['modules'][key]['parent']
-           for key in keys):
-        raise ValueError('This recorder requires the current direct Home routes')
+        raise ValueError('The workflow lesson and map disagree')
 
     def click(button):
         visible = button.visibleRegion()
@@ -51,8 +53,67 @@ def record_overview(app, window, captures, capture, settle, write_json):
     routes = []
     for key in keys:
         home()
+        module = data['modules'][key]
+        if module.get('api_entry'):
+            from spacr.qt.help_search import field_of
+
+            field = field_of(window)
+            if field is None or not field.isVisible():
+                raise ValueError('The native Help search is unavailable')
+            symbol = module['api_entry']
+            query = symbol.rsplit('.', 1)[-1]
+            field.setFocus()
+            QTest.keyClick(field, Qt.Key_A, Qt.ControlModifier)
+            QTest.keyClicks(field, query)
+            deadline = time.monotonic() + 30
+            while not any(entry.kind == 'api' and entry.payload.get('symbol') == symbol
+                          for entry in field.results()):
+                if time.monotonic() >= deadline:
+                    raise ValueError('The actual Help index did not find ' + symbol)
+                settle(.1)
+            if not field.popup().isVisible():
+                raise ValueError('The API search result is not visible')
+            settle(.5)
+            capture('api_search_' + key, desktop=True)
+            QTest.keyClick(field, Qt.Key_Return)
+            deadline = time.monotonic() + 15
+            dialog = None
+            while dialog is None:
+                dialogs = [widget for widget in app.topLevelWidgets()
+                           if isinstance(widget, QDialog) and widget.isVisible()
+                           and widget.objectName() == 'HelpSearchApiEntry'
+                           and widget.windowTitle() == symbol]
+                if len(dialogs) == 1:
+                    dialog = dialogs[0]
+                elif time.monotonic() >= deadline:
+                    raise ValueError('The genuine API result did not open its local reference')
+                else:
+                    settle(.1)
+            body = dialog.findChild(QTextBrowser)
+            from spacr.qt.help_search import local_docstring
+
+            if body is None or body.toPlainText() != local_docstring(symbol):
+                raise ValueError('The displayed API reference differs from the current source')
+            dialog.resize(2200, 1400)
+            dialog.move(window.mapToGlobal(QPoint(800, 350)))
+            settle(.8)
+            capture('module_' + key)
+            routes.append({'module': key, 'api_symbol': symbol, 'search_query': query,
+                           'real_help_result_visible': True, 'api_executed': False,
+                           'local_docstring_displayed': True,
+                           'displayed_docstring_sha256': hashlib.sha256(body.toPlainText().encode()).hexdigest(),
+                           'home_tile_clicked': False})
+            QTest.keyClick(dialog, Qt.Key_Escape)
+            settle(.3)
+            QTest.keyClick(field, Qt.Key_Escape)
+            field.clear()
+            settle(.3)
+            continue
+        host_key = module['home']
+        if not host_key:
+            raise ValueError('No supported native Home route for ' + key)
         tiles = [button for button in window._startup.findChildren(QAbstractButton)
-                 if button.property('moduleAppKey') == key]
+                 if button.property('moduleAppKey') == host_key]
         if not tiles:
             raise ValueError(f'No native Home tile for {key}')
         tabs = window._startup._tabs
@@ -69,38 +130,109 @@ def record_overview(app, window, captures, capture, settle, write_json):
             raise ValueError(f'No category contains the native {key} tile')
         click(tile)
         settle(2)
-        screen = window._screens.get(key)
+        screen = window._screens.get(host_key)
         if screen is None or not screen.isVisible():
-            raise ValueError(f'The native Home tile did not open {key}')
+            raise ValueError(f'The native Home tile did not open {host_key}')
+        if module['parent']:
+            if key == 'ops':
+                from spacr.qt.screens.mask import ops_page
+
+                switch = screen._ops_switch
+                if not switch.isChecked():
+                    click(switch)
+                settle(1)
+                manager = ops_page(screen)
+                screen = manager.page if manager is not None else None
+            else:
+                buttons = [button for button in screen.findChildren(FoldButton)
+                           if button.isVisible() and button.app_key == key]
+                if len(buttons) != 1:
+                    raise ValueError('No unique visible folded route for ' + key)
+                click(buttons[0])
+                settle(1)
+                visible = [widget for widget in app.allWidgets()
+                           if not isinstance(widget, QAbstractButton)
+                           and getattr(widget, 'app_key', None) == key and widget.isVisible()]
+                if len(visible) != 1:
+                    raise ValueError('The folded route did not show exactly one ' + key)
+                screen = visible[0]
+            if screen is None or not screen.isVisible() or screen.app_key != key:
+                raise ValueError('The native folded control did not open ' + key)
         if getattr(screen, '_worker_thread_is_running', lambda: False)():
             raise ValueError(f'Opening {key} unexpectedly started an analysis')
+        if key == 'barcode_qc':
+            section = next(section for section in screen._settings_sections
+                           if 'count_data' in {name for name, widget in screen._settings_model._widgets.items()
+                                               if section.isAncestorOf(widget)})
+            if not section.is_expanded():
+                screen._settings_scroll.ensureWidgetVisible(section.header())
+                settle(.2)
+                click(section.header())
+            input_widget = screen._settings_model._widgets['count_data']
+            clear = [button for button in input_widget.findChildren(QAbstractButton)
+                     if button.text() == 'Clear' and button.isVisible()]
+            if len(clear) != 1:
+                raise ValueError('The native count-input Clear control is missing')
+            click(clear[0])
+            if screen._settings_model.collect()['count_data']:
+                raise ValueError('The placeholder count path was not cleared')
+        actions_folded = False
+        if key == 'ops':
+            folder = screen._actions_folder
+            if not folder.shut:
+                click(folder.heading)
+            if not folder.shut:
+                raise ValueError('The native Actions fold did not close')
+            actions_folded = True
         splitter = getattr(screen, '_body_splitter', None)
-        if (splitter is not None and splitter.count() == 2
-                and splitter.sizes()[0] < splitter.width() * .55):
+        target = {'power': .4, 'dose_response': .5}.get(key, .62)
+        minimum = target - .07
+        if (key in ('regression', 'mask', 'measure', 'classify_merged', 'map_barcodes', 'power', 'dose_response')
+                and splitter is not None and splitter.count() == 2
+                and (key == 'dose_response' or splitter.sizes()[0] < splitter.width() * minimum)):
             # The default narrow Settings column clips the Regression input
             # table. Drag its actual handle so the handoff controls can be read.
             handle = splitter.handle(1)
             start = handle.rect().center()
-            delta = int(splitter.width() * .62) - splitter.sizes()[0]
+            delta = int(splitter.width() * target) - splitter.sizes()[0]
             QTest.mousePress(handle, Qt.LeftButton, pos=start)
             QTest.mouseMove(handle, start + QPoint(delta, 0), delay=100)
             QTest.mouseRelease(handle, Qt.LeftButton, pos=handle.rect().center())
             settle(.6)
-            if splitter.sizes()[0] < splitter.width() * .55:
+            if splitter.sizes()[0] < splitter.width() * minimum:
                 raise ValueError(f'The visible Settings splitter did not expand for {key}')
         if key == 'regression':
             for table in screen._settings_panel.findChildren(QTableView):
                 if table.isVisible():
                     table.resizeColumnsToContents()
             settle(.4)
+        if key == 'experiment_design':
+            table = screen._table
+            table.resizeColumnsToContents()
+            table.resizeRowsToContents()
+            for row in range(table.rowCount()):
+                for column in range(table.columnCount()):
+                    widget = table.cellWidget(row, column)
+                    if widget is not None:
+                        table.setColumnWidth(column, max(table.columnWidth(column), widget.sizeHint().width() + 32))
+                        table.setRowHeight(row, max(table.rowHeight(row), widget.sizeHint().height() + 8))
+            settle(.4)
+        if key == 'dose_response':
+            for table in screen.findChildren(QTableView):
+                if table.isVisible():
+                    table.resizeColumnsToContents()
+            settle(.4)
         capture('module_' + key)
-        routes.append({'module': key, 'tile_text': tile.text(),
+        routes.append({'module': key, 'home_host': host_key, 'parent': module['parent'],
+                       'tile_text': tile.text(),
                        'screen_class': type(screen).__name__,
-                       'home_tile_clicked': True, 'screen_visible': True})
+                       'home_tile_clicked': True, 'screen_visible': True,
+                       'default_count_path_cleared': key == 'barcode_qc',
+                       'actions_folded_for_navigation_only': actions_folded})
     home()
     capture('home_summary')
     write_json(captures / 'workflow_acceptance.json', {
-        'accepted': True, 'scope': 'Real Home navigation; data handoffs explained by the shared map',
+        'accepted': True, 'scope': 'Real Home/fold navigation and indexed API search; data handoffs explained by the shared map',
         'lesson': lesson['id'], 'workflow_map_sha256': hashlib.sha256(map_path.read_bytes()).hexdigest(),
         'lesson_sha256': hashlib.sha256(lesson_path.read_bytes()).hexdigest(),
         'visuals': expected, 'routes': routes, 'analysis_requested': False,

@@ -310,3 +310,24 @@ lesson79 now has79 scenes. Source literals and callable definitions are
 checked without importing or running analysis pipelines.24 focused workflow
 checks pass, including drift rejection and the scientific/data boundaries.
 Tutorial translations, media and listening acceptance remain open.
+
+2026-09-23 — CODEX: TWO WORKFLOW RECORDINGS AND OVERVIEW CAPTIONS
+Lesson 78 has eight current native 4K scenes and all thirteen non-English
+script reviews. Its shared 4K/30 master passes full decode. All thirteen
+caption selections pass browser, seek, link and mobile checks. Visual review
+found paragraph-sized Japanese/Hindi overlays; the shared player now splits
+native punctuation without spaces and recognizes Unicode sentence starts.
+Fourteen focused player tests pass, and Japanese/Hindi/Chinese mobile cues
+were inspected. Every one of Heart's 52 recorded English sentence midpoints
+shows the expected native caption. Narration rendering remains in progress.
+
+Lesson 81 now has eleven map-bound native 4K scenes: eight actual GUI routes,
+including Barcode QC under Map and OPS under Mask, plus the real Help search
+and local reference for the Python-only simulation function. No analysis,
+download or simulation was requested. Recording-specific splitter/table
+adjustments make inputs readable; the bogus default count path is cleared
+through its actual button, and OPS Actions is folded through its heading.
+Other module lessons provide the worked data examples. Lessons 79/80 still
+need recordings, and 81 still needs staging, translations and full media.
+Receipt: tools/tutorials/evidence/2026-09-23-sequencing-workflow-capture.json.
+No full tutorial-set or publication acceptance is claimed.

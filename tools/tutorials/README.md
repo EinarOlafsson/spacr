@@ -72,6 +72,16 @@ any frame that still shows DNA rain. Application defaults and analysis are
 unchanged. These recordings and their translations remain private until the
 complete media and language checks pass.
 
+Add ``--workflow-lesson 81_sequencing_pathways`` for the sequencing overview.
+This records eight native GUI routes, including Map Barcodes → Barcode QC and
+Mask → OPS, and opens the simulation function's genuine local API reference
+from Help search. It does not execute that Python workflow. The recorder clears
+Barcode QC's nonexistent default input through its Clear button, widens the
+Power and Dose-Response panes, sizes table cells, and folds OPS Actions for the
+navigation-only view. All eleven scenes remain bound to the shared map.
+The staged-player verifier's ``--sentence-cues`` option checks every native
+English caption at its recorded speech midpoint in a separate evidence folder.
+
 Annotate's recorder opens `stage/example_data/plate1`, which must be the same
 private dataset bound onto the downloader cache. For existing exported crops,
 `prepare_annotation_capture.py --source <real-project> --destination
