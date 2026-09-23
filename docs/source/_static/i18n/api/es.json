@@ -83464,26 +83464,38 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+        "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+        "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+        "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "Edición interactiva y curaduría de máscaras de segmentación.\n\nMake Masks está archivado en **Tools** en la vista de la aplicación doméstica y es la mitad manual de la segmentación: corrige las máscaras de un modelo se equivocaron, un campo de visión del microscopio a la vez, y su cabeza de mástil abre los flujos de trabajo Cellpose que los produjeron. :class:`MakeMasksScreen` carga imágenes y máscaras etiquetadas de ``<folder>/masks`` y guarda etiquetas editadas como archivos ``uint16`` TIFF.\n\nLas nueve herramientas, en orden :data:`TOOL_MODES`, porque este vocabulario es lo que un lector necesita antes de abrir la vista de la aplicación:\n\n**Brush** y **Erase** pintar y despintar la etiqueta activa un píxel a la vez. **Erase object** elimina toda una etiqueta con un clic. **Wand +** y **Wand −** crecen una región desde el píxel hecho clic y lo añaden a la etiqueta o lo sacan de ella; la tolerancia es relativa al rango de intensidad de la imagen por defecto, véase :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** traza un contorno de forma libre que se cierra y llena como UN objeto -- la herramienta un pincel no es, porque un cepillo sellos discos a lo largo del camino, por lo que el trazado de un borde con él etiqueta el borde y deja el fondo medio. **Dividir** arrastra una línea a través de un objeto fusionado y lo convierte en dos, manteniendo el identificador original en el componente más grande y dando a los más pequeños un nuevo, con cada otro objeto intacto; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` es el ancho de corte. **Zoom** rectángulo-arrastra la vista y no cambia etiquetas en absoluto.\n\n**Recrop** es el noveno y es el único que cambia el campo QUE está en la vista de la aplicación en lugar de lo que se pinta en ella. Una región de imagen extraída por etapas que contiene varias celdas no es un ejemplo de entrenamiento, y la cura como se enseña una red que dos objetos son una imagen -- por lo que una caja alrededor de un objeto escribe esa región de la imagen y la máscara como un campo propio (:func:`spacr.qt.mask_engine.write_recrop`), en cola justo después del campo actual, y el original de multi-objeto se retira en ``recropped_originals/`` en vez de comisariado (:func:`spacr.qt.mask_engine.retire_recropped_original`). Se rechaza una caja más corta que :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` en un lado, o la repetición de un corte ya hecho pasado :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`; los objetos que la caja corta son dejados caer, porque un objeto cuyo límite es donde el ratón fue liberado no es ese objeto; y las etiquetas que sobreviven son renumeradas de uno.\n\nCada campo de visión del microscopio tiene un :class:`spacr.curation.CurationLog`, inicializado de cualquier sidecar existente. :func:`spacr.qt.mask_engine.save_mask` escribe las etiquetas y el libro mayor juntos, lo que permite a :func:`spacr.curation.is_curated` distinguir las máscaras corregidas manualmente de la salida de flujo de trabajo. Un solo gesto produce una entrada del libro mayor y un paso de deshacer.\n\n:meth:`MakeMasksScreen.run_cellpose` aplica el modelo resuelto del flujo de trabajo Cellpose-SAM al campo de visión del microscopio abierto y muestra la máscara, el mapa de probabilidad celular y el campo de vista del microscopio de flujo. Las salidas intermedias admiten la evaluación de :data:`CELLPROB_THRESHOLD` cuando faltan o están incompletas las detecciones.\n\nLos modos de editor se montan desde :func:`tool_row_entries` y :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserta acciones no-modo en la misma barra de herramientas. El panel de ajustes lleva las operaciones que no son gestos -- relleno y reetiquetado de objetos, inversión, filtrado de tamaño y detección de Otsu, con deshacer y rehacer sobre todos ellos -- junto a los controles de pincel, varita y pantalla, y se puede ocultar para devolver su ancho al lienzo.\n\nSe abren herramientas de segmentación adicionales desde el masthead en :data:`FOLD_ORDER` hasta :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask toda la carpeta** aplica Cellpose a cada imagen de la carpeta seleccionada, mientras que **Guardar máscara** en la página Curate llama :meth:`spacr.curation.MaskCuration.save_mask`. Los módulos plegables conservan sus widgets existentes dentro de :class:`FoldedModulePanel`.\n\nEl seguimiento de series temporales se integra con la generación de máscaras como categoría de configuración Timelapse; véase :mod:`spacr.qt.screens.mask`. En cambio, el ensayo de motilidad pertenece a Measure porque consume máscaras existentes y escribe tablas de medición en lugar de generar máscaras.",
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "Edición interactiva y curaduría de máscaras de segmentación.\n\nMake Masks está archivado en **Tools** en la vista de la aplicación doméstica y es la mitad manual de la segmentación: corrige las máscaras de un modelo se equivocaron, un campo de visión del microscopio a la vez, y su cabeza de mástil abre los flujos de trabajo Cellpose que los produjeron. :class:`MakeMasksScreen` carga imágenes y máscaras etiquetadas de ``<folder>/masks`` y guarda etiquetas editadas como archivos ``uint16`` TIFF.\n\nLAS DIEZ HERRAMIENTAS, en el orden de :data:`TOOL_MODES`, porque este vocabulario es necesario antes de abrir la pantalla:\n\n**Brush** y **Erase** pintar y despintar la etiqueta activa un píxel a la vez. **Erase object** elimina toda una etiqueta con un clic. **Wand +** y **Wand −** crecen una región desde el píxel hecho clic y lo añaden a la etiqueta o lo sacan de ella; la tolerancia es relativa al rango de intensidad de la imagen por defecto, véase :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** traza un contorno de forma libre que se cierra y llena como UN objeto -- la herramienta un pincel no es, porque un cepillo sellos discos a lo largo del camino, por lo que el trazado de un borde con él etiqueta el borde y deja el fondo medio. **Dividir** arrastra una línea a través de un objeto fusionado y lo convierte en dos, manteniendo el identificador original en el componente más grande y dando a los más pequeños un nuevo, con cada otro objeto intacto; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` es el ancho de corte. **Zoom** rectángulo-arrastra la vista y no cambia etiquetas en absoluto.\n\n**Recrop** es el noveno y es el único que cambia el campo QUE está en la vista de la aplicación en lugar de lo que se pinta en ella. Una región de imagen extraída por etapas que contiene varias celdas no es un ejemplo de entrenamiento, y la cura como se enseña una red que dos objetos son una imagen -- por lo que una caja alrededor de un objeto escribe esa región de la imagen y la máscara como un campo propio (:func:`spacr.qt.mask_engine.write_recrop`), en cola justo después del campo actual, y el original de multi-objeto se retira en ``recropped_originals/`` en vez de comisariado (:func:`spacr.qt.mask_engine.retire_recropped_original`). Se rechaza una caja más corta que :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` en un lado, o la repetición de un corte ya hecho pasado :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`; los objetos que la caja corta son dejados caer, porque un objeto cuyo límite es donde el ratón fue liberado no es ese objeto; y las etiquetas que sobreviven son renumeradas de uno.\n\n**Regla** es la décima herramienta. Arrastre entre píxeles de imagen para leer una longitud sin editar etiquetas. El zoom y el desplazamiento la conservan; un clic derecho con Regla seleccionada la borra. La misma regla está disponible en los lienzos de vista previa en vivo emparejados.\n\nCada campo de visión del microscopio tiene un :class:`spacr.curation.CurationLog`, inicializado de cualquier sidecar existente. :func:`spacr.qt.mask_engine.save_mask` escribe las etiquetas y el libro mayor juntos, lo que permite a :func:`spacr.curation.is_curated` distinguir las máscaras corregidas manualmente de la salida de flujo de trabajo. Un solo gesto produce una entrada del libro mayor y un paso de deshacer.\n\n:meth:`MakeMasksScreen.run_cellpose` aplica el modelo resuelto del flujo de trabajo Cellpose-SAM al campo de visión del microscopio abierto y muestra la máscara, el mapa de probabilidad celular y el campo de vista del microscopio de flujo. Las salidas intermedias admiten la evaluación de :data:`CELLPROB_THRESHOLD` cuando faltan o están incompletas las detecciones.\n\nLos modos del editor se forman a partir de :func:`tool_row_entries` y :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserta acciones que no son modos en la misma barra de herramientas. El panel de ajustes contiene las operaciones que no son gestos —relleno y reetiquetado de objetos, intercambio de objeto y fondo, filtrado por tamaño y detección Otsu, todas con deshacer y rehacer— junto con los controles de pincel, varita y visualización. Puede ocultarse para devolver su anchura al lienzo.\n\nLa inversión de imagen y el intercambio de objeto y fondo son operaciones distintas. La primera cambia la imagen que ve el detector; la segunda cambia las etiquetas.\n\n**Invertir imagen**, en la categoría Visualización, es la inversión común. Dibuja el campo como su negativo y entrega ese mismo negativo a los detectores: ambos botones de detección y la lupa en vivo segmentan :meth:`MakeMasksScreen._detector_image`, de modo que un umbral diseñado para objetos brillantes detecta los oscuros. Un aviso sobre la imagen lo indica mientras está activado. La intensidad del píxel en la lectura de la esquina sigue la imagen invertida. Las intensidades medias de los objetos y el filtro de objetos siguen leyendo los píxeles cargados. Al guardar se escriben máscaras de etiquetas sin modificar la imagen original.\n\nANTES ERAN DOS INTERRUPTORES QUE PODÍAN CONTRADECIRSE. \"Invert image\" (Invertir imagen), solo para visualización, dibujaba un negativo sin afectar a la detección; \"Invert for detection\" (Invertir para detección) invertía la entrada de los detectores sin dibujar nada. Era posible activar uno sin el otro, y la línea de estado del primero podía contradecir el aviso del segundo. Ahora hay un solo interruptor porque la intención es única: invertir un campo de objetos oscuros para que Otsu y la lupa puedan detectarlos. ``_cp_invert`` es ahora el mismo objeto de widget que ``_invert_display`` bajo su nombre anterior, por lo que ya no pueden divergir.\n\n**Intercambiar objeto y fondo**, en Operaciones de objetos, es el antiguo \"Invert mask\" (Invertir máscara) con un nombre descriptivo: invierte la imagen de ETIQUETAS, lo que en un campo normal deja un objeto que cubre todo el encuadre. No es una inversión de imagen y deliberadamente no se llama así.\n\nEL CÁLCULO. :func:`~spacr.qt.mask_engine.invert_normalized` normaliza el campo a 0..1 según su propio intervalo y calcula ``1 - v``. La normalización es importante: la corrección Otsu es un MULTIPLICADOR de un nivel absoluto, por lo que normalizar primero permite que un valor de corrección tenga el mismo significado en la siguiente imagen. :func:`~spacr.qt.mask_engine.invert_intensity` (complemento del tipo de datos) y :func:`~spacr.qt.mask_engine.invert_for_detection` (reflexión respecto al intervalo del campo) eran las funciones usadas antes en esta pantalla y se conservan para otros llamadores. :func:`~spacr.qt.mask_engine.invert_mask` invierte etiquetas.\n\nSe abren herramientas de segmentación adicionales desde el masthead en :data:`FOLD_ORDER` hasta :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask toda la carpeta** aplica Cellpose a cada imagen de la carpeta seleccionada, mientras que **Guardar máscara** en la página Curate llama :meth:`spacr.curation.MaskCuration.save_mask`. Los módulos plegables conservan sus widgets existentes dentro de :class:`FoldedModulePanel`.\n\nEl seguimiento de series temporales se integra con la generación de máscaras como categoría de configuración Timelapse; véase :mod:`spacr.qt.screens.mask`. En cambio, el ensayo de motilidad pertenece a Measure porque consume máscaras existentes y escribe tablas de medición en lugar de generar máscaras.",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
-        "2fe8b75b72216fa1b7e47c4f62c7d8480c7d784edc4f9c5f02ced343b2b654d8",
+        "969cad596cc2cfef69edf6c4a0188b89650abd06464521d7463bfae34c983b84",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "3c9dca0358ac160f8d9789401e7e3d1b5a5e9b383d918bc1c88a9ff2a78c33ec",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "2b2215c8913b5448f80671cf78cc88af8e72e471164592c44f481cf8a16c4b34",
         "6bb4e99446e63282835ea5163108ec3f9519bdb3a4c884be7c24397428ed5b97",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "edc4f65be8e4b90ae9569581aade15923cf2ecbc10af22089b664a96e457f0af",
+        "0973abc64b13e9497185a2741b196c15c36b4fa4df0db34384386a4c74ab872e",
+        "9bf0b71b754b29971e492e7286673bde96579193d8492e5a1308a7d65de6f498",
+        "aae3a5f4d4c761acce16583f8b69bd8eff5d9a8a7f97198e435fc7ac66ce42ed",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ]
@@ -121608,6 +121620,134 @@
         "d6355b50983828ea09e5b741bc1fb9e0f44cf6f4176ec8b697cd17e96b29ea8e",
         "4541e55a2633e8671bcec6a9d21f9b89c1b91e44c374bb0e1ced1b8058dc6eef",
         "930f4ca8abdeda9e0f260b828e9fc2e582d41c29fb886cdd6b6765b012f25bc8"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "Una regla de línea compartida que mide coordenadas de imagen sin modificar píxeles.",
+      "translation_source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Mantiene una línea en píxeles de imagen y la dibuja mediante la transformación del componente anfitrión.\n\n:param parent: lienzo o vista de imagen propietario; el valor predeterminado es None.\n\nLos componentes anfitriones pasan su correspondencia de widget a imagen a :meth:`handle` y la inversa a :meth:`paint`. El zoom y el desplazamiento nunca cambian la longitud medida. Siempre se muestran unidades de píxel. Las unidades físicas requieren una calibración explícita y validada mediante :meth:`set_spacing`; nunca se supone la ampliación de la cámara. El clic derecho borra la línea mientras la herramienta está activa. Comienza sin línea ni calibración y con el dibujo desactivado.",
+      "translation_source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "Elimina la línea sin cambiar la activación de la herramienta ni la calibración.\n\n:returns: None; emite ``changed`` incluso si no había ninguna línea.",
+      "translation_source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "Consume los gestos del ratón de la regla; devuelve False para los gestos de navegación.\n\n:param event: evento de pulsación, movimiento o liberación del ratón del lienzo anfitrión.\n:param to_image: QPointF del widget -> imagen (x, y), o None fuera de la imagen.\n:returns: True para los gestos de regla consumidos; False cuando el anfitrión debe gestionar el evento. Las coordenadas fuera de la imagen no mueven los extremos.",
+      "translation_source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "Devuelve la longitud en píxeles y, solo si está calibrada, la longitud física.\n\n:returns: texto con longitudes de dos decimales; vacío antes de que exista una línea.",
+      "translation_source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "Devuelve la longitud de la línea, o None antes de que exista una línea.\n\n:param physical: False (predeterminado) usa píxeles de imagen; True usa la escala calibrada de cada eje, incluidos valores horizontales y verticales distintos.\n:returns: longitud euclídea como float en píxeles o ``unit``; None si no existe una línea o se solicita longitud física sin calibración.",
+      "translation_source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "Dibuja los extremos, la línea y la lectura en coordenadas del widget.\n\n:param painter: pintor activo para el lienzo o área visible del anfitrión.\n:param to_widget: imagen (x, y) -> QPointF o QPoint del widget, o None.\n:returns: None; no dibuja nada si falta la línea o cualquiera de los extremos transformados.",
+      "translation_source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "Activa el dibujo; al desactivarlo se conserva la línea terminada.\n\n:param active: si arrastrar con el botón izquierdo sin modificadores mide en lugar de editar.\n:returns: None; emite ``changed`` tras actualizar la activación.",
+      "translation_source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "Establece la distancia física por píxel de imagen o elimina la calibración.\n\n:param x: distancia positiva y finita por píxel horizontal de imagen en ``unit``; el valor predeterminado es None, que elimina la calibración e ignora ``y``.\n:param y: distancia positiva y finita por píxel vertical de imagen en ``unit``; el valor predeterminado es None, que usa ``x`` para ambos ejes.\n:param unit: etiqueta de la unidad física; el valor predeterminado es ``'µm'``. Quien llama proporciona la escala en esta unidad; este método no convierte unidades.\n:raises ValueError: cuando la escala no es positiva o no es finita.\n:returns: None; emite ``changed`` tras actualizar la calibración.",
+      "translation_source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
       ]
     },
     "spacr.qt.widgets.import_workbench": {

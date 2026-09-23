@@ -1186,7 +1186,10 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # All sixteen and the three changed entries have nine-language catalogs.
     # Removing REPOSITORY restores the prior visible-member digest exactly;
     # features/data/411_external_app_api_2026-09-22.json records the audit.
-    expected = 11_356
+    # 477 adds the shared ruler module, class and seven public methods.
+    # The source-derived callable subtraction and rendered anchors are
+    # recorded in features/data/411_shared_ruler_api_2026-09-22.json.
+    expected = 11_365
     actual = len(docs) - len(builder.API_DOC_ALIASES)
     assert actual == expected, (
         f"the public API surface is {actual}, reviewed at {expected} "
@@ -1228,7 +1231,7 @@ def test_public_docstrings_matches_reviewed_visible_coverage():
     # 10,539 -> 10,931 with `expected` above, for the same 392; the aliases
     # are still zero, so the two stay equal.
     # 10,931 -> 11,166 with `expected` above, for the same 235.
-    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_356
+    assert len(docs) == expected + len(builder.API_DOC_ALIASES) == 11_365
     assert set(builder.API_DOC_ALIASES) <= docs.keys()
 
     # THE STDLIB INHERITANCE IS RESOLVED. `LevelSetFilter.filter` used to be
@@ -1571,7 +1574,8 @@ def test_public_docstrings_exclude_the_exact_non_rendered_autoapi_boundary():
     # by exactly 235, so every arrival is rendered.
     # The sixteen Starplast/diagram additions occur on both sides; the
     # independently measured non-rendered boundary remains 224.
-    assert 11_580 - len(docs) == 224
+    # The nine ruler entries are rendered; the excluded set is unchanged.
+    assert 11_589 - len(docs) == 224
 
 
 def test_documented_dunders_exclude_init_private_and_package_forwarders():

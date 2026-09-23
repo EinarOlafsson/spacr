@@ -56531,9 +56531,10 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
         "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
@@ -56545,8 +56546,8 @@
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "bd58d7d40306ab35df58fb7992683e35940648ffa981b0160e496db7e4f5d61f",
-      "text": "Interactive editing and curation of segmentation masks.\n\nMake Masks is filed under **Tools** on the home screen and is the manual\nhalf of segmentation: it corrects masks a model got wrong, one field at a\ntime, and its masthead opens the Cellpose workflows that produced them.\n:class:`MakeMasksScreen` loads images and labelled masks from\n``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.\n\nTHE NINE TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what\na reader needs before opening the screen:\n\n**Brush** and **Erase** paint and unpaint the active label a pixel at a time.\n**Erase object** removes a whole label in one click. **Wand +** and\n**Wand −** grow a region from the pixel clicked and add it to the label or\ntake it out of it; the tolerance is relative to the image's intensity range\nby default, see :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw**\ntraces a free-form outline that closes and fills as ONE object -- the tool a\nbrush is not, because a brush stamps disks along the path, so tracing a rim\nwith it labels the rim and leaves the middle background. **Divide** drags a\nline across a merged object and makes it two, keeping the original identifier\non the larger component and giving the smaller a new one, with every other\nobject untouched; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` is the cut\nwidth. **Zoom** rectangle-drags the view and changes no labels at all.\n\n**Recrop** is the ninth and is the only one that changes WHICH field is on\nscreen rather than what is painted on it. A staged crop holding several cells\nis not one training example, and curating it as one teaches a network that\ntwo objects are one picture -- so a box round an object writes that region of\nboth the image and the mask as a field of its own\n(:func:`spacr.qt.mask_engine.write_recrop`), queued straight after the current\nfield, and the multi-object original is retired into\n``recropped_originals/`` rather than curated\n(:func:`spacr.qt.mask_engine.retire_recropped_original`). A box shorter than\n:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` on a side, or repeating a cut\nalready made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused;\nobjects the box cuts through are dropped, because an object whose boundary is\nwhere the mouse was released is not that object; and the labels that survive\nare renumbered from one.\n\nEach field has a :class:`spacr.curation.CurationLog`, initialized from any\nexisting sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and\nledger together, allowing :func:`spacr.curation.is_curated` to distinguish\nmanually corrected masks from pipeline output. A single gesture produces one\nledger entry and one undo step.\n\n:meth:`MakeMasksScreen.run_cellpose` applies the pipeline's resolved\nCellpose-SAM model to the open field and displays the mask, cell-probability\nmap, and flow field. The intermediate outputs support evaluation of\n:data:`CELLPROB_THRESHOLD` when detections are missing or incomplete.\n\nEditor modes are assembled from :func:`tool_row_entries` and\n:data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts\nnon-mode actions into the same toolbar. The settings panel carries the\noperations that are not gestures -- object filling and relabeling, swapping\nobject and background, size filtering and Otsu detection, with undo and redo\nover all of them -- alongside the brush, wand and display controls, and can\nbe hidden to return its width to the canvas.\n\nImage inversion and swapping object and background are separate operations.\nThe first changes the image seen by the detector; the second changes labels.\n\n**Invert image**, in the Display category, is THE inversion. It draws the\nfield as its own negative and hands the detectors that same negative: both\ndetect buttons and the live magnifier segment\n:meth:`MakeMasksScreen._detector_image`, so a threshold written for bright\nobjects takes dark ones, and a banner above the image says so for as long as\nit is on. The corner readout's pixel intensity follows the inverted image.\nObject mean intensities and the object filter still read the loaded pixels.\nSaving writes label masks without changing the source image.\n\nIT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only \"Invert\nimage\" drew a negative and left detection untouched; \"Invert for detection\"\ninverted what the detectors read and drew nothing. A curator could hold\neither without the other, and the first one's status line had to contradict\nthe second one's banner. They are one switch because the reason for the\nswitch is one intention: inverting a field of dark objects so that Otsu and\nthe magnifier can detect them. ``_cp_invert`` is now the same widget object as\n``_invert_display`` under its old name, so the two cannot come apart.\n\n**Swap object and background**, in Object operations, is the old \"Invert\nmask\" under the name that describes it -- it flips the LABEL image, which on\nan ordinary field leaves one object covering the frame. It is not\na picture invert and is deliberately not called one.\n\nTHE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises\nthe field to 0..1 on its own range and takes ``1 - v``, and the\nnormalisation is not incidental: the Otsu correction is a\nMULTIPLIER on an absolute level, so normalising first is what makes one\ncorrection value mean the same thing on the next image.\n:func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and\n:func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the\nfield's range) are what this screen used before and are kept for other\ncallers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.\n\nAdditional segmentation tools are opened from the masthead in\n:data:`FOLD_ORDER` through\n:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask the whole folder**\napplies Cellpose to every image in the selected folder, while **Save mask** on\nthe Curate page calls :meth:`spacr.curation.MaskCuration.save_mask`. Folded\nmodules retain their existing widgets inside :class:`FoldedModulePanel`.\n\nTime-series tracking is integrated with Mask Generation as the Timelapse\nsettings category; see :mod:`spacr.qt.screens.mask`. Motility Assay instead\nbelongs to Measure because it consumes existing masks and writes measurement\ntables rather than generating masks."
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "Interactive editing and curation of segmentation masks.\n\nMake Masks is filed under **Tools** on the home screen and is the manual\nhalf of segmentation: it corrects masks a model got wrong, one field at a\ntime, and its masthead opens the Cellpose workflows that produced them.\n:class:`MakeMasksScreen` loads images and labelled masks from\n``<folder>/masks`` and saves edited labels as ``uint16`` TIFF files.\n\nTHE TEN TOOLS, in :data:`TOOL_MODES` order, because this vocabulary is what\na reader needs before opening the screen:\n\n**Brush** and **Erase** paint and unpaint the active label a pixel at a time.\n**Erase object** removes a whole label in one click. **Wand +** and\n**Wand −** grow a region from the pixel clicked and add it to the label or\ntake it out of it; the tolerance is relative to the image's intensity range\nby default, see :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw**\ntraces a free-form outline that closes and fills as ONE object -- the tool a\nbrush is not, because a brush stamps disks along the path, so tracing a rim\nwith it labels the rim and leaves the middle background. **Divide** drags a\nline across a merged object and makes it two, keeping the original identifier\non the larger component and giving the smaller a new one, with every other\nobject untouched; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` is the cut\nwidth. **Zoom** rectangle-drags the view and changes no labels at all.\n\n**Recrop** is the ninth and is the only one that changes WHICH field is on\nscreen rather than what is painted on it. A staged crop holding several cells\nis not one training example, and curating it as one teaches a network that\ntwo objects are one picture -- so a box round an object writes that region of\nboth the image and the mask as a field of its own\n(:func:`spacr.qt.mask_engine.write_recrop`), queued straight after the current\nfield, and the multi-object original is retired into\n``recropped_originals/`` rather than curated\n(:func:`spacr.qt.mask_engine.retire_recropped_original`). A box shorter than\n:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` on a side, or repeating a cut\nalready made past :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, is refused;\nobjects the box cuts through are dropped, because an object whose boundary is\nwhere the mouse was released is not that object; and the labels that survive\nare renumbered from one.\n\n**Ruler** is the tenth. Drag between image pixels to read a length without\nediting labels. Zoom and pan preserve it; right-click with Ruler selected\nclears it. The same ruler is available on the paired live preview canvases.\n\nEach field has a :class:`spacr.curation.CurationLog`, initialized from any\nexisting sidecar. :func:`spacr.qt.mask_engine.save_mask` writes the labels and\nledger together, allowing :func:`spacr.curation.is_curated` to distinguish\nmanually corrected masks from pipeline output. A single gesture produces one\nledger entry and one undo step.\n\n:meth:`MakeMasksScreen.run_cellpose` applies the pipeline's resolved\nCellpose-SAM model to the open field and displays the mask, cell-probability\nmap, and flow field. The intermediate outputs support evaluation of\n:data:`CELLPROB_THRESHOLD` when detections are missing or incomplete.\n\nEditor modes are assembled from :func:`tool_row_entries` and\n:data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` inserts\nnon-mode actions into the same toolbar. The settings panel carries the\noperations that are not gestures -- object filling and relabeling, swapping\nobject and background, size filtering and Otsu detection, with undo and redo\nover all of them -- alongside the brush, wand and display controls, and can\nbe hidden to return its width to the canvas.\n\nImage inversion and swapping object and background are separate operations.\nThe first changes the image seen by the detector; the second changes labels.\n\n**Invert image**, in the Display category, is THE inversion. It draws the\nfield as its own negative and hands the detectors that same negative: both\ndetect buttons and the live magnifier segment\n:meth:`MakeMasksScreen._detector_image`, so a threshold written for bright\nobjects takes dark ones, and a banner above the image says so for as long as\nit is on. The corner readout's pixel intensity follows the inverted image.\nObject mean intensities and the object filter still read the loaded pixels.\nSaving writes label masks without changing the source image.\n\nIT USED TO BE TWO SWITCHES AND THEY COULD DISAGREE. A display-only \"Invert\nimage\" drew a negative and left detection untouched; \"Invert for detection\"\ninverted what the detectors read and drew nothing. A curator could hold\neither without the other, and the first one's status line had to contradict\nthe second one's banner. They are one switch because the reason for the\nswitch is one intention: inverting a field of dark objects so that Otsu and\nthe magnifier can detect them. ``_cp_invert`` is now the same widget object as\n``_invert_display`` under its old name, so the two cannot come apart.\n\n**Swap object and background**, in Object operations, is the old \"Invert\nmask\" under the name that describes it -- it flips the LABEL image, which on\nan ordinary field leaves one object covering the frame. It is not\na picture invert and is deliberately not called one.\n\nTHE ARITHMETIC. :func:`~spacr.qt.mask_engine.invert_normalized` normalises\nthe field to 0..1 on its own range and takes ``1 - v``, and the\nnormalisation is not incidental: the Otsu correction is a\nMULTIPLIER on an absolute level, so normalising first is what makes one\ncorrection value mean the same thing on the next image.\n:func:`~spacr.qt.mask_engine.invert_intensity` (dtype complement) and\n:func:`~spacr.qt.mask_engine.invert_for_detection` (reflection about the\nfield's range) are what this screen used before and are kept for other\ncallers. :func:`~spacr.qt.mask_engine.invert_mask` flips labels.\n\nAdditional segmentation tools are opened from the masthead in\n:data:`FOLD_ORDER` through\n:class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Mask the whole folder**\napplies Cellpose to every image in the selected folder, while **Save mask** on\nthe Curate page calls :meth:`spacr.curation.MaskCuration.save_mask`. Folded\nmodules retain their existing widgets inside :class:`FoldedModulePanel`.\n\nTime-series tracking is integrated with Mask Generation as the Timelapse\nsettings category; see :mod:`spacr.qt.screens.mask`. Motility Assay instead\nbelongs to Measure because it consumes existing masks and writes measurement\ntables rather than generating masks."
     },
     "spacr.qt.screens.make_masks.FoldedModulePanel": {
       "source_blocks_sha256": [
@@ -82688,6 +82689,88 @@
       ],
       "source_sha256": "d997f172e3a9e09def0cd166efd13a1d7894fd76f43157f4a59b98a37b91bb86",
       "text": "Split a trailing documentation link off a tooltip body.\n\n``settings_model.format_tooltip`` ends every setting's help with\n``<a href=\"...\">Open spaCR API documentation</a>``. The popup renders\nthat destination as its own **API** word instead, so the anchor is taken\nout of the prose here rather than in the formatter — the same string is\nstill used verbatim by the hint strip, the accessibility tree and every\nother consumer of ``format_tooltip``.\n\nOnly a link that really is the last thing in the body is taken; a link\ninside a sentence stays where the author put it.\n\n:returns: ``(body_without_the_link, url)``; ``url`` is ``\"\"`` when there\n    was no trailing link."
+    },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "A shared line ruler that measures image coordinates without changing pixels."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Keep a line in image pixels and paint it through the host's transform.\n\n:param parent: owning image canvas or view; defaults to None.\n\nHosts pass their widget-to-image mapping to :meth:`handle` and inverse\nmapping to :meth:`paint`. Zoom and pan never change the measured length.\nPixel units are always shown. Physical units require explicit, validated\ncalibration through :meth:`set_spacing`; camera magnification is never\nguessed. Right-click clears while the tool is active.\nStart with no line, no calibration and drawing disabled."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "Remove the line without changing tool activation or calibration.\n\n:returns: None; emits ``changed`` even when no line was present."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "Consume ruler mouse gestures; return False for navigation gestures.\n\n:param event: a mouse press, move or release from the host canvas.\n:param to_image: widget QPointF -> image (x, y), or None off-image.\n:returns: True for consumed ruler gestures; False when the host should\n    handle the event. Coordinates outside the image do not move endpoints."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "Return pixel length and, only when calibrated, physical length.\n\n:returns: text with lengths to two decimal places; empty before a line exists."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "Return the line length, or None before a line exists.\n\n:param physical: False (default) uses image pixels; True uses calibrated\n    per-axis spacing, including different horizontal and vertical values.\n:returns: Euclidean length as a float in pixels or ``unit``; None when\n    no line exists or physical length is requested without calibration."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "Draw endpoints, line and readout in widget coordinates.\n\n:param painter: an active painter for the host canvas/viewport.\n:param to_widget: image (x, y) -> widget QPointF or QPoint, or None.\n:returns: None; draws nothing when a line or either mapped endpoint is missing."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "Enable drawing; disabling preserves the finished line.\n\n:param active: whether unmodified left drags measure instead of edit.\n:returns: None; emits ``changed`` after updating activation."
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "Set physical distance per image pixel, or clear calibration.\n\n:param x: positive finite distance per horizontal image pixel in ``unit``;\n    defaults to None, which clears calibration and ignores ``y``.\n:param y: positive finite distance per vertical image pixel in ``unit``;\n    defaults to None, which uses ``x`` for both axes.\n:param unit: physical unit label; defaults to ``'µm'``. The caller supplies\n    spacing in this unit; this method does not convert units.\n:raises ValueError: when spacing is nonpositive or nonfinite.\n:returns: None; emits ``changed`` after updating calibration."
     },
     "spacr.qt.widgets.import_workbench": {
       "source_blocks_sha256": [

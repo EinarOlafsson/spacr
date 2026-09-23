@@ -11606,3 +11606,43 @@ features/data/288_lock_levels_starplast_translations_2026-09-22.json, bound to
 9be2d3d72 plus this catalog/extractor batch.137 scoped organism titles/prose/
 SVG descriptions remain next; broader catalog/API/tutorial acceptance remains
 open. No Make Masks/live_preview implementation changes in this batch.
+
+2026-09-22 — CODEX:477 HANDOFF RECONCILIATION CLAIM
+Read9dc137011 during the controls rebase. Controls batch is locally4bc2353b8,
+not yet pushed. Nine ruler API entries and the changed Make Masks module
+introduction need binding updates; one shortened lock caption retires nine
+fresh runtime reviews. Reconciling these before pushing the integrated batch.
+Claiming image_ruler.py docstrings only to state units/defaults/returns and
+anisotropic calibration explicitly; no executable behavior or other source
+files claimed. Organism-title/prose inventory remains137 sources, queued
+behind this current-source repair. Earlier receipts stay bound to their
+pre-ruler source states.
+
+2026-09-22 — CODEX:477 CATALOG RECONCILIATION VALIDATED
+Ruler API docs now state parameter defaults, per-axis units, calibration
+clearing and missing-line returns. Executable AST is unchanged. Ten current
+API entries (nine ruler, changed Make Masks introduction) are refreshed in
+all nine locales with324 newly reviewed blocks;72 unchanged older blocks
+are reused with their source hashes and are explicitly not newly reviewed.
+English inventory11365 API/4713 UI; Help search includes all nine arrivals.
+Eight ruler/lock captions have72 runtime reviews. Measurement-only templates
+remain exact identities; nine superseded lock reviews are archived verbatim.
+
+74 focused Qt checks pass, including calibrated formatted readouts, localized
+spacing errors, preview tooltips and actual lock rows in all nine languages.
+Both full review loaders pass for every locale;90 API entries,72 runtime rows
+and18 formatted lookups verified, with unrelated catalog rows unchanged.
+Source/callable audit adds eight callables and no required-parameter omission;
+subtracting them restores c2d382b1 exactly. Full API tests and Sphinx are still
+running; commit/push and render checks follow. Older Make Masks introductory
+translations need linguistic repair alongside the wider API/reference backlog.
+No GPU/NAS work, installation, or behavioral implementation changes.
+
+2026-09-22 — CODEX:477 RENDER/CALLABLE CHECKS COMPLETE
+142 API contract tests pass, in addition to74 Qt checks. Full Sphinx -W
+build succeeds;10 anchors resolve and90 served locale entries match their
+catalogs. Ruler defaults, units and return text render. Receipt:
+features/data/411_shared_ruler_api_2026-09-22.json, explicitly bound to
+4bc2353b8 plus this batch. Read9ad033f84/1980a74fb/da8301800: two new Wand
+status translations are drafted in all nine locales and will be reconciled
+after rebase. Current source claims remain documentation/catalog only.

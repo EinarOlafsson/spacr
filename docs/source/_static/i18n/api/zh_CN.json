@@ -83465,26 +83465,38 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+        "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+        "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+        "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "互动编辑和治疗分区掩膜。\n\nMake Masks 在主应用程序视图上输入 **Tools** 并是手动分区的一半:它纠正一个模型错误的掩膜,一个显微镜的视野同时,其掩膜头打开了产生它们的 Cellpose 工作流。 :class:`MakeMasksScreen` 从 ``<folder>/masks`` 上加载图像和标签掩膜,并将编辑标签保存为 ``uint16`` TIFF 文件。\n\n九个工具,按 :data:`TOOL_MODES` 顺序,因为这个词汇是读者在打开应用程序视图之前需要的:\n\n**Brush**和 **Erase**同时绘画和不绘画活性标签一个像素。 **Erasa对象**在一个点击中删除整个标签. **墙 +**和**墙 −**从点击的像素中生长一个区域,并将其添加到标签或从标签中取出它;宽容与图像的强度范围默认相似,请参见 :func:`spacr.qt.mask_engine.relative_tolerance`。 **Draw**跟踪一个自由形状的输出线,关闭并填写作为一个对象 - 工具一个刷子不是,因为刷子在路径沿着磁盘,所以通过跟踪标签将其放在中间的背景。 **Divide**在合成对象中拖动一条线,并将其分成两条,保持原始标识器在较大的组件上,并给较小的一个新的,每个其他对象都没有触摸; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` 是切割宽度。 **Zoom**直角吸引了视图,并且根本没有更改标签。\n\n**Recrop**是第九个,是唯一改变什么字段是在应用视图上而不是在它上绘制的。 持有多个细胞的步骤提取图像区域不是一个训练例子,并且治疗它作为一个教导一个网络,两个对象是一个图像 - 因此,一个框环绕一个对象写到该区域的图像和掩膜作为一个自己的(:func:`spacr.qt.mask_engine.write_recrop`),在当前的字段后直播,而多对象原始退休到``recropped_originals/``而不是治愈(:func:`spacr.qt.mask_engine.retire_recropped_original`)。 一个侧面比:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE`更短的盒子,或者重复已经过去的:data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`的切割,被拒绝;盒子切割的对象被抛弃,因为一个对象,其边界是鼠标被释放的地方,不是这个对象;而生存的标签是从一个重新编号。\n\n每个显微镜的视野都有一个 :class:`spacr.curation.CurationLog`,从任何现有侧面开始。 :func:`spacr.qt.mask_engine.save_mask` 将标签和列表编写在一起,允许 :func:`spacr.curation.is_curated` 从工作流输出中区分手动纠正的掩膜。\n\n:meth:`MakeMasksScreen.run_cellpose` 适用于工作流的分辨式 Cellpose-SAM 模型到开放式显微镜视野,并显示掩膜、细胞可行性地图和流动显微镜视野。 中间输出支持 :data:`CELLPROB_THRESHOLD` 的评估,如果检测缺乏或不完整。\n\n编辑模式由 :func:`tool_row_entries` 和 :data:`TOOL_MODES` 组成. :meth:`MakeMasksScreen.add_toolbar_action` 将非模式操作插入到相同的工具栏中. 设置面板执行非行为的操作 - 对象填充和重新标签,逆转,大小过滤和 Otsu 检测,与 undo 和 redo 所有 - 旁边的刷, wand 和显示控制,并且可以隐藏返回其宽度到管道。\n\n额外的分区工具从 :data:`FOLD_ORDER` 到 :class:`~spacr.qt.widgets.fold_strip.FoldStrip` 打开。 **显示整个文件夹** 适用于选定的文件夹中的每个图像 Cellpose, 而在清洁页面上的 **Save mask** 会调用给 :meth:`spacr.curation.MaskCuration.save_mask`. 包装模块保留现有 widgets 在 :class:`FoldedModulePanel` 中。\n\n时间序列跟踪与按摩类作为按摩设置类别集成; 参见 :mod:`spacr.qt.screens.mask`. 动态评估相反属于测量,因为它消耗现有掩膜并写出测量表而不是产生掩膜。",
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "互动编辑和治疗分区掩膜。\n\nMake Masks 在主应用程序视图上输入 **Tools** 并是手动分区的一半:它纠正一个模型错误的掩膜,一个显微镜的视野同时,其掩膜头打开了产生它们的 Cellpose 工作流。 :class:`MakeMasksScreen` 从 ``<folder>/masks`` 上加载图像和标签掩膜,并将编辑标签保存为 ``uint16`` TIFF 文件。\n\n以下按 :data:`TOOL_MODES` 的顺序介绍十种工具；读者在打开界面前需要了解这些术语：\n\n**Brush**和 **Erase**同时绘画和不绘画活性标签一个像素。 **Erasa对象**在一个点击中删除整个标签. **墙 +**和**墙 −**从点击的像素中生长一个区域,并将其添加到标签或从标签中取出它;宽容与图像的强度范围默认相似,请参见 :func:`spacr.qt.mask_engine.relative_tolerance`。 **Draw**跟踪一个自由形状的输出线,关闭并填写作为一个对象 - 工具一个刷子不是,因为刷子在路径沿着磁盘,所以通过跟踪标签将其放在中间的背景。 **Divide**在合成对象中拖动一条线,并将其分成两条,保持原始标识器在较大的组件上,并给较小的一个新的,每个其他对象都没有触摸; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` 是切割宽度。 **Zoom**直角吸引了视图,并且根本没有更改标签。\n\n**Recrop**是第九个,是唯一改变什么字段是在应用视图上而不是在它上绘制的。 持有多个细胞的步骤提取图像区域不是一个训练例子,并且治疗它作为一个教导一个网络,两个对象是一个图像 - 因此,一个框环绕一个对象写到该区域的图像和掩膜作为一个自己的(:func:`spacr.qt.mask_engine.write_recrop`),在当前的字段后直播,而多对象原始退休到``recropped_originals/``而不是治愈(:func:`spacr.qt.mask_engine.retire_recropped_original`)。 一个侧面比:data:`spacr.qt.mask_engine.RECROP_MIN_SIDE`更短的盒子,或者重复已经过去的:data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`的切割,被拒绝;盒子切割的对象被抛弃,因为一个对象,其边界是鼠标被释放的地方,不是这个对象;而生存的标签是从一个重新编号。\n\n**标尺**是第十种工具。在图像像素之间拖动即可读取长度，而不编辑标签。缩放和平移会保留测量；选中标尺时右键单击可清除测量。配对的实时预览画布上也提供同一标尺。\n\n每个显微镜的视野都有一个 :class:`spacr.curation.CurationLog`,从任何现有侧面开始。 :func:`spacr.qt.mask_engine.save_mask` 将标签和列表编写在一起,允许 :func:`spacr.curation.is_curated` 从工作流输出中区分手动纠正的掩膜。\n\n:meth:`MakeMasksScreen.run_cellpose` 适用于工作流的分辨式 Cellpose-SAM 模型到开放式显微镜视野,并显示掩膜、细胞可行性地图和流动显微镜视野。 中间输出支持 :data:`CELLPROB_THRESHOLD` 的评估,如果检测缺乏或不完整。\n\n编辑器模式由 :func:`tool_row_entries` 和 :data:`TOOL_MODES` 组合而成。:meth:`MakeMasksScreen.add_toolbar_action` 将非模式操作插入同一工具栏。设置面板在画笔、魔棒和显示控件之外，提供非手势操作：对象填充和重新编号、对象与背景交换、大小筛选和 Otsu 检测，所有这些操作均可撤销和重做。隐藏面板可将其宽度归还给画布。\n\n图像反相与对象和背景交换是不同的操作。前者更改检测器看到的图像；后者更改标签。\n\n显示类别中的**图像反相**是统一的反相操作。它将视野绘制为自身的负片，并将同一负片交给检测器：两个检测按钮和实时放大镜均分割 :meth:`MakeMasksScreen._detector_image`，使为亮对象设置的阈值能够检测暗对象。启用期间，图像上方的提示栏会说明这一点。角落读数中的像素强度随反相图像变化。对象平均强度和对象筛选器仍读取载入的像素。保存时写入标签掩膜，不修改源图像。\n\n过去有两个可能不一致的开关。仅用于显示的 \"Invert image\" (图像反相)绘制负片而不改变检测； \"Invert for detection\" (为检测反相)反转检测器读取的内容，却不绘制任何内容。用户可能只启用其中一个，导致第一个开关的状态行与第二个开关的提示栏相矛盾。现在合并为一个开关，因为其目的相同：将含暗对象的视野反相，使 Otsu 和放大镜能够检测它们。``_cp_invert`` 现在是 ``_invert_display`` 同一个控件对象的旧名称，因此两者不会再出现不一致。\n\n对象操作中的**交换对象与背景**是原 \"Invert mask\" (掩膜反相)的描述性名称：它反转标签图像，在普通视野中会留下覆盖整个画面的一个对象。这不是图像反相，因此特意不用那个名称。\n\n计算方式如下。:func:`~spacr.qt.mask_engine.invert_normalized` 根据视野自身的范围将其归一化到 0..1，再计算 ``1 - v``。归一化并非可有可无：Otsu 校正是作用于绝对阈值的乘数，因此先归一化，才能使同一校正值在下一幅图像上保持相同含义。:func:`~spacr.qt.mask_engine.invert_intensity`（数据类型补数）和 :func:`~spacr.qt.mask_engine.invert_for_detection`（相对于视野范围的镜像变换）是此界面以前使用的方法，现保留供其他调用方使用。:func:`~spacr.qt.mask_engine.invert_mask` 反转标签。\n\n额外的分区工具从 :data:`FOLD_ORDER` 到 :class:`~spacr.qt.widgets.fold_strip.FoldStrip` 打开。 **显示整个文件夹** 适用于选定的文件夹中的每个图像 Cellpose, 而在清洁页面上的 **Save mask** 会调用给 :meth:`spacr.curation.MaskCuration.save_mask`. 包装模块保留现有 widgets 在 :class:`FoldedModulePanel` 中。\n\n时间序列跟踪与按摩类作为按摩设置类别集成; 参见 :mod:`spacr.qt.screens.mask`. 动态评估相反属于测量,因为它消耗现有掩膜并写出测量表而不是产生掩膜。",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
-        "2fe8b75b72216fa1b7e47c4f62c7d8480c7d784edc4f9c5f02ced343b2b654d8",
+        "969cad596cc2cfef69edf6c4a0188b89650abd06464521d7463bfae34c983b84",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "3c9dca0358ac160f8d9789401e7e3d1b5a5e9b383d918bc1c88a9ff2a78c33ec",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "2b2215c8913b5448f80671cf78cc88af8e72e471164592c44f481cf8a16c4b34",
         "6bb4e99446e63282835ea5163108ec3f9519bdb3a4c884be7c24397428ed5b97",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "edc4f65be8e4b90ae9569581aade15923cf2ecbc10af22089b664a96e457f0af",
+        "0973abc64b13e9497185a2741b196c15c36b4fa4df0db34384386a4c74ab872e",
+        "9bf0b71b754b29971e492e7286673bde96579193d8492e5a1308a7d65de6f498",
+        "aae3a5f4d4c761acce16583f8b69bd8eff5d9a8a7f97198e435fc7ac66ce42ed",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ]
@@ -121609,6 +121621,134 @@
         "d6355b50983828ea09e5b741bc1fb9e0f44cf6f4176ec8b697cd17e96b29ea8e",
         "4541e55a2633e8671bcec6a9d21f9b89c1b91e44c374bb0e1ced1b8058dc6eef",
         "930f4ca8abdeda9e0f260b828e9fc2e582d41c29fb886cdd6b6765b012f25bc8"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "一个共享线段标尺，用于测量图像坐标而不更改像素。",
+      "translation_source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "以图像像素保存线段，并通过宿主的变换绘制它。\n\n:param parent: 所属图像画布或视图；默认为 None。\n\n宿主将控件到图像的映射传给 :meth:`handle`，将逆映射传给 :meth:`paint`。缩放和平移不会改变测量长度。始终显示像素单位。物理单位需要通过 :meth:`set_spacing` 进行显式且经过验证的校准；不会猜测相机放大倍率。工具启用时，右键单击可清除线段。初始状态无线段、无校准，且禁用绘制。",
+      "translation_source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "移除线段，不更改工具启用状态或校准。\n\n:returns: None；即使原先没有线段也会发出 ``changed``。",
+      "translation_source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "处理标尺鼠标手势；对于导航手势返回 False。\n\n:param event: 来自宿主画布的鼠标按下、移动或释放事件。\n:param to_image: 控件 QPointF -> 图像 (x, y)，图像外返回 None。\n:returns: 已处理的标尺手势返回 True；需要宿主处理事件时返回 False。图像外的坐标不会移动端点。",
+      "translation_source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "返回像素长度，并且仅在已校准时返回物理长度。\n\n:returns: 长度保留两位小数的文本；尚无线段时为空。",
+      "translation_source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "返回线段长度，尚无线段时返回 None。\n\n:param physical: False（默认）使用图像像素；True 使用各轴的校准间距，包括水平和垂直值不同的情况。\n:returns: 以 float 返回欧氏长度，单位为像素或 ``unit``；尚无线段或未校准却请求物理长度时返回 None。",
+      "translation_source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "以控件坐标绘制端点、线段和读数。\n\n:param painter: 用于宿主画布或视口的活动绘制器。\n:param to_widget: 图像 (x, y) -> 控件 QPointF 或 QPoint，或 None。\n:returns: None；缺少线段或任一映射后的端点时不绘制任何内容。",
+      "translation_source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "启用绘制；禁用时保留已完成的线段。\n\n:param active: 不按修饰键的左键拖动是否用于测量而非编辑。\n:returns: None；更新启用状态后发出 ``changed``。",
+      "translation_source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "设置每个图像像素对应的物理距离，或清除校准。\n\n:param x: 以 ``unit`` 表示的每个水平图像像素的正有限距离；默认为 None，这会清除校准并忽略 ``y``。\n:param y: 以 ``unit`` 表示的每个垂直图像像素的正有限距离；默认为 None，这会在两个轴上都使用 ``x``。\n:param unit: 物理单位标签；默认为 ``'µm'``。调用方以此单位提供间距；此方法不进行单位换算。\n:raises ValueError: 间距非正或非有限时。\n:returns: None；更新校准后发出 ``changed``。",
+      "translation_source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
       ]
     },
     "spacr.qt.widgets.import_workbench": {

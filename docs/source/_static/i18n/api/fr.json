@@ -83464,26 +83464,38 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+        "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+        "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+        "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "Révision interactive et curation des masques de segmentation.\n\nMake Masks est classé sous **Tools** sur la vue d'accueil de l'application et est la moitié manuelle de la segmentation : il corrige les masques d'un modèle s'est trompé, un champ de vision au microscope à la fois, et sa tête de mât ouvre les workflows Cellpose qui les ont produits. :class:`MakeMasksScreen` charge des images et des masques étiquetés de ``<folder>/masks`` et enregistre les étiquettes éditées sous la forme de fichiers ``uint16`` TIFF.\n\nLes neuf outils, dans l'ordre :data:`TOOL_MODES`, parce que ce vocabulaire est ce dont un lecteur a besoin avant d'ouvrir la vue de l'application:\n\n**Brush** et **Erase** peint et dépeint l'étiquette active un pixel à la fois. **Erase object** enlève une étiquette entière en un seul clic. **Wand +** et**Wrand −** cultive une région à partir du pixel cliqué et l'ajoute à l'étiquetage ou la retire de celui-ci; la tolérance est relative à la plage d'intensité de l'image par défaut, voir :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** trace un contour en forme libre qui se ferme et se remplit en tant qu'objet ONE -- l'outil un pinceau n'est pas, parce qu'un pinceau marque les disques le long du chemin, traçant ainsi une jante avec elle appose la jante et laisse le fond médian. **Divide** fait glisser une ligne sur un objet fusionné et en fait deux, en gardant l'identificateur d'origine sur le composant plus grand et en donnant à la plus petite une nouvelle, avec tous les autres objets intacts; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` est la largeur de coupe. **Zoom** rectangle-drags la vue et ne change aucune étiquette du tout.\n\n**Recrop** est le neuvième et est le seul qui change ce champ qui est sur la vue d'application plutôt que ce qui est peint sur lui. Une région d'image extraite par étapes tenant plusieurs cellules n'est pas un exemple d'entraînement, et le curant comme on enseigne à un réseau que deux objets sont une image -- donc une boîte autour d'un objet écrit que la région de l'image et le masque comme un champ de son propre (:func:`spacr.qt.mask_engine.write_recrop`), en file d'attente juste après le champ courant, et l'original multi-objets est retiré dans ``recropped_originals/`` plutôt que curé (:func:`spacr.qt.mask_engine.retire_recropped_original`). Une boîte plus courte que :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` sur un côté, ou répétant une coupe déjà faite au-delà de :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, est refusée; les objets que la boîte coupe sont lâchés, parce qu'un objet dont la limite est où la souris a été libérée n'est pas cet objet; et les étiquettes qui survivent sont renumérotées d'un seul.\n\nChaque champ de vision du microscope a un :class:`spacr.curation.CurationLog`, initialisé à partir de n'importe quel sidecar existant. :func:`spacr.qt.mask_engine.save_mask` écrit les étiquettes et le registre ensemble, ce qui permet à :func:`spacr.curation.is_curated` de distinguer les masques corrigés manuellement de la sortie du workflow.\n\n:meth:`MakeMasksScreen.run_cellpose` applique le modèle résolu du workflow Cellpose-SAM au champ de vision du microscope ouvert et affiche le masque, la carte de probabilité de cellules et le champ de vue du microscope de flux. Les sorties intermédiaires supportent l'évaluation de :data:`CELLPROB_THRESHOLD` lorsque les détections sont manquantes ou incomplètes.\n\nLes modes d'édition sont assemblés à partir de :func:`tool_row_entries` et :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` insère des actions non-mode dans la même barre d'outils. Le panneau de paramètres porte les opérations qui ne sont pas des gestes -- remplissage et reétiquetage d'objets, inversion, filtrage de taille et détection d'Otsu, avec undo et redo sur tous -- à côté des commandes de brosse, de baguette et d'affichage, et peut être caché pour retourner sa largeur à la toile.\n\nDes outils de segmentation supplémentaires sont ouverts de la tête de mât dans :data:`FOLD_ORDER` à :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Masquer l'ensemble du dossier** s'applique Cellpose à chaque image du dossier sélectionné, tandis que **Enregistrer le masque** sur la page Curate appelle :meth:`spacr.curation.MaskCuration.save_mask`. Les modules repliés conservent leurs widgets existants à l'intérieur de :class:`FoldedModulePanel`.\n\nLe suivi des séries chronologiques est intégré à la génération de masques comme catégorie de paramètres Timelapse; voir :mod:`spacr.qt.screens.mask`. Motilité Assay appartient plutôt à Mesure parce qu'il consomme les masques existants et écrit des tables de mesure plutôt que de générer des masques.",
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "Révision interactive et curation des masques de segmentation.\n\nMake Masks est classé sous **Tools** sur la vue d'accueil de l'application et est la moitié manuelle de la segmentation : il corrige les masques d'un modèle s'est trompé, un champ de vision au microscope à la fois, et sa tête de mât ouvre les workflows Cellpose qui les ont produits. :class:`MakeMasksScreen` charge des images et des masques étiquetés de ``<folder>/masks`` et enregistre les étiquettes éditées sous la forme de fichiers ``uint16`` TIFF.\n\nLES DIX OUTILS, dans l’ordre de :data:`TOOL_MODES`, car ce vocabulaire est nécessaire avant d’ouvrir l’écran :\n\n**Brush** et **Erase** peint et dépeint l'étiquette active un pixel à la fois. **Erase object** enlève une étiquette entière en un seul clic. **Wand +** et**Wrand −** cultive une région à partir du pixel cliqué et l'ajoute à l'étiquetage ou la retire de celui-ci; la tolérance est relative à la plage d'intensité de l'image par défaut, voir :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** trace un contour en forme libre qui se ferme et se remplit en tant qu'objet ONE -- l'outil un pinceau n'est pas, parce qu'un pinceau marque les disques le long du chemin, traçant ainsi une jante avec elle appose la jante et laisse le fond médian. **Divide** fait glisser une ligne sur un objet fusionné et en fait deux, en gardant l'identificateur d'origine sur le composant plus grand et en donnant à la plus petite une nouvelle, avec tous les autres objets intacts; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` est la largeur de coupe. **Zoom** rectangle-drags la vue et ne change aucune étiquette du tout.\n\n**Recrop** est le neuvième et est le seul qui change ce champ qui est sur la vue d'application plutôt que ce qui est peint sur lui. Une région d'image extraite par étapes tenant plusieurs cellules n'est pas un exemple d'entraînement, et le curant comme on enseigne à un réseau que deux objets sont une image -- donc une boîte autour d'un objet écrit que la région de l'image et le masque comme un champ de son propre (:func:`spacr.qt.mask_engine.write_recrop`), en file d'attente juste après le champ courant, et l'original multi-objets est retiré dans ``recropped_originals/`` plutôt que curé (:func:`spacr.qt.mask_engine.retire_recropped_original`). Une boîte plus courte que :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` sur un côté, ou répétant une coupe déjà faite au-delà de :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, est refusée; les objets que la boîte coupe sont lâchés, parce qu'un objet dont la limite est où la souris a été libérée n'est pas cet objet; et les étiquettes qui survivent sont renumérotées d'un seul.\n\n**Règle** est le dixième outil. Faites glisser entre des pixels de l’image pour lire une longueur sans modifier les étiquettes. Le zoom et le déplacement la conservent ; un clic droit avec Règle sélectionné l’efface. La même règle est disponible sur les deux canevas d’aperçu en direct.\n\nChaque champ de vision du microscope a un :class:`spacr.curation.CurationLog`, initialisé à partir de n'importe quel sidecar existant. :func:`spacr.qt.mask_engine.save_mask` écrit les étiquettes et le registre ensemble, ce qui permet à :func:`spacr.curation.is_curated` de distinguer les masques corrigés manuellement de la sortie du workflow.\n\n:meth:`MakeMasksScreen.run_cellpose` applique le modèle résolu du workflow Cellpose-SAM au champ de vision du microscope ouvert et affiche le masque, la carte de probabilité de cellules et le champ de vue du microscope de flux. Les sorties intermédiaires supportent l'évaluation de :data:`CELLPROB_THRESHOLD` lorsque les détections sont manquantes ou incomplètes.\n\nLes modes de l’éditeur sont assemblés à partir de :func:`tool_row_entries` et :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` insère les actions qui ne sont pas des modes dans la même barre d’outils. Le panneau des paramètres contient les opérations sans geste —remplissage et réétiquetage des objets, échange de l’objet et du fond, filtrage par taille et détection Otsu, toutes avec annulation et rétablissement— ainsi que les commandes du pinceau, de la baguette et de l’affichage. Il peut être masqué pour rendre sa largeur au canevas.\n\nL’inversion de l’image et l’échange de l’objet et du fond sont des opérations distinctes. La première modifie l’image vue par le détecteur ; la seconde modifie les étiquettes.\n\n**Inverser l’image**, dans la catégorie Affichage, est l’inversion commune. Elle dessine le champ comme son négatif et transmet ce même négatif aux détecteurs : les deux boutons de détection et la loupe en direct segmentent :meth:`MakeMasksScreen._detector_image`, afin qu’un seuil prévu pour les objets clairs détecte les objets sombres. Une bannière au-dessus de l’image le signale tant que l’option est active. L’intensité du pixel affichée dans le coin suit l’image inversée. Les intensités moyennes des objets et le filtre d’objets lisent toujours les pixels chargés. L’enregistrement écrit les masques d’étiquettes sans modifier l’image source.\n\nIL Y AVAIT DEUX INTERRUPTEURS QUI POUVAIENT SE CONTREDIRE. \"Invert image\" (Inverser l’image), limité à l’affichage, dessinait un négatif sans toucher à la détection ; \"Invert for detection\" (Inverser pour la détection) inversait l’entrée des détecteurs sans rien dessiner. On pouvait activer l’un sans l’autre, et la ligne d’état du premier pouvait contredire la bannière du second. Il n’y a désormais qu’un interrupteur pour une seule intention : inverser un champ d’objets sombres afin qu’Otsu et la loupe puissent les détecter. ``_cp_invert`` est maintenant le même objet widget que ``_invert_display``, sous son ancien nom ; les deux ne peuvent donc plus diverger.\n\n**Échanger l’objet et le fond**, dans Opérations sur les objets, est l’ancien \"Invert mask\" (Inverser le masque) sous un nom descriptif : cette opération inverse l’image d’ÉTIQUETTES, ce qui laisse généralement un objet couvrant tout le champ. Ce n’est pas une inversion de l’image et le nom l’évite délibérément.\n\nLE CALCUL. :func:`~spacr.qt.mask_engine.invert_normalized` normalise le champ entre 0..1 selon sa propre plage et calcule ``1 - v``. La normalisation est essentielle : la correction Otsu est un MULTIPLICATEUR d’un niveau absolu ; normaliser d’abord permet à une valeur de correction de garder le même sens sur l’image suivante. :func:`~spacr.qt.mask_engine.invert_intensity` (complément du type de données) et :func:`~spacr.qt.mask_engine.invert_for_detection` (réflexion par rapport à la plage du champ) étaient utilisées auparavant sur cet écran et sont conservées pour les autres appelants. :func:`~spacr.qt.mask_engine.invert_mask` inverse les étiquettes.\n\nDes outils de segmentation supplémentaires sont ouverts de la tête de mât dans :data:`FOLD_ORDER` à :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Masquer l'ensemble du dossier** s'applique Cellpose à chaque image du dossier sélectionné, tandis que **Enregistrer le masque** sur la page Curate appelle :meth:`spacr.curation.MaskCuration.save_mask`. Les modules repliés conservent leurs widgets existants à l'intérieur de :class:`FoldedModulePanel`.\n\nLe suivi des séries chronologiques est intégré à la génération de masques comme catégorie de paramètres Timelapse; voir :mod:`spacr.qt.screens.mask`. Motilité Assay appartient plutôt à Mesure parce qu'il consomme les masques existants et écrit des tables de mesure plutôt que de générer des masques.",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
-        "2fe8b75b72216fa1b7e47c4f62c7d8480c7d784edc4f9c5f02ced343b2b654d8",
+        "969cad596cc2cfef69edf6c4a0188b89650abd06464521d7463bfae34c983b84",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "3c9dca0358ac160f8d9789401e7e3d1b5a5e9b383d918bc1c88a9ff2a78c33ec",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "2b2215c8913b5448f80671cf78cc88af8e72e471164592c44f481cf8a16c4b34",
         "6bb4e99446e63282835ea5163108ec3f9519bdb3a4c884be7c24397428ed5b97",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "edc4f65be8e4b90ae9569581aade15923cf2ecbc10af22089b664a96e457f0af",
+        "0973abc64b13e9497185a2741b196c15c36b4fa4df0db34384386a4c74ab872e",
+        "9bf0b71b754b29971e492e7286673bde96579193d8492e5a1308a7d65de6f498",
+        "aae3a5f4d4c761acce16583f8b69bd8eff5d9a8a7f97198e435fc7ac66ce42ed",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ]
@@ -121608,6 +121620,134 @@
         "d6355b50983828ea09e5b741bc1fb9e0f44cf6f4176ec8b697cd17e96b29ea8e",
         "4541e55a2633e8671bcec6a9d21f9b89c1b91e44c374bb0e1ced1b8058dc6eef",
         "930f4ca8abdeda9e0f260b828e9fc2e582d41c29fb886cdd6b6765b012f25bc8"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "Une règle linéaire partagée qui mesure les coordonnées de l’image sans modifier les pixels.",
+      "translation_source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Conserve une ligne en pixels d’image et la dessine avec la transformation du composant hôte.\n\n:param parent: canevas ou vue d’image propriétaire ; None par défaut.\n\nLes composants hôtes transmettent leur conversion des coordonnées du widget vers l’image à :meth:`handle` et la conversion inverse à :meth:`paint`. Le zoom et le déplacement ne modifient jamais la longueur mesurée. Les unités en pixels sont toujours affichées. Les unités physiques nécessitent un étalonnage explicite et validé via :meth:`set_spacing` ; le grossissement de la caméra n’est jamais supposé. Un clic droit efface la ligne lorsque l’outil est actif. L’état initial ne comporte ni ligne ni étalonnage, et le dessin est désactivé.",
+      "translation_source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "Supprime la ligne sans modifier l’activation de l’outil ni l’étalonnage.\n\n:returns: None ; émet ``changed`` même si aucune ligne n’était présente.",
+      "translation_source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "Traite les gestes de souris de la règle ; renvoie False pour les gestes de navigation.\n\n:param event: événement de pression, déplacement ou relâchement de souris du canevas hôte.\n:param to_image: QPointF du widget -> image (x, y), ou None hors de l’image.\n:returns: True pour les gestes de règle traités ; False lorsque l’hôte doit gérer l’événement. Les coordonnées hors de l’image ne déplacent pas les extrémités.",
+      "translation_source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "Renvoie la longueur en pixels et, uniquement si l’étalonnage est défini, la longueur physique.\n\n:returns: texte avec les longueurs à deux décimales ; vide avant la création d’une ligne.",
+      "translation_source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "Renvoie la longueur de la ligne, ou None avant la création d’une ligne.\n\n:param physical: False (valeur par défaut) utilise les pixels de l’image ; True utilise les espacements étalonnés de chaque axe, y compris des valeurs horizontales et verticales différentes.\n:returns: longueur euclidienne sous forme de float en pixels ou en ``unit`` ; None si aucune ligne n’existe ou si une longueur physique est demandée sans étalonnage.",
+      "translation_source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "Dessine les extrémités, la ligne et la mesure dans les coordonnées du widget.\n\n:param painter: objet de dessin actif pour le canevas ou la fenêtre d’affichage hôte.\n:param to_widget: image (x, y) -> QPointF ou QPoint du widget, ou None.\n:returns: None ; ne dessine rien si la ligne ou l’une des extrémités converties manque.",
+      "translation_source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "Active le dessin ; la désactivation conserve la ligne terminée.\n\n:param active: indique si les glissements du bouton gauche sans touche modificatrice mesurent au lieu de modifier.\n:returns: None ; émet ``changed`` après la mise à jour de l’activation.",
+      "translation_source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "Définit la distance physique par pixel d’image, ou efface l’étalonnage.\n\n:param x: distance positive et finie par pixel horizontal de l’image en ``unit`` ; None par défaut, ce qui efface l’étalonnage et ignore ``y``.\n:param y: distance positive et finie par pixel vertical de l’image en ``unit`` ; None par défaut, ce qui utilise ``x`` pour les deux axes.\n:param unit: libellé de l’unité physique ; ``'µm'`` par défaut. L’appelant fournit l’espacement dans cette unité ; cette méthode ne convertit pas les unités.\n:raises ValueError: si l’espacement n’est pas positif ou n’est pas fini.\n:returns: None ; émet ``changed`` après la mise à jour de l’étalonnage.",
+      "translation_source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
       ]
     },
     "spacr.qt.widgets.import_workbench": {

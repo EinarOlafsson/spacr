@@ -240,13 +240,6 @@
       "translation": "Niveaux…"
     },
     {
-      "key": "Lock / unlock magnifier region and zoom",
-      "source": "Lock / unlock magnifier region and zoom",
-      "source_sha256": "583735c7339fd768b07f5c0036900780327f85099b0e41192d30e484db928a10",
-      "table": "ui",
-      "translation": "Verrouiller / déverrouiller la zone et le zoom de la loupe"
-    },
-    {
       "key": "Locked",
       "source": "Locked",
       "source_sha256": "a424e33d90931d1ed22f2af37a3f3491a5c9de0dfae079f6f3ff4edf0309e07f",
@@ -521,5 +514,17 @@
     }
   ],
   "review_kind": "AI-assisted linguistic and technical review of Levels intensity stretching, transient magnifier lock, actual shortcut gestures and isolated installer states; scientific/service names remain exact; no native-speaker sign-off",
-  "schema": 1
+  "schema": 1,
+  "superseded_records": [
+    {
+      "reason": "2026-09-22: upstream shortened the lock shortcut caption to Lock / unlock box; original review preserved verbatim.",
+      "record": {
+        "key": "Lock / unlock magnifier region and zoom",
+        "source": "Lock / unlock magnifier region and zoom",
+        "source_sha256": "583735c7339fd768b07f5c0036900780327f85099b0e41192d30e484db928a10",
+        "table": "ui",
+        "translation": "Verrouiller / déverrouiller la zone et le zoom de la loupe"
+      }
+    }
+  ]
 }

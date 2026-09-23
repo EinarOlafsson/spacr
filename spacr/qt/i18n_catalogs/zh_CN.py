@@ -6376,7 +6376,6 @@ UI = {
     'Left / Right arrows': '左 / 右方向键',
     'Levels': '色阶',
     'Levels…': '色阶…',
-    'Lock / unlock magnifier region and zoom': '锁定 / 解锁放大镜区域和缩放',
     'Locked': '已锁定',
     'Magnifier locked: Ctrl+L+right-click to unlock.': '放大镜已锁定：Ctrl+L+右键单击可解锁。',
     'Magnifier unlocked.': '放大镜已解锁。',
@@ -6415,6 +6414,14 @@ UI = {
     'Wheel': '滚轮',
     'White cutoff': '白场截止值',
     'Zoom about the cursor': '以光标为中心缩放',
+    'Clear the ruler line': '清除标尺线段',
+    'Drag a line on either image to measure its length in image pixels. Right-click with Ruler selected to clear it. Turn Ruler off to pan.': '在任一图像上拖出线段，以图像像素测量其长度。选中标尺时单击右键可清除线段。关闭标尺后可平移。',
+    'Drag a line to measure its length in image pixels. Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement.': '拖出线段，以图像像素测量其长度。选中标尺时单击右键可清除线段。缩放和平移会保留测量。',
+    'Lock / unlock box': '锁定 / 解锁区域',
+    'Pixel spacing must be finite and positive.': '像素间距必须为有限正数。',
+    'Ruler': '标尺',
+    '{length:.2f} px': '{length:.2f} px',
+    '· {length:.2f} {unit}': '· {length:.2f} {unit}',
 }
 
 MODULE_SUMMARIES = {
@@ -12914,7 +12921,6 @@ SOURCE_HASHES = {
     ('UI', 'Left / Right arrows'): '9e04d9449aa62ba7cdb1d13ac9a7f8d1bd0b92aede6c8240075562de5329d4c8',
     ('UI', 'Levels'): 'b14821319ef8b550471f105625a6fad3291012fc6e1d01210b025bf3fd613aa3',
     ('UI', 'Levels…'): '5ee238b51578d79ff5756248d75ccf680b54339413cc17d38a098d0568da04cd',
-    ('UI', 'Lock / unlock magnifier region and zoom'): '583735c7339fd768b07f5c0036900780327f85099b0e41192d30e484db928a10',
     ('UI', 'Locked'): 'a424e33d90931d1ed22f2af37a3f3491a5c9de0dfae079f6f3ff4edf0309e07f',
     ('UI', 'Magnifier locked: Ctrl+L+right-click to unlock.'): '09a60eb276d15a4150421c55cedbcea7d244e066ea42fd996150c5573e2e72df',
     ('UI', 'Magnifier unlocked.'): 'c97722931ee7d08bb674c4459b6bd15e281fa2ca554f72f6bc7ba0f18c46e849',
@@ -12953,4 +12959,12 @@ SOURCE_HASHES = {
     ('UI', 'Wheel'): '889a08322a4116f561b14bd114f3183977be9ea9d7df60ce42b129c1ace30796',
     ('UI', 'White cutoff'): '1f591b7bfef4eb965a426ad5f639c572af911425a13fb1c45dfe3cfd27664a86',
     ('UI', 'Zoom about the cursor'): '5d93ac982e36b7ed95e25b2533ad9e30b06162781239315b67a9e6cfa64165fb',
+    ('UI', 'Clear the ruler line'): '4bd8718b8c2549ff3a67c665e0b7c84226ccdac27f6d66da01cd38d67fea895c',
+    ('UI', 'Drag a line on either image to measure its length in image pixels. Right-click with Ruler selected to clear it. Turn Ruler off to pan.'): '82892c8a608403e352af4ac182bd378416f2fabb62530db4c4d6b2fcb2dd17f9',
+    ('UI', 'Drag a line to measure its length in image pixels. Right-click with Ruler selected to clear it. Zoom and pan preserve the measurement.'): '72e928b567dfef894f4e06573cf5b96e597b83a24bf14e4fe53bee3c784f47f4',
+    ('UI', 'Lock / unlock box'): '41f77528e1abb38aae985bcc38f7d5fb35d6b25f180f37301aec1a8c04162ee6',
+    ('UI', 'Pixel spacing must be finite and positive.'): '833ff2c457c749087b34fe8ae338845f701d0b369258ceb2036cc99ebc1f1b9b',
+    ('UI', 'Ruler'): 'b2eb0fa2b0167b6c922f813e543404905366dfcc3a0692060c25411785b27729',
+    ('UI', '{length:.2f} px'): 'a96bfca8d50a9947a0427808badcaeb4986a958e8664c2e4f0bff736c696ac4b',
+    ('UI', '· {length:.2f} {unit}'): 'ea0f47fdf65a125cb4298c95652853eedd07e56b20f5c9dc4c31f9d5e1e0fe9d',
 }

@@ -16,9 +16,13 @@ def locale(request, monkeypatch):
 
     language = request.param
     monkeypatch.setattr(i18n, "current_language", lambda: language)
-    payload = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
-                          "2026-09-22-lock-levels-starplast-controls.json").read_text())
-    return language, {row["source"]: row["translation"] for row in payload["records"]}
+    targets = {}
+    for filename in ("2026-09-22-lock-levels-starplast-controls.json",
+                     "2026-09-22-shared-ruler.json"):
+        payload = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
+                              filename).read_text())
+        targets.update({row["source"]: row["translation"] for row in payload["records"]})
+    return language, targets
 
 
 def test_installer_controls_and_callback_prefixes_are_localized(qtbot, tmp_path, locale):
@@ -70,8 +74,38 @@ def test_shortcut_panel_uses_current_lock_gesture(qtbot, locale):
     try:
         key, explanation = screen._shortcut_rows["Ctrl+L+right click"]
         assert key.text() == targets["Ctrl+L+right click"]
-        assert explanation.text() == targets["Lock / unlock magnifier region and zoom"]
+        assert explanation.text() == targets["Lock / unlock box"]
     finally:
         screen._close_levels()
         screen._magnifier.close()
         screen._canvas.close_enhancer()
+
+
+def test_ruler_readout_keeps_units_spacing_and_localized_errors(qapp, locale):
+    from spacr.qt.widgets.image_ruler import ImageRuler
+
+    language, targets = locale
+    ruler = ImageRuler()
+    assert ruler.label() == ""
+    ruler.start, ruler.end = (0, 0), (3, 4)
+    assert ruler.label() == "5.00 px"
+    ruler.set_spacing(2, 3)
+    assert ruler.label() == "5.00 px · 13.42 µm"
+    with pytest.raises(ValueError) as error:
+        ruler.set_spacing(0)
+    assert str(error.value) == targets["Pixel spacing must be finite and positive."]
+    ruler.set_spacing()
+    assert ruler.label() == "5.00 px"
+
+
+def test_preview_ruler_button_and_help_are_localized(qtbot, locale):
+    from spacr.qt.widgets.live_preview import LivePreviewPanel
+
+    language, targets = locale
+    panel = LivePreviewPanel()
+    qtbot.addWidget(panel)
+    assert panel._ruler_btn.text() == targets["Ruler"]
+    source = ("Drag a line on either image to measure its length in image pixels. "
+              "Right-click with Ruler selected to clear it. Turn Ruler off to pan.")
+    assert panel._ruler_btn.toolTip() == targets[source]
+    panel.close()

@@ -83464,26 +83464,38 @@
       "source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "4cd274396e199dd2736df5a8cc4cab718418ac08598fd05e62ce7e6311469c7e",
-        "2daea0b9fcee7fbe6f97072c32da9c1c753db598159c48475ab9e641d3afba7b",
+        "1053962cb51c4a7e689fcb8d41c6333ce7b00e0ad4d89deae3f5316a66231297",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "740b8260f60080984304be48ba4d976012bc2352a65f9458c19eea595a04169d",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "6ad9f271555bb5386c275890ff20841d253c6bd6b0552a53d87b8a1ae5bb48dc",
         "56af865c4904cef71dad7c5f6d1d44a44dad0753967ca53353f075f7e39b9467",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "e57a872267ebcf49999299b5ed2543f28bc81ed2da014e381d5189e500248c4f",
+        "9d9c6e79b4080c2e7bb49a41d62531f67471a5b9ea96f75414f31aa77bbbc037",
+        "9e5986b98cf287e4f042c9df994376515fe0da9043080321918ca0083f964963",
+        "a005b87a7232c97ef6329a50fd0f92bfe493691430a95bbfa1435243e1db8540",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ],
-      "source_sha256": "26354cb098d85fdf75b8b8ac77aa026027441defca24d68fc9d630d01a5467e1",
-      "text": "Interaktiv redigering och kurering av segmenteringsmasker.\n\nMake Masks arkiveras under **Verktyg** på hemapplikationsvyn och är den manuella halvan av segmenteringen: det korrigerar masker en modell blev fel, ett mikroskopfält i taget, och dess masthead öppnar de arbetsflöden Cellpose som skapade dem. :class:`MakeMasksScreen` laddar bilder och märkta masker från ``<folder>/masks`` och sparar redigerade etiketter som ``uint16`` TIFF filer.\n\nDe nio verktygen, i ordningen :data:`TOOL_MODES`, eftersom detta ordförråd är vad en läsare behöver innan programmet öppnas:\n\n**Brush** och **Erase** färg och avmåla den aktiva etiketten en pixel åt gången. **Radera objekt** tar bort en hel etikett med ett klick. **Wand +** och **Wand −** odla en region från pixel klickade och lägga till den i etiketten eller ta ut den ur den; toleransen är i förhållande till bildens intensitetsintervall som standard, se :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** spårar en fri-form kontur som stänger och fyller som ett objekt – verktyget en pensel är inte, eftersom en penslar diskar längs vägen, så att spåra en fälg med det märker fälgen och lämnar den mellersta bakgrunden. **Divide** drar en linje över ett sammanslaget objekt och gör den två, behåller den ursprungliga identifieraren på den större komponenten och ger den mindre en ny, med varje annat objekt orört; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` är den klippta bredden. **Zoom** rektangel-drager vyn och ändrar inga etiketter alls.\n\n**Recrop** är den nionde och är den enda som ändrar vilket fält som visas på applikationsvyn snarare än vad som är målat på den. En iscensatt extraherad bildregion med flera celler är inte ett övningsexempel, och att kurera det som en lär ett nätverk att två objekt är en bild -- så en ruta runt ett objekt skriver att regionen av både bilden och masken som ett fält av sin egen (:func:`spacr.qt.mask_engine.write_recrop`), köad rakt efter det aktuella fältet, och multi-objekt originalet är pensionerad till ``recropped_originals/`` snarare än kurat (:func:`spacr.qt.mask_engine.retire_recropped_original`). En låda som är kortare än :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` på en sida, eller som upprepar ett snitt som redan gjorts tidigare än :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, avvisas; objekt som rutan skär igenom släpps, eftersom ett objekt vars gräns är där musen släpptes inte är det objektet; och etiketterna som överlever numreras om från ett.\n\nVarje mikroskopfält av vy har en :class:`spacr.curation.CurationLog`, initierad från någon befintlig sidvagn. :func:`spacr.qt.mask_engine.save_mask` skriver etiketter och liggare tillsammans, så att :func:`spacr.curation.is_curated` kan skilja manuellt korrigerade masker från arbetsflödesutmatning. En enda gest producerar en liggarpost och ett ångra steg.\n\n:meth:`MakeMasksScreen.run_cellpose` tillämpar arbetsflödets upplösning Cellpose- SAM-modellen på det öppna mikroskopfältet och visar masken, cellsannolikhetens karta och flödesmikroskopets synfält. De mellanliggande utgångarna stöder utvärdering av :data:`CELLPROB_THRESHOLD` när upptäckter saknas eller är ofullständiga.\n\nRedaktörsläget är monterat från :func:`tool_row_entries` och :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` infogar icke-lägesåtgärder i samma verktygsrad. Inställningspanelen bär åtgärderna som inte är gester -- objektfyllning och ommärkning, inversion, storleksfiltrering och Otsu-detektion, med ångra och gör om över dem alla -- vid sidan av pensel-, stav- och visningskontrollerna, och kan döljas för att returnera dess bredd till duken.\n\nYtterligare segmenteringsverktyg öppnas från masthuvudet i :data:`FOLD_ORDER` genom :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Skriv in hela mappen** gäller Cellpose för varje bild i den valda mappen, medan **Spara mask** på Curate-sidans anrop :meth:`spacr.curation.MaskCuration.save_mask`. Vikbara moduler behåller sina befintliga widgetar inne i :class:`FoldedModulePanel`.\n\nTid-serie spårning är integrerad med Mask Generation som Timelapse inställningar kategori; se :mod:`spacr.qt.screens.mask`. Motility Assay istället tillhör Mät eftersom det konsumerar befintliga masker och skriver mättabeller snarare än att generera masker.",
+      "source_sha256": "edb5bb736c7cd1e275618bc7a37ccb5e174546486b3e4a49f14a59f9f601608a",
+      "text": "Interaktiv redigering och kurering av segmenteringsmasker.\n\nMake Masks arkiveras under **Verktyg** på hemapplikationsvyn och är den manuella halvan av segmenteringen: det korrigerar masker en modell blev fel, ett mikroskopfält i taget, och dess masthead öppnar de arbetsflöden Cellpose som skapade dem. :class:`MakeMasksScreen` laddar bilder och märkta masker från ``<folder>/masks`` och sparar redigerade etiketter som ``uint16`` TIFF filer.\n\nDE TIO VERKTYGEN, i ordningen i :data:`TOOL_MODES`, eftersom läsaren behöver detta ordförråd innan skärmen öppnas:\n\n**Brush** och **Erase** färg och avmåla den aktiva etiketten en pixel åt gången. **Radera objekt** tar bort en hel etikett med ett klick. **Wand +** och **Wand −** odla en region från pixel klickade och lägga till den i etiketten eller ta ut den ur den; toleransen är i förhållande till bildens intensitetsintervall som standard, se :func:`spacr.qt.mask_engine.relative_tolerance`. **Draw** spårar en fri-form kontur som stänger och fyller som ett objekt – verktyget en pensel är inte, eftersom en penslar diskar längs vägen, så att spåra en fälg med det märker fälgen och lämnar den mellersta bakgrunden. **Divide** drar en linje över ett sammanslaget objekt och gör den två, behåller den ursprungliga identifieraren på den större komponenten och ger den mindre en ny, med varje annat objekt orört; :data:`spacr.qt.mask_engine.DIVIDE_CUT_WIDTH` är den klippta bredden. **Zoom** rektangel-drager vyn och ändrar inga etiketter alls.\n\n**Recrop** är den nionde och är den enda som ändrar vilket fält som visas på applikationsvyn snarare än vad som är målat på den. En iscensatt extraherad bildregion med flera celler är inte ett övningsexempel, och att kurera det som en lär ett nätverk att två objekt är en bild -- så en ruta runt ett objekt skriver att regionen av både bilden och masken som ett fält av sin egen (:func:`spacr.qt.mask_engine.write_recrop`), köad rakt efter det aktuella fältet, och multi-objekt originalet är pensionerad till ``recropped_originals/`` snarare än kurat (:func:`spacr.qt.mask_engine.retire_recropped_original`). En låda som är kortare än :data:`spacr.qt.mask_engine.RECROP_MIN_SIDE` på en sida, eller som upprepar ett snitt som redan gjorts tidigare än :data:`spacr.qt.mask_engine.RECROP_MAX_OVERLAP`, avvisas; objekt som rutan skär igenom släpps, eftersom ett objekt vars gräns är där musen släpptes inte är det objektet; och etiketterna som överlever numreras om från ett.\n\n**Linjal** är det tionde verktyget. Dra mellan bildpixlar för att läsa av en längd utan att redigera etiketter. Zoomning och panorering bevarar den; högerklick med Linjal vald rensar den. Samma linjal finns på de två bildytorna för liveförhandsvisning.\n\nVarje mikroskopfält av vy har en :class:`spacr.curation.CurationLog`, initierad från någon befintlig sidvagn. :func:`spacr.qt.mask_engine.save_mask` skriver etiketter och liggare tillsammans, så att :func:`spacr.curation.is_curated` kan skilja manuellt korrigerade masker från arbetsflödesutmatning. En enda gest producerar en liggarpost och ett ångra steg.\n\n:meth:`MakeMasksScreen.run_cellpose` tillämpar arbetsflödets upplösning Cellpose- SAM-modellen på det öppna mikroskopfältet och visar masken, cellsannolikhetens karta och flödesmikroskopets synfält. De mellanliggande utgångarna stöder utvärdering av :data:`CELLPROB_THRESHOLD` när upptäckter saknas eller är ofullständiga.\n\nRedigeringslägena sätts samman från :func:`tool_row_entries` och :data:`TOOL_MODES`. :meth:`MakeMasksScreen.add_toolbar_action` lägger till åtgärder som inte är lägen i samma verktygsfält. Inställningspanelen innehåller operationerna som inte utförs med gester —fyllning och ommärkning av objekt, byte av objekt och bakgrund, storleksfiltrering och Otsu-detektering, alla med ångra och gör om— tillsammans med kontroller för pensel, trollstav och visning. Den kan döljas så att bildytan får tillbaka bredden.\n\nBildinvertering och byte av objekt och bakgrund är separata operationer. Den första ändrar bilden som detektorn ser; den andra ändrar etiketter.\n\n**Invertera bild**, i kategorin Visning, är den gemensamma inverteringen. Den ritar bildfältet som sitt negativ och ger detektorerna samma negativ: båda detekteringsknapparna och liveförstoringsglaset segmenterar :meth:`MakeMasksScreen._detector_image`, så att en tröskel för ljusa objekt hittar mörka. En banderoll ovanför bilden visar detta så länge funktionen är på. Pixelintensiteten i hörnets avläsning följer den inverterade bilden. Objektens medelintensiteter och objektfiltret läser fortfarande de inlästa pixlarna. Vid sparande skrivs etikettmasker utan att källbilden ändras.\n\nTIDIGARE FANNS TVÅ REGLAGE SOM KUNDE MOTSÄGA VARANDRA. Ett visningsbegränsat \"Invert image\" (Invertera bild) ritade ett negativ utan att påverka detekteringen; \"Invert for detection\" (Invertera för detektering) inverterade detektorernas indata utan att rita något. Det ena kunde vara på utan det andra, och det förstas statusrad kunde motsäga det andras banderoll. Nu finns ett reglage eftersom avsikten är en: att invertera ett bildfält med mörka objekt så att Otsu och förstoringsglaset kan detektera dem. ``_cp_invert`` är nu samma widgetobjekt som ``_invert_display`` under sitt gamla namn, så de kan inte längre skilja sig åt.\n\n**Byt objekt och bakgrund**, under Objektoperationer, är det gamla \"Invert mask\" (Invertera mask) med ett beskrivande namn: det inverterar ETIKETTBILDEN, vilket på ett vanligt bildfält lämnar ett objekt som täcker hela ramen. Det är inte bildinvertering och kallas därför avsiktligt inte det.\n\nBERÄKNINGEN. :func:`~spacr.qt.mask_engine.invert_normalized` normaliserar bildfältet till 0..1 utifrån dess eget intervall och beräknar ``1 - v``. Normaliseringen är väsentlig: Otsu-korrigeringen är en MULTIPLIKATOR på en absolut nivå, så normalisering först gör att ett korrigeringsvärde betyder samma sak på nästa bild. :func:`~spacr.qt.mask_engine.invert_intensity` (datatypens komplement) och :func:`~spacr.qt.mask_engine.invert_for_detection` (spegling kring bildfältets intervall) användes tidigare på denna skärm och behålls för andra anropare. :func:`~spacr.qt.mask_engine.invert_mask` inverterar etiketter.\n\nYtterligare segmenteringsverktyg öppnas från masthuvudet i :data:`FOLD_ORDER` genom :class:`~spacr.qt.widgets.fold_strip.FoldStrip`. **Skriv in hela mappen** gäller Cellpose för varje bild i den valda mappen, medan **Spara mask** på Curate-sidans anrop :meth:`spacr.curation.MaskCuration.save_mask`. Vikbara moduler behåller sina befintliga widgetar inne i :class:`FoldedModulePanel`.\n\nTid-serie spårning är integrerad med Mask Generation som Timelapse inställningar kategori; se :mod:`spacr.qt.screens.mask`. Motility Assay istället tillhör Mät eftersom det konsumerar befintliga masker och skriver mättabeller snarare än att generera masker.",
       "translation_source_blocks_sha256": [
         "3f88708f9eecc8104fc924a31b06e392ea40c751271b634c71dd24aaa7a02b2e",
         "a18df94f6eb8e4a48b88160ce80eb6b34464db73f99d3ab4ebaad47f7ce49354",
-        "2fe8b75b72216fa1b7e47c4f62c7d8480c7d784edc4f9c5f02ced343b2b654d8",
+        "969cad596cc2cfef69edf6c4a0188b89650abd06464521d7463bfae34c983b84",
         "ac4da0d700c4db818cac661119e93de2fe877194ac73cddf97e60ed515eee6f0",
         "3c9dca0358ac160f8d9789401e7e3d1b5a5e9b383d918bc1c88a9ff2a78c33ec",
+        "27ed784b4d31e5bf850ff265eb0517f1c083a537fa74f8ec4d19c6da268ef038",
         "2b2215c8913b5448f80671cf78cc88af8e72e471164592c44f481cf8a16c4b34",
         "6bb4e99446e63282835ea5163108ec3f9519bdb3a4c884be7c24397428ed5b97",
-        "da12da3f39dd9fdc570a72b6f71f8c6c6c0fa1e80be6744d6b09f029f03fc79d",
+        "8ec1ce381880fa3a2aadf510c87d310bf5e17afd6328607ad1675bc7fb71932c",
+        "6abdbcda91839e544132709fc8ca6aadac3373877a59856747ca613289be08a4",
+        "edc4f65be8e4b90ae9569581aade15923cf2ecbc10af22089b664a96e457f0af",
+        "0973abc64b13e9497185a2741b196c15c36b4fa4df0db34384386a4c74ab872e",
+        "9bf0b71b754b29971e492e7286673bde96579193d8492e5a1308a7d65de6f498",
+        "aae3a5f4d4c761acce16583f8b69bd8eff5d9a8a7f97198e435fc7ac66ce42ed",
         "8ae5724685f588cc2edf5200040921d6c2e126add506763c8a278e217d10b6a4",
         "f209e13be566240f4c0f9de2c5809704b244c26ddd5032f7c817ff12bd7f9a82"
       ]
@@ -121608,6 +121620,134 @@
         "d6355b50983828ea09e5b741bc1fb9e0f44cf6f4176ec8b697cd17e96b29ea8e",
         "4541e55a2633e8671bcec6a9d21f9b89c1b91e44c374bb0e1ced1b8058dc6eef",
         "930f4ca8abdeda9e0f260b828e9fc2e582d41c29fb886cdd6b6765b012f25bc8"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler": {
+      "source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ],
+      "source_sha256": "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe",
+      "text": "En gemensam linjal som mäter bildkoordinater utan att ändra pixlar.",
+      "translation_source_blocks_sha256": [
+        "a1165e3deb6f17972014692b8b9f12da8b83b69b1021dedab8f20813b652f5fe"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler": {
+      "source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ],
+      "source_sha256": "e3c55fef7db9e327304f2d57ba29ec3a2c24b6c61728d4f45424b1dc2793c70d",
+      "text": "Behåll en linje i bildpixlar och rita den med värdens transformation.\n\n:param parent: ägande bildyta eller vy; standardvärdet är None.\n\nVärdar skickar sin mappning från widget till bild till :meth:`handle` och den omvända mappningen till :meth:`paint`. Zoomning och panorering ändrar aldrig den uppmätta längden. Pixelenheter visas alltid. Fysiska enheter kräver uttrycklig, validerad kalibrering via :meth:`set_spacing`; kameraförstoring gissas aldrig. Högerklick rensar linjen när verktyget är aktivt. Börja utan linje eller kalibrering och med ritning avstängd.",
+      "translation_source_blocks_sha256": [
+        "d2bc7523d0bc3f28a8e0b21f4f9fb6da82e9756bf774a123e4ab3ea5b08f4946",
+        "0e2808ad06853f97bf5c7bb97ff7928a3444bf32acc415fbcb1ecd9af12558c0",
+        "fd5c08e11c5cdf32f127bda4a17bc41d72b0ae04b2b8928ebbba155c5f98294c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear": {
+      "source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ],
+      "source_sha256": "07d361a296f02dc1bd293dd02a66d27f2e74d5ece22c1333a010167b683373d0",
+      "text": "Ta bort linjen utan att ändra verktygets aktivering eller kalibrering.\n\n:returns: None; skickar ``changed`` även om ingen linje fanns.",
+      "translation_source_blocks_sha256": [
+        "2e255e2a73b756dc0d7e33a061c358f029f3840aba94772cddad6d8acb0d7069",
+        "a7efedcb881a998fee3089a10fee568e85ee6af44c4b3c5c548a29601144fc0c"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle": {
+      "source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ],
+      "source_sha256": "fd10247416d139dda12ed86ac6b3c1acee55c5ab9f89b7444d09e031243307a0",
+      "text": "Hantera linjalens musgester; returnera False för navigeringsgester.\n\n:param event: tryck, rörelse eller släpp med musen från värdens bildyta.\n:param to_image: widgetens QPointF -> bild (x, y), eller None utanför bilden.\n:returns: True för hanterade linjalgester; False när värden ska hantera händelsen. Koordinater utanför bilden flyttar inte ändpunkterna.",
+      "translation_source_blocks_sha256": [
+        "07a7824d9c6e61c8ab23c01a073b704fb6b2efd91ffe5252d6ac9cce5f953faf",
+        "ae6e9508ff2e3b8963e55f0aaa02764336a1f6471574ca0029af0a528c1de83f",
+        "bfe506b2dbf4a05c9632bafd0ba6332fb0debcefb4bd5237786b80ad858c71eb",
+        "ce51f9dffc3c794ea65a0edf5cb012a3ee7ec5a38d29eb7b4695476783acd2eb"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.label": {
+      "source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ],
+      "source_sha256": "424559766da7eecec6334ac852cbfcb875bba5ae3abb061d8e61b20e8422abd3",
+      "text": "Returnera längden i pixlar och, endast med kalibrering, den fysiska längden.\n\n:returns: text med längder till två decimaler; tom innan en linje finns.",
+      "translation_source_blocks_sha256": [
+        "a86814afd79ae5038dd6188cac962b5068167033f5c8cd088ad961613237fb57",
+        "2342c17fc4e794fc3229eb3caa43933ee80490d1961abc69e9d3aa746220472e"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.length": {
+      "source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ],
+      "source_sha256": "76e0a44a55604903bbe6594d4025b13c9e7b49231409870e3c7a2033ef89f88f",
+      "text": "Returnera linjens längd, eller None innan en linje finns.\n\n:param physical: False (standard) använder bildpixlar; True använder kalibrerat avstånd per axel, även med olika horisontella och vertikala värden.\n:returns: euklidisk längd som float i pixlar eller ``unit``; None om ingen linje finns eller fysisk längd begärs utan kalibrering.",
+      "translation_source_blocks_sha256": [
+        "4d2b63ffc55c83d2e418bfd47b29faa13547fb0b616243ae3f3ec48bbff25561",
+        "cb5e16dea0393b934a5cdcb1680db7d5b67594ead5580f41d4789822fa992141",
+        "148ef0417e1f982f570ef89bc5fcae5b3b3440dfeaaaaea324a6d5cb47181197"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint": {
+      "source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ],
+      "source_sha256": "733ea97b7e0ea332df477f5654b18b64f3f2a8226955e9d4e86fb92501c2c432",
+      "text": "Rita ändpunkter, linje och mätvärde i widgetens koordinater.\n\n:param painter: aktiv ritare för värdens bildyta eller visningsområde.\n:param to_widget: bild (x, y) -> widgetens QPointF eller QPoint, eller None.\n:returns: None; ritar inget om linjen eller någon av de mappade ändpunkterna saknas.",
+      "translation_source_blocks_sha256": [
+        "19bc5a5e7244606be1dd0570fc047dcc7246bc9aba0c9027f3ebe4d23f48e204",
+        "c86a44fc3493810542bf71dc72701c872a3ec561d741b2c8f9336259673b4121",
+        "8d5c7d5bc01ae7a273799f2324aff46bb51dc8aff969b216743f8637b0601413",
+        "009d116bf4b17894ae55041677bad82fd036861dffc0b755efe8c782603542af"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active": {
+      "source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ],
+      "source_sha256": "3e06ebd577f54eecdbc7ce08b5d3975eb5c934e882c904bb24ae97ad2de9dc22",
+      "text": "Aktivera ritning; avstängning bevarar den färdiga linjen.\n\n:param active: om vänsterdrag utan modifierartangenter mäter i stället för att redigera.\n:returns: None; skickar ``changed`` efter uppdatering av aktiveringen.",
+      "translation_source_blocks_sha256": [
+        "8081bfe27d06fd3565c23148506b84e3e94a5d26bbece0d949e58ef7e3e8dcda",
+        "984776c99000f548f80dbbd46b8fef78ccb24b774569e1175f1507f01bc2a865",
+        "8954f8a440b5f013c6bfcab94e15534df51dd586864951c9e885f3903db9daaa"
+      ]
+    },
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing": {
+      "source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
+      ],
+      "source_sha256": "79898422267b49b0ae4018559fa49a2262262210e8639d9847f48143709e46e8",
+      "text": "Ange fysiskt avstånd per bildpixel eller rensa kalibreringen.\n\n:param x: positivt ändligt avstånd per horisontell bildpixel i ``unit``; standardvärdet None rensar kalibreringen och ignorerar ``y``.\n:param y: positivt ändligt avstånd per vertikal bildpixel i ``unit``; standardvärdet None använder ``x`` för båda axlarna.\n:param unit: beteckning för fysisk enhet; standardvärdet är ``'µm'``. Anroparen anger avståndet i denna enhet; metoden konverterar inte enheter.\n:raises ValueError: om avståndet inte är positivt eller inte är ändligt.\n:returns: None; skickar ``changed`` efter uppdatering av kalibreringen.",
+      "translation_source_blocks_sha256": [
+        "a6d85c1f448837d2f581fba5f52fc26eaf41e75107db918c0737f6f66db7ee2e",
+        "8fa349f9ffd1c36b6ca2e59f089abfdf1a5dcc28ac2d371c64a89080a6523048",
+        "e36045238a6d5736b8604882db669074f805fd4f0dfd030fcfe633aa09bd6cb3",
+        "22b5b360c8f5af38e813b22247acbf4afca44527c446ffe6ec58b71de2a91454",
+        "7fec87ad2f89520ac58c9d14f575d9b8e7826bf377916b1c98a96c57d1f4bb6a",
+        "a12cd50525441c6a3f68ff5a1bb86fbe73153cfb46dd1facd411686f706944e8"
       ]
     },
     "spacr.qt.widgets.import_workbench": {

@@ -298,6 +298,8 @@ _IDENTITY_TEXT = {
     # The plaque scale caption contains only runtime fields and a scientific
     # unit. Translating px/mm would change the displayed calibration unit.
     "{source}: {ppm} px/mm",
+    # Ruler readouts contain only formatted measurements and unit symbols.
+    "{length:.2f} px", "· {length:.2f} {unit}",
 }
 
 _KNOWN_CONTAMINATION_MARKERS = (

@@ -11,7 +11,7 @@ from ..theme import active_palette
 class ImageRuler(QObject):
     """Keep a line in image pixels and paint it through the host's transform.
 
-    :param parent: owning image canvas or view.
+    :param parent: owning image canvas or view; defaults to None.
 
     Hosts pass their widget-to-image mapping to :meth:`handle` and inverse
     mapping to :meth:`paint`. Zoom and pan never change the measured length.
@@ -33,7 +33,10 @@ class ImageRuler(QObject):
         self.unit = 'µm'
 
     def clear(self):
-        """Remove the line without changing tool activation or calibration."""
+        """Remove the line without changing tool activation or calibration.
+
+        :returns: None; emits ``changed`` even when no line was present.
+        """
         self.start = self.end = None
         self._drawing = False
         self.changed.emit()
@@ -42,6 +45,7 @@ class ImageRuler(QObject):
         """Enable drawing; disabling preserves the finished line.
 
         :param active: whether unmodified left drags measure instead of edit.
+        :returns: None; emits ``changed`` after updating activation.
         """
         self.active = bool(active)
         self._drawing = False
@@ -50,10 +54,14 @@ class ImageRuler(QObject):
     def set_spacing(self, x=None, y=None, unit='µm'):
         """Set physical distance per image pixel, or clear calibration.
 
-        :param x: positive finite horizontal spacing; None restores pixels only.
-        :param y: positive finite vertical spacing; defaults to x.
-        :param unit: physical unit to print beside the calibrated length.
+        :param x: positive finite distance per horizontal image pixel in ``unit``;
+            defaults to None, which clears calibration and ignores ``y``.
+        :param y: positive finite distance per vertical image pixel in ``unit``;
+            defaults to None, which uses ``x`` for both axes.
+        :param unit: physical unit label; defaults to ``'µm'``. The caller supplies
+            spacing in this unit; this method does not convert units.
         :raises ValueError: when spacing is nonpositive or nonfinite.
+        :returns: None; emits ``changed`` after updating calibration.
         """
         if x is None:
             self.spacing = None
@@ -68,7 +76,10 @@ class ImageRuler(QObject):
     def length(self, physical=False):
         """Return the line length, or None before a line exists.
 
-        :param physical: use calibrated axis spacings; returns None if unknown.
+        :param physical: False (default) uses image pixels; True uses calibrated
+            per-axis spacing, including different horizontal and vertical values.
+        :returns: Euclidean length as a float in pixels or ``unit``; None when
+            no line exists or physical length is requested without calibration.
         """
         if self.start is None or self.end is None or (physical and self.spacing is None):
             return None
@@ -77,7 +88,10 @@ class ImageRuler(QObject):
         return hypot(dx * sx, dy * sy)
 
     def label(self):
-        """Return pixel length and, only when calibrated, physical length."""
+        """Return pixel length and, only when calibrated, physical length.
+
+        :returns: text with lengths to two decimal places; empty before a line exists.
+        """
         length = self.length()
         if length is None:
             return ''
@@ -92,6 +106,8 @@ class ImageRuler(QObject):
 
         :param event: a mouse press, move or release from the host canvas.
         :param to_image: widget QPointF -> image (x, y), or None off-image.
+        :returns: True for consumed ruler gestures; False when the host should
+            handle the event. Coordinates outside the image do not move endpoints.
         """
         if not self.active:
             return False
@@ -130,6 +146,7 @@ class ImageRuler(QObject):
 
         :param painter: an active painter for the host canvas/viewport.
         :param to_widget: image (x, y) -> widget QPointF or QPoint, or None.
+        :returns: None; draws nothing when a line or either mapped endpoint is missing.
         """
         if self.start is None or self.end is None:
             return

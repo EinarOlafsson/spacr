@@ -2097,7 +2097,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 474: resizeEvent/changeEvent add two methods and two required event
     # parameters. Subtracting those exact rows restores 65b0ed4c, with no
     # new omission; see 411_stable_layout_api_2026-09-22.json.
-    assert len(callables) == len(by_symbol) == 9_400
+    # 477 adds ImageRuler and seven methods: ten parameters, five required.
+    # Subtracting those eight rows restores c2d382b1 exactly; required
+    # omissions remain 2293. See 411_shared_ruler_api_2026-09-22.json.
+    assert len(callables) == len(by_symbol) == 9_408
     # +30 function, +14 method, +1 constructor, +4 dataclass_constructor
     # on 2026-09-10 -- the OPS modules are mostly module-level functions,
     # which is why `function` carries most of the move, and the four
@@ -2159,10 +2162,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         "function": 4_182,
         # -9 on 2026-09-15: the seven spacrStitcher methods,
         # StitchedMultiAligner.align and FOVAlignAndCropper.run.
-        "method": 4_063,
+        "method": 4_070,
         # -3 on 2026-09-15: spacrStitcher, StitchedMultiAligner and
         # FOVAlignAndCropper.
-        "constructor": 431,
+        "constructor": 432,
         # 473 -> 474 on 2026-09-15, +1: `SearchThresholds` is a frozen
         # dataclass, so it lands here and in no other category.
         # +2 on 2026-09-15: spacr.install_cleanup.InstallRecord and
@@ -2210,7 +2213,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # that arrived in the five days is rendered by autoapi and by
         # nothing else, so cli_only and compatibility are unmoved --
         # which is what those two buckets are for.
-        "autoapi": 9_395,
+        "autoapi": 9_403,
         "cli_only": 2,
         "compatibility": 3,
     }
@@ -2256,7 +2259,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # 8,692 -> 8,705 on 2026-09-15, the same +13: each of 412's and 416's
     # callables has exactly one prose variant.
     # 8,705 -> 9,054 on 2026-09-20, moving with the inventory above.
-    assert sum(item.variant_count for item in callables) == 9_407
+    assert sum(item.variant_count for item in callables) == 9_415
     # The single-variant bucket 8,581 -> 8,644, the same +63, and the
     # two-variant bucket is unchanged at 7.
     # Single-variant bucket +6 on 2026-09-15; the two-variant bucket stays 7.
@@ -2268,7 +2271,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
         # 8,691 -> 9,040 on 2026-09-20: every callable that arrived in
         # the five days has exactly one variant, and the seven
         # two-variant ones are unmoved.
-        1: 9_393,
+        1: 9_401,
         2: 7,
     }
     # RE-RECORDED 2026-09-05: 92 -> 171 -> 177 -> 185 -> 199 -> 205 -> 212 -> 220 -> 238 -> 250 -> 264 -> 279 -> 297 -> 311 -> 320 -> 330. Every one of those is a
@@ -2310,10 +2313,10 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # states still holds: it rose, so no constructor prose was lost.
     assert sum(
         item.constructor_prose_variant_count for item in callables
-    ) == 430
+    ) == 431
     assert sum(
         item.constructor_prose_variant_count > 0 for item in callables
-    ) == 430
+    ) == 431
     # RE-RECORDED 2026-09-07, and the direction check still holds: every
     # figure moved UP with the nine new callables and not one fell.
     # 16,654 -> 16,681 parameters and 8,436 -> 8,452 required. The
@@ -2451,7 +2454,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # own _public_callables: those three rows differ, no symbol is added or
     # removed, and the required sum does not move.
     # The three organism callables add eight parameters, five required.
-    assert sum(len(item.parameters) for item in callables) == 18_642
+    assert sum(len(item.parameters) for item in callables) == 18_652
     # 8,665 -> 8,666: `db_path` has no default, so the one new parameter is
     # also a required one and both parameter sums move by the same one.
     # 8,669 -> 8,755, +86, all of it from the new callables: `barcode_set`
@@ -2480,7 +2483,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # make_masks_example_folder have no required parameter. Subtracted, 8,812.
     # 8,830 -> 9,214 on 2026-09-20, moving with the parameter total
     # above.
-    assert sum(len(item.required_parameters) for item in callables) == 9_596
+    assert sum(len(item.required_parameters) for item in callables) == 9_601
     # Moved again 2026-09-15 for 333's `LivePreviewPanel.module`, proved by
     # subtraction on the full inventory: without that one parameter the digest
     # is 5b30fe1f... (410's pin, byte for byte); without it AND 410's
@@ -2565,7 +2568,7 @@ def test_public_callable_inventory_is_source_derived_not_docstring_derived():
     # and restoring those four baseline rows returns 8215ebec..., the
     # previous pin, byte for byte.
     # 474: subtracting its two constructors and eventFilter reproduces ac7e2d1f.
-) == "c2d382b1ff3c0efbd08e1216cd18ec74d7f482fb38b549d53837a28c3d66d72d"
+) == "5ab6aa2ac72d73c334a011fc9596f5ef4c5c050959ad85b70bc13668c50a5230"
     # Moved 2026-09-15 for `SearchThresholds` and `thresholds`, proved by
     # subtraction on the full inventory on top of origin/nightly df1216b3f.
     # Dropping the one new symbol alone is NOT enough, because two existing
@@ -3045,7 +3048,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # 6ae5e1b36: the 192 callables named at the callable inventory above
     # plus the module and class docstrings that came with them. The
     # extractor's own pin moved by the same count in the same commit.
-    assert len(docs) == 11_356
+    assert len(docs) == 11_365
     # 7,745 -> 7,853: the 101 drop-handler methods and the seven public
     # symbols added earlier today all render their own docstring now.
     # 8,457 -> 8,458 on 2026-09-08 with the same one entry moving every
@@ -3080,7 +3083,7 @@ def test_callable_boundary_is_cross_checked_with_i18n_extractor():
     # `SearchThresholds` is both rendered and documented.
     # 8,680 -> 8,693 on 2026-09-15: their 13 documented, rendered callables.
     # 8,693 -> 9,042 on 2026-09-20; the inventory's note accounts for it.
-    assert len(rendered_documented_callables) == 9_395
+    assert len(rendered_documented_callables) == 9_403
     assert not _docstring_contract_differences(
         rendered_documented_callables, docs)
 

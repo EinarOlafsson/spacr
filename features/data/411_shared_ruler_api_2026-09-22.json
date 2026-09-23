@@ -1,0 +1,279 @@
+{
+  "api_symbols": [
+    "spacr.qt.screens.make_masks",
+    "spacr.qt.widgets.image_ruler",
+    "spacr.qt.widgets.image_ruler.ImageRuler",
+    "spacr.qt.widgets.image_ruler.ImageRuler.clear",
+    "spacr.qt.widgets.image_ruler.ImageRuler.handle",
+    "spacr.qt.widgets.image_ruler.ImageRuler.label",
+    "spacr.qt.widgets.image_ruler.ImageRuler.length",
+    "spacr.qt.widgets.image_ruler.ImageRuler.paint",
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_active",
+    "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing"
+  ],
+  "archived_runtime_reviews": 9,
+  "executable_ruler_ast_unchanged": true,
+  "full_catalog_acceptance": false,
+  "growth_audit": {
+    "added": [
+      {
+        "parameters": [
+          "parent"
+        ],
+        "required": [],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler"
+      },
+      {
+        "parameters": [],
+        "required": [],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.clear"
+      },
+      {
+        "parameters": [
+          "event",
+          "to_image"
+        ],
+        "required": [
+          "event",
+          "to_image"
+        ],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.handle"
+      },
+      {
+        "parameters": [],
+        "required": [],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.label"
+      },
+      {
+        "parameters": [
+          "physical"
+        ],
+        "required": [],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.length"
+      },
+      {
+        "parameters": [
+          "painter",
+          "to_widget"
+        ],
+        "required": [
+          "painter",
+          "to_widget"
+        ],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.paint"
+      },
+      {
+        "parameters": [
+          "active"
+        ],
+        "required": [
+          "active"
+        ],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.set_active"
+      },
+      {
+        "parameters": [
+          "unit",
+          "x",
+          "y"
+        ],
+        "required": [],
+        "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing"
+      }
+    ],
+    "callables": 9408,
+    "categories": {
+      "constructor": 432,
+      "dataclass_constructor": 502,
+      "exception_constructor": 147,
+      "function": 4182,
+      "inherited_or_default_constructor": 58,
+      "method": 4070,
+      "namedtuple_constructor": 17
+    },
+    "constructor_prose": 431,
+    "constructor_with_prose": 431,
+    "exposures": {
+      "autoapi": 9403,
+      "cli_only": 2,
+      "compatibility": 3
+    },
+    "parameters": 18652,
+    "required_omissions": 2293,
+    "required_parameters": 9601,
+    "signature_digest": "5ab6aa2ac72d73c334a011fc9596f5ef4c5c050959ad85b70bc13668c50a5230",
+    "subtracted_signature_digest": "c2d382b1ff3c0efbd08e1216cd18ec74d7f482fb38b549d53837a28c3d66d72d",
+    "variant_counts": {
+      "1": 9401,
+      "2": 7
+    },
+    "variants": 9415
+  },
+  "languages": [
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "de",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "es",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "fr",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "hi",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "is",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "ko",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "pt",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "sv",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    },
+    {
+      "all_review_loaders": true,
+      "api_documents": 10,
+      "api_review_records": 36,
+      "formatted_runtime_lookups": 2,
+      "language": "zh_CN",
+      "runtime_reviews": 8,
+      "unrelated_rows_unchanged": true,
+      "unreviewed_reused_blocks": 8
+    }
+  ],
+  "public_api_count": 11365,
+  "remaining": "Older API prose and nested helper expansion, 137 scoped organism prose sources, Make Masks reference completion and tutorial recording/listening/publication remain open.",
+  "review_method": "AI-assisted linguistic/technical review, without native-speaker sign-off. Eight unchanged source paragraphs per locale were retained verbatim from previous catalogs and remain unreviewed.",
+  "schema": 1,
+  "source_commit": "4bc2353b8b4ecab026e810729f62a151a9bd7447",
+  "ui_count": 4713,
+  "validation": {
+    "focused_qt_tests": 74,
+    "api_contract_tests": 142,
+    "sphinx_warnings_as_errors": true,
+    "rendered": {
+      "anchors": [
+        {
+          "symbol": "spacr.qt.widgets.image_ruler",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "module-spacr.qt.widgets.image_ruler"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.clear",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.clear"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.handle",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.handle"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.label",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.label"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.length",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.length"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.paint",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.paint"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.set_active",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.set_active"
+        },
+        {
+          "symbol": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing",
+          "page": "api/spacr/qt/widgets/image_ruler/index.html",
+          "anchor": "spacr.qt.widgets.image_ruler.ImageRuler.set_spacing"
+        },
+        {
+          "symbol": "spacr.qt.screens.make_masks",
+          "page": "api/spacr/qt/screens/make_masks/index.html",
+          "anchor": "module-spacr.qt.screens.make_masks"
+        }
+      ],
+      "served_locale_entries": 90,
+      "ruler_defaults_units_and_returns_visible": true,
+      "full_locale_browser_acceptance": false
+    },
+    "log_sha256": {
+      "ruler-qt-tests.log": "77d3dad04e6cf3578c954fa1b4d04c6dd3090731b41017b7c0a9633bfb480ae4",
+      "ruler-api-tests.log": "b5291afd3b775c7d5068c08508eb7259322b0345fd7be28aaebc1331d58799bd",
+      "ruler-sphinx.log": "a496a03aa8b626e65ab635b12beaeeaf68fe3b07b4189e36361a1ef01b5c2336",
+      "ruler-verification.log": "9ef9e5f3a3c0b007ab302ddb6fb21c6ed51ece47c59f89a5ca9c9673458d9b59"
+    }
+  },
+  "source_binding": "Local 4bc2353b8 plus the ruler documentation/catalog changes; precedes 9ad033f84 Wand captions and subsequent implementation changes."
+}

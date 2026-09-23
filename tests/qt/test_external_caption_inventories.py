@@ -44,7 +44,7 @@ def test_shortcut_inventory_tracks_the_actual_make_masks_rows(builder):
     expected = {text for row in SHORTCUT_HINTS for text in row}
     assert builder._make_masks_shortcut_sources() == expected
     assert "Ctrl+L+right click" in expected
-    assert "Lock / unlock magnifier region and zoom" in expected
+    assert "Lock / unlock box" in expected
     translatable = {text for text in expected if builder._looks_translatable(text)}
     assert translatable <= builder._indirect_runtime_ui_sources()
     assert translatable - _ROWS.keys() <= set(builder.extract_static_ui_sources())
