@@ -12733,3 +12733,17 @@ checkpoint routes, threshold/size/skeleton behavior, input preservation and
 JSON ledger. The model is a tiny deterministic logit fixture, not pretrained
 accuracy evidence. Receipt288_organelle_model_bridge_2026-09-23.json. No runtime,
 caption, API, model download, GPU, baseline or exemption changes.
+
+2026-09-23 — IMPLEMENTATION: 288 EMPTY DETECTION CLEANUP COVERAGE CLAIM
+The same current69-test measurement reproduces detect_chain's89.93percent
+floor gap. Claiming tests/qt/test_detection_cleanup_empty_fields.py to check
+empty detections and morphology removing every object with Split enabled.
+These are valid detector outcomes and must retain shape/dtype, preserve input
+and avoid inventing objects. No runtime/API/catalog edits planned.
+
+2026-09-23 — IMPLEMENTATION: 288 EMPTY DETECTION CLEANUP VERIFIED
+Five new checks pass; appended to the69-test detector cohort on unchanged
+runtime source, detect_chain reaches91.28percent combined coverage. Empty
+fields and opening away the last objects remain valid with Split enabled;
+source labels stay unchanged. Receipt288_empty_detection_cleanup_2026-09-23.json.
+No runtime/API/text, threshold, baseline, exclusion or exemption changes.

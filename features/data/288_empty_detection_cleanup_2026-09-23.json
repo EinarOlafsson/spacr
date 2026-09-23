@@ -1,0 +1,117 @@
+{
+  "feature": 288,
+  "related_features": [
+    473,
+    479
+  ],
+  "date": "2026-09-23",
+  "base_commit": "dd8e503d4",
+  "module": "spacr/qt/detect_chain.py",
+  "before": {
+    "covered_lines": 191,
+    "num_statements": 210,
+    "percent_covered": 89.93288590604027,
+    "percent_covered_display": "89.93",
+    "missing_lines": 19,
+    "excluded_lines": 0,
+    "percent_statements_covered": 90.95238095238095,
+    "percent_statements_covered_display": "90.95",
+    "num_branches": 88,
+    "num_partial_branches": 11,
+    "covered_branches": 77,
+    "missing_branches": 11,
+    "percent_branches_covered": 87.5,
+    "percent_branches_covered_display": "87.50"
+  },
+  "after": {
+    "covered_lines": 193,
+    "num_statements": 210,
+    "percent_covered": 91.2751677852349,
+    "percent_covered_display": "91.28",
+    "missing_lines": 17,
+    "excluded_lines": 0,
+    "percent_statements_covered": 91.9047619047619,
+    "percent_statements_covered_display": "91.90",
+    "num_branches": 88,
+    "num_partial_branches": 9,
+    "covered_branches": 79,
+    "missing_branches": 9,
+    "percent_branches_covered": 89.77272727272727,
+    "percent_branches_covered_display": "89.77"
+  },
+  "tests": [
+    "69 passed in 115.60s (existing detector cohort plus organelle adapter checks)",
+    "5 passed in 84.48s (new empty-cleanup cohort; coverage report generation included)"
+  ],
+  "method": "Append branch coverage from the two passing cohorts on unchanged runtime sources; 74 distinct tests. No full-suite verdict.",
+  "remaining_lines": [
+    195,
+    338,
+    532,
+    533,
+    537,
+    538,
+    539,
+    541,
+    543,
+    544,
+    545,
+    547,
+    548,
+    596,
+    598,
+    600,
+    616
+  ],
+  "remaining_branches": [
+    [
+      337,
+      338
+    ],
+    [
+      531,
+      532
+    ],
+    [
+      536,
+      537
+    ],
+    [
+      540,
+      541
+    ],
+    [
+      542,
+      543
+    ],
+    [
+      546,
+      547
+    ],
+    [
+      595,
+      596
+    ],
+    [
+      597,
+      598
+    ],
+    [
+      599,
+      600
+    ]
+  ],
+  "behavior": [
+    "Empty detection arrays retain shape, dtype and zero foreground when opening/closing and splitting are enabled.",
+    "Opening may remove the last small objects, with or without Split; original detection labels remain unchanged."
+  ],
+  "limits": [
+    "CPU synthetic arrays, no inference benchmark.",
+    "No runtime, API, UI, baseline, exemption or threshold change."
+  ],
+  "source_sha256": {
+    "spacr/qt/detect_chain.py": "831087faa4e5e1971e3dcc4f96859e4f42e5f778157e13721d0213b94aee04d9",
+    "tests/qt/test_detection_cleanup_empty_fields.py": "f05820822a1b06ba496c95d6627632f5f29f97ae4a57c079b2f858eec4924579"
+  },
+  "report_sha256": "0adf0d669c259a7e108cdde185d74765347f88c3446a5bbfb4322909aae9ec87"
+}

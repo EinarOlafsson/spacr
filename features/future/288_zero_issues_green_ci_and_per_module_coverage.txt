@@ -4697,3 +4697,12 @@ missing-file errors and unchanged input/checkpoint bytes. Method-specific
 ledger data round-trips through JSON. This is an adapter contract test, not
 trained U-Net accuracy. No runtime or coverage gate changes. Receipt:
 288_organelle_model_bridge_2026-09-23.json. Full CI/ratchet remains open.
+
+2026-09-23 — IMPLEMENTATION: EMPTY DETECTION CLEANUP ABOVE THE FLOOR
+Current detect_chain measures89.93percent in the69-test detector cohort.
+Five additional checks pass for empty arrays and opening that removes all
+objects, with/without Split: shape/dtype preserved, original labels unchanged,
+no invented foreground. Appended coverage on unchanged source reaches91.28
+percent (193/210statements,79/88branches).74distinct tests across two cohorts;
+no runtime, API, UI, baseline or threshold changes. Receipt:
+288_empty_detection_cleanup_2026-09-23.json. Full CI/ratchet remains open.
