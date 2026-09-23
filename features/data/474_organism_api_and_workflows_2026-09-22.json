@@ -1,0 +1,383 @@
+{
+  "schema": 1,
+  "source_commit": "2bdb223fbfbd79242bbcb8ce881e5c0329e21e54",
+  "inventory": {
+    "schema": 1,
+    "source_commit": "2bdb223fbfbd79242bbcb8ce881e5c0329e21e54",
+    "api_before": 11328,
+    "api_after": 11338,
+    "api_added": [
+      "spacr.qt.organisms",
+      "spacr.qt.organisms.ORGANISMS",
+      "spacr.qt.screens.organism_screen",
+      "spacr.qt.screens.organism_screen.OrganismScreen",
+      "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter",
+      "spacr.qt.widgets.organism_diagram",
+      "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS",
+      "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram",
+      "spacr.qt.widgets.organism_diagram.YEAST_LABELS"
+    ],
+    "api_removed": [],
+    "api_changed": [],
+    "ui_before": 4356,
+    "ui_after": 4492,
+    "ui_added": [
+      "A generic budding-yeast cell from SwissBioPics. Select a compartment to highlight its UniProt location. This is a cell schematic, not a Candida species identification or a depiction of every yeast, pseudohyphal and hyphal form.",
+      "A shared apicomplexan cell plan, using the SwissBioPics artwork also used in Starplast. Select a UniProt compartment to highlight it. Parasite shape and organelle organization vary by species and life-cycle stage; this is not a blood-stage reconstruction. Toxoplasma hyperLOPIT assignments are not transferred to Plasmodium.",
+      "Adhesion",
+      "All compartments",
+      "All eight Plasmodium modules on this page are planned. Their descriptions define intended readouts rather than available analysis pipelines. PlasmoDB and UniProt provide genome and protein context for choosing markers and interpreting results. The apicomplexan illustration is useful for discussing compartments shared with Toxoplasma, but it does not establish that a protein has the same location in both organisms.",
+      "Antifungal response",
+      "Antifungal response and interpretation",
+      "Antifungal response is a proposed concentration-response workflow for fungal growth and morphology. Combining it with Morphology or Biofilm would help describe which image features change during treatment. All eight Candida modules are currently planned and their tiles are marked Coming soon. The Candida Genome Database and UniProt provide gene and protein annotations to support marker selection and interpretation.",
+      "Apicoplast",
+      "BEI Resources",
+      "BEI Resources / MR4",
+      "Biofilm",
+      "Biology source: CDC",
+      "Blood-stage staging",
+      "Bradyzoite conversion",
+      "Bud",
+      "Bud neck",
+      "Building an image-analysis workflow",
+      "Candida Genome Database",
+      "Candida spp.",
+      "Candida yeasts can live on the skin and mucosal surfaces. Some species cause superficial or invasive candidiasis. Candida albicans can form budding yeasts, germ tubes and hyphae; these forms are not shared by every Candida species. Imaging can quantify morphology, biofilm growth and interactions with host cells.",
+      "Cell compartments",
+      "Cell membrane",
+      "Cell traversal",
+      "Cell wall",
+      "Classify gametocyte stage and sex from images.",
+      "Classify rings, trophozoites and schizonts.",
+      "Classify yeast, pseudohyphal and hyphal forms.",
+      "Coming soon",
+      "Count fungal cells bound to a host-cell monolayer.",
+      "Count infected red blood cells per field.",
+      "Count parasites per vacuole.",
+      "Cytosol",
+      "Distinguish attached and invaded parasites.",
+      "Distinguish internalised and extracellular fungi.",
+      "Drag to resize the information pane.",
+      "Drug response imaging",
+      "ER",
+      "ER 2",
+      "Egress",
+      "Endoplasmic reticulum",
+      "Entry and the intracellular niche",
+      "Epithelial invasion",
+      "Epithelial invasion is planned to distinguish extracellular fungi from those internalised by epithelial cells. Phagocytosis will measure uptake by phagocytes. Both require a way to resolve contact from internalisation, such as appropriate differential labelling or spatial information. Report the host-cell population and fungal morphology together with the uptake readout.",
+      "Explore the apicomplexan cell using Starplast's Toxoplasma hyperLOPIT labels. Select a compartment to highlight its UniProt location. Several classes share a shape; dense granules use the generic cytoplasmic-granule shape. Ribosomes, proteasomes, apical classes and mixed endomembrane vesicles have no matching shape here. The illustration shows compartment names, not protein measurements.",
+      "Filamentation",
+      "Filamentation is planned to quantify the frequency and extent of filament growth. Germ tube formation will focus on early outgrowth from individual cells, and Morphology will distinguish yeast, pseudohyphal and hyphal forms where those categories apply. These related modules address different points in a morphological transition. Use species-appropriate reference images and record the growth conditions when comparing their results.",
+      "Follow parasite entry into red blood cells.",
+      "Follow vacuole rupture and parasite exit over time.",
+      "From a phenotype to candidate proteins",
+      "Gametocyte maturity",
+      "Gametocyte maturity is a proposed workflow for stage and sex-associated image features when suitable markers and reference annotations are available. Drug response imaging will relate growth and morphology to concentration. Record the species, starting stage and exposure duration with these measurements: changes in the mix of stages can otherwise be mistaken for changes in parasite number.",
+      "Genome browser",
+      "Germ tube formation",
+      "Gliding motility",
+      "Golgi",
+      "Golgi apparatus",
+      "Host cell damage",
+      "IMC",
+      "Image-analysis assays for Toxoplasma gondii",
+      "Image-analysis modules for Candida species",
+      "Image-analysis modules for malaria parasites",
+      "Infection frequency and blood-stage development",
+      "Information and modules divider",
+      "Inner membrane complex",
+      "Interactions with host cells",
+      "Invasion Assay separates parasites attached to a host cell from those that have entered it. Recruitment measures host-protein enrichment around the parasite-containing vacuole. Used together, these modules help separate a change in entry from a change in the host response after entry. Choose image channels and marker definitions that make those two populations distinguishable.",
+      "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.",
+      "Liver infection and parasite movement",
+      "Liver-stage growth",
+      "Liver-stage growth is planned to measure parasite number and size within hepatocytes. Sporozoite motility will focus on gliding trajectories or trails, while Cell traversal will address host-cell wounding along parasite paths. Traversal, productive invasion and subsequent growth are different outcomes: their image markers, observation times and denominators need to be defined separately.",
+      "Measure biofilm area and thickness over time.",
+      "Measure extracellular parasite trails and speed.",
+      "Measure gliding trails and speed.",
+      "Measure growth and morphology across antifungal concentrations.",
+      "Measure growth inhibition across compound concentrations.",
+      "Measure host-protein enrichment at the vacuole.",
+      "Measure monolayer integrity and host-cell loss.",
+      "Measure parasite number and size in hepatocytes.",
+      "Measure the frequency and extent of filament growth.",
+      "Measure wounded host cells along parasite paths.",
+      "Merozoite invasion",
+      "Micronemes",
+      "Microtubule cytoskeleton",
+      "Mitochondrion",
+      "Morphology and the transition to filaments",
+      "Movement, exit and persistent stages",
+      "NCBI Taxonomy",
+      "Nucleolus",
+      "PM - integral",
+      "PM - peripheral 1",
+      "PM - peripheral 2",
+      "Parasitaemia",
+      "Phagocytosis",
+      "PlasmoDB",
+      "Plasmodium parasites cause malaria. Their life cycle includes mosquito and vertebrate hosts, with liver and blood stages in humans. Microscopy distinguishes parasite forms in infected red blood cells. Image-based studies can measure infection frequency, stage progression, motility and responses to compounds.",
+      "Plasmodium spp.",
+      "Quantify cyst-wall staining and stage conversion.",
+      "Quantify early germ-tube emergence per cell.",
+      "Quantify plaque number and size.",
+      "Quantify uptake by phagocytes.",
+      "Replication Assay counts parasites per vacuole, providing a readout of intracellular growth at the sampled time. Plaque Assay measures cleared areas across a host-cell monolayer and therefore integrates multiple rounds of infection and growth. A smaller plaque can reflect more than one defect: compare the plaque result with invasion and replication measurements before assigning it to a particular step.",
+      "Replication and the complete lytic cycle",
+      "Restore columns",
+      "Rhoptries",
+      "Select a label to highlight its compartment.",
+      "Sporozoite motility",
+      "Starplast",
+      "Surface attachment and community growth",
+      "The compartment diagram connects imaging phenotypes to subcellular vocabulary used in Starplast. ToxoDB provides gene and genome context, while UniProt supplies protein annotations. The hyperLOPIT atlas provides experimental localization evidence for Toxoplasma proteins; a highlighted organelle here is a guide to that vocabulary, not a prediction for a selected gene or proof of the cause of a phenotype.",
+      "The membrane label uses the mitochondrial outline; it has no separate shape.",
+      "The planned Egress module will focus on vacuole rupture and parasite exit; Gliding motility will quantify extracellular trails and movement. Bradyzoite conversion will address stage-marker and cyst-wall readouts, while Host cell damage will describe monolayer loss. These are proposed workflows, so their tiles are marked Coming soon. Fixed images, time series and stage-specific markers answer different questions and should be selected for the intended readout.",
+      "The proposed Adhesion module will count fungal cells associated with a host-cell surface. Biofilm will focus on collective growth, including covered area and thickness when the acquisition contains depth information. A single two-dimensional field can describe surface coverage but cannot by itself establish biofilm thickness. Choose single-plane or volumetric imaging to match the endpoint.",
+      "The proposed Parasitaemia module will count infected red blood cells relative to the total red-cell population. Blood-stage staging will separate rings, trophozoites and schizonts so a shift in stage composition can be examined alongside infection frequency. Merozoite invasion will focus on entry into red blood cells. Together these readouts would help distinguish fewer newly infected cells from altered development of parasites already inside them.",
+      "ToxoDB",
+      "Toxoplasma gondii",
+      "Toxoplasma gondii is an intracellular protozoan parasite that causes toxoplasmosis in humans and other warm-blooded animals. Its rapidly growing tachyzoites and persistent tissue cysts represent different stages of infection. Imaging can follow entry into host cells, replication within vacuoles, and damage to a cell monolayer.",
+      "Toxoplasma hyperLOPIT atlas",
+      "Transmission stages and compound responses",
+      "UniProt",
+      "UniProt compartment",
+      "Vacuole",
+      "Widen text",
+      "Widen the information pane; you can also drag the divider.",
+      "apicoplast",
+      "cytosol",
+      "dense granules",
+      "hyperLOPIT compartment",
+      "micronemes",
+      "mitochondrion - membranes",
+      "mitochondrion - soluble",
+      "nucleolus",
+      "nucleus - chromatin",
+      "nucleus - non-chromatin",
+      "rhoptries 1",
+      "rhoptries 2",
+      "tubulin cytoskeleton"
+    ],
+    "ui_removed": [
+      "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home."
+    ],
+    "full_catalog_acceptance": false
+  },
+  "workflow_modules": 74,
+  "workflow_artifacts": 37,
+  "workflow_pathways": 9,
+  "reference_lesson_scenes": 76,
+  "languages": [
+    {
+      "language": "sv",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "de",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "es",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "zh_CN",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "pt",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "hi",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "ko",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "is",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    },
+    {
+      "language": "fr",
+      "new_api_symbols": 10,
+      "api_review_records": 26,
+      "live_runtime_checks": 3,
+      "prior_pathway_note_preserved": true,
+      "unrelated_rows_unchanged": true
+    }
+  ],
+  "api_review_records": 234,
+  "identity_reviews": 18,
+  "rebound_pathway_notes": 9,
+  "assignment_audit": {
+    "dunders": 214,
+    "assignments": 20,
+    "new_assignments": [
+      "spacr.qt.organisms.ORGANISMS",
+      "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS",
+      "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL",
+      "spacr.qt.widgets.organism_diagram.YEAST_LABELS"
+    ],
+    "new_digest": "229e1407fb6fc21359484e763000c6af48fde767acc38d713eed4e707cb616b3",
+    "old_digest_reproduced": "13bd9984ddd7853bfac646da2ac620f25894745ff2c2f1b9e495cae323edb660"
+  },
+  "callable_audit": {
+    "count": 9385,
+    "categories": {
+      "function": 4175,
+      "dataclass_constructor": 502,
+      "constructor": 430,
+      "method": 4056,
+      "exception_constructor": 147,
+      "inherited_or_default_constructor": 58,
+      "namedtuple_constructor": 17
+    },
+    "exposure": {
+      "autoapi": 9380,
+      "compatibility": 3,
+      "cli_only": 2
+    },
+    "new": [
+      {
+        "symbol": "spacr.qt.screens.organism_screen.OrganismScreen",
+        "category": "constructor",
+        "missing": []
+      },
+      {
+        "symbol": "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter",
+        "category": "method",
+        "missing": []
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram",
+        "category": "constructor",
+        "missing": []
+      }
+    ]
+  },
+  "callable_sums": {
+    "constructor_prose_variants": 429,
+    "documented_constructors": 429,
+    "parameters": 18621,
+    "required_parameters": 9590,
+    "variants": 9392,
+    "new": [
+      {
+        "symbol": "spacr.qt.screens.organism_screen.OrganismScreen",
+        "parameters": [
+          "app_key",
+          "host",
+          "parent"
+        ],
+        "required": [
+          "app_key"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter",
+        "parameters": [
+          "event",
+          "watched"
+        ],
+        "required": [
+          "event",
+          "watched"
+        ]
+      },
+      {
+        "symbol": "spacr.qt.widgets.organism_diagram.OrganismDiagram",
+        "parameters": [
+          "app_key",
+          "parent",
+          "path"
+        ],
+        "required": [
+          "app_key",
+          "path"
+        ]
+      }
+    ]
+  },
+  "review_method": "AI-assisted linguistic and technical review; no native-speaker sign-off",
+  "full_catalog_acceptance": false,
+  "remaining": "The new organism runtime prose and compartment names need translations beyond ER/IMC and the updated pathway note. The Make Masks reference, existing locale backlog, helper rollout and tutorial media acceptance remain open.",
+  "validation": {
+    "source_contract_distinct_tests": 164,
+    "readme_grid_distinct_tests": 71,
+    "reruns": "One constructor-inventory pin and one transparency fixture corrected; final focused reruns pass. Counts exclude repeated tests.",
+    "full_sphinx": "-W -E passed before the landing-grid refresh; subsequent -W build passes with current landing pages.",
+    "rendered": {
+      "api_symbols": 10,
+      "workflow_modules": 74,
+      "workflow_api_pages": 64,
+      "total_api_pages_checked": 66,
+      "pathways": 9,
+      "organism_home_tiles": 3,
+      "folded_assay_links": 4,
+      "checks": "Actual built HTML anchors, input/output titles and full map guidance; static links and images, not browser locale acceptance."
+    },
+    "log_sha256": {
+      "organism-sphinx.log": "7cfdf580212dbbe144408f3243690e10911aff29a772bd02b0a3685ed4594a8f",
+      "organism-sphinx-refresh.log": "6152bbce60df00ddb8060d5a70142611c352590a7733726597f10b9bd908bd68",
+      "organism-callable-pin-tests.log": "9a78920f1b887894501c0e3832e3fb3db901ba1c9e81179dd8447c55cbbae8d5",
+      "organism-readme-tests.log": "c93c4290ad45e87884bc6dbdf6c4b2cab735e8b325bc33c2fd6e5998f18d86f9",
+      "organism-readme-rerun.log": "671c4ab51230523d15e05f4088808c7dc6934b6ef11dca57ca39df58d34e8e1c",
+      "organism-source-contract-tests.log": "c859a6e7f2a6242b2ad68e7f6227a55a2f71e3ddcc19690eea3a92d70b07c527"
+    },
+    "visual_review": "All three generated organism tiles inspected; labels and white icon ink visible on dark backgrounds."
+  },
+  "callable_digest_audit": {
+    "new_symbols": [
+      "spacr.qt.screens.organism_screen.OrganismScreen",
+      "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter",
+      "spacr.qt.widgets.organism_diagram.OrganismDiagram"
+    ],
+    "new_digest": "3c35ada81c6f1b2b7024632ef9ad09c88ab4b720e61f03a80195dcd8baaaecc6",
+    "old_digest_reproduced": "ac7e2d1feeda6f91941e825043dc960b8e3c429fa48cb71852afdd59d18dff70"
+  },
+  "readme_grid": {
+    "registry_entries": 48,
+    "home_tiles": 21,
+    "languages": 10,
+    "new_tiles": 3,
+    "assays_moved_under_toxoplasma": 4
+  }
+}

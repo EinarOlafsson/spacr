@@ -1,0 +1,21 @@
+{
+  "language": "es",
+  "records": [
+    {
+      "key": "ER",
+      "source": "ER",
+      "source_sha256": "7a475a8b0a074fa8bd3bf54dc2a172de8c70f8ad78980010b9d8e9bc5a5b978f",
+      "table": "ui",
+      "translation": "ER"
+    },
+    {
+      "key": "IMC",
+      "source": "IMC",
+      "source_sha256": "9505081bb3d2567f6bf006a712c3422895ea88e2dff9e62a851c5eb873c37fde",
+      "table": "ui",
+      "translation": "IMC"
+    }
+  ],
+  "review_kind": "Exact scientific abbreviations used by the hyperLOPIT compartment selector; preserved across locales",
+  "schema": 1
+}

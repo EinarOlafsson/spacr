@@ -252,3 +252,19 @@ Receipt:features/data/472_home_pathway_integration_2026-09-22.json.
 This completes the map adapter and one-click link left in Claude's handoff.
 The four additional tutorial languages, recordings and final media acceptance
 are still open; this is not complete472 acceptance or a publication claim.
+
+2026-09-22 — CODEX: ORGANISM HOME ROUTES IN THE SHARED MAP
+The authoritative map remains spacr/resources/module_workflows.json. It now
+covers74 modules,37 artifacts and nine common pathways. Three organism guides
+have explicit GUI-only inputs/outputs; they do not produce measurements.
+The four available assays open under Toxoplasma. Plasmodium and Candida's
+proposed analyses remain Coming soon, not executable pipeline claims.
+Regenerated workflow prose, API includes and tutorial contracts agree with
+that map; lesson79 now has76 scenes. The changed parasite-pathway note has
+nine source-bound translations, with its older reviews preserved verbatim.
+README grids in English and nine translations and the API landing grid now
+show the three organism pages; the four assay API anchors remain in the
+folded-module list. New SVG-derived tiles were visually inspected and their
+opacity is covered by a regression.71 distinct README/grid checks pass.
+Recording, further tutorial languages, narration review and final media
+acceptance are still open. This entry does not claim tutorial publication.

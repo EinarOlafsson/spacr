@@ -6,7 +6,7 @@ Plaque Assay
 
 Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.
 
-**Open:** Home → Plaque Assay.
+**Open:** Toxoplasma → Plaque Assay.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -33,7 +33,7 @@ Recruitment
 
 Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.
 
-**Open:** Home → Recruitment.
+**Open:** Toxoplasma → Recruitment.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -60,7 +60,7 @@ Invasion Assay
 
 Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.
 
-**Open:** Home → Invasion Assay.
+**Open:** Toxoplasma → Invasion Assay.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -87,7 +87,7 @@ Replication Assay
 
 Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.
 
-**Open:** Home → Replication Assay.
+**Open:** Toxoplasma → Replication Assay.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 

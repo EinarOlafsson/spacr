@@ -106,7 +106,8 @@ REAL_LANGUAGES = ("sv", "de", "es", "zh_CN", "pt", "hi", "ko", "is", "fr")
 # are in features/data/411_api_manifest_refresh_2026-09-22.json. English is
 # current. The complete-catalog browser gate still checks every locale; this
 # pin change does not exempt its missing or stale translations.
-REAL_SYMBOL_COUNT = 11_328
+# 474's ten additional entries have reviewed records in every locale.
+REAL_SYMBOL_COUNT = 11_338
 CHROME = shutil.which("google-chrome") or shutil.which("chromium")
 HEX_A = "a" * 64
 HEX_B = "b" * 64

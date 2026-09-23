@@ -99,8 +99,9 @@ class TestTheReadmeGrid:
         apps, sections = registry
         from spacr.qt.app import tiled_apps
 
-        assert len(apps) == 45
-        assert len(tiled_apps()) == 22
+        # 474 adds three organism pages and folds the four assays into Toxoplasma.
+        assert len(apps) == 48
+        assert len(tiled_apps()) == 21
         assert sections == ["Core", "Data", "Tools", "Assays"]
 
     def test_no_folded_module_is_offered_as_a_separate_tool(self, folded):

@@ -69680,6 +69680,30 @@
         "0dfbab99bd95d60ff7a672078b6f898b08f3a22726280fa058d372a73d481f87"
       ]
     },
+    "spacr.qt.organisms": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "출처가 명시된 생물 소개와 이미지 분석 모듈 제안.\n\n분석 키는 기존 파이프라인의 식별자입니다. 제안에는 탐색 경로가 없으므로 생물 페이지에서 아직 구현되지 않은 분석을 실수로 실행할 수 없습니다. 그림의 출처, 라이선스 및 체크섬은 organism_sources.json 파일에 포함됩니다.",
+      "translation_source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "a8526113789fa2f43d38f7f6cd91ccb0c4456c6eef7fc1134bd60c86908dabad"
+      ]
+    },
+    "spacr.qt.organisms.ORGANISMS": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b"
+      ],
+      "source_sha256": "d6261fca301df212e91acaabcd6a9f4c13b51e9c067693d30994b0769f591f44",
+      "text": "``toxoplasma``, ``plasmodium``, ``candida``를 키로 사용하는 생물 안내 자료.\n\n각 레코드는 표시 이름, 설명, 생물학 자료의 출처 URL, 포함된 도식 파일 이름 및 도식 설명을 제공합니다. ``sections``에는 제목, 본문, 연결된 분석 키의 3개 항목 묶음이 들어 있고, ``links``에는 표시 레이블과 URL의 쌍이 들어 있습니다. ``modules``에는 경로 키, 제목, 설명, 아이콘 키로 구성된 튜플이 들어 있습니다. 경로가 ``None``이면 계획된 분석을 뜻하며 해당 타일은 분석을 시작할 수 없습니다. 표시 문구는 사용 시 번역되지만 경로 키, URL 및 리소스 이름은 그대로 유지됩니다.",
+      "translation_source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "c4627129f32875e079b51b71c81b42341286d2f806f25d127f10a62770ae9c12"
+      ]
+    },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
         "9002c454672a4e0768085406ccef866b571a12f0dc09958f02638bd98643a2f7",
@@ -86092,6 +86116,52 @@
         "db54dba312eb79784a111a5088547be2af50c7d67af49bfe64b70d2e9ccf6485",
         "47a5bdcb1bae198fb83deacbfeb142cbfad9d187c58185b07c1a05d1295d9525",
         "c045a10f5c08e471aa42625d636a222453a22a313db96cde8fb704023d4f88e9"
+      ]
+    },
+    "spacr.qt.screens.organism_screen": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "출처가 명시된 생물 안내, 대화형 세포 도식 및 분석 탐색.\n\n정보 영역과 모듈 영역은 독립적으로 스크롤되며 수평 분할 컨트롤을 공유합니다. 기존 분석은 레지스트리 키를 유지하며 제안은 실행할 수 없습니다.",
+      "translation_source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "a344a9ce5604e2bcdbb408548388f6e79ad54c24382d26c5b48c5eaba6618da8"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen": {
+      "source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ],
+      "source_sha256": "727476824306a130836c8a825163ad1e2e05e6e53958285b4d760ad71f8a97d4",
+      "text": "생물 하나와 해당 생물의 기존 또는 제안된 이미지 분석 모듈을 표시합니다.\n\n:param app_key: ``toxoplasma``, ``plasmodium`` 또는 ``candida``.\n:param host: 모듈 탐색 요청을 받는 선택적 메인 창.\n:param parent: 소유 Qt 위젯.\n독립적으로 스크롤되는 소개 영역과 Home 타일 그리드를 구성합니다.",
+      "translation_source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
+      ],
+      "source_sha256": "6bca4c89af480f2e5bf25139b8871c487330a36d170e934559093ec92886ef53",
+      "text": "세로 스크롤 막대 변경을 포함하여 뷰포트 크기가 바뀐 뒤 배치를 다시 조정합니다.\n\n:param watched: 이벤트를 받은 Qt 객체.\n:param event: 기본 클래스 필터로 전달하기 전에 확인할 Qt 이벤트.\n:returns: 기본 클래스 이벤트 필터의 결과.",
+      "translation_source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
       ]
     },
     "spacr.qt.screens.outliers": {
@@ -125870,6 +125940,68 @@
       "text": "1개의 셀의 저장된 값. ``KeyError``-free: absent는 ``None``입니다.",
       "translation_source_blocks_sha256": [
         "1e64fc4198624eccb8c0e25af3d1a4bd56cf8a61accd51a601667f847001b2cf"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram": {
+      "source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ],
+      "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
+      "text": "선택 가능한 UniProt 구획 레이블이 있는 오프라인 SwissBioPics 세포 그림.\n\nToxoplasma hyperLOPIT에서 SL로의 매핑은 Einar Olafsson의 Starplast ``celldiagram.py``(MIT, 리비전 53703bafdf0604576a05b589400051a6b09e62ea)를 따릅니다. 그림은 Philippe Le Mercier, SIB의 작품이며 CC BY 4.0이 적용됩니다. 출처 기록은 SVG와 함께 제공됩니다. 렌더링 사본에서만 숨겨진 메타데이터와 저작자 표시 로고가 제거되며, 원본 리소스와 보이는 저작자 표시는 유지됩니다. PyQt6 가져오기, 네트워크 요청 또는 측정된 위치 데이터는 사용하지 않습니다.",
+      "translation_source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
+      "source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ],
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "text": "UniProt SL 식별자에 매핑된 공통 정단복합체충 구획 레이블.",
+      "translation_source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL": {
+      "source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ],
+      "source_sha256": "73c1554655fd3d72d268c318ffceee3bbca24d093546eebbc53d26e0ea9b84ec",
+      "text": "UniProt SL 식별자에 매핑된 Toxoplasma hyperLOPIT 표시 레이블.\n\n여러 레이블이 같은 위치를 공유합니다. 미토콘드리아 막 레이블은 식별자로 ``SL0171``을 유지하며, 그릴 때는 ``SL0173``의 윤곽을 사용합니다.",
+      "translation_source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
+      "source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ],
+      "source_sha256": "bbfb62063d8720234583542fd81ca4113e3a60544eaead1498cdcaed4a6ddb36",
+      "text": "세포 그림과 키보드로 조작할 수 있는 구획 선택기.\n\n:param app_key: 생물 키. Toxoplasma만 hyperLOPIT 레이블을 사용합니다.\n:param path: 포함된 SVG 경로. 외부 리소스를 가져오지 않습니다.\n:param parent: 소유 Qt 위젯.\n그림, 레이블 선택기 및 공유 도형 설명을 구성합니다.",
+      "translation_source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
+      "source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ],
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "text": "UniProt SL 식별자에 매핑된 일반적인 출아 효모 구획 레이블.",
+      "translation_source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
       ]
     },
     "spacr.qt.widgets.outlier_model": {

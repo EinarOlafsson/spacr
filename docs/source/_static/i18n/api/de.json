@@ -70622,6 +70622,30 @@
         "0dfbab99bd95d60ff7a672078b6f898b08f3a22726280fa058d372a73d481f87"
       ]
     },
+    "spacr.qt.organisms": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "Quellenbasierte Organismeneinführungen und Vorschläge für Bildanalysemodule.\n\nDie Assay-Schlüssel sind bestehende Kennungen von Verarbeitungspipelines. Ein Vorschlag hat keine Navigationsroute, sodass die Organismenseiten nicht versehentlich eine noch nicht implementierte Analyse ausführen können. Herkunft, Lizenzen und Prüfsummen der Abbildungen werden in organism_sources.json mitgeliefert.",
+      "translation_source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "a8526113789fa2f43d38f7f6cd91ccb0c4456c6eef7fc1134bd60c86908dabad"
+      ]
+    },
+    "spacr.qt.organisms.ORGANISMS": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b"
+      ],
+      "source_sha256": "d6261fca301df212e91acaabcd6a9f4c13b51e9c067693d30994b0769f591f44",
+      "text": "Organismenleitfäden mit den Schlüsseln ``toxoplasma``, ``plasmodium`` und ``candida``.\n\nJeder Datensatz enthält einen Anzeigenamen, eine Beschreibung, die URL der biologischen Quelle, den Dateinamen des mitgelieferten Diagramms und einen Diagrammhinweis. ``sections`` enthält Tripel aus Überschrift, Text und verknüpften Assay-Schlüsseln; ``links`` enthält Paare aus Anzeigetext und URL. ``modules`` enthält Tupel aus Routenschlüssel, Titel, Beschreibung und Symbolschlüssel. Eine Route mit dem Wert ``None`` kennzeichnet einen geplanten Assay, dessen Kachel keine Analyse starten kann. Anzeigetext wird bei Verwendung übersetzt; Routenschlüssel, URLs und Ressourcennamen bleiben unverändert.",
+      "translation_source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "c4627129f32875e079b51b71c81b42341286d2f806f25d127f10a62770ae9c12"
+      ]
+    },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
         "9002c454672a4e0768085406ccef866b571a12f0dc09958f02638bd98643a2f7",
@@ -87034,6 +87058,52 @@
         "db54dba312eb79784a111a5088547be2af50c7d67af49bfe64b70d2e9ccf6485",
         "47a5bdcb1bae198fb83deacbfeb142cbfad9d187c58185b07c1a05d1295d9525",
         "c045a10f5c08e471aa42625d636a222453a22a313db96cde8fb704023d4f88e9"
+      ]
+    },
+    "spacr.qt.screens.organism_screen": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "Quellenbasierte Organismenleitfäden, interaktive Zelldiagramme und Assay-Navigation.\n\nInformations- und Modulbereich lassen sich unabhängig scrollen und teilen sich eine horizontale Aufteilung. Bestehende Assays behalten ihre Registrierungsschlüssel; Vorschläge können nicht ausgeführt werden.",
+      "translation_source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "a344a9ce5604e2bcdbb408548388f6e79ad54c24382d26c5b48c5eaba6618da8"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen": {
+      "source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ],
+      "source_sha256": "727476824306a130836c8a825163ad1e2e05e6e53958285b4d760ad71f8a97d4",
+      "text": "Einen Organismus und seine bestehenden oder vorgeschlagenen Bildanalysemodule anzeigen.\n\n:param app_key: ``toxoplasma``, ``plasmodium`` oder ``candida``.\n:param host: Optionales Hauptfenster, das Anfragen zur Modulnavigation empfängt.\n:param parent: Übergeordnetes Qt-Widget.\nEinführung und Home-Kachelraster mit unabhängigem Scrollen erstellen.",
+      "translation_source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
+      ],
+      "source_sha256": "6bca4c89af480f2e5bf25139b8871c487330a36d170e934559093ec92886ef53",
+      "text": "Nach Größenänderungen des Anzeigebereichs neu anordnen, auch bei Änderungen der vertikalen Bildlaufleiste.\n\n:param watched: Qt-Objekt, das das Ereignis empfangen hat.\n:param event: Qt-Ereignis, das vor der Weitergabe an den Filter der Basisklasse geprüft wird.\n:returns: das Ergebnis des Ereignisfilters der Basisklasse.",
+      "translation_source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
       ]
     },
     "spacr.qt.screens.outliers": {
@@ -126812,6 +126882,68 @@
       "text": "Der gespeicherte Wert einer Zelle. ``KeyError``-frei: fehlend ist ``None``.",
       "translation_source_blocks_sha256": [
         "1e64fc4198624eccb8c0e25af3d1a4bd56cf8a61accd51a601667f847001b2cf"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram": {
+      "source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ],
+      "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
+      "text": "Offline-Zellbilder von SwissBioPics mit auswählbaren UniProt-Kompartimentbezeichnungen.\n\nDie Zuordnung von Toxoplasma hyperLOPIT zu SL folgt Einar Olafssons Starplast ``celldiagram.py`` (MIT, Revision 53703bafdf0604576a05b589400051a6b09e62ea). Die Abbildungen stammen von Philippe Le Mercier, SIB, CC BY 4.0; Quellenangaben liegen den SVG-Dateien bei. Nur aus der gerenderten Kopie werden versteckte Metadaten und das Urheberlogo entfernt; Originaldatei und sichtbare Urheberangabe bleiben erhalten. Weder ein PyQt6-Import noch eine Netzwerkanfrage oder gemessene Lokalisierungsdaten werden verwendet.",
+      "translation_source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
+      "source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ],
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "text": "Gemeinsame apicomplexe Kompartimentbezeichnungen, zugeordnet zu UniProt-SL-Kennungen.",
+      "translation_source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL": {
+      "source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ],
+      "source_sha256": "73c1554655fd3d72d268c318ffceee3bbca24d093546eebbc53d26e0ea9b84ec",
+      "text": "Toxoplasma-hyperLOPIT-Anzeigebezeichnungen, zugeordnet zu UniProt-SL-Kennungen.\n\nMehrere Bezeichnungen teilen sich einen Ort. Die Bezeichnung für die Mitochondrienmembran behält ``SL0171`` als Kennung und verwendet beim Zeichnen den Umriss von ``SL0173``.",
+      "translation_source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
+      "source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ],
+      "source_sha256": "bbfb62063d8720234583542fd81ca4113e3a60544eaead1498cdcaed4a6ddb36",
+      "text": "Eine Zellabbildung und eine per Tastatur bedienbare Kompartimentauswahl.\n\n:param app_key: Organismenschlüssel; nur Toxoplasma verwendet hyperLOPIT-Bezeichnungen.\n:param path: Pfad zur mitgelieferten SVG-Datei; es wird keine externe Ressource abgerufen.\n:param parent: Übergeordnetes Qt-Widget.\nAbbildung, Bezeichnungsauswahl und Hinweis auf die gemeinsame Form erstellen.",
+      "translation_source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
+      "source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ],
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "text": "Allgemeine Kompartimentbezeichnungen einer sprossenden Hefe, zugeordnet zu UniProt-SL-Kennungen.",
+      "translation_source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
       ]
     },
     "spacr.qt.widgets.outlier_model": {

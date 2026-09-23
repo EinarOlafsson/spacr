@@ -69680,6 +69680,30 @@
         "0dfbab99bd95d60ff7a672078b6f898b08f3a22726280fa058d372a73d481f87"
       ]
     },
+    "spacr.qt.organisms": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "Källbelagda organismintroduktioner och förslag till bildanalysmoduler.\n\nAnalysnycklarna är befintliga identifierare för analysflöden. Ett förslag har ingen navigeringsväg, så organismsidorna kan inte av misstag köra en analys som ännu inte är implementerad. Illustrationernas ursprung, licenser och kontrollsummor levereras i organism_sources.json.",
+      "translation_source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "a8526113789fa2f43d38f7f6cd91ccb0c4456c6eef7fc1134bd60c86908dabad"
+      ]
+    },
+    "spacr.qt.organisms.ORGANISMS": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b"
+      ],
+      "source_sha256": "d6261fca301df212e91acaabcd6a9f4c13b51e9c067693d30994b0769f591f44",
+      "text": "Organismguider med nycklarna ``toxoplasma``, ``plasmodium`` och ``candida``.\n\nVarje post innehåller ett visningsnamn, en beskrivning, en URL till den biologiska källan, filnamnet på ett medföljande diagram och en diagramnot. ``sections`` innehåller tripplar av rubrik, text och länkade analysnycklar; ``links`` innehåller par av visningsetikett och URL. ``modules`` innehåller tupler av navigeringsnyckel, titel, beskrivning och ikonnyckel. En navigeringsnyckel med värdet ``None`` anger en planerad analys vars ruta inte kan starta någon analys. Visningstext översätts vid användning; navigeringsnycklar, URL:er och resursnamn förblir oförändrade.",
+      "translation_source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "c4627129f32875e079b51b71c81b42341286d2f806f25d127f10a62770ae9c12"
+      ]
+    },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
         "9002c454672a4e0768085406ccef866b571a12f0dc09958f02638bd98643a2f7",
@@ -86092,6 +86116,52 @@
         "db54dba312eb79784a111a5088547be2af50c7d67af49bfe64b70d2e9ccf6485",
         "47a5bdcb1bae198fb83deacbfeb142cbfad9d187c58185b07c1a05d1295d9525",
         "c045a10f5c08e471aa42625d636a222453a22a313db96cde8fb704023d4f88e9"
+      ]
+    },
+    "spacr.qt.screens.organism_screen": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "Källbelagda organismguider, interaktiva celldiagram och analysnavigering.\n\nInformations- och modulpanelerna rullas oberoende av varandra och delar en horisontell avdelare. Befintliga analyser behåller sina registernycklar; förslag kan inte köras.",
+      "translation_source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "a344a9ce5604e2bcdbb408548388f6e79ad54c24382d26c5b48c5eaba6618da8"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen": {
+      "source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ],
+      "source_sha256": "727476824306a130836c8a825163ad1e2e05e6e53958285b4d760ad71f8a97d4",
+      "text": "Visa en organism och dess befintliga eller föreslagna bildanalysmoduler.\n\n:param app_key: ``toxoplasma``, ``plasmodium`` eller ``candida``.\n:param host: valfritt huvudfönster som tar emot begäranden om modulnavigering.\n:param parent: ägande Qt-widget.\nBygg introduktionen och rutnätet med Home-rutor med oberoende rullning.",
+      "translation_source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ]
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
+      ],
+      "source_sha256": "6bca4c89af480f2e5bf25139b8871c487330a36d170e934559093ec92886ef53",
+      "text": "Ordna om efter att visningsytan ändrat storlek, även när den vertikala rullningslisten ändras.\n\n:param watched: Qt-objektet som tog emot händelsen.\n:param event: Qt-händelse som granskas innan den lämnas vidare till basklassens filter.\n:returns: resultatet från basklassens händelsefilter.",
+      "translation_source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
       ]
     },
     "spacr.qt.screens.outliers": {
@@ -125870,6 +125940,68 @@
       "text": "En cells lagrade värde. ``KeyError``-fri: frånvarande är ``None``.",
       "translation_source_blocks_sha256": [
         "1e64fc4198624eccb8c0e25af3d1a4bd56cf8a61accd51a601667f847001b2cf"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram": {
+      "source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ],
+      "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
+      "text": "SwissBioPics-celler utan nätanslutning, med valbara UniProt-kompartmentetiketter.\n\nKopplingen från Toxoplasma hyperLOPIT till SL följer Einar Olafssons Starplast ``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea). Illustrationerna är gjorda av Philippe Le Mercier, SIB, CC BY 4.0; källuppgifter följer med SVG-filerna. Dold metadata och logotypen för upphovsuppgifter tas bara bort ur den renderade kopian; originalresursen och den synliga upphovsangivelsen bevaras. Ingen import av PyQt6, nätverksbegäran eller uppmätt lokaliseringsdata används.",
+      "translation_source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
+      "source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ],
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "text": "Gemensamma apikomplexa kompartmentetiketter kopplade till UniProt SL-identifierare.",
+      "translation_source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL": {
+      "source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ],
+      "source_sha256": "73c1554655fd3d72d268c318ffceee3bbca24d093546eebbc53d26e0ea9b84ec",
+      "text": "Visningsetiketter för Toxoplasma hyperLOPIT kopplade till UniProt SL-identifierare.\n\nFlera etiketter delar en plats. Etiketten för mitokondriemembran behåller ``SL0171`` som identifierare och använder konturen för ``SL0173`` när den ritas.",
+      "translation_source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
+      "source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ],
+      "source_sha256": "bbfb62063d8720234583542fd81ca4113e3a60544eaead1498cdcaed4a6ddb36",
+      "text": "En cellillustration och en kompartmentväljare som kan användas med tangentbordet.\n\n:param app_key: organismnyckel; endast Toxoplasma använder hyperLOPIT-etiketter.\n:param path: sökväg till medföljande SVG; ingen extern resurs hämtas.\n:param parent: ägande Qt-widget.\nBygg illustrationen, etikettväljaren och texten om den delade formen.",
+      "translation_source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ]
+    },
+    "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
+      "source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ],
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "text": "Generiska kompartmentetiketter för knoppande jäst kopplade till UniProt SL-identifierare.",
+      "translation_source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
       ]
     },
     "spacr.qt.widgets.outlier_model": {

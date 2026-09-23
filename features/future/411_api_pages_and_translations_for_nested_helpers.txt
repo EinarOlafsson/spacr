@@ -1613,3 +1613,17 @@ there is no filtered-catalog substitute or relaxed freshness check. The first
 helper slice is not accepted or complete until full catalog repair makes this
 check pass. Baseline full API audit fails in992s; current full audit and exact
 repair planning are in progress. Item411 remains open.
+
+2026-09-22 — CODEX:474 API AND RUNTIME INVENTORY INTEGRATION
+English now inventories11338 API symbols (+10) and4492 runtime UI sources.
+The new organism modules, constructors, eventFilter and four registry contracts
+have26 source-bound API translation records in each of nine languages (234).
+Required eventFilter arguments are documented; the callable omission ratchet
+has not increased. Removing the three new callable rows and four new registry
+rows reproduces both previous inventory digests exactly.
+The Help search index includes the new entries. Organism registry prose and
+compartment names are extracted; route keys, URLs, assets and SL identifiers
+are excluded. Most new organism runtime prose is still untranslated; ER/IMC
+have explicit scientific-abbreviation reviews. Existing full locale catalog
+rejection, the nested-helper rollout and Make Masks reference remain open.
+Receipt: features/data/474_organism_api_and_workflows_2026-09-22.json.

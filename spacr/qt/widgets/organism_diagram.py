@@ -33,6 +33,11 @@ COMPARTMENT_SL = {
     "PM - integral": "SL0039", "PM - peripheral 1": "SL0039",
     "PM - peripheral 2": "SL0039", "tubulin cytoskeleton": "SL0090",
 }
+"""Toxoplasma hyperLOPIT display labels mapped to UniProt SL identifiers.
+
+Several labels share a location. The mitochondrial membrane label retains
+``SL0171`` as its identifier and uses the ``SL0173`` outline when drawn.
+"""
 APICOMPLEXAN_LABELS = {
     "Rhoptries": "SL0233", "Micronemes": "SL0163", "Apicoplast": "SL0018",
     "Inner membrane complex": "SL0362", "Mitochondrion": "SL0173",
@@ -40,12 +45,14 @@ APICOMPLEXAN_LABELS = {
     "Nucleus": "SL0191", "Nucleolus": "SL0188", "Cytosol": "SL0091",
     "Cell membrane": "SL0039", "Microtubule cytoskeleton": "SL0090",
 }
+"""Shared apicomplexan compartment labels mapped to UniProt SL identifiers."""
 YEAST_LABELS = {
     "Bud": "SL0027", "Bud neck": "SL0029", "Cell wall": "SL0041",
     "Cell membrane": "SL0039", "Nucleus": "SL0191", "Nucleolus": "SL0188",
     "Mitochondrion": "SL0173", "Golgi apparatus": "SL0132",
     "Endoplasmic reticulum": "SL0095", "Vacuole": "SL0272",
 }
+"""Generic budding-yeast compartment labels mapped to UniProt SL identifiers."""
 _SVG = "{http://www.w3.org/2000/svg}"
 _COMPARTMENT_COLOURS = {
     "SL0091": "#eee6d9", "SL0233": "#df96af", "SL0163": "#e2bc70",

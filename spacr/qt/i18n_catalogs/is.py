@@ -5868,7 +5868,6 @@ UI = {
     'Start on Home with Mask and configure the host, parasite and required compartment masks.': 'Byrjaðu á «Heim (Home)» með «Grímur (Mask)» og stilltu grímur fyrir hýsilfrumur, sníkjudýr og þau frumuhólf sem þarf.',
     'Open Measure and collect the compartment or staining measurements needed by your assay.': 'Opnaðu «Mæling (Measure)» og safnaðu mælingum á frumuhólfum eða litun sem prófið þarf.',
     'For a recruitment question, open Recruitment and inspect compartment intensity ratios.': 'Til að kanna söfnun sameinda í frumuhólf skaltu opna «Söfnunargreining (Recruitment)» og skoða styrkhlutföll milli frumuhólfa.',
-    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.': '«Invasion» og «Replication» lesa þau mældu frumuhólf sem hvort próf þarf; «Skellugreining (Plaque Assay)» notar hins vegar myndir eða grímur af skellum og getur hafist beint frá «Heim (Home)».',
     'An optical pooled screen': 'Sjónræn skimun í sameinuðu safni',
     'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.': 'Byrjaðu á «Heim (Home)» með «Jafna og sauma (Align & Stitch)» til að skoða rúmfræði myndflísa og vörpun hnita.',
     'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.': 'Farðu aftur á «Heim (Home)», opnaðu «Grímur (Mask)» og síðan «OPS»; tilgreindu upprunalegar myndir umferða og staðsetninga og samstillingu við svipgerðarmyndirnar.',
@@ -6032,6 +6031,9 @@ UI = {
     'The files': 'Skrárnar',
     'The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.': 'Síðasti liturinn á himninum — rósbleikt og magenta yfir möttu gulli, með plómufjólubláum blænum sem sjóndeildarhringurinn fær rétt fyrir myrkur.',
     'Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.': 'Undir yfirborðinu: sægrænt, myntugrænt og blágræni liturinn sem stendur síðast eftir þegar allir hlýir litir hafa verið gleyptir.',
+    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.': '«Invasion» og «Replication» lesa þau mældu frumuhólf sem hvort próf þarf; «Skellugreining (Plaque Assay)» notar hins vegar myndir eða grímur af skellum. Opnaðu þessi próf frá «Heim (Home)» → «Toxoplasma».',
+    'ER': 'ER',
+    'IMC': 'IMC',
 }
 
 MODULE_SUMMARIES = {
@@ -11984,7 +11986,6 @@ SOURCE_HASHES = {
     ('UI', 'Start on Home with Mask and configure the host, parasite and required compartment masks.'): 'd2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc',
     ('UI', 'Open Measure and collect the compartment or staining measurements needed by your assay.'): '19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9',
     ('UI', 'For a recruitment question, open Recruitment and inspect compartment intensity ratios.'): '6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c',
-    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.'): 'b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577',
     ('UI', 'An optical pooled screen'): '5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1',
     ('UI', 'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.'): 'bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace',
     ('UI', 'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.'): '5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41',
@@ -12188,4 +12189,7 @@ SOURCE_HASHES = {
     ('UI', 'The files'): 'ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479',
     ('UI', 'The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.'): '6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f',
     ('UI', 'Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.'): 'db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9',
+    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.'): 'e3e6143c30ca17a9172c32c744c2f855ce0c00155530e90aa56aa5f61deca7e9',
+    ('UI', 'ER'): '7a475a8b0a074fa8bd3bf54dc2a172de8c70f8ad78980010b9d8e9bc5a5b978f',
+    ('UI', 'IMC'): '9505081bb3d2567f6bf006a712c3422895ea88e2dff9e62a851c5eb873c37fde',
 }

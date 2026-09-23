@@ -926,8 +926,8 @@
     },
     "analyze_plaques": {
       "name": "Plaque Assay",
-      "home": "analyze_plaques",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "24_plaque",
       "inputs": [
@@ -942,8 +942,8 @@
     },
     "recruitment": {
       "name": "Recruitment",
-      "home": "recruitment",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "25_recruitment",
       "inputs": [
@@ -975,8 +975,8 @@
     },
     "invasion": {
       "name": "Invasion Assay",
-      "home": "invasion",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "26_invasion",
       "inputs": [
@@ -1008,8 +1008,8 @@
     },
     "replication": {
       "name": "Replication Assay",
-      "home": "replication",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "27_replication",
       "inputs": [
@@ -1625,6 +1625,48 @@
         "regression"
       ],
       "guidance": "Run explicitly selected regression settings and compare their diagnostics. Keep the input data and evaluation question fixed."
+    },
+    "toxoplasma": {
+      "name": "Toxoplasma",
+      "home": "toxoplasma",
+      "parent": null,
+      "api_module": "spacr.qt.screens.organism_screen",
+      "lesson": null,
+      "inputs": [
+        "organism_reference"
+      ],
+      "outputs": [
+        "organism_navigation"
+      ],
+      "guidance": "Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table."
+    },
+    "plasmodium": {
+      "name": "Plasmodium spp.",
+      "home": "plasmodium",
+      "parent": null,
+      "api_module": "spacr.qt.screens.organism_screen",
+      "lesson": null,
+      "inputs": [
+        "organism_reference"
+      ],
+      "outputs": [
+        "organism_navigation"
+      ],
+      "guidance": "Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
+    },
+    "candida": {
+      "name": "Candida spp.",
+      "home": "candida",
+      "parent": null,
+      "api_module": "spacr.qt.screens.organism_screen",
+      "lesson": null,
+      "inputs": [
+        "organism_reference"
+      ],
+      "outputs": [
+        "organism_navigation"
+      ],
+      "guidance": "Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result."
     }
   },
   "artifacts": {
@@ -1871,6 +1913,18 @@
       "location": "An exported .h5ad file containing measured features and object metadata.",
       "tables": [],
       "columns": []
+    },
+    "organism_reference": {
+      "title": "Bundled organism reference",
+      "location": "Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.",
+      "tables": [],
+      "columns": []
+    },
+    "organism_navigation": {
+      "title": "Organism guide and assay selection",
+      "location": "GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.",
+      "tables": [],
+      "columns": []
     }
   },
   "pathways": {
@@ -2018,7 +2072,7 @@
         "replication",
         "analyze_plaques"
       ],
-      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home."
+      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
     },
     "optical_screen": {
       "title": "An optical pooled screen",
@@ -2275,7 +2329,10 @@
         "agreement",
         "classify",
         "ml_analyze",
-        "parameter_sweep"
+        "parameter_sweep",
+        "toxoplasma",
+        "plasmodium",
+        "candida"
       ]
     },
     "80_image_analysis_pathways": {

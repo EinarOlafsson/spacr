@@ -29,7 +29,9 @@ The GUI groups its applications into four categories: *Core* for the
 segment-measure-classify pipeline, *Data* for getting images and tables in
 and running them at scale, *Tools* for the instruments you point at a
 project — hand mask correction, stitching, embeddings, gates, plots and
-quality control — and *Assays* for the parasite-specific readouts. The
+quality control — and *Assays* for the Toxoplasma, Plasmodium and Candida
+organism guides. The Toxoplasma guide opens four available assays; the
+other proposed analyses are marked Coming soon. The
 bands under "Applications and workflow" below are those categories, in that
 order, with the tiles each one holds.
 

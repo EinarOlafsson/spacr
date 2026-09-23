@@ -69,7 +69,8 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
     sources.update(panel_sources)
     assert len(sources) == (167 if language == "sv" else 166)
     for filename, expected in (("form-labels-a", 78), ("sign-in-status", 1),
-                               ("enhancement-and-scale", 10)):
+                               ("enhancement-and-scale", 10),
+                               ("organism-identities", 2)):
         document = json.loads((ROOT / "docs/i18n/reviewed/runtime" / language /
                                f"2026-09-22-{filename}.json").read_text())
         added = {record["source"] for record in document["records"]}
@@ -81,7 +82,7 @@ def _subsequent_review_sources(language: str, reviewed: dict[str, str]) -> set[s
             added.remove("Crop size")
         assert not added & sources
         sources.update(added)
-    assert len(sources) == (255 if language == "sv" else 254)
+    assert len(sources) == (257 if language == "sv" else 256)
     return sources
 
 
@@ -314,7 +315,7 @@ def test_swedish_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources - normalized_sources) == 648
     assert len(older_all_sources) == 653
     assert len(all_reviewed.keys() - subsequent_sources) == 664
-    assert len(all_reviewed) == 919  # Ten enhancement/scale sources added to 909.
+    assert len(all_reviewed) == 921  # ER and IMC added as exact abbreviations.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(
@@ -538,7 +539,7 @@ def test_french_reviewed_runtime_text_is_source_bound_and_gate_clean() -> None:
     assert len(older_all_sources) == 343
     assert len(all_reviewed.keys() - refresh_sources - subsequent_sources) == 354
     assert len(all_reviewed.keys() - subsequent_sources) == 660
-    assert len(all_reviewed) == 914  # Ten enhancement/scale sources added to 904.
+    assert len(all_reviewed) == 916  # ER and IMC added as exact abbreviations.
     for source, translated in all_reviewed.items():
         assert source in current_values
         assert not _translation_rejection_reasons(

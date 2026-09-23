@@ -390,8 +390,8 @@
     },
     "analyze_plaques": {
       "name": "Plaque Assay",
-      "home": "analyze_plaques",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "24_plaque",
       "inputs": [
@@ -406,8 +406,8 @@
     },
     "recruitment": {
       "name": "Recruitment",
-      "home": "recruitment",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "25_recruitment",
       "inputs": [
@@ -439,8 +439,8 @@
     },
     "invasion": {
       "name": "Invasion Assay",
-      "home": "invasion",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "26_invasion",
       "inputs": [
@@ -472,8 +472,8 @@
     },
     "replication": {
       "name": "Replication Assay",
-      "home": "replication",
-      "parent": null,
+      "home": "toxoplasma",
+      "parent": "toxoplasma",
       "api_module": "spacr.submodules",
       "lesson": "27_replication",
       "inputs": [
@@ -635,7 +635,7 @@
         "replication",
         "analyze_plaques"
       ],
-      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home."
+      "note": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma."
     },
     "import_images": {
       "title": "Import existing data",

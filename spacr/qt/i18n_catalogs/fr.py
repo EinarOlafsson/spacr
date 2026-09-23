@@ -6089,7 +6089,6 @@ UI = {
     'Start on Home with Mask and configure the host, parasite and required compartment masks.': 'Commencez dans «Accueil (Home)» avec «Masques (Mask)» et configurez les masques de l’hôte, du parasite et des compartiments nécessaires.',
     'Open Measure and collect the compartment or staining measurements needed by your assay.': 'Ouvrez «Mesure (Measure)» et recueillez les mesures de compartiments ou de marquage nécessaires à votre essai.',
     'For a recruitment question, open Recruitment and inspect compartment intensity ratios.': 'Pour une question de recrutement, ouvrez «Test de recrutement (Recruitment)» et examinez les rapports d’intensité entre compartiments.',
-    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.': '«Invasion» et «Replication» lisent les compartiments mesurés nécessaires à chaque essai ; «Test de plaques (Plaque Assay)» utilise plutôt des images ou des masques de plages et peut démarrer directement depuis «Accueil (Home)».',
     'An optical pooled screen': 'Un criblage optique en mélange',
     'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.': 'Commencez dans «Accueil (Home)» avec «Aligner et assembler (Align & Stitch)» pour examiner la géométrie des tuiles d’image et la correspondance des coordonnées.',
     'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.': 'Revenez dans «Accueil (Home)», ouvrez «Masques (Mask)», puis «OPS» ; fournissez les images originales des cycles et des sites, ainsi que leur alignement sur les images de phénotype.',
@@ -6233,6 +6232,9 @@ UI = {
     'Split touching spots': 'Séparer les points qui se touchent',
     'Unsharp mask': 'Masque flou',
     'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.': 'Redimensionne toute l’interface -- taille des commandes, espacement, icônes, figures et texte -- de 10 % à 200 %. Réduisez la valeur pour afficher davantage de contenu sur un petit écran ou un écran de faible résolution. Le changement s’applique immédiatement, puis une question vous permet de le conserver ; sans réponse, il est annulé automatiquement après 15 secondes. L’échelle de la police s’applique en plus : une GUI à 50 % avec une police à 200 % donne des commandes deux fois plus petites et un texte de taille habituelle. Ctrl+Alt+0 rétablit l’échelle de la GUI et celle de la police à 100 %, où que vous soyez.',
+    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.': '«Invasion» et «Replication» lisent les compartiments mesurés nécessaires à chaque essai ; «Test de plaques (Plaque Assay)» utilise plutôt des images ou des masques de plages. Ouvrez ces essais depuis «Accueil (Home)» → «Toxoplasma».',
+    'ER': 'ER',
+    'IMC': 'IMC',
 }
 
 MODULE_SUMMARIES = {
@@ -12406,7 +12408,6 @@ SOURCE_HASHES = {
     ('UI', 'Start on Home with Mask and configure the host, parasite and required compartment masks.'): 'd2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc',
     ('UI', 'Open Measure and collect the compartment or staining measurements needed by your assay.'): '19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9',
     ('UI', 'For a recruitment question, open Recruitment and inspect compartment intensity ratios.'): '6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c',
-    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.'): 'b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577',
     ('UI', 'An optical pooled screen'): '5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1',
     ('UI', 'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.'): 'bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace',
     ('UI', 'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.'): '5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41',
@@ -12590,4 +12591,7 @@ SOURCE_HASHES = {
     ('UI', 'Split touching spots'): '3f81f796ea719d086839bac0c3043051fa28978599bca62a360d3088f44e6843',
     ('UI', 'Unsharp mask'): 'd1041d04116cafd96c602625268d676850f5fd052aeabb87de0155d5d2510952',
     ('UI', 'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.'): 'ef27671f0e9e14db10cb2f2f3a7e5ae9e1ea384f9300d7543ab36a33536e3670',
+    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.'): 'e3e6143c30ca17a9172c32c744c2f855ce0c00155530e90aa56aa5f61deca7e9',
+    ('UI', 'ER'): '7a475a8b0a074fa8bd3bf54dc2a172de8c70f8ad78980010b9d8e9bc5a5b978f',
+    ('UI', 'IMC'): '9505081bb3d2567f6bf006a712c3422895ea88e2dff9e62a851c5eb873c37fde',
 }

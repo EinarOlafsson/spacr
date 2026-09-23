@@ -235,3 +235,12 @@ ORGANISMS = {
         ),
     },
 }
+"""Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.
+
+Each record supplies a display name, description, biology source URL, bundled
+diagram filename and diagram note. ``sections`` contains heading, prose and
+linked assay-key triples; ``links`` contains display-label and URL pairs.
+``modules`` contains route-key, title, description and icon-key tuples. A
+``None`` route denotes a planned assay whose tile cannot start an analysis.
+Display prose is translated at use; route keys, URLs and asset names stay fixed.
+"""

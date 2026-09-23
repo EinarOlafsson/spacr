@@ -197,9 +197,26 @@ def test_no_tile_destination_changed(generator):
                 f"the {key} tile no longer points where the running "
                 "application's Help button points")
         for key, pinned in ANCHORED_DESTINATIONS.items():
-            assert targets[key] == pinned, (
+            actual = targets.get(key)
+            if key in generator._fold_hosts():
+                assert key not in targets
+                assert pinned in _read(DOCS_FOLDS)
+                actual = api_docs_url(key)
+            assert actual == pinned, (
                 f"the {key} tile lost the entry-point anchor instruction "
                 "366 part 3 gave it and fell back to a shared module page")
+
+
+def test_svg_module_icons_preserve_solid_ink_and_transparency(generator, tmp_path, monkeypatch):
+    """Qt's float RGBA decoder uses 0..255, not normalized colour channels."""
+    source = tmp_path / "organism_plasmodium.svg"
+    source.write_text(
+        '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">'
+        '<circle cx="50" cy="50" r="25" fill="black"/></svg>')
+    monkeypatch.setattr(generator, "ICON_DIR", tmp_path)
+    icon = generator._app_icon("plasmodium", 100)
+    assert icon.getpixel((50, 50)) == (255, 255, 255, 255)
+    assert icon.getpixel((0, 0))[3] == 0
 
 
 def test_every_folded_module_is_reachable_under_its_host(generator):

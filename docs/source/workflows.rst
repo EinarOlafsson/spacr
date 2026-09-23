@@ -50,7 +50,7 @@ A parasite imaging assay
 
 Other routes for the appropriate question: :ref:`Invasion Assay <workflow-module-invasion>`, :ref:`Replication Assay <workflow-module-replication>`, :ref:`Plaque Assay <workflow-module-analyze_plaques>`.
 
-Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.
+Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.
 
 .. _workflow-optical_screen:
 
@@ -1335,7 +1335,7 @@ Plaque Assay
 
 Analyse plaque images or existing masks with the configured plaque model. This route need not pass through Measure; use the dedicated plaque example.
 
-**Open:** Home → Plaque Assay.
+**Open:** Toxoplasma → Plaque Assay.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -1364,7 +1364,7 @@ Recruitment
 
 Use compartment intensity measurements and matching host/pathogen identities to compute recruitment ratios.
 
-**Open:** Home → Recruitment.
+**Open:** Toxoplasma → Recruitment.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -1393,7 +1393,7 @@ Invasion Assay
 
 Use the required two-colour differential-staining measurements and stain-baseline controls to distinguish attachment from invasion.
 
-**Open:** Home → Invasion Assay.
+**Open:** Toxoplasma → Invasion Assay.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -1422,7 +1422,7 @@ Replication Assay
 
 Count parasites using explicit vacuole identity and compare condition distributions; host identity alone does not define a vacuole.
 
-**Open:** Home → Replication Assay.
+**Open:** Toxoplasma → Replication Assay.
 
 Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
 
@@ -2189,4 +2189,67 @@ Inputs and outputs below include conditional alternatives. The guidance and hand
 :doc:`API reference </api/spacr/parameter_sweep/index>`.
 
 `Module tutorial <tutorials/#lesson=73_parameter_sweep>`__.
+
+.. _workflow-module-toxoplasma:
+
+Toxoplasma
+~~~~~~~~~~
+
+Open the organism guide from Home, inspect the compartment diagram, then select Plaque Assay, Recruitment, Invasion Assay or Replication Assay. The four Coming soon tiles describe proposals and cannot run. The guide itself does not analyse a project or produce a measurement table.
+
+**Open:** Home → Toxoplasma.
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.
+
+**Outputs**
+
+* **Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.
+
+:doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
+
+.. _workflow-module-plasmodium:
+
+Plasmodium spp.
+~~~~~~~~~~~~~~~
+
+Open the organism guide from Home to read the planned malaria imaging workflows and inspect the shared apicomplexan diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.
+
+**Open:** Home → Plasmodium spp..
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.
+
+**Outputs**
+
+* **Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.
+
+:doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
+
+.. _workflow-module-candida:
+
+Candida spp.
+~~~~~~~~~~~~
+
+Open the organism guide from Home to read the planned fungal imaging workflows and inspect the generic budding-yeast diagram. All eight assay tiles are Coming soon; none starts an analysis or produces a result.
+
+**Open:** Home → Candida spp..
+
+Inputs and outputs below include conditional alternatives. The guidance and handoff notes say which route applies.
+
+**Inputs**
+
+* **Bundled organism reference** — Installed organism descriptions and SwissBioPics cell diagrams; no project input is required.
+
+**Outputs**
+
+* **Organism guide and assay selection** — GUI-only compartment highlights and navigation to available assays; no measurements or files are produced.
+
+:doc:`API reference </api/spacr/qt/screens/organism_screen/index>`.
 

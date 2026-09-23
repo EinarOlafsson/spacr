@@ -151,10 +151,10 @@
     },
     {
       "table": "ui",
-      "key": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.",
-      "source": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.",
-      "source_sha256": "b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577",
-      "translation": "«Invasion» und «Replication» lesen die jeweils benötigten vermessenen Kompartimente; «Plaque-Assay (Plaque Assay)» verwendet dagegen Plaquebilder oder Masken und kann direkt von «Startseite (Home)» aus beginnen."
+      "key": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.",
+      "source": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.",
+      "source_sha256": "e3e6143c30ca17a9172c32c744c2f855ce0c00155530e90aa56aa5f61deca7e9",
+      "translation": "«Invasion» und «Replication» lesen die jeweils benötigten vermessenen Kompartimente; «Plaque-Assay (Plaque Assay)» verwendet dagegen Plaquebilder oder Masken. Öffnen Sie diese Assays über «Startseite (Home)» → «Toxoplasma»."
     },
     {
       "table": "ui",
@@ -330,6 +330,18 @@
       "source": "Start on Home with {module}. Next shows the route; it does not run the analysis. Close the walkthrough whenever you are ready to work.",
       "source_sha256": "2794a01135ac131ecee5be183947790ff9accc5848c02503bc1de8587f69bda9",
       "translation": "Beginnen Sie auf «Startseite (Home)» mit {module}. «Weiter (Next)» zeigt den Ablauf und führt keine Analyse aus. Schließen Sie die Einführung, sobald Sie mit der Arbeit beginnen möchten."
+    }
+  ],
+  "superseded_records": [
+    {
+      "reason": "474 nests the available assays under the Toxoplasma Home page.",
+      "record": {
+        "table": "ui",
+        "key": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.",
+        "source": "Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.",
+        "source_sha256": "b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577",
+        "translation": "«Invasion» und «Replication» lesen die jeweils benötigten vermessenen Kompartimente; «Plaque-Assay (Plaque Assay)» verwendet dagegen Plaquebilder oder Masken und kann direkt von «Startseite (Home)» aus beginnen."
+      }
     }
   ]
 }

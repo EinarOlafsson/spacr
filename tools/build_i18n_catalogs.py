@@ -265,6 +265,7 @@ _FILE_DIALOG_METHODS = {
 _INPUT_DIALOG_METHODS = {"getText", "getInt", "getDouble", "getItem"}
 
 _IDENTITY_TEXT = {
+    "ER", "IMC",
     "3D", "API", "CPU", "CUDA", "CV", "DNA", "EC50", "Eps", "FOV", "GPU",
     "CSV", "Cellpose-SAM", "DINOCell", "FlowView", "JSON", "MIP", "ML",
     "NaN", "PDF", "SAMCell",
@@ -3582,6 +3583,10 @@ def _indirect_runtime_ui_sources() -> set[str]:
     )
     from spacr.qt.preview_registry import PREVIEWS
     from spacr.qt import cpu_modes, organelle_modes
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.widgets.organism_diagram import (
+        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
+    )
     from spacr.qt.screens.annotate import AnnotateScreen
     from spacr.qt.screens.app_screen import DIMENSION_TOGGLES
     from spacr.qt.screens.batch import ON_ERROR_LABELS
@@ -3658,6 +3663,16 @@ def _indirect_runtime_ui_sources() -> set[str]:
         found.update(detector_modes.guidance(mode)
                      for mode in detector_modes.MODE_LABELS)
     found.update(cpu_modes.GUIDANCE.values())
+    for organism in ORGANISMS.values():
+        found.update(organism[field]
+                     for field in ("name", "description", "diagram_note"))
+        for heading, prose, _routes in organism["sections"]:
+            found.update((heading, prose))
+        for _route, title, description, _icon in organism["modules"]:
+            found.update((title, description))
+        found.update(label for label, _url in organism["links"])
+    for compartment_labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
+        found.update(compartment_labels)
     workflow_path = ROOT / "spacr" / "resources" / "module_workflows.json"
     workflow = json.loads(workflow_path.read_text(encoding="utf-8"))
     for route in workflow["pathways"].values():

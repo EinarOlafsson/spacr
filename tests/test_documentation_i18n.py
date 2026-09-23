@@ -187,7 +187,8 @@ TOOLS = ROOT / "tools"
 # Exact added/removed keys: features/data/411_api_manifest_refresh_2026-09-22.json.
 # English is refreshed; the locale inventory and source-hash assertions below
 # remain strict and still report the unfinished translated catalog rebuild.
-DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_328
+# 474: ten organism API entries, translated and source-bound in all nine locales.
+DOCUMENTATION_API_SYMBOL_COUNT_RATCHET = 11_338
 PUBLIC_API_FORBIDDEN_TONE_PHRASES = (
     "NOTHING IS LOST IN THE MOVE",
     "THE FIT IS A MEDIAN FIT",

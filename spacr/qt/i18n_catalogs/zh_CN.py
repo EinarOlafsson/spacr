@@ -6112,7 +6112,6 @@ UI = {
     'Start on Home with Mask and configure the host, parasite and required compartment masks.': '从“主页 (Home)”打开“掩膜 (Mask)”，配置宿主、寄生虫及所需细胞区室的掩膜。',
     'Open Measure and collect the compartment or staining measurements needed by your assay.': '打开“测量 (Measure)”，获取实验所需的区室或染色测量数据。',
     'For a recruitment question, open Recruitment and inspect compartment intensity ratios.': '若要研究分子招募，打开“募集分析 (Recruitment)”，检查区室间的强度比值。',
-    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.': '“Invasion”和“Replication”读取各自所需的区室测量数据；“空斑分析 (Plaque Assay)”则使用噬斑图像或掩膜，可以直接从“主页 (Home)”开始。',
     'An optical pooled screen': '光学混合筛选',
     'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.': '从“主页 (Home)”打开“对齐与拼接 (Align & Stitch)”，检查图像块的几何关系和坐标映射。',
     'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.': '返回“主页 (Home)”，打开“掩膜 (Mask)”，然后打开“OPS”；提供各轮次和位置的原始图像，以及与表型图像的配准信息。',
@@ -6252,6 +6251,9 @@ UI = {
     'Split touching spots': '分离相互接触的斑点',
     'Unsharp mask': '反锐化掩模',
     'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.': '将界面的所有部分 -- 控件大小、间距、图标、图表和文字 -- 缩放至 10 % 到 200 %。调低此值可在小型或低分辨率显示器上显示更多内容。更改会立即生效，随后会询问是否保留；若未作答，15 秒后将自动还原。字体缩放会在此基础上叠加：GUI 为 50 %、字体为 200 % 时，控件缩小为一半，而文字保持通常的大小。在任意位置按 Ctrl+Alt+0 均可将 GUI 缩放和字体缩放重置为 100 %。',
+    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.': '“Invasion”和“Replication”读取各自所需的区室测量数据；“空斑分析 (Plaque Assay)”则使用空斑图像或掩膜。请从“主页 (Home)” → “Toxoplasma”打开这些分析。',
+    'ER': 'ER',
+    'IMC': 'IMC',
 }
 
 MODULE_SUMMARIES = {
@@ -12447,7 +12449,6 @@ SOURCE_HASHES = {
     ('UI', 'Start on Home with Mask and configure the host, parasite and required compartment masks.'): 'd2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc',
     ('UI', 'Open Measure and collect the compartment or staining measurements needed by your assay.'): '19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9',
     ('UI', 'For a recruitment question, open Recruitment and inspect compartment intensity ratios.'): '6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c',
-    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.'): 'b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577',
     ('UI', 'An optical pooled screen'): '5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1',
     ('UI', 'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.'): 'bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace',
     ('UI', 'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.'): '5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41',
@@ -12627,4 +12628,7 @@ SOURCE_HASHES = {
     ('UI', 'Split touching spots'): '3f81f796ea719d086839bac0c3043051fa28978599bca62a360d3088f44e6843',
     ('UI', 'Unsharp mask'): 'd1041d04116cafd96c602625268d676850f5fd052aeabb87de0155d5d2510952',
     ('UI', 'Scale every part of the interface -- widget sizes, spacing, icons, figures and text -- from 10 % to 200 %. Lower it to fit more on a small or low-resolution screen. It applies straight away and then asks whether to keep it; with no answer it goes back by itself after 15 seconds. Font scale applies on top: 50 % GUI at 200 % font gives half-size controls with text the usual size. Ctrl+Alt+0 puts GUI scale and font scale back to 100 % from anywhere.'): 'ef27671f0e9e14db10cb2f2f3a7e5ae9e1ea384f9300d7543ab36a33536e3670',
+    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.'): 'e3e6143c30ca17a9172c32c744c2f855ce0c00155530e90aa56aa5f61deca7e9',
+    ('UI', 'ER'): '7a475a8b0a074fa8bd3bf54dc2a172de8c70f8ad78980010b9d8e9bc5a5b978f',
+    ('UI', 'IMC'): '9505081bb3d2567f6bf006a712c3422895ea88e2dff9e62a851c5eb873c37fde',
 }

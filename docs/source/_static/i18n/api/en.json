@@ -46880,6 +46880,22 @@
       "source_sha256": "83af67250fc283d424fb8860cef9ea79211008fd11bab0c9f39f9a1751b73972",
       "text": "Detect objects in ``image`` the way organelle detection would.\n\n:param image: a 2-D field or region. Read, never modified.\n:param mode: one of :func:`modes`.\n:param params: the parameters the method reads.\n:param min_area: the smallest object to keep, in pixels.\n:param model: a loaded U-Net, for ``unet``; loaded from\n    :attr:`MethodParams.unet_model_path` when not given.\n:returns: a 2-D label image the shape of ``image``.\n:raises KeyError: for a mode this module does not add.\n:raises ValueError: from the engine, for a parameter it refuses -- an\n    unknown ridge filter, a U-Net path that is not a file."
     },
+    "spacr.qt.organisms": {
+      "source_blocks_sha256": [
+        "a8dc2356e464816f85a5901d380bfa8bd08f8896443ac5112f0a72f3cf51f71c",
+        "8f77268eb859f3f8375e10a5f25604840d70bce646e1669469a120f814e7826f"
+      ],
+      "source_sha256": "769dbf82b7220e98a2723b4ab963d1c0b7f40f0a4ed098430e19cea1ab1ca916",
+      "text": "Sourced organism introductions and image-analysis module proposals.\n\nThe assay keys are existing pipeline identifiers. A proposal has no route,\nso the organism pages cannot accidentally run an unimplemented analysis.\nArtwork provenance, licences and checksums ship in organism_sources.json."
+    },
+    "spacr.qt.organisms.ORGANISMS": {
+      "source_blocks_sha256": [
+        "3f1f798b2bae6ef0850cd934ac947283db707d42feeb49ed9e060a042e336c6c",
+        "dd7b9d6a31db7cb42c37bf63b49de7c7c79126ba56c50ff355e68412756e166b"
+      ],
+      "source_sha256": "d6261fca301df212e91acaabcd6a9f4c13b51e9c067693d30994b0769f591f44",
+      "text": "Organism guides keyed by ``toxoplasma``, ``plasmodium`` and ``candida``.\n\nEach record supplies a display name, description, biology source URL, bundled\ndiagram filename and diagram note. ``sections`` contains heading, prose and\nlinked assay-key triples; ``links`` contains display-label and URL pairs.\n``modules`` contains route-key, title, description and icon-key tuples. A\n``None`` route denotes a planned assay whose tile cannot start an analysis.\nDisplay prose is translated at use; route keys, URLs and asset names stay fixed."
+    },
     "spacr.qt.ortho_view": {
       "source_blocks_sha256": [
         "9002c454672a4e0768085406ccef866b571a12f0dc09958f02638bd98643a2f7",
@@ -58364,6 +58380,35 @@
       ],
       "source_sha256": "7209e7cb75f0027d79e4acb3c91d1a51ede22dddde82de76e3859683c6205f1a",
       "text": "Collapse a listing to one row per model family, newest version first.\n\nThe zoo used to show one row per checkpoint, so a model with three\nversions pushed two unrelated models off the screen. Grouping makes the\nrow a MODEL and the version a choice within it."
+    },
+    "spacr.qt.screens.organism_screen": {
+      "source_blocks_sha256": [
+        "3c6101c04301a70b8de3728716a4d8eb57c83b36cd2a4bb3da4863a0d7321ffd",
+        "7b012cf225ef5ff0e50508868b9e9c09ccc7b680c27610fd78e627f61e1947ce"
+      ],
+      "source_sha256": "d4ddcd30c221baadedb4f8be49084058ac7b0ebb28a373604e955e8a26069819",
+      "text": "Sourced organism guides, interactive cell diagrams and assay navigation.\n\nThe information and module panes scroll independently and share a horizontal\nsplitter. Existing assays keep their registry keys; proposals cannot run."
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen": {
+      "source_blocks_sha256": [
+        "95af587044562a3240aef6451f9d30523ae88e7482d597fd99a3d7fd9e950b7d",
+        "23ba0417d3adac4a8e6c803e509727bea3cd53cd4569ce51691059dc6e964541",
+        "f9a13791439ade81a71df202d56b3583901bbef6c8e151a30919a32daa24298e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "8c653b603dcddb92daa413208ee239f258658f68bdb6e6735d6b0c322f81ab49"
+      ],
+      "source_sha256": "727476824306a130836c8a825163ad1e2e05e6e53958285b4d760ad71f8a97d4",
+      "text": "Show one organism and its existing or proposed image-analysis modules.\n\n:param app_key: ``toxoplasma``, ``plasmodium`` or ``candida``.\n:param host: optional main window receiving module navigation requests.\n:param parent: owning Qt widget.\nBuild the independently scrollable introduction and Home tile grid."
+    },
+    "spacr.qt.screens.organism_screen.OrganismScreen.eventFilter": {
+      "source_blocks_sha256": [
+        "4484e671368801e6ae9e34c099f48dc74b1635969b711cd6efadde79fe8f6393",
+        "a11689abae25680d93113298b61ce9f145ba5a46834a5d713413d2092a8eeb95",
+        "947945006f1035cc0609483dcf8863d5237265d4d24dc2335fdbc524d4d51729",
+        "57ec1ce7f7b8234fe40368bbcd0517d93393d4f70fdf1bd47fe0fbf01aa9ef30"
+      ],
+      "source_sha256": "6bca4c89af480f2e5bf25139b8871c487330a36d170e934559093ec92886ef53",
+      "text": "Reflow after viewport resize, including vertical scrollbar changes.\n\n:param watched: Qt object that received the event.\n:param event: Qt event to inspect before delegating to the base filter.\n:returns: the base event filter's result."
     },
     "spacr.qt.screens.outliers": {
       "source_blocks_sha256": [
@@ -85923,6 +85968,47 @@
       ],
       "source_sha256": "1e64fc4198624eccb8c0e25af3d1a4bd56cf8a61accd51a601667f847001b2cf",
       "text": "One cell's stored value. ``KeyError``-free: absent is ``None``."
+    },
+    "spacr.qt.widgets.organism_diagram": {
+      "source_blocks_sha256": [
+        "76263f7cdb6dde91651e4a9b3dfb65eebf528e3833b91652325267a7ac23b41f",
+        "73a00965ae22aaea7121b31db7eaa2e6f720527bec004fecee4af238a944121c"
+      ],
+      "source_sha256": "e9dee4dfe2f5013acc8f6c2bba1802f979320ee75c1112dce905a1b612ba6d50",
+      "text": "Offline SwissBioPics cells with selectable UniProt compartment labels.\n\nThe Toxoplasma hyperLOPIT-to-SL mapping follows Einar Olafsson's Starplast\n``celldiagram.py`` (MIT, revision 53703bafdf0604576a05b589400051a6b09e62ea).\nArtwork is by Philippe Le Mercier, SIB, CC BY 4.0; source records accompany\nthe SVGs. Only the rendered copy loses hidden metadata and its credit logo;\nthe original asset and visible attribution are retained. No PyQt6 import,\nnetwork request or measured localization data is involved."
+    },
+    "spacr.qt.widgets.organism_diagram.APICOMPLEXAN_LABELS": {
+      "source_blocks_sha256": [
+        "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341"
+      ],
+      "source_sha256": "f32696165531a35f2bf3bc37a6a27701b8f0b687a57b15efe4700816318b7341",
+      "text": "Shared apicomplexan compartment labels mapped to UniProt SL identifiers."
+    },
+    "spacr.qt.widgets.organism_diagram.COMPARTMENT_SL": {
+      "source_blocks_sha256": [
+        "7f032a13f7701d3e4e3cf5f45834164bcd97a5996aed8a67d9e63cd7d156b063",
+        "bf7a0b9b324231a32378d073c3ce030fdad573e6e7804e12a0e4f7ee94b30638"
+      ],
+      "source_sha256": "73c1554655fd3d72d268c318ffceee3bbca24d093546eebbc53d26e0ea9b84ec",
+      "text": "Toxoplasma hyperLOPIT display labels mapped to UniProt SL identifiers.\n\nSeveral labels share a location. The mitochondrial membrane label retains\n``SL0171`` as its identifier and uses the ``SL0173`` outline when drawn."
+    },
+    "spacr.qt.widgets.organism_diagram.OrganismDiagram": {
+      "source_blocks_sha256": [
+        "b05219c89571a758e65ce0ad00e307710ed0bc462df015215f24da94ab55a9e6",
+        "30293adf2dc0c2c90033a4a22a42bbb9c477a31bdb83ef5ed73fd5be3b7659f5",
+        "09d4ce4a4b3b1821c762cdfdb525d7e9bd633f7d01c2cf019cffb36c80f4927e",
+        "ce9a683d48e529805b260da7efe52c380e2e22a35a6e7d3559ead45c5992bc4f",
+        "6b30f038695328087e443a2fd7a07678d6eaef29e79dfcfe1e60c559cba21697"
+      ],
+      "source_sha256": "bbfb62063d8720234583542fd81ca4113e3a60544eaead1498cdcaed4a6ddb36",
+      "text": "A cell illustration and keyboard-accessible compartment selector.\n\n:param app_key: organism key; only Toxoplasma uses hyperLOPIT labels.\n:param path: bundled SVG path; no external resource is fetched.\n:param parent: owning Qt widget.\nBuild the illustration, label selector and shared-shape caption."
+    },
+    "spacr.qt.widgets.organism_diagram.YEAST_LABELS": {
+      "source_blocks_sha256": [
+        "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a"
+      ],
+      "source_sha256": "b67c3179d03df095c53c366af73aff8af64e6edbeef9cec6493244b5098fd18a",
+      "text": "Generic budding-yeast compartment labels mapped to UniProt SL identifiers."
     },
     "spacr.qt.widgets.outlier_model": {
       "source_blocks_sha256": [

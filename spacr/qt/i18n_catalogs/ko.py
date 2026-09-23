@@ -5947,7 +5947,6 @@ UI = {
     'Start on Home with Mask and configure the host, parasite and required compartment masks.': '“홈 (Home)”에서 “마스크 (Mask)”를 열고 숙주, 기생충 및 필요한 세포 구획의 마스크를 설정하세요.',
     'Open Measure and collect the compartment or staining measurements needed by your assay.': '“측정 (Measure)”를 열어 분석에 필요한 구획 또는 염색 측정값을 수집하세요.',
     'For a recruitment question, open Recruitment and inspect compartment intensity ratios.': '분자 모집을 분석하려면 “리크루트먼트 분석 (Recruitment)”를 열고 구획 간 강도 비율을 살펴보세요.',
-    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.': '“Invasion”과 “Replication”은 각각 필요한 측정된 구획을 읽습니다. “플라크 분석 (Plaque Assay)”는 플라크 이미지나 마스크를 사용하므로 “홈 (Home)”에서 바로 시작할 수 있습니다.',
     'An optical pooled screen': '광학 풀링 스크리닝',
     'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.': '“홈 (Home)”에서 “정렬 및 스티칭 (Align & Stitch)”를 열어 이미지 타일의 기하 구조와 좌표 매핑을 살펴보세요.',
     'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.': '“홈 (Home)”으로 돌아가 “마스크 (Mask)”를 연 다음 “OPS”를 여세요. 주기 및 위치별 원본 이미지와 표현형 이미지에 대한 정합 정보를 제공하세요.',
@@ -6108,6 +6107,9 @@ UI = {
     'The files': '파일',
     'The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.': '하늘에 마지막으로 남은 색입니다. 차분한 금빛 위의 장밋빛과 마젠타, 그리고 어두워지기 직전 지평선이 띠는 자두빛입니다.',
     'Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.': '수면 아래의 바다색과 민트색, 그리고 따뜻한 색이 모두 흡수되고 마지막으로 남는 청록색입니다.',
+    'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.': '“Invasion”과 “Replication”은 각각 필요한 측정된 구획을 읽습니다. “플라크 분석 (Plaque Assay)”는 플라크 이미지나 마스크를 사용합니다. “홈 (Home)” → “Toxoplasma”에서 이 분석들을 여세요.',
+    'ER': 'ER',
+    'IMC': 'IMC',
 }
 
 MODULE_SUMMARIES = {
@@ -12139,7 +12141,6 @@ SOURCE_HASHES = {
     ('UI', 'Start on Home with Mask and configure the host, parasite and required compartment masks.'): 'd2a42bdd4ecb0e2f229d01461484d8030b7d72eda846f89b80d4e1509e73cccc',
     ('UI', 'Open Measure and collect the compartment or staining measurements needed by your assay.'): '19238af3370e7fe0e4b33ab9928bd27001123b9524de94be8221b19d19f234c9',
     ('UI', 'For a recruitment question, open Recruitment and inspect compartment intensity ratios.'): '6891d256eaf8ca741b8d2b2874862d51743e5efb0c9110019a06d874500ad57c',
-    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks and may start directly from Home.'): 'b66a77bb28d299208639606479870f2f6d1c37a4ed6f89f8e32326c60762d577',
     ('UI', 'An optical pooled screen'): '5839e5ea3ac4b38b22189727456140bbf8cc364060b0bb329b312639f208f3f1',
     ('UI', 'Start on Home with Align & Stitch to inspect tile geometry and coordinate mapping.'): 'bbca0c24cce71e17b0aa650bab21cd6381a9b76c7cb2081f2a1213e166c5cace',
     ('UI', 'Return Home, open Mask and then OPS; supply original cycle/site images and phenotype alignment.'): '5d85e4176d576068b090288a8f513916e45c005c819766a79dec3c5edc432a41',
@@ -12340,4 +12341,7 @@ SOURCE_HASHES = {
     ('UI', 'The files'): 'ad110d7e4a316c0571044afa95d2aaac8bc30fb4555ad5a5a7926999778d5479',
     ('UI', 'The last colour in the sky — rose and magenta over dusty gold, with the plum the horizon goes just before dark.'): '6d9ba2d1c431df1340986ea4498f6c1e37074263b70061aa038865a38fb08e1f',
     ('UI', 'Under the surface: sea green, mint, and the teal that is the last colour left when everything warm has been absorbed.'): 'db02b7bdfec0b4000ec231aa6d8e64aba5d7fd96830a16521bbf46995a6e56d9',
+    ('UI', 'Invasion and Replication read their required measured compartments; Plaque Assay instead takes plaque images or masks. Open these assays from Home → Toxoplasma.'): 'e3e6143c30ca17a9172c32c744c2f855ce0c00155530e90aa56aa5f61deca7e9',
+    ('UI', 'ER'): '7a475a8b0a074fa8bd3bf54dc2a172de8c70f8ad78980010b9d8e9bc5a5b978f',
+    ('UI', 'IMC'): '9505081bb3d2567f6bf006a712c3422895ea88e2dff9e62a851c5eb873c37fde',
 }

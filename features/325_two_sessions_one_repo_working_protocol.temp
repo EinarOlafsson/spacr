@@ -10933,3 +10933,25 @@ Final validation:159 additional existing magnifier/help checks pass,343 total
 distinct checks. This source/test claim is released with the commit.
 Also read the new OPS handoff6c5984274: verified no live driver and local
 run.log ends at B1 start. The idle observer is live, GPU30-35%, so no restart.
+2026-09-22 — CODEX:474 API /472 MAP /README INTEGRATION VALIDATED
+Previous144-caption batch is pushed as2bdb223fb. The organism integration
+now covers all ten added English API symbols with234 source-bound translated
+blocks (26 per language), plus18 abbreviation reviews and nine updated
+pathway notes. English inventories11338 API symbols and4492 UI sources;
+ORGANISMS prose and compartment labels are extracted, excluding SL IDs,
+routes, URLs and filenames. Most new organism runtime prose is still owed.
+Map remains spacr/resources/module_workflows.json:74 modules,37 artifacts,
+nine pathways; lesson79 now76 scenes. Four assays open under Toxoplasma;
+three guide pages have GUI-only outputs and proposals remain unavailable.
+English and nine README grids plus API landing pages now match Home. Their
+SVG tile renderer preserves Qt's0..255 alpha; all three tiles were inspected.
+164 source/contract checks and71 README checks pass across focused runs.
+Sphinx -W -E passed377.47s; the post-grid -W build also passed. Actual built
+HTML checks all ten new anchors,74 workflow descriptions across64 API pages,
+nine pathway anchors, three Home tiles and four retained assay API links.
+Receipt:features/data/474_organism_api_and_workflows_2026-09-22.json.
+Full locale browser acceptance and tutorial recordings are NOT complete.
+Read origin's99e4b9717/7234c9eb2/233b5fa47 CPU corrections while finishing
+this batch. Their changed API/runtime sources are the next reconciliation;
+the Make Masks reference will use those fixes, not the earlier mismatches.
+No GPU or NAS work; incoming implementation files have not been edited.

@@ -351,6 +351,40 @@ def test_form_labels_and_detector_help_enter_the_runtime_source_inventory():
         assert captured == expected
 
 
+def test_organism_registry_prose_is_inventoried_without_location_ids():
+    """Dynamic organism prose is translatable; URLs, routes and SL IDs are not."""
+    sys.path.insert(0, str(ROOT / "tools"))
+    try:
+        builder = import_module("build_i18n_catalogs")
+    finally:
+        sys.path.pop(0)
+    from spacr.qt.i18n import _ROWS, _TERM_ROWS
+    from spacr.qt.organisms import ORGANISMS
+    from spacr.qt.widgets.organism_diagram import (
+        APICOMPLEXAN_LABELS, COMPARTMENT_SL, YEAST_LABELS,
+    )
+
+    discovered = set(builder.extract_static_ui_sources())
+    known = set(builder.canonical_sources()["ui"]) | set(_ROWS) | set(_TERM_ROWS)
+    for organism in ORGANISMS.values():
+        assert {organism["name"], organism["description"],
+                organism["diagram_note"]} <= known
+        assert organism["source"] not in discovered
+        assert organism["diagram"] not in discovered
+        for heading, prose, _routes in organism["sections"]:
+            assert {heading, prose} <= known
+        for _key, title, description, _icon in organism["modules"]:
+            assert {title, description} <= known
+        for label, url in organism["links"]:
+            assert label in known
+            assert url not in discovered
+    for labels in (COMPARTMENT_SL, APICOMPLEXAN_LABELS, YEAST_LABELS):
+        assert set(labels) <= known
+        assert not set(labels.values()) & discovered
+    assert {"Widen text", "Restore columns", "Cell compartments",
+            "All compartments", "Select a label to highlight its compartment."} <= known
+
+
 def test_every_set_translatable_text_call_has_static_catalog_sources():
     """Dynamic chrome may not hide an English template behind a variable."""
     tools_dir = str(ROOT / "tools")

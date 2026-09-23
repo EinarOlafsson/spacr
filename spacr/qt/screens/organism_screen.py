@@ -236,7 +236,12 @@ class OrganismScreen(QWidget):
         self._grid.setRowStretch((len(self._tiles) - 1) // columns + 1, 1)
 
     def eventFilter(self, watched, event) -> bool:
-        """Reflow after viewport resize, including vertical scrollbar changes."""
+        """Reflow after viewport resize, including vertical scrollbar changes.
+
+        :param watched: Qt object that received the event.
+        :param event: Qt event to inspect before delegating to the base filter.
+        :returns: the base event filter's result.
+        """
         if event.type() == QEvent.Resize and watched is self._module_scroll.viewport():
             QTimer.singleShot(0, self._reflow)
         return super().eventFilter(watched, event)
